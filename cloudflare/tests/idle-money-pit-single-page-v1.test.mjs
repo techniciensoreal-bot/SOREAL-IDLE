@@ -12,7 +12,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
 // La page texte a disparu de ui.js ; celle à image reste dans le module méta, seule page Money Pit.
-for (const banni of ["rendreMoney_", "moneyEtat_", "MONEY PIT + DAILY SPIN", "Le puits et la roue", "data-v49-action=\"pit\"", "if(page==='moneyPit')"]) {
+for (const banni of ["rendreMoney_", "moneyEtat_", "MONEY PIT + DAILY SPIN", "Le trou et la roue", "data-v49-action=\"pit\"", "if(page==='moneyPit')"]) {
   assert.ok(!ui.includes(banni), "ui.js ne doit plus contenir : " + banni);
 }
 assert.ok(meta.includes('<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg"'), "la page à image est conservée");

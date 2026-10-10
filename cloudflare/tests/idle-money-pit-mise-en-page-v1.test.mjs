@@ -12,7 +12,7 @@ const ctx = { bosses: 100 };
 const H3 = 3600000;
 const T0 = Date.parse("2026-12-10T12:00:00+01:00");
 
-// État : Money Pit et roue découverts, 45 jets dans le puits, 3 tours de roue, 2 récupérations du calendrier.
+// État : Money Pit et roue découverts, 45 jets dans le trou, 3 tours de roue, 2 récupérations du calendrier.
 let e = normalizeIdleNguState({}, ctx, T0);
 e.systems.moneyPit.unlocked = true;
 e.currencies.gold = 1e30;
@@ -29,7 +29,7 @@ for (let i = 0; i < 3; i += 1) {
 const T = T0 + 400 * H3;
 e = applyIdleNguAction(e, { action: "loginCalendar" }, ctx, T).state;
 const snap = idleNguSnapshot(e, ctx, T);
-assert.equal(snap.systems.find((s) => s.id === "moneyPit").state.data.history.length, 45, "l'historique du puits garde plus de 20 lignes (jusqu'à 100)");
+assert.equal(snap.systems.find((s) => s.id === "moneyPit").state.data.history.length, 45, "l'historique du trou garde plus de 20 lignes (jusqu'à 100)");
 assert.ok(snap.loginCalendar.totalAp > 0 && snap.loginCalendar.totalReclames >= 1, "total d'AP du calendrier exposé");
 
 // Rendu réel de la page.
@@ -66,7 +66,7 @@ const page = api.pageSystemeMetaIdleV130_({ systemes: snap }, "moneyPit", "Money
 // 1. Ordre : boutons -> Ton prix -> cadre Money Pit -> cadre roue -> calendrier.
 const i = (t) => page.indexOf(t);
 assert.ok(i("Balance ton argent") > 0 && i("soreal-idle-money-actions-v206") < i("TON PRIX"), "« Ton prix » juste sous les boutons");
-assert.ok(i("TON PRIX") < i('data-mp-cadre="pit"') && i('data-mp-cadre="pit"') < i('data-mp-cadre="roue"') && i('data-mp-cadre="roue"') < i("Récompenses de connexion"), "ordre : prix, cadre du puits, cadre de la roue, puis le calendrier de connexion tout en bas (Norman, 2026-10-10)");
+assert.ok(i("TON PRIX") < i('data-mp-cadre="pit"') && i('data-mp-cadre="pit"') < i('data-mp-cadre="roue"') && i('data-mp-cadre="roue"') < i("Récompenses de connexion"), "ordre : prix, cadre du trou, cadre de la roue, puis le calendrier de connexion tout en bas (Norman, 2026-10-10)");
 assert.ok(!page.includes("RÉCOMPENSES OBTENUES"), "plus de liste mélangée");
 
 // 2. Total d'AP obtenus depuis le début, affiché dans le bonus des jours cumulés.
@@ -81,7 +81,7 @@ assert.equal((pit.match(/<tbody data-mp-page=/g) || []).length, 3, "45 lignes : 
 assert.equal((pit.match(/<tr><td>/g) || []).length, 45);
 assert.equal((roue.match(/<tbody data-mp-page=/g) || []).length, 1, "3 tours : une seule page");
 assert.equal((roue.match(/<tr><td>/g) || []).length, 3);
-assert.ok(pit.includes("Palier") && !pit.includes("Tier ") , "le cadre du puits n'a que des lignes du puits");
+assert.ok(pit.includes("Palier") && !pit.includes("Tier ") , "le cadre du trou n'a que des lignes du trou");
 assert.ok(roue.includes("Tier ") && !roue.includes("Palier "), "le cadre de la roue n'a que des lignes de la roue");
 assert.equal((pit.match(/data-mp-page="0"( hidden)?>/g) || [])[0], 'data-mp-page="0">', "page 1 visible");
 assert.ok(pit.includes('data-mp-page="1" hidden') && pit.includes('data-mp-page="2" hidden'), "pages plus anciennes cachées");

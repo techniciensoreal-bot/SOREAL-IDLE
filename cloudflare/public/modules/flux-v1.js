@@ -84,7 +84,7 @@
     return String(n);
   }
   /*
-   * Récompense d'un jet du puits ou de la roue, dite avec les mots du lecteur : EXP, AP, statistiques d'Aventure, niveaux Wandoos, graines… Une récompense qui se rapporte à un système que le lecteur ne connaît pas
+   * Récompense d'un jet du trou ou de la roue, dite avec les mots du lecteur : EXP, AP, statistiques d'Aventure, niveaux Wandoos, graines… Une récompense qui se rapporte à un système que le lecteur ne connaît pas
    * encore devient « une récompense » : jamais un nom de système verrouillé (règle n°2).
    */
   function recompenseTexte(r,boost,k){
@@ -150,11 +150,11 @@
         const visible=Boolean(k.sorts&&k.sorts[rang]);
         return {icone:'🩸',texte:nom+verbe(' as',' a')+' lancé '+(visible&&nomSort?'le sort '+nomSort:'un sort de Magie du sang')};
       }
-      /* Puits sans fond et roue (Norman, 2026-10-04) : annoncés aux lecteurs qui connaissent le Money Pit ; chaque récompense n'est nommée que si le lecteur connaît le système qui s'y rapporte (anti-spoil). */
+      /* Trou sans fond et roue (Norman, 2026-10-04) : annoncés aux lecteurs qui connaissent le Money Pit ; chaque récompense n'est nommée que si le lecteur connaît le système qui s'y rapporte (anti-spoil). */
       case 'puits':{
         if(!k.menus.moneyPit)return null;
         const r=recompenseTexte(d.recompense,d.boost,k);
-        return {icone:'🕳️',texte:nom+verbe(' as',' a')+' jeté '+nombreCourt(d.cout)+' d’or dans le puits'+(r?' : '+r:'')};
+        return {icone:'🕳️',texte:nom+verbe(' as',' a')+' jeté '+nombreCourt(d.cout)+' d’or dans le trou'+(r?' : '+r:'')};
       }
       case 'roue':{
         if(!k.menus.moneyPit)return null;
@@ -291,7 +291,7 @@
     spendExp:['🛒','la boutique EXP',['{n} vide son portefeuille à la boutique EXP','{n} fait les soldes de la boutique EXP','{n} regarde les prix de la boutique EXP en soupirant']],
     sellout:['🛍️','la Boutique AP',['{n} flâne à la Boutique AP','{n} se demande si ça se négocie, à la Boutique AP','{n} dépense ses AP sans compter']],
     shop:['🔮','la boutique',['{n} visite la boutique','{n} fait les magasins, comme un dimanche','{n} entre dans la boutique « juste pour regarder »','{n} compare les prix à la boutique, la calculette à la main']],
-    moneyPit:['🕳️','le Puits d’argent',['{n} jette de l’or dans le puits sans fond','{n} crie dans le puits sans fond… pas d’écho','{n} se penche un peu trop au bord du puits']],
+    moneyPit:['🕳️','le Trou sans fond',['{n} jette de l’or dans le trou sans fond','{n} crie dans le trou sans fond… pas d’écho','{n} se penche un peu trop au bord du trou']],
     challenges:['🏁','les Défis',['{n} s’échauffe avant les Défis','{n} fait craquer ses doigts devant les Défis','{n} se prépare à souffrir dans les Défis','{n} relève un Challenge, courageux ou inconscient ?','{n} regarde les Défis avec un mélange de peur et d’excitation','{n} se motive pour un Challenge de plus','{n} serre les dents devant les Défis','{n} choisit son prochain Challenge avec soin','{n} jure qu’il va réussir ce Challenge, cette fois','{n} accepte un défi dans les Défis, sans réfléchir','{n} se sent d’humeur à souffrir dans les Défis','{n} prépare sa stratégie pour les Défis','{n} relit les règles des Défis, pour la dixième fois','{n} tente de dompter un Challenge','{n} se lance dans les Défis, le sourire crispé','{n} fait le tour des Défis, l’air de dire « facile »','{n} a décidé que les Défis, c’est aujourd’hui','{n} se prépare mentalement aux Défis','{n} défie les Défis du regard','{n} ne sait pas dans quoi il s’engage avec les Défis'],[]],
     titans:['🔥','les Titans',['{n} rend visite aux Titans, sans rendez-vous','{n} observe les Titans de loin, très loin','{n} prend son courage à deux mains devant les Titans','{n} frappe à la porte des Titans, un peu trop fort','{n} se demande s’il est assez fort pour les Titans','{n} compte ses PV avant d’aller voir les Titans','{n} fait un testament avant les Titans','{n} lève la tête vers les Titans, ils sont immenses','{n} prépare un plan, vaguement, contre les Titans','{n} bombe le torse devant les Titans','{n} fait mine de ne pas avoir peur des Titans','{n} vérifie son équipement avant les Titans','{n} espère que les Titans dorment encore','{n} salue poliment les Titans, au cas où','{n} rêve de terrasser un Titan','{n} respire un grand coup devant les Titans','{n} repère le Titan le plus costaud, juste pour avoir peur','{n} affûte ses armes pour les Titans','{n} se dit que les Titans, ça passe… peut-être','{n} serre les poings devant les Titans'],[]],
     sang:['🩸','la Magie du sang',['{n} remue un chaudron dans la Magie du sang','{n} bricole de la magie douteuse dans la Magie du sang','{n} se salit les mains dans la Magie du sang']],

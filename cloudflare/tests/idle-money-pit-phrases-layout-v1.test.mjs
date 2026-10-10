@@ -25,24 +25,24 @@ const src = ui.slice(ui.indexOf("function phraseMoneyPitIdleV1_(entree,j){"), ui
 const H = { formatGrandNombreIdleV70_: (v, d) => (d ? Number(v).toFixed(d) : String(v)) };
 let ygg = null;
 const phrase = new Function("window", "systemeMetaParIdIdleV130_", src + "\nreturn phraseMoneyPitIdleV1_;")({ __SOREAL_IDLE_META_HOST_V130__: H }, () => ygg);
-assert.equal(phrase({ at: 0, boost: { type: "toughness", strength: 1 }, reward: { ap: 5 } }), "Le Puits rote et recrache un Boost Endurance 1 !");
-assert.equal(phrase({ at: 1, boost: { type: "power", strength: 5 }, reward: {} }), "Le Puits rote et recrache un Boost Puissance 5 !");
-assert.equal(phrase({ at: 0, reward: { wandoosLevels: 0, ap: 15 } }), "Le Puits rote… et ça sent affreusement mauvais.");
-assert.ok(phrase({ at: 0, reward: { seeds: 10 } }).startsWith("Une énorme graine verte jaillit du Puits"), "graine avant le déblocage : la phrase du wiki, sans nommer le système");
+assert.equal(phrase({ at: 0, boost: { type: "toughness", strength: 1 }, reward: { ap: 5 } }), "Le Trou rote et recrache un Boost Endurance 1 !");
+assert.equal(phrase({ at: 1, boost: { type: "power", strength: 5 }, reward: {} }), "Le Trou rote et recrache un Boost Puissance 5 !");
+assert.equal(phrase({ at: 0, reward: { wandoosLevels: 0, ap: 15 } }), "Le Trou rote… et ça sent affreusement mauvais.");
+assert.ok(phrase({ at: 0, reward: { seeds: 10 } }).startsWith("Une énorme graine verte jaillit du Trou"), "graine avant le déblocage : la phrase du wiki, sans nommer le système");
 assert.equal(phrase({ at: 0, reward: { seeds: 10 } }).includes("Yggdrasil"), false);
 ygg = { unlocked: true };
 assert.ok(phrase({ at: 0, reward: { seeds: 10 } }).includes("+10 graines"));
 for (const reward of [{ adventureStats: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 3 }, { cubePower: 5 }, { wandoosLevels: 1 }]) {
   for (const at of [0, 1]) {
     const p = phrase({ at, reward: { ...reward, ap: 5 } });
-    assert.ok(/^Le Puits/.test(p) && !/[A-Za-z]{3,} the |belch/i.test(p), JSON.stringify(reward) + " : " + p);
+    assert.ok(/^Le Trou/.test(p) && !/[A-Za-z]{3,} the |belch/i.test(p), JSON.stringify(reward) + " : " + p);
   }
 }
 assert.notEqual(phrase({ at: 0, reward: { adventureHp: 20 } }), phrase({ at: 1, reward: { adventureHp: 20 } }), "deux variantes");
 assert.equal(phrase({ at: 4, reward: { adventureHp: 20 } }), phrase({ at: 4, reward: { adventureHp: 20 } }), "stable pour un même jet");
 assert.ok(page.includes("phraseMoneyPitIdleV1_(derniere.entree,j)") && page.includes("soreal-idle-prize-detail-v1"), "phrase + détail dans « Ton prix »");
 
-// 4. Recharge du Puits : après le k-ième jet, k + 1 heures (wiki Money Pit)
+// 4. Recharge du Trou : après le k-ième jet, k + 1 heures (wiki Money Pit)
 {
   const context = { bosses: 37, bestGold: 0 };
   let state = normalizeIdleNguState({}, context, 1_000_000);

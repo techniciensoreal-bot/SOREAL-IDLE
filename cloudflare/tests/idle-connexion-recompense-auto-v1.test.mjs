@@ -8,7 +8,7 @@ import vm from "node:vm";
 const mod = readFileSync("cloudflare/public/modules/connexion-recompense-v1.js", "utf8");
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes('<script defer src="/modules/connexion-recompense-v1.js?v=1"></script>'));
+assert.ok(index.includes('<script defer src="/modules/connexion-recompense-v1.js?v=2"></script>'));
 assert.ok(meta.includes("window.__connexionRecompenseAutoV1__&&window.__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__") && meta.includes(".annoncer(res.resultat)"));
 
 // Comportement : réclamation automatique une seule fois, annonce avec série et AP.

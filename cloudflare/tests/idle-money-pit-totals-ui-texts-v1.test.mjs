@@ -46,7 +46,7 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
-// Page Money Pit : plus de bandeau « Progression permanente », seulement les totaux du puits
+// Page Money Pit : plus de bandeau « Progression permanente », seulement les totaux du trou
 assert.match(meta, /'Balance tout ton Or durement gagné dedans\.'\s*\)\+\s*bandeauMoneyPitIdleV1_\(pitData\)\+/);
 assert.match(meta, /Bonus obtenus grâce au Money Pit/);
 

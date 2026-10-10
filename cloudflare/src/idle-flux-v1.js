@@ -98,7 +98,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
   const titanDernier = String(tf.last || "");
   /*
-   * Puits sans fond et roue quotidienne (Norman, 2026-10-04 : « quand on balance son or dans le puits, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue »). Le dernier jet est lu dans
+   * Trou sans fond et roue quotidienne (Norman, 2026-10-04 : « quand on balance son or dans le trou, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue »). Le dernier jet est lu dans
    * l'historique du système (le plus récent d'abord) ; un jet nouveau = l'heure du dernier lancer a avancé (puits) ou le compteur de tours a augmenté (roue).
    */
   const puits = (m.systems && m.systems.moneyPit && m.systems.moneyPit.data) || {};

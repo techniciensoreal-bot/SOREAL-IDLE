@@ -731,7 +731,7 @@
     aventure:{duree:480,construire:function(c){
       nappe_(c,{type:"sawtooth",from:262,to:264,duration:.2,volume:.026,attack:.03});
       nappe_(c,{type:"sawtooth",from:392,to:396,duration:.3,volume:.028,attack:.03,delay:.17});}},
-    /* Pièces qui tombent dans le puits, puis un écho creux. */
+    /* Pièces qui tombent dans le trou, puis un écho creux. */
     moneyPit:{duree:480,construire:function(c){
       [[0,2600],[.07,2200],[.14,1900]].forEach(function(p){tonal_(c,{type:"triangle",from:p[1],to:p[1]*.995,duration:.11,volume:.03,delay:p[0]});tonal_(c,{type:"sine",from:p[1]*2.7,to:p[1]*2.7,duration:.05,volume:.01,delay:p[0]});});
       tonal_(c,{type:"sine",from:95,to:60,duration:.2,volume:.08,delay:.26});}},
@@ -1100,7 +1100,7 @@
 
   /*
    * Money Pit (2026-09-27, Norman : « Quand on balance son argent dans le money pit... il n'y a pas de son. » ) : une poignée de pièces
-   * qui tombent et roulent, de plus en plus étouffées, puis un écho grave qui s'enfonce -- le puits qui avale l'argent. Distinct du bruit
+   * qui tombent et roulent, de plus en plus étouffées, puis un écho grave qui s'enfonce -- le trou qui avale l'argent. Distinct du bruit
    * de caisse enregistreuse (achat) et du tintement d'or de l'EXP Shop (orConstruire_) : ici tout descend et se perd dans le vide, rien ne
    * remonte.
    */

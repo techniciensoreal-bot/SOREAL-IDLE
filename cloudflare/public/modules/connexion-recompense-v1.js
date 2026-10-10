@@ -3,7 +3,7 @@
  * qu'il a eu la récompense d'aujourd'hui avec le nombre de jours consécutifs et le nombre d'AP récupéré ».
  *
  * Dès que l'état du joueur est chargé et que la récompense du jour est réclamable (le serveur décide : jour de Paris, série, plateau du mois), elle est réclamée toute seule par la même opération que le
- * bouton du calendrier, puis une annonce s'affiche. Rien n'est envoyé si le calendrier n'est pas encore visible pour le joueur (il apparaît avec le Puits d'argent : anti-spoil).
+ * bouton du calendrier, puis une annonce s'affiche. Rien n'est envoyé si le calendrier n'est pas encore visible pour le joueur (il apparaît avec le Trou sans fond : anti-spoil).
  */
 (function(){
 'use strict';

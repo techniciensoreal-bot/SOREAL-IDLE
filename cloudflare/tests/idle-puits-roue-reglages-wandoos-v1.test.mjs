@@ -7,7 +7,7 @@ const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", 
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const wd = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 
-// Prix du puits / de la roue : six teintes qui se suivent, rang = compteur avancé à chaque nouvelle récompense.
+// Prix du trou / de la roue : six teintes qui se suivent, rang = compteur avancé à chaque nouvelle récompense.
 for (let i = 0; i < 6; i++) assert.ok(css.includes('.soreal-idle-prize-v206[data-couleur="' + i + '"]{background:linear-gradient('), "teinte " + i);
 assert.ok(meta.includes("data-couleur=\"'+couleurPrix+'\"") && meta.includes("soreal_idle_prix_couleur_v1") && meta.includes("couleurPrix=((n%6)+6)%6"), "le rang de couleur avance quand la dernière récompense change");
 

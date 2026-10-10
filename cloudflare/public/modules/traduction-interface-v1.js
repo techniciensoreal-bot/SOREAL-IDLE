@@ -14,7 +14,7 @@
   /* Expressions (anglais -> français), de la plus longue à la plus courte. */
   var TERMES=[
     ['Boost power','Boost de puissance'],['Boost toughness','Boost d’endurance'],['Boost special','Boost spécial'],
-    ['Advanced Training','Entraînement avancé'],['Basic Training','Entraînement de base'],['Fight Boss','Combat de boss'],['Money Pit','Puits d’argent'],
+    ['Advanced Training','Entraînement avancé'],['Basic Training','Entraînement de base'],['Fight Boss','Combat de boss'],['Money Pit','Trou sans fond'],
     ['Time Machine','Machine temporelle'],['Blood Magic','Magie du sang'],['Gold Diggers','Mineurs d’or'],['Gold Digger','Mineur d’or'],['Item Daycare','Garderie d’objets'],
     ['Sellout Shop','Boutique AP'],['Arbitrary Points','Points arbitraires'],['Settings','Réglages'],['Achievements','Succès'],['Questing','Quêtes'],['Challenges','Défis'],
     ['Energy Speed','Vitesse d’Énergie'],['Energy Power','Puissance d’Énergie'],['Energy Cap','Plafond d’Énergie'],['Energy Bars','Barres d’Énergie'],['Energy Bar','Barre d’Énergie'],

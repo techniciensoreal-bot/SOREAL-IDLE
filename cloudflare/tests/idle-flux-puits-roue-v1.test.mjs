@@ -4,7 +4,7 @@ import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
 
 /*
- * Norman (2026-10-04) : « quand on balance son or dans le puits, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue. »
+ * Norman (2026-10-04) : « quand on balance son or dans le trou, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue. »
  */
 const inst = (puits, roue) => instantaneJoueurV1({ stats: { metaNgu: { systems: { moneyPit: { data: puits || {} }, dailySpin: { data: roue || {} } } } } });
 const p0 = inst({ lastTossAt: 1000, history: [{ at: 1000, cost: 5e6, tier: 1, reward: { experience: 12, ap: 6 }, boost: null }] }, { totalSpins: 3, history: [{ at: 500, tier: 1, reward: { ap: 100 }, totalSpins: 3 }] });
@@ -33,10 +33,10 @@ if (phrase) {
   const tout = connus({ moneyPit: true, spendExp: true, sellout: true, aventure: true, wandoos: true, yggdrasil: true });
   const peu = connus({ moneyPit: true });
   const aucun = connus({});
-  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { experience: 12, ap: 6 } } }, tout).texte, "Ana a jeté 5 M d’or dans le puits : +12 EXP et +6 AP");
-  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 2e7, recompense: { adventureStats: 20, ap: 7 }, boost: true }, moi: true }, tout).texte, "Tu as jeté 20 M d’or dans le puits : +20 stats d’Aventure et +7 AP et un boost");
-  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { experience: 12, ap: 6 } } }, peu).texte, "Ana a jeté 5 M d’or dans le puits : une récompense", "récompenses de systèmes inconnus : jamais nommées");
-  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { wandoosLevels: 2, seeds: 10 } } }, peu).texte, "Ana a jeté 5 M d’or dans le puits : une récompense");
+  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { experience: 12, ap: 6 } } }, tout).texte, "Ana a jeté 5 M d’or dans le trou : +12 EXP et +6 AP");
+  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 2e7, recompense: { adventureStats: 20, ap: 7 }, boost: true }, moi: true }, tout).texte, "Tu as jeté 20 M d’or dans le trou : +20 stats d’Aventure et +7 AP et un boost");
+  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { experience: 12, ap: 6 } } }, peu).texte, "Ana a jeté 5 M d’or dans le trou : une récompense", "récompenses de systèmes inconnus : jamais nommées");
+  assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { wandoosLevels: 2, seeds: 10 } } }, peu).texte, "Ana a jeté 5 M d’or dans le trou : une récompense");
   assert.equal(phrase({ type: "puits", nom: "Ana", donnees: { cout: 5e6, recompense: { experience: 12 } } }, aucun), null, "menu Money Pit inconnu : rien");
   assert.equal(phrase({ type: "roue", nom: "Ana", donnees: { recompense: { ap: 100 } } }, tout).texte, "Ana a tourné la roue : +100 AP");
   assert.equal(phrase({ type: "roue", nom: "Ana", donnees: { recompense: { items: 3 } } }, tout).texte, "Ana a tourné la roue : un lot d’objets");

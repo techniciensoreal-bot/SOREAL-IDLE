@@ -33,7 +33,7 @@
         date:'2026-10-07',
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         points:[
-          '« En direct » raconte ce que font les autres joueurs : combats de boss lancés, victoires, fuites et défaites (avec des phrases taquines), menus visités, boosts versés dans une pièce ou dans le Cube, passages en boutique, au Puits ou à la roue. Chaque situation a une vingtaine de phrases ; un menu ou un boss que tu n’as pas encore découvert n’est jamais nommé, tu ne vois que les annonces des autres, et un même joueur n’apparaît plus en double.',
+          '« En direct » raconte ce que font les autres joueurs : combats de boss lancés, victoires, fuites et défaites (avec des phrases taquines), menus visités, boosts versés dans une pièce ou dans le Cube, passages en boutique, au Trou ou à la roue. Chaque situation a une vingtaine de phrases ; un menu ou un boss que tu n’as pas encore découvert n’est jamais nommé, tu ne vois que les annonces des autres, et un même joueur n’apparaît plus en double.',
           'En haut de l’écran : cinq cadres (Attaque, Défense, Or, EXP, AP) sur une seule ligne, puis les barres d’énergie, de magie et de vie en tubes de verre animés, collées en haut. L’icône passe devant les chiffres, le gain par seconde est à gauche et le temps restant à droite, la vie affiche sa régénération en vert. Les animations bouclent sans à-coup et chaque barre a son propre popup au survol (sauf la vie).',
           'Dans chaque menu où l’on place une ressource : boutons + − Max sur chaque ligne, cadres « Plafond » (Max, 1/2, 1/4) et « Idle » (1/2, 1/4, Tout retirer), et un cadre « total placé » aux couleurs de la page.',
           'Les barres qui consomment de l’Or enchaînent leurs niveaux sans pause : l’Or baisse en direct, la barre reste pleine en disant ce qu’il manque quand l’Or ne suffit pas, et chaque somme est verte quand tu l’as, rouge sinon. Un niveau d’Augmentation agit tout de suite sur l’attaque et la vie max.',
@@ -46,7 +46,7 @@
           'Les grands nombres ont chacun leur unité en couleur (Spd en vert, Qa en bleu…), toujours séparée des chiffres par une espace.',
           'L’ordinateur rétro : démarrage une fois par Rebirth, énergie et magie en vraies quantités avec un champ de saisie (un nombre ou une fraction comme 1/4), barres de niveau en temps réel, touches mécaniques et écran stable sur téléphone. Blood Magic accepte de la Magic dans plusieurs rituels à la fois, chacun à son rythme. À l’Entraînement avancé, seules les lignes concernées se mettent à jour.',
           'Aventure : une attaque utilisée bloque les autres pendant 1 seconde (0,8 seconde avec le set Red Liquid) ; en Zone sûre, le jeu ne farme plus en cachette ton ancienne zone ; un adversaire rencontré apparaît tout de suite. Un ensemble complété par fusion ou boost verse son EXP et ses AP immédiatement.',
-          'Puits sans fond et roue : le cadre du prix change de couleur à chaque récompense, et jeter moins que le minimum prend quand même ton or, avec le message du jeu d’origine. Sur ordinateur, l’image du Puits garde une taille raisonnable.',
+          'Trou sans fond et roue : le cadre du prix change de couleur à chaque récompense, et jeter moins que le minimum prend quand même ton or, avec le message du jeu d’origine. Sur ordinateur, l’image du Trou garde une taille raisonnable.',
           'Ambiance et fluidité : l’orage n’a plus de pluie, la cheminée éclaire le pourtour de l’écran (désactivée par défaut, à cocher dans les Réglages), les sons d’ambiance se coupent d’un coup et une barre « Musique » règle les musiques de menus. Le jeu est allégé pour les téléphones (compteurs moins réécrits, animations légères).',
           'Les fenêtres explicatives sont courtes, claires et un peu drôles, et l’éditeur de voix est repensé : une bulle par personnage, des expressions, des pauses, et l’écoute d’une voix avant de la choisir. Toutes les voix sont modifiables.',
           'La page Renaissance est entièrement en français : le nombre, le total de renaissances et le temps du run y vivent, avec des écritures plus lisibles.',
@@ -113,7 +113,7 @@
           'Les menus suivent l’ordre dans lequel tu les débloques ; la Boutique, les Succès, le Chat et les Réglages restent toujours à la fin, dans cet ordre (tu peux toujours les déplacer).',
           'Le magasin des Perks devient une boutique à part, en vitrines néon, avec l’image de chaque achat, une recherche et un filtre des achats abordables.',
           'Un défi en cours a maintenant son compteur : le temps écoulé depuis son lancement, en mois, semaines, jours puis heures, minutes et secondes.',
-          'Le fil En direct raconte aussi les jets dans le puits (l’or jeté et la récompense) et les tours de roue, avec les récompenses nommées seulement si tu connais déjà le système concerné.',
+          'Le fil En direct raconte aussi les jets dans le trou (l’or jeté et la récompense) et les tours de roue, avec les récompenses nommées seulement si tu connais déjà le système concerné.',
           'Les menus suivent maintenant l’ordre dans lequel on les obtient, pour tout le monde. Ton ancien rangement a été remis à zéro une seule fois : tu peux réarranger les boutons à ta façon, et ton rangement sera conservé.',
           'Les tuiles du haut ont chacune leur couleur : Nombre en cyan, Rebirths en vert, Attack en rouge, Defense en bleu, Gold en or, EXP en violet, AP en rose et Run en orange, avec un style plus soigné pour les repérer d’un coup d’œil.',
           'Les trois achats du rayon Toc ont maintenant leur propre illustration.',
@@ -297,7 +297,7 @@
           'Chaque achat fait un bruit de caisse enregistreuse ou de carillon ; équiper, ajouter ou retirer de l’énergie, perdre un combat, fuir, lancer un combat, débloquer un succès ou un menu ont chacun leur son ; chaque nouveau boss a son propre bruit d’apparition.',
           'Les chiffres de vie du duel sont plus beaux et ne dépassent plus de leur pastille ; le bouton Adventure clignote quand tu es K.O.',
           'Correction : un boss vaincu n’est plus suivi, quelques secondes plus tard, du même boss revenu à pleine vie.',
-          'Le Puits rote des phrases humoristiques, avec les temps de recharge du jeu d’origine ; le zoom (pincement, double tap) est désactivé.'
+          'Le Trou rote des phrases humoristiques, avec les temps de recharge du jeu d’origine ; le zoom (pincement, double tap) est désactivé.'
         ]
       },
       {

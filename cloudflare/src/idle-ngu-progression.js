@@ -6411,8 +6411,8 @@ function tossMoneyPit(state, now) {
   // required to receive a reward; the player cannot choose a smaller toss.
   const cost = Math.floor(Math.max(0, num(state.currencies.gold, 0)));
   /*
-   * Moins que le minimum (Norman, 2026-10-08, capture du vrai jeu : « You feel a lot poorer... but nothing happened :c. Maybe you need to throw more gold? ») : le puits PREND quand même
-   * tout l'or, sans récompense, ET le jet consomme le délai du puits comme un vrai jet (précisé par Norman après vérification dans NGU Idle). Même règle d'attente que plus bas (k + 1 heures après le k-ième jet) ;
+   * Moins que le minimum (Norman, 2026-10-08, capture du vrai jeu : « You feel a lot poorer... but nothing happened :c. Maybe you need to throw more gold? ») : le trou PREND quand même
+   * tout l'or, sans récompense, ET le jet consomme le délai du trou comme un vrai jet (précisé par Norman après vérification dans NGU Idle). Même règle d'attente que plus bas (k + 1 heures après le k-ième jet) ;
    * le jet ne compte ni dans l'historique ni dans le total d'or jeté (aucune récompense, aucun palier de bonus unique).
    */
   if (cost < 1) throw new Error("OR_INSUFFISANT");

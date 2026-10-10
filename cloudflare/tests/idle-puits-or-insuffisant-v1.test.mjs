@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
 /*
- * Money Pit avec moins que le minimum (Norman, 2026-10-08, capture du vrai jeu) : le puits prend tout l'or, aucune récompense, message « You feel a lot poorer... but nothing happened :c. Maybe you need to throw more gold? ».
+ * Money Pit avec moins que le minimum (Norman, 2026-10-08, capture du vrai jeu) : le trou prend tout l'or, aucune récompense, message « You feel a lot poorer... but nothing happened :c. Maybe you need to throw more gold? ».
  */
 const ctx = { bosses: 140 };
 function depart(or) {
@@ -12,18 +12,18 @@ function depart(or) {
   s.currencies.gold = or;
   return s;
 }
-// Moins de 100 000 : l'or part, aucune récompense, mais le délai du puits est consommé comme pour un vrai jet
+// Moins de 100 000 : l'or part, aucune récompense, mais le délai du trou est consommé comme pour un vrai jet
 {
   const s = depart(40000);
   const histAvant = JSON.stringify(s.systems.moneyPit.data.history);
   const totalAvant = s.systems.moneyPit.data.totalGoldTossed;
   const { state, result } = applyIdleNguAction(s, { action: "moneyPit" }, ctx, 5000);
-  assert.equal(state.currencies.gold, 0, "le puits prend l'or");
+  assert.equal(state.currencies.gold, 0, "le trou prend l'or");
   assert.equal(result.rien, true);
   assert.equal(result.orPerdu, 40000);
   assert.ok(!result.reward, "aucune récompense");
   const d = state.systems.moneyPit.data;
-  assert.equal(d.nextAt, 5000 + 2 * 3600000, "le délai du puits est utilisé (2 h après le premier jet)");
+  assert.equal(d.nextAt, 5000 + 2 * 3600000, "le délai du trou est utilisé (2 h après le premier jet)");
   assert.equal(d.tossesThisRun, 1);
   assert.equal(JSON.stringify(d.history), histAvant, "rien dans l'historique des lots");
   assert.equal(d.totalGoldTossed, totalAvant, "pas compté dans le total d'or jeté");

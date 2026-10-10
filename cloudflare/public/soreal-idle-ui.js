@@ -11575,11 +11575,11 @@
           menuCible:'moneyPit',
           libelleCible:'Ouvrir le Money Pit',
           bullets:[
-            'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le puits. Plus la somme est énorme, plus les cadeaux possibles sont beaux.',
-            'Le puits te recrache un lot au hasard selon la somme jetée, puis il doit se recharger avant le prochain lancer. Plus tu en fais dans la même partie, plus la recharge est longue : il se fatigue.',
+            'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le trou. Plus la somme est énorme, plus les cadeaux possibles sont beaux.',
+            'Le trou te recrache un lot au hasard selon la somme jetée, puis il doit se recharger avant le prochain lancer. Plus tu en fais dans la même partie, plus la recharge est longue : il se fatigue.',
             'Roue journalière : elle est dans ce même menu. Quand elle est prête, fais-la tourner pour gagner un lot au hasard, notamment de l’AP ou des graines.',
             'La roue revient sur un cycle de 24 heures. Plus tu accumules de tours au fil du temps, plus ses récompenses s’améliorent : la patience paie.',
-            'Repère visuel : le bouton Money Pit devient vert quand le puits est prêt, ou jaune quand la roue journalière est disponible.'
+            'Repère visuel : le bouton Money Pit devient vert quand le trou est prêt, ou jaune quand la roue journalière est disponible.'
           ]
         };
       }

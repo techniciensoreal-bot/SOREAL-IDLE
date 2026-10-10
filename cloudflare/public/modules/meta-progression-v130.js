@@ -1386,7 +1386,7 @@
           demarrerMinuteurRechargeIdleV1_();
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="pit" data-fin="'+nextAt+'">'+libelleRechargeMoneyPitIdleV1_(restantS)+'</button>';
         }
-        /* Sous 100 000 Or le puits prend quand même l'or (message « Tu te sens bien plus pauvre… », comme dans le jeu d'origine) : le bouton reste actif tant qu'il y a de l'or. */
+        /* Sous 100 000 Or le trou prend quand même l'or (message « Tu te sens bien plus pauvre… », comme dans le jeu d'origine) : le bouton reste actif tant qu'il y a de l'or. */
         if(gold<1){
           return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (tu n’as plus d’Or)</button>';
         }
@@ -1516,7 +1516,7 @@
 
       /*
        * Money Pit (2026-09-26, Norman : « il ne faudrait que les bonus totaux que le Money Pit nous a apportés depuis le début de la partie ») :
-       * remplace le bandeau « Progression permanente » (EXP, PP, QP, Or…) au-dessus du puits. Totaux cumulés côté serveur (data.rewardsTotal).
+       * remplace le bandeau « Progression permanente » (EXP, PP, QP, Or…) au-dessus du trou. Totaux cumulés côté serveur (data.rewardsTotal).
        */
       function bandeauMoneyPitIdleV1_(data){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -1544,7 +1544,7 @@
           '<div class="soreal-idle-window-title-v31 gold">🕳️ Bonus obtenus grâce au Money Pit</div>'+
           (lignes.length
             ?'<div style="display:grid;gap:5px;margin-top:6px">'+lignes.map(function(l){return '<div class="soreal-idle-note-v4" style="margin:0">'+H.idleHtml_(l)+'</div>';}).join('')+'</div>'
-            :'<div class="soreal-idle-note-v4">Aucun bonus pour l’instant : jette ton Or dans le puits.</div>')+
+            :'<div class="soreal-idle-note-v4">Aucun bonus pour l’instant : jette ton Or dans le trou.</div>')+
         '</div>';
       }
 
@@ -3197,7 +3197,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
 
 
       /*
-       * Phrases du Puits (Norman, 2026-09-26 : « les petites phrases humoristiques, traduites en français »). Le wiki NGU ne publie que trois messages du
+       * Phrases du Trou (Norman, 2026-09-26 : « les petites phrases humoristiques, traduites en français »). Le wiki NGU ne publie que trois messages du
        * Puits : le boost (« The Pit belches and spits out a Toughness Boost 1! », donné par Norman), « The Pit belches and it smells awful » (Wandoos déjà au
        * maximum) et la graine avant Yggdrasil (« A giant green seed shoots out of the pit and lands by your feet! Before you can grab it, it hops back into
        * the pit! WTF was that?? ») : ceux-là sont traduits fidèlement. Les autres phrases sont écrites par SOREAL dans le même ton (une par récompense).
@@ -3212,23 +3212,23 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(entree&&entree.boost){
           const type=String(entree.boost.type||'');
           const nom=type==='power'?'Puissance':(type==='toughness'?'Endurance':(type==='special'?'Spécial':type));
-          return 'Le Puits rote et recrache un Boost '+nom+' '+nb(entree.boost.strength||0)+' !';
+          return 'Le Trou rote et recrache un Boost '+nom+' '+nb(entree.boost.strength||0)+' !';
         }
         if(reward.seeds){
           const ygg=systemeMetaParIdIdleV130_(j,'yggdrasil');
           const debloque=Boolean(ygg&&(ygg.unlocked||(ygg.state&&ygg.state.unlocked)));
           return debloque
-            ?choisir('Une graine jaillit du Puits et vous atterrit sur le pied : +'+nb(reward.seeds)+' graines !','Le Puits vous crache une poignée de graines à la figure : +'+nb(reward.seeds)+' graines !')
-            :'Une énorme graine verte jaillit du Puits et atterrit à vos pieds ! Avant que vous puissiez l’attraper, elle rebondit dans le Puits ! C’était QUOI, ça ?!';
+            ?choisir('Une graine jaillit du Trou et vous atterrit sur le pied : +'+nb(reward.seeds)+' graines !','Le Trou vous crache une poignée de graines à la figure : +'+nb(reward.seeds)+' graines !')
+            :'Une énorme graine verte jaillit du Trou et atterrit à vos pieds ! Avant que vous puissiez l’attraper, elle rebondit dans le Trou ! C’était QUOI, ça ?!';
         }
-        if(Object.prototype.hasOwnProperty.call(reward,'wandoosLevels')&&!reward.wandoosLevels)return 'Le Puits rote… et ça sent affreusement mauvais.';
-        if(reward.wandoosLevels)return choisir('Le Puits rote et ça sent le vieil ordinateur : +'+reward.wandoosLevels+' niveau(x) Wandoos !','Le Puits ronronne comme un vieux disque dur : +'+reward.wandoosLevels+' niveau(x) Wandoos !');
-        if(reward.adventureStats)return choisir('Le Puits rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Puissance et Endurance !','Le Puits vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Puissance et Endurance !');
-        if(reward.adventureHp)return choisir('Le Puits gargouille et vous gonfle les muscles : +'+nb(reward.adventureHp)+' PV max !','Le Puits hoquette et vous voilà bien plus solide : +'+nb(reward.adventureHp)+' PV max !');
-        if(reward.adventureRegen)return choisir('Le Puits soupire un air tiède qui referme vos petits bobos : +'+nb(reward.adventureRegen,2)+' de régénération !','Le Puits tousse un nuage réparateur : +'+nb(reward.adventureRegen,2)+' de régénération !');
-        if(reward.cubePower||reward.cubeToughness||reward.cubeBoth)return choisir('Le Puits crache un truc brillant qui se met à vibrer dans votre sac !','Le Puits rote et quelque chose de mystérieux se met à briller de bonheur !');
-        if(reward.experience)return choisir('Le Puits tousse un petit nuage d’expérience : +'+nb(reward.experience)+' EXP !','Le Puits recrache un sac brillant : +'+nb(reward.experience)+' EXP !');
-        return 'Le Puits rote… et ne recrache rien de reconnaissable.';
+        if(Object.prototype.hasOwnProperty.call(reward,'wandoosLevels')&&!reward.wandoosLevels)return 'Le Trou rote… et ça sent affreusement mauvais.';
+        if(reward.wandoosLevels)return choisir('Le Trou rote et ça sent le vieil ordinateur : +'+reward.wandoosLevels+' niveau(x) Wandoos !','Le Trou ronronne comme un vieux disque dur : +'+reward.wandoosLevels+' niveau(x) Wandoos !');
+        if(reward.adventureStats)return choisir('Le Trou rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Puissance et Endurance !','Le Trou vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Puissance et Endurance !');
+        if(reward.adventureHp)return choisir('Le Trou gargouille et vous gonfle les muscles : +'+nb(reward.adventureHp)+' PV max !','Le Trou hoquette et vous voilà bien plus solide : +'+nb(reward.adventureHp)+' PV max !');
+        if(reward.adventureRegen)return choisir('Le Trou soupire un air tiède qui referme vos petits bobos : +'+nb(reward.adventureRegen,2)+' de régénération !','Le Trou tousse un nuage réparateur : +'+nb(reward.adventureRegen,2)+' de régénération !');
+        if(reward.cubePower||reward.cubeToughness||reward.cubeBoth)return choisir('Le Trou crache un truc brillant qui se met à vibrer dans votre sac !','Le Trou rote et quelque chose de mystérieux se met à briller de bonheur !');
+        if(reward.experience)return choisir('Le Trou tousse un petit nuage d’expérience : +'+nb(reward.experience)+' EXP !','Le Trou recrache un sac brillant : +'+nb(reward.experience)+' EXP !');
+        return 'Le Trou rote… et ne recrache rien de reconnaissable.';
       }
 
       function historiqueMoneyPitIdleV206_(pit,roue){
@@ -3487,7 +3487,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div class="soreal-idle-money-actions-v206">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
               '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
-              '<div class="soreal-idle-money-action-note-v206">Le puits prend tout ton Or actuel.</div>'+
+              '<div class="soreal-idle-money-action-note-v206">Le trou prend tout ton Or actuel.</div>'+
               rendreBoutonMoneyPitIdleV1_(j,pitSt)+
             '</div>'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
@@ -3513,7 +3513,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
           /* Norman (2026-10-10) : les récompenses du Money Pit et de la roue passent au-dessus, le calendrier de connexion en bas de page. */
-          cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le puits.')+
+          cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
           cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
