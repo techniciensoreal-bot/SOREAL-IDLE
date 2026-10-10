@@ -33,7 +33,7 @@ assert.ok(!meta.includes('la quantité déplacée à chaque clic'), 'légende In
 assert.match(themes, /moneyPit"\] :is\(\.soreal-idle-money-actions-v206,\.soreal-idle-money-scene-v206,/);
 
 /* NGU : nuit étoilée dense et fond en parallaxe */
-assert.match(ngu, /i<240;/, 'beaucoup d’étoiles');
+assert.match(ngu, /i<200;/, 'beaucoup d’étoiles (tuile SVG)');
 assert.ok(!ngu.includes('parallaxe_'), 'plus de décalage de profondeur : le fond bouge avec les barres (ressources)');
 assert.match(itopod0, /soreal-idle-bossbar-v7\{\s*border-radius:999px/, 'barre de vie du boss en tube');
 console.log('idle-boutique-ap-anti-spoil-v1: OK');
@@ -55,7 +55,7 @@ assert.ok(fs.readFileSync('cloudflare/public/modules/feu-v1.js', 'utf8').include
 /* Wandoos : l'écran ne remonte plus (hauteur retenue + bandeau qui ne rétrécit pas) */
 const wd = fs.readFileSync('cloudflare/public/modules/wandoos-retro-v1.js', 'utf8');
 assert.ok(wd.includes("corps.style.minHeight=h+'px'") && wd.includes('window.scrollTo(x,y)'), 'poste : hauteur retenue, défilement rétabli');
-assert.ok(ui.includes('--hud-min-v2') && ui.includes('box-sizing:border-box;min-height:var(--hud-min-v2'), 'bandeau : cliquet de hauteur (box-sizing border-box)');
+assert.ok(!ui.includes('min-height:var(--hud-min-v2') && ui.includes('.soreal-idle-hud-v2{box-sizing:border-box}'), 'bandeau : plus de cliquet de hauteur, collé à la dernière barre affichée (Norman, 2026-10-10)');
 assert.ok(meta.includes("throw new Error('poste vide')"), 'Wandoos : repli sur le rendu complet');
 /* Blood Magic : les rituels s'enchaînent côté client, Or débité sans attendre le serveur ; coût fixe par rituel (wiki Blood Magic : chaque rituel a un coût en Or fixe) */
 assert.ok(ui.includes("bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits") && ui.includes("idleEtat.systemes.currencies.gold=orLiveB"), 'rituels rejoués localement, Or débité en direct');

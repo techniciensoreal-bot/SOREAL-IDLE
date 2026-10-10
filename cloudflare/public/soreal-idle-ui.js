@@ -257,33 +257,16 @@
         });
       },800);
       /*
-       * Le contenu ne bouge plus quand une barre se vide (Norman, 2026-10-08 : « quand je mets des points, l'écran remonte ») : une barre épuisée se replie, le bandeau rétrécit de sa hauteur et tout ce qui
-       * est dessous remonte d'autant. On retient donc la plus grande hauteur vue du bandeau (cliquet) : la barre se replie dans la place réservée, sans décaler la page. Remis à zéro au changement de taille d'écran.
+       * Barres épuisées (Norman, 2026-10-10 : « quand les barres disparaissent, il reste un petit cadre prévu pour qu'elles réapparaissent : je n'en veux pas ; l'interface doit être collée à la barre de vie s'il n'y a
+       * qu'une seule barre affichée »). Le « cliquet » du 2026-10-08, qui retenait la plus grande hauteur vue du bandeau (--hud-min-v2) pour que la page ne remonte pas, est SUPPRIMÉ : le bandeau prend exactement la
+       * hauteur des barres affichées (les barres épuisées se replient en douceur, voir soreal-idle-themes.css) et tout ce qui est dessous remonte d'autant.
        */
       (function(){
-        let hudSuivi=null,hauteurMax=0,observateurHud=null;
         const racine=document.documentElement;
-        /* Règle CSS portée par une variable : elle survit au remplacement de l'élément par un rendu. */
+        racine.style.removeProperty('--hud-min-v2');
         const st=document.createElement('style');
-        st.textContent='.soreal-idle-hud-v2{box-sizing:border-box;min-height:var(--hud-min-v2,0px)}';
+        st.textContent='.soreal-idle-hud-v2{box-sizing:border-box}';
         document.head.appendChild(st);
-        function appliquer_(el){
-          const h=el.getBoundingClientRect().height;
-          if(h>hauteurMax+0.5){hauteurMax=h;racine.style.setProperty('--hud-min-v2',Math.ceil(h)+'px');}
-        }
-        function suivre_(){
-          const el=document.querySelector('.soreal-idle-hud-v2');
-          if(!el||el===hudSuivi)return;
-          hudSuivi=el;
-          appliquer_(el);
-          if(typeof ResizeObserver==='function'){
-            if(observateurHud)observateurHud.disconnect();
-            observateurHud=new ResizeObserver(function(){appliquer_(el);});
-            observateurHud.observe(el);
-          }
-        }
-        let largeur=window.innerWidth;
-        /* Seule une vraie variation de largeur (rotation, fenêtre) remet à zéro : la barre d'adresse d'un téléphone ne change que la hauteur. */
         /*
          * Barre de vie du boss IDENTIQUE à celle du joueur du bandeau (Norman, 2026-10-09) : hauteur, rayon, ombres, police, reflet et cœur sont COPIÉS depuis la barre du joueur (styles calculés, donc
          * exacts sur téléphone comme sur PC) dans des variables CSS que la barre du boss lit. Seule la largeur diffère.
@@ -312,8 +295,6 @@
         }
         setInterval(copierStylePvV1_,700);
         window.__SOREAL_IDLE_COPIER_STYLE_PV_V1__=copierStylePvV1_;
-        window.addEventListener('resize',function(){if(Math.abs(window.innerWidth-largeur)<2)return;largeur=window.innerWidth;hauteurMax=0;racine.style.removeProperty('--hud-min-v2');});
-        setInterval(suivre_,250);
       })();
       /* Fin de défi : annoncée dès que la synchro l'apporte, sans attendre un rendu complet de la page (modules/challenges-v1.js). */
       setInterval(function(){

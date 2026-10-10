@@ -68,7 +68,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * ajouter une classe à une liste suffit.
  * ===================================================================================================================================== */
 /* Panneaux de pierre */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-panel-v120,.soreal-idle-aug-piste-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-hero-v1,.soreal-idle-blood-sort-v1,.pk-vitrine,.dfi-carte,.dfi-cadre,.ttn-carte,.soreal-idle-exp-stat-v210,.idle-succes-groupe-v1,.soreal-idle-rebirth-v14,.soreal-idle-v138-bag-card,.soreal-idle-classement-liste-v1,.mp-cadre-v1,.soreal-idle-money-action-v206,.soreal-idle-duel-fighter-v42,.sic-fen,.sif-panneau,.soreal-idle-parties-dev-v1):is(.soreal-idle-bt-panel-v120,.soreal-idle-aug-piste-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-hero-v1,.soreal-idle-blood-sort-v1,.pk-vitrine,.dfi-carte,.dfi-cadre,.ttn-carte,.soreal-idle-exp-stat-v210,.idle-succes-groupe-v1,.soreal-idle-rebirth-v14,.soreal-idle-v138-bag-card,.soreal-idle-classement-liste-v1,.mp-cadre-v1,.soreal-idle-money-action-v206,.soreal-idle-duel-fighter-v42,.sic-fen,.sif-panneau,.soreal-idle-parties-dev-v1){border:3px solid #000!important;border-radius:6px!important;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.2)),linear-gradient(145deg,var(--i-bg1),var(--i-bg2))!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.14),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-panel-v120,.soreal-idle-aug-piste-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-hero-v1,.soreal-idle-blood-sort-v1,.pk-vitrine,.dfi-carte,.dfi-cadre,.ttn-carte,.soreal-idle-exp-stat-v210,.idle-succes-groupe-v1,.soreal-idle-rebirth-v14,.soreal-idle-v138-bag-card,.soreal-idle-v138-trash-slot,.soreal-idle-classement-liste-v1,.mp-cadre-v1,.soreal-idle-money-action-v206,.soreal-idle-duel-fighter-v42,.sic-fen,.sif-panneau,.soreal-idle-parties-dev-v1):is(.soreal-idle-bt-panel-v120,.soreal-idle-aug-piste-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-hero-v1,.soreal-idle-blood-sort-v1,.pk-vitrine,.dfi-carte,.dfi-cadre,.ttn-carte,.soreal-idle-exp-stat-v210,.idle-succes-groupe-v1,.soreal-idle-rebirth-v14,.soreal-idle-v138-bag-card,.soreal-idle-v138-trash-slot,.soreal-idle-classement-liste-v1,.mp-cadre-v1,.soreal-idle-money-action-v206,.soreal-idle-duel-fighter-v42,.sic-fen,.sif-panneau,.soreal-idle-parties-dev-v1){border:3px solid #000!important;border-radius:6px!important;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.2)),linear-gradient(145deg,var(--i-bg1),var(--i-bg2))!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.14),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000!important;}
 /* Petites cases */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-rebirth-stat-v14,.ttn-stat,.cal-case-v1,.idle-succes-tuile-v1,.idle-succes-item-v1,.soreal-idle-bt-row-v120,.soreal-idle-classement-ligne-v1,.soreal-idle-v138-slot,.soreal-idle-tm-col-v1):is(.soreal-idle-rebirth-stat-v14,.ttn-stat,.cal-case-v1,.idle-succes-tuile-v1,.idle-succes-item-v1,.soreal-idle-bt-row-v120,.soreal-idle-classement-ligne-v1,.soreal-idle-v138-slot,.soreal-idle-tm-col-v1){border:3px solid #000!important;border-radius:4px!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.12),inset 0 -2px 0 rgba(0,0,0,.35),3px 3px 0 #000!important;}
 /* Boutons biseautés */
@@ -1018,3 +1018,29 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1.der
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1.dernier .cal-icone-v1{font-size:24px;margin-top:0}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1.dernier .cal-ap-v1{font-size:16px}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-bouton-v1{margin-top:8px!important;padding:10px 12px!important;font-size:14px!important;line-height:1.2}
+
+/* Corbeille de l'inventaire (Norman, 2026-10-10) : une case comme les autres cases du sac (cadre, fond, ombre de la liste ci-dessus), avec la poubelle dessinée dessus ; plus de cadre rouge en pointillés. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-v138-trash-slot{border-style:solid!important;padding:2px;border-radius:6px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-v138-trash-slot>span{font-size:34px;filter:drop-shadow(0 2px 0 rgba(0,0,0,.5))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-v138-trash-slot.drag-over{border-color:#ff6b6b!important;transform:scale(1.04)}
+
+/* Coffre lisible sur PC (Norman, 2026-10-10 : « le coffre à trésors est illisible, tout est écrit trop petit »). Les cases passent de 56 à 88 px et les textes de 7,5 à 12 px (la page est réduite de 14 % sur PC : ce qui s'affiche vaut environ 10 px). Téléphone inchangé. */
+@media (min-width:701px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,88px)!important;gap:7px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{width:88px;height:88px;min-width:88px;max-width:88px;border-radius:9px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:12px;font-weight:800;padding:14px 3px 3px;line-height:1.1;text-shadow:0 1px 2px #000,0 0 3px #000}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:12px;font-weight:900;padding:1px 5px;left:3px;top:3px;border-radius:6px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:17px;height:17px;font-size:12px;line-height:17px;top:3px;right:3px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-icon-v1 .idle-emoji-fallback-v1{font-size:40px!important}
+  .soreal-idle-coffre-mannequin-v1{grid-template-columns:repeat(2,88px);grid-auto-rows:88px;gap:7px}
+  .soreal-idle-coffre-libres-v1{gap:7px;max-width:540px}
+  .soreal-idle-coffre-filtre-v1{width:24px;height:24px;font-size:13px;line-height:22px}
+  .soreal-idle-coffre-cadre-titre-v1{font-size:17px;padding:7px 14px;gap:9px}
+  .soreal-idle-coffre-cadre-deco-v1{font-size:22px}
+  .soreal-idle-coffre-cadre-corps-v1{gap:12px;padding:0 14px}
+  .soreal-idle-coffre-cadre-v1{padding-bottom:14px}
+  .soreal-idle-coffre-recherche-v1{font-size:17px;padding:11px 14px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-titre-v1{font-size:20px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180]{font-size:16px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180] div:first-child{font-size:32px}
+}
