@@ -593,7 +593,7 @@
           nom:'Puissance',
           icone:'💪',
           /* Wiki, page « Energy » : Power = « effect of each point of Energy put into a task » ; la production d'une activité vaut points placés × Power (sauf Basic Training et Wandoos). Elle ne change pas la génération. */
-          explication:'Chaque point de cette ressource placé dans une activité produit Puissance fois plus d’effet (sauf Basic Training). N’accélère pas la génération.'
+          explication:'Augmente la puissance de cette ressource : avec moins d’énergie placée, tu fais la même chose. N’a pas d’effet sur le menu Entraînement de base.'
         },
         {
           id:'cap',

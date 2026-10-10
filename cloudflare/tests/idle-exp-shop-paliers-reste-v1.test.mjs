@@ -23,5 +23,5 @@ console.log("idle-exp-shop-paliers-reste-v1: OK");
   const meta2 = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
   assert.ok(meta2.includes("autant de points que de Barres") && meta2.includes("vitesse × Barres"), "Barres : un remplissage donne autant de points que de Barres");
   assert.ok(!meta2.includes("Augmente la quantité de ressource produite à chaque génération"), "ancienne explication fausse de la Puissance retirée");
-  assert.ok(meta2.includes("N’accélère pas la génération"), "Puissance : n'accélère pas la génération");
+  assert.ok(meta2.includes("N’a pas d’effet sur le menu Entraînement de base"), "Puissance : sans effet sur Entraînement de base");
 }
