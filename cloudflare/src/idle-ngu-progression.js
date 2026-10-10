@@ -2521,16 +2521,25 @@ function externalResourceAllocation(context, resource) {
   return generic+basicTraining;
 }
 
+/*
+ * Audit PERF-002 (2026-10-10) : chaque lecture d'une stat effective repassait par la clé du mémo des bonus (JSON de tout l'état, 140 Ko à 450 objets), 150 fois par synchro. Les lectures ci-dessous sont en LECTURE SEULE :
+ * elles s'exécutent dans une portée de bonus (le calcul des bonus n'est fait qu'une fois pour la portée ; SOREAL_IDLE_VERIF_BONUS=1 vérifie que l'état n'a pas changé).
+ */
 function resourceCapacityForCurrent(state,resource,context={}){
-  const cap=idleNguEffectiveResourceStatV1(state,resource,"cap");
-  return Math.max(0,cap-totalAllocated(state,resource)-externalResourceAllocation(context,resource));
+  return avecPorteeBonusV1(state,()=>{
+    const cap=idleNguEffectiveResourceStatV1(state,resource,"cap");
+    return Math.max(0,cap-totalAllocated(state,resource)-externalResourceAllocation(context,resource));
+  });
 }
 
 function reconcileResourceCurrents(state,context={}){
-  for(const resource of RESOURCE_KEYS){
+  /* Les trois capacités sont lues d'abord (une seule portée de bonus), puis les ressources sont recadrées. */
+  const capacites=avecPorteeBonusV1(state,()=>RESOURCE_KEYS.map(resource=>state.resources[resource]?resourceCapacityForCurrent(state,resource,context):0));
+  for(let i=0;i<RESOURCE_KEYS.length;i+=1){
+    const resource=RESOURCE_KEYS[i];
     const r=state.resources[resource];
     if(!r)continue;
-    r.current=clamp(num(r.current,0),0,resourceCapacityForCurrent(state,resource,context));
+    r.current=clamp(num(r.current,0),0,capacites[i]);
     r.fillProgress=clamp(num(r.fillProgress,0),0,0.999999999999);
     r.generatedThisRun=Math.max(0,num(r.generatedThisRun,0));
   }
@@ -2543,11 +2552,13 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   if(resource==="r3"&&!state.systems.hacks?.unlocked)return 0;
   if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
   const r=state.resources[resource]||defaultResource(resource);
+  return avecPorteeBonusV1(state,()=>{
   const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),0.1,50);
   /* Continu (Norman, 2026-10-03 : « chaque achat réduit un petit peu le temps nécessaire pour générer la ressource ») : la vitesse est le nombre de remplissages par seconde (50 = 1 par tick), plus de paliers par tick entier. */
   const fillsPerSecond=speed;
   const bars=idleNguEffectiveResourceStatV1(state,resource,"bars");
   return fillsPerSecond*Math.max(1,bars);
+  });
 }
 
 /*
@@ -2563,10 +2574,13 @@ function advanceGeneratedResources(state,seconds,context={}){
     if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)continue;
     if(resource==="r3"&&!state.systems.hacks?.unlocked)continue;
     const r=state.resources[resource];
-    const capacity=resourceCapacityForCurrent(state,resource,context);
+    /* Trois lectures seules, une seule portée de bonus ; l'état n'est modifié qu'après. */
+    const [capacity,perSecond,bars]=avecPorteeBonusV1(state,()=>[
+      resourceCapacityForCurrent(state,resource,context),
+      idleNguResourceGenerationPerSecond(state,resource),
+      Math.max(1,idleNguEffectiveResourceStatV1(state,resource,"bars"))
+    ]);
     const pleine=capacity<=r.current+1e-12;
-    const perSecond=idleNguResourceGenerationPerSecond(state,resource);
-    const bars=Math.max(1,idleNguEffectiveResourceStatV1(state,resource,"bars"));
     const fillsPerSecond=perSecond/bars;
     const fillTotal=Math.max(0,num(r.fillProgress,0))+fillsPerSecond*seconds;
     const fullFills=Math.floor(fillTotal+1e-12);
@@ -4781,6 +4795,9 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
  * lecture que "The Beast v4 beaten" -> beastBrutalDefeated).
  */
 function achievementMetricsV1(state) {
+  return avecPorteeBonusV1(state, () => achievementMetricsLectureV1(state));
+}
+function achievementMetricsLectureV1(state) {
   const eff = (r, s) => idleNguEffectiveResourceStatV1(state, r, s);
   const flags = state.adventure?.unlockFlags || {};
   const peaks = state.difficultyPeaks || {};

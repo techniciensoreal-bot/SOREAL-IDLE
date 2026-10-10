@@ -108,10 +108,14 @@ assert.ok(IDLE_ADVENTURE_ITEM_CATALOG_V1[defArme] && IDLE_ADVENTURE_ITEM_CATALOG
   db.prepare("update idle_catalog set row_json=? where rowid=?").run(JSON.stringify(arr), ligne.id);
   run("synchroniserSorealIdle"); run("synchroniserSorealIdle"); // échauffement
   idleAdventurePerfRazV1();
-  run("synchroniserSorealIdle");
+  /* PERF-002 (audit du 2026-10-10) : on compte aussi les grosses sérialisations (clés de mémo) : à 450 objets, 152 par synchro avant la portée de bonus des lectures de ressources, 106 après (borne large pour ne pas être fragile). */
+  const stringifyOrigine = JSON.stringify; let grosses = 0;
+  JSON.stringify = function (v, ...x) { const r = stringifyOrigine.call(JSON, v, ...x); if (typeof r === "string" && r.length > 30000) grosses += 1; return r; };
+  try { run("synchroniserSorealIdle"); } finally { JSON.stringify = stringifyOrigine; }
   const c = idleAdventurePerfCompteursV1();
   if (process.env.SOREAL_IDLE_VERIF_BONUS === "1") { console.log("idle-bonus-memo-v1: OK (mode vérification : compteurs ignorés, chaque réutilisation est recalculée)"); process.exit(0); }
   assert.ok(c.normalisations <= 60, "normalisations de l'état d'Aventure par synchro : " + c.normalisations + " (470 avant le mémo)");
+  assert.ok(grosses <= 120, "grosses sérialisations (> 30 Ko) par synchro : " + grosses);
   assert.ok(c.calculsEquipement <= 15, "calculs de statistiques d'équipement par synchro : " + c.calculsEquipement + " (460 avant le mémo)");
 }
 console.log("idle-bonus-memo-v1: OK");
