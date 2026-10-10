@@ -1288,12 +1288,13 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
  * - Téléphone : pas la place pour le décor (il disparaît) ; la borne, puis la chronique en dessous, sous forme de cadre.
  */
 @media (min-width:561px){
-  /* Porte-affiche posé sur la borne (Norman, 2026-10-10 : « un porte-affiche, pas un cube ») : une affiche plate, légèrement penchée en arrière (plus étroite en haut), tenue par un socle ; posé un peu de travers. */
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:calc(50% - 82px);top:calc(210px - 124px);width:164px;max-width:none;height:112px;min-height:0;overflow:visible;z-index:4;padding:9px 12px 14px!important;border:0!important;outline:0!important;border-radius:3px!important;
-    background:linear-gradient(180deg,#f6e7b8,#e6cf92)!important;box-shadow:inset 0 0 0 3px #8a5a1a,inset 0 0 18px rgba(90,50,10,.28),0 6px 10px rgba(0,0,0,.55)!important;clip-path:none;transform:perspective(380px) rotateX(-7deg) rotate(-3deg);transform-origin:50% 100%}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte)::before{content:"";display:block;position:absolute;left:-9px;right:-9px;bottom:-9px;top:auto;width:auto;height:15px;margin:0;border-radius:3px 3px 7px 7px;
-    background:linear-gradient(180deg,#8a8f9c,#4b505c 45%,#23262e);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 4px 6px rgba(0,0,0,.6);z-index:6}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:perspective(380px) rotateX(-7deg) rotate(-2deg) scale(1.04)}
+  /* Document posé À PLAT sur le haut de la borne, un peu de travers (Norman, 2026-10-10) : vu en perspective (couché vers l'arrière), avec de l'épaisseur (tranche de papier empilée), un coin légèrement relevé et une ombre portée sur la borne. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:calc(50% - 104px);top:calc(210px - 98px);width:208px;max-width:none;height:112px;min-height:0;overflow:visible;z-index:4;padding:10px 14px 12px!important;border:0!important;outline:0!important;border-radius:2px!important;
+    background:linear-gradient(165deg,#fbefc6 0%,#ecd79c 55%,#dcc283 100%)!important;
+    box-shadow:inset 0 0 0 2px rgba(138,90,26,.55),inset 0 0 22px rgba(120,80,20,.25),0 1px 0 #e6d2a0,0 2px 0 #d2bb83,0 3px 0 #bda467,0 4px 0 #a08648,0 5px 0 #7d6532,0 14px 16px rgba(0,0,0,.65)!important;
+    clip-path:none;transform:perspective(520px) rotateX(52deg) rotateZ(-5deg);transform-origin:50% 60%}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte)::before{display:none}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:perspective(520px) rotateX(46deg) rotateZ(-4deg) scale(1.04)}
 }
 @media (max-width:560px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{display:flex;flex-direction:column;padding-top:0!important;padding-bottom:12px!important}
