@@ -2778,11 +2778,23 @@ function advanceAugmentations(state, seconds, context) {
    * uniquement comme migration pour les sauvegardes qui possèdent encore
    * l'allocation globale historique.
    */
+  /*
+   * Ordre des achats (Norman, 2026-10-10 : « deux niveaux en attente par manque d'Or ; c'est toujours Ciseaux dangereux, qui coûte 250B, qui prend le niveau alors que Boire aussi le lait en demande moins »). Quand l'Or manque pour
+   * tout le monde, il arrive d'un coup (rattrapage d'une synchro) : l'ancien ordre fixe (liste des Augments) servait la piste placée en premier, même la plus chère. On sert maintenant la piste dont le PROCHAIN niveau coûte le moins
+   * d'Or (égalité : ordre de la liste), pour que chaque pièce d'Or achète le plus de niveaux possible.
+   */
+  const multCoutAug=challengePermanentBonuses(state).augmentationCostMultiplier;
+  const pistesAug=[];
   for(const def of IDLE_NGU_AUGMENTATIONS){
     const pair=s.data.pairs[def.id];
-    advanceAugmentationTrackV214_(state,seconds,context,def,pair,false);
-    advanceAugmentationTrackV214_(state,seconds,context,def,pair,true);
+    for(const upgrade of [false,true]){
+      const n=Math.max(1,int(upgrade?pair.upgradeLevel:pair.level,0)+1);
+      const cout=(upgrade&&def.upgrade?def.upgrade.baseGold*n*n:def.baseGold*n)*multCoutAug;
+      pistesAug.push({def,pair,upgrade,cout:Number.isFinite(cout)?cout:Infinity,rang:pistesAug.length});
+    }
   }
+  pistesAug.sort((x,y)=>x.cout-y.cout||x.rang-y.rang);
+  for(const t of pistesAug)advanceAugmentationTrackV214_(state,seconds,context,t.def,t.pair,t.upgrade);
   s.level=Object.values(s.data.pairs).reduce((sum,p)=>sum+p.level+p.upgradeLevel,0);
   s.tempLevel=s.level;
   augApplyTargetsV1(state,context);

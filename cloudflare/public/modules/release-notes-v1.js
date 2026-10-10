@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Augmentations : quand l’Or manque pour plusieurs pistes à la fois, c’est celle dont le prochain niveau coûte le moins qui est servie en premier.',
           'Augmentations est refait : chaque paire montre ses deux pistes côte à côte, dans une même couleur avec une nuance plus claire pour la seconde (icône propre, tube de verre lumineux), avec une cible par piste et « Faire suivre l’énergie ». Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur.',
           'Chaque barre qui porte de l’énergie se voit d’un coup d’œil : des particules propres à chaque menu (braises, étoiles, circuits, pièces, gouttes, orbes) l’animent, même quand sa barre est pleine.',
           'Sur ordinateur, les petites écritures sont plus grandes (barres Input et Plafond, niveaux et cibles des NGU, calendrier, boutique, chat…) ; le téléphone ne change pas.',
