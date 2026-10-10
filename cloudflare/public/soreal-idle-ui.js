@@ -4010,8 +4010,7 @@
             noteOuBoutonEl&&
             noteOuBoutonEl.textContent.indexOf('Combat en cours')===-1
           ){
-            noteOuBoutonEl.outerHTML=
-              '<div class="soreal-idle-adventure-fight-note-v1">⚔️ Combat en cours…</div>';
+            poserNoteCombatAdventureIdleV1_(noteOuBoutonEl,'⚔️ Combat en cours…');
           }
         }else if(aFight){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-58 */
@@ -4065,13 +4064,23 @@
                   :texteProchainCombatAdventureIdleV165_();
 
             if(noteOuBoutonEl.textContent!==contenuAttendu){
-              noteOuBoutonEl.outerHTML=
-                '<div class="soreal-idle-adventure-fight-note-v1">'+
-                idleHtml_(contenuAttendu)+
-                '</div>';
+              poserNoteCombatAdventureIdleV1_(noteOuBoutonEl,contenuAttendu);
             }
           }
         }
+      }
+
+      /*
+       * Note de combat de l'Aventure (« Prochain combat dans 3 s… ») : le texte change chaque seconde ; la note est maintenant ÉCRITE EN PLACE (textContent) au lieu d'être remplacée en entier (outerHTML) à chaque
+       * changement : un nœud de moins retiré et recréé par seconde (audit de la page Aventure, Norman 2026-10-10). Seul le bouton « Combattre » du départ est encore remplacé, une fois.
+       */
+      function poserNoteCombatAdventureIdleV1_(el,texte){
+        if(!el)return;
+        if(el.classList&&el.classList.contains('soreal-idle-adventure-fight-note-v1')){
+          if(el.textContent!==texte)el.textContent=texte;
+          return;
+        }
+        el.outerHTML='<div class="soreal-idle-adventure-fight-note-v1">'+idleHtml_(texte)+'</div>';
       }
 
       /*
@@ -12955,9 +12964,34 @@
         const host=document.getElementById('sorealIdleAdventureLogV1');
         if(!host)return;
         attacherEcouteurScrollJournalAventureIdleV1_(host);
-        host.innerHTML=idleAdventureLogV1.length
-          ?idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_).join('')
-          :'<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>';
+        /*
+         * Journal incrémental (audit de la page Aventure, Norman 2026-10-10) : avant, chaque nouvelle ligne faisait REDESSINER les 80 lignes (innerHTML) ; on ne retire maintenant que les lignes sorties du journal et on
+         * n'ajoute que les nouvelles. Si le contenu de l'élément ne correspond plus à ce qui a été dessiné (page redessinée), on repart d'un dessin complet.
+         */
+        if(!idleAdventureLogV1.length){
+          host.__htmlLignesV1=null;
+          host.innerHTML='<div class="soreal-idle-adventure-log-line-v1 system">Le journal commencera au prochain combat.</div>';
+        }else{
+          const nouvelles=idleAdventureLogV1.map(rendreLigneJournalAventureIdleV1_);
+          const anciennes=host.__htmlLignesV1;
+          let fait=false;
+          if(Array.isArray(anciennes)&&anciennes.length&&host.children.length===anciennes.length){
+            const n=anciennes.length;
+            let k=0;
+            for(;k<n;k+=1){
+              let ok=true;
+              for(let i=0;i<n-k;i+=1){if(i>=nouvelles.length||anciennes[k+i]!==nouvelles[i]){ok=false;break;}}
+              if(ok)break;
+            }
+            if(k<n){
+              for(let i=0;i<k;i+=1)host.removeChild(host.firstChild);
+              for(let i=n-k;i<nouvelles.length;i+=1)host.insertAdjacentHTML('beforeend',nouvelles[i]);
+              fait=true;
+            }
+          }
+          if(!fait)host.innerHTML=nouvelles.join('');
+          host.__htmlLignesV1=nouvelles;
+        }
         if(idleAdventureLogAutoScrollV1_)host.scrollTop=host.scrollHeight;
       }
 
@@ -15789,9 +15823,7 @@
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-162 */
           idleCombatEnPauseApresDefaiteV1=false;
 
-          messageFlottantIdleV32_(
-            '🏃 Fuite · combat interrompu.'
-          );
+          /* Plus de popup quand on fuit (Norman, 2026-10-10) : le son de fuite et l'entrée du journal de combat suffisent. */
 
           ajouterLogCombatIdleV70_(
             'system',
@@ -17439,7 +17471,7 @@
               courant.dataset.itemVersion===desc.version
             ){
               node=courant;
-              node.dataset.slotIndex=String(desc.index);
+              if(node.dataset.slotIndex!==String(desc.index))node.dataset.slotIndex=String(desc.index);
               idleInventoryPerfV160.nodesReused+=1;
             }else{
               node=noeudDepuisHtmlInventaireIdleV160_(
@@ -17451,14 +17483,16 @@
             node=vides.shift()||noeudVideSacInventaireIdleV160_(desc.index);
             if(node){
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-180 */
-              node.dataset.emptySlotV160=String(desc.index);
-              node.dataset.slotIndex=String(desc.index);
-              node.setAttribute(
-                'ondrop',
-                'window.__deposerSurEmplacementVideSacAdventureIdleV1__(event,'+
-                String(desc.index)+
-                ')'
-              );
+              if(node.dataset.slotIndex!==String(desc.index)){
+                node.dataset.emptySlotV160=String(desc.index);
+                node.dataset.slotIndex=String(desc.index);
+                node.setAttribute(
+                  'ondrop',
+                  'window.__deposerSurEmplacementVideSacAdventureIdleV1__(event,'+
+                  String(desc.index)+
+                  ')'
+                );
+              }
               idleInventoryPerfV160.nodesReused+=1;
             }
           }
@@ -17518,7 +17552,12 @@
           '#soreal-idle-v138-bag-section .soreal-idle-window-title-v31'
         );
         if(titreSac){
-          titreSac.innerHTML='<i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+modele.utilise+' / '+modele.capacite+')';
+          /* Réécrit seulement quand le nombre de cases change : l'icône dessinée n'est plus recréée (clignotement) à chaque mise à jour. */
+          const cleTitre=modele.utilise+'/'+modele.capacite;
+          if(titreSac.dataset.sacV160!==cleTitre||!titreSac.querySelector('.dsn-sac')){
+            titreSac.innerHTML='<i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+modele.utilise+' / '+modele.capacite+')';
+            titreSac.dataset.sacV160=cleTitre;
+          }
         }
       }
 
@@ -17697,7 +17736,8 @@
           tplTrashV165.innerHTML=
             rendreTrashAdventureIdleV165_(modele.a&&modele.a.trash).trim();
           const trashSuivantV165=tplTrashV165.content.firstElementChild;
-          if(trashSuivantV165)trashActuelV165.replaceWith(trashSuivantV165);
+          /* Remplacée seulement si elle diffère : sinon l'icône de la corbeille était recréée à chaque mise à jour (clignotement de l'inventaire). */
+          if(trashSuivantV165&&!trashActuelV165.isEqualNode(trashSuivantV165))trashActuelV165.replaceWith(trashSuivantV165);
         }
 
         if(

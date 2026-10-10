@@ -1964,8 +1964,8 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
   box-shadow:0 8px 18px -10px var(--tc),inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 18px -8px var(--tc);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{
-  content:"";position:absolute;top:-30%;bottom:-30%;left:-60%;width:38%;pointer-events:none;
-  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);
+  content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:38%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:translateX(-158%) skewX(-18deg);will-change:transform;
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile] b{
   color:#fff!important;text-shadow:0 0 12px var(--tc),0 0 3px color-mix(in srgb,var(--tc) 80%,#000);
@@ -1978,7 +1978,8 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="exp"]{--tc:#c084fc}
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="ap"]{--tc:#f472b6}
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="run"]{--tc:#fb923c}
-@keyframes sorealTuileReflet{0%,70%{left:-60%}100%{left:130%}}
+/* Reflet des tuiles du bandeau : glissement par transform (traité par la carte graphique) au lieu de « left » (qui forçait une mise en page à chaque image sur toutes les pages). -60 % et 130 % de la largeur de la tuile = -158 % et 342 % de celle du reflet (38 %). */
+@keyframes sorealTuileReflet{0%,70%{transform:translateX(-158%) skewX(-18deg)}100%{transform:translateX(342%) skewX(-18deg)}}
 @media (prefers-reduced-motion:no-preference){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:sorealTuileReflet 7s ease-in-out infinite}
 }
@@ -2188,8 +2189,8 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
   box-shadow:0 8px 18px -10px var(--tc),inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 18px -8px var(--tc);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{
-  content:"";position:absolute;top:-30%;bottom:-30%;left:-60%;width:38%;pointer-events:none;
-  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);
+  content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:38%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:translateX(-158%) skewX(-18deg);will-change:transform;
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile] b{
   color:#fff!important;text-shadow:0 0 12px var(--tc),0 0 3px color-mix(in srgb,var(--tc) 80%,#000);
@@ -2202,7 +2203,8 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="exp"]{--tc:#c084fc}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="ap"]{--tc:#f472b6}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="run"]{--tc:#fb923c}
-@keyframes sorealTuileReflet{0%,70%{left:-60%}100%{left:130%}}
+/* Reflet des tuiles du bandeau : glissement par transform (traité par la carte graphique) au lieu de « left » (qui forçait une mise en page à chaque image sur toutes les pages). -60 % et 130 % de la largeur de la tuile = -158 % et 342 % de celle du reflet (38 %). */
+@keyframes sorealTuileReflet{0%,70%{transform:translateX(-158%) skewX(-18deg)}100%{transform:translateX(342%) skewX(-18deg)}}
 @media (prefers-reduced-motion:no-preference){
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:sorealTuileReflet 7s ease-in-out infinite}
 }

@@ -32,17 +32,21 @@
   /* Une barre dont tout a été dépensé s'efface en fondu (opacité seulement : sa place reste réservée, rien ne bouge). Elle reparaît dès qu'il y a de nouveau de quoi la remplir. */
   var videDepuis={energie:0,magie:0},pleinDepuis={energie:0,magie:0};
   /* Une barre qui revient se POSE par-dessus l'interface sans rien décaler (Norman, 2026-10-10) : on mesure la hauteur du bandeau avant et après son retour et une marge négative annule exactement la différence. */
-  /* Les barres posées par-dessus se rangent l'une sous l'autre juste sous la barre de vie (jamais l'une sur l'autre ni sur la vie) : décalage visuel seulement, la mise en page ne bouge pas. */
+  /*
+   * Ordre des barres : TOUJOURS Énergie, Magie, 3e ressource, puis Vie (Norman, 2026-10-10). Une barre qui revient se pose dans SA place sans faire bouger l'interface : sa hauteur est annulée par une marge négative
+   * (voir reapparaitSansDecaler), et chaque barre située APRÈS elle (dont la Vie) est descendue d'autant par un simple décalage visuel (transform) ; les barres posées s'empilent dans l'ordre du bandeau.
+   */
   function ranger(hud){
-    var pv=hud.querySelector('.soreal-idle-energy-panel-v34.soreal-idle-hud-pv-v2');
-    var liste=[].slice.call(hud.querySelectorAll('.soreal-idle-superpose-v2'));
-    if(!pv||!liste.length)return;
-    liste.forEach(function(p){p.style.transform='';});
-    var base=pv.getBoundingClientRect().bottom+3,cum=0;
-    liste.forEach(function(p){
-      var d=base+cum-p.getBoundingClientRect().top;
-      p.style.transform='translateY('+d+'px)';
-      cum+=p.offsetHeight+3;
+    var panneaux=[].slice.call(hud.children).filter(function(c){return c.classList&&c.classList.contains('soreal-idle-energy-panel-v34');});
+    var cum=0;
+    panneaux.forEach(function(p){
+      if(p.classList.contains('soreal-idle-vide-v2')){if(p.style.transform)p.style.transform='';return;}
+      var tr=cum>0?'translateY('+cum+'px)':'';
+      if(p.style.transform!==tr)p.style.transform=tr;
+      if(p.classList.contains('soreal-idle-superpose-v2')){
+        var pas=-parseFloat(p.style.marginBottom);
+        cum+=pas>0?pas:p.offsetHeight+3;
+      }
     });
   }
   function reapparaitSansDecaler(panneau){
@@ -70,7 +74,7 @@
     var maintenant=Date.now();
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
-      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
+      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');ranger(panneau.closest('.soreal-idle-hud-v2')||panneau.parentNode);}
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
