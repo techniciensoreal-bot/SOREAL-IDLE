@@ -16471,7 +16471,7 @@
         return `
           ${entetePageIdleV28_(
             '🏋️ Basic Training',
-            'Affecte ton énergie aux barres. Elle n’est pas dépensée : retire-la et réaffecte-la quand tu veux.'
+            'Place ton énergie pour augmenter ton attaque et ta défense.'
           )}
 
           <!--
@@ -20664,7 +20664,20 @@ function pageAventureIdleV28_(j){
         const a=aventureMetaIdleV47_(idleEtat);
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
         const item=items.find(function(x){return String(x&&x.id)===objet;});
-        if(!item||item.kind==='boost')return false;
+        /* Clic droit / double tap sur un BOOST (Norman, 2026-10-10) : il absorbe tous les boosts de même chiffre et de même couleur (même définition), jusqu'à ce qu'ils fusionnent au niveau 100 (action serveur inventoryAuto / mergeAll). */
+        if(item&&item.kind==='boost'){
+          const identiques=items.filter(function(x){return x&&x.kind==='boost'&&String(x.id)!==objet&&x.definitionId===item.definitionId&&!x.locked&&idleEntier_(x.level)<100;});
+          if(idleEntier_(item.level)>=100||!identiques.length){
+            messageFlottantIdleV32_('Aucun boost identique à fusionner avec celui-ci.');
+            return true;
+          }
+          const envoyerBoost=window.__actionMetaV47__;
+          if(typeof envoyerBoost!=='function')return false;
+          nettoyerEtatDragAdventureIdleV138_();
+          envoyerBoost({action:'inventoryAuto',mode:'mergeAll',itemId:objet});
+          return true;
+        }
+        if(!item)return false;
         if(deblocageParObjetIdleV1_(a,item))return false;
         if(g.triple&&idleEntier_(item.level)<100&&piecesIdentiquesFusionIdleV1_(a,item).length){
           return fusionnerAutoObjetIdleV1_(objet);

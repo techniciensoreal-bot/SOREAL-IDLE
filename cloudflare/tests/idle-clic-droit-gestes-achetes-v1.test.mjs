@@ -38,7 +38,12 @@ assert.equal(envois.length, 0);
   // Une pièce identique déjà équipée n'est pas une pièce « disponible ».
   const jumelleEquipee = monde({ doubleTap: true, tripleTap: true }, sac, { head: "b" });
   assert.equal(jumelleEquipee("a"), true); assert.deepEqual(dernier(), { action: "inventoryAuto", mode: "boostAll", targetId: "a" }, "la seule jumelle est équipée : boosts");
-  assert.equal(c("p"), false, "un boost ne s'absorbe pas lui-même");
+  // Boost (Norman, 2026-10-10) : le clic droit absorbe tous les boosts de même chiffre et de même couleur (même définition), jusqu'au niveau 100 ; seul, il prévient.
+  assert.equal(c("p"), true); assert.equal(messages.pop(), "Aucun boost identique à fusionner avec celui-ci."); assert.equal(envois.length, 0, "un boost seul ne part pas au serveur");
+  const sacBoosts = sac.concat([{ id: "p2", definitionId: "boost:p", kind: "boost" }, { id: "q", definitionId: "boost:q", kind: "boost" }, { id: "p3", definitionId: "boost:p", kind: "boost", level: 100 }, { id: "p4", definitionId: "boost:p", kind: "boost", locked: true }]);
+  const cb = monde({ doubleTap: true, tripleTap: true }, sacBoosts);
+  assert.equal(cb("p"), true); assert.deepEqual(dernier(), { action: "inventoryAuto", mode: "mergeAll", itemId: "p" }, "boosts identiques : fusion");
+  assert.equal(cb("q"), true); assert.equal(messages.pop(), "Aucun boost identique à fusionner avec celui-ci.", "un autre chiffre ou une autre couleur ne compte pas");
 }
 // Double tap seul : toujours les boosts ; Triple tap seul : fusion, sinon l'ancienne action rapide.
 assert.equal(monde({ doubleTap: true }, sac)("a"), true); assert.deepEqual(dernier(), { action: "inventoryAuto", mode: "boostAll", targetId: "a" });
