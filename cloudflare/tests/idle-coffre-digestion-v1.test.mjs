@@ -13,10 +13,16 @@ assert.ok(son.includes("jouerDigestion") && effets.includes("coffreRot") && effe
 assert.ok(dig.includes("MIN=25000,MAX=70000") && dig.includes("document.hidden") && dig.includes("coffreVisible_"), "au hasard, jamais hors de vue");
 assert.ok(html.includes("/modules/coffre-digestion-v1.js"), "module chargé");
 assert.ok(themes.includes("0 0/90px 36px repeat-x") && !themes.includes("0 0/90px 22px repeat-x"), "étoiles de la magie sur toute la hauteur de la barre");
-assert.ok(themes.includes("@keyframes sorealHudSigle{0%{opacity:0;") && /100%\{opacity:0;transform:translate\(28px/.test(themes), "grands sigles : fondu d'entrée et de sortie, un seul sens");
+assert.ok(themes.includes("@keyframes sorealHudSigle{0%{opacity:0;") && /100%\{opacity:0;transform:translate\(8px/.test(themes), "grands sigles : fondu d'entrée et de sortie, un seul sens");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(dig.includes("'Désolé'") && dig.includes("2 doigts de chier sur tes affaires") && dig.includes("Math.random()<.125") && dig.includes("data-sans-traduction") && dig.includes("bg-fumee-v1"), "pet : nuage de fumée et bulle « Désolé » (toujours en français)");
 assert.ok(css.includes("@keyframes bgFumee") && css.includes(".bg-desole-v1"), "styles de la fumée et de la bulle");
 assert.ok(themes.includes(".soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2::before{inset:0;bottom:0;background:url(\"data:image/svg+xml,") && themes.includes("0 0/70px 36px repeat-x;--p:70px"), "magie : deuxième couche d'étoiles sur toute la hauteur");
 assert.ok(!themes.includes('url("%3Csvg'), "URL de tuile valide (préfixe data:)");
+assert.ok(dig.includes("bg-sueur-v1") && dig.includes("delai") && css.includes("@keyframes bgSueur{0%{opacity:0;") && /@keyframes bgSueur\{[^]*?100%\{opacity:0;/.test(css), "goutte de sueur : fondu d'entrée, glissement, fondu de sortie ; réplique rare après « Désolé »");
+assert.ok(themes.includes("86%{opacity:0;") && themes.includes("@keyframes sorealHudSigle"), "grand sigle : apparaît et disparaît presque aussitôt (invisible 86 % du cycle)");
+const sang = readFileSync("cloudflare/public/modules/bulles-sang-v1.js", "utf8");
+assert.ok(html.includes("/modules/bulles-sang-v1.js") && sang.includes("#sorealIdleHudPvBarV2,.soreal-idle-bossbar-v7,.soreal-idle-playerbar-v15"), "bulles de sang dans les barres de vie");
+assert.ok(themes.includes("@keyframes sgBulle{0%{opacity:0;") && /@keyframes sgBulle\{[^]*?100%\{opacity:0;/.test(themes), "bulles de sang : fondu d'entrée et de sortie, un seul sens");
+assert.ok(css.includes("width:min(640px,100%);max-width:640px"), "borne plus grande sur PC");
 console.log("idle-coffre-digestion-v1: OK");

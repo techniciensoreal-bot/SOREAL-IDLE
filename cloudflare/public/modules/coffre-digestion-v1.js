@@ -22,18 +22,32 @@
     setTimeout(function(){el.classList.remove(c);},900);
     if(type==='pet')excuses_(el);
   }
-  /* Quand il pète : un petit nuage de fumée et une bulle « Désolé » (toujours en français, même en anglais : demande de Norman, 2026-10-10). */
+  /* Quand il pète : un petit nuage de fumée et une bulle « Désolé » (toujours en français, même en anglais : demande de Norman, 2026-10-10). Très rarement (1 fois sur 8), il enchaîne avec « J'étais à 2 doigts de chier sur tes
+     affaires », une goutte de sueur lui perle alors au front : elle apparaît en fondu en glissant un peu, puis s'efface. */
+  function bulle_(el,texte,rare,delai){
+    var b=document.createElement('span');
+    b.className='bg-desole-v1'+(rare?' bg-desole-rare-v1':'');b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.textContent=texte;
+    if(delai)b.style.animationDelay=delai+'ms';
+    el.appendChild(b);
+    return b;
+  }
+  function retirer_(n,ms){setTimeout(function(){if(n&&n.parentNode)n.parentNode.removeChild(n);},ms);}
   function excuses_(el){
     var f=document.createElement('span');
     f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
     f.innerHTML='<i></i><i></i><i></i>';
-    var b=document.createElement('span');
-    /* Très rarement (1 fois sur 8), une autre réplique, plus longue : la bulle s'élargit et reste un peu plus longtemps. */
+    el.appendChild(f);retirer_(f,2300);
     var rare=Math.random()<.125;
-    b.className='bg-desole-v1'+(rare?' bg-desole-rare-v1':'');b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
-    b.textContent=rare?'J’étais à 2 doigts de chier sur tes affaires':'Désolé';
-    el.appendChild(f);el.appendChild(b);
-    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);if(b.parentNode)b.parentNode.removeChild(b);},rare?3600:2300);
+    retirer_(bulle_(el,'Désolé',false,0),2300);
+    if(rare){
+      var seconde=bulle_(el,'J’étais à 2 doigts de chier sur tes affaires',true,1900);
+      var g=document.createElement('span');
+      g.className='bg-sueur-v1';g.setAttribute('aria-hidden','true');g.style.animationDelay='2000ms';
+      g.innerHTML='<svg viewBox="0 0 12 18"><path d="M6 1 C6 1 1.2 8 1.2 11.6 A4.8 4.8 0 0 0 10.8 11.6 C10.8 8 6 1 6 1 Z" fill="#8fd6ff" stroke="#2a6f9e" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.6 11.2 A2.6 2.6 0 0 0 5.6 14" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>';
+      el.appendChild(g);
+      retirer_(seconde,5600);retirer_(g,5000);
+    }
   }
   function jouer_(type){
     var el=coffreVisible_();

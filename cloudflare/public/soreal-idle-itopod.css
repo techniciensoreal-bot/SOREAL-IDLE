@@ -1366,3 +1366,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Réplique rare du Coffre : bulle plus large sur plusieurs lignes, visible plus longtemps. */
 .bg-bagage-v1 .bg-desole-rare-v1{top:-52px;width:170px;white-space:normal;text-align:center;font-size:14px;line-height:1.15;animation-duration:3.5s}
+
+/* Goutte de sueur du Coffre (réplique rare) : apparaît en fondu en glissant un peu vers le bas, puis s'efface ; un seul sens, opacité 0 au départ et à l'arrivée. */
+@keyframes bgSueur{0%{opacity:0;transform:translateY(-4px) scale(.7)}25%{opacity:1;transform:translateY(0) scale(1)}70%{opacity:1;transform:translateY(8px) scale(1)}100%{opacity:0;transform:translateY(14px) scale(.9)}}
+.bg-bagage-v1 .bg-sueur-v1{position:absolute;left:34%;top:6px;width:13px;height:19px;pointer-events:none;z-index:9;opacity:0;animation:bgSueur 2.6s ease-in-out 1 both}
+.bg-bagage-v1 .bg-sueur-v1 svg{display:block;width:100%;height:100%}
+@media (prefers-reduced-motion:reduce){.bg-bagage-v1 .bg-sueur-v1{animation:none;opacity:1}}
+/* La borne d'arcade est plus grande sur PC sans prendre toute la largeur (Norman, 2026-10-10) : 640 px au lieu de 520. Les boutons et le pupitre suivent (tailles en cqw). */
+@media (min-width:701px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2{width:min(640px,100%);max-width:640px}
+}
