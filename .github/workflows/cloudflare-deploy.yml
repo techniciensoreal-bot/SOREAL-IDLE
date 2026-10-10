@@ -28,6 +28,10 @@ concurrency:
 
 jobs:
   deploy:
+    # Audit du 2026-10-10 (IDLE-AUDIT-CI-003 et CI-007) : seule la branche main déploie, même lancé à la main (workflow_dispatch), et un run bloqué ne peut pas
+    # occuper la file de concurrence plus de 30 minutes.
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

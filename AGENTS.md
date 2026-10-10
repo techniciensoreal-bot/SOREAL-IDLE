@@ -136,13 +136,23 @@ décrire ce processus de mémoire, le relire si ce fichier change) :
 - Déclenché par un push sur `main` touchant `cloudflare/**`,
   `wrangler.jsonc` ou le workflow lui-même, ou manuellement
   (`workflow_dispatch`).
-- Le job exécute d'abord toute la suite de tests
-  (`for f in cloudflare/tests/*.test.mjs; do node "$f"; done`) puis déploie
-  avec `wrangler deploy --config wrangler.jsonc` (secret
-  `CLOUDFLARE_API_TOKEN`).
-- `concurrency` avec `cancel-in-progress: true` sur le groupe
-  `soreal-idle-cloudflare-production` — un nouveau push annule un déploiement
-  en cours plutôt que de les empiler.
+- Le job (limité à la branche `main`, 30 minutes au plus) enchaîne : toute la
+  suite de tests (`for f in cloudflare/tests/*.test.mjs; do node "$f"; done`),
+  le build du frontend autonome (`build-standalone.mjs`, qui injecte le SHA
+  dans `IDLE_TEST_VERSION`) et `node --check` de tous les scripts publics, la
+  vérification des dépendances du runtime vocal, `wrangler deploy` avec
+  `--message "git:$GITHUB_SHA"` (secret `CLOUDFLARE_API_TOKEN`), la
+  vérification que le SHA annoté est bien celui actif à 100 % du trafic, puis
+  un smoke test Chromium (Playwright) sur l'adresse de production.
+- `concurrency` avec `cancel-in-progress: false` (corrigé le 2026-10-10 : ce
+  paragraphe disait `true`) sur le groupe `soreal-idle-cloudflare-production` —
+  un run déjà commencé n'est JAMAIS annulé ; GitHub ne garde qu'un run en
+  attente (le plus récent). Raison, écrite dans le workflow : annuler après
+  `wrangler deploy` mais avant la vérification du SHA laisserait en production
+  une version non validée.
+- Aucun retour arrière automatique : un smoke test qui échoue APRÈS le
+  déploiement laisse la version active. Retour arrière manuel :
+  `npx wrangler rollback` (ou redéployer le commit précédent).
 - Il n'y a qu'un seul environnement de déploiement ici (pas de palier
   staging séparé comme SOREAL-APP/SOREAL-TV) : un push sur `main` qui passe
   les tests part directement en production. Donc : **pousser sur `main`

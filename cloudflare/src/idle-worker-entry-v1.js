@@ -62,6 +62,8 @@ function idleBootstrapV1(request, env) {
     service: "soreal-idle",
     standalone: true,
     protocol: 1,
+    /* Identifiant de la version Cloudflare active (binding CF_VERSION_METADATA, public, sans secret) : permet de vérifier ce qui tourne réellement (audit du 2026-10-10, IDLE-AUDIT-CI-004). Champ AJOUTÉ seulement. */
+    version: String(env?.CF_VERSION_METADATA?.id || ""),
     /* Identifiant client Google (public) : vide tant que la connexion Google n'est pas configurée -> le bouton n'est pas proposé. */
     googleClientId: String(env?.GOOGLE_CLIENT_ID || "").trim(),
     sessionEndpoint: url.origin + "/api/v1/session",
