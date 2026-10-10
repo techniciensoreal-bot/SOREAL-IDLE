@@ -17,7 +17,7 @@ assert.ok(src.includes("linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 10
 assert.ok(src.includes("clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)"), "étoiles à quatre branches");
 assert.ok(/@keyframes nlEtoile\{0%,60%,100%\{opacity:\.25;transform:scale\(\.6\)\}/.test(src), "scintillement en opacité / échelle (compositeur)");
 assert.ok(src.includes("animation:nlEtoile var(--d,5s)") && !src.includes("6s + var(--i)"), "étoiles : durée de cycle bornée (3,2 à 8,1 s), jamais proportionnelle au rang");
-assert.ok(src.includes(".nl-v1 .nl-etoiles b:nth-child(8n){animation:nlEtoile"), "étoiles : une sur huit scintille même sans énergie placée");
+assert.ok(src.includes(".nl-v1 .nl-etoiles b:nth-child(4n){animation:nlEtoile"), "étoiles : une sur quatre scintille même sans énergie placée");
 assert.ok(src.includes("prefers-reduced-motion:no-preference"), "animations coupées pour qui les refuse");
 // Tuyaux qui brillent aux couleurs des barres : halo et tronc lumineux
 assert.ok(src.includes("box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent)") && src.includes(".nl-grille::before"), "tuyaux lumineux et tronc commun");

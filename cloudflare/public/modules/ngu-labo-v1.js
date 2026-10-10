@@ -37,14 +37,33 @@ var COULEURS={
 function etoilesHtml_(){
   var a=7,sortie='';
   function suite(){a=(a*9301+49297)%233280;return a/233280;}
-  /* Nuit étoilée (Norman, 2026-10-08 : « beaucoup plus d'étoiles ») : 240 étoiles, surtout de toutes petites ; seules quelques-unes scintillent (le reste est fixe, pour ne pas alourdir le téléphone). */
-  for(var i=0;i<240;i+=1){
-    var x=suite()*100,y=suite()*100,u=suite(),t=2+Math.round(u*u*u*10);
-    sortie+='<b style="--i:'+i+';--d:'+(3.2+((i*37)%50)/10).toFixed(1)+'s;--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"><i></i></b>';
+  /*
+   * Performance (Norman, 2026-10-10 : « les étoiles font ramer la page »). Avant : 240 étoiles = 480 éléments (une lueur en dégradé + une étoile découpée chacune) recréés à CHAQUE redessin de la page
+   * (toutes les quelques secondes), dont 60 animés. Maintenant : les étoiles FIXES (la grande majorité) sont UNE seule image (SVG en fond d'une tuile, dessinée une fois puis réutilisée) ; seules 40 étoiles
+   * sont de vrais éléments, animés en opacité / échelle uniquement (compositeur), dans un conteneur isolé (contain) qui n'oblige jamais la page à se remettre en page ni à se repeindre.
+   */
+  for(var i=0;i<40;i+=1){
+    var x=suite()*100,y=suite()*100,t=7+Math.round(suite()*9);
+    sortie+='<b style="--i:'+i+';--d:'+(3.2+((i*37)%50)/10).toFixed(1)+'s;--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"></b>';
   }
   return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
 }
 var ETOILES=etoilesHtml_();
+/* Étoiles fixes : une tuile SVG de 1000 px (200 étoiles, surtout toutes petites) répétée en fond du ciel. */
+function tuileEtoilesUri_(){
+  var a=31,svg='<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">';
+  function suite(){a=(a*9301+49297)%233280;return a/233280;}
+  for(var i=0;i<200;i+=1){
+    var x=suite()*1000,y=suite()*1000,u=suite(),r=0.6+u*u*u*5.4,o=(0.35+suite()*0.6).toFixed(2);
+    if(r<1.6)svg+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+r.toFixed(1)+'" fill="#fff" fill-opacity="'+o+'"/>';
+    else{
+      var g=r*1.8,c=function(dx,dy){return (x+dx*g).toFixed(1)+','+(y+dy*g).toFixed(1);};
+      svg+='<polygon points="'+c(0,-1)+' '+c(.2,-.2)+' '+c(1,0)+' '+c(.2,.2)+' '+c(0,1)+' '+c(-.2,.2)+' '+c(-1,0)+' '+c(-.2,-.2)+'" fill="#fff" fill-opacity="'+o+'"/>';
+    }
+  }
+  return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
+}
+var TUILE_ETOILES=tuileEtoilesUri_();
 
 var onglet='energy';        // 'energy' | 'magic'
 var timer=0;
@@ -153,12 +172,11 @@ var CSS=
   '.nl-eta{margin:2px 0 4px;font-size:12.5px;font-weight:800;color:#cdbcff;letter-spacing:.02em}.nl-eta b{color:#fff}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
-  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0}'+
-  '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:calc(var(--s)*3);height:calc(var(--s)*3);margin:calc(var(--s)*-1.5) 0 0 calc(var(--s)*-1.5);background:radial-gradient(circle,rgba(255,255,255,.4) 0,rgba(181,138,255,.2) 38%,transparent 70%);opacity:.3}'+
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;background:url("'+TUILE_ETOILES+'") 0 0/1000px 1000px repeat}'+
+  '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
-  '.nl-etoiles b i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}'+
-  /* Même sans énergie placée, une étoile sur huit scintille doucement (la nuit n'est jamais figée) ; dès qu'un tuyau reçoit de l'énergie ou de la magie, une étoile sur quatre. */
-  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b:nth-child(8n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(4n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
+  /* Même sans énergie placée, une étoile sur quatre scintille doucement (la nuit n'est jamais figée) ; dès qu'un tuyau reçoit de l'énergie ou de la magie, une sur deux. */
+  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b:nth-child(4n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}.nl-v1[data-nl-actif="1"] .nl-etoiles b:nth-child(2n){animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
     '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
