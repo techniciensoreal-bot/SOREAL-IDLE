@@ -22,7 +22,7 @@ assert.ok(!themes.includes('url("%3Csvg'), "URL de tuile valide (préfixe data:)
 assert.ok(dig.includes("bg-sueur-v1") && dig.includes("delai") && css.includes("@keyframes bgSueur{0%{opacity:0;") && /@keyframes bgSueur\{[^]*?100%\{opacity:0;/.test(css), "goutte de sueur : fondu d'entrée, glissement, fondu de sortie ; réplique rare après « Désolé »");
 assert.ok(themes.includes("86%{opacity:0;") && themes.includes("@keyframes sorealHudSigle"), "grand sigle : apparaît et disparaît presque aussitôt (invisible 86 % du cycle)");
 const sang = readFileSync("cloudflare/public/modules/bulles-sang-v1.js", "utf8");
-assert.ok(html.includes("/modules/bulles-sang-v1.js") && sang.includes("#sorealIdleHudPvBarV2,.soreal-idle-bossbar-v7,.soreal-idle-playerbar-v15"), "bulles de sang dans les barres de vie");
+assert.ok(html.includes("/modules/bulles-sang-v1.js") && sang.includes("#sorealIdleHudPvBarV2,.soreal-idle-page-root-v28[data-menu=\"combat\"] .soreal-idle-bossbar-v7"), "bulles de sang dans les barres de vie");
 assert.ok(themes.includes("@keyframes sgBulle{0%{opacity:0;") && /@keyframes sgBulle\{[^]*?100%\{opacity:0;/.test(themes), "bulles de sang : fondu d'entrée et de sortie, un seul sens");
 assert.ok(css.includes("width:min(640px,100%);max-width:640px"), "borne plus grande sur PC");
 console.log("idle-coffre-digestion-v1: OK");

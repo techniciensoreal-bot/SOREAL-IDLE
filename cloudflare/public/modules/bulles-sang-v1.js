@@ -6,9 +6,16 @@
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_BULLES_SANG_V1__)return;
-  var BARRES='#sorealIdleHudPvBarV2,.soreal-idle-bossbar-v7,.soreal-idle-playerbar-v15';
+  /* Seulement la barre de vie du joueur en haut de l'écran et celles de Fight Boss (Norman, 2026-10-10 : « pas dans le reste du jeu »). */
+  var BARRES='#sorealIdleHudPvBarV2,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-bossbar-v7,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-v15';
   var HTML='<i class="sg-bulles-v1" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i>';
   function poser_(){
+    /* Nettoyage : un calque posé sur une barre qui n'est plus dans la liste (autre page) est retiré. */
+    var vieux=document.querySelectorAll('.sg-bulles-v1');
+    for(var v=0;v<vieux.length;v+=1){
+      var h=vieux[v].parentElement;
+      if(!h||!h.matches(BARRES)){h&&h.classList.remove('sg-hote-v1');vieux[v].remove();}
+    }
     var liste=document.querySelectorAll(BARRES);
     for(var i=0;i<liste.length;i+=1){
       var el=liste[i];
