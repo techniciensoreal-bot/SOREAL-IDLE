@@ -3361,16 +3361,22 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const jours=cal.bareme.length;
         const serie=Math.max(0,Math.min(jours,H.idleEntier_(cal.serie)));
         const nomMois=(IDLE_MOIS_FR_CALENDRIER_V1[H.idleEntier_(cal.moisNumero)-1]||'')+' '+H.idleEntier_(cal.annee);
+        /* Cases = jours du mois (Norman, 2026-10-10) : prise = allumée, jour passé non pris = grisée (ratée, sans effet sur les autres), jour du jour = prête, à venir = éteinte. */
+        const prises=Array.isArray(cal.reclamees)?cal.reclamees:[];
+        const ratees=Array.isArray(cal.ratees)?cal.ratees:[];
         const serieAvant=calSerieVueV1;
-        calSerieVueV1=serie;
+        calSerieVueV1=prises.length;
+        const jourDuMois=H.idleEntier_(cal.jourDuMois);
         const cases=cal.bareme.map(function(ap,i){
           const dernier=i===jours-1;
-          const allume=i<serie;
-          const pret=!allume&&i===serie&&Boolean(cal.reclamable);
-          const etat=allume?('allume'+((serieAvant!==null&&i>=serieAvant)?' nouveau':'')):(pret?'pret':'eteint');
+          const jour=i+1;
+          const allume=prises.indexOf(jour)>=0;
+          const ratee=!allume&&ratees.indexOf(jour)>=0;
+          const pret=!allume&&!ratee&&jour===jourDuMois&&Boolean(cal.reclamable);
+          const etat=allume?('allume'+((serieAvant!==null&&prises.length>serieAvant)?' nouveau':'')):(ratee?'ratee':(pret?'pret':'eteint'));
           const icone=dernier?'👑':(((i+1)%7===0)?'🎁':'💠');
-          return '<div class="cal-case-v1 '+etat+(dernier?' dernier':'')+'" title="Jour '+(i+1)+' : '+H.idleHtml_(H.formatGrandNombreIdleV70_(ap))+' AP">'+
-            '<span class="cal-jour-v1">'+(i+1)+'</span>'+
+          return '<div class="cal-case-v1 '+etat+(dernier?' dernier':'')+'" title="Jour '+jour+' : '+H.idleHtml_(H.formatGrandNombreIdleV70_(ap))+' AP'+(ratee?' (jour raté)':'')+'">'+
+            '<span class="cal-jour-v1">'+jour+'</span>'+
             '<span class="cal-icone-v1">'+icone+'</span>'+
             '<span class="cal-ap-v1">'+H.idleHtml_(H.formatGrandNombreIdleV70_(ap))+(dernier?' AP':'')+'</span>'+
             (allume?'<span class="cal-coche-v1">✓</span>':'')+
@@ -3379,8 +3385,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         let bouton;
         if(cal.reclamable){
           bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'loginCalendar\'})">🎁 Récupérer la récompense du jour : +'+H.idleHtml_(H.formatGrandNombreIdleV70_(cal.prochainAp))+' AP</button>';
-        }else if(serie>=jours){
-          bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" disabled>👑 Plateau complet ! Un nouveau plateau commence le 1er du mois prochain.</button>';
+        }else if(jourDuMois>=jours){
+          bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" disabled>👑 Dernier jour du mois récupéré ! Un nouveau plateau commence le 1er du mois prochain.</button>';
         }else{
           bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" disabled>✅ Récompense du jour récupérée · reviens demain pour +'+H.idleHtml_(H.formatGrandNombreIdleV70_(cal.prochainAp))+' AP</button>';
         }
@@ -3396,6 +3402,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '.cal-icone-v1{font-size:19px;line-height:1.1;margin-top:9px}'+
             '.cal-ap-v1{font-size:10px;font-weight:900;letter-spacing:.01em}'+
             '.cal-case-v1.eteint{filter:grayscale(1);opacity:.5}'+
+            '.cal-case-v1.ratee{filter:grayscale(1) brightness(.7);opacity:.38;background:repeating-linear-gradient(135deg,#1b1a22 0 6px,#15141b 6px 12px)}'+
+            '.cal-case-v1.ratee .cal-icone-v1{opacity:.55}'+
             '.cal-case-v1.allume{border-color:#ffd54a;background:radial-gradient(circle at 50% 30%,#ffe58a 0,#f2a91b 55%,#a8650a 100%);color:#3a2300;box-shadow:0 0 14px rgba(255,200,60,.75),inset 0 0 10px rgba(255,255,255,.45)}'+
             '.cal-case-v1.allume.nouveau{animation:calAllumeV1 .6s ease-out}'+
             '.cal-case-v1.allume .cal-icone-v1{filter:drop-shadow(0 0 5px rgba(255,255,255,.9))}'+
@@ -3412,8 +3420,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</style>'+
           '<div class="cal-v1">'+
             '<div class="cal-titre-v1">📅 Récompenses de connexion · '+H.idleHtml_(nomMois)+'</div>'+
-            '<div class="cal-sous-v1">Reviens chaque jour : plus ta série est longue, plus l’AP est gros. Un jour raté et tu repars de la case 1 !</div>'+
-            '<div class="cal-stats-v1"><span>🔥 Série : <b>'+serie+' jour'+(serie>1?'s':'')+'</b></span><span>💠 Total du mois : <b>'+H.idleHtml_(H.formatGrandNombreIdleV70_(H.idleNombre_(cal.totalMois)))+' AP</b></span></div>'+
+            '<div class="cal-sous-v1">'+(cal.offert?'Reviens chaque jour pour récupérer ta case : plus le mois avance, plus l’AP est gros. Une case ratée est grisée.':'Reviens chaque jour pour récupérer ta case. Une case ratée est grisée, et chaque jour raté retire 10 % aux récompenses restantes.')+'</div>'+
+            '<div class="cal-stats-v1"><span>🔥 Cases récupérées : <b>'+prises.length+'</b></span>'+(H.idleEntier_(cal.joursRates)>0&&!cal.offert?'<span>⚠️ Jours ratés : <b>'+H.idleEntier_(cal.joursRates)+'</b> (récompenses restantes à <b>'+Math.round(H.idleNombre_(cal.multiplicateur)*100)+' %</b>)</span>':'')+'<span>💠 Total du mois : <b>'+H.idleHtml_(H.formatGrandNombreIdleV70_(H.idleNombre_(cal.totalMois)))+' AP</b></span></div>'+
             '<div class="cal-stats-v1"><span>🏆 Total d’AP obtenus depuis le début des récompenses : <b>'+H.idleHtml_(H.formatGrandNombreIdleV70_(H.idleNombre_(cal.totalAp)))+' AP</b></span></div>'+
             '<div class="cal-grille-v1">'+cases+'</div>'+
             bouton+

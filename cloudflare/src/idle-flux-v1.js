@@ -73,7 +73,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const achats = { exp: parArticle(m.bonuses && m.bonuses.expShop), sellout: parArticle(m.selloutShop && m.selloutShop.purchases) };
   /* Récompense de connexion (Norman, 2026-10-03 : « quand quelqu'un récupère sa récompense journalière, ça doit apparaître dans En Direct »). Seuls les clics de récupération comptent (l'octroi de lancement n'incrémente pas totalReclames). */
   const cal = (m.records && m.records.loginCalendar) || {};
-  const calendrier = { reclames: Math.max(0, Math.floor(N(cal.totalReclames, 0))), ap: Math.max(0, Math.floor(N(cal.totalAp, 0))), serie: Math.max(0, Math.floor(N(cal.serie, 0))) };
+  const calendrier = { reclames: Math.max(0, Math.floor(N(cal.totalReclames, 0))), ap: Math.max(0, Math.floor(N(cal.totalAp, 0))), serie: Math.max(0, Math.floor(/^\d{4}-\d{2}-\d{2}$/.test(String(cal.dernierJour || "")) ? Number(String(cal.dernierJour).slice(8, 10)) : N(cal.serie, 0))) };
   /* Fuites et défaites contre un boss (Norman, 2026-10-04 : « écrire quand un joueur prend la fuite ou qu'il perd contre un boss ») : compteurs tenus par le moteur de combat, jamais le détail. */
   const bossFuites = Math.max(0, Math.floor(N(stats && stats.fluxBossFuites, 0)));
   const bossDefaites = Math.max(0, Math.floor(N(stats && stats.fluxBossDefaites, 0)));

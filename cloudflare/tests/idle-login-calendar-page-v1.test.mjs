@@ -43,9 +43,10 @@ function pageMoneyPit(joueurSysteme) {
   const html = pageMoneyPit(idleNguSnapshot(etat, ctx, T));
   assert.match(html, /Récompenses de connexion · Décembre 2026/);
   assert.equal((html.match(/class="cal-case-v1 /g) || []).length, 31, "31 cases en octobre");
-  assert.equal((html.match(/cal-case-v1 eteint/g) || []).length, 30, "cases grisées");
+  assert.equal((html.match(/cal-case-v1 ratee/g) || []).length, 9, "les 9 jours déjà passés sont grisés (ratés)");
+  assert.equal((html.match(/cal-case-v1 eteint/g) || []).length, 21, "les cases à venir sont éteintes");
   assert.equal((html.match(/cal-case-v1 pret/g) || []).length, 1, "la case du jour est prête");
-  assert.match(html, /Récupérer la récompense du jour : \+1030 AP/);
+  assert.match(html, /Récupérer la récompense du jour : \+2870 AP/);
   assert.match(html, /cal-case-v1 eteint dernier/, "la dernière case est la grande");
   assert.match(html, /Total du mois : <b>150000 AP/);
 }
@@ -54,8 +55,9 @@ function pageMoneyPit(joueurSysteme) {
   const apres = applyIdleNguAction(etat, { action: "loginCalendar" }, ctx, T).state;
   const html = pageMoneyPit(idleNguSnapshot(apres, ctx, T));
   assert.equal((html.match(/cal-case-v1 allume/g) || []).length, 1, "une case allumée");
+  assert.equal((html.match(/cal-case-v1 ratee/g) || []).length, 9, "les jours ratés restent grisés");
   assert.match(html, /cal-coche-v1/);
-  assert.match(html, /reviens demain pour \+1230 AP/);
+  assert.match(html, /reviens demain pour \+3080 AP/);
   assert.doesNotMatch(html, /Récupérer la récompense du jour/);
   // Un mois de 30 jours : 30 cases.
   const nov = jour("2026-11-04");

@@ -13,7 +13,7 @@ assert.ok(meta.includes("data-couleur=\"'+couleurPrix+'\"") && meta.includes("so
 
 // Calendrier : l'animation d'allumage ne se joue que pour une case qui vient de s'allumer.
 assert.ok(meta.includes(".cal-case-v1.allume.nouveau{animation:calAllumeV1") && !/\.cal-case-v1\.allume\{[^}]*animation:/.test(meta), "plus d'animation sur toutes les cases allumées");
-assert.ok(meta.includes("(serieAvant!==null&&i>=serieAvant)?' nouveau':''"), "seule une case dont le rang dépasse la série déjà vue est « nouvelle »");
+assert.ok(meta.includes("(serieAvant!==null&&prises.length>serieAvant)?' nouveau':''"), "seule une case prise en plus du nombre déjà vu est « nouvelle »");
 
 // Curseurs (volumes des Réglages) : un geste sur un champ n'est jamais un changement de page.
 assert.ok(ui.includes("e.target.closest('input,select,textarea,[role=\"slider\"],[data-no-swipe]')") && ui.includes("surChampGlisseV1||"), "le swipe ignore les champs et curseurs");

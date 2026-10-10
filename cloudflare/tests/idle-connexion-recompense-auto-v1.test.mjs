@@ -8,7 +8,7 @@ import vm from "node:vm";
 const mod = readFileSync("cloudflare/public/modules/connexion-recompense-v1.js", "utf8");
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes('<script defer src="/modules/connexion-recompense-v1.js?v=2"></script>'));
+assert.ok(index.includes('<script defer src="/modules/connexion-recompense-v1.js?v=4"></script>'));
 assert.ok(meta.includes("window.__connexionRecompenseAutoV1__&&window.__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__") && meta.includes(".annoncer(res.resultat)"));
 
 // Comportement : réclamation automatique une seule fois, annonce avec série et AP.
@@ -37,7 +37,16 @@ assert.equal(JSON.stringify(appels[0]), JSON.stringify({ action: "loginCalendar"
 assert.equal(win.__connexionRecompenseAutoV1__, true);
 api.annoncer({ ap: 12340, case: 4, serie: 4, jours: 31 });
 const html = noeuds["cx-recompense-v1"].innerHTML;
-assert.ok(html.includes("Récompense de connexion") && html.includes("4 jour(s) consécutif(s)") && html.includes("+12") && html.includes("AP"), "annonce : série et AP");
+assert.ok(html.includes("Récompense de connexion") && html.includes("Case du jour : <b>4</b>") && html.includes("+12") && html.includes("AP"), "annonce : case du jour et AP");
+assert.ok(!html.includes("Merci de jouer"), "pas de remerciement sans jour raté");
+// Premier mois : un jour raté depuis la dernière connexion = remerciement, la totalité est conservée (Norman, 2026-10-10).
+api.annoncer({ ap: 12340, case: 6, serie: 4, jours: 31, merci: true, ratesDepuisConnexion: 2, manques: 0, reduction: 0 });
+const htmlMerci = noeuds["cx-recompense-v1"].innerHTML;
+assert.ok(htmlMerci.includes("Tu as raté <b>2</b> jour(s) depuis ta dernière connexion") && htmlMerci.includes("la totalité de tes récompenses") && htmlMerci.includes("Merci de jouer à mon jeu"), "remerciement du premier mois");
+// Après le premier mois : information sur la réduction des récompenses restantes.
+api.annoncer({ ap: 9000, case: 6, serie: 4, jours: 31, merci: false, ratesDepuisConnexion: 1, manques: 1, reduction: 10 });
+const htmlPerte = noeuds["cx-recompense-v1"].innerHTML;
+assert.ok(htmlPerte.includes("Tu as raté <b>1</b> jour(s)") && htmlPerte.includes("réduites de <b>10</b> %") && !htmlPerte.includes("Merci de jouer"), "information de réduction");
 
 // Rien à réclamer / calendrier invisible : aucune opération.
 const appels2 = [];

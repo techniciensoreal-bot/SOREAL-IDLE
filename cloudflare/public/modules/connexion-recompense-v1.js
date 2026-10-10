@@ -26,6 +26,8 @@ function styles(){
     '.cx-texte-v1{margin:6px 0;font-size:16px;color:#d6def5}'+
     '.cx-serie-v1{display:inline-block;margin:10px 0 4px;padding:6px 14px;border-radius:999px;font-size:17px;font-weight:800;background:#ff7a1a;color:#1a0d00}'+
     '.cx-ap-v1{margin:8px 0 12px;font-size:34px;font-weight:950;color:#7ee7ff;text-shadow:0 0 14px rgba(126,231,255,.6)}'+
+    '.cx-merci-v1{margin:10px 0;padding:10px 12px;border-radius:10px;font-size:15px;line-height:1.35;color:#eafff1;background:rgba(46,204,113,.18);border:1px solid rgba(110,255,160,.55)}'+
+    '.cx-perte-v1{color:#ffe3c2;background:rgba(255,140,40,.16);border-color:rgba(255,170,90,.55)}'+
     '.cx-bouton-v1{min-width:160px;padding:11px 18px;border:2px solid #000;border-radius:8px;font-size:16px;font-weight:900;color:#1a0d00;background:linear-gradient(180deg,#ffd34e,#f2a900);cursor:pointer}'+
     '@keyframes cxSaut-v1{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}';
   document.head.appendChild(s);
@@ -35,16 +37,23 @@ function styles(){
 function annoncer(res){
   if(!res||!res.ap)return;
   styles();
-  var serie=Math.max(1,Math.floor(Number(res.serie||res.case)||1));
+  var jour=Math.max(1,Math.floor(Number(res.case||res.serie)||1));
+  var rates=Math.max(0,Math.floor(Number(res.ratesDepuisConnexion)||0));
+  var reduction=Math.max(0,Math.floor(Number(res.reduction)||0));
+  /* Premier mois : un jour raté depuis la dernière connexion = remerciement, la totalité est conservée (Norman, 2026-10-10). Ensuite : information sur la réduction des récompenses restantes. */
+  var note='';
+  if(res.merci)note='<div class="cx-merci-v1">Tu as raté <b>'+esc(rates)+'</b> jour(s) depuis ta dernière connexion, mais tu auras quand même la totalité de tes récompenses. Merci de jouer à mon jeu !</div>';
+  else if(rates>0&&reduction>0)note='<div class="cx-merci-v1 cx-perte-v1">Tu as raté <b>'+esc(rates)+'</b> jour(s) : tes récompenses restantes du mois sont réduites de <b>'+esc(reduction)+'</b> %.</div>';
   var ancien=document.getElementById('cx-recompense-v1');
   if(ancien&&ancien.parentNode)ancien.parentNode.removeChild(ancien);
   var box=document.createElement('div');box.id='cx-recompense-v1';box.className='cx-recompense-v1';box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
   box.innerHTML='<div class="cx-carte-v1"><div class="cx-icone-v1">🎁</div>'+
     '<div class="cx-titre-v1">Récompense de connexion</div>'+
     '<div class="cx-texte-v1">Tu t’es connecté aujourd’hui : voici ta récompense.</div>'+
-    '<div class="cx-serie-v1">📅 Série de connexion : '+esc(serie)+' jour(s) consécutif(s)</div>'+
+    '<div class="cx-serie-v1">📅 Case du jour : <b>'+esc(jour)+'</b></div>'+
     '<div class="cx-ap-v1">+'+esc(nombre(res.ap))+' AP</div>'+
-    '<div class="cx-texte-v1">Reviens demain pour continuer ta série !</div>'+
+    note+
+    '<div class="cx-texte-v1">Reviens demain pour récupérer ta prochaine case !</div>'+
     '<button type="button" class="cx-bouton-v1">Super !</button></div>';
   box.addEventListener('click',function(e){if(e.target===box||(e.target.classList&&e.target.classList.contains('cx-bouton-v1')))fermer();});
   document.body.appendChild(box);

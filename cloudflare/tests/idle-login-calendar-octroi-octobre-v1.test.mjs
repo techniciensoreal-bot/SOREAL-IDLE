@@ -44,7 +44,7 @@ const apAttendu = bareme[0] + bareme[1];
   assert.equal(demain.result.case, 4);
 }
 
-// Un joueur qui avait déjà réclamé aujourd'hui (case 1) reçoit la case 2 mais garde sa journée.
+// Une ancienne sauvegarde (une récompense réclamée le 3 octobre) reçoit les cases 1 et 2 (jours passés) mais garde sa journée.
 {
   const T = jour("2026-10-03");
   let e = normalizeIdleNguState({}, ctx, T);
@@ -52,9 +52,9 @@ const apAttendu = bareme[0] + bareme[1];
   e.currencies.ap = bareme[0];
   e.systems.moneyPit.unlocked = true;
   e = syncIdleNguState(e, ctx, T);
-  assert.equal(e.currencies.ap, bareme[0] + bareme[1], "il ne reçoit que la case 2 en plus");
+  assert.equal(e.currencies.ap, bareme[0] + bareme[0] + bareme[1], "il reçoit les cases 1 et 2 en plus de ce qu'il avait");
   const vue = idleNguSnapshot(e, ctx, T).loginCalendar;
-  assert.equal(vue.serie, 2);
+  assert.deepEqual(vue.reclamees, [1, 2, 3]);
   assert.equal(vue.reclamable, false, "sa journée est déjà prise");
 }
 

@@ -1,17 +1,20 @@
 /*
- * Calendrier de connexion du Money Pit (Norman, 2026-10-03) : « Quand tu te connectes, tous les jours, tu as des récompenses. Plus tu enchaînes les jours, mieux les récompenses sont. Si tu
- * rates un jour, la progression reprend à 0. Ça doit être des récompenses en AP (pour combler le fait qu'on puisse acheter de l'AP avec du vrai argent dans NGU IDLE). Les récompenses durent
- * 1 mois complet (le nombre de cases varie suivant le mois), le total doit être de 150 000 AP par mois, en tranches de plus en plus grosses ; le dernier jour du mois doit être beaucoup plus
- * élevé que le jour précédent. »
+ * Calendrier de connexion du Money Pit (Norman, 2026-10-03) : « Quand tu te connectes, tous les jours, tu as des récompenses. Plus tu enchaînes les jours, mieux les récompenses sont. Ça doit être des
+ * récompenses en AP (pour combler le fait qu'on puisse acheter de l'AP avec du vrai argent dans NGU IDLE). Les récompenses durent 1 mois complet (le nombre de cases varie suivant le mois), le total doit être
+ * de 150 000 AP par mois, en tranches de plus en plus grosses ; le dernier jour du mois doit être beaucoup plus élevé que le jour précédent. »
  *
  * Fonctionnalité SOREAL originale (absente du wiki NGU Idle) : toutes les valeurs viennent directement de Norman. Les AP versés ne passent PAS par le bonus d'AP (comme le « Special Prize » : un
  * total mensuel fixe de 150 000 AP).
  *
- * Règles :
+ * Règles (révisées le 2026-10-10, demande de Norman : « un jour raté ne remet plus à 1, ça n'a pas de sens vu que c'est un mois ») :
  *  - Le « jour » est le jour calendaire de Paris (Europe/Paris), jamais l'horloge du téléphone : le serveur est la seule référence.
- *  - Le plateau du mois a autant de cases que le mois a de jours (28 à 31) ; la case n° k rapporte la k-ième somme du barème du mois.
- *  - Une récompense par jour. Réclamer le lendemain d'une récompense prolonge la série (case suivante) ; rater un jour la remet à 0 (retour à la case 1) ; un nouveau mois repart aussi de la case 1.
- *  - Série ininterrompue depuis le 1er du mois : la dernière case (jour du mois) est atteinte.
+ *  - Le plateau du mois a autant de cases que le mois a de jours (28 à 31) ; la case n° k est celle du k-ième jour du mois et rapporte la k-ième somme du barème. Une récompense par jour, réclamable ce jour-là seulement.
+ *  - Une case dont le jour est passé sans avoir été réclamée est « ratée » : grisée, définitivement perdue. Elle ne remet RIEN à zéro.
+ *  - Chaque jour raté retire 10 % aux récompenses RESTANTES (dernier lot compris), de façon cumulée : 1000 devient 900, un 2e jour raté retire 10 % de 900 (810), etc. Les jours ratés ne comptent qu'à partir du
+ *    premier jour de participation du joueur dans le mois (un joueur qui arrive le 15 n'est pas puni pour les jours 1 à 14 ; un joueur qui avait déjà participé les mois précédents est compté dès le 1er).
+ *  - Exception du PREMIER mois (octobre 2026, pour remercier les joueurs) : aucune pénalité ; le joueur qui a raté un jour depuis sa dernière connexion en est remercié par une fenêtre à la connexion (voir `merci`
+ *    dans le résultat de la réclamation et `offert` dans la vue).
+ *  - Un mois complet sans aucun jour raté rapporte exactement 150 000 AP.
  */
 
 export const IDLE_LOGIN_CALENDAR_TOTAL_AP_V1 = 150000;
@@ -20,6 +23,10 @@ const PART_DERNIERE_CASE_V1 = 0.2;
 /* Les sommes sont arrondies à la dizaine d'AP (la dernière case absorbe le reste pour que le total soit EXACTEMENT 150 000). */
 const ARRONDI_V1 = 10;
 const FUSEAU_V1 = "Europe/Paris";
+/* Pénalité par jour raté sur les récompenses restantes (Norman, 2026-10-10 : 10 %, cumulée). */
+export const IDLE_LOGIN_CALENDAR_PENALITE_V1 = 0.1;
+/* Premier mois offert : aucune pénalité, un simple remerciement (Norman, 2026-10-10). */
+export const IDLE_LOGIN_CALENDAR_MOIS_OFFERT_V1 = "2026-10";
 
 const formateurJourV1 = (() => {
   try {
@@ -50,10 +57,12 @@ export const idleLoginCalendarCleJourV1 = (p) => `${p.annee}-${deux(p.mois)}-${d
 export const idleLoginCalendarCleMoisV1 = (p) => `${p.annee}-${deux(p.mois)}`;
 export const idleLoginCalendarJoursDuMoisV1 = (annee, mois) => new Date(Date.UTC(annee, mois, 0)).getUTCDate();
 
-function veilleV1(p) {
-  const d = new Date(Date.UTC(p.annee, p.mois - 1, p.jour - 1));
-  return { annee: d.getUTCFullYear(), mois: d.getUTCMonth() + 1, jour: d.getUTCDate() };
-}
+const jourDuMoisDeCleV1 = (cle) => Number(String(cle).slice(8, 10)) || 0;
+/* Nombre de jours entre deux clés « AAAA-MM-JJ » (b - a). */
+const ecartJoursV1 = (a, b) =>
+  Math.round((Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10)) - Date.UTC(+a.slice(0, 4), +a.slice(5, 7) - 1, +a.slice(8, 10))) / 86400000);
+/* Somme arrondie à la dizaine d'AP, comme le barème. */
+const arrondiApV1 = (v) => Math.max(0, Math.round(v / ARRONDI_V1) * ARRONDI_V1);
 
 /*
  * Barème d'un mois de `jours` cases : somme EXACTE de 150 000 AP, croissant d'une case à l'autre, dernière case = 20 % du total (bien au-dessus de la veille).
@@ -72,72 +81,138 @@ export function idleLoginCalendarBaremeV1(jours) {
   return sommes.concat(derniere);
 }
 
-/* Série effective à l'instant `maintenant` : tient compte du mois courant, de la veille et d'un jour raté. */
+/*
+ * Octroi de lancement (Norman, 2026-10-03) : « pour la récompense d'octobre, octroie à tous les joueurs les jours 1 et 2 ». Pour OCTOBRE 2026 seulement, chaque joueur qui voit le calendrier (Money Pit découvert)
+ * reçoit une seule fois les cases 1 et 2 (si leur jour est passé et qu'elles n'ont pas déjà été prises) ; la case du jour se réclame normalement.
+ */
+export const IDLE_LOGIN_CALENDAR_OCTROI_V1 = Object.freeze({ mois: "2026-10", cases: 2 });
+
+/*
+ * État du mois à l'instant `maintenant` : cases réclamées, cases ratées (jours passés non réclamés), jours ratés qui comptent (pénalité) et récompense de chaque case. Les anciennes sauvegardes (série + dernier
+ * jour) sont converties : les `serie` derniers jours consécutifs jusqu'au dernier jour réclamé, plus les cases 1 et 2 d'octobre 2026 pour qui en avait reçu l'octroi.
+ */
 function etatEffectifV1(rec, maintenant) {
   const aujourdhui = idleLoginCalendarJourParisV1(maintenant);
   const cleJour = idleLoginCalendarCleJourV1(aujourdhui);
   const cleMois = idleLoginCalendarCleMoisV1(aujourdhui);
   const jours = idleLoginCalendarJoursDuMoisV1(aujourdhui.annee, aujourdhui.mois);
-  const src = rec && typeof rec === "object" ? rec : {};
-  let serie = Math.max(0, Math.min(jours, Math.floor(Number(src.serie) || 0)));
-  const dernierJour = String(src.dernierJour || "");
-  const dejaAujourdhui = dernierJour === cleJour;
-  if (String(src.mois || "") !== cleMois) serie = 0; /* nouveau mois : nouveau plateau */
-  else if (!dejaAujourdhui && dernierJour !== idleLoginCalendarCleJourV1(veilleV1(aujourdhui))) serie = 0; /* un jour raté : retour à la case 1 */
-  return { aujourdhui, cleJour, cleMois, jours, serie, dejaAujourdhui };
+  const src = idleLoginCalendarNormaliserV1(rec);
+  let reclamees = [];
+  let debut = 0;
+  if (src.mois === cleMois) {
+    if (src.cases.length) {
+      reclamees = src.cases.filter((d) => d >= 1 && d <= jours);
+    } else if (src.serie > 0 && src.dernierJour.slice(0, 7) === cleMois) {
+      const fin = jourDuMoisDeCleV1(src.dernierJour);
+      for (let d = Math.max(1, fin - src.serie + 1); d <= fin; d += 1) reclamees.push(d);
+    }
+    /* Anciennes sauvegardes seulement (sans liste de cases) : celles qui avaient reçu l'octroi d'octobre ont pris les cases 1 et 2. */
+    if (!src.cases.length && src.octroi === cleMois && cleMois === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) {
+      for (let d = 1; d <= IDLE_LOGIN_CALENDAR_OCTROI_V1.cases; d += 1) if (d < aujourdhui.jour) reclamees.push(d);
+    }
+    reclamees = [...new Set(reclamees)].sort((x, y) => x - y);
+    debut = src.debut > 0 ? Math.min(src.debut, jours) : reclamees.length ? reclamees[0] : 0;
+  }
+  const dejaAujourdhui = reclamees.includes(aujourdhui.jour);
+  /* Premier jour qui compte pour la pénalité : le début de participation dans le mois ; sans participation ce mois-ci, le 1er pour qui avait déjà participé avant, sinon aujourd'hui (aucun jour raté). */
+  const aDejaJoue = src.totalReclames > 0 || src.octroi !== "";
+  const premier = debut > 0 ? debut : aDejaJoue && src.mois !== cleMois ? 1 : aujourdhui.jour;
+  const ratees = [];
+  const comptees = [];
+  for (let d = 1; d < aujourdhui.jour; d += 1) {
+    if (reclamees.includes(d)) continue;
+    ratees.push(d);
+    if (d >= premier) comptees.push(d);
+  }
+  const offert = cleMois === IDLE_LOGIN_CALENDAR_MOIS_OFFERT_V1;
+  const nominal = idleLoginCalendarBaremeV1(jours);
+  /* Récompense de la case d : barème × 0,9 par jour raté qui compte et qui PRÉCÈDE cette case ; pour une case à venir, tous les jours ratés jusqu'ici. */
+  const recompenses = nominal.map((ap, i) => {
+    const d = i + 1;
+    if (offert) return ap;
+    const avant = comptees.filter((x) => x < d).length;
+    return arrondiApV1(ap * Math.pow(1 - IDLE_LOGIN_CALENDAR_PENALITE_V1, avant));
+  });
+  return { aujourdhui, cleJour, cleMois, jours, reclamees, ratees, comptees, debut, premier, dejaAujourdhui, offert, recompenses, nominal };
 }
 
-/* Vue envoyée au client (jamais de donnée personnelle : que le plateau et la série). */
+/* Vue envoyée au client (jamais de donnée personnelle : que le plateau et ce qui a été pris ou raté). */
 export function idleLoginCalendarSnapshotV1(rec, maintenant) {
   const e = etatEffectifV1(rec, maintenant);
   const cumul = idleLoginCalendarNormaliserV1(rec);
-  const bareme = idleLoginCalendarBaremeV1(e.jours);
+  const penalites = e.offert ? 0 : e.comptees.length;
+  const prochainJour = e.dejaAujourdhui ? e.aujourdhui.jour + 1 : e.aujourdhui.jour;
   return {
     mois: e.cleMois,
     annee: e.aujourdhui.annee,
     moisNumero: e.aujourdhui.mois,
     jours: e.jours,
-    bareme,
+    /* Récompense de chaque case, déjà réduite par les jours ratés. */
+    bareme: e.recompenses,
     totalMois: IDLE_LOGIN_CALENDAR_TOTAL_AP_V1,
-    serie: e.serie,
+    jourDuMois: e.aujourdhui.jour,
+    reclamees: e.reclamees,
+    ratees: e.ratees,
+    joursRates: penalites,
+    /* 1 = aucune pénalité ; 0,9 après un jour raté, 0,81 après deux… */
+    multiplicateur: Math.round(Math.pow(1 - IDLE_LOGIN_CALENDAR_PENALITE_V1, penalites) * 10000) / 10000,
+    offert: e.offert,
+    /* Nombre de cases prises ce mois-ci (ancien nom : série). */
+    serie: e.reclamees.length,
     /* Depuis le début des récompenses de connexion (Norman, 2026-10-03) : total d'AP obtenus et nombre de récupérations (l'octroi de lancement compte dans les AP). */
     totalAp: cumul.totalAp,
     totalReclames: cumul.totalReclames,
-    /* Cases allumées = série ; prochaine case à réclamer = série + 1 (si possible aujourd'hui). */
-    reclamable: !e.dejaAujourdhui && e.serie < e.jours,
+    reclamable: !e.dejaAujourdhui && e.aujourdhui.jour <= e.jours,
     dejaReclameAujourdhui: e.dejaAujourdhui,
-    prochainAp: e.serie < e.jours ? bareme[e.serie] : 0,
+    prochainAp: prochainJour <= e.jours ? e.recompenses[prochainJour - 1] : 0,
     jourParis: e.cleJour
   };
 }
 
-/* Réclame la récompense du jour. Retourne { ap, case, serie, jours } ; lève une erreur si déjà réclamée aujourd'hui ou si le plateau est terminé. */
+/* Réclame la récompense du jour. Retourne { ap, case, serie, jours, manques, ratesDepuisConnexion, merci, reduction } ; lève une erreur si déjà réclamée aujourd'hui. */
 export function idleLoginCalendarReclamerV1(state, maintenant) {
   const e = etatEffectifV1(state.records.loginCalendar, maintenant);
   if (e.dejaAujourdhui) throw new Error("CALENDRIER_DEJA_RECLAME");
-  if (e.serie >= e.jours) throw new Error("CALENDRIER_TERMINE");
-  const bareme = idleLoginCalendarBaremeV1(e.jours);
-  const ap = bareme[e.serie];
-  const serie = e.serie + 1;
+  const jour = e.aujourdhui.jour;
+  const ap = e.recompenses[jour - 1];
   state.currencies.ap = Math.max(0, Number(state.currencies.ap) || 0) + ap;
-  const avant = state.records.loginCalendar && typeof state.records.loginCalendar === "object" ? state.records.loginCalendar : {};
+  const avant = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
+  /* Jours ratés depuis la dernière connexion (la dernière récompense réclamée) : sert au remerciement du premier mois et à l'information de pénalité. */
+  const ecart = avant.dernierJour && avant.totalReclames > 0 ? Math.max(0, ecartJoursV1(avant.dernierJour, e.cleJour) - 1) : 0;
+  const cases = [...new Set([...e.reclamees, jour])].sort((x, y) => x - y);
   state.records.loginCalendar = {
     mois: e.cleMois,
-    serie,
+    cases,
+    debut: e.debut > 0 ? e.debut : e.premier,
+    serie: cases.length,
     dernierJour: e.cleJour,
-    totalReclames: Math.max(0, Math.floor(Number(avant.totalReclames) || 0)) + 1,
-    totalAp: Math.max(0, Math.floor(Number(avant.totalAp) || 0)) + ap,
-    octroi: String(avant.octroi || "")
+    totalReclames: avant.totalReclames + 1,
+    totalAp: avant.totalAp + ap,
+    octroi: avant.octroi
   };
-  return { ap, case: serie, serie, jours: e.jours };
+  const manques = e.offert ? 0 : e.comptees.length;
+  return {
+    ap,
+    case: jour,
+    serie: cases.length,
+    jours: e.jours,
+    manques,
+    ratesDepuisConnexion: ecart,
+    /* Premier mois : un jour raté depuis la dernière connexion = remerciement (la totalité est conservée). */
+    merci: e.offert && ecart > 0,
+    reduction: e.offert ? 0 : Math.round((1 - Math.pow(1 - IDLE_LOGIN_CALENDAR_PENALITE_V1, manques)) * 100)
+  };
 }
 
 /* Assainit la sauvegarde (jamais de valeur étrangère) ; absent ou invalide : plateau vierge. */
 export function idleLoginCalendarNormaliserV1(rec) {
   const src = rec && typeof rec === "object" && !Array.isArray(rec) ? rec : {};
   const entier = (v) => Math.max(0, Math.floor(Number(v) || 0));
+  const cases = Array.isArray(src.cases) ? [...new Set(src.cases.map((v) => entier(v)).filter((v) => v >= 1 && v <= 31))].sort((x, y) => x - y) : [];
   return {
     mois: /^\d{4}-\d{2}$/.test(String(src.mois || "")) ? String(src.mois) : "",
+    cases,
+    debut: Math.min(31, entier(src.debut)),
     serie: Math.min(31, entier(src.serie)),
     dernierJour: /^\d{4}-\d{2}-\d{2}$/.test(String(src.dernierJour || "")) ? String(src.dernierJour) : "",
     totalReclames: entier(src.totalReclames),
@@ -146,30 +221,29 @@ export function idleLoginCalendarNormaliserV1(rec) {
   };
 }
 
-/*
- * Octroi de lancement (Norman, 2026-10-03) : « pour la récompense d'octobre, octroie à tous les joueurs les jours 1 et 2 ; le 3e jour sera disponible pour tout le monde mais ils devront cliquer
- * pour récupérer et valider le bonus ». Pour OCTOBRE 2026 seulement, chaque joueur qui voit le calendrier (Money Pit découvert) reçoit une seule fois les cases 1 et 2 : leurs AP sont crédités et
- * la série passe à 2, avec la veille comme dernier jour réclamé, si bien que la case 3 est réclamable tout de suite (par un clic). Un joueur déjà plus loin ne reçoit rien ; un joueur qui avait
- * déjà réclamé aujourd'hui garde sa journée (il ne peut pas réclamer deux fois le même jour).
- */
-export const IDLE_LOGIN_CALENDAR_OCTROI_V1 = Object.freeze({ mois: "2026-10", cases: 2 });
-
 export function idleLoginCalendarOctroiV1(state, maintenant) {
   const e = etatEffectifV1(state.records.loginCalendar, maintenant);
   if (e.cleMois !== IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) return 0;
   const rec = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
   if (rec.octroi === IDLE_LOGIN_CALENDAR_OCTROI_V1.mois) return 0;
+  /* Cases 1 et 2 d'octobre : offertes une seule fois, seulement si leur jour est passé et si elles n'ont pas déjà été prises ; la case du jour se réclame normalement. */
   const cible = Math.min(e.jours, IDLE_LOGIN_CALENDAR_OCTROI_V1.cases);
   let credit = 0;
-  if (e.serie < cible) {
-    const bareme = idleLoginCalendarBaremeV1(e.jours);
-    for (let i = e.serie; i < cible; i += 1) credit += bareme[i];
+  const cases = new Set(e.reclamees);
+  /* Un joueur déjà bien avancé (au moins autant de cases prises que l'octroi) ne reçoit rien. */
+  const avance = e.reclamees.length >= cible;
+  for (let d = 1; d <= cible && !avance; d += 1) {
+    if (cases.has(d) || d >= e.aujourdhui.jour) continue;
+    credit += e.nominal[d - 1];
+    cases.add(d);
+  }
+  if (credit > 0) {
     state.currencies.ap = Math.max(0, Number(state.currencies.ap) || 0) + credit;
-    rec.mois = e.cleMois;
-    rec.serie = cible;
-    rec.dernierJour = e.dejaAujourdhui ? e.cleJour : idleLoginCalendarCleJourV1(veilleV1(e.aujourdhui));
     rec.totalAp += credit;
   }
+  rec.mois = e.cleMois;
+  rec.cases = [...cases].sort((x, y) => x - y);
+  rec.serie = rec.cases.length;
   rec.octroi = IDLE_LOGIN_CALENDAR_OCTROI_V1.mois;
   state.records.loginCalendar = rec;
   return credit;
