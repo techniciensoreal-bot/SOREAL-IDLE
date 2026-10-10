@@ -3524,7 +3524,8 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
           .soreal-idle-adventure-log-v1{
             margin-top:12px;
             overflow-y:auto;
-            max-height:120px;
+            /* Taille FIXE (Norman, 2026-10-10) : le journal a déjà sa hauteur maximale à l'ouverture, il ne décale plus la page en recevant ses premières lignes. */
+            height:120px;
             border-radius:12px;
             background:#0b111d;
             border:1px solid rgba(147,178,224,.10);
@@ -3577,7 +3578,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
             .soreal-idle-adventure-skill-v3{min-height:50px;padding:4px 2px}
             .soreal-idle-adventure-skill-icon-v3{font-size:15px}
             .soreal-idle-adventure-skill-label-v3{font-size:11px}
-            .soreal-idle-adventure-log-v1{margin-top:4px;max-height:76px;padding:4px 6px}
+            .soreal-idle-adventure-log-v1{margin-top:4px;height:76px;padding:4px 6px}
             .soreal-idle-adventure-log-line-v1{font-size:12px;line-height:1.25}
           }
           @media(max-width:470px){
@@ -3586,7 +3587,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
             .soreal-idle-adventure-skill-row-v3.advanced{grid-template-columns:repeat(3,minmax(0,1fr))}
             .soreal-idle-adventure-skill-v3{min-height:54px}
             .soreal-idle-adventure-skill-label-v3{font-size:11px;white-space:normal;line-height:1.05}
-            .soreal-idle-adventure-log-v1{max-height:58px}
+            .soreal-idle-adventure-log-v1{height:58px}
             .soreal-idle-adventure-log-line-v1{font-size:11px;line-height:1.2}
           }
 
