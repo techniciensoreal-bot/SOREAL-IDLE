@@ -36,14 +36,19 @@ const snap = idleNguSnapshot(state, ctx, 0);
 const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "achievements", "Achievements");
 /* 2026-09-24 (anti-spoil) : ni « n / 153 », ni succès à venir, ni « ??? », ni « x / 50 » de portraits. */
 assert.match(html, /Succès<b>\d+<\/b>/);
-assert.doesNotMatch(html, /\/ 153|\/ 50|\?\?\?|⬜|➖/, "aucun total ni objectif à venir");
+/* Page des succès refaite (Norman, 2026-10-10) : toutes les cases sont visibles ; les objectifs pas encore visibles sont « ????? » avec le boss à tuer ; les portraits gardent la règle (pas de total). */
+assert.match(html, /sc-case fait/, "trophée obtenu en couleur");
+assert.match(html, /sc-case (visible|cache)/, "trophées non obtenus, grisés");
+assert.match(html, /\?\?\?\?\?<\/span>[\s\S]*Tue le boss \d+ pour voir les infos/, "objectif caché : ????? et boss à tuer");
+assert.doesNotMatch(html, /\/ 50|⬜|➖/, "pas de total de portraits");
+assert.doesNotMatch(html, /Defeat Boss|Obtain /, "objectifs écrits en français, jamais le texte du wiki");
 assert.match(html, /Bonus Points<b>\d+ BP/);
 assert.match(html, /Player Portraits — 2</, "défaut + Sewers");
 assert.doesNotMatch(html, /Special Prize<\/div>/, "le Special Prize est proposé dans le menu Info (comme dans le jeu), plus sur cette page");
 assert.match(html, /__profilChoisirPortraitIdleV1__\('sewers'\)/, "portrait débloqué sélectionnable");
 assert.doesNotMatch(html, /__profilChoisirPortraitIdleV1__\('forest'\)/, "portrait verrouillé : pas de clic");
 assert.doesNotMatch(html, /__profilPrixSpecialIdleV1__/);
-assert.doesNotMatch(html, /disabled style="opacity:\.45"|🔒/, "aucun portrait verrouillé affiché");
+assert.doesNotMatch(html.slice(html.indexOf("Player Portraits")), /disabled style="opacity:\.45"|🔒/, "aucun portrait verrouillé affiché");
 
 /* Les boutons envoient les actions serveur. */
 window.__SOREAL_IDLE_META_V130__ = Object.assign({}, api, { actionMetaIdleV130_: (p) => actions.push(p) });

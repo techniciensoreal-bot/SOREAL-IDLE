@@ -108,6 +108,34 @@ function construireCatalogue() {
 export const IDLE_ACHIEVEMENTS_V1 = construireCatalogue();
 const PAR_ID = new Map(IDLE_ACHIEVEMENTS_V1.map((a) => [a.id, a]));
 
+/*
+ * Boss à vaincre pour VOIR les informations d'un succès (Norman, 2026-10-10 : la page des succès montre tous les trophées, l'objectif reste « ????? » tant que ce à quoi il se rapporte n'est pas débloqué,
+ * et on dit toujours quel boss il faut tuer). Valeurs de SOREAL (pas du wiki) tirées des déblocages du jeu : Blood Magic = boss 37 (IDLE_NGU_SYSTEMS), Rebirth = boss 4 (REBIRTH_UNLOCK_BOSS_V1), titans =
+ * boss 58 / 66 / 82 / 100 / 116 / 132 (idle-adventure-v47.js), difficulté Maléfique = boss 300 vaincu. Énergie : visible dès le départ (0). Boss N : visible dès que le boss N-10 est vaincu.
+ * Les trois secrets que le jeu ne mesure pas (explosif, set niveau 69, coin du menu) se révèlent au boss 58 (valeur de SOREAL, choisie ici).
+ */
+export const IDLE_ACHIEVEMENT_BOSS_MAGIE_V1 = 37;
+export const IDLE_ACHIEVEMENT_BOSS_RENAISSANCE_V1 = 4;
+const BOSS_SECRETS = Object.freeze({
+  secretExploder: 58, secretLevel69: 58, secretAtCorner: 58,
+  secretNguMenu: 58, secretNoHitGrb: 58,
+  secretYggdrasilMenu: 66, secretNoHitGct: 66,
+  secretNoHitJake: 82,
+  secretBeardsMenu: 100, secretNoHitUug: 100,
+  secretWalderpFinal: 116, secretNoHitWalderp: 116,
+  secretBeastV1: 132, secretBeastV2: 132, secretBeastV3: 132, secretBeastV4: 132,
+  secretSpeedrun: 37,
+  secretEvil: 300
+});
+export function idleAchievementBossRequisV1(a) {
+  if (!a) return 0;
+  if (a.group === "energyPower" || a.group === "energyCap" || a.group === "energyBars") return 0;
+  if (a.group === "magicPower" || a.group === "magicCap" || a.group === "magicBars") return IDLE_ACHIEVEMENT_BOSS_MAGIE_V1;
+  if (a.group === "boss") return Math.max(0, N(a.threshold, 0) - 10);
+  if (a.group === "rebirth") return IDLE_ACHIEVEMENT_BOSS_RENAISSANCE_V1;
+  return BOSS_SECRETS[a.id] ?? 58;
+}
+
 export function idleAchievementV1(id) {
   return PAR_ID.get(String(id || "")) || null;
 }

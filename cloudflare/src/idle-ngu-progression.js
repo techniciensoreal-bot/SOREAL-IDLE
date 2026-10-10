@@ -40,7 +40,8 @@ import {
   normalizeIdleAchievementsDataV1,
   idleAchievementsEvaluateV1,
   idleAchievementsBpV1,
-  idleAchievementsApMultiplierV1
+  idleAchievementsApMultiplierV1,
+  idleAchievementBossRequisV1
 } from "./idle-achievements-v1.js";
 import {
   idleWandoosConsumeCopyV1,
@@ -4810,11 +4811,22 @@ function achievementsSnapshotV1(state) {
   return {
     bp: idleAchievementsBpV1(state),
     apMultiplier: idleAchievementsApMultiplierV1(state),
-    /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : seuls les succès déjà obtenus sont envoyés (ni objectifs à venir, ni secrets, ni total). */
-    list: IDLE_ACHIEVEMENTS_V1.filter(a => unlocked[a.id] !== undefined).map(a => ({
-      id: a.id, group: a.group, name: a.name, bp: a.bp, threshold: a.threshold,
-      tracked: a.tracked, secret: a.secret, unlocked: true
-    }))
+    /*
+     * Page des succès (Norman, 2026-10-10 : « ils doivent tous être visibles sous forme de case, les débloqués en couleur, les autres grisés ; l'objectif en ????? tant qu'on n'a pas débloqué ce à quoi il se
+     * rapporte, avec toujours le boss à tuer pour voir les infos »). Décision de Norman : exception à la règle n°2 pour CETTE page. Le serveur masque lui-même ce qui n'est pas encore visible :
+     * le nom et le seuil ne partent que si le succès est obtenu ou si le boss requis (idleAchievementBossRequisV1) est vaincu ; sinon `voirApresBoss` donne le boss à tuer.
+     */
+    list: (() => {
+      const meilleurBoss = Math.max(0, Math.floor(num(state.records?.highestBoss, 0)));
+      return IDLE_ACHIEVEMENTS_V1.map(a => {
+        const fait = unlocked[a.id] !== undefined;
+        const requis = idleAchievementBossRequisV1(a);
+        const visible = fait || meilleurBoss >= requis;
+        const o = { id: a.id, group: a.group, bp: a.bp, secret: a.secret, unlocked: fait, voirApresBoss: visible ? 0 : requis };
+        if (visible) { o.name = a.name; o.threshold = a.threshold; o.tracked = a.tracked; }
+        return o;
+      });
+    })()
   };
 }
 

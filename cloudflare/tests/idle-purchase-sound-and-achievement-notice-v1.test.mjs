@@ -132,7 +132,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
   assert.ok(profil.includes("secret:{nom:'Secrets'"), "la catégorie des secrets utilise l'identifiant serveur « secret » (avant : « secrets », jamais affichée)");
   const couleurs = [...profil.matchAll(/couleur:'(#[0-9a-f]{6})'/g)].map((m) => m[1]);
   assert.equal(new Set(couleurs).size, couleurs.length, "une couleur distincte par catégorie");
-  assert.ok(profil.includes("idle-succes-groupe-v1") && profil.includes("var(--acc)"), "cartes colorées par catégorie");
+  assert.ok(profil.includes("sc-groupe") && profil.includes("var(--acc)") && profil.includes("sc-med"), "cases colorées par catégorie, médailles par palier");
 }
 
 console.log("idle-purchase-sound-and-achievement-notice-v1: OK");

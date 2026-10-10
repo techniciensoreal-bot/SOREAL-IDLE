@@ -70,6 +70,9 @@ const LISTE_BLANCHE = [
   { fichier: "ui.js", contient: "' / '+formatNombre_(max)", raison: "capacité de la barre d'énergie du joueur" },
   /* Page des fruits : « tier / tier max » d'un fruit déjà débloqué (plafond d'amélioration de ce fruit, aussi écrit dans la note de la page), pas un total caché. */
   { fichier: "yggdrasil-elfes-v1.js", contient: "'/'+d.maxTier", raison: "tier / tier maximum d'un fruit déjà découvert" },
+  /* Page des succès (EXCEPTION voulue par Norman, 2026-10-10) : tous les trophées sont des cases ; l'objectif est « ????? » tant que le boss indiqué n'est pas vaincu, et la case dit quel boss tuer. Le serveur n'envoie ni nom ni seuil tant que ce n'est pas visible. */
+  { fichier: "profile-v1.js", exact: "?????", raison: "objectif d'un succès pas encore visible (page des succès)" },
+  { fichier: "profile-v1.js", contient: "🔒 Tue le boss ", raison: "boss à tuer pour voir les infos d'un succès (page des succès)" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];

@@ -4,7 +4,8 @@ import {
   idleAchievementV1,
   idleAchievementsBpV1,
   idleAchievementsApMultiplierV1,
-  normalizeIdleAchievementsDataV1
+  normalizeIdleAchievementsDataV1,
+  idleAchievementBossRequisV1
 } from "../src/idle-achievements-v1.js";
 import {
   normalizeIdleNguState,
@@ -57,9 +58,22 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   assert.equal(idleAchievementsBpV1(s), 230 + 5 + 10 + 100, "Energy Power 10 et 30 + menu NGU");
   const snap = idleNguSnapshot(s, { bosses: 3 }, 4000);
   assert.equal(snap.achievements.bp, 345);
-  /* Anti-spoil : seuls les succès obtenus sont envoyés (jamais les 153 du catalogue). */
-  assert.ok(snap.achievements.list.length < 153 && snap.achievements.list.every((a) => a.unlocked), "uniquement les succès obtenus");
-  assert.equal(snap.achievements.list.find((a) => a.id === "secretNguMenu").unlocked, true);
+  /* Page des succès (Norman, 2026-10-10) : tous les trophées sont envoyés ; ce qui n'est pas encore visible est masqué PAR LE SERVEUR (ni nom ni seuil) avec le boss à tuer pour le voir. */
+  const liste = snap.achievements.list;
+  assert.equal(liste.length, 153, "tous les succès du catalogue");
+  assert.equal(liste.find((a) => a.id === "secretNguMenu").unlocked, true);
+  const cache = liste.filter((a) => !a.unlocked && a.voirApresBoss > 0);
+  assert.ok(cache.length > 10 && cache.every((a) => a.name === undefined && a.threshold === undefined), "objectifs masqués : ni nom ni seuil dans la réponse");
+  assert.ok(liste.filter((a) => a.unlocked).every((a) => typeof a.name === "string"), "un succès obtenu garde son nom");
+  assert.equal(liste.find((a) => a.id === "secretBeastV1").voirApresBoss, 132, "le boss à tuer est toujours donné");
+  const requis = (id) => idleAchievementBossRequisV1(idleAchievementV1(id));
+  assert.equal(requis("magicPower_3"), 37);
+  assert.equal(requis("energyPower_10"), 0, "énergie : visible dès le départ");
+  assert.equal(requis("boss_100"), 90, "boss N : boss N-10");
+  assert.equal(requis("boss_10"), 0);
+  assert.equal(requis("rebirth_1"), 4);
+  assert.equal(requis("secretNoHitUug"), 100);
+  assert.ok(IDLE_ACHIEVEMENTS_V1.every((a) => Number.isFinite(requis(a.id)) && requis(a.id) >= 0), "chaque succès a un boss requis");
 }
 
 // ---- Evil, Walderp, The Beast V1..V4 ----

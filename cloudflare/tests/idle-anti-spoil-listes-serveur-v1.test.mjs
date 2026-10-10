@@ -33,7 +33,8 @@ assert.ok(s.adventure.zones.every((z) => z.unlocked || z.id === s.adventure.sele
 assert.ok(s.adventure.titans.every((t) => t.progressionUnlocked || (t.state && t.state.kills > 0)), "aucun titan hors d'atteinte");
 
 /* Succès et portraits : seulement l'obtenu, jamais une condition ni un total. */
-assert.ok(s.achievements.list.every((a) => a.unlocked), "succès : uniquement les obtenus");
+/* EXCEPTION voulue par Norman (2026-10-10) : la page des succès montre tous les trophées ; le serveur masque lui-même ce qui n'est pas encore visible (ni nom ni seuil) et donne le boss à tuer. */
+assert.ok(s.achievements.list.every((a) => a.unlocked || a.voirApresBoss > 0 ? (a.unlocked || (a.name === undefined && a.threshold === undefined)) : true), "succès : objectif masqué par le serveur tant que le boss requis n'est pas vaincu");
 assert.ok(s.portraits.list.every((p) => p.unlocked || p.condition === undefined), "portraits : aucune condition envoyée");
 assert.equal(s.portraits.total, s.portraits.unlockedCount, "portraits : pas de total");
 
