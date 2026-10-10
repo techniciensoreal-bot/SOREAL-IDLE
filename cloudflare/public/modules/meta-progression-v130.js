@@ -4111,13 +4111,25 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
       /* Remplissage des barres à chaque image : même simulation que le tick (niveau, part de niveau), recalculée à partir des repères de la ligne ; ne touche que transform (aucune repeinte de mise en page). S'arrête quand plus aucune barre n'est à l'écran. */
       let atImagesActifIdleV1_=false;
+      /*
+       * Audit du 2026-10-10 (IDLE-AUDIT-FE-008) : cette boucle tourne à chaque image ; elle ne cherche plus ses éléments dans le document à chaque image. La liste des lignes (et la barre / le remplissage de chacune) est gardée en
+       * mémoire et n'est reconstruite que si une ligne a quitté la page ou toutes les 30 images ; rien n'est dessiné quand l'onglet est caché.
+       */
+      let atCacheLignesIdleV1=null;
+      let atImagesCompteurIdleV1=0;
       function atImagesIdleV1_(){
-        const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
-        if(!lignes.length){atImagesActifIdleV1_=false;return;}
+        if(document.hidden){requestAnimationFrame(atImagesIdleV1_);return;}
+        atImagesCompteurIdleV1+=1;
+        if(!atCacheLignesIdleV1||atImagesCompteurIdleV1%30===0||atCacheLignesIdleV1.some(function(c){return !c.el.isConnected;})){
+          atCacheLignesIdleV1=Array.prototype.map.call(document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]'),function(el){
+            return {el:el,barre:el.querySelector('.soreal-idle-at-barre-v1'),rempl:el.querySelector('[data-at-fill]')};
+          });
+        }
+        const lignes=atCacheLignesIdleV1;
+        if(!lignes.length){atImagesActifIdleV1_=false;atCacheLignesIdleV1=null;return;}
         const maintenant=performance.now();
         for(let i=0;i<lignes.length;i++){
-          const el=lignes[i],d=el.dataset;
-          const barre=el.querySelector('.soreal-idle-at-barre-v1'),rempl=el.querySelector('[data-at-fill]');
+          const el=lignes[i].el,d=el.dataset,barre=lignes[i].barre,rempl=lignes[i].rempl;
           if(!rempl||(barre&&barre.classList.contains('pleine')))continue;
           const taux=Number(d.atTaux)||0,gratuit=d.atGratuit==='1',cible=Number(d.atCible)||0;
           const n0=Number(d.atN)||0,p0=Number(d.atP)||0,t0=Number(d.atT)||maintenant;

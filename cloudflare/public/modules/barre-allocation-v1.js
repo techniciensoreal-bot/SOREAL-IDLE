@@ -105,6 +105,8 @@
   /* Les cadres déjà affichés suivent l'état du jeu sans redessiner la page (placer ou retirer de l'énergie ne refait pas toute la barre d'outils). */
   function majTotaux_(){
     if(typeof document.querySelectorAll!=='function')return;
+    /* Onglet caché : rien à mettre à jour (audit du 2026-10-10, IDLE-AUDIT-FE-007). */
+    if(document.hidden)return;
     var cadres=document.querySelectorAll('[data-alloc-total-v1]');
     if(!cadres.length)return;
     var j=etat_(),h=H_();

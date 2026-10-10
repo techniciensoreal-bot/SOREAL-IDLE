@@ -271,6 +271,7 @@
          * Barre de vie du boss IDENTIQUE à celle du joueur du bandeau (Norman, 2026-10-09) : hauteur, rayon, ombres, police, reflet et cœur sont COPIÉS depuis la barre du joueur (styles calculés, donc
          * exacts sur téléphone comme sur PC) dans des variables CSS que la barre du boss lit. Seule la largeur diffère.
          */
+        let copieStylePvFaiteV1=false;
         function copierStylePvV1_(){
           const w=document.querySelector('.soreal-idle-hud-pv-v2 .soreal-idle-energybar-wrap-v11');
           const o=w&&w.querySelector('.soreal-idle-energybar-overlay-v1');
@@ -292,8 +293,17 @@
             '--pv-lat-fs':cl?cl.fontSize:'11px','--pv-lat-ts':cl?cl.textShadow:'none','--pv-lat-droite':lat?Math.round((rectW.right-lat.getBoundingClientRect().right)/(zoomW>0?zoomW:1))+'px':'9px'
           };
           Object.keys(v).forEach(function(k){if(racine.style.getPropertyValue(k)!==v[k])racine.style.setProperty(k,v[k]);});
+          copieStylePvFaiteV1=true;
         }
-        setInterval(copierStylePvV1_,700);
+        /*
+         * Audit du 2026-10-10 (IDLE-AUDIT-FE-001) : ce sondage faisait 4 getComputedStyle + des mesures de mise en page toutes les 700 ms sur TOUTES les pages. Les variables --pv-* ne servent qu'à la barre du boss (menu Combat) et restent
+         * sur :root : une fois copiées, on ne relit plus les styles qu'en menu Combat ; jamais quand l'onglet est caché.
+         */
+        setInterval(function(){
+          if(document.hidden)return;
+          if(copieStylePvFaiteV1&&!document.getElementById('sorealIdleBossBarV7'))return;
+          copierStylePvV1_();
+        },700);
         window.__SOREAL_IDLE_COPIER_STYLE_PV_V1__=copierStylePvV1_;
       })();
       /* Fin de défi : annoncée dès que la synchro l'apporte, sans attendre un rendu complet de la page (modules/challenges-v1.js). */
@@ -4595,6 +4605,10 @@
         if(!infoMagic)return;
 
         if(!document.getElementById('sorealIdleMagicBarV1')){
+          /* Au plus un rendu de secours par seconde (audit du 2026-10-10, IDLE-AUDIT-FE-014) : ce garde-fou, appelé à chaque tick, pouvait sinon redessiner toute la page jusqu'à 15 fois par seconde si la barre manquait. */
+          const maintenant=Date.now();
+          if(maintenant-(assurerBarreMagicPersistanteIdleV1_.dernier||0)<1000)return;
+          assurerBarreMagicPersistanteIdleV1_.dernier=maintenant;
           rendreIdleEtat_({
             ok:true,
             joueur:idleEtat

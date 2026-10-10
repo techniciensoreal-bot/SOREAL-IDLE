@@ -104,7 +104,10 @@ function rendreDeplacable(el){
   }
   el.addEventListener('pointerup',fin);
   el.addEventListener('pointercancel',fin);
-  window.addEventListener('resize',function(){var r=el.getBoundingClientRect();placer(el,r.left,r.top);});
+  /* Écouteur retiré à la fermeture du lecteur (audit du 2026-10-10, IDLE-AUDIT-FE-009) : un par lecture lancée s'accumulait sur window. */
+  var surRedimension=function(){var r=el.getBoundingClientRect();placer(el,r.left,r.top);};
+  window.addEventListener('resize',surRedimension);
+  el.__retirerRedimension=function(){window.removeEventListener('resize',surRedimension);};
 }
 
 function afficher(){
@@ -129,7 +132,11 @@ function afficher(){
   el.querySelector('.lc-stop-v1').addEventListener('click',stop);
   majAffichage();
 }
-function fermerAffichage(){var el=lecteur();if(el&&el.parentNode)el.parentNode.removeChild(el);}
+function fermerAffichage(){
+  var el=lecteur();
+  if(el&&typeof el.__retirerRedimension==='function')el.__retirerRedimension();
+  if(el&&el.parentNode)el.parentNode.removeChild(el);
+}
 
 function terminer(){
   etat.actif=false;etat.pause=false;etat.jeton+=1;
@@ -155,7 +162,8 @@ function lireCourante(){
       lireCourante();
     },350);
   });
-  if(!demarre&&jeton===etat.jeton)return;
+  /* La voix refuse de démarrer sans appeler le rappel (voix indisponible) : on ferme le lecteur au lieu de le laisser ouvert (audit du 2026-10-10, GP-011). */
+  if(!demarre&&jeton===etat.jeton){terminer();return;}
   if(etat.pause&&typeof t.pause==='function')t.pause();
 }
 

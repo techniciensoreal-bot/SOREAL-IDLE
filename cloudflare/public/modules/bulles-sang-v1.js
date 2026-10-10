@@ -10,6 +10,8 @@
   var BARRES='#sorealIdleHudPvBarV2,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-bossbar-v7,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-v15';
   var HTML='<i class="sg-bulles-v1" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i>';
   function poser_(){
+    /* Rien à poser quand l'onglet est caché (audit du 2026-10-10, IDLE-AUDIT-FE-007). */
+    if(document.hidden)return;
     /* Nettoyage : un calque posé sur une barre qui n'est plus dans la liste (autre page) est retiré. */
     var vieux=document.querySelectorAll('.sg-bulles-v1');
     for(var v=0;v<vieux.length;v+=1){
