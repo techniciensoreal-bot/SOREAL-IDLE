@@ -19260,7 +19260,8 @@
           Math.max(0,idleNombre_(stats.regenBase)||1),
           Math.max(0,idleNombre_(stats.regen))
         );
-        if(zoneCourante==='safe'){
+        /* Le x5 (x10 avec le set GRB) est celui du REPOS en Safe Zone : pendant un combat de Titan, qui se livre dans la Safe Zone, la régénération reste la normale (Norman, 2026-10-10 : « on a x5 à la regen en combattant un titan »). */
+        if(zoneCourante==='safe'&&!(a&&a.fight&&a.fight.active)){
           return total*(a&&a.setRewards&&a.setRewards.safeZoneRegen10x?10:5);
         }
         return total;
