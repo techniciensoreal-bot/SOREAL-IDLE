@@ -1172,9 +1172,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bascule-ave
 @keyframes bnCrtOn{0%{clip-path:inset(49.6% 50% 49.6% 50%);filter:brightness(6)}25%{clip-path:inset(49.6% 0 49.6% 0);filter:brightness(6)}60%{clip-path:inset(0 0 0 0);filter:brightness(2.6)}100%{clip-path:inset(0 0 0 0);filter:none}}
 @keyframes bnCorpsOn{0%{filter:brightness(.5) saturate(.6)}100%{filter:none}}
 @keyframes bnBtnOn{0%{filter:brightness(.35)}60%{filter:brightness(1.6)}100%{filter:none}}
-@keyframes bnBtnLuit{0%,100%{filter:brightness(1);box-shadow:var(--an),0 8px 0 var(--ombre),0 0 14px var(--lueur)}50%{filter:brightness(1.28) saturate(1.2);box-shadow:var(--an),0 8px 0 var(--ombre),0 0 38px 10px var(--lueur)}}
+@keyframes bnBtnLuit{0%,100%{filter:brightness(1.05);box-shadow:var(--an),0 8px 0 var(--ombre),0 0 16px 2px var(--lueur),inset 0 6px 12px rgba(255,255,255,.55),inset 0 -8px 14px rgba(0,0,0,.28)}50%{filter:brightness(1.3) saturate(1.25);box-shadow:var(--an),0 8px 0 var(--ombre),0 0 42px 12px var(--lueur),0 -14px 26px 2px var(--lueur),inset 0 6px 16px rgba(255,255,255,.85),inset 0 -8px 14px rgba(0,0,0,.2)}}
 
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2{--bl:#2f7bff;--ro:#ff2a3d;--an:0 0 0 6px #1c2262,0 0 0 9px #05071a;width:min(520px,100%);max-width:520px;margin:0 auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible!important;filter:drop-shadow(0 24px 40px rgba(0,0,0,.65))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2{container-type:inline-size;--bl:#2f7bff;--ro:#ff2a3d;--an:0 0 0 6px #1c2262,0 0 0 9px #05071a;width:min(520px,100%);max-width:520px;margin:0 auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;overflow:visible!important;filter:drop-shadow(0 24px 40px rgba(0,0,0,.65))}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2::after{display:none!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2>.soreal-idle-label-v4{display:none!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-fronton{display:block;width:100%;height:auto;margin:0 0 -1px;position:relative;z-index:3}
@@ -1187,19 +1187,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-duel-v41::after{right:0!important;left:auto!important;background:linear-gradient(90deg,#2a0610,var(--ro) 35%,#ff9aa2 50%,var(--ro) 65%,#2a0610)!important;animation:bnLuitR 3.2s ease-in-out infinite!important}
 /* pupitre : panneau incliné aussi large que la borne ; les trois vrais boutons sont posés sur sa partie haute */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-controls-v39{position:relative!important;display:block!important;margin:-2px -16px 0!important;padding:0!important;gap:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;
-  aspect-ratio:552/190;height:auto!important;width:auto!important;z-index:4;--b:84px;--bc:104px;--g:34px}
+  aspect-ratio:552/190;height:auto!important;width:auto!important;z-index:4;--b:16cqw;--bc:19.8cqw;--g:6.5cqw;font-size:min(15px,2.9cqw)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-deck-svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;z-index:0}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39{position:absolute!important;top:calc(9% + 12px)!important;width:var(--b)!important;height:var(--b)!important;min-width:0!important;margin:0!important;padding:0!important;display:grid!important;place-items:center;
-  border:0!important;border-radius:50%!important;clip-path:none!important;transform:none!important;opacity:1!important;text-transform:none!important;z-index:2;cursor:pointer;
-  font-family:"Bangers","Russo One",Impact,sans-serif!important;font-size:15px!important;font-weight:400!important;letter-spacing:.06em!important;color:#fff!important;text-shadow:0 2px 0 rgba(0,0,0,.6)!important;-webkit-text-stroke:0!important;
+  border:0!important;border-radius:50%!important;clip-path:none!important;transform:perspective(420px) rotateX(24deg)!important;transform-origin:50% 100%;opacity:1!important;text-transform:none!important;z-index:2;cursor:pointer;
+  font-family:"Bangers","Russo One",Impact,sans-serif!important;font-size:min(15px,3.6cqw)!important;font-weight:400!important;letter-spacing:.06em!important;color:#fff!important;text-shadow:0 2px 0 rgba(0,0,0,.6)!important;-webkit-text-stroke:0!important;
   --ombre:#5a0f0b;--lueur:#ff5a4a;background:radial-gradient(circle at 35% 30%,#ff9a8f,#e5483f 45%,#8a1f1a)!important;box-shadow:var(--an),0 8px 0 var(--ombre)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39::after{display:none!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39.stop{left:calc(50% - var(--bc)/2 - var(--g) - var(--b))!important;--ombre:#5a3a00;--lueur:#ffc400;color:#2a1700!important;text-shadow:none!important;background:radial-gradient(circle at 35% 30%,#ffe58a,#ffb700 45%,#8a5a00)!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39.start{left:calc(50% - var(--bc)/2)!important;top:calc(9% + 2px)!important;width:var(--bc)!important;height:var(--bc)!important;font-size:18px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39.start{left:calc(50% - var(--bc)/2)!important;top:calc(9% + 2px)!important;width:var(--bc)!important;height:var(--bc)!important;font-size:min(18px,4.3cqw)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39.nuke{left:calc(50% + var(--bc)/2 + var(--g))!important;--ombre:#12175a;--lueur:#6a7aff;background:radial-gradient(circle at 35% 30%,#a8b4ff,#5a6aff 45%,#232a8a)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39:not(:disabled){animation:bnBtnLuit 1.6s ease-in-out infinite}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39:not(:disabled):active{transform:translateY(5px)!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39:disabled{filter:brightness(.4) saturate(.9);transform:translateY(3px)!important;box-shadow:var(--an),0 5px 0 #0b0b14!important;cursor:not-allowed;animation:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39:not(:disabled):active{transform:perspective(420px) rotateX(24deg) translateY(5px)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39:disabled{filter:brightness(.4) saturate(.9);transform:perspective(420px) rotateX(24deg) translateY(3px)!important;box-shadow:var(--an),0 5px 0 #0b0b14!important;cursor:not-allowed;animation:none}
 /* trappe à pièces et soubassement */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-bas-svg{display:block;width:100%;height:auto;margin-top:-1px;position:relative;z-index:1}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .pulse{animation:bnPulse 3.2s ease-in-out infinite}
@@ -1228,7 +1228,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-controls-v39::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-controls-v39::after{display:none!important}
 
 /* Luna park derrière la borne (Norman, 2026-10-10) : le décor remplit la page, la borne est posée devant ; guirlandes qui scintillent tour à tour, grande roue qui tourne, ballons qui flottent. Boucles sans à-coup. */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{position:relative;overflow:hidden;padding-top:120px!important;padding-bottom:70px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{position:relative;overflow:hidden;padding-top:210px!important;padding-bottom:70px!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 45%,rgba(4,2,16,.55) 100%)}
 .bn-lunapark-svg{display:block;width:100%;height:100%}
@@ -1276,5 +1276,52 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-boss-lore-info-v198){color:#2e1b08!important;font-family:"Russo One","Arial Black",sans-serif!important;line-height:1.5}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142 .soreal-idle-lore-fermer-v1{display:none;position:sticky;float:right;top:0;margin:-6px -8px 0 6px;width:34px;height:34px;padding:0;border:0;border-radius:50%;font:400 18px/34px "Russo One",sans-serif;color:#fff;background:linear-gradient(180deg,#ff7a6f,#c1121f);box-shadow:0 3px 0 #6a0a10;cursor:pointer;z-index:2}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .soreal-idle-lore-fermer-v1{display:block!important}
-/* Téléphone : la borne prend toute la largeur ; le cadre est accroché au centre du mur, au-dessus d'elle, avec la place qu'il lui faut. */
-@media (max-width:560px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{padding-top:158px!important}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:50%;top:12px;width:200px;max-width:72%;transform:translateX(-50%) rotate(-2deg)}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:translateX(-50%) rotate(-1deg) scale(1.04)}}
+
+
+/* Page Titans : ni la scène d'Aventure (combats qui défilent) ni l'automatisation de l'inventaire, qui appartiennent à la vue des zones (Norman, 2026-10-10). */
+html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"] :is(.soreal-idle-v79-adventure-scene,#soreal-idle-inventory-auto-v1){display:none!important}
+
+/*
+ * Chronique du boss (Norman, 2026-10-10) :
+ * - PC : on voit la salle un peu plus haut au-dessus de la borne, et la chronique est POSÉE sur la borne, un peu de travers, comme un chevalet de table de restaurant : une face avant en papier et une face latérale
+ *   plus sombre qui fuit sur le côté (forme « > »).
+ * - Téléphone : pas la place pour le décor (il disparaît) ; la borne, puis la chronique en dessous, sous forme de cadre.
+ */
+@media (min-width:561px){
+  /* Porte-affiche posé sur la borne (Norman, 2026-10-10 : « un porte-affiche, pas un cube ») : une affiche plate, légèrement penchée en arrière (plus étroite en haut), tenue par un socle ; posé un peu de travers. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:calc(50% - 82px);top:calc(210px - 124px);width:164px;max-width:none;height:112px;min-height:0;overflow:visible;z-index:4;padding:9px 12px 14px!important;border:0!important;outline:0!important;border-radius:3px!important;
+    background:linear-gradient(180deg,#f6e7b8,#e6cf92)!important;box-shadow:inset 0 0 0 3px #8a5a1a,inset 0 0 18px rgba(90,50,10,.28),0 6px 10px rgba(0,0,0,.55)!important;clip-path:none;transform:perspective(380px) rotateX(-7deg) rotate(-3deg);transform-origin:50% 100%}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte)::before{content:"";display:block;position:absolute;left:-9px;right:-9px;bottom:-9px;top:auto;width:auto;height:15px;margin:0;border-radius:3px 3px 7px 7px;
+    background:linear-gradient(180deg,#8a8f9c,#4b505c 45%,#23262e);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 4px 6px rgba(0,0,0,.6);z-index:6}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:perspective(380px) rotateX(-7deg) rotate(-2deg) scale(1.04)}
+}
+@media (max-width:560px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]{display:flex;flex-direction:column;padding-top:0!important;padding-bottom:12px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.bn-lunapark{display:none}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.borne-v2{order:1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){order:3;position:relative!important;left:auto;top:auto;width:230px;max-width:86%;height:auto;min-height:104px;margin:-160px auto 0!important;transform:rotate(-1.5deg)}
+  /* Le corps de la borne continue jusqu'au sol derrière la chronique (Norman, 2026-10-10) : flancs bleu/rouge, panneau sombre, filet de néon et ombre au sol. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2{container-type:inline-size;padding-bottom:150px!important;border-bottom:24px solid #05071a!important;
+    background:linear-gradient(90deg,#2f7bff 0 1.92%,transparent 1.92% 98.08%,#ff2a3d 98.08%) 0 0/100% 100% no-repeat,#0a0d2a!important;box-shadow:0 10px 12px -4px rgba(0,0,0,.7)!important}
+  /* le soubassement dessiné est retiré : le corps continue sans couture jusqu'au sol */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2 .bn-bas-svg{clip-path:inset(0 0 16% 0);margin-bottom:-7.7cqw}
+}
+
+/* Coffre tout bois (Norman, 2026-10-10 : « pas de bannière noire, tout bois ; le cadre et le titre ne collent pas ensemble »). Le titre est une planche du même brun que le cadre, avec ses veines, ses clous de cuivre aux deux bouts et une rainure dessous ; lettres dorées « gravées ». */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-titre-v1{
+  margin:8px -18px 0!important;padding:13px 52px 13px 52px!important;border:0!important;border-radius:0!important;position:relative;
+  background:
+    radial-gradient(circle at 24px 50%,#ffe9a8 0 3px,#8a5a08 4px,transparent 5px),
+    radial-gradient(circle at calc(100% - 24px) 50%,#ffe9a8 0 3px,#8a5a08 4px,transparent 5px),
+    repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 7px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 19px),
+    linear-gradient(180deg,#7a5538,#654530 55%,#543826)!important;
+  box-shadow:inset 0 2px 0 rgba(255,214,150,.22),inset 0 -3px 0 #3b2618,0 3px 0 rgba(0,0,0,.35)!important;
+  color:#ffd24a!important;text-shadow:0 2px 0 #2b1a0c,0 0 10px rgba(255,200,80,.3)!important;text-transform:none!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-chevron-v1{color:#ffd24a;text-shadow:0 2px 0 #2b1a0c;opacity:1}
+
+/* Main qui invite à toucher la chronique (une fois, jusqu'au premier clic) : va-et-vient vertical fluide (départ = arrivée), coupée en mouvement réduit. */
+@keyframes chroMain{0%,100%{transform:translateY(0) rotate(-12deg)}50%{transform:translateY(-8px) rotate(-12deg)}}
+.soreal-idle-boss-lore-v142 .chro-main-v1{position:absolute;right:6px;bottom:-4px;width:34px;height:41px;z-index:8;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6));animation:chroMain 1.1s ease-in-out infinite}
+.soreal-idle-boss-lore-v142.ouverte .chro-main-v1{display:none}
+@media (prefers-reduced-motion:reduce){.soreal-idle-boss-lore-v142 .chro-main-v1{animation:none}}

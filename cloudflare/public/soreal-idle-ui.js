@@ -1787,7 +1787,7 @@
           if(def>0)cp.multiplicateurDefenseTotal=def*ratio/applique;
           visual.appliedRatio=ratio;
           const texteMult=document.getElementById('sorealIdleAugMultV1');
-          if(texteMult)texteMult.textContent='x'+multMaintenant.toFixed(3);
+          if(texteMult&&typeof window.__formatMultiplicateurIdleV1__==='function')texteMult.textContent=window.__formatMultiplicateurIdleV1__(multMaintenant);
         }catch(e){}
       }
 
@@ -13571,6 +13571,11 @@
        * Chronique du boss accrochée au mur (Norman, 2026-10-10) : un petit cadre au fond de la salle ; un clic (ou un tap) l'agrandit, un clic dehors, sur la croix ou sur Échap la referme. L'état ouvert survit
        * au redessin de la page (window.__chroniqueOuverteIdleV1). Le panneau reste dans la page en continu : la lecture à voix haute automatique (tutorial-tts) le retrouve toujours.
        */
+      /* Main qui montre la chronique : une seule fois sur l'appareil, jamais plus dès le premier clic (même après une Renaissance). */
+      function mainChroniqueIdleV1_(){
+        try{if(localStorage.getItem('soreal_idle_chronique_main_v1'))return '';}catch(_e){}
+        return '<svg class="chro-main-v1" data-sans-traduction aria-hidden="true" viewBox="0 0 40 48"><path d="M14 4c3 0 4 2 4 4v14l2-1c2-1 4 0 4 2l1-1c2-1 4 0 4 2l1-1c2-1 4 0 4 3v10c0 7-5 12-12 12h-4c-5 0-8-3-11-8l-6-9c-1-3 2-5 4-3l3 3V8c0-2 1-4 3-4z" fill="#fff" stroke="#3a2208" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+      }
       (function(){
         function panneau(){return document.getElementById('sorealIdleBossChroniqueV206');}
         function poser(ouvert){
@@ -13584,6 +13589,8 @@
           if(p){
             if(!p.classList.contains('ouverte')){
               if(cible.closest('button,a,[data-soreal-tts-target],[data-texte-admin]'))return;
+              try{localStorage.setItem('soreal_idle_chronique_main_v1','1');}catch(_e){}
+              const m=p.querySelector('.chro-main-v1');if(m)m.remove();
               poser(true);
             }else if(cible.closest('.soreal-idle-lore-fermer-v1'))poser(false);
             return;
@@ -13642,6 +13649,7 @@
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142${window.__chroniqueOuverteIdleV1?' ouverte':''}" role="button" tabindex="0" aria-label="Chronique du boss" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}"${attrLecture}>
             <button type="button" class="soreal-idle-lore-fermer-v1" aria-label="Fermer" data-soreal-tts-ignore>✕</button>
+            ${mainChroniqueIdleV1_()}
             <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss</div>
             <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
             <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>
@@ -19901,9 +19909,12 @@
 let idleVueAventureV1='zones';
 window.__vueAventureIdleV1__=function(v){
   idleVueAventureV1=v==='titans'?'titans':'zones';
+  /* Norman (2026-10-10) : les combats d'Aventure (scène + journal) et l'automatisation de l'inventaire ne s'affichent pas sur la page Titans (voir soreal-idle-itopod.css). */
+  document.documentElement.setAttribute('data-vue-aventure',idleVueAventureV1);
   try{rafraichirMenuRacineIdleV28_();}catch(e){}
 };
 function pageAventureIdleV28_(j){
+        document.documentElement.setAttribute('data-vue-aventure',idleVueAventureV1);
         const a=aventureMetaIdleV47_(j);
         const zones=a&&Array.isArray(a.zones)?a.zones:[];
         const debloquee=aventureDebloqueeIdleV47_(j);

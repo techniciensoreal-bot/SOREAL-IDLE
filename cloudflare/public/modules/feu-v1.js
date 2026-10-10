@@ -33,7 +33,9 @@
     if(document.getElementById('feu-style-v1'))return;
     var s=document.createElement('style');s.id='feu-style-v1';
     s.textContent=[
-      '#soreal-feu-v1{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity 2.2s ease;overflow:hidden;}',
+      /* Allégé (Norman, 2026-10-10 : « les menus qui glissent perdent des FPS, je crois que c'est la cheminée ») : calque isolé (contain), UN seul calque lumineux (les voiles « ombre » et « chaleur » étaient redondants), vacillement par une animation d'opacité du navigateur au lieu d'une variable CSS réécrite 5 à 14 fois par seconde, analyse audio moins fréquente. */
+      '#soreal-feu-v1{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity 2.2s ease;overflow:hidden;contain:strict;}',
+      '#soreal-feu-v1 .fe-ombre,#soreal-feu-v1 .fe-chaleur{display:none;}',
       '#soreal-feu-v1.actif{opacity:1;}',
       /* pièce à peine assombrie : la lumière du foyer vit sur les CONTOURS de l'écran (Norman, 2026-10-08 : « moins sur le centre de l'écran, plus sur les contours ») */
       '#soreal-feu-v1 .fe-ombre{position:absolute;inset:0;background:radial-gradient(ellipse 95% 90% at 50% 52%,rgba(0,0,0,0) 45%,rgba(10,4,0,.12) 100%);}',
@@ -59,16 +61,21 @@
   }
 
   /* ---------- Vacillement : la flamme change de force et de place au hasard ---------- */
+  var animationFlamme=null;
   function vaciller_(){
     clearTimeout(minuteurVacille);
-    if(!actif)return;
-    if(racine){
-      var base=0.55+Math.random()*0.45;
-      /* de temps en temps un creux net (la flamme retombe) puis elle repart */
-      if(Math.random()<0.12)base=0.32+Math.random()*0.15;
-      racine.style.setProperty('--fe-i',base.toFixed(2));
+    if(!actif||!racine)return;
+    if(lueur&&typeof lueur.animate==='function'){
+      if(!animationFlamme){
+        /* La flamme change de force en boucle (départ = arrivée, jamais de saut) : opacité seulement, sans aucune écriture de style par le script. */
+        try{animationFlamme=lueur.animate([{opacity:.62},{opacity:.95},{opacity:.7},{opacity:.4},{opacity:.88},{opacity:.74},{opacity:.98},{opacity:.5},{opacity:.62}],{duration:3600,iterations:Infinity,easing:'linear'});}catch(_e){animationFlamme=null;}
+      }
+      if(animationFlamme)return;
     }
-    minuteurVacille=setTimeout(vaciller_,70+Math.random()*190);
+    /* Navigateur sans animation d'opacité : vacillement lent par variable CSS (rare). */
+    var base=0.55+Math.random()*0.45;
+    racine.style.setProperty('--fe-i',base.toFixed(2));
+    minuteurVacille=setTimeout(vaciller_,600+Math.random()*500);
   }
 
   /* ---------- Crépitement : un petit éclat plus vif ---------- */
@@ -98,14 +105,14 @@
       var buf=new Uint8Array(analyseur.frequencyBinCount);
       var debut=Math.floor(buf.length*0.35);
       minuteurAnalyse=setInterval(function(){
-        if(!analyseur)return;
+        if(!analyseur||document.hidden)return;
         analyseur.getByteFrequencyData(buf);
         var somme=0,n=0;for(var i=debut;i<buf.length;i++){somme+=buf[i];n+=1;}
         var niveau=n?somme/n/255:0;
         if(moyenne===0)moyenne=niveau;
         if(niveau>0.06&&niveau>moyenne*1.7)crepiter();
         moyenne=moyenne*0.94+niveau*0.06;
-      },50);
+      },110);
       return true;
     }catch(_e){analyseur=null;sourceAnalyse=null;return false;}
   }
@@ -121,7 +128,7 @@
       /* sans analyse audio : quelques étincelles au hasard */
       (function hasard_(){
         if(!actif)return;
-        setTimeout(function(){crepiter();hasard_();},350+Math.random()*1400);
+        setTimeout(function(){crepiter();hasard_();},900+Math.random()*2200);
       })();
     }
     return true;
@@ -129,6 +136,7 @@
   function arreter(){
     actif=false;
     clearTimeout(minuteurVacille);minuteurVacille=0;
+    if(animationFlamme){try{animationFlamme.cancel();}catch(_e){}animationFlamme=null;}
     arreterAnalyse_();
     if(racine)racine.classList.remove('actif');
     /* Après le fondu de sortie, le décor est retiré de la page : plus aucun coût sans feu. */

@@ -2248,3 +2248,17 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 @keyframes sorealHudAurore{from{background-position:100% 0}to{background-position:25% 0}}
 
 /* Magie et 3e ressource (Norman, 2026-10-10 : « les particules font encore un saut en arrière ») : l'écart de phase était un DÉCALAGE DE DÉPART de la tuile (20 px / 25 px) alors que l'animation glisse de « --p » depuis ce départ : elle parcourait 70 px de la tuile de 90 puis revenait d'un coup au point de départ. Le départ est maintenant 0 et le glissement vaut exactement UNE période (90 px / 70 px) ; l'écart entre barres vient d'un délai négatif. */
+
+/*
+ * Menu qui glisse sans perdre d'images (Norman, 2026-10-10 : « quand on glisse les menus de gauche à droite, on perd des FPS »). Une carte « disponible » animait box-shadow, filter ET transform en même temps : trois
+ * propriétés qui obligent le navigateur à REPEINDRE la carte (et le menu qui défile) à chaque image. Elle garde maintenant une lueur fixe, et le « pouls » est un calque (::after) dont seule l'OPACITÉ change
+ * (traitée par la carte graphique, aucune repeinte). Même chose pour la carte K.O. en Aventure. Le badge garde son petit mouvement (transform seulement).
+ */
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1{animation:none!important;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6),inset 0 0 12px 3px var(--dispo-lueur)}
+body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;box-shadow:inset 0 0 0 3px #fff,inset 0 0 26px 9px var(--dispo-lueur),0 0 18px 4px var(--dispo-lueur);opacity:0;will-change:opacity;animation:sorealNavDispoPoulsV3 1.1s ease-in-out infinite}
+@keyframes sorealNavDispoPoulsV3{0%,100%{opacity:0}50%{opacity:1}}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{animation:none!important;border-color:#ef4444!important;box-shadow:inset 0 0 12px 3px rgba(239,68,68,.55)}
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;box-shadow:inset 0 0 18px 5px rgba(239,68,68,.95),0 0 12px 2px rgba(239,68,68,.8);opacity:0;will-change:opacity;animation:sorealNavDispoPoulsV3 .85s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){
+  body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1::after,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1::after{animation:none;opacity:.75}
+}

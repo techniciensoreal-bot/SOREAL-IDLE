@@ -20,6 +20,9 @@ assert.ok(ui.includes("class=\"soreal-idle-boss-lore-v142${window.__chroniqueOuv
 for (const k of ["e.key==='Escape'", "if(window.__chroniqueOuverteIdleV1)poser(false);", "poser(true);"]) assert.ok(ui.includes(k), k);
 assert.ok(salle.includes(".soreal-idle-boss-lore-v142.ouverte{display:block!important;position:fixed!important") && salle.includes('content:"Lire la chronique"'), "cadre au mur, parchemin agrandi");
 assert.ok(ui.includes('id="sorealIdleBossChroniqueV206"') && ui.includes("data-soreal-chronique-boss-id"), "le panneau reste dans la page (lecture à voix haute automatique)");
-assert.ok(css.includes("@media (max-width:560px){") && css.includes("padding-top:158px!important") && css.includes("left:50%;top:12px;width:200px"), "téléphone : cadre accroché au centre du mur, au-dessus de la borne");
+assert.ok(css.includes("@media (max-width:560px){") && css.includes("padding-bottom:150px!important") && css.includes("margin:-160px auto 0!important") && css.includes(".bn-lunapark{display:none}"), "téléphone : pas de salle, la borne descend jusqu'au sol et la chronique est centrée dans l'espace sous le monnayeur");
+assert.ok(css.includes("clip-path:inset(0 0 16% 0)") && css.includes("--b:16cqw"), "téléphone : borne sans couture, boutons proportionnels à la borne");
+assert.ok(css.includes("calc(210px - 124px)") && css.includes("perspective(380px)"), "PC : porte-affiche posé sur la borne, un peu penché");
+assert.ok(ui.includes("soreal_idle_chronique_main_v1") && ui.includes("chro-main-v1") && css.includes("@keyframes chroMain"), "main d'invitation : une fois, jamais plus après le premier clic");
 assert.ok(!/:not(.ouverte)::after{[^}]*position:absolute/.test(salle), "l'invite fait partie du cadre (plus coupée)");
 console.log("idle-salle-arcade-chronique-v1: OK");

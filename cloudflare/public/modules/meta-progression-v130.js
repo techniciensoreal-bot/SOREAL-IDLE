@@ -2463,7 +2463,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(j.__augmentationsVisualV215&&j.__augmentationsVisualV215.src===snap.augmentations)rebaserVisuelAugmentsIdleV1_(j.__augmentationsVisualV215);
         else j.__augmentationsVisualV215=construireVisuelAugmentsIdleV1_(j);
         const mult=document.getElementById('sorealIdleAugMultV1');
-        const texteMult='x'+H.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1).toFixed(3);
+        const texteMult=formatMultiplicateurIdleV1_(H.idleNombre_(snap.bonuses&&snap.bonuses.augmentationMultiplier||1));
         if(mult&&mult.textContent!==texteMult)mult.textContent=texteMult;
       }
       window.__adopterRepereAugmentsIdleV1__=adopterRepereAugmentsIdleV1_;
@@ -2473,6 +2473,18 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * restait figée 200 niveaux derrière le serveur jusqu'à la synchro suivante, puis sautait en arrière). Le niveau n (n = niveau + 1 + j) dure sec0 × n/n0 et coûte cout0 × (n/n0)^expo
        * (expo 1 pour un Augment, 2 pour son Upgrade). `debites` cycles ont déjà été débités. Rend {k, reste, debites, debit, bloque} ; l'appelant retire `debit` de l'Or local.
        */
+      /* « Bonus total Attack & Defense » : « X 10.639 » (Norman, 2026-10-10 : « X10639.000 » devient « X 10639 ») ; entier dès 100, décimales utiles en dessous, virgule française. */
+      function formatMultiplicateurIdleV1_(m){
+        const v=Number(m);
+        if(!isFinite(v))return 'X 1';
+        if(v>=100){
+          const n=Math.round(v);
+          return 'X '+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(n):String(n));
+        }
+        return 'X '+v.toFixed(v>=10?2:3).replace('.',',');
+      }
+      window.__formatMultiplicateurIdleV1__=formatMultiplicateurIdleV1_;
+
       function rejouerCyclesAugmentIdleV1_(p){
         const n0=Math.max(1,p.niv0+1),sec0=p.sec0,expo=p.expo;
         const temps=function(k){return sec0/n0*(k*n0+k*(k-1)/2);};
@@ -2800,7 +2812,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             'Chaque Augment et chaque Upgrade a sa propre Energy et progresse en parallèle des autres.',
             'Tous les niveaux sont remis à zéro à chaque Rebirth.'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b id="sorealIdleAugMultV1">x'+mult.toFixed(3)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">💪 Bonus total Attack &amp; Defense<b id="sorealIdleAugMultV1">'+formatMultiplicateurIdleV1_(mult)+'</b></div><div class="soreal-idle-summary-v28">👹 Boss max<b>'+bossMax+'</b></div></div>'+
           legendeAllocationIdleV1_('Energy',true)+
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>⚡ Plafond d’énergie</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
