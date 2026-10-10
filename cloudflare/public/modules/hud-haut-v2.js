@@ -31,6 +31,38 @@
   }
   /* Une barre dont tout a été dépensé s'efface en fondu (opacité seulement : sa place reste réservée, rien ne bouge). Elle reparaît dès qu'il y a de nouveau de quoi la remplir. */
   var videDepuis={energie:0,magie:0},pleinDepuis={energie:0,magie:0};
+  /* Une barre qui revient se POSE par-dessus l'interface sans rien décaler (Norman, 2026-10-10) : on mesure la hauteur du bandeau avant et après son retour et une marge négative annule exactement la différence. */
+  /* Les barres posées par-dessus se rangent l'une sous l'autre juste sous la barre de vie (jamais l'une sur l'autre ni sur la vie) : décalage visuel seulement, la mise en page ne bouge pas. */
+  function ranger(hud){
+    var pv=hud.querySelector('.soreal-idle-energy-panel-v34.soreal-idle-hud-pv-v2');
+    var liste=[].slice.call(hud.querySelectorAll('.soreal-idle-superpose-v2'));
+    if(!pv||!liste.length)return;
+    liste.forEach(function(p){p.style.transform='';});
+    var base=pv.getBoundingClientRect().bottom+3,cum=0;
+    liste.forEach(function(p){
+      var d=base+cum-p.getBoundingClientRect().top;
+      p.style.transform='translateY('+d+'px)';
+      cum+=p.offsetHeight+3;
+    });
+  }
+  function reapparaitSansDecaler(panneau){
+    var hud=panneau.closest('.soreal-idle-hud-v2')||panneau.parentNode;
+    var avant=hud.getBoundingClientRect().height;
+    panneau.classList.add('soreal-idle-superpose-v2');
+    panneau.classList.remove('soreal-idle-vide-v2');
+    panneau.style.setProperty('margin-bottom','0px','important');
+    var apres=hud.getBoundingClientRect().height;
+    var marge=0;
+    if(apres-avant<=0.5){panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');return;}
+    /* Quelques passes : on corrige jusqu'à ce que la hauteur du bandeau soit exactement celle d'avant (marges qui se confondent, écarts d'arrondi). */
+    for(var i=0;i<4;i++){
+      var reste=hud.getBoundingClientRect().height-avant;
+      if(Math.abs(reste)<0.5)break;
+      marge-=reste;
+      panneau.style.setProperty('margin-bottom',marge+'px','important');
+    }
+    ranger(hud);
+  }
   function basculerVide(id,cle,vide){
     var el=document.getElementById(id);
     var panneau=el&&el.closest('.soreal-idle-energy-panel-v34');
@@ -38,12 +70,12 @@
     var maintenant=Date.now();
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
-      if(maintenant-videDepuis[cle]>=1200)panneau.classList.add('soreal-idle-vide-v2');
+      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
       if(!pleinDepuis[cle])pleinDepuis[cle]=maintenant;
-      if(maintenant-pleinDepuis[cle]>=700)panneau.classList.remove('soreal-idle-vide-v2');
+      if(maintenant-pleinDepuis[cle]>=700&&panneau.classList.contains('soreal-idle-vide-v2'))reapparaitSansDecaler(panneau);
     }
   }
   function majVide(){

@@ -15137,7 +15137,7 @@
                   id="sorealIdleMagicBarV1"
                   class="soreal-idle-energybar-v11 soreal-idle-magicbar-v1"
                   style="width:${magicPct.toFixed(4)}%"
-                ><i class="soreal-idle-bulles-v2"><b></b><b></b><b></b><b></b><b></b><b></b></i></div>
+                ><i class="soreal-idle-bulles-v2"><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b><b></b></i></div>
                 <div
                   id="sorealIdleMagicOverlayV1"
                   class="soreal-idle-energybar-overlay-v1"
