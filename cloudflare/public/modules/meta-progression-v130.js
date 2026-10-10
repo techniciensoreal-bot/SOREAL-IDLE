@@ -4101,9 +4101,33 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(id==='block')return 'Réduction : '+fr((niveau+50)/(niveau+100)*100,2)+' %';
         return 'Vitesse du dump : +'+fr(niveau,0)+' %';
       }
+      /* Remplissage des barres à chaque image : même simulation que le tick (niveau, part de niveau), recalculée à partir des repères de la ligne ; ne touche que transform (aucune repeinte de mise en page). S'arrête quand plus aucune barre n'est à l'écran. */
+      let atImagesActifIdleV1_=false;
+      function atImagesIdleV1_(){
+        const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
+        if(!lignes.length){atImagesActifIdleV1_=false;return;}
+        const maintenant=performance.now();
+        for(let i=0;i<lignes.length;i++){
+          const el=lignes[i],d=el.dataset;
+          const barre=el.querySelector('.soreal-idle-at-barre-v1'),rempl=el.querySelector('[data-at-fill]');
+          if(!rempl||(barre&&barre.classList.contains('pleine')))continue;
+          const taux=Number(d.atTaux)||0,gratuit=d.atGratuit==='1',cible=Number(d.atCible)||0;
+          const n0=Number(d.atN)||0,p0=Number(d.atP)||0,t0=Number(d.atT)||maintenant;
+          const etat=atSimulerIdleV1_(n0,p0,Math.max(0,(maintenant-t0)/1000),Number(d.atA)||0,taux,gratuit,cible);
+          const tr='scaleX('+((cible>0&&etat.n>=cible)?1:etat.p)+')';
+          if(rempl.style.transform!==tr)rempl.style.transform=tr;
+        }
+        requestAnimationFrame(atImagesIdleV1_);
+      }
+      function atDemarrerImagesIdleV1_(){
+        if(atImagesActifIdleV1_||typeof requestAnimationFrame!=='function')return;
+        atImagesActifIdleV1_=true;
+        requestAnimationFrame(atImagesIdleV1_);
+      }
       function atTickIdleV1_(){
         const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
         if(!lignes.length)return;
+        atDemarrerImagesIdleV1_();
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
         const sys=j?systemeMetaParIdIdleV130_(j,'advancedTraining'):null;
@@ -4130,7 +4154,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const atteint=cible>0&&etat.n>=cible;
           const pleine=!atteint&&niveauxParS>=49.9;
           if(barre)barre.classList.toggle('pleine',pleine);
-          if(rempl&&!pleine){const tr='scaleX('+(atteint?1:etat.p)+')';if(rempl.style.transform!==tr)rempl.style.transform=tr;}
+          /* Le remplissage n'est PLUS écrit ici (150 ms = des à-coups) : il est dessiné à chaque image par atImagesIdleV1_ (Norman, 2026-10-10 : « les barres d'entraînement avancé avancent de manière saccadée »). */
+          if(rempl&&pleine&&rempl.style.transform)rempl.style.transform='';
           const bonusEl=el.querySelector('[data-at-bonus]');
           if(bonusEl){const t=atBonusTexteIdleV1_(id,niveau);if(bonusEl.textContent!==t)bonusEl.textContent=t;}
           const etaEl=el.querySelector('[data-at-eta]');
