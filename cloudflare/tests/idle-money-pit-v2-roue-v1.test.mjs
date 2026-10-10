@@ -8,7 +8,7 @@ const dict = JSON.parse(readFileSync("cloudflare/public/modules/traduction-angla
 
 assert.ok(meta.includes("Roue journalière !</div>") && !meta.includes("Daily Spin!</div>"), "titre en français");
 assert.equal(dict["Roue journalière !"], "Daily Spin!", "version anglaise");
-assert.ok(meta.includes('class="mp2-grille-v1"') && meta.includes("mp2-droite-v1"), "image à gauche, actions à droite");
+assert.ok(meta.includes('class="mp2-grille-v1"') && css.includes("grid-row:1/3"), "image à gauche, actions à droite");
 assert.ok(/mp2-grille-v1 \.soreal-idle-money-scene-v206>img\{[^}]*height:auto!important[^}]*object-fit:contain!important/.test(css), "image entière, jamais rognée");
 assert.ok(/@media \(max-width:760px\)\{\s*\.soreal-idle-page-root-v28\[data-menu="moneyPit"\] \.mp2-grille-v1\{grid-template-columns:1fr\}/.test(css), "téléphone : tout s'empile");
 assert.ok(css.includes('--mp2-titre:"Bangers"') && css.includes('"Russo One"'), "polices de jeu");
@@ -21,4 +21,8 @@ assert.ok(f.includes("prefers-reduced-motion") && f.includes("roue.animate(") &&
 assert.ok(f.includes("anim.onfinish=function(){setTimeout(envoyer,350);}"), "la demande part à la fin du tour de roue");
 // Règle n°3 : un tour exact, linéaire, coupé en mouvement réduit.
 assert.ok(css.includes("mp2RoueDouceV1 9s linear infinite") && css.includes("to{transform:rotate(360deg)}") && /prefers-reduced-motion:reduce\)\{\.mp2-roue-prete-v1\{animation:none\}/.test(css));
+// Calendrier de connexion compact, police de jeu.
+const cal = css.slice(css.indexOf("Calendrier de connexion compact"));
+assert.ok(cal.includes("max-width:600px!important") && cal.includes("aspect-ratio:1/.82") && cal.includes("--mp2-jeu"), "calendrier resserré, cases basses, police de jeu");
+assert.ok(!/Georgia/.test(cal));
 console.log("idle-money-pit-v2-roue-v1: OK");

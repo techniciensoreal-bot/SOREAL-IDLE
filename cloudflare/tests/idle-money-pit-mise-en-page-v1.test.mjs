@@ -63,10 +63,10 @@ vm.runInNewContext(meta, { window, document, localStorage: { getItem: (k) => (k 
 const api = window.__SOREAL_IDLE_META_V130__;
 const page = api.pageSystemeMetaIdleV130_({ systemes: snap }, "moneyPit", "Money Pit");
 
-// 1. Ordre : boutons -> Ton prix -> calendrier -> cadre Money Pit -> cadre roue.
+// 1. Ordre : boutons -> Ton prix -> cadre Money Pit -> cadre roue -> calendrier.
 const i = (t) => page.indexOf(t);
 assert.ok(i("Balance ton argent") > 0 && i("soreal-idle-money-actions-v206") < i("TON PRIX"), "« Ton prix » juste sous les boutons");
-assert.ok(i("TON PRIX") < i("Récompenses de connexion") && i("Récompenses de connexion") < i('data-mp-cadre="pit"') && i('data-mp-cadre="pit"') < i('data-mp-cadre="roue"'), "ordre : prix, bonus des jours cumulés, cadre du puits, cadre de la roue");
+assert.ok(i("TON PRIX") < i('data-mp-cadre="pit"') && i('data-mp-cadre="pit"') < i('data-mp-cadre="roue"') && i('data-mp-cadre="roue"') < i("Récompenses de connexion"), "ordre : prix, cadre du puits, cadre de la roue, puis le calendrier de connexion tout en bas (Norman, 2026-10-10)");
 assert.ok(!page.includes("RÉCOMPENSES OBTENUES"), "plus de liste mélangée");
 
 // 2. Total d'AP obtenus depuis le début, affiché dans le bonus des jours cumulés.

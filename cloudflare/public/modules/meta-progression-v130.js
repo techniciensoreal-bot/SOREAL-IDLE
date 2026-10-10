@@ -3483,7 +3483,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div class="soreal-idle-money-scene-v206">'+
             '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Roue journalière">'+
           '</div>'+
-          '<div class="mp2-droite-v1">'+
           /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
           '<div class="soreal-idle-money-actions-v206">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
@@ -3511,9 +3510,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 :'Aucun prix obtenu pour l’instant.')+
             '</div>'+
           '</div>'+
-          '</div></div>'+
+          '</div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
-          rendreCalendrierConnexionIdleV1_(j)+
+          /* Norman (2026-10-10) : les récompenses du Money Pit et de la roue passent au-dessus, le calendrier de connexion en bas de page. */
           cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le puits.')+
           cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
           '<div class="soreal-idle-section-v8">'+
@@ -3522,7 +3521,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<table class="soreal-idle-reward-table-v206"><tbody>'+
               table.map(function(x){return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x)+'</td></tr>';}).join('')+
             '</tbody></table>'+
-          '</div>';
+          '</div>'+
+          rendreCalendrierConnexionIdleV1_(j);
       }
 
 
