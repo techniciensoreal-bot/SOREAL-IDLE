@@ -10,8 +10,10 @@ const ENTETES = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Prod/s","Fo
 
 export function creerJoueurExterneV1(email = "joueur.test@example.com") {
   const db = new DatabaseSync(":memory:");
+  const journalSql = [];
   const sql = {
     exec(q, ...b) {
+      journalSql.push([q, b]);
       const st = db.prepare(q);
       if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b);
       st.run(...b);
@@ -26,5 +28,5 @@ export function creerJoueurExterneV1(email = "joueur.test@example.com") {
   feuille("IDLE_BOUTIQUE", [["Type","CoutBase","Croissance","BonusParNiveau"],["production",20,1.6,1],["capacite",20,1.6,1],["puissance",20,1.6,1]]);
   sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1')");
   const user = { email, emailConnexion: email, emails: [email], prenom: "Joueur", role: "externe", externe: true };
-  return { db, sql, user, op: (nom, ...args) => runSorealIdleOperation(sql, nom, args, user) };
+  return { db, sql, user, journalSql, op: (nom, ...args) => runSorealIdleOperation(sql, nom, args, user) };
 }

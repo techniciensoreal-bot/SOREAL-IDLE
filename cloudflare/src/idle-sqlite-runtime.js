@@ -13526,6 +13526,13 @@ function obtenirClassementSorealIdle(
   let prochaineLigne = Math.max(2, registre.getLastRow() + 1);
   parCle.forEach(function(entree) {
     if (!entree.present) return;
+    /*
+     * Audit du 2026-10-10 (IDLE-AUDIT-PERF-004) : le registre était réécrit en entier à chaque ouverture du classement (une écriture par joueur, « Dernière vue » = maintenant, donc toujours « modifiée »). On n'écrit
+     * plus qu'un joueur nouveau ou dont le nom a changé ; la colonne « Dernière vue » n'est lue nulle part.
+     */
+    if (entree.ligneRegistre
+      && String(registre.getCell(entree.ligneRegistre, 1) || '').trim().toLowerCase() === entree.cle
+      && String(registre.getCell(entree.ligneRegistre, 2) || '').trim() === entree.nomBrut) return;
     const ligneRegistre = entree.ligneRegistre || prochaineLigne++;
     registre.getRange(ligneRegistre, 1, 1, 3).setValues([[entree.cle, entree.nomBrut, Date.now()]]);
     entree.ligneRegistre = ligneRegistre;
