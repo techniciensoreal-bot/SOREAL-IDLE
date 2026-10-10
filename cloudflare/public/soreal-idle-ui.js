@@ -762,7 +762,7 @@
 
           if(allocation){
             ecrireTexteSiChangeIdleV1_(allocation,
-              idleEntier_(
+              formatEntierLisibleIdleV1_(
                 skill.allocation
               )+
               ' ⚡');
@@ -770,18 +770,16 @@
 
           if(cap){
             ecrireTexteSiChangeIdleV1_(cap,
-              String(
+              formatEntierLisibleIdleV1_(
                 capValeur
               ));
           }
 
           if(nextCap){
             ecrireTexteSiChangeIdleV1_(nextCap,
-              String(
-                idleEntier_(
-                  skill.nextCap||
-                  capValeur
-                )
+              formatEntierLisibleIdleV1_(
+                skill.nextCap||
+                capValeur
               ));
 
             nextCap.classList.toggle(
@@ -1865,15 +1863,14 @@
         }
       }
 
+      /* Entier avec points entre les milliers (1.000.000) : les chiffres écrits en entier restent lisibles (Norman, 2026-10-10). */
+      function formatEntierLisibleIdleV1_(v){
+        const api=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+        const n=Math.floor(idleNombre_(v)+1e-9);
+        return api&&typeof api.entierLisible==='function'?api.entierLisible(n):String(n);
+      }
       function formatEnergieIdleV50_(v){
-        return String(
-          Math.max(
-            0,
-            Math.floor(
-              idleNombre_(v)+1e-9
-            )
-          )
-        );
+        return formatEntierLisibleIdleV1_(Math.max(0,idleNombre_(v)));
       }
 
 
@@ -2882,7 +2879,7 @@
               energieDisponibleIdleV9_()
             )+
             ' / '+
-            idleEntier_(maxTotal);
+            formatEntierLisibleIdleV1_(maxTotal);
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-38 */
@@ -3056,7 +3053,7 @@
                 if(avant!=null&&nivAffiche<avant&&avant-nivAffiche<=Math.min(20,Math.max(2,avant*0.01)))nivAffiche=avant;
                 nivEl.__idleNivAfficheV1=nivAffiche;
               }
-              ecrireSiChangeIdleV1_(nivEl,String(nivAffiche));
+              ecrireSiChangeIdleV1_(nivEl,formatEntierLisibleIdleV1_(nivAffiche));
               niveauxAugmentsLocaux[id+':'+x[0]]=nivAffiche;
               const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
               if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
@@ -3189,7 +3186,7 @@
               energieDisponibleIdleV9_()
             )+
             ' / '+
-            idleEntier_(maxTotal);
+            formatEntierLisibleIdleV1_(maxTotal);
         }
 
 
@@ -15073,7 +15070,7 @@
                 id="sorealIdleEnergyOverlayV1"
                 class="soreal-idle-energybar-overlay-v1"
               >
-                ${formatEnergieIdleV50_(energieDisponibleIdleV9_())} / ${idleEntier_(j.energieMax)}
+                ${formatEnergieIdleV50_(energieDisponibleIdleV9_())} / ${formatEntierLisibleIdleV1_(j.energieMax)}
               </div>
             </div>
             <span class="soreal-idle-hud-lat-v2 d" id="sorealIdleHudDEnergieV2"></span>
@@ -16369,14 +16366,14 @@
                 <span>
                   Cap :
                   <strong id="sorealIdleBtCapV120_${idleHtml_(skill.id)}">
-                    ${idleEntier_(skill.cap)}
+                    ${formatEntierLisibleIdleV1_(skill.cap)}
                   </strong> ⚡
                   · prochain :
                   <strong
                     id="sorealIdleBtNextCapV120_${idleHtml_(skill.id)}"
                     class="${skill.maxReductionReached?'ready':''}"
                   >
-                    ${idleEntier_(skill.nextCap||skill.cap)}
+                    ${formatEntierLisibleIdleV1_(skill.nextCap||skill.cap)}
                   </strong>
                 </span>
                 <span id="sorealIdleBtEtaV120_${idleHtml_(skill.id)}">
@@ -16396,7 +16393,7 @@
               id="sorealIdleBtAllocationV120_${idleHtml_(skill.id)}"
               class="soreal-idle-bt-allocation-v120"
             >
-              ${idleEntier_(skill.allocation)} ⚡
+              ${formatEntierLisibleIdleV1_(skill.allocation)} ⚡
             </div>
 
             <div class="soreal-idle-bt-actions-v120">

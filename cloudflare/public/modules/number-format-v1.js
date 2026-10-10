@@ -22,5 +22,14 @@
     if(Math.abs(dixieme-Math.round(dixieme))<.001)return String(Math.round(dixieme));
     return dixieme.toFixed(1).replace('.',',');
   }
-  window.__SOREAL_IDLE_NUMBER_FORMAT_V1__={grandNombre,combat};
+  /* Entier lisible (Norman, 2026-10-10 : « quand 1 million ne s'écrit pas 1M, écris-le 1.000.000 ») : points entre les milliers, pour les chiffres qui s'écrivent en entier (barres d'énergie, niveaux, quantités placées). */
+  function entierLisible(valeur){
+    const n=Math.floor(nombre(valeur)+1e-9);
+    if(!Number.isFinite(n))return '∞';
+    const signe=n<0?'-':'';
+    const chiffres=String(Math.abs(n));
+    if(/e/i.test(chiffres))return signe+chiffres;
+    return signe+chiffres.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+  }
+  window.__SOREAL_IDLE_NUMBER_FORMAT_V1__={grandNombre,combat,entierLisible};
 })();

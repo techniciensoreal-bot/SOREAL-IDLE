@@ -2664,7 +2664,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const etaTexte=texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0);
           return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
             '<div class="aug-ligne-haut">'+
-              '<div class="aug-niv-bloc"><span class="aug-niv-lib">'+(label?H.idleHtml_(label):'Niveau')+'</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+level+'</span></b></div>'+
+              '<div class="aug-niv-bloc"><span class="aug-niv-lib">'+(label?H.idleHtml_(label):'Niveau')+'</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(level):level)+'</span></b></div>'+
               '<span id="sorealIdleAugAllocV1_'+H.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(value)+'⚡</span>'+
             '</div>'+
             (sousTitre?'<div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div>':'')+
