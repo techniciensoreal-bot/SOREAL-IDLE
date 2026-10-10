@@ -10,5 +10,5 @@ assert.ok(!meta.includes("coûte de l’Or et de l’Energy':"), "sous-titre de 
 assert.ok(!meta.includes("Coût du prochain niveau"), "l'ancienne phrase a disparu");
 assert.ok(meta.includes('<span class="aug-cout-lib">Prochain niveau</span>') && meta.includes(`data-idle-aug-cout-v1="'+clef+'" data-cout="`), "libellé du coût (chiffre mis à jour à l'instant où la barre passe)");
 assert.ok(meta.includes("(gold>=coutBrut?'ok':'non')"), "somme verte si on a l'Or, rouge sinon");
-assert.ok(meta.includes("(label?H.idleHtml_(label):'Niveau')+'</span><b class=\"aug-niv-val\"><span data-idle-aug-niv-v1=\"'+clef+'\">'"), "niveau seul pour l'Augment");
+assert.ok(meta.includes("<span class=\"aug-niv-lib\">Niveau</span><b class=\"aug-niv-val\"><span data-idle-aug-niv-v1=\"'+clef+'\">'"), "niveau seul pour l'Augment (le nom de la piste est dans son badge)");
 console.log("idle-augmentations-menu-allege-v1: OK");

@@ -2616,6 +2616,19 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         envoyerAllocRapideV1_({action:'allocateAugment',pair:pairId,upgrade:Boolean(upgrade),value:value});
       }
       window.__ajusterAugmentIdleV1__=ajusterAugmentIdleV1_;
+      window.__cibleAugmentIdleV1__=function(id,upgrade,valeur){
+        const n=Math.max(0,Math.floor(Number(valeur)||0));
+        const j=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+        const defs=j&&j.systemes&&Array.isArray(j.systemes.augmentations)?j.systemes.augmentations:[];
+        const d=defs.find(function(x){return x&&x.id===id;});
+        if(d)d[upgrade?'upgradeTarget':'target']=n;
+        envoyerAllocRapideV1_({action:'setAugmentTarget',pair:String(id),upgrade:Boolean(upgrade),value:n});
+      };
+      window.__avanceAugmentsIdleV1__=function(coche){
+        const j=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+        if(j&&j.systemes)j.systemes.augmentationsAdvance=Boolean(coche);
+        envoyerAllocRapideV1_({action:'setAugmentAdvance',enabled:Boolean(coche)});
+      };
 
       /*
        * Recalcule tout de suite, pour la piste modifiée, la durée d'un niveau, la barre et le compte à rebours (le ticker de
@@ -2789,20 +2802,32 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           const coutBrut=Number(upgrade?def.upgradeGoldCost:def.goldCost)||0;
           const clef=H.idleHtml_(def.id)+':'+(upgrade?'upgrade':'main');
           const etaTexte=texteEtaAugmentIdleV1_({seconds:upgrade?def.upgradeSecondsPerLevel:def.secondsPerLevel,progress:upgrade?def.upgradeProgressPct:def.progressPct,waiting:upgrade?def.upgradeWaitingGold:def.waitingGold,goldCost:upgrade?def.upgradeGoldCost:def.goldCost,gold:gold},0);
-          return '<div class="soreal-idle-aug-piste-v1'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
+          /* Paire « Augment (normale) + Upgrade (puissante) » : chaque piste porte son badge, son icône et sa couleur ; l'Upgrade multiplie le bonus de l'Augment par (1 + niveau²), la puissance totale ne change pas. */
+          const cible=Math.max(0,H.idleEntier_(upgrade?def.upgradeTarget:def.target));
+          const iconePiste=upgrade?(IDLE_ICONES_UPGRADES_AUGMENTS_V1[def.upgrade&&def.upgrade.id]||'⚡'):(IDLE_ICONES_AUGMENTS_V1[def.id]||'🦾');
+          const badge=upgrade
+            ?'<span class="aug-badge-v2 puissant"><i>'+iconePiste+'</i>Version puissante</span>'
+            :'<span class="aug-badge-v2 normal"><i>'+iconePiste+'</i>Version normale</span>';
+          const nomPiste=upgrade?H.idleHtml_((label||'').replace('⬆️ ','')):H.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id);
+          const cleIdUp=upgrade?'true':'false';
+          return (upgrade?'<span class="aug-lien-v2" aria-hidden="true">×</span>':'')+'<div class="aug-piste-v2'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
+            '<div class="aug-tete-v2">'+badge+'<span class="aug-nom-piste-v2">'+nomPiste+'</span></div>'+
             '<div class="aug-ligne-haut">'+
-              '<div class="aug-niv-bloc"><span class="aug-niv-lib">'+(label?H.idleHtml_(label):'Niveau')+'</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(level):level)+'</span></b></div>'+
+              '<div class="aug-niv-bloc"><span class="aug-niv-lib">Niveau</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(level):level)+'</span></b></div>'+
               '<span id="sorealIdleAugAllocV1_'+H.idleHtml_(def.id)+'_'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(value)+'⚡</span>'+
             '</div>'+
-            (sousTitre?'<div class="soreal-idle-aug-soustitre-v1">'+sousTitre+'</div>':'')+
             '<div class="aug-cout-ligne">'+
               '<span data-idle-aug-parniveau-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'"></span>'+
               '<span class="aug-cout-lib">Prochain niveau</span>'+
               '<span class="aug-cout-val '+(gold>=coutBrut?'ok':'non')+'" data-idle-aug-cout-v1="'+clef+'" data-cout="'+coutBrut+'">'+H.formatGrandNombreIdleV70_(upgrade?def.upgradeGoldCost:def.goldCost)+' Or</span>'+
             '</div>'+
             '<div class="aug-eta" data-idle-aug-eta-v1="'+def.id+':'+(upgrade?'upgrade':'main')+'">'+etaTexte+'</div>'+
-            '<div class="soreal-idle-bt-track-v120"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;background:#6366f1;transition:none"></div></div>'+
-            '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div></div>';
+            /* tube de verre : le liquide monte avec la progression, le quadrillage donne l'échelle, le reflet ne passe que sur une piste qui porte de l'énergie */
+            '<div class="aug-tube-v2"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="aug-liquide-v2" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;transition:none"></div><i class="aug-reflet-v2"></i></div>'+
+            '<div class="aug-bas-v2">'+
+              '<label class="aug-cible-v2"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" '+(ok?'onchange="window.__cibleAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+cleIdUp+',this.value)"':'disabled')+' title="Niveau cible : l’énergie est retirée dès qu’il est atteint (ou passée à la piste suivante si « Faire suivre l’énergie » est coché). 0 = aucune cible."></label>'+
+              '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div>'+
+            '</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Renforce ton Attack et ta Defense en y investissant de l’Energy et de l’Or.')+
           carteAideMenuIdleV1_('augmentations','Chaque Augment te donne un multiplicateur d’Attack et de Defense. Les multiplicateurs de tous tes Augments s’additionnent.',[
@@ -2817,6 +2842,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div><div class="soreal-idle-bt-info-v1">Énergie libre : <b id="sorealIdleAugEnergieLibreV1">'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.energie)))+'</b> ⚡</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>⚡ Plafond d’énergie</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAugmentsIdleV1__()">Tout retirer</button></div>'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','augmentations'):'')+'</div>'+
+          '<label class="aug-avance-v2"><input type="checkbox" '+(snap.augmentationsAdvance?'checked ':'')+'onchange="window.__avanceAugmentsIdleV1__(this.checked)"><span><b>Faire suivre l’énergie</b> Quand une piste atteint sa cible, son énergie passe à la suivante (l’Augment, puis sa version puissante, paire après paire).</span></label>'+
           /*
            * Anti-spoil (2026-09-27, Norman + AGENTS.md règle n°2) : IDLE_NGU_AUGMENTATIONS est déjà trié par unlockBoss croissant
            * (idle-ngu-progression.js), donc « débloqués + le prochain » est juste une troncature à la première paire non débloquée
@@ -2835,7 +2861,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0"><div class="aug-carte-tete"><b class="aug-nom">'+(IDLE_ICONES_AUGMENTS_V1[def.id]?'<i class="aug-icone">'+IDLE_ICONES_AUGMENTS_V1[def.id]+'</i>':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span class="aug-pastilles"><em>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+'</em>'+(upgradeOk?'<em>Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0)+'</em>':'')+'</span></div>'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div>';
+              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+'"><div class="aug-carte-tete"><b class="aug-nom">'+(IDLE_ICONES_AUGMENTS_V1[def.id]?'<i class="aug-icone">'+IDLE_ICONES_AUGMENTS_V1[def.id]+'</i>':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span class="aug-pastilles"><em>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+'</em>'+(upgradeOk?'<em>Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0)+'</em>':'')+'</span></div>'+'<div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
             }).join('')+'</div>';
           })();
       }
@@ -3229,6 +3255,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         energyShield:'Bouclier d’énergie',
         quadLaser:'Sabre laser à quatre côtés'
       };
+      /* Icônes des secondes pistes (Upgrades), une par Augment (Norman, 2026-10-10 : « des icônes pour les seconds menus »). */
+      const IDLE_ICONES_UPGRADES_AUGMENTS_V1={dangerScissors:'🔪',drinkMilk:'🍼',missileLauncher:'🚀',actualAmmo:'🎯',chargeShot:'🔋',energyShield:'🛡️',quadLaser:'💠'};
+      /* Couleur de chaque paire, du premier Augment (froid) au dernier (brûlant) : la montée en puissance se lit d'un coup d'œil. */
+      const COULEURS_RANG_AUGMENTS_V1=['#6aa9ff','#3fd6c8','#6bdc5a','#ffd24a','#ff8a3d','#ff4d6d'];
       const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
       function libelleRecompenseMetaV206_(entree){
         if(!entree)return '—';

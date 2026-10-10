@@ -1014,10 +1014,13 @@ function createAugmentationData() {
       upgradeLevel: 0,
       upgradeProgress: 0,
       energy: 0,
-      upgradeEnergy: 0
+      upgradeEnergy: 0,
+      /* Niveaux cibles (0 = aucun) : à l'atteinte, l'énergie de la piste est rendue ou, avec « Advance Energy », passée à la piste suivante. */
+      target: 0,
+      upgradeTarget: 0
     };
   }
-  return { pairs, activePair: "scissors", trainUpgrade: false };
+  return { pairs, activePair: "scissors", trainUpgrade: false, advanceEnergy: false };
 }
 
 function createTimeMachineData() {
@@ -1628,9 +1631,12 @@ function normalizeSystem(def, raw) {
         upgradeProgress: Math.max(0, num(a.upgradeProgress, 0)),
         upgradeProgressRef: Math.max(0, num(a.upgradeProgressRef, 0)),
         energy: Math.max(0, num(a.energy, 0)),
-        upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0))
+        upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0)),
+        target: clamp(Math.floor(num(a.target, 0)), 0, 1e9),
+        upgradeTarget: clamp(Math.floor(num(a.upgradeTarget, 0)), 0, 1e9)
       };
     }
+    s.data.advanceEnergy = Boolean(data.advanceEnergy);
     if (IDLE_NGU_AUGMENTATIONS.some(a => a.id === data.activePair)) s.data.activePair = data.activePair;
     s.data.trainUpgrade = Boolean(data.trainUpgrade);
   } else if (def.id === "timeMachine") {
@@ -2779,6 +2785,66 @@ function advanceAugmentations(state, seconds, context) {
   }
   s.level=Object.values(s.data.pairs).reduce((sum,p)=>sum+p.level+p.upgradeLevel,0);
   s.tempLevel=s.level;
+  augApplyTargetsV1(state,context);
+}
+
+/*
+ * Cibles et « Advance Energy » des Augments (Norman, 2026-10-10 : « dans Augmentations on doit pouvoir faire Advance Energy »), même règle que l'Entraînement avancé : quand une piste atteint son niveau cible, son
+ * énergie passe à la piste suivante (dans l'ordre de l'écran : Augment puis son Upgrade, paire après paire) qui est débloquée et n'a pas atteint sa propre cible ; sans suivante, ou sans Advance, elle est rendue.
+ */
+function augPistesV1(state, context) {
+  const bosses = num(context?.bosses, 0);
+  const out = [];
+  for (const def of IDLE_NGU_AUGMENTATIONS) {
+    if (bosses >= def.unlockBoss) out.push({ id: def.id, upgrade: false });
+    if (def.upgrade && bosses >= def.upgrade.unlockBoss && bosses >= def.unlockBoss) out.push({ id: def.id, upgrade: true });
+  }
+  return out;
+}
+function augCibleAtteinteV1(pair, upgrade) {
+  const cible = Math.max(0, Math.floor(num(upgrade ? pair?.upgradeTarget : pair?.target, 0)));
+  return cible > 0 && Math.floor(num(upgrade ? pair.upgradeLevel : pair.level, 0)) >= cible;
+}
+function augApplyTargetsV1(state, context = {}) {
+  const s = state.systems.augmentations;
+  if (!s?.unlocked || !s.data?.pairs) return;
+  const pistes = augPistesV1(state, context);
+  const pairs = s.data.pairs;
+  const energie = (p, up) => Math.max(0, num(up ? p.upgradeEnergy : p.energy, 0));
+  pistes.forEach((piste, index) => {
+    const p = pairs[piste.id];
+    if (!p || !augCibleAtteinteV1(p, piste.upgrade) || energie(p, piste.upgrade) <= 0) return;
+    const suivante = s.data.advanceEnergy
+      ? pistes.slice(index + 1).find(n => pairs[n.id] && !augCibleAtteinteV1(pairs[n.id], n.upgrade))
+      : null;
+    if (suivante) {
+      const q = pairs[suivante.id];
+      const cle = suivante.upgrade ? "upgradeEnergy" : "energy";
+      q[cle] = energie(q, suivante.upgrade) + energie(p, piste.upgrade);
+      p[piste.upgrade ? "upgradeEnergy" : "energy"] = 0;
+    } else {
+      setAugmentAllocationV214_(state, piste.id, piste.upgrade, 0, context);
+    }
+  });
+  s.allocation.energy = Object.values(pairs).reduce((sum, p) => sum + Math.max(0, num(p.energy, 0)) + Math.max(0, num(p.upgradeEnergy, 0)), 0);
+}
+function setAugmentTargetV1(state, pairId, upgrade, value, context = {}) {
+  const s = state.systems.augmentations;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const def = IDLE_NGU_AUGMENTATIONS.find(x => x.id === pairId);
+  if (!def) throw new Error("AUGMENT_INVALIDE");
+  if (num(context.bosses, 0) < def.unlockBoss || (upgrade && (!def.upgrade || num(context.bosses, 0) < def.upgrade.unlockBoss))) throw new Error("AUGMENT_VERROUILLE");
+  const cible = clamp(Math.floor(num(value, 0)), 0, 1e9);
+  s.data.pairs[pairId][upgrade ? "upgradeTarget" : "target"] = cible;
+  augApplyTargetsV1(state, context);
+  return { pair: pairId, upgrade: Boolean(upgrade), target: cible };
+}
+function setAugmentAdvanceV1(state, enabled, context = {}) {
+  const s = state.systems.augmentations;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  s.data.advanceEnergy = Boolean(enabled);
+  augApplyTargetsV1(state, context);
+  return { advanceEnergy: s.data.advanceEnergy };
 }
 
 export function idleNguAugmentationMultiplier(raw) {
@@ -6089,6 +6155,8 @@ function construireSnapshotNguV1(state, context, now) {
         upgradeGoldCost,
         waitingGold: attenteOr(neededMain, fractionMain, goldCost),
         upgradeWaitingGold: upgradeGoldCost != null && attenteOr(neededUpgrade, fractionUpgrade, upgradeGoldCost),
+        target: Math.max(0, Math.floor(num(pair.target, 0))),
+        upgradeTarget: Math.max(0, Math.floor(num(pair.upgradeTarget, 0))),
         progressPct: fractionMain,
         upgradeProgressPct: fractionUpgrade,
         progressFraction: fractionMain,
@@ -6104,6 +6172,7 @@ function construireSnapshotNguV1(state, context, now) {
         upgradeLevelsPerSecond: Number.isFinite(neededUpgrade) && neededUpgrade > 0 ? Math.min(50,1/neededUpgrade) : 0
       });
     }),
+    augmentationsAdvance: Boolean(state.systems.augmentations?.data?.advanceEnergy),
     ngus: nguSnapshotV1(state, context),
     /* Slots de souhaits (page Wishes, 4 au maximum) : un souhait et une allocation par slot. */
     wishSlots: wishSlotsSnapshotV1(state),
@@ -7439,10 +7508,17 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {
     setAugmentAllocationV214_(state,String(payload.pair||"scissors"),Boolean(payload.upgrade),num(payload.value,0),context);
+    /* Une piste qui a déjà atteint sa cible ne garde pas l'énergie qu'on vient d'y mettre (comme NGU et l'Entraînement avancé). */
+    augApplyTargetsV1(state, context);
+  } else if (action === "setAugmentTarget") {
+    result = setAugmentTargetV1(state, String(payload.pair || "scissors"), Boolean(payload.upgrade), num(payload.value, 0), context);
+  } else if (action === "setAugmentAdvance") {
+    result = setAugmentAdvanceV1(state, Boolean(payload.enabled), context);
   } else if (action === "allocateAugments") {
     /* Lot d'allocations (audit du menu Augmentations, Norman 2026-10-05) : plusieurs Augments / Upgrades modifiés en rafale partent en UN appel au lieu d'un par cible ; appliqués dans l'ordre demandé, chacun borné par l'énergie libre. */
     const items = Array.isArray(payload.items) ? payload.items.slice(0, 40) : [];
     for (const it of items) setAugmentAllocationV214_(state, String(it?.pair || "scissors"), Boolean(it?.upgrade), num(it?.value, 0), context);
+    augApplyTargetsV1(state, context);
   } else if (action === "clearAugmentAllocations") {
     /* « Tout retirer » (2026-09-24) : rend toute l'énergie placée dans les Augments et leurs Upgrades. */
     if (!state.systems.augmentations?.unlocked) throw new Error("SYSTEME_VERROUILLE");

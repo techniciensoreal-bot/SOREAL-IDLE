@@ -125,7 +125,7 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
   const page = meta.slice(meta.indexOf("function pageAugmentationsIdleV48_(j)"), meta.indexOf("function pageTimeMachineIdleV48_(j)"));
   assert.ok(page.includes("carteAideMenuIdleV1_('augmentations'"), "Augmentations : bloc « À quoi ça sert ? »");
   assert.ok(page.includes("legendeAllocationIdleV1_('Energy',true)"), "Augmentations : légende Input / Cap / Idle");
-  assert.ok(page.includes("soreal-idle-aug-soustitre-v1"), "Augmentations : sous-titre par piste (Augment / Upgrade)");
+  assert.ok(page.includes("aug-badge-v2 puissant") && page.includes("aug-badge-v2 normal"), "Augmentations : badge par piste (version normale / version puissante)");
   assert.match(page, /1 \+ niveau²/, "formule de l'Upgrade (wiki Augmentations) expliquée");
 }
 
