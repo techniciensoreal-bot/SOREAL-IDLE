@@ -12915,7 +12915,13 @@ function enregistrerClicsSorealIdle(
     const ecouleSec = stats.clicsDernierMs > 0
       ? Math.min(3600, Math.max(0, (maintenantClics - stats.clicsDernierMs) / 1000))
       : 0;
-    const plafondClics = Math.max(200, Math.floor(ecouleSec * 50));
+    /*
+     * Audit du 2026-10-10 (IDLE-AUDIT-SEC-005) : le minimum de 200 par appel permettait de gonfler le compteur en multipliant les appels (50 appels = 10 000 clics). Le minimum de 200 ne vaut plus que pour le PREMIER
+     * enregistrement ; ensuite, au plus 50 clics par seconde écoulée, avec une petite marge de 20 par appel pour les lots rapprochés. Le compteur reste « brut » par choix (Norman, 2026-09-27), il est seulement borné.
+     */
+    const plafondClics = stats.clicsDernierMs > 0
+      ? Math.max(20, Math.floor(ecouleSec * 50))
+      : 200;
     const deltaClics = Math.min(
       plafondClics,
       Math.max(0, Math.floor(nombreSorealIdle_(delta, 0)))
@@ -14815,6 +14821,31 @@ function acheterEntrainementSorealIdle(...args) {
 /**
  * Action générique pour la métaprogression V42.
  */
+/*
+ * Actions d'Aventure RÉSERVÉES aux tests et à l'outillage interne : jamais acceptées depuis un client (audit du 2026-10-10, IDLE-AUDIT-SEC-001). « addItem » fabriquait n'importe quel objet de n'importe quel niveau pour
+ * n'importe quel joueur ; le client de production ne l'appelle jamais (les tests passent par applyIdleNguAction, directement, sans cette porte).
+ */
+const ACTIONS_AVENTURE_RESERVEES_V1 = new Set(["addItem"]);
+
+function assainirActionClientSorealIdleV1_(action) {
+  const a = action && typeof action === 'object' ? action : {};
+  const adv = a.adventure && typeof a.adventure === 'object' ? a.adventure : null;
+  if (adv) {
+    const nom = String(adv.action || adv.mode || '');
+    if (ACTIONS_AVENTURE_RESERVEES_V1.has(nom)) throw new Error('SOREAL_IDLE_ACTION_RESERVEE');
+    /*
+     * Les statistiques de combat sont CELLES DU SERVEUR (ctx.adventureStats, calculées d'après l'équipement et les bonus) : un client n'impose jamais les siennes (audit du 2026-10-10, IDLE-AUDIT-SEC-002 : des stats
+     * gonflées passaient devant le calcul serveur et franchissaient la barrière de puissance des titans). Le client de production n'envoie d'ailleurs aucun champ « stats ».
+     */
+    if (Object.prototype.hasOwnProperty.call(adv, 'stats')) {
+      const copie = Object.assign({}, adv);
+      delete copie.stats;
+      return Object.assign({}, a, { adventure: copie });
+    }
+  }
+  return a;
+}
+
 function agirProgressionSorealIdle(
   sessionToken,
   action
@@ -14836,7 +14867,7 @@ function agirProgressionSorealIdle(
 
     const applique = applyIdleNguAction(
       stats.metaNgu,
-      action && typeof action === 'object' ? action : {},
+      assainirActionClientSorealIdleV1_(action),
       contexte,
       Date.now()
     );
@@ -17055,8 +17086,28 @@ function exigerAdminHistoiresSorealIdle_(sessionToken) {
 }
 
 function obtenirHistoireBossSorealIdle(sessionToken, boss) {
-  exigerAccesSorealIdle_(sessionToken);
+  const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleSql) return { ok: true, histoire: null };
+  /*
+   * Anti-spoil (règle n°2, audit du 2026-10-10, IDLE-AUDIT-SEC-006) : l'histoire d'un boss n'est donnée qu'à un joueur qui l'a atteint. Le client la demande à la mort du boss N (bossSelection = N + 1) AVANT que le
+   * serveur ait confirmé la victoire prédite (« boss suivant instantané ») : on accepte donc jusqu'à un boss au-delà du meilleur résultat connu (boss vaincus du run ou record permanent), jamais plus.
+   * En cas de doute (ligne introuvable), rien n'est donné.
+   */
+  const n = Math.floor(Number(boss) || 0);
+  let atteint = -1;
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const row = feuille.getRange(ligne, 1, 1, c.STATS_JSON).getValues()[0];
+    const stats = statsJoueurSorealIdle_(row[c.STATS_JSON - 1]);
+    const vaincus = Math.max(0, Math.floor(nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)));
+    const record = Math.max(0, Math.floor(nombreSorealIdle_(stats && stats.metaNgu && stats.metaNgu.records && stats.metaNgu.records.highestBoss, 0)));
+    atteint = Math.max(vaincus, record);
+  } catch (_e) {
+    atteint = -1;
+  }
+  if (atteint < 0 || n > atteint + 1) return { ok: true, histoire: null };
   return { ok: true, histoire: histoireDuBossV1(__idleSql, boss) };
 }
 

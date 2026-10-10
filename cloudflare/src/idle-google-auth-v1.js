@@ -25,9 +25,15 @@ function jsonBase64urlV1(texte) {
   return JSON.parse(new TextDecoder().decode(base64urlVersOctetsV1(texte)));
 }
 
+/* Rechargement FORCÉ au plus toutes les 60 s (audit du 2026-10-10, IDLE-AUDIT-SEC-008) : des jetons forgés à « kid » inconnu ne peuvent plus provoquer une requête sortante vers Google à chaque appel. */
+const DELAI_MIN_RECHARGEMENT_FORCE_MS_V1 = 60000;
+let dernierRechargementForceMs = 0;
+
 async function clesGoogleV1(fetchImpl, force) {
   const maintenant = Date.now();
   if (!force && cacheCles && cacheCles.expire > maintenant) return cacheCles.cles;
+  if (force && cacheCles && maintenant - dernierRechargementForceMs < DELAI_MIN_RECHARGEMENT_FORCE_MS_V1) return cacheCles.cles;
+  if (force) dernierRechargementForceMs = maintenant;
   const reponse = await fetchImpl(JWKS_URL_V1, { headers: { accept: "application/json" } });
   if (!reponse.ok) throw new Error("GOOGLE_CLES_INDISPONIBLES");
   const donnees = await reponse.json();
@@ -39,6 +45,7 @@ async function clesGoogleV1(fetchImpl, force) {
 
 export function reinitialiserCacheClesGoogleIdleV1() {
   cacheCles = null;
+  dernierRechargementForceMs = 0;
 }
 
 /*

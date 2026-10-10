@@ -32,7 +32,7 @@ const op = (nom, ...args) => runSorealIdleOperation(sql, nom, ["x", ...args], us
 
 // 1) Clics plafonnés
 assert.equal(op("enregistrerClicsSorealIdle", 3).clicsTotal, 3);
-assert.equal(op("enregistrerClicsSorealIdle", 1e12).clicsTotal, 203, "un énorme delta est plafonné (200 max juste après un appel)");
+assert.equal(op("enregistrerClicsSorealIdle", 1e12).clicsTotal, 23, "un énorme delta est plafonné juste après un appel (20 max, audit 2026-10-10 SEC-005 ; le premier enregistrement garde son minimum de 200)");
 assert.equal(op("enregistrerClicsSorealIdle", Infinity).clicsTotal, 203, "Infinity ignoré, jamais Infinity/NaN");
 assert.equal(op("enregistrerClicsSorealIdle", NaN).clicsTotal, 203);
 assert.equal(op("enregistrerClicsSorealIdle", -50).clicsTotal, 203);
