@@ -91,8 +91,54 @@ async function idleCoordinatorFetchV1(env, path, init = {}) {
   ));
 }
 
+/*
+ * Garde-fous des routes publiques (audit du 2026-10-10, IDLE-AUDIT-SEC-007) : un joueur (ou un script) ne doit pas pouvoir saturer le Durable Object unique, qui reconstruit tout le classeur à chaque appel.
+ *  - taille du corps plafonnée avant tout parsing JSON ;
+ *  - seau à jetons par jeton de session (route d'appel) et par adresse (connexion Google), en mémoire d'isolat : borne un flot, sans gêner la cadence normale du client (synchro 4 à 15 s, actions au clic).
+ * La mémoire de limitation est purgée dès qu'elle grossit, jamais sans borne.
+ */
+const IDLE_CORPS_MAX_OCTETS_V1 = 262144;
+const IDLE_LIMITES_V1 = new Map();
+
+function idleLimiteDepasseeV1(cle, capacite, parSeconde, maintenant = Date.now()) {
+  if (IDLE_LIMITES_V1.size > 5000) {
+    for (const [k, v] of IDLE_LIMITES_V1) if (maintenant - v.t > 60000) IDLE_LIMITES_V1.delete(k);
+    if (IDLE_LIMITES_V1.size > 5000) IDLE_LIMITES_V1.clear();
+  }
+  const e = IDLE_LIMITES_V1.get(cle) || { jetons: capacite, t: maintenant };
+  e.jetons = Math.min(capacite, e.jetons + ((maintenant - e.t) / 1000) * parSeconde);
+  e.t = maintenant;
+  const refuse = e.jetons < 1;
+  if (!refuse) e.jetons -= 1;
+  IDLE_LIMITES_V1.set(cle, e);
+  return refuse;
+}
+
+export function idleReinitialiserLimitesV1() {
+  IDLE_LIMITES_V1.clear();
+}
+
+/* Corps JSON borné : { corps, tropGros }. Un corps absent ou invalide donne corps:null, comme avant. */
+async function idleLireJsonBorneV1(request) {
+  const annonce = Number(request.headers.get("content-length"));
+  if (Number.isFinite(annonce) && annonce > IDLE_CORPS_MAX_OCTETS_V1) return { corps: null, tropGros: true };
+  const texte = await request.text().catch(() => "");
+  if (texte.length > IDLE_CORPS_MAX_OCTETS_V1) return { corps: null, tropGros: true };
+  try {
+    return { corps: JSON.parse(texte), tropGros: false };
+  } catch (_e) {
+    return { corps: null, tropGros: false };
+  }
+}
+
+const idleTropDeRequetesV1 = () => idleJsonV1({ ok: false, code: "SOREAL_IDLE_TROP_DE_REQUETES", retryable: true }, 429);
+const idleCorpsTropGrosV1 = () => idleJsonV1({ ok: false, code: "SOREAL_IDLE_CORPS_TROP_GROS" }, 413);
+
 async function idleSessionV1(request, env) {
-  const body = await request.json().catch(() => null);
+  if (idleLimiteDepasseeV1("ticket:" + String(request.headers.get("cf-connecting-ip") || "inconnue"), 30, 30 / 60)) return idleTropDeRequetesV1();
+  const lecture = await idleLireJsonBorneV1(request);
+  if (lecture.tropGros) return idleCorpsTropGrosV1();
+  const body = lecture.corps;
   const ticket = String(body?.ticket || "").trim();
   if (!ticket) {
     return idleJsonV1({ ok: false, error: "LAUNCH_TICKET_REQUIRED" }, 400);
@@ -109,7 +155,11 @@ async function idleSessionV1(request, env) {
  * moteur à chaque appel (accès public ouvert par l'administrateur).
  */
 async function idleGoogleLoginV1(request, env) {
-  const body = await request.json().catch(() => null);
+  /* Connexion Google : 10 tentatives par minute et par adresse. */
+  if (idleLimiteDepasseeV1("google:" + String(request.headers.get("cf-connecting-ip") || "inconnue"), 10, 10 / 60)) return idleTropDeRequetesV1();
+  const lecture = await idleLireJsonBorneV1(request);
+  if (lecture.tropGros) return idleCorpsTropGrosV1();
+  const body = lecture.corps;
   const verification = await verifierJetonGoogleIdleV1(body?.credential, { clientId: env?.GOOGLE_CLIENT_ID });
   if (!verification.ok) {
     const status = verification.code === "GOOGLE_NON_CONFIGURE" ? 503 : verification.code === "GOOGLE_CLES_INDISPONIBLES" ? 502 : 401;
@@ -131,7 +181,9 @@ async function idleLogoutV1(request, env) {
 }
 
 async function idleCallV1(request, env) {
-  const body = await request.json().catch(() => null);
+  const lecture = await idleLireJsonBorneV1(request);
+  if (lecture.tropGros) return idleCorpsTropGrosV1();
+  const body = lecture.corps;
   const operation = String(body?.operation || "").trim();
   const args = Array.isArray(body?.args) ? body.args : [];
 
@@ -158,6 +210,8 @@ async function idleCallV1(request, env) {
   if (!sessionToken) {
     return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
   }
+  /* 40 appels de réserve, 12 par seconde ensuite, par session : très au-dessus de la cadence réelle du client, très en dessous d'un flot. */
+  if (idleLimiteDepasseeV1("session:" + sessionToken, 40, 12)) return idleTropDeRequetesV1();
 
   const reponse = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/session-call", {
     method: "POST",
