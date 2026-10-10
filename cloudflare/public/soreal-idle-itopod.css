@@ -1290,11 +1290,11 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
 @media (min-width:561px){
   /* Porte-affiche DEBOUT sur le haut de la borne, décalé sur le côté et tourné (pas parallèle à la façade) : affiche épaisse (tranche visible), pied métallique, ombre portée sur la borne (Norman, 2026-10-10). */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){left:calc(50% - 232px);top:calc(210px - 126px);width:174px;max-width:none;height:120px;min-height:0;overflow:visible;z-index:4;padding:9px 12px 22px!important;border:0!important;outline:0!important;border-radius:3px!important;
-    background:linear-gradient(180deg,#f9edc2,#e8d298 60%,#d9bf80)!important;
-    box-shadow:inset 0 0 0 3px #8a5a1a,inset 0 0 18px rgba(90,50,10,.28),3px 0 0 #b99a55,6px 1px 0 #8f7338,9px 2px 0 #5f4a22,14px 12px 14px rgba(0,0,0,.6)!important;
+    background:linear-gradient(90deg,rgba(25,8,0,.5) 0%,rgba(25,8,0,.18) 38%,rgba(25,8,0,0) 62%),linear-gradient(270deg,rgba(255,79,176,.42) 0%,rgba(255,79,176,.12) 34%,rgba(255,79,176,0) 60%),linear-gradient(180deg,#f9edc2,#e8d298 60%,#d9bf80)!important;
+    box-shadow:inset 0 0 0 3px #8a5a1a,inset 0 0 18px rgba(90,50,10,.28),3px 0 0 #b99a55,6px 1px 0 #8f7338,9px 2px 0 #5f4a22,22px 16px 16px -2px rgba(0,0,0,.78),44px 22px 30px rgba(0,0,0,.5),0 0 18px rgba(255,79,176,.4)!important;
     clip-path:none;transform:perspective(560px) rotateY(-30deg) rotateZ(-1.5deg);transform-origin:50% 100%}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte)::before{content:"";display:block;position:absolute;left:-8px;right:-8px;bottom:-11px;top:auto;width:auto;height:15px;margin:0;border-radius:3px 3px 7px 7px;
-    background:linear-gradient(180deg,#9aa0ad,#555b68 45%,#262932);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),6px 4px 0 #1b1d24,0 6px 8px rgba(0,0,0,.6);z-index:6}
+    background:linear-gradient(180deg,#9aa0ad,#555b68 45%,#262932);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),6px 4px 0 #1b1d24,20px 10px 14px rgba(0,0,0,.75),0 6px 8px rgba(0,0,0,.6);z-index:6}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte):hover{transform:perspective(560px) rotateY(-24deg) rotateZ(-1deg) scale(1.04)}
 }
 @media (max-width:560px){
@@ -1377,4 +1377,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* La borne d'arcade est plus grande sur PC sans prendre toute la largeur (Norman, 2026-10-10) : 640 px au lieu de 520. Les boutons et le pupitre suivent (tailles en cqw). */
 @media (min-width:701px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2{width:min(640px,100%);max-width:640px}
+}
+
+/* Reflet rose du néon derrière la borne, centré sur elle (Norman, 2026-10-10) : le fronton projette un halo rose vers le haut, qui éclaire l'affiche de son côté droit (le plus proche) pendant que son côté gauche, plus loin, reste dans l'ombre. */
+@media (min-width:701px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-fronton{filter:drop-shadow(0 -16px 28px rgba(255,79,176,.6)) drop-shadow(0 -4px 8px rgba(255,120,200,.45))}
 }
