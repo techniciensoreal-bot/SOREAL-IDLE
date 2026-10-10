@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__)return;
 
   var CLE_LANGUE='soreal_idle_langue_v1';
-  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=174';
+  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=177';
   var ATTRIBUTS=['title','placeholder','aria-label','alt'];
 
   function langue_(){
@@ -95,6 +95,11 @@
     return Boolean(el.closest('.sic-txt,.sic-nom,[data-sans-traduction],.soreal-idle-page-root-v28[data-menu="admin"]'));
   }
 
+  /* Attributs affichés d'un champ de saisie (texte de saisie, aide) : traduits ; sa valeur, jamais. Même exclusions que le texte (chat, administration). */
+  function exclAttr_(el){
+    return Boolean(el.closest&&el.closest('.sic-txt,.sic-nom,[data-sans-traduction],.soreal-idle-page-root-v28[data-menu="admin"]'));
+  }
+
   function traduireNoeudTexte_(n){
     var val=n.nodeValue;
     var orig=originauxTexte.get(n);
@@ -126,14 +131,15 @@
   function traduireArbre_(racine){
     if(!racine||langue_()!=='en'||!regle)return;
     if(racine.nodeType===3){if(!exclu_(racine))traduireNoeudTexte_(racine);return;}
-    if(racine.nodeType!==1||exclu_(racine))return;
+    if(racine.nodeType!==1)return;
+    if(exclu_(racine)){if(!exclAttr_(racine))traduireAttributs_(racine);return;}
     var marcheur=document.createTreeWalker(racine,NodeFilter.SHOW_TEXT,{
       acceptNode:function(n){return exclu_(n)?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT;}
     });
     var n;
     while((n=marcheur.nextNode()))traduireNoeudTexte_(n);
     var avecAttr=racine.querySelectorAll('[title],[placeholder],[aria-label],[alt]');
-    for(var j=0;j<avecAttr.length;j++)if(!exclu_(avecAttr[j]))traduireAttributs_(avecAttr[j]);
+    for(var j=0;j<avecAttr.length;j++)if(!exclAttr_(avecAttr[j]))traduireAttributs_(avecAttr[j]);
     traduireAttributs_(racine);
   }
 
