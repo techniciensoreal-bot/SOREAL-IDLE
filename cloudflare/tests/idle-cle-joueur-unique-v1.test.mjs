@@ -51,5 +51,14 @@ const noms = sql.exec("SELECT nom FROM idle_presence").map((r) => r.nom);
 assert.equal(noms.length, 1);
 assert.ok(noms[0].startsWith("Saka"), "le pseudo posé sous l'autre adresse s'affiche : " + noms[0]);
 assert.equal(sql.exec("SELECT DISTINCT email FROM idle_flux").length, 1, "un seul auteur dans le fil");
+// Pseudo sous une adresse, prénom sous une autre (Norman, 2026-10-10 : « Saka (Sébastien) » ne doit pas devenir « Saka ») : le prénom est retrouvé lui aussi.
+{
+  sql.exec("UPDATE idle_profiles SET prenom='' WHERE email=?", ALIAS);
+  sql.exec("UPDATE idle_profiles SET prenom='Sébastien' WHERE email=?", ADMIN);
+  const tok3 = mk({ email: ALIAS, emailConnexion: ADMIN, emails: [ADMIN, ALIAS], prenom: "" });
+  call(tok3, "battementSorealIdle", { actif: true, connecte: true, activite: { t: "libre" }, apresFlux: 0, amorceFlux: false });
+  const nom3 = sql.exec("SELECT nom FROM idle_presence").map((r) => r.nom)[0];
+  assert.equal(nom3, "Saka (Sébastien)", "le prénom posé sous l'autre adresse s'affiche aussi : " + nom3);
+}
 console.log("idle-cle-joueur-unique-v1: OK");
 process.exit(0);

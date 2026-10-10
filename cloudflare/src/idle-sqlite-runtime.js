@@ -13089,20 +13089,26 @@ function memoriserAliasJoueurSorealIdle_(cle, adresses) {
   });
 }
 
-/* Profil d'une adresse ; sans pseudo, le pseudo posé sous une autre adresse du même joueur (même ligne de jeu) est repris. */
+/*
+ * Profil d'une adresse ; ce qui manque (pseudo, prénom) est repris sous une autre adresse du même joueur (même ligne de jeu). Le prénom compte autant que le pseudo : « Saka (Sébastien) » s'affichait
+ * « Saka » dès que le pseudo était posé sous une adresse et le prénom sous une autre (Norman, 2026-10-10).
+ */
 function profilAvecAliasSorealIdle_(email) {
   const e = normaliserEmailSorealIdle_(email);
   if (!__idleSql || !e) return null;
   let profil = lireProfilIdleV1(__idleSql, e);
-  if (profil && profil.pseudo) return profil;
+  if (profil && profil.pseudo && profil.prenom) return profil;
   try {
     __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
     const brut = __idleSql.exec('SELECT a2.email AS email FROM idle_alias a1 JOIN idle_alias a2 ON a2.cle=a1.cle WHERE a1.email=?', e);
     const autres = Array.isArray(brut) ? brut : (brut && typeof brut.toArray === 'function' ? brut.toArray() : []);
     autres.forEach(function (r) {
-      if (profil && profil.pseudo) return;
+      if (profil && profil.pseudo && profil.prenom) return;
       const p = lireProfilIdleV1(__idleSql, r.email);
-      if (p && p.pseudo) profil = Object.assign({}, p, { externe: profil ? profil.externe : p.externe, prenom: (profil && profil.prenom) || p.prenom });
+      if (!p) return;
+      if (!profil) { if (p.pseudo || p.prenom) profil = Object.assign({}, p); return; }
+      if (!profil.pseudo && p.pseudo) profil = Object.assign({}, profil, { pseudo: p.pseudo, externe: profil.externe });
+      if (!profil.prenom && p.prenom) profil = Object.assign({}, profil, { prenom: p.prenom });
     });
   } catch (_) { /* repli : le profil de l'adresse seule */ }
   return profil;
