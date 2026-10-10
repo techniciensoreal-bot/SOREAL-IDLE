@@ -24,6 +24,22 @@ assert.ok(!("earlyGameTimeline" in sys), "la frise des déblocages n'est plus en
 assert.ok(!("difficultyUnlockRequirements" in sys), "les exigences de difficulté ne sont plus envoyées");
 assert.deepEqual(sys.bloodRituals, [], "aucun rituel tant que Blood Magic n'est pas découvert");
 for (const mot of ["Safety Scissors", "Woodchipper", "Laser Sword", "Time Machine boss", "earlyGameTimeline"]) assert.ok(!texte.includes(mot), "« " + mot + " » ne doit pas être dans la réponse d'un joueur neuf");
+// GP-003 : un système verrouillé n'envoie aucune valeur interne (plafonds, durées, niveaux maximums).
+{
+  const verrouilles = sys.systems.filter((s) => !s.state || s.state.unlocked !== true);
+  assert.ok(verrouilles.length >= 10, "des systèmes verrouillés existent pour un joueur neuf");
+  const valeursNonNulles = (v, chemin) => {
+    if (typeof v === "number") return v !== 0 ? [chemin + "=" + v] : [];
+    if (typeof v === "string") return v !== "" ? [chemin + "=\"" + v + "\""] : [];
+    if (v && typeof v === "object") return Object.entries(v).flatMap(([k, x]) => valeursNonNulles(x, chemin + "." + k));
+    return v === true ? [chemin + "=true"] : [];
+  };
+  for (const s of verrouilles) {
+    const fuites = valeursNonNulles(s.state, s.id + ".state");
+    assert.deepEqual(fuites, [], "système verrouillé « " + s.id + " » : aucune valeur interne envoyée");
+  }
+}
+
 // GP-002, joueur avancé : les paires débloquées sont complètes, le suivant n'est qu'un repère opaque, aucun autre nom.
 function joueurAuBoss(email, boss) {
   const h = creerJoueurExterneV1(email);

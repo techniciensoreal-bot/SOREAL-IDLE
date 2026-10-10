@@ -5280,6 +5280,23 @@ let __porteeBonusV1 = null;
  * Anti-spoil (règle n°2, audit du 2026-10-10, IDLE-AUDIT-GP-002) : la liste des Augments envoyée au client ne contient que les paires débloquées (boss du run en cours, comme le déblocage réel et comme le client) et, pour le repère
  * « ??? » du suivant, un marqueur opaque sans nom ni seuil. Avant, un joueur neuf recevait les 7 paires avec leur « boss N » de déblocage. IDLE_NGU_AUGMENTATIONS est trié par seuil croissant.
  */
+/*
+ * Anti-spoil (règle n°2, audit du 2026-10-10, IDLE-AUDIT-GP-003) : un système encore verrouillé est envoyé SANS ses valeurs internes (plafonds, durées, niveaux maximums). La structure est conservée (le client lit « state.data… »
+ * sans garde à plusieurs endroits) mais tous les nombres valent 0, les textes sont vides et les booléens faux : plus aucune donnée de jeu ne fuit.
+ */
+function idleNguViderValeursV1(valeur) {
+  if (Array.isArray(valeur)) return [];
+  if (valeur && typeof valeur === "object") {
+    const sortie = {};
+    for (const [cle, v] of Object.entries(valeur)) sortie[cle] = idleNguViderValeursV1(v);
+    return sortie;
+  }
+  if (typeof valeur === "number") return 0;
+  if (typeof valeur === "string") return "";
+  if (typeof valeur === "boolean") return false;
+  return null;
+}
+
 function idleNguAugmentationsVisiblesV1(context) {
   const bossRun = num(context && context.bosses, 0);
   const premier = IDLE_NGU_AUGMENTATIONS.findIndex(def => bossRun < num(def.unlockBoss, 0));
@@ -6173,7 +6190,7 @@ function construireSnapshotNguV1(state, context, now) {
             : state.systems[def.id].data.activeTrack === track.id
       })),
       /* Cooking : vue publique, sans les cibles secrètes du repas. */
-      state: def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id])
+      state: ferme ? idleNguViderValeursV1(state.systems[def.id]) : (def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id]))
     }; })
   };
 }
