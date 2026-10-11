@@ -351,14 +351,13 @@ function mini(type){
   return '<svg class="bm-mini bm-mini-'+(CONTENANTS[type]?type:'calice')+'" viewBox="'+c.vb+'" aria-hidden="true" focusable="false"><use href="#'+c.plein+'" width="'+c.l+'" height="'+c.h+'"/></svg>';
 }
 
-function etagere(pleins,type){
-  pleins=Math.max(0,Math.floor(pleins)||0);
-  if(!pleins)return '';
-  var c=CONTENANTS[type]||CONTENANTS.calice;
-  var n=c.sansMini?0:Math.min(pleins,8),i,h='';
-  for(i=0;i<n;i++)h+=mini(type);
-  var fmt=(window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__||function(v){return String(v);});
-  return '<span class="bm-etagere-lib">'+c.nom+'</span><span class="bm-etagere-rang">'+h+'</span><b class="bm-etagere-n">× '+fmt(pleins)+'</b>';
+/*
+ * « Sang collecté » (Norman, 2026-10-11) : la quantité de Blood déjà produite par CE rituel = rituels terminés × Blood par rituel (valeur du catalogue). Toujours affiché, mis à jour en direct avec le compteur
+ * de rituels (plus de nombre de récipients, qui ne bougeait qu'à chaque récipient plein).
+ */
+function formatSang(v){var f=window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__;return typeof f==='function'?f(v):String(Math.floor(v));}
+function etagere(sangTotal){
+  return '<span class="bm-etagere-lib">Sang collecté</span><b class="bm-etagere-n">'+formatSang(Math.max(0,Number(sangTotal)||0))+'</b>';
 }
 
 function entete(titre,sousTitre){
@@ -383,7 +382,7 @@ function scene(opts){
   var pleins=Math.floor(compte/cap);
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
-  return '<div class="bm-scene" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       source(opts.id)+
@@ -393,7 +392,7 @@ function scene(opts){
       '<div class="bm-vase">'+contenant(type,fraction)+'</div>'+
       (fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,0)+'</div>':'')+
     '</div>'+
-    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+(pleins?'':' hidden')+'>'+etagere(pleins,type)+'</div>';
+    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
 }
 
 /* ---------- Vie des calices : lit le compteur de rituels (mis à jour en direct par la page) et fait remplir / sortir / entrer ---------- */
@@ -514,15 +513,10 @@ function majScene(sc){
   niveauLiquide(sc,fAff,c);
   var ch=chuteSang(sc.getAttribute('data-source'),type,parseFloat(sc.style.getPropertyValue('--vh')),parseFloat(sc.style.getPropertyValue('--vb')),parseFloat(sc.style.getPropertyValue('--sh')),fAff);
   if(ch!=null&&sc.style.getPropertyValue('--chute')!==ch+'px')sc.style.setProperty('--chute',ch+'px');
-  if(pleins!==avant||sc.getAttribute('data-bm-pleins')!==String(pleins)){
-    sc.setAttribute('data-bm-pleins',String(pleins));
-    var et=sc.parentNode&&sc.parentNode.querySelector('[data-bm-etagere="'+id+'"]');
-    if(et){
-      et.innerHTML=etagere(pleins,type);
-      et.hidden=!pleins;
-      if(pleins>avant){et.classList.remove('bm-pop');void et.offsetWidth;et.classList.add('bm-pop');}
-    }
-  }
+  if(pleins!==avant||sc.getAttribute('data-bm-pleins')!==String(pleins))sc.setAttribute('data-bm-pleins',String(pleins));
+  var et=sc.parentNode&&sc.parentNode.querySelector('[data-bm-etagere="'+id+'"]');
+  var nEl=et&&et.querySelector('.bm-etagere-n');
+  if(nEl){var txt=formatSang(n*(Number(sc.getAttribute('data-bm-sang'))||0));if(nEl.textContent!==txt)nEl.textContent=txt;}
   vus[id]=pleins;
 }
 function majVases(){

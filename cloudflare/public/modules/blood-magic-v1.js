@@ -394,7 +394,7 @@ function creer(hote){
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="bm-rituel" data-rang-v1="'+rangRituel+'" style="margin:0">'+
             '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(r.completions||0)+'">'+H.idleEntier_(r.completions||0)+'</b> complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
-            decor.scene({id:idHtml,compte:Number(r.completions||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
+            decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" class="bm-eta" style="'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
