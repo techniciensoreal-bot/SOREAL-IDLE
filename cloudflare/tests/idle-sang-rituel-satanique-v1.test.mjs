@@ -109,3 +109,12 @@ assert.ok(src.includes("var APPROCHE={punaise:{base:14,loin:-26},papier:{base:-3
 // Sans assez d'Or, la punaise et la feuille s'immobilisent au contact (Norman, 2026-10-11).
 assert.ok(src.includes("var attenteOr=src!=='sucon'") && src.includes("progresse&&pret&&!attenteOr") && src.includes("approche(sc,src,"), "pas de mouvement quand l'Or manque");
 console.log("idle-sang-rituel-satanique-v1: OK");
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('class="bm-planche"') && decor.includes('class="bm-porte"') && decor.includes(':is(.bm-planche,.bm-porte){display:block}') && !decor.includes('bm-porte-ar'), "planche penchée qui porte le verre et le porte-sangsue (elle ne flotte plus)");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("src==='punaise'||src==='papier'||src==='sucon'") && decor.includes('.bm-scene[data-source="sucon"].bm-hors :is(.bm-perso,.bm-cou,.bm-perso-bas){translate:-300px 0}'), "sans énergie, le personnage du suçon glisse hors de la case vers la gauche");
+  assert.ok(decor.includes("var pret=sc.classList.contains('bm-installe');") && decor.includes("progresse&&pret);"), "la succion ne reprend qu'une fois le personnage en place");
+}

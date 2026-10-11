@@ -253,7 +253,8 @@ function source(id){
   }
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
-    return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
+    /* planche de bois un peu penchée, dans le bas : le verre et le porte-sangsue (un seul pied à socle, posé sur la planche, avec un rail sur lequel elle repose) sont posés dessus ; la sangsue ne flotte plus dans le vide */
+    return use('bm-sym-cou',100,312,'bm-cou')+'<svg class="bm-planche" viewBox="0 0 330 62" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-planche" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c58a50"/><stop offset=".2" stop-color="#94603a"/><stop offset=".55" stop-color="#6a4023"/><stop offset="1" stop-color="#3b2212"/></linearGradient><linearGradient id="bm-g-planche-bout" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset=".12" stop-color="#000" stop-opacity="0"/><stop offset=".88" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient><filter id="bm-f-flou" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="2.4"/></filter></defs><rect x="1" y="1" width="328" height="70" rx="4" fill="url(#bm-g-planche)" stroke="#000" stroke-width="2.4"/><rect x="1" y="1" width="328" height="70" rx="4" fill="url(#bm-g-planche-bout)"/><path d="M6 5 H324" stroke="#e8b987" stroke-opacity=".7" stroke-width="2.2" stroke-linecap="round"/><path d="M0 24 Q80 21 160 24 T330 23 M0 44 Q90 47 170 44 T330 45" fill="none" stroke="#2e1a0e" stroke-opacity=".5" stroke-width="1.6"/><ellipse cx="220" cy="43" rx="84" ry="9" fill="#000" fill-opacity=".62" filter="url(#bm-f-flou)"/><ellipse cx="131" cy="26" rx="31" ry="6.5" fill="#000" fill-opacity=".6" filter="url(#bm-f-flou)"/><circle cx="14" cy="14" r="3" fill="#2a2a2e" stroke="#000" stroke-width="1"/><circle cx="316" cy="14" r="3" fill="#2a2a2e" stroke="#000" stroke-width="1"/></svg>'+'<svg class="bm-porte" viewBox="0 0 54 160" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-tige" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a5365"/><stop offset=".32" stop-color="#e3e9f3"/><stop offset=".62" stop-color="#8b95a8"/><stop offset="1" stop-color="#363d4b"/></linearGradient><linearGradient id="bm-g-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f8"/><stop offset=".4" stop-color="#9aa4b6"/><stop offset="1" stop-color="#414958"/></linearGradient><radialGradient id="bm-g-socle" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#d4dbe8"/><stop offset=".55" stop-color="#7d889c"/><stop offset="1" stop-color="#3b4352"/></radialGradient></defs><ellipse cx="27" cy="152" rx="24" ry="7.5" fill="#262c38" stroke="#000" stroke-width="1.4"/><ellipse cx="27" cy="148.5" rx="24" ry="7.5" fill="url(#bm-g-socle)" stroke="#000" stroke-width="1.4"/><ellipse cx="27" cy="147" rx="12" ry="3.6" fill="#59627a" stroke="#000" stroke-width="1"/><rect x="23" y="10" width="8" height="138" fill="url(#bm-g-tige)" stroke="#000" stroke-width="1.4"/><rect x="20.5" y="62" width="13" height="7" rx="2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.2"/><rect x="20.5" y="120" width="13" height="6" rx="2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.2"/><rect x="0.8" y="0.8" width="52.4" height="9" rx="3.2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.6"/><path d="M4 3.4 H50" stroke="#fff" stroke-opacity=".75" stroke-width="1.4" stroke-linecap="round"/><rect x="1.8" y="7.4" width="50.4" height="2.4" rx="1" fill="#000" fill-opacity=".35"/><path d="M1 0.8 V-3 M53 0.8 V-3" stroke="#000" stroke-width="0"/></svg>'+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
       '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche')+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
   }
   if(SOURCES[id]==='papier'){
@@ -439,7 +440,7 @@ function scene(opts){
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
-  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+'</div></div>'+
       source(opts.id)+
@@ -733,12 +734,12 @@ function rythme(sc,id,n,avant){
     /* Le suçon marque le cou après la première succion complète (~0,9 s) et s'efface en fondu à l'arrêt du rituel. */
     var prog0=!!sc.querySelector('.bm-tuyau.saigne-v1');
     if(!prog0){clearTimeout(sc.__marq);sc.__marq=0;marqueVue[id]=false;if(sc.classList.contains('bm-marque'))sc.classList.remove('bm-marque');}
-    else if(!sc.classList.contains('bm-marque')&&!sc.__marq){
+    else if(!sc.classList.contains('bm-marque')&&!sc.__marq&&sc.classList.contains('bm-installe')){
       var red=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},red?0:900);
     }
   }
-  if(src==='punaise'||src==='papier'){
+  if(src==='punaise'||src==='papier'||src==='sucon'){
     var horsVoulu=!sc.querySelector('.bm-tuyau.saigne-v1');
     if(sc.classList.contains('bm-hors')!==horsVoulu)sc.classList.toggle('bm-hors',horsVoulu);
     /* L'animation (punaise, feuille, coupure, traces, gouttes) ne commence que quand le doigt / le bras ont fini de se mettre en place (Norman, 2026-10-11) : l'échéance est mémorisée par rituel (le redessin de la page ne la fait pas sauter) ; glissement 0,95 s + 0,2 s de décalage. */
@@ -753,7 +754,7 @@ function rythme(sc,id,n,avant){
   if(src!=='punaise'&&src!=='papier'&&src!=='sucon')return;
   /* Trace de l'impact : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
   var progresse=!!sc.querySelector('.bm-tuyau.saigne-v1');
-  var pret=src==='sucon'||sc.classList.contains('bm-installe');
+  var pret=sc.classList.contains('bm-installe');
   if(!progresse){
     clearTimeout(sc.__marq);sc.__marq=0;marqueVue[id]=false;
     if(sc.classList.contains('bm-marque'))sc.classList.remove('bm-marque');
@@ -780,7 +781,7 @@ function rythme(sc,id,n,avant){
   if(src==='punaise'||src==='papier')approche(sc,src,sec>0?sec:(progresse&&pret?(secVue[id]||0):0),progresse&&pret,attenteOr);
   if(src==='sucon'){
     if(mode==='boucle')aligner(sc);
-    sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse);
+    sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse&&pret);
   }
   /* Boucle : la trace est posée à l'instant EXACT du premier impact, lu sur l'animation en cours (jamais sur une minuterie indépendante). */
   if(mode==='boucle'&&progresse&&!sc.classList.contains('bm-marque')&&!sc.__marq){
@@ -1015,7 +1016,10 @@ function css(){
     P+'.bm-scene[data-source="punaise"].bm-hors :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt),'+P+'.bm-scene[data-source="papier"].bm-hors :is(.bm-bras-img,.bm-papier,.bm-coupure,.bm-goutte-doigt){translate:-340px 0;transition-delay:0s}',
     /* le bras est long (avec sa main à droite) : il sort ENTIÈREMENT de la case, main comprise */
     P+'.bm-scene[data-source="papier"].bm-hors .bm-bras-img{translate:-540px 0}',
-    '@media (prefers-reduced-motion:reduce){'+P+'.bm-scene :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt,.bm-bras-img,.bm-papier,.bm-coupure){transition:none}}',
+    /* ritual du suçon : sans énergie, le personnage (et la marque sur son cou) glisse hors de la case vers la gauche ; la sangsue reste sur son porte-sangsue et dort. Il revient quand on met de l'énergie ; la succion ne reprend qu'une fois qu'il est en place. */
+    P+'.bm-scene[data-source="sucon"] :is(.bm-perso,.bm-cou,.bm-perso-bas){transition:translate .95s cubic-bezier(.25,.8,.3,1)}',
+    P+'.bm-scene[data-source="sucon"].bm-hors :is(.bm-perso,.bm-cou,.bm-perso-bas){translate:-300px 0}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-scene :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt,.bm-bras-img,.bm-papier,.bm-coupure,.bm-perso,.bm-cou,.bm-perso-bas){transition:none}}',
     /* aucune Magie : elle dort (œil fermé, petits zzz qui montent) */
     P+'.bm-scene.bm-dort .bm-oeil .paupiere{transform:translateY(13px)}',
     P+'.bm-zzz{position:absolute;left:66px;top:66px;width:44px;height:50px;z-index:7;pointer-events:none;display:none}',
@@ -1028,6 +1032,11 @@ function css(){
     P+'.bm-scene.bm-pleure .bm-larme.l2,'+P+'.bm-scene.bm-pleure .bm-larme.l3{display:none}',
     P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:48px;height:56px;z-index:6;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
+    P+'.bm-planche{display:none;position:absolute;left:-22px;top:252px;width:335px;height:62px;z-index:4;overflow:visible;pointer-events:none;transform-origin:115px 2px;transform:rotate(3deg);filter:drop-shadow(0 -2px 3px rgba(0,0,0,.45))}',
+    P+'.bm-porte{display:none;position:absolute;left:80px;top:122px;width:54px;height:160px;z-index:5;overflow:visible;pointer-events:none;filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] :is(.bm-planche,.bm-porte){display:block}',
+    /* plans : personnage au fond (3), planche derrière (4), verre, sangsue et porte-sangsue devant (5) */
+    P+'.bm-scene[data-source="sucon"] .bm-vase{z-index:5}',
     P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 21px);z-index:7}',
     P+'.bm-trace-sucon{left:8px;top:80px;width:40px;height:62px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce var(--bm-pas,1.1s) ease-in-out infinite}',
