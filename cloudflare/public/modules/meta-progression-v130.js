@@ -3000,8 +3000,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       /*
        * Barre d'Or de la machine (Norman, 2026-10-03 : « la Time Machine a une barre supplémentaire dans NGU IDLE, celle du bas de la capture : c'est elle qui tique 1 fois par seconde de base »).
        * Wiki « Broken Time Machine » : « Machine Speed: speed up how fast the bar fills » ; 1 remplissage par seconde au niveau 0, +1 par niveau jusqu'à 50 (« 1 fill per tick »). Chaque
-       * remplissage rapporte « Gold per Bar Fill ». Animation purement CSS, calée sur l'heure du SERVEUR (même phase pour tout le monde, aucun saut au redessin) ; à partir de 16
-       * remplissages par seconde l'œil ne distingue plus les cycles : la barre reste pleine et scintille.
+       * remplissage rapporte « Gold per Bar Fill ». Animation purement CSS, calée sur l'heure du SERVEUR (même phase pour tout le monde, aucun saut au redessin) ; jusqu'au plafond de 50
+       * remplissages par seconde (« 1 fill per tick »), la barre tique de plus en plus vite.
        */
       /*
        * Or RÉEL d'un remplissage (Norman, 2026-10-10 : « 206 M Or par seconde, 293 K à chaque remplissage, 8 remplissages par seconde : le calcul n'est pas bon »). goldPerBarFill n'est que la BASE
@@ -3024,7 +3024,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const n=Math.max(1,Math.min(50,H.idleNombre_(fills)||1));
         const periode=1/n;
-        if(periode<1/16)return {classe:'rapide',style:''};
+        /* Plafond à 50 tiques par seconde (Norman, 2026-10-11 : « elle ne doit être cap qu'à 50 tiques par seconde, avant ça on doit la voir tiquer de plus en plus vite » : au niveau 40 elle ne tiquait plus) : la barre tique donc jusqu'au bout, plus de bascule en « scintillement » à 16/s. */
         const maintenant=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
         const phase=(maintenant/1000)%periode;
         return {classe:'',style:'animation-duration:'+periode.toFixed(4)+'s;animation-delay:-'+phase.toFixed(4)+'s'};
