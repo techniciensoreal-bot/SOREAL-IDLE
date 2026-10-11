@@ -181,7 +181,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Récipients simplement transparents (Norman, 2026-10-11) : aucun fond sombre, aucune déformation ; la cavité du calice est percée dans le métal.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(!decor.includes("fondVerre") && !decor.includes("bm-f-verre") && !decor.includes("bm-fond-entree") && !decor.includes("--bm-int") && !decor.includes('fill="#12050a" opacity') , "plus aucune déformation ni fond sombre dans les récipients");
-  assert.ok(!decor.includes("INT_CHOPE+'\" fill=\"#12050a\"") && decor.includes("function contenant(type,fraction){") && decor.includes("CORPS_CALICE+' '+BOL_CALICE"), "récipients transparents ; cavité du calice percée");
+  assert.ok(!decor.includes("INT_CHOPE+'\" fill=\"#12050a\"") && decor.includes("function contenant(type,fraction,id){") && decor.includes("CORPS_CALICE+' '+BOL_CALICE"), "récipients transparents ; cavité du calice percée");
 }
 {
   // Deuxième rituel : le récipient en attente passe devant la manche de Rincevent.
@@ -232,7 +232,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Banque du sang : les 21 images de R2 (rincevent/banquedusang/N.webp) sont jouées en boucle dans la case quand le rituel tourne, image 1 fixe sinon.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes('<canvas class="bm-banque-cv" width="640" height="480"') && decor.includes("name=rincevent/banquedusang/'+(i+BANQUE_PREMIER-1)+'.webp") && decor.includes("var BANQUE_N=20,BANQUE_PREMIER=2,BANQUE_DUREE=4"), "21 images de R2 dans un canevas de la case");
+  assert.ok(decor.includes('<canvas class="bm-banque-cv" width="640" height="480"') && decor.includes("name=rincevent/banquedusang/'+(i+BANQUE_PREMIER-1)+'.webp") && decor.includes("var BANQUE_N=18,BANQUE_PREMIER=2,BANQUE_DUREE=4"), "21 images de R2 dans un canevas de la case");
   assert.ok(decor.includes("function banqueCadre(sc,maintenant)") && decor.includes("resizeWidth:640,resizeHeight:480") && decor.includes("function banqueDemarrer()"), "boucle sans couture à cadence fixe, images réduites en mémoire");
 }
 {
@@ -279,4 +279,36 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Le filet de crachat ne dure que pendant les images où les lèvres sont en avant.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("FIL_IMAGE_SANG=19,FIL_IMAGE_SANG_FIN=20") && decor.includes("if(k<FIL_IMAGE_SANG||k>FIL_IMAGE_SANG_FIN){"), "filet limité aux images lèvres en avant");
+}
+{
+  // Banque du sang : arrêt de 3 s sur la première image avant le départ, puis neige très courte entre la fin et le début de la boucle.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("BANQUE_PAUSE_DEBUT=3,BANQUE_TOTAL=BANQUE_DUREE+BANQUE_PAUSE+BANQUE_PAUSE_DEBUT") && decor.includes("if(e<BANQUE_PAUSE_DEBUT)return 0;") && decor.includes("return Math.min(BANQUE_N-1,Math.floor((e-BANQUE_PAUSE)/dt));"), "3 s sur la première image (fichier 2), 3 s dans le frigo (fichier 11), puis la fin");
+  assert.ok(decor.includes("if(k===0&&cv.__k>0)banqueNeige(sc);") && decor.includes("@keyframes bmCctvNeige{0%{opacity:0;") && decor.includes("100%{opacity:0;background-position:-160px 160px}}"), "neige au retour au début de la boucle (fondu d'entrée et de sortie, glissement d'une tuile entière)");
+}
+{
+  // Petites têtes de mort sombres dans le sang de Blood Magic (comme les bulles des barres de vie) : fondu d'entrée et de sortie, un seul sens.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function tetesMort(l,id)") && decor.includes("tetesMort(c.l,id)+") && decor.includes("@keyframes bmTete{0%{opacity:0;translate:0 0}") && decor.includes("100%{opacity:0;translate:0 -11px}}"), "têtes de mort dans le sang, boucle sans à-coup");
+  assert.ok(d.scene({ id: "barbedWire", sang: 60000, compte: 3, barre: "", rang: 3 }).includes('class="bm-tete"'), "les têtes de mort sont dans la scène");
+}
+{
+  // Plus le rituel est bas dans la liste, plus il y a de têtes de mort et plus certaines sont grosses.
+  const nb = (id) => (d.scene({ id, sang: 60000, compte: 3, barre: "", rang: 3 }).match(/class="bm-tete"/g) || []).length;
+  assert.ok(nb("tack") < nb("papercuts") && nb("papercuts") < nb("hickey") && nb("hickey") < nb("barbedWire"), "têtes de mort de plus en plus nombreuses");
+  const gros = (id) => Math.max(...d.scene({ id, sang: 60000, compte: 3, barre: "", rang: 3 }).split('class="bm-tete"').slice(1).map((m) => Number(m.split("scale(")[1].split(")")[0])));
+  assert.ok(gros("tack") < gros("barbedWire"), "et certaines de plus en plus grosses");
+}
+{
+  // Bulles des barres de boss : même teinte que la barre pour les premiers boss, de plus en plus mélangées ensuite.
+  const bulles = readFileSync("cloudflare/public/modules/bulles-sang-v1.js", "utf8");
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(bulles.includes("function teinterBoss_(el)") && bulles.includes("(n-25)/275") && bulles.includes("--sg-b1") && ui.includes('data-boss-n="${idleEntier_(j.bossId)}"'), "teinte des bulles de la barre de boss");
+}
+{
+  // Banque du sang : un grand bac en plastique se remplit sous l'animation, alimenté par une poche de transfusion (goutte en boucle sans à-coup).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function bac(fraction,actif)") && decor.includes("function majBac(sc,id,n)") && decor.includes("majBac(sc,id,n);banqueDemarrer();") && decor.includes("@keyframes bmBacGoutte{0%{opacity:0;") && decor.includes("100%{opacity:0;transform:translateY(var(--bac-chute,28px)) scale(1)}}"), "bac de la banque du sang");
+  const hb = d.scene({ id: "bloodBank", sang: 60000, compte: 3, barre: "", rang: 3 });
+  assert.ok(hb.includes('data-bm-bac="bloodBank"') && hb.includes('class="bm-bac-liq"') && hb.indexOf("bm-banque-cv") < hb.indexOf("data-bm-bac") && hb.indexOf("data-bm-bac") < hb.indexOf("bm-etagere"), "le bac est sous l'animation, au-dessus de l'étagère");
 }

@@ -48,11 +48,20 @@ try {
   const moi = c.entrees.find((e) => e.moi);
   assert.equal(typeof moi.valeurs.combatLong, "number");
   assert.equal(moi.rangs.combatLong, 1);
+  assert.equal(moi.valeurs.combatLongGagne, false, "l'issue du combat le plus long est donnée (ici une défaite du niveau 1)");
+  assert.equal(lireStats(g).combatBossPlusLongGagne, false);
 } finally {
   globalThis.Date = VraiDate;
 }
 
+/* Règle du 2026-10-11 : un seul Fight, boss à PV pleins, aucune fuite/reprise ; l'issue (gagné/perdu) s'affiche. */
+{
+  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  assert.ok(rt.includes("stats.combatBossDepartFrais === true && duree >") && rt.includes("stats.combatBossPlusLongGagne = gagne === true;") && rt.includes("cloreCombatBossClassementV1_(statsCombat,true);") && rt.includes("if(!Boolean(actif)&&stats.combatBossActif)stats.combatBossDepartFrais=false;"), "record réservé aux combats d'un seul Fight sur un boss à PV pleins, avec issue");
+  assert.ok(rt.includes("combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)"), "les anciens records sans issue repartent de zéro");
+}
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes("{id:'combatLong',nom:'⚔️ Combat le plus long'}"), "onglet du classement");
 assert.ok(ui.includes("if(stat==='combatLong')"), "durée lisible");
+assert.ok(ui.includes("'🏆 Gagné':'💀 Perdu'"), "issue affichée");
 console.log("idle-classement-combat-long-v1: OK");

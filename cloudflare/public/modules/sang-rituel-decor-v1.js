@@ -485,13 +485,25 @@ function dimensions(id,rang){
 /* Un contenant qui se remplit : le sang est un groupe qu'on déplace en hauteur (transform), sa surface ondule d'une période exactement. */
 function echapper(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function nomJoueur(){try{return typeof window.__nomJoueurIdleV1__==='function'?String(window.__nomJoueurIdleV1__()||'Joueur'):'Joueur';}catch(e){return 'Joueur';}}
-function contenant(type,fraction){
+/* Petites têtes de mort sombres qui naissent dans le sang comme des bulles, montent un peu et s'éteignent (Norman, 2026-10-11) : seulement dans le sang de Blood Magic. Comme les bulles des barres de vie : fondu d'entrée et de sortie, un seul sens. */
+var TETE_D='M-3 0 a3 3 0 0 1 6 0 v1.7 h-1 v1.5 h-4 v-1.5 h-1 z M-1.7 -.4 a.75 .85 0 1 0 1.5 0 a.75 .85 0 1 0 -1.5 0 M.2 -.4 a.75 .85 0 1 0 1.5 0 a.75 .85 0 1 0 -1.5 0';
+/* Plus le rituel est bas dans la liste, plus il y a de têtes de mort (2, 3, 5, 7, 9) et plus certaines sont grosses (une sur trois grossit avec le rang ; les autres restent petites) (Norman, 2026-10-11). */
+function tetesMort(l,id){
+  var r=Math.max(0,Object.keys(SOURCES).indexOf(id)),nb=[2,3,5,7,9][Math.min(4,r)],h='<g class="bm-tetes">';
+  for(var i=0;i<nb;i++){
+    var x=l*(0.12+0.76*((i*0.618+0.13)%1)),y=10+((i*37)%34),sc=(i%3===0?1+0.45*r:1)*(0.9+0.1*(i%2));
+    h+='<path class="bm-tete" style="animation-duration:'+(7+(i*3)%5)+'s;animation-delay:-'+((i*2.3)%9).toFixed(1)+'s" d="'+TETE_D+'" fill-rule="evenodd" transform="translate('+x.toFixed(1)+' '+y+') scale('+sc.toFixed(2)+')"/>';
+  }
+  return h+'</g>';
+}
+function contenant(type,fraction,id){
   var c=CONTENANTS[type]||CONTENANTS.calice;
   var t=c.depart-c.haut*Math.max(0,Math.min(1,fraction));
   return '<svg class="bm-calice" viewBox="'+c.vb+'" aria-hidden="true" focusable="false">'+
     '<use href="#'+c.corps+'" width="'+c.l+'" height="'+c.h+'"/>'+
     '<g clip-path="url(#'+c.clip+')"><g class="bm-liq" opacity=".9" style="transform:translateY('+t.toFixed(2)+'px)">'+
       (c.liquide||'<g class="bm-onde"><path d="M-40 3 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V90 H-40 Z" fill="url(#bm-g-sang)"/></g>')+
+      tetesMort(c.l,id)+
     '</g></g>'+
     '<use href="#'+c.devant+'" width="'+c.l+'" height="'+c.h+'"/>'+
     (type==='boite'?etiquette(nomJoueur()):'')+
@@ -540,8 +552,9 @@ function scene(opts){
     return '<div class="bm-scene bm-banque" data-bm-id="'+opts.id+'" data-source="banque">'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       '<canvas class="bm-banque-cv" width="640" height="480" aria-hidden="true"></canvas>'+
-      '<div class="bm-cctv" aria-hidden="true"><b class="bm-cctv-bande"></b><i class="bm-cctv-rec">REC</i><i class="bm-cctv-cam">CAM 05 · BANQUE DU SANG</i><i class="bm-cctv-heure"></i></div>'+
+      '<div class="bm-cctv" aria-hidden="true"><b class="bm-cctv-bande"></b><b class="bm-cctv-neige"></b><i class="bm-cctv-rec">REC</i><i class="bm-cctv-cam">CAM 05 · BANQUE DU SANG</i><i class="bm-cctv-heure"></i></div>'+
     '</div>'+
+    '<div class="bm-bac'+(opts.saigne?' on':'')+'" data-bm-bac="'+opts.id+'">'+bac(paliers(opts.id,compte).fraction,!!opts.saigne)+'</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(compte*(Number(opts.sang)||0))+'</div>';
   }
   if(SOURCES[opts.id]==='fil')compte=filNAffiche(opts.id,compte,null);
@@ -561,8 +574,8 @@ function scene(opts){
         ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i></div>'
         :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
-      '<div class="bm-vase">'+contenant(type,fraction)+'</div>'+
-      (fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,0)+'</div>':'')+
+      '<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
+      (fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,0,opts.id)+'</div>':'')+
     '</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
 }
@@ -584,7 +597,7 @@ var DUREE_ECHANGE=800;
 function ajouterSuivant(sc,type,anime){
   var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var n=document.createElement('div');
-  n.className='bm-vase bm-suivant'+(anime&&!reduit?' bm-apparait':'');n.setAttribute('aria-hidden','true');n.innerHTML=contenant(type,0);
+  n.className='bm-vase bm-suivant'+(anime&&!reduit?' bm-apparait':'');n.setAttribute('aria-hidden','true');n.innerHTML=contenant(type,0,sc.getAttribute('data-bm-id'));
   sc.appendChild(n);
   return n;
 }
@@ -1059,8 +1072,8 @@ function filNAffiche(id,n,sc){
  * chargement (ImageBitmap) pour ne pas garder ~95 Mo d'images décodées. L'animation dure BANQUE_DUREE = 4 secondes de mouvement (21 images, soit ~5 images par seconde) plus 3 s d'arrêt quand il est dans le frigo, et ne se déclenche QUE quand le niveau se valide (la barre du moteur repart de zéro) ; le reste du temps, l'image 1 reste fixe. Si les niveaux sont plus courts que l'animation, elle tourne en boucle sans couture à la même durée.
  */
 /* La scène : il passe la porte de gauche (images 1 à 8), entre dans le frigo (9 et 10), et à l'image 11 il est COMPLÈTEMENT dedans (pièce vide, porte fermée) : arrêt de BANQUE_PAUSE = 3 s sur cette image, puis il ressort avec les poches de sang et s'enfuit (12 à 21). Mouvement : 4 s ; avec l'arrêt : 7 s. */
-/* l'image 1 du dossier est écartée (Norman, 2026-10-11 : elle n'est pas bonne) : on joue les fichiers 2 à 21, soit 20 images ; indice 0 = fichier 2, le frigo (fichier 11) = indice 9 */
-var BANQUE_N=20,BANQUE_PREMIER=2,BANQUE_DUREE=4,BANQUE_PAUSE=3,BANQUE_TOTAL=BANQUE_DUREE+BANQUE_PAUSE,BANQUE_IMAGE_FRIGO=9,banqueImgs=null,banqueBoucle=0;
+/* l'image 1 du dossier est écartée (Norman, 2026-10-11 : elle n'est pas bonne) : les images ont été remplacées : le dossier contient les fichiers 2 à 19, soit 18 images ; indice 0 = fichier 2, le frigo (fichier 11) = indice 9 */
+var BANQUE_N=18,BANQUE_PREMIER=2,BANQUE_DUREE=4,BANQUE_PAUSE=3,BANQUE_PAUSE_DEBUT=3,BANQUE_TOTAL=BANQUE_DUREE+BANQUE_PAUSE+BANQUE_PAUSE_DEBUT,BANQUE_IMAGE_FRIGO=9,banqueImgs=null,banqueBoucle=0;
 function banqueCharger(){
   if(banqueImgs||typeof Image==='undefined')return;   /* (rendu pur des tests : pas d'images) */
   banqueImgs=[];
@@ -1077,7 +1090,10 @@ function banqueCharger(){
 }
 /* image à afficher : immobile (image 1) sauf pendant les 4 s qui suivent la validation d'un niveau (la barre du moteur repart de zéro) ; si les niveaux durent MOINS de 4 s, boucle continue à la même durée */
 /* temps écoulé (0 à BANQUE_TOTAL) -> image : mouvement jusqu'à l'image du frigo, arrêt de 3 s dessus, puis la suite */
+/* cycle : 3 s d'arrêt sur la première image (fichier 2), le départ, 3 s d'arrêt dans le frigo (fichier 11), la fin (fichier 19), la neige, puis de nouveau 3 s sur la fichier 2 (Norman, 2026-10-11) */
 function banqueIndex(e){
+  if(e<BANQUE_PAUSE_DEBUT)return 0;
+  e-=BANQUE_PAUSE_DEBUT;
   var dt=BANQUE_DUREE/BANQUE_N,h=BANQUE_IMAGE_FRIGO*dt;
   if(e<h)return Math.max(0,Math.floor(e/dt));
   if(e<h+BANQUE_PAUSE)return BANQUE_IMAGE_FRIGO;
@@ -1101,6 +1117,10 @@ function banqueCadre(sc,maintenant){
   if(ecoule>=BANQUE_TOTAL){sc.__bt0=0;return 0;}
   return banqueIndex(ecoule);
 }
+function banqueNeige(sc){
+  sc.classList.remove('bm-neige');void sc.offsetWidth;sc.classList.add('bm-neige');
+  clearTimeout(sc.__neige);sc.__neige=setTimeout(function(){sc.classList.remove('bm-neige');},380);
+}
 function banqueTic(){
   var l=document.querySelectorAll('.bm-scene[data-source="banque"]');
   if(!l.length){banqueBoucle=0;return;}
@@ -1113,6 +1133,8 @@ function banqueTic(){
     if(!cv)continue;
     var sc=l[i],k=banqueCadre(sc,maintenant),im=banqueImgs&&banqueImgs[k];
     if(!im&&banqueImgs){for(var j=k;j>=0&&!im;j--)im=banqueImgs[j];}
+    /* retour au début de la boucle : très court effet de neige (parasites) sur l'écran (Norman, 2026-10-11) */
+    if(k===0&&cv.__k>0)banqueNeige(sc);
     if(!im||(cv.__k===k&&cv.__im===im))continue;
     var ctx=cv.getContext('2d');
     if(!ctx)continue;
@@ -1245,12 +1267,62 @@ function stabiliser(id,n){
   if(a===undefined||n>=a||n<=a/2){affiches[id]=n;return n;}
   return a;
 }
+/*
+ * BAC DE LA BANQUE DU SANG (Norman, 2026-10-11) : sous l'animation du braquage, un grand bac en plastique se remplit ; le sang coule d'une poche de transfusion accrochée à un portant (une goutte à la fois, dans une chambre compte-gouttes puis par le tuyau).
+ * Même règle que les autres rituels : la capacité grandit par paliers (paliers()). Boucles sans à-coup (règle n°3) : la goutte naît et s'éteint en fondu, toujours dans le même sens.
+ */
+var BAC_VIDE=38;   /* hauteur dont le sang descend quand le bac est vide */
+function bac(fraction,actif){
+  var t=(BAC_VIDE*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2);
+  return '<svg class="bm-bac-svg" viewBox="0 0 250 176" aria-hidden="true" focusable="false">'+
+    '<clipPath id="bm-clip-bac"><path d="M112 130 H236 L228 168 Q227 171 224 171 H124 Q121 171 120 168 Z"/></clipPath>'+
+    /* portant */
+    '<rect x="22" y="170" width="52" height="5" rx="2.5" fill="#6d737d" stroke="#000" stroke-width="1.6"/>'+
+    '<rect x="45" y="8" width="5" height="164" fill="#aeb6c2" stroke="#000" stroke-width="1.6"/>'+
+    '<path d="M47.5 10 H92" stroke="#000" stroke-width="7" stroke-linecap="round"/><path d="M47.5 10 H92" stroke="#aeb6c2" stroke-width="4" stroke-linecap="round"/>'+
+    '<circle cx="47.5" cy="172" r="4" fill="#8c94a1" stroke="#000" stroke-width="1.6"/>'+
+    /* poche de transfusion */
+    '<path d="M88 11 V20" stroke="#000" stroke-width="2.4"/>'+
+    '<path d="M72 22 Q72 18 78 18 H104 Q110 18 110 22 L113 66 Q113 78 100 82 H82 Q69 78 69 66 Z" fill="#d9eef7" fill-opacity=".38" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>'+
+    '<path d="M72.5 42 H109.5 L112.5 66 Q112.5 77.4 100 81 H82 Q69.5 77.4 69.5 66 Z" fill="#c4122c" fill-opacity=".92"/>'+
+    '<path d="M72.5 42 Q81 39 90 42 T109.5 42" fill="none" stroke="#ff5a73" stroke-width="1.6"/>'+
+    '<path d="M76 26 H105 M76 34 H105" stroke="#fff" stroke-opacity=".5" stroke-width="1.4"/>'+
+    '<path d="M77 24 Q74 50 76 70" stroke="#fff" stroke-opacity=".55" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+
+    '<rect x="81" y="52" width="20" height="13" rx="2" fill="#fff" stroke="#000" stroke-width="1.4"/><path d="M85 58 H97 M85 62 H93" stroke="#c4122c" stroke-width="1.8" stroke-linecap="round"/>'+
+    /* chambre compte-gouttes, tuyau */
+    '<rect x="87" y="82" width="8" height="5" fill="#9aa3ad" stroke="#000" stroke-width="1.4"/>'+
+    '<rect x="83" y="87" width="16" height="22" rx="5" fill="#d9eef7" fill-opacity=".5" stroke="#000" stroke-width="1.8"/>'+
+    '<path d="M86 104 Q91 100 96 104 V107 H86 Z" fill="#c4122c"/>'+
+    '<path d="M91 109 V117 Q91 124 104 124 Q140 124 156 120 V126" fill="none" stroke="#000" stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="M91 109 V117 Q91 124 104 124 Q140 124 156 120 V126" fill="none" stroke="#e8a3ae" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<path d="M91 111 V117 Q91 122 104 122 Q140 122 156 118 V124" fill="none" stroke="#c4122c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<rect x="148" y="116" width="16" height="6" rx="2" fill="#4aa3df" stroke="#000" stroke-width="1.4"/>'+
+    /* le bac en plastique : fond, sang, devant */
+    '<path d="M110 128 H238 L230 168 Q229 173 224 173 H124 Q119 173 118 168 Z" fill="#8fb1c9" fill-opacity=".22" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
+    '<g clip-path="url(#bm-clip-bac)"><g class="bm-bac-liq" style="transform:translateY('+t+'px)"><g class="bm-onde"><path d="M-40 134 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V190 H-40 Z" fill="url(#bm-g-sang)" transform="translate(130 0)"/></g></g></g>'+
+    '<path d="M110 128 H238" stroke="#e7f1f7" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M122 142 H226 M120 156 H228" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>'+
+    '<path d="M110 128 L102 134 V144 L110 150 M238 128 L246 134 V144 L238 150" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
+    '<path d="M122 134 L127 166" stroke="#fff" stroke-opacity=".5" stroke-width="2.6" stroke-linecap="round"/>'+
+    /* goutte */
+    '<path class="bm-bac-goutte" d="M156 128 q-3 5 0 7 q3 -2 0 -7 z" fill="#c4122c" stroke="#7a0818" stroke-width=".8" style="--bac-chute:'+(30-parseFloat(t)).toFixed(1)+'px"/>'+
+  '</svg>';
+}
+function majBac(sc,id,n){
+  var pal=paliers(id,n),el=sc.parentNode&&sc.parentNode.querySelector('[data-bm-bac="'+id+'"]');
+  if(!el)return;
+  var liq=el.querySelector('.bm-bac-liq'),g=el.querySelector('.bm-bac-goutte'),t=BAC_VIDE*(1-pal.fraction);
+  if(liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
+  if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
+  var actif=!!sc.querySelector('.bm-tuyau.saigne-v1');
+  if(el.classList.contains('on')!==actif)el.classList.toggle('on',actif);
+}
 function majScene(sc){
   var id=sc.getAttribute('data-bm-id');
   var n=lireCompte(id);
   if(n==null)return;
   n=stabiliser(id,n);
-  if(sc.getAttribute('data-source')==='banque'){derniers[id]=n;banqueDemarrer();return;}   /* pas de récipient ni de niveau à gérer ; on s'assure que l'animation tourne */
+  if(sc.getAttribute('data-source')==='banque'){derniers[id]=n;majBac(sc,id,n);banqueDemarrer();return;}   /* pas de récipient ni de niveau à gérer ; on s'assure que l'animation tourne */
   var type=sc.getAttribute('data-contenant')||'calice',c=CONTENANTS[type]||CONTENANTS.calice;
   var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;
   var pal=paliers(id,nv),cap=pal.cap,pleins=pal.pleins,fraction=pal.fraction;
@@ -1392,10 +1464,13 @@ function css(){
     P+'.bm-cctv-rec::before{content:"";position:absolute;left:0;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#ff2323;box-shadow:0 0 5px #ff2323;animation:bmCctvRec 1.2s steps(1) infinite}',
     P+'.bm-cctv-cam{right:9px;top:8px}',
     P+'.bm-cctv-heure{left:9px;bottom:7px}',
+    P+'.bm-cctv-neige{position:absolute;inset:0;opacity:0;background:url("data:image/svg+xml;utf8,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='3' intercept='-1'/><feFuncG type='linear' slope='3' intercept='-1'/><feFuncB type='linear' slope='3' intercept='-1'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(#s)'/></svg>")+'") 0 0/160px 160px}',
+    P+'.bm-neige .bm-cctv-neige{animation:bmCctvNeige .38s steps(6) both}',
+    '@keyframes bmCctvNeige{0%{opacity:0;background-position:0 0}12%{opacity:.95}80%{opacity:.95;background-position:-160px 80px}100%{opacity:0;background-position:-160px 160px}}',
     '@keyframes bmCctvGrain{0%{background-position:0 0}100%{background-position:120px 120px}}',
     '@keyframes bmCctvBande{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(600%);opacity:0}}',
     '@keyframes bmCctvRec{0%,60%{opacity:1}61%,100%{opacity:.15}}',
-    '@media (prefers-reduced-motion:reduce){'+P+'.bm-cctv::before,'+P+'.bm-cctv-bande,'+P+'.bm-cctv-rec::before{animation:none}}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-neige .bm-cctv-neige,'+P+'.bm-cctv::before,'+P+'.bm-cctv-bande,'+P+'.bm-cctv-rec::before{animation:none}}',
     P+'.bm-scene[data-source="fil"] .bm-bec{display:none}',
     /* sang qui s'échappe de sa bouche : arc (x régulier, y qui monte un peu puis tombe de plus en plus vite, goutte qui s'étire) jusqu'à la SURFACE DU LIQUIDE déjà dans le calice (hauteur de chute --chute, calculée par chuteSang), puis éclaboussure */
     /* il saigne dès que le fil touche sa bouche (image 6) : filet fin qui suit le fil (même inclinaison), puis des gouttes qui se forment au bout du filet et tombent le long du menton */
@@ -1575,6 +1650,15 @@ function css(){
     P+'.bm-calice{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 3px rgba(0,0,0,.7))}',
     P+'.bm-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
     P+'.bm-onde{animation:bmOnde 2.4s linear infinite}',
+    P+'.bm-bac{width:100%;max-width:250px;margin:6px auto 0}',
+    P+'.bm-bac-svg{display:block;width:100%;height:auto;overflow:visible}',
+    P+'.bm-bac-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
+    P+'.bm-bac-goutte{opacity:0;transform-box:fill-box;animation:none}',
+    P+'.bm-bac.on .bm-bac-goutte{animation:bmBacGoutte 1.1s linear infinite}',
+    /* la goutte naît au bout du tuyau (fondu d'entrée), tombe, s'éteint dans le sang (fondu de sortie) : toujours dans le même sens */
+    '@keyframes bmBacGoutte{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1;transform:translateY(2px) scale(1)}85%{opacity:1}100%{opacity:0;transform:translateY(var(--bac-chute,28px)) scale(1)}}',
+    P+'.bm-tete{fill:#4a0511;opacity:0;pointer-events:none;animation:bmTete 8s linear infinite}',
+    '@keyframes bmTete{0%{opacity:0;translate:0 0}18%{opacity:.85}70%{opacity:.85}100%{opacity:0;translate:0 -11px}}',
     P+'.bm-lueur{animation:bmOeil 1.6s ease-in-out infinite}',
     P+'.bm-eta{font-family:var(--f-texte,"Russo One",sans-serif);font-size:14px;line-height:1.35;color:#f0b9c2;margin:4px 0;min-height:2.7em}',
     /* étagère des calices remplis */
@@ -1611,7 +1695,7 @@ function css(){
     '@keyframes bmConvoiSuivant{0%{transform:translateX(calc(var(--pas,118px)*-1))}50%{transform:translateX(0)}100%{transform:translateX(0)}}',
     '@keyframes bmApparait{from{transform:translateX(-640px)}to{transform:translateX(calc(var(--pas,118px)*-1))}}',
     '@keyframes bmPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}',
-    '@media (prefers-reduced-motion:reduce){'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq,'+P+'.bm-trace{transition:none}}'
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-bac.on .bm-bac-goutte,'+P+'.bm-tete,'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq,'+P+'.bm-trace{transition:none}}'
   ].concat(reglesRangs(P)).join('\n');
   document.head.appendChild(st);
 }

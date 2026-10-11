@@ -113,7 +113,7 @@ c = op("obtenirClassementSorealIdle", norman);
 assert.equal(c.joueurs, 2, "le joueur réinitialisé reste listé");
 const apres = c.entrees.find((e) => e.nom === "Sébastien" || !e.moi);
 assert.ok(apres, "présent");
-assert.deepEqual({ ...apres.valeurs }, { boss: 0, rebirths: 0, number: 0, exp: 0, playSeconds: 0, achievements: 0, clics: 0, combatLong: 0 });
+assert.deepEqual({ ...apres.valeurs }, { boss: 0, rebirths: 0, number: 0, exp: 0, playSeconds: 0, achievements: 0, clics: 0, combatLong: 0, combatLongGagne: null });
 assert.equal(apres.rang, 2, "en bas du classement");
 // Puis il rejoue : nouvelle partie, toujours dans le classement (une seule entrée)
 op("obtenirEtatSorealIdle", sebastien);

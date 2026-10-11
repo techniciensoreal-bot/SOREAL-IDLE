@@ -5648,12 +5648,16 @@
         const ancreAvant=ancreClic?null:ancreSacIdleV1_();
         try{
           if(document.body){
+            /* Hauteur retenue sur le conteneur du jeu (celui qui porte le menu collant), pas sur le body : sinon le menu est poussé hors de l'écran pendant les 700 ms où la page courte est plus petite que le body retenu (Norman, 2026-10-11, Renaissance). */
+            const hoteHauteur=document.querySelector('.soreal-idle-native-v4');
             document.body.style.minHeight='';
+            if(hoteHauteur)hoteHauteur.style.minHeight='';
             const hauteurAvant=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
             if(hauteurAvant>0){
-              document.body.style.minHeight=hauteurAvant+'px';
+              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,hauteurAvant-(hoteHauteur.getBoundingClientRect().top+(window.scrollY||0)))+'px';
+              else document.body.style.minHeight=hauteurAvant+'px';
               clearTimeout(window.__idleRelacherHauteurTimerV1__);
-              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';},700);
+              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';if(hoteHauteur)hoteHauteur.style.minHeight='';},700);
             }
           }
         }catch(_e){}
@@ -16364,6 +16368,7 @@
                     <div class="soreal-idle-bossbar-wrap-v7">
                       <div
                         id="sorealIdleBossBarV7"
+                        data-boss-n="${idleEntier_(j.bossId)}"
                         class="soreal-idle-bossbar-v7"
                         style="width:${
                           idleNombre_(j.bossPvMax)>0
@@ -23035,7 +23040,7 @@ function pageAventureIdleV28_(j){
           const medaille=rang===1?'🥇':(rang===2?'🥈':(rang===3?'🥉':rang));
           const valeur=onglet==='global'
             ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+(idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss))+'</span>'
-            :'<b>'+valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet])+'</b>';
+            :'<b>'+valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet])+'</b>'+(onglet==='combatLong'&&e.valeurs&&typeof e.valeurs.combatLongGagne==='boolean'?'<span class="soreal-idle-classement-issue-v1 '+(e.valeurs.combatLongGagne?'gagne':'perdu')+'">'+(e.valeurs.combatLongGagne?'🏆 Gagné':'💀 Perdu')+'</span>':'');
           return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
             '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
             '<div class="soreal-idle-classement-nom-v1">'+idleHtml_(e.nom)+(e.moi?' <em>(toi)</em>':'')+'</div>'+
@@ -23829,6 +23834,14 @@ function pageAventureIdleV28_(j){
         if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
       }
       window.__basculerNotesMajIdleV1__=basculerNotesMajIdleV1_;
+      /* Notes en PAGES (Norman, 2026-10-11) : une version par page, la plus récente d'abord, avec « Précédente » / « Suivante ». */
+      let notesMajPageIdleV1_=0;
+      window.__pageNotesMajIdleV1__=function(delta){
+        const total=notesMajIdleV1_().versions.length;
+        notesMajPageIdleV1_=Math.max(0,Math.min(total-1,notesMajPageIdleV1_+(Number(delta)||0)));
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&idleEtat)rafraichirMenuRacineIdleV28_();
+      };
       /*
        * Clic sur « Beta x.y » en haut de l'app (Norman, 2026-10-08) : ouvre les Réglages, déplie les notes de mise à jour et les amène à l'écran.
        */
@@ -23994,12 +24007,18 @@ function pageAventureIdleV28_(j){
             'onclick="window.__basculerNotesMajIdleV1__()">'+(ouvert?'▾':'▸')+' 📝 Notes de mise à jour</button>'+
           (ouvert
             ?'<div class="soreal-idle-notes-maj-v1">'+
-              notes.versions.map(function(v,i){
+              notes.versions.filter(function(v,i){return i===Math.min(notesMajPageIdleV1_,notes.versions.length-1);}).map(function(v){
+                const i=notes.versions.indexOf(v),total=notes.versions.length;
                 return '<div class="soreal-idle-notes-maj-version-v1'+(i===0?' derniere':'')+'">'+
                   '<div class="soreal-idle-notes-maj-titre-v1"><b>Beta '+idleHtml_(v.version)+'</b> · '+idleHtml_(v.nom)+
                     '<span>'+idleHtml_(v.date)+'</span></div>'+
                   htmlVersionNotesMajIdleV1_(v,possedes)+
                   ((v.hommage||notes.hommage)?'<div class="soreal-idle-notes-maj-hommage-v1">'+idleHtml_(v.hommage||notes.hommage)+'</div>':'')+
+                '</div>'+
+                '<div class="soreal-idle-notes-maj-pages-v1">'+
+                  '<button type="button" onclick="window.__pageNotesMajIdleV1__(1)"'+(i>=total-1?' disabled':'')+'>◀ Plus ancienne</button>'+
+                  '<span>'+(i+1)+' / '+total+'</span>'+
+                  '<button type="button" onclick="window.__pageNotesMajIdleV1__(-1)"'+(i<=0?' disabled':'')+'>Plus récente ▶</button>'+
                 '</div>';
               }).join('')+
             '</div>'
@@ -25188,12 +25207,16 @@ function pageAventureIdleV28_(j){
          */
         try{
           if(document.body){
+            /* Hauteur retenue sur le conteneur du jeu (celui qui porte le menu collant), pas sur le body : sinon le menu est poussé hors de l'écran pendant les 700 ms où la page courte est plus petite que le body retenu (Norman, 2026-10-11, Renaissance). */
+            const hoteHauteur=document.querySelector('.soreal-idle-native-v4');
             document.body.style.minHeight='';
+            if(hoteHauteur)hoteHauteur.style.minHeight='';
             const hauteurAvantRendu=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
             if(hauteurAvantRendu>0){
-              document.body.style.minHeight=hauteurAvantRendu+'px';
+              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,hauteurAvantRendu-(hoteHauteur.getBoundingClientRect().top+(window.scrollY||0)))+'px';
+              else document.body.style.minHeight=hauteurAvantRendu+'px';
               clearTimeout(window.__idleRelacherHauteurTimerV1__);
-              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';},700);
+              window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';if(hoteHauteur)hoteHauteur.style.minHeight='';},700);
             }
           }
         }catch(_e){}

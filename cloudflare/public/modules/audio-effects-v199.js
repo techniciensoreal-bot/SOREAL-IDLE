@@ -1144,6 +1144,38 @@
   function dailySpin_(){
     return jouerWebAudio_(2200,dailySpinConstruire_);
   }
+  /*
+   * Cliquet de la roue SYNCHRONISÉ avec l'image (Norman, 2026-10-11 : « le son de la roue n'est pas synchro quand on la tourne, c'est encore l'ancien son »). Un « tic » à chaque part qui passe devant le repère
+   * (toutes les 45°), aux instants exacts où la roue les franchit : on inverse la courbe d'accélération CSS de la roue (cubic-bezier(.08,.7,.12,1), voir meta-progression-v130.js). Le « ding » tombe à l'arrêt.
+   */
+  function courbeRoue_(s){
+    var u=1-s;
+    return {x:3*u*u*s*.08+3*u*s*s*.12+s*s*s,y:3*u*u*s*.7+3*u*s*s*1+s*s*s};
+  }
+  function instantsRoue_(angle,dureeS){
+    var temps=[],k,p,lo,hi,m,i,dernier=-1;
+    for(k=1;k*45<=angle;k+=1){
+      p=k*45/angle;lo=0;hi=1;
+      for(i=0;i<24;i+=1){m=(lo+hi)/2;if(courbeRoue_(m).y<p)lo=m;else hi=m;}
+      var t=courbeRoue_((lo+hi)/2).x*dureeS;
+      if(t-dernier>=.03){temps.push(t);dernier=t;}
+    }
+    return temps;
+  }
+  function roueTourneConstruire_(c,angle,dureeS){
+    instantsRoue_(angle,dureeS).forEach(function(t){
+      var lent=Math.min(1,.55+t/dureeS*.6);
+      tonal_(c,{type:"square",from:1450,to:1250,duration:.025,volume:.032*lent,delay:t});
+      bruit_(c,{duration:.02,volume:.020*lent,filterType:"highpass",frequency:3600,decay:3.2,delay:t});
+    });
+    tonal_(c,{type:"sine",from:1568,to:1568,duration:.48,volume:.052,delay:dureeS+.02});
+    tonal_(c,{type:"sine",from:1568*2,to:1568*2,duration:.30,volume:.018,delay:dureeS+.02});
+    tonal_(c,{type:"triangle",from:2093,to:2093,duration:.34,volume:.026,delay:dureeS+.06});
+  }
+  function roueTourne_(angle,dureeMs){
+    var a=Number(angle)||1800,d=Math.max(300,Number(dureeMs)||2800);
+    return jouerWebAudio_(d+700,function(c){roueTourneConstruire_(c,a,d/1000);});
+  }
 
   /*
    * Achat (Norman, 2026-09-26) : « un bruit de caisse enregistreuse quand on effectue un achat ». Un « clac » sec de tiroir-caisse, puis le « ding » à deux
@@ -1975,6 +2007,8 @@
     setComplete:function(){return demander_("setComplete");},
     moneyPit:function(){return demander_("moneyPit");},
     dailySpin:function(){return demander_("dailySpin");},
+    roueTourne:function(angle,dureeMs){return roueTourne_(angle,dureeMs);},
+    roueInstants:instantsRoue_,
     debugState:function(){
       return {
         active:actif?actif.name:"",

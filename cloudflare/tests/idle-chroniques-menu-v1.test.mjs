@@ -34,5 +34,5 @@ assert.ok(css.includes('.alimente-v1[data-effet-v1="chroniques"] .soreal-idle-na
 for (const id of ["succes", "classement", "bestiaire"]) assert.ok(!css.includes(`.alimente-v1[data-effet-v1="${id}"]`), "plus d'animation pour " + id);
 
 // Notes de version : un seul regroupement.
-assert.ok(notes.includes("Moins de menus :") && notes.includes("« Chroniques »"), "note de version du compactage");
+assert.ok(notes.includes("menu:'chroniques'") && notes.includes("« Global »"), "notes de version : groupe Chroniques");
 console.log("idle-chroniques-menu-v1: OK");

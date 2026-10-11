@@ -431,7 +431,8 @@
                 }
                 if(payload&&payload.action==='collect'&&payload.system==='dailySpin'){
                   try{
-                    if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.dailySpin==='function'){
+                    if(window.__roueSonneeIdleV1__){window.__roueSonneeIdleV1__=false;}
+                    else if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.dailySpin==='function'){
                       window.__SOREAL_IDLE_AUDIO_V199__.dailySpin();
                     }
                   }catch(_e){}
@@ -1425,6 +1426,8 @@
         try{
           const angle=1800+Math.floor(Math.random()*8)*45+22.5;
           const anim=roue.animate([{transform:'rotate(0deg)'},{transform:'rotate('+angle+'deg)'}],{duration:2800,easing:'cubic-bezier(.08,.7,.12,1)',fill:'forwards'});
+          /* son du cliquet calé sur la roue (un tic par part, aux instants réels), puis plus de son à la réponse du serveur */
+          try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.roueTourne==='function'){window.__roueSonneeIdleV1__=true;window.__SOREAL_IDLE_AUDIO_V199__.roueTourne(angle,2800);}}catch(_e){}
           anim.onfinish=function(){setTimeout(envoyer,350);};
           setTimeout(envoyer,4000);
         }catch(_e){envoyer();}

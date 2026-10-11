@@ -2275,7 +2275,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 /* Bulles de sang dans les barres de vie : plus foncées que le liquide, de temps en temps, fondu d'entrée et de sortie, montée dans un seul sens ; coupées en mouvement réduit. */
 .sg-hote-v1{overflow:hidden}
 .sg-bulles-v1{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:inherit}
-.sg-bulles-v1 b{position:absolute;display:block;width:7px;height:7px;border-radius:50%;opacity:0;background:radial-gradient(circle at 34% 30%,rgba(255,200,200,.35) 0 12%,rgba(60,0,12,.42) 38%,rgba(25,0,6,.7) 100%);box-shadow:inset 0 0 0 1px rgba(20,0,5,.35);animation:sgBulle 8s linear infinite}
+.sg-bulles-v1 b{position:absolute;display:block;width:7px;height:7px;border-radius:50%;opacity:0;background:radial-gradient(circle at 34% 30%,rgba(255,200,200,.35) 0 12%,var(--sg-b1,rgba(60,0,12,.42)) 38%,var(--sg-b2,rgba(25,0,6,.7)) 100%);box-shadow:inset 0 0 0 1px rgba(20,0,5,.35);animation:sgBulle 8s linear infinite}
 .sg-bulles-v1 b:nth-child(1){left:7%;bottom:22%;animation-duration:8.5s;animation-delay:-1s}
 .sg-bulles-v1 b:nth-child(2){left:24%;bottom:44%;width:5px;height:5px;animation-duration:7s;animation-delay:-4.5s}
 .sg-bulles-v1 b:nth-child(3){left:41%;bottom:18%;width:9px;height:9px;animation-duration:10s;animation-delay:-7s}

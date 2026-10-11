@@ -4811,7 +4811,11 @@ function statsJoueurSorealIdle_(valeur) {
      * enregistré quand le combat se termine par une victoire ou une défaite (une fuite ou un NUKE n'est pas un combat mené à son terme).
      */
     combatBossDureeSec:Math.max(0,nombreSorealIdle_(s.combatBossDureeSec,0)),
-    combatBossPlusLongSec:Math.max(0,nombreSorealIdle_(s.combatBossPlusLongSec,0)),
+    /* Un record n'a de valeur que s'il porte son issue (victoire ou défaite) : les records antérieurs (sans issue) ne pouvaient pas être vérifiés (fuite puis reprise possibles) et repartent de zéro. */
+    combatBossPlusLongGagne:s.combatBossPlusLongGagne===true?true:(s.combatBossPlusLongGagne===false?false:null),
+    combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)?Math.max(0,nombreSorealIdle_(s.combatBossPlusLongSec,0)):0,
+    /* Le combat en cours est parti d'un boss à PV pleins (un seul « Fight », sans reprise d'un boss déjà entamé). */
+    combatBossDepartFrais:s.combatBossDepartFrais===true,
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),
@@ -8563,7 +8567,7 @@ function appliquerProgressionEnergieSorealIdle_(
       /* « En direct » : compteur de défaites contre un boss (modules/flux-v1.js) ; le combat passe d'actif à inactif une seule fois. */
       statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
       statsCombat.fluxBossDernier=bossCombatIndex+1;
-      cloreCombatBossClassementV1_(statsCombat);
+      cloreCombatBossClassementV1_(statsCombat,false);
       statsCombat.combatBossActif=false;
       combatBossActif=false;
       break;
@@ -8897,7 +8901,7 @@ function appliquerProgressionEnergieSorealIdle_(
        * cooldown de "reformation". Le prochain combat reste arrêté : le
        * joueur voit le nouveau boss et choisit quand lancer le combat.
        */
-      cloreCombatBossClassementV1_(statsCombat);
+      cloreCombatBossClassementV1_(statsCombat,true);
       statsCombat.combatBossActif =
         false;
 
@@ -8938,7 +8942,7 @@ function appliquerProgressionEnergieSorealIdle_(
       koSubis += 1;
       statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
       statsCombat.fluxBossDernier=bossCombatIndex+1;
-      cloreCombatBossClassementV1_(statsCombat);
+      cloreCombatBossClassementV1_(statsCombat,false);
       statsCombat.combatBossActif=false;
       combatBossActif=false;
     }
@@ -12222,7 +12226,15 @@ function definirCombatBossSorealIdle(
     }
 
     /* Classement « Combat le plus long » : un nouveau combat repart de zéro (un combat interrompu par une fuite ou un NUKE n'est pas enregistré). */
-    if(Boolean(actif)&&!stats.combatBossActif)stats.combatBossDureeSec=0;
+    if(Boolean(actif)&&!stats.combatBossActif){
+      stats.combatBossDureeSec=0;
+      /* départ « frais » : le boss est à PV pleins au moment où on appuie sur Fight */
+      const pvDepartBoss=nombreSorealIdle_(feuille.getRange(ligne,c.BOSS_PV).getValue(),0);
+      const pvMaxDepartBoss=nombreSorealIdle_(feuille.getRange(ligne,c.BOSS_PV_MAX).getValue(),0);
+      stats.combatBossDepartFrais=pvMaxDepartBoss>0&&pvDepartBoss>=pvMaxDepartBoss*0.999999;
+    }
+    /* une fuite ou un arrêt qui interrompt un combat actif annule son éligibilité au record */
+    if(!Boolean(actif)&&stats.combatBossActif)stats.combatBossDepartFrais=false;
     stats.combatBossActif =
       Boolean(actif);
 
@@ -13488,10 +13500,18 @@ function estAdministrateurSorealIdle_(emailPrincipal, emailConnexion) {
 }
 
 /* Fin d'un combat de boss mené à son terme (victoire ou défaite) : sa durée entre au record du joueur, puis le compteur repart de zéro. */
-function cloreCombatBossClassementV1_(stats) {
+/*
+ * Règle de Norman (2026-10-11) : le record « combat le plus long » est un combat de boss lancé par UN SEUL « Fight » sur un boss à PV pleins et mené jusqu'au bout (aucune fuite, aucune reprise d'un boss déjà entamé,
+ * aucun arrêt technique), et il garde son issue : gagné (le boss est mort) ou perdu.
+ */
+function cloreCombatBossClassementV1_(stats, gagne) {
   const duree = Math.max(0, nombreSorealIdle_(stats.combatBossDureeSec, 0));
-  if (duree > nombreSorealIdle_(stats.combatBossPlusLongSec, 0)) stats.combatBossPlusLongSec = duree;
+  if (stats.combatBossDepartFrais === true && duree > nombreSorealIdle_(stats.combatBossPlusLongSec, 0)) {
+    stats.combatBossPlusLongSec = duree;
+    stats.combatBossPlusLongGagne = gagne === true;
+  }
   stats.combatBossDureeSec = 0;
+  stats.combatBossDepartFrais = false;
 }
 
 function valeursClassementJoueurSorealIdle_(stats) {
@@ -13525,7 +13545,9 @@ function valeursClassementJoueurSorealIdle_(stats) {
     achievements: succes,
     clics: Math.floor(positif(stats && stats.clicsTotal)),
     /* Combat de boss le plus long, en dixièmes de seconde (secondes avec une décimale). */
-    combatLong: Math.round(positif(stats && stats.combatBossPlusLongSec) * 10) / 10
+    combatLong: Math.round(positif(stats && stats.combatBossPlusLongSec) * 10) / 10,
+    /* issue du combat le plus long : true = gagné, false = perdu, null = pas de record */
+    combatLongGagne: stats && stats.combatBossPlusLongSec > 0 && typeof stats.combatBossPlusLongGagne === 'boolean' ? stats.combatBossPlusLongGagne : null
   };
 }
 
