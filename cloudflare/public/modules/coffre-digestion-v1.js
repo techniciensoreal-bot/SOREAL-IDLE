@@ -28,6 +28,14 @@
     el.classList.add(c);
     setTimeout(function(){el.classList.remove(c);},900);
     if(type==='pet')excuses_(el);
+    else nuageVert_(el);
+  }
+  /* Un rot = un nuage vert qui sort de sa gueule (Norman, 2026-10-11) : quatre bouffées qui grossissent, montent et s'effacent. */
+  function nuageVert_(el){
+    var n=document.createElement('span');
+    n.className='bg-rot-nuage-v1';n.setAttribute('aria-hidden','true');
+    n.innerHTML='<i></i><i></i><i></i><i></i>';
+    el.appendChild(n);retirer_(n,2600);
   }
   /* Quand il pète : un petit nuage de fumée et une bulle « Désolé » (toujours en français, même en anglais : demande de Norman, 2026-10-10). Très rarement (1 fois sur 8), il enchaîne avec « J'étais à 2 doigts de chier sur tes
      affaires », une goutte de sueur lui perle alors au front : elle apparaît en fondu en glissant un peu, puis s'efface. */
@@ -47,7 +55,10 @@
     el.appendChild(f);retirer_(f,2300);
     var rare=Math.random()<.125;
     /* La bulle ne sort qu'APRÈS le pet (Norman, 2026-10-11) : la fumée part tout de suite, l'excuse suit une fois le bruit terminé ; la phrase est tirée au sort. */
-    var excuse=EXCUSES[Math.floor(Math.random()*EXCUSES.length)];
+    var choix=EXCUSES.slice();
+    /* S'il digère un Casque au bleu (Blue Cheese Helmet), il peut s'en plaindre. */
+    try{if(typeof window.__coffreContientObjetIdleV1__==='function'&&window.__coffreContientObjetIdleV1__(/casque au bleu|blue cheese helmet/i))choix.push('Je digère mal ton Casque au bleu');}catch(_e){}
+    var excuse=choix[Math.floor(Math.random()*choix.length)];
     retirer_(bulle_(el,excuse,false,DELAI_EXCUSE),DELAI_EXCUSE+2300);
     if(rare){
       var seconde=bulle_(el,'J’étais à 2 doigts de chier sur tes affaires',true,DELAI_EXCUSE+1900);

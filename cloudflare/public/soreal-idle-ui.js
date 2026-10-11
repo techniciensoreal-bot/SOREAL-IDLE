@@ -22666,6 +22666,13 @@ function pageAventureIdleV28_(j){
         '<g fill="#fffbe8" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"><path d="M56 126 l10 20 l10 -20z"/><path d="M80 126 l9 17 l9 -17z"/><path d="M108 126 l9 19 l9 -19z"/><path d="M130 126 l8 14 l8 -14z"/><path d="M174 126 l8 14 l8 -14z"/><path d="M198 126 l9 19 l9 -19z"/><path d="M228 126 l9 17 l9 -17z"/><path d="M250 126 l10 20 l10 -20z"/></g></g></g></svg>';
       const BAGAGE_OBJETS_IDLE_V1=['🗡️','🛡️','👢','💍','🪖','📿','🧪'];
       const BAGAGE_CRIS_IDLE_V1=['*Gloups !*','*Miam.*','*Rrrot.*','*Crounch !*','*Encore.*'];
+      /* Le Coffre contient-il un objet dont le nom correspond ? (ses excuses après un pet peuvent le citer : modules/coffre-digestion-v1.js) */
+      window.__coffreContientObjetIdleV1__=function(motif){
+        try{
+          const a=aventureMetaIdleV47_(idleEtat);
+          return !!(a&&Array.isArray(a.coffreSlots)&&a.coffreSlots.some(function(s){return s&&s.occupe&&motif.test(String(s.name||(s.item&&s.item.name)||''));}));
+        }catch(_e){return false;}
+      };
       /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */
       function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */

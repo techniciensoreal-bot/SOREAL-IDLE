@@ -41,6 +41,7 @@
             'Les rails bleu et rouge de la borne d’arcade ne dépassent plus en haut.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand le Coffre rote, un nuage vert sort de sa gueule ; après un pet, ses excuses peuvent citer un objet qu’il digère mal.',
             'Si tu retires (ou remplaces) une pièce qui augmente ton plafond d’énergie ou de magie, et que l’énergie déjà placée serait alors trop grande, le jeu refuse et te dit combien libérer d’abord.',
             'Le bouton Aventure ne clignote plus en rouge après une défaite.',
             'Sur téléphone, les pièces équipées sont dans un cadre sans titre, avec des cases de la même taille que celles du sac.',
@@ -66,6 +67,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Quand aucune Magie n’est placée dans un rituel qui a une sangsue, elle dort (petits zzz).',
             'Quand un rituel absorbe le sang, il l’avance par petits paquets (un par niveau), coup par coup, et le sang coule dans le récipient quand un paquet arrive au bout. Plus les niveaux sont rapides, plus les paquets sont rapprochés, jusqu’au flux continu.',
             'Les boutons de tous les rituels restent alignés, même quand aucune Magie n’est allouée.',
             'Les rituels suivants sont redessinés à leur tour, avec de vraies illustrations dessinées à la main.',

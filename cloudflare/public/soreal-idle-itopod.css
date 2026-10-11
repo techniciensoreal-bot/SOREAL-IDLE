@@ -1358,10 +1358,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .bg-bagage-v1 .bg-fumee-v1 i:nth-child(1){left:0;--dx:-6px}
 .bg-bagage-v1 .bg-fumee-v1 i:nth-child(2){left:12px;--dx:10px;animation-delay:.18s}
 .bg-bagage-v1 .bg-fumee-v1 i:nth-child(3){left:24px;--dx:22px;animation-delay:.36s}
+/* Après un rot : nuage VERT (quatre bouffées qui sortent de la gueule, grossissent, montent et s'effacent). */
+@keyframes bgRotNuage{0%{opacity:0;transform:translate(0,0) scale(.3)}22%{opacity:.9}100%{opacity:0;transform:translate(var(--dx,0px),-46px) scale(1.9)}}
+.bg-bagage-v1 .bg-rot-nuage-v1{position:absolute;left:41%;top:34%;width:70px;height:36px;pointer-events:none;z-index:7}
+.bg-bagage-v1 .bg-rot-nuage-v1 i{position:absolute;bottom:0;width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 36% 34%,#e6fbb0,#8fd13a 62%,#4f8f1a);box-shadow:0 0 8px rgba(120,200,50,.7);opacity:0;animation:bgRotNuage 1.9s ease-out 1 both}
+.bg-bagage-v1 .bg-rot-nuage-v1 i:nth-child(1){left:2px;--dx:-14px}
+.bg-bagage-v1 .bg-rot-nuage-v1 i:nth-child(2){left:16px;--dx:-2px;animation-delay:.16s}
+.bg-bagage-v1 .bg-rot-nuage-v1 i:nth-child(3){left:30px;--dx:12px;animation-delay:.32s}
+.bg-bagage-v1 .bg-rot-nuage-v1 i:nth-child(4){left:44px;--dx:26px;animation-delay:.48s}
 @keyframes bgDesole{0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.8)}15%,80%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-4px) scale(.95)}}
 .bg-bagage-v1 .bg-desole-v1{position:absolute;left:50%;top:-30px;padding:4px 12px;border-radius:12px;background:#fff;color:#3a2208;border:2px solid #3a2208;font:400 17px/1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.05em;white-space:nowrap;pointer-events:none;z-index:8;opacity:0;animation:bgDesole 2.2s ease-in-out 1 both}
 .bg-bagage-v1 .bg-desole-v1::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#3a2208;border-bottom:0}
-@media (prefers-reduced-motion:reduce){.bg-bagage-v1 .bg-fumee-v1 i{animation:none;opacity:.6}.bg-bagage-v1 .bg-desole-v1{animation:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.bg-bagage-v1 .bg-rot-nuage-v1 i{animation:none;opacity:.6}.bg-bagage-v1 .bg-fumee-v1 i{animation:none;opacity:.6}.bg-bagage-v1 .bg-desole-v1{animation:none;opacity:1}}
 
 /* Réplique rare du Coffre : bulle plus large sur plusieurs lignes, visible plus longtemps. */
 .bg-bagage-v1 .bg-desole-rare-v1{top:-52px;width:170px;white-space:normal;text-align:center;font-size:14px;line-height:1.15;animation-duration:3.5s}
