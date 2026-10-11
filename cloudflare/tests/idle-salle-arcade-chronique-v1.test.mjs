@@ -25,4 +25,6 @@ assert.ok(css.includes("clip-path:inset(0 0 16% 0)") && css.includes("--b:16cqw"
 assert.ok(!css.includes("calc(210px - 146px)") && !css.includes("min-width:561px"), "PC comme téléphone : plus de porte-affiche posé sur la borne (Norman, 2026-10-10)");
 assert.ok(ui.includes("soreal_idle_chronique_main_v1") && ui.includes("chro-main-v1") && css.includes("@keyframes chroMain"), "main d'invitation : une fois, jamais plus après le premier clic");
 assert.ok(!/:not(.ouverte)::after{[^}]*position:absolute/.test(salle), "l'invite fait partie du cadre (plus coupée)");
+/* Norman (2026-10-11) : les deux rails (bleu et rouge) ne dépassent plus au-dessus de la borne : ils commencent sous le haut du fronton. */
+assert.ok(css.includes("#ff2a3d 98.08%) 0 3.4cqw/100% calc(100% - 3.4cqw) no-repeat"), "rails bleu et rouge sous le haut du fronton");
 console.log("idle-salle-arcade-chronique-v1: OK");

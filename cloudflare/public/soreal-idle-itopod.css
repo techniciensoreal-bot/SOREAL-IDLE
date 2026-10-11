@@ -1300,7 +1300,7 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){order:3;position:relative!important;left:auto;top:auto;width:230px;max-width:86%;height:auto;min-height:104px;margin:-160px auto 0!important;transform:rotate(-1.5deg)}
   /* Le corps de la borne continue jusqu'au sol derrière la chronique (Norman, 2026-10-10) : flancs bleu/rouge, panneau sombre, filet de néon et ombre au sol. */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2{container-type:inline-size;padding-bottom:150px!important;border-bottom:24px solid #05071a!important;
-    background:linear-gradient(90deg,#2f7bff 0 1.92%,transparent 1.92% 98.08%,#ff2a3d 98.08%) 0 0/100% 100% no-repeat,#0a0d2a!important;box-shadow:0 10px 12px -4px rgba(0,0,0,.7)!important}
+    background:linear-gradient(90deg,#2f7bff 0 1.92%,transparent 1.92% 98.08%,#ff2a3d 98.08%) 0 3.4cqw/100% calc(100% - 3.4cqw) no-repeat,#0a0d2a!important;box-shadow:0 10px 12px -4px rgba(0,0,0,.7)!important}
   /* le soubassement dessiné est retiré : le corps continue sans couture jusqu'au sol */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2 .bn-bas-svg{clip-path:inset(0 0 16% 0);margin-bottom:-7.7cqw}
 }
