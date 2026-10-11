@@ -15,6 +15,12 @@ function creer(hote){
   const recalculerPisteFractionIdleV1_=hote.recalculerPisteFraction;
   const ancreSnapshotIdleV1_=hote.ancreSnapshot;
   const formatDureeAugmentIdleV1_=hote.formatDuree;
+  /* Durée affichée : la VRAIE valeur ; sous la seconde on ne l'arrondit plus à « 1 s » (Norman, 2026-10-11), le niveau se termine en 0,2 s par exemple. */
+  function etaRituelTexteIdleV1_(r){
+    const p=Number(r&&r.secondsPerCompletion);
+    if(p>0&&p<1)return String(Math.round(p*100)/100).replace('.',',')+' s';
+    return formatDureeAugmentIdleV1_(r&&r.etaSeconds);
+  }
   const carteAideMenuIdleV1_=hote.carteAide;
   const legendeAllocationIdleV1_=hote.legendeAllocation;
   const emojiNomIdleV1_=hote.emojiNom;
@@ -121,10 +127,10 @@ function creer(hote){
             barreRituel.style.transform='scaleX('+nouveau.progress+')';
           }
         }
-        const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+ritualId);
+                const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+ritualId);
         if(ligne){
           ligne.textContent=nouveau.seconds>0
-            ?'⏱ '+formatDureeAugmentIdleV1_(rv.etaSeconds)+' avant le prochain rituel complété'
+            ?'⏱ '+etaRituelTexteIdleV1_(rv)+' avant le prochain rituel complété'
             :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
         }
         /* Un rituel qui reçoit de la Magic pour la première fois n'a pas encore de barre dans la page : un seul redessin LOCAL (sans aller-retour réseau). */
@@ -373,7 +379,7 @@ function creer(hote){
           const pct=progressionActive?Math.max(0,Math.min(1,1-H.idleNombre_(rv.etaSeconds)/rv.secondsPerCompletion)):(fractionVue>0?fractionVue:(figeesB[def.id]!=null?H.idleNombre_(figeesB[def.id]):0));
           const montrerBarre=active||figeesB[def.id]!=null;
           const etaTexte=rv&&rv.etaSeconds!=null
-            ?'⏱ '+formatDureeAugmentIdleV1_(rv.etaSeconds)+' avant le prochain rituel complété'
+            ?'⏱ '+etaRituelTexteIdleV1_(rv)+' avant le prochain rituel complété'
             :(montrerBarre?'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.':'');
           const idHtml=H.idleHtml_(def.id);
           /*

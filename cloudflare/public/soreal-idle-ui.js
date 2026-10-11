@@ -3187,7 +3187,8 @@
             if(ligneBlood&&seconds>0&&typeof window.__formatDureeAugmentIdleV1__==='function'){
               const ecouleBlood=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
               const restantBlood=(((idleNombre_(bloodVisual.etaSeconds)-ecouleBlood)%seconds)+seconds)%seconds;
-              const texteBlood='⏱ '+window.__formatDureeAugmentIdleV1__(restantBlood||seconds)+' avant le prochain rituel complété';
+              /* sous la seconde : la VRAIE durée d'un niveau (0,2 s), jamais arrondie à « 1 s » (Norman, 2026-10-11) */
+              const texteBlood='⏱ '+(seconds<1?String(Math.round(seconds*100)/100).replace('.',',')+' s':window.__formatDureeAugmentIdleV1__(restantBlood||seconds))+' avant le prochain rituel complété';
               if(ligneBlood.textContent!==texteBlood)ligneBlood.textContent=texteBlood;
             }
             }

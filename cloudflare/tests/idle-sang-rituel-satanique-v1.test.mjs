@@ -115,6 +115,62 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("src==='punaise'||src==='papier'||src==='sucon'") && decor.includes('.bm-scene[data-source="sucon"].bm-hors :is(.bm-perso,.bm-cou,.bm-perso-bas){translate:-300px 0}'), "sans énergie, le personnage du suçon glisse hors de la case vers la gauche");
+  assert.ok(decor.includes("src==='punaise'||src==='papier'||src==='sucon'") && decor.includes('.bm-scene[data-source="sucon"].bm-hors :is(.bm-perso,.bm-cou,.bm-perso-bas),') && decor.includes('.bm-hors .bm-fil{translate:-300px 0}'), "sans énergie, le personnage du suçon glisse hors de la case vers la gauche");
   assert.ok(decor.includes("var pret=sc.classList.contains('bm-installe');") && decor.includes("progresse&&pret);"), "la succion ne reprend qu'une fois le personnage en place");
+}
+{
+  // Quatrième rituel : 30 images de Norman lues dans R2 (idle/bloodmagic/rincevent/WEBP/N.webp), image choisie d'après l'avancement du niveau.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("barbedWire:'fil'") && decor.includes('<canvas class="bm-fil"') && decor.includes("name=rincevent/WEBP/'+i+'.webp"), "quatrième rituel : canevas alimenté par les 30 images de R2");
+  assert.ok(decor.includes("FIL_FPS=9") && decor.includes("pb<sc.__filPb-0.3") && decor.includes("Math.floor(ecoule*FIL_FPS)"), "immobile pendant le niveau ; l'animation se joue une fois à la fin du niveau (barre du moteur qui repart de zéro), à cadence fixe");
+  assert.ok(decor.includes("function filRepos(sc)") && decor.includes('.bm-hors .bm-fil{translate:-300px 0}'), "sans Or le bol reste vide ; sans énergie le personnage sort à gauche");
+  const media = readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
+  assert.ok(media.includes('nom.includes("..")||nom.startsWith("/")||nom.includes("//")') && media.includes('A-Za-z0-9_.\\/-'), "sous-dossiers autorisés pour les images Magie du sang (sans remonter l'arborescence)");
+}
+{
+  // Le compte à rebours affiche la vraie durée sous la seconde (0,2 s), jamais arrondie à « 1 s ».
+  const bm = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8");
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(bm.includes("function etaRituelTexteIdleV1_(r)") && bm.split("etaRituelTexteIdleV1_(rv)").length === 3, "deux affichages de la durée du rituel passent par la vraie valeur");
+  assert.ok(ui.includes("seconds<1?String(Math.round(seconds*100)/100).replace('.',',')+' s'"), "compte à rebours en direct : vraie durée sous la seconde");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function filGouttes(sc)") && decor.includes("FIL_DUREE/P") && decor.includes("classList.toggle('off',(g%8)>=nb)"), "le sang qui jaillit varie avec ce qui est produit pendant l'animation (1 à 8 gouttes)");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("var flux=nb>=6;") && decor.includes(".bm-coup.bm-flux :is(.bm-crachat,.bm-crachat b,.bm-eclat){animation-iteration-count:infinite"), "haut niveau : le sang coule sans interruption pendant l'animation");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('function planche(ombres)') && decor.includes('.bm-scene[data-source="fil"] .bm-planche{display:block;z-index:6}') && !decor.includes('bm-table-av') && decor.includes("fil:124") && decor.includes("var(--chute,44px)"), "4e rituel : table au premier plan ; le sang tombe jusqu'au liquide du calice (chute calculée) et éclabousse");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.split("+planche('<ellipse").length === 5 && decor.includes('.bm-scene:is([data-source="punaise"],[data-source="papier"]) .bm-planche{display:block;z-index:3;left:-190px;top:215px;'), "rituels 1 et 2 : la même planche, beaucoup plus proche, le récipient posé dessus");
+}
+{
+  // Bibliothèque du fond : se remplit avec le rang ; perspective selon la distance de la table.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function bibliotheque(rang)") && decor.includes("bibliotheque(opts.rang)+") && decor.includes("var seuil=Math.min(.95,.2+.11*r);"), "bibliothèque derrière chaque scène, de plus en plus remplie avec le rang");
+  for (const objet of ["biblioCorbeau", "biblioPendentif", "biblioCrane", "biblioBougie", "biblioFiole", "biblioGrimoire", "biblioCristal", "biblioHerbes"]) assert.ok(decor.includes("function " + objet), "objet de sorcellerie : " + objet);
+  assert.ok(decor.includes('.bm-scene:is([data-source="punaise"],[data-source="papier"]) .bm-biblio{transform:scale(.74)') && decor.includes('.bm-scene:is([data-source="sucon"],[data-source="fil"]) .bm-biblio{transform:scale(1.04)'), "perspective du fond selon la distance de la table (proche = fond lointain, flou ; lointaine = fond plus grand et net)");
+}
+{
+  // Quatrième rituel : il saigne dès que le fil touche sa bouche ; le calice ne se remplit jamais sans goutte de sang.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("var FIL_IMAGE_CONTACT=5;") && decor.includes("filSaigne(l[i],k)") && decor.includes(".bm-saigne-b-on .bm-saigne-b{animation:bmSaigneB"), "il saigne dès que le fil touche sa bouche (image 6)");
+  assert.ok(decor.includes("function filNAffiche(id,n,sc)") && decor.includes("filAtterri[sc.getAttribute('data-bm-id')]=performance.now()+800;") && decor.includes("var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;") && decor.includes("compte=filNAffiche(opts.id,compte,null);"), "le niveau du calice n'avance qu'à l'arrivée d'une goutte (scène et page)");
+}
+{
+  // Récipients transparents : on voit le fond (bibliothèque, planche) déformé à travers le verre.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function fondVerre(type,id,rang)") && decor.includes('<filter id="bm-f-verre"') && decor.includes("(ctx?fondVerre(type,ctx.id,ctx.rang):'')") && decor.includes('data-bm-rang="'), "fond vu à travers le verre, déformé");
+  assert.ok(!decor.includes('fill="#12050a" opacity=".85"') && !decor.includes('fill="#12050a" opacity=".94"'), "intérieurs des récipients transparents (plus de fond sombre opaque)");
+}
+{
+  // Les anciens accessoires (bougies, grimoires, crânes, fioles, chaînes, runes au bas des scènes) sont supprimés : la bibliothèque du fond les remplace.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(!decor.includes("function props(") && !decor.includes("bm-props") && !decor.includes("bm-p-livre") && !decor.includes("bm-chaine") && !decor.includes("bm-sym-grimoire"), "anciens accessoires supprimés (plus de code caché)");
 }

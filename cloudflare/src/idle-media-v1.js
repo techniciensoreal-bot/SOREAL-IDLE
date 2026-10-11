@@ -1384,7 +1384,7 @@ async function bannerImage_(request,env,url){
 /* Illustrations de la page Magie du sang (Norman, 2026-10-11) : fichiers déposés dans R2 sous idle/bloodmagic/ (ex. BloodMagicSucon.webp) */
 async function bloodMagicImage_(request,env,url){
   const nom=String(url.searchParams.get("name")||"").trim();
-  if(!/^[A-Za-z0-9_.-]{1,120}$/.test(nom)||nom.includes("..")){
+  if(!/^[A-Za-z0-9_.\/-]{1,120}$/.test(nom)||nom.includes("..")||nom.startsWith("/")||nom.includes("//")){
     return new Response("Image Magie du sang invalide",{status:400,headers:{"cache-control":"no-store"}});
   }
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
