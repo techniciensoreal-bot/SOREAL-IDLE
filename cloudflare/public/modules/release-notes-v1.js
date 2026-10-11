@@ -64,6 +64,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Les rituels suivants sont redessinés à leur tour, avec de vraies illustrations dessinées à la main.',
             'La page prend l’ambiance d’un rituel : bougies, pentacle qui tourne, et des tuyaux qui grossissent d’un rituel à l’autre.',
             'Les rituels sont redessinés un par un. Le premier : une punaise pique un doigt et une goutte tombe dans une boîte en verre portant ton nom.',
             'Une piqûre = un niveau. La boîte est pleine tous les 1000 niveaux. La punaise pique de plus en plus vite quand tu places de la Magie, avec une vitesse maximale pour que ça reste lisible.',
