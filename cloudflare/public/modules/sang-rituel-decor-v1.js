@@ -158,8 +158,8 @@ var SYMBOLES3=
     '<path d="M2 20 C-2 8 8 4 18 6 L30 10 C38 14 38 24 36 76 C38 128 38 138 30 142 L18 146 C8 148 -2 144 2 132 Z" fill="url(#bm-g-collerette)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
     '<path d="M10 24 V128 M18 22 V130 M26 28 V124" fill="none" stroke="#3a0612" stroke-opacity=".38" stroke-width="2.6" stroke-linecap="round"/>'+
     '<path d="M8 20 C12 12 20 12 26 18" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3.6" stroke-linecap="round"/>'+
-    '<path d="M120 54 C138 58 142 94 120 98 Z" fill="#7a1426" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
-    '<path d="M126 60 V92 M132 62 V90" stroke="#fff" stroke-opacity=".28" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<path d="M116 44 C142 50 148 102 116 108 Z" fill="#7a1426" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
+    '<path d="M124 54 V98 M132 58 V94" stroke="#fff" stroke-opacity=".28" stroke-width="2.6" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
@@ -281,7 +281,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 44 52" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H14 C32 0 44 10 44 28 V44 H16 V36 C16 32 12 28 8 28 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 5 H14 C28 5 39 12 39 28 V40" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M2 24 H8 C14 24 18 28 20 34" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/><rect x="14" y="42" width="32" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M19 45 H41" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+      '<svg class="bm-coude" viewBox="0 0 44 52" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H14 C32 0 44 10 44 28 V44 H16 V36 C16 32 12 28 8 28 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 5 H14 C28 5 39 12 39 28 V40" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M2 24 H8 C14 24 18 28 20 34" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/><rect x="-2" y="-2" width="6" height="32" rx="2.4" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M0.6 2 V26" stroke="#fff" stroke-opacity=".4" stroke-width="1.4" stroke-linecap="round"/><rect x="14" y="42" width="32" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M19 45 H41" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
     return '<div class="bm-bras" aria-hidden="true">'+brasSvg()+'<i class="bm-bracelet"></i></div>'+use('bm-sym-manche',84,96,'bm-manche')+
@@ -470,7 +470,7 @@ function scene(opts){
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       source(opts.id)+
       (SOURCES[opts.id]==='sucon'
-        ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i><i class="bm-goutte" style="animation-delay:-.1s;margin-left:-8px"></i><i class="bm-goutte" style="animation-delay:-.45s;margin-left:6px"></i><i class="bm-goutte" style="animation-delay:-.8s;margin-left:-2px"></i><i class="bm-goutte" style="animation-delay:-1.15s;margin-left:9px"></i><i class="bm-goutte" style="animation-delay:-1.5s;margin-left:-10px"></i></div>'
+        ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i></div>'
         :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       props(opts.rang,opts.id)+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
@@ -780,7 +780,7 @@ function css(){
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
     
     P+'.bm-bouche{position:absolute;left:34px;top:72px;width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:89px;right:calc(var(--cx) + 30px);top:calc(110px - var(--th,44px)/2)}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:89px;right:calc(var(--cx) + 24px);top:calc(110px - var(--th,44px)/2)}',
     P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:44px;height:52px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
     P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 14px)}',
