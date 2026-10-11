@@ -110,37 +110,56 @@ var SYMBOLES3=
     '<path d="'+CORPS_CHOPE+'" fill="#a9c3d8" fill-opacity=".2" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>'+
     '<path d="'+INT_CHOPE+'" fill="url(#bm-g-sang)"/>'+DEVANT_CHOPE+
   '</symbol>'+
-  /* cou : un buste de profil (tête hors cadre), épaule et chemise sombre en bas, face du cou tournée vers le tuyau */
-  '<symbol id="bm-sym-cou" viewBox="0 0 100 312">'+
-    '<path d="M-8 0 H62 V138 Q64 150 76 158 L-8 176 Z" fill="url(#bm-g-peau)"/>'+
-    '<path d="M62 0 V138 Q64 150 76 158" fill="none" stroke="#a35a43" stroke-opacity=".35" stroke-width="6"/>'+
-    '<path d="M-8 0 H62 V138 Q64 150 76 158" fill="none" stroke="#000" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>'+
-    '<path d="M30 8 Q42 70 36 128 M16 20 Q24 70 20 120" fill="none" stroke="#8f4a36" stroke-opacity=".32" stroke-width="2" stroke-linecap="round"/>'+
-    '<path d="M44 52 Q52 60 44 70" fill="none" stroke="#8f4a36" stroke-opacity=".4" stroke-width="2" stroke-linecap="round"/>'+
-    '<path d="M-8 0 H62 V10 Q30 20 -8 14 Z" fill="#7a3d2c" fill-opacity=".22"/>'+
-    '<path d="M-8 0 H66 V16 Q62 34 56 46 Q54 28 48 40 Q45 22 38 38 Q34 20 28 34 Q22 16 14 30 Q8 14 -8 24 Z" fill="#2b1810" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>'+
-    '<path d="M6 6 Q18 22 12 36 M26 4 Q36 24 30 44 M46 6 Q54 24 50 48" fill="none" stroke="#5a3a26" stroke-width="2" stroke-linecap="round"/>'+
-    '<path d="M-2 8 Q10 12 18 8 M30 8 Q40 14 54 8" fill="none" stroke="#7a5236" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>'+
-    '<path d="M-8 170 Q38 150 78 158 Q106 166 114 192 V320 H-8 Z" fill="url(#bm-g-tissu)" stroke="#000" stroke-width="3" stroke-linejoin="round"/>'+
-    '<path d="M22 164 L46 204 L76 158" fill="#e8e0cc" fill-opacity=".9" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>'+
-    '<path d="M8 220 Q30 244 14 290 M70 214 Q86 250 74 300" fill="none" stroke="#000" stroke-opacity=".32" stroke-width="2.4" stroke-linecap="round"/>'+
+  /* dégradés du buste et de la ventouse */
+  '<linearGradient id="bm-g-cou" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c98068"/><stop offset=".35" stop-color="#e9b196"/><stop offset=".7" stop-color="#f8d3ba"/><stop offset="1" stop-color="#e5a78c"/></linearGradient>'+
+  '<linearGradient id="bm-g-robe" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#14121b"/><stop offset=".5" stop-color="#2d2c3b"/><stop offset="1" stop-color="#17151f"/></linearGradient>'+
+  '<linearGradient id="bm-g-cheveux" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0f09"/><stop offset="1" stop-color="#3f2616"/></linearGradient>'+
+  '<radialGradient id="bm-g-levre" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#ffa3b8"/><stop offset=".5" stop-color="#dc5472"/><stop offset="1" stop-color="#8f1f3c"/></radialGradient>'+
+  '<radialGradient id="bm-g-dome" cx=".35" cy=".35" r=".85"><stop offset="0" stop-color="#e86e8a"/><stop offset=".55" stop-color="#b0314f"/><stop offset="1" stop-color="#5e0f24"/></radialGradient>'+
+  /* cou : buste de profil, tête hors cadre ; nuque cheveux, muscle, pomme d'Adam, chaîne et pendentif, robe noire au col doublé de rouge */
+  '<symbol id="bm-sym-cou" viewBox="0 0 200 624">'+
+    '<path d="M-16 0 H124 V250 Q126 294 156 326 L-16 372 Z" fill="url(#bm-g-cou)"/>'+
+    '<path d="M-4 18 Q44 40 66 130 Q84 214 112 304 L74 316 Q56 220 30 138 Q10 76 -16 56 Z" fill="#a85a42" fill-opacity=".30"/>'+
+    '<path d="M30 44 Q60 132 86 250" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>'+
+    '<path d="M96 150 Q104 190 98 232 M62 214 Q84 228 102 222" fill="none" stroke="#7a3d2c" stroke-opacity=".32" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M124 92 Q146 110 126 142" fill="url(#bm-g-cou)" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
+    '<path d="M131 102 Q140 112 131 126" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M-16 0 H124 V250 Q126 294 156 326" fill="none" stroke="#000" stroke-width="6.4" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<path d="M-16 234 Q52 274 128 258" fill="none" stroke="#000" stroke-width="9" stroke-linecap="round"/>'+
+    '<path d="M-16 234 Q52 274 128 258" fill="none" stroke="#e6b64e" stroke-width="5" stroke-dasharray="8 4" stroke-linecap="round"/>'+
+    '<circle cx="128" cy="276" r="19" fill="#e0b04a" stroke="#000" stroke-width="4.6"/>'+
+    '<path d="'+etoile(128,276,12)+'" fill="none" stroke="#7a1020" stroke-width="3.2" stroke-linejoin="round"/>'+
+    '<path d="M116 264 Q122 258 132 260" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>'+
+    '<path d="M58 168 q-8 12 0 20 q8 -8 0 -20 Z M82 206 q-6 10 0 16 q6 -6 0 -16 Z" fill="#d6eeff" stroke="#6aa0c8" stroke-width="2.4"/>'+
+    '<path d="M-16 0 H132 V42 Q126 92 112 126 Q108 76 96 102 Q92 58 78 94 Q70 46 54 86 Q44 40 28 76 Q16 38 -16 62 Z" fill="url(#bm-g-cheveux)" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
+    '<path d="M10 10 Q34 46 24 84 M48 6 Q70 42 60 94 M86 6 Q106 46 96 110" fill="none" stroke="#6b4630" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M0 24 Q24 32 40 24 M64 26 Q88 36 112 28" fill="none" stroke="#9a6c46" stroke-opacity=".7" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<path d="M-16 356 Q60 322 150 326 Q206 342 222 396 V640 H-16 Z" fill="url(#bm-g-robe)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M44 336 L100 412 L158 326" fill="#6b1020" stroke="#000" stroke-width="5" stroke-linejoin="round"/>'+
+    '<path d="M50 338 Q100 376 156 330" fill="none" stroke="#e0b04a" stroke-width="3.6" stroke-dasharray="7 4" stroke-linecap="round"/>'+
+    '<path d="M16 432 Q62 484 28 592 M122 424 Q160 504 138 610" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/>'+
+    '<path d="M72 452 Q92 522 74 604" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="8" stroke-linecap="round"/>'+
+    '<circle cx="100" cy="472" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/><circle cx="100" cy="524" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/>'+
   '</symbol>'+
-  /* bouche collée au cou : lèvres en cul-de-poule, fente sombre, petites rides de succion */
-  '<symbol id="bm-sym-bouche" viewBox="0 0 70 76" overflow="visible">'+
-    /* rides de peau tendue autour du bord, sur le cou */
-    '<path d="M-8 14 H2 M-6 24 H2 M-8 38 H1 M-6 52 H2 M-8 62 H2" stroke="#8f4a36" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>'+
-    /* peau du cou aspirée sous le bord */
-    '<ellipse cx="4" cy="38" rx="8" ry="24" fill="url(#bm-g-peau)" stroke="#7a1030" stroke-width="2.2"/>'+
-    '<ellipse cx="3" cy="38" rx="4" ry="14" fill="#8a2a60" fill-opacity=".7"/>'+
-    /* dôme de la ventouse (la cavité de la bouche), de profil */
-    '<path d="M10 6 C40 0 66 18 66 38 C66 58 40 76 10 70 Z" fill="#b13553" stroke="#000" stroke-width="3" stroke-linejoin="round"/>'+
-    '<path d="M16 14 C36 10 54 22 58 34" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="3.2" stroke-linecap="round"/>'+
-    '<path d="M18 60 C34 64 50 56 58 46" fill="none" stroke="#5a0b1c" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>'+
-    /* lèvres : deux bourrelets roses plaqués contre le cou, avec la ligne de la bouche entre eux */
-    '<path d="M2 36 C0 18 4 6 12 6 C20 6 22 18 20 36 Z" fill="#d85a74" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>'+
-    '<path d="M2 40 C0 58 4 70 12 70 C20 70 22 58 20 40 Z" fill="#cf4f6b" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>'+
-    '<path d="M2 38 H20" stroke="#2a0309" stroke-width="2.6" stroke-linecap="round"/>'+
-    '<path d="M7 12 C10 10 14 12 15 18" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/>'+
+  /* ventouse-bouche de profil : peau pâle puis ecchymose sous le bord, deux lèvres brillantes plaquées, dôme veiné, collier de raccord du tuyau */
+  '<symbol id="bm-sym-bouche" viewBox="0 0 140 152" overflow="visible">'+
+    '<ellipse cx="14" cy="76" rx="24" ry="54" fill="#f6cdb4" fill-opacity=".6"/>'+
+    '<path d="M-18 26 H4 M-14 48 H4 M-18 76 H2 M-14 104 H4 M-18 126 H4" stroke="#8f4a36" stroke-opacity=".62" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<ellipse cx="10" cy="76" rx="19" ry="50" fill="url(#bm-g-cou)" stroke="#7a1030" stroke-width="4.4"/>'+
+    '<ellipse cx="8" cy="76" rx="11" ry="32" fill="#8a2a60" fill-opacity=".74"/>'+
+    '<ellipse cx="7" cy="76" rx="5.5" ry="17" fill="#b0233f" fill-opacity=".72"/>'+
+    '<path d="M20 12 C80 0 134 36 134 76 C134 116 80 152 20 140 Z" fill="url(#bm-g-dome)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M34 30 C60 34 84 50 98 72 M34 122 C60 118 84 102 98 80 M60 76 H112 M44 52 C58 58 70 64 78 72" fill="none" stroke="#4a0a1a" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>'+
+    '<path d="M34 28 C74 18 112 40 122 68" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/>'+
+    '<ellipse cx="88" cy="42" rx="11" ry="6" fill="#fff" fill-opacity=".34" transform="rotate(26 88 42)"/>'+
+    '<path d="M4 72 C0 36 8 12 24 12 C40 12 44 36 40 72 Z" fill="url(#bm-g-levre)" stroke="#000" stroke-width="5.6" stroke-linejoin="round"/>'+
+    '<path d="M4 80 C0 116 8 140 24 140 C40 140 44 116 40 80 Z" fill="url(#bm-g-levre)" stroke="#000" stroke-width="5.6" stroke-linejoin="round"/>'+
+    '<path d="M14 22 V60 M24 20 V62 M34 28 V60 M14 94 V130 M24 90 V132 M34 94 V124" fill="none" stroke="#8f1f3c" stroke-opacity=".5" stroke-width="2.4" stroke-linecap="round"/>'+
+    '<path d="M4 76 H40" stroke="#2a0309" stroke-width="5.2" stroke-linecap="round"/>'+
+    '<path d="M12 26 C18 20 28 22 30 34 M12 120 C16 130 26 132 30 124" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="4.2" stroke-linecap="round"/>'+
+    '<path d="M44 74 q10 -4 18 2 q-8 8 -18 2" fill="#fff" fill-opacity=".28"/>'+
+    '<path d="M124 52 C138 58 142 94 124 100 Z" fill="#9a2a46" stroke="#000" stroke-width="5" stroke-linejoin="round"/>'+
+    '<path d="M128 60 V92 M133 62 V90" stroke="#3a0612" stroke-opacity=".55" stroke-width="2.4" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
