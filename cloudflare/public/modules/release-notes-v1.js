@@ -60,6 +60,7 @@
             'Le ×5 de régénération de la Safe Zone ne s’applique plus pendant un combat contre un Titan.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Augmentations : les améliorations de tous les Augments ont maintenant le fond teinté de la couleur de leur Augment (avant, seules les deux premières l’avaient, les suivantes restaient sombres).',
             'Une piste sans énergie ne progresse plus.',
             'Les valeurs ont été relues contre le wiki : toutes sont conformes.',
             'Tes cibles et « Faire suivre l’énergie » sont gardées après une Renaissance.',
@@ -70,6 +71,13 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Les récipients (boîte de Petri, verres, calice) sont transparents : on voit à travers eux la bibliothèque et la planche, légèrement agrandies et déformées comme à travers du verre ; le sang est un peu translucide.',
+            'Quatrième rituel : le personnage saigne dès que le fil barbelé touche sa bouche, et le calice ne se remplit plus qu’au moment où une goutte de sang arrive dans le liquide.',
+            'Une bibliothèque occupe le fond de chaque rituel : livres rangés, crânes, bougies. Plus on avance dans les rituels, plus elle se remplit de livres et d’objets de sorcellerie (corbeau, pendentif pentacle, fiole, grimoire ouvert…). Elle est vue différemment selon la distance de la table : plus petite, floue et sombre quand la table est très proche, plus grande et nette quand elle est loin.',
+            'Sur la planche des quatre premiers rituels, les ombres des récipients vont toutes dans le même sens : la lumière vient de la gauche et allonge un peu leurs ombres vers la droite.',
+            'Les deux premiers rituels ont eux aussi la planche penchée, mais beaucoup plus proche de l’écran : grosse et épaisse, tout en bas, avec le récipient posé dessus, ce qui donne de la profondeur.',
+            'Le compte à rebours d’un rituel affiche la vraie durée, même sous la seconde (par exemple « 0,2 s » au lieu de « 1 s »).',
+            'Quatrième rituel : un personnage avale un bol de fil barbelé, derrière une planche penchée posée au premier plan (la même que celle de la sangsue). Il reste immobile pendant le niveau ; quand le niveau se termine, l’animation se joue d’un trait, puis du sang jaillit de sa bouche, retombe jusqu’au liquide déjà dans le calice et éclabousse — plus il se termine de niveaux pendant l’animation, plus il y a de sang. Sans énergie, il sort de la case par la gauche.',
             'Rituel de la sangsue : sans énergie, le personnage glisse hors de la case vers la gauche (la sangsue reste sur son porte-sangsue et dort) ; quand tu mets de l’énergie, il revient se placer, puis la succion reprend.',
             'La sangsue du premier rituel n’est plus en l’air : une planche un peu penchée, en bas, porte le verre, et un porte-sangsue posé dessus la soutient.',
             'Quand il manque de l’Or, la punaise et la feuille s’immobilisent au contact au lieu de continuer à bouger.',
