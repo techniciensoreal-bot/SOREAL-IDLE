@@ -159,3 +159,10 @@ console.log("idle-menu-refresh-no-jump-v1: OK");
   assert.equal(ui2.split("const hoteHauteur=document.querySelector('.soreal-idle-native-v4');").length - 1, 2, "les deux rendus retiennent la hauteur sur le conteneur du menu");
   assert.ok(ui2.includes("if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,hauteurAvant-"), "hauteur retenue sur le conteneur");
 }
+{
+  // Entraînement avancé (2026-10-11) : reclic sur le menu où l'on est = aucun rendu ; un niveau d'Augment gagné ne redessine la page que sur la page des Augmentations.
+  const ui3 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  assert.ok(ui3.includes("const menuDemandeV1=menu;") && ui3.includes("menuDemandeV1===nouveauMenu &&") && ui3.includes("idleMenuRenduV179===nouveauMenu &&") && ui3.includes("data-menu=\"'+nouveauMenu+'\"]')"), "reclic sur le menu actuel : pas de rendu");
+  assert.ok(meta.includes("(menuAfficheV1===''||menuAfficheV1==='augmentations')"), "niveaux d'Augments : redessin seulement sur leur page");
+}

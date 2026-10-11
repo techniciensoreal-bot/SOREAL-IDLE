@@ -24428,6 +24428,7 @@ function pageAventureIdleV28_(j){
         /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
         if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1)return;
 
+        const menuDemandeV1=menu;
         /* Anciens menus Collection / Classement / Succès : ils ouvrent Chroniques sur le bon onglet. */
         if(menu==='bestiaire'||menu==='classement'||menu==='succes'){
           idleChroniquesOngletV1=menu;
@@ -24456,6 +24457,21 @@ function pageAventureIdleV28_(j){
           String(
             menu||'combat'
           );
+
+        /*
+         * Reclic sur le menu où l'on se trouve déjà (Norman, 2026-10-11 : « la page Entraînement avancé se redessine quand on reclique sur son menu »). La page est déjà là et déjà à jour : rien à redessiner. Seul un ancien
+         * menu redirigé vers un onglet de Chroniques, ou la page absente du DOM, redessine.
+         */
+        if(
+          nouveauMenu===idleMenuActifV28 &&
+          menuDemandeV1===nouveauMenu &&
+          idleMenuRenduV179===nouveauMenu &&
+          idleEtat &&
+          idleMenuEstAcquisV1_(idleEtat,nouveauMenu) &&
+          document.querySelector('.soreal-idle-page-root-v28[data-menu="'+nouveauMenu+'"]')
+        ){
+          return;
+        }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-316 */
         if(idleEtat&&!idleMenuEstAcquisV1_(idleEtat,nouveauMenu)){

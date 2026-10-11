@@ -2384,7 +2384,9 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         /* Les repères des barres (Augments, rituels) partent de l'instant où le serveur a produit CETTE réponse : avec l'instant de la première réponse du chargement, la barre rattrapait tout le temps écoulé depuis à la nouvelle vitesse (Norman, 2026-10-05). */
         if(srv.__recuPerfV1)j.__recuPerfV1=srv.__recuPerfV1;
         if(ressourcesLocales&&j.systemes)j.systemes.resources=ressourcesLocales;
-        if(niveauxAugmentsMetaV1_(j)!==niveauxAvant&&typeof H.rafraichirMenuRacineIdleV28_==='function'){
+        /* Un niveau d'Augment gagné pendant ce temps ne redessine la page QUE si c'est la page des Augmentations qui est affichée (Norman, 2026-10-11 : l'Entraînement avancé se redessinait parfois quand on y plaçait des points). */
+        const menuAfficheV1=typeof window.__menuActifIdleV28__==='function'?String(window.__menuActifIdleV28__()||''):'';
+        if(niveauxAugmentsMetaV1_(j)!==niveauxAvant&&(menuAfficheV1===''||menuAfficheV1==='augmentations')&&typeof H.rafraichirMenuRacineIdleV28_==='function'){
           H.rafraichirMenuRacineIdleV28_();
           return;
         }
