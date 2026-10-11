@@ -22625,7 +22625,11 @@ function pageAventureIdleV28_(j){
         groupesCoffre.forEach(function(g){
           if(g.groupe==='zone'){
             const cle=g.sets.length?g.sets[0].id:'ciel';
-            html+=cadreThematique(cle,g.nom,g.sets.map(function(st){return mannequin(st.pieces);}).join('')+libres(g.libres));
+            /* Les accessoires sans set se rangent SOUS l'arme, dans la 2e colonne du mannequin (Norman, 2026-10-11 : « les accessoires en dessous de l'arme plutôt qu'à sa droite : 2 colonnes au lieu de 3 »). */
+            const corpsZone=g.sets.length
+              ?g.sets.map(function(st,i){return mannequin(i===0?st.pieces.concat(g.libres):st.pieces);}).join('')
+              :libres(g.libres);
+            html+=cadreThematique(cle,g.nom,corpsZone);
           }else{
             g.sets.forEach(function(st){html+=cadreThematique(st.id,st.nom,mannequin(st.pieces));});
             if(g.libres.length)html+=cadreThematique(g.groupe||'autre',g.nom,libres(g.libres));

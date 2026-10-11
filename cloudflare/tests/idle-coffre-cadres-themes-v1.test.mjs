@@ -42,3 +42,11 @@ for (const x of slots) parGroupe.set(x.groupeNom, (parGroupe.get(x.groupeNom) ||
 assert.ok([...parGroupe.get("Forêt")].includes("forest"));
 assert.ok([...parGroupe.get("👹 Objets des titans")].filter(Boolean).length >= 10, "plusieurs sets de titans");
 console.log("idle-coffre-cadres-themes-v1: OK (" + lignes.length + " thèmes)");
+
+// Coffre : les accessoires sans set se rangent sous l'arme (2e colonne du mannequin), plus à sa droite (Norman, 2026-10-11).
+{
+  const { readFileSync } = await import("node:fs");
+  const ui2 = readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+  assert.ok(ui2.includes("mannequin(i===0?st.pieces.concat(g.libres):st.pieces)"), "accessoires de la zone dans le mannequin, sous l'arme");
+  console.log("idle-coffre-cadres-themes-v1 (accessoires sous l'arme): OK");
+}
