@@ -39,8 +39,8 @@ assert.ok(!ui.includes('id="sorealIdleJoueurPvV15"') && !ui.includes('id="soreal
 assert.ok(ui.includes("majHudPvIdleV2_(") && ui.includes("idleNombre_(idleEtat.pvJoueur)") , "le bandeau reçoit la vie à chaque tick");
 
 // --- K.O. en aventure : le bouton clignote en rouge ---
-assert.ok(css.includes("@keyframes sorealIdleNavKoV1") && css.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{"), "la classe posée par le jeu a enfin un style");
-assert.ok(css.includes("animation:sorealIdleNavKoV1 .85s ease-in-out infinite"));
+/* Norman (2026-10-11) : plus aucun cadre rouge qui clignote sur le bouton Aventure (seul le mot « Titans » brille). */
+assert.ok(!css.includes("sorealIdleNavKoV1") && !css.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{") && !css.includes("sorealIdleNavBloodPulseV1 2.2s"), "plus de cadre rouge clignotant");
 assert.ok(ui.includes("function marquerBoutonAventureKoIdleV1_(){") && ui.includes("idleAdventureKoAlertV1=true;\n          marquerBoutonAventureKoIdleV1_();"), "posé tout de suite au K.O.");
 assert.ok(ui.includes("m.id==='aventure'&&idleAdventureKoAlertV1&&idleMenuActifV28!=='aventure'"), "aussi au rendu du menu, tant qu'on n'a pas rouvert Adventure");
 assert.ok(ui.includes("if(nouveauMenu==='aventure')idleAdventureKoAlertV1=false;"), "s'arrête quand on ouvre Adventure");

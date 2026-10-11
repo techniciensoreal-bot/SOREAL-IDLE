@@ -115,11 +115,11 @@
       '.wd-poste[data-couleur="bleu"]{--wd-c:#5ab8ff;--wd-c2:#1c5a99;--wd-glow:rgba(90,184,255,.55);}',
       '.wd-poste[data-couleur="orange"]{--wd-c:#ffb000;--wd-c2:#8a5a00;--wd-glow:rgba(255,176,0,.55);}',
       '.wd-poste[data-couleur="blanc"]{--wd-c:#f0f0f0;--wd-c2:#6d6d6d;--wd-glow:rgba(240,240,240,.45);}',
-      /* L'écran de l'image : bordures en cqw = proportions de l'image (1254 px : haut 185, droite 184, bas 399, gauche 165). */
+      /* L'écran de l'image : bordures en cqw = proportions de l'image (1254 px, vide transparent rogné par border-image-outset : écran de x162 à 1092, y195 à 891 ; image visible de x17 à 1236, y46 à 1225). */
       /* L'écran est DERRIÈRE l'image du moniteur (Norman, 2026-10-07) : l'image est posée par-dessus (son vide d'écran est transparent), sans jamais intercepter un clic. */
-      '.wd-crt{position:relative;isolation:isolate;box-sizing:border-box;width:100%;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;}',
-      '.wd-crt::after{content:"";position:absolute;z-index:3;pointer-events:none;top:-14.75cqw;right:-14.67cqw;bottom:-31.8cqw;left:-13.16cqw;box-sizing:border-box;border:solid transparent;border-width:14.75cqw 14.67cqw 31.8cqw 13.16cqw;border-image:url("'+BANNIERE+'") 185 184 399 165 fill / 14.75cqw 14.67cqw 31.8cqw 13.16cqw stretch;}',
-      '.wd-ecran{position:relative;z-index:1;box-sizing:border-box;height:55.25cqw;margin:-.8cqw -1cqw -1cqw;padding:4.4cqw 5.4cqw 2cqw;border-radius:4.5cqw;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(8px,2.5cqw,19px);line-height:1.25;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
+      '.wd-crt{position:relative;isolation:isolate;box-sizing:border-box;width:97.29cqw;margin:3.67cqw auto 0;border:solid transparent;border-width:11.88cqw 11.48cqw 26.64cqw 11.56cqw;}',
+      '.wd-crt::after{content:"";position:absolute;z-index:3;pointer-events:none;top:-11.88cqw;right:-11.48cqw;bottom:-26.64cqw;left:-11.56cqw;box-sizing:border-box;border:solid transparent;border-width:11.88cqw 11.48cqw 26.64cqw 11.56cqw;border-image:url("'+BANNIERE+'") 195 162 363 162 fill / 15.55cqw 12.92cqw 28.95cqw 12.92cqw / 3.67cqw 1.36cqw 2.23cqw 1.36cqw stretch;}',
+      '.wd-ecran{position:relative;z-index:1;box-sizing:border-box;height:55.4cqw;margin:0;padding:4.4cqw 5.4cqw 2cqw;border-radius:4.5cqw;overflow-x:hidden;overflow-y:auto;scrollbar-width:none;background:radial-gradient(ellipse at center,#06150a 0%,#020a05 70%,#000 100%);color:var(--wd-c);font-family:"Courier New",Courier,monospace;font-size:clamp(8px,2.5cqw,19px);line-height:1.25;text-transform:uppercase;letter-spacing:.04em;text-shadow:0 0 .35em var(--wd-glow);box-shadow:inset 0 0 3cqw rgba(0,0,0,.9),inset 0 0 .6cqw var(--wd-c2);}',
       /* Lignes de balayage, léger vacillement et reflet de la vitre. */
       '.wd-ecran::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);z-index:2;}',
       '.wd-ecran::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 22% 12%,rgba(255,255,255,.10),transparent 38%);z-index:3;animation:wd-vacille 4s infinite;}',
@@ -438,7 +438,10 @@
     var corps=document.body,x=window.scrollX||0,y=window.scrollY||0;
     var pose=false;
     try{var h=document.documentElement.scrollHeight;if(corps&&!corps.style.minHeight){corps.style.minHeight=h+'px';pose=true;}}catch(_e){}
+    /* L'intérieur de l'écran garde aussi son défilement (sinon il revient tout en haut à chaque ressource placée). */
+    var ecranVu=poste.querySelector&&poste.querySelector('.wd-ecran'),haut=ecranVu?ecranVu.scrollTop:0;
     poste.outerHTML=html;
+    if(haut>0){var ecranNeuf=document.querySelector('.wd-poste .wd-ecran');if(ecranNeuf)ecranNeuf.scrollTop=haut;}
     if(window.scrollY!==y&&typeof window.scrollTo==='function')window.scrollTo(x,y);
     if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){
       try{if(corps&&pose)corps.style.minHeight='';}catch(_e){}

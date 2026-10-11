@@ -19,7 +19,7 @@ assert.ok(meta.includes("(serieAvant!==null&&prises.length>serieAvant)?' nouveau
 assert.ok(ui.includes("e.target.closest('input,select,textarea,[role=\"slider\"],[data-no-swipe]')") && ui.includes("surChampGlisseV1||"), "le swipe ignore les champs et curseurs");
 
 // Wandoos : écran de taille fixe (l'image du moniteur est carrée), pleine largeur sur téléphone, temps restant seul sous les barres.
-assert.ok(wd.includes("height:55.25cqw;") && !wd.includes("min-height:34cqw"), "écran de hauteur fixe");
+assert.ok(wd.includes("height:55.4cqw;") && !wd.includes("min-height:34cqw"), "écran de hauteur fixe");
 assert.ok(wd.includes("max-width:none!important;width:100vw;margin-left:calc(50% - 50vw)"), "le moniteur touche les bords du téléphone");
 assert.ok(wd.includes("VERSION OS") && !wd.includes("NIVEAU DE L’OS") && wd.includes("'RESTE : '") && !wd.includes("prochain niveau dans"), "Version OS ; seul le temps restant sous les barres");
 console.log("idle-puits-roue-reglages-wandoos-v1: OK");

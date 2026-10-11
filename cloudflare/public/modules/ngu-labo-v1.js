@@ -232,7 +232,8 @@ var CSS=
   '.nl-tuyau{position:relative;display:flex;align-items:center}'+
   '.nl-tuyau::before{content:"";position:absolute;inset:-6px 8px;border-radius:16px;background:transparent;box-shadow:0 0 22px 9px var(--nl-c);opacity:.14;z-index:0}'+
   '.nl-barre.actif .nl-tuyau::before{opacity:.5}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-tuyau::before{animation:nlPouls 2.4s ease-in-out infinite alternate}@keyframes nlPouls{from{opacity:.3}to{opacity:.62}}}'+
+  /* Cadre lumineux d'une barre qui porte de l'énergie : FIXE, posé par la classe « actif » (présente dès le dessin de la page) et non par le balayage de barres-actives (qui le retirait un instant à chaque redessin) ; le halo du tuyau ne pulse plus (Norman, 2026-10-11 : « le cadre lumineux clignote »). */
+  '.nl-barre.actif{--fx:rgba(190,120,255,.55);box-shadow:inset 0 0 0 2px var(--fx),0 0 16px -3px var(--fx)!important}'+
   '.nl-bride{position:relative;z-index:2;flex:0 0 auto;width:15px;height:52px;border-radius:5px;border:1px solid #0b0b1c;background:linear-gradient(90deg,#222744,#b4bae0 45%,#222744);box-shadow:0 0 6px rgba(0,0,0,.65)}'+
   '.nl-bride::before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:4px;margin-left:-2px;background:radial-gradient(circle,#10122a 0 1.5px,transparent 2.2px) 0 0/4px 12px repeat-y}'+
   '.nl-tube{position:relative;z-index:1;flex:1 1 auto;min-width:0;height:38px;margin:0 -4px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.5));border:2px solid color-mix(in srgb,var(--nl-c) 75%,#fff);box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent),inset 0 0 12px rgba(0,0,0,.7)}'+

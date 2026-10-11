@@ -5025,7 +5025,11 @@
             }
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
             if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){
-              try{rafraichirMenuRacineIdleV28_();}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('synchro_menu_vivant',e);}
+              try{
+                /* Wandoos : seul le poste est remplacé (jamais la page entière), défilement de la page ET de l'écran conservés : l'image de l'ordinateur ne bouge pas (Norman, 2026-10-11). */
+                if(idleMenuActifV28==='wandoos'&&window.__SOREAL_IDLE_WANDOOS_V1__&&document.querySelector('.wd-poste'))window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();
+                else rafraichirMenuRacineIdleV28_();
+              }catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('synchro_menu_vivant',e);}
             }
             /* Time Machine : à CHAQUE synchro, barres, comptes à rebours et chiffres (remplissages par seconde, Or par seconde, multiplicateurs) sont mis à jour en place, quel que soit le chemin pris par la synchro (Norman, 2026-10-11 : la barre qui tique de plus en plus vite ne se mettait pas à jour). */
             if(idleMenuActifV28==='machine'&&idleEtat&&idleEtat.systemes&&idleEtat.systemes.timeMachineView){

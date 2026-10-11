@@ -569,7 +569,6 @@ html,body{overflow-x:hidden}
             0%,100%{box-shadow:0 0 10px 2px rgba(241,196,15,.28)}
             50%{box-shadow:0 0 24px 7px rgba(241,196,15,.68)}
           }
-          .soreal-idle-nav-adventure-ko-v1{animation:sorealIdleNavBloodPulseV1 2.2s ease-in-out infinite}
           /*
            * V209 — l'alerte Money Pit reste colorée hors de l'onglet.
            * Vert = Money Pit utilisable, jaune = Daily Spin seul.
@@ -5649,14 +5648,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
  * Aventure : le bouton clignote en rouge quand on est mis K.O. (Norman, 2026-09-26 : « le bouton Adventure clignote en rouge quand on meurt en aventure, pour nous indiquer qu'on doit
  * relancer une zone »). La classe est posée par le jeu (idleAdventureKoAlertV1) ; elle disparaît dès qu'on ouvre le menu Adventure.
  */
-@keyframes sorealIdleNavKoV1{
-  0%,100%{background:#fde2e2;color:#a51d1d;box-shadow:0 0 0 0 rgba(239,68,68,.80);}
-  50%{background:#ef4444;color:#fff;box-shadow:0 0 0 8px rgba(239,68,68,0);}
-}
-.soreal-idle-nav-button-v28.soreal-idle-nav-adventure-ko-v1{
-  border-color:#ef4444 !important;
-  animation:sorealIdleNavKoV1 .85s ease-in-out infinite !important;
-}
+/* Plus de cadre ni de clignotement rouge sur le bouton Aventure après un K.O. (Norman, 2026-10-11). */
 
 /*
  * Chiffres de vie du duel qui ne dépassent jamais (Norman, 2026-09-26) : la pastille garde son aspect et sa taille de départ ; l'ajustement exact (police qui rétrécit seulement si le texte est
