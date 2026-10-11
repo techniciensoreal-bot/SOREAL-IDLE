@@ -103,7 +103,7 @@ assert.ok(src.includes(".bm-hors :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt)") &
 // L'animation ne démarre qu'une fois le doigt / le bras en place (Norman, 2026-10-11).
 assert.ok(src.includes("installeA[id]=performance.now()+1250") && src.includes("sec<=PERIODE_BOUCLE&&progresse&&pret") && src.includes("n>avant&&pret"), "animation retardée jusqu'à la mise en place");
 // Sans Magie, la sangsue garde le sang déjà absorbé, figé (Norman, 2026-10-11) ; son œil fermé ne laisse pas de blanc au-dessus.
-assert.ok(src.includes("var memoireSang={}") && src.includes(".bm-scene.bm-fige .bm-paquets-corps{display:block}") && src.includes("M-2 -32 L26 -32"), "sang figé et paupière complète");
+assert.ok(src.includes("var memoireSang={}") && src.includes(".bm-paquets-corps:has(.bm-paquet.on){display:block}") && src.includes("animation-play-state:paused!important") && src.includes("M-2 -32 L26 -32"), "sang figé et paupière complète");
 // La punaise et la feuille s'approchent pendant tout le niveau (Norman, 2026-10-11).
 assert.ok(src.includes("var APPROCHE={punaise:{base:14,loin:-26},papier:{base:-36,loin:-70}}") && src.includes("function approche("), "approche progressive pendant le niveau");
 // Sans assez d'Or, la punaise et la feuille s'immobilisent au contact (Norman, 2026-10-11).

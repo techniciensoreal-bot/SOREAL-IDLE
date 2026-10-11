@@ -607,21 +607,28 @@ function sangsue(sc,sec,actif){
     if(!sc.classList.contains('bm-dort'))sc.classList.add('bm-dort');   /* aucune Magie dans ce rituel : la sangsue dort */
     /* Quand on retire la Magie, le sang déjà dans son ventre RESTE affiché, mais figé (Norman, 2026-10-11) ; il est mémorisé par rituel pour survivre à un redessin de la page et reprendre là où il s'était arrêté. */
     var idSang=sc.getAttribute('data-bm-id'),mm=memoireSang[idSang];
+    if(!sc.__fige&&sc.__cle&&paq[0]&&paq[0].getAnimations&&paq[0].getAnimations().length){
+      /* le sang est déjà arrêté par le style : on garde exactement sa position */
+      var tt=[],oo=[];
+      for(i=0;i<paq.length;i++){
+        var an0=paq[i].getAnimations&&paq[i].getAnimations()[0];
+        tt.push(an0?Number(an0.currentTime)||0:0);oo.push(paq[i].classList.contains('on'));
+        if(an0)an0.pause();
+      }
+      if(mm){mm.t=tt;mm.on=oo;}
+      sc.classList.add('bm-fige');sc.__fige=true;
+    }
     if(mm&&!sc.__fige){
-      /* le ventre est masqué dès que la Magie est retirée : on le rebâtit figé, à partir du dernier état connu */
+      /* le ventre a été redessiné (ou masqué) : on le rebâtit figé, à partir du dernier état connu */
       garantirPas(mm.m);
       cont.style.setProperty('--bm-k',String(mm.m*Math.ceil(PAQ_CASES/mm.m)));
       for(i=0;i<paq.length;i++){
-        paq[i].style.animation=i<Math.ceil(PAQ_CASES/mm.m)?'bmPaq'+mm.m+'x'+i+' '+mm.P.toFixed(3)+'s linear infinite':'none';
-      }
-      sc.classList.add('bm-fige');
-      void cont.offsetWidth;
-      for(i=0;i<paq.length;i++){
-        var ar=paq[i].getAnimations&&paq[i].getAnimations()[0];
-        if(ar){ar.pause();ar.currentTime=mm.t[i]||0;}
+        /* position mémorisée = décalage négatif, et « paused » dans le style : le sang apparaît tout de suite à sa place, figé (le style le fige, pas le script) */
+        paq[i].style.animation=i<Math.ceil(PAQ_CASES/mm.m)?'bmPaq'+mm.m+'x'+i+' '+mm.P.toFixed(3)+'s linear '+(-((mm.t[i]||0)/1000)).toFixed(3)+'s infinite paused':'none';
         if(mm.on[i]&&!paq[i].classList.contains('on'))paq[i].classList.add('on');
       }
-      sc.__cle=mm.cle;sc.__fige=true;
+      sc.classList.add('bm-fige');
+      sc.__cle=mm.cle;sc.__fige=true;sc.__delai=true;
     }
     /* le sang figé reste figé : à chaque pas on vérifie que rien ne s'est remis en marche, et on le remet à son état mémorisé si une animation a été recréée */
     if(sc.__fige&&mm){
@@ -649,6 +656,16 @@ function sangsue(sc,sec,actif){
   var idS=sc.getAttribute('data-bm-id'),memS=memoireSang[idS];
   if(sc.__fige){
     sc.__fige=false;
+    if(sc.__delai){
+      /* le sang avait été rebâti figé avec un décalage : on le remet en marche depuis sa position exacte */
+      sc.__delai=false;
+      for(i=0;i<paq.length;i++){
+        var ad=paq[i].getAnimations&&paq[i].getAnimations()[0];
+        var pg=ad&&ad.effect?ad.effect.getComputedTiming().progress:null;
+        paq[i].style.animationDelay='0s';paq[i].style.animationPlayState='running';
+        if(ad&&pg!=null){ad.currentTime=pg*Math.max(PERIODE_MIN,sec)*1000;}
+      }
+    }
     if(sc.classList.contains('bm-fige'))sc.classList.remove('bm-fige');
     if(memS&&memS.cle===cle)sc.__t0=maintenant-pb*P-memS.niv*P;   /* même cadence : on reprend avec le même sang */
     else sc.__cle='';
@@ -663,7 +680,9 @@ function sangsue(sc,sec,actif){
       paq[i].style.animation=i<Jn?'bmPaq'+m+'x'+i+' '+P.toFixed(3)+'s linear infinite':'none';
     }
     void cont.offsetWidth;
-    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=pb*P*1000;}
+    /* ventre redessiné (page rafraîchie) juste après un pas : on repart de la position mémorisée plutôt que de l'horloge de la barre, qui peut déjà être à zéro si la Magie vient d'être retirée */
+    var depuisMemoire=!!memS&&memS.cle===cle&&(performance.now()-(memS.at||0))<3000;
+    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):pb*P*1000;}
   }else{
     /* recalage doux sur la barre du moteur */
     var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
@@ -694,7 +713,7 @@ function sangsue(sc,sec,actif){
   /* mémoire du sang affiché (pour le figer quand la Magie est retirée, et le retrouver après un redessin) */
   var tm=[],om=[];
   for(i=0;i<paq.length;i++){var am=paq[i].getAnimations&&paq[i].getAnimations()[0];tm.push(am?Number(am.currentTime)||0:0);om.push(paq[i].classList.contains('on'));}
-  memoireSang[sc.getAttribute('data-bm-id')]={cle:cle,m:m,P:P,t:tm,on:om,niv:niv};
+  memoireSang[sc.getAttribute('data-bm-id')]={cle:cle,m:m,P:P,t:tm,on:om,niv:niv,at:performance.now()};
 }
 /* Le jet de la sangsue part au moment précis où le sang arrive au bout de son ventre : en boucle, son horloge est recalée sur celle de la barre (même phase, début du jet = barre pleine qui repart de zéro). */
 function aligner(sc){
@@ -974,7 +993,8 @@ function css(){
     /* la barre pleine est remplacée par des paquets de sang qui avancent dans le ventre (la barre du moteur reste là, invisible, pour donner l'heure) */
     P+'.bm-scene[data-source="sucon"] .bm-tuyau .bm-sang{opacity:0}',
     P+'.bm-paquets-corps{--bm-k:6;position:absolute;inset:2px 0;z-index:1;overflow:hidden;border-radius:9px;pointer-events:none;display:none}',
-    P+'.bm-tuyau.saigne-v1 .bm-paquets-corps,'+P+'.bm-scene.bm-fige .bm-paquets-corps{display:block}',
+    P+'.bm-tuyau.saigne-v1 .bm-paquets-corps,'+P+'.bm-scene.bm-fige .bm-paquets-corps,'+P+'.bm-paquets-corps:has(.bm-paquet.on){display:block}',
+    P+'.bm-scene:not(:has(.bm-tuyau.saigne-v1)) .bm-paquet{animation-play-state:paused!important}',
     P+'.bm-paquet{position:absolute;top:0;bottom:0;left:0;width:calc(100% / var(--bm-k,6) - 3px);margin-left:1.5px;border-radius:46%;background:radial-gradient(ellipse at 34% 26%,#ffa3b0 0,#e0203c 46%,#7a0a1c 100%);box-shadow:inset -2px -3px 4px rgba(60,0,10,.55),0 0 5px rgba(255,40,70,.5);display:none}',
     P+'.bm-paquet.on{display:block}',
     /* un seul œil (de profil) ; sans Or elle pleure : paupière triste, regard vers le bas, larmes qui tombent */
