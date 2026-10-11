@@ -123,7 +123,6 @@ function creer(hote){
         }
         const ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+ritualId);
         if(ligne){
-          ligne.style.display='';
           ligne.textContent=nouveau.seconds>0
             ?'⏱ '+formatDureeAugmentIdleV1_(rv.etaSeconds)+' avant le prochain rituel complété'
             :'Alloue de la Magic (ci-dessus) pour faire progresser ce rituel.';
@@ -397,7 +396,7 @@ function creer(hote){
             decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
-            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" class="bm-eta" style="'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
+            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" class="bm-eta">'+H.idleHtml_(etaTexte)+'</div>'+
             '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button><button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'zero\')">0</button></div>'+
           '</div>';
         }).join('');

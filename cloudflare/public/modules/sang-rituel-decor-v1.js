@@ -677,7 +677,10 @@ function css(){
     /* Cadres verticaux de taille FIXE (Norman, 2026-10-11) : sur PC ils se rangent côte à côte tant qu'il y a de la place (alignés à gauche, jamais superposés) ; la scène garde la largeur d'un téléphone, donc le bras n'est jamais étiré et PC et téléphone montrent la même chose. */
     P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;gap:12px;align-items:stretch;justify-content:start}',
     P+'.bm-grille>.bm-rituel{width:auto;box-sizing:border-box;display:flex;flex-direction:column}',
-    P+'.bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto}',
+    P+'.bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto!important;padding-top:9px}',
+    /* hauteurs réservées (Norman, 2026-10-11 : « les boutons doivent toujours être alignés ») : titre sur trois lignes, description sur deux, ligne du compte à rebours même sans énergie allouée */
+    P+'.bm-grille>.bm-rituel .bm-rituel-tete{min-height:76px;box-sizing:border-box}',
+    P+'.bm-grille>.bm-rituel .soreal-idle-blood-ritual-desc-v1{min-height:2.7em}',
     P+'.bm-rituel-tete{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}',
     P+'.bm-rituel-nom{font-family:var(--f-titre,"Bangers",cursive)!important;font-weight:400;font-size:calc(1.25em + var(--bm-r,0)*.07em);letter-spacing:.06em;color:#ffe4e8;text-shadow:0 2px 0 #000,0 0 12px rgba(255,30,60,.55)}',
     P+'.bm-rituel-compte{font-family:var(--f-texte,"Russo One",sans-serif);font-size:.95em;color:#f3b4be}',
@@ -792,7 +795,7 @@ function css(){
     P+'.bm-p-ouvert{width:84px;height:46px;flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(255,40,70,.75)) drop-shadow(0 2px 2px rgba(0,0,0,.7));animation:bmLivre 2.6s ease-in-out infinite}',
     P+'.bm-chaine{position:absolute;top:0;width:10px;height:calc(40px + var(--bm-r,0)*8px);z-index:1;pointer-events:none;transform-origin:50% 0;background:repeating-linear-gradient(180deg,#8d8d9e 0 6px,#17171e 6px 9px);-webkit-mask:radial-gradient(ellipse 4px 4px at 50% 4.5px,#000 70%,transparent 72%) 0 0/10px 9px repeat-y;mask:radial-gradient(ellipse 4px 4px at 50% 4.5px,#000 70%,transparent 72%) 0 0/10px 9px repeat-y;animation:bmBalance 5s ease-in-out infinite}'+P+'.bm-chaine2{animation-delay:-2.3s}',
     P+'.bm-rune{position:absolute;bottom:18px;width:16px;height:16px;z-index:2;pointer-events:none;opacity:0;background:url("'+RUNE+'") center/contain no-repeat;animation:bmRune 4.4s ease-in infinite}',
-    P+'.bm-eta{font-family:var(--f-texte,"Russo One",sans-serif);font-size:14px;color:#f0b9c2;margin:4px 0}',
+    P+'.bm-eta{font-family:var(--f-texte,"Russo One",sans-serif);font-size:14px;line-height:1.35;color:#f0b9c2;margin:4px 0;min-height:2.7em}',
     /* étagère des calices remplis */
     P+'.bm-etagere{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 6px;padding:6px 10px;border:2px solid #000;border-radius:10px;background:linear-gradient(180deg,#2a1210,#170a09);box-shadow:inset 0 -5px 0 #4a2a1c,inset 0 0 12px rgba(0,0,0,.6)}',
     P+'.bm-etagere[hidden]{display:none}',
