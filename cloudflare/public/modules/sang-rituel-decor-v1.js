@@ -910,6 +910,8 @@ function css(){
     P+'.bm-scene[data-source="punaise"] :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt),'+P+'.bm-scene[data-source="papier"] :is(.bm-bras-img,.bm-papier,.bm-coupure,.bm-goutte-doigt){transition:translate .95s cubic-bezier(.25,.8,.3,1)}',
     P+'.bm-scene[data-source="punaise"] .bm-punaise,'+P+'.bm-scene[data-source="papier"] .bm-papier{transition-delay:.2s}',
     P+'.bm-scene[data-source="punaise"].bm-hors :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt),'+P+'.bm-scene[data-source="papier"].bm-hors :is(.bm-bras-img,.bm-papier,.bm-coupure,.bm-goutte-doigt){translate:-340px 0;transition-delay:0s}',
+    /* le bras est long (avec sa main à droite) : il sort ENTIÈREMENT de la case, main comprise */
+    P+'.bm-scene[data-source="papier"].bm-hors .bm-bras-img{translate:-540px 0}',
     '@media (prefers-reduced-motion:reduce){'+P+'.bm-scene :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt,.bm-bras-img,.bm-papier,.bm-coupure){transition:none}}',
     /* aucune Magie : elle dort (œil fermé, petits zzz qui montent) */
     P+'.bm-scene.bm-dort .bm-oeil .paupiere{transform:translateY(13px)}',
