@@ -36,6 +36,7 @@
             'Chaque barre où tu places de l’énergie a un bouton « 0 » : il retire toute l’énergie de cette barre seulement.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne d’arcade, le fond de l’écran est maintenant tout noir : plus de points lumineux derrière l’image.',
             'En anglais, la chronique d’un boss est maintenant le texte original du wiki, et non plus une traduction du français.',
             'Les rails bleu et rouge de la borne d’arcade ne dépassent plus en haut.',
           ]},
@@ -61,9 +62,11 @@
             'Le reflet des barres ne brille que sur la partie remplie.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'La barre d’Or tique de plus en plus vite, jusqu’à 50 fois par seconde, sans s’arrêter de tiquer avant.',
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Les boutons de tous les rituels restent alignés, même quand aucune Magie n’est allouée.',
             'Les rituels suivants sont redessinés à leur tour, avec de vraies illustrations dessinées à la main.',
             'La page prend l’ambiance d’un rituel : bougies, pentacle qui tourne, et des tuyaux qui grossissent d’un rituel à l’autre.',
             'Les rituels sont redessinés un par un. Le premier : une punaise pique un doigt et une goutte tombe dans une boîte en verre portant ton nom.',
@@ -71,6 +74,9 @@
             'Quand une boîte est presque pleine, la suivante arrive d’en dehors de l’écran et pousse la première, qui sort de l’écran.',
             'Sous chaque rituel, « Sang collecté » indique le nombre de récipients déjà remplis.',
             'Le bouton des sorts dit maintenant « Lancer avec tout mon sang ».',
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Le menu Défis change de look : chaque défi est une carte avec son blason, ses étoiles de réussite et un gros bouton Jouer. Un clic sur la carte ouvre la fiche du défi.',
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'La tour affiche un compte à rebours avant le prochain combat.',
