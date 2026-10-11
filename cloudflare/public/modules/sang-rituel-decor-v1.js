@@ -439,7 +439,7 @@ function scene(opts){
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
-  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':'')+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+'</div></div>'+
       source(opts.id)+
@@ -529,7 +529,7 @@ function poserMarque(sc,id){
 }
 var secVue={};
 /* Le doigt et le bras sont-ils sortis de la case ? Mémorisé entre deux redessins : un rituel qui reçoit de l'énergie est redessiné « sorti » puis rentre en glissant (transition), au lieu d'apparaître d'un coup. */
-var etatHors={};
+var etatHors={},installeA={};
 /*
  * SANGSUE (Norman, 2026-10-11) : le ventre est vide au départ ; chaque niveau terminé = UN petit paquet de sang absorbé par la bouche, qui avance dans le ventre coup par coup, au rythme des succions
  * (déplacement fluide à chaque coup, puis repos). Plus les niveaux sont rapides, plus les paquets sont rapprochés ; au plus rapide, tout le ventre est plein et le sang coule sans arrêt.
@@ -652,17 +652,25 @@ function rythme(sc,id,n,avant){
   if(src==='punaise'||src==='papier'){
     var horsVoulu=!sc.querySelector('.bm-tuyau.saigne-v1');
     if(sc.classList.contains('bm-hors')!==horsVoulu)sc.classList.toggle('bm-hors',horsVoulu);
+    /* L'animation (punaise, feuille, coupure, traces, gouttes) ne commence que quand le doigt / le bras ont fini de se mettre en place (Norman, 2026-10-11) : l'échéance est mémorisée par rituel (le redessin de la page ne la fait pas sauter) ; glissement 0,95 s + 0,2 s de décalage. */
+    var avantHors=etatHors[id];
     etatHors[id]=horsVoulu;
+    if(horsVoulu)installeA[id]=Infinity;
+    else if(avantHors===true||installeA[id]===Infinity)installeA[id]=performance.now()+1250;
+    else if(installeA[id]===undefined)installeA[id]=0;   /* page ouverte avec le rituel déjà en marche : tout est déjà en place */
+    var installe=!horsVoulu&&performance.now()>=installeA[id];
+    if(sc.classList.contains('bm-installe')!==installe)sc.classList.toggle('bm-installe',installe);
   }
   if(src!=='punaise'&&src!=='papier'&&src!=='sucon')return;
   /* Trace de l'impact : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
   var progresse=!!sc.querySelector('.bm-tuyau.saigne-v1');
+  var pret=src==='sucon'||sc.classList.contains('bm-installe');
   if(!progresse){
     clearTimeout(sc.__marq);sc.__marq=0;marqueVue[id]=false;
     if(sc.classList.contains('bm-marque'))sc.classList.remove('bm-marque');
   }
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    if(progresse&&!sc.classList.contains('bm-marque'))poserMarque(sc,id);
+    if(progresse&&pret&&!sc.classList.contains('bm-marque'))poserMarque(sc,id);
     return;
   }
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
@@ -672,7 +680,7 @@ function rythme(sc,id,n,avant){
   var sec=v?Number(v.secondsPerCompletion):0;
   if(sec>0)secVue[id]=sec;
   var mode='repos';
-  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse){
+  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse&&pret){
     mode='boucle';
     var t=Math.max(PERIODE_MIN,sec),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
@@ -697,7 +705,7 @@ function rythme(sc,id,n,avant){
     /* un niveau vient de se terminer : le sang arrivé au bout du tuyau coule UNE fois dans la chope (jet qui s'allonge puis s'effile), jamais en continu */
     sc.classList.remove('bm-jet');void sc.offsetWidth;sc.classList.add('bm-jet');
     clearTimeout(sc.__jet);sc.__jet=setTimeout(function(){sc.classList.remove('bm-jet');},2100);
-  }else if(mode!=='boucle'&&n>avant){
+  }else if(mode!=='boucle'&&n>avant&&pret){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
     clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);

@@ -68,7 +68,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Sans énergie, le doigt et le bras sortent de leur case en glissant vers la gauche ; quand tu en places, ils reviennent se mettre en place.',
+            'Sans énergie, le doigt et le bras sortent de leur case en glissant vers la gauche ; quand tu en places, ils reviennent se mettre en place, et l’animation (punaise, feuille, coupure) ne commence qu’une fois qu’ils y sont.',
             'Quand aucune Magie n’est placée dans un rituel qui a une sangsue, elle dort (petits zzz).',
             'Quand un rituel absorbe le sang, il l’avance par petits paquets (un par niveau), coup par coup, et le sang coule dans le récipient quand un paquet arrive au bout. Plus les niveaux sont rapides, plus les paquets sont rapprochés, jusqu’au flux continu.',
             'Les boutons de tous les rituels restent alignés, même quand aucune Magie n’est allouée.',
