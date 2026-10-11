@@ -137,7 +137,6 @@ var SYMBOLES3=
     '<path d="M54 22 Q62 76 54 130 M74 18 Q82 76 74 134 M94 28 Q100 76 94 126" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="3.6" stroke-linecap="round"/>'+
     '<path d="M36 36 C70 24 98 40 108 54" fill="none" stroke="#e8801e" stroke-width="7" stroke-linecap="round"/>'+
     '<path d="M44 30 C72 22 96 33 106 49" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3.6" stroke-linecap="round"/>'+
-    '<circle cx="82" cy="40" r="5" fill="#000"/><circle cx="80.4" cy="38.4" r="1.6" fill="#fff"/><circle cx="97" cy="48" r="4" fill="#000"/><circle cx="95.8" cy="46.8" r="1.2" fill="#fff"/>'+
     '<rect x="12" y="6" width="28" height="140" rx="13" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="5.4"/>'+
     '<path d="M22 18 V134" stroke="#fff" stroke-opacity=".34" stroke-width="3.4" stroke-linecap="round"/>'+
     '<path d="M24 76 H36 M24 76 L33 62 M24 76 L33 90" fill="none" stroke="#3a0612" stroke-width="3" stroke-linecap="round"/>'+
@@ -255,7 +254,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche')+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -6 L26 -6 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i>';
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -565,6 +564,7 @@ function sangsue(sc,sec,actif){
   if(!cont)return;
   var paq=cont.children,i;
   if(!actif||!(sec>0)){
+    if(sc.classList.contains('bm-pleure'))sc.classList.remove('bm-pleure');
     for(i=0;i<paq.length;i++)if(paq[i].classList.contains('on'))paq[i].classList.remove('on');
     sc.__t0=0;sc.__cle='';
     if(sc.classList.contains('bm-continu'))sc.classList.remove('bm-continu');
@@ -579,6 +579,8 @@ function sangsue(sc,sec,actif){
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
   var attente=(pbBrut==null&&!!barre&&/scaleX(1)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
   var pb=pbBrut==null?0:pbBrut;
+  var pleure=!!ligneEta&&/Barre pleine : il manque/.test(ligneEta.textContent||'');
+  if(sc.classList.contains('bm-pleure')!==pleure)sc.classList.toggle('bm-pleure',pleure);
   var maintenant=performance.now()/1000;
   var cle=m+'|'+P.toFixed(2);
   if(sc.__cle!==cle){
@@ -882,6 +884,21 @@ function css(){
     P+'.bm-tuyau.saigne-v1 .bm-paquets-corps{display:block}',
     P+'.bm-paquet{position:absolute;top:0;bottom:0;left:0;width:calc(100% / var(--bm-k,6) - 3px);margin-left:1.5px;border-radius:46%;background:radial-gradient(ellipse at 34% 26%,#ffa3b0 0,#e0203c 46%,#7a0a1c 100%);box-shadow:inset -2px -3px 4px rgba(60,0,10,.55),0 0 5px rgba(255,40,70,.5);display:none}',
     P+'.bm-paquet.on{display:block}',
+    /* un seul œil (de profil) ; sans Or elle pleure : paupière triste, regard vers le bas, larmes qui tombent */
+    P+'.bm-oeil{position:absolute;left:48px;top:81px;width:22px;height:22px;z-index:6;pointer-events:none;overflow:visible}',
+    P+'.bm-oeil .paupiere{transform:translateY(-18px);transition:transform .6s ease-in-out}',
+    P+'.bm-oeil .pupille{transition:transform .3s}',
+    P+'.bm-scene.bm-pleure .bm-oeil .paupiere{transform:translateY(6.5px)}',
+    P+'.bm-scene.bm-pleure .bm-oeil .pupille{transform:translateY(2.4px)}',
+    P+'.bm-larme{position:absolute;left:57px;top:98px;width:4px;height:6px;z-index:6;pointer-events:none;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#e8f6ff,#7fc4ff 60%,#2f7fc4);border:1px solid #0b3a66;opacity:0;display:none}',
+    P+'.bm-larme.l2{left:60px}',
+    P+'.bm-larme.l3{left:55px}',
+    /* sans Or : la bouche ne pompe plus et le corps ne bouge plus, elle pleure seulement */
+    P+'.bm-scene.bm-pleure:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:none}',
+    P+'.bm-scene.bm-pleure:has(.bm-tuyau.saigne-v1) .bm-tuyau::before{animation:none}',
+    /* une seule larme toutes les 5 secondes */
+    P+'.bm-scene.bm-pleure .bm-larme{display:block;animation:bmLarme 5s ease-in infinite}',
+    P+'.bm-scene.bm-pleure .bm-larme.l2,'+P+'.bm-scene.bm-pleure .bm-larme.l3{display:none}',
     P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:48px;height:56px;z-index:6;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
     P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 21px);z-index:7}',
@@ -950,6 +967,7 @@ function css(){
     '@keyframes bmGouttedoigt{0%,40%{opacity:0;transform:translate(0,0) scale(.3)}48%{opacity:1;transform:translate(0,0) scale(1)}60%{opacity:1;transform:translate(0,3px) scale(1,1.1)}92%{opacity:1;transform:translate(0,calc(var(--chute,128px) - 10px)) scale(.9,1.28)}100%{opacity:0;transform:translate(0,calc(var(--chute,128px) + 2px)) scale(.7,1.3)}}',
     '@keyframes bmCoupe{0%,100%{transform:translateY(0) rotate(-5deg)}28%{transform:translateY(0) rotate(-5deg)}44%{transform:translateY(84px) rotate(-5deg)}56%{transform:translateY(84px) rotate(-5deg)}76%{transform:translateY(0) rotate(-5deg)}}',
     '@keyframes bmTrait{0%,38%{opacity:0;transform:scaleY(.1)}46%{opacity:1;transform:scaleY(1)}84%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}',
+    '@keyframes bmLarme{0%{opacity:0;transform:translateY(0) scale(.6)}6%{opacity:1;transform:translateY(1px) scale(1)}30%{opacity:.9;transform:translateY(34px) scale(1)}34%{opacity:0;transform:translateY(40px) scale(.8)}100%{opacity:0;transform:translateY(40px) scale(.8)}}',
     '@keyframes bmSuce{0%,100%{transform:scale(1,1)}45%{transform:scale(.88,1.1)}70%{transform:scale(1.03,.98)}}',
     '@keyframes bmJet{0%{opacity:0;transform:scaleY(0);clip-path:inset(0)}16%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}58%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}100%{opacity:.9;transform:scaleY(1);clip-path:inset(100% 0 0 0)}}',
     '@keyframes bmLivre{0%,100%{filter:drop-shadow(0 0 5px rgba(255,40,70,.5)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}50%{filter:drop-shadow(0 0 14px rgba(255,60,90,.95)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}}',
