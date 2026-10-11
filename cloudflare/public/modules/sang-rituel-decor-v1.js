@@ -69,29 +69,11 @@ var BOL_CALICE='M15 14 L85 14 C87 48 69 70 52 75 L48 75 C31 70 13 48 15 14 Z';
  */
 /* Toutes les scènes ont la même hauteur (Norman, 2026-10-11 : « les rituels côte à côte doivent toujours avoir la même taille ») ; le plus grand calice (rang 5) y tient. */
 var HAUTEUR_SCENE=312;
-if(typeof document!=='undefined'&&document.addEventListener&&!window.__bmPersoErr){window.__bmPersoErr=1;document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.classList&&t.classList.contains('bm-perso'))t.remove();},true);}
+if(typeof document!=='undefined'&&document.addEventListener&&!window.__bmPersoErr){window.__bmPersoErr=1;document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.classList&&(t.classList.contains('bm-perso')||t.classList.contains('bm-bras-img')))t.remove();},true);}
 var SOURCES={tack:'punaise',papercuts:'papier',hickey:'sucon'};
 var CORPS_VERRE='M8 8 H72 L67 92 Q66.5 98 60 98 H20 Q13.5 98 13 92 Z';
 var INT_VERRE='M12 10 H68 L64 90 Q63.5 94 59 94 H21 Q16.5 94 16 90 Z';
 var DEVANT_VERRE='<path d="M18 18 L21 82" stroke="#fff" stroke-opacity=".42" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="40" cy="9" rx="32" ry="3.2" fill="none" stroke="#dfeaf2" stroke-width="2.2"/><path d="M13.6 34 Q40 38 66.4 34 M13.2 40 Q40 44 66.8 40 M14 78 Q40 82 66 78" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.6"/><path d="M13 86 Q40 90 67 86" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="4"/>';
-/*
- * Avant-bras (Norman, 2026-10-11) : plus épais à gauche (coude), il s'affine vers la droite jusqu'au poignet, un peu bombé. Dessiné dans un repère 300 x 80 étiré à la largeur de la scène (traits non étirés).
- * Le poignet est au bord droit du cadre, avec son bracelet rouge ; la main reste hors du cadre.
- */
-function brasSvg(){
-  var haut=function(x){return 4+18*(x/300);},bas=function(x){return 76-16*(x/300);};
-  var cic=[26,44,66,150,172,206,236].map(function(x,i){var t=haut(x)+9,b=bas(x)-13;return 'M'+x+' '+t.toFixed(1)+' L'+(x+5+(i%3))+' '+b.toFixed(1);}).join(' ');
-  var N=' vector-effect="non-scaling-stroke"';
-  return '<svg viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true" focusable="false">'+
-    '<path d="M0 4 C80 0 180 8 300 22 L300 60 C190 78 100 84 0 76 Z" fill="url(#bm-g-peau)"/>'+
-    '<path d="M300 60 C190 78 100 84 0 76" fill="none" stroke="#a35a43" stroke-opacity=".35" stroke-width="7"'+N+'/>'+
-    '<path d="M0 4 C80 0 180 8 300 22 M300 60 C190 78 100 84 0 76" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"'+N+'/>'+
-    '<path d="M12 12 C90 8 180 16 288 30" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="3.6" stroke-linecap="round"'+N+'/>'+
-    '<path d="M50 40 C120 36 200 42 270 38" fill="none" stroke="#5a5096" stroke-opacity=".34" stroke-width="2.6" stroke-linecap="round"'+N+'/>'+
-    '<path d="M128 22 Q138 40 128 58 M200 28 Q208 42 200 54" fill="none" stroke="#8f4a36" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round"'+N+'/>'+
-    '<path d="'+cic+'" fill="none" stroke="#b04a52" stroke-opacity=".62" stroke-width="1.7" stroke-linecap="round"'+N+'/>'+
-  '</svg>';
-}
 var CORPS_CHOPE='M8 8 H80 L76 90 Q75.5 96 70 96 H18 Q12.5 96 12 90 Z';
 var INT_CHOPE='M13 11 H75 L71.5 88 Q71 92 67 92 H21 Q17 92 16.5 88 Z';
 var ANSE_CHOPE='M79 24 H90 Q104 24 104 40 V56 Q104 72 90 72 H78';
@@ -175,16 +157,6 @@ var SYMBOLES2=
   /* manche relevée : tissu froissé à gauche, puis deux rouleaux (le second doublé de rouge) qui serrent l'avant-bras */
   '<linearGradient id="bm-g-tissu" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#232733"/><stop offset=".45" stop-color="#4a5163"/><stop offset="1" stop-color="#262a37"/></linearGradient>'+
   '<linearGradient id="bm-g-doublure" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a0b17"/><stop offset=".5" stop-color="#b3182c"/><stop offset="1" stop-color="#4a0912"/></linearGradient>'+
-  '<symbol id="bm-sym-manche" viewBox="0 0 84 96">'+
-    '<path d="M0 6 H38 V90 H0 Z" fill="url(#bm-g-tissu)" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
-    '<path d="M6 14 Q16 30 8 48 M20 10 Q28 34 22 60 M10 62 Q18 76 12 88 M28 30 Q33 54 28 82" fill="none" stroke="#000" stroke-opacity=".38" stroke-width="2" stroke-linecap="round"/>'+
-    '<path d="M4 20 Q10 26 6 38" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3" stroke-linecap="round"/>'+
-    '<rect x="32" y="0" width="28" height="96" rx="12" fill="url(#bm-g-tissu)" stroke="#000" stroke-width="2.8"/>'+
-    '<path d="M42 6 Q39 48 42 90 M50 5 Q47 48 50 91" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="1.8"/>'+
-    '<rect x="54" y="4" width="26" height="88" rx="11" fill="url(#bm-g-tissu)" stroke="#000" stroke-width="2.8"/>'+
-    '<path d="M60 12 Q58 48 60 84" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>'+
-    '<path d="M67 9 V87" fill="none" stroke="#e8dcc4" stroke-opacity=".7" stroke-width="1.6" stroke-dasharray="4 3"/>'+
-  '</symbol>'+
   /* feuille de papier : le tranchant est son bord du bas */
   '<linearGradient id="bm-g-papier" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffefa"/><stop offset=".55" stop-color="#f6f0e0"/><stop offset="1" stop-color="#e3dac2"/></linearGradient>'+
   '<symbol id="bm-sym-papier" viewBox="0 0 68 88">'+
@@ -284,7 +256,8 @@ function source(id){
       '<svg class="bm-coude" viewBox="0 0 44 52" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H14 C32 0 44 10 44 28 V44 H16 V36 C16 32 12 28 8 28 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 5 H14 C28 5 39 12 39 28 V40" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M2 24 H8 C14 24 18 28 20 34" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/><rect x="-2" y="-2" width="6" height="32" rx="2.4" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M0.6 2 V26" stroke="#fff" stroke-opacity=".4" stroke-width="1.4" stroke-linecap="round"/><rect x="14" y="42" width="32" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M19 45 H41" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
-    return '<div class="bm-bras" aria-hidden="true">'+brasSvg()+'<i class="bm-bracelet"></i></div>'+use('bm-sym-manche',84,96,'bm-manche')+
+    /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
+    return '<img class="bm-bras-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagiCoupure.webp">'+
       '<i class="bm-trace bm-trace-coupures"></i><i class="bm-coupure"></i>'+use('bm-sym-papier',68,88,'bm-papier')+
       '<i class="bm-goutte-doigt bm-gros"></i><i class="bm-goutte-doigt bm-gros g2"></i><i class="bm-goutte-doigt bm-gros g3"></i>';
   }
@@ -750,11 +723,6 @@ function css(){
     P+'.bm-scene.bm-coup .bm-doigt{animation:bmDoigt .9s ease-in-out 1 both}',
     P+'.bm-scene.bm-coup .bm-goutte-doigt{animation:bmGouttedoigt .9s ease-in 1 both}',
     /* second rituel : un avant-bras se fait trancher par une feuille de papier ; la feuille descend d'un coup à travers le bras, laisse un trait rouge, la goutte naît au milieu du trait et tombe droit dans le verre */
-    P+'.bm-bras{position:absolute;left:40px;right:-12px;top:56px;height:80px;z-index:4}',
-    P+'.bm-bras>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
-    P+'.bm-bracelet{position:absolute;right:34px;top:14px;width:22px;height:52px;z-index:2;border:3px solid #000;border-radius:9px;background:linear-gradient(90deg,#5a0b17,#c91d33 45%,#4a0912);box-shadow:inset 0 0 0 2px rgba(255,255,255,.12),0 2px 3px rgba(0,0,0,.6)}',
-    P+'.bm-bracelet::after{content:"";position:absolute;left:50%;top:4px;bottom:4px;border-left:2px dashed rgba(232,220,196,.75)}',
-    P+'.bm-manche{position:absolute;left:-8px;top:46px;width:88px;height:96px;z-index:5;filter:drop-shadow(0 2px 3px rgba(0,0,0,.65))}',
     P+'.bm-goutte-doigt.bm-gros{width:13px;height:18px;margin-left:-3px}',
     P+'.bm-goutte-doigt.g2{width:11px;height:15px;margin-left:5px}',
     P+'.bm-goutte-doigt.g3{width:9px;height:12px;margin-left:-8px}',
@@ -775,6 +743,7 @@ function css(){
     P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
+    P+'.bm-bras-img{position:absolute;left:-20px;top:20px;height:176px;width:auto;max-width:none;z-index:4;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     P+'.bm-perso{position:absolute;left:-10px;top:-18px;height:335px;width:auto;max-width:none;z-index:3;display:block;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     P+'.bm-scene:has(.bm-perso) .bm-cou{display:none}',
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
