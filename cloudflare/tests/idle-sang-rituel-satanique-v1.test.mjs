@@ -312,3 +312,12 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const hb = d.scene({ id: "bloodBank", sang: 60000, compte: 3, barre: "", rang: 3 });
   assert.ok(hb.includes('data-bm-bac="bloodBank"') && hb.includes('class="bm-bac-liq"') && hb.indexOf("bm-banque-cv") < hb.indexOf("data-bm-bac") && hb.indexOf("data-bm-bac") < hb.indexOf("bm-etagere"), "le bac est sous l'animation, au-dessus de l'étagère");
 }
+{
+  // Téléphone : Blood Magic centré (bloc sans max-width de la page, colonne de rituels centrée) et NGU sans débordement (colonne minmax(0,1fr), lignes qui passent à la ligne).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
+  const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
+  assert.ok(decor.includes("'@media (max-width:700px){'+P+'.bm-grille{justify-content:center}}'"), "colonne de rituels centrée sur téléphone");
+  assert.ok(css.includes(".soreal-idle-page-root-v28>.soreal-idle-bloodmagic-v1{max-width:none}"), "bloc Blood Magic non rétréci");
+  assert.ok(ngu.includes(".nl-grille{position:relative;display:grid;grid-template-columns:minmax(0,1fr);") && ngu.includes(".nl-barre{position:relative;min-width:0}") && ngu.includes(".nl-actions{display:flex;flex-wrap:wrap;") && ngu.includes(".nl-tete{display:flex;flex-wrap:wrap;"), "NGU ne déborde plus sur téléphone");
+}

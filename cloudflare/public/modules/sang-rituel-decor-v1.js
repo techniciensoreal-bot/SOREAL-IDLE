@@ -1408,6 +1408,8 @@ function css(){
     P+'.bm-rituel[data-rang-v1="0"]{--bm-r:0}'+P+'.bm-rituel[data-rang-v1="1"]{--bm-r:1}'+P+'.bm-rituel[data-rang-v1="2"]{--bm-r:2}'+P+'.bm-rituel[data-rang-v1="3"]{--bm-r:3}'+P+'.bm-rituel[data-rang-v1="4"]{--bm-r:4}'+P+'.bm-rituel[data-rang-v1="5"]{--bm-r:5}',
     /* Cadres verticaux de taille FIXE (Norman, 2026-10-11) : sur PC ils se rangent côte à côte tant qu'il y a de la place (alignés à gauche, jamais superposés) ; la scène garde la largeur d'un téléphone, donc le bras n'est jamais étiré et PC et téléphone montrent la même chose. */
     P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;gap:12px;align-items:stretch;justify-content:start}',
+    /* Téléphone : la colonne unique (324 px) est centrée dans la page au lieu de rester collée à gauche (Norman, 2026-10-11). */
+    '@media (max-width:700px){'+P+'.bm-grille{justify-content:center}}',
     P+'.bm-grille>.bm-rituel{width:auto;box-sizing:border-box;display:flex;flex-direction:column}',
     P+'.bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto!important;padding-top:9px}',
     /* hauteurs réservées (Norman, 2026-10-11 : « les boutons doivent toujours être alignés ») : titre sur trois lignes, description sur deux, ligne du compte à rebours même sans énergie allouée */

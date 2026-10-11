@@ -220,11 +220,11 @@ var CSS=
   '.nl-avance input{width:24px;height:24px;accent-color:#b58aff}'+
   /* réseau : un tronc lumineux aux couleurs de tous les tuyaux, une branche par tuyau */
   '.nl-section[hidden]{display:none}'+
-  '.nl-grille{position:relative;display:grid;gap:16px;margin:10px auto 0;padding-left:24px;max-width:920px}'+
+  '.nl-grille{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin:10px auto 0;padding-left:24px;max-width:920px}'+
   '.nl-grille::before{content:"";position:absolute;left:5px;top:10px;bottom:10px;width:8px;border-radius:8px;background:linear-gradient(180deg,#ed3e3e,#f2bb6a,#ffffa9,#daf11a,#a6deb9,#7a96f5,#9e19f1,#ff9de1,#62c0ff,#7ef0e0);box-shadow:0 0 10px 1px rgba(200,160,255,.75),0 0 28px rgba(120,80,255,.5)}'+
-  '.nl-barre{position:relative}'+
+  '.nl-barre{position:relative;min-width:0}'+
   '.nl-barre::before{content:"";position:absolute;left:-22px;top:62px;width:24px;height:7px;border-radius:4px;background:var(--nl-c);box-shadow:0 0 10px var(--nl-c)}'+
-  '.nl-tete{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 2px 6px}'+
+  '.nl-tete{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 8px;margin:0 2px 6px}'+
   '.nl-nom{font:900 14px/1.15 "Segoe UI",system-ui,sans-serif;letter-spacing:.07em;color:color-mix(in srgb,var(--nl-c) 55%,#fff);text-shadow:0 0 9px var(--nl-c),0 0 2px #000}'+
   '.nl-niveau{font:700 12px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#b9c2ee;white-space:nowrap}'+
   '.nl-niveau b{font:900 20px/1 "Segoe UI",system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 8px var(--nl-c)}'+
@@ -244,7 +244,7 @@ var CSS=
   '.nl-pct{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:3;font:900 13px/1 "Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000}'+
   '.nl-infos{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 14px;margin:7px 2px 0;font:600 12px/1.3 "Segoe UI",system-ui,sans-serif;color:#c7d0f2}'+
   '.nl-infos b{color:#fff;font-variant-numeric:tabular-nums}'+
-  '.nl-actions{display:flex;align-items:center;gap:8px;margin:6px 2px 0}'+
+  '.nl-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:6px 2px 0}'+
   '.nl-cible{display:flex;align-items:center;gap:6px;margin-right:auto;font:800 11px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#aab4dc}'+
   '.nl-cible input{width:86px;padding:7px 6px;background:#0b0724;color:#fff;border:1.5px solid color-mix(in srgb,var(--nl-c) 70%,#fff);border-radius:8px;font:800 15px "Segoe UI",system-ui,sans-serif;text-align:center}'+
   '.nl-boutons{display:flex;gap:8px}'+

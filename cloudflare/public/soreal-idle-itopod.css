@@ -1550,3 +1550,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-notes-maj-p
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-classement-issue-v1{display:block;font-family:"Bangers","Comic Sans MS",cursive!important;font-size:14px;letter-spacing:.06em;margin-top:2px}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-classement-issue-v1.gagne{color:#7dffb4}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-classement-issue-v1.perdu{color:#ff8a96}
+
+/* Blood Magic centré sur téléphone (Norman, 2026-10-11) : la règle « enfants de la page : max-width:100% » rétrécissait ce bloc (qui déborde exprès de 12 px de chaque côté) et le décalait vers la gauche. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28>.soreal-idle-bloodmagic-v1{max-width:none}
