@@ -64,7 +64,12 @@ assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-b
 assert.ok(!page.includes("soreal-idle-section-v8\" data-rang-v1"), "plus d'ancien cadre de rituel");
 // cadres verticaux de taille fixe, côte à côte sur PC, jamais superposés ; la scène a la même largeur que sur téléphone
 assert.ok(page.includes('<div class="bm-grille">'), "page : grille de cadres");
-assert.ok(src.includes("P+'.bm-grille{display:flex;flex-wrap:wrap;") && src.includes("flex:0 0 min(100%,324px);width:min(100%,324px)"), "cadres de largeur fixe qui passent à la ligne");
+assert.ok(src.includes("P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;"), "cadres de largeur fixe qui passent à la ligne, toutes les lignes à la même hauteur");
+assert.ok(src.includes("var HAUTEUR_SCENE=312;") && !/sh:(244|290|300)[,}]/.test(src), "toutes les scènes ont la même hauteur : les cadres côte à côte restent alignés");
+assert.ok(src.includes(".bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto}"), "les boutons restent en bas du cadre");
+// trace de l'impact : visible tant que le rituel progresse, fondu lent à l'arrêt
+assert.ok(src.includes(".bm-trace{position:absolute;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.8s ease-out}") && src.includes(".bm-scene.bm-marque .bm-trace{opacity:1;transition:opacity .25s ease-out}"), "trace : fondu lent à la disparition");
+assert.ok(d.scene({ id: "tack", sang: 1, compte: 10, barre: "", rang: 0 }).includes("bm-trace-trou") && d.scene({ id: "papercuts", sang: 50, compte: 10, barre: "", rang: 1 }).includes("bm-trace-coupures"), "un trou de punaise, des coupures de papier");
 // rythme de la punaise : plafond de vitesse visuelle, un coup par niveau quand c'est lent
 assert.ok(src.includes("var PERIODE_MIN=0.4,PERIODE_BOUCLE=4;"), "plafond de vitesse et seuil de boucle");
 assert.ok(src.includes("data-rythme") && src.includes("bm-coup"), "boucle ou un coup par niveau");

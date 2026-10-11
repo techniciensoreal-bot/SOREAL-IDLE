@@ -67,6 +67,8 @@ var BOL_CALICE='M15 14 L85 14 C87 48 69 70 52 75 L48 75 C31 70 13 48 15 14 Z';
  * Dessins des rituels, un par un (Norman, 2026-10-11 : « on va les faire 1 par 1 »). Le premier rituel a sa propre source : un doigt piqué par une punaise. Les accessoires (bougies, grimoires, crânes, fioles, livre ouvert
  * lumineux, chaînes, runes) s'ajoutent à mesure qu'on descend dans les rituels (rang 0 à 5) : plus on sacrifie, plus la scène est chargée et plus le tuyau est gros.
  */
+/* Toutes les scènes ont la même hauteur (Norman, 2026-10-11 : « les rituels côte à côte doivent toujours avoir la même taille ») ; le plus grand calice (rang 5) y tient. */
+var HAUTEUR_SCENE=312;
 var SOURCES={tack:'punaise',papercuts:'papier'};
 var CORPS_VERRE='M8 8 H72 L67 92 Q66.5 98 60 98 H20 Q13.5 98 13 92 Z';
 var INT_VERRE='M12 10 H68 L64 90 Q63.5 94 59 94 H21 Q16.5 94 16 90 Z';
@@ -204,11 +206,11 @@ function use(sym,l,h,classe){return '<svg class="'+classe+'" viewBox="0 0 '+l+' 
 function source(id){
   if(SOURCES[id]==='punaise'){
     return '<svg class="bm-doigt" viewBox="0 0 210 54" preserveAspectRatio="none" aria-hidden="true" focusable="false"><use href="#bm-sym-doigt-haut" width="210" height="54"/></svg>'+
-      use('bm-sym-punaise',30,50,'bm-punaise')+'<i class="bm-goutte-doigt"></i>';
+      '<i class="bm-trace bm-trace-trou"></i>'+use('bm-sym-punaise',30,50,'bm-punaise')+'<i class="bm-goutte-doigt"></i>';
   }
   if(SOURCES[id]==='papier'){
     return '<div class="bm-bras" aria-hidden="true">'+brasSvg()+'<i class="bm-bracelet"></i></div>'+use('bm-sym-manche',84,96,'bm-manche')+
-      '<i class="bm-coupure"></i>'+use('bm-sym-papier',68,88,'bm-papier')+
+      '<i class="bm-trace bm-trace-coupures"></i><i class="bm-coupure"></i>'+use('bm-sym-papier',68,88,'bm-papier')+
       '<i class="bm-goutte-doigt bm-gros"></i><i class="bm-goutte-doigt bm-gros g2"></i><i class="bm-goutte-doigt bm-gros g3"></i>';
   }
   return '<svg class="bm-bride" viewBox="0 0 20 60" aria-hidden="true" focusable="false"><rect x="3" y="2" width="14" height="56" rx="4" fill="url(#bm-g-metal)" stroke="#000" stroke-width="2.4"/><circle cx="10" cy="12" r="2" fill="#000" opacity=".6"/><circle cx="10" cy="48" r="2" fill="#000" opacity=".6"/></svg>';
@@ -313,17 +315,19 @@ var CAPACITE={tack:1000,papercuts:5000};
 var SEUIL_ARRIVEE=0.9;
 /* id -> le suivant est déjà à l'écran (un redessin de la page ne le refait pas arriver : il ne surgit jamais, il vient d'en dehors du cadre une seule fois) */
 var suivantVu={};
+/* id -> la trace de l'impact est visible (le rituel progresse) : restituée telle quelle à chaque redessin, elle ne clignote pas. */
+var marqueVue={};
 function typeContenant(id){return CONTENANTS[CONTENANT_DE[id]]?CONTENANT_DE[id]:'calice';}
 function capacite(id){var c=Number(CAPACITE[id]);return c>0?c:NIVEAUX_PAR_RECIPIENT;}
 /* Taille de la scène et du contenant : la fiole du premier rituel est minuscule (posée sur un petit autel), les calices grandissent avec le rang. */
 function dimensions(id,rang){
   var r=Math.max(0,Math.min(5,Math.floor(Number(rang))||0));
-  if(typeContenant(id)==='verre')return {vw:104,vh:130,vb:14,sh:290,autel:false};
-  if(typeContenant(id)==='boite')return {vw:250,vh:134,vb:14,sh:300,autel:false};
-  if(typeContenant(id)==='fiole')return {vw:54,vh:90,vb:60,sh:244,autel:true};
+  if(typeContenant(id)==='verre')return {vw:104,vh:130,vb:14,sh:HAUTEUR_SCENE,autel:false};
+  if(typeContenant(id)==='boite')return {vw:250,vh:134,vb:14,sh:HAUTEUR_SCENE,autel:false};
+  if(typeContenant(id)==='fiole')return {vw:54,vh:90,vb:60,sh:HAUTEUR_SCENE,autel:true};
   var s=[.8,.9,1,1.15,1.3,1.5][r];
   var vw=Math.round(100*s),vh=Math.round(130*s),th=CORPS_PAR_RANG[r]+26;
-  return {vw:vw,vh:vh,vb:6,sh:Math.max(244,Math.ceil(70+th/2+16+vh)),autel:false};
+  return {vw:vw,vh:vh,vb:6,sh:HAUTEUR_SCENE,autel:false};
 }
 /* Un contenant qui se remplit : le sang est un groupe qu'on déplace en hauteur (transform), sa surface ondule d'une période exactement. */
 function echapper(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -382,7 +386,8 @@ function scene(opts){
   var pleins=Math.floor(compte/cap);
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
-  return '<div class="bm-scene" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  var marque=!!(marqueVue[opts.id]&&opts.saigne);
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       source(opts.id)+
@@ -435,7 +440,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98};
+var DEPART_GOUTTE={papier:98,punaise:92};
 function chuteSang(source,type,vh,vb,sh,fraction){
   var d=DEPART_GOUTTE[source];
   if(!d)return null;
@@ -458,6 +463,19 @@ var PERIODE_MIN=0.4,PERIODE_BOUCLE=4;
 function rythme(sc,id,n,avant){
   var src=sc.getAttribute('data-source');
   if(src!=='punaise'&&src!=='papier')return;
+  /* Trace de l'impact (Norman, 2026-10-11) : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
+  var progresse=!!sc.querySelector('.bm-tuyau.saigne-v1');
+  if(!progresse){
+    clearTimeout(sc.__marq);sc.__marq=0;marqueVue[id]=false;
+    if(sc.classList.contains('bm-marque'))sc.classList.remove('bm-marque');
+  }else if(!sc.classList.contains('bm-marque')&&!sc.__marq){
+    var reduit0=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var H0=window.__SOREAL_IDLE_META_HOST_V130__,e0=H0&&H0.getIdleEtat&&H0.getIdleEtat(),vs=e0&&e0.__bloodMagicVisualV1,v0=vs&&typeof vs==='object'?vs[id]:null;
+    var sec0=v0?Number(v0.secondsPerCompletion):0;
+    /* premier impact : au milieu du premier cycle de la boucle ; pour un rituel lent, au premier niveau gagné (voir plus bas) */
+    var delai=reduit0?0:(sec0>0&&sec0<=PERIODE_BOUCLE?Math.max(PERIODE_MIN,sec0)*450:(sec0>0?0:-1));
+    if(delai>=0)sc.__marq=setTimeout(function(){sc.__marq=0;if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}},delai);
+  }
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
@@ -471,6 +489,7 @@ function rythme(sc,id,n,avant){
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);
   if(mode!=='boucle'&&v&&sec>0&&n>avant){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
+    clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){sc.__marq=0;if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}},400);
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
   }
 }
@@ -573,8 +592,9 @@ function css(){
     P+'.bm-rituel{position:relative;margin:0;padding:12px 12px 12px;border:3px solid #000;border-radius:14px;background:radial-gradient(ellipse 90% 60% at 50% 0,rgba(150,10,36,.42),transparent 72%),linear-gradient(170deg,#2b0710,#150409);box-shadow:inset 0 0 0 2px rgba(210,40,66,calc(.22 + var(--bm-r,0)*.07)),0 0 calc(var(--bm-r,0)*5px) rgba(220,20,50,.45),4px 4px 0 #000;color:#f3d9de;overflow:hidden}',
     P+'.bm-rituel[data-rang-v1="0"]{--bm-r:0}'+P+'.bm-rituel[data-rang-v1="1"]{--bm-r:1}'+P+'.bm-rituel[data-rang-v1="2"]{--bm-r:2}'+P+'.bm-rituel[data-rang-v1="3"]{--bm-r:3}'+P+'.bm-rituel[data-rang-v1="4"]{--bm-r:4}'+P+'.bm-rituel[data-rang-v1="5"]{--bm-r:5}',
     /* Cadres verticaux de taille FIXE (Norman, 2026-10-11) : sur PC ils se rangent côte à côte tant qu'il y a de la place (alignés à gauche, jamais superposés) ; la scène garde la largeur d'un téléphone, donc le bras n'est jamais étiré et PC et téléphone montrent la même chose. */
-    P+'.bm-grille{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:flex-start}',
-    P+'.bm-grille>.bm-rituel{flex:0 0 min(100%,324px);width:min(100%,324px);box-sizing:border-box}',
+    P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;gap:12px;align-items:stretch;justify-content:start}',
+    P+'.bm-grille>.bm-rituel{width:auto;box-sizing:border-box;display:flex;flex-direction:column}',
+    P+'.bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto}',
     P+'.bm-rituel-tete{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}',
     P+'.bm-rituel-nom{font-family:var(--f-titre,"Bangers",cursive)!important;font-weight:400;font-size:calc(1.25em + var(--bm-r,0)*.07em);letter-spacing:.06em;color:#ffe4e8;text-shadow:0 2px 0 #000,0 0 12px rgba(255,30,60,.55)}',
     P+'.bm-rituel-compte{font-family:var(--f-texte,"Russo One",sans-serif);font-size:.95em;color:#f3b4be}',
@@ -631,11 +651,16 @@ function css(){
     P+'.bm-scene.bm-coup .bm-goutte-doigt.g2{animation-delay:.09s}',
     P+'.bm-scene.bm-coup .bm-goutte-doigt.g3{animation-delay:.18s}',
     P+'.bm-papier{position:absolute;left:calc(var(--px) - 65px);top:-36px;width:68px;height:88px;z-index:5;transform-origin:50% 100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}',
-    P+'.bm-coupure{position:absolute;left:calc(var(--px) - 1.5px);top:63px;width:3px;height:62px;z-index:5;border-radius:2px;background:linear-gradient(180deg,#e0304a,#a30f22);box-shadow:0 0 4px rgba(255,40,70,.8);opacity:0;transform-origin:50% 0}',
+    P+'.bm-coupure{position:absolute;left:calc(var(--px) - 1.5px);top:76px;width:3px;height:42px;z-index:5;border-radius:2px;background:linear-gradient(180deg,#e0304a,#a30f22);box-shadow:0 0 4px rgba(255,40,70,.8);opacity:0;transform-origin:50% 0}',
     P+'.bm-scene[data-rythme="boucle"] .bm-papier{animation:bmCoupe var(--bm-t,1s) ease-in-out infinite}',
     P+'.bm-scene[data-rythme="boucle"] .bm-coupure{animation:bmTrait var(--bm-t,1s) ease-out infinite}',
     P+'.bm-scene.bm-coup .bm-papier{animation:bmCoupe .9s ease-in-out 1 both}',
     P+'.bm-scene.bm-coup .bm-coupure{animation:bmTrait .9s ease-out 1 both}',
+    /* traces d'impact : un trou sur le bout du doigt, des coupures sur le bras ; fondu rapide à l'apparition, fondu LENT à la disparition (quand le rituel s'arrête) */
+    P+'.bm-trace{position:absolute;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.8s ease-out}',
+    P+'.bm-scene.bm-marque .bm-trace{opacity:1;transition:opacity .25s ease-out}',
+    P+'.bm-trace-trou{left:calc(var(--px) - 6px);top:86px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#2a0309 0 22%,#b3102a 24% 52%,rgba(179,16,42,.35) 54% 70%,transparent 72%)}',
+    P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
     /* gouttes qui tombent du bout du tuyau dans le calice */
@@ -700,7 +725,7 @@ function css(){
     '@keyframes bmConvoiSuivant{0%{transform:translateX(calc(var(--pas,118px)*-1))}50%{transform:translateX(0)}100%{transform:translateX(0)}}',
     '@keyframes bmApparait{from{transform:translateX(-640px)}to{transform:translateX(calc(var(--pas,118px)*-1))}}',
     '@keyframes bmPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}',
-    '@media (prefers-reduced-motion:reduce){'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-p-ouvert,'+P+'.bm-chaine,'+P+'.bm-rune,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq{transition:none}}'
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-p-ouvert,'+P+'.bm-chaine,'+P+'.bm-rune,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq,'+P+'.bm-trace{transition:none}}'
   ].concat(reglesRangs(P)).join('\n');
   document.head.appendChild(st);
 }
