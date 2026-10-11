@@ -1530,6 +1530,10 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     scroll-snap-type:none!important;
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28::-webkit-scrollbar{display:none;width:0;height:0}
+  /* La barre des menus ne bouge JAMAIS quand on clique un menu (Norman, 2026-10-11) : elle est collée dans sa zone de grille, qui s'arrête au bas du contenu ; si la nouvelle page est plus courte, la zone n'avait plus la place de la garder collée et la barre remontait d'un coup (74 px). Les 110 px de marge du bas passent donc du conteneur à la dernière ligne de la page : la zone de la barre descend jusqu'au bas du document. */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-bottom:0!important}
+  /* et une page courte garde une hauteur minimale (fenêtre - 200 px) : le document reste assez haut pour que le défilement en cours ne soit jamais ramené en arrière, donc que la barre reste exactement où elle était */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-page-root-v28{margin-bottom:110px;min-height:calc(100vh - 200px)}
   /*
    * Boutons plus larges et plus longs, titres et icônes plus grands (Norman, 2026-10-04 : « sur PC les boutons des menus doivent être plus larges et plus longs, les titres et icônes plus grands », puis « ils ont l'air trop
    * petits par rapport au reste de l'interface, harmonise le tout ») : mêmes proportions que la carte de base (pastille de 46 px, emoji de 26 px, titre de 16 px, verbe lisible dessous), colonne de 300 px.
