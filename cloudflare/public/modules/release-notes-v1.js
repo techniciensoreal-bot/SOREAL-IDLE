@@ -32,6 +32,7 @@
         date:'2026-10-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, cliquer sur un bouton du menu ne fait plus jamais bouger la barre des menus (même quand la nouvelle page est plus courte).',
             'Sur PC, le menu de gauche a son propre défilement : la molette sur les menus ne fait défiler que les menus, et sur la zone de jeu que le jeu (sans barre de défilement ajoutée).',
             'La barre de vie ne saute plus quand la barre de magie ou d’énergie apparaît ou disparaît : le bandeau se referme et se rouvre en douceur, et la vie ne passe plus jamais par-dessus les boutons du dessous.',
             'La lueur de la cheminée est plus douce et plus ciblée : de petites lueurs s’allument sur les bords de l’écran, à des endroits qui changent, au lieu d’une lumière qui s’allume et s’éteint.',
@@ -71,13 +72,16 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Les récipients (boîte de Petri, verres, calice) sont transparents : on voit à travers eux la bibliothèque et la planche, légèrement agrandies et déformées comme à travers du verre ; le sang est un peu translucide.',
+            'Le ventre de la sangsue est vert, texturé (granulation et anneaux) et à peine translucide : les boules de sang, centrées, sont vues à travers sa peau (elles paraissent verdâtres, à l’intérieur du ventre) et s’arrêtent pile au point noir de l’anus, sans rien dépasser dessous.',
+            'Deuxième rituel : le récipient qui attend son tour arrive maintenant devant la manche de Rincevent, et non plus derrière.',
+            'La sangsue a maintenant un seul tuyau d’une pièce, du cou jusqu’à son gros anus, de la même couleur que sa tête (qui passe au-dessus) : le sang, plus petit, passe entièrement dedans jusqu’au point noir, et son arrière-train grossit à mesure que le sang arrive puis rétrécit quand il sort.',
+            'Les récipients (boîte de Petri, verres, calice) sont transparents : on voit à travers eux la bibliothèque et la planche ; le sang est un peu translucide.',
             'Quatrième rituel : le personnage saigne dès que le fil barbelé touche sa bouche, et le calice ne se remplit plus qu’au moment où une goutte de sang arrive dans le liquide.',
             'Une bibliothèque occupe le fond de chaque rituel : livres rangés, crânes, bougies. Plus on avance dans les rituels, plus elle se remplit de livres et d’objets de sorcellerie (corbeau, pendentif pentacle, fiole, grimoire ouvert…). Elle est vue différemment selon la distance de la table : plus petite, floue et sombre quand la table est très proche, plus grande et nette quand elle est loin.',
             'Sur la planche des quatre premiers rituels, les ombres des récipients vont toutes dans le même sens : la lumière vient de la gauche et allonge un peu leurs ombres vers la droite.',
             'Les deux premiers rituels ont eux aussi la planche penchée, mais beaucoup plus proche de l’écran : grosse et épaisse, tout en bas, avec le récipient posé dessus, ce qui donne de la profondeur.',
             'Le compte à rebours d’un rituel affiche la vraie durée, même sous la seconde (par exemple « 0,2 s » au lieu de « 1 s »).',
-            'Quatrième rituel : un personnage avale un bol de fil barbelé, derrière une planche penchée posée au premier plan (la même que celle de la sangsue). Il reste immobile pendant le niveau ; quand le niveau se termine, l’animation se joue d’un trait, puis du sang jaillit de sa bouche, retombe jusqu’au liquide déjà dans le calice et éclabousse — plus il se termine de niveaux pendant l’animation, plus il y a de sang. Sans énergie, il sort de la case par la gauche.',
+            'Quatrième rituel : un personnage avale un bol de fil barbelé, derrière une planche penchée posée au premier plan (la même que celle de la sangsue). Il reste immobile pendant le niveau ; quand le niveau se termine, l’animation se joue d’un trait, puis il crache un filet de sang courbé qui va droit dans le calice, jusqu’au liquide, et éclabousse — plus il se termine de niveaux pendant l’animation, plus le filet est épais, et il coule sans interruption à haut niveau. Sans énergie, il sort de la case par la gauche.',
             'Rituel de la sangsue : sans énergie, le personnage glisse hors de la case vers la gauche (la sangsue reste sur son porte-sangsue et dort) ; quand tu mets de l’énergie, il revient se placer, puis la succion reprend.',
             'La sangsue du premier rituel n’est plus en l’air : une planche un peu penchée, en bas, porte le verre, et un porte-sangsue posé dessus la soutient.',
             'Quand il manque de l’Or, la punaise et la feuille s’immobilisent au contact au lieu de continuer à bouger.',
