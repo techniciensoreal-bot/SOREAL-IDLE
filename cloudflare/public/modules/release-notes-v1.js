@@ -79,6 +79,9 @@
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'L’image de l’ordinateur est recadrée, sans la partie vide du bas. Placer une ressource ne fait plus défiler la page.',
+          ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Dans l’onglet « Global » de Chroniques, le boss d’un joueur plus avancé que toi est masqué : tu ne vois pas jusqu’où les autres sont allés.',
           ]}
         ]
       },

@@ -23016,11 +23016,13 @@ function pageAventureIdleV28_(j){
             return (a.rangs&&a.rangs[onglet]||0)-(b.rangs&&b.rangs[onglet]||0)||String(a.nom).localeCompare(String(b.nom),'fr');
           });
         }
+        /* Onglet Global (Norman, 2026-10-11) : le boss d'un autre joueur plus avancé que le tien s'affiche « Boss ??? » (anti-spoil : tu ne vois pas jusqu'où les autres sont allés). */
+        const monBoss=(function(){const m=entrees.find(function(x){return x&&x.moi;});return m?idleEntier_(m.valeurs&&m.valeurs.boss):0;})();
         const corps=lignes.map(function(e){
           const rang=onglet==='global'?e.rang:(e.rangs&&e.rangs[onglet]);
           const medaille=rang===1?'🥇':(rang===2?'🥈':(rang===3?'🥉':rang));
           const valeur=onglet==='global'
-            ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss)+'</span>'
+            ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+(idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss))+'</span>'
             :'<b>'+valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet])+'</b>';
           return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
             '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
