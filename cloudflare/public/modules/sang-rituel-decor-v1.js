@@ -877,6 +877,8 @@ function css(){
     /* traces d'impact : un trou sur le bout du doigt, des coupures sur le bras ; fondu rapide à l'apparition, fondu LENT à la disparition (quand le rituel s'arrête) */
     P+'.bm-trace{position:absolute;z-index:5;pointer-events:none;opacity:0;transition:opacity 1.8s ease-out}',
     P+'.bm-scene.bm-marque .bm-trace{opacity:1;transition:opacity .25s ease-out}',
+    /* Quand la Magie est retirée, le bras (ou le doigt) repart et la cicatrice disparaît d'un coup avec lui : elle ne reste pas flottante pendant le fondu (Norman, 2026-10-11). */
+    P+'.bm-scene.bm-hors .bm-trace{opacity:0;transition:opacity .1s linear}',
     P+'.bm-trace-trou{left:calc(var(--px) - 6px);top:86px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#2a0309 0 22%,#b3102a 24% 52%,rgba(179,16,42,.35) 54% 70%,transparent 72%)}',
     P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
