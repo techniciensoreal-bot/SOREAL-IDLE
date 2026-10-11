@@ -1,18 +1,22 @@
 /*
  * SOREAL IDLE — le Coffre rote et pète de temps en temps, au hasard (Norman, 2026-10-10 : « que le coffre rote et pète aléatoirement avec un son que tu vas créer »).
- * Un minuteur tire un délai entre 25 et 70 secondes ; quand il sonne, le Coffre est à l'écran et l'onglet visible, le son (6 rots, 6 pets, modules/audio-coffre-v1.js) est joué par le moteur audio
- * (donc coupé avec les effets sonores) et le Coffre se trémousse un instant. Sinon on réessaie un peu plus tard : jamais de bruit hors de vue.
+ * Le Coffre rote ou pète AU HASARD, mais seulement pendant qu'on le VOIT (Norman, 2026-10-11 : « quand il est à l'écran, aléatoirement ; sinon ça n'a pas de sens ») : le minuteur ne compte QUE le temps où au moins la moitié
+ * du Coffre est dans la fenêtre et l'onglet visible ; il tire un délai entre 20 et 55 secondes de présence à l'écran, puis le son (6 rots, 6 pets, modules/audio-coffre-v1.js) est joué par le moteur audio (donc coupé avec les
+ * effets sonores) et le Coffre se trémousse. Hors de vue, le minuteur est en pause (il ne se « charge » plus en arrière-plan) : on ne l'entend jamais en arrivant sur la page parce qu'un délai était écoulé ailleurs.
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__)return;
-  var MIN=25000,MAX=70000;
+  var MIN=20000,MAX=55000,PAS=500;
 
   function coffreVisible_(){
     var el=document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');
     if(!el||typeof el.getBoundingClientRect!=='function')return null;
-    var r=el.getBoundingClientRect(),h=window.innerHeight||document.documentElement.clientHeight;
-    return r.width>0&&r.height>0&&r.bottom>0&&r.top<h?el:null;
+    var r=el.getBoundingClientRect(),h=window.innerHeight||document.documentElement.clientHeight,w=window.innerWidth||document.documentElement.clientWidth;
+    if(!(r.width>0&&r.height>0))return null;
+    /* au moins la moitié de sa surface dans la fenêtre */
+    var vis=Math.max(0,Math.min(r.bottom,h)-Math.max(r.top,0))*Math.max(0,Math.min(r.right,w)-Math.max(r.left,0));
+    return vis>=r.width*r.height*0.5?el:null;
   }
   function tremousser_(el,type){
     var c=type==='pet'?'bg-pete-v1':'bg-rote-v1';
@@ -59,13 +63,14 @@
     tremousser_(el,type);
     return true;
   }
-  function suivant_(){
-    setTimeout(function(){
-      var type=Math.random()<.5?'rot':'pet';
-      if(jouer_(type))suivant_();
-      else setTimeout(suivant_,8000);
-    },MIN+Math.random()*(MAX-MIN));
+  /* Temps passé Coffre à l'écran depuis le dernier bruit, et délai tiré au sort : le minuteur n'avance que si le Coffre est vu. */
+  var vu=0,cible=MIN+Math.random()*(MAX-MIN);
+  function pas_(){
+    if(document.hidden||!coffreVisible_())return;
+    vu+=PAS;
+    if(vu<cible)return;
+    if(jouer_(Math.random()<.5?'rot':'pet')){vu=0;cible=MIN+Math.random()*(MAX-MIN);}
   }
-  suivant_();
-  window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__={jouer:jouer_};
+  setInterval(pas_,PAS);
+  window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__={jouer:jouer_,pas:pas_,visible:coffreVisible_};
 })();

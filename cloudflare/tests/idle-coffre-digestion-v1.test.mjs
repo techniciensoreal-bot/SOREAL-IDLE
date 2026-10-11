@@ -10,7 +10,30 @@ const themes = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 assert.equal((son.match(/\{id:'rot-(grave|aigu|double|long|gazeux|pardon)'/g) || []).length, 6, "six rots");
 assert.equal((son.match(/\{id:'pet-/g) || []).length, 6, "six pets");
 assert.ok(son.includes("jouerDigestion") && effets.includes("coffreRot") && effets.includes("coffrePet"), "sons branchés sur le moteur audio");
-assert.ok(dig.includes("MIN=25000,MAX=70000") && dig.includes("document.hidden") && dig.includes("coffreVisible_"), "au hasard, jamais hors de vue");
+assert.ok(dig.includes("MIN=20000,MAX=55000,PAS=500") && dig.includes("document.hidden") && dig.includes("coffreVisible_"), "au hasard, jamais hors de vue");
+/* Norman (2026-10-11) : le minuteur ne compte QUE le temps où le Coffre est à l'écran (jamais de bruit « en retard » à l'arrivée sur la page). */
+{
+  const vm = await import("node:vm");
+  let visible = true, cache = false, joues = 0, tic = null;
+  const el = { classList: { remove() {}, add() {} }, getBoundingClientRect() { return visible ? { top: 100, bottom: 300, left: 0, right: 200, width: 200, height: 200 } : { top: 2000, bottom: 2200, left: 0, right: 200, width: 200, height: 200 }; }, appendChild() {} };
+  const document = { querySelector: () => el, createElement: () => ({ setAttribute() {}, style: {}, classList: { add() {} } }), documentElement: { clientHeight: 800, clientWidth: 1200 }, get hidden() { return cache; } };
+  const window = { innerHeight: 800, innerWidth: 1200, __SOREAL_IDLE_AUDIO_V199__: { play() { joues += 1; } } };
+  vm.runInNewContext(dig, { window, document, setInterval: (f) => { tic = f; return 1; }, setTimeout() {}, Math: Object.assign(Object.create(Math), { random: () => 0 }), console });
+  // 60 s hors de vue : rien, et le minuteur ne se charge pas
+  visible = false;
+  for (let i = 0; i < 120; i += 1) tic();
+  assert.equal(joues, 0, "hors de l'écran : aucun bruit");
+  // il revient à l'écran : il faut ATTENDRE le délai (20 s au minimum) avant le premier bruit
+  visible = true;
+  for (let i = 0; i < 39; i += 1) tic();
+  assert.equal(joues, 0, "à l'arrivée, aucun bruit tout de suite (19,5 s de présence seulement)");
+  tic(); tic();
+  assert.equal(joues, 1, "après son délai passé À L'ÉCRAN, il rote ou pète");
+  // onglet caché : pause
+  cache = true;
+  for (let i = 0; i < 400; i += 1) tic();
+  assert.equal(joues, 1, "onglet caché : rien");
+}
 assert.ok(html.includes("/modules/coffre-digestion-v1.js"), "module chargé");
 assert.ok(themes.includes("0 0/90px 36px repeat-x") && !themes.includes("0 0/90px 22px repeat-x"), "étoiles de la magie sur toute la hauteur de la barre");
 assert.ok(themes.includes("@keyframes sorealHudSigle{0%{opacity:0;") && /100%\{opacity:0;transform:translate\(8px/.test(themes), "grands sigles : fondu d'entrée et de sortie, un seul sens");
