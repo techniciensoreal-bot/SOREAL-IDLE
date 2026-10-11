@@ -11,43 +11,38 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.5',
+    courante:'2.6',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.',
     versions:[
+      {
+        version:'2.6',
+        nom:'Tout en direct',
+        date:'2026-10-11',
+        points:[
+          'La barre qui tique de plus en plus vite se met à jour en direct (plus besoin de changer de menu pour la voir accélérer), et chaque menu dont les chiffres bougent seuls est vérifié : il suit le jeu en temps réel quand tu y es.',
+          'L’auto-kill donne maintenant son butin quand tu es connecté ; hors ligne il ne donne toujours que l’EXP, l’Or, les AP, PP et QP, comme dans le jeu d’origine.',
+          'Inventaire sur téléphone : les pièces équipées sont dans un cadre sans titre, aux cases de la taille de celles du sac. Quand tu descends la page, une languette sous le haut de l’écran tire un volet par-dessus la page pour fusionner ou booster sans remonter ; il disparaît quand tu remontes. Une barre de défilement incrustée à droite de l’inventaire (les cadres se rétrécissent pour lui faire de la place) fait défiler la page sans jamais attraper une pièce.',
+          'Le Coffre ne rote et ne pète que pendant que tu le vois, et il s’excuse après son pet, avec plusieurs phrases tirées au hasard.',
+          'Chaque barre qui a + − Max a aussi un bouton « 0 » qui retire toute l’énergie de cette barre seulement, et la tour affiche un compte à rebours avant le prochain combat.',
+          'Augmentations : une piste sans énergie ne progresse plus jamais, les valeurs ont été relues contre le wiki (toutes conformes), les cibles et « Faire suivre l’énergie » sont gardés après une Renaissance, et le reflet des barres ne brille que sur la partie remplie.',
+          'Les rails bleu et rouge de la borne ne dépassent plus au-dessus du haut de la borne.',
+        ]
+      },
       {
         version:'2.5',
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
-          'L’auto-kill donne maintenant son butin quand tu es connecté ; hors ligne il ne donne toujours que l’EXP, l’Or, les AP, PP et QP, comme dans le jeu d’origine.',
-          'Inventaire sur téléphone : les pièces équipées sont dans un cadre sans titre, aux cases de la taille de celles du sac. Quand tu descends la page, une languette sous le haut de l’écran tire un volet par-dessus la page pour fusionner ou booster sans remonter ; il disparaît quand tu remontes. Une barre de défilement incrustée à droite de l’inventaire (les cadres se rétrécissent pour lui faire de la place) fait défiler la page sans jamais attraper une pièce.',
-          'Le Coffre s’excuse après son pet, et non plus en même temps, avec plusieurs phrases tirées au hasard.',
-          'Chaque barre qui a + − Max a aussi un bouton « 0 » qui retire toute l’énergie de cette barre seulement, et la tour affiche un compte à rebours avant le prochain combat.',
-          'L’Or est contrôlé en direct dans tous les menus qui en demandent (Augmentations, rituels…) : l’Or produit entre deux synchronisations est ajouté tout de suite, donc plus de temps d’arrêt ni de petit retour en arrière sur les niveaux achetés.',
-          'Augmentations : quand l’Or manque pour plusieurs pistes à la fois, c’est celle dont le prochain niveau coûte le moins qui est servie en premier.',
-          'Augmentations est refait : chaque paire montre ses deux pistes côte à côte, dans une même couleur avec une nuance plus claire pour la seconde (icône propre, tube de verre lumineux), avec une cible par piste et « Faire suivre l’énergie ». Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur.',
-          'Chaque barre qui porte de l’énergie se voit d’un coup d’œil : des particules propres à chaque menu (braises, étoiles, circuits, pièces, gouttes, orbes) l’animent, même quand sa barre est pleine.',
-          'Sur ordinateur, les petites écritures sont plus grandes (barres Input et Plafond, niveaux et cibles des NGU, calendrier, boutique, chat…) ; le téléphone ne change pas.',
-          'Le combat de boss et NGU sont de nouveau fluides : l’ombre de la borne n’est plus recalculée à chaque image, ses néons et ses boutons s’animent avec la carte graphique, et le liquide des NGU avance à chaque image au lieu de dix fois par seconde.',
-          'Un nouvel onglet des Chroniques, « Combat le plus long », range les joueurs selon leur plus long combat de boss mené jusqu’au bout (victoire ou défaite ; une fuite ne compte pas).',
-          'La paralysie ne décale plus l’interface : plus de phrase au-dessus, seuls les raccourcis passent au jaune. Le bouton Trier de l’inventaire montre enfin son icône, et l’Or par remplissage de la machine affiché est le vrai chiffre (Or par seconde ÷ remplissages par seconde), la base étant indiquée à part.',
-          'Page Aventure allégée : le journal de combat n’ajoute plus que les nouvelles lignes, la note « Prochain combat », l’icône du sac et la corbeille ne sont plus redessinés à chaque mise à jour (fini le clignotement de l’inventaire), et le reflet des tuiles du haut ne ralentit plus la page. Plus de popup quand on prend la fuite. Quand une barre de ressource réapparaît, l’ordre reste toujours Énergie, Magie, 3e ressource, puis Vie.',
-          'La chronique d’un boss s’affiche toute seule au moment où elle est lue pour la première fois, avec un bouton Play / Stop à la place de « Lire la chronique ». Dans la fiche d’un boss de la Collection, « Lire les chroniques à partir d’ici » enchaîne les chroniques avec un petit lecteur flottant (pause, stop) que tu peux déplacer où tu veux sur l’écran.',
-          'Récompenses de connexion : un jour raté ne te renvoie plus à la case 1. Sa case est simplement grisée, et à partir du mois prochain chaque jour raté retire 10 % aux récompenses restantes, lot final compris.',
-          'Les cadres Input, Plafond, Idle et total placé ont la même disposition propre dans tous les menus. Sur téléphone, la borne descend jusqu’au sol, ses boutons sont penchés comme leur planche et brillent quand ils sont disponibles. Le coffre est tout en bois, le bonus total d’attaque et de défense s’écrit « X 10.639 » et les effets de défilement des menus sont allégés. Une barre de ressource qui réapparaît se pose par-dessus l’interface sans rien décaler. Dans la barre de magie, deux couches d’étoiles et des runes couvrent toute la hauteur et de grands sigles apparaissent et s’effacent de temps en temps. Le Coffre rote et pète de temps en temps, au hasard (six bruits de chaque), en se trémoussant ; quand il pète, un petit nuage de fumée apparaît et il dit « Désolé », puis, très rarement, « J’étais à 2 doigts de chier sur tes affaires » avec une goutte de sueur. Les barres de vie ont de temps en temps des bulles plus foncées, comme dans du sang, et la borne d’arcade est plus grande sur ordinateur.',
-          'Chaque champ Input est propre à son menu. Dans NGU, le ciel n’a aucune étoile tant qu’aucune machine ne tourne ; plus tu en mets en route, plus les étoiles sont nombreuses et brillantes, au maximum quand toute l’énergie et toute la magie sont au maximum. Les particules de la barre de magie ne sautent plus en arrière.',
-          '« Combat de boss » devient une vraie borne d’arcade dessinée, identique sur PC et sur téléphone, avec la chronique du boss dans un cadre sous la borne (clique ou tape dessus pour l’agrandir ou la fermer ; une main te montre où toucher, une seule fois) : fronton lumineux, baguettes bleue et rouge qui luisent, boutons Fight, Fuite et NUKE lumineux quand ils sont disponibles et éteints sinon. La borne s’allume en clignotant, avec un bruit d’écran qui s’allume, une fois par Renaissance.',
-          'Le Trou sans fond (ancien Money Pit) est refait : image entière, roue journalière qui tourne avant d’annoncer le lot, calendrier de connexion resserré et placé en bas de page.',
-          'L’inventaire est refait : le Coffre est un coffre à pattes, à dents et à langue qui croque les objets (10 bruits d’avalement, 10 de crachat), dans son propre cadre de bois. Les icônes de l’inventaire sont dessinées.',
-          'Le Cube de l’infini annonce par une fenêtre quand il change de palier.',
-          'Plus aucune bulle d’aide du navigateur au survol ; les étoiles de NGU ne font plus ramer la page ; les barres de ressources épuisées ne laissent plus de cadre vide ; les barres d’Augmentations au maximum mettent leurs niveaux à jour en direct.',
-          'Les descriptions encore en anglais sont traduites (hors noms propres) et la version anglaise ne contient plus de français. Dans les succès, les numéros de boss restent cachés avant la victoire.',
-          'Page des succès refaite : tous les trophées sont des cases, en couleur avec une médaille bronze, argent, or, platine ou diamant quand ils sont obtenus, grisés sinon. Un objectif reste caché derrière des points d’interrogation tant que le boss indiqué n’est pas vaincu, et chaque case dit quel boss tuer pour voir les infos.',
-          '« En direct » annonce maintenant les Nuke (avec le nombre exact de boss tués), les objets transformés et les boosts versés dans le Cube ou dans une pièce, avec des phrases d’humour. Les noms de menus y sont en français et tout existe en anglais.',
-          'Les chiffres écrits en entier ont des points entre les milliers (10.000.000 au lieu de 10000000) : barres d’énergie, de magie et de troisième ressource, Entraînement de base et niveaux d’Augmentations.',
-          'Un clic droit (ou un double tap) sur un boost le fusionne avec tous les boosts de même chiffre et de même couleur, jusqu’au niveau 100.',
-          'Le journal de combat de l’Aventure a une hauteur fixe dès l’ouverture et ne décale plus la page. L’Entraînement de base dit « Place ton énergie pour augmenter ton attaque et ta défense. ».'
+          'Combat de boss : une vraie borne d’arcade dessinée, identique sur PC et sur téléphone, avec la chronique du boss dans un cadre sous la borne (elle s’affiche et se lit toute seule, avec un bouton Play / Stop). Ses néons et ses boutons s’animent en douceur, et la page est plus fluide.',
+          'Augmentations est refait : chaque paire montre ses deux pistes côte à côte, dans une même couleur avec une nuance plus claire pour la seconde, des tubes de verre lumineux, une cible par piste et « Faire suivre l’énergie ». L’Or est contrôlé en direct et, quand il manque, la piste la moins chère est servie en premier.',
+          'Les barres qui portent de l’énergie s’animent avec des particules propres à chaque menu. Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur, où les petites écritures sont aussi plus grandes. Chaque champ Input est propre à son menu.',
+          'NGU est en nuit étoilée : le ciel s’éclaire à mesure que des machines tournent, le liquide des tuyaux avance à chaque image et la page ne rame plus.',
+          'Récompenses de connexion : un jour raté grise sa case sans tout remettre à zéro, et chaque jour raté retire 10 % aux récompenses restantes à partir du mois prochain. Le Trou sans fond est refait (image entière, roue journalière).',
+          'L’inventaire est refait : un Coffre à pattes, à dents et à langue qui croque les objets (bruits d’avalement et de crachat, rots et pets), des icônes dessinées, un bouton Trier lisible, et un clic droit (ou double tap) qui fusionne les boosts de même chiffre et de même couleur jusqu’au niveau 100.',
+          'Un onglet des Chroniques, « Combat le plus long », range les joueurs selon leur plus long combat de boss mené jusqu’au bout (une fuite ne compte pas). La page des succès montre toutes ses cases, en couleur avec une médaille quand elles sont obtenues, grisées sinon.',
+          '« En direct » annonce les Nuke, les objets transformés et les boosts versés ; les grands nombres ont des points entre les milliers ; les descriptions encore en anglais sont traduites et la version anglaise ne contient plus de français.',
+          'La paralysie ne décale plus l’interface, la page Aventure est allégée (journal à hauteur fixe, moins de clignotements), le Cube annonce ses paliers, et plus aucune bulle d’aide du navigateur n’apparaît au survol.',
         ]
       },
       {

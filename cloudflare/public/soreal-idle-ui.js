@@ -2988,7 +2988,8 @@
           if(idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)idleEtat[cle]=idleRepereVisuelsV1_[cle];}
           else idleRepereVisuelsV1_[cle]=idleEtat[cle];
         });
-        if((IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
+        /* « machine » (Time Machine) : sa barre de l'Or tique de plus en plus vite quand le niveau de vitesse monte ; sans synchro périodique, il fallait changer de menu pour le voir (Norman, 2026-10-11). Les chiffres sont mis à jour EN PLACE à chaque synchro. */
+        if((IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower'||idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
           idleMenuViveSyncV1=Date.now();
           synchroniserJeuIdleV7_(true);
         }
@@ -5025,6 +5026,10 @@
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
             if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){
               try{rafraichirMenuRacineIdleV28_();}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('synchro_menu_vivant',e);}
+            }
+            /* Time Machine : à CHAQUE synchro, barres, comptes à rebours et chiffres (remplissages par seconde, Or par seconde, multiplicateurs) sont mis à jour en place, quel que soit le chemin pris par la synchro (Norman, 2026-10-11 : la barre qui tique de plus en plus vite ne se mettait pas à jour). */
+            if(idleMenuActifV28==='machine'&&idleEtat&&idleEtat.systemes&&idleEtat.systemes.timeMachineView){
+              try{patcherBarresTimeMachineIdleV1_(idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('machine_synchro',e);}
             }
             /* ITOPOD : seuls les chiffres sont mis à jour (la scène animée et les champs d'étage ne sont jamais redessinés). */
             if(idleMenuActifV28==='tower'&&idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'){
