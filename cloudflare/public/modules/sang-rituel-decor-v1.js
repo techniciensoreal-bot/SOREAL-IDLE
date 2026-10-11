@@ -442,7 +442,7 @@ function scene(opts){
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
   return '<div class="bm-scene'+(marque?' bm-marque':'')+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
-      '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
+      '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+'</div></div>'+
       source(opts.id)+
       (SOURCES[opts.id]==='sucon'
         ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i></div>'
@@ -495,7 +495,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98,punaise:92,sucon:156};
+var DEPART_GOUTTE={papier:98,punaise:92,sucon:145};
 /* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
 var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
@@ -529,6 +529,109 @@ function poserMarque(sc,id){
   if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
 }
 var secVue={};
+/*
+ * SANGSUE (Norman, 2026-10-11) : le ventre est vide au départ ; chaque niveau terminé = UN petit paquet de sang absorbé par la bouche, qui avance dans le ventre coup par coup, au rythme des succions
+ * (déplacement fluide à chaque coup, puis repos). Plus les niveaux sont rapides, plus les paquets sont rapprochés ; au plus rapide, tout le ventre est plein et le sang coule sans arrêt.
+ * m = nombre de coups (cases) entre deux paquets ; le ventre compte K cases (multiple de m : un paquet atteint la queue exactement quand un niveau se termine) ; S = durée d'un coup = P / m.
+ * L'horloge est calée sur la barre du moteur (niveau terminé = barre qui repart de zéro), jamais sur une minuterie indépendante.
+ */
+var PAQ_CASES=6;
+function phaseBarre(sc){
+  var bar=sc.querySelector('.bm-sang');
+  var ab=bar&&(bar.__idleAugAnimationV217||(typeof bar.getAnimations==='function'?bar.getAnimations()[0]:null));
+  var t=ab&&ab.effect&&typeof ab.effect.getComputedTiming==='function'?ab.effect.getComputedTiming():null;
+  return t&&t.progress!=null?Number(t.progress):null;
+}
+function garantirPas(m){
+  var id='sorealIdleSangPaquetsV1';
+  var st=document.getElementById(id);
+  if(!st){st=document.createElement('style');st.id=id;st.setAttribute('data-m','');document.head.appendChild(st);}
+  var deja=(st.getAttribute('data-m')||'').split(',');
+  if(deja.indexOf(String(m))>=0)return;
+  var K=m*Math.ceil(PAQ_CASES/m),Jn=Math.ceil(PAQ_CASES/m),out='',j,i,pos=function(c){return (c/K*100).toFixed(3)+'%';};
+  for(j=0;j<Jn;j++){
+    out+='@keyframes bmPaq'+m+'x'+j+'{';
+    for(i=0;i<m;i++){
+      out+=(i/m*100).toFixed(3)+'%{left:'+pos(j*m+i)+';animation-timing-function:ease-in-out}';
+      out+=((i+0.62)/m*100).toFixed(3)+'%{left:'+pos(j*m+i+1)+';animation-timing-function:linear}';
+    }
+    out+='100%{left:'+pos((j+1)*m)+'}}';
+  }
+  st.appendChild(document.createTextNode(out));
+  deja.push(String(m));st.setAttribute('data-m',deja.join(','));
+}
+function sangsue(sc,sec,actif){
+  var cont=sc.querySelector('.bm-paquets-corps');
+  if(!cont)return;
+  var paq=cont.children,i;
+  if(!actif||!(sec>0)){
+    for(i=0;i<paq.length;i++)if(paq[i].classList.contains('on'))paq[i].classList.remove('on');
+    sc.__t0=0;sc.__cle='';
+    if(sc.classList.contains('bm-continu'))sc.classList.remove('bm-continu');
+    sc.style.removeProperty('--bm-pas');
+    return;
+  }
+  var P=Math.max(PERIODE_MIN,sec);
+  var m=P<3?Math.max(1,Math.round(P/0.5)):PAQ_CASES;
+  var K=m*Math.ceil(PAQ_CASES/m),Jn=Math.ceil(PAQ_CASES/m),S=P/m;
+  /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
+  var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
+  var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
+  var attente=(pbBrut==null&&!!barre&&/scaleX(1)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
+  var pb=pbBrut==null?0:pbBrut;
+  var maintenant=performance.now()/1000;
+  var cle=m+'|'+P.toFixed(2);
+  if(sc.__cle!==cle){
+    sc.__cle=cle;sc.__t0=maintenant-pb*P;   /* nouvelle cadence : le ventre repart vide */
+    garantirPas(m);
+    cont.style.setProperty('--bm-k',String(K));
+    sc.style.setProperty('--bm-pas',S.toFixed(3)+'s');
+    for(i=0;i<paq.length;i++){
+      paq[i].classList.remove('on');
+      paq[i].style.animation=i<Jn?'bmPaq'+m+'x'+i+' '+P.toFixed(3)+'s linear infinite':'none';
+    }
+    void cont.offsetWidth;
+    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=pb*P*1000;}
+  }else{
+    /* recalage doux sur la barre du moteur */
+    var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
+    if(pbBrut!=null&&t0&&t0.progress!=null){
+      var d=Math.abs(Number(t0.progress)-pb);
+      if(Math.min(d,1-d)>0.04)for(i=0;i<Jn;i++){var ai=paq[i].getAnimations()[0];if(ai)ai.currentTime=pb*P*1000;}
+    }
+  }
+  for(i=0;i<Jn;i++){
+    var aw=paq[i].getAnimations&&paq[i].getAnimations()[0];
+    if(!aw)continue;
+    if(attente){if(aw.playState!=='paused'){aw.pause();aw.currentTime=P*995;}}
+    else if(aw.playState==='paused')aw.play();
+  }
+  /* la bouche suce au rythme des coups : une contraction par pas */
+  var bo=sc.querySelector('.bm-bouche'),ab=bo&&bo.getAnimations?bo.getAnimations()[0]:null;
+  if(ab&&ab.effect&&pbBrut!=null){
+    var tb=ab.effect.getComputedTiming(),pr=((pb*P)%S)/S;
+    if(tb&&tb.progress!=null){var dd=Math.abs(Number(tb.progress)-pr);if(Math.min(dd,1-dd)>0.06)ab.currentTime=pr*S*1000;}
+  }
+  /* un paquet de plus à chaque niveau terminé depuis le début du rituel : le ventre n'est jamais plein d'emblée */
+  var niv=Math.floor((maintenant-sc.__t0)/P);
+  for(i=0;i<paq.length;i++){
+    var vis=i<Jn&&i<=niv;
+    if(paq[i].classList.contains('on')!==vis)paq[i].classList.toggle('on',vis);
+  }
+  if(sc.classList.contains('bm-continu')!==(m===1))sc.classList.toggle('bm-continu',m===1);
+}
+/* Le jet de la sangsue part au moment précis où le sang arrive au bout de son ventre : en boucle, son horloge est recalée sur celle de la barre (même phase, début du jet = barre pleine qui repart de zéro). */
+function aligner(sc){
+  var bar=sc.querySelector('.bm-sang'),f=sc.querySelector('.bm-filet');
+  if(!bar||!f||typeof f.getAnimations!=='function')return;
+  var ab=bar.__idleAugAnimationV217||(typeof bar.getAnimations==='function'?bar.getAnimations()[0]:null),af=f.getAnimations()[0];
+  if(!ab||!af||!ab.effect||!af.effect)return;
+  var tb=ab.effect.getComputedTiming(),tf=af.effect.getComputedTiming();
+  var pb=tb&&tb.progress!=null?Number(tb.progress):null,df=tf?Number(tf.duration):0;
+  if(pb==null||!(df>0)||tf.progress==null)return;
+  var d=Math.abs(pb-Number(tf.progress));
+  if(Math.min(d,1-d)>0.05)af.currentTime=pb*df;
+}
 function rythme(sc,id,n,avant){
   var src=sc.getAttribute('data-source');
   if(src==='sucon'){
@@ -564,6 +667,10 @@ function rythme(sc,id,n,avant){
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
   }
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);
+  if(src==='sucon'){
+    if(mode==='boucle')aligner(sc);
+    sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse);
+  }
   /* Boucle : la trace est posée à l'instant EXACT du premier impact, lu sur l'animation en cours (jamais sur une minuterie indépendante). */
   if(mode==='boucle'&&progresse&&!sc.classList.contains('bm-marque')&&!sc.__marq){
     var cible=src==='punaise'?sc.querySelector('.bm-punaise'):sc.querySelector('.bm-papier');
@@ -766,12 +873,20 @@ function css(){
     P+'.bm-scene[data-source="sucon"]{--th:28px}',
     P+'.bm-scene[data-source="sucon"] .bm-ver{border-radius:10px}',
     P+'.bm-scene[data-source="sucon"] .bm-tuyau{-webkit-mask:none!important;mask:none!important;border-radius:10px;border:1.3px solid #000;box-sizing:border-box;background:linear-gradient(180deg,#6b5a26 0,#2e2c14 50%,#101208 100%)}',
-    P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{background:linear-gradient(180deg,transparent 14%,rgba(232,128,30,.85) 16% 30%,transparent 32%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 36%,rgba(0,0,0,.28) 100%)!important;border-radius:10px}',
-    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:48px;height:56px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{background:linear-gradient(180deg,rgba(255,255,255,.3) 0,rgba(255,255,255,0) 36%,rgba(0,0,0,.28) 100%)!important;border-radius:10px}',
+    /* le sang avance dans le ventre comme une barre d'avancement : il remplit toute l'épaisseur du corps, de la tête vers la queue, avec un front brillant */
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau{background:linear-gradient(180deg,#4a4020 0,#22210f 50%,#0c0d06 100%)}',
+    /* la barre pleine est remplacée par des paquets de sang qui avancent dans le ventre (la barre du moteur reste là, invisible, pour donner l'heure) */
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau .bm-sang{opacity:0}',
+    P+'.bm-paquets-corps{--bm-k:6;position:absolute;inset:2px 0;z-index:1;overflow:hidden;border-radius:9px;pointer-events:none;display:none}',
+    P+'.bm-tuyau.saigne-v1 .bm-paquets-corps{display:block}',
+    P+'.bm-paquet{position:absolute;top:0;bottom:0;left:0;width:calc(100% / var(--bm-k,6) - 3px);margin-left:1.5px;border-radius:46%;background:radial-gradient(ellipse at 34% 26%,#ffa3b0 0,#e0203c 46%,#7a0a1c 100%);box-shadow:inset -2px -3px 4px rgba(60,0,10,.55),0 0 5px rgba(255,40,70,.5);display:none}',
+    P+'.bm-paquet.on{display:block}',
+    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:48px;height:56px;z-index:6;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
-    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 24px)}',
+    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 21px);z-index:7}',
     P+'.bm-trace-sucon{left:8px;top:80px;width:40px;height:62px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
-    P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
+    P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce var(--bm-pas,1.1s) ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
     /* gouttes qui tombent du bout du tuyau dans le calice */
@@ -782,6 +897,7 @@ function css(){
     /* filet de sang : invisible au repos ; un jet par niveau terminé (il s'allonge depuis l'embout, tient, puis s'effile par le haut : il ne surgit ni ne disparaît d'un coup) ; niveaux très courts : le jet se répète à leur rythme */
     P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;transform-origin:50% 0;transform:scaleY(0);clip-path:inset(0)}',
     P+'.bm-scene.bm-jet .bm-filet{animation:bmJet 1.9s ease-in-out 1 both}',
+    P+'.bm-scene.bm-continu:has(.bm-tuyau.saigne-v1) .bm-filet{animation:none!important;opacity:.95!important;transform:scaleY(1)!important;clip-path:inset(0)!important}',
     P+'.bm-scene[data-rythme="boucle"]:has(.bm-tuyau.saigne-v1) .bm-filet{animation:bmJet var(--bm-t,1s) linear infinite}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
     /* calice */

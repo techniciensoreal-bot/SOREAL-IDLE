@@ -66,7 +66,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Quand un rituel a un tuyau, le sang le traverse pendant tout le niveau, puis coule une seule fois dans le récipient quand le niveau se termine : plus de filet qui coule sans arrêt.',
+            'Quand un rituel absorbe le sang, il l’avance par petits paquets (un par niveau), coup par coup, et le sang coule dans le récipient quand un paquet arrive au bout. Plus les niveaux sont rapides, plus les paquets sont rapprochés, jusqu’au flux continu.',
             'Les boutons de tous les rituels restent alignés, même quand aucune Magie n’est allouée.',
             'Les rituels suivants sont redessinés à leur tour, avec de vraies illustrations dessinées à la main.',
             'La page prend l’ambiance d’un rituel : bougies, pentacle qui tourne, et des tuyaux qui grossissent d’un rituel à l’autre.',
