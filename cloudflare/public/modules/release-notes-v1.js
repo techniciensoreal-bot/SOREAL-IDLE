@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Le Coffre s’excuse après son pet, et non plus en même temps, avec plusieurs phrases tirées au hasard.',
           'Chaque barre qui a + − Max a aussi un bouton « 0 » qui retire toute l’énergie de cette barre seulement, et la tour affiche un compte à rebours avant le prochain combat.',
           'L’Or est contrôlé en direct dans tous les menus qui en demandent (Augmentations, rituels…) : l’Or produit entre deux synchronisations est ajouté tout de suite, donc plus de temps d’arrêt ni de petit retour en arrière sur les niveaux achetés.',
           'Augmentations : quand l’Or manque pour plusieurs pistes à la fois, c’est celle dont le prochain niveau coûte le moins qui est servie en premier.',

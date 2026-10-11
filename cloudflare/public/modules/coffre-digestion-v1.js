@@ -8,6 +8,9 @@
   'use strict';
   if(window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__)return;
   var MIN=20000,MAX=55000,PAS=500;
+  /* Les excuses d'un pet, tirées au sort, et le délai avant qu'elles apparaissent (le temps du bruit). */
+  var EXCUSES=['Désolé','Oups','Vous avez entendu ?','Il y a de l’orage on dirait'];
+  var DELAI_EXCUSE=1100;
 
   function coffreVisible_(){
     var el=document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');
@@ -43,14 +46,16 @@
     f.innerHTML='<i></i><i></i><i></i>';
     el.appendChild(f);retirer_(f,2300);
     var rare=Math.random()<.125;
-    retirer_(bulle_(el,'Désolé',false,0),2300);
+    /* La bulle ne sort qu'APRÈS le pet (Norman, 2026-10-11) : la fumée part tout de suite, l'excuse suit une fois le bruit terminé ; la phrase est tirée au sort. */
+    var excuse=EXCUSES[Math.floor(Math.random()*EXCUSES.length)];
+    retirer_(bulle_(el,excuse,false,DELAI_EXCUSE),DELAI_EXCUSE+2300);
     if(rare){
-      var seconde=bulle_(el,'J’étais à 2 doigts de chier sur tes affaires',true,1900);
+      var seconde=bulle_(el,'J’étais à 2 doigts de chier sur tes affaires',true,DELAI_EXCUSE+1900);
       var g=document.createElement('span');
-      g.className='bg-sueur-v1';g.setAttribute('aria-hidden','true');g.style.animationDelay='2000ms';
+      g.className='bg-sueur-v1';g.setAttribute('aria-hidden','true');g.style.animationDelay=(DELAI_EXCUSE+2000)+'ms';
       g.innerHTML='<svg viewBox="0 0 12 18"><path d="M6 1 C6 1 1.2 8 1.2 11.6 A4.8 4.8 0 0 0 10.8 11.6 C10.8 8 6 1 6 1 Z" fill="#8fd6ff" stroke="#2a6f9e" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.6 11.2 A2.6 2.6 0 0 0 5.6 14" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>';
       el.appendChild(g);
-      retirer_(seconde,5600);retirer_(g,5000);
+      retirer_(seconde,DELAI_EXCUSE+5600);retirer_(g,DELAI_EXCUSE+5000);
     }
   }
   function jouer_(type){

@@ -6307,3 +6307,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-manne
 .soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-icon-v1{filter:grayscale(1) brightness(.78);opacity:.82}
 .soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-name-v1{opacity:.75}
 .soreal-idle-collection-card-v1.nonmax:hover .soreal-idle-collection-card-icon-v1{filter:grayscale(.6) brightness(.9);opacity:1}
+/* Le mot « Titans » du menu brille quand un Titan est prêt (Norman, 2026-10-11) : filtre seulement (animé par la carte graphique), boucle sans à-coup. */
+@keyframes soreal-idle-nav-titans-brille-v1{0%,100%{filter:brightness(1) drop-shadow(0 0 2px rgba(255,176,0,.7))}50%{filter:brightness(1.7) drop-shadow(0 0 9px rgba(255,214,74,1))}}
+.soreal-idle-nav-titans-brille-v1{display:inline-block;color:#ffe27a;animation:soreal-idle-nav-titans-brille-v1 1.5s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1{animation:none;filter:drop-shadow(0 0 6px rgba(255,214,74,.9))}}

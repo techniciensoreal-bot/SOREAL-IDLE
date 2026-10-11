@@ -12589,6 +12589,19 @@
         }catch(e){}
         return m.nom;
       }
+      /*
+       * Quand un Titan est prêt à être affronté (et ne se tue pas tout seul), le mot « Titans » du menu brille pour attirer l'œil (Norman, 2026-10-11). Même condition que le bouton « Titans » de la page Aventure.
+       */
+      function htmlNomMenuIdleV1_(m,j){
+        const nom=nomMenuIdleV1_(m,j);
+        if(m.id==='aventure'&&/ & Titans$/.test(nom)){
+          try{
+            const api=window.__SOREAL_IDLE_TITANS_V1__;
+            if(api&&typeof api.disponible==='function'&&api.disponible(j))return idleHtml_(nom.slice(0,-6))+'<span class="soreal-idle-nav-titans-brille-v1">Titans</span>';
+          }catch(e){}
+        }
+        return idleHtml_(nom);
+      }
       function navigationIdleV28_(j){
         if(idleMenuActifV28!=='shop'&&window.__SOREAL_IDLE_BOUTIQUE_V1__)window.__SOREAL_IDLE_BOUTIQUE_V1__.reinitialiserVisite();
         const menus=menusOrdonnesIdleV1_(j);
@@ -12644,7 +12657,7 @@
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
                   <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
-                  <span class="soreal-idle-nav-texte-v2"><b>${idleHtml_(nomMenuIdleV1_(m,j))}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
+                  <span class="soreal-idle-nav-texte-v2"><b>${htmlNomMenuIdleV1_(m,j)}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
                 </button>
               `;
             }).join('')}
