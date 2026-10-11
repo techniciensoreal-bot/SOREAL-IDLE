@@ -441,13 +441,18 @@ function echanger(sc,type){
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
 var DEPART_GOUTTE={papier:98,punaise:92};
+/* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
+var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
   var d=DEPART_GOUTTE[source];
   if(!d)return null;
   var c=CONTENANTS[type]||CONTENANTS.calice;
   var echelle=(window.matchMedia&&window.matchMedia('(max-width:560px)').matches)?0.88:1;
   var t=c.depart-c.haut*Math.max(0,Math.min(1,fraction));
-  var y=(sh-vb)-(vh-t*(vh/c.h))*echelle;
+  var k=vh/c.h;
+  var y=(sh-vb)-(vh-t*k)*echelle;
+  var pl=PLAFOND_GOUTTE[source];
+  if(pl)y=Math.min(y,(sh-vb)-(vh-(pl.rim+pl.marge)*k)*echelle);
   return Math.max(24,Math.round(y-d));
 }
 function niveauLiquide(scene,fraction,c){
