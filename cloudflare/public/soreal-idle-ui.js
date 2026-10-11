@@ -16258,7 +16258,6 @@
             ${BORNE_FRONTON_IDLE_V2}
 
             <div class="soreal-idle-duel-v41">
-              ${borne.classe==='allumage'?'<i class="bn-ecran-noir" aria-hidden="true"></i>':''}
               <div class="soreal-idle-duel-versus-row-v42">
                 <div class="soreal-idle-duel-fighter-v42">
                   <div class="soreal-idle-duel-nameplate-v65 player">

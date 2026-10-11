@@ -49,12 +49,10 @@ for (const cue of ["t+.28", "[.45,.57,.72,.84,.98,1.10]", "[.64,.95,1.26]", "t+1
 for (const dly of ["calc(.3s - var(--tt", "calc(.42s - var(--tt", "calc(.5s - var(--tt", "calc(1.15s - var(--tt", "calc(1.9s - var(--tt", "calc(2.05s - var(--tt", "calc(2.2s - var(--tt"]) assert.ok(b2.includes(dly), "délai CSS " + dly);
 console.log("idle-borne-v2-v1: OK");
 
-// Écran éteint = écran noir (Norman, 2026-10-11) : un voile noir couvre le fond étoilé tant que la borne s'allume.
+// Fond de l'écran de la borne : noir uni, sans points lumineux (Norman, 2026-10-11).
 {
   const { readFileSync } = await import("node:fs");
-  const ui = readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
   const css = readFileSync(new URL("../public/soreal-idle-itopod.css", import.meta.url), "utf8");
-  assert.ok(ui.includes('class="bn-ecran-noir"') && ui.includes("borne.classe==='allumage'"), "le voile noir n'existe que pendant l'allumage");
-  assert.ok(css.includes("@keyframes bnEcranNoir") && css.includes(".allumage .bn-ecran-noir{position:absolute;inset:0;z-index:1;background:#000"), "voile noir animé");
-  console.log("idle-borne-v2-v1 (écran noir): OK");
+  assert.ok(css.includes("Fond de l'écran : noir uni, sans points lumineux") && !css.includes("bn-ecran-noir"), "fond noir uni");
+  console.log("idle-borne-v2-v1 (fond noir): OK");
 }
