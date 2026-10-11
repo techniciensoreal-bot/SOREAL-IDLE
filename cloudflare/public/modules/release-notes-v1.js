@@ -40,11 +40,17 @@
           {menu:'aventure', titre:'Aventure', points:[
             'Si tu retires (ou remplaces) une pièce qui augmente ton plafond d’énergie ou de magie, et que l’énergie déjà placée serait alors trop grande, le jeu refuse et te dit combien libérer d’abord.',
             'Le bouton Aventure ne clignote plus en rouge après une défaite.',
-            'L’auto-kill donne maintenant le butin quand tu es connecté. Hors ligne, il donne toujours seulement l’EXP, l’Or, les AP, PP et QP, comme dans le jeu d’origine.',
             'Sur téléphone, les pièces équipées sont dans un cadre sans titre, avec des cases de la même taille que celles du sac.',
             'Sur téléphone, quand tu descends dans l’inventaire, une languette tire un volet qui montre l’équipement par-dessus la page. Il disparaît quand tu remontes.',
             'Sur téléphone, une barre de défilement à droite de l’inventaire fait défiler la page sans jamais attraper une pièce.',
             'Le Coffre ne rote et ne pète que quand tu le vois, et il s’excuse après un pet avec des phrases variées.',
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Chaque Titan a sa propre case « Auto-kill » : cochée, le Titan est tué automatiquement.',
+            'L’auto-kill des Titans donne maintenant le butin quand tu es connecté. Hors ligne, il donne toujours seulement l’EXP, l’Or, les AP, PP et QP, comme dans le jeu d’origine.',
+            'La carte d’un Titan dit clairement l’état de son auto-kill (par exemple : le Titan n’a pas encore réapparu, ou il manque des statistiques).',
+            'Le mot « Titans » du menu Aventure brille quand un Titan est prêt à être affronté (sauf s’il se tue tout seul).',
+            'Le ×5 de régénération de la Safe Zone ne s’applique plus pendant un combat contre un Titan.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Une piste sans énergie ne progresse plus.',

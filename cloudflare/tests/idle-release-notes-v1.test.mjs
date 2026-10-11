@@ -14,6 +14,8 @@ assert.equal(n.versions[0].version, n.courante, "la version courante est la prem
 /* Notes regroupées par menu (Norman, 2026-10-11) : groupes { menu, titre, points }. */
 const MENUS_VALIDES = ["general", "entrainement", "combat", "aventure", "renaissance", "moneyPit", "augmentations", "avance", "machine", "sang", "tower", "daycare", "challenges", "titans", "ngu", "wandoos", "yggdrasil", "diggers", "beards", "macguffins", "hacks", "questing", "quirks", "wishes", "cards", "cooking", "shop", "chroniques", "chat", "parametres"];
 function lignes(v) { return (v.groupes || []).flatMap((g) => g.points); }
+/* Le groupe « Titans » n'est montré qu'aux joueurs dont les titans sont accessibles (voir idle-release-notes-groupes-v1.test.mjs) : ses lignes peuvent nommer les Titans. */
+function lignesNeutres(v) { return (v.groupes || []).filter((g) => g.menu !== "titans").flatMap((g) => g.points); }
 for (const v of n.versions) {
   assert.ok(Array.isArray(v.groupes) && v.groupes.length > 0, "notes groupées par menu : " + v.version);
   for (const g of v.groupes) assert.ok(MENUS_VALIDES.includes(g.menu) && g.titre && g.points.length > 0, "groupe valide : " + v.version + " / " + g.menu);
@@ -26,7 +28,7 @@ assert.deepEqual(nums, [...nums].sort((a, b) => b - a));
 
 // Anti-spoil : les notes visibles de tous ne nomment pas de système verrouillé ni le Classement (bouton encore réservé)
 /* Seules les LIGNES sont vérifiées : les titres de menu (ITOPOD…) ne s'affichent que si le joueur possède déjà ce menu (voir idle-release-notes-groupes-v1.test.mjs). */
-const texte = JSON.stringify(n.versions.map(lignes)).toLowerCase();
+const texte = JSON.stringify(n.versions.map(lignesNeutres)).toLowerCase();
 for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadistic", "time machine", "macguffin", "yggdrasil", "wandoos", "gold digger", "mineurs d", "barbes", "souhaits", "piratages", "garderie", "itopod", "quirks", "giant seed"]) {
   assert.ok(!texte.includes(interdit), "spoil dans les notes : " + interdit);
 }

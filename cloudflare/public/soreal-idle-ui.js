@@ -23954,6 +23954,12 @@ function pageAventureIdleV28_(j){
         try{
           document.querySelectorAll('.soreal-idle-nav-v28 [data-menu-id-v1]').forEach(function(b){ids[b.getAttribute('data-menu-id-v1')]=true;});
         }catch(e){}
+        /* « Titans » n'est pas un menu de gauche : c'est le bouton de la page Aventure, ouvert dès qu'un titan est accessible (même condition que ce bouton). */
+        try{
+          const H=window.__SOREAL_IDLE_META_HOST_V130__;
+          const av=H&&typeof H.aventureMetaIdleV47_==='function'&&idleEtat?H.aventureMetaIdleV47_(idleEtat):null;
+          if(av&&Array.isArray(av.titans)&&av.titans.some(function(t){return t&&t.progressionUnlocked!==false;}))ids.titans=true;
+        }catch(e){}
         return ids;
       }
       function htmlVersionNotesMajIdleV1_(v,possedes){

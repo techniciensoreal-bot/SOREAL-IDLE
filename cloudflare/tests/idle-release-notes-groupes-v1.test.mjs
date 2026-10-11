@@ -8,9 +8,10 @@ const j = ui.indexOf("function htmlNotesMajIdleV1_(){");
 assert.ok(i > 0 && j > i, "rendu groupé présent");
 const code = ui.slice(i, j);
 const idleHtml_ = (t) => String(t);
-const fabrique = (ids) => {
+const fabrique = (ids, titans = false) => {
   const doc = { querySelectorAll: () => ids.map((id) => ({ getAttribute: () => id })) };
-  return vm.runInNewContext("(function(document,idleHtml_){" + code + "return {possedes:menusPossedesNotesMajIdleV1_,rendu:htmlVersionNotesMajIdleV1_};})", {})(doc, idleHtml_);
+  const win = { __SOREAL_IDLE_META_HOST_V130__: { aventureMetaIdleV47_: () => ({ titans: titans ? [{ id: "t1", progressionUnlocked: true }] : [] }) } };
+  return vm.runInNewContext("(function(document,idleHtml_,window,idleEtat){" + code + "return {possedes:menusPossedesNotesMajIdleV1_,rendu:htmlVersionNotesMajIdleV1_};})", {})(doc, idleHtml_, win, {});
 };
 const v = { groupes: [{ menu: "general", titre: "Général", points: ["A"] }, { menu: "tower", titre: "ITOPOD", points: ["B"] }, { menu: "wandoos", titre: "Wandoos", points: ["C"] }] };
 {
@@ -23,6 +24,15 @@ const v = { groupes: [{ menu: "general", titre: "Général", points: ["A"] }, { 
   const f = fabrique(["entrainement", "tower"]);
   const html = f.rendu(v, f.possedes());
   assert.ok(html.includes("ITOPOD") && html.includes("<li>B</li>") && !html.includes("Wandoos"), "seul le menu possédé apparaît");
+}
+// « Titans » n'est pas un menu de gauche : son groupe apparaît dès que les titans sont accessibles (jamais avant)
+{
+  const vt = { groupes: [{ menu: "general", titre: "Général", points: ["A"] }, { menu: "titans", titre: "Titans", points: ["T"] }] };
+  const sans = fabrique(["entrainement"], false);
+  assert.ok(!sans.rendu(vt, sans.possedes()).includes("Titans"), "titans inaccessibles : rien");
+  const avec = fabrique(["entrainement"], true);
+  const h = avec.rendu(vt, avec.possedes());
+  assert.ok(h.includes("Titans") && h.includes("<li>T</li>"), "titans accessibles : groupe visible");
 }
 // ancien format
 {
