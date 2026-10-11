@@ -466,7 +466,9 @@ function scene(opts){
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       source(opts.id)+
-      '<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>'+
+      (SOURCES[opts.id]==='sucon'
+        ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i><i class="bm-goutte" style="animation-delay:-.1s;margin-left:-8px"></i><i class="bm-goutte" style="animation-delay:-.45s;margin-left:6px"></i><i class="bm-goutte" style="animation-delay:-.8s;margin-left:-2px"></i><i class="bm-goutte" style="animation-delay:-1.15s;margin-left:9px"></i><i class="bm-goutte" style="animation-delay:-1.5s;margin-left:-10px"></i></div>'
+        :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       props(opts.rang,opts.id)+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
       '<div class="bm-vase">'+contenant(type,fraction)+'</div>'+
@@ -779,6 +781,10 @@ function css(){
     /* gouttes qui tombent du bout du tuyau dans le calice */
     P+'.bm-bec{position:absolute;right:var(--cx);top:calc(70px + var(--th,44px)/2 - 6px);width:0;height:40px;z-index:5;pointer-events:none}',
     P+'.bm-goutte{position:absolute;left:-3px;top:0;width:7px;height:10px;border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#ff7a8a,#c0152e 55%,#6b0a18);opacity:0;display:none}',
+    /* suçon : un filet de sang continu depuis le bout du tuyau jusqu'au sang du récipient, et de grosses gouttes qui s'y ajoutent (plus de sang que les coupures de papier) */
+    P+'.bm-bec-flot .bm-goutte{width:14px;height:19px;left:-7px}',
+    P+'.bm-filet{position:absolute;left:-5px;top:0;width:10px;height:calc(var(--chute,60px) + 5px);border-radius:5px 5px 7px 7px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 6px rgba(255,40,70,.6);opacity:0;display:none;transform-origin:50% 0}',
+    P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet{display:block;opacity:.95;animation:bmFilet .55s ease-in-out infinite alternate}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
     /* calice */
     P+'.bm-vase{position:absolute;right:12px;bottom:var(--vb,6px);width:var(--vw,100px);height:var(--vh,130px);z-index:4}',
@@ -831,6 +837,7 @@ function css(){
     '@keyframes bmCoupe{0%,100%{transform:translateY(0) rotate(-5deg)}28%{transform:translateY(0) rotate(-5deg)}44%{transform:translateY(84px) rotate(-5deg)}56%{transform:translateY(84px) rotate(-5deg)}76%{transform:translateY(0) rotate(-5deg)}}',
     '@keyframes bmTrait{0%,38%{opacity:0;transform:scaleY(.1)}46%{opacity:1;transform:scaleY(1)}84%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}',
     '@keyframes bmSuce{0%,100%{transform:scale(1,1)}45%{transform:scale(.88,1.1)}70%{transform:scale(1.03,.98)}}',
+    '@keyframes bmFilet{from{transform:scaleX(.78)}to{transform:scaleX(1.18)}}',
     '@keyframes bmLivre{0%,100%{filter:drop-shadow(0 0 5px rgba(255,40,70,.5)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}50%{filter:drop-shadow(0 0 14px rgba(255,60,90,.95)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}}',
     '@keyframes bmBalance{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}',
     '@keyframes bmRune{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.9}70%{opacity:.7}100%{opacity:0;transform:translateY(-70px) rotate(90deg)}}',
@@ -839,7 +846,7 @@ function css(){
     '@keyframes bmConvoiSuivant{0%{transform:translateX(calc(var(--pas,118px)*-1))}50%{transform:translateX(0)}100%{transform:translateX(0)}}',
     '@keyframes bmApparait{from{transform:translateX(-640px)}to{transform:translateX(calc(var(--pas,118px)*-1))}}',
     '@keyframes bmPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.25);opacity:1}100%{transform:scale(1);opacity:1}}',
-    '@media (prefers-reduced-motion:reduce){'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche,'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-p-ouvert,'+P+'.bm-chaine,'+P+'.bm-rune,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq,'+P+'.bm-trace{transition:none}}'
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-pentacle-fond,'+P+'.bm-pentacle-sol,'+P+'.bm-flamme,'+P+'.bm-onde,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-tuyau::before,'+P+'.bm-ver:has(.saigne-v1),'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene .bm-punaise,'+P+'.bm-scene .bm-doigt,'+P+'.bm-scene .bm-papier,'+P+'.bm-scene .bm-coupure,'+P+'.bm-scene .bm-goutte-doigt,'+P+'.bm-lueur,'+P+'.bm-p-ouvert,'+P+'.bm-chaine,'+P+'.bm-rune,'+P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{animation:none}'+P+'.bm-liq,'+P+'.bm-trace{transition:none}}'
   ].concat(reglesRangs(P)).join('\n');
   document.head.appendChild(st);
 }

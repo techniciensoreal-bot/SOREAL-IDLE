@@ -65,6 +65,9 @@ assert.ok(c3.includes("bm-cou") && c3.includes("bm-bouche") && c3.includes("bm-t
 assert.ok(!c3.includes("bm-props"), "pas d'accessoires : la scène est déjà pleine");
 assert.ok(c3.includes('<b class="bm-etagere-n">25000000</b>') && c3.includes("--cx:109.5px"), "sang collecté, ouverture de la chope décalée par l'anse");
 
+assert.ok(c3.includes("bm-filet") && (c3.match(/class="bm-goutte"/g) || []).length === 5, "suçon : un filet de sang continu et cinq grosses gouttes (plus de sang que les coupures)");
+assert.ok(!c2.includes("bm-filet"), "coupures : pas de filet continu");
+
 // la page branche le décor et garde ses points d'accroche
 assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel (avec le Blood par rituel)");
 assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-blood-bar-v1") && page.includes("sorealIdleBloodEtaLineV1_"), "points d'accroche du moteur conservés");
