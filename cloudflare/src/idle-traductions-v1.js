@@ -17,6 +17,7 @@ import SUCCES from "../../design/traductions/fr/achievements.json" with { type: 
 import DIVERS from "../../design/traductions/fr/misc.json" with { type: "json" };
 import ENNEMIS from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import BOSS_NOMS from "../../design/ngu-boss-names-fr.json" with { type: "json" };
+import BOSS_HISTOIRES_EN from "../../design/ngu-boss-stories-en.json" with { type: "json" };
 import { NOMS_PIECES_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1 } from "./idle-noms-fr-v1.js";
 import {
   SET_ITEM_NAMES_EN_V1,
@@ -48,6 +49,24 @@ const FR_VERS_EN_V1 = (() => {
   return m;
 })();
 
+/*
+ * Chroniques de boss en anglais (Norman, 2026-10-11) : en « en », la chronique d'un boss est le texte ORIGINAL du wiki (design/ngu-boss-stories-en.json, extrait mot pour mot de la page « Boss Fights »),
+ * jamais une traduction du français et jamais le texte modifié par l'administrateur. Elle est choisie par NUMÉRO de boss (pas par correspondance de texte, puisqu'une chronique éditée ne correspond plus).
+ * Anti-spoil : seules les chroniques déjà présentes dans la réponse (boss connu) sont remplacées. Un boss sans histoire sur le wiki (272 à 289) garde le texte de la réponse.
+ */
+const HISTOIRES_EN_V1 = new Map(BOSS_HISTOIRES_EN.map((h) => [h.id, h.story]));
+function histoiresBossEn_(v) {
+  const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
+  const original = n > 0 ? HISTOIRES_EN_V1.get(n) : undefined;
+  if (original === undefined) return null;
+  let rempl = null;
+  /* Catalogue des boss (Fight Boss, Collection) : histoire + conseil ; liste de la Collection : description du boss principal ; boss sélectionné : bossHistoire. */
+  if (typeof v.histoire === "string" && v.histoire && "conseil" in v) rempl = { histoire: original };
+  if (typeof v.description === "string" && v.description && v.type === "boss_principal") rempl = Object.assign(rempl || {}, { description: original });
+  if (typeof v.bossHistoire === "string" && v.bossHistoire && Number.isInteger(v.bossSelection)) rempl = Object.assign(rempl || {}, { bossHistoire: original });
+  return rempl;
+}
+
 export const IDLE_LANGUES_V1 = Object.freeze(["fr", "en"]);
 export const idleLangueValideV1 = (l) => (l === "en" ? "en" : "fr");
 
@@ -70,10 +89,15 @@ function marcher_(v, table) {
     return copie || v;
   }
   let copie = null;
+  if (table === FR_VERS_EN_V1) {
+    const h = histoiresBossEn_(v);
+    if (h) copie = Object.assign({}, v, h);
+  }
   for (const k of Object.keys(v)) {
     /* Champs d'origine (nameEn, setNameEn) : jamais traduits (recherche du coffre dans les deux langues). */
     if (k === "nameEn" || k === "setNameEn") continue;
     const x = v[k];
+    if (copie && (k === "histoire" || k === "description" || k === "bossHistoire") && copie[k] !== x) continue;
     const y = marcher_(x, table);
     if (y !== x) {
       if (!copie) copie = Object.assign({}, v);

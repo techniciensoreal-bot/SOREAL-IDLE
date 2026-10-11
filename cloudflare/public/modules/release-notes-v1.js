@@ -34,6 +34,7 @@
             'Chaque barre où tu places de l’énergie a un bouton « 0 » : il retire toute l’énergie de cette barre seulement.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'En anglais, la chronique d’un boss est maintenant le texte original du wiki, et non plus une traduction du français.',
             'Les rails bleu et rouge de la borne d’arcade ne dépassent plus en haut.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[

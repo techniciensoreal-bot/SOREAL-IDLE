@@ -439,7 +439,7 @@ function creer(hote){
           '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Blood<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
           sortsHtml+
           toolbar+
-          '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du Blood</small></h3><div style="display:grid;gap:10px">'+rituelsHtml+'</div>'+
+          '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du Blood</small></h3><div class="bm-grille">'+rituelsHtml+'</div>'+
         '</div>';
       }
 

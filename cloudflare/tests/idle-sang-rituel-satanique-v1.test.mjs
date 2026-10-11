@@ -62,6 +62,9 @@ assert.ok(c2.includes("Sang collecté") && !c2.includes("bm-mini"), "étagère :
 assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel");
 assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-blood-bar-v1") && page.includes("sorealIdleBloodEtaLineV1_"), "points d'accroche du moteur conservés");
 assert.ok(!page.includes("soreal-idle-section-v8\" data-rang-v1"), "plus d'ancien cadre de rituel");
+// cadres verticaux de taille fixe, côte à côte sur PC, jamais superposés ; la scène a la même largeur que sur téléphone
+assert.ok(page.includes('<div class="bm-grille">'), "page : grille de cadres");
+assert.ok(src.includes("P+'.bm-grille{display:flex;flex-wrap:wrap;") && src.includes("flex:0 0 min(100%,324px);width:min(100%,324px)"), "cadres de largeur fixe qui passent à la ligne");
 // rythme de la punaise : plafond de vitesse visuelle, un coup par niveau quand c'est lent
 assert.ok(src.includes("var PERIODE_MIN=0.4,PERIODE_BOUCLE=4;"), "plafond de vitesse et seuil de boucle");
 assert.ok(src.includes("data-rythme") && src.includes("bm-coup"), "boucle ou un coup par niveau");
