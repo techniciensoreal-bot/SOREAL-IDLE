@@ -8,6 +8,7 @@
  *  - champs : textes remplaçant ceux d'origine ; chaque champ est un texte ou une liste de textes. Le texte peut contenir des balises de voix
  *    « (marius) », « (femme) »… : ce qui suit est lu par cette voix (registre modules/voix-nommees-v1.js), la balise ne s'affiche jamais.
  *  - voix : empreintes des blocs dont une voix a été générée depuis le jeu (fichiers R2 idle/voix/<empreinte>.m4a).
+ *  - parle : (Norman, 2026-10-11) le texte tel qu'il doit être DIT, même forme que `champs` (texte ou liste de textes, avec les balises de voix) : les joueurs lisent `champs` et ENTENDENT `parle`, quoi qu'on change dans `champs`. Absent = la voix suit `champs`.
  *  - voixTextes : { empreinte du bloc affiché -> texte de VOIX } (Norman, 2026-10-08) : comment le bloc doit se PRONONCER, écrit librement (« est-ce tes haut paix »), sans toucher au texte lu par les joueurs. L'empreinte reste celle du
  *    texte affiché : le fichier de voix est le même, seule la phrase envoyée au studio change. Jamais envoyé aux joueurs (administrateur seulement).
  *  - voixFaites : { empreinte -> texte de voix utilisé lors de la DERNIÈRE génération } : un bloc dont le texte de voix a changé depuis est « à refaire ».
@@ -66,8 +67,18 @@ export function normaliserTexteV1(brut) {
   if (boss && typeof champs.nom === "string") champs.nom = champs.nom.replace(/\s+/g, " ").trim().slice(0, IDLE_TEXTE_MAX_NOM_BOSS_V1);
   if (boss && typeof champs.texte !== "string" && !(typeof champs.nom === "string" && champs.nom)) throw new Error("TEXTE_BOSS_CHAMP_TEXTE_REQUIS");
   if (boss && typeof champs.nom === "string" && !champs.nom) delete champs.nom;
+  /* Texte parlé : mêmes noms de champs, mêmes bornes ; un nom de champ absent de `champs` est ignoré. */
+  const parle = {};
+  const sourceParle = t.parle && typeof t.parle === "object" && !Array.isArray(t.parle) ? t.parle : {};
+  for (const nom of Object.keys(sourceParle)) {
+    if (!IDLE_TEXTE_NOM_CHAMP_RE_V1.test(nom) || !(nom in champs)) continue;
+    const v = sourceParle[nom];
+    if (Array.isArray(v)) parle[nom] = v.slice(0, IDLE_TEXTE_MAX_LISTE_V1).map((x) => nettoyerV1(x, IDLE_TEXTE_MAX_CHAMP_V1));
+    else if (typeof v === "string") parle[nom] = nettoyerV1(v, IDLE_TEXTE_MAX_CHAMP_V1);
+  }
+  if (boss && typeof parle.nom === "string") parle.nom = parle.nom.replace(/\s+/g, " ").trim().slice(0, IDLE_TEXTE_MAX_NOM_BOSS_V1);
   const voix = Array.from(new Set((Array.isArray(t.voix) ? t.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_TEXTE_HASH_RE_V1.test(x)))).slice(0, 400);
-  return { cle, champs, voix, voixTextes: voixTextesV1(t.voixTextes), voixFaites: voixTextesV1(t.voixFaites) };
+  return { cle, champs, parle, voix, voixTextes: voixTextesV1(t.voixTextes), voixFaites: voixTextesV1(t.voixFaites) };
 }
 
 export function assurerTextesV1(sql) {
@@ -88,7 +99,7 @@ export function lireTextesV1(sql) {
 export function enregistrerTexteV1(sql, brut, maintenant = Date.now()) {
   const t = normaliserTexteV1(brut);
   assurerTextesV1(sql);
-  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify({ champs: t.champs, voix: t.voix, voixTextes: t.voixTextes, voixFaites: t.voixFaites }), maintenant);
+  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix, voixTextes: t.voixTextes, voixFaites: t.voixFaites }), maintenant);
   return Object.assign(t, { maj: maintenant });
 }
 
@@ -121,6 +132,23 @@ export function texteBossSurchargeV1(sql, numero) {
   return t && typeof t.champs.texte === "string" ? t.champs.texte : null;
 }
 
+/* Texte PARLÉ de la chronique d'un boss (ce que la voix dit, quel que soit le texte affiché), ou null. */
+export function texteBossParleV1(sql, numero) {
+  const n = Math.floor(Number(numero) || 0);
+  if (!sql || n < 1) return null;
+  texteBossSurchargeV1(sql, n);
+  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  return t && t.parle && typeof t.parle.texte === "string" && t.parle.texte ? t.parle.texte : null;
+}
+/* Nom PARLÉ d'un boss (ce que la voix prononce), ou null. */
+export function nomBossParleV1(sql, numero) {
+  const n = Math.floor(Number(numero) || 0);
+  if (!sql || n < 1) return null;
+  texteBossSurchargeV1(sql, n);
+  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  return t && t.parle && typeof t.parle.nom === "string" && t.parle.nom ? t.parle.nom : null;
+}
+
 /* Nom de remplacement d'un boss (affiché ET prononcé), ou null : même cache que la chronique. */
 export function nomBossSurchargeV1(sql, numero) {
   const n = Math.floor(Number(numero) || 0);
@@ -141,7 +169,7 @@ export function surchargesPourJoueurV1(sql) {
   const voix = new Set();
   for (const t of textes) {
     for (const h of t.voix) voix.add(h);
-    if (!IDLE_TEXTE_BOSS_RE_V1.test(t.cle)) popups[t.cle] = { champs: t.champs, voix: t.voix };
+    if (!IDLE_TEXTE_BOSS_RE_V1.test(t.cle)) popups[t.cle] = { champs: t.champs, parle: t.parle, voix: t.voix };
   }
   return { popups, voix: Array.from(voix) };
 }

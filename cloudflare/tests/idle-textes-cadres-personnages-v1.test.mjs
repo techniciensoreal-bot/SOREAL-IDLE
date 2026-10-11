@@ -72,12 +72,8 @@ console.log("idle-textes-cadres-personnages-v1: OK");
   const fabrique = (titre) => new Function("edition", "normaliser_", src.slice(a, b) + "\nreturn blocsDuTitre_;")({ def: { titre } }, norm);
   const blocs = [{ texte: "Gros Boss", hash: "h0" }, { texte: "Il était une fois.", hash: "h1" }];
   const r = fabrique("nom")({ nom: "Gros  Boss" }, blocs);
-  assert.deepEqual(r.titre.map((x) => x.hash), ["h0"], "le premier bloc est le titre");
-  assert.deepEqual(r.autres.map((x) => x.hash), ["h1"], "les cadres ne reçoivent plus le titre");
-  const non = fabrique("nom")({ nom: "Autre nom" }, blocs);
-  assert.deepEqual(non.titre, [], "le titre modifié n'a pas encore de bloc généré qui lui corresponde : rien n'est retiré");
-  assert.deepEqual(fabrique("")({ nom: "Gros Boss" }, blocs).titre, [], "un texte sans titre ne change pas");
-  assert.ok(src.includes("titre:'nom',") && src.includes("data-c=\"__titre\"") && src.includes("Voix du titre") && src.includes("Générer (ou régénérer) la voix du titre") && src.includes("Écouter uniquement le titre"), "cadre du titre : écouter et générer");
-  assert.ok(src.includes("lancerGeneration_(o,blocs,champ==='__titre'?'Titre':'Ligne '+(k+1));") && src.includes("if(champ==='__titre')return r.titre||[];"), "génération du titre seul");
-  assert.ok(src.includes("cadreT.innerHTML=titreCadreHtml_(r.titre||[]);"), "fichier et badge du titre rafraîchis");
+  /* 2026-10-11 : le titre est un texte comme un autre (cadre doré + personnages) ; ses blocs vont à ses personnages comme les autres. */
+  assert.deepEqual(r.titre, [], "plus de bloc de titre à part");
+  assert.deepEqual(r.autres.map((x) => x.hash), ["h0", "h1"], "tous les blocs vont aux personnages");
+  assert.ok(src.includes("titre:'nom',") && src.includes("Titre tel qu’il doit être prononcé") && src.includes("Titre tel que les joueurs le lisent"), "titre : cadre doré puis personnages");
 }

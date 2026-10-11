@@ -37,7 +37,7 @@ import {
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
-import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
+import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, texteBossParleV1, nomBossParleV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { enregistrerGainExpV1, lireGainsExpV1, creditDejaFaitV1 } from "./idle-gains-v1.js";
 import { battementV1, normaliserActiviteV1, lireChatV1, envoyerChatV1, supprimerMessageChatV1, dernierIdChatV1 } from "./idle-chat-v1.js";
@@ -6832,6 +6832,9 @@ function equilibrerBossPrincipalSorealIdleV413_(
           i + 1,
           source.histoire
         ),
+      /* Texte et nom PARLÉS (Norman, 2026-10-11) : ce que la voix dit, quel que soit le texte affiché ; vides si l'administrateur n'a rien fixé. */
+      histoireParlee: texteBossParleV1(__idleSql, i + 1) || '',
+      nomParle: nomBossParleV1(__idleSql, i + 1) || '',
       conseil:
         String(
           source.conseil || ""
@@ -7403,6 +7406,8 @@ function definitionBossSorealIdle_(
         n + 1,
         dernier.histoire
       ),
+    histoireParlee: texteBossParleV1(__idleSql, n + 1) || '',
+    nomParle: nomBossParleV1(__idleSql, n + 1) || '',
     mortVivant:
       Boolean(dernier.mortVivant),
     conseil:
@@ -10625,6 +10630,8 @@ function construireEtatJoueurSorealIdle_(
       String(
         bossDefinitionEtat.histoire || ''
       ),
+    bossHistoireParlee: String(bossDefinitionEtat.histoireParlee || ''),
+    bossNomParle: String(bossDefinitionEtat.nomParle || ''),
 
     bossMortVivant:
       Boolean(
@@ -11376,6 +11383,8 @@ function construireEtatJoueurSorealIdle_(
           degatsRecusSeconde: degatsRecusSecondeSorealIdle_(idx, defenseEtat, pvMax, pvMax),
           bossCapacites: Array.isArray(def.capacites) ? def.capacites : [],
           bossHistoire: String(def.histoire || ''),
+          bossHistoireParlee: String(def.histoireParlee || ''),
+          bossNomParle: String(def.nomParle || ''),
           bossMortVivant: Boolean(def.mortVivant),
           recompenseBossActuel: {
             xp: Math.max(0, Math.round(recompenseXpBossNiveauSorealIdle_(idx, niveauEtat) * xpMult * facteurExpBossPerkSorealIdle_(bonus, idx))),

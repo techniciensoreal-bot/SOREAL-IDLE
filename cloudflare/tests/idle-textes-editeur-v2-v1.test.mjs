@@ -64,7 +64,7 @@ assert.ok(ui.includes("🚀 Lancer le studio") && ui.includes("Le studio de voix
 assert.ok(src.includes("function appliquerChoix_(type,cle,valeur){") && src.includes("edition.aRefaire[b.hash]=1"), "changer de voix ou d'expression marque les fichiers à refaire");
 assert.ok(ui.includes("function insererPause(ta,balise){") && ui.includes("data-vu-pausebtn="), "bouton Pause qui insère une balise au curseur");
 assert.ok(ui.includes("pausesListe().map(") && R.pauses.length >= 4, "pauses courte, normale, longue, très longue");
-assert.ok(src.includes('class="stx-pied"') && src.includes("💾 Enregistrer") && src.includes("🎙 Tout générer") && src.includes('stx-lib'), "bandeau d'actions toujours visible");
+assert.ok(src.includes('class="stx-pied"') && src.includes("💾 Enregistrer") && src.includes("▶ Générer les voix manquantes") && src.includes('stx-lib'), "bandeau d'actions toujours visible");
 assert.ok(src.includes("outerHTML=puceStudioHtml_()") && ui.includes("🟢 Studio prêt") && ui.includes("🔴 Studio éteint"), "état du studio d'un coup d'œil");
 assert.ok(src.includes("Voix sans texte") && src.includes("stx-groupe"), "voix cachées en tête de la liste, groupes repliables");
 assert.ok(ui.includes("registreVoix_().forEach(function(v,i){if(v.id===id)rang=i;});"), "une couleur distincte par voix nommée");

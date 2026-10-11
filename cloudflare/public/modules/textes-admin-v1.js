@@ -13,6 +13,10 @@
  * Texte de voix (Norman, 2026-10-08) : sous le texte AFFICHÉ de chaque bulle (verrouillé par défaut), un champ libre dit COMMENT le prononcer (« est-ce tes haut paix » pour « STOP »). Il ne modifie jamais le texte
  * des joueurs : l'empreinte du bloc, donc le fichier de voix, reste celle du texte affiché ; seule la phrase envoyée au studio change (edition.voixTextes, enregistré avec la surcharge, jamais envoyé aux joueurs).
  *
+ * ÉDITEUR REPENSÉ (Norman, 2026-10-11) : pour chaque texte, un cadre DORÉ avec le texte tel que les joueurs le lisent (modifiable, enregistrable, jamais générateur de voix) ; en dessous, un cadre par PERSONNAGE
+ * avec le texte à DIRE (au départ une copie), la voix, l'expression, et sa propre génération. Les joueurs LISENT le cadre doré et ENTENDENT les personnages (champ « parle » enregistré avec la surcharge) : changer
+ * le texte doré ne change jamais la voix. Même principe pour le titre. La barre du haut garde toujours visibles : lancer / arrêter le studio, générer les manquantes, générer la sélection (cases à cocher), arrêter.
+ *
  * Sécurité : l'édition n'apparaît que pour l'administrateur, MAIS c'est le serveur qui décide (chaque opération vérifie le compte).
  *
  *   window.__SOREAL_IDLE_TEXTES_V1__ = { surcharge(cle), appliquerPage(cle,page), appliquerInfo(cle,info), sansBalises(texte), declarer(cle,def),
@@ -40,6 +44,8 @@ var ecoute=false;
 var ecouteCle='';
 var reduit=false;                    // éditeur réduit en petit menu flottant (la génération continue pendant qu'on joue)
 
+var idLigne_=0;
+function nouvelId_(){idLigne_+=1;return 'n'+idLigne_;}
 function esc_(v){
   return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
@@ -148,19 +154,31 @@ function liste_(v){return Array.isArray(v)?v.slice():[];}
  * Fenêtre explicative en pages (titre, sousTitre, paragraphes) : renvoie une COPIE portant le texte à afficher (balises retirées), le texte à lire
  * (_brut, balises gardées) et sa clé (_cle) ; sans surcharge, la copie garde le texte d'origine.
  */
+/* Texte PARLÉ d'un champ (Norman, 2026-10-11) : ce que la voix dit, quel que soit le texte affiché ; absent = la voix suit le texte affiché. */
+function parleDe_(cle,champ){
+  var sc=surchargeComplete_(cle);
+  var p=sc&&sc.parle&&typeof sc.parle==='object'?sc.parle[champ]:undefined;
+  return p;
+}
 function appliquerPage_(cle,page){
   var base=page&&typeof page==='object'?page:{};
   var s=surcharge_(cle);
-  var brut={
+  var aff={
     titre:s&&typeof s.titre==='string'?s.titre:String(base.titre||''),
     sousTitre:s&&typeof s.sousTitre==='string'?s.sousTitre:String(base.sousTitre||''),
     paragraphes:s&&Array.isArray(s.paragraphes)?s.paragraphes.slice():liste_(base.paragraphes)
   };
+  var pt=parleDe_(cle,'titre'),ps=parleDe_(cle,'sousTitre'),pp=parleDe_(cle,'paragraphes');
+  var brut={
+    titre:typeof pt==='string'?pt:aff.titre,
+    sousTitre:typeof ps==='string'?ps:aff.sousTitre,
+    paragraphes:Array.isArray(pp)&&pp.length===aff.paragraphes.length?pp.slice():aff.paragraphes
+  };
   var out=Object.assign({},base,{_cle:cle});
   if(s){
-    out.titre=sansBalises_(brut.titre);
-    if(brut.sousTitre||base.sousTitre!==undefined)out.sousTitre=sansBalises_(brut.sousTitre);
-    out.paragraphes=brut.paragraphes.map(sansBalises_);
+    out.titre=sansBalises_(aff.titre);
+    if(aff.sousTitre||base.sousTitre!==undefined)out.sousTitre=sansBalises_(aff.sousTitre);
+    out.paragraphes=aff.paragraphes.map(sansBalises_);
     out._brut=brut;
   }
   return out;
@@ -170,18 +188,25 @@ function appliquerPage_(cle,page){
 function appliquerInfo_(cle,info){
   var base=info&&typeof info==='object'?info:{};
   var s=surcharge_(cle);
-  var brut={
+  var aff={
     titre:s&&typeof s.titre==='string'?s.titre:String(base.titre||''),
     intro:s&&typeof s.intro==='string'?s.intro:String(base.intro||''),
     texte:s&&typeof s.texte==='string'?s.texte:String(base.texte||''),
     bullets:s&&Array.isArray(s.bullets)?s.bullets.slice():liste_(base.bullets)
   };
+  var pt=parleDe_(cle,'titre'),pi=parleDe_(cle,'intro'),px=parleDe_(cle,'texte'),pb=parleDe_(cle,'bullets');
+  var brut={
+    titre:typeof pt==='string'?pt:aff.titre,
+    intro:typeof pi==='string'?pi:aff.intro,
+    texte:typeof px==='string'?px:aff.texte,
+    bullets:Array.isArray(pb)&&pb.length===aff.bullets.length?pb.slice():aff.bullets
+  };
   var out=Object.assign({},base,{_cle:cle});
   if(s){
-    out.titre=sansBalises_(brut.titre);
-    out.intro=sansBalises_(brut.intro);
-    out.texte=sansBalises_(brut.texte);
-    out.bullets=brut.bullets.map(sansBalises_);
+    out.titre=sansBalises_(aff.titre);
+    out.intro=sansBalises_(aff.intro);
+    out.texte=sansBalises_(aff.texte);
+    out.bullets=aff.bullets.map(sansBalises_);
     out._brut=brut;
   }
   return out;
@@ -281,6 +306,35 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .stx-voixbloc textarea{background:#07120e;border-color:#2f6a4d;min-height:78px}'+
     '#'+EDITEUR_ID+' .stx-voixbloc textarea:focus{border-color:#4ade80;outline:none}'+
     '#'+EDITEUR_ID+' button.stx-verrou-btn{min-height:30px;padding:4px 10px;font-size:12px}'+
+    /* ----- éditeur repensé (Norman, 2026-10-11) : cadre doré, personnages en cartes, barre d'outils toujours visible ----- */
+    '#'+EDITEUR_ID+' .stx-barre2{position:sticky;top:60px;z-index:4;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:rgba(16,21,31,.97);border-bottom:2px solid #2b3a5c}'+
+    '#'+EDITEUR_ID+' .stx-grp-studio{display:flex;align-items:center;gap:8px;flex-wrap:wrap}'+
+    '#'+EDITEUR_ID+' .stx-sep{width:2px;align-self:stretch;background:#2b3a5c}'+
+    '#'+EDITEUR_ID+' .stx-b-go{background:linear-gradient(180deg,#46e08f,#16995a);border-color:#000;color:#04210f}'+
+    '#'+EDITEUR_ID+' .stx-b-stop{background:linear-gradient(180deg,#ff7a86,#c42a3c);border-color:#000;color:#fff}'+
+    '#'+EDITEUR_ID+' .stx-b-sel{background:linear-gradient(180deg,#7bd4ff,#2b7fb8);border-color:#000;color:#031a2a}'+
+    '#'+EDITEUR_ID+' .stx-b-neutre{background:linear-gradient(180deg,#6a5f8f,#3d3560);border-color:#000}'+
+    '#'+EDITEUR_ID+' .stx-barre2 button:disabled{opacity:.35;cursor:default}'+
+    '#'+EDITEUR_ID+' .stx-prog{position:relative;flex:1 1 160px;min-width:130px;height:18px;border-radius:9px;background:#0a0e16;border:2px solid #000;overflow:hidden}'+
+    '#'+EDITEUR_ID+' .stx-prog i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,#16995a,#7dffb4);transition:width .3s}'+
+    '#'+EDITEUR_ID+' .stx-prog span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;text-shadow:0 1px 2px #000}'+
+    '#'+EDITEUR_ID+' .stx-bloc{margin:0 0 22px}'+
+    '#'+EDITEUR_ID+' .stx-or{background:linear-gradient(180deg,#f7d87a,#d8a233);border:3px solid #6b4607;border-radius:14px;padding:10px 12px 12px;color:#2a1a02;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 0 #000}'+
+    '#'+EDITEUR_ID+' .stx-etiq{margin:0 0 4px;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#5a3a02}'+
+    '#'+EDITEUR_ID+' .stx-or textarea,#'+EDITEUR_ID+' .stx-or input[type=text]{background:rgba(255,248,214,.6);color:#2a1a02;border:2px solid #7d5410;font-weight:700}'+
+    '#'+EDITEUR_ID+' .stx-rang{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}'+
+    '#'+EDITEUR_ID+' .stx-bor{background:linear-gradient(180deg,#ffe9a6,#e8b84a);color:#2a1500;border:2px solid #000;box-shadow:0 3px 0 #000}'+
+    '#'+EDITEUR_ID+' .stx-bor-danger{background:linear-gradient(180deg,#ff9aa4,#d9485a);color:#2a0008}'+
+    '#'+EDITEUR_ID+' .stx-info{font-size:13px;color:#5a3a02}'+
+    '#'+EDITEUR_ID+' .stx-sous-or{margin:10px 0 0 18px;padding-left:14px;border-left:4px dashed #6a5f8f}'+
+    '#'+EDITEUR_ID+' .stx-etiq2{margin:0 0 8px;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#b9aedb}'+
+    '#'+EDITEUR_ID+' .stx-info2{font-weight:600;text-transform:none;letter-spacing:0;color:#8e84b3}'+
+    '#'+EDITEUR_ID+' .stx-persos{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}'+
+    '#'+EDITEUR_ID+' .stx-perso{border-left-width:6px}'+
+    '#'+EDITEUR_ID+' .stx-perso.sel{box-shadow:0 0 0 2px rgba(94,200,255,.55);border-color:#5ec8ff}'+
+    '#'+EDITEUR_ID+' .stx-coche{width:20px;height:20px;accent-color:#5ec8ff;cursor:pointer;flex:none}'+
+    '#'+EDITEUR_ID+' .stx-persos>button.stx-ajout{min-height:150px;font-size:18px}'+
+    '#'+EDITEUR_ID+' .stx-champ>button.stx-ajout{margin-top:6px}'+
     '@media(max-width:600px){#'+EDITEUR_ID+'{padding:0}#'+EDITEUR_ID+' .stx-v2{border-radius:0;min-height:100%}#'+EDITEUR_ID+' .stx-barre{border-radius:0}#'+EDITEUR_ID+' .stx-pied{border-radius:0;gap:6px;padding:8px 10px}#'+EDITEUR_ID+' .stx-lib{display:none}#'+EDITEUR_ID+' .stx-pied>button[data-stx-act="ecouter"]{min-width:46px;padding:6px 0}#'+EDITEUR_ID+' .stx-pied>button,#'+EDITEUR_ID+' .stx-pied button.stx-gros{min-height:42px;padding:6px 11px;font-size:13px}}';
   document.head.appendChild(s);
 }
@@ -305,6 +359,7 @@ function puceStudioHtml_(){
 function majPuceStudio_(){
   var el=document.getElementById('sorealIdleTexteStudioV1');
   if(el)el.outerHTML=puceStudioHtml_();
+  majBarreGeneration_();
 }
 
 function voixProposees_(){
@@ -320,7 +375,7 @@ function voixProposees_(){
  * à l'ouverture.
  */
 /* Les champs parlés : un « texte » (chronique de boss…) ou une « liste » de paragraphes (tutoriels, nouveautés) : dans une liste, un cadre = un paragraphe. */
-function champParle_(c){return Boolean(c&&(c.type==='texte'||c.type==='liste'));}
+function champParle_(c){return Boolean(c&&(c.type==='texte'||c.type==='liste'||(typeof edition!=='undefined'&&edition&&edition.def&&edition.def.titre===c.id)));}
 /* Voix en vigueur à la fin d'un texte : celle de sa dernière balise, sinon celle avec laquelle il a commencé. */
 function voixFinale_(texte,depart){
   return etatFinal_(texte,depart,'').voix;
@@ -411,8 +466,7 @@ function normaliser_(t){return String(t==null?'':t).replace(/\([^()]*\)/g,' ').r
 function blocsDuTitre_(valeurs,blocs){
   var def=edition&&edition.def;
   if(!def||!def.titre||!blocs.length)return {titre:[],autres:blocs};
-  var nom=normaliser_(valeurs[def.titre]);
-  if(nom&&normaliser_(blocs[0].texte)===nom)return {titre:[blocs[0]],autres:blocs.slice(1)};
+  /* Le titre est un texte comme un autre (cadre doré + personnages) : ses blocs vont à ses personnages comme les autres. */
   return {titre:[],autres:blocs};
 }
 function blocsParCadre_(valeurs){
@@ -442,81 +496,74 @@ function parleurOptions_(courant){
   return voixProposees_().map(function(p){return '<option value="'+esc_(p[0])+'"'+(parleurUi_(courant)===p[0]?' selected':'')+'>'+esc_(p[1])+'</option>';}).join('');
 }
 function abrege_(t,n){t=String(t==null?'':t).replace(/\s+/g,' ').trim();n=n||90;return t.length>n?t.slice(0,n-1)+'…':t;}
-/* Un champ « texte de voix » par bloc de voix de la bulle (en général un seul ; plusieurs au-delà de ~600 caractères). */
-function voixBlocsHtml_(champ,k,l,blocs){
-  if(!blocs||!blocs.length)return '<div class="stx-aide">Écris le texte affiché : tu pourras ensuite régler ici comment le dire.</div>';
-  var cle=esc_(champ)+'|'+k;
-  return blocs.map(function(b,i){
-    var v=String((l.voixParts||[])[i]||'');
-    var lib=blocs.length>1?' · partie '+(i+1)+'/'+blocs.length:'';
-    return '<div class="stx-voixbloc">'+
-      '<div class="stx-lib-titre"><span>🗣 Voix'+lib+' : comment le dire</span><span class="stx-flex"></span>'+
-        '<button type="button" class="stx-voix" data-stx-l="vcopier" data-c="'+esc_(champ)+'" data-k="'+k+'" data-i="'+i+'" title="Copier le texte affiché ici, pour le retoucher">📋 Copier le texte affiché</button>'+
-        '<button type="button" class="stx-voix" data-stx-l="vtest" data-c="'+esc_(champ)+'" data-k="'+k+'" data-i="'+i+'" title="Écouter CE texte de voix avec le studio, sans rien enregistrer">▶ Tester</button>'+
-      '</div>'+
-      '<textarea rows="3" data-stx-lvoix="'+cle+'#'+i+'" placeholder="Vide : la voix lit le texte affiché tel quel. Écris ici comment ça doit se prononcer, par exemple « est-ce tes haut paix » pour STOP.">'+esc_(v)+'</textarea>'+
-      (blocs.length>1?'<div class="stx-aide">Partie du texte affiché : « '+esc_(abrege_(b.texte,110))+' »</div>':'')+
-    '</div>';
-  }).join('');
-}
+/* Une carte de PERSONNAGE : sa voix et son expression (sélecteur partagé), le texte à DIRE, l'état de sa voix, écouter / générer / retirer. */
 function cadreHtml_(champ,k,l,blocs){
   var o=outilsVoix_();
   var u=VU_();
   var voix=edition.voix||[];
   var cle=esc_(champ)+'|'+k;
-  /* Texte affiché protégé par défaut ; une bulle encore vide (nouveau personnage) est tout de suite modifiable. */
-  var verrouille=!l.deverrouille&&Boolean(String(l.texte||'').trim());
-  var fichiers='<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>')+'</div>';
-  return '<div class="stx-cadre" data-vu-bulle="'+cle+'" data-stx-cadre="'+cle+'" style="--stx-c:'+couleurVoix_(l.parleur)+';--vu-c:'+couleurVoix_(l.parleur)+'">'+
+  var sel=Boolean(edition.sel&&edition.sel[l.id]);
+  var fichiers='<div class="stx-cadre-fichiers" data-stx-fv="'+cle+'">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de ce personnage.</div>'+o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>')+'</div>';
+  return '<div class="stx-cadre stx-perso'+(sel?' sel':'')+'" data-vu-bulle="'+cle+'" data-stx-cadre="'+cle+'" style="--stx-c:'+couleurVoix_(l.parleur)+';--vu-c:'+couleurVoix_(l.parleur)+'">'+
     '<div class="stx-bulle-tete">'+
+      '<input type="checkbox" class="stx-coche" data-stx-sel="'+esc_(l.id)+'" title="Cocher pour ne régénérer que ce personnage"'+(sel?' checked':'')+'>'+
       (u?u.chipsHtml(cle,l):'')+
       '<span class="stx-flex"></span>'+
       '<span data-stx-badge="'+cle+'">'+etatVoixHtml_(blocs)+'</span>'+
     '</div>'+
     '<input type="hidden" data-stx-lparleur="'+cle+'" value="'+esc_(parleurUi_(l.parleur))+'"><input type="hidden" data-stx-lexpr="'+cle+'" value="'+esc_(l.expr||'')+'">'+
-    '<div class="stx-lib-titre"><span>📖 Texte affiché aux joueurs</span><span class="stx-flex"></span>'+
-      '<button type="button" class="stx-voix stx-verrou-btn" data-stx-l="verrou" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Le texte des joueurs est protégé pour ne pas le changer par erreur">'+(verrouille?'✋ Protégé · modifier':'✏️ Modifiable · protéger')+'</button></div>'+
-    '<textarea rows="3" data-stx-ltexte="'+cle+'" class="'+(verrouille?'stx-verrou':'')+'"'+(verrouille?' readonly':'')+' placeholder="Ce que dit ce personnage…">'+esc_(l.texte)+'</textarea>'+
+    '<div class="stx-lib-titre"><span>🗣 Texte dit par ce personnage</span></div>'+
+    '<textarea rows="3" data-stx-ltexte="'+cle+'" placeholder="Ce que dit ce personnage (au départ, une copie du texte des joueurs : change-le comme tu veux, la voix suivra ce texte-ci)…">'+esc_(l.texte)+'</textarea>'+
     (u?u.pausesHtml(cle,'stx-voix'):'')+
-    '<div data-stx-vz="'+cle+'">'+voixBlocsHtml_(champ,k,l,blocs)+'</div>'+
     '<div class="stx-bulle-pied">'+
       (u?u.pauseBoutonHtml(cle,'stx-voix'):'')+
       '<span class="stx-flex"></span>'+
-      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Écouter uniquement cette ligne">▶ Écouter</button>'+
-      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de cette ligne, autant de fois que tu veux">🎙 Générer</button>'+
+      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Écouter uniquement ce personnage">▶ Écouter</button>'+
+      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Générer (ou régénérer) la voix de ce personnage, autant de fois que tu veux">🎙 Générer</button>'+
       '<button type="button" class="stx-voix danger" data-stx-l="suppr" data-c="'+esc_(champ)+'" data-k="'+k+'" title="Retirer ce personnage">🗑</button>'+
     '</div>'+
-    '<details class="stx-det"><summary>📁 Fichiers de cette ligne</summary>'+fichiers+'</details>'+
+    '<details class="stx-det"><summary>📁 Fichiers de ce personnage</summary>'+fichiers+'</details>'+
   '</div>';
 }
-/* Cadre du titre : écouter, générer (ou régénérer) et fichiers de voix du nom lu en tête de la chronique. */
-function titreCadreHtml_(blocs){
-  var o=outilsVoix_();
-  var voix=edition.voix||[];
-  return '<div class="stx-cadre stx-cadre-titre" data-stx-cadre="__titre|0" style="--stx-c:#fbbf24;--vu-c:#fbbf24">'+
-    '<div class="stx-bulle-tete"><span class="vu-chip" style="cursor:default"><span class="vu-av">T</span><span>Voix du titre</span></span><span class="stx-flex"></span>'+
-      '<span data-stx-badge="__titre|0">'+etatVoixHtml_(blocs)+'</span></div>'+
-    '<div class="stx-bulle-pied"><span class="stx-flex"></span>'+
-      '<button type="button" class="stx-voix" data-stx-l="ecouter" data-c="__titre" data-k="0" title="Écouter uniquement le titre">▶ Écouter</button>'+
-      '<button type="button" class="stx-voix primaire" data-stx-l="generer" data-c="__titre" data-k="0" title="Générer (ou régénérer) la voix du titre, autant de fois que tu veux">🎙 Générer</button></div>'+
-    '<div class="stx-voixbloc"><div class="stx-lib-titre"><span>🗣 Voix du titre : comment le dire</span><span class="stx-flex"></span>'+
-      '<button type="button" class="stx-voix" data-stx-l="vtest" data-c="__titre" data-k="0" data-i="0" title="Écouter ce texte de voix avec le studio, sans rien enregistrer">▶ Tester</button></div>'+
-      '<textarea rows="2" data-stx-tvoix="1" placeholder="Vide : le titre est lu tel quel. Écris ici comment prononcer ce nom.">'+esc_(edition.titreVoix||'')+'</textarea></div>'+
-    '<details class="stx-det"><summary>📁 Fichier du titre</summary><div class="stx-cadre-fichiers" data-stx-fv="__titre|0">'+(o&&blocs.length&&typeof o.fichiersVoixHtml==='function'?o.fichiersVoixHtml(blocs,voix):'<div class="stx-aide">Aucun fichier pour l’instant.</div>')+'</div></details>'+
-  '</div>';
+/* Un texte = cadre doré (ce que lisent les joueurs) + ses personnages. Une liste de paragraphes a un cadre doré par paragraphe. */
+function uniteHtml_(c,i){
+  var champ=c.id,ligne=c.type==='ligne';
+  var aff=String((edition.affiche[champ]||[])[i]||'');
+  var r=blocsParCadre_(edition.valeurs||lireChamps_());
+  var cartes=(edition.lignes[champ]||[]).map(function(l,k){
+    if(l.u!==i)return '';
+    var blocs=[];
+    r.cadres.forEach(function(x){if(x.champ===champ&&x.k===k)blocs=x.blocs;});
+    return cadreHtml_(champ,k,l,blocs);
+  }).join('');
+  var titreUnite=c.type==='liste'?esc_(c.label)+' — paragraphe '+(i+1):esc_(c.label);
+  var champOr=ligne
+    ?'<input type="text" data-stx-affiche="'+esc_(champ)+'|'+i+'" value="'+esc_(aff)+'">'
+    :'<textarea rows="'+(c.type==='liste'?4:6)+'" data-stx-affiche="'+esc_(champ)+'|'+i+'">'+esc_(aff)+'</textarea>';
+  return '<section class="stx-bloc" data-stx-unite="'+esc_(champ)+'|'+i+'">'+
+    '<div class="stx-champ-titre">'+titreUnite+'</div>'+
+    '<div class="stx-or"><p class="stx-etiq">'+(edition.def.titre===champ?'Titre tel que les joueurs le lisent':'Texte tel que les joueurs le lisent')+'</p>'+champOr+
+      '<div class="stx-rang"><button type="button" class="stx-bor" data-stx-act="enregistrer">💾 Enregistrer</button>'+
+        (c.type==='liste'?'<button type="button" class="stx-bor stx-bor-danger" data-stx-act="unite-" data-c="'+esc_(champ)+'" data-u="'+i+'" title="Retirer ce paragraphe et ses personnages">🗑 Retirer ce paragraphe</button>':'')+
+        '<span class="stx-info">Ne change jamais la voix : seuls les personnages ci-dessous parlent.</span></div></div>'+
+    '<div class="stx-sous-or"><p class="stx-etiq2">🗣 '+(edition.def.titre===champ?'Titre tel qu’il doit être prononcé':(c.type==='liste'?'Personnages de ce paragraphe — ils parlent à tour de rôle':'Personnages — ils parlent à tour de rôle, dans cet ordre'))+' <span class="stx-info2">— c’est ce que les joueurs entendent, quel que soit le texte doré</span></p>'+
+      '<div class="stx-persos">'+cartes+'<button type="button" class="stx-ajout" data-stx-act="cadre+" data-c="'+esc_(champ)+'" data-u="'+i+'" title="Ajouter un personnage">＋ Ajouter un personnage</button></div></div>'+
+  '</section>';
 }
 function cadresChampHtml_(champ){
-  var r=blocsParCadre_(lireChamps_());
-  var lignes=edition.lignes[champ]||[];
-  return lignes.map(function(l,k){
-    var blocs=[];
-    r.cadres.forEach(function(c){if(c.champ===champ&&c.k===k)blocs=c.blocs;});
-    return cadreHtml_(champ,k,l,blocs);
-  }).join('')+'<button type="button" class="stx-ajout" data-stx-act="cadre+" data-c="'+esc_(champ)+'" title="Ajouter un personnage (une nouvelle bulle)">＋ Ajouter un personnage</button>';
+  var c=champsDef_().filter(function(x){return x.id===champ;})[0];
+  if(!c)return '';
+  var n=Math.max(1,(edition.affiche[champ]||[]).length);
+  var h='';
+  for(var i=0;i<n;i+=1)h+=uniteHtml_(c,i);
+  if(c.type==='liste')h+='<button type="button" class="stx-ajout" data-stx-act="unite+" data-c="'+esc_(champ)+'">＋ Ajouter un paragraphe</button>';
+  return h;
 }
+/* Re-dessine tout le bloc d'un texte (les numéros des personnages changent quand on en ajoute ou retire un). */
 function rafraichirCadres_(champ){
   var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-cadres="'+champ+'"]');
   if(el)el.innerHTML=cadresChampHtml_(champ);
+  majBarreGeneration_();
 }
 
 function champsDef_(){return edition&&edition.def&&Array.isArray(edition.def.champs)?edition.def.champs:[];}
@@ -536,8 +583,14 @@ function lireChamps_(){
   var valeurs={};
   champsDef_().forEach(function(c){
     if(champParle_(c)&&edition&&edition.lignes&&edition.lignes[c.id]){
-      /* Cadres : le texte et la voix de chacun, puis le texte du champ est recomposé avec ses balises. */
       if(racine){
+        /* texte tel que les joueurs le lisent (cadres dorés) */
+        var nbU=Math.max(1,(edition.affiche[c.id]||[]).length);
+        for(var iu=0;iu<nbU;iu+=1){
+          var elA=racine.querySelector('[data-stx-affiche="'+c.id+'|'+iu+'"]');
+          if(elA){if(!edition.affiche[c.id])edition.affiche[c.id]=[];edition.affiche[c.id][iu]=elA.value;}
+        }
+        /* texte dit par chaque personnage */
         edition.lignes[c.id].forEach(function(l,k){
           var cle=c.id+'|'+k;
           var ta=racine.querySelector('[data-stx-ltexte="'+cle+'"]');
@@ -546,19 +599,34 @@ function lireChamps_(){
           if(ta)l.texte=ta.value;
           if(sel)l.parleur=sel.value;
           if(ex)l.expr=ex.value;
-          var vs=racine.querySelectorAll('[data-stx-lvoix^="'+cle+'#"]');
-          if(vs.length){l.voixParts=[];Array.prototype.forEach.call(vs,function(v){l.voixParts[Number(String(v.getAttribute('data-stx-lvoix')).split('#')[1])||0]=v.value;});}
         });
       }
-      valeurs[c.id]=c.type==='liste'?listeDepuisLignes_(edition.lignes[c.id]):texteDepuisLignes_(edition.lignes[c.id]);
+      valeurs[c.id]=valeurParleeChamp_(c);
       return;
     }
     var el=racine&&racine.querySelector('[data-stx-champ="'+c.id+'"]');
     valeurs[c.id]=texteVersValeur_(c,el?el.value:'');
   });
-  if(racine&&edition){var tv=racine.querySelector('[data-stx-tvoix]');if(tv)edition.titreVoix=tv.value;}
   majVoixTextes_(valeurs);
   return valeurs;
+}
+/* Texte DIT d'un champ : les personnages de chaque cadre doré, avec leurs balises de voix (une liste = un texte par paragraphe). */
+function valeurParleeChamp_(c){
+  var lignes=edition.lignes[c.id]||[];
+  if(c.type==='liste'){
+    var n=Math.max(1,(edition.affiche[c.id]||[]).length),out=[];
+    for(var i=0;i<n;i+=1)out.push(texteDepuisLignes_(lignes.filter(function(l){return l.u===i;})));
+    return out;
+  }
+  var t=texteDepuisLignes_(lignes);
+  return c.type==='ligne'?t.replace(/\s+/g,' ').trim():t;
+}
+/* Texte AFFICHÉ aux joueurs d'un champ parlé (une liste = un texte par paragraphe). */
+function valeurAfficheeChamp_(c){
+  var aff=edition.affiche[c.id]||[''];
+  if(c.type==='liste')return aff.map(function(x){return String(x||'').trim();});
+  var t=String(aff[0]||'');
+  return c.type==='ligne'?t.replace(/\s+/g,' ').trim():t.trim();
 }
 
 /*
@@ -566,25 +634,10 @@ function lireChamps_(){
  * génération (edition.voixFaites) est refait, comme après un changement de voix ou d'expression.
  */
 function majVoixTextes_(valeurs){
-  if(!edition||!edition.lignes)return;
-  var r=blocsParCadre_(valeurs);
-  var table={};
-  r.cadres.forEach(function(c){
-    var l=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
-    if(!l)return;
-    c.blocs.forEach(function(b,i){var v=String((l.voixParts||[])[i]||'').trim();if(v)table[b.hash]=v;});
-  });
-  (r.titre||[]).forEach(function(b){var v=String(edition.titreVoix||'').trim();if(v)table[b.hash]=v;});
-  edition.voixTextes=table;
-  var faites=edition.voixFaites||{};
+  if(!edition)return;
   if(!edition.aRefaire)edition.aRefaire={};
-  var vus={};
-  r.cadres.forEach(function(c){c.blocs.forEach(function(b){vus[b.hash]=1;});});
-  (r.titre||[]).forEach(function(b){vus[b.hash]=1;});
-  Object.keys(vus).forEach(function(h){
-    if(edition.voix.indexOf(h)===-1)return;
-    if((table[h]||'')!==(faites[h]||''))edition.aRefaire[h]=true;
-  });
+  if(!edition.voixTextes)edition.voixTextes={};
+  /* Les anciens textes de voix (avant l'éditeur à personnages) restent utilisés pour les blocs qui n'ont pas changé ; plus aucun n'est créé. */
 }
 /* Ce qui est envoyé au studio pour un bloc : son texte de voix s'il en a un (sans aucun passage entre parenthèses), sinon le texte affiché. */
 function texteVoixDe_(b){
@@ -733,6 +786,46 @@ function statutVoix_(){
   return {total:blocs.length,prets:prets};
 }
 
+function barreGenerationHtml_(){
+  return '<div class="stx-barre2" id="sorealIdleTexteBarreV1">'+
+    '<div class="stx-grp-studio">'+puceStudioHtml_()+
+      '<button type="button" class="stx-b-go" data-stx-act="studio-lancer" id="sorealIdleTexteStudioOnV1" title="Lance le studio de voix sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
+      '<button type="button" class="stx-b-stop" data-stx-act="studio-arreter" id="sorealIdleTexteStudioOffV1" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button></div>'+
+    '<span class="stx-sep"></span>'+
+    '<button type="button" class="stx-b-go" data-stx-act="generer" id="sorealIdleTexteGenererV1" title="Génère les voix qui ne sont pas encore prêtes">▶ Générer les voix manquantes</button>'+
+    '<button type="button" class="stx-b-sel" data-stx-act="generer-sel" id="sorealIdleTexteGenererSelV1" title="Ne génère que les personnages cochés">▶ Générer la sélection (0)</button>'+
+    '<button type="button" class="stx-b-stop" data-stx-act="arreter-gen" id="sorealIdleTexteStopV1" title="Arrête la génération en cours">⏹ Arrêter</button>'+
+    '<button type="button" class="stx-b-neutre" data-stx-act="tout-cocher" title="Cocher tous les personnages">☑ Tout cocher</button>'+
+    '<button type="button" class="stx-b-neutre" data-stx-act="rien-cocher" title="Décocher tous les personnages">☐ Tout décocher</button>'+
+    '<div class="stx-prog" title="Progression de la génération"><i id="sorealIdleTexteProgBarV1"></i><span id="sorealIdleTexteProgTxtV1">En attente</span></div>'+
+  '</div>';
+}
+function nbSelection_(){
+  var n=0;
+  Object.keys(edition&&edition.sel||{}).forEach(function(id){if(edition.sel[id])n+=1;});
+  return n;
+}
+/* Boutons de la barre : sélection, génération en cours, studio. */
+function majBarreGeneration_(){
+  if(!edition)return;
+  var n=nbSelection_(),sel=document.getElementById('sorealIdleTexteGenererSelV1');
+  var enCours=generation.enCours,studioOff=studio.ok===false;
+  if(sel){sel.textContent='▶ Générer la sélection ('+n+')';sel.disabled=n===0||enCours||studioOff;}
+  var tout=document.getElementById('sorealIdleTexteGenererV1');
+  if(tout){tout.textContent='▶ Générer les voix manquantes';tout.disabled=enCours||studioOff;}
+  var stop=document.getElementById('sorealIdleTexteStopV1');
+  if(stop)stop.disabled=!enCours;
+  var on=document.getElementById('sorealIdleTexteStudioOnV1'),off=document.getElementById('sorealIdleTexteStudioOffV1');
+  if(on)on.disabled=studio.ok===true;
+  if(off)off.disabled=studio.ok!==true||enCours;
+  Array.prototype.forEach.call(document.querySelectorAll('#'+EDITEUR_ID+' [data-stx-l="generer"]'),function(x){x.disabled=enCours||studioOff;});
+}
+function majProgression_(fait,total,texte){
+  var b=document.getElementById('sorealIdleTexteProgBarV1'),t=document.getElementById('sorealIdleTexteProgTxtV1');
+  if(b)b.style.width=(total>0?Math.round(100*fait/total):0)+'%';
+  if(t)t.textContent=texte||(total>0?fait+' sur '+total:'En attente');
+}
+
 function dessinerEditeur_(){
   installerStyle_();
   var ancien=document.getElementById(EDITEUR_ID);
@@ -740,9 +833,7 @@ function dessinerEditeur_(){
   var d=edition.def;
   var champsHtml=d.champs.map(function(c){
     if(champParle_(c)&&edition.lignes&&edition.lignes[c.id]){
-      return '<div><div class="stx-champ-titre">'+esc_(c.label)+'</div>'+
-        '<div class="stx-aide">Une bulle par personnage : choisis sa voix et son expression, écris sa ligne, écoute, puis génère.</div>'+
-        '<div class="stx-cadres" data-stx-cadres="'+esc_(c.id)+'">'+cadresChampHtml_(c.id)+'</div></div>';
+      return '<div class="stx-champ" data-stx-cadres="'+esc_(c.id)+'">'+cadresChampHtml_(c.id)+'</div>';
     }
     var valeur=valeurVersTexte_(c,edition.valeurs[c.id]);
     var rows=c.type==='liste'?9:7;
@@ -750,8 +841,7 @@ function dessinerEditeur_(){
     var champ=c.type==='ligne'
       ?'<input type="text" data-stx-champ="'+esc_(c.id)+'" value="'+esc_(valeur)+'">'
       :'<textarea rows="'+rows+'" data-stx-champ="'+esc_(c.id)+'">'+esc_(valeur)+'</textarea>';
-    var cadreTitre=d.titre===c.id?'<div class="stx-titre-bloc" data-stx-titre-bloc="1">'+titreCadreHtml_(blocsParCadre_(edition.valeurs).titre||[])+'</div>':'';
-    return '<div><div class="stx-champ-titre">'+esc_(c.label)+'</div>'+champ+aide+cadreTitre+'</div>';
+    return '<div><div class="stx-champ-titre">'+esc_(c.label)+'</div>'+champ+aide+'</div>';
   }).join('');
   var racine=document.createElement('div');
   racine.id=EDITEUR_ID;
@@ -759,10 +849,11 @@ function dessinerEditeur_(){
     '<div class="stx-carte stx-v2" role="dialog" aria-modal="true" title="'+esc_(edition.cle)+'">'+
       '<div class="stx-barre">'+
         '<div style="flex:1;min-width:0"><h3>✏️ '+esc_(d.libelle)+'</h3>'+
-          '<div class="stx-sous">'+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+puceStudioHtml_()+'</div></div>'+
+          '<div class="stx-sous">'+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+'</div></div>'+
         '<button type="button" class="stx-icone" data-stx-act="reduire" title="Réduire : tu peux continuer à jouer pendant que les voix se génèrent">➖</button>'+
         '<button type="button" class="stx-icone" data-stx-act="fermer" title="Fermer">✕</button>'+
       '</div>'+
+      barreGenerationHtml_()+
       '<div class="stx-corps">'+
         champsHtml+
         '<details class="stx-det"><summary>🗣 Prononciation : corriger un mot mal lu</summary><div id="sorealIdleTextePronBlocV1">'+prononciationsHtml_()+'</div></details>'+
@@ -770,12 +861,9 @@ function dessinerEditeur_(){
       '</div>'+
       '<div class="stx-pied">'+
         '<button type="button" class="primaire stx-gros" data-stx-act="enregistrer">💾 Enregistrer</button>'+
-        '<button type="button" data-stx-act="generer" id="sorealIdleTexteGenererV1" title="Génère les voix qui ne sont pas encore prêtes">🎙 Tout générer</button>'+
         '<button type="button" data-stx-act="ecouter" id="sorealIdleTexteEcouterV1" title="Écouter tout le texte">▶<span class="stx-lib"> Tout écouter</span></button>'+
         '<details class="stx-plus-pied"><summary title="Plus d’actions">⋯</summary><div class="stx-plus-menu">'+
-          '<button type="button" data-stx-act="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
-          '<button type="button" data-stx-act="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
-          '<label><input type="checkbox" id="sorealIdleTexteToutesV1"> Tout régénérer</label>'+
+          '<label><input type="checkbox" id="sorealIdleTexteToutesV1"> Tout régénérer (même les voix prêtes)</label>'+
           (edition.surcharge?'<button type="button" class="danger" data-stx-act="retablir">↩ Rétablir l’original</button>':'')+
         '</div></details>'+
       '</div>'+
@@ -799,6 +887,7 @@ function dessinerEditeur_(){
     if(ev.target&&ev.target.getAttribute&&ev.target.getAttribute('data-stx-champ'))edition.dernierChamp=ev.target;
   });
   afficherEtat_(statutLigne_());
+  majBarreGeneration_();
 }
 /* Liste des fichiers de voix des blocs du texte en cours d'édition (outils partagés avec l'éditeur d'histoires). */
 function fichiersVoixEditeurHtml_(){
@@ -810,20 +899,11 @@ function rafraichirFichiersVoix_(){
   var valeurs=lireChamps_();
   var r=blocsParCadre_(valeurs);
   r.cadres.forEach(function(c){
-    var zone=document.querySelector('#'+EDITEUR_ID+' [data-stx-vz="'+c.champ+'|'+c.k+'"]');
-    var lg=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
-    if(zone&&lg){
-      var attendu=Math.max(c.blocs.length,0);
-      if(zone.querySelectorAll('textarea').length!==attendu)zone.innerHTML=voixBlocsHtml_(c.champ,c.k,lg,c.blocs);
-    }
     var el=document.querySelector('#'+EDITEUR_ID+' [data-stx-fv="'+c.champ+'|'+c.k+'"]');
-    if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de cette ligne.</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>';
+    if(el)el.innerHTML=o&&c.blocs.length&&typeof o.fichiersVoixHtml==='function'?'<div class="stx-aide">Télécharger, retoucher ou remplacer la voix de ce personnage.</div>'+o.fichiersVoixHtml(c.blocs,edition.voix):'<div class="stx-aide">Écris du texte, puis génère la voix.</div>';
     var badge=document.querySelector('#'+EDITEUR_ID+' [data-stx-badge="'+c.champ+'|'+c.k+'"]');
     if(badge)badge.innerHTML=etatVoixHtml_(c.blocs);
   });
-  /* Cadre du titre : fichier et badge. */
-  var cadreT=document.querySelector('#'+EDITEUR_ID+' [data-stx-titre-bloc]');
-  if(cadreT&&edition.def.titre)cadreT.innerHTML=titreCadreHtml_(r.titre||[]);
 }
 function statutLigne_(){
   var s=statutVoix_();
@@ -974,7 +1054,7 @@ function ecouterCadre_(champ,k){
   if(ecouteCle===cle){arreterEcoute_();return;}
   arreterEcoute_();
   lireChamps_();
-  var l=champ==='__titre'?{texte:lireChamps_()[edition.def.titre]}:(edition.lignes[champ]&&edition.lignes[champ][k]);
+  var l=edition.lignes[champ]&&edition.lignes[champ][k];
   var texte=String(l&&l.texte||'').replace(/\s+/g,' ').trim();
   if(!texte){afficherEtat_('Ce cadre est vide : rien à écouter.',true);return;}
   enregistrerVoix_(edition.voix);
@@ -991,16 +1071,29 @@ function ecouterCadre_(champ,k){
 }
 
 function charge_(valeurs){
-  /* Les empreintes d'un bloc qui n'existe plus (texte modifié) sont retirées : le « nettoyage des voix » supprimera leurs fichiers. Sans le module de narration, rien n'est touché. */
+  /* Les empreintes d'un bloc qui n'existe plus (texte dit modifié) sont retirées : le « nettoyage des voix » supprimera leurs fichiers. Sans le module de narration, rien n'est touché. */
   var blocsActuels=blocsDeLecture_(valeurs);
   if(blocsActuels.length){
     var actuelles={};
     blocsActuels.forEach(function(b){actuelles[b.hash]=1;});
     edition.voix=edition.voix.filter(function(h){return actuelles[h];});
   }
-  var o={cle:edition.cle,champs:{},voix:edition.voix.slice(),voixTextes:{},voixFaites:{}};
-  champsDef_().forEach(function(c){o.champs[c.id]=valeurs[c.id];});
-  /* Textes de voix : seulement ceux de blocs qui existent encore (un texte affiché modifié a une autre empreinte). */
+  var o={cle:edition.cle,champs:{},parle:{},voix:edition.voix.slice(),voixTextes:{},voixFaites:{}};
+  champsDef_().forEach(function(c){
+    if(champParle_(c)&&edition.lignes&&edition.lignes[c.id]){
+      var aff=valeurAfficheeChamp_(c),dit=valeurParleeChamp_(c);
+      if(c.type==='liste'){
+        /* un paragraphe sans texte affiché disparaît avec ses personnages (les deux listes restent alignées) */
+        var gA=[],gD=[];
+        aff.forEach(function(a,i){if(a){gA.push(a);gD.push(dit[i]||a);}});
+        o.champs[c.id]=gA;o.parle[c.id]=gD;
+      }else{
+        o.champs[c.id]=aff;
+        o.parle[c.id]=dit||aff;
+      }
+    }else o.champs[c.id]=valeurs[c.id];
+  });
+  /* Anciens textes de voix : seulement ceux de blocs qui existent encore. */
   var presents={};
   blocsActuels.forEach(function(b){presents[b.hash]=1;});
   Object.keys(edition.voixTextes||{}).forEach(function(h){if(presents[h])o.voixTextes[h]=edition.voixTextes[h];});
@@ -1013,7 +1106,7 @@ function enregistrer_(){
   edition.valeurs=valeurs;
   return appel_('enregistrerTexteAdminSorealIdle',[charge_(valeurs)]).then(function(res){
     if(!res||res.ok===false){afficherEtat_((res&&res.message)||'Enregistrement refusé.',true);return false;}
-    edition.surcharge=res.texte||{champs:valeurs,voix:edition.voix,voixTextes:edition.voixTextes||{},voixFaites:edition.voixFaites||{}};
+    edition.surcharge=res.texte||charge_(valeurs);
     miseAJourApresEcriture_(edition.cle,edition.surcharge);
     afficherEtat_('✔ Enregistré. '+statutLigne_());
     rafraichirFichiersVoix_();
@@ -1035,7 +1128,7 @@ function miseAJourApresEcriture_(cle,surcharge){
     try{var rt=window.__SOREAL_IDLE_RUNTIME_V1__;if(rt&&typeof rt.invalidate==='function')rt.invalidate();}catch(_e){}
     try{if(typeof window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__==='function')window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__();}catch(_e2){}
   }else{
-    if(surcharge)surcharges.popups[cle]={champs:surcharge.champs,voix:surcharge.voix||[]};else delete surcharges.popups[cle];
+    if(surcharge)surcharges.popups[cle]={champs:surcharge.champs,parle:surcharge.parle||{},voix:surcharge.voix||[]};else delete surcharges.popups[cle];
     /* Fiche complète (avec les textes de voix, jamais envoyés aux joueurs) gardée pour rouvrir l'éditeur sans perdre les textes de voix. */
     admin.popups=(admin.popups||[]).filter(function(p){return !(p&&p.cle===cle);});
     if(surcharge)admin.popups.push(Object.assign({cle:cle},surcharge));
@@ -1066,9 +1159,24 @@ function fermer_(){
 }
 
 function majBoutonGenerer_(){
-  var b=document.getElementById('sorealIdleTexteGenererV1');
-  if(b)b.textContent=generation.enCours?'⏹ Arrêter':'🎙 Tout générer';
-  Array.prototype.forEach.call(document.querySelectorAll('#'+EDITEUR_ID+' [data-stx-l="generer"]'),function(x){x.textContent=generation.enCours?'⏹ Arrêter':'🎙 Générer';});
+  majBarreGeneration_();
+}
+/* Génère seulement les personnages cochés (toujours refaits). */
+function genererSelection_(){
+  var o=outilsVoix_();
+  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+  if(!o){afficherEtat_('Outils de voix indisponibles (module Admin non chargé).',true);return;}
+  var valeurs=lireChamps_();
+  edition.valeurs=valeurs;
+  var vus={},aFaire=[];
+  Object.keys(edition.lignes).forEach(function(champ){
+    edition.lignes[champ].forEach(function(l,k){
+      if(!edition.sel||!edition.sel[l.id])return;
+      blocsDuCadre_(champ,k,valeurs).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;aFaire.push(b);}});
+    });
+  });
+  if(!aFaire.length){afficherEtat_('Coche d’abord un ou plusieurs personnages (avec du texte).',true);return;}
+  lancerGeneration_(o,aFaire,'Sélection');
 }
 
 function generer_(){
@@ -1080,6 +1188,7 @@ function generer_(){
   var blocs=blocsDeLecture_(valeurs);
   if(!blocs.length){afficherEtat_('Aucun texte à lire.',true);return;}
   var toutes=Boolean((document.getElementById('sorealIdleTexteToutesV1')||{}).checked);
+  if(studio.ok===false){afficherEtat_('Le studio de voix n’est pas lancé : clique sur « 🚀 Lancer le studio ».',true);return;}
   /* Blocs dont une correction de prononciation vient de changer : refaits même si une voix existe déjà. */
   var aFaire=blocs.filter(function(b){return toutes||edition.voix.indexOf(b.hash)===-1||(edition.aRefaire&&edition.aRefaire[b.hash]);});
   if(!aFaire.length){afficherEtat_('Toutes les voix sont déjà prêtes (coche « tout régénérer » pour les refaire).');return;}
@@ -1101,6 +1210,7 @@ function genererCadre_(champ,k){
 function lancerGeneration_(o,aFaire,libelle){
   generation={enCours:true,annule:false,texte:''};
   majBoutonGenerer_();
+  majProgression_(0,aFaire.length,'0 sur '+aFaire.length);
   var fait=0;
   var suite=Promise.resolve();
   aFaire.forEach(function(b){
@@ -1116,6 +1226,7 @@ function lancerGeneration_(o,aFaire,libelle){
         var tv=edition.voixTextes&&edition.voixTextes[b.hash];
         if(tv)edition.voixFaites[b.hash]=tv;else delete edition.voixFaites[b.hash];
         fait+=1;
+        majProgression_(fait,aFaire.length);
       });
     });
   });
@@ -1133,6 +1244,7 @@ function lancerGeneration_(o,aFaire,libelle){
   }).then(function(){
     generation={enCours:false,annule:false,texte:''};
     majBoutonGenerer_();
+    majProgression_(fait,aFaire.length,(fait>=aFaire.length?'Terminé ✔ ':'Arrêté ')+'('+fait+' sur '+aFaire.length+')');
   });
 }
 
@@ -1144,13 +1256,41 @@ function ouvrir_(cle,def,surcharge,originaux){
     var s=surcharge&&surcharge.champs?surcharge.champs[c.id]:undefined;
     courant[c.id]=s!==undefined?s:(originaux?originaux[c.id]:'');
   });
-  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{},
+  edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,affiche:{},sel:{},voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{},
     voixTextes:surcharge&&surcharge.voixTextes&&typeof surcharge.voixTextes==='object'?Object.assign({},surcharge.voixTextes):{},
     voixFaites:surcharge&&surcharge.voixFaites&&typeof surcharge.voixFaites==='object'?Object.assign({},surcharge.voixFaites):{},
     titreVoix:''};
-  /* Un cadre par personnage pour chaque texte parlé : les balises (marius), (femme)… du texte deviennent des cadres. */
-  def.champs.forEach(function(c){if(champParle_(c))edition.lignes[c.id]=c.type==='liste'?lignesDepuisListe_(courant[c.id]):lignesDepuisTexte_(courant[c.id]);});
-  hydraterVoix_(courant);
+  /*
+   * Un cadre doré (texte des joueurs) et des personnages (texte dit) pour chaque texte parlé. Le texte DIT vient de « parle » ; sans lui (texte d'origine, ou enregistré avant l'éditeur à personnages), il part du texte avec ses
+   * balises, et le texte des joueurs est ce texte sans balises. Chaque personnage est une carte avec un identifiant stable (sélection).
+   */
+  var uid=0;
+  def.champs.forEach(function(c){
+    if(!champParle_(c))return;
+    var dit=surcharge&&surcharge.parle&&surcharge.parle[c.id]!==undefined?surcharge.parle[c.id]:courant[c.id];
+    var brutAff=courant[c.id];
+    var possedeParle=Boolean(surcharge&&surcharge.parle&&surcharge.parle[c.id]!==undefined);
+    if(c.type==='liste'){
+      var listeA=(Array.isArray(brutAff)?brutAff:[]).map(function(x){return possedeParle?String(x||''):sansBalises_(x);});
+      var listeD=Array.isArray(dit)?dit:[];
+      var n=Math.max(listeA.length,listeD.length,1);
+      edition.affiche[c.id]=[];
+      edition.lignes[c.id]=[];
+      var cartesListe=lignesDepuisListe_(listeD.length?listeD:listeA);
+      for(var i=0;i<n;i+=1){
+        edition.affiche[c.id][i]=listeA[i]!==undefined?listeA[i]:'';
+        var l=cartesListe[i]||{parleur:'narrateur',expr:'',texte:edition.affiche[c.id][i]};
+        edition.lignes[c.id].push({parleur:l.parleur,expr:l.expr||'',texte:l.texte,u:i,id:'c'+(++uid)});
+      }
+    }else{
+      var aff=possedeParle?String(brutAff==null?'':brutAff):sansBalises_(brutAff);
+      edition.affiche[c.id]=[aff];
+      edition.lignes[c.id]=lignesDepuisTexte_(dit).map(function(l){return {parleur:l.parleur,expr:l.expr||'',texte:l.texte,u:0,id:'c'+(++uid)};});
+      /* texte d'origine sans balises : le personnage part d'une copie du texte des joueurs */
+      if(edition.lignes[c.id].length===1&&!String(edition.lignes[c.id][0].texte||'').trim())edition.lignes[c.id][0].texte=aff;
+    }
+  });
+  edition.valeurs=lireChamps_();
   reduit=false;
   dessinerEditeur_();
   verifierStudio_();
@@ -1346,9 +1486,11 @@ document.addEventListener('click',function(ev){
       if(aL==='generer'){genererCadre_(cL,kL);return;}
       if(aL==='suppr'){
         var liste=edition.lignes[cL];
-        if(!liste)return;
-        /* Un texte garde au moins un cadre : supprimer le dernier le vide seulement. */
-        if(liste.length<=1){liste[0].texte='';}else{liste.splice(kL,1);}
+        if(!liste||!liste[kL])return;
+        var uS=liste[kL].u;
+        var memeUnite=liste.filter(function(x){return x.u===uS;}).length;
+        /* Un texte garde au moins un personnage : retirer le dernier le vide seulement. */
+        if(memeUnite<=1){liste[kL].texte='';}else{delete edition.sel[liste[kL].id];liste.splice(kL,1);}
         edition.valeurs=lireChamps_();
         rafraichirCadres_(cL);
         afficherEtat_(statutLigne_());
@@ -1372,10 +1514,47 @@ document.addEventListener('click',function(ev){
       if(act==='agrandir'){reduit=false;racine.classList.remove('stx-reduit');return;}
       if(act==='arreter-gen'){if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');}return;}
       if(act==='cadre+'){
-        var cN=a.getAttribute('data-c');
+        /* Nouveau personnage : une copie du texte des joueurs (à retoucher), à la suite de ceux de son cadre doré. */
+        var cN=a.getAttribute('data-c'),uN=Number(a.getAttribute('data-u'))||0;
         edition.valeurs=lireChamps_();
         var lN=edition.lignes[cN];
-        if(lN){lN.push({parleur:lN.length?lN[lN.length-1].parleur:'narrateur',expr:'',texte:''});rafraichirCadres_(cN);}
+        if(lN){
+          var dernier=-1;
+          lN.forEach(function(x,i){if(x.u===uN)dernier=i;});
+          var prec=dernier>=0?lN[dernier]:null;
+          lN.splice(dernier+1,0,{parleur:prec?prec.parleur:'narrateur',expr:'',texte:String((edition.affiche[cN]||[])[uN]||''),u:uN,id:nouvelId_()});
+          rafraichirCadres_(cN);
+        }
+        return;
+      }
+      if(act==='unite+'){
+        var cU=a.getAttribute('data-c');
+        edition.valeurs=lireChamps_();
+        var affU=edition.affiche[cU]||(edition.affiche[cU]=['']);
+        affU.push('');
+        edition.lignes[cU].push({parleur:'narrateur',expr:'',texte:'',u:affU.length-1,id:nouvelId_()});
+        rafraichirCadres_(cU);
+        return;
+      }
+      if(act==='unite-'){
+        var cR=a.getAttribute('data-c'),uR=Number(a.getAttribute('data-u'))||0;
+        edition.valeurs=lireChamps_();
+        var affR=edition.affiche[cR]||[];
+        if(affR.length<=1){affR[0]='';edition.lignes[cR].forEach(function(x){x.texte='';});}
+        else{
+          affR.splice(uR,1);
+          edition.lignes[cR]=edition.lignes[cR].filter(function(x){return x.u!==uR;}).map(function(x){if(x.u>uR)x.u-=1;return x;});
+        }
+        edition.valeurs=lireChamps_();
+        rafraichirCadres_(cR);
+        return;
+      }
+      if(act==='generer-sel'){genererSelection_();return;}
+      if(act==='tout-cocher'||act==='rien-cocher'){
+        var cocher=act==='tout-cocher';
+        Object.keys(edition.lignes).forEach(function(c){edition.lignes[c].forEach(function(x){edition.sel[x.id]=cocher;});});
+        Array.prototype.forEach.call(racine.querySelectorAll('[data-stx-sel]'),function(b){b.checked=cocher;var carte=b.closest('.stx-perso');if(carte)carte.classList.toggle('sel',cocher);});
+        majBarreGeneration_();
         return;
       }
       if(act==='ecouter'){ecouter_();return;}
@@ -1402,18 +1581,25 @@ document.addEventListener('click',function(ev){
 var minuterieFichiers=0;
 document.addEventListener('input',function(ev){
   var el=ev.target;
-  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-lvoix')||el.getAttribute('data-stx-tvoix'))){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
+  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-affiche'))){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
   if(el&&el.id==='sorealIdleTextesFiltreV1'){
     admin.filtre=el.value;
     var b=document.getElementById('sorealIdleTextesBossListeV1');
     if(b)b.innerHTML=listeBossHtml_();
     return;
   }
-  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-lvoix')||el.getAttribute('data-stx-tvoix')))afficherEtat_(statutLigne_());
+  if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-affiche')))afficherEtat_(statutLigne_());
 });
 /* Changer la voix d'un cadre change aussi ses fichiers de voix (la voix fait partie de ce qui est lu). */
 document.addEventListener('change',function(ev){
   var el=ev.target;
+  if(edition&&el&&el.getAttribute&&el.getAttribute('data-stx-sel')){
+    edition.sel[el.getAttribute('data-stx-sel')]=Boolean(el.checked);
+    var carteSel=el.closest('.stx-perso');
+    if(carteSel)carteSel.classList.toggle('sel',Boolean(el.checked));
+    majBarreGeneration_();
+    return;
+  }
   if(edition&&el&&el.getAttribute&&el.getAttribute('data-stx-lparleur'))rafraichirFichiersVoix_();
 });
 

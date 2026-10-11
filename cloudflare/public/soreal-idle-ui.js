@@ -13748,8 +13748,11 @@
          */
         /* Chronique avec balises de voix : le panneau porte le texte à lire (nom + récit brut), sinon la lecture se ferait sur le texte affiché, sans voix. */
         const ttsChronique=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
-        const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&attrHistoireVoixIdleV1_(histoire))
-          ?' data-soreal-tts-say="'+idleHtml_(ttsChronique.composerChronique(nomBoss,histoire))+'"'
+        /* Texte et nom PARLÉS fixés par l'administrateur : la voix lit ceux-là, quoi que dise le texte affiché (Norman, 2026-10-11). */
+        const histoireParlee=String(j&&j.bossHistoireParlee||'').trim();
+        const nomParle=String(j&&j.bossNomParle||'').trim();
+        const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&(histoireParlee||nomParle||attrHistoireVoixIdleV1_(histoire)))
+          ?' data-soreal-tts-say="'+idleHtml_(ttsChronique.composerChronique(nomParle||nomBoss,histoireParlee||histoire))+'"'
           :'';
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142${window.__chroniqueOuverteIdleV1?' ouverte':''}" role="button" tabindex="0" aria-label="Chronique du boss" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}"${attrLecture}>

@@ -37,7 +37,10 @@ assert.throws(() => normaliserTexteV1({ cle: "boss:0", champs: { texte: "x" } })
 assert.throws(() => normaliserTexteV1({ cle: "tuto:1", champs: { "1mauvais": "x" } }), /TEXTE_CHAMP_INVALIDE/);
 {
   const t = normaliserTexteV1({ cle: "tuto:debut:2", champs: { titre: "  Salut ", paragraphes: ["a\r\nb", " c "] }, voix: ["0123456789abcd", "pas-un-hash", "0123456789abcd"] });
-  assert.deepEqual(t, { cle: "tuto:debut:2", champs: { titre: "Salut", paragraphes: ["a\nb", "c"] }, voix: ["0123456789abcd"], voixTextes: {}, voixFaites: {} });
+  assert.deepEqual(t, { cle: "tuto:debut:2", champs: { titre: "Salut", paragraphes: ["a\nb", "c"] }, parle: {}, voix: ["0123456789abcd"], voixTextes: {}, voixFaites: {} });
+  /* Texte PARLÉ (2026-10-11) : même forme que les champs, seulement pour les champs existants. */
+  const tp = normaliserTexteV1({ cle: "tuto:debut:2", champs: { titre: "Salut", paragraphes: ["a", "b"] }, parle: { titre: " (femme) Salut ", paragraphes: ["x", "y"], inconnu: "z" } });
+  assert.deepEqual(tp.parle, { titre: "(femme) Salut", paragraphes: ["x", "y"] }, "parle normalisé, champ inconnu ignoré");
 }
 // 1 bis. Textes de voix (Norman, 2026-10-08) : « comment le dire », par empreinte du texte affiché ; empreintes invalides et textes vides écartés, texte borné.
 {
@@ -104,3 +107,19 @@ assert.throws(() => normaliserTexteV1({ cle: "tuto:1", champs: { "1mauvais": "x"
 }
 
 console.log("idle-textes-v1: OK");
+{
+  // Texte et nom PARLÉS d'un boss (2026-10-11) : la voix dit ce que l'administrateur a fixé, quoi que montre le texte affiché ; jamais envoyés dans la liste des popups des joueurs.
+  const { texteBossParleV1, nomBossParleV1 } = await import("../src/idle-textes-v1.js");
+  const sql = baseVide();
+  enregistrerTexteV1(sql, { cle: "boss:9", champs: { nom: "Gros Boss", texte: "Texte des joueurs." }, parle: { nom: "Gro Bosse", texte: "(femme) Texte dit." } });
+  invaliderCacheTextesBossV1();
+  assert.equal(texteBossSurchargeV1(sql, 9), "Texte des joueurs.");
+  assert.equal(texteBossParleV1(sql, 9), "(femme) Texte dit.");
+  assert.equal(nomBossParleV1(sql, 9), "Gro Bosse");
+  assert.equal(texteBossParleV1(sql, 10), null);
+  assert.deepEqual(Object.keys(surchargesPourJoueurV1(sql).popups), [], "aucun texte de boss n'est envoyé dans les popups");
+  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  assert.ok(rt.includes("bossHistoireParlee: String(def.histoireParlee || '')") && rt.includes("bossNomParle: String(bossDefinitionEtat.nomParle || '')"), "l'état du boss porte le texte et le nom parlés");
+  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  assert.ok(ui.includes("composerChronique(nomParle||nomBoss,histoireParlee||histoire)"), "la chronique est lue avec le texte et le nom parlés");
+}
