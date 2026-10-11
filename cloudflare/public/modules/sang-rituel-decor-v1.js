@@ -873,8 +873,8 @@ function css(){
     P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
-    /* nouvelle image avec la main (1552 x 677) : elle occupe toute la largeur de la case, l'avant-bras reste à la même hauteur (centre à 96 px) pour que la feuille tombe au même endroit */
-    P+'.bm-bras-img{position:absolute;left:-12px;top:96px;transform:translateY(-50%);width:calc(100% + 24px);height:auto;max-width:none;z-index:4;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
+    /* nouvelle image avec la main (1552 x 677) : l'avant-bras garde EXACTEMENT sa taille et sa place d'avant (épaisseur 63 px, centre à 96 px, manche à gauche) pour que la coupure tombe au même endroit ; la main dépasse à droite, HORS de la case : on ne la voit que quand le bras glisse (sortie et retour) */
+    P+'.bm-bras-img{position:absolute;left:-29px;top:96px;transform:translateY(-50%);height:215px;width:auto;max-width:none;z-index:4;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     P+'.bm-perso{position:absolute;left:-12px;top:-18px;height:330px;width:auto;max-width:none;z-index:3;display:block;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     P+'.bm-scene:has(.bm-perso) .bm-cou{display:none}',
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
