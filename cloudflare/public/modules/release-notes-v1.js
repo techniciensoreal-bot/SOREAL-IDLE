@@ -32,6 +32,7 @@
         date:'2026-10-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'La lueur de la cheminée est plus douce et plus ciblée : de petites lueurs s’allument sur les bords de l’écran, à des endroits qui changent, au lieu d’une lumière qui s’allume et s’éteint.',
             'Les menus dont les chiffres bougent seuls (barres, compteurs) se mettent à jour en direct pendant que tu es dessus.',
             'Chaque barre où tu places de l’énergie a un bouton « 0 » : il retire toute l’énergie de cette barre seulement.',
           ]},
