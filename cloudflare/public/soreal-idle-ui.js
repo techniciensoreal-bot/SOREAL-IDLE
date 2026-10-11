@@ -1182,7 +1182,10 @@
         const entree=inputBasicTrainingIdleV120_();
         let plan;
 
-        if(synchro){
+        /* « 0 » (Norman, 2026-10-11) : retire TOUTE l'énergie de cette barre, et d'elle seule (même avec Synchro, la jumelle ne bouge pas). */
+        if(action==='zero'){
+          plan={a:0,b:synchro?idleEntier_(jumelle.allocation):0};
+        }else if(synchro){
           plan=planSynchroBasicTrainingIdleV1_(
             action,
             {courant:courant,cap:capBasicTrainingLocalIdleV120_(skill)},
@@ -1226,7 +1229,7 @@
         /* Sons de +, − et Cap (2026-09-26) : seulement si l'allocation change vraiment. */
         if(delta!==0){
           jouerEffetAudioIdleV199_(
-            action==='plus'?'btPlus':action==='moins'?'btMinus':'btCap'
+            action==='plus'?'btPlus':(action==='moins'||action==='zero')?'btMinus':'btCap'
           );
         }
 
@@ -16548,6 +16551,11 @@
                 type="button"
                 onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','cap')"
               >Max</button>
+              <button
+                type="button"
+                title="Retirer toute l’énergie de cette barre"
+                onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','zero')"
+              >0</button>
             </div>
           </div>
         `;

@@ -235,3 +235,6 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 
 /* Mobile : les boutons + / − des listes (mineurs, etc.) font au moins 40 px de large et de haut (cible tactile). */
 @media (max-width:480px){body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-expand-button-v25{min-width:40px;min-height:40px}}
+/* Compte à rebours du prochain combat de la tour (Norman, 2026-10-11). */
+.itp-prochain{min-height:24px;margin:8px 0 0;text-align:center;font:400 20px/1.2 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.06em;color:#ffe9a8;text-shadow:0 2px 0 #000,0 0 10px rgba(255,170,40,.55)}
+.itp-prochain b{color:#fff;font-weight:400;font-variant-numeric:tabular-nums}

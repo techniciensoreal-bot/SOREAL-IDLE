@@ -75,7 +75,24 @@ function contenu(etage,kills,killsSurEtage){
     '<div class="itp-cadre"><div class="itp-vitre">'+decor+'<div class="itp-ombre"></div><div class="itp-ennemi'+(combat.mort?' itp-mort':'')+'">'+avatar+'</div><div class="itp-poing" aria-hidden="true"><span>👊</span></div>'+
     '<span class="itp-braise itp-b1"></span><span class="itp-braise itp-b2"></span><span class="itp-braise itp-b3"></span></div></div>'+
     '<div class="itp-vie" title="Points de vie de l’ennemi"><div class="itp-vie-rempli" style="width:'+vie.toFixed(1)+'%"></div></div>'+
-    '<div class="itp-nom"><span class="itp-nom-texte">'+esc(nom)+'</span></div>';
+    '<div class="itp-nom"><span class="itp-nom-texte">'+esc(nom)+'</span></div>'+
+    '<div class="itp-prochain" data-itp-prochain aria-live="off">'+texteProchain()+'</div>';
+}
+
+/* Compte à rebours du prochain combat (Norman, 2026-10-11) : une fois l'ennemi battu, le suivant arrive après le délai de réapparition de la tour ; pendant le combat on le dit aussi. */
+function texteProchain(){
+  if(!combat.actif||!(combat.hits>0))return '';
+  if(combat.mort){
+    var reste=Math.max(0,combat.prochain-Date.now())/1000;
+    return '⏳ Prochain combat dans <b>'+reste.toFixed(1).replace('.',',')+' s</b>';
+  }
+  return '⚔️ Combat en cours';
+}
+function majProchain(el){
+  var p=el&&el.querySelector('.itp-prochain');
+  if(!p)return;
+  var t=texteProchain();
+  if(p.__itpTexte!==t){p.__itpTexte=t;p.innerHTML=t;}
 }
 
 function remplir(el){
@@ -97,6 +114,7 @@ function effetCoup(el){
 
 function pas(){
   var els=document.querySelectorAll('.'+CLASSE);
+  if(els.length)majProchain(els[0]);
   if(!els.length||!combat.actif||!(combat.hits>0))return;
   var el=els[0];
   var maintenant=Date.now();
@@ -153,5 +171,5 @@ function html(d){
   return '<section class="itp-arene '+CLASSE+'" data-etage="'+etage+'" data-kills="'+kills+'" data-sur="'+sur+'">'+contenu(etage,kills+combat.decalage,sur)+'</section>';
 }
 
-window.__SOREAL_IDLE_ITOPOD_SCENE_V1__={pas:pas,combat:combat,estFlottant:estFlottant,html:html,numeroDecor:numeroDecor,indexEnnemi:indexEnnemi};
+window.__SOREAL_IDLE_ITOPOD_SCENE_V1__={pas:pas,texteProchain:texteProchain,combat:combat,estFlottant:estFlottant,html:html,numeroDecor:numeroDecor,indexEnnemi:indexEnnemi};
 })();

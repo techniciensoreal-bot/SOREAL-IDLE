@@ -63,7 +63,7 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
   assert.ok(!/🔒|Slot 3|Slot 4|verrouill/.test(html), "slots 3 et 4 encore verrouillés : absents (anti-spoil)");
   assert.equal((html.match(/action:'setWishSlot'/g) || []).length, 2, "un sélecteur par slot débloqué");
   /* 2026-10-09 : − + MAX par ressource et par slot (Input partagé), plus les anciens 0/25/50/100 % */
-  assert.equal((html.match(/ALLOC_V1__\.ajusterVoeu\(/g) || []).length, 2 * 3 * 3, "3 boutons (− + Max) par ressource et par slot");
+  assert.equal((html.match(/ALLOC_V1__\.ajusterVoeu\(/g) || []).length, 2 * 3 * 4, "4 boutons (− + Max 0) par ressource et par slot");
   assert.equal((html.match(/action:'allocateWishSlot'/g) || []).length, 0, "plus de boutons en pourcentage");
   assert.ok(html.includes("Slot 1 · I Wish that wishes weren't so slow :c"));
   assert.ok(html.includes("Slot 2 · I wish I had more Energy Power I"));

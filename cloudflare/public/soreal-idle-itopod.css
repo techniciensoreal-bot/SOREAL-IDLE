@@ -1417,7 +1417,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:701px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-at-boutons-v1,.soreal-idle-tm-boutons-v1,.nl-boutons,.nl-ligne) button{box-sizing:border-box;width:56px!important;min-width:56px!important;height:56px!important;min-height:56px!important;padding:0!important;display:inline-grid!important;place-items:center;font-size:20px!important;font-weight:900!important;line-height:1!important;border-radius:12px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-at-boutons-v1,.soreal-idle-tm-boutons-v1,.nl-boutons,.nl-ligne) button.clear{width:auto!important;min-width:56px!important;padding:0 16px!important;font-size:16px!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-row-v120{grid-template-columns:minmax(0,1fr) 100px 120px 192px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-row-v120{grid-template-columns:minmax(0,1fr) 100px 120px 256px!important}
 }
 
 /* ====================== AUGMENTATIONS : PAIRES « NORMALE + PUISSANTE » (Norman, 2026-10-10) ======================
@@ -1470,3 +1470,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-lien-v2{margin:0}
 }
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2[data-actif="1"]{--fx:color-mix(in srgb,var(--pc) 75%,transparent)}
+/* Quatrième bouton « 0 » (retire toute l'énergie de la barre, Norman 2026-10-11) : quatre colonnes égales partout. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-actions-v120:not(.aug-piste-v2 .soreal-idle-bt-actions-v120){grid-template-columns:repeat(4,minmax(0,1fr))!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2 .soreal-idle-bt-actions-v120{display:flex!important}

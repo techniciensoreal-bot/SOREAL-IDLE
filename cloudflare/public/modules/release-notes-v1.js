@@ -20,6 +20,7 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
+          'Chaque barre qui a + − Max a aussi un bouton « 0 » qui retire toute l’énergie de cette barre seulement, et la tour affiche un compte à rebours avant le prochain combat.',
           'L’Or est contrôlé en direct dans tous les menus qui en demandent (Augmentations, rituels…) : l’Or produit entre deux synchronisations est ajouté tout de suite, donc plus de temps d’arrêt ni de petit retour en arrière sur les niveaux achetés.',
           'Augmentations : quand l’Or manque pour plusieurs pistes à la fois, c’est celle dont le prochain niveau coûte le moins qui est servie en premier.',
           'Augmentations est refait : chaque paire montre ses deux pistes côte à côte, dans une même couleur avec une nuance plus claire pour la seconde (icône propre, tube de verre lumineux), avec une cible par piste et « Faire suivre l’énergie ». Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur.',

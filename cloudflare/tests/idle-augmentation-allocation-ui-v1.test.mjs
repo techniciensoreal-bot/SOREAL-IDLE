@@ -62,7 +62,7 @@ const alloue = (s, pair = "scissors", upgrade = false) => s.systems.augmentation
 // --- Client : − / + / Max par piste, Input, énergie libre, Tout retirer ; plus de 0/25/50/100 % ---
 const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
-assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
+assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max'],['zero','0']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
 /*
  * Norman (2026-09-29, répété) : « J'ai demandé des boutons de la même taille que ceux de Basic
  * training... Ils sont toujours énormes dans Augmentations et Blood magic. » La variante réduite
@@ -77,10 +77,10 @@ assert.match(page, /id="sorealIdleAugInputV1"/);
 assert.match(page, /Énergie libre :/);
 assert.match(page, /__viderAugmentsIdleV1__/, "« Tout retirer » : d'abord en local (chantier réactivité), puis envoi groupé");
 assert.match(module_, /envoyerAllocRapideV1_\(\{action:'clearAugmentAllocations'\}\)/);
-assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idleAvant\)\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:current\+idleAvant;/);
+assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idleAvant\)\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:mode==='zero'\?0:current\+idleAvant;/);
 // Norman (2026-09-27) : « je veux le même son et la même animation ... que dans basic training, mais dans augmentation » -- même mise à
 // jour optimiste locale (avant la réponse serveur) et même famille de sons (btPlus/btMinus/btCap) que ajusterBasicTrainingIdleV120_.
-assert.match(module_, /const son=mode==='plus'\?'btPlus':mode==='moins'\?'btMinus':'btCap';/);
+assert.match(module_, /const son=mode==='plus'\?'btPlus':\(mode==='moins'\|\|mode==='zero'\)\?'btMinus':'btCap';/);
 assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]\(\);/);
 /*
  * 2026-09-29 (Norman : « j'ai l'impression que la réactivité n'est pas aussi bonne que dans basic
@@ -92,7 +92,7 @@ assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]
 assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
 assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
 assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610141"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610142"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 
@@ -143,7 +143,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   etat = fabriquerEtat();
   const html = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_(etat, "augmentations", "Augmentations");
   assert.match(html, /Énergie libre : <b id="sorealIdleAugEnergieLibreV1">250<\/b>/);
-  assert.equal((html.match(/__ajusterAugmentIdleV1__/g) || []).length, 6, "3 boutons pour l'Augment et 3 pour l'Upgrade");
+  assert.equal((html.match(/__ajusterAugmentIdleV1__/g) || []).length, 8, "4 boutons pour l'Augment et 4 pour l'Upgrade");
   assert.ok(!html.includes("25%") && !html.includes("50%"));
 
   // « + » (Input = 40) : mise à jour optimiste locale IMMÉDIATE (avant même l'envoi réseau), même son que Basic Training.

@@ -57,7 +57,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   );
 
   // Même classe de bouton que Basic Training, SANS modificateur : taille strictement identique, pas une redéfinition parallèle.
-  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "les boutons +/−/Max d'Augmentation utilisent EXACTEMENT la même classe que Basic Training (Norman, 2026-09-29 : « toujours énormes » -- la variante compact-v1 n'était pas ce qui avait été demandé)");
+  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\],\['zero','0'\]\]/, "les boutons +/−/Max d'Augmentation utilisent EXACTEMENT la même classe que Basic Training (Norman, 2026-09-29 : « toujours énormes » -- la variante compact-v1 n'était pas ce qui avait été demandé)");
   assert.ok(!meta.includes("compact-v1"), "la variante de taille réduite a été retirée : plus aucune trace dans le module");
 
   // Le chiffre d'énergie allouée gonfle désormais (alloc-pop-v1.js), comme Basic Training.

@@ -177,6 +177,7 @@ function barreHtml_(n,ancre){
         '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
         '<button type="button" class="max" title="Placer toute l’énergie ou la magie libre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'max\')">Max</button>'+
+        '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'zero\')">0</button>'+
       '</div>'+
     '</div>'+
   '</div>';
@@ -453,10 +454,10 @@ function ajuster(id,mode){
   var res=n.resource;
   var courant=Math.max(0,Math.floor(nombre_(n.allocation)));
   var lib=libre_(j,res);
-  var valeur=mode==='max'?courant+Math.floor(lib):(mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_()));
+  var valeur=mode==='zero'?0:mode==='max'?courant+Math.floor(lib):(mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_()));
   var delta=valeur-courant;
   if(delta===0)return;
-  if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='moins'?'btMinus':'btPlus');
+  if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_((mode==='moins'||mode==='zero')?'btMinus':'btPlus');
   /* Vitesse proportionnelle à l'énergie : sans allocation avant, on attend la réponse du serveur pour la durée d'un niveau. */
   var f=document.querySelector('[data-nl-ngu="'+id+'"]');
   var spl=Number(n.secondsPerLevel)||0;

@@ -48,5 +48,5 @@ assert.ok(cap.some((n) => n.to > n.from * 3) && cap.some((n) => n.from >= 1500 &
 
 // 2. Branchement : seulement si l'allocation change ; +, − et Cap ont chacun leur son
 assert.ok(ui.includes("if(delta!==0){"), "aucun son si rien ne change");
-assert.ok(ui.includes("action==='plus'?'btPlus':action==='moins'?'btMinus':'btCap'"));
+assert.ok(ui.includes("action==='plus'?'btPlus':(action==='moins'||action==='zero')?'btMinus':'btCap'"));
 console.log("idle-basic-training-button-sounds-v1: OK");

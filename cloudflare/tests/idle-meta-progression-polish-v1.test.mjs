@@ -22,7 +22,7 @@ const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8")
 {
   assert.ok(!css.includes("compact-v1"), "la variante de taille réduite ne doit plus exister dans la feuille de style");
   assert.ok(!meta.includes("compact-v1"), "ni être appliquée par le module (Augmentation/Blood Magic)");
-  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\]\]/, "Augmentation utilise la classe EXACTE de Basic Training");
+  assert.match(meta, /class="soreal-idle-bt-actions-v120"[^>]*>'\+\[\['plus','\+'\],\['moins','−'\],\['max','Max'\],\['zero','0'\]\]/, "Augmentation utilise la classe EXACTE de Basic Training");
   assert.ok(meta.includes('class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__'), "Blood Magic aussi");
 }
 
@@ -42,13 +42,13 @@ const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8")
   assert.match(audio, /function bloodCap_\(\)\{/);
 
   // Time Machine et Blood Magic appellent bien leurs propres sons, jamais ceux de Basic Training.
-  assert.match(meta, /mode==='plus'\?'tmPlus':mode==='moins'\?'tmMinus':'tmCap'/, "ajusterTimeMachineIdleV1_ doit jouer ses propres sons");
-  assert.match(meta, /mode==='plus'\?'bloodPlus':mode==='moins'\?'bloodMinus':'bloodCap'/, "ajusterBloodMagicIdleV1_ doit jouer ses propres sons");
+  assert.match(meta, /mode==='plus'\?'tmPlus':\(mode==='moins'\|\|mode==='zero'\)\?'tmMinus':'tmCap'/, "ajusterTimeMachineIdleV1_ doit jouer ses propres sons");
+  assert.match(meta, /mode==='plus'\?'bloodPlus':\(mode==='moins'\|\|mode==='zero'\)\?'bloodMinus':'bloodCap'/, "ajusterBloodMagicIdleV1_ doit jouer ses propres sons");
   assert.match(meta, /if\(H\.jouerEffetAudioIdleV199_\)H\.jouerEffetAudioIdleV199_\('bloodMinus'\);/, "viderBloodMagicIdleV1_ (Tout retirer) doit aussi utiliser le thème Blood Magic");
 
   // Basic Training/Augmentation gardent leurs sons d'origine, jamais renommés par erreur.
-  assert.match(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8"), /action==='plus'\?'btPlus':action==='moins'\?'btMinus':'btCap'/);
-  assert.match(meta, /mode==='plus'\?'btPlus':mode==='moins'\?'btMinus':'btCap'/, "Augmentation garde les sons Basic Training (jamais renommée)");
+  assert.match(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8"), /action==='plus'\?'btPlus':\(action==='moins'\|\|action==='zero'\)\?'btMinus':'btCap'/);
+  assert.match(meta, /mode==='plus'\?'btPlus':\(mode==='moins'\|\|mode==='zero'\)\?'btMinus':'btCap'/, "Augmentation garde les sons Basic Training (jamais renommée)");
 }
 
 // --- 3. Thème visuel de Blood Magic : lie-de-vin sombre, jamais un aplat rouge. ---

@@ -167,7 +167,7 @@
   function ajusterVoeu(slot,res,mode,courant,libre){
     var pas=montant_();
     var c=entier_(courant),l=entier_(libre);
-    var valeur=mode==='max'?l:(mode==='moins'?Math.max(0,c-pas):Math.min(l,c+pas));
+    var valeur=mode==='zero'?0:mode==='max'?l:(mode==='moins'?Math.max(0,c-pas):Math.min(l,c+pas));
     action_({action:'allocateWishSlot',slot:slot,resource:res,value:valeur});
   }
 

@@ -2593,14 +2593,14 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           ?current+Math.min(pas,idleAvant)
           :mode==='moins'
             ?Math.max(0,current-pas)
-            :current+idleAvant;
+            :mode==='zero'?0:current+idleAvant;
         const value=Math.max(0,H.idleEntier_(cible));
         const delta=value-current;
 
         if(delta!==0){
           try{
             const audio=window.__SOREAL_IDLE_AUDIO_V199__;
-            const son=mode==='plus'?'btPlus':mode==='moins'?'btMinus':'btCap';
+            const son=mode==='plus'?'btPlus':(mode==='moins'||mode==='zero')?'btMinus':'btCap';
             if(audio&&typeof audio[son]==='function')audio[son]();
           }catch(_e){}
 
@@ -2826,7 +2826,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="aug-tube-v2"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="aug-liquide-v2" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;transition:none"></div><i class="aug-reflet-v2"></i></div>'+
             '<div class="aug-bas-v2">'+
               '<label class="aug-cible-v2"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" '+(ok?'onchange="window.__cibleAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+cleIdUp+',this.value)"':'disabled')+' title="Niveau cible : l’énergie est retirée dès qu’il est atteint (ou passée à la piste suivante si « Faire suivre l’énergie » est coché). 0 = aucune cible."></label>'+
-              '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max']].map(function(b){return '<button type="button" '+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div>'+
+              '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max'],['zero','0']].map(function(b){return '<button type="button" '+(b[0]==='zero'?'title="Retirer toute l’énergie de cette barre" ':'')+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div>'+
             '</div></div>';
         }
         return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('🦾 Augmentations','Renforce ton Attack et ta Defense en y investissant de l’Energy et de l’Or.')+
@@ -2947,7 +2947,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           :mode==='moins'
             ?Math.max(0,current-pas)
             /* MAX = tout ce qui est libre (comme le serveur), jamais le plafond théorique : Norman (2026-10-02) voyait « 124K » (énergie pas encore générée) avant la vraie valeur 62,9K. */
-            :Math.max(current,Math.min(current+libre,allocationMaxMetaIdleV48_(j,'timeMachine',ressource)));
+            :mode==='zero'?0:Math.max(current,Math.min(current+libre,allocationMaxMetaIdleV48_(j,'timeMachine',ressource)));
         const delta=value-current;
 
         if(mode==='plus'&&delta<=0&&libre<=0&&H.messageFlottantIdleV32_){
@@ -2961,7 +2961,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(delta!==0){
           if(H.jouerEffetAudioIdleV199_){
             H.jouerEffetAudioIdleV199_(
-              mode==='plus'?'tmPlus':mode==='moins'?'tmMinus':'tmCap'
+              mode==='plus'?'tmPlus':(mode==='moins'||mode==='zero')?'tmMinus':'tmCap'
             );
           }
           if(s&&s.state&&s.state.allocation)s.state.allocation[ressource]=value;
@@ -3134,6 +3134,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                   '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
                   '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
                   '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
+                  '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'zero\')">0</button>'+
                 '</div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(cle==='vitesse'?'speed':'gold')+'\',this.value)"></div>'+
                 '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</b></div>'+
@@ -3771,7 +3772,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             const boutons=
               '<button type="button" class="soreal-idle-expand-button-v25" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'moins\''+finVoeu+'">−</button>'+
               '<button type="button" class="soreal-idle-expand-button-v25" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'plus\''+finVoeu+'">+</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" title="Placer toute la ressource libre" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'max\''+finVoeu+'">Max</button>';
+              '<button type="button" class="soreal-idle-expand-button-v25" title="Placer toute la ressource libre" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'max\''+finVoeu+'">Max</button>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" title="Retirer toute l’énergie de cette barre" onclick="window.__SOREAL_IDLE_ALLOC_V1__.ajusterVoeu('+argsVoeu+'\'zero\''+finVoeu+'">0</button>';
             return '<div style="margin-top:6px"><div style="display:flex;justify-content:space-between;gap:8px;font-size:14px"><span>'+libelleRessourceMetaIdleV130_(r)+'</span><b>'+H.formatGrandNombreIdleV70_(H.idleNombre_(sl.allocation&&sl.allocation[r]))+'</b></div>'+
               '<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px">'+boutons+'</div></div>';
           }).join('');
@@ -4048,6 +4050,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             '<div class="soreal-idle-at-boutons-v1">'+
               '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
+              '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'zero\')">0</button>'+
             '</div>'+
           '</div>';
         };
@@ -4258,7 +4261,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const courant=atEnergieDePisteIdleV1_(s,id);
         const pas=montantAugmentLireIdleV1_();
         const libre=Math.max(0,H.idleNombre_(j&&j.energie));
-        const valeur=Math.max(0,H.idleEntier_(mode==='plus'?courant+Math.min(pas,libre):Math.max(0,courant-pas)));
+        const valeur=Math.max(0,H.idleEntier_(mode==='zero'?0:mode==='plus'?courant+Math.min(pas,libre):Math.max(0,courant-pas)));
         const delta=valeur-courant;
         if(delta!==0){
           if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='plus'?'btPlus':'btMinus');

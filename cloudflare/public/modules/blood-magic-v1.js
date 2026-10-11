@@ -164,14 +164,14 @@ function creer(hote){
           ?current+Math.min(pas,idleAvant)
           :mode==='moins'
             ?Math.max(0,current-pas)
-            :current+idleAvant;
+            :mode==='zero'?0:current+idleAvant;
         const value=Math.max(0,H.idleEntier_(cible));
         const delta=value-current;
 
         if(delta!==0){
           if(H.jouerEffetAudioIdleV199_){
             H.jouerEffetAudioIdleV199_(
-              mode==='plus'?'bloodPlus':mode==='moins'?'bloodMinus':'bloodCap'
+              mode==='plus'?'bloodPlus':(mode==='moins'||mode==='zero')?'bloodMinus':'bloodCap'
             );
           }
           data.rituals[id].magic=value;
@@ -392,7 +392,7 @@ function creer(hote){
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:14px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
-            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button></div>'+
+            '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button><button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'zero\')">0</button></div>'+
           '</div>';
         }).join('');
         /*
