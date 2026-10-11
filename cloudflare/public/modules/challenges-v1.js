@@ -247,42 +247,155 @@ function cadre(classe,icone,titre,contenu){
   return '<section class="dfi-cadre '+classe+'"><header><span class="dfi-ic">'+icone+'</span><span class="dfi-tt">'+titre+'</span></header><div class="dfi-corps">'+contenu+'</div></section>';
 }
 
-function carteDefi(def,actif,tier){
+/*
+ * Look « jeu vidéo » (Norman, 2026-10-11 : « ça fait traitement de texte, fichier Excel : je veux que ça fasse jeu vidéo ») : chaque défi est une tuile avec son blason dessiné (SVG original),
+ * ses étoiles de complétion et un gros bouton Jouer ; un clic sur la tuile ouvre la fiche (Objectif, Description, Restrictions, Conseil, Récompenses).
+ */
+var COULEURS_DEFI={basic:'#f5b53a',noAugmentations:'#ff7a3c',twentyFourHours:'#4aa3ff',hundredLevels:'#7bd34a',noEquipment:'#c1c9d6',troll:'#9be23b',noRebirth:'#ff5a7a',laserSword:'#3de0ff',blind:'#a77bff',noNgu:'#5c7bff',noTimeMachine:'#3ee0b0'};
+var DEFIS_INTERDIT={noAugmentations:1,noEquipment:1,noRebirth:1,blind:1,noNgu:1,noTimeMachine:1};
+var GLYPHES_DEFI={
+  basic:'<rect x="33" y="26" width="5" height="48" rx="2"/><path d="M38 28 H70 V52 H38 Z"/><path d="M38 28 H46 V35 H38 Z M54 28 H62 V35 H54 Z M46 35 H54 V43 H46 Z M62 35 H70 V43 H62 Z M38 43 H46 V52 H38 Z M54 43 H62 V52 H54 Z" fill="#24120a" stroke="none"/>',
+  noAugmentations:'<path d="M50 24 L72 48 H59 V70 H41 V48 H28 Z"/>',
+  twentyFourHours:'<circle cx="50" cy="50" r="23"/><path d="M50 50 V34 M50 50 L61 57" fill="none" stroke-width="5"/><circle cx="50" cy="50" r="3" fill="#24120a" stroke="none"/><path d="M50 30 V33 M50 67 V70 M30 50 H33 M67 50 H70" fill="none" stroke-width="3"/>',
+  hundredLevels:'<path d="M26 72 V62 H38 V52 H50 V42 H62 V32 H74 V72 Z"/><path d="M38 62 V72 M50 52 V72 M62 42 V72" fill="none" stroke-width="2.4"/>',
+  noEquipment:'<path d="M50 22 L57 30 V58 H43 V30 Z"/><rect x="34" y="58" width="32" height="7" rx="3"/><rect x="46" y="65" width="8" height="12" rx="2"/><circle cx="50" cy="80" r="4.5"/>',
+  troll:'<path d="M30 46 L17 33 L33 36 Z M70 46 L83 33 L67 36 Z"/><circle cx="50" cy="52" r="22"/><circle cx="42" cy="47" r="3.6" fill="#24120a" stroke="none"/><circle cx="58" cy="47" r="3.6" fill="#24120a" stroke="none"/><path d="M38 58 Q50 72 62 58 Z" fill="#24120a"/><path d="M44 60 V64 M50 62 V67 M56 60 V64" fill="none" stroke="#fff6dc" stroke-width="2.4"/>',
+  noRebirth:'<path d="M72 52 A22 22 0 1 1 57 31" fill="none" stroke-width="9"/><path d="M50 22 L68 28 L56 42 Z"/>',
+  laserSword:'<path d="M50 14 L55 20 V58 H45 V20 Z" fill="#c6f7ff"/><path d="M50 18 V56" fill="none" stroke="#3de0ff" stroke-width="3"/><rect x="36" y="58" width="28" height="6" rx="3"/><rect x="46" y="64" width="8" height="12" rx="2"/><circle cx="50" cy="79" r="4.5"/>',
+  blind:'<path d="M24 50 Q50 26 76 50 Q50 74 24 50 Z"/><circle cx="50" cy="50" r="9" fill="#24120a" stroke="none"/><circle cx="46" cy="46" r="2.6" fill="#fff6dc" stroke="none"/>',
+  noNgu:'<path d="M50 50 C42 34 24 36 24 50 C24 64 42 66 50 50 C58 34 76 36 76 50 C76 64 58 66 50 50 Z" fill="none" stroke-width="8"/>',
+  noTimeMachine:'<path d="M32 26 H68 L55 50 L68 74 H32 L45 50 Z"/><path d="M40 33 H60 L50 50 Z M42 69 H58 L50 56 Z" fill="#24120a" stroke="none"/>'
+};
+function emblemeSvg(id){
+  var c=COULEURS_DEFI[id]||'#f5b53a';
+  var barre=DEFIS_INTERDIT[id]?'<circle cx="50" cy="50" r="31" fill="none" stroke="#ff3d4d" stroke-width="6"/><path d="M28 28 L72 72" stroke="#ff3d4d" stroke-width="6" stroke-linecap="round"/>':'';
+  return '<svg class="dfi-emb" viewBox="0 0 100 100" aria-hidden="true" focusable="false">'+
+    '<defs><linearGradient id="dfi-g-'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".18" stop-color="'+c+'"/><stop offset="1" stop-color="'+c+'" stop-opacity=".55"/></linearGradient></defs>'+
+    '<path d="M50 3 L91 25 V69 L50 97 L9 69 V25 Z" fill="#1a0f08" stroke="#000" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M50 9 L85 28 V66 L50 91 L15 66 V28 Z" fill="url(#dfi-g-'+id+')" stroke="#24120a" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M50 9 L85 28 V66 L50 91 L15 66 V28 Z" fill="#000" fill-opacity=".16"/>'+
+    '<path d="M22 31 L50 15 L78 31" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
+    '<g transform="translate(50 50) scale(1.18) translate(-50 -50)" fill="#fff6dc" stroke="#24120a" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">'+(GLYPHES_DEFI[id]||GLYPHES_DEFI.basic)+'</g>'+barre+
+  '</svg>';
+}
+function etoiles(fait,max){
+  if(max<1||max>12)return '';
+  var out='';
+  for(var i=0;i<max;i++)out+='<svg class="dfi-etoile'+(i<fait?' on':'')+'" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.6 7.4 L19 8 L14.2 12.3 L15.6 18.6 L10 15.3 L4.4 18.6 L5.8 12.3 L1 8 L7.4 7.4 Z"/></svg>';
+  return '<div class="dfi-etoiles">'+out+'</div>';
+}
+
+var dernierDefis={defs:[],tier:'normal',actif:false};
+function infosDefi(def,tier){
   var t=DEFIS[def.id];
-  if(!t)return '';
+  if(!t)return null;
   var fait=ent(def.completion),max=ent(def.max);
   var termine=fait>=max;
-  var statut=def.active?'▶️ En cours':termine?'🏅 Terminé':'✅ Disponible';
-  var classeStatut=def.active?'cours':termine?'fini':'dispo';
-  var peutDemarrer=Boolean(def.unlocked)&&Boolean(def.implemented)&&!actif;
-  var exp=gn(def.reward&&def.reward.experience||0),ap=gn(def.reward&&def.reward.ap||0);
-  var mult=t.multiplie?' × numéro de complétion':'';
+  return {t:t,fait:fait,max:max,termine:termine,
+    classeStatut:def.active?'cours':termine?'fini':'dispo',
+    statut:def.active?'En cours':termine?'Terminé':'Disponible',
+    peutDemarrer:Boolean(def.unlocked)&&Boolean(def.implemented)&&!dernierDefis.actif,
+    exp:gn(def.reward&&def.reward.experience||0),ap:gn(def.reward&&def.reward.ap||0)};
+}
+
+/* Petites pièces d'interface « jeu » : pastilles de gain, étiquettes de section, grand chiffre d'objectif. */
+function iconeGain(type){
+  return type==='exp'
+    ?'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L12.6 7.4 L19 8 L14.2 12.3 L15.6 18.6 L10 15.3 L4.4 18.6 L5.8 12.3 L1 8 L7.4 7.4 Z" fill="#ffd23f" stroke="#3a2300" stroke-width="1.6" stroke-linejoin="round"/></svg>'
+    :'<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 1.5 L17.5 9 L10 18.5 L2.5 9 Z" fill="#4fc3ff" stroke="#08243a" stroke-width="1.6" stroke-linejoin="round"/><path d="M2.5 9 H17.5 M10 1.5 L7 9 L10 18.5 L13 9 Z" fill="none" stroke="#08243a" stroke-opacity=".5" stroke-width="1"/></svg>';
+}
+function pastilleGain(type,val){return '<span class="dfi-gain-p '+type+'">'+iconeGain(type)+'<b>'+val+'</b><i>'+(type==='exp'?'EXP':'AP')+'</i></span>';}
+function etiquette(icone,titre){return '<div class="dfi-etiq"><span class="dfi-etiq-ic">'+icone+'</span><span>'+titre+'</span></div>';}
+function objectifVisuel(def){
+  if(def.id==='laserSword'){
+    var n=2+ent(def.completion);
+    return {grand:n+' / '+n,leg:'Fabriquer une Laser Sword',suite:'2 / 2 au début, puis +1 / +1 à chaque complétion'};
+  }
+  var suite=ent(def.targetStep)>0?'+'+ent(def.targetStep)+' à chaque complétion':'';
+  return {grand:'Boss '+ent(def.targetBoss),leg:def.id==='twentyFourHours'?'Vaincre ce boss en moins de 24 h de jeu':'Vaincre le boss',suite:suite};
+}
+function blocObjectif(def){
+  var o=objectifVisuel(def);
+  return '<div class="dfi-but">'+etiquette('🎯','Objectif')+'<div class="dfi-but-leg">'+h(o.leg)+'</div><div class="dfi-but-grand">'+h(o.grand)+'</div>'+(o.suite?'<div class="dfi-but-suite">'+h(o.suite)+'</div>':'')+'</div>';
+}
+function typeRecompense(r,max){
+  if(r.q==='premiere')return '1re';
+  if(r.q==='finale')return 'Dernière';
+  if(r.q==='chaque')return 'Chaque';
+  return 'N° '+r.q;
+}
+
+function tuileDefi(def,tier){
+  var i=infosDefi(def,tier);
+  if(!i)return '';
+  var max=i.max;
+  var id=h(def.id);
+  return '<article class="dfi-tuile '+i.classeStatut+'" style="--acc:'+(COULEURS_DEFI[def.id]||'#f5b53a')+'" data-dfi-id="'+id+'" onclick="window.__ouvrirDefiIdleV1__(\''+id+'\')">'+
+    '<span class="dfi-ruban">'+i.statut+'</span>'+
+    '<div class="dfi-embleme"><i class="dfi-rayons"></i>'+emblemeSvg(def.id)+'</div>'+
+    '<h3 class="dfi-nom">'+h(i.t.nom)+'</h3>'+
+    '<div class="dfi-niveau">'+etoiles(i.fait,max)+'<span class="dfi-compte">'+i.fait+' / '+max+'</span></div>'+
+    '<div class="dfi-gains">'+pastilleGain('exp',i.exp)+pastilleGain('ap',i.ap)+'</div>'+
+    (i.peutDemarrer?'<button type="button" class="dfi-jouer" onclick="event.stopPropagation();window.__demarrerDefiIdleV1__(\''+id+'\')">Jouer</button>':'<span class="dfi-voir">Voir la fiche</span>')+
+  '</article>';
+}
+
+/* Fiche d'un défi : briefing de mission (blason, gros objectif, gains en pastilles, restriction en bandeau, histoire sur parchemin, conseil en bulle, récompenses en emplacements). */
+function ficheDefi(def,tier){
+  var i=infosDefi(def,tier);
+  if(!i)return '';
+  var max=i.max;
+  var t=i.t,id=h(def.id);
+  var mult=t.multiplie?' × n° de complétion':'';
   var desc=t.desc[tier]||t.desc.normal;
   var conseil=(t.conseil&&(t.conseil[tier]||t.conseil.normal))||'';
-  var lignes=(t.recompenses[tier]||[]).map(function(r){return ligneRecompense(r,def,fait);}).join('');
-  var pct=max>0?Math.max(0,Math.min(100,Math.round(fait/max*100))):0;
-  var objectif=
-    '<p>'+h(conditionVictoire(def,t))+'</p>'+
-    '<p class="dfi-sous">À chaque complétion : <b>'+exp+' EXP</b> · <b>'+ap+' AP</b>'+h(mult)+'</p>';
-  var recompenses='<ul class="dfi-liste">'+(lignes||'<li class="dfi-rec"><span>Seulement de l’EXP et des AP.</span></li>')+'</ul>'+
-    '<p class="dfi-note">Au-delà du maximum, plus d’EXP, d’AP ni de bonus.</p>';
-  return '<article class="dfi-carte '+classeStatut+'">'+
-    '<div class="dfi-tete">'+
-      '<h3 class="dfi-nom">'+h(t.nom)+'</h3>'+
-      '<div class="dfi-meta"><span class="dfi-pastille '+classeStatut+'">'+statut+'</span><span class="dfi-compte">'+fait+' / '+max+'</span></div>'+
-      '<div class="dfi-jauge"><i style="width:'+pct+'%"></i></div>'+
-    '</div>'+
-    '<div class="dfi-cadres">'+
-      cadre('dfi-objectif','🎯','Objectif',objectif)+
-      cadre('dfi-description','📜','Description','<p>'+h(desc)+'</p>')+
-      cadre('dfi-restriction','⛔','Restrictions','<p>'+h(t.restriction)+'</p>')+
-      (conseil?cadre('dfi-conseil','💡','Conseil','<p>'+h(conseil)+'</p>'):'')+
-      cadre('dfi-recompense','🎁','Récompenses',recompenses)+
-    '</div>'+
-    (peutDemarrer
-      ?'<div class="dfi-actions"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__demarrerDefiIdleV1__(\''+h(def.id)+'\')">▶️ Démarrer</button></div>'
-      :'')+
-  '</article>';
+  var slots=(t.recompenses[tier]||[]).map(function(r){
+    var recu=ligneRecue(r,i.fait,ent(def.max));
+    var texte=(recu||!r.s)?r.t:'Récompense surprise';
+    var extra='';
+    if(typeof r.q==='number'&&def.id==='troll'){
+      var boss=69+(r.q-1)*15;
+      var intervalles=[120,110,100,90,85,80,75];
+      extra=' <small>(boss '+boss+', trolls toutes les '+intervalles[r.q-1]+' s)</small>';
+    }
+    return '<li class="dfi-slot'+(recu?' recu':'')+(r.s&&!recu?' secret':'')+'"><span class="dfi-slot-q">'+h(typeRecompense(r,ent(def.max)))+'</span><span class="dfi-slot-ic">'+(recu?'✔':r.s?'🎁':'★')+'</span><span class="dfi-slot-t">'+h(texte)+extra+'</span></li>';
+  }).join('');
+  return '<div class="dfi-fiche" style="--acc:'+(COULEURS_DEFI[def.id]||'#f5b53a')+'" role="dialog" aria-modal="true">'+
+    '<button type="button" class="dfi-fermer" data-dfi-fermer="1" aria-label="Fermer">✕</button>'+
+    '<div class="dfi-hero"><i class="dfi-rayons"></i>'+emblemeSvg(def.id)+'<h3 class="dfi-nom">'+h(t.nom)+'</h3>'+etoiles(i.fait,max)+'<div class="dfi-compte">'+i.fait+' / '+max+'</div></div>'+
+    blocObjectif(def)+
+    '<div class="dfi-gains dfi-gains-gros">'+pastilleGain('exp',i.exp)+pastilleGain('ap',i.ap)+(mult?'<span class="dfi-mult">'+h(mult)+'</span>':'')+'</div>'+
+    '<div class="dfi-interdit">'+etiquette('⛔','Restrictions')+'<p>'+h(t.restriction)+'</p></div>'+
+    '<div class="dfi-parchemin">'+etiquette('📜','Description')+'<p>'+h(desc)+'</p></div>'+
+    (conseil?'<div class="dfi-bulle">'+etiquette('💡','Conseil')+'<p>'+h(conseil)+'</p></div>':'')+
+    '<div class="dfi-butin">'+etiquette('🎁','Récompenses')+'<ul class="dfi-slots">'+(slots||'<li class="dfi-slot"><span class="dfi-slot-t">Seulement de l’EXP et des AP.</span></li>')+'</ul><p class="dfi-note">Au-delà du maximum, plus d’EXP, d’AP ni de bonus.</p></div>'+
+    (i.peutDemarrer?'<div class="dfi-actions"><button type="button" class="dfi-jouer dfi-jouer-gros" onclick="window.__demarrerDefiIdleV1__(\''+id+'\');window.__fermerDefiIdleV1__()">Jouer</button></div>':'')+
+  '</div>';
+}
+function fermerFiche(){
+  var o=document.getElementById('sorealDefiFicheV1');
+  if(o&&o.parentNode)o.parentNode.removeChild(o);
+}
+function ouvrirFiche(id){
+  if(typeof document==='undefined'||!document.body)return;
+  var def=dernierDefis.defs.filter(function(d){return d&&d.id===id;})[0];
+  if(!def)return;
+  fermerFiche();
+  var o=document.createElement('div');
+  o.id='sorealDefiFicheV1';
+  o.className='dfi-fiche-fond';
+  o.innerHTML=ficheDefi(def,dernierDefis.tier);
+  o.addEventListener('click',function(e){
+    var cible=e.target;
+    if(cible===o||(cible.closest&&cible.closest('[data-dfi-fermer]')))fermerFiche();
+  });
+  document.body.appendChild(o);
+}
+window.__ouvrirDefiIdleV1__=ouvrirFiche;
+window.__fermerDefiIdleV1__=fermerFiche;
+if(typeof document!=='undefined'&&document.addEventListener&&!window.__SOREAL_IDLE_DEFIS_ECHAP_V1__){
+  window.__SOREAL_IDLE_DEFIS_ECHAP_V1__=true;
+  document.addEventListener('keydown',function(e){if(e&&e.key==='Escape')fermerFiche();});
 }
 
 /*
@@ -332,27 +445,25 @@ function page(j){
   var d=DIFFICULTES[tier]||DIFFICULTES.normal;
   var actifDef=defs.filter(function(x){return x&&x.active;})[0]||null;
   var etat=j&&j.systemes&&j.systemes.challenge||{};
+  dernierDefis={defs:defs,tier:tier,actif:Boolean(actifDef)};
   var bandeau='';
   if(actifDef&&DEFIS[actifDef.id]){
     var t=DEFIS[actifDef.id];
-    bandeau='<article class="dfi-carte cours dfi-encours">'+
-      '<div class="dfi-tete"><h3 class="dfi-nom">▶️ Défi en cours : '+h(t.nom)+'</h3>'+
-      '<div class="dfi-meta"><span class="dfi-pastille cours">En cours</span><span class="dfi-compte">'+ent(actifDef.completion)+' / '+ent(actifDef.max)+'</span></div></div>'+
-      '<div class="dfi-cadres">'+
-        cadre('dfi-temps-ecoule','⏱️','Temps écoulé',compteurDefi(etat.startedAt))+
-        cadre('dfi-objectif','🎯','Objectif','<p>'+h(conditionVictoire(actifDef,t))+'</p>')+
-        cadre('dfi-restriction','⛔','Restrictions','<p>'+h(t.restriction)+'</p>')+
-        (actifDef.id==='troll'&&etat.troll?cadre('dfi-conseil','😈','Trolls','<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p>'):'')+
-      '</div>'+
-      '<div class="dfi-actions"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__abandonnerDefiIdleV1__()">✖ Abandonner le défi</button></div>'+
+    var oa=objectifVisuel(actifDef);
+    bandeau='<article class="dfi-encours" style="--acc:'+(COULEURS_DEFI[actifDef.id]||'#ff4d5e')+'">'+
+      '<div class="dfi-hero"><i class="dfi-rayons"></i>'+emblemeSvg(actifDef.id)+'<div class="dfi-encours-etiquette">Défi en cours</div><h3 class="dfi-nom">'+h(t.nom)+'</h3>'+etoiles(ent(actifDef.completion),ent(actifDef.max))+'<div class="dfi-compte">'+ent(actifDef.completion)+' / '+ent(actifDef.max)+'</div></div>'+
+      '<div class="dfi-chrono">'+etiquette('⏱️','Temps écoulé')+compteurDefi(etat.startedAt)+'</div>'+
+      '<div class="dfi-but">'+etiquette('🎯','Objectif')+'<div class="dfi-but-leg">'+h(oa.leg)+'</div><div class="dfi-but-grand">'+h(oa.grand)+'</div></div>'+
+      '<div class="dfi-interdit">'+etiquette('⛔','Restrictions')+'<p>'+h(t.restriction)+'</p></div>'+
+      (actifDef.id==='troll'&&etat.troll?'<div class="dfi-bulle">'+etiquette('😈','Trolls')+'<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p></div>':'')+
+      '<div class="dfi-actions"><button type="button" class="dfi-abandon" onclick="window.__abandonnerDefiIdleV1__()">✖ Abandonner le défi</button></div>'+
     '</article>';
   }
-  var cartes=defs.map(function(def){return carteDefi(def,Boolean(actifDef),tier);}).join('');
+  var tuiles=defs.map(function(def){return tuileDefi(def,tier);}).join('');
   return entete('🏁 Défis'+(tier==='difficile'?' (Evil)':tier==='extreme'?' (Sadistic)':''),'Relève des défis à restrictions pour gagner des récompenses permanentes.')+
-    '<div class="soreal-idle-note-v4" style="margin:0 0 10px">'+h(INTRO)+'</div>'+
-    '<div class="soreal-idle-note-v4" style="margin:0 0 10px">'+h(d.note)+'</div>'+
+    '<details class="dfi-aide"><summary>❓ Comment fonctionnent les défis ?</summary><p>'+h(INTRO)+'</p><p>'+h(d.note)+'</p></details>'+
     bandeau+
-    '<div class="dfi-grille" data-defi-sans-masque="1">'+(cartes||'<div class="soreal-idle-section-v8" style="text-align:center;padding:20px">Aucun défi disponible pour l’instant.</div>')+'</div>';
+    '<div class="dfi-grille" data-defi-sans-masque="1">'+(tuiles||'<div class="soreal-idle-section-v8" style="text-align:center;padding:20px">Aucun défi disponible pour l’instant.</div>')+'</div>';
 }
 
 /* ---------- Effets à l'écran ---------- */

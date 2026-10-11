@@ -980,24 +980,12 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal
 }
 
 /* ====================== Défis : cartes en cadres titrés (Norman, 2026-10-01) ====================== */
-.dfi-grille{display:grid;gap:14px}
-.dfi-carte{--acc:#ffe600;position:relative;border:2px solid color-mix(in srgb,var(--acc) 55%,#000);border-radius:14px;background:linear-gradient(170deg,#1c1c27,#0d0d14);
   box-shadow:0 0 0 3px rgba(0,0,0,.45),0 14px 26px -16px color-mix(in srgb,var(--acc) 60%,transparent);padding:12px;overflow:hidden}
-.dfi-carte.cours{--acc:#ff4d5e}
-.dfi-carte.fini{--acc:#34d399}
-.dfi-carte::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:repeating-linear-gradient(90deg,var(--acc) 0 14px,#111 14px 28px)}
-.dfi-tete{padding-top:6px}
-.dfi-nom{margin:0;font-family:Georgia,"Palatino Linotype",serif;font-size:19px;font-weight:700;letter-spacing:.04em;color:var(--acc);text-shadow:0 0 14px color-mix(in srgb,var(--acc) 55%,transparent)}
-.dfi-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
-.dfi-pastille{padding:3px 11px;border-radius:999px;font-size:13px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--acc);color:var(--acc);background:rgba(0,0,0,.35)}
-.dfi-compte{font-family:Georgia,serif;font-size:17px;font-weight:700;color:#fff}
-.dfi-jauge{margin-top:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
-.dfi-jauge i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),#fff7)}
 .dfi-cadres{display:grid;gap:9px;margin-top:12px}
 .dfi-cadre{--c:#aaa;border:1.5px solid color-mix(in srgb,var(--c) 70%,#000);border-radius:10px;background:color-mix(in srgb,var(--c) 7%,#0b0b12);overflow:hidden}
 .dfi-cadre>header{display:flex;align-items:center;gap:8px;padding:6px 11px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 38%,#000),color-mix(in srgb,var(--c) 10%,#000));border-bottom:1.5px solid color-mix(in srgb,var(--c) 70%,#000)}
 .dfi-ic{font-size:16px}
-.dfi-tt{font-family:Georgia,"Palatino Linotype",serif;font-size:15px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:color-mix(in srgb,var(--c) 40%,#fff)}
+.dfi-tt{font-family:"Bangers","Russo One",Impact,sans-serif;font-size:19px;font-weight:400;letter-spacing:.12em;text-transform:uppercase;color:color-mix(in srgb,var(--c) 40%,#fff)}
 .dfi-corps{padding:9px 12px;font-size:15px;line-height:1.55;color:#e8e8f2}
 .dfi-corps p{margin:0}
 .dfi-corps p+p{margin-top:5px}
@@ -1012,11 +1000,10 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal
 .dfi-liste{list-style:none;margin:0;padding:0;display:grid;gap:5px}
 .dfi-rec{display:flex;gap:7px;font-size:14px;line-height:1.45;color:#cfcfe2}
 .dfi-rec.recu{color:#fff}
-.dfi-rec b{font-family:Georgia,serif;color:#e9d5ff;margin-right:4px}
+.dfi-rec b{font-family:"Russo One","Arial Black",Impact,sans-serif;color:#e9d5ff;margin-right:4px}
 .dfi-rec small{opacity:.7}
 .dfi-coche{flex:0 0 18px}
 .dfi-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.dfi-encours{margin-bottom:14px}
 
 /* ====================== Basic Training : Attaque (rouge) et Défense (bleu) bien séparées (Norman, 2026-10-01) ====================== */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120{margin-top:18px!important}
@@ -2292,3 +2279,96 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 .sg-bulles-v1 b:nth-child(6){left:90%;bottom:38%;width:5px;height:5px;animation-duration:7.5s;animation-delay:-3.5s}
 @keyframes sgBulle{0%{opacity:0;transform:translateY(3px) scale(.55)}12%{opacity:.9}28%{opacity:.9;transform:translateY(-4px) scale(1)}40%{opacity:0;transform:translateY(-8px) scale(1.15)}100%{opacity:0;transform:translateY(-8px) scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.sg-bulles-v1 b{animation:none}}
+
+/* ====================== Défis : look jeu vidéo (Norman, 2026-10-11) : tuiles à blason, étoiles, gros bouton Jouer, fiche façon briefing de mission ====================== */
+.dfi-aide{margin:0 0 14px;padding:8px 14px;border:2px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(0,0,0,.3);color:#d8d8ea}
+.dfi-aide summary{cursor:pointer;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:20px;letter-spacing:.08em;color:#ffd23f}
+.dfi-aide p{margin:8px 0 0;font-size:14px;line-height:1.55}
+.dfi-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:20px}
+.dfi-tuile{--acc:#f5b53a;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 12px 16px;border-radius:18px;border:4px solid #000;overflow:hidden;
+  background:radial-gradient(90% 55% at 50% 22%,color-mix(in srgb,var(--acc) 55%,#241636),#150d22 78%);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--acc) 70%,#000),inset 0 -30px 40px -20px rgba(0,0,0,.6),0 10px 22px -10px color-mix(in srgb,var(--acc) 70%,#000);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.dfi-tuile::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 8px,transparent 8px 16px);pointer-events:none}
+.dfi-tuile:hover{transform:translateY(-5px) scale(1.025);box-shadow:inset 0 0 0 2px var(--acc),inset 0 -30px 40px -20px rgba(0,0,0,.6),0 16px 30px -8px color-mix(in srgb,var(--acc) 85%,#000)}
+.dfi-embleme,.dfi-hero{position:relative;display:flex;flex-direction:column;align-items:center}
+.dfi-rayons{position:absolute;left:50%;top:48px;width:190px;height:190px;margin:-95px 0 0 -95px;border-radius:50%;pointer-events:none;
+  background:repeating-conic-gradient(color-mix(in srgb,var(--acc) 38%,transparent) 0 9deg,transparent 9deg 22deg);
+  -webkit-mask:radial-gradient(circle,#000 25%,transparent 68%);mask:radial-gradient(circle,#000 25%,transparent 68%)}
+.dfi-embleme .dfi-emb{position:relative;width:104px;height:104px;filter:drop-shadow(0 5px 7px rgba(0,0,0,.65)) drop-shadow(0 0 14px color-mix(in srgb,var(--acc) 55%,transparent))}
+.dfi-nom{position:relative;margin:8px 0 0;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:25px;font-weight:400;letter-spacing:.05em;line-height:1.05;color:#fff;text-shadow:0 3px 0 #000,0 0 14px color-mix(in srgb,var(--acc) 70%,transparent)}
+.dfi-niveau{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:8px;padding:6px 12px;border-radius:12px;background:rgba(0,0,0,.45);border:2px solid rgba(255,255,255,.1)}
+.dfi-etoiles{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.dfi-etoile{width:21px;height:21px;fill:rgba(255,255,255,.1);stroke:#000;stroke-width:1.3;stroke-linejoin:round}
+.dfi-etoile.on{fill:#ffd23f;filter:drop-shadow(0 0 5px rgba(255,210,63,.85))}
+.dfi-compte{font-family:"Russo One","Arial Black",Impact,sans-serif;font-size:13px;color:#cfcfe2}
+.dfi-gains{position:relative;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 12px}
+.dfi-gain-p{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 6px;border-radius:999px;border:2px solid #000;background:linear-gradient(180deg,#2b2140,#150f24);font-family:"Russo One","Arial Black",Impact,sans-serif;font-size:13px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+.dfi-gain-p svg{width:18px;height:18px}
+.dfi-gain-p b{font-weight:400}
+.dfi-gain-p i{font-style:normal;font-size:11px;opacity:.7}
+.dfi-gain-p.exp{border-color:#8a6a10}.dfi-gain-p.ap{border-color:#1c6a96}
+.dfi-ruban{position:absolute;z-index:2;top:12px;left:-8px;padding:2px 14px 2px 16px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:#1a0f08;background:var(--acc);border:2px solid #000;border-left:none;border-radius:0 8px 8px 0;box-shadow:0 2px 0 #000}
+.dfi-tuile.fini{--acc:#ffd23f;border-color:#6b4a00}
+.dfi-tuile.fini .dfi-ruban{background:#ffd23f}
+.dfi-tuile.cours .dfi-ruban{background:#ff4d5e;color:#fff}
+.dfi-tuile.cours{animation:dfiPouls 1.6s ease-in-out infinite}
+@keyframes dfiPouls{0%,100%{box-shadow:inset 0 0 0 2px #ff4d5e,0 0 10px rgba(255,77,94,.4)}50%{box-shadow:inset 0 0 0 2px #ff4d5e,0 0 28px rgba(255,77,94,.95)}}
+.dfi-jouer{position:relative;margin-top:auto;padding:8px 34px 6px;border:3px solid #000;border-radius:12px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:26px;letter-spacing:.1em;text-transform:uppercase;color:#2a1400;
+  background:linear-gradient(180deg,#ffe98a,#ffb52e 55%,#e07a10);box-shadow:0 4px 0 #7a3a00,0 0 16px rgba(255,190,50,.5);cursor:pointer}
+.dfi-jouer:hover{filter:brightness(1.12)}
+.dfi-jouer:active{transform:translateY(3px);box-shadow:0 1px 0 #7a3a00}
+.dfi-voir{position:relative;margin-top:auto;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:18px;letter-spacing:.1em;color:#fff;opacity:.75}
+.dfi-encours{--acc:#ff4d5e;position:relative;margin-bottom:20px;padding:18px 16px;border-radius:20px;border:4px solid #000;background:radial-gradient(100% 60% at 50% 0%,color-mix(in srgb,var(--acc) 40%,#241636),#0f0a18 80%);box-shadow:inset 0 0 0 2px var(--acc),0 0 26px -4px var(--acc)}
+.dfi-encours-etiquette{position:relative;margin-top:4px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:19px;letter-spacing:.18em;color:#ff4d5e;text-transform:uppercase;text-shadow:0 0 10px rgba(255,77,94,.7)}
+.dfi-hero{padding:8px 0 10px;text-align:center}
+.dfi-hero .dfi-rayons{top:62px;width:240px;height:240px;margin:-120px 0 0 -120px}
+.dfi-hero .dfi-emb{position:relative;width:120px;height:120px;filter:drop-shadow(0 5px 7px rgba(0,0,0,.65)) drop-shadow(0 0 16px color-mix(in srgb,var(--acc) 60%,transparent))}
+.dfi-hero .dfi-nom{font-size:36px;text-align:center}
+.dfi-hero .dfi-etoiles{position:relative;margin-top:8px}
+.dfi-hero .dfi-etoile{width:27px;height:27px}
+.dfi-hero .dfi-compte{position:relative;margin-top:3px;font-size:14px}
+.dfi-etiq{display:flex;align-items:center;gap:7px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:19px;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--acc) 35%,#fff)}
+.dfi-etiq-ic{font-size:17px}
+.dfi-but,.dfi-chrono{position:relative;margin-top:10px;padding:10px 14px 12px;border-radius:14px;text-align:center;border:3px solid #000;background:linear-gradient(180deg,rgba(255,210,63,.16),rgba(0,0,0,.4));box-shadow:inset 0 0 0 2px rgba(255,210,63,.35)}
+.dfi-chrono{background:linear-gradient(180deg,rgba(74,163,255,.18),rgba(0,0,0,.4));box-shadow:inset 0 0 0 2px rgba(74,163,255,.4)}
+.dfi-but .dfi-etiq,.dfi-chrono .dfi-etiq{justify-content:center}
+.dfi-but-leg{margin-top:4px;font-size:14px;color:#d8d8ea}
+.dfi-but-grand{font-family:"Bangers","Russo One",Impact,sans-serif;font-size:46px;line-height:1.05;letter-spacing:.06em;color:#ffd23f;text-shadow:0 3px 0 #000,0 0 18px rgba(255,210,63,.6)}
+.dfi-but-suite{font-size:12px;opacity:.7}
+.dfi-temps{font-family:"Bangers","Russo One",Impact,sans-serif;font-size:42px;letter-spacing:.08em;color:#fff;text-shadow:0 3px 0 #000,0 0 14px rgba(74,163,255,.9)}
+.dfi-chrono p{margin:0}
+.dfi-chrono .dfi-note-temps{font-size:12px;opacity:.7}
+.dfi-gains-gros{margin:12px 0 0}
+.dfi-gains-gros .dfi-gain-p{font-size:17px;padding:5px 14px 5px 8px}
+.dfi-gains-gros .dfi-gain-p svg{width:24px;height:24px}
+.dfi-mult{align-self:center;font-size:12px;color:#bfc0d6}
+.dfi-interdit,.dfi-parchemin,.dfi-bulle,.dfi-butin{position:relative;margin-top:12px;padding:10px 14px 12px;border-radius:14px;border:3px solid #000}
+.dfi-interdit{background:repeating-linear-gradient(135deg,rgba(255,61,77,.2) 0 12px,rgba(255,61,77,.1) 12px 24px);box-shadow:inset 0 0 0 2px rgba(255,61,77,.55);color:#ffe3e6}
+.dfi-interdit .dfi-etiq{color:#ff7d89}
+.dfi-parchemin{background:linear-gradient(180deg,#d9c493,#b89a62);color:#2a1a08;box-shadow:inset 0 0 18px rgba(80,48,10,.45)}
+.dfi-parchemin .dfi-etiq{color:#6b3c10}
+.dfi-parchemin p{font-style:italic}
+.dfi-bulle{background:linear-gradient(180deg,#143a2c,#0c2219);box-shadow:inset 0 0 0 2px rgba(52,211,153,.45);border-radius:22px 22px 22px 4px}
+.dfi-bulle .dfi-etiq{color:#6ee7b7}
+.dfi-butin{background:linear-gradient(180deg,rgba(192,132,252,.2),rgba(0,0,0,.4));box-shadow:inset 0 0 0 2px rgba(192,132,252,.45)}
+.dfi-butin .dfi-etiq{color:#e0b8ff}
+.dfi-interdit p,.dfi-parchemin p,.dfi-bulle p{margin:6px 0 0;font-size:14px;line-height:1.55}
+.dfi-slots{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.dfi-slot{position:relative;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"ic q" "ic t";column-gap:8px;align-items:center;padding:8px 10px;border-radius:12px;border:2px solid #000;background:linear-gradient(180deg,#2a2040,#150f24);color:#b9b9d0;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.dfi-slot.recu{background:linear-gradient(180deg,#2c4a2c,#142414);color:#fff;border-color:#2f7a3a}
+.dfi-slot.secret{background:linear-gradient(180deg,#4a2a50,#241030);color:#f0d8ff}
+.dfi-slot-ic{grid-area:ic;display:grid;place-items:center;width:34px;height:34px;border-radius:9px;border:2px solid #000;background:#0c0816;font-size:16px;color:#ffd23f}
+.dfi-slot.recu .dfi-slot-ic{background:#1f6a2c;color:#fff}
+.dfi-slot-q{grid-area:q;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:#e9d5ff}
+.dfi-slot-t{grid-area:t;font-size:13px;line-height:1.35}
+.dfi-slot-t small{opacity:.7}
+.dfi-note{margin:8px 0 0;font-size:12px;opacity:.6;font-style:italic}
+.dfi-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
+.dfi-jouer-gros{padding:10px 56px 8px;font-size:32px}
+.dfi-abandon{padding:7px 22px 6px;border:3px solid #000;border-radius:12px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:21px;letter-spacing:.08em;color:#fff;background:linear-gradient(180deg,#ff6b78,#c4152b);box-shadow:0 4px 0 #5e0a14;cursor:pointer}
+.dfi-abandon:active{transform:translateY(3px);box-shadow:0 1px 0 #5e0a14}
+.dfi-fiche-fond{position:fixed;inset:0;z-index:9000;background:rgba(5,3,10,.8);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+.dfi-fiche{--acc:#f5b53a;position:relative;width:min(100%,560px);max-height:92vh;overflow:auto;padding:16px 18px 20px;border-radius:20px;border:4px solid #000;background:radial-gradient(100% 45% at 50% 0%,color-mix(in srgb,var(--acc) 42%,#241636),#0f0a18 70%);box-shadow:inset 0 0 0 2px var(--acc),0 20px 50px rgba(0,0,0,.7)}
+.dfi-fermer{position:absolute;z-index:3;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:3px solid #000;background:linear-gradient(180deg,#ff6b78,#c4152b);color:#fff;font-size:17px;cursor:pointer;box-shadow:0 3px 0 #5e0a14}
+@media (max-width:560px){.dfi-grille{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dfi-nom{font-size:21px}.dfi-embleme .dfi-emb{width:80px;height:80px}.dfi-rayons{width:150px;height:150px;margin:-75px 0 0 -75px;top:40px}.dfi-etoile{width:16px;height:16px}.dfi-jouer{padding:6px 18px 5px;font-size:22px}.dfi-gains{flex-direction:column;align-items:center;gap:4px}.dfi-tuile{padding:32px 8px 14px}.dfi-hero .dfi-nom{font-size:30px}.dfi-but-grand{font-size:38px}}
+@media (prefers-reduced-motion:reduce){.dfi-tuile.cours{animation:none}.dfi-tuile{transition:none}}
