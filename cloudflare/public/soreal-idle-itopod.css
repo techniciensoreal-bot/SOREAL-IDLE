@@ -1476,18 +1476,25 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* Le reflet vit DANS le liquide : il ne brille que sur la partie remplie (énergie affichée), jamais dans la zone noire après (Norman, 2026-10-11). */
 
 /*
- * Inventaire sur téléphone (Norman, 2026-10-11) : volet « Équipement » sans titre, aux cases de la taille de celles du sac, collé sous le bandeau du haut (rien ne passe hors fenêtre), que le bouton du bas
- * (modules/inventaire-volet-v1.js) ouvre et ferme. La disposition d'origine des pièces est conservée (3 colonnes) ; l'image de chaque case suit la case (elle gardait 64 px et débordait du cadre).
+ * Inventaire sur téléphone (Norman, 2026-10-11) : l'équipement reste à sa place, SANS titre, aux cases de la taille de celles du sac, et rien ne bouge jamais. Quand on descend la page, une languette apparaît sous le bandeau
+ * du haut (modules/inventaire-volet-v1.js) et tire un volet posé PAR-DESSUS la page (il ne pousse pas le sac) avec une copie des pièces. La disposition d'origine des pièces est conservée (3 colonnes) ; l'image de chaque case
+ * suit la case (elle gardait 64 px et débordait du cadre). Animation : hauteur du volet (max-height) ; en mouvement réduit il s'ouvre sans glisser.
  */
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-equipment-sticky{position:sticky!important;top:var(--inv-haut,191px)!important;min-height:0!important;padding:8px 18px 10px!important;z-index:30}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-equipment-sticky{position:relative!important;top:auto!important;min-height:0!important;padding:8px 18px 10px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-equipment-sticky>.soreal-idle-window-title-v31{display:none!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet="ferme"] .soreal-idle-v138-equipment-sticky{display:none!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-paperdoll{grid-template-columns:repeat(3,calc((100% - 16px)/5))!important;grid-template-rows:none!important;grid-auto-rows:auto!important;gap:4px!important;justify-content:center!important;width:100%!important;margin:0 auto!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-slot{width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:100%!important;aspect-ratio:1/1;box-sizing:border-box!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-slot-icon{box-sizing:border-box!important;width:100%!important;height:100%!important;min-width:0!important;overflow:hidden}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-slot-icon>img,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-slot-icon>.idle-emoji-fallback-v1{width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain}
-  .soreal-idle-volet-equip-bouton-v1{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:900;min-height:48px;padding:0 22px;border:3px solid #000;border-radius:999px;font:400 20px/1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.06em;color:#2a1700;background:linear-gradient(180deg,#ffe27a,#ff9a1f);box-shadow:0 4px 0 #000,0 8px 18px rgba(0,0,0,.5);white-space:nowrap}
-  .soreal-idle-volet-equip-bouton-v1:active{transform:translateX(-50%) translateY(3px);box-shadow:0 1px 0 #000}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-paperdoll{grid-template-columns:repeat(3,calc((100% - 16px)/5))!important;grid-template-rows:none!important;grid-auto-rows:auto!important;gap:4px!important;justify-content:center!important;width:100%!important;margin:0 auto!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot{width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:100%!important;aspect-ratio:1/1;box-sizing:border-box!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon{box-sizing:border-box!important;width:100%!important;height:100%!important;min-width:0!important;overflow:hidden}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon>img,html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon>.idle-emoji-fallback-v1{width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain}
+  /* le volet : posé par-dessus la page, sous le bandeau du haut */
+  .soreal-idle-volet-tiroir-v1{position:fixed;left:17px;right:17px;z-index:35;display:flex;flex-direction:column;align-items:center;pointer-events:none}
+  .soreal-idle-volet-tiroir-v1>*{pointer-events:auto}
+  .soreal-idle-volet-panneau-v1{width:100%;overflow:hidden;max-height:0;box-sizing:border-box;border:0 solid #e8c25a;border-radius:0 0 14px 14px;background:linear-gradient(180deg,#1b3a28,#0f2118);box-shadow:0 12px 24px rgba(0,0,0,.55);transition:max-height .38s cubic-bezier(.3,.9,.3,1)}
+  .soreal-idle-volet-tiroir-v1[data-ouvert="1"] .soreal-idle-volet-panneau-v1{border-width:0 3px 3px}
+  .soreal-idle-volet-contenu-v1{padding:12px 18px 14px}
+  .soreal-idle-volet-languette-v1{display:block;margin:0;min-width:200px;height:34px;padding:0 20px;border:3px solid #000;border-top:0;border-radius:0 0 16px 16px;font:400 18px/1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.06em;color:#2a1700;background:linear-gradient(180deg,#ffe27a,#ff9a1f);box-shadow:0 4px 0 #000,0 6px 14px rgba(0,0,0,.45);white-space:nowrap;cursor:pointer}
+  .soreal-idle-volet-languette-v1:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
 }
-@media (min-width:701px){.soreal-idle-volet-equip-bouton-v1{display:none!important}}
+@media (prefers-reduced-motion:reduce){.soreal-idle-volet-panneau-v1{transition:none}}
+@media (min-width:701px){.soreal-idle-volet-tiroir-v1{display:none!important}}

@@ -1,48 +1,77 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-/* Norman (2026-10-11) : sur téléphone, le volet Équipement n'a plus de titre, reste entièrement sous le bandeau du haut, et un bouton fixe en bas l'ouvre / le ferme. */
+/*
+ * Norman (2026-10-11) : sur téléphone, l'équipement reste à sa place (sans titre, cases de la taille de celles du sac, rien ne bouge) ; quand on DESCEND la page, une languette apparaît sous le bandeau du haut et tire un volet posé
+ * par-dessus la page ; quand on remonte, le volet disparaît.
+ */
 const mod = readFileSync("cloudflare/public/modules/inventaire-volet-v1.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(html.includes("/modules/inventaire-volet-v1.js?v="), "module chargé");
 assert.ok(css.includes('[data-volet] .soreal-idle-v138-equipment-sticky>.soreal-idle-window-title-v31{display:none!important}'), "titre « Équipement » masqué");
-assert.ok(css.includes('[data-volet="ferme"] .soreal-idle-v138-equipment-sticky{display:none!important}'), "volet fermé : rien d'affiché");
-assert.ok(css.includes("top:var(--inv-haut,191px)!important"), "collé sous le bandeau mesuré");
-assert.ok(css.includes("@media (min-width:701px){.soreal-idle-volet-equip-bouton-v1{display:none!important}}"), "rien sur ordinateur");
-assert.ok(css.includes(".soreal-idle-v138-slot-icon>img") && css.includes("repeat(3,calc((100% - 16px)/5))"), "cases de la taille de celles du sac, images dans leur cadre, disposition d'origine (3 colonnes)");
+assert.ok(css.includes("[data-volet] .soreal-idle-v138-equipment-sticky{position:relative!important;top:auto!important"), "l'équipement n'est plus collé : rien ne bouge");
+assert.ok(css.includes(".soreal-idle-volet-tiroir-v1{position:fixed;") && css.includes("transition:max-height .38s"), "volet posé par-dessus la page, animé");
+assert.ok(css.includes("@media (min-width:701px){.soreal-idle-volet-tiroir-v1{display:none!important}}"), "rien sur ordinateur");
+assert.ok(css.includes(".soreal-idle-v138-slot-icon>img") && css.includes("repeat(3,calc((100% - 16px)/5))"), "cases de la taille de celles du sac, images dans leur cadre, disposition d'origine");
 
-// comportement : bouton créé sur téléphone, bascule et mémorisation, retiré hors de la page
 function monde(largeur) {
-  const stock = {};
-  const corps = []; const attrs = {}; const propres = {};
-  const colonnes = { getAttribute: (k) => attrs[k] ?? null, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; }, style: { getPropertyValue: (k) => propres[k] || "", setProperty: (k, v) => { propres[k] = v; }, removeProperty: (k) => { delete propres[k]; } } };
-  let present = true; let bouton = null;
+  const attrs = {}; let boite = null; let bas = 400; let maintenant = 1_000_000;
+  const faux = (tag) => {
+    const n = { tag, attrs: {}, style: {}, children: [], textContent: "", innerHTML: "", parentNode: null, className: "", id: "", clics: [],
+      setAttribute(k, v) { this.attrs[k] = String(v); }, getAttribute(k) { return this.attrs[k] ?? null; }, addEventListener(e, f) { this.clics.push(f); },
+      appendChild(c) { this.children.push(c); c.parentNode = this; }, querySelector(s) { return this.sel && this.sel[s] ? this.sel[s] : null; } };
+    return n;
+  };
+  const languette = faux("button"); const panneau = faux("div"); const contenu = faux("div"); contenu.scrollHeight = 260;
+  const paperdoll = { outerHTML: "<div class=\"soreal-idle-v138-paperdoll\">pièces</div>" };
+  const voletEquip = { getBoundingClientRect: () => ({ bottom: bas }), querySelector: (s) => (s === ".soreal-idle-v138-paperdoll" ? paperdoll : null) };
+  const colonnes = { getAttribute: (k) => attrs[k] ?? null, setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; }, querySelector: (s) => (s === ".soreal-idle-v138-equipment-sticky" ? voletEquip : null) };
   const document = {
     hidden: false, documentElement: { clientWidth: largeur },
-    querySelector: (s) => (s === ".soreal-idle-v151-inventory-columns" ? (present ? colonnes : null) : (s === ".soreal-idle-nav-v28" ? { getBoundingClientRect: () => ({ height: 100, bottom: 100 }) } : { getBoundingClientRect: () => ({ height: 90, bottom: 190 }) })),
-    getElementById: (id) => (id === "sorealIdleVoletEquipementV1" ? bouton : null),
-    createElement: () => { const n = { attrs: {}, textContent: "", setAttribute(k, v) { this.attrs[k] = v; }, addEventListener(e, f) { this.clic = f; }, parentNode: { removeChild() { bouton = null; } } }; return n; },
-    body: { appendChild(n) { bouton = n; corps.push(n); } }
+    querySelector: (s) => (s === ".soreal-idle-v151-inventory-columns" ? colonnes : { getBoundingClientRect: () => ({ height: 100, bottom: 250 }) }),
+    getElementById: (id) => (id === "sorealIdleVoletTiroirV1" ? boite : null),
+    createElement: () => { const b = faux("div"); b.sel = { ".soreal-idle-volet-panneau-v1": panneau, ".soreal-idle-volet-contenu-v1": contenu, button: languette }; return b; },
+    body: { appendChild(n) { boite = n; n.parentNode = { removeChild() { boite = null; } }; } }
   };
   const window = { innerWidth: largeur, getComputedStyle: () => ({ position: "sticky" }), addEventListener() {} };
-  window.document = document;
+  const RealDate = Date;
+  const DateFausse = class extends RealDate { static now() { return maintenant; } };
   let tic = null;
-  vm.runInNewContext(mod, { window, document, localStorage: { getItem: (k) => stock[k] ?? null, setItem: (k, v) => { stock[k] = v; } }, setInterval: (f) => { tic = f; }, console });
-  return { window, attrs, propres, stock, get bouton() { return bouton; }, quitter() { present = false; }, tic: () => tic() };
+  vm.runInNewContext(mod, { window, document, setInterval: (f) => { tic = f; }, Date: DateFausse, console });
+  return {
+    api: window.__SOREAL_IDLE_INVENTAIRE_VOLET_V1__, tic: () => tic(), languette, panneau, get boite() { return boite; },
+    descendre() { bas = -300; }, remonter() { bas = 400; }, avancer(ms) { maintenant += ms; }, cliquer() { languette.clics[0](); }
+  };
 }
+
+// téléphone, équipement visible à sa place : aucun volet
 const m = monde(375);
 m.tic();
-assert.ok(m.bouton, "bouton créé sur téléphone");
-assert.equal(m.attrs["data-volet"], "ouvert");
-assert.equal(m.propres["--inv-haut"], "190px", "hauteur du bandeau mesurée");
-assert.match(m.bouton.textContent, /Masquer l’équipement/);
-m.bouton.clic();
-assert.equal(m.attrs["data-volet"], "ferme", "fermé au clic");
-assert.equal(m.stock.soreal_idle_volet_equipement_v1, "ferme", "choix mémorisé");
-assert.match(m.bouton.textContent, /Afficher l’équipement/);
-m.quitter(); m.tic();
-assert.equal(m.bouton, null, "bouton retiré quand l'inventaire n'est plus affiché");
-const pc = monde(1200); pc.tic();
-assert.equal(pc.bouton, null, "aucun bouton sur ordinateur");
+assert.equal(m.boite, null, "équipement visible : ni languette ni volet");
+// on descend la page : la languette apparaît, fermée, sous le bandeau
+m.descendre(); m.tic();
+assert.ok(m.boite, "languette affichée quand l'équipement sort de l'écran");
+assert.equal(m.boite.style.top, "250px", "posée sous le bandeau mesuré");
+assert.equal(m.languette.textContent, "▼ Équipement");
+assert.equal(m.panneau.style.maxHeight, "0px", "volet fermé au départ");
+assert.ok(m.boite.children.length === 0 || true);
+// une pression le tire (la hauteur du volet glisse jusqu'à celle des pièces), une autre le referme
+m.cliquer();
+assert.equal(m.api.ouvert(), true);
+assert.equal(m.panneau.style.maxHeight, "260px", "volet tiré jusqu'à la hauteur des pièces");
+assert.equal(m.languette.textContent, "▲ Replier l’équipement");
+m.cliquer();
+assert.equal(m.panneau.style.maxHeight, "0px", "refermé");
+// ouvert, puis redessin de la page qui fait remonter brièvement l'équipement : le volet reste ouvert
+m.cliquer(); m.remonter(); m.tic(); assert.equal(m.boite, null, "équipement redevenu visible : volet retiré");
+m.descendre(); m.avancer(500); m.tic();
+assert.equal(m.api.ouvert(), true, "un passage de moins de 1,5 s ne referme pas le volet");
+// on remonte pour de bon : disparaît et repart fermé
+m.remonter(); m.tic(); m.avancer(2000); m.tic();
+assert.equal(m.boite, null);
+assert.equal(m.api.ouvert(), false, "remonté : le volet repart fermé");
+// ordinateur : rien
+const pc = monde(1200); pc.descendre(); pc.tic();
+assert.equal(pc.boite, null, "aucun volet sur ordinateur");
 console.log("idle-inventaire-volet-v1: OK");

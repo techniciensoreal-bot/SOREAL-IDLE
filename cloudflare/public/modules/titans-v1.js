@@ -141,6 +141,33 @@ function seuilsRecommandes(t,palier){
     '<div class="ttn-tete"><b class="ttn-reco-g">Stats conseillées</b><b class="ttn-reco-d">Stats actuelles</b></div>'+blocs.join('')+'</div>';
 }
 
+/*
+ * Ce que fait la case « Auto-kill » (Norman, 2026-10-11 : « l'auto kill est coché pour GRB mais il ne meurt pas, le bouton est grisé ») : le Titan n'est vaincu qu'à sa RÉAPPARITION (le délai passe d'abord) et seulement
+ * si tes stats atteignent celles de l'Auto-kill ; la carte le dit en clair au lieu de laisser croire à un bug.
+ */
+function seuilAutoKill(t){
+  var kills=ent(t.state&&t.state.kills);
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length?t.forms[t.forms.length-1]:null;
+  if(t.difficulties&&typeof t.difficulties==='object'){
+    var cles=Object.keys(t.difficulties),meilleur=null;
+    cles.forEach(function(k){var e=t.difficulties[k];if(e&&Number(e.autoKillP)>0&&(!meilleur||Number(e.autoKillP)<Number(meilleur.autoKillP)))meilleur=e;});
+    return meilleur;
+  }
+  return Number(t.autoKillP)>0?t:null;
+}
+function ligneAutoKill(t,enAttente,retour,maintenant){
+  if(!(t.state&&t.state.autoKill===true))return '';
+  if(seTueTout(t)){
+    return '<div class="ttn-auto-etat oui">🤖 Auto-kill actif : '+(enAttente?'il sera vaincu tout seul à sa réapparition, dans <b data-ttn-cd="'+retour+'">'+duree(retour-maintenant)+'</b>':'il sera vaincu tout seul à la prochaine mise à jour')+'</div>';
+  }
+  var sa=seuilAutoKill(t),moi=statsJoueur();
+  if(!sa||!moi)return '<div class="ttn-auto-etat non">🤖 Auto-kill coché, pas encore applicable à ce Titan.</div>';
+  var manque=[];
+  if(moi.power<Number(sa.autoKillP))manque.push('⚔️ '+gn(Number(sa.autoKillP)-moi.power,2));
+  if(moi.toughness<Number(sa.autoKillT))manque.push('🛡️ '+gn(Number(sa.autoKillT)-moi.toughness,2));
+  return '<div class="ttn-auto-etat non">🤖 Auto-kill coché, mais il te manque '+(manque.join(' et ')||'des stats')+' pour que ça s’applique.</div>';
+}
+
 function carte(t){
   var id=String(t.id);
   var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
@@ -174,7 +201,7 @@ function carte(t){
       '<div class="ttn-id">'+
         '<h3 class="ttn-nom">'+h(nom)+(forme>=0?' <small>(forme '+(forme+1)+' / '+t.forms.length+')</small>':'')+'</h3>'+
         '<div class="ttn-sous">💀 '+kills+' victoire'+(kills>1?'s':'')+'</div>'+
-        statut+
+        statut+ligneAutoKill(t,enAttente,retour,maintenant)+
       '</div>'+
     '</div>'+
     '<div class="ttn-sous-titre">Ses statistiques</div><div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
@@ -236,6 +263,7 @@ function css(){
     '.ttn-details{margin-top:9px;font-size:13px}'+
     '.ttn-details summary{cursor:pointer;font-weight:800}'+
     '.ttn-details ul{margin:7px 0 0;padding-left:18px;line-height:1.5}'+
+    '.ttn-auto-etat{margin-top:7px;font-size:14px;font-weight:800;line-height:1.35;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid currentColor}.ttn-auto-etat.oui{color:#34d399}.ttn-auto-etat.non{color:#fbbf24}.ttn-auto-etat b{color:#fff;font-variant-numeric:tabular-nums}'+
     '.ttn-note{margin-top:7px;font-size:12px;opacity:.7;font-style:italic}'+
     '.ttn-actions{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:12px}'+
     '.ttn-auto{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;cursor:pointer}.ttn-auto input{width:20px;height:20px;accent-color:var(--th-a,#ff7a1a)}'+
