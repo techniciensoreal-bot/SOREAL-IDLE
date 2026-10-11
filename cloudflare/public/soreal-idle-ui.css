@@ -5537,6 +5537,8 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
 .soreal-idle-notes-maj-titre-v1 span{margin-left:auto;font-size:13px;color:#8b93ab}
 .soreal-idle-notes-maj-version-v1 ul{margin:0;padding-left:18px}
 .soreal-idle-notes-maj-version-v1 li{margin:3px 0;line-height:1.45}
+.soreal-idle-notes-maj-groupe-v1{margin-top:8px}
+.soreal-idle-notes-maj-menu-v1{margin:0 0 2px;font-weight:700;font-size:14px;letter-spacing:.04em;color:#f2d79a}
 
 /*
  * Emoji de repli d'un objet sans image (Norman, 2026-09-25) : grand et centré dans sa case (64 px, comme les images). data-n = nombre de symboles :

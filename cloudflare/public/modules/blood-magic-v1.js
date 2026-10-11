@@ -282,6 +282,8 @@ function creer(hote){
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';
+        const decor=window.__SOREAL_IDLE_SANG_DECOR_V1__;
+        decor.css();
         const snap=j&&j.systemes||{};
         const defs=Array.isArray(snap.bloodRituals)?snap.bloodRituals:[];
         const data=s.state.data||{};
@@ -382,16 +384,20 @@ function creer(hote){
            * continu par animerBarreCycliqueIdleV217_ (soreal-idle-ui.js) -- seule couleur distincte
            * (rouge sang) pour rester dans le thème de la page.
            */
+          /*
+           * Magie du sang (Norman, 2026-10-11) : « une page de rituel satanique ; des tuyaux de vers qui remplissent un récipient ; 200 niveaux remplissent un récipient, qui sort du cadre et est remplacé ».
+           * La barre du moteur (data-idle-blood-bar-v1) reste le remplissage du tuyau ; le calice se remplit avec le compteur de rituels (modules/sang-rituel-decor-v1.js).
+           */
           const barre=montrerBarre
-            ?'<div class="soreal-idle-bt-track-v120'+(progressionActive?' saigne-v1':'')+'"><div data-idle-blood-bar-v1="'+idHtml+'" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;background:#9a2138;transition:none"></div>'+(progressionActive?SANG_GOUTTES_HTML_V1:'')+'</div>'
+            ?'<div data-idle-blood-bar-v1="'+idHtml+'" class="bm-sang" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;transition:none"></div>'+(progressionActive?SANG_GOUTTES_HTML_V1:'')
             :'';
-          return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="soreal-idle-section-v8" data-rang-v1="'+rangRituel+'" style="margin:0;opacity:'+(unlocked?'1':'.55')+'">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(IDLE_ICONES_RITUELS_V1[def.id]?IDLE_ICONES_RITUELS_V1[def.id]+' ':'')+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(r.completions||0)+'" style="font-weight:inherit">'+H.idleEntier_(r.completions||0)+'</b> complété(s)</span></div>'+
+          return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="bm-rituel" data-rang-v1="'+rangRituel+'" style="margin:0">'+
+            '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(r.completions||0)+'">'+H.idleEntier_(r.completions||0)+'</b> complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
-            barre+
+            decor.scene({id:idHtml,compte:Number(r.completions||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
-            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" style="font-size:14px;color:#c7d2fe;margin:3px 0;'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
+            '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" class="bm-eta" style="'+(etaTexte?'':'display:none')+'">'+H.idleHtml_(etaTexte)+'</div>'+
             '<div class="soreal-idle-bt-actions-v120" style="margin-top:9px"><button type="button" title="Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'plus\')" aria-label="Placer"><span class="soreal-idle-blood-croix-v1">✝︎</span></button><button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'moins\')">−</button><button type="button" title="Placer toute la Magic libre sur ce rituel" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'cap\')">Max</button><button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterRituelBloodMagicIdleV1__(\''+idHtml+'\',\'zero\')">0</button></div>'+
           '</div>';
         }).join('');
@@ -413,7 +419,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon Blood ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
         }).join('')+'</div>';
 
         /*
@@ -423,7 +429,7 @@ function creer(hote){
          * carte, liseré) -- jamais un simple aplat rouge, et rien de tout ça n'existe ailleurs.
          */
         return '<div class="soreal-idle-bloodmagic-v1">'+
-          H.entetePageIdleV28_('🩸 Blood Magic','Transforme de la Magic et de l’Or en Blood, puis dépense ce Blood dans des sorts.')+
+          decor.entete('Magie du sang','Transforme de la Magic et de l’Or en Blood, puis dépense ce Blood dans des sorts.')+
           carteAideMenuIdleV1_('bloodMagic','Le Blood sert à lancer des sorts. Le plus courant, Blood NUMBER Boost, ajoute 1 au multiplicateur du NUMBER (le « Blood magic bonus » du Rebirth) par Blood dépensé : c’est ce qui te donne un plus gros nombre au Rebirth.',[
             'Choisis un rituel et place-y de la Magic avec + : plus il en reçoit, plus vite il se termine.',
             'Chaque fois qu’un rituel se termine, il dépense de l’Or et produit du Blood.',

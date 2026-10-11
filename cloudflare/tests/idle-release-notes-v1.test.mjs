@@ -11,15 +11,22 @@ assert.equal(n.courante, "2.6");
 assert.deepEqual(n.versions.map((v) => v.version), ["2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"], "une entrée par jour : 1.0 le 2026-09-23 puis +0.1 par jour, la plus récente en tête");
 assert.deepEqual(n.versions.map((v) => v.date), ["2026-10-11", "2026-10-10", "2026-10-07", "2026-10-06", "2026-10-05", "2026-10-04", "2026-10-03", "2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29", "2026-09-28", "2026-09-27", "2026-09-26", "2026-09-25", "2026-09-24", "2026-09-23"], "une seule entrée par jour");
 assert.equal(n.versions[0].version, n.courante, "la version courante est la première entrée");
+/* Notes regroupées par menu (Norman, 2026-10-11) : groupes { menu, titre, points }. */
+const MENUS_VALIDES = ["general", "entrainement", "combat", "aventure", "renaissance", "moneyPit", "augmentations", "avance", "machine", "sang", "tower", "daycare", "challenges", "titans", "ngu", "wandoos", "yggdrasil", "diggers", "beards", "macguffins", "hacks", "questing", "quirks", "wishes", "cards", "cooking", "shop", "chroniques", "chat", "parametres"];
+function lignes(v) { return (v.groupes || []).flatMap((g) => g.points); }
 for (const v of n.versions) {
-  assert.ok(v.nom && /^\d{4}-\d{2}-\d{2}$/.test(v.date) && v.points.length >= 3, "chaque version : petit nom, date, résumé : " + v.version);
+  assert.ok(Array.isArray(v.groupes) && v.groupes.length > 0, "notes groupées par menu : " + v.version);
+  for (const g of v.groupes) assert.ok(MENUS_VALIDES.includes(g.menu) && g.titre && g.points.length > 0, "groupe valide : " + v.version + " / " + g.menu);
+  assert.equal(v.groupes[0].menu === "general" || v.groupes.every((g) => g.menu !== "general"), true, "« Général » vient en premier");
+  assert.ok(v.nom && /^\d{4}-\d{2}-\d{2}$/.test(v.date) && lignes(v).length >= 3, "chaque version : petit nom, date, résumé : " + v.version);
 }
 // Numéros strictement décroissants (en tête = la plus récente)
 const nums = n.versions.map((v) => Number(v.version));
 assert.deepEqual(nums, [...nums].sort((a, b) => b - a));
 
 // Anti-spoil : les notes visibles de tous ne nomment pas de système verrouillé ni le Classement (bouton encore réservé)
-const texte = JSON.stringify(n.versions).toLowerCase();
+/* Seules les LIGNES sont vérifiées : les titres de menu (ITOPOD…) ne s'affichent que si le joueur possède déjà ce menu (voir idle-release-notes-groupes-v1.test.mjs). */
+const texte = JSON.stringify(n.versions.map(lignes)).toLowerCase();
 for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadistic", "time machine", "macguffin", "yggdrasil", "wandoos", "gold digger", "mineurs d", "barbes", "souhaits", "piratages", "garderie", "itopod", "quirks", "giant seed"]) {
   assert.ok(!texte.includes(interdit), "spoil dans les notes : " + interdit);
 }

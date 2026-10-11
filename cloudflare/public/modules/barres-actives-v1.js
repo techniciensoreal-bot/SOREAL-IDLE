@@ -17,7 +17,7 @@ var MENUS={
   augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile'},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
   machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.soreal-idle-tm-ligne-v1',style:'piece'},
-  sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.soreal-idle-section-v8',style:'goutte'},
+  sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'},
   ngu:{alloc:'[data-nl-alloc]',ligne:'.nl-barre',style:'orbe'}
 };
 

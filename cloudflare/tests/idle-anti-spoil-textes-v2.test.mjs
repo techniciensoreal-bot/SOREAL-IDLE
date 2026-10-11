@@ -25,7 +25,9 @@ assert.ok(!/tes améliorations d’EXP, tes NGU/.test(chal) && !/niveau de syst�
 assert.ok(!/kills de l’ITOPOD|Special Prize/.test(prof) && !/Weiner|Sneak Preview|SEXY/.test(prof));
 
 // Notes de mise à jour : aucun nom de système réservé (voir aussi idle-release-notes-v1).
-assert.ok(!/Mineurs d’or|Piratages|Gold Diggers|Yggdrasil|Wandoos|Garderie|ITOPOD|A Number|Giant Seed/.test(notes));
+/* Les titres de groupe (ITOPOD, Wandoos…) ne s'affichent qu'au joueur qui possède déjà le menu (idle-release-notes-groupes-v1) : seules les lignes sont contrôlées. */
+const lignesNotes = notes.split(String.fromCharCode(10)).filter((l) => l.trim().startsWith(String.fromCharCode(39))).join(String.fromCharCode(10));
+assert.ok(!/Mineurs d’or|Piratages|Gold Diggers|Yggdrasil|Wandoos|Garderie|ITOPOD|A Number|Giant Seed/.test(lignesNotes));
 
 // Listes : un fruit ou un mineur portant le nom d'un système verrouillé n'apparaît pas.
 assert.ok(meta.includes("!/MacGuffin/i.test(String(def.name||def.id||''))||") && meta.includes("def.id!=='daycare'||"));

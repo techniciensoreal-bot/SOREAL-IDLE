@@ -23945,10 +23945,31 @@ function pageAventureIdleV28_(j){
           }).join('')+
         '</div>';
       }
+      /*
+       * Notes regroupées par menu (Norman, 2026-10-11). Anti-spoil (règle n°2) : un groupe n'est montré que si le joueur possède DÉJÀ ce menu (il figure dans son menu de gauche) ; le groupe « Général » est toujours visible.
+       * Les notes écrites avec l'ancien format (« points ») restent affichées telles quelles.
+       */
+      function menusPossedesNotesMajIdleV1_(){
+        const ids={general:true};
+        try{
+          document.querySelectorAll('.soreal-idle-nav-v28 [data-menu-id-v1]').forEach(function(b){ids[b.getAttribute('data-menu-id-v1')]=true;});
+        }catch(e){}
+        return ids;
+      }
+      function htmlVersionNotesMajIdleV1_(v,possedes){
+        if(Array.isArray(v.groupes)){
+          return v.groupes.filter(function(g){return g&&Array.isArray(g.points)&&g.points.length&&possedes[g.menu];}).map(function(g){
+            return '<div class="soreal-idle-notes-maj-groupe-v1"><div class="soreal-idle-notes-maj-menu-v1">'+idleHtml_(g.titre||g.menu)+'</div>'+
+              '<ul>'+g.points.map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul></div>';
+          }).join('');
+        }
+        return '<ul>'+(v.points||[]).map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul>';
+      }
       function htmlNotesMajIdleV1_(){
         const notes=notesMajIdleV1_();
         if(!notes.versions.length)return '';
         const ouvert=notesMajOuvertesIdleV1_();
+        const possedes=menusPossedesNotesMajIdleV1_();
         return '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-notes-maj-bouton-v1" aria-expanded="'+ouvert+'" '+
             'onclick="window.__basculerNotesMajIdleV1__()">'+(ouvert?'▾':'▸')+' 📝 Notes de mise à jour</button>'+
           (ouvert
@@ -23957,7 +23978,7 @@ function pageAventureIdleV28_(j){
                 return '<div class="soreal-idle-notes-maj-version-v1'+(i===0?' derniere':'')+'">'+
                   '<div class="soreal-idle-notes-maj-titre-v1"><b>Beta '+idleHtml_(v.version)+'</b> · '+idleHtml_(v.nom)+
                     '<span>'+idleHtml_(v.date)+'</span></div>'+
-                  '<ul>'+v.points.map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul>'+
+                  htmlVersionNotesMajIdleV1_(v,possedes)+
                   (notes.hommage?'<div class="soreal-idle-notes-maj-hommage-v1">'+idleHtml_(notes.hommage)+'</div>':'')+
                 '</div>';
               }).join('')+

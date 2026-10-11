@@ -13,7 +13,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot, advanceIdle
  * Blood magic, la manière dont tu l'as reproduit, ça n'est pas opérationnel. »
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
+const meta = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8") + String.fromCharCode(10) + readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8");
 
 // --- 1. Basic Training : une durée par niveau s'affiche désormais (référence demandée par Norman, mais n'en avait aucune). ---
@@ -200,7 +200,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.equal(etat.__bloodMagicVisualV1.tack.etaSeconds, snap.bloodMagicView.etaSeconds);
 
   // Barre visible pour le rituel actif, à la bonne classe (même famille qu'Augmentation), avec le pourcentage initial correct (25 %).
-  assert.match(html, /<div class="soreal-idle-bt-track-v120( saigne-v1)?"><div data-idle-blood-bar-v1="tack" class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX\(0\.25\)/);
+  assert.match(html, /<div class="bm-tuyau( saigne-v1)?"><div data-idle-blood-bar-v1="tack" class="bm-sang" style="width:100%;transform:scaleX\(0\.25\)/);
 
   // Un rituel non actif (jamais celui sélectionné) n'affiche aucune barre -- lui seul ne progresse pas réellement.
   assert.ok(!html.includes('data-idle-blood-bar-v1="papercuts"'), "seul le rituel actif a une barre de progression");

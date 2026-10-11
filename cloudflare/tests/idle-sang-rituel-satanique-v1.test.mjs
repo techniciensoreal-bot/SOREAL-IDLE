@@ -1,0 +1,79 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+/*
+ * Norman (2026-10-11) : la page Magie du sang fait « rituel satanique » ; chaque barre est un tuyau de vers qui remplit un récipient ; le tuyau grossit et les récipients grandissent avec le rang ;
+ * le premier rituel est un doigt piqué par une punaise (100 piqûres = une boîte, une piqûre = un niveau). Anti-spoil (règle n°2) : aucun total écrit (jamais « x / 200 »), l'étagère ne montre que
+ * les récipients déjà remplis. Boucles sans à-coup (règle n°3).
+ */
+const src = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+const page = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8");
+const html = readFileSync("cloudflare/public/index.html", "utf8");
+assert.ok(html.indexOf("/modules/sang-rituel-decor-v1.js?v=") > 0 && html.indexOf("/modules/sang-rituel-decor-v1.js") < html.indexOf("/modules/blood-magic-v1.js"), "décor chargé avant la page");
+
+const fenetre = { __nomJoueurIdleV1__: () => "Norman" };
+vm.runInNewContext(src, { window: fenetre, setInterval: () => 0, document: {}, console });
+const d = fenetre.__SOREAL_IDLE_SANG_DECOR_V1__;
+assert.equal(d.NIVEAUX_PAR_RECIPIENT, 200, "200 niveaux par récipient par défaut");
+
+// rituel ordinaire (calice, 200 niveaux) : 450 = 2 calices pleins + un troisième au quart
+const h = d.scene({ id: "hickey", compte: 450, barre: "<i data-idle-blood-bar-v1=\"hickey\"></i>", saigne: true, rang: 1 });
+assert.ok(h.includes('data-bm-pleins="2"') && h.includes('data-bm-cap="200"') && h.includes("translateY(61.50px)"), "niveau du calice = reste / capacité");
+assert.ok(h.includes('class="bm-tuyau saigne-v1"') && h.includes('data-idle-blood-bar-v1="hickey"'), "la barre du moteur reste le remplissage du tuyau");
+assert.equal((h.match(/class="bm-mini bm-mini-calice"/g) || []).length, 2, "l'étagère montre les calices déjà remplis");
+assert.ok(h.includes("× 2"), "nombre de calices pleins");
+assert.ok(!/\/\s*(100|200)|sur (100|200)/.test(h.replace(/viewBox="[^"]*"/g, "")), "aucun « x / capacité » dans le rendu");
+const v = d.scene({ id: "hickey", compte: 0, barre: "", rang: 1 });
+assert.ok(v.includes('data-bm-pleins="0"') && v.includes('data-bm-etagere="hickey" hidden') && !v.includes("bm-mini") && v.includes("translateY(78.00px)"), "calice vide, rien d'annoncé");
+const presque = d.scene({ id: "hickey", compte: 199, barre: "", rang: 1 });
+assert.ok(presque.includes('data-bm-pleins="0"') && presque.includes("translateY(12.33px)"), "199 niveaux : presque plein, pas encore sorti");
+const plein = d.scene({ id: "hickey", compte: 200 * 14, barre: "", rang: 1 });
+assert.equal((plein.match(/class="bm-mini bm-mini-calice"/g) || []).length, 8);
+assert.ok(plein.includes("× 14"));
+
+// les récipients grandissent avec le rang, la scène aussi (le tuyau reste au-dessus)
+const taille = (rang) => { const m = d.scene({ id: "hickey", compte: 0, barre: "", rang }).match(/--vw:(\d+)px;--vh:(\d+)px;--vb:\d+px;--sh:(\d+)px/); return m.slice(1).map(Number); };
+const tailles = [1, 2, 3, 4, 5].map(taille);
+for (let i = 1; i < tailles.length; i++) assert.ok(tailles[i][0] > tailles[i - 1][0] && tailles[i][1] > tailles[i - 1][1] && tailles[i][2] >= tailles[i - 1][2], "récipient plus grand au rang " + (i + 1));
+
+// premier rituel : boîte de Petri au nom du joueur, 100 piqûres pour la remplir, doigt + punaise + goutte
+const t = d.scene({ id: "tack", compte: 2500, barre: "", rang: 0 });
+assert.ok(t.includes('data-contenant="boite"') && t.includes('data-bm-cap="1000"') && t.includes('data-source="punaise"'), "premier rituel : boîte, 1000 niveaux, punaise");
+assert.ok(t.includes('data-bm-pleins="2"') && t.includes("translateY(47.50px)"), "2500 piqûres = 2 récipients pleins + la moitié");
+assert.ok(t.includes('class="bm-nom"') && t.includes(">Norman</text>"), "étiquette au nom du joueur");
+assert.ok(t.includes("bm-punaise") && (t.match(/class="bm-goutte-doigt"/g) || []).length === 1 && !t.includes("bm-plaie") && t.includes("bm-doigt"), "doigt, punaise et UNE seule goutte par piqûre (née du point piqué)");
+assert.ok(t.includes("Sang collecté") && t.includes("× 2") && !t.includes("bm-mini"), "étagère du premier rituel : le nom et le nombre, sans dessin de boîte");
+
+// un seul récipient sous le doigt ; le suivant n'est dessiné qu'à l'approche du plein (SEUIL_ARRIVEE = 0,9)
+assert.ok(!t.includes("bm-suivant"), "à moitié plein : un seul récipient");
+const pres = d.scene({ id: "tack", compte: 2950, barre: "", rang: 0 });
+assert.ok(pres.includes('class="bm-vase bm-suivant bm-apparait"'), "près du plein : le suivant arrive d'en dehors du cadre");
+assert.ok(!d.scene({ id: "tack", compte: 2960, barre: "", rang: 0 }).includes("bm-apparait") && d.scene({ id: "tack", compte: 2960, barre: "", rang: 0 }).includes("bm-suivant"), "un redessin ne le fait pas surgir : il est déjà là");
+assert.ok(!d.scene({ id: "tack", compte: 2100, barre: "", rang: 0 }).includes("bm-suivant"), "juste après un plein : un seul récipient");
+
+// deuxième rituel (cinquante coupures de papier) : un bras tranché par une feuille, un verre à moutarde, 5000 coupures pour le remplir
+const c2 = d.scene({ id: "papercuts", compte: 12500, barre: "", rang: 1 });
+assert.ok(c2.includes('data-contenant="verre"') && c2.includes('data-bm-cap="5000"') && c2.includes('data-source="papier"'), "second rituel : verre, 5000 niveaux, papier");
+assert.ok(c2.includes('data-bm-pleins="2"') && c2.includes("translateY(isNaN") === false, "12500 coupures = 2 verres pleins + la moitié");
+assert.ok(c2.includes("bm-bras") && c2.includes("bm-manche") && c2.includes("bm-papier") && c2.includes("bm-coupure") && (c2.match(/class="bm-goutte-doigt bm-gros/g) || []).length === 3, "avant-bras (sans main), manche relevée, feuille, trait de coupure et plusieurs grosses gouttes (une coupure = 50 Blood)");
+assert.ok(!c2.includes("bm-sym-poing") && !c2.includes("bm-poing"), "on ne voit jamais la main");
+assert.ok(c2.includes("Sang collecté") && !c2.includes("bm-mini"), "étagère : le nom et le nombre, sans dessin");
+// la page branche le décor et garde ses points d'accroche
+assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel");
+assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-blood-bar-v1") && page.includes("sorealIdleBloodEtaLineV1_"), "points d'accroche du moteur conservés");
+assert.ok(!page.includes("soreal-idle-section-v8\" data-rang-v1"), "plus d'ancien cadre de rituel");
+// rythme de la punaise : plafond de vitesse visuelle, un coup par niveau quand c'est lent
+assert.ok(src.includes("var PERIODE_MIN=0.4,PERIODE_BOUCLE=4;"), "plafond de vitesse et seuil de boucle");
+assert.ok(src.includes("data-rythme") && src.includes("bm-coup"), "boucle ou un coup par niveau");
+// boucles parfaites : anneaux = 1 période (12 px), vaguelettes = 1 période (40 px), tuile du ver = 120 px (masque et relief)
+for (const [garde, msg] of [
+  ["background-size:12px 100%", "anneaux : tuile de 12 px"],
+  ["@keyframes bmAnneaux{from{transform:translateX(0)}to{transform:translateX(12px)}}", "anneaux glissent d'une période"],
+  ["@keyframes bmOnde{from{transform:translateX(0)}to{transform:translateX(40px)}}", "vaguelettes : une période"],
+  ["0 0/120px 44px repeat-x", "tuile du ver explicite"],
+  ["@keyframes bmFlamme{0%,100%{", "flamme : début = fin"],
+  ["@keyframes bmTourne{to{transform:rotate(360deg)}}", "pentacle : tour complet"],
+  ["@keyframes bmGouttedoigt{0%,40%{opacity:0;", "goutte du doigt : invisible au début et à la fin"],
+  ["@media (prefers-reduced-motion:reduce)", "mouvement réduit coupé"]
+]) assert.ok(src.includes(garde), msg);
+console.log("idle-sang-rituel-satanique-v1: OK");

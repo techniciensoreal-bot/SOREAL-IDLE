@@ -10,5 +10,6 @@ assert.ok(m && m[1].includes("Grizboule"), "hommage dans les données des notes"
 assert.ok(dict[m[1]] && dict[m[1]].includes("Grizboule"), "traduction anglaise de l'hommage");
 assert.ok(ui.includes("notes.hommage?'<div class=\"soreal-idle-notes-maj-hommage-v1\">'"), "affiché sous chaque version");
 const bloc = ui.slice(ui.indexOf("notes.versions.map(function(v,i){"), ui.indexOf("notes.versions.map(function(v,i){") + 700);
-assert.ok(bloc.indexOf("v.points.map") < bloc.indexOf("notes.hommage"), "en bas de la note, après les points");
+assert.ok(bloc.indexOf("htmlVersionNotesMajIdleV1_(v,possedes)") < bloc.indexOf("notes.hommage"), "en bas de la note, après les lignes");
+assert.equal(m[1], "🐾 En hommage à Grizboule", "Norman (2026-10-11) : seulement une patte de chat et « En hommage à Grizboule »");
 console.log("idle-notes-hommage-v1: OK");
