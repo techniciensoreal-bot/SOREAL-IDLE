@@ -1484,7 +1484,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-equipment-sticky{position:relative!important;top:auto!important;min-height:0!important;padding:8px 18px 10px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet] .soreal-idle-v138-equipment-sticky>.soreal-idle-window-title-v31{display:none!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-paperdoll{grid-template-columns:repeat(3,calc((100% - 16px)/5))!important;grid-template-rows:none!important;grid-auto-rows:auto!important;gap:4px!important;justify-content:center!important;width:100%!important;margin:0 auto!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-paperdoll{grid-template-columns:repeat(2,calc((100% - 16px)/5))!important;grid-template-rows:none!important;grid-auto-rows:auto!important;gap:4px!important;justify-content:center!important;width:100%!important;margin:0 auto!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot{width:100%!important;height:auto!important;min-width:0!important;min-height:0!important;max-width:100%!important;aspect-ratio:1/1;box-sizing:border-box!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon{box-sizing:border-box!important;width:100%!important;height:100%!important;min-width:0!important;overflow:hidden}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon>img,html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns[data-volet],.soreal-idle-volet-tiroir-v1) .soreal-idle-v138-slot-icon>.idle-emoji-fallback-v1{width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain}
@@ -1523,3 +1523,21 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   /* le volet de l'équipement (languette) suit la largeur du cadre de gauche */
   .soreal-idle-volet-tiroir-v1{left:6px!important;right:44px!important}
 }
+
+/* ====================== Équipement : 2 colonnes (Norman, 2026-10-11) ======================
+ * « Mets les accessoires en dessous de l'arme plutôt qu'à sa droite : tous sur 2 colonnes au lieu de 3. » Colonne 1 : casque, torse, pantalon, bottes. Colonne 2 : l'arme, puis (si débloqués) la seconde arme et le cube,
+ * puis les accessoires, les uns sous les autres (les cases absentes ne laissent pas de trou : placement automatique).
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:none!important;grid-template-areas:none!important;grid-auto-rows:auto!important;grid-auto-flow:row!important;max-width:260px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-head{grid-area:auto!important;grid-column:1!important;grid-row:1!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-chest{grid-area:auto!important;grid-column:1!important;grid-row:2!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-legs{grid-area:auto!important;grid-column:1!important;grid-row:3!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-boots{grid-area:auto!important;grid-column:1!important;grid-row:4!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll :is(.soreal-idle-v138-slot-weapon,.soreal-idle-v138-slot-weapon2,.soreal-idle-v138-slot-cube,.soreal-idle-v138-slot-acc1,.soreal-idle-v138-slot-acc2,.soreal-idle-v138-slot-acc3,.soreal-idle-v138-slot-acc4){grid-area:auto!important;grid-column:2!important;grid-row:auto!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-weapon{order:1}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-weapon2{order:2}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-cube{order:3}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-acc1{order:4}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-acc2{order:5}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-acc3{order:6}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v138-paperdoll .soreal-idle-v138-slot-acc4{order:7}
