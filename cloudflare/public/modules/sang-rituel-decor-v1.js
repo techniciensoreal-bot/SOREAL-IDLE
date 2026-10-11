@@ -458,6 +458,18 @@ var suivantVu={};
 var marqueVue={};
 function typeContenant(id){return CONTENANTS[CONTENANT_DE[id]]?CONTENANT_DE[id]:'calice';}
 function capacite(id){var c=Number(CAPACITE[id]);return c>0?c:NIVEAUX_PAR_RECIPIENT;}
+/*
+ * CAPACITÉ PAR PALIERS (Norman, 2026-10-11) : à haut niveau, un récipient se remplissait trop vite (un changement de récipient toutes les quelques secondes décalait l'animation et mettait le sang à côté). La capacité d'un récipient est
+ * multipliée par 10 à chaque décade de récipients terminés : B niveaux pour les 10 premiers récipients, puis 10 B, puis 100 B… Le palier change EXACTEMENT quand un récipient vient de se terminer (le seuil est un multiple de l'ancienne et de la
+ * nouvelle capacité), donc la fraction et le nombre de récipients pleins ne sautent jamais. Palier n >= 1 : seuil = B x 10^n, capacité = seuil, récipients déjà pleins = 10 + 9 x (n - 1) + (compte - seuil) / capacité.
+ */
+function paliers(id,compte){
+  var B=capacite(id),n=0;
+  while(B*Math.pow(10,n+1)<=compte)n++;
+  if(n===0)return {cap:B,pleins:Math.floor(compte/B),fraction:(compte%B)/B};
+  var lo=B*Math.pow(10,n),cap=lo,reste=compte-lo;
+  return {cap:cap,pleins:10+9*(n-1)+Math.floor(reste/cap),fraction:(reste%cap)/cap};
+}
 /* Taille de la scène et du contenant : la fiole du premier rituel est minuscule (posée sur un petit autel), les calices grandissent avec le rang. */
 function dimensions(id,rang){
   var r=Math.max(0,Math.min(5,Math.floor(Number(rang))||0));
@@ -528,14 +540,15 @@ function scene(opts){
     return '<div class="bm-scene bm-banque" data-bm-id="'+opts.id+'" data-source="banque">'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+
       '<canvas class="bm-banque-cv" width="640" height="480" aria-hidden="true"></canvas>'+
+      '<div class="bm-cctv" aria-hidden="true"><b class="bm-cctv-bande"></b><i class="bm-cctv-rec">REC</i><i class="bm-cctv-cam">CAM 05 · BANQUE DU SANG</i><i class="bm-cctv-heure"></i></div>'+
     '</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(compte*(Number(opts.sang)||0))+'</div>';
   }
   if(SOURCES[opts.id]==='fil')compte=filNAffiche(opts.id,compte,null);
-  var cap=capacite(opts.id),type=typeContenant(opts.id),dim=dimensions(opts.id,opts.rang);
-  var fraction=(compte%cap)/cap;
+  var pal=paliers(opts.id,compte),cap=pal.cap,type=typeContenant(opts.id),dim=dimensions(opts.id,opts.rang);
+  var fraction=pal.fraction;
   var rendu=suivantVu[opts.id];
-  var pleins=Math.floor(compte/cap);
+  var pleins=pal.pleins;
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
@@ -1046,11 +1059,12 @@ function filNAffiche(id,n,sc){
  * chargement (ImageBitmap) pour ne pas garder ~95 Mo d'images décodées. L'animation dure BANQUE_DUREE = 4 secondes de mouvement (21 images, soit ~5 images par seconde) plus 3 s d'arrêt quand il est dans le frigo, et ne se déclenche QUE quand le niveau se valide (la barre du moteur repart de zéro) ; le reste du temps, l'image 1 reste fixe. Si les niveaux sont plus courts que l'animation, elle tourne en boucle sans couture à la même durée.
  */
 /* La scène : il passe la porte de gauche (images 1 à 8), entre dans le frigo (9 et 10), et à l'image 11 il est COMPLÈTEMENT dedans (pièce vide, porte fermée) : arrêt de BANQUE_PAUSE = 3 s sur cette image, puis il ressort avec les poches de sang et s'enfuit (12 à 21). Mouvement : 4 s ; avec l'arrêt : 7 s. */
-var BANQUE_N=21,BANQUE_DUREE=4,BANQUE_PAUSE=3,BANQUE_TOTAL=BANQUE_DUREE+BANQUE_PAUSE,BANQUE_IMAGE_FRIGO=10,banqueImgs=null,banqueBoucle=0;
+/* l'image 1 du dossier est écartée (Norman, 2026-10-11 : elle n'est pas bonne) : on joue les fichiers 2 à 21, soit 20 images ; indice 0 = fichier 2, le frigo (fichier 11) = indice 9 */
+var BANQUE_N=20,BANQUE_PREMIER=2,BANQUE_DUREE=4,BANQUE_PAUSE=3,BANQUE_TOTAL=BANQUE_DUREE+BANQUE_PAUSE,BANQUE_IMAGE_FRIGO=9,banqueImgs=null,banqueBoucle=0;
 function banqueCharger(){
   if(banqueImgs||typeof Image==='undefined')return;   /* (rendu pur des tests : pas d'images) */
   banqueImgs=[];
-  for(var i=1;i<=BANQUE_N;i++)(function(i){
+  for(var i=1;i<=BANQUE_N;i++)(function(i){   /* i = indice + 1 */
     var im=new Image();
     im.decoding='async';
     im.onload=function(){
@@ -1058,7 +1072,7 @@ function banqueCharger(){
         createImageBitmap(im,{resizeWidth:640,resizeHeight:480,resizeQuality:'medium'}).then(function(b){banqueImgs[i-1]=b;}).catch(function(){banqueImgs[i-1]=im;});
       }else banqueImgs[i-1]=im;
     };
-    im.src='/api/idle/media/bloodmagic?name=rincevent/banquedusang/'+i+'.webp';
+    im.src='/api/idle/media/bloodmagic?name=rincevent/banquedusang/'+(i+BANQUE_PREMIER-1)+'.webp';
   })(i);
 }
 /* image à afficher : immobile (image 1) sauf pendant les 4 s qui suivent la validation d'un niveau (la barre du moteur repart de zéro) ; si les niveaux durent MOINS de 4 s, boucle continue à la même durée */
@@ -1091,7 +1105,10 @@ function banqueTic(){
   var l=document.querySelectorAll('.bm-scene[data-source="banque"]');
   if(!l.length){banqueBoucle=0;return;}
   var maintenant=performance.now();
+  var dt=new Date(),p2=function(v){return (v<10?'0':'')+v;},horloge=dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate())+' '+p2(dt.getHours())+':'+p2(dt.getMinutes())+':'+p2(dt.getSeconds());
   for(var i=0;i<l.length;i++){
+    var he=l[i].querySelector('.bm-cctv-heure');
+    if(he&&he.textContent!==horloge)he.textContent=horloge;
     var cv=l[i].querySelector('.bm-banque-cv');
     if(!cv)continue;
     var sc=l[i],k=banqueCadre(sc,maintenant),im=banqueImgs&&banqueImgs[k];
@@ -1108,7 +1125,7 @@ function banqueDemarrer(){
   banqueCharger();
   if(!banqueBoucle&&typeof requestAnimationFrame==='function')banqueBoucle=requestAnimationFrame(banqueTic);
 }
-var FIL_N=30,FIL_FPS=9,FIL_DUREE=FIL_N/FIL_FPS,FIL_IMAGE_SANG=21,filImgs=null,filBoucle=0;
+var FIL_N=30,FIL_FPS=9,FIL_DUREE=FIL_N/FIL_FPS,FIL_IMAGE_SANG=19,FIL_IMAGE_SANG_FIN=20,filImgs=null,filBoucle=0;
 function filCharger(){
   if(filImgs)return;
   filImgs=[];
@@ -1178,10 +1195,11 @@ function filSaigne(sc,k){
   var on=k>=FIL_IMAGE_CONTACT;
   if(sc.classList.contains('bm-saigne-b-on')!==on)sc.classList.toggle('bm-saigne-b-on',on);
 }
+/* Le filet n'existe que pendant que les lèvres sont en avant (images 20 et 21, indices 19 et 20) : il part avec elles (Norman, 2026-10-11). */
 function filSang(sc,k){
-  if(k<FIL_IMAGE_SANG){
+  if(k<FIL_IMAGE_SANG||k>FIL_IMAGE_SANG_FIN){
     sc.__filSang=false;
-    if(sc.classList.contains('bm-flux')){
+    if(sc.classList.contains('bm-flux')||sc.classList.contains('bm-coup')){
       /* fin de l'animation en plein flux : la queue du filet rejoint le verre au lieu de disparaître d'un coup */
       sc.classList.remove('bm-flux');sc.classList.remove('bm-coup');sc.classList.add('bm-jet-fin');
       clearTimeout(sc.__jetfin);sc.__jetfin=setTimeout(function(){sc.classList.remove('bm-jet-fin');},350);
@@ -1234,9 +1252,9 @@ function majScene(sc){
   n=stabiliser(id,n);
   if(sc.getAttribute('data-source')==='banque'){derniers[id]=n;banqueDemarrer();return;}   /* pas de récipient ni de niveau à gérer ; on s'assure que l'animation tourne */
   var type=sc.getAttribute('data-contenant')||'calice',c=CONTENANTS[type]||CONTENANTS.calice;
-  var cap=Number(sc.getAttribute('data-bm-cap'))||NIVEAUX_PAR_RECIPIENT;
   var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;
-  var pleins=Math.floor(nv/cap),fraction=(nv%cap)/cap;
+  var pal=paliers(id,nv),cap=pal.cap,pleins=pal.pleins,fraction=pal.fraction;
+  if(sc.getAttribute('data-bm-cap')!==String(cap))sc.setAttribute('data-bm-cap',String(cap));
   rythme(sc,id,n,derniers[id]===undefined?n:derniers[id]);
   derniers[id]=n;
   var avant=vus[id];
@@ -1364,7 +1382,20 @@ function css(){
     /* banque du sang : case vide au format des images de l'animation (1231 x 923 = 4:3) */
     P+'.bm-scene[data-source="banque"]{height:auto!important;aspect-ratio:1231/923;overflow:hidden}',
     P+'.bm-scene[data-source="banque"] .bm-ver{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden}',
-    P+'.bm-banque-cv{position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none}',
+    P+'.bm-banque-cv{position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none;filter:grayscale(1) contrast(1.22) brightness(.93)}',
+    /* filtre caméra de surveillance : noir et blanc, lignes de balayage, vignettage, grain mouvant, bande de balayage qui descend, voyant REC, nom de caméra et horloge (Norman, 2026-10-11) */
+    P+'.bm-cctv{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(0,0,0,.30) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 50%,transparent 52%,rgba(0,0,0,.62) 100%)}',
+    P+'.bm-cctv::before{content:"";position:absolute;inset:0;opacity:.2;background:url("data:image/svg+xml;utf8,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='120' height='120' filter='url(#n)'/></svg>")+'") 0 0/120px 120px;animation:bmCctvGrain .5s steps(5) infinite}',
+    P+'.bm-cctv-bande{position:absolute;left:0;right:0;top:-20%;height:20%;background:linear-gradient(180deg,transparent,rgba(255,255,255,.10),transparent);animation:bmCctvBande 5.5s linear infinite}',
+    P+'.bm-cctv-rec,'+P+'.bm-cctv-cam,'+P+'.bm-cctv-heure{position:absolute;font:700 9px/1 "Courier New",ui-monospace,monospace;font-style:normal;letter-spacing:.06em;color:#f2f2f2;text-shadow:0 0 2px #000,0 1px 1px #000}',
+    P+'.bm-cctv-rec{left:9px;top:8px;padding-left:12px}',
+    P+'.bm-cctv-rec::before{content:"";position:absolute;left:0;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:#ff2323;box-shadow:0 0 5px #ff2323;animation:bmCctvRec 1.2s steps(1) infinite}',
+    P+'.bm-cctv-cam{right:9px;top:8px}',
+    P+'.bm-cctv-heure{left:9px;bottom:7px}',
+    '@keyframes bmCctvGrain{0%{background-position:0 0}100%{background-position:120px 120px}}',
+    '@keyframes bmCctvBande{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(600%);opacity:0}}',
+    '@keyframes bmCctvRec{0%,60%{opacity:1}61%,100%{opacity:.15}}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-cctv::before,'+P+'.bm-cctv-bande,'+P+'.bm-cctv-rec::before{animation:none}}',
     P+'.bm-scene[data-source="fil"] .bm-bec{display:none}',
     /* sang qui s'échappe de sa bouche : arc (x régulier, y qui monte un peu puis tombe de plus en plus vite, goutte qui s'étire) jusqu'à la SURFACE DU LIQUIDE déjà dans le calice (hauteur de chute --chute, calculée par chuteSang), puis éclaboussure */
     /* il saigne dès que le fil touche sa bouche (image 6) : filet fin qui suit le fil (même inclinaison), puis des gouttes qui se forment au bout du filet et tombent le long du menton */

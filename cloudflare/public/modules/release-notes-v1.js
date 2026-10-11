@@ -72,6 +72,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'À haut niveau, les récipients se remplissent moins vite : leur contenance est multipliée par 10 à chaque dizaine de récipients terminés, ce qui évite les changements de récipient incessants qui décalaient l’animation et mettaient le sang à côté.',
             'Le ventre de la sangsue est vert, texturé (granulation et anneaux) et à peine translucide : les boules de sang, centrées, sont vues à travers sa peau (elles paraissent verdâtres, à l’intérieur du ventre) et s’arrêtent pile au point noir de l’anus, sans rien dépasser dessous.',
             'Deuxième rituel : le récipient qui attend son tour arrive maintenant devant la manche de Rincevent, et non plus derrière.',
             'La sangsue a maintenant un seul tuyau d’une pièce, du cou jusqu’à son gros anus, de la même couleur que sa tête (qui passe au-dessus) : le sang, plus petit, passe entièrement dedans jusqu’au point noir, et son arrière-train grossit à mesure que le sang arrive puis rétrécit quand il sort.',
