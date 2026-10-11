@@ -1381,6 +1381,23 @@ async function bannerImage_(request,env,url){
   return reponseObjetR2_(request,env,{key,object});
 }
 
+/* Illustrations de la page Magie du sang (Norman, 2026-10-11) : fichiers déposés dans R2 sous idle/bloodmagic/ (ex. BloodMagicSucon.webp) */
+async function bloodMagicImage_(request,env,url){
+  const nom=String(url.searchParams.get("name")||"").trim();
+  if(!/^[A-Za-z0-9_.-]{1,120}$/.test(nom)||nom.includes("..")){
+    return new Response("Image Magie du sang invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Média Magie du sang indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const key="idle/bloodmagic/"+nom;
+  const object=await env.SOREAL_R2.get(key);
+  if(!object){
+    return new Response("Image Magie du sang introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  }
+  return reponseObjetR2_(request,env,{key,object});
+}
+
 async function debugListeR2_(request,env,url){
   /*
    * 2026-09-23 (audit) : accessible sans la moindre authentification --
@@ -1426,6 +1443,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/titan",
     "/api/idle/media/player",
     "/api/idle/media/banner",
+    "/api/idle/media/bloodmagic",
     "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
@@ -1453,6 +1471,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/titan")return titanImage_(request,env,url);
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/bloodmagic")return bloodMagicImage_(request,env,url);
   if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);
