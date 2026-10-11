@@ -31,41 +31,15 @@
   }
   /* Une barre dont tout a été dépensé s'efface en fondu (opacité seulement : sa place reste réservée, rien ne bouge). Elle reparaît dès qu'il y a de nouveau de quoi la remplir. */
   var videDepuis={energie:0,magie:0},pleinDepuis={energie:0,magie:0};
-  /* Une barre qui revient se POSE par-dessus l'interface sans rien décaler (Norman, 2026-10-10) : on mesure la hauteur du bandeau avant et après son retour et une marge négative annule exactement la différence. */
   /*
-   * Ordre des barres : TOUJOURS Énergie, Magie, 3e ressource, puis Vie (Norman, 2026-10-10). Une barre qui revient se pose dans SA place sans faire bouger l'interface : sa hauteur est annulée par une marge négative
-   * (voir reapparaitSansDecaler), et chaque barre située APRÈS elle (dont la Vie) est descendue d'autant par un simple décalage visuel (transform) ; les barres posées s'empilent dans l'ordre du bandeau.
+   * Une barre qui revient (ou qui part) ouvre (ou referme) sa place EN DOUCEUR (max-height + marge, voir soreal-idle-themes.css) : le bandeau grandit ou rétrécit et tout ce qui est dessous suit, la Vie reste dans le bandeau
+   * et ne chevauche jamais les boutons du dessous (Norman, 2026-10-11 : « ma barre de vie fait un saut et se retrouve au-dessus des boutons attaque, défense, or »). Plus de décalage par transform ni de marge négative.
    */
-  function ranger(hud){
-    var panneaux=[].slice.call(hud.children).filter(function(c){return c.classList&&c.classList.contains('soreal-idle-energy-panel-v34');});
-    var cum=0;
-    panneaux.forEach(function(p){
-      if(p.classList.contains('soreal-idle-vide-v2')){if(p.style.transform)p.style.transform='';return;}
-      var tr=cum>0?'translateY('+cum+'px)':'';
-      if(p.style.transform!==tr)p.style.transform=tr;
-      if(p.classList.contains('soreal-idle-superpose-v2')){
-        var pas=-parseFloat(p.style.marginBottom);
-        cum+=pas>0?pas:p.offsetHeight+3;
-      }
-    });
-  }
   function reapparaitSansDecaler(panneau){
-    var hud=panneau.closest('.soreal-idle-hud-v2')||panneau.parentNode;
-    var avant=hud.getBoundingClientRect().height;
-    panneau.classList.add('soreal-idle-superpose-v2');
     panneau.classList.remove('soreal-idle-vide-v2');
-    panneau.style.setProperty('margin-bottom','0px','important');
-    var apres=hud.getBoundingClientRect().height;
-    var marge=0;
-    if(apres-avant<=0.5){panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');return;}
-    /* Quelques passes : on corrige jusqu'à ce que la hauteur du bandeau soit exactement celle d'avant (marges qui se confondent, écarts d'arrondi). */
-    for(var i=0;i<4;i++){
-      var reste=hud.getBoundingClientRect().height-avant;
-      if(Math.abs(reste)<0.5)break;
-      marge-=reste;
-      panneau.style.setProperty('margin-bottom',marge+'px','important');
-    }
-    ranger(hud);
+    panneau.classList.remove('soreal-idle-superpose-v2');
+    panneau.style.removeProperty('margin-bottom');
+    panneau.style.removeProperty('transform');
   }
   function basculerVide(id,cle,vide){
     var el=document.getElementById(id);
@@ -74,7 +48,7 @@
     var maintenant=Date.now();
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
-      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');ranger(panneau.closest('.soreal-idle-hud-v2')||panneau.parentNode);}
+      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;

@@ -1521,12 +1521,15 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
    */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:2 / span 60;align-self:start;
-    position:static;margin:12px 0 14px!important;
+    position:sticky;top:12px;margin:12px 0 14px!important;
     display:flex!important;flex-direction:column;
     gap:8px!important;padding:10px!important;
-    overflow:visible!important;max-height:none!important;
+    /* Défilement PROPRE au menu (Norman, 2026-10-11) : la molette sur les menus ne fait défiler que les menus, sur la zone de jeu que le jeu ; aucune barre visible, et l'élan ne passe pas à la page. */
+    overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 62px)!important;
+    overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;
     scroll-snap-type:none!important;
   }
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28::-webkit-scrollbar{display:none;width:0;height:0}
   /*
    * Boutons plus larges et plus longs, titres et icônes plus grands (Norman, 2026-10-04 : « sur PC les boutons des menus doivent être plus larges et plus longs, les titres et icônes plus grands », puis « ils ont l'air trop
    * petits par rapport au reste de l'interface, harmonise le tout ») : mêmes proportions que la carte de base (pastille de 46 px, emoji de 26 px, titre de 16 px, verbe lisible dessous), colonne de 300 px.
@@ -2253,8 +2256,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.sor
   body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1::after{animation:none;opacity:.75}
 }
 
-/* Barre qui revient : elle se pose par-dessus, sans décaler l'interface (hauteur annulée par une marge négative calculée dans hud-haut-v2.js) ; apparition en fondu seulement, ombre portée pour la détacher de ce qu'elle recouvre. */
-body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-superpose-v2{max-height:none!important;position:relative;z-index:6;transition:opacity .45s ease!important;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55))}
+/* Barre qui revient : sa place s'ouvre en douceur (max-height / marge), puis elle apparaît en fondu ; le bandeau grandit et la Vie ne chevauche jamais les boutons du dessous. */
 
 /* Magie (Norman, 2026-10-10 : « beaucoup plus de magie dans le haut que dans le bas ; parfois un sigle plus grand qui apparaît et disparaît ») : les étoiles défilantes couvrent TOUTE la hauteur de la barre (tuile de 36 px, avant 22 px donc seulement le haut), les runes sont réparties sur toute la hauteur, et deux grands sigles (cercles magiques) apparaissent puis s'effacent de temps en temps : fondu d'entrée, dérive dans un seul sens, fondu de sortie (opacité 0 au début et à la fin du cycle). */
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-magic-panel-v1 .soreal-idle-bulles-v2 b.gr{width:26px;height:26px;top:calc((100% - 26px)*.5);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='15' cy='15' r='13'/%3E%3Ccircle cx='15' cy='15' r='8.5'/%3E%3Cpath d='M15 6.5 L19.7 20.4 L8 11.8 L22 11.8 L10.3 20.4 Z'/%3E%3C/g%3E%3C/svg%3E");background-size:contain;animation-name:sorealHudSigle;animation-duration:9s;animation-timing-function:linear;animation-iteration-count:infinite}

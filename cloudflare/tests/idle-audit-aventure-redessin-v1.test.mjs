@@ -16,5 +16,5 @@ assert.ok(ui.includes("if(node.dataset.slotIndex!==String(desc.index))node.datas
 assert.ok(!/@keyframes sorealTuileReflet\{[^}]*left:/.test(themes) && themes.includes("@keyframes sorealTuileReflet{0%,70%{transform:translateX(-158%) skewX(-18deg)}"), "reflet des tuiles par transform");
 assert.ok(!ui.includes("'🏃 Fuite · combat interrompu.'\n          );\n\n          ajouterLogCombatIdleV70_") , "plus de message flottant à la fuite");
 assert.ok(ui.includes("ajouterLogCombatIdleV70_(\n            'system',\n            '🏃 Fuite : combat interrompu.'"), "l'entrée du journal de combat reste");
-assert.ok(hud.includes("Énergie, Magie, 3e ressource, puis Vie") && hud.includes("cum+=pas>0?pas:p.offsetHeight+3"), "ordre des barres conservé quand une barre revient");
+assert.ok(!hud.includes("translateY(") && hud.includes("function reapparaitSansDecaler"), "une barre qui revient reprend sa place sans décalage par transform (2026-10-11)");
 console.log("idle-audit-aventure-redessin-v1: OK");
