@@ -41,7 +41,6 @@
             'Les rails bleu et rouge de la borne d’arcade ne dépassent plus en haut.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'L’équipement tient sur 2 colonnes : l’armure à gauche, l’arme puis les accessoires les uns sous les autres à droite (PC et téléphone).',
             'Si tu retires (ou remplaces) une pièce qui augmente ton plafond d’énergie ou de magie, et que l’énergie déjà placée serait alors trop grande, le jeu refuse et te dit combien libérer d’abord.',
             'Le bouton Aventure ne clignote plus en rouge après une défaite.',
             'Sur téléphone, les pièces équipées sont dans un cadre sans titre, avec des cases de la même taille que celles du sac.',

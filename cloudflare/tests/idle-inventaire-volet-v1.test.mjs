@@ -13,7 +13,7 @@ assert.ok(css.includes('[data-volet] .soreal-idle-v138-equipment-sticky>.soreal-
 assert.ok(css.includes("[data-volet] .soreal-idle-v138-equipment-sticky{position:relative!important;top:auto!important"), "l'équipement n'est plus collé : rien ne bouge");
 assert.ok(css.includes(".soreal-idle-volet-tiroir-v1{position:fixed;") && css.includes("transition:max-height .38s"), "volet posé par-dessus la page, animé");
 assert.ok(css.includes("@media (min-width:701px){.soreal-idle-volet-tiroir-v1{display:none!important}}"), "rien sur ordinateur");
-assert.ok(css.includes(".soreal-idle-v138-slot-icon>img") && css.includes("repeat(2,calc((100% - 16px)/5))"), "cases de la taille de celles du sac, images dans leur cadre, équipement sur 2 colonnes (Norman, 2026-10-11)");
+assert.ok(css.includes(".soreal-idle-v138-slot-icon>img") && css.includes("repeat(3,calc((100% - 16px)/5))"), "cases de la taille de celles du sac, images dans leur cadre, disposition d'origine");
 
 function monde(largeur) {
   const attrs = {}; let boite = null; let bas = 400; let maintenant = 1_000_000;
