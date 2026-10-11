@@ -41,14 +41,14 @@ const page = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx,
 assert.ok(page.includes('data-tm-or-remplissage="1" data-fills="1"'), "barre d'Or présente, 1 remplissage par seconde au niveau 0");
 assert.match(page, /animation-duration:1\.0000s;animation-delay:-0\.1230s/, "une seconde par cycle, phase prise sur l'heure du serveur");
 assert.ok(page.includes("+#1128400 Or à chaque remplissage · 1 remplissage par seconde"), "légende : Or par remplissage et cadence");
-// 50 remplissages par seconde (niveau 49) : l'œil ne suit plus, la barre reste pleine et scintille.
+// 50 remplissages par seconde (niveau 49) = le plafond : la barre tique encore (Norman, 2026-10-11 : plafonnée à 50 seulement, plus de scintillement avant).
 etat.systems.timeMachine.data.speedLevel = 49;
 const page50 = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine");
-assert.ok(page50.includes("soreal-idle-tm-or-remplissage-v1 rapide") && page50.includes('data-fills="50"'));
+assert.ok(!page50.includes("remplissage-v1 rapide") && page50.includes('data-fills="50"') && /animation-duration:0.0200s/.test(page50));
 // Mise à jour en place quand la cadence change.
 window.__patcherChiffresTimeMachineIdleV1__({ systemes: idleNguSnapshot(etat, ctx, T) });
 assert.equal(elBarre.getAttribute("data-fills"), "50");
-assert.ok(elBarre.className.includes("rapide"));
+assert.ok(!elBarre.className.includes("rapide") && /animation-duration:0.0200s/.test(elBarre.getAttribute("style")));
 assert.match(elLegende.textContent, /50 remplissages par seconde/);
 for (const k of ["sorealTmOrV1", "sorealTmOrRapideV1"]) assert.ok(css.includes("@keyframes " + k));
 

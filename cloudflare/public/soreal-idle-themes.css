@@ -980,7 +980,6 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] .soreal
 }
 
 /* ====================== Défis : cartes en cadres titrés (Norman, 2026-10-01) ====================== */
-  box-shadow:0 0 0 3px rgba(0,0,0,.45),0 14px 26px -16px color-mix(in srgb,var(--acc) 60%,transparent);padding:12px;overflow:hidden}
 .dfi-cadres{display:grid;gap:9px;margin-top:12px}
 .dfi-cadre{--c:#aaa;border:1.5px solid color-mix(in srgb,var(--c) 70%,#000);border-radius:10px;background:color-mix(in srgb,var(--c) 7%,#0b0b12);overflow:hidden}
 .dfi-cadre>header{display:flex;align-items:center;gap:8px;padding:6px 11px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 38%,#000),color-mix(in srgb,var(--c) 10%,#000));border-bottom:1.5px solid color-mix(in srgb,var(--c) 70%,#000)}

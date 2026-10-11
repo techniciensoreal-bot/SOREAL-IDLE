@@ -17,7 +17,7 @@ assert.equal(dureeLongue(2 * mois + 1 * sem + 4 * h), "2 mois 1 sem. 04:00:00", 
 assert.equal(dureeLongue(400 * j), "13 mois 1 sem. 3 j 00:00:00".replace("13 mois 1 sem. 3 j", "13 mois 1 sem. 3 j"), "plus d'un an : les mois continuent de compter");
 assert.equal(dureeLongue(-5), "00:00:00", "jamais négatif");
 // Câblage : le compteur est dans le bandeau du défi en cours, lit startedAt du serveur, et avance chaque seconde.
-assert.ok(src.includes("cadre('dfi-temps-ecoule','⏱️','Temps écoulé',compteurDefi(etat.startedAt))"));
+assert.ok(src.includes("etiquette('⏱️','Temps écoulé')+compteurDefi(etat.startedAt)"));
 assert.ok(src.includes("data-dfi-temps=") && src.includes("querySelectorAll('[data-dfi-temps]')") && src.includes("},1000);"), "il se met à jour chaque seconde");
 assert.ok(src.includes("typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now()"), "à l'heure du serveur");
 assert.ok(src.includes("Le compteur démarre au prochain lancement d’un défi."), "défi sans heure de lancement (ancienne sauvegarde) : pas de plantage ni de faux chiffre");

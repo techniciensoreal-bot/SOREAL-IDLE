@@ -526,6 +526,7 @@ function poserMarque(sc,id){
   sc.__marq=0;
   if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
 }
+var secVue={};
 function rythme(sc,id,n,avant){
   var src=sc.getAttribute('data-source');
   if(src==='sucon'){
@@ -551,7 +552,9 @@ function rythme(sc,id,n,avant){
   }
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
-  var sec=v?Number(v.secondsPerCompletion):0;
+  /* La vue du rituel disparaît un instant à chaque synchro avec le serveur, justement quand un niveau se termine (Norman, 2026-10-11 : « très peu de magie : l'animation ne se fait pas quand le chrono arrive à 0 ») : on garde la dernière durée connue. */
+  if(v&&Number(v.secondsPerCompletion)>0)secVue[id]=Number(v.secondsPerCompletion);
+  var sec=secVue[id]||0;
   var mode='repos';
   if(sec>0&&sec<=PERIODE_BOUCLE){
     mode='boucle';
@@ -570,7 +573,7 @@ function rythme(sc,id,n,avant){
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},delai);
     }
   }
-  if(mode!=='boucle'&&v&&sec>0&&n>avant){
+  if(mode!=='boucle'&&n>avant){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
     clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
