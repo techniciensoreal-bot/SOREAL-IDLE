@@ -7880,7 +7880,18 @@ function applyRebirthResetV56_(state,context,t,options={}) {
      * de boss DU RUN atteint de nouveau leur seuil (unlockSatisfied).
      */
     if(def.id==="augmentations"||def.id==="timeMachine"||def.id==="bloodMagic")s.unlocked=false;
-    if(def.id==="augmentations")s.data=createAugmentationData();
+    if(def.id==="augmentations"){
+      /* Les niveaux repartent à zéro au Rebirth, mais les CIBLES et « Faire suivre l'énergie » sont des réglages du joueur : ils sont conservés (audit des Augmentations, 2026-10-11). */
+      const avantAug=s.data;
+      s.data=createAugmentationData();
+      for(const augDef of IDLE_NGU_AUGMENTATIONS){
+        const ancien=avantAug?.pairs?.[augDef.id];
+        if(!ancien)continue;
+        s.data.pairs[augDef.id].target=Math.max(0,int(ancien.target,0));
+        s.data.pairs[augDef.id].upgradeTarget=Math.max(0,int(ancien.upgradeTarget,0));
+      }
+      s.data.advanceEnergy=Boolean(avantAug?.advanceEnergy);
+    }
     if(def.id==="timeMachine"){
       const speedBank=Math.max(0,int(state.bank.timeMachineSpeed,0));
       const goldBank=Math.max(0,int(state.bank.timeMachineGold,0));
