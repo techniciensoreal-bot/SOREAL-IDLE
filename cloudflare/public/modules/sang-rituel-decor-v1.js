@@ -281,7 +281,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 60 56" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 C32 0 38 10 38 28 V50 H22 V34 C22 40 14 44 0 44 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 6 C28 6 32 14 32 30 V46" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M4 38 C14 38 18 36 20 32" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="2.4" stroke-linecap="round"/><rect x="19" y="46" width="22" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M23 48.5 H37" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+      '<svg class="bm-coude" viewBox="0 0 44 52" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H14 C32 0 44 10 44 28 V44 H16 V36 C16 32 12 28 8 28 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 5 H14 C28 5 39 12 39 28 V40" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M2 24 H8 C14 24 18 28 20 34" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/><rect x="14" y="42" width="32" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M19 45 H41" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
     return '<div class="bm-bras" aria-hidden="true">'+brasSvg()+'<i class="bm-bracelet"></i></div>'+use('bm-sym-manche',84,96,'bm-manche')+
@@ -520,7 +520,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98,punaise:92,sucon:145};
+var DEPART_GOUTTE={papier:98,punaise:92,sucon:154};
 /* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
 var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
@@ -775,16 +775,16 @@ function css(){
     P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
-    P+'.bm-perso{position:absolute;left:0;top:-27px;height:279px;width:auto;max-width:none;z-index:3;display:block;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
+    P+'.bm-perso{position:absolute;left:-26px;top:-27px;height:279px;width:auto;max-width:none;z-index:3;display:block;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     P+'.bm-scene:has(.bm-perso) .bm-cou{display:none}',
-    P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:170px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
+    P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
     P+'.bm-scene:has(.bm-perso) .bm-perso-bas{display:block}',
-    P+'.bm-bouche{position:absolute;left:55px;top:72px;width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:113px;right:calc(var(--cx) + 30px);top:calc(110px - var(--th,44px)/2)}',
-    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 30px);top:calc(110px - var(--th,44px)/2);width:60px;height:56px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-bouche{position:absolute;left:29px;top:72px;width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:84px;right:calc(var(--cx) + 30px);top:calc(110px - var(--th,44px)/2)}',
+    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:44px;height:52px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
-    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 10px)}',
-    P+'.bm-trace-sucon{left:47px;top:78px;width:36px;height:64px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
+    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 14px)}',
+    P+'.bm-trace-sucon{left:21px;top:78px;width:36px;height:64px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
@@ -792,7 +792,7 @@ function css(){
     P+'.bm-bec{position:absolute;right:var(--cx);top:calc(70px + var(--th,44px)/2 - 6px);width:0;height:40px;z-index:5;pointer-events:none}',
     P+'.bm-goutte{position:absolute;left:-3px;top:0;width:7px;height:10px;border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#ff7a8a,#c0152e 55%,#6b0a18);opacity:0;display:none}',
     /* suçon : un filet de sang continu depuis le bout du tuyau jusqu'au sang du récipient, et de grosses gouttes qui s'y ajoutent (plus de sang que les coupures de papier) */
-    P+'.bm-bec-flot .bm-goutte{width:14px;height:19px;left:-7px}',
+    P+'.bm-bec-flot .bm-goutte{width:8px;height:22px;left:-4px;border-radius:50% 50% 50% 50%/72% 72% 28% 28%}',
     P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;display:none;transform-origin:50% 0}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet{display:block;opacity:.95;animation:bmFilet .55s ease-in-out infinite alternate}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
