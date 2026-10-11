@@ -17,22 +17,22 @@ const d = fenetre.__SOREAL_IDLE_SANG_DECOR_V1__;
 assert.equal(d.NIVEAUX_PAR_RECIPIENT, 200, "200 niveaux par récipient par défaut");
 
 // rituel ordinaire (calice, 200 niveaux) : 450 = 2 calices pleins + un troisième au quart
-const h = d.scene({ id: "hickey", sang: 50, compte: 450, barre: "<i data-idle-blood-bar-v1=\"hickey\"></i>", saigne: true, rang: 1 });
+const h = d.scene({ id: "barbedWire", sang: 50, compte: 450, barre: "<i data-idle-blood-bar-v1=\"barbedWire\"></i>", saigne: true, rang: 1 });
 assert.ok(h.includes('data-bm-pleins="2"') && h.includes('data-bm-cap="200"') && h.includes("translateY(61.50px)"), "niveau du calice = reste / capacité");
-assert.ok(h.includes('class="bm-tuyau saigne-v1"') && h.includes('data-idle-blood-bar-v1="hickey"'), "la barre du moteur reste le remplissage du tuyau");
+assert.ok(h.includes('class="bm-tuyau saigne-v1"') && h.includes('data-idle-blood-bar-v1="barbedWire"'), "la barre du moteur reste le remplissage du tuyau");
 assert.ok(h.includes("Sang collecté") && !h.includes("bm-mini"), "l'étagère s'appelle « Sang collecté » (plus de dessin de récipient plein)");
 assert.ok(h.includes('<b class="bm-etagere-n">22500</b>'), "sang collecté = 450 rituels × 50 Blood");
 assert.ok(!/\/\s*(100|200)|sur (100|200)/.test(h.replace(/viewBox="[^"]*"/g, "")), "aucun « x / capacité » dans le rendu");
-const v = d.scene({ id: "hickey", sang: 50, compte: 0, barre: "", rang: 1 });
+const v = d.scene({ id: "barbedWire", sang: 50, compte: 0, barre: "", rang: 1 });
 assert.ok(v.includes('data-bm-pleins="0"') && !v.includes(" hidden") && v.includes("Sang collecté") && v.includes('<b class="bm-etagere-n">0</b>') && v.includes("translateY(78.00px)"), "calice vide : « Sang collecté 0 » toujours visible (aussi sur téléphone)");
-const presque = d.scene({ id: "hickey", sang: 50, compte: 199, barre: "", rang: 1 });
+const presque = d.scene({ id: "barbedWire", sang: 50, compte: 199, barre: "", rang: 1 });
 assert.ok(presque.includes('data-bm-pleins="0"') && presque.includes("translateY(12.33px)"), "199 niveaux : presque plein, pas encore sorti");
-const plein = d.scene({ id: "hickey", sang: 50, compte: 200 * 14, barre: "", rang: 1 });
+const plein = d.scene({ id: "barbedWire", sang: 50, compte: 200 * 14, barre: "", rang: 1 });
 assert.ok(!plein.includes("bm-mini"));
 assert.ok(plein.includes('<b class="bm-etagere-n">140000</b>'), "2800 rituels × 50 Blood");
 
 // les récipients grandissent avec le rang, la scène aussi (le tuyau reste au-dessus)
-const taille = (rang) => { const m = d.scene({ id: "hickey", sang: 50, compte: 0, barre: "", rang }).match(/--vw:(\d+)px;--vh:(\d+)px;--vb:\d+px;--sh:(\d+)px/); return m.slice(1).map(Number); };
+const taille = (rang) => { const m = d.scene({ id: "barbedWire", sang: 50, compte: 0, barre: "", rang }).match(/--vw:(\d+)px;--vh:(\d+)px;--vb:\d+px;--sh:(\d+)px/); return m.slice(1).map(Number); };
 const tailles = [1, 2, 3, 4, 5].map(taille);
 for (let i = 1; i < tailles.length; i++) assert.ok(tailles[i][0] > tailles[i - 1][0] && tailles[i][1] > tailles[i - 1][1] && tailles[i][2] >= tailles[i - 1][2], "récipient plus grand au rang " + (i + 1));
 
@@ -58,6 +58,13 @@ assert.ok(c2.includes('data-bm-pleins="2"') && c2.includes("translateY(isNaN") =
 assert.ok(c2.includes("bm-bras") && c2.includes("bm-manche") && c2.includes("bm-papier") && c2.includes("bm-coupure") && (c2.match(/class="bm-goutte-doigt bm-gros/g) || []).length === 3, "avant-bras (sans main), manche relevée, feuille, trait de coupure et plusieurs grosses gouttes (une coupure = 50 Blood)");
 assert.ok(!c2.includes("bm-sym-poing") && !c2.includes("bm-poing"), "on ne voit jamais la main");
 assert.ok(c2.includes("Sang collecté") && !c2.includes("bm-mini"), "étagère : le nom et le nombre, sans dessin");
+// troisième rituel (énorme suçon) : un cou, une bouche collée au cou, un tuyau visible, une chope en verre, 5000 niveaux
+const c3 = d.scene({ id: "hickey", sang: 2000, compte: 12500, barre: "", rang: 2 });
+assert.ok(c3.includes('data-contenant="chope"') && c3.includes('data-bm-cap="5000"') && c3.includes('data-source="sucon"'), "troisième rituel : chope, 5000 niveaux, suçon");
+assert.ok(c3.includes("bm-cou") && c3.includes("bm-bouche") && c3.includes("bm-trace-sucon") && c3.includes('class="bm-tuyau'), "cou, bouche, ecchymose et tuyau visible");
+assert.ok(!c3.includes("bm-props"), "pas d'accessoires : la scène est déjà pleine");
+assert.ok(c3.includes('<b class="bm-etagere-n">25000000</b>') && c3.includes("--cx:109.5px"), "sang collecté, ouverture de la chope décalée par l'anse");
+
 // la page branche le décor et garde ses points d'accroche
 assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel (avec le Blood par rituel)");
 assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-blood-bar-v1") && page.includes("sorealIdleBloodEtaLineV1_"), "points d'accroche du moteur conservés");
@@ -84,4 +91,6 @@ for (const [garde, msg] of [
   ["@keyframes bmGouttedoigt{0%,40%{opacity:0;", "goutte du doigt : invisible au début et à la fin"],
   ["@media (prefers-reduced-motion:reduce)", "mouvement réduit coupé"]
 ]) assert.ok(src.includes(garde), msg);
+// le pentacle du sol ne tourne que quand le rituel est en marche
+assert.ok(src.includes("animation:bmTourne 40s linear infinite;animation-play-state:paused}") && src.includes(".bm-scene:has(.bm-tuyau.saigne-v1) .bm-pentacle-sol{animation-play-state:running}"), "pentacle du sol : en pause tant que le rituel est arrêté");
 console.log("idle-sang-rituel-satanique-v1: OK");
