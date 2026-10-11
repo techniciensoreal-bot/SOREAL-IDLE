@@ -126,14 +126,21 @@ var SYMBOLES3=
     '<path d="M8 220 Q30 244 14 290 M70 214 Q86 250 74 300" fill="none" stroke="#000" stroke-opacity=".32" stroke-width="2.4" stroke-linecap="round"/>'+
   '</symbol>'+
   /* bouche collée au cou : lèvres en cul-de-poule, fente sombre, petites rides de succion */
-  '<symbol id="bm-sym-bouche" viewBox="0 0 70 76">'+
-    '<ellipse cx="35" cy="38" rx="31" ry="36" fill="#d2506a" stroke="#000" stroke-width="3"/>'+
-    '<path d="M10 24 C14 11 30 6 46 10" fill="none" stroke="#fff" stroke-opacity=".42" stroke-width="3.2" stroke-linecap="round"/>'+
-    '<path d="M9 40 H18 M12 26 L20 31 M12 52 L20 47 M61 40 H52 M58 26 L50 31 M58 52 L50 47" stroke="#7a1030" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>'+
-    '<ellipse cx="35" cy="38" rx="19" ry="25" fill="url(#bm-g-peau)" stroke="#7a1030" stroke-width="2.4"/>'+
-    '<ellipse cx="35" cy="38" rx="12" ry="17" fill="#8a2a60" fill-opacity=".78"/>'+
-    '<ellipse cx="35" cy="38" rx="6" ry="9" fill="#b0233f" fill-opacity=".7"/>'+
-    '<path d="M18 38 H52 M22 25 Q35 30 48 25 M22 51 Q35 46 48 51" fill="none" stroke="#a35a43" stroke-opacity=".5" stroke-width="1.6" stroke-linecap="round"/>'+
+  '<symbol id="bm-sym-bouche" viewBox="0 0 70 76" overflow="visible">'+
+    /* rides de peau tendue autour du bord, sur le cou */
+    '<path d="M-8 14 H2 M-6 24 H2 M-8 38 H1 M-6 52 H2 M-8 62 H2" stroke="#8f4a36" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>'+
+    /* peau du cou aspirée sous le bord */
+    '<ellipse cx="4" cy="38" rx="8" ry="24" fill="url(#bm-g-peau)" stroke="#7a1030" stroke-width="2.2"/>'+
+    '<ellipse cx="3" cy="38" rx="4" ry="14" fill="#8a2a60" fill-opacity=".7"/>'+
+    /* dôme de la ventouse (la cavité de la bouche), de profil */
+    '<path d="M10 6 C40 0 66 18 66 38 C66 58 40 76 10 70 Z" fill="#b13553" stroke="#000" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M16 14 C36 10 54 22 58 34" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="3.2" stroke-linecap="round"/>'+
+    '<path d="M18 60 C34 64 50 56 58 46" fill="none" stroke="#5a0b1c" stroke-opacity=".45" stroke-width="3" stroke-linecap="round"/>'+
+    /* lèvres : deux bourrelets roses plaqués contre le cou, avec la ligne de la bouche entre eux */
+    '<path d="M2 36 C0 18 4 6 12 6 C20 6 22 18 20 36 Z" fill="#d85a74" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>'+
+    '<path d="M2 40 C0 58 4 70 12 70 C20 70 22 58 20 40 Z" fill="#cf4f6b" stroke="#000" stroke-width="2.8" stroke-linejoin="round"/>'+
+    '<path d="M2 38 H20" stroke="#2a0309" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<path d="M7 12 C10 10 14 12 15 18" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.2" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
@@ -745,9 +752,9 @@ function css(){
     P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
-    P+'.bm-bouche{position:absolute;left:20px;top:calc(70px - 38px);width:70px;height:76px;z-index:5;transform-origin:50% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:80px}',
-    P+'.bm-trace-sucon{left:6px;top:28px;width:90px;height:84px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 36%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
+    P+'.bm-bouche{position:absolute;left:46px;top:calc(70px - 38px);width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:104px}',
+    P+'.bm-trace-sucon{left:28px;top:32px;width:50px;height:76px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
