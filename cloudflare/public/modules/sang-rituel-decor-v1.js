@@ -254,7 +254,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche')+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -6 L26 -6 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
+      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche')+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -528,6 +528,37 @@ function poserMarque(sc,id){
   if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
 }
 var secVue={};
+/*
+ * Avancement du niveau (Norman, 2026-10-11) : la punaise (ou la feuille) se rapproche tout doucement de l'endroit où elle pique pendant TOUT le niveau, et le mouvement se termine exactement quand le chrono se termine :
+ * c'est là que le coup part. Niveaux lents seulement (au-delà de PERIODE_BOUCLE) ; en boucle rapide, la scène pique déjà sans arrêt. Cycle d'un niveau (durée P) : le coup finit de se jouer (0,9 s, l'objet reste au contact),
+ * l'objet recule (jusqu'à 1,5 s), puis avance en ligne droite jusqu'à la fin du niveau. L'horloge est calée sur la barre du moteur ; propriété « top » (la punaise et la feuille se déplacent déjà par transform et translate).
+ */
+var APPROCHE={punaise:{base:14,loin:-26},papier:{base:-36,loin:-70}};
+function approche(sc,src,sec,actif){
+  var def=APPROCHE[src],el=sc.querySelector(src==='punaise'?'.bm-punaise':'.bm-papier');
+  if(!def||!el||typeof el.animate!=='function')return;
+  var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!actif||reduit||!(sec>PERIODE_BOUCLE)){
+    if(sc.__ap){try{sc.__ap.cancel();}catch(_e){}sc.__ap=null;sc.__apCle='';}
+    return;
+  }
+  var P=sec,cle=src+'|'+P.toFixed(2),pb=phaseBarre(sc);
+  if(!sc.__ap||sc.__apCle!==cle){
+    if(sc.__ap){try{sc.__ap.cancel();}catch(_e){}}
+    var h=Math.min(.4,0.9/P),r=Math.min(.7,1.5/P);
+    sc.__ap=el.animate([
+      {top:def.base+'px',offset:0},
+      {top:def.base+'px',offset:h,easing:'ease-in-out'},
+      {top:def.loin+'px',offset:r,easing:'linear'},
+      {top:def.base+'px',offset:1}
+    ],{duration:P*1000,iterations:Infinity,easing:'linear'});
+    sc.__apCle=cle;
+    if(pb!=null)sc.__ap.currentTime=pb*P*1000;
+  }else if(pb!=null&&sc.__ap.effect){
+    var t=sc.__ap.effect.getComputedTiming();
+    if(t&&t.progress!=null){var d=Math.abs(Number(t.progress)-pb);if(Math.min(d,1-d)>0.03)sc.__ap.currentTime=pb*P*1000;}
+  }
+}
 /* Le doigt et le bras sont-ils sortis de la case ? Mémorisé entre deux redessins : un rituel qui reçoit de l'énergie est redessiné « sorti » puis rentre en glissant (transition), au lieu d'apparaître d'un coup. */
 var etatHors={},installeA={};
 /*
@@ -537,6 +568,7 @@ var etatHors={},installeA={};
  * L'horloge est calée sur la barre du moteur (niveau terminé = barre qui repart de zéro), jamais sur une minuterie indépendante.
  */
 var PAQ_CASES=6;
+var memoireSang={};
 function phaseBarre(sc){
   var bar=sc.querySelector('.bm-sang');
   var ab=bar&&(bar.__idleAugAnimationV217||(typeof bar.getAnimations==='function'?bar.getAnimations()[0]:null));
@@ -568,10 +600,32 @@ function sangsue(sc,sec,actif){
   if(!actif||!(sec>0)){
     if(sc.classList.contains('bm-pleure'))sc.classList.remove('bm-pleure');
     if(!sc.classList.contains('bm-dort'))sc.classList.add('bm-dort');   /* aucune Magie dans ce rituel : la sangsue dort */
-    for(i=0;i<paq.length;i++)if(paq[i].classList.contains('on'))paq[i].classList.remove('on');
-    sc.__t0=0;sc.__cle='';
+    /* Quand on retire la Magie, le sang déjà dans son ventre RESTE affiché, mais figé (Norman, 2026-10-11) ; il est mémorisé par rituel pour survivre à un redessin de la page et reprendre là où il s'était arrêté. */
+    var idSang=sc.getAttribute('data-bm-id'),mm=memoireSang[idSang];
+    if(mm&&!sc.__fige){
+      /* le ventre est masqué dès que la Magie est retirée : on le rebâtit figé, à partir du dernier état connu */
+      garantirPas(mm.m);
+      cont.style.setProperty('--bm-k',String(mm.m*Math.ceil(PAQ_CASES/mm.m)));
+      for(i=0;i<paq.length;i++){
+        paq[i].style.animation=i<Math.ceil(PAQ_CASES/mm.m)?'bmPaq'+mm.m+'x'+i+' '+mm.P.toFixed(3)+'s linear infinite':'none';
+      }
+      sc.classList.add('bm-fige');
+      void cont.offsetWidth;
+      for(i=0;i<paq.length;i++){
+        var ar=paq[i].getAnimations&&paq[i].getAnimations()[0];
+        if(ar){ar.pause();ar.currentTime=mm.t[i]||0;}
+        if(mm.on[i]&&!paq[i].classList.contains('on'))paq[i].classList.add('on');
+      }
+      sc.__cle=mm.cle;sc.__fige=true;
+    }
+    /* le sang figé reste figé : à chaque pas on vérifie que rien ne s'est remis en marche, et on le remet à son état mémorisé si une animation a été recréée */
+    if(sc.__fige&&mm){
+      for(i=0;i<paq.length;i++){
+        var ag=paq[i].getAnimations&&paq[i].getAnimations()[0];
+        if(ag&&ag.playState!=='paused'){ag.pause();ag.currentTime=mm.t[i]||0;}
+      }
+    }
     if(sc.classList.contains('bm-continu'))sc.classList.remove('bm-continu');
-    sc.style.removeProperty('--bm-pas');
     return;
   }
   if(sc.classList.contains('bm-dort'))sc.classList.remove('bm-dort');
@@ -581,14 +635,21 @@ function sangsue(sc,sec,actif){
   /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
   var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
-  var attente=(pbBrut==null&&!!barre&&/scaleX(1)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
+  var attente=(pbBrut==null&&!!barre&&/scaleX\(1\)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
   var pb=pbBrut==null?0:pbBrut;
   var pleure=!!ligneEta&&/Barre pleine : il manque/.test(ligneEta.textContent||'');
   if(sc.classList.contains('bm-pleure')!==pleure)sc.classList.toggle('bm-pleure',pleure);
   var maintenant=performance.now()/1000;
   var cle=m+'|'+P.toFixed(2);
+  var idS=sc.getAttribute('data-bm-id'),memS=memoireSang[idS];
+  if(sc.__fige){
+    sc.__fige=false;
+    if(sc.classList.contains('bm-fige'))sc.classList.remove('bm-fige');
+    if(memS&&memS.cle===cle)sc.__t0=maintenant-pb*P-memS.niv*P;   /* même cadence : on reprend avec le même sang */
+    else sc.__cle='';
+  }
   if(sc.__cle!==cle){
-    sc.__cle=cle;sc.__t0=maintenant-pb*P;   /* nouvelle cadence : le ventre repart vide */
+    sc.__cle=cle;sc.__t0=maintenant-pb*P-((memS&&memS.cle===cle)?memS.niv*P:0);   /* nouvelle cadence : le ventre repart vide ; même cadence retrouvée après un redessin : le sang mémorisé revient */
     garantirPas(m);
     cont.style.setProperty('--bm-k',String(K));
     sc.style.setProperty('--bm-pas',S.toFixed(3)+'s');
@@ -625,6 +686,10 @@ function sangsue(sc,sec,actif){
     if(paq[i].classList.contains('on')!==vis)paq[i].classList.toggle('on',vis);
   }
   if(sc.classList.contains('bm-continu')!==(m===1))sc.classList.toggle('bm-continu',m===1);
+  /* mémoire du sang affiché (pour le figer quand la Magie est retirée, et le retrouver après un redessin) */
+  var tm=[],om=[];
+  for(i=0;i<paq.length;i++){var am=paq[i].getAnimations&&paq[i].getAnimations()[0];tm.push(am?Number(am.currentTime)||0:0);om.push(paq[i].classList.contains('on'));}
+  memoireSang[sc.getAttribute('data-bm-id')]={cle:cle,m:m,P:P,t:tm,on:om,niv:niv};
 }
 /* Le jet de la sangsue part au moment précis où le sang arrive au bout de son ventre : en boucle, son horloge est recalée sur celle de la barre (même phase, début du jet = barre pleine qui repart de zéro). */
 function aligner(sc){
@@ -686,6 +751,7 @@ function rythme(sc,id,n,avant){
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
   }
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);
+  if(src==='punaise'||src==='papier')approche(sc,src,sec>0?sec:(progresse&&pret?(secVue[id]||0):0),progresse&&pret);
   if(src==='sucon'){
     if(mode==='boucle')aligner(sc);
     sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse);
@@ -901,7 +967,7 @@ function css(){
     /* la barre pleine est remplacée par des paquets de sang qui avancent dans le ventre (la barre du moteur reste là, invisible, pour donner l'heure) */
     P+'.bm-scene[data-source="sucon"] .bm-tuyau .bm-sang{opacity:0}',
     P+'.bm-paquets-corps{--bm-k:6;position:absolute;inset:2px 0;z-index:1;overflow:hidden;border-radius:9px;pointer-events:none;display:none}',
-    P+'.bm-tuyau.saigne-v1 .bm-paquets-corps{display:block}',
+    P+'.bm-tuyau.saigne-v1 .bm-paquets-corps,'+P+'.bm-scene.bm-fige .bm-paquets-corps{display:block}',
     P+'.bm-paquet{position:absolute;top:0;bottom:0;left:0;width:calc(100% / var(--bm-k,6) - 3px);margin-left:1.5px;border-radius:46%;background:radial-gradient(ellipse at 34% 26%,#ffa3b0 0,#e0203c 46%,#7a0a1c 100%);box-shadow:inset -2px -3px 4px rgba(60,0,10,.55),0 0 5px rgba(255,40,70,.5);display:none}',
     P+'.bm-paquet.on{display:block}',
     /* un seul œil (de profil) ; sans Or elle pleure : paupière triste, regard vers le bas, larmes qui tombent */
