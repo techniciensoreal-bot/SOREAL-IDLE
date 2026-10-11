@@ -439,7 +439,7 @@ function scene(opts){
   demarrer();
   suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
-  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':'')+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+'</div></div>'+
       source(opts.id)+
@@ -528,6 +528,8 @@ function poserMarque(sc,id){
   if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
 }
 var secVue={};
+/* Le doigt et le bras sont-ils sortis de la case ? Mémorisé entre deux redessins : un rituel qui reçoit de l'énergie est redessiné « sorti » puis rentre en glissant (transition), au lieu d'apparaître d'un coup. */
+var etatHors={};
 /*
  * SANGSUE (Norman, 2026-10-11) : le ventre est vide au départ ; chaque niveau terminé = UN petit paquet de sang absorbé par la bouche, qui avance dans le ventre coup par coup, au rythme des succions
  * (déplacement fluide à chaque coup, puis repos). Plus les niveaux sont rapides, plus les paquets sont rapprochés ; au plus rapide, tout le ventre est plein et le sang coule sans arrêt.
@@ -646,6 +648,11 @@ function rythme(sc,id,n,avant){
       var red=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},red?0:900);
     }
+  }
+  if(src==='punaise'||src==='papier'){
+    var horsVoulu=!sc.querySelector('.bm-tuyau.saigne-v1');
+    if(sc.classList.contains('bm-hors')!==horsVoulu)sc.classList.toggle('bm-hors',horsVoulu);
+    etatHors[id]=horsVoulu;
   }
   if(src!=='punaise'&&src!=='papier'&&src!=='sucon')return;
   /* Trace de l'impact : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
@@ -898,6 +905,11 @@ function css(){
     /* sans Or : la bouche ne pompe plus et le corps ne bouge plus, elle pleure seulement */
     P+'.bm-scene.bm-pleure:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:none}',
     P+'.bm-scene.bm-pleure:has(.bm-tuyau.saigne-v1) .bm-tuyau::before{animation:none}',
+    /* Sans énergie, le doigt et le bras glissent hors de la case vers la gauche ; quand on en met, ils reviennent se placer (Norman, 2026-10-11). Propriété « translate » : elle s'ajoute aux animations de coup sans les gêner. */
+    P+'.bm-scene[data-source="punaise"] :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt),'+P+'.bm-scene[data-source="papier"] :is(.bm-bras-img,.bm-papier,.bm-coupure,.bm-goutte-doigt){transition:translate .95s cubic-bezier(.25,.8,.3,1)}',
+    P+'.bm-scene[data-source="punaise"] .bm-punaise,'+P+'.bm-scene[data-source="papier"] .bm-papier{transition-delay:.2s}',
+    P+'.bm-scene[data-source="punaise"].bm-hors :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt),'+P+'.bm-scene[data-source="papier"].bm-hors :is(.bm-bras-img,.bm-papier,.bm-coupure,.bm-goutte-doigt){translate:-340px 0;transition-delay:0s}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-scene :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt,.bm-bras-img,.bm-papier,.bm-coupure){transition:none}}',
     /* aucune Magie : elle dort (œil fermé, petits zzz qui montent) */
     P+'.bm-scene.bm-dort .bm-oeil .paupiere{transform:translateY(13px)}',
     P+'.bm-zzz{position:absolute;left:66px;top:66px;width:44px;height:50px;z-index:7;pointer-events:none;display:none}',
