@@ -140,8 +140,8 @@ var SYMBOLES3=
     '<path d="M2 20 C-2 8 8 4 18 6 L30 10 C38 14 38 24 36 76 C38 128 38 138 30 142 L18 146 C8 148 -2 144 2 132 Z" fill="url(#bm-g-collerette)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
     '<path d="M10 24 V128 M18 22 V130 M26 28 V124" fill="none" stroke="#3a0612" stroke-opacity=".38" stroke-width="2.6" stroke-linecap="round"/>'+
     '<path d="M8 20 C12 12 20 12 26 18" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3.6" stroke-linecap="round"/>'+
-    '<path d="M116 44 C142 50 148 102 116 108 Z" fill="#7a1426" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
-    '<path d="M124 54 V98 M132 58 V94" stroke="#fff" stroke-opacity=".28" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<path d="M116 49 C142 54 148 98 116 103 Z" fill="#7a1426" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
+    '<path d="M124 58 V94 M132 62 V90" stroke="#fff" stroke-opacity=".28" stroke-width="2.6" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
@@ -253,7 +253,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 44 52" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H14 C32 0 44 10 44 28 V44 H16 V36 C16 32 12 28 8 28 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 5 H14 C28 5 39 12 39 28 V40" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M2 24 H8 C14 24 18 28 20 34" fill="none" stroke="#000" stroke-opacity=".3" stroke-width="2.2" stroke-linecap="round"/><rect x="-2" y="-2" width="6" height="32" rx="2.4" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M0.6 2 V26" stroke="#fff" stroke-opacity=".4" stroke-width="1.4" stroke-linecap="round"/><rect x="14" y="42" width="32" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M19 45 H41" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H10 C24 0 34 7 34 20 V33 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V29" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2.2" stroke-linecap="round"/><rect x="-1.5" y="-1.5" width="4.5" height="23" rx="1.8" fill="#8a1a2e" stroke="#000" stroke-width="1.3"/><path d="M0.6 2 V18" stroke="#fff" stroke-opacity=".4" stroke-width="1" stroke-linecap="round"/><rect x="12" y="31" width="24" height="6" rx="2.4" fill="#8a1a2e" stroke="#000" stroke-width="1.3"/><path d="M16 33.2 H32" stroke="#fff" stroke-opacity=".4" stroke-width="1.2" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -493,7 +493,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98,punaise:92,sucon:154};
+var DEPART_GOUTTE={papier:98,punaise:92,sucon:145};
 /* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
 var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
@@ -748,12 +748,15 @@ function css(){
     P+'.bm-scene:has(.bm-perso) .bm-cou{display:none}',
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
     
-    P+'.bm-bouche{position:absolute;left:34px;top:72px;width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:89px;right:calc(var(--cx) + 24px);top:calc(110px - var(--th,44px)/2)}',
-    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:44px;height:52px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-bouche{position:absolute;left:36px;top:82px;width:52px;height:57px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:82px;right:calc(var(--cx) + 18px);top:calc(110px - var(--th,44px)/2)}',
+    P+'.bm-scene[data-source="sucon"]{--th:31px}',
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau{-webkit-mask-size:auto 31px!important;mask-size:auto 31px!important}',
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{background-size:auto 31px!important}',
+    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 10px);top:100px;width:34px;height:40px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
-    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 14px)}',
-    P+'.bm-trace-sucon{left:26px;top:78px;width:36px;height:64px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
+    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 11.5px)}',
+    P+'.bm-trace-sucon{left:28px;top:88px;width:28px;height:48px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
