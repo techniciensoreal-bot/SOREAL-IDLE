@@ -537,9 +537,8 @@ function rythme(sc,id,n,avant){
       var red=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},red?0:900);
     }
-    return;
   }
-  if(src!=='punaise'&&src!=='papier')return;
+  if(src!=='punaise'&&src!=='papier'&&src!=='sucon')return;
   /* Trace de l'impact : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
   var progresse=!!sc.querySelector('.bm-tuyau.saigne-v1');
   if(!progresse){
@@ -574,7 +573,11 @@ function rythme(sc,id,n,avant){
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},delai);
     }
   }
-  if(mode!=='boucle'&&n>avant){
+  if(mode!=='boucle'&&n>avant&&src==='sucon'){
+    /* un niveau vient de se terminer : le sang arrivé au bout du tuyau coule UNE fois dans la chope (jet qui s'allonge puis s'effile), jamais en continu */
+    sc.classList.remove('bm-jet');void sc.offsetWidth;sc.classList.add('bm-jet');
+    clearTimeout(sc.__jet);sc.__jet=setTimeout(function(){sc.classList.remove('bm-jet');},2100);
+  }else if(mode!=='boucle'&&n>avant){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
     clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
@@ -772,8 +775,10 @@ function css(){
     P+'.bm-goutte{position:absolute;left:-3px;top:0;width:7px;height:10px;border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#ff7a8a,#c0152e 55%,#6b0a18);opacity:0;display:none}',
     /* suçon : un filet de sang continu depuis le bout du tuyau jusqu'au sang du récipient, et de grosses gouttes qui s'y ajoutent (plus de sang que les coupures de papier) */
     P+'.bm-bec-flot .bm-goutte{width:8px;height:22px;left:-4px;border-radius:50% 50% 50% 50%/72% 72% 28% 28%}',
-    P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;display:none;transform-origin:50% 0}',
-    P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet{display:block;opacity:.95;animation:bmFilet .55s ease-in-out infinite alternate}',
+    /* filet de sang : invisible au repos ; un jet par niveau terminé (il s'allonge depuis l'embout, tient, puis s'effile par le haut : il ne surgit ni ne disparaît d'un coup) ; niveaux très courts : le jet se répète à leur rythme */
+    P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;transform-origin:50% 0;transform:scaleY(0);clip-path:inset(0)}',
+    P+'.bm-scene.bm-jet .bm-filet{animation:bmJet 1.9s ease-in-out 1 both}',
+    P+'.bm-scene[data-rythme="boucle"]:has(.bm-tuyau.saigne-v1) .bm-filet{animation:bmJet var(--bm-t,1s) linear infinite}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
     /* calice */
     P+'.bm-vase{position:absolute;right:12px;bottom:var(--vb,6px);width:var(--vw,100px);height:var(--vh,130px);z-index:4}',
@@ -826,7 +831,7 @@ function css(){
     '@keyframes bmCoupe{0%,100%{transform:translateY(0) rotate(-5deg)}28%{transform:translateY(0) rotate(-5deg)}44%{transform:translateY(84px) rotate(-5deg)}56%{transform:translateY(84px) rotate(-5deg)}76%{transform:translateY(0) rotate(-5deg)}}',
     '@keyframes bmTrait{0%,38%{opacity:0;transform:scaleY(.1)}46%{opacity:1;transform:scaleY(1)}84%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}',
     '@keyframes bmSuce{0%,100%{transform:scale(1,1)}45%{transform:scale(.88,1.1)}70%{transform:scale(1.03,.98)}}',
-    '@keyframes bmFilet{from{transform:scaleX(.8)}to{transform:scaleX(1.2)}}',
+    '@keyframes bmJet{0%{opacity:0;transform:scaleY(0);clip-path:inset(0)}16%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}58%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}100%{opacity:.9;transform:scaleY(1);clip-path:inset(100% 0 0 0)}}',
     '@keyframes bmLivre{0%,100%{filter:drop-shadow(0 0 5px rgba(255,40,70,.5)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}50%{filter:drop-shadow(0 0 14px rgba(255,60,90,.95)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}}',
     '@keyframes bmBalance{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}',
     '@keyframes bmRune{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.9}70%{opacity:.7}100%{opacity:0;transform:translateY(-70px) rotate(90deg)}}',

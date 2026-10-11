@@ -67,6 +67,8 @@ assert.ok(c3.includes('<b class="bm-etagere-n">25000000</b>') && c3.includes("--
 
 assert.ok(c3.includes("bm-filet") && !c3.includes("bm-goutte") && c3.includes("bm-coude"), "suçon : un filet de sang continu seul (Norman, 2026-10-11 : plus de gouttes), tuyau coudé");
 assert.ok(!c2.includes("bm-filet"), "coupures : pas de filet continu");
+// Le filet du suçon ne coule pas en continu : un jet par niveau terminé (Norman, 2026-10-11)
+assert.ok(src.includes("@keyframes bmJet") && src.includes(".bm-scene.bm-jet .bm-filet{animation:bmJet") && !src.includes("@keyframes bmFilet"), "jet unique par niveau, sans filet permanent");
 
 // la page branche le décor et garde ses points d'accroche
 assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel (avec le Blood par rituel)");
