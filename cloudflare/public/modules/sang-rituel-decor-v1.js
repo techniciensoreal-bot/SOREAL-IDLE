@@ -465,23 +465,25 @@ function niveauLiquide(scene,fraction,c){
  * un coup de punaise et une goutte à chaque niveau réellement gagné.
  */
 var PERIODE_MIN=0.4,PERIODE_BOUCLE=4;
+/* Part du cycle où l'impact a lieu (la pointe a touché le doigt ; la feuille a fini de traverser le bras) : la trace n'apparaît JAMAIS avant (Norman, 2026-10-11). */
+var PART_IMPACT={punaise:0.44,papier:0.5};
+function poserMarque(sc,id){
+  sc.__marq=0;
+  if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
+}
 function rythme(sc,id,n,avant){
   var src=sc.getAttribute('data-source');
   if(src!=='punaise'&&src!=='papier')return;
-  /* Trace de l'impact (Norman, 2026-10-11) : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
+  /* Trace de l'impact : elle reste tant que le rituel progresse ; dès qu'il s'arrête (plus de Magie placée), elle s'efface en fondu (transition CSS). */
   var progresse=!!sc.querySelector('.bm-tuyau.saigne-v1');
   if(!progresse){
     clearTimeout(sc.__marq);sc.__marq=0;marqueVue[id]=false;
     if(sc.classList.contains('bm-marque'))sc.classList.remove('bm-marque');
-  }else if(!sc.classList.contains('bm-marque')&&!sc.__marq){
-    var reduit0=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var H0=window.__SOREAL_IDLE_META_HOST_V130__,e0=H0&&H0.getIdleEtat&&H0.getIdleEtat(),vs=e0&&e0.__bloodMagicVisualV1,v0=vs&&typeof vs==='object'?vs[id]:null;
-    var sec0=v0?Number(v0.secondsPerCompletion):0;
-    /* premier impact : au milieu du premier cycle de la boucle ; pour un rituel lent, au premier niveau gagné (voir plus bas) */
-    var delai=reduit0?0:(sec0>0&&sec0<=PERIODE_BOUCLE?Math.max(PERIODE_MIN,sec0)*450:(sec0>0?0:-1));
-    if(delai>=0)sc.__marq=setTimeout(function(){sc.__marq=0;if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}},delai);
   }
-  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(progresse&&!sc.classList.contains('bm-marque'))poserMarque(sc,id);
+    return;
+  }
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
   var sec=v?Number(v.secondsPerCompletion):0;
@@ -492,9 +494,20 @@ function rythme(sc,id,n,avant){
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
   }
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);
+  /* Boucle : la trace est posée à l'instant EXACT du premier impact, lu sur l'animation en cours (jamais sur une minuterie indépendante). */
+  if(mode==='boucle'&&progresse&&!sc.classList.contains('bm-marque')&&!sc.__marq){
+    var cible=src==='punaise'?sc.querySelector('.bm-punaise'):sc.querySelector('.bm-papier');
+    var an=cible&&typeof cible.getAnimations==='function'?cible.getAnimations()[0]:null;
+    var ct=an&&an.effect&&typeof an.effect.getComputedTiming==='function'?an.effect.getComputedTiming():null;
+    var dur=ct?Number(ct.duration):0,prog=ct&&ct.progress!=null?Number(ct.progress):null;
+    if(dur>0&&prog!=null){
+      var delai=((PART_IMPACT[src]-(prog%1)+1)%1)*dur;
+      sc.__marq=setTimeout(function(){poserMarque(sc,id);},delai);
+    }
+  }
   if(mode!=='boucle'&&v&&sec>0&&n>avant){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
-    clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){sc.__marq=0;if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}},400);
+    clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
   }
 }
