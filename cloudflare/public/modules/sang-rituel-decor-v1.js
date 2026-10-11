@@ -116,30 +116,30 @@ var SYMBOLES3=
   '<linearGradient id="bm-g-cheveux" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a0f09"/><stop offset="1" stop-color="#3f2616"/></linearGradient>'+
   '<radialGradient id="bm-g-levre" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="#ffa3b8"/><stop offset=".5" stop-color="#dc5472"/><stop offset="1" stop-color="#8f1f3c"/></radialGradient>'+
   '<radialGradient id="bm-g-dome" cx=".35" cy=".35" r=".85"><stop offset="0" stop-color="#e86e8a"/><stop offset=".55" stop-color="#b0314f"/><stop offset="1" stop-color="#5e0f24"/></radialGradient>'+
-  /* cou : buste de profil, tête hors cadre ; nuque cheveux, muscle, pomme d'Adam, chaîne et pendentif, robe noire au col doublé de rouge */
+  /* cou : personnage vu de DOS, tête hors cadre ; nuque, cheveux, oreille droite qui dépasse, chaîne et fermoir, robe noire au col doublé de rouge */
   '<symbol id="bm-sym-cou" viewBox="0 0 200 624">'+
-    '<path d="M-16 0 H124 V250 Q126 294 156 326 L-16 372 Z" fill="url(#bm-g-cou)"/>'+
-    '<path d="M-4 18 Q44 40 66 130 Q84 214 112 304 L74 316 Q56 220 30 138 Q10 76 -16 56 Z" fill="#a85a42" fill-opacity=".30"/>'+
-    '<path d="M30 44 Q60 132 86 250" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="5" stroke-linecap="round"/>'+
-    '<path d="M96 150 Q104 190 98 232 M62 214 Q84 228 102 222" fill="none" stroke="#7a3d2c" stroke-opacity=".32" stroke-width="3.6" stroke-linecap="round"/>'+
-    '<path d="M124 92 Q146 110 126 142" fill="url(#bm-g-cou)" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
-    '<path d="M131 102 Q140 112 131 126" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3.4" stroke-linecap="round"/>'+
-    '<path d="M-16 0 H124 V250 Q126 294 156 326" fill="none" stroke="#000" stroke-width="6.4" stroke-linejoin="round" stroke-linecap="round"/>'+
-    '<path d="M-16 234 Q52 274 128 258" fill="none" stroke="#000" stroke-width="9" stroke-linecap="round"/>'+
-    '<path d="M-16 234 Q52 274 128 258" fill="none" stroke="#e6b64e" stroke-width="5" stroke-dasharray="8 4" stroke-linecap="round"/>'+
-    '<circle cx="128" cy="276" r="19" fill="#e0b04a" stroke="#000" stroke-width="4.6"/>'+
-    '<path d="'+etoile(128,276,12)+'" fill="none" stroke="#7a1020" stroke-width="3.2" stroke-linejoin="round"/>'+
-    '<path d="M116 264 Q122 258 132 260" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>'+
-    '<path d="M58 168 q-8 12 0 20 q8 -8 0 -20 Z M82 206 q-6 10 0 16 q6 -6 0 -16 Z" fill="#d6eeff" stroke="#6aa0c8" stroke-width="2.4"/>'+
-    '<path d="M-16 0 H132 V42 Q126 92 112 126 Q108 76 96 102 Q92 58 78 94 Q70 46 54 86 Q44 40 28 76 Q16 38 -16 62 Z" fill="url(#bm-g-cheveux)" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
-    '<path d="M10 10 Q34 46 24 84 M48 6 Q70 42 60 94 M86 6 Q106 46 96 110" fill="none" stroke="#6b4630" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M126 4 Q160 -2 164 30 Q164 60 142 68 L126 54 Z" fill="url(#bm-g-cou)" stroke="#3b1710" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M138 14 Q154 20 150 38 Q148 50 140 54" fill="none" stroke="#a85a42" stroke-opacity=".7" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M22 60 H124 V250 Q126 294 156 326 L-16 372 L-16 300 Q20 280 22 230 Z" fill="url(#bm-g-cou)"/>'+
+    '<path d="M22 100 Q26 200 40 280 L58 292 Q44 200 40 100 Z" fill="#c27a5e" fill-opacity=".7"/>'+
+    '<path d="M106 100 Q112 200 108 290 L124 290 V100 Z" fill="#c27a5e" fill-opacity=".8"/>'+
+    '<path d="M73 130 V300" fill="none" stroke="#7a3d2c" stroke-opacity=".4" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M50 150 Q56 220 48 286 M96 150 Q90 220 98 286" fill="none" stroke="#7a3d2c" stroke-opacity=".3" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M60 160 Q64 230 62 280" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M22 230 Q20 280 -16 300 M124 60 V250 Q126 294 156 326" fill="none" stroke="#3b1710" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>'+
+    '<path d="M22 236 Q73 268 126 250" fill="none" stroke="#3b1710" stroke-width="6.4" stroke-linecap="round"/>'+
+    '<path d="M22 236 Q73 268 126 250" fill="none" stroke="#e6b64e" stroke-width="3.4" stroke-dasharray="8 4" stroke-linecap="round"/>'+
+    '<circle cx="73" cy="259" r="9" fill="#e0b04a" stroke="#3b1710" stroke-width="3"/>'+
+    '<path d="M69 255 Q72 252 77 254" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.4" stroke-linecap="round"/>'+
+    '<path d="M44 170 q-8 12 0 20 q8 -8 0 -20 Z M98 208 q-6 10 0 16 q6 -6 0 -16 Z" fill="#d6eeff" stroke="#6aa0c8" stroke-width="2.4"/>'+
+    '<path d="M-16 0 H134 V40 Q134 90 114 122 Q94 100 73 138 Q52 100 32 122 Q12 96 -16 84 Z" fill="url(#bm-g-cheveux)" stroke="#3b1710" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M10 10 Q30 50 20 94 M48 6 Q62 50 52 104 M86 6 Q96 50 90 106 M118 8 Q124 50 112 108" fill="none" stroke="#8a5a36" stroke-width="5" stroke-linecap="round"/>'+
     '<path d="M0 24 Q24 32 40 24 M64 26 Q88 36 112 28" fill="none" stroke="#9a6c46" stroke-opacity=".7" stroke-width="2.6" stroke-linecap="round"/>'+
-    '<path d="M-16 356 Q60 322 150 326 Q206 342 222 396 V640 H-16 Z" fill="url(#bm-g-robe)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
-    '<path d="M44 336 L100 412 L158 326" fill="#6b1020" stroke="#000" stroke-width="5" stroke-linejoin="round"/>'+
-    '<path d="M50 338 Q100 376 156 330" fill="none" stroke="#e0b04a" stroke-width="3.6" stroke-dasharray="7 4" stroke-linecap="round"/>'+
-    '<path d="M16 432 Q62 484 28 592 M122 424 Q160 504 138 610" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="5" stroke-linecap="round"/>'+
-    '<path d="M72 452 Q92 522 74 604" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="8" stroke-linecap="round"/>'+
-    '<circle cx="100" cy="472" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/><circle cx="100" cy="524" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/>'+
+    '<path d="M-16 372 Q30 330 73 338 Q120 330 160 340 Q206 352 222 396 V640 H-16 Z" fill="url(#bm-g-robe)" stroke="#3b1710" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M24 340 Q73 380 124 338 L128 356 Q73 404 22 358 Z" fill="#6b1020" stroke="#3b1710" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M73 396 V636" fill="none" stroke="#3b1710" stroke-opacity=".5" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M16 432 Q62 484 28 592 M130 424 Q166 504 146 610" fill="none" stroke="#3b1710" stroke-opacity=".4" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M100 452 Q116 522 100 604" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="8" stroke-linecap="round"/>'+
   '</symbol>'+
   /* ventouse en caoutchouc, de profil : le bord (collerette) est plaqué sur le cou, la peau est aspirée dans la cloche, l'embout se raccorde au tuyau */
   '<radialGradient id="bm-g-gomme" cx=".32" cy=".3" r=".95"><stop offset="0" stop-color="#f0566c"/><stop offset=".5" stop-color="#b8243c"/><stop offset="1" stop-color="#5a0d1c"/></radialGradient>'+
@@ -783,7 +783,7 @@ function css(){
     P+'.bm-goutte{position:absolute;left:-3px;top:0;width:7px;height:10px;border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#ff7a8a,#c0152e 55%,#6b0a18);opacity:0;display:none}',
     /* suçon : un filet de sang continu depuis le bout du tuyau jusqu'au sang du récipient, et de grosses gouttes qui s'y ajoutent (plus de sang que les coupures de papier) */
     P+'.bm-bec-flot .bm-goutte{width:14px;height:19px;left:-7px}',
-    P+'.bm-filet{position:absolute;left:-2.5px;top:0;width:5px;height:calc(var(--chute,60px) + 5px);border-radius:3px 3px 4px 4px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;display:none;transform-origin:50% 0}',
+    P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;display:none;transform-origin:50% 0}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet{display:block;opacity:.95;animation:bmFilet .55s ease-in-out infinite alternate}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
     /* calice */
