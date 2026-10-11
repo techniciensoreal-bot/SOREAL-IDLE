@@ -141,25 +141,24 @@ var SYMBOLES3=
     '<path d="M72 452 Q92 522 74 604" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="8" stroke-linecap="round"/>'+
     '<circle cx="100" cy="472" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/><circle cx="100" cy="524" r="7.5" fill="#e0b04a" stroke="#000" stroke-width="3.2"/>'+
   '</symbol>'+
-  /* ventouse-bouche de profil : peau pâle puis ecchymose sous le bord, deux lèvres brillantes plaquées, dôme veiné, collier de raccord du tuyau */
+  /* ventouse en caoutchouc, de profil : le bord (collerette) est plaqué sur le cou, la peau est aspirée dans la cloche, l'embout se raccorde au tuyau */
+  '<radialGradient id="bm-g-gomme" cx=".32" cy=".3" r=".95"><stop offset="0" stop-color="#f0566c"/><stop offset=".5" stop-color="#b8243c"/><stop offset="1" stop-color="#5a0d1c"/></radialGradient>'+
+  '<linearGradient id="bm-g-collerette" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a1020"/><stop offset=".55" stop-color="#c83048"/><stop offset="1" stop-color="#8a1a2e"/></linearGradient>'+
   '<symbol id="bm-sym-bouche" viewBox="0 0 140 152" overflow="visible">'+
-    '<ellipse cx="14" cy="76" rx="24" ry="54" fill="#f6cdb4" fill-opacity=".6"/>'+
-    '<path d="M-18 26 H4 M-14 48 H4 M-18 76 H2 M-14 104 H4 M-18 126 H4" stroke="#8f4a36" stroke-opacity=".62" stroke-width="3.6" stroke-linecap="round"/>'+
-    '<ellipse cx="10" cy="76" rx="19" ry="50" fill="url(#bm-g-cou)" stroke="#7a1030" stroke-width="4.4"/>'+
-    '<ellipse cx="8" cy="76" rx="11" ry="32" fill="#8a2a60" fill-opacity=".74"/>'+
-    '<ellipse cx="7" cy="76" rx="5.5" ry="17" fill="#b0233f" fill-opacity=".72"/>'+
-    '<path d="M20 12 C80 0 134 36 134 76 C134 116 80 152 20 140 Z" fill="url(#bm-g-dome)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
-    '<path d="M34 30 C60 34 84 50 98 72 M34 122 C60 118 84 102 98 80 M60 76 H112 M44 52 C58 58 70 64 78 72" fill="none" stroke="#4a0a1a" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>'+
-    '<path d="M34 28 C74 18 112 40 122 68" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="6" stroke-linecap="round"/>'+
-    '<ellipse cx="88" cy="42" rx="11" ry="6" fill="#fff" fill-opacity=".34" transform="rotate(26 88 42)"/>'+
-    '<path d="M4 72 C0 36 8 12 24 12 C40 12 44 36 40 72 Z" fill="url(#bm-g-levre)" stroke="#000" stroke-width="5.6" stroke-linejoin="round"/>'+
-    '<path d="M4 80 C0 116 8 140 24 140 C40 140 44 116 40 80 Z" fill="url(#bm-g-levre)" stroke="#000" stroke-width="5.6" stroke-linejoin="round"/>'+
-    '<path d="M14 22 V60 M24 20 V62 M34 28 V60 M14 94 V130 M24 90 V132 M34 94 V124" fill="none" stroke="#8f1f3c" stroke-opacity=".5" stroke-width="2.4" stroke-linecap="round"/>'+
-    '<path d="M4 76 H40" stroke="#2a0309" stroke-width="5.2" stroke-linecap="round"/>'+
-    '<path d="M12 26 C18 20 28 22 30 34 M12 120 C16 130 26 132 30 124" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="4.2" stroke-linecap="round"/>'+
-    '<path d="M44 74 q10 -4 18 2 q-8 8 -18 2" fill="#fff" fill-opacity=".28"/>'+
-    '<path d="M124 52 C138 58 142 94 124 100 Z" fill="#9a2a46" stroke="#000" stroke-width="5" stroke-linejoin="round"/>'+
-    '<path d="M128 60 V92 M133 62 V90" stroke="#3a0612" stroke-opacity=".55" stroke-width="2.4" stroke-linecap="round"/>'+
+    '<ellipse cx="14" cy="76" rx="24" ry="56" fill="#f6cdb4" fill-opacity=".6"/>'+
+    '<path d="M-18 24 H4 M-14 46 H4 M-18 76 H2 M-14 106 H4 M-18 128 H4" stroke="#8f4a36" stroke-opacity=".62" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<ellipse cx="10" cy="76" rx="19" ry="48" fill="url(#bm-g-cou)" stroke="#7a1030" stroke-width="4.4"/>'+
+    '<ellipse cx="8" cy="76" rx="11" ry="30" fill="#8a2a60" fill-opacity=".74"/>'+
+    '<ellipse cx="7" cy="76" rx="5.5" ry="16" fill="#b0233f" fill-opacity=".72"/>'+
+    '<path d="M22 14 C84 2 132 38 132 76 C132 114 84 150 22 138 Z" fill="url(#bm-g-gomme)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M40 28 C58 22 74 32 82 48 M40 124 C58 130 74 120 82 104" fill="none" stroke="#3a0612" stroke-opacity=".45" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M36 26 C76 16 112 38 122 66" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="6.4" stroke-linecap="round"/>'+
+    '<ellipse cx="90" cy="40" rx="12" ry="6.4" fill="#fff" fill-opacity=".36" transform="rotate(26 90 40)"/>'+
+    '<path d="M2 20 C-2 8 8 4 18 6 L30 10 C38 14 38 24 36 76 C38 128 38 138 30 142 L18 146 C8 148 -2 144 2 132 Z" fill="url(#bm-g-collerette)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M10 24 V128 M18 22 V130 M26 28 V124" fill="none" stroke="#3a0612" stroke-opacity=".38" stroke-width="2.6" stroke-linecap="round"/>'+
+    '<path d="M8 20 C12 12 20 12 26 18" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M120 54 C138 58 142 94 120 98 Z" fill="#7a1426" stroke="#000" stroke-width="5.4" stroke-linejoin="round"/>'+
+    '<path d="M126 60 V92 M132 62 V90" stroke="#fff" stroke-opacity=".28" stroke-width="2.6" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
