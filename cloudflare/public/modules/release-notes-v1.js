@@ -20,7 +20,8 @@
         nom:'Tout en médailles',
         date:'2026-10-10',
         points:[
-          'Inventaire sur téléphone : les pièces équipées sont dans un cadre sans titre, aux cases de la taille de celles du sac. Quand tu descends la page, une languette sous le haut de l’écran tire un volet par-dessus la page pour fusionner ou booster sans remonter ; il disparaît quand tu remontes. Une bande à droite du sac fait défiler la page sans jamais attraper une pièce.',
+          'L’auto-kill donne maintenant son butin quand tu es connecté ; hors ligne il ne donne toujours que l’EXP, l’Or, les AP, PP et QP, comme dans le jeu d’origine.',
+          'Inventaire sur téléphone : les pièces équipées sont dans un cadre sans titre, aux cases de la taille de celles du sac. Quand tu descends la page, une languette sous le haut de l’écran tire un volet par-dessus la page pour fusionner ou booster sans remonter ; il disparaît quand tu remontes. Une barre de défilement incrustée à droite de l’inventaire (les cadres se rétrécissent pour lui faire de la place) fait défiler la page sans jamais attraper une pièce.',
           'Le Coffre s’excuse après son pet, et non plus en même temps, avec plusieurs phrases tirées au hasard.',
           'Chaque barre qui a + − Max a aussi un bouton « 0 » qui retire toute l’énergie de cette barre seulement, et la tour affiche un compte à rebours avant le prochain combat.',
           'L’Or est contrôlé en direct dans tous les menus qui en demandent (Augmentations, rituels…) : l’Or produit entre deux synchronisations est ajouté tout de suite, donc plus de temps d’arrêt ni de petit retour en arrière sur les niveaux achetés.',

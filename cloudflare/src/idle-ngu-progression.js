@@ -4651,6 +4651,11 @@ function advanceLateSystems(state, seconds, context, now) {
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);
     advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
+      /* Synchro courte = joueur connecté : l'Auto-Kill donne alors le butin ; au-delà (rattrapage hors ligne) seulement EXP, Or, AP, PP, QP, comme le wiki. Même seuil que le farm hors ligne. */
+      enLigne: seconds < 5 * 60,
+      dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+      dropMultiplierIncludesGear: true,
+      titanLootLevelBonus: titanChallengeBonuses.titanLootLevelBonus,
       stats: { power: combatAventure.power, toughness: combatAventure.toughness },
       wishLevels: wishLevelsMapV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,

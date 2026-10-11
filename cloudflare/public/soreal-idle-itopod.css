@@ -1500,15 +1500,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:701px){.soreal-idle-volet-tiroir-v1{display:none!important}}
 
 /*
- * Zone de défilement de l'inventaire sur téléphone (Norman, 2026-10-11) : « sur la droite, une zone qui permet de faire glisser l'inventaire : souvent on glisse une pièce en voulant glisser l'inventaire ». Une bande verticale à
- * droite du sac (dans la marge, jamais sur les cases) : un doigt posé dessus fait défiler la page (touch-action: pan-y), il ne peut pas attraper une pièce. Un repère discret (rainures et flèches) la signale. Téléphone seulement.
+ * Barre de défilement de l'inventaire sur téléphone (Norman, 2026-10-11) : « souvent on glisse une pièce en voulant glisser l'inventaire » ; puis « elle doit être incrustée dans l'interface : gagne la place libre à gauche et à droite
+ * pour rétrécir le cadre en largeur et mets-y la barre ». L'inventaire (équipement et sac) gagne la marge de la page et devient une grille à deux colonnes : les cadres à gauche, une vraie barre de défilement à droite, qui
+ * reste visible en haut de l'écran pendant qu'on défile. Un doigt posé sur la barre fait défiler la page (touch-action: pan-y) et ne peut pas attraper une pièce. Téléphone seulement.
  */
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet]>.soreal-idle-section-v8:not(.soreal-idle-v138-equipment-sticky){position:relative}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet]>.soreal-idle-section-v8:not(.soreal-idle-v138-equipment-sticky)::after{content:"";position:absolute;right:-17px;top:104px;bottom:14px;width:34px;border-radius:17px 0 0 17px;touch-action:pan-y;z-index:5;
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet]{display:grid!important;grid-template-columns:minmax(0,1fr) 30px;column-gap:6px;margin-left:-11px!important;margin-right:-11px!important;align-items:start}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet]>.soreal-idle-section-v8{grid-column:1;min-width:0}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-v151-inventory-columns[data-volet]::after{content:"";grid-column:2;grid-row:1/span 2;align-self:start;position:sticky;top:calc(var(--inv-haut,191px) + 8px);height:calc(100vh - var(--inv-haut,191px) - 22px);min-height:140px;border-radius:15px;touch-action:pan-y;
     background:
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='60' viewBox='0 0 34 60'%3E%3Cpath d='M17 6 L24 16 H10 Z M17 54 L24 44 H10 Z' fill='%23ffd24a' fill-opacity='.85'/%3E%3Cpath d='M12 24 V36 M17 22 V38 M22 24 V36' stroke='%23ffd24a' stroke-opacity='.7' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E") center 40%/34px 60px no-repeat,
-      repeating-linear-gradient(180deg,rgba(255,210,74,.18) 0 2px,transparent 2px 14px),
-      linear-gradient(90deg,rgba(255,210,74,.28),rgba(255,210,74,.08));
-    border:2px solid rgba(255,210,74,.45);border-right:0}
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='80' viewBox='0 0 30 80'%3E%3Cpath d='M15 6 L23 18 H7 Z M15 74 L23 62 H7 Z' fill='%23ffd24a' fill-opacity='.9'/%3E%3Cpath d='M10 30 V50 M15 28 V52 M20 30 V50' stroke='%23ffd24a' stroke-opacity='.75' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E") center 50%/30px 80px no-repeat,
+      repeating-linear-gradient(180deg,rgba(255,210,74,.16) 0 2px,transparent 2px 14px),
+      linear-gradient(180deg,#1b3a28,#0f2118);
+    border:2px solid rgba(255,214,102,.5);box-shadow:0 8px 18px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.4)}
+  /* le volet de l'équipement (languette) suit la largeur du cadre de gauche */
+  .soreal-idle-volet-tiroir-v1{left:6px!important;right:44px!important}
 }

@@ -12,6 +12,6 @@ import { readFileSync } from "node:fs";
  */
 const ngu = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
 const adv = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
-assert.equal(ngu.split("dropMultiplierIncludesGear").length - 1, 3, "kill de zone, titan et le farm hors ligne");
-assert.equal(adv.split("ctx.dropMultiplierIncludesGear").length - 1, 2, "rollKill et titan ignorent set + Cube quand le meta les fournit");
+assert.equal(ngu.split("dropMultiplierIncludesGear").length - 1, 4, "kill de zone, titan, farm hors ligne et butin de l'auto-kill en ligne (2026-10-11)");
+assert.equal(adv.split("ctx.dropMultiplierIncludesGear").length - 1, 3, "rollKill, titan et le butin de l'auto-kill ignorent set + Cube quand le meta les fournit");
 console.log("idle-drop-chance-no-double-count ok");

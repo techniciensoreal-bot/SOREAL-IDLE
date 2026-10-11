@@ -74,10 +74,12 @@ assert.equal(m.api.ouvert(), false, "remonté : le volet repart fermé");
 // ordinateur : rien
 const pc = monde(1200); pc.descendre(); pc.tic();
 assert.equal(pc.boite, null, "aucun volet sur ordinateur");
-/* Norman (2026-10-11) : une bande à droite du sac fait défiler la page sans jamais attraper une pièce (dans la marge, touch-action: pan-y, téléphone seulement). */
-const i = css.indexOf("Zone de défilement de l'inventaire sur téléphone");
-assert.ok(i > 0, "bande de défilement présente");
-const bande = css.slice(i);
-assert.ok(bande.includes("@media (max-width:700px){") && bande.includes("::after{content:\"\";position:absolute;right:-17px;") && bande.includes("touch-action:pan-y"), "bande à droite, défilement vertical natif, téléphone seulement");
-assert.ok(!/pointer-events:s*none/.test(bande), "la bande reçoit bien le doigt");
+/* Norman (2026-10-11) : une barre de défilement INCRUSTÉE à droite de l'inventaire : les cadres se rétrécissent (marges de la page récupérées), la barre est une vraie colonne, collée sous le bandeau, qui fait défiler la page sans attraper de pièce. */
+const i = css.indexOf("Barre de défilement de l'inventaire sur téléphone");
+assert.ok(i > 0, "barre de défilement présente");
+const barre = css.slice(i);
+assert.ok(barre.includes("@media (max-width:700px){") && barre.includes("grid-template-columns:minmax(0,1fr) 30px") && barre.includes("margin-left:-11px!important;margin-right:-11px!important"), "grille à deux colonnes : cadres à gauche, barre à droite, marges récupérées");
+assert.ok(barre.includes("[data-volet]::after{content:\"\";grid-column:2;grid-row:1/span 2;") && barre.includes("position:sticky;top:calc(var(--inv-haut,191px) + 8px)") && barre.includes("touch-action:pan-y"), "vraie colonne collée sous le bandeau, défilement vertical natif");
+assert.ok(!/pointer-events:s*none/.test(barre), "la barre reçoit bien le doigt");
+assert.ok(!css.includes("::after{content:\"\";position:absolute;right:-17px;"), "plus de bande en surimpression");
 console.log("idle-inventaire-volet-v1: OK");

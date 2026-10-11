@@ -5300,6 +5300,17 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
         st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1;
       }
       creditTitanRewardsV1(s,d.id,ctx,tierKey,st.rebirthKills);
+      /*
+       * BUTIN EN LIGNE (Norman, 2026-10-11 : « on garde l'auto kill hors ligne comme celui du Wiki (EXP, Or, AP, PP, QP), mais l'auto kill EN LIGNE doit donner les loots ») : quand le joueur est connecté (ctx.enLigne : synchro courte), chaque
+       * kill tire le même butin qu'un combat manuel (rollTitanLootV1, même bonus de drop, même premier objet de déblocage) ; hors ligne, jamais aucun objet (wiki : « no items drop while you are offline »).
+       */
+      if(ctx.enLigne&&(!d.forms||st.kills>=d.forms.length)){
+        if(d.drop&&st.kills===1&&!s.unlockItems[d.drop])s.unlockItems[d.drop]=true;
+        const butin=[];
+        const multButin=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
+        rollTitanLootV1(s,d.id,tierKey,Math.max(0,I(ctx.titanLootLevelBonus,0)),multButin,butin);
+        s.dernierButinAutoKill={id:d.id,at:t,objets:butin.filter(Boolean).map(o=>({id:o.id,definitionId:o.definitionId,name:o.name}))};
+      }
       const cooldown=idleAdventureTitanCooldownMsV1(d.id,ctx,st.kills);
       cursor+=Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(cooldown,d.cooldown));
     }
