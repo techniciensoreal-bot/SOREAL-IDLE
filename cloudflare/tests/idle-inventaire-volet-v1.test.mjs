@@ -74,4 +74,10 @@ assert.equal(m.api.ouvert(), false, "remonté : le volet repart fermé");
 // ordinateur : rien
 const pc = monde(1200); pc.descendre(); pc.tic();
 assert.equal(pc.boite, null, "aucun volet sur ordinateur");
+/* Norman (2026-10-11) : une bande à droite du sac fait défiler la page sans jamais attraper une pièce (dans la marge, touch-action: pan-y, téléphone seulement). */
+const i = css.indexOf("Zone de défilement de l'inventaire sur téléphone");
+assert.ok(i > 0, "bande de défilement présente");
+const bande = css.slice(i);
+assert.ok(bande.includes("@media (max-width:700px){") && bande.includes("::after{content:\"\";position:absolute;right:-17px;") && bande.includes("touch-action:pan-y"), "bande à droite, défilement vertical natif, téléphone seulement");
+assert.ok(!/pointer-events:s*none/.test(bande), "la bande reçoit bien le doigt");
 console.log("idle-inventaire-volet-v1: OK");
