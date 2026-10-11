@@ -2695,7 +2695,14 @@ function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride =
   const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
   const perTrack=Math.max(0,num(upgrade?pair.upgradeEnergy:pair.energy,0));
   const legacy=Math.max(0,num(state.systems.augmentations.allocation.energy,0));
+  /*
+   * Repli « ancienne sauvegarde » (allocation globale d'avant V214) : réservé aux sauvegardes qui n'ont AUCUNE énergie par piste. Avant, il s'appliquait aussi dès que la piste « active » (Ciseaux de sécurité par défaut) n'avait
+   * pas d'énergie propre : elle progressait alors avec le TOTAL placé sur les autres pistes (Norman, 2026-10-11 : « la barre Ciseaux de sécurité bouge alors qu'elle n'a pas d'énergie »).
+   */
+  let energiePistes=0;
+  for(const q of Object.values(state.systems.augmentations.data.pairs||{}))energiePistes+=Math.max(0,num(q.energy,0))+Math.max(0,num(q.upgradeEnergy,0));
   let allocation=perTrack>0?perTrack:(
+    energiePistes<=0&&
     def.id===state.systems.augmentations.data.activePair &&
     Boolean(upgrade)===Boolean(state.systems.augmentations.data.trainUpgrade)
       ?legacy
