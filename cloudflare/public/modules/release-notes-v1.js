@@ -19,6 +19,8 @@
  */
 (function(){
   'use strict';
+  /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
+  var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
     courante:'2.6',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
@@ -84,6 +86,7 @@
         version:'2.5',
         nom:'Tout en médailles',
         date:'2026-10-10',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les barres qui portent de l’énergie s’animent avec des particules propres à chaque menu. Les boutons Max, 1/2, 1/4, + et − sont de grands carrés sur ordinateur, où les petites écritures sont aussi plus grandes. Chaque champ Input est propre à son menu.',
@@ -115,6 +118,7 @@
         version:'2.4',
         nom:'Orage dégagé',
         date:'2026-10-07',
+        hommage:HOMMAGE_ANCIEN,
         /* Les nouveautés les plus récentes EN HAUT, du plus récent au moins récent (Norman, 2026-10-08). L'hommage reste en bas, rendu à part (champ « hommage » plus haut). */
         groupes:[
           {menu:'general', titre:'Général', points:[
@@ -170,6 +174,7 @@
         version:'2.3',
         nom:'Tout en direct',
         date:'2026-10-06',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les pages avec des chiffres qui évoluent se mettent à jour sans toucher aux animations ni à tes champs de saisie.',
@@ -206,6 +211,7 @@
         version:'2.2',
         nom:'Des barres honnêtes, un jeu plus léger',
         date:'2026-10-05',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les barres alimentées par une ressource (Augments, machine à Or, rituels) ne rattrapent plus leur retard quand tu changes l’allocation : elles gardent leur place et adoptent la nouvelle vitesse. Le niveau se termine plus vite, mais plus jamais d’un coup : impossible de placer une grosse somme, de remplir le niveau et de la retirer.',
@@ -248,6 +254,7 @@
         version:'2.1',
         nom:'Des combats qu’on voit, des barres qui montent en puissance',
         date:'2026-10-04',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les zones de saisie du jeu ont aussi un nouveau look.',
@@ -332,6 +339,7 @@
         version:'2.0',
         nom:'Des chronos exacts, des combats plus vivants',
         date:'2026-10-03',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le serveur répond environ dix fois plus vite à chaque synchro (de 1 à 4 secondes avant, bien moins d’une demi-seconde maintenant) : il recalcule beaucoup moins de choses à chaque appel.',
@@ -398,6 +406,7 @@
         version:'1.9',
         nom:'Plus léger, plus vivant, plus sonore',
         date:'2026-10-02',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le jeu envoie beaucoup moins de données à chaque action : les réponses du serveur sont environ dix fois plus légères, donc plus rapides, surtout sur téléphone.',
@@ -437,6 +446,7 @@
         version:'1.8',
         nom:'Un jeu vivant et lisible',
         date:'2026-10-01',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Un bandeau « En direct » en bas de l’écran annonce ce que font les autres joueurs (boss vaincus pour la première fois, trophées, farm…) et les messages du chat. Chaque information ne passe qu’une fois, en fondu.',
@@ -463,6 +473,7 @@
         version:'1.7',
         nom:'Scènes, chat et défis',
         date:'2026-09-30',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les scènes spéciales peuvent être créées et modifiées par l’administrateur (images, textes, boss qui déclenche la scène), avec des voix d’homme et de femme dans la même histoire grâce aux balises, et un bouton pour écouter chaque étape seule. Toutes les voix ont été réenregistrées, plus naturelles.',
@@ -487,6 +498,7 @@
         version:'1.6',
         nom:'Une même interface partout',
         date:'2026-09-29',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les autres écrans d’allocation reprennent aussi les boutons, la taille, le son, l’animation et la réactivité de Basic Training, avec le temps restant avant le prochain niveau.',
@@ -518,6 +530,7 @@
         version:'1.5',
         nom:'Patience et finitions',
         date:'2026-09-28',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Scène spéciale du boss 18 : un indicateur de chargement tourne pendant les attentes, la voix démarre nettement plus vite, et le texte reste affiché assez longtemps pour être lu même sans voix.',
@@ -533,6 +546,7 @@
         version:'1.4',
         nom:'Absence contrôlée',
         date:'2026-09-27',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Au retour d’une absence, un popup résume ce que tu as eu (EXP, AP, boss battus, dégâts, objets obtenus…) et reste affiché jusqu’au clic sur « Fermer ».',
@@ -564,6 +578,7 @@
         version:'1.3',
         nom:'Sons, voix et sets',
         date:'2026-09-26',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Menus : les boutons qui ne font pas progresser le jeu sont à droite, avant Settings ; les boutons répondent dès le premier clic (actions mises en file).',
@@ -597,6 +612,7 @@
         version:'1.2',
         nom:'Shop, Chat et confort de jeu',
         date:'2026-09-25',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le menu est réorganisable (maintiens un bouton pour passer en mode « Rangement des boutons »).',
@@ -627,6 +643,7 @@
         version:'1.1',
         nom:'Second passage',
         date:'2026-09-24',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Deuxième relecture complète des chiffres du jeu contre le wiki de NGU : écarts corrigés.',
@@ -649,6 +666,7 @@
         version:'1.0',
         nom:'Fidélité au wiki',
         date:'2026-09-23',
+        hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Relecture systématique du jeu contre le wiki de NGU : entraînement, combats, butin, équipement et boosts recalés sur les vraies valeurs.',
