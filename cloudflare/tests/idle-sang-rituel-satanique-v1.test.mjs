@@ -136,15 +136,13 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("function filGouttes(sc)") && decor.includes("FIL_DUREE/P") && decor.includes("classList.toggle('off',(g%8)>=nb)"), "le sang qui jaillit varie avec ce qui est produit pendant l'animation (1 à 8 gouttes)");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("var flux=nb>=6;") && decor.includes(".bm-coup.bm-flux :is(.bm-crachat,.bm-crachat b,.bm-eclat){animation-iteration-count:infinite"), "haut niveau : le sang coule sans interruption pendant l'animation");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes('function planche(ombres)') && decor.includes('.bm-scene[data-source="fil"] .bm-planche{display:block;z-index:6}') && !decor.includes('bm-table-av') && decor.includes("fil:124") && decor.includes("var(--chute,44px)"), "4e rituel : table au premier plan ; le sang tombe jusqu'au liquide du calice (chute calculée) et éclabousse");
+  assert.ok(decor.includes('function planche(ombres)') && decor.includes('.bm-scene[data-source="fil"] .bm-planche{display:block;z-index:6}') && !decor.includes('bm-table-av') && decor.includes("fil:124"), "4e rituel : table au premier plan ; le sang tombe jusqu'au liquide du calice (chute calculée) et éclabousse");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
@@ -161,16 +159,99 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Quatrième rituel : il saigne dès que le fil touche sa bouche ; le calice ne se remplit jamais sans goutte de sang.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("var FIL_IMAGE_CONTACT=5;") && decor.includes("filSaigne(l[i],k)") && decor.includes(".bm-saigne-b-on .bm-saigne-b{animation:bmSaigneB"), "il saigne dès que le fil touche sa bouche (image 6)");
-  assert.ok(decor.includes("function filNAffiche(id,n,sc)") && decor.includes("filAtterri[sc.getAttribute('data-bm-id')]=performance.now()+800;") && decor.includes("var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;") && decor.includes("compte=filNAffiche(opts.id,compte,null);"), "le niveau du calice n'avance qu'à l'arrivée d'une goutte (scène et page)");
-}
-{
-  // Récipients transparents : on voit le fond (bibliothèque, planche) déformé à travers le verre.
-  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("function fondVerre(type,id,rang)") && decor.includes('<filter id="bm-f-verre"') && decor.includes("(ctx?fondVerre(type,ctx.id,ctx.rang):'')") && decor.includes('data-bm-rang="'), "fond vu à travers le verre, déformé");
-  assert.ok(!decor.includes('fill="#12050a" opacity=".85"') && !decor.includes('fill="#12050a" opacity=".94"'), "intérieurs des récipients transparents (plus de fond sombre opaque)");
+  assert.ok(decor.includes("function filNAffiche(id,n,sc)") && decor.includes("filAtterri[sc.getAttribute('data-bm-id')]=performance.now()+duree*240;") && decor.includes("var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;") && decor.includes("compte=filNAffiche(opts.id,compte,null);"), "le niveau du calice n'avance qu'à l'arrivée d'une goutte (scène et page)");
 }
 {
   // Les anciens accessoires (bougies, grimoires, crânes, fioles, chaînes, runes au bas des scènes) sont supprimés : la bibliothèque du fond les remplace.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(!decor.includes("function props(") && !decor.includes("bm-props") && !decor.includes("bm-p-livre") && !decor.includes("bm-chaine") && !decor.includes("bm-sym-grimoire"), "anciens accessoires supprimés (plus de code caché)");
+}
+{
+  // Tuyau de la sangsue en une seule pièce, translucide, qui grossit vers l'arrière ; le sang le suit jusqu'au point noir.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function sangTrace(sc,m,g)") && decor.includes('<svg class="bm-tube"') && decor.includes('fill-opacity=".92" fill-rule="evenodd"') && decor.includes('.bm-bouche{position:absolute;left:16px;top:71px;width:72px;height:78px;z-index:7;') && !decor.includes('<svg class="bm-coude"'), "tuyau d'une seule pièce de la couleur de la tête, tête au-dessus");
+  assert.ok(decor.includes("sc.__gT=attente?1.17:1+0.17*Math.pow(") && decor.includes("function sangBoucle()"), "l'arrière-train grossit avec le sang et rétrécit à la sortie");
+  assert.ok(decor.includes("cont.style.getPropertyValue('--bm-chemin')&&cont.style.left"), "le chemin du sang résiste à l'effacement du style par un redessin");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("'<path d=\"'+CORPS_CALICE+' '+BOL_CALICE+'\" fill-rule=\"evenodd\""), "cavité du calice percée dans le métal (transparence réelle sans fond)");
+}
+{
+  // Récipients simplement transparents (Norman, 2026-10-11) : aucun fond sombre, aucune déformation ; la cavité du calice est percée dans le métal.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(!decor.includes("fondVerre") && !decor.includes("bm-f-verre") && !decor.includes("bm-fond-entree") && !decor.includes("--bm-int") && !decor.includes('fill="#12050a" opacity') , "plus aucune déformation ni fond sombre dans les récipients");
+  assert.ok(!decor.includes("INT_CHOPE+'\" fill=\"#12050a\"") && decor.includes("function contenant(type,fraction){") && decor.includes("CORPS_CALICE+' '+BOL_CALICE"), "récipients transparents ; cavité du calice percée");
+}
+{
+  // Deuxième rituel : le récipient en attente passe devant la manche de Rincevent.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('.bm-scene[data-source="papier"] .bm-vase.bm-suivant{z-index:5}') && decor.includes('.bm-bras-img{position:absolute;left:-29px;top:96px;transform:translateY(-50%);height:215px;width:auto;max-width:none;z-index:4;'), "récipient en attente devant le bras (z 5 > 4)");
+}
+{
+  // Ventre vert à peine translucide ; boules de sang centrées sur l'axe du tuyau.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('id="bm-g-ventre"') && decor.includes('class="tv" fill="url(#bm-g-ventre)" fill-opacity=".62"') && decor.includes('class="tf" fill="#141a0a"'), "ventre vert translucide posé AU-DESSUS des boules de sang (elles sont vues à travers)");
+  assert.ok(decor.includes("top:0;height:calc(var(--th,28px) - 14px);width:var(--bm-cell,11px)"), "boules de sang centrées sur l'axe du ventre");
+}
+{
+  // Texture sur le ventre ; les boules s'arrêtent pile au point noir de l'anus (rien ne dépasse dessous).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('id="bm-tex"') && decor.includes('class="tx" fill="url(#bm-tex)"') && decor.includes('class="tr"'), "texture (granulation + anneaux) sur le ventre vert");
+  assert.ok(decor.includes("Lc=(L+3)*K/(K+1)") && decor.includes("'--bm-fk'") && decor.includes("calc(var(--bm-fk,1)*'+pos("), "course des boules limitée : leur avant s'arrête au centre de l'anus");
+}
+{
+  // Banque du sang : une case vide au format des images de son animation (1231 x 923), sans tuyau ni récipient.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("bloodBank:'banque'") && decor.includes('.bm-scene[data-source="banque"]{height:auto!important;aspect-ratio:1231/923;overflow:hidden}'), "case vide au format 1231 x 923");
+  const h = d.scene({ id: "bloodBank", sang: 1200000, compte: 3, barre: '<i data-idle-blood-bar-v1="bloodBank"></i>', saigne: true, rang: 4 });
+  assert.ok(h.includes('data-source="banque"') && !h.includes("bm-vase") && !h.includes("bm-calice") && h.includes('data-idle-blood-bar-v1="bloodBank"') && h.includes("Sang collecté"), "scène vide : ni récipient ni décor, mais la barre du moteur (horloge) et l'étagère « Sang collecté » restent");
+}
+{
+  // Filet de sang COURBE (plus de gouttes) : de la bouche de Rincevent jusqu'à la surface du liquide, dessiné d'un trait.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('<svg class="bm-jet-fil"') && decor.includes("function filJet(sc,nb)") && decor.includes("' C'+(sx+dx*0.42).toFixed(1)"), "un filet courbé (courbe de Bézier) de la bouche à la surface du liquide");
+  assert.ok(decor.includes("ey=124+ch") && decor.includes("filJet(sc,nb);") && decor.includes("@keyframes bmJetFil{") && decor.includes("@keyframes bmJetFin{") && !decor.includes("bm-crachat") && !decor.includes("bmCrX"), "arrivée au niveau du sang (chute), dessiné d'un trait puis la queue rejoint le verre, plus de gouttes");
+  assert.ok(decor.includes("var flux=nb>=6,es=sc.querySelectorAll('.bm-eclat');") && decor.includes("w=1.3+0.42*nb"), "plus il y a de sang produit, plus le filet est épais, et il coule en continu à haut niveau");
+}
+{
+  // Le filet touche la bouche (départ plus haut) et dure moins longtemps (0,67 à 1,16 s).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("var sx=91,sy=116.5,") && decor.includes("duree=0.3+0.035*nb") && decor.includes("24%{stroke-dashoffset:0}48%{stroke-dashoffset:0}"), "filet : départ sur la bouche, durée courte");
+}
+{
+  // Plus de tache de sang sur les lèvres (elle était mal faite) : il reste le filet le long du fil et les gouttes sur le menton.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(!decor.includes("bm-levre-sang") && decor.includes('class="bm-filet-fil"') && decor.includes('class="bm-saigne-b"'), "tache des lèvres supprimée, filet et gouttes conservés");
+}
+{
+  // L'anus a le diamètre du tuyau (et non plus 1,28 fois plus large).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("rx=ho[n-1]+0.4,ry=5.4;") && !decor.includes("ho[n-1]*1.28"), "anus au diamètre du tuyau");
+}
+{
+  // Banque du sang : les 21 images de R2 (rincevent/banquedusang/N.webp) sont jouées en boucle dans la case quand le rituel tourne, image 1 fixe sinon.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes('<canvas class="bm-banque-cv" width="640" height="480"') && decor.includes("name=rincevent/banquedusang/'+i+'.webp") && decor.includes("var BANQUE_N=21,BANQUE_DUREE=4"), "21 images de R2 dans un canevas de la case");
+  assert.ok(decor.includes("function banqueCadre(sc,maintenant)") && decor.includes("resizeWidth:640,resizeHeight:480") && decor.includes("function banqueDemarrer()"), "boucle sans couture à cadence fixe, images réduites en mémoire");
+}
+{
+  // Banque du sang : l'animation dure 4 s et ne se déclenche que quand le niveau se valide (la barre repart de zéro).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("BANQUE_DUREE=4") && decor.includes("pb<sc.__bPb-0.3") && decor.includes("return banqueIndex(ecoule);") && decor.includes("if(!sc.__bt0)return 0;"), "4 secondes, déclenchée à la validation du niveau, image 1 fixe sinon");
+}
+{
+  // Banque du sang : arrêt de 3 s sur l'image 11 (indice 10) où Rincevent est complètement dans le frigo.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("BANQUE_PAUSE=3") && decor.includes("BANQUE_IMAGE_FRIGO=10") && decor.includes("if(e<h+BANQUE_PAUSE)return BANQUE_IMAGE_FRIGO;"), "arrêt de 3 s dans le frigo (image 11)");
+}
+{
+  // Filet plus fin et départ moins arrondi : tangente de départ presque horizontale, bouts droits.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("w=1.3+0.42*nb") && decor.includes("' C'+(sx+dx*0.42).toFixed(1)") && decor.includes(".bm-jet-fil path{fill:none;stroke-linecap:butt;"), "filet fin, départ droit (pas de bout rond)");
+}
+{
+  // Crachat deux fois plus court (0,33 à 0,58 s).
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("duree=0.3+0.035*nb") && decor.includes("bmJetFlux .25s") && decor.includes("bmJetFin .25s"), "durée du crachat divisée par deux");
 }
