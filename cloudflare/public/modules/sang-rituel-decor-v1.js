@@ -783,7 +783,7 @@ function css(){
     P+'.bm-goutte{position:absolute;left:-3px;top:0;width:7px;height:10px;border:1px solid #000;border-radius:50% 50% 50% 50%/65% 65% 38% 38%;background:radial-gradient(circle at 38% 30%,#ff7a8a,#c0152e 55%,#6b0a18);opacity:0;display:none}',
     /* suçon : un filet de sang continu depuis le bout du tuyau jusqu'au sang du récipient, et de grosses gouttes qui s'y ajoutent (plus de sang que les coupures de papier) */
     P+'.bm-bec-flot .bm-goutte{width:14px;height:19px;left:-7px}',
-    P+'.bm-filet{position:absolute;left:-5px;top:0;width:10px;height:calc(var(--chute,60px) + 5px);border-radius:5px 5px 7px 7px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 6px rgba(255,40,70,.6);opacity:0;display:none;transform-origin:50% 0}',
+    P+'.bm-filet{position:absolute;left:-2.5px;top:0;width:5px;height:calc(var(--chute,60px) + 5px);border-radius:3px 3px 4px 4px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;display:none;transform-origin:50% 0}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-filet{display:block;opacity:.95;animation:bmFilet .55s ease-in-out infinite alternate}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
     /* calice */
@@ -837,7 +837,7 @@ function css(){
     '@keyframes bmCoupe{0%,100%{transform:translateY(0) rotate(-5deg)}28%{transform:translateY(0) rotate(-5deg)}44%{transform:translateY(84px) rotate(-5deg)}56%{transform:translateY(84px) rotate(-5deg)}76%{transform:translateY(0) rotate(-5deg)}}',
     '@keyframes bmTrait{0%,38%{opacity:0;transform:scaleY(.1)}46%{opacity:1;transform:scaleY(1)}84%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}',
     '@keyframes bmSuce{0%,100%{transform:scale(1,1)}45%{transform:scale(.88,1.1)}70%{transform:scale(1.03,.98)}}',
-    '@keyframes bmFilet{from{transform:scaleX(.78)}to{transform:scaleX(1.18)}}',
+    '@keyframes bmFilet{from{transform:scaleX(.8)}to{transform:scaleX(1.2)}}',
     '@keyframes bmLivre{0%,100%{filter:drop-shadow(0 0 5px rgba(255,40,70,.5)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}50%{filter:drop-shadow(0 0 14px rgba(255,60,90,.95)) drop-shadow(0 2px 2px rgba(0,0,0,.7))}}',
     '@keyframes bmBalance{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}',
     '@keyframes bmRune{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.9}70%{opacity:.7}100%{opacity:0;transform:translateY(-70px) rotate(90deg)}}',
