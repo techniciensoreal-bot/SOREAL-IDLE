@@ -55,6 +55,20 @@ function hauteurBandeau(){
 
 function retirer(b){if(b&&b.parentNode)b.parentNode.removeChild(b);}
 
+/* Bouton de la barre de défilement (CSS : --inv-bouton) : sa hauteur suit l'avancement du défilement dans l'inventaire, de la rainure du haut à celle du bas. */
+function majBouton(c,haut){
+  try{
+    if(!c||!c.style||typeof c.style.setProperty!=='function'||typeof c.getBoundingClientRect!=='function')return;
+    var r=c.getBoundingClientRect();
+    var hb=haut||191;
+    var barre=Math.max(140,(window.innerHeight||0)-hb-22);
+    var total=Math.max(1,r.height-barre-8);
+    var prog=Math.max(0,Math.min(1,(hb+8-r.top)/total));
+    var y=Math.round(32+Math.max(0,barre-86)*prog);
+    if(c.__bouton!==y){c.__bouton=y;c.style.setProperty('--inv-bouton',y+'px');}
+  }catch(e){}
+}
+
 function appliquer(){
   var c=colonnes(),v=volet(c),b=boite();
   if(!c||!v||!telephone()){
@@ -64,6 +78,7 @@ function appliquer(){
   }
   if(c.getAttribute('data-volet')!=='1')c.setAttribute('data-volet','1');
   var haut=hauteurBandeau();
+  majBouton(c,haut);
   /* l'équipement est-il sorti de l'écran par le haut ? (on a descendu la page) */
   var sorti=v.getBoundingClientRect().bottom<=haut+6;
   if(!sorti){
