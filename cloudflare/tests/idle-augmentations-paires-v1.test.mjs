@@ -21,4 +21,7 @@ assert.match(css, /@keyframes augReflet\{0%\{opacity:0;transform:translateX\(-12
 assert.ok(css.includes(".aug-piste-v2.upgrade{--pc:color-mix(in srgb,var(--ac) 58%,#fff)") && css.includes(".aug-badge-v2.puissant i"));
 assert.ok(!page.includes("Version puissante") && !page.includes("Version normale"), "plus de libellé « version normale / puissante »");
 assert.ok(readFileSync("cloudflare/public/modules/barres-actives-v1.js", "utf8").includes("ligne:'.aug-piste-v2',style:'etoile'"), "particules sur les nouvelles pistes");
+/* Norman (2026-10-11) : le reflet ne brille que sur la partie remplie (énergie affichée), jamais dans la zone noire après : il est DANS le liquide, qui rogne ce qui dépasse. */
+assert.ok(meta.includes('<i class="aug-reflet-v2"></i></div></div>') && !meta.includes('</div><i class="aug-reflet-v2">'), "reflet à l'intérieur du liquide");
+assert.ok(css.includes(".aug-liquide-v2{position:absolute;inset:0;overflow:hidden;"), "le liquide rogne son reflet");
 console.log("idle-augmentations-paires-v1: OK");
