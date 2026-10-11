@@ -32,6 +32,8 @@
         date:'2026-10-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, le menu de gauche a son propre défilement : la molette sur les menus ne fait défiler que les menus, et sur la zone de jeu que le jeu (sans barre de défilement ajoutée).',
+            'La barre de vie ne saute plus quand la barre de magie ou d’énergie apparaît ou disparaît : le bandeau se referme et se rouvre en douceur, et la vie ne passe plus jamais par-dessus les boutons du dessous.',
             'La lueur de la cheminée est plus douce et plus ciblée : de petites lueurs s’allument sur les bords de l’écran, à des endroits qui changent, au lieu d’une lumière qui s’allume et s’éteint.',
             'Les menus dont les chiffres bougent seuls (barres, compteurs) se mettent à jour en direct pendant que tu es dessus.',
             'Chaque barre où tu places de l’énergie a un bouton « 0 » : il retire toute l’énergie de cette barre seulement.',
@@ -68,6 +70,8 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Rituel de la sangsue : sans énergie, le personnage glisse hors de la case vers la gauche (la sangsue reste sur son porte-sangsue et dort) ; quand tu mets de l’énergie, il revient se placer, puis la succion reprend.',
+            'La sangsue du premier rituel n’est plus en l’air : une planche un peu penchée, en bas, porte le verre, et un porte-sangsue posé dessus la soutient.',
             'Quand il manque de l’Or, la punaise et la feuille s’immobilisent au contact au lieu de continuer à bouger.',
             'Quand un niveau est lent, la punaise et la feuille se rapprochent doucement de l’endroit où elles piquent pendant tout le niveau : le coup part exactement quand le chrono se termine.',
             'Sans énergie, le doigt et le bras sortent de leur case en glissant vers la gauche ; quand tu en places, ils reviennent se mettre en place, et l’animation (punaise, feuille, coupure) ne commence qu’une fois qu’ils y sont.',
