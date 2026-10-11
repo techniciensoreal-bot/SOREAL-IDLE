@@ -20,6 +20,7 @@
         nom:'Tout en direct',
         date:'2026-10-11',
         points:[
+          'Retirer (ou remplacer) une pièce qui donne du cap d’énergie ou de magie est refusé quand l’énergie placée dépasserait le nouveau cap : « Libère X d’énergie avant de retirer cette pièce ».',
           'L’ordinateur rétro : son image est recadrée, sans la partie vide du bas, et placer une ressource ne fait plus défiler l’écran ni l’image.',
           'Plus aucun cadre rouge qui clignote sur le bouton Aventure ; dans NGU, le cadre lumineux d’une barre qui porte de l’énergie reste fixe au lieu de clignoter.',
           'La barre qui tique de plus en plus vite se met à jour en direct (plus besoin de changer de menu pour la voir accélérer), et chaque menu dont les chiffres bougent seuls est vérifié : il suit le jeu en temps réel quand tu y es.',

@@ -2519,6 +2519,31 @@ function totalAllocated(state, resource, exceptId = "") {
   return total;
 }
 
+/*
+ * Norman (2026-10-11) : retirer (ou remplacer) une pièce qui donne du cap d'Energy / de Magic est refusé si l'énergie (la magie) déjà placée dépasserait le nouveau cap :
+ * « Libère X d'énergie avant de retirer cette pièce ». Un joueur qui était déjà au-dessus de son cap avant l'action n'est pas bloqué (rien à protéger de plus).
+ */
+const SUFFIXES_CAP_V1 = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"];
+function formatCapMessageV1(n) {
+  let v = Math.max(0, num(n, 0)), i = 0;
+  while (v >= 1000 && i < SUFFIXES_CAP_V1.length - 1) { v /= 1000; i += 1; }
+  return (i === 0 ? String(Math.ceil(v)) : v.toFixed(2)) + (i ? " " + SUFFIXES_CAP_V1[i] : "");
+}
+function verifierCapApresEquipementV1(state, adventureApres, context) {
+  const apres = Object.assign({}, state, { adventure: adventureApres });
+  for (const [resource, mot] of [["energy", "d'énergie"], ["magic", "de magie"]]) {
+    if (!state.resources?.[resource]) continue;
+    if (resource === "magic" && !state.systems.bloodMagic?.unlocked) continue;
+    const place = totalAllocated(state, resource) + externalResourceAllocation(context, resource);
+    if (place <= 0) continue;
+    const capAvant = idleNguEffectiveResourceStatV1(state, resource, "cap");
+    const capApres = idleNguEffectiveResourceStatV1(apres, resource, "cap");
+    if (capApres < capAvant && place > capApres && place <= capAvant) {
+      throw new Error("Libère " + formatCapMessageV1(place - capApres) + " " + mot + " avant de retirer cette pièce.");
+    }
+  }
+}
+
 function externalResourceAllocation(context, resource) {
   const generic=Math.max(0,num(context?.externalResourceAllocations?.[resource],0));
   const basicTraining=resource === "energy"
@@ -7402,6 +7427,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       }),
       t
     );
+    if ((advActionInv === "unequip" || advActionInv === "equip") && !applied.duplicate) verifierCapApresEquipementV1(state, applied.state, context);
     state.adventure = applied.state;
     /* THE TRAITOR vaincu : « sets your number of rebirths to 10,000, allowing you to complete the final achievement » (page THE TRAITOR (titan)). */
     if (state.adventure?.unlockFlags?.traitorDefeated) state.records.totalRebirths = Math.max(num(state.records.totalRebirths, 0), 10000);
