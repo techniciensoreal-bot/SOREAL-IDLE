@@ -553,10 +553,11 @@ function rythme(sc,id,n,avant){
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
   /* La vue du rituel disparaît un instant à chaque synchro avec le serveur, justement quand un niveau se termine (Norman, 2026-10-11 : « très peu de magie : l'animation ne se fait pas quand le chrono arrive à 0 ») : on garde la dernière durée connue. */
-  if(v&&Number(v.secondsPerCompletion)>0)secVue[id]=Number(v.secondsPerCompletion);
-  var sec=secVue[id]||0;
+  /* (la dernière durée connue ne sert qu'au déclenchement du coup : le mode boucle, lui, suit la vue actuelle et ne continue jamais quand on retire toute la Magie) */
+  var sec=v?Number(v.secondsPerCompletion):0;
+  if(sec>0)secVue[id]=sec;
   var mode='repos';
-  if(sec>0&&sec<=PERIODE_BOUCLE){
+  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse){
     mode='boucle';
     var t=Math.max(PERIODE_MIN,sec),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
