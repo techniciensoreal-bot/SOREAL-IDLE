@@ -534,7 +534,7 @@ var secVue={};
  * l'objet recule (jusqu'à 1,5 s), puis avance en ligne droite jusqu'à la fin du niveau. L'horloge est calée sur la barre du moteur ; propriété « top » (la punaise et la feuille se déplacent déjà par transform et translate).
  */
 var APPROCHE={punaise:{base:14,loin:-26},papier:{base:-36,loin:-70}};
-function approche(sc,src,sec,actif){
+function approche(sc,src,sec,actif,attente){
   var def=APPROCHE[src],el=sc.querySelector(src==='punaise'?'.bm-punaise':'.bm-papier');
   if(!def||!el||typeof el.animate!=='function')return;
   var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -554,9 +554,14 @@ function approche(sc,src,sec,actif){
     ],{duration:P*1000,iterations:Infinity,easing:'linear'});
     sc.__apCle=cle;
     if(pb!=null)sc.__ap.currentTime=pb*P*1000;
-  }else if(pb!=null&&sc.__ap.effect){
+  }else if(!attente&&pb!=null&&sc.__ap.effect){
     var t=sc.__ap.effect.getComputedTiming();
     if(t&&t.progress!=null){var d=Math.abs(Number(t.progress)-pb);if(Math.min(d,1-d)>0.03)sc.__ap.currentTime=pb*P*1000;}
+  }
+  /* Il manque de l'Or : la barre est pleine et plus rien ne bouge ; l'objet attend au contact (fin de l'approche), et repart quand l'Or revient. */
+  if(sc.__ap){
+    if(attente){if(sc.__ap.playState!=='paused'){sc.__ap.pause();sc.__ap.currentTime=P*999;}}
+    else if(sc.__ap.playState==='paused')sc.__ap.play();
   }
 }
 /* Le doigt et le bras sont-ils sortis de la case ? Mémorisé entre deux redessins : un rituel qui reçoit de l'énergie est redessiné « sorti » puis rentre en glissant (transition), au lieu d'apparaître d'un coup. */
@@ -738,6 +743,8 @@ function rythme(sc,id,n,avant){
     if(progresse&&pret&&!sc.classList.contains('bm-marque'))poserMarque(sc,id);
     return;
   }
+  var ligneOr=document.getElementById('sorealIdleBloodEtaLineV1_'+id);
+  var attenteOr=src!=='sucon'&&!!ligneOr&&/Barre pleine : il manque/.test(ligneOr.textContent||'');
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
   /* La vue du rituel disparaît un instant à chaque synchro avec le serveur, justement quand un niveau se termine (Norman, 2026-10-11 : « très peu de magie : l'animation ne se fait pas quand le chrono arrive à 0 ») : on garde la dernière durée connue. */
@@ -745,13 +752,13 @@ function rythme(sc,id,n,avant){
   var sec=v?Number(v.secondsPerCompletion):0;
   if(sec>0)secVue[id]=sec;
   var mode='repos';
-  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse&&pret){
+  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse&&pret&&!attenteOr){
     mode='boucle';
     var t=Math.max(PERIODE_MIN,sec),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
   }
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);
-  if(src==='punaise'||src==='papier')approche(sc,src,sec>0?sec:(progresse&&pret?(secVue[id]||0):0),progresse&&pret);
+  if(src==='punaise'||src==='papier')approche(sc,src,sec>0?sec:(progresse&&pret?(secVue[id]||0):0),progresse&&pret,attenteOr);
   if(src==='sucon'){
     if(mode==='boucle')aligner(sc);
     sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse);
@@ -771,7 +778,7 @@ function rythme(sc,id,n,avant){
     /* un niveau vient de se terminer : le sang arrivé au bout du tuyau coule UNE fois dans la chope (jet qui s'allonge puis s'effile), jamais en continu */
     sc.classList.remove('bm-jet');void sc.offsetWidth;sc.classList.add('bm-jet');
     clearTimeout(sc.__jet);sc.__jet=setTimeout(function(){sc.classList.remove('bm-jet');},2100);
-  }else if(mode!=='boucle'&&n>avant&&pret){
+  }else if(mode!=='boucle'&&n>avant&&pret&&!attenteOr){
     sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
     clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
     clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);

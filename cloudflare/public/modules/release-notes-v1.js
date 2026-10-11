@@ -68,6 +68,7 @@
             'La barre qui va de plus en plus vite se met à jour en direct : plus besoin de changer de menu pour la voir accélérer.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Quand il manque de l’Or, la punaise et la feuille s’immobilisent au contact au lieu de continuer à bouger.',
             'Quand un niveau est lent, la punaise et la feuille se rapprochent doucement de l’endroit où elles piquent pendant tout le niveau : le coup part exactement quand le chrono se termine.',
             'Sans énergie, le doigt et le bras sortent de leur case en glissant vers la gauche ; quand tu en places, ils reviennent se mettre en place, et l’animation (punaise, feuille, coupure) ne commence qu’une fois qu’ils y sont.',
             'Quand aucune Magie n’est placée dans un rituel qui a une sangsue, elle dort (petits zzz) et garde le sang déjà absorbé, figé dans son ventre.',

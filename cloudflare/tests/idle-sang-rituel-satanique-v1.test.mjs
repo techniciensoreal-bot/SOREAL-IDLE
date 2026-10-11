@@ -106,4 +106,6 @@ assert.ok(src.includes("installeA[id]=performance.now()+1250") && src.includes("
 assert.ok(src.includes("var memoireSang={}") && src.includes(".bm-scene.bm-fige .bm-paquets-corps{display:block}") && src.includes("M-2 -32 L26 -32"), "sang figé et paupière complète");
 // La punaise et la feuille s'approchent pendant tout le niveau (Norman, 2026-10-11).
 assert.ok(src.includes("var APPROCHE={punaise:{base:14,loin:-26},papier:{base:-36,loin:-70}}") && src.includes("function approche("), "approche progressive pendant le niveau");
+// Sans assez d'Or, la punaise et la feuille s'immobilisent au contact (Norman, 2026-10-11).
+assert.ok(src.includes("var attenteOr=src!=='sucon'") && src.includes("progresse&&pret&&!attenteOr") && src.includes("approche(sc,src,"), "pas de mouvement quand l'Or manque");
 console.log("idle-sang-rituel-satanique-v1: OK");
