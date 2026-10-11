@@ -127,21 +127,23 @@ var SYMBOLES3=
   /* ventouse en caoutchouc, de profil : le bord (collerette) est plaqué sur le cou, la peau est aspirée dans la cloche, l'embout se raccorde au tuyau */
   '<radialGradient id="bm-g-gomme" cx=".32" cy=".3" r=".95"><stop offset="0" stop-color="#f0566c"/><stop offset=".5" stop-color="#b8243c"/><stop offset="1" stop-color="#5a0d1c"/></radialGradient>'+
   '<linearGradient id="bm-g-collerette" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6a1020"/><stop offset=".55" stop-color="#c83048"/><stop offset="1" stop-color="#8a1a2e"/></linearGradient>'+
+  '<linearGradient id="bm-g-sangsue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b5a26"/><stop offset=".5" stop-color="#2e2c14"/><stop offset="1" stop-color="#101208"/></linearGradient>'+
+  '<radialGradient id="bm-g-bouche-sangsue" cx=".4" cy=".4" r=".8"><stop offset="0" stop-color="#e8738a"/><stop offset=".6" stop-color="#b02f4c"/><stop offset="1" stop-color="#5e0f24"/></radialGradient>'+
   '<symbol id="bm-sym-bouche" viewBox="0 0 140 152" overflow="visible">'+
-    /* ventouse de déboucheur vue de profil : large bride plate collée à la peau, cloche en dôme, bague, embout rainuré */
+    /* sangsue : ventouse buccale (rose, mâchoire en Y) plaquée sur la peau, tête annelée à bande orange et petits yeux, bague où commence le corps */
     '<path d="M-16 24 H6 M-12 48 H6 M-16 76 H4 M-12 104 H6 M-16 128 H6" stroke="#8f4a36" stroke-opacity=".6" stroke-width="3.4" stroke-linecap="round"/>'+
     '<ellipse cx="8" cy="76" rx="12" ry="50" fill="#8a2a60" fill-opacity=".5"/>'+
-    '<path d="M30 22 C88 10 118 44 116 76 C118 108 88 142 30 130 Z" fill="url(#bm-g-gomme)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
-    '<path d="M44 40 C70 36 92 50 100 66 M44 112 C70 116 92 102 100 86" fill="none" stroke="#3a0612" stroke-opacity=".38" stroke-width="3.4" stroke-linecap="round"/>'+
-    '<path d="M44 30 C76 20 104 38 110 60" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="6.4" stroke-linecap="round"/>'+
-    '<ellipse cx="80" cy="38" rx="11" ry="5.6" fill="#fff" fill-opacity=".36" transform="rotate(24 80 38)"/>'+
-    '<rect x="14" y="2" width="24" height="148" rx="11" fill="url(#bm-g-collerette)" stroke="#000" stroke-width="5.4"/>'+
-    '<path d="M22 14 V138" stroke="#fff" stroke-opacity=".34" stroke-width="3.4" stroke-linecap="round"/>'+
-    '<path d="M30 14 V138" stroke="#3a0612" stroke-opacity=".4" stroke-width="2.6" stroke-linecap="round"/>'+
-    '<rect x="104" y="40" width="14" height="72" rx="5" fill="#7a1426" stroke="#000" stroke-width="5"/>'+
-    '<rect x="114" y="45" width="30" height="62" rx="11" fill="#9a2038" stroke="#000" stroke-width="5.4"/>'+
-    '<path d="M126 49 V103 M137 49 V103" stroke="#3a0612" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>'+
-    '<path d="M121 54 V98" stroke="#fff" stroke-opacity=".32" stroke-width="3" stroke-linecap="round"/>'+
+    '<path d="M30 20 C88 8 112 42 112 49 L112 103 C112 110 88 144 30 132 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="6" stroke-linejoin="round"/>'+
+    '<path d="M54 22 Q62 76 54 130 M74 18 Q82 76 74 134 M94 28 Q100 76 94 126" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<path d="M36 36 C70 24 98 40 108 54" fill="none" stroke="#e8801e" stroke-width="7" stroke-linecap="round"/>'+
+    '<path d="M44 30 C72 22 96 33 106 49" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="3.6" stroke-linecap="round"/>'+
+    '<circle cx="82" cy="40" r="5" fill="#000"/><circle cx="80.4" cy="38.4" r="1.6" fill="#fff"/><circle cx="97" cy="48" r="4" fill="#000"/><circle cx="95.8" cy="46.8" r="1.2" fill="#fff"/>'+
+    '<rect x="12" y="6" width="28" height="140" rx="13" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="5.4"/>'+
+    '<path d="M22 18 V134" stroke="#fff" stroke-opacity=".34" stroke-width="3.4" stroke-linecap="round"/>'+
+    '<path d="M24 76 H36 M24 76 L33 62 M24 76 L33 90" fill="none" stroke="#3a0612" stroke-width="3" stroke-linecap="round"/>'+
+    '<rect x="104" y="45" width="40" height="62" rx="11" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="5.4"/>'+
+    '<path d="M120 49 V103 M132 49 V103" stroke="#070803" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>'+
+    '<path d="M110 53 H140" stroke="#e8801e" stroke-width="4" stroke-linecap="round"/>'+
     '</symbol>';
 var SYMBOLES2=
   '<clipPath id="bm-clip-verre"><path d="'+INT_VERRE+'"/></clipPath>'+
@@ -253,7 +255,7 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 H10 C24 0 34 7 34 20 V33 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V29" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2.2" stroke-linecap="round"/><rect x="-1.5" y="-1.5" width="4.5" height="23" rx="1.8" fill="#8a1a2e" stroke="#000" stroke-width="1.3"/><path d="M0.6 2 V18" stroke="#fff" stroke-opacity=".4" stroke-width="1" stroke-linecap="round"/><rect x="12" y="31" width="24" height="6" rx="2.4" fill="#8a1a2e" stroke="#000" stroke-width="1.3"/><path d="M16 33.2 H32" stroke="#fff" stroke-opacity=".4" stroke-width="1.2" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+      '<svg class="bm-coude" viewBox="0 0 34 40" aria-hidden="true" focusable="false"><path d="M0 0 H10 C24 0 34 7 34 20 V32 H14 V27 C14 23 10 20 6 20 H0 Z" fill="url(#bm-g-sangsue)" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path d="M0 4 H10 C21 4 30 9 30 20 V28" fill="none" stroke="#e8801e" stroke-width="2.4" stroke-linecap="round"/><path d="M6 1 Q8 10 6 19 M16 1 Q20 8 19 14 M27 12 H33 M26 22 H33" fill="none" stroke="#070803" stroke-opacity=".6" stroke-width="1.4" stroke-linecap="round"/><ellipse cx="24" cy="34.5" rx="11" ry="4.6" fill="url(#bm-g-bouche-sangsue)" stroke="#000" stroke-width="1.3"/><ellipse cx="24" cy="35" rx="3.6" ry="1.9" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -493,7 +495,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98,punaise:92,sucon:145};
+var DEPART_GOUTTE={papier:98,punaise:92,sucon:156};
 /* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
 var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
@@ -758,15 +760,17 @@ function css(){
     P+'.bm-scene:has(.bm-perso) .bm-cou{display:none}',
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:150px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
     
-    P+'.bm-bouche{position:absolute;left:22px;top:82px;width:52px;height:57px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:66px;right:calc(var(--cx) + 18px);top:calc(110px - var(--th,44px)/2);z-index:4}',
-    P+'.bm-scene[data-source="sucon"]{--th:31px}',
-    P+'.bm-scene[data-source="sucon"] .bm-tuyau{-webkit-mask-size:auto 31px!important;mask-size:auto 31px!important}',
-    P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{background-size:auto 31px!important}',
-    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 10px);top:100px;width:34px;height:40px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-bouche{position:absolute;left:16px;top:71px;width:72px;height:78px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:76px;right:calc(var(--cx) + 25px);top:calc(110px - var(--th,44px)/2);z-index:4}',
+    /* un seul appareil (Norman, 2026-10-11) : ventouse, tuyau, coude et embout sont du même caoutchouc ; le tuyau est lisse, de l'épaisseur du coude, et le sang le remplit de gauche à droite */
+    P+'.bm-scene[data-source="sucon"]{--th:28px}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{border-radius:10px}',
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau{-webkit-mask:none!important;mask:none!important;border-radius:10px;border:1.3px solid #000;box-sizing:border-box;background:linear-gradient(180deg,#6b5a26 0,#2e2c14 50%,#101208 100%)}',
+    P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{background:linear-gradient(180deg,transparent 14%,rgba(232,128,30,.85) 16% 30%,transparent 32%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 36%,rgba(0,0,0,.28) 100%)!important;border-radius:10px}',
+    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 14px);top:96px;width:48px;height:56px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
-    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 11.5px)}',
-    P+'.bm-trace-sucon{left:16px;top:88px;width:28px;height:48px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
+    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 24px)}',
+    P+'.bm-trace-sucon{left:8px;top:80px;width:40px;height:62px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
     P+'.bm-mini-boite{width:36px;height:19px}',
