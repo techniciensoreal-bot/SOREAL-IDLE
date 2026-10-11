@@ -280,7 +280,8 @@ function source(id){
   }
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
-    return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
+    return use('bm-sym-cou',100,312,'bm-cou')+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
+      '<svg class="bm-coude" viewBox="0 0 60 56" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-coude" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d03a56"/><stop offset="1" stop-color="#6a1224"/></linearGradient></defs><path d="M0 0 C32 0 38 10 38 28 V50 H22 V34 C22 40 14 44 0 44 Z" fill="url(#bm-g-coude)" stroke="#000" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 6 C28 6 32 14 32 30 V46" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/><path d="M4 38 C14 38 18 36 20 32" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="2.4" stroke-linecap="round"/><rect x="19" y="46" width="22" height="8" rx="3" fill="#8a1a2e" stroke="#000" stroke-width="1.6"/><path d="M23 48.5 H37" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche');
   }
   if(SOURCES[id]==='papier'){
     return '<div class="bm-bras" aria-hidden="true">'+brasSvg()+'<i class="bm-bracelet"></i></div>'+use('bm-sym-manche',84,96,'bm-manche')+
@@ -519,7 +520,7 @@ function echanger(sc,type){
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
  * Valeur = ordonnée de la surface du sang dans la scène moins l'ordonnée de départ de la goutte (centre) ; seulement pour les sources listées.
  */
-var DEPART_GOUTTE={papier:98,punaise:92,sucon:131};
+var DEPART_GOUTTE={papier:98,punaise:92,sucon:145};
 /* Boîte de Petri vue en perspective (premier rituel) : la goutte ne descend pas plus bas que l'ouverture du récipient (centre du bord + marge). Plus bas, elle serait dessinée devant la paroi de verre et semblerait tomber À CÔTÉ du récipient. */
 var PLAFOND_GOUTTE={punaise:{rim:24,marge:7}};
 function chuteSang(source,type,vh,vb,sh,fraction){
@@ -779,8 +780,10 @@ function css(){
     P+'.bm-perso-bas{position:absolute;left:0;top:240px;width:170px;height:74px;z-index:3;display:none;pointer-events:none;background:linear-gradient(180deg,#4a0f19,#3a0b13)}',
     P+'.bm-scene:has(.bm-perso) .bm-perso-bas{display:block}',
     P+'.bm-bouche{position:absolute;left:55px;top:72px;width:70px;height:76px;z-index:5;overflow:visible;transform-origin:14% 50%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
-    P+'.bm-scene[data-source="sucon"] .bm-ver{left:113px;top:calc(110px - var(--th,44px)/2)}',
-    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 - 6px)}',
+    P+'.bm-scene[data-source="sucon"] .bm-ver{left:113px;right:calc(var(--cx) + 30px);top:calc(110px - var(--th,44px)/2)}',
+    P+'.bm-coude{position:absolute;display:none;right:calc(var(--cx) - 30px);top:calc(110px - var(--th,44px)/2);width:60px;height:56px;z-index:4;overflow:visible;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
+    P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 10px)}',
     P+'.bm-trace-sucon{left:47px;top:78px;width:36px;height:64px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce 1.1s ease-in-out infinite}',
     P+'.bm-nom{font-family:"Permanent Marker","Segoe Print","Bradley Hand","Comic Sans MS",cursive;font-weight:700;fill:#1a1a1a}',
