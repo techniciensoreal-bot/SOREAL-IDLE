@@ -380,7 +380,7 @@ function source(id){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     /* planche de bois un peu penchée, dans le bas : le verre et le porte-sangsue (un seul pied à socle, posé sur la planche, avec un rail sur lequel elle repose) sont posés dessus ; la sangsue ne flotte plus dans le vide */
     return use('bm-sym-cou',100,312,'bm-cou')+''+planche('<ellipse cx="238" cy="43" rx="100" ry="9" fill="#000" fill-opacity=".62" filter="url(#bm-f-flou)"/><ellipse cx="140" cy="26" rx="39" ry="6.5" fill="#000" fill-opacity=".6" filter="url(#bm-f-flou)"/>')+'<img class="bm-perso"</svg>'+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<img class="bm-socle" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=soccle.webp&v=2"><div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" aria-hidden="true" focusable="false"><path class="tf" fill="#2c0a12" fill-opacity=".92"/></svg><img class="bm-sangsue-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=sangsue.webp&v=2"><canvas class="bm-sangsue-gl" aria-hidden="true"></canvas><i class="bm-trace bm-trace-sucon"></i>'+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
+      '<img class="bm-socle" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=soccle.webp&v=2"><div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" aria-hidden="true" focusable="false"><path class="tf" fill="#2c0a12" fill-opacity=".92"/><path class="tfl" fill="none" stroke-linecap="round"/></svg><img class="bm-sangsue-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=sangsue.webp&v=2"><canvas class="bm-sangsue-gl" aria-hidden="true"></canvas><i class="bm-trace bm-trace-sucon"></i>'+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -753,14 +753,37 @@ function garantirPas(m){
  * masque, positions) garde la même échelle. Axe du corps : tête (x 64), col, corps légèrement ondulé jusqu'à x 319, quart de cercle (centre 319,222 ; rayon 38) et descente verticale (x 357) jusqu'à l'anus (357,246).
  */
 var SG_AXE=(function(){
-  var a=[[64,164],[105,166],[144,167],[182,176],[223,179],[271,180],[319,183]],i;
+  /* ondulations du corps relevées sur l'image (Norman, 2026-10-12 : « le tuyau dans son ventre est trop droit, un peu organique comme son ventre ») */
+  var a=[[64,164],[105,166],[144,167],[182,176],[191,177.6],[201,178.6],[214,179.6],[223,179.2],[239,179.7],[248,181.5],[258,181.7],[268,180],[278,177.7],[287,177],[297,178],[306,181],[316,182.6]],i;
+  /* Norman (2026-10-12, 2e passe : « le tuyau est toujours droit ») : en plus des ondulations relevées, le tuyau serpente nettement dans le ventre (±5 unités, nul aux deux bouts pour se raccorder à la tête et au coude) ; le corps fait 56 unités de large, la fenêtre transparente 38 : il reste dedans. */
+  for(i=3;i<a.length;i++){var e=Math.sin(Math.PI*(a[i][0]-182)/(316-182));a[i][1]+=5*e*Math.sin((a[i][0]-182)/134*Math.PI*2.6+0.4);}
   for(i=1;i<=12;i++){var t=i/12*Math.PI/2;a.push([319+38.3*Math.sin(t),221.7-38.3*Math.cos(t)]);}
   a.push([357.3,245.6]);
   return a;
 })();
-var SG_DEMI=19,SG_X_VENTOUSE=27,SG_X_ANUS=357.3,SG_Y_AXE=176.4;
+var SG_DEMI=19,SG_X_VENTOUSE=27,SG_X_ANUS=357.3,SG_Y_AXE=176.4,SG_Y_ANNEAU=231;   /* SG_Y_ANNEAU : le canal et la fenêtre transparente finissent ici, au-dessus de la collerette rose de l'anus (Norman, 2026-10-12 : « il ne faut pas qu'on voie le tuyau sur l'anus ») */
 /* Masque du ventre transparent : l'image est opaque partout (alpha 1) sauf le long de l'axe, entre la tête et l'anus, où elle ne l'est qu'à moitié ; les parois dessinées restent pleines, le sang se voit à travers (dessous). */
-var SG_MASQUE='data:image/svg+xml,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><linearGradient id='g' gradientUnits='userSpaceOnUse' x1='168' y1='0' x2='206' y2='0'><stop offset='0' stop-color='#fff'/><stop offset='1' stop-color='#585858'/></linearGradient><filter id='f' x='-5%' y='-5%' width='110%' height='110%'><feGaussianBlur stdDeviation='1.6'/></filter><mask id='m'><rect width='400' height='400' fill='#fff'/><path d='M166 176 L182 176 L223 179 L271 180 L319 183 A38.3 38.3 0 0 1 357.3 221.7 L357.3 243' fill='none' stroke='url(#g)' stroke-width='"+(SG_DEMI*2)+"' filter='url(#f)'/></mask></defs><rect width='400' height='400' mask='url(#m)'/></svg>");
+/*
+ * Bande organique autour d'un axe (pts : [x, y] ; i0 = indice où la longueur commence ; k = pixels par unité ; marge en unités) : la largeur varie le long du corps (renflements et étranglements) et les deux bords sont des courbes lissées.
+ * Le CANAL de sang (sangTrace) et la FENÊTRE transparente du ventre (masque) utilisent la même forme : la fenêtre dépasse le canal de quelques unités. Plus de bord droit ni en haut ni en bas.
+ */
+function sgLargeur(u){return SG_DEMI*(0.68+0.17*Math.sin(u*0.11+0.6)+0.12*Math.sin(u*0.27+2.1));}
+function sgBande(pts,i0,k,marge){
+  var n=pts.length,i,u=0,A=[],B=[],R=function(v){return Math.round(v*10)/10;};
+  for(i=0;i<n;i++){
+    var a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)],tx=b[0]-a[0],ty=b[1]-a[1],l=Math.sqrt(tx*tx+ty*ty)||1,nx=-ty/l,ny=tx/l;
+    if(i>i0)u+=Math.sqrt(Math.pow(pts[i][0]-pts[i-1][0],2)+Math.pow(pts[i][1]-pts[i-1][1],2))/k;
+    var w=(sgLargeur(i<i0?0:u)+(marge||0))*k;
+    A.push([pts[i][0]-nx*w,pts[i][1]-ny*w]);B.push([pts[i][0]+nx*w,pts[i][1]+ny*w]);
+  }
+  function courbe(P,depart){
+    var o=(depart?'M':' L')+R(P[0][0])+' '+R(P[0][1]),q;
+    for(q=1;q<P.length-1;q++)o+=' Q'+R(P[q][0])+' '+R(P[q][1])+' '+R((P[q][0]+P[q+1][0])/2)+' '+R((P[q][1]+P[q+1][1])/2);
+    return o+' L'+R(P[P.length-1][0])+' '+R(P[P.length-1][1]);
+  }
+  return courbe(A,true)+courbe(B.slice().reverse(),false)+' Z';
+}
+var SG_MASQUE='data:image/svg+xml,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><linearGradient id='g' gradientUnits='userSpaceOnUse' x1='168' y1='0' x2='206' y2='0'><stop offset='0' stop-color='#fff'/><stop offset='1' stop-color='#585858'/></linearGradient><filter id='f' x='-5%' y='-5%' width='110%' height='110%'><feGaussianBlur stdDeviation='1.6'/></filter><mask id='m'><rect width='400' height='400' fill='#fff'/><path d='"+sgBande(SG_AXE.slice(3).slice(0,-1).concat([[357.3,SG_Y_ANNEAU]]),0,1,3.5)+"' fill='url(#g)' filter='url(#f)'/></mask></defs><rect width='400' height='400' mask='url(#m)'/></svg>");
 /* axe de l'image reporté dans la scène : m.s = échelle, m.ox / m.oy = coin haut-gauche de l'image */
 function sangPoints(m){
   var out=[],i;
@@ -778,12 +801,15 @@ function sangChemin(sc,cont,K){
     L+=Math.sqrt(Math.pow(pts[i][0]-pts[i-1][0],2)+Math.pow(pts[i][1]-pts[i-1][1],2));
   }
   /* le bord GAUCHE de la boule est posé sur le chemin : la dernière boule déborde d'une longueur de boule après le point d'arrivée. On limite donc la course (facteur --bm-fk) pour que son AVANT s'arrête au centre de l'anus : Lc = (L + 3) * K / (K + 1), boule = Lc / K - 3. */
-  /* Norman (2026-10-12) : la boule ne disparaît pas devant nos yeux, elle continue d'avancer et s'efface AU NIVEAU DE L'ANUS : le chemin se prolonge d'une boule et demie après l'anus, et tout ce qui dépasse la ligne de l'anus est coupé (clip-path du conteneur). */
-  var yAnus=pts[pts.length-1][1]-p0[1],Lc0=(L+3)*K/(K+1),cell0=Math.max(4,Math.min(Lc0/K-3,SG_DEMI*2*m.s*0.9)),ext=cell0*1.5+4;
-  d+=' L'+R(pts[pts.length-1][0]-p0[0])+' '+R(yAnus+ext);var La=L;L+=ext;
-  var Lc=(L+3)*K/(K+1),cell=Math.max(4,Math.min(Lc/K-3,SG_DEMI*2*m.s*0.9)),fk=Lc/L;
-  /* case (numérotée depuis la tête) où l'avant de la boule franchit la ligne de l'anus : c'est là que le sang doit se mettre à couler (voir avance de phase dans sangsue()) */
-  cont.__cstar=Math.ceil((La-cell)/(Lc/K));
+  /*
+   * Norman (2026-10-12) : « le compte à rebours avant le prochain niveau : quand il se termine, la dernière seconde, c'est là que le sang doit couler. Début du nouveau niveau, nouvelle boule de sang dans la bouche. »
+   * La boule du niveau part de la bouche au début du niveau et arrive, l'avant sur la ligne de l'anus, à la FIN du niveau (barre pleine) ; à cet instant elle SORT : un exemplaire de sortie glisse hors de l'anus (sortieCaillot,
+   * clip à la ligne de l'anus : elle disparaît en continuant d'avancer) pendant que le jet de sang tombe, et la boule de la bouche repart pour le niveau suivant. Le chemin se prolonge donc d'une boule et demie après l'anus.
+   */
+  var yAnus=pts[pts.length-1][1]-p0[1],Lc=(L+3)*K/(K+1),cell=Math.max(4,Math.min(Lc/K-3,SG_DEMI*2*m.s*0.9)),ext=cell*1.5+4;
+  d+=' L'+R(pts[pts.length-1][0]-p0[0])+' '+R(yAnus+ext);
+  var Lp=L+ext,fk=Lc/Lp;
+  cont.__sortie={d0:Lc,d1:Lp};
   var cle=d+'|'+K;
   /* le style du conteneur peut être effacé par un redessin de la page : on ne se fie pas au seul mémo, on vérifie le style réel */
   if(cont.__chemin===cle&&cont.style.getPropertyValue('--bm-chemin')&&cont.style.left)return;
@@ -792,6 +818,11 @@ function sangChemin(sc,cont,K){
   cont.style.setProperty('--bm-chemin','path("'+d+'")');
   cont.style.setProperty('--bm-cell',R(cell)+'px');
   cont.style.clipPath='polygon(-3000px -3000px,3000px -3000px,3000px '+R(yAnus+1)+'px,-3000px '+R(yAnus+1)+'px)';
+  /* conteneur jumeau des boules de sortie : même position, même chemin, même coupure */
+  var so=cont.nextElementSibling;
+  if(!so||!so.classList.contains('bm-paquets-sortie')){so=document.createElement('div');so.className='bm-paquets-sortie';so.setAttribute('aria-hidden','true');cont.parentNode.insertBefore(so,cont.nextSibling);}
+  so.style.left=cont.style.left;so.style.top=cont.style.top;so.style.clipPath=cont.style.clipPath;
+  so.style.setProperty('--bm-chemin',cont.style.getPropertyValue('--bm-chemin'));so.style.setProperty('--bm-cell',cont.style.getPropertyValue('--bm-cell'));
   cont.style.setProperty('--bm-fk',fk.toFixed(4));
 }
 /*
@@ -816,16 +847,17 @@ function sangTrace(sc,m,g){
   sgInit(sc);sgDessiner(sc,g==null?(sc.__g==null?1:sc.__g):g);
   if(sc.__traceCle===cle&&svgF.querySelector('.tf').getAttribute('d'))return;
   sc.__traceCle=cle;
-  var pts=sangPoints(m),n=pts.length,i,h=SG_DEMI*m.s,R=function(v){return Math.round(v*10)/10;},A=[],B=[];
-  for(i=0;i<n;i++){
-    var a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)],tx=b[0]-a[0],ty=b[1]-a[1],l=Math.sqrt(tx*tx+ty*ty)||1,nx=-ty/l,ny=tx/l;
-    A.push([pts[i][0]-nx*h,pts[i][1]-ny*h]);B.push([pts[i][0]+nx*h,pts[i][1]+ny*h]);
-  }
-  var d='M'+R(A[0][0])+' '+R(A[0][1]);
-  for(i=1;i<n;i++)d+=' L'+R(A[i][0])+' '+R(A[i][1]);
-  for(i=n-1;i>=0;i--)d+=' L'+R(B[i][0])+' '+R(B[i][1]);
+  var pts=sangPoints(m),n=pts.length,i,h=SG_DEMI*m.s,R=function(v){return Math.round(v*10)/10;};
+  /* axe du canal : celui du chemin, mais arrêté au-dessus de la collerette de l'anus */
+  var ptsB=SG_AXE.slice(0,-1).concat([[SG_X_ANUS,SG_Y_ANNEAU]]).map(function(q){return [m.ox+q[0]*m.s,m.oy+q[1]*m.s];});
+  var d=sgBande(ptsB,3,m.s,0).replace(/ Z$/,'');
   svgF.setAttribute('viewBox','0 0 '+m.W+' '+m.H);
   svgF.querySelector('.tf').setAttribute('d',d+' Z');
+  /* axe du ventre : le filet de sang continu y coule (voir .tfl, mode au plafond) */
+  var axe='M'+R(ptsB[3][0])+' '+R(ptsB[3][1]);
+  for(i=4;i<ptsB.length;i++)axe+=' L'+R(ptsB[i][0])+' '+R(ptsB[i][1]);
+  var tfl=svgF.querySelector('.tfl');
+  if(tfl){tfl.setAttribute('d',axe);tfl.setAttribute('stroke-width',R(h*1.5));}
   /* position et taille de l'image, lues par le CSS (image, œil, Zzz, trace de la ventouse) */
   sc.style.setProperty('--sg-s',m.s.toFixed(4));
   sc.style.setProperty('--sg-ox',R(m.ox)+'px');
@@ -933,7 +965,7 @@ function sgSuccion(){
   for(i=0;i<l.length;i++){
     var sc=l[i];
     if(!sc.__gl)continue;
-    var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
+    var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-attente-or')&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
     if(!actif){if(sc.__suc){sc.__suc=null;sgDessiner(sc,sc.__g==null?1:sc.__g);}continue;}
     vivant=true;
     /* Norman (2026-10-12) : « la sangsue n'est pas animée » en jeu réel : avec peu de Magie un niveau dure des minutes, donc un coup (P / 6) aussi, et le ventre ne bougeait qu'une fois par minute. Le ventre pulse donc au rythme des coups quand ils sont rapides, et AU PLUS toutes les 2,2 s sinon. */
@@ -958,6 +990,26 @@ function sangBoucle(){
     sangTrace(sc,sc.__m,sc.__g);
   }
   sangBoucleId=encore&&typeof requestAnimationFrame==='function'?requestAnimationFrame(sangBoucle):0;
+}
+/* Un niveau vient de se terminer : un exemplaire de la boule glisse hors de l'anus (clip à la ligne de l'anus du conteneur jumeau) pendant que le jet tombe. */
+function sortieCaillot(sc){
+  var cont=sc.querySelector('.bm-paquets-corps'),so=cont&&cont.nextElementSibling;
+  if(!so||!so.classList.contains('bm-paquets-sortie')||!cont.__sortie)return;
+  if(sc.__vis===false||document.hidden||sc.classList.contains('bm-fige')||sc.classList.contains('bm-dort')||sc.classList.contains('bm-vide'))return;
+  var maintenant=performance.now();
+  if(sc.__sortieMs&&maintenant-sc.__sortieMs<400)return;
+  sc.__sortieMs=maintenant;
+  /* le jet de sang tombe à cet instant précis (Norman, 2026-10-12 : « le sang ne coule pas à chaque fin de niveau ») */
+  sc.classList.remove('bm-pisse');void sc.offsetWidth;sc.classList.add('bm-pisse');
+  clearTimeout(sc.__pisseT);sc.__pisseT=setTimeout(function(){sc.classList.remove('bm-pisse');},2300);
+  var q=document.createElement('i');
+  q.className='bm-paquet on bm-sortie';
+  so.appendChild(q);
+  var d=cont.__sortie;
+  if(typeof q.animate==='function'){
+    var a=q.animate([{offsetDistance:d.d0+'px'},{offsetDistance:d.d1+'px'}],{duration:800,easing:'cubic-bezier(.45,0,.85,.55)',fill:'forwards'});
+    a.onfinish=function(){if(q.parentNode)q.parentNode.removeChild(q);};
+  }else if(q.parentNode)q.parentNode.removeChild(q);
 }
 function sangsue(sc,sec,actif){
   var cont=sc.querySelector('.bm-paquets-corps');
@@ -985,12 +1037,11 @@ function sangsue(sc,sec,actif){
     }
     if(mm&&!sc.__fige){
       /* le ventre a été redessiné (ou masqué) : on le rebâtit figé, à partir du dernier état connu */
-      garantirPas(mm.m);
-      cont.style.setProperty('--bm-k',String(mm.m*Math.ceil(PAQ_CASES/mm.m)));
-      sangChemin(sc,cont,mm.m*Math.ceil(PAQ_CASES/mm.m));
+      cont.style.setProperty('--bm-k',String(PAQ_CASES));
+      sangChemin(sc,cont,PAQ_CASES);
       for(i=0;i<paq.length;i++){
         /* position mémorisée = décalage négatif, et « paused » dans le style : le sang apparaît tout de suite à sa place, figé (le style le fige, pas le script) */
-        paq[i].style.animation=i<Math.ceil(PAQ_CASES/mm.m)?'bmPaq'+mm.m+'x'+i+' '+mm.P.toFixed(3)+'s linear '+(-((mm.t[i]||0)/1000)).toFixed(3)+'s infinite paused':'none';
+        paq[i].style.animation=(i<1&&mm.m>1)?'bmBoule '+mm.P.toFixed(3)+'s linear '+(-((mm.t[i]||0)/1000)).toFixed(3)+'s infinite paused':'none';
         if(mm.on[i]&&!paq[i].classList.contains('on'))paq[i].classList.add('on');
       }
       sc.classList.add('bm-fige');
@@ -1009,26 +1060,36 @@ function sangsue(sc,sec,actif){
   if(sc.classList.contains('bm-dort'))sc.classList.remove('bm-dort');
   var P=Math.max(PERIODE_MIN,sec);
   var m=P<3?Math.max(1,Math.round(P/0.5)):PAQ_CASES;
-  var K=m*Math.ceil(PAQ_CASES/m),Jn=Math.ceil(PAQ_CASES/m),S=P/m;
+  /* une seule boule par niveau (mode continu : aucune, un filet complet) ; K = taille relative de la boule (un sixième du ventre) */
+  var K=PAQ_CASES,Jn=1,S=P/m;
   sc.__S=S;
   /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
   var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
-  var attente=(pbBrut==null&&!!barre&&/scaleX\(1\)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
+  var attente=(m>1&&pbBrut==null&&!!barre&&/scaleX\(1\)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation|il manque .* Or/i.test(ligneEta.textContent||''));
   var pb=pbBrut==null?0:pbBrut;
   /* en attente d'Or (barre pleine, le niveau ne se termine pas) : plus aucun sang ne sort de l'anus (Norman, 2026-10-12) */
   if(sc.classList.contains('bm-attente-or')!==attente)sc.classList.toggle('bm-attente-or',attente);
+  /*
+   * Attente d'Or (Norman, 2026-10-12) : « quand il attend l'or, il ne doit plus bouger, juste pleurer ; chaque rituel lui fait pisser le sang ; je veux qu'il soit vide ; et seulement au nouveau niveau (quand il a l'Or) l'animation
+   * reprend et un nouveau caillot avance dans son ventre ». Fin de niveau sans Or : le caillot est déjà sorti (sortieCaillot) et le jet tombe une fois (bm-pisse) ; puis le ventre est vide et plus rien ne bouge (ni succion, ni
+   * onde, ni gonflement : voir sgSuccion). Reprise (l'Or est là, un nouveau niveau commence) : la boule repart de la bouche.
+   */
+  var entreeAtt=attente&&!sc.__att,sortieAtt=!attente&&!!sc.__att;
+  if(entreeAtt){
+    sc.__att=1;
+  }
+  if(sortieAtt)sc.__att=0;
+    sc.__attPrec=attente;
   sangChemin(sc,cont,K);
-  /* Norman (2026-10-12) : « le sang doit couler à l'instant où la boule sort de l'anus ». Le jet part quand la barre repart de zéro ; les boules ont donc UNE AVANCE DE PHASE : à ce moment précis, l'avant de la dernière boule franchit la ligne de l'anus et elle achève de sortir (clip) pendant que le jet tombe. */
-  var avance=0;
-  if(m>1&&cont.__cstar){var ic=Math.max(1,Math.min(m,cont.__cstar-(Jn-1)*m));avance=(ic-1+.04)/m;}
-  sc.__avance=avance;
+  var avance=0;   /* la boule suit exactement la barre : mouth au début du niveau, anus à la fin */
+  sc.__avance=0;
   /* l'arrière-train GROSSIT à mesure que le sang arrive (jusqu'à +17 % barre pleine) et RÉTRÉCIT quand le sang sort (la barre repart de zéro) */
-  sc.__gT=attente?1.17:1+0.17*Math.pow(Math.max(0,Math.min(1,pb)),1.3);
+  sc.__gT=attente?1:1+0.17*Math.pow(Math.max(0,Math.min(1,pb)),1.3);   /* attente d'Or : ventre vide, au repos */
   if(sc.__g==null)sc.__g=sc.__gT;
   if(!sangBoucleId&&typeof requestAnimationFrame==='function')sangBoucleId=requestAnimationFrame(sangBoucle);
   if(!sgSucId&&typeof requestAnimationFrame==='function')sgSucId=requestAnimationFrame(sgSuccion);
-  var pleure=!!ligneEta&&/Barre pleine : il manque/.test(ligneEta.textContent||'');
+  var pleure=!!ligneEta&&/il manque .* Or/i.test(ligneEta.textContent||'');
   if(sc.classList.contains('bm-pleure')!==pleure)sc.classList.toggle('bm-pleure',pleure);
   var maintenant=performance.now()/1000;
   var cle=m+'|'+P.toFixed(2);
@@ -1051,18 +1112,19 @@ function sangsue(sc,sec,actif){
   }
   if(sc.__cle!==cle){
     sc.__cle=cle;sc.__t0=maintenant-pb*P-((memS&&memS.cle===cle)?memS.niv*P:0);   /* nouvelle cadence : le ventre repart vide ; même cadence retrouvée après un redessin : le sang mémorisé revient */
-    garantirPas(m);
     cont.style.setProperty('--bm-k',String(K));
     sc.style.setProperty('--bm-pas',S.toFixed(3)+'s');
     for(i=0;i<paq.length;i++){
       paq[i].classList.remove('on');
-      paq[i].style.animation=i<Jn?'bmPaq'+m+'x'+i+' '+P.toFixed(3)+'s linear infinite':'none';
+      paq[i].style.animation=(i<Jn&&m>1)?'bmBoule '+P.toFixed(3)+'s linear infinite':'none';
     }
+    /* fin de niveau = la boule de tête (la plus avancée) sort par l'anus : un événement par tour de boucle (mode continu : aucun pas, pas de sortie) */
+    for(i=0;i<paq.length;i++)paq[i].onanimationiteration=(m>1&&i===Jn-1)?function(){sortieCaillot(sc);}:null;
     void cont.offsetWidth;
     /* ventre redessiné (page rafraîchie) juste après un pas : on repart de la position mémorisée plutôt que de l'horloge de la barre, qui peut déjà être à zéro si la Magie vient d'être retirée */
     var depuisMemoire=!!memS&&memS.cle===cle&&(performance.now()-(memS.at||0))<3000;
     for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):((pb+avance)%1)*P*1000;}
-  }else{
+  }else if(!attente){
     /* recalage doux sur la barre du moteur */
     var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
     if(pbBrut!=null&&t0&&t0.progress!=null){
@@ -1073,9 +1135,11 @@ function sangsue(sc,sec,actif){
   for(i=0;i<Jn;i++){
     var aw=paq[i].getAnimations&&paq[i].getAnimations()[0];
     if(!aw)continue;
-    if(attente){if(aw.playState!=='paused'){aw.pause();aw.currentTime=(avance>0?avance:.995)*P*1000;}}   /* barre pleine : la boule attend au bord de l'anus, prête à sortir */
+    if(attente){if(aw.playState!=='paused')aw.pause();}
     else if(aw.playState==='paused')aw.play();
   }
+  var videVoulu=attente;
+  if(sc.classList.contains('bm-vide')!==videVoulu)sc.classList.toggle('bm-vide',videVoulu);
   /* la bouche suce au rythme des coups : une contraction par pas */
   var bo=sc.querySelector('.bm-bouche'),ab=bo&&bo.getAnimations?bo.getAnimations()[0]:null;
   if(ab&&ab.effect&&pbBrut!=null){
@@ -1142,7 +1206,7 @@ function rythme(sc,id,n,avant){
     return;
   }
   var ligneOr=document.getElementById('sorealIdleBloodEtaLineV1_'+id);
-  var attenteOr=src!=='sucon'&&!!ligneOr&&/Barre pleine : il manque/.test(ligneOr.textContent||'');
+  var attenteOr=src!=='sucon'&&!!ligneOr&&/il manque .* Or/i.test(ligneOr.textContent||'');
   var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
   var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
   /* La vue du rituel disparaît un instant à chaque synchro avec le serveur, justement quand un niveau se termine (Norman, 2026-10-11 : « très peu de magie : l'animation ne se fait pas quand le chrono arrive à 0 ») : on garde la dernière durée connue. */
@@ -1242,7 +1306,7 @@ function banqueIndex(e){
 function banqueCadre(sc,maintenant){
   var actif=!!sc.querySelector('.bm-tuyau.saigne-v1')&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
-  if(!actif||(ligne&&/Barre pleine : il manque/.test(ligne.textContent||''))){sc.__bt0=0;sc.__bPb=null;sc.__bWrap=0;sc.__bP=0;return 0;}
+  if(!actif||(ligne&&/il manque .* Or/i.test(ligne.textContent||''))){sc.__bt0=0;sc.__bPb=null;sc.__bWrap=0;sc.__bP=0;return 0;}
   var pb=phaseBarre(sc);
   if(pb!=null){
     if(sc.__bPb!=null&&pb<sc.__bPb-0.3){
@@ -1311,7 +1375,7 @@ function filCadre(sc){
   if(sc.classList.contains('bm-hors')||!sc.querySelector('.bm-tuyau.saigne-v1')||!sc.classList.contains('bm-installe'))return filRepos(sc);
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return filRepos(sc);
   var ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
-  if(ligne&&/Barre pleine : il manque/.test(ligne.textContent||''))return filRepos(sc);
+  if(ligne&&/il manque .* Or/i.test(ligne.textContent||''))return filRepos(sc);
   var maintenant=performance.now(),P=sc.__filP;
   if(P>0&&P<FIL_DUREE){
     /* niveaux plus courts que l'animation : boucle continue à la cadence normale */
@@ -1776,7 +1840,7 @@ function css(){
     P+'.bm-scene[data-source="sucon"] .bm-sangsue-img{display:block}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-img{display:none}',
     /* sans WebGL : l'image pulse au rythme des coups (repli) */
-    P+'.bm-scene[data-source="sucon"].bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{transform-origin:20% 45%;animation:bmSuce min(var(--bm-pas,1.1s),2.2s) ease-in-out infinite}',
+    P+'.bm-scene[data-source="sucon"].bm-gl-non:not(.bm-dort):not(.bm-hors):not(.bm-attente-or):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{transform-origin:20% 45%;animation:bmSuce min(var(--bm-pas,1.1s),2.2s) ease-in-out infinite}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-gl{display:block}',
     /* l'œil (paupière : dort, pleure) est posé sur la bosse de la tête ; les Zzz au-dessus ; la trace de la ventouse sur la peau */
     P+'.bm-scene[data-source="sucon"] .bm-oeil{z-index:8;width:17px;height:17px;left:calc(var(--sg-ox,0px) + 115.5px*var(--sg-s,.5) - 8.5px);top:calc(var(--sg-oy,0px) + 131px*var(--sg-s,.5) - 8.5px)}',
@@ -1816,7 +1880,24 @@ function css(){
     P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;transform-origin:50% 0;transform:scaleY(0);clip-path:inset(0)}',
     P+'.bm-scene.bm-jet .bm-filet{animation:bmJet 1.9s ease-in-out 1 both}',
     /* en attente d'Or : le filet ne coule plus (plus forte priorité que le sang continu et la boucle) */
-    P+'.bm-scene.bm-attente-or.bm-attente-or:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene.bm-attente-or.bm-attente-or .bm-filet{animation:none!important;opacity:0!important;transform:scaleY(0)!important}',
+    P+'.bm-scene.bm-attente-or.bm-attente-or:not(.bm-pisse):has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene.bm-attente-or.bm-attente-or:not(.bm-pisse) .bm-filet{animation:none!important;opacity:0!important;transform:scaleY(0)!important}',
+    /* le filet n'existe que pendant le jet de fin de niveau (bm-pisse) ou au plafond (continu) ; ni boucle, ni compteur */
+    P+'.bm-scene[data-source="sucon"]:not(.bm-continu):not(.bm-pisse) .bm-filet{animation:none!important;opacity:0!important;transform:scaleY(0)!important}',
+    /* fin d'un rituel : le sang est pissé une fois (1,9 s), même si le niveau suivant attend de l'Or */
+    /* rituel au plafond : le jet de l'anus est un gros filet continu, plus de deux fois plus épais (Norman, 2026-10-12) */
+    P+'.bm-filet{transition:width .35s ease,left .35s ease}',
+    P+'.bm-scene.bm-continu:has(.bm-tuyau.saigne-v1) .bm-bec-flot .bm-filet{width:8px;left:-4px;border-radius:4px 4px 5px 5px;box-shadow:0 0 7px rgba(255,40,70,.7)}',
+    P+'.bm-scene.bm-pisse.bm-pisse.bm-pisse:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene.bm-pisse.bm-pisse.bm-pisse .bm-filet{animation:bmJet 1.9s ease-in-out 1 both!important}',
+    /* ventre vide : aucun caillot visible (les boules continuent d'être animées dessous) */
+    P+'.bm-scene.bm-vide .bm-paquet:not(.bm-sortie){opacity:0!important}',
+    /* rituel au plafond (niveaux quasi instantanés) : plus de boule, un FILET de sang complet qui coule sans arrêt dans le ventre (tirets décalés d'UNE période : boucle sans à-coup) */
+    P+'.bm-scene.bm-continu:not(.bm-vide) .bm-paquet:not(.bm-sortie){opacity:0!important}',
+    P+'.bm-tube-fond .tfl{display:none;stroke:#d4122f;stroke-opacity:.95}',
+    P+'.bm-scene.bm-continu:not(.bm-vide):not(.bm-dort):not(.bm-hors) .bm-tube-fond .tfl{display:block;stroke-dasharray:22 9;animation:bmFluxVentre .7s linear infinite}',
+    P+'.bm-scene.bm-continu:not(.bm-vide):not(.bm-dort):not(.bm-hors) .bm-tube-fond .tf{fill:#8f0f22;fill-opacity:.95}',
+    '@keyframes bmFluxVentre{from{stroke-dashoffset:0}to{stroke-dashoffset:-31}}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-tube-fond .tfl{animation:none!important}}',
+    P+'.bm-paquets-sortie{position:absolute;width:0;height:0;z-index:5;overflow:visible;pointer-events:none}',
     P+'.bm-scene.bm-continu:has(.bm-tuyau.saigne-v1) .bm-filet{animation:none!important;opacity:.95!important;transform:scaleY(1)!important;clip-path:inset(0)!important}',
     P+'.bm-scene[data-rythme="boucle"]:has(.bm-tuyau.saigne-v1) .bm-filet{animation:bmJet var(--bm-t,1s) linear infinite}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',
@@ -1875,6 +1956,8 @@ function css(){
     '@keyframes bmTrait{0%,38%{opacity:0;transform:scaleY(.1)}46%{opacity:1;transform:scaleY(1)}84%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1)}}',
     '@keyframes bmZzz{0%{opacity:0;transform:translate(0,0) scale(.6)}20%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translate(26px,-34px) scale(1.15)}}',
     '@keyframes bmLarme{0%{opacity:0;transform:translateY(0) scale(.6)}6%{opacity:1;transform:translateY(1px) scale(1)}30%{opacity:.9;transform:translateY(34px) scale(1)}34%{opacity:0;transform:translateY(40px) scale(.8)}100%{opacity:0;transform:translateY(40px) scale(.8)}}',
+    /* la boule avance comme la barre : de la bouche (0) à la ligne de l'anus (fk x 100 %) pendant un niveau, sans à-coup */
+    '@keyframes bmBoule{from{offset-distance:0%}to{offset-distance:calc(var(--bm-fk,1)*100%)}}',
     '@keyframes bmSuce{0%,100%{transform:scale(1,1)}45%{transform:scale(.88,1.1)}70%{transform:scale(1.03,.98)}}',
     '@keyframes bmJet{0%{opacity:0;transform:scaleY(0);clip-path:inset(0)}16%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}58%{opacity:.95;transform:scaleY(1);clip-path:inset(0)}100%{opacity:.9;transform:scaleY(1);clip-path:inset(100% 0 0 0)}}',
     '@keyframes bmGoutte{0%{opacity:0;transform:translateY(-2px) scale(.5,.3)}15%{opacity:1;transform:translateY(0) scale(1,1)}70%{opacity:1;transform:translateY(calc(var(--chute,30px)*.82)) scale(.95,1.15)}100%{opacity:0;transform:translateY(calc(var(--chute,30px) + 4px)) scale(.85,1.3)}}',

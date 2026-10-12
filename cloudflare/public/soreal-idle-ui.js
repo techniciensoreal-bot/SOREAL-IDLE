@@ -251,8 +251,8 @@
           const assez=or>=Number(el.dataset.coutOr);
           if(el.classList.contains('or-ok')!==assez||el.classList.contains('or-non')===assez){el.classList.toggle('or-ok',assez);el.classList.toggle('or-non',!assez);}
         });
-        document.querySelectorAll('[data-idle-aug-eta-v1],[id^="sorealIdleBloodEtaLineV1_"]').forEach(function(el){
-          const manque=/il manque .* Or/.test(el.textContent||'');
+        document.querySelectorAll('[data-idle-aug-eta-v1],[id^="sorealIdleBloodEtaLineV1_"],.soreal-idle-tm-eta-v1').forEach(function(el){
+          const manque=/il manque .* Or/i.test(el.textContent||'');
           if(el.classList.contains('or-non')!==manque)el.classList.toggle('or-non',manque);
         });
       },800);
@@ -313,10 +313,18 @@
         if(defis&&typeof defis.verifierFin==='function'){try{defis.verifierFin(idleEtat);}catch(_e){}}
       },1000);
       /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
+      /*
+       * La barre de Magie ne s'efface PAS tant qu'il reste de la Magie à générer (Norman, 2026-10-12 : « j'ai acheté 30K de plafond et la barre a mis 10 secondes à s'afficher » ; « j'ai mis MAX pour la Time Machine, il restait 2 minutes de
+       * Magie à générer et pourtant la barre a disparu puis est réapparue »). Elle n'est « vide » que si plus rien n'est disponible ET qu'il n'y a plus rien à produire (plafond atteint ou production nulle).
+       */
+      function magieEncoreAGenererIdleV1_(){
+        const m=typeof donneesMagieGenereeIdleV1_==='function'?donneesMagieGenereeIdleV1_():null;
+        return !!(m&&m.parSeconde>0&&m.cap-m.generee>=1);
+      }
       window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
         const b=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resourceBudget&&idleEtat.systemes.resourceBudget.magic;
         const r=idleEtat&&idleEtat.systemes&&idleEtat.systemes.resources&&idleEtat.systemes.resources.magic;
-        return {energie:energieDisponibleIdleV9_(),magie:b?idleNombre_(b.available):idleNombre_(r&&r.current)};
+        return {energie:energieDisponibleIdleV9_(),magie:b?idleNombre_(b.available):idleNombre_(r&&r.current),magieEnCours:magieEncoreAGenererIdleV1_()};
       };
       /* Bandeau : à gauche de la barre le niveau gagné par seconde, à droite le temps avant que tout soit généré (format court). */
       function dureeCourteBandeauIdleV2_(sec){
@@ -2911,8 +2919,15 @@
           if(el)cache.set(selecteur,el);else cache.delete(selecteur);
           return el;
         }
+        /* Le message « il manque X Or » porte la somme dans une balise dorée (<b class="or-somme-v1">) : on le pose en HTML, et on compare à l'ancien texte posé (pas à innerHTML, que le navigateur reformule) pour ne pas le réécrire à chaque tick. */
         function ecrireSiChangeIdleV1_(el,texte){
-          if(el&&el.textContent!==texte)el.textContent=texte;
+          if(!el)return;
+          if(texte.indexOf('<b class="or-somme-v1">')>=0){
+            if(el.__orHtmlV1!==texte){el.innerHTML=texte;el.__orHtmlV1=texte;}
+            return;
+          }
+          el.__orHtmlV1=null;
+          if(el.textContent!==texte)el.textContent=texte;
         }
         /*
          * `tenir` (Augments, Norman 2026-10-05 : « plus jamais de barre qui fait marche arrière quand le calcul de l'Or se fait ») : sur un cycle long, la barre s'arrête PLEINE au bout (fill forwards) au lieu de boucler. Bouclée, elle
@@ -3168,9 +3183,9 @@
               el.style.width='100%';
               el.style.transform='scaleX(1)';
               if(manqueOrB){
-                if(ligneBloodFixe)ligneBloodFixe.textContent='⏳ Barre pleine : il manque '+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or pour le prochain rituel.';
+                if(ligneBloodFixe)ecrireSiChangeIdleV1_(ligneBloodFixe,'🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.');
               }else{
-                if(ligneBloodFixe)ligneBloodFixe.textContent='⏳ Rituel en cours de validation…';
+                if(ligneBloodFixe)ecrireSiChangeIdleV1_(ligneBloodFixe,'⏳ Rituel en cours de validation…');
                 if(Date.now()-idleAugSyncV1>3000){
                   idleAugSyncV1=Date.now();
                   synchroniserJeuIdleV7_(true);
@@ -4739,11 +4754,12 @@
           }
           const secondesAffichees=Math.ceil(restant);
           if(faussesOr){
-            const texteOr='⏳ Barre pleine : il manque '+formatGrandNombreIdleV70_(manqueOr)+' Or pour le niveau suivant.';
-            if(el.textContent!==texteOr)el.textContent=texteOr;
+            const texteOr='🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(manqueOr)+' Or</b> pour le niveau suivant.';
+            if(el.__orHtmlV1!==texteOr){el.innerHTML=texteOr;el.__orHtmlV1=texteOr;}
             el.dataset.tmEtaLast='or';
           }else if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
+            el.__orHtmlV1=null;
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
           }
           /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
@@ -15222,7 +15238,7 @@
           </div>
 
           ${infoMagic&&ressourceMagic?`
-            <div class="soreal-idle-energy-panel-v34 soreal-idle-magic-panel-v1${magicDisponible<1?' soreal-idle-vide-v2':''}">
+            <div class="soreal-idle-energy-panel-v34 soreal-idle-magic-panel-v1${magicDisponible<1&&!magieEncoreAGenererIdleV1_()?' soreal-idle-vide-v2':''}">
               <div class="soreal-idle-energy-head-v34">
                 <div class="soreal-idle-energy-title-v34">
                   🔮 Magie
@@ -19698,6 +19714,8 @@
             const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,idleTitanEtatV1,momentEvenement,Math.random());
             attTitan=att;
             if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));
+            /* Wiki « Titans » : tous les titans gagnent 1 % de force par attaque (cumulé) : plus le combat dure, plus ils tapent fort (Norman, 2026-10-12 : « le Grand Corrupted Tree ne frappe pas assez fort »). */
+            if(att.croissanceTitan>1)degats=Math.min(avant,Math.round(degats*att.croissanceTitan));
             if(att.type==='puissante'){
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
               fxTypeAttaque='puissante';

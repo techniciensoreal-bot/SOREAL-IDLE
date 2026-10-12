@@ -178,7 +178,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Tuyau de la sangsue en une seule pièce, translucide, qui grossit vers l'arrière ; le sang le suit jusqu'au point noir.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("function sangTrace(sc,m,g){") && decor.includes('class="bm-tube-fond"') && !decor.includes('<svg class="bm-tube"'), "canal du sang d'après l'axe de l'image, plus de tuyau dessiné");
-  assert.ok(decor.includes("sc.__gT=attente?1.17:1+0.17*Math.pow(") && decor.includes("function sangBoucle()"), "l'arrière-train grossit avec le sang et rétrécit à la sortie");
+  assert.ok(decor.includes("sc.__gT=attente?1:1+0.17*Math.pow(") && decor.includes("function sangBoucle()"), "l'arrière-train grossit avec le sang et rétrécit à la sortie");
   assert.ok(decor.includes("cont.style.getPropertyValue('--bm-chemin')&&cont.style.left"), "le chemin du sang résiste à l'effacement du style par un redessin");
 }
 {
@@ -206,7 +206,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Texture sur le ventre ; les boules s'arrêtent pile au point noir de l'anus (rien ne dépasse dessous).
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(true);
-  assert.ok(decor.includes("Lc=(L+3)*K/(K+1)") && decor.includes("'--bm-fk'") && decor.includes("calc(var(--bm-fk,1)*'+pos("), "course des boules limitée : leur avant s'arrête au centre de l'anus");
+  assert.ok(decor.includes("Lc=(L+3)*K/(K+1)") && decor.includes("var Lp=L+ext,fk=Lc/Lp;") && decor.includes("'--bm-fk'"), "course de la boule limitée : son avant s'arrête sur la ligne de l'anus à la fin du niveau");
 }
 {
   // Banque du sang : une case vide au format des images de son animation (1231 x 923), sans tuyau ni récipient.
@@ -366,31 +366,69 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // La boule glisse jusqu'à l'anus et n'est coupée qu'à son niveau ; la coupure de la feuille est un simple trait (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("ext=cell0*1.5+4") && decor.includes("cont.style.clipPath='polygon(") && decor.includes("L+=ext;"), "chemin prolongé après l'anus, boule coupée à la ligne de l'anus");
   assert.ok(/\.bm-trace-coupures\{left:calc\(var\(--px\) - 1\.5px\);top:76px;width:3px;height:42px;background:linear-gradient\(#c01a30,#8f1124\);border-radius:2px\}/.test(decor) && !decor.includes("13px 0/3px 100% no-repeat"), "un seul trait pour la coupure, sans carré ni ombre autour");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("sangPoints(m).slice(2)") && decor.includes("stroke='url(#g)'") && decor.includes("id='g' gradientUnits='userSpaceOnUse' x1='168'"), "la boule naît dans la tête et apparaît progressivement au col (fenêtre du masque en dégradé)");
+  assert.ok(decor.includes("sangPoints(m).slice(2)") && decor.includes("fill='url(#g)'") && decor.includes("id='g' gradientUnits='userSpaceOnUse' x1='168'"), "la boule naît dans la tête (cachée) et apparaît progressivement au col (fenêtre du masque en dégradé)");
 }
 {
   // Le sang coule à l'instant où la boule sort de l'anus (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("cont.__cstar=Math.ceil((La-cell)/(Lc/K));") && decor.includes("avance=(ic-1+.04)/m;") && decor.includes("((pb+avance)%1)*P*1000") && decor.includes("var pbA=(pb+avance)%1"), "avance de phase des boules : leur avant franchit la ligne de l'anus quand le jet part");
-  assert.ok(decor.includes("aw.currentTime=(avance>0?avance:.995)*P*1000"), "barre pleine (Or manquant) : la boule attend au bord de l'anus");
 }
 {
   // En attente d'Or, plus de sang qui coule de l'anus (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("sc.classList.toggle('bm-attente-or',attente)") && decor.includes("sc.classList.remove('bm-attente-or')") && decor.includes(".bm-scene.bm-attente-or.bm-attente-or:has(.bm-tuyau.saigne-v1) .bm-filet") && /bm-attente-or \.bm-filet\{animation:none!important;opacity:0!important;transform:scaleY\(0\)!important\}/.test(decor), "le filet de sang s'arrête quand la barre attend de l'Or");
+  assert.ok(decor.includes("sc.classList.toggle('bm-attente-or',attente)") && decor.includes("sc.classList.remove('bm-attente-or')") && decor.includes(".bm-scene.bm-attente-or.bm-attente-or:not(.bm-pisse):has(.bm-tuyau.saigne-v1) .bm-filet") && /bm-attente-or:not\(\.bm-pisse\) \.bm-filet\{animation:none!important;opacity:0!important;transform:scaleY\(0\)!important\}/.test(decor), "le filet de sang s'arrête quand la barre attend de l'Or (sauf le jet de fin de rituel)");
 }
 {
   // Robustesse : repli animé sans WebGL, plus d'ombre filtrée sur l'image (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("sc.classList.add('bm-gl-non')") && decor.includes("window.__sgErr=") && decor.includes(".bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{") && !decor.includes(".bm-sangsue-img{filter:drop-shadow"), "repli animé quand WebGL est indisponible, erreur journalisée");
+  assert.ok(decor.includes("sc.classList.add('bm-gl-non')") && decor.includes("window.__sgErr=") && decor.includes(".bm-gl-non:not(.bm-dort):not(.bm-hors):not(.bm-attente-or):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{") && !decor.includes(".bm-sangsue-img{filter:drop-shadow"), "repli animé quand WebGL est indisponible, erreur journalisée");
 }
 {
   // Le ventre bouge au moins toutes les 2,2 s même quand un niveau dure des minutes (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("SG_PULSE_MAX=2.2") && decor.includes("Math.min(sc.__S||1.1,SG_PULSE_MAX)") && decor.includes("animation:bmSuce min(var(--bm-pas,1.1s),2.2s)"), "pulsation du ventre plafonnée à 2,2 s");
+}
+
+{
+  // Attente d'Or : plus rien ne bouge, ventre vide, jet unique (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("&&!sc.classList.contains('bm-attente-or')&&!sc.classList.contains('bm-dort')") && decor.includes("sc.__gT=attente?1:1+0.17*Math.pow("), "ni succion, ni onde, ni gonflement en attente d'Or");
+  assert.ok(decor.includes(".bm-scene.bm-attente-or.bm-attente-or:not(.bm-pisse):has(.bm-tuyau.saigne-v1) .bm-filet") && decor.includes(".bm-scene.bm-pisse.bm-pisse.bm-pisse:has(.bm-tuyau.saigne-v1) .bm-filet") && decor.includes(".bm-scene.bm-vide .bm-paquet:not(.bm-sortie){opacity:0!important}"), "jet pissé une fois, filet coupé ensuite, caillots masqués ventre vide");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+}
+
+{
+  // Boule = avancée de la barre ; sortie à la fin du niveau ; filet complet au plafond (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("'@keyframes bmBoule{from{offset-distance:0%}to{offset-distance:calc(var(--bm-fk,1)*100%)}}'") && decor.includes("'bmBoule '+P.toFixed(3)+'s linear infinite'") && decor.includes("var K=PAQ_CASES,Jn=1,S=P/m;"), "une seule boule, continue, qui suit exactement la barre (bouche au début du niveau, anus à la fin)");
+  assert.ok(decor.includes("function sortieCaillot(sc){") && decor.includes("paq[i].onanimationiteration=(m>1&&i===Jn-1)?function(){sortieCaillot(sc);}:null;") && decor.includes("cont.__sortie={d0:Lc,d1:Lp};") && decor.includes("className='bm-paquets-sortie'"), "à chaque fin de niveau la boule sort par l'anus (exemplaire de sortie coupé à la ligne de l'anus) pendant que le jet tombe");
+  assert.ok(decor.includes("bm-scene.bm-continu:not(.bm-vide):not(.bm-dort):not(.bm-hors) .bm-tube-fond .tfl{display:block;stroke-dasharray:22 9;animation:bmFluxVentre .7s linear infinite}") && decor.includes("@keyframes bmFluxVentre{from{stroke-dashoffset:0}to{stroke-dashoffset:-31}}") && decor.includes('<path class="tfl"'), "au plafond : filet de sang complet qui coule sans arrêt dans le ventre (tirets décalés d'une période : 22 + 9 = 31)");
+  assert.ok(decor.includes(".bm-scene.bm-vide .bm-paquet:not(.bm-sortie){opacity:0!important}") && decor.includes("var videVoulu=attente;") && !decor.includes("sc.__premier") && !decor.includes("avance=(ic-1"), "attente d'Or : ventre vide ; plus d'ancienne avance de phase");
+}
+{
+  // Au plafond (niveaux quasi instantanés) il n'y a pas d'horloge de barre : ce n'est PAS une attente d'Or (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("var attente=(m>1&&pbBrut==null&&!!barre"), "mode continu : barre pleine sans horloge n'est pas une attente d'Or");
+}
+{
+  // Jet de l'anus plus épais au plafond (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes(".bm-scene.bm-continu:has(.bm-tuyau.saigne-v1) .bm-bec-flot .bm-filet{width:8px;left:-4px;") && decor.includes(".bm-filet{transition:width .35s ease,left .35s ease}"), "au plafond le filet fait 8 px de large (3 px sinon)");
+}
+{
+  // Tuyau du ventre organique : axe ondulé, largeur variable, contours lissés (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("[191,177.6],[201,178.6]") && decor.includes("function sgLargeur(u){return SG_DEMI*(0.68+0.17*Math.sin(u*0.11+0.6)+0.12*Math.sin(u*0.27+2.1));}") && decor.includes("function sgBande(pts,i0,k,marge){") && decor.includes("a[i][1]+=5*e*Math.sin(") && decor.includes("sgBande(SG_AXE.slice(3).slice(0,-1).concat([[357.3,SG_Y_ANNEAU]]),0,1,3.5)") && decor.includes("var d=sgBande(ptsB,3,m.s,0).replace(/ Z$/,'');"), "axe qui serpente, largeur variable, contours en courbes : le canal ET la fenêtre transparente du masque (plus de bord droit)");
+  assert.ok(0.68 + 0.17 + 0.12 <= 1, "le canal ne déborde jamais de la fenêtre transparente");
+}
+{
+  // Canal et fenêtre s'arrêtent avant la collerette de l'anus ; le jet part à chaque sortie de boule (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("SG_Y_ANNEAU=231") && decor.includes("var d=sgBande(ptsB,3,m.s,0)"), "le tuyau ne recouvre plus l'anus");
+  assert.ok(decor.includes("sc.classList.remove('bm-pisse');void sc.offsetWidth;sc.classList.add('bm-pisse');") && decor.includes(".bm-scene[data-source=\"sucon\"]:not(.bm-continu):not(.bm-pisse) .bm-filet{animation:none!important"), "le jet de sang tombe à chaque fin de niveau, avec la sortie de la boule");
 }

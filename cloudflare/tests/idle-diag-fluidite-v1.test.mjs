@@ -83,7 +83,7 @@ for (let i = 0; i < 16; i += 1) pas(200);
 assert.equal(D.journal().filter((e) => e.type === "pause_validation").length, 1, "pause_validation notée");
 
 // 7. Barre pleine faute d'Or : attente normale, rien noté.
-maintenant += 20000; ecran.niv = 9; ecran.eta = "⏳ Barre pleine : il manque 1,2K Or pour le niveau suivant."; ecran.f = 1; pas(200);
+maintenant += 20000; ecran.niv = 9; ecran.eta = "🪙 Il manque 1,2K Or pour le niveau suivant."; ecran.f = 1; pas(200);
 for (let i = 0; i < 20; i += 1) pas(200);
 assert.equal(D.journal().filter((e) => e.type === "pause_validation").length, 1, "attente d'Or : pas une pause à signaler");
 

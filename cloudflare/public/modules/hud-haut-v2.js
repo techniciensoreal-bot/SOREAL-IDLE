@@ -61,7 +61,7 @@
     if(typeof f!=='function')return;
     var d=f();
     /* Moins d'un point restant = plus rien à dépenser (les restes décimaux d'une synchro ne ramènent pas la barre). */
-    var vE=d.energie<1,vM=d.magie<1;
+    var vE=d.energie<1,vM=d.magie<1&&!d.magieEnCours;   /* la Magie reste affichée tant qu'il y en a encore à générer */
     basculerVide('sorealIdleDepenseEnergieV2','energie',vE);
     basculerVide('sorealIdleDepenseMagieV2','magie',vM);
   }

@@ -61,7 +61,7 @@ assert.ok(meta.includes("throw new Error('poste vide')"), 'Wandoos : repli sur l
 assert.ok(ui.includes("bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits") && ui.includes("idleEtat.systemes.currencies.gold=orLiveB"), 'rituels rejoués localement, Or débité en direct');
 assert.ok(sang.includes('sorealIdleBloodCountV1_'), 'compteur de rituels mis à jour en direct');
 /* Time Machine : chaque niveau franchi débite l'Or (5 000 000 × niveau visé, comme le moteur) sans pause ; barre pleine et message si l'Or manque */
-assert.ok(ui.includes("5000000*Math.max(1,cibleNiv)") && ui.includes("Barre pleine : il manque '+formatGrandNombreIdleV70_(manqueOr)+' Or pour le niveau suivant."), 'Time Machine : Or débité en direct, attente d\'Or dite');
+assert.ok(ui.includes("5000000*Math.max(1,cibleNiv)") && ui.includes("Il manque <b class=\"or-somme-v1\">'+formatGrandNombreIdleV70_(manqueOr)+' Or</b> pour le niveau suivant."), 'Time Machine : Or débité en direct, attente d\'Or dite');
 /* Barre de vie du boss = barre du joueur : styles copiés depuis le bandeau (variables --pv-*), reflet compris */
 assert.ok(ui.includes('copierStylePvV1_') && ui.includes("'--pv-h':hauteur+'px'") && itopod.includes('height:var(--pv-h,32px)!important') && itopod.includes('left:var(--pv-reflet-g,7px)'), 'barre du boss copie hauteur, police et reflet de celle du joueur');
 /* Boucles parfaites des barres : toutes les couches des braises ont la même tuile ; les runes ne reculent plus (fondu d'entrée, dérive, fondu de sortie) ; aurore = une période */

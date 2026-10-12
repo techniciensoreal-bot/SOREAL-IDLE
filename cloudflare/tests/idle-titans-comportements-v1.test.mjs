@@ -105,3 +105,16 @@ assert.ok(ui.includes("if(titanJoueurParalyseIdleV1_(Date.now()))return;"), "cap
 assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /SOREAL/.test(api.note("t1")));
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/titans-comportements-v1.js"));
 console.log("idle-titans-comportements-v1: OK");
+
+// Tous les titans gagnent 1 % de force par attaque (wiki « Titans »), cumulé : 1,01 puissance (n - 1) à la n-ième attaque (Norman, 2026-10-12).
+{
+  const e2 = api.neuf();
+  const r1 = api.attaqueTitan("t2", e2, 0, 0.9);
+  assert.equal(r1.croissanceTitan, 1, "première attaque : pas de croissance");
+  let rN = null;
+  for (let i = 1; i < 50; i += 1) rN = api.attaqueTitan("t2", e2, i * 2000, 0.9);
+  assert.ok(Math.abs(rN.croissanceTitan - Math.pow(1.01, 49)) < 1e-9, "50e attaque : 1,01 puissance 49 (environ +63 %)");
+  assert.ok(rN.croissanceTitan > 1.6 && rN.croissanceTitan < 1.65);
+  assert.ok(api.attaqueTitan("t1", api.neuf(), 0, 0.9).croissanceTitan === 1 && api.attaqueTitan("t5", api.neuf(), 0, 0.9).croissanceTitan === 1, "tous les titans partent à 1");
+  assert.ok(ui.includes("att.croissanceTitan>1") && ui.includes("degats*att.croissanceTitan"), "appliqué dans le combat");
+}

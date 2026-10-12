@@ -2727,7 +2727,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         if(x.waiting){
           const manque=Math.max(0,Number(x.goldCost)-Number(x.gold));
           return manque>0
-            ?'⏳ Barre pleine : il manque '+H.formatGrandNombreIdleV70_(manque)+' Or pour le niveau suivant.'
+            ?'🪙 Il manque <b class="or-somme-v1">'+H.formatGrandNombreIdleV70_(manque)+' Or</b> pour le niveau suivant.'
             :'⏳ Barre pleine : plus de niveau disponible pour l’instant (défi en cours).';
         }
         const restant=secondes*(1-Math.max(0,Math.min(1,Number(x.progress)||0)))-(Number(ecoule)||0);

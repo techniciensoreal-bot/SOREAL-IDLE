@@ -11,6 +11,10 @@
  *    (accord de Norman, 2026-10-04 : « calcule toi-même, pour que ça reste faisable mais que l'effet ait lieu ») = -10 % de la régénération de départ par cumul (au 10e cumul elle est nulle, ensuite elle fait perdre des PV).
  *  Le wiki ne dit pas si le compteur « 10 attaques » est déjà plein au début du combat : on part de 0 (la première Paralyze ne peut venir qu'à la 11e attaque).
  *
+ * TOUS LES TITANS (https://ngu-idle.fandom.com/wiki/Titans : « All titans grow in strength by 1% per attack ») : à chaque attaque la force du titan augmente de 1 % ; le wiki ne dit pas si c'est cumulé ou ajouté : on cumule
+ *  (1,01 puissance n), lecture la plus naturelle de « 1 % par attaque » (choix signalé). La n-ième attaque (n = 1 la première) fait donc 1,01 puissance (n - 1) fois les dégâts de base (rep.croissanceTitan, appliqué par le combat).
+ *  Grand Corrupted Tree : « GCT will also get slightly stronger over time » (même règle) et « The tree will do a lot of damage even on the beginning of the fight » : Norman, 2026-10-12 : « il tape à 380 max, quelque chose cloche ».
+ *
  * Grand Corrupted Tree (https://ngu-idle.fandom.com/wiki/Grand_Corrupted_Tree, « Titan Skills ») :
  *  - Cloud of spores « arms feel heavy » (1/7, si le malus n'est pas déjà appliqué) : tes dégâts tombent à 2/3 pendant 15 s.
  *  - Power Attack (2/7) : dégâts x1,5.
@@ -100,7 +104,7 @@
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
   function attaqueTitan(id,etat,maintenantMs,tirage){
     var def=TITANS[String(id||'')];
-    if(!def)return {type:'base',multDegats:1,paralyse:false};
+    if(!def){etat.attaques=(etat.attaques||0)+1;return {type:'base',multDegats:1,paralyse:false,croissanceTitan:Math.pow(1.01,Math.max(0,etat.attaques-1))};}   /* titans sans capacité simulée : la croissance de 1 % par attaque s'applique aussi */
     if(etat.rafaleRestante>0){
       etat.rafaleRestante-=1;
       return {type:'sauterelle',multDegats:def.multRafale,paralyse:false,rafale:true,suite:etat.rafaleRestante>0,intervalleMs:def.rafaleMs};
@@ -121,6 +125,7 @@
       if(etat.paralysieAttaquesRestantes<=0)etat.paralyseJusqua=maintenantMs;
     }
     var rep={type:type,multDegats:type==='puissante'?def.multPuissante:1,paralyse:false};
+    rep.croissanceTitan=Math.pow(1.01,Math.max(0,etat.attaques-1));   /* wiki Titans : +1 % de force par attaque (cumulé : choix) */
     if(def.croissance){
       rep.croissance=def.croissance(etat);
       rep.multDegats*=rep.croissance;
