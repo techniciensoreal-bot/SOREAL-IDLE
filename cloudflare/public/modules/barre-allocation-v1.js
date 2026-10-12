@@ -171,5 +171,5 @@
     action_({action:'allocateWishSlot',slot:slot,resource:res,value:valeur});
   }
 
-  window.__SOREAL_IDLE_ALLOC_V1__={compteur:compteur,total:total_,cadres:cadres,entree:entree,preset:preset,vider:vider,ajuster:ajuster,ajusterVoeu:ajusterVoeu,titres:TITRES};
+  window.__SOREAL_IDLE_ALLOC_V1__={compteur:compteur,total:total_,cadres:cadres,entree:entree,preset:preset,saisir:ecrireMontant_,vider:vider,ajuster:ajuster,ajusterVoeu:ajusterVoeu,titres:TITRES};
 })();

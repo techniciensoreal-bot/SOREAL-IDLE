@@ -31,7 +31,7 @@ assert.match(css, /\.soreal-idle-collection-bonus-v1\{[^}]*font|\.soreal-idle-co
 // Zones : envoi fiable et combat local interrompu pour les flèches comme pour le menu (une seule fonction)
 assert.match(ui, /function envoyerChoixZoneFiableIdleV1_\(\)\{/);
 assert.match(ui, /estOccupeIdleV130_\(\)&&idleZoneEssaisV1<80/);
-assert.match(ui, /a\.fight&&a\.fight\.active&&String\(a\.fight\.zone\|\|''\)!==cible/);
+assert.match(ui, /a\.fight&&a\.fight\.active&&\(String\(a\.fight\.zone\|\|''\)!==cible\|\|a\.fight\.titanId\)/);
 assert.match(ui, /window\.__zoneAdventurePrecedenteV1__=zoneAdventurePrecedenteV1_/);
 assert.equal((ui.match(/actionAdventureIdleV47_\(\{action:'selectZone'/g) || []).length, 1, "un seul point d'envoi du choix de zone");
 

@@ -23,6 +23,7 @@ import {
   idleAdventureTitanCooldownMsV1,
   advanceTitanAutoKillV1,
   advanceAdventureZoneAutoFarmOfflineV1,
+  zoneNormalePlusAvanceeV1,
   idleAdventureSetRewardProductV1,
   IDLE_ADVENTURE_SPECIALS
 } from "./idle-adventure-v47.js";
@@ -4521,9 +4522,12 @@ function advanceTowerV1(state, seconds, context) {
   const respawn = Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)));
   const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
   const optimal = towerOptimalFloorV1(power, idleBonus);
-  const start = d.startFloor == null ? null : clamp(int(d.startFloor, 0), 0, Math.max(0, d.highestFloor - 1));
-  const end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
-  const auto = start === null || end === null;
+  /* Wiki NGU Idle, page ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD, vérifiée le 2026-10-12) : « your start floor ranging from 0 to 1 below the highest floor you've reached, and your end floor going all the way up to 1600 » ; « If you ... defeat ten enemies on your end floor, you'll immediately go back to your start floor. » */
+  let start = d.startFloor == null ? null : clamp(int(d.startFloor, 0), 0, Math.max(0, d.highestFloor - 1));
+  let end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
+  let auto = start === null || end === null;
+  /* Lazy ITOPOD Floor Shifter acheté (wiki : « check your optimal floor after each kill, and adjust it ») et mode Auto choisi : les étages suivent l'étage optimal à chaque tour. */
+  const shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
   d.optimalFloor = optimal;
   d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
   d.respawnS = respawn;
@@ -4592,6 +4596,11 @@ function advanceTowerV1(state, seconds, context) {
   let time = seconds + d.killTime;
   let guard = 0;
   while (guard++ < 20000) {
+    if (shifter && towerAppliquerEtageOptimalV1(d, optimal)) {
+      start = d.startFloor;
+      end = d.endFloor;
+      auto = false;
+    }
     if (auto) {
       if (d.floor > optimal) d.floor = optimal;
     } else if (d.floor < start || d.floor > end) {
@@ -4641,11 +4650,60 @@ function advanceTowerV1(state, seconds, context) {
   tower.level = d.floor;
 }
 
+/*
+ * Règle de l'étage optimal (Norman, 2026-10-12), commune au bouton Auto (un clic) et au « Lazy ITOPOD Floor Shifter » (après chaque kill) : fin = étage optimal ; départ = optimal quand le wiki le permet (départ de 0 à un étage
+ * sous le plus haut atteint : un seul étage, aucune boucle), sinon l'étage juste sous le plus haut atteint. Wiki ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD). Renvoie false si aucun étage optimal n'est encore connu.
+ */
+function towerAppliquerEtageOptimalV1(d, optimal) {
+  const opt = Math.max(0, int(optimal, 0));
+  if (!(opt > 0)) return false;
+  const plusHaut = Math.max(0, int(d.highestFloor, 0));
+  const start = Math.min(opt, Math.max(0, plusHaut - 1));
+  d.startFloor = start;
+  d.endFloor = opt;
+  if (d.floor < start || d.floor > opt) {
+    d.floor = start;
+    d.killsOnFloor = 0;
+  }
+  return true;
+}
+
+/*
+ * Adventure Advancer (Boutique AP, 65 000 AP ; Norman, 2026-10-12) : « Advances you to the furthest normal zone you can reach at the 20s mark of a rebirth. » (wiki NGU Idle, 4G's Sellout Shop). Une seule fois par run : dès que
+ * le run a 20 s, si le joueur est encore en Zone sûre (aucun combat en cours), il passe sur la zone normale la plus avancée ouverte ; s'il a déjà choisi une zone ou combat, rien n'est touché.
+ */
+function advanceAdventureAdvancerV1(state, context, now) {
+  if (!state.selloutShop?.purchases?.adventureAdvancer) return;
+  const adv = state.adventure;
+  if (!adv || typeof adv !== "object") return;
+  const run = Math.max(0, num(state.runStartedAt, 0));
+  if (adv.advancerRun === run) return;
+  if ((now - run) / 1000 < 20) return;
+  adv.advancerRun = run;
+  if (adv.fight && adv.fight.active) return;
+  if (String(adv.selectedZone || "safe") !== "safe") return;
+  const zone = zoneNormalePlusAvanceeV1(num(context.bosses, 0), state.difficulty, state.difficultyPeaks);
+  if (zone && zone !== "safe") adv.selectedZone = zone;
+}
+
 function towerSetFloorsV1(state, payload) {
   const tower = state.systems.tower;
   if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const d = tower.data;
   if (payload.auto) {
+    /*
+     * Bouton « Auto » (Norman, 2026-10-12) : UN clic règle tes étages sur ton meilleur étage (l'étage optimal du moment : le plus haut où un coup suffit) et il ne monte plus étage par étage ; il ne se remet pas à jour tout seul,
+     * on reclique plus tard (le réglage automatique après chaque kill est l'achat « Lazy ITOPOD Floor Shifter », wiki ITOPOD, 4G's Sellout Shop : « check your optimal floor after each kill, and adjust it »).
+     * Respecte la règle du wiki (départ de 0 à un étage sous le plus haut atteint) : fin = optimal ; départ = optimal quand c'est permis (un seul étage, aucune boucle), sinon l'étage juste sous le plus haut atteint
+     * (par exemple optimal 14 alors que 14 est le plus haut : 13 → 14, comme dans le jeu d'origine). Aucun étage n'est sauté : l'étage le plus haut ne change que par la montée.
+     */
+    const optimal = Math.max(0, int(d.optimalFloor, 0));
+    if (towerAppliquerEtageOptimalV1(d, optimal)) {
+      /* Mode « suivre l'étage optimal » : ne sert que si le Lazy ITOPOD Floor Shifter est acheté (voir advance plus bas). */
+      d.autoOptimal = true;
+      tower.level = d.floor;
+      return { auto: true, start: d.startFloor, end: d.endFloor };
+    }
     d.startFloor = null;
     d.endFloor = null;
     return { auto: true };
@@ -4655,6 +4713,7 @@ function towerSetFloorsV1(state, payload) {
   const end = clamp(int(payload.end, start), start, TOWER_MAX_FLOOR_V1);
   d.startFloor = start;
   d.endFloor = end;
+  d.autoOptimal = false;
   if (d.floor < start || d.floor > end) {
     d.floor = start;
     d.killsOnFloor = 0;
@@ -4882,6 +4941,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceMoneyPitAndDaily(state, nowMs(now));
   advanceIdleCookingV1(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));
+  advanceAdventureAdvancerV1(state, context, nowMs(now));
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
@@ -8235,6 +8295,15 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
   boostRecycling: Object.freeze({ name: "Boost Recycling", cost: () => 100, gain: 10, max: 5 }),
   inventoryMergeSlot: Object.freeze({ name: "Inventory Merge Slot!", cost: () => 1000, gain: 1, max: 1 }),
   /*
+   * Custom Input Button 1 à 4 (Norman, 2026-10-12 : « veille à brancher tout ce qui est dans les boutiques »). Wiki Experience, Misc : « Custom Input Button 1/2/3/4 », 50 / 100 / 500 / 1000 EXP, achat unique (« these can only be
+   * purchased once »). Le wiki ne décrit aucun effet ; la page 4G's Sellout Shop dit seulement que les boutons de pourcentage « work like the other custom buttons ». Effet retenu : un bouton à côté du champ Input qui y place
+   * un nombre CHOISI par le joueur (modules/perso-boutons-v1.js) ; valeur de départ SOREAL (100, 1 000, 10 000, 100 000), à changer avec ✎. Le serveur ne mémorise que l'achat.
+   */
+  customInput1: Object.freeze({ name: "Custom Input Button 1", cost: () => 50, gain: 1, max: 1 }),
+  customInput2: Object.freeze({ name: "Custom Input Button 2", cost: () => 100, gain: 1, max: 1 }),
+  customInput3: Object.freeze({ name: "Custom Input Button 3", cost: () => 500, gain: 1, max: 1 }),
+  customInput4: Object.freeze({ name: "Custom Input Button 4", cost: () => 1000, gain: 1, max: 1 }),
+  /*
    * Wiki Experience, Misc (« these can only be purchased once ») : « Training Auto Advance » 300 EXP,
    * « Automatically allocates energy each time a skill is unlocked while leaving the necessary cap for
    * each skill » (effet : advanceBasicTrainingStateV411, option autoAdvance).
@@ -8322,7 +8391,7 @@ function buyExpShopV1(state, payload) {
  */
 const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 = Object.freeze({
   adventurePower: "adventure", adventureToughness: "adventure", adventureHp: "adventure", adventureRegen: "adventure",
-  inventorySpace: "adventure", accessorySlot1: "adventure", accessorySlot2: "adventure", autoMerge: "adventure", sortInventory: "adventure",
+  customInput1: "adventure", customInput2: "adventure", customInput3: "adventure", customInput4: "adventure", inventorySpace: "adventure", accessorySlot1: "adventure", accessorySlot2: "adventure", autoMerge: "adventure", sortInventory: "adventure",
   syncBasicTraining: "adventure", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
   loadoutSlots: "adventure", loadoutSlot3: "adventure", boostRecycling: "adventure", inventoryMergeSlot: "adventure",
   diggerSlot: "diggers", beardSlot: "beards", daycareSlot1: "daycare", daycareSlot2: "daycare", daycareSlot3: "daycare",

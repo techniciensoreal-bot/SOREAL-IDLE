@@ -12646,6 +12646,11 @@
               const classeRecolteYgg=
                 m.id==='yggdrasil'&&yggExtraNav&&yggExtraNav.harvestLight&&yggExtraNav.harvestLight.lit
                   ?' soreal-idle-nav-money-green-v1':'';
+              /* Adventure Light (Boutique AP, wiki : « The Adventure button will light up when in a safe zone ») : même lueur verte que le Money Pit tant qu'on est en Zone sûre (Norman, 2026-10-12). */
+              const catalogueAp=j&&j.systemes&&j.systemes.selloutShop&&Array.isArray(j.systemes.selloutShop.catalog)?j.systemes.selloutShop.catalog:[];
+              const lumiereAventure=m.id==='aventure'&&catalogueAp.some(function(it){return it&&it.id==='adventureLight'&&idleNombre_(it.purchased)>0;});
+              const metaAv=lumiereAventure?aventureMetaIdleV47_(j):null;
+              const classeLumiereAventure=lumiereAventure&&metaAv&&String(metaAv.selectedZone||'safe')==='safe'&&!(metaAv.fight&&metaAv.fight.active)&&idleMenuActifV28!=='aventure'?' soreal-idle-nav-money-green-v1':'';
               /* Boutique : l'étoile ne scintille que dans la boutique ou quand elle a du nouveau, signalé d'un point rouge (Norman, 2026-10-04). */
               const nouveautesShop=m.id==='shop'?boutiqueNouveautesIdleV1_(j):false;
               const classeShopNouveau=nouveautesShop?' soreal-idle-nav-shop-nouveau-v1':'';
@@ -12661,7 +12666,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
@@ -18464,7 +18469,8 @@
            * Changer de zone interrompt le combat en cours : le serveur le vide, mais la synchronisation client garde le combat LOCAL tant qu'il est
            * actif (appliquerSynchroCombatSansReflowIdleV116_) — la zone affichée changeait, le combat continuait dans l'ancienne. On l'arrête ici.
            */
-          if(a.fight&&a.fight.active&&String(a.fight.zone||'')!==cible){
+          /* Un combat de TITAN se livre en Zone sûre : choisir une zone, Zone sûre comprise, l'arrête (Norman, 2026-10-12). */
+          if(a.fight&&a.fight.active&&(String(a.fight.zone||'')!==cible||a.fight.titanId)){
             a.fight={active:false,zone:'',monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};
           }
           a.selectedZone=cible;

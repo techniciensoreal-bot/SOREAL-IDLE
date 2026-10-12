@@ -321,6 +321,8 @@ window.__affronterTitanV1__=function(id){
   var charge={action:'startTitanFight',titan:String(id)};
   if(sel&&sel.value)charge.difficulty=String(sel.value);
   if(etat&&etat.adventureRestPv!=null)charge.restHp=etat.adventureRestPv;
+  /* Le combat se livre en Zone sûre (le serveur y renvoie le joueur) : la zone affichée et le ×5 de repos suivent tout de suite, au lieu de montrer l'ancienne zone jusqu'à la réponse (Norman, 2026-10-12). */
+  try{var H=window.__SOREAL_IDLE_META_HOST_V130__,av=H&&H.aventureMetaIdleV47_&&etat?H.aventureMetaIdleV47_(etat):null;if(av&&!(av.fight&&av.fight.active))av.selectedZone='safe';}catch(_e){}
   if(typeof window.__vueAventureIdleV1__==='function')window.__vueAventureIdleV1__('zones');
   if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:charge});
 };

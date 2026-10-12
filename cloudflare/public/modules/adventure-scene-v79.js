@@ -285,7 +285,9 @@
     var cubeToughness=Math.max(0,number_(stats.cubeToughnessContribution));
     var selectedZone=String(a&&a.selectedZone||'safe');
     var safeMultiplier=a&&a.setRewards&&a.setRewards.safeZoneRegen10x?10:5;
-    var effectiveRegen=selectedZone==='safe'?totalRegen*safeMultiplier:totalRegen;
+    /* Le ×5 (×10 avec le set GRB) est celui du REPOS en Zone sûre : pendant un combat de Titan, livré en Zone sûre, la régénération reste la normale (Norman, 2026-10-12 : « le ×5 s'affiche encore contre un Titan »). */
+    var reposSafe=selectedZone==='safe'&&!(fight&&fight.active);
+    var effectiveRegen=reposSafe?totalRegen*safeMultiplier:totalRegen;
     /*
      * Norman (2026-09-29) : « ne plus avoir (+0 cube) mais juste (+0) ». Cause réelle : cube>0
      * passait déjà (ex. une contribution Cube de 0,4 après le softcap) mais format_(cube,precision)
@@ -317,10 +319,10 @@
       var regenBonus=regenLine.querySelector('.soreal-idle-v79-stat-bonus');
       if(regenValue){
         ecrire_(regenValue,format_(effectiveRegen,2));
-        regenValue.classList.toggle('soreal-idle-v79-safe-regen',selectedZone==='safe');
+        regenValue.classList.toggle('soreal-idle-v79-safe-regen',reposSafe);
       }
       if(regenBonus){
-        ecrire_(regenBonus,selectedZone==='safe'?' (×'+safeMultiplier+' Safe Zone)':'');
+        ecrire_(regenBonus,reposSafe?' (×'+safeMultiplier+' Safe Zone)':'');
       }
     }
     enemy.style.visibility=active?'visible':'hidden';

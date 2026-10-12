@@ -80,3 +80,20 @@ const t2 = vue.titans.find((t) => t.id === "t2");
 assert.ok(t1.combat && t1.combat[""].hp === 300000 && t1.capacites.length >= 3 && t1.nomComplet === "Gordon Ramsay Bolton", "titan débloqué : stats + capacités");
 assert.ok(t2.combat === undefined && t2.capacites === undefined && t2.nomComplet === undefined, "titan encore verrouillé : rien de plus que l'existant");
 console.log("idle-titan-combat-fight-v1: OK");
+
+// Choisir une zone pendant un combat de titan l'arrête, Zone sûre comprise (Norman, 2026-10-12 : « j'ai choisi Zone sûre et le combat contre le titan continuait »), sans toucher au délai du titan.
+{
+  const depart = agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1", restHp: 120 }).state;
+  assert.equal(depart.fight.active, true);
+  const surZoneSure = agir(depart, { action: "selectZone", zone: "safe" }, 12_000).state;
+  assert.equal(surZoneSure.fight.active, false, "Zone sûre : le combat du titan s'arrête");
+  assert.equal(surZoneSure.selectedZone, "safe");
+  assert.ok(!surZoneSure.titans.t1 || !surZoneSure.titans.t1.nextAt, "délai du titan intact");
+  assert.equal((surZoneSure.titans.t1 || { kills: 0 }).kills || 0, 0, "aucune victoire comptée");
+  const autreZone = agir(depart, { action: "selectZone", zone: "forest" }, 12_000).state;
+  assert.equal(autreZone.fight.active, false, "une autre zone arrête aussi le combat");
+  // un combat de zone ordinaire en Zone sûre n'existe pas : choisir la zone où l'on est ne change rien
+  const sansTitan = agir(normalizeIdleAdventureStateV47({}), { action: "selectZone", zone: "safe" }, 12_000).state;
+  assert.equal(sansTitan.fight.active, false);
+}
+console.log("idle-titan-combat-fight-v1: sélection de zone OK");

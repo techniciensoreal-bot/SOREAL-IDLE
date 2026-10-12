@@ -13,3 +13,15 @@ assert.equal(fn({ ...base, fight: { active: true } }, "safe"), 10, "combat de Ti
 assert.equal(fn({ ...base, setRewards: { safeZoneRegen10x: true } }, "safe"), 100, "set GRB au repos : x10");
 assert.equal(fn({ ...base, setRewards: { safeZoneRegen10x: true }, fight: { active: true } }, "safe"), 10);
 console.log("idle-regen-safe-titan-v1: OK");
+
+// Combat de titan et choix de zone (Norman, 2026-10-12) : le combat se livre en Zone sûre, la zone affichée suit tout de suite, et choisir une zone (Zone sûre comprise) l'arrête, côté client comme côté serveur.
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const ui = lire("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ttn = lire("cloudflare/public/modules/titans-v1.js", "utf8");
+  const srv = lire("cloudflare/src/idle-adventure-v47.js", "utf8");
+  assert.ok(ui.includes("(String(a.fight.zone||'')!==cible||a.fight.titanId)"), "client : une zone choisie arrête le combat du titan, même la Zone sûre");
+  assert.ok(srv.includes("if(s.fight.active&&(s.fight.zone!==z.id||s.fight.titanId)){s.fight=X(base().fight)}"), "serveur : idem");
+  assert.ok(ttn.includes("av.selectedZone='safe';"), "la zone affichée passe en Zone sûre dès le lancement du combat de titan");
+}
+console.log("idle-regen-safe-titan-v1: choix de zone OK");

@@ -45,10 +45,8 @@ assert.deepEqual(r.sellout.filter((e) => e.dangerous).map((e) => e.id), []);
 
 /* Objets Sellout catalogués mais non achetables (garde EFFET_BOUTIQUE_AP_INACTIF) : liste figée. */
 const NON_ACHETABLES = [
-  "instaTrainingCap", "customEnergyMagicButtons", "moreCustomEnergyMagicButtons", "customIdleEnergyMagicButtons",
-  "lazyItopodFloorShifter", "questReminder", "nguCapModifier", "daycareKittyArt", "customResource3Button",
-  "anotherCustomResource3Button", "customIdleResource3Button", "resource3NameRandomizer", "adventureLight",
-  "adventureAdvancer"
+  /* menus absents du jeu (Questing, Daycare) et pool de 200 noms que le wiki ne publie pas */
+  "questReminder", "daycareKittyArt", "resource3NameRandomizer"
 ].sort();
 const nonAchetables = r.sellout.filter((e) => !e.buyable).map((e) => e.id).sort();
 assert.deepEqual(nonAchetables, NON_ACHETABLES,

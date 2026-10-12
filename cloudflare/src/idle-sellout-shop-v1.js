@@ -212,6 +212,22 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   diggerSlots: { passive: true },
   extraBeardSlot: { passive: true },
   fasterWishes: { passive: true },
+  /* Lazy ITOPOD Floor Shifter (Norman, 2026-10-12) : lu par la progression de l'ITOPOD (idle-ngu-progression.js, towerAppliquerEtageOptimalV1) ; wiki ITOPOD, 4G's Sellout Shop, 225 000 AP. */
+  lazyItopodFloorShifter: { passive: true },
+  /* Adventure Advancer (Norman, 2026-10-12) : lu par advanceAdventureAdvancerV1 (idle-ngu-progression.js) ; wiki, 4G's Sellout Shop : « Advances you to the furthest normal zone you can reach at the 20s mark of a rebirth. » */
+  adventureAdvancer: { passive: true },
+  /* Adventure Light (Norman, 2026-10-12) : lu par le menu (soreal-idle-ui.js, classe de lueur du bouton Aventure) ; wiki, 4G's Sellout Shop : « The Adventure button will light up when in a safe zone ». */
+  adventureLight: { passive: true },
+  /* Insta Training Cap (Norman, 2026-10-12) : lu au Rebirth (idle-sqlite-runtime.js, renaitre) ; wiki : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » */
+  instaTrainingCap: { passive: true },
+  /* Boutons de pourcentage personnalisés et NGU Cap Modifier (Norman, 2026-10-12) : lus par le menu (modules/perso-boutons-v1.js, d'après la quantité achetée dans le catalogue envoyé au joueur) ; wiki, 4G's Sellout Shop. */
+  customEnergyMagicButtons: { passive: true },
+  moreCustomEnergyMagicButtons: { passive: true },
+  customIdleEnergyMagicButtons: { passive: true },
+  customResource3Button: { passive: true },
+  anotherCustomResource3Button: { passive: true },
+  customIdleResource3Button: { passive: true },
+  nguCapModifier: { passive: true },
   autoNuker: { passive: true },
   /* 7-Day Time Bank for Daily Spin! (2026-09-24) : lu par spinDaily (idle-ngu-progression.js), plafond de banque 36 h -> 7 jours. */
   dailySpinTimeBank: { passive: true },

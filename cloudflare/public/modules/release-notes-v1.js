@@ -47,6 +47,8 @@
             'Retirer une pièce de plafond est refusé si l’énergie placée serait trop grande.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Contre un Titan, choisir une zone (Zone sûre comprise) arrête le combat ; la zone affichée passe tout de suite en Zone sûre au lancement.',
+            'Le ×5 de régénération de la Zone sûre ne s’affiche plus (ni ne s’applique) pendant un combat contre un Titan.',
             'Chaque Titan a son Auto-kill, qui donne le butin en ligne.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
@@ -67,6 +69,8 @@
             'Défis en cartes, avec blason et gros bouton Jouer.',
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Le « Réglage automatique de l’étage » de la Boutique AP fonctionne : avec lui, après un clic sur Auto, ton étage suit tout seul ton meilleur étage.',
+            'Le bouton Auto règle tes étages sur ton meilleur étage en un clic, sans monter étage par étage ; reclique dessus plus tard pour le remettre à jour.',
             'Compte à rebours avant le prochain combat.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
@@ -74,6 +78,11 @@
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Image de l’ordinateur recadrée ; placer une ressource ne fait plus défiler la page.',
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Boutique EXP : les quatre « Custom Input Button » fonctionnent : un bouton à côté d’Input qui y place le nombre de ton choix (✎).',
+            'Boutique AP : les boutons de pourcentage personnalisés (énergie, magie, idle, 3e ressource) et le réglage du bouton Max des NGU fonctionnent ; tu choisis le pourcentage avec ✎.',
+            'Boutique AP : Adventure Advancer, Adventure Light et Insta Training Cap fonctionnent maintenant (et sont achetables).',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             '« Combat le plus long » : un seul Fight, boss à PV pleins, sans fuite ni reprise, avec son issue (gagné ou perdu).',

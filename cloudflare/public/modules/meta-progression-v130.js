@@ -862,9 +862,13 @@
       const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
       /* Gestes du sac, rayon « Aventure » (Norman, 2026-10-04) : Double tap 20 EXP, Triple tap 30 EXP. */
       const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];
-      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
+      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={customInput1:'🔢 Bouton Input personnalisé 1',customInput2:'🔢 Bouton Input personnalisé 2',customInput3:'🔢 Bouton Input personnalisé 3',customInput4:'🔢 Bouton Input personnalisé 4',adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
       /* Une ligne d'explication pour les achats de l'onglet Débuts (effets déjà décrits dans le jeu : panneau d'inventaire, Basic Training). */
       const IDLE_EXP_AIDES_V1={
+        customInput1:'Ajoute un bouton à côté du champ Input qui y place le nombre que tu choisis (✎ pour le changer).',
+        customInput2:'Un deuxième bouton personnalisé à côté du champ Input (✎ pour choisir son nombre).',
+        customInput3:'Un troisième bouton personnalisé à côté du champ Input (✎ pour choisir son nombre).',
+        customInput4:'Un quatrième bouton personnalisé à côté du champ Input (✎ pour choisir son nombre).',
         inventorySpace:'Plus de places dans ton sac : les premières sont les moins chères.',
         basicLootFilter:'Débloque le filtre de butin : choisis les types d’objets à ne plus ramasser (menu Inventory).',
         boostRecycling:'Un boost utilisé peut revenir avec un palier de moins : +10 % de chance par achat, 50 % au maximum.',
@@ -886,6 +890,7 @@
        */
       const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1={
         adventurePower:'adventure',adventureToughness:'adventure',adventureHp:'adventure',adventureRegen:'adventure',
+        customInput1:'adventure',customInput2:'adventure',customInput3:'adventure',customInput4:'adventure',
         inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',syncBasicTraining:'adventure',doubleTap:'adventure',tripleTap:'adventure',basicLootFilter:'adventure',
         loadoutSlots:'adventure',loadoutSlot3:'adventure',boostRecycling:'adventure',inventoryMergeSlot:'adventure',
         diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'daycare',daycareSlot2:'daycare',daycareSlot3:'daycare',
@@ -1797,11 +1802,11 @@ function pageItopodIdleV1_(j){
           '</section>'+
           '<section class="itp-panneau itp-montee">'+
             '<div class="itp-titre">🪜 Étages à gravir</div>'+
-            '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':'Départ '+debut+' → fin '+fin)+'</div>'+
+            '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin))+'</div>'+
             '<div class="itp-champs">'+champ('itopodDebutV1','Départ',debut)+champ('itopodFinV1','Fin',fin)+'</div>'+
             '<div class="itp-actions">'+
               '<button type="button" class="itp-bouton" onclick="window.__itopodEtagesIdleV1__()">Appliquer</button>'+
-              '<button type="button" class="itp-bouton itp-bouton-auto" onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
+              '<button type="button" class="itp-bouton itp-bouton-auto" title="Règle tes étages sur ton meilleur étage (l’étage optimal du moment). Reclique plus tard pour le remettre à jour." onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
             '</div>'+
           '</section>'+
           '<section class="itp-panneau">'+
