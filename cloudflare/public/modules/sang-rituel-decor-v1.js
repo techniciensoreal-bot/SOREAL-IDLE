@@ -927,7 +927,7 @@ function sgDessiner(sc,g){
   gl.drawElements(gl.TRIANGLES,st.idx.length,gl.UNSIGNED_SHORT,0);
 }
 /* Succion : mêmes images clés que l'ancien bmSuce, calée sur l'horloge des paquets (sc.__t0, durée d'un coup sc.__S) ; boucle d'images seulement tant qu'une sangsue travaille à l'écran. */
-var sgSucId=0;
+var sgSucId=0,SG_PULSE_MAX=2.2;
 function sgSuccion(){
   var l=document.querySelectorAll('.bm-scene[data-source="sucon"]'),vivant=false,i,now=performance.now()/1000,calme=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   for(i=0;i<l.length;i++){
@@ -936,7 +936,8 @@ function sgSuccion(){
     var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
     if(!actif){if(sc.__suc){sc.__suc=null;sgDessiner(sc,sc.__g==null?1:sc.__g);}continue;}
     vivant=true;
-    var S=sc.__S||1.1,pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
+    /* Norman (2026-10-12) : « la sangsue n'est pas animée » en jeu réel : avec peu de Magie un niveau dure des minutes, donc un coup (P / 6) aussi, et le ventre ne bougeait qu'une fois par minute. Le ventre pulse donc au rythme des coups quand ils sont rapides, et AU PLUS toutes les 2,2 s sinon. */
+    var S=Math.min(sc.__S||1.1,SG_PULSE_MAX),pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
     if(pr<.45){var a=sgLisse(0,.45,pr);sx=1-.12*a;sy=1+.1*a;}
     else if(pr<.7){var b=sgLisse(.45,.7,pr);sx=.88+.15*b;sy=1.1-.12*b;}
     else{var c=sgLisse(.7,1,pr);sx=1.03-.03*c;sy=.98+.02*c;}
@@ -1775,7 +1776,7 @@ function css(){
     P+'.bm-scene[data-source="sucon"] .bm-sangsue-img{display:block}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-img{display:none}',
     /* sans WebGL : l'image pulse au rythme des coups (repli) */
-    P+'.bm-scene[data-source="sucon"].bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{transform-origin:20% 45%;animation:bmSuce var(--bm-pas,1.1s) ease-in-out infinite}',
+    P+'.bm-scene[data-source="sucon"].bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{transform-origin:20% 45%;animation:bmSuce min(var(--bm-pas,1.1s),2.2s) ease-in-out infinite}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-gl{display:block}',
     /* l'œil (paupière : dort, pleure) est posé sur la bosse de la tête ; les Zzz au-dessus ; la trace de la ventouse sur la peau */
     P+'.bm-scene[data-source="sucon"] .bm-oeil{z-index:8;width:17px;height:17px;left:calc(var(--sg-ox,0px) + 115.5px*var(--sg-s,.5) - 8.5px);top:calc(var(--sg-oy,0px) + 131px*var(--sg-s,.5) - 8.5px)}',

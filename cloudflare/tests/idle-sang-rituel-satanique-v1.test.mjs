@@ -389,3 +389,8 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("sc.classList.add('bm-gl-non')") && decor.includes("window.__sgErr=") && decor.includes(".bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{") && !decor.includes(".bm-sangsue-img{filter:drop-shadow"), "repli animé quand WebGL est indisponible, erreur journalisée");
 }
+{
+  // Le ventre bouge au moins toutes les 2,2 s même quand un niveau dure des minutes (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("SG_PULSE_MAX=2.2") && decor.includes("Math.min(sc.__S||1.1,SG_PULSE_MAX)") && decor.includes("animation:bmSuce min(var(--bm-pas,1.1s),2.2s)"), "pulsation du ventre plafonnée à 2,2 s");
+}
