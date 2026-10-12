@@ -19699,12 +19699,13 @@
           const toughnessEffectif=
             Math.max(0,idleNombre_(a&&a.stats&&a.stats.toughness))*
             multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement);
+          const facteurAleaDegats=facteurAleatoireDegatsAdventureIdleV2_();
           let degats=Math.min(
             avant,
             degatsEnnemiAdventureIdleV2_(
               fight.mobPower,
               toughnessEffectif,
-              facteurAleatoireDegatsAdventureIdleV2_()
+              facteurAleaDegats
             )
           );
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
@@ -19713,9 +19714,13 @@
           if(idleTitanEtatV1){
             const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,idleTitanEtatV1,momentEvenement,Math.random());
             attTitan=att;
+            /*
+             * Wiki « Titans » : « All titans grow in strength by 1% per attack, which can make them much harder to defeat with the bare minimum power/toughness compared to even slightly higher stats ». C'est la PUISSANCE du titan qui
+             * grandit (cumulée, 1,01 puissance n) AVANT la réduction par ta Robustesse : dégâts = max(10 % de sa puissance, puissance - Robustesse / 2). Appliquée seulement au résultat final (après la réduction), la croissance
+             * ne comptait presque pas (Norman, 2026-10-12 : « son attaque ne montait pas beaucoup, plus le combat dure plus il est supposé taper fort, ça se stack »).
+             */
+            if(att.croissanceTitan>1)degats=Math.min(avant,degatsEnnemiAdventureIdleV2_(fight.mobPower*att.croissanceTitan,toughnessEffectif,facteurAleaDegats));
             if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));
-            /* Wiki « Titans » : tous les titans gagnent 1 % de force par attaque (cumulé) : plus le combat dure, plus ils tapent fort (Norman, 2026-10-12 : « le Grand Corrupted Tree ne frappe pas assez fort »). */
-            if(att.croissanceTitan>1)degats=Math.min(avant,Math.round(degats*att.croissanceTitan));
             if(att.type==='puissante'){
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
               fxTypeAttaque='puissante';
@@ -19736,6 +19741,7 @@
             if(att.paralyse)fxIdleV1_('joueur','eclair');
             if(att.spores)fxIdleV1_('joueur','spore');
             if(att.spores)ajouterLogAventureIdleV1_('enemy','🍄 « Tes bras deviennent soudain lourds » : tes dégâts tombent aux 2/3 pendant 15 s.');
+            if(att.draine){fxIdleV1_('joueur','spore');ajouterLogAventureIdleV1_('enemy','🍄 « Tu sens l’énergie se vider de ton corps » : tu subis ×2,5 de dégâts pendant 15 s.');}
             if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
           }
           if(idleAdventureManualStateV3.blockUntil>momentEvenement){

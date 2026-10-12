@@ -65,11 +65,45 @@
     return false;
   }
   function nombreTexte_(v){var h=window.__SOREAL_IDLE_META_HOST_V130__;return h&&h.formatGrandNombreIdleV70_?h.formatGrandNombreIdleV70_(v):String(v);}
+  /*
+   * Fenêtre de saisie du site (Norman, 2026-10-12 : « le popup qui apparaît pour demander combien on veut mettre n'a pas l'apparence du site ») : mêmes cartes que les autres fenêtres du jeu (.soreal-idle-modal-*-v63) à la place
+   * du prompt() du navigateur ; Entrée valide, Échap ou un clic à côté ferme.
+   */
+  function demander_(o){
+    var ancien=document.getElementById('sorealIdlePersoModalV1');
+    if(ancien&&ancien.parentNode)ancien.parentNode.removeChild(ancien);
+    var h=window.__SOREAL_IDLE_META_HOST_V130__,esc=function(t){return h&&h.idleHtml_?h.idleHtml_(t):String(t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+    var m=document.createElement('div');
+    m.id='sorealIdlePersoModalV1';m.className='soreal-idle-modal-backdrop-v63';
+    m.innerHTML='<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="'+esc(o.titre)+'">'+
+      '<div class="soreal-idle-modal-top-v63"><div class="soreal-idle-modal-icon-v63">'+esc(o.icone||'⭐')+'</div><div class="soreal-idle-modal-title-v63">'+esc(o.titre)+'</div></div>'+
+      '<div class="soreal-idle-modal-body-v63"><div class="soreal-idle-modal-info-v63">'+esc(o.aide)+'</div>'+
+        '<input class="perso-modal-champ-v1" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="'+esc(o.valeur)+'">'+
+        '<div class="perso-modal-erreur-v1" aria-live="polite"></div></div>'+
+      '<div class="soreal-idle-modal-actions-v63"><button type="button" class="soreal-idle-modal-button-v63 cancel">Annuler</button><button type="button" class="soreal-idle-modal-button-v63 confirm">Valider</button></div>'+
+    '</div>';
+    var champ=m.querySelector('input'),err=m.querySelector('.perso-modal-erreur-v1');
+    function fermer(){if(m.parentNode)m.parentNode.removeChild(m);document.removeEventListener('keydown',clavier,true);}
+    function valider(){
+      if(!o.valider(champ.value)){err.textContent=o.erreur||'Valeur invalide.';champ.focus();return;}
+      fermer();
+      if(typeof o.apres==='function')o.apres();
+    }
+    function clavier(e){
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fermer();}
+      else if(e.key==='Enter'&&document.activeElement===champ){e.preventDefault();e.stopPropagation();valider();}
+    }
+    m.addEventListener('click',function(e){if(e.target===m)fermer();});
+    m.querySelector('.cancel').addEventListener('click',fermer);
+    m.querySelector('.confirm').addEventListener('click',valider);
+    champ.addEventListener('input',function(){err.textContent='';});
+    document.addEventListener('keydown',clavier,true);
+    document.body.appendChild(m);
+    try{champ.focus();champ.select();}catch(_e){}
+  }
   function editerInput(n){
-    var rep=window.prompt('Nombre placé dans le champ Input par ce bouton (entier, 1 ou plus) :',String(valeurInput(n)));
-    if(rep==null)return;
-    if(!definirInput(n,rep)){window.alert('Entre un entier supérieur ou égal à 1.');return;}
-    decorer(true);
+    demander_({icone:'⭐',titre:'Bouton personnalisé '+n,aide:'Nombre placé dans le champ Input quand tu cliques sur ce bouton (entier, 1 ou plus).',valeur:String(valeurInput(n)),
+      valider:function(rep){return definirInput(n,rep);},erreur:'Entre un entier supérieur ou égal à 1.',apres:function(){decorer(true);}});
   }
   function appliquerInput(n){
     var a=window.__SOREAL_IDLE_ALLOC_V1__;
@@ -77,30 +111,34 @@
   }
   function decorerChampInput_(champ,force){
     var boite=champ.parentElement;
-    if(!boite)return;
+    if(!boite||!boite.parentNode)return;
     var cle=[1,2,3,4].map(function(n){return possedeExp_(INPUTS[n].achat)?valeurInput(n):'-';}).join(',');
-    if(!force&&boite.getAttribute('data-perso-input-cle')===cle)return;
+    var suivant=boite.nextElementSibling,rangee=suivant&&suivant.hasAttribute&&suivant.hasAttribute('data-perso-input-rangee')?suivant:null;
+    var aucun=cle==='-,-,-,-';
+    if(!force&&((rangee&&rangee.getAttribute('data-perso-input-cle')===cle)||(!rangee&&aucun&&!boite.querySelector('[data-perso-input-v1]'))))return;
+    /* anciens boutons (collés dans la boîte du champ) et ancienne rangée */
     Array.prototype.forEach.call(boite.querySelectorAll('[data-perso-input-v1]'),function(b){b.parentNode.removeChild(b);});
-    var html='';
+    if(rangee)rangee.parentNode.removeChild(rangee);
+    boite.removeAttribute('data-perso-input-cle');
+    if(aucun)return;
+    /* Norman (2026-10-12) : « le bouton est très moche, il doit avoir l'apparence du menu dans lequel il se trouve » : une rangée .soreal-idle-bt-presets-v120 comme « Idle » (le thème de chaque menu s'y applique tout seul) */
+    var html='<span>⭐ Mes nombres</span>';
     [1,2,3,4].forEach(function(n){
       if(!possedeExp_(INPUTS[n].achat))return;
-      html+='<button type="button" class="perso-pct-v1" data-perso-input-v1="'+n+'" title="Ton bouton personnalisé '+n+' : place '+nombreTexte_(valeurInput(n))+' dans Input" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquerInput('+n+')">'+nombreTexte_(valeurInput(n))+'</button>'+
-        '<button type="button" class="perso-pct-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✎</button>';
+      html+='<button type="button" data-perso-input-v1="'+n+'" title="Ton bouton personnalisé '+n+' : place '+nombreTexte_(valeurInput(n))+' dans Input" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquerInput('+n+')">'+nombreTexte_(valeurInput(n))+'</button>'+
+        '<button type="button" class="perso-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✏️</button>';
     });
-    if(html){
-      var tampon=document.createElement('span');
-      tampon.innerHTML=html;
-      while(tampon.firstChild)boite.appendChild(tampon.firstChild);
-    }
-    boite.setAttribute('data-perso-input-cle',cle);
+    var r=document.createElement('div');
+    r.className='soreal-idle-bt-presets-v120';
+    r.setAttribute('data-perso-input-rangee','1');r.setAttribute('data-perso-input-cle',cle);
+    r.innerHTML=html;
+    boite.parentNode.insertBefore(r,boite.nextSibling);
   }
 
   function editer(slot){
     var cible=slot==='nguCap'?pourcentNgu_():pourcentage(slot);
-    var rep=window.prompt(slot==='nguCap'?'Pourcentage du plafond placé par le bouton Max des NGU (1 à 100) :':'Pourcentage de ce bouton (1 à 100) :',String(cible).replace('.',','));
-    if(rep==null)return;
-    if(!definir(slot,rep)){window.alert('Entre un nombre entre 1 et 100.');return;}
-    decorer(true);
+    demander_({icone:'%',titre:slot==='nguCap'?'Max des NGU':'Pourcentage du bouton',aide:slot==='nguCap'?'Pourcentage du plafond placé par le bouton Max des NGU (1 à 100).':'Part placée par ce bouton (1 à 100 %).',valeur:String(cible).replace('.',','),
+      valider:function(rep){return definir(slot,rep);},erreur:'Entre un nombre entre 1 et 100.',apres:function(){decorer(true);}});
   }
 
   /* Écrit le montant dans l'Input comme Max, 1/2 et 1/4 (menu NGU : son propre calcul). */
@@ -180,7 +218,7 @@
     CHAMPS_INPUT.forEach(function(id){var champ=document.getElementById(id);if(champ){try{decorerChampInput_(champ,Boolean(force));}catch(_e){}}});
     var cadres=document.querySelectorAll('.soreal-idle-bt-presets-v120,.nl-ligne');
     Array.prototype.forEach.call(cadres,function(c){
-      if(c.classList.contains('soreal-idle-bt-total-v1')||c.getAttribute('data-alloc-total-v1'))return;
+      if(c.classList.contains('soreal-idle-bt-total-v1')||c.getAttribute('data-alloc-total-v1')||c.hasAttribute('data-perso-input-rangee'))return;
       try{decorerCadre_(c,Boolean(force));}catch(_e){}
     });
   }
@@ -210,7 +248,12 @@
     /* un achat de la Boutique AP ne change pas le DOM : un rattrapage régulier suffit */
     setInterval(planifier_,1500);
     var style=document.createElement('style');
-    style.textContent='.perso-pct-v1{border-color:#f2d79a!important;color:#ffe9a6!important}.perso-pct-edit-v1{min-width:30px;padding:0 6px!important;opacity:.85;font-size:12px!important}';
+    style.textContent='.perso-pct-v1{border-color:#f2d79a!important;color:#ffe9a6!important}.perso-pct-edit-v1{min-width:30px;padding:0 6px!important;opacity:.85;font-size:12px!important}'+
+      '[data-perso-input-rangee] .perso-edit-v1{opacity:1;font-size:26px!important;line-height:1!important;padding:0!important}'+
+      '[data-perso-input-rangee] button{white-space:nowrap!important;letter-spacing:0!important}[data-perso-input-rangee] button .nb-suf{display:inline!important}'+
+      '.perso-modal-champ-v1{display:block;width:100%;box-sizing:border-box;margin:14px 0 0;padding:13px 14px;border-radius:13px;border:1px solid rgba(184,164,255,.38);background:#0f1626;color:#f5f1ff;font:inherit;font-size:22px;font-weight:1000;text-align:center;outline:none}'+
+      '.perso-modal-champ-v1:focus{border-color:#b8a4ff;box-shadow:0 0 0 3px rgba(139,104,214,.35)}'+
+      '.perso-modal-erreur-v1{min-height:20px;margin-top:8px;color:#ff9a9a;font-size:13px;font-weight:800;text-align:center}';
     (document.head||document.documentElement).appendChild(style);
   }
 

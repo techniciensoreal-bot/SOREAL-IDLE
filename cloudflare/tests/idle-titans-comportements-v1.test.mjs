@@ -49,7 +49,13 @@ assert.equal(api.multDegatsJoueur("t2", e, 0), 1);
 r = api.attaqueTitan("t2", e, 1000, 0.5 / 7); assert.equal(r.type, "sporesBras"); assert.ok(r.spores);
 assert.equal(api.multDegatsJoueur("t2", e, 15999), 2 / 3); assert.equal(api.multDegatsJoueur("t2", e, 16000), 1);
 assert.equal(api.attaqueTitan("t2", e, 2000, 0.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
-assert.equal(api.attaqueTitan("t2", e, 2000, 1.5 / 7).type, "base", "spores d'énergie : ampleur inconnue, non simulées");
+const e3 = api.neuf(); // nuage d'énergie (1/7, si pas déjà appliqué) : dégâts subis x2,5 pendant 15 s (valeur choisie par SOREAL, le wiki hésite entre 1,5 et 4)
+r = api.attaqueTitan("t2", e3, 2000, 1.5 / 7); assert.equal(r.type, "sporesEnergie"); assert.ok(r.draine);
+assert.equal(api.attaqueTitan("t2", e3, 3000, 5.5 / 7).multDegats, 2.5, "pendant 15 s : dégâts subis x2,5");
+assert.equal(api.attaqueTitan("t2", e3, 16999, 5.5 / 7).multDegats, 2.5, "encore actif juste avant la fin");
+assert.equal(api.attaqueTitan("t2", e3, 17000, 5.5 / 7).multDegats, 1, "fini au bout de 15 s");
+assert.equal(api.attaqueTitan("t2", e3, 17500, 1.5 / 7).type, "sporesEnergie", "nouveau nuage possible une fois le premier fini");
+assert.equal(api.attaqueTitan("t2", e3, 18000, 1.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
 assert.equal(api.attaqueTitan("t2", e, 2000, 2.5 / 7).multDegats, 1.5);
 assert.equal(api.attaqueTitan("t2", e, 2000, 5.5 / 7).multDegats, 1);
 assert.equal(api.multDegatsJoueur("t1", api.neuf(), 0), 1);
@@ -116,5 +122,11 @@ console.log("idle-titans-comportements-v1: OK");
   assert.ok(Math.abs(rN.croissanceTitan - Math.pow(1.01, 49)) < 1e-9, "50e attaque : 1,01 puissance 49 (environ +63 %)");
   assert.ok(rN.croissanceTitan > 1.6 && rN.croissanceTitan < 1.65);
   assert.ok(api.attaqueTitan("t1", api.neuf(), 0, 0.9).croissanceTitan === 1 && api.attaqueTitan("t5", api.neuf(), 0, 0.9).croissanceTitan === 1, "tous les titans partent à 1");
-  assert.ok(ui.includes("att.croissanceTitan>1") && ui.includes("degats*att.croissanceTitan"), "appliqué dans le combat");
+  assert.ok(ui.includes("att.croissanceTitan>1") && ui.includes("degatsEnnemiAdventureIdleV2_(fight.mobPower*att.croissanceTitan,toughnessEffectif,facteurAleaDegats)"), "appliqué à la PUISSANCE du titan, avant la réduction par la Robustesse");
+  {
+    // effet : à Robustesse 3 620 contre Puissance 2 000, plancher de 10 % = 200 ; après 100 attaques sa puissance vaut 2 000 x 1,01 puissance 99 = 5 370, donc 5 370 - 1 810 = 3 560 par coup
+    const degats = (p, t) => Math.max(p * 0.1, p - t / 2);
+    assert.equal(Math.round(degats(2000, 3620)), 200);
+    assert.ok(Math.abs(degats(2000 * Math.pow(1.01, 99), 3620) - 3560) < 80, "100 attaques : environ 3 560 par coup au lieu de 200");
+  }
 }

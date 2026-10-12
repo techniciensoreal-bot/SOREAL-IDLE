@@ -1352,7 +1352,8 @@ function banqueDemarrer(){
   banqueCharger();
   if(!banqueBoucle&&typeof requestAnimationFrame==='function')banqueBoucle=requestAnimationFrame(banqueTic);
 }
-var FIL_N=30,FIL_FPS=9,FIL_DUREE=FIL_N/FIL_FPS,FIL_IMAGE_SANG=19,FIL_IMAGE_SANG_FIN=20,filImgs=null,filBoucle=0;
+/* cadence ralentie de 9 à 6 images par seconde (Norman, 2026-10-12 : « j'aimerais ralentir l'animation du bol de barbelés ») : l'animation dure 5 s au lieu de 3,3 s */
+var FIL_N=30,FIL_FPS=6,FIL_DUREE=FIL_N/FIL_FPS,FIL_IMAGE_SANG=19,FIL_IMAGE_SANG_FIN=20,filImgs=null,filBoucle=0;
 function filCharger(){
   if(filImgs)return;
   filImgs=[];
@@ -1478,8 +1479,17 @@ function stabiliser(id,n){
  * Même règle que les autres rituels : la capacité grandit par paliers (paliers()). Boucles sans à-coup (règle n°3) : la goutte naît et s'éteint en fondu, toujours dans le même sens.
  */
 var BAC_VIDE=38;   /* hauteur dont le sang descend quand le bac est vide */
+/*
+ * La baignoire du Braquage de la banque du sang (Norman, 2026-10-12) : « il faut plusieurs Baxters pour la remplir, qui doivent être remplacés comme les récipients ; et quand la baignoire est pleine, on la change aussi ».
+ * Une cuve = SACS_PAR_BAC poches : la poche se vide pendant son quart de cuve (le niveau de la cuve monte en continu), puis elle est remplacée par une poche pleine ; quand la cuve est pleine, elle est remplacée par une cuve vide.
+ */
+var SACS_PAR_BAC=4,bacSacs={},BAC_POCHE_VIDE=58;
+function niveauPoche(fraction){
+  var q=Math.max(0,Math.min(0.9999,fraction))*SACS_PAR_BAC;
+  return 1-(q-Math.floor(q));   /* 1 : poche pleine, 0 : vide */
+}
 function bac(fraction,actif){
-  var t=(BAC_VIDE*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2);
+  var t=(BAC_VIDE*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2),tp=(BAC_POCHE_VIDE*(1-niveauPoche(fraction))).toFixed(2);
   return '<svg class="bm-bac-svg" viewBox="0 0 250 176" aria-hidden="true" focusable="false">'+
     '<clipPath id="bm-clip-bac"><path d="M112 130 H236 L228 168 Q227 171 224 171 H124 Q121 171 120 168 Z"/></clipPath>'+
     /* portant */
@@ -1489,12 +1499,14 @@ function bac(fraction,actif){
     '<circle cx="47.5" cy="172" r="4" fill="#8c94a1" stroke="#000" stroke-width="1.6"/>'+
     /* poche de transfusion */
     '<path d="M88 11 V20" stroke="#000" stroke-width="2.4"/>'+
+    '<clipPath id="bm-clip-poche"><path d="M72 22 Q72 18 78 18 H104 Q110 18 110 22 L113 66 Q113 78 100 82 H82 Q69 78 69 66 Z"/></clipPath>'+
+    '<g class="bm-poche">'+
     '<path d="M72 22 Q72 18 78 18 H104 Q110 18 110 22 L113 66 Q113 78 100 82 H82 Q69 78 69 66 Z" fill="#d9eef7" fill-opacity=".38" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/>'+
-    '<path d="M72.5 42 H109.5 L112.5 66 Q112.5 77.4 100 81 H82 Q69.5 77.4 69.5 66 Z" fill="#c4122c" fill-opacity=".92"/>'+
-    '<path d="M72.5 42 Q81 39 90 42 T109.5 42" fill="none" stroke="#ff5a73" stroke-width="1.6"/>'+
+    '<g clip-path="url(#bm-clip-poche)"><g class="bm-poche-liq" style="transform:translateY('+tp+'px)"><rect x="64" y="24" width="54" height="66" fill="#c4122c" fill-opacity=".92"/><path d="M64 24 q6 -3 12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#ff5a73" stroke-width="1.6"/></g></g>'+
     '<path d="M76 26 H105 M76 34 H105" stroke="#fff" stroke-opacity=".5" stroke-width="1.4"/>'+
     '<path d="M77 24 Q74 50 76 70" stroke="#fff" stroke-opacity=".55" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+
     '<rect x="81" y="52" width="20" height="13" rx="2" fill="#fff" stroke="#000" stroke-width="1.4"/><path d="M85 58 H97 M85 62 H93" stroke="#c4122c" stroke-width="1.8" stroke-linecap="round"/>'+
+    '</g>'+
     /* chambre compte-gouttes, tuyau */
     '<rect x="87" y="82" width="8" height="5" fill="#9aa3ad" stroke="#000" stroke-width="1.4"/>'+
     '<rect x="83" y="87" width="16" height="22" rx="5" fill="#d9eef7" fill-opacity=".5" stroke="#000" stroke-width="1.8"/>'+
@@ -1504,12 +1516,14 @@ function bac(fraction,actif){
     '<path d="M91 111 V117 Q91 122 104 122 Q140 122 156 118 V124" fill="none" stroke="#c4122c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'+
     '<rect x="148" y="116" width="16" height="6" rx="2" fill="#4aa3df" stroke="#000" stroke-width="1.4"/>'+
     /* le bac en plastique : fond, sang, devant */
+    '<g class="bm-bac-cuve">'+
     '<path d="M110 128 H238 L230 168 Q229 173 224 173 H124 Q119 173 118 168 Z" fill="#8fb1c9" fill-opacity=".22" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
     '<g clip-path="url(#bm-clip-bac)"><g class="bm-bac-liq" style="transform:translateY('+t+'px)"><g class="bm-onde"><path d="M-40 134 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V190 H-40 Z" fill="url(#bm-g-sang)" transform="translate(130 0)"/></g></g></g>'+
     '<path d="M110 128 H238" stroke="#e7f1f7" stroke-width="3.4" stroke-linecap="round"/>'+
     '<path d="M122 142 H226 M120 156 H228" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>'+
     '<path d="M110 128 L102 134 V144 L110 150 M238 128 L246 134 V144 L238 150" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
     '<path d="M122 134 L127 166" stroke="#fff" stroke-opacity=".5" stroke-width="2.6" stroke-linecap="round"/>'+
+    '</g>'+
     /* goutte */
     '<path class="bm-bac-goutte" d="M156 128 q-3 5 0 7 q3 -2 0 -7 z" fill="#c4122c" stroke="#7a0818" stroke-width=".8" style="--bac-chute:'+(30-parseFloat(t)).toFixed(1)+'px"/>'+
   '</svg>';
@@ -1518,8 +1532,27 @@ function majBac(sc,id,n){
   var pal=paliers(id,n),el=sc.parentNode&&sc.parentNode.querySelector('[data-bm-bac="'+id+'"]');
   if(!el)return;
   var liq=el.querySelector('.bm-bac-liq'),g=el.querySelector('.bm-bac-goutte'),t=BAC_VIDE*(1-pal.fraction);
-  if(liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
-  if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
+  var poche=el.querySelector('.bm-poche'),pliq=el.querySelector('.bm-poche-liq'),cuve=el.querySelector('.bm-bac-cuve');
+  var sac=pal.pleins*SACS_PAR_BAC+Math.floor(Math.max(0,Math.min(0.9999,pal.fraction))*SACS_PAR_BAC),avant=bacSacs[id],pleinsAvant=bacSacs[id+'|p'];
+  bacSacs[id]=sac;bacSacs[id+'|p']=pal.pleins;
+  var tp=BAC_POCHE_VIDE*(1-niveauPoche(pal.fraction));
+  function niveaux(){
+    if(liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
+    if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
+    if(pliq)pliq.style.transform='translateY('+tp.toFixed(2)+'px)';
+  }
+  /* une poche vient d'être vidée : elle est remplacée par une pleine (elle s'en va par le haut, la neuve redescend) ; la cuve pleine est remplacée par une vide (elle part à gauche, l'autre arrive de la droite) */
+  var changePoche=avant!==undefined&&sac>avant&&poche,changeCuve=pleinsAvant!==undefined&&pal.pleins>pleinsAvant&&cuve&&sac-avant<=SACS_PAR_BAC;
+  var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if((changePoche||changeCuve)&&!reduit){
+    if(changePoche){poche.classList.remove('swap');void poche.getBoundingClientRect();poche.classList.add('swap');setTimeout(function(){poche.classList.remove('swap');},900);}
+    if(changeCuve){cuve.classList.remove('swap');void cuve.getBoundingClientRect();cuve.classList.add('swap');setTimeout(function(){cuve.classList.remove('swap');},1000);}
+    /* pendant la première moitié du mouvement l'ancien contenu reste affiché (poche vide, cuve pleine) ; le nouveau niveau n'apparaît qu'une fois l'ancien parti */
+    if(!changeCuve&&liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
+    if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
+    if(!changePoche&&pliq)pliq.style.transform='translateY('+tp.toFixed(2)+'px)';
+    clearTimeout(el.__swapT);el.__swapT=setTimeout(niveaux,changeCuve?430:360);
+  }else niveaux();
   var actif=!!sc.querySelector('.bm-tuyau.saigne-v1');
   if(el.classList.contains('on')!==actif)el.classList.toggle('on',actif);
 }
@@ -1753,7 +1786,8 @@ function css(){
     P+'.bm-scene.bm-coup .bm-goutte-doigt.g2{animation-delay:.09s}',
     P+'.bm-scene.bm-coup .bm-goutte-doigt.g3{animation-delay:.18s}',
     P+'.bm-papier{position:absolute;left:calc(var(--px) - 65px);top:-36px;width:68px;height:88px;z-index:5;transform-origin:50% 100%;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}',
-    P+'.bm-coupure{position:absolute;left:calc(var(--px) - 1.5px);top:76px;width:3px;height:42px;z-index:5;border-radius:2px;background:linear-gradient(180deg,#e0304a,#a30f22);box-shadow:0 0 4px rgba(255,40,70,.8);opacity:0;transform-origin:50% 0}',
+    /* coupure : tracé irrégulier (les cicatrices du dessin ne sont pas droites) ; clip-path, donc plus d'ombre autour */
+    P+'.bm-coupure{position:absolute;left:calc(var(--px) - 4px);top:76px;width:8px;height:42px;z-index:5;background:linear-gradient(180deg,#e0304a,#a30f22);clip-path:polygon(42% 0,47% 10%,38% 22%,45% 36%,36% 50%,44% 64%,40% 78%,46% 90%,43% 100%,57% 100%,63% 90%,55% 78%,60% 64%,52% 50%,62% 36%,54% 22%,63% 10%,57% 0);rotate:3deg;opacity:0;transform-origin:50% 0}',
     P+'.bm-scene[data-rythme="boucle"] .bm-papier{animation:bmCoupe var(--bm-t,1s) ease-in-out infinite}',
     P+'.bm-scene[data-rythme="boucle"] .bm-coupure{animation:bmTrait var(--bm-t,1s) ease-out infinite}',
     P+'.bm-scene.bm-coup .bm-papier{animation:bmCoupe .9s ease-in-out 1 both}',
@@ -1765,7 +1799,7 @@ function css(){
     P+'.bm-scene.bm-hors .bm-trace{opacity:0;transition:opacity .1s linear}',
     P+'.bm-trace-trou{left:calc(var(--px) - 6px);top:86px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#2a0309 0 22%,#b3102a 24% 52%,rgba(179,16,42,.35) 54% 70%,transparent 72%)}',
     /* Norman (2026-10-12) : un seul trait au niveau de la feuille, plus de carré autour de trois coupures */
-    P+'.bm-trace-coupures{left:calc(var(--px) - 1.5px);top:76px;width:3px;height:42px;background:linear-gradient(#c01a30,#8f1124);border-radius:2px}',
+    P+'.bm-trace-coupures{left:calc(var(--px) - 4px);top:76px;width:8px;height:42px;background:linear-gradient(#c01a30,#8f1124);clip-path:polygon(42% 0,47% 10%,38% 22%,45% 36%,36% 50%,44% 64%,40% 78%,46% 90%,43% 100%,57% 100%,63% 90%,55% 78%,60% 64%,52% 50%,62% 36%,54% 22%,63% 10%,57% 0);rotate:3deg}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     /* nouvelle image avec la main (1552 x 677) : l'avant-bras garde EXACTEMENT sa taille et sa place d'avant (épaisseur 63 px, centre à 96 px, manche à gauche) pour que la coupure tombe au même endroit ; la main dépasse à droite, HORS de la case : on ne la voit que quand le bras glisse (sortie et retour) */
@@ -1922,6 +1956,13 @@ function css(){
     P+'.bm-bac{width:100%;max-width:250px;margin:6px auto 0}',
     P+'.bm-bac-svg{display:block;width:100%;height:auto;overflow:visible}',
     P+'.bm-bac-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
+    P+'.bm-poche-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
+    /* remplacements (une seule fois) : la poche vide s'envole par le haut et une pleine redescend ; la cuve pleine part à gauche et une vide arrive de la droite */
+    '@keyframes bmPocheSwap{0%{transform:translateY(0);opacity:1}38%{transform:translateY(-46px);opacity:0}39%{transform:translateY(-46px);opacity:0}100%{transform:translateY(0);opacity:1}}',
+    '@keyframes bmCuveSwap{0%{transform:translateX(0);opacity:1}42%{transform:translateX(-150px);opacity:0}43%{transform:translateX(150px);opacity:0}100%{transform:translateX(0);opacity:1}}',
+    P+'.bm-poche.swap{animation:bmPocheSwap .85s ease-in-out 1}',
+    P+'.bm-bac-cuve.swap{animation:bmCuveSwap .95s ease-in-out 1}',
+    '@media (prefers-reduced-motion:reduce){'+P+'.bm-poche.swap,'+P+'.bm-bac-cuve.swap{animation:none}}',
     P+'.bm-bac-goutte{opacity:0;transform-box:fill-box;animation:none}',
     P+'.bm-bac.on .bm-bac-goutte{animation:bmBacGoutte 1.1s linear infinite}',
     /* la goutte naît au bout du tuyau (fondu d'entrée), tombe, s'éteint dans le sang (fondu de sortie) : toujours dans le même sens */

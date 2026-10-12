@@ -12,13 +12,17 @@
  *  Le wiki ne dit pas si le compteur « 10 attaques » est déjà plein au début du combat : on part de 0 (la première Paralyze ne peut venir qu'à la 11e attaque).
  *
  * TOUS LES TITANS (https://ngu-idle.fandom.com/wiki/Titans : « All titans grow in strength by 1% per attack ») : à chaque attaque la force du titan augmente de 1 % ; le wiki ne dit pas si c'est cumulé ou ajouté : on cumule
- *  (1,01 puissance n), lecture la plus naturelle de « 1 % par attaque » (choix signalé). La n-ième attaque (n = 1 la première) fait donc 1,01 puissance (n - 1) fois les dégâts de base (rep.croissanceTitan, appliqué par le combat).
+ *  (1,01 puissance n), lecture la plus naturelle de « 1 % par attaque » (choix signalé) : le wiki ajoute que cela rend les titans « much harder to defeat with the bare minimum power/toughness compared to even slightly higher stats »,
+ *  donc la croissance porte sur la PUISSANCE du titan, avant la réduction par ta Robustesse (le combat multiplie sa Puissance par rep.croissanceTitan avant de calculer max(10 %, puissance - Robustesse / 2)). La n-ième attaque (n = 1 la première)
+ *  a donc une Puissance de 1,01 puissance (n - 1) fois la Puissance de base.
  *  Grand Corrupted Tree : « GCT will also get slightly stronger over time » (même règle) et « The tree will do a lot of damage even on the beginning of the fight » : Norman, 2026-10-12 : « il tape à 380 max, quelque chose cloche ».
  *
  * Grand Corrupted Tree (https://ngu-idle.fandom.com/wiki/Grand_Corrupted_Tree, « Titan Skills ») :
  *  - Cloud of spores « arms feel heavy » (1/7, si le malus n'est pas déjà appliqué) : tes dégâts tombent à 2/3 pendant 15 s.
  *  - Power Attack (2/7) : dégâts x1,5.
- *  - Cloud of spores « energy draining » (1/7) : « dégâts subis 1.5?/4x? » -- le wiki lui-même n'est pas sûr de l'ampleur (points d'interrogation) -> NON simulé (attaque de base).
+ *  - Cloud of spores « energy draining » (1/7, si le malus n'est pas déjà appliqué) : « Increases damage taken to 1.5?/4x? for 15 seconds » et, dans le texte de la page, « the much more dangerous one that reduces your toughness by a
+ *    considerable amount ». Le wiki lui-même n'est pas sûr de l'ampleur (points d'interrogation : entre 1,5 et 4) : valeur CHOISIE PAR SOREAL (accord de Norman : « calcule toi-même ») = x2,5 (milieu géométrique de 1,5 et 4) pendant 15 s,
+ *    signalée dans l'interface. Norman, 2026-10-12 : « j'ai réussi à le tuer alors que je n'ai pas les statistiques : quelque chose dans ses Capacités n'est pas comme sur le wiki » (ce nuage n'était pas simulé).
  *
  * Jake From Accounting (https://ngu-idle.fandom.com/wiki/Jake_From_Accounting, « Titan skills ») :
  *  - Locusts (1/5, au moins 10 attaques d'écart) : 10 attaques rapides à demi-dégâts, 0,15 s d'écart.
@@ -57,17 +61,20 @@
   };
 
   TITANS.t2={
-    note:'Simulées dans le combat : Nuage de spores (dégâts à 2/3 pendant 15 s) et Attaque puissante (x1,5). Le second nuage de spores est décrit mais pas simulé (le wiki n’en connaît pas l’ampleur).',
-    /* Tirage sur 7 : [0,1) spores des bras, [1,2) spores d'énergie (non simulé), [2,4) puissante, le reste base. */
+    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x2,5 pendant 15 s — le wiki hésite entre 1,5 et 4, valeur choisie par SOREAL), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
+    /* Tirage sur 7 : [0,1) spores des bras, [1,2) spores d'énergie, [2,4) puissante, le reste base. */
     tirer:function(e,tirage,maintenant){
       var t=tirage*7;
       if(t<1&&!(e.affaibliJusqua>maintenant))return 'sporesBras';
+      if(t>=1&&t<2&&!(e.draineJusqua>maintenant))return 'sporesEnergie';
       if(t>=2&&t<4)return 'puissante';
       return 'base';
     },
     multPuissante:1.5,
     sporesBrasMs:15000,
-    multDegatsJoueurSpores:2/3
+    multDegatsJoueurSpores:2/3,
+    sporesEnergieMs:15000,
+    multSporesEnergie:2.5   /* dégâts subis, pendant 15 s : choix de SOREAL entre 1,5 et 4 (wiki) */
   };
 
   TITANS.t3={
@@ -98,7 +105,7 @@
   };
 
   function neuf(){
-    return {anneau:null,depuisSauterelles:0,rafaleRestante:0,chemises:0,saignements:0,affaibliJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
+    return {anneau:null,depuisSauterelles:0,rafaleRestante:0,chemises:0,saignements:0,affaibliJusqua:0,draineJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0};
   }
 
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
@@ -126,6 +133,7 @@
     }
     var rep={type:type,multDegats:type==='puissante'?def.multPuissante:1,paralyse:false};
     rep.croissanceTitan=Math.pow(1.01,Math.max(0,etat.attaques-1));   /* wiki Titans : +1 % de force par attaque (cumulé : choix) */
+    if(def.multSporesEnergie&&etat.draineJusqua>maintenantMs)rep.multDegats*=def.multSporesEnergie;   /* nuage d'énergie en cours : tu subis davantage de dégâts */
     if(def.croissance){
       rep.croissance=def.croissance(etat);
       rep.multDegats*=rep.croissance;
@@ -155,6 +163,10 @@
     if(type==='sporesBras'){
       etat.affaibliJusqua=maintenantMs+def.sporesBrasMs;
       rep.spores=true;
+    }
+    if(type==='sporesEnergie'){
+      etat.draineJusqua=maintenantMs+def.sporesEnergieMs;
+      rep.draine=true;
     }
     return rep;
   }

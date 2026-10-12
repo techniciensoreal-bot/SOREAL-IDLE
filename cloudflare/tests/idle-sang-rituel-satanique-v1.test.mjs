@@ -130,7 +130,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Quatrième rituel : 30 images de Norman lues dans R2 (idle/bloodmagic/rincevent/WEBP/N.webp), image choisie d'après l'avancement du niveau.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("barbedWire:'fil'") && decor.includes('<canvas class="bm-fil"') && decor.includes("name=rincevent/WEBP/'+i+'.webp"), "quatrième rituel : canevas alimenté par les 30 images de R2");
-  assert.ok(decor.includes("FIL_FPS=9") && decor.includes("pb<sc.__filPb-0.3") && decor.includes("Math.floor(ecoule*FIL_FPS)"), "immobile pendant le niveau ; l'animation se joue une fois à la fin du niveau (barre du moteur qui repart de zéro), à cadence fixe");
+  assert.ok(decor.includes("FIL_FPS=6") && decor.includes("pb<sc.__filPb-0.3") && decor.includes("Math.floor(ecoule*FIL_FPS)"), "immobile pendant le niveau ; l'animation se joue une fois à la fin du niveau (barre du moteur qui repart de zéro), à cadence fixe");
   assert.ok(decor.includes("function filRepos(sc)") && decor.includes('.bm-hors .bm-fil{translate:-300px 0}'), "sans Or le bol reste vide ; sans énergie le personnage sort à gauche");
   const media = readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
   assert.ok(media.includes('nom.includes("..")||nom.startsWith("/")||nom.includes("//")') && media.includes('A-Za-z0-9_.\\/-'), "sous-dossiers autorisés pour les images Magie du sang (sans remonter l'arborescence)");
@@ -366,7 +366,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // La boule glisse jusqu'à l'anus et n'est coupée qu'à son niveau ; la coupure de la feuille est un simple trait (Norman, 2026-10-12)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(/\.bm-trace-coupures\{left:calc\(var\(--px\) - 1\.5px\);top:76px;width:3px;height:42px;background:linear-gradient\(#c01a30,#8f1124\);border-radius:2px\}/.test(decor) && !decor.includes("13px 0/3px 100% no-repeat"), "un seul trait pour la coupure, sans carré ni ombre autour");
+  assert.ok(decor.includes(".bm-trace-coupures{left:calc(var(--px) - 4px);top:76px;width:8px;height:42px;") && decor.includes(".bm-coupure{position:absolute;left:calc(var(--px) - 4px);top:76px;width:8px;height:42px;") && (decor.match(/clip-path:polygon\(42% 0,47% 10%,38% 22%/g) || []).length === 2 && !decor.includes("13px 0/3px 100% no-repeat"), "la coupure est un tracé irrégulier, un peu penché, pas une ligne droite ; ni carré ni ombre autour");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
@@ -431,4 +431,15 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("SG_Y_ANNEAU=231") && decor.includes("var d=sgBande(ptsB,3,m.s,0)"), "le tuyau ne recouvre plus l'anus");
   assert.ok(decor.includes("sc.classList.remove('bm-pisse');void sc.offsetWidth;sc.classList.add('bm-pisse');") && decor.includes(".bm-scene[data-source=\"sucon\"]:not(.bm-continu):not(.bm-pisse) .bm-filet{animation:none!important"), "le jet de sang tombe à chaque fin de niveau, avec la sortie de la boule");
+}
+{
+  // Baignoire : plusieurs poches par cuve, poches et cuve remplacées (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("var SACS_PAR_BAC=4,bacSacs={},BAC_POCHE_VIDE=58;") && decor.includes("function niveauPoche(fraction){") && decor.includes('<g class="bm-poche">') && decor.includes('<g class="bm-bac-cuve">') && decor.includes('<g class="bm-poche-liq"'), "4 poches par cuve, poche et cuve en groupes à part");
+  assert.ok(decor.includes("changePoche=avant!==undefined&&sac>avant&&poche") && decor.includes("changeCuve=pleinsAvant!==undefined&&pal.pleins>pleinsAvant&&cuve") && decor.includes("@keyframes bmPocheSwap") && decor.includes("@keyframes bmCuveSwap"), "remplacement animé de la poche vidée et de la cuve pleine");
+  const h = d.scene({ id: "bloodBank", sang: 1200000, compte: 3, barre: "", saigne: true, rang: 4 });
+  assert.ok(h.includes('class="bm-poche"') && h.includes('class="bm-bac-cuve"'), "la scène de la banque contient la poche et la cuve");
+  // niveau de la poche : pleine au début de chaque quart de cuve, vide à la fin
+  const niv = (f) => { const q = Math.max(0, Math.min(0.9999, f)) * 4; return 1 - (q - Math.floor(q)); };
+  assert.equal(niv(0), 1); assert.ok(Math.abs(niv(0.125) - 0.5) < 1e-9); assert.ok(niv(0.2499) < 0.01); assert.equal(niv(0.25), 1); assert.ok(Math.abs(niv(0.9) - 0.4) < 1e-9);
 }
