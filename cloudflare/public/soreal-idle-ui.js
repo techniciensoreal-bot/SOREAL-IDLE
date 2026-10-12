@@ -3155,7 +3155,7 @@
                   idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
-                  if(compte)compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal);
+                  if(compte){compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal);(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal,rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};}
                   if(faits===dus){
                     const reste=(ecoule0-eta0)%seconds;
                     bloodVisual.at=maintB;
@@ -3177,6 +3177,7 @@
               const compte2=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
               const texte2=idleEntier_(idleNombre_(compte2&&compte2.getAttribute('data-n'))+bloodVisual.ajoutLocal);
               if(compte2&&compte2.textContent!==texte2)compte2.textContent=texte2;
+              if(compte2)(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte2.getAttribute('data-n'))+bloodVisual.ajoutLocal,rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};
             }
             if(pleineB){
               if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
@@ -16694,6 +16695,7 @@
               <input
                 id="sorealIdleTrainingInputV120"
                 type="text"
+                inputmode="decimal"
                 value="${idleHtml_(String(window.__lireMontantAugmentIdleV1__?window.__lireMontantAugmentIdleV1__():125))}"
                 title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l'énergie idle libre à la validation)"
                 oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"

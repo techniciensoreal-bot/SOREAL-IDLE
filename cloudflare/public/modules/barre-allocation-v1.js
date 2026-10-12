@@ -151,7 +151,7 @@
   /* Champ Input des menus génériques (Barbes, Hacks…) : même valeur partagée que partout. */
   function entree(id){
     return '<div class="soreal-idle-bt-input-box-v120"><label for="'+id+'">🎚️ Input</label>'+
-      '<input id="'+id+'" type="text" value="'+montant_()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" '+
+      '<input id="'+id+'" type="text" inputmode="decimal" value="'+montant_()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" '+
       'oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)" '+
       'onblur="window.__resoudreFractionInputIdleV1__&&window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"></div>';
   }

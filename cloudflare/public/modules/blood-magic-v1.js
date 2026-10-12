@@ -234,6 +234,20 @@ function creer(hote){
        * principale -- aucune capacité serveur inventée, seulement le même modèle déjà réel.
        */
       /* Le bouton d'un rituel place ou retire de la Magic sur CE rituel ; les autres gardent la leur. Le rituel touché devient le « rituel sélectionné » (celui de la barre d'outils du haut). */
+      /*
+       * Le compteur « N complété(s) » ne recule jamais (Norman, 2026-10-12 : « rituel de la punaise : je suis à 3 blood généré, j'ajoute 10k et je redescends à 1 ; ça se reproduit à chaque ajout ; quand je rafraîchis le compteur est bon »).
+       * Les rituels terminés sont rejoués localement en avance sur le serveur ; la page redessinée repartait du chiffre du serveur, en retard, jusqu'à la prochaine synchro. On garde donc le plus grand chiffre déjà affiché
+       * (window.__bloodCompteAffV1 : {n, rb}, aussi mis à jour par le tick de soreal-idle-ui.js) ; seule une Renaissance (le nombre de Renaissances a changé) ou un rechargement de la page le remet à zéro.
+       */
+      function compteAfficheBloodIdleV1_(id,n){
+        const m=window.__bloodCompteAffV1=window.__bloodCompteAffV1||{};
+        let rb=0;
+        try{rb=Number(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().systemes.records.totalRebirths)||0;}catch(_e){}
+        const e=m[id];
+        n=Number(n)||0;
+        if(e===undefined||e.rb!==rb||n>=e.n){m[id]={n:n,rb:rb};return n;}
+        return e.n;
+      }
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -357,7 +371,7 @@ function creer(hote){
           etatB.__bloodMagicVisualV1=Object.keys(visuelsB).length?visuelsB:null;
         }
         const toolbar=legendeAllocationIdleV1_('Magic',false,true)+'<div class="soreal-idle-bt-toolbar-v120">'+
-          '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">🎚️ Input</label><input id="sorealIdleBloodInputV1" type="text" value="'+hote.montant()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
+          '<div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">🎚️ Input</label><input id="sorealIdleBloodInputV1" type="text" inputmode="decimal" value="'+hote.montant()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
           '<div class="soreal-idle-bt-info-v1">Magic libre : <b id="sorealIdleBloodLibreV1">'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée aux rituels : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>🔮 Plafond de magie</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',1)">Max</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'cap\',.25)">1/4</button></div>'+
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetBloodMagicIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderBloodMagicIdleV1__()">Tout retirer</button></div>'+
@@ -397,7 +411,7 @@ function creer(hote){
             ?'<div data-idle-blood-bar-v1="'+idHtml+'" class="bm-sang" style="width:100%;transform:scaleX('+pct+');transform-origin:left center;will-change:transform;transition:none"></div>'+(progressionActive?SANG_GOUTTES_HTML_V1:'')
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="bm-rituel" data-rang-v1="'+rangRituel+'" style="margin:0">'+
-            '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(r.completions||0)+'">'+H.idleEntier_(r.completions||0)+'</b> complété(s)</span></div>'+
+            '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'">'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'</b> complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
             decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
