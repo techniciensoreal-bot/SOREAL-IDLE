@@ -28,8 +28,8 @@ assert.equal(f.nivDe_(f.lueurDe_([1, 1, 1, 1])), 4, "tout CAP : maximum d'étoil
 assert.ok(f.lueurDe_([.5, .5, 0, 0]) < f.lueurDe_([1, 1, 0, 0]) && f.lueurDe_([1, 1, 0, 0]) < f.lueurDe_([1, 1, 1, 1]), "plus de machines, plus de lumière");
 assert.ok(src.includes("prefers-reduced-motion:no-preference"), "animations coupées pour qui les refuse");
 // Tuyaux qui brillent aux couleurs des barres : halo et tronc lumineux
-assert.ok(src.includes("box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent)") && src.includes(".nl-grille::before"), "tuyaux lumineux et tronc commun");
-assert.ok(src.includes("@keyframes nlFlux"), "reflet qui parcourt les tuyaux alimentés");
+assert.ok(src.includes("box-shadow:inset 0 0 16px 2px color-mix(in srgb,var(--nl-c) 85%,transparent)") && src.includes(".nl-grille::before"), "tuyaux lumineux et tronc commun");
+assert.ok(!src.includes("nlFlux") && !src.includes(".nl-tube::before"), "plus de reflet qui parcourt les tuyaux (Norman, 2026-10-12)");
 // Aucune animation de propriété lourde sur les tuyaux (box-shadow, width...)
 assert.ok(!/@keyframes nl[A-Za-z]+\{[^}]*(box-shadow|width|height|filter)/.test(src), "les animations ne touchent que transform et opacité");
 // Les 16 couleurs sont conservées

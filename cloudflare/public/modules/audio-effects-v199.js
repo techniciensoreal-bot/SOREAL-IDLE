@@ -59,6 +59,9 @@
     /* Le Coffre rote et pète de temps en temps, au hasard (Norman, 2026-10-10) : 6 rots et 6 pets synthétisés (modules/audio-coffre-v1.js). */
     coffreRot:{group:"chest",priority:30,maxAgeMs:1500},
     coffrePet:{group:"chest",priority:30,maxAgeMs:1500},
+    /* Le Coffre dort (Norman, 2026-10-12) : il ronfle ; touché pendant son sommeil, il sursaute en lâchant un pet très fort (modules/coffre-sommeil-v1.js). */
+    coffreRonfle:{group:"chest",priority:20,maxAgeMs:1500},
+    coffreReveil:{group:"chest",priority:40,maxAgeMs:1000},
     mergeArmor:{group:"inventory-merge",priority:45,maxAgeMs:1100},
     mergeAccessory:{group:"inventory-merge",priority:48,maxAgeMs:1100},
     mergeWeapon:{group:"inventory-merge",priority:50,maxAgeMs:1100},
@@ -1398,6 +1401,15 @@
     });
   }
 
+  function coffreSommeil_(type){
+    return jouerWebAudio_(type==="reveil"?2500:3800,function(c){
+      var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
+      if(!m)return;
+      if(type==="reveil"&&typeof m.jouerReveil==="function")m.jouerReveil(c,master||c.destination);
+      else if(typeof m.jouerRonflement==="function")m.jouerRonflement(c,master||c.destination);
+    });
+  }
+
   function coffreFermeture_(){
     return jouerWebAudio_(410,function(c){
       tonal_(c,{type:"triangle",from:255,to:112,duration:.20,volume:.050});
@@ -1723,6 +1735,8 @@
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
     coffreRot:function(){return coffreDigestion_("rot");},
     coffrePet:function(){return coffreDigestion_("pet");},
+    coffreRonfle:function(){return coffreSommeil_("ronfle");},
+    coffreReveil:function(){return coffreSommeil_("reveil");},
     mergeArmor:fusionArmure_,
     mergeAccessory:fusionAccessoire_,
     mergeWeapon:fusionArme_,
@@ -1996,6 +2010,8 @@
     coffreRecrache:function(){return demander_("coffreRecrache");},
     coffreRot:function(){return demander_("coffreRot");},
     coffrePet:function(){return demander_("coffrePet");},
+    coffreRonfle:function(){return demander_("coffreRonfle");},
+    coffreReveil:function(){return demander_("coffreReveil");},
     mergeArmor:function(){return demander_("mergeArmor");},
     mergeAccessory:function(){return demander_("mergeAccessory");},
     mergeWeapon:function(){return demander_("mergeWeapon");},

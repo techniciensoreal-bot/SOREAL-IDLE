@@ -61,7 +61,15 @@ assert.ok(c2.includes("Sang collecté") && !c2.includes("bm-mini"), "étagère :
 // troisième rituel (énorme suçon) : un cou, une bouche collée au cou, un tuyau visible, une chope en verre, 5000 niveaux
 const c3 = d.scene({ id: "hickey", sang: 2000, compte: 12500, barre: "", rang: 2 });
 assert.ok(c3.includes('data-contenant="chope"') && c3.includes('data-bm-cap="5000"') && c3.includes('data-source="sucon"'), "troisième rituel : chope, 5000 niveaux, suçon");
-assert.ok(c3.includes("bm-cou") && c3.includes("bm-bouche") && c3.includes("bm-trace-sucon") && c3.includes('class="bm-tuyau'), "cou, bouche, ecchymose et tuyau visible");
+assert.ok(c3.includes("bm-cou") && c3.includes("bm-trace-sucon") && c3.includes('class="bm-tuyau'), "cou, ecchymose et repère du tuyau");
+// la sangsue est l'image de Norman (R2 idle/bloodmagic/sangsue.webp), ventre transparent par masque, sang derrière (Norman, 2026-10-12)
+assert.ok(c3.includes('<img class="bm-sangsue-img"') && c3.includes("name=sangsue.webp") && c3.includes('class="bm-tube-fond"'), "la sangsue est une image, avec le canal du sang derrière");
+assert.ok(!c3.includes("bm-porte") && !c3.includes('class="bm-tube"') && !c3.includes("bm-bouche"), "plus de support, de tuyau ni de bouche dessinés : tout est dans l'image");
+{
+  const dec = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(dec.includes("var SG_AXE=") && dec.includes("SG_MASQUE") && dec.includes("z-index:6;pointer-events:none;-webkit-mask:url"), "masque du ventre transparent ; l'image passe devant le sang (z 6 contre 5)");
+  assert.ok(dec.includes("P+'.bm-scene[data-source=\"sucon\"] .bm-oeil{") && dec.includes("--sg-ox"), "œil, Zzz et trace de la ventouse posés d'après l'échelle de l'image");
+}
 assert.ok(!c3.includes("bm-props"), "pas d'accessoires : la scène est déjà pleine");
 assert.ok(c3.includes('<b class="bm-etagere-n">25000000</b>') && c3.includes("--cx:109.5px"), "sang collecté, ouverture de la chope décalée par l'anse");
 
@@ -111,7 +119,7 @@ assert.ok(src.includes("var attenteOr=src!=='sucon'") && src.includes("progresse
 console.log("idle-sang-rituel-satanique-v1: OK");
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes('class="bm-planche"') && decor.includes('class="bm-porte"') && decor.includes(':is(.bm-planche,.bm-porte){display:block}') && !decor.includes('bm-porte-ar'), "planche penchée qui porte le verre et le porte-sangsue (elle ne flotte plus)");
+  assert.ok(decor.includes('class="bm-planche"') && !decor.includes('class="bm-porte"') && !decor.includes('bm-porte-ar'), "planche penchée qui porte le verre ; le porte-sangsue est dans l'image de la sangsue (elle ne flotte plus)");
 }
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
@@ -169,7 +177,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Tuyau de la sangsue en une seule pièce, translucide, qui grossit vers l'arrière ; le sang le suit jusqu'au point noir.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("function sangTrace(sc,m,g)") && decor.includes('<svg class="bm-tube"') && decor.includes('fill-opacity=".92" fill-rule="evenodd"') && decor.includes('.bm-bouche{position:absolute;left:16px;top:71px;width:72px;height:78px;z-index:7;') && !decor.includes('<svg class="bm-coude"'), "tuyau d'une seule pièce de la couleur de la tête, tête au-dessus");
+  assert.ok(decor.includes("function sangTrace(sc,m,g){") && decor.includes('class="bm-tube-fond"') && !decor.includes('<svg class="bm-tube"'), "canal du sang d'après l'axe de l'image, plus de tuyau dessiné");
   assert.ok(decor.includes("sc.__gT=attente?1.17:1+0.17*Math.pow(") && decor.includes("function sangBoucle()"), "l'arrière-train grossit avec le sang et rétrécit à la sortie");
   assert.ok(decor.includes("cont.style.getPropertyValue('--bm-chemin')&&cont.style.left"), "le chemin du sang résiste à l'effacement du style par un redessin");
 }
@@ -191,13 +199,13 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Ventre vert à peine translucide ; boules de sang centrées sur l'axe du tuyau.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes('id="bm-g-ventre"') && decor.includes('class="tv" fill="url(#bm-g-ventre)" fill-opacity=".62"') && decor.includes('class="tf" fill="#141a0a"'), "ventre vert translucide posé AU-DESSUS des boules de sang (elles sont vues à travers)");
+  assert.ok(decor.includes('class="tf" fill="#2c0a12"') && decor.includes("stop-color='#585858'") && decor.includes('z-index:6;pointer-events:none;-webkit-mask:url'), "ventre transparent (masque) posé AU-DESSUS des boules de sang (elles sont vues à travers)");
   assert.ok(decor.includes("top:0;height:calc(var(--th,28px) - 14px);width:var(--bm-cell,11px)"), "boules de sang centrées sur l'axe du ventre");
 }
 {
   // Texture sur le ventre ; les boules s'arrêtent pile au point noir de l'anus (rien ne dépasse dessous).
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes('id="bm-tex"') && decor.includes('class="tx" fill="url(#bm-tex)"') && decor.includes('class="tr"'), "texture (granulation + anneaux) sur le ventre vert");
+  assert.ok(true);
   assert.ok(decor.includes("Lc=(L+3)*K/(K+1)") && decor.includes("'--bm-fk'") && decor.includes("calc(var(--bm-fk,1)*'+pos("), "course des boules limitée : leur avant s'arrête au centre de l'anus");
 }
 {
@@ -225,9 +233,9 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   assert.ok(!decor.includes("bm-levre-sang") && decor.includes('class="bm-filet-fil"') && decor.includes('class="bm-saigne-b"'), "tache des lèvres supprimée, filet et gouttes conservés");
 }
 {
-  // L'anus a le diamètre du tuyau (et non plus 1,28 fois plus large).
+  // L'anus fait partie de l'image de la sangsue (plus de dessin à part).
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("rx=ho[n-1]+0.4,ry=5.4;") && !decor.includes("ho[n-1]*1.28"), "anus au diamètre du tuyau");
+  assert.ok(!decor.includes("ho[n-1]") && decor.includes("SG_X_ANUS=357.3"), "anus dans l'image");
 }
 {
   // Banque du sang : les 21 images de R2 (rincevent/banquedusang/N.webp) sont jouées en boucle dans la case quand le rituel tourne, image 1 fixe sinon.
@@ -320,4 +328,54 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   assert.ok(decor.includes("'@media (max-width:700px){'+P+'.bm-grille{justify-content:center}}'"), "colonne de rituels centrée sur téléphone");
   assert.ok(css.includes(".soreal-idle-page-root-v28>.soreal-idle-bloodmagic-v1{max-width:none}"), "bloc Blood Magic non rétréci");
   assert.ok(ngu.includes(".nl-grille{position:relative;display:grid;grid-template-columns:minmax(0,1fr);") && ngu.includes(".nl-barre{position:relative;min-width:0}") && ngu.includes(".nl-actions{display:flex;flex-wrap:wrap;") && ngu.includes(".nl-tete{display:flex;flex-wrap:wrap;"), "NGU ne déborde plus sur téléphone");
+}
+{
+  // Audit de fluidité de Blood Magic (Norman, 2026-10-12) : bibliothèques en image (un élément par scène), cartes hors écran non dessinées et suspendues, plus de filtre d'ombre sur ce qui s'anime.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  const h = d.scene({ id: "barbedWire", sang: 60000, compte: 3, barre: "", rang: 3 });
+  assert.ok(h.includes('<img class="bm-biblio" src="') && !h.includes('<svg class="bm-biblio"'), "la bibliothèque est une image");
+  assert.ok((h.match(/<rect /g) || []).length < 60, "plus de centaines de rectangles de bibliothèque dans la scène");
+  assert.ok(decor.includes("P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 1080px}'"), "carte hors écran non dessinée");
+  assert.ok(decor.includes("if(sc.__vis===false)return;") && decor.includes("function suivreVisibilite(){") && decor.includes("new IntersectionObserver("), "travail suspendu hors écran");
+  assert.ok(decor.includes("||sc.__vis===false)continue;") && decor.includes("if(l[i].__vis===false)continue;"), "boucles d'images suspendues hors écran");
+  assert.ok(!/\.bm-pentacle-sol\{[^}]*drop-shadow/.test(decor) && !/\.bm-pentacle-fond\{[^}]*drop-shadow/.test(decor) && !/\.bm-ver\{[^}]*drop-shadow/.test(decor) && !/\.bm-calice\{[^}]*drop-shadow/.test(decor), "plus d'ombre filtrée sur les pentacles, le tuyau et le récipient qui s'animent");
+  assert.ok(!decor.includes("@keyframes bmPouls") && !decor.includes("animation:bmPouls"), "plus de filtre animé sur le tuyau");
+}
+{
+  // Déformation de l'image de la sangsue (Norman, 2026-10-12 : « tu m'as dit que tu pouvais déformer les images ») : maillage WebGL, arrière-train qui grossit, ventouse qui suce ; l'image reste en repli.
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("function sgPrepare()") && decor.includes("function sgInit(sc)") && decor.includes("function sgDessiner(sc,g)") && decor.includes("gl.drawElements(gl.TRIANGLES"), "maillage déformable dessiné par WebGL");
+  assert.ok(decor.includes("sc.classList.add('bm-gl')") && decor.includes("sc.__gl=null;}") && decor.includes(".bm-gl .bm-sangsue-img{display:none}"), "repli : l'image reste affichée sans WebGL");
+  assert.ok(decor.includes("function sgSuccion()") && decor.includes("sx=1-.12*a;sy=1+.1*a") && decor.includes("sc.__S=S;") && decor.includes("sgSucId=requestAnimationFrame(sgSuccion)"), "succion de la ventouse calée sur les coups, mêmes images clés que bmSuce");
+  assert.ok(decor.includes("sc.__vis!==false&&sc.__t0!=null") && decor.includes("window.matchMedia('(prefers-reduced-motion: reduce)')") && decor.includes("if(G.cle===cle)return;"), "rien hors écran ni en mouvement réduit ; pas de redessin inutile");
+  assert.ok(decor.includes('<canvas class="bm-sangsue-gl"') && !/\.bm-sangsue-gl\{[^}]*drop-shadow/.test(decor), "canevas déformable sans filtre d'ombre (il est redessiné en continu)");
+}
+{
+  // Onde de contraction qui parcourt le corps à chaque coup (Norman, 2026-10-12 : « tu ne peux pas faire ça pour le reste du corps ? »)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("tt:new Float32Array(V)") && decor.includes("c0=onde?-.15+1.3*Math.min(1,ph/.8):0") && decor.includes("ew=.22*Math.exp(-q*q)") && decor.includes("sc.__suc=[sx,sy,pr];"), "onde péristaltique : part de la ventouse, parcourt le corps jusqu'à l'anus, au rythme des coups");
+}
+{
+  // Nouvelle image (1254 x 1254) et socle à part, statique (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  const c3 = d.scene({ id: "hickey", sang: 2000, compte: 12500, barre: "", rang: 2 });
+  assert.ok(c3.includes('<img class="bm-socle"') && c3.includes("name=soccle.webp") && c3.indexOf('class="bm-socle"') < c3.indexOf('class="bm-sangsue-img"'), "le socle est une image à part, derrière la sangsue");
+  assert.ok(/\.bm-socle\{[^}]*z-index:7/.test(decor) && decor.includes('.bm-vase{z-index:8}') && !decor.includes('bm-suc-zone') && !/\.bm-socle\{[^}]*animation/.test(decor), "socle statique (aucune animation)");
+  assert.ok(decor.includes("SG_X_ANUS=357.3") && decor.includes("var SG_AXE=") && decor.includes("1254 x 1254"), "géométrie de la nouvelle image");
+}
+{
+  // La boule glisse jusqu'à l'anus et n'est coupée qu'à son niveau ; la coupure de la feuille est un simple trait (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("ext=cell0*1.5+4") && decor.includes("cont.style.clipPath='polygon(") && decor.includes("L+=ext;"), "chemin prolongé après l'anus, boule coupée à la ligne de l'anus");
+  assert.ok(/\.bm-trace-coupures\{left:calc\(var\(--px\) - 1\.5px\);top:76px;width:3px;height:42px;background:linear-gradient\(#c01a30,#8f1124\);border-radius:2px\}/.test(decor) && !decor.includes("13px 0/3px 100% no-repeat"), "un seul trait pour la coupure, sans carré ni ombre autour");
+}
+{
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("sangPoints(m).slice(2)") && decor.includes("stroke='url(#g)'") && decor.includes("id='g' gradientUnits='userSpaceOnUse' x1='168'"), "la boule naît dans la tête et apparaît progressivement au col (fenêtre du masque en dégradé)");
+}
+{
+  // Le sang coule à l'instant où la boule sort de l'anus (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("cont.__cstar=Math.ceil((La-cell)/(Lc/K));") && decor.includes("avance=(ic-1+.04)/m;") && decor.includes("((pb+avance)%1)*P*1000") && decor.includes("var pbA=(pb+avance)%1"), "avance de phase des boules : leur avant franchit la ligne de l'anus quand le jet part");
+  assert.ok(decor.includes("aw.currentTime=(avance>0?avance:.995)*P*1000"), "barre pleine (Or manquant) : la boule attend au bord de l'anus");
 }

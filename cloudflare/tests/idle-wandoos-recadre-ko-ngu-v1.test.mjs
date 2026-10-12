@@ -13,5 +13,5 @@ for (const f of ["soreal-idle-themes.css", "soreal-idle-ui.css"]) {
 }
 const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 assert.ok(!ngu.includes("nlPouls"), "le halo du tuyau ne pulse plus");
-assert.ok(ngu.includes(".nl-barre.actif{--fx:rgba(190,120,255,.55);box-shadow:inset 0 0 0 2px var(--fx),0 0 16px -3px var(--fx)!important}"), "cadre fixe posé par la classe actif");
+assert.ok(ngu.includes(".nl-barre.actif{box-shadow:none!important}") && ngu.includes(".nl-barre.actif .nl-tube{box-shadow:inset 0 0 16px 2px"), "aura NGU posée par la classe actif, dans le tuyau");
 console.log("idle-wandoos-recadre-ko-ngu-v1: OK");

@@ -17,8 +17,8 @@ var MENUS={
   augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile'},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
   machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.soreal-idle-tm-ligne-v1',style:'piece'},
-  sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'},
-  ngu:{alloc:'[data-nl-alloc]',ligne:'.nl-barre',style:'orbe'}
+  sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'}
+  /* NGU n'a plus cette aura (Norman, 2026-10-12) : il a la sienne, DANS le tuyau (aurore, modules/ngu-labo-v1.js) */
 };
 
 /* « 0 », « 0⚡ », « 0 ⚡ » : rien de placé ; « 0,5 K », « 1 ⚡ », « 120K⚡ » : de l'énergie est placée. */
@@ -64,10 +64,6 @@ function css(){
     '[data-style="goutte"]{--fx:rgba(255,60,80,.55)}'+
     '[data-style="goutte"] .part-v1 i{--w:5px;--h:7px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 40% 30%,#ff9aa5,#d41e3a 60%,#6d0a1c);animation:pvGoutte var(--d) ease-in var(--t) infinite}'+
     '@keyframes pvGoutte{0%{opacity:0;transform:translateY(-20px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(24px) scale(1)}}'+
-    /* orbes (NGU) : boules violettes lumineuses qui dérivent vers la droite le long du tuyau */
-    '[data-style="orbe"]{--fx:rgba(190,120,255,.55)}'+
-    '[data-style="orbe"] .part-v1 i{--w:7px;--h:7px;border-radius:50%;background:radial-gradient(circle,#fff,#c58bff 50%,transparent 72%);animation:pvOrbe var(--d) ease-in-out var(--t) infinite}'+
-    '@keyframes pvOrbe{0%{opacity:0;transform:translateX(-8px) scale(.5)}20%{opacity:1}80%{opacity:.9}100%{opacity:0;transform:translateX(56px) scale(1)}}'+
     '@media (prefers-reduced-motion:reduce){.part-v1 i{animation:none!important;opacity:.7}}';
   document.head.appendChild(st);
 }

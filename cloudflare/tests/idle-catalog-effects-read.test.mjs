@@ -45,8 +45,8 @@ assert.deepEqual(r.sellout.filter((e) => e.dangerous).map((e) => e.id), []);
 
 /* Objets Sellout catalogués mais non achetables (garde EFFET_BOUTIQUE_AP_INACTIF) : liste figée. */
 const NON_ACHETABLES = [
-  /* menus absents du jeu (Questing, Daycare) et pool de 200 noms que le wiki ne publie pas */
-  "questReminder", "daycareKittyArt", "resource3NameRandomizer"
+  /* menus absents du jeu (Questing, Daycare) */
+  "questReminder", "daycareKittyArt"
 ].sort();
 const nonAchetables = r.sellout.filter((e) => !e.buyable).map((e) => e.id).sort();
 assert.deepEqual(nonAchetables, NON_ACHETABLES,

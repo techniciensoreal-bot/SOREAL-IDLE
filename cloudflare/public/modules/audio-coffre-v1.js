@@ -125,5 +125,68 @@
     dernier[cle]=i;
     return jouer(cle,i,ctx,sortie);
   }
-  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion};
+  /*
+   * Sommeil du Coffre (Norman, 2026-10-12) : il s'endort au hasard et RONFLE ; si on le touche pendant qu'il dort, il sursaute en lâchant un pet TRÈS fort.
+   * Le pet de réveil est plus fort et plus long que les pets de digestion (une détonation sèche, puis une note grave qui s'effondre en trémolo et un souffle) ; trois variantes à choisir à l'écoute (REVEIL, `reveil`).
+   * Le ronflement est une inspiration rauque qui monte, puis une expiration plus grave et vibrante, avec un petit sifflement du nez à la fin.
+   */
+  function detonation(ctx,s,t,v){
+    souffle(ctx,s,t,{type:'lowpass',f0:1800,f1:140,d:.16,v:v,a:.002,q:1.5});
+    ton(ctx,s,t,{type:'sine',f0:150,f1:48,d:.22,v:v*.9,a:.002});
+  }
+  var REVEIL=[
+    {id:'reveil-tonnerre',nom:'Tonnerre',jouer:function(c,s,t){
+      detonation(c,s,t,.5);
+      ton(c,s,t+.02,{type:'sawtooth',f0:150,f1:42,d:1.15,v:.5,a:.012,vib:[46,26],filtre:['lowpass',520,3]});
+      souffle(c,s,t+.02,{type:'bandpass',f0:300,f1:120,d:1.0,v:.34,q:1.6,a:.01});
+      ton(c,s,t+.2,{type:'square',f0:92,f1:58,d:.9,v:.16,a:.02,vib:[63,14],filtre:['lowpass',300,2]});
+    }},
+    {id:'reveil-trompette',nom:'Trompette de combat',jouer:function(c,s,t){
+      detonation(c,s,t,.46);
+      ton(c,s,t+.02,{type:'square',f0:230,f1:120,d:.7,v:.55,a:.015,vib:[55,12],filtre:['bandpass',480,2.5]});
+      ton(c,s,t+.02,{type:'sawtooth',f0:115,f1:58,d:.8,v:.4,a:.015,vib:[44,20],filtre:['lowpass',420,3]});
+      souffle(c,s,t+.05,{type:'bandpass',f0:2400,f1:700,d:.5,v:.18,q:5,a:.02});
+      ton(c,s,t+.74,{type:'sawtooth',f0:140,f1:60,d:.22,v:.34,a:.01,vib:[48,18],filtre:['lowpass',400,3]});
+    }},
+    {id:'reveil-rafale',nom:'Rafale',jouer:function(c,s,t){
+      detonation(c,s,t,.5);
+      pet(c,s,t+.04,.5,120,50,.5,[40,24]);
+      pet(c,s,t+.6,.16,135,75,.42);
+      pet(c,s,t+.82,.16,125,70,.42);
+      pet(c,s,t+1.04,.4,110,44,.46,[52,28]);
+    }}
+  ];
+  var RONFLEMENTS=[
+    {id:'ronfle-classique',nom:'Ronflement classique',jouer:function(c,s,t){
+      /* inspiration : souffle rauque qui monte, raclement grave par-dessus */
+      souffle(c,s,t,{type:'bandpass',f0:220,f1:620,d:1.0,v:.2,q:2.2,a:.45});
+      ton(c,s,t+.05,{type:'sawtooth',f0:62,f1:96,d:.95,v:.2,a:.4,vib:[27,16],filtre:['lowpass',380,3]});
+      /* expiration : plus grave, vibrante, qui s'éteint */
+      souffle(c,s,t+1.05,{type:'bandpass',f0:420,f1:150,d:1.25,v:.17,q:1.8,a:.3});
+      ton(c,s,t+1.1,{type:'sawtooth',f0:88,f1:52,d:1.3,v:.22,a:.25,vib:[31,19],filtre:['lowpass',330,3]});
+      /* petit sifflement du nez en fin de souffle */
+      souffle(c,s,t+2.0,{type:'bandpass',f0:1900,f1:1300,d:.4,v:.045,q:9,a:.12});
+    }},
+    {id:'ronfle-scie',nom:'Ronflement de scie',jouer:function(c,s,t){
+      ton(c,s,t,{type:'sawtooth',f0:55,f1:120,d:1.05,v:.24,a:.5,vib:[17,34],filtre:['lowpass',460,2.5]});
+      souffle(c,s,t,{type:'lowpass',f0:500,f1:900,d:1.0,v:.16,q:1,a:.5});
+      ton(c,s,t+1.1,{type:'sawtooth',f0:100,f1:44,d:1.4,v:.26,a:.2,vib:[23,26],filtre:['lowpass',360,3]});
+      souffle(c,s,t+1.1,{type:'lowpass',f0:600,f1:160,d:1.2,v:.15,q:1,a:.25});
+      ton(c,s,t+2.1,{type:'sine',f0:420,f1:300,d:.28,v:.04,a:.1,vib:[8,10]});
+    }}
+  ];
+  var dernierReveil=-1,dernierRonfle=-1;
+  function tirer(liste,dernier){var n=liste.length,i=Math.floor(Math.random()*n);if(i===dernier)i=(i+1+Math.floor(Math.random()*(n-1)))%n;return i;}
+  /* index facultatif : on peut forcer une variante (page d'écoute, tests). */
+  function jouerReveil(ctx,sortie,index){
+    var i=typeof index==='number'?index:(dernierReveil=tirer(REVEIL,dernierReveil));
+    REVEIL[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return REVEIL[i];
+  }
+  function jouerRonflement(ctx,sortie,index){
+    var i=typeof index==='number'?index:(dernierRonfle=tirer(RONFLEMENTS,dernierRonfle));
+    RONFLEMENTS[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return RONFLEMENTS[i];
+  }
+  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerRonflement:jouerRonflement};
 })();

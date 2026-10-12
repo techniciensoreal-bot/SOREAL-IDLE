@@ -230,17 +230,19 @@ var CSS=
   '.nl-niveau b{font:900 20px/1 "Segoe UI",system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 8px var(--nl-c)}'+
   /* tuyau : brides métalliques, verre, liquide lumineux, halo derrière */
   '.nl-tuyau{position:relative;display:flex;align-items:center}'+
-  '.nl-tuyau::before{content:"";position:absolute;inset:-6px 8px;border-radius:16px;background:transparent;box-shadow:0 0 22px 9px var(--nl-c);opacity:.14;z-index:0}'+
-  '.nl-barre.actif .nl-tuyau::before{opacity:.5}'+
+  /* plus de halo flou autour du tuyau : toute la lueur reste DANS la barre (Norman, 2026-10-12) */
+  '.nl-tuyau::before{content:none}'+
   /* Cadre lumineux d'une barre qui porte de l'énergie : FIXE, posé par la classe « actif » (présente dès le dessin de la page) et non par le balayage de barres-actives (qui le retirait un instant à chaque redessin) ; le halo du tuyau ne pulse plus (Norman, 2026-10-11 : « le cadre lumineux clignote »). */
-  '.nl-barre.actif{--fx:rgba(190,120,255,.55);box-shadow:inset 0 0 0 2px var(--fx),0 0 16px -3px var(--fx)!important}'+
+  /* Aura NGU (Norman, 2026-10-12 : « enlève l'aura identique à celle d'Augmentations, crée-en une nouvelle, dans la barre ») : l'AURORE. Aucun liseré ni halo autour de la carte ; une lueur intérieure aux couleurs du tuyau, et des bandes de lumière qui coulent dans le liquide. */
+  '.nl-barre.actif{box-shadow:none!important}'+
+  '.nl-barre.actif .nl-tube{box-shadow:inset 0 0 16px 2px color-mix(in srgb,var(--nl-c) 85%,transparent),inset 0 0 12px rgba(0,0,0,.45)}'+
+  '.nl-liq-in::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:repeating-linear-gradient(105deg,transparent 0 14px,color-mix(in srgb,var(--nl-c) 55%,transparent) 46px,transparent 78px);background-size:92px 100%}'+
   '.nl-bride{position:relative;z-index:2;flex:0 0 auto;width:15px;height:52px;border-radius:5px;border:1px solid #0b0b1c;background:linear-gradient(90deg,#222744,#b4bae0 45%,#222744);box-shadow:0 0 6px rgba(0,0,0,.65)}'+
   '.nl-bride::before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:4px;margin-left:-2px;background:radial-gradient(circle,#10122a 0 1.5px,transparent 2.2px) 0 0/4px 12px repeat-y}'+
-  '.nl-tube{position:relative;z-index:1;flex:1 1 auto;min-width:0;height:38px;margin:0 -4px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.5));border:2px solid color-mix(in srgb,var(--nl-c) 75%,#fff);box-shadow:0 0 12px color-mix(in srgb,var(--nl-c) 70%,transparent),inset 0 0 12px rgba(0,0,0,.7)}'+
-  '.nl-liq-in{position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(180deg,color-mix(in srgb,var(--nl-c) 52%,#fff) 0,var(--nl-c) 40%,color-mix(in srgb,var(--nl-c) 68%,#000) 100%);box-shadow:0 0 14px var(--nl-c);will-change:transform}'+
+  '.nl-tube{position:relative;z-index:1;flex:1 1 auto;min-width:0;height:38px;margin:0 -4px;border-radius:10px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(0,0,0,.5));border:2px solid color-mix(in srgb,var(--nl-c) 75%,#fff);box-shadow:inset 0 0 12px rgba(0,0,0,.7)}'+
+  '.nl-liq-in{position:absolute;inset:0;transform-origin:0 50%;transform:scaleX(0);background:linear-gradient(180deg,color-mix(in srgb,var(--nl-c) 52%,#fff) 0,var(--nl-c) 40%,color-mix(in srgb,var(--nl-c) 68%,#000) 100%);will-change:transform}'+
   '.nl-tube::after{content:"";position:absolute;left:3px;right:3px;top:3px;height:34%;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.04));pointer-events:none;z-index:2}'+
-  '.nl-tube::before{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:translateX(-110%);opacity:0;z-index:2;pointer-events:none}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-tube::before{opacity:1;animation:nlFlux 2.6s linear infinite}.nl-barre.pleine .nl-tube::before{animation-duration:.9s}@keyframes nlFlux{from{transform:translateX(-110%)}to{transform:translateX(250%)}}}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-barre.actif .nl-liq-in::after{opacity:1;animation:nlAurore 3.2s linear infinite}@keyframes nlAurore{from{background-position:0 0}to{background-position:92px 0}}}'+
   '.nl-pct{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:3;font:900 13px/1 "Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000}'+
   '.nl-infos{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 14px;margin:7px 2px 0;font:600 12px/1.3 "Segoe UI",system-ui,sans-serif;color:#c7d0f2}'+
   '.nl-infos b{color:#fff;font-variant-numeric:tabular-nums}'+

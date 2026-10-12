@@ -304,7 +304,26 @@ var BIB_OBJETS=[
   {r:6,k:'herbes',x:238,y0:7},
   {r:6,k:'bougie',x:232,rang:0,h:15,d:-.9}
 ];
+/*
+ * Audit de fluidité (Norman, 2026-10-12) : la bibliothèque d'un rituel faisait ~216 éléments SVG par scène (123 rectangles), floutés par un filtre, avec les flammes de ses bougies animées DESSOUS : le navigateur redessinait
+ * tout le flou à chaque image, pour 6 scènes. Elle est maintenant une IMAGE (un SVG statique dessiné une fois par rang, gardé en mémoire, adresse d'objet) : un seul élément par scène, plus rien à styler, plus de flou
+ * à refaire (les flammes de la bibliothèque ne vacillent plus : leur lueur reste).
+ */
+var bibliUrls={};
+function bibliothequeUrl_(r){
+  if(bibliUrls[r])return bibliUrls[r];
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 291 312" width="291" height="312" preserveAspectRatio="none">'+bibliothequeContenu_(r)+'</svg>';
+  var url='';
+  try{if(typeof Blob==='function'&&typeof URL!=='undefined'&&URL.createObjectURL)url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));}catch(_e){url='';}
+  if(!url)url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+  bibliUrls[r]=url;
+  return url;
+}
 function bibliotheque(rang){
+  var r=Math.max(0,Math.min(7,Math.floor(Number(rang))||0));
+  return '<img class="bm-biblio" src="'+bibliothequeUrl_(r)+'" alt="" aria-hidden="true" draggable="false" decoding="async">';
+}
+function bibliothequeContenu_(rang){
   var r=Math.max(0,Math.min(7,Math.floor(Number(rang))||0)),i,j,h='';
   var seuil=Math.min(.95,.2+.11*r);
   /* dégradés partagés (lueur de bougie, boule de cristal) */
@@ -346,7 +365,7 @@ function bibliotheque(rang){
     else if(o.k==='cristal')h+=biblioCristal(o.x,yy);
     else if(o.k==='herbes')h+=biblioHerbes(o.x,o.y0);
   }
-  return '<svg class="bm-biblio" viewBox="0 0 291 312" preserveAspectRatio="none" aria-hidden="true" focusable="false">'+h+'</svg>';
+  return h;
 }
 function source(id){
   if(SOURCES[id]==='punaise'){
@@ -360,8 +379,8 @@ function source(id){
   if(SOURCES[id]==='sucon'){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     /* planche de bois un peu penchée, dans le bas : le verre et le porte-sangsue (un seul pied à socle, posé sur la planche, avec un rail sur lequel elle repose) sont posés dessus ; la sangsue ne flotte plus dans le vide */
-    return use('bm-sym-cou',100,312,'bm-cou')+''+planche('<ellipse cx="238" cy="43" rx="100" ry="9" fill="#000" fill-opacity=".62" filter="url(#bm-f-flou)"/><ellipse cx="140" cy="26" rx="39" ry="6.5" fill="#000" fill-opacity=".6" filter="url(#bm-f-flou)"/>')+'<svg class="bm-porte" viewBox="0 0 54 160" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-tige" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4a5365"/><stop offset=".32" stop-color="#e3e9f3"/><stop offset=".62" stop-color="#8b95a8"/><stop offset="1" stop-color="#363d4b"/></linearGradient><linearGradient id="bm-g-rail" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f8"/><stop offset=".4" stop-color="#9aa4b6"/><stop offset="1" stop-color="#414958"/></linearGradient><radialGradient id="bm-g-socle" cx=".38" cy=".3" r=".8"><stop offset="0" stop-color="#d4dbe8"/><stop offset=".55" stop-color="#7d889c"/><stop offset="1" stop-color="#3b4352"/></radialGradient></defs><ellipse cx="27" cy="152" rx="24" ry="7.5" fill="#262c38" stroke="#000" stroke-width="1.4"/><ellipse cx="27" cy="148.5" rx="24" ry="7.5" fill="url(#bm-g-socle)" stroke="#000" stroke-width="1.4"/><ellipse cx="27" cy="147" rx="12" ry="3.6" fill="#59627a" stroke="#000" stroke-width="1"/><rect x="23" y="10" width="8" height="138" fill="url(#bm-g-tige)" stroke="#000" stroke-width="1.4"/><rect x="20.5" y="62" width="13" height="7" rx="2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.2"/><rect x="20.5" y="120" width="13" height="6" rx="2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.2"/><rect x="0.8" y="0.8" width="52.4" height="9" rx="3.2" fill="url(#bm-g-rail)" stroke="#000" stroke-width="1.6"/><path d="M4 3.4 H50" stroke="#fff" stroke-opacity=".75" stroke-width="1.4" stroke-linecap="round"/><rect x="1.8" y="7.4" width="50.4" height="2.4" rx="1" fill="#000" fill-opacity=".35"/><path d="M1 0.8 V-3 M53 0.8 V-3" stroke="#000" stroke-width="0"/></svg>'+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" aria-hidden="true" focusable="false"><path class="tf" fill="#141a0a" fill-opacity=".96"/></svg><svg class="bm-tube" aria-hidden="true" focusable="false"><defs><linearGradient id="bm-g-tube" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="28"><stop offset="0" stop-color="#6b5a26"/><stop offset=".5" stop-color="#2e2c14"/><stop offset="1" stop-color="#101208"/></linearGradient></defs><linearGradient id="bm-g-ventre" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="28"><stop offset="0" stop-color="#8dbb43"/><stop offset=".5" stop-color="#547f24"/><stop offset="1" stop-color="#27421a"/></linearGradient><pattern id="bm-tex" patternUnits="userSpaceOnUse" width="17" height="13"><circle cx="3" cy="3" r="1.1" fill="#16280c" fill-opacity=".55"/><circle cx="11" cy="8" r="1.4" fill="#16280c" fill-opacity=".45"/><circle cx="14.5" cy="2.5" r=".8" fill="#16280c" fill-opacity=".5"/><circle cx="6" cy="10.5" r=".9" fill="#16280c" fill-opacity=".5"/><circle cx="8.5" cy="4.5" r="1.2" fill="#c4e87a" fill-opacity=".28"/><circle cx="1.5" cy="8.5" r="1" fill="#c4e87a" fill-opacity=".24"/><circle cx="13" cy="11.5" r="1.1" fill="#c4e87a" fill-opacity=".26"/><path d="M0.5 6.5 Q4 5 7.5 6.8 M9 1 Q12 2.4 15.5 1" fill="none" stroke="#16280c" stroke-opacity=".3" stroke-width=".7"/></pattern><path class="tv" fill="url(#bm-g-ventre)" fill-opacity=".62"/><path class="tx" fill="url(#bm-tex)" fill-opacity=".85"/><path class="tr" fill="none" stroke="#142408" stroke-opacity=".34" stroke-width="1.5" stroke-linecap="round"/><path class="th" fill="none" stroke="#e6f6b0" stroke-opacity=".3" stroke-width="1.4" stroke-linecap="round"/><path class="tp" fill="url(#bm-g-tube)" fill-opacity=".92" fill-rule="evenodd" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/><path class="tb" fill="none" stroke="#e8801e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path class="ta" fill="none" stroke="#070803" stroke-opacity=".7" stroke-width="1.3" stroke-linecap="round"/><ellipse class="tu" fill="url(#bm-g-bouche-sangsue)" fill-opacity=".9" stroke="#000" stroke-width="1.5"/><ellipse class="tn" fill="#1a0508"/></svg>'+'<i class="bm-trace bm-trace-sucon"></i>'+use('bm-sym-bouche',70,76,'bm-bouche')+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
+    return use('bm-sym-cou',100,312,'bm-cou')+''+planche('<ellipse cx="238" cy="43" rx="100" ry="9" fill="#000" fill-opacity=".62" filter="url(#bm-f-flou)"/><ellipse cx="140" cy="26" rx="39" ry="6.5" fill="#000" fill-opacity=".6" filter="url(#bm-f-flou)"/>')+'<img class="bm-perso"</svg>'+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
+      '<img class="bm-socle" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=soccle.webp&v=2"><div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" aria-hidden="true" focusable="false"><path class="tf" fill="#2c0a12" fill-opacity=".92"/></svg><img class="bm-sangsue-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=sangsue.webp&v=2"><canvas class="bm-sangsue-gl" aria-hidden="true"></canvas><i class="bm-trace bm-trace-sucon"></i>'+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -725,37 +744,59 @@ function garantirPas(m){
   deja.push(String(m));st.setAttribute('data-m',deja.join(','));
 }
 /*
- * Chemin du sang (Norman, 2026-10-11) : les paquets suivent le ventre PUIS la courbe de l'arrière-train jusqu'au point noir de la ventouse, qui est aussi le bout du tuyau. Le chemin est recalculé d'après la position réelle des
- * pièces dans la scène (le tuyau est collé à gauche, l'arrière-train à droite : la largeur de la carte varie) ; il est écrit en variable CSS lue par offset-path. Longueur ≈ (corde + polygone de contrôle) / 2 pour la courbe.
+ * LA SANGSUE EST UNE IMAGE (Norman, 2026-10-12 : « la sangsue est sur idle/bloodmagic/sangsue.webp ») : le corps, la ventouse et le support viennent de ce WebP (400 x 400), posé dans la scène à l'échelle qui amène l'anus
+ * à la même place que l'ancien (au-dessus du verre) et la ventouse au cou ; le ventre y est rendu TRANSPARENT par un masque (voir SG_MASQUE) : le sang passe derrière l'image et se voit à travers.
+ * Géométrie relevée sur l'image : axe du corps = droite quasi horizontale (y 94 à 105), puis un quart de cercle (centre 315,150, rayon 45) et une descente verticale (x 360) jusqu'à l'anus (360,172).
  */
+/*
+ * Nouvelle image de Norman (2026-10-12, sangsue.webp 1254 x 1254, le socle est à part : soccle.webp, statique) : coordonnées relevées sur l'image puis ramenées à 400 unités (x 0,319), pour que tout le reste (maillage,
+ * masque, positions) garde la même échelle. Axe du corps : tête (x 64), col, corps légèrement ondulé jusqu'à x 319, quart de cercle (centre 319,222 ; rayon 38) et descente verticale (x 357) jusqu'à l'anus (357,246).
+ */
+var SG_AXE=(function(){
+  var a=[[64,164],[105,166],[144,167],[182,176],[223,179],[271,180],[319,183]],i;
+  for(i=1;i<=12;i++){var t=i/12*Math.PI/2;a.push([319+38.3*Math.sin(t),221.7-38.3*Math.cos(t)]);}
+  a.push([357.3,245.6]);
+  return a;
+})();
+var SG_DEMI=19,SG_X_VENTOUSE=27,SG_X_ANUS=357.3,SG_Y_AXE=176.4;
+/* Masque du ventre transparent : l'image est opaque partout (alpha 1) sauf le long de l'axe, entre la tête et l'anus, où elle ne l'est qu'à moitié ; les parois dessinées restent pleines, le sang se voit à travers (dessous). */
+var SG_MASQUE='data:image/svg+xml,'+encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><defs><linearGradient id='g' gradientUnits='userSpaceOnUse' x1='168' y1='0' x2='206' y2='0'><stop offset='0' stop-color='#fff'/><stop offset='1' stop-color='#585858'/></linearGradient><filter id='f' x='-5%' y='-5%' width='110%' height='110%'><feGaussianBlur stdDeviation='1.6'/></filter><mask id='m'><rect width='400' height='400' fill='#fff'/><path d='M166 176 L182 176 L223 179 L271 180 L319 183 A38.3 38.3 0 0 1 357.3 221.7 L357.3 243' fill='none' stroke='url(#g)' stroke-width='"+(SG_DEMI*2)+"' filter='url(#f)'/></mask></defs><rect width='400' height='400' mask='url(#m)'/></svg>");
+/* axe de l'image reporté dans la scène : m.s = échelle, m.ox / m.oy = coin haut-gauche de l'image */
+function sangPoints(m){
+  var out=[],i;
+  for(i=0;i<SG_AXE.length;i++)out.push([m.ox+SG_AXE[i][0]*m.s,m.oy+SG_AXE[i][1]*m.s]);
+  return out;
+}
 function sangChemin(sc,cont,K){
-  var tu=sc.querySelector('.bm-tuyau'),qu=sc.querySelector('.bm-coude');
-  if(!tu||!qu||!cont)return;
-  var rs=sc.getBoundingClientRect(),k=rs.height/(sc.offsetHeight||1)||1;
-  var rt=tu.getBoundingClientRect(),rq=qu.getBoundingClientRect();
-  if(!(rt.width>0)||!(rq.width>0))return;
-  var bx=sc.clientLeft||0,by=sc.clientTop||0;
-  var X0=(rt.left-rs.left)/k-bx,Yc=(rt.top-rs.top)/k-by+(rt.height/k)/2;
-  var TL=(rq.left-rs.left)/k-bx,TT=(rq.top-rs.top)/k-by,sx=(rq.width/k)/34,sy=(rq.height/k)/40;
+  var m=sangMesure(sc);
+  if(!m||!cont)return;
+  /* le sang ne se voit qu'à travers le ventre transparent (à partir du col, x 182) : il naît DANS la tête (x 144, caché par la paroi opaque) et apparaît progressivement en passant le col, la fenêtre du masque s'ouvrant en dégradé (Norman, 2026-10-12) */
+  var pts=sangPoints(m).slice(2),p0=pts[0],i,d='M0 0',L=0;
   function R(v){return Math.round(v*10)/10;}
-  var x1=TL+10*sx-X0,y1=TT+10*sy-Yc,c1x=TL+16*sx-X0,c2x=TL+24.2*sx-X0,c2y=TT+13.5*sy-Yc,x2=TL+24.2*sx-X0,y2=TT+22*sy-Yc,y3=TT+33.5*sy-Yc;
-  var d='M0 0 L'+R(x1)+' '+R(y1)+' C'+R(c1x)+' '+R(y1)+' '+R(c2x)+' '+R(c2y)+' '+R(x2)+' '+R(y2)+' L'+R(x2)+' '+R(y3);
-  var L1=Math.sqrt(x1*x1+y1*y1),chord=Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)),poly=Math.sqrt((c1x-x1)*(c1x-x1))+Math.sqrt((c2x-c1x)*(c2x-c1x)+(c2y-y1)*(c2y-y1))+Math.sqrt((x2-c2x)*(x2-c2x)+(y2-c2y)*(y2-c2y));
+  for(i=1;i<pts.length;i++){
+    d+=' L'+R(pts[i][0]-p0[0])+' '+R(pts[i][1]-p0[1]);
+    L+=Math.sqrt(Math.pow(pts[i][0]-pts[i-1][0],2)+Math.pow(pts[i][1]-pts[i-1][1],2));
+  }
   /* le bord GAUCHE de la boule est posé sur le chemin : la dernière boule déborde d'une longueur de boule après le point d'arrivée. On limite donc la course (facteur --bm-fk) pour que son AVANT s'arrête au centre de l'anus : Lc = (L + 3) * K / (K + 1), boule = Lc / K - 3. */
-  var L=L1+(chord+poly)/2+(y3-y2),Lc=(L+3)*K/(K+1),cell=Math.max(4,Lc/K-3),fk=Lc/L;
-  var cle=d+'|'+K+'|'+R(X0)+'|'+R(Yc);
+  /* Norman (2026-10-12) : la boule ne disparaît pas devant nos yeux, elle continue d'avancer et s'efface AU NIVEAU DE L'ANUS : le chemin se prolonge d'une boule et demie après l'anus, et tout ce qui dépasse la ligne de l'anus est coupé (clip-path du conteneur). */
+  var yAnus=pts[pts.length-1][1]-p0[1],Lc0=(L+3)*K/(K+1),cell0=Math.max(4,Math.min(Lc0/K-3,SG_DEMI*2*m.s*0.9)),ext=cell0*1.5+4;
+  d+=' L'+R(pts[pts.length-1][0]-p0[0])+' '+R(yAnus+ext);var La=L;L+=ext;
+  var Lc=(L+3)*K/(K+1),cell=Math.max(4,Math.min(Lc/K-3,SG_DEMI*2*m.s*0.9)),fk=Lc/L;
+  /* case (numérotée depuis la tête) où l'avant de la boule franchit la ligne de l'anus : c'est là que le sang doit se mettre à couler (voir avance de phase dans sangsue()) */
+  cont.__cstar=Math.ceil((La-cell)/(Lc/K));
+  var cle=d+'|'+K;
   /* le style du conteneur peut être effacé par un redessin de la page : on ne se fie pas au seul mémo, on vérifie le style réel */
   if(cont.__chemin===cle&&cont.style.getPropertyValue('--bm-chemin')&&cont.style.left)return;
   cont.__chemin=cle;
-  cont.style.left=R(X0)+'px';cont.style.top=R(Yc)+'px';
+  cont.style.left=R(p0[0])+'px';cont.style.top=R(p0[1])+'px';
   cont.style.setProperty('--bm-chemin','path("'+d+'")');
   cont.style.setProperty('--bm-cell',R(cell)+'px');
+  cont.style.clipPath='polygon(-3000px -3000px,3000px -3000px,3000px '+R(yAnus+1)+'px,-3000px '+R(yAnus+1)+'px)';
   cont.style.setProperty('--bm-fk',fk.toFixed(4));
 }
 /*
- * TUYAU EN UNE SEULE PIÈCE (Norman, 2026-10-11) : du cou jusqu'à l'anus, le corps de la sangsue est UN seul tube (mêmes parois, même bande orange, mêmes anneaux), dessiné par le script d'après les vraies positions des pièces (la
- * largeur de la carte varie : le corps est collé au cou, l'arrière-train à droite). Les parois sont un anneau (évenodd) autour d'un canal transparent où passent les paquets de sang, jusqu'au point noir de la ventouse (l'anus, gros,
- * accroché au bout). L'arrière-train GROSSIT à mesure que le sang arrive (jusqu'à +17 % barre pleine) et RÉTRÉCIT quand le sang sort : le tube s'épaissit progressivement vers l'arrière, sans raccord.
+ * Mesure : le tuyau (.bm-tuyau) et le coude (.bm-coude) ne sont plus que des REPÈRES de mise en page invisibles (la largeur de la carte varie : la ventouse reste au cou, l'anus tombe à droite, au-dessus du verre). On en tire
+ * l'échelle de l'image : sa ventouse (x 15) est posée au cou, son anus (x 360) à la place de l'ancien (x2 = bord gauche du coude + 24,2 unités), et l'axe du corps à la hauteur du repère du tuyau.
  */
 function sangMesure(sc){
   var tu=sc.querySelector('.bm-tuyau'),qu=sc.querySelector('.bm-coude');
@@ -763,64 +804,150 @@ function sangMesure(sc){
   var rs=sc.getBoundingClientRect(),k=rs.height/(sc.offsetHeight||1)||1,rt=tu.getBoundingClientRect(),rq=qu.getBoundingClientRect();
   if(!(rt.width>0)||!(rq.width>0))return null;
   var bx=sc.clientLeft||0,by=sc.clientTop||0;
-  return {X0:(rt.left-rs.left)/k-bx,Yc:(rt.top-rs.top)/k-by+(rt.height/k)/2,hh:(rt.height/k)/2,TL:(rq.left-rs.left)/k-bx,TT:(rq.top-rs.top)/k-by,sx:(rq.width/k)/34,sy:(rq.height/k)/40,W:sc.clientWidth,H:sc.clientHeight};
+  var Yc=(rt.top-rs.top)/k-by+(rt.height/k)/2,TL=(rq.left-rs.left)/k-bx,x2=TL+24.2*((rq.width/k)/34);
+  var s=Math.max(.3,Math.min(.8,(x2-12)/(SG_X_ANUS-SG_X_VENTOUSE)));
+  return {s:s,ox:12-SG_X_VENTOUSE*s,oy:Yc-SG_Y_AXE*s,W:sc.clientWidth,H:sc.clientHeight};
 }
-function sangLigne(m){
-  var pts=[],i,N=22,x1=m.TL+10*m.sx,y0=m.Yc,c1x=m.TL+16*m.sx,c2x=m.TL+24.2*m.sx,c2y=m.TT+13.5*m.sy,x2=m.TL+24.2*m.sx,y2=m.TT+22*m.sy,y3=m.TT+33.5*m.sy,x,y;
-  for(x=m.X0;x<x1;x+=3)pts.push([x,y0]);
-  for(i=0;i<=N;i++){var t=i/N,u=1-t;pts.push([u*u*u*x1+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x2,u*u*u*y0+3*u*u*t*y0+3*u*t*t*c2y+t*t*t*y2]);}
-  for(y=y2+3;y<y3;y+=3)pts.push([x2,y]);
-  pts.push([x2,y3]);
-  return pts;
-}
+/* Canal sombre derrière le sang : le contour du ventre transparent, tracé d'après l'axe. g = grossissement de l'arrière-train (voir sgDessiner : l'image est déformée). */
 function sangTrace(sc,m,g){
-  var svgF=sc.querySelector('.bm-tube-fond'),svgT=sc.querySelector('.bm-tube');
-  if(!svgF||!svgT||!m)return;
-  var pts=sangLigne(m),n=pts.length,s=[0],i,S,R=function(v){return Math.round(v*10)/10;};
-  for(i=1;i<n;i++)s.push(s[i-1]+Math.sqrt(Math.pow(pts[i][0]-pts[i-1][0],2)+Math.pow(pts[i][1]-pts[i-1][1],2)));
-  S=s[n-1]||1;
-  var PAROI=3,ho=[],hc=[],nx=[],ny=[];
+  var svgF=sc.querySelector('.bm-tube-fond');
+  if(!svgF||!m)return;
+  var cle=m.s.toFixed(3)+'|'+m.ox.toFixed(1)+'|'+m.oy.toFixed(1)+'|'+m.W+'|'+m.H;
+  sgInit(sc);sgDessiner(sc,g==null?(sc.__g==null?1:sc.__g):g);
+  if(sc.__traceCle===cle&&svgF.querySelector('.tf').getAttribute('d'))return;
+  sc.__traceCle=cle;
+  var pts=sangPoints(m),n=pts.length,i,h=SG_DEMI*m.s,R=function(v){return Math.round(v*10)/10;},A=[],B=[];
   for(i=0;i<n;i++){
-    var a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)],tx=b[0]-a[0],ty=b[1]-a[1],l=Math.sqrt(tx*tx+ty*ty)||1;
-    nx.push(-ty/l);ny.push(tx/l);
-    var q=Math.max(0,Math.min(1,(s[i]/S-0.3)/0.6)),r=q*q*(3-2*q),f=1+(g-1)*r;
-    ho.push(m.hh*f);hc.push(m.hh*f-PAROI*(1+(f-1)*0.4));
+    var a=pts[Math.max(0,i-1)],b=pts[Math.min(n-1,i+1)],tx=b[0]-a[0],ty=b[1]-a[1],l=Math.sqrt(tx*tx+ty*ty)||1,nx=-ty/l,ny=tx/l;
+    A.push([pts[i][0]-nx*h,pts[i][1]-ny*h]);B.push([pts[i][0]+nx*h,pts[i][1]+ny*h]);
   }
-  function bord(h,signe){var o=[];for(i=0;i<n;i++)o.push([pts[i][0]+signe*nx[i]*h[i],pts[i][1]+signe*ny[i]*h[i]]);return o;}
-  function poly(h){var A=bord(h,-1),B=bord(h,1),d='M'+R(A[0][0])+' '+R(A[0][1]);for(i=1;i<n;i++)d+=' L'+R(A[i][0])+' '+R(A[i][1]);for(i=n-1;i>=0;i--)d+=' L'+R(B[i][0])+' '+R(B[i][1]);return d+' Z';}
-  var canal=poly(hc),ext=poly(ho);
-  svgF.setAttribute('viewBox','0 0 '+m.W+' '+m.H);svgT.setAttribute('viewBox','0 0 '+m.W+' '+m.H);
-  svgF.querySelector('.tf').setAttribute('d',canal);
-  svgT.querySelector('.tp').setAttribute('d',ext+' '+canal);
-  /* bande orange sur la paroi extérieure, anneaux en travers des parois */
-  var bande='',anneaux='',st=bord(ho.map(function(v,j){return v-PAROI*0.5;}),-1);
-  for(i=0;i<n;i++)bande+=(i?' L':'M')+R(st[i][0])+' '+R(st[i][1]);
-  var hcP=bord(hc,1),hoP=bord(ho,1),hcM=bord(hc,-1),hoM=bord(ho,-1);
-  for(i=1;i<n;i++)if(Math.floor(s[i]/12)!==Math.floor(s[i-1]/12))anneaux+='M'+R(hcP[i][0])+' '+R(hcP[i][1])+' L'+R(hoP[i][0])+' '+R(hoP[i][1])+' M'+R(hcM[i][0])+' '+R(hcM[i][1])+' L'+R(hoM[i][0])+' '+R(hoM[i][1])+' ';
-  svgT.querySelector('.tb').setAttribute('d',bande);
-  svgT.querySelector('.ta').setAttribute('d',anneaux);
-  /* l'anus : une grosse ventouse accrochée au bout du tuyau, point noir au centre (le jet part de là) */
-  var ex=pts[n-1][0],ey=pts[n-1][1]+m.sy*1.1,rx=ho[n-1]+0.4,ry=5.4;   /* l'anus a exactement le diamètre du tuyau (demi-largeur extérieure) */
-  var u=svgT.querySelector('.tu'),nn=svgT.querySelector('.tn');
-  u.setAttribute('cx',R(ex));u.setAttribute('cy',R(ey));u.setAttribute('rx',R(rx));u.setAttribute('ry',ry);
-  nn.setAttribute('cx',R(ex));nn.setAttribute('cy',R(ey+0.5));nn.setAttribute('rx',R(rx*0.34));nn.setAttribute('ry',2.6);
-  var gr=svgT.querySelector('#bm-g-tube');if(gr){gr.setAttribute('y1',R(m.Yc-m.hh));gr.setAttribute('y2',R(m.Yc+m.hh));}
-  var gv=svgT.querySelector('#bm-g-ventre');if(gv){gv.setAttribute('y1',R(m.Yc-m.hh));gv.setAttribute('y2',R(m.Yc+m.hh));}
-  svgT.querySelector('.tv').setAttribute('d',canal);
-  svgT.querySelector('.tx').setAttribute('d',canal);
-  /* anneaux en travers du canal (un tous les 12 px, décalés de ceux des parois) et reflet le long du haut du ventre */
-  var rings='',hl='',cm=bord(hc.map(function(v){return v*0.78;}),-1);
-  for(i=1;i<n;i++){if(Math.floor((s[i]+6)/12)!==Math.floor((s[i-1]+6)/12))rings+='M'+R(hcM[i][0])+' '+R(hcM[i][1])+' L'+R(hcP[i][0])+' '+R(hcP[i][1])+' ';}
-  for(i=0;i<n;i++)hl+=(i?' L':'M')+R(cm[i][0])+' '+R(cm[i][1]);
-  svgT.querySelector('.tr').setAttribute('d',rings);
-  svgT.querySelector('.th').setAttribute('d',hl);
+  var d='M'+R(A[0][0])+' '+R(A[0][1]);
+  for(i=1;i<n;i++)d+=' L'+R(A[i][0])+' '+R(A[i][1]);
+  for(i=n-1;i>=0;i--)d+=' L'+R(B[i][0])+' '+R(B[i][1]);
+  svgF.setAttribute('viewBox','0 0 '+m.W+' '+m.H);
+  svgF.querySelector('.tf').setAttribute('d',d+' Z');
+  /* position et taille de l'image, lues par le CSS (image, œil, Zzz, trace de la ventouse) */
+  sc.style.setProperty('--sg-s',m.s.toFixed(4));
+  sc.style.setProperty('--sg-ox',R(m.ox)+'px');
+  sc.style.setProperty('--sg-oy',R(m.oy)+'px');
+}
+/*
+ * DÉFORMATION DE L'IMAGE (Norman, 2026-10-12 : « tu m'as dit que tu pouvais déformer les images pour les animer ») : le WebP est la texture d'un maillage de 40 x 40 cases, dessiné par WebGL dans un canevas ; chaque sommet est déplacé :
+ *  - l'arrière-train GROSSIT avec le sang (g, jusqu'à +17 %, comme l'ancien tuyau) et rétrécit à la sortie : les sommets près de l'axe du corps s'éloignent de l'axe, de plus en plus vers l'anus (courbe et descente comprises) ;
+ *  - une ONDE de contraction (péristaltisme) part de la ventouse à chaque coup et parcourt tout le corps jusqu'à l'anus, comme si la sangsue poussait le sang : une bosse qui dilate le corps autour de son axe ;
+ *  - la ventouse SUCE au rythme des coups (mêmes images clés que l'ancien bmSuce : .88 x 1.1, puis 1.03 x .98) autour de son centre.
+ * Pas de WebGL (ou texture refusée) : l'image reste affichée telle quelle. Le maillage n'est redessiné que si g ou la succion changent.
+ */
+var SG_N=40,SG_CENTRE=[45,164],sgStat=null;
+function sgLisse(a,b,x){var t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);}
+function sgPrepare(){
+  if(sgStat)return sgStat;
+  var segs=[],tot=0,i,j,V=(SG_N+1)*(SG_N+1);
+  for(i=1;i<SG_AXE.length;i++){
+    var ax=SG_AXE[i-1][0],ay=SG_AXE[i-1][1],bx=SG_AXE[i][0],by=SG_AXE[i][1],l=Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+    segs.push({ax:ax,ay:ay,ux:(bx-ax)/l,uy:(by-ay)/l,l:l,c:tot});tot+=l;
+  }
+  var st={n:V,x0:new Float32Array(V),y0:new Float32Array(V),nx:new Float32Array(V),ny:new Float32Array(V),dp:new Float32Array(V),rr:new Float32Array(V),tt:new Float32Array(V),ws:new Float32Array(V),pos:new Float32Array(V*2),uv:new Float32Array(V*2),idx:null};
+  var v=0;
+  for(j=0;j<=SG_N;j++)for(i=0;i<=SG_N;i++,v++){
+    var x=i/SG_N*400,y=j/SG_N*400,best=1e9,k,bs=null,bu=0;
+    for(k=0;k<segs.length;k++){
+      var sg=segs[k],u=(x-sg.ax)*sg.ux+(y-sg.ay)*sg.uy,uc=Math.max(0,Math.min(sg.l,u)),qx=sg.ax+sg.ux*uc,qy=sg.ay+sg.uy*uc,dd=Math.sqrt((x-qx)*(x-qx)+(y-qy)*(y-qy));
+      if(dd<best){best=dd;bs=sg;bu=uc;}
+    }
+    st.x0[v]=x;st.y0[v]=y;
+    st.nx[v]=-bs.uy;st.ny[v]=bs.ux;
+    st.dp[v]=((x-bs.ax)*-bs.uy+(y-bs.ay)*bs.ux)*(1-sgLisse(32,52,best));
+    st.tt[v]=(bs.c+bu)/tot;
+    st.rr[v]=sgLisse(.3,.9,st.tt[v]);
+    st.ws[v]=1-sgLisse(62,100,x);
+    st.uv[v*2]=i/SG_N;st.uv[v*2+1]=j/SG_N;
+  }
+  var idx=new Uint16Array(SG_N*SG_N*6),q=0;
+  for(j=0;j<SG_N;j++)for(i=0;i<SG_N;i++){var a=j*(SG_N+1)+i,b=a+1,c=a+SG_N+1,d=c+1;idx[q++]=a;idx[q++]=b;idx[q++]=c;idx[q++]=b;idx[q++]=d;idx[q++]=c;}
+  st.idx=idx;
+  sgStat=st;return st;
+}
+function sgInit(sc){
+  if(sc.__gl!==undefined)return;
+  var img=sc.querySelector('.bm-sangsue-img'),cv=sc.querySelector('.bm-sangsue-gl');
+  if(!img||!cv||!img.complete||!img.naturalWidth)return;
+  try{
+    var o={premultipliedAlpha:true,alpha:true,antialias:false},gl=cv.getContext('webgl2',o),v2=!!gl;
+    if(!gl)gl=cv.getContext('webgl',o);
+    if(!gl)throw new Error('pas de webgl');
+    function sh(t,src){var h=gl.createShader(t);gl.shaderSource(h,src);gl.compileShader(h);if(!gl.getShaderParameter(h,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(h));return h;}
+    var pr=gl.createProgram();
+    gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 p;attribute vec2 t;varying vec2 u;void main(){u=t;gl_Position=vec4(p.x/200.0-1.0,1.0-p.y/200.0,0.0,1.0);}'));
+    gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,'precision mediump float;varying vec2 u;uniform sampler2D s;void main(){gl_FragColor=texture2D(s,u);}'));
+    gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error('lien');
+    gl.useProgram(pr);
+    var st=sgPrepare(),tex=gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,tex);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,true);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    if(v2){gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);}
+    else gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    var bp=gl.createBuffer(),bt=gl.createBuffer(),bi=gl.createBuffer(),lp=gl.getAttribLocation(pr,'p'),lt=gl.getAttribLocation(pr,'t');
+    gl.bindBuffer(gl.ARRAY_BUFFER,bt);gl.bufferData(gl.ARRAY_BUFFER,st.uv,gl.STATIC_DRAW);gl.enableVertexAttribArray(lt);gl.vertexAttribPointer(lt,2,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ARRAY_BUFFER,bp);gl.bufferData(gl.ARRAY_BUFFER,st.pos,gl.DYNAMIC_DRAW);gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,bi);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,st.idx,gl.STATIC_DRAW);
+    gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
+    sc.__gl={gl:gl,cv:cv,bp:bp,cle:'',cw:0};
+    sc.classList.add('bm-gl');
+    sgDessiner(sc,sc.__g==null?1:sc.__g);
+  }catch(e){sc.__gl=null;}
+}
+function sgDessiner(sc,g){
+  var G=sc.__gl;
+  if(!G||!sc.__m)return;
+  var sx=sc.__suc?sc.__suc[0]:1,sy=sc.__suc?sc.__suc[1]:1,dpr=Math.min(2,window.devicePixelRatio||1),cw=Math.max(64,Math.round(400*sc.__m.s*dpr));
+  var ph=sc.__suc?sc.__suc[2]:-1,cle=g.toFixed(3)+'|'+sx.toFixed(3)+'|'+sy.toFixed(3)+'|'+ph.toFixed(3)+'|'+cw;
+  if(G.cle===cle)return;
+  G.cle=cle;
+  var gl=G.gl,st=sgPrepare(),pos=st.pos,v,dg=g-1,dx=sx-1,dy=sy-1;
+  if(G.cv.width!==cw){G.cv.width=cw;G.cv.height=cw;}
+  gl.viewport(0,0,cw,cw);
+  /* onde : centre c de -0,15 à 1,15 de l'axe pendant les 80 % du coup, largeur 0,11, dilatation jusqu'à +22 % */
+  var onde=ph>=0,c0=onde?-.15+1.3*Math.min(1,ph/.8):0;
+  for(v=0;v<st.n;v++){
+    var ew=0;
+    if(onde){var q=(st.tt[v]-c0)/.11;ew=.22*Math.exp(-q*q);}
+    var k=st.dp[v]*(dg*st.rr[v]+ew),x=st.x0[v]+st.nx[v]*k,y=st.y0[v]+st.ny[v]*k,w=st.ws[v];
+    if(w>0){x+=(st.x0[v]-SG_CENTRE[0])*dx*w;y+=(st.y0[v]-SG_CENTRE[1])*dy*w;}
+    pos[v*2]=x;pos[v*2+1]=y;
+  }
+  gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.bindBuffer(gl.ARRAY_BUFFER,G.bp);gl.bufferSubData(gl.ARRAY_BUFFER,0,pos);
+  gl.drawElements(gl.TRIANGLES,st.idx.length,gl.UNSIGNED_SHORT,0);
+}
+/* Succion : mêmes images clés que l'ancien bmSuce, calée sur l'horloge des paquets (sc.__t0, durée d'un coup sc.__S) ; boucle d'images seulement tant qu'une sangsue travaille à l'écran. */
+var sgSucId=0;
+function sgSuccion(){
+  var l=document.querySelectorAll('.bm-scene[data-source="sucon"]'),vivant=false,i,now=performance.now()/1000,calme=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  for(i=0;i<l.length;i++){
+    var sc=l[i];
+    if(!sc.__gl)continue;
+    var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
+    if(!actif){if(sc.__suc){sc.__suc=null;sgDessiner(sc,sc.__g==null?1:sc.__g);}continue;}
+    vivant=true;
+    var S=sc.__S||1.1,pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
+    if(pr<.45){var a=sgLisse(0,.45,pr);sx=1-.12*a;sy=1+.1*a;}
+    else if(pr<.7){var b=sgLisse(.45,.7,pr);sx=.88+.15*b;sy=1.1-.12*b;}
+    else{var c=sgLisse(.7,1,pr);sx=1.03-.03*c;sy=.98+.02*c;}
+    sc.__suc=[sx,sy,pr];
+    sgDessiner(sc,sc.__g==null?1:sc.__g);
+  }
+  sgSucId=vivant&&typeof requestAnimationFrame==='function'?requestAnimationFrame(sgSuccion):0;
 }
 var sangBoucleId=0;
 function sangBoucle(){
   var l=document.querySelectorAll('.bm-scene[data-source="sucon"]'),encore=false,i;
   for(i=0;i<l.length;i++){
     var sc=l[i],T=sc.__gT;
-    if(T==null||!sc.__m)continue;
+    if(T==null||!sc.__m||sc.__vis===false)continue;
     if(sc.__g==null)sc.__g=T;
     var d=T-sc.__g;
     if(Math.abs(d)>0.002){sc.__g+=d*0.12;encore=true;}else if(sc.__g!==T)sc.__g=T;
@@ -878,16 +1005,22 @@ function sangsue(sc,sec,actif){
   var P=Math.max(PERIODE_MIN,sec);
   var m=P<3?Math.max(1,Math.round(P/0.5)):PAQ_CASES;
   var K=m*Math.ceil(PAQ_CASES/m),Jn=Math.ceil(PAQ_CASES/m),S=P/m;
+  sc.__S=S;
   /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
   var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
   var attente=(pbBrut==null&&!!barre&&/scaleX\(1\)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
   var pb=pbBrut==null?0:pbBrut;
   sangChemin(sc,cont,K);
+  /* Norman (2026-10-12) : « le sang doit couler à l'instant où la boule sort de l'anus ». Le jet part quand la barre repart de zéro ; les boules ont donc UNE AVANCE DE PHASE : à ce moment précis, l'avant de la dernière boule franchit la ligne de l'anus et elle achève de sortir (clip) pendant que le jet tombe. */
+  var avance=0;
+  if(m>1&&cont.__cstar){var ic=Math.max(1,Math.min(m,cont.__cstar-(Jn-1)*m));avance=(ic-1+.04)/m;}
+  sc.__avance=avance;
   /* l'arrière-train GROSSIT à mesure que le sang arrive (jusqu'à +17 % barre pleine) et RÉTRÉCIT quand le sang sort (la barre repart de zéro) */
   sc.__gT=attente?1.17:1+0.17*Math.pow(Math.max(0,Math.min(1,pb)),1.3);
   if(sc.__g==null)sc.__g=sc.__gT;
   if(!sangBoucleId&&typeof requestAnimationFrame==='function')sangBoucleId=requestAnimationFrame(sangBoucle);
+  if(!sgSucId&&typeof requestAnimationFrame==='function')sgSucId=requestAnimationFrame(sgSuccion);
   var pleure=!!ligneEta&&/Barre pleine : il manque/.test(ligneEta.textContent||'');
   if(sc.classList.contains('bm-pleure')!==pleure)sc.classList.toggle('bm-pleure',pleure);
   var maintenant=performance.now()/1000;
@@ -921,19 +1054,19 @@ function sangsue(sc,sec,actif){
     void cont.offsetWidth;
     /* ventre redessiné (page rafraîchie) juste après un pas : on repart de la position mémorisée plutôt que de l'horloge de la barre, qui peut déjà être à zéro si la Magie vient d'être retirée */
     var depuisMemoire=!!memS&&memS.cle===cle&&(performance.now()-(memS.at||0))<3000;
-    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):pb*P*1000;}
+    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):((pb+avance)%1)*P*1000;}
   }else{
     /* recalage doux sur la barre du moteur */
     var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
     if(pbBrut!=null&&t0&&t0.progress!=null){
-      var d=Math.abs(Number(t0.progress)-pb);
-      if(Math.min(d,1-d)>0.04)for(i=0;i<Jn;i++){var ai=paq[i].getAnimations()[0];if(ai)ai.currentTime=pb*P*1000;}
+      var pbA=(pb+avance)%1,d=Math.abs(Number(t0.progress)-pbA);
+      if(Math.min(d,1-d)>0.04)for(i=0;i<Jn;i++){var ai=paq[i].getAnimations()[0];if(ai)ai.currentTime=pbA*P*1000;}
     }
   }
   for(i=0;i<Jn;i++){
     var aw=paq[i].getAnimations&&paq[i].getAnimations()[0];
     if(!aw)continue;
-    if(attente){if(aw.playState!=='paused'){aw.pause();aw.currentTime=P*995;}}
+    if(attente){if(aw.playState!=='paused'){aw.pause();aw.currentTime=(avance>0?avance:.995)*P*1000;}}   /* barre pleine : la boule attend au bord de l'anus, prête à sortir */
     else if(aw.playState==='paused')aw.play();
   }
   /* la bouche suce au rythme des coups : une contraction par pas */
@@ -1127,6 +1260,7 @@ function banqueTic(){
   var maintenant=performance.now();
   var dt=new Date(),p2=function(v){return (v<10?'0':'')+v;},horloge=dt.getFullYear()+'-'+p2(dt.getMonth()+1)+'-'+p2(dt.getDate())+' '+p2(dt.getHours())+':'+p2(dt.getMinutes())+':'+p2(dt.getSeconds());
   for(var i=0;i<l.length;i++){
+    if(l[i].__vis===false)continue;
     var he=l[i].querySelector('.bm-cctv-heure');
     if(he&&he.textContent!==horloge)he.textContent=horloge;
     var cv=l[i].querySelector('.bm-banque-cv');
@@ -1247,6 +1381,7 @@ function filTic(){
   var l=document.querySelectorAll('.bm-scene[data-source="fil"]');
   if(!l.length){filBoucle=0;return;}
   for(var i=0;i<l.length;i++){
+    if(l[i].__vis===false)continue;
     var cv=l[i].querySelector('.bm-fil');
     if(!cv)continue;
     var k=filCadre(l[i]);l[i].__kfil=k;filDessiner(cv,k);filSaigne(l[i],k);filSang(l[i],k);
@@ -1318,6 +1453,7 @@ function majBac(sc,id,n){
   if(el.classList.contains('on')!==actif)el.classList.toggle('on',actif);
 }
 function majScene(sc){
+  if(sc.__vis===false)return;   /* carte hors écran : rien à mesurer ni à dessiner (voir suivreVisibilite) */
   var id=sc.getAttribute('data-bm-id');
   var n=lireCompte(id);
   if(n==null)return;
@@ -1353,7 +1489,30 @@ function majScene(sc){
   if(nEl){var txt=formatSang(n*(Number(sc.getAttribute('data-bm-sang'))||0));if(nEl.textContent!==txt)nEl.textContent=txt;}
   vus[id]=pleins;
 }
+/*
+ * Cartes visibles seulement (Norman, 2026-10-12, audit de fluidité) : les 7 rituels font ~7 400 px de haut et seuls un ou deux sont à l'écran. Une carte hors écran n'est plus dessinée (content-visibility:auto, voir le CSS) et
+ * ses boucles de travail (mesures de la sangsue, lecteurs d'images du barbelé et de la banque, tracé du tuyau) sont suspendues ; elle se remet à jour d'un coup quand elle revient dans l'écran. Une scène que l'observateur
+ * n'a pas encore vue (__vis non défini) compte comme visible.
+ */
+var vuObs=null;
+function suivreVisibilite(){
+  if(!vuObs&&typeof IntersectionObserver==='function'){
+    vuObs=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        var sc=e.target.querySelector&&e.target.querySelector('.bm-scene');
+        if(!sc)return;
+        var avant=sc.__vis;
+        sc.__vis=e.isIntersecting;
+        if(e.isIntersecting&&avant===false)majScene(sc);
+      });
+    },{rootMargin:'160px 0px'});
+  }
+  if(!vuObs)return;
+  var cartes=document.querySelectorAll('.bm-rituel');
+  for(var i=0;i<cartes.length;i++){if(!cartes[i].__vuObs){cartes[i].__vuObs=true;vuObs.observe(cartes[i]);}}
+}
 function majVases(){
+  suivreVisibilite();
   var sc=document.querySelectorAll('.bm-scene');
   for(var i=0;i<sc.length;i++)majScene(sc[i]);
 }
@@ -1396,7 +1555,7 @@ function css(){
     /* En-tête */
     P+'.bm-entete{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(8px,3vw,28px);margin:6px 0 14px;padding:18px 10px 14px;border:3px solid #000;border-radius:14px;background:linear-gradient(180deg,#2a0610,#14040a);box-shadow:inset 0 0 0 2px rgba(200,30,55,.35),inset 0 -26px 40px rgba(120,6,26,.35),4px 4px 0 #000;overflow:hidden;isolation:isolate}',
     P+'.bm-entete-fond{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:-1;pointer-events:none}',
-    P+'.bm-pentacle-fond{width:min(340px,92%);height:auto;color:rgba(230,40,70,.34);filter:drop-shadow(0 0 8px rgba(255,30,60,.45));animation:bmTourne 90s linear infinite}',
+    P+'.bm-pentacle-fond{width:min(340px,92%);height:auto;color:rgba(230,40,70,.34);animation:bmTourne 90s linear infinite}',
     P+'.bm-entete-texte{text-align:center;min-width:0}',
     P+'.bm-titre{margin:0;font-family:var(--f-titre,"Bangers",cursive)!important;font-weight:400;font-size:clamp(30px,7vw,54px);letter-spacing:.12em;line-height:1;color:#ffdce1;text-transform:uppercase;text-shadow:0 3px 0 #000,0 0 18px rgba(255,30,60,.85),0 0 34px rgba(190,10,40,.7);-webkit-text-stroke:1px #000}',
     P+'.bm-sous-titre{margin:6px 0 0;font-family:var(--f-texte,"Russo One",sans-serif);font-size:clamp(11px,2.3vw,15px);color:#e9aeb8;text-shadow:0 1px 0 #000}',
@@ -1423,11 +1582,11 @@ function css(){
     /* Scène */
     P+'.bm-scene{--cx:calc(var(--vw,100px)/2 + 12px);position:relative;height:var(--sh,244px);margin:6px 0 4px;border:3px solid #000;border-radius:12px;overflow:hidden;background:radial-gradient(ellipse 70% 60% at 82% 78%,rgba(190,16,44,.28),transparent 70%),linear-gradient(180deg,#1b050b,#0b0205);box-shadow:inset 0 0 26px rgba(0,0,0,.85),inset 0 0 0 2px rgba(190,30,55,.25)}',
     P+'.bm-sol{position:absolute;right:-26px;bottom:-34px;width:210px;height:210px;transform:perspective(360px) rotateX(64deg);transform-origin:50% 100%;pointer-events:none;opacity:.9}',
-    P+'.bm-pentacle-sol{width:100%;height:100%;color:rgba(235,40,70,.55);filter:drop-shadow(0 0 6px rgba(255,30,60,.6));animation:bmTourne 40s linear infinite;animation-play-state:paused}',
+    P+'.bm-pentacle-sol{width:100%;height:100%;color:rgba(235,40,70,.55);animation:bmTourne 40s linear infinite;animation-play-state:paused}',
     /* le pentacle du sol ne tourne que lorsque le rituel est en marche (Norman, 2026-10-11) ; à l'arrêt il garde l'angle où il s'est arrêté */
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-pentacle-sol{animation-play-state:running}',
     /* le tuyau grossit avec le rang du rituel (--th = hauteur de la tuile) ; son axe reste à 70 px du haut de la scène */
-    P+'.bm-ver{position:absolute;left:14px;right:var(--cx);top:calc(70px - var(--th,44px)/2);height:var(--th,44px);filter:drop-shadow(0 0 1.4px #000) drop-shadow(0 3px 3px rgba(0,0,0,.65))}',
+    P+'.bm-ver{position:absolute;left:14px;right:var(--cx);top:calc(70px - var(--th,44px)/2);height:var(--th,44px)}',
     P+'.bm-scene[data-source="punaise"] .bm-ver{left:80px}',
     P+'.bm-tuyau{position:absolute;inset:0;overflow:hidden;background:linear-gradient(180deg,#5a3a3c,#2e1a1c);-webkit-mask:url("'+MASQUE_VER+'") 0 0/120px 44px repeat-x;mask:url("'+MASQUE_VER+'") 0 0/120px 44px repeat-x}',
     /* anneaux du ver (période 12 px) : ils avancent quand le rituel progresse */
@@ -1437,7 +1596,6 @@ function css(){
     /* le sang : barre du moteur, animée par soreal-idle-ui.js (transform scaleX) */
     P+'.bm-tuyau .bm-sang{position:absolute;inset:0;width:100%;transform-origin:left center;will-change:transform;background:linear-gradient(180deg,#ff3a55 0,#c0152e 40%,#6d0818 100%);transition:none;z-index:1}',
     P+'.bm-tuyau .sang-g-v1{display:none}',
-    P+'.bm-ver:has(.saigne-v1){animation:bmPouls 1.1s ease-in-out infinite}',
     P+'.bm-bride{position:absolute;left:8px;top:calc(70px - 30px);width:20px;height:60px;z-index:4;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}',
     /* le doigt et la punaise (premier rituel) : la punaise plane au-dessus du doigt, elle s'enfonce quand de la Magic est placée, une perle de sang perle à chaque piqûre */
     /* premier rituel : le doigt sort du bord gauche et s'arrête (--tx) au-dessus de la boîte, qui est posée juste dessous */
@@ -1535,7 +1693,8 @@ function css(){
     /* Quand la Magie est retirée, le bras (ou le doigt) repart et la cicatrice disparaît d'un coup avec lui : elle ne reste pas flottante pendant le fondu (Norman, 2026-10-11). */
     P+'.bm-scene.bm-hors .bm-trace{opacity:0;transition:opacity .1s linear}',
     P+'.bm-trace-trou{left:calc(var(--px) - 6px);top:86px;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle,#2a0309 0 22%,#b3102a 24% 52%,rgba(179,16,42,.35) 54% 70%,transparent 72%)}',
-    P+'.bm-trace-coupures{left:calc(var(--px) - 14px);top:74px;width:28px;height:46px;background:linear-gradient(#c01a30,#8f1124) 13px 0/3px 100% no-repeat,linear-gradient(#a3182c,#8f1124) 3px 9px/2px 66% no-repeat,linear-gradient(#a3182c,#8f1124) 23px 14px/2px 56% no-repeat;border-radius:2px;box-shadow:0 0 3px rgba(255,40,70,.5)}',
+    /* Norman (2026-10-12) : un seul trait au niveau de la feuille, plus de carré autour de trois coupures */
+    P+'.bm-trace-coupures{left:calc(var(--px) - 1.5px);top:76px;width:3px;height:42px;background:linear-gradient(#c01a30,#8f1124);border-radius:2px}',
     /* troisième rituel : un cou, un tuyau de ver dont la bouche suce le cou, le sang monte dans le tuyau (barre du moteur) et tombe dans la chope */
     P+'.bm-cou{position:absolute;left:-6px;top:0;width:100px;height:312px;z-index:3;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}',
     /* nouvelle image avec la main (1552 x 677) : l'avant-bras garde EXACTEMENT sa taille et sa place d'avant (épaisseur 63 px, centre à 96 px, manche à gauche) pour que la coupure tombe au même endroit ; la main dépasse à droite, HORS de la case : on ne la voit que quand le bras glisse (sortie et retour) */
@@ -1604,8 +1763,22 @@ function css(){
     P+'.bm-scene[data-source="sucon"] .bm-tuyau::before,'+P+'.bm-scene[data-source="sucon"] .bm-tuyau::after{display:none!important}',
     P+'.bm-scene[data-source="sucon"] .bm-ver{animation:none!important;filter:none!important}',
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
+    /* la sangsue de Norman (image 1254 x 1254 ramenée à 400 unités, posée par sangTrace : --sg-s, --sg-ox, --sg-oy) ; ventre transparent par masque, le sang passe derrière (z 5) */
+    P+':is(.bm-sangsue-img,.bm-sangsue-gl){display:none;position:absolute;left:var(--sg-ox,0px);top:var(--sg-oy,0px);width:calc(400px*var(--sg-s,.5));height:calc(400px*var(--sg-s,.5));max-width:none;z-index:6;pointer-events:none;-webkit-mask:url("'+SG_MASQUE+'") 0 0/100% 100% no-repeat;mask:url("'+SG_MASQUE+'") 0 0/100% 100% no-repeat}',
+    P+'.bm-sangsue-img{filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
+    /* WebGL prêt (classe bm-gl) : le canevas déformable remplace l'image (qui reste la source de la texture) */
+    P+'.bm-scene[data-source="sucon"] .bm-sangsue-img{display:block}',
+    P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-img{display:none}',
+    P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-gl{display:block}',
+    /* l'œil (paupière : dort, pleure) est posé sur la bosse de la tête ; les Zzz au-dessus ; la trace de la ventouse sur la peau */
+    P+'.bm-scene[data-source="sucon"] .bm-oeil{z-index:8;width:17px;height:17px;left:calc(var(--sg-ox,0px) + 115.5px*var(--sg-s,.5) - 8.5px);top:calc(var(--sg-oy,0px) + 131px*var(--sg-s,.5) - 8.5px)}',
+    P+'.bm-scene[data-source="sucon"] .bm-zzz{left:calc(var(--sg-ox,0px) + 105px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 100px*var(--sg-s,.5) - 46px)}',
+    P+'.bm-scene[data-source="sucon"] .bm-trace-sucon{left:calc(var(--sg-ox,0px) + 18px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 92px*var(--sg-s,.5));width:calc(48px*var(--sg-s,.5));height:calc(147px*var(--sg-s,.5))}',
+    /* socle de bois (soccle.webp, 541 x 967), à part pour ne pas bouger quand la sangsue boit : la sangsue y repose par le ventre */
+    P+'.bm-socle{display:none;position:absolute;left:calc(var(--sg-ox,0px) + 165px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 195px*var(--sg-s,.5));width:calc(174px*var(--sg-s,.5));height:calc(311px*var(--sg-s,.5));max-width:none;z-index:7;pointer-events:none;filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
+    P+'.bm-scene[data-source="sucon"] .bm-socle{display:block}',
     /* bibliothèque du fond : plan le plus reculé ; la perspective suit la distance de la table (rituels 1 et 2 : table très proche, donc fond lointain = plus petit, flou et sombre ; rituels 3 et 4 : table lointaine, fond plus proche = plus grand et net ; autres : intermédiaire) */
-    P+'.bm-biblio{position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;transform-origin:50% 22%;transform:scale(.9);filter:blur(.9px) brightness(.7)}',
+    P+'.bm-biblio{display:block;object-fit:fill;position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;transform-origin:50% 22%;transform:scale(.9);filter:blur(.9px) brightness(.7)}',
     P+'.bm-scene:is([data-source="punaise"],[data-source="papier"]) .bm-biblio{transform:scale(.74);filter:blur(1.5px) brightness(.55)}',
     P+'.bm-scene:is([data-source="sucon"],[data-source="fil"]) .bm-biblio{transform:scale(1.04);filter:blur(.4px) brightness(.82)}',
     P+'.bm-flamme-b{transform-box:fill-box;transform-origin:50% 100%;animation:bmFlammeB 1.5s ease-in-out infinite}',
@@ -1620,7 +1793,7 @@ function css(){
     P+'.bm-scene[data-source="fil"] .bm-planche{display:block;z-index:6}',
     P+'.bm-scene[data-source="fil"] .bm-vase{z-index:7}',
     /* plans : personnage au fond (3), planche derrière (4), verre, sangsue et porte-sangsue devant (5) */
-    P+'.bm-scene[data-source="sucon"] .bm-vase{z-index:5}',
+    P+'.bm-scene[data-source="sucon"] .bm-vase{z-index:8}',
     P+'.bm-scene[data-source="sucon"] .bm-bec{top:calc(110px + var(--th,44px)/2 + 21px);z-index:7}',
     P+'.bm-trace-sucon{left:8px;top:80px;width:40px;height:62px;z-index:4;border-radius:50%;background:radial-gradient(ellipse,rgba(106,20,87,.85) 0 34%,rgba(169,34,63,.55) 58%,rgba(169,34,63,0) 78%)}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-bouche{animation:bmSuce var(--bm-pas,1.1s) ease-in-out infinite}',
@@ -1649,8 +1822,10 @@ function css(){
     P+'.bm-autel{position:absolute;right:2px;bottom:6px;width:calc(var(--vw,54px) + 20px);height:calc(var(--vb,60px) - 6px);z-index:3;border:2px solid #000;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#6a5a63 0,#44353d 16%,#2b2027 100%);box-shadow:inset 0 3px 0 rgba(255,255,255,.2),inset 0 -10px 14px rgba(0,0,0,.5),0 3px 4px rgba(0,0,0,.6)}',
     P+'.bm-autel::after{content:"";position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-8px 0 0 -13px;background:url("'+RUNE+'") center/contain no-repeat;opacity:.55}',
     P+'.bm-mini-fiole{width:16px;height:27px}',
-    P+'.bm-calice{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 3px rgba(0,0,0,.7))}',
+    P+'.bm-calice{display:block;width:100%;height:100%;overflow:visible}',
     P+'.bm-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
+    /* carte hors écran : pas dessinée (audit de fluidité, Norman 2026-10-12) ; la taille mémorisée évite tout saut de page */
+    P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 1080px}',
     P+'.bm-onde{animation:bmOnde 2.4s linear infinite}',
     P+'.bm-bac{width:100%;max-width:250px;margin:6px auto 0}',
     P+'.bm-bac-svg{display:block;width:100%;height:auto;overflow:visible}',
@@ -1680,7 +1855,6 @@ function css(){
     '@keyframes bmFlamme{0%,100%{transform:scale(1,1) rotate(0);opacity:1}25%{transform:scale(.94,1.08) rotate(-3deg);opacity:.92}50%{transform:scale(1.04,.93) rotate(2deg);opacity:1}75%{transform:scale(.96,1.05) rotate(-1.5deg);opacity:.95}}',
     '@keyframes bmAnneaux{from{transform:translateX(0)}to{transform:translateX(12px)}}',
     '@keyframes bmOnde{from{transform:translateX(0)}to{transform:translateX(40px)}}',
-    '@keyframes bmPouls{0%,100%{filter:drop-shadow(0 0 1.4px #000) drop-shadow(0 3px 3px rgba(0,0,0,.65)) drop-shadow(0 0 4px rgba(255,30,60,.45))}50%{filter:drop-shadow(0 0 1.4px #000) drop-shadow(0 3px 3px rgba(0,0,0,.65)) drop-shadow(0 0 12px rgba(255,40,70,.95))}}',
     '@keyframes bmOeil{0%,100%{opacity:.55}50%{opacity:1}}',
     /* punaise : plane, s'enfonce, remonte (même période pour le doigt et la perle de sang) */
     '@keyframes bmPique{0%,100%{transform:translateY(-8px)}30%{transform:translateY(-8px)}42%{transform:translateY(29px)}56%{transform:translateY(29px)}76%{transform:translateY(-8px)}}',
@@ -1702,5 +1876,5 @@ function css(){
   document.head.appendChild(st);
 }
 
-window.__SOREAL_IDLE_SANG_DECOR_V1__={NIVEAUX_PAR_RECIPIENT:NIVEAUX_PAR_RECIPIENT,css:css,defs:defs,entete:entete,scene:scene,etagere:etagere,majVases:majVases};
+window.__SOREAL_IDLE_SANG_DECOR_V1__={NIVEAUX_PAR_RECIPIENT:NIVEAUX_PAR_RECIPIENT,css:css,defs:defs,entete:entete,scene:scene,etagere:etagere,majVases:majVases,sgDessiner:sgDessiner};
 })();

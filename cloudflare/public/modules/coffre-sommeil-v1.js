@@ -1,0 +1,116 @@
+/*
+ * SOREAL IDLE — le Coffre s'endort au hasard (Norman, 2026-10-12) : petits « Z » qui montent (les mêmes que ceux de la sangsue, voir .bm-zzz dans modules/sang-rituel-decor-v1.js), ronflements de temps en temps.
+ * Si on le touche pendant qu'il dort, il se réveille d'un bond sur place en lâchant un pet TRÈS fort (coffreReveil, modules/audio-coffre-v1.js) et lance une réplique tirée au sort. Le clic de réveil est AVALÉ : il n'ouvre
+ * ni ne ferme le Coffre.
+ * Comme le reste du Coffre (modules/coffre-digestion-v1.js), tout ne compte QUE le temps où il est vu : le délai avant l'endormissement n'avance qu'à l'écran, l'onglet visible ; un Coffre endormi se réveille seul
+ * (avec le même sursaut, pet et réplique) après un moment de présence à l'écran (il ne dort jamais indéfiniment dans le dos du joueur). Pendant son sommeil il ne rote ni ne pète (coffre-digestion-v1.js consulte window.__coffreDortIdleV1__).
+ * Le Coffre est redessiné par le jeu (innerHTML) : l'état de sommeil est gardé ici et remis sur la nouvelle balise à chaque pas.
+ */
+(function(){
+  'use strict';
+  if(window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__)return;
+  var PAS=250,MIN=70000,MAX=160000,SOMMEIL_MAX=150000,RONFLE_MIN=4500,RONFLE_MAX=7500;
+  /* Répliques du réveil en sursaut, toujours en français (comme les excuses du pet). */
+  var REPLIQUES=[
+    'J’ai jamais couché avec votre femme !',
+    'À l’abordage !',
+    'Ne me touchez pas !',
+    'C’est pas moi, c’est le voisin !',
+    'Quoi ? Qui ? Où ?',
+    'Je dormais pas, je réfléchissais !',
+    'Cinq minutes de plus, maman…',
+    'Pas dans le dos !',
+    'Haut les mains !',
+    'Z’avez le mandat ?',
+    'C’était le chat, je le jure !',
+    'Ouvrez pas, c’est plein de dettes !'
+  ];
+  var dort=false,vuAvantSommeil=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuRonfle=0,cibleRonfle=1500,derniere=-1;
+
+  function coffre_(){return document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');}
+  function visible_(){
+    var d=window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__;
+    return d&&typeof d.visible==='function'?d.visible():null;
+  }
+  function zzz_(el){
+    if(el.querySelector('.bg-zzz-v1'))return;
+    var z=document.createElement('span');
+    z.className='bg-zzz-v1';z.setAttribute('aria-hidden','true');
+    z.innerHTML='<i>Z</i><i>z</i><i>Z</i>';
+    el.appendChild(z);
+  }
+  function appliquer_(el){
+    if(!el)return;
+    if(dort){
+      if(!el.classList.contains('bg-dort-v1'))el.classList.add('bg-dort-v1');
+      zzz_(el);
+    }else{
+      if(el.classList.contains('bg-dort-v1'))el.classList.remove('bg-dort-v1');
+      var z=el.querySelector('.bg-zzz-v1');
+      if(z&&z.parentNode)z.parentNode.removeChild(z);
+    }
+  }
+  function jouerSon_(id){
+    try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play(id);}catch(_e){}
+  }
+  function endormir_(){
+    dort=true;window.__coffreDortIdleV1__=true;
+    vuEndormi=0;vuRonfle=0;cibleRonfle=1500;
+    appliquer_(coffre_());
+  }
+  function reveiller_(){
+    dort=false;window.__coffreDortIdleV1__=false;
+    vuAvantSommeil=0;cibleSommeil=MIN+Math.random()*(MAX-MIN);
+    appliquer_(coffre_());
+  }
+  function replique_(el){
+    var i=Math.floor(Math.random()*REPLIQUES.length);
+    if(i===derniere)i=(i+1+Math.floor(Math.random()*(REPLIQUES.length-1)))%REPLIQUES.length;
+    derniere=i;
+    var b=document.createElement('span');
+    b.className='bg-desole-v1 bg-replique-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.textContent=REPLIQUES[i];
+    el.appendChild(b);
+    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
+  }
+  /* Réveil en sursaut : bond sur place, pet très fort, nuage de fumée, réplique. */
+  function sursaut_(el){
+    reveiller_();
+    el.classList.remove('bg-rote-v1','bg-pete-v1','bg-sursaut-v1');
+    void el.getBoundingClientRect();
+    el.classList.add('bg-sursaut-v1');
+    setTimeout(function(){el.classList.remove('bg-sursaut-v1');},900);
+    jouerSon_('coffreReveil');
+    var f=document.createElement('span');
+    f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
+    f.innerHTML='<i></i><i></i><i></i>';
+    el.appendChild(f);
+    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},2300);
+    replique_(el);
+  }
+  /* Le clic est intercepté en phase de capture, avant le gestionnaire du Coffre (ouvrir / fermer / déposer). */
+  document.addEventListener('click',function(e){
+    if(!dort)return;
+    var t=e.target,el=t&&t.closest?t.closest('.bg-bagage-v1'):null;
+    if(!el)return;
+    e.stopPropagation();e.preventDefault();
+    sursaut_(el);
+  },true);
+
+  function pas_(){
+    var el=coffre_();
+    appliquer_(el);
+    if(document.hidden||!visible_())return;
+    if(!dort){
+      vuAvantSommeil+=PAS;
+      if(vuAvantSommeil>=cibleSommeil)endormir_();
+      return;
+    }
+    vuEndormi+=PAS;vuRonfle+=PAS;
+    if(vuEndormi>=SOMMEIL_MAX){if(el)sursaut_(el);else reveiller_();return;}   /* réveil tout seul : même sursaut, pet, nuage et réplique */
+    if(vuRonfle>=cibleRonfle){jouerSon_('coffreRonfle');vuRonfle=0;cibleRonfle=RONFLE_MIN+Math.random()*(RONFLE_MAX-RONFLE_MIN);}
+  }
+  setInterval(pas_,PAS);
+  window.__coffreDortIdleV1__=false;
+  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES};
+})();

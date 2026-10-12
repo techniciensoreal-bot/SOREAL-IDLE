@@ -228,6 +228,8 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   anotherCustomResource3Button: { passive: true },
   customIdleResource3Button: { passive: true },
   nguCapModifier: { passive: true },
+  /* Resource 3 Name Randomizer (Norman, 2026-10-12) : réglage + tirage au Rebirth dans idle-ngu-progression.js (advanceR3NomV1) ; noms dans idle-r3-names-v1.js (wiki). */
+  resource3NameRandomizer: { passive: true },
   autoNuker: { passive: true },
   /* 7-Day Time Bank for Daily Spin! (2026-09-24) : lu par spinDaily (idle-ngu-progression.js), plafond de banque 36 h -> 7 jours. */
   dailySpinTimeBank: { passive: true },

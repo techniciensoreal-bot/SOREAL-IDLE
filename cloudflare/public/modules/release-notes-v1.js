@@ -22,67 +22,88 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.6',
+    courante:'2.7',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'2.7',
+        nom:'Des boutiques qui servent',
+        date:'2026-10-12',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Plus de reflet qui traverse les cases Attaque, Défense, Or, EXP et AP.',
+            'Le résumé « Pendant ton absence » montre maintenant tout ce que tu as farmé : EXP, AP, PP, Or, Magie…',
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Contre un Titan, choisir une zone (Zone sûre comprise) arrête le combat ; la zone affichée passe tout de suite en Zone sûre au lancement.',
+            'Le ×5 de régénération de la Zone sûre ne s’affiche plus (ni ne s’applique) pendant un combat contre un Titan.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le Coffre fait parfois la sieste : mieux vaut ne pas le réveiller.',
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Le bouton Auto règle tes étages sur ton meilleur étage en un clic, sans monter étage par étage ; reclique dessus plus tard pour le remettre à jour.',
+            'Le « Réglage automatique de l’étage » de la Boutique AP fonctionne : avec lui, après un clic sur Auto, ton étage suit tout seul ton meilleur étage.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : la page est bien plus fluide (cartes hors écran suspendues, bibliothèques et ombres allégées).',
+            'Magie du sang : nouvelle sangsue dessinée, au ventre transparent où l’on voit couler le sang.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'NGU : nouvelle aura, une aurore de lumière dans le tuyau ; plus de halo ni de liseré autour des barres.',
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Boutique AP : Adventure Advancer, Adventure Light, Insta Training Cap, boutons de pourcentage, réglage du Max des NGU et nom aléatoire de la ressource 3 fonctionnent (le nom se coche dans Settings).',
+            'Boutique EXP : les quatre « Custom Input Button » placent le nombre de ton choix dans Input (✎).',
+          ]}
+        ]
+      },
       {
         version:'2.6',
         nom:'Tout en direct',
         date:'2026-10-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Sur PC, la barre des menus ne bouge plus au clic et le menu de gauche défile seul.',
-            'La barre de vie ne saute plus quand la magie ou l’énergie apparaît.',
-            'Lueurs de cheminée plus douces, sur les bords de l’écran.',
-            'Les pages aux chiffres mouvants se mettent à jour en direct.',
-            'Un bouton « 0 » retire toute l’énergie d’une barre.',
+            'Sur PC, la barre des menus ne bouge plus ; la barre de vie ne saute plus ; les pages aux chiffres mouvants se mettent à jour en direct ; un bouton « 0 » retire toute l’énergie d’une barre.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Borne d’arcade : fond noir et rails bien alignés ; chronique des boss en anglais = texte du wiki.',
+            'Borne d’arcade : fond noir et rails alignés ; chronique des boss en anglais = texte du wiki.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Le Coffre rote en nuage vert et s’excuse après un pet.',
-            'Sur téléphone, l’équipement se tire en volet depuis l’inventaire.',
-            'Retirer une pièce de plafond est refusé si l’énergie placée serait trop grande.',
+            'Le Coffre rote en nuage vert ; sur téléphone, l’équipement se tire en volet depuis l’inventaire.',
           ]},
           {menu:'titans', titre:'Titans', points:[
-            'Contre un Titan, choisir une zone (Zone sûre comprise) arrête le combat ; la zone affichée passe tout de suite en Zone sûre au lancement.',
-            'Le ×5 de régénération de la Zone sûre ne s’affiche plus (ni ne s’applique) pendant un combat contre un Titan.',
             'Chaque Titan a son Auto-kill, qui donne le butin en ligne.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
-            'Les améliorations prennent la couleur de leur Augment.',
-            'Une piste sans énergie ne progresse plus.',
+            'Les améliorations prennent la couleur de leur Augment ; une piste sans énergie ne progresse plus.',
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'La page ne se redessine plus quand tu reclics sur son menu ou places des points.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'La barre d’Or tique jusqu’à 50 fois par seconde, en direct.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Rituels redessinés : décors, bibliothèque, planche et récipients transparents.',
-            'De petites têtes de mort sombres naissent dans le sang, de plus en plus nombreuses au fil de la liste.',
-            'À haut niveau, les récipients se remplissent plus lentement.',
-            'Le compte à rebours montre la vraie durée, même sous la seconde.',
-            'Sans énergie, les personnages sortent de la case ; avec, ils reviennent.',
+            'Rituels redessinés : décors, bibliothèque, planche, récipients transparents et petites têtes de mort dans le sang.',
+            'Récipients plus lents à remplir à haut niveau ; compte à rebours à la seconde près ; sans énergie, les personnages sortent de la case.',
+            'Sur téléphone, la page est centrée.',
+          ]},
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Le cliquet de la roue est synchronisé avec l’image.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'Défis en cartes, avec blason et gros bouton Jouer.',
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
-            'Le « Réglage automatique de l’étage » de la Boutique AP fonctionne : avec lui, après un clic sur Auto, ton étage suit tout seul ton meilleur étage.',
-            'Le bouton Auto règle tes étages sur ton meilleur étage en un clic, sans monter étage par étage ; reclique dessus plus tard pour le remettre à jour.',
             'Compte à rebours avant le prochain combat.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'Le cadre lumineux d’une barre ne clignote plus.',
+            'Le cadre lumineux d’une barre ne clignote plus ; sur téléphone, la page ne déborde plus.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Image de l’ordinateur recadrée ; placer une ressource ne fait plus défiler la page.',
-          ]},
-          {menu:'shop', titre:'Boutique', points:[
-            'Boutique EXP : les quatre « Custom Input Button » fonctionnent : un bouton à côté d’Input qui y place le nombre de ton choix (✎).',
-            'Boutique AP : les boutons de pourcentage personnalisés (énergie, magie, idle, 3e ressource) et le réglage du bouton Max des NGU fonctionnent ; tu choisis le pourcentage avec ✎.',
-            'Boutique AP : Adventure Advancer, Adventure Light et Insta Training Cap fonctionnent maintenant (et sont achetables).',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             '« Combat le plus long » : un seul Fight, boss à PV pleins, sans fuite ni reprise, avec son issue (gagné ou perdu).',

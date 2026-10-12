@@ -15265,7 +15265,7 @@
           ${r3Visible?`
             <div class="soreal-idle-energy-panel-v34 soreal-idle-hud-r3-v2">
               <div class="soreal-idle-energy-head-v34">
-                <div class="soreal-idle-energy-title-v34">🧪 Ressource 3</div>
+                <div class="soreal-idle-energy-title-v34">🧪 ${idleHtml_((window.__SOREAL_IDLE_PERSO_PCT_V1__&&window.__SOREAL_IDLE_PERSO_PCT_V1__.nomR3&&window.__SOREAL_IDLE_PERSO_PCT_V1__.nomR3())||'Ressource 3')}</div>
                 <div class="soreal-idle-energy-number-v34"></div>
               </div>
               <span class="soreal-idle-hud-lat-v2 g" id="sorealIdleHudGR3V2"></span>
@@ -24193,6 +24193,7 @@ function pageAventureIdleV28_(j){
           ''
         )+
           rendrePartiesDevIdleV1_()+
+          (window.__SOREAL_IDLE_PERSO_PCT_V1__&&window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3?window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3():'')+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31 soreal-idle-info-titre-v1" '+
               'onclick="window.__toggleInfoOuvertIdleV1__()" '+
@@ -25038,9 +25039,12 @@ function pageAventureIdleV28_(j){
         const produite=idleNombre_(p.energieProduite);
         const depensee=idleNombre_(p.energieDepenseeAventure);
         const perdue=idleNombre_(p.energiePerdueAuPlafond);
-        const xp=idleNombre_(p.xpGagnee);
+        /* Gains hors ligne de toutes les monnaies (calculés par le serveur : écart avant / après) ; l'EXP et l'AP déjà comptés par le combat auto restent pris en compte (le plus grand des deux). */
+        const gm=p.gainsMeta&&typeof p.gainsMeta==='object'?p.gainsMeta:{};
+        const xp=Math.max(idleNombre_(p.xpGagnee),idleNombre_(gm.experience));
         const niveaux=idleEntier_(p.niveauxGagnes);
-        const ap=idleNombre_(p.apGagne);
+        const ap=Math.max(idleNombre_(p.apGagne),idleNombre_(gm.ap));
+        const gainsAutres=[['pp','🏅','PP'],['qp','🧩','QP'],['gold','💰','Or'],['blood','🩸','Blood'],['seeds','🌱','Graines'],['mayo','🧀','Mayo'],['magic','🔮','Magie'],['r3','🧪','Ressource 3']].filter(function(g){return idleNombre_(gm[g[0]])>0;});
         const bossBattus=idleEntier_(p.bossBattus);
         const degats=idleNombre_(p.degats);
         const degatsRecus=idleNombre_(p.degatsRecus);
@@ -25052,14 +25056,14 @@ function pageAventureIdleV28_(j){
 
         /* Rien de notable à raconter (juste quelques secondes d'absence, énergie nulle) : pas de popup pour rien. */
         const rienAVoir=
-          produite<=0&&xp<=0&&ap<=0&&bossBattus<=0&&
+          produite<=0&&xp<=0&&ap<=0&&gainsAutres.length<=0&&bossBattus<=0&&
           victoiresAuto<=0&&defaitesAuto<=0&&drops.length<=0&&titansTues.length<=0;
         if(rienAVoir)return;
 
         const signature=
           idleEntier_(p.secondes)+':'+Math.round(produite*10)+':'+
           Math.round(xp)+':'+Math.round(ap)+':'+bossBattus+':'+
-          victoiresAuto+':'+defaitesAuto+':'+drops.length+':'+titansTues.length;
+          victoiresAuto+':'+defaitesAuto+':'+drops.length+':'+titansTues.length+':'+gainsAutres.map(function(g){return Math.round(idleNombre_(gm[g[0]]));}).join(',');
 
         if(
           String(
@@ -25080,6 +25084,7 @@ function pageAventureIdleV28_(j){
         if(xp>0)lignes.push(ligneResumeHorsLigneIdleV64_('✨','+'+formatGrandNombreIdleV70_(xp)+' EXP'));
         if(niveaux>0)lignes.push(ligneResumeHorsLigneIdleV64_('📈','+'+niveaux+' niveau(x) de Basic Training'));
         if(ap>0)lignes.push(ligneResumeHorsLigneIdleV64_('🎟️','+'+formatGrandNombreIdleV70_(ap)+' AP'));
+        gainsAutres.forEach(function(g){lignes.push(ligneResumeHorsLigneIdleV64_(g[1],'+'+formatGrandNombreIdleV70_(idleNombre_(gm[g[0]]))+' '+g[2]));});
         if(bossBattus>0)lignes.push(ligneResumeHorsLigneIdleV64_('👹','+'+bossBattus+' boss vaincu(s)'));
         if(titansTues.length>0){
           const aventure=aventureMetaIdleV47_(j);

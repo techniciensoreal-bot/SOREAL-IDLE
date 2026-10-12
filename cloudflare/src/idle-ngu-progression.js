@@ -9,6 +9,7 @@ import {
   IDLE_THE_END_TOWER_FIRST_FLOOR_V1,
   IDLE_THE_END_TEXT_V1
 } from "./idle-the-end-v1.js";
+import { IDLE_R3_NOMS_V1 } from "./idle-r3-names-v1.js";
 import {
   createIdleAdventureStateV47,
   normalizeIdleAdventureStateV47,
@@ -1447,6 +1448,8 @@ function baseState(now) {
     selloutShop: {
       purchases: {}
     },
+    /* Resource 3 Name Randomizer (Boutique AP) : réglage du joueur, nom courant et run pour lequel il a été tiré. */
+    r3Nom: { actif: false, nom: "", run: 0 },
     bonuses: {
       /* Bonus accumulés des cartes lancées, en % par type (idle-cards-v1.js) ; conservés au Rebirth. */
       cards: createIdleCardBonusesV1(),
@@ -1880,6 +1883,7 @@ function migrateLegacyMetaToV47(raw, now) {
     const unlockedEver = Boolean(src.selloutShop?.unlockedEver) || num(state.currencies.ap, 0) > 0;
     state.selloutShop = { purchases, unlockedEver };
     state.selloutEffects = createSelloutEffectsV1(src.selloutEffects);
+    state.r3Nom = normaliserR3NomV1(src.r3Nom);
   }
 
   state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
@@ -2022,6 +2026,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
   state.selloutEffects = createSelloutEffectsV1(source.selloutEffects);
+  state.r3Nom = normaliserR3NomV1(source.r3Nom);
   appliquerConsommablesSetsAventureV1(state);
 
   state.records = Object.assign(baseState(t).records, source.records || {});
@@ -4686,6 +4691,35 @@ function advanceAdventureAdvancerV1(state, context, now) {
   if (zone && zone !== "safe") adv.selectedZone = zone;
 }
 
+/*
+ * Resource 3 Name Randomizer (Boutique AP, 100 000 AP ; Norman, 2026-10-12) : « Unlocks a setting which will randomize the name of your Resource 3 every time you rebirth. It'll pick from a pool of over 200 names! » (wiki NGU
+ * Idle, 4G's Sellout Shop ; la liste complète est sur la page « Resource 3 Name Randomizer », reprise dans idle-r3-names-v1.js). Réglage à cocher ; un nouveau nom est tiré à chaque nouveau run.
+ */
+function normaliserR3NomV1(raw) {
+  const r = raw && typeof raw === "object" ? raw : {};
+  const nom = String(r.nom == null ? "" : r.nom).slice(0, 40);
+  return { actif: r.actif === true, nom: IDLE_R3_NOMS_V1.includes(nom) ? nom : "", run: Math.max(0, num(r.run, 0)) };
+}
+function tirerR3NomV1(precedent) {
+  const choix = IDLE_R3_NOMS_V1.filter((n) => n !== precedent);
+  return choix[Math.floor(Math.random() * choix.length)] || IDLE_R3_NOMS_V1[0];
+}
+function advanceR3NomV1(state) {
+  const r = state.r3Nom;
+  if (!r || !r.actif || !state.selloutShop?.purchases?.resource3NameRandomizer) return;
+  const run = Math.max(0, num(state.runStartedAt, 0));
+  if (r.nom && r.run === run) return;
+  r.nom = tirerR3NomV1(r.nom);
+  r.run = run;
+}
+function setR3NomAleatoireV1(state, payload) {
+  if (!state.selloutShop?.purchases?.resource3NameRandomizer) throw new Error("ACHAT_REQUIS");
+  const r = state.r3Nom;
+  r.actif = payload?.enabled === true;
+  if (!r.actif) { r.nom = ""; r.run = 0; } else advanceR3NomV1(state);
+  return { actif: r.actif, nom: r.nom };
+}
+
 function towerSetFloorsV1(state, payload) {
   const tower = state.systems.tower;
   if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -4942,6 +4976,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   advanceIdleCookingV1(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));
   advanceAdventureAdvancerV1(state, context, nowMs(now));
+  advanceR3NomV1(state);
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
@@ -6328,6 +6363,9 @@ function construireSnapshotNguV1(state, context, now) {
      */
     resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
     expShop: expShopSnapshotV1(state),
+    /* Resource 3 Name Randomizer : disponible dès l'achat ; le nom n'est envoyé que si le réglage est coché. */
+    r3NomDisponible: Boolean(state.selloutShop?.purchases?.resource3NameRandomizer),
+    r3Nom: state.r3Nom?.actif && state.selloutShop?.purchases?.resource3NameRandomizer ? String(state.r3Nom.nom || "") : "",
     /* Achievements (2026-09-24) : catalogue, succès débloqués, BP et facteur AP (idle-achievements-v1.js). */
     achievements: achievementsSnapshotV1(state),
     /* Écran Broken Time Machine (facteurs du GPS, barres, niveaux cibles). */
@@ -7677,6 +7715,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = setDiggerLevel(state,String(payload.digger||"drop"),payload.level);
   } else if (action === "toggleDigger") {
     result = toggleDigger(state,String(payload.digger||"drop"),payload.active);
+  } else if (action === "setR3NomAleatoire") {
+    result = setR3NomAleatoireV1(state, payload);
   } else if (action === "buyPerk") {
     result = buyPerkV1(state, payload.perkId);
   } else if (action === "sellShopBuy") {

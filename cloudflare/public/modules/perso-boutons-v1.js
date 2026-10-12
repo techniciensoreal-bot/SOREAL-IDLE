@@ -214,7 +214,31 @@
     (document.head||document.documentElement).appendChild(style);
   }
 
-  window.__SOREAL_IDLE_PERSO_PCT_V1__={valeurInput:valeurInput,definirInput:definirInput,editerInput:editerInput,appliquerInput:appliquerInput,pourcentage:pourcentage,definir:definir,editer:editer,appliquer:appliquer,decorer:decorer,pourcentNgu:pourcentNgu_,
+  /* ----- Resource 3 Name Randomizer : nom courant de la ressource 3 et réglage à cocher ----- */
+  function nomR3(){
+    var j=etat_();
+    var n=j&&j.systemes&&typeof j.systemes.r3Nom==='string'?j.systemes.r3Nom:'';
+    return n;
+  }
+  function blocReglageR3(){
+    var j=etat_();
+    if(!j||!j.systemes||!j.systemes.r3NomDisponible)return '';
+    var actif=Boolean(nomR3());
+    var h=window.__SOREAL_IDLE_META_HOST_V130__;
+    var nom=nomR3();
+    return '<div class="soreal-idle-section-v8" id="sorealIdleR3NomReglageV1">'+
+      '<div class="soreal-idle-window-title-v31">🧪 Nom de la ressource 3</div>'+
+      '<label style="display:flex;align-items:center;gap:10px;cursor:pointer"><input type="checkbox" '+(actif?'checked ':'')+'onchange="window.__SOREAL_IDLE_PERSO_PCT_V1__.reglerNomR3(this.checked)"> '+
+      'Changer le nom de la ressource 3 au hasard à chaque Rebirth</label>'+
+      (actif&&nom?'<div style="margin-top:6px;opacity:.85">Nom actuel : <b>'+(h&&h.idleHtml_?h.idleHtml_(nom):nom)+'</b></div>':'')+
+    '</div>';
+  }
+  function reglerNomR3(actif){
+    var f=window.__actionMetaIdleV130__;
+    if(typeof f==='function')f({action:'setR3NomAleatoire',enabled:Boolean(actif)});
+  }
+
+  window.__SOREAL_IDLE_PERSO_PCT_V1__={nomR3:nomR3,blocReglageR3:blocReglageR3,reglerNomR3:reglerNomR3,valeurInput:valeurInput,definirInput:definirInput,editerInput:editerInput,appliquerInput:appliquerInput,pourcentage:pourcentage,definir:definir,editer:editer,appliquer:appliquer,decorer:decorer,pourcentNgu:pourcentNgu_,
     /* Outils de test */
     slots:SLOTS,decorerCadre:decorerCadre_};
   planifier_();

@@ -16,6 +16,13 @@
     magic:{cap:'🔮 Plafond de magie',nom:'magie',place:'🔮 Magie placée'},
     r3:{cap:'🧪 Plafond de 3e ressource',nom:'3e ressource',place:'🧪 3e ressource placée'}
   };
+  /* Titres d'une ressource ; la 3e ressource porte le nom tiré par le Resource 3 Name Randomizer (Boutique AP), s'il est actif. */
+  function titre_(res){
+    var t=TITRES[res]||TITRES.energy;
+    if(res!=='r3')return t;
+    var p=window.__SOREAL_IDLE_PERSO_PCT_V1__,nom=p&&typeof p.nomR3==='function'?p.nomR3():'';
+    return nom?{cap:'🧪 Plafond de '+nom,nom:nom,place:'🧪 '+nom+' placée'}:t;
+  }
   /* Les champs Input des différents menus (chacun garde le sien) : ils reçoivent tous la même valeur. */
   var CHAMPS=['sorealIdleAugInputV1','sorealIdleTrainingInputV120','sorealIdleBloodInputV1','sorealIdleTmInputV1','sorealIdleGenInputV1'];
 
@@ -91,7 +98,7 @@
 
   /* Cadre « total placé » : même cadre que les autres de la barre d'outils (donc aux couleurs du thème de chaque page), la teinte du menu (--nav-color) en repli. */
   function compteur(res,systeme){
-    var t=TITRES[res]||TITRES.energy;
+    var t=titre_(res);
     var j=etat_();
     var n=total_(j,res,systeme);
     var info=ressource_(j,res);
@@ -127,7 +134,7 @@
 
   /* Les deux cadres du haut d'un menu (une ressource) : Plafond MAX 1/2 1/4, puis IDLE 1/2 1/4 TOUT RETIRER, puis le total placé. */
   function cadres(res,systeme){
-    var t=TITRES[res]||TITRES.energy;
+    var t=titre_(res);
     var A='window.__SOREAL_IDLE_ALLOC_V1__';
     var r="'"+res+"'",s="'"+html_(systeme)+"'";
     return '<div class="soreal-idle-bt-presets-v120" data-alloc-cadre-v1="cap-'+res+'"><span>'+t.cap+'</span>'+

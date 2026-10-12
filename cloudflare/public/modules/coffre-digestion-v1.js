@@ -71,7 +71,7 @@
   }
   function jouer_(type){
     var el=coffreVisible_();
-    if(!el||document.hidden)return false;
+    if(!el||document.hidden||window.__coffreDortIdleV1__)return false;   /* il dort : ni rot ni pet (modules/coffre-sommeil-v1.js) */
     try{
       var a=window.__SOREAL_IDLE_AUDIO_V199__;
       if(a&&typeof a.play==='function')a.play(type==='pet'?'coffrePet':'coffreRot');
@@ -82,7 +82,7 @@
   /* Temps passé Coffre à l'écran depuis le dernier bruit, et délai tiré au sort : le minuteur n'avance que si le Coffre est vu. */
   var vu=0,cible=MIN+Math.random()*(MAX-MIN);
   function pas_(){
-    if(document.hidden||!coffreVisible_())return;
+    if(document.hidden||!coffreVisible_()||window.__coffreDortIdleV1__)return;
     vu+=PAS;
     if(vu<cible)return;
     if(jouer_(Math.random()<.5?'rot':'pet')){vu=0;cible=MIN+Math.random()*(MAX-MIN);}

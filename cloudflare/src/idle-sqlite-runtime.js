@@ -7953,6 +7953,30 @@ function regenPvIntegreeBasicTrainingSorealIdleV176_(
 }
 
 
+/*
+ * Gains hors ligne (Norman, 2026-10-12 : « quand on se connecte, on doit voir l'EXP, l'AP, le PP, etc. farmés hors ligne ; il me dit juste combien de Titans j'ai tués ») : écart POSITIF entre les monnaies (et la Magie, la
+ * ressource 3) d'avant la synchronisation et celles d'après, tous gains confondus (Titans tués par l'Auto-Kill, combats auto d'Aventure, ITOPOD, Yggdrasil, Blood Magic...). Une monnaie qui n'a pas augmenté (ou
+ * qu'on n'a pas encore) n'apparaît pas : le client n'affiche que les lignes > 0, donc rien de verrouillé n'est révélé.
+ */
+const DEVISES_HORS_LIGNE_V1 = ["experience", "ap", "pp", "qp", "gold", "blood", "seeds", "mayo"];
+function instantaneDevisesHorsLigneV1_(metaNgu) {
+  const dev = metaNgu && metaNgu.currencies && typeof metaNgu.currencies === "object" ? metaNgu.currencies : {};
+  const res = metaNgu && metaNgu.resources && typeof metaNgu.resources === "object" ? metaNgu.resources : {};
+  const out = {};
+  DEVISES_HORS_LIGNE_V1.forEach(function(k) { out[k] = Math.max(0, nombreSorealIdle_(dev[k], 0)); });
+  out.magic = Math.max(0, nombreSorealIdle_(res.magic && res.magic.current, 0));
+  out.r3 = Math.max(0, nombreSorealIdle_(res.r3 && res.r3.current, 0));
+  return out;
+}
+function gainsHorsLigneV1_(avant, apres) {
+  const out = {};
+  Object.keys(apres || {}).forEach(function(k) {
+    const g = nombreSorealIdle_(apres[k], 0) - nombreSorealIdle_(avant && avant[k], 0);
+    if (g > 0 && isFinite(g)) out[k] = g;
+  });
+  return out;
+}
+
 /* Kills de chaque titan (id -> nombre) dans l'état NGU : sert au résumé « Pendant ton absence » (titans tués par l'Auto-Kill entre deux synchronisations). */
 function killsTitansMetaSorealIdleV1_(metaNgu) {
   const titans = metaNgu && metaNgu.adventure && metaNgu.adventure.titans && typeof metaNgu.adventure.titans === 'object'
@@ -8023,6 +8047,7 @@ function appliquerProgressionEnergieSorealIdle_(
     );
 
   const killsTitansAvantSyncV1 = killsTitansMetaSorealIdleV1_(statsRessourceV55.metaNgu);
+  const devisesAvantHorsLigneV1 = instantaneDevisesHorsLigneV1_(statsRessourceV55.metaNgu);
 
   const metaNguRessourceV55 =
     syncIdleNguState(
@@ -9782,6 +9807,10 @@ function appliquerProgressionEnergieSorealIdle_(
     titansTues:
       titansTuesHorsLigneV1,
 
+    /* écart des monnaies et ressources (Magie, ressource 3) entre avant et après l'absence */
+    gainsMeta:
+      gainsHorsLigneV1_(devisesAvantHorsLigneV1, instantaneDevisesHorsLigneV1_(statsCombat.metaNgu)),
+
     autoAventureHorsLigne: {
       combats:
         combatsAutoHorsLigne,
@@ -11534,6 +11563,13 @@ function construireEtatJoueurSorealIdle_(
         )
           ? progression.dropsRecents
           : [],
+
+      gainsMeta:
+        progression &&
+        progression.gainsMeta &&
+        typeof progression.gainsMeta === "object"
+          ? progression.gainsMeta
+          : {},
 
       titansTues:
         progression &&
