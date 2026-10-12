@@ -84,7 +84,7 @@ assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-b
 assert.ok(!page.includes("soreal-idle-section-v8\" data-rang-v1"), "plus d'ancien cadre de rituel");
 // cadres verticaux de taille fixe, côte à côte sur PC, jamais superposés ; la scène a la même largeur que sur téléphone
 assert.ok(page.includes('<div class="bm-grille">'), "page : grille de cadres");
-assert.ok(src.includes("P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;"), "cadres de largeur fixe qui passent à la ligne, toutes les lignes à la même hauteur");
+assert.ok(src.includes("P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:auto;"), "cadres de largeur fixe qui passent à la ligne, toutes les lignes à la même hauteur");
 assert.ok(src.includes("var HAUTEUR_SCENE=312;") && !/sh:(244|290|300)[,}]/.test(src), "toutes les scènes ont la même hauteur : les cadres côte à côte restent alignés");
 assert.ok(src.includes(".bm-grille>.bm-rituel .soreal-idle-bt-actions-v120{margin-top:auto!important;padding-top:9px}"), "les boutons restent en bas du cadre");
 // trace de l'impact : visible tant que le rituel progresse, fondu lent à l'arrêt
@@ -335,7 +335,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const h = d.scene({ id: "barbedWire", sang: 60000, compte: 3, barre: "", rang: 3 });
   assert.ok(h.includes('<img class="bm-biblio" src="') && !h.includes('<svg class="bm-biblio"'), "la bibliothèque est une image");
   assert.ok((h.match(/<rect /g) || []).length < 60, "plus de centaines de rectangles de bibliothèque dans la scène");
-  assert.ok(decor.includes("P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 1080px}'"), "carte hors écran non dessinée");
+  assert.ok(decor.includes("P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 680px}'"), "carte hors écran non dessinée");
   assert.ok(decor.includes("if(sc.__vis===false)return;") && decor.includes("function suivreVisibilite(){") && decor.includes("new IntersectionObserver("), "travail suspendu hors écran");
   assert.ok(decor.includes("||sc.__vis===false)continue;") && decor.includes("if(l[i].__vis===false)continue;"), "boucles d'images suspendues hors écran");
   assert.ok(!/\.bm-pentacle-sol\{[^}]*drop-shadow/.test(decor) && !/\.bm-pentacle-fond\{[^}]*drop-shadow/.test(decor) && !/\.bm-ver\{[^}]*drop-shadow/.test(decor) && !/\.bm-calice\{[^}]*drop-shadow/.test(decor), "plus d'ombre filtrée sur les pentacles, le tuyau et le récipient qui s'animent");

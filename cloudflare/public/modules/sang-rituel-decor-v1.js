@@ -1566,7 +1566,7 @@ function css(){
     P+'.bm-rituel{position:relative;margin:0;padding:12px 12px 12px;border:3px solid #000;border-radius:14px;background:radial-gradient(ellipse 90% 60% at 50% 0,rgba(150,10,36,.42),transparent 72%),linear-gradient(170deg,#2b0710,#150409);box-shadow:inset 0 0 0 2px rgba(210,40,66,calc(.22 + var(--bm-r,0)*.07)),0 0 calc(var(--bm-r,0)*5px) rgba(220,20,50,.45),4px 4px 0 #000;color:#f3d9de;overflow:hidden}',
     P+'.bm-rituel[data-rang-v1="0"]{--bm-r:0}'+P+'.bm-rituel[data-rang-v1="1"]{--bm-r:1}'+P+'.bm-rituel[data-rang-v1="2"]{--bm-r:2}'+P+'.bm-rituel[data-rang-v1="3"]{--bm-r:3}'+P+'.bm-rituel[data-rang-v1="4"]{--bm-r:4}'+P+'.bm-rituel[data-rang-v1="5"]{--bm-r:5}',
     /* Cadres verticaux de taille FIXE (Norman, 2026-10-11) : sur PC ils se rangent côte à côte tant qu'il y a de la place (alignés à gauche, jamais superposés) ; la scène garde la largeur d'un téléphone, donc le bras n'est jamais étiré et PC et téléphone montrent la même chose. */
-    P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:1fr;gap:12px;align-items:stretch;justify-content:start}',
+    P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:auto;gap:12px;align-items:stretch;justify-content:start}',
     /* Téléphone : la colonne unique (324 px) est centrée dans la page au lieu de rester collée à gauche (Norman, 2026-10-11). */
     '@media (max-width:700px){'+P+'.bm-grille{justify-content:center}}',
     P+'.bm-grille>.bm-rituel{width:auto;box-sizing:border-box;display:flex;flex-direction:column}',
@@ -1825,7 +1825,8 @@ function css(){
     P+'.bm-calice{display:block;width:100%;height:100%;overflow:visible}',
     P+'.bm-liq{transition:transform .9s cubic-bezier(.3,.7,.3,1)}',
     /* carte hors écran : pas dessinée (audit de fluidité, Norman 2026-10-12) ; la taille mémorisée évite tout saut de page */
-    P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 1080px}',
+    /* Norman (2026-10-12) : « les cadres des rituels sont super longs » : la taille de remplacement d'une carte hors écran était 1080 px, bien plus que la hauteur réelle (~680 px) ; elle gonflait les rangées et la page tant que les cartes n'avaient pas été vues. */
+    P+'.bm-rituel{content-visibility:auto;contain-intrinsic-size:auto 680px}',
     P+'.bm-onde{animation:bmOnde 2.4s linear infinite}',
     P+'.bm-bac{width:100%;max-width:250px;margin:6px auto 0}',
     P+'.bm-bac-svg{display:block;width:100%;height:auto;overflow:visible}',
