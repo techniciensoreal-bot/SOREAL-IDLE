@@ -898,7 +898,10 @@ function sgInit(sc){
     sc.__gl={gl:gl,cv:cv,bp:bp,cle:'',cw:0};
     sc.classList.add('bm-gl');
     sgDessiner(sc,sc.__g==null?1:sc.__g);
-  }catch(e){sc.__gl=null;}
+  }catch(e){
+    sc.__gl=null;sc.classList.add('bm-gl-non');
+    try{window.__sgErr=String(e&&e.message||e);console.warn('[IDLE] sangsue : WebGL indisponible, animation de repli',e);}catch(_e){}
+  }
 }
 function sgDessiner(sc,g){
   var G=sc.__gl;
@@ -964,6 +967,7 @@ function sangsue(sc,sec,actif){
   if(mt){sc.__m=mt;sangTrace(sc,mt,sc.__g==null?(sc.__gT==null?1:sc.__gT):sc.__g);}
   if(!actif||!(sec>0)){
     if(sc.classList.contains('bm-pleure'))sc.classList.remove('bm-pleure');
+    if(sc.classList.contains('bm-attente-or'))sc.classList.remove('bm-attente-or');
     if(!sc.classList.contains('bm-dort'))sc.classList.add('bm-dort');   /* aucune Magie dans ce rituel : la sangsue dort */
     /* Quand on retire la Magie, le sang déjà dans son ventre RESTE affiché, mais figé (Norman, 2026-10-11) ; il est mémorisé par rituel pour survivre à un redessin de la page et reprendre là où il s'était arrêté. */
     var idSang=sc.getAttribute('data-bm-id'),mm=memoireSang[idSang];
@@ -1011,6 +1015,8 @@ function sangsue(sc,sec,actif){
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
   var attente=(pbBrut==null&&!!barre&&/scaleX\(1\)/.test(barre.style.transform||''))||(!!ligneEta&&/Barre pleine|validation/.test(ligneEta.textContent||''));
   var pb=pbBrut==null?0:pbBrut;
+  /* en attente d'Or (barre pleine, le niveau ne se termine pas) : plus aucun sang ne sort de l'anus (Norman, 2026-10-12) */
+  if(sc.classList.contains('bm-attente-or')!==attente)sc.classList.toggle('bm-attente-or',attente);
   sangChemin(sc,cont,K);
   /* Norman (2026-10-12) : « le sang doit couler à l'instant où la boule sort de l'anus ». Le jet part quand la barre repart de zéro ; les boules ont donc UNE AVANCE DE PHASE : à ce moment précis, l'avant de la dernière boule franchit la ligne de l'anus et elle achève de sortir (clip) pendant que le jet tombe. */
   var avance=0;
@@ -1765,10 +1771,11 @@ function css(){
     P+'.bm-scene[data-source="sucon"] .bm-coude{display:block}',
     /* la sangsue de Norman (image 1254 x 1254 ramenée à 400 unités, posée par sangTrace : --sg-s, --sg-ox, --sg-oy) ; ventre transparent par masque, le sang passe derrière (z 5) */
     P+':is(.bm-sangsue-img,.bm-sangsue-gl){display:none;position:absolute;left:var(--sg-ox,0px);top:var(--sg-oy,0px);width:calc(400px*var(--sg-s,.5));height:calc(400px*var(--sg-s,.5));max-width:none;z-index:6;pointer-events:none;-webkit-mask:url("'+SG_MASQUE+'") 0 0/100% 100% no-repeat;mask:url("'+SG_MASQUE+'") 0 0/100% 100% no-repeat}',
-    P+'.bm-sangsue-img{filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
     /* WebGL prêt (classe bm-gl) : le canevas déformable remplace l'image (qui reste la source de la texture) */
     P+'.bm-scene[data-source="sucon"] .bm-sangsue-img{display:block}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-img{display:none}',
+    /* sans WebGL : l'image pulse au rythme des coups (repli) */
+    P+'.bm-scene[data-source="sucon"].bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{transform-origin:20% 45%;animation:bmSuce var(--bm-pas,1.1s) ease-in-out infinite}',
     P+'.bm-scene[data-source="sucon"].bm-gl .bm-sangsue-gl{display:block}',
     /* l'œil (paupière : dort, pleure) est posé sur la bosse de la tête ; les Zzz au-dessus ; la trace de la ventouse sur la peau */
     P+'.bm-scene[data-source="sucon"] .bm-oeil{z-index:8;width:17px;height:17px;left:calc(var(--sg-ox,0px) + 115.5px*var(--sg-s,.5) - 8.5px);top:calc(var(--sg-oy,0px) + 131px*var(--sg-s,.5) - 8.5px)}',
@@ -1807,6 +1814,8 @@ function css(){
     /* filet de sang : invisible au repos ; un jet par niveau terminé (il s'allonge depuis l'embout, tient, puis s'effile par le haut : il ne surgit ni ne disparaît d'un coup) ; niveaux très courts : le jet se répète à leur rythme */
     P+'.bm-filet{position:absolute;left:-1.5px;top:0;width:3px;height:calc(var(--chute,60px) + 5px);border-radius:2px 2px 3px 3px;background:linear-gradient(90deg,#8f1124,#e0304a 45%,#8f1124);box-shadow:0 0 4px rgba(255,40,70,.55);opacity:0;transform-origin:50% 0;transform:scaleY(0);clip-path:inset(0)}',
     P+'.bm-scene.bm-jet .bm-filet{animation:bmJet 1.9s ease-in-out 1 both}',
+    /* en attente d'Or : le filet ne coule plus (plus forte priorité que le sang continu et la boucle) */
+    P+'.bm-scene.bm-attente-or.bm-attente-or:has(.bm-tuyau.saigne-v1) .bm-filet,'+P+'.bm-scene.bm-attente-or.bm-attente-or .bm-filet{animation:none!important;opacity:0!important;transform:scaleY(0)!important}',
     P+'.bm-scene.bm-continu:has(.bm-tuyau.saigne-v1) .bm-filet{animation:none!important;opacity:.95!important;transform:scaleY(1)!important;clip-path:inset(0)!important}',
     P+'.bm-scene[data-rythme="boucle"]:has(.bm-tuyau.saigne-v1) .bm-filet{animation:bmJet var(--bm-t,1s) linear infinite}',
     P+'.bm-scene:has(.bm-tuyau.saigne-v1) .bm-goutte{display:block;animation:bmGoutte 1.5s ease-in infinite}',

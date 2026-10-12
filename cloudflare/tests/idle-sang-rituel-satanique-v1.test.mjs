@@ -345,7 +345,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Déformation de l'image de la sangsue (Norman, 2026-10-12 : « tu m'as dit que tu pouvais déformer les images ») : maillage WebGL, arrière-train qui grossit, ventouse qui suce ; l'image reste en repli.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("function sgPrepare()") && decor.includes("function sgInit(sc)") && decor.includes("function sgDessiner(sc,g)") && decor.includes("gl.drawElements(gl.TRIANGLES"), "maillage déformable dessiné par WebGL");
-  assert.ok(decor.includes("sc.classList.add('bm-gl')") && decor.includes("sc.__gl=null;}") && decor.includes(".bm-gl .bm-sangsue-img{display:none}"), "repli : l'image reste affichée sans WebGL");
+  assert.ok(decor.includes("sc.classList.add('bm-gl')") && decor.includes("sc.__gl=null;sc.classList.add('bm-gl-non')") && decor.includes(".bm-gl .bm-sangsue-img{display:none}"), "repli : l'image reste affichée sans WebGL");
   assert.ok(decor.includes("function sgSuccion()") && decor.includes("sx=1-.12*a;sy=1+.1*a") && decor.includes("sc.__S=S;") && decor.includes("sgSucId=requestAnimationFrame(sgSuccion)"), "succion de la ventouse calée sur les coups, mêmes images clés que bmSuce");
   assert.ok(decor.includes("sc.__vis!==false&&sc.__t0!=null") && decor.includes("window.matchMedia('(prefers-reduced-motion: reduce)')") && decor.includes("if(G.cle===cle)return;"), "rien hors écran ni en mouvement réduit ; pas de redessin inutile");
   assert.ok(decor.includes('<canvas class="bm-sangsue-gl"') && !/\.bm-sangsue-gl\{[^}]*drop-shadow/.test(decor), "canevas déformable sans filtre d'ombre (il est redessiné en continu)");
@@ -378,4 +378,14 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("cont.__cstar=Math.ceil((La-cell)/(Lc/K));") && decor.includes("avance=(ic-1+.04)/m;") && decor.includes("((pb+avance)%1)*P*1000") && decor.includes("var pbA=(pb+avance)%1"), "avance de phase des boules : leur avant franchit la ligne de l'anus quand le jet part");
   assert.ok(decor.includes("aw.currentTime=(avance>0?avance:.995)*P*1000"), "barre pleine (Or manquant) : la boule attend au bord de l'anus");
+}
+{
+  // En attente d'Or, plus de sang qui coule de l'anus (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("sc.classList.toggle('bm-attente-or',attente)") && decor.includes("sc.classList.remove('bm-attente-or')") && decor.includes(".bm-scene.bm-attente-or.bm-attente-or:has(.bm-tuyau.saigne-v1) .bm-filet") && /bm-attente-or \.bm-filet\{animation:none!important;opacity:0!important;transform:scaleY\(0\)!important\}/.test(decor), "le filet de sang s'arrête quand la barre attend de l'Or");
+}
+{
+  // Robustesse : repli animé sans WebGL, plus d'ombre filtrée sur l'image (Norman, 2026-10-12)
+  const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
+  assert.ok(decor.includes("sc.classList.add('bm-gl-non')") && decor.includes("window.__sgErr=") && decor.includes(".bm-gl-non:not(.bm-dort):not(.bm-hors):has(.bm-tuyau.saigne-v1) .bm-sangsue-img{") && !decor.includes(".bm-sangsue-img{filter:drop-shadow"), "repli animé quand WebGL est indisponible, erreur journalisée");
 }
