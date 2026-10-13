@@ -38,7 +38,8 @@ function monde(reponses) {
     if (r instanceof Error) return Promise.reject(r);
     return Promise.resolve({ json: () => Promise.resolve(r) });
   };
-  vm.runInNewContext(module_, { window: fenetre, fetch: f, setTimeout: (g) => { g(); return 0; } });
+  /* seule l'attente de 3 s entre deux essais du studio est jouée tout de suite ; les délais maximaux des requêtes (2,5 s, 4 s) ne se déclenchent pas dans ce banc */
+  vm.runInNewContext(module_, { window: fenetre, fetch: f, setTimeout: (g, ms) => { if (ms === 3000 || ms === 1200) g(); return 1; }, clearTimeout: () => {} });
   return { api: fenetre.__SOREAL_IDLE_STUDIO_PILOTE_V1__, appels };
 }
 {
@@ -73,5 +74,32 @@ function monde(reponses) {
   assert.ok(m.appels.includes("POST http://127.0.0.1:8766/arreter"));
   assert.ok(t.some(([x]) => /Studio arrêté/.test(x)));
   assert.equal(verifie, 1);
+}
+// 4. Fiabilité (Norman, 2026-10-13 : « quand je clique sur Lancer le studio il ne se passe rien, tous les jours la même chose »)
+assert.ok(module_.includes("etat('Vérification du studio…',false);"), "le clic affiche tout de suite un message");
+assert.ok(module_.includes("function avecDelai(promesse,ms){") && module_.includes("DELAI_PILOTE_MS=4000") && module_.includes("DELAI_PING_MS=2500"), "aucune requête vers le PC ne reste en attente sans fin");
+assert.ok(module_.includes("var LIEN='soreal-studio://demarrer';") && module_.includes("function lancerParLien(){"), "repli par le lien soreal-studio:// quand le pilote ne répond pas");
+for (const f of ["installer_lien_studio.bat", "desinstaller_lien_studio.bat", "lancer_depuis_lien.bat"]) assert.ok(existsSync("cloudflare/tools/voice-studio/" + f), f);
+{
+  const inst = readFileSync("cloudflare/tools/voice-studio/installer_lien_studio.bat", "utf8");
+  assert.ok(inst.includes('HKCU\\Software\\Classes\\soreal-studio') && inst.includes('"URL Protocol"') && !/HKLM/.test(inst), "enregistrement limité au compte de l'utilisateur (HKCU)");
+  const lien = readFileSync("cloudflare/tools/voice-studio/lancer_depuis_lien.bat", "utf8");
+  assert.ok(lien.includes("lancer.bat") && !/%\*|%1|%2/.test(lien), "le lien ne fait démarrer que lancer.bat : aucun argument de la page n'est utilisé");
+}
+{ // sans pilote ET sans lien possible (banc sans page) : message clair ; avec lien : le studio est attendu puis annoncé
+  const fenetre = {};
+  const clics = [];
+  const doc = { body: { appendChild: () => {} }, createElement: () => ({ style: {}, click: () => clics.push("clic"), parentNode: null }) };
+  let ping = 0;
+  const f = (url) => {
+    if (url.includes(":8766")) return Promise.reject(new Error("Failed to fetch"));
+    ping += 1;
+    return ping >= 4 ? Promise.resolve({ json: () => Promise.resolve({ ok: true }) }) : Promise.reject(new Error("pas prêt"));
+  };
+  vm.runInNewContext(module_, { window: fenetre, document: doc, fetch: f, setTimeout: (g, ms) => { if (ms === 3000) g(); return 1; }, clearTimeout: () => {} });
+  const t = [];
+  await fenetre.__SOREAL_IDLE_STUDIO_PILOTE_V1__.lancer((x, e) => t.push([x, e]), () => {});
+  assert.deepEqual(clics, ["clic"], "le lien soreal-studio est ouvert quand le pilote est injoignable");
+  assert.ok(t.some(([x]) => /Vérification/.test(x)) && t.some(([x]) => /lien « soreal-studio »/.test(x)) && t.some(([x, e]) => /Studio démarré/.test(x) && !e), "messages : vérification, repli par le lien, puis studio démarré");
 }
 console.log("idle-studio-pilote-v1 OK");

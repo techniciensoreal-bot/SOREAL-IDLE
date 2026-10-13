@@ -3155,7 +3155,7 @@
                   idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
-                  if(compte){compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal);(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+bloodVisual.ajoutLocal,rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};}
+                  if(compte){compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})());(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})(),rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};}
                   if(faits===dus){
                     const reste=(ecoule0-eta0)%seconds;
                     bloodVisual.at=maintB;
@@ -3175,9 +3175,9 @@
             const ligneBloodFixe=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
             if(bloodVisual.ajoutLocal){
               const compte2=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
-              const texte2=idleEntier_(idleNombre_(compte2&&compte2.getAttribute('data-n'))+bloodVisual.ajoutLocal);
+              const texte2=idleEntier_(idleNombre_(compte2&&compte2.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})());
               if(compte2&&compte2.textContent!==texte2)compte2.textContent=texte2;
-              if(compte2)(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte2.getAttribute('data-n'))+bloodVisual.ajoutLocal,rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};
+              if(compte2)(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte2.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})(),rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};
             }
             if(pleineB){
               if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}

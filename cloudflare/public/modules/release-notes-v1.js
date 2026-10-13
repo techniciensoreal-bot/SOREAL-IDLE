@@ -65,6 +65,8 @@
             'Un fond de sang tapisse les récipients dès le premier rituel terminé, discret, sans changer le remplissage.',
             'Le ventre de la sangsue se gonfle là où se trouve la boule, sans s’affoler quand les niveaux sont très rapides.',
             'La sangsue bat aussi sur les appareils sans WebGL (TV).',
+            'Le compteur des rituels ne dépasse plus ce que le serveur a validé : plus de chiffres gonflés aux vitesses extrêmes, sans jamais reculer de façon visible.',
+            'L’animation de la scène d’un rituel se joue aussi quand les niveaux sont extrêmement rapides.',
           ]}
         ]
       },

@@ -239,15 +239,42 @@ function creer(hote){
        * Les rituels terminés sont rejoués localement en avance sur le serveur ; la page redessinée repartait du chiffre du serveur, en retard, jusqu'à la prochaine synchro. On garde donc le plus grand chiffre déjà affiché
        * (window.__bloodCompteAffV1 : {n, rb}, aussi mis à jour par le tick de soreal-idle-ui.js) ; seule une Renaissance (le nombre de Renaissances a changé) ou un rechargement de la page le remet à zéro.
        */
+      /*
+       * Avance bornée (Norman, 2026-10-13, test en production partie B : « 1 091 000 000 affichés pour 179 000 000 validés par le serveur ; 13 363 863 pour 21 224 ; 7 427 924 pour 0 »). La règle « ne recule jamais » gardait
+       * indéfiniment la plus grande valeur rejouée en local, même quand le serveur ne l'avait jamais validée (Or épuisé côté serveur, vitesses extrêmes). L'avance locale affichée est maintenant limitée à ce que le rythme VALIDÉ par le serveur
+       * justifie : taux = complétions gagnées entre deux valeurs serveur successives ; avance max = taux × 12 s (au moins 2). Taux nul (rituel bloqué, Or manquant) : l'affichage retombe sur le chiffre du serveur.
+       * Le compteur ne retombe toujours pas de 3 à 1 quand on ajoute de la Magie : l'avance de quelques secondes reste permise.
+       */
+      const AVANCE_SECONDES_BLOOD_V1=12;
+      function avanceMaxBloodIdleV1_(e){
+        return Math.max(2,Math.ceil((Number(e&&e.taux)||0)*AVANCE_SECONDES_BLOOD_V1));
+      }
       function compteAfficheBloodIdleV1_(id,n){
         const m=window.__bloodCompteAffV1=window.__bloodCompteAffV1||{};
         let rb=0;
         try{rb=Number(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().systemes.records.totalRebirths)||0;}catch(_e){}
-        const e=m[id];
+        let e=m[id];
         n=Number(n)||0;
-        if(e===undefined||e.rb!==rb||n>=e.n){m[id]={n:n,rb:rb};return n;}
+        const maintenant=Date.now();
+        if(e===undefined||e.rb!==rb){m[id]={n:n,rb:rb,ns:n,ts:maintenant,taux:0};return n;}
+        /* rythme validé par le serveur entre deux valeurs successives */
+        if(e.ns===undefined){e.ns=n;e.ts=maintenant;e.taux=0;}
+        else if(n!==e.ns){
+          if(n>e.ns&&maintenant>e.ts)e.taux=(n-e.ns)/((maintenant-e.ts)/1000);
+          else if(n<e.ns)e.taux=0;
+          e.ns=n;e.ts=maintenant;
+        }else if(maintenant-e.ts>20000)e.taux=0;   /* plus aucune complétion validée depuis 20 s */
+        if(n>=e.n){e.n=n;return n;}
+        const borne=n+avanceMaxBloodIdleV1_(e);
+        e.n=Math.min(e.n,borne);
         return e.n;
       }
+      /* Avance locale (complétions rejouées par le tick) bornée de la même façon : utilisée par soreal-idle-ui.js. */
+      window.__bloodAvanceBorneeV1__=function(id,ajout){
+        const e=(window.__bloodCompteAffV1||{})[id];
+        ajout=Number(ajout)||0;
+        return e?Math.min(ajout,avanceMaxBloodIdleV1_(e)):ajout;
+      };
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();

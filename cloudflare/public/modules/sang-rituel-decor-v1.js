@@ -1322,6 +1322,8 @@ function banqueCadre(sc,maintenant){
     sc.__bPb=pb;
   }
   if(sc.__bP>0&&sc.__bP<BANQUE_TOTAL)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
+  /* Norman (2026-10-13) : « l'animation de la banque du sang ne se joue pas » : quand les niveaux sont si courts que la barre du moteur n'a plus d'animation à lire (phaseBarre null : barre figée pleine), aucun recommencement ne peut être détecté et l'image restait sur la première. Le rituel tourne (il n'est ni arrêté ni bloqué par l'Or, voir plus haut) : la scène joue alors en boucle continue, comme pour un niveau de moins de 4 s. */
+  if(pb==null&&!sc.__bt0)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
   if(!sc.__bt0)return 0;
   var ecoule=(maintenant-sc.__bt0)/1000;
   if(ecoule>=BANQUE_TOTAL){sc.__bt0=0;return 0;}
