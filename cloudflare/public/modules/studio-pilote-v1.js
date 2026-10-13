@@ -14,9 +14,9 @@
   var PILOTE_URL='http://127.0.0.1:8766';
   var STUDIO_URL='http://127.0.0.1:8765';
   var LIEN='soreal-studio://demarrer';
-  var DELAI_PILOTE_MS=4000,DELAI_PING_MS=1500;   /* ping court : le lien externe doit être ouvert tant que le clic est « récent » (Chrome refuse sinon, sans rien dire) */
+  var DELAI_PILOTE_MS=4000,DELAI_PING_MS=1500,DELAI_PING_ATTENTE_MS=8000;   /* ping court : le lien externe doit être ouvert tant que le clic est « récent » (Chrome refuse sinon, sans rien dire) */
   var ABSENT='🔴 Le pilote n’est pas allumé sur ce PC : double-clique « pilote.bat » (ou « installer_pilote.bat » une seule fois, pour qu’il démarre avec Windows) dans cloudflare/tools/voice-studio. Pour ne plus jamais dépendre du pilote : double-clique une fois « installer_lien_studio.bat » au même endroit. Sur iPhone/Safari, c’est impossible.';
-  var ABSENT_LIEN='🔴 Le studio ne répond toujours pas. Une seule fois pour toutes : double-clique « installer_lien_studio.bat » (ou « installer_pilote.bat ») dans cloudflare/tools/voice-studio, ou lance « pilote.bat » / « lancer.bat » à la main. Regarde aussi la fenêtre noire du studio : un message d’erreur s’y affiche peut-être.';
+  var ABSENT_LIEN='🔴 Le studio ne répond toujours pas après plusieurs minutes (s’il ventile encore, laisse-le finir de charger et recharge la page). Une seule fois pour toutes : double-clique « installer_lien_studio.bat » (ou « installer_pilote.bat ») dans cloudflare/tools/voice-studio, ou lance « pilote.bat » / « lancer.bat » à la main. Regarde aussi la fenêtre noire du studio : un message d’erreur s’y affiche peut-être.';
 
   /* Une requête vers le PC ne reste jamais en attente : au-delà du délai elle échoue (message clair au lieu de « rien »). */
   function avecDelai(promesse,ms){
@@ -29,14 +29,15 @@
   function appel(chemin,methode){
     return avecDelai(fetch(PILOTE_URL+chemin,{method:methode||'GET',cache:'no-store'}).then(function(r){return r.json();}),DELAI_PILOTE_MS);
   }
-  function pingStudio(){
-    return avecDelai(fetch(STUDIO_URL+'/ping',{cache:'no-store'}).then(function(r){return r.json();}),DELAI_PING_MS);
+  /* ms : vérification rapide au clic (1,5 s) ; pendant l'attente du chargement du modèle le studio, occupé sur la carte graphique, répond lentement : on lui laisse 8 s (Norman, 2026-10-13 : « il me dit que le studio n'est pas lancé alors que mon PC ventile »). */
+  function pingStudio(ms){
+    return avecDelai(fetch(STUDIO_URL+'/ping',{cache:'no-store'}).then(function(r){return r.json();}),ms||DELAI_PING_MS);
   }
 
   /* Attend que le studio réponde (le modèle met jusqu'à 1 à 2 minutes à se charger) puis appelle fini(vrai|faux). */
   function attendreStudio(fini,essais){
     var restant=typeof essais==='number'?essais:60;
-    pingStudio().then(function(d){
+    pingStudio(DELAI_PING_ATTENTE_MS).then(function(d){
       if(d&&d.ok){fini(true);return;}
       throw new Error('pas prêt');
     }).catch(function(){
@@ -96,13 +97,13 @@
       return new Promise(function(resolve){
         var essais=0;
         (function boucle(){
-          pingStudio().then(function(d){
+          pingStudio(DELAI_PING_ATTENTE_MS).then(function(d){
             if(d&&d.ok){etat('✔ Studio démarré.',false);if(verifier)verifier();resolve();return;}
             throw new Error('pas prêt');
           }).catch(function(){
             essais+=1;
             if(essais===5)essayerPilote();
-            if(essais>=45){etat(parLien?ABSENT_LIEN:ABSENT,true);if(verifier)verifier();resolve();return;}
+            if(essais>=60){etat(parLien?ABSENT_LIEN:ABSENT,true);if(verifier)verifier();resolve();return;}
             setTimeout(boucle,3000);
           });
         })();

@@ -77,7 +77,7 @@ function monde(reponses) {
 }
 // 4. Fiabilité (Norman, 2026-10-13 : « quand je clique sur Lancer le studio il ne se passe rien, tous les jours la même chose »)
 assert.ok(module_.includes("etat('Vérification du studio…',false);"), "le clic affiche tout de suite un message");
-assert.ok(module_.includes("function avecDelai(promesse,ms){") && module_.includes("DELAI_PILOTE_MS=4000") && module_.includes("DELAI_PING_MS=1500"), "aucune requête vers le PC ne reste en attente sans fin");
+assert.ok(module_.includes("function avecDelai(promesse,ms){") && module_.includes("DELAI_PILOTE_MS=4000") && module_.includes("DELAI_PING_MS=1500") && module_.includes("DELAI_PING_ATTENTE_MS=8000"), "aucune requête vers le PC ne reste en attente sans fin");
 assert.ok(module_.includes("var LIEN='soreal-studio://demarrer';") && module_.includes("function lancerParLien(){"), "repli par le lien soreal-studio:// quand le pilote ne répond pas");
 for (const f of ["installer_lien_studio.bat", "desinstaller_lien_studio.bat", "lancer_depuis_lien.bat"]) assert.ok(existsSync("cloudflare/tools/voice-studio/" + f), f);
 {
