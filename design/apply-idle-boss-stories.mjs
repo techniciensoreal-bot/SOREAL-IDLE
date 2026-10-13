@@ -21,7 +21,7 @@
 //
 // Utilisation :
 //   SOREAL_IDLE_CATALOG_SECRET=<secret> node design/apply-idle-boss-stories.mjs --dry-run
-//   SOREAL_IDLE_CATALOG_SECRET=<secret> node design/apply-idle-boss-stories.mjs
+//   SOREAL_IDLE_CATALOG_SECRET=<secret> node design/apply-idle-boss-stories.mjs --apply
 
 import { readFileSync } from 'node:fs';
 
@@ -31,7 +31,7 @@ if (!secret) {
   process.exit(1);
 }
 
-const dryRun = process.argv.includes('--dry-run');
+const dryRun = !process.argv.includes('--apply') || process.argv.includes('--dry-run');
 const BASE = 'https://soreal-tv.technicien-soreal.workers.dev';
 const HEADERS = { 'x-soreal-idle-catalog-secret': secret, 'content-type': 'application/json' };
 
@@ -71,6 +71,10 @@ if (idIndex < 0 || histoireIndex < 0) {
 }
 console.log(`En-tête réelle (${header.length} colonnes) : ID=index ${idIndex}, Histoire=index ${histoireIndex}.`);
 
+// Preserve user-edited descriptions: fix only empty cells and proven one-ID shifts.
+// The canonical French and English files are already keyed by boss ID.
+const storiesById = new Map(stories.map(x => [x.id, String(x.story || '').trim()]));
+let shifted = 0, protectedTexts = 0;
 let updated = 0, unchanged = 0, noStoryAvailable = 0;
 const examples = [];
 const finalRows = [{ row_index: 1, row: header }];
@@ -81,7 +85,9 @@ for (const { row_index, row } of rows) {
   const story = Number.isFinite(id) ? storyById.get(id) : undefined;
   const current = String(row[histoireIndex] ?? '').trim();
 
-  if (story && current !== story) {
+  const adjacent = current && (current === storiesById.get(id - 1) || current === storiesById.get(id + 1));
+  if (story && current !== story && (!current || adjacent)) {
+    if (adjacent) shifted++;
     const next = [...row];
     next[histoireIndex] = story;
     if (examples.length < 3) examples.push({ id, row_index, story: story.slice(0, 80) + (story.length > 80 ? '…' : '') });
@@ -90,10 +96,12 @@ for (const { row_index, row } of rows) {
   } else {
     finalRows.push({ row_index, row });
     if (!story) noStoryAvailable++;
+    else if (story && current !== story) protectedTexts++;
     else unchanged++;
   }
 }
 
+console.log(`Décalages adjacents détectés : ${shifted}; descriptions personnalisées/non reconnues préservées : ${protectedTexts}.`);
 console.log(`Résultat : ${updated} histoire(s) ajoutée(s)/corrigée(s), ${unchanged} déjà correcte(s), ${noStoryAvailable} boss sans histoire disponible (laissé(s) tel(s) quel(s), rien inventé).`);
 if (examples.length) {
   console.log('Exemples :');
@@ -101,7 +109,7 @@ if (examples.length) {
 }
 
 if (dryRun) {
-  console.log('--dry-run : rien écrit. Relancer sans ce flag pour appliquer.');
+  console.log('Lecture seule : rien écrit. Utiliser --apply après validation du diagnostic.');
   process.exit(0);
 }
 
