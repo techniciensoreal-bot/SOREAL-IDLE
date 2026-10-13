@@ -18,7 +18,14 @@ assert.equal(d.NIVEAUX_PAR_RECIPIENT, 200, "200 niveaux par récipient par défa
 
 // rituel ordinaire (calice, 200 niveaux) : 450 = 2 calices pleins + un troisième au quart
 const h = d.scene({ id: "barbedWire", sang: 50, compte: 450, barre: "<i data-idle-blood-bar-v1=\"barbedWire\"></i>", saigne: true, rang: 1 });
-assert.ok(h.includes('data-bm-pleins="2"') && h.includes('data-bm-cap="200"') && h.includes("translateY(61.50px)"), "niveau du calice = reste / capacité");
+assert.ok(h.includes('data-bm-pleins="2"') && h.includes('data-bm-cap="200"') && h.includes("translateY(50.61px)"), "niveau du calice = reste / capacité (avec la couche de sang du fond, 2026-10-13)");
+{ // fond tâché : tous les rituels sauf la punaise, dès la première utilisation ; le plein reste le plein
+  const vide = (id, compte) => d.scene({ id, sang: 1, compte, barre: "", saigne: true, rang: 1 });
+  const niveau = (html) => Number(/class="bm-liq"[^>]*translateY\(([-0-9.]+)px\)/.exec(html)[1]);
+  assert.ok(niveau(vide("hickey", 1)) < niveau(vide("hickey", 0)) - 2, "après le premier rituel, une couche de sang tapisse le fond");
+  assert.ok(Math.abs(niveau(vide("tack", 1)) - niveau(vide("tack", 0))) < 0.1, "la punaise (1 blood par utilisation) n'est pas concernée");
+  assert.ok(d.scene({ id: "hickey", sang: 1, compte: 4999, barre: "", saigne: true, rang: 1 }).includes("translateY(") , "le plein reste atteignable");
+}
 assert.ok(h.includes('class="bm-tuyau saigne-v1"') && h.includes('data-idle-blood-bar-v1="barbedWire"'), "la barre du moteur reste le remplissage du tuyau");
 assert.ok(h.includes("Sang collecté") && !h.includes("bm-mini"), "l'étagère s'appelle « Sang collecté » (plus de dessin de récipient plein)");
 assert.ok(h.includes('<b class="bm-etagere-n">22500</b>'), "sang collecté = 450 rituels × 50 Blood");
@@ -26,7 +33,7 @@ assert.ok(!/\/\s*(100|200)|sur (100|200)/.test(h.replace(/viewBox="[^"]*"/g, "")
 const v = d.scene({ id: "barbedWire", sang: 50, compte: 0, barre: "", rang: 1 });
 assert.ok(v.includes('data-bm-pleins="0"') && !v.includes(" hidden") && v.includes("Sang collecté") && v.includes('<b class="bm-etagere-n">0</b>') && v.includes("translateY(78.00px)"), "calice vide : « Sang collecté 0 » toujours visible (aussi sur téléphone)");
 const presque = d.scene({ id: "barbedWire", sang: 50, compte: 199, barre: "", rang: 1 });
-assert.ok(presque.includes('data-bm-pleins="0"') && presque.includes("translateY(12.33px)"), "199 niveaux : presque plein, pas encore sorti");
+assert.ok(presque.includes('data-bm-pleins="0"') && presque.includes("translateY(12.26px)"), "199 niveaux : presque plein, pas encore sorti");
 const plein = d.scene({ id: "barbedWire", sang: 50, compte: 200 * 14, barre: "", rang: 1 });
 assert.ok(!plein.includes("bm-mini"));
 assert.ok(plein.includes('<b class="bm-etagere-n">140000</b>'), "2800 rituels × 50 Blood");
@@ -442,4 +449,16 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // niveau de la poche : pleine au début de chaque quart de cuve, vide à la fin
   const niv = (f) => { const q = Math.max(0, Math.min(0.9999, f)) * 4; return 1 - (q - Math.floor(q)); };
   assert.equal(niv(0), 1); assert.ok(Math.abs(niv(0.125) - 0.5) < 1e-9); assert.ok(niv(0.2499) < 0.01); assert.equal(niv(0.25), 1); assert.ok(Math.abs(niv(0.9) - 0.4) < 1e-9);
+}
+{ // Norman (2026-10-13) : baignoire de la banque vide = aucun sang visible ; bol des barbelés : couche de sang plus haute que celle des verres
+  const banque = d.scene({ id: "bloodBank", sang: 1, compte: 0, barre: "", saigne: true, rang: 1 });
+  assert.ok(banque.includes('class="bm-bac-liq" style="transform:translateY(46.00px)"'), "baignoire à 0 : le sang est entièrement sous le fond");
+  const barbeles = d.scene({ id: "barbedWire", sang: 1, compte: 1, barre: "", saigne: true, rang: 1 });
+  assert.ok(/class="bm-liq"[^>]*translateY\((6\d\.\d\d)px\)/.test(barbeles) || /class="bm-liq"[^>]*translateY\(7[0-2]\.\d\d\)/.test(barbeles), "barbelés : une couche visible dès le premier rituel");
+}
+{ // Norman (2026-10-13) : le Baxter (poche, chambre, tuyau, goutte) n'existe qu'après le premier braquage terminé
+  const avant = d.scene({ id: "bloodBank", sang: 1, compte: 0, barre: "", saigne: true, rang: 1 });
+  const apres = d.scene({ id: "bloodBank", sang: 1, compte: 1, barre: "", saigne: true, rang: 1 });
+  assert.ok(!/class="bm-bac[^"]*bm-baxter-ok/.test(avant) && /class="bm-bac[^"]*bm-baxter-ok/.test(apres), "classe bm-baxter-ok seulement après le premier braquage");
+  assert.ok(src.includes(".bm-bac:not(.bm-baxter-ok) :is(.bm-baxter,.bm-bac-goutte){display:none}") && src.includes("<g class=\"bm-baxter\">"), "sans cette classe, poche, chambre, tuyau et goutte sont masqués");
 }

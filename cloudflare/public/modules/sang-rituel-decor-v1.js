@@ -475,6 +475,15 @@ var SEUIL_ARRIVEE=0.9;
 var suivantVu={};
 /* id -> la trace de l'impact est visible (le rituel progresse) : restituée telle quelle à chaque redessin, elle ne clignote pas. */
 var marqueVue={};
+/* Fond tâché (Norman, 2026-10-13) : « pour les sacrifices qui donnent plus de 1 blood par utilisation (tous sauf la punaise), du sang dans le fond dès la première utilisation : le remplissage reste normal, mais une couche de sang après le premier rituel dit que le récipient est tâché » : dès qu'un rituel est terminé au moins une fois, le niveau affiché part d'une fine couche (FILM_FOND de la course) et rejoint le plein en même temps que le niveau réel (continu, jamais de saut). */
+var FILM_FOND=0.07,FILM_CALICE=0.22;
+function filmFond(id,compte,f){
+  f=Math.max(0,Math.min(1,f));
+  if(id==='tack'||!(Number(compte)>=1))return f;
+  /* le calice (bol à fond arrondi et étroit) demande une couche un peu plus haute pour qu'on la voie (Norman, 2026-10-13 : « dans les barbelés, je ne vois pas le sang ») */
+  var fm=typeContenant(id)==='calice'?FILM_CALICE:FILM_FOND;
+  return fm+(1-fm)*f;
+}
 function typeContenant(id){return CONTENANTS[CONTENANT_DE[id]]?CONTENANT_DE[id]:'calice';}
 function capacite(id){var c=Number(CAPACITE[id]);return c>0?c:NIVEAUX_PAR_RECIPIENT;}
 /*
@@ -573,16 +582,16 @@ function scene(opts){
       '<canvas class="bm-banque-cv" width="640" height="480" aria-hidden="true"></canvas>'+
       '<div class="bm-cctv" aria-hidden="true"><b class="bm-cctv-bande"></b><b class="bm-cctv-neige"></b><i class="bm-cctv-rec">REC</i><i class="bm-cctv-cam">CAM 05 · BANQUE DU SANG</i><i class="bm-cctv-heure"></i></div>'+
     '</div>'+
-    '<div class="bm-bac'+(opts.saigne?' on':'')+'" data-bm-bac="'+opts.id+'">'+bac(paliers(opts.id,compte).fraction,!!opts.saigne)+'</div>'+
+    '<div class="bm-bac'+(opts.saigne?' on':'')+(compte>=1?' bm-baxter-ok':'')+'" data-bm-bac="'+opts.id+'">'+bac(paliers(opts.id,compte).fraction,!!opts.saigne)+'</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(compte*(Number(opts.sang)||0))+'</div>';
   }
   if(SOURCES[opts.id]==='fil')compte=filNAffiche(opts.id,compte,null);
   var pal=paliers(opts.id,compte),cap=pal.cap,type=typeContenant(opts.id),dim=dimensions(opts.id,opts.rang);
-  var fraction=pal.fraction;
+  var fraction=filmFond(opts.id,compte,pal.fraction);
   var rendu=suivantVu[opts.id];
   var pleins=pal.pleins;
   demarrer();
-  suivantVu[opts.id]=fraction>=SEUIL_ARRIVEE;
+  suivantVu[opts.id]=pal.fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
   return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       bibliotheque(opts.rang)+
@@ -594,7 +603,7 @@ function scene(opts){
         :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
       '<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
-      (fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,0,opts.id)+'</div>':'')+
+      (pal.fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':'')+
     '</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
 }
@@ -616,7 +625,7 @@ var DUREE_ECHANGE=800;
 function ajouterSuivant(sc,type,anime){
   var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var n=document.createElement('div');
-  n.className='bm-vase bm-suivant'+(anime&&!reduit?' bm-apparait':'');n.setAttribute('aria-hidden','true');n.innerHTML=contenant(type,0,sc.getAttribute('data-bm-id'));
+  n.className='bm-vase bm-suivant'+(anime&&!reduit?' bm-apparait':'');n.setAttribute('aria-hidden','true');n.innerHTML=contenant(type,filmFond(sc.getAttribute('data-bm-id'),1,0),sc.getAttribute('data-bm-id'));
   sc.appendChild(n);
   return n;
 }
@@ -1486,7 +1495,8 @@ function stabiliser(id,n){
  * BAC DE LA BANQUE DU SANG (Norman, 2026-10-11) : sous l'animation du braquage, un grand bac en plastique se remplit ; le sang coule d'une poche de transfusion accrochée à un portant (une goutte à la fois, dans une chambre compte-gouttes puis par le tuyau).
  * Même règle que les autres rituels : la capacité grandit par paliers (paliers()). Boucles sans à-coup (règle n°3) : la goutte naît et s'éteint en fondu, toujours dans le même sens.
  */
-var BAC_VIDE=38;   /* hauteur dont le sang descend quand le bac est vide */
+var BAC_VIDE=38;   /* hauteur dont le sang descend quand le bac est vide (chute de la goutte) */
+var BAC_VIDE_VISU=46;   /* idem pour le dessin du sang : à 0 le sang est entièrement sous le fond du bac, plus aucune trace (Norman, 2026-10-13) */
 /*
  * La baignoire du Braquage de la banque du sang (Norman, 2026-10-12) : « il faut plusieurs Baxters pour la remplir, qui doivent être remplacés comme les récipients ; et quand la baignoire est pleine, on la change aussi ».
  * Une cuve = SACS_PAR_BAC poches : la poche se vide pendant son quart de cuve (le niveau de la cuve monte en continu), puis elle est remplacée par une poche pleine ; quand la cuve est pleine, elle est remplacée par une cuve vide.
@@ -1497,7 +1507,7 @@ function niveauPoche(fraction){
   return 1-(q-Math.floor(q));   /* 1 : poche pleine, 0 : vide */
 }
 function bac(fraction,actif){
-  var t=(BAC_VIDE*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2),tp=(BAC_POCHE_VIDE*(1-niveauPoche(fraction))).toFixed(2);
+  var t=(BAC_VIDE*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2),tv=(BAC_VIDE_VISU*(1-Math.max(0,Math.min(1,fraction)))).toFixed(2),tp=(BAC_POCHE_VIDE*(1-niveauPoche(fraction))).toFixed(2);
   return '<svg class="bm-bac-svg" viewBox="0 0 250 176" aria-hidden="true" focusable="false">'+
     '<clipPath id="bm-clip-bac"><path d="M112 130 H236 L228 168 Q227 171 224 171 H124 Q121 171 120 168 Z"/></clipPath>'+
     /* portant */
@@ -1505,7 +1515,8 @@ function bac(fraction,actif){
     '<rect x="45" y="8" width="5" height="164" fill="#aeb6c2" stroke="#000" stroke-width="1.6"/>'+
     '<path d="M47.5 10 H92" stroke="#000" stroke-width="7" stroke-linecap="round"/><path d="M47.5 10 H92" stroke="#aeb6c2" stroke-width="4" stroke-linecap="round"/>'+
     '<circle cx="47.5" cy="172" r="4" fill="#8c94a1" stroke="#000" stroke-width="1.6"/>'+
-    /* poche de transfusion */
+    /* poche de transfusion, chambre et tuyau : le Baxter n'arrive qu'après le premier braquage (Norman, 2026-10-13) */
+    '<g class="bm-baxter">'+
     '<path d="M88 11 V20" stroke="#000" stroke-width="2.4"/>'+
     '<clipPath id="bm-clip-poche"><path d="M72 22 Q72 18 78 18 H104 Q110 18 110 22 L113 66 Q113 78 100 82 H82 Q69 78 69 66 Z"/></clipPath>'+
     '<g class="bm-poche">'+
@@ -1523,10 +1534,11 @@ function bac(fraction,actif){
     '<path d="M91 109 V117 Q91 124 104 124 Q140 124 156 120 V126" fill="none" stroke="#e8a3ae" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
     '<path d="M91 111 V117 Q91 122 104 122 Q140 122 156 118 V124" fill="none" stroke="#c4122c" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>'+
     '<rect x="148" y="116" width="16" height="6" rx="2" fill="#4aa3df" stroke="#000" stroke-width="1.4"/>'+
+    '</g>'+
     /* le bac en plastique : fond, sang, devant */
     '<g class="bm-bac-cuve">'+
     '<path d="M110 128 H238 L230 168 Q229 173 224 173 H124 Q119 173 118 168 Z" fill="#8fb1c9" fill-opacity=".22" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
-    '<g clip-path="url(#bm-clip-bac)"><g class="bm-bac-liq" style="transform:translateY('+t+'px)"><g class="bm-onde"><path d="M-40 134 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V190 H-40 Z" fill="url(#bm-g-sang)" transform="translate(130 0)"/></g></g></g>'+
+    '<g clip-path="url(#bm-clip-bac)"><g class="bm-bac-liq" style="transform:translateY('+tv+'px)"><g class="bm-onde"><path d="M-40 134 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V190 H-40 Z" fill="url(#bm-g-sang)" transform="translate(130 0)"/></g></g></g>'+
     '<path d="M110 128 H238" stroke="#e7f1f7" stroke-width="3.4" stroke-linecap="round"/>'+
     '<path d="M122 142 H226 M120 156 H228" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>'+
     '<path d="M110 128 L102 134 V144 L110 150 M238 128 L246 134 V144 L238 150" fill="none" stroke="#000" stroke-width="2.6" stroke-linejoin="round"/>'+
@@ -1539,13 +1551,18 @@ function bac(fraction,actif){
 function majBac(sc,id,n){
   var pal=paliers(id,n),el=sc.parentNode&&sc.parentNode.querySelector('[data-bm-bac="'+id+'"]');
   if(!el)return;
-  var liq=el.querySelector('.bm-bac-liq'),g=el.querySelector('.bm-bac-goutte'),t=BAC_VIDE*(1-pal.fraction);
+  var liq=el.querySelector('.bm-bac-liq'),g=el.querySelector('.bm-bac-goutte'),t=BAC_VIDE*(1-pal.fraction),tv=BAC_VIDE_VISU*(1-pal.fraction);
+  var arrive=!el.classList.contains('bm-baxter-ok')&&n>=1;
+  if(arrive)el.classList.add('bm-baxter-ok');
+  else if(n<1&&el.classList.contains('bm-baxter-ok'))el.classList.remove('bm-baxter-ok');
   var poche=el.querySelector('.bm-poche'),pliq=el.querySelector('.bm-poche-liq'),cuve=el.querySelector('.bm-bac-cuve');
+  /* le Baxter arrive d'en haut au premier braquage terminé (même mouvement que le remplacement d'une poche) */
+  if(arrive&&poche&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){poche.classList.remove('swap');void poche.getBoundingClientRect();poche.classList.add('swap');setTimeout(function(){poche.classList.remove('swap');},900);}
   var sac=pal.pleins*SACS_PAR_BAC+Math.floor(Math.max(0,Math.min(0.9999,pal.fraction))*SACS_PAR_BAC),avant=bacSacs[id],pleinsAvant=bacSacs[id+'|p'];
   bacSacs[id]=sac;bacSacs[id+'|p']=pal.pleins;
   var tp=BAC_POCHE_VIDE*(1-niveauPoche(pal.fraction));
   function niveaux(){
-    if(liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
+    if(liq)liq.style.transform='translateY('+tv.toFixed(2)+'px)';
     if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
     if(pliq)pliq.style.transform='translateY('+tp.toFixed(2)+'px)';
   }
@@ -1556,7 +1573,7 @@ function majBac(sc,id,n){
     if(changePoche){poche.classList.remove('swap');void poche.getBoundingClientRect();poche.classList.add('swap');setTimeout(function(){poche.classList.remove('swap');},900);}
     if(changeCuve){cuve.classList.remove('swap');void cuve.getBoundingClientRect();cuve.classList.add('swap');setTimeout(function(){cuve.classList.remove('swap');},1000);}
     /* pendant la première moitié du mouvement l'ancien contenu reste affiché (poche vide, cuve pleine) ; le nouveau niveau n'apparaît qu'une fois l'ancien parti */
-    if(!changeCuve&&liq)liq.style.transform='translateY('+t.toFixed(2)+'px)';
+    if(!changeCuve&&liq)liq.style.transform='translateY('+tv.toFixed(2)+'px)';
     if(g)g.style.setProperty('--bac-chute',(30-t).toFixed(1)+'px');
     if(!changePoche&&pliq)pliq.style.transform='translateY('+tp.toFixed(2)+'px)';
     clearTimeout(el.__swapT);el.__swapT=setTimeout(niveaux,changeCuve?430:360);
@@ -1591,7 +1608,7 @@ function majScene(sc){
     if(fraction>=SEUIL_ARRIVEE&&!attend){ajouterSuivant(sc,type,true);suivantVu[id]=true;}
     else if(fraction<SEUIL_ARRIVEE){suivantVu[id]=false;if(attend&&attend.parentNode)attend.parentNode.removeChild(attend);}
   }
-  var fAff=sc.__plein?1:(sc.__vide?0:fraction);
+  var fAff=sc.__plein?1:filmFond(id,nv,sc.__vide?0:fraction);
   niveauLiquide(sc,fAff,c);
   var ch=chuteSang(sc.getAttribute('data-source'),type,parseFloat(sc.style.getPropertyValue('--vh')),parseFloat(sc.style.getPropertyValue('--vb')),parseFloat(sc.style.getPropertyValue('--sh')),fAff);
   if(ch!=null&&sc.style.getPropertyValue('--chute')!==ch+'px')sc.style.setProperty('--chute',ch+'px');
@@ -1972,6 +1989,7 @@ function css(){
     P+'.bm-bac-cuve.swap{animation:bmCuveSwap .95s ease-in-out 1}',
     '@media (prefers-reduced-motion:reduce){'+P+'.bm-poche.swap,'+P+'.bm-bac-cuve.swap{animation:none}}',
     P+'.bm-bac-goutte{opacity:0;transform-box:fill-box;animation:none}',
+    P+'.bm-bac:not(.bm-baxter-ok) :is(.bm-baxter,.bm-bac-goutte){display:none}',
     P+'.bm-bac.on .bm-bac-goutte{animation:bmBacGoutte 1.1s linear infinite}',
     /* la goutte naît au bout du tuyau (fondu d'entrée), tombe, s'éteint dans le sang (fondu de sortie) : toujours dans le même sens */
     '@keyframes bmBacGoutte{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1;transform:translateY(2px) scale(1)}85%{opacity:1}100%{opacity:0;transform:translateY(var(--bac-chute,28px)) scale(1)}}',
