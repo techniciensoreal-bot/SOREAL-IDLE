@@ -327,7 +327,7 @@
 
   /* ---------- Veille : état des lumières selon l'énergie placée ---------- */
   function veiller_(){
-    if(!actif)return;
+    if(!actif||document.hidden)return;
     var total=totalEnergie();
     var heads=Array.prototype.slice.call(document.querySelectorAll(SELECTEUR));
     var allocs=allocations();

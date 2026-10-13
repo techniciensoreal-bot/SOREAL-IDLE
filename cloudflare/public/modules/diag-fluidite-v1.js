@@ -52,7 +52,8 @@
   var pleineDepuis={};
 
   function echantillon_(){
-    if(document.hidden)return;
+    /* Norman (2026-10-13, audit) : la sonde est réservée à l'administrateur ; plus aucun travail à 5 Hz pour les autres joueurs */
+    if(document.hidden||!estAdmin_())return;
     var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="augmentations"]');
     if(!racine){prec={};pleineDepuis={};return;}
     var maintenant=Date.now();

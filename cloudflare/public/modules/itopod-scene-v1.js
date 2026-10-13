@@ -113,6 +113,7 @@ function effetCoup(el){
 }
 
 function pas(){
+  if(document.hidden)return;   /* audit 2026-10-13 : pas de travail onglet caché */
   var els=document.querySelectorAll('.'+CLASSE);
   if(els.length)majProchain(els[0]);
   if(!els.length||!combat.actif||!(combat.hits>0))return;

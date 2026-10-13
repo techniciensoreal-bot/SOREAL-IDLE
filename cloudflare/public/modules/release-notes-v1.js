@@ -31,11 +31,28 @@
         nom:'Des barres qui tiennent la cadence',
         date:'2026-10-13',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Audit de fluidité : moins de travail en arrière-plan quand l’onglet est caché, une erreur dans un calcul n’arrête plus l’affichage, des clics rapides ne se perdent plus, et le serveur répond plus vite aux synchronisations.',
+          ]},
+          {menu:'combat', titre:'Fight Boss', points:[
+            'Après une Renaissance, tu arrives sur Fight Boss, la borne d’arcade en haut de la page, pour la revoir s’allumer.',
+          ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Le suivi en direct du nombre et du facteur de temps de la Renaissance fonctionne de nouveau.',
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'La difficulté choisie pour un Titan ne revient plus à la première après un redessin.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Dès que le cube passe au palier 1, son bonus s’affiche simplement (+68) en mauve, sans le mot « cube ».',
+            'Après un glisser-déposer, l’équipement, le coffre et les bonus se mettent bien à jour.',
+          ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'À 50 remplissages par seconde, la barre d’Or reste pleine au lieu de scintiller.',
             'La barre de vitesse reste pleine dès que les niveaux durent 0,25 s ou moins.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Un fond de sang tapisse les récipients dès le premier rituel terminé, discret, sans changer le remplissage.',
             'Le ventre de la sangsue se gonfle là où se trouve la boule, sans s’affoler quand les niveaux sont très rapides.',
             'La sangsue bat aussi sur les appareils sans WebGL (TV).',
           ]}

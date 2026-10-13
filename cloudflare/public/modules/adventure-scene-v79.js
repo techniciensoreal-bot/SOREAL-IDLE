@@ -297,6 +297,8 @@
      * texte déjà FORMATÉ (celui réellement affiché) à "0", exactement comme le fait déjà le tag
      * .soreal-idle-v79-stat-bonus juste au-dessus pour le même genre d'arrondi.
      */
+    /* Norman (2026-10-13) : « une fois que le cube passe au tiers 1, ne laisse que le chiffre mauve entre parenthèses (+68) au lieu de (+68 cube) » */
+    var cubePalierN=Math.floor(number_(a&&a.cubeTier&&a.cubeTier.tier));
     function playerStat(key,base,total,precision,cubeContribution){
       var line=player.querySelector('[data-player-stat="'+key+'"]');
       if(!line)return;
@@ -308,7 +310,7 @@
       if(extra)ecrire_(extra,bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'');
       var cubeExtra=line.querySelector('.soreal-idle-v79-stat-cube');
       var cubeTexte=format_(cube,precision);
-      if(cubeExtra)ecrire_(cubeExtra,cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+' cube)':'');
+      if(cubeExtra)ecrire_(cubeExtra,cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+(cubePalierN>=1?'':' cube')+')':'');
     }
     playerStat('power',basePower,number_(stats.power),0,cubePower);
     playerStat('toughness',baseToughness,number_(stats.toughness),0,cubeToughness);

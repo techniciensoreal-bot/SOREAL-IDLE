@@ -168,9 +168,12 @@ function ligneAutoKill(t,enAttente,retour,maintenant){
   return '<div class="ttn-auto-etat non">🤖 Auto-kill coché, mais il te manque '+(manque.join(' et ')||'des stats')+' pour que ça s’applique.</div>';
 }
 
+/* Difficulté choisie par titan (audit 2026-10-13) : un redessin ne remet plus le sélecteur sur la première difficulté (le joueur pouvait lancer une autre difficulté que celle affichée). */
+var choixPalier={};
 function carte(t){
   var id=String(t.id);
   var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
+  if(palier&&choixPalier[id]&&Object.prototype.hasOwnProperty.call(t.difficulties,choixPalier[id]))palier=choixPalier[id];
   var v=variante(t,palier);
   registre[id]=t;
   var kills=ent(t.state&&t.state.kills);
@@ -185,7 +188,7 @@ function carte(t){
       :'<span class="ttn-etat pret">✅ Prêt à être affronté</span>';
   var selecteur=t.difficulties&&typeof t.difficulties==='object'
     ?'<label class="ttn-palier">Difficulté <select id="ttnPalier_'+h(id)+'" onchange="window.__changerPalierTitanV1__(\''+h(id)+'\',this.value)">'+
-        Object.keys(t.difficulties).map(function(k){return '<option value="'+h(k)+'">'+h(LIBELLES_PALIERS[k]||k)+'</option>';}).join('')+
+        Object.keys(t.difficulties).map(function(k){return '<option value="'+h(k)+'"'+(k===palier?' selected':'')+'>'+h(LIBELLES_PALIERS[k]||k)+'</option>';}).join('')+
       '</select></label>'
     :'';
   var forme=formeIndex(t);
@@ -300,6 +303,7 @@ function section(j){
 window.__changerPalierTitanV1__=function(id,palier){
   var t=registre[id];
   if(!t)return;
+  choixPalier[id]=String(palier);
   var v=variante(t,palier);
   var el=document.getElementById('ttnStats_'+id);
   if(el)el.innerHTML=htmlStats(v);

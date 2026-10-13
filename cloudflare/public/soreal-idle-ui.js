@@ -4676,9 +4676,14 @@
         );
 
         if(!pisteMagic){
+          /* audit 2026-10-13 : au plus un redessin par seconde (sinon un menu entier redessiné à chaque tick si l'élément n'apparaît jamais) */
+          const maintenantPiste=Date.now();
+          if(maintenantPiste-idlePisteMagicTmRedessinV1<1000)return;
+          idlePisteMagicTmRedessinV1=maintenantPiste;
           rafraichirMenuRacineIdleV28_();
         }
       }
+      let idlePisteMagicTmRedessinV1=0;
 
       let idleTmSyncNiveauV1=0;
       function actualiserCompteReboursTimeMachineIdleV1_(){
@@ -5215,7 +5220,12 @@
             maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214
           ){
             dernierFrameJeuVisibleV214=maintenantFrame;
-            mettreAJourJeuIdleLocalV7_();
+            /* audit 2026-10-13 : une exception dans un tick ne doit pas arrêter toute la boucle visible (le rAF est ré-armé même en cas d'erreur) */
+            try{
+              mettreAJourJeuIdleLocalV7_();
+            }catch(erreurTickV1){
+              try{console.error('[IDLE] tick local',erreurTickV1);}catch(_e){}
+            }
           }
 
           if(PAGE_ACTIVE==='idle'){
@@ -5241,7 +5251,9 @@
           idleTimerJeuArrierePlanV1=0;
         }
         idleTimerJeuArrierePlanV1=setInterval(function(){
-          if(document.hidden&&PAGE_ACTIVE==='idle')mettreAJourJeuIdleLocalV7_();
+          if(document.hidden&&PAGE_ACTIVE==='idle'){
+            try{mettreAJourJeuIdleLocalV7_();}catch(erreurTickV1){try{console.error('[IDLE] tick local (arrière-plan)',erreurTickV1);}catch(_e){}}
+          }
         },1000);
 
         /*
@@ -10069,10 +10081,20 @@
             }
             pousserEtatVersRuntimePartageIdleV1_();
 
+            /* Norman (2026-10-13) : après une Renaissance on arrive sur Fight Boss, la borne d'arcade en haut de la page, pour revoir la borne qui s'allume */
+            idleMenuActifV28='combat';
+            sauverMenuIdleV28_();
+
             rendreIdleEtat_({
               ok:true,
               joueur:res.joueur
             });
+            try{
+              requestAnimationFrame(function(){
+                const borneRenaissance=document.querySelector('.soreal-idle-page-root-v28[data-menu="combat"] .borne-v2');
+                if(borneRenaissance&&borneRenaissance.scrollIntoView)borneRenaissance.scrollIntoView({block:'start'});else window.scrollTo(0,0);
+              });
+            }catch(_e){}
 
             messageFlottantIdleV32_(
               '♻️ Rebirth réussi · NUMBER '+formatGrandNombreIdleV70_(res.number||idleEtat&&idleEtat.renaissance&&idleEtat.renaissance.number||1)
@@ -15399,7 +15421,7 @@
 
         const ecrire=function(id,texte){
           const el=document.getElementById(id);
-          if(el)el.textContent=texte;
+          if(el&&el.textContent!==texte)el.textContent=texte;
         };
 
         ecrire('sorealIdleSummaryAttackV50',formatGrandNombreIdleV70_(combat.attaque||j.puissance||0));
@@ -17821,6 +17843,8 @@
 
         const opt=options||{};
         const action=String(opt.action||'');
+        /* audit 2026-10-13 : un patch différé (après un glisser-déposer) ou une réconciliation ne sait pas quelle action a été manquée : on remet alors à jour équipement, coffre et bonus, pas seulement la grille du sac */
+        const patchToutV1=action==='deferred'||action==='reconcile-v208';
         const marqueId=opt.transactionId||idleInventorySequenceV160||0;
         marquePerfInventaireIdleV160_('patch-start',marqueId);
 
@@ -17841,12 +17865,13 @@
         }
 
         if(
-          ['equip','unequip','merge','boost','cube','setLock'].indexOf(action)!==-1
+          patchToutV1||['equip','unequip','merge','boost','cube','setLock'].indexOf(action)!==-1
         ){
           patchEquipementInventaireIdleV160_(modele);
         }
 
         if(
+          patchToutV1||
           action==='coffreDeposer'||
           action==='coffreRetirer'
         ){
@@ -17854,8 +17879,8 @@
         }
 
         if(
-          opt.confirmed&&
-          ['equip','unequip','merge','boost','cube'].indexOf(action)!==-1
+          patchToutV1||(opt.confirmed&&
+          ['equip','unequip','merge','boost','cube'].indexOf(action)!==-1)
         ){
           patchBonusInventaireIdleV160_(modele);
         }

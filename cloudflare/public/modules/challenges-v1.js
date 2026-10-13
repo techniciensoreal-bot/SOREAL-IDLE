@@ -232,15 +232,6 @@ function ligneRecompense(r,def,fait){
 
 /* ---------- Page ---------- */
 
-function conditionVictoire(def,textes){
-  if(def.id==='laserSword'){
-    var n=2+ent(def.completion);
-    return 'Fabriquer une Laser Sword '+n+' / '+n+' (2 / 2, puis +1 / +1 à chaque complétion)';
-  }
-  if(def.id==='twentyFourHours')return 'Vaincre le boss '+ent(def.targetBoss)+' en moins de 24 h de jeu (+26 à chaque complétion)';
-  var suite=ent(def.targetStep)>0?' (+'+ent(def.targetStep)+' à chaque complétion)':'';
-  return 'Vaincre le boss '+ent(def.targetBoss)+suite;
-}
 
 /* Cadre titré (Norman, 2026-10-01 : « des cadres avec de belles écritures qui séparent bien Description, restrictions, etc. »). */
 function cadre(classe,icone,titre,contenu){

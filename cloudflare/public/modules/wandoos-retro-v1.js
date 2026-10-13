@@ -245,10 +245,6 @@
     if(Math.abs(n)>=1000)return grand_(n);
     return n.toLocaleString('fr-FR',{maximumFractionDigits:2});
   }
-  function barre_(frac){
-    var p=Math.max(0,Math.min(1,nb_(frac)));
-    return '<div class="wd-barre"><i style="width:'+(p*100).toFixed(1)+'%"></i></div>';
-  }
   function etat_(j){
     var meta=window.__SOREAL_IDLE_META_V130__;
     var s=meta&&meta.systemeMetaParIdIdleV130_?meta.systemeMetaParIdIdleV130_(j,'wandoos'):null;

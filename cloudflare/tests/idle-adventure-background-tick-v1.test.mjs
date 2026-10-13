@@ -37,7 +37,7 @@ assert.ok(
   );
   assert.match(
     fonction,
-    /idleTimerJeuArrierePlanV1=setInterval\(function\(\)\{\s*\n\s*if\(document\.hidden&&PAGE_ACTIVE==='idle'\)mettreAJourJeuIdleLocalV7_\(\);\s*\n\s*\},1000\);/,
+    /idleTimerJeuArrierePlanV1=setInterval\(function\(\)\{\s*if\(document\.hidden&&PAGE_ACTIVE==='idle'\)\{\s*try\{mettreAJourJeuIdleLocalV7_\(\);\}catch\(erreurTickV1\)\{[^\n]*\}\s*\}\s*\},1000\);/,
     "le setInterval doit rejouer exactement le même tick (mettreAJourJeuIdleLocalV7_), uniquement onglet caché"
   );
 }

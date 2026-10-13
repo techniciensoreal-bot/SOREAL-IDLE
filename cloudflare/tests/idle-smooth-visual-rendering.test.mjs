@@ -24,7 +24,7 @@ const loopStart = ui.indexOf("function frameJeuV214_(timestamp)");
 const loopEnd = ui.indexOf("requestAnimationFrame(frameJeuV214_)", loopStart);
 const loop = ui.slice(loopStart, loopEnd);
 assert.ok(loopStart >= 0 && loopEnd > loopStart, "boucle rAF présente");
-assert.match(loop, /mettreAJourJeuIdleLocalV7_\(\);\s*\}\s*\n\s*if\(PAGE_ACTIVE==='idle'\)\{/, "la boucle rAF ne déclenche plus que le tic lourd, rien d'autre entre les deux");
+assert.match(loop, /try\{\s*mettreAJourJeuIdleLocalV7_\(\);\s*\}catch\(erreurTickV1\)\{[\s\S]*?\}\s*\}\s*if\(PAGE_ACTIVE==='idle'\)\{/, "la boucle rAF ne déclenche plus que le tic lourd (protégé par try/catch), rien d'autre entre les deux");
 
 // La barre d'Énergie/Magie est posée directement depuis la valeur connue -- aucune interpolation de tick.
 assert.match(

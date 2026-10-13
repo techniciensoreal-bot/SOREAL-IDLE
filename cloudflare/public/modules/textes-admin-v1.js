@@ -341,8 +341,6 @@ function installerStyle_(){
 
 /* ---------- voix, expressions : couleurs, noms, choix (module partagé modules/voix-ui-v1.js) ---------- */
 function VU_(){return window.__SOREAL_IDLE_VOIX_UI_V1__||null;}
-function infoVoix_(id){var u=VU_();return u?u.infoVoix(id):{id:id,nom:String(id),desc:''};}
-function infoExpr_(id){var u=VU_();return u?u.infoExpr(id):{id:id||'neutre',nom:'Neutre',emoji:'🙂',aide:''};}
 function couleurVoix_(id){var u=VU_();return u?u.couleurVoix(id):'#5b8cff';}
 /* Une voix est « prête » si son fichier existe ET qu'elle n'est pas à refaire (voix ou expression changée depuis). */
 function etatVoixHtml_(blocs){
@@ -1297,15 +1295,6 @@ function ouvrir_(cle,def,surcharge,originaux){
 }
 
 /* Textes de voix de l'édition : chaque bulle reprend celui de ses blocs (par empreinte du texte affiché), le titre aussi. */
-function hydraterVoix_(valeurs){
-  if(!edition)return;
-  var r=blocsParCadre_(valeurs);
-  r.cadres.forEach(function(c){
-    var l=edition.lignes[c.champ]&&edition.lignes[c.champ][c.k];
-    if(l)l.voixParts=c.blocs.map(function(b){return edition.voixTextes[b.hash]||'';});
-  });
-  edition.titreVoix=(r.titre&&r.titre[0]&&edition.voixTextes[r.titre[0].hash])||'';
-}
 
 function editer_(cle){
   var def=registre[cle];

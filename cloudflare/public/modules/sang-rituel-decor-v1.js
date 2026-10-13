@@ -734,24 +734,6 @@ function phaseBarre(sc){
   var t=ab&&ab.effect&&typeof ab.effect.getComputedTiming==='function'?ab.effect.getComputedTiming():null;
   return t&&t.progress!=null?Number(t.progress):null;
 }
-function garantirPas(m){
-  var id='sorealIdleSangPaquetsV1';
-  var st=document.getElementById(id);
-  if(!st){st=document.createElement('style');st.id=id;st.setAttribute('data-m','');document.head.appendChild(st);}
-  var deja=(st.getAttribute('data-m')||'').split(',');
-  if(deja.indexOf(String(m))>=0)return;
-  var K=m*Math.ceil(PAQ_CASES/m),Jn=Math.ceil(PAQ_CASES/m),out='',j,i,pos=function(c){return (c/K*100).toFixed(3)+'%';};
-  for(j=0;j<Jn;j++){
-    out+='@keyframes bmPaq'+m+'x'+j+'{';
-    for(i=0;i<m;i++){
-      out+=(i/m*100).toFixed(3)+'%{offset-distance:calc(var(--bm-fk,1)*'+pos(j*m+i)+');animation-timing-function:ease-in-out}';
-      out+=((i+0.62)/m*100).toFixed(3)+'%{offset-distance:calc(var(--bm-fk,1)*'+pos(j*m+i+1)+');animation-timing-function:linear}';
-    }
-    out+='100%{offset-distance:calc(var(--bm-fk,1)*'+pos((j+1)*m)+')}}';
-  }
-  st.appendChild(document.createTextNode(out));
-  deja.push(String(m));st.setAttribute('data-m',deja.join(','));
-}
 /*
  * LA SANGSUE EST UNE IMAGE (Norman, 2026-10-12 : « la sangsue est sur idle/bloodmagic/sangsue.webp ») : le corps, la ventouse et le support viennent de ce WebP (400 x 400), posé dans la scène à l'échelle qui amène l'anus
  * à la même place que l'ancien (au-dessus du verre) et la ventouse au cou ; le ventre y est rendu TRANSPARENT par un masque (voir SG_MASQUE) : le sang passe derrière l'image et se voit à travers.
@@ -937,6 +919,12 @@ function sgInit(sc){
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,bi);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,st.idx,gl.STATIC_DRAW);
     gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
     sc.__gl={gl:gl,cv:cv,bp:bp,cle:'',cw:0};
+    /* contexte perdu (téléphone, retour d'arrière-plan, exe TV) : retour au battement de repli, puis reprise du WebGL quand le contexte revient */
+    if(!cv.__ctxEcouteurs){
+      cv.__ctxEcouteurs=true;
+      cv.addEventListener('webglcontextlost',function(e){e.preventDefault();sc.__gl=null;sc.classList.remove('bm-gl');sc.classList.add('bm-gl-non');});
+      cv.addEventListener('webglcontextrestored',function(){sc.__gl=undefined;sc.classList.remove('bm-gl-non');sgInit(sc);});
+    }
     sc.classList.add('bm-gl');
     sgDessiner(sc,sc.__g==null?1:sc.__g);
   }catch(e){
@@ -1029,6 +1017,9 @@ function sortieCaillot(sc){
   }else if(q.parentNode)q.parentNode.removeChild(q);
 }
 function sangsue(sc,sec,actif){
+  /* le redessin de la page (morph) recopie l'attribut class du gabarit, qui ne porte pas l'état WebGL : on le remet (audit 2026-10-13 : la sangsue restait une image fixe après un redessin) */
+  if(sc.__gl&&!sc.classList.contains('bm-gl'))sc.classList.add('bm-gl');
+  else if(sc.__gl===null&&!sc.classList.contains('bm-gl-non'))sc.classList.add('bm-gl-non');
   var cont=sc.querySelector('.bm-paquets-corps');
   if(!cont)return;
   var paq=cont.children,i;
@@ -1097,10 +1088,8 @@ function sangsue(sc,sec,actif){
     sc.__att=1;
   }
   if(sortieAtt)sc.__att=0;
-    sc.__attPrec=attente;
   sangChemin(sc,cont,K);
-  var avance=0;   /* la boule suit exactement la barre : mouth au début du niveau, anus à la fin */
-  sc.__avance=0;
+  /* la boule suit exactement la barre : bouche au début du niveau, anus à la fin */
   /* l'arrière-train GROSSIT à mesure que le sang arrive (jusqu'à +17 % barre pleine) et RÉTRÉCIT quand le sang sort (la barre repart de zéro) */
   sc.__gT=attente?1:1+0.17*Math.pow(Math.max(0,Math.min(1,pb)),1.3);   /* attente d'Or : ventre vide, au repos */
   if(sc.__g==null)sc.__g=sc.__gT;
@@ -1140,12 +1129,12 @@ function sangsue(sc,sec,actif){
     void cont.offsetWidth;
     /* ventre redessiné (page rafraîchie) juste après un pas : on repart de la position mémorisée plutôt que de l'horloge de la barre, qui peut déjà être à zéro si la Magie vient d'être retirée */
     var depuisMemoire=!!memS&&memS.cle===cle&&(performance.now()-(memS.at||0))<3000;
-    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):((pb+avance)%1)*P*1000;}
+    for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):(pb%1)*P*1000;}
   }else if(!attente){
     /* recalage doux sur la barre du moteur */
     var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
     if(pbBrut!=null&&t0&&t0.progress!=null){
-      var pbA=(pb+avance)%1,d=Math.abs(Number(t0.progress)-pbA);
+      var pbA=pb%1,d=Math.abs(Number(t0.progress)-pbA);
       if(Math.min(d,1-d)>0.04)for(i=0;i<Jn;i++){var ai=paq[i].getAnimations()[0];if(ai)ai.currentTime=pbA*P*1000;}
     }
   }
@@ -1473,7 +1462,7 @@ function filTic(){
     if(l[i].__vis===false)continue;
     var cv=l[i].querySelector('.bm-fil');
     if(!cv)continue;
-    var k=filCadre(l[i]);l[i].__kfil=k;filDessiner(cv,k);filSaigne(l[i],k);filSang(l[i],k);
+    var k=filCadre(l[i]);filDessiner(cv,k);filSaigne(l[i],k);filSang(l[i],k);
   }
   filBoucle=requestAnimationFrame(filTic);
 }
@@ -1648,7 +1637,12 @@ function majVases(){
 var tic=0;
 function demarrer(){
   if(tic||typeof setInterval!=='function')return;
-  tic=setInterval(function(){if(!document.hidden)majVases();},400);
+  tic=setInterval(function(){
+    if(document.hidden)return;
+    /* plus aucune scène à l'écran (autre page) : le minuteur s'arrête, scene() le relance au prochain dessin */
+    if(!document.querySelector('.bm-scene')){clearInterval(tic);tic=0;return;}
+    majVases();
+  },400);
 }
 
 /* ---------- Habillage (injecté une fois) ---------- */

@@ -31,9 +31,11 @@ function grand(v,d){
 }
 
 function valeurDe(bloc,libelle){
+  /* audit 2026-10-13 : la page affiche « Nombre à la Renaissance » et « Facteur de temps de Renaissance » ; les anciens libellés anglais restent reconnus */
+  var noms=Array.isArray(libelle)?libelle:[libelle];
   var labels=bloc.querySelectorAll('.soreal-idle-rebirth-stat-label-v14');
   for(var i=0;i<labels.length;i++){
-    if(labels[i].textContent.trim()===libelle){
+    if(noms.indexOf(labels[i].textContent.trim())>=0){
       var v=labels[i].parentElement&&labels[i].parentElement.querySelector('.soreal-idle-rebirth-stat-value-v14');
       if(v)return v;
     }
@@ -59,8 +61,8 @@ function maj(){
   var nouveau=facteurTemps(secondes);
   var actuel=Math.max(1,nb(meta.number||(etat.renaissance&&etat.renaissance.number)||1));
   var prochain=Math.max(1,nb(meta.nextNumber||(etat.renaissance&&etat.renaissance.nextNumber)||actuel)*nouveau/ancien);
-  var a=valeurDe(bloc,'Rebirth Time Factor');ecrire(a,'×'+grand(nouveau,4));
-  var b=valeurDe(bloc,'NUMBER au Rebirth');
+  var a=valeurDe(bloc,['Facteur de temps de Renaissance','Rebirth Time Factor']);ecrire(a,'×'+grand(nouveau,4));
+  var b=valeurDe(bloc,['Nombre à la Renaissance','NUMBER au Rebirth']);
   if(b){
     ecrire(b,grand(prochain));
     /* Norman (2026-10-01) : vert quand le NUMBER au Rebirth dépasse le NUMBER actuel, rouge quand il est plus petit. */
@@ -70,6 +72,6 @@ function maj(){
   var c=valeurDe(bloc,'Variation');ecrire(c,'×'+((prochain/actuel)>=1000?grand(prochain/actuel,3):(prochain/actuel).toFixed(3)));
 }
 
-setInterval(maj,1000);
+setInterval(function(){if(!document.hidden)maj();},1000);
 window.__SOREAL_IDLE_REBIRTH_LIVE_V1__={facteurTemps:facteurTemps,maj:maj,ecrire:ecrire};
 })();

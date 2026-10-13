@@ -78,7 +78,8 @@ function essayer(){
   setTimeout(function(){window.__connexionRecompenseAutoV1__=false;enAttente=false;},20000);
   try{window.__actionMetaIdleV130__({action:'loginCalendar'});}catch(_e){window.__connexionRecompenseAutoV1__=false;}
 }
-if(typeof setInterval==='function')setInterval(essayer,1500);
+/* arrêté dès que la tentative est faite (audit 2026-10-13) : plus de minuteur permanent */
+var minuteurEssai=typeof setInterval==='function'?setInterval(function(){essayer();if(tentee&&minuteurEssai){clearInterval(minuteurEssai);minuteurEssai=0;}},1500):0;
 
 window.__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__={annoncer:annoncer,fermer:fermer,essayer:essayer};
 })();

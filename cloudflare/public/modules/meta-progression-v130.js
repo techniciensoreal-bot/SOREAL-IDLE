@@ -114,8 +114,10 @@
       function actionMetaIdleV130_(payload){
         if(idleMetaBusyV130&&SOREAL_SESSION&&!actionCombatZoneMetaV1_(payload)){
           const cle=cleActionMetaV1_(payload);
-          if(cle&&cle===idleMetaDernierEnvoiV1.cle&&Date.now()-idleMetaDernierEnvoiV1.at<700)return;
-          if(cle&&idleMetaFileV1.some(function(x){return cleActionMetaV1_(x)===cle;}))return;
+          /* audit 2026-10-13 : on ne dédoublonne que contre la DERNIÈRE action en attente (ou, file vide, contre la dernière envoyée) : A, B, A rapides finissent bien à A au lieu de perdre le 3e clic */
+          const dernierEnFile=idleMetaFileV1.length?cleActionMetaV1_(idleMetaFileV1[idleMetaFileV1.length-1]):'';
+          if(cle&&idleMetaFileV1.length&&cle===dernierEnFile)return;
+          if(cle&&!idleMetaFileV1.length&&cle===idleMetaDernierEnvoiV1.cle&&Date.now()-idleMetaDernierEnvoiV1.at<700)return;
           idleMetaFileV1.push(payload);
           if(idleMetaFileV1.length>12)idleMetaFileV1.shift();
           if(!idleMetaTimerFileV1)idleMetaTimerFileV1=setTimeout(viderFileActionsMetaV1_,60);
@@ -4201,6 +4203,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         requestAnimationFrame(atImagesIdleV1_);
       }
       function atTickIdleV1_(){
+        if(document.hidden)return;   /* audit 2026-10-13 : pas de travail onglet caché */
         const lignes=document.querySelectorAll('.soreal-idle-at-ligne-v1[data-at-piste]');
         if(!lignes.length)return;
         atDemarrerImagesIdleV1_();

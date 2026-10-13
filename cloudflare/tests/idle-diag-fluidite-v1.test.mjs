@@ -34,6 +34,7 @@ const ctx = {
 };
 ctx.window = {
   __SOREAL_IDLE_LIRE_ETAT_V1__: () => etat,
+  __SOREAL_IDLE_EST_ADMIN_V1__: () => true,   /* la sonde est réservée à l administrateur (audit 2026-10-13) */
   getComputedStyle: () => ({ transform: "matrix(" + ecran.f + ",0,0,1,0,0)" })
 };
 ctx.window.window = ctx.window;
