@@ -960,13 +960,20 @@ function sgDessiner(sc,g){
 }
 /* Succion : mêmes images clés que l'ancien bmSuce, calée sur l'horloge des paquets (sc.__t0, durée d'un coup sc.__S) ; boucle d'images seulement tant qu'une sangsue travaille à l'écran. */
 var sgSucId=0,SG_PULSE_MAX=2.2;
+/* Sans WebGL (Norman, 2026-10-13 : « la sangsue n'est pas animée depuis l'exe de TV, elle l'est sur Chrome ») : le même battement est posé en JS sur l'image (échelle), sans :has() ni animation CSS que ce navigateur pourrait ne pas gérer. */
+function sgRepli(sc,sx,sy){
+  var img=sc.querySelector('.bm-sangsue-img');
+  if(!img)return;
+  img.style.animation='none';img.style.transformOrigin='20% 45%';
+  img.style.transform=(sx===1&&sy===1)?'':'scale('+sx.toFixed(3)+','+sy.toFixed(3)+')';
+}
 function sgSuccion(){
   var l=document.querySelectorAll('.bm-scene[data-source="sucon"]'),vivant=false,i,now=performance.now()/1000,calme=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   for(i=0;i<l.length;i++){
     var sc=l[i];
-    if(!sc.__gl)continue;
+    if(sc.__gl===undefined)continue;
     var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-attente-or')&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
-    if(!actif){if(sc.__suc){sc.__suc=null;sgDessiner(sc,sc.__g==null?1:sc.__g);}continue;}
+    if(!actif){if(sc.__suc){sc.__suc=null;if(sc.__gl)sgDessiner(sc,sc.__g==null?1:sc.__g);else sgRepli(sc,1,1);}continue;}
     vivant=true;
     /* Norman (2026-10-12) : « la sangsue n'est pas animée » en jeu réel : avec peu de Magie un niveau dure des minutes, donc un coup (P / 6) aussi, et le ventre ne bougeait qu'une fois par minute. Le ventre pulse donc au rythme des coups quand ils sont rapides, et AU PLUS toutes les 2,2 s sinon. */
     var S=Math.min(sc.__S||1.1,SG_PULSE_MAX),pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
@@ -974,7 +981,7 @@ function sgSuccion(){
     else if(pr<.7){var b=sgLisse(.45,.7,pr);sx=.88+.15*b;sy=1.1-.12*b;}
     else{var c=sgLisse(.7,1,pr);sx=1.03-.03*c;sy=.98+.02*c;}
     sc.__suc=[sx,sy,pr];
-    sgDessiner(sc,sc.__g==null?1:sc.__g);
+    if(sc.__gl)sgDessiner(sc,sc.__g==null?1:sc.__g);else sgRepli(sc,sx,sy);
   }
   sgSucId=vivant&&typeof requestAnimationFrame==='function'?requestAnimationFrame(sgSuccion):0;
 }

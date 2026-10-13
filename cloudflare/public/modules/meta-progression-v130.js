@@ -3037,6 +3037,8 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         /* Plafond à 50 tiques par seconde (Norman, 2026-10-11 : « elle ne doit être cap qu'à 50 tiques par seconde, avant ça on doit la voir tiquer de plus en plus vite » : au niveau 40 elle ne tiquait plus) : la barre tique donc jusqu'au bout, plus de bascule en « scintillement » à 16/s. */
         const maintenant=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
         const phase=(maintenant/1000)%periode;
+        /* Norman (2026-10-13) : « à 50 niveaux par seconde, la barre doit rester pleine » : au plafond de 50 remplissages par seconde, la barre d'Or reste pleine (classe .rapide) au lieu de scintiller */
+        if(n>=50)return {classe:'rapide',style:''};
         return {classe:'',style:'animation-duration:'+periode.toFixed(4)+'s;animation-delay:-'+phase.toFixed(4)+'s'};
       }
 

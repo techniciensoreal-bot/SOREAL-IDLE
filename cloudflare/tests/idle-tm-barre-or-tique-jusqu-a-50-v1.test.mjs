@@ -5,5 +5,5 @@ const src = readFileSync(new URL("../public/modules/meta-progression-v130.js", i
 const i = src.indexOf("function styleBarreOrTimeMachineIdleV1_");
 const fn = src.slice(i, src.indexOf("function patcherChiffresTimeMachineIdleV1_", i));
 assert.ok(fn.includes("Math.min(50,"), "plafond à 50 tiques par seconde");
-assert.ok(!fn.includes("1/16") && !fn.includes("'rapide'"), "plus de bascule en scintillement avant le plafond");
+assert.ok(!fn.includes("1/16") && fn.includes("if(n>=50)return {classe:'rapide',style:''};") && fn.split("'rapide'").length===2, "pas de scintillement avant le plafond ; pleine (rapide) seulement à 50 (Norman, 2026-10-13)");
 console.log("idle-tm-barre-or-tique-jusqu-a-50-v1: OK");

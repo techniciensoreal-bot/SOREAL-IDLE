@@ -22,40 +22,56 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.7',
+    courante:'2.8',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'2.8',
+        nom:'Des barres qui tiennent la cadence',
+        date:'2026-10-13',
+        groupes:[
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'À 50 remplissages par seconde, la barre d’Or reste pleine au lieu de scintiller.',
+            'La barre de vitesse reste pleine dès que les niveaux durent 0,25 s ou moins.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'La sangsue bat aussi sur les appareils sans WebGL (TV).',
+          ]}
+        ]
+      },
       {
         version:'2.7',
         nom:'Des boutiques qui servent',
         date:'2026-10-12',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le résumé « Pendant ton absence » montre tout ce que tu as farmé : EXP, AP, PP, Or, Magie…',
+            'Un pavé numérique s’ouvre sur toutes les zones de saisie de nombres (sauf le pseudo).',
+            'Le message « Il manque … Or » est plus voyant, avec la somme en doré.',
             'Plus de reflet qui traverse les cases Attaque, Défense, Or, EXP et AP.',
-            'Le résumé « Pendant ton absence » montre maintenant tout ce que tu as farmé : EXP, AP, PP, Or, Magie…',
           ]},
           {menu:'titans', titre:'Titans', points:[
-            'Contre un Titan, choisir une zone (Zone sûre comprise) arrête le combat ; la zone affichée passe tout de suite en Zone sûre au lancement.',
-            'Le ×5 de régénération de la Zone sûre ne s’affiche plus (ni ne s’applique) pendant un combat contre un Titan.',
+            'Choisir une zone (Zone sûre comprise) arrête le combat contre un Titan, et le ×5 de régénération de la Zone sûre ne s’applique plus pendant le combat.',
+            'Les Titans gagnent 1 % de force à chaque attaque : plus le combat dure, plus ils tapent fort.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Le Coffre fait parfois la sieste : mieux vaut ne pas le réveiller.',
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
-            'Le bouton Auto règle tes étages sur ton meilleur étage en un clic, sans monter étage par étage ; reclique dessus plus tard pour le remettre à jour.',
-            'Le « Réglage automatique de l’étage » de la Boutique AP fonctionne : avec lui, après un clic sur Auto, ton étage suit tout seul ton meilleur étage.',
+            'Le bouton Auto règle tes étages sur ton meilleur étage en un clic ; avec le « Réglage automatique de l’étage » de la Boutique AP, ton étage le suit tout seul.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Magie du sang : la page est bien plus fluide (cartes hors écran suspendues, bibliothèques et ombres allégées).',
-            'Magie du sang : nouvelle sangsue dessinée, au ventre transparent où l’on voit couler le sang.',
+            'Nouvelle sangsue au ventre transparent : la boule de sang avance avec la barre, sort à chaque niveau terminé en jet de sang (plus épais au plafond), et la sangsue attend, vide, quand il manque de l’Or.',
+            'Cadres des rituels plus courts, page bien plus fluide, baignoire de la banque du sang à plusieurs poches, coupure de papier plus fine, bol de barbelés plus lent.',
+            'Le compteur des rituels ne recule plus quand tu ajoutes de la Magie.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'NGU : nouvelle aura, une aurore de lumière dans le tuyau ; plus de halo ni de liseré autour des barres.',
+            'Nouvelle aura : une aurore de lumière dans le tuyau, sans halo autour des barres.',
           ]},
           {menu:'shop', titre:'Boutique', points:[
-            'Boutique AP : Adventure Advancer, Adventure Light, Insta Training Cap, boutons de pourcentage, réglage du Max des NGU et nom aléatoire de la ressource 3 fonctionnent (le nom se coche dans Settings).',
-            'Boutique EXP : les quatre « Custom Input Button » placent le nombre de ton choix dans Input (✎).',
+            'Boutique AP : Adventure Advancer, Adventure Light, Insta Training Cap, boutons de pourcentage, réglage du Max des NGU et nom aléatoire de la ressource 3 fonctionnent.',
+            'Boutique EXP : les quatre « Custom Input Button » (rangée « Mes nombres » aux couleurs du menu, fenêtre de saisie du site) placent le nombre de ton choix dans Input.',
           ]}
         ]
       },

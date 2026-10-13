@@ -4766,7 +4766,9 @@
           /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
           if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
             let fill;
+            /* Norman (2026-10-13) : « quand on est à 50 niveaux par seconde pour la Machine temporelle, la barre doit rester pleine » : un niveau de 0,25 s ou moins (4 par seconde et plus) ne se voit plus avancer, elle reste pleine au lieu de clignoter */
             if(faussesOr)fill=1;
+            else if(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1)fill=1;
             else if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
             else if(fill0<1)fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
             else fill=1;
@@ -4776,6 +4778,7 @@
         });
       }
 
+      const SEUIL_NIVEAU_RAPIDE_TM_V1=0.25;   /* secondes : en dessous, la barre de la Machine temporelle reste pleine */
       function patcherBarresTimeMachineIdleV1_(j){
         if(
           idleMenuActifV28!=='machine' ||
@@ -4798,7 +4801,7 @@
           );
           if(!remplissage)return;
 
-          const pct=Math.max(
+          let pct=Math.max(
             0,
             Math.min(
               100,
@@ -4806,6 +4809,9 @@
             )
           );
 
+          /* niveaux très courts (durée d'un niveau = ETA / (1 - remplissage)) : barre pleine, comme dans le tick */
+          const etaPatch=Number(entree[2]),resteFill=1-pct/100,palierPatch=Number.isFinite(etaPatch)&&resteFill>1e-9?etaPatch/resteFill:0;
+          if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)pct=100;
           remplissage.style.width=pct.toFixed(4)+'%';
           remplissage.dataset.tmFill0=(pct/100).toFixed(6);
           remplissage.setAttribute('aria-valuenow',pct.toFixed(4));
