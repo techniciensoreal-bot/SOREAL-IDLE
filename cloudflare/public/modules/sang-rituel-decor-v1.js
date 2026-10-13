@@ -939,14 +939,14 @@ function sgDessiner(sc,g){
   var G=sc.__gl;
   if(!G||!sc.__m)return;
   var sx=sc.__suc?sc.__suc[0]:1,sy=sc.__suc?sc.__suc[1]:1,dpr=Math.min(2,window.devicePixelRatio||1),cw=Math.max(64,Math.round(400*sc.__m.s*dpr));
-  var ph=sc.__suc?sc.__suc[2]:-1,cle=g.toFixed(3)+'|'+sx.toFixed(3)+'|'+sy.toFixed(3)+'|'+ph.toFixed(3)+'|'+cw;
+  var ph=sc.__suc?sc.__suc[2]:-1,ub=sc.__suc?sc.__suc[3]:null,cle=g.toFixed(3)+'|'+sx.toFixed(3)+'|'+sy.toFixed(3)+'|'+ph.toFixed(3)+'|'+(ub==null?'-':ub.toFixed(3))+'|'+cw;
   if(G.cle===cle)return;
   G.cle=cle;
   var gl=G.gl,st=sgPrepare(),pos=st.pos,v,dg=g-1,dx=sx-1,dy=sy-1;
   if(G.cv.width!==cw){G.cv.width=cw;G.cv.height=cw;}
   gl.viewport(0,0,cw,cw);
   /* onde : centre c de -0,15 à 1,15 de l'axe pendant les 80 % du coup, largeur 0,11, dilatation jusqu'à +22 % */
-  var onde=ph>=0,c0=onde?-.15+1.3*Math.min(1,ph/.8):0;
+  var onde=ph>=0&&ub!=null,c0=onde?ub:0;
   for(v=0;v<st.n;v++){
     var ew=0;
     if(onde){var q=(st.tt[v]-c0)/.11;ew=.22*Math.exp(-q*q);}
@@ -959,7 +959,7 @@ function sgDessiner(sc,g){
   gl.drawElements(gl.TRIANGLES,st.idx.length,gl.UNSIGNED_SHORT,0);
 }
 /* Succion : mêmes images clés que l'ancien bmSuce, calée sur l'horloge des paquets (sc.__t0, durée d'un coup sc.__S) ; boucle d'images seulement tant qu'une sangsue travaille à l'écran. */
-var sgSucId=0,SG_PULSE_MAX=2.2;
+var sgSucId=0,SG_PULSE_MAX=2.2,SG_PULSE_MIN=.6;
 /* Sans WebGL (Norman, 2026-10-13 : « la sangsue n'est pas animée depuis l'exe de TV, elle l'est sur Chrome ») : le même battement est posé en JS sur l'image (échelle), sans :has() ni animation CSS que ce navigateur pourrait ne pas gérer. */
 function sgRepli(sc,sx,sy){
   var img=sc.querySelector('.bm-sangsue-img');
@@ -976,11 +976,12 @@ function sgSuccion(){
     if(!actif){if(sc.__suc){sc.__suc=null;if(sc.__gl)sgDessiner(sc,sc.__g==null?1:sc.__g);else sgRepli(sc,1,1);}continue;}
     vivant=true;
     /* Norman (2026-10-12) : « la sangsue n'est pas animée » en jeu réel : avec peu de Magie un niveau dure des minutes, donc un coup (P / 6) aussi, et le ventre ne bougeait qu'une fois par minute. Le ventre pulse donc au rythme des coups quand ils sont rapides, et AU PLUS toutes les 2,2 s sinon. */
-    var S=Math.min(sc.__S||1.1,SG_PULSE_MAX),pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
+    /* Norman (2026-10-13) : « à vitesse très rapide l'animation du ventre est beaucoup trop rapide, j'aurais aimé que ça suive la boule » : le battement ne dépasse pas 1 par 0,6 s, et la bosse de l'onde est posée sur la boule (même avancée que la barre) ; niveau plus court que 0,6 s : plus d'onde, la boule file trop vite pour être suivie. */
+    var S=Math.max(SG_PULSE_MIN,Math.min(sc.__S||1.1,SG_PULSE_MAX)),Pn=sc.__P||0,u=Pn>=SG_PULSE_MIN?(((now-sc.__t0)%Pn)+Pn)%Pn/Pn:null,pr=(((now-sc.__t0)%S)+S)%S/S,sx,sy;
     if(pr<.45){var a=sgLisse(0,.45,pr);sx=1-.12*a;sy=1+.1*a;}
     else if(pr<.7){var b=sgLisse(.45,.7,pr);sx=.88+.15*b;sy=1.1-.12*b;}
     else{var c=sgLisse(.7,1,pr);sx=1.03-.03*c;sy=.98+.02*c;}
-    sc.__suc=[sx,sy,pr];
+    sc.__suc=[sx,sy,pr,u];
     if(sc.__gl)sgDessiner(sc,sc.__g==null?1:sc.__g);else sgRepli(sc,sx,sy);
   }
   sgSucId=vivant&&typeof requestAnimationFrame==='function'?requestAnimationFrame(sgSuccion):0;
@@ -1069,7 +1070,7 @@ function sangsue(sc,sec,actif){
   var m=P<3?Math.max(1,Math.round(P/0.5)):PAQ_CASES;
   /* une seule boule par niveau (mode continu : aucune, un filet complet) ; K = taille relative de la boule (un sixième du ventre) */
   var K=PAQ_CASES,Jn=1,S=P/m;
-  sc.__S=S;
+  sc.__S=S;sc.__P=P;
   /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
   var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));

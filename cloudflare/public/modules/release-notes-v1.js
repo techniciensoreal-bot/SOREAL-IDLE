@@ -36,6 +36,7 @@
             'La barre de vitesse reste pleine dès que les niveaux durent 0,25 s ou moins.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Le ventre de la sangsue se gonfle là où se trouve la boule, sans s’affoler quand les niveaux sont très rapides.',
             'La sangsue bat aussi sur les appareils sans WebGL (TV).',
           ]}
         ]

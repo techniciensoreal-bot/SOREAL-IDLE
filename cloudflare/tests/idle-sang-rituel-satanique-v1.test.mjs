@@ -353,7 +353,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Onde de contraction qui parcourt le corps à chaque coup (Norman, 2026-10-12 : « tu ne peux pas faire ça pour le reste du corps ? »)
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("tt:new Float32Array(V)") && decor.includes("c0=onde?-.15+1.3*Math.min(1,ph/.8):0") && decor.includes("ew=.22*Math.exp(-q*q)") && decor.includes("sc.__suc=[sx,sy,pr];"), "onde péristaltique : part de la ventouse, parcourt le corps jusqu'à l'anus, au rythme des coups");
+  assert.ok(decor.includes("tt:new Float32Array(V)") && decor.includes("c0=onde?ub:0") && decor.includes("ew=.22*Math.exp(-q*q)") && decor.includes("sc.__suc=[sx,sy,pr,u];"), "onde péristaltique : part de la ventouse, parcourt le corps jusqu'à l'anus, au rythme des coups (2026-10-13 : la bosse suit la boule)");
 }
 {
   // Nouvelle image (1254 x 1254) et socle à part, statique (Norman, 2026-10-12)
