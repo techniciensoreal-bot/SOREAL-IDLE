@@ -42,7 +42,7 @@
 
   var TITANS={
     t1:{
-      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. Le wiki ne publie pas l’ampleur du Saignement : chaque cumul retire 10 % de ta régénération de départ (valeur choisie par SOREAL).',
+      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. L’ampleur du Saignement est estimée : chaque cumul retire 10 % de ta régénération de départ.',
       /* Tirage sur 7 : [0,1) Paralyze, [1,3) Bleed, [3,5) Power Attack, le reste attaque de base. */
       tirer:function(e,tirage){
         var t=tirage*7;
@@ -61,7 +61,7 @@
   };
 
   TITANS.t2={
-    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x2,5 pendant 15 s — le wiki hésite entre 1,5 et 4, valeur choisie par SOREAL), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
+    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x2,5 pendant 15 s, valeur estimée), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
     /* Tirage sur 7 : [0,1) spores des bras, [1,2) spores d'énergie, [2,4) puissante, le reste base. */
     tirer:function(e,tirage,maintenant){
       var t=tirage*7;
@@ -78,7 +78,7 @@
   };
 
   TITANS.t3={
-    note:'Simulées dans le combat : Sauterelles, Attaque puissante et Battement de chemise (désactive tes capacités une à une dans l’ordre du wiki).',
+    note:'Simulées dans le combat : Sauterelles, Attaque puissante et Battement de chemise (désactive tes capacités une à une, dans un ordre fixe).',
     /* Tirage sur 5 : [0,1) sauterelles (si 10 attaques depuis les dernières), [1,3) puissante, le reste base. */
     tirer:function(e,tirage){
       var t=tirage*5;

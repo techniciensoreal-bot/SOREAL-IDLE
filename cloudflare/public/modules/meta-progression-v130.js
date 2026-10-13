@@ -208,12 +208,7 @@
                       confirmed:true
                     }
                   );
-                }else if(
-                  payload&&payload.action==='adventure'&&payload.adventure&&
-                  payload.adventure.action==='startTitanFight'&&typeof window.__menuIdleV28__==='function'
-                ){
-                  /* Le titan est maintenant l'ennemi du combat : on ouvre la scène d'Aventure (Norman, 2026-10-02). */
-                  window.__menuIdleV28__('aventure');
+                /* Norman (2026-10-13) : le combat de titan a son propre écran (titans-combat-ecran-v1.js) : on ne bascule plus vers l'Aventure au lancement (cliquer sur Aventure arrête le combat). */
                 }else if(
                   /* Wandoos (Norman, 2026-10-08 : « quand je mets des points dans Wandoos, ça remonte l'écran ») : le poste est déjà mis à jour à l'appui ; la réponse du serveur ne reconstruit plus toute la page, seulement le poste. */
                   payload&&payload.action==='allocate'&&payload.system==='wandoos'&&
@@ -3871,7 +3866,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             }).join('')
           :'<div class="soreal-idle-note-v4">Aucun objet plaçable dans ton sac (les objets équipés doivent d\'abord être déséquipés).</div>';
         const noteInconnus=inconnus.length
-          ?'<div class="soreal-idle-note-v4" style="margin-top:8px">'+inconnus.length+' objet(s) sans taux de garderie publié par le wiki : '+inconnus.map(function(o){return H.idleHtml_(o.name);}).join(', ')+'.</div>'
+          ?'<div class="soreal-idle-note-v4" style="margin-top:8px">'+inconnus.length+' objet(s) sans taux de garderie connu : '+inconnus.map(function(o){return H.idleHtml_(o.name);}).join(', ')+'.</div>'
           :'';
         return titre+resume+detail+
           '<h3 style="margin:16px 0 8px">En garderie</h3><div style="display:grid;gap:10px">'+enGarde+'</div>'+

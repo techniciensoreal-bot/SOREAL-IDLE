@@ -108,7 +108,7 @@ assert.ok(ui.includes("niveauAnneauApathieIdleV1_(a)") && ui.includes("item.defi
 assert.ok(ui.includes("window.SorealTitanComportementsV1.attaqueTitan(fight.titanId"));
 assert.ok(ui.includes("!titanJoueurParalyseIdleV1_(maintenantTick)"), "Idle Mode coupé");
 assert.ok(ui.includes("if(titanJoueurParalyseIdleV1_(Date.now()))return;"), "capacités coupées");
-assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /SOREAL/.test(api.note("t1")));
+assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /estimée/.test(api.note("t1")) && !/wiki/i.test(api.note("t1")));
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/titans-comportements-v1.js"));
 console.log("idle-titans-comportements-v1: OK");
 

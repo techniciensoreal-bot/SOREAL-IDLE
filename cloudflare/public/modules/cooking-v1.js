@@ -100,7 +100,7 @@
         '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:9px">'+boutonManger+'</div>'+
         '<div class="soreal-idle-note-v4" style="margin-top:9px">⏱️ Un repas toutes les '+heures(t.mealMs)+(t.breadSet?' (Set Bread : −1 h)':'')+
           ' · temps en réserve : '+duree(t.bankedMs)+' (max '+heures(t.capMs)+') · repas mangés : '+Math.max(0,Math.floor(nombre(d.mealsEaten)))+'</div>'+
-        (gainConnu?'':'<div class="soreal-idle-note-v4" style="margin-top:5px">ℹ️ Le wiki NGU ne publie pas la formule du gain d’EXP d’un repas : manger reste désactivé tant qu’elle n’est pas sourcée.</div>')+
+        (gainConnu?'':'<div class="soreal-idle-note-v4" style="margin-top:5px">ℹ️ La formule du gain d’EXP d’un repas n’est pas encore disponible : manger reste désactivé.</div>')+
       '</div>'+
       '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">✨ Bonus de cuisine</div>'+detailBonus+

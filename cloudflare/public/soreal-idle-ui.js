@@ -19266,6 +19266,31 @@
         rafraichirCommandesAdventureIdleV3_(maintenant);
       }
       window.__utiliserCompetenceAdventureIdleV3__=utiliserCompetenceAdventureIdleV3_;
+      /* Écran de combat de titan (modules/titans-combat-ecran-v1.js) : mêmes raccourcis d'attaque que l'Aventure, état du titan et paralysie en lecture seule, arrêt du combat. */
+      window.__rendreCommandesAdventureIdleV3__=function(){return rendreCommandesAdventureIdleV3_();};
+      window.__titanEtatCombatIdleV1__=function(){return idleTitanEtatV1;};
+      window.__titanJoueurParalyseIdleV1__=function(maintenant){return titanJoueurParalyseIdleV1_(maintenant);};
+      /* Arrête le combat de titan en cours et renvoie en Zone sûre (même effet que choisir la Zone sûre). Faux s'il n'y en avait pas. */
+      function arreterCombatTitanIdleV1_(){
+        const a=aventureMetaIdleV47_(idleEtat);
+        if(a&&a.fight&&a.fight.active&&a.fight.titanId){
+          selectionnerZoneAdventureIdleV47_('safe');
+          return true;
+        }
+        return false;
+      }
+      window.__arreterCombatTitanV1__=arreterCombatTitanIdleV1_;
+      /* Journal des attaques (modules/journal-attaques-v1.js) : quels raccourcis expliquer = ceux qui sont débloqués (anti-spoil). */
+      window.__competencesJournalIdleV1__=function(){
+        /* Norman (2026-10-13) : le journal ne mentionne pas les attaques non débloquées : seuls les raccourcis réellement utilisables (même condition que le bouton actif) sont expliqués. */
+        const a=aventureMetaIdleV47_(idleEtat);
+        function debloquees(liste,groupe){
+          return liste.filter(function(d){return competenceAdventureDisponibleIdleV4_(d,groupe,a);}).map(function(d){return d.id;});
+        }
+        return debloquees(IDLE_ADVENTURE_MANUAL_ATTACKS_V3,'attack')
+          .concat(debloquees(IDLE_ADVENTURE_MANUAL_DEFENSE_V3,'defense'))
+          .concat(debloquees(IDLE_ADVENTURE_ADVANCED_SKILLS_V4,'advanced'));
+      };
 
       function rendreBoutonCompetenceAdventureIdleV3_(def,group){
         const a=aventureMetaIdleV47_(idleEtat);
@@ -19293,12 +19318,17 @@
         });
         return '<div id="sorealIdleAdventureManualV3" class="soreal-idle-adventure-manual-v3'+
           (idleAdventureIdleModeV3?'':' manual-active')+'">'+
+          /* Norman (2026-10-13) : petit bouton discret du journal des attaques sur la même ligne qu'Idle Mode (modules/journal-attaques-v1.js). */
+          '<div class="soreal-idle-adventure-idle-ligne-v1">'+
           '<button type="button" class="soreal-idle-adventure-idle-toggle-v3'+
             (idleAdventureIdleModeV3?' active':'')+'" data-adventure-idle-toggle '+
             'aria-pressed="'+(idleAdventureIdleModeV3?'true':'false')+'" '+
             'onclick="window.__basculerIdleModeAdventureIdleV3__()">'+
             '<span>Idle Mode</span><b>'+(idleAdventureIdleModeV3?'ON':'OFF')+'</b>'+
           '</button>'+
+          '<button type="button" class="soreal-idle-journal-mini-v1" title="Journal des attaques" aria-label="Journal des attaques" '+
+            'onclick="window.__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__&&window.__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__.ouvrir()">📖</button>'+
+          '</div>'+
           '<div class="soreal-idle-adventure-manual-grid-v3">'+
             '<div class="soreal-idle-adventure-skill-row-v3 attack">'+
               IDLE_ADVENTURE_MANUAL_ATTACKS_V3.map(function(def){
@@ -19639,6 +19669,18 @@
           idleAdventureFightLastRegenAtV2=maintenantTick;
           idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
           if(idleTitanEtatV1)idleTitanEtatV1.id=fight.titanId;
+          /*
+           * Norman (2026-10-13) : « quand on active le mode manuel du combat, les CD de chacune des attaques doivent être en cours : si une a un CD de 20 s, elle ne sera disponible que 20 s après le début du combat. »
+           * Au départ d'un combat de TITAN, tous les raccourcis (attaques, défenses, compétences avancées) entrent en recharge pour leur durée complète (Move 69, qui n'est pas une attaque de combat, n'est pas concerné) ;
+           * ils se débloquent donc un par un, que l'Idle Mode soit allumé ou non.
+           */
+          if(fight.titanId){
+            IDLE_ADVENTURE_MANUAL_ATTACKS_V3.concat(IDLE_ADVENTURE_MANUAL_DEFENSE_V3,IDLE_ADVENTURE_ADVANCED_SKILLS_V4).forEach(function(def){
+              if(def.id==='move69')return;
+              const fin=maintenantTick+cooldownDureeAdventureIdleV4_(def,a);
+              if(idleNombre_(idleAdventureManualStateV3.cooldownUntil[def.id])<fin)idleAdventureManualStateV3.cooldownUntil[def.id]=fin;
+            });
+          }
         }
         if(idleTitanEtatV1&&fight.titanId==='t4')idleTitanEtatV1.anneau=niveauAnneauApathieIdleV1_(a);
         /* Fin d'une paralysie du titan : les cooldowns étaient en pause, on les repousse de la durée subie ; l'Idle Mode reprend un coup plus tard. */
@@ -20086,6 +20128,8 @@
 
 let idleVueAventureV1='zones';
 window.__vueAventureIdleV1__=function(v){
+  /* Norman (2026-10-13) : le bouton Aventure (retour aux zones) arrête le combat de titan en cours et laisse en Zone sûre. */
+  if(v!=='titans')arreterCombatTitanIdleV1_();
   idleVueAventureV1=v==='titans'?'titans':'zones';
   /* Norman (2026-10-10) : les combats d'Aventure (scène + journal) et l'automatisation de l'inventaire ne s'affichent pas sur la page Titans (voir soreal-idle-itopod.css). */
   document.documentElement.setAttribute('data-vue-aventure',idleVueAventureV1);
@@ -23099,14 +23143,14 @@ function pageAventureIdleV28_(j){
             return (a.rangs&&a.rangs[onglet]||0)-(b.rangs&&b.rangs[onglet]||0)||String(a.nom).localeCompare(String(b.nom),'fr');
           });
         }
-        /* Onglet Global (Norman, 2026-10-11) : le boss d'un autre joueur plus avancé que le tien s'affiche « Boss ??? » (anti-spoil : tu ne vois pas jusqu'où les autres sont allés). */
+        /* Onglets Global ET Boss (Norman, 2026-10-11 puis 2026-10-13) : le boss d'un autre joueur plus avancé que le tien s'affiche « Boss ??? » (anti-spoil : tu ne vois pas jusqu'où les autres sont allés). */
         const monBoss=(function(){const m=entrees.find(function(x){return x&&x.moi;});return m?idleEntier_(m.valeurs&&m.valeurs.boss):0;})();
         const corps=lignes.map(function(e){
           const rang=onglet==='global'?e.rang:(e.rangs&&e.rangs[onglet]);
           const medaille=rang===1?'🥇':(rang===2?'🥈':(rang===3?'🥉':rang));
           const valeur=onglet==='global'
             ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+(idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss))+'</span>'
-            :'<b>'+valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet])+'</b>'+(onglet==='combatLong'&&e.valeurs&&typeof e.valeurs.combatLongGagne==='boolean'?'<span class="soreal-idle-classement-issue-v1 '+(e.valeurs.combatLongGagne?'gagne':'perdu')+'">'+(e.valeurs.combatLongGagne?'🏆 Gagné':'💀 Perdu')+'</span>':'');
+            :'<b>'+(onglet==='boss'&&idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet]))+'</b>'+(onglet==='combatLong'&&e.valeurs&&typeof e.valeurs.combatLongGagne==='boolean'?'<span class="soreal-idle-classement-issue-v1 '+(e.valeurs.combatLongGagne?'gagne':'perdu')+'">'+(e.valeurs.combatLongGagne?'🏆 Gagné':'💀 Perdu')+'</span>':'');
           return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
             '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
             '<div class="soreal-idle-classement-nom-v1">'+idleHtml_(e.nom)+(e.moi?' <em>(toi)</em>':'')+'</div>'+
@@ -24521,6 +24565,16 @@ function pageAventureIdleV28_(j){
           String(
             menu||'combat'
           );
+
+        /* Norman (2026-10-13) : cliquer sur Aventure arrête le combat de titan et laisse en Zone sûre, sur la vue Zones (l'écran de combat de titan ne couvre pas le menu). */
+        if(nouveauMenu==='aventure'&&arreterCombatTitanIdleV1_()){
+          if(idleMenuActifV28==='aventure'){
+            window.__vueAventureIdleV1__('zones');
+            return;
+          }
+          idleVueAventureV1='zones';
+          document.documentElement.setAttribute('data-vue-aventure','zones');
+        }
 
         /*
          * Reclic sur le menu où l'on se trouve déjà (Norman, 2026-10-11 : « la page Entraînement avancé se redessine quand on reclique sur son menu »). La page est déjà là et déjà à jour : rien à redessiner. Seul un ancien

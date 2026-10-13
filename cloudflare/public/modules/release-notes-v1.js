@@ -28,7 +28,7 @@
     versions:[
       {
         version:'2.8',
-        nom:'Des barres qui tiennent la cadence',
+        nom:'Un écran pour les Titans',
         date:'2026-10-13',
         groupes:[
           {menu:'general', titre:'Général', points:[
@@ -38,16 +38,23 @@
             'Après une Renaissance, tu arrives sur Fight Boss, la borne d’arcade en haut de la page, pour la revoir s’allumer.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
-            'Un succès secret ne se débloquait pas : porter cinq pièces d’équipement au niveau 69 donne maintenant le trophée.',
+            'Dans l’onglet Boss, le numéro d’un boss plus avancé que le tien est masqué, comme dans l’onglet Global.',
+            'Un succès secret ne se débloquait pas : c’est corrigé.',
           ]},
           {menu:'renaissance', titre:'Renaissance', points:[
             'Le suivi en direct du nombre et du facteur de temps de la Renaissance fonctionne de nouveau.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Nouvel écran de combat de Titan : tout tient sur un seul écran sans défilement (image du Titan, PV du Titan et les tiens, toutes tes attaques manuelles) ; tu restes dans l’écran Titans, et le bouton Aventure arrête le combat et te remet en Zone sûre.',
+            'Avant d’affronter un Titan, un message te rappelle de libérer de la place dans ton inventaire pour récupérer son butin.',
+            'Au début d’un combat de Titan, toutes tes attaques sont en recharge : chacune ne sera disponible qu’une fois sa recharge complète écoulée.',
+            'Il faut avoir les stats Manuel d’un Titan (Puissance et Endurance) pour l’affronter : sinon un message te dit de monter tes stats.',
+            'L’image d’un Titan reste un « ? » tant que tu ne l’as pas affronté.',
             'La difficulté choisie pour un Titan ne revient plus à la première après un redessin.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Dès que le cube passe au palier 1, son bonus s’affiche simplement (+68) en mauve, sans le mot « cube ».',
+            'Un petit bouton 📖 à côté d’Idle Mode ouvre le journal des attaques : ce que fait chaque raccourci débloqué, avec ses recharges.',
             'Après un glisser-déposer, l’équipement, le coffre et les bonus se mettent bien à jour.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
@@ -105,7 +112,7 @@
             'Sur PC, la barre des menus ne bouge plus ; la barre de vie ne saute plus ; les pages aux chiffres mouvants se mettent à jour en direct ; un bouton « 0 » retire toute l’énergie d’une barre.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Borne d’arcade : fond noir et rails alignés ; chronique des boss en anglais = texte du wiki.',
+            'Borne d’arcade : fond noir et rails alignés ; chronique des boss en anglais.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Le Coffre rote en nuage vert ; sur téléphone, l’équipement se tire en volet depuis l’inventaire.',
@@ -440,7 +447,7 @@
             'Menus de répartition instantanés.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
-            'Défis refaits d’après le wiki, avec fin automatique.',
+            'Défis refaits, avec fin automatique.',
           ]},
           {menu:'chat', titre:'Chat', points:[
             'Chat réservé aux joueurs, avec la liste de ceux qui sont en ligne.',
@@ -539,7 +546,7 @@
           {menu:'general', titre:'Général', points:[
             'Menu réorganisable en maintenant un bouton.',
             'Barre d’énergie plus claire, avec « Pleine dans… ».',
-            'Valeurs corrigées d’après le wiki.',
+            'Valeurs corrigées.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Quatre pièces d’un même set : ton héros prend son apparence.',
@@ -562,7 +569,7 @@
         hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Deuxième relecture des chiffres du jeu contre le wiki.',
+            'Deuxième relecture des chiffres du jeu.',
             'Voix pré-enregistrées pour la narration.',
             'Compteur « Généré » au-dessus de la barre d’énergie.',
           ]},
@@ -579,13 +586,13 @@
       },
       {
         version:'1.0',
-        nom:'Fidélité au wiki',
+        nom:'Fidélité au jeu de base',
         date:'2026-09-23',
         hommage:HOMMAGE_ANCIEN,
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Relecture du jeu contre le wiki : entraînement, combats, butin et équipement recalés.',
-            'De nombreux systèmes complétés d’après le wiki.',
+            'Relecture du jeu : entraînement, combats, butin et équipement recalés.',
+            'De nombreux systèmes complétés.',
             'Sécurité renforcée.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[

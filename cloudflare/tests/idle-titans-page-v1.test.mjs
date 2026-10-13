@@ -113,6 +113,7 @@ assert.ok(index.includes("/modules/titans-v1.js"));
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes("__SOREAL_IDLE_TITANS_V1__.page(j)") && ui.includes("__SOREAL_IDLE_TITANS_V1__.traduire(message)"));
 assert.ok(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes("/api/idle/media/titan?"));
-assert.ok(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("payload.adventure.action==='startTitanFight'"));
+// Norman (2026-10-13) : plus de bascule vers l'Aventure au lancement du combat de titan (écran de combat dédié) : la réponse du serveur ne rappelle plus __menuIdleV28__('aventure').
+assert.ok(!readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("payload.adventure.action==='startTitanFight'&&typeof window.__menuIdleV28__==='function'"));
 assert.ok(readFileSync("cloudflare/src/idle-media-v1.js", "utf8").includes('"/api/idle/media/titan"'));
 console.log("idle-titans-page-v1: OK");

@@ -4,8 +4,8 @@
  *
  * Le menu liste les titans déjà débloqués (anti-spoil : jamais un titan encore verrouillé) avec leur image, leur état (prêt ou compte à rebours de
  * réapparition), leurs statistiques de combat du wiki (PV, Power, Toughness, régénération, cadence) et leurs capacités. « Affronter » fait apparaître
- * le titan comme ennemi dans la scène d'Aventure (voir startTitanFight, idle-adventure-v47.js), avec sa barre de vie, ses attaques manuelles et le
- * mode Idle : comme dans le jeu de base, on le combat en mode Aventure.
+ * le titan comme ennemi (voir startTitanFight, idle-adventure-v47.js) ; depuis le 2026-10-13 le combat se livre dans un ÉCRAN DÉDIÉ (titans-combat-ecran-v1.js) sans quitter la page Titans,
+ * avec sa barre de vie, ses attaques manuelles et le mode Idle.
  *
  *   window.__SOREAL_IDLE_TITANS_V1__ = { page(j), traduire(code) }
  */
@@ -22,6 +22,7 @@ var MESSAGES_ERREUR={
   PROGRESSION_TITAN_REQUISE:'Il te manque une étape de progression pour affronter ce titan.',
   COMBAT_TITAN_TROP_COURT:'Le combat ne peut pas déjà être terminé.',
   TITAN_SANS_STATS:'Les statistiques de ce titan ne sont pas disponibles.',
+  PUISSANCE_INSUFFISANTE:'Montez vos stats avant de penser pouvoir affronter ce Titan.',
   AUCUN_COMBAT_ACTIF:'Aucun combat n’est en cours.'
 };
 var LIBELLES_PALIERS={easy:'Easy',normal:'Normal',hard:'Hard',brutal:'Brutal'};
@@ -168,6 +169,18 @@ function ligneAutoKill(t,enAttente,retour,maintenant){
   return '<div class="ttn-auto-etat non">🤖 Auto-kill coché, mais il te manque '+(manque.join(' et ')||'des stats')+' pour que ça s’applique.</div>';
 }
 
+/*
+ * Image masquée tant qu'on n'a pas combattu ce titan (Norman, 2026-10-13) : « dans le menu Titans, les images des titans sont remplacées par un ? tant qu'on n'a pas effectué un premier combat contre lui ».
+ * Un titan est « vu » dès qu'on l'a vaincu au moins une fois OU qu'un combat a été lancé contre lui (mémorisé dans ce navigateur, par joueur) : la défaite d'un premier combat révèle aussi son image.
+ * Tant qu'il est inconnu, aucune image n'est même demandée au serveur (pas de fuite par le réseau).
+ */
+function cleVu(id){var nom='';try{nom=typeof window.__nomJoueurIdleV1__==='function'?String(window.__nomJoueurIdleV1__()||''):'';}catch(_e){}return 'soreal_idle_titan_vu_v1:'+nom+':'+String(id);}
+function titanVu(t){
+  if(ent(t.state&&t.state.kills)>0)return true;
+  try{return localStorage.getItem(cleVu(t.id))==='1';}catch(_e){return false;}
+}
+function marquerVu(id){try{localStorage.setItem(cleVu(id),'1');}catch(_e){}}
+
 /* Difficulté choisie par titan (audit 2026-10-13) : un redessin ne remet plus le sélecteur sur la première difficulté (le joueur pouvait lancer une autre difficulté que celle affichée). */
 var choixPalier={};
 function carte(t){
@@ -199,8 +212,10 @@ function carte(t){
     :'';
   return '<article class="ttn-carte '+(pret?'pret':cache(t)?'cache':'attente')+'" data-ttn-id="'+h(id)+'">'+
     '<div class="ttn-haut">'+
-      '<div class="ttn-portrait"><img id="ttnImg_'+h(id)+'" src="'+h(urlImage(t,palier))+'" alt="'+h(nom)+'" loading="lazy" '+
-        'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="ttn-emoji" style="display:none">👹</span></div>'+
+      (titanVu(t)
+        ?'<div class="ttn-portrait"><img id="ttnImg_'+h(id)+'" src="'+h(urlImage(t,palier))+'" alt="'+h(nom)+'" loading="lazy" '+
+          'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="ttn-emoji" style="display:none">👹</span></div>'
+        :'<div class="ttn-portrait ttn-inconnu" title="Tu ne l’as encore jamais affronté"><span class="ttn-point">?</span></div>')+
       '<div class="ttn-id">'+
         '<h3 class="ttn-nom">'+h(nom)+(forme>=0?' <small>(forme '+(forme+1)+' / '+t.forms.length+')</small>':'')+'</h3>'+
         '<div class="ttn-sous">💀 '+kills+' victoire'+(kills>1?'s':'')+'</div>'+
@@ -218,6 +233,7 @@ function carte(t){
 }
 
 function css(){
+  /* popup avant le combat (voir demanderPlace_) : ajouté au style existant plus bas */
   if(document.getElementById('sorealIdleTitansStyleV1'))return;
   var st=document.createElement('style');
   st.id='sorealIdleTitansStyleV1';
@@ -229,6 +245,8 @@ function css(){
     '.ttn-haut{display:flex;gap:12px;align-items:center}'+
     '.ttn-portrait{flex:0 0 112px;height:112px;border-radius:14px;overflow:hidden;border:2px solid var(--th-a,#ff7a1a);background:#0d0605;display:flex;align-items:center;justify-content:center;box-shadow:0 0 18px -4px var(--th-glow,rgba(255,122,26,.6))}'+
     '.ttn-portrait img{width:100%;height:100%;object-fit:contain;display:block}'+
+    '.ttn-inconnu{background:radial-gradient(circle at 50% 40%,#2b1410,#0d0605 70%)}'+
+    '.ttn-point{font-family:Georgia,"Palatino Linotype",serif;font-weight:900;font-size:72px;line-height:1;color:var(--th-c,#ffd166);text-shadow:0 3px 0 #000,0 0 18px var(--th-glow,rgba(255,122,26,.7))}'+
     '.ttn-emoji{font-size:56px;align-items:center;justify-content:center;width:100%;height:100%}'+
     '.ttn-id{min-width:0;flex:1}'+
     '.ttn-nom{margin:0;font-family:Georgia,"Palatino Linotype",serif;font-size:19px;letter-spacing:.03em;color:var(--th-c,#ffd166);text-shadow:0 0 14px var(--th-glow,rgba(255,122,26,.5))}'+
@@ -249,6 +267,17 @@ function css(){
     '.ttn-tete{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase}'+
     '.ttn-tete b:last-child{text-align:right}'+
     '.ttn-reco b{color:var(--th-ink,#ffe7d6)}'+
+    '.ttn-popup-carte{text-align:center;border:3px solid #000!important;background:radial-gradient(ellipse at 50% 0,#5a1410,#1c0608 70%)!important;box-shadow:0 0 0 3px rgba(255,120,40,.5),0 0 40px rgba(255,70,20,.5),6px 6px 0 #000!important;color:#ffe9dd}'+
+    '.ttn-popup-sac{font-size:54px;line-height:1;filter:drop-shadow(0 4px 0 #000) drop-shadow(0 0 16px rgba(255,120,40,.7));animation:ttnPopupSac 1.6s ease-in-out infinite alternate}'+
+    '.ttn-popup-titre{margin:8px 0 6px;font-family:var(--f-titre,"Bangers",cursive);font-size:32px;letter-spacing:.1em;text-transform:uppercase;color:#ffd9b0;-webkit-text-stroke:1px #000;text-shadow:0 3px 0 #000,0 0 16px rgba(255,80,20,.8)}'+
+    '.ttn-popup-texte{padding:0 14px 12px;font-size:16px;line-height:1.4;font-weight:800}'+
+    '.ttn-popup-texte b{color:#ffcf6a}'+
+    '.ttn-popup-texte small{display:block;margin-top:6px;font-size:13px;opacity:.85}'+
+    '.ttn-popup-manque{padding:0 14px 12px;font-size:15px;font-weight:900;color:#ff9a9a}'+
+    '.ttn-popup-manque b{color:#ffe08a}'+
+    '.ttn-popup-carte .soreal-idle-modal-actions-v63{display:flex;justify-content:center}.ttn-popup-carte .soreal-idle-modal-actions-v63 button:only-child{min-width:60%}'+
+    '@keyframes ttnPopupSac{from{transform:rotate(-4deg) scale(1)}to{transform:rotate(4deg) scale(1.06)}}'+
+    '@media (prefers-reduced-motion:reduce){.ttn-popup-sac{animation:none}}'+
     '.ttn-mode{margin-top:8px;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-left-width:6px}'+
     '.ttn-mode.oui{border-left-color:#34d399}.ttn-mode.non{border-left-color:#f87171}'+
     '.ttn-mode-haut{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;margin-bottom:6px}'+
@@ -317,9 +346,79 @@ window.__autoKillTitanV1__=function(id,actif){
   if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:{action:'setAutoKillTitan',id:String(id),enabled:Boolean(actif)}});
 };
 
+/*
+ * Popup avant le combat (Norman, 2026-10-13) : « un beau popup : n'oubliez pas de faire de la place dans l'inventaire pour pouvoir récupérer les loots du titan ». Le combat ne part qu'après « C'est parti ».
+ */
+function demanderPlace_(t,suite){
+  var ancien=document.getElementById('ttnPopupPlaceV1');
+  if(ancien&&ancien.parentNode)ancien.parentNode.removeChild(ancien);
+  var nom=String(t.nomComplet||t.name||t.id);
+  var m=document.createElement('div');
+  m.id='ttnPopupPlaceV1';m.className='soreal-idle-modal-backdrop-v63 ttn-popup';
+  m.innerHTML='<div class="soreal-idle-modal-card-v63 ttn-popup-carte" role="dialog" aria-modal="true" aria-label="Avant le combat">'+
+    '<div class="ttn-popup-sac" aria-hidden="true">🎒</div>'+
+    '<div class="ttn-popup-titre">Prépare ton sac !</div>'+
+    '<div class="ttn-popup-texte">Libère de la place dans ton inventaire : sans elle, tu ne pourras pas récupérer le butin de <b>'+h(nom)+'</b>.</div>'+
+    '<div class="soreal-idle-modal-actions-v63"><button type="button" class="soreal-idle-modal-button-v63 cancel">Pas encore</button><button type="button" class="soreal-idle-modal-button-v63 confirm">⚔️ C’est parti !</button></div>'+
+    '</div>';
+  function fermer(){if(m.parentNode)m.parentNode.removeChild(m);document.removeEventListener('keydown',clavier,true);}
+  function clavier(e){if(e.key==='Escape'){e.preventDefault();e.stopPropagation();fermer();}}
+  m.addEventListener('click',function(e){if(e.target===m)fermer();});
+  m.querySelector('.cancel').addEventListener('click',fermer);
+  m.querySelector('.confirm').addEventListener('click',function(){fermer();suite();});
+  document.addEventListener('keydown',clavier,true);
+  document.body.appendChild(m);
+  try{m.querySelector('.confirm').focus();}catch(_e){}
+}
+/*
+ * Stats Manuel exigées (Norman, 2026-10-13) : « on ne doit pas pouvoir affronter un titan quand notre puissance en manuel n'est pas atteinte : Montez vos stats avant de penser pouvoir affronter ce Titan ». Mêmes seuils que le serveur
+ * (qui refuse aussi : PUISSANCE_INSUFFISANTE) : Puissance et Endurance du palier ou de la forme choisis.
+ */
+function manque_(t,palier){
+  var s=null;
+  if(Array.isArray(t.forms)&&t.forms.length)s=t.forms[formeIndex(t)];
+  else if(t.difficulties&&typeof t.difficulties==='object')s=t.difficulties[palier]||t.difficulties[Object.keys(t.difficulties)[0]];
+  else s=t;
+  var moi=statsJoueur();
+  if(!s||!moi)return null;
+  var p=Number(s.p),tt=Number(s.t),m=[];
+  if(p>0&&moi.power<p)m.push('⚔️ Puissance : il te manque <b>'+gn(p-moi.power,2)+'</b>');
+  if(tt>0&&moi.toughness<tt)m.push('🛡️ Endurance : il te manque <b>'+gn(tt-moi.toughness,2)+'</b>');
+  return m.length?m:null;
+}
+function avertirStats_(t,lignes){
+  var ancien=document.getElementById('ttnPopupPlaceV1');
+  if(ancien&&ancien.parentNode)ancien.parentNode.removeChild(ancien);
+  var nom=String(t.nomComplet||t.name||t.id);
+  var m=document.createElement('div');
+  m.id='ttnPopupPlaceV1';m.className='soreal-idle-modal-backdrop-v63 ttn-popup';
+  m.innerHTML='<div class="soreal-idle-modal-card-v63 ttn-popup-carte" role="dialog" aria-modal="true" aria-label="Stats insuffisantes">'+
+    '<div class="ttn-popup-sac" aria-hidden="true">💪</div>'+
+    '<div class="ttn-popup-titre">Trop faible !</div>'+
+    '<div class="ttn-popup-texte">Montez vos stats avant de penser pouvoir affronter ce Titan.<br><small>'+h(nom)+' exige les stats Manuel :</small></div>'+
+    '<div class="ttn-popup-manque">'+lignes.map(function(l){return '<div>'+l+'</div>';}).join('')+'</div>'+
+    '<div class="soreal-idle-modal-actions-v63"><button type="button" class="soreal-idle-modal-button-v63 confirm">Compris</button></div>'+
+    '</div>';
+  function fermer(){if(m.parentNode)m.parentNode.removeChild(m);document.removeEventListener('keydown',clavier,true);}
+  function clavier(e){if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();e.stopPropagation();fermer();}}
+  m.addEventListener('click',function(e){if(e.target===m)fermer();});
+  m.querySelector('.confirm').addEventListener('click',fermer);
+  document.addEventListener('keydown',clavier,true);
+  document.body.appendChild(m);
+  try{m.querySelector('.confirm').focus();}catch(_e){}
+}
 window.__affronterTitanV1__=function(id){
   var t=registre[id];
   if(!t)return;
+  var sel=document.getElementById('ttnPalier_'+id);
+  var lignes=manque_(t,sel&&sel.value?String(sel.value):choixPalier[id]);
+  if(lignes){avertirStats_(t,lignes);return;}
+  demanderPlace_(t,function(){lancerCombatTitan_(id);});
+};
+function lancerCombatTitan_(id){
+  var t=registre[id];
+  if(!t)return;
+  marquerVu(id);
   var sel=document.getElementById('ttnPalier_'+id);
   var etat=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
   var charge={action:'startTitanFight',titan:String(id)};
@@ -327,9 +426,9 @@ window.__affronterTitanV1__=function(id){
   if(etat&&etat.adventureRestPv!=null)charge.restHp=etat.adventureRestPv;
   /* Le combat se livre en Zone sûre (le serveur y renvoie le joueur) : la zone affichée et le ×5 de repos suivent tout de suite, au lieu de montrer l'ancienne zone jusqu'à la réponse (Norman, 2026-10-12). */
   try{var H=window.__SOREAL_IDLE_META_HOST_V130__,av=H&&H.aventureMetaIdleV47_&&etat?H.aventureMetaIdleV47_(etat):null;if(av&&!(av.fight&&av.fight.active))av.selectedZone='safe';}catch(_e){}
-  if(typeof window.__vueAventureIdleV1__==='function')window.__vueAventureIdleV1__('zones');
+  /* On reste sur l'écran Titans : l'écran de combat de titan (titans-combat-ecran-v1.js) s'affiche tout seul dès que le combat est actif (plus de passage par l'Aventure). */
   if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:charge});
-};
+}
 
 /* Compte à rebours : une seule horloge pour toutes les cartes affichées ; à zéro, la carte passe en « prêt » sans attendre la synchro. */
 setInterval(function(){
@@ -379,6 +478,8 @@ function icone(j){
   var t=premierDisponible(j);
   if(!t)return '';
   var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
+  /* même règle que la page Titans : pas d'image d'un titan jamais affronté */
+  if(!titanVu(t))return '<span class="soreal-idle-titan-icone-v1" aria-hidden="true"><b class="ttn-point" style="font-size:30px">?</b></span>';
   return '<span class="soreal-idle-titan-icone-v1" aria-hidden="true"><img src="'+h(urlImage(t,palier))+'" alt="" loading="lazy" onerror="this.style.display=\'none\'"></span>';
 }
 
@@ -390,5 +491,5 @@ function disponible(j){
   return (a&&Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant)&&!seTueTout(t);});
 }
 
-window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,disponible:disponible,icone:icone,seTueTout:seTueTout,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,marquerVu:marquerVu,titanVu:titanVu,disponible:disponible,icone:icone,seTueTout:seTueTout,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

@@ -16,7 +16,7 @@ assert.ok(/__SOREAL_IDLE_TITANS_V1__\.section\(j\)/.test(ui), "la page Adventure
 assert.ok(/const bascule=titans\.length\?/.test(ui), "bouton de bascule seulement s'il y a un titan débloqué");
 assert.ok(ui.includes("window.__vueAventureIdleV1__=function(v)"), "changement de vue exposé");
 assert.ok(ui.indexOf("const bascule=")<ui.indexOf("🗺️ Zones</div>"), "la bascule est au-dessus de Zones");
-assert.ok(mod.includes("__vueAventureIdleV1__('zones')"), "Affronter ramène à la vue des zones pour voir le combat");
+assert.ok(!mod.includes("__vueAventureIdleV1__('zones')")&&mod.includes('demanderPlace_(t,function(){lancerCombatTitan_(id);});'), "Affronter reste sur l'écran Titans (écran de combat de titan, plus de retour à la vue des zones)");
 
 const section = mod.slice(mod.indexOf("function section(j){"), mod.indexOf("/* ---------- interactions"));
 assert.ok(section.includes("progressionUnlocked!==false"), "seuls les titans débloqués");
