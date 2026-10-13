@@ -14,7 +14,7 @@
   var PILOTE_URL='http://127.0.0.1:8766';
   var STUDIO_URL='http://127.0.0.1:8765';
   var LIEN='soreal-studio://demarrer';
-  var DELAI_PILOTE_MS=4000,DELAI_PING_MS=2500;
+  var DELAI_PILOTE_MS=4000,DELAI_PING_MS=1500;   /* ping court : le lien externe doit être ouvert tant que le clic est « récent » (Chrome refuse sinon, sans rien dire) */
   var ABSENT='🔴 Le pilote n’est pas allumé sur ce PC : double-clique « pilote.bat » (ou « installer_pilote.bat » une seule fois, pour qu’il démarre avec Windows) dans cloudflare/tools/voice-studio. Pour ne plus jamais dépendre du pilote : double-clique une fois « installer_lien_studio.bat » au même endroit. Sur iPhone/Safari, c’est impossible.';
   var ABSENT_LIEN='🔴 Le studio ne répond toujours pas. Une seule fois pour toutes : double-clique « installer_lien_studio.bat » (ou « installer_pilote.bat ») dans cloudflare/tools/voice-studio, ou lance « pilote.bat » / « lancer.bat » à la main. Regarde aussi la fenêtre noire du studio : un message d’erreur s’y affiche peut-être.';
 
@@ -72,28 +72,40 @@
     /* Le studio répond déjà (lancé à la main avec lancer.bat) : inutile de passer par le pilote, qui n'a donc pas besoin d'être allumé (Norman, 2026-10-04 : « Lancer le studio ne fonctionne pas »). */
     return pingStudio().then(function(d){return Boolean(d&&d.ok);}).catch(function(){return false;}).then(function(dejaLa){
     if(dejaLa){etat('Le studio tourne déjà.',false);if(verifier)verifier();return;}
-    etat('Lancement du studio… (le modèle se charge : compte 1 à 2 minutes)',false);
-    return appel('/demarrer','POST').then(function(r){
-      if(!r||r.ok===false)throw new Error(r&&r.error?r.error:'refusé');
-      if(r.dejaLance){etat('Le studio tourne déjà.',false);if(verifier)verifier();return;}
-      return new Promise(function(resolve){
-        attendreStudio(function(ok){
-          etat(ok?'✔ Studio démarré.':'Le studio ne répond pas encore : regarde sa fenêtre noire (un message d’erreur s’y affiche peut-être).',!ok);
-          if(verifier)verifier();
-          resolve();
-        });
+    /*
+     * Le lien « soreal-studio:// » est ouvert TOUT DE SUITE, tant que le clic est récent : Chrome n'ouvre un programme externe que pendant quelques secondes après un geste de l'utilisateur, et refuse
+     * sinon sans afficher de demande (c'était la cause du « le site ne m'a rien demandé »). Si le lien n'est pas installé, rien ne se passe de mal : le pilote prend le relais plus bas.
+     */
+    var parLien=lancerParLien();
+    etat(parLien
+      ?'Lancement du studio… Si le navigateur demande d’ouvrir « soreal-studio », accepte (et coche « toujours »). Le modèle se charge : compte 1 à 2 minutes.'
+      :'Lancement du studio… (le modèle se charge : compte 1 à 2 minutes)',false);
+    var pilotePropose=false;
+    function essayerPilote(){
+      if(pilotePropose)return Promise.resolve();
+      pilotePropose=true;
+      return appel('/demarrer','POST').then(function(r){
+        if(!r||r.ok===false)throw new Error(r&&r.error?r.error:'refusé');
+      }).catch(function(e){
+        if(!pilote_absent_(e))etat('Lancement impossible : '+e.message,true);
       });
-    }).catch(function(e){
-      if(!pilote_absent_(e)){etat('Lancement impossible : '+e.message,true);return;}
-      /* Pilote éteint, bloqué ou injoignable : on essaie le lien « soreal-studio:// » avant d'abandonner. */
-      if(!lancerParLien()){etat(ABSENT,true);return;}
-      etat('Le pilote ne répond pas : je lance le studio par le lien « soreal-studio ». Si le navigateur demande l’autorisation d’ouvrir ce lien, accepte (et coche « toujours »). Le modèle se charge : compte 1 à 2 minutes…',false);
+    }
+    /* Sans lien possible depuis cette page, ou si le studio n'est toujours pas là après ~15 s, le pilote local est essayé à son tour. */
+    var debut=parLien?Promise.resolve():essayerPilote();
+    return debut.then(function(){
       return new Promise(function(resolve){
-        attendreStudio(function(ok){
-          etat(ok?'✔ Studio démarré.':ABSENT_LIEN,!ok);
-          if(verifier)verifier();
-          resolve();
-        },45);
+        var essais=0;
+        (function boucle(){
+          pingStudio().then(function(d){
+            if(d&&d.ok){etat('✔ Studio démarré.',false);if(verifier)verifier();resolve();return;}
+            throw new Error('pas prêt');
+          }).catch(function(){
+            essais+=1;
+            if(essais===5)essayerPilote();
+            if(essais>=45){etat(parLien?ABSENT_LIEN:ABSENT,true);if(verifier)verifier();resolve();return;}
+            setTimeout(boucle,3000);
+          });
+        })();
       });
     });
     });
