@@ -31,6 +31,7 @@ m.records = Object.assign({}, m.records, { highestBoss: 80, totalRebirths: 40 })
 m.adventure = m.adventure || {};
 m.adventure.titans = m.adventure.titans || {};
 for (const t of ["t2", "t3", "t4"]) m.adventure.titans[t] = Object.assign({}, m.adventure.titans[t], { kills: 1 });
+m.adventure.setRewards = Object.assign({}, m.adventure.setRewards, { adventurePower: 1e9, adventureToughness: 1e9 });   /* le combat de titan exige les stats Manuel du wiki (2026-10-13) */
 m.adventure.itemList = m.adventure.itemList || {};
 for (const s of ["head", "chest", "legs", "boots", "weapon", "necklace", "meat"]) m.adventure.itemList["grb:" + s] = { seen: true };
 m.challenge = Object.assign({}, m.challenge, { bestMs: { basic: 1000 } });

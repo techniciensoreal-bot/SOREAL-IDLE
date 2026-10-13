@@ -7,7 +7,8 @@ import { IDLE_TITAN_COMBAT_V1, idleTitanCombatV1 } from "../src/idle-titans-comb
  * comme un ennemi de zone, puis la victoire (resolveZoneFight) donne les récompenses du titan et relance son délai ; la défaite renvoie en Safe Zone
  * sans toucher au délai.
  */
-const ctx = { bosses: 100, stats: { power: 10, toughness: 10, hp: 500 } };
+/* Norman (2026-10-13) : le combat exige les stats Manuel du wiki (PUISSANCE_INSUFFISANTE sinon) : le contexte de test est donc très fort ; le refus est vérifié plus bas. */
+const ctx = { bosses: 100, stats: { power: 1e20, toughness: 1e20, hp: 500 } };
 const agir = (s, p, t = 10_000, c = ctx) => applyIdleAdventureActionV47(s, p, c, t);
 
 // 1. Données : les 14 titans, valeurs de l'encadré wiki.
@@ -30,6 +31,11 @@ assert.equal(s.fight.mobAttackRate, 2);
 assert.equal(s.fight.playerHp, 120, "PV de repos repris");
 assert.equal(s.fight.zone, s.selectedZone, "zone cohérente avec resolveZoneFight");
 assert.equal(s.fight.mobName, "Gordon Ramsay Bolton");
+
+// 2 bis. Stats Manuel insuffisantes : combat refusé (Montez vos stats avant de penser pouvoir affronter ce Titan).
+assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1299, toughness: 5000, hp: 500 } }), /PUISSANCE_INSUFFISANTE/, "Puissance Manuel du wiki (1 300) non atteinte");
+assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 5000, toughness: 1299, hp: 500 } }), /PUISSANCE_INSUFFISANTE/, "Endurance Manuel du wiki (1 300) non atteinte");
+assert.ok(agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1300, toughness: 1300, hp: 500 } }).state.fight.active, "stats Manuel exactement atteintes : combat possible");
 
 // 3. Verrous inchangés : titan non débloqué, difficulté absente.
 assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 10, stats: ctx.stats }), /TITAN_VERROUILLE/);
