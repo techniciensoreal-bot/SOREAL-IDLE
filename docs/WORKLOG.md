@@ -1,5 +1,16 @@
 # WORKLOG — SOREAL-IDLE
 
+## 2026-10-13 — Correctif suite aux captures des boss 85 et 86
+
+- **Symptôme confirmé par captures** : le boss 85 « Un Slime Métallique » affiche le récit de la défaite du slime et de l'apparition de l'épée, qui appartient au boss 86 ; le boss 86 affiche la chronique de la défaite de l'épée, qui appartient au boss 87. Noms, images et statistiques cohérents.
+- **Cause identifiée dans les données affichées** : l'histoire VF reçue sous le numéro N correspond à l'entrée N+1 du référentiel français. Le chemin anglais utilisait déjà un remplacement par numéro, pas le texte reçu.
+- **Correctif sur main** : `e186e2a34fe1b12f95fa77847f42edbbd12befb9` : sur les réponses françaises (Fight Boss et Collection), remplace uniquement une histoire égale exactement à celle du boss suivant par la chronique de son propre identifiant (N>=80). Conserve une histoire éditée, les données d'origine, les noms et les images. L'anglais conserve l'histoire par identifiant.
+- **Test de non-régression** : `c51766ecc05e826e891fde67111ef9d892ec2bcf` couvre les boss 80, 85, 86, 87, 100, l'anglais, l'absence de mutation, les personnalisations et les champs Collection.
+- **Dernier SHA main contrôlé** : `c51766ecc05e826e891fde67111ef9d892ec2bcf` avant ce WORKLOG. **Tests** : fichier ajouté, exécution impossible depuis cette session (runtime Node présent mais réseau GitHub inaccessible pour récupérer le dépôt). **Build** : non exécuté. **CI** : aucun statut/check ou run PR retourné pour ce SHA (cela ne prouve pas une CI verte). **Production** : SHA effectivement déployé non vérifié ; résultat utilisateur non confirmé.
+- **Anomalie résiduelle** : toute description non égale exactement à la chronique N+1 restera intacte (préservation délibérée des textes personnalisés) ; le catalogue de production n'a pas été réécrit.
+- **Prochaine action exacte** : vérifier le run de déploiement du SHA sur GitHub Actions, exécuter le test `node cloudflare/tests/idle-boss-stories-shift-response.test.mjs` et le build ; contrôler en production les chroniques 80/85/86/87 en français et en anglais, puis demander la confirmation visuelle de l'utilisateur.
+
+
 ## 2026-10-13 — Boss 80 : diagnostic du décalage des chroniques
 
 - **Tâche** : réaligner les descriptions des boss à partir du 80, préserver la version EN originale et la VF française, sans écraser les textes personnalisés en production.
