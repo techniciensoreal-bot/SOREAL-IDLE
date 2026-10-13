@@ -37,9 +37,13 @@ export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
 export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
 export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 3 * 60 * 1000;
 
+/* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
+const __fluxPretV1 = new WeakSet();
 export function assurerFluxV1(sql) {
+  if (sql && typeof sql === "object" && __fluxPretV1.has(sql)) return;
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, type TEXT NOT NULL, donnees TEXT NOT NULL DEFAULT '{}')");
   sql.exec("CREATE TABLE IF NOT EXISTS idle_flux_etat(email TEXT PRIMARY KEY, etat TEXT NOT NULL, maj INTEGER NOT NULL)");
+  if (sql && typeof sql === "object") __fluxPretV1.add(sql);
 }
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);

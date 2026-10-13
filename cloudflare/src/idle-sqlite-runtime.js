@@ -463,6 +463,8 @@ function __idleCommit(sql,workbook){
       const ligneDecodee=sheet._ligne(rowIndex-1);
       const row=Array.isArray(ligneDecodee)?ligneDecodee:[];
       const nonEmpty=row.some(__idleNonEmpty);
+      /* audit 2026-10-13 : la ligne n'est sérialisée qu'une fois (idle_catalog ET idle_players), avant : deux JSON.stringify de 45 à 177 Ko par commit */
+      const texteLigneV1=nonEmpty?jsonText(row):'';
       /* Journal d'EXP : solde AVANT l'écriture (colonne XP = 4e cellule), lu par SQLite sans décoder toute la ligne. */
       let xpAvantV1=null;
       if(sheetName==="JOUEURS"&&rowIndex>1&&nonEmpty){
@@ -475,7 +477,7 @@ function __idleCommit(sql,workbook){
         sql.exec(
           "INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?) "+
           "ON CONFLICT(sheet_name,row_index) DO UPDATE SET row_json=excluded.row_json,updated_at=excluded.updated_at",
-          sheetName,rowIndex,jsonText(row),now
+          sheetName,rowIndex,texteLigneV1,now
         );
       }else{
         sql.exec("DELETE FROM idle_catalog WHERE sheet_name=? AND row_index=?",sheetName,rowIndex);
@@ -503,7 +505,7 @@ function __idleCommit(sql,workbook){
           "ON CONFLICT(player_key) DO UPDATE SET player_id=excluded.player_id,display_name=excluded.display_name,"+
           "email_primary=excluded.email_primary,email_login=excluded.email_login,state_json=excluded.state_json,"+
           "source_row=excluded.source_row,updated_at=excluded.updated_at",
-          playerKey,playerId,displayName,emailPrimary,emailLogin,jsonText(row),rowIndex,now
+          playerKey,playerId,displayName,emailPrimary,emailLogin,texteLigneV1,rowIndex,now
         );
       }
     }
@@ -13249,9 +13251,17 @@ function adressesJoueurSorealIdle_(acces) {
   return liste.filter(function (e, i) { return e && liste.indexOf(e) === i; });
 }
 
+const __aliasPretV1 = new WeakSet();
+function assurerAliasSorealIdleV1_() {
+  /* audit 2026-10-13 : table créée une seule fois par connexion SQL */
+  if (!__idleSql || __aliasPretV1.has(__idleSql)) return;
+  __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
+  __aliasPretV1.add(__idleSql);
+}
+
 function memoriserAliasJoueurSorealIdle_(cle, adresses) {
   if (!__idleSql) return;
-  __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
+  assurerAliasSorealIdleV1_();
   adresses.forEach(function (e) {
     const rows = __idleSql.exec('SELECT cle FROM idle_alias WHERE email=?', e);
     const liste = Array.isArray(rows) ? rows : (rows && typeof rows.toArray === 'function' ? rows.toArray() : []);
@@ -13270,7 +13280,7 @@ function profilAvecAliasSorealIdle_(email) {
   let profil = lireProfilIdleV1(__idleSql, e);
   if (profil && profil.pseudo && profil.prenom) return profil;
   try {
-    __idleSql.exec('CREATE TABLE IF NOT EXISTS idle_alias(email TEXT PRIMARY KEY, cle TEXT NOT NULL)');
+    assurerAliasSorealIdleV1_();
     const brut = __idleSql.exec('SELECT a2.email AS email FROM idle_alias a1 JOIN idle_alias a2 ON a2.cle=a1.cle WHERE a1.email=?', e);
     const autres = Array.isArray(brut) ? brut : (brut && typeof brut.toArray === 'function' ? brut.toArray() : []);
     autres.forEach(function (r) {
@@ -15481,6 +15491,10 @@ function renaitreSorealIdle(
       joueur:joueur
     };
   } catch (erreur) {
+    /* audit 2026-10-13 : comme pour la méta-progression, une Renaissance en échec ne committe AUCUNE écriture partielle (la réponse ok:false ne doit pas laisser un état à moitié modifié) */
+    if (__idleWorkbook) {
+      for (const feuilleSale of __idleWorkbook.sheets.values()) feuilleSale.dirtyRows.clear();
+    }
     return {
       ok:false,
       code:'ERREUR_REBIRTH_V47',

@@ -26,9 +26,13 @@ export const IDLE_CHAT_MAX_MESSAGES_V1 = 500;
 export const IDLE_CHAT_DELAI_MIN_MS_V1 = 1500;
 export const IDLE_CHAT_LIMITE_LECTURE_V1 = 100;
 
+/* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
+const __chatPretV1 = new WeakSet();
 export function assurerChatV1(sql) {
+  if (sql && typeof sql === "object" && __chatPretV1.has(sql)) return;
   sql.exec("CREATE TABLE IF NOT EXISTS idle_chat(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL, admin INTEGER NOT NULL DEFAULT 0, texte TEXT NOT NULL)");
   sql.exec("CREATE TABLE IF NOT EXISTS idle_presence(email TEXT PRIMARY KEY, nom TEXT NOT NULL, admin INTEGER NOT NULL DEFAULT 0, vu_le INTEGER NOT NULL, actif INTEGER NOT NULL DEFAULT 0, activite TEXT NOT NULL DEFAULT '{}')");
+  if (sql && typeof sql === "object") __chatPretV1.add(sql);
 }
 
 /* Ce que fait le joueur, réduit au strict nécessaire (le client l'envoie, le serveur ne fait confiance à rien). */

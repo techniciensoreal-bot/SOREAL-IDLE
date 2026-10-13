@@ -2010,7 +2010,10 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     r3: normalizeResource(source.resources?.r3,"r3")
   };
 
-  state.currencies = Object.assign(baseState(t).currencies, source.currencies || {});
+  /* audit 2026-10-13 : un seul baseState(t) pour les sous-objets (avant : 6 reconstructions complètes par normalisation, 7 normalisations par synchro) ; chaque sous-objet n'est utilisé qu'une fois, et les complétions de défis sont prises AVANT l'assign du défi */
+  const baseSous = baseState(t);
+  const completionsDefisBase = baseSous.challenge.completions;
+  state.currencies = Object.assign(baseSous.currencies, source.currencies || {});
   for (const k of Object.keys(state.currencies)) state.currencies[k] = Math.max(0, num(state.currencies[k], 0));
 
   /*
@@ -2023,13 +2026,13 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    * réévalué sur le solde courant (dépenser tout son AP au shop ne doit
    * jamais faire disparaître le menu qu'on est en train d'utiliser).
    */
-  state.selloutShop = Object.assign(baseState(t).selloutShop, state.selloutShop || {});
+  state.selloutShop = Object.assign(baseSous.selloutShop, state.selloutShop || {});
   state.selloutShop.unlockedEver = Boolean(state.selloutShop.unlockedEver) || num(state.currencies.ap, 0) > 0;
   state.selloutEffects = createSelloutEffectsV1(source.selloutEffects);
   state.r3Nom = normaliserR3NomV1(source.r3Nom);
   appliquerConsommablesSetsAventureV1(state);
 
-  state.records = Object.assign(baseState(t).records, source.records || {});
+  state.records = Object.assign(baseSous.records, source.records || {});
   /*
    * newbieOffersUsed est un tableau d'ids (IDLE_NGU_NEWBIE_OFFERS), pas un
    * compteur numérique — exclu de la coercion Math.max(0,num(...)) juste en
@@ -2047,13 +2050,13 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   /* Portrait de joueur choisi (idle-portraits-v1.js) : identifiant texte, pas un compteur. */
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
 
-  state.challenge = Object.assign(baseState(t).challenge, source.challenge || {});
-  state.challenge.completions = Object.assign(baseState(t).challenge.completions, source.challenge?.completions || {});
+  state.challenge = Object.assign(baseSous.challenge, source.challenge || {});
+  state.challenge.completions = Object.assign(completionsDefisBase, source.challenge?.completions || {});
   state.challenge.completionsTier = createChallengeTiersV1(source.challenge?.completionsTier);
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(source.challenge?.activeTier) ? source.challenge.activeTier : "normal";
   state.challenge.troll = createTrollStateV1(source.challenge?.troll);
-  state.bank = Object.assign(baseState(t).bank, source.bank || {});
-  state.bonuses = Object.assign(baseState(t).bonuses, source.bonuses || {});
+  state.bank = Object.assign(baseSous.bank, source.bank || {});
+  state.bonuses = Object.assign(baseSous.bonuses, source.bonuses || {});
   state.bonuses.cards = normalizeIdleCardBonusesV1(source.bonuses?.cards);
 
   const systems = {};
@@ -3114,7 +3117,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
    * "Beard Speed" boost sur le wiki. Le vrai point de consommation de la
    * vitesse de Beard est baseRate ci-dessous (advanceBeardTrack) : câblé ici.
    */
-  const beardSpeedFromItems = Math.max(0, num(idleNguBonuses(state).beardSpeedMultiplierFromItems, 1));
+  const beardSpeedFromItems = Math.max(0, num(idleNguBonusesLectureV1(state).beardSpeedMultiplierFromItems, 1));
   /* Armpit (set) (wiki "Armpit (set)" : "+10% Beard Speed!") -- setRewards.beardSpeedPct. */
   const beardSpeedFromSets = 1 + Math.max(0, num(state.adventure?.setRewards?.beardSpeedPct, 0));
 
@@ -3223,7 +3226,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
 export const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 7632, timeMachineSpeed: 7544, dropChance: 7544, augmentSpeed: 7456, energyNguSpeed: 7340, magicNguSpeed: 7340, bloodGain: 7252, qpGain: 7164, daycare: 7048, exp: 6960, number: 6873, pp: 6757, hackHack: 6757, wish: 6262 });
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;
-  const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonuses(state).hackSpeedMultiplier, 1));
+  const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonusesLectureV1(state).hackSpeedMultiplier, 1));
   /*
    * Page Hacks, « Important Math » : temps = BaseSpeedDivider x 1.0078^level x (level+1) / (R3_allocated x R3_power x
    * HackSpeedBonus). Les Bars de Resource 3 n'y figurent pas (page Resource 3 : « Bars : Increases the rate at which
@@ -3572,7 +3575,7 @@ function advanceTrackSystem(state, def, seconds) {
    * Training qui ont chacun leur propre vitesse déjà câblée ailleurs.
    */
   const nguSpeedSetMultiplier = def.id === "ngu" ? 1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0)) : 1;
-  const nguSpeedBonusMultiplier = def.id === "ngu" ? Math.max(0, num(idleNguBonuses(state).nguSpeedMultiplier, 1)) : 1;
+  const nguSpeedBonusMultiplier = def.id === "ngu" ? Math.max(0, num(idleNguBonusesLectureV1(state).nguSpeedMultiplier, 1)) : 1;
   t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier * nguSpeedBonusMultiplier;
   let gain = Math.floor(t.progress);
   if (gain > 0) {
@@ -4220,7 +4223,7 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
       result.adventureGain=gain;
     }else if(def.effect==="experience"){
       /* « x FoKSucksPerk x FoKStillSucksPerk » : x3 chacun (perks 19 et 20). */
-      const exp=Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonuses(state).xpMultiplier,1))));
+      const exp=Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonusesLectureV1(state).xpMultiplier,1))));
       state.currencies.experience+=exp;
       result.experience=exp;
     }else if(def.effect==="luck"){
@@ -4243,7 +4246,7 @@ function useYggFruit(state,fruitId,mode="eat",options={}){
       result.ap=apCoeur;
     }else if(def.effect==="pp"){
       /* Perk Point PROGRESS (1 000 000 = 1 PP), pas des PP entiers. */
-      const progress=Math.ceil(factor*60000*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonuses(state).ppMultiplier,1))*firstHarvestMultiplier);
+      const progress=Math.ceil(factor*60000*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonusesLectureV1(state).ppMultiplier,1))*firstHarvestMultiplier);
       const tower=state.systems.tower;
       if(!tower.data||typeof tower.data!=="object")tower.data={};
       tower.data.ppProgress=Math.max(0,num(tower.data.ppProgress,0))+progress;
@@ -4771,14 +4774,14 @@ function advanceLateSystems(state, seconds, context, now) {
     advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
       /* Synchro courte = joueur connecté : l'Auto-Kill donne alors le butin ; au-delà (rattrapage hors ligne) seulement EXP, Or, AP, PP, QP, comme le wiki. Même seuil que le farm hors ligne. */
       enLigne: seconds < 5 * 60,
-      dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+      dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
       dropMultiplierIncludesGear: true,
       titanLootLevelBonus: titanChallengeBonuses.titanLootLevelBonus,
       stats: { power: combatAventure.power, toughness: combatAventure.toughness },
       wishLevels: wishLevelsMapV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
-      goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
+      goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),
       titanCooldownReductionMs: titanChallengeBonuses.titanRespawnReductionMs,
       titanCooldownReductionEvilMs: titanChallengeBonuses.titanRespawnReductionEvilMs,
       titanCooldownReductionSadisticMs: titanChallengeBonuses.titanRespawnReductionSadisticMs
@@ -4812,9 +4815,9 @@ function advanceLateSystems(state, seconds, context, now) {
         regen: combatAventure.regen,
         specials: combatAventure.specials
       },
-      dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+      dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
       dropMultiplierIncludesGear: true,
-      goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1))
+      goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1))
     }), seconds, now);
     idleInventoryProcessNewDropsV1(state.adventure, idsAvantFarm, inventoryAutoEnvV1(state));
     /*
@@ -5553,6 +5556,20 @@ export function idleNguBonuses(raw) {
     return structuredClone(__porteeBonusV1.valeur);
   }
   return idleNguBonusesMemoV1(state);
+}
+
+/*
+ * Lecture d'UN champ des bonus (audit 2026-10-13) : même valeur que la lecture d’un champ de idleNguBonuses(state), sans copie profonde quand la portée de bonus est active
+ * (avant : ~68 structuredClone de l'objet de bonus par synchro, un par champ lu). L'objet de la portée n'est jamais modifié (la vérification
+ * SOREAL_IDLE_VERIF_BONUS=1 compare l'état avant/après), et l'appelant ne lit qu'un champ aussitôt : aucune mutation possible. Hors portée : chemin habituel.
+ */
+function idleNguBonusesLectureV1(raw) {
+  const state = raw && raw.version === IDLE_NGU_META_VERSION ? raw : null;
+  if (state && __porteeBonusV1 && __porteeBonusV1.state === state) {
+    if (__porteeBonusV1.valeur === null) __porteeBonusV1.valeur = idleNguBonusesMemoV1(state);
+    return __porteeBonusV1.valeur;
+  }
+  return idleNguBonuses(raw);
 }
 
 function idleNguBonusesMemoV1(state) {
@@ -6803,7 +6820,7 @@ function tossMoneyPit(state, now) {
       /* plafond du palier, traité avec "wandoos" */
     } else if (k === "experience") {
       /* Wiki : « EXP rewards are affected by EXP bonus » */
-      reward.experience = (reward.experience || 0) + v * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
+      reward.experience = (reward.experience || 0) + v * Math.max(0, num(idleNguBonusesLectureV1(state).xpMultiplier, 1));
     } else if (k === "adventureHp") {
       state.adventure.permanent.adventureHp =
         Math.max(0, num(state.adventure.permanent.adventureHp, 0)) + v;
@@ -7214,7 +7231,7 @@ function crediterRecompensesAventure(state, avant) {
    * complétion d'objets) était créditée brute ; seuls les boss de Fight Boss, l'ITOPOD, le Money Pit et
    * le Fruit of Knowledge recevaient ce bonus.
    */
-  state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonuses(state).xpMultiplier, 1));
+  state.currencies.experience += gain("experience") * Math.max(0, num(idleNguBonusesLectureV1(state).xpMultiplier, 1));
   state.currencies.gold += gain("gold");
   const perksGain = perkBonusesV1(idlePerkNiveauxV1(state));
   /*
@@ -7228,7 +7245,7 @@ function crediterRecompensesAventure(state, avant) {
   const poop = Math.floor(gain("poop"));
   if (poop > 0) idleSelloutApplyEffectV1(state, "poop", poop);
   /* Page Yggdrasil : « PPBonus is bonus applied to all Perk Points gain » : le PP des titans reçoit le même facteur que l'ITOPOD. */
-  const pp = gain("ppProgress") * Math.max(0, num(idleNguBonuses(state).ppMultiplier, 1));
+  const pp = gain("ppProgress") * Math.max(0, num(idleNguBonusesLectureV1(state).ppMultiplier, 1));
   if (pp > 0) {
     const tower = state.systems.tower;
     if (!tower.data || typeof tower.data !== "object") tower.data = {};
@@ -7352,8 +7369,8 @@ function titanFight(state, context, now) {
       wishLevels:wishLevelsMapV1(state),
       titanExpBonusKills:perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
-      goldMultiplier:Math.max(0,num(idleNguBonuses(state).adventureGoldMultiplier,1)),
-      dropMultiplier:Math.max(0,num(idleNguBonuses(state).dropMultiplier,1)),
+      goldMultiplier:Math.max(0,num(idleNguBonusesLectureV1(state).adventureGoldMultiplier,1)),
+      dropMultiplier:Math.max(0,num(idleNguBonusesLectureV1(state).dropMultiplier,1)),
       dropMultiplierIncludesGear:true,
       titanCooldownReductionMs:titanChallengeBonuses.titanRespawnReductionMs,
       titanCooldownReductionEvilMs:titanChallengeBonuses.titanRespawnReductionEvilMs,
@@ -7504,12 +7521,12 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
          * (Digger, Perks, équipement Drop Chance, Blood Spaghetti...) étaient
          * donc calculés puis perdus avant le jet de loot.
          */
-        dropMultiplier: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)),
+        dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
         dropMultiplierIncludesGear: true,
         dropChancePct: num(context.dropChancePct, 0),
         difficulty: state.difficulty,
-        goldMultiplier: Math.max(0, num(idleNguBonuses(state).adventureGoldMultiplier, 1)),
-        boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
+        goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),
+        boostPowerMultiplier: Math.max(1, num(idleNguBonusesLectureV1(state).boostPowerMultiplier, 1)),
         cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
         wishLevels: wishLevelsMapV1(state),
@@ -7584,7 +7601,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     }
     /* MacGuffin Fragments : compteur de kills de zone et drops des titans. */
     if (!applied.duplicate) {
-      const macguffinDrops = macguffinAfterAdventureV1(state, macguffinAvant, result, { dropMultiplier: idleNguBonuses(state).dropMultiplier });
+      const macguffinDrops = macguffinAfterAdventureV1(state, macguffinAvant, result, { dropMultiplier: idleNguBonusesLectureV1(state).dropMultiplier });
       if (macguffinDrops.length && result && typeof result === "object") result.macguffinDrops = macguffinDrops;
     }
   } else if (action === "macguffin") {
@@ -8383,7 +8400,7 @@ function inventoryAutoEnvV1(state) {
     /* « Merges your equipped items (including MacGuffin Fragments) » : fragments équipés (idle-macguffins-v1.js). */
     macguffins: state.systems.macguffins?.data || null,
     boostCtx: () => ({
-      boostPowerMultiplier: Math.max(1, num(idleNguBonuses(state).boostPowerMultiplier, 1)),
+      boostPowerMultiplier: Math.max(1, num(idleNguBonusesLectureV1(state).boostPowerMultiplier, 1)),
       cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
       cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110))
     })

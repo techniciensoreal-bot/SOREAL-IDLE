@@ -11,9 +11,13 @@ export const IDLE_GAINS_MAX_PAR_JOUEUR_V1 = 300;
 export const IDLE_GAINS_DUREE_MAX_MS_V1 = 60 * 24 * 3600 * 1000;
 export const IDLE_GAINS_SEUIL_V1 = 1;
 
+/* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
+const __gainsPretV1 = new WeakSet();
 export function assurerGainsV1(sql) {
+  if (sql && typeof sql === "object" && __gainsPretV1.has(sql)) return;
   sql.exec("CREATE TABLE IF NOT EXISTS idle_gains_exp(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, nom TEXT NOT NULL DEFAULT '', operation TEXT NOT NULL, avant REAL NOT NULL, apres REAL NOT NULL)");
   sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_gains_exp_email ON idle_gains_exp(email, id)");
+  if (sql && typeof sql === "object") __gainsPretV1.add(sql);
 }
 
 export function enregistrerGainExpV1(sql, { email, nom = "", operation = "", avant, apres, now = Date.now() }) {
