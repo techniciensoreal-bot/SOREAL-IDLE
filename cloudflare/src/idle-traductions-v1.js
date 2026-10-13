@@ -18,6 +18,7 @@ import DIVERS from "../../design/traductions/fr/misc.json" with { type: "json" }
 import ENNEMIS from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import BOSS_NOMS from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import BOSS_HISTOIRES_EN from "../../design/ngu-boss-stories-en.json" with { type: "json" };
+import BOSS_HISTOIRES_FR from "../../design/ngu-boss-stories-fr.json" with { type: "json" };
 import { NOMS_PIECES_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1 } from "./idle-noms-fr-v1.js";
 import {
   SET_ITEM_NAMES_EN_V1,
@@ -54,6 +55,21 @@ const FR_VERS_EN_V1 = (() => {
  * jamais une traduction du français et jamais le texte modifié par l'administrateur. Elle est choisie par NUMÉRO de boss (pas par correspondance de texte, puisqu'une chronique éditée ne correspond plus).
  * Anti-spoil : seules les chroniques déjà présentes dans la réponse (boss connu) sont remplacées. Un boss sans histoire sur le wiki (272 à 289) garde le texte de la réponse.
  */
+const HISTOIRES_FR_V1 = new Map(BOSS_HISTOIRES_FR.map((h) => [h.id, h.story]));
+/* Corrige uniquement la chronique catalogue d'un boss identique à celle du boss suivant.
+ * Les captures montrent le texte du 86 sous le 85, et du 87 sous le 86.
+ * Ne modifie pas une chronique éditée, ni les champs absents ou verrouillés. */
+function histoiresBossFrDecalees_(v) {
+  const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
+  if (n < 80) return null;
+  const original = HISTOIRES_FR_V1.get(n), suivant = HISTOIRES_FR_V1.get(n + 1);
+  if (!original || !suivant) return null;
+  let correction = null;
+  if (v.histoire === suivant && "conseil" in v) correction = { histoire: original };
+  if (v.description === suivant && v.type === "boss_principal") correction = Object.assign(correction || {}, { description: original });
+  if (v.bossHistoire === suivant && Number.isInteger(v.bossSelection)) correction = Object.assign(correction || {}, { bossHistoire: original });
+  return correction;
+}
 const HISTOIRES_EN_V1 = new Map(BOSS_HISTOIRES_EN.map((h) => [h.id, h.story]));
 function histoiresBossEn_(v) {
   const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
@@ -91,6 +107,9 @@ function marcher_(v, table) {
   let copie = null;
   if (table === FR_VERS_EN_V1) {
     const h = histoiresBossEn_(v);
+    if (h) copie = Object.assign({}, v, h);
+  } else {
+    const h = histoiresBossFrDecalees_(v);
     if (h) copie = Object.assign({}, v, h);
   }
   for (const k of Object.keys(v)) {
