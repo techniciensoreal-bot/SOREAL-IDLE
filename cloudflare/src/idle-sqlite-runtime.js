@@ -34,6 +34,7 @@ import {
   rebirthIdleNguState,
   REBIRTH_UNLOCK_BOSS_V1
 } from "./idle-ngu-progression.js";
+import { histoireBossFrAligneeV1 } from "./idle-traductions-v1.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
@@ -17481,7 +17482,7 @@ function listerTextesAdminSorealIdle(sessionToken) {
     const surcharge = textes.find((t) => t.cle === 'boss:' + numero) || null;
     /* nom = nom ACTUEL (peut être modifié) ; nomOriginal = celui du catalogue NGU français. */
     const nomActuel = surcharge && surcharge.champs && typeof surcharge.champs.nom === 'string' && surcharge.champs.nom ? surcharge.champs.nom : nom;
-    boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: String(ligne && ligne.histoire || ''), surcharge });
+    boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: histoireBossFrAligneeV1(numero, String(ligne && ligne.histoire || '')), surcharge });
   }
   boss.sort((a, b) => a.numero - b.numero);
   return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)) };

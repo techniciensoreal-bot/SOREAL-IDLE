@@ -56,6 +56,16 @@ const FR_VERS_EN_V1 = (() => {
  * Anti-spoil : seules les chroniques déjà présentes dans la réponse (boss connu) sont remplacées. Un boss sans histoire sur le wiki (272 à 289) garde le texte de la réponse.
  */
 const HISTOIRES_FR_V1 = new Map(BOSS_HISTOIRES_FR.map((h) => [h.id, h.story]));
+/*
+ * Chronique d'ORIGINE d'un boss pour l'éditeur de textes / de voix du menu Admin (Norman, 2026-10-13 : « quand j'édite la fiche d'un boss pour générer les voix, il me met encore les anciens textes, ceux des mauvais boss »).
+ * Le catalogue de production range parfois la chronique du boss N+1 sous le boss N ; les réponses du jeu étaient déjà corrigées (histoiresBossFrDecalees_), pas la liste de l'éditeur. Si la chronique du catalogue est exactement celle du boss
+ * suivant dans le référentiel français, on rend celle du boss lui-même ; sinon (texte propre, texte modifié) elle reste telle quelle.
+ */
+export function histoireBossFrAligneeV1(numero, histoire) {
+  const original = HISTOIRES_FR_V1.get(numero), suivant = HISTOIRES_FR_V1.get(numero + 1);
+  if (original && suivant && original !== suivant && histoire === suivant) return original;
+  return histoire;
+}
 /* Corrige uniquement la chronique catalogue d'un boss identique à celle du boss suivant.
  * Les captures montrent le texte du 86 sous le 85, et du 87 sous le 86.
  * Ne modifie pas une chronique éditée, ni les champs absents ou verrouillés. */
