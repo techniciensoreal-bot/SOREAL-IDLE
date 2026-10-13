@@ -37,6 +37,9 @@
           {menu:'combat', titre:'Fight Boss', points:[
             'Après une Renaissance, tu arrives sur Fight Boss, la borne d’arcade en haut de la page, pour la revoir s’allumer.',
           ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Un succès secret ne se débloquait pas : porter cinq pièces d’équipement au niveau 69 donne maintenant le trophée.',
+          ]},
           {menu:'renaissance', titre:'Renaissance', points:[
             'Le suivi en direct du nombre et du facteur de temps de la Renaissance fonctionne de nouveau.',
           ]},

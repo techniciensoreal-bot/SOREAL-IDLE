@@ -23,8 +23,12 @@
  * ambiguë -- jamais débloqués, jamais comptés :
  *  - "Survive an attack from an exploder enemy" : le type exploder n'a pas de
  *    mécanique de dégâts (retirée, voir AGENTS.md) ;
- *  - "Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69" :
- *    ambigu (même set exigé ou non) ;
+ *  - ("Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69" est
+ *    désormais SUIVI, Norman, 2026-10-13 : un joueur avait équipé les cinq pièces au
+ *    niveau 69 sans recevoir le trophée. Métrique level69Set : lecture littérale du
+ *    texte du wiki, casque, plastron, jambières, bottes et arme portent un objet de
+ *    niveau exactement 69 ; le texte ne dit pas si les cinq pièces doivent venir du
+ *    même set, on ne l'exige pas (choix signalé), et les accessoires ne comptent pas.)
  *  - "Defeat <titan> before they can attack even once" (x5) : les titans SOREAL
  *    sont un test de puissance instantané, sans échange de coups ;
  *  - "Clicked the bottom right corner of the Advanced Training menu" : action
@@ -65,7 +69,7 @@ const REBIRTHS = Object.freeze([[1, 5], [3, 10], [10, 15], [30, 20], [100, 25], 
 /* Secret Achievements : [id, nom du wiki, BP, clé de mesure booléenne ou null si non suivi]. */
 const SECRETS = Object.freeze([
   ["secretExploder", "Survive an attack from an exploder enemy !", 30, null],
-  ["secretLevel69", "Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69.", 30, null],
+  ["secretLevel69", "Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69.", 30, "level69Set"],
   ["secretNguMenu", "Unlock the NGU menu !", 100, "nguUnlocked"],
   ["secretYggdrasilMenu", "Unlock the Yggdrasil menu !", 100, "yggdrasilUnlocked"],
   ["secretBeardsMenu", "Unlock the Beards menu !", 100, "beardsUnlocked"],

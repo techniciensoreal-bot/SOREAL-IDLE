@@ -5032,7 +5032,18 @@ function achievementMetricsLectureV1(state) {
     beastV3: Boolean(flags.beastDefeated_hard),
     beastV4: Boolean(flags.beastDefeated_brutal || flags.beastBrutalDefeated),
     evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
-    speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0
+    speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0,
+    /* « Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69 » (wiki, Secret Achievements) : les cinq emplacements équipés, chacun au niveau 69 (le set d'origine n'est pas exigé : le texte ne le dit pas). */
+    level69Set: (() => {
+      const equipement = state.adventure?.equipment || {};
+      const sac = Array.isArray(state.adventure?.inventory) ? state.adventure.inventory : [];
+      return ["head", "chest", "legs", "boots", "weapon"].every((emplacement) => {
+        const id = equipement[emplacement];
+        if (!id) return false;
+        const objet = sac.find((x) => x && x.id === id);
+        return Boolean(objet) && num(objet.level, 0) === 69;
+      });
+    })()
   };
 }
 

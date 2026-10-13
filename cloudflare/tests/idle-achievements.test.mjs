@@ -35,7 +35,7 @@ for (const [id, bp] of [
   ["rebirth_1", 5], ["rebirth_1000", 40], ["rebirth_10000", 60],
   ["secretNguMenu", 100], ["secretAtCorner", 60], ["secretSpeedrun", 20], ["secretBeastV4", 25], ["secretEvil", 25]
 ]) assert.equal(idleAchievementV1(id)?.bp, bp, id);
-for (const id of ["secretExploder", "secretLevel69", "secretNoHitGrb", "secretNoHitWalderp", "secretAtCorner"]) {
+for (const id of ["secretExploder", "secretNoHitGrb", "secretNoHitWalderp", "secretAtCorner"]) {
   assert.equal(idleAchievementV1(id).tracked, false, `${id} : non mesurable, jamais débloqué`);
 }
 assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, inconnu: 1, secretExploder: 2 } }), { unlocked: { boss_10: 5 } });
@@ -109,9 +109,9 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   s.currencies.gold = 1e9;
   s.systems.achievements.data.unlocked = tous;
   s = normalizeIdleNguState(s, ctx, 1_000_000);
-  assert.equal(idleAchievementsBpV1(s), 5195);
+  assert.equal(idleAchievementsBpV1(s), 5225);
   const r = applyIdleNguAction(s, { action: "moneyPit" }, ctx, 1_000_000);
-  /* floor(log10(1e9)) = 9 ; x 1,5195 -> 13. */
+  /* floor(log10(1e9)) = 9 ; x 1,5225 -> 13. */
   assert.equal(r.result.reward.ap, 13);
 }
 
