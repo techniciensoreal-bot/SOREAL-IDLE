@@ -1,5 +1,16 @@
 # WORKLOG — SOREAL-IDLE
 
+## 2026-10-13 — Boss 80 : diagnostic du décalage des chroniques
+
+- **Tâche** : réaligner les descriptions des boss à partir du 80, préserver la version EN originale et la VF française, sans écraser les textes personnalisés en production.
+- **Main avant changement** : `1eca446f07164c67662b7adf4d53b0e17db9e80c` ; **dernier main vérifié** avant ce WORKLOG : `e54068203d3c1cec1b263a77a971d5eb6723d96b`.
+- **Commits poussés sur main** : `9170f9b` (réconciliation sûre, lecture seule par défaut, mise à jour limitée aux cellules vides et décalages voisins reconnus), `e540682` (test de non-régression boss 80, VF/EN et garde des personnalisations).
+- **Vérification des sources** : ID 80 EN « The joke here is the name itself is ghostly. :effort: » ; VF « La blague ici, c'est que le nom lui-même est fantomatique. :effort: ». Les tableaux de référence FR/EN ont chacun 283 entrées, sans différence de présence sur les ID 80–301. Boss 81 : histoire de l'arène dans les deux langues. Aucune modification des référentiels nécessaire.
+- **Tests** : assertions des contenus et des gardes revues via lecture GitHub ; exécution Node du nouveau test non vérifiée. **Build** : non exécuté. **CI** : aucun statut ou workflow obtenu pour `e540682` dans l'interface consultée ; ne pas affirmer le vert. **Production** : SHA déployé non contrôlé.
+- **Dernière anomalie connue** : le catalogue de production `IDLE_BOSS.Histoire` pourrait encore présenter un décalage ; la lecture protégée nécessite le secret `SOREAL_IDLE_CATALOG_SECRET`. Le script ne traite volontairement pas les textes inconnus ni les personnalisations.
+- **Prochaine action précise** : exécuter `node cloudflare/tests/idle-boss-stories-80-alignment.test.mjs`, lancer les tests/build/CI, puis avec le secret administratif lancer `node design/apply-idle-boss-stories.mjs --dry-run`, inspecter les ID 80–301 et la liste des textes protégés ; si le diagnostic confirme l'association adjacente, lancer `--apply`, vérifier la réponse en français et en anglais et contrôler le SHA réellement servi.
+
+
 ## ÉTAT COURANT
 
 *(Section maintenue à la main à chaque étape importante ; l'historique détaillé est plus bas, les entrées les plus récentes en bas du fichier.)*
