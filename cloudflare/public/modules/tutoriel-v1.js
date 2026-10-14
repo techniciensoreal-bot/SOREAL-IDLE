@@ -17,6 +17,8 @@ var ID='sorealIdleTutorielV1';
 var ID_CADRE='sorealIdleTutorielCadreV1';
 var ID_STYLE='sorealIdleTutorielStyleV1';
 var ID_PICKER='sorealIdleTutorielPickerV1';
+/* Étape « avance au clic » : le bouton Suivant revient après ce délai si le clic est impossible (jamais bloquant). */
+var DELAI_SUIVANT_MS=30000;
 
 var etat={ancienActif:null,ancienMenus:null,initEnCours:false,demandes:{},enCours:null};
 var boucle=0;
@@ -68,6 +70,7 @@ function installerStyle_(){
     '#'+ID+' .tu-actions button.discret{background:transparent;border-color:#5a6a8e;color:#aeb9d4}'+
     '#'+ID+' .tu-actions button:disabled{opacity:.45;cursor:default}'+
     '#'+ID+' .tu-apercu{font-size:12px;color:#f2c94c;margin-bottom:4px}'+
+    '#'+ID+' .tu-indice{margin-top:8px;font-size:14px;font-weight:800;color:#4cd6f2}'+
     '#'+ID_CADRE+'{position:fixed;z-index:99999;pointer-events:none;border-radius:12px;border:3px solid #f2c94c;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 18px 4px rgba(242,201,76,.75);animation:tuPulse 1.3s ease-in-out infinite}'+
     '#'+ID_CADRE+'[hidden]{display:none}'+
     '@keyframes tuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 10px 2px rgba(242,201,76,.55)}50%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 22px 7px rgba(242,201,76,.95)}}'+
@@ -147,15 +150,19 @@ function afficherEtape_(){
   var nbEtapes=s.guide.etapes.length;
   var paragraphes=String(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+esc_(x)+'</p>';}).join('');
   var dernier=s.i>=nbEtapes-1;
+  /* « Avance au clic » : on attend le clic sur la cible (indice affiché, bouton Suivant masqué le temps du délai). */
+  s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);
+  s.debutAttente=Date.now();
   b.hidden=false;
   b.innerHTML=
     (s.apercu?'<div class="tu-apercu">👁 Aperçu — rien n’est enregistré</div>':'')+
     '<div class="tu-haut"><span class="tu-titre">'+esc_(e.titre||s.guide.titre||'')+'</span><span class="tu-compte">'+(s.i+1)+'/'+nbEtapes+'</span></div>'+
     '<div class="tu-texte">'+paragraphes+'</div>'+
+    (s.attenteClic?'<div class="tu-indice">👆 Clique sur l’élément entouré pour continuer.</div>':'')+
     '<div class="tu-actions">'+
       '<button type="button" class="discret" data-tu="passer">'+(s.apercu?'Fermer':'Passer')+'</button>'+
       '<button type="button" data-tu="prec" '+(s.i<=0?'disabled':'')+'>◀ Précédent</button>'+
-      '<button type="button" class="principal" data-tu="suiv">'+(dernier?'Terminé ✔':'Suivant ▶')+'</button>'+
+      '<button type="button" class="principal" data-tu="suiv" '+(s.attenteClic?'hidden':'')+'>'+(dernier?'Terminé ✔':'Suivant ▶')+'</button>'+
     '</div>';
   /* La cible peut mettre un instant à apparaître (changement de menu) : on la fait défiler dans l'écran dès qu'elle existe. */
   s.defile=false;s.essais=0;
@@ -174,6 +181,11 @@ function suivre_(){
     s.defile=true;
     var r=cible.getBoundingClientRect();
     if(r.top<60||r.bottom>window.innerHeight-60){try{cible.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){cible.scrollIntoView(true);}}
+  }
+  /* Le bouton Suivant revient si le clic n'a pas eu lieu après le délai (ou si l'élément n'existe pas) : jamais bloquant. */
+  if(s.attenteClic&&Date.now()-s.debutAttente>DELAI_SUIVANT_MS){
+    var bs=b.querySelector('[data-tu="suiv"]');if(bs&&bs.hidden)bs.hidden=false;
+    var ind=b.querySelector('.tu-indice');if(ind)ind.hidden=true;
   }
   placer_(b,c,e);
 }
@@ -201,6 +213,23 @@ document.addEventListener('click',function(ev){
     if(s.i>=s.guide.etapes.length-1)fermer_(true);
     else{s.i+=1;afficherEtape_();}
   }
+},true);
+/*
+ * Étape « avance au clic » : un clic sur la cible (ou dedans) passe à l'étape suivante, APRÈS que le jeu a traité le clic (le bouton fait son travail, puis le guide avance). L'écouteur est en phase de capture pour ne rien
+ * rater, mais l'avance est différée.
+ */
+document.addEventListener('click',function(ev){
+  var s=etat.enCours;
+  if(!s||!s.attenteClic||!ev.target||(ev.target.closest&&ev.target.closest('#'+ID)))return;
+  var e=s.guide.etapes[s.i],cible=e&&e.cible?cibler_(e.cible.selecteur):null;
+  if(!cible||!cible.contains(ev.target))return;
+  var indice=s.i;
+  setTimeout(function(){
+    var c=etat.enCours;
+    if(!c||c!==s||c.i!==indice)return;
+    if(c.i>=c.guide.etapes.length-1)fermer_(true);
+    else{c.i+=1;afficherEtape_();}
+  },80);
 },true);
 document.addEventListener('keydown',function(ev){
   if(ev.key==='Escape'&&etat.enCours&&etat.enCours.apercu)fermer_(false);

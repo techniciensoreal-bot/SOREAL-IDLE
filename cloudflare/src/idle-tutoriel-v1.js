@@ -11,7 +11,8 @@
  *      menu        : menu où l'étape se déroule (le jeu s'y rend tout seul), "" = là où se trouve le joueur ;
  *      cible       : null (fenêtre centrée) ou { selecteur, libelle } : l'élément de l'écran montré, choisi dans le jeu par « Placer sur l'écran » ;
  *      placement   : auto | haut | bas | gauche | droite | centre ;
- *      surbrillance: un cadre lumineux entoure la cible.
+ *      surbrillance: un cadre lumineux entoure la cible ;
+ *      avanceAuClic: l'étape passe à la suivante quand le joueur CLIQUE sur la cible (le bouton « Suivant » est alors masqué 30 s, puis revient pour ne jamais bloquer ; sans cible, ignoré).
  * Mémoire « vu » : profil.stats.vus (marquerVusSorealIdle), identifiant propre à chaque guide (vuId) ; réglage « ancien tutoriel » (meta) : tant qu'il est actif,
  * les anciennes fenêtres de Norman & Sébastien et les popups de première ouverture de menu restent jouées ; le désactiver les remplace par ces guides.
  */
@@ -66,7 +67,7 @@ export function normaliserGuideV1(brut) {
       }
     }
     const placement = IDLE_TUTO_PLACEMENTS_V1.includes(String(etape.placement)) ? String(etape.placement) : "auto";
-    return { titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false };
+    return { titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible) };
   });
   if (!etapes.some((e) => e.texte || e.titre)) throw new Error("TUTO_ETAPES_VIDES");
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();

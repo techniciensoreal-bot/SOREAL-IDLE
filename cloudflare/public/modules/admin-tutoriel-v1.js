@@ -48,7 +48,7 @@ function guideVide_(){
   return {id:'',titre:'',declencheur:{type:'debut'},actif:true,ordre:0,etapes:[etapeVide_()]};
 }
 function etapeVide_(){
-  return {titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true};
+  return {titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false};
 }
 function copie_(o){return JSON.parse(JSON.stringify(o));}
 
@@ -139,7 +139,7 @@ function pageHtml_(){
 /* ---------- aperçu ---------- */
 
 function pourLecteur_(g){
-  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false};})};
+  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur)};})};
 }
 function apercu_(guide,apres){
   var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
@@ -169,6 +169,7 @@ function etapeHtml_(e,i,total){
     '<div class="at-rang"><div><label>Où se place la fenêtre</label><select data-champ="placement">'+
       [['auto','Automatique (côté où il y a de la place)'],['haut','Au-dessus'],['bas','En dessous'],['gauche','À gauche'],['droite','À droite'],['centre','Au centre']].map(function(p){return '<option value="'+p[0]+'"'+(e.placement===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+
     '</select></div><div><label>Cadre lumineux</label><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" data-champ="surbrillance" '+(e.surbrillance!==false?'checked':'')+'> entoure l’élément montré</label></div></div>'+
+    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin-top:10px"><input type="checkbox" data-champ="avanceAuClic" '+(e.avanceAuClic?'checked':'')+(cible?'':' disabled')+'> <span><b>Passe à l’étape suivante quand le joueur clique sur l’élément montré</b> (il faut une cible). Le bouton « Suivant » est alors caché pendant 30 secondes, puis il revient pour ne jamais bloquer le joueur.</span></label>'+
   '</div>';
 }
 
@@ -213,7 +214,7 @@ function lireChamps_(){
     var i=Number(bloc.getAttribute('data-etape'));
     var e=edition.etapes[i];if(!e)return;
     function c(n){var x=bloc.querySelector('[data-champ="'+n+'"]');return x;}
-    e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;
+    e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
   });
 }
 
