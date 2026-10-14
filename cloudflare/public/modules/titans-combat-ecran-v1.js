@@ -24,6 +24,87 @@ var ID='ttnCombatV1';
 var COULEURS={t1:'#ff8a1a',t2:'#6ee06a',t3:'#5ab8ff',t4:'#b583ff',t5:'#ff7ab8',t6:'#ff4a4a',nerd:'#ffe14a',godmother:'#ff6bd6',t7:'#36e0c8',hungers:'#ff6a3a',lobster:'#ff7f6e',amalgamate:'#b5e655',tippi:'#ffe6a0',traitor:'#e5e7eb'};
 function couleur(id){return COULEURS[String(id)]||'#ffd166';}
 
+/*
+ * Un fond par titan (Norman, 2026-10-14) : « un fond par titan, en rapport avec son image, non animé, peu gourmand ». Chaque fond est dessiné d'après l'image du titan (décor, couleurs, ambiance) avec des dégradés CSS
+ * et de petits motifs SVG intégrés au code : AUCUN fichier à télécharger, AUCUNE animation, peint une seule fois. Une couche sombre garde les barres et les textes lisibles. Couches : [image, taille, position].
+ */
+function rgba(hex,a){
+  var h=String(hex||'#ffd166').replace('#','');
+  if(h.length===3)h=h.replace(/./g,'$&$&');
+  var n=parseInt(h,16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+/* Petit motif SVG répété (statique). */
+function svgTuile(w,h,corps){
+  return 'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'+corps+'</svg>')+'")';
+}
+function fondTitan(id){
+  var dg=function(x){return [x,'auto','0 0'];};
+  var nuit=function(a){return dg('linear-gradient(rgba(0,0,0,'+a+'),rgba(0,0,0,'+a+'))');};
+  var F={
+    /* GRB : le chef, dans une cuisine de pierre grise ; flamme du fourneau et sang */
+    t1:{base:'#1b1b1f',l:[dg('radial-gradient(ellipse 55% 40% at 14% 100%,rgba(255,140,30,.6),transparent 72%)'),dg('radial-gradient(ellipse 45% 50% at 85% 28%,rgba(160,12,12,.3),transparent 72%)'),nuit(.3),
+      [svgTuile(96,48,'<rect width="96" height="48" fill="#4c4c52"/><rect x="2" y="2" width="44" height="20" fill="#5a5a60"/><rect x="26" y="26" width="44" height="20" fill="#56565c"/><path d="M0 0H96M0 24H96M0 48H96M0 0V24M48 0V24M24 24V48M72 24V48" stroke="#18181b" stroke-width="3" fill="none"/>'),'96px 48px','0 0']]},
+    /* Grand Arbre corrompu : fond bleu-vert, tronc brun tordu, feuilles violettes, racines */
+    t2:{base:'#123a40',l:[dg('linear-gradient(0deg,#4a2c12 0,#5a3818 10%,transparent 32%)'),dg('linear-gradient(90deg,transparent 36%,rgba(96,56,22,.62) 43% 57%,transparent 64%)'),nuit(.22),
+      [svgTuile(130,130,'<g fill="#6b4fb0" opacity=".7"><ellipse cx="20" cy="22" rx="13" ry="6" transform="rotate(30 20 22)"/><ellipse cx="88" cy="40" rx="14" ry="6" transform="rotate(-25 88 40)"/><ellipse cx="52" cy="92" rx="13" ry="6" transform="rotate(50 52 92)"/><ellipse cx="112" cy="104" rx="12" ry="5" transform="rotate(-40 112 104)"/></g><g fill="#3f8f8a" opacity=".55"><ellipse cx="58" cy="30" rx="11" ry="5" transform="rotate(-10 58 30)"/><ellipse cx="14" cy="80" rx="11" ry="5" transform="rotate(20 14 80)"/></g><ellipse cx="100" cy="74" rx="9" ry="4" fill="#5bb04a" opacity=".5" transform="rotate(35 100 74)"/>'),'130px 130px','0 0'],
+      dg('linear-gradient(180deg,#2c7479,#143c42)')]},
+    /* Jake From Accounting : couloir de bureau, plafond à néons, murs vert-gris, sol clair */
+    t3:{base:'#233f4a',l:[dg('linear-gradient(0deg,rgba(190,200,205,.4) 0,transparent 20%)'),
+      ['repeating-linear-gradient(90deg,transparent 0 120px,rgba(255,255,255,.55) 120px 168px,transparent 168px 288px)','100% 7%','0 0'],
+      dg('linear-gradient(90deg,rgba(25,70,80,.5) 0,transparent 14% 86%,rgba(25,70,80,.5) 100%)'),nuit(.3),
+      ['repeating-linear-gradient(90deg,rgba(200,230,235,.18) 0 70px,transparent 70px 140px)','100% 34%','0 30%'],dg('linear-gradient(180deg,#9fc0cc,#3d6575 55%,#2a4854)')]},
+    /* UUG : ogre vert moussu, lune-citrouille orange en haut à droite */
+    t4:{base:'#142414',l:[dg('radial-gradient(circle at 92% 6%,rgba(255,150,20,.75) 0,rgba(255,120,10,.25) 12%,transparent 30%)'),dg('radial-gradient(ellipse 80% 35% at 50% 100%,rgba(70,120,40,.4),transparent 75%)'),nuit(.2),
+      [svgTuile(90,90,'<g fill="#3b5a22" opacity=".6"><circle cx="14" cy="18" r="9"/><circle cx="62" cy="40" r="11"/><circle cx="34" cy="74" r="8"/><circle cx="80" cy="82" r="7"/></g><path d="M0 60C20 50 30 70 50 58S80 52 90 62" stroke="#2c4a1a" stroke-width="3" fill="none" opacity=".7"/>'),'90px 90px','0 0'],dg('linear-gradient(180deg,#1d331a,#0e1a0e)')]},
+    /* Walderp : rayures rouges et blanches, foule de points colorés */
+    t5:{base:'#2a0f12',l:[dg('radial-gradient(ellipse 60% 55% at 50% 50%,rgba(0,0,0,.55),transparent 75%)'),nuit(.45),
+      [svgTuile(70,70,'<circle cx="10" cy="12" r="3" fill="#2e6bd0"/><circle cx="44" cy="30" r="3" fill="#f2c230"/><circle cx="24" cy="54" r="3" fill="#2aa05a"/><circle cx="60" cy="60" r="3" fill="#e0e0e0"/><circle cx="56" cy="8" r="2.5" fill="#d04a8a"/>'),'70px 70px','0 0'],
+      ['repeating-linear-gradient(-35deg,#c8262c 0 34px,#efe9e0 34px 68px)','auto','0 0']]},
+    /* La Bête : chenille verte, gueule rouge, antennes violettes, jungle de bulles vertes */
+    t6:{base:'#0f2410',l:[dg('radial-gradient(ellipse 36% 42% at 30% 40%,rgba(230,30,40,.5),transparent 75%)'),dg('radial-gradient(circle at 20% 4%,rgba(170,60,200,.35),transparent 24%)'),nuit(.2),
+      [svgTuile(110,110,'<g fill="#2f7a2c" opacity=".6"><circle cx="22" cy="26" r="20"/><circle cx="84" cy="22" r="13"/><circle cx="60" cy="72" r="23"/><circle cx="14" cy="92" r="12"/><circle cx="100" cy="96" r="14"/></g><g fill="#58b04a" opacity=".4"><circle cx="30" cy="30" r="8"/><circle cx="66" cy="66" r="9"/></g>'),'110px 110px','0 0'],dg('linear-gradient(180deg,#183a16,#0a180b)')]},
+    /* L'Exil : spectre gris à capuche -- brume monochrome, bords noirs */
+    t7:{base:'#161618',l:[dg('radial-gradient(ellipse 48% 56% at 50% 46%,transparent 0 30%,rgba(0,0,0,.7) 100%)'),dg('radial-gradient(ellipse 40% 50% at 50% 46%,rgba(150,150,160,.2),transparent 75%)'),
+      ['repeating-linear-gradient(0deg,rgba(210,210,220,.06) 0 10px,transparent 10px 36px)','auto','0 0'],dg('linear-gradient(180deg,#2a2a2e,#0c0c0e)')]},
+    /* Greasy Nerd : bombe « SPRAY » rouge -- mur de béton, nuage de peinture blanche en éventail, lueur rouge */
+    nerd:{base:'#25272b',l:[dg('radial-gradient(ellipse 60% 30% at 70% 100%,rgba(220,30,40,.5),transparent 72%)'),dg('conic-gradient(from 80deg at 4% 30%,rgba(255,255,255,.34) 0 14deg,transparent 14deg)'),nuit(.15),
+      [svgTuile(120,120,'<rect width="120" height="120" fill="#3a3c41"/><g fill="#2e3035" opacity=".8"><rect x="6" y="8" width="50" height="3"/><rect x="64" y="52" width="48" height="3"/><rect x="14" y="94" width="60" height="3"/></g><g fill="#4a4d54" opacity=".7"><circle cx="30" cy="40" r="2"/><circle cx="90" cy="20" r="2"/><circle cx="96" cy="100" r="2"/></g>'),'120px 120px','0 0']]},
+    /* La Marraine : fée papillon sur un trône violet -- rideaux lavande, halo doré, étincelles roses */
+    godmother:{base:'#2a1236',l:[dg('radial-gradient(ellipse 34% 40% at 50% 42%,rgba(255,225,120,.55),transparent 75%)'),
+      [svgTuile(80,80,'<g fill="#ff9ad8"><circle cx="12" cy="14" r="1.8"/><circle cx="50" cy="36" r="1.4"/><circle cx="30" cy="66" r="1.8"/><circle cx="70" cy="70" r="1.4"/></g><g fill="#fff3b0"><circle cx="64" cy="10" r="1.4"/><circle cx="22" cy="42" r="1.2"/></g>'),'80px 80px','0 0'],nuit(.2),
+      ['repeating-linear-gradient(90deg,rgba(150,100,200,.5) 0 46px,rgba(95,55,140,.5) 46px 92px)','auto','0 0'],dg('linear-gradient(180deg,#5b3a78,#2b1537)')]},
+    /* IT HUNGERS : citrouille de lave -- espace noir étoilé, marbrures rouges, lueur orange */
+    hungers:{base:'#120305',l:[dg('radial-gradient(ellipse 52% 46% at 50% 44%,rgba(255,140,20,.5),rgba(190,40,10,.25) 45%,transparent 76%)'),
+      [svgTuile(100,100,'<g fill="#fff"><circle cx="12" cy="16" r="1"/><circle cx="70" cy="30" r="1.2"/><circle cx="40" cy="70" r="1"/><circle cx="88" cy="84" r="1"/></g><g fill="#ffd27a"><circle cx="54" cy="8" r="1"/><circle cx="20" cy="52" r="1.2"/></g>'),'100px 100px','0 0'],
+      dg('radial-gradient(circle at 18% 80%,rgba(160,20,15,.45),transparent 34%)'),dg('radial-gradient(circle at 86% 22%,rgba(140,15,15,.4),transparent 32%)'),dg('linear-gradient(180deg,#220608,#0a0203)')]},
+    /* ROCK LOBSTER : coucher de soleil orange, cercle de pierres au loin, herbe grise */
+    lobster:{base:'#1a1410',l:[
+      [svgTuile(260,60,'<g fill="#3c3a3c"><rect x="14" y="14" width="22" height="46"/><rect x="62" y="14" width="22" height="46"/><rect x="8" y="6" width="84" height="12"/><rect x="146" y="22" width="20" height="38"/><rect x="198" y="22" width="20" height="38"/><rect x="140" y="14" width="84" height="11"/></g>'),'260px 60px','50% 74%'],
+      dg('linear-gradient(0deg,#4a4846 0,#3a3836 16%,transparent 28%)'),nuit(.12),dg('radial-gradient(ellipse 70% 40% at 50% 70%,rgba(255,200,90,.5),transparent 72%)'),dg('linear-gradient(180deg,#d4601c,#f08a3c 38%,#f6b868 66%,#4a4846 72%)')]},
+    /* AMALGAMATE : tas de ferraille grise, mains couleur chair qui dépassent */
+    amalgamate:{base:'#232326',l:[nuit(.2),
+      [svgTuile(140,140,'<g><polygon points="0,30 40,10 56,46 14,62" fill="#7a7a7e"/><polygon points="60,0 110,16 96,52 56,40" fill="#5d5d62"/><polygon points="100,60 140,44 140,100 110,104" fill="#8a8a8e"/><polygon points="20,76 66,70 70,120 24,128" fill="#66666b"/><polygon points="74,84 104,106 86,140 60,124" fill="#929296"/><polygon points="0,110 22,100 28,140 0,140" fill="#5a5a5e"/></g><g fill="#d9a07c" opacity=".75"><ellipse cx="46" cy="58" rx="7" ry="3.5" transform="rotate(30 46 58)"/><ellipse cx="118" cy="34" rx="6" ry="3" transform="rotate(-20 118 34)"/></g><path d="M0 30L40 10L56 46L14 62Z M60 0L110 16L96 52L56 40Z M100 60L140 44V100L110 104Z M20 76L66 70L70 120L24 128Z" stroke="#1c1c1f" stroke-width="2" fill="none"/>'),'140px 140px','0 0']]},
+    /* Tippi : rats bruns sur fond crème -- papier chaud, coins bruns, petite lueur verte au centre */
+    tippi:{base:'#3a2c1a',l:[dg('radial-gradient(circle at 50% 44%,rgba(70,200,110,.28) 0,transparent 14%)'),dg('radial-gradient(ellipse 75% 70% at 50% 46%,transparent 0 35%,rgba(46,26,12,.82) 100%)'),nuit(.18),
+      [svgTuile(90,90,'<g fill="#a07848" opacity=".45"><path d="M10 20c8-6 16 0 14 8s-12 8-14 0z"/><path d="M58 52c8-6 16 0 14 8s-12 8-14 0z"/><path d="M36 78c6-4 12 0 10 6s-9 6-10 0z"/></g>'),'90px 90px','0 0'],dg('linear-gradient(180deg,#e8d9b4,#b79a68)')]},
+    /* Le Traître : silhouette à capuche bleue, visage blanc -- nuit de charbon, halo bleu autour de la capuche */
+    traitor:{base:'#1c1e21',l:[dg('radial-gradient(ellipse 30% 40% at 50% 46%,rgba(28,90,140,.6),transparent 76%)'),dg('radial-gradient(ellipse 14% 12% at 50% 50%,rgba(255,255,255,.22),transparent 76%)'),
+      dg('radial-gradient(ellipse 80% 70% at 50% 50%,transparent 40%,rgba(0,0,0,.6) 100%)'),dg('linear-gradient(180deg,#303337,#141517)')]}
+  };
+  return F[String(id)]||null;
+}
+/* Pose le fond du titan sur l'écran (ou, sans fond connu, laisse celui de la feuille de style). */
+function poserFond(el,id){
+  var f=fondTitan(id);
+  if(!f){el.style.backgroundImage='';el.style.backgroundSize='';el.style.backgroundPosition='';el.style.backgroundRepeat='';el.style.backgroundColor='';return;}
+  el.style.backgroundImage=f.l.map(function(x){return x[0];}).join(',');
+  el.style.backgroundSize=f.l.map(function(x){return x[1];}).join(',');
+  el.style.backgroundPosition=f.l.map(function(x){return x[2];}).join(',');
+  el.style.backgroundRepeat=f.l.map(function(){return 'no-repeat';}).join(',');
+  el.style.backgroundColor=f.base;
+}
+
 /* Le journal des attaques est une fenêtre autonome (modules/journal-attaques-v1.js), accessible aussi hors combat et sur la page Aventure. */
 function basculerJournal(){
   var api=window.__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__;
@@ -112,8 +193,8 @@ function css(){
     /* la page ne défile plus pendant le combat : elle est alignée une fois pour toutes sous les boutons Aventure / Titans */
     'html.tcv-actif{overflow:hidden!important}',
     /* boutons Aventure / Titans pendant un combat de Titan : rouge sombre, assorti au fond de l'écran de combat (Norman, 2026-10-14) */
-    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25{background:linear-gradient(180deg,#6a1219,#2c070c)!important;border-color:#a8323a!important;color:#ffe9dd!important;text-shadow:0 1px 2px #000;opacity:1;filter:none}',
-    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25.actif{background:linear-gradient(180deg,#8a1a22,#430a10)!important;border-color:#ffb36b!important;box-shadow:0 0 0 2px #ff8a1a,0 0 14px rgba(255,90,20,.55)!important}',
+    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25{background:linear-gradient(180deg,color-mix(in srgb,var(--tcv-c,#ff5a14) 40%,#000),color-mix(in srgb,var(--tcv-c,#ff5a14) 14%,#000))!important;border-color:color-mix(in srgb,var(--tcv-c,#ff5a14) 65%,#000)!important;color:#fff!important;text-shadow:0 1px 2px #000;opacity:1;filter:none}',
+    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25.actif{background:linear-gradient(180deg,color-mix(in srgb,var(--tcv-c,#ff5a14) 55%,#000),color-mix(in srgb,var(--tcv-c,#ff5a14) 22%,#000))!important;border-color:var(--tcv-c,#ff5a14)!important;box-shadow:0 0 0 2px var(--tcv-c,#ff5a14),0 0 14px color-mix(in srgb,var(--tcv-c,#ff5a14) 55%,transparent)!important}',
     /* le Grand Arbre corrompu grandit en cours de combat : la hauteur de son image change en douceur */
     '#'+ID+' .tcv-titan.tcv-croit{transition:height .7s ease-out}',
     /* départ du titan vaincu : il rapetisse en tournant très vite sur lui-même, comme s'il partait au loin */
@@ -230,6 +311,7 @@ function afficher(f){
   var el=document.getElementById(ID);
   if(!el||cleIdentite!==identite){construire(f);cleIdentite=identite;}
   el=document.getElementById(ID);
+  if(el.__fond!==String(f.titanId)){el.__fond=String(f.titanId);poserFond(el,f.titanId);document.documentElement.style.setProperty('--tcv-c',couleur(f.titanId));}
   var premiere=el.hidden||!document.body.classList.contains('tcv-actif');
   el.hidden=false;
   document.body.classList.add('tcv-actif');
@@ -246,7 +328,9 @@ function masquer(){
   var cale=document.getElementById(ID+'Cale');
   if(cale&&cale.parentNode)cale.parentNode.removeChild(cale);
   document.documentElement.classList.remove('tcv-actif');
+  document.documentElement.style.removeProperty('--tcv-c');
   var el=document.getElementById(ID);
+  if(el)el.__fond='';
   if(el&&!el.hidden){el.hidden=true;el.innerHTML='';}
   cleIdentite='';
   document.body.classList.remove('tcv-actif');

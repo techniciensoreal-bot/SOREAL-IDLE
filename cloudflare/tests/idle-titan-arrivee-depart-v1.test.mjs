@@ -29,3 +29,10 @@ assert.ok(flux.includes("titanFuites")&&flux.includes('"titanFuite"'));
 assert.ok(fx.includes("case 'titanFuite'")&&fx.includes("pris la fuite contre"));
 /* objet Wandoos : message de réussite et de refus */
 assert.ok(mp.includes("consumeWandoosCopy")&&mp.includes("messageCopieWandoosV1_")&&mp.includes("Pas assez de niveaux sur cette copie"));
+/* un fond par titan : dégradés CSS purs, statiques (aucune image, aucune animation) ; boutons Aventure/Titans à la couleur du titan */
+assert.ok(e.includes("function fondTitan(id)")&&e.includes("function poserFond(el,id)")&&e.includes("--tcv-c"));
+{
+  const bloc=e.slice(e.indexOf("function fondTitan(id)"),e.indexOf("function poserFond(el,id)"));
+  for(const id of ["t1","t2","t3","t4","t5","t6","t7","nerd","godmother","hungers","lobster","amalgamate","tippi","traitor"]) assert.ok(new RegExp("\n    "+id+":\{base:").test(bloc),"fond du titan "+id);
+  assert.ok(!/url\(|@keyframes|animation/.test(bloc),"fonds : ni image ni animation");
+}

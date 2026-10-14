@@ -47,6 +47,7 @@
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Chaque Titan a maintenant son propre fond de combat, aux couleurs et au décor de son personnage (fixe, sans animation) ; les boutons Aventure et Titans prennent la couleur du Titan affronté.',
             'Le combat de Titan occupe tout l’écran de l’interface, mais les menus de gauche restent visibles.',
             'Pendant un combat de Titan, les boutons Aventure et Titans prennent un rouge sombre assorti au fond du combat.',
             'Cliquer sur Aventure en plein combat de Titan est annoncé dans « En direct » : « … a pris la fuite contre … » (le nom n’est donné qu’aux joueurs qui connaissent ce Titan).',
