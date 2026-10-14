@@ -31,6 +31,10 @@ function basculerJournal(){
 }
 var cleIdentite='';
 var verrou=null;
+var sortie=null;      /* animation de départ du titan vaincu en cours : {fin} */
+var annonce=null;     /* écran « un titan approche » : {el, debut, max} */
+var dernierDefil=0;   /* dernier défilement fait par le joueur (la page n'est pas re-alignée juste après) */
+var DUREE_ADIEU_MS=5200,ANNONCE_MIN_MS=1700,ANNONCE_MAX_MS=12000;
 
 function hote(){return window.__SOREAL_IDLE_META_HOST_V130__||{};}
 function h(x){var f=hote().idleHtml_;return typeof f==='function'?f(x):String(x==null?'':x).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -105,6 +109,38 @@ function css(){
     '@keyframes tcvRespire{from{transform:scale(1)}to{transform:scale(1.025)}}',
     '@media (prefers-reduced-motion:reduce){#'+ID+' .tcv-halo,#'+ID+' .tcv-titan{animation:none}}',
     'body.tcv-actif{overflow:hidden}',
+    /* la page ne défile plus pendant le combat : elle est alignée une fois pour toutes sous les boutons Aventure / Titans */
+    'html.tcv-actif{overflow:hidden!important}',
+    /* le Grand Arbre corrompu grandit en cours de combat : la hauteur de son image change en douceur */
+    '#'+ID+' .tcv-titan.tcv-croit{transition:height .7s ease-out}',
+    /* départ du titan vaincu : il rapetisse en tournant très vite sur lui-même, comme s'il partait au loin */
+    '#'+ID+'.tcv-adieu .tcv-titan{animation:tcvAdieu 2.1s cubic-bezier(.5,.02,.85,.5) forwards!important;transition:none!important}',
+    '#'+ID+'.tcv-adieu .tcv-halo{animation:tcvHaloAdieu 2.1s ease-in forwards}',
+    '#'+ID+'.tcv-adieu .tcv-cmd,#'+ID+'.tcv-adieu .tcv-barres,#'+ID+'.tcv-adieu .tcv-etats{opacity:.25;pointer-events:none;transition:opacity .4s}',
+    '#'+ID+' .tcv-adieu-msg{position:absolute;left:8px;right:8px;top:50%;transform:translateY(-50%);text-align:center;z-index:3;opacity:0;animation:tcvMsgEntree .7s 1.2s ease-out forwards;pointer-events:none}',
+    '#'+ID+' .tcv-adieu-msg b{display:block;font-family:Bangers,"Comic Sans MS",cursive;font-weight:400;font-size:clamp(28px,7vw,54px);letter-spacing:.05em;color:var(--tcv-c,#ffd166);text-shadow:0 3px 0 #000,0 0 18px var(--tcv-c,#ffd166)}',
+    '#'+ID+' .tcv-adieu-msg span{display:block;margin-top:6px;font-size:clamp(16px,3.6vw,24px);font-weight:900;color:#fff;text-shadow:0 2px 0 #000,0 0 10px #000}',
+    '@keyframes tcvAdieu{0%{transform:scale(1) rotate(0deg);opacity:1}100%{transform:scale(.02) rotate(3240deg);opacity:0}}',
+    '@keyframes tcvHaloAdieu{to{opacity:0;transform:scale(.1)}}',
+    '@keyframes tcvMsgEntree{from{opacity:0;transform:translateY(-50%) scale(.85)}to{opacity:1;transform:translateY(-50%) scale(1)}}',
+    /* écran « un titan approche » : plein écran, rouge, il tremble, le titan grossit au fil de l'attente */
+    '#ttnAnnonceV1{position:fixed;inset:0;z-index:100003;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#fff;font-family:Bangers,"Comic Sans MS",cursive;text-align:center;opacity:1;transition:opacity .6s ease}',
+    '#ttnAnnonceV1.ta-sortie{opacity:0;pointer-events:none}',
+    '#ttnAnnonceV1 .ta-fond{position:absolute;inset:-4%;background:radial-gradient(ellipse at 50% 55%,#6b0a14 0%,#2a0409 45%,#050102 100%);animation:taAlerte 1.1s ease-in-out infinite alternate}',
+    '#ttnAnnonceV1 .ta-eclair{position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,60,40,.07) 46px 50px);animation:taDefile 1.6s linear infinite}',
+    '#ttnAnnonceV1 >*{position:relative;z-index:1}',
+    '#ttnAnnonceV1 .ta-alerte{font-size:clamp(20px,4.6vw,34px);letter-spacing:.35em;color:#ff4a4a;text-shadow:0 0 14px #ff1a1a,0 3px 0 #000;animation:taClignote .7s steps(2,end) infinite}',
+    '#ttnAnnonceV1 .ta-titan{display:flex;align-items:center;justify-content:center;width:min(60vw,48vh);height:min(60vw,48vh);animation:taApproche 7s cubic-bezier(.2,.6,.3,1) forwards,taSecousse .09s linear infinite}',
+    '#ttnAnnonceV1 .ta-titan img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:brightness(.55) contrast(1.1) drop-shadow(0 0 28px var(--tcv-c,#ff5a14))}',
+    '#ttnAnnonceV1 .ta-titan b{font-size:min(40vh,300px);line-height:1;color:var(--tcv-c,#ff5a14);text-shadow:0 0 40px var(--tcv-c,#ff5a14),0 6px 0 #000}',
+    '#ttnAnnonceV1 .ta-nom{font-size:clamp(34px,9vw,84px);letter-spacing:.06em;color:var(--tcv-c,#ffd166);text-shadow:0 4px 0 #000,0 0 26px var(--tcv-c,#ffd166),0 0 60px var(--tcv-c,#ffd166);animation:taSecousse .11s linear infinite}',
+    '#ttnAnnonceV1 .ta-sous{font-family:var(--f-texte,"Russo One",sans-serif);font-size:clamp(15px,3.4vw,22px);letter-spacing:.18em;text-transform:uppercase;color:#ffd0c8;text-shadow:0 2px 0 #000}',
+    '@keyframes taAlerte{from{filter:brightness(.8)}to{filter:brightness(1.35)}}',
+    '@keyframes taClignote{50%{opacity:.15}}',
+    '@keyframes taDefile{to{background-position:200px 0}}',
+    '@keyframes taApproche{from{transform:scale(.18);opacity:.5}to{transform:scale(1);opacity:1}}',
+    '@keyframes taSecousse{0%{translate:0 0}25%{translate:2px -2px}50%{translate:-2px 1px}75%{translate:1px 2px}100%{translate:0 0}}',
+    '@media (prefers-reduced-motion:reduce){#ttnAnnonceV1 .ta-fond,#ttnAnnonceV1 .ta-eclair,#ttnAnnonceV1 .ta-alerte,#ttnAnnonceV1 .ta-nom,#ttnAnnonceV1 .ta-titan{animation:none!important}#ttnAnnonceV1 .ta-titan{transform:none}#'+ID+'.tcv-adieu .tcv-titan{animation:none!important;opacity:0}}',
     /* le bandeau collant des ressources (tuiles + barres, ~150 px) n'est pas utile pendant le combat et masquerait les boutons Aventure / Titans : replié, pas retiré */
     'body.tcv-actif #sorealIdleHudV2{max-height:0!important;overflow:hidden!important;visibility:hidden!important;margin:0!important;padding:0!important;border:0!important}'
   ].join('\n');
@@ -152,19 +188,24 @@ function poserHaut(premiere){
   var el=document.getElementById(ID);
   if(!el)return;
   var b=document.querySelector('.soreal-idle-bascule-aventure-v1');
-  if(b&&premiere){
-    /* Seule une VRAIE barre collante en haut de page compte (téléphone : ~60 px) ; sur PC le menu est une colonne de plus de 1 000 px, qui n'est pas au-dessus du bandeau (Norman, 2026-10-14 : « sur PC l'écran n'est pas plein écran, il faut descendre 2 fois avec la molette ») : l'ancien calcul la prenait pour une barre et ne faisait pas remonter la page. */
+  if(b&&(premiere||Date.now()-dernierDefil>1500)){
+    /* Seule une VRAIE barre collante en haut de page (téléphone : ~60 px) compte ; sur PC le menu est une colonne de plus de 1 000 px, qui n'est pas au-dessus du bandeau (Norman, 2026-10-14 : « sur PC l'écran n'est pas plein écran, il faut descendre avec la molette ») : l'ancien calcul la prenait pour une barre et ne faisait pas remonter la page. */
     var nav=document.querySelector('.soreal-idle-nav-v28'),collant=0;
     if(nav&&getComputedStyle(nav).position==='sticky'){var rn=nav.getBoundingClientRect();if(rn.top<=2&&rn.height<=220)collant=rn.bottom;}
     var voulu=Math.round(b.getBoundingClientRect().top-collant-4);
-    /* Page trop courte pour remonter le bandeau tout en haut : une cale temporaire la rallonge, retirée à la fin du combat. */
-    var racine=document.documentElement,possible=Math.max(0,racine.scrollHeight-window.innerHeight-window.scrollY);
-    var cale=document.getElementById(ID+'Cale');
-    if(voulu>possible){
-      if(!cale){cale=document.createElement('div');cale.id=ID+'Cale';cale.setAttribute('aria-hidden','true');document.body.appendChild(cale);}
-      cale.style.cssText='height:'+(voulu-possible+8)+'px;pointer-events:none';
+    /*
+     * La page est ré-alignée à CHAQUE passage tant que les boutons ne sont pas tout en haut (Norman, 2026-10-14, « de nouveau pas plein écran, j'ai dû baisser une fois ») : en début de combat la page change de hauteur
+     * (la scène d'Aventure se replie, l'écran d'annonce disparaît) et le premier alignement ne suffisait plus. Une cale temporaire rallonge la page si elle est trop courte, retirée à la fin du combat.
+     */
+    if(Math.abs(voulu)>3){
+      var racine=document.documentElement,possible=Math.max(0,racine.scrollHeight-window.innerHeight-window.scrollY);
+      var cale=document.getElementById(ID+'Cale');
+      if(voulu>possible){
+        if(!cale){cale=document.createElement('div');cale.id=ID+'Cale';cale.setAttribute('aria-hidden','true');document.body.appendChild(cale);}
+        cale.style.cssText='height:'+((parseInt(cale.style.height,10)||0)+(voulu-possible)+8)+'px;pointer-events:none';
+      }
+      window.scrollBy({top:voulu,left:0,behavior:'instant'});
     }
-    if(voulu!==0)window.scrollBy({top:voulu,left:0,behavior:'instant'});
   }
   var top=b?Math.max(0,Math.round(b.getBoundingClientRect().bottom+6)):0;
   if(el.style.getPropertyValue('--tcv-top')!==top+'px')el.style.setProperty('--tcv-top',top+'px');
@@ -178,25 +219,136 @@ function afficher(f){
   var premiere=el.hidden||!document.body.classList.contains('tcv-actif');
   el.hidden=false;
   document.body.classList.add('tcv-actif');
+  document.documentElement.classList.add('tcv-actif');
   poserHaut(premiere);
+  croissanceTitan(f);
+  if(premiere)finirAnnonce();
   var zone=document.getElementById('ttnCombatEtatsV1');
   if(zone){var t=etats(f);if(zone.__t!==t){zone.__t=t;zone.innerHTML=t;}}
 }
 
 function masquer(){
+  sortie=null;
   var cale=document.getElementById(ID+'Cale');
   if(cale&&cale.parentNode)cale.parentNode.removeChild(cale);
+  document.documentElement.classList.remove('tcv-actif');
   var el=document.getElementById(ID);
   if(el&&!el.hidden){el.hidden=true;el.innerHTML='';}
   cleIdentite='';
   document.body.classList.remove('tcv-actif');
+  if(el)el.classList.remove('tcv-adieu');
 }
 
 function suivre(){
   if(document.hidden)return;
+  if(sortie){
+    if(Date.now()<sortie.fin)return;
+    masquer();return;
+  }
   var f=combat();
   if(f&&surPageTitans())afficher(f);else masquer();
 }
+
+/*
+ * Le Grand Arbre corrompu (t2) grandit en cours de combat (Norman, 2026-10-14) : petit au départ, de plus en plus grand à mesure que sa force monte et que ses PV baissent, aussi grand que la place de l'écran le permet
+ * à la moitié de ses PV (« quand il tape fort »). Mise à l'échelle par la HAUTEUR de l'image (le reste de l'écran ne bouge pas). Pur visuel : aucune valeur de jeu.
+ */
+function echelleTitan(f){
+  if(!f||String(f.titanId)!=='t2')return 1;
+  var max=Number(f.monsterHpMax)||0,pv=Number(f.monsterHp);
+  if(!(max>0)||!isFinite(pv))return 1;
+  var avance=Math.max(0,Math.min(1,(1-pv/max)/0.5));
+  return 0.32+0.68*avance;
+}
+function croissanceTitan(f){
+  var img=document.getElementById('sorealIdleAdventureSceneMobV1');
+  if(!img||!img.classList||!img.classList.contains('tcv-titan'))return;
+  var e=echelleTitan(f);
+  if(String(f&&f.titanId)!=='t2'){if(img.style.height)img.style.height='';return;}
+  img.classList.add('tcv-croit');
+  var h=Math.round(e*100)+'%';
+  if(img.style.height!==h)img.style.height=h;
+}
+
+/* ---------- écran « un titan approche » (pendant l'attente avant le combat) ---------- */
+function retirerAnnonce(vite){
+  var a=annonce;annonce=null;
+  if(!a)return;
+  clearTimeout(a.max);clearTimeout(a.fin);
+  if(vite){if(a.el.parentNode)a.el.parentNode.removeChild(a.el);return;}
+  a.el.classList.add('ta-sortie');
+  setTimeout(function(){if(a.el.parentNode)a.el.parentNode.removeChild(a.el);},700);
+}
+/* opts : { id, nom, imageVisible } — l'image n'est montrée que si on a déjà affronté ce titan (sinon un « ? », comme sur la page Titans). */
+function annoncer(opts){
+  var o=opts||{};
+  css();
+  retirerAnnonce(true);
+  var el=document.createElement('div');
+  el.id='ttnAnnonceV1';
+  el.setAttribute('role','alert');
+  el.style.setProperty('--tcv-c',couleur(o.id));
+  var nom=String(o.nom||'Titan');
+  el.innerHTML='<div class="ta-fond"></div><div class="ta-eclair"></div>'+
+    '<div class="ta-alerte">⚠ ALERTE ⚠</div>'+
+    '<div class="ta-titan">'+(o.imageVisible?'<img alt="" src="'+h(urlImage({titanId:o.id,titanForm:-1,titanTier:''}))+'" onerror="this.parentNode.innerHTML=\'<b>?</b>\'">':'<b>?</b>')+'</div>'+
+    '<div class="ta-nom">'+h(nom.toUpperCase())+'</div>'+
+    '<div class="ta-sous">Un Titan approche…</div>';
+  document.body.appendChild(el);
+  annonce={el:el,debut:Date.now(),max:setTimeout(function(){retirerAnnonce(false);},ANNONCE_MAX_MS),fin:0};
+}
+/* Le combat vient de s'afficher : l'annonce disparaît, mais elle reste au moins un instant pour ne pas clignoter. */
+function finirAnnonce(){
+  var a=annonce;
+  if(!a||a.fin)return;
+  var reste=Math.max(0,ANNONCE_MIN_MS-(Date.now()-a.debut));
+  a.fin=setTimeout(function(){retirerAnnonce(false);},reste);
+}
+
+/* ---------- départ du titan vaincu ---------- */
+function infoRetour(id){
+  var T=window.__SOREAL_IDLE_TITANS_V1__;
+  return T&&typeof T.infoRetour==='function'?T.infoRetour(id):null;
+}
+function maintenant(){return typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();}
+function dureeTexte(ms){
+  var T=window.__SOREAL_IDLE_TITANS_V1__;
+  return T&&typeof T.duree==='function'?T.duree(ms):Math.ceil(ms/1000)+' s';
+}
+/* d : { id, nom } — le titan rapetisse en tournant à toute vitesse, puis « Nom sera de retour dans … ». */
+function jouerAdieu(d){
+  var el=document.getElementById(ID);
+  if(!el||el.hidden||sortie)return;
+  var id=String(d&&d.id||''),inf0=infoRetour(id),nom=String(inf0&&inf0.nom||d&&d.nom||'Le titan');
+  sortie={fin:Date.now()+DUREE_ADIEU_MS};
+  el.classList.add('tcv-adieu');
+  var scene=el.querySelector('.tcv-scene');
+  if(!scene)return;
+  var msg=document.createElement('div');
+  msg.className='tcv-adieu-msg';
+  msg.innerHTML='<b>'+h(nom)+'</b><span>sera de retour dans <i data-tcv-retour>…</i></span>';
+  scene.appendChild(msg);
+  var t0=Date.now();
+  function remplir(){
+    var zone=msg.querySelector('[data-tcv-retour]');
+    if(!zone||!sortie)return;
+    var inf=infoRetour(id),n=inf&&Number(inf.nextAt)>0?Number(inf.nextAt)-maintenant():0;
+    if(n>0){zone.textContent=dureeTexte(n);return true;}
+    /* Le serveur n'a pas encore confirmé la victoire : au bout de 2,5 s on affiche le délai de base du titan. */
+    if(Date.now()-t0>2500&&inf&&Number(inf.cooldown)>0){zone.textContent=dureeTexte(Number(inf.cooldown));return true;}
+    return false;
+  }
+  var essais=0;
+  (function boucle(){
+    if(!sortie||!msg.parentNode)return;
+    if(remplir()===true&&essais>6)return;
+    essais+=1;
+    if(essais<30)setTimeout(boucle,200);
+  })();
+}
+window.addEventListener('soreal-titan-vaincu',function(ev){try{jouerAdieu(ev&&ev.detail);}catch(_e){}});
+/* Le joueur fait défiler la page : pas de ré-alignement automatique pendant un instant. */
+['wheel','touchmove'].forEach(function(nom){window.addEventListener(nom,function(){dernierDefil=Date.now();},{passive:true});});
 
 function quitter(){
   if(typeof window.__arreterCombatTitanV1__==='function')window.__arreterCombatTitanV1__();
@@ -207,5 +359,5 @@ function quitter(){
 
 if(typeof setInterval==='function')verrou=setInterval(suivre,250);
 
-window.__SOREAL_IDLE_TITAN_ECRAN_V1__={suivre:suivre,actif:function(){var el=document.getElementById(ID);return Boolean(el&&!el.hidden);},quitter:quitter,journal:basculerJournal,combat:combat,simuler:function(f){faux=f||null;suivre();},etats:etats,construire:construire};
+window.__SOREAL_IDLE_TITAN_ECRAN_V1__={annoncer:annoncer,finirAnnonce:finirAnnonce,jouerAdieu:jouerAdieu,echelleTitan:echelleTitan,suivre:suivre,actif:function(){var el=document.getElementById(ID);return Boolean(el&&!el.hidden);},quitter:quitter,journal:basculerJournal,combat:combat,simuler:function(f){faux=f||null;suivre();},etats:etats,construire:construire};
 })();

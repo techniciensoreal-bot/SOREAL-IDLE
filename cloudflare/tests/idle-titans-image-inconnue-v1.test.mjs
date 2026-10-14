@@ -8,7 +8,7 @@ assert.ok(titans.includes("function titanVu(t){") && titans.includes("ent(t.stat
 assert.ok(titans.includes('class="ttn-portrait ttn-inconnu"') && titans.includes('<span class="ttn-point">?</span>'), "carte : un « ? » à la place de l'image");
 assert.ok(/titanVu\(t\)\s*\?'<div class="ttn-portrait"><img id="ttnImg_'/.test(titans), "l'image n'est écrite que pour un titan vu");
 assert.ok(titans.includes("if(!titanVu(t))return '<span class=\"soreal-idle-titan-icone-v1\""), "l'icône du bouton Titans suit la même règle");
-assert.ok(titans.includes("function lancerCombatTitan_(id){\n  var t=registre[id];\n  if(!t)return;\n  marquerVu(id);") || titans.replace(/\r\n/g, "\n").includes("function lancerCombatTitan_(id){\n  var t=registre[id];\n  if(!t)return;\n  marquerVu(id);"), "lancer un combat révèle le titan");
+{const c=titans.replace(/\r\n/g,"\n"),d=c.indexOf("function lancerCombatTitan_(id){");assert.ok(d>=0&&c.slice(d,d+900).includes("marquerVu(id);")&&c.indexOf("ecran.annoncer(",d)<c.indexOf("marquerVu(id);",d),"lancer un combat révèle le titan (après avoir capté s'il était déjà vu pour l'annonce)");}
 assert.ok(ecran.includes("marquerVu(f.titanId)"), "un combat en cours (même après rechargement) révèle le titan");
 { // règle pure
   const vu = (kills, flag) => kills > 0 || flag;

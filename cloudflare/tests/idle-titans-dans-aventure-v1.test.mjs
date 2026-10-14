@@ -22,7 +22,7 @@ const section = mod.slice(mod.indexOf("function section(j){"), mod.indexOf("/* -
 assert.ok(section.includes("progressionUnlocked!==false"), "seuls les titans débloqués");
 assert.ok(section.includes("if(!titans.length)return '';"), "aucun titan débloqué : section vide");
 assert.ok(!section.includes("entetePageIdleV28_"), "pas d'en-tête de page dans la section");
-assert.ok(/window\.__SOREAL_IDLE_TITANS_V1__=\{page:page,section:section,/.test(mod), "section exportée");
+assert.ok(/window\.__SOREAL_IDLE_TITANS_V1__=\{(?:infoRetour:infoRetour,)?page:page,section:section,/.test(mod), "section exportée");
 
 // L'animation du menu Adventure reprend celle de l'ancien menu Titans (un titan prêt à affronter).
 const anime = ui.slice(ui.indexOf("function idleMenuEtatAnimeIdleV1_"), ui.indexOf("if(id==='renaissance'", ui.indexOf("function idleMenuEtatAnimeIdleV1_")));

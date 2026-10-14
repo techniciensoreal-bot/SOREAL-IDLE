@@ -117,7 +117,8 @@ function addBoost(s, type, strength, level = 0) {
   w2v.locked = true;
   applyIdleInventoryAutoActionV1({ adventure: s }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
   const ids = s.inventorySlots.filter(Boolean);
-  assert.deepEqual(ids, [r2v, r1, w2v, w1, p1v, p3v, p1, p2, t2v, t1].map((o) => o.id), "verrouillés en tête de leur catégorie, puis l'ordre habituel (numéro croissant)");
+  /* Règle du 2026-10-14 : le verrou joue au niveau du GROUPE (même objet, ou même type et numéro pour un boost) : p1 verrouillé emmène son double p1 avec lui. */
+  assert.deepEqual(ids, [r2v, r1, w2v, w1, p1v, p1, p3v, p2, t2v, t1].map((o) => o.id), "verrouillés en tête de leur catégorie, doubles collés, puis numéro croissant");
 }
 
 // --- 4. Les slots d'automerge (réservés, curés à la main par le joueur) ne sont jamais réordonnés par le tri. ---
@@ -185,6 +186,50 @@ function addBoost(s, type, strength, level = 0) {
     const noms = s.inventorySlots.filter(Boolean).map((id) => s.inventory.find((x) => x.id === id).name);
     assert.deepEqual(noms.filter((n) => n !== "Cube tutoriel"), [a1.name, a2.name, b.name], "les deux objets du même nom se suivent");
   }
+}
+
+// --- 9. Sets côte à côte (Norman, 2026-10-14) : casque 1, torse 1, puis casque 2, torse 2 ; jamais casque 1, casque 2, torse 1, torse 2. ---
+{
+  const s9 = adv();
+  s9.inventory = [];
+  const f = { head: addItem(s9, "forest:head"), chest: addItem(s9, "forest:chest"), legs: addItem(s9, "forest:legs") };
+  const e = { head: addItem(s9, "sewers:head"), chest: addItem(s9, "sewers:chest"), legs: addItem(s9, "sewers:legs") };
+  // Ajoutés volontairement mélangés : tête, tête, torse, torse, jambes, jambes.
+  s9.inventorySlots = [f.head, e.head, f.chest, e.chest, f.legs, e.legs].map((o) => o.id);
+  applyIdleInventoryAutoActionV1({ adventure: s9 }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const ids9 = s9.inventorySlots.filter(Boolean);
+  assert.deepEqual(ids9, [e.head, e.chest, e.legs, f.head, f.chest, f.legs].map((o) => o.id), "un set après l'autre (Égouts avant Forêt, comme les zones), tête, torse, jambes dans chaque set");
+}
+
+// --- 10. Bijoux : les exemplaires du même objet sont collés, même quand l'un est verrouillé (le réveil verrouillé et ses doubles). ---
+{
+  const s10 = adv();
+  s10.inventory = [];
+  const a1 = addItem(s10, "sewers:ring");
+  const b1 = addItem(s10, "forest:ring");
+  const a2 = addItem(s10, "sewers:ring");
+  const c1 = addItem(s10, "cave:ring");
+  const a3 = addItem(s10, "sewers:ring");
+  a3.locked = true;
+  s10.inventorySlots = [a1, b1, a2, c1, a3].map((o) => o.id);
+  applyIdleInventoryAutoActionV1({ adventure: s10 }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const ids10 = s10.inventorySlots.filter(Boolean);
+  assert.deepEqual(ids10, [a3, a1, a2, b1, c1].map((o) => o.id), "le groupe de l'objet verrouillé monte en tête avec lui : verrouillé d'abord, ses doubles juste derrière, puis les autres bijoux");
+}
+
+// --- 11. Équipement : un set qui contient une pièce verrouillée passe avant les autres, et les doubles d'une pièce restent collés. ---
+{
+  const s11 = adv();
+  s11.inventory = [];
+  const e1 = addItem(s11, "sewers:head");
+  const f1 = addItem(s11, "forest:head");
+  const e2 = addItem(s11, "sewers:head");
+  const f2 = addItem(s11, "forest:chest");
+  f2.locked = true;
+  s11.inventorySlots = [e1, f1, e2, f2].map((o) => o.id);
+  applyIdleInventoryAutoActionV1({ adventure: s11 }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const ids11 = s11.inventorySlots.filter(Boolean);
+  assert.deepEqual(ids11, [f1, f2, e1, e2].map((o) => o.id), "set Forêt (pièce verrouillée) d'abord : tête, torse ; puis Égouts : les deux mêmes casques côte à côte");
 }
 
 console.log("idle-inventory-sort-v1: OK");

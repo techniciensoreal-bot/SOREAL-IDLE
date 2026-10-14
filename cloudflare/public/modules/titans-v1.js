@@ -183,12 +183,16 @@ function marquerVu(id){try{localStorage.setItem(cleVu(id),'1');}catch(_e){}}
 
 /* Difficulté choisie par titan (audit 2026-10-13) : un redessin ne remet plus le sélecteur sur la première difficulté (le joueur pouvait lancer une autre difficulté que celle affichée). */
 var choixPalier={};
+var signatureRendue={};
+/* Ce qui change quand un titan est vaincu : nombre de victoires et heure de retour. */
+function signature(t){var e=t&&t.state||{};return ent(e.kills)+"|"+prochainRetour(t)+"|"+(e.hiddenPanel?1:0);}
 function carte(t){
   var id=String(t.id);
   var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
   if(palier&&choixPalier[id]&&Object.prototype.hasOwnProperty.call(t.difficulties,choixPalier[id]))palier=choixPalier[id];
   var v=variante(t,palier);
   registre[id]=t;
+  signatureRendue[id]=signature(t);
   var kills=ent(t.state&&t.state.kills);
   var retour=prochainRetour(t);
   var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
@@ -418,6 +422,11 @@ window.__affronterTitanV1__=function(id){
 function lancerCombatTitan_(id){
   var t=registre[id];
   if(!t)return;
+  /* Écran « un Titan approche » pendant l'attente avant le combat (Norman, 2026-10-14) ; l'image n'y est montrée que si on a DÉJÀ affronté ce titan (avant marquerVu : le premier combat garde la surprise). */
+  try{
+    var ecran=window.__SOREAL_IDLE_TITAN_ECRAN_V1__;
+    if(ecran&&typeof ecran.annoncer==='function')ecran.annoncer({id:String(id),nom:String(t.nomComplet||t.name||id),imageVisible:titanVu(t)});
+  }catch(_e){}
   marquerVu(id);
   var sel=document.getElementById('ttnPalier_'+id);
   var etat=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
@@ -447,6 +456,19 @@ setInterval(function(){
     var btn=carteEl.querySelector('.ttn-bouton');
     if(btn)btn.disabled=false;
   });
+},1000);
+
+/*
+ * Titan vaincu pendant que sa page est affichée (Norman, 2026-10-14 : « l'écran titan dit qu'il est disponible, il faut changer de menu pour voir le chrono ») : la page ne se redessine qu'au changement de menu.
+ * Toutes les secondes, si une carte affichée ne correspond plus à l'état à jour du joueur, la page est redessinée.
+ */
+setInterval(function(){
+  if(document.hidden||!document.querySelector('.ttn-carte'))return;
+  var H=hote(),etat=typeof window.__titansEtatJoueurIdleV1__==='function'?window.__titansEtatJoueurIdleV1__():null;
+  var a=etat&&typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(etat):null;
+  if(!a||!Array.isArray(a.titans))return;
+  var perime=a.titans.some(function(t){return t&&t.id&&t.progressionUnlocked!==false&&signatureRendue[String(t.id)]!==undefined&&signatureRendue[String(t.id)]!==signature(t);});
+  if(perime&&typeof window.__titansRafraichirPageIdleV1__==='function')window.__titansRafraichirPageIdleV1__();
 },1000);
 
 /* L'Auto-kill de ce titan peut-il être COCHÉ ? Seulement si ses conditions sont déjà remplies (même règle que le serveur, qui refuse sinon) ; décocher reste toujours possible. Stats inconnues : on laisse le serveur trancher. */
@@ -508,5 +530,11 @@ function disponible(j){
   return (a&&Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false&&t.id&&!cache(t)&&!(prochainRetour(t)>maintenant)&&!seTueTout(t);});
 }
 
-window.__SOREAL_IDLE_TITANS_V1__={page:page,section:section,marquerVu:marquerVu,titanVu:titanVu,disponible:disponible,icone:icone,seTueTout:seTueTout,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
+/* Pour le message de départ du titan vaincu (titans-combat-ecran-v1.js) : instant de retour confirmé par le serveur, ou délai de base en repli. */
+function infoRetour(id){
+  var t=registre[id];
+  if(!t)return null;
+  return {nom:String(t.nomComplet||t.name||id),nextAt:prochainRetour(t),cooldown:Number(t.cooldown)||0};
+}
+window.__SOREAL_IDLE_TITANS_V1__={infoRetour:infoRetour,page:page,section:section,marquerVu:marquerVu,titanVu:titanVu,disponible:disponible,icone:icone,seTueTout:seTueTout,traduire:traduire,duree:duree,cleVariante:cleVariante,textes:{MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

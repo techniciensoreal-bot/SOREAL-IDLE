@@ -93,7 +93,8 @@ import {
   idleAdventureInventoryUsedV1,
   idleAdventureBoostRoomV1,
   idleAdventureItemAtLevelV47,
-  IDLE_SECOND_WEAPON_SLOTS_V1
+  IDLE_SECOND_WEAPON_SLOTS_V1,
+  IDLE_ADVENTURE_ZONES
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -516,17 +517,48 @@ function sortInventorySlotsV1(s) {
   const mergeSlots = Math.max(0, Math.min(cap, I(s.mergeSlots)));
   const byId = new Map((Array.isArray(s.inventory) ? s.inventory : []).map((o) => [String(o.id), o]));
   const ids = slots.slice(mergeSlots).filter(Boolean);
-  /* Boosts (Norman, 2026-10-03) : dans leur catégorie (Power, Toughness, Special), triés par numéro croissant (1, 2, 5…). Tri stable pour tout le reste. */
-  const forceBoost = (o) => (o && o.kind === "boost" ? N(o.strength, 0) : 0);
-  /* Objets de même nom (Norman, 2026-10-03) : côte à côte, groupes dans l'ordre de leur première apparition (tri stable, rien d'autre ne bouge). */
-  const cleNom = (o) => String((o && (o.name || o.definitionId)) || "");
-  const premier = new Map();
-  ids.forEach((id, i) => { const k = cleNom(byId.get(id)); if (!premier.has(k)) premier.set(k, i); });
+  const objet = (id) => byId.get(id);
+  /*
+   * Règles du tri (Norman, 2026-10-14) :
+   *  1. Catégories : bijoux, objets divers, MacGuffins, ÉQUIPEMENT (armes, tête, torse, jambes, pieds), boosts.
+   *  2. Équipement : les SETS côte à côte, jamais « casque 1, casque 2, torse 1, torse 2 » mais « casque 1, torse 1 » puis « casque 2, torse 2 » ; dans un set, arme, tête, torse, jambes, pieds. Les sets suivent l'ordre
+   *     des zones (le plus ancien d'abord).
+   *  3. Les exemplaires du MÊME objet (même définition ; pour un boost, même type et même numéro) sont toujours COLLÉS, bijoux compris : on voit tout de suite ce qui peut fusionner.
+   *  4. Les objets verrouillés passent en tête, mais au niveau du GROUPE : si un objet verrouillé a des doubles, tout son groupe monte avec lui (jamais un verrouillé seul en haut et ses doubles plus loin). Pour l'équipement, un set qui
+   *     contient une pièce verrouillée passe avant les autres sets.
+   *  5. Boosts : par type (Power, Toughness, Special) puis numéro croissant.
+   * Tri stable : à égalité, l'ordre actuel est conservé.
+   */
+  const cleGroupe = (o) => (o && o.kind === "boost" ? "b:" + String(o.boostType || "") + ":" + N(o.strength, 0) : "o:" + String((o && (o.definitionId || o.name)) || ""));
+  const cleSet = (o) => String((o && o.set) || "");
+  const ordreSets = new Map();
+  (Array.isArray(IDLE_ADVENTURE_ZONES) ? IDLE_ADVENTURE_ZONES : []).forEach((z, i) => { if (z && z.set && !ordreSets.has(z.set)) ordreSets.set(z.set, i); });
+  const rangSet = (o) => (ordreSets.has(cleSet(o)) ? ordreSets.get(cleSet(o)) : 9999);
+  const rangPiece = (o) => { const t = basicFilterTypeV1(o); const i = ["weapon", "head", "chest", "legs", "boots"].indexOf(t); return i < 0 ? 9 : i; };
+  const estEquipement = (o) => sortRankInventoryV1(o) >= IDLE_SORT_INVENTORY_RANK_V1.weapon && sortRankInventoryV1(o) <= IDLE_SORT_INVENTORY_RANK_V1.boots;
+  const bloc = (o) => (estEquipement(o) ? IDLE_SORT_INVENTORY_RANK_V1.weapon : sortRankInventoryV1(o));
+  const verrou = (o) => Number(Boolean(o && o.locked));
+  const groupeVerrouille = new Map(), setVerrouille = new Map(), premier = new Map(), position = new Map();
+  ids.forEach((id, i) => {
+    const o = objet(id), g = cleGroupe(o);
+    position.set(id, i);
+    if (verrou(o)) { groupeVerrouille.set(g, 1); if (estEquipement(o)) setVerrouille.set(cleSet(o), 1); }
+    if (!premier.has(g)) premier.set(g, i);
+  });
+  const gv = (o) => groupeVerrouille.get(cleGroupe(o)) || 0;
+  const sv = (o) => (estEquipement(o) ? setVerrouille.get(cleSet(o)) || 0 : 0);
   ids.sort((a, b) => {
-    const oa = byId.get(a);
-    const ob = byId.get(b);
-    /* Les objets verrouillés (locked) passent toujours en tête de LEUR catégorie : le verrou prime sur le numéro ; entre objets verrouillés, l ordre habituel s applique. */
-    return sortRankInventoryV1(oa) - sortRankInventoryV1(ob) || Number(Boolean(ob && ob.locked)) - Number(Boolean(oa && oa.locked)) || forceBoost(oa) - forceBoost(ob) || premier.get(cleNom(oa)) - premier.get(cleNom(ob));
+    const oa = objet(a), ob = objet(b);
+    const d = bloc(oa) - bloc(ob);
+    if (d) return d;
+    if (estEquipement(oa)) {
+      return sv(ob) - sv(oa) || rangSet(oa) - rangSet(ob) || cleSet(oa).localeCompare(cleSet(ob)) || rangPiece(oa) - rangPiece(ob)
+        || gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
+    }
+    if (oa && oa.kind === "boost") {
+      return gv(ob) - gv(oa) || N(oa.strength, 0) - N(ob.strength, 0) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
+    }
+    return gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
   });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;

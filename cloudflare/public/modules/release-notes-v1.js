@@ -47,10 +47,16 @@
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Quand tu lances un combat de Titan, un grand écran d’alerte « Un Titan approche… » s’affiche pendant l’attente, avec son nom et son image qui grossit (un « ? » si tu ne l’as jamais affronté).',
+            'Le Grand Arbre corrompu commence petit et grandit à mesure que sa force monte, jusqu’à remplir tout l’écran vers la moitié de ses PV.',
+            'Quand tu bats un Titan, son image rapetisse en tournant sur elle-même, puis un message annonce dans combien de temps il sera de retour.',
+            'Le combat de Titan reste bien aligné en plein écran même quand la page change de taille au lancement.',
+            'Cliquer sur le bouton Aventure du menu depuis l’onglet Titans te ramène à l’onglet Aventure.',
             'Sur PC, l’écran de combat d’un Titan occupe tout l’écran dès le lancement : plus besoin de descendre avec la molette.',
             'La case « Auto-kill » d’un Titan ne peut plus être cochée tant que tu n’as pas les statistiques nécessaires : elle reste grisée, avec un message. Décocher reste toujours possible.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le bouton Trier range l’équipement set par set (casque 1, torse 1, puis casque 2, torse 2…) et colle toujours les objets identiques, bijoux compris, pour voir d’un coup d’œil ce qui peut fusionner.',
             'Un simple appui sur un objet (sac ou équipement) ouvre sa fiche, avec ou sans statistiques, à la place de l’appui long ; appuyer de nouveau sur le même objet la referme. La fusion se fait toujours en glissant un objet sur un autre, et le double tap acheté fonctionne comme avant.',
           ]},
           {menu:'cards', titre:'Cards', points:[

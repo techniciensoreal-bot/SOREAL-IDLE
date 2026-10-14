@@ -18638,6 +18638,9 @@
       /* Écran de combat de titan (modules/titans-combat-ecran-v1.js) : mêmes raccourcis d'attaque que l'Aventure, état du titan et paralysie en lecture seule, arrêt du combat. */
       window.__rendreCommandesAdventureIdleV3__=function(){return rendreCommandesAdventureIdleV3_();};
       window.__titanEtatCombatIdleV1__=function(){return idleTitanEtatV1;};
+      /* Page Titans (modules/titans-v1.js) : état à jour du joueur et rafraîchissement de la page, pour que la carte d'un titan vaincu passe toute seule en compte à rebours. */
+      window.__titansEtatJoueurIdleV1__=function(){return idleEtat;};
+      window.__titansRafraichirPageIdleV1__=function(){try{rafraichirMenuRacineIdleV28_();}catch(e){}};
       window.__titanJoueurParalyseIdleV1__=function(maintenant){return titanJoueurParalyseIdleV1_(maintenant);};
       /* Arrête le combat de titan en cours et renvoie en Zone sûre (même effet que choisir la Zone sûre). Faux s'il n'y en avait pas. */
       function arreterCombatTitanIdleV1_(){
@@ -18949,6 +18952,8 @@
           );
           idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt)};
           idleAdventureResolutionPendingV2='resolveZoneFight';
+          /* Titan vaincu : l'écran de combat joue son départ (il rapetisse en tournant) puis annonce son retour (modules/titans-combat-ecran-v1.js). */
+          if(fight.titanId){try{window.dispatchEvent(new CustomEvent('soreal-titan-vaincu',{detail:{id:String(fight.titanId),nom:String(nom||'')}}));}catch(_e){}}
           /* Les histoires ne se déclenchent plus sur un boss de zone Aventure (Norman, 2026-09-30 : « uniquement ceux de Fight Boss »). */
         }else{
           idleEtat.adventureRestPv=0;
@@ -21888,7 +21893,7 @@ function pageAventureIdleV28_(j){
                  * Shop lui-même, comme les autres achats de cette section).
                  */
                 (j.systemes&&j.systemes.inventoryAuto&&j.systemes.inventoryAuto.unlocked&&j.systemes.inventoryAuto.unlocked.sortInventory
-                  ?'<button type="button" class="soreal-idle-expand-button-v25" title="Range ton sac par catégorie : bijoux, armes, tête, torse, jambes, pieds, objets divers, puis boosts." onclick="window.__actionMetaV47__({action:\'inventoryAuto\',mode:\'sortInventory\'})"><span class="bouton-icone-sombre-v1">🗂️</span> Trier</button>'
+                  ?'<button type="button" class="soreal-idle-expand-button-v25" title="Range ton sac : bijoux, objets divers, équipement (chaque set côte à côte), puis boosts. Les objets identiques sont toujours collés pour voir tout de suite ce qui peut fusionner ; les verrouillés passent devant avec leurs doubles." onclick="window.__actionMetaV47__({action:\'inventoryAuto\',mode:\'sortInventory\'})"><span class="bouton-icone-sombre-v1">🗂️</span> Trier</button>'
                   :'')+
                 rendreTrashAdventureIdleV165_(a.trash)+
               '</div>'+
@@ -23909,6 +23914,12 @@ function pageAventureIdleV28_(j){
           }
           idleVueAventureV1='zones';
           document.documentElement.setAttribute('data-vue-aventure','zones');
+        }
+
+        /* Norman (2026-10-14) : cliquer sur Aventure depuis la vue Titans ramène à la vue Aventure (zones). */
+        if(nouveauMenu==='aventure'&&idleMenuActifV28==='aventure'&&idleVueAventureV1==='titans'){
+          window.__vueAventureIdleV1__('zones');
+          return;
         }
 
         /*
