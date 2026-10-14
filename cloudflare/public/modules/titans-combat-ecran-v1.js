@@ -68,7 +68,7 @@ function css(){
   var st=document.createElement('style');
   st.id='ttnCombatStyleV1';
   st.textContent=[
-    '#'+ID+'{position:fixed;left:0;right:0;bottom:0;top:var(--tcv-top,0px);z-index:70;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));overflow:hidden;overscroll-behavior:none;touch-action:manipulation;',
+    '#'+ID+'{position:fixed;left:var(--tcv-left,0px);right:var(--tcv-right,0px);bottom:0;top:var(--tcv-top,0px);z-index:70;display:flex;flex-direction:column;gap:8px;box-sizing:border-box;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));overflow:hidden;overscroll-behavior:none;touch-action:manipulation;',
       'color:#ffe9dd;background:radial-gradient(ellipse 80% 55% at 50% 38%,#4a0d12 0%,#1f0509 55%,#0a0204 100%);font-family:var(--f-texte,"Russo One",sans-serif)}',
     '#'+ID+'[hidden]{display:none}',
     /* braises et vignette */
@@ -111,6 +111,9 @@ function css(){
     'body.tcv-actif{overflow:hidden}',
     /* la page ne défile plus pendant le combat : elle est alignée une fois pour toutes sous les boutons Aventure / Titans */
     'html.tcv-actif{overflow:hidden!important}',
+    /* boutons Aventure / Titans pendant un combat de Titan : rouge sombre, assorti au fond de l'écran de combat (Norman, 2026-10-14) */
+    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25{background:linear-gradient(180deg,#6a1219,#2c070c)!important;border-color:#a8323a!important;color:#ffe9dd!important;text-shadow:0 1px 2px #000;opacity:1;filter:none}',
+    'html body.tcv-actif .soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25.actif{background:linear-gradient(180deg,#8a1a22,#430a10)!important;border-color:#ffb36b!important;box-shadow:0 0 0 2px #ff8a1a,0 0 14px rgba(255,90,20,.55)!important}',
     /* le Grand Arbre corrompu grandit en cours de combat : la hauteur de son image change en douceur */
     '#'+ID+' .tcv-titan.tcv-croit{transition:height .7s ease-out}',
     /* départ du titan vaincu : il rapetisse en tournant très vite sur lui-même, comme s'il partait au loin */
@@ -124,7 +127,7 @@ function css(){
     '@keyframes tcvHaloAdieu{to{opacity:0;transform:scale(.1)}}',
     '@keyframes tcvMsgEntree{from{opacity:0;transform:translateY(-50%) scale(.85)}to{opacity:1;transform:translateY(-50%) scale(1)}}',
     /* écran « un titan approche » : plein écran, rouge, il tremble, le titan grossit au fil de l'attente */
-    '#ttnAnnonceV1{position:fixed;inset:0;z-index:100003;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#fff;font-family:Bangers,"Comic Sans MS",cursive;text-align:center;opacity:1;transition:opacity .6s ease}',
+    '#ttnAnnonceV1{position:fixed;top:0;bottom:0;left:0;right:0;z-index:100003;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#fff;font-family:Bangers,"Comic Sans MS",cursive;text-align:center;opacity:1;transition:opacity .6s ease}',
     '#ttnAnnonceV1.ta-sortie{opacity:0;pointer-events:none}',
     '#ttnAnnonceV1 .ta-fond{position:absolute;inset:-4%;background:radial-gradient(ellipse at 50% 55%,#6b0a14 0%,#2a0409 45%,#050102 100%);animation:taAlerte 1.1s ease-in-out infinite alternate}',
     '#ttnAnnonceV1 .ta-eclair{position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,60,40,.07) 46px 50px);animation:taDefile 1.6s linear infinite}',
@@ -209,6 +212,17 @@ function poserHaut(premiere){
   }
   var top=b?Math.max(0,Math.round(b.getBoundingClientRect().bottom+6)):0;
   if(el.style.getPropertyValue('--tcv-top')!==top+'px')el.style.setProperty('--tcv-top',top+'px');
+  /* Plein écran DE L'INTERFACE (Norman, 2026-10-14) : l'écran occupe la zone de la page (à droite des menus sur PC), les menus restent visibles. */
+  var z=zoneInterface();
+  if(el.style.getPropertyValue('--tcv-left')!==z.left+'px')el.style.setProperty('--tcv-left',z.left+'px');
+  if(el.style.getPropertyValue('--tcv-right')!==z.right+'px')el.style.setProperty('--tcv-right',z.right+'px');
+}
+/* Zone de la page à droite de la colonne de menus (PC) ; sur téléphone, toute la largeur. */
+function zoneInterface(){
+  var b=document.querySelector('.soreal-idle-bascule-aventure-v1');
+  if(!b||window.innerWidth<900)return {left:0,right:0};
+  var r=b.getBoundingClientRect();
+  return {left:Math.max(0,Math.round(r.left)),right:Math.max(0,Math.round(window.innerWidth-r.right))};
 }
 function afficher(f){
   css();
@@ -294,6 +308,8 @@ function annoncer(opts){
     '<div class="ta-titan">'+(o.imageVisible?'<img alt="" src="'+h(urlImage({titanId:o.id,titanForm:-1,titanTier:''}))+'" onerror="this.parentNode.innerHTML=\'<b>?</b>\'">':'<b>?</b>')+'</div>'+
     '<div class="ta-nom">'+h(nom.toUpperCase())+'</div>'+
     '<div class="ta-sous">Un Titan approche…</div>';
+  var za=zoneInterface();
+  el.style.left=za.left+'px';el.style.right=za.right+'px';
   document.body.appendChild(el);
   annonce={el:el,debut:Date.now(),max:setTimeout(function(){retirerAnnonce(false);},ANNONCE_MAX_MS),fin:0};
 }

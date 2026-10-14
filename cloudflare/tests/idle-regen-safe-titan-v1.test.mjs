@@ -21,7 +21,7 @@ console.log("idle-regen-safe-titan-v1: OK");
   const ttn = lire("cloudflare/public/modules/titans-v1.js", "utf8");
   const srv = lire("cloudflare/src/idle-adventure-v47.js", "utf8");
   assert.ok(ui.includes("(String(a.fight.zone||'')!==cible||a.fight.titanId)"), "client : une zone choisie arrête le combat du titan, même la Zone sûre");
-  assert.ok(srv.includes("if(s.fight.active&&(s.fight.zone!==z.id||s.fight.titanId)){s.fight=X(base().fight)}"), "serveur : idem");
+  assert.ok(srv.includes("if(s.fight.active&&(s.fight.zone!==z.id||s.fight.titanId)){")&&srv.includes("s.fight=X(base().fight)}s.selectedZone=z.id"), "serveur : idem");
   assert.ok(ttn.includes("av.selectedZone='safe';"), "la zone affichée passe en Zone sûre dès le lancement du combat de titan");
 }
 console.log("idle-regen-safe-titan-v1: choix de zone OK");

@@ -10,7 +10,7 @@ const journal = readFileSync("cloudflare/public/modules/journal-attaques-v1.js",
 
 assert.ok(/<script defer src="\/modules\/titans-combat-ecran-v1\.js\?v=\d+"><\/script>/.test(index) && index.indexOf("/modules/titans-combat-ecran-v1.js") > index.indexOf("/modules/titans-v1.js"), "module chargé après la page des titans");
 // plein écran, aucun défilement
-assert.ok(ecran.includes("position:fixed;left:0;right:0;bottom:0;top:var(--tcv-top,0px);z-index:70;") && ecran.includes("overflow:hidden") && ecran.includes("body.tcv-actif{overflow:hidden}"), "écran fixe, sans défilement, page derrière verrouillée");
+assert.ok(ecran.includes("position:fixed;left:var(--tcv-left,0px);right:var(--tcv-right,0px);bottom:0;top:var(--tcv-top,0px);z-index:70;") && ecran.includes("overflow:hidden") && ecran.includes("body.tcv-actif{overflow:hidden}"), "écran fixe, sans défilement, page derrière verrouillée");
 // mêmes id que la scène d'Aventure : le tick y écrit déjà les PV
 for (const id of ["sorealIdleAdventureFightBarV1", "sorealIdleAdventureFightPvV1", "sorealIdleAdventureJoueurBarV1", "soreal-idle-adventure-player-pv-label-v1"]) assert.ok(ecran.includes(id), "barre de vie réutilisée : " + id);
 assert.ok(ecran.includes("window.__rendreCommandesAdventureIdleV3__") && ui.includes("window.__rendreCommandesAdventureIdleV3__=function(){return rendreCommandesAdventureIdleV3_();};"), "attaques manuelles de l'Aventure réutilisées");

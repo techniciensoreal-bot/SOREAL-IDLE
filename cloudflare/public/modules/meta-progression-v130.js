@@ -126,6 +126,15 @@
         actionMetaNoyauIdleV130_(payload);
       }
 
+      /* Refus d'une copie de Wandoos : un message clair à la place du code d'erreur du serveur. */
+      function messageCopieWandoosV1_(code){
+        const m=String(code||'').match(/^NIVEAU_COPIE_INSUFFISANT(?::(d+))?/);
+        if(m)return '⚠️ Pas assez de niveaux sur cette copie'+(m[1]?' : il faut qu’elle soit au niveau '+m[1]+' ou plus pour passer l’OS au niveau '+m[1]:'')+'. Fusionne d’autres copies pour la monter.';
+        if(code==='OS_NIVEAU_MAX')return '⚠️ Le niveau d’OS de cette source est déjà au maximum.';
+        if(code==='COPIE_WANDOOS_INVALIDE')return '⚠️ Cet objet ne peut pas être installé.';
+        return 'Action impossible.';
+      }
+
       function actionMetaNoyauIdleV130_(payload){
         if(
           idleMetaBusyV130 ||
@@ -436,6 +445,14 @@
                 }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-297 */
+                /* Copie de Wandoos 98 / XL utilisée (Norman, 2026-10-14) : on dit ce qui s'est passé. */
+                if(payload&&payload.action==='consumeWandoosCopy'){
+                  window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
+                    res.resultat.unlocked==='xl'
+                      ?'💾 Wandoos XL débloqué !'
+                      :'💾 Wandoos : niveau d’OS '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.osLevel)+' ('+(res.resultat.source==='consumedXl'?'copie de Wandoos XL':'copie de Wandoos 98')+')'
+                  );
+                }
                 if(payload&&payload.action==='moneyPit'&&res.resultat.rien){
                   window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_('Tu te sens bien plus pauvre… mais rien ne s’est passé :c. Peut-être qu’il faut jeter plus d’or ?');
                 }
@@ -470,7 +487,9 @@
             libererDemarrageCombatEnEchecV1_(payload);
 
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
-              res&&res.message
+              payload&&payload.action==='consumeWandoosCopy'&&res&&res.message
+                ?messageCopieWandoosV1_(res.message)
+                :res&&res.message
                 ?res.message
                 :'Action impossible.'
             );

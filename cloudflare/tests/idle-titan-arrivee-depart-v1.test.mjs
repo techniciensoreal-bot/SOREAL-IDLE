@@ -21,3 +21,11 @@ assert.ok(/nouveauMenu==='aventure'&&idleMenuActifV28==='aventure'&&idleVueAvent
 console.log("idle-titan-arrivee-depart-v1: OK");
 /* page Titans : redessinée toute seule quand un titan est vaincu (le chrono apparaît sans changer de menu) */
 assert.ok(t.includes("signatureRendue")&&t.includes("__titansRafraichirPageIdleV1__")&&ui.includes("__titansEtatJoueurIdleV1__"));
+/* plein écran de l'interface (menus de gauche visibles), boutons Aventure/Titans assortis, fuite annoncée dans « En direct » */
+assert.ok(e.includes("function zoneInterface()")&&e.includes("--tcv-left")&&e.includes("soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25"));
+const adv=lire("src/idle-adventure-v47.js"),flux=lire("src/idle-flux-v1.js"),fx=lire("public/modules/flux-v1.js"),mp=lire("public/modules/meta-progression-v130.js");
+assert.ok(adv.includes('fluxTitanV1(s,"flees",s.fight.titanId)'));
+assert.ok(flux.includes("titanFuites")&&flux.includes('"titanFuite"'));
+assert.ok(fx.includes("case 'titanFuite'")&&fx.includes("pris la fuite contre"));
+/* objet Wandoos : message de réussite et de refus */
+assert.ok(mp.includes("consumeWandoosCopy")&&mp.includes("messageCopieWandoosV1_")&&mp.includes("Pas assez de niveaux sur cette copie"));

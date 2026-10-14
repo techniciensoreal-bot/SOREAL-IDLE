@@ -47,6 +47,9 @@
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Le combat de Titan occupe tout l’écran de l’interface, mais les menus de gauche restent visibles.',
+            'Pendant un combat de Titan, les boutons Aventure et Titans prennent un rouge sombre assorti au fond du combat.',
+            'Cliquer sur Aventure en plein combat de Titan est annoncé dans « En direct » : « … a pris la fuite contre … » (le nom n’est donné qu’aux joueurs qui connaissent ce Titan).',
             'Quand tu lances un combat de Titan, un grand écran d’alerte « Un Titan approche… » s’affiche pendant l’attente, avec son nom et son image qui grossit (un « ? » si tu ne l’as jamais affronté).',
             'Le Grand Arbre corrompu commence petit et grandit à mesure que sa force monte, jusqu’à remplir tout l’écran vers la moitié de ses PV.',
             'Quand tu bats un Titan, son image rapetisse en tournant sur elle-même, puis un message annonce dans combien de temps il sera de retour.',

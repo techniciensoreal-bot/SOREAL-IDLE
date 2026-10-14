@@ -83,7 +83,7 @@ export function idleWandoosConsumeCopyV1(state, itemId) {
   if (actuel >= MAX_NIVEAU_OS_PAR_SOURCE_V1) throw new Error("OS_NIVEAU_MAX");
   const nouveau = actuel + 1;
   const niveauObjet = Math.max(0, I(objet.level, 0));
-  if (niveauObjet < nouveau) throw new Error("NIVEAU_COPIE_INSUFFISANT");
+  if (niveauObjet < nouveau) throw new Error("NIVEAU_COPIE_INSUFFISANT:" + nouveau); /* le client affiche le niveau requis */
   objet.level = niveauObjet - nouveau;
   niveaux[cle] = nouveau;
   adventure.revision = Math.max(0, I(adventure.revision, 0)) + 1;

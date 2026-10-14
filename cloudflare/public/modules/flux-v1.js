@@ -174,10 +174,12 @@
       }
       /* Combat de titan lancé / perdu (Norman, 2026-10-04) : comme la victoire, seulement pour un lecteur qui connaît les Titans, nom donné s'il connaît ce titan. */
       case 'titanCombat':
+      case 'titanFuite':
       case 'titanPerdu':{
         if(!k.menus.titans)return null;
         const nomTitan=k.titan[String(d.id)];
         const cible=nomTitan?'le Titan '+nomTitan:'un Titan';
+        if(it.type==='titanFuite')return {icone:'🏃',texte:nom+verbe(' as',' a')+' pris la fuite contre '+cible};
         return it.type==='titanCombat'
           ?{icone:'⚔️',texte:nom+verbe(' as',' a')+' lancé le combat contre '+cible}
           :{icone:'💀',texte:nom+verbe(' as',' a')+' perdu contre '+cible};

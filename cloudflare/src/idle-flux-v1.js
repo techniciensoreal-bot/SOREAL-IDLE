@@ -100,6 +100,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const nukeDernier = Math.max(0, Math.floor(N(stats && stats.fluxNukeDernier, 0)));
   const titanCombats = Math.max(0, Math.floor(N(tf.starts, 0)));
   const titanPertes = Math.max(0, Math.floor(N(tf.losses, 0)));
+  const titanFuites = Math.max(0, Math.floor(N(tf.flees, 0)));
   const titanDernier = String(tf.last || "");
   /*
    * Trou sans fond et roue quotidienne (Norman, 2026-10-04 : « quand on balance son or dans le trou, ça doit être inscrit dans En direct, ainsi que la récompense ; pareil pour la roue »). Le dernier jet est lu dans
@@ -137,6 +138,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     roueJet,
     titanCombats,
     titanPertes,
+    titanFuites,
     titanDernier,
     sorts,
     sortDernier,
@@ -216,6 +218,7 @@ export function evenementsV1(avant, apres, noms = {}) {
   /* Sort de sang lancé / cinématique regardée : jamais depuis un instantané d'avant ce jalon (pas de comparaison). Le sort est identifié par son rang (1 à 5), l'affichage dépend du lecteur. */
   if (Number.isFinite(avant.titanCombats) && apres.titanCombats > avant.titanCombats) ev.push({ type: "titanCombat", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   if (Number.isFinite(avant.titanPertes) && apres.titanPertes > avant.titanPertes) ev.push({ type: "titanPerdu", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
+  if (Number.isFinite(avant.titanFuites) && apres.titanFuites > avant.titanFuites) ev.push({ type: "titanFuite", donnees: { id: apres.titanDernier, nom: nom(noms.titan, apres.titanDernier) } });
   /* Boosts : jamais depuis un instantané d'avant ce jalon. Cube : combien de boosts ; pièce : laquelle (identifiant de définition, nommé côté lecteur seulement s'il la connaît). */
   if (Number.isFinite(avant.boostCube) && apres.boostCube > avant.boostCube) ev.push({ type: "cube", donnees: { n: apres.boostCube - avant.boostCube } });
   /* Nuke : jamais depuis un instantané d'avant ce jalon ; le nombre de boss tués par le bouton est toujours annoncé. */
