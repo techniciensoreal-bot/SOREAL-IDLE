@@ -101,6 +101,7 @@ function listeHtml_(){
   }).join('');
   return (etat.message?'<p style="font-weight:700">'+esc_(etat.message)+'</p>':'')+
     '<p style="font-size:14px;color:#aeb9d4">Chaque guide est une suite d’étapes jouées automatiquement : au début du jeu, à la première ouverture d’un menu, ou après un boss. Tu choisis les textes, ce que la fenêtre montre à l’écran et où elle se place.</p>'+
+    '<p style="font-size:14px;color:#aeb9d4">🎙 <b>Voix :</b> chaque étape a sa voix. Dans la section « Textes » du menu Admin, cherche le groupe « Tutoriel · … » : tu y changes ce que la voix dit, tu la génères (studio de voix) et tu l’écoutes. Le joueur l’entend si sa voix est activée, et peut la relancer avec 🔊.</p>'+
     (l||'<p>Aucun guide pour le moment.</p>')+
     '<div class="at-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="principal" data-at="nouveau">➕ Nouveau guide</button></div>'+
     '<div class="at-ancien"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" data-at="ancien" '+(etat.ancienActif?'checked':'')+'> <span><b>Jouer l’ancien tutoriel de départ</b> (les fenêtres de Norman &amp; Sébastien : début du jeu, premier boss, Aventure et Renaissance). Décoche quand tes guides de départ sont prêts : ils le remplacent.</span></label>'+
@@ -110,6 +111,12 @@ function listeHtml_(){
 function rafraichirListe_(){
   var el=document.getElementById(LISTE_ID);
   if(el)el.innerHTML=listeHtml_();
+}
+
+/* Les étapes de tous les guides (même inactifs) sont proposées à l'éditeur de textes et de voix (Admin → Textes). */
+function declarerVoix_(){
+  var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
+  if(T&&typeof T.declarerVoix==='function')etat.guides.forEach(function(g){T.declarerVoix(g);});
 }
 
 function charger_(){
@@ -122,6 +129,7 @@ function charger_(){
     etat.ancienActif=res.ancienActif!==false;
     etat.ancienMenus=res.ancienMenusActif!==false;
     etat.charge=true;etat.erreur='';
+    declarerVoix_();
     if(window.__SOREAL_IDLE_TUTORIEL_V1__){window.__SOREAL_IDLE_TUTORIEL_V1__.definirAncienActif(etat.ancienActif);window.__SOREAL_IDLE_TUTORIEL_V1__.definirAncienMenus(etat.ancienMenus);}
     rafraichirListe_();
   }).catch(function(e){
@@ -273,6 +281,7 @@ function enregistrer_(){
     if(!res||res.ok===false)throw new Error((res&&res.message)||'Enregistrement refusé.');
     var idx=-1;etat.guides.forEach(function(x,i){if(x.id===res.guide.id)idx=i;});
     if(idx>=0)etat.guides[idx]=res.guide;else etat.guides.push(res.guide);
+    declarerVoix_();
     etat.guides.sort(function(a,b){return (a.ordre-b.ordre)||String(a.id).localeCompare(String(b.id));});
     etat.message='✔ Guide « '+res.guide.titre+' » enregistré : il est en ligne tout de suite.';
     fermerEditeur_();rafraichirListe_();

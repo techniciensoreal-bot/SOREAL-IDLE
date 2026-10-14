@@ -123,6 +123,51 @@ function placer_(bulle,cadre,etape){
   bulle.style.left=Math.round(x)+'px';bulle.style.top=Math.round(y)+'px';
 }
 
+/* ---------- voix ---------- */
+/*
+ * Chaque étape d'un guide a sa voix (Norman, 2026-10-14) : elle est déclarée à l'éditeur de textes et de voix du menu Admin (modules/textes-admin-v1.js, groupe « Tutoriel · … »), qui génère les fichiers avec le
+ * studio local et les envoie sur R2 ; même chaîne que les popups d'explication. Sans modification, la voix dit le titre puis le texte de l'étape ; le texte lu peut être changé (balises de voix, d'expression, de pause)
+ * sans toucher au texte affiché. La lecture est automatique si la voix est activée par le joueur ; le bouton 🔊 relit l'étape.
+ */
+function cleVoix_(guide,i){return 'guide:'+String(guide&&guide.id||'')+':'+i;}
+function texteOrigineVoix_(e){
+  var t=String(e&&e.titre||'').trim(),x=String(e&&e.texte||'').replace(/\s+/g,' ').trim();
+  return t&&x?t+' (pause 450ms) '+x:(t||x);
+}
+function declarerVoix_(guide){
+  var T=window.__SOREAL_IDLE_TEXTES_V1__;
+  if(!T||typeof T.declarer!=='function'||!guide||!guide.id||!Array.isArray(guide.etapes))return;
+  guide.etapes.forEach(function(e,i){
+    T.declarer(cleVoix_(guide,i),{
+      groupe:'Tutoriel · '+String(guide.titre||guide.id),
+      libelle:'Étape '+(i+1)+' — '+String(e.titre||'Sans titre'),
+      champs:[{id:'texte',label:'Texte lu',type:'texte'}],
+      original:function(){return {texte:texteOrigineVoix_(e)};},
+      texteLu:function(v){return String(v&&v.texte||'');}
+    });
+  });
+}
+/* Texte à dire pour l'étape : la version de l'administrateur si elle existe, sinon le titre et le texte de l'étape. */
+function texteParle_(guide,i){
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__,T=window.__SOREAL_IDLE_TEXTES_V1__;
+  var e=guide.etapes[i],brut=texteOrigineVoix_(e);
+  try{
+    var sur=T&&typeof T.surcharge==='function'?T.surcharge(cleVoix_(guide,i)):null;
+    if(sur&&typeof sur.texte==='string'&&sur.texte.trim())brut=sur.texte;
+  }catch(_e){}
+  return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut).replace(/\s+/g,' ').trim():brut;
+}
+function lireEtape_(s,force){
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  if(!tts||typeof tts.readText!=='function')return;
+  if(!force&&!(typeof tts.enabled==='function'&&tts.enabled()))return;
+  try{var t=texteParle_(s.guide,s.i);if(t)tts.readText(t);}catch(_e){}
+}
+function taire_(){
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  try{if(tts&&typeof tts.stop==='function')tts.stop();}catch(_e){}
+}
+
 /* ---------- lecture d'un guide ---------- */
 
 function arreterBoucle_(){if(boucle){clearInterval(boucle);boucle=0;}}
@@ -134,6 +179,7 @@ function fermer_(vu){
   if(b&&b.parentNode)b.parentNode.removeChild(b);
   if(c&&c.parentNode)c.parentNode.removeChild(c);
   etat.enCours=null;
+  if(s)taire_();
   if(s&&s.marquerVu&&vu)marquerVu_(s.guide.vuId);
   if(s&&typeof s.apresFin==='function'){try{s.apresFin(Boolean(vu));}catch(_e){}}
 }
@@ -145,7 +191,7 @@ function afficherEtape_(){
   /* Le jeu se rend tout seul au menu de l'étape. */
   if(e.menu&&e.menu!==menuActif_()&&typeof window.__menuIdleV28__==='function'){try{window.__menuIdleV28__(e.menu);}catch(_e){}}
   var b=document.getElementById(ID),c=document.getElementById(ID_CADRE);
-  if(!b){b=document.createElement('div');b.id=ID;b.setAttribute('role','dialog');b.setAttribute('aria-live','polite');document.body.appendChild(b);}
+  if(!b){b=document.createElement('div');b.id=ID;b.setAttribute('role','dialog');b.setAttribute('data-soreal-tts-ignore','1');b.setAttribute('aria-live','polite');document.body.appendChild(b);}
   if(!c){c=document.createElement('div');c.id=ID_CADRE;c.hidden=true;document.body.appendChild(c);}
   var nbEtapes=s.guide.etapes.length;
   var paragraphes=String(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+esc_(x)+'</p>';}).join('');
@@ -160,6 +206,7 @@ function afficherEtape_(){
     '<div class="tu-texte">'+paragraphes+'</div>'+
     (s.attenteClic?'<div class="tu-indice">👆 Clique sur l’élément entouré pour continuer.</div>':'')+
     '<div class="tu-actions">'+
+      '<button type="button" class="discret" data-tu="ecouter" title="Écouter cette étape" aria-label="Écouter cette étape">🔊</button>'+
       '<button type="button" class="discret" data-tu="passer">'+(s.apercu?'Fermer':'Passer')+'</button>'+
       '<button type="button" data-tu="prec" '+(s.i<=0?'disabled':'')+'>◀ Précédent</button>'+
       '<button type="button" class="principal" data-tu="suiv" '+(s.attenteClic?'hidden':'')+'>'+(dernier?'Terminé ✔':'Suivant ▶')+'</button>'+
@@ -169,6 +216,8 @@ function afficherEtape_(){
   arreterBoucle_();
   boucle=setInterval(suivre_,200);
   suivre_();
+  declarerVoix_(s.guide);
+  lireEtape_(s,false);
 }
 
 function suivre_(){
@@ -207,6 +256,7 @@ document.addEventListener('click',function(ev){
   var t=ev.target&&ev.target.closest?ev.target.closest('#'+ID+' [data-tu]'):null;
   if(!t||!etat.enCours)return;
   var a=t.getAttribute('data-tu'),s=etat.enCours;
+  if(a==='ecouter'){lireEtape_(s,true);return;}
   if(a==='passer'){fermer_(true);return;}
   if(a==='prec'&&s.i>0){s.i-=1;afficherEtape_();return;}
   if(a==='suiv'){
@@ -398,6 +448,7 @@ function choisirElement_(){
 }
 
 window.__SOREAL_IDLE_TUTORIEL_V1__={
+  declarerVoix:declarerVoix_,
   considerer:considerer_,
   jouer:jouer_,
   fermer:function(){fermer_(false);},
