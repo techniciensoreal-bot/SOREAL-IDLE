@@ -912,6 +912,7 @@ function fichiersVoixHtml_(blocs,voix){
       '<span class="fv-badge'+(pret?'':' non')+'">'+(pret?'fichier prêt':'pas de fichier')+'</span>'+
       '<button type="button" class="fv-btn" data-fv="ecouter" title="Écouter le fichier tel qu’il est sur le serveur"'+(pret?'':' disabled')+'>▶</button>'+
       '<button type="button" class="fv-btn" data-fv="telecharger" title="Télécharger ce fichier de voix (m4a) pour le retoucher"'+(pret?'':' disabled')+'>⬇ Télécharger</button>'+
+      '<button type="button" class="fv-btn" data-fv="regenerer" title="Régénérer SEULEMENT ce bout de phrase avec le studio de voix (les autres blocs ne bougent pas)">🎙 '+(pret?'Régénérer':'Générer')+'</button>'+
       '<button type="button" class="fv-btn" data-fv="remplacer" title="Choisir un fichier m4a retouché : il REMPLACE l’ancien">⬆ Remplacer</button>'+
     '</div>';
   }).join('')+'</div>';
@@ -928,7 +929,9 @@ function clicFichierVoix_(bouton,opts){
   var hash=ligne.getAttribute('data-fv-hash');
   var n=ligne.getAttribute('data-fv-n');
   var dire=(opts&&opts.message)||function(){};
-  if(act==='ecouter'){
+  if(act==='regenerer'){
+    if(opts&&typeof opts.regenerer==='function')opts.regenerer(hash,n);
+  }else if(act==='ecouter'){
     ecouterFichierVoix_(hash).catch(function(e){dire('Lecture impossible : '+(e&&e.message?e.message:e),true);});
   }else if(act==='telecharger'){
     dire('Téléchargement du bloc '+n+'…');
@@ -1194,6 +1197,15 @@ document.addEventListener('click',function(ev){
     clicFichierVoix_(fv,{
       nomBase:'histoire-'+String(edition.id||'texte'),
       message:function(t,erreur){afficherEtat_(t,erreur);},
+      /* Régénère uniquement ce bloc (un bout de phrase), sans toucher aux autres. */
+      regenerer:function(hash,n){
+        if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+        var trouve=null;
+        (edition.etapes||[]).forEach(function(e){(e.lignes||[]).forEach(function(l){blocsDeLigne_(l).forEach(function(b){if(!trouve&&b.hash===hash)trouve=b;});});});
+        if(!trouve){afficherEtat_('Bloc introuvable : enregistre puis réessaie.',true);return;}
+        afficherEtat_('Bloc '+n+' : génération…');
+        lancerGeneration_([trouve],'Bloc '+n);
+      },
       /* Le fichier remplacé garde son empreinte : on la déclare dans l'histoire et on enregistre, pour que le nettoyage ne le supprime pas. */
       apres:function(hash){
         edition.voix=edition.voix||[];

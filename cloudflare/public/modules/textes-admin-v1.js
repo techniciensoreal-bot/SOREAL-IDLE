@@ -1461,6 +1461,14 @@ document.addEventListener('click',function(ev){
       o.clicFichierVoix(fv,{
         nomBase:String(edition.cle||'texte').replace(/[^a-z0-9]+/gi,'-'),
         message:function(t,erreur){afficherEtat_(t,erreur);},
+        /* Régénère uniquement ce bloc (un bout de phrase), sans toucher aux autres. */
+        regenerer:function(hash,n){
+          if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+          var r=blocsParCadre_(edition.valeurs),trouve=null;
+          (r.titre||[]).concat(r.blocs||[]).forEach(function(b){if(!trouve&&b.hash===hash)trouve=b;});
+          if(!trouve){afficherEtat_('Bloc introuvable : enregistre puis réessaie.',true);return;}
+          lancerGeneration_(o,[trouve],'Bloc '+n);
+        },
         /* Le fichier remplacé garde son empreinte : on la déclare dans le texte et on l'enregistre, pour que le nettoyage ne le supprime pas. */
         apres:function(hash){
           if(edition.voix.indexOf(hash)===-1)edition.voix.push(hash);

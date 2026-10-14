@@ -18,3 +18,7 @@ console.log("idle-tutoriel-voix-v1: OK");
 assert.ok(a.includes("data-at=\"voix\"")&&a.includes("function voixGuide_(i)")&&a.includes("X.editer(T.cleVoix(g,Number(v)))"));
 assert.ok(m.includes("cleVoix:cleVoix_"));
 assert.ok(lire("public/modules/textes-admin-v1.js").includes("rafraichissementPrevu"));
+/* « Fichiers de voix » : chaque bloc a son bouton pour être régénéré seul, dans les deux éditeurs */
+const h=lire("public/modules/admin-histoires-v1.js"),x=lire("public/modules/textes-admin-v1.js");
+assert.ok(h.includes('data-fv="regenerer"')&&h.includes("opts.regenerer(hash,n)")&&h.includes("lancerGeneration_([trouve],'Bloc '+n)"));
+assert.ok(x.includes("lancerGeneration_(o,[trouve],'Bloc '+n)"));
