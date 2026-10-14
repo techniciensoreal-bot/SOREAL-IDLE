@@ -449,6 +449,7 @@ function choisirElement_(){
 
 window.__SOREAL_IDLE_TUTORIEL_V1__={
   declarerVoix:declarerVoix_,
+  cleVoix:cleVoix_,
   considerer:considerer_,
   jouer:jouer_,
   fermer:function(){fermer_(false);},

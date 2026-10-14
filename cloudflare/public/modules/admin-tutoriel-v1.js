@@ -95,6 +95,7 @@ function listeHtml_(){
   var l=etat.guides.map(function(g,i){
     return '<div class="at-ligne'+(g.actif?'':' inactif')+'"><div class="at-nom"><b>'+esc_(g.titre)+(g.actif?'':' (désactivé)')+'</b><small>'+esc_(libelleDeclencheur_(g.declencheur))+' · '+g.etapes.length+' étape'+(g.etapes.length>1?'s':'')+'</small></div>'+
       '<button type="button" data-at="apercu" data-i="'+i+'">👁 Aperçu</button>'+
+      '<button type="button" data-at="voix" data-i="'+i+'" title="Texte lu et voix de chaque étape de ce guide">🎙 Voix</button>'+
       '<button type="button" class="'+(g.actif?'':'principal')+'" data-at="basculer" data-i="'+i+'">'+(g.actif?'⏸ Désactiver':'▶ Activer')+'</button>'+
       '<button type="button" data-at="modifier" data-i="'+i+'">✏️ Modifier</button>'+
       '<button type="button" class="danger" data-at="supprimer" data-i="'+i+'">🗑</button></div>';
@@ -111,6 +112,32 @@ function listeHtml_(){
 function rafraichirListe_(){
   var el=document.getElementById(LISTE_ID);
   if(el)el.innerHTML=listeHtml_();
+}
+
+/*
+ * Bouton « 🎙 Voix » d'un guide : liste ses étapes ; chacune s'ouvre dans l'éditeur de textes et de voix (modules/textes-admin-v1.js), où l'on change ce que la voix dit, la génère et l'écoute.
+ */
+function voixGuide_(i){
+  var g=etat.guides[i],T=window.__SOREAL_IDLE_TUTORIEL_V1__,X=window.__SOREAL_IDLE_TEXTES_V1__;
+  if(!g||!T||!X||typeof X.editer!=='function'){window.alert('Éditeur de voix indisponible.');return;}
+  T.declarerVoix(g);
+  var vieux=document.getElementById('sorealIdleTutoVoixV1');if(vieux&&vieux.parentNode)vieux.parentNode.removeChild(vieux);
+  var o=document.createElement('div');
+  o.id='sorealIdleTutoVoixV1';
+  o.style.cssText='position:fixed;inset:0;z-index:1000000;background:rgba(3,6,12,.82);overflow:auto;padding:14px;box-sizing:border-box';
+  o.innerHTML='<div style="max-width:640px;margin:0 auto;background:#10151f;border:1.5px solid #3b4a6b;border-radius:14px;padding:16px;color:#e8eefc;font:500 15px/1.5 system-ui,sans-serif">'+
+    '<h3 style="margin:0 0 4px">🎙 Voix · '+esc_(g.titre)+'</h3>'+
+    '<p style="font-size:13px;color:#8fa0c4;margin:0 0 10px">Une voix par étape. Ouvre une étape pour changer ce que la voix dit, la générer (studio de voix) et l’écouter.</p>'+
+    g.etapes.map(function(e,k){return '<div style="display:flex;gap:8px;align-items:center;margin:6px 0"><span style="flex:1"><b>Étape '+(k+1)+'</b> — '+esc_(e.titre||'Sans titre')+'</span><button type="button" data-av="'+k+'" style="min-height:38px;padding:6px 12px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 14px system-ui,sans-serif;cursor:pointer">🎙 Ouvrir</button></div>';}).join('')+
+    '<div style="margin-top:12px"><button type="button" data-av="fermer" style="min-height:42px;padding:8px 14px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 14px system-ui,sans-serif;cursor:pointer">Fermer</button></div></div>';
+  o.addEventListener('click',function(ev){
+    var b=ev.target.closest?ev.target.closest('[data-av]'):null;
+    if(!b){if(ev.target===o)o.remove();return;}
+    var v=b.getAttribute('data-av');
+    if(v==='fermer'){o.remove();return;}
+    X.editer(T.cleVoix(g,Number(v)));
+  });
+  document.body.appendChild(o);
 }
 
 /* Les étapes de tous les guides (même inactifs) sont proposées à l'éditeur de textes et de voix (Admin → Textes). */
@@ -334,6 +361,7 @@ document.addEventListener('click',function(ev){
     if(a==='nouveau'){etat.message='';ouvrir_(guideVide_(),true);}
     else if(a==='modifier'){etat.message='';ouvrir_(etat.guides[i],false);}
     else if(a==='apercu'){var g=etat.guides[i];if(g)apercu_(g,null);}
+    else if(a==='voix')voixGuide_(i);
     else if(a==='supprimer')supprimer_(i);
     else if(a==='recharger'){etat.erreur='';etat.charge=false;charger_();rafraichirListe_();}
     else if(a==='ancien')basculerAncien_(t.checked,'tutoriel');

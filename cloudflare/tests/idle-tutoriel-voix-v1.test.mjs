@@ -14,3 +14,7 @@ assert.ok(m.includes("data-soreal-tts-ignore"));
 /* l'éditeur Admin déclare aussi les guides inactifs */
 assert.ok(a.includes("declarerVoix_()")&&a.includes("T.declarerVoix(g)"));
 console.log("idle-tutoriel-voix-v1: OK");
+/* bouton « 🎙 Voix » sur la ligne de chaque guide ; les étapes apparaissent dans la page Textes sans rouvrir le menu */
+assert.ok(a.includes("data-at=\"voix\"")&&a.includes("function voixGuide_(i)")&&a.includes("X.editer(T.cleVoix(g,Number(v)))"));
+assert.ok(m.includes("cleVoix:cleVoix_"));
+assert.ok(lire("public/modules/textes-admin-v1.js").includes("rafraichissementPrevu"));

@@ -212,9 +212,16 @@ function appliquerInfo_(cle,info){
   return out;
 }
 
+var rafraichissementPrevu=false;
 function declarer_(cle,def){
   if(!cle||!def)return;
+  var nouvelle=!registre[cle];
   registre[cle]=def;
+  /* Une clé déclarée après l'affichage de la page Textes (ex. les étapes d'un guide du tutoriel, chargées par l'onglet Tutoriel) apparaît dans la liste sans rouvrir le menu. */
+  if(nouvelle&&!rafraichissementPrevu){
+    rafraichissementPrevu=true;
+    setTimeout(function(){rafraichissementPrevu=false;try{rafraichirListe_();}catch(_e){}},150);
+  }
 }
 
 /* ---------- éditeur ---------- */
