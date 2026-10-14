@@ -15,10 +15,15 @@ const css=readFileSync(
   "utf8"
 );
 
-/* Norman (2026-10-14) : le dépôt sur un autre objet ne fusionne plus, et un simple appui ouvre la fiche (plus de sélection). */
-assert.ok(
-  !ui.includes("idsFusionAdventureIdleV169_")&&!ui.includes("fusionnerSiPossibleAdventureIdleV138_")&&!ui.includes("fusionnerObjetAdventureIdleV47_"),
-  "Plus aucune fusion par dépôt sur un autre objet."
+assert.match(
+  ui,
+  /function idsFusionAdventureIdleV169_\([\s\S]{0,500}return \{a:cible,b:source\};/,
+  "Objet 2 / cible doit toujours être le survivant de la fusion."
+);
+assert.doesNotMatch(
+  ui,
+  /return cibleEquipe\s*\?\s*\{a:cible,b:source\}\s*:\s*\{a:source,b:cible\}/,
+  "L'ancienne inversion de fusion sac-sur-sac ne doit plus exister."
 );
 
 assert.match(

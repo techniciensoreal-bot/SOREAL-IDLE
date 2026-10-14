@@ -132,6 +132,8 @@ assert.ok(
 
 assert.ok(
   ui.includes("function cueAudioMutationInventaireIdleV199_(a,payload)")&&
+  ui.includes("return 'mergeArmor';")&&
+  ui.includes("return 'mergeWeapon';")&&
   ui.includes("return 'boostPower';")&&
   ui.includes("return 'boostToughness';")&&
   ui.includes("return 'boostSpecial';")&&

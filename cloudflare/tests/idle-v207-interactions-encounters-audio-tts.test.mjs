@@ -44,7 +44,7 @@ for(const token of [
 ]){
   assert.ok(audio.includes(token),"Audio V207 manquant: "+token);
 }
-assert.ok(!ui.includes("return 'mergeAccessory';"));   // Norman (2026-10-14) : plus de fusion par glisser-déposer
+assert.ok(ui.includes("return 'mergeAccessory';"));
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('uiClick')"));
 
 for(const token of [

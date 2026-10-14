@@ -44,7 +44,7 @@
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Un simple appui sur un objet (sac ou équipement) ouvre sa fiche, avec ou sans statistiques : la sélection d’un objet n’existe plus. Déposer un objet sur un autre ne les fusionne plus.',
+            'Un simple appui sur un objet (sac ou équipement) ouvre sa fiche, avec ou sans statistiques, à la place de l’appui long ; appuyer de nouveau sur le même objet la referme. La fusion se fait toujours en glissant un objet sur un autre, et le double tap acheté fonctionne comme avant.',
           ]}
         ]
       },

@@ -19,12 +19,31 @@ assert.match(source,/function texte69LolIdleV183_/);
 assert.match(textTransforms,/\(\^\|\[\^0-9\.,\]\)69\(\?=\$\|\[\^0-9\.,\]\)/);
 assert.match(source,/installer69LolIdleV183_\(\)/);
 
-// Norman (2026-10-14) : plus de fusion par dépôt sur un autre objet — ni action 'merge' côté client, ni nouvelle tentative de fusion.
-assert.ok(!source.includes("mergeTransitoireV183")&&!source.includes("fusionnerSiPossibleAdventureIdleV138_")&&!source.includes("action==='merge'"),"Plus aucune fusion par dépôt.");
-const depotStart=source.indexOf("function deposerSurCarteAdventureIdleV138_");
-const depotEnd=source.indexOf("\n      function boosterObjetParIdAdventureIdleV47_",depotStart);
-const depot=source.slice(depotStart,depotEnd);
-assert.ok(depotStart>0&&depot.includes("boosterObjetParIdAdventureIdleV47_(source.id,cible.id)")&&depot.includes("reordonnerInventaireAdventureIdleV162_(source.id,cible.id,null)")&&!/definitionId/.test(depot),"Un dépôt sur une carte améliore (boost) ou déplace, sans jamais fusionner.");
+// Merge rollback protection: retry before queue shift/reconcile.
+const finishStart=source.indexOf("function terminerMutationInventaireIdleV160_");
+const finishEnd=source.indexOf("\n      function envoyerProchaineMutationInventaireIdleV160_",finishStart);
+const finish=source.slice(finishStart,finishEnd);
+assert.match(finish,/mergeTransitoireV183/);
+assert.match(finish,/tx\.retryCount\|\|0/);
+assert.match(finish,/setTimeout\([\s\S]*envoyerProchaineMutationInventaireIdleV160_/);
+assert.ok(
+  finish.indexOf("if(mergeTransitoireV183")<
+  finish.indexOf("idleInventoryMutationQueueV160.shift()"),
+  "Un merge transitoirement échoué ne doit jamais être retiré/reconstruit avant ses retries."
+);
+
+// Same boost definition must merge until its Item List completion is reached.
+const mergeUiStart=source.indexOf("function fusionnerSiPossibleAdventureIdleV138_");
+const mergeUiEnd=source.indexOf("\n      function boosterObjetParIdAdventureIdleV47_",mergeUiStart);
+const mergeUi=source.slice(mergeUiStart,mergeUiEnd);
+assert.match(mergeUi,/const memeDefinition=/);
+assert.match(mergeUi,/const boostDejaComplete=/);
+assert.match(mergeUi,/if\(memeDefinition&&!boostDejaComplete\)/);
+assert.doesNotMatch(
+  mergeUi,
+  /source\.kind!=='boost'&&\s*cible\.kind!=='boost'/,
+  "Les boosts identiques ne doivent plus être exclus de la fusion."
+);
 
 // Transparent item ghost follows the finger.
 assert.match(source,/function creerGhostDragAdventureIdleV183_/);

@@ -10134,7 +10134,8 @@
           bullets:[
             'Elle est utile pour les objets difficiles ou très longs à monter de niveau : ceux qui font les capricieux.',
             'Le petit chat de la garderie s’occupe de tes objets : le temps pour gagner un niveau dépend de chaque objet.',
-            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.'
+            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.',
+            'Fusionner un objet dans un emplacement de la garderie ne fait rien : la nounou n’accepte pas les doublons.'
           ]
         },
         questing:{
@@ -16570,7 +16571,7 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-178 */
       const IDLE_INVENTORY_ACTIONS_V160=new Set([
-        'equip','unequip','boost','cube','discard','setLock',
+        'equip','unequip','merge','boost','cube','discard','setLock',
         'trashPut','trashRecover','coffreDeposer','coffreRetirer','reorderInventory'
       ]);
       let idleInventoryMutationQueueV160=[];
@@ -17211,7 +17212,7 @@
         }
 
         if(
-          patchToutV1||['equip','unequip','boost','cube','setLock'].indexOf(action)!==-1
+          patchToutV1||['equip','unequip','merge','boost','cube','setLock'].indexOf(action)!==-1
         ){
           patchEquipementInventaireIdleV160_(modele);
         }
@@ -17226,7 +17227,7 @@
 
         if(
           patchToutV1||(opt.confirmed&&
-          ['equip','unequip','boost','cube'].indexOf(action)!==-1)
+          ['equip','unequip','merge','boost','cube'].indexOf(action)!==-1)
         ){
           patchBonusInventaireIdleV160_(modele);
         }
@@ -17354,6 +17355,37 @@
               ordre[src]=tmp;
             }
           }
+        }else if(action==='merge'){
+          const A=trouver(payload.a);
+          const B=trouver(payload.b);
+          if(!A||!B||A===B||A.definitionId!==B.definitionId)return false;
+          if(B.locked)return false;
+
+          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-183 */
+          ADVENTURE_CORE_SLOTS_V138.forEach(function(slot){
+            if(String(a.equipment[slot]||'')===String(B.id)){
+              a.equipment[slot]=A.id;
+            }
+          });
+          if(a.equipment.accessories.map(String).indexOf(String(B.id))!==-1){
+            a.equipment.accessories=a.equipment.accessories
+              .map(function(x){return String(x)===String(B.id)?A.id:x;})
+              .filter(function(x,index,arr){
+                return arr.map(String).indexOf(String(x))===index;
+              });
+          }
+
+          A.level=Math.min(
+            100,
+            idleEntier_(A.level)+idleEntier_(B.level)+1
+          );
+          A.power=Math.max(idleNombre_(A.power),idleNombre_(B.power));
+          A.toughness=Math.max(idleNombre_(A.toughness),idleNombre_(B.toughness));
+          A.special=Math.max(idleNombre_(A.special),idleNombre_(B.special));
+          A._idlePendingV160=txId||1;
+          a.inventory=a.inventory.filter(function(x){
+            return String(x&&x.id)!==String(B.id);
+          });
         }else if(action==='boost'){
           const boost=trouver(payload.boostId);
           if(!boost||boost.kind!=='boost')return false;
@@ -17544,6 +17576,31 @@
           })||null;
         };
 
+        if(action==='merge'){
+          const A=trouver(payload.a);
+          const B=trouver(payload.b);
+          if(
+            !A||
+            !B||
+            A===B||
+            A.definitionId!==B.definitionId||
+            A.kind==='boost'||
+            B.kind==='boost'
+          ){
+            return '';
+          }
+
+          const slot=String(A.slot||B.slot||'');
+          if(slot==='weapon')return 'mergeWeapon';
+
+          if(['head','chest','legs','boots'].indexOf(slot)!==-1){
+            return 'mergeArmor';
+          }
+
+          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-184 */
+          return 'mergeAccessory';
+        }
+
         if(action==='boost'&&!payload.toCube){
           const boost=trouver(payload.boostId);
           const cible=trouver(payload.targetId);
@@ -17575,6 +17632,27 @@
           mesurePerfInventaireIdleV160_(
             'network','network-start','network-end',tx.id
           );
+
+        const mergeTransitoireV183=
+          String(tx.payload&&tx.payload.action||'')==='merge'&&
+          (
+            Boolean(erreur)||
+            Boolean(res&&res.retryable)||
+            ['SOREAL_IDLE_OCCUPE','TIMEOUT','NETWORK_ERROR'].indexOf(
+              String(res&&res.code||'')
+            )!==-1
+          );
+
+        if(mergeTransitoireV183&&(tx.retryCount||0)<4){
+          tx.retryCount=(tx.retryCount||0)+1;
+          idleInventoryBusyV160=false;
+          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-185 */
+          setTimeout(
+            envoyerProchaineMutationInventaireIdleV160_,
+            120*tx.retryCount
+          );
+          return;
+        }
 
         idleInventoryMutationQueueV160.shift();
         idleInventoryBusyV160=false;
@@ -19301,6 +19379,11 @@
       }
       window.__desequiperObjetAdventureIdleV47__=desequiperObjetAdventureIdleV47_;
 
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-212 */
+      function fusionnerObjetAdventureIdleV47_(idA,idB){
+        actionAdventureIdleV47_({action:'merge',a:String(idA||''),b:String(idB||'')});
+      }
+
       function boosterCubeAdventureIdleV47_(boostId){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-213 */
         actionAdventureIdleV47_({
@@ -20064,7 +20147,7 @@ function pageAventureIdleV28_(j){
         const cibleId=String(cible.getAttribute('data-item-id')||'');
         if(cibleId){
           if(cibleId!==source){
-            deposerSurCarteAdventureIdleV138_(source,cibleId);
+            fusionnerSiPossibleAdventureIdleV138_(source,cibleId);
           }
           return;
         }
@@ -20144,10 +20227,14 @@ function pageAventureIdleV28_(j){
         );
       }
 
+      /* Un nouvel appui sur l'objet dont la fiche est ouverte la REFERME (Norman, 2026-10-14) : l'appui ferme d'abord la fiche (clic hors du popup), puis le tap qui suit ne doit pas la rouvrir. */
+      let idleFicheFermeeParAppuiV1={id:'',ms:0};
       function fermerPopupDetailsSiExterieurAdventureIdleV207_(event){
         if(!popupDetailsObjetAdventureIdleOuvertV207_())return false;
         const target=event&&event.target;
         if(cibleDansPopupDetailsObjetAdventureIdleV207_(target))return false;
+        const appuye=idObjetGesteAdventureIdleV196_(elementObjetGesteAdventureIdleV196_(target));
+        idleFicheFermeeParAppuiV1=appuye&&appuye===String(idleFicheObjetOuverteIdV1||'')?{id:appuye,ms:Date.now()}:{id:'',ms:0};
         fermerDetailsObjetAdventureIdleV1_();
         return true;
       }
@@ -20157,6 +20244,14 @@ function pageAventureIdleV28_(j){
         const objet=String(id||'');
         if(!objet)return false;
 
+        /* Même objet que celui dont l'appui vient de fermer la fiche : elle reste fermée. */
+        if(idleFicheFermeeParAppuiV1.id===objet&&Date.now()-idleFicheFermeeParAppuiV1.ms<1500){
+          idleFicheFermeeParAppuiV1={id:'',ms:0};
+          nettoyerEtatDragAdventureIdleV138_();
+          idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+          return true;
+        }
+        idleFicheFermeeParAppuiV1={id:'',ms:0};
         nettoyerEtatDragAdventureIdleV138_();
         afficherDetailsObjetAdventureIdleV138_(objet);
         idleAdventureIgnorerClicJusquaV165=Date.now()+750;
@@ -20325,8 +20420,10 @@ function pageAventureIdleV28_(j){
       }
 
       /*
-       * Action rapide d'un objet du sac (2026-09-24, comme le clic droit de NGU Idle) : équipement (remplace la pièce du slot). La fusion avec une pièce équipée identique n'existe plus (Norman, 2026-10-14).
-       * Les boosts ne sont pas concernés (retourne false).
+       * Action rapide d'un objet du sac (2026-09-24, comme le clic droit de NGU Idle) :
+       * - une pièce identique (même definitionId) est déjà équipée -> fusion dans la pièce équipée ;
+       * - sinon -> équipement (remplace la pièce du slot).
+       * Les boosts ne sont pas concernés (retourne false). Réutilise la décision du glisser-déposer sur un slot.
        */
       function actionRapideObjetAdventureIdleV209_(id){
         const objet=String(id||'');
@@ -20350,8 +20447,13 @@ function pageAventureIdleV28_(j){
           .filter(Boolean);
         if(idsEquipes.indexOf(objet)!==-1)return false;
 
+        const jumeau=idsEquipes
+          .map(function(idEquipe){return items.find(function(x){return String(x&&x.id)===idEquipe;});})
+          .find(function(x){return x&&x.kind!=='boost'&&x.definitionId===item.definitionId;});
+
         nettoyerEtatDragAdventureIdleV138_();
-        equiperParIdAdventureIdleV138_(objet);
+        if(jumeau)appliquerActionSlotAdventureIdleV138_(objet,String(jumeau.id));
+        else equiperParIdAdventureIdleV138_(objet);
         return true;
       }
 
@@ -20481,9 +20583,17 @@ function pageAventureIdleV28_(j){
          */
         const nTaps=compterTapsObjetIdleV1_(id,pointerType);
         const gestes=gestesAchetesIdleV1_();
+        /* Le premier appui n'ouvre pas la fiche tout de suite quand un double tap est acheté (Norman, 2026-10-14 : « le double tap ne fonctionne plus car un simple tap ouvre la fenêtre de stats ») : la fiche cacherait ou
+         * déplacerait l'objet avant le deuxième appui. On attend la fin du délai du double tap ; un deuxième appui annule l'attente et lance l'action du double tap. Sans achat, ou à la souris, la fiche s'ouvre aussitôt. */
+        clearTimeout(idleDoubleDiffereTimerV1);
         if(nTaps===2&&(gestes.double||gestes.triple)){
-          clearTimeout(idleDoubleDiffereTimerV1);
           if(clicDroitGestesAchetesIdleV1_(id))return;
+        }else if(nTaps===1&&(gestes.double||gestes.triple)&&pointerType!=='mouse'){
+          idleDoubleDiffereTimerV1=setTimeout(function(){
+            idleDoubleDiffereTimerV1=0;
+            executerTapObjetAdventureIdleV196_(element,id);
+          },IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);
+          return;
         }
 
         executerTapObjetAdventureIdleV196_(element,id);
@@ -20829,23 +20939,53 @@ function pageAventureIdleV28_(j){
         );
       }
 
-      /*
-       * Dépôt d'un objet sur une carte du sac (Norman, 2026-10-14 : « supprime complètement le dépôt sur un autre objet pour les fusionner ») : plus aucune fusion ici.
-       * Un boost déposé sur une pièce d'équipement l'améliore ; tout autre dépôt déplace simplement l'objet à la place de la carte.
-       */
-      function deposerSurCarteAdventureIdleV138_(sourceId,cibleId){
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-250 */
+      function idsFusionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
+        void cibleEquipe;
+        const source=String(sourceId||'');
+        const cible=String(cibleId||'');
+        return {a:cible,b:source};
+      }
+
+      function fusionnerSelonInteractionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
+        const ids=idsFusionAdventureIdleV169_(sourceId,cibleId,cibleEquipe);
+        if(!ids.a||!ids.b||ids.a===ids.b)return;
+        fusionnerObjetAdventureIdleV47_(ids.a,ids.b);
+      }
+
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-251 */
+      function fusionnerSiPossibleAdventureIdleV138_(sourceId,cibleId){
         if(!idleEtat||sourceId===cibleId)return;
         const a=aventureMetaIdleV47_(idleEtat);
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
         const source=items.find(function(x){return String(x&&x.id)===sourceId;});
         const cible=items.find(function(x){return String(x&&x.id)===cibleId;});
         if(!source||!cible)return;
-        if(
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-252 */
+        const memeDefinition=
+          source.definitionId===cible.definitionId;
+        const boostDejaComplete=
+          source.kind==='boost'&&
+          Boolean(
+            a.itemList&&
+            a.itemList[source.definitionId]&&
+            idleEntier_(a.itemList[source.definitionId].maxLevel)>=100
+          );
+
+        if(memeDefinition&&!boostDejaComplete){
+          fusionnerSelonInteractionAdventureIdleV169_(
+            source.id,
+            cible.id,
+            false
+          );
+        }else if(
+          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-253 */
           source.kind==='boost'&&
           (cible.kind==='equipment'||cible.kind==='special'||cible.kind==='cube')
         ){
           boosterObjetParIdAdventureIdleV47_(source.id,cible.id);
         }else{
+          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-254 */
           reordonnerInventaireAdventureIdleV162_(source.id,cible.id,null);
         }
       }
@@ -21061,6 +21201,10 @@ function pageAventureIdleV28_(j){
         const source=items.find(function(x){return String(x&&x.id)===sourceId;});
         const occupant=items.find(function(x){return String(x&&x.id)===occupantId;});
         if(!source||!occupant)return 'equiper';
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-258 */
+        if(source.kind!=='boost'&&occupant.kind!=='boost'&&source.definitionId===occupant.definitionId){
+          return 'fusionner';
+        }
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-259 */
         /*
          * 2026-09-24 : un boost spécial n'est « équipé » (échange de place) que sur une pièce SANS Special ; depuis l'audit du
@@ -21079,7 +21223,14 @@ function pageAventureIdleV28_(j){
 
       function appliquerActionSlotAdventureIdleV138_(sourceId,occupantId){
         const decision=decisionActionSlotAdventureIdleV138_(sourceId,occupantId);
-        if(decision==='booster')boosterObjetParIdAdventureIdleV47_(sourceId,occupantId);
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-261 */
+        if(decision==='fusionner'){
+          fusionnerSelonInteractionAdventureIdleV169_(
+            sourceId,
+            occupantId,
+            true
+          );
+        }else if(decision==='booster')boosterObjetParIdAdventureIdleV47_(sourceId,occupantId);
         else equiperParIdAdventureIdleV138_(sourceId);
       }
 
@@ -21657,7 +21808,7 @@ function pageAventureIdleV28_(j){
         if(zone!=='tutorial')return '';
         const g=gestesAchetesIdleV1_();
         return '<div class="soreal-idle-v138-bag-indice-v1">'+
-          '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper). '+
+          '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper ou fusionner). '+
           'Maintenez la touche A et cliquez sur une pièce pour lui appliquer vos boosts.'+
           ((g.double||g.triple)?' Double tap sur un objet : '+(g.triple?'il fusionne avec toutes les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe tous les boosts du sac':'')+'. Appui long sur le Cube de l’infini pour ouvrir ses détails.':'')+
           ((g.double||g.triple)?' Sur PC, clic droit sur un objet du sac ou équipé : '+(g.triple?'il fusionne avec les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe les boosts du sac':'')+'.':'')+
