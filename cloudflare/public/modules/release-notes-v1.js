@@ -34,6 +34,7 @@
           {menu:'general', titre:'Général', points:[
             'La bannière SOREAL IDLE et toutes les images viennent maintenant du stockage du jeu : plus aucun lien Google (la bannière ne s’affichait plus).',
             'Chaque version des notes affiche sa date en toutes lettres, y compris les anciennes.',
+            'Les chiffres des cadres du haut (Attaque, Défense, Or, EXP, AP) changent de police : le 1 ne ressemble plus au 7.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Entraînement de base : le bouton de chaque ligne s’appelle maintenant « Cap » (il ne place que l’énergie nécessaire pour atteindre le plafond de la compétence). Les « Max » des autres menus continuent de tout placer.',

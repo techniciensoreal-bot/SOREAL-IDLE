@@ -734,9 +734,62 @@ async function ambianceFichier_(request,env,url){
   headers.set("x-soreal-idle-r2-key",String(cle));
   return new Response(request.method==="HEAD"?null:object.body,{status:200,headers:mediaHeaders_(headers,3600)});
 }
+/*
+ * Detection automatique du dossier d'une zone (Norman, 2026-10-14) : les zones apres Chocolate World ne sont pas dans IDLE_ADVENTURE_MOB_FOLDERS, mais leurs images peuvent deja etre dans R2 sous
+ * idle/aventure/<dossier>/. Le serveur liste les dossiers de idle/aventure/ (mis en cache 5 minutes) et prend celui dont le nom correspond a l'identifiant de la zone : meme texte sans majuscules,
+ * accents ni separateurs et sans "the" devant (Nether_Regions <-> netherregions, The_Rad-Lands <-> radlands), ou contenant cet identifiant (Pretty_Pink_Princess_Land <-> pinkprincess), ou un
+ * alias (That_70s_Zone <-> seventies), ou a une lettre pres (Aethereal_Sea <-> aethereansea). Une zone deja dans la table garde TOUJOURS son dossier de la table.
+ */
+const IDLE_ZONE_ALIAS_DOSSIER_V1=Object.freeze({seventies:["70s"],aethereansea:["aetherealsea","aethereal"]});
+function normDossierZone_(v){return String(v||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").replace(/^the/,"")}
+function distanceTexte_(a,b){
+  if(Math.abs(a.length-b.length)>1)return 2;
+  const m=[];for(let x=0;x<=a.length;x++){m[x]=[x];}for(let y=0;y<=b.length;y++)m[0][y]=y;
+  for(let x=1;x<=a.length;x++)for(let y=1;y<=b.length;y++)m[x][y]=Math.min(m[x-1][y]+1,m[x][y-1]+1,m[x-1][y-1]+(a[x-1]===b[y-1]?0:1));
+  return m[a.length][b.length];
+}
+export function choisirDossierZoneR2_(dossiers,zone){
+  const id=normDossierZone_(zone);
+  if(!id||id==="safe")return "";
+  const candidats=(Array.isArray(dossiers)?dossiers:[]).map(d=>String(d||"").replace(/\/+$/,"")).filter(Boolean).map(d=>({nom:d,norm:normDossierZone_(d)}));
+  const alias=(IDLE_ZONE_ALIAS_DOSSIER_V1[String(zone||"").toLowerCase()]||[]).map(normDossierZone_);
+  const parRang=[
+    c=>c.norm===id,
+    c=>alias.some(a=>c.norm===a||c.norm.startsWith(a)),
+    c=>c.norm.includes(id),
+    c=>alias.some(a=>c.norm.includes(a)),
+    c=>distanceTexte_(c.norm,id)<=1
+  ];
+  for(const test of parRang){
+    const trouves=candidats.filter(test).sort((a,b)=>a.nom.length-b.nom.length||a.nom.localeCompare(b.nom));
+    if(trouves.length)return trouves[0].nom;
+  }
+  return "";
+}
+let idleDossiersZonesCacheV1=null;
+async function dossiersAventureR2_(env){
+  const now=Date.now();
+  if(idleDossiersZonesCacheV1&&now-idleDossiersZonesCacheV1.at<300000)return idleDossiersZonesCacheV1.value;
+  let dossiers=[],cursor=undefined;
+  do{
+    const opts={prefix:IDLE_ADVENTURE_MOBS_R2_PREFIX,delimiter:"/",limit:1000};
+    if(cursor)opts.cursor=cursor;
+    const listed=await env.SOREAL_R2.list(opts);
+    if(listed&&Array.isArray(listed.delimitedPrefixes))dossiers=dossiers.concat(listed.delimitedPrefixes.map(x=>String(x).slice(IDLE_ADVENTURE_MOBS_R2_PREFIX.length).replace(/\/+$/,"")));
+    cursor=listed&&listed.truncated&&listed.cursor?listed.cursor:undefined;
+  }while(cursor&&dossiers.length<500);
+  idleDossiersZonesCacheV1={at:now,value:dossiers};
+  return dossiers;
+}
+async function dossierZoneAventureR2_(env,zone){
+  const fixe=IDLE_ADVENTURE_MOB_FOLDERS[zone];
+  if(fixe)return fixe;
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function")return "";
+  return choisirDossierZoneR2_(await dossiersAventureR2_(env),zone);
+}
 async function adventureMob_(request,env,url){
   const zone=String(url.searchParams.get("zone")||"").trim().toLowerCase();
-  const folder=IDLE_ADVENTURE_MOB_FOLDERS[zone];
+  const folder=await dossierZoneAventureR2_(env,zone);
   if(!folder)return new Response("Zone Adventure invalide",{status:400,headers:{"cache-control":"no-store"}});
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"||typeof env.SOREAL_R2.get!=="function"){
     return new Response("Média de monstre indisponible",{status:503,headers:{"cache-control":"no-store"}});
@@ -766,7 +819,7 @@ async function adventureMob_(request,env,url){
 }
 async function adventureSafeZone_(request,env,url){
   const zone=String(url.searchParams.get("zone")||"tutorial").trim().toLowerCase();
-  const folder=IDLE_ADVENTURE_MOB_FOLDERS[zone];
+  const folder=await dossierZoneAventureR2_(env,zone);
   if(!folder)return new Response("Zone Adventure invalide",{status:400,headers:{"cache-control":"no-store"}});
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
     return new Response("Média Safe Zone indisponible",{status:503,headers:{"cache-control":"no-store"}});

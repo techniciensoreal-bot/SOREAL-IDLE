@@ -24,3 +24,10 @@ assert.ok(css.includes("@media (prefers-reduced-motion:reduce)"), "reflet coupé
 // La mise à jour en direct des chiffres ne dépend que des identifiants des valeurs : elle n'est pas touchée.
 for (const idVal of ["sorealIdleSummaryAttackV50", "sorealIdleSummaryDefenseV50", "sorealIdleSummaryGoldV50", "sorealIdleSummaryExpV50", "sorealIdleSummaryApV210"]) assert.ok(bloc.includes(`id="${idVal}"`), idVal);
 console.log("idle-tuiles-couleurs-v1: OK");
+
+/* Norman (2026-10-14) : les chiffres des cadres du haut sont en Russo One (le 1 ne ressemble plus au 7). */
+{
+  const { readFileSync } = await import("node:fs");
+  const css2 = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
+  assert.ok(/\.soreal-idle-summary-v28 b\{font-family:"Russo One"/.test(css2), "chiffres des cadres en Russo One");
+}

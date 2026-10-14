@@ -116,6 +116,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4{f
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-summary-v28,.soreal-idle-energy-head-v34>:first-child,.soreal-idle-bt-name-v120,.pk-niveau,.soreal-idle-exp-titre-v1,.soreal-idle-exp-prix-ligne-v1 b,.si-hp-cur-v1,.soreal-idle-hp-cur-v1){
   font-family:var(--f-titre)!important;letter-spacing:.07em!important;font-weight:400!important;text-shadow:1px 1px 0 #000!important;
 }
+/* Chiffres des cadres Attaque, Défense, Or, EXP et AP (Norman, 2026-10-14 : « les 7 et les 1 se ressemblent fort, je ne sais jamais si j'ai 100 ou 700 EXP ») : Russo One, dont le 1 a un drapeau et le 7 est droit ; les libellés gardent la police de BD. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-summary-v28 b{font-family:"Russo One","Arial Black",Impact,sans-serif!important;letter-spacing:.02em!important;-webkit-text-stroke:0!important;font-weight:400!important;}
 /* Boutons et onglets : contour plus fin pour que les petites lettres restent nettes. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(button,.soreal-idle-expand-button-v25,.pk-acheter,.soreal-idle-exp-buy-v210,.soreal-idle-collection-tab-v1,.soreal-idle-exp-tab-v212,.soreal-idle-shop-onglet-v1,.ygg-btn,.ygg-onglet,.ygg-aide-bouton):not(.wd-touche){
   -webkit-text-stroke:.5px #000;
