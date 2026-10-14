@@ -226,7 +226,7 @@ function carte(t){
     '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
     capacites+
     '<div class="ttn-actions">'+selecteur+
-      '<label class="ttn-auto" title="Le titan est vaincu tout seul, en ligne comme hors ligne, dès que tu as les stats Auto-kill."><input type="checkbox" id="ttnAuto_'+h(id)+'" '+(t.state&&t.state.autoKill===true?'checked ':'')+'onchange="window.__autoKillTitanV1__(\''+h(id)+'\',this.checked)"> 🤖 Auto-kill</label>'+
+      '<label class="ttn-auto" title="'+(autoKillCochable(t)?'Le titan est vaincu tout seul, en ligne comme hors ligne, dès que tu as les stats Auto-kill.':'Monte tes stats pour pouvoir activer l’Auto-kill de ce Titan.')+'"><input type="checkbox" id="ttnAuto_'+h(id)+'" '+(t.state&&t.state.autoKill===true?'checked ':'')+(autoKillCochable(t)?'':'disabled ')+'onchange="window.__autoKillTitanV1__(\''+h(id)+'\',this.checked)"> 🤖 Auto-kill</label>'+
       '<button type="button" class="soreal-idle-expand-button-v25 ttn-bouton" id="ttnBtn_'+h(id)+'" '+(pret?'':'disabled ')+'onclick="window.__affronterTitanV1__(\''+h(id)+'\')">⚔️ Affronter</button>'+
     '</div>'+
   '</article>';
@@ -448,6 +448,23 @@ setInterval(function(){
     if(btn)btn.disabled=false;
   });
 },1000);
+
+/* L'Auto-kill de ce titan peut-il être COCHÉ ? Seulement si ses conditions sont déjà remplies (même règle que le serveur, qui refuse sinon) ; décocher reste toujours possible. Stats inconnues : on laisse le serveur trancher. */
+function autoKillCochable(t){
+  if(t.state&&t.state.autoKill===true)return true;
+  var moi=statsJoueur();
+  if(!moi)return true;
+  function ok(s){return s&&Number(s.autoKillP)>0&&moi.power>=Number(s.autoKillP)&&moi.toughness>=Number(s.autoKillT);}
+  var kills=ent(t.state&&t.state.kills);
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length&&ok(t.forms[t.forms.length-1]);
+  if(t.difficulties&&typeof t.difficulties==='object'){
+    return Object.keys(t.difficulties).some(function(k){
+      var e=t.difficulties[k];
+      return ok(e)||(e&&e.autoKillKills&&ent((t.state.difficultyKills||{})[k])>=e.autoKillKills);
+    });
+  }
+  return ok(t);
+}
 
 /* Ce titan sera-t-il vaincu tout seul (case Auto-kill cochée ET stats Auto-kill atteintes) ? Alors il n'y a rien à faire : ni bouton qui brille, ni icône. */
 function seTueTout(t){

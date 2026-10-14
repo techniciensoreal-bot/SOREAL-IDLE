@@ -358,6 +358,8 @@ function page_(){
   var textes=window.__SOREAL_IDLE_TEXTES_V1__;
   return '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🛠️ Admin — Histoires</div><div id="'+LISTE_ID+'">'+listeHtml_()+'</div></div>'+
     (textes&&typeof textes.pageHtml==='function'?textes.pageHtml():'')+
+    /* Tutoriel éditable (modules/admin-tutoriel-v1.js) : guides, étapes, cibles sur l'écran. */
+    (window.__SOREAL_IDLE_ADMIN_TUTORIEL_V1__?window.__SOREAL_IDLE_ADMIN_TUTORIEL_V1__.pageHtml():'')+
     /* EXP des joueurs (modules/credit-exp-admin-v1.js) : crédit d'EXP et journal. */
     (window.__SOREAL_IDLE_CREDIT_EXP_V1__?window.__SOREAL_IDLE_CREDIT_EXP_V1__.pageHtml():'');
 }

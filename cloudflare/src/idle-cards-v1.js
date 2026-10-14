@@ -129,6 +129,7 @@ export const IDLE_CARDS_BASE_V1 = Object.freeze({
   chonkerMayoMax: 29,
   rarityMin: 0.80, // « between 0.80 and 1.20 »
   rarityMax: 1.20,
+  foilChance: 0.01, // « Foil Cards » : « On rare occasion (~1% of the time), a card will drop with a gold-coloured background and border » (visuel seulement)
   blackPenTiers: 2, // « Regular Black Pens will give +2 tiers on the next 25 cards »
   recycleSpawnFraction: 0.10, // perk 216 : « advances your card spawn timer by 10% »
   recycleChonkerFraction: 0.25, // perk 216 : « the timer for your BIG CHONKER card will advance by 25% »
@@ -728,7 +729,9 @@ export function idleCardsCreateCardV1(state, options = {}) {
     mayo,
     bonusPct: idleCardBonusPctV1(type, tier, rarity, total),
     protected: chonker, // « Chonkers always spawn in protected status »
-    chonker
+    chonker,
+    /* Page Cards, section « Foil Cards » : environ 1 % des cartes arrivent avec un fond et une bordure dorés, sans aucune propriété particulière (purement visuel). Tiré APRÈS tous les autres tirages de la carte. */
+    foil: !chonker && rng() < IDLE_CARDS_BASE_V1.foilChance
   };
   data.nextId += 1;
   data.stats.spawned += 1;

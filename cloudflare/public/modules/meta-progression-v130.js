@@ -3935,25 +3935,29 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '</div>';
         }).join('');
 
-        const blocDeck=deck.length?deck.map(function(k,i){
+        /* Les cartes sont DESSINÉES (modules/cartes-v1.js : cadre SVG, mayo, palier, type, effet, rareté ; illustration lue dans R2 idle/cartes/, vide tant qu'elle n'existe pas). Sans le module, repli sur l'ancien affichage texte. */
+        const CV=window.__SorealCartesV1__;
+        const blocDeck=deck.length?(CV?CV.defs()+'<div class="cv1-grille">':'<div style="display:grid;gap:10px">')+deck.map(function(k,i){
+          const boutons='<div class="cv1-boutons">'+
+            '<button type="button" class="soreal-idle-expand-button-v25" '+(k.canCast?'onclick="'+act({mode:'cast',cardId:k.id})+'"':'disabled')+'>✨ Lancer</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25" '+(k.protected?'disabled':'onclick="'+act({mode:'yeet',cardId:k.id})+'"')+'>🗑️ Jeter</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="'+act({mode:'protect',cardId:k.id})+'">'+(k.protected?'🔓 Déprotéger':'🔒 Protéger')+'</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25" '+(i>0?'onclick="'+act({mode:'move',cardId:k.id,index:i-1})+'"':'disabled')+'>⬆️</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25" '+(i<deck.length-1?'onclick="'+act({mode:'move',cardId:k.id,index:i+1})+'"':'disabled')+'>⬇️</button>'+
+          '</div>';
+          if(CV){
+            const cout=Object.keys(k.mayo||{}).map(function(id){return H.idleEntier_(k.mayo[id])+' '+H.idleHtml_(nomMayo[id]||id);}).join(', ');
+            return '<div class="cv1-case" title="'+H.idleHtml_('Coût : '+cout)+'">'+CV.carteSvg(k)+boutons+'</div>';
+          }
           const cout=Object.keys(k.mayo||{}).map(function(id){return H.idleEntier_(k.mayo[id])+' '+H.idleHtml_(nomMayo[id]||id);}).join(', ');
           return '<div class="soreal-idle-section-v8" style="margin:0'+(k.chonker?';border:2px solid #eab308':'')+(k.theEnd?';border:2px solid #ff3b3b':'')+'">'+
-            (k.theEnd
-              ?'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+'THE END</b></div>'+
-                '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'
-              :'<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+(k.chonker?'🍔 Big Chonker · ':'')+H.idleHtml_(k.code)+' · '+H.idleHtml_(k.nom)+'</b><span>Tier '+H.idleEntier_(k.tier)+'</span></div>'+
-                '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+') · coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>')+
-            '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px">'+
-              '<button type="button" class="soreal-idle-expand-button-v25" '+(k.canCast?'onclick="'+act({mode:'cast',cardId:k.id})+'"':'disabled')+'>✨ Lancer</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" '+(k.protected?'disabled':'onclick="'+act({mode:'yeet',cardId:k.id})+'"')+'>🗑️ Jeter</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" onclick="'+act({mode:'protect',cardId:k.id})+'">'+(k.protected?'🔓 Déprotéger':'🔒 Protéger')+'</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" '+(i>0?'onclick="'+act({mode:'move',cardId:k.id,index:i-1})+'"':'disabled')+'>⬆️</button>'+
-              '<button type="button" class="soreal-idle-expand-button-v25" '+(i<deck.length-1?'onclick="'+act({mode:'move',cardId:k.id,index:i+1})+'"':'disabled')+'>⬇️</button>'+
-            '</div></div>';
-        }).join(''):'<div class="soreal-idle-section-v8" style="text-align:center;padding:18px">Deck vide : la première carte arrive dans '+dureeLongueNguIdleV1_(c.secondsToNextCard)+'.</div>';
+            '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b>'+(k.protected?'🔒 ':'')+(k.theEnd?'THE END':(k.chonker?'🍔 Big Chonker · ':'')+H.idleHtml_(k.code)+' · '+H.idleHtml_(k.nom))+'</b>'+(k.theEnd?'':'<span>Tier '+H.idleEntier_(k.tier)+'</span>')+'</div>'+
+            (k.theEnd?'':'<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Bonus <b>+'+pct(k.bonusPct,3)+'</b> · rareté '+H.idleHtml_(k.rarityLabel)+' ('+H.idleNombre_(k.rarity).toFixed(3).replace('.',',')+')</div>')+
+            '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">coût '+H.idleEntier_(k.mayoTotal)+' mayo : '+cout+'</div>'+boutons+'</div>';
+        }).join('')+'</div>':'<div class="soreal-idle-section-v8" style="text-align:center;padding:18px">Deck vide : la première carte arrive dans '+dureeLongueNguIdleV1_(c.secondsToNextCard)+'.</div>';
 
         return titre+grille+
-          '<h3 style="margin:16px 0 8px">Deck</h3><div style="display:grid;gap:10px">'+blocDeck+'</div>'+
+          '<h3 style="margin:16px 0 8px">Deck</h3>'+blocDeck+
           '<h3 style="margin:16px 0 8px">Mayo</h3><div style="font-size:14px;color:#aeb5c8;margin-bottom:6px">La production totale est partagée entre les générateurs actifs.</div><div style="display:grid;gap:10px">'+blocMayo+'</div>'+
           '<h3 style="margin:16px 0 8px">Types, tiers et tags</h3><div style="font-size:14px;color:#aeb5c8;margin-bottom:6px">Un type taggé apparaît plus souvent. Le tier s\'applique aux prochaines cartes de ce type.</div><div style="display:grid;gap:10px">'+blocTypes+'</div>';
       }

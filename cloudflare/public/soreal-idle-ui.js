@@ -4857,10 +4857,13 @@
       let idleDerniereSynchroReussieV1=Date.now();
       const IDLE_SYNCHRO_AFFAMEE_MS_V1=90000;
 
+      const IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1=1500;
       function synchroniserJeuIdleV7_(
         force
       ){
         if(!force&&Date.now()-idleDerniereSynchroReussieV1>IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;
+        /* Pas de synchro ordinaire juste après une synchro réussie (Norman, 2026-10-14 : audit des synchros — une synchro forcée suivie d'une synchro normale 1 s plus tard envoyait deux réponses de 40 Ko pour rien). */
+        if(!force&&Date.now()-idleDerniereSynchroReussieV1<IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1)return;
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-73 */
         if(idleSyncEnCoursV60){
           if(force)idleSyncForcePendingV167=true;
@@ -11230,7 +11233,25 @@
         };
       }
 
+      /*
+       * Ancien tutoriel (fenêtres de Norman & Sébastien, popups de première ouverture de menu) : joué tant que l'administrateur ne l'a pas désactivé dans le menu Admin → Tutoriel (modules/tutoriel-v1.js).
+       * Tant que le réglage n'est pas connu (premier instant du jeu), rien n'est joué : on ne montre jamais un ancien popup qui serait aussitôt remplacé.
+       */
+      function ancienTutorielPermisIdleV1_(){
+        const T=window.__SOREAL_IDLE_TUTORIEL_V1__;
+        return !T||T.ancienPermis();
+      }
+      /* Anciennes fenêtres d'explication de chaque menu (première ouverture) : réglage séparé de l'ancien tutoriel de départ. */
+      function anciennesFenetresMenusPermisesIdleV1_(){
+        const T=window.__SOREAL_IDLE_TUTORIEL_V1__;
+        return !T||T.ancienMenusPermis();
+      }
+      /* Liste des menus (identifiant, nom) pour l'éditeur du tutoriel. */
+      window.__SOREAL_IDLE_MENUS_LISTE_V1__=function(){
+        return IDLE_MENUS_V1.map(function(m){return {id:m.id,icon:m.icon,nom:m.nom};});
+      };
       function demarrerTutorielPagesIdleV1_(pages,cle){
+        if(!ancienTutorielPermisIdleV1_())return;
         if(!Array.isArray(pages)||!pages.length)return;
         if(idleTutorielPagesDejaVuV1_(cle))return;
 
@@ -11498,6 +11519,7 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */
       function gererPopupsProgressionIdleV75_(j){
         if(!j)return;
+        if(!ancienTutorielPermisIdleV1_())return;
 
         const cle='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(j);
 
@@ -23916,7 +23938,7 @@ function pageAventureIdleV28_(j){
             );
           }else{
             const info=idleInfosParMenuIdleV1_(idleEtat)[nouveauMenu];
-            if(info){
+            if(info&&anciennesFenetresMenusPermisesIdleV1_()){
               idlePopupQueueV75.push(info);
               afficherProchainePopupIdleV75_();
             }
@@ -24703,6 +24725,10 @@ function pageAventureIdleV28_(j){
          */
         if(window.__SOREAL_IDLE_STORY_ENGINE_V1__&&typeof window.__SOREAL_IDLE_STORY_ENGINE_V1__.considerer==='function'){
           window.__SOREAL_IDLE_STORY_ENGINE_V1__.considerer(j);
+        }
+        /* Tutoriel éditable (2026-10-14, modules/tutoriel-v1.js) : guides du menu Admin, déclenchés au début du jeu, à la première ouverture d'un menu ou après un boss. */
+        if(window.__SOREAL_IDLE_TUTORIEL_V1__&&typeof window.__SOREAL_IDLE_TUTORIEL_V1__.considerer==='function'){
+          window.__SOREAL_IDLE_TUTORIEL_V1__.considerer(j);
         }
 
         initialiserCoupsCombatIdleV116_();

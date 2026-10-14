@@ -34,6 +34,9 @@
           {menu:'general', titre:'Général', points:[
             'La bannière SOREAL IDLE et toutes les images viennent maintenant du stockage du jeu : plus aucun lien Google (la bannière ne s’affichait plus).',
             'Chaque version des notes affiche sa date en toutes lettres, y compris les anciennes.',
+            'Les boutons Max, 1/2, 1/4, Tout retirer et le champ Input sont plus grands et plus lisibles, sur PC comme sur l’application.',
+            'Les échanges avec le serveur sont plus légers (environ un tiers de données en moins à chaque synchronisation) et deux synchronisations ne se suivent plus à moins d’une seconde et demie.',
+            'Les polices du jeu sont hébergées avec le jeu : plus aucun appel à un service externe pour les afficher.',
             'Les chiffres des cadres du haut (Attaque, Défense, Or, EXP, AP) changent de police : le 1 ne ressemble plus au 7.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
@@ -43,8 +46,15 @@
             'Chaque boss affiche de nouveau sa propre histoire : à partir du boss 80, les histoires étaient rangées sous le boss suivant ou précédent. C’est remis dans l’ordre en français et en anglais, sans écraser les textes que tu as modifiés.',
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Sur PC, l’écran de combat d’un Titan occupe tout l’écran dès le lancement : plus besoin de descendre avec la molette.',
+            'La case « Auto-kill » d’un Titan ne peut plus être cochée tant que tu n’as pas les statistiques nécessaires : elle reste grisée, avec un message. Décocher reste toujours possible.',
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Un simple appui sur un objet (sac ou équipement) ouvre sa fiche, avec ou sans statistiques, à la place de l’appui long ; appuyer de nouveau sur le même objet la referme. La fusion se fait toujours en glissant un objet sur un autre, et le double tap acheté fonctionne comme avant.',
+          ]},
+          {menu:'cards', titre:'Cards', points:[
+            'Les cartes de ton deck sont dessinées : cadre, palier, coût en mayo, type, effet et rareté, avec une illustration pour chaque type et une variante dorée pour environ 1 % d’entre elles.',
           ]}
         ]
       },

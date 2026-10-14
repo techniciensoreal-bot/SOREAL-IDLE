@@ -38,6 +38,7 @@ import { histoireBossFrAligneeV1 } from "./idle-traductions-v1.js";
 import { nguBossStatsV1, nguBossFtbeBonusXpV1 } from "./idle-ngu-boss-reference-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1 } from "./idle-sellout-shop-v1.js";
 import { lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1, histoireDuBossV1 } from "./idle-histoires-v1.js";
+import { lireGuidesV1, enregistrerGuideV1, supprimerGuideV1, guidesPourJoueurV1, ancienTutorielActifV1, reglerAncienTutorielV1, ancienMenusActifV1, reglerAncienMenusV1 } from "./idle-tutoriel-v1.js";
 import { lireTextesV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, texteBossParleV1, nomBossParleV1, invaliderCacheTextesBossV1, surchargesPourJoueurV1 } from "./idle-textes-v1.js";
 import { instantaneJoueurV1, enregistrerJalonsV1, enregistrerConnexionFluxV1, lireFluxV1, dernierIdFluxV1 } from "./idle-flux-v1.js";
 import { enregistrerGainExpV1, lireGainsExpV1, creditDejaFaitV1 } from "./idle-gains-v1.js";
@@ -17456,6 +17457,69 @@ function supprimerHistoireAdminSorealIdle(sessionToken, id) {
 }
 
 /*
+ * Tutoriel éditable (voir idle-tutoriel-v1.js). Joueur : obtenirTutorielSorealIdle -- UNIQUEMENT les guides du déclencheur demandé (début du jeu, ouverture d'un menu, boss vaincu) et le réglage
+ * « ancien tutoriel » ; jamais la liste complète (anti-spoil). Administrateur : lister / enregistrer / supprimer / régler l'ancien tutoriel.
+ */
+function obtenirTutorielSorealIdle(sessionToken, contexte) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  if (!__idleSql) return { ok: true, ancienActif: true, ancienMenusActif: true, guides: [] };
+  const ctx = contexte && typeof contexte === 'object' ? contexte : {};
+  const ancienActif = ancienTutorielActifV1(__idleSql);
+  const ancienMenusActif = ancienMenusActifV1(__idleSql);
+  /* Un guide de boss n'est donné qu'à un joueur qui l'a atteint (même règle que les histoires : IDLE-AUDIT-SEC-006). */
+  if (ctx.boss != null) {
+    let atteint = -1;
+    try {
+      const feuille = obtenirFeuilleJoueursSorealIdle_();
+      const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+      const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+      const row = feuille.getRange(ligne, 1, 1, c.STATS_JSON).getValues()[0];
+      const stats = statsJoueurSorealIdle_(row[c.STATS_JSON - 1]);
+      const vaincus = Math.max(0, Math.floor(nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)));
+      const record = Math.max(0, Math.floor(nombreSorealIdle_(stats && stats.metaNgu && stats.metaNgu.records && stats.metaNgu.records.highestBoss, 0)));
+      atteint = Math.max(vaincus, record);
+    } catch (_e) {
+      atteint = -1;
+    }
+    if (atteint < 0 || Math.floor(Number(ctx.boss) || 0) > atteint + 1) return { ok: true, ancienActif, ancienMenusActif, guides: [] };
+  }
+  return { ok: true, ancienActif, ancienMenusActif, guides: guidesPourJoueurV1(__idleSql, ctx) };
+}
+
+function listerTutorielAdminSorealIdle(sessionToken) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  return { ok: true, guides: lireGuidesV1(__idleSql), ancienActif: ancienTutorielActifV1(__idleSql), ancienMenusActif: ancienMenusActifV1(__idleSql) };
+}
+
+function enregistrerTutorielAdminSorealIdle(sessionToken, guide) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    return { ok: true, guide: enregistrerGuideV1(__idleSql, guide) };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (/^TUTO_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
+}
+
+function supprimerTutorielAdminSorealIdle(sessionToken, id) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  /* L'identifiant arrive soit en texte, soit dans un objet { id } (le pont client ajoute la session au premier argument de type texte). */
+  supprimerGuideV1(__idleSql, id && typeof id === 'object' ? id.id : id);
+  return { ok: true };
+}
+
+function reglerAncienTutorielAdminSorealIdle(sessionToken, actif) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  /* Argument : un booléen (ancien tutoriel de départ) ou { actif, quoi:'menus' } (anciennes fenêtres d'explication des menus). */
+  const objet = actif && typeof actif === 'object' ? actif : { actif };
+  const valeur = objet.actif === true || objet.actif === 'true' || objet.actif === 1;
+  if (String(objet.quoi || '') === 'menus') reglerAncienMenusV1(__idleSql, valeur);
+  else reglerAncienTutorielV1(__idleSql, valeur);
+  return { ok: true, ancienActif: ancienTutorielActifV1(__idleSql), ancienMenusActif: ancienMenusActifV1(__idleSql) };
+}
+
+/*
  * Textes éditables (Norman, 2026-10-02 : chroniques de boss, popups et fenêtres explicatives modifiables par l'administrateur, avec voix
  * différentes ; voir idle-textes-v1.js). Joueur : obtenirTextesSurchargesSorealIdle (textes de popups modifiés + empreintes de voix, jamais le
  * texte d'une chronique de boss : il arrive avec le boss). Administrateur : lister (tous les boss, texte d'origine compris) / enregistrer /
@@ -17680,6 +17744,11 @@ const IDLE_OPERATIONS={
   listerHistoiresAdminSorealIdle,
   enregistrerHistoireAdminSorealIdle,
   supprimerHistoireAdminSorealIdle,
+  obtenirTutorielSorealIdle,
+  listerTutorielAdminSorealIdle,
+  enregistrerTutorielAdminSorealIdle,
+  supprimerTutorielAdminSorealIdle,
+  reglerAncienTutorielAdminSorealIdle,
   obtenirTextesSurchargesSorealIdle,
   listerTextesAdminSorealIdle,
   enregistrerTexteAdminSorealIdle,

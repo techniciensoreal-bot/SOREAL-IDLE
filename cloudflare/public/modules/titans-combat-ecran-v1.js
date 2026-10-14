@@ -153,8 +153,18 @@ function poserHaut(premiere){
   if(!el)return;
   var b=document.querySelector('.soreal-idle-bascule-aventure-v1');
   if(b&&premiere){
-    var nav=document.querySelector('.soreal-idle-nav-v28'),collant=nav&&getComputedStyle(nav).position==='sticky'?nav.getBoundingClientRect().bottom:0;
-    window.scrollBy(0,Math.round(b.getBoundingClientRect().top-collant-4));
+    /* Seule une VRAIE barre collante en haut de page compte (téléphone : ~60 px) ; sur PC le menu est une colonne de plus de 1 000 px, qui n'est pas au-dessus du bandeau (Norman, 2026-10-14 : « sur PC l'écran n'est pas plein écran, il faut descendre 2 fois avec la molette ») : l'ancien calcul la prenait pour une barre et ne faisait pas remonter la page. */
+    var nav=document.querySelector('.soreal-idle-nav-v28'),collant=0;
+    if(nav&&getComputedStyle(nav).position==='sticky'){var rn=nav.getBoundingClientRect();if(rn.top<=2&&rn.height<=220)collant=rn.bottom;}
+    var voulu=Math.round(b.getBoundingClientRect().top-collant-4);
+    /* Page trop courte pour remonter le bandeau tout en haut : une cale temporaire la rallonge, retirée à la fin du combat. */
+    var racine=document.documentElement,possible=Math.max(0,racine.scrollHeight-window.innerHeight-window.scrollY);
+    var cale=document.getElementById(ID+'Cale');
+    if(voulu>possible){
+      if(!cale){cale=document.createElement('div');cale.id=ID+'Cale';cale.setAttribute('aria-hidden','true');document.body.appendChild(cale);}
+      cale.style.cssText='height:'+(voulu-possible+8)+'px;pointer-events:none';
+    }
+    if(voulu!==0)window.scrollBy({top:voulu,left:0,behavior:'instant'});
   }
   var top=b?Math.max(0,Math.round(b.getBoundingClientRect().bottom+6)):0;
   if(el.style.getPropertyValue('--tcv-top')!==top+'px')el.style.setProperty('--tcv-top',top+'px');
@@ -174,6 +184,8 @@ function afficher(f){
 }
 
 function masquer(){
+  var cale=document.getElementById(ID+'Cale');
+  if(cale&&cale.parentNode)cale.parentNode.removeChild(cale);
   var el=document.getElementById(ID);
   if(el&&!el.hidden){el.hidden=true;el.innerHTML='';}
   cleIdentite='';

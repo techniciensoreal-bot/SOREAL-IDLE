@@ -42,7 +42,15 @@ export const IDLE_PIECES_ETAT_CHEMINS_V1 = Object.freeze([
   "systemes.adventure.coffreSlots",
   "systemes.adventure.itemList",
   "systemes.cards",
-  "collections"
+  "collections",
+  /* Audit des synchros (2026-10-14, Norman) : pièces d'état de 1 à 6 Ko mesurées stables d'une synchro à l'autre (4 synchros par minute sur une page ouverte, 49 Ko chacune). */
+  /* Seulement `types` : le reste de macguffins porte la durée de la partie (runSeconds, timeRatio), qui change à chaque synchro et rendrait la pièce jamais stable (mesuré le 2026-10-14). Même raison pour profil (âge du compte, dates de mise à jour) : volontairement absent. */
+  "systemes.macguffins.types",
+  "systemes.daycare",
+  "systemes.diggerDefinitions",
+  "systemes.wishSlots",
+  "systemes.resourcePurchases",
+  "basicTraining"
 ]);
 export const IDLE_PIECE_SYSTEME_TAILLE_MIN_V1 = 1000;
 

@@ -14,3 +14,16 @@ const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes('<img src="/api/idle/media/banner?name=soreal-idle.webp"'), "bannière du jeu : R2");
 assert.ok(!ui.includes("urlDriveRapideIdleV46_"), "plus de fonction d'adresse Drive");
 console.log("Aucun lien Google pour les images : OK");
+
+/* Polices hébergées (Norman, 2026-10-14) : plus aucun appel à Google Fonts. */
+{
+  const { existsSync } = await import("node:fs");
+  const index = readFileSync("cloudflare/public/index.html", "utf8");
+  assert.ok(!/fonts\.googleapis|fonts\.gstatic/.test(index), "index.html appelle encore Google Fonts");
+  const css = readFileSync("cloudflare/public/fonts/fonts.css", "utf8");
+  assert.ok(!/googleapis|gstatic/.test(css), "fonts.css pointe encore chez Google");
+  for (const famille of ["Bangers", "Comic Neue", "Russo One"]) assert.ok(css.includes("font-family:'" + famille + "'"), "police absente : " + famille);
+  const fichiers = [...css.matchAll(/url\(\/fonts\/([^)]+)\)/g)].map((m) => m[1]);
+  assert.ok(fichiers.length >= 8, "fichiers de police déclarés");
+  for (const f of fichiers) assert.ok(existsSync("cloudflare/public/fonts/" + f), "fichier de police manquant : " + f);
+}

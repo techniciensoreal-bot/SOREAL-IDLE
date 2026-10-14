@@ -1434,6 +1434,23 @@ async function bannerImage_(request,env,url){
   return reponseObjetR2_(request,env,{key,object});
 }
 
+/* Illustrations des cartes (Norman, 2026-10-14) : fichiers deposes dans R2 sous idle/cartes/<type>.<extension> (type = energyNgu, magicNgu, wandoos, augments, timeMachine, hacks, wishes, stats, adventure, drop, gold, daycare, pp, qp, theEnd). */
+async function carteImage_(request,env,url){
+  const type=String(url.searchParams.get("type")||"").trim();
+  if(!/^[A-Za-z0-9_-]{1,40}$/.test(type)){
+    return new Response("Carte IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
+  }
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("Media de carte indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  }
+  for(const ext of IDLE_ADVENTURE_R2_EXTENSIONS){
+    const key="idle/cartes/"+type+"."+ext;
+    const object=await env.SOREAL_R2.get(key);
+    if(object)return reponseObjetR2_(request,env,{key,object});
+  }
+  return new Response("Illustration de carte introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+}
+
 /* Illustrations de la page Magie du sang (Norman, 2026-10-11) : fichiers déposés dans R2 sous idle/bloodmagic/ (ex. BloodMagicSucon.webp) */
 async function bloodMagicImage_(request,env,url){
   const nom=String(url.searchParams.get("name")||"").trim();
@@ -1497,6 +1514,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/player",
     "/api/idle/media/banner",
     "/api/idle/media/bloodmagic",
+    "/api/idle/media/card",
     "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
@@ -1525,6 +1543,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/player")return playerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/bloodmagic")return bloodMagicImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/card")return carteImage_(request,env,url);
   if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);
