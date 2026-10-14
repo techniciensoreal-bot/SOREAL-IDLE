@@ -45,6 +45,6 @@ assert.ok(ui.includes("clicDroitCubeIdleV1_"), "le clic droit sur le Cube reste"
 // 4. Son de la fusion de toutes les pièces identiques = son du glisser-déposer.
 assert.match(meta, /payload\.mode==='mergeAll'&&\s*window\.__SOREAL_IDLE_META_HOST_V130__\.idleNombre_\(res\.resultat\.merged\)>0/, "joué seulement si quelque chose est fusionné");
 assert.ok(meta.includes("'mergeWeapon':(['head','chest','legs','boots'].indexOf(empl)!==-1?'mergeArmor':'mergeAccessory')"), "mêmes sons que le glisser-déposer (arme, armure, accessoire)");
-assert.ok(ui.includes("if(slot==='weapon')return 'mergeWeapon';") && ui.includes("return 'mergeArmor';") && ui.includes("return 'mergeAccessory';"), "cues du glisser-déposer inchangés");
+assert.ok(!ui.includes("return 'mergeWeapon';") && !ui.includes("return 'mergeAccessory';"), "plus de fusion par glisser-déposer (Norman, 2026-10-14)");
 console.log("idle-defis-cube-automerge-son-v1: OK");
 process.exit(0);

@@ -8027,183 +8027,21 @@
         `;
       }
 
-      let idleSelectionModeV32=false;
-      let idleSelectionObjetsV32={};
-      let idleLongPressTimerV32=null;
-      let idleLongPressDeclencheV32=false;
       let idleRecycleBatchV32=false;
       let idleRecycleQueueV38=[];
       let idleRecycleInflightV38=[];
       let idleRecycleTimerV38=null;
 
 
-      function selectionIdsIdleV32_(){
-        return Object.keys(
-          idleSelectionObjetsV32
-        ).filter(function(id){
-          return Boolean(
-            idleSelectionObjetsV32[id]
-          );
-        });
-      }
-
-
-      function debutAppuiObjetIdleV32_(
-        objetId
-      ){
-        idleLongPressDeclencheV32=false;
-
-        if(idleLongPressTimerV32){
-          clearTimeout(
-            idleLongPressTimerV32
-          );
-        }
-
-        idleLongPressTimerV32=
-          setTimeout(function(){
-            idleLongPressTimerV32=null;
-            idleLongPressDeclencheV32=true;
-            idleSelectionModeV32=true;
-            idleSelectionObjetsV32[
-              String(objetId)
-            ]=true;
-
-            rafraichirSelectionInventaireIdleV32_();
-          },520);
-      }
-
-
-      function finAppuiObjetIdleV32_(){
-        if(idleLongPressTimerV32){
-          clearTimeout(
-            idleLongPressTimerV32
-          );
-          idleLongPressTimerV32=null;
-        }
-      }
-
-
-      function tapObjetIdleV32_(
-        event,
-        objetId
-      ){
-        finAppuiObjetIdleV32_();
-
-        if(idleLongPressDeclencheV32){
-          idleLongPressDeclencheV32=false;
-
-          if(event){
-            event.preventDefault();
-            event.stopPropagation();
-          }
-
-          return false;
-        }
-
-        if(!idleSelectionModeV32){
-          return true;
-        }
-
-        if(event){
-          event.preventDefault();
-          event.stopPropagation();
-        }
-
-        const id=
-          String(objetId);
-
-        idleSelectionObjetsV32[id]=
-          !idleSelectionObjetsV32[id];
-
-        if(!selectionIdsIdleV32_().length){
-          idleSelectionModeV32=false;
-          idleSelectionObjetsV32={};
-        }
-
-        rafraichirSelectionInventaireIdleV32_();
-
-        return false;
-      }
 
 
 
-      function rafraichirSelectionInventaireIdleV32_(){
-        const ids=
-          selectionIdsIdleV32_();
 
-        document
-          .querySelectorAll(
-            '.soreal-idle-item-v10[data-objet-id]'
-          )
-          .forEach(function(card){
-            const id=
-              String(
-                card.getAttribute(
-                  'data-objet-id'
-                ) || ''
-              );
 
-            card.classList.toggle(
-              'selection-mode',
-              idleSelectionModeV32
-            );
 
-            card.classList.toggle(
-              'selected',
-              Boolean(
-                idleSelectionObjetsV32[id]
-              )
-            );
 
-            let check=
-              card.querySelector(
-                '.soreal-idle-item-check-v32'
-              );
 
-            if(
-              idleSelectionObjetsV32[id]
-            ){
-              if(!check){
-                check=
-                  document.createElement(
-                    'div'
-                  );
-                check.className=
-                  'soreal-idle-item-check-v32';
-                check.textContent='✓';
-                card.appendChild(check);
-              }
-            }else if(check){
-              check.remove();
-            }
-          });
 
-        const bar=
-          document.getElementById(
-            'sorealIdleSelectionBarV32'
-          );
-
-        const info=
-          document.getElementById(
-            'sorealIdleSelectionInfoV32'
-          );
-
-        if(bar){
-          bar.classList.toggle(
-            'inactive',
-            !idleSelectionModeV32
-          );
-        }
-
-        if(info){
-          info.textContent=
-            ids.length+
-            ' objet'+
-            (ids.length>1?'s':'')+
-            ' sélectionné'+
-            (ids.length>1?'s':'');
-        }
-      }
 
 
       function messageFlottantIdleV32_(
@@ -8241,12 +8079,6 @@
 
 
 
-      window.__debutAppuiObjetIdleV32__=
-        debutAppuiObjetIdleV32_;
-      window.__finAppuiObjetIdleV32__=
-        finAppuiObjetIdleV32_;
-      window.__tapObjetIdleV32__=
-        tapObjetIdleV32_;
 
 
       function casesInventaireIdleV78_(j){
@@ -8308,341 +8140,32 @@
       }
 
 
-      let idleInventaireDragIdV78='';
-      let idleInventaireSauvegardeTimerV78=null;
-      let idleInventaireSauvegardeEnCoursV78=false;
-      let idleInventaireSauvegardeDemandeeV78=false;
 
 
-      function dessinerGrilleInventaireIdleV78_(){
-        if(!idleEtat)return;
-
-        const host=
-          document.querySelector(
-            '.soreal-idle-inventory-v10'
-          );
-
-        if(host){
-          host.innerHTML=
-            rendreInventaireIdleV10_(idleEtat);
-        }
-      }
 
 
-      function dispositionInventaireIdleV78_(){
-        return casesInventaireIdleV78_(idleEtat)
-          .map(function(objet){
-            return objet
-              ?String(objet.id||'')
-              :null;
-          });
-      }
 
 
-      function envoyerDispositionInventaireIdleV78_(){
-        if(!SOREAL_SESSION||!idleEtat){
-          return;
-        }
-
-        if(idleInventaireSauvegardeEnCoursV78){
-          idleInventaireSauvegardeDemandeeV78=true;
-          return;
-        }
-
-        idleInventaireSauvegardeEnCoursV78=true;
-        idleInventaireSauvegardeDemandeeV78=false;
-
-        google.script.run
-          .withSuccessHandler(function(){
-            idleInventaireSauvegardeEnCoursV78=false;
-
-            if(idleInventaireSauvegardeDemandeeV78){
-              setTimeout(
-                envoyerDispositionInventaireIdleV78_,
-                40
-              );
-            }
-          })
-          .withFailureHandler(function(){
-            idleInventaireSauvegardeEnCoursV78=false;
-
-            if(idleInventaireSauvegardeDemandeeV78){
-              setTimeout(
-                envoyerDispositionInventaireIdleV78_,
-                120
-              );
-            }
-          })
-          .sauvegarderDispositionInventaireSorealIdle(
-            SOREAL_SESSION,
-            dispositionInventaireIdleV78_()
-          );
-      }
 
 
-      function planifierSauvegardeInventaireIdleV78_(){
-        if(idleInventaireSauvegardeTimerV78){
-          clearTimeout(
-            idleInventaireSauvegardeTimerV78
-          );
-        }
-
-        idleInventaireSauvegardeTimerV78=
-          setTimeout(function(){
-            idleInventaireSauvegardeTimerV78=null;
-            envoyerDispositionInventaireIdleV78_();
-          },140);
-      }
 
 
-      function debutDragInventaireIdleV78_(
-        event,
-        objetId
-      ){
-        idleInventaireDragIdV78=
-          String(objetId||'');
-
-        if(event&&event.dataTransfer){
-          event.dataTransfer.effectAllowed='move';
-
-          try{
-            event.dataTransfer.setData(
-              'text/plain',
-              idleInventaireDragIdV78
-            );
-          }catch(e){}
-        }
-      }
 
 
-      function finDragInventaireIdleV78_(){
-        idleInventaireDragIdV78='';
-
-        document
-          .querySelectorAll(
-            '.soreal-idle-inventory-slot-v78.drag-over'
-          )
-          .forEach(function(el){
-            el.classList.remove('drag-over');
-          });
-      }
 
 
-      function survolCaseInventaireIdleV78_(event){
-        if(event){
-          event.preventDefault();
-
-          if(event.currentTarget){
-            event.currentTarget.classList.add(
-              'drag-over'
-            );
-          }
-        }
-      }
 
 
-      function quitterCaseInventaireIdleV78_(event){
-        if(event&&event.currentTarget){
-          event.currentTarget.classList.remove(
-            'drag-over'
-          );
-        }
-      }
 
 
-      function deposerInventaireIdleV78_(
-        event,
-        positionCible
-      ){
-        if(event){
-          event.preventDefault();
-          event.stopPropagation();
-        }
-
-        const id=
-          String(
-            idleInventaireDragIdV78 ||
-            (
-              event&&event.dataTransfer
-                ?event.dataTransfer.getData('text/plain')
-                :''
-            ) ||
-            ''
-          );
-
-        const cible=
-          Math.max(
-            1,
-            idleEntier_(positionCible)
-          );
-
-        if(!id||!idleEtat){
-          finDragInventaireIdleV78_();
-          return;
-        }
-
-        const cases=
-          casesInventaireIdleV78_(idleEtat);
-
-        const sourceIndex=
-          cases.findIndex(function(objet){
-            return (
-              objet &&
-              String(objet.id||'')===id
-            );
-          });
-
-        const cibleIndex=cible-1;
-
-        if(
-          sourceIndex<0 ||
-          cibleIndex<0 ||
-          cibleIndex>=cases.length ||
-          sourceIndex===cibleIndex
-        ){
-          finDragInventaireIdleV78_();
-          return;
-        }
-
-        const objetSource=cases[sourceIndex];
-        const objetCible=cases[cibleIndex];
-
-        objetSource.positionSac=cibleIndex+1;
-
-        if(objetCible){
-          objetCible.positionSac=sourceIndex+1;
-        }
-
-        finDragInventaireIdleV78_();
-        dessinerGrilleInventaireIdleV78_();
-        planifierSauvegardeInventaireIdleV78_();
-      }
 
 
-      window.__debutDragInventaireIdleV78__=
-        debutDragInventaireIdleV78_;
-
-      window.__finDragInventaireIdleV78__=
-        finDragInventaireIdleV78_;
-
-      window.__survolCaseInventaireIdleV78__=
-        survolCaseInventaireIdleV78_;
-
-      window.__quitterCaseInventaireIdleV78__=
-        quitterCaseInventaireIdleV78_;
-
-      window.__deposerInventaireIdleV78__=
-        deposerInventaireIdleV78_;
 
 
-      function rendreInventaireIdleV10_(j){
-        const cases=
-          casesInventaireIdleV78_(j);
 
-        return cases.map(function(objet,index){
-          const position=index+1;
 
-          if(!objet){
-            return `
-              <div
-                class="soreal-idle-inventory-slot-v78"
-                data-slot-position="${position}"
-                ondragover="window.__survolCaseInventaireIdleV78__(event)"
-                ondragleave="window.__quitterCaseInventaireIdleV78__(event)"
-                ondrop="window.__deposerInventaireIdleV78__(event,${position})"
-              >
-                <div class="soreal-idle-slot-index-v78">
-                  ${position}
-                </div>
 
-                <div class="soreal-idle-slot-empty-v78">
-                  +
-                </div>
-              </div>
-            `;
-          }
 
-          const id=idleHtml_(objet.id);
-
-          const fusion=
-            Math.max(0,idleEntier_(objet.fusion));
-
-          const selected=
-            Boolean(
-              idleSelectionObjetsV32[
-                String(objet.id)
-              ]
-            );
-
-          return `
-            <div
-              class="soreal-idle-inventory-slot-v78${
-                selected
-                  ?' soreal-idle-slot-selected-v78'
-                  :''
-              }"
-              data-slot-position="${position}"
-              ondragover="window.__survolCaseInventaireIdleV78__(event)"
-              ondragleave="window.__quitterCaseInventaireIdleV78__(event)"
-              ondrop="window.__deposerInventaireIdleV78__(event,${position})"
-            >
-              <div class="soreal-idle-slot-index-v78">
-                ${position}
-              </div>
-
-              <div
-                class="soreal-idle-slot-item-v78 ${idleHtml_(objet.rarete||'commun')}"
-                data-objet-id="${id}"
-                draggable="true"
-                ondragstart="window.__debutDragInventaireIdleV78__(event,'${id}')"
-                ondragend="window.__finDragInventaireIdleV78__()"
-                onpointerdown="window.__debutAppuiObjetIdleV32__('${id}')"
-                onpointerup="window.__finAppuiObjetIdleV32__()"
-                onpointercancel="window.__finAppuiObjetIdleV32__()"
-                onclick="return window.__tapObjetIdleV32__(event,'${id}')"
-                oncontextmenu="return false"
-              >
-                <div class="soreal-idle-slot-emoji-v78">
-                  ${emojiObjetIdleV50_(objet)}
-                </div>
-
-                <div class="soreal-idle-slot-name-v78">
-                  ${idleHtml_(objet.nom||'Objet')}
-                  ${fusion?' +'+fusion:''}
-                </div>
-
-                <div class="soreal-idle-slot-power-v78">
-                  +${formatGrandNombreIdleV70_(objet.bonusPuissance)}
-                  puissance
-                </div>
-              </div>
-
-              <div class="soreal-idle-slot-actions-v78">
-                <button
-                  type="button"
-                  class="soreal-idle-slot-action-v78"
-                  title="Équiper"
-                  onclick="event.stopPropagation();window.__equiperObjetIdleV10__('${id}')"
-                >🛡️</button>
-
-                <button
-                  type="button"
-                  class="soreal-idle-slot-action-v78"
-                  title="Fusionner"
-                  onclick="event.stopPropagation();window.__fusionnerLootIdleV21__('${id}')"
-                >🔗</button>
-
-                <button
-                  type="button"
-                  class="soreal-idle-slot-action-v78"
-                  title="Recycler"
-                  onclick="event.stopPropagation();window.__recyclerObjetsOptimisteIdleV32__(['${id}'])"
-                >♻️</button>
-              </div>
-            </div>
-          `;
-        }).join('');
-      }
 
 
       function equiperObjetIdleV10_(
@@ -9285,9 +8808,6 @@
             idleEtat.inventaire.length;
         }
 
-        idleSelectionModeV32=false;
-        idleSelectionObjetsV32={};
-
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-97 */
         rendreIdleEtat_({
           ok:true,
@@ -9302,175 +8822,8 @@
         recyclerObjetsOptimisteIdleV32_;
 
 
-      function fusionnerLootIdleV21_(
-        objetId
-      ){
-        libererFocusIdleV24_();
-
-        if(
-          !objetId ||
-          !SOREAL_SESSION ||
-          !idleEtat
-        ){
-          return;
-        }
-
-        const inventaire=
-          Array.isArray(
-            idleEtat.inventaire
-          )
-            ?idleEtat.inventaire
-            :[];
-
-        const index=
-          inventaire.findIndex(
-            function(o){
-              return String(
-                o&&o.id||''
-              )===
-              String(
-                objetId
-              );
-            }
-          );
-
-        if(index<0){
-          return;
-        }
-
-        const objet=
-          inventaire[index];
-
-        const fusionActuelle=
-          idleEntier_(
-            objet.fusion
-          );
-
-        const doublon=
-          inventaire.findIndex(
-            function(o,i){
-              return (
-                i!==index &&
-                String(o&&o.nom||'')===
-                  String(objet.nom||'') &&
-                String(o&&o.slot||'')===
-                  String(objet.slot||'') &&
-                String(o&&o.rarete||'')===
-                  String(objet.rarete||'') &&
-                idleEntier_(
-                  o&&o.fusion
-                )===
-                  fusionActuelle &&
-                !objetEquipeIdleV10_(
-                  idleEtat,
-                  o
-                )
-              );
-            }
-          );
-
-        if(doublon<0){
-          messageFlottantIdleV32_(
-            '❌ Il faut un deuxième exemplaire identique.'
-          );
-          return;
-        }
-
-        const avant=
-          idleNombre_(
-            objet.bonusPuissance
-          );
-
-        objet.fusion=
-          fusionActuelle+1;
-
-        objet.bonusPuissance=
-          Math.max(
-            1,
-            Math.round(
-              avant*1.15
-            )
-          );
-
-        inventaire.splice(
-          doublon,
-          1
-        );
-
-        idleEtat.inventaire=
-          inventaire;
-
-        idleEtat.inventaireUtilise=
-          Math.max(
-            0,
-            inventaire.filter(
-              function(o){
-                return !objetEquipeIdleV10_(
-                  idleEtat,
-                  o
-                );
-              }
-            ).length
-          );
-
-        if(
-          objetEquipeIdleV10_(
-            idleEtat,
-            objet
-          )
-        ){
-          if(
-            idleEtat.equipement &&
-            objet.slot
-          ){
-            idleEtat.equipement[
-              objet.slot
-            ]=
-              objet;
-          }
-
-          const delta=
-            idleNombre_(
-              objet.bonusPuissance
-            )-
-            avant;
-
-          idleEtat.puissance=
-            Math.max(
-              1,
-              idleNombre_(
-                idleEtat.puissance
-              )+
-              delta
-            );
-
-          idleEtat.bonusEquipement=
-            Math.max(
-              0,
-              idleNombre_(
-                idleEtat.bonusEquipement
-              )+
-              delta
-            );
-        }
-
-        planifierRenduOptimisteIdleV60_();
-
-        ajouterActionRapideIdleV60_(
-          'fusion',
-          String(objetId)
-        );
-
-        messageFlottantIdleV32_(
-          '🔗 Fusion +'+
-          idleEntier_(
-            objet.fusion
-          )
-        );
-      }
 
 
-      window.__fusionnerLootIdleV21__=fusionnerLootIdleV21_;
 
 
       let idleAventureEnCoursV17=false;
@@ -10781,8 +10134,7 @@
           bullets:[
             'Elle est utile pour les objets difficiles ou très longs à monter de niveau : ceux qui font les capricieux.',
             'Le petit chat de la garderie s’occupe de tes objets : le temps pour gagner un niveau dépend de chaque objet.',
-            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.',
-            'Fusionner un objet dans un emplacement de la garderie ne fait rien : la nounou n’accepte pas les doublons.'
+            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.'
           ]
         },
         questing:{
@@ -15542,9 +14894,7 @@
           urlBossR2IdleV1_(
             b&&b.numero
           ) ||
-          urlDriveRapideIdleV46_(
-            b&&b.driveFileId
-          );
+          '';
 
         const caps=
           Array.isArray(
@@ -16630,8 +15980,10 @@
               >−</button>
               <button
                 type="button"
+                data-sans-traduction
+                title="Cap : place seulement l’énergie nécessaire pour atteindre le plafond de cette compétence"
                 onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','cap')"
-              >Max</button>
+              >Cap</button>
               <button
                 type="button"
                 title="Retirer toute l’énergie de cette barre"
@@ -16814,9 +16166,7 @@
                 ?urlBossR2IdleV1_(idleEntier_(e.numero))
                 :(e.zone
                   ?urlMobR2IdleV1_(e.zone,e.boss,e.index,e.nom)
-                  :(e.driveFileId
-                    ?'https://lh3.googleusercontent.com/d/'+encodeURIComponent(e.driveFileId)+'=w600'
-                    :String(e.image||'')));
+                  :String(e.image||''));
 
             return `
               <div class="soreal-idle-bestiary-card-v110${e.rare?' rare-found':''}">
@@ -17220,7 +16570,7 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-178 */
       const IDLE_INVENTORY_ACTIONS_V160=new Set([
-        'equip','unequip','merge','boost','cube','discard','setLock',
+        'equip','unequip','boost','cube','discard','setLock',
         'trashPut','trashRecover','coffreDeposer','coffreRetirer','reorderInventory'
       ]);
       let idleInventoryMutationQueueV160=[];
@@ -17702,11 +17052,11 @@
       function slotEquipementIdentiqueIdleV160_(courant,voulu){
         if(!courant||!voulu)return false;
         const classesCourantes=Array.from(courant.classList)
-          .filter(function(c){return c!=='selected'&&c!=='drag-over';})
+          .filter(function(c){return c!=='drag-source'&&c!=='drag-over';})
           .sort()
           .join(' ');
         const classesVoulues=Array.from(voulu.classList)
-          .filter(function(c){return c!=='selected'&&c!=='drag-over';})
+          .filter(function(c){return c!=='drag-source'&&c!=='drag-over';})
           .sort()
           .join(' ');
         return (
@@ -17807,20 +17157,16 @@
         return Boolean(nouveau);
       }
 
-      function restaurerSelectionInventaireIdleV160_(modele){
-        const id=String(idleAdventureSelectionIdV138||'');
+      /* Après un redessin du sac : la fiche ouverte est rafraîchie, ou refermée si l'objet n'existe plus. */
+      let idleFicheObjetOuverteIdV1='';
+      function restaurerFicheInventaireIdleV160_(modele){
+        const id=String(idleFicheObjetOuverteIdV1||'');
         if(!id)return;
         const item=modele.items.find(function(x){return String(x&&x.id)===id;});
         if(!item){
-          idleAdventureSelectionIdV138='';
           afficherDetailsObjetAdventureIdleV138_('');
           return;
         }
-        const node=document.querySelector(
-          '.soreal-idle-v138-bag-card[data-item-id="'+id+'"],'+
-          '.soreal-idle-v138-slot[data-occupant-id="'+id+'"]'
-        );
-        if(node)node.classList.add('selected');
         const popup=document.getElementById('soreal-idle-v138-details');
         if(popup&&popup.style.display!=='none'){
           afficherDetailsObjetAdventureIdleV138_(id);
@@ -17865,7 +17211,7 @@
         }
 
         if(
-          patchToutV1||['equip','unequip','merge','boost','cube','setLock'].indexOf(action)!==-1
+          patchToutV1||['equip','unequip','boost','cube','setLock'].indexOf(action)!==-1
         ){
           patchEquipementInventaireIdleV160_(modele);
         }
@@ -17880,12 +17226,12 @@
 
         if(
           patchToutV1||(opt.confirmed&&
-          ['equip','unequip','merge','boost','cube'].indexOf(action)!==-1)
+          ['equip','unequip','boost','cube'].indexOf(action)!==-1)
         ){
           patchBonusInventaireIdleV160_(modele);
         }
 
-        restaurerSelectionInventaireIdleV160_(modele);
+        restaurerFicheInventaireIdleV160_(modele);
         idleInventoryPerfV160.patches+=1;
         idleInventoryPerfV160.globalRendersAvoided+=1;
         marquePerfInventaireIdleV160_('patch-end',marqueId);
@@ -18008,37 +17354,6 @@
               ordre[src]=tmp;
             }
           }
-        }else if(action==='merge'){
-          const A=trouver(payload.a);
-          const B=trouver(payload.b);
-          if(!A||!B||A===B||A.definitionId!==B.definitionId)return false;
-          if(B.locked)return false;
-
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-183 */
-          ADVENTURE_CORE_SLOTS_V138.forEach(function(slot){
-            if(String(a.equipment[slot]||'')===String(B.id)){
-              a.equipment[slot]=A.id;
-            }
-          });
-          if(a.equipment.accessories.map(String).indexOf(String(B.id))!==-1){
-            a.equipment.accessories=a.equipment.accessories
-              .map(function(x){return String(x)===String(B.id)?A.id:x;})
-              .filter(function(x,index,arr){
-                return arr.map(String).indexOf(String(x))===index;
-              });
-          }
-
-          A.level=Math.min(
-            100,
-            idleEntier_(A.level)+idleEntier_(B.level)+1
-          );
-          A.power=Math.max(idleNombre_(A.power),idleNombre_(B.power));
-          A.toughness=Math.max(idleNombre_(A.toughness),idleNombre_(B.toughness));
-          A.special=Math.max(idleNombre_(A.special),idleNombre_(B.special));
-          A._idlePendingV160=txId||1;
-          a.inventory=a.inventory.filter(function(x){
-            return String(x&&x.id)!==String(B.id);
-          });
         }else if(action==='boost'){
           const boost=trouver(payload.boostId);
           if(!boost||boost.kind!=='boost')return false;
@@ -18229,31 +17544,6 @@
           })||null;
         };
 
-        if(action==='merge'){
-          const A=trouver(payload.a);
-          const B=trouver(payload.b);
-          if(
-            !A||
-            !B||
-            A===B||
-            A.definitionId!==B.definitionId||
-            A.kind==='boost'||
-            B.kind==='boost'
-          ){
-            return '';
-          }
-
-          const slot=String(A.slot||B.slot||'');
-          if(slot==='weapon')return 'mergeWeapon';
-
-          if(['head','chest','legs','boots'].indexOf(slot)!==-1){
-            return 'mergeArmor';
-          }
-
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-184 */
-          return 'mergeAccessory';
-        }
-
         if(action==='boost'&&!payload.toCube){
           const boost=trouver(payload.boostId);
           const cible=trouver(payload.targetId);
@@ -18285,27 +17575,6 @@
           mesurePerfInventaireIdleV160_(
             'network','network-start','network-end',tx.id
           );
-
-        const mergeTransitoireV183=
-          String(tx.payload&&tx.payload.action||'')==='merge'&&
-          (
-            Boolean(erreur)||
-            Boolean(res&&res.retryable)||
-            ['SOREAL_IDLE_OCCUPE','TIMEOUT','NETWORK_ERROR'].indexOf(
-              String(res&&res.code||'')
-            )!==-1
-          );
-
-        if(mergeTransitoireV183&&(tx.retryCount||0)<4){
-          tx.retryCount=(tx.retryCount||0)+1;
-          idleInventoryBusyV160=false;
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-185 */
-          setTimeout(
-            envoyerProchaineMutationInventaireIdleV160_,
-            120*tx.retryCount
-          );
-          return;
-        }
 
         idleInventoryMutationQueueV160.shift();
         idleInventoryBusyV160=false;
@@ -20032,11 +19301,6 @@
       }
       window.__desequiperObjetAdventureIdleV47__=desequiperObjetAdventureIdleV47_;
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-212 */
-      function fusionnerObjetAdventureIdleV47_(idA,idB){
-        actionAdventureIdleV47_({action:'merge',a:String(idA||''),b:String(idB||'')});
-      }
-
       function boosterCubeAdventureIdleV47_(boostId){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-213 */
         actionAdventureIdleV47_({
@@ -20669,7 +19933,6 @@ function pageAventureIdleV28_(j){
       window.__deposerSurEmplacementVideSacAdventureIdleV1__=deposerSurEmplacementVideSacAdventureIdleV1_;
 
       let idleAdventureDragIdV138='';
-      let idleAdventureSelectionIdV138='';
       let idleAdventureIgnorerClicJusquaV165=0;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-242 */
@@ -20801,7 +20064,7 @@ function pageAventureIdleV28_(j){
         const cibleId=String(cible.getAttribute('data-item-id')||'');
         if(cibleId){
           if(cibleId!==source){
-            fusionnerSiPossibleAdventureIdleV138_(source,cibleId);
+            deposerSurCarteAdventureIdleV138_(source,cibleId);
           }
           return;
         }
@@ -20895,19 +20158,6 @@ function pageAventureIdleV28_(j){
         if(!objet)return false;
 
         nettoyerEtatDragAdventureIdleV138_();
-        idleAdventureSelectionIdV138=objet;
-
-        document.querySelectorAll(
-          '[data-item-id],[data-occupant-id]'
-        ).forEach(function(el){
-          const cible=String(
-            el.getAttribute('data-item-id')||
-            el.getAttribute('data-occupant-id')||
-            ''
-          );
-          if(cible===objet)el.classList.add('selected');
-        });
-
         afficherDetailsObjetAdventureIdleV138_(objet);
         idleAdventureIgnorerClicJusquaV165=Date.now()+750;
         return true;
@@ -21054,15 +20304,8 @@ function pageAventureIdleV28_(j){
           return;
         }
 
-        if(!idleAdventureSelectionIdV138){
-          idleAdventureSelectionIdV138=occupant;
-          element.classList.add('selected');
-          return;
-        }
-
-        const source=idleAdventureSelectionIdV138;
-        nettoyerEtatDragAdventureIdleV138_();
-        appliquerActionSlotAdventureIdleV138_(source,occupant);
+        /* Un simple appui ouvre la fiche de l'objet (Norman, 2026-10-14) : plus aucune sélection. */
+        ouvrirDetailsObjetParGesteAdventureIdleV196_(occupant);
       }
 
       function executerTapCarteAdventureIdleV196_(element,id){
@@ -21077,29 +20320,13 @@ function pageAventureIdleV28_(j){
           return;
         }
 
-        if(idleAdventureSelectionIdV138&&idleAdventureSelectionIdV138!==objet){
-          const source=idleAdventureSelectionIdV138;
-          nettoyerEtatDragAdventureIdleV138_();
-          fusionnerSiPossibleAdventureIdleV138_(source,objet);
-          return;
-        }
-
-        if(idleAdventureSelectionIdV138===objet){
-          nettoyerEtatDragAdventureIdleV138_();
-          fermerDetailsObjetAdventureIdleV1_();
-          return;
-        }
-
-        nettoyerEtatDragAdventureIdleV138_();
-        idleAdventureSelectionIdV138=objet;
-        element.classList.add('selected');
+        /* Un simple appui ouvre la fiche de l'objet, avec ou sans statistiques (Norman, 2026-10-14) : plus aucune sélection. */
+        ouvrirDetailsObjetParGesteAdventureIdleV196_(objet);
       }
 
       /*
-       * Action rapide d'un objet du sac (2026-09-24, comme le clic droit de NGU Idle) :
-       * - une pièce identique (même definitionId) est déjà équipée -> fusion dans la pièce équipée ;
-       * - sinon -> équipement (remplace la pièce du slot).
-       * Les boosts ne sont pas concernés (retourne false). Réutilise la décision du glisser-déposer sur un slot.
+       * Action rapide d'un objet du sac (2026-09-24, comme le clic droit de NGU Idle) : équipement (remplace la pièce du slot). La fusion avec une pièce équipée identique n'existe plus (Norman, 2026-10-14).
+       * Les boosts ne sont pas concernés (retourne false).
        */
       function actionRapideObjetAdventureIdleV209_(id){
         const objet=String(id||'');
@@ -21123,13 +20350,8 @@ function pageAventureIdleV28_(j){
           .filter(Boolean);
         if(idsEquipes.indexOf(objet)!==-1)return false;
 
-        const jumeau=idsEquipes
-          .map(function(idEquipe){return items.find(function(x){return String(x&&x.id)===idEquipe;});})
-          .find(function(x){return x&&x.kind!=='boost'&&x.definitionId===item.definitionId;});
-
         nettoyerEtatDragAdventureIdleV138_();
-        if(jumeau)appliquerActionSlotAdventureIdleV138_(objet,String(jumeau.id));
-        else equiperParIdAdventureIdleV138_(objet);
+        equiperParIdAdventureIdleV138_(objet);
         return true;
       }
 
@@ -21204,7 +20426,7 @@ function pageAventureIdleV28_(j){
           geste.drag=true;
           idleAdventureDragIdV138=geste.itemId;
           idleAdventureIgnorerClicJusquaV165=Date.now()+750;
-          geste.sourceEl.classList.add('selected');
+          geste.sourceEl.classList.add('drag-source');
           creerGhostDragAdventureIdleV183_(geste.sourceEl,event);
         }
 
@@ -21329,7 +20551,6 @@ function pageAventureIdleV28_(j){
           idleCubeAppuiV1=null;
           if(!p||p.id!==event.pointerId||event.pointerType==='mouse')return;
           if(Math.hypot(event.clientX-p.x,event.clientY-p.y)>20||Date.now()-p.t>550)return;
-          if(idleAdventureSelectionIdV138)return;
           toucherCubeAdventureIdleV1_();
         },true);
 
@@ -21557,21 +20778,19 @@ function pageAventureIdleV28_(j){
         return String(
           idleAdventureDragIdV138||
           (event&&event.dataTransfer?event.dataTransfer.getData('text/plain'):'')||
-          idleAdventureSelectionIdV138||
           ''
         );
       }
 
       function nettoyerEtatDragAdventureIdleV138_(){
         idleAdventureDragIdV138='';
-        idleAdventureSelectionIdV138='';
         document.querySelectorAll(
           '.soreal-idle-v138-slot.drag-over,'+
           '.soreal-idle-v138-bag-card.drag-over,'+
-          '.soreal-idle-v138-bag-card.selected,'+
-          '.soreal-idle-v138-slot.selected'
+          '.soreal-idle-v138-bag-card.drag-source,'+
+          '.soreal-idle-v138-slot.drag-source'
         ).forEach(function(el){
-          el.classList.remove('drag-over','selected');
+          el.classList.remove('drag-over','drag-source');
         });
         afficherDetailsObjetAdventureIdleV138_('');
 
@@ -21610,53 +20829,23 @@ function pageAventureIdleV28_(j){
         );
       }
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-250 */
-      function idsFusionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
-        void cibleEquipe;
-        const source=String(sourceId||'');
-        const cible=String(cibleId||'');
-        return {a:cible,b:source};
-      }
-
-      function fusionnerSelonInteractionAdventureIdleV169_(sourceId,cibleId,cibleEquipe){
-        const ids=idsFusionAdventureIdleV169_(sourceId,cibleId,cibleEquipe);
-        if(!ids.a||!ids.b||ids.a===ids.b)return;
-        fusionnerObjetAdventureIdleV47_(ids.a,ids.b);
-      }
-
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-251 */
-      function fusionnerSiPossibleAdventureIdleV138_(sourceId,cibleId){
+      /*
+       * Dépôt d'un objet sur une carte du sac (Norman, 2026-10-14 : « supprime complètement le dépôt sur un autre objet pour les fusionner ») : plus aucune fusion ici.
+       * Un boost déposé sur une pièce d'équipement l'améliore ; tout autre dépôt déplace simplement l'objet à la place de la carte.
+       */
+      function deposerSurCarteAdventureIdleV138_(sourceId,cibleId){
         if(!idleEtat||sourceId===cibleId)return;
         const a=aventureMetaIdleV47_(idleEtat);
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
         const source=items.find(function(x){return String(x&&x.id)===sourceId;});
         const cible=items.find(function(x){return String(x&&x.id)===cibleId;});
         if(!source||!cible)return;
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-252 */
-        const memeDefinition=
-          source.definitionId===cible.definitionId;
-        const boostDejaComplete=
-          source.kind==='boost'&&
-          Boolean(
-            a.itemList&&
-            a.itemList[source.definitionId]&&
-            idleEntier_(a.itemList[source.definitionId].maxLevel)>=100
-          );
-
-        if(memeDefinition&&!boostDejaComplete){
-          fusionnerSelonInteractionAdventureIdleV169_(
-            source.id,
-            cible.id,
-            false
-          );
-        }else if(
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-253 */
+        if(
           source.kind==='boost'&&
           (cible.kind==='equipment'||cible.kind==='special'||cible.kind==='cube')
         ){
           boosterObjetParIdAdventureIdleV47_(source.id,cible.id);
         }else{
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-254 */
           reordonnerInventaireAdventureIdleV162_(source.id,cible.id,null);
         }
       }
@@ -21806,33 +20995,19 @@ function pageAventureIdleV28_(j){
       }
       let idleCubeAppuiV1=null;
       function clicCubeAdventureIdleV138_(event){
-        if(!idleAdventureSelectionIdV138){
-          /* Certains Safari envoient un « click » sans pointerType : repli sur le type de pointeur principal de l'appareil. */
-          const typePointeur=event&&typeof event.pointerType==='string'&&event.pointerType
-            ?event.pointerType
-            :(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches?'touch':'mouse');
-          if(typePointeur==='mouse'){
-            afficherDetailsCubeInfiniAdventureIdleV220_();
-            return;
-          }
-          /*
-           * Téléphone (Norman, 2026-10-09 : le Cube de l'infini nécessite un appui long pour ouvrir son popup ; c'est le seul item qui fonctionnait différemment) : comme les autres objets, un appui simple n'ouvre plus
-           * rien ; le popup s'ouvre au maintien (voir l'écouteur « soreal-longpress ») et le double tap absorbe tous les boosts (avec l'achat correspondant).
-           */
-          toucherCubeAdventureIdleV1_();
+        /* Certains Safari envoient un « click » sans pointerType : repli sur le type de pointeur principal de l'appareil. */
+        const typePointeur=event&&typeof event.pointerType==='string'&&event.pointerType
+          ?event.pointerType
+          :(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches?'touch':'mouse');
+        if(typePointeur==='mouse'){
+          afficherDetailsCubeInfiniAdventureIdleV220_();
           return;
         }
-        const id=idleAdventureSelectionIdV138;
-        nettoyerEtatDragAdventureIdleV138_();
-        if(!idleEtat)return;
-        const a=aventureMetaIdleV47_(idleEtat);
-        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
-        const source=items.find(function(x){return String(x&&x.id)===id;});
-        if(!source||source.kind!=='boost'){
-          toastIdleV5_('Seul un boost peut être absorbé par le Cube.');
-          return;
-        }
-        boosterCubeAdventureIdleV47_(source.id);
+        /*
+         * Téléphone (Norman, 2026-10-09 : le Cube de l'infini nécessite un appui long pour ouvrir son popup ; c'est le seul item qui fonctionnait différemment) : comme les autres objets, un appui simple n'ouvre plus
+         * rien ; le popup s'ouvre au maintien (voir l'écouteur « soreal-longpress ») et le double tap absorbe tous les boosts (avec l'achat correspondant).
+         */
+        toucherCubeAdventureIdleV1_();
       }
       window.__clicCubeAdventureIdleV138__=clicCubeAdventureIdleV138_;
 
@@ -21886,10 +21061,6 @@ function pageAventureIdleV28_(j){
         const source=items.find(function(x){return String(x&&x.id)===sourceId;});
         const occupant=items.find(function(x){return String(x&&x.id)===occupantId;});
         if(!source||!occupant)return 'equiper';
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-258 */
-        if(source.kind!=='boost'&&occupant.kind!=='boost'&&source.definitionId===occupant.definitionId){
-          return 'fusionner';
-        }
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-259 */
         /*
          * 2026-09-24 : un boost spécial n'est « équipé » (échange de place) que sur une pièce SANS Special ; depuis l'audit du
@@ -21908,14 +21079,7 @@ function pageAventureIdleV28_(j){
 
       function appliquerActionSlotAdventureIdleV138_(sourceId,occupantId){
         const decision=decisionActionSlotAdventureIdleV138_(sourceId,occupantId);
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-261 */
-        if(decision==='fusionner'){
-          fusionnerSelonInteractionAdventureIdleV169_(
-            sourceId,
-            occupantId,
-            true
-          );
-        }else if(decision==='booster')boosterObjetParIdAdventureIdleV47_(sourceId,occupantId);
+        if(decision==='booster')boosterObjetParIdAdventureIdleV47_(sourceId,occupantId);
         else equiperParIdAdventureIdleV138_(sourceId);
       }
 
@@ -22023,10 +21187,12 @@ function pageAventureIdleV28_(j){
         const item=id?items.find(function(x){return String(x&&x.id)===id;}):null;
 
         if(!item){
+          idleFicheObjetOuverteIdV1='';
           root.style.display='none';
           corps.innerHTML='';
           return;
         }
+        idleFicheObjetOuverteIdV1=id;
 
         const niveau=idleEntier_(item.level);
         const statsHtml=statsHtmlObjetAdventureIdleV138_(item);
@@ -22373,8 +21539,6 @@ function pageAventureIdleV28_(j){
         fermerComparaisonObjetAdventureIdleV183_();
         const primary=document.getElementById('soreal-idle-v138-details');
         if(primary)primary.style.width='';
-        idleAdventureSelectionIdV138='';
-        document.querySelectorAll('.soreal-idle-v138-slot.selected,.soreal-idle-v138-bag-card.selected').forEach(function(el){el.classList.remove('selected');});
         afficherDetailsObjetAdventureIdleV138_('');
       }
       window.__fermerDetailsObjetAdventureIdleV1__=fermerDetailsObjetAdventureIdleV1_;
@@ -22391,12 +21555,6 @@ function pageAventureIdleV28_(j){
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-273 */
 
       function clicTrashAdventureIdleV138_(){
-        if(idleAdventureSelectionIdV138){
-          const id=idleAdventureSelectionIdV138;
-          nettoyerEtatDragAdventureIdleV138_();
-          mettreObjetDansTrashAdventureIdleV165_(id);
-          return;
-        }
         const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
         if(a&&a.trash)recupererObjetTrashAdventureIdleV165_();
       }
@@ -22499,7 +21657,7 @@ function pageAventureIdleV28_(j){
         if(zone!=='tutorial')return '';
         const g=gestesAchetesIdleV1_();
         return '<div class="soreal-idle-v138-bag-indice-v1">'+
-          '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper ou fusionner). '+
+          '💡 Touchez un objet du sac pour voir ses détails et l’équiper, ou glissez-le sur un emplacement (clic droit sur PC : équiper). '+
           'Maintenez la touche A et cliquez sur une pièce pour lui appliquer vos boosts.'+
           ((g.double||g.triple)?' Double tap sur un objet : '+(g.triple?'il fusionne avec toutes les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe tous les boosts du sac':'')+'. Appui long sur le Cube de l’infini pour ouvrir ses détails.':'')+
           ((g.double||g.triple)?' Sur PC, clic droit sur un objet du sac ou équipé : '+(g.triple?'il fusionne avec les pièces identiques':'')+(g.triple&&g.double?', puis, quand il n’y en a plus, ':'')+(g.double?'il absorbe les boosts du sac':'')+'.':'')+
@@ -22861,14 +22019,7 @@ function pageAventureIdleV28_(j){
       window.__deposerSurCoffreAdventureIdleV1__=deposerSurCoffreAdventureIdleV1_;
 
       function clicCoffreAdventureIdleV1_(){
-        if(!idleAdventureSelectionIdV138){
-          toggleCoffreOuvertAdventureIdleV1_();
-          return;
-        }
-        const id=idleAdventureSelectionIdV138;
-        nettoyerEtatDragAdventureIdleV138_();
-        window.__bagageAvaleIdleV1=Date.now();
-        actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});
+        toggleCoffreOuvertAdventureIdleV1_();
       }
       window.__clicCoffreAdventureIdleV1__=clicCoffreAdventureIdleV1_;
 
@@ -23929,6 +23080,17 @@ function pageAventureIdleV28_(j){
         const n=window.__SOREAL_IDLE_RELEASE_NOTES_V1__;
         return n&&Array.isArray(n.versions)?n:{courante:'?',versions:[]};
       }
+      /* Date d'une version en toutes lettres (Norman, 2026-10-14 : « je veux les dates des patchs, même les anciens ») : 2026-10-14 -> 14 octobre 2026 (anglais : October 14, 2026). */
+      function dateNotesMajIdleV1_(iso){
+        const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+        if(!m)return String(iso||'');
+        const en=langueIdleV1_()==='en';
+        const mois=en
+          ?['January','February','March','April','May','June','July','August','September','October','November','December']
+          :['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+        const jour=Number(m[3]),nom=mois[Number(m[2])-1]||'';
+        return en?nom+' '+jour+', '+m[1]:(jour===1?'1er':String(jour))+' '+nom+' '+m[1];
+      }
       function notesMajOuvertesIdleV1_(){
         try{
           return localStorage.getItem('soreal_idle_notes_maj_ouvert_v1')==='1';
@@ -24121,7 +23283,7 @@ function pageAventureIdleV28_(j){
                 const i=notes.versions.indexOf(v),total=notes.versions.length;
                 return '<div class="soreal-idle-notes-maj-version-v1'+(i===0?' derniere':'')+'">'+
                   '<div class="soreal-idle-notes-maj-titre-v1"><b>Beta '+idleHtml_(v.version)+'</b> · '+idleHtml_(v.nom)+
-                    '<span>'+idleHtml_(v.date)+'</span></div>'+
+                    '<span>'+idleHtml_(dateNotesMajIdleV1_(v.date))+'</span></div>'+
                   htmlVersionNotesMajIdleV1_(v,possedes)+
                   ((v.hommage||notes.hommage)?'<div class="soreal-idle-notes-maj-hommage-v1">'+idleHtml_(v.hommage||notes.hommage)+'</div>':'')+
                 '</div>'+
@@ -24718,13 +23880,7 @@ function pageAventureIdleV28_(j){
       let idleDerniereImageJoueurV61='';
       let idlePreloadsCombatV61={};
 
-      function urlDriveRapideIdleV46_(fileId){
-        const id=String(fileId||'').trim();
-        return id
-          ?'https://lh3.googleusercontent.com/d/'+encodeURIComponent(id)+'=w1000'
-          :'';
-      }
-
+      /* Aucune image ne vient plus de Google (Norman, 2026-10-14) : tout est lu dans le stockage R2 du jeu. */
 
       function classeFonduImageIdleV61_(
         type,
@@ -24787,9 +23943,6 @@ function pageAventureIdleV28_(j){
         const url=
           String(
             fallbackUrl||''
-          ) ||
-          urlDriveRapideIdleV46_(
-            fileId
           );
 
         if(!url){
@@ -25477,17 +24630,7 @@ function pageAventureIdleV28_(j){
           header()+
           `<main class="soreal-idle-native-v4">
             <div class="soreal-idle-hero-v4 soreal-idle-hero-banner-v95">
-              ${
-                j.banniereDriveFileId
-                  ?'<img src="'+
-                    idleHtml_(
-                      urlDriveRapideIdleV46_(
-                        j.banniereDriveFileId
-                      )
-                    )+
-                    '" alt="SOREAL IDLE">'
-                  :'<div style="height:170px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:1000">SOREAL IDLE</div>'
-              }
+              <img src="/api/idle/media/banner?name=soreal-idle.webp" alt="SOREAL IDLE" onerror="this.outerHTML='&lt;div style=&quot;height:170px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:1000&quot;&gt;SOREAL IDLE&lt;/div&gt;'">
               <div class="soreal-idle-badge-v4" role="button" tabindex="0" style="cursor:pointer" title="Voir les notes de mise à jour" onclick="window.__ouvrirNotesMajIdleV1__()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__ouvrirNotesMajIdleV1__()}">
                 🔒 ${versionBadgeIdleV1_()}
               </div>

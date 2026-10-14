@@ -42,18 +42,18 @@ const item = (id, definitionId, extra = {}) => ({ id, definitionId, kind: "equip
   assert.deepEqual(appels.filter(x => x[0] !== "nettoyer"), [["equiper", "a"]]);
 }
 {
-  // Pièce identique équipée -> fusion dans la pièce équipée (décision de slot)
+  // Pièce identique équipée -> équipement quand même (la fusion par dépôt n'existe plus, Norman 2026-10-14)
   const etat = { aventure: { inventory: [item("a", "hat"), item("b", "hat")], equipment: { head: "b", accessories: [] } } };
   const { fn, appels } = lancer(etat);
   assert.equal(fn("a"), true);
-  assert.deepEqual(appels.filter(x => x[0] !== "nettoyer"), [["fusion-ou-slot", "a", "b"]]);
+  assert.deepEqual(appels.filter(x => x[0] !== "nettoyer"), [["equiper", "a"]]);
 }
 {
-  // Accessoire identique déjà équipé
+  // Accessoire identique déjà équipé : équipement, pas de fusion
   const etat = { aventure: { inventory: [item("a", "ring", { slot: "accessory" }), item("b", "ring", { slot: "accessory" })], equipment: { accessories: ["b"] } } };
   const { fn, appels } = lancer(etat);
   assert.equal(fn("a"), true);
-  assert.deepEqual(appels.filter(x => x[0] !== "nettoyer"), [["fusion-ou-slot", "a", "b"]]);
+  assert.deepEqual(appels.filter(x => x[0] !== "nettoyer"), [["equiper", "a"]]);
 }
 {
   // Boost : rien (l'appelant retombe sur le comportement d'avant) ; objet déjà équipé : rien ; id inconnu : rien

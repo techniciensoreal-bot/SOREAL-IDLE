@@ -18,7 +18,6 @@ for(const asset of [
 for(const token of [
   "popupDetailsObjetAdventureIdleOuvertV207_",
   "fermerPopupDetailsSiExterieurAdventureIdleV207_",
-  "idleAdventureSelectionIdV138=objet",
   "cibleDansPopupDetailsObjetAdventureIdleV207_"
 ]){
   assert.ok(ui.includes(token),"Popup item V207 manquant: "+token);
@@ -45,7 +44,7 @@ for(const token of [
 ]){
   assert.ok(audio.includes(token),"Audio V207 manquant: "+token);
 }
-assert.ok(ui.includes("return 'mergeAccessory';"));
+assert.ok(!ui.includes("return 'mergeAccessory';"));   // Norman (2026-10-14) : plus de fusion par glisser-déposer
 assert.ok(ui.includes("jouerEffetAudioIdleV199_('uiClick')"));
 
 for(const token of [

@@ -3556,12 +3556,7 @@ function construireAventureSorealIdle_(
             zone.description,
           ennemi: zone.ennemi,
           boss: zone.boss,
-          image:
-            zone.driveFileId
-              ? 'https://lh3.googleusercontent.com/d/' +
-                encodeURIComponent(zone.driveFileId) +
-                '=w1600'
-              : (zone.image || ''),
+          image: zone.image || '',
           niveauRequis: 0,
           bossRequis: bossRequisZone,
           puissanceRecommandee:
@@ -11319,7 +11314,7 @@ function construireEtatJoueurSorealIdle_(
         : String(
             parametreSorealIdle_(
               'BANNIERE_SOREAL_IDLE_DRIVE_ID',
-              '1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb'
+              ''
             ) || ''
           ),
 
@@ -15913,7 +15908,7 @@ function banniereSorealIdleDriveFileId_() {
   return String(
     parametreSorealIdle_(
       'BANNIERE_SOREAL_IDLE_DRIVE_ID',
-      '1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb'
+      ''
     )
   ).trim();
 }

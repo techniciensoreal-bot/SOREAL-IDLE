@@ -49,4 +49,6 @@ assert.ok(cap.some((n) => n.to > n.from * 3) && cap.some((n) => n.from >= 1500 &
 // 2. Branchement : seulement si l'allocation change ; +, − et Cap ont chacun leur son
 assert.ok(ui.includes("if(delta!==0){"), "aucun son si rien ne change");
 assert.ok(ui.includes("action==='plus'?'btPlus':(action==='moins'||action==='zero')?'btMinus':'btCap'"));
+/* Norman (2026-10-14) : le bouton de ligne de Basic Training s'appelle « Cap » (il ne place que le nécessaire) ; « Max » reste pour les menus sans plafond durable. */
+assert.ok(/data-sans-traduction[\s\S]{0,400}'cap'\)"\s*>Cap<\/button>/.test(ui), "Le bouton de ligne de Basic Training s'appelle Cap");
 console.log("idle-basic-training-button-sounds-v1: OK");

@@ -28,7 +28,7 @@ assert.ok(
 
 assert.match(
   html,
-  /thumbnail\?id=1omNowtqq_YjUQitljdBXbLK9VZ0oJ7qb&sz=w1200"[\s\S]*?fetchpriority="high"/,
+  /media\/banner\?name=soreal-idle\.webp"[\s\S]*?fetchpriority="high"/,
   "initial visible banner should be high priority"
 );
 

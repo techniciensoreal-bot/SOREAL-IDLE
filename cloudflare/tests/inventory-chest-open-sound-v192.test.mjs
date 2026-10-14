@@ -80,8 +80,9 @@ assert.ok(clickStart>=0&&clickEnd>clickStart,"Clic direct sur le Coffre introuva
 const clickBlock=ui.slice(clickStart,clickEnd);
 assert.match(
   clickBlock,
-  /if\(!idleAdventureSelectionIdV138\)\{[\s\S]*?toggleCoffreOuvertAdventureIdleV1_\(\)/,
-  "Un clic sur l'icône du Coffre sans objet sélectionné doit ouvrir/fermer le Coffre."
+  /toggleCoffreOuvertAdventureIdleV1_\(\)/,
+  "Un clic sur l'icône du Coffre ouvre/ferme le Coffre (plus de sélection d'objet)."
 );
+assert.ok(!ui.includes("idleAdventureSelectionIdV138"), "Plus aucune sélection d'objet au simple appui (Norman, 2026-10-14).");
 
 console.log("Inventory chest audio V199 scheduler: OK");

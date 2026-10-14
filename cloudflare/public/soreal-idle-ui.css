@@ -879,7 +879,6 @@ html,body{overflow-x:hidden}
             }
           }
           .soreal-idle-item-v10.selection-mode{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-          .soreal-idle-item-v10.selected{outline:3px solid #3a5baf;outline-offset:-3px;transform:translateY(-2px)}
           .soreal-idle-item-check-v32{position:absolute;top:7px;right:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#304d94;color:#fff;font-size:14px;font-weight:1000;z-index:3}
           .soreal-idle-toast-inline-v32{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:1000;max-width:min(460px,88vw);padding:9px 13px;border-radius:999px;background:rgba(31,41,71,.94);color:#fff;font-size:12px;font-weight:950;pointer-events:none;box-shadow:0 8px 22px rgba(31,41,71,.24)}
 
@@ -1895,7 +1894,7 @@ html,body{overflow-x:hidden}
             transform:scale(1.02);
           }
 
-          .soreal-idle-v138-slot.selected{
+          .soreal-idle-v138-slot.drag-source{
             box-shadow:0 0 0 2px rgba(255,200,90,.6);
           }
 
@@ -2298,7 +2297,7 @@ html,body{overflow-x:hidden}
             transform:scale(1.04);
           }
 
-          .soreal-idle-v138-bag-card.selected{
+          .soreal-idle-v138-bag-card.drag-source{
             box-shadow:0 0 0 2px rgba(255,200,90,.6);
           }
 

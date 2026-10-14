@@ -22,10 +22,31 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.8',
+    courante:'2.9',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'2.9',
+        nom:'Des images bien à nous',
+        date:'2026-10-14',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'La bannière SOREAL IDLE et toutes les images viennent maintenant du stockage du jeu : plus aucun lien Google (la bannière ne s’affichait plus).',
+            'Chaque version des notes affiche sa date en toutes lettres, y compris les anciennes.',
+          ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Entraînement de base : le bouton de chaque ligne s’appelle maintenant « Cap » (il ne place que l’énergie nécessaire pour atteindre le plafond de la compétence). Les « Max » des autres menus continuent de tout placer.',
+          ]},
+          {menu:'combat', titre:'Fight Boss', points:[
+            'Chaque boss affiche de nouveau sa propre histoire : à partir du boss 80, les histoires étaient rangées sous le boss suivant ou précédent. C’est remis dans l’ordre en français et en anglais, sans écraser les textes que tu as modifiés.',
+            'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Un simple appui sur un objet (sac ou équipement) ouvre sa fiche, avec ou sans statistiques : la sélection d’un objet n’existe plus. Déposer un objet sur un autre ne les fusionne plus.',
+          ]}
+        ]
+      },
       {
         version:'2.8',
         nom:'Un écran pour les Titans',
@@ -46,11 +67,8 @@
           ]},
           {menu:'titans', titre:'Titans', points:[
             'Nouvel écran de combat de Titan : tout tient sur un seul écran sans défilement (image du Titan, PV du Titan et les tiens, toutes tes attaques manuelles) ; tu restes dans l’écran Titans, et le bouton Aventure arrête le combat et te remet en Zone sûre.',
-            'Avant d’affronter un Titan, un message te rappelle de libérer de la place dans ton inventaire pour récupérer son butin.',
-            'Au début d’un combat de Titan, toutes tes attaques sont en recharge : chacune ne sera disponible qu’une fois sa recharge complète écoulée.',
-            'Il faut avoir les stats Manuel d’un Titan (Puissance et Endurance) pour l’affronter : sinon un message te dit de monter tes stats.',
-            'L’image d’un Titan reste un « ? » tant que tu ne l’as pas affronté.',
-            'La difficulté choisie pour un Titan ne revient plus à la première après un redessin.',
+            'Avant d’affronter un Titan, un message te rappelle de libérer de la place dans ton inventaire ; il faut aussi avoir ses stats Manuel (Puissance et Endurance), sinon un message te dit de monter tes stats.',
+            'Au début d’un combat de Titan, toutes tes attaques sont en recharge. L’image d’un Titan reste un « ? » tant que tu ne l’as pas affronté, et la difficulté choisie ne revient plus à la première.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Dès que le cube passe au palier 1, son bonus s’affiche simplement (+68) en mauve, sans le mot « cube ».',
