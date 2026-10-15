@@ -37,7 +37,7 @@ assert.ok(e.includes("function fondTitan(id)")&&e.includes("function poserFond(e
   assert.ok(!/url\(|@keyframes|animation/.test(bloc),"fonds : ni image ni animation");
 }
 /* Renaissance : la page remonte tout en haut (pas seulement la borne) */
-assert.ok(ui.includes("const toutEnHaut=function(){window.scrollTo(0,0);") && ui.includes("setTimeout(toutEnHaut,700);") && !ui.includes("borneRenaissance.scrollIntoView"), "après une Renaissance : page scrollée au maximum en haut");
+assert.ok(ui.includes("const toutEnHaut=function(){const ban=document.querySelector('.soreal-idle-hero-banner-v95')") && ui.includes("setTimeout(toutEnHaut,700);") && !ui.includes("borneRenaissance.scrollIntoView"), "après une Renaissance : page scrollée au maximum en haut");
 /* NGU : le redessin de la synchro ne laisse plus passer une image avec les valeurs du serveur (la boucle d'animation est rejouée dans la même tâche) */
 {
   const ngu = lire("public/modules/ngu-labo-v1.js");

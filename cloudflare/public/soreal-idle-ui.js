@@ -9533,7 +9533,8 @@
              * la précède ; on remonte donc tout en haut de la page, et on le refait un instant plus tard (la page se redessine et change de hauteur juste après la Renaissance).
              */
             try{
-              const toutEnHaut=function(){window.scrollTo(0,0);if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;};
+              /* Norman (2026-10-15) : « je veux la même position que quand on clique sur le bouton Combat de boss : le menu Attaque, Défense… collé au top » : la page est placée sous la bannière (comme un clic sur un menu), pas tout en haut. */
+              const toutEnHaut=function(){const ban=document.querySelector('.soreal-idle-hero-banner-v95')||document.querySelector('.soreal-idle-hero-v4');window.scrollTo(0,ban?Math.max(0,Math.round(ban.getBoundingClientRect().bottom+(window.scrollY||0))):0);};
               toutEnHaut();
               requestAnimationFrame(function(){toutEnHaut();});
               setTimeout(toutEnHaut,250);

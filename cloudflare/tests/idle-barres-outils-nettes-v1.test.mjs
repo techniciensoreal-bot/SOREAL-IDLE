@@ -11,3 +11,8 @@ assert.ok(css.includes("@media (max-width:700px)") && css.includes("grid-templat
 assert.ok(idx.includes("/soreal-idle-barre-outils.css?v=") && idx.indexOf("soreal-idle-barre-outils.css") < idx.indexOf("soreal-idle-itopod.css"), "feuille chargée avant ITOPOD (qui reste la dernière)");
 assert.ok(sang.includes("--sg-socle-h") && sang.includes("m.H*0.894"), "le pied du support de la sangsue descend jusqu'à la table, à toute largeur");
 console.log("idle-barres-outils-nettes-v1: OK");
+/* Après une Renaissance : même position qu'un clic sur le menu Combat de boss (sous la bannière) */
+{
+  const ui = lire("soreal-idle-ui.js");
+  assert.ok(ui.includes("window.scrollTo(0,ban?Math.max(0,Math.round(ban.getBoundingClientRect().bottom+(window.scrollY||0))):0);"), "après une Renaissance, la page se place sous la bannière comme un clic sur un menu");
+}
