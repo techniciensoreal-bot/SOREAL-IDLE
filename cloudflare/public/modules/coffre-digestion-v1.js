@@ -99,6 +99,7 @@
     C.flaque(el);
     setTimeout(function(){try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play('coffreAccident');}catch(_e){}},550);
     C.souiller();
+    window.__coffreAccidentNumeroIdleV1__=Math.floor(Date.now()/1000);   /* annoncé dans « En direct » avec le prochain battement */
     /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
     var ouverture=OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];
     quandEntierementVisible_(function(coffre){

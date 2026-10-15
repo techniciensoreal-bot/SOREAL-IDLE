@@ -62,7 +62,7 @@ function maj(){
   var actuel=Math.max(1,nb(meta.number||(etat.renaissance&&etat.renaissance.number)||1));
   var prochain=Math.max(1,nb(meta.nextNumber||(etat.renaissance&&etat.renaissance.nextNumber)||actuel)*nouveau/ancien);
   var a=valeurDe(bloc,['Facteur de temps de Renaissance','Rebirth Time Factor']);ecrire(a,'×'+grand(nouveau,4));
-  var b=valeurDe(bloc,['Nombre à la Renaissance','NUMBER au Rebirth']);
+  var b=valeurDe(bloc,['Nombre si tu renais maintenant','Nombre à la Renaissance','NUMBER au Rebirth']);
   if(b){
     ecrire(b,grand(prochain));
     /* Norman (2026-10-01) : vert quand le NUMBER au Rebirth dépasse le NUMBER actuel, rouge quand il est plus petit. */

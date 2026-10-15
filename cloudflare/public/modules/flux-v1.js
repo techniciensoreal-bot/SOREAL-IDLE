@@ -229,6 +229,23 @@
         const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
         return {icone:'👹',texte:nom+verbe(' combats',' combat')+(nomBoss?' '+nomBoss:' un boss')};
       }
+      /*
+       * Le Coffre d'un joueur s'est chié dessus (Norman, 2026-10-15). Anti-spoil : le Coffre est dans l'inventaire d'Aventure, la phrase n'est montrée qu'aux lecteurs qui ont déjà ce menu.
+       */
+      case 'accident':{
+        if(!k.menus.aventure)return null;
+        const cof=it.moi?'Ton coffre':'Le coffre de '+nom;
+        const variantes=[
+          cof+' vient littéralement de se chier dessus',
+          'Accident industriel : '+(it.moi?'ton coffre s’est':'le coffre de '+nom+' s’est')+' chié dessus',
+          cof+(it.moi?' a':' a')+' eu un petit accident… un gros accident',
+          (it.moi?'Sors l’éponge : ton coffre vient':nom+' ferait bien de sortir l’éponge : son coffre vient')+' de se chier dessus',
+          'Odeur suspecte '+(it.moi?'dans ton coffre':'du côté du coffre de '+nom),
+          cof+' n’a pas pu se retenir',
+          (it.moi?'Ton coffre':'Le coffre de '+nom)+' vient de se faire dessus, au sens très large'
+        ];
+        return {icone:'💩',texte:variantes[Math.abs(Number(it.id)||0)%variantes.length]};
+      }
       /* Menu visité (Norman, 2026-10-07) : annoncé seulement aux lecteurs qui ont déjà ce menu (anti-spoil). */
       case 'visite':{
         const l=LIEUX_VISITE[d.menu];

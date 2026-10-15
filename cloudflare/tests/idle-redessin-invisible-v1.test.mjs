@@ -97,3 +97,9 @@ assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aven
   assert.ok(ui.includes("function placerMenuEnHautPcIdleV1_(){") && ui.includes("window.matchMedia('(min-width:701px)')") && ui.includes("banniere.getBoundingClientRect().bottom+(window.scrollY||0)"), "placement en haut (PC)");
   assert.ok(ui.includes("if(menu!=='aventure'){menuIdleCoeurV28_(menu);placerMenuEnHautPcIdleV1_();return;}") && ui.includes("if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();"), "tous les menus, Aventure comprise (téléphone : comportement d'avant)");
 }
+/* Panneaux d'informations : fermés à l'arrivée et refermés au changement de menu */
+{
+  const meta = lire("public/modules/meta-progression-v130.js"), ygg = lire("public/modules/yggdrasil-elfes-v1.js");
+  assert.ok(ui.includes("function fermerPanneauxInfoIdleV1_(){") && ui.includes("jouerSonMenuIdleV1_();\n        fermerPanneauxInfoIdleV1_();") && ui.includes("      fermerPanneauxInfoIdleV1_();\n      function menuIdleCoeurV28_(menu){"), "fermés à chaque changement de menu et au chargement");
+  assert.ok(meta.includes("localStorage.getItem('soreal_idle_aide_v1_'+cle)==='1'") && ygg.includes("fermerAide:function(){etat.aide=false;}"), "fermés par défaut");
+}

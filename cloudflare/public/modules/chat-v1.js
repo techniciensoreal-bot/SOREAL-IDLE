@@ -78,6 +78,8 @@
     if(!c)return {t:'libre'};
     /* Menu consulté : le serveur ne garde que sa liste blanche (boutiques, puits, Challenges…), pour « En direct ». */
     const m=c.menu?{menu:c.menu}:{};
+    /* Accident du Coffre (modules/coffre-digestion-v1.js) : son numéro part avec chaque battement, le serveur ne l'annonce qu'une fois. */
+    if(window.__coffreAccidentNumeroIdleV1__>0)m.accident=window.__coffreAccidentNumeroIdleV1__;
     if(c.farm&&c.farm.zoneId)return Object.assign({t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''},m);
     if(c.boss>0)return Object.assign({t:'boss',boss:c.boss},m);
     return Object.assign({t:'libre'},m);

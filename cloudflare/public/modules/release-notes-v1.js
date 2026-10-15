@@ -32,6 +32,9 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'La page Renaissance est refaite : deux colonnes « Partie précédente » et « Partie en cours » (sang dépensé, durée, boss le plus haut, Number), le Number à la Renaissance en grand, les calculs en bas, et un décor inspiré des cieux, de la vie et de la mort.',
+            '« En direct » annonce maintenant quand le coffre d’un joueur s’est chié dessus.',
+            'Les panneaux d’informations des menus (« À quoi ça sert ? », « Que faire ici ? », encart Infos…) sont toujours fermés quand on arrive dans un menu et se referment quand on en change.',
             'Sur PC, un clic sur un menu de gauche replace toujours la page ouverte en haut : la bannière disparaît de l’écran et la barre Attaque, Défense, Or, EXP, AP se retrouve tout en haut.',
             'Le Coffre laisse maintenant échapper un vrai nuage quand il pète.',
             'L’administrateur est prévenu dans « En direct » d’un nouveau signalement de bug, et le message repasse tant qu’il n’est pas allé le lire.',

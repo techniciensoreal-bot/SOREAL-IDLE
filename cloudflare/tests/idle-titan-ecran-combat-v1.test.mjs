@@ -23,7 +23,7 @@ assert.ok(titans.includes("function demanderPlace_(t,suite){") && titans.include
 assert.ok(/Libère de la place dans ton inventaire[^']*butin de/.test(titans) && titans.includes("Prépare ton sac !"), "texte du popup");
 // Aventure arrête le combat de titan et laisse en Zone sûre
 assert.ok(ui.includes("function arreterCombatTitanIdleV1_(){") && ui.includes("selectionnerZoneAdventureIdleV47_('safe');") && ui.includes("window.__arreterCombatTitanV1__=arreterCombatTitanIdleV1_;"), "arrêt du combat de titan = Zone sûre");
-const menu = ui.slice(ui.indexOf("function menuIdleV28_(menu){"), ui.indexOf("function menuIdleV28_(menu){") + 3500);
+const menu = ui.slice(ui.indexOf("function menuIdleV28_(menu){"), ui.indexOf("function menuIdleV28_(menu){") + 6000);
 assert.ok(menu.indexOf("arreterCombatTitanIdleV1_()") > 0 && menu.indexOf("arreterCombatTitanIdleV1_()") < menu.indexOf("Reclic sur le menu où l'on se trouve déjà"), "le clic sur Aventure arrête le combat avant même le test du reclic");
 // Mises à jour du 2026-10-13 : boutons Aventure / Titans de la page conservés, police et couleur par titan, effets, journal
 assert.ok(ecran.includes("document.querySelector('.soreal-idle-bascule-aventure-v1')") && ecran.includes("top:var(--tcv-top,0px)"), "l'écran se pose sous les vrais boutons Aventure / Titans de la page");

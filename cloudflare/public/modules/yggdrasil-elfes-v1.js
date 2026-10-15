@@ -276,6 +276,7 @@
     mode:function(id,mode){var m=mode==='harvest'?'harvest':'eat';if(choix_(id).mode!==m)son_('interrupteur',m==='harvest');choix_(id).mode=m;rafraichir_();},
     poop:function(id){var c=choix_(id);c.poop=!c.poop;if(c.poop)son_('poop');else son_('interrupteur',false);rafraichir_();},
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
+    fermerAide:function(){etat.aide=false;},
     aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
     soloMax:function(v){etat.soloMax=Boolean(v);son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */

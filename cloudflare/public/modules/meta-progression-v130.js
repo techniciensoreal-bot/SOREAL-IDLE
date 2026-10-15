@@ -2766,7 +2766,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
        * survit au re-rendu (la synchro périodique redessine la page) via localStorage.
        */
       function aideMenuOuverteIdleV1_(cle){
-        try{return localStorage.getItem('soreal_idle_aide_v1_'+cle)!=='0';}catch(_e){return true;}
+        try{return localStorage.getItem('soreal_idle_aide_v1_'+cle)==='1';}catch(_e){return false;}
       }
       window.__basculerAideMenuIdleV1__=function(cle,details){
         try{localStorage.setItem('soreal_idle_aide_v1_'+cle,details&&details.open?'1':'0');}catch(_e){}

@@ -53,6 +53,9 @@ export function normaliserActiviteV1(brut) {
   if (t === "boss") sortie.boss = Math.max(0, Math.min(99999, Math.floor(Number(a.boss) || 0)));
   /* Menu consulté (liste blanche : jamais un texte libre) -- sert au fil « En direct » (« X visite la boutique »), voir idle-flux-v1.js. */
   if (typeof a.menu === "string" && IDLE_ACTIVITE_MENUS_V1.includes(a.menu)) sortie.menu = a.menu;
+  /* Accident du Coffre (Norman, 2026-10-15) : numéro de l'accident (secondes), seulement pour « En direct » (idle-flux-v1.js) ; une valeur renvoyée à chaque battement n'est annoncée qu'une fois. */
+  const accident = Math.floor(Number(a.accident) || 0);
+  if (accident > 0 && accident < 4102444800) sortie.accident = accident;
   return sortie;
 }
 

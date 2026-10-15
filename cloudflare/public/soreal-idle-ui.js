@@ -9357,40 +9357,53 @@
               '<div class="soreal-idle-rebirth-stat-value-v14">×'+formatGrandNombreIdleV70_(idleNombre_(preview[f.id]),3)+'</div>'+
             '</div>';
           }).join('');
+        /*
+         * Page refaite pour être claire (Norman, 2026-10-15) : deux colonnes, « Partie précédente » et « Partie en cours », avec les mêmes lignes à émojis (sang dépensé, durée, boss le plus haut, Number) ; le Number à la Renaissance
+         * en grand ; les calculs restent tout en bas. Anti-spoil : la ligne « Sang » n'apparaît que si Blood Magic est déjà débloquée. Les libellés « Nombre à la Renaissance » et « Variation » sont repris
+         * par modules/rebirth-live-v1.js (mise à jour chaque seconde) : ne pas les renommer sans lui.
+         */
+        const aPrecedent=Boolean(meta.hasPreviousRun);
+        const tiret='<span class="rb2-vide">—</span>';
+        const sysSang=(j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[]).find(function(s){return s&&s.id==='bloodMagic';});
+        const sangDebloque=Boolean(sysSang&&sysSang.state&&sysSang.state.unlocked);
+        const sangEnCours=Math.max(0,idleNombre_(sysSang&&sysSang.state&&sysSang.state.data&&sysSang.state.data.spells&&sysSang.state.data.spells.numberBoost)-1);
+        const ligne=function(ico,libelle,valeur,idVal){
+          return '<div class="rb2-ligne"><span class="rb2-ico" aria-hidden="true">'+ico+'</span><span class="rb2-lib">'+libelle+'</span><b class="rb2-val"'+(idVal?' id="'+idVal+'"':'')+'>'+valeur+'</b></div>';
+        };
+        const colonnePrecedente=
+          '<div class="rb2-col rb2-prec"><div class="rb2-tete">💀 Partie précédente</div><div class="rb2-sous">Ce qui s’est éteint</div>'+
+            (sangDebloque?ligne('🩸','Sang dépensé',aPrecedent?formatGrandNombreIdleV70_(Math.max(0,idleNombre_(meta.lastBlood))):tiret):'')+
+            ligne('⏱️','Durée',aPrecedent?formatDureeRunIdleV1_(Math.max(0,idleNombre_(meta.lastRunSeconds))):tiret)+
+            ligne('👹','Boss le plus haut battu',aPrecedent?formatGrandNombreIdleV70_(Math.max(0,idleEntier_(meta.lastBosses))):tiret)+
+            ligne('🔢','Number actif',aPrecedent?formatGrandNombreIdleV70_(Math.max(1,idleNombre_(meta.lastNumber))):tiret)+
+            (aPrecedent?'':'<div class="rb2-note">Pas encore de partie précédente : elle apparaîtra après ta première Renaissance.</div>')+
+          '</div>';
+        const colonneEnCours=
+          '<div class="rb2-col rb2-cours"><div class="rb2-tete">🌱 Partie en cours</div><div class="rb2-sous">Ce qui vit encore</div>'+
+            (sangDebloque?ligne('🩸','Sang dépensé',formatGrandNombreIdleV70_(sangEnCours)):'')+
+            ligne('⏱️','Durée',formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j)),'sorealIdleRebirthRunV1')+
+            ligne('👹','Boss le plus haut battu',formatGrandNombreIdleV70_(Math.max(0,idleEntier_(j&&j.bossVaincus))))+
+            ligne('🔢','Number actif',formatGrandNombreIdleV70_(actuel))+
+          '</div>';
         return `
-          <div id="sorealIdleBlocRenaissanceV27" class="soreal-idle-rebirth-v14">
+          <div id="sorealIdleBlocRenaissanceV27" class="soreal-idle-rebirth-v14 rb2-v1">
             <div class="soreal-idle-rebirth-title-v14">♻️ Rebirth</div>
             <div class="soreal-idle-rebirth-sub-v14">
-              Recommence le run. Le nombre obtenu multipliera ton Attaque et ta Défense au prochain cycle.
+              Tu recommences tout depuis le début, mais ton <b>Number</b> multiplie ton Attaque et ta Défense au prochain cycle.
+              Plus tu vas loin et vite, plus il monte.
             </div>
-            <div class="soreal-idle-rebirth-stats-v14">
+            <div class="rb2-colonnes">${colonnePrecedente}${colonneEnCours}</div>
+            <div class="rb2-ciel-titre" aria-hidden="true">✦ ☁️ ✨ ☁️ ✦</div>
+            <div class="rb2-prochain">
               <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">Nombre actuel</div>
-                <div class="soreal-idle-rebirth-stat-value-v14">${formatGrandNombreIdleV70_(actuel)}</div>
-              </div>
-              <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">Nombre à la Renaissance</div>
+                <div class="soreal-idle-rebirth-stat-label-v14">Nombre si tu renais maintenant</div>
                 <div class="soreal-idle-rebirth-stat-value-v14${prochain>actuel*1.0000001?' hausse':(prochain<actuel/1.0000001?' baisse':'')}">${formatGrandNombreIdleV70_(prochain)}</div>
               </div>
               <div class="soreal-idle-rebirth-stat-v14">
                 <div class="soreal-idle-rebirth-stat-label-v14">Variation</div>
                 <div class="soreal-idle-rebirth-stat-value-v14">×${ratio>=1000?formatGrandNombreIdleV70_(ratio,3):ratio.toFixed(3)}</div>
               </div>
-              <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">Renaissances effectuées</div>
-                <div class="soreal-idle-rebirth-stat-value-v14" id="sorealIdleRebirthTotalV1">${formatGrandNombreIdleV70_(Math.max(0,idleEntier_((j&&j.systemes&&j.systemes.records&&j.systemes.records.totalRebirths)||0)))}</div>
-              </div>
-              <div class="soreal-idle-rebirth-stat-v14">
-                <div class="soreal-idle-rebirth-stat-label-v14">Temps du run</div>
-                <div class="soreal-idle-rebirth-stat-value-v14" id="sorealIdleRebirthRunV1">${formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j))}</div>
-              </div>
             </div>
-            ${
-              detailsFacteurs
-                ?'<div class="soreal-idle-window-title-v31" style="margin-top:12px">📐 Détail du calcul</div>'+
-                  '<div class="soreal-idle-rebirth-stats-v14">'+detailsFacteurs+'</div>'
-                :''
-            }
             <button type="button" class="soreal-idle-rebirth-button-v14"
               onclick="window.__renaitreIdleV14__()" ${(idleRenaissanceEnCoursV14||!(idleEtat&&idleEtat.renaissance&&idleEtat.renaissance.debloquee))?'disabled':''}>
               ♻️ RENAISSANCE
@@ -9402,6 +9415,15 @@
                   :'<div class="soreal-idle-rebirth-warning-v14">Disponible après 3 minutes de run.</div>')
                 :''
             }
+            <div class="soreal-idle-window-title-v31">📐 Comment c’est calculé</div>
+            <div class="rb2-explication">Ton Number à la Renaissance est le produit de ces facteurs : le boss le plus haut battu, la durée de la partie, ta partie précédente et tes bonus. En voici le détail.</div>
+            <div class="soreal-idle-rebirth-stats-v14">
+              ${detailsFacteurs}
+              <div class="soreal-idle-rebirth-stat-v14">
+                <div class="soreal-idle-rebirth-stat-label-v14">Renaissances effectuées</div>
+                <div class="soreal-idle-rebirth-stat-value-v14" id="sorealIdleRebirthTotalV1">${formatGrandNombreIdleV70_(Math.max(0,idleEntier_((j&&j.systemes&&j.systemes.records&&j.systemes.records.totalRebirths)||0)))}</div>
+              </div>
+            </div>
           </div>`;
       }
 
@@ -24020,6 +24042,21 @@ function pageAventureIdleV28_(j){
         if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();
       }
 
+      /*
+       * Panneaux d'informations repliables des menus (« 💡 À quoi ça sert ? », « Que faire ici ? », résumé des NGU, encart Infos des Réglages) : toujours FERMÉS à l'arrivée dans un menu et refermés quand on change de menu
+       * (Norman, 2026-10-15). Un panneau ouvert le reste seulement tant qu'on reste dans le menu (la synchro redessine la page) ; on ne retient plus rien d'une visite à l'autre.
+       */
+      function fermerPanneauxInfoIdleV1_(){
+        try{
+          const cles=[];
+          for(let i=0;i<localStorage.length;i+=1){const k=localStorage.key(i);if(k&&k.indexOf('soreal_idle_aide_v1_')===0)cles.push(k);}
+          cles.forEach(function(k){localStorage.removeItem(k);});
+          localStorage.setItem('soreal_idle_info_ouvert_v1','0');
+        }catch(_e){}
+        try{const L=window.__SOREAL_IDLE_NGU_LABO_V1__;if(L&&typeof L.resume==='function')L.resume(false);}catch(_e){}
+        try{const Y=window.__SOREAL_IDLE_YGG_V1__;if(Y&&typeof Y.fermerAide==='function')Y.fermerAide();}catch(_e){}
+      }
+      fermerPanneauxInfoIdleV1_();
       function menuIdleCoeurV28_(menu){
         /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
         if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1)return;
@@ -24041,6 +24078,7 @@ function pageAventureIdleV28_(j){
         }
 
         jouerSonMenuIdleV1_();
+        fermerPanneauxInfoIdleV1_();
 
         /* Chat : page du menu comme les autres (plus de fenêtre volante) ; le module monte son contenu dans la page (contenuMenuIdleV28_). */
         if(menu==='chat'){

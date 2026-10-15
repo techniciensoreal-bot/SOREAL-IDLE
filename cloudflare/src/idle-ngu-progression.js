@@ -1339,6 +1339,8 @@ function createRebirthState(now) {
     lastNumber: 1,
     lastBosses: 0,
     lastRunSeconds: 0,
+    /* Sang dépensé dans le sort « Number » pendant la partie précédente (page Renaissance, Norman 2026-10-15) */
+    lastBlood: 0,
     hasPreviousRun: false,
     minimumRebirthSeconds: MIN_REBIRTH_SECONDS,
     canRebirth: false,
@@ -2271,6 +2273,7 @@ function normalizeRebirthState(raw, runStartedAt, now) {
   for (const k of ["number", "nextNumber", "lastNumber"]) out[k] = Math.max(1e-300, num(out[k], 1));
   out.lastBosses = Math.max(0, int(out.lastBosses, 0));
   out.lastRunSeconds = Math.max(0, num(out.lastRunSeconds, 0));
+  out.lastBlood = Math.max(0, num(out.lastBlood, 0));
   out.hasPreviousRun = Boolean(out.hasPreviousRun);
   out.minimumRebirthSeconds = MIN_REBIRTH_SECONDS;
   out.updatedAt = now;
@@ -7902,6 +7905,8 @@ function applyNaturalEnergyCapGrowthOnRebirth(state){
 function applyRebirthResetV56_(state,context,t,options={}) {
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
   const rb=refreshRebirthState(state,context,t);
+  /* Sang dépensé dans le sort Number pendant cette partie : le multiplicateur vaut 1 + sang dépensé ; mémorisé AVANT la remise à zéro de la Renaissance. */
+  const sangDepenseRun=Math.max(0,num(state.systems.bloodMagic?.data?.spells?.numberBoost,1)-1);
   const challengeBefore=String(state.challenge?.active||"");
   const challengeStartedBefore=Math.max(0,num(state.challenge?.startedAt,0));
   const forced=options.forceNumber===undefined||options.forceNumber===null
@@ -7937,6 +7942,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   state.records.bestNumber=Math.max(num(state.records.bestNumber,0),committedNumber);
   rb.lastBosses=Math.max(0,int(context.bosses,0));
   rb.lastRunSeconds=runSeconds;
+  rb.lastBlood=sangDepenseRun;
   rb.hasPreviousRun=true;
   /*
    * 2026-09-24 (pages « Evil difficulty » / « SADISTIC difficulty » /
@@ -7949,6 +7955,7 @@ function applyRebirthResetV56_(state,context,t,options={}) {
   if(forced!==null){
     rb.lastBosses=0;
     rb.lastRunSeconds=0;
+    rb.lastBlood=0;
     rb.hasPreviousRun=false;
   }
   rb.canRebirth=false;

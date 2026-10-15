@@ -259,7 +259,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     bossVuAt: precedent ? N(precedent.bossVuAt, 0) : 0,
     menuVu: precedent ? String(precedent.menuVu || "") : "",
     menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0,
-    boostAt: precedent ? N(precedent.boostAt, 0) : 0
+    boostAt: precedent ? N(precedent.boostAt, 0) : 0,
+    accidentVu: precedent ? N(precedent.accidentVu, 0) : 0
   });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
@@ -286,6 +287,11 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       etat.menuVu = activite.menu;
       etat.menuVuAt = now;
     }
+    /* Le Coffre du joueur s'est chié dessus (accident aléatoire côté jeu) : annoncé une fois par accident, jamais deux fois le même numéro. */
+    if (activite && N(activite.accident) > 0 && N(activite.accident) !== N(precedent.accidentVu, 0)) {
+      evenements.push({ type: "accident", donnees: {} });
+      etat.accidentVu = N(activite.accident);
+    }
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
       if (e.type !== "cube" && e.type !== "piece") return true;
@@ -307,6 +313,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     }
     if (activite && activite.t === "boss" && N(activite.boss) > 0) { etat.bossVu = N(activite.boss); etat.bossVuAt = now; }
     if (activite && typeof activite.menu === "string" && activite.menu) { etat.menuVu = activite.menu; etat.menuVuAt = now; }
+    /* Un accident survenu pendant une absence n'est jamais annoncé en rattrapage. */
+    if (activite && N(activite.accident) > 0) etat.accidentVu = N(activite.accident);
   }
   sql.exec("INSERT OR REPLACE INTO idle_flux_etat(email,etat,maj) VALUES(?,?,?)", cle, JSON.stringify(etat), now);
   if (ajoutes) {
