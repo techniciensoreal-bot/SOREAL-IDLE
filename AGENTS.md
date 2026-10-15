@@ -291,5 +291,10 @@ Règles pour tout module qui modifie la page après le rendu :
 - un élément ANIMÉ par le module (valeurs réécrites à chaque image) inscrit une fonction dans `window.__SOREAL_IDLE_APRES_REDESSIN_V1__` : elle est appelée juste après le redessin, dans la même tâche, pour remettre
   l'état animé avant que l'image soit peinte ;
 - jamais d'attente (setTimeout, minuterie) entre le redessin et la remise en état : tout ce qui est visible doit revenir dans la même tâche ou la prochaine image d'animation.
+Blood Magic (Norman, 2026-10-15 : « plus jamais un seul bug d'animation dans Blood Magic ») : les animations de la scène d'un rituel ne dépendent JAMAIS d'un chiffre affiché ni d'un objet d'animation lu dans le DOM. (1) Une fin de niveau
+(coupure, punaise, jet…) part de l'événement `soreal-rituel-termine` envoyé par le tick de soreal-idle-ui.js à chaque rituel rejoué : le compteur affiché est borné (blood-magic-v1.js) et peut rester immobile alors que des
+rituels se terminent (la coupure ne partait alors plus). (2) L'avancement du niveau (`phaseRituelEtat`, sang-rituel-decor-v1.js) est CALCULÉ comme la barre le calcule (repère + temps écoulé, modulo 1), et non lu sur
+`getAnimations()[0]` de la barre (annulée et recréée à chaque synchro) ; une animation CSS se choisit par son nom (`animationCss`), jamais par son rang. (3) Les classes `bm-*` de la scène sont posées par le module : la scène porte
+`data-morph-classes-gardees` pour qu'un redessin de la page ne les retire pas en pleine animation. Tout nouveau rituel animé suit ces trois règles.
 Contrôle : menu ouvert, dans la console, `await window.__auditerRedessinIdleV1__()` (ou `('ngu')`) force un redessin et liste les nœuds remplacés et les attributs perdus ; tout doit être vide, hormis les `nb-suf` (couleur des
 nombres, recréés dans la même image) et le texte. À refaire pour chaque menu touché, et pour tout nouveau menu ajouté à `IDLE_MENUS_VIVANTS_V1`. Test de garde : `cloudflare/tests/idle-redessin-invisible-v1.test.mjs`.

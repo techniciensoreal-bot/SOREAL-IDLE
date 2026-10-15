@@ -41,11 +41,14 @@ console.log("idle-redessin-invisible-v1: OK");
   assert.ok(fn.includes("[3000,6000,10000,15000,20000]") && fn.includes("!bandeau.isConnected") && fn.includes("obtenirEtatSorealIdle(SOREAL_SESSION)") && fn.includes("rendreIdleEtat_({ok:true,joueur:etat.joueur})"), "bandeau Boss vaincu figé : redemande l'état et redessine");
   assert.ok(ui.includes("surveillerVictoireFigeeIdleV1_(overlay);"), "lancé dès que le bandeau est posé");
 }
-/* Comparaison d'objets : UNE seule fenêtre, premier objet en haut, deuxième dessous (Norman, 2026-10-15) */
+/* Comparaison d'objets : UNE seule fenêtre, premier objet en haut, deuxième dessous (Norman, 2026-10-15) ; elle ne se ferme jamais toute seule (rafraîchie après un redessin du sac ou de la page) */
 {
+  const compo = ui.slice(ui.indexOf("function composerCorpsComparaisonIdleV1_(corps,firstId,secondId){"), ui.indexOf("function fermerComparaisonObjetAdventureIdleV183_(){"));
+  assert.ok(compo.includes('<div class="idle-compare-bloc-v1">\'+firstHtml+\'</div><div class="idle-compare-vs-v1"') && compo.includes("secondHtml+'</div>'"), "les deux fiches dans le même popup");
   const cmp = ui.slice(ui.indexOf("function ouvrirComparaisonObjetAdventureIdleV183_(secondId){"), ui.indexOf("window.__comparerObjetAdventureIdleV183__="));
-  assert.ok(cmp.includes('<div class="idle-compare-bloc-v1">\'+firstHtml+\'</div><div class="idle-compare-vs-v1"') && cmp.includes("secondHtml+'</div>'"), "les deux fiches dans le même popup");
-  assert.ok(!cmp.includes("cloneNode") && !cmp.includes("document.body.appendChild(clone)"), "plus de deuxième popup");
+  assert.ok(!cmp.includes("cloneNode") && !cmp.includes("document.body.appendChild(clone)") && cmp.includes("composerCorpsComparaisonIdleV1_(corps,firstId,second)"), "plus de deuxième popup");
+  assert.ok(ui.includes("if(fenetre&&fenetre.classList.contains('idle-compare-v183')&&idleComparaisonIdsV1.length===2){"), "un redessin du sac ne la ferme ni ne la réduit à un objet");
+  assert.ok(ui.includes("function restaurerFichesApresRedessinIdleV1_(){") && ui.includes("push(restaurerFichesApresRedessinIdleV1_)"), "un redessin complet de la page la remet en place");
   const css = lire("public/soreal-idle-ui.css");
   assert.ok(css.includes(".idle-compare-vs-v1{") && css.includes("overflow-y:auto") && css.includes(".idle-compare-v183 .soreal-idle-item-popup-drag-v1{position:sticky"), "fenêtre unique qui défile, poignée collée en haut");
 }
@@ -63,4 +66,18 @@ console.log("idle-redessin-invisible-v1: OK");
   assert.ok(w.includes("maintenant-idleAventureDernierAppuiV1<420") && w.includes("titansDebloquesIdleV1_()") && w.includes("window.__vueAventureIdleV1__('titans')") && w.includes("remonterToutEnHautIdleV1_();"), "double appui = Titans, tout appui remonte la page");
   assert.ok(w.indexOf("menuIdleCoeurV28_(menu);\n        if(idleMenuActifV28!=='aventure')return;") > 0, "le premier appui agit tout de suite (aucune attente)");
   assert.ok(ui.includes("window.__menuIdleV28__=\n        menuIdleV28_;") || /window\.__menuIdleV28__=\s*menuIdleV28_;/.test(ui), "les boutons passent par l'enveloppe");
+}
+/* Un appui sur Aventure depuis un autre menu ramène aux zones, même si l'onglet Titans était mémorisé */
+assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aventure'){\n          idleVueAventureV1='zones';"), "l'onglet Titans mémorisé ne ressort pas à un simple appui");
+/* Blood Magic : animations pilotées par événement et par phase calculée (plus jamais « le papier bouge mais ne coupe pas ») */
+{
+  const sang = lire("public/modules/sang-rituel-decor-v1.js"), morph2 = lire("public/modules/morph-v1.js");
+  assert.ok(ui.includes("window.dispatchEvent(new CustomEvent('soreal-rituel-termine',{detail:{id:String(bloodVisual.ritual),faits:faits}}))"), "un événement à chaque rituel rejoué");
+  assert.ok(sang.includes("window.addEventListener('soreal-rituel-termine'") && sang.includes("function finDeNiveau(sc,id,src){") && sang.includes("if(n>avant&&!(finRecue[id]&&performance.now()-finRecue[id]<1500))finDeNiveau(sc,id,src);"), "fin de niveau : événement d'abord, variation du chiffre en secours sans doublon");
+  assert.ok(sang.includes("function phaseRituelEtat(id){") && sang.includes("var phase=phaseRituelEtat(sc.getAttribute('data-bm-id'));\n  if(phase!=null)return phase;"), "phase calculée, lecture de la barre en secours");
+  assert.ok(sang.includes("function animationCss(el){") && sang.includes("var an=animationCss(cible);") && sang.includes("af=animationCss(f)"), "animations CSS choisies par leur nom");
+  assert.ok(!/bar\.getAnimations\(\)\[0\]/.test(sang.slice(sang.indexOf("function aligner(sc){"), sang.indexOf("function rythme(sc,id,n,avant){"))), "l'alignement du jet n'utilise plus l'animation de la barre");
+  assert.ok(sang.includes('data-morph-classes-gardees=\"^bm-\"') && morph2.includes("data-morph-classes-gardees") && morph2.includes("motifClasses.test(k)"), "les classes bm-* de la scène survivent à un redessin");
+  assert.ok(sang.includes("push(function(){if(document.querySelector('.bm-scene'))majVases();})"), "remise en état de la scène dans la même tâche après un redessin");
+  assert.ok(agents.includes("soreal-rituel-termine") && agents.includes("phaseRituelEtat"), "principe écrit dans AGENTS.md");
 }

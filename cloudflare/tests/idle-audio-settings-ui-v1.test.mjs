@@ -26,7 +26,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.ok(bloc.includes("(actif?'checked ':'')"), "cochée de base");
 }
 /* Depuis le 2026-10-08, la section « Effets visuels » s'intercale entre l'Audio et la Version. */
-assert.match(ui, /htmlReglagesAudioIdleV1_\(\)\+\s*htmlReglagesEffetsIdleV1_\(\)\+\s*'<div class="soreal-idle-section-v8">'\+\s*'<div class="soreal-idle-window-title-v31">Version<\/div>'/, "la section Audio précède la section Version (avec les Effets visuels entre les deux)");
+assert.match(ui, /htmlReglagesAudioIdleV1_\(\)\+\s*(?:htmlReglagesSonsDefaiteIdleV1_\(\)\+\s*)?htmlReglagesEffetsIdleV1_\(\)\+\s*'<div class="soreal-idle-section-v8">'\+\s*'<div class="soreal-idle-window-title-v31">Version<\/div>'/, "la section Audio précède la section Version (avec les Effets visuels entre les deux)");
 
 // --- Le curseur ajuste le module de réglages sans re-rendre toute la page (pas de perte de focus en plein glissement) ---
 assert.match(ui, /window\.__reglerVolumeIdleV1__=function\(type,valeur\)\{/);

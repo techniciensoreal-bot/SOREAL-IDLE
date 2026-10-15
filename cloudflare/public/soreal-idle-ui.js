@@ -3188,6 +3188,8 @@
                   orLiveB=Math.max(0,orLiveB-faits*coutOrB);
                   idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
+                  /* Chaque rituel TERMINÉ le dit à l'animation de la scène (modules/sang-rituel-decor-v1.js) : la coupure, la punaise, le jet… partent de CET événement et non d'un chiffre affiché (le compteur est borné et ne bouge pas toujours : le papier bougeait sans couper — Norman, 2026-10-15). */
+                  try{window.dispatchEvent(new CustomEvent('soreal-rituel-termine',{detail:{id:String(bloodVisual.ritual),faits:faits}}));}catch(_e){}
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
                   if(compte){compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})());(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})(),rb:idleNombre_(idleEtat.systemes&&idleEtat.systemes.records&&idleEtat.systemes.records.totalRebirths)};}
                   if(faits===dus){
@@ -17227,6 +17229,12 @@
       /* Après un redessin du sac : la fiche ouverte est rafraîchie, ou refermée si l'objet n'existe plus. */
       let idleFicheObjetOuverteIdV1='';
       function restaurerFicheInventaireIdleV160_(modele){
+        /* Comparaison ouverte : les deux fiches sont recomposées si les deux objets existent encore ; sinon la fenêtre reste telle quelle (elle ne se ferme jamais toute seule). */
+        const fenetre=document.getElementById('soreal-idle-v138-details');
+        if(fenetre&&fenetre.classList.contains('idle-compare-v183')&&idleComparaisonIdsV1.length===2){
+          if(fenetre.style.display!=='none')composerCorpsComparaisonIdleV1_(document.getElementById('soreal-idle-v138-details-body'),idleComparaisonIdsV1[0],idleComparaisonIdsV1[1]);
+          return;
+        }
         const id=String(idleFicheObjetOuverteIdV1||'');
         if(!id)return;
         const item=modele.items.find(function(x){return String(x&&x.id)===id;});
@@ -21645,12 +21653,27 @@ function pageAventureIdleV28_(j){
         poignee.addEventListener('touchstart',surDebut,{passive:false});
       }
       let idleAdventureComparerPremierV183='';
+      /* Les deux objets de la comparaison ouverte : un redessin du sac rafraîchit la fenêtre sans la refermer ni la réduire à un seul objet (Norman, 2026-10-15 : « Comparer se ferme tout seul »). */
+      let idleComparaisonIdsV1=[];
+      function composerCorpsComparaisonIdleV1_(corps,firstId,secondId){
+        const a=idleEtat&&aventureMetaIdleV47_(idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const existe=function(id){return items.some(function(x){return String(x&&x.id)===id;});};
+        if(!corps||!existe(firstId)||!existe(secondId))return false;
+        afficherDetailsObjetAdventureIdleV138_(firstId);
+        const firstHtml=corps.innerHTML;
+        afficherDetailsObjetAdventureIdleV138_(secondId);
+        const secondHtml=corps.innerHTML;
+        corps.innerHTML='<div class="idle-compare-bloc-v1">'+firstHtml+'</div><div class="idle-compare-vs-v1" aria-hidden="true"><span>VS</span></div><div class="idle-compare-bloc-v1">'+secondHtml+'</div>';
+        return true;
+      }
       let idleAdventureComparerEnAttenteV183=false;
 
       function fermerComparaisonObjetAdventureIdleV183_(){
         const second=document.getElementById('soreal-idle-v138-details-compare-v183');/* ancien second popup (plus créé : la comparaison tient dans une seule fenêtre) */
         if(second)second.remove();
         idleAdventureComparerPremierV183='';
+        idleComparaisonIdsV1=[];
         idleAdventureComparerEnAttenteV183=false;
         const primary=document.getElementById('soreal-idle-v138-details');
         if(primary){primary.classList.remove('idle-compare-v183');primary.style.maxHeight='';}
@@ -21673,30 +21696,49 @@ function pageAventureIdleV28_(j){
         const corps=document.getElementById('soreal-idle-v138-details-body');
         if(!root||!corps)return false;
 
-        afficherDetailsObjetAdventureIdleV138_(firstId);
-        const firstHtml=corps.innerHTML;
-        afficherDetailsObjetAdventureIdleV138_(second);
-        const secondHtml=corps.innerHTML;
-
-        /*
-         * UNE SEULE fenêtre (Norman, 2026-10-15) : « la fenêtre de comparaison ne forme qu'une seule fenêtre, avec le premier objet en haut et le deuxième en dessous ». Les deux fiches sont empilées dans le même
-         * popup (séparées par un « VS »), qui défile si l'écran est trop court ; plus de deuxième popup à déplacer ni à fermer séparément.
-         */
-        corps.innerHTML='<div class="idle-compare-bloc-v1">'+firstHtml+'</div><div class="idle-compare-vs-v1" aria-hidden="true"><span>VS</span></div><div class="idle-compare-bloc-v1">'+secondHtml+'</div>';
+        if(!composerCorpsComparaisonIdleV1_(corps,firstId,second))return false;
+        idleComparaisonIdsV1=[firstId,second];
         root.style.display='block';
         root.classList.add('idle-compare-v183');
 
-        const marge=8;
-        const largeur=Math.min(window.innerWidth<=600?window.innerWidth-marge*2:320,window.innerWidth-marge*2);
-        root.style.width=largeur+'px';
-        root.style.maxHeight=(window.innerHeight-marge*2)+'px';
-        root.style.left=Math.max(marge,Math.min(root.offsetLeft||marge,window.innerWidth-largeur-marge))+'px';
-        root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
-
+        poserFenetreComparaisonIdleV1_(root,root.offsetLeft,root.offsetTop);
         activerGlisserPopupObjetAdventureIdleV1_(root);
         idleAdventureComparerEnAttenteV183=false;
         return true;
       }
+      /* Taille et place de la fenêtre unique de comparaison (partagées par l'ouverture et la remise en place après un redessin de la page). */
+      function poserFenetreComparaisonIdleV1_(root,gauche,haut){
+        const marge=8;
+        const largeur=Math.min(window.innerWidth<=600?window.innerWidth-marge*2:320,window.innerWidth-marge*2);
+        root.style.display='block';
+        root.classList.add('idle-compare-v183');
+        root.style.width=largeur+'px';
+        root.style.maxHeight=(window.innerHeight-marge*2)+'px';
+        root.style.left=Math.max(marge,Math.min(gauche||marge,window.innerWidth-largeur-marge))+'px';
+        root.style.top=Math.max(marge,Math.min(haut||marge,window.innerHeight-root.offsetHeight-marge))+'px';
+        idleItemPopupPositionV1_={left:parseInt(root.style.left,10)||marge,top:parseInt(root.style.top,10)||marge};
+        activerGlisserPopupObjetAdventureIdleV1_(root);
+      }
+      /*
+       * Redessin COMPLET de la page (le popup d'objet est dans la page : le redessin le remet fermé et vide) : la comparaison ou la fiche ouverte est remise en place, au même endroit, dans la même tâche
+       * (règle n°4 d'AGENTS.md). Ce n'est fait que si l'utilisateur ne l'a pas refermée (la fermeture efface les identifiants mémorisés).
+       */
+      function restaurerFichesApresRedessinIdleV1_(){
+        if(idleMenuActifV28!=='aventure')return;
+        const root=document.getElementById('soreal-idle-v138-details');
+        const corps=document.getElementById('soreal-idle-v138-details-body');
+        if(!root||!corps||(root.style.display!=='none'&&root.querySelector('.soreal-idle-item-popup-body-v1 *')))return;
+        const pos=idleItemPopupPositionV1_||{left:0,top:0};
+        if(idleComparaisonIdsV1.length===2){
+          if(composerCorpsComparaisonIdleV1_(corps,idleComparaisonIdsV1[0],idleComparaisonIdsV1[1]))poserFenetreComparaisonIdleV1_(root,pos.left,pos.top);
+          return;
+        }
+        const id=String(idleFicheObjetOuverteIdV1||'');
+        if(!id)return;
+        afficherDetailsObjetAdventureIdleV138_(id);
+        if(pos&&pos.left!=null){root.style.left=pos.left+'px';root.style.top=pos.top+'px';}
+      }
+      (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(restaurerFichesApresRedessinIdleV1_);
       window.__comparerObjetAdventureIdleV183__=comparerObjetAdventureIdleV183_;
       window.__fermerComparaisonObjetAdventureIdleV183__=fermerComparaisonObjetAdventureIdleV183_;
 
@@ -23387,6 +23429,28 @@ function pageAventureIdleV28_(j){
           }).join('')+
         '</div>';
       }
+      /*
+       * Sons de défaite (Norman, 2026-10-15). Aucun réglage pour les joueurs : le jeu tire au hasard parmi les sons RETENUS par Norman (modules/audio-effects-v199.js, SONS_DEFAITE). Cette section n'existe qu'en mode
+       * développement : elle fait seulement ÉCOUTER (▶) les sons de défaite du jeu.
+       */
+      window.__ecouterSonDefaiteIdleV1__=function(nom){
+        const A=window.__SOREAL_IDLE_AUDIO_V199__;
+        if(!A||!A.previewDefeat)return;
+        try{if(A.unlock)A.unlock();}catch(_e){}
+        A.previewDefeat(nom);
+      };
+      function htmlReglagesSonsDefaiteIdleV1_(){
+        const A=window.__SOREAL_IDLE_AUDIO_V199__;
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||!A||!A.defeatList)return '';
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">😵 Sons de défaite (développement)</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : les sons de défaite du jeu, tirés au hasard à chaque défaite. Le bouton ▶ te les fait écouter ; aucun réglage pour les joueurs.</div>'+
+          A.defeatList().map(function(x){
+            return '<div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px"><span style="flex:1;min-width:0">'+idleHtml_(x.libelle)+'</span>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" aria-label="Écouter" title="Écouter ce son" onclick="window.__ecouterSonDefaiteIdleV1__(\''+x.nom+'\')">▶</button></div>';
+          }).join('')+
+        '</div>';
+      }
       /* Effets visuels (Norman, 2026-10-08) : orage (éclairs) et cheminée (lueur) peuvent être coupés pour les téléphones moins puissants ; actifs par défaut, mémorisés sur l'appareil. */
       const EFFETS_VISUELS_IDLE_V1=[
         {id:'orage',cle:'soreal_idle_effet_orage_v1',libelle:'⛈️ Orage : ciel sombre et éclairs (piste d’orage)'},
@@ -23710,6 +23774,7 @@ function pageAventureIdleV28_(j){
             :'')+
           htmlReglagesLangueIdleV1_()+
           htmlReglagesAudioIdleV1_()+
+          htmlReglagesSonsDefaiteIdleV1_()+
           htmlReglagesEffetsIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
@@ -23882,6 +23947,11 @@ function pageAventureIdleV28_(j){
         const maintenant=Date.now();
         const doubleAppui=maintenant-idleAventureDernierAppuiV1<420;
         idleAventureDernierAppuiV1=doubleAppui?0:maintenant;
+        /* Un simple appui ramène TOUJOURS aux zones, même si l'onglet Titans était mémorisé quand on a quitté Aventure (Norman, 2026-10-15). */
+        if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aventure'){
+          idleVueAventureV1='zones';
+          document.documentElement.setAttribute('data-vue-aventure','zones');
+        }
         menuIdleCoeurV28_(menu);
         if(idleMenuActifV28!=='aventure')return;
         if(doubleAppui&&titansDebloquesIdleV1_()&&idleVueAventureV1!=='titans')window.__vueAventureIdleV1__('titans');

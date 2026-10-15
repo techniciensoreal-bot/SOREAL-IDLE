@@ -483,7 +483,11 @@
     {nom:"tonnerre",duree:2300,construire:bossTonnerre_},
     {nom:"sirene",duree:2300,construire:bossSirene_},
     {nom:"choeur",duree:2300,construire:bossChoeur_},
-    {nom:"boite-a-musique",duree:2300,construire:bossBoiteAMusique_}
+    {nom:"boite-a-musique",duree:2300,construire:bossBoiteAMusique_},
+    {nom:"cathedrale",duree:2400,construire:bossCathedrale_},
+    {nom:"boite-lente",duree:2400,construire:bossBoiteLente_},
+    {nom:"fanfare-funebre",duree:2400,construire:bossFanfareFunebre_},
+    {nom:"gong",duree:2300,construire:bossGong_}
   ];
 
   function rangGongBoss_(){
@@ -1041,8 +1045,138 @@
     }
   }
 
+  /*
+   * DIX SONS DE DÉFAITE (Norman, 2026-10-15 : « crée-moi 10 sons de défaite que je puisse cocher ceux que je veux en son aléatoire de défaite »). Tous synthétisés (aucun fichier à charger), tous brefs (1,3 à 2,2 s),
+   * chacun d'un caractère différent. Le joueur coche dans Réglages ceux qui peuvent sortir ; à chaque défaite l'un d'eux est tiré au hasard (jamais le même deux fois de suite quand il y en a plusieurs).
+   * Le premier est l'ancien son de défaite : il reste celui d'un joueur qui ne coche que lui.
+   */
+  function defaiteTromboneConstruire_(c){
+    /* trombone triste : quatre « wom » qui descendent d'un demi-ton, le dernier s'étire et se tord */
+    [[311,0,.34],[294,.40,.34],[277,.80,.34],[262,1.20,.90]].forEach(function(n,i){
+      var d=i===3;
+      nappe_(c,{type:"sawtooth",from:n[0]*1.03,to:d?n[0]*.80:n[0],duration:n[2],volume:.06,attack:.06,delay:n[1],vibRate:d?6.5:0,vibDepth:d?9:0});
+      nappe_(c,{type:"triangle",from:n[0]/2,to:d?n[0]*.4:n[0]/2,duration:n[2],volume:.07,attack:.06,delay:n[1]});
+    });
+  }
+  function defaiteGlasConstruire_(c){
+    /* glas : trois coups de cloche grave, espacés, aux harmoniques inégales */
+    [0,.62,1.24].forEach(function(t,i){
+      var f=146.8*(1-i*.03);
+      [[1,.075],[2.01,.04],[2.76,.028],[4.1,.016],[5.4,.010]].forEach(function(h,k){
+        tonal_(c,{type:"sine",from:f*h[0],to:f*h[0]*.995,duration:1.2-k*.12,volume:h[1],delay:t});
+      });
+      bruit_(c,{duration:.07,volume:.05,delay:t,filterType:"bandpass",frequency:900,decay:3});
+    });
+  }
+  function defaiteArcadeConstruire_(c){
+    /* « game over » d'arcade : quatre notes carrées qui descendent, puis un bourdonnement */
+    [[392,0],[330,.20],[262,.40],[196,.60]].forEach(function(n,i){
+      tonal_(c,{type:"square",from:n[0],to:n[0],duration:i===3?.55:.17,volume:.05,delay:n[1]});
+    });
+    tonal_(c,{type:"square",from:98,to:49,duration:.7,volume:.045,delay:1.0});
+    tonal_(c,{type:"triangle",from:98,to:49,duration:.7,volume:.075,delay:1.0});
+  }
+  function defaiteVinyleConstruire_(c){
+    /* disque qui s'arrête : la hauteur s'écroule, avec un petit tremblement, sur des craquements */
+    nappe_(c,{type:"triangle",from:440,to:32,duration:1.7,volume:.08,attack:.02,vibRate:3,vibDepth:8});
+    nappe_(c,{type:"sine",from:880,to:55,duration:1.7,volume:.025,attack:.02});
+    for(var i=0;i<14;i+=1)bruit_(c,{duration:.03,volume:.010,delay:.1+i*.11,filterType:"bandpass",frequency:2500+((i*53)%7)*300,q:1.5,decay:3});
+  }
+
+
+  /*
+   * Propositions de Norman (2026-10-15), retenues : la toccata sinistre et l'orgue de foire triste servent de SONS DE DÉFAITE ; l'orgue de cathédrale, la boîte à musique qui ralentit, la fanfare funèbre et le gong
+   * rejoignent la rotation des sons d'APPARITION DE BOSS (SONS_BOSS : quand on tue un boss et qu'on passe au suivant).
+   */
+  function bossCathedrale_(c){
+    /* orgue de cathédrale : trois accords mineurs qui s'abaissent, pédalier grave qui s'éteint dessous */
+    var accord=function(fs,t,d,v){
+      fs.forEach(function(f,i){
+        nappe_(c,{type:"sawtooth",from:f,to:f*.985,duration:d,volume:v,attack:.12,delay:t,detune:i*4,vibRate:5,vibDepth:1.2});
+        nappe_(c,{type:"triangle",from:f/2,to:f*.49,duration:d,volume:v*1.5,attack:.12,delay:t});
+      });
+    };
+    accord([220,261.6,329.6],0,.85,.026);
+    accord([174.6,207.7,261.6],.8,.85,.028);
+    accord([146.8,174.6,220],1.4,.95,.032);
+    nappe_(c,{type:"sine",from:55,to:41,duration:2.3,volume:.06,attack:.2});
+  }
+  function defaiteToccataConstruire_(c){
+    /* toccata sinistre : une gamme d'orgue qui dévale, puis un grand accord de ré mineur plaqué */
+    [880,784,698.5,659.3,587.3,523.3,440,392,349.2,329.6].forEach(function(f,i){
+      nappe_(c,{type:"sawtooth",from:f,to:f,duration:.18,volume:.028,attack:.01,delay:i*.07});
+      nappe_(c,{type:"triangle",from:f/2,to:f/2,duration:.18,volume:.045,attack:.01,delay:i*.07});
+    });
+    [146.8,174.6,220,293.7].forEach(function(f,i){
+      nappe_(c,{type:"sawtooth",from:f,to:f*.97,duration:1.25,volume:.03,attack:.03,delay:.85,detune:i*3,vibRate:5.5,vibDepth:1.5});
+      nappe_(c,{type:"triangle",from:f/2,to:f*.48,duration:1.25,volume:.05,attack:.03,delay:.85});
+    });
+    nappe_(c,{type:"sine",from:73.4,to:55,duration:1.3,volume:.07,attack:.05,delay:.85});
+    bruit_(c,{duration:.12,volume:.03,delay:.85,filterType:"lowpass",frequency:900,decay:2.5});
+  }
+  function defaiteForaineConstruire_(c){
+    /* orgue de foire triste : une petite valse qui se dégonfle, la dernière note s'affaisse en tremblant */
+    [[523.3,0,.26],[440,.27,.26],[392,.54,.26],[349.2,.81,.26]].forEach(function(n){
+      nappe_(c,{type:"square",from:n[0],to:n[0],duration:n[2],volume:.034,attack:.015,delay:n[1],vibRate:6,vibDepth:3});
+      nappe_(c,{type:"triangle",from:n[0]/2,to:n[0]/2,duration:n[2],volume:.07,attack:.015,delay:n[1]});
+    });
+    nappe_(c,{type:"square",from:329.6,to:150,duration:.85,volume:.036,attack:.015,delay:1.08,vibRate:7,vibDepth:10});
+    nappe_(c,{type:"triangle",from:165,to:75,duration:.85,volume:.075,attack:.015,delay:1.08});
+  }
+  function bossBoiteLente_(c){
+    /* boîte à musique qui ralentit : des notes cristallines qui descendent de plus en plus espacées */
+    [[1319,0],[1175,.22],[988,.48],[880,.80],[784,1.20],[659,1.75]].forEach(function(n){
+      tonal_(c,{type:"sine",from:n[0],to:n[0]*.998,duration:.6,volume:.05,delay:n[1]});
+      tonal_(c,{type:"sine",from:n[0]*2,to:n[0]*2,duration:.4,volume:.02,delay:n[1]});
+      tonal_(c,{type:"sine",from:n[0]*3.01,to:n[0]*3.01,duration:.25,volume:.01,delay:n[1]});
+    });
+  }
+  function bossFanfareFunebre_(c){
+    /* fanfare funèbre : trois accords de cuivres graves qui descendent, souffle au début de chaque */
+    [[[196,233.1,293.7],0,.75],[[174.6,207.7,261.6],.68,.75],[[146.8,174.6,220],1.35,1.0]].forEach(function(a){
+      a[0].forEach(function(f,i){
+        nappe_(c,{type:"sawtooth",from:f*1.02,to:f,duration:a[2],volume:.026,attack:.07,delay:a[1],detune:i*3,vibRate:5,vibDepth:1});
+        nappe_(c,{type:"triangle",from:f/2,to:f/2,duration:a[2],volume:.04,attack:.07,delay:a[1]});
+      });
+      bruit_(c,{duration:.12,volume:.025,delay:a[1],filterType:"bandpass",frequency:700,decay:2.2});
+    });
+  }
+  function bossGong_(c){
+    /* gong final : un énorme coup de gong aux harmoniques inégales, qui s'étire, sur un grondement grave */
+    [1,1.47,2.09,2.55,3.18,4.1].forEach(function(r,i){
+      tonal_(c,{type:"sine",from:70*r,to:70*r*.985,duration:2.3-i*.22,volume:.07/(1+i*.45)});
+    });
+    bruit_(c,{duration:.5,volume:.09,filterType:"bandpass",frequency:1800,frequencyEnd:400,q:.8,decay:1.6});
+    tonal_(c,{type:"sine",from:55,to:34,duration:1.6,volume:.1});
+  }
+
+  /* Retenus par Norman (2026-10-15) : l'ancien son, le trombone triste, le glas, le game over d'arcade, le disque qui s'arrête, la toccata sinistre et l'orgue de foire triste. */
+  var SONS_DEFAITE=[
+    {nom:"elegie",libelle:"Élégie (le son d’origine)",duree:1900,construire:defaiteConstruire_},
+    {nom:"trombone",libelle:"Trombone triste",duree:1900,construire:defaiteTromboneConstruire_},
+    {nom:"glas",libelle:"Glas de cloche",duree:2200,construire:defaiteGlasConstruire_},
+    {nom:"arcade",libelle:"Game over d’arcade",duree:1700,construire:defaiteArcadeConstruire_},
+    {nom:"vinyle",libelle:"Disque qui s’arrête",duree:1700,construire:defaiteVinyleConstruire_},
+    {nom:"orgue-toccata",libelle:"Toccata sinistre (orgue)",duree:2000,construire:defaiteToccataConstruire_},
+    {nom:"orgue-foraine",libelle:"Orgue de foire triste",duree:1800,construire:defaiteForaineConstruire_}
+  ];
+  var dernierSonDefaite="";
+  /* Tirage au hasard parmi les sons retenus, jamais le même deux fois de suite (aucun réglage côté joueur). */
+  function choisirSonDefaite_(){
+    var pool=SONS_DEFAITE.filter(function(x){return x.nom!==dernierSonDefaite;});
+    if(!pool.length)pool=SONS_DEFAITE;
+    return pool[Math.floor(Math.random()*pool.length)];
+  }
   function defaite_(){
-    return jouerWebAudio_(1900,defaiteConstruire_);
+    var son=choisirSonDefaite_();
+    dernierSonDefaite=son.nom;
+    return jouerWebAudio_(son.duree,son.construire);
+  }
+  /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
+  function ecouterDefaite_(nom){
+    var son=SONS_DEFAITE.filter(function(s){return s.nom===nom;})[0];
+    if(!son)return Promise.resolve();
+    return jouerWebAudio_(son.duree,son.construire);
   }
 
   /*
@@ -1954,6 +2088,7 @@
       victorySounds:SONS_VICTOIRE.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
       timeMachine:{duree:3000,construire:voyageTempsConstruire_},
       defeat:{duree:1900,construire:defaiteConstruire_},
+      defeatSounds:SONS_DEFAITE.map(function(x){return{nom:x.nom,duree:x.duree,construire:x.construire};}),
       purchaseGold:{duree:1000,construire:orConstruire_},
       equip:{duree:520,construire:equipConstruire_},
       skills:SONS_COMPETENCE.map(function(x){return{nom:x.id,duree:x.duree,construire:x.construire};}),
@@ -1979,6 +2114,9 @@
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
+    /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
+    defeatList:function(){return SONS_DEFAITE.map(function(x){return{nom:x.nom,libelle:x.libelle};});},
+    previewDefeat:ecouterDefaite_,
     flee:function(){return demander_("flee");},
     voiceDone:function(){return demander_("voiceDone");},
     laugh:function(){return demander_("laugh");},

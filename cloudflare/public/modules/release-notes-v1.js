@@ -32,6 +32,7 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept : l’élégie d’origine, un trombone triste, un glas de cloche, un « game over » d’arcade, un disque qui s’arrête, une toccata sinistre à l’orgue et un orgue de foire triste.',
             'Dans les menus mis à jour en direct, le cadre lumineux et les particules des barres actives, les boutons de pourcentage personnalisés et la scène du Blood Magic ne disparaissent plus un instant à chaque mise à jour de la page.',
             'Le menu NGU ne clignote plus toutes les quelques secondes : les tuyaux, pourcentages et niveaux restent fluides au moment où la page se met à jour.',
             'L’éditeur de textes et de voix de l’administrateur retrouve maintenant les personnages enregistrés à la réouverture d’un texte, au lieu de tout remettre en un seul bloc.',
@@ -40,14 +41,16 @@
           {menu:'aventure', titre:'Aventure', points:[
             'Un appui sur le bouton Aventure du menu, d’où que tu viennes, t’amène sur l’onglet Aventure avec l’écran entièrement remonté.',
             'La comparaison de deux objets tient maintenant dans une seule fenêtre : le premier objet en haut, le deuxième en dessous, qui défile si l’écran est trop court.',
-            'Sur téléphone, la barre à côté de l’inventaire suit enfin ton doigt : glisser vers le bas fait descendre le repère (et la page), glisser vers le haut le fait monter, comme une vraie barre de défilement.',
+            'Sur téléphone, le repère de la barre à côté de l’inventaire descend maintenant quand tu glisses le doigt vers le bas et monte quand tu glisses vers le haut ; le défilement de la page n’a pas changé.',
             'Dans l’inventaire, la fiche d’un objet ne s’ouvre plus au survol de la souris : elle s’ouvre uniquement par un clic sur l’objet.',
             'Les cases du coffre, sets compris, ont maintenant exactement la taille des cases de l’inventaire (sur PC comme sur téléphone).',
           ]},
           {menu:'combat', titre:'Fight Boss', points:[
+            'Quatre nouveaux sons accueillent l’apparition d’un boss quand tu passes au suivant : un orgue de cathédrale, une boîte à musique qui ralentit, une fanfare funèbre et un gong.',
             'Si le bandeau « Boss vaincu » reste affiché, le jeu redemande l’état au serveur au bout de quelques secondes et affiche le boss suivant tout seul : plus besoin de changer de menu ni de faire Fight puis Fuite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Dans Blood Magic, les animations ne se perdent plus : la coupure du papier, la punaise, le jet de la sangsue, le fil barbelé et la banque partent à chaque rituel terminé, même quand le compteur affiché ne bouge pas, et un redessin de la page ne les interrompt plus.',
             'Les cadres des rituels deviennent de plus en plus sombres et travaillés du premier au dernier : fond de plus en plus noir, double anneau, coins en pointe, liseré lumineux en haut puis en bas, sans animation.',
           ]},
           {menu:'titans', titre:'Titans', points:[

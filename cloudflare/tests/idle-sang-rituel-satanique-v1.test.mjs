@@ -116,7 +116,7 @@ assert.ok(src.includes("animation:bmTourne 40s linear infinite;animation-play-st
 // Sans énergie, le doigt et le bras sortent de la case vers la gauche, et reviennent quand on en place (Norman, 2026-10-11).
 assert.ok(src.includes(".bm-hors :is(.bm-doigt,.bm-punaise,.bm-goutte-doigt)") && src.includes("translate:-340px 0") && src.includes("translate:-540px 0") && src.includes("var etatHors={}"), "doigt et bras glissent hors de la case sans énergie");
 // L'animation ne démarre qu'une fois le doigt / le bras en place (Norman, 2026-10-11).
-assert.ok(src.includes("installeA[id]=performance.now()+1250") && src.includes("sec<=PERIODE_BOUCLE&&progresse&&pret") && src.includes("n>avant&&pret"), "animation retardée jusqu'à la mise en place");
+assert.ok(src.includes("installeA[id]=performance.now()+1250") && src.includes("sec<=PERIODE_BOUCLE&&progresse&&pret") && src.includes("if(!pret||attenteOr)return false;"), "animation retardée jusqu'à la mise en place (la fin de niveau part de l'événement « rituel terminé », seulement si la scène est en place)");
 // Sans Magie, la sangsue garde le sang déjà absorbé, figé (Norman, 2026-10-11) ; son œil fermé ne laisse pas de blanc au-dessus.
 assert.ok(src.includes("var memoireSang={}") && src.includes(".bm-paquets-corps:has(.bm-paquet.on){display:block}") && src.includes("animation-play-state:paused!important") && src.includes("M-2 -32 L26 -32"), "sang figé et paupière complète");
 // La punaise et la feuille s'approchent pendant tout le niveau (Norman, 2026-10-11).

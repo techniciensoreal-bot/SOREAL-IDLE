@@ -45,8 +45,20 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
     Array.prototype.slice.call(a.attributes).forEach(function(at){
       if(!b.hasAttribute(at.name)&&!vivant&&attributsGardes.indexOf(at.name)===-1)a.removeAttribute(at.name);
     });
+    /*
+     * data-morph-classes-gardees="<expression>" (présent dans le HTML ET sur l'élément) : les classes de l'élément qui correspondent à l'expression sont posées et retirées par un module (ex. bm-coup, bm-installe, bm-marque de la
+     * scène de Blood Magic) : le redessin ne les retire pas — retirer « bm-coup » en pleine coupure l'interrompait (Norman, 2026-10-15 : plus jamais de bug d'animation dans Blood Magic ; AGENTS.md, règle n°4).
+     */
+    let motifClasses=null;
+    try{motifClasses=a.hasAttribute('data-morph-classes-gardees')?new RegExp(a.getAttribute('data-morph-classes-gardees')):null;}catch(_e){motifClasses=null;}
     Array.prototype.slice.call(b.attributes).forEach(function(at){
-      if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value);
+      let valeur=at.value;
+      if(at.name==='class'&&motifClasses){
+        const nouvelles=valeur.split(/\s+/).filter(Boolean);
+        (a.getAttribute('class')||'').split(/\s+/).forEach(function(k){if(k&&motifClasses.test(k)&&nouvelles.indexOf(k)===-1)nouvelles.push(k);});
+        valeur=nouvelles.join(' ');
+      }
+      if(a.getAttribute(at.name)!==valeur)a.setAttribute(at.name,valeur);
     });
     const tag=a.tagName;
     if(tag==='SCRIPT'||tag==='STYLE'){

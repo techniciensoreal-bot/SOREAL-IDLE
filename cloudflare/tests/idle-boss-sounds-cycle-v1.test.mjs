@@ -40,8 +40,8 @@ function contexteEspion() {
 }
 const moteur = nouveauMoteur({});
 const sons = moteur.builders.bossSounds;
-assert.equal(sons.length, 10, "le son d'origine + 9 nouveaux");
-assert.equal(new Set(sons.map((s) => s.nom)).size, 10, "dix noms différents");
+assert.equal(sons.length, 14, "le son d'origine + 9 nouveaux + 4 retenus de Norman (2026-10-15 : cathédrale, boîte lente, fanfare funèbre, gong)");
+assert.equal(new Set(sons.map((s) => s.nom)).size, 14, "quatorze noms différents");
 assert.equal(sons[0].nom, "psycho", "le premier est le film d'horreur (les quatre coups d'archet seuls)");
 assert.equal(sons[9].nom, "boite-a-musique", "le dixième : bourdon + comptine (l'accompagnement du psycho)");
 assert.ok(!sons.some((s) => s.nom === "portail"), "plus de portail");
@@ -55,22 +55,22 @@ for (const son of sons) {
   assert.ok(Math.max(...fins) <= son.duree / 1000 + 0.15, son.nom + " : ne dépasse pas sa durée (" + Math.max(...fins) + " s)");
   signatures.add(JSON.stringify(c.journal));
 }
-assert.equal(signatures.size, 10, "aucun son identique à un autre");
+assert.equal(signatures.size, 14, "aucun son identique à un autre");
 
 // --- l'ordre : un par boss, puis on repart au premier ---
 {
   const stockage = {};
   const m = nouveauMoteur(stockage);
   const joues = [];
-  for (let i = 0; i < 12; i += 1) {
+  for (let i = 0; i < 16; i += 1) {
     assert.equal(m.bossAppear(), true);
     await attendre(5);
     // laisser la file avancer : chaque son attend la fin du précédent (~30 ms sans périphérique audio)
     for (let k = 0; k < 40 && m.debugState().active; k += 1) await attendre(10);
     joues.push(m.dernierSonBoss());
   }
-  assert.deepEqual(joues.slice(0, 10), sons.map((s) => s.nom), "les dix sons dans l'ordre, un par boss");
-  assert.deepEqual(joues.slice(10), [sons[0].nom, sons[1].nom], "après le dixième, retour au premier");
+  assert.deepEqual(joues.slice(0, 14), sons.map((s) => s.nom), "les quatorze sons dans l'ordre, un par boss");
+  assert.deepEqual(joues.slice(14), [sons[0].nom, sons[1].nom], "après le quatorzième, retour au premier");
   assert.equal(stockage.soreal_idle_boss_gong_index_v1, "2", "le rang suivant est mémorisé sur l'appareil");
   // nouvelle visite : la suite continue
   const m2 = nouveauMoteur(stockage);
@@ -116,7 +116,7 @@ assert.equal(signatures.size, 10, "aucun son identique à un autre");
   const notes = c.journal.filter((x) => x[0] === "osc.freq" && x[1] === "set").map((x) => x[2]);
   for (const f of [440, 349, 294, 220]) assert.ok(notes.includes(f), "note " + f);
   const source = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-  assert.ok(source.includes("function defaiteConstruire_(c){") && source.includes("return jouerWebAudio_(1900,defaiteConstruire_);"));
+  assert.ok(source.includes("function defaiteConstruire_(c){") && source.includes('{nom:"elegie",libelle:"Élégie (le son d’origine)",duree:1900,construire:defaiteConstruire_}'));
   assert.ok(!source.includes("frequency:600,frequencyEnd:85,decay:2.2,delay:.10"), "l'ancien son (simple descente grave) est remplacé");
 }
 

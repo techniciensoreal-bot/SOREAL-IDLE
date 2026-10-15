@@ -593,7 +593,7 @@ function scene(opts){
   demarrer();
   suivantVu[opts.id]=pal.fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
-  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-morph-classes-gardees="^bm-" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       bibliotheque(opts.rang)+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+
@@ -728,7 +728,32 @@ var etatHors={},installeA={};
  */
 var PAQ_CASES=6;
 var memoireSang={};
+/*
+ * PHASE D'UN RITUEL : toutes les animations de la scène (approche de la punaise et de la feuille, sangsue, fil barbelé, banque) sont calées sur l'avancement du niveau en cours. Il se lisait sur l'animation CSS de la barre du moteur
+ * (getAnimations()[0]) : cette animation est annulée et recréée à chaque correction de la synchro, disparaît quand la barre est figée, et le premier objet de la liste n'est pas toujours le bon — d'où des animations qui ne partaient
+ * pas, ou partaient à contretemps (Norman, 2026-10-15 : « plus jamais un seul bug d'animation dans Blood Magic »). L'avancement est maintenant calculé EXACTEMENT comme la barre le calcule (soreal-idle-ui.js : repère +
+ * temps écoulé, modulo 1), à partir de l'état du rituel : même valeur, sans dépendre d'aucun objet d'animation. La lecture de la barre ne sert plus que de secours quand l'état est inconnu.
+ */
+var vueRituelMemo={};
+function phaseRituelEtat(id){
+  var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
+  var vis=etat&&etat.__bloodMagicVisualV1,v=vis&&typeof vis==='object'?vis[id]:null;
+  var maintenant=typeof performance!=='undefined'?performance.now():Date.now();
+  if(v)vueRituelMemo[id]={v:v,vu:maintenant};
+  else{
+    /* la vue disparaît un instant à chaque synchro : on garde la dernière quelques secondes */
+    var m=vueRituelMemo[id];
+    if(m&&maintenant-m.vu<3000)v=m.v;
+  }
+  if(!v)return null;
+  var sec=Number(v.secondsPerCompletion),eta=Number(v.etaSeconds);
+  if(!(sec>0)||!isFinite(eta))return null;
+  var ecoule=Math.max(0,(maintenant-(v.at||maintenant))/1000);
+  return Math.max(0,Math.min(.999999,((1-eta/sec)+ecoule/sec)%1));
+}
 function phaseBarre(sc){
+  var phase=phaseRituelEtat(sc.getAttribute('data-bm-id'));
+  if(phase!=null)return phase;
   var bar=sc.querySelector('.bm-sang');
   var ab=bar&&(bar.__idleAugAnimationV217||(typeof bar.getAnimations==='function'?bar.getAnimations()[0]:null));
   var t=ab&&ab.effect&&typeof ab.effect.getComputedTiming==='function'?ab.effect.getComputedTiming():null;
@@ -1165,13 +1190,19 @@ function sangsue(sc,sec,actif){
   memoireSang[sc.getAttribute('data-bm-id')]={cle:cle,m:m,P:P,t:tm,on:om,niv:niv,at:performance.now()};
 }
 /* Le jet de la sangsue part au moment précis où le sang arrive au bout de son ventre : en boucle, son horloge est recalée sur celle de la barre (même phase, début du jet = barre pleine qui repart de zéro). */
+/* Animation CSS (@keyframes) d'un élément : celle qui porte un NOM d'animation. getAnimations()[0] pouvait désigner une transition (ordre non garanti) et caler ou mesurer la mauvaise (Norman, 2026-10-15). */
+function animationCss(el){
+  var l=el&&typeof el.getAnimations==='function'?el.getAnimations():[],i;
+  for(i=0;i<l.length;i++)if(l[i].animationName)return l[i];
+  return l[0]||null;
+}
 function aligner(sc){
-  var bar=sc.querySelector('.bm-sang'),f=sc.querySelector('.bm-filet');
-  if(!bar||!f||typeof f.getAnimations!=='function')return;
-  var ab=bar.__idleAugAnimationV217||(typeof bar.getAnimations==='function'?bar.getAnimations()[0]:null),af=f.getAnimations()[0];
-  if(!ab||!af||!ab.effect||!af.effect)return;
-  var tb=ab.effect.getComputedTiming(),tf=af.effect.getComputedTiming();
-  var pb=tb&&tb.progress!=null?Number(tb.progress):null,df=tf?Number(tf.duration):0;
+  var f=sc.querySelector('.bm-filet');
+  if(!f||typeof f.getAnimations!=='function')return;
+  var af=animationCss(f);
+  if(!af||!af.effect)return;
+  var tf=af.effect.getComputedTiming();
+  var pb=phaseBarre(sc),df=tf?Number(tf.duration):0;
   if(pb==null||!(df>0)||tf.progress==null)return;
   var d=Math.abs(pb-Number(tf.progress));
   if(Math.min(d,1-d)>0.05)af.currentTime=pb*df;
@@ -1238,7 +1269,7 @@ function rythme(sc,id,n,avant){
   /* Boucle : la trace est posée à l'instant EXACT du premier impact, lu sur l'animation en cours (jamais sur une minuterie indépendante). */
   if(mode==='boucle'&&progresse&&!sc.classList.contains('bm-marque')&&!sc.__marq){
     var cible=src==='punaise'?sc.querySelector('.bm-punaise'):sc.querySelector('.bm-papier');
-    var an=cible&&typeof cible.getAnimations==='function'?cible.getAnimations()[0]:null;
+    var an=animationCss(cible);
     var ct=an&&an.effect&&typeof an.effect.getComputedTiming==='function'?an.effect.getComputedTiming():null;
     var dur=ct?Number(ct.duration):0,prog=ct&&ct.progress!=null?Number(ct.progress):null;
     if(dur>0&&prog!=null){
@@ -1246,17 +1277,46 @@ function rythme(sc,id,n,avant){
       sc.__marq=setTimeout(function(){poserMarque(sc,id);},delai);
     }
   }
-  if(mode!=='boucle'&&n>avant&&src==='sucon'){
+  /*
+   * FIN DE NIVEAU : l'animation (coupure, punaise, jet…) part de l'ÉVÉNEMENT « rituel terminé » envoyé par le tick de soreal-idle-ui.js, jamais d'une variation du chiffre affiché (Norman, 2026-10-15 : « l'animation de
+   * cinquante coupures ne se déclenche pas toujours : on voit le papier bouger mais jamais couper »). Le compteur affiché est borné (blood-magic-v1.js, avance max) et peut rester immobile alors que des rituels se terminent :
+   * le compter ne détectait alors plus rien. La variation du chiffre reste un secours (serveur confirmant des rituels que l'événement n'a pas vus), sans doublon dans la seconde et demie qui suit un événement.
+   */
+  if(n>avant&&!(finRecue[id]&&performance.now()-finRecue[id]<1500))finDeNiveau(sc,id,src);
+}
+var finRecue={};
+function finDeNiveau(sc,id,src){
+  if(sc.getAttribute('data-rythme')==='boucle')return false;
+  if(src!=='punaise'&&src!=='papier'&&src!=='sucon'&&src!=='fil')return false;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+  var ligneOr=document.getElementById('sorealIdleBloodEtaLineV1_'+id);
+  var attenteOr=src!=='sucon'&&!!ligneOr&&/il manque .* Or/i.test(ligneOr.textContent||'');
+  var pret=sc.classList.contains('bm-installe');
+  if(src==='sucon'){
     /* un niveau vient de se terminer : le sang arrivé au bout du tuyau coule UNE fois dans la chope (jet qui s'allonge puis s'effile), jamais en continu */
     sc.classList.remove('bm-jet');void sc.offsetWidth;sc.classList.add('bm-jet');
     clearTimeout(sc.__jet);sc.__jet=setTimeout(function(){sc.classList.remove('bm-jet');},2100);
-  }else if(mode!=='boucle'&&n>avant&&pret&&!attenteOr&&src==='fil'){
-    /* quatrième rituel : l'animation de fin de niveau est pilotée par filTic (voir plus bas) */
-  }else if(mode!=='boucle'&&n>avant&&pret&&!attenteOr){
-    sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
-    clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
-    clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
+    return true;
   }
+  if(src==='fil')return false;   /* quatrième rituel : l'animation de fin de niveau est pilotée par filTic (voir plus bas) */
+  if(!pret||attenteOr)return false;
+  sc.classList.remove('bm-coup');void sc.offsetWidth;sc.classList.add('bm-coup');
+  clearTimeout(sc.__marq);sc.__marq=setTimeout(function(){poserMarque(sc,id);},Math.round(PART_IMPACT[src]*900));
+  clearTimeout(sc.__coup);sc.__coup=setTimeout(function(){sc.classList.remove('bm-coup');},1000);
+  return true;
+}
+/* Événement « rituel terminé » (tick de soreal-idle-ui.js) : la scène du rituel concerné joue sa fin de niveau tout de suite, si elle est à l'écran. */
+if(typeof window!=='undefined'&&window.addEventListener){
+  window.addEventListener('soreal-rituel-termine',function(ev){
+    try{
+      var id=ev&&ev.detail&&ev.detail.id;
+      if(!id)return;
+      var sc=document.querySelector('.bm-scene[data-bm-id="'+id+'"]');
+      if(!sc||sc.__vis===false)return;
+      var src=sc.getAttribute('data-source');
+      if(finDeNiveau(sc,id,src))finRecue[id]=performance.now();
+    }catch(_e){}
+  });
 }
 var derniers={};
 /*
@@ -1639,6 +1699,8 @@ function majVases(){
   var sc=document.querySelectorAll('.bm-scene');
   for(var i=0;i<sc.length;i++)majScene(sc[i]);
 }
+/* Après un redessin de la page (règle « aucun redessin visible », AGENTS.md n°4) : rythme, durée de boucle (--bm-t), classes et approche sont remis tout de suite, dans la même tâche, au lieu d'attendre le prochain tour de 400 ms. */
+(window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){if(document.querySelector('.bm-scene'))majVases();});
 var tic=0;
 function demarrer(){
   if(tic||typeof setInterval!=='function')return;
