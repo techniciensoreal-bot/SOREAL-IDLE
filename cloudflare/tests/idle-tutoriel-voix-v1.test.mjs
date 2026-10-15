@@ -22,3 +22,5 @@ assert.ok(lire("public/modules/textes-admin-v1.js").includes("rafraichissementPr
 const h=lire("public/modules/admin-histoires-v1.js"),x=lire("public/modules/textes-admin-v1.js");
 assert.ok(h.includes('data-fv="regenerer"')&&h.includes("opts.regenerer(hash,n)")&&h.includes("lancerGeneration_([trouve],'Bloc '+n)"));
 assert.ok(x.includes("lancerGeneration_(o,[trouve],'Bloc '+n)"));
+/* réouverture d'un texte enregistré : les personnages (texte « parle ») reviennent, au lieu d'un seul bloc */
+assert.ok(/base\.parle=parleSauve/.test(x)&&x.includes("adm.parle"));

@@ -1311,6 +1311,8 @@ function editer_(cle){
     var s=surchargeComplete_(cle);
     var adm=(admin.popups||[]).filter(function(p){return p&&p.cle===cle;})[0];
     var base=s?{champs:s.champs,voix:Array.isArray(s.voix)?s.voix:[]}:null;
+    /* Le texte DIT (« parle », avec les balises de voix) est ce qui redonne les personnages : sans lui, tout revenait en un seul bloc à la réouverture (Norman, 2026-10-15). */
+    if(base){var parleSauve=s.parle&&typeof s.parle==='object'&&Object.keys(s.parle).length?s.parle:(adm&&adm.parle&&typeof adm.parle==='object'?adm.parle:null);if(parleSauve)base.parle=parleSauve;}
     if(base&&adm){base.voixTextes=adm.voixTextes||{};base.voixFaites=adm.voixFaites||{};}
     ouvrir_(cle,def,base,def.original());
   };
