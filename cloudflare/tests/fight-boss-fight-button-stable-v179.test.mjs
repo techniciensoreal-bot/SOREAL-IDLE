@@ -38,8 +38,9 @@ assert.match(
   "Après un vrai rendu, le menu réellement peint doit être mémorisé."
 );
 
-const menuStart=source.indexOf("function menuIdleV28_(");
-assert.ok(menuStart>=0,"menuIdleV28_ introuvable");
+/* menuIdleV28_ est l'enveloppe du bouton Aventure (double appui, 2026-10-15) ; le corps du menu est dans menuIdleCoeurV28_ */
+const menuStart=source.indexOf("function menuIdleCoeurV28_(");
+assert.ok(menuStart>=0,"menuIdleCoeurV28_ introuvable");
 const menuEnd=source.indexOf("\n      function ",menuStart+20);
 const menuBody=source.slice(menuStart,menuEnd);
 assert.match(

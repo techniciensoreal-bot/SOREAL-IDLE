@@ -543,7 +543,24 @@ function preset(source,fraction){
   if(typeof window.__saisirMontantAugmentIdleV1__==='function')window.__saisirMontantAugmentIdleV1__(valeur);
 }
 
+/*
+ * Après chaque redessin de la page par la synchro (toutes les 4 s) : le redessin remet un instant le liquide, les pourcentages, les niveaux et les durées aux valeurs du serveur, puis la boucle d'animation les corrige à l'image
+ * suivante — un petit saut de tous les tuyaux à intervalle régulier (Norman, 2026-10-15 : « la page ngu se redessine à intervalle régulier »). On rejoue donc tout de suite la boucle, dans la même tâche : aucune image n'est
+ * peinte entre le redessin et la correction.
+ */
+function apresRedessin_(){
+  try{
+    var racine=document.querySelector('[data-nl-racine]');
+    if(!racine)return;
+    Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-eta]'),function(e){e.__nlTexte=null;});
+    dernierComplet=0;
+    tick_();
+  }catch(_e){}
+}
+/* Inscription à la règle « aucun redessin visible » (voir soreal-idle-ui.js, rafraichirMenuRacineIdleV28_ et AGENTS.md règle n°4). */
+(window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(apresRedessin_);
 window.__SOREAL_IDLE_NGU_LABO_V1__={
+  apresRedessin:apresRedessin_,
   resume:function(o){resumeOuvert=Boolean(o);},
   page:page,
   couleurs:COULEURS,

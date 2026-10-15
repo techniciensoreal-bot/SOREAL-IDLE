@@ -36,3 +36,11 @@ assert.ok(e.includes("function fondTitan(id)")&&e.includes("function poserFond(e
   for(const id of ["t1","t2","t3","t4","t5","t6","t7","nerd","godmother","hungers","lobster","amalgamate","tippi","traitor"]) assert.ok(new RegExp("\n    "+id+":\{base:").test(bloc),"fond du titan "+id);
   assert.ok(!/url\(|@keyframes|animation/.test(bloc),"fonds : ni image ni animation");
 }
+/* Renaissance : la page remonte tout en haut (pas seulement la borne) */
+assert.ok(ui.includes("const toutEnHaut=function(){window.scrollTo(0,0);") && ui.includes("setTimeout(toutEnHaut,700);") && !ui.includes("borneRenaissance.scrollIntoView"), "après une Renaissance : page scrollée au maximum en haut");
+/* NGU : le redessin de la synchro ne laisse plus passer une image avec les valeurs du serveur (la boucle d'animation est rejouée dans la même tâche) */
+{
+  const ngu = lire("public/modules/ngu-labo-v1.js");
+  assert.ok(ngu.includes("function apresRedessin_()") && ngu.includes("e.__nlTexte=null;") && ngu.includes("dernierComplet=0;\n    tick_();") && ngu.includes("apresRedessin:apresRedessin_"));
+  assert.ok(ui.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__") && ngu.includes("push(apresRedessin_)"));
+}

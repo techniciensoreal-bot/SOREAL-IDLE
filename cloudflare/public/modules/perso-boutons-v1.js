@@ -206,12 +206,17 @@
       tampon.innerHTML=html;
       var clear=cadre.querySelector('button.clear');
       while(tampon.firstChild){
-        if(clear)cadre.insertBefore(tampon.firstChild,clear);else cadre.appendChild(tampon.firstChild);
+        var noeud=tampon.firstChild;
+        /* Règle « aucun redessin visible » (AGENTS.md n°4) : le redessin périodique de la page laisse ces boutons en place (sinon ils disparaissaient ~80 ms toutes les 4 s). */
+        if(noeud.nodeType===1)noeud.setAttribute('data-morph-garder','');
+        if(clear)cadre.insertBefore(noeud,clear);else cadre.appendChild(noeud);
       }
     }
     cadre.setAttribute('data-perso-pct-cle',cle);
   }
 
+  /* Le morph ne retire pas la marque qui évite de redécorer le cadre à chaque redessin (voir modules/morph-v1.js). */
+  (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-perso-pct-cle');
   var enCours=false;
   function decorer(force){
     if(typeof document==='undefined'||typeof document.querySelectorAll!=='function'||document.hidden)return;

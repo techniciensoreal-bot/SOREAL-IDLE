@@ -275,3 +275,21 @@ nouvelle, sans qu'il faille le redemander :
 - les points qui défilent restent masqués aux deux bouts du liquide (masque en dégradé) ;
 - `prefers-reduced-motion` coupe l'animation.
 Test de garde : `cloudflare/tests/idle-barres-boucles-parfaites-v1.test.mjs` (à étendre pour une nouvelle barre animée).
+
+## Règle n°4 (redessin périodique) : aucun redessin visible
+
+Demande de Norman (2026-10-15 : « quand je vais dans la page NGU, elle se redessine à intervalle régulier… fais en sorte que ça ne s'installe plus jamais ») : une page mise à jour en direct ne doit JAMAIS montrer de
+clignotement, de saut ni de disparition-réapparition, à aucun intervalle.
+
+Contexte : tant qu'un des menus de `IDLE_MENUS_VIVANTS_V1` (soreal-idle-ui.js : ngu, wandoos, yggdrasil, diggers, beards, wishes, hacks, daycare) est ouvert, une synchro part toutes les 4 s et la page est redessinée par le
+morph (`modules/morph-v1.js`), qui compare le HTML neuf à la page et RETIRE tout ce que le HTML neuf ne contient pas. Or plusieurs modules AJOUTENT des choses à la page après le rendu : un redessin les retirait, puis le
+module les remettait 80 à 400 ms plus tard — d'où un clignotement à intervalle régulier (couche de particules et cadre lumineux des barres actives, boutons de pourcentage personnalisés, tuyaux de NGU, scène du Blood Magic).
+Règles pour tout module qui modifie la page après le rendu :
+- un bloc AJOUTÉ (couche, bouton…) porte `data-morph-garder` : le morph le laisse où il est ;
+- un attribut POSÉ par le module sur un élément de la page s'inscrit dans `window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__` (liste de noms) ; un élément dont le module dessine lui-même tous les attributs (toile,
+  tracé SVG) porte `data-morph-vivant` (descendants compris) ;
+- un élément ANIMÉ par le module (valeurs réécrites à chaque image) inscrit une fonction dans `window.__SOREAL_IDLE_APRES_REDESSIN_V1__` : elle est appelée juste après le redessin, dans la même tâche, pour remettre
+  l'état animé avant que l'image soit peinte ;
+- jamais d'attente (setTimeout, minuterie) entre le redessin et la remise en état : tout ce qui est visible doit revenir dans la même tâche ou la prochaine image d'animation.
+Contrôle : menu ouvert, dans la console, `await window.__auditerRedessinIdleV1__()` (ou `('ngu')`) force un redessin et liste les nœuds remplacés et les attributs perdus ; tout doit être vide, hormis les `nb-suf` (couleur des
+nombres, recréés dans la même image) et le texte. À refaire pour chaque menu touché, et pour tout nouveau menu ajouté à `IDLE_MENUS_VIVANTS_V1`. Test de garde : `cloudflare/tests/idle-redessin-invisible-v1.test.mjs`.

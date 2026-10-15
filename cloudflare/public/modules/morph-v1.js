@@ -34,8 +34,16 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
     if(a.classList&&a.classList.contains('soreal-idle-page-root-v28')&&(a.getAttribute('data-menu')||'')!==(b.getAttribute('data-menu')||'')){
       Array.prototype.slice.call(a.querySelectorAll('[data-morph-garder]')).forEach(function(g){if(g.parentNode)g.parentNode.removeChild(g);});
     }
+    /*
+     * Attributs posés par d'autres modules après le rendu (ex. data-actif des barres actives) : le HTML neuf ne les contient pas, mais ils ne sont PAS retirés — sinon, à chaque redessin périodique, le cadre lumineux et les
+     * particules disparaissaient puis revenaient jusqu'à 400 ms plus tard (Norman, 2026-10-15 : « la page se redessine à intervalle régulier »). Un module s'inscrit en ajoutant les noms dans
+     * window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__ (AGENTS.md, règle n°4).
+     */
+    const attributsGardes=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[];
+    /* data-morph-vivant : un élément dont un module dessine lui-même les attributs (toile, tracé SVG…), descendants compris : le redessin n'en retire jamais aucun (sinon la toile se vidait à chaque redessin). */
+    const vivant=Boolean(a.closest&&a.closest('[data-morph-vivant]'));
     Array.prototype.slice.call(a.attributes).forEach(function(at){
-      if(!b.hasAttribute(at.name))a.removeAttribute(at.name);
+      if(!b.hasAttribute(at.name)&&!vivant&&attributsGardes.indexOf(at.name)===-1)a.removeAttribute(at.name);
     });
     Array.prototype.slice.call(b.attributes).forEach(function(at){
       if(a.getAttribute(at.name)!==at.value)a.setAttribute(at.name,at.value);

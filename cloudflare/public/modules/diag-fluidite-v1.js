@@ -236,4 +236,32 @@
     releverPour:function(mode,releve){perf[mode]=(Array.isArray(perf[mode])?perf[mode]:[]).concat([releve]).slice(-4);}
   };
   window.__diagFluiditeOuvrirV1__=ouvrir_;
+
+  /*
+   * AUDIT DU REDESSIN (Norman, 2026-10-15 : « la page se redessine à intervalle régulier ; fais en sorte que ça ne s'installe plus jamais », AGENTS.md règle n°4). La page de plusieurs menus est redessinée en direct toutes les 4 s
+   * (modules/morph-v1.js compare le HTML neuf à la page). Tout ce qu'un module AJOUTE après le rendu (attributs, couches de particules, boutons) doit survivre à ce redessin ; sinon cela disparaît puis revient quelques
+   * dizaines de millisecondes plus tard, à intervalle régulier. Dans la console, menu ouvert :
+   *     await window.__auditerRedessinIdleV1__()      // ou ('ngu')
+   * -> { menu, remplaces: {élément: nombre}, attributsPerdus: {nom: nombre} }. Les spans « nb-suf » (couleur des nombres) et les textes sont recréés dans la même image : normal.
+   * Tout le reste doit être VIDE ; sinon : data-morph-garder sur le bloc ajouté, ou le nom de l'attribut dans window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__.
+   */
+  window.__auditerRedessinIdleV1__=function(menu){
+    return new Promise(function(fin){
+      if(menu&&typeof window.__menuIdleV28__==='function')try{window.__menuIdleV28__(menu);}catch(_e){}
+      setTimeout(function(){
+        var racine=document.querySelector('.soreal-idle-page-root-v28');
+        if(!racine||typeof window.__rafraichirPageIdleV1__!=='function')return fin({erreur:'page ou outil indisponible'});
+        var noms=function(e){return Array.prototype.map.call(e.attributes,function(a){return a.name;});};
+        var els=Array.prototype.slice.call(racine.querySelectorAll('*')),avant=els.map(noms);
+        window.__rafraichirPageIdleV1__();
+        var remplaces={},perdus={};
+        els.forEach(function(e,i){
+          if(!document.contains(e)){var k=e.tagName+'.'+String(e.className||'').slice(0,26);remplaces[k]=(remplaces[k]||0)+1;return;}
+          var maintenant=noms(e);
+          avant[i].forEach(function(n){if(maintenant.indexOf(n)===-1)perdus[n]=(perdus[n]||0)+1;});
+        });
+        fin({menu:racine.getAttribute('data-menu'),remplaces:remplaces,attributsPerdus:perdus});
+      },menu?1800:0);
+    });
+  };
 })();

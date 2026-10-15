@@ -2020,6 +2020,39 @@
 
       }
 
+      /*
+       * Filet de sécurité « Boss vaincu » (Norman, 2026-10-15 : « il arrive encore souvent que l'image du boss suivant n'apparaisse pas ; ça reste bloqué sur Boss vaincu ; je dois changer de menu ou faire Fight puis Fuite »).
+       * Le bandeau « 🏆 BOSS VAINCU » est posé par-dessus l'image ; il ne disparaît que quand la page est redessinée avec le boss suivant. Toutes les protections précédentes dépendent d'un drapeau de victoire prédite : s'il a
+       * été remis à zéro entre-temps (réponse du serveur, battement, action), plus rien ne relançait le rendu et le bandeau restait. Ici, indépendamment de tout drapeau : tant que CE bandeau est encore à l'écran,
+       * on redemande l'état au serveur (à 3, 6, 10, 15 et 20 s) et on redessine la page avec lui (le serveur fait foi : le boss suivant s'il a confirmé la victoire, sinon le même boss, prêt à être relancé).
+       */
+      function surveillerVictoireFigeeIdleV1_(bandeau){
+        const debut=Date.now();
+        const rendezVous=[3000,6000,10000,15000,20000];
+        let i=0;
+        const attendre=function(){
+          if(i>=rendezVous.length)return;
+          setTimeout(function(){
+            i+=1;
+            if(!bandeau||!bandeau.isConnected||PAGE_ACTIVE!=='idle'||!idleEtat){return;}
+            google.script.run
+              .withSuccessHandler(function(etat){
+                if(!bandeau.isConnected||PAGE_ACTIVE!=='idle'||!etat||!etat.ok||!etat.joueur){attendre();return;}
+                idleVictoireBossLocaleV49=false;
+                idlePrevisionBossV1={actif:false,vaincus:0,debut:0};
+                arreterSurveillanceVictoireBossIdleV1_();
+                idleCombatArmeLocalV206=false;
+                idleEtat=etat.joueur;
+                rendreIdleEtat_({ok:true,joueur:etat.joueur});
+                if(bandeau.isConnected)attendre();
+              })
+              .withFailureHandler(function(){attendre();})
+              .obtenirEtatSorealIdle(SOREAL_SESSION);
+          },Math.max(0,rendezVous[i]-(i?rendezVous[i-1]:0)));
+        };
+        attendre();
+      }
+
       function transitionMortBossIdleV61_(){
         const host=
           document.getElementById(
@@ -2053,6 +2086,7 @@
         host.appendChild(
           overlay
         );
+        surveillerVictoireFigeeIdleV1_(overlay);
 
         if(idleEtat){
           idleEtat.combatBossActif=false;
@@ -5701,6 +5735,11 @@
         }catch(_e){}
         installerMorphIdleV1_(root);
         root.innerHTML=contenuMenuIdleV28_(idleEtat);
+        /*
+         * RÈGLE « aucun redessin visible » (AGENTS.md, règle n°4) : tout module qui anime lui-même des éléments de la page (liquide, compteurs, durées…) s'inscrit dans window.__SOREAL_IDLE_APRES_REDESSIN_V1__ ;
+         * ses éléments sont remis à l'état animé ICI, dans la même tâche que le redessin, donc sans image intermédiaire aux valeurs du serveur.
+         */
+        try{(window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).forEach(function(f){try{f();}catch(_e){}});}catch(_e){}
         /* Calage immédiat (avant toute image), puis de nouveau quand la mise en page a bougé. */
         const ancre_ok=ancreClic?restaurerAncreClicIdleV1_(ancreClic,xAvant):false;
         requestAnimationFrame(function(){
@@ -9445,11 +9484,16 @@
               ok:true,
               joueur:res.joueur
             });
+            /*
+             * Norman (2026-10-15) : « on est bien sur la borne, mais il manque la partie du haut : il faut vraiment que la page soit scrollée au max en haut ». scrollIntoView sur la borne la collait en haut de l'écran et masquait tout ce qui
+             * la précède ; on remonte donc tout en haut de la page, et on le refait un instant plus tard (la page se redessine et change de hauteur juste après la Renaissance).
+             */
             try{
-              requestAnimationFrame(function(){
-                const borneRenaissance=document.querySelector('.soreal-idle-page-root-v28[data-menu="combat"] .borne-v2');
-                if(borneRenaissance&&borneRenaissance.scrollIntoView)borneRenaissance.scrollIntoView({block:'start'});else window.scrollTo(0,0);
-              });
+              const toutEnHaut=function(){window.scrollTo(0,0);if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;};
+              toutEnHaut();
+              requestAnimationFrame(function(){toutEnHaut();});
+              setTimeout(toutEnHaut,250);
+              setTimeout(toutEnHaut,700);
             }catch(_e){}
 
             messageFlottantIdleV32_(
@@ -18641,6 +18685,7 @@
       /* Page Titans (modules/titans-v1.js) : état à jour du joueur et rafraîchissement de la page, pour que la carte d'un titan vaincu passe toute seule en compte à rebours. */
       window.__titansEtatJoueurIdleV1__=function(){return idleEtat;};
       window.__titansRafraichirPageIdleV1__=function(){try{rafraichirMenuRacineIdleV28_();}catch(e){}};
+      window.__rafraichirPageIdleV1__=window.__titansRafraichirPageIdleV1__; /* outil d'audit du redessin (modules/diag-fluidite-v1.js, __auditerRedessinIdleV1__) */
       window.__titanJoueurParalyseIdleV1__=function(maintenant){return titanJoueurParalyseIdleV1_(maintenant);};
       /* Arrête le combat de titan en cours et renvoie en Zone sûre (même effet que choisir la Zone sûre). Faux s'il n'y en avait pas. */
       function arreterCombatTitanIdleV1_(){
@@ -21603,12 +21648,12 @@ function pageAventureIdleV28_(j){
       let idleAdventureComparerEnAttenteV183=false;
 
       function fermerComparaisonObjetAdventureIdleV183_(){
-        const second=document.getElementById('soreal-idle-v138-details-compare-v183');
+        const second=document.getElementById('soreal-idle-v138-details-compare-v183');/* ancien second popup (plus créé : la comparaison tient dans une seule fenêtre) */
         if(second)second.remove();
         idleAdventureComparerPremierV183='';
         idleAdventureComparerEnAttenteV183=false;
         const primary=document.getElementById('soreal-idle-v138-details');
-        if(primary)primary.classList.remove('idle-compare-v183');
+        if(primary){primary.classList.remove('idle-compare-v183');primary.style.maxHeight='';}
       }
       function comparerObjetAdventureIdleV183_(id){
         fermerComparaisonObjetAdventureIdleV183_();
@@ -21633,48 +21678,22 @@ function pageAventureIdleV28_(j){
         afficherDetailsObjetAdventureIdleV138_(second);
         const secondHtml=corps.innerHTML;
 
-        corps.innerHTML=firstHtml;
+        /*
+         * UNE SEULE fenêtre (Norman, 2026-10-15) : « la fenêtre de comparaison ne forme qu'une seule fenêtre, avec le premier objet en haut et le deuxième en dessous ». Les deux fiches sont empilées dans le même
+         * popup (séparées par un « VS »), qui défile si l'écran est trop court ; plus de deuxième popup à déplacer ni à fermer séparément.
+         */
+        corps.innerHTML='<div class="idle-compare-bloc-v1">'+firstHtml+'</div><div class="idle-compare-vs-v1" aria-hidden="true"><span>VS</span></div><div class="idle-compare-bloc-v1">'+secondHtml+'</div>';
         root.style.display='block';
         root.classList.add('idle-compare-v183');
 
-        const clone=root.cloneNode(true);
-        clone.id='soreal-idle-v138-details-compare-v183';
-        clone.classList.add('idle-compare-v183');
-        const cloneBody=clone.querySelector('.soreal-idle-item-popup-body-v1');
-        if(cloneBody){
-          cloneBody.id='soreal-idle-v138-details-body-compare-v183';
-          cloneBody.innerHTML=secondHtml;
-        }
-        const drag=clone.querySelector('.soreal-idle-item-popup-drag-v1');
-        if(drag)drag.id='soreal-idle-v138-details-drag-compare-v183';
-        const close=clone.querySelector('.soreal-idle-item-popup-close-v1');
-        if(close)close.setAttribute('onclick','window.__fermerComparaisonObjetAdventureIdleV183__()');
-
-        document.body.appendChild(clone);
-
         const marge=8;
-        if(window.innerWidth<=600){
-          /* Petit écran : les deux popups s'empilent, pleine largeur (côte à côte ils étaient trop étroits). */
-          const pleine=window.innerWidth-marge*2;
-          root.style.width=pleine+'px';
-          clone.style.width=pleine+'px';
-          root.style.left=marge+'px';
-          clone.style.left=marge+'px';
-          const haut=Math.max(marge,Math.min(root.offsetTop||marge,Math.round(window.innerHeight*0.06)));
-          root.style.top=haut+'px';
-          clone.style.top=Math.max(marge,Math.min(haut+root.offsetHeight+marge,window.innerHeight-clone.offsetHeight-marge))+'px';
-        }else{
-          const largeur=Math.max(140,Math.floor((window.innerWidth-marge*3)/2));
-          root.style.width=Math.min(280,largeur)+'px';
-          clone.style.width=Math.min(280,largeur)+'px';
-          root.style.left=marge+'px';
-          clone.style.left=Math.max(marge,window.innerWidth-Math.min(280,largeur)-marge)+'px';
-          root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
-          clone.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-clone.offsetHeight-marge))+'px';
-        }
+        const largeur=Math.min(window.innerWidth<=600?window.innerWidth-marge*2:320,window.innerWidth-marge*2);
+        root.style.width=largeur+'px';
+        root.style.maxHeight=(window.innerHeight-marge*2)+'px';
+        root.style.left=Math.max(marge,Math.min(root.offsetLeft||marge,window.innerWidth-largeur-marge))+'px';
+        root.style.top=Math.max(marge,Math.min(root.offsetTop||marge,window.innerHeight-root.offsetHeight-marge))+'px';
 
         activerGlisserPopupObjetAdventureIdleV1_(root);
-        activerGlisserPopupObjetAdventureIdleV1_(clone);
         idleAdventureComparerEnAttenteV183=false;
         return true;
       }
@@ -23843,7 +23862,33 @@ function pageAventureIdleV28_(j){
       window.__jouerSonMenuIdleV1__=jouerSonMenuIdleV1_;
 
 
+      /*
+       * Bouton Aventure (Norman, 2026-10-15) : « peu importe dans quel menu on se trouve, un premier appui sur Aventure nous emmène sur l'onglet Aventure, avec l'écran entièrement remonté ; un double clic ou double tap nous
+       * emmène toujours dans Titans (sauf s'il n'est pas encore débloqué) ». Le premier appui agit tout de suite (aucune attente pour deviner un double appui) ; un second appui dans les 0,42 s qui suivent ouvre en plus Titans.
+       */
+      let idleAventureDernierAppuiV1=0;
+      function titansDebloquesIdleV1_(){
+        const a=idleEtat?aventureMetaIdleV47_(idleEtat):null;
+        return Boolean(a&&aventureDebloqueeIdleV47_(idleEtat)&&(Array.isArray(a.titans)?a.titans:[]).some(function(t){return t&&t.progressionUnlocked!==false;}));
+      }
+      function remonterToutEnHautIdleV1_(){
+        const haut=function(){window.scrollTo(0,0);if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0;};
+        haut();
+        requestAnimationFrame(haut);
+        setTimeout(haut,150);
+      }
       function menuIdleV28_(menu){
+        if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1||menu!=='aventure'){menuIdleCoeurV28_(menu);return;}
+        const maintenant=Date.now();
+        const doubleAppui=maintenant-idleAventureDernierAppuiV1<420;
+        idleAventureDernierAppuiV1=doubleAppui?0:maintenant;
+        menuIdleCoeurV28_(menu);
+        if(idleMenuActifV28!=='aventure')return;
+        if(doubleAppui&&titansDebloquesIdleV1_()&&idleVueAventureV1!=='titans')window.__vueAventureIdleV1__('titans');
+        remonterToutEnHautIdleV1_();
+      }
+
+      function menuIdleCoeurV28_(menu){
         /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
         if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1)return;
 

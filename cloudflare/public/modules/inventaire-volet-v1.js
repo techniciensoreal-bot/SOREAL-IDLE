@@ -56,6 +56,12 @@ function hauteurBandeau(){
 function retirer(b){if(b&&b.parentNode)b.parentNode.removeChild(b);}
 
 /* Bouton de la barre de défilement (CSS : --inv-bouton) : sa hauteur suit l'avancement du défilement dans l'inventaire, de la rainure du haut à celle du bas. */
+function mesuresBarre(c,haut){
+  var r=c.getBoundingClientRect();
+  var hb=haut||191;
+  var barre=Math.max(140,(window.innerHeight||0)-hb-22);
+  return {r:r,hb:hb,barre:barre,total:Math.max(1,r.height-barre-8)};
+}
 function majBouton(c,haut){
   try{
     if(!c||!c.style||typeof c.style.setProperty!=='function'||typeof c.getBoundingClientRect!=='function')return;
@@ -104,6 +110,40 @@ function appliquer(){
   var t=ouvert?'▲ Replier l’équipement':'▼ Équipement';
   if(l.textContent!==t)l.textContent=t;
   l.setAttribute('aria-expanded',ouvert?'true':'false');
+}
+
+/*
+ * Glisser sur la barre (Norman, 2026-10-15 : « le repère bouge dans le mauvais sens : quand on remonte, il descend et inversement »). La barre n'était qu'une zone de défilement ordinaire : en glissant le doigt vers le bas, la
+ * PAGE descend avec le doigt, donc le repère MONTAIT. Comme sur une vraie barre de défilement, le repère suit maintenant le doigt : glisser vers le bas fait descendre le repère (la page défile vers le bas), glisser vers le haut le
+ * fait monter. Le déplacement de la page est proportionnel à celui du repère (course du repère = hauteur de la barre moins 86 px, voir majBouton).
+ */
+var railGeste=null;
+function surLaBarre(ev,c){
+  var t=ev.touches&&ev.touches[0];
+  if(!t||!c)return null;
+  var m=mesuresBarre(c,hauteurBandeau());
+  var haut=Math.max(m.r.top,m.hb+8);
+  if(t.clientX<m.r.right-34||t.clientX>m.r.right+6)return null;
+  if(t.clientY<haut||t.clientY>haut+m.barre)return null;
+  return m;
+}
+if(typeof document.addEventListener==='function'){
+document.addEventListener('touchstart',function(ev){
+  railGeste=null;
+  if(!telephone()||!ev.touches||ev.touches.length!==1)return;
+  var c=colonnes();
+  if(!c||c.getAttribute('data-volet')!=='1')return;
+  var m=surLaBarre(ev,c);
+  if(!m)return;
+  railGeste={y0:ev.touches[0].clientY,s0:window.pageYOffset||document.documentElement.scrollTop||0,ratio:m.total/Math.max(1,m.barre-86)};
+},{passive:true,capture:true});
+document.addEventListener('touchmove',function(ev){
+  if(!railGeste||!ev.touches||!ev.touches.length)return;
+  ev.preventDefault();
+  var dy=ev.touches[0].clientY-railGeste.y0;
+  window.scrollTo(0,Math.max(0,railGeste.s0+dy*railGeste.ratio));
+},{passive:false,capture:true});
+['touchend','touchcancel'].forEach(function(n){document.addEventListener(n,function(){railGeste=null;},{passive:true,capture:true});});
 }
 
 setInterval(function(){if(!document.hidden)appliquer();},400);

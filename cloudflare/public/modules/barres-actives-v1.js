@@ -27,7 +27,7 @@ function estActif(texte){
   return /[1-9]/.test(chiffres);
 }
 
-var COUCHE='<span class="part-v1" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>';
+var COUCHE='<span class="part-v1" data-morph-garder aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>';
 
 function css(){
   if(document.getElementById('sorealIdleBarresActivesStyleV1'))return;
@@ -68,6 +68,8 @@ function css(){
   document.head.appendChild(st);
 }
 
+/* Le redessin périodique de la page (morph) laisse en place cette couche de particules et ces attributs : voir modules/morph-v1.js, window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__ (règle « aucun redessin visible », AGENTS.md n°4). */
+(window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-actif','data-barre-active-v1','data-style');
 function balayer(){
   var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu]');
   if(!racine)return;

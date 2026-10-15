@@ -380,7 +380,7 @@ function source(id){
     /* personnage dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagicSucon.webp) ; tant qu'il n'est pas chargé (ou absent), le dessin SVG de secours reste affiché */
     /* planche de bois un peu penchée, dans le bas : le verre et le porte-sangsue (un seul pied à socle, posé sur la planche, avec un rail sur lequel elle repose) sont posés dessus ; la sangsue ne flotte plus dans le vide */
     return use('bm-sym-cou',100,312,'bm-cou')+''+planche('<ellipse cx="238" cy="43" rx="100" ry="9" fill="#000" fill-opacity=".62" filter="url(#bm-f-flou)"/><ellipse cx="140" cy="26" rx="39" ry="6.5" fill="#000" fill-opacity=".6" filter="url(#bm-f-flou)"/>')+'<img class="bm-perso"</svg>'+'<img class="bm-perso" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=BloodMagicSucon.webp"><i class="bm-perso-bas"></i>'+
-      '<img class="bm-socle" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=soccle.webp&v=2"><div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" aria-hidden="true" focusable="false"><path class="tf" fill="#2c0a12" fill-opacity=".92"/><path class="tfl" fill="none" stroke-linecap="round"/></svg><img class="bm-sangsue-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=sangsue.webp&v=2"><canvas class="bm-sangsue-gl" aria-hidden="true"></canvas><i class="bm-trace bm-trace-sucon"></i>'+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
+      '<img class="bm-socle" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=soccle.webp&v=2"><div class="bm-coude" aria-hidden="true"></div><svg class="bm-tube-fond" data-morph-vivant aria-hidden="true" focusable="false"><path class="tf" fill="#2c0a12" fill-opacity=".92"/><path class="tfl" fill="none" stroke-linecap="round"/></svg><img class="bm-sangsue-img" alt="" aria-hidden="true" decoding="async" src="/api/idle/media/bloodmagic?name=sangsue.webp&v=2"><canvas class="bm-sangsue-gl" data-morph-vivant aria-hidden="true"></canvas><i class="bm-trace bm-trace-sucon"></i>'+'<svg class="bm-oeil" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><ellipse cx="12" cy="12" rx="9" ry="10" fill="#fffbe8" stroke="#000" stroke-width="2.4"/><g class="pupille"><circle cx="13.5" cy="13" r="5" fill="#000"/><circle cx="15.2" cy="10.8" r="1.7" fill="#fff"/></g><defs><clipPath id="bm-oeil-clip"><ellipse cx="12" cy="12" rx="9" ry="10"/></clipPath></defs><g clip-path="url(#bm-oeil-clip)"><path class="paupiere" d="M-2 -32 L26 -32 L26 11 C18 8 8 9 -2 14 Z" fill="#3d3a1a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></g></svg><i class="bm-larme"></i><i class="bm-larme l2"></i><i class="bm-larme l3"></i><span class="bm-zzz" aria-hidden="true" data-sans-traduction><i>z</i><i>z</i><i>Z</i></span>';
   }
   if(SOURCES[id]==='papier'){
     /* bras dessiné par Norman, déposé dans R2 (idle/bloodmagic/BloodMagiCoupure.webp) : manche, avant-bras, cicatrices et bracelet */
@@ -1220,6 +1220,9 @@ function rythme(sc,id,n,avant){
   var sec=v?Number(v.secondsPerCompletion):0;
   if(sec>0)secVue[id]=sec;
   var mode='repos';
+  /* Le redessin de la page laisse ce rythme en place (règle « aucun redessin visible », AGENTS.md n°4) : le retirer arrêtait puis relançait l'animation de la scène. */
+  (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
+  if(window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__.indexOf('data-rythme')===-1)window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__.push('data-rythme');
   if(sec>0&&sec<=PERIODE_BOUCLE&&progresse&&pret&&!attenteOr){
     mode='boucle';
     var t=Math.max(PERIODE_MIN,sec),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
@@ -1670,6 +1673,39 @@ function reglesRangs(P){
   return out;
 }
 
+/*
+ * Cadres de rituels : une MONTÉE PROGRESSIVE du premier au dernier (Norman, 2026-10-15 : « les 2 premiers rituels ont un fond rouge et le 3e et + un fond foncé ; je voulais une montée progressive du premier au dernier niveau avec des
+ * cadres de plus en plus sombres et stylés, sans alourdir la page »). Six rangs : le fond s'assombrit à chaque rang (lie-de-vin, puis presque noir), le cadre gagne un anneau puis un double anneau, une lueur de plus en plus
+ * large, des coins en pointe (12, 18 puis 26 px), un liseré en haut (rang 4) puis en haut et en bas (rang 5). Tout est statique et en couches de fond / ombres : aucune animation, aucun filtre, aucun élément ajouté.
+ * Ces règles remplacent celles du thème générique (soreal-idle-themes.css, « data-rang-v1 » du menu sang) pour les cartes de rituels, y compris ses coins dessinés par ::before / ::after (filtre coûteux).
+ */
+function reglesCadresRituels(){
+  var C='#c1213d',B='#ff3a55';
+  var fonds=[['#2e0811','#1a050b',.40],['#290710','#150409',.36],['#230610','#110308',.32],['#1c050c','#0d0206',.28],['#150409','#080204',.24],['#0e0307','#040102',.20]];
+  var coins=[0,0,0,12,18,26];
+  var out=[];
+  for(var r=0;r<fonds.length;r++){
+    var sel='html body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .bm-rituel[data-rang-v1="'+r+'"]';
+    var teinte=r>=5?B:C,couches=[];
+    if(coins[r]>0){
+      var S=coins[r]+'px '+coins[r]+'px';
+      couches.push('linear-gradient(135deg,'+teinte+' 0 50%,transparent 50%) 0 0/'+S+' no-repeat');
+      couches.push('linear-gradient(225deg,'+teinte+' 0 50%,transparent 50%) 100% 0/'+S+' no-repeat');
+      couches.push('linear-gradient(45deg,'+teinte+' 0 50%,transparent 50%) 0 100%/'+S+' no-repeat');
+      couches.push('linear-gradient(315deg,'+teinte+' 0 50%,transparent 50%) 100% 100%/'+S+' no-repeat');
+    }
+    var liseret='linear-gradient(90deg,transparent,'+C+' 25%,'+B+' 50%,'+C+' 75%,transparent)';
+    if(r>=4)couches.push(liseret+' 0 0/100% '+(r>=5?4:3)+'px no-repeat');
+    if(r>=5)couches.push(liseret+' 0 100%/100% 4px no-repeat');
+    couches.push('radial-gradient(ellipse 90% 60% at 50% 0,rgba(150,10,36,'+fonds[r][2]+'),transparent 72%)');
+    couches.push('linear-gradient(170deg,'+fonds[r][0]+','+fonds[r][1]+')');
+    var ombre='inset 0 0 0 2px rgba(210,40,66,'+(0.22+0.09*r).toFixed(2)+')'+(r>=2?',inset 0 0 0 5px rgba(0,0,0,.5)':'')+',0 0 '+(r*5)+'px rgba(220,20,50,'+(0.30+0.04*r).toFixed(2)+'),4px 4px 0 #000';
+    out.push(sel+'{border:3px solid #000!important;background:'+couches.join(',')+'!important;box-shadow:'+ombre+'!important;animation:none!important}');
+    out.push(sel+'::before,'+sel+'::after{content:none!important}');
+  }
+  return out;
+}
+
 function css(){
   if(typeof document.createElement!=='function'||!document.head||document.getElementById(CSS_ID))return;
   var P='html body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 ';
@@ -1690,6 +1726,7 @@ function css(){
     /* Rituel : carte noire cerclée de sang */
     P+'.bm-rituel{position:relative;margin:0;padding:12px 12px 12px;border:3px solid #000;border-radius:14px;background:radial-gradient(ellipse 90% 60% at 50% 0,rgba(150,10,36,.42),transparent 72%),linear-gradient(170deg,#2b0710,#150409);box-shadow:inset 0 0 0 2px rgba(210,40,66,calc(.22 + var(--bm-r,0)*.07)),0 0 calc(var(--bm-r,0)*5px) rgba(220,20,50,.45),4px 4px 0 #000;color:#f3d9de;overflow:hidden}',
     P+'.bm-rituel[data-rang-v1="0"]{--bm-r:0}'+P+'.bm-rituel[data-rang-v1="1"]{--bm-r:1}'+P+'.bm-rituel[data-rang-v1="2"]{--bm-r:2}'+P+'.bm-rituel[data-rang-v1="3"]{--bm-r:3}'+P+'.bm-rituel[data-rang-v1="4"]{--bm-r:4}'+P+'.bm-rituel[data-rang-v1="5"]{--bm-r:5}',
+    reglesCadresRituels().join(''),
     /* Cadres verticaux de taille FIXE (Norman, 2026-10-11) : sur PC ils se rangent côte à côte tant qu'il y a de la place (alignés à gauche, jamais superposés) ; la scène garde la largeur d'un téléphone, donc le bras n'est jamais étiré et PC et téléphone montrent la même chose. */
     P+'.bm-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,324px),324px));grid-auto-rows:auto;gap:12px;align-items:stretch;justify-content:start}',
     /* Téléphone : la colonne unique (324 px) est centrée dans la page au lieu de rester collée à gauche (Norman, 2026-10-11). */

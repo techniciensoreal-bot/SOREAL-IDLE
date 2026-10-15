@@ -2011,13 +2011,16 @@ html,body{overflow-x:hidden}
             object-fit:contain!important;
             border-radius:8px;
           }
+          /* Comparaison : UNE fenêtre, le premier objet en haut, le deuxième dessous (Norman, 2026-10-15) ; elle défile si l'écran est trop court, la poignée reste en haut. */
           .soreal-idle-item-popup-v1.idle-compare-v183{
-            width:min(280px,calc(50vw - 12px));
+            width:min(320px,calc(100vw - 16px));
+            max-height:calc(100vh - 16px);
+            overflow-y:auto;
+            overscroll-behavior:contain;
           }
-          /* Comparaison sur petit écran : les deux popups s'empilent, pleine largeur */
-          @media (max-width:600px){
-            .soreal-idle-item-popup-v1.idle-compare-v183{width:calc(100vw - 16px)}
-          }
+          .soreal-idle-item-popup-v1.idle-compare-v183 .soreal-idle-item-popup-drag-v1{position:sticky;top:0;z-index:2}
+          .idle-compare-vs-v1{display:flex;align-items:center;gap:8px;margin:2px 0;color:#8fa3c9;font:900 12px/1 system-ui,sans-serif;letter-spacing:.2em}
+          .idle-compare-vs-v1::before,.idle-compare-vs-v1::after{content:"";flex:1;height:2px;background:linear-gradient(90deg,transparent,rgba(166,188,229,.55),transparent)}
 
           .soreal-idle-item-popup-v1{
             position:fixed;
