@@ -175,6 +175,82 @@
       ton(c,s,t+2.1,{type:'sine',f0:420,f1:300,d:.28,v:.04,a:.1,vib:[8,10]});
     }}
   ];
+  /*
+   * L'accident (Norman, 2026-10-15 : « un truc liquide avec des pets ») : un pet mouillé qui gargouille, des bulles qui éclatent, deux pets humides de plus, un clapotis et un « splotch » final. Environ 2,4 secondes.
+   */
+  function bulle(c,s,t,f,v){ton(c,s,t,{type:'sine',f0:f,f1:f*1.9,d:.07,v:v||.16,a:.004});}
+  function petMouille(c,s,t,d,f0,f1,v){
+    ton(c,s,t,{type:'sawtooth',f0:f0,f1:f1,d:d,v:v,a:.012,vib:[58,34],filtre:['lowpass',360,4]});
+    souffle(c,s,t,{type:'bandpass',f0:340,f1:170,d:d*.95,v:v*.8,q:3,a:.01});
+    for(var i=0;i<Math.floor(d/.05);i+=1)bulle(c,s,t+i*.05+Math.random()*.02,260+Math.random()*420,.07);
+  }
+  function clapotis(c,s,t,n){for(var i=0;i<n;i+=1)ton(c,s,t+i*.07+Math.random()*.03,{type:'sine',f0:520+Math.random()*500,f1:180,d:.09,v:.1,a:.004});}
+  var ACCIDENT={id:'accident',nom:'Accident liquide',jouer:function(c,s,t){
+    petMouille(c,s,t,.55,118,52,.3);
+    clapotis(c,s,t+.5,4);
+    petMouille(c,s,t+.85,.3,140,70,.26);
+    souffle(c,s,t+1.0,{type:'lowpass',f0:700,f1:200,d:.5,v:.2,q:2,a:.05});
+    petMouille(c,s,t+1.3,.38,105,48,.3);
+    clapotis(c,s,t+1.65,6);
+    ton(c,s,t+1.95,{type:'sine',f0:210,f1:55,d:.28,v:.34,a:.006});
+    souffle(c,s,t+1.95,{type:'lowpass',f0:1500,f1:180,d:.3,v:.34,q:2,a:.004});
+    bulle(c,s,t+2.3,300,.1);
+  }};
+  /*
+   * Bruits de diarrhée à choisir (Norman, 2026-10-15 : « propose-moi des bruits de diarrhée, plusieurs, et je te dirai lesquels mettre ») : huit variantes synthétisées, écoutables dans Réglages (section de développement).
+   */
+  function rafale(c,s,t,n,pas,f0,v){for(var i=0;i<n;i+=1){var tt=t+i*pas;ton(c,s,tt,{type:'sawtooth',f0:f0*(1-i*.05),f1:f0*(.55-i*.03),d:pas*.9,v:v,a:.008,vib:[64,30],filtre:['lowpass',380,4]});souffle(c,s,tt,{type:'bandpass',f0:380,f1:200,d:pas*.85,v:v*.9,q:3,a:.006});}}
+  var DIARRHEES=[
+    {id:'jet',nom:'Jet continu',jouer:function(c,s,t){
+      souffle(c,s,t,{type:'lowpass',f0:1100,f1:260,d:1.5,v:.34,q:2,a:.04});
+      ton(c,s,t,{type:'sawtooth',f0:96,f1:44,d:1.5,v:.26,a:.04,vib:[52,28],filtre:['lowpass',340,4]});
+      for(var i=0;i<26;i+=1)bulle(c,s,t+.1+i*.055+Math.random()*.02,240+Math.random()*460,.07);
+      clapotis(c,s,t+1.4,5);
+    }},
+    {id:'rafale',nom:'Rafale de pets humides',jouer:function(c,s,t){
+      rafale(c,s,t,7,.17,150,.28);clapotis(c,s,t+1.2,4);ton(c,s,t+1.35,{type:'sine',f0:200,f1:60,d:.2,v:.22,a:.006});
+    }},
+    {id:'tuyau',nom:'Tuyau bouché qui cède',jouer:function(c,s,t){
+      ton(c,s,t,{type:'sine',f0:210,f1:80,d:.9,v:.18,a:.05,vib:[19,24]});
+      souffle(c,s,t,{type:'bandpass',f0:300,f1:700,d:.8,v:.2,q:3,a:.2});
+      for(var i=0;i<18;i+=1)bulle(c,s,t+.1+i*.045,180+Math.random()*350,.09);
+      souffle(c,s,t+.9,{type:'lowpass',f0:1500,f1:150,d:.9,v:.4,q:1.5,a:.02});
+      ton(c,s,t+.9,{type:'sawtooth',f0:80,f1:40,d:.9,v:.28,a:.02,vib:[40,20],filtre:['lowpass',300,3]});
+      clapotis(c,s,t+1.7,5);
+    }},
+    {id:'eclaboussures',nom:'Éclaboussures',jouer:function(c,s,t){
+      for(var i=0;i<9;i+=1){var tt=t+i*.14+Math.random()*.05;souffle(c,s,tt,{type:'bandpass',f0:500+Math.random()*1100,f1:300,d:.1,v:.3,q:2,a:.004});ton(c,s,tt,{type:'sine',f0:140+Math.random()*80,f1:55,d:.1,v:.22,a:.004});}
+      clapotis(c,s,t+1.1,6);
+    }},
+    {id:'trompette',nom:'Trompette mouillée',jouer:function(c,s,t){
+      ton(c,s,t,{type:'square',f0:165,f1:110,d:.8,v:.4,a:.03,vib:[72,14],filtre:['bandpass',480,3]});
+      souffle(c,s,t,{type:'bandpass',f0:320,d:.7,v:.14,q:2,a:.03});
+      for(var i=0;i<10;i+=1)bulle(c,s,t+.2+i*.06,260+Math.random()*300,.07);
+      petMouille(c,s,t+.95,.3,120,60,.26);clapotis(c,s,t+1.3,4);
+    }},
+    {id:'cuvette',nom:'Explosion de cuvette',jouer:function(c,s,t){
+      souffle(c,s,t,{type:'lowpass',f0:1800,f1:140,d:.5,v:.5,q:2,a:.003});
+      ton(c,s,t,{type:'sine',f0:150,f1:42,d:.55,v:.46,a:.004});
+      petMouille(c,s,t+.1,.7,110,45,.3);
+      clapotis(c,s,t+.9,8);bulle(c,s,t+1.6,280,.12);bulle(c,s,t+1.75,230,.1);
+    }},
+    {id:'ventre',nom:'Gargouillis puis lâcher',jouer:function(c,s,t){
+      ton(c,s,t,{type:'sawtooth',f0:58,f1:74,d:.9,v:.16,a:.2,vib:[7,12],filtre:['lowpass',200,3]});
+      for(var i=0;i<6;i+=1)ton(c,s,t+.1+i*.14,{type:'sine',f0:90+Math.random()*60,f1:180+Math.random()*100,d:.13,v:.14,a:.02});
+      souffle(c,s,t+.95,{type:'lowpass',f0:1200,f1:200,d:.35,v:.3,q:1,a:.02});
+      petMouille(c,s,t+1.0,.7,100,48,.3);clapotis(c,s,t+1.75,5);
+    }},
+    {id:'moteur',nom:'Bateau à moteur',jouer:function(c,s,t){
+      for(var i=0;i<16;i+=1){var tt=t+i*.085;souffle(c,s,tt,{type:'bandpass',f0:420-i*10,f1:260-i*6,d:.07,v:.32,q:3,a:.004});ton(c,s,tt,{type:'sawtooth',f0:120-i*3,f1:70,d:.07,v:.2,a:.004,filtre:['lowpass',320,3]});}
+      petMouille(c,s,t+1.4,.35,110,55,.26);clapotis(c,s,t+1.8,5);
+    }}
+  ];
+  function jouerDiarrhee(ctx,sortie,index){
+    var d=typeof index==='number'?DIARRHEES[index]:DIARRHEES.filter(function(x){return x.id===index;})[0]||DIARRHEES[0];
+    d.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return d;
+  }
+  function jouerAccident(ctx,sortie){ACCIDENT.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);return ACCIDENT;}
   var dernierReveil=-1,dernierRonfle=-1;
   function tirer(liste,dernier){var n=liste.length,i=Math.floor(Math.random()*n);if(i===dernier)i=(i+1+Math.floor(Math.random()*(n-1)))%n;return i;}
   /* index facultatif : on peut forcer une variante (page d'écoute, tests). */
@@ -188,5 +264,5 @@
     RONFLEMENTS[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
     return RONFLEMENTS[i];
   }
-  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerRonflement:jouerRonflement};
+  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerAccident:jouerAccident,diarrhees:DIARRHEES,jouerDiarrhee:jouerDiarrhee,accident:ACCIDENT,jouerRonflement:jouerRonflement};
 })();

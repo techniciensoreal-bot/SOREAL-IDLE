@@ -11,7 +11,7 @@ const feu = readFileSync("cloudflare/public/modules/feu-v1.js", "utf8");
 
 assert.ok(ui.includes("soreal_idle_effet_orage_v1") && ui.includes("soreal_idle_effet_feu_v1"), "clés mémorisées sur l'appareil");
 assert.ok(ui.includes("window.__basculerEffetIdleV1__=function(id,coche)") && ui.includes("new Event('soreal-effets-v1')"), "bascule + évènement");
-assert.ok(ui.includes("htmlReglagesAudioIdleV1_()+\n          htmlReglagesSonsDefaiteIdleV1_()+\n          htmlReglagesEffetsIdleV1_()+"), "section dans les Réglages, sous l'audio");
+assert.ok(ui.includes("htmlReglagesAudioIdleV1_()+\n          htmlReglagesSonsDefaiteIdleV1_()+\n          htmlReglagesDiarrheesIdleV1_()+\n          htmlReglagesEffetsIdleV1_()+"), "section dans les Réglages, sous l'audio");
 for (const [nom, src, cle] of [["orage", orage, "soreal_idle_effet_orage_v1"], ["feu", feu, "soreal_idle_effet_feu_v1"]]) {
   assert.ok(src.includes(`localStorage.getItem('${cle}')!=='0'`) || (nom === "feu" && src.includes(`localStorage.getItem('${cle}')==='1'`)), nom + " : actif par défaut (orage), ou coupé par défaut et activé par '1' (feu, trop lourd pour un téléphone)");
   assert.ok(/volumeAmbiance_\(\)>0&&effetAutorise_\(\)/.test(src), nom + " : le réglage conditionne le démarrage");

@@ -17142,13 +17142,26 @@ function signalerBugSorealIdle(sessionToken, message, contexte) {
   return { ok: true, id };
 }
 
-/* Derniers signalements (administrateur seulement). */
-function lireBugsSorealIdle(sessionToken) {
+/*
+ * Derniers signalements (administrateur seulement). Avec l'option 'compter' : seulement le nombre de signalements pas encore vus (pour la notification « En direct », sans rien marquer). Sans option
+ * (l'administrateur ouvre la liste) : tout ce qui existe est marqué comme vu (table idle_bug_vus, un repère par compte : le signalement repasse dans « En direct » tant qu'on n'est pas allé le voir).
+ */
+function lireBugsSorealIdle(sessionToken, option) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (String(acces.emailAutorise || '').toLowerCase() !== ADMIN_SOREAL_IDLE_EMAIL) throw new Error('SOREAL_IDLE_ADMIN_REQUIS');
   if (!__idleSql) return { ok: true, bugs: [] };
   __idleSql.exec("CREATE TABLE IF NOT EXISTS idle_bug_reports(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER, email TEXT, prenom TEXT, message TEXT, contexte TEXT, mail_status TEXT)");
+  __idleSql.exec("CREATE TABLE IF NOT EXISTS idle_bug_vus(email TEXT PRIMARY KEY, dernier INTEGER)");
+  const moi = String(acces.emailAutorise || '').toLowerCase();
+  const vu = sqlRows(__idleSql.exec("SELECT dernier FROM idle_bug_vus WHERE email=?", moi))[0];
+  const dernierVu = Number(vu && vu.dernier) || 0;
+  if (option === 'compter') {
+    const nouveaux = sqlRows(__idleSql.exec("SELECT COUNT(*) AS n FROM idle_bug_reports WHERE id>?", dernierVu))[0];
+    return { ok: true, nonVus: Number(nouveaux && nouveaux.n) || 0 };
+  }
   const rows = sqlRows(__idleSql.exec("SELECT id,at,email,prenom,message,contexte,mail_status FROM idle_bug_reports ORDER BY id DESC LIMIT 50"));
+  const plusRecent = sqlRows(__idleSql.exec("SELECT MAX(id) AS m FROM idle_bug_reports"))[0];
+  if (Number(plusRecent && plusRecent.m) > dernierVu) __idleSql.exec("INSERT OR REPLACE INTO idle_bug_vus(email,dernier) VALUES(?,?)", moi, Number(plusRecent.m));
   return { ok: true, bugs: rows.map((r) => ({ id: r.id, at: r.at, prenom: r.prenom, message: r.message, contexte: safeJson(r.contexte, {}) })) };
 }
 

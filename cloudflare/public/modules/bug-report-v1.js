@@ -139,6 +139,30 @@ function html(estAdmin){
   '</div>';
 }
 
+/*
+ * Notification « En direct » (Norman, 2026-10-15 : « quand on signale un bug je dois avoir une notification dans En direct, elle doit repasser tant que je n'ai pas été voir le signalement »).
+ * Administrateur seulement : toutes les 3 minutes, le nombre de signalements pas encore vus est demandé au serveur (le repère « vu » se pose quand la liste est ouverte) ; s'il y en a, une phrase repasse dans le bandeau.
+ */
+var DELAI_NOTIF_MS=180000;
+function verifierNouveaux(){
+  try{
+    if(!(window.__SOREAL_IDLE_EST_ADMIN_V1__&&window.__SOREAL_IDLE_EST_ADMIN_V1__()))return;
+    var s=window.SOREAL_SESSION||(typeof SOREAL_SESSION!=='undefined'?SOREAL_SESSION:'');
+    if(!s||document.visibilityState!=='visible'||typeof google==='undefined'||!google.script)return;
+    google.script.run
+      .withSuccessHandler(function(res){
+        var n=res&&res.ok?Number(res.nonVus)||0:0;
+        if(n>0&&window.__SOREAL_IDLE_FLUX_V1__&&typeof window.__SOREAL_IDLE_FLUX_V1__.annoncer==='function'){
+          window.__SOREAL_IDLE_FLUX_V1__.annoncer({icone:'🐞',texte:n>1?n+' nouveaux signalements de bug à lire (Réglages › Signalements reçus)':'Un nouveau signalement de bug à lire (Réglages › Signalements reçus)'});
+        }
+      })
+      .withFailureHandler(function(){})
+      .lireBugsSorealIdle(s,'compter');
+  }catch(e){}
+}
+if(typeof setTimeout==='function'&&typeof setInterval==='function'){setTimeout(verifierNouveaux,25000);
+setInterval(verifierNouveaux,DELAI_NOTIF_MS);}
+
 window.__bugReportOuvrirV1__=ouvrir;
 window.__bugReportVoirV1__=voirRapports;
 window.__SOREAL_IDLE_BUG_REPORT_V1__={html:html,ouvrir:ouvrir,voirRapports:voirRapports};

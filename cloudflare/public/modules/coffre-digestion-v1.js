@@ -48,11 +48,70 @@
     return b;
   }
   function retirer_(n,ms){setTimeout(function(){if(n&&n.parentNode)n.parentNode.removeChild(n);},ms);}
-  function excuses_(el){
+  /*
+   * Nuage de pet (Norman, 2026-10-15) : un vrai nuage sort de l'arrière du Coffre (huit bouffées de tailles et de trajets différents) et monte ; une fois sur trois il monte très haut et passe sur les objets
+   * de l'inventaire. Les valeurs au hasard sont écrites dans le HTML de chaque bouffée (--dx, --haut, --t, --gr, délai) : opacité et transform seulement, un seul passage.
+   */
+  function nuagePet_(el){
     var f=document.createElement('span');
     f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
-    f.innerHTML='<i></i><i></i><i></i>';
-    el.appendChild(f);retirer_(f,2300);
+    var haut=Math.random()<.34;
+    var html='';
+    for(var k=0;k<8;k+=1){
+      var dx=Math.round(-30+Math.random()*80);
+      var h=Math.round(haut?150+Math.random()*130:46+Math.random()*50);
+      var t=Math.round(30+Math.random()*26);
+      var gr=(2.2+Math.random()*1.2).toFixed(2);
+      var d=Math.round(k*70+Math.random()*60);
+      html+='<i style="left:'+(k*5)+'px;--dx:'+dx+'px;--haut:'+h+'px;--t:'+t+'px;--gr:'+gr+';animation-delay:'+d+'ms"></i>';
+    }
+    f.innerHTML=html;
+    /* Posé sur la page (pas dans le Coffre, dont le cadre coupe tout ce qui dépasse) : le nuage peut monter par-dessus l'inventaire. Coordonnées du document, donc il suit le défilement. */
+    var r=el.getBoundingClientRect?el.getBoundingClientRect():null;
+    if(r&&document.body&&r.width>0){
+      f.style.cssText='left:'+Math.round(r.right+(window.pageXOffset||0)-r.width*.2)+'px;top:'+Math.round(r.top+(window.pageYOffset||0)+r.height*.62)+'px';
+      document.body.appendChild(f);
+    }else el.appendChild(f);
+    retirer_(f,3900);
+    return f;
+  }
+  /*
+   * L'accident (Norman, 2026-10-15), VRAIMENT occasionnel : 4 % des pets. Une flaque brune s'étale à ses pieds, il dit « Oh bordel, pas encore… » puis « J'crois que j'me suis chié dessus. », et le sac est couvert de
+   * caca (modules/coffre-accident-v1.js : à frotter pour nettoyer). Toujours en français, comme les autres répliques du Coffre.
+   */
+  var P_ACCIDENT=.04;
+  /* Première réplique tirée au sort ; la seconde (« J'crois que j'me suis chié dessus. ») suit toujours. */
+  var OUVERTURES_ACCIDENT=['Oh bordel, pas encore…','Ah ben voilà.. Forcément que ça allait arriver un jour.','Oh merde. Ne me regardez pas'];
+  function entierementVisible_(){
+    var el=document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');
+    if(!el||typeof el.getBoundingClientRect!=='function'||document.hidden)return null;
+    var r=el.getBoundingClientRect(),h=window.innerHeight||document.documentElement.clientHeight,w=window.innerWidth||document.documentElement.clientWidth;
+    return r.width>0&&r.height>0&&r.top>=0&&r.left>=0&&r.bottom<=h&&r.right<=w?el:null;
+  }
+  function quandEntierementVisible_(f){
+    var el=entierementVisible_();
+    if(el){f(el);return;}
+    var minuteur=setInterval(function(){var e=entierementVisible_();if(e){clearInterval(minuteur);f(e);}},300);
+  }
+  function accident_(el){
+    var C=window.__SOREAL_IDLE_CACA_V1__;
+    if(!C)return false;
+    C.flaque(el);
+    setTimeout(function(){try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play('coffreAccident');}catch(_e){}},550);
+    C.souiller();
+    /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
+    var ouverture=OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];
+    quandEntierementVisible_(function(coffre){
+      var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';
+      retirer_(b1,200+2300);
+      var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+2600);b2.className+=' bg-desole-long-v1';
+      retirer_(b2,200+2600+2300);
+    });
+    return true;
+  }
+  function excuses_(el){
+    nuagePet_(el);
+    if(Math.random()<P_ACCIDENT&&accident_(el))return;
     var rare=Math.random()<.125;
     /* La bulle ne sort qu'APRÈS le pet (Norman, 2026-10-11) : la fumée part tout de suite, l'excuse suit une fois le bruit terminé ; la phrase est tirée au sort. */
     var choix=EXCUSES.slice();
@@ -88,5 +147,7 @@
     if(jouer_(Math.random()<.5?'rot':'pet')){vu=0;cible=MIN+Math.random()*(MAX-MIN);}
   }
   setInterval(pas_,PAS);
+  window.__coffreNuagePetIdleV1__=nuagePet_;
+  window.__coffreAccidentIdleV1__=accident_;
   window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__={jouer:jouer_,pas:pas_,visible:coffreVisible_};
 })();

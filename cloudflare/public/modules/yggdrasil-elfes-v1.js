@@ -36,13 +36,13 @@
   }
 
   /* Image R2 d'un fruit (ou « seed », « poop ») avec dessin de secours ; une image absente n'est plus redemandée pendant la visite. */
-  function image_(nom,secours,classe){
+  function image_(nom,secours,classe,etape){
     var fond='<span class="ygg-secours">'+html_(secours)+'</span>';
     if(etat.manquantes[nom])return fond;
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
     /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
     /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
-    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom);
+    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape:'');
     return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
       'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
   }
@@ -78,6 +78,9 @@
       '.ygg-nom span{color:var(--or);font-weight:700;}',
       '.ygg-vitre{position:relative;overflow:hidden;aspect-ratio:5/4;border:3px solid #000;border-radius:12px;background:radial-gradient(ellipse at 50% 35%,#4a8a58,#0d2a18);box-shadow:inset 0 0 18px rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;}',
       '.ygg-secours{font-size:clamp(26px,9cqw,60px);filter:drop-shadow(0 2px 0 rgba(0,0,0,.6));}',
+      /* Fruit d'or (20 images de croissance, 561 x 701 environ) : le cadre prend le FORMAT de l'image (4/5, portrait), pas sa résolution. */
+      '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
+      '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -146,6 +149,17 @@
       maxTier:ent_(x.maxTier)||10,tierSec:nb_(x.tierSeconds)>0?nb_(x.tierSeconds):3600};
   }
 
+  /*
+   * Image de croissance du fruit d'or (Norman, 2026-10-15 : 20 images dans idle/yggdrasil/). L'image avance avec la croissance rapportee au tier MAXIMUM du fruit (10, ou 24 apres trois victoires au Troll), pas au tier
+   * acheté : un fruit monte à 4 h seulement n'avance que dans les premières images ; la dernière (19) n'apparait que fruit au tier maximum ET entièrement poussé.
+   */
+  function etapeCroissance_(d,v){
+    if(v.def.id!=='gold'||!(v.tier>0))return null;
+    var max=Math.max(1,d.maxTier||10);
+    if(v.tier>=max&&v.growth>=max)return 19;
+    return Math.max(0,Math.min(18,Math.floor(v.growth/max*19)));
+  }
+
   function carte_(d,v){
     var def=v.def,id=def.id,c=choix_(id);
     var nom=html_(def.name||id);
@@ -168,7 +182,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre">'+image_(id,emoji_(id,def.name))+'</div>'+
+      '<div class="ygg-vitre'+(etapeCroissance_(d,v)!=null?' ygg-portrait':'')+'">'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
@@ -282,5 +296,6 @@
     etat:etat,
     PAR_PAGE:PAR_PAGE
   };
+  window.__SOREAL_IDLE_YGG_ETAPE_V1__=etapeCroissance_;
   window.__SOREAL_IDLE_YGG_V1__=API;
 })();

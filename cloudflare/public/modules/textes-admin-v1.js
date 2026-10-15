@@ -1225,6 +1225,8 @@ function lancerGeneration_(o,aFaire,libelle){
       afficherEtat_(generation.texte);
       return o.synthetiser(texteVoixDe_(b),b.parleur,b.expr).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
         if(edition.voix.indexOf(b.hash)===-1)edition.voix.push(b.hash);
+        /* Voix déclarée tout de suite au lecteur (Norman, 2026-10-15 : l'Aperçu du tutoriel jouait la voix de secours) : sans cela, un bloc généré dans cette session n'était connu du lecteur qu'après « Écouter », et son absence mémorisée le faisait lire par la voix de secours. */
+        enregistrerVoix_([b.hash]);
         if(edition.aRefaire)delete edition.aRefaire[b.hash];
         /* Texte de voix utilisé pour CE fichier : tant qu'il ne change pas, le bloc n'est pas « à refaire ». */
         if(!edition.voixFaites)edition.voixFaites={};
@@ -1474,6 +1476,7 @@ document.addEventListener('click',function(ev){
         /* Le fichier remplacé garde son empreinte : on la déclare dans le texte et on l'enregistre, pour que le nettoyage ne le supprime pas. */
         apres:function(hash){
           if(edition.voix.indexOf(hash)===-1)edition.voix.push(hash);
+          enregistrerVoix_([hash]);
           if(edition.aRefaire)delete edition.aRefaire[hash];
           return enregistrer_();
         }

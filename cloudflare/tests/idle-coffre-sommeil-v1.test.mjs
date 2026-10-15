@@ -11,7 +11,7 @@ const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 assert.ok(html.includes("/modules/coffre-sommeil-v1.js"), "module chargé");
-for (const phrase of ["J’ai jamais couché avec votre femme !", "À l’abordage !", "Ne me touchez pas !"]) assert.ok(mod.includes(phrase), "réplique : " + phrase);
+for (const phrase of ["J’ai jamais couché avec votre femme !", "À l’abordage !", "Ne me touchez pas avec vos sales pattes !"]) assert.ok(mod.includes(phrase), "réplique : " + phrase);
 assert.ok((mod.match(/^    '.+',?$/gm) || []).length >= 8, "plusieurs répliques possibles");
 assert.ok(mod.includes("data-sans-traduction"), "répliques toujours en français");
 assert.ok(son.includes("jouerReveil") && son.includes("jouerRonflement") && effets.includes("coffreReveil") && effets.includes("coffreRonfle"), "sons branchés sur le moteur audio");

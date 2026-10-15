@@ -14,7 +14,7 @@
   var REPLIQUES=[
     'J’ai jamais couché avec votre femme !',
     'À l’abordage !',
-    'Ne me touchez pas !',
+    'Ne me touchez pas avec vos sales pattes !',
     'C’est pas moi, c’est le voisin !',
     'Quoi ? Qui ? Où ?',
     'Je dormais pas, je réfléchissais !',
@@ -68,7 +68,7 @@
     if(i===derniere)i=(i+1+Math.floor(Math.random()*(REPLIQUES.length-1)))%REPLIQUES.length;
     derniere=i;
     var b=document.createElement('span');
-    b.className='bg-desole-v1 bg-replique-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.className='bg-desole-v1 bg-replique-v1 bg-desole-long-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
     b.textContent=REPLIQUES[i];
     el.appendChild(b);
     setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
@@ -81,11 +81,15 @@
     el.classList.add('bg-sursaut-v1');
     setTimeout(function(){el.classList.remove('bg-sursaut-v1');},900);
     jouerSon_('coffreReveil');
-    var f=document.createElement('span');
-    f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
-    f.innerHTML='<i></i><i></i><i></i>';
-    el.appendChild(f);
-    setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},2300);
+    /* Le nuage du pet de réveil est le même que celui du pet ordinaire (modules/coffre-digestion-v1.js), plus fort : toujours très haut sur l'inventaire. */
+    if(typeof window.__coffreNuagePetIdleV1__==='function')window.__coffreNuagePetIdleV1__(el);
+    else{
+      var f=document.createElement('span');
+      f.className='bg-fumee-v1';f.setAttribute('aria-hidden','true');
+      f.innerHTML='<i></i><i></i><i></i>';
+      el.appendChild(f);
+      setTimeout(function(){if(f.parentNode)f.parentNode.removeChild(f);},2300);
+    }
     replique_(el);
   }
   /* Le clic est intercepté en phase de capture, avant le gestionnaire du Coffre (ouvrir / fermer / déposer). */

@@ -575,6 +575,8 @@
   window.__SOREAL_IDLE_FLUX_V1__={
     recevoir:recevoir,
     recevoirChat:recevoirChat,
+    /* Message local (pas du serveur) joué tout de suite dans « En direct » : { icone, texte } */
+    annoncer:function(e){if(e&&e.texte){file.push({icone:e.icone||'📢',texte:e.texte,recu:performance.now()});}},
     dernier:function(){return dernier;},
     /* Repère du premier battement : tout ce qui date d'avant l'arrivée du joueur est ignoré. */
     amorcer:function(id){id=Number(id)||0;if(id>dernier)dernier=id;amorceFlux=true;},

@@ -1396,6 +1396,34 @@ export function choisirCleYggR2_(keys,name){
   }
   return "";
 }
+/*
+ * Etapes de croissance d'un fruit (Norman, 2026-10-15 : 20 images pour le fruit d'or). Les images numerotees d'un fruit (Fruit_of_Gold_01.png ... _20, gold-1.webp, ou un dossier gold/ ou fruit-of-gold/
+ * contenant des images numerotees) sont triees par numero ; l'image simple du fruit (sans numero) n'en fait jamais partie. Moins de deux images = pas d'etapes (image unique).
+ */
+export function choisirEtapesYggR2_(keys,name){
+  const id=normaliserNomYggR2_(name);
+  if(!id)return [];
+  const voulus=[id].concat(IDLE_YGG_ALIAS_V1[id]||[]);
+  const trouves=[];
+  for(const k of (Array.isArray(keys)?keys:[])){
+    const cle=String(k);
+    if(!/\.(webp|png|jpe?g)$/i.test(cle))continue;
+    const morceaux=cle.split("/");
+    const fichier=morceaux.pop();
+    const dossier=normaliserNomYggR2_(morceaux[morceaux.length-1]||"");
+    const stem=normaliserNomYggR2_(fichier);
+    const num=stem.match(/(\d+)$/);
+    let ok=false;
+    if(voulus.includes(dossier)&&morceaux.length>=3)ok=true;
+    else if(num){
+      const debut=stem.slice(0,stem.length-num[1].length).replace(/(etape|stade|stage|step|frame|image|img)$/,"");
+      ok=voulus.includes(debut);
+    }
+    if(ok)trouves.push({cle,n:num?parseInt(num[1],10):0,nom:fichier.toLowerCase()});
+  }
+  trouves.sort((a,b)=>(a.n-b.n)||(a.nom<b.nom?-1:a.nom>b.nom?1:0));
+  return trouves.length>=2?trouves.map(t=>t.cle):[];
+}
 let yggCleCache_={at:0,keys:[]};
 async function yggImage_(request,env,url){
   const nom=String(url.searchParams.get("name")||"").trim();
@@ -1413,7 +1441,17 @@ async function yggImage_(request,env,url){
     }
     yggCleCache_={at:Date.now(),keys};
   }
-  const key=choisirCleYggR2_(yggCleCache_.keys,nom);
+  /* ?etape=k (0 a 19, sur 20) : la k-ieme image de croissance du fruit, mise a l'echelle si le dossier n'en contient pas exactement 20. */
+  const etapeBrute=url.searchParams.get("etape");
+  let key="";
+  if(etapeBrute!==null&&/^\d{1,3}$/.test(etapeBrute)){
+    const etapes=choisirEtapesYggR2_(yggCleCache_.keys,nom);
+    if(etapes.length>=2){
+      const k=Math.min(19,parseInt(etapeBrute,10));
+      key=etapes[k>=19?etapes.length-1:Math.min(etapes.length-1,Math.floor(k*(etapes.length-1)/19))];
+    }
+  }
+  if(!key)key=choisirCleYggR2_(yggCleCache_.keys,nom);
   if(!key)return new Response("Image Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }

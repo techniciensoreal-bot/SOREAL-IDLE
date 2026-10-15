@@ -92,3 +92,8 @@ assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aven
   assert.ok(css.includes("max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important"), "menu : hauteur max suit --nav-dispo");
   assert.ok(ui.includes("nav.style.setProperty('--nav-dispo'") && ui.includes("window.addEventListener('scroll',planifier,{passive:true})"), "menu : --nav-dispo recalculée au défilement");
 }
+/* Sur PC, un clic sur un menu de gauche replace la page en haut : bannière hors écran, barre de stats tout en haut */
+{
+  assert.ok(ui.includes("function placerMenuEnHautPcIdleV1_(){") && ui.includes("window.matchMedia('(min-width:701px)')") && ui.includes("banniere.getBoundingClientRect().bottom+(window.scrollY||0)"), "placement en haut (PC)");
+  assert.ok(ui.includes("if(menu!=='aventure'){menuIdleCoeurV28_(menu);placerMenuEnHautPcIdleV1_();return;}") && ui.includes("if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();"), "tous les menus, Aventure comprise (téléphone : comportement d'avant)");
+}

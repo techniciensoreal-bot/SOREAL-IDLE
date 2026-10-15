@@ -59,6 +59,7 @@
     /* Le Coffre rote et pète de temps en temps, au hasard (Norman, 2026-10-10) : 6 rots et 6 pets synthétisés (modules/audio-coffre-v1.js). */
     coffreRot:{group:"chest",priority:30,maxAgeMs:1500},
     coffrePet:{group:"chest",priority:30,maxAgeMs:1500},
+    coffreAccident:{group:"chest",priority:35,maxAgeMs:2600},
     /* Le Coffre dort (Norman, 2026-10-12) : il ronfle ; touché pendant son sommeil, il sursaute en lâchant un pet très fort (modules/coffre-sommeil-v1.js). */
     coffreRonfle:{group:"chest",priority:20,maxAgeMs:1500},
     coffreReveil:{group:"chest",priority:40,maxAgeMs:1000},
@@ -95,7 +96,9 @@
      * l'autre dans la file).
      */
     moneyPit:{group:"money-pit",priority:60,maxAgeMs:2200},
-    dailySpin:{group:"daily-spin",priority:60,maxAgeMs:3200}
+    dailySpin:{group:"daily-spin",priority:60,maxAgeMs:3200},
+    wandoosMaj:{group:"wandoos-maj",priority:60,maxAgeMs:2200},
+    wandoosErreur:{group:"wandoos-maj",priority:60,maxAgeMs:1500}
   };
 
   /* Barre « Sons de l'interface » des Paramètres (modules/audio-volume-v1.js) : 75 % (le défaut) = l'ancien gain fixe de 0,78 ; 0 quand la case est décochée. */
@@ -1257,6 +1260,35 @@
     tonal_(c,{type:"sine",from:210,to:55,duration:1.0,volume:.095,delay:.48});
     bruit_(c,{duration:.9,volume:.055,delay:.48,filterType:"lowpass",frequency:650,frequencyEnd:90,decay:1.5});
   }
+  /*
+   * Norman (2026-10-15) : « quand on réutilise l'objet Wandoos (9 stacks, puis 10, puis 11), un son d'ordinateur mais positif à chaque fois que notre Wandoos prend une mise à jour ». Deux bips de disque, puis un
+   * arpège majeur montant façon « démarrage réussi » (do-mi-sol-do), un carillon aigu et un dernier bip d'accord.
+   */
+  function wandoosMajConstruire_(c){
+    tonal_(c,{type:"square",from:1320,to:1320,duration:.045,volume:.018});
+    tonal_(c,{type:"square",from:1760,to:1760,duration:.045,volume:.018,delay:.07});
+    [[523.25,.2],[659.25,.3],[783.99,.4],[1046.5,.5]].forEach(function(n){
+      tonal_(c,{type:"triangle",from:n[0],to:n[0],duration:.22,volume:.05,delay:n[1]});
+      tonal_(c,{type:"square",from:n[0]*2,to:n[0]*2,duration:.09,volume:.012,delay:n[1]});
+    });
+    tonal_(c,{type:"sine",from:2093,to:2093,duration:.5,volume:.03,delay:.52});
+    tonal_(c,{type:"sine",from:1568,to:1568,duration:.5,volume:.022,delay:.56});
+    bruit_(c,{duration:.12,volume:.01,delay:.52,filterType:"highpass",frequency:7000,decay:2.4});
+  }
+  /* Pas assez de niveaux sur la copie : erreur d'ordinateur (ding grave descendant, puis deux bourdonnements secs). */
+  function wandoosErreurConstruire_(c){
+    tonal_(c,{type:"square",from:392,to:392,duration:.09,volume:.03});
+    tonal_(c,{type:"square",from:262,to:262,duration:.14,volume:.032,delay:.1});
+    tonal_(c,{type:"sawtooth",from:130,to:110,duration:.16,volume:.04,delay:.28});
+    tonal_(c,{type:"sawtooth",from:130,to:100,duration:.2,volume:.04,delay:.5});
+    bruit_(c,{duration:.06,volume:.012,delay:.28,filterType:"bandpass",frequency:900,decay:2});
+  }
+  function wandoosErreur_(){
+    return jouerWebAudio_(800,wandoosErreurConstruire_);
+  }
+  function wandoosMaj_(){
+    return jouerWebAudio_(1150,wandoosMajConstruire_);
+  }
   function moneyPit_(){
     return jouerWebAudio_(1500,moneyPitConstruire_);
   }
@@ -1532,6 +1564,13 @@
     return jouerWebAudio_(1300,function(c){
       var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
       if(m&&typeof m.jouerDigestion==="function")m.jouerDigestion(type,c,master||c.destination);
+    });
+  }
+
+  function coffreAccident_(){
+    return jouerWebAudio_(2700,function(c){
+      var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
+      if(m&&typeof m.jouerAccident==="function")m.jouerAccident(c,master||c.destination);
     });
   }
 
@@ -1869,6 +1908,7 @@
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
     coffreRot:function(){return coffreDigestion_("rot");},
     coffrePet:function(){return coffreDigestion_("pet");},
+    coffreAccident:coffreAccident_,
     coffreRonfle:function(){return coffreSommeil_("ronfle");},
     coffreReveil:function(){return coffreSommeil_("reveil");},
     mergeArmor:fusionArmure_,
@@ -1882,6 +1922,8 @@
     purchaseRefused:achatRefuse_,
     setComplete:setComplet_,
     moneyPit:moneyPit_,
+    wandoosMaj:wandoosMaj_,
+    wandoosErreur:wandoosErreur_,
     dailySpin:dailySpin_
   };
 
@@ -2102,6 +2144,8 @@
       voiceDone:{duree:560,construire:voixPreteConstruire_},
       foule:Object.keys(SONS_FOULE_V1).map(function(id){return{nom:id,duree:SONS_FOULE_V1[id].duree,construire:SONS_FOULE_V1[id].construire};}),
       moneyPit:{duree:1500,construire:moneyPitConstruire_},
+      wandoosMaj:{duree:1150,construire:wandoosMajConstruire_},
+      wandoosErreur:{duree:800,construire:wandoosErreurConstruire_},
       dailySpin:{duree:2200,construire:dailySpinConstruire_},
       clavierClic:{duree:200,construire:function(c){clavierClic_(c,false);}},
       clavierClicGrave:{duree:200,construire:function(c){clavierClic_(c,true);}}
@@ -2115,6 +2159,8 @@
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
+    diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
+    previewDiarrhee:function(id){return jouerWebAudio_(2400,function(c){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;if(m&&typeof m.jouerDiarrhee==='function')m.jouerDiarrhee(c,master||c.destination,id);});},
     defeatList:function(){return SONS_DEFAITE.map(function(x){return{nom:x.nom,libelle:x.libelle};});},
     previewDefeat:ecouterDefaite_,
     flee:function(){return demander_("flee");},
@@ -2148,6 +2194,7 @@
     coffreRecrache:function(){return demander_("coffreRecrache");},
     coffreRot:function(){return demander_("coffreRot");},
     coffrePet:function(){return demander_("coffrePet");},
+    coffreAccident:function(){return demander_("coffreAccident");},
     coffreRonfle:function(){return demander_("coffreRonfle");},
     coffreReveil:function(){return demander_("coffreReveil");},
     mergeArmor:function(){return demander_("mergeArmor");},
@@ -2160,6 +2207,8 @@
     boostAllAbsorption:function(){return demander_("boostAllAbsorption");},
     setComplete:function(){return demander_("setComplete");},
     moneyPit:function(){return demander_("moneyPit");},
+    wandoosMaj:function(){return demander_("wandoosMaj");},
+    wandoosErreur:function(){return demander_("wandoosErreur");},
     dailySpin:function(){return demander_("dailySpin");},
     roueTourne:function(angle,dureeMs){return roueTourne_(angle,dureeMs);},
     roueInstants:instantsRoue_,

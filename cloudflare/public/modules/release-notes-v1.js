@@ -32,6 +32,10 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, un clic sur un menu de gauche replace toujours la page ouverte en haut : la bannière disparaît de l’écran et la barre Attaque, Défense, Or, EXP, AP se retrouve tout en haut.',
+            'Le Coffre laisse maintenant échapper un vrai nuage quand il pète.',
+            'L’administrateur est prévenu dans « En direct » d’un nouveau signalement de bug, et le message repasse tant qu’il n’est pas allé le lire.',
+            'Les icônes des objets de l’inventaire s’affichent toutes tout de suite, au lieu d’arriver au compte-gouttes.',
             'Sur PC, le menu de gauche descend toujours jusqu’à son dernier bouton, même quand la page n’a pas encore été défilée : plus besoin de faire descendre la page centrale pour atteindre le bas du menu.',
             'Quand tu changes d’onglet à l’intérieur d’une page, la bannière, le menu et la barre de vie ne s’étirent plus pendant une demi-seconde.',
             'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept : l’élégie d’origine, un trombone triste, un glas de cloche, un « game over » d’arcade, un disque qui s’arrête, une toccata sinistre à l’orgue et un orgue de foire triste.',
@@ -39,6 +43,13 @@
             'Le menu NGU ne clignote plus toutes les quelques secondes : les tuyaux, pourcentages et niveaux restent fluides au moment où la page se met à jour.',
             'L’éditeur de textes et de voix de l’administrateur retrouve maintenant les personnages enregistrés à la réouverture d’un texte, au lieu de tout remettre en un seul bloc.',
             'Le journal d’EXP de l’administrateur garde désormais plusieurs jours d’historique : la production courante est regroupée en une ligne par tranche d’environ dix minutes.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Installer l’OS avec une copie réussie : un son d’ordinateur joyeux (deux bips, arpège de démarrage, carillon) ; copie de niveau insuffisant : un son d’erreur d’ordinateur.',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Le premier fruit change d’image au fil de sa croissance : la dernière image n’apparaît que lorsqu’il est au tier maximum et entièrement poussé.',
+            'Les durées de croissance s’affichent en heures et minutes (09h58) au lieu de 0,85 h.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Un appui sur le bouton Aventure du menu, d’où que tu viennes, t’amène sur l’onglet Aventure avec l’écran entièrement remonté.',

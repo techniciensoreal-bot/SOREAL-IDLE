@@ -19504,9 +19504,12 @@
         actionMetaV47_({action:'toggleDigger',digger:String(id||''),active:Boolean(actif)});
       }
 
+      /* Durées de Yggdrasil en heures et minutes, « 09h58 » (Norman, 2026-10-15 : « le format d'heure est en 0.85 h, je veux 09h58 »). */
       function formatterHeuresIdleV47_(heures){
-        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
-        return api&&typeof api.heures==='function'?api.heures(heures):'0,00 h';
+        const n=Number(heures);
+        const minutesTotales=Math.floor((Number.isFinite(n)&&n>0?n:0)*60+1e-6);
+        const h=Math.floor(minutesTotales/60),m=minutesTotales%60;
+        return (h<10?'0':'')+h+'h'+(m<10?'0':'')+m;
       }
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-214 */
       function toggleMenuZoneAdventureIdleV1_(event){
@@ -19916,12 +19919,12 @@ function pageAventureIdleV28_(j){
 
       function iconeBaseObjetAdventureIdleV138_(item){
         if(item&&item.kind==='boost'){
-          return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
+          return '<img class="idle-boost-icon-v1" src="'+idleHtml_(urlImageBoostAdventureIdleV138_(item))+'" alt="" loading="eager" decoding="async" draggable="false" '+
             ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
             emojiRepliObjetIdleV1_('⚡');
         }
         if(item&&item.kind==='cube'){
-          return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
+          return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="eager" decoding="async" draggable="false" '+
             ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
             emojiRepliObjetIdleV1_('🧊');
         }
@@ -19943,7 +19946,7 @@ function pageAventureIdleV28_(j){
          * vraiment.
          */
         if(!item||!(item.set||item.wikiItemId))return iconeSlotAdventureIdleV138_(item&&item.slot);
-        return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="lazy" draggable="false" '+
+        return '<img src="'+idleHtml_(urlImageObjetAdventureIdleV138_(item))+'" alt="" loading="eager" decoding="async" draggable="false" '+
           ONERROR_EMOJI_OBJET_IDLE_V1+'>'+
           emojiRepliObjetIdleV1_(iconeSlotAdventureIdleV138_(item.slot));
       }
@@ -20143,6 +20146,8 @@ function pageAventureIdleV28_(j){
         const visuel=source.querySelector('img,.soreal-idle-v138-slot-icon,span');
         if(visuel)ghost.appendChild(visuel.cloneNode(true));
         else ghost.textContent='📦';
+        /* Une case salie par le Coffre (modules/coffre-accident-v1.js) : le caca glisse avec l'objet. */
+        if(source.hasAttribute&&source.hasAttribute('data-caca')){const caca=document.createElement('i');caca.className='soreal-idle-caca-fantome-v1';ghost.appendChild(caca);}
         document.body.appendChild(ghost);
         idleAdventureDragGhostV183=ghost;
         deplacerGhostDragAdventureIdleV183_(point);
@@ -23458,6 +23463,25 @@ function pageAventureIdleV28_(j){
         try{if(A.unlock)A.unlock();}catch(_e){}
         A.previewDefeat(nom);
       };
+      /* Bruits de diarrhée à choisir (Norman, 2026-10-15) : section de développement, ▶ pour écouter. */
+      window.__ecouterDiarrheeIdleV1__=function(id){
+        const A=window.__SOREAL_IDLE_AUDIO_V199__;
+        if(A&&typeof A.previewDiarrhee==='function')A.previewDiarrhee(String(id||''));
+      };
+      function htmlReglagesDiarrheesIdleV1_(){
+        const A=window.__SOREAL_IDLE_AUDIO_V199__;
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||!A||!A.diarrheeList)return '';
+        const liste=A.diarrheeList();
+        if(!liste.length)return '';
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">💩 Bruits de diarrhée (développement)</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : propositions pour l’accident du Coffre. ▶ pour écouter ; dis lesquels garder.</div>'+
+          liste.map(function(x,i){
+            return '<div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px"><span style="flex:1;min-width:0">'+(i+1)+'. '+idleHtml_(x.libelle)+'</span>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" aria-label="Écouter" title="Écouter ce son" onclick="window.__ecouterDiarrheeIdleV1__(\''+x.nom+'\')">▶</button></div>';
+          }).join('')+
+        '</div>';
+      }
       function htmlReglagesSonsDefaiteIdleV1_(){
         const A=window.__SOREAL_IDLE_AUDIO_V199__;
         if(!idlePartieDevV1||!idlePartieDevV1.actif||!A||!A.defeatList)return '';
@@ -23794,6 +23818,7 @@ function pageAventureIdleV28_(j){
           htmlReglagesLangueIdleV1_()+
           htmlReglagesAudioIdleV1_()+
           htmlReglagesSonsDefaiteIdleV1_()+
+          htmlReglagesDiarrheesIdleV1_()+
           htmlReglagesEffetsIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+
@@ -23961,8 +23986,26 @@ function pageAventureIdleV28_(j){
         requestAnimationFrame(haut);
         setTimeout(haut,150);
       }
+      /*
+       * Sur PC, un clic sur un menu de gauche replace TOUJOURS la page ouverte en haut de la fenêtre : la bannière SOREAL IDLE est hors de l'écran et la barre Attaque / Défense / Or / EXP / AP est tout en haut
+       * (Norman, 2026-10-15). Le haut de cette barre est le bas de la bannière ; plusieurs passes, car le rendu de la page et la remise en place du défilement peuvent annuler la première. Renvoie false sur téléphone.
+       */
+      function placerMenuEnHautPcIdleV1_(){
+        try{if(!window.matchMedia||!window.matchMedia('(min-width:701px)').matches)return false;}catch(_e){return false;}
+        const placer=function(){
+          const banniere=document.querySelector('.soreal-idle-hero-banner-v95')||document.querySelector('.soreal-idle-hero-v4');
+          if(!banniere)return;
+          const cible=Math.max(0,Math.round(banniere.getBoundingClientRect().bottom+(window.scrollY||0)));
+          window.scrollTo(0,cible);
+        };
+        placer();
+        requestAnimationFrame(placer);
+        [60,160,360].forEach(function(d){setTimeout(placer,d);});
+        return true;
+      }
       function menuIdleV28_(menu){
-        if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1||menu!=='aventure'){menuIdleCoeurV28_(menu);return;}
+        if(idleMenuEditionV1||Date.now()<idleMenuClicAvaleJusquaV1){menuIdleCoeurV28_(menu);return;}
+        if(menu!=='aventure'){menuIdleCoeurV28_(menu);placerMenuEnHautPcIdleV1_();return;}
         const maintenant=Date.now();
         const doubleAppui=maintenant-idleAventureDernierAppuiV1<420;
         idleAventureDernierAppuiV1=doubleAppui?0:maintenant;
@@ -23974,7 +24017,7 @@ function pageAventureIdleV28_(j){
         menuIdleCoeurV28_(menu);
         if(idleMenuActifV28!=='aventure')return;
         if(doubleAppui&&titansDebloquesIdleV1_()&&idleVueAventureV1!=='titans')window.__vueAventureIdleV1__('titans');
-        remonterToutEnHautIdleV1_();
+        if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();
       }
 
       function menuIdleCoeurV28_(menu){

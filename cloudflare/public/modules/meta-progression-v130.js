@@ -447,6 +447,8 @@
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-297 */
                 /* Copie de Wandoos 98 / XL utilisée (Norman, 2026-10-14) : on dit ce qui s'est passé. */
                 if(payload&&payload.action==='consumeWandoosCopy'){
+                  /* Son « ordinateur positif » à chaque mise à jour de Wandoos (Norman, 2026-10-15) */
+                  try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosMaj==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosMaj();}catch(_e){}
                   window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
                     res.resultat.unlocked==='xl'
                       ?'💾 Wandoos XL débloqué !'
@@ -486,6 +488,8 @@
 
             libererDemarrageCombatEnEchecV1_(payload);
 
+            /* Installation refusée (niveaux insuffisants…) : son d'erreur d'ordinateur (Norman, 2026-10-15) */
+            try{if(payload&&payload.action==='consumeWandoosCopy'&&window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur();}catch(_e){}
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               payload&&payload.action==='consumeWandoosCopy'&&res&&res.message
                 ?messageCopieWandoosV1_(res.message)
