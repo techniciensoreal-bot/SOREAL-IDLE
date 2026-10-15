@@ -23511,8 +23511,8 @@ function pageAventureIdleV28_(j){
         if(!idlePartieDevV1||!idlePartieDevV1.actif||!O||!O.niveauxSorts)return '';
         const noms={numberBoost:'🔢 Boost du nombre par le sang (1er)',ironPill:'💊 Iron Pill (2e)',bloodSpaghetti:'🍝 Spaghetti de sang (3e)',counterfeitGold:'💰 Counterfeit Gold (4e)',leeches:'🪱 Leeches (5e, le dernier)'};
         return '<div class="soreal-idle-section-v8">'+
-          '<div class="soreal-idle-window-title-v31">⛈️ Orage des sorts de Blood Magic (développement)</div>'+
-          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : l’écran qui s’assombrit, l’éclair et le tonnerre au même instant, de plus en plus fort selon le sort (pentacle pour les derniers).</div>'+
+          '<div class="soreal-idle-window-title-v31">🔯 Pentacles des sorts de Blood Magic (développement)</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : le sceau, le pentacle, les runes et le sang qui tombent, de plus en plus riches selon le sort ; la piste d’ambiance bascule en même temps sur la piste d’orage.</div>'+
           Object.keys(O.niveauxSorts).map(function(id){
             return '<div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px"><span style="flex:1;min-width:0">'+idleHtml_(noms[id]||id)+'</span>'+
               '<button type="button" class="soreal-idle-expand-button-v25" aria-label="Voir" title="Voir cet orage" onclick="window.__apercuOrageSortIdleV1__(\''+id+'\')">▶</button></div>';
@@ -24051,11 +24051,10 @@ function pageAventureIdleV28_(j){
         setTimeout(haut,150);
       }
       /*
-       * Sur PC, un clic sur un menu de gauche replace TOUJOURS la page ouverte en haut de la fenêtre : la bannière SOREAL IDLE est hors de l'écran et la barre Attaque / Défense / Or / EXP / AP est tout en haut
-       * (Norman, 2026-10-15). Le haut de cette barre est le bas de la bannière ; plusieurs passes, car le rendu de la page et la remise en place du défilement peuvent annuler la première. Renvoie false sur téléphone.
+       * Sur PC ET sur téléphone (Norman, 2026-10-15 : « sur téléphone aussi »), un clic sur un menu replace TOUJOURS la page ouverte en haut de la fenêtre : la bannière SOREAL IDLE est hors de l'écran et la barre Attaque / Défense / Or / EXP / AP est tout en haut
+       * (Norman, 2026-10-15). Le haut de cette barre est le bas de la bannière ; plusieurs passes, car le rendu de la page et la remise en place du défilement peuvent annuler la première (sur téléphone, la barre des menus collée reste tout en haut, la barre de stats juste dessous).
        */
       function placerMenuEnHautPcIdleV1_(){
-        try{if(!window.matchMedia||!window.matchMedia('(min-width:701px)').matches)return false;}catch(_e){return false;}
         const placer=function(){
           const banniere=document.querySelector('.soreal-idle-hero-banner-v95')||document.querySelector('.soreal-idle-hero-v4');
           if(!banniere)return;

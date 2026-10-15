@@ -87,7 +87,10 @@
     return chargementEnCours;
   }
 
+  /* Piste imposée pour le prochain départ (forcerOrage) */
+  var cleForcee='';
   function choisirCle_(){
+    if(cleForcee){var f=cleForcee;cleForcee='';return f;}
     if(!cles||!cles.length)return '';
     var eviter=slots.map(function(s){return s.cle;}).filter(Boolean);
     var choix=cles.filter(function(c){return eviter.indexOf(c)===-1;});
@@ -347,5 +350,32 @@
     else if(actif)demarrer_();
   }
 
-  window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__={verifier:verifier,suspendre:suspendre};
+  /*
+   * Bascule sur la piste d'ORAGE (Norman, 2026-10-15 : quand on lance un sort de Blood Magic, la piste d'ambiance passe automatiquement sur celle de l'orage ; le décor d'orage d'orage-v1.js suit la piste) : la piste en cours
+   * s'éteint en fondu, une piste dont le nom parle de tonnerre / d'orage démarre tout de suite, et l'enchaînement normal reprend à sa fin. Rien si l'orage joue déjà, si l'ambiance est coupée ou s'il n'y a pas de telle piste.
+   */
+  var MOTIF_ORAGE=/thunder|orage|storm|tonnerre/i;
+  function forcerOrage(){
+    if(!actif||suspendu||!(volumeAmbiance_()>0))return Promise.resolve(false);
+    return chargerListe_().then(function(liste){
+      var orages=(liste||[]).filter(function(k){return MOTIF_ORAGE.test(String(k));});
+      if(!orages.length||!slots.length)return false;
+      var slot=slots[0];
+      if(slot.cle&&MOTIF_ORAGE.test(String(slot.cle)))return true;
+      cleForcee=orages[Math.floor(Math.random()*orages.length)];
+      if(slot.minuterie){clearTimeout(slot.minuterie);slot.minuterie=0;}
+      var ancien=slot.audio,ancienGain=slot.gainNode;
+      slot.audio=null;slot.cle='';slot.gainNode=null;
+      signaler_('',slot);
+      if(ancien){
+        ancien.onended=null;ancien.onerror=null;
+        fondu_(ancien,0,600);
+        setTimeout(function(){try{ancien.pause();}catch(_e){}if(ancienGain){try{ancienGain.disconnect();}catch(_e){}}},700);
+      }
+      jouerSuivant_(slot);
+      return true;
+    });
+  }
+
+  window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__={verifier:verifier,suspendre:suspendre,forcerOrage:forcerOrage};
 })();

@@ -4741,6 +4741,9 @@ function towerSetFloorsV1(state, payload) {
     if (towerAppliquerEtageOptimalV1(d, optimal)) {
       /* Mode « suivre l'étage optimal » : ne sert que si le Lazy ITOPOD Floor Shifter est acheté (voir advance plus bas). */
       d.autoOptimal = true;
+      /* Étages changés par le bouton : on recommence au PREMIER ennemi de l'étage choisi (Norman, 2026-10-15). */
+      if (d.startFloor != null) d.floor = d.startFloor;
+      d.killsOnFloor = 0;
       tower.level = d.floor;
       return { auto: true, start: d.startFloor, end: d.endFloor };
     }
@@ -4754,10 +4757,9 @@ function towerSetFloorsV1(state, payload) {
   d.startFloor = start;
   d.endFloor = end;
   d.autoOptimal = false;
-  if (d.floor < start || d.floor > end) {
-    d.floor = start;
-    d.killsOnFloor = 0;
-  }
+  /* Changer les étages avec les boutons recommence TOUJOURS au premier ennemi de l'étage de départ choisi (Norman, 2026-10-15), qu'on soit déjà dans la plage ou non. */
+  d.floor = start;
+  d.killsOnFloor = 0;
   return { start, end };
 }
 

@@ -32,6 +32,8 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Boutons + / − / Max / 0 des NGU plus sobres.',
+            'Sur téléphone aussi, un clic sur un menu replace la page sous la bannière : la barre des menus reste en haut, la barre Attaque, Défense, Or, EXP, AP juste dessous.',
             'Les barres d’outils des menus (Input, Mes nombres, Plafond, Idle) sont refaites : un petit cadre propre par ligne, des boutons de même largeur, rien ne dépasse, et « Max » n’est plus coupé sur téléphone comme sur PC. La page des NGU ne se redessine plus à intervalle régulier.',
             'La page Renaissance est refaite : deux colonnes « Partie précédente » et « Partie en cours » (sang dépensé, durée, boss le plus haut, Number), le Number à la Renaissance en grand, les calculs en bas, et un décor inspiré des cieux, de la vie et de la mort.',
             '« En direct » annonce maintenant quand le coffre d’un joueur s’est chié dessus.',
@@ -48,10 +50,17 @@
             'L’éditeur de textes et de voix de l’administrateur retrouve maintenant les personnages enregistrés à la réouverture d’un texte, au lieu de tout remettre en un seul bloc.',
             'Le journal d’EXP de l’administrateur garde désormais plusieurs jours d’historique : la production courante est regroupée en une ligne par tranche d’environ dix minutes.',
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Machine temporelle : les deux barres qu’on alimente sont plus grosses et plus soignées (tuyau de laiton à graduations, or avec des rouages qui défilent). Tous les boutons des menus (Max, 1/2, +, −, 0…) ont la même taille, lisible sur PC comme sur téléphone.',
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Changer les étages avec les boutons recommence toujours au premier ennemi de l’étage choisi.',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Installer l’OS avec une copie réussie : un son d’ordinateur joyeux (deux bips, arpège de démarrage, carillon) ; copie de niveau insuffisant : un son d’erreur d’ordinateur.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'La page est sans bords et prend toute la largeur ; les textes sont plus grands et plus lisibles (deux colonnes de fruits sur téléphone).',
             'Le premier fruit change d’image au fil de sa croissance : la dernière image n’apparaît que lorsqu’il est au tier maximum et entièrement poussé.',
             'Les durées de croissance s’affichent en heures et minutes (09h58) au lieu de 0,85 h.',
           ]},
@@ -67,6 +76,7 @@
             'Si le bandeau « Boss vaincu » reste affiché, le jeu redemande l’état au serveur au bout de quelques secondes et affiche le boss suivant tout seul : plus besoin de changer de menu ni de faire Fight puis Fuite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Les sorts n’appellent plus l’orage : un sceau puis un pentacle qui tourne, des runes et du sang qui tombe, de plus en plus riches jusqu’au dernier sort ; la piste d’ambiance bascule en même temps sur la piste d’orage.',
             'Magie du sang : le pied du support de la sangsue est posé sur la table, aussi sur téléphone.',
             'Quand tu lances un sort de la Magie du sang, le ciel s’assombrit et un éclair claque avec son tonnerre au même instant ; plus le sort est avancé dans la liste, plus l’orage gronde, et un pentacle tourne pour les derniers. Les noms des sorts et tous les textes du jeu parlent maintenant de « sang » et de « Nombre », en français.',
             'Dans Blood Magic, les animations ne se perdent plus : la coupure du papier, la punaise, le jet de la sangsue, le fil barbelé et la banque partent à chaque rituel terminé, même quand le compteur affiché ne bouge pas, et un redessin de la page ne les interrompt plus.',

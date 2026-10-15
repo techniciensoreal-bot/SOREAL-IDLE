@@ -94,7 +94,7 @@ assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aven
 }
 /* Sur PC, un clic sur un menu de gauche replace la page en haut : bannière hors écran, barre de stats tout en haut */
 {
-  assert.ok(ui.includes("function placerMenuEnHautPcIdleV1_(){") && ui.includes("window.matchMedia('(min-width:701px)')") && ui.includes("banniere.getBoundingClientRect().bottom+(window.scrollY||0)"), "placement en haut (PC)");
+  assert.ok(ui.includes("function placerMenuEnHautPcIdleV1_(){") && ui.includes("banniere.getBoundingClientRect().bottom+(window.scrollY||0)"), "placement en haut (PC)");
   assert.ok(ui.includes("if(menu!=='aventure'){menuIdleCoeurV28_(menu);placerMenuEnHautPcIdleV1_();return;}") && ui.includes("if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();"), "tous les menus, Aventure comprise (téléphone : comportement d'avant)");
 }
 /* Panneaux d'informations : fermés à l'arrivée et refermés au changement de menu */

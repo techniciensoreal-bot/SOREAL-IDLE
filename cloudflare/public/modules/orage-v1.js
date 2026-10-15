@@ -195,47 +195,43 @@
   }
 
   /*
-   * ORAGE D'UN SORT DE BLOOD MAGIC (Norman, 2026-10-15) : « quand on utilise un sort, l'écran s'assombrit, il y a un éclair avec le son au même moment (on utilise déjà des éclairs : les réutiliser) ; plus le sort est avancé dans
-   * la liste, plus l'orage gronde ; des choses apparaissent en plus, un pentacle qui tourne pour les derniers ». Les éclairs réutilisent trace_() et les claquements blancs BLANCS de l'orage d'ambiance ; chaque éclair joue son coup
-   * de tonnerre (audio-effects-v199.js, coupTonnerre) au MÊME instant. Niveau 1 (premier sort de la liste) à 5 (dernier) :
-   *   1 numberBoost : ciel noir léger, un éclair                         2 ironPill : plus sombre, un éclair, lueur rouge
-   *   3 bloodSpaghetti : deux éclairs, gouttes de sang qui tombent        4 counterfeitGold : trois éclairs, gouttes, pentacle qui tourne
-   *   5 leeches : quatre éclairs, pluie de sang, grand double pentacle à runes, vignette rouge qui palpite
-   * Doux pour les yeux : jamais deux éclairs à moins de 0,9 s d'écart ; rien du tout (sauf le son) si l'effet « orage » est coupé dans les Réglages ou si le système demande moins d'animations. Rien n'intercepte les clics.
+   * RITUEL VISUEL D'UN SORT DE BLOOD MAGIC (Norman, 2026-10-15 : « pour les sorts, je veux juste des pentacles et des choses du genre, plus l'orage ; par contre, que ça bascule automatiquement sur la piste d'orage »). Plus d'éclair,
+   * plus de ciel noir ni de tonnerre synthétisé : un sceau, puis un pentacle qui tourne, des runes, des gouttes de sang et une vignette rouge, de plus en plus riches jusqu'au dernier sort de la liste. En même temps, la piste
+   * d'ambiance bascule sur la piste d'ORAGE (ambient-audio-v1.js, forcerOrage), dont le décor d'orage habituel (ci-dessus) suit tout seul. Niveau 1 (premier sort) à 5 (dernier) :
+   *   1 numberBoost : un sceau (anneaux et runes)                     2 ironPill : un pentacle
+   *   3 bloodSpaghetti : pentacle et gouttes de sang                    4 counterfeitGold : pentacle à runes, gouttes, vignette rouge
+   *   5 leeches : grand double pentacle à runes, pluie de sang, vignette rouge qui palpite
+   * Rien du tout (sauf le changement de piste) si l'effet visuel est coupé dans les Réglages ou si le système demande moins d'animations. Rien n'intercepte les clics.
    */
   var NIVEAUX_SORTS={numberBoost:1,ironPill:2,bloodSpaghetti:3,counterfeitGold:4,leeches:5};
-  var ORAGE_SORT=[
+  var RITUEL_SORT=[
     null,
-    {sombre:.35,rouge:0,gouttes:0,pentacle:0,eclairs:[260],duree:2000},
-    {sombre:.46,rouge:.35,gouttes:0,pentacle:0,eclairs:[260],duree:2600},
-    {sombre:.56,rouge:.55,gouttes:12,pentacle:0,eclairs:[260,1350],duree:3400},
-    {sombre:.66,rouge:.7,gouttes:16,pentacle:1,eclairs:[260,1250,2350],duree:4500},
-    {sombre:.78,rouge:.95,gouttes:26,pentacle:2,eclairs:[260,1150,2100,3150],duree:5800}
+    {rouge:.25,gouttes:0,motif:0,duree:2200},
+    {rouge:.4,gouttes:0,motif:1,duree:2800},
+    {rouge:.55,gouttes:12,motif:1,duree:3600},
+    {rouge:.72,gouttes:16,motif:2,duree:4600},
+    {rouge:.95,gouttes:26,motif:3,duree:6000}
   ];
-  var racineSort=null,finSort=0,minuterieSort=0;
-  function pentacleSvg_(niveau){
+  var racineSort=null,minuterieSort=0;
+  /* motif 0 : sceau (deux anneaux et runes) ; 1 : pentacle ; 2 : pentacle, anneau intérieur et runes ; 3 : comme 2 (un second pentacle tourne à l'envers dedans) */
+  function pentacleSvg_(motif){
     var pts=[];for(var k=0;k<5;k++){var a=(-90+k*72)*Math.PI/180;pts.push([100+78*Math.cos(a),100+78*Math.sin(a)]);}
     var ordre=[0,2,4,1,3,0],etoile=ordre.map(function(i,n){return (n?'L':'M')+pts[i][0].toFixed(1)+' '+pts[i][1].toFixed(1);}).join(' ')+'Z';
     var runes='ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊ',texte='';
-    if(niveau>=2){for(var i=0;i<16;i++){var b=i*22.5;texte+='<text x="100" y="12" transform="rotate('+b+' 100 100)" text-anchor="middle" font-size="9" fill="#ff5a4a">'+runes.charAt(i)+'</text>';}}
+    if(motif!==1){for(var i=0;i<16;i++){var b=i*22.5;texte+='<text x="100" y="12" transform="rotate('+b+' 100 100)" text-anchor="middle" font-size="9" fill="#ff5a4a">'+runes.charAt(i)+'</text>';}}
     return '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="#ff2a2a" stroke-width="1.8" stroke-linejoin="round">'+
-      '<circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="'+(niveau>=2?'80':'84')+'"/>'+
-      '<path d="'+etoile+'" stroke-width="2.4"/>'+(niveau>=2?'<circle cx="100" cy="100" r="31" stroke-width="1.4"/>':'')+'</g>'+texte+'</svg>';
+      '<circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="'+(motif!==1?'80':'84')+'"/>'+
+      (motif>=1?'<path d="'+etoile+'" stroke-width="2.4"/>':'<circle cx="100" cy="100" r="52" stroke-width="1.4"/><circle cx="100" cy="100" r="26" stroke-width="1.2"/>')+
+      (motif>=2?'<circle cx="100" cy="100" r="31" stroke-width="1.4"/>':'')+'</g>'+texte+'</svg>';
   }
   function styleSort_(){
     if(document.getElementById('orage-sort-style-v1'))return;
     var s=document.createElement('style');s.id='orage-sort-style-v1';
     s.textContent=[
       '#soreal-orage-sort-v1{position:fixed;inset:0;z-index:100001;pointer-events:none;overflow:hidden}',
-      '#soreal-orage-sort-v1 .os-sombre{position:absolute;inset:0;background:#02030a;opacity:0;transition:opacity .28s ease-out}',
       '#soreal-orage-sort-v1 .os-rouge{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,transparent 28%,rgba(130,0,12,.6) 100%);transition:opacity .7s ease}',
       '#soreal-orage-sort-v1 .os-rouge.pulse{animation:osPalpite 1.5s ease-in-out infinite}',
       '@keyframes osPalpite{0%,100%{filter:brightness(.7)}50%{filter:brightness(1.25)}}',
-      '#soreal-orage-sort-v1 .os-blanc{position:absolute;inset:0;opacity:0;background:rgb(228,236,255)}',
-      '#soreal-orage-sort-v1 .os-eclair{position:absolute;inset:0;width:100%;height:100%;opacity:0}',
-      '#soreal-orage-sort-v1 .os-eclair polyline{fill:none;stroke:#f4f8ff;vector-effect:non-scaling-stroke;stroke-width:3px;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 6px #9bc0ff) drop-shadow(0 0 14px #5a8dff)}',
-      '#soreal-orage-sort-v1.rouge .os-eclair polyline{stroke:#ffe9e4;filter:drop-shadow(0 0 6px #ff6a5a) drop-shadow(0 0 14px #ff2a2a)}',
-      '#soreal-orage-sort-v1 .os-eclair polyline.og-branche{stroke-width:1.6px;opacity:.8}',
       '#soreal-orage-sort-v1 .os-gouttes i{position:absolute;top:-30px;width:6px;height:16px;border-radius:50% 50% 60% 60%/30% 30% 70% 70%;background:linear-gradient(#b0001a,#5a000d);opacity:0;animation:osChute var(--d,1.6s) linear var(--delai,0s) both}',
       '@keyframes osChute{0%{transform:translateY(0);opacity:0}10%{opacity:.9}100%{transform:translateY(112vh);opacity:.9}}',
       '#soreal-orage-sort-v1 .os-pentacle{position:absolute;left:50%;top:48%;width:min(80vmin,540px);height:min(80vmin,540px);margin:calc(min(80vmin,540px) / -2) 0 0 calc(min(80vmin,540px) / -2);opacity:0;transition:opacity .9s ease;filter:drop-shadow(0 0 8px #ff2a2a) drop-shadow(0 0 22px #b00018)}',
@@ -243,119 +239,43 @@
       '#soreal-orage-sort-v1 .os-pentacle svg{width:100%;height:100%;animation:osTourne 16s linear infinite}',
       '#soreal-orage-sort-v1 .os-pentacle.double::after{content:"";position:absolute;inset:18%;background:var(--os-etoile) center/contain no-repeat;animation:osTourneInverse 11s linear infinite}',
       '@keyframes osTourne{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',
-      '@keyframes osTourneInverse{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}'
+      '@keyframes osTourneInverse{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}',
+      '@media (prefers-reduced-motion:reduce){#soreal-orage-sort-v1 .os-pentacle svg,#soreal-orage-sort-v1 .os-pentacle.double::after,#soreal-orage-sort-v1 .os-rouge.pulse{animation:none}}'
     ].join('\n');
     document.head.appendChild(s);
-  }
-  /*
-   * LES TONNERRES DE SOREAL APP (mode Halloween, features/skin-halloween/ui.html, repris tels quels : même synthèse, même réverbération) : cinq tonnerres, du coup sec au grondement qui roule.
-   * Bruit filtré qui s'enfle par à-coups (« bosses »), sub-grave sinusoïdal, et une réverbération convolutive (impulsion de bruit qui s'éteint en 2,2 s) qui donne l'écho des nuages.
-   * Au lieu d'arriver plusieurs secondes après l'éclair comme dans l'APP, le tonnerre part ici AU MÊME INSTANT que l'éclair (c'est le sort qui le veut).
-   */
-  var reverbeOrage=null;
-  function souffleOrage_(a,t,sortie,o){
-    var n=Math.floor(a.sampleRate*o.duree),buf=a.createBuffer(1,n,a.sampleRate),d=buf.getChannelData(0);
-    for(var i=0;i<n;i++)d[i]=Math.random()*2-1;
-    var s=a.createBufferSource();s.buffer=buf;
-    var f=a.createBiquadFilter();f.type=o.type||'lowpass';f.Q.value=o.q||1;
-    f.frequency.setValueAtTime(o.f0,t);f.frequency.exponentialRampToValueAtTime(Math.max(20,o.f1),t+o.duree);
-    var g=a.createGain();g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol,t+(o.attaque||.1));
-    (o.bosses||[]).forEach(function(b){g.gain.exponentialRampToValueAtTime(Math.max(.0001,b[1]),t+b[0]);});
-    g.gain.exponentialRampToValueAtTime(.0001,t+o.duree);
-    s.connect(f);f.connect(g);g.connect(sortie);s.start(t);s.stop(t+o.duree);
-  }
-  function graveOrage_(a,t,sortie,f0,f1,duree,vol,attaque){
-    var o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(18,f1),t+duree);
-    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+(attaque||.15));g.gain.exponentialRampToValueAtTime(.0001,t+duree);
-    o.connect(g);g.connect(sortie);o.start(t);o.stop(t+duree+.05);
-  }
-  function sortieReverbeOrage_(a){
-    if(!reverbeOrage||reverbeOrage.ctx!==a){
-      var duree=2.2,n=Math.floor(a.sampleRate*duree),buf=a.createBuffer(2,n,a.sampleRate);
-      for(var c=0;c<2;c++){var d=buf.getChannelData(c);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,2.6);}
-      var conv=a.createConvolver();conv.buffer=buf;var g=a.createGain();g.gain.value=.55;conv.connect(g);g.connect(a.destination);
-      reverbeOrage={ctx:a,noeud:conv};
-    }
-    return reverbeOrage.noeud;
-  }
-  var TONNERRES=[
-    function(a,t,s){souffleOrage_(a,t,s,{duree:.5,f0:4200,f1:700,vol:.95,attaque:.01});souffleOrage_(a,t+.05,s,{duree:1.9,f0:520,f1:90,vol:.75,attaque:.05,bosses:[[.5,.5]]});graveOrage_(a,t,s,72,40,1.4,.5,.04);},                       /* 0 coup proche */
-    function(a,t,s){souffleOrage_(a,t,s,{duree:5.6,f0:240,f1:46,vol:.7,attaque:.9,bosses:[[1.6,.35],[2.9,.6],[4.2,.3]]});graveOrage_(a,t,s,46,26,5,.4,1);},                                                                              /* 1 grondement lointain */
-    function(a,t,s){souffleOrage_(a,t,s,{duree:.4,f0:2200,f1:500,vol:.5,attaque:.02});souffleOrage_(a,t,s,{duree:4.4,f0:360,f1:70,vol:.7,attaque:.12,bosses:[[.5,.3],[.8,.75],[1.2,.3],[1.6,.7],[2.1,.28],[2.6,.55],[3.3,.2]]});graveOrage_(a,t,s,55,30,3.8,.4,.2);}, /* 2 roulement */
-    function(a,t,s){souffleOrage_(a,t,s,{duree:1,type:'bandpass',q:.8,f0:6500,f1:1400,vol:.7,attaque:.01,bosses:[[.15,.9],[.4,.4]]});souffleOrage_(a,t+.2,s,{duree:2.6,f0:420,f1:80,vol:.7,attaque:.1,bosses:[[.9,.45]]});graveOrage_(a,t+.15,s,64,34,2,.4,.1);}, /* 3 déchirure */
-    function(a,t,s){graveOrage_(a,t,s,95,24,2.8,.85,.03);souffleOrage_(a,t,s,{duree:1.2,f0:180,f1:60,vol:.5,attaque:.03});souffleOrage_(a,t+.5,s,{duree:2.2,f0:150,f1:45,vol:.3,attaque:.4});}                                                 /* 4 boum sourd */
-  ];
-  /* Quels tonnerres pour quel éclair : le sort 1 n'a qu'un coup sec ; le dernier empile tout, du plus sec au plus profond. */
-  var TONNERRES_PAR_NIVEAU=[null,[0],[3],[0,2],[3,2,4],[0,3,2,4]];
-  function volumeEffets_(){
-    var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
-    var v=r&&typeof r.getInterface==='function'?Number(r.getInterface()):(r&&typeof r.getAmbiance==='function'?Number(r.getAmbiance()):0.5);
-    return Number.isFinite(v)?Math.max(0,Math.min(1,v)):0.5;
-  }
-  function coupTonnerre_(niveau,indice){
-    var liste=TONNERRES_PAR_NIVEAU[Math.max(1,Math.min(5,niveau|0))]||[0];
-    var v=volumeEffets_();
-    if(!(v>0))return false;
-    var c=contexte_();
-    if(!c)return false;
-    try{
-      if(c.state==='suspended'&&c.resume)c.resume();
-      var sortie=c.createGain();sortie.gain.value=Math.min(1,v*1.1)*((niveau|0)>=4?0.8:1);
-      sortie.connect(c.destination);sortie.connect(sortieReverbeOrage_(c));
-      var i=Math.min(liste.length-1,Math.max(0,indice|0));
-      TONNERRES[liste[i]](c,c.currentTime+.02,sortie);
-      /* le dernier sort de la liste ajoute à chaque éclair un grondement lointain qui s'étire dessous */
-      if((niveau|0)>=5&&(indice|0)===0)TONNERRES[1](c,c.currentTime+.1,sortie);
-      return true;
-    }catch(_e){return false;}
   }
   function retirerSort_(){
     clearTimeout(minuterieSort);minuterieSort=0;
     if(racineSort&&racineSort.parentNode)racineSort.parentNode.removeChild(racineSort);
-    racineSort=null;finSort=0;
+    racineSort=null;
+  }
+  function basculerSurOrage_(){
+    try{var A=window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__;if(A&&typeof A.forcerOrage==='function')A.forcerOrage();}catch(_e){}
   }
   function sort(idOuNiveau){
     var niveau=typeof idOuNiveau==='number'?idOuNiveau:(NIVEAUX_SORTS[String(idOuNiveau||'')]||0);
     niveau=Math.max(0,Math.min(5,Math.floor(niveau)));
     if(!niveau)return false;
-    var cfg=ORAGE_SORT[niveau];
-    /* Effet coupé ou mouvement réduit : seulement le tonnerre, une fois, au moment du sort. */
+    basculerSurOrage_();
+    var cfg=RITUEL_SORT[niveau];
     var visuel=!mouvementReduit_()&&(function(){try{return localStorage.getItem('soreal_idle_effet_orage_v1')!=='0';}catch(_e){return true;}})();
-    if(!visuel){coupTonnerre_(niveau,0);return true;}
+    if(!visuel)return true;
     retirerSort_();
     styleSort_();
     var r=document.createElement('div');r.id='soreal-orage-sort-v1';r.setAttribute('aria-hidden','true');
-    if(cfg.rouge>0)r.className='rouge';
-    var gouttes='';for(var g=0;g<cfg.gouttes;g++)gouttes+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--d:'+(1.1+Math.random()*1.1).toFixed(2)+'s;--delai:'+(Math.random()*(cfg.duree/1000-1.4)).toFixed(2)+'s"></i>';
-    r.innerHTML='<div class="os-sombre"></div><div class="os-rouge"></div><div class="os-gouttes">'+gouttes+'</div>'+
-      (cfg.pentacle?'<div class="os-pentacle'+(cfg.pentacle>=2?' double':'')+'">'+pentacleSvg_(cfg.pentacle)+'</div>':'')+
-      '<div class="os-blanc"></div><svg class="os-eclair" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>';
-    if(cfg.pentacle>=2){var pp=pentacleSvg_(1);r.querySelector('.os-pentacle').style.setProperty('--os-etoile','url("data:image/svg+xml,'+encodeURIComponent(pp)+'")');}
+    var gouttes='';for(var g=0;g<cfg.gouttes;g++)gouttes+='<i style="left:'+(Math.random()*100).toFixed(1)+'%;--d:'+(1.1+Math.random()*1.1).toFixed(2)+'s;--delai:'+(Math.random()*Math.max(0.2,cfg.duree/1000-1.4)).toFixed(2)+'s"></i>';
+    r.innerHTML='<div class="os-rouge"></div><div class="os-gouttes">'+gouttes+'</div>'+
+      '<div class="os-pentacle'+(cfg.motif>=3?' double':'')+'">'+pentacleSvg_(cfg.motif)+'</div>';
+    if(cfg.motif>=3){r.querySelector('.os-pentacle').style.setProperty('--os-etoile','url("data:image/svg+xml,'+encodeURIComponent(pentacleSvg_(1))+'")');}
     document.body.appendChild(r);racineSort=r;
-    var sombre=r.querySelector('.os-sombre'),rouge=r.querySelector('.os-rouge'),blancEl=r.querySelector('.os-blanc'),svg=r.querySelector('.os-eclair'),pent=r.querySelector('.os-pentacle');
-    /* assombrissement dès le lancement */
+    var rouge=r.querySelector('.os-rouge'),pent=r.querySelector('.os-pentacle');
     requestAnimationFrame(function(){
-      sombre.style.opacity=String(cfg.sombre);
-      if(cfg.rouge>0){rouge.style.opacity=String(cfg.rouge);if(niveau>=5)rouge.classList.add('pulse');}
-      if(pent)pent.classList.add('visible');
+      rouge.style.opacity=String(cfg.rouge);if(niveau>=5)rouge.classList.add('pulse');
+      pent.classList.add('visible');
     });
-    /* les éclairs : tracé et claquement blanc de l'orage d'ambiance, tonnerre au même instant */
-    cfg.eclairs.forEach(function(debut,i){
-      setTimeout(function(){
-        if(racineSort!==r)return;
-        var e=trace_();
-        svg.innerHTML=e.svg;
-        svg.style.opacity='.95';
-        setTimeout(function(){svg.style.opacity='0';},120+Math.random()*80);
-        if(blancEl&&blancEl.animate){var b=BLANCS[(niveau<=2||i===0)?0:Math.floor(Math.random()*BLANCS.length)];try{blancEl.animate(b.k,{duration:b.d,easing:'linear'});}catch(_e){}}
-        coupTonnerre_(niveau,i);
-      },debut);
-    });
-    /* fin : fondu de sortie puis le décor est retiré */
     minuterieSort=setTimeout(function(){
       if(racineSort!==r)return;
-      sombre.style.transition='opacity .9s ease-in';rouge.style.transition='opacity .9s ease-in';
-      sombre.style.opacity='0';rouge.style.opacity='0';if(pent)pent.classList.remove('visible');
+      rouge.style.transition='opacity .9s ease-in';rouge.style.opacity='0';pent.classList.remove('visible');
       minuterieSort=setTimeout(function(){if(racineSort===r)retirerSort_();},1100);
     },cfg.duree);
     return true;
@@ -381,5 +301,5 @@
     if(vol&&typeof vol.onChange==='function')vol.onChange(evaluer_);
   }catch(_e){}
 
-  window.__SOREAL_IDLE_ORAGE_V1__={sort:sort,niveauxSorts:NIVEAUX_SORTS,tonnerres:TONNERRES,tonnerresParNiveau:TONNERRES_PAR_NIVEAU,demarrer:function(){return demarrer(null);},arreter:arreter,eclair:eclair,actif:function(){return actif;},estOrage:estOrage,evaluer:evaluer_,construireGrondement:construireGrondement_};
+  window.__SOREAL_IDLE_ORAGE_V1__={sort:sort,niveauxSorts:NIVEAUX_SORTS,demarrer:function(){return demarrer(null);},arreter:arreter,eclair:eclair,actif:function(){return actif;},estOrage:estOrage,evaluer:evaluer_,construireGrondement:construireGrondement_};
 })();

@@ -119,6 +119,25 @@
       '.ygg-solo input{width:22px;height:22px;accent-color:#e0b640;flex:0 0 auto;}',
       '.ygg-note{margin-top:1.6cqw;font-size:clamp(8px,1.7cqw,12px);color:#b9d8a8;line-height:1.4;text-align:center;}',
       '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{padding:1.2cqw;gap:.9cqw}}',
+      /* Page sans bords (Norman, 2026-10-15) : plus de cadre ni de médaillons, la page prend toute la largeur ; textes plus grands et plus clairs. */
+      '.ygg-page{max-width:none!important;margin:0!important}',
+      '.ygg-cadre{padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}',
+      '.ygg-cadre::before,.ygg-cadre::after{display:none!important}',
+      '.ygg-titre small{font-size:clamp(12px,2.4cqw,15px)!important}',
+      '.ygg-aide{font-size:clamp(14px,2.6cqw,17px)!important;color:#f4f8ea}',
+      '.ygg-aide-bouton{font-size:clamp(12px,2.4cqw,15px)!important}',
+      '.ygg-onglet{font-size:clamp(13px,2.8cqw,17px)!important}',
+      '.ygg-nom{font-size:clamp(13px,2.6cqw,16px)!important;color:#fff8d8}',
+      '.ygg-temps{font-size:clamp(12px,2.2cqw,14px)!important;color:#eaf6df}',
+      '.ygg-btn{font-size:clamp(12px,2.5cqw,15px)!important}',
+      '.ygg-mode button,.ygg-poop{font-size:clamp(12px,2.2cqw,14px)!important;color:#f0f8e6}',
+      '.ygg-auto{font-size:clamp(12px,2cqw,13px)!important;color:#c4eec4}',
+      '.ygg-auto button{font-size:clamp(11px,2.1cqw,13px)!important}',
+      '.ygg-bonus{font-size:clamp(13px,2.4cqw,16px)!important;color:#f4f8ea}',
+      '.ygg-solo{font-size:clamp(13px,2.3cqw,15px)!important}',
+      '.ygg-note{font-size:clamp(12px,2.1cqw,14px)!important;color:#d6ecc6}',
+      '@container (max-width:560px){.ygg-grille{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2.4cqw}}',
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"]:not(#_):not(#_){border:0!important;border-radius:0!important;padding:6px 4px 10px!important;box-shadow:none!important}',
       '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}}'
     ].join('\n');
     document.head.appendChild(s);
