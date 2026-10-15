@@ -20,6 +20,7 @@ Variables d'environnement (facultatives) :
   SOREAL_VOIX_DEBIT       débit AAC (défaut 96k)
 """
 import io
+import time
 import json
 import os
 import re
@@ -115,6 +116,40 @@ def ffmpeg_exe():
         return os.environ.get("SOREAL_FFMPEG", "ffmpeg")
 
 
+# PLAFOND DE GÉNÉRATION (Norman, 2026-10-15 : « dans la génération de voix, j'ai énormément de dérapage ; ça met une éternité à générer à cause de ça »). Chatterbox appelle t3.inference(max_new_tokens=1000) en dur :
+# un segment qui dérape (le modèle ne s'arrête pas à la fin du texte, boucle ou invente) tourne donc TOUJOURS jusqu'au bout des 1000 jetons (~40 s d'audio, des dizaines de secondes de carte graphique), et le dérapage
+# n'était constaté qu'APRÈS coup, puis refait jusqu'à trois fois dans generer_segment (et quatre fois côté générateur) : le temps perdu se multipliait. Le nombre de jetons est maintenant plafonné d'après la durée
+# plausible du segment (la même que celle du garde-fou : duree_max_segment) + 1 s de marge, à 25 jetons par seconde : un dérapage s'arrête dès qu'il dépasse ce que le texte permet, est détecté tout de suite (la durée
+# dépasse la limite) et réessayé avec des réglages plus calmes. SOREAL_VOIX_PLAFOND=0 le désactive.
+JETONS_PAR_SECONDE = 25
+MARGE_PLAFOND_S = 1.0
+_plafond_jetons = [0]
+
+
+def plafond_jetons(segment):
+    """Nombre maximal de jetons de parole pour ce segment (0 = pas de plafond)."""
+    if os.environ.get("SOREAL_VOIX_PLAFOND", "1") == "0":
+        return 0
+    return int((duree_max_segment(segment) + MARGE_PLAFOND_S) * JETONS_PAR_SECONDE) + 10
+
+
+def installer_plafond(modele):
+    """Enveloppe t3.inference : max_new_tokens ne dépasse jamais le plafond du segment en cours (voir _plafond_jetons)."""
+    t3 = modele.t3
+    if getattr(t3, "_plafond_installe", False):
+        return
+    d_origine = t3.inference
+
+    def inference(*args, **kwargs):
+        plafond = _plafond_jetons[0]
+        if plafond and kwargs.get("max_new_tokens"):
+            kwargs["max_new_tokens"] = min(int(kwargs["max_new_tokens"]), plafond)
+        return d_origine(*args, **kwargs)
+
+    t3.inference = inference
+    t3._plafond_installe = True
+
+
 def charger_modele():
     global _modele
     if _modele is None:
@@ -130,6 +165,7 @@ def charger_modele():
             _modele = ChatterboxMultilingualTTS.from_pretrained(device=appareil, t3_model="v3")
         except TypeError:
             _modele = ChatterboxMultilingualTTS.from_pretrained(device=appareil)
+        installer_plafond(_modele)
         print("Modèle prêt.", flush=True)
     return _modele
 
@@ -403,7 +439,9 @@ def generer_segment(m, segment, kwargs):
     tentatives = [kwargs, dict(kwargs, exaggeration=min(kwargs["exaggeration"], 0.35), cfg_weight=max(kwargs["cfg_weight"], 0.5)),
                   dict(kwargs, exaggeration=0.25, cfg_weight=0.6)]
     wav = None
+    _plafond_jetons[0] = plafond_jetons(segment)
     for essai in tentatives:
+        debut_essai = time.time()
         wav = m.generate(segment, **essai).detach().cpu()
         if wav.dim() == 1:
             wav = wav.unsqueeze(0)
@@ -411,8 +449,10 @@ def generer_segment(m, segment, kwargs):
         if queue_coupee:
             print("[voix] baratin inventé après un silence retiré (%d caractères)" % len(segment))
         if wav.shape[-1] <= int(duree_max_segment(segment) * m.sr):
+            _plafond_jetons[0] = 0
             return wav
-        print("[voix] dérapage détecté (%.1f s pour %d caractères), nouvel essai" % (wav.shape[-1] / m.sr, len(segment)))
+        print("[voix] dérapage détecté (%.1f s pour %d caractères, essai de %.1f s), nouvel essai" % (wav.shape[-1] / m.sr, len(segment), time.time() - debut_essai))
+    _plafond_jetons[0] = 0
     wav, _ = couper_derapage(wav, m.sr, segment)
     return wav
 

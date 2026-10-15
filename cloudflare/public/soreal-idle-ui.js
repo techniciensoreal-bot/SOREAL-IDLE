@@ -5713,6 +5713,25 @@
         if(M&&typeof M.installer==='function')M.installer(element);
       }
 
+      /* Menu de gauche (PC) : sa hauteur maximale suit la place réellement visible sous lui (fenêtre - sa position), sinon, page non défilée (bannière au-dessus), son bas dépassait de l'écran et il fallait faire descendre la page centrale (Norman, 2026-10-15). */
+      (function(){
+        let attente=false;
+        function ajuster(){
+          attente=false;
+          const nav=document.querySelector('.soreal-idle-native-v4>.soreal-idle-nav-v28');
+          if(!nav)return;
+          const haut=nav.getBoundingClientRect().top;
+          const dispo=Math.max(160,Math.floor(window.innerHeight-Math.max(haut,12)-12));
+          if(nav.style.getPropertyValue('--nav-dispo')!==dispo+'px')nav.style.setProperty('--nav-dispo',dispo+'px');
+        }
+        function planifier(){if(attente)return;attente=true;requestAnimationFrame(ajuster);}
+        window.addEventListener('scroll',planifier,{passive:true});
+        window.addEventListener('resize',planifier);
+        (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(ajuster);
+        window.__ajusterMenuHauteurIdleV1__=ajuster;
+        setInterval(ajuster,1500);
+      })();
+
       function rafraichirMenuRacineIdleV28_(){
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(!root||!idleEtat)return;

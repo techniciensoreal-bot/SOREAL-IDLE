@@ -101,4 +101,56 @@ verifier(serveur.bornes_parole([False] * 20) is None, "aucune parole : pas de bo
 fini = serveur.avec_silence_final(parole(0.5), SR)
 verifier(abs(duree(fini) - (0.5 + serveur.SILENCE_FINAL_S)) < 0.01 and fini[0, -10:].abs().max().item() == 0.0, "le fichier se termine par un vrai silence de %.2f s" % serveur.SILENCE_FINAL_S)
 verifier(serveur.RACCORD_S >= 0.2, "raccord de %.2f s entre deux segments (vrai silence)" % serveur.RACCORD_S)
+
+# 6. Plafond de jetons (Norman, 2026-10-15 : « énormément de dérapage, ça met une éternité à générer ») : un segment qui dérape s'arrête au plafond de sa durée plausible, au lieu de tourner 1000 jetons.
+nom = "Un Type Bizarre"
+recit = "Il était une fois un magicien qui vivait au fond d'une grotte sombre, loin de tout, avec pour seule compagnie sa vieille chouette."
+pn, pr = serveur.plafond_jetons(nom), serveur.plafond_jetons(recit)
+verifier(0 < pn < 100, "plafond d'un nom court : %d jetons (au lieu de 1000)" % pn)
+verifier(pn < pr < 1000, "plafond d'un récit : %d jetons, plus large que celui d'un nom" % pr)
+verifier(abs(pr - int((serveur.duree_max_segment(recit) + serveur.MARGE_PLAFOND_S) * 25) - 10) <= 1, "plafond = durée plausible + 1 s, à 25 jetons par seconde")
+
+
+class FauxT3:
+    def __init__(self):
+        self.vu = []
+
+    def inference(self, **kwargs):
+        self.vu.append(kwargs.get("max_new_tokens"))
+        return "jetons"
+
+
+class FauxModele:
+    sr = SR
+
+    def __init__(self, duree_audio):
+        self.t3 = FauxT3()
+        self.duree_audio = duree_audio
+
+    def generate(self, segment, **reglages):
+        self.t3.inference(max_new_tokens=1000)
+        return parole(self.duree_audio)
+
+
+faux = FauxModele(2.0)
+serveur.installer_plafond(faux)
+serveur.installer_plafond(faux)   # idempotent
+serveur._plafond_jetons[0] = 123
+faux.t3.inference(max_new_tokens=1000)
+verifier(faux.t3.vu[-1] == 123, "t3.inference plafonné à 123 jetons au lieu de 1000")
+serveur._plafond_jetons[0] = 0
+faux.t3.inference(max_new_tokens=1000)
+verifier(faux.t3.vu[-1] == 1000, "sans plafond posé : valeur d'origine conservée")
+faux2 = FauxModele(2.0)
+serveur.installer_plafond(faux2)
+serveur.generer_segment(faux2, recit, {"exaggeration": 0.5, "cfg_weight": 0.5})
+verifier(faux2.t3.vu == [pr], "generer_segment pose le plafond du segment avant la génération (%s)" % faux2.t3.vu)
+verifier(serveur._plafond_jetons[0] == 0, "plafond remis à zéro après une génération réussie")
+derape = FauxModele(60.0)
+serveur.installer_plafond(derape)
+sortie = serveur.generer_segment(derape, nom, {"exaggeration": 0.5, "cfg_weight": 0.5})
+verifier(len(derape.t3.vu) == 3 and all(v == pn for v in derape.t3.vu), "dérapage : trois essais, chacun plafonné à %d jetons (%s)" % (pn, derape.t3.vu))
+verifier(duree(sortie) <= serveur.duree_max_segment(nom) + 0.01, "dérapage : le résultat final est coupé à la durée plausible (%.1f s)" % duree(sortie))
+verifier(serveur._plafond_jetons[0] == 0, "plafond remis à zéro après un dérapage")
+
 print("TOUT EST BON")

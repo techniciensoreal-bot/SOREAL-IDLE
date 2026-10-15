@@ -10,7 +10,7 @@ assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (ja
 const bloc = css.slice(debut);
 assert.ok(bloc.includes("width:min(1700px,calc(100vw - 32px))"), "le jeu occupe la largeur de l'écran");
 assert.ok(bloc.includes("grid-template-columns:300px minmax(0,1fr)"), "menu à gauche (une colonne), page à droite");
-assert.ok(bloc.includes("display:flex!important;flex-direction:column;") && bloc.includes("overflow-y:auto!important;max-height:calc(100vh - 62px)!important;") && bloc.includes("position:sticky;top:12px;"), "menus sur UNE colonne, tout superposé, avec leur propre défilement sans barre visible (2026-10-11)");
+assert.ok(bloc.includes("display:flex!important;flex-direction:column;") && bloc.includes("overflow-y:auto!important;max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important;") && bloc.includes("position:sticky;top:12px;"), "menus sur UNE colonne, tout superposé, avec leur propre défilement sans barre visible (2026-10-11)");
 assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{grid-column:1/-1}"), "bandeau sur toute la largeur");
 // Équilibre des accolades (aucune règle cassée par l'ajout).
 let profondeur = 0;
@@ -33,7 +33,7 @@ assert.ok(bloc.includes("soreal-idle-nav-cadre-v2{width:46px!important;height:46
 {
   const flux = readFileSync("cloudflare/public/modules/flux-v1.js", "utf8");
   assert.ok(flux.includes("bottom:0;z-index:55;height:34px;"), "bandeau au-dessus de la colonne de menus (z-index 50)");
-  assert.ok(bloc.includes("max-height:calc(100vh - 62px)!important;"), "la colonne de menus garde la place du bandeau fixe du bas (34 px + marges) : elle ne passe pas dessous");
+  assert.ok(bloc.includes("max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important;"), "la colonne de menus garde la place du bandeau fixe du bas (34 px + marges) : elle ne passe pas dessous");
 }
 console.log("idle-interface-pc-v1 (bandeau En direct): OK");
 

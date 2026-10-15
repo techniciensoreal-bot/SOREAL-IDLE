@@ -32,6 +32,8 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, le menu de gauche descend toujours jusqu’à son dernier bouton, même quand la page n’a pas encore été défilée : plus besoin de faire descendre la page centrale pour atteindre le bas du menu.',
+            'Quand tu changes d’onglet à l’intérieur d’une page, la bannière, le menu et la barre de vie ne s’étirent plus pendant une demi-seconde.',
             'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept : l’élégie d’origine, un trombone triste, un glas de cloche, un « game over » d’arcade, un disque qui s’arrête, une toccata sinistre à l’orgue et un orgue de foire triste.',
             'Dans les menus mis à jour en direct, le cadre lumineux et les particules des barres actives, les boutons de pourcentage personnalisés et la scène du Blood Magic ne disparaissent plus un instant à chaque mise à jour de la page.',
             'Le menu NGU ne clignote plus toutes les quelques secondes : les tuyaux, pourcentages et niveaux restent fluides au moment où la page se met à jour.',

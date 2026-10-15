@@ -1506,6 +1506,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     grid-template-columns:300px minmax(0,1fr);
     column-gap:20px;align-items:start;
   }
+  /* align-content:start : la hauteur retenue 700 ms au changement d'onglet (min-height) ne doit pas étirer les lignes de la grille (bannière, menu, barre de vie plus hauts une demi-seconde, Norman 2026-10-15). */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4{align-content:start}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>*{grid-column:2;min-width:0}
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-hero-banner-v95{grid-column:1/-1}
   /* Le cadre du bandeau suit la hauteur de l'image (au lieu de la hauteur fixe de téléphone qui la coupait). */
@@ -1525,7 +1527,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     display:flex!important;flex-direction:column;
     gap:8px!important;padding:10px!important;
     /* Défilement PROPRE au menu (Norman, 2026-10-11) : la molette sur les menus ne fait défiler que les menus, sur la zone de jeu que le jeu ; aucune barre visible, et l'élan ne passe pas à la page. */
-    overflow-x:hidden!important;overflow-y:auto!important;max-height:calc(100vh - 62px)!important;
+    overflow-x:hidden!important;overflow-y:auto!important;max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important;
     overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;
     scroll-snap-type:none!important;
   }

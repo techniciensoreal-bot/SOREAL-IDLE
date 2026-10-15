@@ -81,3 +81,14 @@ assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aven
   assert.ok(sang.includes("push(function(){if(document.querySelector('.bm-scene'))majVases();})"), "remise en état de la scène dans la même tâche après un redessin");
   assert.ok(agents.includes("soreal-rituel-termine") && agents.includes("phaseRituelEtat"), "principe écrit dans AGENTS.md");
 }
+/* Hauteur retenue au changement d'onglet : les lignes de la grille du jeu ne s'étirent pas (bannière, menu, barre de vie) */
+{
+  const css = fs.readFileSync(new URL("../public/soreal-idle-themes.css", import.meta.url), "utf8");
+  assert.ok(css.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4{align-content:start}"), "grille du jeu : align-content:start");
+}
+/* Menu de gauche (PC) : hauteur maximale d'après la place visible, atteint son bas sans défiler la page */
+{
+  const css = fs.readFileSync(new URL("../public/soreal-idle-themes.css", import.meta.url), "utf8");
+  assert.ok(css.includes("max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important"), "menu : hauteur max suit --nav-dispo");
+  assert.ok(ui.includes("nav.style.setProperty('--nav-dispo'") && ui.includes("window.addEventListener('scroll',planifier,{passive:true})"), "menu : --nav-dispo recalculée au défilement");
+}
