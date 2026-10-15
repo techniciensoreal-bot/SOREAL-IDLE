@@ -9349,8 +9349,11 @@
         const prochain=Math.max(1,idleNombre_(meta.nextNumber||r.nextNumber||actuel));
         const ratio=actuel>0?prochain/actuel:1;
         const preview=meta.preview||{};
+        const sysSang=(j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[]).find(function(s){return s&&s.id==='bloodMagic';});
+        const sangDebloque=Boolean(sysSang&&sysSang.state&&sysSang.state.unlocked);
+        /* Le bonus de Magie du sang est TOUJOURS montré une fois Blood Magic débloquée, même à ×1 (Norman, 2026-10-15) : c'est lui que le sang dépensé fait monter. Les autres facteurs ne s'affichent que s'ils changent quelque chose. */
         const detailsFacteurs=IDLE_REBIRTH_FACTOR_LABELS_V1
-          .filter(function(f){return idleNombre_(preview[f.id])>0&&Math.abs(idleNombre_(preview[f.id])-1)>1e-9;})
+          .filter(function(f){return (f.id==='bloodMagicBonus'&&sangDebloque)||(idleNombre_(preview[f.id])>0&&Math.abs(idleNombre_(preview[f.id])-1)>1e-9);})
           .map(function(f){
             return '<div class="soreal-idle-rebirth-stat-v14">'+
               '<div class="soreal-idle-rebirth-stat-label-v14">'+f.nom+'</div>'+
@@ -9364,15 +9367,13 @@
          */
         const aPrecedent=Boolean(meta.hasPreviousRun);
         const tiret='<span class="rb2-vide">—</span>';
-        const sysSang=(j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[]).find(function(s){return s&&s.id==='bloodMagic';});
-        const sangDebloque=Boolean(sysSang&&sysSang.state&&sysSang.state.unlocked);
         const sangEnCours=Math.max(0,idleNombre_(sysSang&&sysSang.state&&sysSang.state.data&&sysSang.state.data.spells&&sysSang.state.data.spells.numberBoost)-1);
         const ligne=function(ico,libelle,valeur,idVal){
           return '<div class="rb2-ligne"><span class="rb2-ico" aria-hidden="true">'+ico+'</span><span class="rb2-lib">'+libelle+'</span><b class="rb2-val"'+(idVal?' id="'+idVal+'"':'')+'>'+valeur+'</b></div>';
         };
         const colonnePrecedente=
           '<div class="rb2-col rb2-prec"><div class="rb2-tete">💀 Partie précédente</div><div class="rb2-sous">Ce qui s’est éteint</div>'+
-            (sangDebloque?ligne('🩸','Sang dépensé',aPrecedent?formatGrandNombreIdleV70_(Math.max(0,idleNombre_(meta.lastBlood))):tiret):'')+
+            (sangDebloque?ligne('🩸','Sang dépensé dans le rituel Boost du nombre par le sang',aPrecedent?formatGrandNombreIdleV70_(Math.max(0,idleNombre_(meta.lastBlood))):tiret):'')+
             ligne('⏱️','Durée',aPrecedent?formatDureeRunIdleV1_(Math.max(0,idleNombre_(meta.lastRunSeconds))):tiret)+
             ligne('👹','Boss le plus haut battu',aPrecedent?formatGrandNombreIdleV70_(Math.max(0,idleEntier_(meta.lastBosses))):tiret)+
             ligne('🔢','Number actif',aPrecedent?formatGrandNombreIdleV70_(Math.max(1,idleNombre_(meta.lastNumber))):tiret)+
@@ -9380,16 +9381,16 @@
           '</div>';
         const colonneEnCours=
           '<div class="rb2-col rb2-cours"><div class="rb2-tete">🌱 Partie en cours</div><div class="rb2-sous">Ce qui vit encore</div>'+
-            (sangDebloque?ligne('🩸','Sang dépensé',formatGrandNombreIdleV70_(sangEnCours)):'')+
+            (sangDebloque?ligne('🩸','Sang dépensé dans le rituel Boost du nombre par le sang',formatGrandNombreIdleV70_(sangEnCours)):'')+
             ligne('⏱️','Durée',formatDureeRunIdleV1_(dureeRunSecondesIdleV1_(j)),'sorealIdleRebirthRunV1')+
             ligne('👹','Boss le plus haut battu',formatGrandNombreIdleV70_(Math.max(0,idleEntier_(j&&j.bossVaincus))))+
-            ligne('🔢','Number actif',formatGrandNombreIdleV70_(actuel))+
+            ligne('🔢','Nombre actif',formatGrandNombreIdleV70_(actuel))+
           '</div>';
         return `
           <div id="sorealIdleBlocRenaissanceV27" class="soreal-idle-rebirth-v14 rb2-v1">
             <div class="soreal-idle-rebirth-title-v14">♻️ Rebirth</div>
             <div class="soreal-idle-rebirth-sub-v14">
-              Tu recommences tout depuis le début, mais ton <b>Number</b> multiplie ton Attaque et ta Défense au prochain cycle.
+              Tu recommences tout depuis le début, mais ton <b>Nombre</b> multiplie ton Attaque et ta Défense au prochain cycle.
               Plus tu vas loin et vite, plus il monte.
             </div>
             <div class="rb2-colonnes">${colonnePrecedente}${colonneEnCours}</div>
@@ -9416,7 +9417,7 @@
                 :''
             }
             <div class="soreal-idle-window-title-v31">📐 Comment c’est calculé</div>
-            <div class="rb2-explication">Ton Number à la Renaissance est le produit de ces facteurs : le boss le plus haut battu, la durée de la partie, ta partie précédente et tes bonus. En voici le détail.</div>
+            <div class="rb2-explication">Ton Nombre à la Renaissance est le produit de ces facteurs : le boss le plus haut battu, la durée de la partie, ta partie précédente et tes bonus. En voici le détail.</div>
             <div class="soreal-idle-rebirth-stats-v14">
               ${detailsFacteurs}
               <div class="soreal-idle-rebirth-stat-v14">
@@ -12568,6 +12569,9 @@
         if(idleAdventureLogAutoScrollV1_)host.scrollTop=host.scrollHeight;
       }
 
+      /* Le journal de combat est aussi montré dans l'écran de combat de titan (modules/titans-combat-ecran-v1.js, Norman 2026-10-15) : il s'y dessine par la même fonction. */
+      window.__dessinerJournalAventureIdleV1__=dessinerJournalAventureIdleV1_;
+      window.__ajouterLogAventureIdleV1__=ajouterLogAventureIdleV1_;
       function gererScrollJournalAventureIdleV1_(event){
         const host=event&&event.currentTarget;
         if(!host)return;
@@ -23490,6 +23494,41 @@ function pageAventureIdleV28_(j){
         const A=window.__SOREAL_IDLE_AUDIO_V199__;
         if(A&&typeof A.previewDiarrhee==='function')A.previewDiarrhee(String(id||''));
       };
+      /* Musique de combat de Titan (Norman, 2026-10-15) : aperçu dans la section de développement des Réglages. */
+      window.__apercuMusiqueTitanIdleV1__=function(marche){
+        const M=window.__SOREAL_IDLE_MUSIQUE_TITAN_V1__;
+        if(!M)return;
+        if(marche)M.lancerApercu();else M.arreterApercu();
+      };
+      /* Orage des sorts de Blood Magic (Norman, 2026-10-15) : aperçu de chacun, dans la section de développement des Réglages. */
+      window.__apercuOrageSortIdleV1__=function(id){
+        const O=window.__SOREAL_IDLE_ORAGE_V1__;
+        if(O&&typeof O.sort==='function')O.sort(String(id||''));
+      };
+      function htmlReglagesOrageSortsIdleV1_(){
+        const O=window.__SOREAL_IDLE_ORAGE_V1__;
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||!O||!O.niveauxSorts)return '';
+        const noms={numberBoost:'🔢 Boost du nombre par le sang (1er)',ironPill:'💊 Iron Pill (2e)',bloodSpaghetti:'🍝 Spaghetti de sang (3e)',counterfeitGold:'💰 Counterfeit Gold (4e)',leeches:'🪱 Leeches (5e, le dernier)'};
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">⛈️ Orage des sorts de Blood Magic (développement)</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : l’écran qui s’assombrit, l’éclair et le tonnerre au même instant, de plus en plus fort selon le sort (pentacle pour les derniers).</div>'+
+          Object.keys(O.niveauxSorts).map(function(id){
+            return '<div style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px"><span style="flex:1;min-width:0">'+idleHtml_(noms[id]||id)+'</span>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" aria-label="Voir" title="Voir cet orage" onclick="window.__apercuOrageSortIdleV1__(\''+id+'\')">▶</button></div>';
+          }).join('')+
+        '</div>';
+      }
+      function htmlReglagesMusiqueTitanIdleV1_(){
+        if(!idlePartieDevV1||!idlePartieDevV1.actif||!window.__SOREAL_IDLE_MUSIQUE_TITAN_V1__)return '';
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🥁 Musique de combat de Titan (développement)</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : la musique qui joue pendant un combat de Titan (générée par le navigateur, niveau = barre « Musique »). Les sons d’ambiance d’Aventure se taisent pendant ce temps.</div>'+
+          '<div style="display:flex;gap:10px">'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__apercuMusiqueTitanIdleV1__(true)">▶ Écouter</button>'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__apercuMusiqueTitanIdleV1__(false)">■ Arrêter</button>'+
+          '</div>'+
+        '</div>';
+      }
       function htmlReglagesDiarrheesIdleV1_(){
         const A=window.__SOREAL_IDLE_AUDIO_V199__;
         if(!idlePartieDevV1||!idlePartieDevV1.actif||!A||!A.diarrheeList)return '';
@@ -23841,6 +23880,8 @@ function pageAventureIdleV28_(j){
           htmlReglagesAudioIdleV1_()+
           htmlReglagesSonsDefaiteIdleV1_()+
           htmlReglagesDiarrheesIdleV1_()+
+          htmlReglagesMusiqueTitanIdleV1_()+
+          htmlReglagesOrageSortsIdleV1_()+
           htmlReglagesEffetsIdleV1_()+
           '<div class="soreal-idle-section-v8">'+
             '<div class="soreal-idle-window-title-v31">Version</div>'+

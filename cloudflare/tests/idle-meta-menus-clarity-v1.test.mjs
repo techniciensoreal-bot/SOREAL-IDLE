@@ -78,8 +78,8 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
   etatClient = { systemes: idleNguSnapshot(s, ctx, 0), energie: 0 };
   const html = api.pageSystemeMetaIdleV130_(etatClient, "bloodMagic", "Blood Magic");
   assert.match(html, /À quoi ça sert/, "bloc d'aide présent");
-  assert.match(html, /plus gros nombre au Rebirth/, "dit clairement à quoi sert le Blood");
-  assert.match(html, /Blood NUMBER Boost/);
+  assert.match(html, /plus gros Nombre à la Renaissance/, "dit clairement à quoi sert le sang");
+  assert.match(html, /Boost du nombre par le sang/);
   for (const nom of ["Iron Pill", "Blood Spaghetti", "Counterfeit Gold"]) assert.ok(!html.includes(nom), nom + " invisible tant que son minimum n'a pas été atteint");
   assert.ok(!/Recharge de 11,5 h/.test(html), "aucune durée de recharge d'un sort non découvert");
   sansSpoil(html, "Blood Magic neuf");
@@ -88,7 +88,7 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
   s.systems.bloodMagic.data.bloodPeak = 1e4;
   etatClient = { systemes: idleNguSnapshot(s, ctx, 0), energie: 0 };
   const html2 = api.pageSystemeMetaIdleV130_(etatClient, "bloodMagic", "Blood Magic");
-  assert.ok(html2.includes("Iron Pill") && html2.includes("Blood Spaghetti"), "sorts découverts visibles même avec 0 Blood en stock");
+  assert.ok(html2.includes("Iron Pill") && html2.includes("Spaghetti de sang"), "sorts découverts visibles même avec 0 sang en stock");
   assert.ok(!html2.includes("Counterfeit Gold"), "sort suivant toujours caché");
   assert.match(html2, /Recharge de 11,5 h/, "recharge de l'Iron Pill indiquée une fois découvert");
   sansSpoil(html2, "Blood Magic avec pic 10 000");

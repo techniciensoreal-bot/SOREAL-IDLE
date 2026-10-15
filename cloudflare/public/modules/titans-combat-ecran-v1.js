@@ -178,6 +178,25 @@ function css(){
     '#'+ID+' .tcv-barre.joueur{box-shadow:inset 0 2px 6px rgba(0,0,0,.8),0 0 0 2px rgba(120,220,150,.4),0 0 16px rgba(60,220,120,.3)}',
     '#'+ID+' .tcv-barre .soreal-idle-bossbar-v7,#'+ID+' .tcv-barre .soreal-idle-playerbar-v15{position:absolute;left:0;top:0;bottom:0;height:auto}',
     '#'+ID+' .tcv-pv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:1000;font-size:15px;letter-spacing:.04em;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;pointer-events:none}',
+    /*
+     * JOURNAL DE COMBAT dans l'écran (Norman, 2026-10-15) : « le journal est nécessaire pour voir ce que le titan va lancer et savoir quand lancer de notre côté ; il faut tout faire cohabiter proprement sur téléphone et PC ».
+     * C'est le même journal que sur la page Aventure (même id : le tick y écrit déjà ses lignes), posé dans un corps en grille avec la scène et les barres.
+     *  - Téléphone : le journal est un voile posé sur le BAS de l'image du titan (les dernières lignes, les plus anciennes s'effacent en haut), il ne prend aucune place de plus et ne gêne aucun toucher.
+     *  - PC (zone de jeu assez large) : le journal devient une colonne à droite, sur toute la hauteur, avec défilement ; l'image du titan et les barres restent à gauche.
+     */
+    '#'+ID+' .tcv-corps{flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:6px}',
+    '#'+ID+' .tcv-corps>.tcv-scene{grid-row:1;grid-column:1;min-height:0}',
+    '#'+ID+' .tcv-corps>.tcv-barres{grid-row:2;grid-column:1}',
+    '#'+ID+' .tcv-journal{grid-row:1;grid-column:1;align-self:end;z-index:2;box-sizing:border-box;max-height:40%;overflow:hidden;padding:18px 8px 4px;pointer-events:none;display:flex;flex-direction:column;justify-content:flex-end;',
+      'background:linear-gradient(180deg,transparent,rgba(8,2,4,.62) 35%,rgba(8,2,4,.8));-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 38%);mask-image:linear-gradient(180deg,transparent 0,#000 38%)}',
+    '#'+ID+' .tcv-journal .soreal-idle-adventure-log-line-v1{margin:0;padding:1px 0;font-size:12px;line-height:1.25;text-shadow:0 1px 2px #000,0 0 4px #000;overflow-wrap:anywhere}',
+    '@media (min-width:900px){',
+    '  #'+ID+' .tcv-corps{grid-template-columns:minmax(0,1fr) minmax(280px,34%);column-gap:12px}',
+    '  #'+ID+' .tcv-journal{grid-column:2;grid-row:1 / span 2;align-self:stretch;max-height:none;padding:10px 12px;pointer-events:auto;overflow-y:auto;overscroll-behavior:contain;justify-content:flex-start;',
+      'border:3px solid #000;border-radius:12px;background:linear-gradient(180deg,rgba(40,8,12,.82),rgba(12,3,5,.9));box-shadow:inset 0 2px 8px rgba(0,0,0,.7),0 0 0 2px rgba(255,150,90,.28),0 0 16px rgba(255,60,20,.25);-webkit-mask-image:none;mask-image:none}',
+    '  #'+ID+' .tcv-journal::before{content:"📜 Journal de combat";display:block;position:sticky;top:-10px;margin:-10px -12px 8px;padding:8px 12px;font:400 18px/1 Bangers,"Comic Sans MS",cursive;letter-spacing:.06em;color:var(--tcv-c,#ffd166);background:rgba(20,4,7,.95);border-bottom:2px solid rgba(255,255,255,.14);text-shadow:0 2px 0 #000}',
+    '  #'+ID+' .tcv-journal .soreal-idle-adventure-log-line-v1{font-size:14px;line-height:1.35;padding:3px 0;border-bottom:1px dashed rgba(255,255,255,.08)}',
+    '}',
     /* raccourcis d'attaque : ceux de l'Aventure, toujours visibles, sur peu de lignes */
     '#'+ID+' .tcv-cmd{flex:0 0 auto;max-height:46vh;overflow:hidden}',
     '#'+ID+' .tcv-cmd .soreal-idle-adventure-manual-v3{margin:0;display:grid;gap:4px}',
@@ -243,15 +262,18 @@ function construire(f){
   el.innerHTML=
     '<div class="tcv-haut"><b class="tcv-nom">'+h(f.mobName||'Titan')+'</b>'+(palier?'<span class="tcv-palier">'+h(palier)+'</span>':'')+'</div>'+
     '<div class="tcv-etats" id="ttnCombatEtatsV1"></div>'+
-    '<div class="tcv-scene"><div class="tcv-halo"></div>'+
+    '<div class="tcv-corps"><div class="tcv-scene"><div class="tcv-halo"></div>'+
       '<img id="sorealIdleAdventureSceneMobV1" class="tcv-titan" alt="'+h(f.mobName||'Titan')+'" src="'+h(urlImage(f))+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">'+
       '<span class="tcv-emoji" style="display:none">👹</span></div>'+
     '<div class="tcv-barres">'+
       '<div class="tcv-ligne"><span class="tcv-ico">👹</span><div class="tcv-barre"><div id="sorealIdleAdventureFightBarV1" class="soreal-idle-bossbar-v7" style="width:100%"></div><div id="sorealIdleAdventureFightPvV1" class="tcv-pv"></div></div></div>'+
       '<div class="tcv-ligne"><span class="tcv-ico">🧙</span><div class="tcv-barre joueur"><div id="sorealIdleAdventureJoueurBarV1" class="soreal-idle-playerbar-v15" style="width:100%"></div><div class="soreal-idle-adventure-player-pv-label-v1 tcv-pv"></div></div></div>'+
     '</div>'+
+    '<div id="sorealIdleAdventureLogV1" class="tcv-journal" role="log" aria-live="off"></div></div>'+
     '<div class="tcv-cmd">'+(rendreCmd?rendreCmd():'')+'</div>';
   el.style.setProperty('--tcv-c',couleur(f.titanId));
+  /* le journal de combat se remplit tout de suite avec ce qui est déjà écrit (le tick ajoute ensuite chaque ligne) */
+  try{if(typeof window.__dessinerJournalAventureIdleV1__==='function')window.__dessinerJournalAventureIdleV1__();}catch(_e){}
 }
 
 /* Effets en cours sur le joueur, lus sur l'état du combat de titan tenu par le tick (voir soreal-idle-ui.js, __titanEtatCombatIdleV1__). */

@@ -212,10 +212,22 @@ var CSS=
   '.nl-aide{margin:8px 0;padding:10px 12px;background:rgba(10,6,32,.7);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:500 14px/1.5 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
   '.nl-aide[hidden]{display:none}.nl-aide p{margin:0 0 6px}.nl-aide ol{margin:0;padding-left:20px;display:grid;gap:4px}'+
   '.nl-paliers{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0;font:800 13px/1 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;color:#c9d2f7}'+
-  '.nl-barre-outils{display:grid;gap:6px;margin:8px 0;padding:8px 10px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:700 13px/1.3 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
-  '.nl-barre-outils .nl-ligne{display:flex;align-items:center;gap:6px;flex-wrap:wrap}'+
-  '.nl-barre-outils input[type=text]{width:120px;padding:6px 8px;background:#0b0724;border:1.5px solid rgba(170,130,255,.7);border-radius:8px;font:800 15px "Segoe UI",system-ui,sans-serif;color:#fff}'+
-  '.nl-barre-outils button{min-height:36px;padding:0 10px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(170,130,255,.6);border-radius:8px;font:800 13px "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
+  /* Barre d'outils en petits cadres (Norman, 2026-10-15 : « harmoniser tous ces boutons, plafond d'énergie etc., dans des petits cadres propres ; des MAX dépassent sur téléphone »). Un cadre par ligne : son titre en haut,
+     puis des boutons de même largeur dans une grille qui s'adapte à l'écran ; rien ne peut dépasser (texte coupé par des points de suspension, boutons larges sur toute la ligne). */
+  '.nl-barre-outils{display:grid;gap:8px;margin:8px 0;padding:10px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:700 13px/1.3 "Segoe UI",system-ui,sans-serif;color:#dfe5ff;min-width:0}'+
+  '.nl-barre-outils .nl-ligne{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;align-items:center;min-width:0;padding:8px;border:1px solid rgba(150,120,255,.32);border-radius:10px;background:rgba(24,14,64,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}'+
+  '.nl-barre-outils .nl-ligne>span:first-child{grid-column:1/-1;font:800 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#c9d2f7}'+
+  '.nl-barre-outils .nl-ligne-input{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}'+
+  '.nl-barre-outils .nl-ligne-input label{font:800 13px/1 "Segoe UI",system-ui,sans-serif;color:#c9d2f7}'+
+  '.nl-barre-outils .nl-ligne-input>span{flex:1 1 140px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
+  '.nl-barre-outils .nl-totaux{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));background:none;border:0;box-shadow:none;padding:0}'+
+  '.nl-barre-outils input[type=text]{width:130px;max-width:100%;box-sizing:border-box;padding:6px 8px;background:#0b0724;border:1.5px solid rgba(170,130,255,.7);border-radius:8px;font:800 15px "Segoe UI",system-ui,sans-serif;color:#fff}'+
+  '.nl-barre-outils button{min-height:38px;min-width:0;padding:0 6px;box-sizing:border-box;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(170,130,255,.6);border-radius:8px;font:800 13px "Segoe UI",system-ui,sans-serif;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
+  '.nl-barre-outils .nl-large{grid-column:span 2}'+
+  '.nl-barre-outils [data-perso-ngu-v1]{grid-column:1/-1}'+
+  /* rangée « Mes nombres » (modules/perso-boutons-v1.js) : même cadre que les autres lignes */
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .nl-barre-outils [data-perso-input-rangee]{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))!important;gap:6px!important;align-items:center;margin:0!important;min-width:0;padding:8px!important;border:1px solid rgba(150,120,255,.32)!important;border-radius:10px!important;background:rgba(24,14,64,.55)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .nl-barre-outils [data-perso-input-rangee]>span:first-child{grid-column:1/-1;font:800 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#c9d2f7}'+
   '.nl-avance{display:inline-flex;align-items:center;gap:8px;margin:4px 0;font:800 16px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer;color:#fff}'+
   '.nl-avance input{width:24px;height:24px;accent-color:#b58aff}'+
   /* réseau : un tronc lumineux aux couleurs de tous les tuyaux, une branche par tuyau */
@@ -271,13 +283,13 @@ function barreOutilsHtml_(j){
   var valeur=el&&el.value?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
   var lib=libre_(j,onglet);
   return '<div class="nl-barre-outils">'+
-    '<div class="nl-ligne"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
+    '<div class="nl-ligne nl-ligne-input"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
       '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div>'+
-    '<div class="nl-ligne"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
+    '<div class="nl-ligne" data-nl-plafond="1"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
       '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button></div>'+
     '<div class="nl-ligne">'+
       '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
-      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout retirer</button></div>'+
+      '<button type="button" class="nl-large" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout retirer</button></div>'+
     totauxHtml_(j)+
   '</div>';
 }
@@ -307,7 +319,7 @@ function page(j){
     ['⚔️ Attack/Defense',ratio(fx.attackDefense)],['🗺️ Adventure',ratio(fx.adventure)],['🪙 Gold',ratio(fx.gold)],['🎲 Drop',ratio(fx.dropChance)],
     ['⭐ PP',ratio(fx.pp)],['🦾 Augments',ratio(fx.augments)],['💻 Wandoos',ratio(fx.wandoosSpeed)],
     ['⏳ Respawn','-'+(nombre_(fx.respawnReduction)*100).toFixed(1).replace('.',',')+' %']
-  ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Number',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[])
+  ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Nombre',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[])
   .map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
   var avance=ng.advance||{};
   var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource!=='magic'||magieOk;}).map(partDe_));
@@ -529,7 +541,7 @@ function changerOnglet(res){
   var j=H_()&&H_().getIdleEtat?H_().getIdleEtat():null;
   var lab=racine.querySelector('[data-nl-libre-label]');
   if(lab)lab.innerHTML=(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(libre_(j,onglet))+'</b> '+(onglet==='magic'?'✨':'⚡');
-  var presets=racine.querySelector('.nl-barre-outils .nl-ligne:nth-child(2)>span');
+  var presets=racine.querySelector('.nl-barre-outils [data-nl-plafond]>span');
   if(presets)presets.textContent=onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie';
 }
 function preset(source,fraction){

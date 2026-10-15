@@ -18,7 +18,7 @@
   /* Noms propres du jeu d'origine : jamais remplacés (mis de côté sous un repère, puis rétablis). */
   var B_='(?<![\\p{L}\\p{N}])',E_='(?![\\p{L}\\p{N}])';
   var PROTEGES=[
-    'A Number','The Number 7','Number Set','Numerical (?:Head|Chest|Legs|Boots)','Blood NUMBER Boost','Iron Pill','Blood Spaghetti','Counterfeit Gold',
+    'A Number','The Number 7','Number Set','Numerical (?:Head|Chest|Legs|Boots)','Iron Pill','Counterfeit Gold',
     'Fu Manchu','Neckbeard','Reverse Beard','Beard Cage','LadyBeard','BEARd','Golden Beard',
     'Fruit of (?:Angry Mayo|Sad Mayo|Moldy Mayo|Ayyy LMayo|Cinco De Mayo|Pretty Mayo)'
   ].map(function(m){return new RegExp(B_+m+E_,'gu');});
@@ -30,13 +30,15 @@
     /* Noms composés du jeu (tournures anglaises entières, avant les mots seuls) : piratages, mineurs, fruits, défis. */
     ['Attack/Defense Hack','Piratage Attaque/Défense'],['Adventure Hack','Piratage d’Aventure'],['Time Machine Hack','Piratage de la Machine temporelle'],['Drop Chance Hack','Piratage de Chance de drop'],
     ['Augment Speed Hack','Piratage de Vitesse des Augments'],['Energy NGU Speed Hack','Piratage de Vitesse des NGU d’Énergie'],['Magic NGU Speed Hack','Piratage de Vitesse des NGU de Magie'],
-    ['Blood Hack','Piratage du Blood'],['QP Hack','Piratage de QP'],['Daycare Hack','Piratage de la Garderie'],['EXP Hack','Piratage d’EXP'],['Number Hack','Piratage du Nombre'],['PP Hack','Piratage de PP'],
+    /* Sorts de Blood Magic traduits (Norman, 2026-10-15 : « traduits Blood… ça doit être Nombre ») : « sang » et « Nombre » partout. */
+    ['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti de sang'],
+    ['Blood Hack','Piratage du sang'],['QP Hack','Piratage de QP'],['Daycare Hack','Piratage de la Garderie'],['EXP Hack','Piratage d’EXP'],['Number Hack','Piratage du Nombre'],['PP Hack','Piratage de PP'],
     ['Hack Hack','Piratage du Piratage'],['Wish Hack','Piratage des Souhaits'],
     ['Time Machine Speed','Vitesse de la Machine temporelle'],['Energy NGU Speed','Vitesse des NGU d’Énergie'],['Magic NGU Speed','Vitesse des NGU de Magie'],['Adventure Stats','Stats d’Aventure'],
-    ['Gold Production','Production d’Or'],['Blood Gain','Gain de Blood'],['QP Gain','Gain de QP'],['Attack/Defense','Attaque/Défense'],['Adventure Attack','Attaque d’Aventure'],['Adventure Defense','Défense d’Aventure'],
+    ['Gold Production','Production d’Or'],['Blood Gain','Gain de sang'],['QP Gain','Gain de QP'],['Attack/Defense','Attaque/Défense'],['Adventure Attack','Attaque d’Aventure'],['Adventure Defense','Défense d’Aventure'],
     ['Drop Chance Digger','Mineur de Chance de drop'],['Wandoos Digger','Mineur de Wandoos'],['Stat Digger','Mineur de Stats'],['Adventure Digger','Mineur d’Aventure'],['Energy NGU Digger','Mineur de NGU d’Énergie'],
     ['Magic NGU Digger','Mineur de NGU de Magie'],['Energy Beard Digger','Mineur de Barbe d’Énergie'],['Magic Beard Digger','Mineur de Barbe de Magie'],['PP Digger','Mineur de PP'],['Daycare Digger','Mineur de Garderie'],
-    ['Blood Digger','Mineur de Blood'],['EXP Digger','Mineur d’EXP'],
+    ['Blood Digger','Mineur de sang'],['EXP Digger','Mineur d’EXP'],
     ['Fruit of Power α','Fruit de Puissance α'],['Fruit of Power β','Fruit de Puissance β'],['Fruit of Power δ','Fruit de Puissance δ'],['Fruit of MacGuffins α','Fruit de MacGuffins α'],['Fruit of MacGuffins β','Fruit de MacGuffins β'],
     ['Fruit of MacGuffin α','Fruit de MacGuffin α'],['Fruit of MacGuffin β','Fruit de MacGuffin β'],['Fruit of Gold','Fruit d’Or'],['Fruit of Adventure','Fruit d’Aventure'],['Fruit of Knowledge','Fruit de Connaissance'],
     ['Fruit of Luck','Fruit de Chance'],['Fruit of Arbitrariness','Fruit d’Arbitraire'],['Fruit of Numbers','Fruit des Nombres'],['Fruit of Rage','Fruit de Rage'],['Fruit of Quirks','Fruit des Manies'],
@@ -65,7 +67,7 @@
     ['Cooking','Cuisine'],['Beards','Barbes'],['Beard','Barbe'],['Shop','Boutique'],['Rebirth','Renaissance'],['Adventure','Aventure'],
     ['THE END','LA FIN'],['Sadistic','Sadique'],['Evil','Maléfique'],['Easy','Facile'],['Hard','Difficile'],
     ['Energy','Énergie'],['Magic','Magie'],['Toughness','Endurance'],['Power','Puissance'],['Cap','Plafond'],['Bars','Barres'],['Speed','Vitesse'],
-    ['NUMBER','NOMBRE'],['Numbers','Nombres'],['Number','Nombre'],['Attack','Attaque'],['Defense','Défense'],['Upgrades','Améliorations'],['Upgrade','Amélioration'],['Gold','Or'],['Fight','Combattre'],
+    ['NUMBER','NOMBRE'],['Numbers','Nombres'],['Number','Nombre'],['BLOOD','SANG'],['Blood','sang'],['blood','sang'],['Attack','Attaque'],['Defense','Défense'],['Upgrades','Améliorations'],['Upgrade','Amélioration'],['Gold','Or'],['Fight','Combattre'],
     ['Diggers','Mineurs'],['Digger','Mineur'],['Slots','Emplacements'],['Slot','Emplacement'],['Regen','Régén.'],['Tier','Palier'],['tier','palier'],['cap','plafond'],['Challenge','Défi'],
     ['perks','atouts'],['perk','atout'],['quirks','manies'],['quirk','manie'],['wishes','souhaits'],['wish','souhait'],['hacks','piratages'],['hack','piratage']
   ];
@@ -98,6 +100,8 @@
       s=s.replace(PROTEGES[p],function(nom){mis.push(nom);return REPERE_DEBUT+String.fromCharCode(0xE100+mis.length-1)+REPERE_FIN;});
     }
     for(var i=0;i<REGLES.length;i++)s=s.replace(REGLES[i][0],REGLES[i][1]);
+    /* « sang » en début de phrase prend sa majuscule */
+    s=s.replace(/(^|[.!?…]\s+|\n)sang(?![\p{L}\p{N}])/gu,function(_m,a){return a+'Sang';});
     if(mis.length)s=s.replace(new RegExp(REPERE_DEBUT+'([\uE100-\uE1FF])'+REPERE_FIN,'g'),function(_m,c){return mis[c.charCodeAt(0)-0xE100];});
     return s;
   }

@@ -878,6 +878,8 @@ function sangTrace(sc,m,g){
   sc.style.setProperty('--sg-s',m.s.toFixed(4));
   sc.style.setProperty('--sg-ox',R(m.ox)+'px');
   sc.style.setProperty('--sg-oy',R(m.oy)+'px');
+  /* Le pied du support se pose sur la TABLE (Norman, 2026-10-15 : « le pied de la sangsue n'est pas posé sur la table sur téléphone ») : la table du décor est à une hauteur fixe de la scène (89,4 %), alors que le haut du support suit le corps de la sangsue (mesures de mise en page) ; selon la largeur de l'écran le pied flottait au-dessus. Le support garde son haut et s'allonge ou se raccourcit jusqu'à la table. */
+  sc.style.setProperty('--sg-socle-h',R(Math.max(40,m.H*0.894-(m.oy+195*m.s)))+'px');
 }
 /*
  * DÉFORMATION DE L'IMAGE (Norman, 2026-10-12 : « tu m'as dit que tu pouvais déformer les images pour les animer ») : le WebP est la texture d'un maillage de 40 x 40 cases, dessiné par WebGL dans un canevas ; chaque sommet est déplacé :
@@ -2001,7 +2003,7 @@ function css(){
     P+'.bm-scene[data-source="sucon"] .bm-zzz{left:calc(var(--sg-ox,0px) + 105px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 100px*var(--sg-s,.5) - 46px)}',
     P+'.bm-scene[data-source="sucon"] .bm-trace-sucon{left:calc(var(--sg-ox,0px) + 18px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 92px*var(--sg-s,.5));width:calc(48px*var(--sg-s,.5));height:calc(147px*var(--sg-s,.5))}',
     /* socle de bois (soccle.webp, 541 x 967), à part pour ne pas bouger quand la sangsue boit : la sangsue y repose par le ventre */
-    P+'.bm-socle{display:none;position:absolute;left:calc(var(--sg-ox,0px) + 165px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 195px*var(--sg-s,.5));width:calc(174px*var(--sg-s,.5));height:calc(311px*var(--sg-s,.5));max-width:none;z-index:7;pointer-events:none;filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
+    P+'.bm-socle{display:none;position:absolute;left:calc(var(--sg-ox,0px) + 165px*var(--sg-s,.5));top:calc(var(--sg-oy,0px) + 195px*var(--sg-s,.5));width:calc(174px*var(--sg-s,.5));height:var(--sg-socle-h,calc(311px*var(--sg-s,.5)));max-width:none;z-index:7;pointer-events:none;filter:drop-shadow(2px 3px 2px rgba(0,0,0,.6))}',
     P+'.bm-scene[data-source="sucon"] .bm-socle{display:block}',
     /* bibliothèque du fond : plan le plus reculé ; la perspective suit la distance de la table (rituels 1 et 2 : table très proche, donc fond lointain = plus petit, flou et sombre ; rituels 3 et 4 : table lointaine, fond plus proche = plus grand et net ; autres : intermédiaire) */
     P+'.bm-biblio{display:block;object-fit:fill;position:absolute;left:0;top:0;width:100%;height:100%;z-index:0;pointer-events:none;transform-origin:50% 22%;transform:scale(.9);filter:blur(.9px) brightness(.7)}',

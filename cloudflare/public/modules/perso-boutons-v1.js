@@ -117,7 +117,7 @@
     var aucun=cle==='-,-,-,-';
     if(!force&&((rangee&&rangee.getAttribute('data-perso-input-cle')===cle)||(!rangee&&aucun&&!boite.querySelector('[data-perso-input-v1]'))))return;
     /* anciens boutons (collés dans la boîte du champ) et ancienne rangée */
-    Array.prototype.forEach.call(boite.querySelectorAll('[data-perso-input-v1]'),function(b){b.parentNode.removeChild(b);});
+    Array.prototype.forEach.call(boite.querySelectorAll('[data-perso-input-v1]'),function(b){if(b.parentNode)b.parentNode.removeChild(b);});
     if(rangee)rangee.parentNode.removeChild(rangee);
     boite.removeAttribute('data-perso-input-cle');
     if(aucun)return;
@@ -125,12 +125,14 @@
     var html='<span>⭐ Mes nombres</span>';
     [1,2,3,4].forEach(function(n){
       if(!possedeExp_(INPUTS[n].achat))return;
-      html+='<button type="button" data-perso-input-v1="'+n+'" title="Ton bouton personnalisé '+n+' : place '+nombreTexte_(valeurInput(n))+' dans Input" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquerInput('+n+')">'+nombreTexte_(valeurInput(n))+'</button>'+
-        '<button type="button" class="perso-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✏️</button>';
+      html+='<span class="perso-duo-v1"><button type="button" data-perso-input-v1="'+n+'" title="Ton bouton personnalisé '+n+' : place '+nombreTexte_(valeurInput(n))+' dans Input" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquerInput('+n+')">'+nombreTexte_(valeurInput(n))+'</button>'+
+        '<button type="button" class="perso-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✏️</button></span>';
     });
     var r=document.createElement('div');
     r.className='soreal-idle-bt-presets-v120';
     r.setAttribute('data-perso-input-rangee','1');r.setAttribute('data-perso-input-cle',cle);
+    /* Règle n°4 d'AGENTS.md : le redessin périodique de la page laissait cette rangée en place seulement s'il la connaissait ; elle disparaissait puis revenait toutes les 4 s (Norman, 2026-10-15 : « NGU se redessine encore »). */
+    r.setAttribute('data-morph-garder','');
     r.innerHTML=html;
     boite.parentNode.insertBefore(r,boite.nextSibling);
   }
@@ -175,8 +177,8 @@
     ORDRE.forEach(function(slot){
       var s=SLOTS[slot];
       if(s.source!==source||s.res.indexOf(res)===-1||!possede_(s.achat))return;
-      h+='<button type="button" class="perso-pct-v1" data-perso-pct-v1="'+slot+'" title="Ton bouton personnalisé : '+texte_(pourcentage(slot))+(source==='idle'?' de ton idle libre':' de ton plafond')+'" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquer(\''+res+'\',\''+source+'\',\''+slot+'\')">'+texte_(pourcentage(slot))+'</button>'+
-        '<button type="button" class="perso-pct-edit-v1" data-perso-pct-v1="'+slot+'" title="Changer le pourcentage de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\''+slot+'\')">✎</button>';
+      h+='<span class="perso-duo-v1"><button type="button" class="perso-pct-v1" data-perso-pct-v1="'+slot+'" title="Ton bouton personnalisé : '+texte_(pourcentage(slot))+(source==='idle'?' de ton idle libre':' de ton plafond')+'" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquer(\''+res+'\',\''+source+'\',\''+slot+'\')">'+texte_(pourcentage(slot))+'</button>'+
+        '<button type="button" class="perso-pct-edit-v1" data-perso-pct-v1="'+slot+'" title="Changer le pourcentage de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\''+slot+'\')">✎</button></span>';
     });
     return h;
   }
@@ -196,7 +198,7 @@
     if(!res)return;
     var cle=res+'|'+source+'|'+(ngu?'n':'a')+'|'+ORDRE.map(function(s){return possede_(SLOTS[s].achat)?pourcentage(s):'-';}).join(',')+'|'+(source==='cap'&&possede_(NGU_ACHAT)?pourcentNgu_():'');
     if(!force&&cadre.getAttribute('data-perso-pct-cle')===cle)return;
-    Array.prototype.forEach.call(cadre.querySelectorAll('[data-perso-pct-v1],[data-perso-ngu-v1]'),function(b){b.parentNode.removeChild(b);});
+    Array.prototype.forEach.call(cadre.querySelectorAll('.perso-duo-v1,[data-perso-pct-v1],[data-perso-ngu-v1]'),function(b){if(b.parentNode)b.parentNode.removeChild(b);});
     var html=boutonsHtml_(res,source);
     if(ngu&&source==='cap'&&possede_(NGU_ACHAT)){
       html+='<button type="button" class="perso-pct-edit-v1" data-perso-ngu-v1="1" title="Réglage du bouton Max des NGU : pourcentage du plafond placé" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\'nguCap\')">⚙ Max = '+texte_(pourcentNgu_())+'</button>';
@@ -227,6 +229,8 @@
       try{decorerCadre_(c,Boolean(force));}catch(_e){}
     });
   }
+  /* Après chaque redessin de la page (même tâche) : les rangées et boutons sont vérifiés tout de suite, sans attendre les 80 ms du suivi (règle n°4). */
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){decorer(false);});
   function planifier_(){
     if(enCours)return;
     enCours=true;
@@ -254,7 +258,15 @@
     setInterval(planifier_,1500);
     var style=document.createElement('style');
     style.textContent='.perso-pct-v1{border-color:#f2d79a!important;color:#ffe9a6!important}.perso-pct-edit-v1{min-width:30px;padding:0 6px!important;opacity:.85;font-size:12px!important}'+
-      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button.perso-edit-v1:not(#_):not(#_){opacity:1;font-size:26px!important;line-height:1!important;padding:0!important}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button.perso-edit-v1:not(#_):not(#_){opacity:1;font-size:16px!important;line-height:1!important;padding:0!important}'+
+      /* Paire « valeur + crayon » : un seul petit cadre (Norman, 2026-10-15 : tout harmoniser dans des petits cadres propres) */
+      '.perso-duo-v1{display:grid;grid-template-columns:minmax(0,1fr) 32px;min-width:0}'+
+      /* les thèmes mettent TOUT « span » d'une rangée de boutons sur toute la largeur : une paire reste une case comme les autres */
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-presets-v120,.nl-ligne)>.perso-duo-v1:not(#_):not(#_):not(#_){grid-column:span 2!important;grid-row:auto!important}'+
+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:not(#_):not(#_){min-width:0!important;margin:0!important;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:first-child:not(#_):not(#_){border-radius:8px 0 0 8px!important}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:last-child:not(#_):not(#_){border-radius:0 8px 8px 0!important;border-left-width:0!important;padding:0!important;min-width:0!important;font-size:14px!important;opacity:1}'+
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button:not(#_):not(#_){white-space:nowrap!important;letter-spacing:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;gap:1px}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button .nb-suf{display:inline!important}'+
       '.perso-modal-champ-v1{display:block;width:100%;box-sizing:border-box;margin:14px 0 0;padding:13px 14px;border-radius:13px;border:1px solid rgba(184,164,255,.38);background:#0f1626;color:#f5f1ff;font:inherit;font-size:22px;font-weight:1000;text-align:center;outline:none}'+
       '.perso-modal-champ-v1:focus{border-color:#b8a4ff;box-shadow:0 0 0 3px rgba(139,104,214,.35)}'+

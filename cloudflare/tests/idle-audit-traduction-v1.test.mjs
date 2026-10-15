@@ -81,8 +81,10 @@ assert.equal(ui("Number Hack"), "Piratage du Nombre");
 assert.equal(ui("A Number"), "A Number", "nom d'objet du jeu d'origine : intact");
 assert.equal(ui("The Number 7"), "The Number 7");
 assert.equal(ui("Number Set"), "Number Set");
-assert.equal(ui("Blood NUMBER Boost"), "Blood NUMBER Boost", "nom de sort : intact");
-assert.equal(ui("Chaque Blood ajoute 1 au multiplicateur du NUMBER (le « Blood magic bonus » du Rebirth)."), "Chaque Blood ajoute 1 au multiplicateur du NOMBRE (le « Blood magic bonus » de la Renaissance).");
+assert.equal(ui("Blood NUMBER Boost"), "Boost du nombre par le sang", "sort traduit (Norman, 2026-10-15)");
+assert.equal(ui("Blood Spaghetti"), "Spaghetti de sang", "sort traduit");
+assert.equal(ui("Blood Hack"), "Piratage du sang"); assert.equal(ui("Blood"), "Sang"); assert.equal(ui("le Blood"), "le sang"); assert.equal(ui("Number"), "Nombre");
+assert.equal(ui("Chaque Blood ajoute 1 au multiplicateur du NUMBER (le « Blood magic bonus » du Rebirth)."), "Chaque sang ajoute 1 au multiplicateur du NOMBRE (le « sang magic bonus » de la Renaissance).");
 // Noms propres qui étaient devenus mi-anglais mi-français.
 assert.equal(ui("Reverse Beard"), "Reverse Beard");
 assert.equal(ui("Beard Cage"), "Beard Cage");

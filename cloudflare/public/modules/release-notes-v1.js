@@ -32,6 +32,7 @@
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les barres d’outils des menus (Input, Mes nombres, Plafond, Idle) sont refaites : un petit cadre propre par ligne, des boutons de même largeur, rien ne dépasse, et « Max » n’est plus coupé sur téléphone comme sur PC. La page des NGU ne se redessine plus à intervalle régulier.',
             'La page Renaissance est refaite : deux colonnes « Partie précédente » et « Partie en cours » (sang dépensé, durée, boss le plus haut, Number), le Number à la Renaissance en grand, les calculs en bas, et un décor inspiré des cieux, de la vie et de la mort.',
             '« En direct » annonce maintenant quand le coffre d’un joueur s’est chié dessus.',
             'Les panneaux d’informations des menus (« À quoi ça sert ? », « Que faire ici ? », encart Infos…) sont toujours fermés quand on arrive dans un menu et se referment quand on en change.',
@@ -66,10 +67,13 @@
             'Si le bandeau « Boss vaincu » reste affiché, le jeu redemande l’état au serveur au bout de quelques secondes et affiche le boss suivant tout seul : plus besoin de changer de menu ni de faire Fight puis Fuite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : le pied du support de la sangsue est posé sur la table, aussi sur téléphone.',
+            'Quand tu lances un sort de la Magie du sang, le ciel s’assombrit et un éclair claque avec son tonnerre au même instant ; plus le sort est avancé dans la liste, plus l’orage gronde, et un pentacle tourne pour les derniers. Les noms des sorts et tous les textes du jeu parlent maintenant de « sang » et de « Nombre », en français.',
             'Dans Blood Magic, les animations ne se perdent plus : la coupure du papier, la punaise, le jet de la sangsue, le fil barbelé et la banque partent à chaque rituel terminé, même quand le compteur affiché ne bouge pas, et un redessin de la page ne les interrompt plus.',
             'Les cadres des rituels deviennent de plus en plus sombres et travaillés du premier au dernier : fond de plus en plus noir, double anneau, coins en pointe, liseré lumineux en haut puis en bas, sans animation.',
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Une musique angoissante et nerveuse accompagne maintenant ces combats : batterie, basse, cordes et cuivres sombres. Son volume suit la barre « Musique » des Réglages, et les sons d’ambiance se taisent pendant le combat.',
             'Un double clic ou double tap sur le bouton Aventure du menu t’emmène directement dans l’onglet Titans.',
           ]},
           {menu:'shop', titre:'Boutique', points:[

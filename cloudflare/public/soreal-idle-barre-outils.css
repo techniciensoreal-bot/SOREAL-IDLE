@@ -1,0 +1,14 @@
+/* Barres d'outils des menus (Input, Mes nombres, Plafond, Idle, total placé) : propres sur téléphone et sur PC (Norman, 2026-10-15 : « harmoniser tous ces boutons dans des petits cadres propres ; des MAX dépassent »).
+   Sur téléphone, un cadre par ligne, sur toute la largeur (avant : deux cadres côte à côte de 160 px où « Max » et les pourcentages étaient coupés) ; un bouton ne peut jamais dépasser de son cadre. */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(#_):not(#_):not(#_){grid-template-columns:minmax(0,1fr)!important}
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120 button:not(#_):not(#_):not(#_){min-width:0!important;overflow:hidden;text-overflow:ellipsis}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(#_):not(#_):not(#_){min-width:0;box-sizing:border-box}
+/* Cases de largeur minimale (64 px) au lieu de quatre colonnes fixes : « Max », « 1/2 » et les pourcentages ne sont plus jamais écrasés, sur PC comme sur téléphone. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1):not(#_):not(#_):not(#_){grid-template-columns:repeat(auto-fit,minmax(64px,1fr))!important}
+/* Un bouton remplit toujours sa case (largeur de la case, jamais une largeur minimale du thème qui le ferait dépasser ou le laisserait tout petit au milieu d'une grande case). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.nl-barre-outils .nl-ligne,.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1))>button:not(#_):not(#_):not(#_):not(#_){justify-self:stretch!important;width:auto!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:not(#_):not(#_):not(#_):not(#_){width:auto!important;min-width:0!important}
+/* Boutons + / − / Max / 0 de chaque barre : une largeur qui s'adapte au texte (avant : 56 px fixes, « Max » dépassait du bouton). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-actions-v120 button:not(#_):not(#_):not(#_):not(#_){width:auto!important;min-width:56px!important;padding-left:12px!important;padding-right:12px!important;white-space:nowrap!important;flex:0 0 auto}

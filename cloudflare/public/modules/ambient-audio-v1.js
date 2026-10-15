@@ -333,9 +333,19 @@
     var nouveau=Boolean(debloque);
     if(nouveau===actif)return;
     actif=nouveau;
-    if(actif)demarrer_();
-    else arreterTout_();
+    if(actif&&!suspendu)demarrer_();
+    else if(!actif)arreterTout_();
   }
 
-  window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__={verifier:verifier};
+  /* Pause des sons d'ambiance d'Aventure pendant la musique de combat de Titan (modules/musique-titan-v1.js, Norman 2026-10-15) : ils reprennent à la fin du combat. */
+  var suspendu=false;
+  function suspendre(oui){
+    oui=Boolean(oui);
+    if(oui===suspendu)return;
+    suspendu=oui;
+    if(suspendu)arreterTout_();
+    else if(actif)demarrer_();
+  }
+
+  window.__SOREAL_IDLE_AMBIENT_AUDIO_V1__={verifier:verifier,suspendre:suspendre};
 })();

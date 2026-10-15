@@ -26,7 +26,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.ok(bloc.includes("(actif?'checked ':'')"), "cochée de base");
 }
 /* Depuis le 2026-10-08, la section « Effets visuels » s'intercale entre l'Audio et la Version. */
-assert.match(ui, /htmlReglagesAudioIdleV1_\(\)\+\s*(?:htmlReglagesSonsDefaiteIdleV1_\(\)\+\s*)?(?:htmlReglagesDiarrheesIdleV1_\(\)\+\s*)?htmlReglagesEffetsIdleV1_\(\)\+\s*'<div class="soreal-idle-section-v8">'\+\s*'<div class="soreal-idle-window-title-v31">Version<\/div>'/, "la section Audio précède la section Version (avec les Effets visuels entre les deux)");
+assert.match(ui, /htmlReglagesAudioIdleV1_\(\)\+\s*(?:htmlReglagesSonsDefaiteIdleV1_\(\)\+\s*)?(?:htmlReglagesDiarrheesIdleV1_\(\)\+\s*)?(?:htmlReglagesMusiqueTitanIdleV1_\(\)\+\s*)?(?:htmlReglagesOrageSortsIdleV1_\(\)\+\s*)?htmlReglagesEffetsIdleV1_\(\)\+\s*'<div class="soreal-idle-section-v8">'\+\s*'<div class="soreal-idle-window-title-v31">Version<\/div>'/, "la section Audio précède la section Version (avec les Effets visuels entre les deux)");
 
 // --- Le curseur ajuste le module de réglages sans re-rendre toute la page (pas de perte de focus en plein glissement) ---
 assert.match(ui, /window\.__reglerVolumeIdleV1__=function\(type,valeur\)\{/);
@@ -47,7 +47,7 @@ assert.match(tts, /audio=new Audio\(src\);\s*audio\.preload='auto';\s*audio\.vol
 assert.match(tts, /try\{gain\.disconnect\(\);\}catch\(_\)\{\}/, "le GainNode est bien nettoyé (pas de fuite) comme le node source");
 
 // --- Chargement : audio-volume-v1.js avant tout ce qui joue du son ; ambient-audio-v1.js avant le jeu ---
-for (const m of ["/modules/audio-volume-v1.js?v=5", "/modules/ambient-audio-v1.js?v=8"]) assert.ok(index.includes(m), m);
+for (const m of ["/modules/audio-volume-v1.js?v=5", "/modules/ambient-audio-v1.js?v=9"]) assert.ok(index.includes(m), m);
 assert.ok(
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/audio-effects-v199.js") &&
   index.indexOf("/modules/audio-volume-v1.js") < index.indexOf("/modules/tutorial-tts-v202.js"),

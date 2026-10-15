@@ -356,20 +356,20 @@ function creer(hote){
         const prete=H.idleNombre_(spells.ironPillReadyAt);
         const rechargeIron=prete>maintenant?prete-maintenant:0;
         const spellDefs=[
-          {id:'numberBoost',nom:'Blood NUMBER Boost',visible:true,
-            desc:'Chaque Blood ajoute 1 au multiplicateur du NUMBER (le « Blood magic bonus » du Rebirth). Valable pour le Rebirth en cours.',
+          {id:'numberBoost',nom:'Boost du nombre par le sang',visible:true,
+            desc:'Chaque point de sang ajoute 1 au multiplicateur du Nombre (le « Bonus de Magie du sang » de la Renaissance). Valable pour le Rebirth en cours.',
             actuel:'Bonus actuel : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)),
             apercu:blood>0?'En le lançant maintenant : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)+Math.floor(blood)):''},
           {id:'ironPill',nom:'Iron Pill',visible:bloodPeak>=100||depense('ironPill')>0,
-            desc:'Augmente pour toujours tes stats d’Adventure. Avec G = Blood^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
+            desc:'Augmente pour toujours tes stats d’Adventure. Avec G = sang^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
             actuel:'Total acquis : +'+nb(depense('ironPill'),2),
             apercu:'',recharge:rechargeIron},
-          {id:'bloodSpaghetti',nom:'Blood Spaghetti',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
-            desc:'Augmente la Drop Chance de (log₂(Blood ÷ 10 000) + 1) %, où Blood est le total sacrifié à ce sort durant ce Rebirth.',
+          {id:'bloodSpaghetti',nom:'Spaghetti de sang',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
+            desc:'Augmente la Drop Chance de (log₂(sang ÷ 10 000) + 1) %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
             actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.bloodSpaghetti||1)-1)*100)),
             apercu:blood>0&&depense('bloodSpaghettiBloodSpent')+blood>=1e4?'En le lançant maintenant : +'+pctFr(pctSpaghetti(depense('bloodSpaghettiBloodSpent')+Math.floor(blood))):''},
           {id:'counterfeitGold',nom:'Counterfeit Gold',visible:bloodPeak>=1e6||depense('counterfeitGoldBloodSpent')>0,
-            desc:'Augmente le GPS de la Time Machine de (log₂(Blood ÷ 1 000 000) + 1)² %, où Blood est le total sacrifié à ce sort durant ce Rebirth.',
+            desc:'Augmente le GPS de la Time Machine de (log₂(sang ÷ 1 000 000) + 1)² %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
             actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.counterfeitGold||1)-1)*100)),
             apercu:blood>0&&depense('counterfeitGoldBloodSpent')+blood>=1e6?'En le lançant maintenant : +'+pctFr(pctCounterfeit(depense('counterfeitGoldBloodSpent')+Math.floor(blood))):''}
         ].filter(function(sp){return sp.visible;});
@@ -439,7 +439,7 @@ function creer(hote){
             :'';
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="bm-rituel" data-rang-v1="'+rangRituel+'" style="margin:0">'+
             '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'">'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'</b> complété(s)</span></div>'+
-            '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' Blood</b></div>'+
+            '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' sang</b></div>'+
             decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
@@ -453,8 +453,10 @@ function creer(hote){
          * ne contient que les sorts découverts). L'état ouvert/fermé des « i » est gardé en mémoire (les rendus ne le referment pas).
          */
         /* Rituel sonore du sort (modules/audio-effects-v199.js : sortBlood), du plus modeste au plus terrifiant. Jamais bloquant. */
-        window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}};
-        const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton Blood</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
+        window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}
+          /* Orage du sort (modules/orage-v1.js, Norman 2026-10-15) : ciel qui s'assombrit, éclair et tonnerre au même instant, de plus en plus fort jusqu'au dernier sort de la liste. */
+          try{const o=window.__SOREAL_IDLE_ORAGE_V1__;if(o&&typeof o.sort==='function')o.sort(String(id||''));}catch(e){}};
+        const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton sang</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
           const recharge=sp.recharge>0;
           const peutLancer=blood>0&&!recharge;
           const idSort=H.idleHtml_(sp.id);
@@ -465,7 +467,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de Blood')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de sang')+'</button></div>';
         }).join('')+'</div>';
 
         /*
@@ -475,17 +477,17 @@ function creer(hote){
          * carte, liseré) -- jamais un simple aplat rouge, et rien de tout ça n'existe ailleurs.
          */
         return '<div class="soreal-idle-bloodmagic-v1">'+
-          decor.entete('Magie du sang','Transforme de la Magic et de l’Or en Blood, puis dépense ce Blood dans des sorts.')+
-          carteAideMenuIdleV1_('bloodMagic','Le Blood sert à lancer des sorts. Le plus courant, Blood NUMBER Boost, ajoute 1 au multiplicateur du NUMBER (le « Blood magic bonus » du Rebirth) par Blood dépensé : c’est ce qui te donne un plus gros nombre au Rebirth.',[
+          decor.entete('Magie du sang','Transforme de la Magic et de l’Or en sang, puis dépense ce sang dans des sorts.')+
+          carteAideMenuIdleV1_('bloodMagic','Le sang sert à lancer des sorts. Le plus courant, Boost du nombre par le sang, ajoute 1 au multiplicateur du Nombre (le « Bonus de Magie du sang » de la Renaissance) par point de sang dépensé : c’est ce qui te donne un plus gros Nombre à la Renaissance.',[
             'Choisis un rituel et place-y de la Magic avec + : plus il en reçoit, plus vite il se termine.',
-            'Chaque fois qu’un rituel se termine, il dépense de l’Or et produit du Blood.',
-            'Le Blood s’accumule dans ta réserve. Lancer un sort utilise tout ton Blood d’un coup.',
-            'Le Blood est remis à zéro à chaque Rebirth. Les effets des sorts ne durent que jusqu’au prochain Rebirth, sauf ceux marqués « permanent ».'
+            'Chaque fois qu’un rituel se termine, il dépense de l’Or et produit du sang.',
+            'Le sang s’accumule dans ta réserve. Lancer un sort utilise tout ton sang d’un coup.',
+            'Le sang est remis à zéro à chaque Rebirth. Les effets des sorts ne durent que jusqu’au prochain Rebirth, sauf ceux marqués « permanent ».'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Blood<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Sang<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
           sortsHtml+
           toolbar+
-          '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du Blood</small></h3><div class="bm-grille">'+rituelsHtml+'</div>'+
+          '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du sang</small></h3><div class="bm-grille">'+rituelsHtml+'</div>'+
         '</div>';
       }
 
