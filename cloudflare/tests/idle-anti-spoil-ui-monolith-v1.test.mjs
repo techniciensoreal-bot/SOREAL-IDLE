@@ -59,7 +59,7 @@ for (const l of cadenas) {
 assert.match(ui, /function rendreCollectionCreaturesIdleV1_\(entrees,vide\)\{[\s\S]{0,300}entrees=entrees\.filter\(function\(e\)\{return e&&e\.decouvert;\}\)/, "bestiaire : seules les entrées découvertes");
 assert.match(ui, /function rendreCoffreAdventureIdleV1_\(slots\)\{[\s\S]{0,300}slots=slots\.filter\(function\(s\)\{return s&&s\.decouvert;\}\)/, "coffre : seules les cases découvertes");
 assert.match(ui, /catalog\)\?shop\.catalog:\[\]\)\.filter\(function\(item\)\{return articleApVisibleIdleV1_\(j,item\);\}\)/, "boutique AP : seuls les achats actifs et liés à un système débloqué");
-assert.match(ui, /const compteur=item\.purchased>0\?' \(x'\+idleEntier_\(item\.purchased\)\+'\)':'';/, "boutique AP : seul le nombre acheté");
+assert.match(ui, /const compteur=item\.purchased>0\s*\?\(item\.id==='extraInventorySpace'\?' · '\+idleEntier_\(item\.purchased\)\+'\/166 achetés':' · acheté '\+idleEntier_\(item\.purchased\)\+' fois'\)\s*:'';/, "boutique AP : le nombre acheté ; le maximum (166) seulement pour les emplacements d'inventaire, qui l'écrivent déjà dans leur description");
 
 // Observer « 69 lol » : jamais de balayage complet du body à chaque mutation.
 const obs = ui.slice(ui.indexOf("function noeudTexte69LolIdleV183_"), ui.indexOf("function chargerMenuIdleV28_"));

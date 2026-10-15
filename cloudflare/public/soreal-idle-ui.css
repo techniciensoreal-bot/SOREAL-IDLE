@@ -6172,9 +6172,13 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 .soreal-idle-bt-row-v120.verrouille{opacity:.55;filter:grayscale(1);pointer-events:none}
 .soreal-idle-bt-row-v120.verrouille .soreal-idle-bt-prerequis-v1{font-size:13px;font-weight:700;margin-top:4px;color:#b5bccb}
 
-/* Coffre : cases PETITES (Norman, 2026-10-03 : « plus petites que l'inventaire »), image pleine case. Cases de 56 px (le sac en fait 72). */
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,56px)!important;gap:5px!important;justify-content:start}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{width:56px;height:56px;min-width:56px;max-width:56px;border-radius:7px!important}
+/*
+ * Coffre : image pleine case. Norman (2026-10-15) : « les sets dans le coffre doivent avoir la même taille que les cases d'inventaire » — une seule taille, --case-coffre = celle des cases du sac : 72 px sur PC (voir soreal-idle-itopod.css),
+ * sur téléphone le sac fait 5 colonnes qui se partagent la largeur (voir .soreal-idle-v138-bag dans soreal-idle-itopod.css : largeur de l'écran moins 90 px de marges, moins 4 × 4 px d'écarts, divisée par 5).
+ */
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28{--case-coffre:calc((100vw - 106px)/5)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1{grid-template-columns:repeat(auto-fill,var(--case-coffre,56px))!important;gap:4px!important;justify-content:start}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-v1{width:var(--case-coffre,56px);height:var(--case-coffre,56px);min-width:var(--case-coffre,56px);max-width:var(--case-coffre,56px);box-sizing:border-box;border-radius:7px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-name-v1{font-size:7.5px;padding:8px 1px 1px;line-height:1.05}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-card-level-v1{font-size:8px;padding:0 3px;left:2px;top:2px;border-radius:5px}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grille-v1 .soreal-idle-collection-check-v1{width:11px;height:11px;font-size:8px;top:2px;right:2px}
@@ -6197,7 +6201,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-grill
 
 /* Coffre en mannequins (Norman, 2026-10-03) : chaque set est posé comme équipé (tête, torse, jambes, bottes ; arme et accessoires à côté), les sets côte à côte puis à la ligne. Cases à la taille d'avant (56 px). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{display:flex!important;flex-wrap:wrap;gap:12px 14px;align-items:flex-start;justify-content:flex-start}
-.soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,56px);grid-auto-rows:56px;gap:5px;padding:6px;border-radius:10px;background:rgba(216,169,63,.08);border:1px solid rgba(216,169,63,.28)}
+.soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,var(--case-coffre,56px));grid-auto-rows:var(--case-coffre,56px);gap:4px;padding:6px;border-radius:10px;background:rgba(216,169,63,.08);border:1px solid rgba(216,169,63,.28)}
 
 /* ====================== COFFRE : un cadre thématique par zone / par set ======================
  * Norman (2026-10-03) : « les sets côte à côte et, seulement quand il n'y a plus de place, en dessous ; un cadre dédié à chaque set, qui rappelle la zone d'où il vient, avec ses couleurs et ses décorations ;

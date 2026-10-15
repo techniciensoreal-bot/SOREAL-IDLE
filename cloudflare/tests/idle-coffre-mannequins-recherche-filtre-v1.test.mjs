@@ -34,7 +34,7 @@ assert.ok(ui.includes("noms.push(en);") && ui.includes("noms.push(tr(en));"), "i
 assert.ok(ui.includes("const LIGNE_ARMURE={head:1,chest:2,legs:3,boots:4};"));
 assert.ok(ui.includes("soreal-idle-coffre-mannequin-v1") && ui.includes("soreal-idle-coffre-mannequins-v1"));
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-assert.ok(css.includes(".soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,56px)"), "cases de 56 px comme avant");
+assert.ok(css.includes(".soreal-idle-coffre-mannequin-v1{display:grid;grid-template-columns:repeat(2,var(--case-coffre,56px))"), "cases de la taille du sac (variable --case-coffre, 56 px en repli)");
 assert.ok(css.includes(".soreal-idle-coffre-mannequins-v1{display:flex!important;flex-wrap:wrap"), "sets côte à côte puis à la ligne");
 // Anti-spoil : aucune case grisée pour une pièce non découverte (seules les pièces connues sont rendues).
 assert.ok(ui.includes("slots=slots.filter(function(s){return s&&s.decouvert;});"));

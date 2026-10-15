@@ -111,4 +111,31 @@ assert.equal(xpDe("seb@example.org").exp, 1310);
   assert.equal(lignes.length, IDLE_GAINS_MAX_PAR_JOUEUR_V1, "au plus 300 lignes par joueur");
   assert.equal(lignes[0].operation, "op" + (IDLE_GAINS_MAX_PAR_JOUEUR_V1 + 24), "les plus récentes d'abord");
 }
+// 8. Production courante regroupée : un jour de jeu ne remplit plus le journal ; les événements inhabituels gardent leur ligne
+{
+  const base = new DatabaseSync(":memory:");
+  const s3 = { exec(q, ...b) { const st = base.prepare(q); if (/^s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
+  let xp = 1000;
+  const t0 = 1_000_000;
+  for (let i = 0; i < 29; i += 1) { enregistrerGainExpV1(s3, { email: "b@x.fr", operation: "obtenirEtatSorealIdle", avant: xp, apres: xp + 20, now: t0 + i * 20000 }); xp += 20; }
+  let l = lireGainsExpV1(s3, { email: "b@x.fr" });
+  assert.equal(l.length, 1, "29 synchros ordinaires = une seule ligne");
+  assert.equal(l[0].avant, 1000); assert.equal(l[0].apres, 1580); assert.equal(l[0].operation, "obtenirEtatSorealIdle×29");
+  /* récompense inhabituelle (+500 contre ~20 de fond) : sa propre ligne, même pendant une synchro */
+  enregistrerGainExpV1(s3, { email: "b@x.fr", operation: "obtenirEtatSorealIdle", avant: xp, apres: xp + 500, now: t0 + 600000 }); xp += 500;
+  l = lireGainsExpV1(s3, { email: "b@x.fr" });
+  assert.equal(l.length, 2, "+500 : ligne à part"); assert.equal(l[0].delta, 500); assert.equal(l[0].operation, "obtenirEtatSorealIdle");
+  /* une baisse (achat) et une autre opération ne sont jamais regroupées */
+  enregistrerGainExpV1(s3, { email: "b@x.fr", operation: "agirProgressionSorealIdle", avant: xp, apres: xp - 300, now: t0 + 610000 }); xp -= 300;
+  enregistrerGainExpV1(s3, { email: "b@x.fr", operation: "battementSorealIdle", avant: xp, apres: xp + 15, now: t0 + 620000 }); xp += 15;
+  assert.equal(lireGainsExpV1(s3, { email: "b@x.fr" }).length, 4);
+  /* 30 regroupements au plus par ligne */
+  for (let i = 0; i < 40; i += 1) { enregistrerGainExpV1(s3, { email: "c@x.fr", operation: "battementSorealIdle", avant: i * 10, apres: i * 10 + 10, now: t0 + i }); }
+  assert.equal(lireGainsExpV1(s3, { email: "c@x.fr" }).length, 2, "40 battements = 30 + 10 : deux lignes");
+}
 console.log("idle-gains-exp-journal-v1: OK");
+{
+  const { readFileSync } = await import("node:fs");
+  const ad = readFileSync("cloudflare/public/modules/credit-exp-admin-v1.js", "utf8");
+  assert.ok(ad.includes("(\\d+)$/.exec(op)") && ad.includes("production courante regroupée"), "l'Admin lit les lignes regroupées (« ×N »)");
+}

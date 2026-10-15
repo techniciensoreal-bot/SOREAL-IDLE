@@ -22564,7 +22564,7 @@ function pageAventureIdleV28_(j){
         regularBlackPens:{name:'Stylos noirs ordinaires (x25)',effect:'Ajoute 2 tiers à la prochaine carte générée. Cet effet ne peut pas être désactivé.'},
 
         improvedLootFilter:{name:'Filtre de butin amélioré',effect:'Permet d’utiliser la liste d’objets comme filtre de butin personnalisé et de filtrer chaque objet individuellement.'},
-        extraInventorySpace:{name:'Espace d’inventaire supplémentaire',effect:'Ajoute un emplacement d’inventaire. Peut être acheté plusieurs fois, jusqu’à 166 emplacements supplémentaires.'},
+        extraInventorySpace:{name:'Espace d’inventaire supplémentaire',effect:'Ajoute 1 emplacement d’inventaire à chaque achat. Peut être acheté plusieurs fois, jusqu’à 166 emplacements supplémentaires.'},
         autoMergeBoostTimers:{name:'Réduction Auto Merge / Auto Boost',effect:'Réduit de 50 % le temps de l’Auto Boost et de l’Auto Merge.'},
         instaTrainingCap:{name:'Plafond d’entraînement instantané',effect:'Assigne presque immédiatement 6 Énergies, une à chacun des entraînements, après chaque Rebirth.'},
         customEnergyMagicButtons:{name:'Boutons % personnalisés Énergie/Magie',effect:'Débloque un jeu de boutons % personnalisés pour les entrées Énergie et Magie, calculés sur le plafond total.'},
@@ -22737,7 +22737,10 @@ function pageAventureIdleV28_(j){
           const effetActif=item.effectActive===true;
           const abordable=effetActif&&!auMax&&ap>=item.nextCost;
           const texte=traductionSelloutIdleV210_(item);
-          const compteur=item.purchased>0?' (x'+idleEntier_(item.purchased)+')':'';
+          /* Norman (2026-10-15) : « (x22) » laissait croire qu'un achat donne 22 emplacements. Les emplacements d'inventaire (dont le maximum, 166, est déjà écrit dans leur description) montrent « 22/166 achetés » ; les autres achats « acheté 22 fois » (jamais leur maximum : règle n°2). */
+          const compteur=item.purchased>0
+            ?(item.id==='extraInventorySpace'?' · '+idleEntier_(item.purchased)+'/166 achetés':' · acheté '+idleEntier_(item.purchased)+' fois')
+            :'';
           return '<div class="soreal-idle-exp-stat-v210">'+
             '<div class="soreal-idle-exp-stat-head-v210"><span>'+imageArticleShopIdleV1_(item.id)+idleHtml_(texte.name)+compteur+(B&&B.estNouveau('ap',item.id)?B.point('Nouvel achat'):'')+'</span></div>'+
             '<div class="soreal-idle-exp-help-v210">'+idleHtml_(texte.effect)+'</div>'+

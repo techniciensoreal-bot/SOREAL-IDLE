@@ -22,10 +22,27 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'2.9',
+    courante:'3.0',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.0',
+        nom:'Un coffre à la bonne taille',
+        date:'2026-10-15',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'L’éditeur de textes et de voix de l’administrateur retrouve maintenant les personnages enregistrés à la réouverture d’un texte, au lieu de tout remettre en un seul bloc.',
+            'Le journal d’EXP de l’administrateur garde désormais plusieurs jours d’historique : la production courante est regroupée en une ligne par tranche d’environ dix minutes.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Les cases du coffre, sets compris, ont maintenant exactement la taille des cases de l’inventaire (sur PC comme sur téléphone).',
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Les emplacements d’inventaire de la boutique AP affichent combien tu en as déjà achetés sur le maximum possible, et chaque achat précise qu’il ajoute 1 emplacement ; les autres achats indiquent « acheté N fois » au lieu de « (xN) ».',
+          ]}
+        ]
+      },
       {
         version:'2.9',
         nom:'Des images bien à nous',
@@ -47,16 +64,12 @@
             'Les histoires du bon boss sont aussi vérifiées côté serveur par identifiant, avec des tests qui empêchent le décalage de revenir.',
           ]},
           {menu:'titans', titre:'Titans', points:[
-            'Chaque Titan a maintenant son propre fond de combat, aux couleurs et au décor de son personnage (fixe, sans animation) ; les boutons Aventure et Titans prennent la couleur du Titan affronté.',
-            'Le combat de Titan occupe tout l’écran de l’interface, mais les menus de gauche restent visibles.',
-            'Pendant un combat de Titan, les boutons Aventure et Titans prennent un rouge sombre assorti au fond du combat.',
-            'Cliquer sur Aventure en plein combat de Titan est annoncé dans « En direct » : « … a pris la fuite contre … » (le nom n’est donné qu’aux joueurs qui connaissent ce Titan).',
-            'Quand tu lances un combat de Titan, un grand écran d’alerte « Un Titan approche… » s’affiche pendant l’attente, avec son nom et son image qui grossit (un « ? » si tu ne l’as jamais affronté).',
+            'Chaque Titan a son propre fond de combat, dessiné d’après son image (fixe, sans animation) ; les boutons Aventure et Titans prennent sa couleur.',
+            'Le combat de Titan occupe tout l’écran de l’interface, menus de gauche visibles, bien aligné dès le lancement : plus besoin de descendre avec la molette.',
+            'Un grand écran d’alerte « Un Titan approche… » s’affiche pendant l’attente du combat, avec son nom et son image qui grossit (un « ? » si tu ne l’as jamais affronté).',
             'Le Grand Arbre corrompu commence petit et grandit à mesure que sa force monte, jusqu’à remplir tout l’écran vers la moitié de ses PV.',
             'Quand tu bats un Titan, son image rapetisse en tournant sur elle-même, puis un message annonce dans combien de temps il sera de retour.',
-            'Le combat de Titan reste bien aligné en plein écran même quand la page change de taille au lancement.',
-            'Cliquer sur le bouton Aventure du menu depuis l’onglet Titans te ramène à l’onglet Aventure.',
-            'Sur PC, l’écran de combat d’un Titan occupe tout l’écran dès le lancement : plus besoin de descendre avec la molette.',
+            'Cliquer sur Aventure depuis l’onglet Titans te ramène à l’onglet Aventure ; en plein combat, la fuite est annoncée dans « En direct » (le nom n’est donné qu’aux joueurs qui connaissent ce Titan).',
             'La case « Auto-kill » d’un Titan ne peut plus être cochée tant que tu n’as pas les statistiques nécessaires : elle reste grisée, avec un message. Décocher reste toujours possible.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[

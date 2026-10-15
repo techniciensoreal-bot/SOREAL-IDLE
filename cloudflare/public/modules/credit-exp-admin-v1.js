@@ -51,6 +51,9 @@ function libelle(op){
   op=String(op||'');
   if(op.indexOf('crediterExpAdminSorealIdle')===0)return '🎁 Crédit de l’administrateur'+(op.indexOf(':')>0?' ('+op.slice(op.indexOf(':')+1).replace(/^admin-\d+$/,'manuel')+')':'');
   var noms={agirProgressionSorealIdle:'Action du jeu',obtenirEtatSorealIdle:'Synchronisation',battementSorealIdle:'Présence',combattreBossSorealIdle:'Combat de boss'};
+  /* « Synchronisation ×12 » : plusieurs hausses ordinaires regroupées en une ligne. */
+  var reg=/^(.*?)×(\d+)$/.exec(op);
+  if(reg&&noms[reg[1]])return noms[reg[1]]+' ×'+reg[2]+' (production courante regroupée)';
   return noms[op]||op;
 }
 
@@ -62,7 +65,7 @@ function ouvrir(){
   o.id=ID;
   o.innerHTML='<div class="boite" role="dialog" aria-modal="true" aria-label="EXP des joueurs">'+
     '<h3>💰 EXP des joueurs</h3>'+
-    '<div class="aide">Donne de l’EXP à un joueur, ou lis le journal de ses variations d’EXP (60 jours, depuis la mise en place du journal).</div>'+
+    '<div class="aide">Donne de l’EXP à un joueur, ou lis le journal de ses variations d’EXP (1 000 lignes au plus, 60 jours ; la production courante est regroupée en une ligne par tranche d’environ dix minutes).</div>'+
     '<label for="'+ID+'-joueur">Joueur (prénom ou adresse e-mail)</label>'+
     '<input id="'+ID+'-joueur" type="text" autocomplete="off" spellcheck="false" placeholder="Sébastien" value="'+esc(lire())+'">'+
     '<label for="'+ID+'-montant">EXP à donner</label>'+

@@ -45,5 +45,5 @@ assert.ok(css.includes(".soreal-idle-v138-trash-slot{border-style:solid!importan
 
 // 4. Coffre : cases et textes agrandis sur PC.
 const pc = css.slice(css.indexOf("Coffre lisible sur PC"));
-assert.ok(pc.includes("@media (min-width:701px)") && pc.includes("repeat(auto-fill,88px)") && /collection-card-name-v1\{font-size:12px/.test(pc), "coffre lisible");
+assert.ok(pc.includes("@media (min-width:701px)") && pc.includes("repeat(auto-fill,72px)") && /collection-card-name-v1\{font-size:10.5px/.test(pc), "coffre lisible (cases de la taille du sac, 72 px)");
 console.log("idle-sans-bulles-et-interface-v1: OK");
