@@ -12,9 +12,8 @@ const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 // --- 1. Popup au survol : 500 ms, annulé si la souris quitte l'objet, jamais deux popups ---
 assert.ok(ui.includes("const IDLE_SURVOL_DELAI_OUVERTURE_MS_V1=1500;"));
 assert.ok(ui.includes("},IDLE_SURVOL_DELAI_OUVERTURE_MS_V1);"), "ouverture différée");
-assert.ok(ui.includes("if(id===idleSurvolEnAttenteIdV1)return;"), "même objet : le délai court déjà, pas de redémarrage à chaque mouvement");
-assert.ok(ui.includes("/* La souris a quitté l'objet avant la fin du délai : rien ne s'ouvre. */\n        annulerOuvertureSurvolIdleV1_();") || ui.includes("rien ne s'ouvre. */\r\n        annulerOuvertureSurvolIdleV1_();"), "délai annulé quand la souris part");
-assert.ok((ui.match(/annulerOuvertureSurvolIdleV1_\(\);/g) || []).length >= 5, "annulé aussi à la sortie de la fenêtre, au clic (glisser) et sur le popup");
+/* Norman (2026-10-15) : plus de popup au survol dans l'inventaire (le clic ouvre la fiche) ; le Coffre et la Collection gardent leur survol (autre gestionnaire). */
+assert.ok(!ui.includes("ouvrirSurvolIdleV1_(element,id);") && !ui.includes("if(id===idleSurvolEnAttenteIdV1)return;"), "inventaire : le survol n'ouvre plus rien");
 
 // --- 2. Recherche du coffre : logique réelle extraite du jeu ---
 const debut = ui.indexOf("let idleRechercheCoffreV1='';");

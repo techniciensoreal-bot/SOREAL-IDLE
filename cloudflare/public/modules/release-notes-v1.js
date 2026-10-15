@@ -36,6 +36,7 @@
             'Le journal d’EXP de l’administrateur garde désormais plusieurs jours d’historique : la production courante est regroupée en une ligne par tranche d’environ dix minutes.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans l’inventaire, la fiche d’un objet ne s’ouvre plus au survol de la souris : elle s’ouvre uniquement par un clic sur l’objet.',
             'Les cases du coffre, sets compris, ont maintenant exactement la taille des cases de l’inventaire (sur PC comme sur téléphone).',
           ]},
           {menu:'shop', titre:'Boutique', points:[

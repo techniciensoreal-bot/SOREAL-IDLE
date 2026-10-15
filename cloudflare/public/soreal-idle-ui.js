@@ -20849,43 +20849,11 @@ function pageAventureIdleV28_(j){
         root.style.top=idleItemPopupPositionV1_.top+'px';
       }
 
-      document.addEventListener('mouseover',function(event){
-        if(!survolPossibleIdleV1_(event))return;
-        const cible=event.target;
-        if(cibleDansPopupDetailsObjetAdventureIdleV207_(cible)){
-          annulerOuvertureSurvolIdleV1_();
-          clearTimeout(idleSurvolTimerFermerV1);
-          idleSurvolTimerFermerV1=0;
-          return;
-        }
-        const element=elementObjetGesteAdventureIdleV196_(cible);
-        const id=idObjetGesteAdventureIdleV196_(element);
-        if(element&&id){
-          clearTimeout(idleSurvolTimerFermerV1);
-          idleSurvolTimerFermerV1=0;
-          if(id===idleSurvolIdV1&&popupDetailsObjetAdventureIdleOuvertV207_())return;
-          if(id===idleSurvolEnAttenteIdV1)return;/* la souris est toujours sur le même objet : le délai court déjà */
-          annulerOuvertureSurvolIdleV1_();
-          /* Un autre objet : le popup du précédent se ferme tout de suite ; le nouveau s'ouvre après 1,5 s de survol. */
-          if(idleSurvolIdV1&&id!==idleSurvolIdV1)fermerSurvolIdleV1_();
-          idleSurvolEnAttenteIdV1=id;
-          idleSurvolTimerOuvrirV1=setTimeout(function(){
-            idleSurvolTimerOuvrirV1=0;
-            idleSurvolEnAttenteIdV1='';
-            ouvrirSurvolIdleV1_(element,id);
-          },IDLE_SURVOL_DELAI_OUVERTURE_MS_V1);
-          return;
-        }
-        /* La souris a quitté l'objet avant la fin du délai : rien ne s'ouvre. */
-        annulerOuvertureSurvolIdleV1_();
-        /* ni objet ni popup : on ferme (avec un court délai de grâce) le popup ouvert par survol */
-        if(idleSurvolIdV1&&!idleSurvolTimerFermerV1){
-          idleSurvolTimerFermerV1=setTimeout(function(){
-            idleSurvolTimerFermerV1=0;
-            fermerSurvolIdleV1_();
-          },200);
-        }
-      });
+      /*
+       * Plus de popup au survol dans l'inventaire (Norman, 2026-10-15 : « au survol de la souris, le popup apparaît toujours dans l'inventaire ; j'ai demandé de le remplacer par un simple clic sur l'objet »).
+       * La fiche d'un objet du sac ou de l'équipement s'ouvre par un clic (voir le tap-fiche des gestes d'inventaire, installerGestesInventaireAdventureIdleV196_) ; le survol n'ouvre plus rien.
+       * (Le Coffre et la Collection gardent leur fiche au survol : leurs cases ne sont pas des objets du sac.)
+       */
 
       /* La souris quitte la fenêtre du navigateur */
       document.documentElement.addEventListener('mouseleave',function(){
