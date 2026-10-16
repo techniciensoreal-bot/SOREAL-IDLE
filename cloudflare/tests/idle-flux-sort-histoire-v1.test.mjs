@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
@@ -53,6 +54,6 @@ if (phrase) {
   assert.equal(phrase({ type: "histoire", nom: "Ana", donnees: {} }, sansSang).texte, "Ana a regardé une cinématique");
   assert.equal(phrase({ type: "histoire", nom: "Ana", donnees: {}, moi: true }, sansSang).texte, "Tu as regardé une cinématique");
 }
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("'moneyPit','sang','aventure','wandoos','yggdrasil',") && ui.includes("connus.sorts="));
 console.log("idle-flux-sort-histoire-v1: OK");

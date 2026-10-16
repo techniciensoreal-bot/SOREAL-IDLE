@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -58,7 +59,7 @@ function creer() {
 }
 // Réglages : une ligne Musique entre Ambiance et Sons de l'interface
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("['ambiance','🎶 Ambiance'],\n          ['musique','🎵 Musique'],\n          ['interface','🔔 Sons de l’interface']"), "ligne Musique dans les Réglages");
   assert.ok(ui.includes("des musiques (Blood Magic et boutique EXP)"), "explication mise à jour");
 }

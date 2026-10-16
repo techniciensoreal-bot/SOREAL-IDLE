@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -50,7 +51,7 @@ const context = { bosses: 4 };
 }
 
 // Client : texte de l'infobulle (mêmes lignes que NGU, en français) et raccourcis R / T
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function nombreInfobulleIdleV1_(v,decimales){");
 const fin = ui.indexOf("function infoEnergieIdleV1_(){");
 const texte = new Function("idleNombre_", ui.slice(debut, fin) + "return texteInfobulleEnergieIdleV1_;")((v) => Number(v) || 0);

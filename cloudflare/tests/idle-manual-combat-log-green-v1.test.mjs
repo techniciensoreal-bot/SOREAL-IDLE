@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * explications. Pareil quand je pars des dégats. Le journal de combat doit vraiment nous
  * indiquer ce qu'il se passe. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. CSS : le type 'manual' existe et est vert (distinct de 'player', réservé à l'attaque idle automatique).
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");

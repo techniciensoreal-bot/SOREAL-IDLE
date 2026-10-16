@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : l'inventaire reprend le look du Money Pit v2 ; le Coffre est un coffre à pattes, dents et langue (clin d'œil Discworld) qui croque les objets déposés. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const dict = JSON.parse(readFileSync("cloudflare/public/modules/traduction-anglais-dict-v1.json", "utf8"));
 const rendu = ui.slice(ui.indexOf("function rendreCadreCoffreAdventureIdleV1_("), ui.indexOf("function idleCoffreOuvertV1_()"));

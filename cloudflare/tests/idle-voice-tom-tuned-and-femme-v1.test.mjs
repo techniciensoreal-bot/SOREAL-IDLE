@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  */
 const piper = readFileSync("cloudflare/public/modules/local-neural-piper-v1.js", "utf8");
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const generateur = readFileSync("cloudflare/tools/voice-generate.mjs", "utf8");
 
 // --- prononciation du nom du jeu ---

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : à 50 niveaux par seconde dans la Machine temporelle, la barre doit rester pleine. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("const SEUIL_NIVEAU_RAPIDE_TM_V1=0.25;") && ui.includes("else if(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1)fill=1;"), "tick : un niveau de 0,25 s ou moins laisse la barre pleine");
 assert.ok(ui.includes("if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)pct=100;"), "après synchro : même règle");
 { // règle pure : durée d'un niveau = ETA / (1 - remplissage)

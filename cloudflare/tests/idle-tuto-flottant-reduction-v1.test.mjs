@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -7,7 +8,7 @@ import vm from "node:vm";
  * mais continue à joueur la voix. Si on reclique dessus, il reprend sa taille normale. Ca permettra de pouvoir
  * continuer à jouer tout en écoutant. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 
 // --- La classe .reduit ne touche jamais display/visibility/opacity de la RACINE : tutorial-tts-v202.js (visible_)

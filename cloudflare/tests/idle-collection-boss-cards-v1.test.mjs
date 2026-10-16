@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * dessous : juste leur nom, centré, et sans bords noirs sur les côtés de l'image. Rends les cartes de boss cliquables pour afficher leurs
  * statistiques et leurs textes de chroniques. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Plus d'onglet « Aventure » dans Collection
@@ -17,7 +18,8 @@ assert.match(page, /idleCollectionOngletV1!=='aventure'\?idleCollectionOngletV1:
 for (const onglet of ["boss", "equipement", "sets"]) assert.ok(page.includes("__changerOngletCollectionIdleV1__('" + onglet + "')"), "onglet " + onglet + " conservé");
 
 // Carte de boss : image + nom seulement, cliquable
-const rendu = ui.slice(ui.indexOf("function rendreCollectionCreaturesIdleV1_("), ui.indexOf("function fermerBossCollectionIdleV1_()"));
+const debutRendu = ui.lastIndexOf("function rendreCollectionCreaturesIdleV1_(");
+const rendu = ui.slice(debutRendu, ui.indexOf("function fermerBossCollectionIdleV1_()", debutRendu) > 0 ? ui.indexOf("function fermerBossCollectionIdleV1_()", debutRendu) : ui.length);
 const carteBoss = rendu.slice(rendu.indexOf("if(idleEntier_(e.numero)>0){"), rendu.indexOf("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-172 */"));
 assert.match(carteBoss, /boss-card/);
 assert.match(carteBoss, /__ouvrirBossCollectionIdleV1__\('\+idleEntier_\(e\.numero\)/, "clic -> fiche du boss");

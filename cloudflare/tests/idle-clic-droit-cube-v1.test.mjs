@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-05) : « sur PC, le clic droit sur le cube de l'infini absorbe tous les boosts comme pour les items, pas de règle à part ». */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      function clicDroitCubeIdleV1_(){");
 const b = ui.indexOf("      /* Triple tap : fusion automatique de l'objet");
 assert.ok(a > 0 && b > a);

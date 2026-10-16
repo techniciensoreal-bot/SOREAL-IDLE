@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-09) : (1) Chroniques > Équipement : les pièces maxées à 100 % en couleur, les autres grisées ; (2) quand un Augment prend un niveau, la vie max (et l'attaque) doit suivre tout de suite, pas à la synchro.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 

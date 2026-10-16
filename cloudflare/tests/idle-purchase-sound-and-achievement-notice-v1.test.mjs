@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -114,7 +115,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
 
 // ---------- branchement ----------
 {
-  const ui = lire("cloudflare/public/soreal-idle-ui.js");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));"), "vérification à chaque rendu, clé par joueur");
   const index = lire("cloudflare/public/index.html");
   for (const m of ["/modules/purchase-sound-v1.js?v=4", "/modules/achievement-notice-v1.js?v=1"]) assert.ok(index.includes(m), m);

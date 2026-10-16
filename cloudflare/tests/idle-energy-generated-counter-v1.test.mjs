@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * savoir combien il nous reste à partager. Combien de dispo dans la barre verte et combien déjà généré au-dessus. » puis : « Non, je
  * voulais que Généré soit en haut à droite, à la place du compteur qui fait doublon avec celui de la barre verte. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Balisage : « Généré » est en haut à droite (à la place du doublon « (+1) dispo / cap ⚡ »), la barre verte garde le disponible.

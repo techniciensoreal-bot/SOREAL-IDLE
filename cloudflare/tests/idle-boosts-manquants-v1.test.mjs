@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSnapshotV47 } from "../src/idle-adventure-v47.js";
 
@@ -33,7 +34,7 @@ s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:
 const casque = s.inventory.find((x) => x.definitionId === "training:head");
 assert.deepEqual(vue(s, casque.id).boostManque, { power: false, toughness: true, special: false }, "casque neuf : point bleu seulement");
 // Client : points colorés, V seulement pour fullyMaxed
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(ui.includes("function pointsBoostManquantIdleV1_(item){") && ui.includes('<b class="p"') && ui.includes('<b class="t"') && ui.includes('<b class="s"'), "trois points");
 const badges = ui.slice(ui.indexOf("function badgesNiveauObjetIdleV1_(item){"), ui.indexOf("function iconeObjetAdventureIdleV138_(item){"));

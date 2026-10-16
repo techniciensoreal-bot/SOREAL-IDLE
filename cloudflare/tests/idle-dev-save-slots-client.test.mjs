@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * 2026-09-27 (Norman, restauré) : sélecteur des deux parties A / B, uniquement pendant le développement.
  * Contrôles du client (soreal-idle-ui.js) ; le comportement serveur est couvert par idle-dev-save-slots.test.mjs.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Le serveur décide : le sélecteur n'apparaît que si `actif` est vrai (compte administrateur + fonction active).

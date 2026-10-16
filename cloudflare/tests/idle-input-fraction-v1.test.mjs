@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -9,7 +10,7 @@ import vm from "node:vm";
  * en dehors de la zone d'input, ça se transforme en ce que correspond 1/8 de notre énergie
  * idle. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const augMod = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // 1. Fonction pure idleParseFractionEnergieV1_ : "n/d" -> floor(energieLibre*n/d), jamais moins que 1 ; sinon null.

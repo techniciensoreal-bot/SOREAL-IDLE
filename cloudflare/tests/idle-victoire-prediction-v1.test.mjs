@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * à chaque tick, puis enregistrait la victoire ET la défaite dans le même tick (l'ordre « défaite » remplaçait l'ordre « démarrer » encore en file : le serveur
  * ne faisait jamais le combat). Résultat : boss suivant affiché, puis retour du boss précédent à pleine vie après la garde de 15 s.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Qui tombe en premier : les coups du joueur ne comptent que jusqu'à sa mort s'il meurt avant le boss.
 assert.ok(ui.includes("function degatsNetsBossParSecondeIdleV1_(effetsMagie,maintenantTick){"));

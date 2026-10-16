@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * Garde-fous des correctifs : heure du serveur, minuteurs Money Pit / Daily Spin / Auto Merge, resynchronisation au retour d'onglet, synchro affamée, reprise réseau.
  */
 const lire = (p) => readFileSync(p, "utf8");
-const ui = lire("cloudflare/public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 const meta = lire("cloudflare/public/modules/blood-magic-v1.js") + "\n" + (lire("cloudflare/public/modules/meta-progression-v130.js") + lirePagesMeta());
 const bridge = lire("cloudflare/public/standalone-bridge.js");
 const worker = lire("cloudflare/src/idle-worker-entry-v1.js");

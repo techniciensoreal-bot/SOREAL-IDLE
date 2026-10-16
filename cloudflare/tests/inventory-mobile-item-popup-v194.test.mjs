@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
+const ui=lireUiComplet().replace(/\r\n/g,"\n");
 
 /*
  * Ce test V194 est conservé comme garde de compatibilité du besoin

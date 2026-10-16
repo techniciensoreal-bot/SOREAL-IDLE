@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const source=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const source=lireUiComplet();
 
 const start=source.indexOf("function rendreIdleEtat_(res){");
 assert.ok(start>=0,"rendreIdleEtat_ introuvable");

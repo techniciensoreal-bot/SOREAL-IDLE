@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * en dessous n'est pas visible ni cliquable — je le veux un gros bouton blanc avec écrit JOUER » ; « le même style pour la Boutique AP que
  * pour la XP Shop, d'une couleur différente (mauve ou vert cyan) ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 

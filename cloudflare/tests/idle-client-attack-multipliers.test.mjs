@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -11,7 +12,7 @@ import { readFileSync } from "node:fs";
  * Le serveur expose maintenant le produit qu'il applique réellement.
  */
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function progresserBasicTrainingLocalIdleV120_(");
 assert.ok(debut > 0, "progresserBasicTrainingLocalIdleV120_ introuvable");
 const fin = ui.indexOf("window.__ajusterBasicTrainingIdleV120__", debut);

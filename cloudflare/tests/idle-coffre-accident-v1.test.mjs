@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8");
-const acc = lire("modules/coffre-accident-v1.js"), dig = lire("modules/coffre-digestion-v1.js"), ui = lire("soreal-idle-ui.js"), idx = lire("index.html"), son = lire("modules/audio-coffre-v1.js"), fx = lire("modules/audio-effects-v199.js");
+const acc = lire("modules/coffre-accident-v1.js"), dig = lire("modules/coffre-digestion-v1.js"), ui = lireUiComplet(), idx = lire("index.html"), son = lire("modules/audio-coffre-v1.js"), fx = lire("modules/audio-effects-v199.js");
 /* Norman (2026-10-15) : accident très occasionnel du Coffre : flaque, deux répliques, sac couvert de caca à frotter, caca qui glisse avec l'objet, bruit liquide avec des pets. */
 assert.ok(dig.includes("var P_ACCIDENT=.08;") && dig.includes("Oh bordel, pas encore…") && dig.includes("J’crois que j’me suis chié dessus.") && dig.includes("a.play('coffreAccident')"), "accident rare, répliques et son");
 assert.ok(acc.includes("NIVEAU_MAX=5") && acc.includes("suivi.courses%2===0") && acc.includes("flaqueNiveau-=1") && !acc.includes("carte:c"), "cinq allers-retours sur la flaque ; le sac ne se frotte pas");

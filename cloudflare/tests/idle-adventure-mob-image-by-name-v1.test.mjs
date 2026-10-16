@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { choisirCleMobR2_, choisirCleMobR2ParNom_ } from "../src/idle-media-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "../src/idle-adventure-v47.js";
@@ -38,6 +39,6 @@ assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.forest.normal[6].name, "Fairy");
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
 assert.match(media, /url\.searchParams\.get\("seed"\),\s*url\.searchParams\.get\("name"\)/);
 assert.match(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8"), /p\.set\('name',String\(fight\.mobName\)\)/, "combat : image par nom");
-assert.match(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8"), /urlMobR2IdleV1_\(e\.zone,e\.boss,e\.index,e\.nom\)/, "Collection : image par nom");
+assert.match(lireUiComplet(), /urlMobR2IdleV1_\(e\.zone,e\.boss,e\.index,e\.nom\)/, "Collection : image par nom");
 
 console.log("idle-adventure-mob-image-by-name-v1 OK");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, idleNguSnapshot, applyIdleNguAction, IDLE_NGU_EXP_SHOP_V1 } from "../src/idle-ngu-progression.js";
@@ -7,7 +8,7 @@ import { normalizeIdleNguState, idleNguSnapshot, applyIdleNguAction, IDLE_NGU_EX
  * Rayon « Toc » + « Synchro Basic Training » + chiffres de vie fixes (Norman, 2026-10-02).
  * Le prix de la Synchro (50 EXP) est un choix SOREAL (achat original, absent du wiki NGU Idle).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
@@ -87,7 +88,7 @@ console.log("idle-bt-synchro-v1: OK");
  * Norman (2026-10-04) : « si j'ai mis 2000 alors que le cap est 50, quand je clique sur Max il doit me rendre l'énergie en trop et laisser ce qui est nécessaire au cap de la barre. »
  */
 {
-  const ui2 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui2 = lireUiComplet();
   const debut2 = ui2.indexOf("function planSynchroBasicTrainingIdleV1_(");
   const fin2 = ui2.indexOf("function presetBasicTrainingIdleV120_(");
   const plan2 = new Function(ui2.slice(debut2, fin2) + "\nreturn planSynchroBasicTrainingIdleV1_;")();

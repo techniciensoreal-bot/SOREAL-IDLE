@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * (audio-volume-v1.js), la voix (tutorial-tts-v202.js) et l'ambiance (ambient-audio-v1.js) qui s'y abonnent,
  * chargés avant le jeu.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 

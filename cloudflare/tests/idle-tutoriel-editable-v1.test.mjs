@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import {
@@ -110,7 +111,7 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
 {
   const moteur = readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
   const editeur = readFileSync("cloudflare/public/modules/admin-tutoriel-v1.js", "utf8");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.ok(moteur.includes("window.__SOREAL_IDLE_TUTORIEL_V1__={") && moteur.includes("choisirElement:choisirElement_") && moteur.includes("ancienPermis:function(){return etat.ancienActif===true;}"), "moteur exposé ; l'ancien tutoriel n'est jamais joué tant que le réglage est inconnu");
   assert.ok(moteur.includes("setInterval(function(){") && moteur.includes("considerer_(j)"), "vérification régulière (le rendu complet de la page n'a lieu qu'aux changements de menu)");
@@ -131,7 +132,7 @@ console.log("Tutoriel éditable: OK");
 /* Premier jet : chaque repère d'écran cité existe encore dans l'interface (garde contre la dérive : si une classe disparaît, ce test le dit). */
 {
   const { readdirSync } = await import("node:fs");
-  const sources = [readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8"), ...readdirSync("cloudflare/public/modules").filter((f) => f.endsWith(".js")).map((f) => readFileSync("cloudflare/public/modules/" + f, "utf8"))].join("\n");
+  const sources = [lireUiComplet(), ...readdirSync("cloudflare/public/modules").filter((f) => f.endsWith(".js")).map((f) => readFileSync("cloudflare/public/modules/" + f, "utf8"))].join("\n");
   const manquants = [];
   for (const g of IDLE_TUTORIEL_SEED_V1) for (const et of g.etapes) {
     assert.ok(et.texte.length <= 1500 && et.texte.length > 20, "texte de taille raisonnable : " + g.id);
@@ -149,7 +150,7 @@ console.log("Tutoriel éditable: OK");
 
 /* Deux réglages séparés pour les anciennes fenêtres. */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("function anciennesFenetresMenusPermisesIdleV1_()") && ui.includes("if(info&&anciennesFenetresMenusPermisesIdleV1_())"), "popups de menu : réglage « menus »");
   assert.ok(readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8").includes("ancienMenusPermis:function(){return etat.ancienMenus===true;}"), "le réglage des menus n'est jamais présumé actif pendant l'attente");
   const ed = readFileSync("cloudflare/public/modules/admin-tutoriel-v1.js", "utf8");

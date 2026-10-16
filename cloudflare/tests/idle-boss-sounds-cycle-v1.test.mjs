@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * et « quand on rebirth, un bruit comme une machine à voyage dans le temps ».
  */
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 function nouveauMoteur(stockage) {
   const fenetre = {};

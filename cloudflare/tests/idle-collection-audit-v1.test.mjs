@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  *  - rendu de la page 24 ms, aucune modification de page ensuite (même pendant une synchro) ; images des boss et des objets en chargement différé (loading="lazy") ; changer d'onglet : aucun appel ;
  *  - à l'ouverture du menu, deux « marqué vu » partaient à la même milliseconde (le menu, puis son tutoriel) -> un seul appel pour la rafale.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      let idleVusMinuterieV1=0;");
 const b = ui.indexOf("      /*\n       * Pont pour les modules externes (2026-09-27, popup d'histoire plein écran)");
 assert.ok(a > 0 && b > a);
@@ -22,6 +23,7 @@ monde("autre");
 assert.equal(timers.length, 2, "la rafale suivante repart normalement");
 
 // Les images de la collection restent en chargement différé.
-const cartes = ui.slice(ui.indexOf("      function rendreCollectionCreaturesIdleV1_("), ui.indexOf("      function rendreCollectionCreaturesIdleV1_(") + 2200);
+const debutCartes = ui.lastIndexOf("function rendreCollectionCreaturesIdleV1_(");
+const cartes = ui.slice(debutCartes, debutCartes + 2200);
 assert.ok(cartes.includes('loading="lazy"'), "portraits de boss en chargement différé");
 console.log("idle-collection-audit-v1: OK");

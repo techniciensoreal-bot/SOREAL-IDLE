@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Cause : le transfert n'existait que côté serveur ; pendant qu'on est dans le menu d'entraînement la page ne reprend pas l'état du serveur (basic-training-stability-v121.js), donc elle gardait l'ancienne
  * répartition et la renvoyait au serveur au clic suivant. Le déblocage local fait maintenant le même transfert et l'envoie.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("      function autoAdvanceBasicTrainingActifIdleV1_(){");
 const fin = ui.indexOf("      function progresserBasicTrainingLocalIdleV120_(");
 assert.ok(debut > 0 && fin > debut);

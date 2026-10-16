@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * mettre en « note » TOUS les paragraphes du début entre parenthèses (déblocages), pas seulement le premier.
  */
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- Découpe : marqueurs de pause -> silences, textes en blocs ---
 const grab = (re) => tts.match(re)[0];

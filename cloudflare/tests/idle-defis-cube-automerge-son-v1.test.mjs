@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -10,7 +11,7 @@ import { readFileSync } from "node:fs";
  */
 const lire = (p) => readFileSync(p, "utf8");
 const defis = lire("cloudflare/public/modules/challenges-v1.js");
-const ui = lire("cloudflare/public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 const auto = lire("cloudflare/public/modules/inventory-auto-v1.js");
 const meta = lire("cloudflare/public/modules/meta-progression-v130.js");
 

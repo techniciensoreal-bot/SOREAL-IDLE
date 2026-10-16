@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * Le serveur ne laisse à l'énergie libre que Cap - (Basic Training + tous les systèmes qui en retiennent) ; le client ne retirait que
  * Basic Training : il « générait » localement jusqu'à la synchronisation suivante, qui ramenait la valeur du serveur.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- La somme des allocations d'énergie de tous les systèmes (comme totalAllocated du moteur) ---
 const debut = ui.indexOf("function allocationMetaEnergieIdleV1_(){");

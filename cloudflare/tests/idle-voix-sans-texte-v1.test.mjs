@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -6,7 +7,7 @@ import vm from "node:vm";
  * Toutes les voix éditables, même celles qui se déclenchent sans texte à l'écran (Norman, 2026-10-08) : la voix de fond du sandwich et l'introduction « Chroniques de boss. ».
  * Sans modification la lecture est strictement celle d'avant (mêmes blocs, mêmes empreintes, donc mêmes voix déjà générées).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 const grabTts = (re) => tts.match(re)[0];
 const grabUi = (re) => {

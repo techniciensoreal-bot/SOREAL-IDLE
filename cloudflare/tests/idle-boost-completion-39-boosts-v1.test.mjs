@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -34,7 +35,7 @@ assert.equal(attendu, 39, "3 couleurs x 13 niveaux");
 assert.ok(Math.abs(state.setRewards.boostEffectiveness - 0.78) < 1e-9, "+78 % au total, jamais plus");
 
 // Client : le petit V vert apparaît sur la carte d'un boost maximisé de la Collection.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("const boostMaxe=Boolean(itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100);"));
 assert.ok(ui.includes("(boostMaxe?'<div class=\"soreal-idle-collection-check-v1\""), "V vert sur les boosts au niveau 100");
 assert.ok(ui.includes("d’efficacité de tous les boosts"), "récompense rappelée");

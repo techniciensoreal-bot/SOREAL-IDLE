@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -33,6 +34,6 @@ assert.equal(r.k, 5);
 assert.ok(Math.abs(r.debit - Array.from({ length: 5 }, (_, i) => 50 * Math.pow((11 + i) / 11, 2)).reduce((a, b) => a + b, 0)) < 1e-9);
 
 // Le tick de l'interface appelle ce rejeu pour une barre CAP.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("}else if(secondes0>0&&typeof window.__rejouerCyclesAugmentPlafonneIdleV1__==='function'){"), "le tick rejoue aussi les barres CAP");
 console.log("idle-augment-cap-temps-reel-v1: OK");

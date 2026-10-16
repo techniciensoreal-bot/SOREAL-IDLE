@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  */
 const scene = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");
 assert.ok(scene.includes("var reposSafe=selectedZone==='safe'&&!(fight&&fight.active);") && scene.includes("var effectiveRegen=reposSafe?totalRegen*safeMultiplier:totalRegen;") && scene.includes("ecrire_(regenBonus,reposSafe?") && scene.includes("regenValue.classList.toggle('soreal-idle-v79-safe-regen',reposSafe);"), "fiche : pas de ×5 pendant un combat");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const repos = ui.slice(ui.indexOf("function regenReposAdventureIdleV3_("), ui.indexOf("function facteurAleatoireDegatsAdventureIdleV2_"));
 assert.ok(repos.includes("if(zoneCourante==='safe'&&!(a&&a.fight&&a.fight.active)){"), "calcul du repos : le ×5 seulement sans combat actif");
 const combat = ui.slice(ui.indexOf("function appliquerRegenCombatAdventureIdleV2_("), ui.indexOf("function appliquerRegenCombatAdventureIdleV2_(") + 2500);

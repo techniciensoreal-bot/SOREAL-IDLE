@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : menu de gauche sans défilement sur PC ; images moins démesurées sur PC ; bouton Shop mauve et « boutique magique » ; une couleur différente pour chaque menu.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // 1. Une couleur différente par menu.

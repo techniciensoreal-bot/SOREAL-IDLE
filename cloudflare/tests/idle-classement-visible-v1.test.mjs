@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
  * Préférence personnelle (jamais réservée à l'administrateur, contrairement à accesOuvert/accesPublic) : voir
  * idle-leaderboard-v1.test.mjs pour le comportement serveur (filtrage, toujours visible de soi-même).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. La case n'apparaît QUE si le classement est débloqué pour ce joueur (anti-spoil : jamais un indice du
 //    système à quelqu'un qui ne l'a pas encore).

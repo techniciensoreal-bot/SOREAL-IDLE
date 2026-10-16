@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 
 const narration=fs.readFileSync(
@@ -9,10 +10,7 @@ const index=fs.readFileSync(
   new URL("../public/index.html",import.meta.url),
   "utf8"
 );
-const ui=fs.readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 
 const narrationScript=/\/modules\/tutorial-tts-v202\.js\?v=\d+/.exec(index);
 const uiScript=/\/soreal-idle-ui\.js\?v=\d+/.exec(index);

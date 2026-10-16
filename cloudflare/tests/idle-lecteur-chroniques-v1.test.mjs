@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * partir d'ici » ouvre un lecteur flottant (pause / play, stop = ferme) déplaçable.
  */
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const lec = readFileSync("cloudflare/public/modules/lecteur-chroniques-v1.js", "utf8");
 const html = readFileSync("cloudflare/public/index.html", "utf8");

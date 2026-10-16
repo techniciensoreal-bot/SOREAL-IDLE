@@ -1,18 +1,16 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 
-const ui=fs.readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 const index=fs.readFileSync(
   new URL("../public/index.html",import.meta.url),
   "utf8"
 );
 
 assert.ok(
-  index.includes('/soreal-idle-ui.js?v=643'),
+  index.includes('/soreal-idle-ui.js?v=645'),
   "Le shell doit charger une révision UI cache-bustée."
 );
 

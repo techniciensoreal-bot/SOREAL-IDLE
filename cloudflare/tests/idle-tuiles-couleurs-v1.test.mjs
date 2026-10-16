@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-04) : les tuiles du haut (Nombre, Rebirths, Attack…) ont chacune leur couleur pour être identifiées plus vite, et un style plus soigné. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 /* Depuis le 2026-10-08, Nombre, Rebirths et Run ont quitté les tuiles (ils sont dans la page Renaissance) : il reste Attaque, Défense, Or, EXP, AP. */
 const ids = ["attack", "defense", "gold", "exp", "ap"];

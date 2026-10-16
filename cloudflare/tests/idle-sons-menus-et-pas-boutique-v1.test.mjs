@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * et « un son par menu en rapport avec le type de menu ».
  */
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // Faux contexte Web Audio : enregistre chaque note et chaque bruit planifiés.
 function faux() {

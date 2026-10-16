@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { traduireReponseV1, IDLE_TRADUCTIONS_STATS_V1 } from "../src/idle-traductions-v1.js";
 import { IDLE_PERKS_CATALOG_V1 } from "../src/idle-perks-v1.js";
@@ -43,6 +44,6 @@ const entree = readFileSync("cloudflare/src/idle-worker-entry-v1.js", "utf8");
 assert.ok(entree.includes('langue: body && body.langue === "en" ? "en" : "fr"'));
 const pont = readFileSync("cloudflare/public/standalone-bridge.js", "utf8");
 assert.ok(pont.includes("langue:langueIdleV1()") && pont.includes("soreal_idle_langue_v1"));
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("__changerLangueIdleV1__") && ui.includes("🌐 Langue des objets et des textes"));
 console.log("idle-langue-items-textes-v1: OK");

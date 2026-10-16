@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, IDLE_ADVENTURE_SPECIALS } from "../src/idle-adventure-v47.js";
 import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
@@ -93,7 +94,7 @@ const graine = (s) => s.adventure.inventory.find((o) => o.definitionId === "gian
 
 // ---------- Client : bouton dans la fiche d'objet ----------
 {
-  const ui = fs.readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+  const ui = lireUiComplet();
   assert.ok(/definitionId==='giantSeed'/.test(ui) && /action:\\'consumeGiantSeed\\'/.test(ui), "bouton « Ajouter aux graines »");
 }
 

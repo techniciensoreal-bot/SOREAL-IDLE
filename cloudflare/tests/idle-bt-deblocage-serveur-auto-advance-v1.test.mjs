@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { advanceBasicTrainingStateV411, normalizeBasicTrainingStateV411 } from "../src/idle-basic-training.js";
 
@@ -6,7 +7,7 @@ import { advanceBasicTrainingStateV411, normalizeBasicTrainingStateV411 } from "
  * Norman (2026-10-04) : « j'ai cap le premier menu de Basic Training et ajouté 10K en plus pour que l'énergie passe au suivant quand il se débloque ; l'énergie m'a été rendue et aucune énergie n'était attribuée au 2e menu ».
  * Cause : quand le serveur débloque la compétence (et déplace le surplus), la fusion de l'écran gardait SA répartition (surplus encore dans la première) et la renvoyait ensuite : le transfert était perdu.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      function fusionnerBasicTrainingPlusAvanceIdleV166_(");
 const b = ui.indexOf("      function appliquerEtatBasicTrainingIdleV120_(");
 assert.ok(a > 0 && b > a);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
@@ -127,7 +128,7 @@ assert.equal(intacte.long, true, "les autres propriétés de la page sont conser
 }
 
 // --- Câblage dans le jeu ---
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 for (const m of ["const src=(page&&page._brut)||page;", "info=(info&&info._brut)||info;", "appliquerTextesTutorielsIdleV1_();", "window.__SOREAL_IDLE_EST_ADMIN_V1__=estAdminSorealIdle_;", "declarerTextesSystemesIdleV1_(j);", "boutonBossHtml(j&&j.bossId)", "sansBaliseVoixIdleV1_(narration)", "attrHistoireVoixIdleV1_(b.histoire)"]) {
   assert.ok(ui.includes(m), "câblage : " + m);
 }

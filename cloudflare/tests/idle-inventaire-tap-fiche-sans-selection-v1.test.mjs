@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-14) : « un simple clic / tap ouvre la fiche de l'objet avec les stats (qu'il en ait ou non) ; fin du système de sélection ». PUIS (même jour, après avoir testé sur téléphone) : « je voulais juste changer l'appui long
  * en simple tap, pas changer la manière dont les objets se fusionnent » : la fusion par GLISSER-DÉPOSER d'un objet sur un autre est donc CONSERVÉE (ce test le garde).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // 1. Plus aucun état de sélection d'objet, ni classe « selected » sur les cartes / emplacements du sac.

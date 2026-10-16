@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Chroniques (Norman, 2026-10-08) : Collection, Classement et Succès réunis dans UN menu, pour avoir le moins de menus possible.
  * Onglets seulement pour ce qui est débloqué (règle n°2), un onglet seul = pas de barre, l'habillage suit l'onglet, une seule animation, plus de point rouge.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const notes = readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8");
 

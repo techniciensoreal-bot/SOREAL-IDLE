@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -48,7 +49,7 @@ const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8")
   assert.match(meta, /if\(H\.jouerEffetAudioIdleV199_\)H\.jouerEffetAudioIdleV199_\('bloodMinus'\);/, "viderBloodMagicIdleV1_ (Tout retirer) doit aussi utiliser le thème Blood Magic");
 
   // Basic Training/Augmentation gardent leurs sons d'origine, jamais renommés par erreur.
-  assert.match(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8"), /action==='plus'\?'btPlus':\(action==='moins'\|\|action==='zero'\)\?'btMinus':'btCap'/);
+  assert.match(lireUiComplet(), /action==='plus'\?'btPlus':\(action==='moins'\|\|action==='zero'\)\?'btMinus':'btCap'/);
   assert.match(meta, /mode==='plus'\?'btPlus':\(mode==='moins'\|\|mode==='zero'\)\?'btMinus':'btCap'/, "Augmentation garde les sons Basic Training (jamais renommée)");
 }
 

@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-09) : « le nouveau slot d'accessoire était sous mes bottes ; il doit être sous mes 2 accessoires, à côté du pantalon ; le 4e sous le 3e, à côté des bottes ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const debut = ui.indexOf("      function rendreAccessoiresAdventureIdleV138_(equipment,itemById,capacite){");
 const fin = ui.indexOf("      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-240 */", debut);

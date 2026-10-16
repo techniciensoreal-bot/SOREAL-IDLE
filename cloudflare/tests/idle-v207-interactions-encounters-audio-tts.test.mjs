@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 
-const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),"utf8");
+const ui=lireUiComplet();
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",import.meta.url),"utf8");

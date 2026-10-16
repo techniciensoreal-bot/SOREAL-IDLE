@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, annulerVictoireTitanV1, applyIdleAdventureActionV47 } from "../src/idle-adventure-v47.js";
 
@@ -59,6 +60,6 @@ for (const [cle, definitionId] of DEBLOCAGES) {
 const { IDLE_ADVENTURE_WIKI_ITEM_IDS_V1: WIKI } = await import("../src/idle-adventure-v47.js");
 for (const [id, wiki] of [["aNumber", 102], ["wandoos98", 66], ["giantSeed", 92], ["uugHair", 141], ["pissedOffKey", 172], ["scrap:paper", 197]]) assert.equal(WIKI[id], wiki, id);
 // 6. Le menu de secours n'offre plus « Utiliser » : il dit seulement qu'une place manque.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("Libère une place dans ton sac : l’objet y arrivera") && !ui.includes("window.__consommerDeblocageAdventureIdleV47__(\''+idleHtml_(id)"));
 console.log("idle-deblocages-objets-reels-v1: OK");

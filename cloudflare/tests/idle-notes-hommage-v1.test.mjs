@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Hommage à Grizboule (Norman, 2026-10-08) : une ligne en bas de chaque note de mise à jour, présente aussi en anglais. */
 const notes = readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const dict = JSON.parse(readFileSync("cloudflare/public/modules/traduction-anglais-dict-v1.json", "utf8"));
 const m = notes.match(/hommage:'([^']+)'/);
 assert.ok(m && m[1].includes("Grizboule"), "hommage dans les données des notes");

@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-03) : « sur les items, dans le popup, les lignes qui se boostent avec des boosts Power écrites en orange (sauf les chiffres : juste Puissance, PV MAX, Endurance, REGEN PV, etc.).
  * Chaque intitulé doit avoir la couleur du boost qu'il nécessite. » Wiki NGU « Boost » : Power = orange (ajoute aussi à Max Health), Toughness = bleu (ajoute aussi à Health Regen), Specials = jaune.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Chaque intitulé a la couleur de SON boost : Puissance et PV Max -> Power ; Endurance et Regen PV -> Toughness ; Special -> Special.

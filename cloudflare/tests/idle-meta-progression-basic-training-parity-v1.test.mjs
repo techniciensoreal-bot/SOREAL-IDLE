@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -13,7 +14,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot, advanceIdle
  * également. [...] pour chaque barre, il faut un temps pour compléter un niveau qui s'affiche. Dans
  * Blood magic, la manière dont tu l'as reproduit, ça n'est pas opérationnel. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8") + String.fromCharCode(10) + readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()) /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8");
 

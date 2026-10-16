@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
@@ -33,7 +34,7 @@ for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadi
   assert.ok(!texte.includes(interdit), "spoil dans les notes : " + interdit);
 }
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("📝 Notes de mise à jour") && ui.includes("window.__basculerNotesMajIdleV1__"));
 assert.ok(ui.includes("Build <b style=\"color:#dce5f3\">Beta '+idleHtml_(notesMajIdleV1_().courante)"), "version affichée = courante des notes");
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/release-notes-v1.js"));
@@ -42,6 +43,6 @@ console.log("idle-release-notes-v1 OK");
 
 /* Norman (2026-10-14) : la date de CHAQUE version (anciennes comprises) s'affiche en toutes lettres. */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("function dateNotesMajIdleV1_(iso)") && ui.includes("idleHtml_(dateNotesMajIdleV1_(v.date))"), "date des notes en toutes lettres");
 }

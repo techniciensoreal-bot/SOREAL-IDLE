@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { BASIC_TRAINING_V411 } from "../src/idle-basic-training.js";
@@ -10,7 +11,7 @@ import { BASIC_TRAINING_V411 } from "../src/idle-basic-training.js";
  * Vrais noms : wiki NGU, page « Basic Training » (Idle Attack, Regular Attack, Strong Attack, Parry, Piercing Attack, Ultimate Attack /
  * Block, Defensive Buff, Heal, Offensive Buff, Charge, Ultimate Buff).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // --- Basic Training : les 12 entraînements, vrais noms en français, ids (sauvegardes) inchangés ---

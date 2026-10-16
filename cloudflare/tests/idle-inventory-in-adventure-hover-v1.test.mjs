@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -7,7 +8,7 @@ import vm from "node:vm";
  * qui est déjà dans Adventure. Les options de l'inventaire, en bas, doivent pouvoir se fermer/ouvrir comme le Coffre et Info. Sur PC,
  * le popup d'un objet doit apparaître au survol et disparaître quand on sort du popup. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const auto = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8");
 
@@ -19,8 +20,10 @@ const auto = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf
   assert.ok(ids.includes("aventure"));
   assert.ok(!/case 'inventaire':/.test(ui));
 }
-const aventure = ui.slice(ui.indexOf("function pageAventureIdleV28_(j){"), ui.indexOf("function pageCollectionIdleV22_(j){"));
-assert.match(aventure.split("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-233 */")[0], /\(j\.inventaireDebloque\?pageInventaireIdleV28_\(j\):''\);\s*\}\s*$/, "l'inventaire complet est le DERNIER bloc de la page Adventure");
+const debutAventure = ui.indexOf("function pageAventureIdleV28_(j){");
+const marqueFin = ui.indexOf("(j.inventaireDebloque?pageInventaireIdleV28_(j):'');", debutAventure);
+const aventure = ui.slice(debutAventure, ui.indexOf("}", marqueFin) + 1);
+assert.match(aventure, /\(j\.inventaireDebloque\?pageInventaireIdleV28_\(j\):''\);\s*\}\s*$/, "l'inventaire complet est le DERNIER bloc de la page Adventure");
 assert.ok(aventure.indexOf("rendreZoneCombatAdventureIdleV1_") < aventure.indexOf("pageInventaireIdleV28_(j)"), "sous tout ce qui existait déjà");
 assert.ok(ui.includes("ancien==='inventaire'") && ui.includes("?'aventure'"), "un ancien menu mémorisé « inventaire » ouvre Adventure");
 assert.match(ui, /idleMenuActifV28!=='aventure'\|\|\s*!j\|\|\s*!aventureMetaIdleV47_\(j\)/, "les mises à jour partielles de l'inventaire suivent la page Adventure");

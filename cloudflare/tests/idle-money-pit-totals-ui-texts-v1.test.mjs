@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
@@ -43,7 +44,7 @@ function jeter(s, gold, t, alea) {
   assert.equal(migre.systems.moneyPit.data.rewardsTotal.adventureStats, 25 * 5);
 }
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 

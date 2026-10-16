@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-03) : « sur PC, l'interface est compactée sur une barre centrale ; on ne pourrait pas la rendre mieux uniquement quand on est sur PC ? » */
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const debut = css.indexOf("@media (min-width:1100px) and (hover:hover) and (pointer:fine), (min-width:1500px) and (min-height:800px){");
 assert.ok(debut > 0, "mise en page réservée aux grands écrans avec souris (jamais téléphone ni tablette tactile)");
@@ -47,7 +48,7 @@ assert.ok(bloc.includes(".soreal-idle-hero-banner-v95{height:auto!important;max-
  * désormais le nombre de menus affichés (la moitié, arrondie au-dessus), posé par le rendu.
  */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("style=\"--nav-lignes:${Math.max(1,Math.ceil(menusVisibles.length/2))};--nav-rangees:${rangeesMenuIdleV1_()}\""), "nombre de lignes = moitié des menus visibles");
   const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
   assert.ok(!css.includes("grid-template-rows:repeat(16,auto)"), "plus de 16 lignes fixes");

@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const index=readFileSync("cloudflare/public/index.html","utf8");
 const bridge=readFileSync("cloudflare/public/standalone-bridge.js","utf8");
-const ui=readFileSync("cloudflare/public/soreal-idle-ui.js","utf8");
+const ui=lireUiComplet();
 const runtime=readFileSync("cloudflare/public/modules/runtime.js","utf8");
 
 /*

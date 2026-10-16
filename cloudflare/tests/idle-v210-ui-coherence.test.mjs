@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 import {
@@ -11,7 +12,7 @@ import {
   syncIdleNguState
 } from "../src/idle-ngu-progression.js";
 
-const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),"utf8");
+const ui=lireUiComplet();
 const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",import.meta.url),"utf8");
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");

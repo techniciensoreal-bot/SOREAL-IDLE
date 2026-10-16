@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : applaudissements (~3 s) à la première victoire sur un boss, rires de foule à la fuite, EN PLUS du son de base. Sons synthétisés, jouables hors file d'attente.
  */
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 function faux() {
   const ev = [];
   const c = {

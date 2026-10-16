@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * 2026-09-23 : Auto Nuker (Sellout Shop, wiki) -- nuke automatique 10 s après le début de
  * chaque rebirth, puis toutes les minutes. Test au niveau source + logique d'échéance.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("function autoNukeDueIdleV1_("), "la fonction d'échéance existe");
 assert.ok(ui.includes("achats.autoNuker"), "le timer lit l'achat autoNuker");
 

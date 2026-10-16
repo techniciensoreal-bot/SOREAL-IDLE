@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -9,7 +10,7 @@ import vm from "node:vm";
 const ctx = { window: undefined }; ctx.globalThis = ctx; vm.createContext(ctx);
 vm.runInContext(readFileSync("cloudflare/public/modules/titans-comportements-v1.js", "utf8"), ctx);
 const api = ctx.SorealTitanComportementsV1;
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(api.possede("t1") && api.possede("t2") && api.possede("t3") && api.possede("t4") && !api.possede("t5"));
 
 // Tirage : [0,1) paralysie, [1,3) saignement, [3,5) puissante, le reste base (sur 7).

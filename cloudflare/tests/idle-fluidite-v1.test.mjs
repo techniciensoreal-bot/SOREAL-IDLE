@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -8,7 +9,7 @@ import { pathToFileURL } from "node:url";
  * Fluidité (Norman, 2026-10-02) : boss suivant instantané, MAX de la Time Machine sans valeur fantôme, résumé d'absence sans ligne d'énergie vide
  * + titans vaincus + butin court, barre d'Augmentation immobile sans énergie, cadre Time Machine en français.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 

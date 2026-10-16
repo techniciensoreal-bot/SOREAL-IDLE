@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire=(p)=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const e=lire("public/modules/titans-combat-ecran-v1.js");
 const t=lire("public/modules/titans-v1.js");
-const ui=lire("public/soreal-idle-ui.js");
+const ui=lireUiComplet();
 /* écran d'annonce */
 assert.ok(e.includes("function annoncer(")&&e.includes("ttnAnnonceV1")&&e.includes("Un Titan approche"));
 assert.ok(t.includes("ecran.annoncer(")&&t.indexOf("ecran.annoncer(")<t.indexOf("marquerVu(id);",t.indexOf("function lancerCombatTitan_")),"l'annonce capture 'vu' avant marquerVu");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -20,7 +21,7 @@ import { readFileSync } from "node:fs";
  * idle-energy-tick-bounce-v1.test.mjs). L'avancement local au tick lourd (section ci-dessous) reste
  * la seule mécanique de remplissage progressif désormais.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- metaTickMagieIdleV1_ existe, lit resourceInfo.magic.perSecond, jamais productionSeconde (propre à l'Énergie) ---
 {

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Le jugement « il manque de l'Or » se fait avec l'Or EN DIRECT (pas celui du dernier rendu) ; une barre arrivée au bout reste pleine ; si l'Or suffit,
  * une resynchronisation puis un nouveau rendu de la page repartent de l'état du serveur.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);"));
 assert.ok(ui.includes("window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites"), "les niveaux terminés sont rejoués côté client (barre arrivée au bout, durée et coût de chaque niveau)");
 assert.ok(ui.includes("const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;") && ui.includes("const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;"));

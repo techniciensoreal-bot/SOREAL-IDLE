@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-03) : « J'ai tué le boss 45 et je suis passé au 47 (au refresh : bien le 46) » et « quand je prends des niveaux dans Augmentations, ma barre de vie ne se met pas à jour
  * tant que je n'ai pas fait Fight ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
 // Boss sauté : le « boss suivant » prédit n'est appliqué que si l'état est encore celui de la victoire et que ce boss est le suivant immédiat.

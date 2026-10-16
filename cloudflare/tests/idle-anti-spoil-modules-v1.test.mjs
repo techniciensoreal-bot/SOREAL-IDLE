@@ -79,6 +79,8 @@ const LISTE_BLANCHE = [
   { fichier: "boutique-exp-page-v1.js", contient: "' / '+H.idleEntier_(it.max)", raison: "plafond d'achat d'un article de boutique déjà affiché" },
   { fichier: "wishes-page-v1.js", contient: "' / '+H.idleEntier_(sl.maxLevel)", raison: "niveau / niveau maximum d'un slot de souhait déjà possédé" },
   { fichier: "yggdrasil-diggers-page-v1.js", contient: "' / '+max", raison: "niveau de la run / meilleur niveau d'un Gold Digger déjà possédé" },
+  /* Pages extraites de soreal-idle-ui.js : « verrouille » = NOM DE CLASSE CSS de la ligne d'entraînement grisée (aucun texte affiché). */
+  { fichier: "page-entrainement-v1.js", contient: "verrouille\" data-basi", raison: "nom de classe CSS, pas un texte affiché" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -61,7 +62,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const pos = index.indexOf("/modules/profile-v1.js");
 assert.ok(pos > index.indexOf("/modules/meta-progression-v130.js"));
 assert.ok(pos < index.indexOf("/soreal-idle-ui.js"));
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.match(ui, /succes:'achievements'/);
 assert.match(ui, /case 'succes':\s*return pageSystemeMetaIdleV130_\(j,'achievements'/);
 assert.match(ui, /'&portrait='\+encodeURIComponent/);

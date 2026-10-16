@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * (.soreal-idle-duel-portrait-v41), contrairement à l'image du boss qui porte elle-même
  * border-radius:14px (.soreal-idle-boss-image-v35). Même convention appliquée au joueur.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Les trois sites de rendu de l'image du joueur passent la nouvelle classe dédiée.

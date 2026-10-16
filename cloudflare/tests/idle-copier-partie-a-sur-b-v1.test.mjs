@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
@@ -70,7 +71,7 @@ for (let c = 0; c < a2.v.length; c++) {
 }
 assert.ok(String(b2.v[COL.EMAIL]).toLowerCase().includes("+partieb@"), "B garde son adresse alias (exclue du classement)");
 // Client : un bouton dans Paramètres, visible seulement en partie B.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("window.__copierPartieADevIdleV1__=copierPartieADevIdleV1_") && ui.includes(".copierPartieASurBSorealIdle(SOREAL_SESSION)"), "bouton relié à l'opération");
 assert.ok(ui.includes("(p.partie==='b'?'<div style=\"margin-top:10px\"><button") && ui.includes("Copier la partie A ici"), "bouton affiché seulement en partie B");
 const contrat = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8"));

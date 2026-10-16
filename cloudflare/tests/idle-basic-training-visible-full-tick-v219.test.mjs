@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 const index=readFileSync(
   new URL("../public/index.html",import.meta.url),
   "utf8"
@@ -34,6 +32,6 @@ assert.doesNotMatch(
   "La progression mécanique ne doit plus tronquer la barre au dernier frame avant 100 %."
 );
 
-assert.ok(index.includes("/soreal-idle-ui.js?v=643"),"Le shell doit charger une révision UI cache-bustée.");
+assert.ok(index.includes("/soreal-idle-ui.js?v=645"),"Le shell doit charger une révision UI cache-bustée.");
 
 console.log("idle Basic Training full visual ticks V220: OK");

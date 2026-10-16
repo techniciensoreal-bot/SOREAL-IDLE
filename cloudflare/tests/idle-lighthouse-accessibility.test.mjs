@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // Lighthouse / axe: zoom must remain available.
 assert.match(index, /<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">/);

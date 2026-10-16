@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { idleAdventureSnapshotV47, applyIdleAdventureActionV47, versZoneSureV1 } from "../src/idle-adventure-v47.js";
 
@@ -35,7 +36,7 @@ assert.ok(!/s\.selectedZone="safe"(?!;s\.retourSafe)/.test(adv.replace('export f
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 assert.ok(rt.includes("raison:'defi'") && rt.includes("raison:'renaissance'"));
 // 5. Client : une seule ligne dans le journal par retour, rien au premier état, répli de zone refermée annoncé une fois.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      let idleRetourSafeCleV1=null;");
 const b = ui.indexOf("      function appliquerSynchroCombatSansReflowIdleV116_(");
 const lignes = [];

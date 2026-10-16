@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
@@ -42,7 +43,7 @@ const user = { email: "technicien.soreal@gmail.com", emailConnexion: "technicien
 }
 
 // --- Client : plus de dénominateur, plus de cases vides ---
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(!ui.includes("/???"), "les onglets de Collection ne montrent plus « n/??? »");
 assert.ok(!/Coffre \('\+occupees\+' \/ '\+slots\.length/.test(ui), "le Coffre ne montre plus son nombre total d'emplacements");
 assert.match(ui, /Coffre \('\+occupees\+'\)/);
@@ -54,13 +55,13 @@ console.log("idle-anti-spoil-collection-v1: OK");
 
 // Collection (2026-10-02) : les objets spéciaux (ex. The Tuba of Time) montrent leur image, pas seulement un ✨.
 {
-  const ui = (await import("node:fs")).readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = (await import("./_ui-sources.mjs")).lireUiComplet();
   assert.ok(/def\.kind==='special'\?\{set:'',slot:def\.slot\|\|'accessory'[^}]*wikiItemId:def\.wikiItemId\|\|0,kind:'special'/.test(ui), "pseudo-objet image pour les spéciaux");
 }
 
 // Images (2026-10-02) : R2 est la source de vérité ; l'ancienne image du Drive ne passe plus avant (collègue qui voyait d'anciennes images).
 {
-  const ui = (await import("node:fs")).readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = (await import("./_ui-sources.mjs")).lireUiComplet();
   assert.ok(/const url=\s*String\(\s*fallbackUrl\|\|''\s*\);/.test(ui) && !ui.includes('urlDriveRapideIdleV46_'), "image de combat : R2 seulement, plus aucun Drive");
   assert.ok(/urlBossR2IdleV1_\(\s*b&&b\.numero\s*\)\s*\|\|\s*''/.test(ui), "cartes de boss : R2 seulement");
   assert.ok(ui.includes("urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j))||j.bossImage"), "image du boss : R2 avant l'ancienne image du catalogue");

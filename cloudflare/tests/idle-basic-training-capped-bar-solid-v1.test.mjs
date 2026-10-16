@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-09-25) : « Dans NGU Idle, quand une barre est CAP, elle ne clignote plus. Elle reste complètement remplie de la couleur qu'elle
  * possède (Attaque passive : barre rouge -> complètement rouge). »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function animerBarreBasicTrainingIdleV220_");
 const fin = ui.indexOf("function allocationsBasicTrainingIdleV120_", debut);
 const src = ui.slice(debut, fin);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_NGU_SYSTEMS } from "../src/idle-ngu-progression.js";
 
@@ -7,7 +8,7 @@ import { IDLE_NGU_SYSTEMS } from "../src/idle-ngu-progression.js";
  * explicatifs explicites pour chaque système qui se débloque dans le jeu. » Un texte par système, d'après sa page du wiki NGU Idle
  * (AGENTS.md règle n°1) ; anti-spoil (règle n°2) : chaque texte n'explique que son propre système.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const debutTable = ui.indexOf("const TEXTES_SYSTEMES_IDLE_V1={");
 const finFonction = ui.indexOf("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */", debutTable);

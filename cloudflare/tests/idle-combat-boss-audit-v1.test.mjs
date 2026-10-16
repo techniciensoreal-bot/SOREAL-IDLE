@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * l'actualisation des commandes (texte du délai de réapparition vidé, classe « ready » reposée, boutons Fight et Fuite réassignés) à CHAQUE passage même sans changement (~2,5 par seconde après correction : les PV qui
  * bougent vraiment). Les synchros pendant un combat (toutes les 4 s) et la synchro qui suit le lancement d'un combat restent : elles gardent l'écran fidèle au serveur (Norman, 2026-10-03).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      function actualiserCooldownBossIdleV100_(");
 const b = ui.indexOf("      function transitionMortBossIdleV61_(){");
 assert.ok(a > 0 && b > a);

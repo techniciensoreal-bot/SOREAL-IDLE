@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-03) : Aventure animée quand on farme (pas en zone sûre), Renaissance quand le prochain NUMBER dépasse celui du dernier Rebirth, Défis quand un défi est actif, Titans quand un titan est prêt, Succès non vus,
  * Shop / Classement / Collection / Chat / Réglages tant qu'on les consulte. Et sur TV : tous les menus de gauche visibles sans défiler.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 const debut = ui.indexOf("const IDLE_MENUS_ETATS_V1=");

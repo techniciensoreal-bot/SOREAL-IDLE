@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : luna park derrière la borne, bouton « Fight » gardé tel quel, popup quand le Cube de l'infini change de palier. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const cube = readFileSync("cloudflare/public/modules/cube-palier-v1.js", "utf8");
 const html = readFileSync("cloudflare/public/index.html", "utf8");

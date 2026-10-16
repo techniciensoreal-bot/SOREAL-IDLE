@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -76,7 +77,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
 
 // ---------- badge de version ----------
 {
-  const ui = lire("cloudflare/public/soreal-idle-ui.js");
+  const ui = lireUiComplet();
   const debut = ui.indexOf("function versionBadgeIdleV1_(){");
   const fn = ui.slice(debut, ui.indexOf("\n      }", debut) + 8);
   const badge = (courante) => new Function("window", "IDLE_TEST_VERSION", fn + "\nreturn versionBadgeIdleV1_();")({ __SOREAL_IDLE_RELEASE_NOTES_V1__: courante ? { courante } : undefined }, "Version bêta");
@@ -91,7 +92,7 @@ console.log("idle-ux-sounds-and-pop-v1: OK");
 
 /* Norman (2026-09-26) : « le son du boss se répète 2 fois » puis « quand on fuit il ne faut pas le rejouer » : un seul son par NOUVEAU boss (identité du boss, pas adresse d'image). */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("let idleDernierGongBossV1='';"));
   assert.ok(ui.includes("String(idImageBossCanoniqueIdleV181_(idleEtat)||'')+'|'+\n              String(idleEtat&&idleEtat.bossActuel||'');"), "identité = numéro + nom du boss");
   assert.ok(ui.includes("if(identiteGongBoss!==idleDernierGongBossV1){\n              idleDernierGongBossV1=identiteGongBoss;\n              jouerEffetAudioIdleV199_('bossAppear');"));

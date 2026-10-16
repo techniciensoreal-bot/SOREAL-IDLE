@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import {
@@ -120,6 +121,6 @@ console.log("idle-textes-v1: OK");
   assert.deepEqual(Object.keys(surchargesPourJoueurV1(sql).popups), [], "aucun texte de boss n'est envoyé dans les popups");
   const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
   assert.ok(rt.includes("bossHistoireParlee: String(def.histoireParlee || '')") && rt.includes("bossNomParle: String(bossDefinitionEtat.nomParle || '')"), "l'état du boss porte le texte et le nom parlés");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("composerChronique(nomParle||nomBoss,histoireParlee||histoire)"), "la chronique est lue avec le texte et le nom parlés");
 }

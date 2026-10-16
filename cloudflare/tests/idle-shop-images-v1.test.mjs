@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : « dans le shop, les mêmes images que sur la page 4G's Sellout Shop ». Les 71 PNG de la page wiki sont dans public/shop/ ; chaque article de la Boutique AP a son image (association de la page).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const catalogue = readFileSync("cloudflare/src/idle-sellout-shop-v1.js", "utf8");
 const manifeste = JSON.parse(readFileSync("cloudflare/public/shop/manifest.json", "utf8"));
 

@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Effets visuels désactivables (Norman, 2026-10-08) : l'orage et la cheminée peuvent être coupés dans les Réglages pour les téléphones moins puissants.
  * Actifs par défaut ; le réglage est mémorisé sur l'appareil (localStorage) et prévient les modules par l'évènement « soreal-effets-v1 ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const orage = readFileSync("cloudflare/public/modules/orage-v1.js", "utf8");
 const feu = readFileSync("cloudflare/public/modules/feu-v1.js", "utf8");
 

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-03) : un menu alimenté (énergie placée) reçoit un effet, propre à ce que fait le menu (lumière qui tourne, coups, engrenage, gouttes, scanner…). */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 const debut = ui.indexOf("const IDLE_MENUS_ETATS_V1=");

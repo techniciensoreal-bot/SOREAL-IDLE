@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * avec un contour. Quand un objet n'a pas de statistiques (un boost) et qu'on le stack niveau 100, il faut en plus un V vert. Pour les
  * items qui nécessitent des boosts : niveau 100 ET tous les boosts accumulés — le même prérequis que pour le Coffre. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 function extraire(debut) {

@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 
 const start=ui.indexOf("if(id==='spendExp'){");
 const end=ui.indexOf("if(id==='setsZones')",start);

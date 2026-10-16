@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : « chaque Input doit être propre au menu où il se trouve ». La valeur reste une variable unique (tout le code existant la lit) mais change avec le menu. */
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const deb = meta.indexOf("const CLE_MONTANTS_MENU_IDLE_V1=");
 const fin = meta.indexOf("function montantAugmentLireIdleV1_(){");
 assert.ok(deb > 0 && fin > deb, "mécanisme présent");

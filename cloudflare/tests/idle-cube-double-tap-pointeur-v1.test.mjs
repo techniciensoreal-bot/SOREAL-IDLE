@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-09) : « le double tap sur le cube de l'infini n'avale plus les boosts ». Cause : le Cube porte data-soreal-longpress (popup au maintien) et le module de maintien appelle preventDefault
  * sur touchstart, ce qui supprime le « click » tactile : le double tap compté dans le clic ne se déclenchait plus. Le tap est maintenant détecté au relâchement du doigt (pointerup).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const lp = readFileSync("cloudflare/public/modules/long-press-v200.js", "utf8");
 assert.ok(lp.includes("if(event.cancelable)event.preventDefault();") && lp.includes("touchstart"), "le module de maintien supprime bien le clic tactile (raison du correctif)");
 assert.ok(ui.includes("data-idle-cube-drop-v180") && ui.includes('data-soreal-longpress="idle-cube"'), "le Cube porte le maintien");

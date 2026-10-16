@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : « quand on active le mode manuel du combat, les CD de chacune des attaques doivent être en cours : si une a un CD de 20 s, elle ne sera disponible que 20 s après le début du combat » (combat de titan) ;
  * « la petite photo flottante à côté du menu Titans doit être un ? avec la même règle que la page Titans ». */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").replace(/\r\n/g, "\n");
+const ui = lireUiComplet().replace(/\r\n/g, "\n");
 const titans = readFileSync("cloudflare/public/modules/titans-v1.js", "utf8").replace(/\r\n/g, "\n");
 
 const debut = ui.indexOf("const identite=identiteFightAdventureIdleV2_(fight);");

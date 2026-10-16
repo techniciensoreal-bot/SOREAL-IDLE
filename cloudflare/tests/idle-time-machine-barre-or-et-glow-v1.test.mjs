@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -9,7 +10,7 @@ import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progress
  * disponible, le bouton doit glow de façon visible » ; « 1 minute est suffisant » pour la mise à jour du bouton du menu.
  */
 const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // --- Barre d'Or de la machine : présente dans la page, cadence = remplissages par seconde (wiki), phase sur l'heure du serveur ---

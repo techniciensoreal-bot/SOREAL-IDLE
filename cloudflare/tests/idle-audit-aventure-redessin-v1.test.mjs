@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * remplacée chaque seconde, le titre du sac (icône dessinée) et la corbeille étaient recréés à chaque mise à jour (clignotement de l'inventaire), les cases du sac réécrivaient leurs attributs à l'identique, le reflet
  * des tuiles du haut animait « left » (mise en page à chaque image). Plus de popup quand on fuit ; ordre des barres Énergie, Magie, 3e ressource, Vie même quand une barre revient.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const themes = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const hud = readFileSync("cloudflare/public/modules/hud-haut-v2.js", "utf8");
 assert.ok(ui.includes("host.__htmlLignesV1") && ui.includes("host.insertAdjacentHTML('beforeend',nouvelles[i])"), "journal incrémental");

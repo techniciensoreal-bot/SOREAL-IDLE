@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Power / Max HP / Toughness / HP Regen. Et en dessous les bonus spéciaux... Les 2 premières lignes se boostent avec les
  * boost oranges. Les 2 suivantes avec les boosts bleus et les spéciales avec les boosts jaunes. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("docs/UI-MONOLITH-HISTORY.md#bloc-268");
 assert.ok(debut !== -1, "le bloc de construction des stats a bien été trouvé");
 const fin = ui.indexOf("Special Bonus: ", debut);

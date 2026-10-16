@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-09-26) : Fuite = l'image du boss n'est pas rechargée et son gong ne se rejoue pas, un son de « lose » ; un nouveau menu débloqué
  * est annoncé en fondu avec un petit bruit de victoire différent de celui des boss. Vérifié en navigateur (local) : 1 seul son (flee) à la fuite,
  * aucun fondu, annonce non cliquable avec le son menuUnlock. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 
 // 1. Sons : deux nouveaux, distincts de la victoire et de la défaite des boss

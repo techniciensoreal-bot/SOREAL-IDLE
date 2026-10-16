@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : après une Renaissance on arrive sur Fight Boss, la borne d'arcade en haut de la page, pour revoir la borne qui s'allume. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").replace(/\r\n/g, "\n");
+const ui = lireUiComplet().replace(/\r\n/g, "\n");
 const i = ui.indexOf("Rebirth réussi");
 const bloc = ui.slice(i - 1900, i);
 assert.ok(bloc.includes("idleMenuActifV28='combat';") && bloc.includes("sauverMenuIdleV28_();"), "la page active devient Fight Boss après la Renaissance");

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\r\n/g, "\n");
-const ui = lire("public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 const morph = lire("public/modules/morph-v1.js");
 const agents = fs.readFileSync(new URL("../../AGENTS.md", import.meta.url), "utf8");
 /*

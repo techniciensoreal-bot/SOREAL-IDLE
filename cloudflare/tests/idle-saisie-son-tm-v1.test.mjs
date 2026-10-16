@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-02) : champs Input/Target sélectionnés d'un clic, Time Machine aux couleurs de NGU Idle (capture du jeu), trois barres de son.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const themes = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 

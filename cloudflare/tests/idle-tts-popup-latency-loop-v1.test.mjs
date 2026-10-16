@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * le son soit joué. Tout à l'heure il a buggé et repassait les mêmes phrases en boucle. »
  */
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Limitation et non plus anti-rebond : une évaluation planifiée n'est jamais repoussée par les mutations suivantes
 const schedule = tts.slice(tts.indexOf("function schedule_(){"), tts.indexOf("function style_(){"));

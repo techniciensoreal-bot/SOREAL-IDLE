@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Causes : aimantation du défilement (scroll-snap) qui arrêtait l'élan à chaque bouton ; rendus de la page qui recréaient le menu (retour au début + recentrage sur le bouton actif), coupant l'élan.
  */
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // CSS : plus d'aimantation, élan natif conservé et non propagé à la page.
 const bloc = css.slice(css.indexOf("Menu du haut sur téléphone : il continue de défiler jusqu'au bout"));

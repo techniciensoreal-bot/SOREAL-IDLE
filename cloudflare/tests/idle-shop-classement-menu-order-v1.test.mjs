@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  *  - « Quand on maintient son doigt sur un bouton du menu, on passe en mode "Rangement des boutons" : on glisse un bouton et on l'intercale entre deux
  *    autres ; un bouton pour valider, visible seulement dans ce mode. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const bloc = ui.slice(ui.indexOf("const IDLE_MENUS_V1=["), ui.indexOf("];", ui.indexOf("const IDLE_MENUS_V1=[")) + 2);
 const IDLE_MENUS_V1 = new Function(bloc + "return IDLE_MENUS_V1;")();
 const ids = IDLE_MENUS_V1.map((m) => m.id);

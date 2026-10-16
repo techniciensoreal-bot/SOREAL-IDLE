@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -22,7 +23,7 @@ assert.equal(f("abc"), "0");
 // Les mêmes chiffres, ailleurs, restent en notation courte (1M) : seul l'entier écrit en toutes lettres change.
 assert.equal(win.__SOREAL_IDLE_NUMBER_FORMAT_V1__.grandNombre(1000000), "1M");
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("function formatEnergieIdleV50_(v){\n        return formatEntierLisibleIdleV1_("), "énergie, magie, 3e ressource");
 assert.ok(!ui.includes("idleEntier_(maxTotal)") && ui.includes("${formatEntierLisibleIdleV1_(j.energieMax)}"), "maximum de la barre d'énergie");
 assert.ok(ui.includes("${formatEntierLisibleIdleV1_(skill.allocation)} ⚡") && ui.includes("${formatEntierLisibleIdleV1_(skill.cap)}"), "Basic Training");

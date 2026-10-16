@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 /* Norman (2026-10-11) : (1) le mot « Titans » du menu brille quand un Titan est prêt ; (2) le Coffre dit « Désolé » (ou une variante) APRÈS le pet. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 assert.ok(ui.includes("function htmlNomMenuIdleV1_(m,j)") && ui.includes("soreal-idle-nav-titans-brille-v1") && ui.includes("api.disponible(j)") && ui.includes("<b>${htmlNomMenuIdleV1_(m,j)}"), "mot Titans du menu, même condition que le bouton de la page Aventure");
 assert.ok(/@keyframes soreal-idle-nav-titans-brille-v1\{0%,100%\{filter:[^}]*\}50%\{filter:/.test(css) && css.includes("prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1"), "brillance en boucle sans à-coup, coupée en mouvement réduit");

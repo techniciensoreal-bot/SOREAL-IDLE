@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Cause : la synchro « sans redessin » du combat remplaçait l'état par celui du serveur (qui contenait le nouveau système débloqué) sans jamais redessiner le menu.
  * Correction : la liste des menus débloqués est comparée avant/après cette synchro, et la page est redessinée si elle a changé.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("function empreinteMenusIdleV1_(j){"), "empreinte des menus débloqués");
 const i = ui.indexOf("const empreinteMenusAvantV1=empreinteMenusIdleV1_(idleEtat);");
 assert.ok(i > 0, "mesure avant la synchro");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -27,7 +28,7 @@ import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progress
 }
 
 // --- Client : texteInfobulleMagieIdleV1_ existe, distinct du texte Énergie, sans la ligne "tous les 20" ---
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function nombreInfobulleIdleV1_(v,decimales){");
 const fin = ui.indexOf("function fermerInfobulleEnergieIdleV1_(){");
 const texte = new Function(

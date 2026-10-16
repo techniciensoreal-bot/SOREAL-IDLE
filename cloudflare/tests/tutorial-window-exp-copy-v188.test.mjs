@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 
 assert.ok(
   ui.includes("menu EXP Shop, qui vient aussi de se débloquer. Tu devrais voir un joli bouton bleu dans la barre en haut."),

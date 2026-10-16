@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8");
-const orage = lire("modules/orage-v1.js"), amb = lire("modules/ambient-audio-v1.js"), blood = lire("modules/blood-magic-v1.js"), ui = lire("soreal-idle-ui.js"), trad = lire("modules/traduction-interface-v1.js");
+const orage = lire("modules/orage-v1.js"), amb = lire("modules/ambient-audio-v1.js"), blood = lire("modules/blood-magic-v1.js"), ui = lireUiComplet(), trad = lire("modules/traduction-interface-v1.js");
 /* Norman (2026-10-15) : un sort de Blood Magic = pentacles et runes (plus d'orage), et la piste d'ambiance bascule sur la piste d'orage */
 assert.ok(orage.includes("var NIVEAUX_SORTS={numberBoost:1,ironPill:2,bloodSpaghetti:3,counterfeitGold:4,leeches:5};"), "cinq niveaux, dans l'ordre de la liste des sorts");
 assert.ok(orage.includes("{rouge:.25,gouttes:0,motif:0,duree:2200}") && orage.includes("{rouge:.95,gouttes:26,motif:3,duree:6000}"), "de plus en plus riche jusqu'au dernier sort");

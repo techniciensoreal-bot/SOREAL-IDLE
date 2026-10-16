@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : « Sur PC, dans Collection, quand on ouvre une carte de boss, l'image n'est pas bien cadrée » et « je dois pouvoir éditer les textes de boss via le menu Collection ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const admin = readFileSync("cloudflare/public/modules/textes-admin-v1.js", "utf8");
 

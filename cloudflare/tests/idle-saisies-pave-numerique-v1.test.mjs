@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-12) : « dans Augmentations, la saisie Cible ouvre directement le pavé numérique ; il faut que ce soit comme ça pour l'entièreté des zones de saisie sauf celle du pseudo ». */
 const lire = (f) => readFileSync("cloudflare/public/" + f, "utf8");
-const ui = lire("soreal-idle-ui.js"), meta = lire("modules/meta-progression-v130.js") + lirePagesMeta(), bm = lire("modules/blood-magic-v1.js"), ngu = lire("modules/ngu-labo-v1.js"), alloc = lire("modules/barre-allocation-v1.js"), perso = lire("modules/perso-boutons-v1.js");
+const ui = lireUiComplet(), meta = lire("modules/meta-progression-v130.js") + lirePagesMeta(), bm = lire("modules/blood-magic-v1.js"), ngu = lire("modules/ngu-labo-v1.js"), alloc = lire("modules/barre-allocation-v1.js"), perso = lire("modules/perso-boutons-v1.js");
 // tous les champs « Input » (nombre ou fraction) ouvrent le pavé numérique
 assert.ok(bm.includes('<input id="sorealIdleBloodInputV1" type="text" inputmode="decimal" '), "Input de Blood Magic");
 assert.equal((meta.match(/<input id="sorealIdleAugInputV1" type="text" inputmode="decimal" /g) || []).length, 2, "Input des Augmentations (deux rendus)");

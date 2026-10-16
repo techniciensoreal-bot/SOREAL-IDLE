@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-09-26) : son de combat qui commence ; « Zone Tutoriel » ; PV du duel plus beaux ; bouton Adventure rouge clignotant après un K.O. ; retrait de la partie B et du bouton
  * « Réinitialiser TOUS les joueurs ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 const adventure = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");

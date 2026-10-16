@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * prix, gain et explications dans le cadre sombre de la carte.
  */
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // Aucun bouton d'achat ne contient plus de prix : ni <small> ni « EXP » / « AP » dans le libellé.

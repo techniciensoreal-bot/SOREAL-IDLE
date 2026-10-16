@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -53,6 +54,6 @@ assert.ok(index.includes('<style id="soreal-idle-anti-copie-v1">html,body{-webki
 assert.ok(index.includes("input,textarea,select,[contenteditable=\"\"],[contenteditable=\"true\"],[data-copie-autorisee],[data-copie-autorisee] *{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}"), "les champs de saisie restent sélectionnables");
 assert.ok(index.includes('/modules/anti-copie-v1.js'));
 // Les gestes de clic droit du jeu existent toujours (le blocage ne les retire pas).
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("Clic droit de la souris (PC) sur un objet du sac : action rapide équiper / fusionner"));
 console.log("idle-anti-copie-v1: OK");

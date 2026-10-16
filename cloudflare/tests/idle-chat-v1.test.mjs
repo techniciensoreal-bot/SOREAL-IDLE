@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  * "Farm dans <zone d'Aventure>". » Ancien chat (pont postMessage vers APP/TV) supprimé ; serveur : idle-chat-v1.js.
  */
 const mod = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
 // --- Plus aucun lien avec APP/TV : pas de postMessage, pas de page parente, pas de salon « général » ---

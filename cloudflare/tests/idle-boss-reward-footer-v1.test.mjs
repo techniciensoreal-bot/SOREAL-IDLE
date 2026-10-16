@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { nguBossStatsV1 } from "../src/idle-ngu-boss-reference-v1.js";
 
@@ -18,7 +19,7 @@ for (const [numero, xp] of [[2, 0], [3, 0], [6, 0], [17, 1], [18, 1], [33, 1], [
   assert.equal(Math.round(nguBossStatsV1(numero - 1).xp), xp, "boss " + numero);
 }
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 /* Depuis le 2026-10-08, l'XP du boss est en bas à droite de son image (dans la borne), plus en bas de la page. */
 const debutXp = ui.indexOf('<div class="soreal-idle-reward-v8 soreal-idle-xp-borne-v1">');
 assert.ok(debutXp > 0, "XP du boss présente dans la borne");

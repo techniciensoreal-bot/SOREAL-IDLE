@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 /* Norman (2026-10-10) : l'Or doit être contrôlé « assez vite » dans tous les menus qui en demandent : l'Or gagné par seconde est ajouté localement entre deux synchros (avant, seule la dépense était rejouée). */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const i = ui.indexOf("Or EN DIRECT (Norman, 2026-10-10");
 assert.ok(i > 0, "bloc présent");
 const bloc = ui.slice(i, i + 2200);

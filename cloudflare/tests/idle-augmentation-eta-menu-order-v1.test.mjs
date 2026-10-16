@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, advanceIdleNguState, idleNguSnapshot, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
@@ -8,7 +9,7 @@ import { applyIdleNguAction, advanceIdleNguState, idleNguSnapshot, normalizeIdle
  * le temps indiqué pour qu'elle prenne un level. Augmentations entre Fight Boss et Basic Training. Boutique AP entre EXP Shop et Settings. »
  * Wiki (Augmentations) : « Each augment level costs gold and the leveling up speed depends on the amount of allocated energy ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // --- Ordre des menus ---

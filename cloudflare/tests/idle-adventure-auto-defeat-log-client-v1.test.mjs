@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -8,7 +9,7 @@ import vm from "node:vm";
  * doit pousser une ligne de journal quand une réponse serveur NOUVELLE (serveurTs inédit) signale une défaite de
  * combat automatique, et ne jamais la pousser deux fois pour le même lot (ré-rendus sans nouvelle synchro).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const debut = ui.indexOf("let idleDerniereSyncAutoDefaiteAventureV1_=0;");
 const fin = ui.indexOf("\n      }\n", ui.indexOf("function verifierDefaiteAutoAventureIdleV1_(j){", debut)) + "\n      }\n".length;

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 /*
@@ -10,7 +11,7 @@ import { readFileSync } from "node:fs";
  *   - rejeu local des niveaux et de l'Or + adoption de la réponse du serveur : Augmentations, Entraînement de base, rituels de sang, Entraînement avancé ;
  *   - pages sans chiffre qui bouge d'elles-mêmes (boutique, chroniques, réglages, administration) : rien à faire.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const vivants = ui.match(/const IDLE_MENUS_VIVANTS_V1=\{([^}]*)\}/);
 assert.ok(vivants, "liste des menus vivants");
 for (const m of ["ngu", "wandoos", "yggdrasil", "diggers", "beards", "wishes", "hacks", "daycare"]) assert.ok(("," + vivants[1]).includes("," + m + ":1"), "menu vivant : " + m);

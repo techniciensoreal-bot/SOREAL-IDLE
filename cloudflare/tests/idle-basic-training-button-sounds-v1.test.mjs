@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /* Norman (2026-09-26) : trois sons différents pour +, − et Cap de Basic Training, en rapport avec ce qu'ils font. */
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Les trois sons sont réellement synthétisés (contexte audio factice qui enregistre ce qui est planifié) et diffèrent
 const enregistre = [];

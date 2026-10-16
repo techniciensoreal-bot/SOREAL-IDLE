@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-12) : le compteur « N complété(s) » d'un rituel ne recule pas quand on ajoute de la Magie (rejeu local en avance sur le serveur) ; il reste bon après un rafraîchissement. */
 const bm = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(bm.includes("function compteAfficheBloodIdleV1_(id,n){") && bm.includes('data-n="\'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))') && bm.includes("if(n>=e.n){e.n=n;return n;}") && bm.includes("const borne=n+avanceMaxBloodIdleV1_(e);"), "le rendu garde le plus grand chiffre déjà affiché, mais son avance sur le serveur est bornée");
 assert.ok(ui.includes("[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;") && ui.includes("__bloodAvanceBorneeV1__"), "le tick met à jour le chiffre affiché avec une avance locale bornée");
 { // même logique, en pur

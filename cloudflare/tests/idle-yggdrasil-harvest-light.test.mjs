@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 import { idleSelloutShopItemV1, idleSelloutShopEffectActiveV1 } from "../src/idle-sellout-shop-v1.js";
@@ -66,7 +67,7 @@ function etat(acheter) {
 
 // Client : le bouton de menu Yggdrasil lit yggExtra.harvestLight.lit.
 {
-  const ui = fs.readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+  const ui = lireUiComplet();
   assert.ok(/m\.id==='yggdrasil'&&yggExtraNav&&yggExtraNav\.harvestLight&&yggExtraNav\.harvestLight\.lit/.test(ui));
 }
 

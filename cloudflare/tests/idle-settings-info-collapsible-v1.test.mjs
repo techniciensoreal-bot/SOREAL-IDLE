@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * De base, il doit être fermé et si on ouvre, ça ouvre la liste des infos. »
  * Contrôles sur le source du monolithe (comme les autres tests d'UI de ce dépôt).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Fermé par défaut : seule la valeur stockée "1" ouvre le menu (contrairement au Coffre, ouvert tant que rien n'est stocké).

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -14,7 +15,7 @@ import { readFileSync } from "node:fs";
  * retirés : la barre affiche directement la valeur réellement connue, lissée par la seule
  * transition CSS de base (transition:width .12s linear, .soreal-idle-energybar-v11).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 assert.ok(!ui.includes("function largeurTickEnergieIdleV1_("), "l'ancienne fonction de rebond par tick ne doit plus être déclarée");

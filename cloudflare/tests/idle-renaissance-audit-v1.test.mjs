@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -21,7 +22,7 @@ L.ecrire(null, "x");
 assert.ok(!/\.textContent\s*=(?!=)/.test(src.replace("el.textContent=texte;", "")), "plus d'écriture systématique du texte");
 
 // Renaître : une seule opération, dont la réponse remplace l'état (aucune lecture en plus).
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("          .renaitreSorealIdle(");
 const avant = ui.slice(ui.lastIndexOf("function executerRenaissanceIdleV63_", a), a);
 assert.ok(avant.includes("idleEtat=\n              res.joueur;") && !/obtenirEtatSorealIdle|synchroniserJeuIdleV7_/.test(avant), "la réponse de Renaître fait l'état : pas de lecture ni de synchro derrière");

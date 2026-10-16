@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * le rafraîchissement (~13 fois par seconde) réécrivait les 6 textes de chaque compétence à chaque passage, même identiques : ~156 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les
  * observateurs de la page (0 après correction). Le reste est déjà sobre : une rafale de clics = UN envoi, un clic sans effet n'envoie rien.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      function rafraichirBasicTrainingIdleV120_(){");
 const b = ui.indexOf("      function fusionnerBasicTrainingPlusAvanceIdleV166_(");
 assert.ok(a > 0 && b > a);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSnapshotV47, IDLE_ADVENTURE_ITEM_CATALOG_V1 } from "../src/idle-adventure-v47.js";
 
@@ -6,7 +7,7 @@ import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdvent
  * Norman (2026-10-03) : « dans le coffre, je veux pouvoir consulter les statistiques des objets avant de décider si je le reprends dans l'inventaire ; trouve une manière uniformisée pour tous les objets, équipé, dans
  * l'inventaire, dans le coffre ou dans les collections ». Une seule fiche d'objet ; le coffre et la collection l'ouvrent, le coffre y ajoute « Reprendre dans l'inventaire ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Serveur : l'objet rangé au coffre arrive avec ses statistiques complètes (Specials détaillés et plafonds), comme un objet d'inventaire.
 {

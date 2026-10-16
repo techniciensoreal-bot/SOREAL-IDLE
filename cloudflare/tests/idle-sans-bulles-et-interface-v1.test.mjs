@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -34,7 +35,7 @@ ecouteurs.focusin({ target: bouton });
 assert.ok(!("title" in bouton.attrs) && !("aria-label" in bouton.attrs), "pas d'étiquette en double quand il y a du texte");
 
 // 2. Barres : plus de cliquet de hauteur du bandeau.
-const ui = lire("cloudflare/public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 assert.ok(!ui.includes("min-height:var(--hud-min-v2") && !ui.includes("hauteurMax"), "plus de hauteur réservée pour les barres épuisées");
 
 // 3. Corbeille : mêmes cadre, fond et ombre qu'une case du sac.

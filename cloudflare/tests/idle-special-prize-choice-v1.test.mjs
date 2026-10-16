@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -61,7 +62,7 @@ assert.equal(prix(agir(frais(), { action: "specialPrize" }).state).choice, "ap")
 }
 
 // Client : la carte est dans le menu Info (toujours visible quand Info est ouvert), plus dans Achievements
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.match(ui, /function carteSpecialPrizeIdleV1_\(\)\{/);
 assert.ok(ui.includes("{action:\\'specialPrize\\',choice:\\'ap\\'}"));
 assert.ok(ui.includes("{action:\\'specialPrize\\',choice:\\'kitty\\'}"));

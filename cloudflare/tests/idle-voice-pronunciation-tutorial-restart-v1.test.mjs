@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-09-26) : voix (Norman -> « Normanne », « Fight Boss » mieux dit, pause des « … » = « . + . », titre « Norman & Sébastien » non lu),
  * phrase du sandwich, et un tutoriel déjà en cours ne repart plus de la première page. */
 const piper = readFileSync("cloudflare/public/modules/local-neural-piper-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Prononciation : fonction extraite et exécutée
 const src = piper.slice(piper.indexOf("var PRONONCIATIONS_=["), piper.indexOf("/*\n * Astérisques"));

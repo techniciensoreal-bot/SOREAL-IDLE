@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  * en ont un (baseSpecial > 0) : elles doivent recevoir le boost. (Une lecture erronée du même message avait, le matin du 2026-09-24,
  * interdit ces boosts sur tous les objets côté serveur et client : annulé.)
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function decisionActionSlotAdventureIdleV138_(");
 const fin = ui.indexOf("function appliquerActionSlotAdventureIdleV138_(");
 assert.ok(debut > 0 && fin > debut);

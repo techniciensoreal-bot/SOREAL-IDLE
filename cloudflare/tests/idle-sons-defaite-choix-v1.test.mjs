@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8").replace(/\r\n/g, "\n");
-const audio = lire("modules/audio-effects-v199.js"), ui = lire("soreal-idle-ui.js");
+const audio = lire("modules/audio-effects-v199.js"), ui = lireUiComplet();
 /*
  * Norman (2026-10-15) : pas de réglage de sons de défaite pour les joueurs ; le jeu tire au hasard parmi les sons RETENUS : l'ancien, le trombone triste, le glas, le game over d'arcade, le disque qui s'arrête, la toccata
  * sinistre et l'orgue de foire triste. Les autres propositions (orgue de cathédrale, boîte à musique qui ralentit, fanfare funèbre, gong) servent de sons d'apparition de boss.

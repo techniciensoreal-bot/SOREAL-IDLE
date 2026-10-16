@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Menu du haut v3 (Norman, 2026-10-08) : sans style arcade, sans sous-titre, nom sur 2 lignes, boutons courts sur 2 rangées ; emojis et animations conservés ; rangement des boutons toujours utilisable. */
@@ -19,7 +20,7 @@ assert.ok(bloc.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-new-v1::aft
 // Rangement des boutons : tout visible, bandeau pleine largeur
 assert.ok(/\.soreal-idle-nav-v28\.edition\{\s*display:flex!important;flex-wrap:wrap!important;overflow:visible!important;/.test(css), "mode rangement : tous les boutons visibles");
 // Le HTML des boutons n'a pas changé (emoji + nom + sous-titre dans le DOM, caché par le style)
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("soreal-idle-nav-emoji-v2") && ui.includes("soreal-idle-nav-texte-v2"), "structure des boutons inchangée");
 // Nombre de lignes du menu (1, 2 ou 3), choisi dans le bandeau de rangement, gardé sur l'appareil
 assert.ok(ui.includes("--nav-rangees:${rangeesMenuIdleV1_()}"), "le menu porte son nombre de lignes");

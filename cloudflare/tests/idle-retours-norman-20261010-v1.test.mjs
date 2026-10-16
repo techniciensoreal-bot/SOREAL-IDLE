@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, advanceIdleNguState, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
@@ -42,7 +43,7 @@ const lire = (p) => readFileSync(p, "utf8");
   assert.ok(t.includes("__autoKillTitanV1__") && t.includes("setAutoKillTitan") && t.includes("ttnAuto_"), "case à cocher par titan");
   assert.ok(t.includes("function seTueTout(t)") && t.includes("&&!seTueTout(t)"), "un titan qui se tue tout seul ne fait ni briller ni apparaître l'icône");
   assert.ok(t.includes("soreal-idle-titan-icone-v1") && t.includes("icone:icone"));
-  const ui = lire("cloudflare/public/soreal-idle-ui.js");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("iconeTitan") && ui.includes("avec-icone"), "icône à droite du bandeau Aventure / Titans");
   const css = lire("cloudflare/public/soreal-idle-themes.css");
   assert.ok(css.includes("@keyframes soreal-idle-titan-icone-v1{0%,100%{") && css.includes("grid-template-columns:1fr 1fr auto"), "icône animée, boucle sans à-coup (départ = arrivée)");
@@ -50,7 +51,7 @@ const lire = (p) => readFileSync(p, "utf8");
 
 // --- paralysie, tri, Time Machine ---
 {
-  const ui = lire("cloudflare/public/soreal-idle-ui.js");
+  const ui = lireUiComplet();
   assert.ok(!ui.includes("data-paralysie-v1") && !ui.includes("Paralysé ! Plus de capacités"), "plus de phrase de paralysie");
   assert.ok(ui.includes('<span class="bouton-icone-sombre-v1">🗂️</span> Trier'));
   assert.ok(lire("cloudflare/public/soreal-idle-itopod.css").includes(".bouton-icone-sombre-v1{"));

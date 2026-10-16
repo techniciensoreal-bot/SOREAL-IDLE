@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  * premier, il sera content mdr » -- compteur brut assumé, sans anti-triche. Couverture serveur (compteur cumulatif, exclu
  * du classement Global) : idle-leaderboard-v1.test.mjs. Ici : câblage client (écoute, lot, envoi).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const debut = ui.indexOf("let idleClicsEnAttenteV1=0;");
 assert.ok(debut > 0, "bloc de suivi des clics introuvable");

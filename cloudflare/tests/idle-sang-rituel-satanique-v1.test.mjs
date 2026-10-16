@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 /*
@@ -145,7 +146,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Le compte à rebours affiche la vraie durée sous la seconde (0,2 s), jamais arrondie à « 1 s ».
   const bm = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(bm.includes("function etaRituelTexteIdleV1_(r)") && bm.split("etaRituelTexteIdleV1_(rv)").length === 3, "deux affichages de la durée du rituel passent par la vraie valeur");
   assert.ok(ui.includes("seconds<1?String(Math.round(seconds*100)/100).replace('.',',')+' s'"), "compte à rebours en direct : vraie durée sous la seconde");
 }
@@ -317,7 +318,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Bulles des barres de boss : même teinte que la barre pour les premiers boss, de plus en plus mélangées ensuite.
   const bulles = readFileSync("cloudflare/public/modules/bulles-sang-v1.js", "utf8");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(bulles.includes("function teinterBoss_(el)") && bulles.includes("(n-25)/275") && bulles.includes("--sg-b1") && ui.includes('data-boss-n="${idleEntier_(j.bossId)}"'), "teinte des bulles de la barre de boss");
 }
 {

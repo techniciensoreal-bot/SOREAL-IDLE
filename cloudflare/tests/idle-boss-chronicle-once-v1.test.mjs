@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  * le tutoriel est affiché. Il ne faut pas que 2 audios soient joués en même temps. »
  */
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 0. Pont de LECTURE server-side (symétrique au pont d'écriture __soreal_idle_marquer_vu_v1__ déjà exposé) : sans lui, tutorial-tts-v202.js
 //    ne peut jamais savoir qu'un identifiant "vu" a déjà été confirmé par le serveur (donc sur un autre appareil).

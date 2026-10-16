@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -84,7 +85,7 @@ assert.ok(css.includes("repeating-linear-gradient(90deg,transparent 0 calc(5% - 
 // Borne (Norman, 2026-10-07) : Fight rouge, Fuite bleu, Nuke jaune ; le bouton de la borne s'enfonce avec la commande ; « Boss actuel » retiré ; régénération sur sa ligne.
 assert.ok(arene.includes("var(--bp,0px)") && arene.includes(".soreal-idle-dome-v1.dome-nuke"), "chaque bouton de la borne peut s'enfoncer");
 assert.ok(arene.includes('[data-presse-v1="start"] .soreal-idle-dome-v1.dome-start') && arene.includes(".soreal-idle-boss-control-v39.nuke:active:not(:disabled)"), "appuyer sur une commande enfonce son bouton");
-assert.ok(readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").includes("window.__clicDomeBorneIdleV1__=function(nom){") && arene.includes(".soreal-idle-dome-v1{position:absolute"), "les boutons de la borne sont de vrais boutons cliquables");
+assert.ok(lireUiComplet().includes("window.__clicDomeBorneIdleV1__=function(nom){") && arene.includes(".soreal-idle-dome-v1{position:absolute"), "les boutons de la borne sont de vrais boutons cliquables");
 assert.ok(arene.includes("grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr)") && /\.start\{\s*order:1;/.test(arene) && /\.stop\{order:2;/.test(arene), "ordre Fight, Fuite, Nuke");
 assert.ok(arene.includes(".soreal-idle-boss-current-v35>.soreal-idle-label-v4{display:none!important;}"), "« Boss actuel » retiré");
 assert.ok(arene.includes("flex:0 0 100%;display:block!important;text-align:center"), "la régénération a sa propre ligne et ne chevauche plus les PV");

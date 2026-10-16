@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
  * Norman (2026-09-27) : « J'ai aussi l'impression que les voix n'ont pas été jouées automatiquement pour les boss. Alors que j'ai reset ma
  * partie. » Cause : soreal_idle_boss_chronique_lue_v1 (tutorial-tts-v202.js, mémoire "chronique déjà lue") n'était pas dans la liste ci-dessous.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function idleVusOublierV1_(){");
 const fin = ui.indexOf("function idleVuMarquerV1_(id){");
 assert.ok(debut > 0 && fin > debut);

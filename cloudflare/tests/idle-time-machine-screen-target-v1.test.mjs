@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -242,7 +243,7 @@ let etat = null;
   }
 }
 
-const uiSource = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const uiSource = lireUiComplet();
 assert.ok(uiSource.includes("function actualiserCompteReboursTimeMachineIdleV1_()"), "compte à rebours live présent");
 assert.ok(uiSource.includes("actualiserCompteReboursTimeMachineIdleV1_();"), "compte à rebours rafraîchi par le ticker visible");
 assert.ok(uiSource.includes("jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_"), "helper audio partagé exposé au module Time Machine");

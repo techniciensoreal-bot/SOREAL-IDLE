@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
@@ -8,7 +9,7 @@ import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
  * Pareil pour les textes d'accueil etc. » — l'état « déjà vu » est gardé côté serveur (profil.stats.vus) : Renaissance, autre appareil
  * ou stockage local vidé ne rejouent rien.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- Serveur, de bout en bout (SQLite en mémoire) ---
 const db = new DatabaseSync(":memory:");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -6,10 +7,7 @@ import {
   idleAdventureSnapshotV47
 } from "../src/idle-adventure-v47.js";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 
 // 1) Empty slot DOM must always carry the current visual slot index.
 assert.match(

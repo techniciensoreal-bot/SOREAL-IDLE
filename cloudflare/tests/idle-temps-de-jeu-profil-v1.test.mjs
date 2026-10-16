@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : « Le temps de jeu n'a pas l'air bon, mon pote a plus de 4 h 29 de jeu : il y a un souci avec le calcul des heures connectées. » Causes : le battement ne comptait que les joueurs ayant cliqué
  * dans les 2 dernières minutes (un jeu idle se regarde sans toucher l'écran) ; le profil affichait l'ANCIENNETÉ du compte sous le nom « Temps de jeu ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const chat = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 const srv = readFileSync("cloudflare/src/idle-chat-v1.js", "utf8");

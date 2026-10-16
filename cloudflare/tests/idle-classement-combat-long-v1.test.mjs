@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { creerJoueurExterneV1 } from "./helpers/joueur-externe-v1.mjs";
 
@@ -60,7 +61,7 @@ try {
   assert.ok(rt.includes("stats.combatBossDepartFrais === true && duree >") && rt.includes("stats.combatBossPlusLongGagne = gagne === true;") && rt.includes("cloreCombatBossClassementV1_(statsCombat,true);") && rt.includes("if(!Boolean(actif)&&stats.combatBossActif)stats.combatBossDepartFrais=false;"), "record réservé aux combats d'un seul Fight sur un boss à PV pleins, avec issue");
   assert.ok(rt.includes("combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)"), "les anciens records sans issue repartent de zéro");
 }
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("{id:'combatLong',nom:'⚔️ Combat le plus long'}"), "onglet du classement");
 assert.ok(ui.includes("if(stat==='combatLong')"), "durée lisible");
 assert.ok(ui.includes("'🏆 Gagné':'💀 Perdu'"), "issue affichée");

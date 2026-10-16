@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
-const ui = fs.readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+const ui = lireUiComplet();
 /* Norman (2026-10-15) : « dans l'inventaire les images se chargent au compte-gouttes ; avant elles étaient toutes affichées directement » : les images d'objets, de boosts et de cubes ne sont plus en chargement différé. */
 const a = ui.indexOf("function iconeBaseObjetAdventureIdleV138_(item){"), b = ui.indexOf("}\n", ui.indexOf("emojiRepliObjetIdleV1_(iconeSlotAdventureIdleV138_(item.slot))", a));
 const corps = ui.slice(a, b);

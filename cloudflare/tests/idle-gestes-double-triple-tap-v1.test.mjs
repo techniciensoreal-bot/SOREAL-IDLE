@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -7,7 +8,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../s
  * Norman (2026-10-04) : « retire la fonction double tap / triple tap de base pour les joueurs ; dans le Shop, au rayon Aventure, un achat pour 20 EXP : Double tap pour qu'un objet absorbe tous les boosts de
  * l'inventaire, et pour 30 EXP : Triple tap pour fusionner automatiquement avec les pièces disponibles. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // 1. Serveur : deux achats (20 et 30 EXP), à vie, qui lèvent les drapeaux du bloc inventoryAuto.unlocked.

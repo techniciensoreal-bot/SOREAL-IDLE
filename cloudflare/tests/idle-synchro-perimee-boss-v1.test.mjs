@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Une réponse de synchro calculée avant la victoire, arrivée après celle qui l'a confirmée, remettait l'ancien boss : elle doit être ignorée
  * (moins de boss vaincus que l'état local, même nombre de Renaissances ; une Renaissance, elle, remet bien le compteur à zéro).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const garde = "idleEntier_(joueurServeur.bossVaincus)<idleEntier_(idleEtat.bossVaincus)&&idleEntier_(joueurServeur.renaissance&&joueurServeur.renaissance.renaissances)===idleEntier_(idleEtat.renaissance&&idleEtat.renaissance.renaissances)";
 assert.ok(ui.includes(garde), "garde contre une réponse périmée");
 const iFonction = ui.indexOf("function appliquerSynchroCombatSansReflowIdleV116_(");

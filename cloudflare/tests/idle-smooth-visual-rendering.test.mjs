@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
  * de tique par seconde. » -- le rebond lui-même a été retiré (voir idle-energy-tick-bounce-v1.test.mjs),
  * donc plus rien à interpoler entre deux tics lourds : le rendu RAF séparé est retiré avec lui.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // La simulation lourde reste volontairement plafonnée à 15 Hz (coût DOM/calcul, freezes iPhone/Safari).
 assert.ok(ui.includes("const intervalleFrameJeuVisibleV214=1000/15;"));

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_ADVENTURE_SETS, normalizeIdleAdventureStateV47, idleAdventureSnapshotV47, IDLE_ADVENTURE_ITEM_CATALOG_V1 } from "../src/idle-adventure-v47.js";
 
@@ -7,7 +8,7 @@ import { IDLE_ADVENTURE_SETS, normalizeIdleAdventureStateV47, idleAdventureSnaps
  * un cadre dédié à chaque set, qui rappelle la zone d'où il vient, avec ses couleurs et ses décorations : un thème par set. »
  */
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Un thème par set du jeu (couleurs + décor), et pour chaque groupe d'objets sans set.
 const manquants = Object.keys(IDLE_ADVENTURE_SETS).filter((id) => !css.includes(`.soreal-idle-coffre-cadre-v1[data-theme-set-v1="${id}"]{`));
@@ -46,7 +47,7 @@ console.log("idle-coffre-cadres-themes-v1: OK (" + lignes.length + " thèmes)");
 // Coffre : les accessoires sans set se rangent sous l'arme (2e colonne du mannequin), plus à sa droite (Norman, 2026-10-11).
 {
   const { readFileSync } = await import("node:fs");
-  const ui2 = readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+  const ui2 = lireUiComplet();
   assert.ok(ui2.includes("mannequin(i===0?st.pieces.concat(g.libres):st.pieces)"), "accessoires de la zone dans le mannequin, sous l'arme");
   console.log("idle-coffre-cadres-themes-v1 (accessoires sous l'arme): OK");
 }

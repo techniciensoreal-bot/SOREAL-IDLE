@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSnapshotV47 } from "../src/idle-adventure-v47.js";
 
@@ -20,7 +21,7 @@ import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdvent
 }
 
 // --- Client : refus AVANT d'envoyer quoi que ce soit ---
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function boosterObjetParIdAdventureIdleV47_(boostId,cibleId){");
 const fin = ui.indexOf("function deposerSurCubeAdventureIdleV138_(event){");
 const src = ui.slice(debut, fin);

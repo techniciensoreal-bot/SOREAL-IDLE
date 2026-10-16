@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Norman (2026-10-04) : « le serveur n'avait que 45 472 d'énergie (l'écran en montrait 65 476) ; je ne veux pas ça, je veux que les chiffres soient justes ». Basic Training et les autres systèmes envoient leurs répartitions
  * par deux canaux différés ; une réponse de l'un écrasait l'énergie libre sans tenir compte de ce que l'écran venait de placer ou retirer par l'autre.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const a = ui.indexOf("      function sommeAllocBasicTrainingJoueurIdleV1_(joueur){");
 const b = ui.lastIndexOf("      if(typeof window!=='undefined'){", ui.indexOf("        window.__energieLibreCoherenteIdleV1__=energieLibreCoherenteIdleV1_;"));

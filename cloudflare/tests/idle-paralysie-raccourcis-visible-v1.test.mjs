@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : « quand un titan ou un ennemi nous freeze, il faut le voir sur les raccourcis d'attaque, parade etc. : tout grisé ou autre chose, mais visible, sinon on dirait un bug ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // Le bandeau existe dans la zone des raccourcis et reste caché hors paralysie.

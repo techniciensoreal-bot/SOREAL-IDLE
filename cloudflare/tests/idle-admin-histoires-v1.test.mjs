@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { IDLE_HISTOIRE_ID_RE_V1 } from "../src/idle-histoires-v1.js";
@@ -8,7 +9,7 @@ import { IDLE_HISTOIRE_ID_RE_V1 } from "../src/idle-histoires-v1.js";
  * images en nombre illimité, texte collé par étape, voix générées sur le PC de l'administrateur (studio local).
  */
 const source = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- Le menu n'apparaît que pour l'administrateur (et jamais annoncé comme « nouveau menu ») ---
 assert.match(ui, /\{id:'admin',icon:'🛠️',nom:'Admin'\}/);

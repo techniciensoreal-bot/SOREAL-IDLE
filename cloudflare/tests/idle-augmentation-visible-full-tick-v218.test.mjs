@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 const index=readFileSync(
   new URL("../public/index.html",import.meta.url),
   "utf8"
@@ -33,7 +31,7 @@ assert.match(
   "La durée du cycle doit rester exactement liée à la durée réelle du niveau, plafonnée à 50 Hz."
 );
 assert.ok(
-  index.includes("/soreal-idle-ui.js?v=643"),
+  index.includes("/soreal-idle-ui.js?v=645"),
   "Le shell doit forcer le chargement d'une révision cache-bustée après V213."
 );
 

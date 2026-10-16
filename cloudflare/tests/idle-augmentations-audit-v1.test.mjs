@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -52,7 +53,7 @@ assert.ok(pairs(gros).p.scissors[0] <= 1e6 && pairs(gros).libre >= 0, "borné pa
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("envoi={action:'allocateAugments',items:") && meta.includes("if(delta===0)return;"));
 assert.ok(meta.includes("cles.forEach(function(c,i){if(!R.file.has(c)&&payloads[i])R.file.set(c,payloads[i]);});"), "échec réseau : tout le lot est remis en file");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("function elementAugIdleV1_(selecteur)") && ui.includes("function ecrireSiChangeIdleV1_(el,texte)"));
 assert.ok(!/etaEl.textContent=|nivEl.textContent=|coutEl.textContent=/.test(ui), "plus de réécriture systématique des textes");
 console.log("idle-augmentations-audit-v1: OK");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { IDLE_PIECES_ETAT_CHEMINS_V1, allegerCataloguesV1, empreinteTexteV1 } from "../src/idle-catalogues-v1.js";
 
 /* Audit des synchros (Norman, 2026-10-14) : une réponse pesait ~49 Ko ; les pièces stables supplémentaires sont allégées, sans jamais alléger une pièce qui contient une horloge (elle ne serait jamais « stable »). */
@@ -33,7 +34,7 @@ console.log("Pièces stables des synchros: OK");
 /* Doublons de synchro : une synchro ordinaire (non forcée) ne part pas dans les 1,5 s qui suivent une synchro réussie. */
 {
   const { readFileSync } = await import("node:fs");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(/const IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1=1500;/.test(ui) && /if\(!force&&Date\.now\(\)-idleDerniereSynchroReussieV1<IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1\)return;/.test(ui), "espacement minimal des synchros ordinaires");
   assert.ok(ui.indexOf("IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;") < ui.indexOf("IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1)return;"), "une synchro affamée (forcée) n'est jamais retenue");
 }

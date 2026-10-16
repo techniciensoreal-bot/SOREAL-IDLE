@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureItemAtLevelV47 } from "../src/idle-adventure-v47.js";
 
@@ -43,7 +44,7 @@ for (const [definitionId, flag, fabrique, cle] of cas) {
 }
 
 // Client : bouton « Utiliser » sur la fiche (système verrouillé), clic droit, et plus de menu « Objets de déblocage » sauf secours.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("const IDLE_UNLOCK_PAR_OBJET_V1={aNumber:{cle:'aNumber',flag:'ngu'") && ui.includes("'scrap:paper':{cle:'scrapPaper',flag:'diggers'"), "mêmes correspondances que le serveur");
 assert.ok(ui.includes("🔓 Utiliser</button>") && ui.includes("window.__utiliserObjetDeblocageIdleV1__(") && ui.includes("action:'useUnlockItem',itemId:String(id||'')"));
 assert.ok(ui.includes("            boutonVerrouiller+\n            boutonDebloquer+\n            boutonConsommer+"), "le bouton est sur la fiche de l'objet");

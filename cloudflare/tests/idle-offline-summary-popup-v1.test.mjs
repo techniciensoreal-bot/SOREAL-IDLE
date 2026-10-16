@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -12,7 +13,7 @@ import { readFileSync } from "node:fs";
  * exposé du tout au client -- ajouté ici (apGagne).
  */
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- Serveur : l'AP gagné hors ligne est désormais calculé (delta, jamais négatif) et exposé. ---
 {

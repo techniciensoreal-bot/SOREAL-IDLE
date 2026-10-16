@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { createIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureEquipItemV1, idleAdventureUnequipItemV1 } from "../src/idle-adventure-v47.js";
 import { idlePortraitsSnapshotV1, idlePortraitForEquippedSetV1, IDLE_PORTRAITS_V1 } from "../src/idle-portraits-v1.js";
@@ -72,7 +73,7 @@ assert.equal(idlePortraitForEquippedSetV1("forest").id, "forest");
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
 assert.ok(media.includes('searchParams.get("fallback")') && media.includes("idlePortraitPickR2KeyV1(keys,repli)"));
 // Client : portrait automatique en priorité, choix manuel en repli ; vignettes R2 dans le sélecteur
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile"));
 assert.ok(ui.includes("(repli?'&fallback='+encodeURIComponent(String(repli)):'')"));
 const profil = readFileSync("cloudflare/public/modules/profile-v1.js", "utf8");

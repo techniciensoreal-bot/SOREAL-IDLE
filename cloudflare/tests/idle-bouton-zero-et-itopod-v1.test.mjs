@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -9,7 +10,7 @@ import vm from "node:vm";
 const L = (p) => readFileSync(p, "utf8");
 const sansBs = (t) => t.replace(/\\/g, "");
 const meta = sansBs(L("cloudflare/public/modules/meta-progression-v130.js") + lirePagesMeta());
-const ui = L("cloudflare/public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 const blood = sansBs(L("cloudflare/public/modules/blood-magic-v1.js"));
 const ngu = sansBs(L("cloudflare/public/modules/ngu-labo-v1.js"));
 const alloc = L("cloudflare/public/modules/barre-allocation-v1.js");

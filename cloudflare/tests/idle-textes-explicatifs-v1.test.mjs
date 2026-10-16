@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -8,7 +9,7 @@ import vm from "node:vm";
  * change la manière dont le titre est écrit, rends-le plus beau, traduis le menu pour la VF ».
  * Les faits ne changent pas (voir idle-system-popups-v1.test.mjs) ; ici : tout est traduit en anglais (le dictionnaire couvre chaque phrase), la page est en français, le titre est soigné.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const dico = JSON.parse(readFileSync("cloudflare/public/modules/traduction-anglais-dict-v1.json", "utf8"));
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");

@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * 2026-09-26 (Norman) : annonces en fondu non cliquables (set complété, Tutorial Cube -> Infinity Cube), bonus du set en évidence dans la Collection,
  * flèches de zone aussi fiables que le menu déroulant, Comparer à la souris, liaison de service vers TV pour la liste des ouvriers.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const notice = readFileSync("cloudflare/public/modules/fade-notice-v1.js", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");

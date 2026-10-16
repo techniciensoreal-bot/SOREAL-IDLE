@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-12) : à la connexion, le résumé « Pendant ton absence » montre tout ce qui a été farmé (EXP, AP, PP, Or...), pas seulement les Titans tués. */
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(rt.includes("function gainsHorsLigneV1_(avant, apres)") && rt.includes('const DEVISES_HORS_LIGNE_V1 = ["experience", "ap", "pp", "qp", "gold", "blood", "seeds", "mayo"]'), "écart des monnaies avant / après");
 assert.ok(rt.includes("const devisesAvantHorsLigneV1 = instantaneDevisesHorsLigneV1_(statsRessourceV55.metaNgu);") && rt.includes("gainsHorsLigneV1_(devisesAvantHorsLigneV1, instantaneDevisesHorsLigneV1_(statsCombat.metaNgu))"), "instantané avant la synchro, comparé à l'état final");
 assert.ok(rt.includes("progression.gainsMeta") , "transmis au client");

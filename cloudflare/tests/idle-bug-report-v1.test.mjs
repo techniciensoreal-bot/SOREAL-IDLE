@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -37,7 +38,7 @@ assert.equal(existsSync("integrations/idle-bug-mail"), false, "passerelle mail r
   assert.ok(html.includes("Signaler un bug") && !html.includes("Signalements reçus"));
   assert.ok(fenetre.__SOREAL_IDLE_BUG_REPORT_V1__.html(true).includes("Signalements reçus"), "l'administrateur lit les signalements");
 }
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.match(ui, /window\.__SOREAL_IDLE_BUG_REPORT_V1__\.html\(estAdminSorealIdle_\(\)\)/);
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.includes("/modules/bug-report-v1.js?v=5"));

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { idleNguBonuses, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
@@ -84,7 +85,7 @@ assert.match(runtime, /detailStats:\s*combatPrincipalEtat\s*\.detailStats/);
   assert.ok(html.includes("2 autres facteurs à ×1"), "les neutres sont comptés");
   assert.ok(html.includes("24,5M") || html.includes("24.5M"), "total = 100 + (base − 100) × produit");
 }
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};"));
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/stats-detail-v1.js?v=3"));
 console.log("idle-stats-detail-v1: OK");

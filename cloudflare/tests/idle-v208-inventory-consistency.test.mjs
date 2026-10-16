@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 import {
   applyIdleAdventureActionV47,
@@ -6,7 +7,7 @@ import {
   idleAdventureSnapshotV47
 } from "../src/idle-adventure-v47.js";
 
-const ui=fs.readFileSync(new URL("../public/soreal-idle-ui.js",import.meta.url),"utf8");
+const ui=lireUiComplet();
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 /* UI split V9 : actionMetaIdleV130_ (et joueurMetaProtegeV208) a été extrait vers ce module. */
 const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8");

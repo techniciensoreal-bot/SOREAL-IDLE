@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_ADVENTURE_CUBE_TIERS_V1, idleAdventureCubeTierV1 } from "../src/idle-adventure-v47.js";
 import { choisirObjetItemR2ParIdEtTier_ } from "../src/idle-media-v1.js";
@@ -51,7 +52,7 @@ assert.equal(fichier([], 3), null, "aucune image du tout : rien (l'interface gar
 assert.equal(choisirObjetItemR2ParIdEtTier_(dossier, 99, 3), null, "un autre objet n'emprunte jamais les images du Cube");
 
 // --- Client : l'icône du Cube suit le palier renvoyé par le serveur, et se redessine après chaque boost ---
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.match(ui, /const tier=idleEntier_\(cubeTier&&cubeTier\.tier\);/);
 assert.match(ui, /urlImageCubeInfiniAdventureIdleV1_\(tier\)/);
 assert.match(ui, /wikiItemId=100&tier='\+n\+'&name='\+encodeURIComponent\('THE CUBE'\)/);

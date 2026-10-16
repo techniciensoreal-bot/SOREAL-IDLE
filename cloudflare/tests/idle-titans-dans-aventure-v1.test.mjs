@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * la page des titans (cartes avec image, stats, compte à rebours, Affronter), et le bouton « Aventure » ramène aux zones. Aucun titan débloqué = aucun bouton (anti-spoil).
  * Un ancien menu mémorisé « titans » ouvre Adventure.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const mod = readFileSync("cloudflare/public/modules/titans-v1.js", "utf8");
 
 assert.ok(/if\(id==='titans'\)return false;/.test(ui), "le menu Titans n'est jamais disponible");

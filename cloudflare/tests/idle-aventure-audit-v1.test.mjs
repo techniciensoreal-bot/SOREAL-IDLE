@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  *  - en combat, les cartes de statistiques réécrivaient tous leurs chiffres à chaque rendu : ~122 -> ~51 modifications par seconde (il reste les barres de vie et le journal, qui changent vraiment).
  * Appels : aucun appel en plus (l'action d'Aventure part par lot, la synchro est celle de 15 s).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const a = ui.indexOf("      function posteIdleSiChangeV1_(el,propriete,valeur){");
 const b = ui.indexOf("      function basculerIdleModeAdventureIdleV3_(){");
 assert.ok(a > 0 && b > a);

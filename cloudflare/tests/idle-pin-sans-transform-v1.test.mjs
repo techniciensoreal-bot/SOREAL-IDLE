@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Mini mouvement de la page quand on presse une touche de Wandoos ou « Trier » (Norman, 2026-10-08) : le bouton pressé s'enfonce de quelques pixels (:active), et la page se recalait sur ce décalage.
  * Les trois mesures de position du bouton cliqué ignorent maintenant sa transformation.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function hautSansTransformIdleV1_(e){");
 assert.ok(debut > 0, "mesure sans transformation présente");
 const src = ui.slice(debut, ui.indexOf("\n      }\n", debut) + 9);

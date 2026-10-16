@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -48,7 +49,7 @@ for (const [fr, en] of cas) {
 assert.equal(typeof charger("fr").__SOREAL_IDLE_LANGUE_CHANGEE_V1__, "function");
 
 // Branchements : le menu Réglages prévient le module, la page charge le module.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__(choix)"), "le changement de langue prévient le module anglais");
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/traduction-anglais-v1.js"));
 const src = readFileSync(R + "traduction-anglais-v1.js", "utf8");

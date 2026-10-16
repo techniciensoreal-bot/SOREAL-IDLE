@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { chargerBoss } from "../tools/voice-generate.mjs";
 
@@ -7,7 +8,7 @@ import { chargerBoss } from "../tools/voice-generate.mjs";
  * pas lourd ». Les blocs de texte sont lus depuis /voice/<empreinte>.m4a (AAC mono) ; Piper local ne sert plus que de repli.
  */
 const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const grab = (re) => tts.match(re)[0];
 const code = [

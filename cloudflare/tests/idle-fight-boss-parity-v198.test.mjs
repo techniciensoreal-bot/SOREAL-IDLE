@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 
 const runtime=fs.readFileSync(
@@ -6,10 +7,7 @@ const runtime=fs.readFileSync(
   "utf8"
 ).replace(/\r\n/g,"\n");
 
-const ui=fs.readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
+const ui=lireUiComplet().replace(/\r\n/g,"\n");
 
 const css=fs.readFileSync(
   new URL("../public/soreal-idle-ui.css",import.meta.url),

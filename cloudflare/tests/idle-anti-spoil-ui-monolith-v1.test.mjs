@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 // Règle n°2 (AGENTS.md) : aucun spoil dans le monolithe UI. Analyse du source :
 // les chaînes interdites ne doivent plus exister dans le chemin actif.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 const interdits = [
   ["🏆 ???????", "titre de collection verrouillée"],

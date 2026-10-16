@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * et « l'inventaire clignote une fraction de seconde parfois ».
  */
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // Plus de surlignage du toucher, plus de sélection de texte, sauf dans les champs de saisie (et l'administration).
 assert.ok(css.includes("html,html body{-webkit-tap-highlight-color:rgba(0,0,0,0);-webkit-touch-callout:none}"), "surlignage du toucher supprimé");

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8");
-const mus = lire("modules/musique-titan-v1.js"), amb = lire("modules/ambient-audio-v1.js"), idx = lire("index.html"), ui = lire("soreal-idle-ui.js");
+const mus = lire("modules/musique-titan-v1.js"), amb = lire("modules/ambient-audio-v1.js"), idx = lire("index.html"), ui = lireUiComplet();
 /* Norman (2026-10-15) : musique de fond angoissante et nerveuse pendant le combat des Titans */
 assert.ok(mus.includes("var BPM=148;") && mus.includes("var BASSES=[73.42,73.42,58.27,73.42,73.42,77.78,98.00,55.00];") && mus.includes("MESURES=8"), "phrase de 8 mesures à 148 BPM en ré phrygien");
 for (const brique of ["grosseCaisse(", "caisseClaire(", "charley(", "tom(", "basse(", "corde(", "nappe(", "cuivres(", "riser("]) assert.ok(mus.includes("function " + brique), "couche : " + brique);

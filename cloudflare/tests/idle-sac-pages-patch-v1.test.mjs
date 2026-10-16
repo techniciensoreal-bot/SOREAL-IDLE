@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-08) : « je ne veux que 60 cases d'inventaire affichées à la fois ; quand je range avec TRIER, ça m'ajoute plus de 60 cases ». La mise à jour en place du sac (patchGrilleSacInventaireIdleV160_)
  * posait TOUTES les cases du sac ; le rendu complet, lui, découpait déjà en pages de 60. Les deux ne montrent plus que la page affichée.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function patchGrilleSacInventaireIdleV160_(modele){");
 const fin = ui.indexOf("function patchResumeInventaireIdleV160_(modele){");
 assert.ok(debut > 0 && fin > debut);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Norman (2026-10-05) : (1) « l'icône du menu ITOPOD n'a pas d'animation quand il est actif » ; (2) « dans les rayons du shop, un petit V vert comme celui des sets quand on a acheté tout ce que contient le rayon ; si je rajoute des
  * articles, le V disparaît tant qu'on n'a pas fait ce nouvel achat ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 

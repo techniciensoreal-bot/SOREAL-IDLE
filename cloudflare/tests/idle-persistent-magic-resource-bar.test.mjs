@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
-const ui=readFileSync("cloudflare/public/soreal-idle-ui.js","utf8");
+const ui=lireUiComplet();
 const css=readFileSync("cloudflare/public/soreal-idle-ui.css","utf8");
 
 assert.ok(

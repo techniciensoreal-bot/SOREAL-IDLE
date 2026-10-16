@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -6,7 +7,7 @@ import vm from "node:vm";
  * Tutoriel du début (Norman, 2026-09-26) : à chaque page, le jeu se place sur le bon menu, défile vers ce dont on parle et pose la fenêtre à l'endroit
  * qui ne le cache pas. Vérifié en navigateur (PC 1024x768 et téléphone 375x812) sur les 8 pages avec cadrage ; ici : câblage et règles de calcul.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const bloc = ui.slice(ui.indexOf("const TUTORIEL_DEBUT_JEU_PAGES_V1=["), ui.indexOf("const TUTORIEL_AVENTURE_PAGES_V1=["));
 
 // 1. Une page = un cadrage, selon la demande
@@ -61,7 +62,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
  * qui clignote (facultatif) ; jusqu'à « Défense » où c'est le + de Blocage.
  */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   const hint = readFileSync("cloudflare/public/modules/tutorial-hint-v1.js", "utf8");
   const index = readFileSync("cloudflare/public/index.html", "utf8");
   const page = (titre) => { const i = ui.indexOf("titre:'" + titre + "',"); assert.ok(i > 0, titre); return ui.slice(i, ui.indexOf("paragraphes:", i)); };
@@ -84,7 +85,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
  * Nombre, Rebirths / Attack, Defense / Gold, EXP / Run ; les pages du premier boss s'affichent en bas de l'écran (l'annonce en fondu est en haut).
  */
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   const hint = readFileSync("cloudflare/public/modules/tutorial-hint-v1.js", "utf8");
   const framing = readFileSync("cloudflare/public/modules/tutorial-framing-v1.js", "utf8");
   const i0 = ui.indexOf("titre:'Objectif',");
@@ -116,7 +117,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
 
 /* Norman (2026-09-26) : sur la page « Énergie » (la grosse barre verte), c'est la grosse barre verte qui clignote. */
 {
-  const ui2 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui2 = lireUiComplet();
   const hint2 = readFileSync("cloudflare/public/modules/tutorial-hint-v1.js", "utf8");
   const i = ui2.indexOf("titre:'Énergie',");
   assert.ok(ui2.slice(i, ui2.indexOf("paragraphes:", i)).includes("clignote:'energie-barre'"), "Énergie : la grosse barre verte clignote");

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 /* Norman (2026-10-11) : notes de mise à jour regroupées par menu ; un groupe n'est montré que si le joueur possède déjà le menu (règle n°2) ; le groupe « Général » est toujours visible. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const i = ui.indexOf("function menusPossedesNotesMajIdleV1_(){");
 const j = ui.indexOf("function htmlNotesMajIdleV1_(){");
 assert.ok(i > 0 && j > i, "rendu groupé présent");

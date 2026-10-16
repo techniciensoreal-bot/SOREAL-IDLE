@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : « Quand j'ajoute de l'énergie à la barre Vitesse de la machine, la barre avance plus vite, mais une fois arrivée à la fin du niveau (0 s) ça n'est pas passé au niveau suivant ; j'ai dû ajouter de
  * l'énergie pour voir la barre reprendre là où elle était censée être. » À 0 s, le client passe au niveau suivant (N fois plus long que le niveau 1) et la barre repart du reste, sans attendre la synchro.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("      function actualiserCompteReboursTimeMachineIdleV1_(){");
 const fin = ui.indexOf("      function patcherBarresTimeMachineIdleV1_(j){");
 assert.ok(debut > 0 && fin > debut);

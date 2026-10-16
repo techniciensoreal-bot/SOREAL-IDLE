@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -283,7 +284,7 @@ const HISTOIRE = {
 
 // 8. Câblage : déclenchement à chaque rendu d'état, chargé avant le jeu, plus aucune trace des anciens modules figés.
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.match(ui, /window\.__SOREAL_IDLE_STORY_ENGINE_V1__\.considerer\(j\);/);
   assert.ok(!ui.includes("STORY_POPUP"), "plus d'ancien module d'histoire dans le jeu");
   const index = readFileSync("cloudflare/public/index.html", "utf8");

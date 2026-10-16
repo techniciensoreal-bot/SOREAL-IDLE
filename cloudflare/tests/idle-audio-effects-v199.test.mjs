@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 
-const ui=fs.readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
+const ui=lireUiComplet().replace(/\r\n/g,"\n");
 
 const audio=fs.readFileSync(
   new URL("../public/modules/audio-effects-v199.js",import.meta.url),
@@ -25,9 +23,9 @@ const worker=fs.readFileSync(
 assert.ok(
   index.includes('/modules/audio-effects-v199.js?v=253')&&
   index.includes('/modules/long-press-v200.js?v=201')&&
-  index.includes('/soreal-idle-ui.js?v=643')&&
+  index.includes('/soreal-idle-ui.js?v=645')&&
   index.indexOf('/modules/audio-effects-v199.js?v=253')<
-    index.indexOf('/soreal-idle-ui.js?v=643'),
+    index.indexOf('/soreal-idle-ui.js?v=645'),
   "La révision V199 doit être cache-bustée et chargée avant l'UI."
 );
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 /* Norman (2026-10-10) : un combat de Titan se livre dans la Safe Zone, mais le x5 de régénération est celui du repos : il ne doit pas s'afficher (ni s'appliquer) pendant un combat. */
 const debut = ui.indexOf("function regenReposAdventureIdleV3_(a,zoneCourante){");
 const corps = ui.slice(debut, ui.indexOf("function facteurAleatoireDegatsAdventureIdleV2_", debut));

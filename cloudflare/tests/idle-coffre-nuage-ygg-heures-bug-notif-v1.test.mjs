@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 import vm from "node:vm";
 const lire = (p) => fs.readFileSync(new URL("../" + p, import.meta.url), "utf8");
@@ -8,7 +9,7 @@ assert.ok(dig.includes("function nuagePet_(el){") && dig.includes("window.__coff
 assert.ok(somm.includes("window.__coffreNuagePetIdleV1__(el)"), "le pet de réveil utilise le même nuage");
 assert.ok(css.includes("translate(var(--dx,14px),calc(var(--haut,40px) * -1)) scale(var(--gr,1.5))") && /(^|\n)\.bg-fumee-v1\{[^}]*z-index:2000000/.test(css), "nuage animé, au-dessus de l'inventaire");
 /* Yggdrasil : 09h58 */
-const ui = lire("public/soreal-idle-ui.js");
+const ui = lireUiComplet();
 const m = ui.match(/function formatterHeuresIdleV47_\(heures\)\{[\s\S]*?\n      \}/);
 assert.ok(m, "fonction trouvée");
 const f = vm.runInNewContext("(" + m[0].replace("function formatterHeuresIdleV47_", "function") + ")");

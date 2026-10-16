@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_NGU_META_VERSION, IDLE_NGU_SAVE_SCHEMA, advanceIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
 import { IDLE_R3_NOMS_V1, IDLE_R3_NOMS_EXCLUS_V1 } from "../src/idle-r3-names-v1.js";
@@ -50,7 +51,7 @@ assert.equal(st.r3Nom.nom, "");
 // l'état envoyé au joueur : nom seulement si coché
 const srv = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
 assert.ok(srv.includes("r3NomDisponible: Boolean(state.selloutShop?.purchases?.resource3NameRandomizer)") && srv.includes("r3Nom: state.r3Nom?.actif && state.selloutShop?.purchases?.resource3NameRandomizer"), "état envoyé");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3()") && ui.includes("nomR3()"), "réglage dans Settings, nom dans le bandeau");
 const alloc = readFileSync("cloudflare/public/modules/barre-allocation-v1.js", "utf8");
 assert.ok(alloc.includes("function titre_(res)") && alloc.includes("var t=titre_(res);"), "titres des cadres d'allocation");

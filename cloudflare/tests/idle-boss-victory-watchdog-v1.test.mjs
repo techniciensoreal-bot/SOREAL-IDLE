@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * « vaincu » (le serveur fait foi et n'a pas encore tué le boss), l'état local était gardé sans nouvelle tentative.
  * Contrôles du source (soreal-idle-ui.js).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // La surveillance démarre juste après la synchronisation forcée de la victoire.
 assert.match(ui, /transitionMortBossIdleV61_\(\);\s*(?:\/\*[\s\S]*?\*\/\s*)?(?:setTimeout\(function\(\)\{appliquerBossSuivantLocalIdleV1_\(vaincusALaVictoireV1\);\},250\);\s*)?const synchroniserVictoire=function\(\)\{\s*synchroniserJeuIdleV7_\(true\);\s*surveillerConfirmationVictoireBossIdleV1_\(\);\s*\};/);

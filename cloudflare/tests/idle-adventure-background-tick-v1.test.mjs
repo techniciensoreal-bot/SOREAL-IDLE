@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -17,7 +18,7 @@ import { readFileSync } from "node:fs";
  * relais du MÊME tick, uniquement pendant que document.hidden est vrai -- jamais en double avec rAF quand
  * l'onglet est visible.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // --- La variable de minuteur est déclarée au même endroit que les autres timers du ticker. ---
 assert.ok(ui.includes("let idleTimerJeuArrierePlanV1=0;"), "variable de minuteur introuvable");

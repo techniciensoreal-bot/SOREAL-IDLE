@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -239,7 +240,7 @@ const passer = () => { let n = 0; while (minuteries.some((m) => m.actif) && n++ 
     "onclick=\"window.__viderAugmentsIdleV1__()\""
   ]) assert.ok(meta.includes(attendu), "câblage manquant : " + attendu);
   assert.ok(!meta.includes("action:'clearAugmentAllocations'})\"") || !meta.includes("window.__actionMetaV47__({action:\\'clearAugmentAllocations"), "plus d'aller-retour bloquant sur « Tout retirer »");
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   assert.ok(ui.includes("patcherBarresTimeMachineIdleV1_:patcherBarresTimeMachineIdleV1_") && ui.includes("rafraichirMenuRacineIdleV28_:rafraichirMenuRacineIdleV28_"), "hôte : redessin local et barres Time Machine");
   assert.ok(ui.includes("avant le prochain rituel complété';") || ui.includes("avant le prochain rituel complété'"), "compte à rebours Blood Magic vivant");
 }

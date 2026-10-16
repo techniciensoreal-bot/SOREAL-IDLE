@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -25,7 +26,7 @@ const rt = readFileSync("cloudflare/public/modules/runtime.js", "utf8");
 assert.ok(rt.includes("avecElement_(mutations[i].addedNodes)"), "runtime : éléments seulement");
 assert.ok(readFileSync("cloudflare/public/modules/ui.js", "utf8").includes("nodeType===1"), "ui : éléments seulement");
 // 3. Administrateur et Partie B : lus dans l'état (reglages, partieDev), plus deux appels à part au démarrage.
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("idleEtat&&idleEtat.reglages!==undefined") && ui.includes("idleEtat.partieDev&&typeof idleEtat.partieDev==='object'"));
 assert.ok(readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8").includes("partieDev: { actif: idleDevSlotsAvailableV1(__idleRuntimeUser)"), "le serveur donne partieDev dans l'état");
 console.log("idle-audit-appels-v1: OK");

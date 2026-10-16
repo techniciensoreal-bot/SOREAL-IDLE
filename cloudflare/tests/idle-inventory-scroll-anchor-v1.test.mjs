@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-09-25) : « Sur PC dans SOREAL IDLE, quand je maintiens A pour absorber les boosts, la page me replace toujours plus bas que
  * l'inventaire une fois l'action réalisée. » Le rendu complet rétablit désormais la position du SAC À L'ÉCRAN (ancre), pas un scrollY absolu.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const ancre = ui.match(/function ancreSacIdleV1_\(\)\{[\s\S]*?\n      \}\n/)[0];
 const restaure = ui.match(/function restaurerAncreSacIdleV1_\([\s\S]*?\n      \}\n/)[0];
 

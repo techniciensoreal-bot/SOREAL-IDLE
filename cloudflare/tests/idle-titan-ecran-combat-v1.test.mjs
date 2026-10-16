@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : écran spécial pour le combat de titan (tout sur un écran, sans défilement : image du titan, PV du joueur et du titan, attaques manuelles), on reste dans l'écran Titans ; cliquer sur Aventure arrête le combat (Zone sûre) ; popup « fais de la place dans l'inventaire » avant d'affronter. */
 const ecran = readFileSync("cloudflare/public/modules/titans-combat-ecran-v1.js", "utf8");
 const titans = readFileSync("cloudflare/public/modules/titans-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").replace(/\r\n/g, "\n");
+const ui = lireUiComplet().replace(/\r\n/g, "\n");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 const journal = readFileSync("cloudflare/public/modules/journal-attaques-v1.js", "utf8");
 
@@ -39,7 +40,7 @@ console.log("idle-titan-ecran-combat-v1: OK");
 
 // Journal des attaques accessible hors combat et sur la page Aventure (Norman, 2026-10-13) : « il doit être accessible même hors combat et en mode aventure également »
 {
-  const ui2 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").replace(/\r\n/g, "\n");
+  const ui2 = lireUiComplet().replace(/\r\n/g, "\n");
   const j = readFileSync("cloudflare/public/modules/journal-attaques-v1.js", "utf8");
   assert.ok(/<script defer src="\/modules\/journal-attaques-v1\.js\?v=\d+"><\/script>/.test(readFileSync("cloudflare/public/index.html", "utf8")), "module du journal chargé");
   assert.ok(ui2.includes('class="soreal-idle-adventure-idle-ligne-v1"') && ui2.includes('class="soreal-idle-journal-mini-v1"') && ui2.indexOf('soreal-idle-journal-mini-v1') > ui2.indexOf('data-adventure-idle-toggle'), "petit bouton 📖 discret sur la même ligne qu'Idle Mode (page Aventure ET écran de combat de titan)");
@@ -58,7 +59,7 @@ console.log("idle-titan-ecran-combat-v1 (journal): OK");
 // Le journal ne mentionne que les raccourcis débloqués et ne cite pas, dans une explication, une autre attaque (Norman, 2026-10-13)
 {
   const j = readFileSync("cloudflare/public/modules/journal-attaques-v1.js", "utf8");
-  const ui3 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8").replace(/\r\n/g, "\n");
+  const ui3 = lireUiComplet().replace(/\r\n/g, "\n");
   assert.ok(ui3.includes("return debloquees(IDLE_ADVENTURE_MANUAL_ATTACKS_V3,'attack')") && ui3.includes("competenceAdventureDisponibleIdleV4_(d,groupe,a)"), "seuls les raccourcis débloqués (même condition que le bouton actif) sont expliqués");
   assert.ok(!j.includes("var BASE=") && j.includes("var ids=[];"), "aucune liste de repli : état illisible = rien d'expliqué");
   const donnees = j.slice(j.indexOf("var JOURNAL=["), j.indexOf("var GENERAL="));

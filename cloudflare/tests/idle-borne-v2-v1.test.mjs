@@ -1,15 +1,16 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : la borne d'arcade dessinée (Combat de boss), allumée une fois par Renaissance avec un son calé sur l'animation ; boutons lumineux quand disponibles, éteints dans leur couleur sinon. */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 const borne = readFileSync("cloudflare/public/modules/audio-borne-v1.js", "utf8");
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 // Structure : fronton, écran (le duel du jeu), pupitre aux trois vrais boutons, trappe à pièces ; plus d'émojis ni de dômes décoratifs.
-const page = ui.slice(ui.indexOf("function pageCombatIdleV28_(j){"), ui.indexOf("function skillBasicTrainingIdleV120_("));
+const page = ui.slice(ui.lastIndexOf("function pageCombatIdleV28_(j){"), ui.indexOf("window.__SOREAL_IDLE_PAGE_COMBAT_V1__={"));
 for (const t of ["borne-v2 ${borne.classe}", "${BORNE_FRONTON_IDLE_V2}", "${BORNE_PUPITRE_IDLE_V2}", "${BORNE_BAS_IDLE_V2}", 'id="sorealIdleBossStartV100"', "window.__fuirBossIdleV1__()", "window.__nukerBossIdleV1__()"]) assert.ok(page.includes(t), t);
 assert.ok(!/soreal-idle-dome-v1/.test(page) && !/⚔️ Fight|🏃 Fuite|🚀 NUKE/.test(page), "plus de dômes ni d'émojis dans les boutons");
 // Les identifiants des dessins sont propres à la borne (aucune collision avec d'autres SVG de la page).

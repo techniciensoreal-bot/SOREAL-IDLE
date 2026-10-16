@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Effets visuels du combat (Norman, 2026-10-04) : un effet par attaque sur l'image du mob/titan, des croix vertes pendant un soin, du sang qui coule sur la barre de vie quand le titan fait saigner.
  */
 const fx = readFileSync("cloudflare/public/modules/combat-effets-v1.js", "utf8");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
 for (const classe of ["cfx-coup", "cfx-fort", "cfx-perce", "cfx-ultime", "cfx-degats", "cfx-puissante", "cfx-bloc", "cfx-aura", "cfx-eclair", "cfx-spore", "cfx-croix", "cfx-goutte", "cfx-saigne", "cfx-mob-para"])

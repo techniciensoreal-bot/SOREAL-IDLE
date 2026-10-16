@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
-const ui=readFileSync("cloudflare/public/soreal-idle-ui.js","utf8");
+const ui=lireUiComplet();
 const ambient=readFileSync("cloudflare/public/modules/ambient-audio-v1.js","utf8");
 
 // Visible heavy game updates are capped at 15 Hz while dt remains authoritative.

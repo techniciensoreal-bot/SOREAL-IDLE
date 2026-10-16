@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import {
@@ -165,7 +166,7 @@ function addBoost(s, type, strength, level = 0) {
 
 // --- 7. Bouton dans le sac : jamais affiché avant l'achat (AGENTS.md règle n°2 -- aucun cadenas, aucun prix hors du Shop). ---
 {
-  const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+  const ui = lireUiComplet();
   const iGarde = ui.indexOf("j.systemes&&j.systemes.inventoryAuto&&j.systemes.inventoryAuto.unlocked&&j.systemes.inventoryAuto.unlocked.sortInventory");
   assert.ok(iGarde > 0, "le bouton Trier doit être conditionné au déblocage, jamais affiché verrouillé");
   const iTrier = ui.indexOf("🗂️</span> Trier</button>", iGarde);

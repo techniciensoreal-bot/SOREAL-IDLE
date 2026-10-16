@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -6,7 +7,7 @@ import vm from "node:vm";
  * Norman (2026-10-03) : « refais les boutons du menu en haut, je ne les aime pas ; ils doivent être beaucoup plus parlants par rapport à ce qu'ils font ; une identité par bouton ».
  * Chaque menu a : sa couleur, son icône, la forme de son badge et un verbe d'action.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const bloc = (debut, fin) => { const i = ui.indexOf(debut); return ui.slice(i, ui.indexOf(fin, i) + fin.length); };
 const o = {};

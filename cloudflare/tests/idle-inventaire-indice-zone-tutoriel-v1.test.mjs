@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -11,7 +12,7 @@ import vm from "node:vm";
  * boosts. La vraie mécanique est la touche A + clic (PC), ou le double-tap sur un objet déjà équipé (mobile). Le
  * texte affiché doit donc décrire la mécanique réelle, jamais la touche « 1 » mentionnée par erreur par Norman.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // --- La fonction existe, est appelée dans la section sac, et ne mentionne jamais une touche "1". ---

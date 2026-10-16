@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -6,7 +7,7 @@ import vm from "node:vm";
  * Norman (2026-10-03) : (1) « les fenêtres popup s'ouvrent trop vite au passage de la souris : une demi-seconde » ; (2) « dans le coffre, on doit pouvoir taper une recherche (ex. Magic power) : le filtre ne
  * montre que les items avec du Magic Power dans leurs stats ; ça marche aussi pour les noms d'items ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // --- 1. Popup au survol : 500 ms, annulé si la souris quitte l'objet, jamais deux popups ---

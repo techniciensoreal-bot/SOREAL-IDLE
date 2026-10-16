@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -11,7 +12,7 @@ import { readFileSync } from "node:fs";
  * vitesse courante (2 niveaux au minimum) ; au-delà, le serveur fait foi.
  */
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function fusionnerBasicTrainingPlusAvanceIdleV166_(");
 assert.ok(debut > 0, "fusionnerBasicTrainingPlusAvanceIdleV166_ introuvable");
 const fin = ui.indexOf("function appliquerEtatBasicTrainingIdleV120_(", debut);

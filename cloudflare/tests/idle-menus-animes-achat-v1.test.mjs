@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -18,7 +19,7 @@ assert.throws(() => applyIdleNguAction(p, { action: "buyExpShop", item: "menuAni
 
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 assert.ok(rt.includes("menusAnimes:") && rt.includes("expShop.menuAnimations"), "le serveur annonce l'achat");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("function idleMenuAlimenteV1_(id,j){\n        if(!menusAnimesAchetesIdleV1_(j))return false;"), "sans l'achat, aucun bouton n'est animé");
 assert.ok(ui.includes("return Boolean(j&&j.menusAnimes===true);"));
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());

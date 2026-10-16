@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-03) : animation des images quand le combat commence (plus la vie d'un combattant baisse, plus l'effet s'intensifie), Fight grisé tant que le serveur n'a pas validé,
  * barre de l'ennemi rouge sans ligne verticale en Aventure, barres de vie de Fight Boss beaucoup plus stylées.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 
 // Ambiance du duel : intensités 0..1 par combattant, posées seulement quand elles changent.

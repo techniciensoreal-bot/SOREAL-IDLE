@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { BASIC_TRAINING_V411, createBasicTrainingStateV411, applyBasicTrainingAllocationsV411 } from "../src/idle-basic-training.js";
 import { idleSelloutShopEffectActiveV1 } from "../src/idle-sellout-shop-v1.js";
@@ -23,6 +24,6 @@ for (const id of ["lazyItopodFloorShifter", "adventureAdvancer", "adventureLight
 }
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 assert.ok(rt.includes("stats.metaNgu.selloutShop.purchases.instaTrainingCap") && rt.includes("feuille.getRange(ligne,c.ENERGIE).setValue(energieLibreDepart);"), "le Rebirth place 1 d'énergie par entraînement avec l'achat");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("it.id==='adventureLight'&&idleNombre_(it.purchased)>0") && ui.includes("${classeLumiereAventure}"), "le bouton Aventure s'allume en Zone sûre avec l'achat");
 console.log("idle-boutique-ap-branchements-v1: OK");

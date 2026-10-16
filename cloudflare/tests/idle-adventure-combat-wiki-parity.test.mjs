@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Audit combat Aventure vs wiki NGU (miroir local, 2026-09-23).
  * Chaque assertion cite la page wiki qui fixe la valeur vérifiée.
  */
-const ui = readFileSync(
-  new URL("../public/soreal-idle-ui.js", import.meta.url),
-  "utf8"
-).replace(/\r\n/g, "\n");
+const ui = lireUiComplet().replace(/\r\n/g, "\n");
 
 function block(source, start, end) {
   const a = source.indexOf(start);

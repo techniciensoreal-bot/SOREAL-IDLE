@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-03) : suffixes au-delà de « Qid » (Sxd, Spd, Ocd, Nod, Vg...) avant de passer à la notation scientifique. */
@@ -17,6 +18,6 @@ assert.equal(g(1e93), "1Tg");
 assert.equal(g(1e96), "1.00e+96", "au-delà du dernier suffixe : notation scientifique");
 assert.equal(g(1500), "1.5K");
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("'Qid','Sxd','Spd','Ocd','Nod','Vg'"), "même liste dans les PV fixes du duel");
 console.log("idle-grands-nombres-suffixes-v1: OK");

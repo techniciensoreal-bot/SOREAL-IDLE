@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 /* Norman (2026-10-11) : image de Wandoos recadrée (plus de vide en bas), l'écran ne remonte pas quand on place une ressource, plus de cadre rouge clignotant sur Aventure, cadre lumineux de NGU fixe. */
 const wd = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 assert.ok(wd.includes("border-image:url(\"'+BANNIERE+'\") 195 162 363 162 fill / 15.55cqw 12.92cqw 28.95cqw 12.92cqw / 3.67cqw 1.36cqw 2.23cqw 1.36cqw stretch"), "image rognée par border-image-outset (marges transparentes hors cadre)");
 assert.ok(wd.includes("var ecranVu=poste.querySelector&&poste.querySelector('.wd-ecran'),haut=ecranVu?ecranVu.scrollTop:0;") && wd.includes("ecranNeuf.scrollTop=haut"), "défilement interne de l'écran conservé au redessin");
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();\n                else rafraichirMenuRacineIdleV28_();") || ui.includes("window.__SOREAL_IDLE_WANDOOS_V1__.rafraichir();\r\n                else rafraichirMenuRacineIdleV28_();"), "la synchro de Wandoos ne redessine que le poste");
 for (const f of ["soreal-idle-themes.css", "soreal-idle-ui.css"]) {
   const css = readFileSync("cloudflare/public/" + f, "utf8");

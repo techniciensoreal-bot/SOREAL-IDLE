@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { choisirCleTitanR2_ } from "../src/idle-media-v1.js";
@@ -110,7 +111,7 @@ assert.ok(css.includes("TITANS : l'ARÈNE DES TITANS") && css.includes('[data-me
 // 3. Câblage.
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.includes("/modules/titans-v1.js"));
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("__SOREAL_IDLE_TITANS_V1__.page(j)") && ui.includes("__SOREAL_IDLE_TITANS_V1__.traduire(message)"));
 assert.ok(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8").includes("/api/idle/media/titan?"));
 // Norman (2026-10-13) : plus de bascule vers l'Aventure au lancement du combat de titan (écran de combat dédié) : la réponse du serveur ne rappelle plus __menuIdleV28__('aventure').

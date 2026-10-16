@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { idleNguSnapshot, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 
@@ -14,7 +15,7 @@ assert.equal(s.adventure.titansAccesBoss, 58, "le boss du premier titan est donn
 const loin = idleNguSnapshot(normalizeIdleNguState({}, { bosses: 70 }, t0), { bosses: 70 }, t0);
 assert.ok(loin.adventure.titans.length > 0 && loin.adventure.titansAccesBoss === 0, "dès qu'un titan est atteignable, plus de bouton fermé");
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 assert.ok(ui.includes("soreal-idle-titans-ferme-v1") && ui.includes("<b>???</b><small>Vaincs le boss "), "bouton grisé : ??? et le boss à vaincre");
 assert.ok(/soreal-idle-titans-ferme-v1" disabled/.test(ui), "il n'ouvre rien");
 console.log("idle-bouton-titans-ferme-v1: OK");

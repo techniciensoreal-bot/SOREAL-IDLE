@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Même action que « A + clic » sur le Cube (inventory-auto-v1.js) : inventoryAuto / boostAll, cible « cube »
  * (déjà gérée côté serveur). Tactile/stylet seulement, comme les objets ; la souris garde son comportement.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("let idleCubeDernierTapMsV1=0;");
 const fin = ui.indexOf("window.__clicCubeAdventureIdleV138__=clicCubeAdventureIdleV138_;");
 assert.ok(debut > 0 && fin > debut, "bloc du double tap sur le Cube introuvable");

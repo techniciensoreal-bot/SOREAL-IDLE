@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * puis (2026-10-02) : « de 35,04 à 35 les chiffres bougent ; 35,5 au lieu de 35,50 aussi ». Règle finale : les PV du duel (joueur ET boss, PV actuels et max)
  * ont TOUJOURS deux décimales, regen ou non (formaterPvFixeIdleV1_) ; le nombre de caractères ne dépend que de l'ordre de grandeur.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // Le formateur : fonction pure extraite du jeu.
 {

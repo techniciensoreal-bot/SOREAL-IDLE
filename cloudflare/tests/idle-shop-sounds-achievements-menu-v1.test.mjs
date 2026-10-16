@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-09-26) : (1) « le menu Achievements n'apparaît que quand on débloque le premier achievement » ;
  * (2) « un bruit de Gold pour un achat dans EXP Shop ; pour l'AP, un bruit de pierre précieuse ».
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 const achat = readFileSync("cloudflare/public/modules/purchase-sound-v1.js", "utf8");
 

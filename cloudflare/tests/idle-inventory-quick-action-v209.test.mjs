@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 import vm from "node:vm";
 
@@ -7,7 +8,7 @@ import vm from "node:vm";
  * - PC : clic droit sur un objet du sac -> équipe ; si une pièce identique est déjà équipée -> fusion dans la pièce équipée.
  * - Téléphone : double tap rapide = même action.
  */
-const ui = fs.readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
+const ui = lireUiComplet();
 const longPress = fs.readFileSync(new URL("../public/modules/long-press-v200.js", import.meta.url), "utf8");
 
 // --- Logique de l'action rapide, exécutée avec des doubles ---

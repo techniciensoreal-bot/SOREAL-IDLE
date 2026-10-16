@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 
-const ui=fs.readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
+const ui=lireUiComplet().replace(/\r\n/g,"\n");
 
 const scene=fs.readFileSync(
   new URL("../public/modules/adventure-scene-v79.js",import.meta.url),
@@ -25,7 +23,7 @@ function block(source,start,end){
 
 assert.ok(
   index.includes('/modules/adventure-scene-v79.js?v=203')&&
-  index.includes('/soreal-idle-ui.js?v=643'),
+  index.includes('/soreal-idle-ui.js?v=645'),
   "Le standalone doit charger les assets V200 de la barre Energie et des PV Aventure."
 );
 

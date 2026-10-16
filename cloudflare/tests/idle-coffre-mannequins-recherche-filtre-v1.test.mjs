@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, idleAdventureSnapshotV47 } from "../src/idle-adventure-v47.js";
 
@@ -8,7 +9,7 @@ import { normalizeIdleAdventureStateV47, idleAdventureSnapshotV47 } from "../src
  *  - coffre en mannequins : chaque set posé comme équipé (tête, torse, jambes, bottes), les sets côte à côte ;
  *  - filtre de butin amélioré : se règle objet par objet dans le coffre.
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // 1. Le serveur fournit, pour chaque case, le nom d'origine, celui du set et les types de statistiques.
 {

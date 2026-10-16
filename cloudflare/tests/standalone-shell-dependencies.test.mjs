@@ -1,14 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 const bridge=readFileSync(
   new URL("../public/standalone-bridge.js",import.meta.url),
   "utf8"
 );
-const ui=readFileSync(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 
 assert.match(bridge,/function escapeHtmlV1\(/);
 assert.match(bridge,/window\.escapeHtml=escapeHtmlV1/);

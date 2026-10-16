@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Délai global entre deux actions (Norman, 2026-10-08, vérifié dans NGU Idle) : dès qu'une action est faite, toutes les autres ont 1 s de délai ; 0,8 s avec le set Red Liquid
  * (wiki « Red Liquid (set) » : -20 % sur le global cooldown timer).
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 const debut = ui.indexOf("function appliquerDelaiGlobalAdventureIdleV1_(idUtilise,maintenant,a){");
 assert.ok(debut > 0, "fonction présente");
 const fin = ui.indexOf("\n      }\n", debut) + 8;

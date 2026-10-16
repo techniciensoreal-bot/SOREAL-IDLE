@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -57,10 +58,7 @@ assert.ok(
 );
 
 // L'UI doit exposer le taux réellement utilisé sur la barre joueur hors combat.
-const uiSource = readFileSync(
-  new URL("../public/soreal-idle-ui.js", import.meta.url),
-  "utf8"
-);
+const uiSource = lireUiComplet();
 
 assert.ok(
   uiSource.includes("const regenJoueurVisibleV176=") &&

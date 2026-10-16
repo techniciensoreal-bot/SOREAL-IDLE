@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * il n'y ait pas de chiffre après la virgule affiché. uniquement 580 K/s par exemple. En
  * aventure je veux les chiffres tels qu'ils sont actuellement donc ne touche à rien d'autre. »
  */
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 // Fight Boss (2026-10-01) : les barres de vie n'affichent plus la régénération, seulement les PV (le texte « ↗ +.../s » est retiré).
 assert.ok(!ui.includes("↗ +"), "plus de régénération affichée dans les barres de Fight Boss");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -24,7 +25,7 @@ import { readFileSync } from "node:fs";
  * Ils ne s'appliquaient donc jamais à Tuba of Time.)
  */
 
-const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
+const ui = lireUiComplet();
 
 function extraire(debut) {
   const i = ui.indexOf(debut);
