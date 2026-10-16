@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * connu de l'écran, énergie que le serveur passe à la ligne suivante avec Advance Energy, énergie retirée au Target atteint) déclenchait le rendu COMPLET de la page. Quand SEUL l'Entraînement avancé diffère, la page n'est plus
  * redessinée : l'état serveur est adopté et ses lignes sont mises à jour sur place. Et « supprime la phrase « Chaque compétence progresse avec sa propre énergie… » » (Norman, même jour).
  */
-const src = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const src = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // 1. Comparaison par système
 const debut = src.indexOf("function empreinteAllocationsMetaV1_(j){");

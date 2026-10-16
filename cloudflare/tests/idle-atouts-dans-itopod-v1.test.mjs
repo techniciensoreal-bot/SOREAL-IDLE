@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
 
 // Plus de menu « Atouts » à part ni de page dédiée.

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -6,7 +7,7 @@ import vm from "node:vm";
  * Norman (2026-10-05, essai partie B à toute vitesse) : une barre qui gagne 5 à 12 niveaux par seconde restait figée 200 niveaux derrière le serveur (plafond du rejeu niveau par niveau),
  * puis sautait en arrière à la synchro. Le rejeu se fait en formule : il doit donner le MÊME résultat que l'ancienne boucle, sans plafond.
  */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const a = meta.indexOf("      function rejouerCyclesAugmentIdleV1_(p){");
 const b = meta.indexOf("      window.__rejouerCyclesAugmentIdleV1__=");
 assert.ok(a > 0 && b > a);

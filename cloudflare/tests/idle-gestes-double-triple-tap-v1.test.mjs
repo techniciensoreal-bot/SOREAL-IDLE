@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -7,7 +8,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../s
  * l'inventaire, et pour 30 EXP : Triple tap pour fusionner automatiquement avec les pièces disponibles. »
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // 1. Serveur : deux achats (20 et 30 EXP), à vie, qui lèvent les drapeaux du bloc inventoryAuto.unlocked.
 {

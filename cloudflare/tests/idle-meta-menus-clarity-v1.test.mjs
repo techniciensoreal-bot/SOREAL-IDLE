@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -53,7 +54,7 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 }
 
 // --- 3. Client : rendu réel des pages avec un faux hôte. ---
-const meta = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8") + String.fromCharCode(10) + readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
+const meta = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8") + String.fromCharCode(10) + readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()) /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 let etatClient = null;
 const hote = {
   getIdleEtat: () => etatClient,

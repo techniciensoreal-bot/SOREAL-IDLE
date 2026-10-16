@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import {
   createBasicTrainingStateV411,
@@ -106,7 +107,7 @@ const fresh = () => {
 
 // libellé client
 {
-  const client = readFileSync(new URL("../public/modules/meta-progression-v130.js", import.meta.url), "utf8");
+  const client = (readFileSync(new URL("../public/modules/meta-progression-v130.js", import.meta.url), "utf8") + lirePagesMeta());
   assert.match(client, /trainingAutoAdvance:'[^']+'/);
 }
 

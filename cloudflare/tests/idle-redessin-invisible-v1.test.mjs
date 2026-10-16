@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const ui = lire("public/soreal-idle-ui.js");
@@ -99,7 +100,7 @@ assert.ok(ui.includes("if(idleVueAventureV1==='titans'&&idleMenuActifV28!=='aven
 }
 /* Panneaux d'informations : fermés à l'arrivée et refermés au changement de menu */
 {
-  const meta = lire("public/modules/meta-progression-v130.js"), ygg = lire("public/modules/yggdrasil-elfes-v1.js");
+  const meta = lire("public/modules/meta-progression-v130.js") + lirePagesMeta(), ygg = lire("public/modules/yggdrasil-elfes-v1.js");
   assert.ok(ui.includes("function fermerPanneauxInfoIdleV1_(){") && ui.includes("jouerSonMenuIdleV1_();\n        fermerPanneauxInfoIdleV1_();") && ui.includes("      fermerPanneauxInfoIdleV1_();\n      function menuIdleCoeurV28_(menu){"), "fermés à chaque changement de menu et au chargement");
   assert.ok(meta.includes("localStorage.getItem('soreal_idle_aide_v1_'+cle)==='1'") && ygg.includes("fermerAide:function(){etat.aide=false;}"), "fermés par défaut");
 }

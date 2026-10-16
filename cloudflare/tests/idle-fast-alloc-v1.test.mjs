@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -72,7 +73,7 @@ const proche = (a, b, msg) => assert.ok(Math.abs(a - b) <= Math.max(1e-9, Math.a
 }
 
 // --- 2. Module client : envoi groupé, ordre, recalcul local, recollage sans redessin ---
-const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()) /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const appels = [];
 let rendus = 0;
 let menusRedessines = 0;

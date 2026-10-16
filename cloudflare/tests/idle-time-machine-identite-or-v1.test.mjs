@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : la Machine à remonter le temps cassée a sa propre identité (laiton et or) et rappelle qu'on gagne de l'Or.
  */
-const mod = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const mod = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 assert.ok(mod.includes("soreal-idle-tm-hero-v1") && mod.includes("Ta machine fabrique de l’Or"), "bandeau Or");
 assert.ok(mod.includes('data-tm-hero="netGps"'), "Or par seconde en grand, mis à jour à la synchro");

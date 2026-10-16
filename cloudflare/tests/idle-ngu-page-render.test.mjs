@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { PAGES_META } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import {
@@ -32,7 +33,11 @@ const window = {
 };
 /* La page NGU est celle du laboratoire (modules/ngu-labo-v1.js), appelée par la page générique. */
 vm.runInNewContext(readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8"), { window, document: window.document, setInterval: () => 1, clearInterval() {}, performance: { now: () => 5000 } });
-vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), { window, document: window.document, SOREAL_SESSION: null });
+{
+  const bac = { window, document: window.document, SOREAL_SESSION: null };
+  vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), bac);
+  for (const f of PAGES_META) vm.runInNewContext(readFileSync("cloudflare/public/modules/" + f, "utf8"), bac);
+}
 const page = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_;
 
 const context = { bosses: 100, bestGold: 1e6, adventurePower: 1e9 };

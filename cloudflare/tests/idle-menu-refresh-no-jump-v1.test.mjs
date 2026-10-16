@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -134,7 +135,7 @@ for (const fonction of [
 
 // 7. Réponse du serveur en retard après un clic (Norman, 2026-10-07 : 10K, 2 s, 10K : la barre saute en arrière) : le visuel local est reporté sur l'état qui arrive.
 {
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(meta.includes("const reporterVisuels=function(){") && meta.includes("j.__augmentationsVisualV215.src=j.systemes&&j.systemes.augmentations;"), "le visuel local des Augments est reporté sur l'état en retard");
   assert.ok(meta.includes("reporterVisuels();\n            try{recalculerAugmentLocalIdleV1_(j,p.pair,Boolean(p.upgrade),val);}catch(_e){}"), "et recalculé avec la valeur voulue");
   assert.ok(meta.includes("payload.action==='allocateRitual'||payload.action==='allocateNgu')R.voulu.set(cle,payload)") && meta.includes("}else if(p.action==='allocateRitual'){"), "la Magic de rituel voulue est réappliquée aussi");
@@ -143,7 +144,7 @@ for (const fonction of [
 // 8. Victoire de boss : les allocations des autres menus partent avant la demande de confirmation (Norman, 2026-10-07 : boss suivant qui ne se charge pas).
 {
   assert.ok(ui.includes("const apresAllocationsMeta=function(suite){") && ui.includes("apresAllocationsMeta(function(){"), "la victoire attend les allocations rapides en attente");
-  assert.ok(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("window.__allocRapideEnAttenteIdleV1__=function(){"), "la file d'allocations rapides est lisible");
+  assert.ok((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()).includes("window.__allocRapideEnAttenteIdleV1__=function(){"), "la file d'allocations rapides est lisible");
 }
 
 // 9. Les blocs posés par les modules ne suivent pas dans une autre page, et gardent leur ordre (Norman, 2026-10-07 : scène d'Aventure sous Entraînement avancé, inventaire au-dessus du combat).
@@ -162,7 +163,7 @@ console.log("idle-menu-refresh-no-jump-v1: OK");
 {
   // Entraînement avancé (2026-10-11) : reclic sur le menu où l'on est = aucun rendu ; un niveau d'Augment gagné ne redessine la page que sur la page des Augmentations.
   const ui3 = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(ui3.includes("const menuDemandeV1=menu;") && ui3.includes("menuDemandeV1===nouveauMenu &&") && ui3.includes("idleMenuRenduV179===nouveauMenu &&") && ui3.includes("data-menu=\"'+nouveauMenu+'\"]')"), "reclic sur le menu actuel : pas de rendu");
   assert.ok(meta.includes("(menuAfficheV1===''||menuAfficheV1==='augmentations')"), "niveaux d'Augments : redessin seulement sur leur page");
 }

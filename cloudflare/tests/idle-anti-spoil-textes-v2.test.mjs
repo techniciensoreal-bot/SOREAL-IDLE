@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Anti-spoil (AGENTS.md, règle n°2). Balayage en ligne d'un joueur neuf (partie B réinitialisée, 2026-10-06) : des textes affichés à tous nommaient des systèmes encore verrouillés.
  */
 const lire = (f) => readFileSync("cloudflare/public/" + f, "utf8");
-const meta = lire("modules/meta-progression-v130.js");
+const meta = lire("modules/meta-progression-v130.js") + lirePagesMeta();
 const chal = lire("modules/challenges-v1.js");
 const prof = lire("modules/profile-v1.js");
 const notes = lire("modules/release-notes-v1.js");

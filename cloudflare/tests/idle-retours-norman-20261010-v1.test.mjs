@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, advanceIdleNguState, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 
@@ -53,7 +54,7 @@ const lire = (p) => readFileSync(p, "utf8");
   assert.ok(!ui.includes("data-paralysie-v1") && !ui.includes("Paralysé ! Plus de capacités"), "plus de phrase de paralysie");
   assert.ok(ui.includes('<span class="bouton-icone-sombre-v1">🗂️</span> Trier'));
   assert.ok(lire("cloudflare/public/soreal-idle-itopod.css").includes(".bouton-icone-sombre-v1{"));
-  const meta = lire("cloudflare/public/modules/meta-progression-v130.js");
+  const meta = (lire("cloudflare/public/modules/meta-progression-v130.js") + lirePagesMeta());
   assert.ok(meta.includes("function orReelParRemplissageIdleV1_(vue)") && meta.includes('data-tm-hero="orReel"') && meta.includes("Or de base par remplissage"), "Or réel par remplissage");
   assert.ok(!meta.includes('data-tm-hero="goldPerBarFill"'));
 }

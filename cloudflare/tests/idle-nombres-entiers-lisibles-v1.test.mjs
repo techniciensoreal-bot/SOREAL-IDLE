@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -26,5 +27,5 @@ assert.ok(ui.includes("function formatEnergieIdleV50_(v){\n        return format
 assert.ok(!ui.includes("idleEntier_(maxTotal)") && ui.includes("${formatEntierLisibleIdleV1_(j.energieMax)}"), "maximum de la barre d'énergie");
 assert.ok(ui.includes("${formatEntierLisibleIdleV1_(skill.allocation)} ⚡") && ui.includes("${formatEntierLisibleIdleV1_(skill.cap)}"), "Basic Training");
 assert.ok(ui.includes("ecrireSiChangeIdleV1_(nivEl,formatEntierLisibleIdleV1_(nivAffiche));"), "niveau d'Augment mis à jour en direct");
-assert.ok(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8").includes("entierLisible(level)"), "niveau d'Augment affiché à l'ouverture");
+assert.ok((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()).includes("entierLisible(level)"), "niveau d'Augment affiché à l'ouverture");
 console.log("idle-nombres-entiers-lisibles-v1: OK");

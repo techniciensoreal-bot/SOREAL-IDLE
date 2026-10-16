@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : couleur des boutons différente par rayon (boutiques EXP et AP) ; plus de prix dans les boutons, boutons plus petits qui disent seulement « Acheter » ;
  * prix, gain et explications dans le cadre sombre de la carte.
  */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 

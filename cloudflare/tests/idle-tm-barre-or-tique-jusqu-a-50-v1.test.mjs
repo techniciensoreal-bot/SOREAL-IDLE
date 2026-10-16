@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 /* Barre d'Or de la Time Machine (Norman, 2026-10-11) : plafonnée à 50 tiques par seconde seulement ; avant, elle devait tiquer de plus en plus vite (elle s'arrêtait de tiquer dès 16 par seconde). */
-const src = readFileSync(new URL("../public/modules/meta-progression-v130.js", import.meta.url), "utf8");
+const src = (readFileSync(new URL("../public/modules/meta-progression-v130.js", import.meta.url), "utf8") + lirePagesMeta());
 const i = src.indexOf("function styleBarreOrTimeMachineIdleV1_");
 const fn = src.slice(i, src.indexOf("function patcherChiffresTimeMachineIdleV1_", i));
 assert.ok(fn.includes("Math.min(50,"), "plafond à 50 tiques par seconde");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, normalizeIdleNguState, idleNguEffectiveResourceStat } from "../src/idle-ngu-progression.js";
 
@@ -60,7 +61,7 @@ const alloue = (s, pair = "scissors", upgrade = false) => s.systems.augmentation
 }
 
 // --- Client : − / + / Max par piste, Input, énergie libre, Tout retirer ; plus de 0/25/50/100 % ---
-const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const module_ = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
 assert.ok(page.includes("[['plus','+'],['moins','−'],['max','Max'],['zero','0']]"), "+ avant − avant Max, comme Basic Training et Time Machine (2026-09-27)");
 /*
@@ -92,7 +93,7 @@ assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]
 assert.match(module_, /function rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\)\{/);
 assert.match(module_, /rafraichirAllocationAugmentIdleV1_\(pairId,upgrade,value\);/);
 assert.ok(!module_.includes("H.rendreIdleEtat_({ok:true,joueur:j});"), "plus de rendu complet à chaque clic +/-/Cap");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610162"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/meta-progression-v130.js?v=202610164"));
 
 console.log("idle-augmentation-allocation-ui-v1: OK");
 

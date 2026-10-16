@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-09) : « les panneaux de quantités de la boutique doivent être plus clairs : 0,1 de vitesse pour 3 EXP ; 1 niveau de vitesse pour 30 EXP. Dans quantité personnalisée, 1 = 30 EXP, 0,1 = 3 EXP. »
  */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // Lignes de prix : « +gain Nom ➜ coût », avec le nom de la statistique.
 assert.ok(meta.includes("'<u>'+l.nom+'</u><s class=\"fl\" aria-hidden=\"true\"></s><b>'+l.cout+' '+(unite||'EXP')+'</b>"), "ligne « +gain Nom ➜ coût »");

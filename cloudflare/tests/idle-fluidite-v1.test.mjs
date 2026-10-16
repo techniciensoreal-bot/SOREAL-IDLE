@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { pathToFileURL } from "node:url";
@@ -8,7 +9,7 @@ import { pathToFileURL } from "node:url";
  * + titans vaincus + butin court, barre d'Augmentation immobile sans énergie, cadre Time Machine en français.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
 
 // 1. Serveur : bossSuivant = exactement ce que le serveur renverra une fois le boss actuel vaincu.

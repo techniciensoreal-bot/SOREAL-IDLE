@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-07) : le mot qui suit un gain d'or est de plus en plus content quand la somme monte (Bah…, Ça se prend, Chouette, Cool, Pas mal, Wow, OH BORDEL, WHOUHOU…). */
-const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()) /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 const a = meta.indexOf("      const PALIERS_OR_EXCLAMATION_V1=[");
 const b = meta.indexOf("      const sangIdleV1=");
 assert.ok(a > 0 && b > a, "paliers présents");

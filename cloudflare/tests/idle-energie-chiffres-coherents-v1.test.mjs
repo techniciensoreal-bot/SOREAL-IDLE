@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * par deux canaux différés ; une réponse de l'un écrasait l'énergie libre sans tenir compte de ce que l'écran venait de placer ou retirer par l'autre.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const a = ui.indexOf("      function sommeAllocBasicTrainingJoueurIdleV1_(joueur){");
 const b = ui.lastIndexOf("      if(typeof window!=='undefined'){", ui.indexOf("        window.__energieLibreCoherenteIdleV1__=energieLibreCoherenteIdleV1_;"));
 assert.ok(a > 0 && b > a);

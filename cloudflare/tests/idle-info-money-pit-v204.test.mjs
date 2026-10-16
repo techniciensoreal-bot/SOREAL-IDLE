@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 
 const ui=fs.readFileSync(
@@ -23,10 +24,10 @@ assert.ok(
  * présence dans l'une ou l'autre source plutôt que de figer où chaque
  * chaîne doit vivre.
  */
-const metaModule=fs.readFileSync(
+const metaModule=(fs.readFileSync(
   new URL("../public/modules/meta-progression-v130.js",import.meta.url),
   "utf8"
-)+fs.readFileSync(new URL("../public/modules/money-pit-page-v1.js",import.meta.url),"utf8");
+) + lirePagesMeta());
 const uiEtModule=ui+"\n"+metaModule;
 for(const token of [
   "titre:'Money Pit & Roue journalière'",

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -9,7 +10,7 @@ import vm from "node:vm";
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const dico = JSON.parse(readFileSync("cloudflare/public/modules/traduction-anglais-dict-v1.json", "utf8"));
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 
 // 1. Chaque phrase des panneaux (systèmes, Bestiaire, Aventure AUTO, Renaissance, Money Pit) a sa traduction anglaise

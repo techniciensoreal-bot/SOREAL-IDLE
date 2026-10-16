@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // --- Infinity Cube : plus aucun menu (l'emplacement du cube reste dans l'Inventaire) ---
 assert.ok(!ui.includes("infinityCube"), "aucune trace du menu Infinity Cube dans l'interface");

@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-09-25) : « j'aime bien les étiquettes des Offres débutant (traits interrompus) : pareil pour tout ce que le jeu offre — Special Prize, etc. » */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 
 const bloc = css.slice(css.indexOf(".soreal-idle-offre-v1{"));
 assert.ok(bloc.includes("border:2px dashed rgba(245,196,81,.4)"), "même contour en pointillés dorés que les Offres débutant");

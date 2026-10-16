@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -126,7 +127,7 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 }
 
 // 7. Client : écran fidèle à la capture, actions branchées
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const page = meta.slice(meta.indexOf("function pageTimeMachineIdleV48_(j){"), meta.indexOf("function pageBloodMagicIdleV48_(j){"));
 for (const attendu of ["Machine à remonter le temps cassée", "Vitesse de la machine", "Multiplicateur d’or", "Cible", "Niveau", "GPS brut", "GPS net", "Or de base par remplissage (avant multiplicateurs)", "Remplissages de barre par seconde", "Bonus GPS Blood Magic", "Multiplicateur GPS NGU", "Multiplicateur des défis", "Multiplicateur du meilleur boss", "Multiplicateur GPS de la vitesse", "Multiplicateur GPS de la Barbe"]) {
   assert.ok(page.includes(attendu), "libellé « " + attendu + " » présent");

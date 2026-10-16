@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 /*
  * Audit des menus « en temps réel » (Norman, 2026-10-11) : « la barre qui tique de plus en plus vite dans la Machine à remonter le temps ne se met pas à jour en temps réel : il faut changer de menu et revenir. Assure-toi que
@@ -20,7 +21,7 @@ assert.ok(ui.includes("if(idleMenuActifV28==='machine'&&idleEtat&&idleEtat.syste
 assert.ok(ui.includes("idleMenuActifV28==='tower'&&idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'"), "ITOPOD : mise à jour en place");
 assert.ok(ui.includes("window.__adopterRepereAugmentsIdleV1__(idleEtat)"), "Augmentations : réponse du serveur adoptée comme repère");
 // le patch de la Machine temporelle couvre les remplissages par seconde, l'Or par seconde et l'Or par remplissage
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 for (const k of ["barFillsPerSecond:nombre", "netGps:nombre", "orReel:nombre", "machineSpeedMultiplier:nombre"]) assert.ok(meta.includes(k), "chiffre mis à jour en place : " + k);
 assert.ok(meta.includes("barreOr.setAttribute('data-fills',cle)"), "la barre d'Or change de cadence quand le niveau de vitesse monte");
 console.log("idle-menus-temps-reel-v1: OK");

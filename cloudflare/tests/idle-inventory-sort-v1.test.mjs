@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -155,7 +156,7 @@ function addBoost(s, type, strength, level = 0) {
 
 // --- 6. Boutique EXP (section Débuts) : présent, avec son nom, son aide et son coût -- comme Auto Merge. ---
 {
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.match(meta, /IDLE_EXP_TOC_V1=\[[^\]]*'sortInventory'[^\]]*\]/, "doit apparaître dans le rayon Toc (Norman, 2026-10-02)");
   assert.match(meta, /sortInventory:'[^']*Trier l.inventaire'/, "nom affiché dans la boutique");
   assert.match(meta, /sortInventory:'Débloque un bouton « Trier »[^']*'/, "aide affichée dans la boutique");

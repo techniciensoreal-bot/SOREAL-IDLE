@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : « on ne doit pas mentionner le wiki » dans le jeu : aucun texte affiché au joueur ne cite le wiki (les commentaires du code et les identifiants techniques, comme wikiItemId, ne sont pas du texte affiché). */
@@ -15,6 +16,6 @@ for (const f of fichiers) {
   assert.ok(!/wiki/i.test(texte), "pas de « wiki » dans les textes affichés de " + f);
 }
 // message de garderie : lu dans meta-progression
-const meta = sansCommentaires(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8"));
+const meta = sansCommentaires((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 assert.ok(!/publié par le wiki/.test(meta) && meta.includes("sans taux de garderie connu"), "message de garderie sans wiki");
 console.log("idle-aucune-mention-wiki-v1: OK");

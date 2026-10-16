@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { idleCardsCreateCardV1, IDLE_CARDS_BASE_V1 } from "../src/idle-cards-v1.js";
@@ -46,7 +47,7 @@ assert.equal(chonk.foil, false, "un Big Chonker n'est jamais foil");
 const media = readFileSync("cloudflare/src/idle-media-v1.js").toString("latin1");
 assert.ok(media.includes("\"/api/idle/media/card\"") && media.includes("async function carteImage_(") && media.includes("\"idle/cartes/\"+type+\".\"+ext"), "route /api/idle/media/card");
 /* Page : branchée sur le module, qui est chargé par index.html. */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("window.__SorealCartesV1__") && meta.includes("CV.carteSvg(k)") && meta.includes("cv1-grille"), "page Cards branchée sur les cartes dessinées");
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/cartes-v1.js"), "module chargé par la page");
 console.log("Cartes dessinées: OK");

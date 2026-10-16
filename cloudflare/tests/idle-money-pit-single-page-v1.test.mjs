@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -8,7 +9,7 @@ import vm from "node:vm";
  * Le module V49 (modules/ui.js) réécrivait la page Money Pit à image de meta-progression-v130.js avec une version texte seul.
  */
 const ui = readFileSync("cloudflare/public/modules/ui.js", "utf8");
-const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
 // La page texte a disparu de ui.js ; celle à image reste dans le module méta, seule page Money Pit.

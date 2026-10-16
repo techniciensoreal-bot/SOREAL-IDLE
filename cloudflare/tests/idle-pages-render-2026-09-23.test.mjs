@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -21,7 +22,7 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
-vm.runInNewContext(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8"), { window, document: window.document, SOREAL_SESSION: null });
+vm.runInNewContext((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()), { window, document: window.document, SOREAL_SESSION: null });
 const api = window.__SOREAL_IDLE_META_V130__;
 const context = { bosses: 100 };
 const state = normalizeIdleNguState({}, context, 1_000_000);

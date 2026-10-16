@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -13,7 +14,7 @@ assert.ok(ui.includes("if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!ch
 assert.ok(ui.includes("c.value!==c.defaultValue")&&ui.includes("c.checked!==c.defaultChecked"), "champ modifié non validé = pas de redessin");
 // ITOPOD : chiffres mis à jour sur place (jamais de redessin : scène animée, champs d'étage).
 assert.ok(ui.includes("window.__rafraichirItopodIdleV1__(idleEtat)"));
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV1_;") && meta.includes("copier(vivant,neuf,'.itp-tuile b');"));
 // Doigt ou souris enfoncé : pas de redessin entre l'appui et le relâchement (le clic serait perdu).
 assert.ok(ui.includes("if(idlePointeurEnfonceV1&&Date.now()-idlePointeurEnfonceV1<3000)return true;"));
@@ -21,7 +22,7 @@ console.log("idle-menus-vivants-v1: OK");
 
 // ITOPOD : le calcul des chiffres ne touche jamais à la scène (son HTML réinitialise le combat de l'écran : les ennemis ne défilaient plus).
 {
-  const m = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const m = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   const i = m.indexOf("function rafraichirItopodIdleV1_(j){");
   const bloc = m.slice(i, i + 1400);
   assert.ok(bloc.includes("window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;") && bloc.includes("finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;}"));

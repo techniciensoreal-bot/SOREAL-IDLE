@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import {
@@ -143,7 +144,7 @@ const snap = (s) => idleNguSnapshot(s, ctx, T).augmentations;
 
 // Page : aucun « NaN », « undefined » ni « Infinity » affiché, dans les états verrouillé, ouvert et en défi.
 {
-  const src = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const src = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   const rendre = (s, boss) => {
     const j = { energie: 5e8, energieMax: 1e9, bossVaincus: boss, systemes: idleNguSnapshot(s, { ...ctx, bosses: boss }, T) };
     const H = {

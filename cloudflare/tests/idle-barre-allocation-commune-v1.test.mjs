@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  */
 const lire = (p) => readFileSync(p, "utf8");
 const mod = lire("cloudflare/public/modules/barre-allocation-v1.js");
-const meta = lire("cloudflare/public/modules/meta-progression-v130.js");
+const meta = (lire("cloudflare/public/modules/meta-progression-v130.js") + lirePagesMeta());
 const ui = lire("cloudflare/public/soreal-idle-ui.js");
 const ngu = lire("cloudflare/public/modules/ngu-labo-v1.js");
 const sang = lire("cloudflare/public/modules/blood-magic-v1.js");

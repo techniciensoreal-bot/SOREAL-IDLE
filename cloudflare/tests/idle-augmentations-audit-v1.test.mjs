@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { pathToFileURL } from "node:url";
@@ -48,7 +49,7 @@ const gros = partie()("agirProgressionSorealIdle", { action: "allocateAugments",
 assert.ok(pairs(gros).p.scissors[0] <= 1e6 && pairs(gros).libre >= 0, "borné par l'énergie libre");
 
 // 2. Client : lot en un appel, pas d'envoi sans changement, éléments gardés et texte écrit seulement s'il change.
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("envoi={action:'allocateAugments',items:") && meta.includes("if(delta===0)return;"));
 assert.ok(meta.includes("cles.forEach(function(c,i){if(!R.file.has(c)&&payloads[i])R.file.set(c,payloads[i]);});"), "échec réseau : tout le lot est remis en file");
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");

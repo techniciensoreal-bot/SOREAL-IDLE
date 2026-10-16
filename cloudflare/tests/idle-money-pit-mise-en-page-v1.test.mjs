@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -7,7 +8,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../s
  * Norman (2026-10-03) : « Dans Money Pit, plus clair : sous les boutons, le cadre « Ton prix » ; ensuite le bonus des jours cumulés avec le total d'AP obtenus depuis le début ; puis 2 cadres,
  * un pour les récompenses du Money Pit uniquement, un pour celles de la roue uniquement, qu'on peut fermer / ouvrir. 20 récompenses max par liste ; une 2e page par cadre pour les plus anciennes. »
  */
-const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 const ctx = { bosses: 100 };
 const H3 = 3600000;
 const T0 = Date.parse("2026-12-10T12:00:00+01:00");
@@ -119,7 +120,7 @@ console.log("idle-money-pit-mise-en-page-v1 OK");
 // « Ton prix » (Norman, 2026-10-03) : même largeur maximale que les autres cadres, sur PC.
 {
   const { readFileSync } = await import("node:fs");
-  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+  const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
   assert.ok(meta.includes(".soreal-idle-money-scene-v206~.soreal-idle-offre-v1{max-width:760px;margin:0 auto 14px;box-sizing:border-box}"), "Ton prix : 760 px max comme la scène, les boutons et les cadres");
   console.log("money pit : Ton prix à la largeur des autres cadres OK");
 }

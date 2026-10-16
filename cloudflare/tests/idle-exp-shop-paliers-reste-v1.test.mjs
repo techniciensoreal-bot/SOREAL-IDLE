@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-05) : « Recyclage de boosts propose d'acheter par 10 alors que le maximum est 5 » : jamais de palier d'achat au-delà de ce qu'il reste à acheter. */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const i = meta.indexOf("let tiers=it.max!=null&&it.max>1?[1,5,10]");
 assert.ok(i > 0);
 const bloc = meta.slice(i, meta.indexOf("/* Prix variable", i));
@@ -20,7 +21,7 @@ console.log("idle-exp-shop-paliers-reste-v1: OK");
 
 // Explications de la boutique EXP (Norman, 2026-10-05) : les Barres multiplient la génération ; la Puissance n'est PAS la quantité produite à chaque génération (wiki NGU Idle, page « Energy »).
 {
-  const meta2 = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta2 = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(meta2.includes("autant de points que de Barres") && meta2.includes("vitesse × Barres"), "Barres : un remplissage donne autant de points que de Barres");
   assert.ok(!meta2.includes("Augmente la quantité de ressource produite à chaque génération"), "ancienne explication fausse de la Puissance retirée");
   assert.ok(meta2.includes("N’a pas d’effet sur le menu Entraînement de base"), "Puissance : sans effet sur Entraînement de base");

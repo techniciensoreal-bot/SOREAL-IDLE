@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 import { NGU_BOSS_REFERENCE_COUNT_V1, nguBossStatsV1 } from "../src/idle-ngu-boss-reference-v1.js";
 
@@ -10,7 +11,7 @@ const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"
 const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
 const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
 /* UI split V9 : la page Money Pit/Daily Spin a été extraite vers ce module, sans changement fonctionnel. */
-const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8")+fs.readFileSync(new URL("../public/modules/money-pit-page-v1.js",import.meta.url),"utf8");
+const metaModule=(fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8") + lirePagesMeta());
 
 for(const asset of [
   /\/modules\/audio-effects-v199\.js\?v=\d+/,

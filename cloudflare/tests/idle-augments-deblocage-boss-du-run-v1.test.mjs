@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, normalizeIdleNguState, IDLE_NGU_AUGMENTATIONS } from "../src/idle-ngu-progression.js";
 
@@ -22,7 +23,7 @@ const ok2 = applyIdleNguAction(s, { action: "allocateAugment", pair: "scissors",
 assert.equal(ok2.state.systems.augmentations.data.pairs.scissors.upgradeEnergy, 100000, "avec 37 boss dans le run, l'Upgrade accepte l'énergie");
 
 // 2. Page : le déblocage lit le boss du run (bossVaincus), pas le record ; « Boss max » reste affiché pour information.
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("boss=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j&&j.bossVaincus))"), "boss du run pour débloquer");
 assert.ok(meta.includes("const bossMax=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(snap.records&&snap.records.highestBoss||0)") && meta.includes("👹 Boss max<b>'+bossMax+'</b>"), "record seulement affiché");
 console.log("idle-augments-deblocage-boss-du-run-v1: OK");

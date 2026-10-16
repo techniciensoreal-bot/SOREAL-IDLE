@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -15,7 +16,7 @@ const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",impor
 const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 /* UI split V9 : la Boutique EXP (pageSpendExpIdleV1_) a été extraite vers ce module. */
-const metaModule=fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8");
+const metaModule=(fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8") + lirePagesMeta());
 
 assert.match(index,/\/soreal-idle-ui\.js\?v=\d+/);
 assert.match(index,/\/modules\/audio-effects-v199\.js\?v=\d+/);

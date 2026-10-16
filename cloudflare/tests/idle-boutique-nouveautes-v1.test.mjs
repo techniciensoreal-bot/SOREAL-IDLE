@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -43,7 +44,7 @@ assert.deepEqual(B.nonVus("exp", rayons), {});
 
 // Câblage.
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.includes('/modules/boutique-nouveautes-v1.js?v=1'));

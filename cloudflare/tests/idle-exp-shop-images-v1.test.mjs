@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-04) : « je n'ai pas les images dans la boutique EXP » : le wiki n'en publie pas, l'emoji du titre devient une vignette (même place que les images de l'AP). */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const debut = meta.indexOf("      const IDLE_EXP_EMOJI_DEBUT_V1=");
 const fin = meta.indexOf("      function idleExpShopItemCarteIdleV1_(it,aide){");
 assert.ok(debut > 0 && fin > debut);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { pathToFileURL } from "node:url";
@@ -52,7 +53,7 @@ const rz = lot("agirProgressionSorealIdle", { action: "allocateAdvancedTrainings
 assert.ok(Object.values(pistes(rz).p).every((v) => v === 0), "tout retiré en un appel");
 
 // 2. Client.
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("envoi={action:'allocateAdvancedTrainings',items:") && meta.includes("if(delta===0)return;") && meta.includes("envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});"), "lot et pas d'envoi sans changement");
 const tick = meta.slice(meta.indexOf("      function atTickIdleV1_(){"), meta.indexOf("      if(typeof setInterval==='function'&&!window.__SOREAL_IDLE_AT_TICK_V1__){"));
 assert.ok(!tick.includes("if(nivEl)nivEl.textContent=") && !tick.includes("if(bonusEl)bonusEl.textContent=") && tick.includes("if(nivEl.textContent!==t)") && tick.includes("if(bonusEl.textContent!==t)"), "niveau et bonus réécrits seulement s'ils changent");

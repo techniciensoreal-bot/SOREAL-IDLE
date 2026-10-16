@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 
 /* Norman (2026-09-26) : Money Pit — « Ton prix » lisible, boutons sous l'image (une moitié chacun), phrases en français, générosité vérifiée sur le wiki. */
-const ui = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+const ui = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // 1. Texte du prix : foncé sur fond jaune (la règle .soreal-idle-offre-v1 le repeignait en jaune pâle)
@@ -12,7 +13,7 @@ assert.equal(css.includes(".soreal-idle-offre-v1 .soreal-idle-note-v4,.soreal-id
 assert.ok(ui.includes("background:#f4c83b;color:#19160b"));
 
 // 2. Boutons sous l'image, une moitié de la largeur chacun
-const page = ui.slice(ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){"), ui.length);
+const page = ui.slice(ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){"), ui.indexOf("window.__SOREAL_IDLE_MONEY_PIT_V1__={", ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){")));
 assert.ok(page.includes(".soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}"));
 assert.ok(page.includes(".soreal-idle-money-action-v206{flex:1 1 0;min-width:0;"), "chaque bouton prend la moitié");
 assert.equal(/position:absolute/.test(page), false, "plus de bouton posé sur l'image");

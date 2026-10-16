@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { BASIC_TRAINING_V411 } from "../src/idle-basic-training.js";
 
@@ -10,7 +11,7 @@ import { BASIC_TRAINING_V411 } from "../src/idle-basic-training.js";
  * Block, Defensive Buff, Heal, Offensive Buff, Charge, Ultimate Buff).
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 // --- Basic Training : les 12 entraînements, vrais noms en français, ids (sauvegardes) inchangés ---
 const noms = Object.fromEntries(BASIC_TRAINING_V411.skills.map((s) => [s.id, s.name]));

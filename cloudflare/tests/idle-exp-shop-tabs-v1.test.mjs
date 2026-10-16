@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -30,7 +31,7 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
-vm.runInNewContext(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8"), { window, document: window.document, localStorage, SOREAL_SESSION: null, Math, Number, Object, Array, Boolean, String, JSON, Date });
+vm.runInNewContext((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()), { window, document: window.document, localStorage, SOREAL_SESSION: null, Math, Number, Object, Array, Boolean, String, JSON, Date });
 const api = window.__SOREAL_IDLE_META_V130__;
 
 const ctx = { bosses: 100 };

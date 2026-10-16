@@ -129,6 +129,18 @@ Le joueur ne voit **que ce qu'il a déjà débloqué**. Il doit être surpris à
   `idle : SOREAL IDLE` dans leur liste de zones de propriété — ce sont des
   pointeurs vers ce dépôt, pas une description de son contenu.
 
+## Découpage du frontend (audit d'architecture, 2026-10-16)
+
+Le monolithe `soreal-idle-ui.js` (25 000 lignes) reste à découper ; `meta-progression-v130.js` (4 500 lignes) l'a été : il ne garde que le cœur (envoi des actions, allocation commune,
+page générique d'un système, pont vers les pages). Chaque page vit dans `cloudflare/public/modules/<page>-page-v1.js` (Money Pit, Wishes, Garderie, Cartes, Yggdrasil/Diggers, Boutique EXP,
+Perks/Quirks/ITOPOD, Défis, Augmentations + Machine temporelle + Entraînement avancé + pont Blood Magic). Règles pour toute nouvelle page ou tout nouveau découpage :
+- un module = une IIFE qui expose `window.__SOREAL_IDLE_<NOM>_PAGE_V1__` ; le module méta garde de petites cales `function pageX(){return window.__...__.pageX.apply(null,arguments);}` ;
+- un module ne lit les aides du module méta qu'À L'EXÉCUTION, par `window.__SOREAL_IDLE_META_PARTAGE_V130__` (cales en tête du module) ; jamais d'état partagé (`let`/`const`) entre deux fichiers :
+  si deux pages partagent un état (ex. montants et allocation rapide des Augmentations), elles vivent dans le MÊME module ;
+- les ponts `window.__x__=` des `onclick` inline voyagent avec leur page (vérifier : même liste avant/après) ;
+- un test qui lit le code d'une page lit `meta-progression-v130.js` ET `lirePagesMeta()` (`cloudflare/tests/_meta-pages.mjs`, liste `PAGES_META` à compléter pour un nouveau module) ;
+- ajouter le `<script defer>` dans `index.html` AVANT `meta-progression-v130.js` et monter les `?v=`.
+
 ## Déploiement
 
 Vérifié directement dans `.github/workflows/cloudflare-deploy.yml` (ne pas

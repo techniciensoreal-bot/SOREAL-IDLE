@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : « quand les Ciseaux de sécurité sont cap, les niveaux ne se mettent pas à jour en temps réel ». Une barre CAP (50 niveaux par seconde au plus) rejoue elle aussi ses niveaux, son coût et l'Or en direct. */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const debut = meta.indexOf("function rejouerCyclesAugmentPlafonneIdleV1_(p){");
 const fin = meta.indexOf("window.__rejouerCyclesAugmentPlafonneIdleV1__=");
 assert.ok(debut > 0 && fin > debut, "fonction présente");

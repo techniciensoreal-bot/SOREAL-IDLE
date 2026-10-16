@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 /* Norman (2026-10-10) : Augmentations refait : paires marquées par la couleur (même teinte, nuance plus claire pour la seconde piste, sans texte « version normale / puissante »), icône propre à chaque version puissante, Advance Energy, barres en tubes de verre. */
 const page = meta.slice(meta.indexOf("function pageAugmentationsIdleV48_(j)"), meta.indexOf("function pageTimeMachineIdleV48_(j)"));

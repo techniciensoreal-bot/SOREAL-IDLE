@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-13) : à 50 niveaux par seconde dans la Machine temporelle, la barre doit rester pleine. */
@@ -12,6 +13,6 @@ assert.ok(ui.includes("if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)
   assert.equal(pleine(1, 0.5), false, "1 niveau toutes les 2 s : la barre avance normalement");
   assert.equal(pleine(30, 0.2), false);
 }
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("if(n>=50)return {classe:'rapide',style:''};"), "barre d'Or : pleine à 50 remplissages par seconde");
 console.log("idle-tm-barre-pleine-rapide-v1: OK");

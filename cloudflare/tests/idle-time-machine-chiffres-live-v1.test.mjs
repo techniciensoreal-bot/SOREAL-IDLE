@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -49,7 +50,7 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: String }
 };
 const document = { getElementById() { return null; }, querySelector: (q) => els[q] || null, querySelectorAll: () => [] };
-vm.runInNewContext(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8"), { window, document });
+vm.runInNewContext((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()), { window, document });
 const maj = window.__patcherChiffresTimeMachineIdleV1__;
 assert.equal(typeof maj, "function");
 const j = { systemes: idleNguSnapshot(etat, ctx, T) };

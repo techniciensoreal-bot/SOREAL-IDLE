@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_NGU_AUGMENTATIONS } from "../src/idle-ngu-progression.js";
 
@@ -6,7 +7,7 @@ import { IDLE_NGU_AUGMENTATIONS } from "../src/idle-ngu-progression.js";
  * Norman (2026-10-02) : « traduis le menu Augmentation, les titres des barres à monter : Safety Scissors etc. »
  * Chaque Augment affiche son nom français ; le moteur garde les noms du wiki.
  */
-const src = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const src = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const debut = src.indexOf("const IDLE_NOMS_AUGMENTS_V1={");
 assert.ok(debut > 0, "table des noms français");
 const table = new Function(src.slice(debut, src.indexOf("};", debut) + 2) + "\nreturn IDLE_NOMS_AUGMENTS_V1;")();

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-12) : « quand un menu manque d'or, je voudrais que ce soit plus voyant : il manque 1.59 T (pièce d'or) » ; puis « enlève "barre pleine :" et mets la somme en doré ». */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(ui.includes("'🪙 Il manque <b class=\"or-somme-v1\">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.'") && ui.includes("const texteOr='🪙 Il manque <b class=\"or-somme-v1\">'") && meta.includes("?'🪙 Il manque <b class=\"or-somme-v1\">'"), "pièce d'or, « Il manque » et somme en balise dorée dans les trois menus (Blood Magic, Time Machine, Augmentations)");

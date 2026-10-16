@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-04) : les barres de l'Advanced Training, en accord avec le thème de la page, de belles couleurs différentes suivant ce que fait chaque compétence (elles étaient violettes pour toutes).
  */
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
-const mod = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const mod = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 const pistes = ["toughness", "power", "block", "wandoosEnergy", "wandoosMagic"];
 const couleurs = new Set();

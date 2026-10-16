@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
  */
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") /* Blood Magic vit dans son module depuis le 2026-10-07 */;
+const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8") + "\n" + (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()) /* Blood Magic vit dans son module depuis le 2026-10-07 */;
 
 /*
  * --- 1. Boutons : taille strictement identique à Basic Training, pas une variante réduite. ---

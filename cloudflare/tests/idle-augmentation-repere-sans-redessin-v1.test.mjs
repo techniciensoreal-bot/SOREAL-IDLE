@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -8,7 +9,7 @@ import vm from "node:vm";
  * 2. rebaser le repère REJOUE les niveaux terminés (niveau, coût, Or) au lieu de les effacer par un modulo.
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 assert.ok(ui.includes("window.__adopterRepereAugmentsIdleV1__(idleEtat)"), "la synchro adopte le repère");
 assert.ok(!/data-menu'\)==='augmentations'&&idleEtat\)rafraichirMenuRacineIdleV28_/.test(ui), "plus de redessin différé des Augments");

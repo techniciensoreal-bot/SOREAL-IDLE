@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -38,6 +39,6 @@ for (const [id, c] of Object.entries({ augments: "#868686", wandoos: "#7a96f5", 
 assert.ok(!src.includes("<h1>") && src.includes('class="nl-titre"'), "titre hors des règles de h1 du thème");
 
 // Image du trou sans fond : plafonnée en hauteur sur PC
-const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
+const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
 assert.ok(meta.includes(".soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}"), "image du trou plafonnée à 340 px / 40 % de l'écran, entière et centrée");
 console.log("idle-ngu-nuit-tuyaux-v1: OK");

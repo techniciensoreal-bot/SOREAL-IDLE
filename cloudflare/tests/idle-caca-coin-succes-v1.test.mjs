@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { idleAchievementV1 } from "../src/idle-achievements-v1.js";
 import { IDLE_NGU_META_VERSION, IDLE_NGU_SAVE_SCHEMA, advanceIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
@@ -24,7 +25,7 @@ assert.throws(() => applyIdleNguAction(etat(false), { action: "cornerClick" }, c
   assert.ok(s.systems.achievements.data.unlocked.secretAtCorner !== undefined, "succès débloqué");
 }
 
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("(id==='wandoosMagic'?cacaCoinHtml_(j):'')"), "le caca n'est que sur la ligne Vidage de magie");
 assert.ok(meta.includes("data-morph-classes-gardees=\"^parti$\""), "un redessin n'interrompt pas l'animation");
 assert.ok(meta.includes("sorealAtCacaPartiV1{0%{transform:scale(1);opacity:0}8%{opacity:1}100%{transform:scale(14);opacity:0}}"), "zoom puis fondu, fondu d'entrée/sortie");

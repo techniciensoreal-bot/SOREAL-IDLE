@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { idleItopodRosterReponseV1, idleItopodEtagesV1, idleItopodImagePartageeV1 } from "../src/idle-itopod-roster-v1.js";
@@ -50,8 +51,8 @@ assert.ok(avecAvatar > 0, "avatar de l'ouvrier dans l'arène");
 assert.ok(html(5, 7).match(/itp-pip plein/g).length === 8, "pastilles : ennemi n° 8 en cours");
 
 // 3. Page : le choix des étages vient APRÈS l'arène ; champs de saisie « jeu » avec − et + ; la feuille de style existe et est chargée.
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
-const page = meta.slice(meta.indexOf("function pageItopodIdleV1_"), meta.indexOf("function itopodEtagesIdleV1_"));
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
+const page = meta.slice(meta.lastIndexOf("function pageItopodIdleV1_"), meta.lastIndexOf("function itopodEtagesIdleV1_"));
 assert.ok(page.indexOf("ITOPOD_SCENE_V1__.html(d)") < page.indexOf("itp-montee"), "arène puis choix des étages");
 assert.ok(page.includes("itopodDebutV1") && page.includes("itopodFinV1") && page.includes("itp-pas-bouton"));
 const css = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
@@ -68,8 +69,8 @@ console.log("idle-itopod-decors-hasard-v1: OK");
 
 // 5. Magasin des Perks : vitrines à part, image du wiki par achat (/perks/<id>.webp), aucun total.
 {
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
-  const page = meta.slice(meta.indexOf("function pagePerksIdleV1_"), meta.indexOf("function pageQuirksIdleV1_"));
+  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
+  const page = meta.slice(meta.lastIndexOf("function pagePerksIdleV1_"), meta.lastIndexOf("function pageQuirksIdleV1_"));
   assert.ok(page.includes("/perks/") && page.includes("pk-vitrine") && page.includes("Perk Emporium"));
   assert.ok(!/defs\.length/.test(page), "pas de total de perks (anti-spoil)");
   const { readdirSync } = await import("node:fs");
@@ -94,7 +95,7 @@ console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
   assert.ok(css2.includes(".itp-avatar.itp-flotte") && css2.includes("itpPoing") && css2.includes(".itp-vie-rempli"));
   const prog = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
   assert.ok(prog.includes("d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);"), "coups par ennemi donnés à l'écran");
-  const m2 = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const m2 = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(m2.includes("toggleSystemeMetaIdleV130_('tower')") && m2.includes("Entrer dans l’ITOPOD"), "bouton pour entrer dans la tour");
 }
 console.log("idle-itopod-decors-hasard-v1 (combat): OK");

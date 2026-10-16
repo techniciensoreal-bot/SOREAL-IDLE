@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * du tout -- ni nom, ni seuil ("bats le boss N"). Avant ce correctif, pageAugmentationsIdleV48_ (meta-progression-v130.js)
  * envoyait TOUTES les paires d'IDLE_NGU_AUGMENTATIONS en clair (nom + "Boss N"), quel que soit le boss max du joueur.
  */
-const module_ = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const module_ = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const page = module_.slice(module_.indexOf("function pageAugmentationsIdleV48_(j)"), module_.indexOf("function pageTimeMachineIdleV48_(j)"));
 
 // 1. Troncature à la première paire non débloquée -- même principe que Basic Training (premierVerrouille).

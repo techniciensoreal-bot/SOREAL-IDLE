@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { PAGES_META } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -26,7 +27,11 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
-vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), { window, document: window.document, SOREAL_SESSION: null });
+{
+  const bac = { window, document: window.document, SOREAL_SESSION: null };
+  vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), bac);
+  for (const f of PAGES_META) vm.runInNewContext(readFileSync("cloudflare/public/modules/" + f, "utf8"), bac);
+}
 const page = window.__SOREAL_IDLE_META_V130__.pageSystemeMetaIdleV130_;
 
 const ctx = { bosses: 300 };

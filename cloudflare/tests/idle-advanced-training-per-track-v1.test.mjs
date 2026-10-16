@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
 /*
@@ -123,7 +124,7 @@ assert.equal(at(r).data.tracks.power.tempLevel, 1);
 // Page client (2026-10-02) : une ligne par compétence (Name / Level / Energy Allocated / Target / + −), plus de barres de progression.
 {
   const { readFileSync } = await import("node:fs");
-  const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(meta.includes("function pageAdvancedTrainingIdleV1_(j)") && meta.includes("if(id==='advancedTraining')return pageAdvancedTrainingIdleV1_(j);"));
   for (const mot of ["Énergie placée", "Cible", "Niveau", "allocateAdvancedTraining", "setAdvancedTrainingTarget", "setAdvancedTrainingAdvance", "Je fais quoi ?", "Faire suivre l’énergie"]) assert.ok(meta.includes(mot), mot);
   const ui = readFileSync("cloudflare/public/modules/ui.js", "utf8");

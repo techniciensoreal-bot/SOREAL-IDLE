@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  * dans l'inventaire ou équipé ; et il faut le signaler à ceux qui achètent. »
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const debut = ui.indexOf("      function gestesAchetesIdleV1_(){");
 const fin = ui.indexOf("      function executerTapObjetAdventureIdleV196_(element,id){");
 assert.ok(debut > 0 && fin > debut);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -20,7 +21,7 @@ assert.ok(rt.includes("menusAnimes:") && rt.includes("expShop.menuAnimations"), 
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 assert.ok(ui.includes("function idleMenuAlimenteV1_(id,j){\n        if(!menusAnimesAchetesIdleV1_(j))return false;"), "sans l'achat, aucun bouton n'est animé");
 assert.ok(ui.includes("return Boolean(j&&j.menusAnimes===true);"));
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];") && meta.includes("menuAnimations:'🎞️ Menus animés'"));
 assert.ok(/menuAnimations:'Les boutons du menu du haut s’animent/.test(meta), "explication courte");
 console.log("idle-menus-animes-achat-v1: OK");

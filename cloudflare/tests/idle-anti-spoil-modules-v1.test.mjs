@@ -53,19 +53,16 @@ const LISTE_BLANCHE = [
   /* meta-progression-v130.js : page Augmentations. Comme la ligne verrouillée de Basic Training, UNE SEULE paire encore
      verrouillée (la prochaine) est montrée, sans nom ni seuil, pour que l'interface ne saute pas ; tout le reste est tronqué.
      Comportement demandé par Norman et épinglé par idle-anti-spoil-augmentations-v1.test.mjs. */
-  { fichier: "meta-progression-v130.js", contient: "🔒 ???????", raison: "unique prochain Augment, sans nom ni condition (cf. Basic Training)" },
-  { fichier: "meta-progression-v130.js", contient: "Augment verrouillé.", raison: "libellé générique de ce même emplacement" },
-  { fichier: "meta-progression-v130.js", contient: "🔒 Upgrade verrouillé.", raison: "emplacement générique d'un Upgrade pas encore atteint, jamais son coût ni sa condition" },
+  { fichier: "augmentations-page-v1.js", contient: "🔒 ???????", raison: "unique prochain Augment, sans nom ni condition (cf. Basic Training)" },
+  { fichier: "augmentations-page-v1.js", contient: "Augment verrouillé.", raison: "libellé générique de ce même emplacement" },
+  { fichier: "augmentations-page-v1.js", contient: "🔒 Upgrade verrouillé.", raison: "emplacement générique d'un Upgrade pas encore atteint, jamais son coût ni sa condition" },
   /* meta-progression-v130.js : cartes (Cards). 🔒 = icône « protégée » d'une carte que le joueur possède et a lui-même protégée ;
      rien à voir avec un déblocage. */
-  { fichier: "meta-progression-v130.js", exact: "🔒 ", raison: "icône « carte protégée » (choix du joueur)" },
-  { fichier: "meta-progression-v130.js", contient: "🔒 Protéger", raison: "bouton « Protéger » d'une carte possédée" },
   /* Texte d'aide d'un défi DÉJÀ actif : règle du défi en cours (le joueur y est), pas un contenu non découvert. */
   { fichier: "challenges-v1.js", contient: "Le menu Augmentations est verrouillé pendant le défi", raison: "règle d'un défi en cours" },
   /* Compteurs « fait / max » d'un défi déjà débloqué (demande explicite : restent OK). */
   { fichier: "challenges-v1.js", contient: "' / '+max", raison: "progression d'un défi déjà débloqué" },
   /* Boutique EXP : « Acheté n / plafond » d'un article déjà visible dans la boutique (plafond d'achat de cet article, pas un total caché). */
-  { fichier: "meta-progression-v130.js", contient: "' / '+H.idleEntier_(it.max)", raison: "plafond d'achat d'un article de boutique déjà affiché" },
   /* Barre d'Énergie allouée : « courant / capacité » d'une ressource que le joueur possède. */
   { fichier: "ui.js", contient: "' / '+formatNombre_(max)", raison: "capacité de la barre d'énergie du joueur" },
   /* Page des fruits : « tier / tier max » d'un fruit déjà débloqué (plafond d'amélioration de ce fruit, aussi écrit dans la note de la page), pas un total caché. */
@@ -76,6 +73,12 @@ const LISTE_BLANCHE = [
   { fichier: "profile-v1.js", exact: "???", raison: "numéro de boss caché pour « Boss vaincus » (Norman, 2026-10-10 : que des ???)" },
   /* Page Money Pit (money-pit-page-v1.js, extraite de meta-progression-v130.js) : « Page n / total » = pagination de l'historique du joueur lui-même, pas un total caché. */
   { fichier: "money-pit-page-v1.js", contient: "' / '+total", raison: "pagination de l'historique de récompenses déjà obtenues" },
+  /* Pages extraites de meta-progression-v130.js (découpage 2026-10-16) : mêmes exceptions qu'avant, dans leur nouveau fichier. */
+  { fichier: "cards-page-v1.js", exact: "🔒 ", raison: "icône « carte protégée » (choix du joueur)" },
+  { fichier: "cards-page-v1.js", contient: "🔒 Protéger", raison: "bouton « Protéger » d'une carte possédée" },
+  { fichier: "boutique-exp-page-v1.js", contient: "' / '+H.idleEntier_(it.max)", raison: "plafond d'achat d'un article de boutique déjà affiché" },
+  { fichier: "wishes-page-v1.js", contient: "' / '+H.idleEntier_(sl.maxLevel)", raison: "niveau / niveau maximum d'un slot de souhait déjà possédé" },
+  { fichier: "yggdrasil-diggers-page-v1.js", contient: "' / '+max", raison: "niveau de la run / meilleur niveau d'un Gold Digger déjà possédé" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];

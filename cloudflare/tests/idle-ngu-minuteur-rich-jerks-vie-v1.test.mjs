@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-09) : (1) conseil sur « pour riches » ; (2) minuteur de fin de niveau dans NGU ; (3) le volet « Effets de tous tes NGU » ne se referme plus tout seul ;
  * (4) la vie max ne doit plus changer en passant d'un menu à l'autre (le multiplicateur d'Augments n'est répercuté que quand la page Augmentations rejoue les niveaux).
  */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 

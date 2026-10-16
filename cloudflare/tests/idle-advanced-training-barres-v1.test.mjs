@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -18,7 +19,7 @@ const fresh = () => {
 };
 
 // Extraction de la simulation du client (meta-progression-v130.js).
-const src = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const src = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const debut = src.indexOf("function atNiveauxDepuisTravailIdleV1_");
 const fin = src.indexOf("function atTickIdleV1_");
 assert.ok(debut > 0 && fin > debut, "simulation présente");

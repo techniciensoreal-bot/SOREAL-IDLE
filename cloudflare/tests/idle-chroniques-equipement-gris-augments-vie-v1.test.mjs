@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -6,7 +7,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 
 assert.ok(ui.includes("(maxAtteint?' maxed':' nonmax')") && ui.includes("(boostMaxe?' maxed':' nonmax')"), "tout objet de la collection qui n'est pas à 100 % est grisé (pièces, objets spéciaux, boosts)");
 assert.ok(css.includes(".soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-icon-v1{filter:grayscale(1)"), "gris sur l'icône, nom encore lisible");
