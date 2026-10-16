@@ -7,7 +7,7 @@ import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progress
  * Norman (2026-10-03) : (1) « la Time Machine a une barre supplémentaire dans NGU IDLE (en bas), qui tique 1 fois par seconde de base » ; (2) « quand le Money Pit, la roue ou le bonus AP est
  * disponible, le bouton doit glow de façon visible » ; « 1 minute est suffisant » pour la mise à jour du bouton du menu.
  */
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 

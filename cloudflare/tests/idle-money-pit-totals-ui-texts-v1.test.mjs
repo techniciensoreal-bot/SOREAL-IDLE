@@ -43,7 +43,7 @@ function jeter(s, gold, t, alea) {
 }
 
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 
 // Page Money Pit : plus de bandeau « Progression permanente », seulement les totaux du trou

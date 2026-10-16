@@ -74,6 +74,8 @@ const LISTE_BLANCHE = [
   { fichier: "profile-v1.js", exact: "?????", raison: "objectif d'un succès pas encore visible (page des succès)" },
   { fichier: "profile-v1.js", contient: "🔒 Tue le boss ", raison: "boss à tuer pour voir les infos d'un succès (page des succès)" },
   { fichier: "profile-v1.js", exact: "???", raison: "numéro de boss caché pour « Boss vaincus » (Norman, 2026-10-10 : que des ???)" },
+  /* Page Money Pit (money-pit-page-v1.js, extraite de meta-progression-v130.js) : « Page n / total » = pagination de l'historique du joueur lui-même, pas un total caché. */
+  { fichier: "money-pit-page-v1.js", contient: "' / '+total", raison: "pagination de l'historique de récompenses déjà obtenues" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];

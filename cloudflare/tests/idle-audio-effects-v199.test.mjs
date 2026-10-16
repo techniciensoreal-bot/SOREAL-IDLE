@@ -245,7 +245,7 @@ console.log(
 {
   // Roue du Daily Spin : le cliquet est synchronisé avec l'image (un tic par part de 45°, aux instants réels de la courbe de la roue), et le son de la réponse du serveur ne double plus.
   const audioRoue = fs.readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-  const metaRoue = fs.readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+  const metaRoue = (fs.readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + fs.readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
   assert.ok(audioRoue.includes("function instantsRoue_(angle,dureeS)") && audioRoue.includes("roueTourne:function(angle,dureeMs)") && audioRoue.includes("cubic-bezier(.08,.7,.12,1)"), "cliquet calé sur la courbe de la roue");
   assert.ok(metaRoue.includes("__SOREAL_IDLE_AUDIO_V199__.roueTourne(angle,2800)") && metaRoue.includes("if(window.__roueSonneeIdleV1__){window.__roueSonneeIdleV1__=false;}"), "son lancé avec la roue, plus de doublon à la réponse");
 }

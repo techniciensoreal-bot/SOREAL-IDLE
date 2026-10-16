@@ -42,19 +42,22 @@ const window = {
  * variable globale du bac à sable, pas seulement sous window.
  */
 let SOREAL_SESSION = null;
-vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), {
+const bacASable = {
   window,
   document: window.document,
   get SOREAL_SESSION() { return SOREAL_SESSION; },
   set SOREAL_SESSION(v) { SOREAL_SESSION = v; }
-});
+};
+vm.runInNewContext(readFileSync(MODULE_PATH, "utf8"), bacASable);
+/* La page Money Pit vit dans son propre module (découpage du monolithe, 2026-10-16). */
+vm.runInNewContext(readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"), bacASable);
 
 const api = window.__SOREAL_IDLE_META_V130__;
 assert.ok(api, "le module doit exposer window.__SOREAL_IDLE_META_V130__");
 assert.deepEqual(
   Object.keys(api).sort(),
-  ["actionMetaIdleV130_", "boutiqueCssIdleV1_", "estOccupeIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
-  "le module ne doit exposer que les 6 fonctions réellement appelées par le monolithe (dont le style de boutique partagé avec la Boutique AP)"
+  ["actionMetaIdleV130_", "boutiqueCssIdleV1_", "collecterSystemeMetaIdleV130_", "estOccupeIdleV130_", "pageSpendExpIdleV1_", "pageSystemeMetaIdleV130_", "systemeMetaParIdIdleV130_"].sort(),
+  "le module ne doit exposer que les 7 fonctions réellement appelées par le monolithe (dont le style de boutique partagé avec la Boutique AP)"
 );
 for (const key of Object.keys(api)) {
   assert.equal(typeof api[key], "function", key + " doit être une fonction");

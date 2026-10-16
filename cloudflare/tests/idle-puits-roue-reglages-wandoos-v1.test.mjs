@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 
 /* Demandes de Norman du 2026-10-07 : cadre du prix qui change de couleur, calendrier sans animation répétée, curseurs sans changement de page, écran Wandoos de taille fixe pleine largeur sur téléphone. */
 const ui = readFileSync("cloudflare/public/soreal-idle-ui.js", "utf8");
-const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
+const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"));
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const wd = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 

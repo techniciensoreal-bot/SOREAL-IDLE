@@ -26,7 +26,7 @@ assert.ok(
 const metaModule=fs.readFileSync(
   new URL("../public/modules/meta-progression-v130.js",import.meta.url),
   "utf8"
-);
+)+fs.readFileSync(new URL("../public/modules/money-pit-page-v1.js",import.meta.url),"utf8");
 const uiEtModule=ui+"\n"+metaModule;
 for(const token of [
   "titre:'Money Pit & Roue journalière'",

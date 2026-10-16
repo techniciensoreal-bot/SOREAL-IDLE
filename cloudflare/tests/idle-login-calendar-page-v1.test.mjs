@@ -22,6 +22,7 @@ const window = {
 };
 const sandbox = { window, document: window.document, SOREAL_SESSION: null };
 vm.runInNewContext(readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8"), sandbox);
+vm.runInNewContext(readFileSync("cloudflare/public/modules/money-pit-page-v1.js", "utf8"), sandbox);
 const api = window.__SOREAL_IDLE_META_V130__;
 const ctx = { bosses: 100 };
 const jour = (iso) => Date.parse(iso + "T12:00:00+02:00");
