@@ -21,6 +21,7 @@ const code = [
   coupe(/var THEMES_=\{[\s\S]*?\n {2}\};\n/),
   coupe(/var VANTAIL_='[^\n]*\n/),
   coupe(/function porte_\(id,ouvre\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
   "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,teinte_:teinte_};"
 ].join("\n");

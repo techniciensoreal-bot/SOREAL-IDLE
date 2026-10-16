@@ -101,38 +101,54 @@
     {id:'pet-mouille',nom:'Pet mouillé',jouer:function(c,s,t){pet(c,s,t,.5,85,50,.26,[52,26]);for(var i=0;i<3;i+=1)glou(c,s,t+.52+i*.07,.14,200-i*30);}}
   ];
   /*
-   * Pet « grincement de porte » (Norman, 2026-10-16 : « le bruit que tu as fait pour la porte, mets-le quand le coffre pète de temps en temps, mais pas le ding de fin ») : clac de loquet, vieux bois qui grince
-   * en montant et en vibrant, racle sur la pierre, poids qui arrive en butée. AUCUN tintement à la fin. Une fois sur ~5 pets (P_PET_RARE), jamais deux fois de suite.
+   * Pets « grincement » (Norman, 2026-10-16 : « le bruit de pet est vraiment bien, fais des variantes à partir de ce son : des prrt prrt prrt, des prrrrrt, des prt »). Tous dérivés du grincement de la porte :
+   * une dent de scie grave qui grimpe en vibrant dans un filtre passe-bande qui s'ouvre, un clac de loquet au début, un racle sourd dessous. AUCUN tintement à la fin. Une fois sur ~5 pets (P_PET_RARE),
+   * jamais deux fois de suite ; la variante est tirée au hasard, jamais la même deux fois de suite.
+   * grincement(c,s,t,{d,f0,f1,vib,vol,clac,racle,butee}) : d = durée du grincement (s), f0 -> f1 = hauteur (Hz), vib = vitesse du vibrato (Hz), vol = volume, clac / racle / butee : éléments facultatifs.
    */
-  function grincementPorte(c,s,t){
-    souffle(c,s,t,{type:'bandpass',f0:1800,f1:1200,d:.04,v:.5,q:3,a:.002});
-    ton(c,s,t,{type:'square',f0:240,f1:130,d:.07,v:.5,a:.005});
-    var o=c.createOscillator();o.type='sawtooth';
-    o.frequency.setValueAtTime(70,t+.1);o.frequency.exponentialRampToValueAtTime(150,t+.95);
-    var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(11,t+.1);
-    var lg=c.createGain();lg.gain.setValueAtTime(6,t+.1);lfo.connect(lg);lg.connect(o.frequency);
+  function grincement(c,s,t,o){
+    var d=o.d,t0=t+(o.clac?.1:0),vol=o.vol||.5;
+    if(o.clac){
+      souffle(c,s,t,{type:'bandpass',f0:1800,f1:1200,d:.04,v:.5,q:3,a:.002});
+      ton(c,s,t,{type:'square',f0:240,f1:130,d:.07,v:.5,a:.005});
+    }
+    var osc=c.createOscillator();osc.type='sawtooth';
+    osc.frequency.setValueAtTime(o.f0,t0);osc.frequency.exponentialRampToValueAtTime(o.f1,t0+d);
+    var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(o.vib,t0);
+    var lg=c.createGain();lg.gain.setValueAtTime(o.f0*.09,t0);lfo.connect(lg);lg.connect(osc.frequency);
     var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=5;
-    f.frequency.setValueAtTime(520,t+.1);f.frequency.exponentialRampToValueAtTime(1500,t+.95);
+    f.frequency.setValueAtTime(o.f0*7.4,t0);f.frequency.exponentialRampToValueAtTime(o.f1*10,t0+d);
     var g=c.createGain();
-    g.gain.setValueAtTime(.0001,t+.1);g.gain.exponentialRampToValueAtTime(.5,t+.28);g.gain.exponentialRampToValueAtTime(.3,t+.7);g.gain.exponentialRampToValueAtTime(.0001,t+1.05);
-    o.connect(f);f.connect(g);g.connect(s);
-    o.start(t+.1);o.stop(t+1.1);lfo.start(t+.1);lfo.stop(t+1.1);
-    souffle(c,s,t+.12,{type:'lowpass',f0:380,f1:220,d:.8,v:.5,q:1.2,a:.05});
-    ton(c,s,t+.98,{type:'sine',f0:110,f1:48,d:.22,v:.7,a:.005});
+    g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+d*.2);g.gain.exponentialRampToValueAtTime(vol*.6,t0+d*.65);g.gain.exponentialRampToValueAtTime(.0001,t0+d*1.1);
+    osc.connect(f);f.connect(g);g.connect(s);
+    osc.start(t0);osc.stop(t0+d*1.15);lfo.start(t0);lfo.stop(t0+d*1.15);
+    if(o.racle)souffle(c,s,t0+.02,{type:'lowpass',f0:380,f1:220,d:d*.9,v:.5,q:1.2,a:.05});
+    if(o.butee)ton(c,s,t0+d*1.03,{type:'sine',f0:110,f1:48,d:.22,v:.7,a:.005});
   }
-  var PET_RARE=[{id:'grincement-porte',nom:'Pet grinçant (le grincement de la porte)',jouer:function(c,s,t){grincementPorte(c,s,t);}}];
-  var P_PET_RARE=.2,dernierPetRare=false;
+  var PET_RARE=[
+    {id:'grincement-porte',nom:'Grincement de la porte (le pet d’origine)',jouer:function(c,s,t){grincement(c,s,t,{d:.85,f0:70,f1:150,vib:11,clac:true,racle:true,butee:true});}},
+    {id:'grincement-prt',nom:'Prt',jouer:function(c,s,t){grincement(c,s,t,{d:.2,f0:92,f1:150,vib:15,vol:.5,racle:true});}},
+    {id:'grincement-prrt-x3',nom:'Prrt prrt prrt',jouer:function(c,s,t){
+      grincement(c,s,t,{d:.17,f0:84,f1:128,vib:16,vol:.48});
+      grincement(c,s,t+.26,{d:.17,f0:94,f1:150,vib:16,vol:.5});
+      grincement(c,s,t+.52,{d:.2,f0:104,f1:172,vib:17,vol:.52,racle:true});
+    }},
+    {id:'grincement-prrrrrt',nom:'Prrrrrrt',jouer:function(c,s,t){grincement(c,s,t,{d:1.15,f0:58,f1:170,vib:17,vol:.5,racle:true,butee:true});}}
+  ];
+  var P_PET_RARE=.2,dernierPetRare=false,dernierGrincement=-1;
   var dernierDigestion={rot:-1,pet:-1};
   /* type : 'rot' ou 'pet' ; tirage au hasard, jamais le même deux fois de suite. */
   function jouerDigestion(type,ctx,sortie){
     /* Pet grinçant : de temps en temps (jamais deux fois de suite), ou forcé par le banc d'essai de la page Yggdrasil (window.__coffrePetForceIdleV1__, utilisé une seule fois). */
     if(type==='pet'){
-      var force=window.__coffrePetForceIdleV1__===true;
+      var force=window.__coffrePetForceIdleV1__;
       window.__coffrePetForceIdleV1__=false;
       if(force||(!dernierPetRare&&Math.random()<P_PET_RARE)){
         dernierPetRare=true;
-        PET_RARE[0].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
-        return PET_RARE[0];
+        var choisi=typeof force==='string'?PET_RARE.filter(function(x){return x.id===force;})[0]:null;
+        if(!choisi){var j=Math.floor(Math.random()*PET_RARE.length);if(j===dernierGrincement)j=(j+1+Math.floor(Math.random()*(PET_RARE.length-1)))%PET_RARE.length;dernierGrincement=j;choisi=PET_RARE[j];}
+        choisi.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+        return choisi;
       }
       dernierPetRare=false;
     }

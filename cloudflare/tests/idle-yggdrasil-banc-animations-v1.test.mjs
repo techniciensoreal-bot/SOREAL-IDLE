@@ -25,10 +25,10 @@ function stockage(initial = {}) {
 {
   const { api, d } = stockage();
   const r = JSON.parse(JSON.stringify(api.reglages_()));
-  assert.deepEqual(r, { cadence: 110, sens: -1, porte: 1 }, "valeurs d'origine");
-  api.ecrire({ cadence: 200, sens: 1, porte: 1.7 });
+  assert.deepEqual(r, { cadence: 110, sens: -1, porte: 1, son: "pierre" }, "valeurs d'origine");
+  api.ecrire({ cadence: 200, sens: 1, porte: 1.7, son: "bois" });
   assert.ok(String(api.cle).startsWith("soreal_idle_"), "clé suivie par prefs-compte-v1 : liée au compte");
-  assert.deepEqual(JSON.parse(JSON.stringify(api.reglages_())), { cadence: 200, sens: 1, porte: 1.7 }, "réglages relus");
+  assert.deepEqual(JSON.parse(JSON.stringify(api.reglages_())), { cadence: 200, sens: 1, porte: 1.7, son: "bois" }, "réglages relus (bruit de porte compris)");
   const hors = stockage({ soreal_idle_ygg_anim_v1: JSON.stringify({ cadence: 9999, sens: 7, porte: 99 }) }).api.reglages_();
   assert.deepEqual([hors.cadence, hors.sens, hors.porte], [400, -1, 2.5], "valeurs hors bornes ramenées dans les bornes");
   const bas = stockage({ soreal_idle_ygg_anim_v1: JSON.stringify({ cadence: 1, porte: 0 }) }).api.reglages_();
@@ -65,7 +65,7 @@ function jouer(R, depart) {
 
 // 3. La porte : durée de l'animation et du son proportionnelles au réglage.
 assert.ok(/calc\(1\.25s\*var\(--vit,1\)\)/.test(src) && /calc\(1\.5s\*var\(--vit,1\)\)/.test(src) && /;--vit:'\+reglages_\(\)\.porte/.test(src), "durées CSS de la porte multipliées par --vit");
-assert.ok(/son_\('porte',vit\)/.test(src) && /DUREE_OUVERTURE_\*vit/.test(src), "son et fenêtre d'ouverture suivent le réglage");
+assert.ok(/son_\(nomSonPorte_\(\),vit\)/.test(src) && /DUREE_OUVERTURE_\*vit/.test(src), "son et fenêtre d'ouverture suivent le réglage");
 {
   const fin = (k) => {
     let max = 0;
@@ -85,7 +85,7 @@ assert.ok(/son_\('porte',vit\)/.test(src) && /DUREE_OUVERTURE_\*vit/.test(src), 
     return max;
   };
   const un = fin(1), deux = fin(2), demi = fin(0.5), defaut = fin(undefined);
-  assert.ok(un > 1.8 && un < 2.6, "porte lourde : un peu plus de 2 s : " + un);
+  assert.ok(un > 1.4 && un < 2.6, "porte lourde : environ 1,7 s : " + un);
   assert.ok(Math.abs(deux / un - 2) < 0.15 && Math.abs(demi / un - 0.5) < 0.1, "durée du son proportionnelle au réglage : " + [demi, un, deux]);
   assert.equal(defaut, un, "sans réglage : durée normale");
 }

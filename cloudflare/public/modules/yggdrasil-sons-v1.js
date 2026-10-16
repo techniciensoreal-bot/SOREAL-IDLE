@@ -5,7 +5,7 @@
  *
  *   window.__SOREAL_IDLE_YGG_SONS_V1__ = { jouer(nom), noms, construire(nom, contexte, sortie, t, alea) }
  *
- * Sons : interrupteur (marche / arrêt), onglet, aide, activer, ameliorer, manger, recolter, poop, tout, pret, porte (ouverture de la porte d'un fruit qui s'active).
+ * Sons : interrupteur (marche / arrêt), onglet, aide, activer, ameliorer, manger, recolter, poop, tout, pret, porte (pierre) et porteBois (ouverture de la porte d'un fruit qui s'active, deux versions).
  */
 (function(){
   'use strict';
@@ -103,43 +103,55 @@
       note(c,out,t+0.5,G.sol6,0.7,0.1,'sine',2);
     },
     /*
-     * La porte s'ouvre (2026-10-16 ; version PLUS GRAVE ET PLUS LOURDE, Norman : « un bruit de porte plus grave et lourde ») : verrou de fer sourd, gonds qui grincent très bas (deux scies légèrement désaccordées
-     * sur un fond de sinus), lourd racle de pierre, vantail qui arrive en butée avec un grand coup grave et un grondement, puis une longue résonance basse (plus de petit tintement aigu). Environ 2 s, calé sur
-     * l'ouverture de la page. vit = facteur de durée (0,5 à 2,5) : instants et durées multipliés, hauteurs inchangées.
+     * LA PORTE S'OUVRE, deux versions au choix (Norman, 2026-10-16 : « pas fan du bruit de la porte, on dirait de nouveau un pet »). Le piège évité : une dent de scie grave qui vibre = un pet. Ici AUCUN
+     * grondement tonal qui vibre : que du bruit filtré (frottement) et des chocs.
+     *  - porte (PIERRE, lourde) : dalle de pierre qui racle en grondant sourdement avec des grains qui crissent (aucun coup au début), puis un final doux et mélodieux : brise, petite harpe pentatonique, accord tenu, oiseaux ;
+     *  - porteBois (BOIS) : loquet, gonds qui couinent par à-coups (saccades de bois qui frotte, hauteur qui change à chaque saccade), puis deux coups sourds de bois qui arrive en butée.
+     * vit = facteur de durée (0,5 à 2,5) : instants et durées multipliés, hauteurs inchangées.
      */
     porte:function(c,out,t,a,vit){
-      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1;
-      /* Verrou de fer : un « clonc » sourd. */
-      glisse(c,out,t,150,58,0.13*k,0.8,'square');
-      souffle(c,out,t,0.06*k,'lowpass',900,280,2,0.55,a);
-      /* Gonds : deux dents de scie très graves, filtrées, avec un vibrato lent. */
-      [1,1.013].forEach(function(det){
-        var o=c.createOscillator();o.type='sawtooth';
-        o.frequency.setValueAtTime(38*det,t+0.14*k);o.frequency.exponentialRampToValueAtTime(92*det,t+1.2*k);
-        var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(6.5/k,t+0.14*k);
-        var lfoG=c.createGain();lfoG.gain.setValueAtTime(3.5,t+0.14*k);
-        lfo.connect(lfoG);lfoG.connect(o.frequency);
-        var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=4;
-        f.frequency.setValueAtTime(260,t+0.14*k);f.frequency.exponentialRampToValueAtTime(780,t+1.2*k);
-        var g=c.createGain();
-        g.gain.setValueAtTime(0.0001,t+0.14*k);
-        g.gain.exponentialRampToValueAtTime(0.5,t+0.4*k);
-        g.gain.exponentialRampToValueAtTime(0.38,t+0.95*k);
-        g.gain.exponentialRampToValueAtTime(0.0001,t+1.32*k);
-        o.connect(f);f.connect(g);g.connect(out);
-        o.start(t+0.14*k);o.stop(t+1.34*k);lfo.start(t+0.14*k);lfo.stop(t+1.34*k);
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
+      /* Pas de « boom » ni de verrou au début (Norman, 2026-10-16) : le son démarre directement par le frottement. */
+      /* La dalle racle : grondement sourd (bruit filtré, rien de tonal) et crissement de grains. */
+      souffle(c,out,t+0.02*k,1.0*k,'lowpass',210,110,1.2,0.8,a);
+      souffle(c,out,t+0.02*k,1.0*k,'bandpass',320,170,3.5,0.5,a);
+      for(var i=0;i<14;i++)souffle(c,out,t+(0.06+i*0.062)*k,0.03*k,'bandpass',900+al()*1500,700+al()*900,2.5,0.22+al()*0.1,a);
+      /*
+       * Final doux et naturel (Norman, 2026-10-16 : « j'aime l'ouverture mais pas le final, il faut un truc plus mélodieux, nature, relaxation ») : plus de coup de butée. Une brise légère se lève, une petite
+       * harpe de cristal monte en gamme pentatonique (do ré mi sol la : tout sonne juste), un accord tenu très doux s'étire, et deux oiseaux chantent au loin.
+       */
+      souffle(c,out,t+0.85*k,1.5*k,'bandpass',650,1500,0.8,0.1,a);
+      [G.sol5,G.la5,G.do6,G.re6,G.mi6].forEach(function(f,i){note(c,out,t+(1.0+i*0.11)*k,f,0.85*k,0.12-i*0.012,'triangle',2.01);});
+      [G.do5,G.sol5,G.mi6/2*1.5].forEach(function(f){
+        var o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t+1.05*k);
+        var g=c.createGain();g.gain.setValueAtTime(0.0001,t+1.05*k);g.gain.exponentialRampToValueAtTime(0.05,t+1.4*k);g.gain.exponentialRampToValueAtTime(0.0001,t+2.35*k);
+        o.connect(g);g.connect(out);o.start(t+1.05*k);o.stop(t+2.4*k);
       });
-      /* Fond de sinus qui monte avec les gonds (le poids de la porte). */
-      glisse(c,out,t+0.14*k,52,40,1.2*k,0.5,'sine');
-      /* Lourd racle de pierre. */
-      souffle(c,out,t+0.15*k,1.15*k,'lowpass',240,110,1.4,0.75,a);
-      /* Butée : grand coup grave, souffle sourd, puis grondement. */
-      glisse(c,out,t+1.18*k,82,26,0.6*k,1.0,'sine');
-      souffle(c,out,t+1.18*k,0.14*k,'lowpass',340,110,1,0.7,a);
-      souffle(c,out,t+1.3*k,0.7*k,'lowpass',170,70,1,0.4,a);
-      /* Longue résonance basse (sol et ré graves), discrète. */
-      note(c,out,t+1.3*k,G.sol4/2,0.9*k,0.1,'sine');
-      note(c,out,t+1.38*k,G.re5/2,0.8*k,0.05,'sine');
+      glisse(c,out,t+1.55*k,2300,3300,0.1*k,0.045,'sine');
+      glisse(c,out,t+1.7*k,2600,3600,0.09*k,0.04,'sine');
+      glisse(c,out,t+1.83*k,2200,3000,0.11*k,0.035,'sine');
+    },
+    porteBois:function(c,out,t,a,vit){
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
+      /* Loquet de bois : un « clac ». */
+      souffle(c,out,t,0.035*k,'bandpass',1500,1100,3,0.55,a);
+      glisse(c,out,t,260,120,0.06*k,0.6,'square');
+      /* Gonds : une dizaine de couinements brefs, chacun d'une hauteur différente (bois qui frotte par saccades). */
+      for(var i=0;i<12;i++){
+        var tt=t+(0.14+i*0.085)*k,f=150+(i%4)*48+al()*34,d=(0.05+al()*0.03)*k;
+        var o=c.createOscillator();o.type='square';
+        o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*1.18,tt+d);
+        var fl=c.createBiquadFilter();fl.type='bandpass';fl.Q.value=6;fl.frequency.setValueAtTime(1000+al()*500,tt);
+        var g=c.createGain();
+        g.gain.setValueAtTime(0.0001,tt);g.gain.exponentialRampToValueAtTime(0.16,tt+d*0.25);g.gain.exponentialRampToValueAtTime(0.0001,tt+d);
+        o.connect(fl);fl.connect(g);g.connect(out);o.start(tt);o.stop(tt+d+0.02);
+        souffle(c,out,tt,d*1.1,'bandpass',900+al()*600,800,3,0.12,a);
+      }
+      /* Le vantail de bois arrive en butée : deux coups sourds, le second plus léger. */
+      glisse(c,out,t+1.15*k,150,55,0.22*k,0.9,'sine');
+      souffle(c,out,t+1.15*k,0.1*k,'lowpass',600,200,1,0.7,a);
+      glisse(c,out,t+1.31*k,130,60,0.16*k,0.5,'sine');
+      souffle(c,out,t+1.31*k,0.07*k,'lowpass',500,200,1,0.4,a);
     },
     /* Un fruit est prêt : tintement de célesta. */
     pret:function(c,out,t){

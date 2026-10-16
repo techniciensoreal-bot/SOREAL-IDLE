@@ -297,11 +297,13 @@
     return '<div class="ygg-porte'+(ouvre?' ouvre':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
+  /* Bruit de la porte choisi dans le banc d'essai : « porte » (pierre, lourde) ou « porteBois ». */
+  function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
   function porteDe_(id,actif){
     if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
     if(!actif){etat.fermees[id]=true;delete etat.ouvre[id];return porte_(id,false);}
     var vit=reglages_().porte;
-    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();son_('porte',vit);}
+    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();son_(nomSonPorte_(),vit);}
     var t=etat.ouvre[id];
     if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
     delete etat.ouvre[id];
@@ -319,10 +321,10 @@
    * vers la graine, 1 : de la graine vers l'arbre) et facteur de durée de l'ouverture de la porte (son compris). Gardés dans le stockage (donc liés au compte, voir prefs-compte-v1.js) ; réglés depuis le
    * banc d'essai en bas de la page (administrateur). Valeurs d'origine ci-dessous.
    */
-  var REGLAGES_DEFAUT_={cadence:110,sens:-1,porte:1};
+  var REGLAGES_DEFAUT_={cadence:110,sens:-1,porte:1,son:'pierre'};
   var CLE_REGLAGES_='soreal_idle_ygg_anim_v1';
   function reglages_(){
-    var r={cadence:REGLAGES_DEFAUT_.cadence,sens:REGLAGES_DEFAUT_.sens,porte:REGLAGES_DEFAUT_.porte};
+    var r={cadence:REGLAGES_DEFAUT_.cadence,sens:REGLAGES_DEFAUT_.sens,porte:REGLAGES_DEFAUT_.porte,son:REGLAGES_DEFAUT_.son};
     try{
       var o=JSON.parse(localStorage.getItem(CLE_REGLAGES_)||'null');
       if(o&&typeof o==='object'){
@@ -330,12 +332,13 @@
         if(isFinite(c))r.cadence=Math.max(30,Math.min(400,Math.round(c/10)*10));
         if(isFinite(p))r.porte=Math.max(.5,Math.min(2.5,Math.round(p*10)/10));
         if(Number(o.sens)===1)r.sens=1;
+        if(o.son==='bois')r.son='bois';
       }
     }catch(_e){}
     return r;
   }
   function ecrireReglages_(r){
-    try{localStorage.setItem(CLE_REGLAGES_,JSON.stringify({cadence:r.cadence,sens:r.sens,porte:r.porte}));}catch(_e){}
+    try{localStorage.setItem(CLE_REGLAGES_,JSON.stringify({cadence:r.cadence,sens:r.sens,porte:r.porte,son:r.son}));}catch(_e){}
   }
   function urlEtape_(id,k){return '/api/idle/media/ygg?name='+encodeURIComponent(id)+'&etape='+k;}
   function precharger_(id){
@@ -397,15 +400,21 @@
         '<div class="ygg-banc-sens" role="group" aria-label="Sens des images">Sens : '+
           '<label><input type="radio" name="yggBancSens" value="-1"'+(R.sens<0?' checked':'')+' onchange="'+A+'banc(\'sens\',-1)"> arbre → graine</label> '+
           '<label><input type="radio" name="yggBancSens" value="1"'+(R.sens>0?' checked':'')+' onchange="'+A+'banc(\'sens\',1)"> graine → arbre</label></div>'+
+        '<div class="ygg-banc-sens" role="group" aria-label="Bruit de la porte">Bruit de la porte : '+
+          '<label><input type="radio" name="yggBancSon" value="pierre"'+(R.son!=='bois'?' checked':'')+' onchange="'+A+'banc(\'son\',\'pierre\')"> pierre lourde</label> '+
+          '<label><input type="radio" name="yggBancSon" value="bois"'+(R.son==='bois'?' checked':'')+' onchange="'+A+'banc(\'son\',\'bois\')"> bois qui couine</label></div>'+
         '<label>Ouverture de la porte : <output id="yggBancPorte">'+(Math.round(1.5*R.porte*10)/10).toString().replace('.',',')+' s (son compris)</output>'+
           '<input type="range" min="0.5" max="2.5" step="0.1" value="'+R.porte+'" oninput="'+A+'bancAffiche(\'porte\',this.value)" onchange="'+A+'banc(\'porte\',this.value)"></label>'+
         '<div class="ygg-banc-boutons">'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancImages()">▶ Images</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre()">💨 Pet grinçant du Coffre</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prt\')">💨 Prt</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrt-x3\')">💨 Prrt prrt prrt</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrrrrt\')">💨 Prrrrrrt</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-porte\')">💨 Pet de la porte</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancRaz()">↺ Valeurs d’origine</button></div>'+
-        '<div class="ygg-banc-note">Réglage retenu : '+R.cadence+' ms par image, '+(R.sens<0?'arbre → graine':'graine → arbre')+', porte ×'+String(R.porte).replace('.',',')+'. (Origine : '+REGLAGES_DEFAUT_.cadence+' ms, arbre → graine, ×1.)</div>'+
+        '<div class="ygg-banc-note">Réglage retenu : '+R.cadence+' ms par image, '+(R.sens<0?'arbre → graine':'graine → arbre')+', porte ×'+String(R.porte).replace('.',',')+' ('+(R.son==='bois'?'bruit de bois':'bruit de pierre')+'). (Origine : '+REGLAGES_DEFAUT_.cadence+' ms, arbre → graine, ×1.)</div>'+
       '</div></div></div>';
   }
   function bancVitre_(){return document.getElementById('yggBancVitre');}
@@ -428,7 +437,7 @@
     vitre.appendChild(p);
     setTimeout(function(){
       p.className+=' ouvre';
-      son_('porte',R.porte);
+      son_(nomSonPorte_(),R.porte);
       setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},Math.round(DUREE_OUVERTURE_*R.porte)+150);
     },700);
   }
@@ -561,10 +570,11 @@
       if(type==='cadence')R.cadence=Number(val);
       else if(type==='sens')R.sens=Number(val)>0?1:-1;
       else if(type==='porte')R.porte=Number(val);
+      else if(type==='son')R.son=String(val)==='bois'?'bois':'pierre';
       ecrireReglages_(R);
       rafraichir_();
       /* Après un réglage, on rejoue tout de suite ce qui a changé. */
-      setTimeout(function(){if(type==='porte')bancPorte_();else bancImages_();},350);
+      setTimeout(function(){if(type==='porte'||type==='son')bancPorte_();else bancImages_();},350);
     },
     bancAffiche:function(type,val){
       var o=document.getElementById(type==='porte'?'yggBancPorte':'yggBancCad');
@@ -573,10 +583,10 @@
     },
     bancImages:function(){bancImages_();},
     bancPorte:function(){bancPorte_();},
-    bancSon:function(){son_('porte',reglages_().porte);},
-    /* Le pet du Coffre avec le grincement de la porte (sans tintement) : joué par le moteur audio du jeu, au volume des « Sons de l'interface ». */
-    bancPetCoffre:function(){
-      try{window.__coffrePetForceIdleV1__=true;var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.play==='function')A.play('coffrePet');}catch(_e){}
+    bancSon:function(){son_(nomSonPorte_(),reglages_().porte);},
+    /* Le pet du Coffre en grincement (prt, prrt prrt prrt, prrrrrt, pet de la porte ; sans tintement) : joué par le moteur audio du jeu, au volume des « Sons de l'interface ». */
+    bancPetCoffre:function(id){
+      try{window.__coffrePetForceIdleV1__=typeof id==='string'?id:true;var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.play==='function')A.play('coffrePet');}catch(_e){}
     },
     bancRaz:function(){ecrireReglages_(REGLAGES_DEFAUT_);rafraichir_();},
     soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
