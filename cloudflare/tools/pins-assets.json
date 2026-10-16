@@ -100,12 +100,12 @@
   "sha": "d37788d0954f972b13adaf997126be71b8492160"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 6,
-  "sha": "d0f66c3d95648f654bbad89de9250cc0f575be9f"
+  "pin": 7,
+  "sha": "b2ccbd1e48bc247811681102ed7a79308d25e840"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 19,
-  "sha": "78cbeb411b645a20ed757124633c29485d7ae89c"
+  "pin": 20,
+  "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
   "pin": 5,

@@ -76,14 +76,22 @@
     return f;
   }
   /*
-   * L'accident (Norman, 2026-10-15), occasionnel : 8 % des pets (4 % jusqu au 2026-10-16), au moins 10 min entre deux accidents. Une flaque brune s'étale à ses pieds, il dit « Oh bordel, pas encore… » puis « J'crois que j'me suis chié dessus. », et le sac est couvert de
+   * L'accident (Norman, 2026-10-15). Depuis le 2026-10-16 il ne dépend plus d'un pet vu à l'écran (personne ne l'avait jamais eu) : UN accident environ par jour, tiré au sort entre 0,65 et 1,35 jour
+   * après le précédent, qu'il soit à l'écran ou non (voir verifierAccident_). Une flaque brune s'étale à ses pieds, il dit « Oh bordel, pas encore… » puis « J'crois que j'me suis chié dessus. », et le sac est couvert de
    * caca (modules/coffre-accident-v1.js : à frotter pour nettoyer). Toujours en français, comme les autres répliques du Coffre.
    */
-  var P_ACCIDENT=.08;
-  /* Jamais deux accidents à moins de 10 minutes d'intervalle (Norman, 2026-10-16 : aléatoire, pas trop souvent), même après un rechargement de la page. */
-  var ECART_ACCIDENT_MS=10*60*1000,CLE_ACCIDENT='soreal_idle_coffre_dernier_accident_v1';
-  function accidentPermis_(){
-    try{return Date.now()-(Number(localStorage.getItem(CLE_ACCIDENT))||0)>=ECART_ACCIDENT_MS;}catch(_e){return true;}
+  /* Prochain accident : un instant (ms) gardé dans le stockage, donc lié au compte (modules/prefs-compte-v1.js) : pareil sur tous les appareils, jamais deux fois en rafale. */
+  var JOUR_MS=24*3600*1000,CLE_PROCHAIN_ACCIDENT='soreal_idle_coffre_prochain_accident_v1';
+  var repliquesEnAttente=false,dernierControleAccident=0;
+  function lireInstant_(){try{var v=Number(localStorage.getItem(CLE_PROCHAIN_ACCIDENT));return v>0?v:0;}catch(_e){return 0;}}
+  function ecrireInstant_(t){try{localStorage.setItem(CLE_PROCHAIN_ACCIDENT,String(Math.round(t)));}catch(_e){}}
+  /* Le Coffre existe pour ce joueur (il a un sac d'Aventure) : sinon rien ne se passe, jamais d'éclaboussure sur un menu pas encore découvert. */
+  function coffreExiste_(){
+    try{
+      var e=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;
+      var a=e&&e.systemes&&e.systemes.adventure;
+      return Boolean(a&&Array.isArray(a.coffreSlots)&&a.coffreSlots.length>0);
+    }catch(_e){return false;}
   }
   /* Première réplique tirée au sort ; la seconde (« J'crois que j'me suis chié dessus. ») suit toujours. */
   var OUVERTURES_ACCIDENT=['Oh bordel, pas encore…','Ah ben voilà.. Forcément que ça allait arriver un jour.','Oh merde. Ne me regardez pas'];
@@ -96,7 +104,7 @@
   function quandEntierementVisible_(f){
     var el=entierementVisible_();
     if(el){f(el);return;}
-    var minuteur=setInterval(function(){var e=entierementVisible_();if(e){clearInterval(minuteur);f(e);}},300);
+    var minuteur=setInterval(function(){var e=entierementVisible_();if(e){clearInterval(minuteur);f(e);}},1000);
   }
   function accident_(el){
     var C=window.__SOREAL_IDLE_CACA_V1__;
@@ -105,7 +113,11 @@
     setTimeout(function(){try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play('coffreAccident');}catch(_e){}},550);
     C.souiller();
     window.__coffreAccidentNumeroIdleV1__=Math.floor(Date.now()/1000);   /* annoncé dans « En direct » avec le prochain battement */
-    /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
+    repliques_();
+    return true;
+  }
+  /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
+  function repliques_(){
     var ouverture=OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];
     quandEntierementVisible_(function(coffre){
       var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';
@@ -113,11 +125,31 @@
       var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+2600);b2.className+=' bg-desole-long-v1';
       retirer_(b2,200+2600+2300);
     });
-    return true;
+  }
+  /*
+   * L'accident du jour (Norman, 2026-10-16 : « le coffre doit avoir son accident même s'il n'est pas à l'écran ; une fois par jour pour quelqu'un qui joue beaucoup »). Contrôlé une fois par minute par la
+   * boucle qui existe déjà (aucune minuterie de plus) : à l'heure tirée au sort, soit sous les yeux du joueur (pet puis accident, comme avant), soit hors de vue : le sac est déjà éclaboussé et la flaque
+   * est là quand il revient voir le Coffre ; le Coffre dit alors ses répliques. Le prochain tirage suit tout de suite. Premier tirage : dans les 2,4 à 24 heures.
+   */
+  function verifierAccident_(){
+    var maintenant=Date.now();
+    if(maintenant-dernierControleAccident<60000)return;
+    dernierControleAccident=maintenant;
+    if(!coffreExiste_())return;
+    var t=lireInstant_();
+    if(!t){ecrireInstant_(maintenant+JOUR_MS*(.1+Math.random()*.9));return;}
+    if(maintenant<t)return;
+    ecrireInstant_(maintenant+JOUR_MS*(.65+Math.random()*.7));
+    var C=window.__SOREAL_IDLE_CACA_V1__;
+    if(!C)return;
+    var el=document.hidden||window.__coffreDortIdleV1__?null:entierementVisible_();
+    if(el){nuagePet_(el);accident_(el);return;}
+    C.horsEcran();
+    window.__coffreAccidentNumeroIdleV1__=Math.floor(Date.now()/1000);
+    repliquesEnAttente=true;
   }
   function excuses_(el){
     nuagePet_(el);
-    if(accidentPermis_()&&Math.random()<P_ACCIDENT&&accident_(el)){try{localStorage.setItem(CLE_ACCIDENT,String(Date.now()));}catch(_e){}return;}
     var rare=Math.random()<.125;
     /* La bulle ne sort qu'APRÈS le pet (Norman, 2026-10-11) : la fumée part tout de suite, l'excuse suit une fois le bruit terminé ; la phrase est tirée au sort. */
     var choix=EXCUSES.slice();
@@ -147,6 +179,9 @@
   /* Temps passé Coffre à l'écran depuis le dernier bruit, et délai tiré au sort : le minuteur n'avance que si le Coffre est vu. */
   var vu=0,cible=MIN+Math.random()*(MAX-MIN);
   function pas_(){
+    verifierAccident_();
+    /* Accident survenu hors de vue : les répliques sortent la première fois que le Coffre est entièrement à l'écran. */
+    if(repliquesEnAttente&&!document.hidden&&entierementVisible_()){repliquesEnAttente=false;repliques_();}
     if(document.hidden||!coffreVisible_()||window.__coffreDortIdleV1__)return;
     vu+=PAS;
     if(vu<cible)return;
@@ -155,5 +190,6 @@
   setInterval(pas_,PAS);
   window.__coffreNuagePetIdleV1__=nuagePet_;
   window.__coffreAccidentIdleV1__=accident_;
+  window.__coffreVerifierAccidentIdleV1__=verifierAccident_;
   window.__SOREAL_IDLE_COFFRE_DIGESTION_V1__={jouer:jouer_,pas:pas_,visible:coffreVisible_};
 })();

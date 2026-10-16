@@ -243,8 +243,14 @@
     majBrille_();
   },1500);
 
+  /* Accident survenu HORS DE VUE (le Coffre n'est pas à l'écran) : tout est sale d'un coup, la flaque apparaît dès qu'on revoit le Coffre (majFlaque_, sans animation) et le sac est déjà éclaboussé. */
+  function horsEcran_(){
+    flaqueNiveau=NIVEAU_MAX;sauver_();
+    souiller_();
+  }
+
   window.__SOREAL_IDLE_CACA_V1__={
-    souiller:souiller_,flaque:flaque_,appliquer:appliquer_,
+    souiller:souiller_,flaque:flaque_,horsEcran:horsEcran_,appliquer:appliquer_,
     flaqueNiveau:function(){return flaqueNiveau;},
     actif:function(){return actif;},brille:function(){return brilleJusqua>Date.now();}
   };
