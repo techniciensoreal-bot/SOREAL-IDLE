@@ -141,6 +141,14 @@ Perks/Quirks/ITOPOD, Défis, Augmentations + Machine temporelle + Entraînement 
 - un test qui lit le code d'une page lit `meta-progression-v130.js` ET `lirePagesMeta()` (`cloudflare/tests/_meta-pages.mjs`, liste `PAGES_META` à compléter pour un nouveau module) ;
 - ajouter le `<script defer>` dans `index.html` AVANT `meta-progression-v130.js` et monter les `?v=`.
 
+## Architecture du code et audit (2026-10-16)
+
+- Frontend : `soreal-idle-ui.js` (~2 000 lignes : état partagé, registre `window.__SOREAL_IDLE_REG__`, appels `__amorcer_N()`) + 23 modules `modules/ui-*-v1.js` chargés AVANT lui ; les variables partagées passent par `REG.<nom>`.
+- Moteur : `idle-sqlite-runtime.js`, `idle-ngu-progression.js`, `idle-adventure-v47.js` gardent leurs exports et se répartissent en fichiers voisins (`idle-runtime-*.js`, `idle-ngu-*.js`, `idle-adventure-*.js`) ; l'état modifiable partagé vit dans un objet de contexte.
+- Les tests lisent le code reconstitué (`_ui-sources.mjs`, `_src-sources.mjs`, `defragmenter()` pour les grandes fonctions découpées en `<fn>_pN`) : un test ne doit pas dépendre du fichier où vit une fonction.
+- Cache : scripts, styles et dictionnaire sont `immutable` (`public/_headers`) ; après toute modification lancer `node cloudflare/tools/maj-pins.mjs` (monte les `?v=`).
+- Audit : `node cloudflare/tools/audit-architecture.mjs` (test `idle-audit-architecture-v1`) : fichier ≤ 2 700 lignes, fonction ≤ 450 lignes (exceptions plafonnées dans le script), pins à jour, en-têtes de cache, syntaxe. Un rapport vert ne couvre que ces seuils.
+
 ## Déploiement
 
 Vérifié directement dans `.github/workflows/cloudflare-deploy.yml` (ne pas
