@@ -32,6 +32,7 @@
         date:'2026-10-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Tes réglages, cases cochées, saisies, onglets et volumes sont liés à ton compte : tu les retrouves à l’identique sur tous tes appareils.',
             'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
           ]},
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
@@ -40,9 +41,21 @@
             'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le Coffre a son accident environ une fois par jour, même s’il n’est pas à l’écran : tu retrouves le sac sale et la flaque à ton retour.',
+            'Quatre nouveaux pets grinçants pour le Coffre : un court, trois d’affilée, un long et un de porte qui grince.',
             'Le Coffre a maintenant six pattes : deux de plus au milieu.',
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
             'Les accidents du Coffre sont aléatoires mais jamais rapprochés (dix minutes au moins entre deux), et sa phrase sur un objet qu’il digère mal est beaucoup plus rare.',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Un fruit sans énergie reste derrière une porte fermée, sans aucune animation ; au moment de placer l’énergie, la porte s’ouvre avec son bruit (pierre ou bois, au choix dans le banc d’essai).',
+            'Chaque fruit a sa porte, aux emblèmes différents, et un cadre de même taille que son image.',
+            'Un fruit au niveau maximum joue ses 20 images à bonne vitesse en arrivant sur la page ; le choix Manger / Récolter de chaque fruit est mémorisé.',
+            'Titre en branche vivante, et les 20 images de croissance existent aussi pour le fruit de puissance.',
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Les Titans sont maintenant des cartes à collectionner : l’image du Titan, ou un « ? » tant que tu ne l’as pas affronté, avec son nom, ses victoires et son état.',
+            'Un clic sur une carte la déplie : bouton Affronter, difficulté, case Auto-kill et son état, statistiques, comparaison avec tes stats et capacités.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Le « 69 % » ne bouge plus : le « lol » apparaît simplement à sa droite.',
