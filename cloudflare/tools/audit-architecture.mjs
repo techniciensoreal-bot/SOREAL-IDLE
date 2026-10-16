@@ -6,10 +6,10 @@
  *
  * Ce que « parfait » veut dire ICI (seuils objectifs, écrits en dur ci-dessous) :
  *   1. aucun fichier JavaScript du frontend ou du moteur n'a plus de MAX_LIGNES_FICHIER lignes ;
- *   2. aucune fonction n'a plus de MAX_LIGNES_FONCTION lignes, SAUF celles de EXCEPTIONS_FONCTIONS, qui ne doivent jamais grossir (plafond figé) ;
+ *   2. aucune fonction n a plus de MAX_LIGNES_FONCTION lignes (EXCEPTIONS_FONCTIONS : vide aujourd hui) ;
  *   3. chaque script/feuille de style/dictionnaire versionné par ?v=N a bien un numéro à jour (maj-pins.mjs --verifier) ;
  *   4. les en-têtes de cache immuables (public/_headers) couvrent les fichiers versionnés ;
- *   5. tous les fichiers JavaScript publics et du moteur passent `node --check` (syntaxe).
+ *   5. tous les fichiers JavaScript publics et du moteur passent node --check ; 6. le nombre de !important du CSS ne dépasse pas son plafond (cliquet).
  * Ce que cet audit NE mesure PAS : la justesse du jeu (les tests s'en chargent), le style CSS (voir « dette CSS » du rapport), la vitesse réelle
  * (voir cloudflare/bench/bench-moteur.mjs). Un rapport vert signifie « aucun seuil ci-dessus n'est dépassé », rien de plus.
  */
@@ -23,12 +23,8 @@ import { analyzeEsm } from "../tests/_esm-scan.mjs";
 const racine = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MAX_LIGNES_FICHIER = 2700;
 const MAX_LIGNES_FONCTION = 450;
-/* Fonctions déjà plus longues que le seuil à la date de l'audit : plafond = taille actuelle, à ne jamais relever. Les réduire = supprimer la ligne. */
-const EXCEPTIONS_FONCTIONS = {
-  "src/idle-runtime-progression.js:appliquerProgressionEnergieSorealIdle_": 1900,
-  "src/idle-runtime-etat.js:construireEtatJoueurSorealIdle_": 1700,
-  "public/modules/blood-magic-v1.js:creer": 490,
-};
+/* Aucune exception aujourd'hui. Si une fonction doit dépasser le seuil, l'inscrire ici ("fichier:fonction": plafond figé, jamais relevé) et le dire dans le commit. */
+const EXCEPTIONS_FONCTIONS = {};
 
 const problemes = []; const infos = [];
 const lignesDe = (t) => t.split("\n").length;
@@ -68,8 +64,13 @@ if (pins.status !== 0) problemes.push("numéros ?v= périmés (lancer node cloud
 const entetes = readFileSync(join(racine, "public", "_headers"), "utf8");
 for (const motif of ["/modules/*", "/soreal-idle-*.js", "/soreal-idle-*.css", "immutable"]) if (!entetes.includes(motif)) problemes.push("_headers : motif absent " + motif);
 
-const css = readFileSync(join(racine, "public", "soreal-idle-ui.css"), "utf8");
-infos.push(`dette CSS (non bloquante) : ${(css.match(/!important/g) || []).length} « !important » dans soreal-idle-ui.css`);
+/* Dette CSS connue : nombre de « !important » dans les feuilles de style. Cliquet : le total ne doit JAMAIS augmenter ; en retirer = baisser PLAFOND_IMPORTANT.
+ * Aucun outil ne vérifie le rendu visuel : on les retire page par page, à l'œil, pas en masse. */
+const PLAFOND_IMPORTANT = 2540;
+let important = 0;
+for (const f of readdirSync(join(racine, "public"))) if (f.endsWith(".css")) important += (readFileSync(join(racine, "public", f), "utf8").match(/!important/g) || []).length;
+infos.push(`dette CSS : ${important} « !important » (plafond ${PLAFOND_IMPORTANT}, ne doit jamais monter)`);
+if (important > PLAFOND_IMPORTANT) problemes.push(`CSS : ${important} « !important », plafond ${PLAFOND_IMPORTANT}`);
 
 const rapport = { fichiersAnalyses: fichiers.length, problemes, infos };
 if (process.argv.includes("--json")) console.log(JSON.stringify(rapport, null, 2));

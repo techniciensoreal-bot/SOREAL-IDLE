@@ -200,6 +200,11 @@ export function defragmenter(table) {
     if (!k.startsWith("F:")) continue;
     const nom = k.slice(2);
     if (/_p\d+$/.test(nom) && t.includes("Étape extraite de ")) {
+      if (t.includes("/* @obj */")) {
+        const a = t.indexOf("return {", t.indexOf("/* @obj */")) + 8; const b = t.lastIndexOf("};");
+        etapes.set(nom, t.slice(a, b).replace(/^\n/, "").replace(/\s+$/, "") + ",");
+        continue;
+      }
       const i = t.indexOf("{"); const j = t.lastIndexOf("}");
       const corps = t.slice(i + 1, j).replace(/^\s*\n/, "").replace(/\n\s*$/, "").replace(/\n[ \t]*\/\* @sortie \*\/ return \{[^}]*\};$/, "");
       etapes.set(nom, corps);

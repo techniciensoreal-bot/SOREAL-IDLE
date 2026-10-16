@@ -9,6 +9,61 @@
 'use strict';
 if(window.__SOREAL_IDLE_BLOOD_V1__)return;
 
+/* Étape extraite de creer (découpage d'une très grande fonction, 2026-10-16) : 38 lignes. */
+function creer_p1(ajusterRituelBloodMagicIdleV1_, systemeMetaParIdIdleV130_){
+  window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
+      /* Noms français des rituels de Blood Magic (Norman, 2026-10-01 : « traduits aussi le nom des rituels ») ; le moteur garde les noms du wiki. */
+      const IDLE_BLOOD_NOMS_RITUELS_V1={
+        tack:'Se piquer avec une punaise',
+        papercuts:'Cinquante coupures de papier',
+        hickey:'Un énorme suçon',
+        barbedWire:'Avaler un bol de fil barbelé',
+        bloodBank:'Braquage de la banque du sang',
+        decapitation:'Se décapiter soi-même',
+        woodchipper:'Faire un câlin à une déchiqueteuse',
+        insideOut:'Se retourner comme un gant'
+      };
+      const IDLE_ICONES_SORTS_V1={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};
+      const IDLE_ICONES_RITUELS_V1={tack:'📍',papercuts:'📄',hickey:'💋',barbedWire:'⛓️',bloodBank:'🏦',decapitation:'💀',woodchipper:'🪵',insideOut:'🌀'};
+      window.__idleBloodInfosOuvertesV1=window.__idleBloodInfosOuvertesV1||{};
+      window.__basculerInfoSortBloodIdleV1__=function(id,bouton){
+        const ouvert=!window.__idleBloodInfosOuvertesV1[id];
+        window.__idleBloodInfosOuvertesV1[id]=ouvert;
+        const zone=document.getElementById('sorealIdleBloodSortInfosV1_'+id);
+        if(zone)zone.hidden=!ouvert;
+        if(bouton)bouton.setAttribute('aria-expanded',ouvert?'true':'false');
+      };
+
+      /* Rangs (1 à 4) des sorts de Blood Magic que CE joueur a déjà découverts (mêmes conditions que la liste du menu) : le fil « En direct » ne nomme jamais un sort qu'il ne connaît pas. Le dernier sort n'est jamais nommé. */
+      window.__SOREAL_IDLE_SORTS_CONNUS_V1__=function(j){
+        const rangs={1:true};
+        try{
+          const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+          const data=s&&s.state&&s.state.data||{};
+          const sp=data.spells||{};
+          const n=function(v){v=Number(v);return v>0?v:0;};
+          const pic=Math.max(n(data.bloodPeak),n(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.blood));
+          if(pic>=100||n(sp.ironPill)>0)rangs[2]=true;
+          if(pic>=1e4||n(sp.bloodSpaghettiBloodSpent)>0)rangs[3]=true;
+          if(pic>=1e6||n(sp.counterfeitGoldBloodSpent)>0)rangs[4]=true;
+        }catch(e){}
+        return rangs;
+      };
+  /* @sortie */ return {IDLE_BLOOD_NOMS_RITUELS_V1:IDLE_BLOOD_NOMS_RITUELS_V1,IDLE_ICONES_SORTS_V1:IDLE_ICONES_SORTS_V1,IDLE_ICONES_RITUELS_V1:IDLE_ICONES_RITUELS_V1};
+}
+
+/* Fonction interne de creer remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
+function presetBloodMagicIdleV1_(source,fraction){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H.getIdleEtat();
+        const input=document.getElementById('sorealIdleBloodInputV1');
+        if(!input)return;
+        const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
+        const base=source==='idle'?H.idleEntier_(ressourceMagie&&ressourceMagie.current):H.idleEntier_(ressourceMagie&&ressourceMagie.cap);
+        const valeur=Math.max(1,Math.floor(base*Math.max(0,Number(fraction)||0)));
+        input.value=String(valeur);
+      }
+
 function creer(hote){
   const systemeMetaParIdIdleV130_=hote.systemeMeta;
   const envoyerAllocRapideV1_=hote.envoyerAllocRapide;
@@ -213,16 +268,7 @@ function creer(hote){
       window.__viderBloodMagicIdleV1__=viderBloodMagicIdleV1_;
 
       /* Même raccourcis que la barre d'outils de Basic Training/Augmentation : "cap" part du plafond réel de Magic, "idle" part de la Magic actuellement libre. */
-      function presetBloodMagicIdleV1_(source,fraction){
-        const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const j=H.getIdleEtat();
-        const input=document.getElementById('sorealIdleBloodInputV1');
-        if(!input)return;
-        const ressourceMagie=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;
-        const base=source==='idle'?H.idleEntier_(ressourceMagie&&ressourceMagie.current):H.idleEntier_(ressourceMagie&&ressourceMagie.cap);
-        const valeur=Math.max(1,Math.floor(base*Math.max(0,Number(fraction)||0)));
-        input.value=String(valeur);
-      }
+      /* presetBloodMagicIdleV1_ : remontée au niveau du module */
       window.__presetBloodMagicIdleV1__=presetBloodMagicIdleV1_;
 
       /*
@@ -287,44 +333,7 @@ function creer(hote){
         }
         ajusterBloodMagicIdleV1_(mode,ritualId);
       }
-      window.__ajusterRituelBloodMagicIdleV1__=ajusterRituelBloodMagicIdleV1_;
-      /* Noms français des rituels de Blood Magic (Norman, 2026-10-01 : « traduits aussi le nom des rituels ») ; le moteur garde les noms du wiki. */
-      const IDLE_BLOOD_NOMS_RITUELS_V1={
-        tack:'Se piquer avec une punaise',
-        papercuts:'Cinquante coupures de papier',
-        hickey:'Un énorme suçon',
-        barbedWire:'Avaler un bol de fil barbelé',
-        bloodBank:'Braquage de la banque du sang',
-        decapitation:'Se décapiter soi-même',
-        woodchipper:'Faire un câlin à une déchiqueteuse',
-        insideOut:'Se retourner comme un gant'
-      };
-      const IDLE_ICONES_SORTS_V1={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};
-      const IDLE_ICONES_RITUELS_V1={tack:'📍',papercuts:'📄',hickey:'💋',barbedWire:'⛓️',bloodBank:'🏦',decapitation:'💀',woodchipper:'🪵',insideOut:'🌀'};
-      window.__idleBloodInfosOuvertesV1=window.__idleBloodInfosOuvertesV1||{};
-      window.__basculerInfoSortBloodIdleV1__=function(id,bouton){
-        const ouvert=!window.__idleBloodInfosOuvertesV1[id];
-        window.__idleBloodInfosOuvertesV1[id]=ouvert;
-        const zone=document.getElementById('sorealIdleBloodSortInfosV1_'+id);
-        if(zone)zone.hidden=!ouvert;
-        if(bouton)bouton.setAttribute('aria-expanded',ouvert?'true':'false');
-      };
-
-      /* Rangs (1 à 4) des sorts de Blood Magic que CE joueur a déjà découverts (mêmes conditions que la liste du menu) : le fil « En direct » ne nomme jamais un sort qu'il ne connaît pas. Le dernier sort n'est jamais nommé. */
-      window.__SOREAL_IDLE_SORTS_CONNUS_V1__=function(j){
-        const rangs={1:true};
-        try{
-          const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
-          const data=s&&s.state&&s.state.data||{};
-          const sp=data.spells||{};
-          const n=function(v){v=Number(v);return v>0?v:0;};
-          const pic=Math.max(n(data.bloodPeak),n(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.blood));
-          if(pic>=100||n(sp.ironPill)>0)rangs[2]=true;
-          if(pic>=1e4||n(sp.bloodSpaghettiBloodSpent)>0)rangs[3]=true;
-          if(pic>=1e6||n(sp.counterfeitGoldBloodSpent)>0)rangs[4]=true;
-        }catch(e){}
-        return rangs;
-      };
+      /*>creer_p1*/const __r1=creer_p1(ajusterRituelBloodMagicIdleV1_, systemeMetaParIdIdleV130_);const IDLE_BLOOD_NOMS_RITUELS_V1=__r1.IDLE_BLOOD_NOMS_RITUELS_V1;const IDLE_ICONES_SORTS_V1=__r1.IDLE_ICONES_SORTS_V1;const IDLE_ICONES_RITUELS_V1=__r1.IDLE_ICONES_RITUELS_V1;/*<creer_p1*/
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';

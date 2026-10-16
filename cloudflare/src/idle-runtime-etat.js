@@ -17,11 +17,8 @@ import { ameliorationsSorealIdle_, bonusAmeliorationsSorealIdle_, construireAven
 import { __idleCtx, accesOuvertSorealIdle_, accesPublicSorealIdle_ } from "./idle-sqlite-runtime.js";
 import { facteurExpBossPerkSorealIdle_ } from "./idle-runtime-combat.js";
 
-export function construireEtatJoueurSorealIdle_(
-  feuille,
-  ligne,
-  progression
-) {
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 151 lignes. */
+function construireEtatJoueurSorealIdle__p1(feuille, ligne){
   const c =
     CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
 
@@ -173,22 +170,11 @@ export function construireEtatJoueurSorealIdle_(
       contexteMetaNguEtat,
       Date.now()
     );
+  /* @sortie */ return {c:c,row:row,inventaireEtat:inventaireEtat,collectionEtat:collectionEtat,equipementBrutEtat:equipementBrutEtat,defenseEtat:defenseEtat,koSecondesRestantes:koSecondesRestantes,dateDebutBrute:dateDebutBrute,dateDebutMs:dateDebutMs,ageMs:ageMs,equipementEtat:equipementEtat,capaciteInventaire:capaciteInventaire,objetsDansSac:objetsDansSac,setsEtat:setsEtat,statsEtat:statsEtat,statsBossEtat:statsBossEtat,niveauEtat:niveauEtat,bossVaincusEtat:bossVaincusEtat,bossSelectionIndex:bossSelectionIndex,attaqueBossSelection:attaqueBossSelection,defenseBossSelection:defenseBossSelection,progressionCollectionsEtat:progressionCollectionsEtat,contexteMetaNguEtat:contexteMetaNguEtat,metaNguEtat:metaNguEtat};
+}
 
-  /*
-   * Norman (2026-09-29) : « Je ne loot pas en étant hors ligne. » Cause : le farm auto d'Aventure
-   * hors ligne (Beta 6.3) avait été câblé sur l'ancien système legacy (j.aventure, zones à ID
-   * numérique, ce bloc-ci) dont le déclencheur (statsAuto.autoAventure/autoAventureZone, plus haut
-   * dans cette fonction) n'est en réalité JAMAIS mis à vrai nulle part dans le code -- un
-   * interrupteur mort depuis toujours, jamais le vrai système utilisé par un joueur (le vrai
-   * sélecteur de zone, vérifié dans Soreal_Idle_UI.html, lit partout j.systemes.adventure.
-   * selectedZone). Remplacé par advanceAdventureZoneAutoFarmOfflineV1 (idle-adventure-v47.js), câblé
-   * dans advanceLateSystems (idle-ngu-progression.js) sur le VRAI système -- son résumé de ce SEUL
-   * sync est déposé ici sur metaNguEtat.adventure.lastAutoFarmSummaryV1 puis retiré avant la
-   * persistance (JSON.stringify(statsEtat) juste en dessous), pour ne jamais polluer la sauvegarde
-   * -- même principe "delta de ce sync uniquement, jamais persisté" que l'ancien
-   * progression.autoAventureHorsLigne ci-dessous (qui reste construit mais ne peut plus jamais avoir
-   * de contenu, ce même interrupteur mort ne s'activant jamais).
-   */
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 28 lignes. */
+function construireEtatJoueurSorealIdle__p2(c, feuille, ligne, metaNguEtat, row, statsEtat){
   const autoFarmAventureEtat =
     (metaNguEtat.adventure && metaNguEtat.adventure.lastAutoFarmSummaryV1) || null;
   if (metaNguEtat.adventure) delete metaNguEtat.adventure.lastAutoFarmSummaryV1;
@@ -217,103 +203,36 @@ export function construireEtatJoueurSorealIdle_(
     );
 
   let apparenceNumeroEtat = 1;
+  /* @sortie */ return {autoFarmAventureEtat:autoFarmAventureEtat,energieMetaEtat:energieMetaEtat,apparenceNumeroEtat:apparenceNumeroEtat};
+}
 
-  progressionCollectionsEtat.zones
-    .forEach(function(zoneCollection) {
-      if (!zoneCollection.complete) {
-        return;
-      }
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 18 lignes. */
+function construireEtatJoueurSorealIdle__p3(feuille, ligne){
+  const __r1=construireEtatJoueurSorealIdle__p1(feuille, ligne);const c=__r1.c;const row=__r1.row;const inventaireEtat=__r1.inventaireEtat;const collectionEtat=__r1.collectionEtat;const equipementBrutEtat=__r1.equipementBrutEtat;const defenseEtat=__r1.defenseEtat;const koSecondesRestantes=__r1.koSecondesRestantes;const dateDebutBrute=__r1.dateDebutBrute;const dateDebutMs=__r1.dateDebutMs;const ageMs=__r1.ageMs;const equipementEtat=__r1.equipementEtat;const capaciteInventaire=__r1.capaciteInventaire;const objetsDansSac=__r1.objetsDansSac;const setsEtat=__r1.setsEtat;const statsEtat=__r1.statsEtat;const statsBossEtat=__r1.statsBossEtat;const niveauEtat=__r1.niveauEtat;const bossVaincusEtat=__r1.bossVaincusEtat;const bossSelectionIndex=__r1.bossSelectionIndex;const attaqueBossSelection=__r1.attaqueBossSelection;const defenseBossSelection=__r1.defenseBossSelection;const progressionCollectionsEtat=__r1.progressionCollectionsEtat;const contexteMetaNguEtat=__r1.contexteMetaNguEtat;const metaNguEtat=__r1.metaNguEtat;/*<construireEtatJoueurSorealIdle__p1*/
 
-      const set =
-        setsSorealIdle_()
-          .find(function(s) {
-            return s.zoneId === zoneCollection.zoneId;
-          });
+  /*
+   * Norman (2026-09-29) : « Je ne loot pas en étant hors ligne. » Cause : le farm auto d'Aventure
+   * hors ligne (Beta 6.3) avait été câblé sur l'ancien système legacy (j.aventure, zones à ID
+   * numérique, ce bloc-ci) dont le déclencheur (statsAuto.autoAventure/autoAventureZone, plus haut
+   * dans cette fonction) n'est en réalité JAMAIS mis à vrai nulle part dans le code -- un
+   * interrupteur mort depuis toujours, jamais le vrai système utilisé par un joueur (le vrai
+   * sélecteur de zone, vérifié dans Soreal_Idle_UI.html, lit partout j.systemes.adventure.
+   * selectedZone). Remplacé par advanceAdventureZoneAutoFarmOfflineV1 (idle-adventure-v47.js), câblé
+   * dans advanceLateSystems (idle-ngu-progression.js) sur le VRAI système -- son résumé de ce SEUL
+   * sync est déposé ici sur metaNguEtat.adventure.lastAutoFarmSummaryV1 puis retiré avant la
+   * persistance (JSON.stringify(statsEtat) juste en dessous), pour ne jamais polluer la sauvegarde
+   * -- même principe "delta de ce sync uniquement, jamais persisté" que l'ancien
+   * progression.autoAventureHorsLigne ci-dessous (qui reste construit mais ne peut plus jamais avoir
+   * de contenu, ce même interrupteur mort ne s'activant jamais).
+   */
+  /*>construireEtatJoueurSorealIdle__p2*/const __r2=construireEtatJoueurSorealIdle__p2(c, feuille, ligne, metaNguEtat, row, statsEtat);const autoFarmAventureEtat=__r2.autoFarmAventureEtat;const energieMetaEtat=__r2.energieMetaEtat;let apparenceNumeroEtat=__r2.apparenceNumeroEtat;
+  /* @sortie */ return {__r1:__r1,c:c,row:row,inventaireEtat:inventaireEtat,collectionEtat:collectionEtat,equipementBrutEtat:equipementBrutEtat,defenseEtat:defenseEtat,koSecondesRestantes:koSecondesRestantes,dateDebutBrute:dateDebutBrute,dateDebutMs:dateDebutMs,ageMs:ageMs,equipementEtat:equipementEtat,capaciteInventaire:capaciteInventaire,objetsDansSac:objetsDansSac,setsEtat:setsEtat,statsEtat:statsEtat,statsBossEtat:statsBossEtat,niveauEtat:niveauEtat,bossVaincusEtat:bossVaincusEtat,bossSelectionIndex:bossSelectionIndex,attaqueBossSelection:attaqueBossSelection,defenseBossSelection:defenseBossSelection,progressionCollectionsEtat:progressionCollectionsEtat,contexteMetaNguEtat:contexteMetaNguEtat,metaNguEtat:metaNguEtat,__r2:__r2,autoFarmAventureEtat:autoFarmAventureEtat,energieMetaEtat:energieMetaEtat,apparenceNumeroEtat:apparenceNumeroEtat};
+}
 
-      if (set) {
-        apparenceNumeroEtat =
-          Math.max(
-            apparenceNumeroEtat,
-            set.apparence
-          );
-      }
-    });
-
-  const reposListeEtat =
-    reposSorealIdle_();
-
-  const reposNumeroEtat =
-    Math.max(
-      1,
-      Math.floor(
-        nombreSorealIdle_(
-          statsBossEtat.reposNumero,
-          1
-        )
-      )
-    );
-
-  const reposEtat =
-    reposListeEtat.find(
-      function(r) {
-        return r.numero === reposNumeroEtat;
-      }
-    ) ||
-    reposListeEtat[0] ||
-    {
-      numero: 1,
-      nom: 'Salle de repos 1',
-      regenPctSec: 2.5,
-      driveFileId: ''
-    };
-
-  const apparenceEtat =
-    apparencesSorealIdle_()
-      .find(function(a) {
-        return a.numero === apparenceNumeroEtat;
-      }) ||
-    apparencesSorealIdle_()[0] ||
-    {
-      numero: 1,
-      driveFileId: ''
-    };
-
-  const bossDefinitionEtat =
-    definitionBossSorealIdle_(
-      bossSelectionIndex
-    );
-
-  const productionSecondeEtat =
-    Math.max(
-      CONFIG_SOREAL_IDLE.PROD_SECONDE_BASE,
-      nombreSorealIdle_(
-        row[c.PROD_SECONDE - 1],
-        CONFIG_SOREAL_IDLE.PROD_SECONDE_BASE
-      )
-    );
-
-  const metaTickEnergieEtat =
-    metaTickEnergieSorealIdle_(
-      productionSecondeEtat
-    );
-
-  const combatPrincipalEtat =
-    statsCombatPrincipalSorealIdleV413_(
-      statsEtat,
-      inventaireEtat,
-      equipementBrutEtat,
-      row[
-        c.AMELIORATIONS_JSON - 1
-      ],
-      row[
-        c.ESSENCE_RENAISSANCE - 1
-      ],
-      collectionEtat,
-      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
-    );
-
-  return {
-    id:
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 175 lignes. */
+function construireEtatJoueurSorealIdle__o1(c, combatPrincipalEtat, metaNguEtat, metaTickEnergieEtat, productionSecondeEtat, row, statsEtat){
+  /* @obj */ return {
+id:
       String(
         row[c.ID - 1] || ''
       ),
@@ -487,9 +406,14 @@ export function construireEtatJoueurSorealIdle_(
           c.ORGANISATION - 1
         ],
         1
-      ),
+      )
+  };
+}
 
-    puissance:
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 200 lignes. */
+function construireEtatJoueurSorealIdle__o2(attaqueBossSelection, bossDefinitionEtat, bossSelectionIndex, c, defenseBossSelection, defenseEtat, metaNguEtat, progression, row, statsBossEtat){
+  /* @obj */ return {
+puissance:
       nombreSorealIdle_(
         row[
           c.PUISSANCE - 1
@@ -688,14 +612,14 @@ export function construireEtatJoueurSorealIdle_(
     bossMortVivant:
       Boolean(
         bossDefinitionEtat.mortVivant
-      ),
+      )
+  };
+}
 
-    /*
-     * V186 — IDLE_BOSS.Conseil est un vestige éditorial SOREAL historique,
-     * non sourcé NGU. Les histoires restent ; les anciens "tips" sont
-     * neutralisés partout.
-     */
-    bossConseil: '',
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 211 lignes. */
+function construireEtatJoueurSorealIdle__o3(c, capaciteInventaire, collectionEtat, equipementEtat, inventaireEtat, koSecondesRestantes, metaNguEtat, objetsDansSac, progressionCollectionsEtat, row, statsEtat){
+  /* @obj */ return {
+bossConseil: '',
 
     ko:
       koSecondesRestantes > 0,
@@ -905,9 +829,14 @@ export function construireEtatJoueurSorealIdle_(
           ) &&
           collectionEtat.length > 0
         )
-      ),
+      )
+  };
+}
 
-    coutExtensionInventaire:
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 195 lignes. */
+function construireEtatJoueurSorealIdle__o4(ageMs, apparenceEtat, apparenceNumeroEtat, c, capaciteInventaire, dateDebutMs, equipementEtat, reposEtat, row, setsEtat, statsEtat){
+  /* @obj */ return {
+coutExtensionInventaire:
       coutExtensionSacSorealIdle_(
         capaciteInventaire
       ),
@@ -1101,9 +1030,14 @@ export function construireEtatJoueurSorealIdle_(
             1.7
           )
         )
-    },
+    }
+  };
+}
 
-    inventaireMeta: {
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 229 lignes. */
+function construireEtatJoueurSorealIdle__o5(bossSelectionIndex, c, contexteMetaNguEtat, defenseEtat, metaNguEtat, niveauEtat, row){
+  /* @obj */ return {
+inventaireMeta: {
       base:
         Math.max(
           1,
@@ -1331,9 +1265,14 @@ export function construireEtatJoueurSorealIdle_(
             bossSelectionIndex + 1,
             Math.floor(nombreSorealIdle_(metaNguEtat.records && metaNguEtat.records.highestBoss, 0))
           );
-        }),
+        })
+  };
+}
 
-    banniereDriveFileId:
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 297 lignes. */
+function construireEtatJoueurSorealIdle__o6(bossSelectionIndex, bossVaincusEtat, c, defenseEtat, metaNguEtat, niveauEtat, progression, row, statsEtat){
+  /* @obj */ return {
+banniereDriveFileId:
       typeof banniereSorealIdleDriveFileId_ === 'function'
         ? banniereSorealIdleDriveFileId_()
         : String(
@@ -1629,18 +1568,14 @@ export function construireEtatJoueurSorealIdle_(
               0
             )
           : 0
-    },
+    }
+  };
+}
 
-    /*
-     * Norman (2026-09-27) : « Parfois, je meurs en mode aventure et dans le journal de combat, ma mort n'apparaît
-     * pas. » Cause : le combat automatique d'Aventure (Beta 3.6, en ligne comme hors ligne) se résout entièrement
-     * côté serveur -- une défaite au combat auto ne passe jamais par terminerCombatAdventureLocalV2_ (client), qui
-     * est le SEUL endroit qui alimente le journal. progression.autoAventureHorsLigne était déjà calculé ici mais
-     * jamais renvoyé au client (jeté à chaque appel) : exposé ci-dessous pour que le client puisse enfin logger
-     * une défaite auto qu'il n'a jamais vue passer. `defaites` est dérivé (combats-victoires) : le serveur ne
-     * compte jamais les défaites d'un combat normal (seul un boss auto raté incrémente bossEchecs).
-     */
-    autoAventureHorsLigne:
+/* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 40 lignes. */
+function construireEtatJoueurSorealIdle__o7(autoFarmAventureEtat){
+  /* @obj */ return {
+autoAventureHorsLigne:
       autoFarmAventureEtat
         ? (function(a){
             const victoires=Math.max(0,nombreSorealIdle_(a.kills,0));
@@ -1680,6 +1615,119 @@ export function construireEtatJoueurSorealIdle_(
 
     serveurTs:
       Date.now()
+  };
+}
+
+export function construireEtatJoueurSorealIdle_(
+  feuille,
+  ligne,
+  progression
+) {
+  /*>construireEtatJoueurSorealIdle__p1*//*>construireEtatJoueurSorealIdle__p3*/const __r3=construireEtatJoueurSorealIdle__p3(feuille, ligne);const __r1=__r3.__r1;const c=__r3.c;const row=__r3.row;const inventaireEtat=__r3.inventaireEtat;const collectionEtat=__r3.collectionEtat;const equipementBrutEtat=__r3.equipementBrutEtat;const defenseEtat=__r3.defenseEtat;const koSecondesRestantes=__r3.koSecondesRestantes;const dateDebutBrute=__r3.dateDebutBrute;const dateDebutMs=__r3.dateDebutMs;const ageMs=__r3.ageMs;const equipementEtat=__r3.equipementEtat;const capaciteInventaire=__r3.capaciteInventaire;const objetsDansSac=__r3.objetsDansSac;const setsEtat=__r3.setsEtat;const statsEtat=__r3.statsEtat;const statsBossEtat=__r3.statsBossEtat;const niveauEtat=__r3.niveauEtat;const bossVaincusEtat=__r3.bossVaincusEtat;const bossSelectionIndex=__r3.bossSelectionIndex;const attaqueBossSelection=__r3.attaqueBossSelection;const defenseBossSelection=__r3.defenseBossSelection;const progressionCollectionsEtat=__r3.progressionCollectionsEtat;const contexteMetaNguEtat=__r3.contexteMetaNguEtat;const metaNguEtat=__r3.metaNguEtat;const __r2=__r3.__r2;const autoFarmAventureEtat=__r3.autoFarmAventureEtat;const energieMetaEtat=__r3.energieMetaEtat;let apparenceNumeroEtat=__r3.apparenceNumeroEtat;/*<construireEtatJoueurSorealIdle__p3*//*<construireEtatJoueurSorealIdle__p2*/
+
+  progressionCollectionsEtat.zones
+    .forEach(function(zoneCollection) {
+      if (!zoneCollection.complete) {
+        return;
+      }
+
+      const set =
+        setsSorealIdle_()
+          .find(function(s) {
+            return s.zoneId === zoneCollection.zoneId;
+          });
+
+      if (set) {
+        apparenceNumeroEtat =
+          Math.max(
+            apparenceNumeroEtat,
+            set.apparence
+          );
+      }
+    });
+
+  const reposListeEtat =
+    reposSorealIdle_();
+
+  const reposNumeroEtat =
+    Math.max(
+      1,
+      Math.floor(
+        nombreSorealIdle_(
+          statsBossEtat.reposNumero,
+          1
+        )
+      )
+    );
+
+  const reposEtat =
+    reposListeEtat.find(
+      function(r) {
+        return r.numero === reposNumeroEtat;
+      }
+    ) ||
+    reposListeEtat[0] ||
+    {
+      numero: 1,
+      nom: 'Salle de repos 1',
+      regenPctSec: 2.5,
+      driveFileId: ''
+    };
+
+  const apparenceEtat =
+    apparencesSorealIdle_()
+      .find(function(a) {
+        return a.numero === apparenceNumeroEtat;
+      }) ||
+    apparencesSorealIdle_()[0] ||
+    {
+      numero: 1,
+      driveFileId: ''
+    };
+
+  const bossDefinitionEtat =
+    definitionBossSorealIdle_(
+      bossSelectionIndex
+    );
+
+  const productionSecondeEtat =
+    Math.max(
+      CONFIG_SOREAL_IDLE.PROD_SECONDE_BASE,
+      nombreSorealIdle_(
+        row[c.PROD_SECONDE - 1],
+        CONFIG_SOREAL_IDLE.PROD_SECONDE_BASE
+      )
+    );
+
+  const metaTickEnergieEtat =
+    metaTickEnergieSorealIdle_(
+      productionSecondeEtat
+    );
+
+  const combatPrincipalEtat =
+    statsCombatPrincipalSorealIdleV413_(
+      statsEtat,
+      inventaireEtat,
+      equipementBrutEtat,
+      row[
+        c.AMELIORATIONS_JSON - 1
+      ],
+      row[
+        c.ESSENCE_RENAISSANCE - 1
+      ],
+      collectionEtat,
+      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
+    );
+
+  return {
+    
+    /*>construireEtatJoueurSorealIdle__o1*/...construireEtatJoueurSorealIdle__o1(c, combatPrincipalEtat, metaNguEtat, metaTickEnergieEtat, productionSecondeEtat, row, statsEtat),/*<construireEtatJoueurSorealIdle__o1*/
+    /*>construireEtatJoueurSorealIdle__o2*/...construireEtatJoueurSorealIdle__o2(attaqueBossSelection, bossDefinitionEtat, bossSelectionIndex, c, defenseBossSelection, defenseEtat, metaNguEtat, progression, row, statsBossEtat),/*<construireEtatJoueurSorealIdle__o2*/
+    /*>construireEtatJoueurSorealIdle__o3*/...construireEtatJoueurSorealIdle__o3(c, capaciteInventaire, collectionEtat, equipementEtat, inventaireEtat, koSecondesRestantes, metaNguEtat, objetsDansSac, progressionCollectionsEtat, row, statsEtat),/*<construireEtatJoueurSorealIdle__o3*/
+    /*>construireEtatJoueurSorealIdle__o4*/...construireEtatJoueurSorealIdle__o4(ageMs, apparenceEtat, apparenceNumeroEtat, c, capaciteInventaire, dateDebutMs, equipementEtat, reposEtat, row, setsEtat, statsEtat),/*<construireEtatJoueurSorealIdle__o4*/
+    /*>construireEtatJoueurSorealIdle__o5*/...construireEtatJoueurSorealIdle__o5(bossSelectionIndex, c, contexteMetaNguEtat, defenseEtat, metaNguEtat, niveauEtat, row),/*<construireEtatJoueurSorealIdle__o5*/
+    /*>construireEtatJoueurSorealIdle__o6*/...construireEtatJoueurSorealIdle__o6(bossSelectionIndex, bossVaincusEtat, c, defenseEtat, metaNguEtat, niveauEtat, progression, row, statsEtat),/*<construireEtatJoueurSorealIdle__o6*/
+    /*>construireEtatJoueurSorealIdle__o7*/...construireEtatJoueurSorealIdle__o7(autoFarmAventureEtat),/*<construireEtatJoueurSorealIdle__o7*/
   };
 }
 
