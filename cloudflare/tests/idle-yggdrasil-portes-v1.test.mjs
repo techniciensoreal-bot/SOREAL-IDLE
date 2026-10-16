@@ -22,12 +22,17 @@ const code = [
   coupe(/var VANTAIL_='[^\n]*\n/),
   coupe(/function porte_\(id,ouvre\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
+  coupe(/var CLE_PORTES_VUES_=[^\n]*\n/),
+  coupe(/function renaissances_\(\)\{[^\n]*\n/),
+  coupe(/function portesVues_\(\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/function porteVue_\(id\)\{[^\n]*\n/),
+  coupe(/function noterPorteVue_\(id,vue\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
   "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,teinte_:teinte_};"
 ].join("\n");
-function monde() {
+function monde(stock = {}, renaissances = { n: 0 }) {
   let maintenant = 1_800_000_000_000;
-  const ctx = { Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, localStorage: { getItem: () => null, setItem() {} } };
+  const ctx = { Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, Array, window: { __SOREAL_IDLE_META_HOST_V130__: { getIdleEtat: () => ({ systemes: { records: { totalRebirths: renaissances.n } } }) } }, localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem(k, v) { stock[k] = String(v); } } };
   vm.runInNewContext("(function(){" + code + "}).call(this)", ctx);
   return { api: ctx.api, avancer: (ms) => { maintenant += ms; } };
 }
@@ -41,11 +46,22 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.equal(m.api.sons.length, 0, "aucun son tant qu'elle est fermée");
   assert.equal(m.api.porteDe_("gold", false), h, "redessin à l'identique (rien ne bouge)");
 }
-// 2. Fruit déjà actif à l'ouverture de la page : pas de porte, pas d'animation, pas de son.
+// 2. Fruit déjà actif à la PREMIÈRE visite depuis la renaissance (auto actif, fruit même prêt) : la porte s'ouvre quand même, avec le son ; aux visites suivantes (même renaissance), plus de porte.
 {
-  const m = monde();
-  assert.equal(m.api.porteDe_("luck", true), "");
-  assert.equal(m.api.sons.length, 0);
+  const stock = {}, rb = { n: 3 };
+  const m = monde(stock, rb);
+  assert.ok(m.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "première visite : la porte s'ouvre même si le fruit est déjà actif");
+  assert.equal(m.api.sons.join(), "porte", "avec son");
+  m.avancer(60_000);
+  assert.equal(m.api.porteDe_("luck", true), "", "ouverture finie : plus de porte");
+  const m2 = monde(stock, rb);   // page rechargée, même renaissance : rien ne se rejoue
+  assert.equal(m2.api.porteDe_("luck", true), "");
+  assert.equal(m2.api.sons.length, 0, "déjà vue : ni porte ni son");
+  rb.n = 4;                       // renaissance : les portes sont à revoir
+  const m3 = monde(stock, rb);
+  assert.ok(m3.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "après une renaissance, la porte s'ouvre de nouveau à la première visite");
+  const m4 = monde({}, { n: 4 });
+  assert.ok(ferme(m4.api.porteDe_("gold", false)), "après la renaissance, un fruit inactif reste derrière sa porte close");
 }
 // 3. Le fruit s'active sous les yeux du joueur : ouverture UNE fois, avec le son « porte » ; puis plus de porte.
 {

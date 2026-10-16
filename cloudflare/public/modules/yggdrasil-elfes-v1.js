@@ -299,11 +299,31 @@
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte choisi dans le banc d'essai : « porte » (pierre, lourde) ou « porteBois ». */
   function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
+  /*
+   * Portes revues après une renaissance (Norman, 2026-10-16) : « après un rebirth, les portes doivent être fermées ; avec l'auto actif, on doit quand même les voir s'ouvrir à la première visite du
+   * menu, même si le fruit est déjà bien avancé, voire prêt ». On retient, par renaissance (records.totalRebirths), les fruits dont on a déjà vu la porte s'ouvrir ; un fruit actif absent de cette liste
+   * montre sa porte close puis l'ouvre (avec le son). Liste gardée dans le stockage (donc liée au compte, voir prefs-compte-v1.js) ; une nouvelle renaissance la vide.
+   */
+  var CLE_PORTES_VUES_='soreal_idle_ygg_portes_vues_v1';
+  function renaissances_(){try{return Number(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat().systemes.records.totalRebirths)||0;}catch(_e){return 0;}}
+  function portesVues_(){
+    var r=renaissances_(),o=null;
+    try{o=JSON.parse(localStorage.getItem(CLE_PORTES_VUES_)||'null');}catch(_e){}
+    if(!o||typeof o!=='object'||Number(o.r)!==r||!Array.isArray(o.v))return {r:r,v:[]};
+    return o;
+  }
+  function porteVue_(id){return portesVues_().v.indexOf(id)>=0;}
+  function noterPorteVue_(id,vue){
+    var o=portesVues_(),i=o.v.indexOf(id);
+    if(vue&&i<0)o.v.push(id);else if(!vue&&i>=0)o.v.splice(i,1);else if(Number(o.r)===renaissances_()&&(vue===(i>=0)))return;
+    try{localStorage.setItem(CLE_PORTES_VUES_,JSON.stringify({r:o.r,v:o.v}));}catch(_e){}
+  }
   function porteDe_(id,actif){
     if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
-    if(!actif){etat.fermees[id]=true;delete etat.ouvre[id];return porte_(id,false);}
+    if(!actif){etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);return porte_(id,false);}
+    if(!etat.fermees[id]&&!etat.ouvre[id]&&!porteVue_(id))etat.fermees[id]=true;   /* premiere visite depuis la renaissance : la porte s'ouvre meme si le fruit est deja actif */
     var vit=reglages_().porte;
-    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();son_(nomSonPorte_(),vit);}
+    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);son_(nomSonPorte_(),vit);}
     var t=etat.ouvre[id];
     if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
     delete etat.ouvre[id];

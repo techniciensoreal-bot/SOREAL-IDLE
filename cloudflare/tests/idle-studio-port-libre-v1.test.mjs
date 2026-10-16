@@ -24,8 +24,9 @@ assert.ok(/SERVEURS_DE_DEV/.test(lib) && lib.includes("jamais arrêté") || lib.
 // 2. Comportement réel, sur un port libre choisi au hasard (jamais 8765 : le vrai studio n'est pas dérangé). Nécessite un Python ; sinon cette partie est sautée (dit clairement).
 const candidats = [process.env.PYTHON, join(process.env.APPDATA || "", "uv/python/cpython-3.12-windows-x86_64-none/python.exe"), "python3", "python"].filter(Boolean);
 const python = candidats.find((p) => { try { return spawnSync(p, ["-c", "import sys;print(sys.version_info[0])"], { encoding: "utf8" }).stdout.trim() === "3"; } catch (_e) { return false; } });
-if (!python) {
-  console.log("idle-studio-port-libre-v1: partie comportement sautée (aucun Python 3 trouvé) ; branchements OK");
+/* Le studio de voix est un outil Windows (netstat, powershell, taskkill) : la CI Linux ne rejoue que les branchements. */
+if (process.platform !== "win32" || !python) {
+  console.log("idle-studio-port-libre-v1: partie comportement sautée (Windows et Python 3 requis) ; branchements OK");
   process.exit(0);
 }
 const portLibre = () => new Promise((res) => { const s = net.createServer(); s.listen(0, "127.0.0.1", () => { const p = s.address().port; s.close(() => res(p)); }); });

@@ -48,6 +48,7 @@
             'Les accidents du Coffre sont aléatoires mais jamais rapprochés (dix minutes au moins entre deux), et sa phrase sur un objet qu’il digère mal est beaucoup plus rare.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Après une renaissance, les portes sont de nouveau fermées : à ta première visite, tu les vois s’ouvrir, même si l’auto a déjà fait avancer ou finir le fruit.',
             'Un fruit sans énergie reste derrière une porte fermée, sans aucune animation ; au moment de placer l’énergie, la porte s’ouvre avec son bruit (pierre ou bois, au choix dans le banc d’essai).',
             'Chaque fruit a sa porte, aux emblèmes différents, et un cadre de même taille que son image.',
             'Un fruit au niveau maximum joue ses 20 images à bonne vitesse en arrivant sur la page ; le choix Manger / Récolter de chaque fruit est mémorisé.',

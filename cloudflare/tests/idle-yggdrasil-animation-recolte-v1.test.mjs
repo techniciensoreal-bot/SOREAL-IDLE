@@ -23,6 +23,11 @@ const code = [
   coupe(/function jouerImages_\(id,vitre,depart,R,fini\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function lancerAnimation_\(id\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
+  coupe(/var CLE_PORTES_VUES_=[^\n]*\n/),
+  "function renaissances_(){return 0;}",
+  coupe(/function portesVues_\(\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/function porteVue_\(id\)\{[^\n]*\n/),
+  coupe(/function noterPorteVue_\(id,vue\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
   "function porte_(){return '<div class=\"ygg-porte\"></div>';}",
   "this.api={etat:etat,lancerAnimation_:lancerAnimation_,precharger_:precharger_,porteDe_:porteDe_,regler:function(e){etapeFournie=e;},rafraichissements:function(){return rafraichissements;},CADENCE:reglages_().cadence,reglages:reglages_,ecrire:ecrireReglages_};"
@@ -32,7 +37,7 @@ function monde({ reduit = false, vitre = true, stock = {} } = {}) {
   const fabrique = () => { const o = { className: "", attrs: {}, parentNode: null, setAttribute(k, v) { this.attrs[k] = v; }, set src(v) { this.srcs.push(v); }, get src() { return this.srcs[this.srcs.length - 1]; }, srcs: [] }; return o; };
   const zoneVitre = { appendChild(n) { n.parentNode = { removeChild: (x) => { x.parentNode = null; calques.retires = (calques.retires || 0) + 1; } }; calques.push(n); }, };
   const ctx = {
-    Date: class extends Date { static now() { return maintenant; } }, Math, String, encodeURIComponent, Object, Boolean, JSON, Number, isFinite,
+    Date: class extends Date { static now() { return maintenant; } }, Math, String, Array, encodeURIComponent, Object, Boolean, JSON, Number, isFinite,
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } },
     document: { querySelector: () => (vitre ? zoneVitre : null), createElement: () => fabrique() },
     window: { matchMedia: () => ({ matches: reduit }) },
