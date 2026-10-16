@@ -32,8 +32,8 @@
   "sha": "b290f60035f32a87b1cb5c14093b97479647d6b7"
  },
  "/modules/audio-coffre-v1.js": {
-  "pin": 7,
-  "sha": "1c13ec5be76f84abf9a891a85cd54caeb3d85650"
+  "pin": 8,
+  "sha": "2c4a04b3e884d6312b851b503dc1a308c9a1707a"
  },
  "/modules/audio-effects-v199.js": {
   "pin": 253,
@@ -512,12 +512,12 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 11,
-  "sha": "f036cf5a88016831bfb4a964276deaf638891b65"
+  "pin": 20,
+  "sha": "da8524827dd8fa4360670583805c0935d4f98d82"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 1,
-  "sha": "036c7bc0359f6bf1f65bcfa6f0e24be853166463"
+  "pin": 6,
+  "sha": "f478b472fc45ba3458646a30844eaf7096687a08"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 9,

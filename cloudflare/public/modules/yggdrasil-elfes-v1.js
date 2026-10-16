@@ -15,7 +15,7 @@
   if(window.__SOREAL_IDLE_YGG_V1__)return;
 
   var PAR_PAGE=9;
-  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null};
+  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null,fermees:{},ouvre:{},anim:{},precharge:{}};
   function son_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouer)S.jouer(nom,option);}
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
@@ -84,9 +84,19 @@
       '.ygg-cadre::before{content:"❦ ✦ ❦";top:-.7em}.ygg-cadre::after{content:"❧ ✦ ❧";bottom:-.7em}',
       /* Titre. */
       '.ygg-entete{display:flex;align-items:center;gap:2.4cqw;margin-bottom:2.4cqw;}',
-      '.ygg-titre{flex:1;min-width:0;text-align:center;padding:1.2cqw 2cqw;border:3px solid #000;border-radius:4px;background:linear-gradient(180deg,#3d7a4c,#1c4a2c);box-shadow:inset 0 2px 0 rgba(255,255,255,.25),4px 4px 0 #000;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,14px 100%,0 50%);}',
-      '.ygg-titre b{display:block;font-size:clamp(15px,4.6cqw,30px);font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--or);text-shadow:0 2px 0 #000,0 0 14px rgba(240,204,98,.6);}',
-      '.ygg-titre small{display:block;font-size:clamp(9px,1.9cqw,13px);font-style:italic;color:#d8efc4;margin-top:2px;}',
+      /* Titre en BRANCHE VIVANTE (Norman, 2026-10-16 : « pas une planche, on dirait le fond du coffre : un truc boisé, arbre, feuilles, plantes ») : un tronçon de branche à bouts arrondis (bordure et ombre suivent le
+         contour), écorce striée avec des nœuds, mousse sur le dessus, une touffe de feuilles à chaque bout et une vigne qui pend dessous. Dégradés et dessins SVG statiques seulement. */
+      '.ygg-titre{flex:1;min-width:0;position:relative;text-align:center;padding:1.3cqw 9cqw;margin-bottom:12px;border:3px solid #24150a;border-radius:999px;background:linear-gradient(180deg,rgba(132,196,84,.95) 0,rgba(96,160,64,.8) 9%,rgba(70,120,48,0) 30%),radial-gradient(ellipse 9% 28% at 18% 62%,#2b1a0c 0 45%,transparent 50%),radial-gradient(ellipse 6% 22% at 71% 40%,#2b1a0c 0 45%,transparent 50%),repeating-linear-gradient(180deg,rgba(30,16,6,.0) 0 5px,rgba(30,16,6,.28) 5px 6px,rgba(255,220,160,.07) 6px 8px),repeating-linear-gradient(90deg,rgba(30,16,6,.2) 0 2px,transparent 2px 23px,rgba(30,16,6,.14) 23px 24px,transparent 24px 41px),linear-gradient(180deg,#7a5430,#5b3d22 55%,#3e2915);box-shadow:inset 0 2px 0 rgba(255,225,170,.28),inset 0 -4px 0 rgba(20,10,3,.45),3px 4px 0 rgba(0,0,0,.8);}',
+      '.ygg-feu{position:absolute;top:50%;width:19%;max-width:92px;min-width:54px;transform:translateY(-50%);pointer-events:none;}',
+      '.ygg-feu svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(1px 2px 0 rgba(0,0,0,.65));}',
+      '.ygg-feu.g{left:-3%;}.ygg-feu.d{right:-3%;transform:translateY(-50%) scaleX(-1);}',
+      '.ygg-vigne{position:absolute;left:14%;right:14%;bottom:-13px;height:17px;pointer-events:none;}',
+      '.ygg-vigne svg{display:block;width:100%;height:100%;overflow:visible;}',
+      '.ygg-titre b{display:block;font-size:clamp(15px,4.6cqw,30px);font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#ffd976;text-shadow:0 2px 0 #3a1f0a,0 -1px 0 rgba(255,238,180,.45),0 0 10px rgba(255,200,90,.35);}',
+      '.ygg-titre small{display:block;font-size:clamp(9px,1.9cqw,13px);font-style:italic;color:#f5e6bd;text-shadow:0 1px 0 #3a1f0a;margin-top:2px;}',
+      /* Le thème global des titres impose sa couleur et son ombre : la couleur or doit le battre. */
+      '.ygg-page .ygg-titre b{color:#ffd976!important}',
+      '.ygg-page .ygg-titre small{color:#f5e6bd!important;text-shadow:0 1px 0 #3a1f0a!important}',
       '.ygg-aide-bouton{flex:0 0 auto;max-width:21cqw;padding:.8em .9em;font:700 clamp(10px,2cqw,13px) Georgia,serif;line-height:1.15;color:#1c2a14;border:3px solid #000;border-radius:4px;background:linear-gradient(180deg,#f4edc9,#d3c68d);box-shadow:3px 3px 0 #000;cursor:pointer;min-height:44px;}',
       '.ygg-aide{display:none;margin:0 0 2.4cqw;padding:2cqw 2.6cqw;border:3px solid #000;border-radius:4px;background:rgba(7,22,13,.78);font-size:clamp(11px,2.2cqw,15px);line-height:1.45;box-shadow:4px 4px 0 #000;}',
       '.ygg-aide.ouvert{display:block;}',
@@ -105,7 +115,38 @@
       '.ygg-secours{font-size:clamp(26px,9cqw,60px);filter:drop-shadow(0 2px 0 rgba(0,0,0,.6));}',
       /* Fruit d'or (20 images de croissance, 561 x 701 environ) : le cadre prend le FORMAT de l'image (4/5, portrait), pas sa résolution. */
       '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
+      /* Porte close : dessin fixe, aucune animation ; seule la classe .ouvre anime (transform et opacité, une fois). */
+      '.ygg-porte{position:absolute;inset:0;z-index:4;display:flex;overflow:hidden;pointer-events:none;border-radius:9px;perspective:300px;background:#120f0c;box-shadow:inset 0 0 0 3px #17130f,inset 0 0 0 6px var(--r,#8a8272),inset 0 0 0 8px #17130f;}',
+      '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;backface-visibility:hidden;}',
+      '.ygg-porte-g{margin:8px 0 8px 8px;transform-origin:0 50%;}',
+      '.ygg-porte-d{margin:8px 8px 8px 0;transform-origin:100% 50%;}',
+      '.ygg-porte svg{display:block;width:100%;height:100%;}',
+      '.ygg-porte-d svg{transform:scaleX(-1);}',
+      '.ygg-porte-emb{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;padding:5%;box-sizing:border-box;border-radius:50%;color:var(--e);background:radial-gradient(circle at 35% 30%,hsl(var(--h) 22% 26%),#100d0b);box-shadow:0 0 0 2px var(--r),0 0 0 4px #17130f,0 3px 5px rgba(0,0,0,.6);}',
+      '.ygg-porte-emb svg{display:block;width:100%;height:100%;overflow:visible;}',
+      '.ygg-porte-lueur{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,var(--e),transparent 70%);}',
+      '@keyframes yggPorteG{0%{transform:rotateY(0)}25%{transform:rotateY(-6deg)}100%{transform:rotateY(-104deg)}}',
+      '@keyframes yggPorteD{0%{transform:rotateY(0)}25%{transform:rotateY(6deg)}100%{transform:rotateY(104deg)}}',
+      '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
+      '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
+      '@keyframes yggPorteEmb{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}',
+      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;background:transparent;box-shadow:none;}',
+      '.ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
+      '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
+      '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
+      '.ygg-porte.ouvre .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both;}',
+      '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
+      '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
+      /* Banc d'essai des animations (administrateur) */
+      '.ygg-banc{margin-top:16px;padding:12px;border:3px solid #000;border-radius:10px;background:rgba(0,0,0,.3);color:#f4f8ea;}',
+      '.ygg-banc-titre{font-weight:700;font-size:clamp(13px,2.6cqw,17px);margin-bottom:8px;}.ygg-banc-titre small{font-weight:400;opacity:.75;}',
+      '.ygg-banc-corps{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;}',
+      '.ygg-banc .ygg-vitre.ygg-portrait.ygg-banc-vitre{flex:0 0 38%;max-width:230px;min-width:150px;width:38%;margin:0;}',
+      '.ygg-banc-regl{flex:1 1 220px;display:flex;flex-direction:column;gap:9px;font-size:clamp(12px,2.4cqw,15px);}',
+      '.ygg-banc-regl label{display:flex;flex-direction:column;gap:3px;}.ygg-banc-regl input[type=range]{width:100%;min-height:30px;accent-color:#e0b640;}',
+      '.ygg-banc-sens label{display:inline-flex;flex-direction:row;gap:5px;margin-right:12px;cursor:pointer;}',
+      '.ygg-banc-boutons{display:flex;gap:8px;flex-wrap:wrap;}.ygg-banc-note{font-size:.85em;opacity:.85;line-height:1.35;}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -206,8 +247,195 @@
     return Math.max(0,Math.min(18,Math.floor(v.growth/max*19)));
   }
 
+  /*
+   * Les PORTES (Norman, 2026-10-16) : tant que l'énergie n'a pas été placée pour activer un fruit, une porte close en bois et en fer cache son image. Fermée, elle est un dessin FIXE (deux vantaux en SVG
+   * intégré, aucune image à télécharger, aucune animation, aucun filtre) ; la seule animation est l'OUVERTURE (les deux vantaux pivotent, une lueur passe), jouée une fois quand le fruit s'active, avec son
+   * son (yggdrasil-sons-v1.js, « porte »). Un fruit déjà actif à l'ouverture de la page n'a pas de porte ; le fruit mangé ou récolté (inactif) retrouve sa porte close sans animation.
+   * La teinte de la porte varie d'un fruit à l'autre (même dessin, seule la variable --h change).
+   */
+  /* Décor du titre : une touffe de feuilles (dessin SVG fixe, utilisé aux deux bouts) et une vigne. */
+  var FEUILLAGE_='<svg viewBox="0 0 64 56" focusable="false" aria-hidden="true"><g fill="#3f8a3a" stroke="#1b3512" stroke-width="1.5" stroke-linejoin="round"><path d="M30 28C26 6 48 0 60 8 58 24 44 32 30 28z"/><path d="M30 28C22 40 30 54 50 52 54 38 44 28 30 28z" fill="#357a32"/><path d="M30 28C10 30 2 16 6 6 22 4 32 14 30 28z" fill="#55a449"/><path d="M30 28C12 32 4 46 12 54 26 54 34 42 30 28z" fill="#2f6e2e"/></g><g stroke="#b6e79a" stroke-width="1" fill="none" opacity=".75"><path d="M31 27 49 11M31 29 47 45M29 27 11 13M29 30 13 47"/></g><circle cx="30" cy="28" r="3.4" fill="#f0c94c" stroke="#6a4a10" stroke-width="1.2"/></svg>';
+  var VIGNE_='<svg viewBox="0 0 200 17" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path d="M0 3C22 14 38 1 62 8S104 15 128 6 176 2 200 9" fill="none" stroke="#4d9b3b" stroke-width="2.4" stroke-linecap="round"/><g fill="#5db04a" stroke="#1b3512" stroke-width="1"><ellipse cx="22" cy="12" rx="6" ry="3" transform="rotate(35 22 12)"/><ellipse cx="62" cy="13" rx="6" ry="3" transform="rotate(-30 62 13)"/><ellipse cx="104" cy="14" rx="6" ry="3" transform="rotate(40 104 14)"/><ellipse cx="148" cy="9" rx="6" ry="3" transform="rotate(-35 148 9)"/><ellipse cx="184" cy="12" rx="6" ry="3" transform="rotate(30 184 12)"/></g><g fill="#f4e27a" stroke="#7a5a10" stroke-width=".8"><circle cx="42" cy="6" r="2.2"/><circle cx="126" cy="7" r="2.2"/></g></svg>';
+  var DUREE_OUVERTURE_=1500;
+  function teinte_(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%360;return h;}
+  /*
+   * Une porte par fruit (Norman, 2026-10-16 : « un style en rapport avec le fruit »). Même gabarit, mais chaque fruit a SA palette (bois, ferrures, liseré) et SON emblème gravé sur un médaillon :
+   * pièce d'or, lettre grecque, boussole, livre, grenade, trèfle, dé, chiffres, flamme, gemme, pastèque, étoile. Dessins SVG intégrés de quelques dizaines d'octets, fixes ; l'emblème s'efface à l'ouverture.
+   * Format : [teinte du bois, saturation, couleur des ferrures, couleur du liseré, couleur de l'emblème, dessin de l'emblème].
+   */
+  var EMB_PIECE_='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M9 9.3c0-1.5 1.4-2.2 3-2.2s3 .7 3 2.2-1.4 1.9-3 2.4-3 .9-3 2.4 1.4 2.2 3 2.2 3-.7 3-2.2"/>';
+  var EMB_ECLAIR_='<path d="M13.5 2 5 13.5h6L10 22l9-12h-6z" fill="currentColor" fill-opacity=".14" stroke-opacity=".45" stroke-width="1"/>';
+  var EMB_GEMME_='<path d="M7 4h10l4 6-9 11L3 10z"/><path d="M3 10h18M9 4l-2 6 5 11 5-11-2-6" stroke-width="1.1"/>';
+  /* Les fruits « Mayo » : un pot de mayonnaise, chacun avec son humeur. */
+  var EMB_POT_='<rect x="6" y="9.5" width="12" height="11.5" rx="3"/><rect x="7.5" y="5.5" width="9" height="3.5" rx="1"/>';
+  var THEMES_={
+    gold:[38,52,'#bf9433','#e8c566','#ffe08a',EMB_PIECE_],
+    powerAlpha:[212,24,'#5e7184','#9db4cc','#bfe0ff',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">α</text>'],
+    powerBeta:[262,24,'#6b5e84','#b5a4d8','#e1d4ff',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">β</text>'],
+    powerDelta:[355,30,'#84575e','#d49aa4','#ffd0d6',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">δ</text>'],
+    adventure:[28,42,'#5a4326','#b58a4a','#f3d9a0','<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5z" fill="currentColor" fill-opacity=".35"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke-width="1.2"/>'],
+    knowledge:[275,30,'#3e2a57','#a98bd6','#e6d6ff','<path d="M3 6c3-1.5 6-1.5 9 1 3-2.5 6-2.5 9-1v13c-3-1.5-6-1.5-9 1-3-2.5-6-2.5-9-1z"/><path d="M12 7v13"/>'],
+    pomegranate:[345,45,'#4a1c27','#cf6a7c','#ffb3c0','<circle cx="12" cy="13.5" r="7.5"/><path d="M8.5 6.5 10 8.5l2-2 2 2 1.5-2"/>'],
+    luck:[135,38,'#1f4a2c','#6ec27f','#b9f5c4','<circle cx="9" cy="9" r="3.4"/><circle cx="15" cy="9" r="3.4"/><circle cx="9" cy="15" r="3.4"/><circle cx="15" cy="15" r="3.4"/><path d="M12 14c0 3 1 5 3 7"/>'],
+    arbitrariness:[190,40,'#17434d','#5fb7c9','#c9f3fb','<rect x="4" y="4" width="16" height="16" rx="3.5"/><g fill="currentColor" stroke="none"><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="8.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="8.5" cy="15.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/></g>'],
+    numbers:[55,40,'#4a4416','#cbbd54','#fff3a0','<text x="12" y="16.5" text-anchor="middle" font-size="11.5" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">123</text>'],
+    rage:[8,55,'#4d1410','#e0553c','#ffb199','<path d="M12 2.5c1 3.5 5.5 5.5 5.5 11a5.5 5.5 0 0 1-11 0c0-2.2 1-3.7 2-4.7.3 1.6 1 2.4 1.8 2.7C10 8.4 10.6 5.2 12 2.5z" fill="currentColor" fill-opacity=".3"/>'],
+    macguffinAlpha:[300,30,'#4a1f55','#d17be0','#f6c8ff',EMB_GEMME_],
+    macguffinBeta:[175,35,'#154a44','#4fd1c0','#bff7ee',EMB_GEMME_],
+    watermelon:[100,40,'#1c4a22','#e0627a','#ff9aa8','<path d="M3 10a9 9 0 0 0 18 0z" fill="currentColor" fill-opacity=".3"/><path d="M3 10h18"/><g fill="currentColor" stroke="none"><circle cx="9" cy="13.3" r=".9"/><circle cx="12" cy="15" r=".9"/><circle cx="15" cy="13.3" r=".9"/></g>'],
+    quirks:[320,38,'#4d1b3a','#e07bb8','#ffc8e6','<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>'],
+    angryMayo:[4,50,'#4d1210','#e24b3a','#ffb0a4',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="10" cy="15" r="1"/><circle cx="14" cy="15" r="1"/></g><path d="M8.5 12.5 11 13.6M15.5 12.5 13 13.6M10 18.4q2-1.3 4 0" stroke-width="1.3"/>'],
+    sadMayo:[210,35,'#1b3552','#5a9bd6','#bfe0ff',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="10" cy="14.5" r="1"/><circle cx="14" cy="14.5" r="1"/><path d="M14.4 16.2c.9 1.1.9 1.8 0 2.1-.9-.3-.9-1 0-2.1z"/></g><path d="M10 18.8q2-1.4 4 0" stroke-width="1.3"/>'],
+    moldyMayo:[90,22,'#2f3a1c','#8aa04a','#d4e6a0',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="9.6" cy="13" r="1.3"/><circle cx="14.2" cy="15.5" r="1.7"/><circle cx="10.5" cy="18" r="1"/><circle cx="15" cy="12.2" r=".8"/></g>'],
+    ayyMayo:[110,55,'#1c4d20','#59e06a','#c6ffcb','<path d="M12 3c5 0 8 3.5 8 7.5 0 5-4 9.5-8 11.5-4-2-8-6.5-8-11.5C4 6.5 7 3 12 3z"/><g fill="currentColor" stroke="none"><ellipse cx="8.6" cy="11" rx="1.9" ry="3" transform="rotate(-22 8.6 11)"/><ellipse cx="15.4" cy="11" rx="1.9" ry="3" transform="rotate(22 15.4 11)"/></g>'],
+    cincoMayo:[130,40,'#1e4a2a','#d94b4b','#fff2c8','<path d="M12 21.5V6.5a2 2 0 0 1 4 0V13M12 17H8.5A1.5 1.5 0 0 1 7 15.5V11M5 21.5h14" stroke-linecap="round"/>'],
+    prettyMayo:[330,45,'#52203d','#f08cc4','#ffd2ea',EMB_POT_+'<path d="M12 19s-3.4-2.1-3.4-4.4a1.8 1.8 0 0 1 3.4-.9 1.8 1.8 0 0 1 3.4.9c0 2.3-3.4 4.4-3.4 4.4z" fill="currentColor" stroke="none"/>']
+  };
+  var VANTAIL_='<svg viewBox="0 0 50 100" preserveAspectRatio="none" focusable="false"><rect width="50" height="100" style="fill:hsl(var(--h) var(--s) 24%)"/><g style="fill:hsl(var(--h) var(--s) 31%)"><rect x="1" width="15" height="100"/><rect x="17.5" width="15" height="100"/><rect x="34" width="15" height="100"/></g><g style="fill:var(--b)"><rect y="17" width="50" height="9"/><rect y="73" width="50" height="9"/></g><g style="fill:var(--e)"><circle cx="6" cy="21.5" r="1.6"/><circle cx="20" cy="21.5" r="1.6"/><circle cx="34" cy="21.5" r="1.6"/><circle cx="6" cy="77.5" r="1.6"/><circle cx="20" cy="77.5" r="1.6"/><circle cx="34" cy="77.5" r="1.6"/></g></svg>';
+  function porte_(id,ouvre){
+    var t=THEMES_[id]||[teinte_(id),34,'#3a3a44','#9a9484','#e8e0c8',EMB_PIECE_];
+    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
+  }
+  /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
+  function porteDe_(id,actif){
+    if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
+    if(!actif){etat.fermees[id]=true;delete etat.ouvre[id];return porte_(id,false);}
+    var vit=reglages_().porte;
+    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();son_('porte',vit);}
+    var t=etat.ouvre[id];
+    if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
+    delete etat.ouvre[id];
+    return '';
+  }
+
+  /*
+   * Manger ou récolter un fruit qui a ses images de croissance (Norman, 2026-10-16) : les images se rejouent d'un trait, du stade où il était jusqu'à la graine (le fruit est consommé, l'arbre se
+   * résorbe) : 20 images pour un fruit au tier maximum entièrement poussé, soit environ 2,1 s à CADENCE_ANIM_MS_ par image — ni un flash, ni une éternité. Les images sont préchargées dès qu'un fruit
+   * est prêt au tier maximum (donc dès l'arrivée sur la page), pour qu'aucune ne manque en route. Un calque posé sur l'image (data-morph-garder : le redessin périodique ne le retire pas) change de
+   * source à chaque pas ; la porte close n'apparaît qu'ensuite. Mouvement réduit : pas d'animation. Pour jouer les images à l'endroit (graine -> arbre), mettre SENS_ANIM_ à 1.
+   */
+  /*
+   * Réglages des animations (Norman, 2026-10-16 : « pouvoir déclencher l'animation moi-même et régler sa vitesse pour montrer celle que je préfère ») : cadence des images (ms par image), sens (-1 : de l'arbre
+   * vers la graine, 1 : de la graine vers l'arbre) et facteur de durée de l'ouverture de la porte (son compris). Gardés dans le stockage (donc liés au compte, voir prefs-compte-v1.js) ; réglés depuis le
+   * banc d'essai en bas de la page (administrateur). Valeurs d'origine ci-dessous.
+   */
+  var REGLAGES_DEFAUT_={cadence:110,sens:-1,porte:1};
+  var CLE_REGLAGES_='soreal_idle_ygg_anim_v1';
+  function reglages_(){
+    var r={cadence:REGLAGES_DEFAUT_.cadence,sens:REGLAGES_DEFAUT_.sens,porte:REGLAGES_DEFAUT_.porte};
+    try{
+      var o=JSON.parse(localStorage.getItem(CLE_REGLAGES_)||'null');
+      if(o&&typeof o==='object'){
+        var c=Number(o.cadence),p=Number(o.porte);
+        if(isFinite(c))r.cadence=Math.max(30,Math.min(400,Math.round(c/10)*10));
+        if(isFinite(p))r.porte=Math.max(.5,Math.min(2.5,Math.round(p*10)/10));
+        if(Number(o.sens)===1)r.sens=1;
+      }
+    }catch(_e){}
+    return r;
+  }
+  function ecrireReglages_(r){
+    try{localStorage.setItem(CLE_REGLAGES_,JSON.stringify({cadence:r.cadence,sens:r.sens,porte:r.porte}));}catch(_e){}
+  }
+  function urlEtape_(id,k){return '/api/idle/media/ygg?name='+encodeURIComponent(id)+'&etape='+k;}
+  function precharger_(id){
+    if(etat.precharge[id])return;
+    etat.precharge[id]=[];
+    for(var k=0;k<=19;k++){var im=new Image();im.src=urlEtape_(id,k);etat.precharge[id].push(im);}
+  }
+  /* Joue les images dans la vitre : un calque posé sur l'image (data-morph-garder), du stade `depart` vers la graine (sens -1) ou de la graine vers `depart` (sens 1). */
+  function jouerImages_(id,vitre,depart,R,fini){
+    var calque=document.createElement('img');
+    calque.className='ygg-img ygg-anim';calque.alt='';calque.draggable=false;calque.setAttribute('data-morph-garder','');
+    var k=R.sens<0?depart:0,bout=R.sens<0?0:depart;
+    calque.src=urlEtape_(id,k);
+    vitre.appendChild(calque);
+    (function pas(){
+      if(k===bout){
+        setTimeout(function(){
+          if(calque.parentNode)calque.parentNode.removeChild(calque);
+          if(fini)fini();
+        },R.cadence*2);
+        return;
+      }
+      k+=R.sens<0?-1:1;
+      calque.src=urlEtape_(id,k);
+      setTimeout(pas,R.cadence);
+    })();
+    return calque;
+  }
+  function lancerAnimation_(id){
+    var t=trouver_(id);if(!t)return;
+    var depart=etapeCroissance_(t.d,t.v);
+    if(depart==null||depart<1)return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    var vitre=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-vitre');
+    if(!vitre)return;
+    var R=reglages_();
+    etat.anim[id]=Date.now()+(depart+2)*R.cadence+600;
+    jouerImages_(id,vitre,depart,R,function(){delete etat.anim[id];rafraichir_();});
+  }
+
+  /*
+   * BANC D'ESSAI des animations (administrateur seulement, en bas de la page) : une vitre de démonstration indépendante du jeu (aucune action envoyée au serveur) pour lancer à volonté l'animation des
+   * images, l'ouverture de la porte et son son, et régler la vitesse jusqu'à trouver la bonne. Les réglages sont ceux qu'utilise le jeu pour ce compte ; « Valeurs d'origine » les remet.
+   */
+  var BANC_FRUITS_=['gold','powerAlpha','powerBeta','powerDelta'];
+  function admin_(){var R=window.__SOREAL_IDLE_REG__;try{return Boolean(R&&typeof R.estAdminSorealIdle_==='function'&&R.estAdminSorealIdle_());}catch(_e){return false;}}
+  function texteDuree_(ms){return (Math.round(ms*19/100)/10).toString().replace('.',',')+' s';}
+  function banc_(){
+    if(!admin_())return '';
+    var R=reglages_(),f=etat.bancFruit||'gold';
+    var opts=BANC_FRUITS_.map(function(x){return '<option value="'+x+'"'+(x===f?' selected':'')+'>'+html_(x)+'</option>';}).join('');
+    var A='window.__SOREAL_IDLE_YGG_V1__.';
+    return '<div class="ygg-banc"><div class="ygg-banc-titre">🎛️ Banc d’essai des animations et des sons <small>(administrateur seulement)</small></div>'+
+      '<div class="ygg-banc-corps"><div class="ygg-vitre ygg-portrait ygg-banc-vitre" id="yggBancVitre"><img class="ygg-img" alt="" src="'+urlEtape_(f,19)+'"></div>'+
+      '<div class="ygg-banc-regl">'+
+        '<label>Fruit <select onchange="'+A+'banc(\'fruit\',this.value)">'+opts+'</select></label>'+
+        '<label>Vitesse des images : <output id="yggBancCad">'+R.cadence+' ms par image · '+texteDuree_(R.cadence)+' pour 20 images</output>'+
+          '<input type="range" min="30" max="400" step="10" value="'+R.cadence+'" oninput="'+A+'bancAffiche(\'cad\',this.value)" onchange="'+A+'banc(\'cadence\',this.value)"></label>'+
+        '<div class="ygg-banc-sens" role="group" aria-label="Sens des images">Sens : '+
+          '<label><input type="radio" name="yggBancSens" value="-1"'+(R.sens<0?' checked':'')+' onchange="'+A+'banc(\'sens\',-1)"> arbre → graine</label> '+
+          '<label><input type="radio" name="yggBancSens" value="1"'+(R.sens>0?' checked':'')+' onchange="'+A+'banc(\'sens\',1)"> graine → arbre</label></div>'+
+        '<label>Ouverture de la porte : <output id="yggBancPorte">'+(Math.round(1.5*R.porte*10)/10).toString().replace('.',',')+' s (son compris)</output>'+
+          '<input type="range" min="0.5" max="2.5" step="0.1" value="'+R.porte+'" oninput="'+A+'bancAffiche(\'porte\',this.value)" onchange="'+A+'banc(\'porte\',this.value)"></label>'+
+        '<div class="ygg-banc-boutons">'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancImages()">▶ Images</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre()">💨 Pet grinçant du Coffre</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancRaz()">↺ Valeurs d’origine</button></div>'+
+        '<div class="ygg-banc-note">Réglage retenu : '+R.cadence+' ms par image, '+(R.sens<0?'arbre → graine':'graine → arbre')+', porte ×'+String(R.porte).replace('.',',')+'. (Origine : '+REGLAGES_DEFAUT_.cadence+' ms, arbre → graine, ×1.)</div>'+
+      '</div></div></div>';
+  }
+  function bancVitre_(){return document.getElementById('yggBancVitre');}
+  function bancNettoyer_(vitre){
+    Array.prototype.slice.call(vitre.querySelectorAll('.ygg-anim,.ygg-porte')).forEach(function(n){if(n.parentNode)n.parentNode.removeChild(n);});
+  }
+  function bancImages_(){
+    var vitre=bancVitre_();if(!vitre)return;
+    var f=etat.bancFruit||'gold';precharger_(f);
+    bancNettoyer_(vitre);
+    jouerImages_(f,vitre,19,reglages_(),null);
+  }
+  function bancPorte_(){
+    var vitre=bancVitre_();if(!vitre)return;
+    var f=etat.bancFruit||'gold',R=reglages_();
+    bancNettoyer_(vitre);
+    var tmp=document.createElement('div');tmp.innerHTML=porte_(f,false);
+    var p=tmp.firstChild;if(!p)return;
+    p.setAttribute('data-morph-garder','');
+    vitre.appendChild(p);
+    setTimeout(function(){
+      p.className+=' ouvre';
+      son_('porte',R.porte);
+      setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},Math.round(DUREE_OUVERTURE_*R.porte)+150);
+    },700);
+  }
+
   function carte_(d,v){
     var def=v.def,id=def.id,c=choix_(id);
+    if(etapeCroissance_(d,v)===19)precharger_(id);   /* prêt au tier maximum : les 20 images sont chargées d'avance */
     var nom=html_(def.name||id);
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
     var heures=v.growth*d.tierSec/3600;
@@ -228,7 +456,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre'+(etapeCroissance_(d,v)!=null?' ygg-portrait':'')+'">'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait">'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
@@ -275,7 +503,7 @@
     var poopFacteur=String(Math.round((nb_(d.x.poopFactor)||1.5)*100)/100).replace('.',',');
     return '<div class="ygg-page"><div class="ygg-cadre">'+
       '<div class="ygg-entete"><button type="button" class="ygg-aide-bouton" onclick="window.__SOREAL_IDLE_YGG_V1__.aide()">Que faire ici ?</button>'+
-        '<div class="ygg-titre"><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec du caca)</small></div></div>'+
+        '<div class="ygg-titre"><i class="ygg-feu g">'+FEUILLAGE_+'</i><i class="ygg-feu d">'+FEUILLAGE_+'</i><i class="ygg-vigne">'+VIGNE_+'</i><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec du caca)</small></div></div>'+
       '<div class="ygg-aide'+(etat.aide?' ouvert':'')+'">Chaque tier donne une heure de croissance de plus. <b>Active</b> un fruit, laisse-le pousser, puis <b>mange-le</b> pour son effet ou <b>récolte-le</b> pour doubler les graines. Les graines servent à <b>améliorer</b> les fruits. Une poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.</div>'+
       onglets+
       '<div class="ygg-grille">'+cartes+'</div>'+
@@ -291,6 +519,7 @@
         '</div>'+
         (b?'<div class="ygg-bonus">'+b+'</div>':'')+
       '</div>'+
+      banc_()+
       '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable à la boutique AP, rayon Boosts.</div>'+
     '</div></div>';
   }
@@ -304,6 +533,7 @@
   }
   function lancerUsage_(id,avecPoop){
     var c=choix_(id);
+    lancerAnimation_(id);
     var payload={action:'useYggFruit',fruit:String(id),mode:c.mode==='harvest'?'harvest':'eat'};
     if(avecPoop)payload.poop=true;
     action_(payload);
@@ -325,6 +555,30 @@
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
     fermerAide:function(){etat.aide=false;},
     aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
+    banc:function(type,val){
+      if(type==='fruit'){etat.bancFruit=String(val);rafraichir_();return;}
+      var R=reglages_();
+      if(type==='cadence')R.cadence=Number(val);
+      else if(type==='sens')R.sens=Number(val)>0?1:-1;
+      else if(type==='porte')R.porte=Number(val);
+      ecrireReglages_(R);
+      rafraichir_();
+      /* Après un réglage, on rejoue tout de suite ce qui a changé. */
+      setTimeout(function(){if(type==='porte')bancPorte_();else bancImages_();},350);
+    },
+    bancAffiche:function(type,val){
+      var o=document.getElementById(type==='porte'?'yggBancPorte':'yggBancCad');
+      if(!o)return;
+      o.textContent=type==='porte'?(Math.round(1.5*Number(val)*10)/10).toString().replace('.',',')+' s (son compris)':Number(val)+' ms par image · '+texteDuree_(Number(val))+' pour 20 images';
+    },
+    bancImages:function(){bancImages_();},
+    bancPorte:function(){bancPorte_();},
+    bancSon:function(){son_('porte',reglages_().porte);},
+    /* Le pet du Coffre avec le grincement de la porte (sans tintement) : joué par le moteur audio du jeu, au volume des « Sons de l'interface ». */
+    bancPetCoffre:function(){
+      try{window.__coffrePetForceIdleV1__=true;var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.play==='function')A.play('coffrePet');}catch(_e){}
+    },
+    bancRaz:function(){ecrireReglages_(REGLAGES_DEFAUT_);rafraichir_();},
     soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */
     tout:function(critere){

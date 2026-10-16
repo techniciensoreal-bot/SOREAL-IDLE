@@ -100,9 +100,42 @@
     {id:'pet-siffle',nom:'Pet sifflant',jouer:function(c,s,t){souffle(c,s,t,{type:'bandpass',f0:2600,f1:900,d:.55,v:.32,q:6,a:.03});ton(c,s,t+.02,{type:'sawtooth',f0:100,f1:70,d:.5,v:.12,a:.02,vib:[50,15],filtre:['lowpass',350,2]});}},
     {id:'pet-mouille',nom:'Pet mouillé',jouer:function(c,s,t){pet(c,s,t,.5,85,50,.26,[52,26]);for(var i=0;i<3;i+=1)glou(c,s,t+.52+i*.07,.14,200-i*30);}}
   ];
+  /*
+   * Pet « grincement de porte » (Norman, 2026-10-16 : « le bruit que tu as fait pour la porte, mets-le quand le coffre pète de temps en temps, mais pas le ding de fin ») : clac de loquet, vieux bois qui grince
+   * en montant et en vibrant, racle sur la pierre, poids qui arrive en butée. AUCUN tintement à la fin. Une fois sur ~5 pets (P_PET_RARE), jamais deux fois de suite.
+   */
+  function grincementPorte(c,s,t){
+    souffle(c,s,t,{type:'bandpass',f0:1800,f1:1200,d:.04,v:.5,q:3,a:.002});
+    ton(c,s,t,{type:'square',f0:240,f1:130,d:.07,v:.5,a:.005});
+    var o=c.createOscillator();o.type='sawtooth';
+    o.frequency.setValueAtTime(70,t+.1);o.frequency.exponentialRampToValueAtTime(150,t+.95);
+    var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(11,t+.1);
+    var lg=c.createGain();lg.gain.setValueAtTime(6,t+.1);lfo.connect(lg);lg.connect(o.frequency);
+    var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=5;
+    f.frequency.setValueAtTime(520,t+.1);f.frequency.exponentialRampToValueAtTime(1500,t+.95);
+    var g=c.createGain();
+    g.gain.setValueAtTime(.0001,t+.1);g.gain.exponentialRampToValueAtTime(.5,t+.28);g.gain.exponentialRampToValueAtTime(.3,t+.7);g.gain.exponentialRampToValueAtTime(.0001,t+1.05);
+    o.connect(f);f.connect(g);g.connect(s);
+    o.start(t+.1);o.stop(t+1.1);lfo.start(t+.1);lfo.stop(t+1.1);
+    souffle(c,s,t+.12,{type:'lowpass',f0:380,f1:220,d:.8,v:.5,q:1.2,a:.05});
+    ton(c,s,t+.98,{type:'sine',f0:110,f1:48,d:.22,v:.7,a:.005});
+  }
+  var PET_RARE=[{id:'grincement-porte',nom:'Pet grinçant (le grincement de la porte)',jouer:function(c,s,t){grincementPorte(c,s,t);}}];
+  var P_PET_RARE=.2,dernierPetRare=false;
   var dernierDigestion={rot:-1,pet:-1};
   /* type : 'rot' ou 'pet' ; tirage au hasard, jamais le même deux fois de suite. */
   function jouerDigestion(type,ctx,sortie){
+    /* Pet grinçant : de temps en temps (jamais deux fois de suite), ou forcé par le banc d'essai de la page Yggdrasil (window.__coffrePetForceIdleV1__, utilisé une seule fois). */
+    if(type==='pet'){
+      var force=window.__coffrePetForceIdleV1__===true;
+      window.__coffrePetForceIdleV1__=false;
+      if(force||(!dernierPetRare&&Math.random()<P_PET_RARE)){
+        dernierPetRare=true;
+        PET_RARE[0].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+        return PET_RARE[0];
+      }
+      dernierPetRare=false;
+    }
     var cle=type==='pet'?'pet':'rot',liste=cle==='pet'?PETS:ROTS,n=liste.length,i=Math.floor(Math.random()*n);
     if(i===dernierDigestion[cle])i=(i+1+Math.floor(Math.random()*(n-1)))%n;
     dernierDigestion[cle]=i;
@@ -264,5 +297,5 @@
     RONFLEMENTS[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
     return RONFLEMENTS[i];
   }
-  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerAccident:jouerAccident,diarrhees:DIARRHEES,jouerDiarrhee:jouerDiarrhee,accident:ACCIDENT,jouerRonflement:jouerRonflement};
+  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,petRare:PET_RARE,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerAccident:jouerAccident,diarrhees:DIARRHEES,jouerDiarrhee:jouerDiarrhee,accident:ACCIDENT,jouerRonflement:jouerRonflement};
 })();

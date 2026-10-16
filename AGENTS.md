@@ -334,3 +334,7 @@ Demande de Norman (2026-10-16) : cases, saisies, onglets ouverts, volumes, effet
 - **Exclus** (liste `EXCLUES` du module) : jeton de session, diagnostic, mesures de performance (changent toutes les 10 s), cache admin, position d'une fenêtre. Une donnée qui change souvent ou propre à l'appareil s'y ajoute.
 - Valeurs de jeu (cibles de niveaux, cases « avancer l'énergie à la barre suivante », etc.) : elles vivent déjà dans l'état du jeu côté serveur (actions `setNguTarget`, `setNguAdvance`, `setAugmentTarget`...), ne pas les dupliquer dans les préférences.
 - Gardes : `idle-prefs-compte-serveur-v1` (coffre borné, action, état) et `idle-prefs-compte-client-v1` (le vrai module sur un faux navigateur).
+
+## Ports réservés au studio de voix (8765) et à son pilote (8766)
+
+Aucun serveur de test ou d'aperçu (script, `http.server`, `node -e`, maquette) n'écoute en dur sur 8765 ou 8766 : port éphémère (0) ou 8791 et plus ; tout serveur de fond est arrêté en fin de tâche. Depuis le 2026-10-16 le lancement du studio résiste à un intrus sur son port (`cloudflare/tools/voice-studio/liberer_port.py`, partagé par `lancer.bat`, `lancer_depuis_lien.bat` et `pilote.py` : le studio se reconnaît à `serveur.py`, un serveur de développement intrus — node, python, deno, bun — est arrêté, tout autre programme est signalé sans être touché) ; test `idle-studio-port-libre-v1`. Ne jamais revenir à « quelque chose écoute sur 8765 donc le studio tourne ».

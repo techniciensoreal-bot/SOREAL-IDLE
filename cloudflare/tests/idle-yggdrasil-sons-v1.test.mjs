@@ -28,7 +28,7 @@ vm.runInNewContext(sons, fenetre, { filename: "yggdrasil-sons-v1.js" });
 const S = fenetre.__SOREAL_IDLE_YGG_SONS_V1__;
 assert.ok(S && typeof S.jouer === "function", "module exposé");
 
-const attendus = ["interrupteur", "onglet", "aide", "activer", "ameliorer", "manger", "recolter", "poop", "tout", "pret"];
+const attendus = ["interrupteur", "onglet", "aide", "activer", "ameliorer", "manger", "recolter", "poop", "tout", "pret", "porte"];
 assert.deepEqual(Array.from(S.noms).sort(), attendus.slice().sort(), "toute la panoplie");
 
 // Volume à 0 : aucun son, aucun contexte audio.

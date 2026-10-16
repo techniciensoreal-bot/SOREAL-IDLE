@@ -28,6 +28,8 @@ import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import liberer_port  # même dossier : la SEULE définition de « qui occupe le port du studio » (voir liberer_port.py)
+
 DOSSIER = os.path.dirname(os.path.abspath(__file__))
 PORT = int(os.environ.get("SOREAL_PILOTE_PORT", "8766"))
 PORT_STUDIO = int(os.environ.get("SOREAL_VOIX_PORT", "8765"))
@@ -42,12 +44,14 @@ _processus = None  # le lancer.bat démarré par ce pilote (None si le studio a 
 
 
 def studio_repond():
-    """Vrai si quelque chose écoute sur le port du studio."""
-    try:
-        with socket.create_connection(("127.0.0.1", PORT_STUDIO), timeout=0.6):
-            return True
-    except OSError:
+    """Vrai si c'est bien LE STUDIO (serveur.py) qui écoute sur son port : un autre programme sur ce port n'est pas le studio (cause des échecs de lancement répétés, 2026-10-16)."""
+    if not liberer_port.ecoute(PORT_STUDIO):
         return False
+    return any(liberer_port.est_le_studio(*liberer_port.infos_processus(pid)) for pid in liberer_port.pids_sur_le_port(PORT_STUDIO))
+
+
+def port_pris_par_un_intrus():
+    return liberer_port.ecoute(PORT_STUDIO) and not studio_repond()
 
 
 def tuer_arbre(pid):
@@ -82,15 +86,19 @@ def parent_lancer_bat(pid):
 def demarrer():
     global _processus
     with _verrou:
-        if studio_repond():
-            return {"ok": True, "dejaLance": True}
-        if _processus is not None and _processus.poll() is None:
+        if _processus is not None and _processus.poll() is None and not liberer_port.ecoute(PORT_STUDIO):
             return {"ok": True, "enDemarrage": True}
+        # Libère le port s'il est pris par un serveur de développement qui n'est pas le studio ; ne touche jamais au studio lui-même.
+        r = liberer_port.liberer(PORT_STUDIO)
+        if r["etat"] == "studio":
+            return {"ok": True, "dejaLance": True}
+        if r["etat"] == "occupe":
+            return {"ok": False, "error": "Le port %d est pris par %s : ferme ce programme puis relance le studio." % (PORT_STUDIO, r["occupant"])}
         if not os.path.isfile(LANCER):
             return {"ok": False, "error": "lancer.bat introuvable"}
         flags = getattr(subprocess, "CREATE_NEW_CONSOLE", 0)
         _processus = subprocess.Popen(["cmd.exe", "/c", LANCER], cwd=os.path.dirname(LANCER), creationflags=flags)
-        return {"ok": True, "demarre": True}
+        return {"ok": True, "demarre": True, "portLibere": r["arretes"]}
 
 
 def arreter():
@@ -141,7 +149,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path.split("?")[0] == "/etat":
-            return self._json(200, {"ok": True, "enCours": studio_repond()})
+            return self._json(200, {"ok": True, "enCours": studio_repond(), "portPrisParUnIntrus": port_pris_par_un_intrus()})
         self._json(404, {"ok": False, "error": "introuvable"})
 
     def do_POST(self):

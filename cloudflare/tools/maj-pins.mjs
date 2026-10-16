@@ -7,7 +7,14 @@
  *   node cloudflare/tools/maj-pins.mjs --verifier -> ne modifie rien ; sort en erreur si un fichier a changé sans que son numéro ait bougé (utilisé par le test idle-pins-assets-v1)
  * La liste de référence (empreinte + numéro de chaque fichier) est cloudflare/tools/pins-assets.json.
  */
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync as ecrireFichier, existsSync } from "node:fs";
+
+/* Windows verrouille parfois un fichier une fraction de seconde (serveur local, antivirus) : l'écriture est reprise quelques fois avant d'échouer. */
+function writeFileSync(chemin, contenu) {
+  for (let essai = 0; ; essai += 1) {
+    try { return ecrireFichier(chemin, contenu); } catch (e) { if (essai >= 6) throw e; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 300); }
+  }
+}
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
