@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { analyzeEsm } from "./_esm-scan.mjs";
-import { finFonction } from "./_js-scan.mjs";
+import { finFonction, defragmenter } from "./_js-scan.mjs";
 
 /*
  * Les gros fichiers du moteur (cloudflare/src) sont découpés en segments voisins (idle-runtime-*.js, …). Les tests qui vérifient le CODE d'un de ces fichiers lisent
@@ -46,6 +46,7 @@ function construire(base) {
       table.set(k, texte.endsWith("\n") ? texte : texte + "\n");
     }
   }
+  defragmenter(table);
   const sorties = []; const vus = new Set();
   for (const m of manifeste.items) {
     if (m.let) { sorties.push(m.let.endsWith("\n") ? m.let : m.let + "\n"); continue; }

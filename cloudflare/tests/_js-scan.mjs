@@ -201,7 +201,7 @@ export function defragmenter(table) {
     const nom = k.slice(2);
     if (/_p\d+$/.test(nom) && t.includes("Étape extraite de ")) {
       const i = t.indexOf("{"); const j = t.lastIndexOf("}");
-      const corps = t.slice(i + 1, j).replace(/^\s*\n/, "").replace(/\n\s*$/, "");
+      const corps = t.slice(i + 1, j).replace(/^\s*\n/, "").replace(/\n\s*$/, "").replace(/\n[ \t]*\/\* @sortie \*\/ return \{[^}]*\};$/, "");
       etapes.set(nom, corps);
     } else if (t.includes("remontée au niveau du module (découpage")) {
       const m = t.match(/\*\/\s*\n?([\s\S]*)$/);
@@ -217,6 +217,10 @@ export function defragmenter(table) {
       let change = false;
       for (const [n, corps] of etapes) {
         const re = new RegExp("[ \\t]*\\b" + n + "\\(([A-Za-z0-9_$, ]*)\\);", "g");
+        if (re.test(t)) { t = t.replace(new RegExp(re.source, "g"), () => corps); change = true; }
+      }
+      for (const [n, corps] of etapes) {
+        const re = new RegExp("[ \\t]*/\\*>" + n + "\\*/[\\s\\S]*?/\\*<" + n + "\\*/", "g");
         if (re.test(t)) { t = t.replace(new RegExp(re.source, "g"), () => corps); change = true; }
       }
       for (const [n, corps] of remontees) {

@@ -418,10 +418,8 @@ function killsTitansMetaSorealIdleV1_(metaNgu) {
   return out;
 }
 
-export function appliquerProgressionEnergieSorealIdle_(
-  feuille,
-  ligne
-) {
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 158 lignes. */
+function appliquerProgressionEnergieSorealIdle__p1(feuille, ligne){
   const c =
     CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
 
@@ -580,7 +578,11 @@ export function appliquerProgressionEnergieSorealIdle_(
         1
       )
     );
+  /* @sortie */ return {c:c,row:row,statsRessourceV55:statsRessourceV55,energieAvantSyncNguV1:energieAvantSyncNguV1,collectionRessourceV55:collectionRessourceV55,killsTitansAvantSyncV1:killsTitansAvantSyncV1,devisesAvantHorsLigneV1:devisesAvantHorsLigneV1,metaNguRessourceV55:metaNguRessourceV55,titansTuesHorsLigneV1:titansTuesHorsLigneV1,energieMetaV55:energieMetaV55,energieBrute:energieBrute,energie:energie,energieMax:energieMax,prodSeconde:prodSeconde,maintenantEntrainementV41:maintenantEntrainementV41,entrainementAvantV176:entrainementAvantV176,entrainementV41:entrainementV41,energieIdleMaxV41:energieIdleMaxV41,puissance:puissance};
+}
 
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 154 lignes. */
+function appliquerProgressionEnergieSorealIdle__p2(c, entrainementV41, row){
   const endurance =
     Math.max(
       1,
@@ -735,11 +737,11 @@ export function appliquerProgressionEnergieSorealIdle_(
         endurance
       )
     );
+  /* @sortie */ return {endurance:endurance,niveau:niveau,xp:xp,bossVaincus:bossVaincus,renaissances:renaissances,statsCombat:statsCombat,renaissanceNativeCountV54:renaissanceNativeCountV54,maintenantMana:maintenantMana,bossCombatIndex:bossCombatIndex,bossBloqueRenaissance:bossBloqueRenaissance,combatBossActif:combatBossActif,pieces:pieces,inventaire:inventaire,equipement:equipement,defense:defense};
+}
 
-  /*
-   * Fight Boss suit le modèle A/D : les PV max valent 10× l'attaque.
-   * L'équipement Aventure sera branché comme multiplicateur séparé.
-   */
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 183 lignes. */
+function appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBossActif, defense, entrainementAvantV176, entrainementV41, metaNguRessourceV55, row){
   const pvJoueurMax =
     Math.max(
       1000,
@@ -923,17 +925,11 @@ export function appliquerProgressionEnergieSorealIdle_(
         );
     }
   }
+  /* @sortie */ return {pvJoueurMax:pvJoueurMax,pvJoueur:pvJoueur,bossPvMaxDefinition:bossPvMaxDefinition,bossPvMaxEnregistre:bossPvMaxEnregistre,bossPvMax:bossPvMax,bossPv:bossPv,derniereSynchroBrute:derniereSynchroBrute,derniereSynchro:derniereSynchro,maintenant:maintenant,ecouleReel:ecouleReel,ecoulePrisEnCompte:ecoulePrisEnCompte,regenPvSecJoueur:regenPvSecJoueur};
+}
 
-
-  /*
-   * Migration V40.7 : une ancienne énergie fractionnaire (ex. 249,6)
-   * n'est pas perdue. Sa fraction devient du temps déjà parcouru vers
-   * le prochain vrai tick. Dès cette sauvegarde, ENERGIE reste entière.
-   */
-  // SOREAL_IDLE_V55_NO_LEGACY_ENERGY_TICKS
-  // syncIdleNguState already accounted for online/offline Energy generation.
-  // Running the former tick simulator here would credit the same elapsed
-  // period a second time.
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 70 lignes. */
+function appliquerProgressionEnergieSorealIdle__p4(bossPv, bossPvMax, combatBossActif, derniereSynchro, ecoulePrisEnCompte, energie, energieAvantSyncNguV1, statsCombat){
   const fractionEnergieHistorique = 0;
   const resteEnergieAvantProgressionMs = 0;
   statsCombat.energieTickResteMs = 0;
@@ -1004,34 +1000,12 @@ export function appliquerProgressionEnergieSorealIdle_(
     highestBossJamaisAtteintSorealIdle_(
       statsCombat.metaNgu
     );
+  /* @sortie */ return {bossPv:bossPv,fractionEnergieHistorique:fractionEnergieHistorique,resteEnergieAvantProgressionMs:resteEnergieAvantProgressionMs,energieTheoriqueProduite:energieTheoriqueProduite,nouvelleEnergie:nouvelleEnergie,energieApresProduction:energieApresProduction,energieStockeeParProduction:energieStockeeParProduction,energiePerdueAuPlafond:energiePerdueAuPlafond,tempsRestant:tempsRestant,tempsSimulation:tempsSimulation,bossBattusMaintenant:bossBattusMaintenant,xpGagnee:xpGagnee,degatsInfliges:degatsInfliges,degatsRecus:degatsRecus,koSubis:koSubis,dropsRecents:dropsRecents,iterations:iterations,highestBossJamaisAtteint:highestBossJamaisAtteint};
+}
 
-  while (
-    tempsRestant > 0.0001 &&
-    iterations < 2000 &&
-    !bossBloqueRenaissance &&
-    combatBossActif
-  ) {
-    iterations += 1;
-
-    /*
-     * Aucun état K.O. intermédiaire. Si une ancienne sauvegarde arrive
-     * déjà à 0 PV alors qu'un combat est encore marqué actif, la défaite
-     * arrête simplement le combat et la récupération hors combat repart
-     * de 0 à la prochaine progression.
-     */
-    if (pvJoueur <= 0) {
-      pvJoueur=0;
-      koSubis += 1;
-      /* « En direct » : compteur de défaites contre un boss (modules/flux-v1.js) ; le combat passe d'actif à inactif une seule fois. */
-      statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
-      statsCombat.fluxBossDernier=bossCombatIndex+1;
-      cloreCombatBossClassementV1_(statsCombat,false);
-      statsCombat.combatBossActif=false;
-      combatBossActif=false;
-      break;
-    }
-
-    const attaqueBoss =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 168 lignes. */
+function appliquerProgressionEnergieSorealIdle__p5(bossCombatIndex, bossPv, bossPvMax, defense, metaNguRessourceV55, puissance, pvJoueur, regenPvSecJoueur, statsCombat, tempsRestant, tempsSimulation){
+  const attaqueBoss =
       attaqueBossSorealIdle_(
         bossCombatIndex,
         metaNguRessourceV55.difficulty
@@ -1199,8 +1173,12 @@ export function appliquerProgressionEnergieSorealIdle_(
         pvJoueur,
         segment * degatsRecusSec
       );
+  /* @sortie */ return {attaqueBoss:attaqueBoss,degatsRecusSec:degatsRecusSec,soinJoueurSec:soinJoueurSec,multiplicateurDpsBoss:multiplicateurDpsBoss,multiplicateurSceau:multiplicateurSceau,multiplicateurVulnerabilite:multiplicateurVulnerabilite,regenBossSec:regenBossSec,defenseBossCombat:defenseBossCombat,dpsJoueurBase:dpsJoueurBase,dpsBossNet:dpsBossNet,tempsPourBoss:tempsPourBoss,tempsPourDefaite:tempsPourDefaite,segment:segment,dommageBoss:dommageBoss,dommageJoueur:dommageJoueur};
+}
 
-    bossPv =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 184 lignes. */
+function appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBloqueRenaissance, bossCombatIndex, bossPv, bossPvMax, bossVaincus, combatBossActif, degatsInfliges, degatsRecus, dommageBoss, dommageJoueur, highestBossJamaisAtteint, niveau, pvJoueur, pvJoueurMax, segment, soinJoueurSec, statsCombat, tempsRestant, tempsSimulation, xp, xpGagnee){
+  bossPv =
       Math.max(
         0,
         bossPv-dommageBoss
@@ -1384,8 +1362,12 @@ export function appliquerProgressionEnergieSorealIdle_(
       bossPv =
         bossPvMax;
     }
+  /* @sortie */ return {bossPv:bossPv,pvJoueur:pvJoueur,degatsInfliges:degatsInfliges,degatsRecus:degatsRecus,tempsRestant:tempsRestant,tempsSimulation:tempsSimulation,xp:xp,xpGagnee:xpGagnee,highestBossJamaisAtteint:highestBossJamaisAtteint,bossVaincus:bossVaincus,bossBattusMaintenant:bossBattusMaintenant,combatBossActif:combatBossActif,bossCombatIndex:bossCombatIndex,bossBloqueRenaissance:bossBloqueRenaissance,bossPvMax:bossPvMax,bossMort:bossMort,joueurBattu:joueurBattu};
+}
 
-    if (joueurBattu) {
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 19 lignes. */
+function appliquerProgressionEnergieSorealIdle__p7(bossCombatIndex, combatBossActif, joueurBattu, koSubis, pvJoueur, statsCombat){
+  if (joueurBattu) {
       /*
        * Défaite Fight Boss façon NGU :
        * - le coup fatal met immédiatement le joueur à 0 ;
@@ -1404,16 +1386,11 @@ export function appliquerProgressionEnergieSorealIdle_(
       statsCombat.combatBossActif=false;
       combatBossActif=false;
     }
+  /* @sortie */ return {pvJoueur:pvJoueur,koSubis:koSubis,combatBossActif:combatBossActif};
+}
 
-    if (
-      segment <= 0.000001 &&
-      !bossMort &&
-      !joueurBattu
-    ) {
-      break;
-    }
-  }
-
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 72 lignes. */
+function appliquerProgressionEnergieSorealIdle__p8(bossCombatIndex, c, niveau, row, statsCombat, xp){
   const progressionNiveau =
     appliquerNiveauxSorealIdle_(
       niveau,
@@ -1486,13 +1463,12 @@ export function appliquerProgressionEnergieSorealIdle_(
    * du joueur, affichés par verifierDefaiteAutoAventureIdleV1_ (client).
    */
   let derniereDefaiteAuto = null;
+  /* @sortie */ return {niveau:niveau,xp:xp,progressionNiveau:progressionNiveau,bossActuel:bossActuel,pointsAventureAuto:pointsAventureAuto,pointsAventureAutoAvant:pointsAventureAutoAvant,progressionAventureAuto:progressionAventureAuto,statsAuto:statsAuto,combatsAutoHorsLigne:combatsAutoHorsLigne,victoiresAutoHorsLigne:victoiresAutoHorsLigne,lootsAutoHorsLigne:lootsAutoHorsLigne,energieDepenseeAventureAuto:energieDepenseeAventureAuto,creneauxAutoHorsLigne:creneauxAutoHorsLigne,limiteAutoHorsLigneAtteinte:limiteAutoHorsLigneAtteinte,derniereDefaiteAuto:derniereDefaiteAuto};
+}
 
-  if (
-    ecouleReel >= 20 &&
-    statsAuto.autoAventure &&
-    statsAuto.autoAventureZone > 0
-  ) {
-    const aventureAuto =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 27 lignes. */
+function appliquerProgressionEnergieSorealIdle__p9(row, statsAuto){
+  const aventureAuto =
       construireAventureSorealIdle_(
         row,
         statsAuto.metaNgu &&
@@ -1519,18 +1495,12 @@ export function appliquerProgressionEnergieSorealIdle_(
           statsAuto.autoAventureZone
         );
       });
+  /* @sortie */ return {aventureAuto:aventureAuto,zoneAuto:zoneAuto};
+}
 
-    if (
-      zoneAuto &&
-      zoneAuto.debloquee
-    ) {
-      /*
-       * V40.2 : l'AUTO hors ligne utilise le MÊME cooldown de gameplay
-       * que les rencontres visibles. Il n'ajoute plus son ancien plancher
-       * indépendant de 2/8 secondes : les améliorations des mondes futurs
-       * pourront donc réellement accélérer toute la boucle Aventure.
-       */
-      const intervalle =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 60 lignes. */
+function appliquerProgressionEnergieSorealIdle__p10(creneauxAutoHorsLigne, ecoulePrisEnCompte, limiteAutoHorsLigneAtteinte, statsAuto, zoneAuto){
+  const intervalle =
         Math.max(
           .15,
           cooldownAventureSorealIdle_(
@@ -1590,34 +1560,12 @@ export function appliquerProgressionEnergieSorealIdle_(
       limiteAutoHorsLigneAtteinte =
         creneauxDisponibles >
         essaisTemps;
+  /* @sortie */ return {creneauxAutoHorsLigne:creneauxAutoHorsLigne,limiteAutoHorsLigneAtteinte:limiteAutoHorsLigneAtteinte,intervalle:intervalle,ecoulePrisEnCompteAventureAuto:ecoulePrisEnCompteAventureAuto,creneauxDisponibles:creneauxDisponibles,limiteSimulation:limiteSimulation,essaisTemps:essaisTemps};
+}
 
-      /*
-       * Important : on repart de l'énergie réellement présente au début
-       * de l'absence et on fait avancer les ticks jusqu'à chaque créneau.
-       * La production peut donc remplir à nouveau la jauge après un combat,
-       * au lieu d'être perdue parce que la jauge avait atteint son plafond
-       * avant la simulation.
-       */
-      // SOREAL_IDLE_V55_NO_LEGACY_OFFLINE_ENERGY
-      // Adventure AUTO keeps its historical chronology, but Energy itself
-      // was already generated by metaNgu. This adapter is deliberately inert.
-      const simulateurEnergieAuto = {
-        avancer: function() {
-          return nouvelleEnergie;
-        },
-        etat: function() {
-          return {
-            energie: nouvelleEnergie,
-            resteMs: 0,
-            energieProduite: 0,
-            energiePerdueAuPlafond: 0,
-            energieStockee: 0,
-            energieDepensee: 0
-          };
-        }
-      };
-
-      const totalAutoMs =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 37 lignes. */
+function appliquerProgressionEnergieSorealIdle__p11(c, ecoulePrisEnCompteAventureAuto, intervalle, row){
+  const totalAutoMs =
         ecoulePrisEnCompteAventureAuto *
         1000;
 
@@ -1654,13 +1602,12 @@ export function appliquerProgressionEnergieSorealIdle_(
         Math.floor(
           capaciteSac * 0.7
         );
+  /* @sortie */ return {totalAutoMs:totalAutoMs,intervalleAutoMs:intervalleAutoMs,tempsAutoSimuleMs:tempsAutoSimuleMs,capaciteSac:capaciteSac,capaciteSacFarmHorsLigneV1:capaciteSacFarmHorsLigneV1};
+}
 
-      for (
-        let tentative = 0;
-        tentative < essaisTemps;
-        tentative += 1
-      ) {
-        const cibleTempsMs =
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 137 lignes. */
+function appliquerProgressionEnergieSorealIdle__p12(combatsAutoHorsLigne, intervalleAutoMs, progressionAventureAuto, simulateurEnergieAuto, statsAuto, tempsAutoSimuleMs, tentative, totalAutoMs, zoneAuto){
+  const cibleTempsMs =
           Math.min(
             totalAutoMs,
             (tentative + 1) *
@@ -1797,8 +1744,12 @@ export function appliquerProgressionEnergieSorealIdle_(
             monstreAuto
           )
         );
+  /* @sortie */ return {tempsAutoSimuleMs:tempsAutoSimuleMs,combatsAutoHorsLigne:combatsAutoHorsLigne,cibleTempsMs:cibleTempsMs,etatZone:etatZone,tousLes:tousLes,bossProgramme:bossProgramme,chanceRareAuto:chanceRareAuto,monstreRareAuto:monstreRareAuto,rareAuto:rareAuto,typeRencontreAuto:typeRencontreAuto,combatBoss:combatBoss,monstreAuto:monstreAuto};
+}
 
-        const statsEnnemi = {
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 59 lignes. */
+function appliquerProgressionEnergieSorealIdle__p13(combatBoss, defense, equipement, inventaire, monstreAuto, puissance, pvJoueurMax, statsAuto, zoneAuto){
+  const statsEnnemi = {
           pv:
             Math.max(
               1,
@@ -1857,43 +1808,12 @@ export function appliquerProgressionEnergieSorealIdle_(
           dureeMaxCombatAventureSorealIdle_(
             combatBoss
           );
+  /* @sortie */ return {statsEnnemi:statsEnnemi,degatsRecusSec:degatsRecusSec,puissanceAventureAuto:puissanceAventureAuto,tempsVictoire:tempsVictoire,tempsKoAuto:tempsKoAuto,tempsLimiteAuto:tempsLimiteAuto};
+}
 
-        if (
-          tempsVictoire >
-          Math.min(
-            tempsKoAuto,
-            tempsLimiteAuto
-          )
-        ) {
-          derniereDefaiteAuto = {
-            monstre:
-              String(
-                (monstreAuto && monstreAuto.nom) || ''
-              ),
-            zone:
-              String(
-                (zoneAuto && zoneAuto.nom) || ''
-              ),
-            boss: combatBoss,
-            /* K.O. réel (le joueur a été vaincu) plutôt qu'un simple abandon faute de temps. */
-            ko: tempsKoAuto <= tempsLimiteAuto
-          };
-
-          if (combatBoss) {
-            etatZone.progressionBoss = 0;
-            etatZone.bossEchecs += 1;
-
-            progressionAventureAuto[
-              String(
-                zoneAuto.id
-              )
-            ] = etatZone;
-          }
-
-          break;
-        }
-
-        etatZone.victoires += 1;
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 129 lignes. */
+function appliquerProgressionEnergieSorealIdle__p14(capaciteSacFarmHorsLigneV1, combatBoss, equipement, etatZone, inventaire, lootsAutoHorsLigne, monstreAuto, niveau, pieces, pointsAventureAuto, progressionAventureAuto, rareAuto, statsAuto, tousLes, victoiresAutoHorsLigne, zoneAuto){
+  etatZone.victoires += 1;
 
         if (combatBoss) {
           etatZone.progressionBoss = 0;
@@ -2022,14 +1942,12 @@ export function appliquerProgressionEnergieSorealIdle_(
             zoneAuto.id
           )
         ] = etatZone;
-      }
+  /* @sortie */ return {victoiresAutoHorsLigne:victoiresAutoHorsLigne,pointsAventureAuto:pointsAventureAuto,pieces:pieces,lootAuto:lootAuto};
+}
 
-      /*
-       * Même si l'AUTO s'arrête (défaite ou limite CPU), le temps restant
-       * continue de produire de l'énergie. On termine donc la chronologie
-       * jusqu'à la fin de la période hors ligne.
-       */
-      simulateurEnergieAuto.avancer(
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 27 lignes. */
+function appliquerProgressionEnergieSorealIdle__p15(energieDepenseeAventureAuto, energiePerdueAuPlafond, energieStockeeParProduction, nouvelleEnergie, simulateurEnergieAuto, statsCombat, tempsAutoSimuleMs, totalAutoMs){
+  simulateurEnergieAuto.avancer(
         Math.max(
           0,
           totalAutoMs -
@@ -2056,9 +1974,11 @@ export function appliquerProgressionEnergieSorealIdle_(
       energieDepenseeAventureAuto =
         etatEnergieAuto
           .energieDepensee;
-    }
-  }
+  /* @sortie */ return {nouvelleEnergie:nouvelleEnergie,energieStockeeParProduction:energieStockeeParProduction,energiePerdueAuPlafond:energiePerdueAuPlafond,energieDepenseeAventureAuto:energieDepenseeAventureAuto,etatEnergieAuto:etatEnergieAuto};
+}
 
+/* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 103 lignes. */
+function appliquerProgressionEnergieSorealIdle__p16(bossActuel, bossPv, bossPvMax, bossVaincus, c, combatsAutoHorsLigne, energieAvantSyncNguV1, energieDepenseeAventureAuto, energieMax, equipement, feuille, inventaire, ligne, lootsAutoHorsLigne, maintenant, niveau, nouvelleEnergie, pieces, pointsAventureAuto, prodSeconde, progressionAventureAuto, pvJoueur, pvJoueurMax, statsAuto, statsCombat, victoiresAutoHorsLigne, xp){
   if (
     combatsAutoHorsLigne > 0
   ) {
@@ -2162,6 +2082,182 @@ export function appliquerProgressionEnergieSorealIdle_(
     .setValue(
       new Date(maintenant)
     );
+  /* @sortie */ return {niveau:niveau,xp:xp,energieDepenseeAventureHorsLigne:energieDepenseeAventureHorsLigne,gainNetEnergie:gainNetEnergie};
+}
+
+export function appliquerProgressionEnergieSorealIdle_(
+  feuille,
+  ligne
+) {
+  /*>appliquerProgressionEnergieSorealIdle__p1*/const __r1=appliquerProgressionEnergieSorealIdle__p1(feuille, ligne);const c=__r1.c;const row=__r1.row;const statsRessourceV55=__r1.statsRessourceV55;const energieAvantSyncNguV1=__r1.energieAvantSyncNguV1;const collectionRessourceV55=__r1.collectionRessourceV55;const killsTitansAvantSyncV1=__r1.killsTitansAvantSyncV1;const devisesAvantHorsLigneV1=__r1.devisesAvantHorsLigneV1;const metaNguRessourceV55=__r1.metaNguRessourceV55;const titansTuesHorsLigneV1=__r1.titansTuesHorsLigneV1;const energieMetaV55=__r1.energieMetaV55;const energieBrute=__r1.energieBrute;const energie=__r1.energie;const energieMax=__r1.energieMax;const prodSeconde=__r1.prodSeconde;const maintenantEntrainementV41=__r1.maintenantEntrainementV41;const entrainementAvantV176=__r1.entrainementAvantV176;const entrainementV41=__r1.entrainementV41;const energieIdleMaxV41=__r1.energieIdleMaxV41;const puissance=__r1.puissance;/*<appliquerProgressionEnergieSorealIdle__p1*/
+
+  /*>appliquerProgressionEnergieSorealIdle__p2*/const __r2=appliquerProgressionEnergieSorealIdle__p2(c, entrainementV41, row);const endurance=__r2.endurance;let niveau=__r2.niveau;let xp=__r2.xp;let bossVaincus=__r2.bossVaincus;const renaissances=__r2.renaissances;const statsCombat=__r2.statsCombat;const renaissanceNativeCountV54=__r2.renaissanceNativeCountV54;const maintenantMana=__r2.maintenantMana;let bossCombatIndex=__r2.bossCombatIndex;let bossBloqueRenaissance=__r2.bossBloqueRenaissance;let combatBossActif=__r2.combatBossActif;let pieces=__r2.pieces;let inventaire=__r2.inventaire;let equipement=__r2.equipement;const defense=__r2.defense;/*<appliquerProgressionEnergieSorealIdle__p2*/
+
+  /*
+   * Fight Boss suit le modèle A/D : les PV max valent 10× l'attaque.
+   * L'équipement Aventure sera branché comme multiplicateur séparé.
+   */
+  /*>appliquerProgressionEnergieSorealIdle__p3*/const __r3=appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBossActif, defense, entrainementAvantV176, entrainementV41, metaNguRessourceV55, row);const pvJoueurMax=__r3.pvJoueurMax;let pvJoueur=__r3.pvJoueur;const bossPvMaxDefinition=__r3.bossPvMaxDefinition;const bossPvMaxEnregistre=__r3.bossPvMaxEnregistre;let bossPvMax=__r3.bossPvMax;let bossPv=__r3.bossPv;const derniereSynchroBrute=__r3.derniereSynchroBrute;let derniereSynchro=__r3.derniereSynchro;const maintenant=__r3.maintenant;const ecouleReel=__r3.ecouleReel;const ecoulePrisEnCompte=__r3.ecoulePrisEnCompte;const regenPvSecJoueur=__r3.regenPvSecJoueur;/*<appliquerProgressionEnergieSorealIdle__p3*/
+
+
+  /*
+   * Migration V40.7 : une ancienne énergie fractionnaire (ex. 249,6)
+   * n'est pas perdue. Sa fraction devient du temps déjà parcouru vers
+   * le prochain vrai tick. Dès cette sauvegarde, ENERGIE reste entière.
+   */
+  // SOREAL_IDLE_V55_NO_LEGACY_ENERGY_TICKS
+  // syncIdleNguState already accounted for online/offline Energy generation.
+  // Running the former tick simulator here would credit the same elapsed
+  // period a second time.
+  /*>appliquerProgressionEnergieSorealIdle__p4*/const __r4=appliquerProgressionEnergieSorealIdle__p4(bossPv, bossPvMax, combatBossActif, derniereSynchro, ecoulePrisEnCompte, energie, energieAvantSyncNguV1, statsCombat);bossPv=__r4.bossPv;const fractionEnergieHistorique=__r4.fractionEnergieHistorique;const resteEnergieAvantProgressionMs=__r4.resteEnergieAvantProgressionMs;const energieTheoriqueProduite=__r4.energieTheoriqueProduite;let nouvelleEnergie=__r4.nouvelleEnergie;const energieApresProduction=__r4.energieApresProduction;let energieStockeeParProduction=__r4.energieStockeeParProduction;let energiePerdueAuPlafond=__r4.energiePerdueAuPlafond;let tempsRestant=__r4.tempsRestant;let tempsSimulation=__r4.tempsSimulation;let bossBattusMaintenant=__r4.bossBattusMaintenant;let xpGagnee=__r4.xpGagnee;let degatsInfliges=__r4.degatsInfliges;let degatsRecus=__r4.degatsRecus;let koSubis=__r4.koSubis;let dropsRecents=__r4.dropsRecents;let iterations=__r4.iterations;let highestBossJamaisAtteint=__r4.highestBossJamaisAtteint;/*<appliquerProgressionEnergieSorealIdle__p4*/
+
+  while (
+    tempsRestant > 0.0001 &&
+    iterations < 2000 &&
+    !bossBloqueRenaissance &&
+    combatBossActif
+  ) {
+    iterations += 1;
+
+    /*
+     * Aucun état K.O. intermédiaire. Si une ancienne sauvegarde arrive
+     * déjà à 0 PV alors qu'un combat est encore marqué actif, la défaite
+     * arrête simplement le combat et la récupération hors combat repart
+     * de 0 à la prochaine progression.
+     */
+    if (pvJoueur <= 0) {
+      pvJoueur=0;
+      koSubis += 1;
+      /* « En direct » : compteur de défaites contre un boss (modules/flux-v1.js) ; le combat passe d'actif à inactif une seule fois. */
+      statsCombat.fluxBossDefaites=Math.max(0,Math.floor(nombreSorealIdle_(statsCombat.fluxBossDefaites,0)))+1;
+      statsCombat.fluxBossDernier=bossCombatIndex+1;
+      cloreCombatBossClassementV1_(statsCombat,false);
+      statsCombat.combatBossActif=false;
+      combatBossActif=false;
+      break;
+    }
+
+    /*>appliquerProgressionEnergieSorealIdle__p5*/const __r5=appliquerProgressionEnergieSorealIdle__p5(bossCombatIndex, bossPv, bossPvMax, defense, metaNguRessourceV55, puissance, pvJoueur, regenPvSecJoueur, statsCombat, tempsRestant, tempsSimulation);const attaqueBoss=__r5.attaqueBoss;let degatsRecusSec=__r5.degatsRecusSec;const soinJoueurSec=__r5.soinJoueurSec;const multiplicateurDpsBoss=__r5.multiplicateurDpsBoss;const multiplicateurSceau=__r5.multiplicateurSceau;const multiplicateurVulnerabilite=__r5.multiplicateurVulnerabilite;const regenBossSec=__r5.regenBossSec;const defenseBossCombat=__r5.defenseBossCombat;const dpsJoueurBase=__r5.dpsJoueurBase;const dpsBossNet=__r5.dpsBossNet;const tempsPourBoss=__r5.tempsPourBoss;const tempsPourDefaite=__r5.tempsPourDefaite;const segment=__r5.segment;const dommageBoss=__r5.dommageBoss;const dommageJoueur=__r5.dommageJoueur;/*<appliquerProgressionEnergieSorealIdle__p5*/
+
+    /*>appliquerProgressionEnergieSorealIdle__p6*/const __r6=appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBloqueRenaissance, bossCombatIndex, bossPv, bossPvMax, bossVaincus, combatBossActif, degatsInfliges, degatsRecus, dommageBoss, dommageJoueur, highestBossJamaisAtteint, niveau, pvJoueur, pvJoueurMax, segment, soinJoueurSec, statsCombat, tempsRestant, tempsSimulation, xp, xpGagnee);bossPv=__r6.bossPv;pvJoueur=__r6.pvJoueur;degatsInfliges=__r6.degatsInfliges;degatsRecus=__r6.degatsRecus;tempsRestant=__r6.tempsRestant;tempsSimulation=__r6.tempsSimulation;xp=__r6.xp;xpGagnee=__r6.xpGagnee;highestBossJamaisAtteint=__r6.highestBossJamaisAtteint;bossVaincus=__r6.bossVaincus;bossBattusMaintenant=__r6.bossBattusMaintenant;combatBossActif=__r6.combatBossActif;bossCombatIndex=__r6.bossCombatIndex;bossBloqueRenaissance=__r6.bossBloqueRenaissance;bossPvMax=__r6.bossPvMax;const bossMort=__r6.bossMort;const joueurBattu=__r6.joueurBattu;/*<appliquerProgressionEnergieSorealIdle__p6*/
+
+    /*>appliquerProgressionEnergieSorealIdle__p7*/const __r7=appliquerProgressionEnergieSorealIdle__p7(bossCombatIndex, combatBossActif, joueurBattu, koSubis, pvJoueur, statsCombat);pvJoueur=__r7.pvJoueur;koSubis=__r7.koSubis;combatBossActif=__r7.combatBossActif;/*<appliquerProgressionEnergieSorealIdle__p7*/
+
+    if (
+      segment <= 0.000001 &&
+      !bossMort &&
+      !joueurBattu
+    ) {
+      break;
+    }
+  }
+
+  /*>appliquerProgressionEnergieSorealIdle__p8*/const __r8=appliquerProgressionEnergieSorealIdle__p8(bossCombatIndex, c, niveau, row, statsCombat, xp);niveau=__r8.niveau;xp=__r8.xp;const progressionNiveau=__r8.progressionNiveau;const bossActuel=__r8.bossActuel;let pointsAventureAuto=__r8.pointsAventureAuto;const pointsAventureAutoAvant=__r8.pointsAventureAutoAvant;let progressionAventureAuto=__r8.progressionAventureAuto;const statsAuto=__r8.statsAuto;let combatsAutoHorsLigne=__r8.combatsAutoHorsLigne;let victoiresAutoHorsLigne=__r8.victoiresAutoHorsLigne;let lootsAutoHorsLigne=__r8.lootsAutoHorsLigne;let energieDepenseeAventureAuto=__r8.energieDepenseeAventureAuto;let creneauxAutoHorsLigne=__r8.creneauxAutoHorsLigne;let limiteAutoHorsLigneAtteinte=__r8.limiteAutoHorsLigneAtteinte;let derniereDefaiteAuto=__r8.derniereDefaiteAuto;/*<appliquerProgressionEnergieSorealIdle__p8*/
+
+  if (
+    ecouleReel >= 20 &&
+    statsAuto.autoAventure &&
+    statsAuto.autoAventureZone > 0
+  ) {
+    /*>appliquerProgressionEnergieSorealIdle__p9*/const __r9=appliquerProgressionEnergieSorealIdle__p9(row, statsAuto);const aventureAuto=__r9.aventureAuto;const zoneAuto=__r9.zoneAuto;/*<appliquerProgressionEnergieSorealIdle__p9*/
+
+    if (
+      zoneAuto &&
+      zoneAuto.debloquee
+    ) {
+      /*
+       * V40.2 : l'AUTO hors ligne utilise le MÊME cooldown de gameplay
+       * que les rencontres visibles. Il n'ajoute plus son ancien plancher
+       * indépendant de 2/8 secondes : les améliorations des mondes futurs
+       * pourront donc réellement accélérer toute la boucle Aventure.
+       */
+      /*>appliquerProgressionEnergieSorealIdle__p10*/const __r10=appliquerProgressionEnergieSorealIdle__p10(creneauxAutoHorsLigne, ecoulePrisEnCompte, limiteAutoHorsLigneAtteinte, statsAuto, zoneAuto);creneauxAutoHorsLigne=__r10.creneauxAutoHorsLigne;limiteAutoHorsLigneAtteinte=__r10.limiteAutoHorsLigneAtteinte;const intervalle=__r10.intervalle;const ecoulePrisEnCompteAventureAuto=__r10.ecoulePrisEnCompteAventureAuto;const creneauxDisponibles=__r10.creneauxDisponibles;const limiteSimulation=__r10.limiteSimulation;const essaisTemps=__r10.essaisTemps;/*<appliquerProgressionEnergieSorealIdle__p10*/
+
+      /*
+       * Important : on repart de l'énergie réellement présente au début
+       * de l'absence et on fait avancer les ticks jusqu'à chaque créneau.
+       * La production peut donc remplir à nouveau la jauge après un combat,
+       * au lieu d'être perdue parce que la jauge avait atteint son plafond
+       * avant la simulation.
+       */
+      // SOREAL_IDLE_V55_NO_LEGACY_OFFLINE_ENERGY
+      // Adventure AUTO keeps its historical chronology, but Energy itself
+      // was already generated by metaNgu. This adapter is deliberately inert.
+      const simulateurEnergieAuto = {
+        avancer: function() {
+          return nouvelleEnergie;
+        },
+        etat: function() {
+          return {
+            energie: nouvelleEnergie,
+            resteMs: 0,
+            energieProduite: 0,
+            energiePerdueAuPlafond: 0,
+            energieStockee: 0,
+            energieDepensee: 0
+          };
+        }
+      };
+
+      /*>appliquerProgressionEnergieSorealIdle__p11*/const __r11=appliquerProgressionEnergieSorealIdle__p11(c, ecoulePrisEnCompteAventureAuto, intervalle, row);const totalAutoMs=__r11.totalAutoMs;const intervalleAutoMs=__r11.intervalleAutoMs;let tempsAutoSimuleMs=__r11.tempsAutoSimuleMs;const capaciteSac=__r11.capaciteSac;const capaciteSacFarmHorsLigneV1=__r11.capaciteSacFarmHorsLigneV1;/*<appliquerProgressionEnergieSorealIdle__p11*/
+
+      for (
+        let tentative = 0;
+        tentative < essaisTemps;
+        tentative += 1
+      ) {
+        /*>appliquerProgressionEnergieSorealIdle__p12*/const __r12=appliquerProgressionEnergieSorealIdle__p12(combatsAutoHorsLigne, intervalleAutoMs, progressionAventureAuto, simulateurEnergieAuto, statsAuto, tempsAutoSimuleMs, tentative, totalAutoMs, zoneAuto);tempsAutoSimuleMs=__r12.tempsAutoSimuleMs;combatsAutoHorsLigne=__r12.combatsAutoHorsLigne;const cibleTempsMs=__r12.cibleTempsMs;const etatZone=__r12.etatZone;const tousLes=__r12.tousLes;const bossProgramme=__r12.bossProgramme;const chanceRareAuto=__r12.chanceRareAuto;const monstreRareAuto=__r12.monstreRareAuto;const rareAuto=__r12.rareAuto;const typeRencontreAuto=__r12.typeRencontreAuto;const combatBoss=__r12.combatBoss;const monstreAuto=__r12.monstreAuto;/*<appliquerProgressionEnergieSorealIdle__p12*/
+
+        /*>appliquerProgressionEnergieSorealIdle__p13*/const __r13=appliquerProgressionEnergieSorealIdle__p13(combatBoss, defense, equipement, inventaire, monstreAuto, puissance, pvJoueurMax, statsAuto, zoneAuto);const statsEnnemi=__r13.statsEnnemi;const degatsRecusSec=__r13.degatsRecusSec;const puissanceAventureAuto=__r13.puissanceAventureAuto;const tempsVictoire=__r13.tempsVictoire;const tempsKoAuto=__r13.tempsKoAuto;const tempsLimiteAuto=__r13.tempsLimiteAuto;/*<appliquerProgressionEnergieSorealIdle__p13*/
+
+        if (
+          tempsVictoire >
+          Math.min(
+            tempsKoAuto,
+            tempsLimiteAuto
+          )
+        ) {
+          derniereDefaiteAuto = {
+            monstre:
+              String(
+                (monstreAuto && monstreAuto.nom) || ''
+              ),
+            zone:
+              String(
+                (zoneAuto && zoneAuto.nom) || ''
+              ),
+            boss: combatBoss,
+            /* K.O. réel (le joueur a été vaincu) plutôt qu'un simple abandon faute de temps. */
+            ko: tempsKoAuto <= tempsLimiteAuto
+          };
+
+          if (combatBoss) {
+            etatZone.progressionBoss = 0;
+            etatZone.bossEchecs += 1;
+
+            progressionAventureAuto[
+              String(
+                zoneAuto.id
+              )
+            ] = etatZone;
+          }
+
+          break;
+        }
+
+        /*>appliquerProgressionEnergieSorealIdle__p14*/const __r14=appliquerProgressionEnergieSorealIdle__p14(capaciteSacFarmHorsLigneV1, combatBoss, equipement, etatZone, inventaire, lootsAutoHorsLigne, monstreAuto, niveau, pieces, pointsAventureAuto, progressionAventureAuto, rareAuto, statsAuto, tousLes, victoiresAutoHorsLigne, zoneAuto);victoiresAutoHorsLigne=__r14.victoiresAutoHorsLigne;pointsAventureAuto=__r14.pointsAventureAuto;pieces=__r14.pieces;let lootAuto=__r14.lootAuto;/*<appliquerProgressionEnergieSorealIdle__p14*/
+      }
+
+      /*
+       * Même si l'AUTO s'arrête (défaite ou limite CPU), le temps restant
+       * continue de produire de l'énergie. On termine donc la chronologie
+       * jusqu'à la fin de la période hors ligne.
+       */
+      /*>appliquerProgressionEnergieSorealIdle__p15*/const __r15=appliquerProgressionEnergieSorealIdle__p15(energieDepenseeAventureAuto, energiePerdueAuPlafond, energieStockeeParProduction, nouvelleEnergie, simulateurEnergieAuto, statsCombat, tempsAutoSimuleMs, totalAutoMs);nouvelleEnergie=__r15.nouvelleEnergie;energieStockeeParProduction=__r15.energieStockeeParProduction;energiePerdueAuPlafond=__r15.energiePerdueAuPlafond;energieDepenseeAventureAuto=__r15.energieDepenseeAventureAuto;const etatEnergieAuto=__r15.etatEnergieAuto;/*<appliquerProgressionEnergieSorealIdle__p15*/
+    }
+  }
+
+  /*>appliquerProgressionEnergieSorealIdle__p16*/const __r16=appliquerProgressionEnergieSorealIdle__p16(bossActuel, bossPv, bossPvMax, bossVaincus, c, combatsAutoHorsLigne, energieAvantSyncNguV1, energieDepenseeAventureAuto, energieMax, equipement, feuille, inventaire, ligne, lootsAutoHorsLigne, maintenant, niveau, nouvelleEnergie, pieces, pointsAventureAuto, prodSeconde, progressionAventureAuto, pvJoueur, pvJoueurMax, statsAuto, statsCombat, victoiresAutoHorsLigne, xp);niveau=__r16.niveau;xp=__r16.xp;const energieDepenseeAventureHorsLigne=__r16.energieDepenseeAventureHorsLigne;const gainNetEnergie=__r16.gainNetEnergie;/*<appliquerProgressionEnergieSorealIdle__p16*/
 
   return {
     energie:
