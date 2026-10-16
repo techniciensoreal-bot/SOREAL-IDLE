@@ -9666,9 +9666,22 @@
       function noeudTexte69LolIdleV183_(node){
         if(!node||node.nodeType!==Node.TEXT_NODE)return;
         const avant=node.nodeValue;
+        /* Le chiffre de Wandoos a changé : le « lol » collé à l'ancien 69 % s'en va. */
+        const suiv=node.nextSibling;
+        if(suiv&&suiv.nodeType===1&&suiv.classList&&suiv.classList.contains('wd-lol-v1')&&!/^s*69s?%s*$/.test(avant||''))suiv.remove();
         if(!avant||avant.indexOf('69')<0)return;
         const parent=node.parentElement;
         if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;
+        /* Wandoos (Norman, 2026-10-16) : « 69 % » ne bouge pas, le « lol » apparaît à sa droite, hors du flux (le chiffre ne se décale pas). */
+        if(parent.closest&&parent.closest('.wd-poste')&&/^\s*69\s?%\s*$/.test(avant)){
+          const suivant=node.nextSibling;
+          if(!(suivant&&suivant.nodeType===1&&suivant.classList.contains('wd-lol-v1'))){
+            const lol=document.createElement('span');
+            lol.className='wd-lol-v1';lol.textContent='lol';lol.setAttribute('aria-hidden','true');
+            parent.insertBefore(lol,node.nextSibling);
+          }
+          return;
+        }
         const apres=texte69LolIdleV183_(avant);
         if(apres!==avant)node.nodeValue=apres;
       }

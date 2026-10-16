@@ -8,7 +8,7 @@ const dict = JSON.parse(readFileSync("cloudflare/public/modules/traduction-angla
 
 assert.ok(meta.includes("Roue journalière !</div>") && !meta.includes("Daily Spin!</div>"), "titre en français");
 assert.equal(dict["Roue journalière !"], "Daily Spin!", "version anglaise");
-assert.ok(meta.includes('class="mp2-grille-v1"') && css.includes("grid-row:1/3"), "image à gauche, actions à droite");
+assert.ok(meta.includes('class="mp2-grille-v1"') && css.includes("grid-column:2;grid-row:1;align-self:start"), "image à gauche, actions à droite");
 assert.ok(/mp2-grille-v1 \.soreal-idle-money-scene-v206>img\{[^}]*height:auto!important[^}]*object-fit:contain!important/.test(css), "image entière, jamais rognée");
 assert.ok(/@media \(max-width:760px\)\{\s*\.soreal-idle-page-root-v28\[data-menu="moneyPit"\] \.mp2-grille-v1\{grid-template-columns:1fr\}/.test(css), "téléphone : tout s'empile");
 assert.ok(css.includes('--mp2-titre:"Bangers"') && css.includes('"Russo One"'), "polices de jeu");

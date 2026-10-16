@@ -130,6 +130,9 @@
       '.wd-titre .wd-etat{font-weight:400;}',
       '.wd-bloc{margin-top:.5em;}',
       '.wd-ligne b{font-weight:700;}',
+      /* « 69 % » + « lol » à droite, hors du flux : le chiffre ne se décale jamais (voir noeudTexte69LolIdleV183_). */
+      '.wd-poste :is(b,span,div):has(>.wd-lol-v1){position:relative;}',
+      '.wd-lol-v1{position:absolute;left:100%;top:0;margin-left:.3em;white-space:nowrap;font-weight:700;font-size:.8em;line-height:1.35;}',
       '.wd-rang{display:grid;grid-template-columns:5.2em 1fr 3.6em;align-items:center;gap:.6em;margin-top:.25em;}',
       '.wd-lib{color:var(--wd-c2);filter:brightness(1.6);}',
       '.wd-pct{text-align:right;}',

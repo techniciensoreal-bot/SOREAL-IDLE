@@ -32,6 +32,7 @@
         date:'2026-10-16',
         groupes:[
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
+            'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
             'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',
             'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
           ]},
@@ -39,6 +40,9 @@
             'Le Coffre a maintenant six pattes : deux de plus au milieu.',
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
             'Les accidents du Coffre sont aléatoires mais jamais rapprochés (dix minutes au moins entre deux), et sa phrase sur un objet qu’il digère mal est beaucoup plus rare.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Le « 69 % » ne bouge plus : le « lol » apparaît simplement à sa droite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Quand un sort bascule la piste d’ambiance sur l’orage, plus aucun éclair n’apparaît : seuls le sceau, le pentacle, les runes et le sang animent le sort.',

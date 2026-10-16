@@ -16,7 +16,7 @@ const textTransforms=readFileSync(
 
 // 69 lol: exact 69 only.
 assert.match(source,/function texte69LolIdleV183_/);
-assert.match(textTransforms,/\(\^\|\[\^0-9\.,\]\)69\(\?=\$\|\[\^0-9\.,\]\)/);
+assert.ok(textTransforms.includes("69(\\s?%)?(?=$|[^0-9.,])"), "69 exact seulement, « % » avant le lol");
 assert.match(source,/installer69LolIdleV183_\(\)/);
 
 // Merge rollback protection: retry before queue shift/reconcile.
