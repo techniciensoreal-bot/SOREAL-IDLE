@@ -31,6 +31,9 @@
         nom:'Un coffre à six pattes',
         date:'2026-10-16',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
+          ]},
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
             'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
             'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',

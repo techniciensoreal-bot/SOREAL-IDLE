@@ -2730,13 +2730,28 @@
             idleEtat.systemes&&idleEtat.systemes.resourceInfo&&idleEtat.systemes.resourceInfo.magic;
 
           if(ressourceMagieEtat&&budgetMagieEtat&&infoMagieEtat){
+            /*
+             * Plafond local de la Magie (bug d'un joueur, 2026-10-16 : « il générait plus de magie que son maximum, réglé par un refresh »). freeCapacity vient de la dernière synchro : si le plafond
+             * baisse ou si de la Magie est placée depuis (allocation), current+freeCapacity est périmé et la Magie dépassait le maximum jusqu'à la synchro suivante. Le plafond est donc aussi borné
+             * par le plafond de la run moins la Magie placée MAINTENANT (même calcul que le serveur : cap - allocation - réservé) ; la valeur ne dépasse jamais ce plafond.
+             */
+            const capMagieTickEtat=idleNombre_(infoMagieEtat.capRun);
+            const plafondMagieDirect=capMagieTickEtat>0
+              ?Math.max(0,capMagieTickEtat-allocationMetaMagieIdleV1_()-Math.max(0,idleNombre_(budgetMagieEtat.reservedExternal)))
+              :Infinity;
+            if(Number.isFinite(plafondMagieDirect)&&idleNombre_(ressourceMagieEtat.current)>plafondMagieDirect){
+              ressourceMagieEtat.current=Math.floor(plafondMagieDirect+1e-9);
+            }
             const magieAvantTick=
               Math.max(0,idleNombre_(ressourceMagieEtat.current));
 
             const maxLocalMagie=
-              Math.max(
-                magieAvantTick,
-                magieAvantTick+idleNombre_(budgetMagieEtat.freeCapacity)
+              Math.min(
+                plafondMagieDirect,
+                Math.max(
+                  magieAvantTick,
+                  magieAvantTick+idleNombre_(budgetMagieEtat.freeCapacity)
+                )
               );
 
             const magieAuPlafond=magieAvantTick>=maxLocalMagie;
