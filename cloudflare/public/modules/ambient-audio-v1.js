@@ -74,7 +74,7 @@
 
   /* Annonce la piste qui joue (ou « aucune ») : l'orage visuel (orage-v1.js) s'enclenche quand la piste est celle du tonnerre. */
   function signaler_(cle,slot){
-    try{window.dispatchEvent(new CustomEvent('soreal-ambiance-v1',{detail:{cle:cle||'',gainNode:slot&&slot.gainNode||null,contexte:ctxAnalyse_||null}}));}catch(_){}
+    try{window.dispatchEvent(new CustomEvent('soreal-ambiance-v1',{detail:{cle:cle||'',gainNode:slot&&slot.gainNode||null,contexte:ctxAnalyse_||null,force:Boolean(slot&&slot.force)}}));}catch(_){}
   }
 
   function chargerListe_(){
@@ -88,9 +88,10 @@
   }
 
   /* Piste imposée pour le prochain départ (forcerOrage) */
-  var cleForcee='';
+  var cleForcee='',forceProchaine=false;
   function choisirCle_(){
-    if(cleForcee){var f=cleForcee;cleForcee='';return f;}
+    forceProchaine=false;
+    if(cleForcee){var f=cleForcee;cleForcee='';forceProchaine=true;return f;}
     if(!cles||!cles.length)return '';
     var eviter=slots.map(function(s){return s.cle;}).filter(Boolean);
     var choix=cles.filter(function(c){return eviter.indexOf(c)===-1;});
@@ -227,6 +228,8 @@
       if(!actif||!liste.length)return;
       var cle=choisirCle_();
       if(!cle)return;
+      /* piste d'orage imposée par un sort : le décor d'éclairs de l'orage d'ambiance ne l'accompagne pas (Norman, 2026-10-15 : « j'ai toujours l'éclair avec le rituel ») */
+      slot.force=forceProchaine;
       var url='/api/idle/media/ambient?key='+encodeURIComponent(cle);
       var audio;
       try{

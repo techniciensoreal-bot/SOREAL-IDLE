@@ -3,7 +3,7 @@ import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8");
 const acc = lire("modules/coffre-accident-v1.js"), dig = lire("modules/coffre-digestion-v1.js"), ui = lire("soreal-idle-ui.js"), idx = lire("index.html"), son = lire("modules/audio-coffre-v1.js"), fx = lire("modules/audio-effects-v199.js");
 /* Norman (2026-10-15) : accident très occasionnel du Coffre : flaque, deux répliques, sac couvert de caca à frotter, caca qui glisse avec l'objet, bruit liquide avec des pets. */
-assert.ok(dig.includes("var P_ACCIDENT=.04;") && dig.includes("Oh bordel, pas encore…") && dig.includes("J’crois que j’me suis chié dessus.") && dig.includes("a.play('coffreAccident')"), "accident rare, répliques et son");
+assert.ok(dig.includes("var P_ACCIDENT=.08;") && dig.includes("Oh bordel, pas encore…") && dig.includes("J’crois que j’me suis chié dessus.") && dig.includes("a.play('coffreAccident')"), "accident rare, répliques et son");
 assert.ok(acc.includes("NIVEAU_MAX=5") && acc.includes("suivi.courses%2===0") && acc.includes("flaqueNiveau-=1") && !acc.includes("carte:c"), "cinq allers-retours sur la flaque ; le sac ne se frotte pas");
 assert.ok(acc.includes("transition:opacity .9s ease") && acc.includes("setAttribute('data-caca','0')") && acc.includes("(n/NIVEAU_MAX).toFixed(2)"), "les éclaboussures du sac s'effacent au fur et à mesure (fondu)");
 assert.ok(acc.includes("__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__") && acc.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__"), "survit au redessin (règle n°4)");

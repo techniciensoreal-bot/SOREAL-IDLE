@@ -31,8 +31,9 @@
  *    même set, on ne l'exige pas (choix signalé), et les accessoires ne comptent pas.)
  *  - "Defeat <titan> before they can attack even once" (x5) : les titans SOREAL
  *    sont un test de puissance instantané, sans échange de coups ;
- *  - "Clicked the bottom right corner of the Advanced Training menu" : action
- *    d'interface, aucune opération serveur.
+ *  - "Clicked the bottom right corner of the Advanced Training menu" : suivi par
+ *    records.cornerClicked, posé par l'action « cornerClick » (le petit caca au coin
+ *    de la dernière ligne de la page, Norman 2026-10-16).
  */
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
@@ -77,7 +78,7 @@ const SECRETS = Object.freeze([
   ["secretNoHitGct", "Defeat Grand Corrupted Tree before they can attack even once!", 100, null],
   ["secretNoHitJake", "Defeat Jake From Accounting before they can attack even once!", 100, null],
   ["secretNoHitUug", "Defeat UUG, The Unmentionable before they can attack even once!", 100, null],
-  ["secretAtCorner", "Clicked the bottom right corner of the Advanced Training menu.", 60, null],
+  ["secretAtCorner", "Clicked the bottom right corner of the Advanced Training menu.", 60, "cornerClicked"],
   ["secretWalderpFinal", "Defeat WALDERP 's final form!", 100, "walderpFinal"],
   ["secretNoHitWalderp", "Defeat WALDERP's final form before they can attack even once!", 100, null],
   ["secretSpeedrun", "Speedrun 3 times in a row with rebirths under 30 minutes each, with boss 37 defeated!", 20, "speedrun"],

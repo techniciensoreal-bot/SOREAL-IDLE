@@ -14,6 +14,6 @@ const prix = ui.slice(ui.indexOf("function carteSpecialPrizeIdleV1_(){"), ui.ind
 assert.ok(prix.includes('class="soreal-idle-offre-v1"') && prix.includes("🎁 Special Prize"), "Special Prize dans le cadre offre");
 assert.ok(prix.includes("soreal-idle-offre-bouton-v1") && prix.includes("Offre unique"));
 assert.ok(prix.includes("Un JOLI CHATON + ") && prix.includes("choice:"+String.fromCharCode(92)+"'ap") && prix.includes("choice:"+String.fromCharCode(92)+"'kitty"), "les deux choix sont conservés");
-assert.ok(meta.includes('<div class="soreal-idle-offre-v1">') && meta.includes("🎁 TON PRIX"), "prix du Daily Spin dans le cadre offre");
+assert.ok(meta.includes('<div class="soreal-idle-offre-v1 mp2-prix-v1">') && meta.includes("🎁 TON PRIX"), "prix du Daily Spin dans le cadre offre");
 
 console.log("idle-offer-frames-v1 OK");

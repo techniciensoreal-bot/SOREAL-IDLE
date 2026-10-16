@@ -9,7 +9,7 @@ assert.ok(orage.includes("osTourne") && orage.includes("osTourneInverse") && ora
 const sortie = orage.slice(orage.indexOf("function sort(idOuNiveau){"), orage.indexOf("L'orage ne se montre que si on ENTEND le tonnerre"));
 assert.ok(!/trace_\(|BLANCS|coupTonnerre|TONNERRES|os-sombre|os-eclair/.test(sortie), "plus d'éclair, de ciel noir ni de tonnerre pour les sorts");
 assert.ok(sortie.includes("basculerSurOrage_();") && orage.includes("A.forcerOrage()"), "le sort fait basculer la piste d'ambiance sur l'orage");
-assert.ok(amb.includes("function forcerOrage(){") && amb.includes("var MOTIF_ORAGE=/thunder|orage|storm|tonnerre/i;") && amb.includes("if(cleForcee){var f=cleForcee;cleForcee='';return f;}") && amb.includes("forcerOrage:forcerOrage"), "bascule sur la piste d'orage puis reprise normale");
+assert.ok(amb.includes("function forcerOrage(){") && amb.includes("var MOTIF_ORAGE=/thunder|orage|storm|tonnerre/i;") && amb.includes("if(cleForcee){var f=cleForcee;cleForcee='';forceProchaine=true;return f;}") && amb.includes("forcerOrage:forcerOrage"), "bascule sur la piste d'orage puis reprise normale");
 assert.ok(orage.includes("localStorage.getItem('soreal_idle_effet_orage_v1')!=='0'") && orage.includes("mouvementReduit_()"), "respecte l'effet coupé et le mouvement réduit");
 assert.ok(blood.includes("o.sort(String(id||''))"), "branché sur le lancement d'un sort");
 assert.ok(ui.includes("window.__apercuOrageSortIdleV1__") && ui.includes("htmlReglagesOrageSortsIdleV1_()+"), "aperçu de chaque sort dans les Réglages de développement");
@@ -17,3 +17,5 @@ assert.ok(ui.includes("window.__apercuOrageSortIdleV1__") && ui.includes("htmlRe
 assert.ok(trad.includes("['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti de sang']") && trad.includes("['BLOOD','SANG'],['Blood','sang']"), "traduction automatique : sang, Nombre, noms de sorts");
 assert.ok(blood.includes("nom:'Boost du nombre par le sang'") && blood.includes("' sang</b></div>'") && !/Pas assez de Blood/.test(blood), "textes de la page Magie du sang en français");
 console.log("idle-orage-sorts-blood-v1: OK");
+/* « j'ai toujours l'éclair avec le rituel » : la piste d'orage imposée par un sort n'allume jamais le décor d'éclairs */
+assert.ok(amb.includes("slot.force=forceProchaine;") && amb.includes("force:Boolean(slot&&slot.force)") && orage.includes("!courante.force&&volumeAmbiance_()>0"), "piste d'orage d'un sort : le son seulement, pas d'éclair ni de ciel assombri");

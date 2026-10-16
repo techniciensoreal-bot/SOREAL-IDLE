@@ -22,36 +22,46 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.0',
+    courante:'3.1',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.1',
+        nom:'Un coffre à six pattes',
+        date:'2026-10-16',
+        groupes:[
+          {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
+            'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',
+            'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le Coffre a maintenant six pattes : deux de plus au milieu.',
+            'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
+            'Les accidents du Coffre sont aléatoires mais jamais rapprochés (dix minutes au moins entre deux), et sa phrase sur un objet qu’il digère mal est beaucoup plus rare.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Quand un sort bascule la piste d’ambiance sur l’orage, plus aucun éclair n’apparaît : seuls le sceau, le pentacle, les runes et le sang animent le sort.',
+          ]}
+        ]
+      },
       {
         version:'3.0',
         nom:'Un coffre à la bonne taille',
         date:'2026-10-15',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Boutons + / − / Max / 0 des NGU plus sobres.',
-            'Sur téléphone aussi, un clic sur un menu replace la page sous la bannière : la barre des menus reste en haut, la barre Attaque, Défense, Or, EXP, AP juste dessous.',
-            'Les barres d’outils des menus (Input, Mes nombres, Plafond, Idle) sont refaites : un petit cadre propre par ligne, des boutons de même largeur, rien ne dépasse, et « Max » n’est plus coupé sur téléphone comme sur PC. La page des NGU ne se redessine plus à intervalle régulier.',
-            'La page Renaissance est refaite : deux colonnes « Partie précédente » et « Partie en cours » (sang dépensé, durée, boss le plus haut, Number), le Number à la Renaissance en grand, les calculs en bas, et un décor inspiré des cieux, de la vie et de la mort.',
-            '« En direct » annonce maintenant quand le coffre d’un joueur s’est chié dessus.',
-            'Les panneaux d’informations des menus (« À quoi ça sert ? », « Que faire ici ? », encart Infos…) sont toujours fermés quand on arrive dans un menu et se referment quand on en change.',
-            'Sur PC, un clic sur un menu de gauche replace toujours la page ouverte en haut : la bannière disparaît de l’écran et la barre Attaque, Défense, Or, EXP, AP se retrouve tout en haut.',
-            'Le Coffre laisse maintenant échapper un vrai nuage quand il pète.',
-            'L’administrateur est prévenu dans « En direct » d’un nouveau signalement de bug, et le message repasse tant qu’il n’est pas allé le lire.',
-            'Les icônes des objets de l’inventaire s’affichent toutes tout de suite, au lieu d’arriver au compte-gouttes.',
-            'Sur PC, le menu de gauche descend toujours jusqu’à son dernier bouton, même quand la page n’a pas encore été défilée : plus besoin de faire descendre la page centrale pour atteindre le bas du menu.',
-            'Quand tu changes d’onglet à l’intérieur d’une page, la bannière, le menu et la barre de vie ne s’étirent plus pendant une demi-seconde.',
-            'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept : l’élégie d’origine, un trombone triste, un glas de cloche, un « game over » d’arcade, un disque qui s’arrête, une toccata sinistre à l’orgue et un orgue de foire triste.',
-            'Dans les menus mis à jour en direct, le cadre lumineux et les particules des barres actives, les boutons de pourcentage personnalisés et la scène du Blood Magic ne disparaissent plus un instant à chaque mise à jour de la page.',
-            'Le menu NGU ne clignote plus toutes les quelques secondes : les tuyaux, pourcentages et niveaux restent fluides au moment où la page se met à jour.',
-            'L’éditeur de textes et de voix de l’administrateur retrouve maintenant les personnages enregistrés à la réouverture d’un texte, au lieu de tout remettre en un seul bloc.',
-            'Le journal d’EXP de l’administrateur garde désormais plusieurs jours d’historique : la production courante est regroupée en une ligne par tranche d’environ dix minutes.',
+            'Les boutons de tous les menus ont la même taille, lisible sur PC comme sur téléphone ; les barres d’outils (Input, Mes nombres, Plafond, Idle) sont de petits cadres propres où « Max » ne dépasse plus.',
+            'Un clic sur un menu replace la page sous la bannière, sur PC comme sur téléphone (barre Attaque, Défense, Or, EXP, AP juste dessous), et le menu de gauche descend jusqu’à son dernier bouton.',
+            'Les pages mises à jour en direct (dont celle des NGU) ne clignotent plus : cadres lumineux, particules, boutons de pourcentage et tuyaux restent fluides.',
+            'La page Renaissance est refaite : « Partie précédente » et « Partie en cours » côte à côte, le Number en grand, les calculs en bas et un décor inspiré des cieux, de la vie et de la mort.',
+            '« En direct » annonce quand le coffre d’un joueur s’est chié dessus, et prévient l’administrateur d’un nouveau signalement de bug.',
+            'Les panneaux d’informations des menus sont fermés à l’arrivée et au changement de menu, les icônes d’objets s’affichent toutes tout de suite, et la bannière, le menu et la barre de vie ne s’étirent plus quand tu changes d’onglet.',
+            'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept.',
+            'L’éditeur de textes et de voix et le journal d’EXP de l’administrateur sont améliorés (personnages retrouvés à la réouverture, plusieurs jours d’historique).',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
-            'Machine temporelle : les deux barres qu’on alimente sont plus grosses et plus soignées (tuyau de laiton à graduations, or avec des rouages qui défilent). Tous les boutons des menus (Max, 1/2, +, −, 0…) ont la même taille, lisible sur PC comme sur téléphone.',
+            'Les deux barres qu’on alimente sont plus grosses et plus soignées : tuyau de laiton à graduations, or avec des rouages qui défilent.',
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Changer les étages avec les boutons recommence toujours au premier ennemi de l’étage choisi.',
@@ -60,34 +70,28 @@
             'Installer l’OS avec une copie réussie : un son d’ordinateur joyeux (deux bips, arpège de démarrage, carillon) ; copie de niveau insuffisant : un son d’erreur d’ordinateur.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'La page est sans bords et prend toute la largeur ; les textes sont plus grands et plus lisibles (deux colonnes de fruits sur téléphone).',
-            'Le premier fruit change d’image au fil de sa croissance : la dernière image n’apparaît que lorsqu’il est au tier maximum et entièrement poussé.',
-            'Les durées de croissance s’affichent en heures et minutes (09h58) au lieu de 0,85 h.',
+            'La page est sans bords, plus large, avec des textes plus lisibles (deux colonnes de fruits sur téléphone) ; le premier fruit change d’image en grandissant et les durées s’affichent en heures et minutes (09h58).',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Un appui sur le bouton Aventure du menu, d’où que tu viennes, t’amène sur l’onglet Aventure avec l’écran entièrement remonté.',
-            'La comparaison de deux objets tient maintenant dans une seule fenêtre : le premier objet en haut, le deuxième en dessous, qui défile si l’écran est trop court.',
-            'Sur téléphone, le repère de la barre à côté de l’inventaire descend maintenant quand tu glisses le doigt vers le bas et monte quand tu glisses vers le haut ; le défilement de la page n’a pas changé.',
-            'Dans l’inventaire, la fiche d’un objet ne s’ouvre plus au survol de la souris : elle s’ouvre uniquement par un clic sur l’objet.',
-            'Les cases du coffre, sets compris, ont maintenant exactement la taille des cases de l’inventaire (sur PC comme sur téléphone).',
+            'Le bouton Aventure du menu t’amène toujours sur l’onglet Aventure, écran remonté ; la comparaison de deux objets tient dans une seule fenêtre ; la fiche d’un objet s’ouvre au clic, jamais au survol.',
+            'Les cases du coffre, sets compris, ont la taille des cases de l’inventaire, et le Coffre laisse échapper un vrai nuage quand il pète.',
+            'Sur téléphone, le repère de la barre à côté de l’inventaire suit le doigt vers le bas et vers le haut.',
           ]},
           {menu:'combat', titre:'Fight Boss', points:[
-            'Quatre nouveaux sons accueillent l’apparition d’un boss quand tu passes au suivant : un orgue de cathédrale, une boîte à musique qui ralentit, une fanfare funèbre et un gong.',
-            'Si le bandeau « Boss vaincu » reste affiché, le jeu redemande l’état au serveur au bout de quelques secondes et affiche le boss suivant tout seul : plus besoin de changer de menu ni de faire Fight puis Fuite.',
+            'Quatre sons accueillent l’apparition d’un boss suivant : orgue de cathédrale, boîte à musique qui ralentit, fanfare funèbre et gong.',
+            'Si le bandeau « Boss vaincu » reste affiché, le jeu affiche le boss suivant tout seul au bout de quelques secondes.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Les sorts n’appellent plus l’orage : un sceau puis un pentacle qui tourne, des runes et du sang qui tombe, de plus en plus riches jusqu’au dernier sort ; la piste d’ambiance bascule en même temps sur la piste d’orage.',
-            'Magie du sang : le pied du support de la sangsue est posé sur la table, aussi sur téléphone.',
-            'Quand tu lances un sort de la Magie du sang, le ciel s’assombrit et un éclair claque avec son tonnerre au même instant ; plus le sort est avancé dans la liste, plus l’orage gronde, et un pentacle tourne pour les derniers. Les noms des sorts et tous les textes du jeu parlent maintenant de « sang » et de « Nombre », en français.',
-            'Dans Blood Magic, les animations ne se perdent plus : la coupure du papier, la punaise, le jet de la sangsue, le fil barbelé et la banque partent à chaque rituel terminé, même quand le compteur affiché ne bouge pas, et un redessin de la page ne les interrompt plus.',
-            'Les cadres des rituels deviennent de plus en plus sombres et travaillés du premier au dernier : fond de plus en plus noir, double anneau, coins en pointe, liseré lumineux en haut puis en bas, sans animation.',
+            'Les sorts sont des rituels visuels : un sceau puis un pentacle qui tourne, des runes et du sang qui tombe, de plus en plus riches jusqu’au dernier sort ; la piste d’ambiance bascule en même temps sur l’orage.',
+            'Les animations des rituels ne se perdent plus (coupure, punaise, jet de la sangsue, fil barbelé, banque), les cadres des rituels s’assombrissent du premier au dernier, et le pied de la sangsue est posé sur la table, aussi sur téléphone.',
+            'Tous les textes du jeu parlent de « sang » et de « Nombre ».',
           ]},
           {menu:'titans', titre:'Titans', points:[
-            'Une musique angoissante et nerveuse accompagne maintenant ces combats : batterie, basse, cordes et cuivres sombres. Son volume suit la barre « Musique » des Réglages, et les sons d’ambiance se taisent pendant le combat.',
+            'Une musique angoissante et nerveuse accompagne ces combats ; son volume suit la barre « Musique » des Réglages et les sons d’ambiance se taisent pendant le combat.',
             'Un double clic ou double tap sur le bouton Aventure du menu t’emmène directement dans l’onglet Titans.',
           ]},
           {menu:'shop', titre:'Boutique', points:[
-            'Les emplacements d’inventaire de la boutique AP affichent combien tu en as déjà achetés sur le maximum possible, et chaque achat précise qu’il ajoute 1 emplacement ; les autres achats indiquent « acheté N fois » au lieu de « (xN) ».',
+            'Les emplacements d’inventaire de la boutique AP affichent combien tu en as déjà achetés sur le maximum possible, et chaque achat précise qu’il ajoute 1 emplacement.',
           ]}
         ]
       },

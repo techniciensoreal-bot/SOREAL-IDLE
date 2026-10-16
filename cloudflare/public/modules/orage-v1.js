@@ -286,7 +286,8 @@
   /* Réglages > Effets visuels : l'effet peut être coupé pour les téléphones moins puissants (mémorisé sur l'appareil, actif par défaut). */
   function effetAutorise_(){try{return localStorage.getItem('soreal_idle_effet_orage_v1')!=='0';}catch(_e){return true;}}
   function evaluer_(){
-    if(courante&&estOrage(courante.cle)&&volumeAmbiance_()>0&&effetAutorise_()){if(!actif)demarrer(courante);}
+    /* piste d'orage lancée par un SORT de Blood Magic : le son seulement, jamais les éclairs ni le ciel assombri */
+    if(courante&&estOrage(courante.cle)&&!courante.force&&volumeAmbiance_()>0&&effetAutorise_()){if(!actif)demarrer(courante);}
     else if(actif)arreter();
   }
   window.addEventListener('soreal-effets-v1',function(){evaluer_();});

@@ -9,7 +9,7 @@ const wd = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8")
 
 // Prix du trou / de la roue : six teintes qui se suivent, rang = compteur avancé à chaque nouvelle récompense.
 for (let i = 0; i < 6; i++) assert.ok(css.includes('.soreal-idle-prize-v206[data-couleur="' + i + '"]{background:linear-gradient('), "teinte " + i);
-assert.ok(meta.includes("data-couleur=\"'+couleurPrix+'\"") && meta.includes("soreal_idle_prix_couleur_v1") && meta.includes("couleurPrix=((n%6)+6)%6"), "le rang de couleur avance quand la dernière récompense change");
+assert.ok(meta.includes("data-couleur=\"'+couleurPrix+'\"") && meta.includes("soreal_idle_prix_couleur_v1") && meta.includes("rang=((n%6)+6)%6") && meta.includes("soreal_idle_prix_couleur_roue_v1") && meta.includes("data-couleur=\"'+couleurPrixRoue+'\""), "le rang de couleur avance quand la dernière récompense change");
 
 // Calendrier : l'animation d'allumage ne se joue que pour une case qui vient de s'allumer.
 assert.ok(meta.includes(".cal-case-v1.allume.nouveau{animation:calAllumeV1") && !/\.cal-case-v1\.allume\{[^}]*animation:/.test(meta), "plus d'animation sur toutes les cases allumées");

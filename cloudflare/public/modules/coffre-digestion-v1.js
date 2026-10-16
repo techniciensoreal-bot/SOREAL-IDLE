@@ -76,10 +76,15 @@
     return f;
   }
   /*
-   * L'accident (Norman, 2026-10-15), VRAIMENT occasionnel : 4 % des pets. Une flaque brune s'étale à ses pieds, il dit « Oh bordel, pas encore… » puis « J'crois que j'me suis chié dessus. », et le sac est couvert de
+   * L'accident (Norman, 2026-10-15), occasionnel : 8 % des pets (4 % jusqu au 2026-10-16), au moins 10 min entre deux accidents. Une flaque brune s'étale à ses pieds, il dit « Oh bordel, pas encore… » puis « J'crois que j'me suis chié dessus. », et le sac est couvert de
    * caca (modules/coffre-accident-v1.js : à frotter pour nettoyer). Toujours en français, comme les autres répliques du Coffre.
    */
-  var P_ACCIDENT=.04;
+  var P_ACCIDENT=.08;
+  /* Jamais deux accidents à moins de 10 minutes d'intervalle (Norman, 2026-10-16 : aléatoire, pas trop souvent), même après un rechargement de la page. */
+  var ECART_ACCIDENT_MS=10*60*1000,CLE_ACCIDENT='soreal_idle_coffre_dernier_accident_v1';
+  function accidentPermis_(){
+    try{return Date.now()-(Number(localStorage.getItem(CLE_ACCIDENT))||0)>=ECART_ACCIDENT_MS;}catch(_e){return true;}
+  }
   /* Première réplique tirée au sort ; la seconde (« J'crois que j'me suis chié dessus. ») suit toujours. */
   var OUVERTURES_ACCIDENT=['Oh bordel, pas encore…','Ah ben voilà.. Forcément que ça allait arriver un jour.','Oh merde. Ne me regardez pas'];
   function entierementVisible_(){
@@ -112,12 +117,12 @@
   }
   function excuses_(el){
     nuagePet_(el);
-    if(Math.random()<P_ACCIDENT&&accident_(el))return;
+    if(accidentPermis_()&&Math.random()<P_ACCIDENT&&accident_(el)){try{localStorage.setItem(CLE_ACCIDENT,String(Date.now()));}catch(_e){}return;}
     var rare=Math.random()<.125;
     /* La bulle ne sort qu'APRÈS le pet (Norman, 2026-10-11) : la fumée part tout de suite, l'excuse suit une fois le bruit terminé ; la phrase est tirée au sort. */
     var choix=EXCUSES.slice();
     /* S'il digère un Casque au bleu (Blue Cheese Helmet), il peut s'en plaindre. */
-    try{if(typeof window.__coffreContientObjetIdleV1__==='function'&&window.__coffreContientObjetIdleV1__(/casque au bleu|blue cheese helmet/i))choix.push('Je digère mal ton Casque au bleu');}catch(_e){}
+    try{if(Math.random()<.2&&typeof window.__coffreContientObjetIdleV1__==='function'&&window.__coffreContientObjetIdleV1__(/casque au bleu|blue cheese helmet/i))choix.push('Je digère mal ton Casque au bleu');}catch(_e){}
     var excuse=choix[Math.floor(Math.random()*choix.length)];
     retirer_(bulle_(el,excuse,false,DELAI_EXCUSE),DELAI_EXCUSE+2300);
     if(rare){

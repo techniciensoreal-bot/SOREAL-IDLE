@@ -1410,6 +1410,8 @@ function baseState(now) {
       /* Secret de Rebirth "3 fois de suite < 30 min avec boss 37" (page Rebirths) : série en cours, bonus versé (0/1). */
       speedrunStreak: 0,
       speedrunBonusClaimed: 0,
+      /* Secret « coin en bas à droite de l'Entraînement avancé » (0/1) : posé par l'action cornerClick. */
+      cornerClicked: 0,
       /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
       portrait: "default",
       specialPrizeClaimed: 0,
@@ -5038,6 +5040,7 @@ function achievementMetricsLectureV1(state) {
     beastV4: Boolean(flags.beastDefeated_brutal || flags.beastBrutalDefeated),
     evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
     speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0,
+    cornerClicked: num(state.records?.cornerClicked, 0) > 0,
     /* « Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69 » (wiki, Secret Achievements) : les cinq emplacements équipés, chacun au niveau 69 (le set d'origine n'est pas exigé : le texte ne le dit pas). */
     level69Set: (() => {
       const equipement = state.adventure?.equipment || {};
@@ -5069,10 +5072,10 @@ function achievementsSnapshotV1(state) {
         const requis = idleAchievementBossRequisV1(a);
         /*
          * Norman (2026-10-10) : (1) « Boss vaincus » : jamais le numéro d'un boss avant de l'avoir vaincu, que des ??? (pas de nom, pas de seuil, pas de boss à tuer : `bossMasque`) ;
-         * (2) les trophées « Débloquer le menu NGU / Yggdrasil / Barbes » ne se dévoilent qu'une fois obtenus (leur simple texte annonçait un menu que le joueur n'a pas encore).
+         * (2) les trophées « Débloquer le menu NGU / Yggdrasil / Barbes » et le secret du caca (Norman, 2026-10-16 : un trophée caché ne dit pas ce qu il faut faire) ne se dévoilent qu'une fois obtenus (leur simple texte annonçait un menu que le joueur n'a pas encore).
          */
         const estBoss = a.group === "boss";
-        const menuSecret = a.id === "secretNguMenu" || a.id === "secretYggdrasilMenu" || a.id === "secretBeardsMenu";
+        const menuSecret = a.id === "secretNguMenu" || a.id === "secretYggdrasilMenu" || a.id === "secretBeardsMenu" || a.id === "secretAtCorner";
         const visible = fait || (!estBoss && !menuSecret && meilleurBoss >= requis);
         const o = { id: a.id, group: a.group, bp: a.bp, secret: a.secret, unlocked: fait, voirApresBoss: visible ? 0 : (estBoss ? 1 : requis) };
         if (!visible && estBoss) o.bossMasque = true;
@@ -7726,6 +7729,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     }
   } else if (action === "castBloodSpell") {
     result = castBloodSpell(state, String(payload.spell || "numberBoost"), t);
+  } else if (action === "cornerClick") {
+    /* Secret « Clicked the bottom right corner of the Advanced Training menu » : le caca n'existe à l'écran qu'avec Wandoos, on refuse sinon. */
+    if (!state.systems.wandoos?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    state.records.cornerClicked = 1;
   } else if (action === "towerFloors") {
     result = towerSetFloorsV1(state, payload);
   } else if (action === "toggle") {

@@ -26,3 +26,10 @@ const cal = css.slice(css.indexOf("Calendrier de connexion compact"));
 assert.ok(cal.includes("max-width:600px!important") && cal.includes("aspect-ratio:1/.82") && cal.includes("--mp2-jeu"), "calendrier resserré, cases basses, police de jeu");
 assert.ok(!/Georgia/.test(cal));
 console.log("idle-money-pit-v2-roue-v1: OK");
+/* Un « Ton prix » sous chaque bouton, cartes resserrées (Norman, 2026-10-16). */
+{
+  assert.ok(meta.includes("rendreBoutonMoneyPitIdleV1_(j,pitSt)+\n              prixPit+") || /rendreBoutonMoneyPitIdleV1_\(j,pitSt\)\+\s*prixPit\+/.test(meta), "Ton prix du Money Pit sous son bouton");
+  assert.ok(/rendreBoutonDailySpinIdleV203_\(roueSt\)\+\s*prixRoue\+/.test(meta), "Ton prix de la roue sous son bouton");
+  assert.ok(meta.includes("genre:'pit'") && meta.includes("genre:'roue'"), "dernier gain propre à chaque cadre");
+  assert.ok(!css.includes("grid-template-rows:1fr 1fr}") || !/mp2-grille-v1>\.soreal-idle-money-actions-v206\{[^}]*grid-template-rows:1fr 1fr/.test(css), "cartes plus étirées (plus de vide)");
+}

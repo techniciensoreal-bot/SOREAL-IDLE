@@ -3402,6 +3402,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           lignes.push({
             at:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(x.at),
             source:'🕳️ Money Pit',
+            genre:'pit',
             entree:x,
             detail:'Palier '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(x.tier)+' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x.cost||0)+' Or',
             prize:libelleRecompenseMetaV206_(x)
@@ -3411,6 +3412,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           lignes.push({
             at:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(x.at),
             source:'🎡 Roue journalière',
+            genre:'roue',
             detail:'Tier '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(x.tier),
             prize:libelleRecompenseMetaV206_(x)
           });
@@ -3598,22 +3600,47 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const listePit=lignesMoneyPitIdleV1_(pit);
         const listeRoue=lignesRoueIdleV1_(roue);
         const historique=historiqueMoneyPitIdleV206_(pit,roue);
-        const derniere=historique.length?historique[0]:null;
+        const derniere=historique.find(function(x){return x.genre==='pit';})||null;
+        const derniereRoue=historique.find(function(x){return x.genre==='roue';})||null;
         /*
          * Couleur du cadre du prix (Norman, 2026-10-07 : « le cadre doit changer de couleur à chaque récompense, sinon on ne remarque pas le changement entre la précédente et la nouvelle »).
          * Un compteur, gardé sur l'appareil, avance d'un cran chaque fois que la dernière récompense n'est plus celle qu'on avait vue ; la couleur est le rang du compteur (6 teintes qui se suivent).
          */
-        let couleurPrix=0;
-        try{
-          const cle=derniere?(String(derniere.at)+'|'+String(derniere.prize)):'';
-          if(cle){
-            const brut=JSON.parse(localStorage.getItem('soreal_idle_prix_couleur_v1')||'null');
-            let n=0;
-            if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
-            if(!brut||brut.cle!==cle)localStorage.setItem('soreal_idle_prix_couleur_v1',JSON.stringify({cle:cle,n:n}));
-            couleurPrix=((n%6)+6)%6;
-          }
-        }catch(_e){}
+        const rangCouleurPrix_=function(d,stockage){
+          let rang=0;
+          try{
+            const cle=d?(String(d.at)+'|'+String(d.prize)):'';
+            if(cle){
+              const brut=JSON.parse(localStorage.getItem(stockage)||'null');
+              let n=0;
+              if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
+              if(!brut||brut.cle!==cle)localStorage.setItem(stockage,JSON.stringify({cle:cle,n:n}));
+              rang=((n%6)+6)%6;
+            }
+          }catch(_e){}
+          return rang;
+        };
+        /* Un « Ton prix » sous CHAQUE bouton (Norman, 2026-10-16) : le dernier gain du Money Pit sous « Balance ton argent », le dernier de la roue sous la roue, chacun avec son propre compteur de couleur. */
+        const couleurPrix=rangCouleurPrix_(derniere,'soreal_idle_prix_couleur_v1');
+        const couleurPrixRoue=rangCouleurPrix_(derniereRoue,'soreal_idle_prix_couleur_roue_v1');
+        const H0=window.__SOREAL_IDLE_META_HOST_V130__;
+        const prixPit='<div class="soreal-idle-offre-v1 mp2-prix-v1">'+
+            '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
+            '<div class="soreal-idle-prize-v206" data-couleur="'+couleurPrix+'">'+
+              (derniere
+                ?(derniere.entree
+                  ?H0.idleHtml_(phraseMoneyPitIdleV1_(derniere.entree,j))+
+                    '<span class="soreal-idle-prize-detail-v1">'+H0.idleHtml_(derniere.prize)+'</span>'
+                  :H0.idleHtml_(derniere.prize))
+                :'Aucun prix obtenu pour l’instant.')+
+            '</div>'+
+          '</div>';
+        const prixRoue='<div class="soreal-idle-offre-v1 mp2-prix-v1">'+
+            '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
+            '<div class="soreal-idle-prize-v206" data-couleur="'+couleurPrixRoue+'">'+
+              (derniereRoue?'<span class="soreal-idle-prize-detail-v1">'+H0.idleHtml_(derniereRoue.prize)+'</span>':'Aucun prix obtenu pour l’instant.')+
+            '</div>'+
+          '</div>';
 
         return ''+
           window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
@@ -3659,6 +3686,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
               '<div class="soreal-idle-money-action-note-v206">Le trou prend tout ton Or actuel.</div>'+
               rendreBoutonMoneyPitIdleV1_(j,pitSt)+
+              prixPit+
             '</div>'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
               '<div class="mp2-spin-tete-v1">'+
@@ -3667,17 +3695,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
                 '<div class="soreal-idle-money-action-note-v206">Bon, ça ne « tourne » pas vraiment, mais c’est aléatoire !</div></div>'+
               '</div>'+
               rendreBoutonDailySpinIdleV203_(roueSt)+
-            '</div>'+
-          '</div>'+
-          '<div class="soreal-idle-offre-v1">'+
-            '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
-            '<div class="soreal-idle-prize-v206" data-couleur="'+couleurPrix+'">'+
-              (derniere
-                ?(derniere.entree
-                  ?window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(phraseMoneyPitIdleV1_(derniere.entree,j))+
-                    '<span class="soreal-idle-prize-detail-v1">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize)+'</span>'
-                  :window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(derniere.prize))
-                :'Aucun prix obtenu pour l’instant.')+
+              prixRoue+
             '</div>'+
           '</div>'+
           '</div>'+
@@ -4069,6 +4087,12 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         const libre=Math.max(0,H.idleNombre_(j&&j.energie));
         const vueAt=(j&&j.systemes&&j.systemes.advancedTrainingView)||null;
         const ancreAt=ancreSnapshotIdleV1_(j);
+        /* Secret « Clicked the bottom right corner of the Advanced Training menu » (Norman, 2026-10-16) : un petit caca dans le coin en bas à droite de la dernière ligne ; il disparaît une fois le succès obtenu. */
+        const cacaCoinHtml_=function(jeu){
+          const liste=(jeu&&jeu.systemes&&jeu.systemes.achievements&&jeu.systemes.achievements.list)||[];
+          if(liste.some(function(x){return x&&x.id==='secretAtCorner'&&x.unlocked;}))return '';
+          return '<button type="button" class="soreal-idle-at-caca-v1" data-morph-classes-gardees="^parti$" aria-label="Caca" onclick="window.__cacaCoinIdleV1__(this)">💩</button>';
+        };
         const ligne=function(id){
           const st=pistes[id]||{};
           const infoAt=(vueAt&&vueAt.pistes&&vueAt.pistes[id])||{};
@@ -4088,6 +4112,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
               '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'zero\')">0</button>'+
             '</div>'+
+            (id==='wandoosMagic'?cacaCoinHtml_(j):'')+
           '</div>';
         };
         const toolbar='<div class="soreal-idle-bt-toolbar-v120"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+montantAugmentIdleV1+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div>'+
@@ -4112,7 +4137,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '.soreal-idle-at-ornement-v1 b{font-size:15px;color:#f5d0fe;text-shadow:0 0 10px #c026d3}'+
           '.soreal-idle-at-entete-v1 p{margin:2px 0 0;font-size:14px;font-weight:700;font-style:italic;letter-spacing:.04em;color:#e9d5ff;opacity:.9}'+
           '.soreal-idle-at-liste-v1{display:grid;gap:9px}'+
-          '.soreal-idle-at-ligne-v1{display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(3,minmax(76px,1fr)) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.18)}'+
+          '.soreal-idle-at-ligne-v1{position:relative;display:grid;grid-template-columns:minmax(150px,1.6fr) repeat(3,minmax(76px,1fr)) auto;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.18)}'+
           '.soreal-idle-at-nom-v1{font-weight:900;font-size:16px}'+
           '.soreal-idle-at-col-v1{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center}'+
           '.soreal-idle-at-col-v1 span{font-size:12px;font-weight:800;letter-spacing:.04em;opacity:.75;text-transform:uppercase}'+
@@ -4125,6 +4150,10 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
           '.soreal-idle-at-remplissage-v1::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.14) 0 10px,transparent 10px 22px);mix-blend-mode:overlay}'+
           '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important;animation:sorealAtPulseV1 1.4s ease-in-out infinite}'+
           '@keyframes sorealAtPulseV1{50%{filter:brightness(1.25)}}'+
+          '.soreal-idle-at-caca-v1{position:absolute;right:3px;bottom:1px;width:22px;height:22px;padding:0;border:0;background:none;font-size:15px;line-height:22px;cursor:pointer;transform-origin:center;opacity:.85;-webkit-tap-highlight-color:transparent}'+
+          '.soreal-idle-at-caca-v1.parti{pointer-events:none;z-index:5;animation:sorealAtCacaPartiV1 1s ease-in forwards}'+
+          '@keyframes sorealAtCacaPartiV1{0%{transform:scale(1);opacity:0}8%{opacity:1}100%{transform:scale(14);opacity:0}}'+
+          '@media(prefers-reduced-motion:reduce){.soreal-idle-at-caca-v1.parti{animation-duration:.01s}}'+
           '.soreal-idle-at-titre-v1{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:4px 10px;font-weight:900;font-size:16px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.6)}'+
           '.soreal-idle-at-detail-v1{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;margin-top:4px;font-size:13px;font-weight:700;color:#e9d5ff;font-variant-numeric:tabular-nums}'+
           '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
@@ -4318,6 +4347,17 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
         envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});
       }
       window.__ajusterAdvancedTrainingIdleV1__=ajusterAdvancedTrainingIdleV1_;
+      /* Le caca grandit en zoom puis s'efface en fondu ; le succès part au serveur à la fin de l'animation (une synchro avant la fin redessinerait la page en plein zoom). */
+      window.__cacaCoinIdleV1__=function(bouton){
+        if(!bouton||bouton.classList.contains('parti'))return;
+        bouton.classList.add('parti');
+        setTimeout(function(){
+          try{
+            const f=window.__actionMetaIdleV130__;
+            if(typeof f==='function')f({action:'cornerClick'});
+          }catch(_e){}
+        },1000);
+      };
       window.__basculerAideAdvancedTrainingIdleV1__=function(){
         const el=document.getElementById('sorealIdleAtAideV1');
         if(el)el.hidden=!el.hidden;

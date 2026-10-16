@@ -22184,6 +22184,8 @@ function pageAventureIdleV28_(j){
         '<ellipse cx="160" cy="246" rx="120" ry="11" fill="rgba(0,0,0,.45)"/>'+
         '<g><g class="bg-patte"><rect x="62" y="214" width="16" height="26" rx="6" fill="#6a3a16"/><ellipse cx="68" cy="241" rx="14" ry="6" fill="#4a280e"/></g>'+
         '<g class="bg-patte bg-b"><rect x="104" y="218" width="16" height="24" rx="6" fill="#6a3a16"/><ellipse cx="110" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
+        '<g class="bg-patte"><rect x="132" y="220" width="16" height="22" rx="6" fill="#6a3a16"/><ellipse cx="138" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
+        '<g class="bg-patte bg-b"><rect x="172" y="220" width="16" height="22" rx="6" fill="#6a3a16"/><ellipse cx="178" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
         '<g class="bg-patte"><rect x="200" y="218" width="16" height="24" rx="6" fill="#6a3a16"/><ellipse cx="206" cy="243" rx="14" ry="6" fill="#4a280e"/></g>'+
         '<g class="bg-patte bg-b"><rect x="242" y="214" width="16" height="26" rx="6" fill="#6a3a16"/><ellipse cx="248" cy="241" rx="14" ry="6" fill="#4a280e"/></g></g>'+
         '<g class="bg-corps"><path d="M44 130 L276 130 L270 100 L50 100 Z" fill="url(#bgGueule)"/>'+

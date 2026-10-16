@@ -42,3 +42,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-tm-col-v1 input:not(#_):not(#_):not(#_):not(#_):not(#_){width:100%!important;box-sizing:border-box;height:48px!important;font-size:20px!important;text-align:center}
 /* « + » et « − » : le signe est trop petit dans la police des titres ; police système en gras, plus grande (les boutons gardent la même taille). */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-actions-v120,.soreal-idle-tm-boutons-v1)>button:nth-child(-n+2):not(#_):not(#_):not(#_):not(#_):not(#_){font-family:system-ui,"Segoe UI",Arial,sans-serif!important;font-size:30px!important;font-weight:900!important;line-height:1!important}
+
+/* Coffre : un cadre de zone n'est jamais plus large que son contenu (Norman, 2026-10-16 : « Grotte aux multiples choses » et « Base haute sécurité » étaient trop larges pour leurs objets). Le titre ne compte pas dans la largeur du cadre : il passe à la ligne au lieu de l'élargir. */
+html body .soreal-idle-coffre-cadre-v1>.soreal-idle-coffre-cadre-titre-v1{width:0;min-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
