@@ -290,6 +290,17 @@
                   window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_('💀 Vaincu ! Retour à la Safe Zone pour te soigner.');
                 }
 
+                /* Liquide mystérieux bu : un popup dit quelle compétence du combat manuel vient d'être débloquée (competence-debloquee-v1.js). */
+                if(
+                  payload&&
+                  payload.action==='adventure'&&
+                  payload.adventure&&
+                  payload.adventure.action==='consumeSkillItem'&&
+                  window.__SOREAL_IDLE_COMPETENCE_V1__
+                ){
+                  window.__SOREAL_IDLE_COMPETENCE_V1__.annoncer(res.resultat.definitionId);
+                }
+
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-295 */
                 if(
                   payload&&

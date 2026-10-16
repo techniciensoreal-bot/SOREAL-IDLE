@@ -115,6 +115,10 @@
   "pin": 3,
   "sha": "7384a62201cc35277a964d79b3177c95b6973dcd"
  },
+ "/modules/competence-debloquee-v1.js": {
+  "pin": 1,
+  "sha": "6ff5cc7dacd3a4fee0497b7dac3d5864fd4870d5"
+ },
  "/modules/connexion-recompense-v1.js": {
   "pin": 5,
   "sha": "1f83aaf8a1f3b39e458d351d0db5f68bc7af82d4"
@@ -232,8 +236,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610164,
-  "sha": "ebeb22f44e3ebd6658934db5e27daea21b68954f"
+  "pin": 202610165,
+  "sha": "c6d330ef53eee559a7647cec4c7e52784a8b79fe"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 1,
