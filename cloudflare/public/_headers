@@ -1,0 +1,11 @@
+# Fichiers du frontend versionnés par ?v=N (voir cloudflare/tools/maj-pins.mjs et le test idle-pins-assets-v1) : jamais redemandés tant que leur adresse ne change pas.
+/modules/*
+  Cache-Control: public, max-age=31536000, immutable
+/soreal-idle-*.js
+  Cache-Control: public, max-age=31536000, immutable
+/soreal-idle-*.css
+  Cache-Control: public, max-age=31536000, immutable
+/standalone-bridge.js
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

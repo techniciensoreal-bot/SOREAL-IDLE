@@ -48,7 +48,7 @@ const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes('/modules/boutique-nouveautes-v1.js?v=1'));
+assert.ok(index.includes('/modules/boutique-nouveautes-v1.js?v='));
 assert.ok(ui.includes("const classeShopNouveau=nouveautesShop?' soreal-idle-nav-shop-nouveau-v1':'';") && ui.includes("window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique')"), "bouton du menu : classe + point");
 assert.ok(ui.includes("if(idleMenuActifV28!=='shop'&&window.__SOREAL_IDLE_BOUTIQUE_V1__)window.__SOREAL_IDLE_BOUTIQUE_V1__.reinitialiserVisite();"), "les points des cartes disparaissent quand on quitte la boutique");
 assert.ok(ui.includes("B.marquerRayon('ap',parRayonAp,onglet)") && ui.includes("B.estNouveau('ap',item.id)") && ui.includes("B.rayonNonVu('ap',parRayonAp,cle)"), "boutique AP : rayon, carte, onglet");

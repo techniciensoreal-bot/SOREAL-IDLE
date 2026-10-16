@@ -65,7 +65,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
   assert.ok(css.indexOf(".observe(") > css.indexOf("function activerObservateur"), "observe() n'est appelé que depuis activerObservateur (fenêtre d'activité)");
   assert.ok(css.includes(".disconnect()") && css.includes("setTimeout(desactiverObservateur"), "déconnexion à la fin de la fenêtre d'activité");
   const index = lire("cloudflare/public/index.html");
-  assert.ok(index.includes("/modules/alloc-pop-v1.js?v=3"));
+  assert.ok(index.includes("/modules/alloc-pop-v1.js?v="));
 }
 
 // ---------- voix IA auto : ON de base ----------

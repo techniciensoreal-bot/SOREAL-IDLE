@@ -55,7 +55,7 @@ for (const [regle, morceau] of [
   ["barres : fenêtre en haut, Attaque passive dessous", "if(V-8-distance>=haut+P+8)"],
   ["fenêtre déplacée à la main : plus replacée", "data-cadre-deplace"]
 ]) assert.ok(src.includes(morceau), regle);
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v=4"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/tutorial-framing-v1.js?v="));
 
 /*
  * Norman (2026-09-26) : page « Basic Training » sans « Passer » ni « Suivant », le + d'Attaque passive clignote et le clic passe à « Bien joué » ; là c'est le −
@@ -76,7 +76,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(hint.includes("'attaque-plus':{groupe:'attack',rang:1}") && hint.includes("'attaque-moins':{groupe:'attack',rang:2}") && hint.includes("'blocage-plus':{groupe:'defense',rang:1}"));
   assert.ok(hint.includes("window.__tutorielPagesNaviguerV1__(1)") && hint.includes("allocation(page)>avant"), "le clic passe à la page suivante seulement si l'énergie est vraiment affectée");
   assert.ok(hint.includes("DELAI_SUIVANT_MS=45000"), "le « Suivant » revient si le clic est impossible : jamais bloqué");
-  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=3') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
+  assert.ok(index.includes('/modules/tutorial-hint-v1.js?v=') && index.indexOf("tutorial-hint-v1.js") < index.indexOf("/soreal-idle-ui.js?v="), "le module est chargé avant le jeu");
 }
 
 

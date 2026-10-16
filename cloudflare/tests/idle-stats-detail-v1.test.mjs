@@ -87,5 +87,5 @@ assert.match(runtime, /detailStats:\s*combatPrincipalEtat\s*\.detailStats/);
 }
 const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_LIRE_ETAT_V1__=function(){return idleEtat;};"));
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/stats-detail-v1.js?v=3"));
+assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/stats-detail-v1.js?v="));
 console.log("idle-stats-detail-v1: OK");

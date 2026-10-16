@@ -1,0 +1,550 @@
+{
+ "/modules/achievement-notice-v1.js": {
+  "pin": 1,
+  "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
+ },
+ "/modules/admin-histoires-v1.js": {
+  "pin": 19,
+  "sha": "a7d57ebd48d43d623158345a11a17ed1d886eb0d"
+ },
+ "/modules/admin-tutoriel-v1.js": {
+  "pin": 1,
+  "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
+ },
+ "/modules/adventure-scene-v79.js": {
+  "pin": 2034,
+  "sha": "0c5a03781cef351bd04946076d3fe1150852dcf9"
+ },
+ "/modules/alloc-pop-v1.js": {
+  "pin": 3,
+  "sha": "a27300943f610973a4bf7cf1732aeaf1fde567f9"
+ },
+ "/modules/ambient-audio-v1.js": {
+  "pin": 11,
+  "sha": "3db3fdf1b581d999132adef030b071787eb03378"
+ },
+ "/modules/anti-copie-v1.js": {
+  "pin": 1,
+  "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
+ },
+ "/modules/audio-borne-v1.js": {
+  "pin": 2,
+  "sha": "b290f60035f32a87b1cb5c14093b97479647d6b7"
+ },
+ "/modules/audio-coffre-v1.js": {
+  "pin": 7,
+  "sha": "1c13ec5be76f84abf9a891a85cd54caeb3d85650"
+ },
+ "/modules/audio-effects-v199.js": {
+  "pin": 253,
+  "sha": "19f52a9212251766282d24b26b7e938262648cd9"
+ },
+ "/modules/audio-volume-v1.js": {
+  "pin": 5,
+  "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
+ },
+ "/modules/augmentations-page-v1.js": {
+  "pin": 1,
+  "sha": "cb9c58ea31cadd14531c53bb73fd492f16ce2930"
+ },
+ "/modules/barre-allocation-v1.js": {
+  "pin": 10,
+  "sha": "20f3f57d90c33b1885692bfb58ef564b01674c6d"
+ },
+ "/modules/barres-actives-v1.js": {
+  "pin": 4,
+  "sha": "45f924f87f2e3787cd78f816d97e72d2a7de66cd"
+ },
+ "/modules/basic-training-stability-v121.js": {
+  "pin": 1,
+  "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
+ },
+ "/modules/blood-magic-v1.js": {
+  "pin": 19,
+  "sha": "c6f54468e0e81b51d39531b77c0dae76a1f9f8f1"
+ },
+ "/modules/boutique-exp-page-v1.js": {
+  "pin": 1,
+  "sha": "fdb3d8d1250f2a946cac640e8df39018c1c5a96e"
+ },
+ "/modules/boutique-nouveautes-v1.js": {
+  "pin": 1,
+  "sha": "27ffadc767a8f0c6e45777bd84524578a812484e"
+ },
+ "/modules/bt-lumieres-v1.js": {
+  "pin": 12,
+  "sha": "dab3bc57d943cdb5654f2f9958217cf83e5b9df4"
+ },
+ "/modules/bug-report-v1.js": {
+  "pin": 5,
+  "sha": "d2a9212a1ced3e9725004f7ecc95dfea82141a3a"
+ },
+ "/modules/bulles-sang-v1.js": {
+  "pin": 6,
+  "sha": "49d562e50a147c2fe8ce04373a7cec5d80e51395"
+ },
+ "/modules/cards-page-v1.js": {
+  "pin": 1,
+  "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
+ },
+ "/modules/cartes-v1.js": {
+  "pin": 1,
+  "sha": "51f6b543014f6a2cf72831d7cf07c634d57a7ee0"
+ },
+ "/modules/challenges-v1.js": {
+  "pin": 15,
+  "sha": "71c6075a1feed11c66c62302513659c092232bb8"
+ },
+ "/modules/chat-v1.js": {
+  "pin": 12,
+  "sha": "d37788d0954f972b13adaf997126be71b8492160"
+ },
+ "/modules/coffre-accident-v1.js": {
+  "pin": 6,
+  "sha": "d0f66c3d95648f654bbad89de9250cc0f575be9f"
+ },
+ "/modules/coffre-digestion-v1.js": {
+  "pin": 19,
+  "sha": "78cbeb411b645a20ed757124633c29485d7ae89c"
+ },
+ "/modules/coffre-sommeil-v1.js": {
+  "pin": 5,
+  "sha": "794b514194bd7aede9720c26868121157cd7c13b"
+ },
+ "/modules/combat-effets-v1.js": {
+  "pin": 3,
+  "sha": "7384a62201cc35277a964d79b3177c95b6973dcd"
+ },
+ "/modules/connexion-recompense-v1.js": {
+  "pin": 5,
+  "sha": "1f83aaf8a1f3b39e458d351d0db5f68bc7af82d4"
+ },
+ "/modules/cooking-v1.js": {
+  "pin": 3,
+  "sha": "516779376922d65d78c7caf56fbe1c3256201938"
+ },
+ "/modules/credit-exp-admin-v1.js": {
+  "pin": 1,
+  "sha": "550fb9af0362a8e748c997bb1c6270bf60e38633"
+ },
+ "/modules/cube-palier-v1.js": {
+  "pin": 3,
+  "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
+ },
+ "/modules/daycare-page-v1.js": {
+  "pin": 1,
+  "sha": "be6dd4f0436d7b3f4ec2031da6eb53eda7b3430d"
+ },
+ "/modules/defis-page-v1.js": {
+  "pin": 1,
+  "sha": "a93546c1a7e778b1b596fc12cb0de6042ce2ed9b"
+ },
+ "/modules/dessins-v1.js": {
+  "pin": 3,
+  "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
+ },
+ "/modules/diag-fluidite-v1.js": {
+  "pin": 6,
+  "sha": "5cee7e18b978c626b5b0e8f9f6c0b3336dc913eb"
+ },
+ "/modules/fade-notice-v1.js": {
+  "pin": 2,
+  "sha": "e420519fee6e1b48363d698557663619d5cbd836"
+ },
+ "/modules/feu-v1.js": {
+  "pin": 12,
+  "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
+ },
+ "/modules/flux-v1.js": {
+  "pin": 35,
+  "sha": "ef867595ec84637f0a9c2a818bb257be0847873c"
+ },
+ "/modules/hud-haut-v2.js": {
+  "pin": 22,
+  "sha": "65c2982d7b8ab447e121a6dcf6c93d522aff28d9"
+ },
+ "/modules/icones-v1.js": {
+  "pin": 2,
+  "sha": "e9eeb5740c4d97dcf5ecdbbfe450ce6c94558da6"
+ },
+ "/modules/interaction-repair-v79.js": {
+  "pin": 1,
+  "sha": "9628ba262a28543b2714ae60baa82197faffd843"
+ },
+ "/modules/inventaire-volet-v1.js": {
+  "pin": 6,
+  "sha": "6a828d2ec523b89c6d7638508052f5b0d22f43c1"
+ },
+ "/modules/inventory-auto-v1.js": {
+  "pin": 21,
+  "sha": "e6d78fc1f882fedc43e4a1991c2ba62b6f14a0d7"
+ },
+ "/modules/inventory-presentation-v1.js": {
+  "pin": 1,
+  "sha": "9ea1d2760e49d1c892a043cd983861b2ece88828"
+ },
+ "/modules/item-extra-r2-v77.js": {
+  "pin": 1,
+  "sha": "7bebe79112c69dcf1403b4b81b73d7f64c754970"
+ },
+ "/modules/item-images-r2-v74.js": {
+  "pin": 1,
+  "sha": "78fd9809efac737c30b55c651f40c131316105d7"
+ },
+ "/modules/item-infinity-cubes-r2-v78.js": {
+  "pin": 1,
+  "sha": "8a42712d3c88b11fe3dda3f00b09f8f9ff9c7cda"
+ },
+ "/modules/item-presentation-v1.js": {
+  "pin": 1,
+  "sha": "2663939d20235fc3edfd64e5c108c52c13d1b82c"
+ },
+ "/modules/item-specials-early-v75.js": {
+  "pin": 1,
+  "sha": "979d0c81bb7f2e8dfd8cbcf38331f69b076471c5"
+ },
+ "/modules/itopod-perks-page-v1.js": {
+  "pin": 1,
+  "sha": "757cea57b489327f1380f4af573698f80c8a287d"
+ },
+ "/modules/itopod-scene-v1.js": {
+  "pin": 10,
+  "sha": "fd2ba9a0896a5875aceb073271e79261f90c4433"
+ },
+ "/modules/journal-attaques-v1.js": {
+  "pin": 5,
+  "sha": "3496ca127b40e6cba99b541b72708d9a7673a861"
+ },
+ "/modules/lecteur-chroniques-v1.js": {
+  "pin": 4,
+  "sha": "579bc2c5afd7718de5f70934438b1c5a6a4dfe14"
+ },
+ "/modules/local-neural-piper-v1.js": {
+  "pin": 14,
+  "sha": "922af6981f263c7b4c9bf857b4fede0730fbd77e"
+ },
+ "/modules/long-press-v200.js": {
+  "pin": 201,
+  "sha": "d42b016360b7df99dcfe31d963f6823f52458af4"
+ },
+ "/modules/macguffins-v1.js": {
+  "pin": 4,
+  "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
+ },
+ "/modules/meta-progression-v130.js": {
+  "pin": 202610164,
+  "sha": "ebeb22f44e3ebd6658934db5e27daea21b68954f"
+ },
+ "/modules/money-pit-page-v1.js": {
+  "pin": 1,
+  "sha": "51b17ba3ecc3317f7efe61bfaaa0760195f6086e"
+ },
+ "/modules/morph-v1.js": {
+  "pin": 4,
+  "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
+ },
+ "/modules/musique-titan-v1.js": {
+  "pin": 1,
+  "sha": "1791e998db8bfe2385867599416144e3ed5dfdf9"
+ },
+ "/modules/ngu-labo-v1.js": {
+  "pin": 29,
+  "sha": "b2272504e19cd2f4d22251e80d85c4b702fc82e3"
+ },
+ "/modules/nombres-couleur-v1.js": {
+  "pin": 5,
+  "sha": "fa774d99ae393ab73ab27e7b8c2ccd4a750d363e"
+ },
+ "/modules/nouvelle-version-v1.js": {
+  "pin": 1,
+  "sha": "f9371b216f367221c858575933feb27683c619d3"
+ },
+ "/modules/number-format-v1.js": {
+  "pin": 3,
+  "sha": "b3a55f0628638dd8ff464049d4f148d4ad77830d"
+ },
+ "/modules/orage-v1.js": {
+  "pin": 15,
+  "sha": "3f10adedac27fdaec86e08f896b72374994ead5c"
+ },
+ "/modules/page-boutique-v1.js": {
+  "pin": 1,
+  "sha": "b67c8664efdbe4b00b8016568c4453f2347d5a22"
+ },
+ "/modules/page-collection-v1.js": {
+  "pin": 1,
+  "sha": "351626e778b996328c2b2c722d9c033374fbad74"
+ },
+ "/modules/page-combat-v1.js": {
+  "pin": 1,
+  "sha": "ea27786e651f959ae006974ca0393cc4871f1bf1"
+ },
+ "/modules/page-entrainement-v1.js": {
+  "pin": 1,
+  "sha": "4ed29b5cfe561891a4f4cac18fb73819cc573a51"
+ },
+ "/modules/page-personnage-v1.js": {
+  "pin": 1,
+  "sha": "e537bda284d544ee42e9ae0ce3ea4789f1b6074a"
+ },
+ "/modules/perf-texte-v1.js": {
+  "pin": 2,
+  "sha": "65930e50c77bf547d17e9a4734eb7b69aa274134"
+ },
+ "/modules/perso-boutons-v1.js": {
+  "pin": 17,
+  "sha": "b93718c762d42a38089ff55618fd46bdcbfbf409"
+ },
+ "/modules/profile-v1.js": {
+  "pin": 10,
+  "sha": "4788f2568495c84298dd04c35bfcbb8a2a489408"
+ },
+ "/modules/purchase-sound-v1.js": {
+  "pin": 4,
+  "sha": "cad63fc380db2e72f1b20a10b181bd7b1a1a7a1c"
+ },
+ "/modules/questing-v1.js": {
+  "pin": 2,
+  "sha": "ea61993c5d5a2c23a485e58428fdb944f71e4e7f"
+ },
+ "/modules/rebirth-live-v1.js": {
+  "pin": 6,
+  "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
+ },
+ "/modules/release-notes-v1.js": {
+  "pin": 298,
+  "sha": "274e52be2abe37ca0fe5cd58641a2fe48fe3e878"
+ },
+ "/modules/runtime.js": {
+  "pin": 3,
+  "sha": "d755f83deeeedf49d0c066f93b5b254d5290c4d4"
+ },
+ "/modules/sang-rituel-decor-v1.js": {
+  "pin": 224,
+  "sha": "a9aa996e6897d1b9fd24e6fa5487e1756513f7fa"
+ },
+ "/modules/sans-bulles-v1.js": {
+  "pin": 2,
+  "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
+ },
+ "/modules/shop-music-v1.js": {
+  "pin": 5,
+  "sha": "ece5be6b123ba482c3d465b5932c3263782cce24"
+ },
+ "/modules/stats-detail-v1.js": {
+  "pin": 3,
+  "sha": "f274a48d5ab2852f865c75baf2e1f26a21a0b250"
+ },
+ "/modules/story-engine-v1.js": {
+  "pin": 8,
+  "sha": "6bf607d3bf962f7119ac4c70e6623aa653192dfd"
+ },
+ "/modules/studio-pilote-v1.js": {
+  "pin": 5,
+  "sha": "d8060782bcd1b76493f4518fcde65ea07b8b604d"
+ },
+ "/modules/text-helpers-v1.js": {
+  "pin": 1,
+  "sha": "7046c5025068a5a05a1c60188a74eba9ea919e60"
+ },
+ "/modules/text-transforms-v1.js": {
+  "pin": 2,
+  "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
+ },
+ "/modules/textes-admin-v1.js": {
+  "pin": 19,
+  "sha": "0aae840cbd433d1a3951d15702707df651299525"
+ },
+ "/modules/the-end-ui-v1.js": {
+  "pin": 2,
+  "sha": "11ab7c375ac3765b047399bfc11832d834db3bed"
+ },
+ "/modules/time-format-v1.js": {
+  "pin": 2,
+  "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
+ },
+ "/modules/titans-combat-ecran-v1.js": {
+  "pin": 14,
+  "sha": "19bd72776c48c4cb547ffd60c9820f309059e37b"
+ },
+ "/modules/titans-comportements-v1.js": {
+  "pin": 9,
+  "sha": "318a4d2f666b94cfea35a09596a53799a0ad79a0"
+ },
+ "/modules/titans-v1.js": {
+  "pin": 17,
+  "sha": "5a19baf9863478aa27208eec40a6c2d0bae1ddca"
+ },
+ "/modules/traduction-anglais-dict-v1.json": {
+  "pin": 320,
+  "sha": "dcf2b3ea7ca43e8dcfa9043c3fa6334bb738206a"
+ },
+ "/modules/traduction-anglais-v1.js": {
+  "pin": 114,
+  "sha": "7419b7c623a7c7383f8162ec68b1e207f83958c8"
+ },
+ "/modules/traduction-interface-v1.js": {
+  "pin": 9,
+  "sha": "1844edbb3ea919ca16be3791a593ca6b7d86c454"
+ },
+ "/modules/tutorial-framing-v1.js": {
+  "pin": 4,
+  "sha": "faaba7e0a9d0bb2cced1d9e9828d0aedcf641dc0"
+ },
+ "/modules/tutorial-hint-v1.js": {
+  "pin": 3,
+  "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
+ },
+ "/modules/tutorial-tts-v202.js": {
+  "pin": 249,
+  "sha": "8f34d3fcba13c77f39247b8ce449217eeede0343"
+ },
+ "/modules/tutoriel-v1.js": {
+  "pin": 1,
+  "sha": "9e707e158d5941cfe9dcf3b3cd7574730303efe2"
+ },
+ "/modules/ui-actions-rapides-v1.js": {
+  "pin": 1,
+  "sha": "6fd3cb8f09c525f47a45c6b2fb367470073efc34"
+ },
+ "/modules/ui-admin-v1.js": {
+  "pin": 1,
+  "sha": "8a91f89acf05ab71d557861db1e5cb53df79b6c2"
+ },
+ "/modules/ui-aventure-v1.js": {
+  "pin": 1,
+  "sha": "cf5d0e7a416ab6458574891545001daa898e2037"
+ },
+ "/modules/ui-boucle-v1.js": {
+  "pin": 1,
+  "sha": "a1a747464edab8269171e6ec17d1c964b04614a2"
+ },
+ "/modules/ui-boutique-v1.js": {
+  "pin": 1,
+  "sha": "976c8bd0db6ed20dc70a7f55c5e95a7aae12b9bf"
+ },
+ "/modules/ui-chroniques-v1.js": {
+  "pin": 1,
+  "sha": "4f2a2630dc95d2dede50dceb2b28cd00c493578a"
+ },
+ "/modules/ui-combat-v1.js": {
+  "pin": 1,
+  "sha": "097f43406a37d56ec0862210511e3611aa5b639d"
+ },
+ "/modules/ui-entrainement-v1.js": {
+  "pin": 1,
+  "sha": "8df2987d4339f618cd0421f74a32c9f20e39711b"
+ },
+ "/modules/ui-inventaire-v1.js": {
+  "pin": 1,
+  "sha": "c4283e5680dd46f03ed963057ce639f62c1add68"
+ },
+ "/modules/ui-machine-temporelle-v1.js": {
+  "pin": 1,
+  "sha": "ea8bd3e187f96963b33a95cab7e220c6108bf67f"
+ },
+ "/modules/ui-magie-energie-v1.js": {
+  "pin": 1,
+  "sha": "638b958cd0a6ef4b2d526878ad101ed5363d1c22"
+ },
+ "/modules/ui-menus-v1.js": {
+  "pin": 1,
+  "sha": "52a50eb590e993ad4fd9436aaff28e464147179b"
+ },
+ "/modules/ui-navigation-v1.js": {
+  "pin": 1,
+  "sha": "c3afe5cb410979acf26e5345978f5c120db63e66"
+ },
+ "/modules/ui-noyau-v1.js": {
+  "pin": 1,
+  "sha": "faedaac92d66632c48e30f64a572c1841633e3fc"
+ },
+ "/modules/ui-popups-v1.js": {
+  "pin": 1,
+  "sha": "85490b23ef4401fe21320ff69c4eb4dbe339c738"
+ },
+ "/modules/ui-reglages-v1.js": {
+  "pin": 1,
+  "sha": "0f1c72571541422722d8673c000781430847b732"
+ },
+ "/modules/ui-renaissance-v1.js": {
+  "pin": 1,
+  "sha": "c7b308997cf7d7c01e125973651215c9d56309c8"
+ },
+ "/modules/ui-synchro-v1.js": {
+  "pin": 1,
+  "sha": "8833e920e97cbe600fed96805b03e79b99df2591"
+ },
+ "/modules/ui-tutoriel-v1.js": {
+  "pin": 1,
+  "sha": "40e47f08e1360dc12ec350e41c7be9f6c831b394"
+ },
+ "/modules/ui.js": {
+  "pin": 55,
+  "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
+ },
+ "/modules/voix-expressions-v1.js": {
+  "pin": 1,
+  "sha": "09d1e5949c9f7905e5b1a47f277e1e5214a36123"
+ },
+ "/modules/voix-nommees-v1.js": {
+  "pin": 2,
+  "sha": "4f78b66953b95be798fbc7c8ac0d49cecd6a5be1"
+ },
+ "/modules/voix-ui-v1.js": {
+  "pin": 1,
+  "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
+ },
+ "/modules/wandoos-retro-v1.js": {
+  "pin": 32,
+  "sha": "66be8eb4567f0b1974440b7946f2f77e040819c1"
+ },
+ "/modules/wishes-page-v1.js": {
+  "pin": 1,
+  "sha": "eeb2b21eeaed50853ff91fb092114f98c2a447b5"
+ },
+ "/modules/yggdrasil-diggers-page-v1.js": {
+  "pin": 1,
+  "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
+ },
+ "/modules/yggdrasil-elfes-v1.js": {
+  "pin": 8,
+  "sha": "3a5192fe401333531769c418d51e6e909486a80d"
+ },
+ "/modules/yggdrasil-sons-v1.js": {
+  "pin": 1,
+  "sha": "036c7bc0359f6bf1f65bcfa6f0e24be853166463"
+ },
+ "/soreal-idle-barre-outils.css": {
+  "pin": 9,
+  "sha": "42f16228463003328fcb36a6dd9c3514732035ed"
+ },
+ "/soreal-idle-itopod.css": {
+  "pin": 168,
+  "sha": "f6bf6489bc6eccbb6f131372975feab111c1e120"
+ },
+ "/soreal-idle-jeu.css": {
+  "pin": 8,
+  "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
+ },
+ "/soreal-idle-renaissance.css": {
+  "pin": 1,
+  "sha": "e0c15842aec3d41b1d85a91b1a880e157fb5f4ea"
+ },
+ "/soreal-idle-themes.css": {
+  "pin": 120,
+  "sha": "ec0101c43b90e040b0999b793de8dee2cb89cbcf"
+ },
+ "/soreal-idle-ui.css": {
+  "pin": 52,
+  "sha": "8d75db2586d827ba41b58ec67d5b3686fc6c97a3"
+ },
+ "/soreal-idle-ui.js": {
+  "pin": 646,
+  "sha": "b0cc27583d785fb5241494f469280d4146c80dca"
+ },
+ "/standalone-bridge.js": {
+  "pin": 12,
+  "sha": "a656a927508639213007d43d42f63007196abf23"
+ }
+}

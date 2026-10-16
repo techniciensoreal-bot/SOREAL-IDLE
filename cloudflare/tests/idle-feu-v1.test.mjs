@@ -65,7 +65,7 @@ mouvementReduit = false;
 
 // Style : mélangé aux couleurs de la page, jamais cliquable, retiré à l'arrêt.
 assert.ok(src.includes("pointer-events:none") && !src.includes("mix-blend-mode") && !src.includes("--fe-x',(") && src.includes("removeChild(racine)"), "lueur douce et légère (aucun mélange de calques, seul l'opacité bouge), sans clic, retirée à l'arrêt");
-assert.ok(index.includes('<script defer src="/modules/feu-v1.js?v=12"></script>'), "module chargé par la page");
+assert.ok(index.includes('<script defer src="/modules/feu-v1.js?v='), "module chargé par la page");
 // Lueur douce et ciblée (Norman, 2026-10-11) : plus de clignotement de toute la couche ; des foyers locaux qui renaissent ailleurs.
 assert.ok(src.includes("function foyer_(") && src.includes("emplacement_()") && !src.includes("animationFlamme"), "foyers qui changent d'endroit, plus de clignotement global");
 console.log("idle-feu-v1: OK");

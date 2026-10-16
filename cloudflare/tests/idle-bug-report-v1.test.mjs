@@ -41,7 +41,7 @@ assert.equal(existsSync("integrations/idle-bug-mail"), false, "passerelle mail r
 const ui = lireUiComplet();
 assert.match(ui, /window\.__SOREAL_IDLE_BUG_REPORT_V1__\.html\(estAdminSorealIdle_\(\)\)/);
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.includes("/modules/bug-report-v1.js?v=5"));
+assert.ok(index.includes("/modules/bug-report-v1.js?v="));
 
 // Boutons + / − / Cap de Basic Training : grands et colorés
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");

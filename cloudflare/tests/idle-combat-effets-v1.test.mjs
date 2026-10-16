@@ -23,5 +23,5 @@ assert.ok(ui.includes("fxIdleV1_('joueur','soin','+'+soigne)") && ui.includes("i
 assert.ok(ui.includes("saigne:tit?tit.saignements:0"), "saignement visible");
 assert.ok(ui.includes("fxEtatsIdleV1_(fight,maintenantTick)") && ui.includes("fxEtatsIdleV1_(null,maintenantTick)"), "états rafraîchis, éteints hors combat");
 assert.ok(/if\(!fx\)return;\s*try\{fx\.jouer/.test(ui), "jamais bloquant");
-assert.ok(index.includes("/modules/combat-effets-v1.js?v=3"));
+assert.ok(index.includes("/modules/combat-effets-v1.js?v="));
 console.log("idle-combat-effets-v1: OK");

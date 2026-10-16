@@ -23,7 +23,7 @@ assert.ok(src.includes("'crediterExpAdminSorealIdle'") && src.includes("'lireGai
 const admin = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
 assert.ok(admin.includes("window.__SOREAL_IDLE_CREDIT_EXP_V1__.pageHtml()"));
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(index.indexOf("credit-exp-admin-v1.js?v=1") > 0 && index.indexOf("credit-exp-admin-v1.js") < index.indexOf("admin-histoires-v1.js"));
+assert.ok(index.indexOf("credit-exp-admin-v1.js?v=") > 0 && index.indexOf("credit-exp-admin-v1.js") < index.indexOf("admin-histoires-v1.js"));
 
 // Serveur : joueur désigné par prénom OU adresse, jamais sans correspondance unique
 const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
