@@ -202,7 +202,7 @@ export { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1
 export { calculateIdleNguNextNumber, idleNguAugmentationMultiplier, idleNguEffectiveResourceStat, idleNguRebirthTimeFactor, idleNguResourceBudget, idleNguResourceGenerationPerSecond } from "./idle-ngu-ressources.js";
 export { HACK_HARD_CAP_V1, idleNguTimeMachineGoldPerSecond, idleNguTimeMachineGrossGoldPerSecond } from "./idle-ngu-pistes.js";
 export { IDLE_TROLL_INTERVALS_S_V1, advanceIdleNguState } from "./idle-ngu-systemes.js";
-export { idleNguBonuses, idleNguMemoNouvelleRequeteV1, syncIdleNguState } from "./idle-ngu-bonus.js";
+export { avecProjectionSansMemoV1, idleNguBonuses, idleNguMemoNouvelleRequeteV1, syncIdleNguState } from "./idle-ngu-bonus.js";
 export { idleNguSnapshot } from "./idle-ngu-snapshot.js";
 export { IDLE_NGU_EXP_SHOP_V1, applyIdleNguAction, idleNguDifficultyUnlockRequirementsV1, rebirthIdleNguState } from "./idle-ngu-actions.js";
 
@@ -401,7 +401,8 @@ export { IDLE_NGU_EXP_SHOP_V1, applyIdleNguAction, idleNguDifficultyUnlockRequir
 
 /* État partagé du module (variables « let » d'origine), converti en objet pour que les fichiers du découpage puissent le lire ET l'écrire. */
 export const __nguCtx = {
-  __porteeBonusV1: null
+  __porteeBonusV1: null,
+  __sansMemoV1: false
 };
 
 

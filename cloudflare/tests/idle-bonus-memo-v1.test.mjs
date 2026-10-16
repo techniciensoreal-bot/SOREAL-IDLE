@@ -116,7 +116,8 @@ assert.ok(IDLE_ADVENTURE_ITEM_CATALOG_V1[defArme] && IDLE_ADVENTURE_ITEM_CATALOG
   const c = idleAdventurePerfCompteursV1();
   if (process.env.SOREAL_IDLE_VERIF_BONUS === "1") { console.log("idle-bonus-memo-v1: OK (mode vérification : compteurs ignorés, chaque réutilisation est recalculée)"); process.exit(0); }
   assert.ok(c.normalisations <= 60, "normalisations de l'état d'Aventure par synchro : " + c.normalisations + " (470 avant le mémo)");
-  assert.ok(grosses <= 120, "grosses sérialisations (> 30 Ko) par synchro : " + grosses);
+  /* 2026-10-16 : +30 environ pour la trajectoire des multiplicateurs de combat (quatre projections du moteur par état, voir trajectoireMultiplicateursCombatSorealIdle_ ; mesuré : 136). */
+  assert.ok(grosses <= 150, "grosses sérialisations (> 30 Ko) par synchro : " + grosses);
   assert.ok(c.calculsEquipement <= 15, "calculs de statistiques d'équipement par synchro : " + c.calculsEquipement + " (460 avant le mémo)");
 }
 console.log("idle-bonus-memo-v1: OK");

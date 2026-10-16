@@ -35,6 +35,7 @@
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
   function appliquerAugmentsSurCombatIdleV1_(){return REG.appliquerAugmentsSurCombatIdleV1_.apply(null,arguments);}
+  function appliquerTrajectoireStatsIdleV1_(){return REG.appliquerTrajectoireStatsIdleV1_.apply(null,arguments);}
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
   function texteNiveauParSecondeIdleV1_(){return REG.texteNiveauParSecondeIdleV1_.apply(null,arguments);}
   function traiterCapacitesBossLocalesIdleV70_(){return REG.traiterCapacitesBossLocalesIdleV70_.apply(null,arguments);}
@@ -1712,6 +1713,8 @@
          * produit, puis la synchro suivante rendait l'Or et faisait sauter les niveaux. L'Or gagné par seconde (Or net de la machine) est maintenant ajouté localement à chaque tick, comme l'énergie ; la synchro ne fait que confirmer.
          */
         mettreAJourJeuIdleLocalV7__p5();
+        /* Attaque et défense du combat : valeurs de la trajectoire du serveur à cet instant, quel que soit le menu ouvert (tous les systèmes). */
+        appliquerTrajectoireStatsIdleV1_();
         const augVisual=REG.idleEtat.__augmentationsVisualV215;
         const niveauxAugmentsLocaux={};
         mettreAJourJeuIdleLocalV7__p6(augVisual, niveauxAugmentsLocaux);

@@ -404,8 +404,8 @@
   "sha": "9750660af9d6363ae542760ef4f8ea8b5ac542ba"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 4,
-  "sha": "8115e537e84349485a7e24025bb426cb84943321"
+  "pin": 5,
+  "sha": "7a58a906e945130944e9f3b3725116cca8a7e882"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
@@ -416,8 +416,8 @@
   "sha": "36e2d113f97dccdd09cb6892f73e8b4c196a169a"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 2,
-  "sha": "ed67247309193fd1ea0274456e016d5138dea49b"
+  "pin": 3,
+  "sha": "7df61cc28c9e6349f6c8aa885e4fed3eb5d29191"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 1,

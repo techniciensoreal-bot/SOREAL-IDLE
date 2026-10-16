@@ -56,8 +56,6 @@ function scenario(menu) {
 // Test A / E : menu « combat » ouvert (pas Augmentations) : les niveaux sont rejoués et la vie max (attaque × 10) suit.
 const ailleurs = scenario("combat");
 assert.ok(ailleurs.niveaux["a:main"] > 10, "les niveaux gagnés sont rejoués hors de la page Augmentations : " + JSON.stringify(ailleurs.niveaux));
-assert.ok(ailleurs.REG.idleEtat.combatPrincipal.multiplicateurAttaqueTotal > 6, "l'attaque (donc la vie max) suit sans ouvrir le menu");
-assert.ok(ailleurs.REG.idleEtat.combatPrincipal.multiplicateurDefenseTotal > 6, "la défense suit aussi");
 // Test F : aucune recherche dans la page hors du menu Augmentations, aucune synchro supplémentaire.
 assert.equal(ailleurs.requetes, 0, "aucune lecture de la page (pas de surcoût hors du menu)");
 assert.equal(ailleurs.synchros, 0, "aucune synchro supplémentaire déclenchée par ce rejeu");
@@ -66,13 +64,45 @@ assert.equal(ailleurs.synchros, 0, "aucune synchro supplémentaire déclenchée 
 const surPage = scenario("augmentations");
 assert.equal(surPage.niveaux["a:main"], ailleurs.niveaux["a:main"], "mêmes niveaux, que le menu soit ouvert ou non");
 
+// Trajectoire serveur (tous les systèmes) : l'attaque et la défense de combat suivent les valeurs futures annoncées, à l'heure dite, sans page ni minuterie.
+function trajectoire(msEcoule, tr, extra = {}) {
+  const cp = { multiplicateurAttaqueTotal: 6, multiplicateurDefenseTotal: 4, trajectoire: tr, ...extra };
+  const sb = { REG: { idleEtat: { combatPrincipal: cp, __recuPerfV1: 1000 } }, performance: { now: () => 1000 + msEcoule }, window: {}, idleNombre_: (x) => Number(x) || 0 };
+  vm.createContext(sb);
+  vm.runInContext(extraireFonction(combat1, "appliquerTrajectoireStatsIdleV1_"), sb);
+  vm.runInContext("appliquerTrajectoireStatsIdleV1_()", sb);
+  return cp;
+}
+const tr = [{ t: 1000, a: 8, d: 6 }, { t: 2000, a: 8, d: 6 }, { t: 4000, a: 12, d: 10 }];
+assert.equal(trajectoire(0, tr).multiplicateurAttaqueTotal, 6, "avant tout changement : la valeur de la synchro");
+assert.equal(trajectoire(500, tr).multiplicateurAttaqueTotal, 7, "entre deux points : interpolation");
+assert.equal(trajectoire(500, tr).multiplicateurDefenseTotal, 5);
+assert.equal(trajectoire(1500, tr).multiplicateurAttaqueTotal, 8, "palier tenu");
+assert.equal(trajectoire(3000, tr).multiplicateurAttaqueTotal, 10);
+assert.equal(trajectoire(60000, tr).multiplicateurAttaqueTotal, 12, "après le dernier point : la dernière valeur");
+assert.equal(trajectoire(500, []).multiplicateurAttaqueTotal, 6, "aucun changement annoncé : rien ne bouge");
+assert.equal(trajectoire(500, undefined).multiplicateurAttaqueTotal, 6, "ancien serveur sans trajectoire : rien ne bouge");
+
 // Garde de structure : le rejeu ne dépend plus de la page, et le repère est recalé à CHAQUE synchro, quel que soit le menu.
 const p6 = extraireFonction(boucle, "mettreAJourJeuIdleLocalV7__p6");
 assert.ok(p6.indexOf("niveauxAugmentsLocaux[id+':'+x[0]]=nivAffiche") < p6.indexOf("if(!el)return;"), "le niveau rejoué est enregistré AVANT toute dépendance à un élément de la page");
 assert.ok(!/if\(!el\)return;[\s\S]{0,40}const secondes0/.test(p6), "pas d'arrêt sur l'absence de l'élément avant le rejeu");
 assert.ok(!noyau.includes("REG.idleMenuActifV28==='augmentations'&&REG.idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__"), "le repère des Augmentations n'est plus recalé seulement avec le menu ouvert");
 assert.ok(noyau.includes("if(REG.idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function')"));
+assert.ok(/appliquerTrajectoireStatsIdleV1_\(\);\s*const augVisual=/.test(boucle), "la trajectoire est appliquée par le tick existant, avant le combat, quel que soit le menu");
+assert.ok(!/setInterval\([^)]*trajectoire/i.test(boucle + combat1), "aucune minuterie pour la trajectoire");
 // Test F : pas de minuterie ajoutée pour ça.
 assert.ok(!/setInterval\([^)]*augment/i.test(boucle + noyau), "aucune minuterie permanente ajoutée pour les Augmentations");
 
+// Règle n°5 d'AGENTS.md : une seule voie pour changer les multiplicateurs de combat côté client (la trajectoire du serveur) ; aucun module ne les réécrit « à la main » pour un système particulier.
+import { readdirSync } from "node:fs";
+const ecritures = [];
+for (const f of readdirSync("cloudflare/public/modules").filter((x) => x.endsWith(".js"))) {
+  const t = lire(f);
+  for (const mm of t.matchAll(/.multiplicateur(?:Attaque|Defense)Totals*=(?!=)/g)) {
+    const debut = t.lastIndexOf("function ", mm.index);
+    ecritures.push(f + ":" + t.slice(debut, debut + 60).split("(")[0]);
+  }
+}
+assert.deepEqual([...new Set(ecritures)].sort(), ["ui-combat-1-v1.js:function appliquerTrajectoireStatsIdleV1_"], "seule la trajectoire écrit les multiplicateurs de combat : " + ecritures.join(", "));
 console.log("idle-augments-instantanes-v1: OK");

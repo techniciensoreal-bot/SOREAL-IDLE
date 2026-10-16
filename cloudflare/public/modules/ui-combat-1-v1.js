@@ -108,13 +108,36 @@
           const applique=visual.appliedRatio||1;
           /* Les niveaux ne reculent jamais : un rapport plus petit que celui déjà appliqué vient d'une donnée manquante, on l'ignore. */
           if(!isFinite(ratio)||ratio<=0||ratio<=applique+1e-12)return;
-          const atk=idleNombre_(cp.multiplicateurAttaqueTotal),def=idleNombre_(cp.multiplicateurDefenseTotal);
-          if(atk>0)cp.multiplicateurAttaqueTotal=atk*ratio/applique;
-          if(def>0)cp.multiplicateurDefenseTotal=def*ratio/applique;
+          /* L'attaque et la défense de combat ne sont plus touchées ici : elles suivent la trajectoire envoyée par le serveur pour TOUS les systèmes (appliquerTrajectoireStatsIdleV1_). Ce rejeu ne sert plus qu'au multiplicateur affiché dans la page. */
           visual.appliedRatio=ratio;
           const texteMult=document.getElementById('sorealIdleAugMultV1');
           if(texteMult&&typeof window.__formatMultiplicateurIdleV1__==='function')texteMult.textContent=window.__formatMultiplicateurIdleV1__(multMaintenant);
         }catch(e){}
+      }
+
+      /*
+       * Multiplicateurs d'attaque et de défense du combat local, à jour pour TOUS les systèmes (Norman, 2026-10-16 : « l'état du personnage est déterminé par les événements du gameplay, jamais par l'onglet affiché »).
+       * Le serveur renvoie, avec chaque état, les valeurs que ces deux multiplicateurs prendront dans les secondes qui suivent (combatPrincipal.trajectoire, calculée par le même moteur : Augmentations, NGU, Wandoos,
+       * Hacks, Wishes... sans code propre à chaque système). On les applique ici à l'heure dite, par interpolation entre deux points. Aucune minuterie ni synchro : appelée par le tick qui existe déjà.
+       */
+      function appliquerTrajectoireStatsIdleV1_(){
+        const e=REG.idleEtat;const cp=e&&e.combatPrincipal;const tr=cp&&cp.trajectoire;
+        if(!cp||!Array.isArray(tr)||!tr.length)return;
+        if(!cp.__baseTrajV1)cp.__baseTrajV1={a:idleNombre_(cp.multiplicateurAttaqueTotal),d:idleNombre_(cp.multiplicateurDefenseTotal)};
+        if(!cp.__ancreTrajV1){
+          const recu=Number(e.__recuPerfV1);
+          const rtt=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
+          cp.__ancreTrajV1=(recu>0?recu:performance.now())-rtt/2;
+        }
+        const ms=performance.now()-cp.__ancreTrajV1;
+        let t0=0,a0=cp.__baseTrajV1.a,d0=cp.__baseTrajV1.d,a=a0,d=d0;
+        for(let i=0;i<tr.length;i++){
+          const p=tr[i];
+          if(ms>=p.t){t0=p.t;a0=p.a;d0=p.d;a=a0;d=d0;continue;}
+          const f=(ms-t0)/(p.t-t0);a=a0+(p.a-a0)*f;d=d0+(p.d-d0)*f;break;
+        }
+        if(a>0&&cp.multiplicateurAttaqueTotal!==a)cp.multiplicateurAttaqueTotal=a;
+        if(d>0&&cp.multiplicateurDefenseTotal!==d)cp.multiplicateurDefenseTotal=d;
       }
 
       function actualiserCooldownBossIdleV100_(
@@ -2108,6 +2131,7 @@
   Object.assign(REG,{
     initialiserCoupsCombatIdleV116_:initialiserCoupsCombatIdleV116_,
     appliquerAugmentsSurCombatIdleV1_:appliquerAugmentsSurCombatIdleV1_,
+    appliquerTrajectoireStatsIdleV1_:appliquerTrajectoireStatsIdleV1_,
     actualiserCooldownBossIdleV100_:actualiserCooldownBossIdleV100_,
     rafraichirCommandesFightBossIdleV167_:rafraichirCommandesFightBossIdleV167_,
     transitionMortBossIdleV61_:transitionMortBossIdleV61_,

@@ -572,6 +572,16 @@ export function idleNguAugmentationsVisiblesV1(context) {
   return IDLE_NGU_AUGMENTATIONS.slice(0, premier).concat([{ id: "verrouille", verrouille: true, unlockBoss: 999999 }]);
 }
 
+/*
+ * Projection sans mémo (trajectoire des multiplicateurs de combat) : l'état projeté change à chaque pas, le mémo (clé = tout l'état sérialisé, plus une copie profonde) ne peut donc jamais
+ * resservir et coûtait plus cher que le calcul qu'il évite. Le résultat est identique, seul le cache est ignoré (et jamais alimenté : il reste celui de la vraie requête).
+ */
+export function avecProjectionSansMemoV1(fn) {
+  const avant = __nguCtx.__sansMemoV1;
+  __nguCtx.__sansMemoV1 = true;
+  try { return fn(); } finally { __nguCtx.__sansMemoV1 = avant; }
+}
+
 export function avecPorteeBonusV1(state, fn) {
   if (__nguCtx.__porteeBonusV1) return fn();
   const verif = typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_BONUS === "1";
@@ -611,6 +621,7 @@ export function idleNguBonusesLectureV1(raw) {
 }
 
 function idleNguBonusesMemoV1(state) {
+  if (__nguCtx.__sansMemoV1) return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   let cle = null;
   try { cle = JSON.stringify(state); } catch (_e) { cle = null; }
   const maintenant = Date.now();

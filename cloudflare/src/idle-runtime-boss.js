@@ -1313,6 +1313,29 @@ function detailStatsCombatSorealIdle_(facteurs, produitApplique, retirerEquipeme
   };
 }
 
+/*
+ * Les deux multiplicateurs (attaque, défense) que le combat applique à l'entraînement : produit de TOUS les bonus (NUMBER, Augmentations, Wandoos, NGU, Hacks, Wishes, Perks, Quirks, Yggdrasil, Diggers, Barbes...),
+ * moins le facteur d'équipement d'Aventure tant qu'Aventure n'est pas débloquée (voir statsCombatPrincipalSorealIdleV413_). Une seule définition : l'état renvoyé au client ET la trajectoire future
+ * (trajectoireMultiplicateursCombatSorealIdle_) la partagent, donc tout système qui influe sur les stats est couvert sans code propre.
+ */
+export function multiplicateursCombatSorealIdle_(bonusMetaNgu, bossesRun) {
+  const aventureDebloquee =
+    !Number.isFinite(Number(bossesRun)) ||
+    Number(bossesRun) >= REBIRTH_UNLOCK_BOSS_V1;
+  const facteurEquipementAttaque =
+    aventureDebloquee
+      ? 1
+      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentAttackMultiplier, 1));
+  const facteurEquipementDefense =
+    aventureDebloquee
+      ? 1
+      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentDefenseMultiplier, 1));
+  return {
+    attaque: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)) / facteurEquipementAttaque,
+    defense: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)) / facteurEquipementDefense
+  };
+}
+
 export function statsCombatPrincipalSorealIdleV413_(
   stats,
   inventaire,
@@ -1414,27 +1437,8 @@ export function statsCombatPrincipalSorealIdleV413_(
     !Number.isFinite(Number(bossesRun)) ||
     Number(bossesRun) >= REBIRTH_UNLOCK_BOSS_V1;
 
-  const facteurEquipementAttaque =
-    aventureDebloquee
-      ? 1
-      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentAttackMultiplier, 1));
-
-  const facteurEquipementDefense =
-    aventureDebloquee
-      ? 1
-      : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentDefenseMultiplier, 1));
-
-  const multiplicateurAttaqueEffectif =
-    Math.max(
-      1e-300,
-      nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)
-    ) / facteurEquipementAttaque;
-
-  const multiplicateurDefenseEffectif =
-    Math.max(
-      1e-300,
-      nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)
-    ) / facteurEquipementDefense;
+  const { attaque: multiplicateurAttaqueEffectif, defense: multiplicateurDefenseEffectif } =
+    multiplicateursCombatSorealIdle_(bonusMetaNgu, bossesRun);
 
   const attaque =
     Math.max(

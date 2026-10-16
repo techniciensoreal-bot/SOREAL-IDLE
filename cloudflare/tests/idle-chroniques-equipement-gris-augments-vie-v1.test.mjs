@@ -15,7 +15,7 @@ assert.ok(css.includes(".soreal-idle-collection-card-v1.nonmax .soreal-idle-coll
 
 // Augments : multiplicateur recalculé depuis les niveaux rejoués, répercuté sur les multiplicateurs de combat (donc sur la vie max, qui vaut attaque × 10).
 assert.ok(ui.includes("function appliquerAugmentsSurCombatIdleV1_(visual,niveaux)") && ui.includes("appliquerAugmentsSurCombatIdleV1_(augVisual,niveauxAugmentsLocaux)"));
-assert.ok(ui.includes("cp.multiplicateurAttaqueTotal=atk*ratio/applique") && ui.includes("cp.multiplicateurDefenseTotal=def*ratio/applique"), "attaque et défense suivent");
+assert.ok(ui.includes("function appliquerTrajectoireStatsIdleV1_()") && ui.includes("cp.multiplicateurAttaqueTotal=a") && ui.includes("cp.multiplicateurDefenseTotal=d"), "attaque et défense suivent la trajectoire du serveur (tous les systèmes, voir idle-augments-instantanes-v1)");
 assert.ok(meta.includes("base:{mult:baseMult,additif:baseAdditif}") && meta.includes("appliedRatio:1"), "repère du multiplicateur au moment de la photo du serveur");
 
 // Formule : la même que le moteur (somme base × niveau^exposant × (1 + niveau d'Upgrade²)), l'effet des perks/NGU déduit du multiplicateur serveur.

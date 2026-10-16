@@ -3,13 +3,13 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
-import { syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
+import { avecProjectionSansMemoV1, syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
 import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, dateSorealIdle_, deblocagesEtatSorealIdleV405_, inventaireCapaciteMaxSorealIdle_, nombreSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
 import { bonusEquipementSorealIdle_, construireBestiaireSorealIdle_, detailsEquipementSorealIdle_, listeCollectionSorealIdle_, parserJsonSorealIdle_, progressionCollectionsSorealIdle_, slotsEquipementSorealIdle_, statsJoueurSorealIdle_, synchroniserCollectionSorealIdle_ } from "./idle-runtime-collection.js";
-import { attaqueBossSorealIdle_, bonusSetsSorealIdle_, coutExtensionSacSorealIdle_, coutForgeSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, delaiRespawnBossSorealIdle_, mettreAJourManaStatsSorealIdle_, niveauMagieSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, nombreObjetsSacSorealIdle_, pvMaxBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, regenBossSecondeSorealIdle_, statsCombatPrincipalSorealIdleV413_, xpBossSorealIdle_ } from "./idle-runtime-boss.js";
+import { attaqueBossSorealIdle_, bonusSetsSorealIdle_, coutExtensionSacSorealIdle_, coutForgeSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, delaiRespawnBossSorealIdle_, mettreAJourManaStatsSorealIdle_, niveauMagieSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, nombreObjetsSacSorealIdle_, pvMaxBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, regenBossSecondeSorealIdle_, multiplicateursCombatSorealIdle_, statsCombatPrincipalSorealIdleV413_, xpBossSorealIdle_ } from "./idle-runtime-boss.js";
 import { contexteMetaNguSorealIdle_, metaTickEnergieSorealIdle_ } from "./idle-runtime-progression.js";
 import { apparencesSorealIdle_, banniereSorealIdleDriveFileId_, bossCatalogueSorealIdle_, boutiqueConfigSorealIdle_, histoireBossAvecSurchargeSorealIdle_, parametreSorealIdle_, reposSorealIdle_, setsSorealIdle_, sortsSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { classementDebloqueSorealIdle_, estAdministrateurSorealIdle_, identiteJoueurSorealIdle_, nomJeuDepuisLigneSorealIdle_ } from "./idle-runtime-joueurs.js";
@@ -353,6 +353,11 @@ id:
       multiplicateurDefenseTotal:
         combatPrincipalEtat
           .multiplicateurDefenseTotal,
+
+      /* Valeurs futures des deux multiplicateurs (voir trajectoireMultiplicateursCombatSorealIdle_) : le client les applique à l'heure dite. */
+      trajectoire:
+        combatPrincipalEtat
+          .trajectoire,
       detailStats:
         combatPrincipalEtat
           .detailStats,
@@ -1719,6 +1724,14 @@ export function construireEtatJoueurSorealIdle_(
       nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0)
     );
 
+  combatPrincipalEtat.trajectoire =
+    trajectoireMultiplicateursCombatSorealIdle_(
+      statsEtat.metaNgu,
+      contexteMetaNguEtat,
+      nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0),
+      { attaque: combatPrincipalEtat.multiplicateurAttaqueTotal, defense: combatPrincipalEtat.multiplicateurDefenseTotal }
+    );
+
   return {
     
     /*>construireEtatJoueurSorealIdle__o1*/...construireEtatJoueurSorealIdle__o1(c, combatPrincipalEtat, metaNguEtat, metaTickEnergieEtat, productionSecondeEtat, row, statsEtat),/*<construireEtatJoueurSorealIdle__o1*/
@@ -1996,4 +2009,27 @@ export function ajouterCoutsEntrainementEtatSorealIdle_(
   };
 
   return etat;
+}
+
+/*
+ * Trajectoire des multiplicateurs de combat (Norman, 2026-10-16 : « l'état du personnage est déterminé par les événements du gameplay, jamais par l'onglet affiché »).
+ * Le client simule le combat entre deux synchros avec les multiplicateurs reçus : ceux-ci sont donc exacts à l'instant de la synchro, puis périmés dès qu'un niveau de n'importe quel système
+ * (Augmentations, NGU, Wandoos, Hacks, Wishes, Yggdrasil...) est gagné. Plutôt que de recopier les formules de chaque système côté client, le serveur projette son PROPRE état à quelques
+ * instants futurs (même moteur, mêmes bonus) et renvoie les valeurs que prendront les deux multiplicateurs : [{ t (ms après cette réponse), a (attaque), d (défense) }], seulement aux instants où
+ * quelque chose change. Aucun changement à venir : liste vide (un seul calcul, au bout de l'horizon). Tout nouveau système qui entre dans idleNguBonuses est couvert sans ligne de code de plus.
+ */
+const TRAJECTOIRE_PAS_MS_V1 = [1000, 2000, 4000, 15000];
+export function trajectoireMultiplicateursCombatSorealIdle_(metaNgu, contexte, bossesRun, base) {
+  const maintenant = Date.now();
+  const A = nombreSorealIdle_(base.attaque, 1), D = nombreSorealIdle_(base.defense, 1);
+  const projeter = (dt) => avecProjectionSansMemoV1(() => multiplicateursCombatSorealIdle_(idleNguBonuses(syncIdleNguState(metaNgu, contexte, maintenant + dt)), bossesRun));
+  const horizon = TRAJECTOIRE_PAS_MS_V1[TRAJECTOIRE_PAS_MS_V1.length - 1];
+  const fin = projeter(horizon);
+  if (fin.attaque === A && fin.defense === D) return [];
+  const liste = []; let a = A, d = D;
+  for (const dt of TRAJECTOIRE_PAS_MS_V1) {
+    const p = dt === horizon ? fin : projeter(dt);
+    if (p.attaque !== a || p.defense !== d) { liste.push({ t: dt, a: p.attaque, d: p.defense }); a = p.attaque; d = p.defense; }
+  }
+  return liste;
 }
