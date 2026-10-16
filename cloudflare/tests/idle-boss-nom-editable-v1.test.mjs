@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { normaliserTexteV1, enregistrerTexteV1, supprimerTexteV1, texteBossSurchargeV1, nomBossSurchargeV1, invaliderCacheTextesBossV1 } from "../src/idle-textes-v1.js";
@@ -38,7 +39,7 @@ assert.equal(normaliserTexteV1({ cle: "boss:46", champs: { nom: "Nom", texte: "R
 }
 
 // 3. Intégration : le nom modifié sort du moteur (boss courant) ; sans surcharge, c'est le nom NGU français.
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 assert.ok(runtime.includes("nomBossSurchargeV1(__idleSql, i + 1) ||\n        NGU_BOSS_NAMES_FR_V1.get(i + 1)") || runtime.includes("nomBossSurchargeV1(__idleSql, i + 1) ||\r\n        NGU_BOSS_NAMES_FR_V1.get(i + 1)"), "le nom modifié passe avant celui de NGU");
 assert.ok(runtime.includes("nomOriginal: nom") && runtime.includes("nom: nomActuel"), "la liste Admin donne le nom actuel ET l'original");
 

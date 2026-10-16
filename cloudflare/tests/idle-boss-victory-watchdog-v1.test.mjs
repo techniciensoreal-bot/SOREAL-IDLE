@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -43,7 +44,7 @@ assert.match(ui, /pousserEtatVersRuntimePartageIdleV1_\(\);\s*idleVictoireBossLo
   const iFantome = garde.indexOf("!idleCombatArmeLocalV206");
   assert.ok(debutGarde > 0 && iVictoire > 0 && iFantome > iVictoire, "la victoire prédite passe avant la garde fantôme");
   assert.ok(garde.slice(iVictoire, iFantome).includes("return true;"), "et ne renvoie AUCUN arrêt de combat au serveur");
-  const serveur = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const serveur = lireSrc("idle-sqlite-runtime.js");
   assert.ok(serveur.includes("!combatBossActif &&\n    bossPv<=1e-9"), "invariant serveur : hors combat, un boss à 0 PV est restauré (d'où le risque si le combat est coupé trop tôt)");
 }
 

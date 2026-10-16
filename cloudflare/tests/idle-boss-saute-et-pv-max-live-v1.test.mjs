@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -7,7 +8,7 @@ import { readFileSync } from "node:fs";
  * tant que je n'ai pas fait Fight ».
  */
 const ui = lireUiComplet();
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 
 // Boss sauté : le « boss suivant » prédit n'est appliqué que si l'état est encore celui de la victoire et que ce boss est le suivant immédiat.
 assert.ok(ui.includes("const vaincusALaVictoireV1=idleEntier_(idleEtat.bossVaincus);"));

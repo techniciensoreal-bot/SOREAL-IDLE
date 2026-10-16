@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { idleRuntimeTestHooks } from "../src/idle-sqlite-runtime.js";
 import {
@@ -162,10 +163,7 @@ const OLD_INVENTED_XP_BOSS_1_A_20 = [
 // ET NUKE) doivent effectivement appeler ces fonctions dans le bon ordre,
 // pas seulement les définir sans jamais les utiliser.
 {
-  const source = readFileSync(
-    new URL("../src/idle-sqlite-runtime.js", import.meta.url),
-    "utf8"
-  );
+  const source = lireSrc("idle-sqlite-runtime.js");
 
   // Combat normal (appliquerProgressionEnergieSorealIdle_).
   const progStart = source.indexOf("function appliquerProgressionEnergieSorealIdle_(");

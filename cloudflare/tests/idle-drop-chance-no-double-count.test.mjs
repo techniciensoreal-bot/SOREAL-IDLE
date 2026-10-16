@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -10,8 +11,8 @@ import { readFileSync } from "node:fs";
  * advanceAdventureZoneAutoFarmOfflineV1 -- qui appelle exactement le même rollKill, donc soumis à la
  * même règle pour ne jamais compter deux fois l'équipement).
  */
-const ngu = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
-const adv = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const ngu = lireSrc("idle-ngu-progression.js");
+const adv = lireSrc("idle-adventure-v47.js");
 assert.equal(ngu.split("dropMultiplierIncludesGear").length - 1, 4, "kill de zone, titan, farm hors ligne et butin de l'auto-kill en ligne (2026-10-11)");
 assert.equal(adv.split("ctx.dropMultiplierIncludesGear").length - 1, 3, "rollKill, titan et le butin de l'auto-kill ignorent set + Cube quand le meta les fournit");
 console.log("idle-drop-chance-no-double-count ok");

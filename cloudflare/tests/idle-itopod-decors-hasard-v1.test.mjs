@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -93,7 +94,7 @@ console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
   const css2 = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
   assert.ok(/\.itp-ennemi \.itp-avatar\{[^}]*bottom:0[^}]*border:0[^}]*background:none/.test(css2), "avatar sans cadre, collé au bas");
   assert.ok(css2.includes(".itp-avatar.itp-flotte") && css2.includes("itpPoing") && css2.includes(".itp-vie-rempli"));
-  const prog = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+  const prog = lireSrc("idle-ngu-progression.js");
   assert.ok(prog.includes("d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);"), "coups par ennemi donnés à l'écran");
   const m2 = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(m2.includes("toggleSystemeMetaIdleV130_('tower')") && m2.includes("Entrer dans l’ITOPOD"), "bouton pour entrer dans la tour");

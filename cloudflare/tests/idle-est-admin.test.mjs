@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import fs from "node:fs";
 
 /*
@@ -16,7 +17,7 @@ import fs from "node:fs";
  * ne lit/écrit jamais la feuille JOUEURS (aucun verrou nécessaire) --
  * appelable librement à chaque rendu côté client sans coût.
  */
-const source = fs.readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const start = source.indexOf("function estAdminSorealIdle(");
 assert.ok(start >= 0, "estAdminSorealIdle introuvable.");

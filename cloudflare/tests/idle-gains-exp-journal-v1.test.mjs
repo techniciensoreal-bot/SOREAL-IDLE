@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import { runSorealIdleOperation } from "../src/idle-sqlite-runtime.js";
@@ -94,7 +95,7 @@ assert.equal(xpDe("seb@example.org").exp, 1310);
 // 6. Toute opération passe par __idleCommit : le journal y est écrit (colonne XP avant / après), sans jamais gêner le jeu
 {
   const { readFileSync } = await import("node:fs");
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   const commit = rt.slice(rt.indexOf("function __idleCommit(sql,workbook){"), rt.indexOf("function verifierSessionSoreal"));
   assert.ok(commit.includes("json_extract(row_json,'$[3]')") && commit.includes("enregistrerGainExpV1(sql,{email:playerKey"), "journal écrit à chaque commit d'une ligne joueur");
   assert.ok(commit.includes("catch(_e)"), "une erreur du journal n'empêche jamais l'écriture du jeu");

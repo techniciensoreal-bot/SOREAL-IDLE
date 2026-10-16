@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -26,7 +27,7 @@ import { readFileSync } from "node:fs";
  * (= le même index que "numero"), jamais bossDefinitionEtat.id.
  */
 
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(
   source.includes("const DriveApp={"),

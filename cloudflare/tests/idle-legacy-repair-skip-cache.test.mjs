@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -16,7 +17,7 @@ import { readFileSync } from "node:fs";
  * à une seule fois par démarrage à froid de l'isolate, jamais un skip
  * permanent qui masquerait une vraie migration incomplète.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(
   source.includes("let __idleLegacyRepairDoneV1=false;"),

@@ -1,10 +1,11 @@
 // Norman (2026-10-07) : « sur la page Machine temporelle, le GPS brut et le GPS net sont tout le temps pareils. C'est inutile. Donne une utilité à net/brut. »
+import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 // Net = brut − Or dépensé par les Mineurs d'or actifs : la distinction n'existe qu'une fois ce système débloqué ; avant, une seule ligne (et le champ n'est même pas envoyé : anti-spoil).
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const serveur = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const serveur = lireSrc("idle-ngu-progression.js");
 assert.ok(serveur.includes("...(state.systems.diggers?.unlocked ? { diggerDrain: diggerDrainTotal(state) } : {})"), "diggerDrain n'est envoyé que si les Mineurs d'or sont débloqués");
 assert.ok(serveur.includes("Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state)-diggerDrainTotal(state))"), "net = brut − coût des Mineurs d'or");
 

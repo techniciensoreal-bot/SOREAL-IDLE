@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import fs from "node:fs";
 
-const src=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
-const adventure=fs.readFileSync(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8");
-const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+const src=lireSrc("idle-ngu-progression.js");
+const adventure=lireSrc("idle-adventure-v47.js");
+const runtime=lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(src.includes('META-V47-EARLYGAME-NGU'));
 assert.ok(src.includes('IDLE_NGU_SAVE_SCHEMA = 47')||src.includes('IDLE_NGU_SAVE_SCHEMA=47'));

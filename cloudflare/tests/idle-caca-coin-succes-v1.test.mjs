@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { idleAchievementV1 } from "../src/idle-achievements-v1.js";
@@ -34,6 +35,6 @@ assert.ok(meta.includes("f({action:'cornerClick'})"));
 assert.ok(/x\.id==='secretAtCorner'&&x\.unlocked/.test(meta), "disparu une fois le succès obtenu");
 console.log("idle-caca-coin-succes-v1: OK");
 {
-  const src = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+  const src = lireSrc("idle-ngu-progression.js");
   assert.ok(src.includes('a.id === "secretBeardsMenu" || a.id === "secretAtCorner"'), "trophée caché : son objectif n'est jamais dit avant qu'il soit obtenu");
 }

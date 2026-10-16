@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 
-const runtime=fs.readFileSync(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-).replace(/\r\n/g,"\n");
+const runtime=lireSrc("idle-sqlite-runtime.js").replace(/\r\n/g,"\n");
 
 const ui=lireUiComplet().replace(/\r\n/g,"\n");
 

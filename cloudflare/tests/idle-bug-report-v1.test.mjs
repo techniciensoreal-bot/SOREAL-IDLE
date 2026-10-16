@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -18,7 +19,7 @@ assert.equal(existsSync("integrations/idle-bug-mail"), false, "passerelle mail r
   for (const nom of ["signalerBugSorealIdle", "lireBugsSorealIdle", "supprimerBugSorealIdle"]) assert.ok(ops.includes(nom), nom);
   assert.equal(typeof runSorealIdleOperation, "function");
   assert.equal(ops.includes("marquerBugMailSorealIdle"), false);
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "latin1");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   const supp = rt.slice(rt.indexOf("function supprimerBugSorealIdle"), rt.indexOf("const IDLE_OPERATIONS"));
   assert.ok(supp.includes("ADMIN_SOREAL_IDLE_EMAIL) throw"), "suppression réservée à l'administrateur");
   assert.ok(supp.includes("DELETE FROM idle_bug_reports WHERE id=?"));

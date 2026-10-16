@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -151,7 +152,7 @@ const stats = (o = {}) => ({
   assert.equal(lireFluxV1(lecteur, { email: "x@x.fr" }).length, 2, "la lecture ordinaire (historique) reste disponible");
 
   /* Premier battement de la page : le serveur ne renvoie rien (amorceFlux), seulement le repère dernierFluxId. */
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   assert.ok(rt.includes("i.amorceFlux === true") && rt.includes("seulementFrais: true") && rt.includes("maintenant: Date.now()"));
 }
 
@@ -255,7 +256,7 @@ const stats = (o = {}) => ({
   assert.ok(chat.includes("recevoirChat"));
   assert.ok(chat.includes("amorceFlux:amorce") && chat.includes("F.amorcer(res.dernierFluxId)") && chat.includes("F.recevoir(res.flux,res.maintenant)") && chat.includes("recevoirChat(recus,premier,data&&data.maintenant)"), "premier battement = repère seulement ; fraîcheur jugée sur l'heure du serveur");
   assert.ok(chat.includes("apresFlux") && chat.includes("__SOREAL_IDLE_FLUX_V1__") && chat.includes("data-flux-panneau-v1"));
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   assert.ok(rt.includes("enregistrerJalonsV1") && rt.includes("lireFluxSorealIdle,"));
 }
 

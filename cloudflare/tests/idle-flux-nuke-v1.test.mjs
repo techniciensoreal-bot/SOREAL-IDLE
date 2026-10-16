@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
@@ -7,7 +8,7 @@ import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
  * « En direct » (Norman, 2026-10-10) : « quand on nuke, ça doit être dit : Sébastien a utilisé le bouton Nuke et a tué 40 boss d'un coup, avec des variantes qui donnent toujours le nombre de boss tués ;
  * moins il y en a, plus on peut en rigoler. »
  */
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("fluxNukes:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukes,0)))") && rt.includes("fluxNukeDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukeDernier,0)))"), "les compteurs survivent à la lecture des statistiques");
 assert.ok(rt.includes("if (defeated.length > 0) {\n      stats.fluxNukes =") && rt.includes("stats.fluxNukeDernier = defeated.length;"), "le Nuke compte les boss tués");
 

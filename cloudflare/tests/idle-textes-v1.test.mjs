@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -91,7 +92,7 @@ assert.throws(() => normaliserTexteV1({ cle: "tuto:1", champs: { "1mauvais": "x"
 
 // 5. Opérations : joueur (lecture des surcharges) / administrateur (lister, enregistrer, supprimer), contrat à jour, partie B comprise.
 {
-  const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   const contrat = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8")).operations;
   for (const op of ["obtenirTextesSurchargesSorealIdle", "listerTextesAdminSorealIdle", "enregistrerTexteAdminSorealIdle", "supprimerTexteAdminSorealIdle"]) {
     assert.match(runtime, new RegExp("^  " + op + ",$", "m"), op + " enregistrée dans IDLE_OPERATIONS");
@@ -119,7 +120,7 @@ console.log("idle-textes-v1: OK");
   assert.equal(nomBossParleV1(sql, 9), "Gro Bosse");
   assert.equal(texteBossParleV1(sql, 10), null);
   assert.deepEqual(Object.keys(surchargesPourJoueurV1(sql).popups), [], "aucun texte de boss n'est envoyé dans les popups");
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   assert.ok(rt.includes("bossHistoireParlee: String(def.histoireParlee || '')") && rt.includes("bossNomParle: String(bossDefinitionEtat.nomParle || '')"), "l'état du boss porte le texte et le nom parlés");
   const ui = lireUiComplet();
   assert.ok(ui.includes("composerChronique(nomParle||nomBoss,histoireParlee||histoire)"), "la chronique est lue avec le texte et le nom parlés");

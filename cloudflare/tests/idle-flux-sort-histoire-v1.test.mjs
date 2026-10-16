@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -34,7 +35,7 @@ assert.deepEqual(evenementsV1({ bossMax: 1, succes: [], titans: {}, defis: {}, r
   assert.equal(r2.state.records.bloodSpellsCast, 2);
   assert.equal(r2.state.records.bloodSpellLast, 2);
 }
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("/^histoire:/.test(id)") && rt.includes("!dejaVus.has(id)") && rt.includes("stats.fluxHistoires = "), "une histoire jamais vue compte une fois");
 
 // Phrases côté lecteur.

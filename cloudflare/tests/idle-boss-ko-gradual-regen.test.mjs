@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import test from "node:test";
 import {readFile} from "node:fs/promises";
 
-const source=await readFile(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-);
+const source=lireSrc("idle-sqlite-runtime.js");
 
 const fnStart=source.indexOf("function appliquerProgressionEnergieSorealIdle_(");
 assert.ok(fnStart>=0,"appliquerProgressionEnergieSorealIdle_ introuvable.");

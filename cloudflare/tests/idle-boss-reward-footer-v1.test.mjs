@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { nguBossStatsV1 } from "../src/idle-ngu-boss-reference-v1.js";
@@ -38,7 +39,7 @@ const chip = css.slice(chipDebut, css.indexOf("}", chipDebut));
 assert.ok(!chip.includes("#f0f2ff") && !chip.includes("#303b91"), "le badge XP ne doit plus utiliser les couleurs claires de l'ancienne version");
 assert.match(chip, /color:#fff/, "texte clair pour rester lisible sur le dégradé sombre de la carte Fight Boss");
 
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 assert.ok(!/pieces \+=\s*Math\.max\(\s*1,\s*Math\.round\(\s*recompensePiecesBossSorealIdle_\(\s*boss/.test(runtime), "un boss principal ne donne plus de « pièces »");
 assert.ok(!runtime.includes("genererObjetBossSorealIdle_(\n            bossCombatIndex") && !runtime.includes("genererObjetBossSorealIdle_(\n            bossIndexNuke"), "un boss principal ne lâche plus d'objet");
 assert.ok(!/recompenseBossActuel: \{[\s\S]{0,900}pieces:/.test(runtime), "la récompense annoncée ne contient plus de pièces");

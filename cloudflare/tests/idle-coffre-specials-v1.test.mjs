@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureSnapshotV47, IDLE_ADVENTURE_ITEM_CATALOG_V1, IDLE_ADVENTURE_ZONES } from "../src/idle-adventure-v47.js";
 
@@ -92,7 +93,7 @@ vues = idleAdventureSnapshotV47(a, ctx, 1000).coffreSlots;
 assert.deepEqual(vues.filter((c) => c.groupe === "coeur").map((c) => c.definitionId), ["heartRed"], "le 1er cœur acheté fait apparaître SA case, pas les autres");
 
 // --- La table des butins de titans couvre tous les objets que rollTitanLootV1 distribue ---
-const src = readFileSync(new URL("../src/idle-adventure-v47.js", import.meta.url), "utf8");
+const src = lireSrc("idle-adventure-v47.js");
 const debut = src.indexOf("function rollTitanLootV1");
 const corps = src.slice(debut, src.indexOf("const TITAN_LOOT_CUBE_ROOT_V1", debut));
 const table = src.slice(src.indexOf("const IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1"), src.indexOf("const IDLE_ADVENTURE_COFFRE_COEURS_V1"));

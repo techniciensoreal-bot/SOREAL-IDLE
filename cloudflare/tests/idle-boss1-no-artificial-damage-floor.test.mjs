@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -22,7 +23,7 @@ import { readFileSync } from "node:fs";
  * réelle que tous les autres boss, max(0, attaque-defense). Le wiki
  * Defense confirme explicitement que Defense >= Boss Attack donne 0 dégât.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(
   !source.includes("BOSS_TUTORIEL_DEGATS_SEC"),

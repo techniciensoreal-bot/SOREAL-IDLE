@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import fs from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
@@ -9,7 +10,7 @@ import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../s
  * leur action « collect ».
  */
 const ctx = { bosses: 100 };
-const src = fs.readFileSync(new URL("../src/idle-ngu-progression.js", import.meta.url), "utf8");
+const src = lireSrc("idle-ngu-progression.js");
 assert.ok(!/\w\.data\.growth\b/.test(src), "plus aucune lecture de <système>.data.growth");
 
 {

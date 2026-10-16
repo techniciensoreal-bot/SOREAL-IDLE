@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -42,7 +43,7 @@ const ui = lireUiComplet();
 // 3. L'opération existe côté serveur et fait partie du contrat public (voir idle-protocol-contract.test.mjs pour
 //    l'égalité exacte avec IDLE_OPERATIONS).
 {
-  const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   assert.ok(runtime.includes("function definirClassementVisibleSorealIdle("), "l'opération serveur doit exister");
   assert.ok(runtime.includes("definirClassementVisibleSorealIdle\n};") || runtime.includes("definirClassementVisibleSorealIdle,"), "doit être exposée dans IDLE_OPERATIONS");
   const contract = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8"));

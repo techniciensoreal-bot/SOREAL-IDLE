@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const ui = lireUiComplet(), css = lire("public/soreal-idle-renaissance.css"), ngu = lire("src/idle-ngu-progression.js"), live = lire("public/modules/rebirth-live-v1.js");
+const ui = lireUiComplet(), css = lire("public/soreal-idle-renaissance.css"), ngu = lireSrc("idle-ngu-progression.js"), live = lire("public/modules/rebirth-live-v1.js");
 /* Norman (2026-10-15) : page Renaissance en deux colonnes (Partie précédente / Partie en cours), lignes à émojis, calculs en bas */
 assert.ok(ui.includes("💀 Partie précédente") && ui.includes("🌱 Partie en cours") && ui.includes("Ce qui s’est éteint") && ui.includes("Ce qui vit encore") && ui.includes('class="rb2-colonnes"'), "deux colonnes");
 for (const l of ["'🩸','Sang dépensé dans le rituel Boost du nombre par le sang'", "'⏱️','Durée'", "'👹','Boss le plus haut battu'", "'🔢','Number actif'"]) assert.ok(ui.includes("ligne(" + l), "ligne " + l);

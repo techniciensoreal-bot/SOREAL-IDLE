@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import test from "node:test";
 import {readFile} from "node:fs/promises";
 import {nguBossStatsV1} from "../src/idle-ngu-boss-reference-v1.js";
@@ -23,10 +24,7 @@ test("Evil/Sadistic scale boss HP Regen with Fight Boss stats",()=>{
 });
 
 test("runtime uses the reference regen rather than Defense/20 for bosses",async()=>{
-  const source=await readFile(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const start=source.indexOf("function regenBossSecondeSorealIdle_(");
   const end=source.indexOf("\nfunction multiplicateurAttaqueBossSorealIdle_",start);
   assert.ok(start>=0&&end>start,"regenBossSecondeSorealIdle_ missing");

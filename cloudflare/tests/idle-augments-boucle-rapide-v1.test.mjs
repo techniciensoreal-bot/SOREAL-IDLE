@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, advanceIdleNguState } from "../src/idle-ngu-progression.js";
 
@@ -23,7 +24,7 @@ assert.equal(scissors.level, 10000, "plafond de 10 000 niveaux par appel inchang
 assert.ok(s.currencies.gold < 1e30 && s.currencies.gold > 0, "l'Or est bien débité");
 
 // Verrou orphelin : repris au bout de 20 s (voir idle-sqlite-runtime.js).
-const src = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const src = lireSrc("idle-sqlite-runtime.js");
 assert.ok(src.includes("Date.now()-__idleScriptLockDepuisV1>20000") && src.includes("__idleVerrouPerimeV1_();"));
 console.log("idle-augments-boucle-rapide-v1: OK");
 

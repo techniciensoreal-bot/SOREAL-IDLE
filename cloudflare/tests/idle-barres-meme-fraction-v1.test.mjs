@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -114,7 +115,7 @@ const aug = (r) => r.joueur.systemes.augmentations.find((x) => x.id === "scissor
 }
 
 // 3. Code : Time Machine et Blood Magic suivent la même règle ; le client garde la fraction.
-const src = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const src = lireSrc("idle-ngu-progression.js");
 assert.ok(src.includes('rebaserProgressionSecondesV1(d, "speedProgress", energyStep)') && src.includes('rebaserProgressionSecondesV1(d, "goldProgress", magicStep)') && src.includes('rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion)') && src.includes("rebaserProgressionSecondesV1(pair,progressKey,needed)"));
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(!/recalculerPisteAllocIdleV1_\(k,progSec,alloc\)/.test(meta), "plus aucun recalcul local à secondes constantes");

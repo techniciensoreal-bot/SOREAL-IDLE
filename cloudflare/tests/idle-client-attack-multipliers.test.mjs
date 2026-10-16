@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -63,7 +64,7 @@ const entrainement = 100 + Math.pow(1000, 1.3) * 150;
 }
 
 /* Le serveur expose bien le produit qu'il applique. */
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 const statsDebut = runtime.indexOf("function statsCombatPrincipalSorealIdleV413_(");
 const statsFin = runtime.indexOf("\n}\n", statsDebut);
 const stats = runtime.slice(statsDebut, statsFin);

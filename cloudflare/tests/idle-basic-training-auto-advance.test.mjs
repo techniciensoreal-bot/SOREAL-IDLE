@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import {
@@ -100,7 +101,7 @@ const fresh = () => {
 
 // câblage runtime : la synchro passe l'option depuis l'achat de la boutique EXP
 {
-  const src = readFileSync(new URL("../src/idle-sqlite-runtime.js", import.meta.url), "utf8");
+  const src = lireSrc("idle-sqlite-runtime.js");
   assert.match(src, /autoAdvance:\s*autoAvanceEntrainementSorealIdle_\(stats\)/);
   assert.match(src, /expShop\.trainingAutoAdvance/);
 }

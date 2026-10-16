@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Jamais de retour en arrière sur le boss (Norman, 2026-10-08) : à l'arrêt d'un combat de boss (fuite, défaite, reprise) le serveur reprend l'instantané du client, mais cet instantané ne peut QUE faire baisser
  * les PV du boss ; il ne lui rend jamais de vie, et un « 0 » du client (victoire prédite) ne tue pas le boss à la place du serveur (sinon : boss remis à son maximum, victoire perdue, barre qui remonte).
  */
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 const i = rt.indexOf("const bossPvServeur=");
 assert.ok(i > 0, "PV du boss côté serveur lus avant l'instantané");
 const bloc = rt.slice(i, i + 2600);

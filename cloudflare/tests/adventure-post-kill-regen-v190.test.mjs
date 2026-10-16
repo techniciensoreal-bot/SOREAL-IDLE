@@ -1,12 +1,10 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
 const ui=lireUiComplet();
-const adventure=readFileSync(
-  new URL("../src/idle-adventure-v47.js",import.meta.url),
-  "utf8"
-);
+const adventure=lireSrc("idle-adventure-v47.js");
 
 const regenStart=ui.indexOf("function regenReposAdventureIdleV3_");
 const regenEnd=ui.indexOf("function facteurAleatoireDegatsAdventureIdleV2_",regenStart);

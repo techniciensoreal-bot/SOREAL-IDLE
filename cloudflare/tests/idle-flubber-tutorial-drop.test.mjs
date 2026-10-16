@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   applyIdleAdventureActionV47,
@@ -14,7 +15,7 @@ import {
  * equally from normal enemies and bosses... This item is NOT affected
  * by drop chance multipliers."
  */
-const source = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const source = lireSrc("idle-adventure-v47.js");
 
 assert.ok(
   source.includes('flubber:{name:"The Lonely Flubber",zone:"tutorial",slot:"accessory",set:"training"'),

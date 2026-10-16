@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = lireUiComplet();
 const chat = readFileSync("cloudflare/public/modules/chat-v1.js", "utf8");
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 const srv = readFileSync("cloudflare/src/idle-chat-v1.js", "utf8");
 
 assert.ok(ui.includes("⏱️ Temps de jeu :\n              <strong>${formaterDureeJeuIdleV1_(stats.tempsActifSec)}</strong>"), "le profil montre le vrai temps connecté");

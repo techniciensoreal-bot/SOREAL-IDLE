@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -18,7 +19,7 @@ import { readFileSync } from "node:fs";
  * timbrant DERNIERE_SYNCHRO à l'instant précis de la Fuite, pour que le
  * calcul de régén ne démarre jamais avant ce moment.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const start = source.indexOf("function definirCombatBossSorealIdle(");
 assert.ok(start >= 0, "definirCombatBossSorealIdle introuvable.");

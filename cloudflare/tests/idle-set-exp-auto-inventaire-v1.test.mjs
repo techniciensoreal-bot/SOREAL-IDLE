@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
 
@@ -28,6 +29,6 @@ assert.equal(s.adventure.permanent.experience, 300, "récompense brute enregistr
 assert.equal(s.currencies.experience, 300, "les 300 EXP du set sont versées dans la vraie monnaie (la Magic l'était déjà)");
 
 // Le tick d'Auto Merge / Auto Boost verse lui aussi (garde de code : le tick est lancé par le temps, difficile à provoquer ici)
-const src = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const src = lireSrc("idle-ngu-progression.js");
 assert.ok(src.includes("const avantAutoInventaire = photoRecompensesAventure(state);") && src.includes("crediterRecompensesAventure(state, avantAutoInventaire);"), "tick Auto Merge / Auto Boost");
 console.log("idle-set-exp-auto-inventaire-v1: OK");

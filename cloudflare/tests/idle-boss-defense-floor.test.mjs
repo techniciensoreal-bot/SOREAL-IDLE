@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  * exposée au joueur via defenseBossSorealIdle_/defenseBoss, exactement au
  * même endroit que attaqueBossSorealIdle_/attaqueBoss déjà en place.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(
   source.includes("const defenseMinimum = reference.defense;"),

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -48,7 +49,7 @@ function etatAvecEquipement(power, toughness) {
 }
 
 // 4. Serveur : le détail est dans combatPrincipal.detailStats, l'équipement est retiré avant l'Aventure
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "latin1");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 assert.ok(runtime.includes("function detailStatsCombatSorealIdle_("));
 assert.ok(runtime.includes("!aventureDebloquee\n      ),"), "équipement retiré du détail comme du calcul, tant que l'Aventure n'est pas débloquée");
 assert.match(runtime, /detailStats:\s*combatPrincipalEtat\s*\.detailStats/);

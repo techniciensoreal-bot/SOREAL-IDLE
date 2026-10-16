@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { advanceBasicTrainingStateV411, applyBasicTrainingAllocationsV411, normalizeBasicTrainingStateV411 } from "../src/idle-basic-training.js";
 
@@ -42,6 +43,6 @@ const r2 = applyBasicTrainingAllocationsV411(apres.state, { attaque_passive: apr
 assert.equal(r2.state.skills.attaque_reguliere.allocation, 20000);
 
 // Le serveur amène l'entraînement à l'instant présent avant d'appliquer la répartition.
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(/stats\.entrainementBase =\s*advanceBasicTrainingStateV411\(\s*stats\.entrainementBase,\s*Date\.now\(\),/.test(rt) && rt.includes("{ autoAdvance: autoAvance }\n      );"));
 console.log("idle-bt-surplus-deblocage-course-v1: OK");

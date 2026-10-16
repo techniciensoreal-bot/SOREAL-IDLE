@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -107,7 +108,7 @@ assert.equal(state.skillState.move69Uses,69);
 assert.equal(state.skillState.endPiece481,true);
 
 // The rare unlock items use their real documented base chances.
-const source=readFileSync(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8");
+const source=lireSrc("idle-adventure-v47.js");
 assert.ok(
   source.includes('if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5))'),
   "Grand Corrupted Tree must use the 1% Red Liquid base chance."

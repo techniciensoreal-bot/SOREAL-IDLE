@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import fs from "node:fs";
 import { applyIdleNguAction, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 
@@ -138,10 +139,7 @@ for (const resource of ["energy", "magic", "r3"]) {
  *     solde metaNgu immédiatement après chaque action.
  */
 {
-  const runtime=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const runtime=lireSrc("idle-sqlite-runtime.js");
   const parserStart=runtime.indexOf("function statsJoueurSorealIdle_(");
   const parserEnd=runtime.indexOf("\nfunction cleBestiaireBossPrincipalSorealIdle_",parserStart);
   assert.ok(parserStart>=0&&parserEnd>parserStart,"statsJoueurSorealIdle_ introuvable.");

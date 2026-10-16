@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
+import { lireSrc } from "./_src-sources.mjs";
 import fs from 'node:fs';
-const source=fs.readFileSync(new URL('../src/idle-sqlite-runtime.js',import.meta.url),'utf8');
+const source=lireSrc("idle-sqlite-runtime.js");
 
 function block(name,nextMarker='\nfunction '){
   const start=source.indexOf(`function ${name}(`);

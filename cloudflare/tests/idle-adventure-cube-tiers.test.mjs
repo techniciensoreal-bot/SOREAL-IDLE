@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import {
   IDLE_ADVENTURE_CUBE_TIERS_V1,
   idleAdventureCubeTierV1,
@@ -64,10 +65,7 @@ assert.equal(idleAdventureCubeTierV1({power:600000000000,toughness:0}).suivant,n
   // on vérifie donc indirectement via le champ stats.specials.dropChancePct
   // (dérivé de la même fonction idleAdventureCubeTierV1) et via le code
   // source de rollKill, qui doit inclure idleAdventureCubeTierV1(s.cube).
-  const workerSource = (await import("node:fs")).readFileSync(
-    new URL("../src/idle-adventure-v47.js", import.meta.url),
-    "utf8"
-  );
+  const workerSource = lireSrc("idle-adventure-v47.js");
   assert.ok(
     workerSource.includes("idleAdventureCubeTierV1(s.cube).dropChancePct/100"),
     "rollKill doit inclure le bonus de drop chance du tier du Cube dans son calcul RÉEL, pas seulement dans l'affichage."

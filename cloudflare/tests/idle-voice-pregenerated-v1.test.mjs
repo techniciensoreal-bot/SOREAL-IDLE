@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { chargerBoss } from "../tools/voice-generate.mjs";
@@ -138,7 +139,7 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
 // --- Norman (2026-09-26) : « la narration de Une petite souris s'arrête après le nom, avec une erreur » : le jeu remplace l'histoire du boss n°4 par un texte à lui ; les voix doivent être
 // générées depuis CE texte (sinon aucun fichier, repli sur Piper, erreur). ---
 {
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   const i = rt.indexOf("index===3");
   const d = rt.indexOf('"', i);
   const surcharge = rt.slice(d + 1, rt.indexOf('"' + String.fromCharCode(10), d + 1));

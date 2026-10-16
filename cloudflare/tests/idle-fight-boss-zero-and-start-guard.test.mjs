@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const source=readFileSync(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-);
+const source=lireSrc("idle-sqlite-runtime.js");
 
 assert.ok(
   source.includes("if(Boolean(actif)&&stats.combatBossActif)") &&

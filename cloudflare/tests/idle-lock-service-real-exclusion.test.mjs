@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -14,7 +15,7 @@ import { readFileSync } from "node:fs";
  * ce fichier ("Quand je mets des points dans Basic training, ils me
  * sont souvent rendus") décrivait déjà ce symptôme.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const start = source.indexOf("let __idleScriptLockHeldV1=false;");
 assert.ok(start >= 0, "Le verrou en mémoire __idleScriptLockHeldV1 doit exister.");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import {
@@ -125,7 +126,7 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
 
 // --- effets précis de chaque troll (lus dans le code par une exécution forcée) ---
 {
-  const src = readFileSync(new URL("../src/idle-ngu-progression.js", import.meta.url), "utf8");
+  const src = lireSrc("idle-ngu-progression.js");
   for (const phrase of ["removes half", "Removes half"]) void phrase;
   assert.match(src, /pair\.level = Math\.floor\(Math\.max\(0, num\(pair\.level, 0\)\) \/ 2\)/, "moitié des niveaux d'augmentations");
   assert.match(src, /sp\.numberBoost = 1/, "multiplicateur de Renaissance de Blood Magic remis à 1");

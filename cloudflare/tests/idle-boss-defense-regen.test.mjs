@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -12,10 +13,7 @@ import { readFileSync } from "node:fs";
  * Defense dans le temps, et ne jamais appliquer rétroactivement la valeur
  * de fin de fenêtre à toute la période.
  */
-const source = readFileSync(
-  new URL("../src/idle-sqlite-runtime.js", import.meta.url),
-  "utf8"
-);
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const fnStart = source.indexOf("function appliquerProgressionEnergieSorealIdle_(");
 assert.ok(fnStart >= 0, "appliquerProgressionEnergieSorealIdle_ introuvable.");

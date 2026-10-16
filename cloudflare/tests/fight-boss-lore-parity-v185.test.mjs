@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import {idleRuntimeTestHooks} from "../src/idle-sqlite-runtime.js";
 import {readFileSync} from "node:fs";
 
@@ -33,10 +34,7 @@ assert.equal(
  * compatibilité des données, mais il ne doit plus être exposé au joueur.
  * Seule l'Histoire fait partie de la parité Collection/Fight Boss.
  */
-const runtime=readFileSync(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-);
+const runtime=lireSrc("idle-sqlite-runtime.js");
 
 assert.match(
   runtime,

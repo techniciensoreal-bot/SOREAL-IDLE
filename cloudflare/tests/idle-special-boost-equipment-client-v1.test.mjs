@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -24,7 +25,7 @@ assert.ok(!ui.includes("Un boost spécial ne peut remplir que le Cube"));
 assert.ok(!ui.includes("if(type==='special'&&target.kind!=='cube')return false;"));
 
 // Serveur : une pièce de set qui a un Special reçoit le boost (voir idle-adventure-set-item-specials.test.mjs).
-const moteur = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const moteur = lireSrc("idle-adventure-v47.js");
 assert.match(moteur, /const specialPiece=cible\?\.kind==="set"&&Boolean\(idleAdventureSetSpecialsV1\(cible\.set,cible\.slot\)\);/);
 assert.ok(!moteur.includes("idleAdventureSpecialBoostTargetV1"));
 

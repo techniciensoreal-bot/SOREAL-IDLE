@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -16,7 +17,7 @@ import { readFileSync } from "node:fs";
  * sites de génération de loot sont neutralisés, la formule de combat
  * n'utilise plus l'équipement. Rien n'est supprimé côté joueur.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 // --- Formule de combat : plus d'équipement, plus de bonus permanent de sets/collections ---
 {

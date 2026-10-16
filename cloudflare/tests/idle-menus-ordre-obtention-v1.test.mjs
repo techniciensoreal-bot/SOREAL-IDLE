@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_NGU_SYSTEMS, IDLE_NGU_EARLY_GAME_TIMELINE } from "../src/idle-ngu-progression.js";
@@ -7,7 +8,7 @@ import { IDLE_NGU_SYSTEMS, IDLE_NGU_EARLY_GAME_TIMELINE } from "../src/idle-ngu-
  * Norman (2026-10-04) : « réarrange les menus chez tout le monde pour qu'ils suivent l'ordre où on les obtient ; les gens pourront les réarranger par la suite. »
  */
 const ui = lireUiComplet();
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 const bloc = ui.slice(ui.indexOf("const IDLE_MENUS_V1=["), ui.indexOf("];", ui.indexOf("const IDLE_MENUS_V1=[")) + 2);
 const ids = new Function(bloc + "return IDLE_MENUS_V1;")().map((m) => m.id);
 const pos = (id) => ids.indexOf(id);

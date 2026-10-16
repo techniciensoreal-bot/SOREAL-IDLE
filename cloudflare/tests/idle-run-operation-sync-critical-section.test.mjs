@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -33,7 +34,7 @@ import { readFileSync } from "node:fs";
  * ICI, avec une explication, plutôt que de laisser une race condition
  * silencieuse se glisser en production.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const fnStart = source.indexOf("export function runSorealIdleOperation(");
 assert.ok(

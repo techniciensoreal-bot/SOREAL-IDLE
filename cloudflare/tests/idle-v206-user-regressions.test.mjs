@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import fs from "node:fs";
@@ -9,8 +10,8 @@ const audio=fs.readFileSync(new URL("../public/modules/audio-effects-v199.js",im
 const tts=fs.readFileSync(new URL("../public/modules/tutorial-tts-v202.js",import.meta.url),"utf8");
 const index=fs.readFileSync(new URL("../public/index.html",import.meta.url),"utf8");
 const media=fs.readFileSync(new URL("../src/idle-media-v1.js",import.meta.url),"utf8");
-const ngu=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
-const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+const ngu=lireSrc("idle-ngu-progression.js");
+const runtime=lireSrc("idle-sqlite-runtime.js");
 /* UI split V9 : la page Money Pit/Daily Spin a été extraite vers ce module, sans changement fonctionnel. */
 const metaModule=(fs.readFileSync(new URL("../public/modules/meta-progression-v130.js",import.meta.url),"utf8") + lirePagesMeta());
 

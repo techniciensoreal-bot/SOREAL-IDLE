@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import {
@@ -125,7 +126,7 @@ const T0 = 1_700_000_000_000;
 
 // 6. Opérations exposées, réservées aux joueurs ayant accès ; suppression réservée à l'administrateur ; contrat à jour ; classement = temps ACTIF.
 {
-  const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   const contrat = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8")).operations;
   for (const op of ["battementSorealIdle", "lireChatSorealIdle", "envoyerChatSorealIdle", "supprimerMessageChatSorealIdle"]) {
     assert.match(runtime, new RegExp("^  " + op + ",$", "m"), op + " dans IDLE_OPERATIONS");

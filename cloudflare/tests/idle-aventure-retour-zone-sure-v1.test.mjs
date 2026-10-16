@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { idleAdventureSnapshotV47, applyIdleAdventureActionV47, versZoneSureV1 } from "../src/idle-adventure-v47.js";
@@ -30,10 +31,10 @@ import { idleAdventureSnapshotV47, applyIdleAdventureActionV47, versZoneSureV1 }
 // 3. Assistant
 { const s = {}; versZoneSureV1(s, "x", "y", 123); assert.deepEqual(s, { selectedZone: "safe", retourSafe: { raison: "x", detail: "y", at: 123 } }); }
 // 4. Chemins du serveur câblés : titan, K.O. hors ligne, défi, Renaissance.
-const adv = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const adv = lireSrc("idle-adventure-v47.js");
 assert.ok(adv.includes('versZoneSureV1(s,"titan"') && adv.includes('versZoneSureV1(s,"ko_hors_ligne"') && adv.includes('versZoneSureV1(s,"defaite"'));
 assert.ok(!/s\.selectedZone="safe"(?!;s\.retourSafe)/.test(adv.replace('export function versZoneSureV1(s,raison,detail,t=Date.now()){s.selectedZone="safe"', "")), "plus aucun retour en Zone sûre sans raison côté serveur");
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("raison:'defi'") && rt.includes("raison:'renaissance'"));
 // 5. Client : une seule ligne dans le journal par retour, rien au premier état, répli de zone refermée annoncé une fois.
 const ui = lireUiComplet();

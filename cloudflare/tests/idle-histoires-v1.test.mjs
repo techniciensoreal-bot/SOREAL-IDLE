@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { DatabaseSync } from "node:sqlite";
 import {
   IDLE_HISTOIRES_SEED_V1,
@@ -107,7 +108,7 @@ function baseVide() {
 
 // 5. Opérations exposées : le joueur peut demander l'histoire d'un boss, mais jamais lister/écrire ; contrat machine à jour.
 {
-  const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   for (const op of ["obtenirHistoireBossSorealIdle", "listerHistoiresAdminSorealIdle", "enregistrerHistoireAdminSorealIdle", "supprimerHistoireAdminSorealIdle"]) {
     assert.match(runtime, new RegExp("^  " + op + ",$", "m"), op + " enregistrée dans IDLE_OPERATIONS");
     assert.ok(JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8")).operations.includes(op), op + " dans le contrat");

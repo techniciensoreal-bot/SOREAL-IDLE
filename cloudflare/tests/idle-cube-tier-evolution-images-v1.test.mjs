@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_ADVENTURE_CUBE_TIERS_V1, idleAdventureCubeTierV1 } from "../src/idle-adventure-v47.js";
@@ -57,6 +58,6 @@ assert.match(ui, /const tier=idleEntier_\(cubeTier&&cubeTier\.tier\);/);
 assert.match(ui, /urlImageCubeInfiniAdventureIdleV1_\(tier\)/);
 assert.match(ui, /wikiItemId=100&tier='\+n\+'&name='\+encodeURIComponent\('THE CUBE'\)/);
 assert.match(ui, /rendreSlotCubeInfiniAdventureIdleV1_\(modele\.cube,modele\.cubeTier\)/, "le patch d'équipement (après un boost du Cube) redessine l'emplacement avec le nouveau palier");
-assert.match(readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8"), /cubeTier:idleAdventureCubeTierV1\(s\.cube\)/, "le serveur renvoie le palier à chaque réponse");
+assert.match(lireSrc("idle-adventure-v47.js"), /cubeTier:idleAdventureCubeTierV1\(s\.cube\)/, "le serveur renvoie le palier à chaque réponse");
 
 console.log("idle-cube-tier-evolution-images-v1 OK");

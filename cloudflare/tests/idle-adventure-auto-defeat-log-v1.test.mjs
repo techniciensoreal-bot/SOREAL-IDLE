@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -17,7 +18,7 @@ import vm from "node:vm";
  * (combats/victoires/defaites/derniereDefaite) reste inchangée : verifierDefaiteAutoAventureIdleV1_ (déjà testé
  * ci-dessous) n'a donc eu besoin d'aucune modification, seule sa source de données a changé.
  */
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 
 // --- Le champ n'est plus jeté : il est bien construit à partir du VRAI résumé de farm (autoFarmAventureEtat), avec repli null. ---
 {

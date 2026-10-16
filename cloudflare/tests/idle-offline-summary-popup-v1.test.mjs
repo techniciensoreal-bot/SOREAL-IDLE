@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet, extraireFonction } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -12,7 +13,7 @@ import { readFileSync } from "node:fs";
  * (progressionHorsLigne). L'AP gagné hors ligne (pointsAventureAuto) était calculé et persisté mais jamais
  * exposé du tout au client -- ajouté ici (apGagne).
  */
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 const ui = lireUiComplet();
 
 // --- Serveur : l'AP gagné hors ligne est désormais calculé (delta, jamais négatif) et exposé. ---

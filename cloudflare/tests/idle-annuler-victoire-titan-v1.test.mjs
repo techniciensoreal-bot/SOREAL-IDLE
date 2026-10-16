@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { annulerVictoireTitanV1, IDLE_ADVENTURE_TITANS } from "../src/idle-adventure-v47.js";
 
@@ -21,7 +22,7 @@ const fresh = () => ({ titans: { t1: { kills: 1, rebirthKills: 1, nextAt: 9e12, 
 }
 assert.throws(() => annulerVictoireTitanV1({ titans: {}, unlockItems: {} }, "t1"), /TITAN_SANS_VICTOIRE/);
 assert.throws(() => annulerVictoireTitanV1({ titans: { zz: { kills: 1 } } }, "zz"), /TITAN_SANS_VICTOIRE/, "titan inconnu");
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 const bloc = rt.slice(rt.indexOf("function annulerVictoireTitanAdminSorealIdle"), rt.indexOf("function listerHistoiresAdminSorealIdle"));
 assert.ok(bloc.includes("exigerAdminHistoiresSorealIdle_(sessionToken)") && bloc.includes("trouverLigneJoueurSorealIdle_(feuille, acces)"), "admin requis, sur son propre compte seulement");
 console.log("idle-annuler-victoire-titan-v1: OK");

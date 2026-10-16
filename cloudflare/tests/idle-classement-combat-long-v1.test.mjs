@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { creerJoueurExterneV1 } from "./helpers/joueur-externe-v1.mjs";
@@ -57,7 +58,7 @@ try {
 
 /* Règle du 2026-10-11 : un seul Fight, boss à PV pleins, aucune fuite/reprise ; l'issue (gagné/perdu) s'affiche. */
 {
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   assert.ok(rt.includes("stats.combatBossDepartFrais === true && duree >") && rt.includes("stats.combatBossPlusLongGagne = gagne === true;") && rt.includes("cloreCombatBossClassementV1_(statsCombat,true);") && rt.includes("if(!Boolean(actif)&&stats.combatBossActif)stats.combatBossDepartFrais=false;"), "record réservé aux combats d'un seul Fight sur un boss à PV pleins, avec issue");
   assert.ok(rt.includes("combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)"), "les anciens records sans issue repartent de zéro");
 }

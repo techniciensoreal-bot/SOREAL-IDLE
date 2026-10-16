@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
-const runtime=readFileSync(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-);
+const runtime=lireSrc("idle-sqlite-runtime.js");
 const ui=lireUiComplet();
 const scene=readFileSync(
   new URL("../public/modules/adventure-scene-v79.js",import.meta.url),

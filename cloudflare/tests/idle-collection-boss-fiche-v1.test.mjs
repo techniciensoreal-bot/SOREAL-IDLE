@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -23,7 +24,7 @@ assert.ok(admin.includes("data-stx-boss") && admin.includes("editerBoss_(bossBtn
 // La fiche se referme à l'ouverture de l'éditeur et se rouvre (texte à jour) à sa fermeture.
 assert.ok(ui.includes("closest('#sorealIdleBossCollectionModalV1 [data-stx-boss]')") && ui.includes("ouvrirBossCollectionIdleV1_(numero)"));
 // Sécurité : le serveur revérifie le compte à chaque enregistrement.
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 for (const op of ["listerTextesAdminSorealIdle", "enregistrerTexteAdminSorealIdle", "supprimerTexteAdminSorealIdle"]) {
   const debut = rt.indexOf("function " + op + "(");
   assert.ok(rt.slice(debut, debut + 200).includes("exigerAdminHistoiresSorealIdle_(sessionToken)"), op + " : réservé à l'administrateur");

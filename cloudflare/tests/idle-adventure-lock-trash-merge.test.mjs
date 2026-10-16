@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import test from "node:test";
 import {
   applyIdleAdventureActionV47,
@@ -72,6 +73,6 @@ test("Trash stores one recoverable object and replacing it destroys the previous
 });
 
 test("Tutorial Boost 1 unlocks on full Training Set discovery at 15 percent",async()=>{
-  const source=await import("node:fs/promises").then(fs=>fs.readFile(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8"));
+  const source=lireSrc("idle-adventure-v47.js");
   assert.match(source,/tutorial:\s*\{[\s\S]*?normal:\s*\{[\s\S]*?boosts:\[\{strength:1,chance:\.15,requiresUnlockedSet:"training"\}\]/);
 });

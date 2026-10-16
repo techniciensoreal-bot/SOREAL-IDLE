@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
@@ -15,7 +16,7 @@ assert.deepEqual(evenementsV1({ bossMax: 1, succes: [], titans: {}, defis: {}, r
 // La victoire reste annoncée par le compteur de kills.
 assert.deepEqual(evenementsV1(inst({}, { t1: { kills: 0 } }), inst({}, { t1: { kills: 1 } })).map((e) => e.type), ["titan"]);
 
-const src = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const src = lireSrc("idle-adventure-v47.js");
 assert.ok(src.includes('fluxTitanV1(s,"starts",pre.id)') && src.includes('if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);'));
 
 const ctx = { window: {}, document: { addEventListener() {}, getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, appendChild() {} }), head: { appendChild() {} }, body: { appendChild() {} } }, setInterval() {}, setTimeout() {}, localStorage: { getItem: () => null, setItem() {} }, console };

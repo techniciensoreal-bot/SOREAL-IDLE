@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -52,7 +53,7 @@ assert.match(ui, /kind:'equipment',level:niveau\}/, "collection : niveau sur l'i
 assert.ok(ui.includes("const pseudoItem={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId,kind:item.kind};"), "coffre : niveau sur l'image");
 
 // Même prérequis que le Coffre : le serveur calcule fullyMaxed avec la fonction du Coffre (et un boost, sans stats, l'est au niveau 100)
-const serveur = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const serveur = lireSrc("idle-adventure-v47.js");
 assert.match(serveur, /fullyMaxed:idleAdventureObjetPleinementMaxeV1\(o\)/);
 assert.match(serveur, /function idleAdventureObjetPleinementMaxeV1\(o\)\{\s*if\(!idleAdventureNiveauEstMaxV1\(o\?\.level\)\)return false;/);
 

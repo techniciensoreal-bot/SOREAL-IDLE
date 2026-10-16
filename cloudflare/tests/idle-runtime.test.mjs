@@ -1,4 +1,5 @@
 /* Ce faux SQL ne sait pas lire une ligne à la demande (json_extract) : il joue le mode « tout décoder tout de suite ». Le mode paresseux est couvert par idle-audit-perf-lignes-paresseuses-v1. */
+import { lireSrc } from "./_src-sources.mjs";
 process.env.SOREAL_IDLE_LIGNES_EAGER = "1";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -78,10 +79,7 @@ const {
 
 // Garde-fous structurels contre deux anciennes divergences de calcul.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   assert.ok(
     !source.includes("bossCombatIndex === 19 &&"),
@@ -117,10 +115,7 @@ const {
 
 // La réconciliation ciblée de la boutique doit exposer les totaux exacts.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const boutiqueDebut=source.indexOf("function obtenirEtatBoutiqueSorealIdle(");
   const boutiqueFin=source.indexOf("function acheterAmeliorationsSorealIdle(",boutiqueDebut);
@@ -155,10 +150,7 @@ const {
 // Renaissance : STATS_JSON doit être inclus dans la lecture afin de conserver
 // les sorts permanents et les autres statistiques conservées.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const debut=source.indexOf("function renaitreSorealIdle(");
   const fin=source.indexOf("function ",debut+30);
   const bloc=source.slice(debut,fin>debut?fin:source.length);
@@ -202,10 +194,7 @@ const {
 // L'accès au launcher doit être évalué avant toute exigence de migration ou
 // de feuille JOUEURS : un catalogue cassé ne doit plus masquer le bouton.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const debut=source.indexOf("export function runSorealIdleOperation");
   const fin=source.indexOf("\n}",debut);
   const bloc=source.slice(debut,Math.max(fin,debut)+4500);
@@ -481,10 +470,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // Aventure V118 : la puissance globale ne doit plus permettre de raser
 // instantanément une zone sans équipement d'Aventure adapté.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const profilStart=
     source.indexOf("function profilStuffAventureSorealIdle_(");
   const combatStart=
@@ -704,10 +690,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // Garde-fous de branchement du runtime V42.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   assert.ok(
     source.includes("VERSION: 'V45-NGU-PARITY'") &&
@@ -738,10 +721,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // V41.2 — les premiers combats Aventure restent visibles longtemps et
 // l'AUTO hors ligne utilise exactement le même plafond de puissance.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const durationStart=
     source.indexOf("function dureeCibleStuffAventureSorealIdle_(");
@@ -774,10 +754,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // V41.2 — un boss principal est tué une fois par run.
 // La victoire sélectionne le suivant, sans respawn ni farm des anciens boss.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const progressionStart=
     source.indexOf("function appliquerProgressionEnergieSorealIdle_(");
@@ -892,10 +869,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
   );
   assert.equal(boss1Renforce.attaque,50000,"Le Boss 1 doit conserver son Attaque NGU exacte.");
 
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const definitionStart=
     source.indexOf("function definitionBossSorealIdle_(");
@@ -922,10 +896,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
  * jamais influencer attaque/défense.
  */
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const gearStart=
     source.indexOf("function profilEquipementCombatPrincipalSorealIdleV413_(");
@@ -977,10 +948,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V41.3 — l'Aventure commence par un vrai cycle Training -> loot -> stuff.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const enemyStart=
     source.indexOf("function statsEnnemiAventureSorealIdle_(");
@@ -1035,7 +1003,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V45 — Adventure et Inventory sont débloqués par le boss 4, jamais par un niveau joueur.
 {
-  const source=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+  const source=lireSrc("idle-sqlite-runtime.js");
   assert.ok(source.includes("bossVaincusAventure >= 4"));
   assert.ok(source.includes("bossRequis: 4"));
 }
@@ -1102,10 +1070,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V42 — la Renaissance SOREAL conserve maintenant le stuff et l'Aventure.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const debut=source.indexOf("function renaitreSorealIdle(");
   const fin=source.indexOf("function valeurMateriauxObjetSorealIdle_",debut);
   const bloc=source.slice(debut,fin);
@@ -1125,10 +1090,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V42 — le runtime partagé expose une seule action générique pour les nouveaux systèmes.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   assert.ok(
     source.includes("function agirProgressionSorealIdle(") &&
@@ -1141,10 +1103,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V42 — STATS_JSON doit conserver la métaprogression permanente.
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const debut=source.indexOf("function statsJoueurSorealIdle_(");
   const fin=source.indexOf("function cleBestiaireBossPrincipalSorealIdle_",debut);
   const bloc=source.slice(debut,fin);
@@ -1209,10 +1168,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
  * assertion directe, sans marqueur de tranche fragile.
  */
 {
-  const source=fs.readFileSync(
-    new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-    "utf8"
-  );
+  const source=lireSrc("idle-sqlite-runtime.js");
   const fightStart=source.indexOf("function combattreAventureSorealIdle(");
   const fightEnd=source.indexOf("\n}",fightStart);
   const fight=source.slice(fightStart,fightEnd);
@@ -1232,8 +1188,8 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V44/V47 — Adventure ne consomme plus la ressource Energy du Basic Training.
 {
-  const runtime=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
-  const adventure=fs.readFileSync(new URL("../src/idle-adventure-v47.js",import.meta.url),"utf8");
+  const runtime=lireSrc("idle-sqlite-runtime.js");
+  const adventure=lireSrc("idle-adventure-v47.js");
   const fightStart=runtime.indexOf("function combattreAventureSorealIdle(");
   const fightEnd=runtime.indexOf("function ",fightStart+20);
   const fight=runtime.slice(fightStart,fightEnd>fightStart?fightEnd:runtime.length);
@@ -1247,7 +1203,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 
 // V45 NGU PARITY CONTRACT
 {
-  const source=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+  const source=lireSrc("idle-sqlite-runtime.js");
   if (source.includes("GAME-V47-NGU-EARLY")) {
     assert.ok(source.includes("niveauxGagnes: 0"),"EXP ne doit plus produire un niveau joueur global.");
     assert.ok(source.includes("SOREAL_IDLE_V47_LEGACY_DISABLED"),"Les anciens endpoints doivent être neutralisés en V47.");
@@ -1259,7 +1215,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
   }
 }
 {
-  const meta=fs.readFileSync(new URL("../src/idle-ngu-progression.js",import.meta.url),"utf8");
+  const meta=lireSrc("idle-ngu-progression.js");
   if (meta.includes("META-V47-EARLYGAME-NGU")) {
     const {IDLE_NGU_EARLY_GAME_TIMELINE}=await import(new URL("../src/idle-ngu-progression.js",import.meta.url));
     const unlocks=Object.fromEntries(IDLE_NGU_EARLY_GAME_TIMELINE.map(entry=>[entry.id,entry.boss]));
@@ -1293,7 +1249,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // légitime UNIQUEMENT pour la découverte du Bestiaire (Collection), jamais
 // pour l'accès au menu/à une zone.
 {
-  const source=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const aventureStart=source.indexOf("function construireAventureSorealIdle_(");
   const aventureEnd=source.indexOf("\nfunction ",aventureStart+40);
@@ -1331,7 +1287,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // précédent). Doit maintenant réutiliser le même high-water-mark
 // persistant plutôt qu'un mécanisme séparé.
 {
-  const source=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   const start=source.indexOf("inventaireDebloque:");
   const end=source.indexOf("coutExtensionInventaire:",start);
@@ -1357,7 +1313,7 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
 // résiste. Un kill normal (ou NUKE) laisse toujours combatBossActif=false :
 // jamais de chaîne automatique, le joueur doit recliquer Start ou NUKE.
 {
-  const source=fs.readFileSync(new URL("../src/idle-sqlite-runtime.js",import.meta.url),"utf8");
+  const source=lireSrc("idle-sqlite-runtime.js");
 
   assert.ok(
     source.includes("function nukerBossSorealIdle(") &&

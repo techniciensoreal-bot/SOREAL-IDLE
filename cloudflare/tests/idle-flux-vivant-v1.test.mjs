@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { IDLE_ACTIVITE_MENUS_V1, normaliserActiviteV1 } from "../src/idle-chat-v1.js";
@@ -7,7 +8,7 @@ import { IDLE_ACTIVITE_MENUS_V1, normaliserActiviteV1 } from "../src/idle-chat-v
  * « En direct » plus vivant (Norman, 2026-10-09 : « quand on fuit ou qu'on meurt face à un boss, ça n'apparaît pas pour les autres ; des phrases humoristiques pour les menus visités, toujours en anti-spoil »).
  * Cause de l'oubli : la lecture des statistiques (liste blanche) jetait les compteurs fluxBossFuites / fluxBossDefaites / fluxBossDernier / fluxHistoires à chaque opération.
  */
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 const debut = rt.indexOf("function statsJoueurSorealIdle_");
 const fin = rt.indexOf("\nfunction ", debut + 10);
 const corps = rt.slice(debut, fin);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   normalizeIdleAdventureStateV47,
@@ -128,7 +129,7 @@ function stateAvecZone(zoneId, overrides = {}) {
 
 // --- Câblage : advanceLateSystems (idle-ngu-progression.js) déclenche le farm après un vrai écart, jamais à chaque poll en ligne. ---
 {
-  const progression = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+  const progression = lireSrc("idle-ngu-progression.js");
   assert.ok(progression.includes("advanceAdventureZoneAutoFarmOfflineV1"), "advanceLateSystems doit appeler le nouveau simulateur réel");
   assert.match(
     progression,
@@ -140,7 +141,7 @@ function stateAvecZone(zoneId, overrides = {}) {
 
 // --- Câblage : idle-sqlite-runtime.js lit puis retire ce résumé avant la persistance, et alimente autoAventureHorsLigne. ---
 {
-  const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   const iCapture = runtime.indexOf("const autoFarmAventureEtat =");
   assert.ok(iCapture > 0, "le résumé doit être capturé dans construireEtatJoueurSorealIdle_");
   const iDelete = runtime.indexOf("delete metaNguEtat.adventure.lastAutoFarmSummaryV1", iCapture);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   createIdleAdventureStateV47,
@@ -69,8 +70,8 @@ assert.ok(IDLE_ADVENTURE_ITEM_CATALOG_V1[defArme] && IDLE_ADVENTURE_ITEM_CATALOG
 
 // 3. Garde-fous présents dans le code : clé = contenu complet, réutilisation limitée dans le temps, copie renvoyée, mode de vérification.
 {
-  const ngu = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
-  const adv = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+  const ngu = lireSrc("idle-ngu-progression.js");
+  const adv = lireSrc("idle-adventure-v47.js");
   for (const src of [ngu, adv]) {
     assert.ok(src.includes("SOREAL_IDLE_VERIF_BONUS"), "mode de vérification (recalcul à chaque réutilisation)");
     assert.ok(src.includes("structuredClone("), "une copie est renvoyée");

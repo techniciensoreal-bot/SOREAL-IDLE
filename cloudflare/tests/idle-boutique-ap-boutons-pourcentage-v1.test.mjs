@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
@@ -51,7 +52,7 @@ assert.equal(api.definirInput(2, "0"), false, "minimum 1"); assert.equal(api.def
 assert.equal(api.definirInput(3, "abc"), false);
 api.appliquerInput(2);
 assert.deepEqual([...appels.pop()], ["saisir", 12345], "le bouton place son nombre dans Input");
-const srv = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const srv = lireSrc("idle-ngu-progression.js");
 for (const [id, cout] of [["customInput1", 50], ["customInput2", 100], ["customInput3", 500], ["customInput4", 1000]]) assert.ok(srv.includes(id + ": Object.freeze({ name: \"Custom Input Button " + id.slice(-1) + "\", cost: () => " + cout + ", gain: 1, max: 1 })"), id + " : " + cout + " EXP");
 
 const idx = readFileSync("cloudflare/public/index.html", "utf8");

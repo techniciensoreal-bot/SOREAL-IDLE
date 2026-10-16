@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
@@ -94,7 +95,7 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
 
 // --- serveur : opérations, contrôle d'administrateur, contrat ---
 {
-  const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+  const rt = lireSrc("idle-sqlite-runtime.js");
   for (const op of ["listerTutorielAdminSorealIdle", "enregistrerTutorielAdminSorealIdle", "supprimerTutorielAdminSorealIdle", "reglerAncienTutorielAdminSorealIdle"]) {
     const debut = rt.indexOf("function " + op + "(");
     assert.ok(debut > 0, op + " existe");

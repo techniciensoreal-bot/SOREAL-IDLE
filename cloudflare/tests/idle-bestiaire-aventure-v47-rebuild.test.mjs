@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   IDLE_ADVENTURE_ZONES,
@@ -28,7 +29,7 @@ import {
  * (une seule entrée générique par zone/rôle), pour ne jamais perdre une
  * découverte déjà comptée par le joueur faute d'art disponible.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 // --- Verrous structurels ---
 assert.ok(

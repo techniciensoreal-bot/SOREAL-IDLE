@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
@@ -257,7 +258,7 @@ assert.equal(appeler(zoe, "obtenirIdentiteSorealIdle").pseudo, "Zozo la Reine", 
 
 // ---------------------------------------------------------------- état du joueur (source) : identité + interrupteur réservé à l'administrateur
 {
-  const runtime = readFileSync(new URL("../src/idle-sqlite-runtime.js", import.meta.url), "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   assert.ok(runtime.includes("? { accesOuvert: accesOuvertSorealIdle_(), accesPublic: accesPublicSorealIdle_() }"), "interrupteur d'accès public exposé seulement au compte administrateur");
   assert.ok(runtime.includes("identite: identiteJoueurSorealIdle_("), "l'état contient l'identité (pseudo, nom affiché)");
   assert.ok(runtime.includes("nomAffiche(cle, nomBrut)"), "le classement montre les pseudos");
@@ -284,7 +285,7 @@ assert.equal(nomJeuJoueurIdleV1({ pseudo: "", externe: true, googleName: "Marie 
 assert.equal(nomJeuJoueurIdleV1(null, "Norman"), "Norman", "sans profil : le nom de la ligne");
 assert.equal(nomJeuJoueurIdleV1({ pseudo: "", externe: false, prenom: "" }, "Joueur"), "Joueur", "rien d'autre de connu");
 {
-  const runtime = readFileSync(new URL("../src/idle-sqlite-runtime.js", import.meta.url), "utf8");
+  const runtime = lireSrc("idle-sqlite-runtime.js");
   assert.ok(runtime.includes("nom: nomJeuDepuisLigneSorealIdle_(row, c),"), "l'état du joueur envoyé au jeu porte son pseudo");
 }
 

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -13,7 +14,7 @@ import { readFileSync } from "node:fs";
  * un coup — même défaut de conception que celui déjà corrigé pour
  * pv/attaque/xp le 2026-09-09 (V56), jamais reporté sur defense à l'époque.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 const infiniStart = source.indexOf("Après le catalogue initial, on garde la progression infinie");
 const infiniEnd = source.indexOf("function nomBossSorealIdle_", infiniStart);

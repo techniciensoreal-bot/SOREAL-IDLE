@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8");
@@ -19,7 +20,7 @@ console.log("idle-barres-outils-nettes-v1: OK");
 }
 /* Étages de l'ITOPOD : on recommence au premier ennemi de l'étage choisi ; téléphone : même placement ; Yggdrasil sans bords ; NGU plus sobre */
 {
-  const ngu = fs.readFileSync(new URL("../src/idle-ngu-progression.js", import.meta.url), "utf8"), ui2 = lireUiComplet(), ygg = lire("modules/yggdrasil-elfes-v1.js");
+  const ngu = lireSrc("idle-ngu-progression.js"), ui2 = lireUiComplet(), ygg = lire("modules/yggdrasil-elfes-v1.js");
   assert.ok(ngu.includes("  d.floor = start;\n  d.killsOnFloor = 0;\n  return { start, end };") && ngu.includes("if (d.startFloor != null) d.floor = d.startFloor;"), "étages changés : retour au premier ennemi de l'étage de départ (manuel et Auto)");
   assert.ok(!ui2.includes("window.matchMedia('(min-width:701px)').matches)return false;}catch(_e){return false;}\n        const placer"), "placement sous la bannière aussi sur téléphone");
   assert.ok(ygg.includes(".ygg-cadre{padding:0!important;border:0!important") && ygg.includes(".ygg-page{max-width:none!important;margin:0!important}") && ygg.includes("[data-menu=\"yggdrasil\"]:not(#_):not(#_){border:0!important"), "Yggdrasil : plus de bords, pleine largeur");

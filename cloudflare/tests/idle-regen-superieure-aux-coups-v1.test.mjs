@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 const bloc = ui.slice(ui.indexOf("            if(degatsJoueur>0){\n              idleCombatLogDegatsBossV70+="), ui.indexOf("            if(\n              idleEtat.pvJoueur<=0\n            ){"));
 assert.ok(bloc.includes("}else if(regenPvSecJoueurBossV1>recus){") && bloc.includes("(regenPvSecJoueurBossV1-recus)*dt") && bloc.includes("idleNombre_(idleEtat.pvJoueurMax)"), "client : la vie remonte pendant le combat, plafonnée aux PV max");
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("const soinJoueurSec =") && rt.includes("if(soinJoueurSec>0&&pvJoueur>0){") && rt.includes("pvJoueur+segment*soinJoueurSec"), "serveur : même soin net pendant la simulation du combat");
 // Même formule des deux côtés : soin = régénération (défense / 20) − coups reçus.
 assert.ok(ui.includes("regenPvFightBossNguParSecondeV164_(defense)") && rt.includes("regenPvSecJoueur -\n        degatsRecusSec"));

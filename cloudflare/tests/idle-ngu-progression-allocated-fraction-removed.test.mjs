@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,7 +10,7 @@ import { readFileSync } from "node:fs";
  * totalAllocated (le vrai calcul utilisé partout ailleurs pour ce
  * genre de vérification) reste inchangé.
  */
-const source = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const source = lireSrc("idle-ngu-progression.js");
 
 assert.ok(
   !source.includes("function allocatedFraction("),

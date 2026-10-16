@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
@@ -17,7 +18,7 @@ assert.throws(() => applyIdleNguAction(r.state, { action: "buyExpShop", item: "m
 const p = normalizeIdleNguState({}, ctx, 0); p.currencies.experience = 39;
 assert.throws(() => applyIdleNguAction(p, { action: "buyExpShop", item: "menuAnimations" }, ctx, 1000), /EXP_INSUFFISANT/);
 
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("menusAnimes:") && rt.includes("expShop.menuAnimations"), "le serveur annonce l'achat");
 const ui = lireUiComplet();
 assert.ok(ui.includes("function idleMenuAlimenteV1_(id,j){\n        if(!menusAnimesAchetesIdleV1_(j))return false;"), "sans l'achat, aucun bouton n'est animé");

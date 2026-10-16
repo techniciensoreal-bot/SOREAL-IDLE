@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import fs from "node:fs";
 
-const src=fs.readFileSync("cloudflare/src/idle-adventure-v47.js","utf8");
+const src=lireSrc("idle-adventure-v47.js");
 
 assert.ok(src.includes("export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1"),"Le catalogue doit exposer la table definitionId -> wikiItemId.");
 assert.ok(src.includes("wikiItemId:wikiItemIdAdventureV1(definitionId)"),"Les drops d'équipement doivent transporter wikiItemId.");
@@ -9,7 +10,7 @@ assert.ok(src.includes("wikiItemId:wikiItemIdAdventureV1(id)"),"Les SPECIALS doi
 assert.ok(src.includes("wikiItemId:wikiItemIdBoostV1(type,strength)"),"Les boosts doivent transporter leur Item ID wiki.");
 
 const moduleUrl=new URL("../src/idle-adventure-v47.js",import.meta.url);
-const mod=await import(moduleUrl.href+"?wiki-item-ids="+Date.now());
+const mod=await import(moduleUrl.href);
 const ids=mod.IDLE_ADVENTURE_WIKI_ITEM_IDS_V1;
 const catalog=mod.IDLE_ADVENTURE_ITEM_CATALOG_V1;
 

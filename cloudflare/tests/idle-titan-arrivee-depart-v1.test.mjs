@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from "node:fs";
 const lire=(p)=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
@@ -24,7 +25,7 @@ console.log("idle-titan-arrivee-depart-v1: OK");
 assert.ok(t.includes("signatureRendue")&&t.includes("__titansRafraichirPageIdleV1__")&&ui.includes("__titansEtatJoueurIdleV1__"));
 /* plein écran de l'interface (menus de gauche visibles), boutons Aventure/Titans assortis, fuite annoncée dans « En direct » */
 assert.ok(e.includes("function zoneInterface()")&&e.includes("--tcv-left")&&e.includes("soreal-idle-bascule-aventure-v1 .soreal-idle-expand-button-v25"));
-const adv=lire("src/idle-adventure-v47.js"),flux=lire("src/idle-flux-v1.js"),fx=lire("public/modules/flux-v1.js"),mp=lire("public/modules/meta-progression-v130.js");
+const adv=lireSrc("idle-adventure-v47.js"),flux=lire("src/idle-flux-v1.js"),fx=lire("public/modules/flux-v1.js"),mp=lire("public/modules/meta-progression-v130.js");
 assert.ok(adv.includes('fluxTitanV1(s,"flees",s.fight.titanId)'));
 assert.ok(flux.includes("titanFuites")&&flux.includes('"titanFuite"'));
 assert.ok(fx.includes("case 'titanFuite'")&&fx.includes("pris la fuite contre"));

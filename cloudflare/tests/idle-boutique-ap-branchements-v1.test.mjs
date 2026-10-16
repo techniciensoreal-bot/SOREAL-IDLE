@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { BASIC_TRAINING_V411, createBasicTrainingStateV411, applyBasicTrainingAllocationsV411 } from "../src/idle-basic-training.js";
@@ -22,7 +23,7 @@ for (const id of ["lazyItopodFloorShifter", "adventureAdvancer", "adventureLight
   assert.equal(r.idleEnergy, 100 - r.allocated, "le reste reste libre");
   for (const def of BASIC_TRAINING_V411.skills) assert.ok(r.state.skills[def.id].allocation <= 1, "pas plus de 1 par compétence : " + def.id);
 }
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("stats.metaNgu.selloutShop.purchases.instaTrainingCap") && rt.includes("feuille.getRange(ligne,c.ENERGIE).setValue(energieLibreDepart);"), "le Rebirth place 1 d'énergie par entraînement avec l'achat");
 const ui = lireUiComplet();
 assert.ok(ui.includes("it.id==='adventureLight'&&idleNombre_(it.purchased)>0") && ui.includes("${classeLumiereAventure}"), "le bouton Aventure s'allume en Zone sûre avec l'achat");

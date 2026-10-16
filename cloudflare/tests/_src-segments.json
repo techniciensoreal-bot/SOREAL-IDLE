@@ -1,0 +1,44 @@
+{
+ "idle-sqlite-runtime.js": {
+  "ctx": "__idleCtx",
+  "segments": [
+   "idle-runtime-classeur.js",
+   "idle-runtime-config.js",
+   "idle-runtime-acces.js",
+   "idle-runtime-aventure.js",
+   "idle-runtime-collection.js",
+   "idle-runtime-boss.js",
+   "idle-runtime-progression.js",
+   "idle-runtime-etat.js",
+   "idle-runtime-combat.js",
+   "idle-runtime-joueurs.js",
+   "idle-runtime-actions.js",
+   "idle-runtime-catalogue.js",
+   "idle-runtime-admin.js"
+  ]
+ },
+ "idle-ngu-progression.js": {
+  "ctx": "__nguCtx",
+  "segments": [
+   "idle-ngu-catalogues.js",
+   "idle-ngu-etat.js",
+   "idle-ngu-ressources.js",
+   "idle-ngu-pistes.js",
+   "idle-ngu-systemes.js",
+   "idle-ngu-bonus.js",
+   "idle-ngu-snapshot.js",
+   "idle-ngu-actions.js"
+  ]
+ },
+ "idle-adventure-v47.js": {
+  "ctx": "__advCtx",
+  "segments": [
+   "idle-adventure-zones.js",
+   "idle-adventure-sets.js",
+   "idle-adventure-objets.js",
+   "idle-adventure-inventaire.js",
+   "idle-adventure-butin.js",
+   "idle-adventure-combat.js"
+  ]
+ }
+}

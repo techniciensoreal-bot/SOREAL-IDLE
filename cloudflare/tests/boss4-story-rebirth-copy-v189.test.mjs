@@ -1,12 +1,10 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import {readFileSync} from "node:fs";
 
 const ui=lireUiComplet();
-const runtime=readFileSync(
-  new URL("../src/idle-sqlite-runtime.js",import.meta.url),
-  "utf8"
-);
+const runtime=lireSrc("idle-sqlite-runtime.js");
 
 const histoireSouris=
   "Alors que tu te tournes vers la sortie de cette 'pièce', tu remarques une petite souris marron. D'une voix stridente, elle couine : BIENVENUE dans SOREAL IDLE ! Moi c'est Tippy. Sa petite voix de merde, te donne envie de lui péter la gueule... le besoin de vaincre CHAQUE ennemi sur ton chemin, quoi qu'il arrive. Tu peux commencer avec cette souris et arracher sa tête de con.";

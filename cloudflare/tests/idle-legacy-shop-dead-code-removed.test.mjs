@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -11,7 +12,7 @@ import { readFileSync } from "node:fs";
  * suivi de ~330 lignes de l'ancienne implémentation complète (calcul de
  * coût, verrou, écriture spreadsheet...) jamais atteintes. Supprimé.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 
 for (const fn of ["acheterAmeliorationSorealIdle", "acheterAmeliorationsSorealIdle"]) {
   const start = source.indexOf("function " + fn + "(");

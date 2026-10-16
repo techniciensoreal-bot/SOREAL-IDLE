@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import {
   BASIC_TRAINING_V411,
@@ -20,7 +21,7 @@ import {
  *    jamais s'ouvrir.
  */
 
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 const debut = runtime.indexOf("function contexteMetaNguSorealIdle_(");
 assert.ok(debut > 0, "contexteMetaNguSorealIdle_ introuvable");
 const bloc = runtime.slice(debut, debut + 3500);

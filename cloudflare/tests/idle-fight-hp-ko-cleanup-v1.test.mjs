@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -9,8 +10,8 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-const adventure = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
-const runtime = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const adventure = lireSrc("idle-adventure-v47.js");
+const runtime = lireSrc("idle-sqlite-runtime.js");
 const coord = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
 const contract = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8"));
 

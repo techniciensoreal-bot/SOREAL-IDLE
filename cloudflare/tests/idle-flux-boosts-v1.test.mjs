@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1, IDLE_FLUX_DELAI_BOOST_MS_V1 } from "../src/idle-flux-v1.js";
@@ -7,7 +8,7 @@ import { instantaneJoueurV1, evenementsV1, IDLE_FLUX_DELAI_BOOST_MS_V1 } from ".
  * « En direct » (Norman, 2026-10-09) : annoncer quand quelqu'un met des boosts dans le Cube de l'infini ou dans une pièce en particulier, avec des phrases d'humour. Les compteurs sont tenus par le moteur
  * (adventure.boostFlux) ; le nom du cube et celui de la pièce ne sont donnés qu'au lecteur qui les connaît (anti-spoil, règle n°2).
  */
-const moteur = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
+const moteur = lireSrc("idle-adventure-v47.js");
 assert.ok(moteur.includes("fluxBoostV1(s,\"piece\",o.definitionId)") && moteur.includes("fluxBoostV1(s,\"cube\",\"\")"), "le moteur compte les boosts de pièce et de cube");
 
 // Les compteurs sont lus dans m.adventure.boostFlux (m = métadonnées NGU du joueur).

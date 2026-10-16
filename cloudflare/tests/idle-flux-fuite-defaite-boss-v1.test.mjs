@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
@@ -24,7 +25,7 @@ assert.deepEqual(evenementsV1(avant, inst({ fluxBossFuites: 1, fluxBossDefaites:
 assert.deepEqual(evenementsV1({ bossMax: 5, succes: [], titans: {}, defis: {}, rebirths: 0 }, inst({ fluxBossFuites: 3, fluxBossDefaites: 3, fluxBossDernier: 4 }), noms).map((e) => e.type), [], "ancien instantané : pas de comparaison");
 
 // Moteur : les trois endroits où un combat de boss s'arrête comptent une fois, jamais pour un arrêt technique.
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.equal(rt.split("statsCombat.fluxBossDefaites=").length - 1, 2, "défaites constatées par la progression");
 assert.ok(rt.includes("!Boolean(actif)&&stats.combatBossActif&&(raisonArret==='defaite'||raisonArret==='fuite')"), "arrêt demandé par le joueur, seulement si un combat était actif");
 assert.ok(!rt.includes("raisonArret==='garde_client'&&"), "pas d'annonce pour les arrêts techniques");

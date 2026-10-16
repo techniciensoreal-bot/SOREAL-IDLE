@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { IDLE_NGU_META_VERSION, IDLE_NGU_SAVE_SCHEMA, advanceIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
@@ -49,7 +50,7 @@ st = applyIdleNguAction(st, { action: "setR3NomAleatoire", enabled: false }, ctx
 assert.equal(st.r3Nom.actif, false);
 assert.equal(st.r3Nom.nom, "");
 // l'état envoyé au joueur : nom seulement si coché
-const srv = readFileSync("cloudflare/src/idle-ngu-progression.js", "utf8");
+const srv = lireSrc("idle-ngu-progression.js");
 assert.ok(srv.includes("r3NomDisponible: Boolean(state.selloutShop?.purchases?.resource3NameRandomizer)") && srv.includes("r3Nom: state.r3Nom?.actif && state.selloutShop?.purchases?.resource3NameRandomizer"), "état envoyé");
 const ui = lireUiComplet();
 assert.ok(ui.includes("window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3()") && ui.includes("nomR3()"), "réglage dans Settings, nom dans le bandeau");

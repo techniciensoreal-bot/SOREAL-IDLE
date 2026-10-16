@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -26,6 +27,6 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.indexOf("credit-exp-admin-v1.js?v=") > 0 && index.indexOf("credit-exp-admin-v1.js") < index.indexOf("admin-histoires-v1.js"));
 
 // Serveur : joueur désigné par prénom OU adresse, jamais sans correspondance unique
-const rt = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("function trouverJoueurAdminSorealIdle_(") && rt.includes("JOUEUR_AMBIGU"));
 console.log("idle-credit-exp-admin-ui-v1: OK");

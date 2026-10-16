@@ -1,11 +1,12 @@
 import assert from "node:assert/strict";
+import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
  * Norman (2026-10-08) : « dans Fight Boss, je suis à moitié de vie, je fais le bouton Nuke et je récupère toute ma vie ».
  * NUKE tue le boss sans combat : il ne doit pas soigner le joueur, ni lever un KO en cours.
  */
-const source = readFileSync("cloudflare/src/idle-sqlite-runtime.js", "utf8");
+const source = lireSrc("idle-sqlite-runtime.js");
 const debut = source.indexOf("function nukerBossSorealIdle(");
 assert.ok(debut >= 0, "nukerBossSorealIdle introuvable");
 const fin = source.indexOf("\nfunction ", debut + 10);
