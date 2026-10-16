@@ -29,6 +29,27 @@
     return e||'🌿';
   }
   function choix_(id){return etat.choix[id]||(etat.choix[id]={mode:'eat',poop:false});}
+  /*
+   * Manger ou Récolter, fruit par fruit, est MÉMORISÉ (Norman, 2026-10-16) : sur l'appareil, par partie (même principe que le palier du Cube vu). Lu une fois à l'ouverture de la page de la partie en cours,
+   * écrit à chaque changement ; seuls les fruits sur « Récolter » sont gardés (Manger est le choix par défaut). Le Poop, lui, se décoche après chaque usage : il n'est pas mémorisé.
+   */
+  var CLE_MODES_='soreal_idle_ygg_modes_v1:';
+  function chargerModes_(nom){
+    nom=String(nom||'');
+    if(etat.modesPour===nom)return;
+    etat.modesPour=nom;
+    var brut=null;
+    try{brut=localStorage.getItem(CLE_MODES_+nom);}catch(_e){}
+    var memo={};
+    try{memo=brut?JSON.parse(brut):{};}catch(_e){memo={};}
+    if(!memo||typeof memo!=='object')memo={};
+    Object.keys(memo).forEach(function(id){if(memo[id]==='harvest')choix_(id).mode='harvest';});
+  }
+  function sauverModes_(){
+    var memo={};
+    Object.keys(etat.choix).forEach(function(id){if(etat.choix[id].mode==='harvest')memo[id]='harvest';});
+    try{localStorage.setItem(CLE_MODES_+String(etat.modesPour||''),JSON.stringify(memo));}catch(_e){}
+  }
   function action_(payload){if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__(payload);}
   function rafraichir_(){
     var H=H_();
@@ -172,8 +193,10 @@
    * Image de croissance du fruit d'or (Norman, 2026-10-15 : 20 images dans idle/yggdrasil/). L'image avance avec la croissance rapportee au tier MAXIMUM du fruit (10, ou 24 apres trois victoires au Troll), pas au tier
    * acheté : un fruit monte à 4 h seulement n'avance que dans les premières images ; la dernière (19) n'apparait que fruit au tier maximum ET entièrement poussé.
    */
+  /* Fruits qui ont des images de croissance : l'or, et les trois Fruits de Puissance (dossier idle/yggdrasil/puissance/, voir idle-media-v1.js). */
+  var ETAPES_FRUITS_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true};
   function etapeCroissance_(d,v){
-    if(v.def.id!=='gold'||!(v.tier>0))return null;
+    if(ETAPES_FRUITS_[v.def.id]!==true||!(v.tier>0))return null;
     var max=Math.max(1,d.maxTier||10);
     if(v.tier>=max&&v.growth>=max)return 19;
     return Math.max(0,Math.min(18,Math.floor(v.growth/max*19)));
@@ -227,6 +250,7 @@
     style_();
     var d=lire_(j);
     if(!d)return '';
+    chargerModes_(j&&j.nom);
     var pretsIds=d.fruits.filter(function(v){return v.pret;}).map(function(v){return v.def.id;});
     if(etat.pretsVus!==null&&pretsIds.some(function(id){return etat.pretsVus.indexOf(id)===-1;}))son_('pret');
     etat.pretsVus=pretsIds;
@@ -292,7 +316,7 @@
       lancerUsage_(id,Boolean(c.poop&&t&&t.d.poop>0));
       c.poop=false;
     },
-    mode:function(id,mode){var m=mode==='harvest'?'harvest':'eat';if(choix_(id).mode!==m)son_('interrupteur',m==='harvest');choix_(id).mode=m;rafraichir_();},
+    mode:function(id,mode){var m=mode==='harvest'?'harvest':'eat';if(choix_(id).mode!==m)son_('interrupteur',m==='harvest');choix_(id).mode=m;sauverModes_();rafraichir_();},
     poop:function(id){var c=choix_(id);c.poop=!c.poop;if(c.poop)son_('poop');else son_('interrupteur',false);rafraichir_();},
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
     fermerAide:function(){etat.aide=false;},

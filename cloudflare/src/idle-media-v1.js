@@ -1382,6 +1382,11 @@ const IDLE_YGG_ALIAS_V1={
   macguffinalpha:["fruitofmacguffinalpha"],powerdelta:["fruitofpowerdelta","fruitofpowerd"],watermelon:[],macguffinbeta:["fruitofmacguffinbeta"],quirks:["fruitofquirks"],
   seed:["seeds","graine","graines"],poop:["caca","fertilizer"]
 };
+/*
+ * Images PARTAGÉES par plusieurs fruits (Norman, 2026-10-16 : « soreal/idle/yggdrasil/puissance/ pour le fruit de puissance, les 20 images comme pour le fruit gold ») : un dossier ou un nom de fichier
+ * « puissance » sert aux trois Fruits de Puissance (α, β, δ) tant qu'un fruit n'a pas ses PROPRES images (dossier ou fichiers à son nom : elles passent toujours devant).
+ */
+const IDLE_YGG_PARTAGE_V1={poweralpha:["puissance"],powerbeta:["puissance"],powerdelta:["puissance"]};
 function normaliserNomYggR2_(texte){
   return String(texte||"").toLowerCase().replace(/\.[a-z0-9]+$/,"").replace(/\u03b1/g,"alpha").replace(/\u03b2/g,"beta").replace(/\u03b4/g,"delta").replace(/[^a-z0-9]/g,"");
 }
@@ -1403,7 +1408,12 @@ export function choisirCleYggR2_(keys,name){
 export function choisirEtapesYggR2_(keys,name){
   const id=normaliserNomYggR2_(name);
   if(!id)return [];
-  const voulus=[id].concat(IDLE_YGG_ALIAS_V1[id]||[]);
+  const propres=etapesYggPourNomsR2_(keys,[id].concat(IDLE_YGG_ALIAS_V1[id]||[]));
+  if(propres.length>=2)return propres;
+  const partages=IDLE_YGG_PARTAGE_V1[id];
+  return partages?etapesYggPourNomsR2_(keys,partages):propres;
+}
+function etapesYggPourNomsR2_(keys,voulus){
   const trouves=[];
   for(const k of (Array.isArray(keys)?keys:[])){
     const cle=String(k);
