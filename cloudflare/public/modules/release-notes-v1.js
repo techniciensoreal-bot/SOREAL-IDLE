@@ -41,11 +41,8 @@
             'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Le Coffre a son accident environ une fois par jour, même s’il n’est pas à l’écran : tu retrouves le sac sale et la flaque à ton retour.',
-            'Quatre nouveaux pets grinçants pour le Coffre : un court, trois d’affilée, un long et un de porte qui grince.',
             'Le Coffre a maintenant six pattes : deux de plus au milieu.',
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
-            'Les accidents du Coffre sont aléatoires mais jamais rapprochés (dix minutes au moins entre deux), et sa phrase sur un objet qu’il digère mal est beaucoup plus rare.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Après une renaissance, les portes sont de nouveau fermées : à ta première visite, tu les vois s’ouvrir, même si l’auto a déjà fait avancer ou finir le fruit.',
