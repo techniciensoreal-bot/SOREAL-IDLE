@@ -442,4 +442,5 @@
   window.__SOREAL_IDLE_PAGE_COMBAT_V1__={
     pageCombatIdleV28_:pageCombatIdleV28_
   };
+  Object.assign(window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={}),window.__SOREAL_IDLE_PAGE_COMBAT_V1__);
 })();

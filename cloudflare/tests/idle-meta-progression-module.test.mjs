@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -80,7 +81,7 @@ api.actionMetaIdleV130_({ action: "toggle" });
 assert.equal(hostCalls.length, 0, "sans SOREAL_SESSION, aucun appel serveur ne doit partir");
 
 // --- contrat monolithe : le bloc a bien été remplacé par le pont + 4 wrappers fins ---
-const monolithe = readFileSync(MONOLITH_PATH, "utf8");
+const monolithe = lireUiComplet();
 assert.match(
   monolithe,
   /window\.__SOREAL_IDLE_META_HOST_V130__=\{/,

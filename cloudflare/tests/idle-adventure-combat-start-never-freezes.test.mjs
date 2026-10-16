@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
@@ -22,7 +23,7 @@ import vm from "node:vm";
 
 const MODULE_PATH = "cloudflare/public/modules/meta-progression-v130.js";
 const MONOLITH_PATH = "cloudflare/public/soreal-idle-ui.js";
-const monolith = readFileSync(MONOLITH_PATH, "utf8");
+const monolith = lireUiComplet();
 
 // --- Cause 1 : une seule source de vérité pour le drapeau "occupé" ---
 assert.ok(

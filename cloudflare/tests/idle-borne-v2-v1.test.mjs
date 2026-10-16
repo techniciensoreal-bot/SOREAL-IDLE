@@ -10,7 +10,7 @@ const borne = readFileSync("cloudflare/public/modules/audio-borne-v1.js", "utf8"
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 // Structure : fronton, écran (le duel du jeu), pupitre aux trois vrais boutons, trappe à pièces ; plus d'émojis ni de dômes décoratifs.
-const page = ui.slice(ui.lastIndexOf("function pageCombatIdleV28_(j){"), ui.indexOf("window.__SOREAL_IDLE_PAGE_COMBAT_V1__={"));
+const page = ui.slice(ui.indexOf("function pageCombatIdleV28_(j){"), ui.indexOf("function skillBasicTrainingIdleV120_("));
 for (const t of ["borne-v2 ${borne.classe}", "${BORNE_FRONTON_IDLE_V2}", "${BORNE_PUPITRE_IDLE_V2}", "${BORNE_BAS_IDLE_V2}", 'id="sorealIdleBossStartV100"', "window.__fuirBossIdleV1__()", "window.__nukerBossIdleV1__()"]) assert.ok(page.includes(t), t);
 assert.ok(!/soreal-idle-dome-v1/.test(page) && !/⚔️ Fight|🏃 Fuite|🚀 NUKE/.test(page), "plus de dômes ni d'émojis dans les boutons");
 // Les identifiants des dessins sont propres à la borne (aucune collision avec d'autres SVG de la page).

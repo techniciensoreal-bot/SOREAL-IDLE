@@ -130,4 +130,5 @@
   window.__SOREAL_IDLE_PAGE_BOUTIQUE_V1__={
     pageBoutiqueIdleV28_:pageBoutiqueIdleV28_
   };
+  Object.assign(window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={}),window.__SOREAL_IDLE_PAGE_BOUTIQUE_V1__);
 })();

@@ -23,7 +23,7 @@ const ui = lireUiComplet();
 // --- La variable de minuteur est déclarée au même endroit que les autres timers du ticker. ---
 assert.ok(ui.includes("let idleTimerJeuArrierePlanV1=0;"), "variable de minuteur introuvable");
 assert.ok(
-  ui.indexOf("let idleAnimationFrameJeuV214=0;\n      let idleTimerJeuArrierePlanV1=0;") > 0,
+  /let idleAnimationFrameJeuV214=0;\s*let idleTimerJeuArrierePlanV1=0;/.test(ui),
   "déclarée juste après les autres timers du ticker (idleTimerEnergie/idleAnimationFrameJeuV214)"
 );
 

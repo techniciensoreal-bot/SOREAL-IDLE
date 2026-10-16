@@ -55,7 +55,7 @@ const plain = (o) => JSON.parse(JSON.stringify(o));
 
 export async function auditCatalogEffectsRead() {
   const code = Object.fromEntries(Object.entries(readJsFiles(SRC, true)).map(([k, v]) => [k, stripComments(v)]));
-  const publicCode = Object.values(readJsFiles(PUBLIC, false)).map(stripComments);
+  const publicCode = [...Object.values(readJsFiles(PUBLIC, false)), ...Object.entries(readJsFiles(PUBLIC + "/modules", false)).filter(([f]) => /^(ui|page)-.*-v1\.js$/.test(f)).map(([, c]) => c)].map(stripComments);
   const imp = (f) => import(pathToFileURL(path.join(SRC, f)).href);
   const perks = await imp("idle-perks-v1.js");
   const quirks = await imp("idle-quirks-v1.js");

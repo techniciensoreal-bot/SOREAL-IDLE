@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lireUiComplet } from "./_ui-sources.mjs";
+import { lireUiComplet, extraireFonction } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -49,10 +49,7 @@ const ui = lireUiComplet();
 
 // --- Client : l'ancien toast (sans bouton, qui disparaît seul) est bien remplacé par un vrai popup modal fermable. ---
 {
-  const debut = ui.indexOf("function afficherResumeHorsLigneIdleV64_(");
-  const fin = ui.indexOf("\n\n      /* Essai du popup");
-  assert.ok(debut > 0 && fin > debut, "afficherResumeHorsLigneIdleV64_ introuvable");
-  const fonction = ui.slice(debut, fin);
+  const fonction = extraireFonction(ui, "afficherResumeHorsLigneIdleV64_");
 
   assert.ok(!fonction.includes("messageFlottantIdleV32_("), "ne doit plus utiliser le toast qui disparaît seul");
   assert.ok(fonction.includes("modal.className='soreal-idle-modal-backdrop-v63';"), "doit utiliser la même famille de popup modal que la confirmation de Renaissance");

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lireUiComplet } from "./_ui-sources.mjs";
+import { lireUiComplet, extraireFonction, extraireDeclaration, extraireElements } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -8,10 +8,7 @@ import { readFileSync } from "node:fs";
  * (déjà gérée côté serveur). Tactile/stylet seulement, comme les objets ; la souris garde son comportement.
  */
 const ui = lireUiComplet();
-const debut = ui.indexOf("let idleCubeDernierTapMsV1=0;");
-const fin = ui.indexOf("window.__clicCubeAdventureIdleV138__=clicCubeAdventureIdleV138_;");
-assert.ok(debut > 0 && fin > debut, "bloc du double tap sur le Cube introuvable");
-const bloc = ui.slice(debut, fin);
+const bloc = extraireElements(ui, ["V:idleCubeDernierTapMsV1", "V:idleCubeIgnorerClicJusquaV1", "V:idleCubeDetailsTimerV1", "F:absorberTousBoostsCubeAdventureIdleV1_", "V:idleCubeDernierEvtMsV1", "F:toucherCubeAdventureIdleV1_", "V:idleCubeAppuiV1", "F:clicCubeAdventureIdleV138_"]);
 
 assert.match(ui, /onclick="window\.__clicCubeAdventureIdleV138__\(event\)"/, "le clic du Cube transmet l'évènement (type de pointeur)");
 assert.match(bloc, /envoyer\(\{action:'inventoryAuto',mode:'boostAll',targetId:'cube'\}\)/, "double tap = absorber tous les boosts dans le Cube");

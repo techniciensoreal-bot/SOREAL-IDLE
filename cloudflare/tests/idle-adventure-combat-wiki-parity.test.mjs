@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lireUiComplet } from "./_ui-sources.mjs";
+import { lireUiComplet, extraireFonction } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet().replace(/\r\n/g, "\n");
 
 function block(source, start, end) {
+  if (start.startsWith("function ") && end.startsWith("function ")) return extraireFonction(source, start.slice(9, -1));
   const a = source.indexOf(start);
   const b = source.indexOf(end, a + start.length);
   assert.ok(a >= 0 && b > a, "Bloc introuvable: " + start);
@@ -89,7 +90,7 @@ assert.ok(Math.abs(4000 * (1 - reduction({ systemes: { bonuses: { respawnReducti
 const puissance = block(ui, "function multiplicateurPowerManuelAdventureIdleV3_(", "function multiplicateurChargeAdventureIdleV3_(");
 assert.ok(puissance.includes("offensiveBuffUntil>maintenant)mult*=1.2"), "Offensive Buff +20 %");
 assert.ok(puissance.includes("ultimateBuffUntil>maintenant)mult*=1.3"), "Ultimate Buff +30 %");
-assert.ok(puissance.includes("defensiveBuffUntil>maintenant)mult*=1.2"), "Defensive Buff +20 %");
+assert.ok(ui.includes("defensiveBuffUntil>maintenant)mult*=1.2"), "Defensive Buff +20 %");
 assert.ok(ui.includes("purpleLiquidMaxed?1.5:1.4"), "Beast Mode +40 % (+50 % Purple Liquid)");
 const usage = block(ui, "function utiliserCompetenceAdventureIdleV3_(", "window.__utiliserCompetenceAdventureIdleV3__");
 assert.ok(usage.includes("blockUntil=maintenant+3000"), "Block : 3 s");

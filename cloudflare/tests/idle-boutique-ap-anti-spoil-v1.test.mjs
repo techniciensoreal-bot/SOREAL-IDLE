@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { lireUiComplet } from "./_ui-sources.mjs";
 import fs from 'node:fs';
 
-const ui = fs.readFileSync('cloudflare/public/soreal-idle-ui.js', 'utf8');
+const ui = lireUiComplet();
 const meta = fs.readFileSync('cloudflare/public/modules/meta-progression-v130.js', 'utf8');
 const themes = fs.readFileSync('cloudflare/public/soreal-idle-themes.css', 'utf8');
 const ngu = fs.readFileSync('cloudflare/public/modules/ngu-labo-v1.js', 'utf8');

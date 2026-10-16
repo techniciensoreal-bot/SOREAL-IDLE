@@ -344,4 +344,5 @@
     pageCollectionIdleV22_:pageCollectionIdleV22_,
     construireCarteBossIdleV91_:construireCarteBossIdleV91_
   };
+  Object.assign(window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={}),window.__SOREAL_IDLE_PAGE_COLLECTION_V1__);
 })();

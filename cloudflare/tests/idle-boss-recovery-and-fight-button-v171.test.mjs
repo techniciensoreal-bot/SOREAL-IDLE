@@ -1,11 +1,9 @@
 import assert from "node:assert/strict";
+import { lireUiComplet } from "./_ui-sources.mjs";
 import test from "node:test";
 import {readFile} from "node:fs/promises";
 
-const ui=await readFile(
-  new URL("../public/soreal-idle-ui.js",import.meta.url),
-  "utf8"
-);
+const ui=lireUiComplet();
 const css=await readFile(
   new URL("../public/soreal-idle-ui.css",import.meta.url),
   "utf8"

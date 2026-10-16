@@ -275,4 +275,5 @@
     pagePersonnageIdleV28_:pagePersonnageIdleV28_,
     htmlProfilPseudoIdleV1_:htmlProfilPseudoIdleV1_
   };
+  Object.assign(window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={}),window.__SOREAL_IDLE_PAGE_PERSONNAGE_V1__);
 })();

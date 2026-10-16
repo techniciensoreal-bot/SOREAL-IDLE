@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lireUiComplet } from "./_ui-sources.mjs";
+import { lireUiComplet, extraireFonction } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -7,9 +7,7 @@ import { readFileSync } from "node:fs";
  * l'empreinte structurelle de l'état ; elle doit changer quand le boss SÉLECTIONNÉ change, même si le nombre de boss vaincus est déjà le bon (victoire comptée en local).
  */
 const ui = lireUiComplet();
-const debut = ui.indexOf("function empreinteStructurelleIdleV1_(j){");
-assert.ok(debut > 0);
-const corps = ui.slice(debut, ui.indexOf("/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-157 */", debut));
+const corps = extraireFonction(ui, "empreinteStructurelleIdleV1_");
 const idleEntier_ = (v) => Math.floor(Number(v) || 0);
 const empreinte = new Function("idleEntier_", corps + "; return empreinteStructurelleIdleV1_;")(idleEntier_);
 

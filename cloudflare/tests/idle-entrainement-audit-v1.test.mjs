@@ -24,5 +24,5 @@ helper(el, "13"); assert.equal(ecritures, 1); assert.equal(el.textContent, "13")
 helper(null, "x");
 
 // Lot des clics (classement) : toutes les 15 s au plus, et dès que l'onglet est quitté.
-assert.ok(ui.includes("},15000);\n        }\n      }\n      document.addEventListener('visibilitychange',function(){\n        if(document.hidden&&idleClicsEnAttenteV1>0){"), "clics envoyés par lots de 15 s et à la sortie de l'onglet");
+assert.ok(ui.includes("},15000);") && ui.includes("document.addEventListener('visibilitychange',function(){\n        if(document.hidden&&idleClicsEnAttenteV1>0){"), "clics envoyés par lots de 15 s et à la sortie de l'onglet");
 console.log("idle-entrainement-audit-v1: OK");

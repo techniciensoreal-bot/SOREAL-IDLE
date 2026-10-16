@@ -277,4 +277,5 @@
   window.__SOREAL_IDLE_PAGE_ENTRAINEMENT_V1__={
     pageEntrainementIdleV28_:pageEntrainementIdleV28_
   };
+  Object.assign(window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={}),window.__SOREAL_IDLE_PAGE_ENTRAINEMENT_V1__);
 })();

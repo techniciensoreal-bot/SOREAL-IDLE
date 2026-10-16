@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { lireUiComplet } from "./_ui-sources.mjs";
+import { lireUiComplet, extraireFonction, extraireDeclaration } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
 /*
@@ -10,7 +10,7 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 const debut = ui.indexOf("let idleAdventureRestPvMemoV1=null;");
 assert.ok(debut > 0);
-const source = ui.slice(debut, ui.indexOf("function resetHorlogesFightAdventureIdleV2_", debut));
+const source = extraireDeclaration(ui, "let idleAdventureRestPvMemoV1=null;") + String.fromCharCode(10) + extraireFonction(ui, "restPvInitialIdleV1_") + String.fromCharCode(10) + extraireFonction(ui, "memoriserRestPvIdleV1_");
 const api = new globalThis.Function("idleNombre_", source + "\nreturn {restPvInitialIdleV1_,memoriserRestPvIdleV1_};")((v) => Number(v) || 0);
 
 assert.equal(api.restPvInitialIdleV1_(500), 500, "sans mémoire : PV pleins (début de partie)");
