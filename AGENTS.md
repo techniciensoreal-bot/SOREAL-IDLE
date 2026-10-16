@@ -158,7 +158,7 @@ décrire ce processus de mémoire, le relire si ce fichier change) :
   (`workflow_dispatch`).
 - Le job (limité à la branche `main`, 30 minutes au plus) enchaîne : toute la
   suite de tests (`for f in cloudflare/tests/*.test.mjs; do node "$f"; done`),
-  le build du frontend autonome (`build-standalone.mjs`, qui injecte le SHA
+  le build du frontend autonome (`build-standalone.mjs`, qui ne modifie plus aucun fichier public depuis le 2026-10-16 : le cache est immuable ; avant : injectait le SHA
   dans `IDLE_TEST_VERSION`) et `node --check` de tous les scripts publics, la
   vérification des dépendances du runtime vocal, `wrangler deploy` avec
   `--message "git:$GITHUB_SHA"` (secret `CLOUDFLARE_API_TOKEN`), la
