@@ -7,6 +7,7 @@ import { macguffinAdventureBeforeV1, macguffinAfterAdventureV1, applyMacguffinAc
 import { idleInventoryIdsV1, idleInventoryManualBoostBeforeV1, idleInventoryProcessNewDropsV1, idleInventoryManualBoostAfterV1, applyIdleInventoryAutoActionV1, idleInventoryBoostRecycleChanceV1, idleInventoryLoadoutSlotsV1 } from "./idle-inventory-auto-v1.js";
 import { applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
+import { appliquerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { idleTheEndCompleteV1, IDLE_THE_END_TEXT_V1 } from "./idle-the-end-v1.js";
 import { idleQuestingOnZoneKillV1, applyIdleQuestingActionV1 } from "./idle-questing-v1.js";
@@ -169,6 +170,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       const macguffinDrops = macguffinAfterAdventureV1(state, macguffinAvant, result, { dropMultiplier: idleNguBonusesLectureV1(state).dropMultiplier });
       if (macguffinDrops.length && result && typeof result === "object") result.macguffinDrops = macguffinDrops;
     }
+  } else if (action === "setUiPrefs") {
+    /* Préférences d'interface liées au compte : cases, saisies, onglets, réglages (idle-ui-prefs-v1.js). Aucun effet sur le jeu. */
+    result = appliquerUiPrefsV1(state, payload.prefs);
   } else if (action === "macguffin") {
     result = applyMacguffinActionV1(state, payload, t);
   } else if (action === "allocateNgu") {

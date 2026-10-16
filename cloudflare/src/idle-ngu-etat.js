@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleWandoosBootMultiplierV1 } from "./idle-wandoos-os-v1.js";
+import { nettoyerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { perkBonusesV1, IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -1342,6 +1343,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.rebirth = refreshRebirthState(state, context, t);
   idleTheEndSyncV1(state, t);
   trackLeaderboardStatsV1(state);
+  /* Préférences d'interface liées au compte (idle-ui-prefs-v1.js) : jamais lues par le jeu, gardées telles quelles (rebirth compris). */
+  state.uiPrefs = nettoyerUiPrefsV1(source.uiPrefs);
   /* Idempotence générique des actions (clientMutationId) : 64 dernières entrées {id,result}. */
   state.recentClientMutations = (Array.isArray(source.recentClientMutations) ? source.recentClientMutations : [])
     .filter((x) => x && typeof x.id === "string" && x.id)

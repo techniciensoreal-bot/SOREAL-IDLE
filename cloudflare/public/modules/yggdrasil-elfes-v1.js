@@ -34,6 +34,7 @@
    * écrit à chaque changement ; seuls les fruits sur « Récolter » sont gardés (Manger est le choix par défaut). Le Poop, lui, se décoche après chaque usage : il n'est pas mémorisé.
    */
   var CLE_MODES_='soreal_idle_ygg_modes_v1:';
+  var CLE_SOLO_='soreal_idle_ygg_solomax_v1';
   function chargerModes_(nom){
     nom=String(nom||'');
     if(etat.modesPour===nom)return;
@@ -44,6 +45,9 @@
     try{memo=brut?JSON.parse(brut):{};}catch(_e){memo={};}
     if(!memo||typeof memo!=='object')memo={};
     Object.keys(memo).forEach(function(id){if(memo[id]==='harvest')choix_(id).mode='harvest';});
+    /* Case « Poop seulement sur les fruits au tier max » : mémorisée elle aussi (liée au compte, voir prefs-compte-v1.js). */
+    var solo=null;try{solo=localStorage.getItem(CLE_SOLO_);}catch(_e){}
+    if(solo!==null)etat.soloMax=solo!=='0';
   }
   function sauverModes_(){
     var memo={};
@@ -321,7 +325,7 @@
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
     fermerAide:function(){etat.aide=false;},
     aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
-    soloMax:function(v){etat.soloMax=Boolean(v);son_('interrupteur',Boolean(v));},
+    soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */
     tout:function(critere){
       var d=lire_(H_().getIdleEtat());

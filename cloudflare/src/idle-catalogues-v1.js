@@ -35,6 +35,8 @@ export const IDLE_PIECES_ETAT_CHEMINS_V1 = Object.freeze([
   "systemes.bonuses",
   "systemes.expShop",
   "systemes.augmentations",
+  /* Préférences d'interface du compte : stables tant que le joueur ne change aucun réglage (jusqu'à plusieurs Ko). */
+  "systemes.uiPrefs",
   "systemes.yggExtra",
   "systemes.yggFruits",
   /* Mesurés sur le compte réel le 2026-10-02 (stables entre deux synchros) : sac, coffre, liste d'objets, cartes, collections. */

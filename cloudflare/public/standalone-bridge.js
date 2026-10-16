@@ -355,6 +355,8 @@
         }else{
           data.joueur.__recuPerfV1=calerRecuPerfV1_(data.joueur,performance.now(),Date.now());
         }
+        /* Préférences du compte (cases, saisies, réglages) : remises dans le stockage de cet appareil (modules/prefs-compte-v1.js). */
+        try{if(window.__SOREAL_IDLE_PREFS_V1__)window.__SOREAL_IDLE_PREFS_V1__.appliquer(data.joueur);}catch(_){}
       }
       return data;
     }catch(error){

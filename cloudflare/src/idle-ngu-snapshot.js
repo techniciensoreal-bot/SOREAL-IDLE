@@ -224,6 +224,8 @@ function construireSnapshotNguV1(state, context, now) {
       });
     }),
     augmentationsAdvance: Boolean(state.systems.augmentations?.data?.advanceEnergy),
+    /* Préférences d'interface liées au compte (idle-ui-prefs-v1.js) : le client les remet dans son stockage local. */
+    uiPrefs: Object.assign({}, state.uiPrefs || {}),
     ngus: nguSnapshotV1(state, context),
     /* Slots de souhaits (page Wishes, 4 au maximum) : un souhait et une allocation par slot. */
     wishSlots: wishSlotsSnapshotV1(state),
