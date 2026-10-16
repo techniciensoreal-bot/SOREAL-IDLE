@@ -226,15 +226,70 @@ function carte(t){
         statut+ligneAutoKill(t,enAttente,retour,maintenant)+
       '</div>'+
     '</div>'+
-    '<div class="ttn-sous-titre">Ses statistiques</div><div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
-    '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
-    capacites+
     '<div class="ttn-actions">'+selecteur+
       '<label class="ttn-auto" title="'+(autoKillCochable(t)?'Le titan est vaincu tout seul, en ligne comme hors ligne, dès que tu as les stats Auto-kill.':'Monte tes stats pour pouvoir activer l’Auto-kill de ce Titan.')+'"><input type="checkbox" id="ttnAuto_'+h(id)+'" '+(t.state&&t.state.autoKill===true?'checked ':'')+(autoKillCochable(t)?'':'disabled ')+'onchange="window.__autoKillTitanV1__(\''+h(id)+'\',this.checked)"> 🤖 Auto-kill</label>'+
       '<button type="button" class="soreal-idle-expand-button-v25 ttn-bouton" id="ttnBtn_'+h(id)+'" '+(pret?'':'disabled ')+'onclick="window.__affronterTitanV1__(\''+h(id)+'\')">⚔️ Affronter</button>'+
     '</div>'+
+    '<div class="ttn-sous-titre">Ses statistiques</div><div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
+    '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
+    capacites+
   '</article>';
 }
+
+/*
+ * Cartes à collectionner (Norman, 2026-10-16 : « des espèces de cartes trop stylées, avec l'image ou le ? si on ne l'a pas encore affronté ; au clic, un bouton pour l'affronter, avec les infos déjà
+ * présentes, l'auto kill etc »). Chaque titan = une TUILE (portrait, nom, victoires, état, pastille Auto-kill) ; un clic déplie en dessous le détail (la carte complète ci-dessus : statistiques, comparaison
+ * des stats, capacités, difficulté, case Auto-kill et bouton Affronter). Un seul titan déplié à la fois ; l'état déplié vit ici (ouvert) pour survivre au redessin périodique de la page.
+ * Rien de caché n'est ajouté : l'image n'est même pas demandée au serveur tant que le titan est « ? ».
+ */
+var ouvert='';
+function tuile(t){
+  var id=String(t.id);
+  var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
+  if(palier&&choixPalier[id]&&Object.prototype.hasOwnProperty.call(t.difficulties,choixPalier[id]))palier=choixPalier[id];
+  var nom=String(t.nomComplet||t.name||id);
+  var kills=ent(t.state&&t.state.kills);
+  var retour=prochainRetour(t);
+  var maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
+  var enAttente=!cache(t)&&retour>maintenant;
+  var etat=cache(t)?'cache':enAttente?'attente':'pret';
+  var libelle=etat==='cache'?'👻 Caché':etat==='attente'?'⏳ <b data-ttn-cd="'+retour+'">'+duree(retour-maintenant)+'</b>':'✅ Dispo';
+  var art=titanVu(t)
+    ?'<img src="'+h(urlImage(t,palier))+'" alt="'+h(nom)+'" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="ttn-emoji" style="display:none">👹</span>'
+    :'<span class="ttn-point">?</span>';
+  var auto=t.state&&t.state.autoKill===true
+    ?'<span class="ttn-tuile-auto'+(seTueTout(t)?' actif':'')+'" title="Auto-kill coché">🤖</span>'
+    :'';
+  return '<button type="button" class="ttn-tuile '+etat+(titanVu(t)?'':' ttn-inconnu')+'" data-ttn-tuile="'+h(id)+'" aria-expanded="'+(ouvert===id?'true':'false')+'" onclick="window.__ouvrirTitanV1__(\''+h(id)+'\')">'+
+    '<span class="ttn-tuile-art">'+art+auto+'</span>'+
+    '<span class="ttn-tuile-nom">'+h(nom)+'</span>'+
+    '<span class="ttn-tuile-pied"><span class="ttn-tuile-kills">💀 '+kills+'</span><span class="ttn-tuile-etat '+etat+'">'+libelle+'</span></span>'+
+  '</button>';
+}
+function bloc(t){
+  var id=String(t.id);
+  return '<div class="ttn-bloc'+(ouvert===id?' ouvert':'')+'" data-ttn-bloc="'+h(id)+'">'+tuile(t)+
+    '<div class="ttn-detail">'+carte(t)+'<button type="button" class="ttn-fermer" onclick="window.__ouvrirTitanV1__(\'\')">▲ Replier</button></div></div>';
+}
+function grille(titans){
+  /* un titan déplié qui n'existe plus (ou verrouillé) ne laisse pas de trou */
+  if(ouvert&&!titans.some(function(t){return String(t.id)===ouvert;}))ouvert='';
+  return '<div class="ttn-grille">'+titans.map(bloc).join('')+'</div>';
+}
+window.__ouvrirTitanV1__=function(id){
+  id=String(id||'');
+  ouvert=(ouvert===id)?'':id;
+  document.querySelectorAll('[data-ttn-bloc]').forEach(function(b){
+    var on=b.getAttribute('data-ttn-bloc')===ouvert;
+    b.classList.toggle('ouvert',on);
+    var tu=b.querySelector('.ttn-tuile');
+    if(tu)tu.setAttribute('aria-expanded',on?'true':'false');
+  });
+  if(ouvert){
+    var cible=document.querySelector('[data-ttn-bloc="'+ouvert.replace(/"/g,'')+'"] .ttn-detail');
+    try{if(cible&&cible.scrollIntoView)cible.scrollIntoView({block:'nearest',behavior:'smooth'});}catch(_e){}
+  }
+};
 
 function css(){
   /* popup avant le combat (voir demanderPlace_) : ajouté au style existant plus bas */
@@ -242,7 +297,7 @@ function css(){
   var st=document.createElement('style');
   st.id='sorealIdleTitansStyleV1';
   st.textContent=
-    '.ttn-grille{display:grid;gap:14px}'+
+    '.ttn-grille{display:grid;grid-auto-flow:dense;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:16px}'+
     '.ttn-carte{position:relative;border:2px solid var(--th-line,rgba(255,122,26,.5));border-radius:16px;padding:12px;color:var(--th-ink,#ffe7d6);overflow:hidden;'+
       'background:linear-gradient(170deg,var(--th-bg,#2a1814),var(--th-bg2,#130a09));box-shadow:0 0 0 3px rgba(0,0,0,.4),0 14px 26px -16px var(--th-glow,rgba(255,122,26,.5))}'+
     '.ttn-carte.attente{filter:saturate(.8)}'+
@@ -305,7 +360,25 @@ function css(){
     '.ttn-auto{font-size:14px;font-weight:800;display:flex;align-items:center;gap:7px;cursor:pointer}.ttn-auto input{width:20px;height:20px;accent-color:var(--th-a,#ff7a1a)}'+
     '.ttn-palier{font-size:13px;display:flex;align-items:center;gap:7px}'+
     '.ttn-palier select{padding:5px 8px;border-radius:8px}'+
-    '.ttn-bouton[disabled]{opacity:.45;cursor:not-allowed}';
+    '.ttn-bouton[disabled]{opacity:.45;cursor:not-allowed}'+
+    '.ttn-bloc{display:contents}'+
+    '.ttn-detail{display:none;grid-column:1/-1}.ttn-bloc.ouvert .ttn-detail{display:block}'+
+    '.ttn-fermer{display:block;margin:8px auto 0;padding:6px 18px;border-radius:999px;border:1px solid var(--th-line,rgba(255,122,26,.5));background:rgba(0,0,0,.4);color:var(--th-dim,#c79a85);font-weight:800;cursor:pointer}'+
+    '.ttn-tuile{--c:#34d399;position:relative;display:flex;flex-direction:column;gap:7px;padding:8px;border-radius:16px;cursor:pointer;text-align:center;font:inherit;color:var(--th-ink,#ffe7d6);'+
+      'border:3px solid var(--c);background:linear-gradient(165deg,#3a1d16 0%,#1a0b09 55%,#0d0605 100%);box-shadow:0 0 0 2px #000,0 0 22px -6px var(--c),inset 0 0 0 2px rgba(255,255,255,.07);transition:transform .15s,box-shadow .15s}'+
+    '.ttn-tuile::before{content:"";position:absolute;inset:4px;border-radius:11px;border:1px solid rgba(255,255,255,.12);pointer-events:none}'+
+    '.ttn-tuile:hover,.ttn-tuile:focus-visible{transform:translateY(-4px) rotate(-.6deg);box-shadow:0 0 0 2px #000,0 0 30px -2px var(--c),0 12px 22px -10px #000}'+
+    '.ttn-tuile[aria-expanded=true]{box-shadow:0 0 0 2px #000,0 0 34px 0 var(--c);transform:translateY(-2px)}'+
+    '.ttn-tuile.attente{--c:#fbbf24}.ttn-tuile.cache{--c:#a78bfa}'+
+    '.ttn-tuile-art{position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 35%,#4a2418,#0d0605 75%);border:2px solid #000;box-shadow:inset 0 0 18px rgba(0,0,0,.7)}'+
+    '.ttn-tuile-art img{width:100%;height:100%;object-fit:contain;display:block}'+
+    '.ttn-tuile-art .ttn-point{font-size:92px}'+
+    '.ttn-tuile.ttn-inconnu .ttn-tuile-art{background:radial-gradient(circle at 50% 40%,#2b1410,#0d0605 70%),repeating-linear-gradient(45deg,transparent 0 9px,rgba(255,255,255,.03) 9px 18px)}'+
+    '.ttn-tuile-auto{position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;background:rgba(0,0,0,.7);border:2px solid #fbbf24}.ttn-tuile-auto.actif{border-color:#34d399}'+
+    '.ttn-tuile-nom{font-family:Georgia,"Palatino Linotype",serif;font-weight:900;font-size:15px;line-height:1.15;letter-spacing:.03em;color:#ffe9b0;text-shadow:0 2px 0 #000,0 0 12px var(--c);min-height:2.3em;display:flex;align-items:center;justify-content:center}'+
+    '.ttn-tuile-pied{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 7px;border-radius:999px;background:rgba(0,0,0,.5);font-size:13px;font-weight:800}'+
+    '.ttn-tuile-etat.pret{color:#34d399}.ttn-tuile-etat.attente{color:#fbbf24}.ttn-tuile-etat.cache{color:#a78bfa}.ttn-tuile-etat b{color:#fff;font-variant-numeric:tabular-nums}'+
+    '@media (prefers-reduced-motion:reduce){.ttn-tuile{transition:none}.ttn-tuile:hover{transform:none}}';
   document.head.appendChild(st);
 }
 
@@ -318,7 +391,7 @@ function page(j){
     ?H.entetePageIdleV28_('👹 Titans','Des ennemis bien plus coriaces, qui réapparaissent après un délai. Le combat se déroule en Aventure, comme dans le jeu d’origine.')
     :'';
   if(!titans.length)return entete+'<div class="soreal-idle-note-v4">Rien à affronter pour le moment.</div>';
-  return entete+'<div class="ttn-grille">'+titans.map(carte).join('')+'</div>';
+  return entete+grille(titans);
 }
 
 /* Section intégrée à la page Adventure (le menu Titans n'existe plus) : même grille de cartes, sans en-tête de page ; vide s'il n'y a aucun titan débloqué (anti-spoil). */
@@ -329,7 +402,7 @@ function section(j){
   var a=typeof H.aventureMetaIdleV47_==='function'?H.aventureMetaIdleV47_(j):null;
   var titans=(a&&Array.isArray(a.titans)?a.titans:[]).filter(function(t){return t&&t.progressionUnlocked!==false&&t.id;});
   if(!titans.length)return '';
-  return '<div class="ttn-grille">'+titans.map(carte).join('')+'</div>';
+  return grille(titans);
 }
 
 /* ---------- interactions ---------- */
@@ -343,6 +416,8 @@ window.__changerPalierTitanV1__=function(id,palier){
   var reco=document.getElementById('ttnReco_'+id);
   if(reco)reco.innerHTML=seuilsRecommandes(t,palier);
   var img=document.getElementById('ttnImg_'+id);
+  var tuImg=document.querySelector('[data-ttn-tuile="'+String(id).replace(/"/g,'')+'"] img');
+  if(tuImg)tuImg.src=urlImage(t,palier);
   if(img){img.style.display='';if(img.nextElementSibling)img.nextElementSibling.style.display='none';img.src=urlImage(t,palier);}
 };
 
@@ -448,7 +523,13 @@ setInterval(function(){
     var fin=Number(el.getAttribute('data-ttn-cd'));
     var reste=fin-maintenant;
     if(reste>0){el.textContent=duree(reste);return;}
-    var carteEl=el.closest('.ttn-carte');
+    var blocEl=el.closest('[data-ttn-bloc]');
+    if(!blocEl)return;
+    var tu=blocEl.querySelector('.ttn-tuile');
+    if(tu){tu.classList.remove('attente');tu.classList.add('pret');}
+    var te=blocEl.querySelector('.ttn-tuile-etat');
+    if(te){te.className='ttn-tuile-etat pret';te.textContent='✅ Dispo';}
+    var carteEl=blocEl.querySelector('.ttn-carte');
     if(!carteEl)return;
     carteEl.classList.remove('attente');carteEl.classList.add('pret');
     var etat=carteEl.querySelector('.ttn-etat');
