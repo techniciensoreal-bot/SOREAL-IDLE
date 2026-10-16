@@ -122,126 +122,8 @@
        */
       let idleResteTickMagieMsV1=0;
 
-      function mettreAJourJeuIdleLocalV7_(){
-        if(
-          !REG.idleEtat ||
-          PAGE_ACTIVE!=='idle'
-        ){
-          return;
-        }
-
-        const maxTotal=
-          idleNombre_(
-            REG.idleEtat.energieMax
-          );
-
-        /*
-         * Entier (Norman, 2026-10-02 : « 🔋 Reste à générer : 0 · ⏱ Pleine dans 1 s se met à clignoter très vite quand tout est généré »). Une allocation
-         * décimale (Time Machine, Max…) rendait ce plafond décimal (ex. 1234,6) : l'énergie, toujours arrondie à l'entier, valait 1234 puis 1234,6 puis 1234
-         * à chaque image -- le compteur alternait donc entre « pleine » et « reste 0 ». Énergie et plafond sont maintenant tous deux entiers.
-         */
-        const max=
-          Math.max(
-            0,
-            Math.floor(
-              maxTotal-
-              totalAllocationBasicTrainingIdleV120_()-
-              allocationMetaEnergieIdleV1_()+
-              1e-9
-            )
-          );
-
-        const prod=
-          Math.max(
-            0,
-            idleNombre_(
-              REG.idleEtat.productionSeconde
-            )
-          );
-
-        const maintenantTick=
-          Date.now();
-
-        const ecouleBasicTrainingMs=
-          Math.max(
-            0,
-            Math.min(
-              IDLE_BASIC_TRAINING_RATTRAPAGE_MAX_MS_V166,
-              maintenantTick-
-              idleDernierTickBasicTrainingV166
-            )
-          );
-
-        idleDernierTickBasicTrainingV166=
-          maintenantTick;
-
-        const ecouleTickMs=
-          Math.max(
-            0,
-            Math.min(
-              1000,
-              maintenantTick-
-              REG.idleDernierTickLocalV40
-            )
-          );
-
-        REG.idleDernierTickLocalV40=
-          maintenantTick;
-
-        const dt=
-          ecouleTickMs/
-          1000;
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-32 */
-        progresserBasicTrainingLocalIdleV120_(
-          ecouleBasicTrainingMs/
-          1000
-        );
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-33 */
-        patcherResumeStatsIdleV28_(
-          REG.idleEtat
-        );
-
-        progresserZoneFightLocalIdleV1_(
-          maintenantTick,
-          dt
-        );
-
-        const metaTickEnergie=
-          metaTickEnergieIdleV114_();
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-34 */
-        const energieAvantTick=
-          Math.max(
-            0,
-            idleNombre_(REG.idleEtat.energie)
-          );
-
-        const energieAuPlafond=
-          energieAvantTick>=max;
-
-        if(energieAuPlafond){
-          REG.idleResteTickEnergieMsV114=0;
-        }else{
-          REG.idleResteTickEnergieMsV114+=
-            ecouleTickMs;
-        }
-
-        const ticksEnergie=
-          energieAuPlafond
-            ?0
-            :Math.max(
-                0,
-                Math.floor(
-                  (
-                    REG.idleResteTickEnergieMsV114+
-                    1e-7
-                  )/
-                  metaTickEnergie.dureeMs
-                )
-              );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 30 lignes. */
+      function mettreAJourJeuIdleLocalV7__p1(energieAvantTick, max, metaTickEnergie, ticksEnergie){
         if(ticksEnergie>0){
           REG.idleResteTickEnergieMsV114=
             Math.max(
@@ -272,20 +154,10 @@
               1e-9
             );
         }
+      }
 
-        /*
-         * Norman (2026-09-29) : même remplissage au compte-goutte pour la Magie -- mêmes calculs que
-         * l'Énergie ci-dessus, mais sur idleEtat.systemes.resources.magic.current (jamais de champ
-         * plat idleEtat.magie*, déjà pris par l'ancien système de sorts). Le plafond de croissance
-         * local est current+freeCapacity (resourceBudget.magic, déjà fourni par le serveur) : freeCapacity
-         * inclut déjà l'allocation, jamais recalculée ici.
-         *
-         * Garde resourceInfo.magic (jamais juste resources.magic/resourceBudget.magic) : la snapshot
-         * serveur expose TOUJOURS resources.magic/resourceBudget.magic, même Magie verrouillée (Blood
-         * Magic non débloquée) -- seul resourceInfo.magic est filtré par le serveur selon le
-         * déblocage. Sans cette garde, un joueur sans Blood Magic verrait sa Magie avancer toute seule
-         * en fond, au taux de repli 0.25/s de metaTickMagieIdleV1_ (aucune production réelle).
-         */
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 119 lignes. */
+      function mettreAJourJeuIdleLocalV7__p2(ecouleTickMs){
         {
           const ressourceMagieEtat=
             REG.idleEtat.systemes&&REG.idleEtat.systemes.resources&&REG.idleEtat.systemes.resources.magic;
@@ -405,29 +277,10 @@
             }
           }
         }
+      }
 
-        actualiserManaSortsIdleV90_(
-          maintenantTick
-        );
-
-        actualiserCooldownBossIdleV100_(
-          maintenantTick
-        );
-
-        actualiserCooldownAventureIdleV100_(
-          heureServeurIdleV1_()
-        );
-
-
-        actualiserEffetsVisuelsJoueurIdleV112_(
-          maintenantTick
-        );
-
-        assurerBarreMagicPersistanteIdleV1_();
-        assurerPisteMagicTimeMachineIdleV1_();
-        actualiserCompteReboursTimeMachineIdleV1_();
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-35 */
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 11 lignes. */
+      function mettreAJourJeuIdleLocalV7__p3(dt){
         if(!REG.idleEtat.combatBossActif){
           const regenPvSecJoueurReposV1=
             regenPvFightBossNguParSecondeV164_(
@@ -439,8 +292,10 @@
               idleNombre_(REG.idleEtat.pvJoueur)+regenPvSecJoueurReposV1*dt
             );
         }
+      }
 
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-36 */
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 28 lignes. */
+      function mettreAJourJeuIdleLocalV7__p4(dt){
         if(
           !REG.idleEtat.combatBossActif &&
           idleNombre_(REG.idleEtat.bossPv)>0 &&
@@ -469,164 +324,10 @@
               );
           }
         }
+      }
 
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-37 */
-        if(!REG.idleEtat.combatBossActif){
-          rafraichirCommandesFightBossIdleV167_();
-        }
-
-        const energieEl=
-          document.getElementById(
-            'sorealIdleEnergieValeurV4'
-          );
-
-        if(energieEl){
-          energieEl.textContent=texteEnergieGenereeIdleV1_();
-        }
-
-        const energieOverlayEl=
-          document.getElementById(
-            'sorealIdleEnergyOverlayV1'
-          );
-
-        if(energieOverlayEl){
-          energieOverlayEl.textContent=
-            formatEnergieIdleV50_(
-              energieDisponibleIdleV9_()
-            )+
-            ' / '+
-            formatEntierLisibleIdleV1_(maxTotal);
-        }
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-38 */
-        const energyBarEl=
-          document.getElementById(
-            'sorealIdleEnergyBarV11'
-          );
-
-        if(energyBarEl){
-
-          mettreAJourBarreProgressionContinueV1_(
-            energyBarEl,
-            energieDisponibleIdleV9_(),
-            maxTotal
-          );
-        }
-
-        /*
-         * Barre de progression cyclique partagée (0 -> 100 % puis retour à 0, en boucle infinie tant
-         * que la durée du cycle ne change pas) -- extraite le 2026-09-29 pour être réutilisée par
-         * Blood Magic (Norman : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »),
-         * qui n'a qu'un seul rituel actif à la fois, contrairement à la boucle par def d'Augmentation
-         * ci-dessous. Comportement inchangé pour Augmentation (Historique V8, bloc-41).
-         */
-        /*
-         * Audit du menu Augmentations (Norman, 2026-10-05) : ce passage tourne plusieurs fois par seconde pour chaque barre ; il cherchait 4 éléments dans la page et réécrivait 3 textes À CHAQUE FOIS, même identiques
-         * (chaque réécriture remplace le nœud de texte : ~190 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les observateurs de la page). Les éléments sont gardés tant qu'ils sont dans la
-         * page, et un texte n'est réécrit que s'il a changé.
-         */
-        function elementAugIdleV1_(selecteur){
-          const cache=window.__idleAugElsV1__||(window.__idleAugElsV1__=new Map());
-          const garde=cache.get(selecteur);
-          if(garde&&garde.isConnected)return garde;
-          const el=document.querySelector(selecteur);
-          if(el)cache.set(selecteur,el);else cache.delete(selecteur);
-          return el;
-        }
-        /* Le message « il manque X Or » porte la somme dans une balise dorée (<b class="or-somme-v1">) : on le pose en HTML, et on compare à l'ancien texte posé (pas à innerHTML, que le navigateur reformule) pour ne pas le réécrire à chaque tick. */
-        function ecrireSiChangeIdleV1_(el,texte){
-          if(!el)return;
-          if(texte.indexOf('<b class="or-somme-v1">')>=0){
-            if(el.__orHtmlV1!==texte){el.innerHTML=texte;el.__orHtmlV1=texte;}
-            return;
-          }
-          el.__orHtmlV1=null;
-          if(el.textContent!==texte)el.textContent=texte;
-        }
-        /*
-         * `tenir` (Augments, Norman 2026-10-05 : « plus jamais de barre qui fait marche arrière quand le calcul de l'Or se fait ») : sur un cycle long, la barre s'arrête PLEINE au bout (fill forwards) au lieu de boucler. Bouclée, elle
-         * repartait à zéro d'elle-même (l'animation du navigateur, sans attendre le jeu) un instant avant que le jeu constate qu'il manque de l'Or et la remette pleine : on voyait la barre tomber à zéro puis remonter. Une barre qui
-         * a fini son cycle et dont le jeu en démarre un nouveau (niveau validé) est recréée ; les rituels de Blood Magic, eux, bouclent toujours (même durée à chaque tour).
-         */
-        function animerBarreCycliqueIdleV217_(el,seconds,progress,tenir){
-          if(!(seconds>0)){
-            /* Aucune ressource allouée : la barre reste à sa fraction (elle ne retombe pas à 0) et repartira de là. */
-            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
-            const fraction=Math.max(0,Math.min(.999999,Number(progress)||0));
-            el.style.width='100%';
-            el.style.transform='scaleX('+fraction+')';
-            return;
-          }
-          /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
-          if(seconds<=0.0201){
-            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
-            el.style.width='100%';
-            el.style.transform='scaleX(1)';
-            return;
-          }
-          const duration=Math.max(20,seconds*1000);
-          const fini=Boolean(tenir&&el.__idleAugAnimationV217&&el.__idleAugAnimationV217.playState==='finished'&&Number(progress)<0.98);
-          if(!el.__idleAugAnimationV217||fini||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
-            if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
-            el.style.width='100%';
-            /*
-             * Cycles longs (≥ 2 s) : remplissage linéaire honnête 0 -> 100 % puis retour à 0 (Norman, 2026-09-24 : la barre restait pleine
-             * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
-             */
-            const animation=el.animate(
-              seconds>0
-                ?[
-                  {transform:'scaleX(0)',offset:0},
-                  {transform:'scaleX(1)',offset:1}
-                ]
-                :[
-                  {transform:'scaleX(0)',offset:0},
-                  {transform:'scaleX(0)',offset:.08},
-                  {transform:'scaleX(1)',offset:.72},
-                  {transform:'scaleX(1)',offset:.98},
-                  {transform:'scaleX(0)',offset:1}
-                ],
-              (tenir&&seconds>=2)?{duration:duration,iterations:1,fill:'forwards',easing:'linear'}:{duration:duration,iterations:Infinity,easing:'linear'}
-            );
-            animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
-            el.__idleAugAnimationV217=animation;
-            el.dataset.idleAugDurationV217=String(duration);
-          }else{
-            /*
-             * Recalage de phase : la barre tourne seule (animation du navigateur) pendant que le niveau affiché suit le repère du serveur ; après une synchro, les deux pouvaient différer de quelques
-             * dixièmes de seconde (la barre repartait de zéro 0,4 à 0,8 s AVANT que le numéro de niveau change). Dès que l'écart dépasse 80 ms (5 % du cycle), la barre se cale sur le repère.
-             */
-            const anim=el.__idleAugAnimationV217;
-            if(anim&&anim.playState==='running'){
-              const cible=Math.max(0,Math.min(.999999,Number(progress)||0))*duration;
-              const actuel=(Number(anim.currentTime)||0)%duration;
-              let ecart=cible-actuel;
-              if(ecart>duration/2)ecart-=duration;else if(ecart<-duration/2)ecart+=duration;
-              if(Math.abs(ecart)>Math.max(80,duration*0.05))anim.currentTime=cible;
-            }
-          }
-        }
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-39 */
-        /*
-         * Norman (2026-10-03) : « le compteur de Blood Magic s'arrête (27 s) alors que la barre avance. TOUS LES COMPTEURS doivent être très précis. » Chaque synchro remplace l'état
-         * (idleEtat=joueurServeur) : les repères visuels posés au dernier rendu (barres et comptes à rebours) disparaissaient, le texte n'était plus rafraîchi alors que la barre,
-         * animée par le navigateur, continuait. On les reporte sur le nouvel état tant que la page ne les a pas redessinés (même horloge, donc aucun saut).
-         */
-        ['__augmentationsVisualV215','__bloodMagicVisualV1'].forEach(function(cle){
-          if(REG.idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)REG.idleEtat[cle]=idleRepereVisuelsV1_[cle];}
-          else idleRepereVisuelsV1_[cle]=REG.idleEtat[cle];
-        });
-        /* « machine » (Time Machine) : sa barre de l'Or tique de plus en plus vite quand le niveau de vitesse monte ; sans synchro périodique, il fallait changer de menu pour le voir (Norman, 2026-10-11). Les chiffres sont mis à jour EN PLACE à chaque synchro. */
-        if((REG.IDLE_MENUS_VIVANTS_V1[REG.idleMenuActifV28]||REG.idleMenuActifV28==='tower'||REG.idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
-          idleMenuViveSyncV1=Date.now();
-          synchroniserJeuIdleV7_(true);
-        }
-        /*
-         * Or EN DIRECT (Norman, 2026-10-10 : « les soustractions d'Or posent problème dans tous les menus qui en demandent : un petit retour en arrière, un temps d'arrêt, ou la mauvaise piste qui prend le niveau ; le contrôle de l'Or ne
-         * se fait pas assez vite »). Le client retirait bien l'Or de chaque niveau acheté, mais ne le REMPLISSAIT jamais entre deux synchros : il croyait en manquer (barre pleine, « en attente d'Or ») alors que la machine en avait déjà
-         * produit, puis la synchro suivante rendait l'Or et faisait sauter les niveaux. L'Or gagné par seconde (Or net de la machine) est maintenant ajouté localement à chaque tick, comme l'énergie ; la synchro ne fait que confirmer.
-         */
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 12 lignes. */
+      function mettreAJourJeuIdleLocalV7__p5(){
         {
           const monnaiesOr=REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
           const vueMachine=REG.idleEtat.systemes&&REG.idleEtat.systemes.timeMachineView;
@@ -639,8 +340,10 @@
             if(maintOr-REG.idleOrLocalPatchV1>500){REG.idleOrLocalPatchV1=maintOr;patcherResumeStatsIdleV28_(REG.idleEtat);}
           }
         }
-        const augVisual=REG.idleEtat.__augmentationsVisualV215;
-        const niveauxAugmentsLocaux={};
+      }
+
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 88 lignes. */
+      function mettreAJourJeuIdleLocalV7__p6(augVisual, niveauxAugmentsLocaux){
         if(augVisual&&PAGE_ACTIVE==='idle'){
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
           Object.keys(augVisual.defs||{}).forEach(function(id){
@@ -729,14 +432,10 @@
           });
           appliquerAugmentsSurCombatIdleV1_(augVisual,niveauxAugmentsLocaux);
         }
+      }
 
-        /*
-         * Blood Magic : barre de progression du rituel actif vers sa prochaine complétion (Norman,
-         * 2026-09-29 : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »). Un seul
-         * rituel progresse réellement à la fois (bloodMagicViewV1, idle-ngu-progression.js) : un seul
-         * élément à patcher, jamais une boucle par rituel comme Augmentation.
-         */
-        const bloodVisuels=REG.idleEtat.__bloodMagicVisualV1;
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 90 lignes. */
+      function mettreAJourJeuIdleLocalV7__p7(bloodVisuels){
         Object.keys((bloodVisuels&&typeof bloodVisuels==='object'&&!bloodVisuels.ritual)?bloodVisuels:{}).forEach(function(ritualCleBlood){
         const bloodVisual=bloodVisuels[ritualCleBlood];
         if(bloodVisual&&PAGE_ACTIVE==='idle'){
@@ -827,161 +526,11 @@
           }
         }
         });
+      }
 
-        const summaryEnergieEl=
-          document.getElementById(
-            'sorealIdleSummaryEnergieV50'
-          );
-
-        if(summaryEnergieEl){
-          summaryEnergieEl.textContent=
-            formatEnergieIdleV50_(
-              energieDisponibleIdleV9_()
-            )+
-            ' / '+
-            formatEntierLisibleIdleV1_(maxTotal);
-        }
-
-
-        const vitesseEl=
-          document.getElementById(
-            'sorealIdleEnergySpeedV34'
-          );
-
-        if(vitesseEl){
-          vitesseEl.textContent=texteNiveauParSecondeIdleV1_(REG.idleEtat&&REG.idleEtat.productionSeconde);
-        }
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-42 */
-        const dpsBase=
-          Math.max(
-            0,
-            idleNombre_(
-              REG.idleEtat.puissance
-            )-
-            idleNombre_(
-              REG.idleEtat.defenseBoss
-            )
-          );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 154 lignes. */
+      function mettreAJourJeuIdleLocalV7__p8(dps, dt, effetsMagie, maintenantTick){
         if(
-          REG.idleEtat.combatBossActif &&
-          REG.idleCombatArmeLocalV206 &&
-          !REG.idleVictoireBossLocaleV49
-        ){
-          traiterCapacitesBossLocalesIdleV70_(
-            maintenantTick
-          );
-
-          const effetsMagie=
-            REG.idleEtat.magie&&
-            REG.idleEtat.magie.effets
-              ?REG.idleEtat.magie.effets
-              :{};
-
-          const immuniseParalysie=
-            maintenantTick<
-            idleNombre_(
-              effetsMagie.immuniteParalysieJusqua
-            );
-
-          const paralyse=
-            (
-              maintenantTick<
-              REG.idleParalysieJusquaV70
-            ) &&
-            !immuniseParalysie;
-
-          const bouclierActif=
-            maintenantTick<
-            REG.idleBouclierJusquaV70;
-
-          let multiplicateurMagieDps=1;
-
-          if(
-            maintenantTick<
-            idleNombre_(
-              effetsMagie.bossVulnerableJusqua
-            )
-          ){
-            multiplicateurMagieDps*=
-              1+
-              Math.max(
-                0,
-                idleNombre_(
-                  effetsMagie.bossVulnerablePct
-                )
-              )/
-              100;
-          }
-
-          const sceau=
-            Array.isArray(
-              REG.idleEtat.bossCapacites
-            )
-              ?REG.idleEtat.bossCapacites.find(
-                  function(cap){
-                    return String(
-                      cap&&cap.type||''
-                    ).toLowerCase()==='sceau';
-                  }
-                )
-              :null;
-
-          if(
-            sceau &&
-            idleEntier_(
-              effetsMagie.sceauBriseBossNumero
-            )!==
-            idleEntier_(
-              REG.idleEtat.bossSelection
-            )
-          ){
-            multiplicateurMagieDps*=
-              Math.max(
-                .05,
-                1-
-                Math.max(
-                  0,
-                  Math.min(
-                    95,
-                    idleNombre_(
-                      sceau.valeur
-                    )
-                  )
-                )/
-                100
-              );
-          }
-
-          const dpsAvantRegenBoss=
-            dpsBase*
-            (
-              bouclierActif
-                ?Math.max(
-                    .05,
-                    1-
-                    REG.idleBouclierReductionV70/
-                    100
-                  )
-                :1
-            )*
-            multiplicateurMagieDps;
-
-          const dps=
-            paralyse
-              ?0
-              :Math.max(
-                  0,
-                  dpsAvantRegenBoss-
-                  Math.max(
-                    0,
-                    idleNombre_(
-                      REG.idleEtat.regenBoss
-                    )
-                  )
-                );
-          if(
               dps>0 &&
               idleNombre_(
                 REG.idleEtat.bossPv
@@ -1135,17 +684,11 @@
                 }
               }
             }
+      }
 
-            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-46 */
-
-            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-47 */
-            /*
-             * Un boss tué dans CE tick ne riposte plus (Norman, 2026-10-02 : « le boss recule après sa mort »). Avant, le même tick enregistrait la victoire PUIS la
-             * défaite du joueur (quand les coups du boss auraient aussi tué un joueur à très peu de PV) : l'ordre « défaite » remplaçait l'ordre « démarrer le combat »
-             * encore en file (une seule action `combat` à la fois), donc le serveur ne faisait jamais le combat, ne voyait jamais la victoire, et au bout de la garde de
-             * 15 s ramenait le boss précédent à pleine vie.
-             */
-            if(!REG.idleCombatEnPauseApresDefaiteV1&&!REG.idleVictoireBossLocaleV49){
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 161 lignes. */
+      function mettreAJourJeuIdleLocalV7__p9(dt, effetsMagie, maintenantTick){
+        if(!REG.idleCombatEnPauseApresDefaiteV1&&!REG.idleVictoireBossLocaleV49){
             const attaqueBrute=
               Math.max(
                 0,
@@ -1306,8 +849,10 @@
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-53 */
             }
             }
-        }
+      }
 
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 132 lignes. */
+      function mettreAJourJeuIdleLocalV7__p10(maintenantTick){
         if(
           REG.idleEtat.combatBossActif &&
           maintenantTick-
@@ -1440,12 +985,10 @@
           idleCombatLogCritiquesJoueurV117=0;
           idleCombatLogCritiquesBossV117=0;
         }
+      }
 
-        const joueurPvEl=
-          document.getElementById(
-            'sorealIdleJoueurPvV15'
-          );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 17 lignes. */
+      function mettreAJourJeuIdleLocalV7__p11(joueurPvEl){
         if(joueurPvEl){
           /* Norman (2026-09-27) : PV joueur rétrécissait en boucle pendant la
            * regen faute de décimale (comme le PV boss, bossEnRegenV174). */
@@ -1463,12 +1006,10 @@
             regenJoueurVisibleV176>0?'+'+formaterPvFixeIdleV1_(regenJoueurVisibleV176)+'/s':''
           );
         }
+      }
 
-        const joueurBarre=
-          document.getElementById(
-            'sorealIdleJoueurBarV15'
-          );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 36 lignes. */
+      function mettreAJourJeuIdleLocalV7__p12(joueurBarre){
         if(joueurBarre){
           const pctJoueur=
             idleNombre_(
@@ -1505,22 +1046,10 @@
             pctJoueur<=25
           );
         }
+      }
 
-        /* Bandeau du haut : la Vie est TOUJOURS celle de Fight Boss, sur toutes les pages (Aventure comprise), mise à jour à chaque tick avec les mêmes valeurs (régénération comprise). */
-        {
-          majHudPvIdleV2_(
-            REG.idleEtat.pvJoueur,
-            REG.idleEtat.pvJoueurMax,
-            regenPvFightBossNguParSecondeV164_(REG.idleEtat.defense)
-          );
-        }
-
-
-        const bossPvEl=
-          document.getElementById(
-            'sorealIdleBossPvV7'
-          );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 14 lignes. */
+      function mettreAJourJeuIdleLocalV7__p13(bossPvEl){
         if(bossPvEl){
           const bossEnRegenV174=
             idleNombre_(REG.idleEtat.bossPv)>0 &&
@@ -1535,12 +1064,10 @@
             bossEnRegenV174?'+'+formaterPvFixeIdleV1_(REG.idleEtat.regenBoss)+'/s':''
           );
         }
+      }
 
-        const barre=
-          document.getElementById(
-            'sorealIdleBossBarV7'
-          );
-
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 28 lignes. */
+      function mettreAJourJeuIdleLocalV7__p14(barre){
         if(barre){
           const pct=
             idleNombre_(
@@ -1569,26 +1096,10 @@
           barre.classList.toggle('bas',pct<=50&&pct>25);
           barre.classList.toggle('critique',pct<=25);
         }
+      }
 
-        actualiserAmbianceCombatIdleV1_();
-        actualiserDisponibiliteMoneyPitNavIdleV1_();
-
-        const aFight=
-          aventureMetaIdleV47_(REG.idleEtat);
-
-        const fight=
-          aFight&&aFight.fight;
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-55 */
-        const panneauJoueurEl=
-          document.querySelector(
-            '.soreal-idle-adventure-player-panel-v1'
-          );
-
-        const noteOuBoutonEl=
-          panneauJoueurEl?panneauJoueurEl.nextElementSibling:null;
-
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-56 */
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 143 lignes. */
+      function mettreAJourJeuIdleLocalV7__p15(aFight, fight, noteOuBoutonEl){
         if(
           fight&&fight.active&&fight.zone&&
           String(fight.zone||'')===String((aFight&&aFight.selectedZone)||'')
@@ -1732,6 +1243,584 @@
             }
           }
         }
+      }
+
+      /* Fonction interne de mettreAJourJeuIdleLocalV7_ remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
+      function elementAugIdleV1_(selecteur){
+          const cache=window.__idleAugElsV1__||(window.__idleAugElsV1__=new Map());
+          const garde=cache.get(selecteur);
+          if(garde&&garde.isConnected)return garde;
+          const el=document.querySelector(selecteur);
+          if(el)cache.set(selecteur,el);else cache.delete(selecteur);
+          return el;
+        }
+
+      /* Fonction interne de mettreAJourJeuIdleLocalV7_ remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
+      function ecrireSiChangeIdleV1_(el,texte){
+          if(!el)return;
+          if(texte.indexOf('<b class="or-somme-v1">')>=0){
+            if(el.__orHtmlV1!==texte){el.innerHTML=texte;el.__orHtmlV1=texte;}
+            return;
+          }
+          el.__orHtmlV1=null;
+          if(el.textContent!==texte)el.textContent=texte;
+        }
+
+      /* Fonction interne de mettreAJourJeuIdleLocalV7_ remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
+      function animerBarreCycliqueIdleV217_(el,seconds,progress,tenir){
+          if(!(seconds>0)){
+            /* Aucune ressource allouée : la barre reste à sa fraction (elle ne retombe pas à 0) et repartira de là. */
+            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+            const fraction=Math.max(0,Math.min(.999999,Number(progress)||0));
+            el.style.width='100%';
+            el.style.transform='scaleX('+fraction+')';
+            return;
+          }
+          /* Vitesse maximale (1 niveau par tick, 50/s) : la barre est CAP, elle reste entièrement remplie au lieu de clignoter (Norman, 2026-09-25). */
+          if(seconds<=0.0201){
+            if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+            el.style.width='100%';
+            el.style.transform='scaleX(1)';
+            return;
+          }
+          const duration=Math.max(20,seconds*1000);
+          const fini=Boolean(tenir&&el.__idleAugAnimationV217&&el.__idleAugAnimationV217.playState==='finished'&&Number(progress)<0.98);
+          if(!el.__idleAugAnimationV217||fini||Math.abs(idleNombre_(el.dataset.idleAugDurationV217)-duration)>.1){
+            if(el.__idleAugAnimationV217)el.__idleAugAnimationV217.cancel();
+            el.style.width='100%';
+            /*
+             * Cycles longs (≥ 2 s) : remplissage linéaire honnête 0 -> 100 % puis retour à 0 (Norman, 2026-09-24 : la barre restait pleine
+             * ~26 % du cycle). Les paliers d'affichage ne servent qu'aux cycles très courts, échantillonnés à 15 Hz (voir V220).
+             */
+            const animation=el.animate(
+              seconds>0
+                ?[
+                  {transform:'scaleX(0)',offset:0},
+                  {transform:'scaleX(1)',offset:1}
+                ]
+                :[
+                  {transform:'scaleX(0)',offset:0},
+                  {transform:'scaleX(0)',offset:.08},
+                  {transform:'scaleX(1)',offset:.72},
+                  {transform:'scaleX(1)',offset:.98},
+                  {transform:'scaleX(0)',offset:1}
+                ],
+              (tenir&&seconds>=2)?{duration:duration,iterations:1,fill:'forwards',easing:'linear'}:{duration:duration,iterations:Infinity,easing:'linear'}
+            );
+            animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
+            el.__idleAugAnimationV217=animation;
+            el.dataset.idleAugDurationV217=String(duration);
+          }else{
+            /*
+             * Recalage de phase : la barre tourne seule (animation du navigateur) pendant que le niveau affiché suit le repère du serveur ; après une synchro, les deux pouvaient différer de quelques
+             * dixièmes de seconde (la barre repartait de zéro 0,4 à 0,8 s AVANT que le numéro de niveau change). Dès que l'écart dépasse 80 ms (5 % du cycle), la barre se cale sur le repère.
+             */
+            const anim=el.__idleAugAnimationV217;
+            if(anim&&anim.playState==='running'){
+              const cible=Math.max(0,Math.min(.999999,Number(progress)||0))*duration;
+              const actuel=(Number(anim.currentTime)||0)%duration;
+              let ecart=cible-actuel;
+              if(ecart>duration/2)ecart-=duration;else if(ecart<-duration/2)ecart+=duration;
+              if(Math.abs(ecart)>Math.max(80,duration*0.05))anim.currentTime=cible;
+            }
+          }
+        }
+
+      /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 130 lignes. */
+      function mettreAJourJeuIdleLocalV7__p16(dpsBase, dt, maintenantTick){
+        if(
+          REG.idleEtat.combatBossActif &&
+          REG.idleCombatArmeLocalV206 &&
+          !REG.idleVictoireBossLocaleV49
+        ){
+          traiterCapacitesBossLocalesIdleV70_(
+            maintenantTick
+          );
+
+          const effetsMagie=
+            REG.idleEtat.magie&&
+            REG.idleEtat.magie.effets
+              ?REG.idleEtat.magie.effets
+              :{};
+
+          const immuniseParalysie=
+            maintenantTick<
+            idleNombre_(
+              effetsMagie.immuniteParalysieJusqua
+            );
+
+          const paralyse=
+            (
+              maintenantTick<
+              REG.idleParalysieJusquaV70
+            ) &&
+            !immuniseParalysie;
+
+          const bouclierActif=
+            maintenantTick<
+            REG.idleBouclierJusquaV70;
+
+          let multiplicateurMagieDps=1;
+
+          if(
+            maintenantTick<
+            idleNombre_(
+              effetsMagie.bossVulnerableJusqua
+            )
+          ){
+            multiplicateurMagieDps*=
+              1+
+              Math.max(
+                0,
+                idleNombre_(
+                  effetsMagie.bossVulnerablePct
+                )
+              )/
+              100;
+          }
+
+          const sceau=
+            Array.isArray(
+              REG.idleEtat.bossCapacites
+            )
+              ?REG.idleEtat.bossCapacites.find(
+                  function(cap){
+                    return String(
+                      cap&&cap.type||''
+                    ).toLowerCase()==='sceau';
+                  }
+                )
+              :null;
+
+          if(
+            sceau &&
+            idleEntier_(
+              effetsMagie.sceauBriseBossNumero
+            )!==
+            idleEntier_(
+              REG.idleEtat.bossSelection
+            )
+          ){
+            multiplicateurMagieDps*=
+              Math.max(
+                .05,
+                1-
+                Math.max(
+                  0,
+                  Math.min(
+                    95,
+                    idleNombre_(
+                      sceau.valeur
+                    )
+                  )
+                )/
+                100
+              );
+          }
+
+          const dpsAvantRegenBoss=
+            dpsBase*
+            (
+              bouclierActif
+                ?Math.max(
+                    .05,
+                    1-
+                    REG.idleBouclierReductionV70/
+                    100
+                  )
+                :1
+            )*
+            multiplicateurMagieDps;
+
+          const dps=
+            paralyse
+              ?0
+              :Math.max(
+                  0,
+                  dpsAvantRegenBoss-
+                  Math.max(
+                    0,
+                    idleNombre_(
+                      REG.idleEtat.regenBoss
+                    )
+                  )
+                );
+          mettreAJourJeuIdleLocalV7__p8(dps, dt, effetsMagie, maintenantTick);
+
+            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-46 */
+
+            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-47 */
+            /*
+             * Un boss tué dans CE tick ne riposte plus (Norman, 2026-10-02 : « le boss recule après sa mort »). Avant, le même tick enregistrait la victoire PUIS la
+             * défaite du joueur (quand les coups du boss auraient aussi tué un joueur à très peu de PV) : l'ordre « défaite » remplaçait l'ordre « démarrer le combat »
+             * encore en file (une seule action `combat` à la fois), donc le serveur ne faisait jamais le combat, ne voyait jamais la victoire, et au bout de la garde de
+             * 15 s ramenait le boss précédent à pleine vie.
+             */
+            mettreAJourJeuIdleLocalV7__p9(dt, effetsMagie, maintenantTick);
+        }
+      }
+
+      function mettreAJourJeuIdleLocalV7_(){
+        if(
+          !REG.idleEtat ||
+          PAGE_ACTIVE!=='idle'
+        ){
+          return;
+        }
+
+        const maxTotal=
+          idleNombre_(
+            REG.idleEtat.energieMax
+          );
+
+        /*
+         * Entier (Norman, 2026-10-02 : « 🔋 Reste à générer : 0 · ⏱ Pleine dans 1 s se met à clignoter très vite quand tout est généré »). Une allocation
+         * décimale (Time Machine, Max…) rendait ce plafond décimal (ex. 1234,6) : l'énergie, toujours arrondie à l'entier, valait 1234 puis 1234,6 puis 1234
+         * à chaque image -- le compteur alternait donc entre « pleine » et « reste 0 ». Énergie et plafond sont maintenant tous deux entiers.
+         */
+        const max=
+          Math.max(
+            0,
+            Math.floor(
+              maxTotal-
+              totalAllocationBasicTrainingIdleV120_()-
+              allocationMetaEnergieIdleV1_()+
+              1e-9
+            )
+          );
+
+        const prod=
+          Math.max(
+            0,
+            idleNombre_(
+              REG.idleEtat.productionSeconde
+            )
+          );
+
+        const maintenantTick=
+          Date.now();
+
+        const ecouleBasicTrainingMs=
+          Math.max(
+            0,
+            Math.min(
+              IDLE_BASIC_TRAINING_RATTRAPAGE_MAX_MS_V166,
+              maintenantTick-
+              idleDernierTickBasicTrainingV166
+            )
+          );
+
+        idleDernierTickBasicTrainingV166=
+          maintenantTick;
+
+        const ecouleTickMs=
+          Math.max(
+            0,
+            Math.min(
+              1000,
+              maintenantTick-
+              REG.idleDernierTickLocalV40
+            )
+          );
+
+        REG.idleDernierTickLocalV40=
+          maintenantTick;
+
+        const dt=
+          ecouleTickMs/
+          1000;
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-32 */
+        progresserBasicTrainingLocalIdleV120_(
+          ecouleBasicTrainingMs/
+          1000
+        );
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-33 */
+        patcherResumeStatsIdleV28_(
+          REG.idleEtat
+        );
+
+        progresserZoneFightLocalIdleV1_(
+          maintenantTick,
+          dt
+        );
+
+        const metaTickEnergie=
+          metaTickEnergieIdleV114_();
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-34 */
+        const energieAvantTick=
+          Math.max(
+            0,
+            idleNombre_(REG.idleEtat.energie)
+          );
+
+        const energieAuPlafond=
+          energieAvantTick>=max;
+
+        if(energieAuPlafond){
+          REG.idleResteTickEnergieMsV114=0;
+        }else{
+          REG.idleResteTickEnergieMsV114+=
+            ecouleTickMs;
+        }
+
+        const ticksEnergie=
+          energieAuPlafond
+            ?0
+            :Math.max(
+                0,
+                Math.floor(
+                  (
+                    REG.idleResteTickEnergieMsV114+
+                    1e-7
+                  )/
+                  metaTickEnergie.dureeMs
+                )
+              );
+
+        mettreAJourJeuIdleLocalV7__p1(energieAvantTick, max, metaTickEnergie, ticksEnergie);
+
+        /*
+         * Norman (2026-09-29) : même remplissage au compte-goutte pour la Magie -- mêmes calculs que
+         * l'Énergie ci-dessus, mais sur idleEtat.systemes.resources.magic.current (jamais de champ
+         * plat idleEtat.magie*, déjà pris par l'ancien système de sorts). Le plafond de croissance
+         * local est current+freeCapacity (resourceBudget.magic, déjà fourni par le serveur) : freeCapacity
+         * inclut déjà l'allocation, jamais recalculée ici.
+         *
+         * Garde resourceInfo.magic (jamais juste resources.magic/resourceBudget.magic) : la snapshot
+         * serveur expose TOUJOURS resources.magic/resourceBudget.magic, même Magie verrouillée (Blood
+         * Magic non débloquée) -- seul resourceInfo.magic est filtré par le serveur selon le
+         * déblocage. Sans cette garde, un joueur sans Blood Magic verrait sa Magie avancer toute seule
+         * en fond, au taux de repli 0.25/s de metaTickMagieIdleV1_ (aucune production réelle).
+         */
+        mettreAJourJeuIdleLocalV7__p2(ecouleTickMs);
+
+        actualiserManaSortsIdleV90_(
+          maintenantTick
+        );
+
+        actualiserCooldownBossIdleV100_(
+          maintenantTick
+        );
+
+        actualiserCooldownAventureIdleV100_(
+          heureServeurIdleV1_()
+        );
+
+
+        actualiserEffetsVisuelsJoueurIdleV112_(
+          maintenantTick
+        );
+
+        assurerBarreMagicPersistanteIdleV1_();
+        assurerPisteMagicTimeMachineIdleV1_();
+        actualiserCompteReboursTimeMachineIdleV1_();
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-35 */
+        mettreAJourJeuIdleLocalV7__p3(dt);
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-36 */
+        mettreAJourJeuIdleLocalV7__p4(dt);
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-37 */
+        if(!REG.idleEtat.combatBossActif){
+          rafraichirCommandesFightBossIdleV167_();
+        }
+
+        const energieEl=
+          document.getElementById(
+            'sorealIdleEnergieValeurV4'
+          );
+
+        if(energieEl){
+          energieEl.textContent=texteEnergieGenereeIdleV1_();
+        }
+
+        const energieOverlayEl=
+          document.getElementById(
+            'sorealIdleEnergyOverlayV1'
+          );
+
+        if(energieOverlayEl){
+          energieOverlayEl.textContent=
+            formatEnergieIdleV50_(
+              energieDisponibleIdleV9_()
+            )+
+            ' / '+
+            formatEntierLisibleIdleV1_(maxTotal);
+        }
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-38 */
+        const energyBarEl=
+          document.getElementById(
+            'sorealIdleEnergyBarV11'
+          );
+
+        if(energyBarEl){
+
+          mettreAJourBarreProgressionContinueV1_(
+            energyBarEl,
+            energieDisponibleIdleV9_(),
+            maxTotal
+          );
+        }
+
+        /*
+         * Barre de progression cyclique partagée (0 -> 100 % puis retour à 0, en boucle infinie tant
+         * que la durée du cycle ne change pas) -- extraite le 2026-09-29 pour être réutilisée par
+         * Blood Magic (Norman : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »),
+         * qui n'a qu'un seul rituel actif à la fois, contrairement à la boucle par def d'Augmentation
+         * ci-dessous. Comportement inchangé pour Augmentation (Historique V8, bloc-41).
+         */
+        /*
+         * Audit du menu Augmentations (Norman, 2026-10-05) : ce passage tourne plusieurs fois par seconde pour chaque barre ; il cherchait 4 éléments dans la page et réécrivait 3 textes À CHAQUE FOIS, même identiques
+         * (chaque réécriture remplace le nœud de texte : ~190 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les observateurs de la page). Les éléments sont gardés tant qu'ils sont dans la
+         * page, et un texte n'est réécrit que s'il a changé.
+         */
+        /* elementAugIdleV1_ : remontée au niveau du module */
+        /* Le message « il manque X Or » porte la somme dans une balise dorée (<b class="or-somme-v1">) : on le pose en HTML, et on compare à l'ancien texte posé (pas à innerHTML, que le navigateur reformule) pour ne pas le réécrire à chaque tick. */
+        /* ecrireSiChangeIdleV1_ : remontée au niveau du module */
+        /*
+         * `tenir` (Augments, Norman 2026-10-05 : « plus jamais de barre qui fait marche arrière quand le calcul de l'Or se fait ») : sur un cycle long, la barre s'arrête PLEINE au bout (fill forwards) au lieu de boucler. Bouclée, elle
+         * repartait à zéro d'elle-même (l'animation du navigateur, sans attendre le jeu) un instant avant que le jeu constate qu'il manque de l'Or et la remette pleine : on voyait la barre tomber à zéro puis remonter. Une barre qui
+         * a fini son cycle et dont le jeu en démarre un nouveau (niveau validé) est recréée ; les rituels de Blood Magic, eux, bouclent toujours (même durée à chaque tour).
+         */
+        /* animerBarreCycliqueIdleV217_ : remontée au niveau du module */
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-39 */
+        /*
+         * Norman (2026-10-03) : « le compteur de Blood Magic s'arrête (27 s) alors que la barre avance. TOUS LES COMPTEURS doivent être très précis. » Chaque synchro remplace l'état
+         * (idleEtat=joueurServeur) : les repères visuels posés au dernier rendu (barres et comptes à rebours) disparaissaient, le texte n'était plus rafraîchi alors que la barre,
+         * animée par le navigateur, continuait. On les reporte sur le nouvel état tant que la page ne les a pas redessinés (même horloge, donc aucun saut).
+         */
+        ['__augmentationsVisualV215','__bloodMagicVisualV1'].forEach(function(cle){
+          if(REG.idleEtat[cle]===undefined){if(idleRepereVisuelsV1_[cle]!==undefined)REG.idleEtat[cle]=idleRepereVisuelsV1_[cle];}
+          else idleRepereVisuelsV1_[cle]=REG.idleEtat[cle];
+        });
+        /* « machine » (Time Machine) : sa barre de l'Or tique de plus en plus vite quand le niveau de vitesse monte ; sans synchro périodique, il fallait changer de menu pour le voir (Norman, 2026-10-11). Les chiffres sont mis à jour EN PLACE à chaque synchro. */
+        if((REG.IDLE_MENUS_VIVANTS_V1[REG.idleMenuActifV28]||REG.idleMenuActifV28==='tower'||REG.idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
+          idleMenuViveSyncV1=Date.now();
+          synchroniserJeuIdleV7_(true);
+        }
+        /*
+         * Or EN DIRECT (Norman, 2026-10-10 : « les soustractions d'Or posent problème dans tous les menus qui en demandent : un petit retour en arrière, un temps d'arrêt, ou la mauvaise piste qui prend le niveau ; le contrôle de l'Or ne
+         * se fait pas assez vite »). Le client retirait bien l'Or de chaque niveau acheté, mais ne le REMPLISSAIT jamais entre deux synchros : il croyait en manquer (barre pleine, « en attente d'Or ») alors que la machine en avait déjà
+         * produit, puis la synchro suivante rendait l'Or et faisait sauter les niveaux. L'Or gagné par seconde (Or net de la machine) est maintenant ajouté localement à chaque tick, comme l'énergie ; la synchro ne fait que confirmer.
+         */
+        mettreAJourJeuIdleLocalV7__p5();
+        const augVisual=REG.idleEtat.__augmentationsVisualV215;
+        const niveauxAugmentsLocaux={};
+        mettreAJourJeuIdleLocalV7__p6(augVisual, niveauxAugmentsLocaux);
+
+        /*
+         * Blood Magic : barre de progression du rituel actif vers sa prochaine complétion (Norman,
+         * 2026-09-29 : « blood magic n'a pas de barre d'avancement comme dans NGU Idle »). Un seul
+         * rituel progresse réellement à la fois (bloodMagicViewV1, idle-ngu-progression.js) : un seul
+         * élément à patcher, jamais une boucle par rituel comme Augmentation.
+         */
+        const bloodVisuels=REG.idleEtat.__bloodMagicVisualV1;
+        mettreAJourJeuIdleLocalV7__p7(bloodVisuels);
+
+        const summaryEnergieEl=
+          document.getElementById(
+            'sorealIdleSummaryEnergieV50'
+          );
+
+        if(summaryEnergieEl){
+          summaryEnergieEl.textContent=
+            formatEnergieIdleV50_(
+              energieDisponibleIdleV9_()
+            )+
+            ' / '+
+            formatEntierLisibleIdleV1_(maxTotal);
+        }
+
+
+        const vitesseEl=
+          document.getElementById(
+            'sorealIdleEnergySpeedV34'
+          );
+
+        if(vitesseEl){
+          vitesseEl.textContent=texteNiveauParSecondeIdleV1_(REG.idleEtat&&REG.idleEtat.productionSeconde);
+        }
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-42 */
+        const dpsBase=
+          Math.max(
+            0,
+            idleNombre_(
+              REG.idleEtat.puissance
+            )-
+            idleNombre_(
+              REG.idleEtat.defenseBoss
+            )
+          );
+
+        mettreAJourJeuIdleLocalV7__p16(dpsBase, dt, maintenantTick);
+
+        mettreAJourJeuIdleLocalV7__p10(maintenantTick);
+
+        const joueurPvEl=
+          document.getElementById(
+            'sorealIdleJoueurPvV15'
+          );
+
+        mettreAJourJeuIdleLocalV7__p11(joueurPvEl);
+
+        const joueurBarre=
+          document.getElementById(
+            'sorealIdleJoueurBarV15'
+          );
+
+        mettreAJourJeuIdleLocalV7__p12(joueurBarre);
+
+        /* Bandeau du haut : la Vie est TOUJOURS celle de Fight Boss, sur toutes les pages (Aventure comprise), mise à jour à chaque tick avec les mêmes valeurs (régénération comprise). */
+        {
+          majHudPvIdleV2_(
+            REG.idleEtat.pvJoueur,
+            REG.idleEtat.pvJoueurMax,
+            regenPvFightBossNguParSecondeV164_(REG.idleEtat.defense)
+          );
+        }
+
+
+        const bossPvEl=
+          document.getElementById(
+            'sorealIdleBossPvV7'
+          );
+
+        mettreAJourJeuIdleLocalV7__p13(bossPvEl);
+
+        const barre=
+          document.getElementById(
+            'sorealIdleBossBarV7'
+          );
+
+        mettreAJourJeuIdleLocalV7__p14(barre);
+
+        actualiserAmbianceCombatIdleV1_();
+        actualiserDisponibiliteMoneyPitNavIdleV1_();
+
+        const aFight=
+          aventureMetaIdleV47_(REG.idleEtat);
+
+        const fight=
+          aFight&&aFight.fight;
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-55 */
+        const panneauJoueurEl=
+          document.querySelector(
+            '.soreal-idle-adventure-player-panel-v1'
+          );
+
+        const noteOuBoutonEl=
+          panneauJoueurEl?panneauJoueurEl.nextElementSibling:null;
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-56 */
+        mettreAJourJeuIdleLocalV7__p15(aFight, fight, noteOuBoutonEl);
       }
 
       function assurerBarreMagicPersistanteIdleV1_(){

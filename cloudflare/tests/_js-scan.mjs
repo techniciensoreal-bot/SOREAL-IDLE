@@ -189,3 +189,44 @@ export function decouper(src) {
   });
   return { items, prefixe: src.slice(0, items.length ? items[0].debut : 0), suffixe: src.slice(items.length ? items[items.length - 1].fin : 0) };
 }
+
+/*
+ * Reconstitution des très grandes fonctions découpées (cloudflare/tools : splitfn) : une étape extraite « X_pN » est réinsérée à la place de son appel dans X, une fonction interne
+ * remontée au niveau du module est réinsérée à la place de son repère. `table` : Map clé (« F:nom ») -> texte ; les éléments absorbés sont retirés.
+ */
+export function defragmenter(table) {
+  const etapes = new Map(); const remontees = new Map();
+  for (const [k, t] of table) {
+    if (!k.startsWith("F:")) continue;
+    const nom = k.slice(2);
+    if (/_p\d+$/.test(nom) && t.includes("Étape extraite de ")) {
+      const i = t.indexOf("{"); const j = t.lastIndexOf("}");
+      const corps = t.slice(i + 1, j).replace(/^\s*\n/, "").replace(/\n\s*$/, "");
+      etapes.set(nom, corps);
+    } else if (t.includes("remontée au niveau du module (découpage")) {
+      const m = t.match(/\*\/\s*\n?([\s\S]*)$/);
+      if (m) remontees.set(nom, m[1].replace(/\n+$/, ""));
+    }
+  }
+  if (!etapes.size && !remontees.size) return table;
+  const absorbes = new Set([...etapes.keys(), ...remontees.keys()].map((n) => "F:" + n));
+  for (const [k, t0] of table) {
+    if (absorbes.has(k)) continue;
+    let t = t0;
+    for (let tour = 0; tour < 40; tour++) {
+      let change = false;
+      for (const [n, corps] of etapes) {
+        const re = new RegExp("[ \\t]*\\b" + n + "\\(([A-Za-z0-9_$, ]*)\\);", "g");
+        if (re.test(t)) { t = t.replace(new RegExp(re.source, "g"), () => corps); change = true; }
+      }
+      for (const [n, corps] of remontees) {
+        const marque = "/* " + n + " : remontée au niveau du module */";
+        if (t.includes(marque)) { t = t.split(marque).join(corps); change = true; }
+      }
+      if (!change) break;
+    }
+    table.set(k, t);
+  }
+  for (const k of absorbes) table.delete(k);
+  return table;
+}

@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from "
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import { decouper, finFonction, finInstruction } from "./_js-scan.mjs";
+import { decouper, finFonction, finInstruction, defragmenter } from "./_js-scan.mjs";
 
 /*
  * soreal-idle-ui.js est découpé en modules (modules/ui-*-v1.js et modules/page-*-v1.js, découpage du monolithe, 2026-10-16). Les tests qui vérifient le CODE
@@ -55,6 +55,7 @@ function construire() {
     const d = decouper(s);
     for (const it of d.items) ajouter(s, it, true);
   }
+  defragmenter(table);
   const sorties = []; const vus = new Set();
   for (const k of manifeste) { if (table.has(k)) { sorties.push(table.get(k)); vus.add(k); } }
   for (const [k, t] of table) if (!vus.has(k)) sorties.push(t);
