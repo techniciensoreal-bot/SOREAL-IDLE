@@ -36,6 +36,8 @@ export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
 /* Boosts versés dans une pièce ou le Cube : une annonce par minute au plus. */
 export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
 export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 3 * 60 * 1000;
+/* Magie placée dans un rituel : une annonce par minute au plus (réglages en rafale, « tout allouer »). */
+export const IDLE_FLUX_DELAI_RITUEL_MS_V1 = 60 * 1000;
 
 /* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
 const __fluxPretV1 = new WeakSet();
@@ -86,6 +88,12 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const sorts = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellsCast, 0)));
   const sortDernier = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellLast, 0)));
   const histoires = Math.max(0, Math.floor(N(stats && stats.fluxHistoires, 0)));
+  /* Magie placée dans chaque rituel de Blood Magic (Norman, 2026-10-16 : « s'ils placent de la magie dans les rituels, ça doit écrire une phrase en rapport ») : identifiant -> magie placée (entier), seulement > 0. */
+  const rituels = {};
+  for (const [id, r] of Object.entries((m.systems && m.systems.bloodMagic && m.systems.bloodMagic.data && m.systems.bloodMagic.data.rituals) || {})) {
+    const mg = Math.floor(N(r && r.magic, 0));
+    if (/^[A-Za-z0-9_]{1,30}$/.test(id) && mg > 0) rituels[id] = mg;
+  }
   const tf = (m.adventure && m.adventure.titanFlux) || {};
   /* Boosts versés dans une pièce / dans le Cube de l'infini (Norman, 2026-10-09) : compteurs tenus par le moteur (adventure.boostFlux), jamais le détail. */
   const bf = (m.adventure && m.adventure.boostFlux) || {};
@@ -143,6 +151,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     sorts,
     sortDernier,
     histoires,
+    rituels,
     bossFuites,
     bossDefaites,
     bossDernier,
@@ -231,6 +240,11 @@ export function evenementsV1(avant, apres, noms = {}) {
   if (Number.isFinite(avant.roueN) && apres.roueN > avant.roueN && apres.roueJet) ev.push({ type: "roue", donnees: apres.roueJet });
   if (Number.isFinite(avant.sorts) && apres.sorts > avant.sorts) ev.push({ type: "sort", donnees: { sort: apres.sortDernier } });
   if (Number.isFinite(avant.histoires) && apres.histoires > avant.histoires) ev.push({ type: "histoire", donnees: {} });
+  /* Magie placée dans un rituel : jamais depuis un instantané d'avant ce jalon ; seulement une AUGMENTATION (en retirer ne s'annonce pas), un seul rituel par battement ; le lecteur ne le voit nommé que s'il le connaît. */
+  if (avant.rituels && typeof avant.rituels === "object" && apres.rituels) {
+    const id = Object.keys(apres.rituels).find((k) => apres.rituels[k] > N(avant.rituels[k], 0));
+    if (id) ev.push({ type: "rituel", donnees: { id } });
+  }
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 }
@@ -260,7 +274,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     menuVu: precedent ? String(precedent.menuVu || "") : "",
     menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0,
     boostAt: precedent ? N(precedent.boostAt, 0) : 0,
-    accidentVu: precedent ? N(precedent.accidentVu, 0) : 0
+    accidentVu: precedent ? N(precedent.accidentVu, 0) : 0,
+    rituelAt: precedent ? N(precedent.rituelAt, 0) : 0
   });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
@@ -294,11 +309,13 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     }
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
+      if (e.type === "rituel") return now - N(precedent.rituelAt, 0) >= IDLE_FLUX_DELAI_RITUEL_MS_V1;
       if (e.type !== "cube" && e.type !== "piece") return true;
       if (now - N(precedent.boostAt, 0) < IDLE_FLUX_DELAI_BOOST_MS_V1) return false;
       return true;
     });
     if (sortie.some((e) => e.type === "cube" || e.type === "piece")) etat.boostAt = now;
+    if (sortie.some((e) => e.type === "rituel")) etat.rituelAt = now;
     evenements.length = 0;
     evenements.push(...sortie);
     for (const e of evenements.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1)) {

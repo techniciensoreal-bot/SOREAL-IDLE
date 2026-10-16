@@ -150,6 +150,27 @@
         const visible=Boolean(k.sorts&&k.sorts[rang]);
         return {icone:'🩸',texte:nom+verbe(' as',' a')+' lancé '+(visible&&nomSort?'le sort '+nomSort:'un sort de Magie du sang')};
       }
+      /*
+       * Magie placée dans un rituel (Norman, 2026-10-16) : une phrase propre à chaque rituel (« Saka s'entaille le bras avec du papier »). Seulement pour un lecteur qui a la Magie du sang ; le rituel n'est
+       * nommé que si le lecteur le connaît (connus.rituels = rituels déjà débloqués chez lui), sinon phrase neutre.
+       */
+      case 'rituel':{
+        if(!k.menus.sang)return null;
+        const PHRASES={
+          tack:['se pique avec une punaise','te piques avec une punaise'],
+          papercuts:['s’entaille le bras avec du papier','t’entailles le bras avec du papier'],
+          hickey:['se fait un énorme suçon','te fais un énorme suçon'],
+          barbedWire:['avale un bol de barbelés','avales un bol de barbelés'],
+          bloodBank:['braque la banque du sang','braques la banque du sang'],
+          decapitation:['se décapite','te décapites'],
+          woodchipper:['fait un câlin à une broyeuse','fais un câlin à une broyeuse'],
+          insideOut:['se retourne comme un gant','te retournes comme un gant']
+        };
+        const id=String(d.id||'');
+        const p=PHRASES[id];
+        if(p&&k.rituels&&k.rituels[id])return {icone:'🩸',texte:nom+' '+(it.moi?p[1]:p[0])};
+        return {icone:'🩸',texte:nom+' '+(it.moi?'places':'place')+' de la magie dans un rituel de sang'};
+      }
       /* Trou sans fond et roue (Norman, 2026-10-04) : annoncés aux lecteurs qui connaissent le Money Pit ; chaque récompense n'est nommée que si le lecteur connaît le système qui s'y rapporte (anti-spoil). */
       case 'puits':{
         if(!k.menus.moneyPit)return null;

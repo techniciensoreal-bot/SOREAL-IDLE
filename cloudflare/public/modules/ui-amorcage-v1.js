@@ -1722,6 +1722,9 @@ window.__SOREAL_IDLE_ACTIVITE_V1__=function(){
         connus.menus.titans=Boolean(a&&Array.isArray(a.titans)&&a.titans.some(function(t){return t&&t.id&&t.progressionUnlocked!==false;}));
         connus.menus.succes=chroniquesOngletsIdleV1_(j).some(function(o){return o.id==='succes';});
         try{connus.sorts=typeof window.__SOREAL_IDLE_SORTS_CONNUS_V1__==='function'?window.__SOREAL_IDLE_SORTS_CONNUS_V1__(j):{};}catch(e){connus.sorts={};}
+        /* Rituels de sang déjà débloqués chez ce lecteur (le serveur n'envoie que ceux-là) : le fil « En direct » ne nomme jamais un rituel qu'il ne connaît pas. */
+        connus.rituels={};
+        try{((j.systemes&&j.systemes.bloodRituals)||[]).forEach(function(r){if(r&&r.id)connus.rituels[String(r.id)]=true;});}catch(e){}
         return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,menu:String(REG.idleMenuActifV28||''),zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
       };
 }

@@ -62,6 +62,7 @@
             'Le « 69 % » ne bouge plus : le « lol » apparaît simplement à sa droite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Dans « En direct », quand un joueur place de la magie dans un rituel, une phrase le raconte : « s’entaille le bras avec du papier », « avale un bol de barbelés »… (le rituel n’est nommé que si tu l’as déjà débloqué).',
             'Quand un sort bascule la piste d’ambiance sur l’orage, plus aucun éclair n’apparaît : seuls le sceau, le pentacle, les runes et le sang animent le sort.',
           ]}
         ]
