@@ -349,8 +349,9 @@
           Object.keys(augVisual.defs||{}).forEach(function(id){
             const d=augVisual.defs[id]||{};
             [['main',d.progress,d.seconds,d.waiting,d.goldCost,d.level],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost,d.upgradeLevel]].forEach(function(x){
-              const el=elementAugIdleV1_('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]');
-              if(!el)return;
+              /* Les niveaux sont rejoués à chaque tick, quelle que soit la page affichée (Norman, 2026-10-16 : l'effet d'un niveau d'Augmentations sur les PV ne doit pas attendre qu'on ouvre le menu) ; seuls les éléments de la page ne sont cherchés et écrits que si elle est ouverte. */
+              const surPageAug=REG.idleMenuActifV28==='augmentations';
+              const el=surPageAug?elementAugIdleV1_('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]'):null;
               const secondes0=idleNombre_(x[2]);
               const ecouleAug=(performance.now()-augVisual.at)/1000;
               const monnaiesLocales=REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
@@ -391,13 +392,13 @@
               const manqueOrServeur=Boolean(x[3])&&k===0&&orLive+1e-9<coutK(0);
               const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;
               const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;
-              if(attenteServeur&&Date.now()-idleAugSyncV1>3000){
+              if(el&&attenteServeur&&Date.now()-idleAugSyncV1>3000){
                 idleAugSyncV1=Date.now();
                 /* La réponse est adoptée comme nouveau repère à l'arrivée (voir la synchro) : plus de redessin différé, qui faisait repasser toute la page par les chiffres en retard du serveur. */
                 synchroniserJeuIdleV7_(true);
               }
               /* Niveau, coût du prochain niveau et compte à rebours : mis à jour à l'instant où la barre passe. */
-              const nivEl=elementAugIdleV1_('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]');
+              const nivEl=el?elementAugIdleV1_('[data-idle-aug-niv-v1="'+id+':'+x[0]+'"]'):null;
               /* Le niveau affiché ne recule jamais d'un cran à l'arrivée d'une réponse du serveur (écart d'horloge de quelques dixièmes de seconde sur une barre qui gagne des dizaines de niveaux par seconde) : on garde le plus haut tant que l'écart reste infime (moins de 1 % du niveau, 20 niveaux au plus). */
               let nivAffiche=niv0+k;
               if(nivEl){
@@ -407,6 +408,7 @@
               }
               ecrireSiChangeIdleV1_(nivEl,formatEntierLisibleIdleV1_(nivAffiche));
               niveauxAugmentsLocaux[id+':'+x[0]]=nivAffiche;
+              if(!el)return;
               const coutEl=elementAugIdleV1_('[data-idle-aug-cout-v1="'+id+':'+x[0]+'"]');
               if(coutEl&&k>0)ecrireSiChangeIdleV1_(coutEl,formatGrandNombreIdleV70_(coutK(k))+' Or');
               /* La somme est verte quand on a l'Or, rouge sinon (Norman, 2026-10-08). */

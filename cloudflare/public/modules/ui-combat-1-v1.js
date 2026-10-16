@@ -89,7 +89,7 @@
           const cp=REG.idleEtat&&REG.idleEtat.combatPrincipal;
           const defs=REG.idleEtat&&REG.idleEtat.systemes&&Array.isArray(REG.idleEtat.systemes.augmentations)?REG.idleEtat.systemes.augmentations:[];
           if(!base||!cp||!defs.length)return;
-          /* Hors de la page Augmentations, aucun niveau n'est rejoué : on ne touche à rien (sinon la vie max retombait au multiplicateur de départ en changeant de menu). */
+          /* Aucun niveau rejoué (pas encore de repère) : on ne touche à rien. Depuis le 2026-10-16 les niveaux sont rejoués à chaque tick quel que soit le menu ouvert. */
           if(!Object.keys(niveaux).length)return;
           let additif=0;
           defs.forEach(function(d){

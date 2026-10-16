@@ -404,8 +404,8 @@
   "sha": "9750660af9d6363ae542760ef4f8ea8b5ac542ba"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 3,
-  "sha": "d9053d75dc00d7f35f2f271849cae9b3bd4f31e0"
+  "pin": 4,
+  "sha": "8115e537e84349485a7e24025bb426cb84943321"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
@@ -416,8 +416,8 @@
   "sha": "36e2d113f97dccdd09cb6892f73e8b4c196a169a"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 1,
-  "sha": "0cc391643f35f37e10f8ae169ff0b296ebea07e7"
+  "pin": 2,
+  "sha": "ed67247309193fd1ea0274456e016d5138dea49b"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 1,
@@ -452,8 +452,8 @@
   "sha": "8d9143adf3f24f1e13020d77365efefe9e448bea"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 2,
-  "sha": "54bc29033d952f62dae9a2052ff1235baea42754"
+  "pin": 3,
+  "sha": "1d716a2f5b590df6e68a1db04e3db66b795e99dd"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 2,

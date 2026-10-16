@@ -365,7 +365,8 @@
               }
             }
             /* Augmentations : la réponse du serveur devient directement le nouveau repère des barres, que la synchro passe par le chemin du combat ou non (aucun redessin, donc aucun retour en arrière visible). */
-            if(REG.idleMenuActifV28==='augmentations'&&REG.idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
+            /* Quel que soit le menu ouvert : le repère sert aussi à répercuter tout de suite un niveau gagné sur la vie max et l'attaque (Norman, 2026-10-16). */
+            if(REG.idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
               try{window.__adopterRepereAugmentsIdleV1__(REG.idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('repere_augments',e);}
             }
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
