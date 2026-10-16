@@ -11,12 +11,9 @@
 
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function menuDisponibleIdleV28_(){return REG.menuDisponibleIdleV28_.apply(null,arguments);}
-  function langueIdleV1_(){return REG.langueIdleV1_.apply(null,arguments);}
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
-  function notesMajIdleV1_(){return REG.notesMajIdleV1_.apply(null,arguments);}
   function idleInfosParMenuIdleV1_(){return REG.idleInfosParMenuIdleV1_.apply(null,arguments);}
-  function idleInfoOuvertV1_(){return REG.idleInfoOuvertV1_.apply(null,arguments);}
   function idleMenusAckListeV1_(){return REG.idleMenusAckListeV1_.apply(null,arguments);}
   function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
   function texteVoixNouveauteIdleV1_(){return REG.texteVoixNouveauteIdleV1_.apply(null,arguments);}
@@ -132,6 +129,15 @@
         '</div>';
       }
 
+      /*
+       * Notes de mise à jour (Norman, 2026-09-25) : données dans modules/release-notes-v1.js (une entrée en tête à chaque mise à jour).
+       * Dépliées seulement à la demande ; l'état est mémorisé sur cet appareil.
+       */
+      function notesMajIdleV1_(){
+        const n=window.__SOREAL_IDLE_RELEASE_NOTES_V1__;
+        return n&&Array.isArray(n.versions)?n:{courante:'?',versions:[]};
+      }
+
       /* Date d'une version en toutes lettres (Norman, 2026-10-14 : « je veux les dates des patchs, même les anciens ») : 2026-10-14 -> 14 octobre 2026 (anglais : October 14, 2026). */
       function dateNotesMajIdleV1_(iso){
         const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
@@ -158,6 +164,14 @@
         }catch(e){}
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+      }
+
+      /*
+       * Langue des items et des textes (Norman, 2026-10-03) : Français (traduit) ou English (les originaux de ce qui a été traduit). Mémorisée sur cet appareil ; le serveur traduit ses réponses
+       * d'après le champ « langue » que le pont envoie (standalone-bridge.js).
+       */
+      function langueIdleV1_(){
+        try{return localStorage.getItem('soreal_idle_langue_v1')==='en'?'en':'fr';}catch(_e){return 'fr';}
       }
 
       function htmlReglagesLangueIdleV1_(){
@@ -298,6 +312,22 @@
             :'');
       }
 
+      function idleInfoOuvertV1_(){
+        try{
+          return localStorage.getItem('soreal_idle_info_ouvert_v1')==='1';
+        }catch(e){
+          return false;
+        }
+      }
+
+      function toggleInfoOuvertIdleV1_(){
+        try{
+          localStorage.setItem('soreal_idle_info_ouvert_v1',idleInfoOuvertV1_()?'0':'1');
+        }catch(e){}
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+      }
+
       function pageParametresIdleV28_(j){
         const infosParMenu=idleInfosParMenuIdleV1_(j);
         const infoOuvert=idleInfoOuvertV1_();
@@ -426,7 +456,10 @@
 
   Object.assign(REG,{
     jouerEffetAudioIdleV199_:jouerEffetAudioIdleV199_,
+    notesMajIdleV1_:notesMajIdleV1_,
     basculerNotesMajIdleV1_:basculerNotesMajIdleV1_,
+    langueIdleV1_:langueIdleV1_,
+    toggleInfoOuvertIdleV1_:toggleInfoOuvertIdleV1_,
     pageParametresIdleV28_:pageParametresIdleV28_
   });
 })();

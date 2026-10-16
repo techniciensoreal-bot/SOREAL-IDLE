@@ -20,14 +20,12 @@
   function planifierEnvoiRapideIdleV60_(){return REG.planifierEnvoiRapideIdleV60_.apply(null,arguments);}
   function idleFastCountObjectV60_(){return REG.idleFastCountObjectV60_.apply(null,arguments);}
   function planifierRenduOptimisteIdleV60_(){return REG.planifierRenduOptimisteIdleV60_.apply(null,arguments);}
+  function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
   function menuDisponibleIdleV28_(){return REG.menuDisponibleIdleV28_.apply(null,arguments);}
-  function pageSpendExpIdleV1_(){return REG.pageSpendExpIdleV1_.apply(null,arguments);}
-  function achatsApParCategorieIdleV1_(){return REG.achatsApParCategorieIdleV1_.apply(null,arguments);}
-  function articleApVisibleIdleV1_(){return REG.articleApVisibleIdleV1_.apply(null,arguments);}
-  function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
-  function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
   function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
+  function articleApVisibleIdleV1_(){return REG.articleApVisibleIdleV1_.apply(null,arguments);}
+  function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
 
       function coutNiveauxIdleV7_(
         niveau,
@@ -89,6 +87,67 @@
         return coutNiveauxIdleV7_(
           depart,
           q
+        );
+      }
+
+      function coutPendingIdleV7_(
+        j,
+        type
+      ){
+        return coutAchatsIdleV23_(
+          j,
+          type,
+          REG.idleAchatsEnAttenteV7
+        );
+      }
+
+      function coutEnvoyesIdleV23_(
+        j,
+        type
+      ){
+        return coutAchatsIdleV23_(
+          j,
+          type,
+          REG.idleAchatsEnvoyesV23
+        );
+      }
+
+      function energieReserveeIdleV23_(){
+        if(!REG.idleEtat){
+          return 0;
+        }
+
+        return (
+          coutEnvoyesIdleV23_(
+            REG.idleEtat,
+            'force'
+          ) +
+          coutEnvoyesIdleV23_(
+            REG.idleEtat,
+            'endurance'
+          ) +
+          coutEnvoyesIdleV23_(
+            REG.idleEtat,
+            'organisation'
+          ) +
+          coutPendingIdleV7_(
+            REG.idleEtat,
+            'force'
+          ) +
+          coutPendingIdleV7_(
+            REG.idleEtat,
+            'endurance'
+          ) +
+          coutPendingIdleV7_(
+            REG.idleEtat,
+            'organisation'
+          ) +
+          Math.max(
+            0,
+            idleNombre_(
+              REG.idleReserveAventureV23
+            )
+          )
         );
       }
 
@@ -367,6 +426,102 @@
           );
       }
 
+      function rendreBoutiqueIdleV12_(j){
+        const a=
+          j&&j.ameliorations
+            ?j.ameliorations
+            :{
+                production:0,
+                capacite:0,
+                puissance:0
+              };
+
+        const couts=
+          j&&j.coutsBoutique
+            ?j.coutsBoutique
+            :{};
+
+        const bonus=
+          j&&j.bonusBoutique
+            ?j.bonusBoutique
+            :{
+                production:0,
+                capacite:0,
+                puissance:0
+              };
+
+        const pieces=
+          idleEntier_(
+            j&&j.pieces
+          );
+
+        const items=[
+          {
+            type:'production',
+            icon:'⚡',
+            titre:'Production d’énergie',
+            niveau:a.production,
+            effet:'+'+
+              idleEntier_(bonus.production)+
+              ' énergie/sec',
+            cout:couts.production
+          },
+          {
+            type:'capacite',
+            icon:'🔋',
+            titre:'Capacité d’énergie',
+            niveau:a.capacite,
+            effet:'+'+
+              idleEntier_(bonus.capacite)+
+              ' énergie max',
+            cout:couts.capacite
+          },
+          {
+            type:'puissance',
+            icon:'🔥',
+            titre:'Puissance permanente',
+            niveau:a.puissance,
+            effet:'+'+
+              idleEntier_(bonus.puissance)+
+              ' puissance',
+            cout:couts.puissance
+          }
+        ];
+
+        return items
+          .map(function(item){
+            const cout=
+              idleEntier_(
+                item.cout
+              );
+
+            return `
+              <div class="soreal-idle-shop-card-v12">
+                <div>
+                  <div class="soreal-idle-shop-title-v12">
+                    ${item.icon}
+                    ${idleHtml_(item.titre)}
+                    · niv. ${idleEntier_(item.niveau)}
+                  </div>
+                  <div class="soreal-idle-shop-meta-v12">
+                    Bonus total : ${idleHtml_(item.effet)}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="soreal-idle-shop-buy-v12"
+                  onclick="window.__acheterAmeliorationIdleV12__('${item.type}')"
+                  ${pieces<cout?'disabled':''}
+                >
+                  ${cout} 🪙
+                </button>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
       /*
        * Menu « Shop » (2026-09-25, Norman) : EXP Shop et Boutique AP, même visuel qu'avant, séparés par un onglet ; EXP Shop par défaut, un
        * clic pour passer de l'un à l'autre. L'onglet Boutique AP n'existe qu'une fois cette boutique débloquée (rien à deviner).
@@ -407,6 +562,34 @@
         if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+REG.IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP'+pointAp+'</button>');
         return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
           contenuBoutique;
+      }
+
+      function pageSpendExpIdleV1_(j){
+        const api=window.__SOREAL_IDLE_META_V130__;
+        if(api&&typeof api.pageSpendExpIdleV1_==='function'){
+          return api.pageSpendExpIdleV1_(j);
+        }
+        return '';
+      }
+
+      function pageBoutiqueIdleV28_(j){
+        return `
+          ${entetePageIdleV28_(
+            '🪙 Améliorations permanentes',
+            'Dépense tes pièces dans des bonus permanents.'
+          )}
+
+          <div class="soreal-idle-window-title-v31 gold">
+            🪙 Or possédé
+            <span class="soreal-idle-gold-total-v31">
+              ${idleEntier_(j.pieces)}
+            </span>
+          </div>
+
+          <div class="soreal-idle-shop-grid-v12">
+            ${rendreBoutiqueIdleV12_(j)}
+          </div>
+        `;
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-307 */
@@ -531,6 +714,18 @@
         });
       }
 
+      /* Achats visibles de la boutique AP, par rayon (catégorie) : point rouge « nouveau » (modules/boutique-nouveautes-v1.js). */
+      function achatsApParCategorieIdleV1_(j){
+        const shop=(j&&j.systemes&&j.systemes.selloutShop)||{};
+        const sortie={};
+        (Array.isArray(shop.catalog)?shop.catalog:[]).filter(function(item){return articleApVisibleIdleV1_(j,item);}).forEach(function(item){
+          const cle=item.category||'autre';
+          if(!sortie[cle])sortie[cle]=[];
+          sortie[cle].push(item.id);
+        });
+        return sortie;
+      }
+
       function pageSelloutShopIdleV1_(j){
         prechargerImagesShopIdleV1_();
         const systemes=(j&&j.systemes)||{};
@@ -605,13 +800,16 @@
       }
 
   Object.assign(REG,{
-    coutAchatsIdleV23_:coutAchatsIdleV23_,
+    energieReserveeIdleV23_:energieReserveeIdleV23_,
     idleShopPendingV111_:idleShopPendingV111_,
     appliquerEtatBoutiqueCibleIdleV111_:appliquerEtatBoutiqueCibleIdleV111_,
     demanderReconciliationBoutiqueIdleV111_:demanderReconciliationBoutiqueIdleV111_,
     couleurBoutonShopIdleV1_:couleurBoutonShopIdleV1_,
     changerOngletShopIdleV1_:changerOngletShopIdleV1_,
     pageShopIdleV1_:pageShopIdleV1_,
+    pageSpendExpIdleV1_:pageSpendExpIdleV1_,
+    pageBoutiqueIdleV28_:pageBoutiqueIdleV28_,
+    achatsApParCategorieIdleV1_:achatsApParCategorieIdleV1_,
     pageSelloutShopIdleV1_:pageSelloutShopIdleV1_
   });
 })();

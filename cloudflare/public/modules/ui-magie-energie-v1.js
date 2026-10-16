@@ -12,16 +12,14 @@
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
   function formatEntierLisibleIdleV1_(){return REG.formatEntierLisibleIdleV1_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
-  function energieGenereeTotaleIdleV1_(){return REG.energieGenereeTotaleIdleV1_.apply(null,arguments);}
-  function texteNiveauParSecondeIdleV1_(){return REG.texteNiveauParSecondeIdleV1_.apply(null,arguments);}
-  function energieDisponibleIdleV9_(){return REG.energieDisponibleIdleV9_.apply(null,arguments);}
+  function energieReserveeIdleV23_(){return REG.energieReserveeIdleV23_.apply(null,arguments);}
+  function totalAllocationBasicTrainingIdleV120_(){return REG.totalAllocationBasicTrainingIdleV120_.apply(null,arguments);}
   function mettreAJourBarreProgressionContinueV1_(){return REG.mettreAJourBarreProgressionContinueV1_.apply(null,arguments);}
   function coutBaseEntrainementIdleV73_(){return REG.coutBaseEntrainementIdleV73_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
   function conserverPositionIdleV24_(){return REG.conserverPositionIdleV24_.apply(null,arguments);}
   function rendreIdleEtat_(){return REG.rendreIdleEtat_.apply(null,arguments);}
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
-  function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}
   function ajouterLogCombatIdleV70_(){return REG.ajouterLogCombatIdleV70_.apply(null,arguments);}
   function protegerJoueurServeurInventaireIdleV208_(){return REG.protegerJoueurServeurInventaireIdleV208_.apply(null,arguments);}
   function appliquerSynchroCombatSansReflowIdleV116_(){return REG.appliquerSynchroCombatSansReflowIdleV116_.apply(null,arguments);}
@@ -29,7 +27,16 @@
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
   function resumeStatsIdleV28_(){return REG.resumeStatsIdleV28_.apply(null,arguments);}
-  function magieEncoreAGenererIdleV1_(){return REG.magieEncoreAGenererIdleV1_.apply(null,arguments);}
+
+      /* Bandeau : part de chaque barre déjà générée (disponible + dépensée), en pourcentage du plafond. */
+      /*
+       * La barre de Magie ne s'efface PAS tant qu'il reste de la Magie à générer (Norman, 2026-10-12 : « j'ai acheté 30K de plafond et la barre a mis 10 secondes à s'afficher » ; « j'ai mis MAX pour la Time Machine, il restait 2 minutes de
+       * Magie à générer et pourtant la barre a disparu puis est réapparue »). Elle n'est « vide » que si plus rien n'est disponible ET qu'il n'y a plus rien à produire (plafond atteint ou production nulle).
+       */
+      function magieEncoreAGenererIdleV1_(){
+        const m=typeof donneesMagieGenereeIdleV1_==='function'?donneesMagieGenereeIdleV1_():null;
+        return !!(m&&m.parSeconde>0&&m.cap-m.generee>=1);
+      }
 
       /*
        * 2026-09-24 (Norman : « quand tous mes points sont générés et que j'en place dans Augmentation, le compteur continue à générer des
@@ -75,6 +82,18 @@
         const d=Number(m[2].replace(',','.'));
         if(!Number.isFinite(n)||!Number.isFinite(d)||d<=0||n<0)return null;
         return Math.max(1,Math.floor(Math.max(0,idleNombre_(energieLibre))*(n/d)));
+      }
+
+      /*
+       * Branché sur onblur/onchange d'un input "Input" (Basic Training/Augmentations/Time
+       * Machine) : si la valeur tapée est une fraction "n/d", la réécrit en toutes lettres
+       * (le joueur voit tout de suite le vrai montant, jamais "1/8" qui resterait affiché).
+       * Sans effet si ce n'est pas une fraction (nombre déjà entier, champ vide...).
+       */
+      function idleResoudreFractionInputV1_(input){
+        if(!input)return;
+        const resolu=idleParseFractionEnergieV1_(input.value,REG.idleEtat&&REG.idleEtat.energie);
+        if(resolu!=null)input.value=String(resolu);
       }
 
       function formatEnergieIdleV50_(v){
@@ -164,6 +183,32 @@
         );
       }
 
+      function energieDisponibleIdleV9_(){
+        if(!REG.idleEtat){
+          return 0;
+        }
+
+        return Math.max(
+          0,
+          idleNombre_(
+            REG.idleEtat.energie
+          ) -
+          energieReserveeIdleV23_()
+        );
+      }
+
+      /*
+       * 2026-09-24 (Norman : « au-dessus de la barre d'énergie, un compteur avec les mêmes chiffres que la barre verte, mais avec le total
+       * RÉELLEMENT GÉNÉRÉ et non le total actuel : ça permet de savoir combien il nous reste à partager ; avoir les deux informations est
+       * utile ») : barre verte = énergie disponible ; compteur = disponible + déjà placée (Basic Training et tous les autres systèmes).
+       */
+      function energieGenereeTotaleIdleV1_(){
+        if(!REG.idleEtat)return 0;
+        return energieDisponibleIdleV9_()+
+          totalAllocationBasicTrainingIdleV120_()+
+          allocationMetaEnergieIdleV1_();
+      }
+
       /*
        * 2026-09-25 (Norman : « à côté de "Généré : 250/500", un compteur qui indique dans combien de temps toute l'énergie sera générée,
        * par exemple 15 minutes 22 secondes ») : (cap - déjà généré) / production par seconde ; l'énergie déjà placée compte comme générée.
@@ -229,6 +274,11 @@
           else if(m.parSeconde>0)temps='⏱ Pleine dans '+formatDureeEnergieIdleV1_(reste/m.parSeconde);
         }
         return '🔮 Reste à générer : '+formatEnergieIdleV50_(reste<1?0:Math.max(0,reste))+(temps?' · '+temps:'');
+      }
+
+      /* Norman (2026-10-01) : « Niveau par seconde » à la place de « Tick » et « Production », identique pour l'Énergie et la Magie. */
+      function texteNiveauParSecondeIdleV1_(parSeconde){
+        return 'Niveau par seconde : +'+idleNombre_(parSeconde).toLocaleString('fr-FR',{maximumFractionDigits:2})+'/s';
       }
 
       function texteTickMagieIdleV1_(){
@@ -621,6 +671,39 @@
               REG.idleAventureEnCoursV17 ||
               !zone.debloquee;
           });
+      }
+
+      function messageFlottantIdleV32_(
+        texte
+      ){
+        const ancien=
+          document.getElementById(
+            'sorealIdleToastV32'
+          );
+
+        if(ancien){
+          ancien.remove();
+        }
+
+        const el=
+          document.createElement(
+            'div'
+          );
+
+        el.id=
+          'sorealIdleToastV32';
+        el.className=
+          'soreal-idle-toast-inline-v32';
+        el.textContent=
+          String(texte||'');
+
+        document.body.appendChild(el);
+
+        setTimeout(function(){
+          if(el&&el.parentNode){
+            el.remove();
+          }
+        },2500);
       }
 
       let idleSortActionV90=false;
@@ -1596,17 +1679,22 @@
       }
 
   Object.assign(REG,{
+    magieEncoreAGenererIdleV1_:magieEncoreAGenererIdleV1_,
     allocationMetaEnergieIdleV1_:allocationMetaEnergieIdleV1_,
-    idleParseFractionEnergieV1_:idleParseFractionEnergieV1_,
+    idleResoudreFractionInputV1_:idleResoudreFractionInputV1_,
     formatEnergieIdleV50_:formatEnergieIdleV50_,
     metaTickEnergieIdleV114_:metaTickEnergieIdleV114_,
     metaTickMagieIdleV1_:metaTickMagieIdleV1_,
+    energieDisponibleIdleV9_:energieDisponibleIdleV9_,
+    energieGenereeTotaleIdleV1_:energieGenereeTotaleIdleV1_,
     allocationMetaMagieIdleV1_:allocationMetaMagieIdleV1_,
     donneesMagieGenereeIdleV1_:donneesMagieGenereeIdleV1_,
     texteMagieGenereeIdleV1_:texteMagieGenereeIdleV1_,
+    texteNiveauParSecondeIdleV1_:texteNiveauParSecondeIdleV1_,
     texteEnergieGenereeIdleV1_:texteEnergieGenereeIdleV1_,
     installerInfobulleEnergieIdleV1_:installerInfobulleEnergieIdleV1_,
     rafraichirEnergieEtBoutonsIdleV9_:rafraichirEnergieEtBoutonsIdleV9_,
+    messageFlottantIdleV32_:messageFlottantIdleV32_,
     acheterSortIdleV90_:acheterSortIdleV90_,
     lancerSortIdleV90_:lancerSortIdleV90_,
     pageMagieIdleV90_:pageMagieIdleV90_,

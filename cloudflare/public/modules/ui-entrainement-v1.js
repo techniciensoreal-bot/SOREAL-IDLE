@@ -9,22 +9,28 @@
   if(REG.__chargé_ui_entrainement_v1)return;
   REG.__chargé_ui_entrainement_v1=true;
 
-  function basicTrainingIdleV120_(){return REG.basicTrainingIdleV120_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
+  function allocationMetaEnergieIdleV1_(){return REG.allocationMetaEnergieIdleV1_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
-  function formatEntierLisibleIdleV1_(){return REG.formatEntierLisibleIdleV1_.apply(null,arguments);}
-  function energieLibreCoherenteIdleV1_(){return REG.energieLibreCoherenteIdleV1_.apply(null,arguments);}
   function rafraichirEnergieEtBoutonsIdleV9_(){return REG.rafraichirEnergieEtBoutonsIdleV9_.apply(null,arguments);}
   function pousserEtatVersRuntimePartageIdleV1_(){return REG.pousserEtatVersRuntimePartageIdleV1_.apply(null,arguments);}
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
   function planSynchroBasicTrainingIdleV1_(){return REG.planSynchroBasicTrainingIdleV1_.apply(null,arguments);}
   function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
-  function allocationMetaEnergieIdleV1_(){return REG.allocationMetaEnergieIdleV1_.apply(null,arguments);}
-  function pageEntrainementIdleV28_(){return REG.pageEntrainementIdleV28_.apply(null,arguments);}
   function formaterEtaTimeMachineIdleV1_(){return REG.formaterEtaTimeMachineIdleV1_.apply(null,arguments);}
   function planifierRenduOptimisteIdleV60_(){return REG.planifierRenduOptimisteIdleV60_.apply(null,arguments);}
+  function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
+  function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
+
+      function basicTrainingIdleV120_(){
+        return REG.idleEtat&&
+          REG.idleEtat.basicTraining&&
+          typeof REG.idleEtat.basicTraining==='object'
+            ?REG.idleEtat.basicTraining
+            :null;
+      }
 
       function skillBasicTrainingParIdIdleV120_(id){
         const bt=basicTrainingIdleV120_();
@@ -60,6 +66,19 @@
       function sommeAllocBasicTrainingJoueurIdleV1_(joueur){
         const bt=joueur&&joueur.basicTraining;
         return bt&&Array.isArray(bt.skills)?bt.skills.reduce(function(t,x){return t+(x&&x.unlocked?idleEntier_(x.allocation):0);},0):0;
+      }
+
+      function sommeAllocMetaJoueurIdleV1_(joueur){
+        const liste=joueur&&joueur.systemes&&Array.isArray(joueur.systemes.systems)?joueur.systemes.systems:[];
+        return liste.reduce(function(t,sys){return t+Math.max(0,idleNombre_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation.energy));},0);
+      }
+
+      function energieLibreCoherenteIdleV1_(joueur){
+        if(!joueur)return 0;
+        const libreServeur=idleNombre_(joueur.energie);
+        const ecartBT=sommeAllocBasicTrainingJoueurIdleV1_(joueur)-totalAllocationBasicTrainingIdleV120_();
+        const ecartMeta=sommeAllocMetaJoueurIdleV1_(joueur)-allocationMetaEnergieIdleV1_();
+        return Math.max(0,Math.floor(libreServeur+ecartBT+ecartMeta+1e-9));
       }
 
       function capBasicTrainingLocalIdleV120_(skill){
@@ -1305,6 +1324,13 @@
         rafraichirBasicTrainingIdleV120_();
       }
 
+      /* Entier avec points entre les milliers (1.000.000) : les chiffres écrits en entier restent lisibles (Norman, 2026-10-10). */
+      function formatEntierLisibleIdleV1_(v){
+        const api=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+        const n=Math.floor(idleNombre_(v)+1e-9);
+        return api&&typeof api.entierLisible==='function'?api.entierLisible(n):String(n);
+      }
+
       /*
        * Time Machine — la progression est calculée côté serveur et revient à chaque
        * synchronisation. Un changement de speedFill/goldFill n'est pas structurel :
@@ -1429,19 +1455,275 @@
         return true;
       }
 
+      function skillBasicTrainingIdleV120_(
+        j,
+        skill
+      ){
+        if(!skill)return '';
+
+        /*
+         * Seule la PROCHAINE compétence à débloquer est montrée (groupeBasicTrainingIdleV120_ n'en passe jamais plus d'une), en gris, avec son seul prérequis
+         * (Norman, 2026-10-03 : « Nécessite 5K niveaux dans le menu au-dessus »). Aucune autre information (ni coût, ni effet) : règle n°2.
+         */
+        if(!skill.unlocked){
+          const liste=j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[];
+          const dessus=liste.find(function(x){return x&&x.id===skill.prerequisite;});
+          const nomDessus=dessus?String(dessus.name||''):'';
+          return `
+            <div class="soreal-idle-bt-row-v120 ${idleHtml_(skill.group||'')} verrouille" data-basic-training-skill="${idleHtml_(skill.id)}" aria-disabled="true">
+              <div class="soreal-idle-bt-main-v120">
+                <div class="soreal-idle-bt-name-v120">${idleHtml_(skill.name)}</div>
+                <div class="soreal-idle-bt-prerequis-v1">Nécessite ${idleHtml_(formatGrandNombreIdleV70_(idleEntier_(skill.prerequisiteLevel)))} niveaux dans ${nomDessus?idleHtml_(nomDessus):'le menu au-dessus'}</div>
+              </div>
+            </div>`;
+        }
+
+        /*
+         * Montée en puissance (Norman, 2026-10-04 : « Attaque régulière plus bad ass que attaque passive, attaque puissante plus bad ass que attaque régulière ») : le rang de la barre dans sa section (0 à 5)
+         * pilote son habillage (soreal-idle-themes.css, « MONTÉE EN PUISSANCE ») : mêmes couleurs, de plus en plus sombre, lumineux et animé.
+         */
+        const rangBt=Math.max(0,Math.min(5,(j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[]).filter(function(x){return x&&x.group===skill.group;}).findIndex(function(x){return x.id===skill.id;})));
+
+        const vitesseInitiale=
+          Math.max(
+            0,
+            idleNombre_(skill.levelsPerSecond)
+          );
+
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-170 */
+        /* Cap atteint (énergie allouée >= cap) : barre entièrement remplie, sans clignotement (voir animerBarreBasicTrainingIdleV220_). */
+        const pourcentageInitial=
+          vitesseInitiale>0
+            ?(idleEntier_(skill.allocation)>0&&idleEntier_(skill.allocation)>=Math.max(1,idleEntier_(skill.cap))
+              ?100
+              :Math.max(0,Math.min(100,idleNombre_(skill.progress)*100)))
+            :0;
+
+        return `
+          <div
+            class="soreal-idle-bt-row-v120 ${idleHtml_(skill.group||'')}"
+            data-basic-training-skill="${idleHtml_(skill.id)}"
+            data-rang-v1="${rangBt}"
+          >
+            <div class="soreal-idle-bt-main-v120">
+              <div class="soreal-idle-bt-name-v120">
+                ${idleHtml_(window.__SOREAL_IDLE_ICONES_V1__?window.__SOREAL_IDLE_ICONES_V1__.avec('basicTraining',skill.id,skill.name):skill.name)}
+              </div>
+
+              <div class="soreal-idle-bt-track-v120">
+                <div
+                  id="sorealIdleBtBarV120_${idleHtml_(skill.id)}"
+                  class="soreal-idle-bt-fill-v120"
+                  style="width:100%;transform:scaleX(${pourcentageInitial/100});transform-origin:left center;will-change:transform;transition:none"
+                ></div>
+              </div>
+
+              <div class="soreal-idle-bt-meta-v120">
+                <span id="sorealIdleBtSpeedV120_${idleHtml_(skill.id)}">
+                  ${idleNombre_(skill.levelsPerSecond).toFixed(2).replace('.',',')} niv/s
+                </span>
+                <span>
+                  Cap :
+                  <strong id="sorealIdleBtCapV120_${idleHtml_(skill.id)}">
+                    ${formatEntierLisibleIdleV1_(skill.cap)}
+                  </strong> ⚡
+                  · prochain :
+                  <strong
+                    id="sorealIdleBtNextCapV120_${idleHtml_(skill.id)}"
+                    class="${skill.maxReductionReached?'ready':''}"
+                  >
+                    ${formatEntierLisibleIdleV1_(skill.nextCap||skill.cap)}
+                  </strong>
+                </span>
+                <span id="sorealIdleBtEtaV120_${idleHtml_(skill.id)}">
+                  ${texteEtaBasicTrainingIdleV1_(vitesseInitiale)}
+                </span>
+              </div>
+            </div>
+
+            <div
+              id="sorealIdleBtLevelV120_${idleHtml_(skill.id)}"
+              class="soreal-idle-bt-level-v120"
+            >
+              ${formatGrandNombreIdleV70_(skill.level)}
+            </div>
+
+            <div
+              id="sorealIdleBtAllocationV120_${idleHtml_(skill.id)}"
+              class="soreal-idle-bt-allocation-v120"
+            >
+              ${formatEntierLisibleIdleV1_(skill.allocation)} ⚡
+            </div>
+
+            <div class="soreal-idle-bt-actions-v120">
+              <button
+                type="button"
+                onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','plus')"
+              >+</button>
+              <button
+                type="button"
+                onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','moins')"
+              >−</button>
+              <button
+                type="button"
+                data-sans-traduction
+                title="Cap : place seulement l’énergie nécessaire pour atteindre le plafond de cette compétence"
+                onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','cap')"
+              >Cap</button>
+              <button
+                type="button"
+                title="Retirer toute l’énergie de cette barre"
+                onclick="window.__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','zero')"
+              >0</button>
+            </div>
+          </div>
+        `;
+      }
+
+      function groupeBasicTrainingIdleV120_(
+        j,
+        groupe,
+        titre
+      ){
+        const toutesSkills=
+          j&&
+          j.basicTraining&&
+          Array.isArray(j.basicTraining.skills)
+            ?j.basicTraining.skills.filter(function(x){
+                return x.group===groupe;
+              })
+            :[];
+        const premierVerrouille=toutesSkills.findIndex(function(x){return !x.unlocked;});
+        const skills=premierVerrouille<0
+          ?toutesSkills
+          :toutesSkills.slice(0,premierVerrouille+1);
+
+        return `
+          <section class="soreal-idle-bt-panel-v120 ${idleHtml_(groupe)}">
+            <div class="soreal-idle-bt-panel-head-v120">
+              <strong>${idleHtml_(titre)}</strong>
+              <span>Niveau</span>
+              <span>Énergie affectée</span>
+              <span></span>
+            </div>
+
+            ${skills.map(function(skill){
+              return skillBasicTrainingIdleV120_(
+                j,
+                skill
+              );
+            }).join('')}
+          </section>
+        `;
+      }
+
+      function pageEntrainementIdleLegacyV47_(j){
+        const bt=
+          j&&j.basicTraining
+            ?j.basicTraining
+            :{
+                energy:{idle:0,allocated:0,cap:0},
+                energyPower:1,
+                energyBars:1,
+                maxLevelsPerSecond:50,
+                skills:[]
+              };
+
+        const energie=
+          bt.energy||{};
+
+        return `
+          ${entetePageIdleV28_(
+            '🏋️ Basic Training',
+            'Place ton énergie pour augmenter ton attaque et ta défense.'
+          )}
+
+          <!--
+            Norman (2026-09-16) : "tu peux l'enlever de basic training et
+            de fight boss et n'utiliser que celle que je te demande [la
+            barre persistante sous le menu]." L'ancien bloc
+            .soreal-idle-bt-energy-v120 (Idle/affectée/Cap + sa propre
+            barre) est retiré ici — la seule barre d'Énergie visible reste
+            désormais rendreBarreEnergiePersistanteIdleV1_ (shell), jamais
+            un second mécanisme. L'info vitesse/multiplicateurs, utile
+            spécifiquement à cet écran, reste affichée seule.
+          -->
+          <div class="soreal-idle-bt-toolbar-v120">
+            <div class="soreal-idle-bt-info-v1">
+              vitesse max ${idleEntier_(bt.maxLevelsPerSecond||50)} niv/s
+              · Energy Power n’accélère pas Basic Training
+            </div>
+
+            <div class="soreal-idle-bt-input-box-v120">
+              <label for="sorealIdleTrainingInputV120">🎚️ Input</label>
+              <input
+                id="sorealIdleTrainingInputV120"
+                type="text"
+                inputmode="decimal"
+                value="${idleHtml_(String(window.__lireMontantAugmentIdleV1__?window.__lireMontantAugmentIdleV1__():125))}"
+                title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l'énergie idle libre à la validation)"
+                oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
+                onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
+              >
+              ${synchroBasicTrainingAcheteIdleV1_()?`
+              <label class="soreal-idle-bt-synchro-v1" title="Cochée : l'énergie placée dans une compétence est placée en même temps dans sa jumelle (Attaque passive ↔ Blocage…)">
+                <input
+                  type="checkbox"
+                  id="sorealIdleTrainingSynchroV1"
+                  ${synchroBasicTrainingActifIdleV1_()?'checked':''}
+                  onchange="window.__basculerSynchroBasicTrainingIdleV1__(this.checked)"
+                >
+                🔗 Synchro
+              </label>`:''}
+            </div>
+
+            <div class="soreal-idle-bt-presets-v120">
+              <span>⚡ Plafond d’énergie</span>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Max</button>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.5)">1/2</button>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',.25)">1/4</button>
+            </div>
+
+            <div class="soreal-idle-bt-presets-v120">
+              <span>💤 Idle</span>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.5)">1/2</button>
+              <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
+              <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
+            </div>
+            ${window.__SOREAL_IDLE_ALLOC_V1__&&window.__SOREAL_IDLE_ALLOC_V1__.compteur?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','basicTraining'):''}
+          </div>
+
+          ${groupeBasicTrainingIdleV120_(
+            j,
+            'attack',
+            '⚔️ Compétences d’attaque'
+          )}
+
+          ${groupeBasicTrainingIdleV120_(
+            j,
+            'defense',
+            '🛡️ Compétences de défense'
+          )}
+        `;
+      }
+
+      function pageEntrainementIdleV28_(j){
+        return pageEntrainementIdleLegacyV47_(j);
+      }
+
   Object.assign(REG,{
+    basicTrainingIdleV120_:basicTrainingIdleV120_,
     totalAllocationBasicTrainingIdleV120_:totalAllocationBasicTrainingIdleV120_,
-    sommeAllocBasicTrainingJoueurIdleV1_:sommeAllocBasicTrainingJoueurIdleV1_,
+    energieLibreCoherenteIdleV1_:energieLibreCoherenteIdleV1_,
     fusionnerBasicTrainingPlusAvanceIdleV166_:fusionnerBasicTrainingPlusAvanceIdleV166_,
     envoyerAllocationsBasicTrainingIdleV120_:envoyerAllocationsBasicTrainingIdleV120_,
     ajusterBasicTrainingIdleV120_:ajusterBasicTrainingIdleV120_,
-    synchroBasicTrainingAcheteIdleV1_:synchroBasicTrainingAcheteIdleV1_,
-    synchroBasicTrainingActifIdleV1_:synchroBasicTrainingActifIdleV1_,
     presetBasicTrainingIdleV120_:presetBasicTrainingIdleV120_,
     viderBasicTrainingIdleV120_:viderBasicTrainingIdleV120_,
     progresserBasicTrainingLocalIdleV120_:progresserBasicTrainingLocalIdleV120_,
-    texteEtaBasicTrainingIdleV1_:texteEtaBasicTrainingIdleV1_,
+    formatEntierLisibleIdleV1_:formatEntierLisibleIdleV1_,
     coutBaseEntrainementIdleV73_:coutBaseEntrainementIdleV73_,
-    appliquerEtatEntrainementCibleIdleV115_:appliquerEtatEntrainementCibleIdleV115_
+    appliquerEtatEntrainementCibleIdleV115_:appliquerEtatEntrainementCibleIdleV115_,
+    pageEntrainementIdleV28_:pageEntrainementIdleV28_
   });
 })();

@@ -11,9 +11,7 @@
 
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
-  function formatDureeRunIdleV1_(){return REG.formatDureeRunIdleV1_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
-  function dureeRunSecondesIdleV1_(){return REG.dureeRunSecondesIdleV1_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
   function toastIdleV5_(){return REG.toastIdleV5_.apply(null,arguments);}
   function rendreIdleEtat_(){return REG.rendreIdleEtat_.apply(null,arguments);}
@@ -287,6 +285,17 @@
             )localStorage.removeItem(cle);
           });
         }catch(e){}
+      }
+
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-154 */
+      function formatDureeRunIdleV1_(secondesTotal){
+        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+        return api&&typeof api.duree==='function'?api.duree(secondesTotal):'00:00:00';
+      }
+
+      function dureeRunSecondesIdleV1_(j){
+        const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+        return api&&typeof api.runSecondes==='function'?api.runSecondes(j):0;
       }
 
       function pageRenaissanceIdleV28_(j){
@@ -586,6 +595,8 @@
   Object.assign(REG,{
     fermerPopupRenaissanceIdleV63_:fermerPopupRenaissanceIdleV63_,
     executerRenaissanceIdleV63_:executerRenaissanceIdleV63_,
+    formatDureeRunIdleV1_:formatDureeRunIdleV1_,
+    dureeRunSecondesIdleV1_:dureeRunSecondesIdleV1_,
     pageRenaissanceIdleV28_:pageRenaissanceIdleV28_,
     fermerPopupResetTotalIdleV67_:fermerPopupResetTotalIdleV67_,
     executerResetTotalIdleV67_:executerResetTotalIdleV67_,

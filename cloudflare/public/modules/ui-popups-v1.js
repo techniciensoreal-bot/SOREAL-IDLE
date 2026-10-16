@@ -9,10 +9,9 @@
   if(REG.__chargé_ui_popups_v1)return;
   REG.__chargé_ui_popups_v1=true;
 
+  function idleVusServeurV1_(){return REG.idleVusServeurV1_.apply(null,arguments);}
   function generationJoueurIdleV75_(){return REG.generationJoueurIdleV75_.apply(null,arguments);}
   function idleMenusAckListeLocaleV1_(){return REG.idleMenusAckListeLocaleV1_.apply(null,arguments);}
-  function idleVuConnuV1_(){return REG.idleVuConnuV1_.apply(null,arguments);}
-  function idleVuMarquerV1_(){return REG.idleVuMarquerV1_.apply(null,arguments);}
   function idleVuIdTutorielV1_(){return REG.idleVuIdTutorielV1_.apply(null,arguments);}
   function idleTutorielPagesDejaVuLocalV1_(){return REG.idleTutorielPagesDejaVuLocalV1_.apply(null,arguments);}
   function menuDisponibleIdleV28_(){return REG.menuDisponibleIdleV28_.apply(null,arguments);}
@@ -32,6 +31,52 @@
   function activerGlisserPopupObjetAdventureIdleV1_(){return REG.activerGlisserPopupObjetAdventureIdleV1_.apply(null,arguments);}
   function formatEnergieIdleV50_(){return REG.formatEnergieIdleV50_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
+
+      let idleVusEnvoiEnCoursV1=false;
+
+      function idleVuConnuV1_(j,id){
+        return REG.idleVusMemoireV1[id]===true||idleVusServeurV1_(j).indexOf(id)!==-1;
+      }
+
+      function idleVusEnvoyerV1_(){
+        if(idleVusEnvoiEnCoursV1||!REG.idleVusEnAttenteV1.length||!SOREAL_SESSION)return;
+        const lot=REG.idleVusEnAttenteV1.slice(0,50);
+        idleVusEnvoiEnCoursV1=true;
+        try{
+          google.script.run
+            .withSuccessHandler(function(res){
+              idleVusEnvoiEnCoursV1=false;
+              if(!res||!res.ok)return;
+              REG.idleVusEnAttenteV1=REG.idleVusEnAttenteV1.filter(function(id){return lot.indexOf(id)===-1;});
+              if(REG.idleEtat&&REG.idleEtat.profil&&REG.idleEtat.profil.stats&&Array.isArray(res.vus)){
+                REG.idleEtat.profil.stats.vus=res.vus;
+              }
+              if(REG.idleVusEnAttenteV1.length)idleVusEnvoyerV1_();
+            })
+            .withFailureHandler(function(){
+              idleVusEnvoiEnCoursV1=false;
+            })
+            .marquerVusSorealIdle(SOREAL_SESSION,lot);
+        }catch(e){
+          idleVusEnvoiEnCoursV1=false;
+        }
+      }
+
+      /*
+       * Audit de Collection (Norman, 2026-10-05) : ouvrir un menu marque plusieurs choses « vues » à la suite (le menu, son tutoriel, un texte…) et chacune partait seule : deux appels serveur à la même milliseconde.
+       * Les identifiants marqués dans la même rafale partent maintenant ensemble, 400 ms après le premier (la mémoire locale, elle, est à jour tout de suite).
+       */
+      let idleVusMinuterieV1=0;
+
+      function idleVuMarquerV1_(id){
+        REG.idleVusMemoireV1[id]=true;
+        if(REG.idleVusEnAttenteV1.indexOf(id)===-1)REG.idleVusEnAttenteV1.push(id);
+        if(idleVusMinuterieV1)return;
+        idleVusMinuterieV1=setTimeout(function(){
+          idleVusMinuterieV1=0;
+          idleVusEnvoyerV1_();
+        },400);
+      }
 
       /* Une fois par partie chargée : ce que le navigateur sait déjà « vu » est confié au serveur (anciens joueurs). */
       function idleVusMigrerLocalV1_(j){
@@ -523,6 +568,8 @@
       }
 
   Object.assign(REG,{
+    idleVuConnuV1_:idleVuConnuV1_,
+    idleVuMarquerV1_:idleVuMarquerV1_,
     fermerPopupNouveauteIdleV75_:fermerPopupNouveauteIdleV75_,
     allerDepuisPopupNouveauteIdleV106_:allerDepuisPopupNouveauteIdleV106_,
     afficherProchainePopupIdleV75_:afficherProchainePopupIdleV75_,

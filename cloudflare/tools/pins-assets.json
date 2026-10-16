@@ -267,26 +267,6 @@
   "pin": 15,
   "sha": "3f10adedac27fdaec86e08f896b72374994ead5c"
  },
- "/modules/page-boutique-v1.js": {
-  "pin": 1,
-  "sha": "b67c8664efdbe4b00b8016568c4453f2347d5a22"
- },
- "/modules/page-collection-v1.js": {
-  "pin": 1,
-  "sha": "351626e778b996328c2b2c722d9c033374fbad74"
- },
- "/modules/page-combat-v1.js": {
-  "pin": 1,
-  "sha": "ea27786e651f959ae006974ca0393cc4871f1bf1"
- },
- "/modules/page-entrainement-v1.js": {
-  "pin": 1,
-  "sha": "4ed29b5cfe561891a4f4cac18fb73819cc573a51"
- },
- "/modules/page-personnage-v1.js": {
-  "pin": 1,
-  "sha": "e537bda284d544ee42e9ae0ce3ea4789f1b6074a"
- },
  "/modules/perf-texte-v1.js": {
   "pin": 2,
   "sha": "65930e50c77bf547d17e9a4734eb7b69aa274134"
@@ -404,80 +384,96 @@
   "sha": "9e707e158d5941cfe9dcf3b3cd7574730303efe2"
  },
  "/modules/ui-actions-rapides-v1.js": {
-  "pin": 1,
-  "sha": "6fd3cb8f09c525f47a45c6b2fb367470073efc34"
+  "pin": 2,
+  "sha": "abeae770c30fdaad18b5e1e28903df6e6fd93a2c"
  },
  "/modules/ui-admin-v1.js": {
   "pin": 1,
   "sha": "8a91f89acf05ab71d557861db1e5cb53df79b6c2"
  },
- "/modules/ui-aventure-v1.js": {
+ "/modules/ui-amorcage-v1.js": {
   "pin": 1,
-  "sha": "cf5d0e7a416ab6458574891545001daa898e2037"
+  "sha": "48536132d16dc728dc43e3f05202048f019d68bc"
+ },
+ "/modules/ui-aventure-1-v1.js": {
+  "pin": 1,
+  "sha": "642c640e6f655580849a30482bda81207d38ae15"
+ },
+ "/modules/ui-aventure-2-v1.js": {
+  "pin": 1,
+  "sha": "9750660af9d6363ae542760ef4f8ea8b5ac542ba"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 1,
-  "sha": "a1a747464edab8269171e6ec17d1c964b04614a2"
+  "pin": 2,
+  "sha": "8bfd9cb4bd2748f1719d837fb506ca38c4d38f3b"
  },
  "/modules/ui-boutique-v1.js": {
-  "pin": 1,
-  "sha": "976c8bd0db6ed20dc70a7f55c5e95a7aae12b9bf"
+  "pin": 2,
+  "sha": "9d3b18b0b5c864bde0f74dd99fabd794456d12b0"
  },
  "/modules/ui-chroniques-v1.js": {
-  "pin": 1,
-  "sha": "4f2a2630dc95d2dede50dceb2b28cd00c493578a"
+  "pin": 2,
+  "sha": "36e2d113f97dccdd09cb6892f73e8b4c196a169a"
  },
- "/modules/ui-combat-v1.js": {
+ "/modules/ui-combat-1-v1.js": {
   "pin": 1,
-  "sha": "097f43406a37d56ec0862210511e3611aa5b639d"
+  "sha": "0cc391643f35f37e10f8ae169ff0b296ebea07e7"
+ },
+ "/modules/ui-combat-2-v1.js": {
+  "pin": 1,
+  "sha": "c685d67821fd65f9e32ff6e8f7ae0670bb5433f4"
+ },
+ "/modules/ui-divers-v1.js": {
+  "pin": 1,
+  "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 1,
-  "sha": "8df2987d4339f618cd0421f74a32c9f20e39711b"
+  "pin": 2,
+  "sha": "c484674147860267fc09859d66f25de96fb06a94"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 1,
-  "sha": "c4283e5680dd46f03ed963057ce639f62c1add68"
+  "pin": 2,
+  "sha": "c7373890f1243e169ccd694bc87bfe6d667bf507"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 1,
   "sha": "ea8bd3e187f96963b33a95cab7e220c6108bf67f"
  },
  "/modules/ui-magie-energie-v1.js": {
-  "pin": 1,
-  "sha": "638b958cd0a6ef4b2d526878ad101ed5363d1c22"
+  "pin": 2,
+  "sha": "7f3a84dc310947c97715f7546fd40a495fa21344"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 1,
-  "sha": "52a50eb590e993ad4fd9436aaff28e464147179b"
+  "pin": 2,
+  "sha": "3628c4a74f5a109bb496098ce4d8fb6b33fb15da"
  },
  "/modules/ui-navigation-v1.js": {
-  "pin": 1,
-  "sha": "c3afe5cb410979acf26e5345978f5c120db63e66"
+  "pin": 2,
+  "sha": "8d9143adf3f24f1e13020d77365efefe9e448bea"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 1,
-  "sha": "faedaac92d66632c48e30f64a572c1841633e3fc"
+  "pin": 2,
+  "sha": "54bc29033d952f62dae9a2052ff1235baea42754"
  },
  "/modules/ui-popups-v1.js": {
-  "pin": 1,
-  "sha": "85490b23ef4401fe21320ff69c4eb4dbe339c738"
+  "pin": 2,
+  "sha": "d0fb1232d7da3e2a7e31f7ec57c559257a9df611"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 1,
-  "sha": "0f1c72571541422722d8673c000781430847b732"
+  "pin": 2,
+  "sha": "b976d92aec7d1cfd90f872a78dc53f1300c0aa64"
  },
  "/modules/ui-renaissance-v1.js": {
-  "pin": 1,
-  "sha": "c7b308997cf7d7c01e125973651215c9d56309c8"
+  "pin": 2,
+  "sha": "1fb8297055095afe63bf61fd9e01796b44e3a34a"
  },
  "/modules/ui-synchro-v1.js": {
   "pin": 1,
   "sha": "8833e920e97cbe600fed96805b03e79b99df2591"
  },
  "/modules/ui-tutoriel-v1.js": {
-  "pin": 1,
-  "sha": "40e47f08e1360dc12ec350e41c7be9f6c831b394"
+  "pin": 2,
+  "sha": "a710600a601d64e9f4dc29305ad87cb97c4fba72"
  },
  "/modules/ui.js": {
   "pin": 55,
@@ -540,8 +536,8 @@
   "sha": "8d75db2586d827ba41b58ec67d5b3686fc6c97a3"
  },
  "/soreal-idle-ui.js": {
-  "pin": 646,
-  "sha": "b0cc27583d785fb5241494f469280d4146c80dca"
+  "pin": 649,
+  "sha": "0da57934387cc7b1ad9e30dccc92fc3db9ff2f39"
  },
  "/standalone-bridge.js": {
   "pin": 12,

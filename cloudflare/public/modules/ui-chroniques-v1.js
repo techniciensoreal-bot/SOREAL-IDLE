@@ -9,22 +9,176 @@
   if(REG.__chargé_ui_chroniques_v1)return;
   REG.__chargé_ui_chroniques_v1=true;
 
-  function chroniquesOngletsIdleV1_(){return REG.chroniquesOngletsIdleV1_.apply(null,arguments);}
-  function chroniquesOngletActifIdleV1_(){return REG.chroniquesOngletActifIdleV1_.apply(null,arguments);}
-  function pageSystemeMetaIdleV130_(){return REG.pageSystemeMetaIdleV130_.apply(null,arguments);}
-  function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
-  function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
-  function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
-  function rendreCollectionCreaturesIdleV1_(){return REG.rendreCollectionCreaturesIdleV1_.apply(null,arguments);}
-  function rendreCollectionEquipementIdleV1_(){return REG.rendreCollectionEquipementIdleV1_.apply(null,arguments);}
-  function rendreCollectionIdleV22_(){return REG.rendreCollectionIdleV22_.apply(null,arguments);}
-  function menuStyleIdleV1_(){return REG.menuStyleIdleV1_.apply(null,arguments);}
-  function formaterDureeJeuIdleV1_(){return REG.formaterDureeJeuIdleV1_.apply(null,arguments);}
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
-  function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
-  function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
+  function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
+  function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
+  function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
+  function urlBossR2IdleV1_(){return REG.urlBossR2IdleV1_.apply(null,arguments);}
+  function attrHistoireVoixIdleV1_(){return REG.attrHistoireVoixIdleV1_.apply(null,arguments);}
+  function sansBaliseVoixIdleV1_(){return REG.sansBaliseVoixIdleV1_.apply(null,arguments);}
+  function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
+  function rendreCollectionEquipementIdleV1_(){return REG.rendreCollectionEquipementIdleV1_.apply(null,arguments);}
+  function iconeObjetAdventureIdleV138_(){return REG.iconeObjetAdventureIdleV138_.apply(null,arguments);}
+  function libelleRecompenseSetAdventureIdleV163_(){return REG.libelleRecompenseSetAdventureIdleV163_.apply(null,arguments);}
   function toastIdleV5_(){return REG.toastIdleV5_.apply(null,arguments);}
+
+      function dateIdleV25_(iso){
+        const d=new Date(iso||'');
+        return Number.isNaN(d.getTime())
+          ?'—'
+          :d.toLocaleDateString('fr-BE',{
+              day:'2-digit',
+              month:'2-digit',
+              year:'numeric'
+            });
+      }
+
+      function dureeProfilIdleV25_(p){
+        const jours=Math.floor(idleNombre_(p&&p.ageJours));
+        const heures=Math.floor(idleNombre_(p&&p.ageHeures));
+        const mois=Math.floor(idleNombre_(p&&p.ageMois));
+        if(mois>=1)return mois+' mois · '+jours+' jours';
+        if(jours>=1)return jours+' jours · '+heures+' h';
+        return heures+' h';
+      }
+
+      function rendreProfilIdleV26_(j){
+        const joueur=
+          j && typeof j==='object'
+            ?j
+            :{};
+
+        const profil=
+          joueur.profil &&
+          typeof joueur.profil==='object'
+            ?joueur.profil
+            :{};
+
+        const stats=
+          profil.stats &&
+          typeof profil.stats==='object'
+            ?profil.stats
+            :{};
+
+        const prochain=
+          joueur.prochainPalier &&
+          typeof joueur.prochainPalier==='object'
+            ?joueur.prochainPalier
+            :null;
+
+        return `
+          <div class="soreal-idle-window-title-v31 dark">
+            👤 ${idleHtml_(joueur.nom||'Joueur')}
+            · ${idleHtml_(joueur.titre||'Recrue du dépôt')}
+          </div>
+
+          <div class="soreal-idle-character-grid-v25">
+            <div class="soreal-idle-character-stat-v25">
+              Nombre
+              <b>${formatGrandNombreIdleV70_(joueur.systemes&&joueur.systemes.rebirth&&joueur.systemes.rebirth.number||1)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Puissance
+              <b>${idleEntier_(joueur.puissance)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Force
+              <b>${idleEntier_(joueur.force)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Endurance
+              <b>${idleEntier_(joueur.endurance)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Organisation
+              <b>${idleEntier_(joueur.organisation)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Défense
+              <b>${idleEntier_(joueur.defense)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Boss vaincus
+              <b>${idleEntier_(joueur.bossVaincus)}</b>
+            </div>
+
+            <div class="soreal-idle-character-stat-v25">
+              Renaissances
+              <b>${idleEntier_(joueur.renaissances)}</b>
+            </div>
+          </div>
+
+          <div class="soreal-idle-profile-detail-v52">
+            <div>
+              📅 Début :
+              <strong>${dateIdleV25_(profil.dateDebut)}</strong>
+            </div>
+
+            <div>
+              ⏱️ Temps de jeu :
+              <strong>${formaterDureeJeuIdleV1_(stats.tempsActifSec)}</strong>
+            </div>
+
+            <div>
+              🗓️ Ancienneté :
+              <strong>${dureeProfilIdleV25_(profil)}</strong>
+            </div>
+
+            <div>
+              🎁 Loots obtenus :
+              <strong>${idleEntier_(stats.lootsObtenus)}</strong>
+            </div>
+
+            <div>
+              ♻️ Objets recyclés :
+              <strong>${idleEntier_(stats.objetsRecycles)}</strong>
+            </div>
+
+            <div>
+              🔗 Fusions :
+              <strong>${idleEntier_(stats.fusions)}</strong>
+            </div>
+
+            <div>
+              🔥 Améliorations forge :
+              <strong>${idleEntier_(stats.forge)}</strong>
+            </div>
+
+            <div>
+              🗺️ Combats aventure :
+              <strong>${idleEntier_(stats.combatsAventure)}</strong>
+            </div>
+
+            <div>
+              🏆 Victoires aventure :
+              <strong>${idleEntier_(stats.victoiresAventure)}</strong>
+            </div>
+          </div>
+
+          ${
+            prochain
+              ?`
+                <div class="soreal-idle-profile-next-v52">
+                  🎯 Prochain titre :
+                  <strong>${idleHtml_(prochain.nom||'—')}</strong>
+                  ${
+                    idleEntier_(prochain.niveau)>idleEntier_(joueur.niveau)
+                      ?' au niveau '+idleEntier_(prochain.niveau)
+                      :''
+                  }
+                </div>
+              `
+              :''
+          }
+        `;
+      }
 
       /* Le menu Achievements n'apparaît qu'au premier succès débloqué (Norman, 2026-09-26). */
       function menuSuccesVisibleIdleV1_(j){
@@ -32,8 +186,58 @@
         return Boolean(succes&&Array.isArray(succes.list)&&succes.list.some(function(a){return a&&a.unlocked;}));
       }
 
+      const CLE_SUCCES_VUS_V1='soreal_idle_succes_vus_v1';
+
+      function succesVusIdleV1_(){
+        try{
+          const brut=localStorage.getItem(CLE_SUCCES_VUS_V1);
+          if(brut===null)return null;
+          const liste=JSON.parse(brut);
+          return Array.isArray(liste)?liste:null;
+        }catch(_e){return null;}
+      }
+
       function memoriserSuccesVusIdleV1_(ids){
-        try{localStorage.setItem(REG.CLE_SUCCES_VUS_V1,JSON.stringify(ids));}catch(_e){}
+        try{localStorage.setItem(CLE_SUCCES_VUS_V1,JSON.stringify(ids));}catch(_e){}
+      }
+
+      /* Succès débloqués mais jamais regardés : la liste des succès vus est mémorisée sur l'appareil ; première visite = tout ce qui est déjà débloqué est considéré comme vu. Ouvrir le menu Succès les marque tous comme vus. */
+      let idleSuccesNouveauxV1=[];
+
+      function succesNonVusIdleV1_(j,menuActif){
+        const ach=j&&j.systemes&&j.systemes.achievements&&Array.isArray(j.systemes.achievements.list)?j.systemes.achievements.list:[];
+        const debloques=ach.filter(function(a){return a&&a.unlocked;}).map(function(a){return a.id;});
+        const vus=succesVusIdleV1_();
+        if(vus===null){memoriserSuccesVusIdleV1_(debloques);return false;}
+        const nonVus=debloques.filter(function(id){return vus.indexOf(id)===-1;});
+        if(menuActif==='succes'){
+          /* Point rouge dans le menu (Norman, 2026-10-04) : les trophées non vus à l'ouverture sont gardés tant qu'on reste dans le menu (sur leur catégorie et sur le trophée), puis considérés comme vus. */
+          nonVus.forEach(function(id){if(idleSuccesNouveauxV1.indexOf(id)===-1)idleSuccesNouveauxV1.push(id);});
+          if(nonVus.length)memoriserSuccesVusIdleV1_(vus.concat(nonVus));
+          return false;
+        }
+        idleSuccesNouveauxV1=[];
+        return nonVus.length>0;
+      }
+
+      function chroniquesOngletsIdleV1_(j){
+        const liste=[];
+        if(!j)return liste;
+        if(j.bestiaire&&j.bestiaire.debloquee)liste.push({nom:'Collection',icon:'🏆',id:'bestiaire'});
+        if(j.classement&&j.classement.debloque)liste.push({nom:'Classement',icon:'📊',id:'classement'});
+        if(menuSuccesVisibleIdleV1_(j))liste.push({nom:'Succès',icon:'🎖️',id:'succes'});
+        return liste;
+      }
+
+      function chroniquesOngletActifIdleV1_(j){
+        const onglets=chroniquesOngletsIdleV1_(j||REG.idleEtat);
+        if(!onglets.length)return '';
+        return onglets.some(function(o){return o.id===REG.idleChroniquesOngletV1;})?REG.idleChroniquesOngletV1:onglets[0].id;
+      }
+
+      /* Menu « de style » : pour Chroniques, l'onglet affiché ; sinon le menu actif. */
+      function menuStyleIdleV1_(j){
+        return REG.idleMenuActifV28==='chroniques'?(chroniquesOngletActifIdleV1_(j)||'bestiaire'):REG.idleMenuActifV28;
       }
 
       function pageChroniquesIdleV1_(j){
@@ -55,6 +259,45 @@
         return barre+contenu;
       }
 
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-138 */
+      function entetePageIdleV28_(
+        titre,
+        sousTitre
+      ){
+        return `
+          <div class="soreal-idle-page-head-v28">
+            <div class="soreal-idle-page-title-v28">
+              ${titre}
+            </div>
+            ${sousTitre ? `
+            <div class="soreal-idle-page-sub-v28">
+              ${sousTitre}
+            </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      /*
+       * Chronique du boss accrochée au mur (Norman, 2026-10-10) : un petit cadre au fond de la salle ; un clic (ou un tap) l'agrandit, un clic dehors, sur la croix ou sur Échap la referme. L'état ouvert survit
+       * au redessin de la page (window.__chroniqueOuverteIdleV1). Le panneau reste dans la page en continu : la lecture à voix haute automatique (tutorial-tts) le retrouve toujours.
+       */
+      /* Bouton de lecture de la chronique (Norman, 2026-10-10) : « Stop » pendant la lecture, « Play » quand rien n'est lu ; l'état est tenu à jour par modules/tutorial-tts-v202.js (updateReadButtons_). */
+      function boutonLectureChroniqueIdleV1_(){
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        const enCours=Boolean(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206'));
+        return '<button type="button" class="soreal-idle-chro-lecture-v1" data-soreal-tts-ignore data-soreal-tts-target="sorealIdleBossChroniqueV206" data-etat="'+(enCours?'stop':'play')+'" aria-label="'+(enCours?'Arrêter la lecture':'Écouter la chronique')+'">'+
+          '<svg class="chro-ico-play-v1" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg>'+
+          '<svg class="chro-ico-stop-v1" viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="3.5" width="9" height="9" rx="1.5" fill="currentColor"/></svg>'+
+          '<span class="chro-lecture-txt-v1">'+(enCours?'Stop':'Écouter')+'</span></button>';
+      }
+
+      /* Main qui montre la chronique : une seule fois sur l'appareil, jamais plus dès le premier clic (même après une Renaissance). */
+      function mainChroniqueIdleV1_(){
+        try{if(localStorage.getItem('soreal_idle_chronique_main_v1'))return '';}catch(_e){}
+        return '<svg class="chro-main-v1" data-sans-traduction aria-hidden="true" viewBox="0 0 40 48"><path d="M14 4c3 0 4 2 4 4v14l2-1c2-1 4 0 4 2l1-1c2-1 4 0 4 2l1-1c2-1 4 0 4 3v10c0 7-5 12-12 12h-4c-5 0-8-3-11-8l-6-9c-1-3 2-5 4-3l3 3V8c0-2 1-4 3-4z" fill="#fff" stroke="#3a2208" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-171 */
       let idleCollectionOngletV1='boss';
 
@@ -62,6 +305,84 @@
         idleCollectionOngletV1=String(onglet||'boss');
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+      }
+
+      function rendreCollectionCreaturesIdleV1_(entrees,vide){
+        /* ANTI-SPOIL (AGENTS.md règle n°2) : seules les entrées découvertes sont affichées, jamais de carte « ??? ». */
+        entrees=entrees.filter(function(e){return e&&e.decouvert;});
+        if(!entrees.length){
+          return '<div class="soreal-idle-empty-v10">'+idleHtml_(vide)+'</div>';
+        }
+
+        return '<div class="soreal-idle-bestiary-grid-v110">'+
+          entrees.map(function(e){
+            if(!e||!e.decouvert)return '';
+
+            /*
+             * 2026-09-25 (Norman) : les cartes de boss n'affichent que l'image (plein cadre, sans bords) et le nom centré ; un clic ouvre
+             * les statistiques et la chronique (ouvrirBossCollectionIdleV1_).
+             */
+            if(idleEntier_(e.numero)>0){
+              const imageBoss=urlBossR2IdleV1_(idleEntier_(e.numero));
+              return '<div class="soreal-idle-bestiary-card-v110 boss-card" role="button" tabindex="0" '+
+                'onclick="window.__ouvrirBossCollectionIdleV1__('+idleEntier_(e.numero)+')" '+
+                'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.__ouvrirBossCollectionIdleV1__('+idleEntier_(e.numero)+')}">'+
+                '<div class="soreal-idle-bestiary-image-v120"><img src="'+idleHtml_(imageBoss)+'" alt="'+idleHtml_(e.nom||'Boss')+'" loading="lazy" '+
+                  'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'flex\'">'+
+                  '<div class="soreal-idle-bestiary-emoji-v110" style="display:none">'+idleHtml_(e.emoji||'👹')+'</div></div>'+
+                '<div class="soreal-idle-bestiary-name-v110 boss-name">'+idleHtml_(e.nom||'Boss')+'</div>'+
+              '</div>';
+            }
+
+            /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-172 */
+            const image=
+              idleEntier_(e.numero)>0
+                ?urlBossR2IdleV1_(idleEntier_(e.numero))
+                :(e.zone
+                  ?urlMobR2IdleV1_(e.zone,e.boss,e.index,e.nom)
+                  :String(e.image||''));
+
+            return `
+              <div class="soreal-idle-bestiary-card-v110${e.rare?' rare-found':''}">
+                ${
+                  image
+                    ?'<div class="soreal-idle-bestiary-image-v120"><img src="'+idleHtml_(image)+'" alt="'+idleHtml_(e.nom||'Créature')+'" '+
+                      'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'flex\'">'+
+                      '<div class="soreal-idle-bestiary-emoji-v110" style="display:none">'+idleHtml_(e.emoji||'👾')+'</div></div>'
+                    :'<div class="soreal-idle-bestiary-emoji-v110">'+idleHtml_(e.emoji||'👾')+'</div>'
+                }
+                <div class="soreal-idle-bestiary-name-v110">
+                  ${idleHtml_(e.nom||'Créature')}
+                </div>
+                <div class="soreal-idle-bestiary-type-v110">
+                  ${idleHtml_(e.categorie||'Créature')}
+                </div>
+                <div class="soreal-idle-bestiary-meta-v110">
+                  ${idleNombre_(e.pv)>0?'❤️ '+formatGrandNombreIdleV70_(e.pv):''}
+                  ${idleNombre_(e.attaque)>0?'· ⚔️ '+formatGrandNombreIdleV70_(e.attaque)+' attaque':''}
+                  ${idleNombre_(e.defense)>0?'· 🛡️ '+formatGrandNombreIdleV70_(e.defense)+' défense':''}
+                  ${idleNombre_(e.regen)>0?'· 💚 '+formatGrandNombreIdleV70_(e.regen)+' regen':''}
+                  ${idleNombre_(e.cadence)>0?'· ⏱️ '+idleNombre_(e.cadence)+' s':''}
+                  ${e.typeMob&&e.typeMob!=='normal'?'· '+idleHtml_(e.typeMob):''}
+                  ${e.numero>0?'· ✨ '+idleEntier_(e.xp)+' EXP':''}
+                  · 👁️ ${idleEntier_(e.rencontres)} rencontre${idleEntier_(e.rencontres)>1?'s':''}
+                </div>
+                ${e.description
+                  ?'<div id="'+
+                    (idleEntier_(e.numero)>0
+                      ?'sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)
+                      :'sorealIdleCollectionCreatureDescV206_'+idleEntier_(e.index))+
+                    '" class="soreal-idle-bestiary-desc-v110"'+
+                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description):'')+
+                    '>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'
+                  :''}
+                ${idleEntier_(e.numero)>0&&e.description
+                  ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)+'">🔊 Lire cette chronique</button>'
+                  :''}
+              </div>
+            `;
+          }).join('')+
+        '</div>';
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-177 */
@@ -130,6 +451,14 @@
         `;
       }
 
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-233 */
+      function pageCollectionIdleV22_(j){
+        return entetePageIdleV28_(
+          '📚 Sets',
+          'Progression réelle des sets NGU : chaque pièce doit atteindre le niveau 100 pour activer sa récompense de complétion.'
+        )+rendreCollectionIdleV22_(j);
+      }
+
       function catalogueSetsCollectionIdleV164_(a){
         const direct=
           a&&a.setCatalog&&typeof a.setCatalog==='object'
@@ -174,6 +503,105 @@
         });
 
         return derives;
+      }
+
+      function rendreCollectionIdleV22_(j){
+        const a=aventureMetaIdleV47_(j);
+        const setCatalog=catalogueSetsCollectionIdleV164_(a);
+        const itemCatalog=a&&a.itemCatalog&&typeof a.itemCatalog==='object'?a.itemCatalog:{};
+        const itemList=a&&a.itemList&&typeof a.itemList==='object'?a.itemList:{};
+        const completed=a&&a.completedSets&&typeof a.completedSets==='object'?a.completedSets:{};
+        const sets=Object.values(setCatalog).filter(function(setDef){
+          const setId=String(setDef&&setDef.id||'');
+          const slots=Array.isArray(setDef&&setDef.slots)?setDef.slots:[];
+          return slots.some(function(slot){
+            const info=itemList[setId+':'+String(slot)];
+            return Boolean(info&&info.seen);
+          });
+        });
+
+        if(!sets.length){
+          return '<div class="soreal-idle-empty-v10">Aucun set découvert pour l’instant. Les cases apparaîtront dès que tu trouveras la première pièce d’un set.</div>';
+        }
+
+        return sets.map(function(setDef){
+          const setId=String(setDef&&setDef.id||'');
+          const slots=Array.isArray(setDef&&setDef.slots)?setDef.slots:[];
+          const total=slots.length;
+          let vus=0;
+          let niveau100=0;
+          let verts=0;
+
+          const cartes=slots.map(function(slot){
+            const definitionId=setId+':'+String(slot);
+            const def=itemCatalog[definitionId]||{};
+            const info=itemList[definitionId]||null;
+            const vu=Boolean(info&&info.seen);
+            const lvl=vu?idleEntier_(info.maxLevel):0;
+            const lvl100=Boolean(info&&info.maxed);
+            const vert=Boolean(info&&info.fullyMaxed);
+            if(vu)vus+=1;
+            if(lvl100)niveau100+=1;
+            if(vert)verts+=1;
+
+            const pseudo={
+              set:setId,
+              slot:def.slot||slot,
+              name:def.name||definitionId,
+              definitionId:definitionId,
+              wikiItemId:def.wikiItemId||0,
+              kind:'equipment',
+              basePower:def.basePower||0,
+              baseToughness:def.baseToughness||0
+            };
+
+            if(!vu)return '';
+            return '<div class="soreal-idle-collection-slot-v32'+(vu?' found':'')+(vert?' maxed':'')+'">'+
+              '<div style="font-size:20px">'+(vu?iconeObjetAdventureIdleV138_(pseudo):'❓')+'</div>'+
+              '<div>'+(vu?idleHtml_(def.name||definitionId):'Inconnu')+'</div>'+
+              (vu
+                ?'<small>Niv. '+lvl+'/100'+
+                  (vert?' · ✅ 100 %':lvl100?' · boosts à compléter':'')+
+                '</small>'
+                :'')+
+            '</div>';
+          }).join('');
+
+          const completeCollection=Boolean(total>0&&verts===total);
+          /* Bonus du set en évidence (2026-09-26, Norman) : cadre doré à obtenir, vert une fois obtenu (niveau 100 sur toutes les pièces). */
+          const obtenu=Boolean(completed[setId]);
+          const recompenseHtml=setDef.reward
+            ?'<div class="soreal-idle-collection-bonus-v1'+(obtenu?' obtenu':'')+'">'+
+                '<div class="titre">'+(obtenu?'✅ Bonus du set obtenu':'🎁 Bonus du set')+'</div>'+
+                '<div class="texte">'+idleHtml_(libelleRecompenseSetAdventureIdleV163_(setDef.reward))+'</div>'+
+                (obtenu?'':'<div class="condition">S’obtient quand les '+total+' pièces sont au niveau 100.</div>')+
+              '</div>'
+            :'';
+          return '<div class="soreal-idle-collection-zone-v32">'+
+            '<div class="soreal-idle-collection-zone-head-v32">'+
+              '<div>'+
+                '<div class="soreal-idle-collection-zone-name-v32">📚 '+idleHtml_(setDef.name||setId)+'</div>'+
+                recompenseHtml+
+                '<div class="soreal-idle-collection-reward-v32">'+
+                  'Découverts : '+vus+' · Niveau 100 : '+niveau100+
+                  ' · 100 % boosts : '+verts+
+                '</div>'+
+              '</div>'+
+              '<div class="soreal-idle-collection-count-v32'+(completeCollection?' done':'')+'">'+
+                verts+(completeCollection?' ✅':'')+
+              '</div>'+
+            '</div>'+
+            '<div class="soreal-idle-collection-slots-v32">'+cartes+'</div>'+
+          '</div>';
+        }).join('');
+      }
+
+      function pageSystemeMetaIdleV130_(j,id,titre){
+        const api=window.__SOREAL_IDLE_META_V130__;
+        if(api&&typeof api.pageSystemeMetaIdleV130_==='function'){
+          return api.pageSystemeMetaIdleV130_(j,id,titre);
+        }
+        return '';
       }
 
       /*
@@ -236,6 +664,16 @@
         }
       }
 
+      function formaterDureeJeuIdleV1_(secondes){
+        let s=Math.max(0,Math.floor(idleNombre_(secondes)));
+        const j=Math.floor(s/86400);s-=j*86400;
+        const h=Math.floor(s/3600);s-=h*3600;
+        const m=Math.floor(s/60);
+        if(j>0)return j+' j '+h+' h '+m+' min';
+        if(h>0)return h+' h '+m+' min';
+        return m+' min';
+      }
+
       function valeurClassementIdleV1_(stat,valeur){
         if(stat==='playSeconds')return formaterDureeJeuIdleV1_(valeur);
         if(stat==='combatLong'){
@@ -296,6 +734,34 @@
       }
 
       /*
+       * Profil et pseudo (2026-09-26, Norman : « la possibilité de choisir un Pseudo dans les paramètres ; c'est ce pseudo qui est utilisé pour les gens qui jouent en dehors
+       * de SOREAL APP et TV ; si c'est un ouvrier, il peut afficher un pseudo, mais on voit son prénom entre parenthèses »). Le serveur valide et garantit l'unicité.
+       */
+      function htmlProfilPseudoIdleV1_(j){
+        const id=j&&j.identite;
+        if(!id)return '';
+        const google=Boolean(id.externe);
+        return '<div class="soreal-idle-section-v8" id="sorealIdleProfilPseudoV1">'+
+          '<div class="soreal-idle-window-title-v31">👤 Profil</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">'+
+            (google
+              ?'Les autres joueurs te voient uniquement sous ton pseudo (jamais ton nom Google ni ton adresse).'
+              :'Tu peux choisir un pseudo : les autres te verront « Pseudo ('+idleHtml_(id.prenom||'Prénom')+') ».')+
+          '</div>'+
+          '<div style="font-size:15px;color:#dce5f3;margin-bottom:8px">Nom affiché : <b>'+idleHtml_(id.nomAffiche||'Joueur')+'</b></div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'+
+            '<input id="sorealIdlePseudoChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" placeholder="Ton pseudo (3 à 20 caractères)" value="'+idleHtml_(id.pseudo||'')+'" '+
+              'style="flex:1 1 180px;min-width:0;padding:9px 11px;border-radius:10px;border:1px solid rgba(129,176,255,.35);background:#0d1830;color:#eef5ff;font-size:14px">'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__enregistrerPseudoIdleV1__()">Enregistrer</button>'+
+          '</div>'+
+          (google
+            ?'<div style="font-size:13px;color:#7f8aa4;margin-top:10px">Connecté avec Google : '+idleHtml_(id.email||'')+'</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" style="margin-top:8px" onclick="window.__deconnexionGoogleIdleV1__()">Se déconnecter</button>'
+            :'')+
+        '</div>';
+      }
+
+      /*
        * Norman (2026-09-27) : « Je ne veux pas apparaitre dans le classement pour les autres. Uniquement moi. Et
        * avoir une case dans parametres pour pouvoir apparaitre ou disparaitre. » Préférence PERSONNELLE (jamais
        * réservée à l'administrateur) : n'importe quel joueur qui a le classement débloqué peut se cacher des autres
@@ -322,17 +788,37 @@
           .definirClassementVisibleSorealIdle(SOREAL_SESSION,Boolean(voulu));
       }
 
+      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-324 */
+      function urlMobR2IdleV1_(zone,boss,index,nom){
+        const z=String(zone||'').trim();
+        if(!z)return '';
+        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-325 */
+        return '/api/idle/media/mob?zone='+encodeURIComponent(z)+
+          '&boss='+(boss?'1':'0')+
+          '&seed='+encodeURIComponent(String(index||'0'))+
+          (nom?'&name='+encodeURIComponent(String(nom)):'');
+      }
+
   Object.assign(REG,{
+    rendreProfilIdleV26_:rendreProfilIdleV26_,
     menuSuccesVisibleIdleV1_:menuSuccesVisibleIdleV1_,
-    memoriserSuccesVusIdleV1_:memoriserSuccesVusIdleV1_,
+    chroniquesOngletsIdleV1_:chroniquesOngletsIdleV1_,
+    menuStyleIdleV1_:menuStyleIdleV1_,
     pageChroniquesIdleV1_:pageChroniquesIdleV1_,
+    entetePageIdleV28_:entetePageIdleV28_,
+    boutonLectureChroniqueIdleV1_:boutonLectureChroniqueIdleV1_,
+    mainChroniqueIdleV1_:mainChroniqueIdleV1_,
     changerOngletCollectionIdleV1_:changerOngletCollectionIdleV1_,
     afficherDetailsCollectionIdleV1_:afficherDetailsCollectionIdleV1_,
     pageBestiaireIdleV110_:pageBestiaireIdleV110_,
+    pageCollectionIdleV22_:pageCollectionIdleV22_,
     catalogueSetsCollectionIdleV164_:catalogueSetsCollectionIdleV164_,
+    pageSystemeMetaIdleV130_:pageSystemeMetaIdleV130_,
     changerOngletClassementIdleV1_:changerOngletClassementIdleV1_,
     chargerClassementIdleV1_:chargerClassementIdleV1_,
     pageClassementIdleV1_:pageClassementIdleV1_,
-    basculerClassementVisibleIdleV1_:basculerClassementVisibleIdleV1_
+    htmlProfilPseudoIdleV1_:htmlProfilPseudoIdleV1_,
+    basculerClassementVisibleIdleV1_:basculerClassementVisibleIdleV1_,
+    urlMobR2IdleV1_:urlMobR2IdleV1_
   });
 })();

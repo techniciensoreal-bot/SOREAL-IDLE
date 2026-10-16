@@ -9,27 +9,64 @@
   if(REG.__chargé_ui_actions_rapides_v1)return;
   REG.__chargé_ui_actions_rapides_v1=true;
 
-  function conserverPositionIdleV24_(){return REG.conserverPositionIdleV24_.apply(null,arguments);}
+  function idleFastCountObjectV60_(){return REG.idleFastCountObjectV60_.apply(null,arguments);}
   function rendreIdleEtat_(){return REG.rendreIdleEtat_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function normaliserCommandeCombatIdleV170_(){return REG.normaliserCommandeCombatIdleV170_.apply(null,arguments);}
-  function idleFastCountObjectV60_(){return REG.idleFastCountObjectV60_.apply(null,arguments);}
   function rafraichirCommandesFightBossIdleV167_(){return REG.rafraichirCommandesFightBossIdleV167_.apply(null,arguments);}
   function idleServeurOccupeV60_(){return REG.idleServeurOccupeV60_.apply(null,arguments);}
   function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}
   function demanderReconciliationBoutiqueIdleV111_(){return REG.demanderReconciliationBoutiqueIdleV111_.apply(null,arguments);}
   function idleShopPendingV111_(){return REG.idleShopPendingV111_.apply(null,arguments);}
   function appliquerEtatBoutiqueCibleIdleV111_(){return REG.appliquerEtatBoutiqueCibleIdleV111_.apply(null,arguments);}
-  function idleFastPendingV60_(){return REG.idleFastPendingV60_.apply(null,arguments);}
-  function planifierEnvoiRapideIdleV60_(){return REG.planifierEnvoiRapideIdleV60_.apply(null,arguments);}
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
   function objetsEncoreEnAttenteRecycleV38_(){return REG.objetsEncoreEnAttenteRecycleV38_.apply(null,arguments);}
   function programmerEnvoiRecycleV38_(){return REG.programmerEnvoiRecycleV38_.apply(null,arguments);}
   function annulerTimerCombatAutoIdleV30_(){return REG.annulerTimerCombatAutoIdleV30_.apply(null,arguments);}
 
+      function conserverPositionIdleV24_(
+        callback
+      ){
+        const x=
+          window.scrollX||0;
+
+        const y=
+          window.scrollY||0;
+
+        callback();
+
+        requestAnimationFrame(function(){
+          window.scrollTo(
+            x,
+            y
+          );
+        });
+      }
+
+      let idleFastSendTimerV60=null;
+
       let idleFastRetryTimerV60=null;
 
       let idleFastRenderRafV60=null;
+
+      function idleFastPendingV60_(){
+        return Boolean(
+          REG.idleFastPendingV60.equip.length ||
+          REG.idleFastPendingV60.fusion.length ||
+          idleFastCountObjectV60_(
+            REG.idleFastPendingV60.shop
+          ) ||
+          idleFastCountObjectV60_(
+            REG.idleFastPendingV60.forge
+          ) ||
+          REG.idleFastPendingV60.bag>0 ||
+          REG.idleFastPendingV60.combat!==null ||
+          REG.idleFastPendingV60.autoBoss!==null ||
+          REG.idleFastPendingV60.autoAdventure!==null ||
+          REG.idleFastPendingV60.boss!==null ||
+          REG.idleFastPendingV60.zone!==null
+        );
+      }
 
       function planifierRenduOptimisteIdleV60_(){
         if(
@@ -53,6 +90,30 @@
                 }
               );
             }
+          );
+      }
+
+      function planifierEnvoiRapideIdleV60_(
+        delai
+      ){
+        if(idleFastSendTimerV60){
+          return;
+        }
+
+        idleFastSendTimerV60=
+          setTimeout(
+            function(){
+              idleFastSendTimerV60=null;
+              envoyerProchaineActionRapideIdleV60_();
+            },
+            Math.max(
+              35,
+              idleEntier_(
+                delai===undefined
+                  ?70
+                  :delai
+              )
+            )
           );
       }
 
@@ -813,8 +874,10 @@
       }
 
   Object.assign(REG,{
+    conserverPositionIdleV24_:conserverPositionIdleV24_,
+    idleFastPendingV60_:idleFastPendingV60_,
     planifierRenduOptimisteIdleV60_:planifierRenduOptimisteIdleV60_,
-    envoyerProchaineActionRapideIdleV60_:envoyerProchaineActionRapideIdleV60_,
+    planifierEnvoiRapideIdleV60_:planifierEnvoiRapideIdleV60_,
     ajouterActionRapideIdleV60_:ajouterActionRapideIdleV60_,
     recyclerObjetsOptimisteIdleV32_:recyclerObjetsOptimisteIdleV32_,
     viderActionsLocalesAvantResetIdleV67_:viderActionsLocalesAvantResetIdleV67_

@@ -21,6 +21,7 @@ export function analyzeEsm(path, texteForce) {
   const isKw = (i, v) => toks[i] && toks[i].t === 'kw' && toks[i].v === v;
   const isId = (i, v) => toks[i] && toks[i].t === 'id' && toks[i].v === v;
   const N = toks.length;
+  const continuation = (t) => (t.t === 'p' && /^(=|\+=|-=|\*=|\/=|%=|\(|\[|\{|,|\?|:|\|\||&&|\?\?|=>|\+|-|\*|\/|%|<|>|<=|>=|==|===|!=|!==|\.\.\.|!|\|\|=|&&=|\?\?=)$/.test(t.v)) || (t.t === 'kw' && /^(return|typeof|new|else|case|in|of|delete|void|throw|instanceof)$/.test(t.v));
   function stmtEnd(i) {
     const t = toks[i];
     const apres = (k) => (isP(k, '{') ? match[k] : stmtEnd(k));
@@ -40,7 +41,7 @@ export function analyzeEsm(path, texteForce) {
     let j = i;
     while (j < N) {
       if (isP(j, ';') && depthAt[j] === 0) return j;
-      if (j > i && depthAt[j] === 0 && (isKw(j, 'function') || isKw(j, 'const') || isKw(j, 'let') || isKw(j, 'var') || isKw(j, 'class') || isId(j, 'export') || isId(j, 'import')) && lineOf(toks[j].s) > lineOf(toks[j - 1].e - 1)) return j - 1;
+      if (j > i && depthAt[j] === 0 && (isKw(j, 'function') || isKw(j, 'const') || isKw(j, 'let') || isKw(j, 'var') || isKw(j, 'class') || isId(j, 'export') || isId(j, 'import')) && lineOf(toks[j].s) > lineOf(toks[j - 1].e - 1) && !continuation(toks[j - 1])) return j - 1;
       j++;
     }
     return N - 1;

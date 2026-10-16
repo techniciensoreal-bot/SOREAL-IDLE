@@ -11,10 +11,12 @@
 
   function idleVuConnuV1_(){return REG.idleVuConnuV1_.apply(null,arguments);}
   function idleVuMarquerV1_(){return REG.idleVuMarquerV1_.apply(null,arguments);}
-  function pauseVoixIdleV1_(){return REG.pauseVoixIdleV1_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function menuIdleV28_(){return REG.menuIdleV28_.apply(null,arguments);}
   function definirCombatBossIdleV39_(){return REG.definirCombatBossIdleV39_.apply(null,arguments);}
+  function generationJoueurIdleV75_(){return REG.generationJoueurIdleV75_.apply(null,arguments);}
+  function lancerVoixArrierePlanSandwichIdleV1_(){return REG.lancerVoixArrierePlanSandwichIdleV1_.apply(null,arguments);}
+  function afficherProchainePopupIdleV75_(){return REG.afficherProchainePopupIdleV75_.apply(null,arguments);}
 
       /* Identifiant serveur d'un tutoriel : sa clé locale sans le joueur (« soreal_idle_tutoriel_aventure_v1_<joueur> » -> « tuto:tutoriel_aventure »). */
       function idleVuIdTutorielV1_(cle){
@@ -243,6 +245,16 @@
       }
 
       /*
+       * Voix pré-générées (2026-09-24) : le texte LU par un panneau est construit ICI à partir des données (jamais relevé dans le DOM),
+       * posé sur le panneau (data-soreal-tts-say) et réutilisé tel quel par cloudflare/tools/voice-generate.mjs via
+       * window.__sorealVoiceTextesIdleV1__ : mêmes blocs de texte = mêmes fichiers audio. Les icônes, « Page n / N » et l'en-tête
+       * « SOREAL IDLE » ne sont plus lus.
+       */
+      function pauseVoixIdleV1_(ms){
+        return ' \uE000'+ms+'\uE001 ';
+      }
+
+      /*
        * Titre répété (Norman, 2026-09-26 : « quand un menu a plusieurs fois le même nom dans les popups informatifs, il ne doit pas le répéter à chaque fois qu'on fait Suivant : "Le NOMBRE"
        * ne se prononce qu'au début du popup ») : si la page précédente du même popup porte le même titre, il n'est pas relu.
        */
@@ -438,15 +450,42 @@
         rendreTutorielPagesIdleV1_();
       }
 
+      function tutorielPagesFermerV1_(){
+        const etat=REG.idleTutorielPagesEnCoursV1;
+        if(etat)idleTutorielPagesMarquerVuV1_(etat.cle);
+        /*
+         * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète, elle sera rejouée au prochain
+         * lancement du jeu depuis le début ». « Bienvenue » (le flag qui empêche gererPopupsProgressionIdleV75_
+         * de relancer l'intro) n'est donc marqué ICI, qu'une fois le tutoriel de début réellement fermé -- jamais
+         * dès son ouverture -- pour que quitter en plein milieu la rejoue depuis le début.
+         */
+        if(etat&&etat.pages===REG.TUTORIEL_DEBUT_JEU_PAGES_V1&&REG.idleEtat){
+          const cleBienvenue='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(REG.idleEtat);
+          try{localStorage.setItem(cleBienvenue,JSON.stringify(true));}catch(e){}
+          idleVuMarquerV1_('bienvenue');
+        }
+        /* Le sandwich est la dernière page du tutoriel de début : la voix de fond ne part que si le joueur l'a atteinte. */
+        if(etat&&etat.pages===REG.TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1)lancerVoixArrierePlanSandwichIdleV1_();
+
+        retirerChromeTutorielV1_();
+        REG.idleTutorielPagesEnCoursV1=null;
+
+        if(!REG.idlePopupQueueV75.length){
+          REG.idlePopupBloqueCombatV102=false;
+        }
+
+        setTimeout(afficherProchainePopupIdleV75_,120);
+      }
+
   Object.assign(REG,{
     idleVuIdTutorielV1_:idleVuIdTutorielV1_,
     idleTutorielPagesDejaVuLocalV1_:idleTutorielPagesDejaVuLocalV1_,
-    idleTutorielPagesMarquerVuV1_:idleTutorielPagesMarquerVuV1_,
-    retirerChromeTutorielV1_:retirerChromeTutorielV1_,
+    pauseVoixIdleV1_:pauseVoixIdleV1_,
     texteVoixTutorielIdleV1_:texteVoixTutorielIdleV1_,
     appliquerTextesTutorielsIdleV1_:appliquerTextesTutorielsIdleV1_,
     rendreTutorielPagesIdleV1_:rendreTutorielPagesIdleV1_,
     ancienTutorielPermisIdleV1_:ancienTutorielPermisIdleV1_,
-    demarrerTutorielPagesIdleV1_:demarrerTutorielPagesIdleV1_
+    demarrerTutorielPagesIdleV1_:demarrerTutorielPagesIdleV1_,
+    tutorielPagesFermerV1_:tutorielPagesFermerV1_
   });
 })();

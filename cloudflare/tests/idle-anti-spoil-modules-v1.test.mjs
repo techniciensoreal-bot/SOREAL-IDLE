@@ -80,22 +80,23 @@ const LISTE_BLANCHE = [
   { fichier: "wishes-page-v1.js", contient: "' / '+H.idleEntier_(sl.maxLevel)", raison: "niveau / niveau maximum d'un slot de souhait déjà possédé" },
   { fichier: "yggdrasil-diggers-page-v1.js", contient: "' / '+max", raison: "niveau de la run / meilleur niveau d'un Gold Digger déjà possédé" },
   /* Pages extraites de soreal-idle-ui.js : « verrouille » = NOM DE CLASSE CSS de la ligne d'entraînement grisée (aucun texte affiché). */
-  { fichier: "page-entrainement-v1.js", contient: "verrouille\" data-basi", raison: "nom de classe CSS, pas un texte affiché" },
+  { fichier: "ui-*", contient: "verrouille\" data-basi", raison: "nom de classe CSS, pas un texte affiché" },
   /* Code extrait de soreal-idle-ui.js (modules ui-*-v1.js, 2026-10-16) : mêmes exceptions qu'avant, dans leur nouveau fichier. */
-  { fichier: "ui-aventure-v1.js", contient: "soreal-idle-titans-ferme-v1", raison: "bouton « Titans » fermé en « ??? » : exception décidée par Norman (2026-10-10), AGENTS.md règle n°2" },
-  { fichier: "ui-aventure-v1.js", contient: "Déverrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },
-  { fichier: "ui-aventure-v1.js", contient: "Verrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },
-  { fichier: "ui-aventure-v1.js", contient: "Déverrouille l’objet pour le supprimer", raison: "verrou posé par le joueur sur SON objet (info-bulle)" },
-  { fichier: "ui-chroniques-v1.js", contient: "Boss ???", raison: "classement : le boss d'un joueur plus avancé est masqué (anti-spoil)" },
-  { fichier: "ui-inventaire-v1.js", contient: "les verrouillés passent devant avec leurs doubles", raison: "objets verrouillés par le joueur lui-même (info-bulle du tri)" },
-  { fichier: "ui-noyau-v1.js", contient: "🔒 ", raison: "cadenas du badge de version du prototype privé, pas un contenu verrouillé" },
-  { fichier: "ui-reglages-v1.js", contient: "' / '+total", raison: "page n / total d'un tutoriel déjà ouvert" },
+  { fichier: "ui-*", contient: "soreal-idle-titans-ferme-v1", raison: "bouton « Titans » fermé en « ??? » : exception décidée par Norman (2026-10-10), AGENTS.md règle n°2" },
+  { fichier: "ui-*", contient: "Déverrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },
+  { fichier: "ui-*", contient: "Verrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },
+  { fichier: "ui-*", contient: "Déverrouille l’objet pour le supprimer", raison: "verrou posé par le joueur sur SON objet (info-bulle)" },
+  { fichier: "ui-*", contient: "Boss ???", raison: "classement : le boss d'un joueur plus avancé est masqué (anti-spoil)" },
+  { fichier: "ui-*", contient: "les verrouillés passent devant avec leurs doubles", raison: "objets verrouillés par le joueur lui-même (info-bulle du tri)" },
+  { fichier: "ui-*", contient: "🔒 ", raison: "cadenas du badge de version du prototype privé, pas un contenu verrouillé" },
+  { fichier: "ui-*", contient: "' / '+total", raison: "page n / total d'un tutoriel déjà ouvert" },
   /* Outil d'administration (voix studio) : jamais montré à un joueur. */
   { fichier: "admin-histoires-v1.js", contient: "'/'+v.total", raison: "page admin, pas une interface joueur" },
 ];
 
 function autorise(fichier, texte) {
-  return LISTE_BLANCHE.some((e) => e.fichier === fichier && (e.exact !== undefined ? texte === e.exact : texte.includes(e.contient)));
+  const memeFichier = (e) => (e.fichier === "ui-*" ? fichier.startsWith("ui-") : e.fichier === fichier);
+  return LISTE_BLANCHE.some((e) => memeFichier(e) && (e.exact !== undefined ? texte === e.exact : texte.includes(e.contient)));
 }
 
 const MOTIFS = [
@@ -123,8 +124,9 @@ assert.deepEqual(violations, [], "spoils dans les modules :\n" + violations.join
 
 /* La liste blanche ne doit pas pourrir : chaque exception doit encore exister dans le module. */
 for (const e of LISTE_BLANCHE) {
-  const { chaines } = analyser(readFileSync(DOSSIER + e.fichier, "utf8"));
-  assert.ok(chaines.some((t) => t.includes(e.contient)) || readFileSync(DOSSIER + e.fichier, "utf8").includes(e.contient), "entrée de liste blanche périmée : " + e.fichier + " / " + e.contient);
+  const texte = e.fichier === "ui-*" ? fichiers.filter((f) => f.startsWith("ui-")).map((f) => readFileSync(DOSSIER + f, "utf8")).join("\n") : readFileSync(DOSSIER + e.fichier, "utf8");
+  const { chaines } = analyser(texte);
+  assert.ok(chaines.some((t) => t.includes(e.contient)) || texte.includes(e.contient), "entrée de liste blanche périmée : " + e.fichier + " / " + e.contient);
 }
 
 /* Le détecteur lui-même fonctionne. */

@@ -130,6 +130,7 @@ export function decouper(src) {
   const bodyClose = match[bodyOpen]; const D = depthAt[bodyOpen] + 1;
   const isP = (i, v) => toks[i] && toks[i].t === 'p' && toks[i].v === v;
   const isKw = (i, v) => toks[i] && toks[i].t === 'kw' && toks[i].v === v;
+  const continuation = (t) => (t.t === 'p' && /^(=|\+=|-=|\*=|\/=|%=|\(|\[|\{|,|\?|:|\|\||&&|\?\?|=>|\+|-|\*|\/|%|<|>|<=|>=|==|===|!=|!==|\.\.\.|!|\|\|=|&&=|\?\?=)$/.test(t.v)) || (t.t === 'kw' && /^(return|typeof|new|else|case|in|of|delete|void|throw|instanceof)$/.test(t.v));
   function stmtEnd(i) {
     const t = toks[i];
     const apres = (k) => (isP(k, '{') ? match[k] : stmtEnd(k));
@@ -154,7 +155,7 @@ export function decouper(src) {
     let j = i;
     while (j < bodyClose) {
       if (isP(j, ';') && depthAt[j] === D) return j;
-      if (j > i && depthAt[j] === D && toks[j].t === 'kw' && /^(function|const|let|var)$/.test(toks[j].v) && lineOf(toks[j].s) > lineOf(toks[j - 1].e - 1)) return j - 1;
+      if (j > i && depthAt[j] === D && toks[j].t === 'kw' && /^(function|const|let|var)$/.test(toks[j].v) && lineOf(toks[j].s) > lineOf(toks[j - 1].e - 1) && !continuation(toks[j - 1])) return j - 1;
       j++;
     }
     return bodyClose - 1;

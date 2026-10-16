@@ -24,7 +24,6 @@
   function idleRareteClasseObjetAdventureIdleV1_(){return REG.idleRareteClasseObjetAdventureIdleV1_.apply(null,arguments);}
   function enregistrerObjetPopupIdleV1_(){return REG.enregistrerObjetPopupIdleV1_.apply(null,arguments);}
   function iconeObjetAdventureIdleV138_(){return REG.iconeObjetAdventureIdleV138_.apply(null,arguments);}
-  function rendrePaginationIdleV1_(){return REG.rendrePaginationIdleV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function revisionAdventureServeurIdleV208_(){return REG.revisionAdventureServeurIdleV208_.apply(null,arguments);}
   function memoriserAdventureDiffereeIdleV208_(){return REG.memoriserAdventureDiffereeIdleV208_.apply(null,arguments);}
@@ -52,8 +51,6 @@
   function gestesAchetesIdleV1_(){return REG.gestesAchetesIdleV1_.apply(null,arguments);}
   function rendreTrashAdventureIdleV165_(){return REG.rendreTrashAdventureIdleV165_.apply(null,arguments);}
   function rendreGrilleSacAdventureIdleV1_(){return REG.rendreGrilleSacAdventureIdleV1_.apply(null,arguments);}
-  function idleLabelSpecialBonusV1_(){return REG.idleLabelSpecialBonusV1_.apply(null,arguments);}
-  function normaliserRechercheIdleV1_(){return REG.normaliserRechercheIdleV1_.apply(null,arguments);}
 
       function ancreSacIdleV1_(){
         const sac=document.getElementById('soreal-idle-v138-bag-section');
@@ -1605,6 +1602,25 @@
         '</div>';
       }
 
+      function rendrePaginationIdleV1_(pageActuelle,totalPages,callbackJs){
+        if(totalPages<=1)return '';
+        const boutons=[];
+        for(let p=1;p<=totalPages;p++){
+          boutons.push(
+            '<button class="soreal-idle-pagination-btn-v1'+(p===pageActuelle?' active':'')+'" '+
+            'onclick="'+callbackJs+'('+p+')">'+p+'</button>'
+          );
+        }
+        return '<div class="soreal-idle-pagination-v1">'+boutons.join('')+'</div>';
+      }
+
+      function idleLabelSpecialBonusV1_(type){
+        const entree=
+          REG.IDLE_SPECIAL_BONUS_TYPES_V1_.find(function(e){return e[0]===type;});
+
+        return entree?entree[1]:String(type||'Spécial');
+      }
+
       function indiceSacZoneTutorielIdleV1_(a){
         const selectionnee=String((a&&a.selectedZone)||'safe').trim().toLowerCase();
         const zone=selectionnee==='safe'?(String((a&&a.lastCombatZone)||'tutorial').trim().toLowerCase()||'tutorial'):selectionnee;
@@ -1689,6 +1705,10 @@
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
       }
 
+      function normaliserRechercheIdleV1_(t){
+        return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+      }
+
       /* Intitulés (français et anglais, comme dans le jeu et sur le wiki) des statistiques d'un objet rangé au coffre. */
       function intitulesStatsCoffreIdleV1_(item){
         const noms=[];
@@ -1765,8 +1785,11 @@
     refuserEquipementDefiIdleV1_:refuserEquipementDefiIdleV1_,
     changerPageSacV1_:changerPageSacV1_,
     pagerSacIdleV1_:pagerSacIdleV1_,
+    rendrePaginationIdleV1_:rendrePaginationIdleV1_,
+    idleLabelSpecialBonusV1_:idleLabelSpecialBonusV1_,
     pageInventaireIdleV28_:pageInventaireIdleV28_,
     changerPageCoffreV1_:changerPageCoffreV1_,
+    normaliserRechercheIdleV1_:normaliserRechercheIdleV1_,
     caseCoffreCorrespondIdleV1_:caseCoffreCorrespondIdleV1_,
     idleCoffreOuvertV1_:idleCoffreOuvertV1_,
     jouerSonOuvertureCoffreIdleV1_:jouerSonOuvertureCoffreIdleV1_,

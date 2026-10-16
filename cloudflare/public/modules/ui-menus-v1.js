@@ -11,17 +11,12 @@
 
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
-  function ancreClicIdleV1_(){return REG.ancreClicIdleV1_.apply(null,arguments);}
   function ancreSacIdleV1_(){return REG.ancreSacIdleV1_.apply(null,arguments);}
-  function installerMorphIdleV1_(){return REG.installerMorphIdleV1_.apply(null,arguments);}
-  function restaurerAncreClicIdleV1_(){return REG.restaurerAncreClicIdleV1_.apply(null,arguments);}
   function restaurerAncreSacIdleV1_(){return REG.restaurerAncreSacIdleV1_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function menuSuccesVisibleIdleV1_(){return REG.menuSuccesVisibleIdleV1_.apply(null,arguments);}
+  function infoSurchargeeIdleV1_(){return REG.infoSurchargeeIdleV1_.apply(null,arguments);}
   function definitionsNouveautesIdleV75_(){return REG.definitionsNouveautesIdleV75_.apply(null,arguments);}
-  function infoMoneyPitIdleV1_(){return REG.infoMoneyPitIdleV1_.apply(null,arguments);}
-  function infoSystemeGeneriqueIdleV1_(){return REG.infoSystemeGeneriqueIdleV1_.apply(null,arguments);}
-  function generationJoueurIdleV75_(){return REG.generationJoueurIdleV75_.apply(null,arguments);}
   function idleVusServeurV1_(){return REG.idleVusServeurV1_.apply(null,arguments);}
   function idleVuMarquerV1_(){return REG.idleVuMarquerV1_.apply(null,arguments);}
   function rendreTutorielPagesIdleV1_(){return REG.rendreTutorielPagesIdleV1_.apply(null,arguments);}
@@ -30,14 +25,13 @@
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function heureServeurIdleV1_(){return REG.heureServeurIdleV1_.apply(null,arguments);}
-  function idleDisponibiliteMoneyPitV1_(){return REG.idleDisponibiliteMoneyPitV1_.apply(null,arguments);}
-  function systemeMetaParIdIdleV130_(){return REG.systemeMetaParIdIdleV130_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
-  function menusOrdonnesIdleV1_(){return REG.menusOrdonnesIdleV1_.apply(null,arguments);}
   function menuIdleV28_(){return REG.menuIdleV28_.apply(null,arguments);}
+  function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
+  function rendreProfilIdleV26_(){return REG.rendreProfilIdleV26_.apply(null,arguments);}
+  function rendreSetsIdleV25_(){return REG.rendreSetsIdleV25_.apply(null,arguments);}
   function pageEntrainementIdleV28_(){return REG.pageEntrainementIdleV28_.apply(null,arguments);}
   function pageParametresIdleV28_(){return REG.pageParametresIdleV28_.apply(null,arguments);}
-  function entetePageIdleV28_(){return REG.entetePageIdleV28_.apply(null,arguments);}
   function pageAventureIdleV28_(){return REG.pageAventureIdleV28_.apply(null,arguments);}
   function pageChroniquesIdleV1_(){return REG.pageChroniquesIdleV1_.apply(null,arguments);}
   function pageBestiaireIdleV110_(){return REG.pageBestiaireIdleV110_.apply(null,arguments);}
@@ -50,7 +44,6 @@
   function pageSystemeMetaIdleV130_(){return REG.pageSystemeMetaIdleV130_.apply(null,arguments);}
   function pageCollectionIdleV22_(){return REG.pageCollectionIdleV22_.apply(null,arguments);}
   function pageSpendExpIdleV1_(){return REG.pageSpendExpIdleV1_.apply(null,arguments);}
-  function pagePersonnageIdleV28_(){return REG.pagePersonnageIdleV28_.apply(null,arguments);}
   function pageCombatIdleV28_(){return REG.pageCombatIdleV28_.apply(null,arguments);}
 
       /* Bandeau : à gauche de la barre le niveau gagné par seconde, à droite le temps avant que tout soit généré (format court). */
@@ -83,6 +76,168 @@
         if(d&&d.textContent!==tr)d.textContent=tr;
         const panneau=document.getElementById('sorealIdleHudPvV2');
         if(panneau)panneau.classList.toggle('bas',pct<=25);
+      }
+
+      /* Éléments « jumeaux » d'un bouton : même balise, même action (onclick) et mêmes classes ; le rang parmi eux sert à le retrouver après le rendu, même si le nombre d'éléments avant lui a changé. */
+      function jumeauxClicIdleV1_(racine,tag,onclick,classes){
+        return Array.prototype.filter.call(racine.getElementsByTagName(tag),function(n){
+          /* Les classes (ON/OFF, actif...) changent avec l action : on ne s appuie que sur la balise et l action. */
+          return (n.getAttribute('onclick')||'')===onclick;
+        });
+      }
+
+      function ancreClicIdleV1_(){
+        try{
+          const c=REG.idleDernierClicAncreV1;
+          if(!c||Date.now()-c.t>5000||!c.el.isConnected)return null;
+          if(Math.abs((window.scrollY||0)-c.y)>40)return null;
+          const racine=document.querySelector('.soreal-idle-page-root-v28');
+          if(!racine||!racine.contains(c.el))return null;
+          const r=c.el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=(window.innerHeight||0))return null;
+          const chemin=[];
+          let n=c.el;
+          while(n&&n!==racine){
+            const parent=n.parentElement;
+            if(!parent)return null;
+            chemin.unshift(Array.prototype.indexOf.call(parent.children,n));
+            n=parent;
+          }
+          if(n!==racine)return null;
+          return signatureClicIdleV1_(c.el,racine,chemin,hautSansTransformIdleV1_(c.el));
+        }catch(_e){return null;}
+      }
+
+      function signatureClicIdleV1_(el,racine,chemin,haut){
+        const onclick=el.getAttribute('onclick')||'';
+        const classes=String(el.className||'');
+        const rang=jumeauxClicIdleV1_(racine,el.tagName,onclick,classes).indexOf(el);
+        return {chemin:chemin,tag:el.tagName,id:el.id||'',onclick:onclick,classes:classes,rang:rang,texte:String(el.textContent||'').trim().slice(0,24),haut:haut};
+      }
+
+      /*
+       * Épingle de clic : pendant 5 s après un clic (assez pour une réponse lente du serveur) dans la page, ce qui a été touché reste exactement au même endroit de l'écran, quoi que le rendu, les images qui se chargent ou un
+       * bloc qui apparaît au-dessus fassent à la hauteur de la page. S'arrête dès que le joueur défile lui-même (molette, doigt, clavier). Ignorée pour les éléments fixes (fenêtres,
+       * menus flottants) et pour la barre de menus, hors de la page.
+       */
+      let idlePinClicV1=null;
+
+      function arreterPinClicIdleV1_(){
+        if(idlePinClicV1){cancelAnimationFrame(idlePinClicV1.raf);idlePinClicV1=null;}
+      }
+
+      /*
+       * Position du bouton SANS sa transformation (Norman, 2026-10-08 : « quand je presse le clavier de Wandoos la page fait un mini mouvement ; quand on trie, aussi, très léger »). Un bouton pressé s'enfonce de
+       * quelques pixels (translate au :active, touches de Wandoos) : mesurée à l'instant du clic, sa position était décalée, et quand le doigt se levait la page « se corrigeait » de ces quelques pixels.
+       */
+      function hautSansTransformIdleV1_(e){
+        const r=e.getBoundingClientRect();
+        let ty=0;
+        try{
+          const t=window.getComputedStyle(e).transform;
+          if(t&&t!=='none'){
+            const m=t.match(/matrix(3d)?(([^)]+))/);
+            if(m){
+              const v=m[2].split(',').map(Number);
+              ty=m[1]?(v[13]||0):(v[5]||0);
+            }
+          }
+        }catch(_e){}
+        return r.top-ty;
+      }
+
+      function demarrerPinClicIdleV1_(el){
+        try{
+          arreterPinClicIdleV1_();
+          const racine=document.querySelector('.soreal-idle-page-root-v28');
+          if(!racine||!racine.contains(el))return;
+          for(let n=el;n&&n!==racine;n=n.parentElement){
+            if(window.getComputedStyle(n).position==='fixed')return;
+          }
+          const r=el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=(window.innerHeight||0))return;
+          const chemin=[];
+          let n=el;
+          while(n&&n!==racine){
+            const parent=n.parentElement;
+            if(!parent)return;
+            chemin.unshift(Array.prototype.indexOf.call(parent.children,n));
+            n=parent;
+          }
+          const hautStable=hautSansTransformIdleV1_(el);
+          const pin={ancre:signatureClicIdleV1_(el,racine,chemin,hautStable),haut:hautStable,debut:performance.now(),raf:0};
+          idlePinClicV1=pin;
+          (function boucle(){
+            if(idlePinClicV1!==pin)return;
+            if(performance.now()-pin.debut>5000){idlePinClicV1=null;return;}
+            /* L element est gardé en mémoire : on ne le cherche de nouveau (balayage de la page) que s il a quitté la page. Pin arrêtée quand tout est stable depuis 1,5 s (au moins 3 s après le clic). */
+            let e=pin.cache;
+            if(!e||!e.isConnected){e=retrouverElementClicIdleV1_(pin.ancre);pin.cache=e;}
+            if(e){
+              const r=e.getBoundingClientRect();
+              if(r.width||r.height){
+                const dy=hautSansTransformIdleV1_(e)-pin.haut;
+                if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}else pin.stables=(pin.stables||0)+1;
+              }
+            }
+            if((pin.stables||0)>=90&&performance.now()-pin.debut>3000){idlePinClicV1=null;return;}
+            pin.raf=requestAnimationFrame(boucle);
+          })();
+        }catch(_e){}
+      }
+
+      function retrouverElementClicIdleV1_(ancre){
+        if(ancre.id){const parId=document.getElementById(ancre.id);if(parId)return parId;}
+        const racine=document.querySelector('.soreal-idle-page-root-v28');
+        if(!racine)return null;
+        if(ancre.onclick){
+          const jumeaux=jumeauxClicIdleV1_(racine,ancre.tag,ancre.onclick,ancre.classes);
+          if(jumeaux.length)return jumeaux[Math.min(Math.max(0,ancre.rang),jumeaux.length-1)];
+        }
+        let n=racine;
+        for(let i=0;n&&i<ancre.chemin.length;i+=1)n=n.children[ancre.chemin[i]];
+        return n&&n.tagName===ancre.tag&&String(n.textContent||'').trim().slice(0,24)===ancre.texte?n:null;
+      }
+
+      function restaurerAncreClicIdleV1_(ancre,xAvant){
+        if(!ancre)return false;
+        let dernierY=null;
+        let trouve=false;
+        function caler(){
+          const el=retrouverElementClicIdleV1_(ancre);
+          /* Introuvable ou devenu invisible (menu déroulant refermé, panneau replié) : on ne s appuie pas dessus. */
+          if(!el||!(el.offsetWidth||el.offsetHeight||el.getClientRects().length))return;
+          trouve=true;
+          /* Le joueur a défilé lui-même depuis notre dernier calage : on n'y touche plus. */
+          if(dernierY!==null&&Math.abs((window.scrollY||0)-dernierY)>2)return;
+          const ecart=hautSansTransformIdleV1_(el)-ancre.haut;
+          if(Math.abs(ecart)>1)window.scrollTo(xAvant,(window.scrollY||0)+ecart);
+          dernierY=window.scrollY||0;
+        }
+        caler();
+        setTimeout(caler,120);
+        setTimeout(caler,450);
+        return trouve;
+      }
+
+      /*
+       * Norman (2026-09-27) : « Quand on ouvre et ferme le coffre, il y a un effet de clignotement. Il y en a plusieurs
+       * dans le jeu... Part à la traque de ces sauts d'images et neutralise-les. La page ne doit jamais faire de saut ou
+       * se déplacer sauf pendant les tutoriaux ou si c'est explicitement demandé. »
+       *
+       * Cause : chaque bascule d'onglet/panneau à l'intérieur d'une page (Coffre ouvert/fermé, pagination Coffre/Collection,
+       * onglets Shop/Classement, notes de mise à jour, encart Infos, sauvegarde du pseudo, interrupteurs admin) remplace
+       * .soreal-idle-page-root-v28 en entier (root.innerHTML=contenuMenuIdleV28_(...)) sans AUCUNE protection de défilement
+       * -- contrairement au rendu complet (rendreIdleEtat_) qui, lui, gèle la hauteur du document pendant le remplacement
+       * et restaure le défilement après coup (ancreSacIdleV1_/restaurerAncreSacIdleV1_, déjà en place depuis 2026-09-26).
+       * Une page qui se raccourcit (ex. fermer le Coffre) fait alors automatiquement redescendre le défilement du
+       * navigateur avant que rien ne le rétablisse -- exactement le saut/clignotement décrit. Cette fonction applique la
+       * même protection à ces remplacements locaux, au lieu de dupliquer la logique à chaque site d'appel.
+       */
+      /* Rendu sur place : le moteur vit dans modules/morph-v1.js (extrait le 2026-10-07). Sans lui, innerHTML garde son comportement normal. */
+      function installerMorphIdleV1_(element){
+        const M=window.__SOREAL_IDLE_MORPH_V1__;
+        if(M&&typeof M.installer==='function')M.installer(element);
       }
 
       function rafraichirMenuRacineIdleV28_(){
@@ -217,6 +372,17 @@
         if(racine)racine.scrollLeft=0;
       }
 
+      function generationJoueurIdleV75_(
+        j
+      ){
+        return [
+          String(j&&j.id||'joueur'),
+          String(
+            j&&j.profil&&j.profil.dateDebut||'date'
+          )
+        ].join('|');
+      }
+
       function fonctionnalitesDisponiblesIdleV75_(j){
         const disponibles=[];
 
@@ -259,6 +425,248 @@
         }
 
         return disponibles;
+      }
+
+      /*
+       * Panneaux explicatifs des systèmes (Norman, 2026-09-30 : « pour achievements, time machine, blood magic etc., c'est toujours le
+       * même panneau : génère des panneaux explicatifs explicites pour chaque système qui se débloque »). Un texte par système, écrit
+       * d'après SA page du wiki NGU Idle (Achievements, Advanced Training, Augmentations, Broken Time Machine, Blood Magic, Wandoos, NGU,
+       * Yggdrasil, Gold Diggers, Beards, ITOPOD, Perks, Challenges, Titans, MacGuffin Fragments, Item Daycare, Questing, Quirks, Hacks,
+       * Wishes, Cards, Cooking, pages consultées le 2026-09-30) : rien d'autre que ce que ces pages publient, aucune valeur inventée.
+       * Anti-spoil (AGENTS.md règle n°2) : chaque texte n'explique QUE le système qui vient de se débloquer -- jamais un autre système,
+       * un boss ou un objet encore inconnu, jamais un total. Ces textes sont aussi lus à voix haute (voix pré-générées) : phrases courtes.
+       */
+      const TEXTES_SYSTEMES_IDLE_V1={
+        achievements:{
+          intro:'Les Achievements, ce sont des médailles pour ceux qui font des trucs : chaque objectif accompli te rapporte des points bonus.',
+          bullets:[
+            'Chaque succès accompli te donne des points bonus, un peu comme un autocollant sur ton cahier, mais en utile.',
+            'Ces points bonus augmentent ton gain d’AP : un pour cent de plus pour chaque tranche de cent points bonus. Autrement dit, plus tu collectionnes, mieux tu es payé.',
+            'Les succès sont rangés par catégorie dans ce menu, pour retrouver facilement celui qui te manque.'
+          ]
+        },
+        augmentations:{
+          intro:'Les Augmentations donnent un multiplicateur d’Attack et de Defense : en clair, tu tapes plus fort et tu encaisses mieux, sans faire un seul calcul.',
+          bullets:[
+            'Place de l’Energy sur un Augment, c’est son carburant : plus il en reçoit, plus sa barre se remplit vite.',
+            'Quand la barre est pleine, l’Augment gagne un niveau, à condition d’avoir assez d’Or pour payer la facture.',
+            'Chaque Augment a une Upgrade qui multiplie son bonus : c’est le gros bouton « encore plus fort ».',
+            'Les multiplicateurs de tous tes Augments s’additionnent, et tout repart à zéro à chaque Renaissance. Oui, c’est un peu vexant.'
+          ]
+        },
+        advancedTraining:{
+          intro:'L’Advanced Training est la salle de sport de ton héros : tu y dépenses de l’Energy pour entraîner tes capacités d’Aventure.',
+          bullets:[
+            'Place de l’Energy dans une capacité : chaque capacité s’entraîne avec sa propre énergie et gagne des niveaux.',
+            'Résultat : plus de puissance et plus d’endurance en Aventure, donc des biceps virtuels.',
+            'Attention, ça devient de plus en plus long : chaque niveau demande un peu plus de temps que le précédent, et les bonus grossissent de moins en moins vite.'
+          ]
+        },
+        timeMachine:{
+          intro:'La Time Machine fabrique de l’Or toute seule : elle rejoue le meilleur drop d’Or que tu as obtenu en Aventure, encore et encore.',
+          bullets:[
+            'Place de l’Energy sur la vitesse de la machine : sa barre se remplit plus vite, et chaque remplissage te rapporte de l’Or. C’est la photocopieuse à billets.',
+            'Chaque niveau coûte de l’Or et de l’Energy, et un peu plus cher que le précédent. Rien n’est gratuit, même dans le futur.',
+            'Ton meilleur boss vaincu multiplie aussi l’Or produit : battre des boss, ça paie.',
+            'Les niveaux de la machine sont remis à zéro à chaque Renaissance, comme un voyageur qui perd ses bagages.'
+          ]
+        },
+        bloodMagic:{
+          intro:'Blood Magic transforme de la Magic et de l’Or en Blood, que tu dépenses ensuite dans des sorts. Oui, c’est de la cuisine, mais en plus rouge.',
+          bullets:[
+            'Choisis un rituel et place-y de la Magic : plus il en reçoit, plus vite il se termine. Chaque rituel terminé dépense de l’Or et produit du Blood.',
+            'Le sort le plus courant ajoute un au multiplicateur de ton nombre pour chaque Blood dépensé : c’est ce qui te donne un plus gros nombre à la Renaissance.',
+            'Lancer un sort utilise tout ton Blood d’un coup : pas de demi-mesure, on lance, on regarde, on applaudit.',
+            'Le Blood est remis à zéro à chaque Renaissance, alors dépense-le avant.'
+          ]
+        },
+        wandoos:{
+          intro:'Wandoos est un système d’exploitation médiocre, mais il multiplie ton attaque et ta défense quand tu y déverses de l’Energy et de la Magic. Il plante peut-être, mais il paie.',
+          bullets:[
+            'Déverse de l’Energy et de la Magic dedans pour faire monter ses niveaux : c’est le tuyau d’arrosage du vieil ordinateur.',
+            'Au début il ne sert pas à grand-chose, car ses bonus sont faibles. Il devient important plus tard dans le jeu : patience, il chauffe.',
+            'À chaque Renaissance, il lui faut environ une heure pour atteindre sa pleine vitesse, sans que tu aies besoin d’être connecté. Il démarre tout seul, comme un vieux PC.',
+            'Wandoos reste débloqué après une Renaissance, mais les niveaux d’Energy et de Magic sont perdus.'
+          ]
+        },
+        ngu:{
+          intro:'Les NGU, c’est un peu l’entraîneur de l’Entraînement : tu leur confies ton Energy et ta Magic, et ils font le sport à ta place pour te donner des bonus.',
+          bullets:[
+            'Choisis dans quel NGU envoyer chacune de tes ressources, comme on choisit à quel coach donner sa carte de fidélité.',
+            'Chaque NGU gagne des niveaux, et chaque niveau coûte plus cher que le précédent : normal, plus on devient costaud, plus il faut de séances.',
+            'Les NGU restent débloqués et gardent leurs niveaux après une Renaissance : tes coachs ne démissionnent jamais.'
+          ]
+        },
+        yggdrasil:{
+          intro:'Yggdrasil est l’arbre du monde : tu y fais pousser des fruits qui donnent des récompenses quand tu les manges. Un potager, mais cosmique.',
+          bullets:[
+            'Dépense des graines pour faire monter un fruit de palier : chaque palier de plus lui permet de pousser une heure de plus sans que tu aies à le manger.',
+            'Active un fruit en payant son coût en Energy ou en Magic : ce coût est retiré temporairement de ton plafond, puis récupéré grâce à ta production. C’est un prêt, pas un cadeau.',
+            'Un fruit qui a poussé au moins une heure peut être mangé pour sa récompense spéciale, ou récolté pour doubler les graines gagnées. Croquer ou replanter : à toi de voir.',
+            'À la Renaissance, tes graines, tes fruits débloqués et tes paliers sont conservés. Les fruits en train de pousser sont perdus : mange-les avant, sinon ils finissent en compote.'
+          ]
+        },
+        diggers:{
+          intro:'Les Gold Diggers sont des mineurs à louer : tu leur sacrifies une partie de ton Or par seconde, et en échange ils te donnent des bonus dans plusieurs domaines du jeu.',
+          bullets:[
+            'Paie de l’Or pour débloquer un Digger et pour le faire monter de niveau : un mineur ne creuse pas gratuitement.',
+            'Active un Digger pour recevoir son bonus. En échange, il retire en permanence une petite part de ton Or par seconde : c’est son salaire.',
+            'Tu ne peux activer qu’autant de Diggers que tu as d’emplacements : pas de place, pas de pioche.',
+            'Monter les Diggers de niveau augmente aussi le bonus de tous les Diggers, même ceux que tu n’actives pas : les mineurs au repos profitent quand même des progrès du syndicat.'
+          ]
+        },
+        beards:{
+          intro:'Les Beards sont des barbes qui te donnent des bonus temporaires. Oui, des barbes : on ne juge pas.',
+          bullets:[
+            'Chaque barbe donne un type de bonus différent : il y en a pour tous les goûts, même sans rasoir.',
+            'Tu ne peux avoir actives qu’autant de barbes que tu as d’emplacements.',
+            'À la Renaissance, si une barbe est active, une partie de son bonus temporaire devient permanente. Plus la Renaissance arrive tard, plus cette part est grande : laisse pousser.'
+          ]
+        },
+        tower:{
+          intro:'L’ITOPOD est une tour infinie : tu grimpes étage après étage en tapant tout ce qui bouge, pour gagner des points de perk et de l’expérience.',
+          bullets:[
+            'Choisis ton étage de départ et ton étage de fin : c’est ton ascenseur, tu règles le premier et le dernier bouton.',
+            'Chaque dizaine d’ennemis vaincus te fait monter d’un étage.',
+            'Si tu meurs, ou si tu bats dix ennemis à ton étage de fin, tu retournes à ton étage de départ. Retour au rez-de-chaussée, sans escalator.',
+            'Plus tu montes, plus les ennemis sont forts, mais plus tu gagnes de progression vers les points de perk.'
+          ]
+        },
+        perks:{
+          intro:'Les Perks sont des améliorations que tu achètes avec les points de perk gagnés dans la tour : des petits bonus de carrière pour ton héros.',
+          bullets:[
+            'Dépense tes points de perk dans la page ITOPOD, avec le bouton « Atouts ».',
+            'Chaque perk a un coût et un niveau maximum : on ne peut pas tout acheter à l’infini, même avec de la volonté.',
+            'Certains perks s’achètent une seule fois, d’autres niveau par niveau.',
+            'Certains perks donnent un bonus permanent : ceux-là, tu les gardes pour de bon.'
+          ]
+        },
+        challenges:{
+          intro:'Les Challenges sont des défis à relever : tu te mets volontairement des bâtons dans les roues, et le jeu te récompense pour ça.',
+          bullets:[
+            'Lancer un défi te fait faire une Renaissance : ton nombre revient à un. Prépare-toi mentalement.',
+            'Tu peux quitter un défi quand tu veux, sans aucune pénalité à part le temps perdu : zéro honte, promis.',
+            'Chaque défi peut être réussi plusieurs fois.',
+            'Les récompenses sont les plus grosses à la première et à la dernière réussite.'
+          ]
+        },
+        titans:{
+          intro:'Les Titans sont des boss géants de l’Aventure, chacun dans sa propre zone : les gros durs du quartier, qui ne se laissent pas faire.',
+          bullets:[
+            'Tu peux combattre un Titan à tout moment, tant qu’il n’est pas en temps de repos : même les géants ont besoin d’une sieste.',
+            'Un Titan vaincu te donne de l’expérience et des objets, comme de l’équipement ou des boosts. Ensuite, il a un temps de repos avant de revenir.',
+            'Si tu perds, tu retournes à la zone de départ. Le temps de repos ne se remet pas à zéro : tu peux réessayer autant que tu veux.',
+            'À chaque Renaissance, les Titans vivants disparaissent et un nouveau temps de repos commence. Chaque Titan devient plus fort à chaque attaque, il s’échauffe : garde de la marge de puissance.'
+          ]
+        },
+        macguffins:{
+          intro:'Les MacGuffins sont des objets uniques qui te donnent des bonus permanents à chaque Renaissance : des porte-bonheur qui se méritent.',
+          bullets:[
+            'Trouve des fragments en combattant dans les zones de l’Aventure : chaque zone compte tes victoires, et le fragment tombe quand le compteur est atteint.',
+            'Équipe tes MacGuffins dans ton inventaire : tu ne peux en porter que selon ton nombre d’emplacements.',
+            'Ils montent de niveau sans limite : le ciel est la seule frontière.',
+            'Le bonus permanent grandit quand tu fais une Renaissance avec un fragment équipé : n’oublie pas de l’emporter avec toi.'
+          ]
+        },
+        daycare:{
+          intro:'La Garderie fait monter tes objets de niveau pendant que tu fais autre chose, sans que tu aies à les fusionner : une nounou pour objets.',
+          bullets:[
+            'Elle est utile pour les objets difficiles ou très longs à monter de niveau : ceux qui font les capricieux.',
+            'Le petit chat de la garderie s’occupe de tes objets : le temps pour gagner un niveau dépend de chaque objet.',
+            'Tu ne peux mettre qu’un seul exemplaire de chaque objet.',
+            'Fusionner un objet dans un emplacement de la garderie ne fait rien : la nounou n’accepte pas les doublons.'
+          ]
+        },
+        questing:{
+          intro:'Les quêtes te donnent des points de quête en échange d’objets que tu ramasses en Aventure : tu fais la livraison, on te paie en points.',
+          bullets:[
+            'Lance une quête, puis ramasse l’objet de quête : il tombe dans une zone d’Aventure précise.',
+            'Tu peux aussi activer le mode inactif pour avancer lentement sans ramasser l’objet toi-même : la quête se fait en pantoufles.',
+            'Terminer une quête te donne des points de quête.',
+            'Une quête en cours continue après une Renaissance, et tu peux l’abandonner quand tu veux : aucune rancune.'
+          ]
+        },
+        quirks:{
+          intro:'Les Quirks sont des petites manies que tu achètes avec des points de quête, et qui te donnent des bonus.',
+          bullets:[
+            'Les points de quête se gagnent en faisant des quêtes.',
+            'Dépense-les dans ce menu pour acheter des bonus : c’est le rayon bonbons du jeu.',
+            'Certains Quirks améliorent ta puissance, ta capacité ou tes barres d’Energy et de Magic, et d’autres augmentent tes gains d’Or.',
+            'Certains Quirks ont plusieurs niveaux, et le prix est indiqué pour chaque niveau : lis l’étiquette avant de payer.'
+          ]
+        },
+        hacks:{
+          intro:'Les Hacks sont des programmes que tu fais monter de niveau pour booster définitivement d’autres statistiques du jeu : le pirate informatique, version gentille.',
+          bullets:[
+            'Répartis ta ressource entre les Hacks disponibles pour les faire monter de niveau.',
+            'Chaque Hack donne un petit bonus par niveau, et des paliers de niveaux offrent en plus un bonus supplémentaire : une récompense pour les persévérants.',
+            'Un Hack touche par exemple l’attaque et la défense, les statistiques d’Aventure ou les chances de butin.'
+          ]
+        },
+        wishes:{
+          intro:'Les Wishes sont des souhaits : tu mets tes ressources dans la lampe, et un génie très lent finit par les exaucer.',
+          bullets:[
+            'Pour exaucer un souhait, alloue-lui un peu de chacune de tes ressources : un souhait prend au minimum quatre heures. Le génie ne fait pas de livraison express.',
+            'Mettre beaucoup de ressources dans un seul souhait rapporte de moins en moins. Il vaut mieux allouer peu de chaque, et répartir sur plusieurs souhaits si tu as plusieurs emplacements.',
+            'Tu commences avec un seul emplacement de souhait.',
+            'Les souhaits te donnent des bonus, et pas des moutons à cinq pattes.'
+          ]
+        },
+        cards:{
+          intro:'Les Cards sont des cartes à jouer qui te donnent des bonus permanents : tu les piges, tu les lances, et tu gardes l’effet pour toujours.',
+          bullets:[
+            'Tu reçois une carte toutes les heures, sauf si ton paquet est plein : un paquet plein, c’est un cadeau perdu.',
+            'Pour lancer une carte, il faut de la mayonnaise : le coût est écrit sur la carte. Oui, de la vraie mayonnaise virtuelle.',
+            'Une carte lancée disparaît, mais son bonus reste permanent.',
+            'Tu peux aussi détruire une carte, ou la protéger pour ne pas la lancer ni la détruire par erreur.'
+          ]
+        },
+        cooking:{
+          intro:'La cuisine te permet d’augmenter définitivement ton gain d’expérience : chaque bon petit plat te rend plus malin. Bon appétit.',
+          bullets:[
+            'Tu peux manger un plat environ une fois toutes les vingt-quatre heures. Si tu ne le manges pas, le temps s’accumule pour les repas suivants : le frigo n’oublie rien.',
+            'Ajuste la quantité de chaque ingrédient pour rendre le plat le plus efficace possible : dosage de chef.',
+            'Équipe ton matériel de cuisine avant de manger pour augmenter les bonus.',
+            'Quand tu manges le plat, son gain s’ajoute à ton gain d’expérience total, et un nouveau plat est généré.'
+          ]
+        }
+      };
+
+      /*
+       * Texte d'explication d'un système « générique » (Perks, Quirks, Achievements…). Fonction pure : le popup l'affiche ET la génération des voix pré-enregistrées (voice-generate.mjs) la
+       * lit pour chaque système du catalogue. Sans cela, ces popups n'avaient pas de fichier audio : repli sur la voix locale (lourde, jeu qui rame, souvent en erreur sur téléphone).
+       */
+      function infoSystemeGeneriqueIdleV1_(s,menuCible){
+        return infoSurchargeeIdleV1_('nouveaute:systeme:'+s.id,String(s.name||s.id)+' (système)',infoSystemeGeneriqueBruteIdleV1_(s,menuCible));
+      }
+
+      function infoSystemeGeneriqueBruteIdleV1_(s,menuCible){
+        /* Texte explicite du système (TEXTES_SYSTEMES_IDLE_V1) ; le texte générique ci-dessous n'est qu'un repli pour un système sans texte. */
+        const t=TEXTES_SYSTEMES_IDLE_V1[s.id];
+        if(t){
+          return {
+            icon:s.icon||'✨',
+            titre:(s.name||'Nouveau système')+' débloqué',
+            intro:t.intro,
+            menuCible:menuCible,
+            libelleCible:'Aller à '+(s.name||'ce système'),
+            bullets:t.bullets.slice()
+          };
+        }
+        return {
+          icon:s.icon||'✨',
+          titre:(s.name||'Nouveau système')+' débloqué',
+          intro:'Une nouvelle couche de progression est disponible.',
+          menuCible:menuCible,
+          libelleCible:'Ouvrir le système',
+          bullets:[
+            s.desc||'Ce système améliore ta progression.',
+            'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
+            s.kind==='permanent'
+              ?'Cette progression est permanente entre les Renaissances.'
+              :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
+          ]
+        };
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-117 */
@@ -341,6 +749,27 @@
           }catch(e){}
         }
         idleVuMarquerV1_('menu:'+menuId);
+      }
+
+      function infoMoneyPitIdleV1_(){
+        return infoSurchargeeIdleV1_('nouveaute:moneyPit','Money Pit & Roue journalière',infoMoneyPitBruteIdleV1_());
+      }
+
+      function infoMoneyPitBruteIdleV1_(){
+        return {
+          icon:'🕳️',
+          titre:'Money Pit & Roue journalière',
+          intro:'Tu as débloqué un trou dans lequel jeter tout ton Or. Oui, tout. Excellente gestion financière.',
+          menuCible:'moneyPit',
+          libelleCible:'Ouvrir le Money Pit',
+          bullets:[
+            'Money Pit : avec au moins 100 000 Or, tu peux jeter TOUT l’Or que tu possèdes dans le trou. Plus la somme est énorme, plus les cadeaux possibles sont beaux.',
+            'Le trou te recrache un lot au hasard selon la somme jetée, puis il doit se recharger avant le prochain lancer. Plus tu en fais dans la même partie, plus la recharge est longue : il se fatigue.',
+            'Roue journalière : elle est dans ce même menu. Quand elle est prête, fais-la tourner pour gagner un lot au hasard, notamment de l’AP ou des graines.',
+            'La roue revient sur un cycle de 24 heures. Plus tu accumules de tours au fil du temps, plus ses récompenses s’améliorent : la patience paie.',
+            'Repère visuel : le bouton Money Pit devient vert quand le trou est prêt, ou jaune quand la roue journalière est disponible.'
+          ]
+        };
       }
 
       /* Systèmes génériques (Perks, Quirks…) : déclarés pour l'éditeur Admin même avant d'être débloqués (l'administrateur voit tout). */
@@ -492,6 +921,24 @@
         });
       }
 
+      /*
+       * Disponibilité dans le menu Money Pit (Norman, 2026-10-03 : « quand le Money Pit, la roue ou le bonus AP est disponible, le bouton doit glow de manière visible »). Renvoie
+       * 'pit' (vert), 'roue' (jaune), 'calendrier' (orange) ou null ; priorité dans cet ordre. Heure du serveur pour les échéances.
+       */
+      function idleDisponibiliteMoneyPitV1_(j){
+        const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
+        if(!(pit&&pit.unlock&&pit.unlock.unlocked))return null;
+        const gold=idleNombre_(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.gold);
+        const pitData=pit.state&&pit.state.data||null;
+        if(pitData&&gold>=100000&&heureServeurIdleV1_()>=Number(pitData.nextAt||0))return 'pit';
+        const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
+        const roueData=roue&&roue.state&&roue.state.data||null;
+        if(roue&&roue.unlock&&roue.unlock.unlocked&&roueData&&heureServeurIdleV1_()>=Number(roueData.readyAt||0))return 'roue';
+        const cal=j&&j.systemes&&j.systemes.loginCalendar;
+        if(cal&&cal.reclamable)return 'calendrier';
+        return null;
+      }
+
       let idleDispoMoneyPitVerifieV1=0;
 
       function actualiserDisponibiliteMoneyPitNavIdleV1_(){
@@ -543,6 +990,8 @@
         return null;
       }
 
+      let idleMenuOrdreTravailV1=null;
+
       function idleMenuOrdreCleV1_(j){
         return 'soreal_idle_menu_ordre_v3_'+generationJoueurIdleV75_(j);
       }
@@ -583,6 +1032,13 @@
         return res.map(function(id){
           return defauts.find(function(m){return m.id===id;});
         });
+      }
+
+      function menusOrdonnesIdleV1_(j){
+        return ordonnerMenusIdleV1_(
+          REG.IDLE_MENUS_V1,
+          REG.idleMenuEditionV1&&idleMenuOrdreTravailV1?idleMenuOrdreTravailV1:idleMenuOrdreEnregistreV1_(j)
+        );
       }
 
       /* Titans débloqués : le menu Adventure devient « Adventure & Titans » (Norman, 2026-10-09) ; tant qu'aucun titan n'est découvert, le nom reste « Adventure » (anti-spoil). */
@@ -647,18 +1103,18 @@
 
       function ordreDepuisNavIdleV1_(){
         const nav=navMenuIdleV1_();
-        if(!nav)return REG.idleMenuOrdreTravailV1||[];
+        if(!nav)return idleMenuOrdreTravailV1||[];
         const visibles=Array.prototype.map.call(nav.querySelectorAll('[data-menu-id-v1]'),function(b){
           return b.getAttribute('data-menu-id-v1');
         });
-        const autres=(REG.idleMenuOrdreTravailV1||[]).filter(function(id){return visibles.indexOf(id)===-1;});
+        const autres=(idleMenuOrdreTravailV1||[]).filter(function(id){return visibles.indexOf(id)===-1;});
         return visibles.concat(autres);
       }
 
       function entrerRangementMenuIdleV1_(){
         if(REG.idleMenuEditionV1||!REG.idleEtat)return;
         REG.idleMenuEditionV1=true;
-        REG.idleMenuOrdreTravailV1=menusOrdonnesIdleV1_(REG.idleEtat).map(function(m){return m.id;});
+        idleMenuOrdreTravailV1=menusOrdonnesIdleV1_(REG.idleEtat).map(function(m){return m.id;});
         const nav=navMenuIdleV1_();
         if(nav){
           nav.classList.add('edition');
@@ -672,7 +1128,7 @@
         if(!REG.idleMenuEditionV1)return;
         const ordre=ordreDepuisNavIdleV1_();
         REG.idleMenuEditionV1=false;
-        REG.idleMenuOrdreTravailV1=null;
+        idleMenuOrdreTravailV1=null;
         REG.idleMenuClicAvaleJusquaV1=Date.now()+400;
         try{
           localStorage.setItem(idleMenuOrdreCleV1_(REG.idleEtat),JSON.stringify(ordre));
@@ -724,7 +1180,7 @@
           glisse.bouton.classList.remove('glisse');
           try{glisse.bouton.releasePointerCapture(glisse.id);}catch(e){}
           glisse=null;
-          REG.idleMenuOrdreTravailV1=ordreDepuisNavIdleV1_();
+          idleMenuOrdreTravailV1=ordreDepuisNavIdleV1_();
         }
 
         document.addEventListener('pointerdown',function(ev){
@@ -887,6 +1343,47 @@
         '</div>';
       }
 
+      function systemeMetaParIdIdleV130_(j,id){
+        const api=window.__SOREAL_IDLE_META_V130__;
+        if(api&&typeof api.systemeMetaParIdIdleV130_==='function'){
+          return api.systemeMetaParIdIdleV130_(j,id);
+        }
+        return null;
+      }
+
+      function pagePersonnageIdleV28_(j){
+        return `
+          ${entetePageIdleV28_(
+            '👤 Personnage',
+            'Statistiques générales et historique du personnage.'
+          )}
+
+          <div class="soreal-idle-character-v25">
+            ${rendreProfilIdleV26_(j)}
+            ${rendreSetsIdleV25_(j)}
+
+            <div class="soreal-idle-danger-zone-v67">
+              <div class="soreal-idle-danger-title-v67">
+                ⚠️ Zone dangereuse
+              </div>
+
+              <div class="soreal-idle-danger-text-v67">
+                Efface entièrement ce personnage et recommence SOREAL IDLE
+                exactement comme lors de ta toute première connexion.
+              </div>
+
+              <button
+                type="button"
+                class="soreal-idle-danger-button-v67"
+                onclick="window.__ouvrirPopupResetTotalIdleV67__()"
+              >
+                💣 Réinitialiser entièrement SOREAL IDLE
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
       function contenuMenuIdleV28_(j){
         switch(REG.idleMenuActifV28){
           case 'entrainement':
@@ -1011,24 +1508,32 @@
   Object.assign(REG,{
     infoBandeauIdleV2_:infoBandeauIdleV2_,
     majHudPvIdleV2_:majHudPvIdleV2_,
+    ancreClicIdleV1_:ancreClicIdleV1_,
+    arreterPinClicIdleV1_:arreterPinClicIdleV1_,
+    demarrerPinClicIdleV1_:demarrerPinClicIdleV1_,
+    restaurerAncreClicIdleV1_:restaurerAncreClicIdleV1_,
+    installerMorphIdleV1_:installerMorphIdleV1_,
     rafraichirMenuRacineIdleV28_:rafraichirMenuRacineIdleV28_,
     chargerMenuIdleV28_:chargerMenuIdleV28_,
     sauverMenuIdleV28_:sauverMenuIdleV28_,
     restaurerScrollNavIdleV28_:restaurerScrollNavIdleV28_,
+    generationJoueurIdleV75_:generationJoueurIdleV75_,
+    infoSystemeGeneriqueIdleV1_:infoSystemeGeneriqueIdleV1_,
     idleInfosParMenuIdleV1_:idleInfosParMenuIdleV1_,
     idleMenusAckListeLocaleV1_:idleMenusAckListeLocaleV1_,
     idleMenusAckListeV1_:idleMenusAckListeV1_,
     idleMenuEstAcquisV1_:idleMenuEstAcquisV1_,
     idleMenuMarquerAcquisV1_:idleMenuMarquerAcquisV1_,
+    infoMoneyPitIdleV1_:infoMoneyPitIdleV1_,
     anciennesFenetresMenusPermisesIdleV1_:anciennesFenetresMenusPermisesIdleV1_,
     tutorielPagesNaviguerV1_:tutorielPagesNaviguerV1_,
     annoncerNouveauxMenusIdleV1_:annoncerNouveauxMenusIdleV1_,
     idleMenuAlimenteV1_:idleMenuAlimenteV1_,
     actualiserNavAlimenteIdleV1_:actualiserNavAlimenteIdleV1_,
+    idleDisponibiliteMoneyPitV1_:idleDisponibiliteMoneyPitV1_,
     actualiserDisponibiliteMoneyPitNavIdleV1_:actualiserDisponibiliteMoneyPitNavIdleV1_,
     idleCouleurMoneyPitNavV1_:idleCouleurMoneyPitNavV1_,
-    idleMenuOrdreEnregistreV1_:idleMenuOrdreEnregistreV1_,
-    ordonnerMenusIdleV1_:ordonnerMenusIdleV1_,
+    menusOrdonnesIdleV1_:menusOrdonnesIdleV1_,
     nomMenuIdleV1_:nomMenuIdleV1_,
     htmlNomMenuIdleV1_:htmlNomMenuIdleV1_,
     rangeesMenuIdleV1_:rangeesMenuIdleV1_,
@@ -1038,6 +1543,7 @@
     initialiserSwipeNavigationIdleV1_:initialiserSwipeNavigationIdleV1_,
     empreinteMenusIdleV1_:empreinteMenusIdleV1_,
     walderpBanniereIdleV147_:walderpBanniereIdleV147_,
+    systemeMetaParIdIdleV130_:systemeMetaParIdIdleV130_,
     contenuMenuIdleV28_:contenuMenuIdleV28_,
     jouerSonMenuIdleV1_:jouerSonMenuIdleV1_,
     placerMenuEnHautPcIdleV1_:placerMenuEnHautPcIdleV1_

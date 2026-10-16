@@ -16,7 +16,7 @@ const FICHIER_UI = new URL("../public/soreal-idle-ui.js", import.meta.url);
 export const UI_MODULES = readdirSync(DOSSIER).filter((f) => /^(ui|page)-.*-v1\.js$/.test(f)).sort();
 const CALE = /^\s*(?:\/\*[\s\S]*?\*\/\s*)*function [A-Za-z0-9_$]+\(\)\{return (?:window\.__SOREAL_IDLE_[A-Z0-9_]+__|UI_PARTAGE_V1|REG)\.[A-Za-z0-9_$]+\.apply\(null,arguments\);?\}\s*$/;
 const PLOMBERIE_MODULE = /^\s*(?:\/\*[\s\S]*?\*\/\s*)*(?:'use strict';|const REG=|if\(REG\.__charg|REG\.__charg|Object\.assign\(REG,|Object\.assign\(window\.__SOREAL_IDLE_REG__|if\(window\.__SOREAL_IDLE_[A-Z0-9_]+__\)return;|window\.__SOREAL_IDLE_[A-Z0-9_]+_V1__=\{)/;
-const PLOMBERIE_UI = /^\s*(?:\/\*[\s\S]*?\*\/\s*)*(?:Object\.assign\(UI_PARTAGE_V1,|Object\.defineProperty\(UI_PARTAGE_V1,|window\.__SOREAL_IDLE_UI_PARTAGE_V1__=)/;
+const PLOMBERIE_UI = /^\s*(?:\/\*[\s\S]*?\*\/\s*)*(?:Object\.assign\(UI_PARTAGE_V1,|Object\.defineProperty\(UI_PARTAGE_V1,|window\.__SOREAL_IDLE_UI_PARTAGE_V1__=|UI_PARTAGE_V1\.__amorcer_\d+\(\);)/;
 
 export function sansRegistre(texte) {
   return texte.replace(/(?<![A-Za-z0-9_$.])REG\.([A-Za-z0-9_$]+)/g, "$1");
@@ -38,6 +38,11 @@ function construire() {
     if (it.kind === "var" && it.names.includes("UI_PARTAGE_V1")) return;
     if (it.kind === "stmt" && (deModule ? PLOMBERIE_MODULE : PLOMBERIE_UI).test(texte)) return;
     if (it.kind === "var" && it.names.includes("REG")) return;
+    /* Instruction de démarrage emballée par le découpage : « @amorce <clé> » puis function __amorcer_N(){ <instruction d'origine> } : on remet l'instruction à sa place d'origine. */
+    if (it.kind === "function" && it.names[0].startsWith("__amorcer_")) {
+      const m = texte.match(/^([\s\S]*?)\/\* @amorce ([\s\S]*?) \*\/\s*function __amorcer_\d+\(\)\{\n?([\s\S]*?)\n?\}\s*$/);
+      if (m) { const cleA = m[2].replace(/\*​\//g, "*/"); if (!table.has(cleA)) table.set(cleA, (m[1] + m[3]).replace(/\n*$/, "\n")); return; }
+    }
     let cle = cleItem(src, it);
     if (it.kind === "stmt") { const n = (occ.get(cle) || 0) + 1; occ.set(cle, n); if (n > 1) cle += "#" + n; }
     if (table.has(cle)) { restes.push(texte); return; }

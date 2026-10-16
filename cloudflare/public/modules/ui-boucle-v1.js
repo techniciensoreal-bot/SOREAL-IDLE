@@ -31,7 +31,6 @@
   function texteEnergieGenereeIdleV1_(){return REG.texteEnergieGenereeIdleV1_.apply(null,arguments);}
   function energieDisponibleIdleV9_(){return REG.energieDisponibleIdleV9_.apply(null,arguments);}
   function formatEntierLisibleIdleV1_(){return REG.formatEntierLisibleIdleV1_.apply(null,arguments);}
-  function champSaisieActifIdleV1_(){return REG.champSaisieActifIdleV1_.apply(null,arguments);}
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
@@ -57,7 +56,6 @@
   function actualiserDisponibiliteMoneyPitNavIdleV1_(){return REG.actualiserDisponibiliteMoneyPitNavIdleV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function poserNoteCombatAdventureIdleV1_(){return REG.poserNoteCombatAdventureIdleV1_.apply(null,arguments);}
-  function restPvInitialIdleV1_(){return REG.restPvInitialIdleV1_.apply(null,arguments);}
   function texteProchainCombatAdventureIdleV165_(){return REG.texteProchainCombatAdventureIdleV165_.apply(null,arguments);}
   function rendreIdleEtat_(){return REG.rendreIdleEtat_.apply(null,arguments);}
   function largeurBarreCombatIdleV121_(){return REG.largeurBarreCombatIdleV121_.apply(null,arguments);}
@@ -2288,6 +2286,28 @@
        */
       let idleMenuViveSyncV1=0;
 
+      function champSaisieActifIdleV1_(){
+        if(REG.idlePointeurEnfonceV1&&Date.now()-REG.idlePointeurEnfonceV1<3000)return true;
+        const a=document.activeElement;
+        if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;
+        /* Un champ modifié mais pas encore validé (ITOPOD : étages tapés ou réglés avec − et +) ne doit jamais être remis à zéro par un redessin. */
+        const racine=document.querySelector('.soreal-idle-page-root-v28');
+        if(!racine)return false;
+        const champs=racine.querySelectorAll('input,textarea,select');
+        for(let i=0;i<champs.length;i+=1){
+          const c=champs[i];
+          if(c.type==='checkbox'||c.type==='radio'){if(c.checked!==c.defaultChecked)return true;}
+          else if(c.type!=='button'&&c.type!=='submit'&&c.value!==c.defaultValue)return true;
+        }
+        return false;
+      }
+
+      function restPvInitialIdleV1_(pvMax){
+        const memo=REG.idleAdventureRestPvMemoV1;
+        if(memo==null||!Number.isFinite(memo))return pvMax;
+        return Math.min(pvMax,Math.max(0,memo));
+      }
+
       function nettoyerImpactsIdleV50_(){
         [
           'sorealIdleBossImageHostV36',
@@ -2308,6 +2328,8 @@
   Object.assign(REG,{
     mettreAJourBarreProgressionContinueV1_:mettreAJourBarreProgressionContinueV1_,
     demarrerTickerIdle_:demarrerTickerIdle_,
-    multiplicateurFureurLocaleIdleV70_:multiplicateurFureurLocaleIdleV70_
+    multiplicateurFureurLocaleIdleV70_:multiplicateurFureurLocaleIdleV70_,
+    champSaisieActifIdleV1_:champSaisieActifIdleV1_,
+    restPvInitialIdleV1_:restPvInitialIdleV1_
   });
 })();

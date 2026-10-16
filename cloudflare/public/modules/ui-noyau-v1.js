@@ -9,7 +9,6 @@
   if(REG.__chargé_ui_noyau_v1)return;
   REG.__chargé_ui_noyau_v1=true;
 
-  function boutonIdle_(){return REG.boutonIdle_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function idleFastPendingV60_(){return REG.idleFastPendingV60_.apply(null,arguments);}
   function metaOccupeIdleV130_(){return REG.metaOccupeIdleV130_.apply(null,arguments);}
@@ -67,9 +66,7 @@
   function verifierDefaiteAutoAventureIdleV1_(){return REG.verifierDefaiteAutoAventureIdleV1_.apply(null,arguments);}
   function peutRelancerCombatAutoIdleV30_(){return REG.peutRelancerCombatAutoIdleV30_.apply(null,arguments);}
   function programmerCombatAutoIdleV30_(){return REG.programmerCombatAutoIdleV30_.apply(null,arguments);}
-  function annulerOuvertureIdleV104_(){return REG.annulerOuvertureIdleV104_.apply(null,arguments);}
   function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}
-  function afficherBoutonIdle_(){return REG.afficherBoutonIdle_.apply(null,arguments);}
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-3 */
       const IDLE_TEST_VERSION='Version bêta';
@@ -103,6 +100,16 @@
           })
           .withFailureHandler(function(){})
           .obtenirPartieDevSorealIdle(SOREAL_SESSION);
+      }
+
+      function boutonIdle_(){
+        return document.getElementById('navButtonSorealIdle');
+      }
+
+      function afficherBoutonIdle_(visible){
+        const bouton=boutonIdle_();
+        if(!bouton)return;
+        bouton.style.display=visible?'':'none';
       }
 
       function marquerBoutonIdleActif_(){
@@ -985,6 +992,10 @@
         );
       }
 
+      function annulerOuvertureIdleV104_(){
+        window.__idleOuvertureEnCoursV104__=0;
+      }
+
       function signalerErreurOuvertureIdleV104_(
         message
       ){
@@ -1228,8 +1239,10 @@
       }
 
   Object.assign(REG,{
+    afficherBoutonIdle_:afficherBoutonIdle_,
     synchroniserJeuIdleV7_:synchroniserJeuIdleV7_,
     rendreIdleEtat_:rendreIdleEtat_,
+    annulerOuvertureIdleV104_:annulerOuvertureIdleV104_,
     ouvrirSorealIdleAvecEtatV108_:ouvrirSorealIdleAvecEtatV108_,
     chargerSorealIdleNatifV4_:chargerSorealIdleNatifV4_
   });

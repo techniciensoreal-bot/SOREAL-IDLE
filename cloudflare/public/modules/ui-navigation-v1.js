@@ -13,7 +13,6 @@
   function chroniquesOngletsIdleV1_(){return REG.chroniquesOngletsIdleV1_.apply(null,arguments);}
   function estAdminSorealIdle_(){return REG.estAdminSorealIdle_.apply(null,arguments);}
   function menuSuccesVisibleIdleV1_(){return REG.menuSuccesVisibleIdleV1_.apply(null,arguments);}
-  function infoSurchargeeIdleV1_(){return REG.infoSurchargeeIdleV1_.apply(null,arguments);}
   function pauseVoixIdleV1_(){return REG.pauseVoixIdleV1_.apply(null,arguments);}
   function achatsApParCategorieIdleV1_(){return REG.achatsApParCategorieIdleV1_.apply(null,arguments);}
   function menusOrdonnesIdleV1_(){return REG.menusOrdonnesIdleV1_.apply(null,arguments);}
@@ -31,7 +30,6 @@
   function aventureDebloqueeIdleV47_(){return REG.aventureDebloqueeIdleV47_.apply(null,arguments);}
   function placerMenuEnHautPcIdleV1_(){return REG.placerMenuEnHautPcIdleV1_.apply(null,arguments);}
   function jouerSonMenuIdleV1_(){return REG.jouerSonMenuIdleV1_.apply(null,arguments);}
-  function fermerPanneauxInfoIdleV1_(){return REG.fermerPanneauxInfoIdleV1_.apply(null,arguments);}
   function idleMenuMarquerAcquisV1_(){return REG.idleMenuMarquerAcquisV1_.apply(null,arguments);}
   function arreterCombatTitanIdleV1_(){return REG.arreterCombatTitanIdleV1_.apply(null,arguments);}
   function demarrerTutorielPagesIdleV1_(){return REG.demarrerTutorielPagesIdleV1_.apply(null,arguments);}
@@ -138,6 +136,32 @@
         return Boolean(
           systeme&&systeme.unlock&&systeme.unlock.unlocked
         );
+      }
+
+      /*
+       * Textes éditables (Norman, 2026-10-02 : popups et fenêtres explicatives modifiables par l'administrateur, avec voix différentes) : chaque popup
+       * « nouveauté » passe par ici ; sans modification il est rendu tel quel, avec en plus sa clé (_cle) pour le bouton « Modifier » de l'administrateur.
+       */
+      const NOUVEAUTE_CHAMPS_TEXTES_V1=[
+        {id:'titre',label:'Titre',type:'ligne'},
+        {id:'intro',label:'Introduction',type:'texte'},
+        {id:'texte',label:'Texte',type:'texte'},
+        {id:'bullets',label:'Points (un par paragraphe)',type:'liste'}
+      ];
+
+      function infoSurchargeeIdleV1_(cle,libelle,infoBrute){
+        const T=window.__SOREAL_IDLE_TEXTES_V1__;
+        if(!T||!infoBrute)return infoBrute;
+        T.declarer(cle,{
+          groupe:'Popups de nouveautés',
+          libelle:libelle||String(infoBrute.titre||cle),
+          champs:NOUVEAUTE_CHAMPS_TEXTES_V1,
+          original:function(){
+            return {titre:String(infoBrute.titre||''),intro:String(infoBrute.intro||''),texte:String(infoBrute.texte||''),bullets:Array.isArray(infoBrute.bullets)?infoBrute.bullets.slice():[]};
+          },
+          texteLu:function(v){return texteVoixNouveauteIdleV1_(v);}
+        });
+        return T.appliquerInfo(cle,infoBrute);
       }
 
       function definitionsNouveautesIdleV75_(){
@@ -365,6 +389,21 @@
         if(!placerMenuEnHautPcIdleV1_())remonterToutEnHautIdleV1_();
       }
 
+      /*
+       * Panneaux d'informations repliables des menus (« 💡 À quoi ça sert ? », « Que faire ici ? », résumé des NGU, encart Infos des Réglages) : toujours FERMÉS à l'arrivée dans un menu et refermés quand on change de menu
+       * (Norman, 2026-10-15). Un panneau ouvert le reste seulement tant qu'on reste dans le menu (la synchro redessine la page) ; on ne retient plus rien d'une visite à l'autre.
+       */
+      function fermerPanneauxInfoIdleV1_(){
+        try{
+          const cles=[];
+          for(let i=0;i<localStorage.length;i+=1){const k=localStorage.key(i);if(k&&k.indexOf('soreal_idle_aide_v1_')===0)cles.push(k);}
+          cles.forEach(function(k){localStorage.removeItem(k);});
+          localStorage.setItem('soreal_idle_info_ouvert_v1','0');
+        }catch(_e){}
+        try{const L=window.__SOREAL_IDLE_NGU_LABO_V1__;if(L&&typeof L.resume==='function')L.resume(false);}catch(_e){}
+        try{const Y=window.__SOREAL_IDLE_YGG_V1__;if(Y&&typeof Y.fermerAide==='function')Y.fermerAide();}catch(_e){}
+      }
+
       function menuIdleCoeurV28_(menu){
         /* Mode « Rangement des boutons » : un appui ne change pas de page ; l'appui qui suit un maintien est avalé. */
         if(REG.idleMenuEditionV1||Date.now()<REG.idleMenuClicAvaleJusquaV1)return;
@@ -495,9 +534,11 @@
 
   Object.assign(REG,{
     menuDisponibleIdleV28_:menuDisponibleIdleV28_,
+    infoSurchargeeIdleV1_:infoSurchargeeIdleV1_,
     definitionsNouveautesIdleV75_:definitionsNouveautesIdleV75_,
     texteVoixNouveauteIdleV1_:texteVoixNouveauteIdleV1_,
     navigationIdleV28_:navigationIdleV28_,
-    menuIdleV28_:menuIdleV28_
+    menuIdleV28_:menuIdleV28_,
+    fermerPanneauxInfoIdleV1_:fermerPanneauxInfoIdleV1_
   });
 })();
