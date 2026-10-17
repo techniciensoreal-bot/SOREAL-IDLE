@@ -174,11 +174,12 @@
   var anneau=[];/* 0,2 s par case, 100 cases = 20 s : {t, j, b} (vie du joueur et du boss posée par le jeu, null si la barre n'est pas à l'écran) */
   function echantillonVie_(){
     try{var P0=window.performance;anneau.push({t:(P0&&P0.now)?P0.now():0,j:null,b:null});if(anneau.length>100)anneau.shift();}catch(_e){}
-    var defs=[['joueur','sorealIdleJoueurBarV15'],['boss','sorealIdleBossBarV7']];
+    /* Vie du joueur : la barre du bandeau du haut (toujours à l'écran, largeur posée par majHudPvIdleV2_) ; celle de la scène de combat n'existe pas dans tous les menus. */
+    var defs=[['joueur','sorealIdleHudPvBarV2'],['boss','sorealIdleBossBarV7']];
     for(var i=0;i<defs.length;i++){
       var el=document.getElementById(defs[i][1]);
-      if(!el||!el.dataset){delete vieBarres[defs[i][0]];continue;}
-      var v=parseFloat(el.dataset.idlePctV121);
+      if(!el||(defs[i][0]==='boss'&&!el.dataset)){delete vieBarres[defs[i][0]];continue;}
+      var v=defs[i][0]==='joueur'?parseFloat(el.style&&el.style.width):parseFloat(el.dataset.idlePctV121);
       if(!isFinite(v))continue;
       if(anneau.length)anneau[anneau.length-1][defs[i][0]==='joueur'?'j':'b']=v;
       var avant=vieBarres[defs[i][0]];
