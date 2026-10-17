@@ -11,7 +11,7 @@ const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={fermees:{},ouvre:{},anim:{}};",
-  "var sons=[];function son_(n){sons.push(n);}",
+  "var sons=[];function son_(n){sons.push(n);}function sonEnvers_(n){sons.push(n+'-envers');}",
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
   coupe(/var REGLAGES_DEFAUT_=\{[^\n]*\n/),
   coupe(/var CLE_REGLAGES_=[^\n]*\n/),
@@ -81,7 +81,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   // Le fruit est mangé ou récolté (actif -> inactif, l'auto ne l'a pas relancé) : la porte se REFERME avec l'animation d'ouverture à l'envers et le même son, une seule fois ; puis porte close fixe.
   const h2 = m.api.porteDe_("gold", false);
   assert.ok(h2.includes("ygg-porte referme") && !h2.includes("ygg-porte ouvre"), "la porte se referme");
-  assert.equal(m.api.sons.join(), "porte,porte", "même son qu'à l'ouverture, joué une fois");
+  assert.equal(m.api.sons.join(), "porte,porte-envers", "le son de l'ouverture, joué à l'envers, une fois");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
   assert.equal(m.api.sons.length, 2, "pas de second son pendant un redessin");

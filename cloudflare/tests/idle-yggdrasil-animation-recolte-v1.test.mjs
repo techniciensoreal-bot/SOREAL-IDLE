@@ -10,7 +10,7 @@ const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={anim:{},precharge:{},fermees:{},ouvre:{}};",
-  "var sons=[];function son_(n){sons.push(n);}",
+  "var sons=[];function son_(n){sons.push(n);}function sonEnvers_(n){sons.push(n+'-envers');}",
   "var rafraichissements=0;function rafraichir_(){rafraichissements+=1;}",
   "var etapeFournie=null;function etapeCroissance_(){return etapeFournie;}",
   "function trouver_(){return {d:{},v:{}};}",

@@ -186,8 +186,50 @@
     }catch(_e){return false;}
   }
 
+  /*
+   * Un son joué À L'ENVERS (Norman, 2026-10-17 : la porte qui se referme joue le son de l'ouverture à l'envers). Le son est d'abord fabriqué hors ligne (OfflineAudioContext : il est synthétisé, pas un fichier),
+   * puis ses échantillons sont retournés et la fin silencieuse retirée pour que le son démarre aussitôt. Un même son (nom + option) n'est fabriqué qu'une fois. Sans contexte hors ligne : le son normal.
+   */
+  var envers={};
+  function jouerEnvers(nom,option){
+    if(!SONS[nom])return false;
+    var v=volume_();
+    if(!(v>0))return false;
+    var c=contexte_();
+    if(!c)return false;
+    var O=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+    if(!O)return jouer(nom,option);
+    try{
+      if(c.state==='suspended'&&c.resume)c.resume();
+      var k=Number(option)>0?Math.max(.4,Math.min(3,Number(option))):1;
+      var cle=nom+'|'+k;
+      function lire(buf){
+        var s=c.createBufferSource();s.buffer=buf;
+        var maitre=c.createGain();maitre.gain.value=Math.min(1,volume_())*0.5;
+        s.connect(maitre);maitre.connect(c.destination);s.start(c.currentTime+0.005);
+      }
+      if(envers[cle]){lire(envers[cle]);return true;}
+      var taux=c.sampleRate||44100,n=Math.ceil(taux*(3.4*k+0.6));
+      var hc=new O(1,n,taux);
+      var sortie=hc.createGain();sortie.gain.value=1;sortie.connect(hc.destination);
+      SONS[nom](hc,sortie,0.005,undefined,option);
+      var fait=false,fini=function(rendu){
+        if(fait||!rendu)return;fait=true;
+        var d=rendu.getChannelData(0),fin=d.length;
+        while(fin>0&&Math.abs(d[fin-1])<0.002)fin--;
+        var b=c.createBuffer(1,Math.max(1,fin),taux),o=b.getChannelData(0);
+        for(var i=0;i<fin;i++)o[i]=d[fin-1-i];
+        envers[cle]=b;lire(b);
+      };
+      var p=hc.startRendering(fini);
+      if(p&&typeof p.then==='function')p.then(fini);
+      return true;
+    }catch(_e){return jouer(nom,option);}
+  }
+
   window.__SOREAL_IDLE_YGG_SONS_V1__={
     jouer:jouer,
+    jouerEnvers:jouerEnvers,
     noms:Object.keys(SONS),
     construire:function(nom,c,out,t,alea,option){if(SONS[nom])SONS[nom](c,out,t,alea,option);}
   };
