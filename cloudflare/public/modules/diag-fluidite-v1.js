@@ -12,20 +12,30 @@
  *   - combat_lance   : (Norman, 2026-10-17 : « quand on lance un combat contre un boss, ça saute ») à la première réponse du serveur après un clic sur Fight : délai depuis le clic, PV du joueur et du boss
  *                       affichés (avant) et donnés par le serveur (après), en % de leur maximum.
  *   - combat_saut    : pendant un combat de boss, une réponse du serveur déplace la vie du joueur ou celle du boss d'au moins 8 points de pourcentage par rapport à l'écran.
- * Le journal (80 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
+ *   - tache_longue   : (Norman, 2026-10-17 : « petites lenteurs ») une tâche de plus de 80 ms qui bloque le navigateur : durée, menu ouvert, combat actif, et la réponse du serveur reçue juste avant (opération + délai).
+ *   - reponse_lente  : une réponse du serveur qui a mis plus de 3 s à revenir (opération, durée).
+ * CHAQUE ligne porte aussi le menu ouvert (menu=) et l'état du combat (combat=1/0), et le texte copié commence par un en-tête (appareil, version, connexion, menu) et finit par FIN DU JOURNAL : coller le texte seul suffit.
+ * Le journal (160 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_DIAG_V1__)return;
 
   var CLE='soreal_idle_diag_v1';
-  var MAX=80;
+  var MAX=160;
   var PERIODE_MS=200;
   var journal=[];
   try{var brut=localStorage.getItem(CLE);if(brut){var l=JSON.parse(brut);if(Array.isArray(l))journal=l.slice(-MAX);}}catch(_e){}
 
   function sauver_(){try{localStorage.setItem(CLE,JSON.stringify(journal.slice(-MAX)));}catch(_e){}}
 
+  /* Contexte ajouté à chaque ligne : menu ouvert et combat de boss actif (lecture seule, jamais d'erreur). */
+  function contexte_(){
+    var c={};
+    try{var r=document.querySelector('.soreal-idle-page-root-v28');var m=r&&r.getAttribute('data-menu');if(m)c.menu=m;}catch(_e){}
+    try{var e=typeof window.__SOREAL_IDLE_LIRE_ETAT_V1__==='function'?window.__SOREAL_IDLE_LIRE_ETAT_V1__():null;if(e)c.combat=e.combatBossActif?1:0;}catch(_e){}
+    return c;
+  }
   var dernierParCle={};
   function noter_(type,cle,details){
     var maintenant=Date.now();
@@ -33,6 +43,7 @@
     if(dernierParCle[k]&&maintenant-dernierParCle[k]<5000)return;
     dernierParCle[k]=maintenant;
     var ligne={t:maintenant,type:type,cle:cle};
+    var ctx=contexte_();for(var q in ctx)ligne[q]=ctx[q];
     for(var a in details)if(Object.prototype.hasOwnProperty.call(details,a))ligne[a]=details[a];
     journal.push(ligne);
     if(journal.length>MAX)journal=journal.slice(-MAX);
@@ -92,6 +103,26 @@
       if(dj>=8||db>=8){noter_('combat_saut','boss',d);return 1;}
       return 0;
     }catch(_e){return 0;}
+  }
+
+  /* Réponses du serveur récentes (opération, instant de réception, durée de l'appel) : une tâche longue qui démarre juste après l'une d'elles lui est attribuée. */
+  var recentes=[];
+  function reponseRecue_(op,ms){
+    try{
+      var P=window.performance;
+      recentes.push({op:String(op||'?'),t:(P&&P.now)?P.now():0,ms:Math.round(Number(ms)||0)});
+      if(recentes.length>12)recentes.shift();
+      if(Number(ms)>3000)noter_('reponse_lente',String(op||'?'),{ms:Math.round(Number(ms))});
+    }catch(_e){}
+  }
+  function tacheLongue_(debut,duree){
+    try{
+      if(!(duree>=80))return;
+      var rep=null;
+      for(var i=recentes.length-1;i>=0;i--){if(recentes[i].t>=debut-120&&recentes[i].t<=debut+duree){rep=recentes[i];break;}}
+      var ctx=contexte_();
+      noter_('tache_longue',String(ctx.menu||'?')+'@'+Math.floor(debut/2000),{ms:Math.round(duree),apres:rep?rep.op:'-',appel_ms:rep?rep.ms:0,delai_ms:rep?Math.round(debut-rep.t):0});
+    }catch(_e){}
   }
 
   /* Remplissage visible d'une barre : transform scaleX de l'élément (la barre est animée par le navigateur). */
@@ -179,13 +210,26 @@
   function texte_(){
     var r=resume_();
     var tete='Journal de fluidité — '+journal.length+' ligne(s) : '+(Object.keys(r).map(function(k){return k+' ×'+r[k];}).join(', ')||'rien noté');
-    var lignes=journal.slice(-60).map(function(e){
+    var lignes=journal.slice(-MAX).map(function(e){
       var h=new Date(e.t).toLocaleTimeString('fr-BE');
       var det=[];
       for(var a in e)if(a!=='t'&&a!=='type'&&a!=='cle')det.push(a+'='+e[a]);
       return h+'  '+e.type+'  '+e.cle+'  '+det.join(' ');
     });
-    return textePerf_()+tete+'\n'+lignes.join('\n');
+    return entete_()+textePerf_()+tete+'\n'+lignes.join('\n')+'\n— FIN DU JOURNAL ('+journal.length+' ligne(s)) —';
+  }
+
+  /* En-tête du texte copié : tout ce qu'il faut pour comprendre le journal sans poser de question. */
+  function entete_(){
+    try{
+      var nav=window.navigator||{},cn=nav.connection||{},ctx=contexte_(),v='?';
+      try{var sc=document.querySelector('script[src*="soreal-idle-ui.js"]');var mm=sc&&/[?&]v=([^&]+)/.exec(sc.getAttribute('src')||'');if(mm)v=mm[1];}catch(_e){}
+      return '=== SOREAL IDLE — journal de diagnostic ==='+'\n'+
+        'relevé : '+new Date().toLocaleString('fr-BE')+' · mode '+modeJeu+' · version client ?v='+v+'\n'+
+        'appareil : '+String(nav.userAgent||'?').slice(0,110)+' · '+(nav.hardwareConcurrency||'?')+' coeurs · mémoire '+(nav.deviceMemory||'?')+' Go · écran '+(window.innerWidth||'?')+'x'+(window.innerHeight||'?')+' ×'+(window.devicePixelRatio||'?')+'\n'+
+        'réseau : '+(cn.effectiveType||'?')+' · aller-retour '+(cn.rtt!==undefined?cn.rtt:'?')+' ms · débit '+(cn.downlink!==undefined?cn.downlink:'?')+' Mb/s'+'\n'+
+        'au moment de la copie : menu '+(ctx.menu||'?')+' · combat '+(ctx.combat===undefined?'?':ctx.combat)+'\n\n';
+    }catch(_e){return '';}
   }
 
   function fermer_(){var o=document.getElementById('soreal-idle-diag-v1');if(o)o.remove();}
@@ -249,7 +293,7 @@
     try{
       if(typeof PerformanceObserver==='function'){
         var po=new PerformanceObserver(function(liste){
-          liste.getEntries().forEach(function(e){sonde.taches+=1;sonde.tachesMs+=e.duration;if(e.duration>sonde.tacheMax)sonde.tacheMax=e.duration;});
+          liste.getEntries().forEach(function(e){sonde.taches+=1;sonde.tachesMs+=e.duration;if(e.duration>sonde.tacheMax)sonde.tacheMax=e.duration;tacheLongue_(e.startTime,e.duration);});
         });
         po.observe({type:'longtask',buffered:false});
       }
@@ -292,6 +336,8 @@
     echantillon:echantillon_,
     ecartRituels:ecartRituels_,
     ecartCombat:ecartCombat_,
+    reponseRecue:reponseRecue_,
+    tacheLongue:tacheLongue_,
     combatLance:combatLance_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,

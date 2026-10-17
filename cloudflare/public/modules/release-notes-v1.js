@@ -32,6 +32,7 @@
         date:'2026-10-17',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le journal de fluidité est complet à lui seul : appareil, réseau, menu ouvert et combat sur chaque ligne, avec les blocages et les réponses lentes du serveur.',
             'Quand deux réponses du serveur arrivent presque en même temps, la plus ancienne ne peut plus remplacer la plus récente : plus de boss ou d’avancement qui reviennent un court instant en arrière.',
             'Le journal de fluidité note aussi le lancement d’un combat de boss et les sauts de vie qui suivent, pour traquer ce qui saute en ligne.',
             'Les chroniques de boss lues depuis la Collection, la fiche d’un boss ou « Lire les chroniques » utilisent maintenant la même voix et le même texte dit que pendant le combat.',

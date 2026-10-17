@@ -98,7 +98,7 @@ D.signaler("auto_nuke", "texte");
   assert.equal(avalees.find((e) => e.cle === "page_augments").msg, "boum");
 }
 // Journal : texte lisible, enregistré sur l'appareil, jamais plus de 80 lignes.
-assert.ok(D.texte().startsWith("Journal de fluidité — "));
+assert.ok(D.texte().includes("Journal de fluidité — ") && D.texte().startsWith("=== SOREAL IDLE"));
 assert.ok(JSON.parse(stockage["soreal_idle_diag_v1"]).length >= 4);
 // Sonde de fluidité du téléphone (2026-10-08) : mode iframe / direct, images par seconde, tâches longues ; comparés dans le journal
 assert.equal(D.mode, "direct", "page de premier niveau (window.parent === window) : mode direct");

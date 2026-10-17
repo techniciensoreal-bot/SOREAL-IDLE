@@ -319,6 +319,7 @@
     const firstArg=typeof liste[0]==="string"?String(liste[0]||"").trim():"";
     if(!firstArg)liste.unshift(session);
 
+    const debutAppelDiagV1=(typeof performance!=="undefined"&&performance.now)?performance.now():0;
     try{
       const data=await jsonFetchRepriseV1("/api/v1/call",{
         method:"POST",
@@ -335,6 +336,7 @@
           langue:langueIdleV1()
         })
       },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
+      try{const Dg=window.__SOREAL_IDLE_DIAG_V1__;if(Dg&&Dg.reponseRecue)Dg.reponseRecue(operation,(performance.now?performance.now():0)-debutAppelDiagV1);}catch(_){}
       if(!restaurerCataloguesV1(data)&&!sansAllegement){
         /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */
         try{
