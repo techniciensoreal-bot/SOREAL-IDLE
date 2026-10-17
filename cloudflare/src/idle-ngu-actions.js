@@ -5,7 +5,7 @@
  */
 import { macguffinAdventureBeforeV1, macguffinAfterAdventureV1, applyMacguffinActionV1, macguffinApplyRebirthV1 } from "./idle-macguffins-v1.js";
 import { idleInventoryIdsV1, idleInventoryManualBoostBeforeV1, idleInventoryProcessNewDropsV1, idleInventoryManualBoostAfterV1, applyIdleInventoryAutoActionV1, idleInventoryBoostRecycleChanceV1, idleInventoryLoadoutSlotsV1 } from "./idle-inventory-auto-v1.js";
-import { applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
+import { applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { appliquerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -104,7 +104,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         titanCooldownReductionEvilMs:challengePermanentBonuses(state).titanRespawnReductionEvilMs,
         titanCooldownReductionSadisticMs:challengePermanentBonuses(state).titanRespawnReductionSadisticMs,
         titanLootLevelBonus:challengePermanentBonuses(state).titanLootLevelBonus,
-        adventureStats: idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state))
+        adventureStats: idleAdventureCombatStatsV1(idleEquipementEffectifV1(state), context, idleNguBonuses(state))
       }),
       t
     );

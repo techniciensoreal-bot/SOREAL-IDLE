@@ -12,8 +12,8 @@
   "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2034,
-  "sha": "0c5a03781cef351bd04946076d3fe1150852dcf9"
+  "pin": 2035,
+  "sha": "59a93c7906d7172218139104b1047cba8c4e4c98"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 3,
@@ -92,8 +92,8 @@
   "sha": "51f6b543014f6a2cf72831d7cf07c634d57a7ee0"
  },
  "/modules/challenges-v1.js": {
-  "pin": 15,
-  "sha": "71c6075a1feed11c66c62302513659c092232bb8"
+  "pin": 16,
+  "sha": "74182bbac547a54c1107e26e799c698c9fbddc77"
  },
  "/modules/chat-v1.js": {
   "pin": 12,
@@ -300,8 +300,8 @@
   "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 306,
-  "sha": "6c94f26d4b54f5f54c443f4370157e6dd9b267f4"
+  "pin": 309,
+  "sha": "47a8140098e7f78ecc347bc4cd4f61bd6cb998d7"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -364,12 +364,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 328,
-  "sha": "7c03f5789bac7417691827aa8f036958cf5e700c"
+  "pin": 330,
+  "sha": "41da3ba9621a781c307b7a18c69b45ffeab82128"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 122,
-  "sha": "80a7e609e08382bc43ffeaf99251a8a782f21891"
+  "pin": 124,
+  "sha": "6289dc2b17ad2650e4af53f5232407683b81167b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,
@@ -404,12 +404,12 @@
   "sha": "1fac8f2101b261b0d755fda69f32b8c8c9fa80b6"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 1,
-  "sha": "642c640e6f655580849a30482bda81207d38ae15"
+  "pin": 2,
+  "sha": "c45d9a07e111787838f0d0cfc34d6f43a54728d7"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 1,
-  "sha": "9750660af9d6363ae542760ef4f8ea8b5ac542ba"
+  "pin": 2,
+  "sha": "7edc418066ef1c30ef19d097003f5b11ba3b554b"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 6,
@@ -440,8 +440,8 @@
   "sha": "c484674147860267fc09859d66f25de96fb06a94"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 2,
-  "sha": "c7373890f1243e169ccd694bc87bfe6d667bf507"
+  "pin": 3,
+  "sha": "6a1173484d060231c25dd6b4896a26d543c396e9"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 1,
@@ -524,8 +524,8 @@
   "sha": "42f16228463003328fcb36a6dd9c3514732035ed"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 168,
-  "sha": "f6bf6489bc6eccbb6f131372975feab111c1e120"
+  "pin": 169,
+  "sha": "c5a2d5029f5fc42dd3ef84964bb6ae2a18c630b3"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

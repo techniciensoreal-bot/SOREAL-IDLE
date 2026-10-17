@@ -95,7 +95,7 @@ var DEFIS={
   noEquipment:{
     nom:'No Equipment Challenge',
     desc:{normal:'L’équipement t’aide à tout faire mieux : alors on te l’enlève.'},
-    restriction:'Aucun bonus d’équipement. Tu ne peux rien équiper tant que le défi est actif.',
+    restriction:'Aucun bonus d’équipement : tu peux mettre et enlever des pièces, mais rien ne compte tant que le défi est actif.',
     conseil:{normal:'Beaucoup de Puissance d’Énergie et de Puissance de Magie de base.'},
     recompenses:{
       normal:[R('premiere','Débloque l’AUTO BOOST',true),R('chaque','−10 % du temps d’AUTO BOOST et d’AUTO MERGE',true),R('chaque','+8 emplacements d’inventaire'),R('finale','+10 emplacements d’inventaire en plus')],

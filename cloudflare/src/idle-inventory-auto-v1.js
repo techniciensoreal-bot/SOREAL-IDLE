@@ -791,8 +791,7 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
   if (mode === "transformBoost") return idleInventoryTransformBoostV1(s, payload.itemId || payload.id, String(payload.type || ""), env);
   if (mode === "loadoutSave") return loadoutSaveV1(s, payload.index, env);
   if (mode === "loadoutApply") {
-    /* No Equipment Challenge : impossible d'équiper quoi que ce soit pendant le défi. */
-    if (env?.equipmentLocked) throw new Error("DEFI_SANS_EQUIPEMENT");
+    /* Pendant le No Equipment Challenge on peut changer de tenue (Norman, 2026-10-17) : les pièces ne comptent pas, voir idleEquipementEffectifV1. */
     state.adventure = loadoutApplyV1(s, payload.index, env);
     return { index: I(payload.index, -1), equipment: X(state.adventure.equipment) };
   }

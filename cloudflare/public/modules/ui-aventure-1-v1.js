@@ -202,10 +202,6 @@
         objetId
       ){
         libererFocusIdleV24_();
-        if(equipementBloqueParDefiIdleV1_()){
-          refuserEquipementDefiIdleV1_();
-          return;
-        }
 
         if(
           !REG.idleEtat ||
@@ -1218,7 +1214,7 @@
         );
       }
 
-      /* No Equipment Challenge (page Challenges) : rien ne peut être équipé tant que le défi est actif (le serveur refuse aussi). */
+      /* No Equipment Challenge (page Challenges) : on peut changer de tenue mais rien ne compte tant que le défi est actif (Norman, 2026-10-17) ; sert à griser les pièces portées. */
       function equipementBloqueParDefiIdleV1_(){
         const c=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.challenge;
         return Boolean(c&&c.active==='noEquipment');
@@ -1226,10 +1222,6 @@
 
       function actionAdventureIdleV47_(payload){
         const action=payload||{};
-        if(action.action==='equip'&&equipementBloqueParDefiIdleV1_()){
-          refuserEquipementDefiIdleV1_();
-          return;
-        }
         if(estMutationInventaireAdventureIdleV160_(action)){
           enfilerMutationInventaireIdleV160_(action);
           return;
@@ -2312,10 +2304,6 @@
       }
 
       function equiperObjetAdventureIdleV47_(id,slot){
-        if(equipementBloqueParDefiIdleV1_()){
-          refuserEquipementDefiIdleV1_();
-          return;
-        }
         jouerEffetAudioIdleV199_('equip');
         actionAdventureIdleV47_({action:'equip',id:String(id||''),slot:String(slot||'')});
       }

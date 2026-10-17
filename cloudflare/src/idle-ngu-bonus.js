@@ -8,7 +8,7 @@ import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffec
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
-import { idleAdventureEquipmentStatsV47, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
+import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
@@ -229,7 +229,7 @@ export function nguTotalLevelsV1(state) {
 /* Specials cumulés (en %) de l'équipement porté ; vides sous le No Equipment Challenge. */
 export function gearSpecialsV1(state) {
   if (state.challenge?.active === "noEquipment") return {};
-  return idleAdventureEquipmentStatsV47(state.adventure).specials || {};
+  return idleEquipementEffectifV1(state).specials || {};
 }
 
 export const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 100;

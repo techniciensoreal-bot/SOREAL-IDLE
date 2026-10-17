@@ -1108,7 +1108,6 @@
         };
 
         if(action==='equip'){
-          if(equipementBloqueParDefiIdleV1_())return false;
           const item=trouver(id);
           const slot=String(payload.slot||'');
           if(!item||item.kind==='boost')return false;

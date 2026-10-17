@@ -5,7 +5,7 @@
  */
 import { nguActiveTiersV1, IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, nguParamsV1, IDLE_NGU_MAX_LEVEL_V1, nguEffectPctV1 } from "./idle-ngu-catalog-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1, idleSelloutShopEffectActiveV1, idleSelloutShopNextCostV1, idleSelloutApplyEffectV1 } from "./idle-sellout-shop-v1.js";
-import { idleAdventureSnapshotV47, idleAdventureEquipmentStatsV47, IDLE_ADVENTURE_SPECIALS, idleAdventureAddItemV1, idleAdventureSpecialItemV1, idleAdventureBoostV1, applyIdleAdventureActionV47 } from "./idle-adventure-v47.js";
+import { idleAdventureSnapshotV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, IDLE_ADVENTURE_SPECIALS, idleAdventureAddItemV1, idleAdventureSpecialItemV1, idleAdventureBoostV1, applyIdleAdventureActionV47 } from "./idle-adventure-v47.js";
 import { idleCardsSnapshotV1, idleCardsGrantChallengeMayoV1 } from "./idle-cards-v1.js";
 import { idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggExtraSnapshotV1 } from "./idle-yggdrasil-extra-v1.js";
 import { macguffinSnapshotV1, macguffinPermanentPctV1 } from "./idle-macguffins-v1.js";
@@ -142,8 +142,16 @@ function construireSnapshotNguV1(state, context, now) {
        * la SEULE source à utiliser ici, exactement comme le jeu réel.
        */
       const snap = idleAdventureSnapshotV47(state.adventure, num(context.bosses, 0), state.difficulty, state.difficultyPeaks);
-      const gear = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
+      const gearReel = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
+      const defiSansEquipement = state.challenge?.active === "noEquipment";
+      const gear = defiSansEquipement ? idleEquipementEffectifV1(state) : gearReel;
       snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
+      /* Défi sans équipement : ce que l'équipement porté DONNERAIT (barré à l'écran, jamais compté) ; absent hors du défi. */
+      if (defiSansEquipement) {
+        const reel = idleAdventureCombatStatsV1(gearReel, context, idleNguBonuses(state));
+        const ecart = (k) => Math.max(0, num(reel[k], 0) - num(snap.stats[k], 0));
+        snap.statsEquipementBloque = { power: ecart("power"), toughness: ecart("toughness"), hp: ecart("hp"), regen: ecart("regen") };
+      }
       /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06 : la réponse d'un joueur neuf contenait les 33 zones et les 12 titans, noms, boss et puissances compris) :
          jamais une zone encore fermée (sauf celle en cours) ni un titan pas encore atteignable dans la réponse. */
       if (Array.isArray(snap.zones)) snap.zones = snap.zones.filter(z => z.unlocked || z.id === snap.selectedZone || z.id === snap.lastCombatZone);
@@ -1215,7 +1223,7 @@ export function photoRecompensesAventure(state) {
  */
 export function questingEnvV1(state, context) {
   const bonuses = idleNguBonuses(state);
-  const gear = idleAdventureEquipmentStatsV47(state.adventure);
+  const gear = idleEquipementEffectifV1(state);
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   return {
     respawnSeconds: Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1))),
@@ -1259,7 +1267,7 @@ export function titanFight(state, context, now) {
       titanId: "t1",
       /* 2026-09-23 : vraies stats d'aventure (avec multiplicateurs), plus un champ jamais renseigné (0). */
       stats: (() => {
-        const combat = idleAdventureCombatStatsV1(idleAdventureEquipmentStatsV47(state.adventure), context, idleNguBonuses(state));
+        const combat = idleAdventureCombatStatsV1(idleEquipementEffectifV1(state), context, idleNguBonuses(state));
         return { power: combat.power, toughness: combat.toughness };
       })()
     },

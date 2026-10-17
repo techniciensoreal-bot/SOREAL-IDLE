@@ -351,6 +351,8 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-236 */
       function rendreSlotPaperdollAdventureIdleV138_(slotKey,titre,item){
+        /* Défi sans équipement : les pièces portées sont grisées (marqueur posé sur la page, lu par le CSS) ; remis à chaque rendu de l'équipement. */
+        try{if(document.body)document.body.toggleAttribute('data-defi-sans-equip-v1',Boolean(REG.equipementBloqueParDefiIdleV1_&&REG.equipementBloqueParDefiIdleV1_()));}catch(_e){}
         const nomComplet=item
           ?idleHtml_(item.name||item.nom||'')+(idleEntier_(item.level)>0?' · Niv. '+idleEntier_(item.level)+'/100':'')
           :idleHtml_(titre);

@@ -35,6 +35,9 @@
             'Tes réglages, cases cochées, saisies, onglets et volumes sont liés à ton compte : tu les retrouves à l’identique sur tous tes appareils.',
             'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
           ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Défi sans équipement : l’équipement porté ne compte plus nulle part (combats, Aventure…), les pièces équipées sont grisées et ce qu’elles donneraient est barré dans le petit tableau sous l’image. Tu peux toujours mettre et enlever des pièces.',
+          ]},
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
             'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
             'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',

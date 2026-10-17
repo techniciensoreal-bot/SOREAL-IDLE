@@ -1598,3 +1598,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-actions-v120 button{font-size:22px!important;-webkit-text-stroke:0!important;text-shadow:0 2px 0 rgba(0,0,0,.7)!important;min-height:48px!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120>span,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 label{font-size:16px!important;font-weight:700!important;letter-spacing:.04em;color:#dbe6fb!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 input{font-size:20px!important;font-weight:700!important;letter-spacing:.03em;color:#fff!important;border:2px solid #7f9fd6!important;background:#0a1224!important}
+
+/* Défi sans équipement (Norman, 2026-10-17) : les pièces portées ne comptent plus, elles sont grisées (le marqueur est posé par rendreSlotPaperdollAdventureIdleV138_). */
+body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id]{filter:grayscale(1) brightness(.7);opacity:.5}

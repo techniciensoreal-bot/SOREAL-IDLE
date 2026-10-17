@@ -35,7 +35,7 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
 {
   const adv = applyIdleAdventureActionV47(undefined, { action: "addItem", definitionId: "grb:weapon" }, { bosses: 100 }, 1000);
   const id = adv.result.id || adv.result.item?.id || adv.state.inventory[0].id;
-  assert.throws(() => applyIdleAdventureActionV47(adv.state, { action: "equip", id, slot: "weapon" }, { bosses: 100, equipmentLocked: true }, 2000), /DEFI_SANS_EQUIPEMENT/);
+  assert.doesNotThrow(() => applyIdleAdventureActionV47(adv.state, { action: "equip", id, slot: "weapon" }, { bosses: 100, equipmentLocked: true }, 2000), "pendant le défi on peut équiper (Norman, 2026-10-17) : les pièces ne comptent simplement pas");
   assert.doesNotThrow(() => applyIdleAdventureActionV47(adv.state, { action: "equip", id, slot: "weapon" }, { bosses: 100 }, 2000));
 }
 
@@ -48,7 +48,7 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
   const ajout = applyIdleNguAction(s, { action: "adventure", adventure: { action: "addItem", definitionId: "grb:weapon" } }, { bosses: 0 }, 1_001_000);
   const inv = ajout.state.adventure.inventory;
   assert.ok(inv.length > 0);
-  assert.throws(() => applyIdleNguAction(ajout.state, { action: "adventure", adventure: { action: "equip", id: inv[0].id, slot: "weapon" } }, { bosses: 0 }, 1_002_000), /DEFI_SANS_EQUIPEMENT/);
+  { let erreur = ""; try { applyIdleNguAction(ajout.state, { action: "adventure", adventure: { action: "equip", id: inv[0].id, slot: "weapon" } }, { bosses: 0 }, 1_002_000); } catch (e) { erreur = String(e.message); } assert.ok(!/DEFI_SANS_EQUIPEMENT/.test(erreur), "équiper n'est plus refusé par le défi (Norman, 2026-10-17) : " + erreur); }
 }
 
 // --- Fin automatique d'un défi dès que la condition de victoire est remplie ---
