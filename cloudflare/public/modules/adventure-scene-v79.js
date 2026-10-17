@@ -321,8 +321,11 @@
       var line=player.querySelector('[data-player-stat="'+key+'"]');
       if(!line)return;
       var cube=Math.max(0,number_(cubeContribution));
-      var bonus=Math.max(0,total-base-cube);
-      ecrire_(line.querySelector('.soreal-idle-v79-stat-base'),format_(base,precision));
+      /* Valeur de base = TOI : la base, plus tout ce qui vient du Money Pit et des autres systèmes (stats sans équipement ni Cube, calculées par le serveur) ; entre parenthèses seulement l'équipement et le Cube. */
+      var sans=a&&a.statsSansEquipement&&typeof a.statsSansEquipement==='object'?number_(a.statsSansEquipement[key]):0;
+      var baseAff=sans>0?Math.max(base,sans):base;
+      var bonus=Math.max(0,total-baseAff-cube);
+      ecrire_(line.querySelector('.soreal-idle-v79-stat-base'),format_(baseAff,precision));
       var extra=line.querySelector('.soreal-idle-v79-stat-bonus');
       var bonusTexte=format_(bonus,precision);
       if(extra)ecrire_(extra,bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'');

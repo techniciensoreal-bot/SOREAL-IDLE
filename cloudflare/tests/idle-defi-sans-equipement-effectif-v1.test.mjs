@@ -34,3 +34,10 @@ assert.ok(scene.includes(".soreal-idle-v79-stat-bloque,.soreal-idle-v79-stat-cub
 assert.ok(css.includes("body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id] .soreal-idle-v138-slot-icon>:not(.idle-boostpts-v1){filter:grayscale(1)") && a2.includes("toggleAttribute('data-defi-sans-equip-v1'"), "pièces équipées grisées");
 assert.ok(!a1.includes("refuserEquipementDefiIdleV1_();\n          return;"), "plus de refus d'équiper côté écran");
 console.log("idle-defi-sans-equipement-effectif-v1: OK");
+// « Moi » : le Money Pit et les autres systèmes sont comptés dans la valeur de base (572, pas 15 (+557)) ; seuls l'équipement et le Cube restent entre parenthèses (Norman, 2026-10-17).
+{
+  const snapSrc = readFileSync("cloudflare/src/idle-ngu-snapshot.js", "utf8"), sceneSrc = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");
+  assert.ok(snapSrc.includes("snap.statsSansEquipement = {") && snapSrc.includes('idleEquipementEffectifV1({ challenge: { active: "noEquipment" } })'), "le serveur envoie les stats sans équipement ni Cube");
+  assert.ok(sceneSrc.includes("var baseAff=sans>0?Math.max(base,sans):base;") && sceneSrc.includes("var bonus=Math.max(0,total-baseAff-cube);") && sceneSrc.includes("format_(baseAff,precision)"), "l'écran affiche cette valeur comme base");
+  console.log("idle-defi-sans-equipement-effectif-v1 (valeur de base) : OK");
+}

@@ -45,6 +45,7 @@
             'Comme pour le Money Pit, un bandeau donne le total de ce que la roue journalière t’a apporté depuis le début : toute l’AP cumulée, les graines et les objets obtenus.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans le petit tableau sous l’image, ce qui vient du Money Pit et des autres systèmes est compté dans ta valeur de base (572 au lieu de 15 (+557)) ; seuls l’équipement et le Cube restent entre parenthèses.',
             'La page Aventure ne montre plus un instant le bas de la page (l’inventaire) avant son haut en y arrivant sur ordinateur.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[

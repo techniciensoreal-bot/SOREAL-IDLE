@@ -146,6 +146,14 @@ function construireSnapshotNguV1(state, context, now) {
       const defiSansEquipement = state.challenge?.active === "noEquipment";
       const gear = defiSansEquipement ? idleEquipementEffectifV1(state) : gearReel;
       snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
+      /*
+       * Ce qui fait partie de « toi » (Norman, 2026-10-17 : « les statistiques du Money Pit et des autres systèmes sont "nous" : je les veux comptées comme valeur de base, 572 directement, pas 15 (+557) ») : les stats SANS l'équipement
+       * ni le Cube. L'écran les affiche comme valeur de base ; seuls l'équipement (vert) et le Cube (mauve) restent entre parenthèses.
+       */
+      {
+        const sansEquip = defiSansEquipement ? snap.stats : idleAdventureCombatStatsV1(idleEquipementEffectifV1({ challenge: { active: "noEquipment" } }), context, idleNguBonuses(state));
+        snap.statsSansEquipement = { power: num(sansEquip.power, 0), toughness: num(sansEquip.toughness, 0), hp: num(sansEquip.hp, 0), regen: num(sansEquip.regen, 0) };
+      }
       /* Défi sans équipement : ce que l'équipement porté DONNERAIT (barré à l'écran, jamais compté) ; absent hors du défi. */
       if (defiSansEquipement) {
         const reel = idleAdventureCombatStatsV1(gearReel, context, idleNguBonuses(state));
