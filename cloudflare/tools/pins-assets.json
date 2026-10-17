@@ -100,8 +100,8 @@
   "sha": "d37788d0954f972b13adaf997126be71b8492160"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 10,
-  "sha": "14dcdfe87efd3b40f90fea211e41c3e6386789da"
+  "pin": 11,
+  "sha": "d773a9128d6ca5394ce0e84010bcefc72055bd33"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 20,

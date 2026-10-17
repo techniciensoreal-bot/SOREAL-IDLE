@@ -115,6 +115,11 @@
     css.push('.bg-flaque-fond-v1{z-index:1;pointer-events:none;cursor:auto;touch-action:auto}');
     css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1)>svg{position:relative;z-index:2}');
     css.push('.bg-flaque-v1 b{clip-path:inset(52% -20px 0 -20px)}');
+    /* Le doigt qui frotte : montré au joueur la PREMIÈRE fois que le Coffre se chie dessus, pour lui apprendre qu'il faut frotter (Norman, 2026-10-17). Va et vient sur la flaque jusqu'au premier toucher. */
+    css.push('.bg-doigt-v1{position:absolute;left:50%;bottom:-6px;width:40px;height:46px;margin-left:-20px;z-index:9;pointer-events:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));animation:bgDoigt 1s ease-in-out infinite alternate}');
+    css.push('.bg-doigt-v1 svg{display:block;width:100%;height:100%;overflow:visible}');
+    css.push('@keyframes bgDoigt{from{transform:translateX(-56px) rotate(-8deg)}to{transform:translateX(56px) rotate(8deg)}}');
+    css.push('@media (prefers-reduced-motion:reduce){.bg-doigt-v1{animation:none}}');
     /* les pattes (brun) se perdaient dans la flaque (brune) : tant qu'elle est là, elles s'éclaircissent et prennent un contour sombre pour se lire au milieu */
     css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1) .bg-patte rect{fill:#a06f36;stroke:#24130a;stroke-width:2.4}');
     css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1) .bg-patte ellipse{fill:#7d4d20;stroke:#24130a;stroke-width:2.4}');
@@ -180,7 +185,7 @@
   document.addEventListener('pointerdown',function(e){
     if(e.button>0){suivi=null;return;}
     var fl=e.target&&e.target.closest?e.target.closest('.bg-flaque-v1'):null;
-    if(fl){suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
+    if(fl){retirerDoigt_();suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
     suivi=null;
   },true);
   /* Après une frottée sur la flaque, le clic qui suit ne doit pas ouvrir/fermer le Coffre. */
@@ -206,6 +211,22 @@
 
   /* ---------- flaque aux pieds du Coffre ---------- */
   function coffre_(){return document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');}
+  /* Doigt d'apprentissage : mémorisé dans le stockage (donc lié au compte, voir prefs-compte-v1.js) dès que le joueur touche la flaque. */
+  var CLE_DOIGT_VU_='soreal_idle_caca_doigt_vu_v1';
+  function doigtDejaVu_(){try{return localStorage.getItem(CLE_DOIGT_VU_)==='1';}catch(_e){return false;}}
+  var SVG_DOIGT_='<svg viewBox="0 0 34 40" aria-hidden="true"><path d="M15 2.5c2.600 0 4.200 1.700 4.200 4.200v13.500l2.200-.6c2.200-.6 3.900.6 4.100 2.700l1.500-.4c2.200-.5 3.700.8 3.700 3v4.600c0 5.200-3.600 9.200-9.200 9.200h-3.200c-4.600 0-7.200-2.100-9.300-5.700l-4.600-8c-1-1.800.1-3.600 2-3.600 1.100 0 2 .6 2.700 1.600l1.700 2.200V6.700c0-2.500 1.700-4.200 4-4.200z" fill="#f3c9a0" stroke="#000" stroke-width="2" stroke-linejoin="round"/><path d="M15 8v10M21.500 22.500v4M26.500 24.500v3.500" stroke="#c98f62" stroke-width="1.600" stroke-linecap="round" fill="none"/></svg>';
+  function montrerDoigt_(el){
+    if(doigtDejaVu_()||!el||el.querySelector('.bg-doigt-v1'))return;
+    style_();
+    var d=document.createElement('span');
+    d.className='bg-doigt-v1';d.setAttribute('aria-hidden','true');d.setAttribute('data-morph-garder','');d.innerHTML=SVG_DOIGT_;
+    el.appendChild(d);
+  }
+  function retirerDoigt_(){
+    try{localStorage.setItem(CLE_DOIGT_VU_,'1');}catch(_e){}
+    var d=document.querySelector('.bg-doigt-v1');
+    if(d&&d.parentNode)d.parentNode.removeChild(d);
+  }
   function construireFlaque_(el,spontanee){
     style_();
     var f=document.createElement('span');
@@ -223,6 +244,7 @@
     fond.innerHTML=fondHtml;
     el.appendChild(fond);
     el.appendChild(f);
+    montrerDoigt_(el);
     return f;
   }
   /* Nouvelle flaque (l'accident) : elle s'étale. */
@@ -240,11 +262,13 @@
     if(flaqueNiveau<=0){
       if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);
       if(fl&&fl.parentNode)fl.parentNode.removeChild(fl);
+      var doigtRestant=document.querySelector('.bg-doigt-v1');if(doigtRestant&&doigtRestant.parentNode)doigtRestant.parentNode.removeChild(doigtRestant);
       if(fl){brilleJusqua=Date.now()+DUREE_BRILLE_MS;sauver_();majBrille_();}   /* nettoyée : le Coffre brille */
       appliquer_();
       return;
     }
     if(!fl){var el=coffre_();if(!el)return;if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);fl=construireFlaque_(el,false);fd=document.querySelector('.bg-flaque-fond-v1');}
+    if(!document.querySelector('.bg-doigt-v1')){var cof=coffre_();if(cof)montrerDoigt_(cof);}
     if(fl.getAttribute('data-niveau')!==String(flaqueNiveau))fl.setAttribute('data-niveau',String(flaqueNiveau));
     if(fd&&fd.getAttribute('data-niveau')!==String(flaqueNiveau))fd.setAttribute('data-niveau',String(flaqueNiveau));
     appliquer_();
