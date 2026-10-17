@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const coordinateur = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
-assert.ok(coordinateur.includes("const debutCalculMsV1 = Date.now();") && coordinateur.includes("result.joueur.__serveurAtV1 = debutCalculMsV1"), "le serveur date le début du calcul dans la réponse (pas dans l'état du moteur)");
+assert.ok(coordinateur.includes("const debutCalculMsV1 = instantStrictementCroissantIdleV1_(Date.now());") && coordinateur.includes("result.joueur.__serveurAtV1 = debutCalculMsV1"), "le serveur date le début du calcul dans la réponse (pas dans l'état du moteur)");
 assert.ok(coordinateur.indexOf("const debutCalculMsV1") < coordinateur.indexOf("this.runStandaloneSessionOperationV1(p)"), "l'instant est pris AVANT le calcul");
 
 const pont = readFileSync("cloudflare/public/standalone-bridge.js", "utf8");

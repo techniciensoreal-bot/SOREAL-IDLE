@@ -304,8 +304,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 318,
-  "sha": "f6572f6494dc02da11c289a38a9c9d062be969c4"
+  "pin": 319,
+  "sha": "50c554fe65b24f55624b1b3185fa4e4b0bc839c4"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -368,12 +368,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 339,
-  "sha": "2ac4f6b064474d43c1934353819f7bccdbb8ee00"
+  "pin": 340,
+  "sha": "2b73af10fa05efedbcda17cda1f2144c4ac3008d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 133,
-  "sha": "320818717c0ee78814f13006a18125865227e890"
+  "pin": 134,
+  "sha": "26f153fa760c993553f4bbbccdeefa1dc2b4bb09"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,

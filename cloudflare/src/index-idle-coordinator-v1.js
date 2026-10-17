@@ -58,6 +58,14 @@ function idleOpaqueTokenV1(prefix) {
 }
 
 
+/* Dernier instant donné à une réponse : toujours dépassé de 0,01 ms au moins (précis : un double tient 0,0002 ms à cette hauteur). */
+let dernierInstantReponseIdleV1_ = 0;
+export function instantStrictementCroissantIdleV1_(maintenant) {
+  const t = Number(maintenant) > dernierInstantReponseIdleV1_ ? Number(maintenant) : dernierInstantReponseIdleV1_ + 0.01;
+  dernierInstantReponseIdleV1_ = t;
+  return t;
+}
+
 export class SorealIdleCoordinatorV1 {
   constructor(state, env) {
     this.state = state;
@@ -514,7 +522,8 @@ export class SorealIdleCoordinatorV1 {
       const p = await request.json().catch(() => ({}));
       try {
         /* Instant où le moteur commence à calculer : l'état renvoyé (barres, niveaux, Or) est celui de CET instant, pas celui de la réception (une synchro de 1 à 2 s en production). Le client en déduit l'âge exact de l'état (voir standalone-bridge.js, calerRecuPerfV1_). Ajouté à la réponse seulement, jamais à l'état du moteur (le mémo des bonus ne doit voir aucun champ horodaté). */
-        const debutCalculMsV1 = Date.now();
+        /* STRICTEMENT croissant (journal de Norman, 2026-10-17 : « bossVaincus 32 -> 30, état plus récent de 0 ms ») : dans un Worker l'horloge n'avance pas pendant un calcul synchrone, donc deux requêtes de suite recevaient le MÊME instant ; le client ne pouvait plus dire laquelle était la plus ancienne et laissait passer l'ancienne (boss revenus, barres en arrière). */
+        const debutCalculMsV1 = instantStrictementCroissantIdleV1_(Date.now());
         const result = this.runStandaloneSessionOperationV1(p);
         if (result && result.joueur && typeof result.joueur === "object" && !Object.isFrozen(result.joueur)) result.joueur.__serveurAtV1 = debutCalculMsV1;
         return Response.json(result, { headers: { "cache-control": "no-store" } });
