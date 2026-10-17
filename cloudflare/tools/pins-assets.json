@@ -63,6 +63,10 @@
   "pin": 22,
   "sha": "48cd53ccd8961c2a3042328d5141f57a7ed25f7a"
  },
+ "/modules/boss-reveal-v1.js": {
+  "pin": 2,
+  "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
+ },
  "/modules/boutique-exp-page-v1.js": {
   "pin": 1,
   "sha": "fdb3d8d1250f2a946cac640e8df39018c1c5a96e"
