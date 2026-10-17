@@ -31,3 +31,13 @@ assert.ok(dig.includes("function quandEntierementVisible_(f){") && dig.includes(
   assert.ok(acc.includes("x>=r.left-70") && acc.includes("y<=r.bottom+70"), "le suivi du doigt tolère 70 px autour de la flaque");
 }
 console.log("idle-coffre-accident-v1 (zone tactile): OK");
+
+// Pattes visibles dans la flaque (Norman, 2026-10-17) : la flaque est en deux calques, un fond DERRIÈRE le dessin du Coffre et un devant (moitié basse) ; les pattes prennent un contour pour se lire.
+{
+  assert.ok(acc.includes("bg-flaque-fond-v1") && acc.includes("fond.className='bg-flaque-fond-v1'") && acc.includes("el.appendChild(fond);\n    el.appendChild(f);"), "deux calques : le fond puis le devant");
+  assert.ok(acc.includes(".bg-flaque-fond-v1{z-index:1;pointer-events:none;cursor:auto;touch-action:auto}") && acc.includes(".bg-bagage-v1:has(.bg-flaque-fond-v1)>svg{position:relative;z-index:2}"), "le fond est sous le dessin du Coffre et ne reçoit aucun geste");
+  assert.ok(acc.includes(".bg-flaque-v1 b{clip-path:inset(52% -20px 0 -20px)}") && acc.includes("if(top>=48)devantHtml+=piece;"), "le devant ne montre que la moitié basse");
+  assert.ok(acc.includes(".bg-patte rect{fill:#a06f36;stroke:#24130a;stroke-width:2.4}"), "les pattes se lisent sur la flaque");
+  assert.ok(acc.includes("if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);") && acc.includes("dejaFond.parentNode.removeChild(dejaFond)"), "le fond disparaît avec la flaque");
+}
+console.log("idle-coffre-accident-v1 (pattes dans la flaque): OK");

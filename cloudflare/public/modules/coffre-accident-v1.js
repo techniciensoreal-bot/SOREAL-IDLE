@@ -106,6 +106,20 @@
       '.bg-brille-v1 i{position:absolute;font-style:normal;font-size:24px;line-height:1;color:#fff6b0;text-shadow:0 0 6px #ffd84a,0 0 14px #ffbf1f,0 0 22px #ffbf1f;opacity:0;animation:bgEtoile 2.2s ease-in-out infinite}',
       '@media (prefers-reduced-motion:reduce){.bg-flaque-v1,.bg-flaque-v1 i{animation:none;opacity:1}.bg-brille-v1,.bg-brille-v1 i{animation:none;opacity:.8}}'
     ]);
+    /*
+     * Les pattes du Coffre restent visibles au milieu de la flaque (Norman, 2026-10-17 : « ses pattes sont recouvertes par le caca ; il en faut derrière les pattes et devant les pattes »). La flaque est en DEUX
+     * calques : le FOND (.bg-flaque-fond-v1, mêmes règles visuelles, sous le dessin du Coffre) et le DEVANT (.bg-flaque-v1, au-dessus, seulement sa moitié basse : un bord qui recouvre le bas des pattes). Le devant
+     * garde le frottement ; le fond ne reçoit aucun geste. Sous le Coffre, le dessin passe devant le fond (:has : sans lui, l'ancien rendu).
+     */
+    css=css.concat(css.filter(function(r){return r.indexOf('.bg-flaque-v1')===0&&r.indexOf('::after{content')<0;}).map(function(r){return r.replace(/\.bg-flaque-v1/g,'.bg-flaque-fond-v1');}));
+    css.push('.bg-flaque-fond-v1{z-index:1;pointer-events:none;cursor:auto;touch-action:auto}');
+    css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1)>svg{position:relative;z-index:2}');
+    css.push('.bg-flaque-v1 b{clip-path:inset(52% -20px 0 -20px)}');
+    /* les pattes (brun) se perdaient dans la flaque (brune) : tant qu'elle est là, elles s'éclaircissent et prennent un contour sombre pour se lire au milieu */
+    css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1) .bg-patte rect{fill:#a06f36;stroke:#24130a;stroke-width:2.4}');
+    css.push('.bg-bagage-v1:has(.bg-flaque-fond-v1) .bg-patte ellipse{fill:#7d4d20;stroke:#24130a;stroke-width:2.4}');
+    css.push('.bg-flaque-fond-v1 b{background:radial-gradient(ellipse at 35% 35%,#6a3f1a 0 18%,transparent 19%),radial-gradient(ellipse at 50% 55%,#4a2a0e,#2a1606 75%)}');
+    css.push('@media (prefers-reduced-motion:reduce){.bg-flaque-fond-v1,.bg-flaque-fond-v1 i{animation:none;opacity:1}}');
     s.textContent=css.join('\n');
     document.head.appendChild(s);
   }
@@ -196,12 +210,18 @@
     style_();
     var f=document.createElement('span');
     f.className='bg-flaque-v1'+(spontanee?'':' deja');f.setAttribute('aria-hidden','true');f.setAttribute('data-morph-garder','');f.setAttribute('data-niveau',String(flaqueNiveau));
-    var morceaux='<b></b>';
+    var fondHtml='<b></b>',devantHtml='<b></b>';
     for(var k=0;k<7;k+=1){
-      var w=5+Math.round(Math.random()*6),h=4+Math.round(Math.random()*4);
-      morceaux+='<i style="left:'+Math.round(10+Math.random()*74)+'%;top:'+Math.round(18+Math.random()*44)+'%;width:'+w+'px;height:'+h+'px;animation-delay:'+(1.2+k*.25).toFixed(2)+'s"></i>';
+      var w=5+Math.round(Math.random()*6),h=4+Math.round(Math.random()*4),top=Math.round(18+Math.random()*44);
+      var piece='<i style="left:'+Math.round(10+Math.random()*74)+'%;top:'+top+'%;width:'+w+'px;height:'+h+'px;animation-delay:'+(1.2+k*.25).toFixed(2)+'s"></i>';
+      fondHtml+=piece;
+      if(top>=48)devantHtml+=piece;   /* devant : seulement les morceaux de la moitié basse */
     }
-    f.innerHTML=morceaux;
+    f.innerHTML=devantHtml;
+    var fond=document.createElement('span');
+    fond.className='bg-flaque-fond-v1'+(spontanee?'':' deja');fond.setAttribute('aria-hidden','true');fond.setAttribute('data-morph-garder','');fond.setAttribute('data-niveau',String(flaqueNiveau));
+    fond.innerHTML=fondHtml;
+    el.appendChild(fond);
     el.appendChild(f);
     return f;
   }
@@ -209,20 +229,24 @@
   function flaque_(el){
     var deja=el.querySelector&&el.querySelector('.bg-flaque-v1');
     if(deja&&deja.parentNode)deja.parentNode.removeChild(deja);
+    var dejaFond=el.querySelector&&el.querySelector('.bg-flaque-fond-v1');
+    if(dejaFond&&dejaFond.parentNode)dejaFond.parentNode.removeChild(dejaFond);
     flaqueNiveau=NIVEAU_MAX;sauver_();
     return construireFlaque_(el,true);
   }
   /* La flaque ne s'efface JAMAIS seule : remise en place si le Coffre est redessiné, rouvert ou la page rechargée. */
   function majFlaque_(){
-    var fl=document.querySelector('.bg-flaque-v1');
+    var fl=document.querySelector('.bg-flaque-v1'),fd=document.querySelector('.bg-flaque-fond-v1');
     if(flaqueNiveau<=0){
+      if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);
       if(fl&&fl.parentNode)fl.parentNode.removeChild(fl);
       if(fl){brilleJusqua=Date.now()+DUREE_BRILLE_MS;sauver_();majBrille_();}   /* nettoyée : le Coffre brille */
       appliquer_();
       return;
     }
-    if(!fl){var el=coffre_();if(!el)return;fl=construireFlaque_(el,false);}
+    if(!fl){var el=coffre_();if(!el)return;if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);fl=construireFlaque_(el,false);fd=document.querySelector('.bg-flaque-fond-v1');}
     if(fl.getAttribute('data-niveau')!==String(flaqueNiveau))fl.setAttribute('data-niveau',String(flaqueNiveau));
+    if(fd&&fd.getAttribute('data-niveau')!==String(flaqueNiveau))fd.setAttribute('data-niveau',String(flaqueNiveau));
     appliquer_();
   }
 
