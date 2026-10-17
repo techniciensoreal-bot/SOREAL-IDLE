@@ -22,20 +22,18 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.1',
+    courante:'3.2',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
       {
-        version:'3.1',
-        nom:'Un coffre à six pattes',
-        date:'2026-10-16',
+        version:'3.2',
+        nom:'Des portes qui se referment',
+        date:'2026-10-17',
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les chroniques de boss lues depuis la Collection, la fiche d’un boss ou « Lire les chroniques » utilisent maintenant la même voix et le même texte dit que pendant le combat.',
             'Un record personnel battu (combat de boss le plus long, meilleur Nombre) ou une place gagnée face aux autres joueurs s’annonce par un petit message avec un son à part, différent de celui des trophées.',
-            'Tes réglages, cases cochées, saisies, onglets et volumes sont liés à ton compte : tu les retrouves à l’identique sur tous tes appareils.',
-            'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
           ]},
           {menu:'renaissance', titre:'Renaissance', points:[
             'Le bouton Renaissance prend la couleur de son menu, et quand renaître est en positif, de petites lueurs dorées montent dans le bouton du menu et dans celui de la page.',
@@ -45,32 +43,48 @@
           ]},
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
             'Comme pour le Money Pit, un bandeau donne le total de ce que la roue journalière t’a apporté depuis le début : toute l’AP cumulée, les graines et les objets obtenus.',
-            'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
-            'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',
-            'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'La page Aventure ne montre plus un instant le bas de la page (l’inventaire) avant son haut en y arrivant sur ordinateur.',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Quand un fruit est mangé ou récolté sans l’auto, sa porte se referme : animation d’ouverture à l’envers, avec son propre bruit de fermeture.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Le compteur de rituels terminés suit le vrai total sans bloquer : plus besoin de rafraîchir la page pour voir le bon chiffre.',
+          ]}
+        ]
+      },
+      {
+        version:'3.1',
+        nom:'Un coffre à six pattes',
+        date:'2026-10-16',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Tes réglages, cases cochées, saisies, onglets et volumes sont liés à ton compte : tu les retrouves à l’identique sur tous tes appareils.',
+            'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
+          ]},
+          {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
+            'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses, et les deux cartes sont resserrées sans espace vide : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
+            'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
             'Le Coffre a maintenant six pattes : deux de plus au milieu.',
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Quand un fruit est mangé ou récolté sans l’auto, sa porte se referme : animation d’ouverture à l’envers, avec son propre bruit de fermeture.',
-            'Après une renaissance, les portes sont de nouveau fermées : à ta première visite, tu les vois s’ouvrir, même si l’auto a déjà fait avancer ou finir le fruit.',
-            'Un fruit sans énergie reste derrière une porte fermée, sans aucune animation ; au moment de placer l’énergie, la porte s’ouvre avec son bruit (pierre ou bois, au choix dans le banc d’essai).',
+            'Un fruit sans énergie reste derrière une porte fermée, sans aucune animation ; au moment de placer l’énergie, la porte s’ouvre avec son bruit (pierre ou bois, au choix dans le banc d’essai). Après une renaissance, les portes sont de nouveau fermées et s’ouvrent à ta première visite, même si l’auto a déjà fait avancer le fruit.',
             'Chaque fruit a sa porte, aux emblèmes différents, et un cadre de même taille que son image.',
             'Un fruit au niveau maximum joue ses 20 images à bonne vitesse en arrivant sur la page ; le choix Manger / Récolter de chaque fruit est mémorisé.',
             'Titre en branche vivante, et les 20 images de croissance existent aussi pour le fruit de puissance.',
           ]},
           {menu:'titans', titre:'Titans', points:[
-            'Les Titans sont maintenant des cartes à collectionner : l’image du Titan, ou un « ? » tant que tu ne l’as pas affronté, avec son nom, ses victoires et son état.',
-            'Un clic sur une carte la déplie : bouton Affronter, difficulté, case Auto-kill et son état, statistiques, comparaison avec tes stats et capacités.',
+            'Les Titans sont des cartes à collectionner : l’image du Titan (ou un « ? » tant que tu ne l’as pas affronté), son nom, ses victoires et son état ; un clic déplie le bouton Affronter, la difficulté, l’Auto-kill, les statistiques, la comparaison avec tes stats et les capacités.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Le « 69 % » ne bouge plus : le « lol » apparaît simplement à sa droite.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Le compteur de rituels terminés suit le vrai total sans bloquer : plus besoin de rafraîchir la page pour voir le bon chiffre.',
             'Dans « En direct », quand un joueur place de la magie dans un rituel, une phrase le raconte : « s’entaille le bras avec du papier », « avale un bol de barbelés »… (le rituel n’est nommé que si tu l’as déjà débloqué).',
             'Quand un sort bascule la piste d’ambiance sur l’orage, plus aucun éclair n’apparaît : seuls le sceau, le pentacle, les runes et le sang animent le sort.',
           ]}
