@@ -363,7 +363,7 @@ export async function servirBuildUnityBrotliV1(request, env, url) {
   headers.set("Cache-Control", "public, max-age=300, must-revalidate");
   const etag = asset.headers.get("ETag");
   if (etag) headers.set("ETag", etag);
-  return new Response(request.method === "HEAD" ? null : asset.body, { status: 200, headers });
+  return new Response(request.method === "HEAD" ? null : asset.body, { status: 200, headers, encodeBody: "manual" }); // le fichier est DEJA compresse : sans « manual » le runtime le recompresserait
 }
 
 export default {
