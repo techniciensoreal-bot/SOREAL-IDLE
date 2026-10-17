@@ -40,7 +40,7 @@ assert.ok(ui.includes("__bloodCompteTickV1__(bloodVisual.ritual,faits)") && ui.i
 console.log("idle-blood-compte-ne-recule-pas-v1: OK");
 
 { // Norman (2026-10-17) : « je suis monté à 2 avec la punaise et j'ai dû rafraîchir » : le compteur suit le chiffre du serveur à chaque tick (miroir de __bloodCompteTickV1__ + compteAfficheBloodIdleV1_)
-  assert.ok(bm.includes("window.__bloodCompteTickV1__=function(id,faits){") && bm.includes("srv=Math.max(0,H.idleNombre_(r&&r.completions))") && bm.includes("Math.min(n+faits,srv+avanceMaxBloodIdleV1_(e))"), "fonction du tick présente");
+  assert.ok(bm.includes("function creerCompteTick_(systemeMeta,affiche,avanceMax){") && bm.includes("window.__bloodCompteTickV1__=creerCompteTick_(") && bm.includes("srv=Math.max(0,H.idleNombre_(r&&r.completions))") && bm.includes("Math.min(n+faits,srv+avanceMax(e))"), "fonction du tick présente");
   const m = {}; let t = 0, serveur = 0;
   const aff = (id, n) => {
     let e = m[id]; n = Number(n) || 0;

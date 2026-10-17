@@ -64,6 +64,32 @@ function presetBloodMagicIdleV1_(source,fraction){
         input.value=String(valeur);
       }
 
+/*
+ * Compteur « N complété(s) » tenu À JOUR (Norman, 2026-10-17 : « le compteur de sang collecté ne se met pas à jour tout le temps ; je suis monté à 2 avec la punaise et j'ai dû rafraîchir pour voir le vrai total »).
+ * Avant : le tick affichait le chiffre du serveur lu UNE FOIS au dessin de la page (data-n) + l'avance locale bornée à 2 (le rythme validé était effacé à chaque tick) : tant que la page n'était pas redessinée, le compteur
+ * restait bloqué à « chiffre du dessin + 2 ». Maintenant chaque tick relit le chiffre du serveur dans l'état À JOUR (il change à chaque synchro), garde le rythme validé (compteAfficheBloodIdleV1_) et ajoute les
+ * rituels rejoués en local (faits) sans dépasser « serveur + avance plausible ». La fonction renvoyée donne le nombre à afficher.
+ */
+function creerCompteTick_(systemeMeta,affiche,avanceMax){
+  return function(id,faits){
+    let srv=0;
+    try{
+      const H=window.__SOREAL_IDLE_META_HOST_V130__;
+      const sys=systemeMeta(H.getIdleEtat(),'bloodMagic');
+      const r=sys&&sys.state&&sys.state.data&&sys.state.data.rituals&&sys.state.data.rituals[id];
+      srv=Math.max(0,H.idleNombre_(r&&r.completions));
+    }catch(_e){}
+    let n=affiche(id,srv);
+    faits=Number(faits)||0;
+    if(faits>0){
+      const e=window.__bloodCompteAffV1[id];
+      n=Math.max(n,Math.min(n+faits,srv+avanceMax(e)));
+      if(e)e.n=n;
+    }
+    return n;
+  };
+}
+
 function creer(hote){
   const systemeMetaParIdIdleV130_=hote.systemeMeta;
   const envoyerAllocRapideV1_=hote.envoyerAllocRapide;
@@ -321,29 +347,8 @@ function creer(hote){
         ajout=Number(ajout)||0;
         return e?Math.min(ajout,avanceMaxBloodIdleV1_(e)):ajout;
       };
-      /*
-       * Compteur « N complété(s) » tenu À JOUR (Norman, 2026-10-17 : « le compteur de sang collecté ne se met pas à jour tout le temps ; je suis monté à 2 avec la punaise et j'ai dû rafraîchir pour voir le vrai total »).
-       * Avant : le tick affichait le chiffre du serveur lu UNE FOIS au dessin de la page (data-n) + l'avance locale bornée à 2 (le rythme validé était effacé à chaque tick) : tant que la page n'était pas redessinée, le compteur
-       * restait bloqué à « chiffre du dessin + 2 ». Maintenant chaque tick relit le chiffre du serveur dans l'état À JOUR (il change à chaque synchro), garde le rythme validé (compteAfficheBloodIdleV1_) et ajoute les
-       * rituels rejoués en local (faits) sans dépasser « serveur + avance plausible ». Renvoie le nombre à afficher.
-       */
-      window.__bloodCompteTickV1__=function(id,faits){
-        let srv=0;
-        try{
-          const H=window.__SOREAL_IDLE_META_HOST_V130__;
-          const sys=systemeMetaParIdIdleV130_(H.getIdleEtat(),'bloodMagic');
-          const r=sys&&sys.state&&sys.state.data&&sys.state.data.rituals&&sys.state.data.rituals[id];
-          srv=Math.max(0,H.idleNombre_(r&&r.completions));
-        }catch(_e){}
-        let n=compteAfficheBloodIdleV1_(id,srv);
-        faits=Number(faits)||0;
-        if(faits>0){
-          const e=window.__bloodCompteAffV1[id];
-          n=Math.max(n,Math.min(n+faits,srv+avanceMaxBloodIdleV1_(e)));
-          if(e)e.n=n;
-        }
-        return n;
-      };
+      /* Compteur « N complété(s) » tenu à jour à chaque tick (voir creerCompteTick_, plus haut dans ce fichier). */
+      window.__bloodCompteTickV1__=creerCompteTick_(systemeMetaParIdIdleV130_,compteAfficheBloodIdleV1_,avanceMaxBloodIdleV1_);
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
