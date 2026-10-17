@@ -312,6 +312,8 @@
        * 15 s sans confirmation on abandonne la prédiction locale et on adopte l'état du serveur au lieu de rester figé.
        */
       let idleVictoireSurveillanceV1=null;
+      /* Coup final ordonné par le serveur : instant (Date.now) où la barre du boss a été ramenée à presque rien pour que le tick local déroule la victoire, 0 sinon. */
+      let idleCoupFinalServeurV1=0;
 
       function arreterSurveillanceVictoireBossIdleV1_(){
         if(idleVictoireSurveillanceV1){
@@ -607,6 +609,41 @@
         try{ajouterLogAventureIdleV1_('system',texte);}catch(_e){}
       }
 
+      /*
+       * Norman (2026-10-17, signalement 🐞 : barre du boss 53, 49 … 1, 3, puis 100) : « en visuel le boss a repris toute sa vie, mais il était mort en vrai ». Le serveur avait tué le boss quelques dixièmes de seconde avant
+       * le dernier coup local : adopter son état d'un coup remplaçait la barre presque vide par le boss suivant PLEIN, sans coup final ni « boss vaincu ». Maintenant la barre est ramenée à presque rien et le tick local
+       * déroule la victoire (barre à 0, mort du boss, boss suivant) comme pour une victoire locale ; si le tick ne passe pas (page cachée…), l'état du serveur est adopté au bout de 2,5 s (branche suivante).
+       * Renvoie true quand la synchro est traitée ici (état local conservé).
+       */
+      function coupFinalServeurIdleV1_(serveurConfirme){
+        if(
+          !serveurConfirme||
+          REG.idleVictoireBossLocaleV49||
+          !REG.idleEtat||
+          !REG.idleEtat.combatBossActif||
+          PAGE_ACTIVE!=='idle'||
+          !document.getElementById('sorealIdleBossBarV7')||
+          (idleCoupFinalServeurV1&&Date.now()-idleCoupFinalServeurV1>=2500)
+        ){
+          idleCoupFinalServeurV1=0;
+          return false;
+        }
+        if(!idleCoupFinalServeurV1){
+          idleCoupFinalServeurV1=Date.now();
+          REG.idleEtat.bossPv=Math.min(idleNombre_(REG.idleEtat.bossPv),1e-9);
+          setTimeout(function(){
+            if(idleCoupFinalServeurV1&&!REG.idleVictoireBossLocaleV49&&REG.idleEtat&&REG.idleEtat.combatBossActif){
+              REG.idleCombatArmeLocalV206=false;
+              REG.idleEtat.combatBossActif=false;
+              REG.idleCombatEnPauseApresDefaiteV1=false;
+              synchroniserJeuIdleV7_(true);
+            }
+            idleCoupFinalServeurV1=0;
+          },2600);
+        }
+        return true;
+      }
+
       function appliquerSynchroCombatSansReflowIdleV116_(
         joueurServeur
       ){
@@ -733,6 +770,7 @@
          * serveur (puissance qui monte pendant l'entraînement, ordre de départ arrivé après la prédiction…). Avant, ce cas tombait dans « combat local actif : on garde l'état local » et ne
          * se corrigeait que par un changement d'écran. On désarme le combat local et on adopte l'état du serveur.
          */
+        if(coupFinalServeurIdleV1_(serveurConfirmeVictoireBossV167))return true;
         if(
           serveurConfirmeVictoireBossV167&&
           !REG.idleVictoireBossLocaleV49&&
