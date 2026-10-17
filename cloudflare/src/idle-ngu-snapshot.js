@@ -149,8 +149,11 @@ function construireSnapshotNguV1(state, context, now) {
       /* Défi sans équipement : ce que l'équipement porté DONNERAIT (barré à l'écran, jamais compté) ; absent hors du défi. */
       if (defiSansEquipement) {
         const reel = idleAdventureCombatStatsV1(gearReel, context, idleNguBonuses(state));
-        const ecart = (k) => Math.max(0, num(reel[k], 0) - num(snap.stats[k], 0));
-        snap.statsEquipementBloque = { power: ecart("power"), toughness: ecart("toughness"), hp: ecart("hp"), regen: ecart("regen") };
+        /* Équipement (vert) et Cube (mauve) restent deux chiffres séparés à l'écran (Norman, 2026-10-17) : la part du Cube est retirée de celle de l'équipement. */
+        const cubeP = Math.max(0, num(reel.cubePowerContribution, 0)), cubeT = Math.max(0, num(reel.cubeToughnessContribution, 0));
+        const ecart = (k, cube) => Math.max(0, num(reel[k], 0) - num(snap.stats[k], 0) - cube);
+        snap.statsEquipementBloque = { power: ecart("power", cubeP), toughness: ecart("toughness", cubeT), hp: ecart("hp", 0), regen: ecart("regen", 0) };
+        snap.statsCubeBloque = { power: cubeP, toughness: cubeT };
       }
       /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06 : la réponse d'un joueur neuf contenait les 33 zones et les 12 titans, noms, boss et puissances compris) :
          jamais une zone encore fermée (sauf celle en cours) ni un titan pas encore atteignable dans la réponse. */

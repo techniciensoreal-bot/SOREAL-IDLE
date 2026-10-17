@@ -50,6 +50,7 @@
             'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'La page Aventure ne montre plus un instant le bas de la page (l’inventaire) avant son haut en y arrivant sur ordinateur.',
             'Le Coffre a maintenant six pattes : deux de plus au milieu.',
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
           ]},
