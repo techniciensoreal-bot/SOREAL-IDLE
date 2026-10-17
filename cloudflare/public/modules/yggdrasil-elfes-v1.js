@@ -446,7 +446,7 @@
           '<button type="button" class="ygg-btn" onclick="'+A+'bancImages()">▶ Images</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancSonFerme()">🔒 Son de fermeture</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancSonFerme()">🚪 Son de fermeture</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prt\')">💨 Prt</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrt-x3\')">💨 Prrt prrt prrt</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrrrrt\')">💨 Prrrrrrt</button>'+

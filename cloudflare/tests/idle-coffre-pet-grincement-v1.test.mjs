@@ -83,7 +83,7 @@ function moduleCoffre(alea = Math.random) {
   };
   for (const nom of ["porte", "porteBois"]) assert.equal(rendu(nom).filter((o) => o.type === "sawtooth").length, 0, nom + " : aucune dent de scie grave qui vibre (c'était le pet)");
   assert.ok(rendu("porteBois").every((o) => Math.max(...o.freqs) <= 400), "bois : aucun tintement aigu");
-  const pierre = sons.slice(sons.indexOf("    porte:function"), sons.indexOf("    porteBois:function"));
+  const pierre = sons.slice(sons.indexOf("    porte:function"), sons.indexOf("    porteFerme:function"));
   const departs = [...pierre.matchAll(/glisse\(c,out,t(?:\+([0-9.]+)\*k)?,/g)].map((m) => Number(m[1] || 0));
   assert.ok(departs.every((d) => d >= 1), "aucun coup grave au début : " + departs.join(", "));
   assert.ok(!/highpass',2600/.test(pierre) && !/glisse\(c,out,t\+1\.07\*k,78,28/.test(pierre) && !/lowpass',380,120/.test(pierre), "ni verrou au début, ni coup de butée à la fin");
