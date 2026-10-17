@@ -135,7 +135,13 @@
       '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
       '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
       '.ygg-porte.ouvre .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both;}',
-      '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre{display:none;}}',
+      /* Fermeture (un fruit mangé ou récolté sans auto) : exactement les mêmes images que l'ouverture, jouées à l'envers. */
+      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;background:transparent;box-shadow:none;}',
+      '.ygg-porte.referme .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
+      '.ygg-porte.referme .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
+      '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both reverse;}',
+      '.ygg-porte.referme .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both reverse;animation-delay:calc(1.15s*var(--vit,1));}',
+      '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
       /* Banc d'essai des animations (administrateur) */
@@ -292,9 +298,9 @@
     prettyMayo:[330,45,'#52203d','#f08cc4','#ffd2ea',EMB_POT_+'<path d="M12 19s-3.4-2.1-3.4-4.4a1.8 1.8 0 0 1 3.4-.9 1.8 1.8 0 0 1 3.4.9c0 2.3-3.4 4.4-3.4 4.4z" fill="currentColor" stroke="none"/>']
   };
   var VANTAIL_='<svg viewBox="0 0 50 100" preserveAspectRatio="none" focusable="false"><rect width="50" height="100" style="fill:hsl(var(--h) var(--s) 24%)"/><g style="fill:hsl(var(--h) var(--s) 31%)"><rect x="1" width="15" height="100"/><rect x="17.5" width="15" height="100"/><rect x="34" width="15" height="100"/></g><g style="fill:var(--b)"><rect y="17" width="50" height="9"/><rect y="73" width="50" height="9"/></g><g style="fill:var(--e)"><circle cx="6" cy="21.5" r="1.6"/><circle cx="20" cy="21.5" r="1.6"/><circle cx="34" cy="21.5" r="1.6"/><circle cx="6" cy="77.5" r="1.6"/><circle cx="20" cy="77.5" r="1.6"/><circle cx="34" cy="77.5" r="1.6"/></g></svg>';
-  function porte_(id,ouvre){
+  function porte_(id,ouvre,referme){
     var t=THEMES_[id]||[teinte_(id),34,'#3a3a44','#9a9484','#e8e0c8',EMB_PIECE_];
-    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
+    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte choisi dans le banc d'essai : « porte » (pierre, lourde) ou « porteBois ». */
@@ -320,7 +326,16 @@
   }
   function porteDe_(id,actif){
     if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
-    if(!actif){etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);return porte_(id,false);}
+    var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
+    if(!actif){
+      /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et le même son. */
+      if(A[id]){delete A[id];F[id]=Date.now();son_(nomSonPorte_(),reglages_().porte);}
+      etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);
+      if(F[id]&&Date.now()-F[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,false,true);
+      delete F[id];
+      return porte_(id,false);
+    }
+    A[id]=true;delete F[id];
     if(!etat.fermees[id]&&!etat.ouvre[id]&&!porteVue_(id))etat.fermees[id]=true;   /* premiere visite depuis la renaissance : la porte s'ouvre meme si le fruit est deja actif */
     var vit=reglages_().porte;
     if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);son_(nomSonPorte_(),vit);}

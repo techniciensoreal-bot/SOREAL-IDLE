@@ -20,7 +20,7 @@ const code = [
   ...(src.match(/ {2}var EMB_[A-Z_]+='[^\n]*\n/g) || []),
   coupe(/var THEMES_=\{[\s\S]*?\n {2}\};\n/),
   coupe(/var VANTAIL_='[^\n]*\n/),
-  coupe(/function porte_\(id,ouvre\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/function porte_\(id,ouvre,referme\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
   coupe(/var CLE_PORTES_VUES_=[^\n]*\n/),
   coupe(/function renaissances_\(\)\{[^\n]*\n/),
@@ -78,9 +78,25 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.equal(m.api.porteDe_("gold", true), "", "ouverture terminée : plus de porte");
   assert.equal(m.api.porteDe_("gold", true), "");
   assert.equal(m.api.sons.length, 1);
-  // Le fruit est mangé (inactif) : sa porte se referme sans animation ni son.
+  // Le fruit est mangé ou récolté (actif -> inactif, l'auto ne l'a pas relancé) : la porte se REFERME avec l'animation d'ouverture à l'envers et le même son, une seule fois ; puis porte close fixe.
   const h2 = m.api.porteDe_("gold", false);
-  assert.ok(ferme(h2) && m.api.sons.length === 1, "refermée sans animation ni son");
+  assert.ok(h2.includes("ygg-porte referme") && !h2.includes("ygg-porte ouvre"), "la porte se referme");
+  assert.equal(m.api.sons.join(), "porte,porte", "même son qu'à l'ouverture, joué une fois");
+  m.avancer(800);
+  assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
+  assert.equal(m.api.sons.length, 2, "pas de second son pendant un redessin");
+  m.avancer(900);
+  assert.ok(ferme(m.api.porteDe_("gold", false)), "fermeture terminée : porte close fixe, sans animation");
+  assert.equal(m.api.sons.length, 2);
+  // Page chargée avec un fruit inactif : jamais de fermeture (il n'a jamais été vu ouvert).
+  const m5 = monde();
+  assert.ok(ferme(m5.api.porteDe_("luck", false)) && m5.api.sons.length === 0, "pas de fermeture sans ouverture vue");
+  // Fruit mangé mais l'auto le relance aussitôt (toujours actif) : la porte ne bouge pas.
+  const m6 = monde();
+  m6.api.porteDe_("luck", true); m6.avancer(2000); m6.api.porteDe_("luck", true);
+  assert.equal(m6.api.porteDe_("luck", true), "", "auto : toujours actif, aucune porte");
+  // L'animation inversée est bien celle de l'ouverture.
+  for (const k of ["", " .ygg-porte-g", " .ygg-porte-d", " .ygg-porte-lueur", " .ygg-porte-emb"]) assert.ok(new RegExp("\\.ygg-porte\\.referme" + k.replace(/ \./, " \\.") + "\\{animation:[^']*reverse").test(src), "fermeture inversée" + k);
 }
 // 4. Chaque fruit sa porte : palette ET emblème propres (même gabarit), aucun fruit du catalogue sans thème.
 {
@@ -110,8 +126,8 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
     assert.ok(h.length < 3600, id + " : petit : " + h.length + " octets par porte");
   }
   const css = src.match(/\.ygg-porte[^\n]*/g).join("\n");
-  assert.ok(!/\.ygg-porte(?!\.ouvre)[^{]*\{[^}]*animation/.test(css.replace(/\.ygg-porte\.ouvre[^{]*\{[^}]*\}/g, "")), "porte fermée : aucune animation (ni sur l'emblème)");
-  assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-porte\.ouvre\{display:none/.test(src), "mouvement réduit : pas d'animation d'ouverture");
+  assert.ok(!/\.ygg-porte(?!\.ouvre)[^{]*\{[^}]*animation/.test(css.replace(/\.ygg-porte\.(?:ouvre|referme)[^{]*\{[^}]*\}/g, "")), "porte fermée : aucune animation (ni sur l'emblème)");
+  assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-porte\.ouvre,\.ygg-porte\.referme\{display:none/.test(src), "mouvement réduit : pas d'animation d'ouverture ni de fermeture");
   assert.ok(!/setInterval|setTimeout/.test(coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/)), "aucune minuterie pour les portes");
 }
 // 6. Branchement et cadres : la porte est dans la vitre de chaque fruit ; TOUS les fruits ont le cadre en portrait des deux premiers (même taille avec ou sans image) ; la porte suit les coins du cadre.
