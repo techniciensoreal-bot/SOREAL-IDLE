@@ -45,7 +45,7 @@
             'Les cadres de zone du Coffre ne sont plus plus larges que leurs objets : un titre long passe à la ligne au lieu de les élargir.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Quand un fruit est mangé ou récolté sans l’auto, sa porte se referme : animation et son d’ouverture joués à l’envers.',
+            'Quand un fruit est mangé ou récolté sans l’auto, sa porte se referme : animation d’ouverture à l’envers, avec son propre bruit de fermeture.',
             'Après une renaissance, les portes sont de nouveau fermées : à ta première visite, tu les vois s’ouvrir, même si l’auto a déjà fait avancer ou finir le fruit.',
             'Un fruit sans énergie reste derrière une porte fermée, sans aucune animation ; au moment de placer l’énergie, la porte s’ouvre avec son bruit (pierre ou bois, au choix dans le banc d’essai).',
             'Chaque fruit a sa porte, aux emblèmes différents, et un cadre de même taille que son image.',

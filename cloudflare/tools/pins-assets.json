@@ -100,8 +100,8 @@
   "sha": "d37788d0954f972b13adaf997126be71b8492160"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 7,
-  "sha": "b2ccbd1e48bc247811681102ed7a79308d25e840"
+  "pin": 8,
+  "sha": "af962295cebfec9b7b548313d6dce09a954bdbbb"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 20,
@@ -300,8 +300,8 @@
   "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 304,
-  "sha": "a25b55bcd561f9ddf103e845833e23689f5a6342"
+  "pin": 305,
+  "sha": "b87057774ea838d265ebb4184a34703c1c9ba989"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -364,12 +364,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 326,
-  "sha": "37519df1c957c80e26163d64c590bdb49343de93"
+  "pin": 327,
+  "sha": "a8ff5ec5c0c9cbfd5d1c5784800cbcf7a90c1bc6"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 120,
-  "sha": "470cc71866d86c9087d94a33993c1691e3efe409"
+  "pin": 121,
+  "sha": "d84ec99584946591061a9e5d3f63df0af60b625d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,

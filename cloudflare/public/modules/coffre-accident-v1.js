@@ -13,8 +13,8 @@
   'use strict';
   if(window.__SOREAL_IDLE_CACA_V1__)return;
 
-  var NIVEAU_MAX=5;               /* cinq allers-retours */
-  var SEUIL_COURSE=16;            /* px à parcourir dans un sens pour qu'une « course » compte (un aller-retour = deux courses) */
+  var NIVEAU_MAX=5;               /* cinq passages du doigt : un passage (un trajet dans un sens) retire un niveau */
+  var SEUIL_COURSE=16;            /* px à parcourir dans un sens pour qu'un passage compte */
   var DUREE_BRILLE_MS=4*60*1000;
   var CLE='soreal_idle_caca_v1';
   var actif=false;
@@ -83,6 +83,9 @@
       '@keyframes bgMorceau{0%{opacity:0;transform:scale(.2)}60%{opacity:0}100%{opacity:1;transform:scale(1)}}',
       '.bg-flaque-v1{position:absolute;left:-8%;bottom:-6px;width:116%;height:38px;z-index:6;transform-origin:50% 60%;animation:bgFlaque 2.6s cubic-bezier(.2,.7,.3,1) both;pointer-events:auto;cursor:'+CURSEUR+';touch-action:none;transition:scale .3s ease,filter .3s ease}',
       '.bg-flaque-v1.deja{animation:none}',
+      /* zone tactile invisible bien plus grande que la flaque : le doigt qui frotte reste dedans (touch-action:none) et ne fait ni défiler ni changer de page. La flaque rétrécit : la marge est divisée par l'échelle (--s). */
+      '.bg-flaque-v1{--s:1}.bg-flaque-v1[data-niveau="4"]{--s:.9}.bg-flaque-v1[data-niveau="3"]{--s:.78}.bg-flaque-v1[data-niveau="2"]{--s:.64}.bg-flaque-v1[data-niveau="1"]{--s:.5}',
+      '.bg-flaque-v1::after{content:"";position:absolute;top:calc(-70px / var(--s));bottom:calc(-50px / var(--s));left:calc(-60px / var(--s));right:calc(-60px / var(--s));touch-action:none;background:transparent}',
       /* la flaque rétrécit et pâlit à chaque aller-retour (propriétés scale et filter : l'animation d'étalement garde transform) */
       '.bg-flaque-v1[data-niveau="4"]{scale:.9;filter:opacity(.92)}',
       '.bg-flaque-v1[data-niveau="3"]{scale:.78;filter:opacity(.84)}',
@@ -137,7 +140,8 @@
   }
 
   /* ---------- frottement : 5 allers-retours ---------- */
-  function dedans_(r,x,y){return x>=r.left-6&&x<=r.right+6&&y>=r.top-6&&y<=r.bottom+6;}
+  /* Zone de frottement large (Norman, 2026-10-17 : sur téléphone le doigt sortait de la petite flaque et la page changeait) : 70 px autour de la flaque, la même marge que la zone tactile ci-dessous. */
+  function dedans_(r,x,y){return x>=r.left-70&&x<=r.right+70&&y>=r.top-70&&y<=r.bottom+70;}
   function nouveau_(x,y){return {x:x,y:y,sx:0,sy:0,bx:0,by:0,compte:false,courses:0,total:0};}
   /* Une « course » = un trajet d'au moins 16 px dans un sens ; changer de sens (après 8 px de retour) en démarre une autre. Renvoie 1 quand une course vient de compter. */
   function course_(fr,x,y){
@@ -176,7 +180,7 @@
       if(!fl||!dedans_(fl.getBoundingClientRect(),e.clientX,e.clientY)){suivi=null;return;}
       var n=course_(suivi,e.clientX,e.clientY);
       if(suivi.total>8)ignorerClicJusqua=Date.now()+600;
-      if(n&&suivi.courses%2===0&&flaqueNiveau>0){flaqueNiveau-=1;sauver_();majFlaque_();clic_();}
+      if(n&&flaqueNiveau>0){flaqueNiveau-=1;sauver_();majFlaque_();clic_();}
       return;
     }
   },true);

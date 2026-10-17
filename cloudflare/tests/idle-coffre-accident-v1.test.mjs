@@ -5,7 +5,7 @@ const lire = (p) => fs.readFileSync(new URL("../public/" + p, import.meta.url), 
 const acc = lire("modules/coffre-accident-v1.js"), dig = lire("modules/coffre-digestion-v1.js"), ui = lireUiComplet(), idx = lire("index.html"), son = lire("modules/audio-coffre-v1.js"), fx = lire("modules/audio-effects-v199.js");
 /* Norman (2026-10-15) : accident très occasionnel du Coffre : flaque, deux répliques, sac couvert de caca à frotter, caca qui glisse avec l'objet, bruit liquide avec des pets. */
 assert.ok(dig.includes("CLE_PROCHAIN_ACCIDENT=") && dig.includes("Oh bordel, pas encore…") && dig.includes("J’crois que j’me suis chié dessus.") && dig.includes("a.play('coffreAccident')"), "accident du jour (idle-coffre-accident-du-jour-v1), répliques et son");
-assert.ok(acc.includes("NIVEAU_MAX=5") && acc.includes("suivi.courses%2===0") && acc.includes("flaqueNiveau-=1") && !acc.includes("carte:c"), "cinq allers-retours sur la flaque ; le sac ne se frotte pas");
+assert.ok(acc.includes("NIVEAU_MAX=5") && acc.includes("if(n&&flaqueNiveau>0){") && acc.includes("flaqueNiveau-=1") && !acc.includes("carte:c"), "cinq passages (un par course) sur la flaque ; le sac ne se frotte pas");
 assert.ok(acc.includes("transition:opacity .9s ease") && acc.includes("setAttribute('data-caca','0')") && acc.includes("(n/NIVEAU_MAX).toFixed(2)"), "les éclaboussures du sac s'effacent au fur et à mesure (fondu)");
 assert.ok(acc.includes("__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__") && acc.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__"), "survit au redessin (règle n°4)");
 assert.ok(/pointer-events:none/.test(acc) && acc.includes(".soreal-idle-caca-fantome-v1"), "on peut toujours toucher les objets ; fantôme de glissement");
@@ -23,3 +23,11 @@ console.log("idle-coffre-accident-v1: OK");
 }
 /* Les répliques attendent que le Coffre soit entièrement à l'écran */
 assert.ok(dig.includes("function quandEntierementVisible_(f){") && dig.includes("r.top>=0&&r.left>=0&&r.bottom<=h&&r.right<=w") && dig.includes("quandEntierementVisible_(function(coffre){"), "répliques différées jusqu'à ce que le Coffre soit entièrement visible");
+
+// Téléphone (Norman, 2026-10-17) : le doigt sortait de la petite flaque et la page changeait. Zone tactile invisible bien plus grande (touch-action:none), proportionnelle à l'échelle de la flaque, et cinq passages suffisent.
+{
+  assert.ok(/\.bg-flaque-v1::after\{content:"";position:absolute;top:calc\(-70px \/ var\(--s\)\)[^}]*touch-action:none/.test(acc), "zone tactile agrandie, touch-action:none");
+  for (const [n, s] of [[4, ".9"], [3, ".78"], [2, ".64"], [1, ".5"]]) assert.ok(acc.includes('.bg-flaque-v1[data-niveau="' + n + '"]{--s:' + s + "}"), "échelle " + n);
+  assert.ok(acc.includes("x>=r.left-70") && acc.includes("y<=r.bottom+70"), "le suivi du doigt tolère 70 px autour de la flaque");
+}
+console.log("idle-coffre-accident-v1 (zone tactile): OK");
