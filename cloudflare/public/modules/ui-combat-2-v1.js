@@ -1667,8 +1667,17 @@
             )
           );
 
+        /* Difficultés Evil ("difficile") et Sadistic ("extreme") : le serveur sert les images 3D (evil) ou photo (sadistic) de leur dossier, avec repli sur l'image normale si absente. */
+        const difficulte=
+          String(
+            REG.idleEtat&&
+            REG.idleEtat.systemes&&
+            REG.idleEtat.systemes.difficulty||
+            ''
+          );
+
         return n
-          ? '/api/idle/media/boss?id='+encodeURIComponent(String(n))
+          ? '/api/idle/media/boss?id='+encodeURIComponent(String(n))+(difficulte==='difficile'||difficulte==='extreme'?'&difficulty='+difficulte:'')
           : '';
       }
 
