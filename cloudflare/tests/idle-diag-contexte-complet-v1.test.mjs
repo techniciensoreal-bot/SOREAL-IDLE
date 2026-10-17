@@ -53,3 +53,18 @@ assert.ok(pont.includes("Dg.reponseRecue(operation,"), "le pont signale la duré
 assert.ok(src.includes("tacheLongue_(e.startTime,e.duration)"), "observateur branché");
 assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(src), "journal local seulement");
 console.log("idle-diag-contexte-complet-v1: OK");
+// Vie de l'ordre de combat : clic -> envoi -> réponse, avec les actions rapides passées devant.
+{
+  const rapides = readFileSync("cloudflare/public/modules/ui-actions-rapides-v1.js", "utf8");
+  D.vider();
+  D.combatLance();
+  D.lotEnvoye("shop"); D.lotTermine("shop", true);
+  D.lotEnvoye("forge"); D.lotTermine("forge", true);
+  D.lotEnvoye("combat"); D.lotTermine("combat", true);
+  const o = D.journal().find((x) => x.type === "combat_ordre");
+  assert.ok(o, "ordre de combat noté"); assert.equal(o.avant, "shop>forge"); assert.equal(o.ok, 1); assert.equal(typeof o.file_ms, "number"); assert.equal(typeof o.aller_retour_ms, "number");
+  D.vider();
+  D.lotEnvoye("shop"); ctx.window.performance.now = () => perf;
+  assert.ok(rapides.includes("D.lotEnvoye(lot.type)") && rapides.includes("D.lotTermine(lot.type,Boolean(res&&res.ok))") && rapides.includes("D.lotTermine(lot.type,false)"), "actions rapides branchées");
+  console.log("idle-diag-contexte-complet-v1 (ordre de combat): OK");
+}

@@ -382,6 +382,7 @@
         res
       ){
         REG.idleFastNetworkBusyV60=false;
+        try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.lotTermine&&lot)D.lotTermine(lot.type,Boolean(res&&res.ok));}catch(_e){}
         if(REG.idleCombatLotEnVolV1){
           REG.idleCombatLotEnVolV1=false;
           setTimeout(function(){try{rafraichirCommandesFightBossIdleV167_();}catch(_e){}},0);
@@ -469,6 +470,7 @@
         erreur
       ){
         REG.idleFastNetworkBusyV60=false;
+        try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.lotTermine&&lot)D.lotTermine(lot.type,false);}catch(_e){}
         if(REG.idleCombatLotEnVolV1){
           REG.idleCombatLotEnVolV1=false;
           setTimeout(function(){try{rafraichirCommandesFightBossIdleV167_();}catch(_e){}},0);
@@ -553,6 +555,7 @@
 
         REG.idleFastNetworkBusyV60=true;
         REG.idleCombatLotEnVolV1=lot.type==='combat';
+        try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.lotEnvoye)D.lotEnvoye(lot.type);}catch(_e){}
 
         const runner=
           google.script.run

@@ -14,6 +14,9 @@
  *   - combat_saut    : pendant un combat de boss, une réponse du serveur déplace la vie du joueur ou celle du boss d'au moins 8 points de pourcentage par rapport à l'écran.
  *   - tache_longue   : (Norman, 2026-10-17 : « petites lenteurs ») une tâche de plus de 80 ms qui bloque le navigateur : durée, menu ouvert, combat actif, et la réponse du serveur reçue juste avant (opération + délai).
  *   - reponse_lente  : une réponse du serveur qui a mis plus de 3 s à revenir (opération, durée).
+ *   - combat_ordre   : (journal du 17/10 : le serveur répond « combat non actif » 2 à 24 s après le clic sur Fight) la vie de l'ordre de combat : file_ms = du clic à l'envoi, aller_retour_ms = de l'envoi à la réponse,
+ *                       avant = les autres actions rapides (achats, forge, équipement…) envoyées entre le clic et l'ordre : elles passent devant et le retardent.
+ *   - lot_lent       : une action rapide (achat, forge, équipement, combat…) dont l'aller-retour dépasse 2 s.
  * CHAQUE ligne porte aussi le menu ouvert (menu=) et l'état du combat (combat=1/0), et le texte copié commence par un en-tête (appareil, version, connexion, menu) et finit par FIN DU JOURNAL : coller le texte seul suffit.
  * Le journal (160 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
@@ -88,7 +91,27 @@
    * la première réponse qui suit est toujours notée (combat_lance), les suivantes seulement si l'écart dépasse 8 points (combat_saut). Sur l'appareil seulement, rien n'est envoyé.
    */
   var clicFight=0;
-  function combatLance_(){clicFight=Date.now();}
+  /* Vie de l'ordre de combat : clic -> envoi -> réponse (les actions rapides partent une par une, voir ui-actions-rapides-v1.js). */
+  var clicOrdre=0,envoiOrdre=0,lotsAvant=[],lotEnCours=null;
+  function combatLance_(){clicFight=Date.now();clicOrdre=clicFight;envoiOrdre=0;lotsAvant=[];}
+  function lotEnvoye_(type){
+    try{
+      lotEnCours={type:String(type),t:Date.now()};
+      if(type==='combat'){envoiOrdre=lotEnCours.t;return;}
+      if(clicOrdre>0&&lotsAvant.length<8)lotsAvant.push(String(type));
+    }catch(_e){}
+  }
+  function lotTermine_(type,ok){
+    try{
+      var maintenant=Date.now(),ms=lotEnCours&&lotEnCours.type===String(type)?maintenant-lotEnCours.t:0;
+      lotEnCours=null;
+      if(ms>2000)noter_('lot_lent',String(type),{ms:ms,ok:ok?1:0});
+      if(type==='combat'&&envoiOrdre>0){
+        noter_('combat_ordre','boss',{file_ms:clicOrdre>0?envoiOrdre-clicOrdre:-1,aller_retour_ms:maintenant-envoiOrdre,ok:ok?1:0,avant:lotsAvant.join('>')||'-'});
+        clicOrdre=0;envoiOrdre=0;lotsAvant=[];
+      }
+    }catch(_e){}
+  }
   function pct_(v,m){v=Number(v);m=Number(m);return m>0&&isFinite(v)?Math.round(1000*v/m)/10:null;}
   function ecartCombat_(ancien,nouveau){
     try{
@@ -339,6 +362,8 @@
     reponseRecue:reponseRecue_,
     tacheLongue:tacheLongue_,
     combatLance:combatLance_,
+    lotEnvoye:lotEnvoye_,
+    lotTermine:lotTermine_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,
     /* Pour les tests : un relevé sans attendre 10 s ni images réelles. */

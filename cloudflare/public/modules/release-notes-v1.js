@@ -32,6 +32,7 @@
         date:'2026-10-17',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le journal de fluidité suit aussi la vie d’un ordre de combat (attente avant l’envoi, aller-retour, actions passées devant) et les actions rapides lentes.',
             'Le journal de fluidité est complet à lui seul : appareil, réseau, menu ouvert et combat sur chaque ligne, avec les blocages et les réponses lentes du serveur.',
             'Quand deux réponses du serveur arrivent presque en même temps, la plus ancienne ne peut plus remplacer la plus récente : plus de boss ou d’avancement qui reviennent un court instant en arrière.',
             'Le journal de fluidité note aussi le lancement d’un combat de boss et les sauts de vie qui suivent, pour traquer ce qui saute en ligne.',
