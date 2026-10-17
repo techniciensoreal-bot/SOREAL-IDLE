@@ -473,7 +473,7 @@
                   /* Chaque rituel TERMINÉ le dit à l'animation de la scène (modules/sang-rituel-decor-v1.js) : la coupure, la punaise, le jet… partent de CET événement et non d'un chiffre affiché (le compteur est borné et ne bouge pas toujours : le papier bougeait sans couper — Norman, 2026-10-15). */
                   try{window.dispatchEvent(new CustomEvent('soreal-rituel-termine',{detail:{id:String(bloodVisual.ritual),faits:faits}}));}catch(_e){}
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
-                  if(compte){compte.textContent=idleEntier_(idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})());(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})(),rb:idleNombre_(REG.idleEtat.systemes&&REG.idleEtat.systemes.records&&REG.idleEtat.systemes.records.totalRebirths)};}
+                  if(compte&&typeof window.__bloodCompteTickV1__==='function')compte.textContent=idleEntier_(window.__bloodCompteTickV1__(bloodVisual.ritual,faits));
                   if(faits===dus){
                     const reste=(ecoule0-eta0)%seconds;
                     bloodVisual.at=maintB;
@@ -491,11 +491,10 @@
             const pleineB=seconds>0.0201&&ecouleB>=idleNombre_(bloodVisual.etaSeconds)-1e-9;
             const manqueOrB=coutOrB>0&&orLiveB+1e-9<coutOrB;
             const ligneBloodFixe=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
-            if(bloodVisual.ajoutLocal){
+            /* Compteur relu à chaque tick dans l'état à jour du serveur (voir __bloodCompteTickV1__ dans blood-magic-v1.js) : il ne reste plus bloqué entre deux redessins de la page. */
+            if(typeof window.__bloodCompteTickV1__==='function'){
               const compte2=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
-              const texte2=idleEntier_(idleNombre_(compte2&&compte2.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})());
-              if(compte2&&compte2.textContent!==texte2)compte2.textContent=texte2;
-              if(compte2)(window.__bloodCompteAffV1=window.__bloodCompteAffV1||{})[bloodVisual.ritual]={n:idleNombre_(compte2.getAttribute('data-n'))+(function(){const f=window.__bloodAvanceBorneeV1__;return typeof f==='function'?f(bloodVisual.ritual,bloodVisual.ajoutLocal):bloodVisual.ajoutLocal;})(),rb:idleNombre_(REG.idleEtat.systemes&&REG.idleEtat.systemes.records&&REG.idleEtat.systemes.records.totalRebirths)};
+              if(compte2){const texte2=idleEntier_(window.__bloodCompteTickV1__(bloodVisual.ritual,0));if(compte2.textContent!==texte2)compte2.textContent=texte2;}
             }
             if(pleineB){
               if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
