@@ -5,7 +5,7 @@
  */
 import { normalizeIdleAdventureStateV47, idleAdventureMobBestiaryEntryV1, IDLE_ADVENTURE_ZONES, IDLE_ADVENTURE_MOB_CATALOG_V1, IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "./idle-adventure-v47.js";
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
-import { bossCatalogueSorealIdle_, collectionsSorealIdle_, histoireBossAvecSurchargeSorealIdle_, lootsSorealIdle_ } from "./idle-runtime-catalogue.js";
+import { bossCatalogueSorealIdle_, collectionsSorealIdle_, histoireBossAvecSurchargeSorealIdle_, histoireBossParleeSorealIdle_, nomBossParleSorealIdle_, lootsSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { definitionBossSorealIdle_ } from "./idle-runtime-boss.js";
 
 export function parserJsonSorealIdle_(
@@ -1309,6 +1309,9 @@ export function construireBestiaireSorealIdle_(
                 boss.histoire
               )
             : '',
+        /* Ce que la voix DIT (menu Admin) : jamais plus que ce que le joueur a déjà découvert. */
+        histoireParlee: decouvert ? histoireBossParleeSorealIdle_(index + 1) : '',
+        nomParle: decouvert ? nomBossParleSorealIdle_(index + 1) : '',
         driveFileId:
           decouvert
             ? String(

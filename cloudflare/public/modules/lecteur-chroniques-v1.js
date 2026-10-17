@@ -27,7 +27,7 @@ function construireFile(depart){
   var d=Math.max(0,Math.floor(Number(depart))||0);
   return liste.filter(function(x){
     return x&&x.source==='boss'&&x.decouvert&&Math.floor(Number(x.numero))>=d&&String(x.description||'').trim();
-  }).map(function(x){return {numero:Math.floor(Number(x.numero)),nom:String(x.nom||'Boss'),description:String(x.description||'')};})
+  }).map(function(x){return {numero:Math.floor(Number(x.numero)),nom:String(x.nom||'Boss'),description:String(x.description||''),nomParle:String(x.nomParle||''),histoireParlee:String(x.histoireParlee||'')};})
     .sort(function(a,b){return a.numero-b.numero;});
 }
 
@@ -150,7 +150,8 @@ function lireCourante(){
   if(!t||!e){terminer();return;}
   majAffichage();
   var jeton=etat.jeton+=1;
-  var texte=typeof t.composerChronique==='function'?t.composerChronique(e.nom,e.description):e.nom+'. '+e.description;
+  /* texte et nom PARLÉS fixés dans le menu Admin : la voix lit ceux-là (Norman, 2026-10-17) */
+  var texte=typeof t.composerChronique==='function'?t.composerChronique(String(e.nomParle||'').trim()||e.nom,String(e.histoireParlee||'').trim()||e.description):e.nom+'. '+e.description;
   var demarre=t.readText(texte,null,function(ok){
     if(jeton!==etat.jeton||!etat.actif)return;
     /* Lecture arrivée à son terme : on enchaîne ; interrompue de l'extérieur ou en échec : on ferme le lecteur. */

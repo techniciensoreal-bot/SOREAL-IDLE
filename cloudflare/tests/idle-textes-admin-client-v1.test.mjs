@@ -129,7 +129,7 @@ assert.equal(intacte.long, true, "les autres propriétés de la page sont conser
 
 // --- Câblage dans le jeu ---
 const ui = lireUiComplet();
-for (const m of ["const src=(page&&page._brut)||page;", "info=(info&&info._brut)||info;", "appliquerTextesTutorielsIdleV1_();", "window.__SOREAL_IDLE_EST_ADMIN_V1__=estAdminSorealIdle_;", "declarerTextesSystemesIdleV1_(j);", "boutonBossHtml(j&&j.bossId)", "sansBaliseVoixIdleV1_(narration)", "attrHistoireVoixIdleV1_(b.histoire)"]) {
+for (const m of ["const src=(page&&page._brut)||page;", "info=(info&&info._brut)||info;", "appliquerTextesTutorielsIdleV1_();", "window.__SOREAL_IDLE_EST_ADMIN_V1__=estAdminSorealIdle_;", "declarerTextesSystemesIdleV1_(j);", "boutonBossHtml(j&&j.bossId)", "sansBaliseVoixIdleV1_(narration)", "attrLectureBossIdleV1_(b.nom,b.histoire,b.nomParle,b.histoireParlee)"]) {
   assert.ok(ui.includes(m), "câblage : " + m);
 }
 const index = readFileSync("cloudflare/public/index.html", "utf8");

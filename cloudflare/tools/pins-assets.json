@@ -220,8 +220,8 @@
   "sha": "3496ca127b40e6cba99b541b72708d9a7673a861"
  },
  "/modules/lecteur-chroniques-v1.js": {
-  "pin": 4,
-  "sha": "579bc2c5afd7718de5f70934438b1c5a6a4dfe14"
+  "pin": 5,
+  "sha": "bbc2eb0116598589638c913fb321773b9c492a14"
  },
  "/modules/local-neural-piper-v1.js": {
   "pin": 14,
@@ -304,8 +304,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 313,
-  "sha": "a9b79634c116aeadeb4a6f93490b3898d622c90f"
+  "pin": 314,
+  "sha": "a68e2fae2eaefefb0ccdd8ae0f79b120ff0ea4c0"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -368,12 +368,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 334,
-  "sha": "1b90b7d748b0965f6503864e45b056167db031a2"
+  "pin": 335,
+  "sha": "125853a60dec2318073b05533f8966ae6ce9fa0d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 128,
-  "sha": "fd15919c76c4daf54004ea32f32f90b6c635dfb4"
+  "pin": 129,
+  "sha": "48f6ffc8f63d5baa7788ae8f3c15c665a3e03217"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,
@@ -424,16 +424,16 @@
   "sha": "9d3b18b0b5c864bde0f74dd99fabd794456d12b0"
  },
  "/modules/ui-chroniques-v1.js": {
-  "pin": 2,
-  "sha": "36e2d113f97dccdd09cb6892f73e8b4c196a169a"
+  "pin": 3,
+  "sha": "b9978edfdb5a6d99d68763e34aa347d42c67af90"
  },
  "/modules/ui-combat-1-v1.js": {
   "pin": 3,
   "sha": "7df61cc28c9e6349f6c8aa885e4fed3eb5d29191"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 1,
-  "sha": "c685d67821fd65f9e32ff6e8f7ae0670bb5433f4"
+  "pin": 2,
+  "sha": "46b7bdf8d618c14cb2241fdf84fcf651c0b8d7af"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

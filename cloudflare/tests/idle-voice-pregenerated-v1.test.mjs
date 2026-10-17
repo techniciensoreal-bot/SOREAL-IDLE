@@ -99,7 +99,8 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
 // --- « Lire toute l'histoire » : même composition que la chronique affichée ---
 {
   const f = ui.slice(ui.indexOf("function lireHistoireCompleteBossIdleV206_(){"), ui.indexOf("window.__lireHistoireCompleteBossIdleV206__="));
-  assert.match(f, /composerChronique\(String\(b\.nom\|\|'Boss'\),String\(b\.histoire\|\|''\)\)/);
+  /* 2026-10-17 : le texte et le nom PARLÉS (menu Admin) passent d'abord ; sans eux, le récit affiché. */
+  assert.match(f, /composerChronique\(String\(b\.nomParle\|\|''\)\.trim\(\)\|\|String\(b\.nom\|\|'Boss'\),String\(b\.histoireParlee\|\|''\)\.trim\(\)\|\|String\(b\.histoire\|\|''\)\)/);
   assert.match(f, /texteVoixSansTexteIdleV1_\(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1\)\+M\(1500\)/);
   assert.ok(ui.includes("const TEXTE_CHRONIQUES_INTRO_IDLE_V1='Chroniques de boss.';"), "le texte d'origine de l'intro n'a pas changé : mêmes voix pré-générées");
   assert.match(f, /\.join\(M\(2000\)\)/);

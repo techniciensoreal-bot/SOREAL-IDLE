@@ -3,7 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
-import { texteBossSurchargeV1 } from "./idle-textes-v1.js";
+import { texteBossSurchargeV1, texteBossParleV1, nomBossParleV1 } from "./idle-textes-v1.js";
 import { CacheService, __idleCtx } from "./idle-sqlite-runtime.js";
 import { obtenirSpreadsheetSorealIdle_ } from "./idle-runtime-acces.js";
 import { nombreSorealIdle_ } from "./idle-runtime-config.js";
@@ -266,6 +266,17 @@ export function banniereSorealIdleDriveFileId_() {
 export function histoireBossAvecSurchargeSorealIdle_(numero, defaut) {
   const t = texteBossSurchargeV1(__idleCtx.__idleSql, numero);
   return t != null ? t : String(defaut || '');
+}
+
+/*
+ * Texte et nom PARLÉS d'un boss (Norman, 2026-10-17 : « ce que je crée dans ce menu doit être appliqué immédiatement partout où on peut lire ce texte ») : ce que l'administrateur a fait dire à la voix, quel que soit le texte
+ * affiché. Joints à CHAQUE endroit où une chronique de boss peut être lue (collection, fiche, carte du boss, lecteur de chroniques) : sans eux, ces lecteurs retombaient sur la voix de secours.
+ */
+export function histoireBossParleeSorealIdle_(numero) {
+  return texteBossParleV1(__idleCtx.__idleSql, numero) || '';
+}
+export function nomBossParleSorealIdle_(numero) {
+  return nomBossParleV1(__idleCtx.__idleSql, numero) || '';
 }
 
 export function bossCatalogueSorealIdle_() {

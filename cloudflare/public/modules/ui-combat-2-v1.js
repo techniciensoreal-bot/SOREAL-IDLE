@@ -98,6 +98,19 @@
           :'';
       }
 
+      /*
+       * Attributs de lecture d'une chronique de boss (Norman, 2026-10-17 : « ce que je crée dans le menu Admin (textes et voix) doit être appliqué immédiatement partout où on peut lire ce texte »). Si l'administrateur a fixé
+       * un texte ou un nom PARLÉS, la voix lit CEUX-LÀ (data-soreal-tts-say : mêmes blocs de voix, donc mêmes fichiers générés que dans le combat) ; sinon le récit affiché, avec ses balises éventuelles.
+       */
+      function attrLectureBossIdleV1_(nom,histoire,nomParle,histoireParlee){
+        const T=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+        const np=String(nomParle||'').trim(),hp=String(histoireParlee||'').trim();
+        if((np||hp)&&T&&typeof T.composerChronique==='function'){
+          return ' data-soreal-tts-say="'+idleHtml_(T.composerChronique(np||nom||'Boss',hp||histoire||''))+'"';
+        }
+        return attrHistoireVoixIdleV1_(histoire);
+      }
+
       let idleBossCarteNumeroV91=0;
 
       function fermerCarteBossIdleV91_(){
@@ -217,7 +230,7 @@
                 </div>
               </div>
 
-              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91"${b.histoire?' data-soreal-tts-chronique="'+idleHtml_(b.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(b.histoire):''}>
+              <div id="sorealIdleBossModalStoryV206_${idleEntier_(b.numero)}" class="soreal-idle-boss-story-v91"${b.histoire?' data-soreal-tts-chronique="'+idleHtml_(b.nom||'Boss')+'"'+attrLectureBossIdleV1_(b.nom,b.histoire,b.nomParle,b.histoireParlee):''}>
                 ${idleHtml_(
                   sansBaliseVoixIdleV1_(b.histoire)||
                   'Aucune archive n’existe encore pour ce boss.'
@@ -1033,7 +1046,7 @@
               '<div class="soreal-idle-boss-fiche-stats-v1">'+stats+'</div>'+
               (e.description
                 ?'<div class="soreal-idle-boss-fiche-titre-v1">📜 Chronique</div>'+
-                  '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
+                  '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
                   '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
                   '<button type="button" class="soreal-idle-chro-suite-v1" data-lire-chroniques-depuis="'+n+'"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg><span>Lire les chroniques à partir d’ici</span></button>'
                 :'')+
@@ -1094,7 +1107,7 @@
         tts.readText(
           texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)+
           connus.map(function(b){
-            return composerChronique(String(b.nom||'Boss'),String(b.histoire||''));
+            return composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''));
           }).join(M(2000))
         );
       }
@@ -1756,6 +1769,7 @@
     lancerVoixArrierePlanSandwichIdleV1_:lancerVoixArrierePlanSandwichIdleV1_,
     sansBaliseVoixIdleV1_:sansBaliseVoixIdleV1_,
     attrHistoireVoixIdleV1_:attrHistoireVoixIdleV1_,
+    attrLectureBossIdleV1_:attrLectureBossIdleV1_,
     fermerCarteBossIdleV91_:fermerCarteBossIdleV91_,
     combattreDepuisCarteBossIdleV91_:combattreDepuisCarteBossIdleV91_,
     definirCombatBossIdleV39_:definirCombatBossIdleV39_,

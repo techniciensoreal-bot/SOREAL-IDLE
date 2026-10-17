@@ -11,7 +11,7 @@ import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, dateSorealIdle_, deblocage
 import { bonusEquipementSorealIdle_, construireBestiaireSorealIdle_, detailsEquipementSorealIdle_, listeCollectionSorealIdle_, parserJsonSorealIdle_, progressionCollectionsSorealIdle_, slotsEquipementSorealIdle_, statsJoueurSorealIdle_, synchroniserCollectionSorealIdle_ } from "./idle-runtime-collection.js";
 import { attaqueBossSorealIdle_, bonusSetsSorealIdle_, coutExtensionSacSorealIdle_, coutForgeSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, delaiRespawnBossSorealIdle_, mettreAJourManaStatsSorealIdle_, niveauMagieSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, nombreObjetsSacSorealIdle_, pvMaxBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, regenBossSecondeSorealIdle_, multiplicateursCombatSorealIdle_, statsCombatPrincipalSorealIdleV413_, xpBossSorealIdle_ } from "./idle-runtime-boss.js";
 import { contexteMetaNguSorealIdle_, metaTickEnergieSorealIdle_ } from "./idle-runtime-progression.js";
-import { apparencesSorealIdle_, banniereSorealIdleDriveFileId_, bossCatalogueSorealIdle_, boutiqueConfigSorealIdle_, histoireBossAvecSurchargeSorealIdle_, parametreSorealIdle_, reposSorealIdle_, setsSorealIdle_, sortsSorealIdle_ } from "./idle-runtime-catalogue.js";
+import { apparencesSorealIdle_, banniereSorealIdleDriveFileId_, bossCatalogueSorealIdle_, boutiqueConfigSorealIdle_, histoireBossAvecSurchargeSorealIdle_, histoireBossParleeSorealIdle_, nomBossParleSorealIdle_, parametreSorealIdle_, reposSorealIdle_, setsSorealIdle_, sortsSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { classementDebloqueSorealIdle_, estAdministrateurSorealIdle_, identiteJoueurSorealIdle_, nomJeuDepuisLigneSorealIdle_ } from "./idle-runtime-joueurs.js";
 import { ameliorationsSorealIdle_, bonusAmeliorationsSorealIdle_, construireAventureSorealIdle_, coutAmeliorationSorealIdle_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
 import { __idleCtx, accesOuvertSorealIdle_, accesPublicSorealIdle_ } from "./idle-sqlite-runtime.js";
@@ -1226,6 +1226,9 @@ inventaireMeta: {
                 index + 1,
                 boss.histoire
               ),
+            /* Ce que la voix DIT (menu Admin) : lu par la carte du boss comme par la chronique du combat. */
+            histoireParlee: histoireBossParleeSorealIdle_(index + 1),
+            nomParle: nomBossParleSorealIdle_(index + 1),
             mortVivant:
               Boolean(boss.mortVivant),
             conseil: '',

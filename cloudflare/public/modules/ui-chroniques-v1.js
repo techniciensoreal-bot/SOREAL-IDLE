@@ -16,6 +16,7 @@
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
   function urlBossR2IdleV1_(){return REG.urlBossR2IdleV1_.apply(null,arguments);}
   function attrHistoireVoixIdleV1_(){return REG.attrHistoireVoixIdleV1_.apply(null,arguments);}
+  function attrLectureBossIdleV1_(){return REG.attrLectureBossIdleV1_.apply(null,arguments);}
   function sansBaliseVoixIdleV1_(){return REG.sansBaliseVoixIdleV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function rendreCollectionEquipementIdleV1_(){return REG.rendreCollectionEquipementIdleV1_.apply(null,arguments);}
@@ -373,7 +374,7 @@
                       ?'sorealIdleCollectionBossStoryV206_'+idleEntier_(e.numero)
                       :'sorealIdleCollectionCreatureDescV206_'+idleEntier_(e.index))+
                     '" class="soreal-idle-bestiary-desc-v110"'+
-                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrHistoireVoixIdleV1_(e.description):'')+
+                    (idleEntier_(e.numero)>0?' data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee):'')+
                     '>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'
                   :''}
                 ${idleEntier_(e.numero)>0&&e.description
