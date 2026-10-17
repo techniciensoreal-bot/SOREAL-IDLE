@@ -21,7 +21,7 @@ import { normalizeIdleDaycareDataV1, idleDaycareFactorsV1 } from "./idle-daycare
 import { idleTheEndGrantV1, idleTheEndHasV1, idleTheEndDataV1, IDLE_THE_END_FINAL_HACK_SECONDS_V1 } from "./idle-the-end-v1.js";
 import { atLevelV1, beardBonusMultiplier, createNguDataV1, gearPctV1, gearSpecialsV1, nguFxV1, normalizeNguDataV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { CHALLENGE_TIER_KEYS_V1, IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_META_VERSION, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SAVE_SCHEMA, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, IDLE_WISH_MAX_SLOTS_V1, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, createChallengeTiersV1, int, nowMs, num } from "./idle-ngu-catalogues.js";
-import { appliquerConsommablesSetsAventureV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, moneyPitTotauxNormalisesV1, wishLevelV1 } from "./idle-ngu-snapshot.js";
+import { appliquerConsommablesSetsAventureV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, moneyPitTotauxNormalisesV1, roueTotauxNormalisesV1, wishLevelV1 } from "./idle-ngu-snapshot.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, createTrollStateV1, diggerBonuses, normaliserR3NomV1, trollFlagsV1 } from "./idle-ngu-systemes.js";
 import { daycareBaseInputsV1, expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { externalResourceAllocation, reconcileResourceCurrents, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
@@ -897,6 +897,7 @@ function normalizeSystem(def, raw) {
           }))
         :[]
     };
+    s.data.rewardsTotal = roueTotauxNormalisesV1(data.rewardsTotal, s.data.history);
   } else if (def.id === "perks") {
     /*
      * Real per-perk levels (IDLE_PERKS_CATALOG_V1), keyed by numeric id —

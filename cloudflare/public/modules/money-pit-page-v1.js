@@ -156,6 +156,32 @@
       }
 
 
+      /*
+       * Roue journalière (Norman, 2026-10-17) : « comme pour le Money Pit, un total de ce que la roue nous a donné au total ; toute l'AP cumulée, etc. ». Totaux cumulés côté serveur (data.rewardsTotal). Rien n'est
+       * affiché tant que la roue n'a rien donné.
+       */
+      function bandeauRoueIdleV1_(data){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const t=data&&data.rewardsTotal&&typeof data.rewardsTotal==='object'?data.rewardsTotal:{};
+        const f=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
+        const lignes=[];
+        if(Number(t.ap)>0)lignes.push('🎟️ +'+f(Number(t.ap))+' AP');
+        if(Number(t.seeds)>0)lignes.push('🌱 +'+f(Number(t.seeds))+' graines');
+        const items=t.items&&typeof t.items==='object'?t.items:{};
+        Object.keys(items).forEach(function(id){
+          const n=Number(items[id]);
+          if(n>0)lignes.push('🎁 '+f(n)+' × '+(NOMS_OBJETS_ROUE_V1[id]||id));
+        });
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31 gold">🎡 Bonus obtenus grâce à la roue journalière</div>'+
+          (lignes.length
+            ?'<div style="display:grid;gap:5px;margin-top:6px">'+lignes.map(function(l){return '<div class="soreal-idle-note-v4" style="margin:0">'+H.idleHtml_(l)+'</div>';}).join('')+'</div>'
+            :'<div class="soreal-idle-note-v4">Aucun bonus pour l’instant : fais tourner la roue.</div>')+
+        '</div>';
+      }
+
+      const NOMS_OBJETS_ROUE_V1={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'crottin (sans effet)',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+
       function libelleRecompenseMetaV206_(entree){
         if(!entree)return '—';
         const morceaux=[];
@@ -511,6 +537,7 @@
             'Balance tout ton Or durement gagné dedans.'
           )+
           bandeauMoneyPitIdleV1_(pitData)+
+          bandeauRoueIdleV1_(roueData)+
           '<style>'+
             '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
             /* Norman (2026-10-02) : l'image du trou était coupée à gauche et à droite (carré forcé + cover) : elle s'affiche maintenant en entier, à ses proportions. */

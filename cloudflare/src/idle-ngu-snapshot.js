@@ -598,6 +598,39 @@ export function moneyPitTotauxNormalisesV1(raw, history) {
   return t;
 }
 
+/*
+ * Bonus TOTAUX de la roue journalière depuis le début (Norman, 2026-10-17 : « comme pour le Money Pit, un total de ce que la roue nous a donné : toute l'AP cumulée, etc. »). L'historique ne garde que 20 tours :
+ * les totaux sont cumulés à part (data.rewardsTotal : { ap, seeds, items: { id: nombre } }) ; pour une sauvegarde d'avant, ils partent de l'historique disponible.
+ */
+function roueTotauxVidesV1() {
+  return { ap: 0, seeds: 0, items: {} };
+}
+function roueAjouterTotauxV1(t, reward) {
+  if (!reward || typeof reward !== "object") return t;
+  if (Number.isFinite(Number(reward.ap))) t.ap += Math.max(0, Number(reward.ap));
+  if (Number.isFinite(Number(reward.seeds))) t.seeds += Math.max(0, Number(reward.seeds));
+  if (reward.items && typeof reward.items === "object") {
+    for (const [id, n] of Object.entries(reward.items)) {
+      if (/^[A-Za-z0-9_]{1,40}$/.test(id) && Number.isFinite(Number(n)) && Number(n) > 0) t.items[id] = num(t.items[id], 0) + Number(n);
+    }
+  }
+  return t;
+}
+export function roueTotauxNormalisesV1(raw, history) {
+  if (!raw || typeof raw !== "object") {
+    const t = roueTotauxVidesV1();
+    for (const e of Array.isArray(history) ? history : []) roueAjouterTotauxV1(t, e && e.reward);
+    return t;
+  }
+  const t = roueTotauxVidesV1();
+  t.ap = Math.max(0, num(raw.ap, 0));
+  t.seeds = Math.max(0, num(raw.seeds, 0));
+  for (const [id, n] of Object.entries(raw.items && typeof raw.items === "object" ? raw.items : {})) {
+    if (/^[A-Za-z0-9_]{1,40}$/.test(id) && num(n, 0) > 0) t.items[id] = num(n, 0);
+  }
+  return t;
+}
+
 export function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -873,6 +906,8 @@ function spinDaily(state, now) {
 
   s.level = totalBefore + 1;
   s.data.totalSpins = s.level;
+  /* Totaux depuis le début : l'historique d'AVANT ce tour, puis ce tour. */
+  s.data.rewardsTotal = roueAjouterTotauxV1(roueTotauxNormalisesV1(s.data.rewardsTotal, s.data.history), reward);
   /*
    * Cadence de 24 h, temps en retard « banké » vers le prochain tour. Plafond de banque : « maximum time banked by the
    * daily spin system from 36 hours to 7 days » (4G's Sellout Shop, 7-Day Time Bank for Daily Spin!) : le plafond

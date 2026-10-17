@@ -39,6 +39,7 @@
             'Défi sans équipement : l’équipement porté ne compte plus nulle part (combats, Aventure…), les pièces équipées sont grisées et ce qu’elles donneraient est barré dans le petit tableau sous l’image. Tu peux toujours mettre et enlever des pièces.',
           ]},
           {menu:'moneyPit', titre:'Money Pit & Roue journalière', points:[
+            'Comme pour le Money Pit, un bandeau donne le total de ce que la roue journalière t’a apporté depuis le début : toute l’AP cumulée, les graines et les objets obtenus.',
             'Plus de grand vide entre l’image avec les boutons et le tableau des récompenses : l’image suit la hauteur des cartes, sur PC comme sur téléphone.',
             'Les deux cartes (« Balance ton argent » et la roue journalière) sont resserrées, sans espace vide, sur PC comme sur téléphone.',
             'Chaque carte a son « Ton prix » sous son bouton, avec son propre dernier gain ; la couleur change à chaque nouveau gain pour le repérer d’un coup d’œil.',

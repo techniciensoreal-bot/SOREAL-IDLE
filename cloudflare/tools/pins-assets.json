@@ -240,8 +240,8 @@
   "sha": "c6d330ef53eee559a7647cec4c7e52784a8b79fe"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 1,
-  "sha": "51b17ba3ecc3317f7efe61bfaaa0760195f6086e"
+  "pin": 2,
+  "sha": "ebae5cc230531223c26ccfc3a9b662b9be64671c"
  },
  "/modules/morph-v1.js": {
   "pin": 4,
@@ -300,8 +300,8 @@
   "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 309,
-  "sha": "47a8140098e7f78ecc347bc4cd4f61bd6cb998d7"
+  "pin": 310,
+  "sha": "6ccef13d1c2edffcb99ff102d908539de0022e47"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -364,12 +364,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 330,
-  "sha": "41da3ba9621a781c307b7a18c69b45ffeab82128"
+  "pin": 331,
+  "sha": "025052f51ab2911e9a6c48e97315e4f2d76b7703"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 124,
-  "sha": "6289dc2b17ad2650e4af53f5232407683b81167b"
+  "pin": 125,
+  "sha": "fe35739fafc985131524847ea7e9e750465430de"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,
