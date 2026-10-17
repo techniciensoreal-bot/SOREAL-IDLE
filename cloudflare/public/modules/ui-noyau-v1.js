@@ -936,6 +936,11 @@
               window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));
             }
 
+            /* Records personnels et montées au classement : annonce en fondu + son à part (modules/records-perso-v1.js). */
+            if(window.__SOREAL_IDLE_RECORDS_PERSO_V1__){
+              window.__SOREAL_IDLE_RECORDS_PERSO_V1__.verifier(j,'soreal_idle_records_perso_v1_'+generationJoueurIdleV75_(j));
+            }
+
             /* Défis : annonce de fin de défi, trolls, mode aveugle (modules/challenges-v1.js). */
             if(window.__SOREAL_IDLE_DEFIS_V1__){
               try{window.__SOREAL_IDLE_DEFIS_V1__.verifier(j);}catch(_e){}

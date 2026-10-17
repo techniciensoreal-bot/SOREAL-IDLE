@@ -1608,5 +1608,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 input{font-size:20px!important;font-weight:700!important;letter-spacing:.03em;color:#fff!important;border:2px solid #7f9fd6!important;background:#0a1224!important}
 
 /* Défi sans équipement (Norman, 2026-10-17) : les pièces portées ne comptent plus, elles sont grisées (le marqueur est posé par rendreSlotPaperdollAdventureIdleV138_). */
-body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id]{filter:grayscale(1) brightness(.7);opacity:.5}
+/* l'image (et le niveau) sont grisés, mais PAS les 3 petits points bleu / jaune / orange : ils disent quels boosts on peut encore y envoyer (Norman, 2026-10-17) */
+body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id] .soreal-idle-v138-slot-icon>:not(.idle-boostpts-v1){filter:grayscale(1) brightness(.75);opacity:.55}
 

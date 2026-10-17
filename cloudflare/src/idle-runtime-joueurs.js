@@ -438,8 +438,11 @@ function joueurExclusClassementSorealIdle_(cle, nom) {
 }
 
 export function obtenirClassementSorealIdle(
-  sessionToken
+  sessionToken,
+  options
 ) {
+  /* sansEcriture : calcul des rangs SEUL (aucune écriture : ni passage noté, ni registre) -- sert à obtenirMesRangsSorealIdle, appelé régulièrement en arrière-plan. */
+  const sansEcriture = Boolean(options && options.sansEcriture);
   const acces =
     exigerAccesSorealIdle_(
       sessionToken
@@ -455,7 +458,7 @@ export function obtenirClassementSorealIdle(
     String(acces.emailAutorise || '').trim().toLowerCase();
 
   /* Le prénom de l'ouvrier qui ouvre le classement est mémorisé tout de suite (son nom peut ainsi s'afficher « Pseudo (Prénom) » dès cette page). */
-  noterPassageIdleV1_(acces);
+  if (!sansEcriture) noterPassageIdleV1_(acces);
 
   const registre =
     obtenirFeuilleClassementSorealIdle_();
@@ -474,7 +477,7 @@ export function obtenirClassementSorealIdle(
     if (!cle) continue;
     if (joueurExclusClassementSorealIdle_(cle, nomAffiche(cle, registre.getCell(r, 2)))) {
       /* Entrée enregistrée avant ces règles (partie B, « Joueur ») : retirée du registre. */
-      registre.getRange(r, 1, 1, 3).setValues([['', '', '']]);
+      if (!sansEcriture) registre.getRange(r, 1, 1, 3).setValues([['', '', '']]);
       continue;
     }
     parCle.set(cle, {
@@ -535,7 +538,7 @@ export function obtenirClassementSorealIdle(
   /* Registre : chaque joueur vu y est inscrit (ou son nom mis à jour) et n'en sort plus. */
   let prochaineLigne = Math.max(2, registre.getLastRow() + 1);
   parCle.forEach(function(entree) {
-    if (!entree.present) return;
+    if (!entree.present || sansEcriture) return;
     /*
      * Audit du 2026-10-10 (IDLE-AUDIT-PERF-004) : le registre était réécrit en entier à chaque ouverture du classement (une écriture par joueur, « Dernière vue » = maintenant, donc toujours « modifiée »). On n'écrit
      * plus qu'un joueur nouveau ou dont le nom a changé ; la colonne « Dernière vue » n'est lue nulle part.
@@ -547,7 +550,7 @@ export function obtenirClassementSorealIdle(
     registre.getRange(ligneRegistre, 1, 1, 3).setValues([[entree.cle, entree.nomBrut, Date.now()]]);
     entree.ligneRegistre = ligneRegistre;
   });
-  if (registre.getLastRow() === 0 || String(registre.getCell(1, 1) || '') === '') {
+  if (!sansEcriture && (registre.getLastRow() === 0 || String(registre.getCell(1, 1) || '') === '')) {
     registre.getRange(1, 1, 1, 3).setValues([['Email', 'Nom', 'Derniere vue']]);
   }
 
@@ -617,6 +620,21 @@ export function obtenirClassementSorealIdle(
         valeurs: entree.valeurs
       };
     })
+  };
+}
+
+/*
+ * Mes rangs (Norman, 2026-10-17 : « quand on bat un record personnel ou qu'on monte de place au classement, un popup avec un petit son »). Le client appelle cette opération de temps en temps : mon rang global et mon rang
+ * par statistique, plus mes valeurs (combat le plus long, meilleur Nombre…), pour détecter un record ou une montée. Même calcul que le classement, mais SANS aucune écriture.
+ */
+export function obtenirMesRangsSorealIdle(sessionToken) {
+  const r = obtenirClassementSorealIdle(sessionToken, { sansEcriture: true });
+  if (!r || !r.ok) return { ok: false };
+  const moi = (r.entrees || []).find(function(e) { return e.moi; }) || null;
+  return {
+    ok: true,
+    joueurs: r.joueurs,
+    moi: moi ? { rang: moi.rang, rangs: moi.rangs, valeurs: moi.valeurs } : null
   };
 }
 

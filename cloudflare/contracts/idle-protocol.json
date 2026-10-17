@@ -55,6 +55,7 @@
     "obtenirEtatSorealIdle",
     "obtenirHistoireBossSorealIdle",
     "obtenirIdentiteSorealIdle",
+    "obtenirMesRangsSorealIdle",
     "obtenirPartieDevSorealIdle",
     "obtenirTextesSurchargesSorealIdle",
     "obtenirTutorielSorealIdle",

@@ -47,6 +47,8 @@
     /* Passage d'un rayon à l'autre dans une boutique (Norman, 2026-10-03) : trois pas. Groupe à part ; l'ordonnanceur ne joue jamais deux sons à la fois, donc deux changements rapides ne se chevauchent pas. */
     shopSteps:{group:"shop-steps",priority:22,maxAgeMs:900},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
+    /* Record personnel / montée au classement (Norman, 2026-10-17) : un son à part, différent de la fanfare des trophées. Même groupe : jamais les deux en même temps. */
+    recordPerso:{group:"achievement",priority:86,maxAgeMs:3500},
     /* Un autre joueur vient de se connecter (fil « En direct », Norman 2026-10-02) : petit carillon discret. */
     joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
@@ -1435,6 +1437,20 @@
   }
 
   /*
+   * Record personnel / montée au classement (Norman, 2026-10-17 : « un petit son, comme pour les trophées, mais différent ») : deux coups de cloche clairs qui montent (sol puis ré aigu, le second plus long), posés sur une
+   * note grave de triangle ; le trophée, lui, est un arpège montant do-mi-sol-do. Une cloche = un sinus et son partiel inharmonique (×2,76) qui s'éteint plus vite.
+   */
+  function recordPerso_(){
+    return jouerWebAudio_(1500,function(c){
+      [[784,.50,.060,0],[1175,.95,.066,.20]].forEach(function(p){
+        tonal_(c,{type:"sine",from:p[0],to:p[0],duration:p[1],volume:p[2],delay:p[3]});
+        tonal_(c,{type:"sine",from:p[0]*2.76,to:p[0]*2.76,duration:p[1]*.35,volume:p[2]*.28,delay:p[3]});
+      });
+      tonal_(c,{type:"triangle",from:196,to:196,duration:1.1,volume:.034,delay:0});
+    });
+  }
+
+  /*
    * Basic Training (Norman, 2026-09-26) : trois sons pour +, − et Cap, chacun en rapport avec ce qu'il fait.
    *   +   : on ajoute de l'énergie -> petit « bloup » qui monte, brillant ;
    *   −   : on la retire            -> petit « bloup » qui redescend, plus mat ;
@@ -1900,6 +1916,7 @@
     menuNav:menuNav_,
     shopDoor:porteMagasin_,
     achievement:succes_,
+    recordPerso:recordPerso_,
     joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
@@ -2186,6 +2203,7 @@
     menu:function(id){return demander_("menu_"+id);},
     sortBlood:function(id){return demander_("sortBlood_"+id);},
     achievement:function(){return demander_("achievement");},
+    recordPerso:function(){return demander_("recordPerso");},
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},

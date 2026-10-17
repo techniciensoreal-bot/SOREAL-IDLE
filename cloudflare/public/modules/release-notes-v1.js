@@ -32,6 +32,7 @@
         date:'2026-10-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Un record personnel battu (combat de boss le plus long, meilleur Nombre) ou une place gagnée face aux autres joueurs s’annonce par un petit message avec un son à part, différent de celui des trophées.',
             'Tes réglages, cases cochées, saisies, onglets et volumes sont liés à ton compte : tu les retrouves à l’identique sur tous tes appareils.',
             'La Magie ne peut plus dépasser son maximum en cours de partie (elle se corrigeait seulement après un rafraîchissement de la page).',
           ]},
