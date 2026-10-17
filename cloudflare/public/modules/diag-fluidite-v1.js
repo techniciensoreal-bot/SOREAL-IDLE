@@ -9,6 +9,9 @@
  *   - or_remonte      : l'Or remonte (au moins le quart de la dépense) moins de 8 s après une dépense locale : la réponse du serveur « rend » l'Or.
  *   - rituel_ecart    : (Norman, 2026-10-17 : sangsue, « 10 minutes, puis le temps diminue fortement quand je change d'onglet ») à chaque réponse du serveur, le compte à rebours AFFICHÉ d'un rituel de sang diffère
  *                       d'au moins 10 % (et 5 s) de celui que le serveur donne : on note les deux durées, la magie, la durée d'un niveau (spc) et K (durée à 1 de magie) de l'écran et du serveur.
+ *   - combat_lance   : (Norman, 2026-10-17 : « quand on lance un combat contre un boss, ça saute ») à la première réponse du serveur après un clic sur Fight : délai depuis le clic, PV du joueur et du boss
+ *                       affichés (avant) et donnés par le serveur (après), en % de leur maximum.
+ *   - combat_saut    : pendant un combat de boss, une réponse du serveur déplace la vie du joueur ou celle du boss d'au moins 8 points de pourcentage par rapport à l'écran.
  * Le journal (80 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
 (function(){
@@ -66,6 +69,28 @@
         n+=1;
       });
       return n;
+    }catch(_e){return 0;}
+  }
+
+  /*
+   * Combat de boss : ce que l'écran montrait (ancien état) contre ce que le serveur donne (nouveau), en % du maximum. Appelé à chaque réponse du serveur, comme ecartRituels_. combatLance_() note l'instant du clic sur Fight ;
+   * la première réponse qui suit est toujours notée (combat_lance), les suivantes seulement si l'écart dépasse 8 points (combat_saut). Sur l'appareil seulement, rien n'est envoyé.
+   */
+  var clicFight=0;
+  function combatLance_(){clicFight=Date.now();}
+  function pct_(v,m){v=Number(v);m=Number(m);return m>0&&isFinite(v)?Math.round(1000*v/m)/10:null;}
+  function ecartCombat_(ancien,nouveau){
+    try{
+      if(!ancien||!nouveau)return 0;
+      var lance=clicFight>0&&Date.now()-clicFight<30000;
+      if(!lance&&!(ancien.combatBossActif&&nouveau.combatBossActif))return 0;
+      var j0=pct_(ancien.pvJoueur,ancien.pvJoueurMax),j1=pct_(nouveau.pvJoueur,nouveau.pvJoueurMax);
+      var b0=pct_(ancien.bossPv,ancien.bossPvMax),b1=pct_(nouveau.bossPv,nouveau.bossPvMax);
+      var dj=j0!==null&&j1!==null?Math.abs(j1-j0):0,db=b0!==null&&b1!==null?Math.abs(b1-b0):0;
+      var d={joueur_ecran:j0,joueur_serveur:j1,boss_ecran:b0,boss_serveur:b1,boss:String(nouveau.bossActuel||ancien.bossActuel||'').slice(0,30),actif_serveur:nouveau.combatBossActif?1:0};
+      if(lance){d.delai_ms=Date.now()-clicFight;clicFight=0;noter_('combat_lance','boss',d);return 1;}
+      if(dj>=8||db>=8){noter_('combat_saut','boss',d);return 1;}
+      return 0;
     }catch(_e){return 0;}
   }
 
@@ -266,6 +291,8 @@
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */
     echantillon:echantillon_,
     ecartRituels:ecartRituels_,
+    ecartCombat:ecartCombat_,
+    combatLance:combatLance_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,
     /* Pour les tests : un relevé sans attendre 10 s ni images réelles. */

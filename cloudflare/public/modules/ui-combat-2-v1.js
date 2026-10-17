@@ -439,6 +439,7 @@
         if(actif){
           REG.idleCombatArmeLocalV206=true;
           REG.idleCombatStopFantomeEnvoyeV206=false;
+          try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.combatLance)D.combatLance();}catch(_e){}
           jouerEffetAudioIdleV199_('fight');
         }else{
           REG.idleCombatArmeLocalV206=false;
