@@ -18,6 +18,6 @@ assert.ok(ngu.indexOf("const sangDepenseRun") < ngu.indexOf("rb.lastBlood=sangDe
 console.log("idle-renaissance-colonnes-v1: OK");
 
 /* Style « les cieux, la vie, la mort » */
-assert.ok(css.includes("rb2-prec::after{content:\"☠️\"}") && css.includes('rb2-cours::after{content:"🌿"}') && css.includes("#sorealIdleBlocRenaissanceV27{background:radial-gradient(ellipse 62% 22%") && css.includes("@keyframes rb2Halo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.14)}}"), "ciel, mort, vie, halo qui boucle sans à-coup");
+assert.ok(css.includes("rb2-prec::after{content:\"☠️\"}") && css.includes('rb2-cours::after{content:"🌿"}') && css.includes("#sorealIdleBlocRenaissanceV27{background:radial-gradient(ellipse 62% 22%"), "ciel, mort, vie (le halo permanent du bouton est retiré : Norman, 2026-10-17)");
 /* Le bonus de Magie du sang est toujours montré en bas une fois Blood Magic débloquée, même à ×1 */
 assert.ok(ui.includes("(f.id==='bloodMagicBonus'&&sangDebloque)||") && ui.indexOf("const sangDebloque=") < ui.indexOf("const detailsFacteurs=IDLE_REBIRTH_FACTOR_LABELS_V1"), "bonus de Magie du sang toujours listé (si Blood Magic débloquée)");

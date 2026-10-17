@@ -322,6 +322,9 @@
               const metaAv=lumiereAventure?aventureMetaIdleV47_(j):null;
               const classeLumiereAventure=lumiereAventure&&metaAv&&String(metaAv.selectedZone||'safe')==='safe'&&!(metaAv.fight&&metaAv.fight.active)&&REG.idleMenuActifV28!=='aventure'?' soreal-idle-nav-money-green-v1':'';
               /* Boutique : l'étoile ne scintille que dans la boutique ou quand elle a du nouveau, signalé d'un point rouge (Norman, 2026-10-04). */
+              /* Renaissance en positif (Norman, 2026-10-17) : possible ET le nombre après renaissance dépasse l'actuel -> des lueurs dorées montent dans le bouton (voir soreal-idle-itopod.css). */
+              const rbNav=m.id==='renaissance'&&j&&j.renaissance&&j.renaissance.debloquee?j.renaissance:null;
+              const classeRenaissancePositif=rbNav&&idleNombre_(rbNav.nextNumber)>idleNombre_(rbNav.number)*1.0000001?' renaissance-positif-v1':'';
               const nouveautesShop=m.id==='shop'?boutiqueNouveautesIdleV1_(j):false;
               const classeShopNouveau=nouveautesShop?' soreal-idle-nav-shop-nouveau-v1':'';
 
@@ -336,7 +339,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRenaissancePositif}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():REG.IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"

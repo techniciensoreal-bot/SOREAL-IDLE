@@ -300,8 +300,8 @@
   "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 310,
-  "sha": "6ccef13d1c2edffcb99ff102d908539de0022e47"
+  "pin": 311,
+  "sha": "ca04f3ee359645fb47ca053d49f8f63238e39322"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -364,12 +364,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 331,
-  "sha": "025052f51ab2911e9a6c48e97315e4f2d76b7703"
+  "pin": 332,
+  "sha": "b14c14fb6a205f105175af636eb6f944e15cb511"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 125,
-  "sha": "fe35739fafc985131524847ea7e9e750465430de"
+  "pin": 126,
+  "sha": "db9bd1d4a60524aeb4fffd703a9fcd2295c5b946"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,
@@ -456,8 +456,8 @@
   "sha": "3628c4a74f5a109bb496098ce4d8fb6b33fb15da"
  },
  "/modules/ui-navigation-v1.js": {
-  "pin": 2,
-  "sha": "8d9143adf3f24f1e13020d77365efefe9e448bea"
+  "pin": 3,
+  "sha": "63582ea9d3619f5fa57acfdd231ba477dd341ec9"
  },
  "/modules/ui-noyau-v1.js": {
   "pin": 4,
@@ -472,8 +472,8 @@
   "sha": "b976d92aec7d1cfd90f872a78dc53f1300c0aa64"
  },
  "/modules/ui-renaissance-v1.js": {
-  "pin": 2,
-  "sha": "1fb8297055095afe63bf61fd9e01796b44e3a34a"
+  "pin": 3,
+  "sha": "22d551c5774a87e09ba46a71c54b4e32c973c80f"
  },
  "/modules/ui-synchro-v1.js": {
   "pin": 1,
@@ -524,16 +524,16 @@
   "sha": "42f16228463003328fcb36a6dd9c3514732035ed"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 169,
-  "sha": "c5a2d5029f5fc42dd3ef84964bb6ae2a18c630b3"
+  "pin": 171,
+  "sha": "4bc9d53c1f5010fe90876d0878ba4444aa1d1a31"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
  },
  "/soreal-idle-renaissance.css": {
-  "pin": 1,
-  "sha": "e0c15842aec3d41b1d85a91b1a880e157fb5f4ea"
+  "pin": 3,
+  "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
   "pin": 120,
@@ -544,8 +544,8 @@
   "sha": "8d75db2586d827ba41b58ec67d5b3686fc6c97a3"
  },
  "/soreal-idle-ui.js": {
-  "pin": 649,
-  "sha": "0da57934387cc7b1ad9e30dccc92fc3db9ff2f39"
+  "pin": 650,
+  "sha": "80a8d1d132d57dd4e7814ae0de31f5c03eeb61ae"
  },
  "/standalone-bridge.js": {
   "pin": 13,

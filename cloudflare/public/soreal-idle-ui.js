@@ -1053,7 +1053,7 @@
         combat:'#ef4444',
         aventure:'#16a34a',
         moneyPit:'#ca8a04',
-        renaissance:'#fb923c',
+        renaissance:'#8b5cf6',
         avance:'#38bdf8',
         machine:'#0f766e',
         sang:'#be123c',

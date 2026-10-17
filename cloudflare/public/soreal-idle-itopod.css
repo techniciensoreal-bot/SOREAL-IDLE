@@ -1546,6 +1546,14 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:701px){.soreal-idle-volet-tiroir-v1{display:none!important}}
 
 /*
+ * Bouton Renaissance du menu du haut (Norman, 2026-10-17) : quand la renaissance est en positif (classe posée par ui-navigation-v1.js), de petites lueurs dorées montent dans le bouton (même idée que sur la page
+ * Renaissance). Une seule tuile de même taille pour toutes les couches, glissement d'exactement une tuile, masque en haut et en bas : boucle sans à-coup (règle n°3) ; coupé si l'animation est réduite.
+ */
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.renaissance-positif-v1{position:relative;overflow:hidden}
+html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.renaissance-positif-v1::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 15% 70%,#fffbe0 0 1.5px,rgba(255,214,110,.55) 2.5px,transparent 4px),radial-gradient(circle at 45% 40%,#fffbe0 0 1.2px,rgba(255,214,110,.5) 2.5px,transparent 3.8px),radial-gradient(circle at 72% 80%,#fffbe0 0 1.5px,rgba(255,214,110,.55) 2.5px,transparent 4px),radial-gradient(circle at 90% 50%,#fffbe0 0 1.2px,rgba(255,214,110,.5) 2.5px,transparent 3.8px);background-size:100px 56px,100px 56px,100px 56px,100px 56px;background-repeat:repeat;animation:rbNavLueurs 3.4s linear infinite;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 30%,#000 70%,transparent 100%);mask-image:linear-gradient(180deg,transparent 0,#000 30%,#000 70%,transparent 100%)}
+@keyframes rbNavLueurs{from{background-position:0 0,0 0,0 0,0 0}to{background-position:0 -56px,0 -56px,0 -56px,0 -56px}}
+@media (prefers-reduced-motion:reduce){html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.renaissance-positif-v1::after{animation:none}}
+/*
  * Barre de défilement de l'inventaire sur téléphone (Norman, 2026-10-11) : « souvent on glisse une pièce en voulant glisser l'inventaire » ; puis « elle doit être incrustée dans l'interface : gagne la place libre à gauche et à droite
  * pour rétrécir le cadre en largeur et mets-y la barre ». L'inventaire (équipement et sac) gagne la marge de la page et devient une grille à deux colonnes : les cadres à gauche, une vraie barre de défilement à droite, qui
  * reste visible en haut de l'écran pendant qu'on défile. Un doigt posé sur la barre fait défiler la page (touch-action: pan-y) et ne peut pas attraper une pièce. Téléphone seulement.
@@ -1601,3 +1609,4 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Défi sans équipement (Norman, 2026-10-17) : les pièces portées ne comptent plus, elles sont grisées (le marqueur est posé par rendreSlotPaperdollAdventureIdleV138_). */
 body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id]{filter:grayscale(1) brightness(.7);opacity:.5}
+
