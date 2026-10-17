@@ -68,3 +68,23 @@ console.log("idle-diag-contexte-complet-v1: OK");
   assert.ok(rapides.includes("D.lotEnvoye(lot.type)") && rapides.includes("D.lotTermine(lot.type,Boolean(res&&res.ok))") && rapides.includes("D.lotTermine(lot.type,false)"), "actions rapides branchées");
   console.log("idle-diag-contexte-complet-v1 (ordre de combat): OK");
 }
+// Barres de vie du duel : un saut posé par le jeu est noté avec la réponse du serveur qui le précède.
+{
+  const barres = { sorealIdleJoueurBarV15: { dataset: { idlePctV121: "80" } }, sorealIdleBossBarV7: { dataset: { idlePctV121: "50" } } };
+  ctx.document.getElementById = (id) => barres[id] || null;
+  D.vider();
+  D.echantillonVie();
+  barres.sorealIdleJoueurBarV15.dataset.idlePctV121 = "79"; barres.sorealIdleBossBarV7.dataset.idlePctV121 = "49";
+  D.echantillonVie();
+  assert.equal(D.journal().length, 0, "variation normale : rien");
+  D.reponseRecue("synchroniserSorealIdle", 300);
+  barres.sorealIdleJoueurBarV15.dataset.idlePctV121 = "40";
+  D.echantillonVie();
+  let s = D.journal().find((x) => x.type === "vie_saut" && x.cle === "joueur");
+  assert.ok(s && s.de === 79 && s.a === 40 && s.apres === "synchroniserSorealIdle", "la vie du joueur saute juste après une synchro");
+  barres.sorealIdleBossBarV7.dataset.idlePctV121 = "55";
+  D.echantillonVie();
+  assert.ok(D.journal().find((x) => x.type === "vie_saut" && x.cle === "boss"), "la barre du boss remonte");
+  ctx.document.getElementById = () => null;
+  console.log("idle-diag-contexte-complet-v1 (vie du duel): OK");
+}

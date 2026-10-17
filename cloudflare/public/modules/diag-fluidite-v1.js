@@ -17,6 +17,8 @@
  *   - combat_ordre   : (journal du 17/10 : le serveur répond « combat non actif » 2 à 24 s après le clic sur Fight) la vie de l'ordre de combat : file_ms = du clic à l'envoi, aller_retour_ms = de l'envoi à la réponse,
  *                       avant = les autres actions rapides (achats, forge, équipement…) envoyées entre le clic et l'ordre : elles passent devant et le retardent.
  *   - lot_lent       : une action rapide (achat, forge, équipement, combat…) dont l'aller-retour dépasse 2 s.
+ *   - vie_saut       : (Norman : « ça saute ») une barre de vie du duel (joueur ou boss) change de plus de 12 points d'un échantillon (0,2 s) à l'autre, ou la barre du boss REMONTE de plus de 2 points ; la ligne dit de combien,
+ *                       d'où à où, et s'il y a eu une réponse du serveur ou une action rapide juste avant (apres=…, ms).
  * CHAQUE ligne porte aussi le menu ouvert (menu=) et l'état du combat (combat=1/0), et le texte copié commence par un en-tête (appareil, version, connexion, menu) et finit par FIN DU JOURNAL : coller le texte seul suffit.
  * Le journal (160 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
@@ -165,9 +167,33 @@
   var gainMoyen=0;/* revenu d'Or habituel entre deux échantillons : une hausse ne compte que si elle le dépasse nettement */
   var pleineDepuis={};
 
+  /* Barres de vie du duel : valeur POSÉE par le jeu (data-idle-pct-v121, avant la transition CSS), échantillonnée à chaque passage du minuteur. */
+  var vieBarres={};
+  function echantillonVie_(){
+    var defs=[['joueur','sorealIdleJoueurBarV15'],['boss','sorealIdleBossBarV7']];
+    for(var i=0;i<defs.length;i++){
+      var el=document.getElementById(defs[i][1]);
+      if(!el||!el.dataset){delete vieBarres[defs[i][0]];continue;}
+      var v=parseFloat(el.dataset.idlePctV121);
+      if(!isFinite(v))continue;
+      var avant=vieBarres[defs[i][0]];
+      vieBarres[defs[i][0]]=v;
+      if(avant===undefined)continue;
+      var d=v-avant;
+      if(Math.abs(d)>12||(defs[i][0]==='boss'&&d>2))vieSaut_(defs[i][0],avant,v);
+    }
+  }
+  function vieSaut_(qui,de,a){
+    try{
+      var P=window.performance,now=(P&&P.now)?P.now():0,rep=null;
+      for(var k=recentes.length-1;k>=0;k--){if(now-recentes[k].t<600){rep=recentes[k];break;}}
+      noter_('vie_saut',qui,{de:Math.round(de*10)/10,a:Math.round(a*10)/10,apres:rep?rep.op:'-',depuis_ms:rep?Math.round(now-rep.t):-1,lot:lotEnCours?lotEnCours.type:'-'});
+    }catch(_e){}
+  }
   function echantillon_(){
     /* Norman (2026-10-13, audit) : la sonde est réservée à l'administrateur ; plus aucun travail à 5 Hz pour les autres joueurs */
     if(document.hidden||!estAdmin_())return;
+    echantillonVie_();
     var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="augmentations"]');
     if(!racine){prec={};pleineDepuis={};return;}
     var maintenant=Date.now();
@@ -363,6 +389,7 @@
     tacheLongue:tacheLongue_,
     combatLance:combatLance_,
     lotEnvoye:lotEnvoye_,
+    echantillonVie:echantillonVie_,
     lotTermine:lotTermine_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,
