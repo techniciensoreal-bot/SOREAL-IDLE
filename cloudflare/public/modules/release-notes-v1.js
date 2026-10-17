@@ -32,6 +32,7 @@
         date:'2026-10-17',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Un petit bouton 🐞 (administrateur) note d’un appui l’instant exact d’un défaut vu à l’écran, avec la vie des deux combattants sur les 20 dernières secondes.',
             'Le journal de fluidité surveille aussi les barres de vie du duel : un saut de vie est noté avec la réponse du serveur qui le précède.',
             'Le journal de fluidité suit aussi la vie d’un ordre de combat (attente avant l’envoi, aller-retour, actions passées devant) et les actions rapides lentes.',
             'Le journal de fluidité est complet à lui seul : appareil, réseau, menu ouvert et combat sur chaque ligne, avec les blocages et les réponses lentes du serveur.',

@@ -88,3 +88,26 @@ console.log("idle-diag-contexte-complet-v1: OK");
   ctx.document.getElementById = () => null;
   console.log("idle-diag-contexte-complet-v1 (vie du duel): OK");
 }
+// Bouton de signalement : un appui note la vie par seconde sur 20 s et les dernières réponses du serveur.
+{
+  const barres = { sorealIdleJoueurBarV15: { dataset: { idlePctV121: "100" } }, sorealIdleBossBarV7: { dataset: { idlePctV121: "100" } } };
+  ctx.document.getElementById = (id) => barres[id] || null;
+  D.vider();
+  for (let i = 0; i < 30; i += 1) {
+    barres.sorealIdleJoueurBarV15.dataset.idlePctV121 = String(100 - i * 3);
+    D.echantillonVie();
+  }
+  perf += 1000;
+  D.reponseRecue("agirProgressionSorealIdle", 350);
+  assert.equal(D.signalement(), true);
+  const s = D.journal().find((x) => x.type === "signalement");
+  assert.ok(s, "signalement noté"); assert.equal(s.menu, "ngu");
+  assert.ok(/^\d+(\/\d+)+$/.test(s.vie_joueur_par_s), "vie du joueur seconde par seconde : " + s.vie_joueur_par_s);
+  assert.ok(s.reponses.includes("agirProgression@-0.0s/350ms"), "dernière réponse du serveur : " + s.reponses);
+  D.signalement(); D.signalement();
+  assert.ok(D.journal().filter((x) => x.type === "signalement").length >= 2, "plusieurs appuis rapprochés ne se perdent pas");
+  const src2 = readFileSync("cloudflare/public/modules/diag-fluidite-v1.js", "utf8");
+  assert.ok(src2.includes("soreal-idle-diag-signaler-v1") && src2.includes("if(!estAdmin_())"), "bouton réservé à l'administrateur");
+  ctx.document.getElementById = () => null;
+  console.log("idle-diag-contexte-complet-v1 (signalement): OK");
+}

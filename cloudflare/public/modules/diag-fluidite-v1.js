@@ -19,6 +19,8 @@
  *   - lot_lent       : une action rapide (achat, forge, équipement, combat…) dont l'aller-retour dépasse 2 s.
  *   - vie_saut       : (Norman : « ça saute ») une barre de vie du duel (joueur ou boss) change de plus de 12 points d'un échantillon (0,2 s) à l'autre, ou la barre du boss REMONTE de plus de 2 points ; la ligne dit de combien,
  *                       d'où à où, et s'il y a eu une réponse du serveur ou une action rapide juste avant (apres=…, ms).
+ *   - signalement    : (Norman, 2026-10-17 : « je ne peux pas te dire l'heure ») le bouton 🐞 (administrateur, en bas à gauche) : un appui quand tu VOIS un défaut note l'instant exact, le menu, le combat, la vie du joueur et du boss
+ *                       seconde par seconde sur les 20 s qui précèdent, et les dernières réponses du serveur (opération@âge/durée de l'appel). Appuie dès que tu as vu le défaut, même une ou deux secondes après.
  * CHAQUE ligne porte aussi le menu ouvert (menu=) et l'état du combat (combat=1/0), et le texte copié commence par un en-tête (appareil, version, connexion, menu) et finit par FIN DU JOURNAL : coller le texte seul suffit.
  * Le journal (160 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
@@ -169,13 +171,16 @@
 
   /* Barres de vie du duel : valeur POSÉE par le jeu (data-idle-pct-v121, avant la transition CSS), échantillonnée à chaque passage du minuteur. */
   var vieBarres={};
+  var anneau=[];/* 0,2 s par case, 100 cases = 20 s : {t, j, b} (vie du joueur et du boss posée par le jeu, null si la barre n'est pas à l'écran) */
   function echantillonVie_(){
+    try{var P0=window.performance;anneau.push({t:(P0&&P0.now)?P0.now():0,j:null,b:null});if(anneau.length>100)anneau.shift();}catch(_e){}
     var defs=[['joueur','sorealIdleJoueurBarV15'],['boss','sorealIdleBossBarV7']];
     for(var i=0;i<defs.length;i++){
       var el=document.getElementById(defs[i][1]);
       if(!el||!el.dataset){delete vieBarres[defs[i][0]];continue;}
       var v=parseFloat(el.dataset.idlePctV121);
       if(!isFinite(v))continue;
+      if(anneau.length)anneau[anneau.length-1][defs[i][0]==='joueur'?'j':'b']=v;
       var avant=vieBarres[defs[i][0]];
       vieBarres[defs[i][0]]=v;
       if(avant===undefined)continue;
@@ -188,6 +193,38 @@
       var P=window.performance,now=(P&&P.now)?P.now():0,rep=null;
       for(var k=recentes.length-1;k>=0;k--){if(now-recentes[k].t<600){rep=recentes[k];break;}}
       noter_('vie_saut',qui,{de:Math.round(de*10)/10,a:Math.round(a*10)/10,apres:rep?rep.op:'-',depuis_ms:rep?Math.round(now-rep.t):-1,lot:lotEnCours?lotEnCours.type:'-'});
+    }catch(_e){}
+  }
+  /* Signalement du joueur : un appui note tout ce qu'il faut pour retrouver le défaut qu'il vient de voir. */
+  function serieVie_(cle){
+    var sortie=[];
+    for(var i=anneau.length-1;i>=0&&sortie.length<20;i-=5){var v=anneau[i][cle];sortie.unshift(v===null||v===undefined?'-':String(Math.round(v)));}
+    return sortie.join('/');
+  }
+  var nSignalements=0;
+  function signalement_(){
+    try{
+      var P=window.performance,now=(P&&P.now)?P.now():0;
+      var reps=recentes.slice(-6).map(function(r){return String(r.op).replace('SorealIdle','')+'@-'+((now-r.t)/1000).toFixed(1)+'s/'+r.ms+'ms';}).join(';')||'-';
+      noter_('signalement','bouton@'+Date.now()+'-'+(++nSignalements),{vie_joueur_par_s:serieVie_('j')||'-',vie_boss_par_s:serieVie_('b')||'-',reponses:reps,lot:lotEnCours?lotEnCours.type:'-'});
+      return true;
+    }catch(_e){return false;}
+  }
+  function assurerBouton_(){
+    try{
+      var existant=document.getElementById('soreal-idle-diag-signaler-v1');
+      if(!estAdmin_()){if(existant&&existant.parentNode)existant.parentNode.removeChild(existant);return;}
+      if(existant||!document.body)return;
+      var b=document.createElement('button');
+      b.id='soreal-idle-diag-signaler-v1';b.type='button';b.textContent='🐞';
+      b.setAttribute('data-sans-traduction','1');b.setAttribute('aria-label','Signaler un défaut');b.title='J\u2019ai vu un défaut : noter l\u2019instant dans le journal';
+      b.style.cssText='position:fixed;left:8px;bottom:8px;z-index:100002;width:38px;height:38px;border-radius:50%;border:1px solid rgba(166,188,229,.35);background:rgba(15,23,41,.82);color:#eef4fc;font-size:18px;line-height:1;cursor:pointer;opacity:.55;padding:0';
+      b.addEventListener('click',function(){
+        var ok=signalement_();
+        b.textContent=ok?'✔':'✖';
+        setTimeout(function(){b.textContent='🐞';},1200);
+      });
+      document.body.appendChild(b);
     }catch(_e){}
   }
   function echantillon_(){
@@ -310,6 +347,7 @@
   }
 
   setInterval(function(){try{echantillon_();}catch(_e){}},PERIODE_MS);
+  setInterval(assurerBouton_,3000);
 
   /*
    * Sonde de fluidité du téléphone (Norman, 2026-10-08 : « lancé depuis SOREAL APP, le jeu rame ; depuis Chrome ou son APK, non »). Administrateur seulement, rien n'est envoyé. Toutes les 10 s elle relève :
@@ -390,6 +428,7 @@
     combatLance:combatLance_,
     lotEnvoye:lotEnvoye_,
     echantillonVie:echantillonVie_,
+    signalement:signalement_,
     lotTermine:lotTermine_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,

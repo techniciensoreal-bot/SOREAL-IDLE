@@ -148,8 +148,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 11,
-  "sha": "896ae3202b4723462e989e79f2a1d1bfb078bec0"
+  "pin": 12,
+  "sha": "66aa6f7ae3523d24f6963c0bb6776083b1b5eae7"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -304,8 +304,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 322,
-  "sha": "0f816fdaf8a659853e385658233045aca95cc02f"
+  "pin": 323,
+  "sha": "b0f3dfbc319dc587f929c4fba31c99b831a3bf33"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -368,12 +368,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 343,
-  "sha": "a12a92e7f2532d09779c2d6cb31fd887222f4ced"
+  "pin": 344,
+  "sha": "a22fa7c23c118094b686c176504b95b52ea010f6"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 137,
-  "sha": "98f04aa3efbd204c32c5926a44405685cac4705d"
+  "pin": 138,
+  "sha": "90b7d61ca272727b447f7a65ba6c73abdf5f0672"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 9,
