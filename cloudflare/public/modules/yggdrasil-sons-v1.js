@@ -5,7 +5,7 @@
  *
  *   window.__SOREAL_IDLE_YGG_SONS_V1__ = { jouer(nom), noms, construire(nom, contexte, sortie, t, alea) }
  *
- * Sons : interrupteur (marche / arrêt), onglet, aide, activer, ameliorer, manger, recolter, poop, tout, pret, porte (pierre) et porteBois (ouverture de la porte d'un fruit qui s'active, deux versions).
+ * Sons : interrupteur (marche / arrêt), onglet, aide, activer, ameliorer, manger, recolter, poop, tout, pret, porte (pierre) et porteBois (ouverture de la porte d'un fruit qui s'active, deux versions), porteFerme et porteFermeBois (fermeture).
  */
 (function(){
   'use strict';
@@ -131,6 +131,41 @@
       glisse(c,out,t+1.7*k,2600,3600,0.09*k,0.04,'sine');
       glisse(c,out,t+1.83*k,2200,3000,0.11*k,0.035,'sine');
     },
+    /*
+     * LA PORTE SE REFERME (Norman, 2026-10-17 : le son d'ouverture joué à l'envers « donne mal »). Un son fait pour fermer, écrit à l'endroit : la dalle de pierre glisse et racle sourdement (même matière
+     * que l'ouverture), puis se pose avec un tassement doux, et deux notes de cristal descendent en s'éteignant, comme un soupir. Aucun coup sec, aucune dent de scie.
+     */
+    porteFerme:function(c,out,t,a,vit){
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
+      souffle(c,out,t,0.9*k,'lowpass',130,230,1.2,0.75,a);
+      souffle(c,out,t,0.9*k,'bandpass',200,330,3.5,0.45,a);
+      for(var i=0;i<11;i++)souffle(c,out,t+(0.03+i*0.07)*k,0.03*k,'bandpass',900+al()*1500,700+al()*900,2.5,0.2+al()*0.08,a);
+      /* Elle se pose : un tassement sourd et doux, avec un peu de poussière. */
+      glisse(c,out,t+0.88*k,96,44,0.5*k,0.55,'sine');
+      souffle(c,out,t+0.88*k,0.22*k,'lowpass',320,110,1,0.4,a);
+      souffle(c,out,t+0.92*k,0.5*k,'highpass',3200,4800,0.7,0.06,a);
+      /* Le soupir : deux notes de cristal qui descendent. */
+      note(c,out,t+1.05*k,G.mi6,0.7*k,0.08,'triangle',2.01);
+      note(c,out,t+1.22*k,G.do6,0.9*k,0.07,'triangle',2.01);
+      note(c,out,t+1.42*k,G.sol5,1.1*k,0.06,'triangle',2.01);
+    },
+    porteFermeBois:function(c,out,t,a,vit){
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
+      /* Les gonds couinent par saccades, de moins en moins fort, puis le vantail se pose : un « toc » sourd et un petit loquet. */
+      for(var i=0;i<9;i++){
+        var tt=t+(0.02+i*0.085)*k,f=210-(i%4)*30+al()*20,d=(0.05+al()*0.03)*k;
+        var o=c.createOscillator();o.type='square';
+        o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*0.85,tt+d);
+        var fl=c.createBiquadFilter();fl.type='bandpass';fl.Q.value=6;fl.frequency.setValueAtTime(900+al()*400,tt);
+        var g=c.createGain();
+        g.gain.setValueAtTime(0.0001,tt);g.gain.exponentialRampToValueAtTime(0.15*(1-i*0.07),tt+d*0.25);g.gain.exponentialRampToValueAtTime(0.0001,tt+d);
+        o.connect(fl);fl.connect(g);g.connect(out);o.start(tt);o.stop(tt+d+0.02);
+        souffle(c,out,tt,d*1.1,'bandpass',800+al()*500,700,3,0.1,a);
+      }
+      glisse(c,out,t+0.82*k,140,60,0.2*k,0.7,'sine');
+      souffle(c,out,t+0.82*k,0.08*k,'lowpass',500,180,1,0.5,a);
+      souffle(c,out,t+0.97*k,0.03*k,'bandpass',1500,1100,3,0.4,a);
+    },
     porteBois:function(c,out,t,a,vit){
       var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
       /* Loquet de bois : un « clac ». */
@@ -186,50 +221,8 @@
     }catch(_e){return false;}
   }
 
-  /*
-   * Un son joué À L'ENVERS (Norman, 2026-10-17 : la porte qui se referme joue le son de l'ouverture à l'envers). Le son est d'abord fabriqué hors ligne (OfflineAudioContext : il est synthétisé, pas un fichier),
-   * puis ses échantillons sont retournés et la fin silencieuse retirée pour que le son démarre aussitôt. Un même son (nom + option) n'est fabriqué qu'une fois. Sans contexte hors ligne : le son normal.
-   */
-  var envers={};
-  function jouerEnvers(nom,option){
-    if(!SONS[nom])return false;
-    var v=volume_();
-    if(!(v>0))return false;
-    var c=contexte_();
-    if(!c)return false;
-    var O=window.OfflineAudioContext||window.webkitOfflineAudioContext;
-    if(!O)return jouer(nom,option);
-    try{
-      if(c.state==='suspended'&&c.resume)c.resume();
-      var k=Number(option)>0?Math.max(.4,Math.min(3,Number(option))):1;
-      var cle=nom+'|'+k;
-      function lire(buf){
-        var s=c.createBufferSource();s.buffer=buf;
-        var maitre=c.createGain();maitre.gain.value=Math.min(1,volume_())*0.5;
-        s.connect(maitre);maitre.connect(c.destination);s.start(c.currentTime+0.005);
-      }
-      if(envers[cle]){lire(envers[cle]);return true;}
-      var taux=c.sampleRate||44100,n=Math.ceil(taux*(3.4*k+0.6));
-      var hc=new O(1,n,taux);
-      var sortie=hc.createGain();sortie.gain.value=1;sortie.connect(hc.destination);
-      SONS[nom](hc,sortie,0.005,undefined,option);
-      var fait=false,fini=function(rendu){
-        if(fait||!rendu)return;fait=true;
-        var d=rendu.getChannelData(0),fin=d.length;
-        while(fin>0&&Math.abs(d[fin-1])<0.002)fin--;
-        var b=c.createBuffer(1,Math.max(1,fin),taux),o=b.getChannelData(0);
-        for(var i=0;i<fin;i++)o[i]=d[fin-1-i];
-        envers[cle]=b;lire(b);
-      };
-      var p=hc.startRendering(fini);
-      if(p&&typeof p.then==='function')p.then(fini);
-      return true;
-    }catch(_e){return jouer(nom,option);}
-  }
-
   window.__SOREAL_IDLE_YGG_SONS_V1__={
     jouer:jouer,
-    jouerEnvers:jouerEnvers,
     noms:Object.keys(SONS),
     construire:function(nom,c,out,t,alea,option){if(SONS[nom])SONS[nom](c,out,t,alea,option);}
   };

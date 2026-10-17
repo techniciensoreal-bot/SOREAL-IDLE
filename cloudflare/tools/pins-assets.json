@@ -512,12 +512,12 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 25,
-  "sha": "998bda7d7e8489eec6e2e899e1bd9a9dd683065b"
+  "pin": 26,
+  "sha": "91a669e933ce06cf6cc4b7c4e5754dbdfeaa6865"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 10,
-  "sha": "536e2de6b089a6005ed240ba83502fe732c164db"
+  "pin": 11,
+  "sha": "e1f7b5d7bd13e0f8a6da1d41de55da8d5fa8bbf4"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 9,

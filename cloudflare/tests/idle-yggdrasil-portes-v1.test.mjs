@@ -11,7 +11,7 @@ const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={fermees:{},ouvre:{},anim:{}};",
-  "var sons=[];function son_(n){sons.push(n);}function sonEnvers_(n){sons.push(n+'-envers');}",
+  "var sons=[];function son_(n){sons.push(n);}",
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
   coupe(/var REGLAGES_DEFAUT_=\{[^\n]*\n/),
   coupe(/var CLE_REGLAGES_=[^\n]*\n/),
@@ -22,6 +22,7 @@ const code = [
   coupe(/var VANTAIL_='[^\n]*\n/),
   coupe(/function porte_\(id,ouvre,referme\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
+  coupe(/function nomSonFerme_\(\)\{[^\n]*\n/),
   coupe(/var CLE_PORTES_VUES_=[^\n]*\n/),
   coupe(/function renaissances_\(\)\{[^\n]*\n/),
   coupe(/function portesVues_\(\)\{[\s\S]*?\n {2}\}\n/),
@@ -81,7 +82,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   // Le fruit est mangé ou récolté (actif -> inactif, l'auto ne l'a pas relancé) : la porte se REFERME avec l'animation d'ouverture à l'envers et le même son, une seule fois ; puis porte close fixe.
   const h2 = m.api.porteDe_("gold", false);
   assert.ok(h2.includes("ygg-porte referme") && !h2.includes("ygg-porte ouvre"), "la porte se referme");
-  assert.equal(m.api.sons.join(), "porte,porte-envers", "le son de l'ouverture, joué à l'envers, une fois");
+  assert.equal(m.api.sons.join(), "porte,porteFerme", "un son de fermeture à part (pas l'ouverture à l'envers), une fois");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
   assert.equal(m.api.sons.length, 2, "pas de second son pendant un redessin");
@@ -135,3 +136,11 @@ assert.ok(src.includes("image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+
 assert.ok(src.includes('\'<div class="ygg-vitre ygg-portrait">\'+image_(') && !src.includes("etapeCroissance_(d,v)!=null?' ygg-portrait'"), "cadre portrait pour tous les fruits");
 assert.ok(/\.ygg-porte\{position:absolute;inset:0;[^}]*border-radius:9px;/.test(src), "la porte remplit le cadre et suit ses coins arrondis");
 console.log("idle-yggdrasil-portes-v1: OK");
+// 6. Le son de fermeture est un son à part, écrit à l'endroit (l'ouverture jouée à l'envers sonnait mal) : pierre ou bois selon le réglage, jamais de dent de scie.
+{
+  const sons = readFileSync("cloudflare/public/modules/yggdrasil-sons-v1.js", "utf8");
+  const bloc = (nom, suite) => sons.slice(sons.indexOf("    " + nom + ":function"), sons.indexOf("    " + suite + ":function"));
+  assert.ok(!/sawtooth/.test(bloc("porteFerme", "porteFermeBois")) && !/sawtooth/.test(bloc("porteFermeBois", "porteBois")), "aucune dent de scie dans les sons de fermeture");
+  assert.ok(!/jouerEnvers|OfflineAudioContext/.test(sons), "plus de son retourné");
+  assert.ok(/function nomSonFerme_\(\)\{return reglages_\(\)\.son==='bois'\?'porteFermeBois':'porteFerme';\}/.test(src), "le réglage pierre / bois choisit aussi le bruit de fermeture");
+}

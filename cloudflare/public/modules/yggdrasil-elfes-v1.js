@@ -17,8 +17,6 @@
   var PAR_PAGE=9;
   var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null,fermees:{},ouvre:{},anim:{},precharge:{}};
   function son_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouer)S.jouer(nom,option);}
-  /* Le même son, joué à l'envers (porte qui se referme). */
-  function sonEnvers_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouerEnvers)S.jouerEnvers(nom,option);else son_(nom,option);}
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
   function html_(t){var H=H_();return H&&H.idleHtml_?H.idleHtml_(t):String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -307,6 +305,8 @@
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte choisi dans le banc d'essai : « porte » (pierre, lourde) ou « porteBois ». */
   function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
+  /* Bruit de la porte qui se referme : un son à part (le son d'ouverture à l'envers sonnait mal). */
+  function nomSonFerme_(){return reglages_().son==='bois'?'porteFermeBois':'porteFerme';}
   /*
    * Portes revues après une renaissance (Norman, 2026-10-16) : « après un rebirth, les portes doivent être fermées ; avec l'auto actif, on doit quand même les voir s'ouvrir à la première visite du
    * menu, même si le fruit est déjà bien avancé, voire prêt ». On retient, par renaissance (records.totalRebirths), les fruits dont on a déjà vu la porte s'ouvrir ; un fruit actif absent de cette liste
@@ -330,8 +330,8 @@
     if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
-      /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et le même son joué à l'envers. */
-      if(A[id]){delete A[id];F[id]=Date.now();sonEnvers_(nomSonPorte_(),reglages_().porte);}
+      /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
+      if(A[id]){delete A[id];F[id]=Date.now();son_(nomSonFerme_(),reglages_().porte);}
       etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);
       if(F[id]&&Date.now()-F[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,false,true);
       delete F[id];
@@ -446,7 +446,7 @@
           '<button type="button" class="ygg-btn" onclick="'+A+'bancImages()">▶ Images</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancSonEnvers()">⏪ Son à l’envers</button>'+
+          '<button type="button" class="ygg-btn" onclick="'+A+'bancSonFerme()">🔒 Son de fermeture</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prt\')">💨 Prt</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrt-x3\')">💨 Prrt prrt prrt</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrrrrt\')">💨 Prrrrrrt</button>'+
@@ -622,7 +622,7 @@
     bancImages:function(){bancImages_();},
     bancPorte:function(){bancPorte_();},
     bancSon:function(){son_(nomSonPorte_(),reglages_().porte);},
-    bancSonEnvers:function(){sonEnvers_(nomSonPorte_(),reglages_().porte);},
+    bancSonFerme:function(){son_(nomSonFerme_(),reglages_().porte);},
     /* Le pet du Coffre en grincement (prt, prrt prrt prrt, prrrrrt, pet de la porte ; sans tintement) : joué par le moteur audio du jeu, au volume des « Sons de l'interface ». */
     bancPetCoffre:function(id){
       try{window.__coffrePetForceIdleV1__=typeof id==='string'?id:true;var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.play==='function')A.play('coffrePet');}catch(_e){}
