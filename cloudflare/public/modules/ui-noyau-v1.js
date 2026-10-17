@@ -639,6 +639,8 @@
           protegerJoueurServeurInventaireIdleV208_(
             res.joueur
           );
+        /* Journal de fluidité : écart entre le compte à rebours affiché d'un rituel de sang et celui du serveur (lecture seule, avant que le nouvel état remplace l'ancien). */
+        try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.ecartRituels)D.ecartRituels(REG.idleEtat,joueurRenduProtegeV208);}catch(_e){}
         /* Allocations voulues mais pas encore confirmées par le serveur : jamais écrasées par un état plus ancien (modules/meta-progression-v130.js). */
         if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(joueurRenduProtegeV208);
 

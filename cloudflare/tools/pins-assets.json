@@ -148,8 +148,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 6,
-  "sha": "5cee7e18b978c626b5b0e8f9f6c0b3336dc913eb"
+  "pin": 7,
+  "sha": "5acbc24340514a2debd751d92b114d1392cc5838"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -460,8 +460,8 @@
   "sha": "8d9143adf3f24f1e13020d77365efefe9e448bea"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 3,
-  "sha": "1d716a2f5b590df6e68a1db04e3db66b795e99dd"
+  "pin": 4,
+  "sha": "6ad89952995461e4cda25bdf455cc7d270c46efe"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 2,

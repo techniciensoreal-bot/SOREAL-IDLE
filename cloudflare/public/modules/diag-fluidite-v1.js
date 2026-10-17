@@ -7,6 +7,8 @@
  *   - validation_tardive : la barre repart de zéro, mais le numéro de niveau ne change que 0,4 s ou plus après : l'écran « hésite » le temps que le jeu valide le niveau ;
  *   - pause_validation: une barre reste pleine plus de 2,5 s alors que rien ne manque (pas de message « il manque de l'Or ») : le jeu attend le serveur ;
  *   - or_remonte      : l'Or remonte (au moins le quart de la dépense) moins de 8 s après une dépense locale : la réponse du serveur « rend » l'Or.
+ *   - rituel_ecart    : (Norman, 2026-10-17 : sangsue, « 10 minutes, puis le temps diminue fortement quand je change d'onglet ») à chaque réponse du serveur, le compte à rebours AFFICHÉ d'un rituel de sang diffère
+ *                       d'au moins 10 % (et 5 s) de celui que le serveur donne : on note les deux durées, la magie, la durée d'un niveau (spc) et K (durée à 1 de magie) de l'écran et du serveur.
  * Le journal (80 lignes au plus) se lit dans Réglages > « 🩺 Journal de fluidité » (administrateur) ou avec window.__SOREAL_IDLE_DIAG_V1__.journal().
  */
 (function(){
@@ -32,6 +34,39 @@
     journal.push(ligne);
     if(journal.length>MAX)journal=journal.slice(-MAX);
     sauver_();
+  }
+
+  /*
+   * Écart entre l'écran et le serveur pour les rituels de sang (appelé à chaque réponse du serveur, AVANT que le nouvel état remplace l'ancien). ecran = ce que l'ancien état affichait (repère visuel
+   * du rituel, moins le temps écoulé) ; serveur = etaSeconds du nouvel état. Un rituel sans repère visuel ou déjà plein n'est pas comparé. Sur l'appareil seulement, rien n'est envoyé.
+   */
+  function ecartRituels_(ancien,nouveau){
+    try{
+      var vues=ancien&&ancien.__bloodMagicVisualV1;
+      var vue=nouveau&&nouveau.systemes&&nouveau.systemes.bloodMagicView;
+      if(!vues||typeof vues!=='object'||!vue||!Array.isArray(vue.rituals))return 0;
+      var n=0,P=window.performance,maintenant=(P&&P.now)?P.now():0;
+      vue.rituals.forEach(function(r){
+        if(!r||!(Number(r.magic)>0))return;
+        var v=vues[r.id];
+        if(!v||!(Number(v.secondsPerCompletion)>0))return;
+        var ecran=Number(v.etaSeconds)-Math.max(0,(maintenant-(v.at||maintenant))/1000);
+        var serveur=Number(r.etaSeconds);
+        if(!(ecran>0.5)||!(serveur>=0))return;
+        var ecart=Math.abs(ecran-serveur);
+        if(ecart<5||ecart<0.1*Math.max(ecran,serveur))return;
+        var k=v.src&&Number(v.src.secondsK);
+        noter_('rituel_ecart',String(r.id),{
+          ecran_s:Math.round(ecran),serveur_s:Math.round(serveur),
+          magie_ecran:Math.round(Number(v.src&&v.src.magic)||0),magie_serveur:Math.round(Number(r.magic)||0),
+          spc_ecran:Math.round(Number(v.secondsPerCompletion)),spc_serveur:Math.round(Number(r.secondsPerCompletion)||0),
+          K_ecran:Math.round(k||0),K_serveur:Math.round(Number(r.secondsK)||0),
+          fraction_serveur:Math.round(1000*(Number(r.progressFraction)||0))/1000
+        });
+        n+=1;
+      });
+      return n;
+    }catch(_e){return 0;}
   }
 
   /* Remplissage visible d'une barre : transform scaleX de l'élément (la barre est animée par le navigateur). */
@@ -230,6 +265,7 @@
     signaler:function(cle,e){try{noter_('erreur_avalee',String(cle||'?'),{msg:String(e&&e.message||e).slice(0,120)});}catch(_e){}},
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */
     echantillon:echantillon_,
+    ecartRituels:ecartRituels_,
     perf:function(){return JSON.parse(JSON.stringify(perf));},
     mode:modeJeu,
     /* Pour les tests : un relevé sans attendre 10 s ni images réelles. */
