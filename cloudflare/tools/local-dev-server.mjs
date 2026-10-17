@@ -46,8 +46,19 @@ const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; ch
 const ROOT = REPO + "cloudflare/public";
 const port = Number(process.env.PORT || 8799);
 
-http.createServer((req, res) => {
+/* Images (boss, joueur, objets, zones…) : en local il n'y a pas de R2. Les routes /api/idle/media/* sont relayées vers la production (lecture seule, publiques) pour voir les vraies images ; MEDIA_PROD=0 pour couper. */
+const MEDIA_PROD = process.env.MEDIA_PROD === "0" ? "" : (process.env.MEDIA_PROD || "https://soreal-idle.technicien-soreal.workers.dev");
+http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  if (MEDIA_PROD && req.method === "GET" && url.pathname.startsWith("/api/idle/media/")) {
+    try {
+      const r = await fetch(MEDIA_PROD + url.pathname + url.search);
+      const corps = Buffer.from(await r.arrayBuffer());
+      res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/octet-stream", "cache-control": "public, max-age=300", "access-control-allow-origin": "*" });
+      res.end(corps);
+    } catch (e) { res.writeHead(502); res.end("relais media indisponible"); }
+    return;
+  }
   if (url.pathname === "/api/v1/call" && req.method === "POST") {
     let corps = "";
     req.on("data", (c) => { corps += c; });
