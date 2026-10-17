@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#04060f">
+    <title>SOREAL IDLE</title>
+    <!-- Audio : voir soreal-audio.js (charge les modules sonores du jeu web). L'importmap sert à la voix neuronale de repli (Piper), chargée seulement à la demande. -->
+    <script type="importmap">{"imports":{"onnxruntime-web":"https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"}}</script>
+    <style>
+      html, body { margin: 0; height: 100%; background: #04060f; overflow: hidden; touch-action: none; }
+      #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #04060f; }
+      #chargement { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: radial-gradient(circle at 50% 35%, #101a3c, #04060f 70%); color: #ffc233; font: 700 44px/1 Impact, 'Arial Black', sans-serif; letter-spacing: .04em; text-shadow: 0 3px 0 #000, 0 0 18px rgba(255,194,51,.35); }
+      #piste { width: min(70vw, 420px); height: 18px; border-radius: 12px; background: #0a0f22; border: 2px solid #4a63d8; overflow: hidden; }
+      #plein { width: 0%; height: 100%; background: linear-gradient(#ffe27a, #e8940f); transition: width .2s; }
+      #avert { position: fixed; left: 8px; right: 8px; top: 8px; z-index: 5; font: 14px sans-serif; color: #fff; }
+    </style>
+  </head>
+  <body>
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="chargement"><div>SOREAL IDLE</div><div id="piste"><div id="plein"></div></div></div>
+    <div id="avert"></div>
+    <script src="soreal-audio.js"></script>
+    <script>
+      var canvas =document.querySelector("#unity-canvas");
+      function banniere(msg, type) {
+        if (type !== 'error') return; // les avertissements du moteur n'ont pas à s'afficher aux joueurs
+        var d = document.createElement('div'); d.textContent = msg; d.style = 'background:#a00;padding:8px;border-radius:6px';
+        document.querySelector('#avert').appendChild(d);
+      }
+      var config = {
+        arguments: [],
+        dataUrl: "Build/WebGL.data.br",
+        frameworkUrl: "Build/WebGL.framework.js.br",
+        codeUrl: "Build/WebGL.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "SOREAL IDLE",
+        productVersion: "1.0",
+        showBanner: banniere,
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      };
+      var script = document.createElement("script");
+      script.src = "Build/WebGL.loader.js";
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (p) {
+          document.querySelector('#plein').style.width = (100 * p) + '%';
+        }).then(function (instance) {
+          window.unityInstance = instance;
+          document.querySelector('#chargement').style.display = 'none';
+        }).catch(function (m) { banniere(String(m), 'error'); });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>

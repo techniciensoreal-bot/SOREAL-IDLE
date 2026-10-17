@@ -345,6 +345,27 @@ async function idleUploadAdminV1(request, env, url) {
   return idleJsonV1({ ok: true, file: fichier, bytes: octets.byteLength });
 }
 
+/* Client Unity WebGL (/unity/) : les fichiers du build sont compresses en Brotli (.br) et stockes sous /unity/_br/<nom>.bin
+   (la limite des assets Cloudflare est de 25 Mio par fichier ; le .wasm brut fait plus de 40 Mio). Unity demande
+   /unity/Build/<nom>.br : on renvoie le fichier compresse avec Content-Encoding: br et le bon type. */
+const UNITY_BR_TYPES_V1 = { wasm: "application/wasm", js: "application/javascript", data: "application/octet-stream" };
+export async function servirBuildUnityBrotliV1(request, env, url) {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const m = /^\/unity\/Build\/(WebGL\.(?:wasm|data|framework\.js))\.br$/.exec(url.pathname);
+  if (!m || !env?.ASSETS || typeof env.ASSETS.fetch !== "function") return null;
+  const nom = m[1];
+  const asset = await env.ASSETS.fetch(new Request(new URL("/unity/_br/" + nom + ".bin", request.url)));
+  if (!asset.ok) return new Response("Build Unity indisponible", { status: 404 });
+  const ext = nom.endsWith(".wasm") ? "wasm" : nom.endsWith(".data") ? "data" : "js";
+  const headers = new Headers();
+  headers.set("Content-Type", UNITY_BR_TYPES_V1[ext]);
+  headers.set("Content-Encoding", "br");
+  headers.set("Cache-Control", "public, max-age=300, must-revalidate");
+  const etag = asset.headers.get("ETag");
+  if (etag) headers.set("ETag", etag);
+  return new Response(request.method === "HEAD" ? null : asset.body, { status: 200, headers });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -422,6 +443,9 @@ export default {
     if (request.method === "POST" && url.pathname === "/api/v1/call") {
       return idleCallV1(request, env);
     }
+
+    const br = await servirBuildUnityBrotliV1(request, env, url);
+    if (br) return br;
 
     return new Response("SOREAL Idle Worker", { status: 404 });
   },
