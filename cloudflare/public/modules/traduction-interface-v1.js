@@ -18,7 +18,7 @@
   /* Noms propres du jeu d'origine : jamais remplacés (mis de côté sous un repère, puis rétablis). */
   var B_='(?<![\\p{L}\\p{N}])',E_='(?![\\p{L}\\p{N}])';
   var PROTEGES=[
-    'A Number','The Number 7','Number Set','Numerical (?:Head|Chest|Legs|Boots)','Iron Pill','Counterfeit Gold',
+    'A Number','The Number 7','Number Set','Numerical (?:Head|Chest|Legs|Boots)',
     'Fu Manchu','Neckbeard','Reverse Beard','Beard Cage','LadyBeard','BEARd','Golden Beard',
     'Fruit of (?:Angry Mayo|Sad Mayo|Moldy Mayo|Ayyy LMayo|Cinco De Mayo|Pretty Mayo)'
   ].map(function(m){return new RegExp(B_+m+E_,'gu');});
@@ -31,7 +31,7 @@
     ['Attack/Defense Hack','Piratage Attaque/Défense'],['Adventure Hack','Piratage d’Aventure'],['Time Machine Hack','Piratage de la Machine temporelle'],['Drop Chance Hack','Piratage de Chance de drop'],
     ['Augment Speed Hack','Piratage de Vitesse des Augments'],['Energy NGU Speed Hack','Piratage de Vitesse des NGU d’Énergie'],['Magic NGU Speed Hack','Piratage de Vitesse des NGU de Magie'],
     /* Sorts de Blood Magic traduits (Norman, 2026-10-15 : « traduits Blood… ça doit être Nombre ») : « sang » et « Nombre » partout. */
-    ['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti de sang'],
+    ['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti au sang'],['Iron Pill','Pilule de fer'],['Counterfeit Gold','Or contrefait'],
     ['Blood Hack','Piratage du sang'],['QP Hack','Piratage de QP'],['Daycare Hack','Piratage de la Garderie'],['EXP Hack','Piratage d’EXP'],['Number Hack','Piratage du Nombre'],['PP Hack','Piratage de PP'],
     ['Hack Hack','Piratage du Piratage'],['Wish Hack','Piratage des Souhaits'],
     ['Time Machine Speed','Vitesse de la Machine temporelle'],['Energy NGU Speed','Vitesse des NGU d’Énergie'],['Magic NGU Speed','Vitesse des NGU de Magie'],['Adventure Stats','Stats d’Aventure'],

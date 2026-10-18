@@ -15,7 +15,7 @@ assert.ok(orage.includes("localStorage.getItem('soreal_idle_effet_orage_v1')!=='
 assert.ok(blood.includes("o.sort(String(id||''))"), "branché sur le lancement d'un sort");
 assert.ok(ui.includes("window.__apercuOrageSortIdleV1__") && ui.includes("htmlReglagesOrageSortsIdleV1_()+"), "aperçu de chaque sort dans les Réglages de développement");
 /* « sang » et « Nombre » partout : sorts traduits */
-assert.ok(trad.includes("['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti de sang']") && trad.includes("['BLOOD','SANG'],['Blood','sang']"), "traduction automatique : sang, Nombre, noms de sorts");
+assert.ok(trad.includes("['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti au sang']") && trad.includes("['BLOOD','SANG'],['Blood','sang']"), "traduction automatique : sang, Nombre, noms de sorts");
 assert.ok(blood.includes("nom:'Boost du nombre par le sang'") && blood.includes("' sang</b></div>'") && !/Pas assez de Blood/.test(blood), "textes de la page Magie du sang en français");
 console.log("idle-orage-sorts-blood-v1: OK");
 /* « j'ai toujours l'éclair avec le rituel » : la piste d'orage imposée par un sort n'allume jamais le décor d'éclairs */
