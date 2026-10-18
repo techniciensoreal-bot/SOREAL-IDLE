@@ -423,6 +423,10 @@
                  * tourne la roue. ils doivent avoir leurs propres sons. » Joué dès l'action elle-même, jamais conditionné
                  * à l'obtention d'un lot (res.resultat.reward peut être vide un tour sur deux).
                  */
+                /* Rituel d'un sort de sang (son + orage) : il ne part qu'APRÈS l'acceptation du serveur (jamais sur un simple clic refusé). */
+                if(payload&&payload.action==='castBloodSpell'){
+                  try{if(typeof window.__sonSortBloodIdleV1__==='function')window.__sonSortBloodIdleV1__(String(payload.spell||''));}catch(_e){}
+                }
                 if(payload&&payload.action==='moneyPit'){
                   try{
                     if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.moneyPit==='function'){
@@ -504,6 +508,8 @@
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               payload&&payload.action==='consumeWandoosCopy'&&res&&res.message
                 ?messageCopieWandoosV1_(res.message)
+                :payload&&payload.action==='castBloodSpell'&&res&&/SANG_INSUFFISANT/.test(String(res.message||''))
+                ?'Pas assez de sang pour lancer ce sort.'
                 :res&&res.message
                 ?res.message
                 :'Action impossible.'
