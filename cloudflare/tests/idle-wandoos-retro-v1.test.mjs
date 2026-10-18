@@ -58,7 +58,7 @@ const W = fenetre.__SOREAL_IDLE_WANDOOS_V1__;
 assert.ok(W && typeof W.page === "function", "module exposé");
 
 const CLE_ALLUMAGE = "soreal_idle_wandoos_allumage_v1";
-const vueBase = { os: "98", osDisponibles: ["98"], exigence: 1e9, niveauOsTotal: 7, multiplicateurOs: 8, vitesseEnergie: 0.5, vitesseMagie: 0, bootSecondes: 3600, bootEcoule: 3600, bootFraction: 1, runId: 111, bonusCombat: 1.5, energieLibre: 1e6, magieLibre: 2e6 };
+const vueBase = { os: "98", osDisponibles: ["98"], exigence: 1e9, niveauOsTotal: 7, multiplicateurOs: 8, vitesseEnergie: 0.5, vitesseMagie: 0, capEnergie: 123456, capMagie: 7e30, bootSecondes: 3600, bootEcoule: 3600, bootFraction: 1, runId: 111, bonusCombat: 1.5, energieLibre: 1e6, magieLibre: 2e6 };
 function joueur(debloque, actif, vue = {}, magieOk = true) {
   return {
     systems: [
@@ -107,7 +107,7 @@ assert.ok(W.page(joueurCourant).includes('data-phase="allumage"'), "nouveau Rebi
 maintenant += 6000;
 minuteries.forEach((fn) => fn());
 
-// 3. Bureau (OS chargé) : barres, quantités, saisie, touches 0 − + MAX pour l'énergie et la magie.
+// 3. Bureau (OS chargé) : barres, quantités, saisie, touches 0 − + CAP pour l'énergie et la magie.
 dejaAllume();
 joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
@@ -120,7 +120,7 @@ assert.ok(!h.includes("<input") && !h.includes("SAISIE") && !h.includes("wd-inpu
 assert.ok(h.includes('class="wd-curseur"'), "curseur clignotant après la frappe");
 for (const c of "0123456789/") assert.ok(h.includes(".chiffre('" + c + "')"), "touche " + c);
 assert.ok(h.includes("wd-effacer") && h.includes("EFFACER") && !h.includes(".effacer()"), "touche EFFACER (gérée par appui prolongé, pas par un simple clic)");
-for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "tout"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "tout"]]) {
+for (const [res, mode] of [["energy", "zero"], ["energy", "moins"], ["energy", "plus"], ["energy", "cap"], ["magic", "zero"], ["magic", "moins"], ["magic", "plus"], ["magic", "cap"]]) {
   assert.ok(h.includes(".place('" + res + "','" + mode + "')"), "touche " + res + " " + mode);
 }
 assert.ok(h.includes("ÉTEINDRE") && h.includes(".eteindre()"), "touche espace : éteindre quand en marche");
@@ -173,10 +173,17 @@ W.place("energy", "plus");
 assert.equal(actions[1].value, 10600, "deux appuis rapprochés s'additionnent");
 W.place("energy", "moins");
 assert.equal(actions[2].value, 5600, "moins retire la quantité saisie");
-W.place("energy", "tout");
-assert.equal(actions[3].value, 1e6 + 600, "MAX place tout ce qui est libre");
+const avantCap = actions.length;
+W.place("energy", "cap");
+assert.equal(actions.length, avantCap, "CAP ne place rien : il met le cap dans la saisie");
+assert.equal(stockage[CLE_SAISIE], "123456", "CAP (remplace MAX) : la saisie prend le cap d'énergie envoyé par le serveur");
+W.place("magic", "cap");
+assert.equal(stockage[CLE_SAISIE], "7e30", "cap très grand : notation en e acceptée par la saisie");
+assert.equal(W.analyser(stockage[CLE_SAISIE], 0), 7e30, "la saisie « 7e30 » se relit comme le cap");
+assert.ok(!h.includes(">MAX<") && h.includes(">CAP<"), "plus de touche MAX sur le clavier");
+saisir("5000");
 W.place("energy", "zero");
-assert.equal(actions[4].value, 0, "0 retire tout");
+assert.equal(actions[3].value, 0, "0 retire tout");
 const nb = actions.length;
 W.place("energy", "zero");
 assert.equal(actions.length, nb, "déjà à zéro : rien n'est envoyé");
@@ -191,7 +198,7 @@ delete stockage[CLE_ALLUMAGE];
 joueurCourant = joueur(true, true);
 W.page(joueurCourant);
 const avantAllumage = actions.length;
-W.place("energy", "tout");
+W.place("energy", "plus");
 assert.equal(actions.length, avantAllumage, "pendant l'allumage : pas de placement");
 maintenant += 6000;
 minuteries.forEach((fn) => fn());

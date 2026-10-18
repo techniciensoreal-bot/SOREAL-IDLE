@@ -365,7 +365,7 @@
       touche_('0','',p+"zero')",'',nom+' : tout retirer')+
       touche_('−','',p+"moins')",'',nom+' : retirer la quantité saisie')+
       touche_('+','',p+"plus')",'',nom+' : placer la quantité saisie')+
-      touche_('MAX','',p+"tout')",'',nom+' : tout placer')+
+      touche_('CAP','',p+"cap')",'',nom+' : mettre dans la saisie le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
     '</div></div>';
   }
   function groupeOs_(e){
@@ -543,10 +543,13 @@
     var j=H.getIdleEtat(),e=etat_(j);
     if(!e||phaseDe_(e)!=='bureau'||(res!=='energy'&&res!=='magic'))return;
     if(res==='magic'&&!e.magieOk)return;
+    /* CAP (remplace MAX) : met dans la saisie le cap de Wandoos envoyé par le serveur (wandoosView.capEnergie / capMagie : l'allocation qui atteint
+       50 niveaux par seconde) ; aucune valeur calculée ici. « + » la place ensuite. */
+    if(mode==='cap'){var cap=nb_(e.vue[res==='energy'?'capEnergie':'capMagie']);if(cap>0)majSaisie_(capTexte_(cap));return;}
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
     var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));
     var montant=analyser_(saisie_(),libre+actuelle);
-    var cible=mode==='zero'?0:mode==='tout'?actuelle+libre:mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
+    var cible=mode==='zero'?0:mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
     cible=Math.max(0,Math.min(actuelle+libre,cible));
     if(cible===actuelle)return;
     /* Mise à jour immédiate de l'écran : deux appuis rapprochés doivent s'additionner sans attendre le serveur. */
@@ -555,6 +558,14 @@
     e.vue[cleLibre]=Math.max(0,libre-(cible-actuelle));
     rafraichirPoste_();
     meta_({action:'allocate',system:'wandoos',resource:res,value:cible});
+  }
+  /* Le cap sous forme de saisie : entier tel quel, ou notation en e (1.2345e30) arrondie vers le haut à 10 chiffres si l'entier dépasse les 18 caractères de la saisie. */
+  function capTexte_(cap){
+    var t=cap<1e21?String(Math.ceil(cap)):'';
+    if(t&&t.length<=18)return t;
+    var k=Math.floor(Math.log10(cap)),m=Math.ceil(cap/Math.pow(10,k)*1e10)/1e10;
+    if(m>=10){m=1;k+=1;}
+    return String(m)+'e'+k;
   }
   function majSaisie_(v){
     saisir_(v);

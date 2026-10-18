@@ -424,7 +424,24 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
     * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
     * macguffinEffectMultiplierV1(state, "magicWandoos"));
 
-  return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc };
+  /*
+   * CAP de Wandoos (Norman, 2026-10-18 : « Wandoos a une valeur qui est le max : on ne peut pas générer plus de niveaux que ça par seconde »).
+   * C'est l'allocation à partir de laquelle la formule ci-dessus atteint le plafond de 50 niveaux/s : 50 * alloc / exigence * M = 50, soit
+   * alloc = exigence / M, où M est le produit des multiplicateurs ci-dessus (EXACTEMENT les mêmes facteurs, jamais une seconde formule). Le boot
+   * (rampe de 0 à 100 %) est pris à 100 % et le bonus du set Wandoos (+10 % après le boot) à son plein effet : c'est la quantité qui sature
+   * Wandoos une fois démarré, donc jamais gaspillée (placer plus ne génère pas un niveau de plus). Arrondi au-dessus (un entier). null si le
+   * multiplicateur est nul ou non fini (aucun cap défini).
+   */
+  const capDe = (multiplicateurEspece) => {
+    const m = idleCardsMultiplierV1(state, "wandoos") * osLevelMultiplier * beardWandoos * diggerWandoos * challengeWandoos
+      * nguWandoosMultiplier * (1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))) * multiplicateurEspece;
+    const cap = Number.isFinite(m) && m > 0 ? Math.ceil(requirement / m) : NaN;
+    return Number.isFinite(cap) && cap > 0 ? cap : null;
+  };
+  const energyCap = capDe(atEnergyDumpMultiplier * quirkEnergyMultiplier * macguffinEffectMultiplierV1(state, "energyWandoos"));
+  const magicCap = capDe(atMagicDumpMultiplier * quirkMagicMultiplier * macguffinEffectMultiplierV1(state, "magicWandoos"));
+
+  return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc, energyCap, magicCap };
 }
 
 export function advanceWandoos(state, seconds, context, now) {
