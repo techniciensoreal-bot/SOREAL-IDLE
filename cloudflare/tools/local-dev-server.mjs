@@ -41,6 +41,40 @@ if (process.env.PARTIE_B) {
   op("obtenirEtatSorealIdle"); op("definirPartieDevSorealIdle", "b"); op("obtenirEtatSorealIdle");
   const options = Object.assign({ boss: 100, or: 1e18, systemes: true }, JSON.parse(process.env.PARTIE_B_OPTIONS || "{}"));
   console.log("partie B préparée :", JSON.stringify(op("preparerPartieTestSorealIdle", options).applique));
+  /* PARTIE_B_PATCH : JSON fusionné dans les stats du joueur APRÈS la préparation (banc d'essai local uniquement, jamais déployé).
+     Sert à atteindre des états que preparerPartieTestSorealIdle ne couvre pas : niveaux d'entraînement de base (rangs 2 à 5),
+     Entraînement avancé débloqué, puissance d'Aventure pour les Titans...  Exemple :
+     PARTIE_B_PATCH='{"entrainementBase":{"skills":{"attaque_passive":{"level":50000}}}}'
+     Raccourci : {"__btNiveau": 50000} met ce niveau sur les 12 compétences d'entraînement de base. */
+  const patch = process.env.PARTIE_B_PATCH ? JSON.parse(process.env.PARTIE_B_PATCH) : null;
+  if (patch) {
+    const fusion = (cible, src) => {
+      for (const [k, v] of Object.entries(src)) {
+        if (v && typeof v === "object" && !Array.isArray(v)) { if (!cible[k] || typeof cible[k] !== "object") cible[k] = {}; fusion(cible[k], v); }
+        else cible[k] = v;
+      }
+      return cible;
+    };
+    const lignes = sql.exec("SELECT row_index,row_json FROM idle_catalog WHERE sheet_name='JOUEURS' ORDER BY row_index");
+    const colStats = HEADERS_.length;                       // « Stats JSON » est la dernière colonne
+    let touche = 0;
+    for (const l of lignes) {
+      const cells = JSON.parse(l.row_json);
+      if (!cells || cells[0] === "ID" || !cells[colStats - 1]) continue;   // en-tête ou ligne vide
+      const stats = JSON.parse(cells[colStats - 1]);
+      const niveau = Number(patch.__btNiveau);
+      if (Number.isFinite(niveau) && stats.entrainementBase && stats.entrainementBase.skills) {
+        for (const comp of Object.values(stats.entrainementBase.skills)) { comp.level = niveau; comp.cap = Math.max(Number(comp.cap) || 0, niveau * 2); }
+      }
+      const reste = Object.assign({}, patch); delete reste.__btNiveau;
+      fusion(stats, reste);
+      cells[colStats - 1] = JSON.stringify(stats);
+      sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(cells), Date.now(), l.row_index);
+      touche += 1;
+    }
+    console.log("patch appliqué à", touche, "ligne(s) de JOUEURS");
+    op("obtenirEtatSorealIdle");
+  }
 }
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".woff2": "font/woff2", ".png": "image/png", ".m4a": "audio/mp4" };
 const ROOT = REPO + "cloudflare/public";
