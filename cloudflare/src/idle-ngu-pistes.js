@@ -768,6 +768,9 @@ export function wandoosViewV1(state, now) {
     multiplicateurOs: c.osLevelMultiplier,
     vitesseEnergie: c.energySpeed,
     vitesseMagie: c.magicSpeed,
+    /* Cap de Wandoos : allocation à partir de laquelle le Dump atteint 50 niveaux/s (voir wandoosCalculVitessesV1) ; null si indéfini. */
+    capEnergie: c.energyCap,
+    capMagie: c.magicCap,
     bootSecondes: c.boot.bootSeconds,
     bootEcoule: Math.min(c.boot.bootSeconds, c.boot.elapsed),
     bootFraction: clamp(c.boot.elapsed / c.boot.bootSeconds, 0, 1),

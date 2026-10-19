@@ -1667,7 +1667,7 @@
       function htmlReglagesOrageSortsIdleV1_(){
         const O=window.__SOREAL_IDLE_ORAGE_V1__;
         if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.actif||!O||!O.niveauxSorts)return '';
-        const noms={numberBoost:'🔢 Boost du nombre par le sang (1er)',ironPill:'💊 Iron Pill (2e)',bloodSpaghetti:'🍝 Spaghetti de sang (3e)',counterfeitGold:'💰 Counterfeit Gold (4e)',leeches:'🪱 Leeches (5e, le dernier)'};
+        const noms={numberBoost:'🔢 Boost du nombre par le sang (1er)',ironPill:'💊 Pilule de fer (2e)',bloodSpaghetti:'🍝 Spaghetti au sang (3e)',counterfeitGold:'💰 Or contrefait (4e)',leeches:'🪱 Leeches (5e, le dernier)'};
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🔯 Pentacles des sorts de Blood Magic (développement)</div>'+
           '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Section visible seulement en développement : le sceau, le pentacle, les runes et le sang qui tombent, de plus en plus riches selon le sort ; la piste d’ambiance bascule en même temps sur la piste d’orage.</div>'+

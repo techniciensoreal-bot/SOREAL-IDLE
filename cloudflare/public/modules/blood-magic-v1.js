@@ -397,15 +397,15 @@ function creer(hote){
             desc:'Chaque point de sang ajoute 1 au multiplicateur du Nombre (le « Bonus de Magie du sang » de la Renaissance). Valable pour le Rebirth en cours.',
             actuel:'Bonus actuel : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)),
             apercu:blood>0?'En le lançant maintenant : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)+Math.floor(blood)):''},
-          {id:'ironPill',nom:'Iron Pill',visible:bloodPeak>=100||depense('ironPill')>0,
+          {id:'ironPill',nom:'Pilule de fer',visible:bloodPeak>=100||depense('ironPill')>0,
             desc:'Augmente pour toujours tes stats d’Adventure. Avec G = sang^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
             actuel:'Total acquis : +'+nb(depense('ironPill'),2),
             apercu:'',recharge:rechargeIron},
-          {id:'bloodSpaghetti',nom:'Spaghetti de sang',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
+          {id:'bloodSpaghetti',nom:'Spaghetti au sang',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
             desc:'Augmente la Drop Chance de (log₂(sang ÷ 10 000) + 1) %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
             actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.bloodSpaghetti||1)-1)*100)),
             apercu:blood>0&&depense('bloodSpaghettiBloodSpent')+blood>=1e4?'En le lançant maintenant : +'+pctFr(pctSpaghetti(depense('bloodSpaghettiBloodSpent')+Math.floor(blood))):''},
-          {id:'counterfeitGold',nom:'Counterfeit Gold',visible:bloodPeak>=1e6||depense('counterfeitGoldBloodSpent')>0,
+          {id:'counterfeitGold',nom:'Or contrefait',visible:bloodPeak>=1e6||depense('counterfeitGoldBloodSpent')>0,
             desc:'Augmente le GPS de la Time Machine de (log₂(sang ÷ 1 000 000) + 1)² %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
             actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.counterfeitGold||1)-1)*100)),
             apercu:blood>0&&depense('counterfeitGoldBloodSpent')+blood>=1e6?'En le lançant maintenant : +'+pctFr(pctCounterfeit(depense('counterfeitGoldBloodSpent')+Math.floor(blood))):''}
@@ -493,9 +493,13 @@ function creer(hote){
         window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}
           /* Orage du sort (modules/orage-v1.js, Norman 2026-10-15) : ciel qui s'assombrit, éclair et tonnerre au même instant, de plus en plus fort jusqu'au dernier sort de la liste. */
           try{const o=window.__SOREAL_IDLE_ORAGE_V1__;if(o&&typeof o.sort==='function')o.sort(String(id||''));}catch(e){}};
+        /* Sang minimum par sort, identique au serveur (jamais affiché) : sous ce seuil le bouton Lancer est inactif. */
+        const IDLE_SANG_MINI_SORTS_V1={numberBoost:1,ironPill:100,bloodSpaghetti:1e4,counterfeitGold:1e6,leeches:5e22};
         const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton sang</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
           const recharge=sp.recharge>0;
-          const peutLancer=blood>0&&!recharge;
+          /* Sang minimum de chaque sort : celui que le serveur impose (src/idle-ngu-systemes.js, BLOOD_SPELL_MINIMUMS_V1, page wiki Blood Magic « Minimum Blood Required » ; dernier sort : IDLE_THE_END_LAST_SPELL_BLOOD_V1). Jamais affiché. Le bouton reste inactif en dessous. */
+          const sangMini=IDLE_SANG_MINI_SORTS_V1[sp.id]||1;
+          const peutLancer=blood>=sangMini&&!recharge;
           const idSort=H.idleHtml_(sp.id);
           const infos=(sp.desc?'<div class="soreal-idle-blood-sort-desc-v1">'+H.idleHtml_(sp.desc)+'</div>':'')+(sp.apercu?'<div class="soreal-idle-blood-sort-apercu-v1">'+H.idleHtml_(sp.apercu)+'</div>':'');
           const ouvert=Boolean(window.__idleBloodInfosOuvertesV1&&window.__idleBloodInfosOuvertesV1[sp.id]);
@@ -504,7 +508,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__sonSortBloodIdleV1__(\''+sp.id+'\');window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>0?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de sang')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de sang')+'</button></div>';
         }).join('')+'</div>';
 
         /*

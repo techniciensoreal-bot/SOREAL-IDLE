@@ -146,7 +146,7 @@
       case 'sort':{
         if(!k.menus.sang)return null;
         const rang=Number(d.sort)||0;
-        const nomSort=['','Boost du nombre par le sang','Iron Pill','Spaghetti de sang','Counterfeit Gold'][rang]||'';
+        const nomSort=['','Boost du nombre par le sang','Pilule de fer','Spaghetti au sang','Or contrefait'][rang]||'';
         const visible=Boolean(k.sorts&&k.sorts[rang]);
         return {icone:'🩸',texte:nom+verbe(' as',' a')+' lancé '+(visible&&nomSort?'le sort '+nomSort:'un sort de Magie du sang')};
       }

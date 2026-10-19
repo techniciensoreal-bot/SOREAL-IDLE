@@ -1598,9 +1598,11 @@ function appliquerProgressionEnergieSorealIdle__p11(c, ecoulePrisEnCompteAventur
        * sac jusqu'à 100%, seul ce farm automatique et invisible s'arrête
        * plus tôt pour laisser de la place.
        */
+      /* Norman (2026-10-19) : « il faut supprimer la limite de 70% de loot hors ligne. On peut remplir l'inventaire désormais. »
+         Le plafond dédié de 70 % (2026-09-29) est supprimé : le farm hors ligne remplit jusqu'à 100 % du sac. */
       const capaciteSacFarmHorsLigneV1 =
         Math.floor(
-          capaciteSac * 0.7
+          capaciteSac
         );
   /* @sortie */ return {totalAutoMs:totalAutoMs,intervalleAutoMs:intervalleAutoMs,tempsAutoSimuleMs:tempsAutoSimuleMs,capaciteSac:capaciteSac,capaciteSacFarmHorsLigneV1:capaciteSacFarmHorsLigneV1};
 }

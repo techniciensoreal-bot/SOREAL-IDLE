@@ -12,8 +12,8 @@
   "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2038,
-  "sha": "19f005f8b25cd40675276114c4cad385d97d9c02"
+  "pin": 2039,
+  "sha": "d2ec2a82749bacb720c31e89d6446d66c749edda"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 3,
@@ -60,8 +60,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 22,
-  "sha": "48cd53ccd8961c2a3042328d5141f57a7ed25f7a"
+  "pin": 23,
+  "sha": "dbe63bb2755a2700b6607a283210a9e613c8b88a"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -164,8 +164,8 @@
   "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
  },
  "/modules/flux-v1.js": {
-  "pin": 36,
-  "sha": "17ae4b7ee041fe3cdb92662fe91d0f469acdef8b"
+  "pin": 37,
+  "sha": "a421aad80da93b4666cc9a2c9a5aaf0497b8df01"
  },
  "/modules/hud-haut-v2.js": {
   "pin": 22,
@@ -240,8 +240,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610165,
-  "sha": "c6d330ef53eee559a7647cec4c7e52784a8b79fe"
+  "pin": 202610166,
+  "sha": "7e88a7ee70030c5a41a04e2df0dcb5b24ba7c7f6"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 2,
@@ -376,16 +376,16 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 345,
-  "sha": "3df253e283d398d26cbf2484ca8641e037f54925"
+  "pin": 346,
+  "sha": "e238c686a4c4d210d0ea01e26e4d08c838434229"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 139,
-  "sha": "c27640bf3159710c2ba44077cc2d5e35b8923583"
+  "pin": 140,
+  "sha": "3881a33de71b72cf6c89bc20120cbdfabfd79b5b"
  },
  "/modules/traduction-interface-v1.js": {
-  "pin": 9,
-  "sha": "1844edbb3ea919ca16be3791a593ca6b7d86c454"
+  "pin": 10,
+  "sha": "2339b4dc45d426f77c119ce0e467f54487486248"
  },
  "/modules/tutorial-framing-v1.js": {
   "pin": 4,
@@ -460,8 +460,8 @@
   "sha": "c4b5f9e9d27eab39aded89d7e50a2678bacdf7cf"
  },
  "/modules/ui-magie-energie-v1.js": {
-  "pin": 2,
-  "sha": "7f3a84dc310947c97715f7546fd40a495fa21344"
+  "pin": 3,
+  "sha": "f038c0201680c3c87af1774c01c34a0b561b40d3"
  },
  "/modules/ui-menus-v1.js": {
   "pin": 3,
@@ -512,8 +512,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 35,
-  "sha": "56f29594b2b9d34bc388e95d996a849c44b3360f"
+  "pin": 36,
+  "sha": "2b2632d634a18e760554442999070b1e047de44a"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,

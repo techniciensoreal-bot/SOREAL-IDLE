@@ -57,6 +57,19 @@ assert.ok(petite > 0 && petite < 50, "un peu d'énergie : vitesse positive, sous
 s.systems.wandoos.allocation.energy = 1e12;
 assert.equal(vue(s).vitesseEnergie, 50, "plafond de 50 niveaux par seconde");
 
+// CAP de Wandoos (Norman, 2026-10-18) : l'allocation à partir de laquelle le Dump atteint 50 niveaux/s ; le placer donne exactement le plafond, un point de moins reste dessous.
+s = etat(7200);
+const cap = vue(s).capEnergie;
+assert.ok(Number.isInteger(cap) && cap > 0 && cap <= 1e9, "cap d'énergie : un entier, au plus l'exigence (les multiplicateurs ne la réduisent que)");
+s.systems.wandoos.allocation.energy = cap;
+assert.equal(vue(s).vitesseEnergie, 50, "placer le cap donne 50 niveaux/s");
+s.systems.wandoos.allocation.energy = cap - 1;
+assert.ok(vue(s).vitesseEnergie < 50, "un point de moins : sous le plafond");
+assert.equal(vue(s).capEnergie, cap, "le cap ne dépend pas de ce qui est placé");
+// Pendant le boot, le cap reste celui de Wandoos démarré (jamais une quantité gaspillée une fois le boot fini).
+assert.equal(vue(etat(60)).capEnergie, cap, "le cap ne dépend pas de l'avancement du boot");
+assert.ok(vue(etat(7200)).capMagie > 0, "cap de magie défini aussi");
+
 // L'allocation est ABSOLUE (pas un pourcentage) : la page peut placer plus de 100 points.
 s = etat(7200);
 s.resources.energy.current = 5000;
