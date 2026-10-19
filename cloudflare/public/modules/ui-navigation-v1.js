@@ -349,6 +349,7 @@
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
                   <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
+                  ${classeRenaissancePositif?ETOILES_BOUTON_RENAISSANCE_V1:''}
                   <span class="soreal-idle-nav-texte-v2"><b>${htmlNomMenuIdleV1_(m,j)}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
                 </button>
               `;
@@ -374,6 +375,9 @@
         requestAnimationFrame(haut);
         setTimeout(haut,150);
       }
+
+      /* Étoiles du bouton Renaissance du menu (Norman, 2026-10-19 : « je ne veux plus les points jaunes qui remontent, je veux des étoilettes qui scintillent partout sur le cadre mauve »). Quatorze petites étoiles à quatre branches, chacune à sa place, sa taille, sa durée et son retard : elles scintillent sur place, jamais en groupe. Le calque fait partie du gabarit du bouton : un redessin ne le remplace pas. */
+      const ETOILES_BOUTON_RENAISSANCE_V1='<span class="nav-etoiles-v1" aria-hidden="true"><i style="left:6%;top:18%;--s:7px;--t:2.6s;--d:0s"></i><i style="left:18%;top:80%;--s:6px;--t:3.1s;--d:0.4s"></i><i style="left:30%;top:12%;--s:8px;--t:3.4s;--d:1.1s"></i><i style="left:44%;top:86%;--s:7px;--t:2.8s;--d:0.7s"></i><i style="left:58%;top:14%;--s:6px;--t:3.7s;--d:1.6s"></i><i style="left:70%;top:82%;--s:8px;--t:2.9s;--d:0.2s"></i><i style="left:84%;top:12%;--s:7px;--t:3.3s;--d:1s"></i><i style="left:94%;top:68%;--s:6px;--t:2.7s;--d:0.5s"></i><i style="left:10%;top:50%;--s:5px;--t:3.6s;--d:1.4s"></i><i style="left:50%;top:48%;--s:5px;--t:3s;--d:2s"></i><i style="left:78%;top:46%;--s:6px;--t:3.5s;--d:0.9s"></i><i style="left:26%;top:44%;--s:5px;--t:2.9s;--d:1.8s"></i><i style="left:91%;top:32%;--s:5px;--t:3.2s;--d:0.1s"></i><i style="left:38%;top:64%;--s:5px;--t:3.8s;--d:2.4s"></i></span>';
 
       function menuIdleV28_(menu){
         if(REG.idleMenuEditionV1||Date.now()<REG.idleMenuClicAvaleJusquaV1){menuIdleCoeurV28_(menu);return;}

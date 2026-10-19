@@ -51,7 +51,7 @@
             'Quand le coffre mange un objet, il ouvre grand la gueule, croque, puis se lèche les babines avec sa langue ; l’animation se joue aussi quand on dépose l’objet au doigt ou à la souris.',
           ]},
           {menu:'renaissance', titre:'Renaissance', points:[
-            'Quand renaître est en positif, de petites étoiles à quatre branches scintillent sur place dans le bouton du menu, au lieu de glisser.',
+            'Quand renaître est en positif, de petites étoiles à quatre branches scintillent partout sur le cadre du bouton du menu, chacune à son rythme ; les points jaunes qui remontaient sont partis.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Les barres sont dessinées à chaque image : elles avancent sans saccade.',

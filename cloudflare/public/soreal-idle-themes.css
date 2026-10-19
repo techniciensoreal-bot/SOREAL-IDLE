@@ -1594,8 +1594,6 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="ave
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="renaissance"] .soreal-idle-nav-emoji-v2{animation:sorealAlRenaitV1 1.8s ease-in-out infinite}
 /* Étoiles de la Renaissance (Norman, 2026-10-19) : elles ne glissent plus, elles scintillent sur place comme des étoiles dans la nuit (étoile à quatre branches, blanc doré doux, deux étoiles à rythmes différents). Boucle sans à-coup : opacité 0 au début et à la fin. */
 @keyframes sorealAlEtoileV1{0%,100%{opacity:0;transform:scale(.45)}22%{opacity:.35;transform:scale(.7)}45%{opacity:.9;transform:scale(1)}58%{opacity:.5;transform:scale(.82)}78%{opacity:.2;transform:scale(.6)}}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="renaissance"] .soreal-idle-nav-cadre-v2::before{content:"";position:absolute;pointer-events:none;background:#fff6dc;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:0;right:-1px;top:1px;width:11px;height:11px;animation:sorealAlEtoileV1 2.6s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="renaissance"] .soreal-idle-nav-cadre-v2::after{content:"";position:absolute;pointer-events:none;background:#fff6dc;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:0;left:-1px;bottom:3px;width:8px;height:8px;animation:sorealAlEtoileV1 3.4s ease-in-out 1.1s infinite}
 
 /* Défis : le drapeau de course flotte et le contour clignote comme un damier rouge et jaune. */
 @keyframes sorealAlDrapeauV1{0%,100%{transform:skewX(-8deg) rotate(-5deg)}50%{transform:skewX(8deg) rotate(5deg)}}
