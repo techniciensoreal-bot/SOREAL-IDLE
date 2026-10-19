@@ -21,6 +21,7 @@ assert.equal((await demander(["idle/aventure/The_Sky/sky_safe_zone.webp", "idle/
 assert.equal((await demander([], "sky")).statut, 404);
 // Le nom vient de l'id de zone : la Safe Zone de The Sky s'appelle sky_safe_zone, jamais the_sky_safe_zone.
 assert.equal((await demander(["idle/aventure/The_Sky/the_sky_safe_zone.webp"], "sky")).statut, 404);
+assert.equal((await demander(["idle/aventure/Ancient_Battlefield/ancient_battlefield_safe_zone.webp"], "ancient")).statut, 200);
 
 // Client : une image introuvable est redemandée (adresse neuve), sans boucle ; plafonnée.
 const scene = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");

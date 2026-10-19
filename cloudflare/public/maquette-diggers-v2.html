@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette Gold Diggers v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Russo+One&display=swap" rel="stylesheet">
+<style>
+:root{--or:#ffd23f;--or2:#c98a00;--rouge:#f87171;--vert:#34d399;--ink:#fff1d6;--dim:#c9a97a}
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:#120a06;color:var(--ink);font-family:"Russo One",system-ui,sans-serif}
+h1,h2{font-family:Bangers,cursive;letter-spacing:.08em;margin:0;font-weight:400}
+h1{font-size:34px;color:var(--or);text-shadow:0 3px 0 #000,0 0 18px rgba(255,200,40,.5)}
+.sous{color:var(--dim);font-size:13px;margin:4px 0 14px}
+.caisse{padding:12px 14px;border-radius:16px;border:3px solid #000;background:linear-gradient(170deg,#3a2412,#1a0e08);box-shadow:0 0 0 2px var(--or2)}
+.caisse-haut{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;justify-content:space-between}
+.caisse b{color:var(--or)}
+.flux{position:relative;height:26px;margin-top:8px;border-radius:999px;overflow:hidden;background:#000;border:2px solid #000;display:flex}
+.flux .net{background:linear-gradient(180deg,#6ee7b7,#059669);width:62%}
+.flux .perte{background:repeating-linear-gradient(45deg,#f87171 0 8px,#b91c1c 8px 16px);width:38%}
+.flux span{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;color:#000;font-weight:900}
+.note-caisse{margin-top:8px;font-size:13px;color:var(--dim)}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:16px}
+.chantier{border-radius:18px;border:3px solid #000;overflow:hidden;background:#1a0e08;box-shadow:0 0 0 2px var(--c),0 14px 26px -16px var(--c)}
+.tete{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;background:linear-gradient(180deg,#3a2412,#241408)}
+.tete h2{font-size:20px;color:var(--c);text-shadow:0 2px 0 #000}
+.effet{white-space:nowrap;font-size:13px;background:rgba(0,0,0,.45);border-radius:999px;padding:3px 10px;border:1px solid var(--c)}
+svg.scene{display:block;width:100%;height:auto}
+.corps{padding:10px 12px 12px}
+.ligne{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--dim);margin-top:6px}
+.ligne b{color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums;text-align:right}
+.ponction b{color:var(--rouge)}.gain b{color:var(--vert)}
+.petit{font-size:12px;color:var(--dim);font-weight:400}
+.profondeur{position:relative;height:14px;margin-top:8px;border-radius:999px;background:#000;border:2px solid #000}
+.profondeur i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#8a5a2b,var(--c))}
+.profondeur em{position:absolute;top:-4px;width:3px;bottom:-4px;background:#fff;border-radius:2px;box-shadow:0 0 6px #fff}
+.cmd{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.cmd button{flex:1;min-width:0;padding:8px 6px;border-radius:10px;border:2px solid #000;font:inherit;font-size:13px;cursor:pointer;color:#1a0e08;background:linear-gradient(180deg,#ffe27a,#d99a00);box-shadow:0 3px 0 #000}
+.cmd button.sec{background:linear-gradient(180deg,#5b4330,#3a2818);color:var(--ink)}
+.cmd button:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+/* Animations : uniquement sur les chantiers actifs, transform/opacity seulement, décalées par ouvrier */
+.pelle{transform-origin:0 0}
+.on .pelle{animation:creuse var(--t) ease-in-out infinite;animation-delay:var(--d)}
+@keyframes creuse{0%,100%{transform:rotate(-8deg)}45%,60%{transform:rotate(-50deg)}}
+.piece{opacity:0}
+.on .piece{animation:tombe var(--t) linear infinite;animation-delay:var(--d)}
+@keyframes tombe{0%{opacity:0;transform:translateY(0)}12%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(var(--h))}}
+.lueur{opacity:.25}.on .lueur{animation:brille 2.4s ease-in-out infinite}
+@keyframes brille{0%,100%{opacity:.25}50%{opacity:.75}}
+.ponct-flottante{opacity:0}.on .ponct-flottante{animation:monte var(--t) ease-out infinite}
+@keyframes monte{0%{opacity:0;transform:translateY(6px)}20%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.zzz{font-family:Bangers;letter-spacing:2px}
+@media (prefers-reduced-motion:reduce){.on .pelle,.on .piece,.on .lueur,.on .ponct-flottante{animation:none}.on .piece{opacity:1}}
+</style></head><body>
+<h1>⛏ GOLD DIGGERS</h1>
+<div class="sous">Maquette v2 — chaque pelle au travail = un ouvrier à la pelle. Un seul ouvrier au début ; plus tu en achètes, plus il y en a dans le trou. Chacun est payé en or, à la seconde : c'est la ponction.</div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+ <!-- Ouvrier mexicain façon dessin découpé : gros sombrero, moustache, poncho rayé. couleur du poncho = currentColor -->
+ <symbol id="ouvrier" viewBox="0 0 44 74">
+  <rect x="13" y="56" width="7" height="14" rx="2" fill="#3b2a1e" stroke="#000" stroke-width="1.8"/>
+  <rect x="24" y="56" width="7" height="14" rx="2" fill="#3b2a1e" stroke="#000" stroke-width="1.8"/>
+  <ellipse cx="16.5" cy="70.5" rx="6" ry="3" fill="#2a1a10" stroke="#000" stroke-width="1.8"/>
+  <ellipse cx="27.5" cy="70.5" rx="6" ry="3" fill="#2a1a10" stroke="#000" stroke-width="1.8"/>
+  <path d="M7 58 L22 33 L37 58 Z" fill="currentColor" stroke="#000" stroke-width="2"/>
+  <path d="M10 53 L34 53 M13 47 L31 47 M16 41 L28 41" stroke="#fff3c4" stroke-width="2.2"/>
+  <path d="M10 53 L34 53 M13 47 L31 47 M16 41 L28 41" stroke="#000" stroke-width=".6" opacity=".4"/>
+  <circle cx="22" cy="26" r="10" fill="#d9a066" stroke="#000" stroke-width="2"/>
+  <ellipse cx="18.2" cy="25" rx="3.1" ry="3.6" fill="#fff" stroke="#000" stroke-width="1.3"/>
+  <ellipse cx="25.8" cy="25" rx="3.1" ry="3.6" fill="#fff" stroke="#000" stroke-width="1.3"/>
+  <circle cx="19.2" cy="25.6" r="1.1" fill="#000"/><circle cx="24.8" cy="25.6" r="1.1" fill="#000"/>
+  <path d="M13.5 30.5 Q22 27 30.5 30.5 Q27 35.5 22 33 Q17 35.5 13.5 30.5Z" fill="#161008" stroke="#000" stroke-width="1"/>
+  <path d="M19.5 35.5 Q22 37 24.5 35.5" stroke="#000" stroke-width="1.4" fill="none"/>
+  <path d="M10.5 18.5 Q10 5 22 4.5 Q34 5 33.5 18.5 Z" fill="#f0d070" stroke="#000" stroke-width="2"/>
+  <path d="M10.8 15 Q22 18.5 33.2 15 L33.4 18.5 Q22 22 10.6 18.5Z" fill="#c8402f" stroke="#000" stroke-width="1.4"/>
+  <ellipse cx="22" cy="19" rx="21" ry="4.6" fill="#e8c15a" stroke="#000" stroke-width="2" style="paint-order:stroke"/>
+  <path d="M7 17.4 Q22 22.5 37 17.4" stroke="#c8402f" stroke-width="1.6" fill="none"/>
+  <rect x="9.5" y="9" width="25" height="9.5" rx="4" fill="#f0d070" stroke="none"/>
+  <path d="M10.2 18.2 Q10 5 22 4.5 Q34 5 33.8 18.2" fill="none" stroke="#000" stroke-width="2"/>
+ </symbol>
+ <symbol id="piece" viewBox="-8 -8 16 16"><circle r="6.5" fill="#ffd23f" stroke="#000" stroke-width="2"/><circle r="3.2" fill="none" stroke="#c98a00" stroke-width="1.5"/></symbol>
+ <symbol id="pepite" viewBox="-9 -9 18 18"><path d="M-7 3 L-4 -6 L3 -7 L8 0 L4 7 L-4 7Z" fill="#ffd23f" stroke="#000" stroke-width="2"/><path d="M-2 -3 L2 -3" stroke="#fff" stroke-width="2"/></symbol>
+</defs></svg>
+
+<div class="caisse">
+ <div class="caisse-haut"><h2 style="font-size:24px;color:var(--or)">Ta caisse</h2><div>Or / seconde (Time Machine) : <b>5,20 T/s</b></div></div>
+ <div class="flux"><div class="net"></div><div class="perte"></div>
+  <span style="left:12px">Il te reste 3,22 T/s</span><span style="right:12px;color:#fff;text-shadow:0 1px 0 #000">−1,98 T/s de salaires</span></div>
+ <div class="note-caisse">3 chantiers au travail · 18 ouvriers payés · tas d'or commun <b>+18,4 %</b> sur tous les Diggers</div>
+</div>
+<div class="grille" id="grille"></div>
+<p class="sous" style="margin-top:18px">Règle d'affichage utilisée ici (visuelle seulement, à régler) : nombre d'ouvriers = 1 + ⌊√niveau actif ÷ 2⌋, 8 au plus à l'écran. Chaque ouvrier touche la même part de la ponction. Seuls les chantiers actifs sont animés ; en pause, les ouvriers dorment.</p>
+
+<script>
+var COULEURS=['#c8402f','#2f7fc8','#3a9a4a','#d97a1e','#8a3fb0','#c8a82f','#2fa8a0','#c84f8a'];
+function ouvriers(L){return Math.min(8,1+Math.floor(Math.sqrt(L)/2));}
+function scene(c){
+  var n=ouvriers(c.run),s=.7,larg=44*s,esp=Math.min(34,240/n),x0=135-(esp*(n-1))/2,sol=66;
+  var prof=26+Math.round(c.run/c.max*84),fond=sol+prof,max=sol+110;
+  var t=c.t,h=prof-6,o='<svg class="scene" viewBox="0 0 270 200" aria-hidden="true">';
+  o+='<rect width="270" height="200" fill="#1d2a4a"/><rect width="270" height="'+sol+'" fill="#e9a65a" opacity=".9"/><rect y="0" width="270" height="34" fill="#3a6fb0"/><circle cx="'+c.soleil+'" cy="22" r="13" fill="#ffe9a8"/>';
+  o+='<path d="M0 48 q30 -22 62 0 q18 -12 36 0 v18 h-98z" fill="#c9833f"/><path d="M180 52 q34 -26 64 0 q14 -8 26 0 v14 h-90z" fill="#b97434"/>'; // mesas
+  o+='<rect y="'+sol+'" width="270" height="'+(200-sol)+'" fill="#4b2e1b"/><rect y="'+sol+'" width="270" height="7" fill="#d8a257"/>';
+  o+='<g opacity=".3"><circle cx="30" cy="'+(fond+30)+'" r="4" fill="#2d190e"/><circle cx="220" cy="'+(fond+22)+'" r="3" fill="#2d190e"/></g>';
+  // tranchée : profondeur = niveau actif
+  o+='<path d="M14 '+sol+' H256 L248 '+fond+' Q135 '+(fond+7)+' 22 '+fond+'Z" fill="#150a05" stroke="#000" stroke-width="3"/>';
+  o+='<path d="M20 '+max+' H250" stroke="#fff" stroke-width="2" stroke-dasharray="5 4" opacity=".6"/><text x="236" y="'+(max-4)+'" fill="#fff" font-size="9" opacity=".8" font-family="Russo One">max</text>';
+  o+='<ellipse class="lueur" cx="135" cy="'+(fond-2)+'" rx="'+(40+n*6)+'" ry="8" fill="#ffd23f"/>';
+  o+='<path d="M'+(135-34-n*5)+' '+(fond+1)+' Q135 '+(fond-14-n*2)+' '+(135+34+n*5)+' '+(fond+1)+' q-'+(34+n*5)+' 6 -'+(68+n*10)+' 0z" fill="#ffd23f" stroke="#000" stroke-width="2"/>';
+  o+='<use href="#pepite" x="'+(122)+'" y="'+(fond-12)+'" width="14" height="14"/><use href="#pepite" x="'+(142)+'" y="'+(fond-10)+'" width="12" height="12"/>';
+  for(var i=0;i<n;i++){
+    var cx=x0+i*esp,d=(-(i*t/n)).toFixed(2)+'s';
+    o+='<g style="--d:'+d+';--t:'+t+'s;--h:'+h+'px">';
+    // pièces : le salaire de CET ouvrier tombe dans le trou
+    o+='<g transform="translate('+(cx+larg/2+2)+' '+(sol+4)+')"><use class="piece" href="#piece" x="-6" y="0" width="11" height="11"/><use class="piece" href="#piece" x="-6" y="0" width="11" height="11" style="animation-delay:calc(var(--d) - '+(t/2).toFixed(2)+'s)"/></g>';
+    o+='<use href="#ouvrier" x="'+(cx-larg/2)+'" y="'+(sol-74*s+3)+'" width="'+larg+'" height="'+(74*s)+'" style="color:'+COULEURS[i%8]+'"/>';
+    o+='<g transform="translate('+(cx+larg/2-3)+' '+(sol-22)+')"><g class="pelle"><rect x="-1.6" y="-4" width="3.2" height="28" rx="1.5" fill="#8a5a2b" stroke="#000" stroke-width="1.3"/><path d="M-5.5 22 h11 l-1.6 11 q-4 3 -8 0z" fill="#b8c2cc" stroke="#000" stroke-width="1.3"/></g></g>';
+    o+='</g>';
+  }
+  if(c.on)o+='<text class="ponct-flottante" x="'+(c.soleil>150?20:190)+'" y="30" fill="#f87171" font-size="12" font-family="Russo One" stroke="#000" stroke-width="3" paint-order="stroke" style="--t:'+t+'s">−'+c.cout+' /s</text>';
+  else o+='<text class="zzz" x="'+(x0-4)+'" y="'+(sol-44)+'" fill="#fff" font-size="16">zzz…</text>';
+  return o+'</svg>';
+}
+function carte(c){
+  var n=ouvriers(c.run);
+  return '<article class="chantier'+(c.on?' on':'')+'" style="--c:'+c.c+'"><div class="tete"><h2>'+c.nom+'</h2><span class="effet">'+c.effet+'</span></div>'+scene(c)+
+  '<div class="corps"><div class="profondeur"><i style="width:'+(c.run/c.max*100)+'%"></i><em style="left:'+(c.run/c.max*100)+'%"></em></div>'+
+  '<div class="ligne"><span>Pelles au travail</span><b>'+c.run+' <span class="petit">· '+c.max+' pelles achetées</span></b></div>'+
+  '<div class="ligne"><span>Ouvriers dans le trou</span><b>'+n+'</b></div>'+
+  '<div class="ligne ponction"><span>Salaire par ouvrier</span><b>−'+c.sal+' /s <span class="petit">× '+n+'</span></b></div>'+
+  '<div class="ligne ponction"><span>'+(c.on?'Ça te coûte':'Ça te coûterait')+'</span><b>−'+c.cout+' /s</b></div>'+
+  '<div class="ligne gain"><span>'+(c.on?'Ça te rapporte':'Ça te rapporterait')+'</span><b>'+c.gain+'</b></div>'+
+  '<div class="cmd"><button class="sec">− pelle</button><button class="sec">+ pelle</button><button>🛠 Acheter une pelle · '+c.prix+'</button><button'+(c.on?' class="sec">⏸ Renvoyer chez eux':'>▶ Mettre au travail')+'</button></div></div></article>';
+}
+var D=[
+ {nom:'Chasseur de trèfles',c:'#34d399',effet:'🍀 Drop +236 %',run:156,max:340,on:1,t:1.4,soleil:228,cout:'0,64 T',sal:'0,09 T',gain:'+236 % de Drop',prix:'3,2 Qa'},
+ {nom:'Le Costaud',c:'#f97316',effet:'💪 Attaque & Défense ×14',run:21,max:25,on:1,t:1.1,soleil:40,cout:'1,05 T',sal:'0,35 T',gain:'Attaque & Défense ×14',prix:'7,1 Qa'},
+ {nom:'L\'Aventurier',c:'#60a5fa',effet:'🧭 Power & Toughness',run:210,max:350,on:0,t:1.4,soleil:228,cout:'0,31 T',sal:'0,04 T',gain:'+215 % Power & Toughness',prix:'4,0 Qa'},
+ {nom:'Gill Bates',c:'#a78bfa',effet:'💾 Wandoos +151 %',run:1,max:1,on:1,t:1.6,soleil:40,cout:'1,00 T',sal:'1,00 T',gain:'+151 % de vitesse Wandoos',prix:'15 Qa'}
+];
+document.getElementById('grille').innerHTML=D.map(carte).join('');
+</script>
+</body></html>

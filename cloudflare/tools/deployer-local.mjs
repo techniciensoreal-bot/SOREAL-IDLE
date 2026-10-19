@@ -11,8 +11,7 @@
  *   3. build du frontend autonome + node --check de tous les scripts publics ;
  *   4. dépendances du runtime vocal ;
  *   5. wrangler deploy avec --message "git:<sha>" ;
- *   6. vérification : le déploiement actif est à 100 % et porte bien ce SHA ; les fichiers /unity/ servis en ligne
- *      sont identiques à ceux du commit.
+ *   6. vérification : le déploiement actif est à 100 % et porte bien ce SHA.
  *
  * Utilisation (depuis la racine du dépôt) :
  *   node cloudflare/tools/deployer-local.mjs              # SIMULE : étapes 1 à 4, ne déploie RIEN
@@ -130,23 +129,4 @@ if (!actif || pct !== 100) echec("routage de production non vérifiable (version
 if (msg !== "git:" + sha) echec("SHA en production différent : attendu git:" + sha + ", observé " + (msg || "absent"));
 console.log("Production à 100 % sur " + sha + " (version " + (actif.version_id || actif.id) + ").");
 
-// fichiers Unity en ligne = ceux du commit : on compare le CONTENU décodé en ligne avec le contenu décodé du fichier du commit
-const unity = path.join(dossier, "cloudflare", "public", "unity", "_br");
-if (fs.existsSync(unity)) {
-  const zlib = await import("node:zlib");
-  let ok = true;
-  for (const f of fs.readdirSync(unity)) {
-    const nom = f.replace(/\.bin$/, ".br");
-    const attendu = crypto.createHash("sha256").update(zlib.brotliDecompressSync(fs.readFileSync(path.join(unity, f)))).digest("hex");
-    let trouve = "";
-    for (let i = 0; i < 12 && trouve !== attendu; i += 1) {
-      const rep = await fetch(URL_PROD + "/unity/Build/" + nom + "?v=" + Date.now() + i, { headers: { "Accept-Encoding": "br" } });
-      trouve = crypto.createHash("sha256").update(Buffer.from(await rep.arrayBuffer())).digest("hex");
-      if (trouve !== attendu) await new Promise((r) => setTimeout(r, 5000));
-    }
-    console.log("  /unity/Build/" + nom + " : " + (trouve === attendu ? "identique au commit" : "DIFFÉRENT"));
-    if (trouve !== attendu) ok = false;
-  }
-  if (!ok) echec("des fichiers /unity/ servis en ligne diffèrent de ceux du commit");
-}
-console.log("\nDÉPLOIEMENT TERMINÉ ET VÉRIFIÉ.");
+

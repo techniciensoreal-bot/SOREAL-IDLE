@@ -62,7 +62,9 @@ const IDLE_ADVENTURE_MOB_FOLDERS=Object.freeze({
  * Norman utilise ce nom de fichier, tandis que l'id moteur est "sewers".
  */
 const IDLE_ADVENTURE_SAFE_ZONE_ALIASES=Object.freeze({
-  sewers:["sewer","sewers"]
+  sewers:["sewer","sewers"],
+  /* Norman (2026-10-19) : le fichier déposé s'appelle ancient_battlefield_safe_zone.webp alors que l'id moteur est « ancient » */
+  ancient:["ancient","ancient_battlefield"]
 });
 function safeZoneFileNames_(zone){
   const z=String(zone||"").trim().toLowerCase();
