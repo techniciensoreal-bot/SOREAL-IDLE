@@ -9,6 +9,6 @@ for (const i of envois) assert.ok(s.slice(Math.max(0, i - 200), i).includes("win
 /* Animation complète (Norman, 2026-10-19) : la gueule s'ouvre, croque, puis la langue lèche les babines avant de se refermer (valable Coffre ouvert ou refermé). */
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(css.includes("@keyframes bgCroqueCouv") && css.includes("@keyframes bgCroqueLangue"), "séquence gueule + langue");
-assert.ok(css.includes(".soreal-idle-coffre-v1 .bg-bagage-v1.croque .bg-langue{animation:bgCroqueLangue 1.25s") && css.includes(".soreal-idle-coffre-v1 .bg-bagage-v1.croque .bg-couvercle{animation:bgCroqueCouv 1.25s"), "joué quel que soit l'état du Coffre");
+assert.ok(css.includes(".soreal-idle-section-v8.soreal-idle-coffre-v1 .bg-bagage-v1.croque .bg-langue{animation:bgCroqueLangue 1.25s") && css.includes(".soreal-idle-section-v8.soreal-idle-coffre-v1 .bg-bagage-v1.croque .bg-couvercle{animation:bgCroqueCouv 1.25s"), "joué quel que soit l'état du Coffre");
 assert.ok(/bgCroqueLangue\{[^}]*-72deg[^}]*70deg/.test(css) || (css.includes("rotate(-72deg)") && css.includes("rotate(70deg)")), "la langue balaie d'un côté puis de l'autre");
 console.log("idle-coffre-croque-v1: OK");
