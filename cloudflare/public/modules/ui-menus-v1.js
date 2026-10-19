@@ -151,6 +151,8 @@
           arreterPinClicIdleV1_();
           const racine=document.querySelector('.soreal-idle-page-root-v28');
           if(!racine||!racine.contains(el))return;
+          /* Norman (2026-10-19) : « quand je lance un combat de boss, sa barre et la mienne s'arrêtent une demi-seconde ». Le profil montrait cette boucle (getBoundingClientRect à chaque image pendant 3 à 5 s) : à l'instant où le combat démarre et où la page bouge beaucoup, chaque mesure force un calcul de mise en page complet (219 ms sur les 900 premières ms). La borne d'arcade (Fight, Fuite…) ne décale jamais la page : aucun calage pour elle. */
+          if(el.closest&&el.closest('.borne-v2'))return;
           for(let n=el;n&&n!==racine;n=n.parentElement){
             if(window.getComputedStyle(n).position==='fixed')return;
           }
@@ -171,6 +173,9 @@
             if(idlePinClicV1!==pin)return;
             if(performance.now()-pin.debut>5000){idlePinClicV1=null;return;}
             /* L element est gardé en mémoire : on ne le cherche de nouveau (balayage de la page) que s il a quitté la page. Pin arrêtée quand tout est stable depuis 1,5 s (au moins 3 s après le clic). */
+            /* Mesure au plus toutes les 60 ms (et non à chaque image) : le calage de défilement reste imperceptible, sans forcer la mise en page 60 fois par seconde. */
+            if(pin.derniere&&performance.now()-pin.derniere<60){pin.raf=requestAnimationFrame(boucle);return;}
+            pin.derniere=performance.now();
             let e=pin.cache;
             if(!e||!e.isConnected){e=retrouverElementClicIdleV1_(pin.ancre);pin.cache=e;}
             if(e){
@@ -180,7 +185,7 @@
                 if(Math.abs(dy)>1){window.scrollBy(0,dy);pin.stables=0;}else pin.stables=(pin.stables||0)+1;
               }
             }
-            if((pin.stables||0)>=90&&performance.now()-pin.debut>3000){idlePinClicV1=null;return;}
+            if((pin.stables||0)>=25&&performance.now()-pin.debut>3000){idlePinClicV1=null;return;}
             pin.raf=requestAnimationFrame(boucle);
           })();
         }catch(_e){}
