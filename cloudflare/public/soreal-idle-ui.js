@@ -95,7 +95,23 @@
       Object.defineProperty(UI_PARTAGE_V1,'idleDispoMoneyPitDerniereV1',{get:function(){return idleDispoMoneyPitDerniereV1;},set:function(v){idleDispoMoneyPitDerniereV1=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleEffetsSignatureV112',{get:function(){return idleEffetsSignatureV112;},set:function(v){idleEffetsSignatureV112=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleEffetsVisuelsJoueurV112',{get:function(){return idleEffetsVisuelsJoueurV112;},configurable:true});
-      Object.defineProperty(UI_PARTAGE_V1,'idleEtat',{get:function(){return idleEtat;},set:function(v){idleEtat=v;},configurable:true});
+      /*
+       * Décimales de PV qui reculent (Norman, 2026-10-19 : « dans les virgules des PV, ça augmente rapidement mais on peut voir un rollback des décimales »). Chaque réponse du moteur
+       * remplace l'état ; ses PV sont ceux de l'instant où le calcul a COMMENCÉ, donc un peu en retard sur les PV que la page a déjà prévus par la régénération (PV max / 20 par
+       * seconde de défense) : au remplacement, les décimales reculaient. Hors combat, un recul ne dépassant pas 1,5 s de régénération (jamais plus) est ignoré : la valeur déjà
+       * affichée est gardée ; un vrai retrait de PV (combat, dégâts) n'est jamais masqué.
+       */
+      Object.defineProperty(UI_PARTAGE_V1,'idleEtat',{get:function(){return idleEtat;},set:function(v){
+        try{
+          const ancien=idleEtat;
+          if(ancien&&v&&typeof v==='object'&&ancien!==v&&!ancien.combatBossActif&&!v.combatBossActif){
+            const pvAvant=Number(ancien.pvJoueur),pvApres=Number(v.pvJoueur),defense=Number(v.defense!=null?v.defense:ancien.defense)||0,pvMax=Number(v.pvJoueurMax);
+            const regen15=Math.max(0.5,defense/20*1.5);
+            if(Number.isFinite(pvAvant)&&Number.isFinite(pvApres)&&pvApres<pvAvant&&pvAvant-pvApres<=regen15&&(!Number.isFinite(pvMax)||pvAvant<=pvMax))v.pvJoueur=pvAvant;
+          }
+        }catch(_e){}
+        idleEtat=v;
+      },configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFastNetworkBusyV60',{get:function(){return idleFastNetworkBusyV60;},set:function(v){idleFastNetworkBusyV60=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFastPendingV60',{get:function(){return idleFastPendingV60;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFicheObjetOuverteIdV1',{get:function(){return idleFicheObjetOuverteIdV1;},set:function(v){idleFicheObjetOuverteIdV1=v;},configurable:true});

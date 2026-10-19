@@ -312,8 +312,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 325,
-  "sha": "67b9aa8030e143c835df378cdddc917bc58ee492"
+  "pin": 326,
+  "sha": "d5394b2f9bde952c651d506dad2faf0de97e4888"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -376,8 +376,8 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 347,
-  "sha": "187c2cb6d758b4d389aa1beff5b0692f3e47e8ec"
+  "pin": 348,
+  "sha": "7b24c60dab9f5789c09831f32dfe39a4620935d5"
  },
  "/modules/traduction-anglais-v1.js": {
   "pin": 141,
@@ -556,8 +556,8 @@
   "sha": "8d75db2586d827ba41b58ec67d5b3686fc6c97a3"
  },
  "/soreal-idle-ui.js": {
-  "pin": 650,
-  "sha": "80a8d1d132d57dd4e7814ae0de31f5c03eeb61ae"
+  "pin": 651,
+  "sha": "e5989ae33d8a352a13695b4d98201f990e9e5fe1"
  },
  "/standalone-bridge.js": {
   "pin": 18,

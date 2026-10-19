@@ -32,6 +32,7 @@
         date:'2026-10-19',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les décimales de tes PV ne reculent plus un court instant quand une mise à jour arrive hors combat.',
             'Le jeu se met à jour jusqu’à 60 fois par seconde quand ton appareil le permet (15 avant) : barres, vie et compteurs sont plus fluides.',
             'Un mode de jeu calculé directement sur ton appareil est en test : tout réagit tout de suite, rien ne recule en attendant le serveur, les menus qui évoluent en direct se rafraîchissent environ 10 fois plus souvent, et ta partie est enregistrée sur l’appareil puis envoyée au serveur.',
             'Dans les Réglages de ce mode, un bouton « Envoyer ma partie vers le serveur » permet de changer d’appareil sans rien perdre.',
