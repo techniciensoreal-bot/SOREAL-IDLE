@@ -70,6 +70,80 @@ function revendiquer(coord, email, appareil, now) {
   coord.sql.exec("INSERT OR REPLACE INTO idle_local_appareils(email,appareil,vu) VALUES(?,?,?)", email, appareil, now);
 }
 
+/*
+ * SAUVEGARDES DE SÉCURITÉ (Norman, 2026-10-19 : « les sauvegardes des gens peuvent se perdre ; tu dois avoir un backup »). Le jeu se calcule sur l'appareil et le serveur reçoit la ligne du
+ * joueur : une erreur (le nuke du 2026-10-19 a ramené une partie au boss 1) ne doit JAMAIS être définitive. Avant d'écraser la ligne d'un compte, le serveur en garde une COPIE :
+ *  - « initiale » : la première fois qu'un compte passe au jeu local (état d'avant le local, intact) ;
+ *  - « quotidienne » : une par jour, conservées 30 jours ;
+ *  - « periodique » : au plus une tous les quarts d'heure, les 48 dernières (12 h) ;
+ *  - « avant-anomalie » : toujours, quand l'anti-triche note une anomalie ; « avant-restauration » : avant toute restauration.
+ * Restauration par l'administrateur seul (restaurerSauvegardeLocaleV1) : la partie restaurée remplace la ligne ; les appareils en cours de jeu reçoivent « Partie reprise ailleurs ».
+ */
+const SAUVEGARDE_INTERVALLE_MS = 15 * 60 * 1000;
+const SAUVEGARDE_RECENTES_MAX = 48;
+const SAUVEGARDE_QUOTIDIENNES_MS = 30 * 24 * 3600 * 1000;
+
+function assurerSauvegardes(coord) {
+  coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_sauvegardes_locales(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, at INTEGER NOT NULL, motif TEXT NOT NULL, row_json TEXT NOT NULL)");
+  coord.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_sauvegardes_locales_email ON idle_sauvegardes_locales(email,at)");
+}
+
+function copier(coord, email, rowJson, motif, now) {
+  assurerSauvegardes(coord);
+  coord.sql.exec("INSERT INTO idle_sauvegardes_locales(email,at,motif,row_json) VALUES(?,?,?,?)", email, now, motif, rowJson);
+  coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN ('quotidienne','initiale') AND id NOT IN (SELECT id FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN ('quotidienne','initiale') ORDER BY id DESC LIMIT ?)", email, email, SAUVEGARDE_RECENTES_MAX);
+  coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE email=? AND motif='quotidienne' AND at < ?", email, now - SAUVEGARDE_QUOTIDIENNES_MS);
+}
+
+/* Copie la ligne actuelle du serveur si le calendrier ci-dessus le demande (ou toujours, avec « motifForce »). */
+export function sauvegarderSiBesoinLocalV1(coord, email, rowJson, now, motifForce = "") {
+  if (!email || !rowJson) return false;
+  assurerSauvegardes(coord);
+  if (motifForce) { copier(coord, email, rowJson, motifForce, now); return true; }
+  const derniere = coord.sqlAll("SELECT at FROM idle_sauvegardes_locales WHERE email=? ORDER BY at DESC LIMIT 1", email)[0];
+  if (!derniere) { copier(coord, email, rowJson, "initiale", now); return true; }
+  const debutJour = Date.UTC(new Date(now).getUTCFullYear(), new Date(now).getUTCMonth(), new Date(now).getUTCDate());
+  const duJour = coord.sqlAll("SELECT 1 AS x FROM idle_sauvegardes_locales WHERE email=? AND motif='quotidienne' AND at>=? LIMIT 1", email, debutJour)[0];
+  if (!duJour) { copier(coord, email, rowJson, "quotidienne", now); return true; }
+  if (now - Number(derniere.at) >= SAUVEGARDE_INTERVALLE_MS) { copier(coord, email, rowJson, "periodique", now); return true; }
+  return false;
+}
+
+function indexParEmail(coord, email) {
+  const e = sv(email).toLowerCase();
+  const r = coord.sqlAll("SELECT source_row FROM idle_players WHERE lower(email_primary)=? OR lower(email_login)=? LIMIT 1", e, e)[0];
+  return r && Number(r.source_row) > 1 ? Number(r.source_row) : 0;
+}
+
+export function listerSauvegardesLocalesV1(coord, email) {
+  assurerSauvegardes(coord);
+  return coord.sqlAll("SELECT id,at,motif,row_json FROM idle_sauvegardes_locales WHERE email=? ORDER BY at DESC LIMIT 200", sv(email).toLowerCase()).map((r) => {
+    let c = [];
+    try { c = JSON.parse(r.row_json); } catch (_) {}
+    return { id: Number(r.id), at: Number(r.at), motif: r.motif, bossVaincus: Number(c[COL_BOSS_VAINCUS]) || 0, renaissances: Number(c[COL_RENAISSANCES]) || 0, derniereSynchro: c[COL_DERNIERE_SYNCHRO] || "", octets: r.row_json.length };
+  });
+}
+
+export function restaurerSauvegardeLocaleV1(coord, email, id) {
+  const mail = sv(email).toLowerCase();
+  assurerSauvegardes(coord);
+  const copie = coord.sqlAll("SELECT row_json FROM idle_sauvegardes_locales WHERE email=? AND id=?", mail, Number(id))[0];
+  if (!copie) return { ok: false, error: "IDLE_SAUVEGARDE_INTROUVABLE" };
+  const index = indexParEmail(coord, mail);
+  if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
+  const maintenant = Date.now();
+  if (actuelle) copier(coord, mail, actuelle.row_json, "avant-restauration", maintenant);
+  let serveur = [];
+  try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
+  const cells = JSON.parse(copie.row_json);
+  for (const c of COLS_DU_SERVEUR) cells[c] = serveur[c];
+  cells[COL_DERNIERE_SYNCHRO] = new Date(maintenant).toISOString();
+  coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(cells), maintenant, index);
+  revendiquer(coord, mail, "__restauration__", maintenant);   // tout appareil en cours de jeu reçoit « partie reprise ailleurs »
+  return { ok: true, index, restauree: Number(id) };
+}
+
 const MAX_FLUX = 200;
 const MAX_GAINS = 100;
 
@@ -107,6 +181,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const entete = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=1")[0];
   const ligne = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   if (!ligne) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", ligne.row_json, Date.now());
   const feuilles = coord.sqlAll("SELECT sheet_name,row_index,row_json FROM idle_catalog WHERE sheet_name!='JOUEURS' ORDER BY sheet_name,row_index")
     .map((r) => [r.sheet_name, Number(r.row_index), r.row_json]);
   const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
@@ -139,6 +214,8 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   noterAlertes(coord, emailsDe(effectif(s.user))[0] || "", alertes);
   let ecrit = false;
   if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
+    /* Copie de sécurité de la ligne actuelle AVANT de l'écraser (toujours, si l'anti-triche a noté une anomalie). */
+    sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), alertes.length ? "avant-anomalie" : "");
     const fusion = cells.slice();
     for (const c of COLS_DU_SERVEUR) fusion[c] = serveur[c];
     coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(fusion), Date.now(), index);

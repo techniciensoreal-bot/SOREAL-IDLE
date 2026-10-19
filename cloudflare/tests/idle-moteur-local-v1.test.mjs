@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, analyserEnvoiLocalV1, lireAlertesLocalesV1 } from "../src/idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, analyserEnvoiLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, sauvegarderSiBesoinLocalV1 } from "../src/idle-local-sync-v1.js";
 import { idleOperationNames } from "../src/idle-sqlite-runtime.js";
 
 /*
@@ -77,6 +77,26 @@ assert.equal(r.ok, false); assert.equal(r.conflit, true, "A avait démarré avan
 assert.notEqual(lire()[10], 777);
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: suite, appareil: "appareil-B", depuis: lireDeA.serveurAt });
 assert.equal(r.ok, true, "B, l'appareil le plus récent, peut envoyer"); assert.equal(lire()[10], 777);
+
+// Sauvegardes de sécurité : copie initiale au passage en local, copie AVANT chaque anomalie, rotation bornée, restauration réservée à une copie existante.
+const liste = listerSauvegardesLocalesV1(coord, user.email);
+const initiale = liste.find((x) => x.motif === "initiale");
+assert.ok(initiale, "une copie « initiale » est prise quand le compte passe au jeu local");
+assert.ok(liste.some((x) => x.motif === "avant-anomalie"), "une anomalie provoque une copie AVANT l'écrasement");
+for (let i = 1; i <= 70; i += 1) sauvegarderSiBesoinLocalV1(coord, user.email, JSON.stringify(ligne), Date.now() + i * 16 * 60 * 1000 + 3 * 24 * 3600 * 1000);
+const apres = listerSauvegardesLocalesV1(coord, user.email);
+assert.ok(apres.filter((x) => x.motif === "periodique").length <= 48, "les copies périodiques sont bornées à 48");
+assert.ok(apres.some((x) => x.motif === "initiale"), "la copie initiale n'est jamais effacée par la rotation");
+assert.equal(restaurerSauvegardeLocaleV1(coord, user.email, 999999).ok, false, "copie inconnue : refus");
+const avantRestauration = lire()[10];
+assert.notEqual(avantRestauration, ligne[10]);
+const rr = restaurerSauvegardeLocaleV1(coord, user.email, initiale.id);
+assert.equal(rr.ok, true);
+assert.equal(lire()[10], ligne[10], "la restauration remet la partie de la copie");
+assert.equal(String(lire()[18]).toLowerCase(), user.email, "l'identité reste celle du serveur");
+assert.ok(listerSauvegardesLocalesV1(coord, user.email).some((x) => x.motif === "avant-restauration"), "l'état écrasé par la restauration est lui-même copié");
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: suite, appareil: "appareil-B", depuis: Date.now() - 60000 });
+assert.equal(r.conflit, true, "un appareil en cours de jeu reçoit « partie reprise ailleurs » après une restauration");
 
 const mod = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
 // Garde : toute opération du moteur est soit locale, soit au serveur sans toucher la ligne du joueur, soit listée comme « modifie le joueur » (rechargement).

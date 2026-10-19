@@ -440,6 +440,17 @@ export default {
       if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
       return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-alertes", { method: "POST", body: "{}" });
     }
+    /* Sauvegardes de sécurité des parties (jeu local) : liste et restauration, administrateur seul. */
+    if (request.method === "GET" && url.pathname === "/api/v1/local/sauvegardes") {
+      if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-sauvegardes", { method: "POST", body: JSON.stringify({ email: url.searchParams.get("email") || "" }) });
+    }
+    if (request.method === "POST" && url.pathname === "/api/v1/local/restaurer") {
+      if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+      const lecture = await idleLireJsonBorneV1(request);
+      const c = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-restaurer", { method: "POST", body: JSON.stringify({ email: c.email, id: c.id }) });
+    }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleLocalV1(request, env, "local-export");
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleLocalV1(request, env, "local-push");
 
