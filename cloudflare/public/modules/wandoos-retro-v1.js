@@ -259,6 +259,17 @@
     var os=String(vue.os||(st.data&&st.data.os)||'98');
     if(!NOMS_OS[os])os='98';
     var e={s:s,st:st,data:st.data||{},al:st.allocation||{},vue:vue,actif:Boolean(st.active),os:os,magieOk:magieOk,dispos:Array.isArray(vue.osDisponibles)&&vue.osDisponibles.length?vue.osDisponibles:['98']};
+    /* Clics rapides (Norman, 2026-10-19 : « Wandoos galère toujours quand je place des 20K à la chaîne »). La réponse du moteur à un clic ancien arrive pendant qu'on clique encore : elle remettait dans l'état l'ancienne allocation, et le chiffre reculait (19 reculs en 30 clics à la souris). Tant que la dernière cible demandée a moins de 2,5 s, on l'affiche : elle prime sur une réponse en retard. */
+    ['energy','magic'].forEach(function(res){
+      var vis=typeof visee_!=='undefined'&&visee_[res];
+      if(!vis||Date.now()-vis.at>=2500)return;
+      var cleLibre=res==='energy'?'energieLibre':'magieLibre';
+      var actuelleMoteur=Math.max(0,nb_(e.al[res])),libreMoteur=Math.max(0,nb_(vue[cleLibre]));
+      if(actuelleMoteur===vis.v)return;
+      var total=actuelleMoteur+libreMoteur;
+      e.al=Object.assign({},e.al);e.al[res]=Math.max(0,Math.min(vis.v,total));
+      e.vue=Object.assign({},e.vue);e.vue[cleLibre]=Math.max(0,total-e.al[res]);
+    });
     e.enChargement=bootVu_(vue).fraction<0.9999;
     /* Instant (horloge locale) où le serveur a calculé ces chiffres : les barres de niveau avancent à partir de là, jamais d'un repère périmé. */
     e.at=(j&&Number.isFinite(j.__recuPerfV1))?j.__recuPerfV1:(vues&&vue&&typeof vue==='object'?(function(){var lu=maintenant_();if(vues.has(vue))lu=vues.get(vue);else vues.set(vue,lu);return lu;})():maintenant_());
