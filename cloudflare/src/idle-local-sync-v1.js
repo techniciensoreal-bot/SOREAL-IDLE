@@ -57,6 +57,19 @@ export function lireAlertesLocalesV1(coord) {
   } catch (_) { return []; }
 }
 
+/*
+ * Un seul appareil joue la partie à la fois (changement d'appareil, deux onglets) : à l'export, l'appareil qui démarre REVENDIQUE la partie ; un envoi d'un autre appareil
+ * qui avait démarré AVANT cette revendication est refusé (« conflit »), au lieu d'écraser la progression de l'appareil le plus récent. Ce n'est pas de l'anti-triche.
+ */
+function assurerAppareils(coord) {
+  coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_local_appareils(email TEXT PRIMARY KEY, appareil TEXT NOT NULL, vu INTEGER NOT NULL)");
+}
+function revendiquer(coord, email, appareil, now) {
+  if (!appareil) return;
+  assurerAppareils(coord);
+  coord.sql.exec("INSERT OR REPLACE INTO idle_local_appareils(email,appareil,vu) VALUES(?,?,?)", email, appareil, now);
+}
+
 const MAX_FLUX = 200;
 const MAX_GAINS = 100;
 
@@ -84,7 +97,7 @@ function indexLigneJoueur(coord, user) {
   return 0;
 }
 
-export function exporterPourMoteurLocalV1(coord, sessionToken) {
+export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
   /* Crée la ligne du joueur si c'est sa première visite, puis la lit. */
@@ -97,7 +110,9 @@ export function exporterPourMoteurLocalV1(coord, sessionToken) {
   const feuilles = coord.sqlAll("SELECT sheet_name,row_index,row_json FROM idle_catalog WHERE sheet_name!='JOUEURS' ORDER BY sheet_name,row_index")
     .map((r) => [r.sheet_name, Number(r.row_index), r.row_json]);
   const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
-  return { ok: true, user: s.user, serveurAt: Date.now(), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  const maintenant = Date.now();
+  revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
+  return { ok: true, user: s.user, serveurAt: maintenant, joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 export function recevoirDuMoteurLocalV1(coord, p) {
@@ -106,6 +121,14 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   const index = indexLigneJoueur(coord, s.user);
   if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
   const cells = Array.isArray(p.cells) ? p.cells : null;
+  const appareil = sv(p.appareil).slice(0, 64);
+  if (appareil) {
+    assurerAppareils(coord);
+    const mail = emailsDe(effectif(s.user))[0] || "";
+    const propre = coord.sqlAll("SELECT appareil,vu FROM idle_local_appareils WHERE email=?", mail)[0];
+    if (propre && propre.appareil !== appareil && Number(p.depuis) < Number(propre.vu)) return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS" };
+    if (!propre || propre.appareil !== appareil) revendiquer(coord, mail, appareil, Date.now());
+  }
   if (!cells || cells.length < 30) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
   const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   let serveur = [];

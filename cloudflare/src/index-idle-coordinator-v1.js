@@ -536,7 +536,7 @@ export class SorealIdleCoordinatorV1 {
     }
     if (path === "/__soreal-idle-v1/local-export") {
       const p = await request.json().catch(() => ({}));
-      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken)), { headers: { "cache-control": "no-store" } });
+      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil)), { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-push") {
       const p = await request.json().catch(() => ({}));

@@ -67,6 +67,17 @@ assert.equal(analyserEnvoiLocalV1(av, ap2, Date.now())[0].code, "boss_vaincus_re
 const ap3 = av.slice(); ap3[24] = 4;
 assert.equal(analyserEnvoiLocalV1(av, ap3, Date.now())[0].code, "renaissances_recul");
 
+// Un seul appareil joue à la fois : l'appareil arrivé après revendique la partie ; l'ancien, au prochain envoi, reçoit un conflit (jamais d'écrasement).
+const debutA = Date.now() - 5000;
+exporterPourMoteurLocalV1(coord, T, "appareil-A");
+const lireDeA = exporterPourMoteurLocalV1(coord, T, "appareil-B");   // B démarre après A
+const suite = ligne.slice(); suite[15] = "2032-01-01T00:00:00.000Z"; suite[10] = 777;
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: suite, appareil: "appareil-A", depuis: debutA });
+assert.equal(r.ok, false); assert.equal(r.conflit, true, "A avait démarré avant B : conflit, pas d'écrasement");
+assert.notEqual(lire()[10], 777);
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: suite, appareil: "appareil-B", depuis: lireDeA.serveurAt });
+assert.equal(r.ok, true, "B, l'appareil le plus récent, peut envoyer"); assert.equal(lire()[10], 777);
+
 // Aiguillage : toutes les opérations locales existent ; chat, classements, « En direct », comptes et administration restent au serveur.
 const mod = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
 const locales = Object.keys(new Function("const window={};" + mod.match(/const LOCALES=(\{[\s\S]*?\});/)[0].replace("const LOCALES=", "return ") .replace(/^return /, "return ")) ());
@@ -78,6 +89,7 @@ for (const o of ["lireChatSorealIdle", "envoyerChatSorealIdle", "lireFluxSorealI
 assert.ok(locales.includes("synchroniserSorealIdle") && locales.includes("obtenirEtatSorealIdle") && locales.includes("renaitreSorealIdle"));
 
 // Sauvegarde sur l'appareil : la ligne du joueur est gardée dans IndexedDB, reprise si elle est plus récente que celle du serveur, effacée une fois reçue.
+assert.ok(mod.includes("__envoyerPartieServeurIdleV1__") && fs.readFileSync(new URL("../public/modules/ui-reglages-v1.js", import.meta.url), "utf8").includes("Envoyer ma partie vers le serveur"), "bouton Réglages");
 assert.ok(mod.includes("indexedDB.open(\"soreal_idle_moteur_local_v1\"") && mod.includes("enMs(rec.cells[15])>enMs(srv[15])") && mod.includes("kv(\"effacer\",cleSauve)"), "sauvegarde appareil absente");
 
 // Fichiers construits à jour : l'adresse du Worker et du wasm porte l'empreinte de leur contenu.

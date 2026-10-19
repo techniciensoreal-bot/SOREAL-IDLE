@@ -188,6 +188,7 @@ async function idleLocalV1(request, env, chemin) {
   if (!sessionToken) return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
   if (idleLimiteDepasseeV1("local:" + sessionToken, 10, 2)) return idleTropDeRequetesV1();
   let corps = {};
+  if (chemin === "local-export") corps.appareil = new URL(request.url).searchParams.get("appareil") || "";
   if (chemin === "local-push") {
     const lecture = await idleLireJsonBorneV1(request, 4194304);
     if (lecture.tropGros) return idleCorpsTropGrosV1();

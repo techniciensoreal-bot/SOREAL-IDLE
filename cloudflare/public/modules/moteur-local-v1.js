@@ -68,6 +68,8 @@
     },1000);
   }
 
+  const appareil="a"+Math.random().toString(36).slice(2)+Date.now().toString(36);
+  let depuis=0,conflit=false;
   let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false;
   const attentes=new Map();
 
@@ -81,8 +83,9 @@
 
   async function demarrer(jeton){
     session=jeton;
-    const rep=await fetch("/api/v1/local/export",{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
+    const rep=await fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
     const exp=await rep.json();
+    depuis=Number(exp&&exp.serveurAt)||Date.now();
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
     cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
     const rec=await kv("lire",cleSauve);
@@ -96,7 +99,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=fd13a201e5");
+    worker=new Worker("/moteur-local-worker-v1.js?v=4ce3a2f344");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -114,21 +117,33 @@
     setInterval(function(){envoyer(false);},INTERVALLE_ENVOI_MS);
   }
 
-  async function envoyer(fin){
+  /* Autre appareil (ou autre onglet) arrivé après nous : on arrête d'envoyer et on propose de recharger pour reprendre la partie là où elle en est. */
+  function afficherConflit(){
+    if(document.getElementById("sorealIdleConflitLocalV1"))return;
+    const d=document.createElement("div");
+    d.id="sorealIdleConflitLocalV1";
+    d.style.cssText="position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(5,8,18,.88);padding:20px;font-family:inherit";
+    d.innerHTML='<div style="max-width:420px;background:#12182b;border:1px solid #3b4670;border-radius:14px;padding:22px;color:#e8ecfa;text-align:center"><div style="font-size:20px;font-weight:700;margin-bottom:10px">Partie reprise sur un autre appareil</div><div style="font-size:15px;color:#aab3d1;margin-bottom:16px">Cette partie vient d’être ouverte ailleurs. Recharge la page pour la reprendre là où elle en est.</div><button type="button" style="font-size:16px;padding:10px 18px;border-radius:10px;border:0;background:#4f7cff;color:#fff;cursor:pointer" onclick="location.reload()">Recharger</button></div>';
+    document.body.appendChild(d);
+  }
+  async function envoyer(fin,forcer){
     /* Une synchro sans action (le joueur laisse tourner) fait avancer la ligne : envoyée au plus une fois par minute, pour les classements. */
     const passifDu=passif&&Date.now()-dernierEnvoi>60000;
-    if(!vivant||!(sale||passifDu)||enVol&&!fin)return;
+    if(conflit||!vivant||!(sale||passifDu||forcer)||enVol&&!fin)return false;
     enVol=true;
     passif=false;dernierEnvoi=Date.now();
     try{
       const sortant=await parler({type:"sortant",vider:true});
+      sortant.appareil=appareil;sortant.depuis=depuis;
       sale=false;
       const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
-      if(!reponse||!reponse.ok)sale=true;
+      if(reponse&&reponse.conflit){conflit=true;sale=false;afficherConflit();}
+      else if(!reponse||!reponse.ok)sale=true;
       else if(!sale)await kv("effacer",cleSauve);
     }catch(_){sale=true;}
     finally{enVol=false;}
+    return !sale && !conflit;
   }
 
   async function appeler(operation,args,catalogHashes,langue,jeton){
@@ -145,6 +160,17 @@
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},
     appeler:appeler,
-    envoyerMaintenant:function(){sale=true;return envoyer(true);}
+    envoyerMaintenant:async function(){for(let i=0;i<50&&enVol;i+=1)await new Promise(function(r){setTimeout(r,100);});return envoyer(false,true);}
+  };
+  /* Réglages : « Envoyer ma partie vers le serveur » (avant de changer d'appareil). */
+  window.__envoyerPartieServeurIdleV1__=async function(bouton){
+    const etat=document.getElementById("sorealIdlePartieServeurEtatV1");
+    const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+    if(bouton)bouton.disabled=true;
+    if(etat)etat.textContent="Envoi en cours…";
+    let ok=false;
+    try{ok=Boolean(await ML.envoyerMaintenant());}catch(_){ok=false;}
+    if(etat)etat.textContent=ok?"✅ Ta partie est sur le serveur. Tu peux ouvrir le jeu sur l’autre appareil.":"⚠️ L’envoi a échoué. Vérifie ta connexion et réessaie.";
+    if(bouton)bouton.disabled=false;
   };
 })();

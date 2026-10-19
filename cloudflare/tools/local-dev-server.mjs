@@ -97,7 +97,7 @@ http.createServer(async (req, res) => {
   /* Jeu local : export au démarrage et réception de la progression (mêmes modules que le Worker de production). */
   if (url.pathname === "/api/v1/local/export" && req.method === "GET") {
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify(TOK ? exporterPourMoteurLocalV1(coord, TOK) : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
+    res.end(JSON.stringify(TOK ? exporterPourMoteurLocalV1(coord, TOK, url.searchParams.get("appareil") || "") : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
     return;
   }
   if (url.pathname === "/api/v1/local/push" && req.method === "POST") {

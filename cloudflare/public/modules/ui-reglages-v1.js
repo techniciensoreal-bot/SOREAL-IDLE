@@ -393,6 +393,16 @@
             ):'')+
           '</div>'+
           htmlProfilPseudoIdleV1_(j)+
+          (window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__&&window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__.actif()
+            ?'<div class="soreal-idle-section-v8" id="sorealIdlePartieServeurV1">'+
+              '<div class="soreal-idle-window-title-v31">☁️ Ma partie</div>'+
+              '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">'+
+                'Ta partie se joue sur cet appareil et part vers le serveur toute seule. Avant de changer d’appareil, envoie-la tout de suite, puis ouvre le jeu sur l’autre.'+
+              '</div>'+
+              '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__envoyerPartieServeurIdleV1__(this)">☁️ Envoyer ma partie vers le serveur</button>'+
+              '<div id="sorealIdlePartieServeurEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
+            '</div>'
+            :'')+
           (j&&j.classement&&j.classement.debloque
             ?'<div class="soreal-idle-section-v8">'+
               '<div class="soreal-idle-window-title-v31">🏆 Classement</div>'+
