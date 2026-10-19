@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 5,
-  "sha": "cf7c7776f12ef8ba5f1432f3a42d25ecec791f1f"
+  "pin": 6,
+  "sha": "14b17487b6f3029ff4759a506811795f00fba92b"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -512,8 +512,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 32,
-  "sha": "66be8eb4567f0b1974440b7946f2f77e040819c1"
+  "pin": 33,
+  "sha": "c4fba103a6f4979aad2733ba2ce8a00b74d5f4de"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,

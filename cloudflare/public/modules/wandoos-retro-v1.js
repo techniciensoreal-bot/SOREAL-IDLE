@@ -537,6 +537,8 @@
     osEnAttente='';
     meta_({action:'selectWandoosOs',os:os});
   }
+  /* Clics rapides (Norman, 2026-10-19 : « quand je clique très vite, des clics se perdent ») : une réponse du moteur arrivée entre deux appuis remettait l'ancienne valeur dans l'état ; le 2e appui repartait donc de l'ancienne base et envoyait la MÊME cible que le 1er (écartée comme doublon). On se souvient de la dernière cible demandée et on repart d'elle pendant 2,5 s. */
+  var visee_={};
   function placer(res,mode){
     var H=H_();
     if(!H||!H.getIdleEtat)return;
@@ -545,10 +547,13 @@
     if(res==='magic'&&!e.magieOk)return;
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
     var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));
+    var vis=visee_[res];
+    if(vis&&Date.now()-vis.at<2500){var total=actuelle+libre;actuelle=Math.max(0,Math.min(vis.v,total));libre=total-actuelle;}
     var montant=analyser_(saisie_(),libre+actuelle);
     var cible=mode==='zero'?0:mode==='tout'?actuelle+libre:mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
     cible=Math.max(0,Math.min(actuelle+libre,cible));
     if(cible===actuelle)return;
+    visee_[res]={v:cible,at:Date.now()};
     /* Mise à jour immédiate de l'écran : deux appuis rapprochés doivent s'additionner sans attendre le serveur. */
     e.st.allocation=e.st.allocation||{};
     e.st.allocation[res]=cible;

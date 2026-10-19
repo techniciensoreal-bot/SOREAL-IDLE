@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1 } from "../src/idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, analyserEnvoiLocalV1, lireAlertesLocalesV1 } from "../src/idle-local-sync-v1.js";
 import { idleOperationNames } from "../src/idle-sqlite-runtime.js";
 
 /*
@@ -51,6 +51,21 @@ r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: vieux });
 assert.equal(r.ecrit, false, "un état plus ancien n'écrase jamais un état plus récent");
 assert.equal(lire()[10], 12345);
 assert.equal(recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: [1, 2, 3] }).ok, false, "ligne incomplète refusée");
+
+// Anti-triche en OBSERVATION : une anomalie est notée mais la progression est toujours acceptée ; un envoi honnête ne note rien.
+const honnete = ligne.slice(); honnete[15] = new Date(Date.now() + 1000).toISOString();
+assert.equal(recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: honnete }).alertes, 0, "un envoi honnête ne déclenche aucune alerte");
+const futur = ligne.slice(); futur[15] = "2031-01-01T00:00:00.000Z";
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: futur });
+assert.equal(r.alertes, 1); assert.equal(r.ecrit, true, "l'anomalie est notée, la progression reste acceptée");
+assert.equal(lireAlertesLocalesV1(coord)[0].code, "horloge_avance");
+assert.deepEqual(analyserEnvoiLocalV1(honnete, honnete, Date.now()), []);
+const av = honnete.slice(); av[24] = 5; av[14] = 40; const ap = av.slice(); ap[24] = 6; ap[14] = 0;
+assert.deepEqual(analyserEnvoiLocalV1(av, ap, Date.now()), [], "après une renaissance, les boss vaincus repartent de zéro : normal");
+const ap2 = av.slice(); ap2[14] = 10;
+assert.equal(analyserEnvoiLocalV1(av, ap2, Date.now())[0].code, "boss_vaincus_recul");
+const ap3 = av.slice(); ap3[24] = 4;
+assert.equal(analyserEnvoiLocalV1(av, ap3, Date.now())[0].code, "renaissances_recul");
 
 // Aiguillage : toutes les opérations locales existent ; chat, classements, « En direct », comptes et administration restent au serveur.
 const mod = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");

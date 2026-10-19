@@ -3,7 +3,7 @@ import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogue
 import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1 } from "./idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1 } from "./idle-local-sync-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -541,6 +541,9 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/local-push") {
       const p = await request.json().catch(() => ({}));
       return Response.json(recevoirDuMoteurLocalV1(this, p), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/local-alertes") {
+      return Response.json({ ok: true, alertes: lireAlertesLocalesV1(this) }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/operations") {
       return Response.json({ ok: true, operations: idleOperationNames() }, { headers: { "cache-control": "no-store" } });

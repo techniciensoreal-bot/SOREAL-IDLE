@@ -434,6 +434,11 @@ export default {
       return idleLogoutV1(request, env);
     }
 
+    /* Notes de l'anti-triche du jeu local : administrateur seul. */
+    if (request.method === "GET" && url.pathname === "/api/v1/local/alertes") {
+      if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-alertes", { method: "POST", body: "{}" });
+    }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleLocalV1(request, env, "local-export");
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleLocalV1(request, env, "local-push");
 

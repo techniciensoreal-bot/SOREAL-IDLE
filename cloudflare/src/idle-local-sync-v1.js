@@ -13,6 +13,50 @@ import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slot
 const sv = (v) => String(v == null ? "" : v).trim();
 const COL_DERNIERE_SYNCHRO = 15;            // colonne 16 (base 0)
 const COLS_DU_SERVEUR = [0, 1, 17, 18, 19]; // ID, Nom, Rang, e-mail principal, e-mail de connexion
+/*
+ * Anti-triche (Norman, 2026-10-19) : « personne ne va essayer de tricher ; si ça détecte de la triche, ce sera un souci de ton anti-triche ». Donc :
+ *  - MODE OBSERVATION : une anomalie est NOTÉE (table idle_alertes_locales, lisible par l'administrateur seul) et la progression est TOUJOURS acceptée ;
+ *    seul un envoi malformé est refusé ;
+ *  - peu de règles, toutes sans faux positif possible dans un jeu honnête : l'horloge de l'appareil ne peut pas annoncer une date lointaine dans le futur
+ *    (avancer l'horloge ferait gagner du temps hors ligne) ; un compteur qui ne redescend jamais (renaissances) ne redescend pas ; les boss vaincus ne
+ *    redescendent que par une renaissance.
+ * Le rejeu complet des actions (journal) viendra si ces notes montrent un jour un vrai besoin.
+ */
+const TOLERANCE_HORLOGE_MS = 15 * 60 * 1000;
+const COL_BOSS_VAINCUS = 14;
+const COL_RENAISSANCES = 24;
+const MAX_ALERTES = 500;
+
+export function analyserEnvoiLocalV1(avant, apres, maintenantMs) {
+  const alertes = [];
+  const recu = enMs(apres[COL_DERNIERE_SYNCHRO]);
+  if (Number.isFinite(recu) && recu > maintenantMs + TOLERANCE_HORLOGE_MS) {
+    alertes.push({ code: "horloge_avance", detail: "synchro annoncée " + Math.round((recu - maintenantMs) / 60000) + " min dans le futur" });
+  }
+  if (Array.isArray(avant) && avant.length > COL_RENAISSANCES) {
+    const renAvant = Number(avant[COL_RENAISSANCES]) || 0;
+    const renApres = Number(apres[COL_RENAISSANCES]) || 0;
+    if (renApres < renAvant) alertes.push({ code: "renaissances_recul", detail: renAvant + " -> " + renApres });
+    else if (renApres === renAvant && (Number(apres[COL_BOSS_VAINCUS]) || 0) < (Number(avant[COL_BOSS_VAINCUS]) || 0)) {
+      alertes.push({ code: "boss_vaincus_recul", detail: (Number(avant[COL_BOSS_VAINCUS]) || 0) + " -> " + (Number(apres[COL_BOSS_VAINCUS]) || 0) });
+    }
+  }
+  return alertes;
+}
+
+function noterAlertes(coord, email, alertes) {
+  if (!alertes.length) return;
+  coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_alertes_locales(id INTEGER PRIMARY KEY AUTOINCREMENT, at INTEGER NOT NULL, email TEXT NOT NULL, code TEXT NOT NULL, detail TEXT NOT NULL DEFAULT '')");
+  for (const a of alertes) coord.sql.exec("INSERT INTO idle_alertes_locales(at,email,code,detail) VALUES(?,?,?,?)", Date.now(), email, a.code, a.detail);
+  coord.sql.exec("DELETE FROM idle_alertes_locales WHERE id <= (SELECT COALESCE(MAX(id),0) FROM idle_alertes_locales) - ?", MAX_ALERTES);
+}
+
+export function lireAlertesLocalesV1(coord) {
+  try {
+    return coord.sqlAll("SELECT at,email,code,detail FROM idle_alertes_locales ORDER BY id DESC LIMIT 100");
+  } catch (_) { return []; }
+}
+
 const MAX_FLUX = 200;
 const MAX_GAINS = 100;
 
@@ -68,6 +112,8 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
   const recu = enMs(cells[COL_DERNIERE_SYNCHRO]);
   const connu = enMs(serveur[COL_DERNIERE_SYNCHRO]);
+  const alertes = analyserEnvoiLocalV1(serveur, cells, Date.now());
+  noterAlertes(coord, emailsDe(effectif(s.user))[0] || "", alertes);
   let ecrit = false;
   if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
     const fusion = cells.slice();
@@ -91,5 +137,5 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", Number(g.at) || Date.now(), cle, nom, sv(g.operation).slice(0, 120), Number(g.avant) || 0, Number(g.apres) || 0);
     gains += 1;
   }
-  return { ok: true, ecrit, flux, gains, serveurAt: Date.now() };
+  return { ok: true, ecrit, flux, gains, alertes: alertes.length, serveurAt: Date.now() };
 }
