@@ -22,28 +22,61 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.2',
+    courante:'3.3',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.3',
+        nom:'Tout se passe chez toi',
+        date:'2026-10-19',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Le jeu se met à jour jusqu’à 60 fois par seconde quand ton appareil le permet (15 avant) : barres, vie et compteurs sont plus fluides.',
+            'Un mode de jeu calculé directement sur ton appareil est en test : tout réagit tout de suite, rien ne recule en attendant le serveur, les menus qui évoluent en direct se rafraîchissent environ 10 fois plus souvent, et ta partie est enregistrée sur l’appareil puis envoyée au serveur.',
+            'Dans les Réglages de ce mode, un bouton « Envoyer ma partie vers le serveur » permet de changer d’appareil sans rien perdre.',
+            'Le serveur garde des copies de sécurité de ta partie (une par jour, plus celles des dernières heures) pour la restaurer en cas de problème.',
+          ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Le plafond d’entraînement instantané place bien 6 points dans Attaque passive à chaque renaissance, et 6 de plus dans Blocage avec la synchro de l’entraînement.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Le lancement d’un combat est plus léger : une mesure de la page, refaite à chaque image au départ, a été allégée.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'La carte de stats montre ta chance de drop : 100 % de base, et entre parenthèses le bonus des équipements et des autres sources.',
+            'Il n’y a plus de limite de 70 % : l’Aventure hors ligne peut remplir tout le sac.',
+            'Changer de page du sac ne redessine plus toute la page.',
+            'Le coffre croque aussi un objet déposé au doigt ou à la souris.',
+          ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Quand renaître est en positif, de petites étoiles à quatre branches scintillent sur place dans le bouton du menu, au lieu de glisser.',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Les barres sont dessinées à chaque image : elles avancent sans saccade.',
+            'Après une renaissance, la machine ne produit plus d’or tant qu’aucun ennemi n’a été tué.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Le sort Or contrefait est réparé et traduit, comme Spaghetti au sang et Pilule de fer : le bouton Lancer reste inactif sous le sang minimum et le rituel ne démarre qu’une fois accepté par le serveur.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'La touche MAX du clavier devient CAP et place jusqu’au plafond du poste.',
+            'Clics très rapides sur + et sur les chiffres : tous sont validés, et le chiffre ne recule plus.',
+          ]}
+        ]
+      },
       {
         version:'3.2',
         nom:'Des portes qui se referment',
         date:'2026-10-17',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Quand le serveur tue le boss un instant avant ton dernier coup, tu vois maintenant le coup final et la victoire, au lieu d’un boss qui retrouve toute sa vie.',
-            'Un petit bouton 🐞 (administrateur) note d’un appui l’instant exact d’un défaut vu à l’écran, avec la vie des deux combattants sur les 20 dernières secondes.',
-            'Le journal de fluidité surveille aussi les barres de vie du duel : un saut de vie est noté avec la réponse du serveur qui le précède.',
-            'Le journal de fluidité suit aussi la vie d’un ordre de combat (attente avant l’envoi, aller-retour, actions passées devant) et les actions rapides lentes.',
-            'Le journal de fluidité est complet à lui seul : appareil, réseau, menu ouvert et combat sur chaque ligne, avec les blocages et les réponses lentes du serveur.',
-            'Quand deux réponses du serveur arrivent presque en même temps, la plus ancienne ne peut plus remplacer la plus récente : plus de boss ou d’avancement qui reviennent un court instant en arrière.',
-            'Le journal de fluidité note aussi le lancement d’un combat de boss et les sauts de vie qui suivent, pour traquer ce qui saute en ligne.',
-            'Les chroniques de boss lues depuis la Collection, la fiche d’un boss ou « Lire les chroniques » utilisent maintenant la même voix et le même texte dit que pendant le combat.',
-            'Un record personnel battu (combat de boss le plus long, meilleur Nombre) ou une place gagnée face aux autres joueurs s’annonce par un petit message avec un son à part, différent de celui des trophées.',
+            'Quand le serveur tue le boss un instant avant ton dernier coup, tu vois le coup final et la victoire ; deux réponses du serveur arrivées dans le désordre ne font plus reculer le boss ni l’avancement.',
+            'Un journal de fluidité détaillé (combat, vie des combattants, appareil, réseau) et un bouton 🐞 réservé à l’administrateur aident à traquer les défauts à l’écran.',
+            'Les chroniques de boss ont partout la même voix et le même texte ; un record personnel battu ou une place gagnée s’annonce par un petit message avec un son à part.',
           ]},
           {menu:'renaissance', titre:'Renaissance', points:[
-            'Le bouton Renaissance prend la couleur de son menu, et quand renaître est en positif, de petites lueurs dorées montent dans le bouton du menu et dans celui de la page.',
+            'Le bouton Renaissance prend la couleur de son menu, dans le menu comme dans la page.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'Défi sans équipement : l’équipement porté ne compte plus nulle part (combats, Aventure…), les pièces équipées sont grisées et ce qu’elles donneraient est barré dans le petit tableau sous l’image. Tu peux toujours mettre et enlever des pièces.',

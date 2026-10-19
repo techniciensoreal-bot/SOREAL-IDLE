@@ -101,7 +101,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=800ca9c986");
+    worker=new Worker("/moteur-local-worker-v1.js?v=55e0952703");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
