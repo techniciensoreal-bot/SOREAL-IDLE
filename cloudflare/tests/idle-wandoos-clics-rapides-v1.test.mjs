@@ -9,3 +9,12 @@ assert.ok(s.includes("var vis=visee_[res];") && s.includes("Date.now()-vis.at<25
 assert.ok(s.includes("visee_[res]={v:cible,at:Date.now()};"), "la cible est mémorisée avant l'envoi");
 assert.ok(s.indexOf("visee_[res]={v:cible") < s.indexOf("meta_({action:'allocate',system:'wandoos'"), "mémorisée avant meta_");
 console.log("idle-wandoos-clics-rapides-v1: OK");
+
+/* 2e cause (Norman, 2026-10-19 : « quand je mets rapidement des 20K dans Wandoos, tous les clics ne sont pas validés ») : chaque placement redessine tout le poste (outerHTML) ; un
+   redessin entre l'appui et le relâchement détruit le bouton et le navigateur n'envoie aucun clic (essai souris réelle : 8 clics sur 15 validés). Les touches + et chiffres agissent
+   donc à l'appui (souris) ou au relâchement sans bouger (doigt) ; le clic qui suit est ignoré une seule fois. */
+assert.ok(s.includes("document.addEventListener('pointerdown'") && s.includes("e.pointerType==='mouse'") && s.includes("declencher_(t)"), "action à l'appui");
+assert.ok(s.includes("document.addEventListener('pointerup'") && s.includes("Math.abs(e.clientX-a.x)<10"), "doigt : au relâchement sans bouger");
+assert.ok(s.includes("e.stopImmediatePropagation();e.preventDefault();") && s.includes("faitsTouche.splice(i,1)"), "le clic qui suit n'est pas compté deux fois");
+assert.ok(s.includes("code.indexOf('.place(')===-1&&code.indexOf('.chiffre(')===-1"), "limité aux touches + − MAX 0 et chiffres");
+console.log("idle-wandoos-clics-rapides-v1 (appui): OK");

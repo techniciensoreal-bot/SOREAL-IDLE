@@ -601,6 +601,53 @@
     },true);
   }catch(_e){}
 
+  /*
+   * Clics rapides sur les touches + et chiffres (Norman, 2026-10-19 : « quand je mets rapidement des 20K dans Wandoos, tous les clics ne sont pas validés »). Chaque placement redessine
+   * TOUT le poste (poste.outerHTML) : un redessin qui tombe ENTRE l'appui et le relâchement détruit le bouton, et le navigateur n'envoie alors aucun clic. L'action part donc à
+   * l'APPUI (souris), ou au relâchement sans bouger (doigt, stylet) sur le bouton mémorisé à l'appui ; le clic qui suit est ignoré une seule fois pour ne pas compter deux fois. Au
+   * clavier (Entrée, espace), le clic normal reste seul en jeu.
+   */
+  try{
+    var appuiTouche=null,faitsTouche=[];
+    var toucheDe_=function(e){
+      var b=e.target&&e.target.closest?e.target.closest('.wd-touche'):null;
+      if(!b||b.disabled)return null;
+      var code=b.getAttribute('onclick')||'';
+      if(code.indexOf('.place(')===-1&&code.indexOf('.chiffre(')===-1)return null;
+      return {code:code,fn:b.onclick,btn:b};
+    };
+    var declencher_=function(t){
+      faitsTouche.push({code:t.code,at:performance.now()});
+      if(faitsTouche.length>40)faitsTouche.shift();
+      if(typeof t.fn==='function')t.fn.call(t.btn);
+    };
+    document.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      var t=toucheDe_(e);
+      if(!t)return;
+      if(e.pointerType==='mouse'){declencher_(t);return;}
+      appuiTouche={t:t,x:e.clientX,y:e.clientY,at:performance.now()};
+    },true);
+    document.addEventListener('pointerup',function(e){
+      var a=appuiTouche;appuiTouche=null;
+      if(!a||e.pointerType==='mouse')return;
+      if(Math.abs(e.clientX-a.x)<10&&Math.abs(e.clientY-a.y)<10&&performance.now()-a.at<900)declencher_(a.t);
+    },true);
+    document.addEventListener('pointercancel',function(){appuiTouche=null;},true);
+    document.addEventListener('click',function(e){
+      var t=toucheDe_(e);
+      if(!t)return;
+      var now=performance.now();
+      for(var i=0;i<faitsTouche.length;i++){
+        if(faitsTouche[i].code===t.code&&now-faitsTouche[i].at<1000){
+          faitsTouche.splice(i,1);
+          e.stopImmediatePropagation();e.preventDefault();
+          return;
+        }
+      }
+    },true);
+  }catch(_e){}
+
   window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
     demarrer:demarrer,rafraichir:rafraichirPoste_,saisir:majSaisie_,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
 })();
