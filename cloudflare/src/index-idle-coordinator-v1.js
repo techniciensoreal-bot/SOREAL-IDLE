@@ -3,7 +3,7 @@ import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogue
 import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1 } from "./idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1 } from "./idle-local-sync-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -310,12 +310,15 @@ export class SorealIdleCoordinatorV1 {
 
     /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
     /* Langue des items et des textes (idle-traductions-v1.js) : traduction de la réponse AVANT l'allègement, donc l'empreinte des catalogues dépend de la langue. */
-    return allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(
+    const resultatBrut = runSorealIdleOperation(
       this.sqlMoteur,
       operation,
       args,
       session.user
-    ), payload?.langue), payload?.catalogHashes);
+    );
+    /* Action de jeu passée par le SERVEUR (appareil resté en mode serveur) : elle revendique la partie (voir idle-local-sync-v1.js). Jamais dans le Worker du jeu local. */
+    if (!this.__modeLocalV1) { try { noterActionServeurV1(this, session.user, operation); } catch (_e) { /* la revendication ne doit jamais faire échouer l'action */ } }
+    return allegerCataloguesV1(traduireReponseV1(resultatBrut, payload?.langue), payload?.catalogHashes);
   }
 
   /*
@@ -549,6 +552,11 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/local-restaurer") {
       const p = await request.json().catch(() => ({}));
       return Response.json(restaurerSauvegardeLocaleV1(this, sv(p?.email), Number(p?.id)), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/local-interrupteur") {
+      const p = await request.json().catch(() => ({}));
+      if (typeof p?.actif === "boolean") definirLocalActifV1(this, p.actif);
+      return Response.json({ ok: true, actif: localActifV1(this) }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-alertes") {
       return Response.json({ ok: true, alertes: lireAlertesLocalesV1(this) }, { headers: { "cache-control": "no-store" } });

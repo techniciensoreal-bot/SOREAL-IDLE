@@ -440,6 +440,16 @@ export default {
       if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
       return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-alertes", { method: "POST", body: "{}" });
     }
+    /* Interrupteur général du jeu local (administrateur seul) : GET = état, POST {actif:false} = retour au mode serveur au prochain chargement de chaque joueur. */
+    if (url.pathname === "/api/v1/local/interrupteur" && (request.method === "GET" || request.method === "POST")) {
+      if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+      let corps = {};
+      if (request.method === "POST") {
+        const lecture = await idleLireJsonBorneV1(request);
+        corps = lecture.corps && typeof lecture.corps === "object" ? { actif: lecture.corps.actif } : {};
+      }
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-interrupteur", { method: "POST", body: JSON.stringify(corps) });
+    }
     /* Sauvegardes de sécurité des parties (jeu local) : liste et restauration, administrateur seul. */
     if (request.method === "GET" && url.pathname === "/api/v1/local/sauvegardes") {
       if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);

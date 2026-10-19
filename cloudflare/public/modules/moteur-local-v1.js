@@ -16,21 +16,29 @@
     lancerSortSorealIdle:1,marquerVusSorealIdle:1,definirOrdreMenusSorealIdle:1,recyclerObjetSorealIdle:1,recyclerObjetsSorealIdle:1,renaitreSorealIdle:1,
     sauvegarderDispositionInventaireSorealIdle:1,selectionnerBossSorealIdle:1,enregistrerClicsSorealIdle:1,definirClassementVisibleSorealIdle:1,nukerBossSorealIdle:1
   };
-  /* Opérations qui restent au serveur mais MODIFIENT la ligne du joueur (administration, partie d'essai) : avant, on envoie ce que la page a de neuf ; après, on recharge la page pour repartir de l'état du serveur. */
-  const MODIFIENT_LE_JOUEUR={annulerVictoireTitanAdminSorealIdle:1,crediterExpAdminSorealIdle:1,reinitialiserCompteCompletSorealIdle:1,preparerPartieTestSorealIdle:1,copierPartieASurBSorealIdle:1,definirPartieDevSorealIdle:1};
+  /* Opérations qui restent au serveur mais MODIFIENT la ligne du joueur (administration, partie d'essai, changement de pseudo : le profil copié dans la page doit être rechargé) : avant, on envoie ce que la page a de neuf ; après, on recharge la page pour repartir de l'état du serveur. */
+  const MODIFIENT_LE_JOUEUR={annulerVictoireTitanAdminSorealIdle:1,crediterExpAdminSorealIdle:1,reinitialiserCompteCompletSorealIdle:1,preparerPartieTestSorealIdle:1,copierPartieASurBSorealIdle:1,definirPartieDevSorealIdle:1,definirPseudoSorealIdle:1};
   const INTERVALLE_ENVOI_MS=10000;
 
+  /*
+   * ACTIF PAR DÉFAUT pour tous les joueurs (Norman, 2026-10-19). Coupé seulement : (1) par un choix explicite de l'appareil (?local=0, enregistré), (2) si le navigateur ne sait pas faire
+   * tourner le moteur (pas de Worker, de WebAssembly ni d'IndexedDB), (3) par l'interrupteur général du serveur (l'export répond alors « IDLE_LOCAL_DESACTIVE » : la page retombe sur le
+   * mode serveur) ou si le moteur ne démarre pas. Dans tous ces cas le jeu continue en mode serveur, comme avant.
+   */
   let actifCache=null;
+  function capable(){
+    try{return typeof Worker==="function"&&typeof WebAssembly==="object"&&typeof indexedDB==="object"&&indexedDB!==null;}catch(_){return false;}
+  }
   function actif(){
     if(actifCache!==null)return actifCache;
     let v="";
     try{
       const q=new URLSearchParams(location.search||"").get("local");
       if(q==="1")localStorage.setItem(CLE,"1");
-      else if(q==="0")localStorage.removeItem(CLE);
+      else if(q==="0")localStorage.setItem(CLE,"0");
       v=String(localStorage.getItem(CLE)||"");
     }catch(_){}
-    actifCache=v==="1";
+    actifCache=v!=="0"&&capable();
     return actifCache;
   }
 
@@ -72,6 +80,12 @@
 
   const appareil="a"+Math.random().toString(36).slice(2)+Date.now().toString(36);
   let depuis=0,conflit=false;
+  let ecartInitial=0;
+  function ecartServeur(){
+    const f=window.__SOREAL_IDLE_ECART_V1__;
+    const e=typeof f==="function"?f():null;
+    return Number.isFinite(e)?e:ecartInitial;
+  }
   let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false;
   const attentes=new Map();
 
@@ -85,9 +99,12 @@
 
   async function demarrer(jeton){
     session=jeton;
+    const t0=Date.now();
     const rep=await fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
     const exp=await rep.json();
     depuis=Number(exp&&exp.serveurAt)||Date.now();
+    /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). */
+    if(exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
     cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
     const rec=await kv("lire",cleSauve);
@@ -101,7 +118,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=55e0952703");
+    worker=new Worker("/moteur-local-worker-v1.js?v=0aec86e325");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -112,7 +129,7 @@
       echec=true;vivant=false;
       attentes.forEach(function(a){a.ko(new Error("MOTEUR_LOCAL_ARRETE"));});attentes.clear();
     };
-    await parler({type:"init",export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href});
+    await parler({type:"init",ecart:ecartServeur(),export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href});
     vivant=true;
     window.addEventListener("pagehide",function(){envoyer(true);});
     document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")envoyer(true);});
@@ -151,7 +168,7 @@
   async function appeler(operation,args,catalogHashes,langue,jeton){
     if(!demarrage)demarrage=demarrer(jeton);
     try{await demarrage;}catch(e){echec=true;return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
-    const r=await parler({type:"appel",operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
+    const r=await parler({type:"appel",ecart:ecartServeur(),operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
     if(operation==="synchroniserSorealIdle")passif=true;
     else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
     if(sale)programmerSauvegarde();

@@ -144,6 +144,45 @@ export function restaurerSauvegardeLocaleV1(coord, email, id) {
   return { ok: true, index, restauree: Number(id) };
 }
 
+/*
+ * INTERRUPTEUR GÉNÉRAL du jeu local (Norman, 2026-10-19 : le jeu local est actif pour TOUS les joueurs, avec toutes les précautions). L'administrateur peut le COUPER sans redéployer
+ * (POST /api/v1/local/interrupteur {actif:false}) : l'export refuse alors (« IDLE_LOCAL_DESACTIVE »), la page retombe sur le mode serveur au prochain chargement ; les parties
+ * déjà poussées restent intactes. Rallumé par {actif:true}.
+ */
+function assurerReglages(coord) {
+  coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_local_reglages(cle TEXT PRIMARY KEY, valeur TEXT NOT NULL)");
+}
+export function localActifV1(coord) {
+  assurerReglages(coord);
+  const r = coord.sqlAll("SELECT valeur FROM idle_local_reglages WHERE cle='actif'")[0];
+  return !(r && r.valeur === "0");
+}
+export function definirLocalActifV1(coord, actif) {
+  assurerReglages(coord);
+  coord.sql.exec("INSERT OR REPLACE INTO idle_local_reglages(cle,valeur) VALUES('actif',?)", actif ? "1" : "0");
+  return { ok: true, actif: Boolean(actif) };
+}
+
+/*
+ * Appareil resté en MODE SERVEUR (onglet ouvert avant la mise à jour, navigateur sans Worker) : ses actions modifient la ligne du joueur sur le serveur. Pour qu'un appareil en jeu
+ * local ne l'écrase jamais avec un état plus ancien, toute action de jeu passée par le serveur REVENDIQUE la partie (« __serveur__ ») : l'appareil local reçoit alors « partie reprise
+ * ailleurs » à son prochain envoi et se recharge sur l'état du serveur. Les simples lectures (état, synchro) ne revendiquent rien.
+ */
+export const OPERATIONS_DE_JEU_V1 = new Set([
+  "agirProgressionSorealIdle", "definirAllocationsEntrainementSorealIdle", "acheterAmeliorationSorealIdle", "acheterAmeliorationsSorealIdle", "acheterEntrainementSorealIdle",
+  "acheterEntrainementsSorealIdle", "acheterSortSorealIdle", "acheterSortsSorealIdle", "agrandirInventairePlusieursSorealIdle", "agrandirInventaireSorealIdle",
+  "ameliorerEquipementForgeSorealIdle", "ameliorerEquipementsForgeSorealIdle", "combattreAventureSorealIdle", "definirAutoBossSuivantSorealIdle", "definirCombatAutoAventureSorealIdle",
+  "definirCombatBossSorealIdle", "equiperObjetsSorealIdle", "fusionnerObjetSorealIdle", "fusionnerObjetsSorealIdle", "lancerSortSorealIdle", "recyclerObjetSorealIdle",
+  "recyclerObjetsSorealIdle", "renaitreSorealIdle", "sauvegarderDispositionInventaireSorealIdle", "selectionnerBossSorealIdle", "definirClassementVisibleSorealIdle", "nukerBossSorealIdle",
+]);
+export function noterActionServeurV1(coord, user, operation) {
+  if (!OPERATIONS_DE_JEU_V1.has(operation)) return false;
+  const mail = emailsDe(effectif(user))[0] || "";
+  if (!mail) return false;
+  revendiquer(coord, mail, "__serveur__", Date.now());
+  return true;
+}
+
 const MAX_FLUX = 200;
 const MAX_GAINS = 100;
 
@@ -174,6 +213,7 @@ function indexLigneJoueur(coord, user) {
 export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
+  if (!localActifV1(coord)) return { ok: false, error: "IDLE_LOCAL_DESACTIVE" };
   /* Crée la ligne du joueur si c'est sa première visite, puis la lit. */
   runSorealIdleOperation(coord.sqlMoteur, "obtenirEtatSorealIdle", [sessionToken], s.user);
   const index = indexLigneJoueur(coord, s.user);

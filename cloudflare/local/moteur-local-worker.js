@@ -9,6 +9,22 @@ import initSqlJs from "sql.js/dist/sql-wasm-browser.js";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import { assurerTableProfilsIdleV1 } from "../src/idle-profile-v1.js";
 
+/*
+ * HEURE DU SERVEUR : le moteur lit l'heure par Date.now() et new Date(). Dans ce Worker elles valent l'horloge de l'appareil + l'écart mesuré avec le serveur (envoyé par la page à chaque
+ * message) : une horloge d'appareil avancée ou reculée n'a aucun effet sur le temps hors ligne, les récompenses du jour, les échéances ni les chronos.
+ */
+let ecartMs = 0;
+const DateReelle = Date;
+class DateServeur extends DateReelle {
+  constructor(...a) {
+    if (a.length === 0) super(DateReelle.now() + ecartMs);
+    else super(...a);
+  }
+  static now() { return DateReelle.now() + ecartMs; }
+}
+self.Date = DateServeur;
+function regler(ecart) { if (Number.isFinite(ecart)) ecartMs = ecart; }
+
 let db = null;
 let coord = null;
 let sql = null;
@@ -49,6 +65,7 @@ async function demarrer(exp) {
   sql = surveiller(db);
   db.run("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
   coord = new SorealIdleCoordinatorV1({ storage: { sql } }, {});
+  coord.__modeLocalV1 = true;   // pas de revendication « __serveur__ » dans la base locale
   for (let i = 0; i < 15; i += 1) sql.exec("INSERT INTO migration_sources(source_key,status) VALUES(?,?)", "idle:s" + i, "DONE");
   const maintenant = Date.now();
   for (const f of exp.feuilles) sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", f[0], f[1], f[2], maintenant);
@@ -79,9 +96,11 @@ self.onmessage = async (ev) => {
   try {
     if (m.type === "init") {
       self.__SOREAL_SQL_WASM_URL__ = m.wasmUrl;
+      regler(m.ecart);
       const r = await demarrer(m.export);
       self.postMessage({ id: m.id, ok: true, resultat: r });
     } else if (m.type === "appel") {
+      regler(m.ecart);
       const debut = Date.now();
       const res = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: m.operation, args: Array.isArray(m.args) ? m.args : [], catalogHashes: m.catalogHashes, langue: m.langue });
       if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur)) res.joueur.__serveurAtV1 = Math.max(debut, versionLocale + 1);

@@ -117,12 +117,13 @@
       heureServeurV1.connu=true;
     }
   }
-  /* Jeu local (modules/moteur-local-v1.js) : le moteur tourne dans la page, ses dates sont celles de CET appareil. L'écart avec l'horloge du serveur ne doit plus s'appliquer, sinon les échéances du jeu (réapparition, cooldowns, chronos) sont décalées de cet écart et les combats ne démarrent pas. */
+  /* Jeu local (modules/moteur-local-v1.js) : le moteur tourne dans la page mais à l'HEURE DU SERVEUR (horloge de l'appareil + cet écart, voir le Worker) : changer l'heure de l'appareil ne fait ni gagner de temps hors ligne ni rejouer une récompense du jour, et les échéances du jeu restent cohérentes avec celles des opérations qui passent par le serveur. */
   function ecartHorlogeV1_(){
-    const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
-    return(ML&&ML.actif&&ML.actif())?0:heureServeurV1.ecart;
+    return heureServeurV1.ecart;
   }
   window.__SOREAL_IDLE_HEURE_V1__=function(){return Date.now()+ecartHorlogeV1_();};
+  /* Écart connu (null tant qu'aucune réponse du serveur n'a servi à le mesurer) : lu par le jeu local pour régler l'heure de son moteur. */
+  window.__SOREAL_IDLE_ECART_V1__=function(){return heureServeurV1.connu?heureServeurV1.ecart:null;};
   window.__SOREAL_IDLE_RTT_V1__=function(){const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;return(ML&&ML.actif&&ML.actif())?0:(heureServeurV1.connu?heureServeurV1.rtt:0);};
   /*
    * Âge réel de l'état reçu (Norman, 2026-10-07 : « les barres d'Augmentations recalculent encore à chaque montée — en ligne »). Les chronos partaient de « réception moins un demi aller-retour », avec l'aller-retour le plus court jamais
@@ -134,9 +135,10 @@
     const serveurAt=Number(joueur&&joueur.__serveurAtV1);
     if(!heureServeurV1.connu||!(serveurAt>0))return perfMaintenant;
     const ML=typeof window!=="undefined"?window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__:null;
-    const age=dateMaintenant-(serveurAt-((ML&&ML.actif&&ML.actif())?0:heureServeurV1.ecart));
+    const age=dateMaintenant-(serveurAt-heureServeurV1.ecart);
     if(!(age>=0)||age>30000)return perfMaintenant;
-    return perfMaintenant-age+heureServeurV1.rtt/2;
+    /* En jeu local la réponse ne voyage pas : pas de demi aller-retour à retrancher. */
+    return perfMaintenant-age+((ML&&ML.actif&&ML.actif())?0:heureServeurV1.rtt/2);
   }
   window.__SOREAL_IDLE_CALER_RECU_V1__=calerRecuPerfV1_;
   window.__SOREAL_IDLE_ETAT_HEURE_V1__=heureServeurV1;

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, analyserEnvoiLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, sauvegarderSiBesoinLocalV1 } from "../src/idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, analyserEnvoiLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, sauvegarderSiBesoinLocalV1, localActifV1, definirLocalActifV1, noterActionServeurV1 } from "../src/idle-local-sync-v1.js";
 import { idleOperationNames } from "../src/idle-sqlite-runtime.js";
 
 /*
@@ -103,6 +103,25 @@ const mod = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", impo
 const debut = mod.indexOf('const MODIFIENT_LE_JOUEUR=') + 'const MODIFIENT_LE_JOUEUR='.length;
 const modifient = Object.keys(new Function('return ' + mod.slice(debut, mod.indexOf('};', debut) + 1))());
 for (const o of modifient) assert.ok(idleOperationNames().includes(o), 'opération inconnue : ' + o);
+
+// Interrupteur général : coupé, l'export refuse (la page retombe sur le mode serveur) ; rallumé, il repart.
+assert.equal(localActifV1(coord), true, "actif par défaut");
+definirLocalActifV1(coord, false);
+assert.deepEqual(exporterPourMoteurLocalV1(coord, T, "appareil-Z"), { ok: false, error: "IDLE_LOCAL_DESACTIVE" }, "interrupteur coupé : export refusé");
+definirLocalActifV1(coord, true);
+assert.equal(exporterPourMoteurLocalV1(coord, T, "appareil-C").ok, true, "interrupteur rallumé : export accepté");
+
+// Appareil resté en mode serveur : une action de jeu passée par le serveur revendique la partie ; l'appareil local reçoit un conflit au lieu d'écraser. Une simple lecture ne revendique rien.
+const cells2 = ligne.slice(); cells2[15] = "2033-01-01T00:00:00.000Z"; cells2[10] = 4242;
+coord.runStandaloneSessionOperationV1({ sessionToken: T, operation: "obtenirEtatSorealIdle", args: [T] });
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: cells2, appareil: "appareil-C", depuis: Date.now() - 20000 });
+assert.equal(r.ok, true, "une lecture par le serveur ne revendique pas la partie");
+assert.equal(noterActionServeurV1(coord, user, "obtenirEtatSorealIdle"), false);
+assert.equal(noterActionServeurV1(coord, user, "lireChatSorealIdle"), false, "le chat n'est pas une action de jeu");
+const cells3 = cells2.slice(); cells3[15] = "2034-01-01T00:00:00.000Z";
+coord.runStandaloneSessionOperationV1({ sessionToken: T, operation: "selectionnerBossSorealIdle", args: [T, 1] });
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: cells3, appareil: "appareil-C", depuis: Date.now() - 20000 });
+assert.equal(r.conflit, true, "une action de jeu passée par le serveur revendique la partie : conflit pour l'appareil local");
 
 // Aiguillage : toutes les opérations locales existent ; chat, classements, « En direct », comptes et administration restent au serveur.
 const locales = Object.keys(new Function("const window={};" + mod.match(/const LOCALES=(\{[\s\S]*?\});/)[0].replace("const LOCALES=", "return ") .replace(/^return /, "return ")) ());
