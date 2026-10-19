@@ -427,7 +427,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
 /*
  * Farm automatique d'Aventure hors ligne (Norman, 2026-09-29) : « à la reconnexion... que le jeu
  * calcule ce qu'on aurait dû looter... le mode aventure tourne même le jeu fermé... 12h », précisé
- * ensuite en 3 contraintes fermes : 8h maximum hors ligne ; jamais plus de 70% de l'inventaire
+ * ensuite en 3 contraintes fermes : 8h maximum hors ligne ; (la limite « jamais plus de 70% de l'inventaire » a été supprimée le 2026-10-19)
  * (toujours une place pour le butin de titan etc.) ; « le combat doit être calculé comme s'il avait
  * eu lieu » -- un vrai risque de mort, avec le monstre et la zone lisibles dans le journal. Zone
  * ciblée = lastCombatZone (Norman : « La dernière zone de combat active et la zone actuellement
@@ -510,7 +510,8 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
   const playerRegenSec=Math.max(0,N(stats.regen))*1.2;
   const attackIntervalSec=(s.unlockFlags&&s.unlockFlags.redLiquidMaxed?800:1000)/1000;
   const idleBonus=idleAttackMultiplierAdventureAutoV1(stats);
-  const capaciteFarm=Math.floor(inventoryCapacityAdventureV1(s)*.7);
+  /* Plafond de 70 % SUPPRIMÉ (Norman, 2026-10-19 : « il faut supprimer la limite de 70% de loot hors ligne. On peut remplir l'inventaire désormais. ») : le farm hors ligne remplit désormais jusqu'à 100 % de la capacité. */
+   const capaciteFarm=inventoryCapacityAdventureV1(s);
   const RESPAWN_SEC=4000/1000;
 
   const capSec=Math.min(seconds,8*60*60);

@@ -88,20 +88,19 @@ function stateAvecZone(zoneId, overrides = {}) {
   }
 }
 
-// --- Plafond de 70% de l'inventaire : le farm s'arrête sans looter au-delà, une place reste toujours libre. ---
+// --- Plus de plafond de 70 % (supprimé le 2026-10-19) : le farm hors ligne remplit jusqu'à 100 % de la capacité, jamais au-delà. ---
 {
   const s = stateAvecZone("tutorial");
   const capacite = idleAdventureInventoryCapacityV1(s);
-  const seuil = Math.floor(capacite * 0.7);
-  for (let i = 0; i < seuil; i++) s.inventory.push({ id: "bourrage" + i, definitionId: "x", level: 0 });
-  const avant = s.inventory.length;
+  const ancienSeuil = Math.floor(capacite * 0.7);
+  for (let i = 0; i < ancienSeuil; i++) s.inventory.push({ id: "bourrage" + i, definitionId: "x", level: 0 });
 
   const ctx = { bosses: 4, stats: { power: 1e7, toughness: 1e7, hp: 1e7, regen: 1000 } };
   const r = advanceAdventureZoneAutoFarmOfflineV1(s, ctx, 3600, 1000);
 
-  assert.equal(r.kills, 0, "déjà à 70% de l'inventaire : le farm hors ligne ne doit tenter aucun combat");
-  assert.ok(s.inventory.length <= capacite, "jamais plus que la capacité réelle, une place doit rester disponible pour le butin de titan etc.");
-  assert.equal(s.inventory.length, avant, "aucun objet ajouté quand le plafond dédié est déjà atteint au départ");
+  assert.ok(r.kills > 0, "à 70 % de l'inventaire le farm hors ligne continue désormais de combattre (la limite de 70 % est supprimée)");
+  assert.ok(s.inventory.length > ancienSeuil, "le butin dépasse l'ancien plafond de 70 %");
+  assert.ok(s.inventory.length <= capacite, "jamais plus que la capacité réelle (100 %)");
 }
 
 // --- Un joueur bien trop faible pour la zone meurt réellement : kills=0, mort capturée avec monstre + zone + KO. ---
