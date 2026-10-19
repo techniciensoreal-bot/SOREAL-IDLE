@@ -803,6 +803,7 @@
         );
         const pagesSac=Math.max(1,Math.ceil(planComplet.length/REG.IDLE_SAC_CASES_PAR_PAGE_V1));
         if(REG.idlePageSacV1>pagesSac)REG.idlePageSacV1=pagesSac;
+        REG.idlePagesSacV1=pagesSac;
         const debutSac=(REG.idlePageSacV1-1)*REG.IDLE_SAC_CASES_PAR_PAGE_V1;
         const plan=planComplet.slice(debutSac,debutSac+REG.IDLE_SAC_CASES_PAR_PAGE_V1);
         const noeudsFinaux=[];
@@ -1588,6 +1589,19 @@
 
       function changerPageSacV1_(page){
         REG.idlePageSacV1=Math.max(1,idleEntier_(page)||1);
+        /* Norman (2026-10-19) : « quand on passe dans la page 2 de l'inventaire, la page se redessine ». Changer de page ne touche que la grille du sac et ses deux sélecteurs : mise à jour EN PLACE (la même que celle des autres actions du sac), jamais le redessin de toute la page ; le redessin complet ne reste que s'il est impossible (menu fermé, glisser-déposer en cours). */
+        try{
+          if(REG.idleEtat&&typeof REG.patchInventaireAdventureIdleV160_==='function'&&REG.patchInventaireAdventureIdleV160_(REG.idleEtat,{action:'page'})!==false&&document.querySelector('.soreal-idle-bag-pager-v1')){
+            const page2=REG.idlePageSacV1,pages2=REG.idlePagesSacV1||1;
+            document.querySelectorAll('.soreal-idle-bag-pager-v1').forEach(function(el){
+              const modele=document.createElement('template');
+              modele.innerHTML=pagerSacIdleV1_(page2,pages2).trim();
+              const neuf=modele.content.firstElementChild;
+              if(neuf&&!el.isEqualNode(neuf))el.replaceWith(neuf);
+            });
+            return;
+          }
+        }catch(_e){}
         const root=document.querySelector('.soreal-idle-page-root-v28');
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
       }

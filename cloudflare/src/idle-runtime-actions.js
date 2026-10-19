@@ -1144,13 +1144,14 @@ export function renaitreSorealIdle(
     feuille.getRange(ligne,c.NIVEAU).setValue(1);
     feuille.getRange(ligne,c.XP).setValue(0);
     /*
-     * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). Dès le Rebirth, 1 d'énergie
-     * est placée sur chaque entraînement déjà ouvert (au plus 6, un par compétence) ; le reste de l'énergie de départ reste libre.
+     * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). Dès le Rebirth, 6 d'énergie
+     * sont placées sur Attaque passive (et 6 sur Blocage avec la Synchro Basic Training) ; le reste de l'énergie de départ reste libre.
      */
     let energieLibreDepart = energieDepart;
     if (stats.metaNgu && stats.metaNgu.selloutShop && stats.metaNgu.selloutShop.purchases && stats.metaNgu.selloutShop.purchases.instaTrainingCap) {
-      const voulu = {};
-      for (const def of BASIC_TRAINING_V411.skills) voulu[def.id] = 1;
+      /* Norman (2026-10-19) : « il est supposé placer 6 points dans Attaque passive, et si on a acheté la synchro du Basic Training, 6 aussi dans la première barre de la défense (Blocage) ». L'ancienne version mettait 1 point dans chaque entraînement ouvert, soit 1 seul point à un Rebirth (une seule compétence ouverte). */
+      const voulu = { attaque_passive: 6 };
+      if (Math.floor(Number(stats.metaNgu?.bonuses?.expShop?.syncBasicTraining) || 0) >= 1) voulu.blocage = 6;
       const insta = applyBasicTrainingAllocationsV411(stats.entrainementBase, voulu, energieDepart, energieDepart, {});
       stats.entrainementBase = insta.state;
       energieLibreDepart = Math.max(0, nombreSorealIdle_(insta.idleEnergy, 0));
