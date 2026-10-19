@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 8,
-  "sha": "c027220194fdfb0256788f42fcd8a1a08bb903f7"
+  "pin": 9,
+  "sha": "604be612cf482ecd91cc493732abc87948843f39"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -560,7 +560,7 @@
   "sha": "80a8d1d132d57dd4e7814ae0de31f5c03eeb61ae"
  },
  "/standalone-bridge.js": {
-  "pin": 15,
-  "sha": "9fcc251bd8a27afb499f634350d5a3c9f8e76beb"
+  "pin": 16,
+  "sha": "f19abe88a3e0c4c6646f041d50a94f05eba4be6a"
  }
 }

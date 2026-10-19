@@ -326,6 +326,8 @@
       let data=(ML&&ML.actif()&&ML.prend(String(operation||"")))
         ? await ML.appeler(String(operation||""),liste,sansAllegement?undefined:hashesCataloguesV1(),langueIdleV1(),session)
         : null;
+      const modifieServeur=Boolean(ML&&ML.actif()&&ML.modifieLeJoueur&&ML.modifieLeJoueur(String(operation||"")));
+      if(!data&&modifieServeur){try{await ML.avantServeur();}catch(_){}}
       if(!data)data=await (async function(){
           return await jsonFetchRepriseV1("/api/v1/call",{
           method:"POST",
@@ -343,6 +345,7 @@
           })
         },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
         })();
+      if(modifieServeur&&data&&data.ok!==false)ML.apresServeur();
       try{const Dg=window.__SOREAL_IDLE_DIAG_V1__;if(Dg&&Dg.reponseRecue)Dg.reponseRecue(operation,(performance.now?performance.now():0)-debutAppelDiagV1);}catch(_){}
       if(!restaurerCataloguesV1(data)&&!sansAllegement){
         /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */

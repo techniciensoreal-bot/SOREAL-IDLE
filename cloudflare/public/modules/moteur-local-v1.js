@@ -14,8 +14,10 @@
     agrandirInventairePlusieursSorealIdle:1,agrandirInventaireSorealIdle:1,ameliorerEquipementForgeSorealIdle:1,ameliorerEquipementsForgeSorealIdle:1,combattreAventureSorealIdle:1,
     definirAutoBossSuivantSorealIdle:1,definirCombatAutoAventureSorealIdle:1,definirCombatBossSorealIdle:1,equiperObjetsSorealIdle:1,fusionnerObjetSorealIdle:1,fusionnerObjetsSorealIdle:1,
     lancerSortSorealIdle:1,marquerVusSorealIdle:1,definirOrdreMenusSorealIdle:1,recyclerObjetSorealIdle:1,recyclerObjetsSorealIdle:1,renaitreSorealIdle:1,
-    sauvegarderDispositionInventaireSorealIdle:1,selectionnerBossSorealIdle:1,enregistrerClicsSorealIdle:1,definirClassementVisibleSorealIdle:1
+    sauvegarderDispositionInventaireSorealIdle:1,selectionnerBossSorealIdle:1,enregistrerClicsSorealIdle:1,definirClassementVisibleSorealIdle:1,nukerBossSorealIdle:1
   };
+  /* Opérations qui restent au serveur mais MODIFIENT la ligne du joueur (administration, partie d'essai) : avant, on envoie ce que la page a de neuf ; après, on recharge la page pour repartir de l'état du serveur. */
+  const MODIFIENT_LE_JOUEUR={annulerVictoireTitanAdminSorealIdle:1,crediterExpAdminSorealIdle:1,reinitialiserCompteCompletSorealIdle:1,preparerPartieTestSorealIdle:1,copierPartieASurBSorealIdle:1,definirPartieDevSorealIdle:1};
   const INTERVALLE_ENVOI_MS=10000;
 
   let actifCache=null;
@@ -159,6 +161,9 @@
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},
+    modifieLeJoueur:function(operation){return Boolean(MODIFIENT_LE_JOUEUR[operation]);},
+    avantServeur:async function(){if(!vivant)return;for(let i=0;i<50&&enVol;i+=1)await new Promise(function(r){setTimeout(r,100);});await envoyer(false,true);},
+    apresServeur:function(){setTimeout(function(){location.reload();},400);},
     appeler:appeler,
     envoyerMaintenant:async function(){for(let i=0;i<50&&enVol;i+=1)await new Promise(function(r){setTimeout(r,100);});return envoyer(false,true);}
   };

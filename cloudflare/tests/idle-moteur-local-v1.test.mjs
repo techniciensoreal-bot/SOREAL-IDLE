@@ -78,14 +78,20 @@ assert.notEqual(lire()[10], 777);
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: suite, appareil: "appareil-B", depuis: lireDeA.serveurAt });
 assert.equal(r.ok, true, "B, l'appareil le plus récent, peut envoyer"); assert.equal(lire()[10], 777);
 
-// Aiguillage : toutes les opérations locales existent ; chat, classements, « En direct », comptes et administration restent au serveur.
 const mod = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
+// Garde : toute opération du moteur est soit locale, soit au serveur sans toucher la ligne du joueur, soit listée comme « modifie le joueur » (rechargement).
+const debut = mod.indexOf('const MODIFIENT_LE_JOUEUR=') + 'const MODIFIENT_LE_JOUEUR='.length;
+const modifient = Object.keys(new Function('return ' + mod.slice(debut, mod.indexOf('};', debut) + 1))());
+for (const o of modifient) assert.ok(idleOperationNames().includes(o), 'opération inconnue : ' + o);
+
+// Aiguillage : toutes les opérations locales existent ; chat, classements, « En direct », comptes et administration restent au serveur.
 const locales = Object.keys(new Function("const window={};" + mod.match(/const LOCALES=(\{[\s\S]*?\});/)[0].replace("const LOCALES=", "return ") .replace(/^return /, "return ")) ());
 const connues = new Set(idleOperationNames());
 for (const o of locales) assert.ok(connues.has(o), "opération locale inconnue du moteur : " + o);
-for (const o of ["lireChatSorealIdle", "envoyerChatSorealIdle", "lireFluxSorealIdle", "battementSorealIdle", "obtenirClassementSorealIdle", "obtenirMesRangsSorealIdle", "definirPseudoSorealIdle", "listerJoueursExternesSorealIdle", "nukerBossSorealIdle", "crediterExpAdminSorealIdle", "reinitialiserCompteCompletSorealIdle", "preparerPartieTestSorealIdle"]) {
+for (const o of ["lireChatSorealIdle", "envoyerChatSorealIdle", "lireFluxSorealIdle", "battementSorealIdle", "obtenirClassementSorealIdle", "obtenirMesRangsSorealIdle", "definirPseudoSorealIdle", "listerJoueursExternesSorealIdle", "crediterExpAdminSorealIdle", "reinitialiserCompteCompletSorealIdle", "preparerPartieTestSorealIdle"]) {
   assert.ok(!locales.includes(o), o + " doit rester au serveur");
 }
+assert.ok(locales.includes("nukerBossSorealIdle"), "le nuke est une action de jeu : local (un nuke au serveur ramenait au premier boss)");
 assert.ok(locales.includes("synchroniserSorealIdle") && locales.includes("obtenirEtatSorealIdle") && locales.includes("renaitreSorealIdle"));
 
 // Sauvegarde sur l'appareil : la ligne du joueur est gardée dans IndexedDB, reprise si elle est plus récente que celle du serveur, effacée une fois reçue.
