@@ -152,13 +152,43 @@
             else if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
             else if(fill0<1)fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
             else fill=1;
-            const largeurTm=(fill*100).toFixed(2)+'%';
+            /* Fluidité (Norman, 2026-10-19 : « la barre de la machine temporelle n'est pas en 60 ips ») : ce calcul ne tourne qu'à 15 Hz et la largeur n'avait que deux décimales. On ne fait plus qu'enregistrer la valeur et sa VITESSE ; une boucle d'animation propre (lissageBarresTmIdleV1_) dessine à chaque image. */
+            let tauxTm=0;
+            if(faussesOr||(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1))tauxTm=0;
+            else if(franchis>0)tauxTm=palier>0?1/palier:0;
+            else if(fill0<1)tauxTm=base>0?(1-fill0)/base:0;
+            barreEl.__tmAnim={f:fill,t:Date.now(),r:tauxTm};
+            const largeurTm=(fill*100).toFixed(4)+'%';
             if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
+            if(typeof lancerLissageBarresTmIdleV1_==='function')lancerLissageBarresTmIdleV1_();
           }
         });
       }
 
       const SEUIL_NIVEAU_RAPIDE_TM_V1=0.25;
+
+      /* Dessin d'une barre à l'instant donné : valeur enregistrée + vitesse × temps écoulé, bornée à 100 %, largeur à 4 décimales (pas de marche d'escalier). */
+      function peindreBarreTmIdleV1_(barreEl,maintenant){
+        const a=barreEl&&barreEl.__tmAnim;
+        if(!a)return;
+        const fill=Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000));
+        const largeur=(fill*100).toFixed(4)+'%';
+        if(barreEl.style.width!==largeur)barreEl.style.width=largeur;
+      }
+      let idleLissageTmV1=0;
+      function lancerLissageBarresTmIdleV1_(){
+        if(idleLissageTmV1||typeof requestAnimationFrame!=='function')return;
+        const image=function(){
+          idleLissageTmV1=0;
+          if(REG.idleMenuActifV28!=='machine')return;
+          const barres=document.querySelectorAll('.soreal-idle-tm-remplissage-v1');
+          let anime=false;
+          const maintenant=Date.now();
+          barres.forEach(function(b){if(b.__tmAnim){anime=true;peindreBarreTmIdleV1_(b,maintenant);}});
+          if(anime)idleLissageTmV1=requestAnimationFrame(image);
+        };
+        idleLissageTmV1=requestAnimationFrame(image);
+      }
 
       function patcherBarresTimeMachineIdleV1_(j){
         if(
@@ -193,6 +223,7 @@
           /* niveaux très courts (durée d'un niveau = ETA / (1 - remplissage)) : barre pleine, comme dans le tick */
           const etaPatch=Number(entree[2]),resteFill=1-pct/100,palierPatch=Number.isFinite(etaPatch)&&resteFill>1e-9?etaPatch/resteFill:0;
           if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)pct=100;
+          remplissage.__tmAnim=null;   // la synchro vient de poser la valeur ; le prochain calcul relance l'animation
           remplissage.style.width=pct.toFixed(4)+'%';
           remplissage.dataset.tmFill0=(pct/100).toFixed(6);
           remplissage.setAttribute('aria-valuenow',pct.toFixed(4));

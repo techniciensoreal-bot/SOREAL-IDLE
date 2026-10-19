@@ -456,8 +456,8 @@
   "sha": "6a1173484d060231c25dd6b4896a26d543c396e9"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 1,
-  "sha": "ea8bd3e187f96963b33a95cab7e220c6108bf67f"
+  "pin": 3,
+  "sha": "6bbdedc5c7cad0d5fcdfd0d610c3832c81dedf21"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 2,
