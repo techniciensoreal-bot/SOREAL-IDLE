@@ -337,15 +337,14 @@
     playerStat('power',basePower,number_(stats.power),0,cubePower);
     playerStat('toughness',baseToughness,number_(stats.toughness),0,cubeToughness);
     playerStat('hp',baseHp,number_(stats.hp),0,0);
-    /* Chance de drop (Norman, 2026-10-19) : base 100 %, entre parenthèses ce qu'apportent l'équipement et tous les autres bonus (valeurs du serveur : a.dropChance). */
+    /* Multiplicateur de drop (Norman, 2026-10-19 : « le 100 % de drop n'est pas logique, ça voudrait dire qu'on loote à chaque fois »). Ce n'est PAS une chance de loot : c'est le multiplicateur qui s'applique à la chance propre de chaque objet. Base ×1 ; entre parenthèses le total avec l'équipement et tous les autres bonus (valeurs du serveur : a.dropChance). */
     var dropLine=player.querySelector('[data-player-stat="drop"]');
     if(dropLine){
       var dc=a&&a.dropChance&&typeof a.dropChance==='object'?a.dropChance:null;
-      var dBase=dc?Math.max(0,number_(dc.base))*100:100;
-      var dBonus=dc?Math.max(0,(number_(dc.total)-number_(dc.base))*100):0;
-      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-base'),format_(dBase,0)+' %');
-      var dTexte=format_(dBonus,2);
-      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-bonus'),dBonus>0&&dTexte!=='0'?' (+'+dTexte+' %)':'');
+      var dBase=dc?Math.max(0,number_(dc.base)):1;
+      var dTotal=dc?Math.max(0,number_(dc.total)):1;
+      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-base'),'×'+format_(dBase,2));
+      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-bonus'),dTotal>dBase+1e-9?' (×'+format_(dTotal,2)+' avec les bonus)':'');
     }
     var regenLine=player.querySelector('[data-player-stat="regen"]');
     if(regenLine){
@@ -449,7 +448,7 @@
       +        '<div data-player-stat="toughness"><span class="soreal-idle-v79-stat-label">Endurance</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b><b class="soreal-idle-v79-stat-cube"></b><b class="soreal-idle-v79-stat-cube-bloque"></b></span></div>'
       +        '<div data-player-stat="hp"><span class="soreal-idle-v79-stat-label">PV Max</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span></div>'
       +        '<div data-player-stat="regen"><span class="soreal-idle-v79-stat-label">Regen PV/s</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span></div>'
-      +        '<div data-player-stat="drop"><span class="soreal-idle-v79-stat-label">Chance de drop</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b></span></div>'
+      +        '<div data-player-stat="drop"><span class="soreal-idle-v79-stat-label">Multiplicateur de drop</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b></span></div>'
       +      '</div>'
       +    '</div>'
       +    '<div class="soreal-idle-v79-enemy-card soreal-idle-v79-stat-card" style="visibility:hidden">'

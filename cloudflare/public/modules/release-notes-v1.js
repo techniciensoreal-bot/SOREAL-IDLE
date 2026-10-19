@@ -45,7 +45,7 @@
             'Le lancement d’un combat est plus léger : une mesure de la page, refaite à chaque image au départ, a été allégée.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'La carte de stats montre ta chance de drop : 100 % de base, et entre parenthèses le bonus des équipements et des autres sources.',
+            'La carte de stats montre ton multiplicateur de drop (×1 de base) et, entre parenthèses, le total avec l’équipement et les autres bonus : il multiplie la chance propre de chaque objet, il ne veut pas dire qu’on loote à chaque fois.',
             'Il n’y a plus de limite de 70 % : l’Aventure hors ligne peut remplir tout le sac.',
             'Changer de page du sac ne redessine plus toute la page.',
             'Le coffre croque aussi un objet déposé au doigt ou à la souris.',
