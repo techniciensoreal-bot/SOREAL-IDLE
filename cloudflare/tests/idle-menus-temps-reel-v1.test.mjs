@@ -16,7 +16,7 @@ const vivants = ui.match(/const IDLE_MENUS_VIVANTS_V1=\{([^}]*)\}/);
 assert.ok(vivants, "liste des menus vivants");
 for (const m of ["ngu", "wandoos", "yggdrasil", "diggers", "beards", "wishes", "hacks", "daycare"]) assert.ok(("," + vivants[1]).includes("," + m + ":1"), "menu vivant : " + m);
 // synchro périodique des menus à mise à jour en place
-assert.ok(ui.includes("IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower'||idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000"), "ITOPOD et Machine temporelle : synchro toutes les 4 s");
+assert.ok(ui.includes("IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower'||idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000)"), "ITOPOD et Machine temporelle : synchro toutes les 4 s");
 // mise à jour en place à chaque synchro
 assert.ok(ui.includes("if(idleMenuActifV28==='machine'&&idleEtat&&idleEtat.systemes&&idleEtat.systemes.timeMachineView){") && ui.includes("patcherBarresTimeMachineIdleV1_(idleEtat)"), "Machine temporelle : chiffres, barres et compte à rebours mis à jour à chaque synchro");
 assert.ok(ui.includes("idleMenuActifV28==='tower'&&idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'"), "ITOPOD : mise à jour en place");

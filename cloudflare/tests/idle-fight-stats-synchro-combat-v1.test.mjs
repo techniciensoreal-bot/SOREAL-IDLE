@@ -9,6 +9,6 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 assert.ok(ui.includes("window.__sorealIdleSyncCombatV1=setInterval(function(){"), "synchro rapprochée pendant un combat");
 assert.ok(ui.includes("if(idleMenuActifV28!=='combat'||!idleEtat.combatBossActif)return;"), "seulement pendant un combat de Fight Boss");
-assert.ok(ui.includes("},4000);"), "toutes les 4 s");
+assert.ok(ui.includes("},(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000));"), "toutes les 4 s (400 ms en jeu local)");
 assert.ok(ui.includes("Math.max(0,idleNombre_(idleEtat.pvJoueur),Math.min(idleNombre_(joueurServeur.pvJoueur)"), "au repos : jamais sous la vie déjà régénérée par le serveur");
 console.log("idle-fight-stats-synchro-combat-v1: OK");

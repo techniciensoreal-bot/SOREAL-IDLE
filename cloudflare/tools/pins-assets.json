@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 11,
-  "sha": "791203174bec8121295eb610ce9aa5fe59a4f614"
+  "pin": 12,
+  "sha": "54f7742ed6f7fb046460c9a7d55e0898bac3893f"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -424,8 +424,8 @@
   "sha": "f140d2a0f4d52b7075d58c515d92da31cc1ea5fa"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 7,
-  "sha": "ab6985285441de37d6f6c67fdb2c543dd6a4522d"
+  "pin": 10,
+  "sha": "2e29dd2f832d4a61eba29cab36302ae2080822d7"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
@@ -456,8 +456,8 @@
   "sha": "bde2f620a6909f91468358e0bb1d0ec59c8ce57c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 3,
-  "sha": "6bbdedc5c7cad0d5fcdfd0d610c3832c81dedf21"
+  "pin": 5,
+  "sha": "c4b5f9e9d27eab39aded89d7e50a2678bacdf7cf"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 2,
@@ -472,8 +472,8 @@
   "sha": "63582ea9d3619f5fa57acfdd231ba477dd341ec9"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 6,
-  "sha": "bab3c102bef6e2cfa838b63426fb032f67e6b6fa"
+  "pin": 7,
+  "sha": "f1b284457037a9af9d26885b4b850f9db28df1af"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 2,

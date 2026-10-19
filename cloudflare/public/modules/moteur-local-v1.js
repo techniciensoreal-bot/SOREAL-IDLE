@@ -158,6 +158,12 @@
     return r;
   }
 
+  /* Cadence des synchros (Norman, 2026-10-19 : « les menus doivent se mettre à jour beaucoup plus vite, plus juste »). Le moteur est dans la page : une synchro coûte ~50 ms dans un Worker, sans réseau. Les limiteurs prévus pour un serveur (4 s en menu vivant, 3 s pour une augmentation, 2 s pour la machine) sont divisés par 10 (150 ms au minimum) en jeu local. */
+  window.__SOREAL_IDLE_DELAI_SYNC_V1__=function(ms){
+    const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+    return(ML&&ML.actif&&ML.actif())?Math.max(150,Math.round(ms/10)):ms;
+  };
+
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},

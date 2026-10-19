@@ -393,7 +393,7 @@
               const manqueOrServeur=Boolean(x[3])&&k===0&&orLive+1e-9<coutK(0);
               const attenteOr=(bloque||manqueOrServeur)&&secondes0>0;
               const attenteServeur=(debiteCeTick||(Boolean(x[3])&&!attenteOr))&&secondes0>0;
-              if(el&&attenteServeur&&Date.now()-idleAugSyncV1>3000){
+              if(el&&attenteServeur&&Date.now()-idleAugSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(3000):3000)){
                 idleAugSyncV1=Date.now();
                 /* La réponse est adoptée comme nouveau repère à l'arrivée (voir la synchro) : plus de redessin différé, qui faisait repasser toute la page par les chiffres en retard du serveur. */
                 synchroniserJeuIdleV7_(true);
@@ -483,7 +483,7 @@
                     bloodVisual.at=maintB;
                     bloodVisual.etaSeconds=0;
                   }
-                  if(Date.now()-idleAugSyncV1>3000){idleAugSyncV1=Date.now();synchroniserJeuIdleV7_(true);}
+                  if(Date.now()-idleAugSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(3000):3000)){idleAugSyncV1=Date.now();synchroniserJeuIdleV7_(true);}
                 }
               }
             }
@@ -504,7 +504,7 @@
                 if(ligneBloodFixe)ecrireSiChangeIdleV1_(ligneBloodFixe,'🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.');
               }else{
                 if(ligneBloodFixe)ecrireSiChangeIdleV1_(ligneBloodFixe,'⏳ Rituel en cours de validation…');
-                if(Date.now()-idleAugSyncV1>3000){
+                if(Date.now()-idleAugSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(3000):3000)){
                   idleAugSyncV1=Date.now();
                   synchroniserJeuIdleV7_(true);
                   setTimeout(function(){
@@ -1702,7 +1702,7 @@
           else idleRepereVisuelsV1_[cle]=REG.idleEtat[cle];
         });
         /* « machine » (Time Machine) : sa barre de l'Or tique de plus en plus vite quand le niveau de vitesse monte ; sans synchro périodique, il fallait changer de menu pour le voir (Norman, 2026-10-11). Les chiffres sont mis à jour EN PLACE à chaque synchro. */
-        if((REG.IDLE_MENUS_VIVANTS_V1[REG.idleMenuActifV28]||REG.idleMenuActifV28==='tower'||REG.idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>4000&&!champSaisieActifIdleV1_()){
+        if((REG.IDLE_MENUS_VIVANTS_V1[REG.idleMenuActifV28]||REG.idleMenuActifV28==='tower'||REG.idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000)&&!champSaisieActifIdleV1_()){
           idleMenuViveSyncV1=Date.now();
           synchroniserJeuIdleV7_(true);
         }
@@ -1999,17 +1999,11 @@
           );
         }
 
+        /* Jeu local (Norman, 2026-10-19) : le moteur est dans la page, une synchro ne coûte que ~50 ms sans réseau : la cadence de fond (15 s par défaut) est divisée par 10. */
         window.__sorealIdleSyncTimerV7=
           setInterval(
             synchroniserJeuIdleV7_,
-            Math.max(
-              5,
-              idleNombre_(
-                REG.idleEtat&&
-                REG.idleEtat.syncSecondes
-              )||15
-            )*
-            1000
+            (typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(Math.max(5,idleNombre_(REG.idleEtat&&REG.idleEtat.syncSecondes)||15)*1000):Math.max(5,idleNombre_(REG.idleEtat&&REG.idleEtat.syncSecondes)||15)*1000)
           );
 
         /*
@@ -2024,7 +2018,7 @@
           if(REG.idleMenuActifV28!=='combat'||!REG.idleEtat.combatBossActif)return;
           if(typeof idleFastPendingV60_==='function'&&idleFastPendingV60_())return;
           synchroniserJeuIdleV7_();
-        },4000);
+        },(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000));
       }
 
       let idleCombatLogCritiquesJoueurV117=0;

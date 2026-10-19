@@ -176,7 +176,7 @@
       ){
         if(!force&&Date.now()-idleDerniereSynchroReussieV1>IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;
         /* Pas de synchro ordinaire juste après une synchro réussie (Norman, 2026-10-14 : audit des synchros — une synchro forcée suivie d'une synchro normale 1 s plus tard envoyait deux réponses de 40 Ko pour rien). */
-        if(!force&&Date.now()-idleDerniereSynchroReussieV1<IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1)return;
+        if(!force&&Date.now()-idleDerniereSynchroReussieV1<(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1):IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1))return;
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-73 */
         if(REG.idleSyncEnCoursV60){
           if(force)idleSyncForcePendingV167=true;

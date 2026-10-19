@@ -35,6 +35,6 @@ console.log("Pièces stables des synchros: OK");
 {
   const { readFileSync } = await import("node:fs");
   const ui = lireUiComplet();
-  assert.ok(/const IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1=1500;/.test(ui) && /if\(!force&&Date\.now\(\)-idleDerniereSynchroReussieV1<IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1\)return;/.test(ui), "espacement minimal des synchros ordinaires");
-  assert.ok(ui.indexOf("IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;") < ui.indexOf("IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1)return;"), "une synchro affamée (forcée) n'est jamais retenue");
+  assert.ok(ui.includes("const IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1=1500;") && ui.includes("if(!force&&Date.now()-idleDerniereSynchroReussieV1<(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1):IDLE_SYNCHRO_ESPACEMENT_MIN_MS_V1))return;"), "espacement minimal des synchros ordinaires (divisé en jeu local)");
+  assert.ok(ui.indexOf("IDLE_SYNCHRO_AFFAMEE_MS_V1)force=true;") < ui.indexOf("Date.now()-idleDerniereSynchroReussieV1<(typeof window"), "une synchro affamée (forcée) n'est jamais retenue");
 }

@@ -122,13 +122,13 @@
               const coutAttente=5000000*Math.max(1,niveau0+1);
               const orAttente=idleNombre_(REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies&&REG.idleEtat.systemes.currencies.gold);
               if(orAttente+1e-9<coutAttente){faussesOr=true;manqueOr=coutAttente-orAttente;}
-              else if(Date.now()-idleTmSyncNiveauV1>2000){idleTmSyncNiveauV1=Date.now();synchroniserJeuIdleV7_(true);}
+              else if(Date.now()-idleTmSyncNiveauV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(2000):2000)){idleTmSyncNiveauV1=Date.now();synchroniserJeuIdleV7_(true);}
             }
           }
           if(franchis>0||faussesOr){
             const niveauEl=document.querySelector('[data-tm-niveau="'+piste+'"]');
             if(niveauEl)niveauEl.textContent=formatGrandNombreIdleV70_(niveau0+franchis);
-            if(Date.now()-idleTmSyncNiveauV1>2000){
+            if(Date.now()-idleTmSyncNiveauV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(2000):2000)){
               idleTmSyncNiveauV1=Date.now();
               synchroniserJeuIdleV7_(true);
             }
