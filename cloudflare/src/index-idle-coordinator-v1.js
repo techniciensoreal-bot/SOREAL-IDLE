@@ -310,15 +310,15 @@ export class SorealIdleCoordinatorV1 {
 
     /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
     /* Langue des items et des textes (idle-traductions-v1.js) : traduction de la réponse AVANT l'allègement, donc l'empreinte des catalogues dépend de la langue. */
-    const resultatBrut = runSorealIdleOperation(
+    const reponse = allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(
       this.sqlMoteur,
       operation,
       args,
       session.user
-    );
+    ), payload?.langue), payload?.catalogHashes);
     /* Action de jeu passée par le SERVEUR (appareil resté en mode serveur) : elle revendique la partie (voir idle-local-sync-v1.js). Jamais dans le Worker du jeu local. */
     if (!this.__modeLocalV1) { try { noterActionServeurV1(this, session.user, operation); } catch (_e) { /* la revendication ne doit jamais faire échouer l'action */ } }
-    return allegerCataloguesV1(traduireReponseV1(resultatBrut, payload?.langue), payload?.catalogHashes);
+    return reponse;
   }
 
   /*
