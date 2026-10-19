@@ -534,6 +534,16 @@
         try{
           const parent=element.parentElement;
           if(!parent||!parent.classList||!parent.classList.contains('soreal-idle-duel-hp-v41'))return;
+          /* Performance (profil du 2026-10-19 : cette fonction coûtait 13 % du temps sur la page Combat de boss) : lire clientWidth force un calcul de mise en page à CHAQUE tick (60 par seconde). Un ResizeObserver compte les changements de taille de la carte ; sans changement de taille ni de nombre de caractères, aucune lecture de mise en page. */
+          if(!parent.__roFitV1&&typeof ResizeObserver==='function'){
+            parent.__fitVerV1=1;
+            parent.__roFitV1=new ResizeObserver(function(){parent.__fitVerV1+=1;});
+            parent.__roFitV1.observe(parent);
+          }
+          const longueurFit=element.textContent.length;
+          if(parent.__roFitV1&&element.__fitVuV1===parent.__fitVerV1&&element.__fitLongueurV1===longueurFit)return;
+          element.__fitVuV1=parent.__fitVerV1;
+          element.__fitLongueurV1=longueurFit;
           const largeur=String(parent.clientWidth);
           /* Les PV bougent plusieurs fois par seconde : on ne remesure (retrait de la taille, lecture de largeur, rétrécissement) que si la largeur de la carte ou le NOMBRE de caractères change, pas à chaque chiffre. */
           const cleFit=largeur+'|'+element.textContent.length;
