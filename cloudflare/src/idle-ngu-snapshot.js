@@ -152,6 +152,8 @@ function construireSnapshotNguV1(state, context, now) {
        */
       {
         const sansEquip = defiSansEquipement ? snap.stats : idleAdventureCombatStatsV1(idleEquipementEffectifV1({ challenge: { active: "noEquipment" } }), context, idleNguBonuses(state));
+        /* Chance de drop (Norman, 2026-10-19) : la base est de 100 % ; le multiplicateur TOTAL réellement appliqué au butin (équipement, cartes, MacGuffins, Money Pit, Perks, NGU, Yggdrasil, Blood Spaghetti…) est exposé pour afficher « 100 % (+X %) ». */
+        snap.dropChance = { base: 1, total: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)) };
         snap.statsSansEquipement = { power: num(sansEquip.power, 0), toughness: num(sansEquip.toughness, 0), hp: num(sansEquip.hp, 0), regen: num(sansEquip.regen, 0) };
       }
       /* Défi sans équipement : ce que l'équipement porté DONNERAIT (barré à l'écran, jamais compté) ; absent hors du défi. */
