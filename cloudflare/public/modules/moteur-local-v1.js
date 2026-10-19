@@ -32,7 +32,43 @@
     return actifCache;
   }
 
-  let worker=null,demarrage=null,vivant=false,sale=false,enVol=false,session="",numero=0,echec=false;
+  /* Sauvegarde sur l'appareil (IndexedDB) : la dernière ligne du joueur et les événements pas encore reçus par le serveur. Au démarrage, si elle est plus récente
+     que celle du serveur (page fermée avant l'envoi), c'est elle qui est reprise et renvoyée : aucune progression perdue. */
+  function bd(){
+    return new Promise(function(ok,ko){
+      try{
+        const r=indexedDB.open("soreal_idle_moteur_local_v1",1);
+        r.onupgradeneeded=function(){r.result.createObjectStore("kv");};
+        r.onsuccess=function(){ok(r.result);};
+        r.onerror=function(){ko(r.error);};
+      }catch(e){ko(e);}
+    });
+  }
+  async function kv(mode,cle,valeur){
+    try{
+      const db=await bd();
+      return await new Promise(function(ok){
+        const tx=db.transaction("kv",mode==="lire"?"readonly":"readwrite"),st=tx.objectStore("kv");
+        const r=mode==="lire"?st.get(cle):mode==="ecrire"?st.put(valeur,cle):st.delete(cle);
+        tx.oncomplete=function(){db.close();ok(mode==="lire"?r.result:true);};
+        tx.onerror=tx.onabort=function(){db.close();ok(null);};
+      });
+    }catch(_){return null;}
+  }
+  function enMs(v){const n=Number(v);return(Number.isFinite(n)&&String(v).trim()!=="")?n:Date.parse(String(v));}
+  let cleSauve="",minuterieSauve=0;
+  function programmerSauvegarde(){
+    if(minuterieSauve||!worker||!cleSauve)return;
+    minuterieSauve=setTimeout(async function(){
+      minuterieSauve=0;
+      try{
+        const s=await parler({type:"sortant",vider:false});
+        if(s&&s.cells)await kv("ecrire",cleSauve,{cells:s.cells,flux:s.flux,gains:s.gains,at:Date.now()});
+      }catch(_){}
+    },1000);
+  }
+
+  let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false;
   const attentes=new Map();
 
   function parler(msg){
@@ -48,7 +84,19 @@
     const rep=await fetch("/api/v1/local/export",{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
     const exp=await rep.json();
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
-    worker=new Worker("/moteur-local-worker-v1.js?v=448915efee");
+    cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
+    const rec=await kv("lire",cleSauve);
+    if(rec&&Array.isArray(rec.cells)){
+      let srv=[];try{srv=JSON.parse(exp.joueurs.ligne);}catch(_){}
+      if(enMs(rec.cells[15])>enMs(srv[15])){
+        const fusion=rec.cells.slice();
+        [0,1,17,18,19].forEach(function(c){fusion[c]=srv[c];});
+        exp.joueurs.ligne=JSON.stringify(fusion);
+        exp.reprise={flux:rec.flux||[],gains:rec.gains||[]};
+        sale=true;
+      }else{await kv("effacer",cleSauve);}
+    }
+    worker=new Worker("/moteur-local-worker-v1.js?v=e2aae33d5e");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -67,12 +115,18 @@
   }
 
   async function envoyer(fin){
-    if(!vivant||!sale||enVol&&!fin)return;
+    /* Une synchro sans action (le joueur laisse tourner) fait avancer la ligne : envoyée au plus une fois par minute, pour les classements. */
+    const passifDu=passif&&Date.now()-dernierEnvoi>60000;
+    if(!vivant||!(sale||passifDu)||enVol&&!fin)return;
     enVol=true;
+    passif=false;dernierEnvoi=Date.now();
     try{
       const sortant=await parler({type:"sortant",vider:true});
       sale=false;
-      await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
+      const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
+      const reponse=await rep.json().catch(function(){return null;});
+      if(!reponse||!reponse.ok)sale=true;
+      else if(!sale)await kv("effacer",cleSauve);
     }catch(_){sale=true;}
     finally{enVol=false;}
   }
@@ -81,7 +135,9 @@
     if(!demarrage)demarrage=demarrer(jeton);
     try{await demarrage;}catch(e){echec=true;return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
     const r=await parler({type:"appel",operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
-    if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
+    if(operation==="synchroniserSorealIdle")passif=true;
+    else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
+    if(sale)programmerSauvegarde();
     return r;
   }
 

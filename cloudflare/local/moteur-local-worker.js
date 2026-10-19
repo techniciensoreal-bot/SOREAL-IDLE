@@ -64,7 +64,7 @@ async function demarrer(exp) {
   jeton = coord.consumeLaunchTicketV1(tk.ticket).sessionToken;
   /* Le ticket normalise l'identité (il perd par exemple la partie choisie, A ou B) : on remet celle de la session du serveur, telle quelle. */
   sql.exec("UPDATE idle_sessions SET user_json=? WHERE session_token=?", JSON.stringify(exp.user), jeton);
-  sortant = { flux: [], gains: [] };
+  sortant = { flux: (exp.reprise && exp.reprise.flux) || [], gains: (exp.reprise && exp.reprise.gains) || [] };   // événements d'une session précédente pas encore reçus par le serveur
   return { jeton };
 }
 

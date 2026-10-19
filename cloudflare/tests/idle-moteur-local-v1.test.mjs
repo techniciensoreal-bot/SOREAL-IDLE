@@ -62,6 +62,9 @@ for (const o of ["lireChatSorealIdle", "envoyerChatSorealIdle", "lireFluxSorealI
 }
 assert.ok(locales.includes("synchroniserSorealIdle") && locales.includes("obtenirEtatSorealIdle") && locales.includes("renaitreSorealIdle"));
 
+// Sauvegarde sur l'appareil : la ligne du joueur est gardée dans IndexedDB, reprise si elle est plus récente que celle du serveur, effacée une fois reçue.
+assert.ok(mod.includes("indexedDB.open(\"soreal_idle_moteur_local_v1\"") && mod.includes("enMs(rec.cells[15])>enMs(srv[15])") && mod.includes("kv(\"effacer\",cleSauve)"), "sauvegarde appareil absente");
+
 // Fichiers construits à jour : l'adresse du Worker et du wasm porte l'empreinte de leur contenu.
 const crypto = await import("node:crypto");
 const h = (f) => crypto.createHash("sha256").update(fs.readFileSync(new URL("../public/" + f, import.meta.url))).digest("hex").slice(0, 10);
