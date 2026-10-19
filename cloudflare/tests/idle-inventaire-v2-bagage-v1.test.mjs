@@ -12,7 +12,7 @@ const rendu = ui.slice(ui.indexOf("function rendreCadreCoffreAdventureIdleV1_(")
 for (const t of ["data-idle-coffre-drop-v180", "ondrop=\"window.__deposerSurCoffreAdventureIdleV1__(event)\"", "onclick=\"window.__clicCoffreAdventureIdleV1__()\"", "bg-bagage-v1", "BAGAGE_SVG_IDLE_V1", "Il mange les objets pour les ranger."]) assert.ok(rendu.includes(t), t);
 assert.ok(ui.includes("<svg viewBox=\"0 0 320 260\"") && ui.includes("bg-langue") && ui.includes("bg-patte") && ui.includes("bg-couvercle"), "coffre à pattes, dents et langue");
 // Le drapeau « vient d'avaler » survit au redessin de la page.
-assert.equal((ui.match(/window\.__bagageAvaleIdleV1=Date\.now\(\)/g) || []).length, 1, "dépôt par glisser (le dépôt par sélection puis clic n'existe plus, Norman 2026-10-14)");
+assert.equal((ui.match(/window\.__bagageAvaleIdleV1=Date\.now\(\)/g) || []).length, 2, "dépôt par glisser-déposer ET au doigt / à la souris (2e chemin, 2026-10-19 ; le dépôt par sélection puis clic n'existe plus, Norman 2026-10-14)");
 assert.ok(rendu.includes("window.__bagageAvaleIdleV1||0)<1300?' croque'"), "la gueule croque aussi après le redessin");
 // Look : polices de jeu, panneaux dorés, animations coupées en mouvement réduit, boucles sans à-coup (règle n°3).
 const v2 = css.slice(css.indexOf("Inventaire v2 (Norman"));

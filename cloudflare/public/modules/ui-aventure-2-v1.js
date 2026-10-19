@@ -609,6 +609,8 @@
         }
 
         if(cible.hasAttribute('data-idle-coffre-drop-v180')){
+          /* Norman (2026-10-19) : « sur Unity le coffre a une animation quand il mange un objet ; pourquoi pas sur la version web ? » Seul le glisser-déposer HTML5 posait le drapeau d'animation ; le dépôt au doigt / à la souris (ce chemin) ne le posait pas : le Coffre à dents ne croquait jamais. */
+          window.__bagageAvaleIdleV1=Date.now();
           actionAdventureIdleV47_({action:'coffreDeposer',id:source});
           return;
         }

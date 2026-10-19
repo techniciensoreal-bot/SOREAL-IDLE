@@ -161,7 +161,10 @@ const fresh=(context={}, now=1_000_000)=>
   state=advanceIdleNguState(state,1_000_000,context,2_000_000);
   assert.ok(state.systems.timeMachine.data.speedLevel>=1);
   assert.ok(state.systems.timeMachine.data.goldLevel>=1);
-  assert.ok(idleNguTimeMachineGoldPerSecond(state)>0);
+  /* Norman (2026-10-19) : pas d'Or de la machine tant qu'aucun mob n'a été tué depuis la renaissance (l'or par remplissage = meilleur drop d'un kill de cette renaissance). */
+  assert.equal(idleNguTimeMachineGoldPerSecond(state),0,"aucun kill depuis la renaissance : la machine ne produit pas d'Or");
+  state.systems.timeMachine.data.bestGoldThisRun=7;
+  assert.ok(idleNguTimeMachineGoldPerSecond(state)>0,"après un kill, la machine produit de l'Or");
 }
 
 {

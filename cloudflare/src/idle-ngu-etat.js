@@ -1315,7 +1315,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.records.highestGoldDrop = Math.max(state.records.highestGoldDrop, num(context.bestGold, 0));
 
   const tm = state.systems.timeMachine;
-  tm.data.bestGoldThisRun = Math.max(tm.data.bestGoldThisRun, num(context.bestGold, 0));
+  /* Norman (2026-10-19) : « quand on rebirth et qu'on n'est pas dans une zone d'aventure, on génère quand même de l'or ; on ne devrait pas en générer tant qu'on n'a pas tué au moins un mob ». bestGoldThisRun (or par remplissage de la machine) vient UNIQUEMENT du meilleur drop d'un kill de CETTE renaissance (idle-ngu-actions.js) ; il était relevé ici au record de toute la partie (context.bestGold) dès la renaissance. Wiki « Broken Time Machine » : « based on highest gold earned from a kill that rebirth ». */
   tm.data.highestBossEver = Math.max(tm.data.highestBossEver, state.records.highestBoss);
 
   for (const def of IDLE_NGU_SYSTEMS) {
