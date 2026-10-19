@@ -1910,7 +1910,18 @@
          * fortement les lectures/écritures DOM sans ralentir la progression.
          */
         let dernierFrameJeuVisibleV214=0;
+        /*
+         * 60 images par seconde (Norman, 2026-10-19 : « tout doit être en 60 FPS »). Le plafond de 15 Hz ci-dessous reste le PLANCHER : celui des appareils lents (iPhone, vieux
+         * téléphones). Tant que le calcul d'un tick coûte peu (moyenne glissante mesurée sur CET appareil), le jeu le refait à CHAQUE image (barres, compteurs, PV) ; s'il
+         * coûte plus, il passe à 30 images par seconde, puis revient à 15. dt reste le temps réel écoulé : la progression ne dépend jamais de la cadence.
+         */
         const intervalleFrameJeuVisibleV214=1000/15;
+        let coutTickMsV1=1;
+        function intervalleAdaptatifJeuV1_(){
+          if(coutTickMsV1<4.5)return 0;
+          if(coutTickMsV1<9)return 1000/30-3;
+          return intervalleFrameJeuVisibleV214;
+        }
         function frameJeuV214_(timestamp){
           const maintenantFrame=
             Number.isFinite(Number(timestamp))
@@ -1919,12 +1930,15 @@
 
           if(
             !dernierFrameJeuVisibleV214 ||
-            maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214
+            maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214 ||
+            maintenantFrame-dernierFrameJeuVisibleV214>=intervalleAdaptatifJeuV1_()
           ){
             dernierFrameJeuVisibleV214=maintenantFrame;
+            const debutTickV1=(typeof performance!=='undefined'&&performance.now)?performance.now():0;
             /* audit 2026-10-13 : une exception dans un tick ne doit pas arrêter toute la boucle visible (le rAF est ré-armé même en cas d'erreur) */
             try{
               mettreAJourJeuIdleLocalV7_();
+              if(debutTickV1)coutTickMsV1=coutTickMsV1*0.9+Math.min(50,performance.now()-debutTickV1)*0.1;
             }catch(erreurTickV1){
               try{console.error('[IDLE] tick local',erreurTickV1);}catch(_e){}
             }

@@ -8,6 +8,8 @@ const ambient=readFileSync("cloudflare/public/modules/ambient-audio-v1.js","utf8
 // Visible heavy game updates are capped at 15 Hz while dt remains authoritative.
 assert.ok(ui.includes("const intervalleFrameJeuVisibleV214=1000/15;"));
 assert.ok(ui.includes("maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214"));
+// 60 FPS (Norman, 2026-10-19) : le plafond de 15 Hz est le plancher des appareils lents ; la cadence monte à chaque image tant que le tick coûte peu.
+assert.ok(ui.includes("intervalleAdaptatifJeuV1_()") && ui.includes("if(coutTickMsV1<4.5)return 0;"));
 assert.ok(ui.includes("mettreAJourJeuIdleLocalV7_();"));
 assert.ok(ui.includes("requestAnimationFrame(frameJeuV214_)"));
 

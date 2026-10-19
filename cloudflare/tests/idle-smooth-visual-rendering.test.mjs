@@ -15,6 +15,8 @@ const ui = lireUiComplet();
 // La simulation lourde reste volontairement plafonnée à 15 Hz (coût DOM/calcul, freezes iPhone/Safari).
 assert.ok(ui.includes("const intervalleFrameJeuVisibleV214=1000/15;"));
 assert.ok(ui.includes("maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214"));
+// 60 FPS (Norman, 2026-10-19) : le plafond de 15 Hz est le plancher des appareils lents ; la cadence monte à chaque image tant que le tick coûte peu.
+assert.ok(ui.includes("intervalleAdaptatifJeuV1_()") && ui.includes("if(coutTickMsV1<4.5)return 0;"));
 assert.ok(ui.includes("mettreAJourJeuIdleLocalV7_();"));
 
 // Plus de second rendu séparé à la fréquence native de l'écran : la boucle rAF ne fait plus que le tic lourd.
@@ -25,7 +27,7 @@ const loopStart = ui.indexOf("function frameJeuV214_(timestamp)");
 const loopEnd = ui.indexOf("requestAnimationFrame(frameJeuV214_)", loopStart);
 const loop = ui.slice(loopStart, loopEnd);
 assert.ok(loopStart >= 0 && loopEnd > loopStart, "boucle rAF présente");
-assert.match(loop, /try\{\s*mettreAJourJeuIdleLocalV7_\(\);\s*\}catch\(erreurTickV1\)\{[\s\S]*?\}\s*\}\s*if\(PAGE_ACTIVE==='idle'\)\{/, "la boucle rAF ne déclenche plus que le tic lourd (protégé par try/catch), rien d'autre entre les deux");
+assert.match(loop, /try\{\s*mettreAJourJeuIdleLocalV7_\(\);\s*(?:if\(debutTickV1\)coutTickMsV1=[^;]*;\s*)?}catch\(erreurTickV1\){[\s\S]*?}\s*}\s*if\(PAGE_ACTIVE==='idle'\){/, "la boucle rAF ne déclenche plus que le tic lourd (protégé par try/catch) et sa mesure de coût, rien d'autre entre les deux");
 
 // La barre d'Énergie/Magie est posée directement depuis la valeur connue -- aucune interpolation de tick.
 assert.match(
