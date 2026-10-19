@@ -121,11 +121,11 @@ export function idleReinitialiserLimitesV1() {
 }
 
 /* Corps JSON borné : { corps, tropGros }. Un corps absent ou invalide donne corps:null, comme avant. */
-async function idleLireJsonBorneV1(request) {
+async function idleLireJsonBorneV1(request, maxOctets = IDLE_CORPS_MAX_OCTETS_V1) {
   const annonce = Number(request.headers.get("content-length"));
-  if (Number.isFinite(annonce) && annonce > IDLE_CORPS_MAX_OCTETS_V1) return { corps: null, tropGros: true };
+  if (Number.isFinite(annonce) && annonce > maxOctets) return { corps: null, tropGros: true };
   const texte = await request.text().catch(() => "");
-  if (texte.length > IDLE_CORPS_MAX_OCTETS_V1) return { corps: null, tropGros: true };
+  if (texte.length > maxOctets) return { corps: null, tropGros: true };
   try {
     return { corps: JSON.parse(texte), tropGros: false };
   } catch (_e) {
@@ -180,6 +180,21 @@ async function idleLogoutV1(request, env) {
     method: "POST",
     body: JSON.stringify({ sessionToken })
   });
+}
+
+/* Jeu local : export de la ligne du joueur et des catalogues au démarrage, réception de la progression (voir idle-local-sync-v1.js). */
+async function idleLocalV1(request, env, chemin) {
+  const sessionToken = idleBearerV1(request);
+  if (!sessionToken) return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
+  if (idleLimiteDepasseeV1("local:" + sessionToken, 10, 2)) return idleTropDeRequetesV1();
+  let corps = {};
+  if (chemin === "local-push") {
+    const lecture = await idleLireJsonBorneV1(request, 4194304);
+    if (lecture.tropGros) return idleCorpsTropGrosV1();
+    corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+  }
+  corps.sessionToken = sessionToken;
+  return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/" + chemin, { method: "POST", body: JSON.stringify(corps) });
 }
 
 async function idleCallV1(request, env) {
@@ -418,6 +433,9 @@ export default {
     if (request.method === "POST" && url.pathname === "/api/v1/logout") {
       return idleLogoutV1(request, env);
     }
+
+    if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleLocalV1(request, env, "local-export");
+    if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleLocalV1(request, env, "local-push");
 
     if (request.method === "POST" && url.pathname === "/api/v1/call") {
       return idleCallV1(request, env);

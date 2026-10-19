@@ -20,6 +20,7 @@ import { DatabaseSync } from "node:sqlite";
 const REPO = fileURLToPath(new URL("../../", import.meta.url));
 const { SorealIdleCoordinatorV1 } = await import(pathToFileURL(REPO + "cloudflare/src/index-idle-coordinator-v1.js").href);
 const { runSorealIdleOperation } = await import(pathToFileURL(REPO + "cloudflare/src/idle-sqlite-runtime.js").href);
+const { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-local-sync-v1.js").href);
 const { allegerCataloguesV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-catalogues-v1.js").href);
 
 const db = new DatabaseSync(":memory:");
@@ -76,7 +77,7 @@ if (process.env.PARTIE_B) {
     op("obtenirEtatSorealIdle");
   }
 }
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".woff2": "font/woff2", ".png": "image/png", ".m4a": "audio/mp4" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".webp": "image/webp", ".woff2": "font/woff2", ".wasm": "application/wasm", ".png": "image/png", ".m4a": "audio/mp4" };
 const ROOT = REPO + "cloudflare/public";
 const port = Number(process.env.PORT || 8799);
 
@@ -91,6 +92,23 @@ http.createServer(async (req, res) => {
       res.writeHead(r.status, { "content-type": r.headers.get("content-type") || "application/octet-stream", "cache-control": "public, max-age=300", "access-control-allow-origin": "*" });
       res.end(corps);
     } catch (e) { res.writeHead(502); res.end("relais media indisponible"); }
+    return;
+  }
+  /* Jeu local : export au démarrage et réception de la progression (mêmes modules que le Worker de production). */
+  if (url.pathname === "/api/v1/local/export" && req.method === "GET") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(TOK ? exporterPourMoteurLocalV1(coord, TOK) : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
+    return;
+  }
+  if (url.pathname === "/api/v1/local/push" && req.method === "POST") {
+    let corps = "";
+    req.on("data", (c) => { corps += c; });
+    req.on("end", () => {
+      res.writeHead(200, { "content-type": "application/json" });
+      let p = {}; try { p = JSON.parse(corps || "{}"); } catch (_) {}
+      p.sessionToken = TOK;
+      res.end(JSON.stringify(TOK ? recevoirDuMoteurLocalV1(coord, p) : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
+    });
     return;
   }
   if (url.pathname === "/api/v1/call" && req.method === "POST") {

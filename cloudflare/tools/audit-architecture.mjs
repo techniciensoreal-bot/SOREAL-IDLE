@@ -34,7 +34,14 @@ for (const [dossier, re] of [["public", /\.js$/], ["public/modules", /\.js$/], [
   for (const f of readdirSync(join(racine, dossier))) if (re.test(f)) fichiers.push(dossier + "/" + f);
 }
 
+/* Fichier GÉNÉRÉ (esbuild, tools/build-moteur-local.mjs) : seule la syntaxe est contrôlée, pas la taille ni les fonctions. */
+const GENERES = new Set(["public/moteur-local-worker-v1.js"]);
+
 for (const f of fichiers) {
+  if (GENERES.has(f)) {
+    if (spawnSync(process.execPath, ["--check", join(racine, f)], { encoding: "utf8" }).status !== 0) problemes.push(`erreur de syntaxe : ${f}`);
+    continue;
+  }
   const texte = readFileSync(join(racine, f), "utf8").replace(/\r\n/g, "\n");
   const n = lignesDe(texte);
   if (n > MAX_LIGNES_FICHIER) problemes.push(`fichier trop long : ${f} (${n} lignes, maximum ${MAX_LIGNES_FICHIER})`);

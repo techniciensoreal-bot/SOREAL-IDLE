@@ -1,0 +1,95 @@
+/*
+ * Jeu local (Norman, 2026-10-19) : le moteur tourne dans la page ; le serveur ne fait plus que
+ *  - FOURNIR au démarrage la ligne du joueur et les feuilles de catalogue (exporterPourMoteurLocalV1),
+ *  - RECEVOIR la progression (recevoirDuMoteurLocalV1) pour les classements et « En direct » : ligne du joueur, événements du flux, gains d'EXP.
+ * Règles : l'identité (ID, nom, rang, e-mails) reste celle du serveur ; un état plus ancien que celui du serveur n'écrase jamais un état plus récent
+ * (comparaison sur « Dernière synchro », colonne 16, jamais sur l'horloge de l'appareil seule) ; les événements sont rattachés au compte de la session.
+ */
+import { runSorealIdleOperation } from "./idle-sqlite-runtime.js";
+import { assurerFluxV1 } from "./idle-flux-v1.js";
+import { assurerGainsV1 } from "./idle-gains-v1.js";
+import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slots-v1.js";
+
+const sv = (v) => String(v == null ? "" : v).trim();
+const COL_DERNIERE_SYNCHRO = 15;            // colonne 16 (base 0)
+const COLS_DU_SERVEUR = [0, 1, 17, 18, 19]; // ID, Nom, Rang, e-mail principal, e-mail de connexion
+const MAX_FLUX = 200;
+const MAX_GAINS = 100;
+
+/* « Dernière synchro » est une date ISO (ou des millisecondes) : toujours comparée en millisecondes. */
+function enMs(v) {
+  const n = Number(v);
+  return Number.isFinite(n) && sv(v) !== "" ? n : Date.parse(sv(v));
+}
+
+function emailsDe(user) {
+  const l = [user && user.email, user && user.emailConnexion].concat((user && user.emails) || []);
+  return Array.from(new Set(l.map((e) => sv(e).toLowerCase()).filter(Boolean)));
+}
+
+/* Partie B (essai de Norman) : sa ligne est stockée sous l'adresse alias, comme le fait le moteur (trouverLigneJoueurSorealIdle_). */
+function effectif(user) {
+  return idleDevSlotForUserV1(user) === "b" ? idleDevUserForSlotV1(user, "b") : user;
+}
+
+function indexLigneJoueur(coord, user) {
+  for (const e of emailsDe(effectif(user))) {
+    const r = coord.sqlAll("SELECT source_row FROM idle_players WHERE lower(email_primary)=? OR lower(email_login)=? LIMIT 1", e, e)[0];
+    if (r && Number(r.source_row) > 1) return Number(r.source_row);
+  }
+  return 0;
+}
+
+export function exporterPourMoteurLocalV1(coord, sessionToken) {
+  const s = coord.standaloneSessionV1(sessionToken);
+  if (!s.ok) return { ok: false, error: s.error };
+  /* Crée la ligne du joueur si c'est sa première visite, puis la lit. */
+  runSorealIdleOperation(coord.sqlMoteur, "obtenirEtatSorealIdle", [sessionToken], s.user);
+  const index = indexLigneJoueur(coord, s.user);
+  if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  const entete = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=1")[0];
+  const ligne = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
+  if (!ligne) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  const feuilles = coord.sqlAll("SELECT sheet_name,row_index,row_json FROM idle_catalog WHERE sheet_name!='JOUEURS' ORDER BY sheet_name,row_index")
+    .map((r) => [r.sheet_name, Number(r.row_index), r.row_json]);
+  const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
+  return { ok: true, user: s.user, serveurAt: Date.now(), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+}
+
+export function recevoirDuMoteurLocalV1(coord, p) {
+  const s = coord.standaloneSessionV1(p && p.sessionToken);
+  if (!s.ok) return { ok: false, error: s.error };
+  const index = indexLigneJoueur(coord, s.user);
+  if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  const cells = Array.isArray(p.cells) ? p.cells : null;
+  if (!cells || cells.length < 30) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
+  const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
+  let serveur = [];
+  try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
+  const recu = enMs(cells[COL_DERNIERE_SYNCHRO]);
+  const connu = enMs(serveur[COL_DERNIERE_SYNCHRO]);
+  let ecrit = false;
+  if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
+    const fusion = cells.slice();
+    for (const c of COLS_DU_SERVEUR) fusion[c] = serveur[c];
+    coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(fusion), Date.now(), index);
+    ecrit = true;
+  }
+  const cle = emailsDe(effectif(s.user))[0] || "";
+  const nom = sv(s.user.prenom || "Joueur").slice(0, 80);
+  assurerFluxV1(coord.sql);
+  assurerGainsV1(coord.sql);
+  let flux = 0;
+  for (const e of (Array.isArray(p.flux) ? p.flux : []).slice(0, MAX_FLUX)) {
+    if (!e || typeof e.type !== "string") continue;
+    coord.sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", Number(e.at) || Date.now(), cle, nom, e.type.slice(0, 40), sv(e.donnees).slice(0, 4000) || "{}");
+    flux += 1;
+  }
+  let gains = 0;
+  for (const g of (Array.isArray(p.gains) ? p.gains : []).slice(0, MAX_GAINS)) {
+    if (!g) continue;
+    coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", Number(g.at) || Date.now(), cle, nom, sv(g.operation).slice(0, 120), Number(g.avant) || 0, Number(g.apres) || 0);
+    gains += 1;
+  }
+  return { ok: true, ecrit, flux, gains, serveurAt: Date.now() };
+}

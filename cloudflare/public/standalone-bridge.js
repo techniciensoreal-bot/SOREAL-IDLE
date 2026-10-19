@@ -321,21 +321,28 @@
 
     const debutAppelDiagV1=(typeof performance!=="undefined"&&performance.now)?performance.now():0;
     try{
-      const data=await jsonFetchRepriseV1("/api/v1/call",{
-        method:"POST",
-        headers:{
-          accept:"application/json",
-          "content-type":"application/json",
-          authorization:"Bearer "+session
-        },
-        body:JSON.stringify({
-          operation:String(operation||""),
-          args:liste,
-          catalogHashes:sansAllegement?undefined:hashesCataloguesV1(),
-          /* Langue des items et des textes (Réglages) : « fr » par défaut, « en » = originaux. */
-          langue:langueIdleV1()
-        })
-      },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
+      /* Jeu local (modules/moteur-local-v1.js) : les actions de jeu sont calculées dans la page, par le même moteur que le serveur. */
+      const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+      let data=(ML&&ML.actif()&&ML.prend(String(operation||"")))
+        ? await ML.appeler(String(operation||""),liste,sansAllegement?undefined:hashesCataloguesV1(),langueIdleV1(),session)
+        : null;
+      if(!data)data=await (async function(){
+          return await jsonFetchRepriseV1("/api/v1/call",{
+          method:"POST",
+          headers:{
+            accept:"application/json",
+            "content-type":"application/json",
+            authorization:"Bearer "+session
+          },
+          body:JSON.stringify({
+            operation:String(operation||""),
+            args:liste,
+            catalogHashes:sansAllegement?undefined:hashesCataloguesV1(),
+            /* Langue des items et des textes (Réglages) : « fr » par défaut, « en » = originaux. */
+            langue:langueIdleV1()
+          })
+        },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
+        })();
       try{const Dg=window.__SOREAL_IDLE_DIAG_V1__;if(Dg&&Dg.reponseRecue)Dg.reponseRecue(operation,(performance.now?performance.now():0)-debutAppelDiagV1);}catch(_){}
       if(!restaurerCataloguesV1(data)&&!sansAllegement){
         /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */

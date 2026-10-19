@@ -1,0 +1,1 @@
+{ "name": "soreal-idle-moteur-local", "private": true, "type": "module", "dependencies": { "sql.js": "1.15.1", "esbuild": "0.25.0" } }
