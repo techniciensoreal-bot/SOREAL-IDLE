@@ -421,6 +421,9 @@
           return;
         }
 
+        /* Fight impossible tant que le boss n'est pas AFFICHÉ (Norman, 2026-10-20 : « je peux lancer les combats alors que les boss ne sont pas encore affichés, et ça fait ça » : combat lancé contre « le boss » sans nom ni PV, puis remis à zéro à la synchro suivante). */
+        if(actif&&!REG.idleEtat.combatBossActif&&!(String(REG.idleEtat.bossActuel||'').trim()&&idleNombre_(REG.idleEtat.bossPvMax)>0))return;
+
         /* Un ordre de combat précédent n'est pas encore validé par le serveur : pas de nouveau Fight (raccourci clavier compris). */
         if(actif&&!REG.idleEtat.combatBossActif&&(REG.idleCombatLotEnVolV1||REG.idleFastPendingV60.combat!==null))return;
 
@@ -951,6 +954,7 @@
                   j.combatBossActif||
                   j.bossBloqueRenaissance||
                   idleNombre_(j.pvJoueur)<=0||
+                  !(String(j.bossActuel||'').trim()&&idleNombre_(j.bossPvMax)>0)||
                   fightEnAttenteServeurIdleV1_()
                     ?'disabled'
                     :''

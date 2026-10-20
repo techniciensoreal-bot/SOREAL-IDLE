@@ -617,16 +617,18 @@ export function idleNguBonusesLectureV1(raw) {
     if (__nguCtx.__porteeBonusV1.valeur === null) __nguCtx.__porteeBonusV1.valeur = idleNguBonusesMemoV1(state);
     return __nguCtx.__porteeBonusV1.valeur;
   }
+  /* Hors portée : même mémo que idleNguBonuses(), mais SANS copie profonde du résultat (journal de Norman, 2026-10-20 : environ un quart du temps d'une synchro passé à recopier l'objet de bonus pour n'en lire qu'un champ). */
+  if (state) return idleNguBonusesMemoV1(state, true);
   return idleNguBonuses(raw);
 }
 
-function idleNguBonusesMemoV1(state) {
+function idleNguBonusesMemoV1(state, sansCopie) {
   if (__nguCtx.__sansMemoV1) return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   let cle = null;
   try { cle = JSON.stringify(state); } catch (_e) { cle = null; }
   const maintenant = Date.now();
   if (cle !== null && __bonusMemoV1.valeur !== null && __bonusMemoV1.cle === cle && maintenant - __bonusMemoV1.at <= BONUS_MEMO_MS_V1) {
-    const copie = structuredClone(__bonusMemoV1.valeur);
+    const copie = sansCopie ? __bonusMemoV1.valeur : structuredClone(__bonusMemoV1.valeur);
     if (typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_BONUS === "1") {
       const frais = macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
       if (JSON.stringify(frais) !== JSON.stringify(copie)) throw new Error("SOREAL_IDLE_BONUS_MEMO_DIVERGENT");

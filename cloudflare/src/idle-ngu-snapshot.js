@@ -1270,7 +1270,7 @@ export function photoRecompensesAventure(state) {
  * multiplicateurs QP/AP des Perks et du QP Hack.
  */
 export function questingEnvV1(state, context) {
-  const bonuses = idleNguBonuses(state);
+  const bonuses = idleNguBonusesLectureV1(state);
   const gear = idleEquipementEffectifV1(state);
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   return {

@@ -93,9 +93,21 @@
   function parler(msg){
     return new Promise(function(ok,ko){
       const id=++numero;
-      attentes.set(id,{ok:ok,ko:ko});
+      attentes.set(id,{ok:ok,ko:ko,op:msg.operation||msg.type,envoi:performance.timeOrigin+performance.now()});
       worker.postMessage(Object.assign({id:id},msg));
     });
+  }
+
+  /* Où va le temps d'un appel ? file = attente avant le début du calcul (le Worker traite un appel à la fois), calcul = le moteur, retour = copie du résultat vers la page. Lu par le journal de fluidité ; la durée des synchros règle aussi leur cadence. */
+  let emaSyncMs=0;
+  function noterMesure(a,mes){
+    try{
+      const recu=performance.timeOrigin+performance.now();
+      const file=Math.max(0,mes.debut-a.envoi),retour=Math.max(0,recu-mes.fin);
+      if(a.op==="synchroniserSorealIdle")emaSyncMs=emaSyncMs?emaSyncMs*0.8+mes.calcul*0.2:mes.calcul;
+      const D=window.__SOREAL_IDLE_DIAG_V1__;
+      if(D&&typeof D.moteurTemps==="function")D.moteurTemps(a.op,file,mes.calcul,retour);
+    }catch(_){}
   }
 
   async function demarrer(jeton){
@@ -121,11 +133,12 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=97092536e5");
+    worker=new Worker("/moteur-local-worker-v1.js?v=272a6aa1b4");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
       attentes.delete(m.id);
+      if(m.ok&&m.mesure)noterMesure(a,m.mesure);
       if(m.ok)a.ok(m.resultat);else a.ko(Object.assign(new Error(m.erreur||"MOTEUR_LOCAL"),{code:m.erreur}));
     };
     worker.onerror=function(){
@@ -181,7 +194,8 @@
   /* Cadence des synchros (Norman, 2026-10-19 : « les menus doivent se mettre à jour beaucoup plus vite, plus juste »). Le moteur est dans la page : une synchro coûte ~50 ms dans un Worker, sans réseau. Les limiteurs prévus pour un serveur (4 s en menu vivant, 3 s pour une augmentation, 2 s pour la machine) sont divisés par 10 (150 ms au minimum) en jeu local. */
   window.__SOREAL_IDLE_DELAI_SYNC_V1__=function(ms){
     const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
-    return(ML&&ML.actif&&ML.actif())?Math.max(150,Math.round(ms/10)):ms;
+    /* Jamais plus d'une synchro toutes les 4 fois sa durée : le Worker traite un appel à la fois, des synchros trop rapprochées (172 ms chacune sur un gros compte) faisaient attendre les clics derrière elles. */
+    return(ML&&ML.actif&&ML.actif())?Math.min(ms,Math.max(150,Math.round(ms/10),Math.round(emaSyncMs*4))):ms;
   };
 
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={

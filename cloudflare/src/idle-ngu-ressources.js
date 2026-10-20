@@ -12,7 +12,7 @@ import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_SYSTEMS, MIN_REBIRTH_SECONDS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, int, num, safePow, safeProduct } from "./idle-ngu-catalogues.js";
 import { defaultResource, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, normalizeRebirthState } from "./idle-ngu-etat.js";
 import { setRitualAllocationV1, trollBossDividerV1 } from "./idle-ngu-systemes.js";
-import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, nguFxV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
+import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, minRebirthSecondsV1, setAugmentAllocationV214_, wishLevelV1 } from "./idle-ngu-snapshot.js";
 import { clearWishSlotAllocationsV1 } from "./idle-ngu-pistes.js";
 
@@ -219,7 +219,7 @@ export function idleNguEffectiveResourceStatV1(state, resource, stat) {
 function idleNguEffectiveResourceStatUncappedV1(state, resource, stat) {
   const raw = Math.max(0, num(state.resources?.[resource]?.[stat], 0));
   if (resource !== "energy" && resource !== "magic" && resource !== "r3") return raw;
-  const bonuses = idleNguBonuses(state);
+  const bonuses = idleNguBonusesLectureV1(state);
   if (resource === "r3") {
     /* Bonus "base" (Incriminating Evidence (set) : +2 Power, +80K Cap, +2 Bars) ajoutés au brut avant les multiplicateurs. */
     if (stat === "power") return (raw + Math.max(0, num(bonuses.r3PowerFlat, 0))) * Math.max(0, num(bonuses.r3PowerMultiplier, 1));

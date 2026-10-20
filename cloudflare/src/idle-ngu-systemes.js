@@ -675,7 +675,7 @@ function advanceTowerV1(state, seconds, context) {
   d.apProgress = Math.max(0, num(d.apProgress, 0));
 
   const gear = idleEquipementEffectifV1(state);
-  const bonuses = idleNguBonuses(state);
+  const bonuses = idleNguBonusesLectureV1(state);
   const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
   /* Pour l'écran (Norman, 2026-10-04 : « les ennemis doivent prendre des coups, la vie descend progressivement quand on n'est pas assez fort pour les tuer d'un coup ») : coups nécessaires pour tuer un ennemi de l'étage en cours
      (towerHitsV1, la même formule que la progression), délai de réapparition et intervalle entre deux coups. 0 = pas assez de Power pour avancer. */
@@ -938,7 +938,7 @@ function advanceLateSystems(state, seconds, context, now) {
    * d'advanceTitanAutoKillV1).
    */
   const gearAventure = idleEquipementEffectifV1(state);
-  const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonuses(state));
+  const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonusesLectureV1(state));
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);
     advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {

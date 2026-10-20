@@ -530,6 +530,17 @@
     });
     return (lignes.length?'Fluidité mesurée (4 derniers relevés de 10 s par mode) :\n'+lignes.join('\n')+'\n\n':'')+synthese_();
   }
+  /* Reçu de moteur-local-v1.js pour chaque appel au moteur local : attente dans la file, calcul, retour vers la page (ms). */
+  function moteurTemps_(op,file,calcul,retour){
+    try{
+      if(!estAdmin_())return;
+      var nom=String(op||'?'),o=stats.ops[nom]||(stats.ops[nom]={n:0,somme:0,max:0,l150:0});
+      o.f=(o.f||0)+file;o.c=(o.c||0)+calcul;o.r=(o.r||0)+retour;o.nm=(o.nm||0)+1;
+      if(calcul>o.cmax)o.cmax=calcul;if(!o.cmax)o.cmax=calcul;
+      if(file>(o.fmax||0))o.fmax=file;
+      statsSale=true;
+    }catch(_e){}
+  }
   function pc_(a,b){return b>0?Math.round(100*a/b)+' %':'-';}
   function synthese_(){
     try{
@@ -539,7 +550,7 @@
       var out='';
       if(l.length)out+='Fluidité cumulée par menu (du moins fluide au plus fluide) :\n'+l.join('\n')+'\n\n';
       var ops=Object.keys(stats.ops).sort(function(a,b){return stats.ops[b].somme-stats.ops[a].somme;}).slice(0,8);
-      if(ops.length)out+='Temps de réponse des opérations du moteur (cumulé) :\n'+ops.map(function(k){var o=stats.ops[k];return '  '+k+' : ×'+o.n+' · moyenne '+Math.round(o.somme/o.n)+' ms · pire '+Math.round(o.max)+' ms · '+pc_(o.l150,o.n)+' au-dessus de 150 ms';}).join('\n')+'\n\n';
+      if(ops.length)out+='Temps de réponse des opérations du moteur (cumulé) :\n'+ops.map(function(k){var o=stats.ops[k];return '  '+k+' : ×'+o.n+' · moyenne '+Math.round(o.somme/o.n)+' ms · pire '+Math.round(o.max)+' ms · '+pc_(o.l150,o.n)+' au-dessus de 150 ms'+(o.nm?' — dont attente dans la file '+Math.round(o.f/o.nm)+' ms (pire '+Math.round(o.fmax||0)+'), calcul du moteur '+Math.round(o.c/o.nm)+' ms (pire '+Math.round(o.cmax||0)+'), retour vers la page '+Math.round(o.r/o.nm)+' ms':'');}).join('\n')+'\n\n';
       var I=stats.inter;
       if(I.n>0)out+='Réactivité aux clics et touches : '+I.n+' interactions · attente moyenne avant traitement '+Math.round(I.delai/I.n)+' ms · '+I.lentes+' au-dessus de 200 ms · pire '+Math.round(I.pire)+' ms'+(I.lentes?' ('+Object.keys(I.types).map(function(k){return k+' ×'+I.types[k];}).join(', ')+')':'')+'\n\n';
       var L=stats.loaf;
@@ -573,6 +584,7 @@
     ecartRituels:ecartRituels_,
     ecartCombat:ecartCombat_,
     reponseRecue:reponseRecue_,
+    moteurTemps:moteurTemps_,
     tacheLongue:tacheLongue_,
     combatLance:combatLance_,
     lotEnvoye:lotEnvoye_,

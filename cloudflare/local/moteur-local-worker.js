@@ -102,10 +102,13 @@ self.onmessage = async (ev) => {
     } else if (m.type === "appel") {
       regler(m.ecart);
       const debut = Date.now();
+      /* Temps réels (horloge de l'appareil, commune à la page) pour le journal de fluidité : début du calcul, durée, fin. */
+      const reelDebut = performance.timeOrigin + performance.now();
       const res = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: m.operation, args: Array.isArray(m.args) ? m.args : [], catalogHashes: m.catalogHashes, langue: m.langue });
       if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur)) res.joueur.__serveurAtV1 = Math.max(debut, versionLocale + 1);
       versionLocale = Math.max(debut, versionLocale + 1);
-      self.postMessage({ id: m.id, ok: true, resultat: res });
+      const reelFin = performance.timeOrigin + performance.now();
+      self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin } });
     } else if (m.type === "sortant") {
       const out = { cells: ligneJoueur(), flux: sortant.flux, gains: sortant.gains };
       if (m.vider) sortant = { flux: [], gains: [] };

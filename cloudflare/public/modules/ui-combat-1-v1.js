@@ -177,6 +177,7 @@
               REG.idlePopupQueueV75.length ||
               REG.idleEtat.bossBloqueRenaissance ||
               idleNombre_(REG.idleEtat.pvJoueur)<=0 ||
+              !(String(REG.idleEtat.bossActuel||'').trim()&&idleNombre_(REG.idleEtat.bossPvMax)>0) ||
               fightEnAttenteServeurIdleV1_()
             );
           if(start.disabled!==desactive)start.disabled=desactive;

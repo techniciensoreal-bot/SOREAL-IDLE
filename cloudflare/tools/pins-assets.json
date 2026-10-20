@@ -112,7 +112,7 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 9,
+  "pin": 11,
   "sha": "794b514194bd7aede9720c26868121157cd7c13b"
  },
  "/modules/combat-effets-v1.js": {
@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 25,
-  "sha": "a472ad949231ff69d606d075423fe9775066ace5"
+  "pin": 26,
+  "sha": "fb9c992b85cf174115d0e0f83dade4c3801eda88"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 19,
-  "sha": "f1f0154a2c18c08532e019741e0b90c1f6cc4b65"
+  "pin": 21,
+  "sha": "deaf56e8c1616a96831b6285fcd0549e9d68b22a"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -436,12 +436,12 @@
   "sha": "b9978edfdb5a6d99d68763e34aa347d42c67af90"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 6,
-  "sha": "5ac71f93c8828afc8f0b85ee826c09a8f325caaa"
+  "pin": 7,
+  "sha": "da4651f8cc44ef77654b7b7871d6d1e48b926653"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 5,
-  "sha": "89037429595bb8838c854d766e411abcf5579944"
+  "pin": 6,
+  "sha": "89c7fe66566000374c8290b6a099f291651a5444"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
