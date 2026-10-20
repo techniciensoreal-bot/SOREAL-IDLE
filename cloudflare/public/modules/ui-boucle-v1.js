@@ -1532,6 +1532,13 @@
           ecouleTickMs/
           1000;
 
+        /*
+         * Vie qui recule d'une fraction de seconde (Norman, 2026-10-20 : « ma vie est passée de 1.19Tg à 1.20Tg et est revenue à 1.19 »). L'entraînement local déduit défense et VIE MAX des multiplicateurs de combat
+         * (attaque x10 pour la vie) ; il passait AVANT leur mise à jour par la trajectoire : après chaque réponse du moteur, ces multiplicateurs étaient ceux de l'instant où le moteur avait commencé son calcul (en retard
+         * de 0,1 à 0,3 s), la vie max retombait donc d'un cran pour une image, puis remontait à l'image suivante. La trajectoire est maintenant appliquée D'ABORD (et dès le remplacement de l'état, voir soreal-idle-ui.js).
+         */
+        appliquerTrajectoireStatsIdleV1_();
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-32 */
         progresserBasicTrainingLocalIdleV120_(
           ecouleBasicTrainingMs/

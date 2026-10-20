@@ -111,6 +111,8 @@
           }
         }catch(_e){}
         idleEtat=v;
+        /* Les multiplicateurs de combat de la réponse sont ceux de l'instant où le moteur a commencé son calcul : on les avance à MAINTENANT avant tout affichage (Attaque, Défense et Vie max du bandeau ne reculent plus une image). */
+        try{if(v&&typeof UI_PARTAGE_V1.appliquerTrajectoireStatsIdleV1_==='function')UI_PARTAGE_V1.appliquerTrajectoireStatsIdleV1_();}catch(_e){}
       },configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFastNetworkBusyV60',{get:function(){return idleFastNetworkBusyV60;},set:function(v){idleFastNetworkBusyV60=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFastPendingV60',{get:function(){return idleFastPendingV60;},configurable:true});

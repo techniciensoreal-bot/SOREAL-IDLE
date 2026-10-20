@@ -424,8 +424,8 @@
   "sha": "f03358004c44e6c4c514be5b5cf001f197ac7533"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 10,
-  "sha": "2e29dd2f832d4a61eba29cab36302ae2080822d7"
+  "pin": 11,
+  "sha": "dc63d8beef90de56ffa1f3f595cc016a7349b110"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
@@ -556,8 +556,8 @@
   "sha": "8d75db2586d827ba41b58ec67d5b3686fc6c97a3"
  },
  "/soreal-idle-ui.js": {
-  "pin": 651,
-  "sha": "e5989ae33d8a352a13695b4d98201f990e9e5fe1"
+  "pin": 652,
+  "sha": "3f066eb7167077433929f22feede21fbe845c9b9"
  },
  "/standalone-bridge.js": {
   "pin": 19,
