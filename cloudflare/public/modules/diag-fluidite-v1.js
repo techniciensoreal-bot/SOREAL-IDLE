@@ -142,13 +142,42 @@
       if(Number(ms)>3000)noter_('reponse_lente',String(op||'?'),{ms:Math.round(Number(ms))});
     }catch(_e){}
   }
+  /* Qui a bloqué le navigateur ? (administrateur seulement) : les fonctions passées à requestAnimationFrame / setTimeout / setInterval sont chronométrées ; celles qui dépassent 30 ms sont gardées avec leur nom,
+     et une tâche longue cite les plus lourdes qui la recouvrent (« suspects »). Installé au premier relevé d'un administrateur : aucun coût pour les autres joueurs. */
+  var suspects=[],suspectsPoses=false;
+  function nomFonction_(f){try{return String(f.name||String(f).replace(/\/\*[\s\S]*?\*\//g,'').replace(/\s+/g,' ').slice(0,90));}catch(_e){return '?';}}
+  function envelopper_(fn,origine){
+    if(typeof fn!=='function')return fn;
+    if(fn.__diagEnvV1)return fn.__diagEnvV1;
+    var w=function(){
+      var t0=performance.now();
+      try{return fn.apply(this,arguments);}
+      finally{var d=performance.now()-t0;if(d>=30){suspects.push({t:t0,ms:Math.round(d),qui:origine+':'+nomFonction_(fn)});if(suspects.length>60)suspects.shift();}}
+    };
+    try{fn.__diagEnvV1=w;}catch(_e){}
+    return w;
+  }
+  function poserSuspects_(){
+    if(suspectsPoses)return;
+    suspectsPoses=true;
+    try{
+      var raf=window.requestAnimationFrame,st=window.setTimeout,si=window.setInterval;
+      window.requestAnimationFrame=function(fn){return raf.call(window,envelopper_(fn,'raf'));};
+      window.setTimeout=function(fn){var a=Array.prototype.slice.call(arguments);a[0]=envelopper_(fn,'timeout');return st.apply(window,a);};
+      window.setInterval=function(fn){var a=Array.prototype.slice.call(arguments);a[0]=envelopper_(fn,'interval');return si.apply(window,a);};
+    }catch(_e){}
+  }
+  function suspectsDe_(debut,duree){
+    var l=suspects.filter(function(x){return x.t+x.ms>=debut-50&&x.t<=debut+duree+50;}).sort(function(a,b){return b.ms-a.ms;}).slice(0,3);
+    return l.map(function(x){return x.qui+' '+x.ms+'ms';}).join(' ; ')||'-';
+  }
   function tacheLongue_(debut,duree){
     try{
       if(!(duree>=80))return;
       var rep=null;
       for(var i=recentes.length-1;i>=0;i--){if(recentes[i].t>=debut-120&&recentes[i].t<=debut+duree){rep=recentes[i];break;}}
       var ctx=contexte_();
-      noter_('tache_longue',String(ctx.menu||'?')+'@'+Math.floor(debut/2000),{ms:Math.round(duree),apres:rep?rep.op:'-',appel_ms:rep?rep.ms:0,delai_ms:rep?Math.round(debut-rep.t):0});
+      noter_('tache_longue',String(ctx.menu||'?')+'@'+Math.floor(debut/2000),{ms:Math.round(duree),apres:rep?rep.op:'-',appel_ms:rep?rep.ms:0,delai_ms:rep?Math.round(debut-rep.t):0,suspects:suspectsDe_(debut,duree)});
     }catch(_e){}
   }
 
@@ -231,6 +260,7 @@
   function echantillon_(){
     /* Norman (2026-10-13, audit) : la sonde est réservée à l'administrateur ; plus aucun travail à 5 Hz pour les autres joueurs */
     if(document.hidden||!estAdmin_())return;
+    poserSuspects_();
     echantillonVie_();
     var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="augmentations"]');
     if(!racine){prec={};pleineDepuis={};return;}
@@ -324,7 +354,7 @@
       return '=== SOREAL IDLE — journal de diagnostic ==='+'\n'+
         'relevé : '+new Date().toLocaleString('fr-BE')+' · mode '+modeJeu+' · version client ?v='+v+'\n'+
         'appareil : '+String(nav.userAgent||'?').slice(0,110)+' · '+(nav.hardwareConcurrency||'?')+' coeurs · mémoire '+(nav.deviceMemory||'?')+' Go · écran '+(window.innerWidth||'?')+'x'+(window.innerHeight||'?')+' ×'+(window.devicePixelRatio||'?')+'\n'+
-        'réseau : '+(cn.effectiveType||'?')+' · aller-retour '+(cn.rtt!==undefined?cn.rtt:'?')+' ms · débit '+(cn.downlink!==undefined?cn.downlink:'?')+' Mb/s'+'\n'+
+        'réseau : '+(cn.effectiveType||'?')+' · aller-retour '+(cn.rtt!==undefined?cn.rtt:'?')+' ms · débit '+(cn.downlink!==undefined?cn.downlink:'?')+' Mb/s (estimations du navigateur : « 4g » est son maximum, même en fibre)'+'\n'+
         'moteur : '+moteurTexte_()+'\n'+
         'au moment de la copie : menu '+(ctx.menu||'?')+' · combat '+(ctx.combat===undefined?'?':ctx.combat)+'\n\n';
     }catch(_e){return '';}
