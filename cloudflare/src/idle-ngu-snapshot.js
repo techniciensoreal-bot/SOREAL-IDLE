@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { nguActiveTiersV1, IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, nguParamsV1, IDLE_NGU_MAX_LEVEL_V1, nguEffectPctV1 } from "./idle-ngu-catalog-v1.js";
+import { span } from "./idle-spans-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1, idleSelloutShopEffectActiveV1, idleSelloutShopNextCostV1, idleSelloutApplyEffectV1 } from "./idle-sellout-shop-v1.js";
 import { idleAdventureSnapshotV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, IDLE_ADVENTURE_SPECIALS, idleAdventureAddItemV1, idleAdventureSpecialItemV1, idleAdventureBoostV1, applyIdleAdventureActionV47 } from "./idle-adventure-v47.js";
 import { idleCardsSnapshotV1, idleCardsGrantChallengeMayoV1 } from "./idle-cards-v1.js";
@@ -74,7 +75,7 @@ function nguSnapshotV1(state, context) {
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   const state = syncIdleNguState(raw, context, now);
   /* L'état est avancé : la suite ne fait que le LIRE pour construire la vue du client (portée de bonus : voir idleNguBonuses). */
-  return avecPorteeBonusV1(state, () => construireSnapshotNguV1(state, context, now));
+  return avecPorteeBonusV1(state, () => span("snapshot:construire", () => construireSnapshotNguV1(state, context, now)));
 }
 
 function construireSnapshotNguV1(state, context, now) {

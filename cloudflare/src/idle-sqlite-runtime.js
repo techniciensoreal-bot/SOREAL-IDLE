@@ -1,4 +1,5 @@
 import { sqlRows, safeJson, jsonText } from "./core/sqlite-core.js";
+import { span, spansActiver, spansPrelever } from "./idle-spans-v1.js";
 import {
   idleDevSlotForUserV1,
   idleDevUserForSlotV1,
@@ -1246,7 +1247,7 @@ export function runSorealIdleOperation(sql,operation,args,user){
   /* Mémos de bonus / d'équipement : valables pour UNE opération (idle-ngu-progression.js, idleNguBonuses). */
   idleNguMemoNouvelleRequeteV1();
 
-  const workbook=__idleBuildWorkbook(sql);
+  const workbook=span("op:classeur",function(){return __idleBuildWorkbook(sql);});
   if(!workbook.getSheetByName("JOUEURS"))throw new Error("SOREAL_IDLE_JOUEURS_ABSENT");
 
   __idleCtx.__idleRuntimeUser=user||null;
@@ -1256,15 +1257,17 @@ export function runSorealIdleOperation(sql,operation,args,user){
   const instantOperation=Date.now();
   try{ Object.defineProperty(Date,"now",{configurable:true,writable:true,value:function(){return instantOperation;}}); }catch(_e){}
   try{
-    const result=fn.apply(null,Array.isArray(args)?args:[]);
+    const result=span("op:"+op,function(){return fn.apply(null,Array.isArray(args)?args:[]);});
     /* La section critique doit rester synchrone (voir idle-run-operation-sync-critical-section.test.mjs). */
     if(result&&typeof result.then==="function")throw new Error("SOREAL_IDLE_OPERATION_ASYNC_INTERDITE");
     /*
      * Le commit (idle_catalog puis idle_players, journal d'EXP) est atomique quand le coordinateur fournit transactionSync (Durable Object SQLite) : une erreur au milieu (ligne trop grosse par exemple) annule TOUT le commit
      * au lieu de laisser les deux tables diverger (audit du 2026-10-10, IDLE-AUDIT-PERF-006 / SEC-015). Sans transactionSync (tests, autres hôtes), comportement inchangé.
      */
+    span("op:commit",function(){
     if(sql&&typeof sql.transactionSync==="function")sql.transactionSync(function(){__idleCommit(sql,workbook);});
     else __idleCommit(sql,workbook);
+    });
     return result;
   }finally{
     try{ if(dateNowOriginal)Object.defineProperty(Date,"now",dateNowOriginal); else delete Date.now; }catch(_e){}
@@ -1273,3 +1276,5 @@ export function runSorealIdleOperation(sql,operation,args,user){
     __idleCtx.__idleSql=null;
   }
 }
+
+export { spansActiver, spansPrelever };

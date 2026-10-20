@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { avecProjectionSansMemoV1, syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
+import { enveloppeSpan } from "./idle-spans-v1.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
@@ -2036,3 +2037,17 @@ export function trajectoireMultiplicateursCombatSorealIdle_(metaNgu, contexte, b
   }
   return liste;
 }
+
+/* Chronométrage par phase (idle-spans-v1.js) : actif seulement pour l'administrateur, un test de booléen sinon. */
+construireEtatJoueurSorealIdle__p1 = enveloppeSpan("etat:p1", construireEtatJoueurSorealIdle__p1);
+construireEtatJoueurSorealIdle__p2 = enveloppeSpan("etat:p2", construireEtatJoueurSorealIdle__p2);
+construireEtatJoueurSorealIdle__p3 = enveloppeSpan("etat:p3", construireEtatJoueurSorealIdle__p3);
+construireEtatJoueurSorealIdle__o1 = enveloppeSpan("etat:o1", construireEtatJoueurSorealIdle__o1);
+construireEtatJoueurSorealIdle__o2 = enveloppeSpan("etat:o2", construireEtatJoueurSorealIdle__o2);
+construireEtatJoueurSorealIdle__o3 = enveloppeSpan("etat:o3", construireEtatJoueurSorealIdle__o3);
+construireEtatJoueurSorealIdle__o4 = enveloppeSpan("etat:o4", construireEtatJoueurSorealIdle__o4);
+construireEtatJoueurSorealIdle__o5 = enveloppeSpan("etat:o5", construireEtatJoueurSorealIdle__o5);
+construireEtatJoueurSorealIdle__o6 = enveloppeSpan("etat:o6", construireEtatJoueurSorealIdle__o6);
+construireEtatJoueurSorealIdle__o7 = enveloppeSpan("etat:o7", construireEtatJoueurSorealIdle__o7);
+trajectoireMultiplicateursCombatSorealIdle_ = enveloppeSpan("etat:trajectoire", trajectoireMultiplicateursCombatSorealIdle_);
+construireEtatJoueurSorealIdle_ = enveloppeSpan("etat:TOTAL", construireEtatJoueurSorealIdle_);

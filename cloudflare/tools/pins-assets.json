@@ -112,8 +112,8 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 15,
-  "sha": "794b514194bd7aede9720c26868121157cd7c13b"
+  "pin": 16,
+  "sha": "8ce44483440319c23081fd4b5875a69ad73ee23e"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 26,
-  "sha": "fb9c992b85cf174115d0e0f83dade4c3801eda88"
+  "pin": 28,
+  "sha": "5f1725eb334b6aee101566dc79b8921ebacf5f0f"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 22,
-  "sha": "52652686af0c84b360af46b824132e3b2025a2b4"
+  "pin": 24,
+  "sha": "05c0ab6257fa29cf63a39ecd412d7d5b9bcc119e"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,

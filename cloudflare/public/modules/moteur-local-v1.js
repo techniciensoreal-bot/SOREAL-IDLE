@@ -106,7 +106,7 @@
       const file=Math.max(0,mes.debut-a.envoi),retour=Math.max(0,recu-mes.fin);
       if(a.op==="synchroniserSorealIdle")emaSyncMs=emaSyncMs?emaSyncMs*0.8+mes.calcul*0.2:mes.calcul;
       const D=window.__SOREAL_IDLE_DIAG_V1__;
-      if(D&&typeof D.moteurTemps==="function")D.moteurTemps(a.op,file,mes.calcul,retour);
+      if(D&&typeof D.moteurTemps==="function")D.moteurTemps(a.op,file,mes.calcul,retour,mes.spans);
     }catch(_){}
   }
 
@@ -133,7 +133,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=23fd95f67f");
+    worker=new Worker("/moteur-local-worker-v1.js?v=58f8e24ecb");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -147,6 +147,14 @@
     };
     await parler({type:"init",ecart:ecartServeur(),export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href});
     vivant=true;
+    /* Chronométrage par phase du moteur : demandé seulement à l'administrateur (journal de fluidité). Réessayé quelques fois : le statut d'administrateur n'est connu qu'après les premières réponses. */
+    (function demanderSpans(essais){
+      try{
+        const admin=typeof window.__SOREAL_IDLE_EST_ADMIN_V1__==="function"&&window.__SOREAL_IDLE_EST_ADMIN_V1__()===true;
+        if(admin){parler({type:"spans",actif:true}).catch(function(){});return;}
+      }catch(_){}
+      if(essais>0)setTimeout(function(){demanderSpans(essais-1);},3000);
+    })(20);
     window.addEventListener("pagehide",function(){envoyer(true);});
     document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")envoyer(true);});
     setInterval(function(){envoyer(false);},INTERVALLE_ENVOI_MS);
@@ -226,6 +234,8 @@
 
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
     /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
+    /* Diagnostic (administrateur) : la ligne du joueur telle que le moteur la détient, pour reproduire hors de la page un calcul lent sur un compte avancé. */
+    exporterLigne:async function(){if(!vivant)return null;const s=await parler({type:"sortant",vider:false});return s&&s.cells?s.cells:null;},
     etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit};},
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},

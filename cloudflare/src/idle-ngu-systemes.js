@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
+import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
 import { IDLE_THE_END_LAST_SPELL_BLOOD_V1, idleTheEndGrantV1, IDLE_THE_END_TOWER_FIRST_FLOOR_V1, idleTheEndHasV1 } from "./idle-the-end-v1.js";
@@ -941,7 +942,7 @@ function advanceLateSystems(state, seconds, context, now) {
   const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonusesLectureV1(state));
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);
-    advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
+    span("tardif:titans", () => advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
       /* Synchro courte = joueur connecté : l'Auto-Kill donne alors le butin ; au-delà (rattrapage hors ligne) seulement EXP, Or, AP, PP, QP, comme le wiki. Même seuil que le farm hors ligne. */
       enLigne: seconds < 5 * 60,
       dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
@@ -955,7 +956,7 @@ function advanceLateSystems(state, seconds, context, now) {
       titanCooldownReductionMs: titanChallengeBonuses.titanRespawnReductionMs,
       titanCooldownReductionEvilMs: titanChallengeBonuses.titanRespawnReductionEvilMs,
       titanCooldownReductionSadisticMs: titanChallengeBonuses.titanRespawnReductionSadisticMs
-    }), seconds, now);
+    }), seconds, now));
   }
 
   /*
@@ -977,7 +978,7 @@ function advanceLateSystems(state, seconds, context, now) {
   const SEUIL_FARM_OFFLINE_SEC = 5 * 60;
   if (seconds >= SEUIL_FARM_OFFLINE_SEC) {
     const idsAvantFarm = idleInventoryIdsV1(state.adventure);
-    const resumeFarm = advanceAdventureZoneAutoFarmOfflineV1(state.adventure, Object.assign({}, context, {
+    const resumeFarm = span("tardif:farmHorsLigne", () => advanceAdventureZoneAutoFarmOfflineV1(state.adventure, Object.assign({}, context, {
       stats: {
         power: combatAventure.power,
         toughness: combatAventure.toughness,
@@ -988,7 +989,7 @@ function advanceLateSystems(state, seconds, context, now) {
       dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
       dropMultiplierIncludesGear: true,
       goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1))
-    }), seconds, now);
+    }), seconds, now));
     idleInventoryProcessNewDropsV1(state.adventure, idsAvantFarm, inventoryAutoEnvV1(state));
     /*
      * Résumé de CE seul sync (jamais persisté) : lu et retiré par idle-sqlite-runtime.js
@@ -1001,14 +1002,14 @@ function advanceLateSystems(state, seconds, context, now) {
   }
 
   const killsItopodAvant = Math.max(0, int(state.systems.tower?.data?.kills, 0));
-  advanceTowerV1(state, seconds, context);
+  span("tardif:itopod", () => advanceTowerV1(state, seconds, context));
   /* MacGuffin ITOPOD Drops (perk 68) : les kills de ce tick alimentent le compteur MacGuffin. */
   macguffinOnItopodKillsV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
   /* Perk 30 « What a Crappy Perk » : Poop de l'ITOPOD (1 tous les 9 000 kills + 0,01 % par kill). */
   idleYggItopodPoopV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
 
   /* Cards et Mayo : vrai système (idle-cards-v1.js), remplace les cartes factices horaires. */
-  advanceIdleCardsV1(state, seconds);
+  span("tardif:cartes", () => advanceIdleCardsV1(state, seconds));
 }
 
 /*
@@ -1134,22 +1135,22 @@ export function trollNguOffV1(state) { return Boolean(trollFlagsV1(state).ngu); 
  * copie et vérifie que l'état est strictement identique (toute la suite de tests y passe avant chaque livraison).
  */
 function passesDuTempsSeulV1(state, secs, context, now) {
-  advanceGeneratedResources(state, secs, context);
-  advanceAugmentations(state, secs, context);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
-  if (num(context.bosses, 0) >= 30) advanceTimeMachine(state, secs);
-  if (num(context.bosses, 0) >= 37) advanceBloodMagic(state, secs, context);
-  advanceYggdrasil(state, secs, nowMs(now));
-  advanceWandoos(state, secs, context, now);
-  advanceNgusV1(state, secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
+  span("avance:ressources", () => advanceGeneratedResources(state, secs, context));
+  span("avance:augmentations", () => advanceAugmentations(state, secs, context));
+  span("avance:entrainementAvance", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs));
+  if (num(context.bosses, 0) >= 30) span("avance:machineTemporelle", () => advanceTimeMachine(state, secs));
+  if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
+  span("avance:yggdrasil", () => advanceYggdrasil(state, secs, nowMs(now)));
+  span("avance:wandoos", () => advanceWandoos(state, secs, context, now));
+  span("avance:ngus", () => advanceNgusV1(state, secs));
+  span("avance:barbes", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs));
+  span("avance:hacks", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs));
+  span("avance:souhaits", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs));
 }
 
 /* dejaNormalise : l'appelant (syncIdleNguState) vient de normaliser cet état (copie privée) : le normaliser une 2e fois recopiait tout l'état pour rien (1,3 ms par appel, 4 appels par synchro). */
 export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now(), dejaNormalise = false) {
-  const state = dejaNormalise ? raw : normalizeIdleNguState(raw, context, now);
+  const state = dejaNormalise ? raw : span("normaliser", () => normalizeIdleNguState(raw, context, now));
   const offlineCap = IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active)
     ? 60
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
@@ -1157,7 +1158,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. */
   if (state.challenge?.active === "twentyFourHours" && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
-  advanceTrollChallengeV1(state, secs);
+  span("avance:troll", () => advanceTrollChallengeV1(state, secs));
 
   /*
    * 2026-09-24 (page Rebirths, « What do I lose when I rebirth? ») : « Access to the Adventure, Augmentation, Time
@@ -1172,27 +1173,27 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
     passesDuTempsSeulV1(copie, secs, context, now);
     if (JSON.stringify(copie) !== avant) throw new Error("SOREAL_IDLE_TEMPS_NUL_DIVERGENT");
   }
-  advanceMoneyPitAndDaily(state, nowMs(now));
-  advanceIdleCookingV1(state, nowMs(now));
-  advanceLateSystems(state, secs, context, nowMs(now));
-  advanceAdventureAdvancerV1(state, context, nowMs(now));
-  advanceR3NomV1(state);
+  span("avance:moneyPit+quotidien", () => advanceMoneyPitAndDaily(state, nowMs(now)));
+  span("avance:cuisine", () => advanceIdleCookingV1(state, nowMs(now)));
+  span("avance:systemesTardifs", () => advanceLateSystems(state, secs, context, nowMs(now)));
+  span("avance:avanceurAventure", () => advanceAdventureAdvancerV1(state, context, nowMs(now)));
+  span("avance:r3", () => advanceR3NomV1(state));
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
-  if (state.systems.daycare?.data?.slots?.length) advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state));
+  if (state.systems.daycare?.data?.slots?.length) span("avance:garderie", () => advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state)));
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
   /* Un objet fusionné ou boosté au niveau 100 peut compléter un set : ses EXP / AP de complétion sont versés dans les monnaies (comme après une action d'Aventure), sinon ils restaient dans adventure.permanent. */
   const avantAutoInventaire = photoRecompensesAventure(state);
-  advanceIdleInventoryAutoV1(state.adventure, secs, () => inventoryAutoEnvV1(state));
+  span("avance:inventaireAuto", () => advanceIdleInventoryAutoV1(state.adventure, secs, () => inventoryAutoEnvV1(state)));
   crediterRecompensesAventure(state, avantAutoInventaire);
   /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
-  if (state.systems.questing?.unlocked) advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now));
+  if (state.systems.questing?.unlocked) span("avance:quetes", () => advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now)));
 
-  tickSelloutEffectsV1(state, secs);
-  reconcileResourceCurrents(state,context);
+  span("avance:effetsBoutique", () => tickSelloutEffectsV1(state, secs));
+  span("fin:reconcilier", () => reconcileResourceCurrents(state,context));
   state.updatedAt = nowMs(now);
-  applyYggQuickActivationV1(state, now);
-  state.rebirth = refreshRebirthState(state, context, nowMs(now));
-  idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now));
-  autoCompleteChallengeV1(state, context, nowMs(now));
+  span("fin:yggRapide", () => applyYggQuickActivationV1(state, now));
+  span("fin:renaissance", () => state.rebirth = refreshRebirthState(state, context, nowMs(now)));
+  span("fin:succes", () => idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now)));
+  span("fin:defis", () => autoCompleteChallengeV1(state, context, nowMs(now)));
   return state;
 }

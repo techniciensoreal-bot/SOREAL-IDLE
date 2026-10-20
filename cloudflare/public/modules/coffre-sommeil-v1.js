@@ -19,7 +19,7 @@
     'Quoi ? Qui ? Où ?',
     'Je dormais pas, je réfléchissais !',
     'Cinq minutes de plus, maman…',
-    'Pas dans le dos !',
+    'Enlevez ce doigt de ma serrure !',
     'Haut les mains !',
     'Z’avez le mandat ?',
     'C’était le chat, je le jure !',

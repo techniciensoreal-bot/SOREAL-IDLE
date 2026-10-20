@@ -444,6 +444,7 @@
       '<textarea id="soreal-idle-diag-texte-v1" readonly style="width:100%;min-height:240px;box-sizing:border-box;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#0f1729;color:#eef4fc;padding:10px;font:12px ui-monospace,monospace"></textarea>'+
       '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">'+
         '<button type="button" id="soreal-idle-diag-vider-v1" style="padding:9px 16px;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#22314d;color:#eef4fc;cursor:pointer">Vider</button>'+
+        '<button type="button" id="soreal-idle-diag-export-v1" title="Télécharge la partie du moteur (administrateur, pour diagnostiquer un calcul lent)" style="padding:9px 16px;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#22314d;color:#eef4fc;cursor:pointer">💾 Exporter la partie</button>'+
         '<button type="button" id="soreal-idle-diag-copier-v1" style="padding:9px 16px;border-radius:10px;border:1px solid #5b93e6;background:#2f6fd0;color:#eef4fc;cursor:pointer">Copier</button>'+
         '<button type="button" id="soreal-idle-diag-fermer-v1" style="padding:9px 16px;border-radius:10px;border:1px solid rgba(166,188,229,.3);background:#22314d;color:#eef4fc;cursor:pointer">Fermer</button>'+
       '</div></div>';
@@ -452,6 +453,16 @@
     ta.value=texte_();
     document.getElementById('soreal-idle-diag-fermer-v1').addEventListener('click',fermer_);
     document.getElementById('soreal-idle-diag-vider-v1').addEventListener('click',function(){journal=[];dernierParCle={};sauver_();ta.value=texte_();});
+    document.getElementById('soreal-idle-diag-export-v1').addEventListener('click',function(){
+      var ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+      if(!ML||typeof ML.exporterLigne!=='function'){ta.value='Export impossible : jeu local inactif.\n\n'+ta.value;return;}
+      ML.exporterLigne().then(function(cells){
+        if(!cells){ta.value='Export impossible : moteur non démarré.\n\n'+ta.value;return;}
+        var blob=new Blob([JSON.stringify({exporteLe:new Date().toISOString(),cells:cells})],{type:'application/json'});
+        var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='soreal-idle-partie-diagnostic.json';document.body.appendChild(a);a.click();
+        setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+      }).catch(function(e){ta.value='Export impossible : '+String(e&&e.message||e)+'\n\n'+ta.value;});
+    });
     document.getElementById('soreal-idle-diag-copier-v1').addEventListener('click',function(){
       ta.select();
       try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(ta.value);else document.execCommand('copy');}catch(_e){}
@@ -531,13 +542,18 @@
     return (lignes.length?'Fluidité mesurée (4 derniers relevés de 10 s par mode) :\n'+lignes.join('\n')+'\n\n':'')+synthese_();
   }
   /* Reçu de moteur-local-v1.js pour chaque appel au moteur local : attente dans la file, calcul, retour vers la page (ms). */
-  function moteurTemps_(op,file,calcul,retour){
+  function moteurTemps_(op,file,calcul,retour,spans){
     try{
       if(!estAdmin_())return;
       var nom=String(op||'?'),o=stats.ops[nom]||(stats.ops[nom]={n:0,somme:0,max:0,l150:0});
       o.f=(o.f||0)+file;o.c=(o.c||0)+calcul;o.r=(o.r||0)+retour;o.nm=(o.nm||0)+1;
       if(calcul>o.cmax)o.cmax=calcul;if(!o.cmax)o.cmax=calcul;
       if(file>(o.fmax||0))o.fmax=file;
+      if(spans&&typeof spans==='object'){
+        o.sp=o.sp||{};
+        Object.keys(spans).forEach(function(k){var x=spans[k],y=o.sp[k]||(o.sp[k]={n:0,ms:0});y.n+=x.n;y.ms+=x.ms;});
+        o.spn=(o.spn||0)+1;
+      }
       statsSale=true;
     }catch(_e){}
   }
@@ -551,6 +567,12 @@
       if(l.length)out+='Fluidité cumulée par menu (du moins fluide au plus fluide) :\n'+l.join('\n')+'\n\n';
       var ops=Object.keys(stats.ops).sort(function(a,b){return stats.ops[b].somme-stats.ops[a].somme;}).slice(0,8);
       if(ops.length)out+='Temps de réponse des opérations du moteur (cumulé) :\n'+ops.map(function(k){var o=stats.ops[k];return '  '+k+' : ×'+o.n+' · moyenne '+Math.round(o.somme/o.n)+' ms · pire '+Math.round(o.max)+' ms · '+pc_(o.l150,o.n)+' au-dessus de 150 ms'+(o.nm?' — dont attente dans la file '+Math.round(o.f/o.nm)+' ms (pire '+Math.round(o.fmax||0)+'), calcul du moteur '+Math.round(o.c/o.nm)+' ms (pire '+Math.round(o.cmax||0)+'), retour vers la page '+Math.round(o.r/o.nm)+' ms':'');}).join('\n')+'\n\n';
+      ['synchroniserSorealIdle','agirProgressionSorealIdle'].forEach(function(nom){
+        var o=stats.ops[nom];
+        if(!o||!o.sp||!o.spn)return;
+        var ph=Object.keys(o.sp).filter(function(k){return !/^op:(?!classeur|commit)/.test(k)||true;}).sort(function(a,b){return o.sp[b].ms-o.sp[a].ms;}).slice(0,16);
+        out+='Où passe le calcul du moteur — '+nom+' (moyenne par appel sur '+o.spn+' appels ; une phase en contient d\'autres : etat:TOTAL, prog:TOTAL, op:* sont des totaux) :\n'+ph.map(function(k){return '  '+(o.sp[k].ms/o.spn).toFixed(1)+' ms  '+k+(o.sp[k].n>o.spn?'  (×'+(o.sp[k].n/o.spn).toFixed(1)+' par appel)':'');}).join('\n')+'\n\n';
+      });
       var I=stats.inter;
       if(I.n>0)out+='Réactivité aux clics et touches : '+I.n+' interactions · attente moyenne avant traitement '+Math.round(I.delai/I.n)+' ms · '+I.lentes+' au-dessus de 200 ms · pire '+Math.round(I.pire)+' ms'+(I.lentes?' ('+Object.keys(I.types).map(function(k){return k+' ×'+I.types[k];}).join(', ')+')':'')+'\n\n';
       var L=stats.loaf;

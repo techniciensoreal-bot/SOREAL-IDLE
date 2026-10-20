@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { normalizeBasicTrainingStateV411, BASIC_TRAINING_V411, isBasicTrainingSkillUnlockedV411, totalBasicTrainingAllocationV411 } from "./idle-basic-training.js";
+import { enveloppeSpan } from "./idle-spans-v1.js";
 import { syncIdleNguState, idleNguEffectiveResourceStat, idleNguResourceGenerationPerSecond, normalizeIdleNguState, idleNguBonuses } from "./idle-ngu-progression.js";
 import { CONFIG_SOREAL_IDLE, bornerSorealIdle_, bossParMondeSorealIdle_, dateSorealIdle_, degatsRecusAventureSecondeSorealIdle_, dureeMaxCombatAventureSorealIdle_, nombreSorealIdle_, puissanceEffectiveAventureSorealIdle_ } from "./idle-runtime-config.js";
 import { cleBestiaireMonstreSorealIdle_, genererObjetLegendaireRareAventureSorealIdle_, genererObjetLootSorealIdle_, marquerRencontreBestiaireSorealIdle_, parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
@@ -2511,3 +2512,22 @@ export function contexteMetaNguSorealIdle_(
     exileV4Beaten: Boolean(metaAdventureUnlockFlags.exileBrutalDefeated)
   };
 }
+
+/* Chronométrage par phase (idle-spans-v1.js). */
+appliquerProgressionEnergieSorealIdle__p1 = enveloppeSpan("prog:p1", appliquerProgressionEnergieSorealIdle__p1);
+appliquerProgressionEnergieSorealIdle__p2 = enveloppeSpan("prog:p2", appliquerProgressionEnergieSorealIdle__p2);
+appliquerProgressionEnergieSorealIdle__p3 = enveloppeSpan("prog:p3", appliquerProgressionEnergieSorealIdle__p3);
+appliquerProgressionEnergieSorealIdle__p4 = enveloppeSpan("prog:p4", appliquerProgressionEnergieSorealIdle__p4);
+appliquerProgressionEnergieSorealIdle__p5 = enveloppeSpan("prog:p5", appliquerProgressionEnergieSorealIdle__p5);
+appliquerProgressionEnergieSorealIdle__p6 = enveloppeSpan("prog:p6", appliquerProgressionEnergieSorealIdle__p6);
+appliquerProgressionEnergieSorealIdle__p7 = enveloppeSpan("prog:p7", appliquerProgressionEnergieSorealIdle__p7);
+appliquerProgressionEnergieSorealIdle__p8 = enveloppeSpan("prog:p8", appliquerProgressionEnergieSorealIdle__p8);
+appliquerProgressionEnergieSorealIdle__p9 = enveloppeSpan("prog:p9", appliquerProgressionEnergieSorealIdle__p9);
+appliquerProgressionEnergieSorealIdle__p10 = enveloppeSpan("prog:p10", appliquerProgressionEnergieSorealIdle__p10);
+appliquerProgressionEnergieSorealIdle__p11 = enveloppeSpan("prog:p11", appliquerProgressionEnergieSorealIdle__p11);
+appliquerProgressionEnergieSorealIdle__p12 = enveloppeSpan("prog:p12", appliquerProgressionEnergieSorealIdle__p12);
+appliquerProgressionEnergieSorealIdle__p13 = enveloppeSpan("prog:p13", appliquerProgressionEnergieSorealIdle__p13);
+appliquerProgressionEnergieSorealIdle__p14 = enveloppeSpan("prog:p14", appliquerProgressionEnergieSorealIdle__p14);
+appliquerProgressionEnergieSorealIdle__p15 = enveloppeSpan("prog:p15", appliquerProgressionEnergieSorealIdle__p15);
+appliquerProgressionEnergieSorealIdle__p16 = enveloppeSpan("prog:p16", appliquerProgressionEnergieSorealIdle__p16);
+appliquerProgressionEnergieSorealIdle_ = enveloppeSpan("prog:TOTAL", appliquerProgressionEnergieSorealIdle_);

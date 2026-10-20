@@ -8,6 +8,7 @@
 import initSqlJs from "sql.js/dist/sql-wasm-browser.js";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import { assurerTableProfilsIdleV1 } from "../src/idle-profile-v1.js";
+import { spansActiver, spansPrelever, SPANS_V1 } from "../src/idle-spans-v1.js";
 
 /*
  * HEURE DU SERVEUR : le moteur lit l'heure par Date.now() et new Date(). Dans ce Worker elles valent l'horloge de l'appareil + l'écart mesuré avec le serveur (envoyé par la page à chaque
@@ -99,6 +100,9 @@ self.onmessage = async (ev) => {
       regler(m.ecart);
       const r = await demarrer(m.export);
       self.postMessage({ id: m.id, ok: true, resultat: r });
+    } else if (m.type === "spans") {
+      spansActiver(m.actif);
+      self.postMessage({ id: m.id, ok: true, resultat: true });
     } else if (m.type === "appel") {
       regler(m.ecart);
       const debut = Date.now();
@@ -108,7 +112,7 @@ self.onmessage = async (ev) => {
       if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur)) res.joueur.__serveurAtV1 = Math.max(debut, versionLocale + 1);
       versionLocale = Math.max(debut, versionLocale + 1);
       const reelFin = performance.timeOrigin + performance.now();
-      self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin } });
+      self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin, spans: SPANS_V1.actif ? spansPrelever() : undefined } });
     } else if (m.type === "sortant") {
       const out = { cells: ligneJoueur(), flux: sortant.flux, gains: sortant.gains };
       if (m.vider) sortant = { flux: [], gains: [] };

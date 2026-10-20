@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleAchievementsBpV1, idleAchievementsApMultiplierV1, IDLE_ACHIEVEMENTS_V1, idleAchievementBossRequisV1 } from "./idle-achievements-v1.js";
+import { span } from "./idle-spans-v1.js";
 import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffectsV1, nguActiveTiersV1, nguParamsV1, nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
@@ -106,9 +107,9 @@ export function achievementsSnapshotV1(state) {
 }
 
 export function syncIdleNguState(raw, context = {}, now = Date.now()) {
-  const state = normalizeIdleNguState(raw, context, now);
+  const state = span("sync:normaliser", () => normalizeIdleNguState(raw, context, now));
   const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
-  return advanceIdleNguState(state, elapsed, context, now, true);
+  return span("sync:avancer", () => advanceIdleNguState(state, elapsed, context, now, true));
 }
 
 /*
@@ -623,6 +624,9 @@ export function idleNguBonusesLectureV1(raw) {
 }
 
 function idleNguBonusesMemoV1(state, sansCopie) {
+  return span("bonus", () => idleNguBonusesMemoInterneV1(state, sansCopie));
+}
+function idleNguBonusesMemoInterneV1(state, sansCopie) {
   if (__nguCtx.__sansMemoV1) return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   let cle = null;
   try { cle = JSON.stringify(state); } catch (_e) { cle = null; }
