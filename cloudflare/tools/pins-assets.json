@@ -260,8 +260,8 @@
   "sha": "1791e998db8bfe2385867599416144e3ed5dfdf9"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 29,
-  "sha": "b2272504e19cd2f4d22251e80d85c4b702fc82e3"
+  "pin": 30,
+  "sha": "0023fcedb9a59aebf87635793ba7f01c06085612"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 5,
@@ -376,12 +376,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 352,
-  "sha": "4113a7aeecbe4a2897acdab5fb03ddcb0f757956"
+  "pin": 353,
+  "sha": "59dd947b9156b83ced72f1594d02bec9d8ae2856"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 146,
-  "sha": "4343966e64ad84cbe97313bab1b6a3964bf58ecd"
+  "pin": 147,
+  "sha": "6ea2a2e38173c1c1b5ed97b4c4ec59bff89cf6c7"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

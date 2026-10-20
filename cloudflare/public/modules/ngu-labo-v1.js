@@ -337,7 +337,7 @@ function page(j){
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
       '</div>'+
-      '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>(Eh, c’est le nom de ce jeu !)</p></header>'+
+      '<header class="nl-entete"><div class="nl-titre" role="heading" aria-level="1">NGU</div><p>EH, C’EST LE NOM DU JEU ORIGINAL !</p></header>'+
       '<div class="nl-aide" id="sorealIdleNguAideV1"'+(aideOuverte?'':' hidden')+'>'+
         '<p><b>C’est quoi ?</b> Les NGU sont des entraîneurs : tu leur confies de l’énergie (et de la magie), ils font le sport pour toi. Chaque tuyau se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
         '<ol>'+

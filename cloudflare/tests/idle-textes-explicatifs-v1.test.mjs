@@ -46,7 +46,7 @@ for (const [fr, en] of [["Entraînement avancé", "Advanced Training"], ["(C’e
 
 // 4. Page NGU en français
 for (const anglais of ["Level <b", "Allocated", "<span>Target</span>", ">WTF do I do?<", "TO NGU", "Hey, that"]) assert.ok(!ngu.includes(anglais), "plus d'anglais dans la page NGU : " + anglais);
-for (const [fr, en] of [["Vers les NGU de magie", "To NGU Magic"], ["Vers les NGU d’énergie", "To NGU Energy"], ["(Eh, c’est le nom de ce jeu !)", "(Hey, that’s the name of this game!)"], ["Faire suivre la magie", "Advance Magic"], ["Magie placée", "Magic Allocated"]]) assert.equal(dico[fr], en, "dictionnaire : " + fr);
+for (const [fr, en] of [["Vers les NGU de magie", "To NGU Magic"], ["Vers les NGU d’énergie", "To NGU Energy"], ["EH, C’EST LE NOM DU JEU ORIGINAL !", "HEY, THAT’S THE NAME OF THE ORIGINAL GAME!"], ["Faire suivre la magie", "Advance Magic"], ["Magie placée", "Magic Allocated"]]) assert.equal(dico[fr], en, "dictionnaire : " + fr);
 
 // 5. Aides « Je fais quoi ? » : chaque morceau de texte (entre les balises) a sa traduction
 for (const source of [meta.slice(meta.indexOf('id="sorealIdleAtAideV1"'), meta.indexOf("toolbar+", meta.indexOf('id="sorealIdleAtAideV1"'))), ngu.slice(ngu.indexOf('id="sorealIdleNguAideV1"'), ngu.indexOf("chips+", ngu.indexOf('id="sorealIdleNguAideV1"')))]) {
