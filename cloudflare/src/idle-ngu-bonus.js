@@ -9,7 +9,7 @@ import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffec
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
-import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
+import { avecEquipementFigeV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
@@ -589,7 +589,7 @@ export function avecPorteeBonusV1(state, fn) {
   const cleDebut = verif ? JSON.stringify(state) : null;
   __nguCtx.__porteeBonusV1 = { state, valeur: null };
   try {
-    return fn();
+    return avecEquipementFigeV1(state && state.adventure, fn);
   } finally {
     __nguCtx.__porteeBonusV1 = null;
     if (verif && JSON.stringify(state) !== cleDebut) throw new Error("SOREAL_IDLE_BONUS_PORTEE_ETAT_MODIFIE");
@@ -653,6 +653,10 @@ function idleNguBonusesMemoInterneV1(state, sansCopie) {
 }
 
 function idleNguBonusesSansMacguffinV1(state) {
+  /* Le calcul des bonus ne modifie jamais l'état : l'équipement y est calculé une seule fois (voir avecEquipementFigeV1). */
+  return avecEquipementFigeV1(state.adventure, () => idleNguBonusesSansMacguffinCoeurV1(state));
+}
+function idleNguBonusesSansMacguffinCoeurV1(state) {
   const aug = idleNguAugmentationMultiplier(state);
   const atPower = atLevelV1(state, "power");
   const atToughness = atLevelV1(state, "toughness");

@@ -11,7 +11,7 @@ const esbuild = require("esbuild");
 await esbuild.build({
   entryPoints: [ici + "moteur-local-worker.js"],
   outfile: pub + "moteur-local-worker-v1.js",
-  bundle: true, format: "iife", platform: "browser", target: "es2022", minify: true, legalComments: "none",
+  bundle: true, format: "iife", platform: "browser", target: "es2022", minify: process.env.SANS_MINIFIER !== "1", legalComments: "none",
   external: ["fs", "path", "crypto", "node:*"],
   logLevel: "warning"
 });

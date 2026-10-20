@@ -126,7 +126,32 @@ export function idleAdventurePerfCompteursV1(){return{...__perfCompteursV1}}
 export function idleAdventurePerfRazV1(){__perfCompteursV1.normalisations=0;__perfCompteursV1.calculsEquipement=0}
 /* Durée de vie du mémo = UNE opération du moteur : remis à zéro au début de chaque opération (voir runSorealIdleOperation). Le délai ci-dessous n'est qu'un filet pour les appels hors moteur. */
 export function idleAdventureMemoNouvelleRequeteV1(){__equipStatsMemoV1.valeur=null}
+/*
+ * Équipement FIGÉ pendant un calcul en lecture seule (audit de performance, 2026-10-20 : mesuré dans le navigateur sur la sauvegarde de Norman, cette fonction était un quart du calcul d'une synchro : sa clé de mémo est le JSON de
+ * l'état d'Aventure entier (44 Ko), recalculé à CHAQUE appel, une trentaine de fois par synchro). Pendant un calcul qui ne modifie jamais l'état (calcul des bonus, portée de bonus du snapshot), l'état d'Aventure est le même
+ * objet du début à la fin : le résultat est calculé une fois puis recopié. Un calcul hors de ces fenêtres garde le mémo par contenu, inchangé. SOREAL_IDLE_VERIF_BONUS=1 recalcule à chaque réutilisation et vérifie que l'état n'a pas bougé.
+ */
+const __equipFigeV1={adv:null,valeur:null,cle:null};
+export function avecEquipementFigeV1(adv,fn){
+  if(!adv||typeof adv!=="object"||__equipFigeV1.adv)return fn();
+  const verif=typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_VERIF_BONUS==="1";
+  __equipFigeV1.adv=adv;__equipFigeV1.valeur=null;__equipFigeV1.cle=verif?JSON.stringify(adv):null;
+  try{return fn();}finally{
+    const avant=__equipFigeV1.cle;
+    __equipFigeV1.adv=null;__equipFigeV1.valeur=null;__equipFigeV1.cle=null;
+    if(verif&&JSON.stringify(adv)!==avant)throw new Error("SOREAL_IDLE_EQUIP_FIGE_ETAT_MODIFIE");
+  }
+}
 export function idleAdventureEquipmentStatsV47(raw){
+  if(raw&&__equipFigeV1.adv===raw){
+    if(__equipFigeV1.valeur===null)__equipFigeV1.valeur=idleAdventureEquipmentStatsMemoV47(raw);
+    const copie=structuredClone(__equipFigeV1.valeur);
+    if(typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_VERIF_BONUS==="1"&&JSON.stringify(idleAdventureEquipmentStatsCalculV47(raw))!==JSON.stringify(copie))throw new Error("SOREAL_IDLE_EQUIP_FIGE_DIVERGENT");
+    return copie;
+  }
+  return idleAdventureEquipmentStatsMemoV47(raw);
+}
+function idleAdventureEquipmentStatsMemoV47(raw){
   let cle=null;
   try{cle=raw&&typeof raw==="object"?JSON.stringify(raw):null}catch(_e){cle=null}
   const maintenant=Date.now();
