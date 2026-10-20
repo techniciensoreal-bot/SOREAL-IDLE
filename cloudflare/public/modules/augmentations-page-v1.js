@@ -1241,7 +1241,8 @@
         const grandeMachine=function(){
           const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
           const butin=H.idleNombre_(vue.goldPerBarFill)>0?'+'+nombre(vue.goldPerBarFill)+' Or':'';
-          const centre=D?D.centre({ticks:H.idleNombre_(vue.barFillsPerSecond)||1,mob:vue.bestGoldMob||null,butin:butin}):'';
+          const multi='×'+nombre((H.idleNombre_(vue.goldMultiplier)||1)*(H.idleNombre_(vue.machineSpeedMultiplier)||1));
+          const centre=D?D.centre({ticks:H.idleNombre_(vue.barFillsPerSecond)||1,mob:vue.bestGoldMob||null,butin:butin,multi:multi}):'';
           return '<div class="tmm-cadre">'+(D?D.defs():'')+'<div class="tmm-machine'+(magicOk?'':' tmm-sans-magie')+'">'+
             tour('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
             '<section class="tmm-centre">'+centre+'</section>'+

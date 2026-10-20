@@ -24,6 +24,10 @@ assert.deepEqual(sens, [1, -1, 1, -1, 1], "deux roues voisines tournent en sens 
 assert.ok(svg.includes('id="tmmVitesse"') && svg.includes(">37 /s<") && svg.includes("+1,24 Qa Or") && svg.includes("Le Balourd"));
 assert.ok(svg.includes("/api/idle/media/mob?zone=forest&amp;boss=0&amp;seed=2&amp;name=Le+Balourd"), "même route d'image que la scène d'Aventure");
 assert.ok(svg.includes('id="tmmAiguille"') && svg.includes("rotate(") && svg.includes('class="tmm-piece"'), "cadran et pièces");
+// Deuxième écran LCD « multiplicateur » (Magie et niveaux d'Énergie au-dessus de 50), à la place des trois voyants.
+assert.ok(svg.includes('id="tmmMulti"') && svg.includes("MULTIPLICATEUR") && svg.includes(">×1<"), "écran du multiplicateur");
+assert.ok(D.centre({ ticks: 5, multi: "×12,3 Qa" }).includes(">×12,3 Qa<") && !svg.includes("RYTHME") && !svg.includes('cx="372" cy="402"'), "valeur donnée par la page ; plus de voyants vert, jaune, rouge");
+assert.ok(src.includes("(Number(v.goldMultiplier)||1)*(Number(v.machineSpeedMultiplier)||1)"), "multiplicateur = Magie x niveaux d'Énergie au-dessus de 50");
 // Sans butin : un cadran d'horloge qui attend, aucune image.
 const sans = D.centre({ ticks: 1, mob: null, butin: "" });
 assert.ok(sans.includes('id="tmmAttente"') && !sans.includes('id="tmmImage"'));

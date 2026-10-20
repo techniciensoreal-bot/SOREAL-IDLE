@@ -95,6 +95,9 @@
     return '/api/idle/media/mob?'+p.toString();
   }
 
+  /* Le multiplicateur peut être très grand (« ×1,23 Qa ») : la police rétrécit pour tenir dans l'écran. */
+  function taillePoliceMulti(t){var n=String(t).length;return n>11?14:n>9?17:n>7?20:26;}
+
   /* ---------- le centre : la grande machine (écran, cadran, baie d'engrenages, goulotte à pièces) ---------- */
   function centre(opts){
     opts=opts||{};
@@ -102,6 +105,7 @@
     var url=urlMob(opts.mob);
     var nom=opts.mob&&opts.mob.name?String(opts.mob.name):'';
     var butin=opts.butin?String(opts.butin):'';
+    var multi=opts.multi?String(opts.multi):'×1';
     var graduations='';
     for(var v=0;v<=50;v+=5){var a=(-120+240*v/50)*Math.PI/180-Math.PI/2,r1=v%10===0?27:31;graduations+='<path d="M'+arr(r1*Math.cos(a))+' '+arr(r1*Math.sin(a))+' L'+arr(35*Math.cos(a))+' '+arr(35*Math.sin(a))+'" stroke-width="'+(v%10===0?2.4:1.4)+'"/>';}
     var grille='';
@@ -159,9 +163,10 @@
       '<g stroke="#ffe39a" stroke-linecap="round">'+graduations+'</g>'+
       '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-3 6 L0 -33 L3 6 Z" fill="#ff4a3a" stroke="#150c06" stroke-width="1.6" stroke-linejoin="round"/></g>'+
       '<circle r="6" fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"/><text y="28" text-anchor="middle" font-family="Russo One,sans-serif" font-size="9" fill="#ffe39a" opacity=".8">TIQUES/S</text></g>'+
-      '<g stroke="#150c06" stroke-width="3"><circle cx="372" cy="402" r="10" fill="url(#tmmLampeV)"/><circle cx="404" cy="402" r="10" fill="url(#tmmLampeA)"/><circle cx="436" cy="402" r="10" fill="url(#tmmLampeR)"/></g>'+
-      '<g><circle class="tmm-lampe" style="--d:0s" cx="372" cy="402" r="10" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:.8s" cx="404" cy="402" r="10" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:1.6s" cx="436" cy="402" r="10" fill="url(#tmmHalo)"/></g>'+
-      '<text x="404" y="436" text-anchor="middle" font-family="Russo One,sans-serif" font-size="9" letter-spacing="2" fill="#e3b04b" opacity=".85">RYTHME</text>'+
+      /* second écran, comme celui de la vitesse : le MULTIPLICATEUR d'Or (la Magie le fait monter, et les niveaux d'Énergie au-dessus de 50 aussi) */
+      '<rect x="346" y="384" width="140" height="56" rx="10" fill="#03100c" stroke="#150c06" stroke-width="3"/><rect x="350" y="388" width="132" height="48" rx="7" fill="none" stroke="#46586a" stroke-width="1.5"/>'+
+      '<text x="358" y="403" font-family="Russo One,sans-serif" font-size="10" letter-spacing="2" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
+      '<text id="tmmMulti" x="476" y="430" text-anchor="end" font-family="Russo One,sans-serif" font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="3" style="paint-order:stroke">'+esc(multi)+'</text>'+
       /* baie d'engrenages */
       '<rect x="46" y="470" width="468" height="132" rx="22" fill="url(#tmmAcier)" stroke="#150c06" stroke-width="5"/><rect x="52" y="476" width="456" height="120" rx="18" fill="#0b0805"/>'+
       '<g clip-path="url(#tmmClipBaie)"><rect x="52" y="476" width="456" height="120" fill="#17100a"/><path d="M52 536 H508" stroke="#000" stroke-width="30" opacity=".25"/>'+train.svg+dessus+
@@ -170,9 +175,9 @@
       '<g fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"><circle cx="58" cy="482" r="4.5"/><circle cx="502" cy="482" r="4.5"/><circle cx="58" cy="590" r="4.5"/><circle cx="502" cy="590" r="4.5"/></g>'+
       /* goulotte à pièces et tas d'Or */
       '<path d="M232 600 H328 L316 626 H244 Z" fill="url(#tmmLait)" stroke="#150c06" stroke-width="4" stroke-linejoin="round"/><rect x="244" y="622" width="72" height="14" rx="4" fill="#2a1a0c" stroke="#150c06" stroke-width="3"/>'+
-      '<g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="262" y="626" width="36" height="70" rx="10" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
-      '<path d="M206 676 Q214 656 240 658 Q256 640 280 640 Q304 640 320 658 Q346 656 354 676 Z" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/>'+
-      '<g fill="#ffe9a0" opacity=".85"><circle cx="246" cy="664" r="5"/><circle cx="272" cy="652" r="5"/><circle cx="300" cy="656" r="5"/><circle cx="324" cy="668" r="5"/><circle cx="282" cy="668" r="5"/></g><g fill="#b87400" opacity=".7"><circle cx="258" cy="670" r="3"/><circle cx="290" cy="662" r="3"/><circle cx="312" cy="672" r="3"/></g>'+
+      '<g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="262" y="626" width="36" height="24" rx="8" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
+      '<g transform="translate(0 4)"><path d="M206 676 Q214 656 240 658 Q256 640 280 640 Q304 640 320 658 Q346 656 354 676 Z" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/>'+
+      '<g fill="#ffe9a0" opacity=".85"><circle cx="246" cy="664" r="5"/><circle cx="272" cy="652" r="5"/><circle cx="300" cy="656" r="5"/><circle cx="324" cy="668" r="5"/><circle cx="282" cy="668" r="5"/></g><g fill="#b87400" opacity=".7"><circle cx="258" cy="670" r="3"/><circle cx="290" cy="662" r="3"/><circle cx="312" cy="672" r="3"/></g></g>'+
       '</svg>';
   }
 
@@ -209,12 +214,22 @@
     racine.querySelectorAll('.tmm-piece').forEach(function(g){
       if(g.__tmmAnim)return;
       var rang=parseInt(g.getAttribute('data-rang'),10)||0;
-      g.__tmmAnim=g.animate([{transform:'translateY(0)',opacity:0},{opacity:1,offset:.14},{opacity:1,offset:.8},{transform:'translateY(58px)',opacity:0}],{duration:1000,iterations:Infinity,delay:-rang*1000/8,easing:'linear'});
-      g.__tmmAnim.playbackRate=Math.max(.05,Math.min(1.6,vue/8));
+      g.__tmmAnim=g.animate([{transform:'translateY(0)',opacity:0},{opacity:1,offset:.14},{opacity:1,offset:.8},{transform:'translateY(24px)',opacity:0}],{duration:1000,iterations:Infinity,delay:-rang*1000/8,easing:'linear'});
+      reglerPieces(racine);
     });
     racine.querySelectorAll('.tmm-anneau').forEach(function(g){
       if(anneaux.has(g))return;anneaux.add(g);
       g.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:22000,iterations:Infinity,easing:'linear'});
+    });
+  }
+  /* Pièces dans la goulotte : à bas rythme, peu de pièces (une, deux, quatre) qui tombent chacune en une fraction de seconde, une par tique ; à haut rythme, un flot continu de huit. */
+  function reglerPieces(racine){
+    var nb=vue<=2?1:vue<=4?2:vue<=8?4:8,pas=8/nb,rythme=Math.max(.05,Math.min(1.6,vue/nb));
+    racine.querySelectorAll('.tmm-piece').forEach(function(g){
+      var rang=parseInt(g.getAttribute('data-rang'),10)||0;
+      var visible=rang%pas===0;
+      if(g.style.display!==(visible?'':'none'))g.style.display=visible?'':'none';
+      if(g.__tmmAnim)g.__tmmAnim.playbackRate=rythme;
     });
   }
   function appliquerVitesse(){
@@ -223,7 +238,7 @@
     racine.querySelectorAll('.tmm-rot').forEach(function(r){
       if(r.__tmmAnim)r.__tmmAnim.playbackRate=Math.max(.0001,tourDeReference(vue)*(16/(parseInt(r.getAttribute('data-dents'),10)||16))*10);
     });
-    racine.querySelectorAll('.tmm-piece').forEach(function(g){if(g.__tmmAnim)g.__tmmAnim.playbackRate=Math.max(.05,Math.min(1.6,vue/8));});
+    reglerPieces(racine);
     var flux=document.getElementById('tmmFluxOr');if(flux)flux.style.opacity=String(Math.max(0,Math.min(1,(vue-18)/20))*.85);
     var lueur=document.getElementById('tmmLueurBaie');if(lueur)lueur.style.opacity=String(Math.max(0,(vue-6)/44)*.9);
   }
@@ -254,6 +269,12 @@
     viser(ticks);
     var ia=document.getElementById('tmmAiguille');if(ia)ia.style.transform='rotate('+arr(-120+240*ticks/50,1)+'deg)';
     var tv=document.getElementById('tmmVitesse');var texteV=Math.round(ticks)+' /s';if(tv&&tv.textContent!==texteV)tv.textContent=texteV;
+    var multi=document.getElementById('tmmMulti');
+    if(multi&&H&&typeof H.formatGrandNombreIdleV70_==='function'){
+      var m=(Number(v.goldMultiplier)||1)*(Number(v.machineSpeedMultiplier)||1);
+      var tm='×'+H.formatGrandNombreIdleV70_(m);
+      if(multi.textContent!==tm){multi.textContent=tm;multi.setAttribute('font-size',String(taillePoliceMulti(tm)));}
+    }
     var butin=document.getElementById('tmmButin');
     if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
     var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob&&nomMob.textContent!==nom)nomMob.textContent=nom;

@@ -44,8 +44,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 4,
-  "sha": "19ccb22f3d78c8cb3794162925140176da196f63"
+  "pin": 5,
+  "sha": "17d02e8cb63538ae77a814e022514441731f5839"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -240,8 +240,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 1,
-  "sha": "d685ba7243dacb68770c1f4a32a4219b20225c1b"
+  "pin": 4,
+  "sha": "315b25505a817f8a95186cc01a8b557d2b369ec8"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610166,
@@ -256,8 +256,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 33,
-  "sha": "32631f384e6c07c74807b39f37bec43c1a212e6b"
+  "pin": 34,
+  "sha": "afcf482b6dc649bccf23fe090c8a71abb68eca0e"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,

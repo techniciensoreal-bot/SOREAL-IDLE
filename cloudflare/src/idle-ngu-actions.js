@@ -150,8 +150,10 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       const tmData = state.systems.timeMachine?.data;
       if (dropGold > 0 && tmData) {
         const ancien = Math.max(0, num(tmData.bestGoldThisRun, 0));
-        if (dropGold > ancien) {
-          tmData.bestGoldThisRun = dropGold;
+        /* Une partie commencée avant l'écran de la machine a un record SANS mob : le premier butin d'au moins 95 % du record donne son mob (le record est rarement battu, l'écran resterait vide jusqu'à la renaissance) ; chaque vrai record le remplace. */
+        const recordSansMob = !tmData.bestGoldMob && ancien > 0 && dropGold >= ancien * 0.95;
+        if (dropGold > ancien || recordSansMob) {
+          if (dropGold > ancien) tmData.bestGoldThisRun = dropGold;
           /* Le mob de ce butin (écran de la Machine temporelle) : un kill de zone (zone, boss ou non, graine d'image, nom) ou un titan. Sans information : la zone seulement. */
           const mob = advActionInv === "titan"
             ? { titan: String(result?.id || result?.titanId || ""), name: String(result?.name || result?.titanName || "") }
