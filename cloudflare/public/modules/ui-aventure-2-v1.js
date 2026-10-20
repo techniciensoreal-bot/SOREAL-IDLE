@@ -611,6 +611,7 @@
         if(cible.hasAttribute('data-idle-coffre-drop-v180')){
           /* Norman (2026-10-19) : « sur Unity le coffre a une animation quand il mange un objet ; pourquoi pas sur la version web ? » Seul le glisser-déposer HTML5 posait le drapeau d'animation ; le dépôt au doigt / à la souris (ce chemin) ne le posait pas : le Coffre à dents ne croquait jamais. */
           window.__bagageAvaleIdleV1=Date.now();
+          jouerCroqueCoffreIdleV1_();
           actionAdventureIdleV47_({action:'coffreDeposer',id:source});
           return;
         }
@@ -2227,11 +2228,29 @@
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
       }
 
+      /*
+       * Croque joué au DÉPÔT, sur le coffre affiché (Norman, 2026-10-20 : « il n'a l'animation que quand il est ouvert et qu'on y place un objet ; s'il est fermé, l'animation ne se fait pas »).
+       * Avant, la classe « croque » n'était posée qu'au redessin du cadre (drapeau __bagageAvaleIdleV1) : un Coffre ouvert change de contenu donc redessine, un Coffre refermé non. La classe est
+       * maintenant posée tout de suite sur chaque Bagage de la page (on la retire puis on la remet pour relancer l'animation), et retirée après 1,3 s ; le drapeau reste pour un redessin en cours de route.
+       */
+      function jouerCroqueCoffreIdleV1_(){
+        const bagages=document.querySelectorAll('.bg-bagage-v1');
+        for(let i=0;i<bagages.length;i+=1){
+          const b=bagages[i];
+          b.classList.remove('croque');
+          void b.offsetWidth;
+          b.classList.add('croque');
+          clearTimeout(b.__croqueFinV1);
+          b.__croqueFinV1=setTimeout(function(){b.classList.remove('croque');},1300);
+        }
+      }
+      window.__jouerCroqueCoffreIdleV1__=jouerCroqueCoffreIdleV1_;
+
       function deposerSurCoffreAdventureIdleV1_(event){
         if(event){event.preventDefault();event.stopPropagation();}
         const id=idSourceAdventureIdleV138_(event);
         nettoyerEtatDragAdventureIdleV138_();
-        if(id){window.__bagageAvaleIdleV1=Date.now();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
+        if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
       }
 
       function clicCoffreAdventureIdleV1_(){
