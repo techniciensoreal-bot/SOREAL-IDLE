@@ -370,13 +370,13 @@
     return '<button type="button" class="wd-touche'+(classe?' '+classe:'')+'"'+(desactive?' disabled':'')+' title="'+html_(titre||'')+'" aria-label="'+html_(titre||sous||libelle)+'" onclick="'+onclick+'">'+libelle+(sous?'<small>'+sous+'</small>':'')+'</button>';
   }
   var API="window.__SOREAL_IDLE_WANDOOS_V1__";
-  function groupe_(nom,res){
+  function groupe_(nom,res,e){
     var p=API+".place('"+res+"','";
     return '<div class="wd-groupe"><span class="wd-leg">'+nom+'</span><div class="wd-rangee">'+
       touche_('0','',p+"zero')",'',nom+' : tout retirer')+
       touche_('−','',p+"moins')",'',nom+' : retirer la quantité saisie')+
       touche_('+','',p+"plus')",'',nom+' : placer la quantité saisie')+
-      touche_('CAP','',p+"cap')",'',nom+' : placer d’un coup l’allocation qui atteint le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
+      touche_('CAP',(e&&e.vue&&nb_(e.vue[res==='energy'?'capEnergie':'capMagie'])>0)?grand_(e.vue[res==='energy'?'capEnergie':'capMagie']):'',p+"cap')",'',nom+' : placer d’un coup l’allocation qui atteint le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
     '</div></div>';
   }
   function groupeOs_(e){
@@ -402,7 +402,7 @@
       ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
     var haut='';
-    if(phase==='bureau')haut=groupe_('Énergie','energy')+(e.magieOk?groupe_('Magie','magic'):'')+pave_();
+    if(phase==='bureau')haut=groupe_('Énergie','energy',e)+(e.magieOk?groupe_('Magie','magic',e):'')+pave_();
     var os=groupeOs_(e);
     return '<div class="wd-clavier"><div class="wd-plaque">'+haut+
       '<div class="wd-bas">'+(os||couleur)+'<div class="wd-groupe"><span class="wd-leg">Système</span>'+demarrage+'</div></div>'+

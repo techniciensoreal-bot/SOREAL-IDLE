@@ -430,6 +430,14 @@
                 el.style.transform='scaleX(1)';
                 return;
               }
+              /* Le moteur dit « en attente » alors que l'Or suffit (défi « 100 niveaux » atteint, par exemple) : aucun niveau ne viendra à la fin du tour. La barre reste PLEINE au lieu de tourner à vide
+                 (journal de Norman, 2026-10-20 : barre_recule toutes les 5,5 s sur Ciseaux, niveau inchangé pendant 13 minutes) ; la synchro ci-dessus la repart dès que le moteur valide. */
+              if(Boolean(x[3])&&k===0&&secondes0>0&&!debiteCeTick){
+                if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
+                el.style.width='100%';
+                el.style.transform='scaleX(1)';
+                return;
+              }
               animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]),true);
             });
           });

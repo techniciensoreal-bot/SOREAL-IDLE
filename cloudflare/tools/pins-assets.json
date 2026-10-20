@@ -424,8 +424,8 @@
   "sha": "f03358004c44e6c4c514be5b5cf001f197ac7533"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 11,
-  "sha": "dc63d8beef90de56ffa1f3f595cc016a7349b110"
+  "pin": 12,
+  "sha": "b603ffc419082eb875b5294385125f42b4a198e7"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
@@ -512,8 +512,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 37,
-  "sha": "2a2569b6c7c622890c6aff855790cbaeb61ed8c2"
+  "pin": 38,
+  "sha": "196c40dedcd7e8fd814dc40feb3d74d11c5e5de7"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
