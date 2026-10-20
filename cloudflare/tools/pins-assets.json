@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 21,
-  "sha": "b1abf1c0897b0772481bbdc5fb282a9f141b9025"
+  "pin": 22,
+  "sha": "1ec8600c4a00a5be78c61700fae7787d5caac20a"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,

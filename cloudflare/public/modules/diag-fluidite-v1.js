@@ -165,6 +165,14 @@
       window.requestAnimationFrame=function(fn){return raf.call(window,envelopper_(fn,'raf'));};
       window.setTimeout=function(fn){var a=Array.prototype.slice.call(arguments);a[0]=envelopper_(fn,'timeout');return st.apply(window,a);};
       window.setInterval=function(fn){var a=Array.prototype.slice.call(arguments);a[0]=envelopper_(fn,'interval');return si.apply(window,a);};
+      /* Suite des promesses (réponses du moteur local : `await` / `.then`) et écouteurs d'événements : c'est là que s'exécutent l'adoption d'un état reçu et les clics. */
+      var thenOrig=Promise.prototype.then;
+      Promise.prototype.then=function(ok,ko){return thenOrig.call(this,envelopper_(ok,'then'),envelopper_(ko,'then'));};
+      var ajout=EventTarget.prototype.addEventListener,retrait=EventTarget.prototype.removeEventListener;
+      EventTarget.prototype.addEventListener=function(type,fn,opt){return ajout.call(this,type,typeof fn==='function'?envelopper_(fn,'evt-'+type):fn,opt);};
+      EventTarget.prototype.removeEventListener=function(type,fn,opt){return retrait.call(this,type,(typeof fn==='function'&&fn.__diagEnvV1)||fn,opt);};
+      var desc=Object.getOwnPropertyDescriptor(Worker.prototype,'onmessage')||Object.getOwnPropertyDescriptor(Object.getPrototypeOf(Worker.prototype),'onmessage');
+      if(desc&&desc.set)Object.defineProperty(Worker.prototype,'onmessage',{configurable:true,enumerable:desc.enumerable,get:desc.get,set:function(fn){desc.set.call(this,envelopper_(fn,'worker-message'));}});
     }catch(_e){}
   }
   function suspectsDe_(debut,duree){
