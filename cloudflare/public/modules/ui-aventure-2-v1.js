@@ -1662,28 +1662,28 @@
          */
         return '<div class="soreal-idle-v138-details-stats">'+
             (basePower>0
-              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">Puissance</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Puissance" data-cmp-val="'+idleNombre_(item.power)+'"><span class="sb-power-v1">Puissance</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxPower)+
               '</b></div>'
               :''
             )+
             (baseHp>0
-              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-power-v1">PV Max</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="PV Max" data-cmp-val="'+idleNombre_(itemHp)+'"><span class="sb-power-v1">PV Max</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(hpMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemHp)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxHp)+
               '</b></div>'
               :''
             )+
             (baseToughness>0
-              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Endurance</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Endurance" data-cmp-val="'+idleNombre_(item.toughness)+'"><span class="sb-toughness-v1">Endurance</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxToughness)+
               '</b></div>'
               :''
             )+
             (baseRegen>0
-              ?'<div class="soreal-idle-v138-details-stat"><span class="sb-toughness-v1">Regen PV</span><b>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Regen PV" data-cmp-val="'+idleNombre_(itemRegen)+'"><span class="sb-toughness-v1">Regen PV</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(regenMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(itemRegen,2)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxRegen,2)+
               '</b></div>'
@@ -1694,7 +1694,7 @@
               if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
                 return item.specialsAll.map(function(sv){
                   const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
-                  return '<div class="soreal-idle-v138-details-stat"><span class="sb-special-v1">Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                  return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special: '+idleLabelSpecialBonusV1_(sv.type))+'" data-cmp-val="'+idleNombre_(sv.value)+'"><span class="sb-special-v1">Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
                     '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
                     ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
                   '</b></div>';
@@ -1706,7 +1706,7 @@
               const maxSpecial=baseSpecial*q;
               const specialMaxAtteint=idleNombre_(item.special)+1e-9>=maxSpecial;
               const label=idleLabelSpecialBonusV1_(item.specialType);
-              return '<div class="soreal-idle-v138-details-stat"><span class="sb-special-v1">Special Bonus: '+idleHtml_(label)+'</span><b>'+
+              return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special Bonus: '+label)+'" data-cmp-val="'+idleNombre_(item.special)+'"><span class="sb-special-v1">Special Bonus: '+idleHtml_(label)+'</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(specialMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.special))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxSpecial)+
               '</b></div>';
@@ -1889,6 +1889,35 @@
 
       let idleAdventureComparerPremierV183='';
 
+      /*
+       * Comparaison de deux objets (Norman, 2026-10-20) : les statistiques que les DEUX objets possèdent (PV, Puissance, Endurance, Regen, mêmes bonus spéciaux…) sont colorées : la plus haute en VERT, la plus faible en ROUGE,
+       * pour voir d'un coup d'œil lequel est le meilleur ; deux valeurs égales et les statistiques que l'autre objet n'a pas restent blanches. Les valeurs comparées sont les valeurs brutes (data-cmp-val), jamais le texte abrégé.
+       */
+      function colorerStatsCommunesComparaisonIdleV1_(corps){
+        const blocs=corps.querySelectorAll('.idle-compare-bloc-v1');
+        if(blocs.length!==2)return;
+        const lire=function(bloc){
+          const m=Object.create(null);
+          bloc.querySelectorAll('[data-cmp-cle]').forEach(function(l){
+            const v=Number(l.getAttribute('data-cmp-val'));
+            if(Number.isFinite(v)&&m[l.getAttribute('data-cmp-cle')]===undefined)m[l.getAttribute('data-cmp-cle')]={ligne:l,valeur:v};
+          });
+          return m;
+        };
+        const a=lire(blocs[0]),b=lire(blocs[1]);
+        Object.keys(a).forEach(function(cle){
+          if(!b[cle])return;
+          const va=a[cle].valeur,vb=b[cle].valeur;
+          if(va===vb)return;
+          const marquer=function(entree,haut){
+            const cible=entree.ligne.querySelector('.soreal-idle-v138-stat-value-v1');
+            if(cible)cible.classList.add(haut?'idle-cmp-haut-v1':'idle-cmp-bas-v1');
+          };
+          marquer(a[cle],va>vb);
+          marquer(b[cle],vb>va);
+        });
+      }
+
       function composerCorpsComparaisonIdleV1_(corps,firstId,secondId){
         const a=REG.idleEtat&&aventureMetaIdleV47_(REG.idleEtat);
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
@@ -1899,6 +1928,7 @@
         afficherDetailsObjetAdventureIdleV138_(secondId);
         const secondHtml=corps.innerHTML;
         corps.innerHTML='<div class="idle-compare-bloc-v1">'+firstHtml+'</div><div class="idle-compare-vs-v1" aria-hidden="true"><span>VS</span></div><div class="idle-compare-bloc-v1">'+secondHtml+'</div>';
+        colorerStatsCommunesComparaisonIdleV1_(corps);
         return true;
       }
 
