@@ -1637,7 +1637,26 @@ function majBac(sc,id,n){
   var actif=!!sc.querySelector('.bm-tuyau.saigne-v1');
   if(el.classList.contains('on')!==actif)el.classList.toggle('on',actif);
 }
+/*
+ * Images de la sangsue pas encore arrivées (Norman, 2026-10-20 : « le rituel de la sangsue bug : on voit le fond de l'armoire à travers la sangsue, la boule bouge n'importe comment et sort au mauvais endroit ; en changeant de menu et en revenant, c'est correct »).
+ * Cause : à la première ouverture les images (la sangsue, son support, le personnage) arrivent après le reste ; sans l'image du corps, le canal de sang et la boule se voyaient en l'air devant la bibliothèque. Tant qu'une image
+ * de la scène charge, le canal, la boule et le jet restent cachés ; ils apparaissent d'un coup, avec la sangsue, dès que tout est arrivé. La classe est gardée contre les redessins de la page (data-morph-classes-gardees).
+ */
+function attendreImagesScene(sc){
+  if(sc.getAttribute('data-source')!=='sucon')return;
+  var imgs=sc.querySelectorAll('img'),k,pret=true;
+  for(k=0;k<imgs.length;k++){
+    var im=imgs[k];
+    if(!(im.getAttribute('src')||im.currentSrc))continue;
+    if(!im.complete){
+      pret=false;
+      if(!im.__bmEcoute){im.__bmEcoute=1;var relance=function(){majScene(sc);};im.addEventListener('load',relance,{once:true});im.addEventListener('error',relance,{once:true});}
+    }
+  }
+  if(sc.classList.contains('bm-attend-images')===pret)sc.classList.toggle('bm-attend-images',!pret);
+}
 function majScene(sc){
+  attendreImagesScene(sc);
   if(sc.__vis===false)return;   /* carte hors écran : rien à mesurer ni à dessiner (voir suivreVisibilite) */
   var id=sc.getAttribute('data-bm-id');
   var n=lireCompte(id);
@@ -1983,6 +2002,8 @@ function css(){
     P+'.bm-tube-fond,'+P+'.bm-tube{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;display:none}',
     P+'.bm-scene[data-source="sucon"] :is(.bm-tube-fond,.bm-tube){display:block}',
     P+'.bm-tube-fond{z-index:4}',
+    /* images de la sangsue en cours de chargement : canal, boules, jet et visage restent cachés (voir attendreImagesScene) */
+    P+'.bm-scene[data-source="sucon"].bm-attend-images :is(.bm-tube-fond,.bm-tube,.bm-paquets-corps,.bm-paquets-sortie,.bm-bec,.bm-trace,.bm-oeil,.bm-larme,.bm-zzz,.bm-sangsue-img,.bm-sangsue-gl){visibility:hidden!important}',
     /* parois translucides (Norman, 2026-10-11) : on voit le décor et le sang à travers le tuyau */
     P+'.bm-tube{z-index:6}',
     /* l'ancien corps (rectangle olive) et son battement sont remplacés par le tuyau d'une pièce */
@@ -2133,6 +2154,28 @@ function css(){
   ].concat(reglesRangs(P)).join('\n');
   document.head.appendChild(st);
 }
+
+/*
+ * Préchargement : les images de la scène (sangsue 1254 x 1254, support, personnage, coupure) sont demandées en arrière-plan dès que Blood Magic est découvert, pour qu'elles soient déjà là à la première ouverture du menu
+ * (une seule fois par page ; rien si l'économie de données est active). Elles ne sont affichées nulle part avant l'ouverture : seule la demande réseau part.
+ */
+var PRECHARGE_SANG=['/api/idle/media/bloodmagic?name=sangsue.webp&v=2','/api/idle/media/bloodmagic?name=soccle.webp&v=2','/api/idle/media/bloodmagic?name=BloodMagicSucon.webp','/api/idle/media/bloodmagic?name=BloodMagiCoupure.webp'];
+var prechargeSangFait=false;
+function prechargerSang(){
+  if(prechargeSangFait)return;
+  try{
+    if(navigator.connection&&navigator.connection.saveData){prechargeSangFait=true;return;}
+    var H=window.__SOREAL_IDLE_META_HOST_V130__,etat=H&&H.getIdleEtat&&H.getIdleEtat();
+    if(!(etat&&etat.systemes&&Array.isArray(etat.systemes.bloodRituals)&&etat.systemes.bloodRituals.length>0))return;
+    prechargeSangFait=true;
+    PRECHARGE_SANG.forEach(function(u){var i=new Image();i.decoding='async';i.src=u;});
+  }catch(_e){}
+}
+var prechargeSangMinuterie=typeof setInterval==='function'?setInterval(function(){
+  if(prechargeSangFait){clearInterval(prechargeSangMinuterie);return;}
+  if(document.hidden||(window.performance&&performance.now()<8000))return;
+  prechargerSang();
+},5000):0;
 
 window.__SOREAL_IDLE_SANG_DECOR_V1__={NIVEAUX_PAR_RECIPIENT:NIVEAUX_PAR_RECIPIENT,css:css,defs:defs,entete:entete,scene:scene,etagere:etagere,majVases:majVases,sgDessiner:sgDessiner};
 })();
