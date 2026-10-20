@@ -39,12 +39,10 @@
             'Aucun texte du jeu n’est plus petit que 11 px.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Les chroniques de boss modifiées (texte, nom et voix) sont maintenant prises en compte par le jeu local, et une voix régénérée est relue tout de suite : plus d’ancienne voix ni d’ancien texte.',
             'Le bouton de combat reste grisé tant que le boss n’est pas affiché.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Quand tu compares deux objets, les statistiques qu’ils ont en commun sont colorées : la plus haute en vert, la plus faible en rouge ; deux valeurs égales et les statistiques propres à un seul objet restent blanches.',
-            'Nouvelle réplique du coffre quand on lui touche la serrure : « Enlevez ce doigt de ma serrure ! ».',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Quand le calcul est en attente, la barre reste pleine au lieu de repartir de zéro.',
@@ -180,7 +178,6 @@
             '« En direct » annonce quand le coffre d’un joueur s’est chié dessus, et prévient l’administrateur d’un nouveau signalement de bug.',
             'Les panneaux d’informations des menus sont fermés à l’arrivée et au changement de menu, les icônes d’objets s’affichent toutes tout de suite, et la bannière, le menu et la barre de vie ne s’étirent plus quand tu changes d’onglet.',
             'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept.',
-            'L’éditeur de textes et de voix et le journal d’EXP de l’administrateur sont améliorés (personnages retrouvés à la réouverture, plusieurs jours d’historique).',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Les deux barres qu’on alimente sont plus grosses et plus soignées : tuyau de laiton à graduations, or avec des rouages qui défilent.',
