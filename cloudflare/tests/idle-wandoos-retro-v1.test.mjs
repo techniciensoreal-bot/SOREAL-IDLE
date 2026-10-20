@@ -112,7 +112,7 @@ dejaAllume();
 joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.includes("wd-clavier"), "bureau");
-assert.ok(h.includes("NIVEAU <b>812</b>") && h.includes("NIVEAU <b>422</b>"), "niveaux des deux Dumps");
+assert.ok(h.includes("NIVEAU <b data-wd-niveau>812</b>") && h.includes("NIVEAU <b data-wd-niveau>422</b>"), "niveaux des deux Dumps");
 assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("RESTE : ") && !h.includes("NIV/S") && !h.includes("prochain niveau") && h.includes("VERSION OS") && !h.includes("NIVEAU DE L"), "quantités placées/libres ; sous chaque barre seulement le temps restant (Norman, 2026-10-07) ; Version OS");
 assert.ok(!h.includes("wd-chargement") && !h.includes("CHARGEMENT"), "OS chargé : aucun cadre de chargement");
 assert.ok(h.includes('id="wd-saisie"') && h.includes('class="wd-frappe"') && h.includes('<span class="wd-invite-c">C:\\&gt;</span>'), "ligne de saisie : « C:\\> » puis ce qu'on tape, directement dans l'écran");

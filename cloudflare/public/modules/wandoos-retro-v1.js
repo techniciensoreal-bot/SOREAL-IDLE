@@ -339,7 +339,7 @@
   /* Temps restant avant le prochain niveau, seul sous la barre (Norman, 2026-10-07 : « juste le temps restant en dessous, pas de phrase »). */
   function texteReste_(v,p0){
     if(!(v>0))return 'RESTE : —';
-    if(v>=3)return 'RESTE : < 1 s';
+    if(v>=20)return 'RESTE : < 1 s';
     return 'RESTE : '+dureeTexte_((1-Math.max(0,Math.min(1,nb_(p0))))/v);
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
@@ -347,9 +347,9 @@
     var prog=Math.max(0,Math.min(1,nb_(progression)));
     var vitTexte=vit>=50?'50 (MAXIMUM)':format_(vit);
     return '<div class="wd-bloc">'+
-      '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b>'+html_(grand_(niveau))+'</b></span></div>'+
+      '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b data-wd-niveau>'+html_(grand_(niveau))+'</b></span></div>'+
       '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b><span class="wd-lib">LIBRE</span><b>'+html_(grand_(libre))+'</b></div>'+
-      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
+      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
       '<div class="wd-ligne wd-petit"><span data-wd-reste>'+html_(texteReste_(vit,prog))+'</span></div>'+
     '</div>';
   }
@@ -445,12 +445,12 @@
     var html=poste_(H.getIdleEtat());
     if(!html)return;
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
-    var signature=html.replace(/ data-(p0|at)="[^"]*"/g,'');
+    var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1');
     if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
       var neuves=document.createElement('div');neuves.innerHTML=html;
       var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
       if(nouvelles.length===actuelles.length){
-        for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));}
+        for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
         return;
       }
     }
@@ -507,11 +507,12 @@
   var vivant=0;
   function fractionBarre_(p0,v,at){
     var dt=Math.max(0,(maintenant_()-at)/1000);
-    if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null};
-    if(v>=3)return {f:1,reste:null};
+    if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null,gain:0};
+    /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
+    if(v>=20)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
     var brut=p0+v*dt;
     var f=brut-Math.floor(brut);
-    return {f:f,reste:(1-f)/v};
+    return {f:f,reste:(1-f)/v,gain:Math.floor(brut)};
   }
   function vivre_(){
     vivant=0;
@@ -522,12 +523,18 @@
       var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')));
       var rempl=b.querySelector('[data-wd-remplissage]');
       if(rempl)rempl.style.width=(r.f*100).toFixed(2)+'%';
+      /* Le niveau affiché avance avec la barre (niveau de départ + niveaux terminés depuis le repère), comme le moteur : il ne saute plus à chaque synchro. */
+      var niv0=b.getAttribute('data-niv0');
+      if(niv0!==null&&r.gain>=0){
+        var blocNiv=b.parentNode&&b.parentNode.querySelector('[data-wd-niveau]');
+        if(blocNiv){var tn=grand_(nb_(niv0)+r.gain);if(blocNiv.textContent!==tn)blocNiv.textContent=tn;}
+      }
       var pct=b.querySelector('[data-wd-pct]');
       if(pct)pct.textContent=Math.floor(r.f*100)+'%';
       var reste=b.parentNode&&b.nextElementSibling&&b.nextElementSibling.querySelector('[data-wd-reste]');
       if(reste){
         var vit=nb_(b.getAttribute('data-v'));
-        var t=r.reste!=null?'RESTE : '+dureeTexte_(r.reste):(vit>=3?'RESTE : < 1 s':'RESTE : —');
+        var t=r.reste!=null?'RESTE : '+dureeTexte_(r.reste):(vit>=20?'RESTE : < 1 s':'RESTE : —');
         if(reste.textContent!==t)reste.textContent=t;
       }
     }
