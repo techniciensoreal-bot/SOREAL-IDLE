@@ -1273,8 +1273,9 @@ async function voixHistoire_(request,env,url){
   const headers=new Headers();
   headers.set("content-type","audio/mp4");
   if(full.httpEtag)headers.set("etag",full.httpEtag);
-  /* Cache court : régénérer une voix (même empreinte) doit se voir vite. */
-  return new Response(request.method==="HEAD"?null:full.body,{status:200,headers:mediaHeaders_(headers,60)});
+  if(full.httpEtag&&request.headers.get("if-none-match")===full.httpEtag)return new Response(null,{status:304,headers:mediaHeaders_(headers,0)});
+  /* Pas de cache sans revalidation (Norman, 2026-10-20 : « c'est toujours l'ancienne voix qui est lue ») : une voix régénérée sous la même empreinte doit être lue tout de suite ; l'etag rend la revalidation presque gratuite (304). */
+  return new Response(request.method==="HEAD"?null:full.body,{status:200,headers:mediaHeaders_(headers,0)});
 }
 async function objetsBossR2_(env){
   return objetsDossierMobR2_(env,IDLE_BOSSES_R2_PREFIX);

@@ -20,7 +20,7 @@ import { DatabaseSync } from "node:sqlite";
 const REPO = fileURLToPath(new URL("../../", import.meta.url));
 const { SorealIdleCoordinatorV1 } = await import(pathToFileURL(REPO + "cloudflare/src/index-idle-coordinator-v1.js").href);
 const { runSorealIdleOperation } = await import(pathToFileURL(REPO + "cloudflare/src/idle-sqlite-runtime.js").href);
-const { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-local-sync-v1.js").href);
+const { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, textesPourMoteurLocalV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-local-sync-v1.js").href);
 const { allegerCataloguesV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-catalogues-v1.js").href);
 
 const db = new DatabaseSync(":memory:");
@@ -98,6 +98,11 @@ http.createServer(async (req, res) => {
   if (url.pathname === "/api/v1/local/export" && req.method === "GET") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify(TOK ? exporterPourMoteurLocalV1(coord, TOK, url.searchParams.get("appareil") || "") : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
+    return;
+  }
+  if (url.pathname === "/api/v1/local/textes" && req.method === "GET") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(TOK ? { ok: true, textes: textesPourMoteurLocalV1(coord) } : { ok: false, error: "IDLE_SESSION_REQUIRED" }));
     return;
   }
   if (url.pathname === "/api/v1/local/push" && req.method === "POST") {

@@ -354,6 +354,8 @@
         },Boolean(OPERATIONS_LECTURE_V1[String(operation||"")]));
         })();
       if(modifieServeur&&data&&data.ok!==false)ML.apresServeur();
+      /* Texte modifié ou rétabli par l'administrateur : le moteur local relit la table des textes AVANT que l'appelant ne voie la réponse (chronique, nom et voix du boss à jour tout de suite). */
+      if(ML&&ML.actif()&&ML.rafraichirTextes&&data&&data.ok!==false&&(operation==="enregistrerTexteAdminSorealIdle"||operation==="supprimerTexteAdminSorealIdle")){try{await ML.rafraichirTextes(true);}catch(_){}}
       try{const Dg=window.__SOREAL_IDLE_DIAG_V1__;if(Dg&&Dg.reponseRecue)Dg.reponseRecue(operation,(performance.now?performance.now():0)-debutAppelDiagV1);}catch(_){}
       if(!restaurerCataloguesV1(data)&&!sansAllegement){
         /* Pièce annoncée comme déjà connue mais perdue (cas rarissime : réponse très en retard) : on la reprend dans un état complet, JAMAIS en rejouant l'action. */

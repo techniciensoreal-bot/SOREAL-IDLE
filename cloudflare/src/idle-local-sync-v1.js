@@ -9,6 +9,7 @@ import { runSorealIdleOperation } from "./idle-sqlite-runtime.js";
 import { assurerFluxV1 } from "./idle-flux-v1.js";
 import { assurerGainsV1 } from "./idle-gains-v1.js";
 import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slots-v1.js";
+import { lireTextesV1 } from "./idle-textes-v1.js";
 
 const sv = (v) => String(v == null ? "" : v).trim();
 const COL_DERNIERE_SYNCHRO = 15;            // colonne 16 (base 0)
@@ -210,6 +211,19 @@ function indexLigneJoueur(coord, user) {
   return 0;
 }
 
+/*
+ * Textes modifiés par l'administrateur (chroniques et noms de boss, popups : table idle_textes du serveur) pour le moteur LOCAL (Norman, 2026-10-20 : « j'ai créé une voix pour le boss 99 et c'est toujours l'ancienne qui est lue »).
+ * Sans eux le moteur local lisait le texte d'origine du catalogue, donc l'empreinte de l'ANCIENNE voix. Les champs réservés à l'administrateur (voixTextes, voixFaites) ne partent jamais.
+ * Forme : [[cle, json, maj]] ; remplace TOUTE la table du moteur local (une suppression côté serveur disparaît aussi).
+ */
+export function textesPourMoteurLocalV1(coord) {
+  try {
+    return lireTextesV1(coord.sqlMoteur).map((t) => [t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix }), Number(t.maj) || 0]);
+  } catch (_e) {
+    return [];
+  }
+}
+
 export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
@@ -229,7 +243,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
   const maintenant = Date.now();
   revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
-  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 export function recevoirDuMoteurLocalV1(coord, p) {

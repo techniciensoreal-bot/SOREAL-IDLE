@@ -22,10 +22,44 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.3',
+    courante:'3.4',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.4',
+        nom:'Comparer pour mieux choisir',
+        date:'2026-10-20',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Dans les Réglages, tu peux enregistrer ta partie dans un fichier sur ton appareil (« Exporter ma partie ») puis la recharger (« Charger une partie ») : elle reprend exactement là où tu l’as sauvegardée, sans aucun temps écoulé entre-temps.',
+            'Le jeu répond plus vite : tes clics passent avant les mises à jour automatiques, et le calcul de chaque mise à jour est plus léger.',
+            'L’ambiance sonore ne démarre qu’après le chargement du jeu, pour ne plus ralentir la première ouverture.',
+            'Tes réglages sont appliqués avant le démarrage du jeu : plus de double chargement à l’ouverture.',
+            'Aucun texte du jeu n’est plus petit que 11 px.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Les chroniques de boss modifiées (texte, nom et voix) sont maintenant prises en compte par le jeu local, et une voix régénérée est relue tout de suite : plus d’ancienne voix ni d’ancien texte.',
+            'Le bouton de combat reste grisé tant que le boss n’est pas affiché.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Quand tu compares deux objets, les statistiques qu’ils ont en commun sont colorées : la plus haute en vert, la plus faible en rouge ; deux valeurs égales et les statistiques propres à un seul objet restent blanches.',
+            'Nouvelle réplique du coffre quand on lui touche la serrure : « Enlevez ce doigt de ma serrure ! ».',
+          ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Quand le calcul est en attente, la barre reste pleine au lieu de repartir de zéro.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Premier affichage du rituel de la sangsue : le canal, la boule et le jet attendent que les images soient chargées, plus de fond d’armoire visible à travers la sangsue.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'La phrase de la page NGU devient « EH, C’EST LE NOM DU JEU ORIGINAL ! ».',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Le bouton CAP place seulement l’énergie nécessaire pour atteindre le plafond de la barre ; le reste reste disponible. Le niveau et la barre avancent en direct.',
+          ]}
+        ]
+      },
       {
         version:'3.3',
         nom:'Tout se passe chez toi',
@@ -38,7 +72,6 @@
             'Le jeu est maintenant calculé directement sur ton appareil, pour tout le monde : tout réagit tout de suite, rien ne recule en attendant le serveur, les menus qui évoluent en direct se rafraîchissent environ 10 fois plus souvent, et ta partie est enregistrée sur l’appareil puis envoyée au serveur. Si ton navigateur ne peut pas le faire, le jeu fonctionne comme avant.',
             'Dans les Réglages, un bouton « Envoyer ma partie vers le serveur » permet de changer d’appareil sans rien perdre ; une partie ouverte sur un autre appareil affiche « Partie reprise sur un autre appareil ».',
             'Le serveur garde des copies de sécurité de ta partie (une par jour, plus celles des dernières heures) pour la restaurer en cas de problème.',
-            'Dans les Réglages, tu peux enregistrer ta partie dans un fichier sur ton appareil (« Exporter ma partie ») puis la recharger (« Charger une partie ») : elle reprend exactement là où tu l’as sauvegardée, sans aucun temps écoulé entre-temps.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le plafond d’entraînement instantané place bien 6 points dans Attaque passive à chaque renaissance, et 6 de plus dans Blocage avec la synchro de l’entraînement.',

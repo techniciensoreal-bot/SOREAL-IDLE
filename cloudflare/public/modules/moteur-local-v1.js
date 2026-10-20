@@ -120,6 +120,7 @@
     /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). */
     if(exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
+    try{empreinteTextes=(exp.textes||[]).map(function(t){return t[0]+"@"+t[2];}).join("|");}catch(_){}
     /* Préférences du compte appliquées AVANT de démarrer le moteur : si un autre appareil en a changé, la page se recharge tout de suite (la 1re réception ne vient qu'après le démarrage complet, qui était alors perdu). */
     try{const P=window.__SOREAL_IDLE_PREFS_V1__;if(P&&exp.uiPrefsCompte&&typeof P.appliquer==="function")P.appliquer({nom:exp.uiPrefsCompte.nom,systemes:{uiPrefs:exp.uiPrefsCompte.prefs}});}catch(_){}
     cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
@@ -134,7 +135,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=cdadaba053");
+    worker=new Worker("/moteur-local-worker-v1.js?v=802ac8bb63");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -234,7 +235,36 @@
     return(ML&&ML.actif&&ML.actif())?Math.min(ms,Math.max(150,Math.round(ms/10),Math.round(emaSyncMs*4))):ms;
   };
 
+  /*
+   * Textes modifiés par l'administrateur (chroniques et noms de boss, popups) : le moteur local n'a pas la table du serveur, il la reçoit au démarrage (export) et la relit ici (Norman, 2026-10-20 : « j'ai créé une voix pour le boss 99 et c'est toujours l'ancienne qui est lue ;
+   * ces voix doivent être instantanément remplacées par les dernières, et le texte aussi »). Appelé tout de suite après chaque enregistrement ou suppression d'un texte par l'administrateur (standalone-bridge.js), puis toutes les minutes pour les autres joueurs.
+   * Rien n'est renvoyé au moteur si la liste n'a pas changé (empreinte de la liste : clés + dates de modification).
+   */
+  let empreinteTextes="";
+  async function rafraichirTextes(force){
+    if(!vivant)return false;
+    const jeton=session;
+    if(!jeton)return false;
+    const rep=await fetch("/api/v1/local/textes",{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
+    const d=await rep.json();
+    if(!rep.ok||!d||!d.ok||!Array.isArray(d.textes))return false;
+    const empreinte=d.textes.map(function(t){return t[0]+"@"+t[2];}).join("|");
+    if(!force&&empreinte===empreinteTextes)return false;
+    await parler({type:"textes",textes:d.textes});
+    empreinteTextes=empreinte;
+    return true;
+  }
+  setInterval(function(){
+    if(!vivant||document.hidden)return;
+    rafraichirTextes(false).then(function(change){
+      if(!change)return;
+      /* Les chroniques arrivent avec l'état : une synchro tout de suite pour les montrer, sans attendre la suivante. */
+      try{if(typeof window.__SOREAL_IDLE_CALL_V1__==="function")window.__SOREAL_IDLE_CALL_V1__("synchroniserSorealIdle",[]).catch(function(){});}catch(_){}
+    }).catch(function(){});
+  },60000);
+
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
+    rafraichirTextes:rafraichirTextes,
     /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
     /* Diagnostic (administrateur) : la ligne du joueur telle que le moteur la détient, pour reproduire hors de la page un calcul lent sur un compte avancé. */
     exporterLigne:async function(){if(!vivant)return null;const s=await parler({type:"sortant",vider:false});return s&&s.cells?s.cells:null;},

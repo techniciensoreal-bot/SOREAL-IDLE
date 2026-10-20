@@ -97,7 +97,7 @@ const post = (chemin, corps, jeton = "jeton-valide") => new Request("https://idl
   const voix = await get("/api/idle/media/voice?h=0123456789abcd");
   assert.equal(voix.status, 200);
   assert.equal(voix.headers.get("content-type"), "audio/mp4");
-  assert.match(voix.headers.get("cache-control") || "", /max-age=60/, "cache court : régénérer une voix se voit vite");
+  assert.match(voix.headers.get("cache-control") || "", /max-age=0, must-revalidate/, "pas de cache sans revalidation : une voix régénérée se lit tout de suite (2026-10-20)");
   assert.equal((await get("/api/idle/media/voice?h=zz")).status, 400);
   assert.equal((await get("/api/idle/media/voice?h=ffffffffffffff")).status, 404);
 }

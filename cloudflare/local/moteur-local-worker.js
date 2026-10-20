@@ -10,6 +10,7 @@ import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import { assurerTableProfilsIdleV1 } from "../src/idle-profile-v1.js";
 import { spansActiver, spansPrelever, SPANS_V1 } from "../src/idle-spans-v1.js";
 import { validerFichierPartieV1, preparerLignePartieV1 } from "../src/idle-partie-fichier-v1.js";
+import { assurerTextesV1, invaliderCacheTextesBossV1 } from "../src/idle-textes-v1.js";
 
 /*
  * HEURE DU SERVEUR : le moteur lit l'heure par Date.now() et new Date(). Dans ce Worker elles valent l'horloge de l'appareil + l'écart mesuré avec le serveur (envoyé par la page à chaque
@@ -61,6 +62,14 @@ function surveiller(base) {
   };
 }
 
+/* Textes modifiés par l'administrateur (chroniques de boss…) : la table du moteur local est REMPLACÉE par celle du serveur ; le cache des chroniques est vidé pour que le prochain état les montre. */
+function remplacerTextes(textes) {
+  assurerTextesV1(sql);
+  sql.exec("DELETE FROM idle_textes");
+  for (const t of Array.isArray(textes) ? textes : []) sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", String(t[0]), String(t[1]), Number(t[2]) || 0);
+  invaliderCacheTextesBossV1();
+}
+
 async function demarrer(exp) {
   const SQL = await initSqlJs({ locateFile: () => self.__SOREAL_SQL_WASM_URL__ });
   db = new SQL.Database();
@@ -74,6 +83,7 @@ async function demarrer(exp) {
   sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", "JOUEURS", 1, exp.joueurs.entete, maintenant);
   sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", "JOUEURS", 2, exp.joueurs.ligne, maintenant);
   assurerTableProfilsIdleV1(sql);
+  remplacerTextes(exp.textes);
   for (const p of exp.profils || []) {
     sql.exec("INSERT OR REPLACE INTO idle_profiles(email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at) VALUES(?,?,?,?,?,?,?,?)",
       p.email, p.pseudo || "", p.pseudo_key || "", p.externe || 0, p.google_name || "", p.prenom || "", p.first_seen || 0, p.updated_at || 0);
@@ -120,6 +130,9 @@ self.onmessage = async (ev) => {
       }
       versionLocale = Math.max(Date.now(), versionLocale + 1);
       self.postMessage({ id: m.id, ok: true, resultat: { ok: true, decalees: prep.decalees, delta: prep.delta } });
+    } else if (m.type === "textes") {
+      remplacerTextes(m.textes);
+      self.postMessage({ id: m.id, ok: true, resultat: true });
     } else if (m.type === "spans") {
       spansActiver(m.actif);
       self.postMessage({ id: m.id, ok: true, resultat: true });

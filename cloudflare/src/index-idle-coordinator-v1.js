@@ -3,7 +3,7 @@ import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogue
 import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
-import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1 } from "./idle-local-sync-v1.js";
+import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1, textesPourMoteurLocalV1 } from "./idle-local-sync-v1.js";
 
 /*
  * SOREAL — Idle Coordinator (Durable Object dédié, 2026-09-09).
@@ -540,6 +540,11 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/local-export") {
       const p = await request.json().catch(() => ({}));
       return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil)), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/local-textes") {
+      const p = await request.json().catch(() => ({}));
+      const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      return Response.json(s.ok ? { ok: true, textes: textesPourMoteurLocalV1(this) } : { ok: false, error: s.error }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-push") {
       const p = await request.json().catch(() => ({}));

@@ -463,6 +463,8 @@ export default {
     }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleLocalV1(request, env, "local-export");
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleLocalV1(request, env, "local-push");
+    /* Textes modifiés par l'administrateur, relus par chaque page (le moteur local n'a pas la table du serveur). */
+    if (request.method === "GET" && url.pathname === "/api/v1/local/textes") return idleLocalV1(request, env, "local-textes");
 
     if (request.method === "POST" && url.pathname === "/api/v1/call") {
       return idleCallV1(request, env);
