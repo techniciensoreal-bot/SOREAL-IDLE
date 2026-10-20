@@ -23,11 +23,16 @@ function charger({ cle = null, requete = "", worker = true, wasm = true, idb = t
 
 assert.equal(charger().ml.actif(), true, "aucun réglage : ACTIF par défaut");
 assert.equal(charger({ cle: "1" }).ml.actif(), true, "réglage « 1 » : actif");
-assert.equal(charger({ cle: "0" }).ml.actif(), false, "choix explicite de l'appareil (0) : coupé");
+{
+  /* Un « 0 » enregistré (préférence liée au compte, donc copiée sur tous les appareils) ne coupe plus le jeu local : il est ignoré et effacé. */
+  const { ml, stockage } = charger({ cle: "0" });
+  assert.equal(ml.actif(), true, "« 0 » enregistré : ignoré, le jeu local reste actif");
+  assert.equal(stockage.has("soreal_idle_moteur_local_v1"), false, "« 0 » enregistré : effacé");
+}
 {
   const { ml, stockage } = charger({ requete: "?local=0" });
   assert.equal(ml.actif(), false, "?local=0 coupe le jeu local sur cet appareil");
-  assert.equal(stockage.get("soreal_idle_moteur_local_v1"), "0", "le choix est enregistré (et pas seulement effacé : sinon le défaut le remettrait)");
+  assert.equal(stockage.has("soreal_idle_moteur_local_v1"), false, "?local=0 n'est PAS enregistré : il ne vaut que pour cette page");
 }
 assert.equal(charger({ requete: "?local=1", cle: "0" }).ml.actif(), true, "?local=1 le rallume");
 assert.equal(charger({ worker: false }).ml.actif(), false, "pas de Worker : mode serveur");

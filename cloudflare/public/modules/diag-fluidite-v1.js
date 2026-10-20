@@ -306,6 +306,16 @@
     return entete_()+textePerf_()+tete+'\n'+lignes.join('\n')+'\n— FIN DU JOURNAL ('+journal.length+' ligne(s)) —';
   }
 
+  function moteurTexte_(){
+    try{
+      var ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+      if(!ML||typeof ML.etatDiag!=='function')return 'jeu local indisponible (module absent)';
+      var e=ML.etatDiag();
+      if(e.demarre&&!e.echec)return 'JEU LOCAL actif (calcul dans la page)'+(e.conflit?' · conflit : partie reprise sur un autre appareil':'');
+      return 'MODE SERVEUR (jeu local inactif) · '+(!e.capable?'navigateur incapable (Worker/WebAssembly/IndexedDB) · ':'')+(!e.actif?'coupé par ?local=0 · ':'')+(e.echec?'démarrage échoué : '+(e.raison||'?')+' · ':'')+(e.actif&&e.capable&&!e.echec&&!e.demarre?'pas encore démarré ou interrupteur général coupé · ':'');
+    }catch(_e){return '?';}
+  }
+
   /* En-tête du texte copié : tout ce qu'il faut pour comprendre le journal sans poser de question. */
   function entete_(){
     try{
@@ -315,6 +325,7 @@
         'relevé : '+new Date().toLocaleString('fr-BE')+' · mode '+modeJeu+' · version client ?v='+v+'\n'+
         'appareil : '+String(nav.userAgent||'?').slice(0,110)+' · '+(nav.hardwareConcurrency||'?')+' coeurs · mémoire '+(nav.deviceMemory||'?')+' Go · écran '+(window.innerWidth||'?')+'x'+(window.innerHeight||'?')+' ×'+(window.devicePixelRatio||'?')+'\n'+
         'réseau : '+(cn.effectiveType||'?')+' · aller-retour '+(cn.rtt!==undefined?cn.rtt:'?')+' ms · débit '+(cn.downlink!==undefined?cn.downlink:'?')+' Mb/s'+'\n'+
+        'moteur : '+moteurTexte_()+'\n'+
         'au moment de la copie : menu '+(ctx.menu||'?')+' · combat '+(ctx.combat===undefined?'?':ctx.combat)+'\n\n';
     }catch(_e){return '';}
   }

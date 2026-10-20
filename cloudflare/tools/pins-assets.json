@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 13,
-  "sha": "72bef799ce3f0e0bf927d554b326c7c12b05c2b1"
+  "pin": 16,
+  "sha": "b0557c02a8a6080f3c224bbf761dd5d79515134c"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 17,
-  "sha": "9f16e5ef09a199612d1c6886ed7466b1d2ed67e5"
+  "pin": 18,
+  "sha": "45824105cdd6090d9a8ad4fc6f8025d46ebb8d0a"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -512,8 +512,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 36,
-  "sha": "2b2632d634a18e760554442999070b1e047de44a"
+  "pin": 37,
+  "sha": "2a2569b6c7c622890c6aff855790cbaeb61ed8c2"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,

@@ -376,7 +376,7 @@
       touche_('0','',p+"zero')",'',nom+' : tout retirer')+
       touche_('−','',p+"moins')",'',nom+' : retirer la quantité saisie')+
       touche_('+','',p+"plus')",'',nom+' : placer la quantité saisie')+
-      touche_('CAP','',p+"cap')",'',nom+' : mettre dans la saisie le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
+      touche_('CAP','',p+"cap')",'',nom+' : placer d’un coup l’allocation qui atteint le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
     '</div></div>';
   }
   function groupeOs_(e){
@@ -556,15 +556,16 @@
     var j=H.getIdleEtat(),e=etat_(j);
     if(!e||phaseDe_(e)!=='bureau'||(res!=='energy'&&res!=='magic'))return;
     if(res==='magic'&&!e.magieOk)return;
-    /* CAP (remplace MAX) : met dans la saisie le cap de Wandoos envoyé par le serveur (wandoosView.capEnergie / capMagie : l'allocation qui atteint
-       50 niveaux par seconde) ; aucune valeur calculée ici. « + » la place ensuite. */
-    if(mode==='cap'){var cap=nb_(e.vue[res==='energy'?'capEnergie':'capMagie']);if(cap>0)majSaisie_(capTexte_(cap));return;}
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
     var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));
     var vis=visee_[res];
     if(vis&&Date.now()-vis.at<2500){var total=actuelle+libre;actuelle=Math.max(0,Math.min(vis.v,total));libre=total-actuelle;}
     var montant=analyser_(saisie_(),libre+actuelle);
-    var cible=mode==='zero'?0:mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
+    /* CAP (Norman, 2026-10-20 : « le bouton Cap doit fonctionner comme celui de Basic Training ») : PLACE directement l'allocation qui atteint le cap de Wandoos envoyé par le serveur
+       (wandoosView.capEnergie / capMagie : 50 niveaux par seconde), limitée à ce qui est libre ; au-dessus du cap, elle ramène à ce cap. Plus de chiffre à recopier dans la saisie. */
+    var capServeur=mode==='cap'?Math.ceil(nb_(e.vue[res==='energy'?'capEnergie':'capMagie'])):0;
+    if(mode==='cap'&&!(capServeur>0))return;
+    var cible=mode==='zero'?0:mode==='cap'?(capServeur>actuelle?actuelle+Math.min(capServeur-actuelle,libre):capServeur):mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
     cible=Math.max(0,Math.min(actuelle+libre,cible));
     if(cible===actuelle)return;
     visee_[res]={v:cible,at:Date.now()};

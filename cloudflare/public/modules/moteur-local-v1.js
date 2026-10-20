@@ -34,9 +34,10 @@
     let v="";
     try{
       const q=new URLSearchParams(location.search||"").get("local");
-      if(q==="1")localStorage.setItem(CLE,"1");
-      else if(q==="0")localStorage.setItem(CLE,"0");
-      v=String(localStorage.getItem(CLE)||"");
+      /* `?local=0` ne vaut que pour CETTE page : il n'est plus enregistré. Les préférences `soreal_idle_*` sont liées au compte (règle n°6) : un « 0 » enregistré une fois sur un appareil de test coupait le jeu local
+         sur TOUS les appareils du joueur sans qu'il le sache. Un « 0 » déjà enregistré est effacé. */
+      if(localStorage.getItem(CLE)==="0")localStorage.removeItem(CLE);
+      v=q==="0"?"0":"";
     }catch(_){}
     actifCache=v!=="0"&&capable();
     return actifCache;
@@ -86,7 +87,7 @@
     const e=typeof f==="function"?f():null;
     return Number.isFinite(e)?e:ecartInitial;
   }
-  let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false;
+  let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false,raison="";
   const attentes=new Map();
 
   function parler(msg){
@@ -167,7 +168,7 @@
 
   async function appeler(operation,args,catalogHashes,langue,jeton){
     if(!demarrage)demarrage=demarrer(jeton);
-    try{await demarrage;}catch(e){echec=true;return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
+    try{await demarrage;}catch(e){echec=true;raison=String(e&&e.message||e).slice(0,120);return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
     const r=await parler({type:"appel",ecart:ecartServeur(),operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
     if(operation==="synchroniserSorealIdle")passif=true;
     else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
@@ -182,6 +183,8 @@
   };
 
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
+    /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
+    etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit};},
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},
     modifieLeJoueur:function(operation){return Boolean(MODIFIENT_LE_JOUEUR[operation]);},
