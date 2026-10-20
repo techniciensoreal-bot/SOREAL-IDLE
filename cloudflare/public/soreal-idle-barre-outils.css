@@ -11,13 +11,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.nl-barre-outils .nl-ligne,.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1))>button:not(#_):not(#_):not(#_):not(#_){justify-self:stretch!important;width:auto!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:not(#_):not(#_):not(#_):not(#_){width:auto!important;min-width:0!important}
 /* Boutons + / − / Max / 0 de chaque barre : une largeur qui s'adapte au texte (avant : 56 px fixes, « Max » dépassait du bouton). */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-actions-v120 button:not(#_):not(#_):not(#_):not(#_){width:auto!important;min-width:56px!important;padding-left:12px!important;padding-right:12px!important;white-space:nowrap!important;flex:0 0 auto}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-actions-v120 button:not(#_):not(#_):not(#_):not(#_){width:auto!important;min-width:48px!important;padding-left:10px!important;padding-right:10px!important;white-space:nowrap!important;flex:0 0 auto}
 
 /*
  * BOUTONS UNIFORMES dans tous les menus (Norman, 2026-10-15 : « uniformiser les tailles des boutons dans les différents menus, lisibles sur PC et téléphone ») : les boutons du haut (Max, 1/2, 1/4, pourcentages, Mes nombres, Tout retirer),
- * ceux de chaque barre (+, −, Max, 0) et ceux de la Machine temporelle ont la MÊME hauteur (56 px), la même police (Bangers) et la même taille de texte (19 px). Les crayons restent plus étroits mais aussi hauts.
+ * ceux de chaque barre (+, −, Max, 0) et ceux de la Machine temporelle ont la MÊME hauteur (44 px : ni trop grands comme à 56 px, ni trop petits comme avant), la même police (Bangers) et la même taille de texte (16 px). Les crayons restent plus étroits mais aussi hauts.
  */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-tm-boutons-v1,.nl-barre-outils .nl-ligne,.perso-duo-v1) button:not(#_):not(#_):not(#_):not(#_):not(#_){min-height:56px!important;height:auto;font-family:"Bangers","Comic Sans MS",cursive!important;font-size:19px!important;line-height:1.1!important;letter-spacing:.03em!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-tm-boutons-v1,.nl-barre-outils .nl-ligne,.perso-duo-v1) button:not(#_):not(#_):not(#_):not(#_):not(#_){min-height:44px!important;height:auto;font-family:"Bangers","Comic Sans MS",cursive!important;font-size:16px!important;line-height:1.1!important;letter-spacing:.03em!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-v1>button:last-child:not(#_):not(#_):not(#_):not(#_):not(#_){font-size:16px!important}
 
 /*
@@ -41,7 +41,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-tm-col-v1 b:not(#_):not(#_):not(#_):not(#_):not(#_){font-size:22px!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-tm-col-v1 input:not(#_):not(#_):not(#_):not(#_):not(#_){width:100%!important;box-sizing:border-box;height:48px!important;font-size:20px!important;text-align:center}
 /* « + » et « − » : le signe est trop petit dans la police des titres ; police système en gras, plus grande (les boutons gardent la même taille). */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-actions-v120,.soreal-idle-tm-boutons-v1)>button:nth-child(-n+2):not(#_):not(#_):not(#_):not(#_):not(#_){font-family:system-ui,"Segoe UI",Arial,sans-serif!important;font-size:30px!important;font-weight:900!important;line-height:1!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-actions-v120,.soreal-idle-tm-boutons-v1)>button:nth-child(-n+2):not(#_):not(#_):not(#_):not(#_):not(#_){font-family:system-ui,"Segoe UI",Arial,sans-serif!important;font-size:26px!important;font-weight:900!important;line-height:1!important}
 
 /* Coffre : un cadre de zone n'est jamais plus large que son contenu (Norman, 2026-10-16 : « Grotte aux multiples choses » et « Base haute sécurité » étaient trop larges pour leurs objets). Le titre ne compte pas dans la largeur du cadre : il passe à la ligne au lieu de l'élargir. */
 html body .soreal-idle-coffre-cadre-v1>.soreal-idle-coffre-cadre-titre-v1{width:0;min-width:100%;box-sizing:border-box;overflow-wrap:anywhere}
