@@ -215,7 +215,9 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   if (!s.ok) return { ok: false, error: s.error };
   if (!localActifV1(coord)) return { ok: false, error: "IDLE_LOCAL_DESACTIVE" };
   /* Crée la ligne du joueur si c'est sa première visite, puis la lit. */
-  runSorealIdleOperation(coord.sqlMoteur, "obtenirEtatSorealIdle", [sessionToken], s.user);
+  const premiereLecture = runSorealIdleOperation(coord.sqlMoteur, "obtenirEtatSorealIdle", [sessionToken], s.user);
+  /* Préférences du compte : envoyées AVEC l'export pour que la page décide de son rechargement (règle n°6) AVANT de démarrer le moteur, et non après (le démarrage complet était perdu : « le chargement ne se termine pas, puis un 2e chargement démarre »). */
+  const uiPrefsCompte = { nom: sv(premiereLecture && premiereLecture.joueur && premiereLecture.joueur.nom), prefs: (premiereLecture && premiereLecture.joueur && premiereLecture.joueur.systemes && premiereLecture.joueur.systemes.uiPrefs) || {} };
   const index = indexLigneJoueur(coord, s.user);
   if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
   const entete = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=1")[0];
@@ -227,7 +229,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
   const maintenant = Date.now();
   revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
-  return { ok: true, user: s.user, serveurAt: maintenant, joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 export function recevoirDuMoteurLocalV1(coord, p) {

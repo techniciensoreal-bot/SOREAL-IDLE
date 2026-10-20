@@ -107,6 +107,8 @@
     /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). */
     if(exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
+    /* Préférences du compte appliquées AVANT de démarrer le moteur : si un autre appareil en a changé, la page se recharge tout de suite (la 1re réception ne vient qu'après le démarrage complet, qui était alors perdu). */
+    try{const P=window.__SOREAL_IDLE_PREFS_V1__;if(P&&exp.uiPrefsCompte&&typeof P.appliquer==="function")P.appliquer({nom:exp.uiPrefsCompte.nom,systemes:{uiPrefs:exp.uiPrefsCompte.prefs}});}catch(_){}
     cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
     const rec=await kv("lire",cleSauve);
     if(rec&&Array.isArray(rec.cells)){
@@ -119,7 +121,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=9fd10520e8");
+    worker=new Worker("/moteur-local-worker-v1.js?v=97092536e5");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
