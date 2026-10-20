@@ -311,7 +311,9 @@
       var slot={audio:null,minuterie:0,cle:'',probabiliteSilence:def.probabiliteSilence};
       slots.push(slot);
       /* Décale légèrement le départ de chaque créneau pour ne pas les faire toujours commencer pile ensemble. */
-      slot.minuterie=setTimeout(function(){slot.minuterie=0;planifierSuivant_(slot);},i*1200);
+      /* Aucun son d'ambiance dans les 15 premières secondes de la page (Norman, 2026-10-20 : « le premier chargement ne se termine pas ») : ces fichiers audio (plusieurs Mo, chacun téléchargé deux fois) se disputaient la connexion avec le moteur local (1,5 Mo + 670 Ko) et les scripts du jeu au premier chargement, cache vide. */
+      var retardInitial=Math.max(0,15000-((window.performance&&performance.now&&performance.now())||0));
+      slot.minuterie=setTimeout(function(){slot.minuterie=0;planifierSuivant_(slot);},retardInitial+i*1200);
     });
     if(window.__SOREAL_IDLE_AUDIO_VOLUME_V1__)window.__SOREAL_IDLE_AUDIO_VOLUME_V1__.onChange(appliquerVolume_);
   }

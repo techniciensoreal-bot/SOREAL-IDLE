@@ -20,8 +20,8 @@
   "sha": "a27300943f610973a4bf7cf1732aeaf1fde567f9"
  },
  "/modules/ambient-audio-v1.js": {
-  "pin": 11,
-  "sha": "3db3fdf1b581d999132adef030b071787eb03378"
+  "pin": 12,
+  "sha": "b0a61bf4c174cb7e87747048dfd969dcd58fcd54"
  },
  "/modules/anti-copie-v1.js": {
   "pin": 1,
@@ -112,7 +112,7 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 13,
+  "pin": 15,
   "sha": "794b514194bd7aede9720c26868121157cd7c13b"
  },
  "/modules/combat-effets-v1.js": {
