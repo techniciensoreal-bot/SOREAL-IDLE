@@ -738,7 +738,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .so
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28 .soreal-idle-nav-texte-v2 small{display:none!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28 .soreal-idle-nav-texte-v2 b{
   display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;white-space:normal!important;
-  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif!important;font-size:10.5px!important;font-weight:800!important;line-height:1.1!important;letter-spacing:0!important;
+  font-family:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif!important;font-size:11.5px!important;font-weight:800!important;line-height:1.1!important;letter-spacing:0!important;
   color:#eef3ff!important;text-shadow:0 1px 2px rgba(0,0,0,.6)!important;-webkit-text-stroke:0!important;text-transform:none!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;
 }
 /* Animations « nouveau » et « disponible » : mêmes mouvements (transform/opacité), adaptés aux boutons plus petits */
@@ -1618,3 +1618,17 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* l'image (et le niveau) sont grisés, mais PAS les 3 petits points bleu / jaune / orange : ils disent quels boosts on peut encore y envoyer (Norman, 2026-10-17) */
 body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id] .soreal-idle-v138-slot-icon>:not(.idle-boostpts-v1){filter:grayscale(1) brightness(.75);opacity:.55}
 
+
+/* Lisibilité (audit des polices, Norman 2026-10-20 : « lisible sans être énorme, téléphone et PC ») : plancher de taille pour les petits textes
+   mesurés sous 11 px (menu latéral 10,5, tuiles du haut 10, calendrier 9-10, Yggdrasil/Boutique 8,6-10, légendes). Seuls les planchers changent : les grands titres ne bougent pas. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-button-v28 b,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-titans-brille-v1{font-size:11.5px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-summary-v28{font-size:11px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-jour-v1{font-size:11px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-ap-v1{font-size:11px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 small,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .wd-leg,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .challenges i{font-size:11.5px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is(.ygg-btn,.soreal-idle-v79-stat-label,.itp-tuile-libelle,.soreal-idle-bt-info-v1,.nl-pct,.nl-eta,.rb2-lib,.bm-etagere-lib,.soreal-idle-page-sub-v28,.soreal-idle-exp-buy-v210,.soreal-idle-exp-help-v210){font-size:12px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-hud-lat-v2,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-tuto-tts-v202{font-size:12px}
