@@ -175,6 +175,30 @@
       if(desc&&desc.set)Object.defineProperty(Worker.prototype,'onmessage',{configurable:true,enumerable:desc.enumerable,get:desc.get,set:function(fn){desc.set.call(this,envelopper_(fn,'worker-message'));}});
     }catch(_e){}
   }
+  /* Images longues (API « long-animation-frame » de Chrome, administrateur seulement) : pour chaque image de plus de 50 ms, la part des scripts, de la mise en page / du style et du rendu, et le script le plus lourd.
+     C'est ce qui sépare « le code est lent » de « le dessin est lent » (une tâche longue sans suspect = travail du navigateur). */
+  var imagesLonguesPosees=false,derniereImageLongue=0;
+  function poserImagesLongues_(){
+    if(imagesLonguesPosees)return;
+    imagesLonguesPosees=true;
+    try{
+      if(typeof PerformanceObserver!=='function'||!PerformanceObserver.supportedEntryTypes||PerformanceObserver.supportedEntryTypes.indexOf('long-animation-frame')<0)return;
+      new PerformanceObserver(function(liste){
+        liste.getEntries().forEach(function(e){
+          try{
+            var fin=e.startTime+e.duration,scripts=e.scripts||[],somme=0,forcee=0,top=null;
+            scripts.forEach(function(sc){somme+=sc.duration;forcee+=sc.forcedStyleAndLayoutDuration||0;if(!top||sc.duration>top.duration)top=sc;});
+            var rendu=e.renderStart>0?Math.max(0,fin-e.renderStart):0,styleMiseEnPage=e.styleAndLayoutStart>0?Math.max(0,fin-e.styleAndLayoutStart):0;
+            var maintenant=Math.round(e.startTime);
+            if(maintenant-derniereImageLongue<1000)return;
+            derniereImageLongue=maintenant;
+            var ctx=contexte_();
+            noter_('image_longue',String(ctx.menu||'?')+'@'+Math.floor(e.startTime/1000),{ms:Math.round(e.duration),scripts_ms:Math.round(somme),style_mise_en_page_ms:Math.round(styleMiseEnPage),rendu_ms:Math.round(rendu),forces_ms:Math.round(forcee),bloquant_ms:Math.round(e.blockingDuration||0),plus_lourd:top?String(top.invokerType||'')+':'+String(top.invoker||top.sourceFunctionName||'').slice(0,60)+' '+String(top.sourceURL||'').split('/').pop().split('?')[0]+':'+(top.sourceCharPosition||0)+' '+Math.round(top.duration)+'ms':'-'});
+          }catch(_e){}
+        });
+      }).observe({type:'long-animation-frame',buffered:true});
+    }catch(_e){}
+  }
   function suspectsDe_(debut,duree){
     var l=suspects.filter(function(x){return x.t+x.ms>=debut-50&&x.t<=debut+duree+50;}).sort(function(a,b){return b.ms-a.ms;}).slice(0,3);
     return l.map(function(x){return x.qui+' '+x.ms+'ms';}).join(' ; ')||'-';
@@ -269,6 +293,7 @@
     /* Norman (2026-10-13, audit) : la sonde est réservée à l'administrateur ; plus aucun travail à 5 Hz pour les autres joueurs */
     if(document.hidden||!estAdmin_())return;
     poserSuspects_();
+    poserImagesLongues_();
     echantillonVie_();
     var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="augmentations"]');
     if(!racine){prec={};pleineDepuis={};return;}

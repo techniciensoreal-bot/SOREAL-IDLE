@@ -112,7 +112,7 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 5,
+  "pin": 7,
   "sha": "794b514194bd7aede9720c26868121157cd7c13b"
  },
  "/modules/combat-effets-v1.js": {
@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 22,
-  "sha": "1ec8600c4a00a5be78c61700fae7787d5caac20a"
+  "pin": 23,
+  "sha": "df9a94ad8279186332fe711159b0213b11e1f65d"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
