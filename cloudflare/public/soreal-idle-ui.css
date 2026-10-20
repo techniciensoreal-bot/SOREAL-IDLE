@@ -1086,6 +1086,9 @@ html,body{overflow-x:hidden}
             color:#163f25 !important;
             transition:none !important;
             transform:none !important;
+          }
+          /* Le filtre reste neutre quand le bouton est inactif ; actif, il peut CLIGNOTER (animation de luminosité, Norman 2026-10-20) : une valeur de filtre imposée l'empêchait. */
+          .soreal-idle-boss-control-v39.start:disabled{
             filter:none !important;
           }
 

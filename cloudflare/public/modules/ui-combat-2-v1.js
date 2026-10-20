@@ -985,7 +985,7 @@
                     :''
                 }
               >
-                NUKE
+                <span class="nk-txt">NUKE</span>
               </button>
 
             </div>
