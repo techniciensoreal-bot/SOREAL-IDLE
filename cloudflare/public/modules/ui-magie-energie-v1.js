@@ -278,7 +278,9 @@
 
       /* Norman (2026-10-01) : « Niveau par seconde » à la place de « Tick » et « Production », identique pour l'Énergie et la Magie. */
       function texteNiveauParSecondeIdleV1_(parSeconde){
-        return 'Niveau par seconde : +'+idleNombre_(parSeconde).toLocaleString('fr-FR',{maximumFractionDigits:2})+'/s';
+        /* Formateur créé une seule fois : toLocaleString avec options en recrée un à chaque appel, et cette ligne est réécrite à chaque tick. */
+        if(!texteNiveauParSecondeIdleV1_.fmt)texteNiveauParSecondeIdleV1_.fmt=new Intl.NumberFormat('fr-FR',{maximumFractionDigits:2});
+        return 'Niveau par seconde : +'+texteNiveauParSecondeIdleV1_.fmt.format(idleNombre_(parSeconde))+'/s';
       }
 
       function texteTickMagieIdleV1_(){

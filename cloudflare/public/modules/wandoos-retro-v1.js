@@ -437,12 +437,24 @@
     /* Pas de barre d'outils d'allocation ici (Norman, 2026-10-10) : la saisie se fait au clavier de l'ordinateur rétro. */
     return titre+poste_(j);
   }
+  var signaturePosteV1_='';
   function rafraichirPoste_(){
     var H=H_();
     var poste=document.querySelector('.wd-poste');
     if(!poste||!H||!H.getIdleEtat)return;
     var html=poste_(H.getIdleEtat());
     if(!html)return;
+    /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
+    var signature=html.replace(/ data-(p0|at)="[^"]*"/g,'');
+    if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
+      var neuves=document.createElement('div');neuves.innerHTML=html;
+      var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
+      if(nouvelles.length===actuelles.length){
+        for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));}
+        return;
+      }
+    }
+    signaturePosteV1_=signature;
     /* L'écran ne doit jamais remonter (Norman, 2026-10-08) : la hauteur de la page est retenue pendant le remplacement du poste (sinon, plus courte un instant, elle ramène le défilement vers le haut,
        surtout dans l'application où la page est dans un cadre), puis le défilement est remis exactement où il était. */
     var corps=document.body,x=window.scrollX||0,y=window.scrollY||0;

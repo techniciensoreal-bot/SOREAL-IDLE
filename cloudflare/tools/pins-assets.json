@@ -12,8 +12,8 @@
   "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2040,
-  "sha": "9671dd5b8ca9866b5c4ab0c2e8797ef61958280a"
+  "pin": 2041,
+  "sha": "cb2035af51eb9d632441f586d13db9a96f767feb"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 3,
@@ -460,8 +460,8 @@
   "sha": "c4b5f9e9d27eab39aded89d7e50a2678bacdf7cf"
  },
  "/modules/ui-magie-energie-v1.js": {
-  "pin": 3,
-  "sha": "f038c0201680c3c87af1774c01c34a0b561b40d3"
+  "pin": 4,
+  "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
   "pin": 3,
@@ -512,8 +512,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 38,
-  "sha": "196c40dedcd7e8fd814dc40feb3d74d11c5e5de7"
+  "pin": 40,
+  "sha": "bc137212445f705afe8867cd940a678e7274c55a"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,

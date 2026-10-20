@@ -383,10 +383,16 @@
     });
   }
 
+  /* Les formateurs sont créés UNE fois (en construire un à chaque nombre affiché coûtait des dizaines de ms par rendu sur un téléphone ; journal de Norman, 2026-10-20 : tâches longues en Aventure). */
+  var formateursV1={};
+  function formateur_(precision,compact){
+    var k=(compact?'c':'n')+(precision||0);
+    return formateursV1[k]||(formateursV1[k]=new Intl.NumberFormat('fr-FR',compact?{notation:'compact',maximumFractionDigits:2}:{maximumFractionDigits:precision||0}));
+  }
   function format_(value,precision){
     var n=number_(value);
-    if(Math.abs(n)<1000000)return new Intl.NumberFormat('fr-FR',{maximumFractionDigits:precision||0}).format(n);
-    return new Intl.NumberFormat('fr-FR',{notation:'compact',maximumFractionDigits:2}).format(n);
+    if(Math.abs(n)<1000000)return formateur_(precision,false).format(n);
+    return formateur_(0,true).format(n);
   }
 
   function scene_(root,a){
