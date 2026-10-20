@@ -257,7 +257,7 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   let ecrit = false;
   if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
     /* Copie de sécurité de la ligne actuelle AVANT de l'écraser (toujours, si l'anti-triche a noté une anomalie). */
-    sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), alertes.length ? "avant-anomalie" : "");
+    sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), p.importPartie === true ? "avant-import" : (alertes.length ? "avant-anomalie" : ""));
     const fusion = cells.slice();
     for (const c of COLS_DU_SERVEUR) fusion[c] = serveur[c];
     coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(fusion), Date.now(), index);

@@ -38,6 +38,7 @@
             'Le jeu est maintenant calculé directement sur ton appareil, pour tout le monde : tout réagit tout de suite, rien ne recule en attendant le serveur, les menus qui évoluent en direct se rafraîchissent environ 10 fois plus souvent, et ta partie est enregistrée sur l’appareil puis envoyée au serveur. Si ton navigateur ne peut pas le faire, le jeu fonctionne comme avant.',
             'Dans les Réglages, un bouton « Envoyer ma partie vers le serveur » permet de changer d’appareil sans rien perdre ; une partie ouverte sur un autre appareil affiche « Partie reprise sur un autre appareil ».',
             'Le serveur garde des copies de sécurité de ta partie (une par jour, plus celles des dernières heures) pour la restaurer en cas de problème.',
+            'Dans les Réglages, tu peux enregistrer ta partie dans un fichier sur ton appareil (« Exporter ma partie ») puis la recharger (« Charger une partie ») : elle reprend exactement là où tu l’as sauvegardée, sans aucun temps écoulé entre-temps.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le plafond d’entraînement instantané place bien 6 points dans Attaque passive à chaque renaissance, et 6 de plus dans Blocage avec la synchro de l’entraînement.',

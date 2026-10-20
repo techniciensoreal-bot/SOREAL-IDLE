@@ -401,6 +401,15 @@
               '</div>'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__envoyerPartieServeurIdleV1__(this)">☁️ Envoyer ma partie vers le serveur</button>'+
               '<div id="sorealIdlePartieServeurEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
+              '<div style="font-size:14px;color:#8b93ab;margin:14px 0 10px">'+
+                'Tu peux aussi enregistrer ta partie dans un fichier sur ton appareil, puis la recharger plus tard : elle reprend exactement là où tu l’as sauvegardée.'+
+              '</div>'+
+              '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+                '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__exporterPartieIdleV1__(this)">💾 Exporter ma partie</button>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__choisirPartieIdleV1__()">📂 Charger une partie</button>'+
+              '</div>'+
+              '<input type="file" id="sorealIdlePartieFichierChoixV1" accept=".json,application/json" style="display:none" onchange="window.__lirePartieIdleV1__(this)">'+
+              '<div id="sorealIdlePartieFichierEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
             '</div>'
             :'')+
           (j&&j.classement&&j.classement.debloque

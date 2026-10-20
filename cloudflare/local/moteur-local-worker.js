@@ -9,6 +9,7 @@ import initSqlJs from "sql.js/dist/sql-wasm-browser.js";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import { assurerTableProfilsIdleV1 } from "../src/idle-profile-v1.js";
 import { spansActiver, spansPrelever, SPANS_V1 } from "../src/idle-spans-v1.js";
+import { validerFichierPartieV1, preparerLignePartieV1 } from "../src/idle-partie-fichier-v1.js";
 
 /*
  * HEURE DU SERVEUR : le moteur lit l'heure par Date.now() et new Date(). Dans ce Worker elles valent l'horloge de l'appareil + l'écart mesuré avec le serveur (envoyé par la page à chaque
@@ -100,6 +101,25 @@ self.onmessage = async (ev) => {
       regler(m.ecart);
       const r = await demarrer(m.export);
       self.postMessage({ id: m.id, ok: true, resultat: r });
+    } else if (m.type === "importer") {
+      /* Chargement d'une partie : identité du compte conservée, dates décalées (aucun temps hors ligne), vérifié par une synchro ; la ligne d'avant est remise si le moteur refuse la partie. */
+      const v = validerFichierPartieV1(m.fichier);
+      if (!v.ok) { self.postMessage({ id: m.id, ok: true, resultat: { ok: false, erreur: v.erreur } }); return; }
+      const avant = ligneJoueur();
+      const maintenant = Date.now();
+      const prep = preparerLignePartieV1(avant, m.fichier, maintenant);
+      const ecrire = (cells) => sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=2", JSON.stringify(cells), Date.now());
+      ecrire(prep.cells);
+      try {
+        const essai = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: "synchroniserSorealIdle", args: [jeton], langue: "fr" });
+        if (!essai || essai.ok === false) throw new Error("ETAT_REFUSE");
+      } catch (e) {
+        ecrire(avant);
+        self.postMessage({ id: m.id, ok: true, resultat: { ok: false, erreur: "ETAT_REFUSE", detail: String((e && e.message) || e).slice(0, 120) } });
+        return;
+      }
+      versionLocale = Math.max(Date.now(), versionLocale + 1);
+      self.postMessage({ id: m.id, ok: true, resultat: { ok: true, decalees: prep.decalees, delta: prep.delta } });
     } else if (m.type === "spans") {
       spansActiver(m.actif);
       self.postMessage({ id: m.id, ok: true, resultat: true });
@@ -114,7 +134,7 @@ self.onmessage = async (ev) => {
       const reelFin = performance.timeOrigin + performance.now();
       self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin, spans: SPANS_V1.actif ? spansPrelever() : undefined } });
     } else if (m.type === "sortant") {
-      const out = { cells: ligneJoueur(), flux: sortant.flux, gains: sortant.gains };
+      const out = { cells: ligneJoueur(), flux: sortant.flux, gains: sortant.gains, instant: Date.now() };
       if (m.vider) sortant = { flux: [], gains: [] };
       self.postMessage({ id: m.id, ok: true, resultat: out });
     }

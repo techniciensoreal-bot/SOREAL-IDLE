@@ -87,6 +87,7 @@
     const e=typeof f==="function"?f():null;
     return Number.isFinite(e)?e:ecartInitial;
   }
+  let importPartieEnCours=false;
   let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false,raison="";
   const attentes=new Map();
 
@@ -133,7 +134,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=58f8e24ecb");
+    worker=new Worker("/moteur-local-worker-v1.js?v=cdadaba053");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -178,6 +179,7 @@
     try{
       const sortant=await parler({type:"sortant",vider:true});
       sortant.appareil=appareil;sortant.depuis=depuis;
+      if(importPartieEnCours)sortant.importPartie=true;
       sale=false;
       const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
@@ -245,6 +247,75 @@
     appeler:appeler,
     envoyerMaintenant:async function(){for(let i=0;i<50&&enVol;i+=1)await new Promise(function(r){setTimeout(r,100);});return envoyer(false,true);}
   };
+  /*
+   * Réglages : sauvegarder la partie dans un FICHIER et la recharger (tout le monde). Le chargement remplace la partie du compte (copie de sécurité côté serveur), garde l'identité du compte et reprend EXACTEMENT
+   * au moment de la sauvegarde : aucun temps hors ligne n'est compté (idle-partie-fichier-v1.js).
+   */
+  function etatPartieFichier(html,erreur){const e=document.getElementById("sorealIdlePartieFichierEtatV1");if(e){e.innerHTML=html;e.style.color=erreur?"#ff9d9d":"#8b93ab";}}
+  function echapper(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  window.__exporterPartieIdleV1__=async function(bouton){
+    if(bouton)bouton.disabled=true;
+    try{
+      if(!vivant){etatPartieFichier("⚠️ Le jeu local n’est pas démarré : impossible d’exporter pour l’instant.",true);return;}
+      etatPartieFichier("Préparation du fichier…",false);
+      try{await executerAppel({type:"appel",ecart:ecartServeur(),operation:"synchroniserSorealIdle",args:[session],catalogHashes:undefined,langue:"fr"});}catch(_){}
+      const s=await parler({type:"sortant",vider:false});
+      if(!s||!s.cells){etatPartieFichier("⚠️ Export impossible : partie introuvable.",true);return;}
+      const d=new Date(Number(s.instant)||Date.now());
+      const pad=function(n){return String(n).padStart(2,"0");};
+      const fichier={format:"soreal-idle-partie-v1",version:1,exporteLe:d.toISOString(),serveurAt:Number(s.instant)||Date.now(),nom:String(s.cells[1]||""),cells:s.cells};
+      const blob=new Blob([JSON.stringify(fichier)],{type:"application/json"});
+      const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob);
+      a.download="soreal-idle-partie-"+d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())+"-"+pad(d.getHours())+pad(d.getMinutes())+".json";
+      document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);
+      etatPartieFichier("✅ Partie enregistrée dans le fichier « "+echapper(a.download)+" ». Garde-le précieusement.",false);
+    }catch(e){etatPartieFichier("⚠️ Export impossible : "+echapper(e&&e.message||e),true);}
+    finally{if(bouton)bouton.disabled=false;}
+  };
+  let fichierEnAttente=null;
+  window.__choisirPartieIdleV1__=function(){const i=document.getElementById("sorealIdlePartieFichierChoixV1");if(i){i.value="";i.click();}};
+  window.__lirePartieIdleV1__=function(input){
+    const f=input&&input.files&&input.files[0];
+    if(!f)return;
+    if(f.size>6*1024*1024){etatPartieFichier("⚠️ Ce fichier est trop gros pour être une partie SOREAL IDLE.",true);return;}
+    const lecteur=new FileReader();
+    lecteur.onerror=function(){etatPartieFichier("⚠️ Impossible de lire ce fichier.",true);};
+    lecteur.onload=function(){
+      let o=null;
+      try{o=JSON.parse(String(lecteur.result||""));}catch(_){o=null;}
+      const ok=o&&o.format==="soreal-idle-partie-v1"&&Array.isArray(o.cells)&&o.cells.length===38&&typeof o.cells[37]==="string";
+      if(!ok){fichierEnAttente=null;etatPartieFichier("⚠️ Ce fichier n’est pas une partie SOREAL IDLE valide.",true);return;}
+      fichierEnAttente=o;
+      const quand=new Date(Number(o.serveurAt)||0);
+      etatPartieFichier("Partie du <b>"+echapper(quand.toLocaleString("fr-FR"))+"</b>"+(o.nom?" (joueur « "+echapper(o.nom)+" »)":"")+". Elle <b>remplacera ta partie actuelle</b>, sur cet appareil et sur ton compte (une copie de sécurité de ta partie actuelle est gardée). Elle reprendra exactement là où elle a été sauvegardée, sans temps écoulé. "+
+        '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__chargerPartieIdleV1__(this)">✅ Charger cette partie</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__annulerChargementPartieIdleV1__()">Annuler</button></div>',false);
+    };
+    lecteur.readAsText(f);
+  };
+  window.__annulerChargementPartieIdleV1__=function(){fichierEnAttente=null;etatPartieFichier("Chargement annulé. Ta partie actuelle n’a pas changé.",false);};
+  window.__chargerPartieIdleV1__=async function(bouton){
+    if(!fichierEnAttente)return;
+    if(bouton)bouton.disabled=true;
+    try{
+      if(!vivant){etatPartieFichier("⚠️ Le jeu local n’est pas démarré : impossible de charger pour l’instant.",true);return;}
+      etatPartieFichier("Chargement de la partie…",false);
+      for(let i=0;i<50&&(enVol||appelEnCours);i+=1)await new Promise(function(r){setTimeout(r,100);});
+      const r=await parler({type:"importer",fichier:fichierEnAttente});
+      if(!r||!r.ok){etatPartieFichier("⚠️ Cette partie n’a pas pu être chargée ("+echapper(r&&r.erreur||"erreur")+"). Ta partie actuelle n’a pas changé.",true);return;}
+      importPartieEnCours=true;sale=true;
+      let envoye=false;
+      try{envoye=Boolean(await envoyer(false,true));}catch(_){envoye=false;}
+      importPartieEnCours=false;
+      programmerSauvegarde();
+      fichierEnAttente=null;
+      etatPartieFichier(envoye?"✅ Partie chargée. Le jeu se recharge…":"✅ Partie chargée sur cet appareil (l’envoi au serveur se fera tout seul). Le jeu se recharge…",false);
+      setTimeout(function(){location.reload();},900);
+    }catch(e){importPartieEnCours=false;etatPartieFichier("⚠️ Chargement impossible : "+echapper(e&&e.message||e),true);}
+    finally{if(bouton)bouton.disabled=false;}
+  };
+
   /* Réglages : « Envoyer ma partie vers le serveur » (avant de changer d'appareil). */
   window.__envoyerPartieServeurIdleV1__=async function(bouton){
     const etat=document.getElementById("sorealIdlePartieServeurEtatV1");
