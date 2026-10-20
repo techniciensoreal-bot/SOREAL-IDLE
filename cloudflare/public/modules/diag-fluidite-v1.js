@@ -356,7 +356,17 @@
       var el=barres[i];
       var id=el.getAttribute('data-idle-aug-bar-v215');
       var nivEl=racine.querySelector('[data-idle-aug-niv-v1="'+id+'"]');
-      var niv=nivEl?parseInt(nivEl.textContent,10):NaN;
+      /* Niveau EXACT lu dans l'état du jeu (journal de Norman, 2026-10-20 : 30 « barre_recule » et des « niveau_recule 999 -> 1 » étaient faux : le niveau affiché est abrégé (« 2,87K »), parseInt le lisait « 2 » et il ne changeait plus quand le niveau montait). Repli : le texte affiché. */
+      var niv=NaN;
+      try{
+        var parts=id.split(':');
+        var systemes=etat&&etat.systemes&&etat.systemes.systems;
+        var aug=systemes&&systemes.find(function(x){return x&&x.id==='augmentations';});
+        var paire=aug&&aug.state&&aug.state.data&&aug.state.data.pairs&&aug.state.data.pairs[parts[0]];
+        var exact=paire?Number(parts[1]==='upgrade'?paire.upgradeLevel:paire.level):NaN;
+        if(isFinite(exact))niv=exact;
+      }catch(_e){}
+      if(!isFinite(niv))niv=nivEl?parseInt(nivEl.textContent,10):NaN;
       var f=fraction_(el);
       if(!isFinite(niv)||!isFinite(f))continue;
       var p=prec[id];
