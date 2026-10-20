@@ -176,6 +176,18 @@ export function createAugmentationData() {
   return { pairs, activePair: "scissors", trainUpgrade: false, advanceEnergy: false };
 }
 
+/* Mob du meilleur butin : seulement des identifiants courts (jamais un texte libre) ; sinon null. */
+export function nettoyerMobMeilleurButinV1(m) {
+  if (!m || typeof m !== "object") return null;
+  const texte = (v, max) => String(v == null ? "" : v).replace(/[\u0000-\u001f]/g, "").trim().slice(0, max);
+  const nom = texte(m.name, 60);
+  const titan = texte(m.titan, 40);
+  if (titan) return { titan, name: nom };
+  const zone = texte(m.zone, 24).toLowerCase();
+  if (!/^[a-z0-9_-]{1,24}$/.test(zone)) return null;
+  return { zone, boss: m.boss ? 1 : 0, seed: Math.max(-1, Math.min(9999, Math.floor(num(m.seed, -1)))), name: nom };
+}
+
 export function createTimeMachineData() {
   return {
     speedLevel: 0,
@@ -189,6 +201,8 @@ export function createTimeMachineData() {
     speedTarget: 0,
     goldTarget: 0,
     bestGoldThisRun: 0,
+    /* Le mob qui a rapporté ce meilleur butin (Norman, 2026-10-20 : l'écran de la machine montre son image) : { zone, boss, seed, name } ou { titan, name } ; null tant qu'aucun kill n'a rapporté d'Or. */
+    bestGoldMob: null,
     highestBossEver: 0,
     producedThisRun: 0
   };
@@ -821,6 +835,7 @@ function normalizeSystem(def, raw) {
     for (const key of ["speedLevel", "speedProgress", "speedProgressRef", "goldLevel", "goldProgress", "goldProgressRef", "speedTarget", "goldTarget", "bestGoldThisRun", "highestBossEver", "producedThisRun"]) {
       s.data[key] = Math.max(0, num(s.data[key], 0));
     }
+    s.data.bestGoldMob = nettoyerMobMeilleurButinV1(s.data.bestGoldMob);
     s.data.speedTarget = Math.floor(s.data.speedTarget);
     s.data.goldTarget = Math.floor(s.data.goldTarget);
   } else if (def.id === "bloodMagic") {

@@ -16,7 +16,7 @@ var MENUS={
   entrainement:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.soreal-idle-bt-row-v120',style:'braise'},
   augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile'},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
-  machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.soreal-idle-tm-ligne-v1',style:'piece'},
+  machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.tmm-ligne',style:'piece'},
   sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'}
   /* NGU n'a plus cette aura (Norman, 2026-10-12) : il a la sienne, DANS le tuyau (aurore, modules/ngu-labo-v1.js) */
 };

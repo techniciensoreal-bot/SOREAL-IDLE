@@ -109,14 +109,14 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
   assert.match(html, /À quoi ça sert/);
   assert.match(html, /Vitesse de la machine/);
   assert.ok(!html.includes("Multiplicateur d’or (Magic"), "l'aide ne parle pas de la piste Magic");
-  assert.ok(!/soreal-idle-tm-piste-v1 or/.test(html), "pas de piste Magic");
+  assert.ok(!/tmm-piste or/.test(html), "pas de piste Magic");
   assert.ok(!/Magic|Magie/.test(html.replace(/Blood Magic/g, "")), "aucune mention de Magic tant que non débloquée");
   sansSpoil(html, "Time Machine sans Blood Magic");
 
   const sMagic = etat();
   etatClient = { systemes: idleNguSnapshot(sMagic, ctx, 0), energie: 0 };
   const htmlMagic = api.pageSystemeMetaIdleV130_(etatClient, "timeMachine", "Time Machine");
-  assert.match(htmlMagic, /soreal-idle-tm-piste-v1 or/, "piste Magic présente une fois Blood Magic débloqué");
+  assert.match(htmlMagic, /tmm-piste or/, "piste Magic présente une fois Blood Magic débloqué");
   assert.match(htmlMagic, /Multiplicateur d’or \(Magic \+ Or\)/, "et expliquée dans l'aide");
   assert.ok(!/Bonus GPS Blood Magic/.test(htmlMagic), "facteur à 100 % (sans effet) non listé");
 }

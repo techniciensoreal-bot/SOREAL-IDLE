@@ -97,7 +97,7 @@ function activerObservateur(){
 }
 
 document.addEventListener('click',function(ev){
-  var b=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,[data-idle-alloc-pop-trigger-v1] button'):null;
+  var b=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,.tmm-boutons button,[data-idle-alloc-pop-trigger-v1] button'):null;
   if(!b)return;
   actionJusqua=Date.now()+FENETRE_MS;
   enregistrerBase();

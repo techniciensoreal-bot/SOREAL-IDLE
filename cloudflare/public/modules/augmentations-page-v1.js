@@ -1156,6 +1156,8 @@
           const texte=nombre(x[1]||0);
           if(el.textContent!==texte)el.textContent=texte;
         });
+        /* La grande machine (modules/machine-dessin-v1.js) : rythme, aiguille, lueur, butin et mob du meilleur butin. */
+        try{const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;if(D)D.maj(vue);}catch(_e){}
         if(structure&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
       }
       window.__patcherChiffresTimeMachineIdleV1__=patcherChiffresTimeMachineIdleV1_;
@@ -1190,38 +1192,65 @@
          * par niveau ; Gold Multiplier : Magic + Or, simple multiplicateur d'Or.
          */
         const SOUS_TITRES_PISTE={
-          vitesse:'⚡ Energy + Or · accélère la barre (jusqu’au niveau 50), puis chaque niveau multiplie l’Or produit',
-          or:'🔮 Magic + Or · multiplie l’Or produit par la machine'
+          vitesse:'Vitesse de la machine (Energy + Or) : accélère la barre jusqu’au niveau 50, puis chaque niveau multiplie l’Or produit',
+          or:'Multiplicateur d’or (Magic + Or) : multiplie l’Or produit par la machine'
         };
-        const piste=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou,etaSecondes){
+        /*
+         * Les deux barres que le joueur alimente sont maintenant les deux TOURS de la grande machine (Norman, 2026-10-20 ; modules/machine-dessin-v1.js, soreal-idle-machine.css) : l'Énergie sur la tour de gauche (vitesse, jusqu'à 50 tiques par seconde),
+         * la Magie sur la tour de droite (multiplicateur d'Or). Mêmes données, mêmes boutons, mêmes champs qu'avant ; deux écrans à cristaux liquides par tour (niveau, temps restant), un tube de verre qui se remplit avec la barre.
+         * Les éléments lus par le code en direct (ui-machine-temporelle-v1.js) gardent leurs attributs : data-tm-fill0, data-tm-eta-track, data-tm-eta-seconds, data-tm-niveau, #sorealIdleTmAllocV1_<piste>.
+         */
+        const tour=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou,etaSecondes){
           const largeur=Math.max(0,Math.min(100,H.idleNombre_(fill)*100));
           const etaValide=Number.isFinite(Number(etaSecondes));
-          return '<section class="soreal-idle-tm-piste-v1 '+cle+(verrou?' locked':'')+'">'+
-            '<div class="soreal-idle-tm-titre-v1">'+H.idleHtml_(titre)+'</div>'+
-            '<div class="soreal-idle-tm-soustitre-v1">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
-            (verrou
-              ?''
-              :'<div class="soreal-idle-tm-ligne-v1">'+
-                '<div class="soreal-idle-tm-barre-wrap-v1">'+
-                  '<div class="soreal-idle-tm-barre-v1"><div class="soreal-idle-tm-remplissage-v1" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
-                  '<div class="soreal-idle-tm-eta-v1" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
-                    (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
-                  '</div>'+
-                '</div>'+
-                '<div class="soreal-idle-tm-boutons-v1">'+
-                  '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
-                  '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
-                  '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
-                  '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'zero\')">0</button>'+
-                '</div>'+
-                '<div class="soreal-idle-tm-col-v1"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(cle==='vitesse'?'speed':'gold')+'\',this.value)"></div>'+
-                '<div class="soreal-idle-tm-col-v1"><span>'+H.idleHtml_(libelleAlloc)+'</span><b id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</b></div>'+
-                '<div class="soreal-idle-tm-col-v1"><span>Niveau</span><b data-tm-niveau="'+cle+'">'+nombre(niveau)+'</b></div>'+
-              '</div>')+
+          const gauche=cle==='vitesse';
+          const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
+          const icone=gauche
+            ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#ffe14a" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+            :'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#f6a3ff" stroke="#150c06" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+          let bulles='';
+          for(let i=0;i<5;i+=1)bulles+='<i class="tmm-bulle" style="--x:'+((i*37+(gauche?0:11))%18)+'px;--d:-'+(i*0.8).toFixed(1)+'s;animation-duration:'+(3.6+i*0.5).toFixed(1)+'s"></i>';
+          const tube='<div class="tmm-tube"><div class="tmm-liq"></div>'+bulles+'</div>';
+          const lcds='<div class="tmm-lcds">'+
+            '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
+            '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+
+              '<div class="tmm-barre"><div class="tmm-rempl" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+              '<div class="tmm-eta" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
+                (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
+              '</div>'+
+            '</div>'+
+            '<div class="tmm-boutons">'+
+              '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
+              '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
+              '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
+              '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'zero\')">0</button>'+
+            '</div>'+
+            '<div class="tmm-ligne">'+
+              '<div class="tmm-case"><i class="tmm-case-titre">Cible</i><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(gauche?'speed':'gold')+'\',this.value)"></div>'+
+              '<div class="tmm-case"><i class="tmm-case-titre">'+H.idleHtml_(libelleAlloc)+'</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
+            '</div>'+
+          '</div>';
+          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" style="--fill:'+largeur.toFixed(2)+'%" aria-label="'+H.idleHtml_(titre)+'">'+
+            '<div class="tmm-tete">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
+            '<div class="tmm-sous">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
+            '<div class="tmm-haut">'+(D?(gauche?D.hautEnergie():D.hautMagie()):'')+'</div>'+
+            '<div class="tmm-corps">'+(gauche?tube+lcds:lcds+tube)+'</div>'+
           '</section>';
+        };
+        /* La grande machine : tour de gauche (Énergie), écran du meilleur butin au centre, tour de droite (Magie, seulement une fois Blood Magic débloqué : anti-spoil, AGENTS.md règle n°2). */
+        const grandeMachine=function(){
+          const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
+          const butin=H.idleNombre_(vue.goldPerBarFill)>0?'+'+nombre(vue.goldPerBarFill)+' Or':'';
+          const centre=D?D.centre({ticks:H.idleNombre_(vue.barFillsPerSecond)||1,mob:vue.bestGoldMob||null,butin:butin}):'';
+          return '<div class="tmm-cadre">'+(D?D.defs():'')+'<div class="tmm-machine'+(magicOk?'':' tmm-sans-magie')+'">'+
+            tour('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
+            '<section class="tmm-centre">'+centre+'</section>'+
+            (magicOk?tour('or','🪙 Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,false,vue.goldEtaSeconds):'')+
+          '</div></div>';
         };
         const stat=function(libelle,valeur,cle){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b'+(cle?' data-tm-stat="'+cle+'"':'')+'>'+valeur+'</b></div>';};
         const factSansEffet=function(libelle,mult,cle){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult),cle);};
+        try{if(typeof requestAnimationFrame==='function'&&window.__SOREAL_IDLE_TM_DESSIN_V1__)requestAnimationFrame(function(){window.__SOREAL_IDLE_TM_DESSIN_V1__.rafraichir();});}catch(_e){}
         return '<div class="soreal-idle-tm-v1">'+
           '<header class="soreal-idle-tm-entete-v1"><h1>Machine à remonter le temps cassée</h1><p>(Ramasse cet or encore, et encore, et encore, et...)</p></header>'+
           /*
@@ -1243,9 +1272,8 @@
             'Les niveaux sont remis à zéro à chaque Rebirth.'
           ]))+
           '<div class="soreal-idle-bt-toolbar-v120">'+'<div class="soreal-idle-tm-input-v1 soreal-idle-bt-input-box-v120"><label for="sorealIdleTmInputV1">🎚️ Input</label><input id="sorealIdleTmInputV1" type="text" inputmode="decimal" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"><span><b>Input</b> = quantité déplacée à chaque clic sur <b>+</b> (placer) ou <b>−</b> (retirer) ; <b>Max</b> place tout ce qui est libre. <b>Cible</b> = niveau visé : l’allocation est retirée dès qu’il est atteint (0 = pas de cible).</span></div>'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.cadres('energy','timeMachine')+(magicOk?window.__SOREAL_IDLE_ALLOC_V1__.cadres('magic','timeMachine'):''):'')+'</div>'+
-          piste('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
-          /* Anti-spoil (AGENTS.md règle n°2) : tant que Blood Magic n'est pas débloqué, la piste Magic n'apparaît pas du tout (avant : « 🔒 Magic se débloque avec Blood Magic au boss 37 »). */
-          (magicOk?piste('or','🪙 Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,false,vue.goldEtaSeconds):'')+
+          /* Anti-spoil (AGENTS.md règle n°2) : tant que Blood Magic n'est pas débloqué, la tour Magie n'apparaît pas du tout (avant : « 🔒 Magic se débloque avec Blood Magic au boss 37 »). */
+          grandeMachine()+
           '<section class="soreal-idle-tm-stats-v1">'+
             '<div class="soreal-idle-tm-stats-titre-v1">🧮 Comment ton GPS est calculé</div>'+
             '<div class="soreal-idle-tm-stats-grille-v1">'+

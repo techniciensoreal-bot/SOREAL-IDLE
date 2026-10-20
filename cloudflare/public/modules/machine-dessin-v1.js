@@ -1,0 +1,272 @@
+/*
+ * SOREAL IDLE — le dessin de la Machine à remonter le temps (Norman, 2026-10-20 : « une grosse machine avec un écran et l'image du mob qui nous a rapporté le plus gros butin d'Or ; l'énergie sur la partie gauche, la magie sur la partie droite ;
+ * des engrenages qui tournent de plus en plus vite jusqu'à 50 tiques par seconde » ; maquette validée : public/maquette-machine-temporelle-v1.html).
+ *
+ *   window.__SOREAL_IDLE_TM_DESSIN_V1__ = { defs(), centre(opts), hautEnergie(), hautMagie(), rafraichir(), maj(vue) }
+ *
+ * Tout le dessin est du balisage SVG statique (aucun enfant créé par le script) : le redessin périodique de la page (morph) le laisse en place (data-morph-vivant, AGENTS.md règle n°4). Le script ne fait que :
+ *  - lancer les rotations (WAAPI) : la VITESSE change (playbackRate), jamais la phase, donc aucun saut quand le rythme change ; toujours le même sens ; la vitesse est lissée (elle monte progressivement) ;
+ *  - tenir à jour les quelques textes et attributs dynamiques (vitesse, aiguille, lueur, image et nom du mob, butin).
+ * Mouvement réduit (prefers-reduced-motion) : rien ne tourne.
+ */
+(function(){
+  'use strict';
+  if(window.__SOREAL_IDLE_TM_DESSIN_V1__)return;
+
+  var calme=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function arr(v,n){return Number(v).toFixed(n===undefined?2:n);}
+  function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  /* ---------- engrenages : dents trapézoïdales, rayons, moyeu ; l'engrènement est calculé (phases) ---------- */
+  function cheminDents(ro,ri,n){
+    var pas=2*Math.PI/n,d='';
+    for(var i=0;i<n;i++){
+      var a=i*pas,p=[[ri,a-pas*.31],[ro,a-pas*.15],[ro,a+pas*.15],[ri,a+pas*.31]];
+      for(var k=0;k<4;k++){d+=(i===0&&k===0?'M':'L')+arr(p[k][0]*Math.cos(p[k][1]))+' '+arr(p[k][0]*Math.sin(p[k][1]));}
+    }
+    return d+'Z';
+  }
+  /* Une roue : groupe positionné (translate) contenant le groupe qui tourne (.tmm-rot : dents, sens, décalage de départ). */
+  function roue(cx,cy,ro,n,sens,off,teinte){
+    var ri=ro*.84,nb=ro>40?6:5,trous='';
+    for(var i=0;i<nb;i++){var a=i*2*Math.PI/nb;trous+='<circle cx="'+arr(ri*.5*Math.cos(a))+'" cy="'+arr(ri*.5*Math.sin(a))+'" r="'+arr(ri*.16)+'" fill="#0b0805" stroke="#150c06" stroke-width="2"/>';}
+    return '<g transform="translate('+arr(cx,1)+' '+arr(cy,1)+')"><g class="tmm-rot" data-dents="'+n+'" data-sens="'+sens+'" data-off="'+arr(off,2)+'" style="transform:rotate('+arr(off,2)+'deg)">'+
+      '<path d="'+cheminDents(ro,ri,n)+'" fill="url(#tmmPignon'+(teinte==='B'?'B':'')+')" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/>'+
+      '<circle r="'+arr(ri*.78)+'" fill="none" stroke="#150c06" stroke-width="2.4" opacity=".55"/>'+
+      '<circle r="'+arr(ri*.78)+'" fill="none" stroke="#fff7d0" stroke-width="1.4" opacity=".22" transform="translate(-1.4 -1.4)"/>'+
+      trous+
+      '<circle r="'+arr(ri*.24)+'" fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2.4"/><circle r="'+arr(ri*.08)+'" fill="#150c06"/>'+
+      '<path d="M'+arr(-ri*.7)+' '+arr(-ri*.25)+' A'+arr(ri*.74)+' '+arr(ri*.74)+' 0 0 1 '+arr(-ri*.2)+' '+arr(-ri*.7)+'" fill="none" stroke="#fff" opacity=".35" stroke-width="3" stroke-linecap="round"/>'+
+      '</g></g>';
+  }
+  /* Phase d'engrènement : le contact des deux roues doit tomber entre deux dents (la somme des phases vaut une demi-dent). */
+  function decalageMesh(thetaDeg,offA,nA,nB){
+    var pasA=360/nA,pasB=360/nB,phiA=(((thetaDeg-offA)/pasA)%1+1)%1,phiB=(((.5-phiA)%1)+1)%1;
+    return thetaDeg+180-pasB*phiB;
+  }
+  function chaine(x0,y0,defs){
+    var x=x0,y=y0,prev=null,out='';
+    defs.forEach(function(d){
+      var off=0,sens=1;
+      if(prev){
+        var dd=prev.ro*.92+d.ro*.92,th=d.theta||0;
+        x+=dd*Math.cos(th*Math.PI/180);y+=dd*Math.sin(th*Math.PI/180);
+        off=decalageMesh(th,prev.off,prev.n,d.n);sens=-prev.sens;
+      }
+      out+=roue(x,y,d.ro,d.n,sens,off,d.teinte);
+      prev={ro:d.ro,n:d.n,off:off,sens:sens,x:x,y:y};
+      d.pos=prev;
+    });
+    return {svg:out,roues:defs.map(function(d){return d.pos;})};
+  }
+
+  /* ---------- définitions communes (dégradés), posées une seule fois dans la page ---------- */
+  function defs(){
+    return '<svg class="tmm-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute"><defs>'+
+      '<linearGradient id="tmmLait" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a6"/><stop offset=".35" stop-color="#e3b04b"/><stop offset=".75" stop-color="#a8691f"/><stop offset="1" stop-color="#6e4210"/></linearGradient>'+
+      '<linearGradient id="tmmLaitH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e4210"/><stop offset=".25" stop-color="#e3b04b"/><stop offset=".5" stop-color="#ffe9a6"/><stop offset=".75" stop-color="#d09a38"/><stop offset="1" stop-color="#6e4210"/></linearGradient>'+
+      '<linearGradient id="tmmAcier" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfd8e3"/><stop offset=".5" stop-color="#7b8a9c"/><stop offset="1" stop-color="#36424f"/></linearGradient>'+
+      '<linearGradient id="tmmPignon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe9a6"/><stop offset=".5" stop-color="#d49a36"/><stop offset="1" stop-color="#7a4a12"/></linearGradient>'+
+      '<linearGradient id="tmmPignonB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e5ecf4"/><stop offset=".5" stop-color="#8795a8"/><stop offset="1" stop-color="#3c4856"/></linearGradient>'+
+      '<radialGradient id="tmmVerre" cx=".3" cy=".2" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/><stop offset=".35" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient>'+
+      '<radialGradient id="tmmPiece" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff6c4"/><stop offset=".5" stop-color="#ffc931"/><stop offset="1" stop-color="#a86a00"/></radialGradient>'+
+      '<radialGradient id="tmmRivet" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff2c0"/><stop offset=".55" stop-color="#c08a2a"/><stop offset="1" stop-color="#4a2c0a"/></radialGradient>'+
+      '<radialGradient id="tmmLampeR" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffd0cc"/><stop offset=".5" stop-color="#ff3a2e"/><stop offset="1" stop-color="#7a0f0a"/></radialGradient>'+
+      '<radialGradient id="tmmLampeA" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff0b8"/><stop offset=".5" stop-color="#ffb300"/><stop offset="1" stop-color="#7a4a00"/></radialGradient>'+
+      '<radialGradient id="tmmLampeV" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d8ffd0"/><stop offset=".5" stop-color="#37e05a"/><stop offset="1" stop-color="#0f6a24"/></radialGradient>'+
+      '<radialGradient id="tmmLueur" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#ffb43a" stop-opacity=".75"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></radialGradient>'+
+      '<radialGradient id="tmmHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffcf55" stop-opacity=".9"/><stop offset="1" stop-color="#ffcf55" stop-opacity="0"/></radialGradient>'+
+      '<radialGradient id="tmmOrbe" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fbe0ff"/><stop offset=".45" stop-color="#c25bff"/><stop offset="1" stop-color="#4a0f8a"/></radialGradient>'+
+      '<pattern id="tmmScan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.4" fill="#000"/></pattern>'+
+      '<filter id="tmmOmbre" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity=".55"/></filter>'+
+      '</defs></svg>';
+  }
+
+  /* ---------- l'image du mob du meilleur butin ---------- */
+  function urlMob(m){
+    if(!m||typeof m!=='object')return '';
+    if(m.titan)return '/api/idle/media/titan?id='+encodeURIComponent(String(m.titan));
+    if(!m.zone)return '';
+    var p=new URLSearchParams();
+    p.set('zone',String(m.zone));
+    p.set('boss',m.boss?'1':'0');
+    p.set('seed',String(Math.max(0,Math.floor(Number(m.seed)||0))));
+    if(m.name)p.set('name',String(m.name));
+    return '/api/idle/media/mob?'+p.toString();
+  }
+
+  /* ---------- le centre : la grande machine (écran, cadran, baie d'engrenages, goulotte à pièces) ---------- */
+  function centre(opts){
+    opts=opts||{};
+    var ticks=Math.max(1,Math.min(50,Number(opts.ticks)||1));
+    var url=urlMob(opts.mob);
+    var nom=opts.mob&&opts.mob.name?String(opts.mob.name):'';
+    var butin=opts.butin?String(opts.butin):'';
+    var graduations='';
+    for(var v=0;v<=50;v+=5){var a=(-120+240*v/50)*Math.PI/180-Math.PI/2,r1=v%10===0?27:31;graduations+='<path d="M'+arr(r1*Math.cos(a))+' '+arr(r1*Math.sin(a))+' L'+arr(35*Math.cos(a))+' '+arr(35*Math.sin(a))+'" stroke-width="'+(v%10===0?2.4:1.4)+'"/>';}
+    var grille='';
+    for(var i=0;i<9;i++)grille+='<path d="M'+arr(118+i*40.5,1)+' 116 V330" stroke="#2cff9f" stroke-opacity=".07" stroke-width="1"/>';
+    for(var j=0;j<6;j++)grille+='<path d="M118 '+(116+j*36)+' H442" stroke="#2cff9f" stroke-opacity=".07" stroke-width="1"/>';
+    var train=chaine(104,540,[{ro:56,n:16,teinte:'A'},{ro:38,n:11,teinte:'B'},{ro:50,n:14,teinte:'A'},{ro:34,n:10,teinte:'B'},{ro:52,n:15,teinte:'A'}]);
+    var dessus='';
+    [[0,-70],[3,-110]].forEach(function(c){
+      var m=train.roues[c[0]],th=c[1],ro=26,n=9,pr=(m.ro+ro)*.92;
+      dessus+=roue(m.x+pr*Math.cos(th*Math.PI/180),m.y+pr*Math.sin(th*Math.PI/180),ro,n,-m.sens,decalageMesh(th,m.off,m.n,n),'B');
+    });
+    var pieces='';
+    for(var p=0;p<8;p++)pieces+='<g class="tmm-piece" data-rang="'+p+'"><ellipse cx="280" cy="626" rx="11" ry="11" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="2.4"/><ellipse cx="280" cy="626" rx="6.5" ry="6.5" fill="none" stroke="#a86a00" stroke-width="1.6"/></g>';
+    var ecran;
+    if(url){
+      ecran='<image id="tmmFond" x="118" y="116" width="324" height="214" preserveAspectRatio="xMidYMid slice" opacity=".55" style="filter:blur(9px) saturate(1.2)" href="'+esc(url)+'"/>'+
+        '<image id="tmmImage" class="tmm-mob" x="146" y="120" width="268" height="172" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
+    }else{
+      /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
+      ecran='<g id="tmmAttente" transform="translate(280 204)" opacity=".85"><circle r="56" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="5"/><circle r="46" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="2"/><path d="M0 -36 V0 L24 14" fill="none" stroke="#7dffd0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle r="6" fill="#7dffd0"/></g>';
+    }
+    return '<svg class="tmm-svg" viewBox="0 0 560 700" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1">'+
+      '<clipPath id="tmmClipEcran"><rect x="118" y="116" width="324" height="214" rx="16"/></clipPath>'+
+      '<clipPath id="tmmClipBaie"><rect x="52" y="476" width="456" height="120" rx="18"/></clipPath>'+
+      '<clipPath id="tmmClipChute"><rect x="246" y="610" width="68" height="84"/></clipPath>'+
+      '<rect x="6" y="640" width="548" height="48" rx="14" fill="#2d2118" stroke="#150c06" stroke-width="4"/><rect x="14" y="646" width="532" height="10" rx="5" fill="#5a4330" opacity=".7"/>'+
+      '<g filter="url(#tmmOmbre)"><path d="M20 90 Q20 56 54 56 H130 Q150 18 280 18 Q410 18 430 56 H506 Q540 56 540 90 V626 Q540 640 526 640 H34 Q20 640 20 626 Z" fill="url(#tmmLait)" stroke="#150c06" stroke-width="5" stroke-linejoin="round"/></g>'+
+      '<path d="M32 96 V628" stroke="#fff3c0" stroke-width="5" opacity=".28" stroke-linecap="round"/><path d="M528 96 V628" stroke="#000" stroke-width="6" opacity=".25" stroke-linecap="round"/><path d="M150 40 Q280 6 410 40" fill="none" stroke="#fff3c0" stroke-width="4" opacity=".4" stroke-linecap="round"/>'+
+      '<g fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"><circle cx="40" cy="80" r="6"/><circle cx="520" cy="80" r="6"/><circle cx="40" cy="620" r="6"/><circle cx="520" cy="620" r="6"/><circle cx="40" cy="350" r="5"/><circle cx="520" cy="350" r="5"/><circle cx="40" cy="470" r="5"/><circle cx="520" cy="470" r="5"/></g>'+
+      /* tuyaux latéraux et vapeur */
+      '<rect x="30" y="116" width="26" height="330" rx="13" fill="url(#tmmLaitH)" stroke="#150c06" stroke-width="4"/><rect x="504" y="116" width="26" height="330" rx="13" fill="url(#tmmLaitH)" stroke="#150c06" stroke-width="4"/>'+
+      '<g fill="url(#tmmAcier)" stroke="#150c06" stroke-width="3"><rect x="25" y="170" width="36" height="14" rx="4"/><rect x="25" y="300" width="36" height="14" rx="4"/><rect x="25" y="410" width="36" height="14" rx="4"/><rect x="499" y="170" width="36" height="14" rx="4"/><rect x="499" y="300" width="36" height="14" rx="4"/><rect x="499" y="410" width="36" height="14" rx="4"/></g>'+
+      '<g fill="#f4efe6" stroke="#9aa3ad" stroke-width="1.5"><circle class="tmm-vapeur" style="--d:0s" cx="43" cy="112" r="11"/><circle class="tmm-vapeur" style="--d:1.1s" cx="43" cy="112" r="9"/><circle class="tmm-vapeur" style="--d:2.2s" cx="43" cy="112" r="10"/><circle class="tmm-vapeur" style="--d:.5s" cx="517" cy="112" r="11"/><circle class="tmm-vapeur" style="--d:1.6s" cx="517" cy="112" r="9"/><circle class="tmm-vapeur" style="--d:2.7s" cx="517" cy="112" r="10"/></g>'+
+      /* bandeau-titre et voyants */
+      '<path d="M70 38 H490 L476 82 H84 Z" fill="#2a1a0c" stroke="#150c06" stroke-width="4" stroke-linejoin="round"/><path d="M78 44 H482 L471 76 H89 Z" fill="none" stroke="#e3b04b" stroke-width="2"/>'+
+      '<text x="280" y="68" text-anchor="middle" font-family="Bangers,cursive" font-size="36" letter-spacing="4" fill="#ffe39a" stroke="#150c06" stroke-width="1" paint-order="stroke">MACHINE TEMPORELLE</text>'+
+      '<g stroke="#150c06" stroke-width="3"><circle cx="82" cy="100" r="11" fill="url(#tmmLampeR)"/><circle cx="108" cy="100" r="11" fill="url(#tmmLampeA)"/><circle cx="452" cy="100" r="11" fill="url(#tmmLampeA)"/><circle cx="478" cy="100" r="11" fill="url(#tmmLampeV)"/></g>'+
+      '<g><circle class="tmm-lampe" style="--d:0s" cx="82" cy="100" r="11" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:.6s" cx="108" cy="100" r="11" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:1.2s" cx="452" cy="100" r="11" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:1.8s" cx="478" cy="100" r="11" fill="url(#tmmHalo)"/></g>'+
+      /* écran : cadre en laiton, verre, mob du meilleur butin */
+      '<rect x="96" y="100" width="368" height="248" rx="30" fill="url(#tmmLait)" stroke="#150c06" stroke-width="5"/><rect x="108" y="108" width="344" height="232" rx="24" fill="#120c07" stroke="#150c06" stroke-width="3"/><rect x="116" y="114" width="328" height="218" rx="18" fill="#04120d"/>'+
+      '<g clip-path="url(#tmmClipEcran)"><rect x="118" y="116" width="324" height="214" fill="#07201a"/><g opacity=".85">'+grille+'</g>'+ecran+
+      '<rect x="118" y="116" width="324" height="214" fill="url(#tmmVerre)"/><rect class="tmm-rouleau" x="118" y="116" width="324" height="36" fill="#7dffd0" opacity=".14"/><rect x="118" y="116" width="324" height="214" fill="url(#tmmScan)" opacity=".5"/>'+
+      '<rect x="118" y="290" width="324" height="40" fill="#000" opacity=".62"/>'+
+      '<text x="130" y="306" font-family="Russo One,sans-serif" font-size="12" letter-spacing="2" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
+      '<text id="tmmButin" x="430" y="324" text-anchor="end" font-family="Russo One,sans-serif" font-size="22" fill="#ffd84a" stroke="#000" stroke-width="2" style="paint-order:stroke">'+esc(butin)+'</text>'+
+      '<text id="tmmNomMob" x="130" y="324" font-family="Russo One,sans-serif" font-size="12" fill="#e8f7ee" opacity=".9">'+esc(nom)+'</text></g>'+
+      '<rect x="116" y="114" width="328" height="218" rx="18" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="3"/><path d="M130 130 Q250 118 360 126 L330 150 Q230 146 150 156 Z" fill="#fff" opacity=".12"/>'+
+      '<g fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"><circle cx="112" cy="118" r="5"/><circle cx="448" cy="118" r="5"/><circle cx="112" cy="330" r="5"/><circle cx="448" cy="330" r="5"/></g>'+
+      /* bandeau de commande : vitesse (affichage, cadran) et voyants */
+      '<rect x="52" y="360" width="456" height="104" rx="18" fill="#2a1a0c" stroke="#150c06" stroke-width="4"/><rect x="58" y="366" width="444" height="92" rx="14" fill="none" stroke="#e3b04b" stroke-width="2" opacity=".8"/>'+
+      '<rect x="74" y="384" width="140" height="56" rx="10" fill="#03100c" stroke="#150c06" stroke-width="3"/><rect x="78" y="388" width="132" height="48" rx="7" fill="none" stroke="#46586a" stroke-width="1.5"/>'+
+      '<text x="86" y="403" font-family="Russo One,sans-serif" font-size="10" letter-spacing="2" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
+      '<text id="tmmVitesse" x="204" y="430" text-anchor="end" font-family="Russo One,sans-serif" font-size="26" fill="#7dffd0" stroke="#042a1c" stroke-width="3" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
+      '<g transform="translate(280 414)"><circle r="46" fill="url(#tmmLait)" stroke="#150c06" stroke-width="4"/><circle r="37" fill="#0c0805" stroke="#150c06" stroke-width="3"/><circle r="37" fill="url(#tmmVerre)" opacity=".7"/>'+
+      '<g stroke="#ffe39a" stroke-linecap="round">'+graduations+'</g>'+
+      '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-3 6 L0 -33 L3 6 Z" fill="#ff4a3a" stroke="#150c06" stroke-width="1.6" stroke-linejoin="round"/></g>'+
+      '<circle r="6" fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"/><text y="28" text-anchor="middle" font-family="Russo One,sans-serif" font-size="9" fill="#ffe39a" opacity=".8">TIQUES/S</text></g>'+
+      '<g stroke="#150c06" stroke-width="3"><circle cx="372" cy="402" r="10" fill="url(#tmmLampeV)"/><circle cx="404" cy="402" r="10" fill="url(#tmmLampeA)"/><circle cx="436" cy="402" r="10" fill="url(#tmmLampeR)"/></g>'+
+      '<g><circle class="tmm-lampe" style="--d:0s" cx="372" cy="402" r="10" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:.8s" cx="404" cy="402" r="10" fill="url(#tmmHalo)"/><circle class="tmm-lampe" style="--d:1.6s" cx="436" cy="402" r="10" fill="url(#tmmHalo)"/></g>'+
+      '<text x="404" y="436" text-anchor="middle" font-family="Russo One,sans-serif" font-size="9" letter-spacing="2" fill="#e3b04b" opacity=".85">RYTHME</text>'+
+      /* baie d'engrenages */
+      '<rect x="46" y="470" width="468" height="132" rx="22" fill="url(#tmmAcier)" stroke="#150c06" stroke-width="5"/><rect x="52" y="476" width="456" height="120" rx="18" fill="#0b0805"/>'+
+      '<g clip-path="url(#tmmClipBaie)"><rect x="52" y="476" width="456" height="120" fill="#17100a"/><path d="M52 536 H508" stroke="#000" stroke-width="30" opacity=".25"/>'+train.svg+dessus+
+      '<rect id="tmmLueurBaie" x="52" y="476" width="456" height="120" fill="url(#tmmLueur)" opacity="0"/><rect x="52" y="476" width="456" height="120" fill="url(#tmmVerre)" opacity=".5"/></g>'+
+      '<rect x="52" y="476" width="456" height="120" rx="18" fill="none" stroke="#000" stroke-opacity=".7" stroke-width="3"/>'+
+      '<g fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"><circle cx="58" cy="482" r="4.5"/><circle cx="502" cy="482" r="4.5"/><circle cx="58" cy="590" r="4.5"/><circle cx="502" cy="590" r="4.5"/></g>'+
+      /* goulotte à pièces et tas d'Or */
+      '<path d="M232 600 H328 L316 626 H244 Z" fill="url(#tmmLait)" stroke="#150c06" stroke-width="4" stroke-linejoin="round"/><rect x="244" y="622" width="72" height="14" rx="4" fill="#2a1a0c" stroke="#150c06" stroke-width="3"/>'+
+      '<g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="262" y="626" width="36" height="70" rx="10" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
+      '<path d="M206 676 Q214 656 240 658 Q256 640 280 640 Q304 640 320 658 Q346 656 354 676 Z" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/>'+
+      '<g fill="#ffe9a0" opacity=".85"><circle cx="246" cy="664" r="5"/><circle cx="272" cy="652" r="5"/><circle cx="300" cy="656" r="5"/><circle cx="324" cy="668" r="5"/><circle cx="282" cy="668" r="5"/></g><g fill="#b87400" opacity=".7"><circle cx="258" cy="670" r="3"/><circle cx="290" cy="662" r="3"/><circle cx="312" cy="672" r="3"/></g>'+
+      '</svg>';
+  }
+
+  /* ---------- le haut des tours : deux roues (Énergie) ; l'orbe et son anneau de runes (Magie) ---------- */
+  function hautEnergie(){
+    var b=decalageMesh(4,0,12,14);
+    return '<svg viewBox="0 0 150 86" aria-hidden="true" data-morph-vivant="1">'+roue(40,46,30,12,1,0,'A')+roue(102,50,38,14,-1,b,'B')+'<path d="M8 82 H142" stroke="#150c06" stroke-width="4" stroke-linecap="round"/></svg>';
+  }
+  function hautMagie(){
+    var runes='';
+    var signes=['ᚠ','ᚦ','ᚱ','ᚲ','ᛉ','ᛟ','ᛞ','ᛗ'];
+    for(var i=0;i<8;i++){var a=i*Math.PI/4,x=30*Math.cos(a),y=30*Math.sin(a);runes+='<text x="'+arr(x,1)+'" y="'+arr(y+4,1)+'" text-anchor="middle" font-size="10" fill="#f6c7ff" opacity=".9" font-family="serif" transform="rotate('+(i*45+90)+' '+arr(x,1)+' '+arr(y,1)+')">'+signes[i]+'</text>';}
+    var etinc='';
+    for(var k=0;k<5;k++)etinc+='<circle class="tmm-etincelle" style="--d:'+(k*.5)+'s" cx="'+(-30+k*15)+'" cy="36" r="2.2" fill="#f6c7ff"/>';
+    return '<svg viewBox="0 0 150 86" aria-hidden="true" data-morph-vivant="1"><g transform="translate(75 44)"><circle class="tmm-orbe" r="40" fill="#b04dff" opacity=".35"/>'+
+      '<g class="tmm-anneau"><circle r="36" fill="none" stroke="#150c06" stroke-width="6"/><circle r="36" fill="none" stroke="#e3b04b" stroke-width="3" stroke-dasharray="14 6"/>'+runes+'</g>'+
+      '<circle r="20" fill="url(#tmmOrbe)" stroke="#150c06" stroke-width="3"/><path d="M-10 -9 Q-3 -17 6 -13" fill="none" stroke="#fff" opacity=".55" stroke-width="3" stroke-linecap="round"/>'+etinc+
+      '<path d="M-62 40 H62" stroke="#150c06" stroke-width="4" stroke-linecap="round"/></g></svg>';
+  }
+
+  /* ---------- animation : la vitesse change, la phase ne saute jamais ---------- */
+  var cible=1,vue=1,derniere=0,boucle=0;
+  var anneaux=new WeakSet();
+  function tourDeReference(t){return .06+.86*Math.pow((Math.max(1,Math.min(50,t))-1)/49,.75);}   /* tours par seconde de la roue de 16 dents : 1 tique = très lente, 50 = vitesse maximale encore lisible */
+  function lancerRoues(racine){
+    if(calme)return;
+    racine.querySelectorAll('.tmm-rot').forEach(function(r){
+      if(r.__tmmAnim)return;
+      var off=parseFloat(r.getAttribute('data-off'))||0,sens=parseFloat(r.getAttribute('data-sens'))||1;
+      r.style.transform='';
+      r.__tmmAnim=r.animate([{transform:'rotate('+off+'deg)'},{transform:'rotate('+(off+360*sens)+'deg)'}],{duration:10000,iterations:Infinity,easing:'linear'});
+      r.__tmmAnim.playbackRate=Math.max(.0001,tourDeReference(vue)*(16/(parseInt(r.getAttribute('data-dents'),10)||16))*10);
+    });
+    racine.querySelectorAll('.tmm-piece').forEach(function(g){
+      if(g.__tmmAnim)return;
+      var rang=parseInt(g.getAttribute('data-rang'),10)||0;
+      g.__tmmAnim=g.animate([{transform:'translateY(0)',opacity:0},{opacity:1,offset:.14},{opacity:1,offset:.8},{transform:'translateY(58px)',opacity:0}],{duration:1000,iterations:Infinity,delay:-rang*1000/8,easing:'linear'});
+      g.__tmmAnim.playbackRate=Math.max(.05,Math.min(1.6,vue/8));
+    });
+    racine.querySelectorAll('.tmm-anneau').forEach(function(g){
+      if(anneaux.has(g))return;anneaux.add(g);
+      g.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:22000,iterations:Infinity,easing:'linear'});
+    });
+  }
+  function appliquerVitesse(){
+    var racine=document.querySelector('.tmm-machine');
+    if(!racine)return;
+    racine.querySelectorAll('.tmm-rot').forEach(function(r){
+      if(r.__tmmAnim)r.__tmmAnim.playbackRate=Math.max(.0001,tourDeReference(vue)*(16/(parseInt(r.getAttribute('data-dents'),10)||16))*10);
+    });
+    racine.querySelectorAll('.tmm-piece').forEach(function(g){if(g.__tmmAnim)g.__tmmAnim.playbackRate=Math.max(.05,Math.min(1.6,vue/8));});
+    var flux=document.getElementById('tmmFluxOr');if(flux)flux.style.opacity=String(Math.max(0,Math.min(1,(vue-18)/20))*.85);
+    var lueur=document.getElementById('tmmLueurBaie');if(lueur)lueur.style.opacity=String(Math.max(0,(vue-6)/44)*.9);
+  }
+  function image(t){
+    boucle=0;
+    if(!document.querySelector('.tmm-machine'))return;
+    var dt=Math.min(.1,(t-derniere)/1000);derniere=t;
+    var diff=cible-vue;
+    if(Math.abs(diff)>.01){vue+=diff*Math.min(1,dt*3.2);appliquerVitesse();}
+    else if(vue!==cible){vue=cible;appliquerVitesse();}
+    if(vue!==cible)boucle=requestAnimationFrame(image);
+  }
+  function viser(ticks){
+    cible=Math.max(1,Math.min(50,Number(ticks)||1));
+    if(calme){vue=cible;return;}
+    if(!boucle){derniere=performance.now();boucle=requestAnimationFrame(image);}
+  }
+
+  /* Tient à jour les textes et attributs dynamiques de la machine (à chaque synchro) ; lance les rotations si le dessin vient d'apparaître. */
+  function maj(vueMachine){
+    var racine=document.querySelector('.tmm-machine');
+    if(!racine)return;
+    var v=vueMachine||(window.__SOREAL_IDLE_LIRE_ETAT_V1__&&((window.__SOREAL_IDLE_LIRE_ETAT_V1__()||{}).systemes||{}).timeMachineView)||null;
+    if(!v)return;
+    var H=window.__SOREAL_IDLE_META_HOST_V130__;
+    var ticks=Math.max(1,Math.min(50,Number(v.barFillsPerSecond)||1));
+    lancerRoues(racine);
+    viser(ticks);
+    var ia=document.getElementById('tmmAiguille');if(ia)ia.style.transform='rotate('+arr(-120+240*ticks/50,1)+'deg)';
+    var tv=document.getElementById('tmmVitesse');var texteV=Math.round(ticks)+' /s';if(tv&&tv.textContent!==texteV)tv.textContent=texteV;
+    var butin=document.getElementById('tmmButin');
+    if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
+    var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob&&nomMob.textContent!==nom)nomMob.textContent=nom;
+    /* Le mob a changé (un meilleur butin a été obtenu) : image remplacée sur place ; première apparition (aucun mob avant) : la page est redessinée par l'appelant. */
+    var u=urlMob(v.bestGoldMob);
+    ['tmmImage','tmmFond'].forEach(function(id){var im=document.getElementById(id);if(im&&u&&im.getAttribute('href')!==u)im.setAttribute('href',u);});
+    var presente=Boolean(document.getElementById('tmmImage')),attendue=Boolean(u);
+    if(presente!==attendue&&typeof H.rafraichirMenuRacineIdleV28_==='function'&&Date.now()-(maj.__redessin||0)>1500){maj.__redessin=Date.now();H.rafraichirMenuRacineIdleV28_();}
+  }
+  function rafraichir(){maj(null);}
+
+  /* Après chaque redessin de la page (AGENTS.md règle n°4) : les rotations repartent dans la même tâche. */
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(rafraichir);
+
+  window.__SOREAL_IDLE_TM_DESSIN_V1__={defs:defs,centre:centre,hautEnergie:hautEnergie,hautMagie:hautMagie,rafraichir:rafraichir,maj:maj,urlMob:urlMob};
+})();

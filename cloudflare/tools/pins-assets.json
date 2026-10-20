@@ -16,8 +16,8 @@
   "sha": "f6b226eb3c6f2a007c0629c52cbf09bafb6321b3"
  },
  "/modules/alloc-pop-v1.js": {
-  "pin": 3,
-  "sha": "a27300943f610973a4bf7cf1732aeaf1fde567f9"
+  "pin": 4,
+  "sha": "22fe3377ba6dbe954c5c4c06b97b5b545f4d9286"
  },
  "/modules/ambient-audio-v1.js": {
   "pin": 12,
@@ -44,16 +44,16 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 1,
-  "sha": "cb9c58ea31cadd14531c53bb73fd492f16ce2930"
+  "pin": 3,
+  "sha": "8b6be7766e511c85e569bdb5c9f138eeb02d495e"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
   "sha": "20f3f57d90c33b1885692bfb58ef564b01674c6d"
  },
  "/modules/barres-actives-v1.js": {
-  "pin": 4,
-  "sha": "45f924f87f2e3787cd78f816d97e72d2a7de66cd"
+  "pin": 5,
+  "sha": "7c1fbdba31051bf613ca1a6a7d6515705b264b8c"
  },
  "/modules/basic-training-stability-v121.js": {
   "pin": 1,
@@ -239,6 +239,10 @@
   "pin": 4,
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
+ "/modules/machine-dessin-v1.js": {
+  "pin": 1,
+  "sha": "d685ba7243dacb68770c1f4a32a4219b20225c1b"
+ },
  "/modules/meta-progression-v130.js": {
   "pin": 202610166,
   "sha": "7e88a7ee70030c5a41a04e2df0dcb5b24ba7c7f6"
@@ -252,8 +256,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 32,
-  "sha": "dd021b2e91e606dd4a5a2b0aa81cfea39fedb7fb"
+  "pin": 33,
+  "sha": "32631f384e6c07c74807b39f37bec43c1a212e6b"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -312,8 +316,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 334,
-  "sha": "8147c5d11a194e55ea1a4b4d99d4c0bb4f635773"
+  "pin": 335,
+  "sha": "18e479d1de4463000626a75d2478d50315fccb85"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -376,12 +380,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 357,
-  "sha": "e68fbb4e6a893e1a5205c708c7ace049f5e645b6"
+  "pin": 358,
+  "sha": "6729cf0cd469eb2a475987dd55154431cd811f8d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 151,
-  "sha": "009102cc29dbaf0443d7b1f59fcdc32f43cb8b3c"
+  "pin": 152,
+  "sha": "ab4b8c3cca584271481a7771e7623ddd204e37b8"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -412,8 +416,8 @@
   "sha": "8a91f89acf05ab71d557861db1e5cb53df79b6c2"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 2,
-  "sha": "1fac8f2101b261b0d755fda69f32b8c8c9fa80b6"
+  "pin": 3,
+  "sha": "8eb63f95a77b8c8f2895e9415dd8061dd95761fb"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 3,
@@ -456,8 +460,8 @@
   "sha": "bde2f620a6909f91468358e0bb1d0ec59c8ce57c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 5,
-  "sha": "c4b5f9e9d27eab39aded89d7e50a2678bacdf7cf"
+  "pin": 6,
+  "sha": "3f0e29f05698d1cc45eee4fda3ca3b25136e5793"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 4,
@@ -536,20 +540,24 @@
   "sha": "42f16228463003328fcb36a6dd9c3514732035ed"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 188,
-  "sha": "e85ce88a0742dc3e2a10acf72fb760604234320e"
+  "pin": 189,
+  "sha": "7efb7b79142ed37965cdbad91f96f269c84313aa"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
+ },
+ "/soreal-idle-machine.css": {
+  "pin": 3,
+  "sha": "c0913272d03a94f459e9841824c24e36b20faa89"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 123,
-  "sha": "c0eb7e8b1791e9a8bd4b5ea5a5ab8aafef496a7b"
+  "pin": 124,
+  "sha": "95791f1eadb400ea1dd7a5ba2d5b5ef39e10a29b"
  },
  "/soreal-idle-ui.css": {
   "pin": 54,

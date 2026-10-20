@@ -236,7 +236,7 @@ setInterval(function(){
           const assez=or>=Number(el.dataset.coutOr);
           if(el.classList.contains('or-ok')!==assez||el.classList.contains('or-non')===assez){el.classList.toggle('or-ok',assez);el.classList.toggle('or-non',!assez);}
         });
-        document.querySelectorAll('[data-idle-aug-eta-v1],[id^="sorealIdleBloodEtaLineV1_"],.soreal-idle-tm-eta-v1').forEach(function(el){
+        document.querySelectorAll('[data-idle-aug-eta-v1],[id^="sorealIdleBloodEtaLineV1_"],.tmm-eta').forEach(function(el){
           const manque=/il manque .* Or/i.test(el.textContent||'');
           if(el.classList.contains('or-non')!==manque)el.classList.toggle('or-non',manque);
         });

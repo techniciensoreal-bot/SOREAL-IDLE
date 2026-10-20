@@ -27,6 +27,17 @@
         return s+' s';
       }
 
+      /* Écran LCD « temps restant » et tube de verre de la tour (Norman, 2026-10-20) : le texte d'origine (« Fin de la barre dans … ») reste lu par les lecteurs d'écran ; l'écran n'affiche que le temps. */
+      function poserLcdTmIdleV1_(etaEl,texte){
+        const piste=etaEl&&etaEl.closest?etaEl.closest('.tmm-piste'):null;
+        const lcd=piste?piste.querySelector('[data-tm-lcd-eta]'):null;
+        if(lcd&&lcd.textContent!==texte)lcd.textContent=texte;
+      }
+      function poserTubeTmIdleV1_(barreEl,largeur){
+        const piste=barreEl&&barreEl.closest?barreEl.closest('.tmm-piste'):null;
+        if(piste&&piste.style.getPropertyValue('--fill')!==largeur)piste.style.setProperty('--fill',largeur);
+      }
+
       function assurerPisteMagicTimeMachineIdleV1_(){
         if(REG.idleMenuActifV28!=='machine'||!REG.idleEtat||!REG.idleEtat.systemes)return;
 
@@ -45,7 +56,7 @@
         if(!magicDebloquee)return;
 
         const pisteMagic=document.querySelector(
-          '.soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1'
+          '.tmm-piste.or .tmm-rempl'
         );
 
         if(!pisteMagic){
@@ -64,7 +75,7 @@
       function actualiserCompteReboursTimeMachineIdleV1_(){
         if(REG.idleMenuActifV28!=='machine')return;
         const maintenant=Date.now();
-        document.querySelectorAll('.soreal-idle-tm-eta-v1[data-tm-eta-seconds]').forEach(function(el){
+        document.querySelectorAll('.tmm-eta[data-tm-eta-seconds]').forEach(function(el){
           const brut=el.dataset.tmEtaSeconds;
           if(brut==='')return;
           if(!el.dataset.tmEtaAt){
@@ -77,8 +88,8 @@
           }
           const base=Math.max(0,idleNombre_(brut));
           const at=idleNombre_(el.dataset.tmEtaAt)||maintenant;
-          const pisteEl=el.closest?el.closest('.soreal-idle-tm-piste-v1'):null;
-          const barreEl=pisteEl?pisteEl.querySelector('.soreal-idle-tm-remplissage-v1'):null;
+          const pisteEl=el.closest?el.closest('.tmm-piste'):null;
+          const barreEl=pisteEl?pisteEl.querySelector('.tmm-rempl'):null;
           const fill0=barreEl&&barreEl.dataset.tmFill0!==undefined?Math.max(0,Math.min(1,idleNombre_(barreEl.dataset.tmFill0))):1;
           /*
            * Niveau suivant SANS attendre la synchro (Norman, 2026-10-04 : « quand j'ajoute de l'énergie à la barre Vitesse de la machine, la barre avance plus vite, mais arrivée à la fin elle ne passe pas au niveau suivant ;
@@ -138,10 +149,12 @@
             const texteOr='🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(manqueOr)+' Or</b> pour le niveau suivant.';
             if(el.__orHtmlV1!==texteOr){el.innerHTML=texteOr;el.__orHtmlV1=texteOr;}
             el.dataset.tmEtaLast='or';
+            poserLcdTmIdleV1_(el,'En attente d’Or');
           }else if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.__orHtmlV1=null;
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
+            poserLcdTmIdleV1_(el,formaterEtaTimeMachineIdleV1_(restant));
           }
           /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
           if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
@@ -160,6 +173,7 @@
             barreEl.__tmAnim={f:fill,t:Date.now(),r:tauxTm};
             const largeurTm=(fill*100).toFixed(4)+'%';
             if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
+            poserTubeTmIdleV1_(barreEl,largeurTm);
             if(typeof lancerLissageBarresTmIdleV1_==='function')lancerLissageBarresTmIdleV1_();
           }
         });
@@ -174,6 +188,7 @@
         const fill=Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000));
         const largeur=(fill*100).toFixed(4)+'%';
         if(barreEl.style.width!==largeur)barreEl.style.width=largeur;
+        poserTubeTmIdleV1_(barreEl,largeur);
       }
       let idleLissageTmV1=0;
       function lancerLissageBarresTmIdleV1_(){
@@ -181,7 +196,7 @@
         const image=function(){
           idleLissageTmV1=0;
           if(REG.idleMenuActifV28!=='machine')return;
-          const barres=document.querySelectorAll('.soreal-idle-tm-remplissage-v1');
+          const barres=document.querySelectorAll('.tmm-rempl');
           let anime=false;
           const maintenant=Date.now();
           barres.forEach(function(b){if(b.__tmAnim){anime=true;peindreBarreTmIdleV1_(b,maintenant);}});
@@ -206,9 +221,9 @@
           ['or',vue.goldFill,vue.goldEtaSeconds]
         ].forEach(function(entree){
           const remplissage=document.querySelector(
-            '.soreal-idle-tm-piste-v1.'+
+            '.tmm-piste.'+
             entree[0]+
-            ' .soreal-idle-tm-remplissage-v1'
+            ' .tmm-rempl'
           );
           if(!remplissage)return;
 
@@ -225,6 +240,7 @@
           if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)pct=100;
           remplissage.__tmAnim=null;   // la synchro vient de poser la valeur ; le prochain calcul relance l'animation
           remplissage.style.width=pct.toFixed(4)+'%';
+          poserTubeTmIdleV1_(remplissage,pct.toFixed(4)+'%');
           remplissage.dataset.tmFill0=(pct/100).toFixed(6);
           remplissage.setAttribute('aria-valuenow',pct.toFixed(4));
 
@@ -237,9 +253,9 @@
           }
 
           const eta=document.querySelector(
-            '.soreal-idle-tm-piste-v1.'+
+            '.tmm-piste.'+
             entree[0]+
-            ' .soreal-idle-tm-eta-v1'
+            ' .tmm-eta'
           );
           if(eta){
             const etaValide=Number.isFinite(Number(entree[2]));
@@ -250,6 +266,7 @@
             eta.textContent=etaValide
               ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])
               :'Alloue une ressource pour démarrer la barre';
+            poserLcdTmIdleV1_(eta,etaValide?formaterEtaTimeMachineIdleV1_(entree[2]):'—');
           }
         });
 

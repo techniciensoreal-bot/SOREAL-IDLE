@@ -17,7 +17,7 @@ assert.ok(
 
 for (const piste of ["vitesse", "or"]) {
   assert.ok(
-    ui.includes("'.soreal-idle-tm-piste-v1.'+"),
+    ui.includes("'.tmm-piste.'+"),
     "le patch doit cibler les pistes Time Machine sans rerendre toute la page"
   );
   assert.ok(ui.includes(piste), "piste Time Machine attendue: " + piste);
@@ -45,7 +45,7 @@ assert.ok(
   "le déblocage live s'appuie sur l'état serveur Blood Magic"
 );
 assert.ok(
-  ui.includes("'.soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1'"),
+  ui.includes("'.tmm-piste.or .tmm-rempl'"),
   "la garde vérifie si la piste jaune est réellement absente du DOM"
 );
 assert.ok(

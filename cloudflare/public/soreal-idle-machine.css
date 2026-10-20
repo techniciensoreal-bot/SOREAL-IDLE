@@ -1,0 +1,83 @@
+/*
+ * Machine à remonter le temps (Norman, 2026-10-20 ; maquette validée : public/maquette-machine-temporelle-v1.html) : une grosse machine de laiton, l'Énergie se place sur la tour de GAUCHE, la Magie sur la tour de DROITE,
+ * l'écran du milieu montre le mob du meilleur butin d'Or, les engrenages accélèrent jusqu'à 50 tiques par seconde (modules/machine-dessin-v1.js).
+ * Boucles sans à-coup (AGENTS.md règle n°3) : tout ce qui monte ou tombe va toujours dans le même sens, fondu d'entrée et de sortie ; prefers-reduced-motion coupe tout.
+ * Pas d'élément span / label / b / strong / p / li ici : les règles du thème de la page leur imposent une couleur.
+ */
+/* le cadre porte la requête de conteneur (un conteneur ne peut pas styler sa propre grille) */
+.tmm-cadre{container-type:inline-size;width:100%;max-width:1180px;margin:10px auto 14px}
+.tmm-machine{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.62fr) minmax(0,1fr);gap:0;align-items:stretch;--encre:#150c06}
+.tmm-machine.tmm-sans-magie{grid-template-columns:minmax(0,1fr) minmax(0,1.62fr)}
+/* ---- les deux tours ---- */
+.tmm-tour{position:relative;padding:14px 12px 16px;color:#fff1d6;border:4px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.09),transparent 14%,transparent 86%,rgba(0,0,0,.25)),linear-gradient(180deg,#8c6226,#5d3d17 18%,#4a2f12 60%,#33200c);box-shadow:inset 0 0 0 3px #b98a3c,inset 0 0 0 6px #2a1a09,inset 0 10px 22px rgba(255,235,170,.12);display:flex;flex-direction:column;gap:10px;min-height:520px;font-family:"Russo One",system-ui,sans-serif}
+.tmm-gauche{border-radius:26px 0 0 26px;--c1:#2f6bff;--c2:#5fe3ff;--cg:rgba(60,170,255,.55)}
+.tmm-droite{border-radius:0 26px 26px 0;--c1:#a14dff;--c2:#f18bff;--cg:rgba(200,90,255,.55)}
+.tmm-sans-magie .tmm-gauche{border-radius:26px 0 0 26px}
+.tmm-tour::before,.tmm-tour::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c0,#c08a2a 55%,#4a2c0a);box-shadow:0 0 0 2px var(--encre),0 2px 0 2px #000;top:10px}
+.tmm-tour::before{left:10px}.tmm-tour::after{right:10px}
+.tmm-tete{display:flex;align-items:center;justify-content:center;gap:8px;font-family:Bangers,cursive;letter-spacing:.1em;font-size:clamp(20px,3.4cqw,28px);color:var(--c2);text-shadow:0 2px 0 #000,0 0 14px var(--cg);margin-top:6px}
+.tmm-tete svg{width:1.2em;height:1.2em;filter:drop-shadow(0 0 6px var(--cg))}
+.tmm-sous{font-size:12px;line-height:1.35;text-align:center;color:#e8cf9d;margin:-6px 4px 0}
+.tmm-haut{display:flex;justify-content:center}
+.tmm-haut svg{width:min(150px,60%);height:auto;display:block}
+.tmm-corps{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:stretch;flex:1}
+.tmm-droite .tmm-corps{grid-template-columns:minmax(0,1fr) 34px}
+.tmm-droite .tmm-tube{order:2}
+/* tube de verre : le niveau de la barre */
+.tmm-tube{position:relative;border-radius:17px;border:3px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 40%,rgba(0,0,0,.35));box-shadow:inset 0 0 0 2px #7b8ba0,0 0 0 2px #b98a3c;overflow:hidden;min-height:210px}
+.tmm-liq{position:absolute;left:0;right:0;bottom:0;height:var(--fill,0%);background:linear-gradient(180deg,var(--c2),var(--c1));box-shadow:0 0 18px var(--cg)}
+.tmm-liq::before{content:"";position:absolute;left:0;right:0;top:-3px;height:6px;border-radius:50%;background:var(--c2);opacity:.9}
+.tmm-bulle{position:absolute;bottom:0;left:calc(5px + var(--x,0px));width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.75);opacity:0;animation:tmmBulle 4s linear infinite;animation-delay:var(--d,0s)}
+@keyframes tmmBulle{0%{transform:translateY(0);opacity:0}12%{opacity:.85}85%{opacity:.85}100%{transform:translateY(-200px);opacity:0}}
+.tmm-tube::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 22px,rgba(0,0,0,.45) 22px 24px);pointer-events:none}
+.tmm-lcds{display:flex;flex-direction:column;gap:9px;min-width:0}
+.tmm-lcd{border-radius:10px;border:3px solid var(--encre);background:linear-gradient(180deg,#071a14,#03100c);box-shadow:inset 0 0 0 2px #46586a,inset 0 0 18px rgba(0,0,0,.8),0 0 0 2px #b98a3c;padding:6px 9px 7px;position:relative;overflow:hidden}
+.tmm-lcd::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px);pointer-events:none}
+.tmm-lcd-titre{display:block;font-size:11px;letter-spacing:.14em;color:#6fd9b3;opacity:.85;font-style:normal}
+.tmm-lcd-val{display:block;font-size:clamp(17px,2.6cqw,25px);font-weight:400;color:var(--c2);text-shadow:0 0 10px var(--cg);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* fine barre de progression sous le temps restant */
+.tmm-barre{position:relative;height:7px;margin-top:5px;border-radius:999px;background:#000;border:1px solid #1d3a30;overflow:hidden}
+.tmm-rempl{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 8px var(--cg)}
+/* ligne de compte à rebours d'origine : lue par les lecteurs d'écran ; visible seulement quand il manque de l'Or (message d'attente) */
+.tmm-eta{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.tmm-eta[data-tm-eta-last="or"]{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;margin-top:6px;font-size:12px;line-height:1.3;color:#ffe1e1;font-style:normal;text-shadow:none}
+.tmm-boutons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.tmm-boutons button{font-family:"Bangers",cursive;font-size:19px;letter-spacing:.04em;min-height:48px;color:#2a1700;border-radius:11px;border:3px solid var(--encre);padding:6px 0 5px;cursor:pointer;background:linear-gradient(180deg,#ffe9a6,#d9a02e 55%,#8a5a12);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 0 #3a2208,0 6px 8px rgba(0,0,0,.5);transition:transform .08s,box-shadow .08s}
+.tmm-boutons button:first-child,.tmm-boutons button:nth-child(2){font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:26px;font-weight:900;line-height:1}
+.tmm-boutons button:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 #3a2208}
+.tmm-boutons button.max{background:linear-gradient(180deg,#bff0ff,#46b0e8 55%,#16608a)}
+.tmm-droite .tmm-boutons button.max{background:linear-gradient(180deg,#f2c4ff,#b55be8 55%,#5a1d8a)}
+.tmm-ligne{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tmm-case{border-radius:9px;background:rgba(0,0,0,.38);border:2px solid #000;padding:5px 8px;min-width:0}
+.tmm-case-titre{display:block;font-size:11px;color:#e8cf9d;font-style:normal}
+.tmm-case-val{display:block;font-size:15px;color:#fff;font-weight:400;font-variant-numeric:tabular-nums}
+.tmm-machine .tmm-case input[type=number]{width:100%;font:inherit;font-size:16px;color:#fff;background:transparent;border:0;border-bottom:2px solid #8a6a2c;border-radius:0;padding:0;outline:0;box-shadow:none;height:auto;min-height:0;text-align:left}
+/* ---- le centre : la grande machine ---- */
+.tmm-centre{position:relative;z-index:1;margin:0 -2px}
+.tmm-svg{display:block;width:100%;height:auto;overflow:visible}
+.tmm-mob{filter:saturate(1.05) contrast(1.05)}
+.tmm-rouleau{animation:tmmRouleau 5.5s linear infinite}
+@keyframes tmmRouleau{0%{transform:translateY(-70px);opacity:0}12%{opacity:.55}88%{opacity:.55}100%{transform:translateY(250px);opacity:0}}
+.tmm-lampe{animation:tmmLampe 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}
+@keyframes tmmLampe{0%,100%{opacity:.25}50%{opacity:1}}
+.tmm-vapeur{animation:tmmVapeur 3.4s ease-out infinite;animation-delay:var(--d,0s);transform-box:fill-box;transform-origin:50% 100%;opacity:0}
+@keyframes tmmVapeur{0%{opacity:0;transform:translateY(0) scale(.5)}15%{opacity:.7}100%{opacity:0;transform:translateY(-46px) scale(1.5)}}
+.tmm-orbe{animation:tmmOrbe 3.2s ease-in-out infinite}
+@keyframes tmmOrbe{0%,100%{opacity:.7}50%{opacity:1}}
+.tmm-etincelle{animation:tmmEtincelle 2.4s linear infinite;animation-delay:var(--d,0s);opacity:0}
+@keyframes tmmEtincelle{0%{opacity:0;transform:translateY(0)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
+@container (max-width:820px){
+  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:1fr 1fr}
+  .tmm-centre{grid-column:1/-1;order:-1}
+  .tmm-gauche{border-radius:0 0 0 26px}
+  .tmm-droite{border-radius:0 0 26px 0}
+  .tmm-tour{min-height:0}
+  .tmm-sans-magie .tmm-gauche{grid-column:1/-1;border-radius:0 0 26px 26px}
+}
+@container (max-width:560px){
+  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:1fr}
+  .tmm-gauche{border-radius:0}
+  .tmm-droite{border-radius:0 0 26px 26px}
+  .tmm-tube{min-height:150px}
+}
+@media (prefers-reduced-motion:reduce){.tmm-bulle,.tmm-rouleau,.tmm-lampe,.tmm-vapeur,.tmm-orbe,.tmm-etincelle{animation:none}}

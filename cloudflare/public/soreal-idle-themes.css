@@ -567,7 +567,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .sor
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-barre-v1{background:linear-gradient(180deg,#1b1204,#0c0803)!important;border:2px solid #c98a06!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{background:var(--pg-btn)!important;color:var(--pg-btn-ink)!important;border:2px solid #7a4d00!important;box-shadow:0 2px 0 #7a4d00!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button:active{transform:translateY(1px);box-shadow:none!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 input{background:#120c03!important;color:#fff3c4!important;border:2px solid #c98a06!important;border-radius:8px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-tm-input-v1 input{background:#120c03!important;color:#fff3c4!important;border:2px solid #c98a06!important;border-radius:8px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-stats-v1{background:var(--pg-card)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-gps-v1{color:#ffe27a!important}
 
@@ -1127,7 +1127,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .sor
 /* Lisibilité : le sous-titre d'un en-tête de page (gris-bleu clair) disparaissait sur les en-têtes dorés, verts ou lavande ; blanc avec une ombre franche (les menus aux couleurs propres gardent les leurs). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28:not(:is([data-menu="augmentations"],[data-menu="combat"],[data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"])) .soreal-idle-page-head-v28 .soreal-idle-page-sub-v28{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.8)}
 
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(input){
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-tm-input-v1 :is(input){
   background:#fff!important;color:#111!important;border:2px solid #1d3247!important;border-radius:4px!important;
 }
 /* (Les deux règles sombres #0b1622 et #333 qui annulaient les règles « Lisibilité » plus haut ont été retirées : titre et légende de la Time Machine illisibles, Norman 2026-10-05.) */

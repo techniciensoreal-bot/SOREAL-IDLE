@@ -793,6 +793,8 @@ export function timeMachineViewV1(state) {
   const highestBoss = Math.max(1, Math.min(274, num(d.highestBossEver, 0) - 27));
   return {
     goldPerBarFill: Math.max(0, num(d.bestGoldThisRun, 0)),
+    /* Le mob du meilleur butin d'Or (image de l'écran de la machine) : { zone, boss, seed, name } ou { titan, name }, ou null. */
+    bestGoldMob: d.bestGoldMob || null,
     barFillsPerSecond: speedLevel < 50 ? Math.min(50, 1 + speedLevel) : 50,
     bloodMagicMultiplier: Math.max(1, num(state.systems.bloodMagic.data.spells.counterfeitGold, 1)),
     nguMultiplier: nguFxV1(state).timeMachine,

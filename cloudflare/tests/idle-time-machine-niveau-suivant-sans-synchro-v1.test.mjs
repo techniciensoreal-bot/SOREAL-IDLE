@@ -30,7 +30,7 @@ function lancer({ base, fill0, niveau, ecouleMs }) {
   Date.now = () => maintenant;
   try {
     const f = new Function("document", "idleEtat", "idleMenuActifV28", "idleNombre_", "idleEntier_", "formatGrandNombreIdleV70_", "formaterEtaTimeMachineIdleV1_", "synchroniserJeuIdleV7_",
-      "let idleTmSyncNiveauV1=0;\n" + source + "\nreturn actualiserCompteReboursTimeMachineIdleV1_;")(doc, idleEtat, "machine", (v) => Number(v) || 0, (v) => Math.floor(Number(v) || 0), (v) => String(v), (s) => s.toFixed(2) + " s", () => { syncs += 1; });
+      "let idleTmSyncNiveauV1=0;const poserLcdTmIdleV1_=function(){},poserTubeTmIdleV1_=function(){};\n" + source + "\nreturn actualiserCompteReboursTimeMachineIdleV1_;")(doc, idleEtat, "machine", (v) => Number(v) || 0, (v) => Math.floor(Number(v) || 0), (v) => String(v), (s) => s.toFixed(2) + " s", () => { syncs += 1; });
     f();
   } finally { Date.now = realNow; }
   return { largeur: barre.style.width, niveau: niveauEl.textContent, texte: eta.textContent, syncs };

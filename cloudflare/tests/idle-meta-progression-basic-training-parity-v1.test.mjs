@@ -84,9 +84,9 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   assert.match(handler, /const allocSpan=document\.getElementById\('sorealIdleTmAllocV1_'\+cleAlloc\);/, "patch ciblé du chiffre alloué de CETTE piste");
   assert.match(handler, /if\(typeof H\.rafraichirEnergieEtBoutonsIdleV9_==='function'\)H\.rafraichirEnergieEtBoutonsIdleV9_\(\);/, "la barre d'Énergie/Magie principale est rafraîchie via le même helper que Basic Training");
   // Le visuel .soreal-idle-tm-* n'est pas touché : toujours ses propres classes, jamais celles de Basic Training.
-  assert.ok(meta.includes("soreal-idle-tm-piste-v1"), "le visuel Time Machine reste inchangé");
+  assert.ok(meta.includes("tmm-piste"), "le visuel Time Machine reste inchangé");
 
-  assert.match(meta, /<b id="sorealIdleTmAllocV1_'\+cle\+'" data-idle-alloc-pop-v1>/, "le chiffre de ressource allouée doit porter le crochet d'animation, sans changer sa classe CSS visuelle");
+  assert.match(meta, /<output class="tmm-case-val" id="sorealIdleTmAllocV1_'\+cle\+'" data-idle-alloc-pop-v1>/, "le chiffre de ressource allouée doit porter le crochet d'animation, sans changer sa classe CSS visuelle");
 }
 
 // --- 4. alloc-pop-v1.js : étendu pour couvrir Time Machine sans toucher au style d'aucun écran existant. ---

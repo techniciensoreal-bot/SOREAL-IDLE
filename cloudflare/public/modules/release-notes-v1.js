@@ -53,6 +53,10 @@
           {menu:'ngu', titre:'NGU', points:[
             'La phrase de la page NGU devient « EH, C’EST LE NOM DU JEU ORIGINAL ! ».',
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'La Machine temporelle devient une grosse machine animée : l’Énergie se place sur la tour de gauche, un écran montre le temps restant et le niveau, et les engrenages tournent de plus en plus vite jusqu’à 50 tiques par seconde.',
+            'L’écran de la machine montre le mob qui t’a rapporté le plus gros butin d’Or (celui sur lequel elle se base) ; l’image change quand un meilleur butin tombe.',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Le bouton CAP place seulement l’énergie nécessaire pour atteindre le plafond de la barre ; le reste reste disponible. Le niveau et la barre avancent en direct.',
           ]}

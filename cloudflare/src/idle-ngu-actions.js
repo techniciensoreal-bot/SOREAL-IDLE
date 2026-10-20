@@ -25,7 +25,7 @@ import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, I
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
-import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
+import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 
@@ -148,7 +148,17 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     {
       const dropGold = Math.max(0, num(result?.gold, 0));
       const tmData = state.systems.timeMachine?.data;
-      if (dropGold > 0 && tmData) tmData.bestGoldThisRun = Math.max(Math.max(0, num(tmData.bestGoldThisRun, 0)), dropGold);
+      if (dropGold > 0 && tmData) {
+        const ancien = Math.max(0, num(tmData.bestGoldThisRun, 0));
+        if (dropGold > ancien) {
+          tmData.bestGoldThisRun = dropGold;
+          /* Le mob de ce butin (écran de la Machine temporelle) : un kill de zone (zone, boss ou non, graine d'image, nom) ou un titan. Sans information : la zone seulement. */
+          const mob = advActionInv === "titan"
+            ? { titan: String(result?.id || result?.titanId || ""), name: String(result?.name || result?.titanName || "") }
+            : { zone: String(result?.zone || ""), boss: result?.boss ? 1 : 0, seed: Math.floor(num(result?.mobSeed, -1)), name: String(result?.mobName || "") };
+          tmData.bestGoldMob = nettoyerMobMeilleurButinV1(mob);
+        }
+      }
     }
     if (boostRecycleInv && result && typeof result === "object") result = Object.assign({}, result, { boostRecycled: boostRecycleInv });
     /* Questing (crochet 2/4) : objet de quête possible sur un vrai kill de zone (jamais sur un rejeu idempotent). */
