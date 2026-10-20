@@ -1534,9 +1534,7 @@
           '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important;animation:sorealAtPulseV1 1.4s ease-in-out infinite}'+
           '@keyframes sorealAtPulseV1{50%{filter:brightness(1.25)}}'+
           '.soreal-idle-at-caca-v1{position:absolute;right:3px;bottom:1px;width:22px;height:22px;padding:0;border:0;background:none;font-size:15px;line-height:22px;cursor:pointer;transform-origin:center;opacity:.85;-webkit-tap-highlight-color:transparent}'+
-          '.soreal-idle-at-caca-v1.parti{pointer-events:none;z-index:5;animation:sorealAtCacaPartiV1 1s ease-in forwards}'+
-          '@keyframes sorealAtCacaPartiV1{0%{transform:scale(1);opacity:0}8%{opacity:1}100%{transform:scale(14);opacity:0}}'+
-          '@media(prefers-reduced-motion:reduce){.soreal-idle-at-caca-v1.parti{animation-duration:.01s}}'+
+          '.soreal-idle-at-caca-v1.parti{pointer-events:none;opacity:0;transition:opacity .12s}'+
           '.soreal-idle-at-titre-v1{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:4px 10px;font-weight:900;font-size:16px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.6)}'+
           '.soreal-idle-at-detail-v1{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;margin-top:4px;font-size:13px;font-weight:700;color:#e9d5ff;font-variant-numeric:tabular-nums}'+
           '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
@@ -1739,10 +1737,33 @@
         envoyerAllocRapideV1_({action:'allocateAdvancedTraining',track:id,value:valeur});
       }
       window.__ajusterAdvancedTrainingIdleV1__=ajusterAdvancedTrainingIdleV1_;
-      /* Le caca grandit en zoom puis s'efface en fondu ; le succès part au serveur à la fin de l'animation (une synchro avant la fin redessinerait la page en plein zoom). */
+      /*
+       * Le caca vient en zoom sur TOUT l'écran avant de disparaître (Norman, 2026-10-20 : « quand on clique dessus, il vient en zoom sur l'écran complet avant de disparaître ; là il reste en bas à gauche »). Le petit bouton s'efface tout de suite ; un
+       * grand caca, posé sur la page entière (position fixe, hors de la page redessinée), part du bouton, grandit jusqu'à couvrir l'écran, glisse vers le centre puis s'efface en fondu. Le succès part au serveur à la fin
+       * (une synchro avant la fin redessinerait la page en plein zoom).
+       */
       window.__cacaCoinIdleV1__=function(bouton){
         if(!bouton||bouton.classList.contains('parti'))return;
         bouton.classList.add('parti');
+        try{
+          const r=bouton.getBoundingClientRect(),vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
+          const cx=r.left+r.width/2,cy=r.top+r.height/2;
+          const grand=document.createElement('div');
+          grand.className='soreal-idle-at-caca-zoom-v1';
+          grand.setAttribute('aria-hidden','true');
+          grand.textContent='💩';
+          grand.style.cssText='position:fixed;left:'+cx+'px;top:'+cy+'px;width:0;height:0;display:flex;align-items:center;justify-content:center;font-size:100px;line-height:1;z-index:99999;pointer-events:none;will-change:transform,opacity';
+          document.body.appendChild(grand);
+          const fin=Math.max(vw,vh)*1.7/100;
+          const reduit=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const anim=grand.animate([
+            {transform:'translate(0px,0px) scale(.2)',opacity:0},
+            {opacity:1,offset:.1},
+            {opacity:1,offset:.75},
+            {transform:'translate('+(vw/2-cx)+'px,'+(vh/2-cy)+'px) scale('+fin.toFixed(2)+')',opacity:0}
+          ],{duration:reduit?10:1100,easing:'ease-in',fill:'forwards'});
+          anim.onfinish=function(){if(grand.parentNode)grand.parentNode.removeChild(grand);};
+        }catch(_e){}
         setTimeout(function(){
           try{
             const f=window.__actionMetaIdleV130__;

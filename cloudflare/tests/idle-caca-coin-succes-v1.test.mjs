@@ -29,7 +29,7 @@ assert.throws(() => applyIdleNguAction(etat(false), { action: "cornerClick" }, c
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 assert.ok(meta.includes("(id==='wandoosMagic'?cacaCoinHtml_(j):'')"), "le caca n'est que sur la ligne Vidage de magie");
 assert.ok(meta.includes("data-morph-classes-gardees=\"^parti$\""), "un redessin n'interrompt pas l'animation");
-assert.ok(meta.includes("sorealAtCacaPartiV1{0%{transform:scale(1);opacity:0}8%{opacity:1}100%{transform:scale(14);opacity:0}}"), "zoom puis fondu, fondu d'entrée/sortie");
+assert.ok(meta.includes("{opacity:1,offset:.1}") && meta.includes("duration:reduit?10:1100"), "zoom plein écran puis fondu, fondu d'entrée et de sortie (2026-10-20)");
 assert.ok(meta.includes("prefers-reduced-motion:reduce"), "mouvement réduit");
 assert.ok(meta.includes("f({action:'cornerClick'})"));
 assert.ok(/x\.id==='secretAtCorner'&&x\.unlocked/.test(meta), "disparu une fois le succès obtenu");
