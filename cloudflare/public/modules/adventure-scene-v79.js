@@ -253,6 +253,10 @@
   }
   /* La police d'un nom est réajustée quand son texte OU la largeur disponible change (fenêtre redimensionnée), jamais à chaque rendu. */
   function largeurChangee_(el){
+    /* Relue au plus une fois par seconde : clientWidth force un calcul de mise en page à chaque rendu de la scène. */
+    var maintenant=Date.now();
+    if(el.__largeurLueAV1&&maintenant-el.__largeurLueAV1<1000)return false;
+    el.__largeurLueAV1=maintenant;
     var l=el.clientWidth;
     if(el.__largeurV1===l)return false;
     el.__largeurV1=l;

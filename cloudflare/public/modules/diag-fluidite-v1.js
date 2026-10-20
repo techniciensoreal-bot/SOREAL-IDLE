@@ -29,11 +29,21 @@
   if(window.__SOREAL_IDLE_DIAG_V1__)return;
 
   var CLE='soreal_idle_diag_v1';
-  var MAX=160;
+  var MAX=320;
+  var QUOTAS={tache_longue:40,image_longue:60,interaction_lente:60,operation_lente:60,barre_recule:30,vie_saut:30,combat_lance:30,combat_ordre:20};
   var PERIODE_MS=200;
   var journal=[];
   try{var brut=localStorage.getItem(CLE);if(brut){var l=JSON.parse(brut);if(Array.isArray(l))journal=l.slice(-MAX);}}catch(_e){}
 
+  /* Statistiques CUMULÉES (conservées d'une session à l'autre, jamais plafonnées par le nombre de lignes) : images par menu, durée des opérations du moteur, interactions lentes, répartition des images longues. */
+  var CLE_STATS='soreal_idle_diag_v1_stats';
+  var stats={menus:{},ops:{},inter:{n:0,lentes:0,pire:0,delai:0,types:{}},loaf:{n:0,ms:0,scripts:0,style:0,rendu:0,forces:0,tops:{}},depuis:Date.now()};
+  try{var bs=localStorage.getItem(CLE_STATS);if(bs){var os=JSON.parse(bs);if(os&&typeof os==='object'&&os.menus)stats=os;}}catch(_e){}
+  var statsSale=false;
+  function sauverStats_(){if(!statsSale)return;statsSale=false;try{localStorage.setItem(CLE_STATS,JSON.stringify(stats));}catch(_e){}}
+  setInterval(sauverStats_,10000);
+  try{window.addEventListener('pagehide',sauverStats_);}catch(_e){}
+  function plafonnerCles_(o,max){var k=Object.keys(o);if(k.length>max){k.sort(function(a,b){return (o[a].n||o[a])-(o[b].n||o[b]);}).slice(0,k.length-max).forEach(function(x){delete o[x];});}}
   function sauver_(){try{localStorage.setItem(CLE,JSON.stringify(journal.slice(-MAX)));}catch(_e){}}
 
   /* Contexte ajouté à chaque ligne : menu ouvert et combat de boss actif (lecture seule, jamais d'erreur). */
@@ -53,6 +63,9 @@
     var ctx=contexte_();for(var q in ctx)ligne[q]=ctx[q];
     for(var a in details)if(Object.prototype.hasOwnProperty.call(details,a))ligne[a]=details[a];
     journal.push(ligne);
+    /* Quota par type (journal du 20/10 : 146 lignes sur 160 étaient des tâches longues, les lignes rares disparaissaient) : au-delà de son quota, un type perd ses lignes les plus anciennes. */
+    var quota=QUOTAS[type]||60,deType=0;
+    for(var qi=journal.length-1;qi>=0;qi--){if(journal[qi].type===type&&++deType>quota){journal.splice(qi,1);}}
     if(journal.length>MAX)journal=journal.slice(-MAX);
     sauver_();
   }
@@ -140,6 +153,12 @@
       recentes.push({op:String(op||'?'),t:(P&&P.now)?P.now():0,ms:Math.round(Number(ms)||0)});
       if(recentes.length>12)recentes.shift();
       if(Number(ms)>3000)noter_('reponse_lente',String(op||'?'),{ms:Math.round(Number(ms))});
+      /* Temps de réponse de CHAQUE opération (admin) : nombre, somme, pire, nombre au-dessus de 150 ms ; les lentes (1 s et plus) sont aussi notées une à une. */
+      if(estAdmin_()){
+        var nom=String(op||'?'),o=stats.ops[nom]||(stats.ops[nom]={n:0,somme:0,max:0,l150:0}),m=Number(ms)||0;
+        o.n+=1;o.somme+=m;if(m>o.max)o.max=m;if(m>150)o.l150+=1;statsSale=true;plafonnerCles_(stats.ops,40);
+        if(m>=1000&&m<=3000)noter_('operation_lente',nom,{ms:Math.round(m)});
+      }
     }catch(_e){}
   }
   /* Qui a bloqué le navigateur ? (administrateur seulement) : les fonctions passées à requestAnimationFrame / setTimeout / setInterval sont chronométrées ; celles qui dépassent 30 ms sont gardées avec leur nom,
@@ -183,12 +202,31 @@
     imagesLonguesPosees=true;
     try{
       if(typeof PerformanceObserver!=='function'||!PerformanceObserver.supportedEntryTypes||PerformanceObserver.supportedEntryTypes.indexOf('long-animation-frame')<0)return;
+      /* Temps de réponse aux CLICS / TOUCHES (Event Timing) : attente avant traitement, traitement, délai avant l'image suivante. */
+      try{
+        if(PerformanceObserver.supportedEntryTypes.indexOf('event')>=0)new PerformanceObserver(function(liste){
+          liste.getEntries().forEach(function(e){
+            try{
+              if(!e.interactionId)return;
+              var I=stats.inter;I.n+=1;if(e.duration>I.pire)I.pire=e.duration;I.delai+=Math.max(0,e.processingStart-e.startTime);statsSale=true;
+              if(e.duration>=200){
+                I.lentes+=1;I.types[e.name]=(I.types[e.name]||0)+1;
+                var cible='?';try{var t=e.target;cible=t?(t.tagName||'?').toLowerCase()+(t.id?'#'+t.id:'')+(t.className&&typeof t.className==='string'?'.'+t.className.split(' ')[0]:''):'?';}catch(_e){}
+                noter_('interaction_lente',e.name+'@'+Math.floor(e.startTime/1000),{ms:Math.round(e.duration),attente_ms:Math.round(Math.max(0,e.processingStart-e.startTime)),traitement_ms:Math.round(Math.max(0,e.processingEnd-e.processingStart)),affichage_ms:Math.round(Math.max(0,e.startTime+e.duration-e.processingEnd)),cible:cible.slice(0,60)});
+              }
+            }catch(_e){}
+          });
+        }).observe({type:'event',durationThreshold:104,buffered:true});
+      }catch(_e){}
       new PerformanceObserver(function(liste){
         liste.getEntries().forEach(function(e){
           try{
             var fin=e.startTime+e.duration,scripts=e.scripts||[],somme=0,forcee=0,top=null;
             scripts.forEach(function(sc){somme+=sc.duration;forcee+=sc.forcedStyleAndLayoutDuration||0;if(!top||sc.duration>top.duration)top=sc;});
             var rendu=e.renderStart>0?Math.max(0,fin-e.renderStart):0,styleMiseEnPage=e.styleAndLayoutStart>0?Math.max(0,fin-e.styleAndLayoutStart):0;
+            var L=stats.loaf;L.n+=1;L.ms+=e.duration;L.scripts+=somme;L.style+=styleMiseEnPage;L.rendu+=rendu;L.forces+=forcee;
+            if(top){var nt=String(top.invokerType||'')+':'+String(top.invoker||top.sourceFunctionName||'').slice(0,50)+' '+String(top.sourceURL||'').split('/').pop().split('?')[0];L.tops[nt]=(L.tops[nt]||0)+1;plafonnerCles_(L.tops,30);}
+            statsSale=true;
             var maintenant=Math.round(e.startTime);
             if(maintenant-derniereImageLongue<1000)return;
             derniereImageLongue=maintenant;
@@ -440,11 +478,18 @@
   var sonde={actif:false,images:0,somme:0,pire:0,lentes:0,dernier:0,taches:0,tachesMs:0,tacheMax:0};
   function estAdmin_(){try{return typeof window.__SOREAL_IDLE_EST_ADMIN_V1__==='function'&&window.__SOREAL_IDLE_EST_ADMIN_V1__()===true;}catch(_e){return false;}}
   function raz_(){sonde.dernier=0;sonde.images=0;sonde.somme=0;sonde.pire=0;sonde.lentes=0;sonde.taches=0;sonde.tachesMs=0;sonde.tacheMax=0;}
+  var menuCourantStats='?',menuLuA=0;
   function image_(t){
     if(sonde.dernier){
       var d=t-sonde.dernier;
       /* Un onglet resté caché puis revenu donne une image « géante » qui n'est pas une lenteur : ignorée au-delà de 1 s. */
-      if(d<1000){sonde.images+=1;sonde.somme+=d;if(d>sonde.pire)sonde.pire=d;if(d>50)sonde.lentes+=1;}
+      if(d<1000){
+        sonde.images+=1;sonde.somme+=d;if(d>sonde.pire)sonde.pire=d;if(d>50)sonde.lentes+=1;
+        /* Par menu : une image par menu affiché, cumulée (le menu est relu une fois par seconde). */
+        if(t-menuLuA>1000){menuLuA=t;try{menuCourantStats=contexte_().menu||'?';}catch(_e){}}
+        var ms=stats.menus[menuCourantStats]||(stats.menus[menuCourantStats]={img:0,somme:0,pire:0,l33:0,l50:0});
+        ms.img+=1;ms.somme+=d;if(d>ms.pire)ms.pire=d;if(d>33.4)ms.l33+=1;if(d>50)ms.l50+=1;statsSale=true;
+      }
     }
     sonde.dernier=t;
     if(sonde.actif)requestAnimationFrame(image_);
@@ -483,7 +528,35 @@
         lignes.push(new Date(r.t).toLocaleTimeString('fr-BE')+'  mode='+m+'  '+r.fps+' images/s · pire image '+r.pire_ms+' ms · '+r.lentes+' lentes · '+r.taches+' tâche(s) longue(s) ('+r.taches_ms+' ms au total, max '+r.tache_max_ms+' ms)');
       });
     });
-    return lignes.length?'Fluidité mesurée (4 derniers relevés de 10 s par mode) :\n'+lignes.join('\n')+'\n\n':'';
+    return (lignes.length?'Fluidité mesurée (4 derniers relevés de 10 s par mode) :\n'+lignes.join('\n')+'\n\n':'')+synthese_();
+  }
+  function pc_(a,b){return b>0?Math.round(100*a/b)+' %':'-';}
+  function synthese_(){
+    try{
+      var l=[];
+      var lm=Object.keys(stats.menus).filter(function(m){return stats.menus[m].img>=60;}).sort(function(a,b){return (stats.menus[b].somme/stats.menus[b].img)-(stats.menus[a].somme/stats.menus[a].img);});
+      lm.forEach(function(m){var x=stats.menus[m];l.push('  '+m+' : '+Math.round(1000/(x.somme/x.img))+' images/s en moyenne · pire image '+Math.round(x.pire)+' ms · '+pc_(x.l33,x.img)+' des images au-dessus de 33 ms · '+pc_(x.l50,x.img)+' au-dessus de 50 ms ('+x.img+' images)');});
+      var out='';
+      if(l.length)out+='Fluidité cumulée par menu (du moins fluide au plus fluide) :\n'+l.join('\n')+'\n\n';
+      var ops=Object.keys(stats.ops).sort(function(a,b){return stats.ops[b].somme-stats.ops[a].somme;}).slice(0,8);
+      if(ops.length)out+='Temps de réponse des opérations du moteur (cumulé) :\n'+ops.map(function(k){var o=stats.ops[k];return '  '+k+' : ×'+o.n+' · moyenne '+Math.round(o.somme/o.n)+' ms · pire '+Math.round(o.max)+' ms · '+pc_(o.l150,o.n)+' au-dessus de 150 ms';}).join('\n')+'\n\n';
+      var I=stats.inter;
+      if(I.n>0)out+='Réactivité aux clics et touches : '+I.n+' interactions · attente moyenne avant traitement '+Math.round(I.delai/I.n)+' ms · '+I.lentes+' au-dessus de 200 ms · pire '+Math.round(I.pire)+' ms'+(I.lentes?' ('+Object.keys(I.types).map(function(k){return k+' ×'+I.types[k];}).join(', ')+')':'')+'\n\n';
+      var L=stats.loaf;
+      if(L.n>0){
+        var tot=(L.scripts+L.style+L.rendu)||1;
+        out+='Images longues (plus de 50 ms) : '+L.n+' au total, '+Math.round(L.ms/L.n)+' ms en moyenne. Où passe le temps : scripts '+Math.round(100*L.scripts/tot)+' %, style + mise en page '+Math.round(100*L.style/tot)+' %, rendu '+Math.round(100*L.rendu/tot)+' % (dont '+Math.round(L.forces/Math.max(1,L.scripts)*100)+' % des scripts passés à FORCER une mise en page).\n';
+        var tops=Object.keys(L.tops).sort(function(a,b){return L.tops[b]-L.tops[a];}).slice(0,5);
+        if(tops.length)out+='Scripts les plus souvent en cause : '+tops.map(function(k){return k+' ×'+L.tops[k];}).join(' ; ')+'\n';
+        out+='\n';
+      }
+      var m=window.performance&&window.performance.memory;
+      var dom=document.getElementsByTagName('*').length;
+      var anim=0;try{anim=document.getAnimations().filter(function(a){return a.playState==='running';}).length;}catch(_e){}
+      out+='État de la page : '+dom+' éléments DOM · '+anim+' animations CSS en cours'+(m?' · mémoire JS '+Math.round(m.usedJSHeapSize/1048576)+' Mo (plafond '+Math.round(m.jsHeapSizeLimit/1048576)+' Mo)':'')+' · pixels de l\'écran ×'+(window.devicePixelRatio||1)+'\n';
+      out+='Statistiques cumulées depuis le '+new Date(stats.depuis).toLocaleString('fr-BE')+' (remises à zéro par « vider »).\n\n';
+      return out;
+    }catch(_e){return '';}
   }
 
   window.__SOREAL_IDLE_DIAG_V1__={
@@ -491,7 +564,8 @@
     resume:resume_,
     texte:texte_,
     ouvrir:ouvrir_,
-    vider:function(){journal=[];dernierParCle={};sauver_();},
+    vider:function(){journal=[];dernierParCle={};stats={menus:{},ops:{},inter:{n:0,lentes:0,pire:0,delai:0,types:{}},loaf:{n:0,ms:0,scripts:0,style:0,rendu:0,forces:0,tops:{}},depuis:Date.now()};statsSale=true;sauverStats_();sauver_();},
+    stats:function(){return JSON.parse(JSON.stringify(stats));},
     /* Une erreur avalée par un try/catch de la logique de jeu : notée sans bruit pour le joueur (une ligne par clé toutes les 5 s). */
     signaler:function(cle,e){try{noter_('erreur_avalee',String(cle||'?'),{msg:String(e&&e.message||e).slice(0,120)});}catch(_e){}},
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */

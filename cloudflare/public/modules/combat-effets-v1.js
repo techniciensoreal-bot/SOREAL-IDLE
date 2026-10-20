@@ -86,12 +86,20 @@
     return racine;
   }
 
+  /* Position de la cible gardée 400 ms (et jusqu'au prochain défilement ou redimensionnement) : getBoundingClientRect juste après une écriture dans la page FORCE un calcul de mise en page à CHAQUE coup (journal de Norman, 2026-10-20). */
+  var memoCible={};
+  function viderMemoCible_(){memoCible={};}
+  try{window.addEventListener('scroll',viderMemoCible_,{passive:true});window.addEventListener('resize',viderMemoCible_,{passive:true});}catch(_e){}
   function cible(nom){
+    var m=memoCible[nom],maintenant=Date.now();
+    if(m&&maintenant-m.t<400&&m.c.el.isConnected)return m.c;
     var el=nom==='mob'?document.getElementById('sorealIdleAdventureSceneMobV1'):document.getElementById('sorealIdleAdventureJoueurBarV1');
     if(!el)return null;
     var r=el.getBoundingClientRect();
     if(!(r.width>4&&r.height>4))return null;
-    return {el:el,r:r};
+    var c={el:el,r:r};
+    memoCible[nom]={c:c,t:maintenant};
+    return c;
   }
 
   function poser(classe,x,y,w,h,duree,texte,extra){

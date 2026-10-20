@@ -855,7 +855,14 @@
           if(!fait)host.innerHTML=nouvelles.join('');
           host.__htmlLignesV1=nouvelles;
         }
-        if(idleAdventureLogAutoScrollV1_)host.scrollTop=host.scrollHeight;
+        /* Défilement vers le bas groupé : lire scrollHeight juste après avoir écrit une ligne FORCE la mise en page à chaque ligne (journal de Norman, 2026-10-20 : 71 % du temps de script passé à forcer des mises en page). Une seule lecture par image, au moment où le navigateur va de toute façon calculer la page. */
+        if(idleAdventureLogAutoScrollV1_&&!host.__defilementProgrammeV1){
+          host.__defilementProgrammeV1=true;
+          requestAnimationFrame(function(){
+            host.__defilementProgrammeV1=false;
+            if(idleAdventureLogAutoScrollV1_&&host.isConnected)host.scrollTop=host.scrollHeight;
+          });
+        }
       }
 
       function gererScrollJournalAventureIdleV1_(event){
@@ -2233,13 +2240,19 @@
         const el=document.getElementById('sorealIdleAdventureSceneMobV1');
         if(!el)return;
 
+        /* Relance de l'animation SANS lecture de mise en page : « void el.offsetWidth » forçait un calcul complet de la page à chaque coup. La classe est retirée maintenant, puis remise deux images plus tard (le navigateur a alors vraiment pris en compte le retrait). */
+        const jeton=(el.__impactJetonV1||0)+1;
+        el.__impactJetonV1=jeton;
         el.classList.remove('impact-boss-v46');
-        void el.offsetWidth;
-        el.classList.add('impact-boss-v46');
-
-        setTimeout(function(){
-          if(el)el.classList.remove('impact-boss-v46');
-        },260);
+        requestAnimationFrame(function(){
+          requestAnimationFrame(function(){
+            if(el.__impactJetonV1!==jeton||!el.isConnected)return;
+            el.classList.add('impact-boss-v46');
+            setTimeout(function(){
+              if(el.__impactJetonV1===jeton)el.classList.remove('impact-boss-v46');
+            },260);
+          });
+        });
       }
 
       function trouverWalderpIdleV147_(){

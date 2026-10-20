@@ -12,8 +12,8 @@
   "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2041,
-  "sha": "cb2035af51eb9d632441f586d13db9a96f767feb"
+  "pin": 2042,
+  "sha": "f6b226eb3c6f2a007c0629c52cbf09bafb6321b3"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 3,
@@ -112,12 +112,12 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 7,
+  "pin": 9,
   "sha": "794b514194bd7aede9720c26868121157cd7c13b"
  },
  "/modules/combat-effets-v1.js": {
-  "pin": 3,
-  "sha": "7384a62201cc35277a964d79b3177c95b6973dcd"
+  "pin": 4,
+  "sha": "d95fb075835ce84babda3265a222413a135f1aa2"
  },
  "/modules/competence-debloquee-v1.js": {
   "pin": 1,
@@ -152,8 +152,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 23,
-  "sha": "df9a94ad8279186332fe711159b0213b11e1f65d"
+  "pin": 25,
+  "sha": "a472ad949231ff69d606d075423fe9775066ace5"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 2,
@@ -416,8 +416,8 @@
   "sha": "1fac8f2101b261b0d755fda69f32b8c8c9fa80b6"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 2,
-  "sha": "c45d9a07e111787838f0d0cfc34d6f43a54728d7"
+  "pin": 3,
+  "sha": "6f7e6820fda6040146f61ed7f89863a84b919e0a"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 4,
