@@ -240,8 +240,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 4,
-  "sha": "315b25505a817f8a95186cc01a8b557d2b369ec8"
+  "pin": 5,
+  "sha": "51f92e3ba5cdc365889320d083cb87d6961ed30e"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610166,
@@ -256,8 +256,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 34,
-  "sha": "afcf482b6dc649bccf23fe090c8a71abb68eca0e"
+  "pin": 35,
+  "sha": "0181ae874d6fb0ba83f12b5c67248162f1f4b30b"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,

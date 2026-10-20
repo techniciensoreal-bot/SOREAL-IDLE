@@ -127,7 +127,7 @@
       /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
       ecran='<g id="tmmAttente" transform="translate(280 204)" opacity=".85"><circle r="56" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="5"/><circle r="46" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="2"/><path d="M0 -36 V0 L24 14" fill="none" stroke="#7dffd0" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle r="6" fill="#7dffd0"/></g>';
     }
-    return '<svg class="tmm-svg" viewBox="0 0 560 700" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1">'+
+    return '<svg class="tmm-svg" viewBox="0 0 560 700" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
       '<clipPath id="tmmClipEcran"><rect x="118" y="116" width="324" height="214" rx="16"/></clipPath>'+
       '<clipPath id="tmmClipBaie"><rect x="52" y="476" width="456" height="120" rx="18"/></clipPath>'+
       '<clipPath id="tmmClipChute"><rect x="246" y="610" width="68" height="84"/></clipPath>'+

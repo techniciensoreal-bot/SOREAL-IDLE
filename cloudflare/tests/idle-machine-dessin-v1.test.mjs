@@ -16,6 +16,7 @@ assert.ok(Array.isArray(window.__SOREAL_IDLE_APRES_REDESSIN_V1__) && window.__SO
 
 // Le centre : un seul SVG vivant, 7 roues engrenées (5 + 2 petites), vitesse et butin affichés, image du mob.
 const svg = D.centre({ ticks: 37, mob: { zone: "forest", boss: 0, seed: 2, name: "Le Balourd" }, butin: "+1,24 Qa Or" });
+assert.ok(svg.includes('data-sans-couleur-nombre="1"'), "le module des lettres colorées ne touche pas aux textes du dessin (il y glissait un span invisible : « 2,2M » devenait « 2,2 »)");
 assert.ok(svg.startsWith("<svg") && svg.includes('data-morph-vivant="1"') && svg.includes('data-tmm-centre="1"'));
 const roues = svg.match(/class="tmm-rot" data-dents="(\d+)" data-sens="(-?1)" data-off="(-?[\d.]+)"/g) || [];
 assert.equal(roues.length, 7, "sept roues dans la baie");
