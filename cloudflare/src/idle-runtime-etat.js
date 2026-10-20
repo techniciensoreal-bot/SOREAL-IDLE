@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { avecProjectionSansMemoV1, syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
-import { enveloppeSpan } from "./idle-spans-v1.js";
+import { enveloppeSpan, span } from "./idle-spans-v1.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
@@ -1733,7 +1733,8 @@ export function construireEtatJoueurSorealIdle_(
       statsEtat.metaNgu,
       contexteMetaNguEtat,
       nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0),
-      { attaque: combatPrincipalEtat.multiplicateurAttaqueTotal, defense: combatPrincipalEtat.multiplicateurDefenseTotal }
+      { attaque: combatPrincipalEtat.multiplicateurAttaqueTotal, defense: combatPrincipalEtat.multiplicateurDefenseTotal },
+      String(row[0] || '')
     );
 
   return {
@@ -2023,9 +2024,44 @@ export function ajouterCoutsEntrainementEtatSorealIdle_(
  * quelque chose change. Aucun changement à venir : liste vide (un seul calcul, au bout de l'horizon). Tout nouveau système qui entre dans idleNguBonuses est couvert sans ligne de code de plus.
  */
 const TRAJECTOIRE_PAS_MS_V1 = [1000, 2000, 4000, 15000];
-export function trajectoireMultiplicateursCombatSorealIdle_(metaNgu, contexte, bossesRun, base) {
+/*
+ * Réutilisation de la trajectoire (Norman, 2026-10-20 : « l'accélération du moteur sur ma sauvegarde ») : sur une partie dont un niveau va changer dans les 15 secondes, la trajectoire coûtait quatre projections complètes de
+ * l'état, refaites à CHAQUE synchro (environ la moitié du calcul d'une synchro). Entre deux synchros sans autre opération, le futur n'a pas changé : la liste calculée il y a moins de 8 s (horizon de 15 s) reste vraie, décalée du temps écoulé.
+ * Elle n'est réutilisée que si (1) c'est le même joueur, (2) AUCUNE autre opération n'a eu lieu depuis (toute opération sauf synchroniser / lire l'état compte comme une modification), (3) le même nombre de boss, (4) les
+ * multiplicateurs actuels sont, à 0,2 % près, ceux que la liste annonçait pour cet instant (sinon un niveau est arrivé entre deux pas : on recalcule). Une écriture extérieure de la ligne (chargement d'une partie, réception
+ * du serveur) appelle invaliderTrajectoireV1. Sans clé de joueur, rien n'est gardé.
+ */
+const TRAJECTOIRE_REUTILISATION_MS_V1 = 8000;
+/* Tolérance de la garde : sur un compte dont les multiplicateurs croissent en continu (niveaux fractionnaires), la valeur annoncée pour un instant précis n'est jamais EXACTEMENT celle du moment ; un écart relatif de 0,2 % reste sous ce que le joueur peut voir, au-delà on recalcule. */
+const TRAJECTOIRE_TOLERANCE_V1 = 0.002;
+function proche(attendue, reelle) {
+  return Math.abs(attendue - reelle) <= TRAJECTOIRE_TOLERANCE_V1 * Math.max(Math.abs(attendue), Math.abs(reelle), 1e-12);
+}
+const memoTrajectoireV1 = { cle: "", at: 0, liste: null, A: 0, D: 0, ops: -1, bosses: -1 };
+/* Compteurs du journal de fluidité (spans, administrateur) : combien de trajectoires réutilisées, recalculées, ou refusées par la garde des multiplicateurs actuels. */
+function traceTrajectoireV1_(nom) { span(nom, function () {}); }
+export function invaliderTrajectoireV1() {
+  memoTrajectoireV1.liste = null;
+}
+export function trajectoireMultiplicateursCombatSorealIdle_(metaNgu, contexte, bossesRun, base, cleJoueur) {
   const maintenant = Date.now();
   const A = nombreSorealIdle_(base.attaque, 1), D = nombreSorealIdle_(base.defense, 1);
+  const memo = memoTrajectoireV1;
+  if (cleJoueur && memo.liste && memo.cle === cleJoueur && memo.ops === (__idleCtx.__opsMutantesV1 || 0) && memo.bosses === bossesRun) {
+    const ecoule = maintenant - memo.at;
+    if (ecoule >= 0 && ecoule < TRAJECTOIRE_REUTILISATION_MS_V1) {
+      let attendueA = memo.A, attendueD = memo.D;
+      for (const e of memo.liste) if (e.t <= ecoule) { attendueA = e.a; attendueD = e.d; }
+      if (proche(attendueA, A) && proche(attendueD, D)) { traceTrajectoireV1_('traj:reutilisee'); return memo.liste.filter((e) => e.t > ecoule).map((e) => ({ t: e.t - ecoule, a: e.a, d: e.d })); }
+      traceTrajectoireV1_('traj:ecart');
+    }
+  }
+  traceTrajectoireV1_('traj:calculee');
+  const liste = trajectoireCalculerV1_(metaNgu, contexte, bossesRun, A, D, maintenant);
+  if (cleJoueur) Object.assign(memo, { cle: cleJoueur, at: maintenant, liste: liste.map((e) => ({ t: e.t, a: e.a, d: e.d })), A, D, ops: __idleCtx.__opsMutantesV1 || 0, bosses: bossesRun });
+  return liste;
+}
+function trajectoireCalculerV1_(metaNgu, contexte, bossesRun, A, D, maintenant) {
   const projeter = (dt) => avecProjectionSansMemoV1(() => multiplicateursCombatSorealIdle_(idleNguBonuses(syncIdleNguState(metaNgu, contexte, maintenant + dt)), bossesRun));
   const horizon = TRAJECTOIRE_PAS_MS_V1[TRAJECTOIRE_PAS_MS_V1.length - 1];
   const fin = projeter(horizon);

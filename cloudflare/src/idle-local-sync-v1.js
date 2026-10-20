@@ -10,6 +10,7 @@ import { assurerFluxV1 } from "./idle-flux-v1.js";
 import { assurerGainsV1 } from "./idle-gains-v1.js";
 import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slots-v1.js";
 import { lireTextesV1 } from "./idle-textes-v1.js";
+import { invaliderTrajectoireV1 } from "./idle-runtime-etat.js";
 
 const sv = (v) => String(v == null ? "" : v).trim();
 const COL_DERNIERE_SYNCHRO = 15;            // colonne 16 (base 0)
@@ -126,6 +127,7 @@ export function listerSauvegardesLocalesV1(coord, email) {
 }
 
 export function restaurerSauvegardeLocaleV1(coord, email, id) {
+  invaliderTrajectoireV1();
   const mail = sv(email).toLowerCase();
   assurerSauvegardes(coord);
   const copie = coord.sqlAll("SELECT row_json FROM idle_sauvegardes_locales WHERE email=? AND id=?", mail, Number(id))[0];
@@ -247,6 +249,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
 }
 
 export function recevoirDuMoteurLocalV1(coord, p) {
+  invaliderTrajectoireV1(); /* la ligne du joueur est écrite de l'extérieur : la trajectoire des multiplicateurs mise de côté n'est plus fiable */
   const s = coord.standaloneSessionV1(p && p.sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
   const index = indexLigneJoueur(coord, s.user);

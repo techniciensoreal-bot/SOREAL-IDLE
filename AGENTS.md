@@ -195,6 +195,7 @@ réseau ni dans la lecture du classeur. Trois causes traitées, à ne pas réint
 Règles : pas de champ horodaté ni aléatoire dans l'état du moteur (il changerait la clé à chaque appel et annulerait le mémo) ; après TOUT changement du calcul des bonus ou de
 l'équipement, lancer toute la suite avec `SOREAL_IDLE_VERIF_BONUS=1` (chaque réutilisation du mémo est comparée à un recalcul, et la portée vérifie que l'état n'a pas changé).
 `idle-bonus-memo-v1.test.mjs` garde aussi le nombre de normalisations par synchro (non-régression de vitesse).
+- **Trajectoire des multiplicateurs de combat réutilisée** (2026-10-20, `idle-runtime-etat.js`) : sur un compte qui progresse, elle coûtait la moitié d'une synchro (mesuré dans le navigateur sur la sauvegarde de Norman : 105 ms de 213). Réutilisée jusqu'à 8 s (instants décalés) si c'est le même joueur, qu'aucune opération de modification n'a eu lieu (`__opsMutantesV1`, incrémenté par `runSorealIdleOperation` pour toute opération sauf synchroniser / lire l'état / combat d'Aventure automatique) et que les multiplicateurs actuels sont à 0,2 % de ce que la liste annonçait. Toute écriture extérieure de la ligne du joueur (chargement de partie, réception du serveur, restauration) doit appeler `invaliderTrajectoireV1`. Test : `idle-trajectoire-reutilisee-v1`. Mesurer dans le navigateur (le banc Node ne reproduit pas un compte qui progresse) : compteurs `traj:reutilisee/calculee/ecart` du journal de fluidité.
 
 ## Process attendu pour tout changement
 

@@ -1207,6 +1207,10 @@ export function runSorealIdleOperation(sql,operation,args,user){
 
   __idleCtx.__idleSql=sql;
   __idleCtx.__idleOperationNomV1=op;
+  /* Toute opération autre que synchroniser / lire l'état peut modifier la partie : la trajectoire des multiplicateurs de combat mise de côté n'est alors plus réutilisée (voir idle-runtime-etat.js). */
+  /* Un combat d'Aventure automatique n'invalide pas la trajectoire (il revient toutes les quelques secondes) : si son butin change les multiplicateurs actuels, la garde de la réutilisation le voit tout de suite. */
+  const combatAventureAuto=op==="agirProgressionSorealIdle"&&Array.isArray(args)&&args[1]&&args[1].action==="adventure"&&args[1].adventure&&args[1].adventure.action==="resolveZoneFight";
+  if(op!=="synchroniserSorealIdle"&&op!=="obtenirEtatSorealIdle"&&!combatAventureAuto)__idleCtx.__opsMutantesV1=(__idleCtx.__opsMutantesV1||0)+1;
   __idleCtx.__idleReferenceGainV1="";
   __idleCtx.__idleAccesOuvert=__idleLireAccesOuvert(sql);
   __idleCtx.__idleAccesPublic=__idleLireAccesPublic(sql);

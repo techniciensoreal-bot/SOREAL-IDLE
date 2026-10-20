@@ -11,6 +11,7 @@ import { assurerTableProfilsIdleV1 } from "../src/idle-profile-v1.js";
 import { spansActiver, spansPrelever, SPANS_V1 } from "../src/idle-spans-v1.js";
 import { validerFichierPartieV1, preparerLignePartieV1 } from "../src/idle-partie-fichier-v1.js";
 import { assurerTextesV1, invaliderCacheTextesBossV1 } from "../src/idle-textes-v1.js";
+import { invaliderTrajectoireV1 } from "../src/idle-runtime-etat.js";
 
 /*
  * HEURE DU SERVEUR : le moteur lit l'heure par Date.now() et new Date(). Dans ce Worker elles valent l'horloge de l'appareil + l'écart mesuré avec le serveur (envoyé par la page à chaque
@@ -120,11 +121,13 @@ self.onmessage = async (ev) => {
       const prep = preparerLignePartieV1(avant, m.fichier, maintenant);
       const ecrire = (cells) => sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=2", JSON.stringify(cells), Date.now());
       ecrire(prep.cells);
+      invaliderTrajectoireV1();
       try {
         const essai = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: "synchroniserSorealIdle", args: [jeton], langue: "fr" });
         if (!essai || essai.ok === false) throw new Error("ETAT_REFUSE");
       } catch (e) {
         ecrire(avant);
+        invaliderTrajectoireV1();
         self.postMessage({ id: m.id, ok: true, resultat: { ok: false, erreur: "ETAT_REFUSE", detail: String((e && e.message) || e).slice(0, 120) } });
         return;
       }
