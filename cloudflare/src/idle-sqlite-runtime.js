@@ -1251,6 +1251,10 @@ export function runSorealIdleOperation(sql,operation,args,user){
 
   __idleCtx.__idleRuntimeUser=user||null;
   __idleCtx.__idleWorkbook=workbook;
+  /* Horloge FIGÉE pendant l'opération (comme sur Cloudflare, où Date.now() ne bouge pas entre deux entrées-sorties) : toutes les étapes d'une opération voient le même instant, donc les passes de temps suivant la première n'ont plus rien à avancer. */
+  const dateNowOriginal=Object.getOwnPropertyDescriptor(Date,"now");
+  const instantOperation=Date.now();
+  try{ Object.defineProperty(Date,"now",{configurable:true,writable:true,value:function(){return instantOperation;}}); }catch(_e){}
   try{
     const result=fn.apply(null,Array.isArray(args)?args:[]);
     /* La section critique doit rester synchrone (voir idle-run-operation-sync-critical-section.test.mjs). */
@@ -1263,6 +1267,7 @@ export function runSorealIdleOperation(sql,operation,args,user){
     else __idleCommit(sql,workbook);
     return result;
   }finally{
+    try{ if(dateNowOriginal)Object.defineProperty(Date,"now",dateNowOriginal); else delete Date.now; }catch(_e){}
     __idleCtx.__idleRuntimeUser=null;
     __idleCtx.__idleWorkbook=null;
     __idleCtx.__idleSql=null;

@@ -133,7 +133,7 @@
         sale=true;
       }else{await kv("effacer",cleSauve);}
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=272a6aa1b4");
+    worker=new Worker("/moteur-local-worker-v1.js?v=23fd95f67f");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -181,10 +181,36 @@
     return !sale && !conflit;
   }
 
+  /*
+   * File des appels au moteur (Norman, 2026-10-20 : « temps de réponse ») : le Worker traite UN appel à la fois ; un clic arrivant pendant une synchro (200 ms sur un gros compte) ou derrière plusieurs synchros en attente
+   * devait toutes les attendre. Maintenant : (1) un seul appel à la fois est envoyé, (2) les ACTIONS passent avant les opérations « légères » (synchro, battement, lecture de l'état), (3) des opérations légères identiques
+   * encore en attente sont FUSIONNÉES (un seul calcul, tous les appelants reçoivent le résultat). L'ordre entre actions est conservé.
+   */
+  const OPS_LEGERES={synchroniserSorealIdle:1,battementSorealIdle:1,obtenirEtatSorealIdle:1,obtenirEtatBoutiqueSorealIdle:1};
+  const filePriorite=[];let appelEnCours=false;
+  function jsonSur(v){try{return JSON.stringify(v);}catch(_){return String(Math.random());}}
+  function executerAppel(msg){
+    return new Promise(function(ok,ko){
+      const lourd=!OPS_LEGERES[msg.operation];
+      const cle=lourd?"":msg.operation+"|"+jsonSur(msg.args)+"|"+jsonSur(msg.catalogHashes)+"|"+(msg.langue||"");
+      if(!lourd){const ex=filePriorite.find(function(e){return e.cle===cle;});if(ex){ex.suites.push({ok:ok,ko:ko});return;}}
+      filePriorite.push({msg:msg,lourd:lourd,cle:cle,suites:[{ok:ok,ko:ko}]});
+      pomper();
+    });
+  }
+  function pomper(){
+    if(appelEnCours||!filePriorite.length)return;
+    let i=filePriorite.findIndex(function(e){return e.lourd;});if(i<0)i=0;
+    const e=filePriorite.splice(i,1)[0];
+    appelEnCours=true;
+    e.msg.ecart=ecartServeur();
+    parler(e.msg).then(function(r){appelEnCours=false;e.suites.forEach(function(x){x.ok(r);});pomper();},function(err){appelEnCours=false;e.suites.forEach(function(x){x.ko(err);});pomper();});
+  }
+
   async function appeler(operation,args,catalogHashes,langue,jeton){
     if(!demarrage)demarrage=demarrer(jeton);
     try{await demarrage;}catch(e){echec=true;raison=String(e&&e.message||e).slice(0,120);return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
-    const r=await parler({type:"appel",ecart:ecartServeur(),operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
+    const r=await executerAppel({type:"appel",ecart:ecartServeur(),operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
     if(operation==="synchroniserSorealIdle")passif=true;
     else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
     if(sale)programmerSauvegarde();

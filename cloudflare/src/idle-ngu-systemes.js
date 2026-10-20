@@ -1128,8 +1128,28 @@ function advanceTrollChallengeV1(state, seconds) {
 /* Gros troll « I just broke your NGU's » : aucun bonus NGU jusqu'au prochain Rebirth. */
 export function trollNguOffV1(state) { return Boolean(trollFlagsV1(state).ngu); }
 
-export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()) {
-  const state = normalizeIdleNguState(raw, context, now);
+/*
+ * Passes qui ne dépendent QUE du temps écoulé (secs) : avec secs = 0 elles n'ajoutent rien. Une opération du moteur appelle advanceIdleNguState plusieurs fois (progression, état, snapshot, trajectoire) ; depuis que l'horloge est
+ * figée pendant une opération (runSorealIdleOperation), les appels suivants ont secs = 0 : on ne refait plus 5 ms de calculs inutiles à chaque fois. Le mode SOREAL_IDLE_VERIF_TEMPS_NUL=1 exécute quand même les passes sur une
+ * copie et vérifie que l'état est strictement identique (toute la suite de tests y passe avant chaque livraison).
+ */
+function passesDuTempsSeulV1(state, secs, context, now) {
+  advanceGeneratedResources(state, secs, context);
+  advanceAugmentations(state, secs, context);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
+  if (num(context.bosses, 0) >= 30) advanceTimeMachine(state, secs);
+  if (num(context.bosses, 0) >= 37) advanceBloodMagic(state, secs, context);
+  advanceYggdrasil(state, secs, nowMs(now));
+  advanceWandoos(state, secs, context, now);
+  advanceNgusV1(state, secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
+  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
+}
+
+/* dejaNormalise : l'appelant (syncIdleNguState) vient de normaliser cet état (copie privée) : le normaliser une 2e fois recopiait tout l'état pour rien (1,3 ms par appel, 4 appels par synchro). */
+export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now(), dejaNormalise = false) {
+  const state = dejaNormalise ? raw : normalizeIdleNguState(raw, context, now);
   const offlineCap = IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active)
     ? 60
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
@@ -1139,23 +1159,19 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
   advanceTrollChallengeV1(state, secs);
 
-  advanceGeneratedResources(state,secs,context);
-  advanceAugmentations(state, secs, context);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs);
   /*
    * 2026-09-24 (page Rebirths, « What do I lose when I rebirth? ») : « Access to the Adventure, Augmentation, Time
    * Machine, and Blood Magic tabs until their related bosses are beaten ». Le drapeau `unlocked` de ces systèmes
    * reste vrai après un Rebirth (les Augmentations testaient déjà le boss) : la Time Machine produisait et se
    * levelait, et Blood Magic tournait, dès le boss 1 d'un nouveau Rebirth.
    */
-  if (num(context.bosses, 0) >= 30) advanceTimeMachine(state, secs);
-  if (num(context.bosses, 0) >= 37) advanceBloodMagic(state, secs, context);
-  advanceYggdrasil(state, secs, nowMs(now));
-  advanceWandoos(state, secs, context, now);
-  advanceNgusV1(state, secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs);
-  advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs);
+  if (secs > 0) passesDuTempsSeulV1(state, secs, context, now);
+  else if (typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_TEMPS_NUL === "1") {
+    const avant = JSON.stringify(state);
+    const copie = JSON.parse(avant);
+    passesDuTempsSeulV1(copie, secs, context, now);
+    if (JSON.stringify(copie) !== avant) throw new Error("SOREAL_IDLE_TEMPS_NUL_DIVERGENT");
+  }
   advanceMoneyPitAndDaily(state, nowMs(now));
   advanceIdleCookingV1(state, nowMs(now));
   advanceLateSystems(state, secs, context, nowMs(now));

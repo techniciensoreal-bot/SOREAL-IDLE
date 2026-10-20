@@ -108,7 +108,7 @@ export function achievementsSnapshotV1(state) {
 export function syncIdleNguState(raw, context = {}, now = Date.now()) {
   const state = normalizeIdleNguState(raw, context, now);
   const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
-  return advanceIdleNguState(state, elapsed, context, now);
+  return advanceIdleNguState(state, elapsed, context, now, true);
 }
 
 /*

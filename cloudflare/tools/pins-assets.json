@@ -112,7 +112,7 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 11,
+  "pin": 13,
   "sha": "794b514194bd7aede9720c26868121157cd7c13b"
  },
  "/modules/combat-effets-v1.js": {
@@ -252,8 +252,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 21,
-  "sha": "deaf56e8c1616a96831b6285fcd0549e9d68b22a"
+  "pin": 22,
+  "sha": "52652686af0c84b360af46b824132e3b2025a2b4"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -536,8 +536,8 @@
   "sha": "42f16228463003328fcb36a6dd9c3514732035ed"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 181,
-  "sha": "6d4cc799397181deab02a08608eee6caccc36286"
+  "pin": 182,
+  "sha": "78ca243a880fcdb21c2c9f29c823469a69ae4b65"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
