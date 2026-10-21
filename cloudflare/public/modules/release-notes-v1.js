@@ -13,8 +13,8 @@
  * ANTI-SPOIL (AGENTS.md règle n°2) : le moteur n’affiche un groupe que si le joueur possède déjà ce menu (le `titre` peut donc porter le nom du menu), mais les
  * LIGNES restent neutres : jamais le nom d’un système encore verrouillé ni un total caché.
  *
- * RÈGLE (Norman, 2026-10-02) : on ne touche PAS au numéro de Beta ni aux notes à chaque publication. C’est Norman qui dit quand mettre à jour :
- * alors seulement, ajouter (ou compléter) l’entrée du jour et mettre `courante` à jour. Texte destiné aux joueurs : AUCUN spoil (ne jamais nommer un
+ * RÈGLE (Norman, 2026-10-21 : « n’oublie pas le patch note, je ne veux plus avoir à te le rappeler ; dès qu’on modifie, nouveau patch note du jour ») : DÈS QU’UN JOUR COMPORTE UNE MODIFICATION visible par les joueurs, ajouter (ou compléter) l’entrée du jour
+ * et mettre `courante` à jour, SANS attendre qu’on le demande ; la veille est résumée à son état final. Texte destiné aux joueurs : AUCUN spoil (ne jamais nommer un
  * système encore verrouillé ni un total caché).
  */
 (function(){
@@ -22,10 +22,26 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.4',
+    courante:'3.5',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.5',
+        nom:'Un démarrage à toute épreuve',
+        date:'2026-10-21',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Au premier lancement, une image de la sangsue qui ne charge pas est redemandée toute seule : plus besoin de quitter le menu et d’y revenir pour que l’affichage soit correct.',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'L’Énergie est en vert comme sa barre, et la seconde tour reprend la couleur de sa propre barre.',
+          ]}
+        ]
+      },
       {
         version:'3.4',
         nom:'Comparer pour mieux choisir',
@@ -37,8 +53,10 @@
             'L’ambiance sonore ne démarre qu’après le chargement du jeu, pour ne plus ralentir la première ouverture.',
             'Tes réglages sont appliqués avant le démarrage du jeu : plus de double chargement à l’ouverture.',
             'Aucun texte du jeu n’est plus petit que 11 px.',
+            'Les boutons des menus (Max, 1/2, 1/4, Tout retirer, + et −) sont un peu plus petits (44 px) : ni trop gros, ni trop petits.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Le gros bouton Fight clignote lentement tant qu’il attend d’être pressé ; Nuke est jaune et noir, bien lisible, et Fuite est bleue.',
             'Le bouton de combat reste grisé tant que le boss n’est pas affiché.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
@@ -49,6 +67,7 @@
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Premier affichage du rituel de la sangsue : le canal, la boule et le jet attendent que les images soient chargées, plus de fond d’armoire visible à travers la sangsue.',
+            'Les scènes de rituel gardent leur table et le fond de l’armoire même quand une autre scène apparaît ou disparaît (renaissance, nouveau rituel) : plus de table transparente.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'La phrase de la page NGU devient « EH, C’EST LE NOM DU JEU ORIGINAL ! ».',
@@ -56,6 +75,7 @@
           {menu:'machine', titre:'Machine temporelle', points:[
             'La Machine temporelle devient une grosse machine animée : l’Énergie se place sur la tour de gauche, un écran montre le temps restant et le niveau, et les engrenages tournent de plus en plus vite jusqu’à 50 tiques par seconde.',
             'L’écran de la machine montre le mob qui t’a rapporté le plus gros butin d’Or (celui sur lequel elle se base) ; l’image change quand un meilleur butin tombe.',
+            'Un second écran, comme celui de la vitesse, affiche le multiplicateur d’Or de la machine.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Le bouton CAP place seulement l’énergie nécessaire pour atteindre le plafond de la barre ; le reste reste disponible. Le niveau et la barre avancent en direct.',
