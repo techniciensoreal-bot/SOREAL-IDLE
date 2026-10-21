@@ -68,7 +68,7 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle
     if (String(url).indexOf("/api/v1/local/push") === 0) {
       const corps = JSON.parse(opt.body);
       pushes.push(corps);
-      const rep = await mondeApi.push(corps, pushes.length - 1);
+      const rep = await mondeApi.push(corps, pushes.length - 1, opt.signal);
       return { ok: true, json: async () => rep };
     }
     return { ok: true, json: async () => ({ ok: true, textes: [] }) };
@@ -83,7 +83,7 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle
     window: win, document: mondeApi.document,
     FileReader: class { readAsText(f) { setTimeout(() => { this.result = f.text; this.onload(); }, 0); } },
     location: { search: "", href: "http://x/", reload() { mondeApi.rechargements.push(structuredClone([...store.entries()])); } }, localStorage: { getItem: () => null, removeItem() {} },
-    Worker, WebAssembly: {}, indexedDB, fetch, URL, URLSearchParams, performance, structuredClone, console,
+    Worker, WebAssembly: {}, AbortController, indexedDB, fetch, URL, URLSearchParams, performance, structuredClone, console,
     setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, echelle ? (ms || 0) / echelle : Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
   };
   vm.createContext(sandbox);

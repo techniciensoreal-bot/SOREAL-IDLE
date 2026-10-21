@@ -19,6 +19,8 @@
   /* Opérations qui restent au serveur mais MODIFIENT la ligne du joueur (administration, partie d'essai, changement de pseudo : le profil copié dans la page doit être rechargé) : avant, on envoie ce que la page a de neuf ; après, on recharge la page pour repartir de l'état du serveur. */
   const MODIFIENT_LE_JOUEUR={annulerVictoireTitanAdminSorealIdle:1,crediterExpAdminSorealIdle:1,retirerRecordCombatLongAdminSorealIdle:1,reinitialiserCompteCompletSorealIdle:1,preparerPartieTestSorealIdle:1,copierPartieASurBSorealIdle:1,definirPartieDevSorealIdle:1,definirPseudoSorealIdle:1};
   const INTERVALLE_ENVOI_MS=10000;
+  const DELAI_ENVOI_MS=20000;
+  let delaiEnvoi=0;
 
   /*
    * ACTIF PAR DÉFAUT pour tous les joueurs (Norman, 2026-10-19). Coupé seulement : (1) par un choix explicite de l'appareil (?local=0, enregistré), (2) si le navigateur ne sait pas faire
@@ -243,7 +245,10 @@
       sortant.appareil=appareil;sortant.depuis=depuis;sortant.rev=revEnvoyee;
       if(importPartieEnCours)sortant.importPartie=true;
       sale=false;
-      const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
+      /* Délai : un envoi qui ne répond jamais bloquait tous les suivants (enVol restait vrai) ; abandonné, la progression repart à l'envoi suivant (audit anti-rollback S7, 2026-10-21). */
+      const ctl=typeof AbortController==="function"?new AbortController():null;
+      delaiEnvoi=ctl?setTimeout(function(){try{ctl.abort();}catch(_){}},DELAI_ENVOI_MS):0;
+      const rep=await fetch("/api/v1/local/push",{signal:ctl?ctl.signal:undefined,method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
       /* Reçus par le serveur (même si la LIGNE est refusée) : les événements quittent la file du Worker. */
       if(reponse&&reponse.ok&&!reponse.conflit){try{await parler({type:"acquitter",fluxJusqua:dernierN(envoyes.flux.slice(0,Number.isFinite(reponse.fluxTraites)?reponse.fluxTraites:undefined)),gainsJusqua:dernierN(envoyes.gains.slice(0,Number.isFinite(reponse.gainsTraites)?reponse.gainsTraites:undefined))});}catch(_){}}
@@ -263,7 +268,7 @@
         if(!sale&&rev===revEnvoyee&&!copieEnAttente)await kv("effacer",cleSauve);
       }   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}
-    finally{enVol=false;}
+    finally{enVol=false;clearTimeout(delaiEnvoi);}
     return !sale && !conflit;
   }
 
