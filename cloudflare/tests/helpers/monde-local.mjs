@@ -8,7 +8,7 @@ export const tick = () => attendre(40);
 
 export function ligne(n, instant) { const l = new Array(38).fill(""); l[1] = "Norman"; l[10] = n; l[15] = instant; l[18] = "n@x"; return l; }
 
-export function monde({ ligneServeur, idb = null } = {}) {
+export function monde({ ligneServeur, idb = null, sansMinuterie = false } = {}) {
   const store = new Map();
   if (idb) store.set("etat:2:n@x", idb);
   const pushes = [];
@@ -65,12 +65,18 @@ export function monde({ ligneServeur, idb = null } = {}) {
     }
     return { ok: true, json: async () => ({ ok: true, textes: [] }) };
   };
-  const win = { addEventListener() {}, __SOREAL_IDLE_ECART_V1__: undefined };
+  const ecouteurs = {};
+  const ecoute = (nom, f) => { (ecouteurs[nom] = ecouteurs[nom] || []).push(f); };
+  mondeApi.evenement = (nom) => (ecouteurs[nom] || []).forEach((f) => f({}));
+  mondeApi.rechargements = [];
+  mondeApi.document = { addEventListener: ecoute, createElement: () => ({ style: {} }), getElementById: () => null, body: { appendChild() {} }, visibilityState: "visible", hidden: false };
+  const win = { addEventListener: ecoute, __SOREAL_IDLE_ECART_V1__: undefined };
   const sandbox = {
-    window: win, document: { addEventListener() {}, createElement: () => ({ style: {} }), getElementById: () => null, body: { appendChild() {} }, visibilityState: "visible", hidden: false },
-    location: { search: "", href: "http://x/" }, localStorage: { getItem: () => null, removeItem() {} },
+    window: win, document: mondeApi.document,
+    FileReader: class { readAsText(f) { setTimeout(() => { this.result = f.text; this.onload(); }, 0); } },
+    location: { search: "", href: "http://x/", reload() { mondeApi.rechargements.push(structuredClone([...store.entries()])); } }, localStorage: { getItem: () => null, removeItem() {} },
     Worker, WebAssembly: {}, indexedDB, fetch, URL, URLSearchParams, performance, structuredClone, console,
-    setTimeout: (f, ms) => setTimeout(f, Math.min(ms || 0, 5)), clearTimeout, setInterval: () => 0, clearInterval() {}
+    setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
   };
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);

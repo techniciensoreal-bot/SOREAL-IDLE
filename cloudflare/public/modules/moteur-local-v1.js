@@ -80,15 +80,18 @@
   }
   function enMs(v){const n=Number(v);return(Number.isFinite(n)&&String(v).trim()!=="")?n:Date.parse(String(v));}
   let cleSauve="",minuterieSauve=0;
+  /* Écrit MAINTENANT la partie sur l'appareil (IndexedDB). Appelé par la minuterie, et sans attendre par le passage en arrière-plan / la fermeture de la page : un grand envoi réseau peut être coupé par le navigateur, cette copie est alors le seul filet (reprise au démarrage suivant). */
+  async function sauverCopie(){
+    if(!worker||!cleSauve||!vivant)return false;
+    try{
+      const s=await parler({type:"sortant",vider:false});
+      if(s&&s.cells)return Boolean(await kv("ecrire",cleSauve,{cells:s.cells,flux:s.flux,gains:s.gains,at:Date.now()}));
+    }catch(_){}
+    return false;
+  }
   function programmerSauvegarde(){
     if(minuterieSauve||!worker||!cleSauve)return;
-    minuterieSauve=setTimeout(async function(){
-      minuterieSauve=0;
-      try{
-        const s=await parler({type:"sortant",vider:false});
-        if(s&&s.cells)await kv("ecrire",cleSauve,{cells:s.cells,flux:s.flux,gains:s.gains,at:Date.now()});
-      }catch(_){}
-    },1000);
+    minuterieSauve=setTimeout(function(){minuterieSauve=0;sauverCopie();},400);
   }
 
   const appareil="a"+Math.random().toString(36).slice(2)+Date.now().toString(36);
@@ -177,8 +180,8 @@
       }catch(_){}
       if(essais>0)setTimeout(function(){demanderSpans(essais-1);},3000);
     })(20);
-    window.addEventListener("pagehide",function(){envoyer(true);});
-    document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden")envoyer(true);});
+    window.addEventListener("pagehide",function(){sauverCopie();envoyer(true);});
+    document.addEventListener("visibilitychange",function(){if(document.visibilityState==="hidden"){sauverCopie();envoyer(true);}});
     setInterval(function(){envoyer(false);},INTERVALLE_ENVOI_MS);
   }
 
