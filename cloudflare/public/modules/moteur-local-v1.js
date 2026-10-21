@@ -78,6 +78,19 @@
       }),4000,"IDB_LENTE");
     }catch(_){return null;}
   }
+  /* Copies écartées : les 3 dernières sont gardées (« :ecartee » la plus récente, puis « -1 », « -2 ») ; un nouvel écartement décale les précédentes au lieu de les détruire (audit anti-rollback R3, 2026-10-21). */
+  async function ecarter(rec){
+    const base=cleSauve+":ecartee";
+    const p1=await kv("lire",base+"-1"),p0=await kv("lire",base);
+    if(p1)await kv("ecrire",base+"-2",p1);
+    if(p0)await kv("ecrire",base+"-1",p0);
+    await kv("ecrire",base,rec);
+  }
+  async function copiesEcartees(){
+    const out=[];
+    for(const suffixe of ["",  "-1","-2"]){const c=await kv("lire",cleSauve+":ecartee"+suffixe);if(c&&Array.isArray(c.cells))out.push(c);}
+    return out;
+  }
   function enMs(v){const n=Number(v);return(Number.isFinite(n)&&String(v).trim()!=="")?n:Date.parse(String(v));}
   let cleSauve="",minuterieSauve=0;
   /* Écrit MAINTENANT la partie sur l'appareil (IndexedDB). Appelé par la minuterie, et sans attendre par le passage en arrière-plan / la fermeture de la page : un grand envoi réseau peut être coupé par le navigateur, cette copie est alors le seul filet (reprise au démarrage suivant). */
@@ -152,11 +165,11 @@
         sale=true;rev+=1;
       }else{
         /* Le serveur est plus récent (autre appareil passé depuis) : il fait foi, mais la copie de cet appareil n'est jamais détruite en silence : elle est mise de côté (un seul emplacement) avant d'être retirée de la reprise. */
-        await kv("ecrire",cleSauve+":ecartee",rec);
+        await ecarter(rec);
         await kv("effacer",cleSauve);
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=49ae1d3eee");
+    worker=new Worker("/moteur-local-worker-v1.js?v=e4f63a4fc6");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -312,6 +325,7 @@
 
   window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__={
     rafraichirTextes:rafraichirTextes,
+    copiesEcartees:copiesEcartees,
     /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
     /* Diagnostic (administrateur) : la ligne du joueur telle que le moteur la détient, pour reproduire hors de la page un calcul lent sur un compte avancé. */
     exporterLigne:async function(){if(!vivant)return null;const s=await parler({type:"sortant",vider:false});return s&&s.cells?s.cells:null;},
