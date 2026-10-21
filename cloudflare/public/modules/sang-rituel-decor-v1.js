@@ -1651,9 +1651,23 @@ function attendreImagesScene(sc){
   for(k=0;k<imgs.length;k++){
     var im=imgs[k];
     if(!(im.getAttribute('src')||im.currentSrc))continue;
-    if(!im.complete){
-      pret=false;
-      if(!im.__bmEcoute){im.__bmEcoute=1;var relance=function(){majScene(sc);};im.addEventListener('load',relance,{once:true});im.addEventListener('error',relance,{once:true});}
+    if(!im.__bmEcoute){im.__bmEcoute=1;var relance=function(){majScene(sc);};im.addEventListener('load',relance);im.addEventListener('error',relance);}
+    if(!im.complete){pret=false;continue;}
+    if(!im.naturalWidth){
+      /*
+       * Image EN ÉCHEC (Norman, 2026-10-21 : « le bug de la sangsue est toujours présent au premier lancement du jeu ; obligé de partir et revenir ») : au premier lancement, la demande de l'image peut échouer (réseau lent ou coupé, démarrage à froid) ; elle comptait comme « arrivée »
+       * (complete vaut vrai aussi en cas d'échec) et la scène s'affichait SANS la sangsue (canal et boule en l'air devant la bibliothèque) jusqu'à ce qu'on quitte la page pour que l'image soit redemandée. Elle est maintenant redemandée toute seule (4 fois au plus, à 0,6 s,
+       * 1,2 s, 2,4 s puis 4,8 s, avec un paramètre qui contourne une réponse en échec gardée en mémoire) ; les éléments restent cachés pendant ce temps.
+       */
+      var essais=im.__bmEssais||0;
+      if(essais<4){
+        pret=false;
+        if(!im.__bmRetry)im.__bmRetry=setTimeout((function(i){return function(){
+          i.__bmRetry=0;i.__bmEssais=(i.__bmEssais||0)+1;
+          var u=(i.getAttribute('src')||'').replace(/[?&]_r=\d+/,'');
+          i.setAttribute('src',u+(u.indexOf('?')<0?'?':'&')+'_r='+Date.now());
+        };})(im),600*Math.pow(2,essais));
+      }
     }
   }
   if(sc.classList.contains('bm-attend-images')===pret)sc.classList.toggle('bm-attend-images',!pret);
