@@ -5526,7 +5526,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
 /* Ton prix (2026-09-26, Norman : « écriture un peu jaune sur case jaune ») : texte foncé sur le fond jaune, comme prévu. */
 .soreal-idle-offre-v1 .soreal-idle-prize-v206{color:#19160b}
 /* Case invisible qui complète la dernière page du sac : garde la hauteur du cadre (aucun mouvement de page au changement de page). */
-.soreal-idle-v138-bag-card.soreal-idle-v138-bag-filler{visibility:hidden!important;pointer-events:none!important}
+.soreal-idle-v138-bag-card.soreal-idle-v138-bag-filler{visibility:hidden;pointer-events:none}
 .soreal-idle-offre-v1 .soreal-idle-prize-v206 .soreal-idle-prize-detail-v1{display:block;margin-top:6px;font-size:14px;font-weight:700;color:#3b3212}
 .soreal-idle-offre-titre-v1{margin-bottom:5px;font-size:15px;font-weight:900;color:#f7e6b0}
 .soreal-idle-offre-bouton-v1{appearance:none;position:relative;min-height:50px;flex:1 1 150px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:8px 10px 8px 22px;border:1px solid rgba(245,196,81,.6);border-radius:6px 12px 12px 6px;background:rgba(245,196,81,.22);color:#ffeeb5;text-align:left;cursor:pointer;font:inherit}

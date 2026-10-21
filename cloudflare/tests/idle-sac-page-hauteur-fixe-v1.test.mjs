@@ -8,5 +8,5 @@ const css = readFileSync(new URL("../public/soreal-idle-ui.css", import.meta.url
 assert.ok(rendu.includes("if(pages>1)for(let i=cases.length;i<REG.IDLE_SAC_CASES_PAR_PAGE_V1;i+=1)cases.push("), "rendu complet : cases invisibles qui complètent la page");
 assert.ok(patch.includes("while(noeudsFinaux.length<REG.IDLE_SAC_CASES_PAR_PAGE_V1)") && patch.includes("soreal-idle-v138-bag-filler"), "mise à jour en place : mêmes cases invisibles");
 assert.ok(patch.includes("else if(node.classList&&node.classList.contains('soreal-idle-v138-bag-filler'))fillers.push(node);"), "une case invisible n'est jamais reprise comme emplacement vide déposable");
-assert.ok(/\.soreal-idle-v138-bag-filler\{visibility:hidden!important;pointer-events:none!important\}/.test(css), "case invisible et sans interaction");
+assert.ok(/\.soreal-idle-v138-bag-filler\{visibility:hidden;pointer-events:none\}/.test(css), "case invisible et sans interaction");
 console.log("idle-sac-page-hauteur-fixe-v1: OK");
