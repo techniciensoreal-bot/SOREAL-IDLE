@@ -105,7 +105,7 @@
   let importPartieEnCours=false;
   let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false,raison="";
   /* Révision de la progression de CETTE page : +1 à chaque action qui modifie la partie. Un envoi porte la révision qu'il contient ; son accusé ne concerne que celle-là (audit anti-rollback, Norman, 2026-10-21). refus = envois que le serveur a reçus mais PAS écrits. */
-  let rev=0,refus=0;
+  let rev=0,refus=0,revAcquittee=0;
   const attentes=new Map();
 
   function parler(msg){
@@ -221,11 +221,17 @@
       else if(!reponse||!reponse.ok)sale=true;
       else if(reponse.ecrit===false){
         /* Le serveur a REÇU l'état mais l'a REFUSÉ (il en détient un plus récent) : ce n'est pas une sauvegarde. La copie de l'appareil reste, l'envoi sera retenté, le refus est signalé. */
-        sale=true;refus+=1;
-        try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("sauvegarde_refusee","révision "+revEnvoyee+" refusée par le serveur ("+refus+")");}catch(_){}
-        programmerSauvegarde();
+        /* Réponses INVERSÉES : si une révision plus récente a déjà été écrite, le refus d'un envoi plus ancien (arrivé après) ne concerne plus la partie actuelle. */
+        if(revEnvoyee>=revAcquittee){
+          sale=true;refus+=1;
+          try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("sauvegarde_refusee","révision "+revEnvoyee+" refusée par le serveur ("+refus+")");}catch(_){}
+          programmerSauvegarde();
+        }
       }
-      else if(!sale&&rev===revEnvoyee)await kv("effacer",cleSauve);   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
+      else{
+        revAcquittee=Math.max(revAcquittee,revEnvoyee);
+        if(!sale&&rev===revEnvoyee)await kv("effacer",cleSauve);
+      }   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}
     finally{enVol=false;}
     return !sale && !conflit;
