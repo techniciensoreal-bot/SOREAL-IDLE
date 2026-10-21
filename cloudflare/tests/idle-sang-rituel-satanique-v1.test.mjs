@@ -132,7 +132,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes("src==='punaise'||src==='papier'||src==='sucon'") && decor.includes('.bm-scene[data-source="sucon"].bm-hors :is(.bm-perso,.bm-cou,.bm-perso-bas),') && decor.includes('.bm-hors .bm-fil{translate:-300px 0}'), "sans énergie, le personnage du suçon glisse hors de la case vers la gauche");
-  assert.ok(decor.includes("var pret=sc.classList.contains('bm-installe');") && decor.includes("progresse&&pret);"), "la succion ne reprend qu'une fois le personnage en place");
+  assert.ok(decor.includes("var pret=sc.classList.contains('bm-installe');") && decor.includes("!sc.classList.contains('bm-hors')&&sc.classList.contains('bm-installe');"), "la succion ne reprend qu'une fois le personnage en place (la boule repart tout de suite)");
 }
 {
   // Quatrième rituel : 30 images de Norman lues dans R2 (idle/bloodmagic/rincevent/WEBP/N.webp), image choisie d'après l'avancement du niveau.

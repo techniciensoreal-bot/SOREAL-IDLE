@@ -596,7 +596,7 @@ function scene(opts){
   demarrer();
   suivantVu[opts.id]=pal.fraction>=SEUIL_ARRIVEE;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
-  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true)?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-morph-classes-gardees="^bm-" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
+  return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true||(SOURCES[opts.id]==='sucon'&&etatHors[opts.id]===undefined))?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-morph-classes-gardees="^bm-" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       bibliotheque(opts.rang)+
       '<div class="bm-sol">'+pentacle('bm-pentacle-sol')+'</div>'+
       '<div class="bm-ver"><div class="bm-tuyau'+(opts.saigne?' saigne-v1':'')+'">'+(opts.barre||'')+'</div></div>'+(SOURCES[opts.id]==='sucon'?'<div class="bm-paquets-corps" aria-hidden="true"><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i><i class="bm-paquet"></i></div>':'')+
@@ -1000,7 +1000,7 @@ function sgSuccion(){
   for(i=0;i<l.length;i++){
     var sc=l[i];
     if(sc.__gl===undefined)continue;
-    var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-attente-or')&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors');
+    var actif=!calme&&!document.hidden&&sc.__vis!==false&&sc.__t0!=null&&!sc.classList.contains('bm-attente-or')&&!sc.classList.contains('bm-dort')&&!sc.classList.contains('bm-fige')&&!sc.classList.contains('bm-hors')&&sc.classList.contains('bm-installe');   /* la succion ne reprend qu'une fois le personnage en place (la boule, elle, repart tout de suite) */
     if(!actif){if(sc.__suc){sc.__suc=null;if(sc.__gl)sgDessiner(sc,sc.__g==null?1:sc.__g);else sgRepli(sc,1,1);}continue;}
     vivant=true;
     /* Norman (2026-10-12) : « la sangsue n'est pas animée » en jeu réel : avec peu de Magie un niveau dure des minutes, donc un coup (P / 6) aussi, et le ventre ne bougeait qu'une fois par minute. Le ventre pulse donc au rythme des coups quand ils sont rapides, et AU PLUS toutes les 2,2 s sinon. */
@@ -1228,12 +1228,13 @@ function rythme(sc,id,n,avant){
     var horsVoulu=!sc.querySelector('.bm-tuyau.saigne-v1');
     /* Arrivée du personnage (Norman, 2026-10-21 : « il apparaît alors qu'il est supposé glisser depuis la gauche ») : la scène reste « hors champ » tant que l'image du personnage n'est pas chargée (sinon le glissement se jouait sur une image absente et il surgissait à sa place finale). */
     if(!horsVoulu&&sc.classList.contains('bm-hors')&&src==='sucon'){var pe=sc.querySelector('.bm-perso');if(pe&&pe.getAttribute('src')&&!(pe.complete&&pe.naturalWidth>0))horsVoulu=true;}
-    if(sc.classList.contains('bm-hors')!==horsVoulu)sc.classList.toggle('bm-hors',horsVoulu);
+    var etaitHors=sc.classList.contains('bm-hors');
+    if(etaitHors!==horsVoulu){if(!horsVoulu)void sc.offsetWidth;sc.classList.toggle('bm-hors',horsVoulu);}
     /* L'animation (punaise, feuille, coupure, traces, gouttes) ne commence que quand le doigt / le bras ont fini de se mettre en place (Norman, 2026-10-11) : l'échéance est mémorisée par rituel (le redessin de la page ne la fait pas sauter) ; glissement 0,95 s + 0,2 s de décalage. */
     var avantHors=etatHors[id];
     etatHors[id]=horsVoulu;
     if(horsVoulu)installeA[id]=Infinity;
-    else if(avantHors===true||installeA[id]===Infinity)installeA[id]=performance.now()+1250;
+    else if(avantHors===true||installeA[id]===Infinity||(avantHors===undefined&&etaitHors&&src==='sucon'))installeA[id]=performance.now()+1250;   /* premier affichage de la scène avec le rituel déjà en marche : le personnage glisse aussi */
     else if(installeA[id]===undefined)installeA[id]=0;   /* page ouverte avec le rituel déjà en marche : tout est déjà en place */
     var installe=!horsVoulu&&performance.now()>=installeA[id];
     if(sc.classList.contains('bm-installe')!==installe)sc.classList.toggle('bm-installe',installe);
@@ -1272,7 +1273,8 @@ function rythme(sc,id,n,avant){
   if(src==='fil'){sc.__filP=sec>0?sec:(progresse&&pret?(secVue[id]||0):0);filDemarrer();}
   if(src==='sucon'){
     if(mode==='boucle')aligner(sc);
-    sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse&&pret);
+    /* La boule repart tout de suite, de là où elle était figée (Norman, 2026-10-21 : « quand je replace la magie, la boule est directement à la sortie ») : le moteur fait avancer le niveau dès que la Magie est replacée ; attendre l'arrivée du personnage (1,25 s) la laissait en retard et le recalage sur la barre la jetait à la sortie. */
+    sangsue(sc,sec>0?sec:(progresse?(secVue[id]||0):0),progresse);
   }
   /* Boucle : la trace est posée à l'instant EXACT du premier impact, lu sur l'animation en cours (jamais sur une minuterie indépendante). */
   if(mode==='boucle'&&progresse&&!sc.classList.contains('bm-marque')&&!sc.__marq){

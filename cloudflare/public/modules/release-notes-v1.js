@@ -35,6 +35,7 @@
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Quand on replace de la Magie, la boule de la sangsue repart tout de suite de là où elle s’était arrêtée au lieu de sauter à la sortie ; au premier affichage de la page, le personnage glisse lui aussi depuis la gauche.',
             'Le pied de la sangsue reste posé sur la table même après un redessin de la page, et le personnage glisse toujours depuis la gauche (il n’entre qu’une fois son image chargée, redemandée si elle échoue) au lieu d’apparaître d’un coup.',
             'Au premier lancement, une image de la sangsue qui ne charge pas est redemandée toute seule : plus besoin de quitter le menu et d’y revenir pour que l’affichage soit correct.',
           ]},
