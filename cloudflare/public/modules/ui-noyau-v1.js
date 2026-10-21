@@ -866,6 +866,11 @@
           );
         }
 
+        /*
+         * Aucun saut de page à l'arrivée sur un menu (Norman, 2026-10-21 : « la page Machine temporelle fait un petit saut quand on va dessus »). Les modules qui AJOUTENT des éléments à la page après le rendu (cadre « Mes nombres » des boutons personnalisés, pastilles…) n'étaient rappelés
+         * qu'au redessin périodique ; au changement de menu (rendu complet de la page) leur suivi ne passait qu'environ 100 ms plus tard, et le cadre ajouté poussait tout le contenu de 97 px. Ils sont maintenant rappelés ICI, dans la même tâche que le rendu, avant la première image.
+         */
+        try{(window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).forEach(function(f){try{f();}catch(_e){}});}catch(_e){}
         try{
           restaurerScrollNavIdleV28_(idleNavScrollAvantRenduV1);
         }catch(e){

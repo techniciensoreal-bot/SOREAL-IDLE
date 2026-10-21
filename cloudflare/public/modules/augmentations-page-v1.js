@@ -1696,6 +1696,8 @@
         window.__SOREAL_IDLE_AT_TICK_V1__=true;
         setInterval(atTickIdleV1_,150);
       }
+      /* Aucun saut à l'arrivée sur la page (Norman, 2026-10-21) : les textes des lignes (bonus, durée) étaient posés par le tick suivant (jusqu'à 150 ms après le rendu) et chaque ligne grandissait de 42 px ; ils sont posés dans la même tâche que le rendu (règle n°4, APRES_REDESSIN). */
+      (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){if(typeof atTickIdleV1_==='function')atTickIdleV1_();});
 
       function atPatchLigneIdleV1_(id,valeur){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;

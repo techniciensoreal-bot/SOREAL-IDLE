@@ -184,10 +184,43 @@
         }
       }
 
+      /*
+       * Une couleur de barre de vie PAR BOSS (Norman, 2026-10-21 : « chaque boss devait avoir une barre de couleur différente dans Combat de boss, mais ça n'a jamais été implanté »). La teinte se déduit du numéro du boss (angle d'or : deux boss qui se suivent ont toujours des couleurs bien
+       * distinctes, et un même boss a toujours la même) ; la feuille de style lit ces variables (--bc-*), violette par défaut.
+       */
+      function paletteBarreBossIdleV1_(n){
+        const num=Math.max(0,Math.floor(Number(n)||0));
+        const h=Math.round((((num*137.508)%360)+360)%360);
+        return {
+          a:'hsl('+h+',82%,60%)',
+          b:'hsl('+h+',78%,44%)',
+          c:'hsl('+h+',72%,28%)',
+          glow:'hsla('+h+',90%,55%,.6)',
+          hi:'hsla('+h+',100%,82%,.45)'
+        };
+      }
+
+      function styleCouleurBarreBossIdleV1_(n){
+        const p=paletteBarreBossIdleV1_(n);
+        return '--bc-a:'+p.a+';--bc-b:'+p.b+';--bc-c:'+p.c+';--bc-glow:'+p.glow+';--bc-hi:'+p.hi+';';
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-28 */
       function rafraichirCommandesFightBossIdleV167_(){
         if(!REG.idleEtat)return;
         actualiserCooldownBossIdleV100_(Date.now());
+
+        /* La barre du boss prend la couleur de CE boss dès que le boss change (sans attendre un redessin de la page). */
+        const barreBoss=document.getElementById('sorealIdleBossBarV7');
+        if(barreBoss){
+          const numeroBoss=String(Math.max(0,Math.floor(Number(REG.idleEtat.bossId)||0)));
+          if(barreBoss.getAttribute('data-couleur-n')!==numeroBoss){
+            const pal=paletteBarreBossIdleV1_(numeroBoss);
+            barreBoss.style.setProperty('--bc-a',pal.a);barreBoss.style.setProperty('--bc-b',pal.b);barreBoss.style.setProperty('--bc-c',pal.c);
+            barreBoss.style.setProperty('--bc-glow',pal.glow);barreBoss.style.setProperty('--bc-hi',pal.hi);
+            barreBoss.setAttribute('data-couleur-n',numeroBoss);
+          }
+        }
 
         const fuite=
           document.querySelector(
@@ -196,6 +229,15 @@
         if(fuite){
           const fuiteDesactivee=!REG.idleEtat.combatBossActif;
           if(fuite.disabled!==fuiteDesactivee)fuite.disabled=fuiteDesactivee;
+        }
+        /*
+         * Bouton NUKE (Norman, 2026-10-21 : « après un rebirth, le bouton NUKE n'est pas cliquable alors que si je switch et que je reviens, il l'est ») : son état « désactivé » n'était calculé qu'au dessin de la page ; après une Renaissance (boss remis au début, statistiques
+         * changées) rien ne le remettait à jour tant que la page n'était pas redessinée. Comme Fuite, il suit maintenant l'état à chaque rafraîchissement des commandes.
+         */
+        const nuke=document.getElementById('sorealIdleBossNukeV1');
+        if(nuke&&typeof REG.bossNukableIdleV198_==='function'){
+          const nukeDesactive=Boolean(REG.idleEtat.bossBloqueRenaissance||!REG.bossNukableIdleV198_(REG.idleEtat));
+          if(nuke.disabled!==nukeDesactive)nuke.disabled=nukeDesactive;
         }
 
       }
@@ -2190,6 +2232,7 @@
     appliquerTrajectoireStatsIdleV1_:appliquerTrajectoireStatsIdleV1_,
     actualiserCooldownBossIdleV100_:actualiserCooldownBossIdleV100_,
     rafraichirCommandesFightBossIdleV167_:rafraichirCommandesFightBossIdleV167_,
+    styleCouleurBarreBossIdleV1_:styleCouleurBarreBossIdleV1_,
     transitionMortBossIdleV61_:transitionMortBossIdleV61_,
     surveillerConfirmationVictoireBossIdleV1_:surveillerConfirmationVictoireBossIdleV1_,
     appliquerBossSuivantLocalIdleV1_:appliquerBossSuivantLocalIdleV1_,

@@ -917,8 +917,9 @@
                       <div
                         id="sorealIdleBossBarV7"
                         data-boss-n="${idleEntier_(j.bossId)}"
+                        data-couleur-n="${idleEntier_(j.bossId)}"
                         class="soreal-idle-bossbar-v7"
-                        style="width:${
+                        style="${REG.styleCouleurBarreBossIdleV1_?REG.styleCouleurBarreBossIdleV1_(idleEntier_(j.bossId)):''}width:${
                           idleNombre_(j.bossPvMax)>0
                             ?Math.max(0,Math.min(100,idleNombre_(j.bossPv)/idleNombre_(j.bossPvMax)*100))
                             :0
@@ -1788,6 +1789,7 @@
     combattreDepuisCarteBossIdleV91_:combattreDepuisCarteBossIdleV91_,
     definirCombatBossIdleV39_:definirCombatBossIdleV39_,
     nukerBossIdleV1_:nukerBossIdleV1_,
+    bossNukableIdleV198_:bossNukableIdleV198_,
     autoNukeDueIdleV1_:autoNukeDueIdleV1_,
     pageCombatIdleV28_:pageCombatIdleV28_,
     fermerBossCollectionIdleV1_:fermerBossCollectionIdleV1_,

@@ -32,6 +32,7 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
             'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
             'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, le matin (de 5 h à 12 h), une seule fois par renaissance, à la première ouverture d’une porte.',
             'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
@@ -39,6 +40,13 @@
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
+            'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Les boutons Max, 1/2, 1/4, + et − sont bien lisibles (fond plein, texte net), et le bouton « Vers les NGU de magie / d’énergie » est illuminé et étoilé, comme les cadres du chat.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Quand on replace de la Magie, la boule de la sangsue repart tout de suite de là où elle s’était arrêtée au lieu de sauter à la sortie ; au premier affichage de la page, le personnage glisse lui aussi depuis la gauche.',

@@ -581,7 +581,7 @@
           /* Mise en page (Norman, 2026-10-10 : « beaucoup plus jolie », image entière et grande) : sur PC l'image à gauche, les actions et « Ton prix » à droite ; sur téléphone tout s'empile (CSS : soreal-idle-itopod.css, « Money Pit v2 »). */
           '<div class="mp2-grille-v1">'+
           '<div class="soreal-idle-money-scene-v206">'+
-            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" alt="Money Pit et Roue journalière">'+
+            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" width="1324" height="1188" alt="Money Pit et Roue journalière">'+
           '</div>'+
           /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
           '<div class="soreal-idle-money-actions-v206">'+

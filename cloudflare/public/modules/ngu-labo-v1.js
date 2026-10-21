@@ -264,6 +264,17 @@ var CSS=
   '.nl-boutons{display:flex;gap:8px}'+
   '.nl-boutons button{width:52px;min-height:44px;background:rgba(255,255,255,.07);color:#fff;border:1.5px solid var(--nl-c);border-radius:12px;box-shadow:0 0 10px color-mix(in srgb,var(--nl-c) 60%,transparent);font:900 24px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer}'+
   '.nl-boutons button:active{transform:translateY(1px)}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-barre-outils button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-boutons button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut .nl-btn:not(#_):not(#_){background:linear-gradient(180deg,#8087ff 0%,#4a46d6 55%,#312ea8 100%);border:2px solid #d9dcff;color:#fff;-webkit-text-stroke:0;paint-order:normal;text-shadow:0 2px 0 rgba(10,8,60,.9),0 0 6px rgba(10,8,60,.6);letter-spacing:.06em;box-shadow:0 3px 0 #1b1862,0 0 10px rgba(130,125,255,.45)}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-barre-outils button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut .nl-btn:not(#_):not(#_){font-size:17px;font-weight:400}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-boutons button:not(#_):not(#_){font-size:24px;font-weight:400}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut [data-nl-onglet-btn]:not(#_):not(#_){position:relative;isolation:isolate;overflow:visible;border:2px solid rgba(255,255,255,.2);border-radius:14px;color:#fff;font-size:18px;letter-spacing:.08em;background:radial-gradient(circle at 12% 30%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 22%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 78%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 70%,#cfe9ff 0 1px,transparent 2px),radial-gradient(circle at 30% 85%,#ffd6fb 0 1px,transparent 2px),radial-gradient(circle at 66% 40%,#fff 0 1px,transparent 2px),linear-gradient(135deg,#4a22c8,#150a45 58%,#34107a);box-shadow:0 0 18px 4px rgba(195,125,255,.95),0 0 46px 8px rgba(120,70,255,.6);text-shadow:0 0 8px #fff,0 2px 0 rgba(10,4,50,.9)}'+
+  '.nl-haut [data-nl-onglet-btn]::before{content:"";position:absolute;inset:-6px;z-index:-1;border-radius:19px;padding:5px;background:conic-gradient(from var(--soreal-ang-v1,0deg),#ff9ee8,#5a22d8,#21d4fd,#5a22d8,#ff9ee8);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none}'+
+  '.nl-haut [data-nl-onglet-btn]::after{content:"✦ ✧ ✦";position:absolute;right:-4px;top:-16px;font-size:19px;line-height:1;letter-spacing:.3em;color:#fff;text-shadow:0 0 6px #c9a6ff,0 0 12px #8f5bff;pointer-events:none}'+
+  '@media (prefers-reduced-motion:no-preference){'+
+  '.nl-haut [data-nl-onglet-btn]::before{animation:sorealAlTourneV1 3.4s linear infinite}'+
+  '.nl-haut [data-nl-onglet-btn]::after{animation:nlEtoilesV1 2.4s ease-in-out infinite}'+
+  '@keyframes nlEtoilesV1{0%{opacity:0;transform:scale(.7)}50%{opacity:1;transform:scale(1.15)}100%{opacity:0;transform:scale(.7)}}'+
+  '}'+
   '.nl-resume{margin-top:14px;font:600 13px/1.4 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
   '.nl-resume>summary{cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:.04em}'+
   '.nl-resume-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin-top:6px}'+
