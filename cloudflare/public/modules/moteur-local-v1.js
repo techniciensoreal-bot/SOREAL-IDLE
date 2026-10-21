@@ -82,9 +82,22 @@
   async function ecarter(rec){
     const base=cleSauve+":ecartee";
     const p1=await kv("lire",base+"-1"),p0=await kv("lire",base);
-    if(p1)await kv("ecrire",base+"-2",p1);
-    if(p0)await kv("ecrire",base+"-1",p0);
-    await kv("ecrire",base,rec);
+    if(p1===null||p0===null)return false;   /* lecture en échec : rien n'est décalé, on ne risque pas d'écraser une copie déjà écartée */
+    if(p1&&!(await kv("ecrire",base+"-2",p1)))return false;
+    if(p0&&!(await kv("ecrire",base+"-1",p0)))return false;
+    return Boolean(await kv("ecrire",base,rec));
+  }
+  /* Copie de l'appareil pas encore lue ou pas encore mise à l'abri (base lente, bloquée, pleine) : tant que c'est le cas, on n'écrit ni n'efface rien dans la clé de la partie (audit anti-rollback S1 et S5, 2026-10-21). */
+  let copieEnAttente=false;
+  async function resoudreCopie(){
+    const rec=await kv("lire",cleSauve);
+    if(rec===null)return false;
+    if(rec&&Array.isArray(rec.cells)){
+      if(!(await ecarter(rec)))return false;
+      if(!(await kv("effacer",cleSauve)))return false;
+    }
+    copieEnAttente=false;
+    return true;
   }
   async function copiesEcartees(){
     const out=[];
@@ -97,6 +110,7 @@
   async function sauverCopie(){
     if(!worker||!cleSauve||!vivant)return false;
     try{
+      if(copieEnAttente&&!(await resoudreCopie()))return false;
       const s=await parler({type:"sortant",vider:false});
       if(s&&s.cells)return Boolean(await kv("ecrire",cleSauve,{cells:s.cells,flux:s.flux,gains:s.gains,at:Date.now()}));
     }catch(_){}
@@ -155,7 +169,8 @@
     try{const P=window.__SOREAL_IDLE_PREFS_V1__;if(P&&exp.uiPrefsCompte&&typeof P.appliquer==="function")P.appliquer({nom:exp.uiPrefsCompte.nom,systemes:{uiPrefs:exp.uiPrefsCompte.prefs}});}catch(_){}
     cleSauve="etat:"+String((exp.user&&(exp.joueurs&&exp.joueurs.index!=null?exp.joueurs.index:"")))+":"+String(exp.user&&(exp.user.email||""));
     const rec=await kv("lire",cleSauve);
-    if(rec&&Array.isArray(rec.cells)){
+    if(rec===null)copieEnAttente=true;   /* lecture en échec : on ne sait pas s'il y a une copie, on n'y touche pas */
+    else if(rec&&Array.isArray(rec.cells)){
       let srv=[];try{srv=JSON.parse(exp.joueurs.ligne);}catch(_){}
       if(enMs(rec.cells[15])>enMs(srv[15])){
         const fusion=rec.cells.slice();
@@ -165,8 +180,8 @@
         sale=true;rev+=1;
       }else{
         /* Le serveur est plus récent (autre appareil passé depuis) : il fait foi, mais la copie de cet appareil n'est jamais détruite en silence : elle est mise de côté (un seul emplacement) avant d'être retirée de la reprise. */
-        await ecarter(rec);
-        await kv("effacer",cleSauve);
+        if(await ecarter(rec)){if(!(await kv("effacer",cleSauve)))copieEnAttente=true;}
+        else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
     worker=new Worker("/moteur-local-worker-v1.js?v=e4f63a4fc6");
@@ -245,7 +260,7 @@
       }
       else{
         revAcquittee=Math.max(revAcquittee,revEnvoyee);
-        if(!sale&&rev===revEnvoyee)await kv("effacer",cleSauve);
+        if(!sale&&rev===revEnvoyee&&!copieEnAttente)await kv("effacer",cleSauve);
       }   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}
     finally{enVol=false;}
