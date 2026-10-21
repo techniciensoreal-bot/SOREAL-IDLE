@@ -27,7 +27,7 @@ coord.runStandaloneSessionOperationV1({ sessionToken: T, operation: "obtenirEtat
 const exp = exporterPourMoteurLocalV1(coord, T);
 assert.equal(exp.ok, true);
 const ligne = JSON.parse(exp.joueurs.ligne);
-const a = ligne.slice(); a[15] = "2030-01-01T00:00:10.000Z";
+const a = ligne.slice(); a[15] = new Date(Date.now() - 1000).toISOString();
 const lot = { sessionToken: T, cells: a, flux: [{ at: 11, type: "boss", donnees: "{\"n\":1}" }, { at: 12, type: "boss", donnees: "{\"n\":2}" }], gains: [{ at: 13, operation: "test", avant: 1, apres: 2 }] };
 let r = recevoirDuMoteurLocalV1(coord, lot);
 assert.equal(r.flux, 2); assert.equal(r.gains, 1);
@@ -40,7 +40,7 @@ assert.equal(sql.exec("SELECT COUNT(*) AS n FROM idle_gains_exp")[0].n, 1);
 r = recevoirDuMoteurLocalV1(coord, Object.assign({}, lot, { flux: lot.flux.concat([{ at: 14, type: "boss", donnees: "{\"n\":3}" }]) }));
 assert.equal(r.flux, 1);
 // Ligne refusée (état plus ancien) : les événements du lot sont tout de même enregistrés.
-const vieux = a.slice(); vieux[15] = "2029-01-01T00:00:00.000Z";
+const vieux = a.slice(); vieux[15] = new Date(Date.now() - 3600000).toISOString();
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: vieux, flux: [{ at: 20, type: "boss", donnees: "{}" }], gains: [] });
 assert.equal(r.ecrit, false); assert.equal(r.flux, 1, "événements acceptés même si la ligne est refusée");
 console.log("idle-sauvegarde-locale-serveur-doublons-v1: OK");

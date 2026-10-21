@@ -39,21 +39,22 @@ assert.equal(exporterPourMoteurLocalV1(coord, "faux").ok, false, "sans session v
 
 // Réception : l'identité reste celle du serveur, un état plus récent est écrit, un état plus ancien est refusé.
 const lire = () => JSON.parse(sql.exec("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", exp.joueurs.index)[0].row_json);
-const a = ligne.slice(); a[15] = "2030-01-01T00:00:10.000Z"; a[1] = "USURPATION"; a[18] = "voleur@example.com"; a[10] = 12345;
+await new Promise((ok) => setTimeout(ok, 60));   // la ligne du joueur vient d'être créée : l'envoi suivant est plus récent qu'elle
+const a = ligne.slice(); a[15] = new Date(Date.now() - 10).toISOString(); a[1] = "USURPATION"; a[18] = "voleur@example.com"; a[10] = 12345;
 let r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: a, flux: [{ at: 1, type: "boss", donnees: "{\"n\":1}" }], gains: [{ at: 2, operation: "test", avant: 1, apres: 2 }] });
 assert.equal(r.ok, true); assert.equal(r.ecrit, true); assert.equal(r.flux, 1); assert.equal(r.gains, 1);
 assert.equal(lire()[10], 12345, "la progression est enregistrée");
 assert.equal(lire()[1], ligne[1], "le nom reste celui du serveur");
 assert.equal(String(lire()[18]).toLowerCase(), user.email, "l'e-mail reste celui du serveur");
 assert.equal(sql.exec("SELECT email FROM idle_flux")[0].email, user.email, "les événements sont rattachés au compte de la session");
-const vieux = a.slice(); vieux[15] = "2029-01-01T00:00:00.000Z"; vieux[10] = 1;
+const vieux = a.slice(); vieux[15] = new Date(Date.now() - 3600000).toISOString(); vieux[10] = 1;
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: vieux });
 assert.equal(r.ecrit, false, "un état plus ancien n'écrase jamais un état plus récent");
 assert.equal(lire()[10], 12345);
 assert.equal(recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: [1, 2, 3] }).ok, false, "ligne incomplète refusée");
 
 // Anti-triche en OBSERVATION : une anomalie est notée mais la progression est toujours acceptée ; un envoi honnête ne note rien.
-const honnete = ligne.slice(); honnete[15] = new Date(Date.now() + 1000).toISOString();
+const honnete = ligne.slice(); honnete[15] = new Date(Date.now() - 5).toISOString();
 assert.equal(recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: honnete }).alertes, 0, "un envoi honnête ne déclenche aucune alerte");
 const futur = ligne.slice(); futur[15] = "2031-01-01T00:00:00.000Z";
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: futur });

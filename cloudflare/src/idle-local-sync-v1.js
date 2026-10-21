@@ -267,10 +267,17 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   let serveur = [];
   try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
-  const recu = enMs(cells[COL_DERNIERE_SYNCHRO]);
-  const connu = enMs(serveur[COL_DERNIERE_SYNCHRO]);
-  const alertes = analyserEnvoiLocalV1(serveur, cells, Date.now());
+  const maintenantSrv = Date.now();
+  let recu = enMs(cells[COL_DERNIERE_SYNCHRO]);
+  let connu = enMs(serveur[COL_DERNIERE_SYNCHRO]);
+  const alertes = analyserEnvoiLocalV1(serveur, cells, maintenantSrv);
   noterAlertes(coord, emailsDe(effectif(s.user))[0] || "", alertes);
+  /*
+   * Date future (audit anti-rollback, Norman, 2026-10-21) : la « dernière synchro » sert de version. Une date annoncée dans le futur était enregistrée telle quelle ; tout envoi honnête suivant paraissait « plus ancien » et était refusé pour toujours (la partie ne se sauvegardait plus, et au
+   * rechargement la copie de l'appareil, plus ancienne que cette date, était écartée : retour en arrière). L'anomalie reste NOTÉE (observation), mais la date enregistrée est ramenée à l'heure du serveur, et une ligne déjà marquée dans le futur n'en bloque plus l'écriture.
+   */
+  if (Number.isFinite(recu) && recu > maintenantSrv + TOLERANCE_HORLOGE_MS) { recu = maintenantSrv; cells[COL_DERNIERE_SYNCHRO] = new Date(maintenantSrv).toISOString(); }
+  if (Number.isFinite(connu) && connu > maintenantSrv + TOLERANCE_HORLOGE_MS) connu = maintenantSrv - TOLERANCE_HORLOGE_MS;
   let ecrit = false;
   if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
     /* Copie de sécurité de la ligne actuelle AVANT de l'écraser (toujours, si l'anti-triche a noté une anomalie). */

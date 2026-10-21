@@ -156,7 +156,7 @@
         await kv("effacer",cleSauve);
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=ae2949aae9");
+    worker=new Worker("/moteur-local-worker-v1.js?v=9a8abb2344");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
