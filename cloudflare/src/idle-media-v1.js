@@ -656,6 +656,25 @@ export function choisirCleMobR2_(keys,boss,indexValue,nomValue){
   if(parNom)return parNom;
   return choisirCleMobR2Index_(keys,boss,indexValue);
 }
+/*
+ * Images de boss = images des mobs d'Aventure (Norman, 2026-10-21 : « les images de boss pourraient servir aux mobs d'aventure : ce sont exactement les mêmes et pourtant les images sont en double sur le R2 »). Les fichiers portent le même nom
+ * (idle/bosses/Boss_<numéro>_<Nom>.png et idle/aventure/<zone>/Adv_<numéro>_<Nom>.png, même numéro) : un mob demandé par son nom prend l'image du boss de même nom ; les images d'idle/aventure/ ne servent plus qu'aux mobs sans boss
+ * du même nom, et peuvent être supprimées du R2 une fois que plus rien ne les réclame.
+ */
+function slugFichierBossR2_(cle){
+  const fichier=String(cle).split("/").pop().replace(/\.[a-z0-9]+$/i,"").replace(/^Boss_\d+_/i,"");
+  return slugMobR2_(fichier);
+}
+export function choisirCleBossR2ParNom_(keys,nomValue){
+  const voulus=[slugMobR2_(nomValue),slugMobR2_(nomMobOrigineV1_(nomValue))].filter(Boolean);
+  if(!voulus.length)return "";
+  const tries=keys.slice().sort();
+  for(const v of voulus){
+    const trouve=tries.find(k=>slugFichierBossR2_(k)===v);
+    if(trouve)return trouve;
+  }
+  return "";
+}
 function choisirCleMobR2Index_(keys,boss,indexValue){
   const idsParCle=new Map();
   for(const k of keys){
@@ -797,14 +816,25 @@ async function adventureMob_(request,env,url){
     return new Response("Média de monstre indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
 
-  const keys=(await objetsDossierMobR2_(env,IDLE_ADVENTURE_MOBS_R2_PREFIX+folder+"/"))
-    .filter(k=>!/_safe_zone\.[a-z0-9]+$/i.test(String(k)));
-  const key=choisirCleMobR2_(
-    keys,
-    url.searchParams.get("boss")==="1",
-    url.searchParams.get("seed"),
-    url.searchParams.get("name")
-  );
+  const nomDemande=url.searchParams.get("name");
+  /* 1. L'image du BOSS de même nom (les mêmes images ne sont plus gardées en double). */
+  let key=nomDemande?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande):"";
+  if(!key){
+    const keys=(await objetsDossierMobR2_(env,IDLE_ADVENTURE_MOBS_R2_PREFIX+folder+"/"))
+      .filter(k=>!/_safe_zone\.[a-z0-9]+$/i.test(String(k)));
+    key=choisirCleMobR2_(
+      keys,
+      url.searchParams.get("boss")==="1",
+      url.searchParams.get("seed"),
+      nomDemande
+    );
+    /* 2. Mob choisi par index : s'il existe un boss de même numéro, c'est son image. */
+    const num=key&&String(key).split("/").pop().match(/^Adv_(\d+)_/i);
+    if(num){
+      const cleBoss=choisirCleBossR2_(await objetsBossR2_(env),num[1]);
+      if(cleBoss)key=cleBoss;
+    }
+  }
   if(!key)return new Response("Image de monstre introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
 
   const object=await env.SOREAL_R2.get(key);

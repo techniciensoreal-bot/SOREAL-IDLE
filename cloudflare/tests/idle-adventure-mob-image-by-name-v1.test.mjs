@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
-import { choisirCleMobR2_, choisirCleMobR2ParNom_ } from "../src/idle-media-v1.js";
+import { choisirCleMobR2_, choisirCleMobR2ParNom_, choisirCleBossR2ParNom_ } from "../src/idle-media-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "../src/idle-adventure-v47.js";
 
 /*
@@ -37,7 +37,17 @@ assert.ok(choisirCleMobR2_(forest, false, 6, "Fairy"), "repli par index : une im
 // Le nom transmis par le jeu est bien celui du bestiaire (vrais noms NGU)
 assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.forest.normal[6].name, "Fairy");
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
-assert.match(media, /url\.searchParams\.get\("seed"\),\s*url\.searchParams\.get\("name"\)/);
+assert.match(media, /url\.searchParams\.get\("seed"\),\s*nomDemande/);
+assert.ok(media.includes("choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande)"), "le mob demandé par son nom prend l'image du boss de même nom");
+
+/* Images de boss = images des mobs d'Aventure (Norman, 2026-10-21) : plus de doublon dans le R2. */
+const boss = ["idle/bosses/Boss_001_A_Small_Piece_of_Fluff.png", "idle/bosses/Boss_025_Robot.png", "idle/bosses/Boss_026_A_fluffy_Chair.png", "idle/bosses/Boss_114_Loss.png"];
+assert.equal(choisirCleBossR2ParNom_(boss, "Robot"), "idle/bosses/Boss_025_Robot.png");
+assert.equal(choisirCleBossR2ParNom_(boss, "a FLUFFY chair"), "idle/bosses/Boss_026_A_fluffy_Chair.png", "casse et ponctuation ignorées");
+assert.equal(choisirCleBossR2ParNom_(boss, "A Small Piece of Fluff"), "idle/bosses/Boss_001_A_Small_Piece_of_Fluff.png");
+assert.equal(choisirCleBossR2ParNom_(boss, "Fairy"), "", "pas de boss de ce nom : on retombe sur le dossier d'Aventure");
+assert.equal(choisirCleBossR2ParNom_(boss, ""), "");
+assert.equal(choisirCleBossR2ParNom_([], "Robot"), "");
 assert.match(readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8"), /p\.set\('name',String\(fight\.mobName\)\)/, "combat : image par nom");
 assert.match(lireUiComplet(), /urlMobR2IdleV1_\(e\.zone,e\.boss,e\.index,e\.nom\)/, "Collection : image par nom");
 
