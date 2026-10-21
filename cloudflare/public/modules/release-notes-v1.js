@@ -33,7 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
-            'Changer de page dans l’inventaire ne recrée plus que les cases : le titre du sac, la corbeille et les boutons de page restent en place.',
+            'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[

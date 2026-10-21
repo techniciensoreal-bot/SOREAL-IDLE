@@ -787,9 +787,11 @@
         const existants=Array.from(root.children);
         const parId=new Map();
         const vides=[];
+        const fillers=[];
         existants.forEach(function(node){
           const id=node&&node.dataset?String(node.dataset.itemId||''):'';
           if(id)parId.set(id,node);
+          else if(node.classList&&node.classList.contains('soreal-idle-v138-bag-filler'))fillers.push(node);
           else vides.push(node);
         });
 
@@ -846,6 +848,14 @@
           }
           if(node)noeudsFinaux.push(node);
         });
+        /* Cases invisibles qui complètent la dernière page (même hauteur de cadre d'une page à l'autre : rien ne bouge sous le sac). */
+        if(pagesSac>1){
+          while(noeudsFinaux.length<REG.IDLE_SAC_CASES_PAR_PAGE_V1){
+            let f=fillers.shift();
+            if(!f){f=document.createElement('div');f.className='soreal-idle-v138-bag-card soreal-idle-v138-bag-filler';f.setAttribute('aria-hidden','true');}
+            noeudsFinaux.push(f);
+          }
+        }
 
         /*
          * Clignotement de l'inventaire (Norman, 2026-10-08 : « l'inventaire clignote une fraction de seconde parfois »). « replaceChildren » retirait puis remettait TOUTES les cases, même celles

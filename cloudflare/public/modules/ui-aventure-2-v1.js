@@ -460,6 +460,8 @@
               :'<div class="soreal-idle-v138-bag-card soreal-idle-v138-bag-card-vide" data-slot-index="'+i+'"></div>'
           );
         }
+        /* Dernière page incomplète : des cases invisibles complètent la page (Norman, 2026-10-21 : « quand on change de page, je veux que seule la partie dans le cadre Sac change, pas de mouvement de page ») ; le cadre garde la même hauteur d'une page à l'autre, rien en dessous ne bouge. */
+        if(pages>1)for(let i=cases.length;i<REG.IDLE_SAC_CASES_PAR_PAGE_V1;i+=1)cases.push('<div class="soreal-idle-v138-bag-card soreal-idle-v138-bag-filler" aria-hidden="true"></div>');
         return pagerSacIdleV1_(page,pages)+'<div class="soreal-idle-v138-bag">'+cases.join('')+'</div>'+(pages>1?pagerSacIdleV1_(page,pages):'');
       }
 
