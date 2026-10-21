@@ -237,7 +237,8 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .stx-cle{font-size:12px;color:#8fa0c4;margin-bottom:12px;word-break:break-all}'+
     '#'+EDITEUR_ID+' label{display:block;font-weight:800;font-size:13px;color:#b8c7ea;margin:12px 0 4px;letter-spacing:.03em;text-transform:uppercase}'+
     '#'+EDITEUR_ID+' textarea,#'+EDITEUR_ID+' input[type=text]{width:100%;box-sizing:border-box;background:#0a0e16;color:#f1f4fb;border:1.5px solid #34425f;border-radius:10px;padding:10px;font:500 16px/1.5 system-ui,sans-serif}'+
-    '#'+EDITEUR_ID+' textarea{min-height:90px;resize:vertical}'+
+    /* Les cadres de texte s'allongent avec ce qu'ils contiennent (Norman, 2026-10-21) : field-sizing quand le navigateur le connaît, sinon ajusterCadres_ (hauteur = contenu). */
+    '#'+EDITEUR_ID+' textarea{min-height:90px;resize:vertical;field-sizing:content;overflow-y:hidden}'+
     '#'+EDITEUR_ID+' .stx-aide{font-size:13px;color:#8fa0c4;margin:4px 0}'+
     '#'+EDITEUR_ID+' .stx-palette{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}'+
     '#'+EDITEUR_ID+' button,.stx-btn{min-height:42px;padding:8px 14px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 14px/1 system-ui,sans-serif;cursor:pointer}'+
@@ -1629,6 +1630,24 @@ window.__SOREAL_IDLE_TEXTES_V1__={
   /* Outils de test. */
   blocsDeLecture:function(def,valeurs){edition={cle:'test',def:def,voix:[],valeurs:valeurs};var b=blocsDeLecture_(valeurs);edition=null;return b;}
 };
+
+/* Cadres de texte qui s'adaptent à leur contenu (repli de field-sizing) : hauteur recalculée à chaque saisie et à chaque réécriture de l'éditeur. */
+function ajusterCadres_(racine){
+  var l=(racine||document).querySelectorAll('#'+EDITEUR_ID+' textarea'),i,t;
+  for(i=0;i<l.length;i++){
+    t=l[i];
+    if(!t.offsetParent&&!t.getClientRects().length)continue;
+    t.style.height='auto';
+    t.style.height=(t.scrollHeight+(t.offsetHeight-t.clientHeight))+'px';
+  }
+}
+(function(){
+  var prevu=0;
+  function planifier(){if(prevu)return;prevu=requestAnimationFrame(function(){prevu=0;try{ajusterCadres_();}catch(_e){}});}
+  if(document.addEventListener)document.addEventListener('input',function(ev){var t=ev.target;if(t&&t.tagName==='TEXTAREA'&&t.closest&&t.closest('#'+EDITEUR_ID))planifier();},true);
+  try{if(typeof MutationObserver!=='undefined')new MutationObserver(function(ml){for(var i=0;i<ml.length;i++){var n=ml[i].target;if(n&&n.nodeType===1&&n.closest&&(n.id===EDITEUR_ID||n.closest('#'+EDITEUR_ID))){planifier();return;}}}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+  if(window.addEventListener)window.addEventListener('resize',planifier);
+})();
 
 charger_();
 })();

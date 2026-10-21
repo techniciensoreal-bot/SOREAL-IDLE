@@ -105,7 +105,9 @@ def normaliser_texte(texte):
 
     t = re.sub(r"\*([^*\n]+)\*", bruitage, t).replace("*", " ")
     t = t.replace("\u2026", "...")
-    return re.sub(r"\s+", " ", t).strip()
+    t = re.sub(r"\s+", " ", t).strip()
+    # Ton interrogatif (Norman, 2026-10-21) : la typographie française met une espace avant « ? » et « ! » ; le modèle lit mieux la montée finale quand le « ? » colle au dernier mot.
+    return re.sub(r"\s+([?!])", r"\1", t)
 
 
 def ffmpeg_exe():
@@ -170,12 +172,28 @@ def charger_modele():
     return _modele
 
 
+def est_question(segment):
+    """Le segment se termine par un point d'interrogation (guillemets, parenthèses ou espaces éventuels après)."""
+    return bool(re.search(r"\?[\s»\"')\]]*$", str(segment)))
+
+
 def decouper(texte):
     """Découpe en segments d'au plus MAX_SEGMENT caractères, sur la ponctuation quand c'est possible."""
     texte = re.sub(r"\s+", " ", texte).strip()
     phrases = re.split(r"(?<=[.!?…»])\s+", texte)
     segments, courant = [], ""
     for p in phrases:
+        if courant and est_question(courant):
+            segments.append(courant)
+            courant = ""
+        if est_question(p):
+            # Une question forme son propre segment (Norman, 2026-10-21 : « le ton interrogatif n'est pas tout le temps respecté ») : collée à la phrase qui suit ou précède, la montée de fin de phrase se perdait.
+            if courant:
+                segments.append(courant)
+                courant = ""
+            if len(p) <= MAX_SEGMENT:
+                segments.append(p)
+                continue
         if len(p) > MAX_SEGMENT:
             morceaux = re.split(r"(?<=[,;:])\s+", p)
         else:
@@ -263,14 +281,19 @@ def bornes_parole(parole, marge_debut=MARGE_DEBUT_FEN, marge_fin=MARGE_FIN_FEN, 
     return max(0, debut - marge_debut), min(nb, fin + 1 + marge_fin)
 
 
-def couper_bords(wav, sr):
+# Question : la montée finale est plus douce que le reste de la phrase ; avec le seuil habituel elle était rognée avec le souffle (le ton interrogatif se perdait). Seuil plus bas, marge de fin plus longue, fondu plus court.
+SEUIL_BORDS_QUESTION = 0.04
+MARGE_FIN_QUESTION_FEN = 14   # 280 ms
+
+
+def couper_bords(wav, sr, question=False):
     """Retire le souffle / silence de début et de fin d'un segment (fondu d'entrée de 12 ms, fondu de sortie de 60 ms). Un segment sans parole identifiable est rendu tel quel."""
     import torch
     rms, fenetre, nb = energie_fenetres(wav, sr)
     if rms is None or nb < 6:
         return wav
-    parole = (rms >= float(rms.max()) * SEUIL_BORDS).tolist()
-    bornes = bornes_parole(parole)
+    parole = (rms >= float(rms.max()) * (SEUIL_BORDS_QUESTION if question else SEUIL_BORDS)).tolist()
+    bornes = bornes_parole(parole, marge_fin=MARGE_FIN_QUESTION_FEN) if question else bornes_parole(parole)
     if bornes is None:
         return wav
     debut, fin = bornes
@@ -281,7 +304,7 @@ def couper_bords(wav, sr):
     fondu_entree = min(n // 4, int(sr * 0.012))
     if fondu_entree > 1:
         sortie[..., :fondu_entree] *= torch.linspace(0.0, 1.0, fondu_entree)
-    fondu_sortie = min(n // 2, int(sr * 0.06))
+    fondu_sortie = min(n // 2, int(sr * (0.03 if question else 0.06)))
     if fondu_sortie > 1:
         sortie[..., -fondu_sortie:] *= torch.linspace(1.0, 0.0, fondu_sortie)
     return sortie
@@ -340,7 +363,8 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
         raise ValueError("texte vide après normalisation")
     if len(texte) < TEXTE_COURT and est_nom_court(texte):
         court = texte.rstrip(" .!?…,;:") or texte
-        wav, sr = synthetiser_long(court + ". " + court + ".", voix, exaggeration, cfg)
+        fin = "?" if est_question(texte) else "."
+        wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg)
         return avec_silence_final(garder_premiere_prononciation(wav, sr), sr), sr
     wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
     return avec_silence_final(wav, sr), sr
@@ -474,7 +498,7 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
                 torch.cuda.empty_cache()
             if wav.dim() == 1:
                 wav = wav.unsqueeze(0)
-            wav = couper_bords(wav, m.sr)
+            wav = couper_bords(wav, m.sr, est_question(segment))
             morceaux.extend([wav, silence])
     return torch.cat(morceaux[:-1], dim=1), m.sr
 

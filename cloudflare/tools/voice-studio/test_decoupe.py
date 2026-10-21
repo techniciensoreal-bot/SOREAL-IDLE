@@ -153,4 +153,11 @@ verifier(len(derape.t3.vu) == 3 and all(v == pn for v in derape.t3.vu), "dérapa
 verifier(duree(sortie) <= serveur.duree_max_segment(nom) + 0.01, "dérapage : le résultat final est coupé à la durée plausible (%.1f s)" % duree(sortie))
 verifier(serveur._plafond_jetons[0] == 0, "plafond remis à zéro après un dérapage")
 
+# 6. Ton interrogatif (Norman, 2026-10-21) : une question est un segment à elle, le « ? » colle au mot, la montée finale n'est pas rognée.
+verifier(serveur.decouper("Bonjour. Comment vas-tu ? Très bien. Vraiment ?") == ["Bonjour.", "Comment vas-tu ?", "Très bien.", "Vraiment ?"], "chaque question forme son propre segment")
+verifier(serveur.normaliser_texte("Tu viens ? Oui !") == "Tu viens? Oui!", "pas d'espace avant ? et !")
+verifier(serveur.est_question("Tu viens ?") and serveur.est_question("« Tu viens ? »") and not serveur.est_question("Tu viens."), "détection d'une question")
+phrase_q = torch.cat([parole(0.8), silence(0.10), 0.03 * parole(0.25), silence(0.6)], dim=1)   # montée finale très douce
+verifier(duree(serveur.couper_bords(phrase_q, SR, True)) > duree(serveur.couper_bords(phrase_q, SR, False)) + 0.1, "question : la montée finale douce est gardée (%.2f s contre %.2f s)" % (duree(serveur.couper_bords(phrase_q, SR, True)), duree(serveur.couper_bords(phrase_q, SR, False))))
+
 print("TOUT EST BON")

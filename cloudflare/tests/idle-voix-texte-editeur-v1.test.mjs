@@ -33,6 +33,6 @@ assert.ok(src.includes(".stx-v2 textarea,#'+EDITEUR_ID+' .stx-v2 input[type=text
 
 // Studio : respirations / silences rognés
 const studio = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
-assert.ok(studio.includes("def couper_bords(wav, sr):") && studio.includes("wav = couper_bords(wav, m.sr)"), "souffle / silence de début et de fin rognés sur chaque segment");
+assert.ok(studio.includes("def couper_bords(wav, sr, question=False):") && studio.includes("wav = couper_bords(wav, m.sr, est_question(segment))"), "souffle / silence de début et de fin rognés sur chaque segment");
 assert.ok(studio.includes("RACCORD_S = 0.22") && studio.includes("def avec_silence_final(wav, sr):"), "raccords en vrais silences + silence final propre");
 console.log("idle-voix-texte-editeur-v1: OK");
