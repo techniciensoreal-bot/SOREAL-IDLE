@@ -380,10 +380,15 @@
       const r=await parler({type:"importer",fichier:fichierEnAttente});
       if(!r||!r.ok){etatPartieFichier("⚠️ Cette partie n’a pas pu être chargée ("+echapper(r&&r.erreur||"erreur")+"). Ta partie actuelle n’a pas changé.",true);return;}
       importPartieEnCours=true;sale=true;rev+=1;
+      /* La partie importée est écrite sur l'appareil AVANT l'envoi et avant tout rechargement (audit anti-rollback, 2026-10-21) : si le serveur est injoignable, c'est la reprise au démarrage qui l'enverra ; avant, la page se rechargeait 0,9 s plus tard même si rien n'était encore sauvegardé. */
+      const copieOk=await sauverCopie();
       let envoye=false;
       try{envoye=Boolean(await envoyer(false,true));}catch(_){envoye=false;}
       importPartieEnCours=false;
-      programmerSauvegarde();
+      if(!envoye&&!copieOk){
+        etatPartieFichier("⚠️ La partie est chargée dans le jeu mais n’a pu être sauvegardée ni sur cet appareil ni sur le serveur : ne ferme pas la page, vérifie ta connexion puis utilise « Envoyer ma partie vers le serveur ».",true);
+        return;
+      }
       fichierEnAttente=null;
       etatPartieFichier(envoye?"✅ Partie chargée. Le jeu se recharge…":"✅ Partie chargée sur cet appareil (l’envoi au serveur se fera tout seul). Le jeu se recharge…",false);
       setTimeout(function(){location.reload();},900);
