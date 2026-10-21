@@ -4,6 +4,7 @@
  *
  *  - Après une Renaissance (records.totalRebirths a changé), le menu est ÉTEINT : sombre et terne, mais utilisable.
  *  - À la PREMIÈRE ouverture du menu après une Renaissance (et seulement là), tout le menu s'allume, bloc après bloc (titre, barre d'outils, puis chaque ligne d'Attaque et de Défense), chacun clignotant comme un tube néon avant de tenir.
+ *  - Chaque barre qui a de l'énergie garde SON démarrage de base (bt-lumieres-v1.js : démarrage 1/2/3/5/6, le néon pour la première barre), joué à l'instant où sa ligne s'allume.
  *  - Hors de cette première ouverture, ni animation ni son : le menu est simplement allumé (Norman, 2026-10-21 : « uniquement quand on va dans Basic Training la première fois après un rebirth »).
  *  - Sons synthétisés (aucun fichier) : grésillements et claquements du starter, « pop » à chaque tube qui prend, ronronnement grave qui s'installe. Volume = barre « Sons de l'interface » des Réglages (rien à volume 0).
  *  - Aucun effet pour un joueur qui n'a pas encore connu de Renaissance depuis la mise en place : le menu reste allumé.
@@ -105,6 +106,22 @@
     ton_(c,out,fin,'sine',110,112,1.4,0.05);
     ton_(c,out,fin+0.05,'triangle',220,222,1.1,0.025);
   }
+  /* Démarrages propres à chaque barre (Norman, 2026-10-21) : [{d: instant en s, type}] pour les compétences qui ont de l'énergie, d'après le calendrier de leur ligne. */
+  function barresAvecEnergie_(){
+    var L=window.__SOREAL_IDLE_BT_LUMIERES_V1__,j=etatJeu_(),sk=j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[],out=[];
+    if(!L||typeof L.variantePourBarre!=='function')return out;
+    sk.forEach(function(b,i){
+      if(!b||!b.unlocked||!(Number(b.allocation)>0))return;
+      var defense=i>=6,k=i%6,d=k===0?(defense?PANNEAU_D:PANNEAU_A):(defense?1.95:1.0)+PAS*(k-1);
+      out.push({d:d,type:k===0?'allume':L.variantePourBarre(b.id)});
+    });
+    return out;
+  }
+  function sonsBarres_(c,out,t0){
+    var L=window.__SOREAL_IDLE_BT_LUMIERES_V1__;
+    if(!L||typeof L.construire!=='function')return;
+    barresAvecEnergie_().forEach(function(x){try{L.construire(c,out,t0+x.d,x.type);}catch(_e){}});
+  }
   function sons_(){
     var v=volume_();
     if(!(v>0))return false;
@@ -114,6 +131,7 @@
       if(c.state==='suspended'&&c.resume)c.resume();
       var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*0.5;maitre.connect(c.destination);
       jouerSons(c,maitre,c.currentTime+0.03);
+      sonsBarres_(c,maitre,c.currentTime+0.03);
       return true;
     }catch(_e){return false;}
   }
@@ -178,5 +196,5 @@
     setInterval(function(){if(!document.hidden){try{verifier_();}catch(_e){}}},500);
   }
 
-  window.__SOREAL_IDLE_BT_NEON_V1__={demo:demo,etat:etat,jouerSons:jouerSons,calendrier:calendrier,css:css_};
+  window.__SOREAL_IDLE_BT_NEON_V1__={demo:demo,etat:etat,jouerSons:jouerSons,barresAvecEnergie:barresAvecEnergie_,calendrier:calendrier,css:css_};
 })();
