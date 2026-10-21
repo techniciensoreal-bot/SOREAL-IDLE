@@ -101,7 +101,7 @@
               </div>
             </div>
             <button type="button" class="soreal-idle-rebirth-button-v14${prochain>actuel*1.0000001?' positif':''}"
-              onclick="window.__renaitreIdleV14__()" ${(REG.idleRenaissanceEnCoursV14||!(REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.debloquee))?'disabled':''}>
+              onclick="window.__renaitreIdleV14__()" ${(REG.idleRenaissanceEnCoursV14||!(REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.debloquee)||(REG.idleEtat.systemes&&REG.idleEtat.systemes.challenge&&REG.idleEtat.systemes.challenge.active==='noRebirth'))?'disabled':''}>
               ♻️ RENAISSANCE
             </button>
             ${
