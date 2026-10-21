@@ -45,25 +45,37 @@
 
   /* Sauvegarde sur l'appareil (IndexedDB) : la dernière ligne du joueur et les événements pas encore reçus par le serveur. Au démarrage, si elle est plus récente
      que celle du serveur (page fermée avant l'envoi), c'est elle qui est reprise et renvoyée : aucune progression perdue. */
-  function bd(){
+  /*
+   * Délais (Norman, 2026-10-21 : « quand je lance SOREAL IDLE depuis l'exe, ça charge « Connexion à SOREAL IDLE » mais rien ne s'affiche ; dans Chrome ça fonctionne directement ») : dans une fenêtre intégrée (l'application de bureau de SOREAL TV), une base de l'appareil
+   * ou un Worker peut ne JAMAIS répondre (stockage bloqué dans un cadre d'un autre site) : le jeu attendait sans fin la fin du démarrage du moteur. Chaque attente est maintenant bornée ; passé le délai, le moteur local est abandonné
+   * et le jeu continue en mode serveur, comme avant.
+   */
+  function avecDelai(promesse,ms,code){
     return new Promise(function(ok,ko){
+      const t=setTimeout(function(){ko(new Error(code));},ms);
+      promesse.then(function(v){clearTimeout(t);ok(v);},function(e){clearTimeout(t);ko(e);});
+    });
+  }
+  function bd(){
+    return avecDelai(new Promise(function(ok,ko){
       try{
         const r=indexedDB.open("soreal_idle_moteur_local_v1",1);
         r.onupgradeneeded=function(){r.result.createObjectStore("kv");};
         r.onsuccess=function(){ok(r.result);};
         r.onerror=function(){ko(r.error);};
+        r.onblocked=function(){ko(new Error("IDB_BLOQUEE"));};
       }catch(e){ko(e);}
-    });
+    }),4000,"IDB_LENTE");
   }
   async function kv(mode,cle,valeur){
     try{
       const db=await bd();
-      return await new Promise(function(ok){
+      return await avecDelai(new Promise(function(ok){
         const tx=db.transaction("kv",mode==="lire"?"readonly":"readwrite"),st=tx.objectStore("kv");
         const r=mode==="lire"?st.get(cle):mode==="ecrire"?st.put(valeur,cle):st.delete(cle);
         tx.oncomplete=function(){db.close();ok(mode==="lire"?r.result:true);};
         tx.onerror=tx.onabort=function(){db.close();ok(null);};
-      });
+      }),4000,"IDB_LENTE");
     }catch(_){return null;}
   }
   function enMs(v){const n=Number(v);return(Number.isFinite(n)&&String(v).trim()!=="")?n:Date.parse(String(v));}
@@ -114,8 +126,8 @@
   async function demarrer(jeton){
     session=jeton;
     const t0=Date.now();
-    const rep=await fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
-    const exp=await rep.json();
+    const rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
+    const exp=await avecDelai(rep.json(),25000,"EXPORT_LOCAL_LENT");
     depuis=Number(exp&&exp.serveurAt)||Date.now();
     /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). */
     if(exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
@@ -147,7 +159,13 @@
       echec=true;vivant=false;
       attentes.forEach(function(a){a.ko(new Error("MOTEUR_LOCAL_ARRETE"));});attentes.clear();
     };
-    await parler({type:"init",ecart:ecartServeur(),export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href});
+    try{
+      await avecDelai(parler({type:"init",ecart:ecartServeur(),export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href}),20000,"MOTEUR_LOCAL_DEMARRAGE_LENT");
+    }catch(e){
+      try{worker.terminate();}catch(_){}
+      worker=null;
+      throw e;
+    }
     vivant=true;
     /* Chronométrage par phase du moteur : demandé seulement à l'administrateur (journal de fluidité). Réessayé quelques fois : le statut d'administrateur n'est connu qu'après les premières réponses. */
     (function demanderSpans(essais){
