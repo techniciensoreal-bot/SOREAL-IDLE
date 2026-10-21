@@ -1597,7 +1597,17 @@
               const modele=document.createElement('template');
               modele.innerHTML=pagerSacIdleV1_(page2,pages2).trim();
               const neuf=modele.content.firstElementChild;
-              if(neuf&&!el.isEqualNode(neuf))el.replaceWith(neuf);
+              if(!neuf||el.isEqualNode(neuf))return;
+              /* Mise à jour EN PLACE des boutons et du texte (Norman, 2026-10-21 : « l'inventaire se redessine quand on passe d'une page à l'autre ») : les boutons ne sont plus recréés à chaque changement de page. */
+              if(el.children.length===neuf.children.length&&Array.prototype.every.call(el.children,function(x,i){return x.tagName===neuf.children[i].tagName;})){
+                Array.prototype.forEach.call(el.children,function(x,i){
+                  const y=neuf.children[i];
+                  if(x.tagName==='BUTTON'){
+                    if(x.disabled!==y.disabled)x.disabled=y.disabled;
+                    if(x.getAttribute('onclick')!==y.getAttribute('onclick'))x.setAttribute('onclick',y.getAttribute('onclick'));
+                  }else if(x.textContent!==y.textContent)x.textContent=y.textContent;
+                });
+              }else el.replaceWith(neuf);
             });
             return;
           }
@@ -1690,7 +1700,7 @@
             '<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+
               indiceSacZoneTutorielIdleV1_(a)+
               '<div class="soreal-idle-v138-bag-heading-v165">'+
-                '<div class="soreal-idle-window-title-v31"><i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+utilise+' / '+capacite+')</div>'+
+                '<div class="soreal-idle-window-title-v31" data-sac-v160="'+utilise+'/'+capacite+'"><i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+utilise+' / '+capacite+')</div>'+
                 /*
                  * Norman (2026-09-29) : « J'aimerai un bouton pour trier l'inventaire [...] il ne
                  * serait pas dévérouillé de base. » Achat EXP Shop (section Débuts) : jamais affiché

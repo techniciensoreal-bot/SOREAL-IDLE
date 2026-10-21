@@ -1158,7 +1158,8 @@
         patchGrilleSacInventaireIdleV160_(modele);
 
         const trashActuelV165=document.querySelector('[data-idle-trash-slot-v165]');
-        if(trashActuelV165){
+        /* Changer de page du sac ne touche pas la corbeille (Norman, 2026-10-21) : elle n'est plus recréée. */
+        if(trashActuelV165&&action!=='page'){
           const tplTrashV165=document.createElement('template');
           tplTrashV165.innerHTML=
             rendreTrashAdventureIdleV165_(modele.a&&modele.a.trash).trim();

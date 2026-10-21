@@ -248,8 +248,8 @@
   "sha": "7e88a7ee70030c5a41a04e2df0dcb5b24ba7c7f6"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 2,
-  "sha": "ebae5cc230531223c26ccfc3a9b662b9be64671c"
+  "pin": 3,
+  "sha": "0ebbf096cc84c79d7cb09dadda1d22da56a89432"
  },
  "/modules/morph-v1.js": {
   "pin": 4,
@@ -316,8 +316,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 338,
-  "sha": "1bb6d6a90cb3dfe70cc712b3159ac25b5b9496e6"
+  "pin": 339,
+  "sha": "2970a8df1cd15d3a848e98fa2a7443eff1ca2f37"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -380,12 +380,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 361,
-  "sha": "060e975eaf514e1fdf2af29bdd540d390badd901"
+  "pin": 362,
+  "sha": "2376e39ce24e49d654de602937a905d5c7766917"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 155,
-  "sha": "c424129d4f2ebdaf97aa7d0e4616ecf46060859c"
+  "pin": 156,
+  "sha": "73f0fb04a920de8dc0bad9b4452c2dd55fee531b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -420,8 +420,8 @@
   "sha": "8eb63f95a77b8c8f2895e9415dd8061dd95761fb"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 3,
-  "sha": "6f7e6820fda6040146f61ed7f89863a84b919e0a"
+  "pin": 4,
+  "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 5,
@@ -456,8 +456,8 @@
   "sha": "c484674147860267fc09859d66f25de96fb06a94"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 4,
-  "sha": "bde2f620a6909f91468358e0bb1d0ec59c8ce57c"
+  "pin": 5,
+  "sha": "134dc0b68d1dd3ceacbee4c8e61b5e411a5a9f14"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 6,

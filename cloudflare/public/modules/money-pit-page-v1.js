@@ -73,6 +73,8 @@
        * Roue du Daily Spin (Norman, 2026-10-10 : « un effet de roue qui tourne ») : huit parts dessinées en CSS, repère fixe au-dessus. Prête, elle tourne doucement ; au clic elle fait un vrai tour de roue
        * (départ rapide, ralentissement long, arrêt sur une part au hasard), PUIS la demande part au serveur : le lot s'annonce quand la roue s'arrête. Sans animation (prefers-reduced-motion), la demande part tout de suite.
        */
+      const rangCouleurMemoIdleV1={};
+
       function roueDisponibleIdleV1_(st){
         const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
         return readyAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now())<=0;
@@ -495,15 +497,26 @@
          * Couleur du cadre du prix (Norman, 2026-10-07 : « le cadre doit changer de couleur à chaque récompense, sinon on ne remarque pas le changement entre la précédente et la nouvelle »).
          * Un compteur, gardé sur l'appareil, avance d'un cran chaque fois que la dernière récompense n'est plus celle qu'on avait vue ; la couleur est le rang du compteur (6 teintes qui se suivent).
          */
-        const rangCouleurPrix_=function(d,stockage){
+        /*
+         * Norman (2026-10-21) : « les cadres ne changent plus de couleur, ça reste rouge ». Le compteur n'était gardé que dans le stockage de l'appareil (recopié sur le compte, parfois remis à une ancienne valeur par une réponse) :
+         * il est maintenant AUSSI gardé en mémoire de page (la séquence ne recule jamais pendant la session) et, pour la roue, la couleur suit directement le nombre total de tours (aucun stockage, aucune course possible).
+         */
+        const rangCouleurPrix_=function(d,stockage,total){
           let rang=0;
+          if(total!=null&&total>0)return ((Math.floor(total)%6)+6)%6;
           try{
             const cle=d?(String(d.at)+'|'+String(d.prize)):'';
             if(cle){
-              const brut=JSON.parse(localStorage.getItem(stockage)||'null');
+              const memo=rangCouleurMemoIdleV1[stockage];
+              let brut=null;
+              try{brut=JSON.parse(localStorage.getItem(stockage)||'null');}catch(_e2){brut=null;}
+              if(memo&&(!brut||typeof brut!=='object'||memo.n>(Number(brut.n)||0)||(memo.cle===cle&&memo.n>=(Number(brut.n)||0))))brut=memo;
               let n=0;
               if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
-              if(!brut||brut.cle!==cle)localStorage.setItem(stockage,JSON.stringify({cle:cle,n:n}));
+              if(!brut||brut.cle!==cle){
+                rangCouleurMemoIdleV1[stockage]={cle:cle,n:n};
+                try{localStorage.setItem(stockage,JSON.stringify({cle:cle,n:n}));}catch(_e3){}
+              }
               rang=((n%6)+6)%6;
             }
           }catch(_e){}
@@ -511,7 +524,7 @@
         };
         /* Un « Ton prix » sous CHAQUE bouton (Norman, 2026-10-16) : le dernier gain du Money Pit sous « Balance ton argent », le dernier de la roue sous la roue, chacun avec son propre compteur de couleur. */
         const couleurPrix=rangCouleurPrix_(derniere,'soreal_idle_prix_couleur_v1');
-        const couleurPrixRoue=rangCouleurPrix_(derniereRoue,'soreal_idle_prix_couleur_roue_v1');
+        const couleurPrixRoue=rangCouleurPrix_(derniereRoue,'soreal_idle_prix_couleur_roue_v1',totalSpins);
         const H0=window.__SOREAL_IDLE_META_HOST_V130__;
         const prixPit='<div class="soreal-idle-offre-v1 mp2-prix-v1">'+
             '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
