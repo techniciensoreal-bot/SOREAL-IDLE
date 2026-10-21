@@ -76,7 +76,7 @@
       '<radialGradient id="tmmLampeV" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#d8ffd0"/><stop offset=".5" stop-color="#37e05a"/><stop offset="1" stop-color="#0f6a24"/></radialGradient>'+
       '<radialGradient id="tmmLueur" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#ffb43a" stop-opacity=".75"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></radialGradient>'+
       '<radialGradient id="tmmHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffcf55" stop-opacity=".9"/><stop offset="1" stop-color="#ffcf55" stop-opacity="0"/></radialGradient>'+
-      '<radialGradient id="tmmOrbe" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fbe0ff"/><stop offset=".45" stop-color="#c25bff"/><stop offset="1" stop-color="#4a0f8a"/></radialGradient>'+
+      '<radialGradient id="tmmOrbe" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#e0f1ff"/><stop offset=".45" stop-color="#4aa8ff"/><stop offset="1" stop-color="#0f3f8a"/></radialGradient>'+
       '<pattern id="tmmScan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1.4" fill="#000"/></pattern>'+
       '<filter id="tmmOmbre" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000" flood-opacity=".55"/></filter>'+
       '</defs></svg>';
@@ -189,10 +189,10 @@
   function hautMagie(){
     var runes='';
     var signes=['ᚠ','ᚦ','ᚱ','ᚲ','ᛉ','ᛟ','ᛞ','ᛗ'];
-    for(var i=0;i<8;i++){var a=i*Math.PI/4,x=30*Math.cos(a),y=30*Math.sin(a);runes+='<text x="'+arr(x,1)+'" y="'+arr(y+4,1)+'" text-anchor="middle" font-size="10" fill="#f6c7ff" opacity=".9" font-family="serif" transform="rotate('+(i*45+90)+' '+arr(x,1)+' '+arr(y,1)+')">'+signes[i]+'</text>';}
+    for(var i=0;i<8;i++){var a=i*Math.PI/4,x=30*Math.cos(a),y=30*Math.sin(a);runes+='<text x="'+arr(x,1)+'" y="'+arr(y+4,1)+'" text-anchor="middle" font-size="10" fill="#cfe8ff" opacity=".9" font-family="serif" transform="rotate('+(i*45+90)+' '+arr(x,1)+' '+arr(y,1)+')">'+signes[i]+'</text>';}
     var etinc='';
-    for(var k=0;k<5;k++)etinc+='<circle class="tmm-etincelle" style="--d:'+(k*.5)+'s" cx="'+(-30+k*15)+'" cy="36" r="2.2" fill="#f6c7ff"/>';
-    return '<svg viewBox="0 0 150 86" aria-hidden="true" data-morph-vivant="1"><g transform="translate(75 44)"><circle class="tmm-orbe" r="40" fill="#b04dff" opacity=".35"/>'+
+    for(var k=0;k<5;k++)etinc+='<circle class="tmm-etincelle" style="--d:'+(k*.5)+'s" cx="'+(-30+k*15)+'" cy="36" r="2.2" fill="#cfe8ff"/>';
+    return '<svg viewBox="0 0 150 86" aria-hidden="true" data-morph-vivant="1"><g transform="translate(75 44)"><circle class="tmm-orbe" r="40" fill="#3d8bff" opacity=".35"/>'+
       '<g class="tmm-anneau"><circle r="36" fill="none" stroke="#150c06" stroke-width="6"/><circle r="36" fill="none" stroke="#e3b04b" stroke-width="3" stroke-dasharray="14 6"/>'+runes+'</g>'+
       '<circle r="20" fill="url(#tmmOrbe)" stroke="#150c06" stroke-width="3"/><path d="M-10 -9 Q-3 -17 6 -13" fill="none" stroke="#fff" opacity=".55" stroke-width="3" stroke-linecap="round"/>'+etinc+
       '<path d="M-62 40 H62" stroke="#150c06" stroke-width="4" stroke-linecap="round"/></g></svg>';

@@ -44,8 +44,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 5,
-  "sha": "17d02e8cb63538ae77a814e022514441731f5839"
+  "pin": 6,
+  "sha": "98f40b48787b7eaf0508434a1ea918a35fff2b4c"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -240,8 +240,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 5,
-  "sha": "51f92e3ba5cdc365889320d083cb87d6961ed30e"
+  "pin": 6,
+  "sha": "26b1bc7ef69195669f38659541287f6223498db8"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610166,
@@ -548,8 +548,8 @@
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
  },
  "/soreal-idle-machine.css": {
-  "pin": 3,
-  "sha": "c0913272d03a94f459e9841824c24e36b20faa89"
+  "pin": 4,
+  "sha": "ccac3dcaff2bf5a82e0f3e903985cbe3a16042f4"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

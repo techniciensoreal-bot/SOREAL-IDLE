@@ -1206,8 +1206,8 @@
           const gauche=cle==='vitesse';
           const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
           const icone=gauche
-            ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#ffe14a" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
-            :'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#f6a3ff" stroke="#150c06" stroke-width="2.2" stroke-linejoin="round"/></svg>';
+            ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#7dff9f" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
+            :'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#9fd2ff" stroke="#150c06" stroke-width="2.2" stroke-linejoin="round"/></svg>';
           let bulles='';
           for(let i=0;i<5;i+=1)bulles+='<i class="tmm-bulle" style="--x:'+((i*37+(gauche?0:11))%18)+'px;--d:-'+(i*0.8).toFixed(1)+'s;animation-duration:'+(3.6+i*0.5).toFixed(1)+'s"></i>';
           const tube='<div class="tmm-tube"><div class="tmm-liq"></div>'+bulles+'</div>';

@@ -10,8 +10,8 @@
 .tmm-machine.tmm-sans-magie{grid-template-columns:minmax(0,1fr) minmax(0,1.62fr)}
 /* ---- les deux tours ---- */
 .tmm-tour{position:relative;padding:14px 12px 16px;color:#fff1d6;border:4px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.09),transparent 14%,transparent 86%,rgba(0,0,0,.25)),linear-gradient(180deg,#8c6226,#5d3d17 18%,#4a2f12 60%,#33200c);box-shadow:inset 0 0 0 3px #b98a3c,inset 0 0 0 6px #2a1a09,inset 0 10px 22px rgba(255,235,170,.12);display:flex;flex-direction:column;gap:10px;min-height:520px;font-family:"Russo One",system-ui,sans-serif}
-.tmm-gauche{border-radius:26px 0 0 26px;--c1:#2f6bff;--c2:#5fe3ff;--cg:rgba(60,170,255,.55)}
-.tmm-droite{border-radius:0 26px 26px 0;--c1:#a14dff;--c2:#f18bff;--cg:rgba(200,90,255,.55)}
+.tmm-gauche{border-radius:26px 0 0 26px;--c1:#1fae52;--c2:#6dff9b;--cg:rgba(70,230,120,.55)}
+.tmm-droite{border-radius:0 26px 26px 0;--c1:#2f6bff;--c2:#7fc4ff;--cg:rgba(80,160,255,.55)}
 .tmm-sans-magie .tmm-gauche{border-radius:26px 0 0 26px}
 .tmm-tour::before,.tmm-tour::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c0,#c08a2a 55%,#4a2c0a);box-shadow:0 0 0 2px var(--encre),0 2px 0 2px #000;top:10px}
 .tmm-tour::before{left:10px}.tmm-tour::after{right:10px}
@@ -45,8 +45,8 @@
 .tmm-boutons button{font-family:"Bangers",cursive;font-size:19px;letter-spacing:.04em;min-height:48px;color:#2a1700;border-radius:11px;border:3px solid var(--encre);padding:6px 0 5px;cursor:pointer;background:linear-gradient(180deg,#ffe9a6,#d9a02e 55%,#8a5a12);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 0 #3a2208,0 6px 8px rgba(0,0,0,.5);transition:transform .08s,box-shadow .08s}
 .tmm-boutons button:first-child,.tmm-boutons button:nth-child(2){font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:26px;font-weight:900;line-height:1}
 .tmm-boutons button:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 #3a2208}
-.tmm-boutons button.max{background:linear-gradient(180deg,#bff0ff,#46b0e8 55%,#16608a)}
-.tmm-droite .tmm-boutons button.max{background:linear-gradient(180deg,#f2c4ff,#b55be8 55%,#5a1d8a)}
+.tmm-boutons button.max{background:linear-gradient(180deg,#c9ffd9,#3fcf74 55%,#14702f)}
+.tmm-droite .tmm-boutons button.max{background:linear-gradient(180deg,#d2e8ff,#4f9cf0 55%,#1a4a9a)}
 .tmm-ligne{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tmm-case{border-radius:9px;background:rgba(0,0,0,.38);border:2px solid #000;padding:5px 8px;min-width:0}
 .tmm-case-titre{display:block;font-size:11px;color:#e8cf9d;font-style:normal}

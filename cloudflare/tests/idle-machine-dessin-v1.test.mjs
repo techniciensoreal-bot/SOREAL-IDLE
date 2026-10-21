@@ -53,3 +53,11 @@ assert.ok(page.includes("D.maj(vue)"), "la machine suit chaque synchro");
 const idx = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
 assert.ok(/soreal-idle-machine\.css/.test(idx) && /machine-dessin-v1\.js/.test(idx) && idx.indexOf("machine-dessin-v1.js") < idx.indexOf("augmentations-page-v1.js"), "chargé avant la page");
 console.log("idle-machine-dessin-v1: OK");
+/* Couleurs (Norman, 2026-10-21) : l'Énergie est VERTE (comme la barre d'énergie), la Magie BLEUE (comme la barre de magie). */
+{
+  const css = readFileSync(new URL("../public/soreal-idle-machine.css", import.meta.url), "utf8");
+  assert.ok(/\.tmm-gauche\{[^}]*--c1:#1fae52;--c2:#6dff9b/.test(css), "tour Énergie verte");
+  assert.ok(/\.tmm-droite\{[^}]*--c1:#2f6bff;--c2:#7fc4ff/.test(css), "tour Magie bleue");
+  assert.ok(!/#a14dff|#f18bff|#b04dff/.test(css + src), "plus de mauve");
+}
+console.log("idle-machine-dessin-v1 (couleurs): OK");
