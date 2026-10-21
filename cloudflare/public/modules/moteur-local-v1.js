@@ -101,6 +101,8 @@
   }
   let importPartieEnCours=false;
   let worker=null,demarrage=null,vivant=false,sale=false,passif=false,dernierEnvoi=0,enVol=false,session="",numero=0,echec=false,raison="";
+  /* Révision de la progression de CETTE page : +1 à chaque action qui modifie la partie. Un envoi porte la révision qu'il contient ; son accusé ne concerne que celle-là (audit anti-rollback, Norman, 2026-10-21). refus = envois que le serveur a reçus mais PAS écrits. */
+  let rev=0,refus=0;
   const attentes=new Map();
 
   function parler(msg){
@@ -144,7 +146,7 @@
         [0,1,17,18,19].forEach(function(c){fusion[c]=srv[c];});
         exp.joueurs.ligne=JSON.stringify(fusion);
         exp.reprise={flux:rec.flux||[],gains:rec.gains||[]};
-        sale=true;
+        sale=true;rev+=1;
       }else{await kv("effacer",cleSauve);}
     }
     worker=new Worker("/moteur-local-worker-v1.js?v=1b36a7f447");
@@ -195,16 +197,24 @@
     if(conflit||!vivant||!(sale||passifDu||forcer)||enVol&&!fin)return false;
     enVol=true;
     passif=false;dernierEnvoi=Date.now();
+    /* Révision contenue dans cet envoi : lue AVANT l'extraction (une action terminée entre-temps est dans l'état extrait mais pas comptée ici : on croit alors la copie de l'appareil plus récente que le serveur, jamais l'inverse). */
+    const revEnvoyee=rev;
     try{
       const sortant=await parler({type:"sortant",vider:true});
-      sortant.appareil=appareil;sortant.depuis=depuis;
+      sortant.appareil=appareil;sortant.depuis=depuis;sortant.rev=revEnvoyee;
       if(importPartieEnCours)sortant.importPartie=true;
       sale=false;
       const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
       if(reponse&&reponse.conflit){conflit=true;sale=false;afficherConflit();}
       else if(!reponse||!reponse.ok)sale=true;
-      else if(!sale)await kv("effacer",cleSauve);
+      else if(reponse.ecrit===false){
+        /* Le serveur a REÇU l'état mais l'a REFUSÉ (il en détient un plus récent) : ce n'est pas une sauvegarde. La copie de l'appareil reste, l'envoi sera retenté, le refus est signalé. */
+        sale=true;refus+=1;
+        try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("sauvegarde_refusee","révision "+revEnvoyee+" refusée par le serveur ("+refus+")");}catch(_){}
+        programmerSauvegarde();
+      }
+      else if(!sale&&rev===revEnvoyee)await kv("effacer",cleSauve);   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}
     finally{enVol=false;}
     return !sale && !conflit;
@@ -241,7 +251,7 @@
     try{await demarrage;}catch(e){echec=true;raison=String(e&&e.message||e).slice(0,120);return null;}   // le moteur local n'a pas démarré : l'appelant retombe sur le serveur
     const r=await executerAppel({type:"appel",ecart:ecartServeur(),operation:operation,args:args,catalogHashes:catalogHashes,langue:langue});
     if(operation==="synchroniserSorealIdle")passif=true;
-    else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle")sale=true;
+    else if(operation!=="obtenirEtatSorealIdle"&&operation!=="obtenirEtatBoutiqueSorealIdle"){sale=true;rev+=1;}
     if(sale)programmerSauvegarde();
     return r;
   }
@@ -286,7 +296,7 @@
     /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
     /* Diagnostic (administrateur) : la ligne du joueur telle que le moteur la détient, pour reproduire hors de la page un calcul lent sur un compte avancé. */
     exporterLigne:async function(){if(!vivant)return null;const s=await parler({type:"sortant",vider:false});return s&&s.cells?s.cells:null;},
-    etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit};},
+    etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit,refus:refus,rev:rev};},
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},
     modifieLeJoueur:function(operation){return Boolean(MODIFIENT_LE_JOUEUR[operation]);},
@@ -352,7 +362,7 @@
       for(let i=0;i<50&&(enVol||appelEnCours);i+=1)await new Promise(function(r){setTimeout(r,100);});
       const r=await parler({type:"importer",fichier:fichierEnAttente});
       if(!r||!r.ok){etatPartieFichier("⚠️ Cette partie n’a pas pu être chargée ("+echapper(r&&r.erreur||"erreur")+"). Ta partie actuelle n’a pas changé.",true);return;}
-      importPartieEnCours=true;sale=true;
+      importPartieEnCours=true;sale=true;rev+=1;
       let envoye=false;
       try{envoye=Boolean(await envoyer(false,true));}catch(_){envoye=false;}
       importPartieEnCours=false;
