@@ -15,5 +15,5 @@ assert.ok(ui.includes(".tmm-eta').forEach(function(el){") && ui.includes("/il ma
 assert.ok(decor.includes("/il manque .* Or/i.test(ligneEta.textContent||'')") && decor.includes("/Barre pleine|validation|il manque .* Or/i"), "le décor de Magie du sang reconnaît le nouveau message (attente d'Or)");
 assert.ok(/\.or-somme-v1\.or-somme-v1\{color:#ffd23f!important;font-weight:900/.test(css) && /\.or-non\{color:#ffe1e1!important;font-weight:800;font-size:1\.08em[^}]*border:1\.5px solid rgba\(255,105,105,\.7\)/.test(css), "somme dorée dans une pastille rouge bien visible");
 for (const t of ["🪙 Il manque 1,59T Or pour le niveau suivant.", "🪙 Il manque 12 Or pour le prochain rituel."]) assert.ok(/il manque .* Or/i.test(t), "le texte reste reconnu par les autres repères : " + t);
-assert.ok(css.includes("button.clear{grid-column:1/-1!important;padding:6px 10px!important}"), "« Tout retirer » prend toute la ligne (téléphone)");
+assert.ok(css.includes("button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}"), "« Tout retirer » prend toute la ligne par défaut (téléphone) ; PC : voir --bt-clear-col");
 console.log("idle-manque-or-voyant-v1: OK");

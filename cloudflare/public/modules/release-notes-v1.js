@@ -32,6 +32,7 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les boutons « Tout retirer » ne prennent plus toute la largeur sur PC : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages.',
             'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
@@ -43,6 +44,7 @@
             'Au premier lancement, une image de la sangsue qui ne charge pas est redemandée toute seule : plus besoin de quitter le menu et d’y revenir pour que l’affichage soit correct.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Cible et ressource allouée sont de petits écrans, comme Niveau et Temps restant.',
             'L’Énergie est en vert comme sa barre, et la seconde tour reprend la couleur de sa propre barre.',
           ]}
         ]

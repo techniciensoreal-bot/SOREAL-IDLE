@@ -1227,7 +1227,7 @@
             '</div>'+
             '<div class="tmm-ligne">'+
               '<div class="tmm-case"><i class="tmm-case-titre">Cible</i><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(gauche?'speed':'gold')+'\',this.value)"></div>'+
-              '<div class="tmm-case"><i class="tmm-case-titre">'+H.idleHtml_(libelleAlloc)+'</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
+              '<div class="tmm-case"><i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
             '</div>'+
           '</div>';
           return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" style="--fill:'+largeur.toFixed(2)+'%" aria-label="'+H.idleHtml_(titre)+'">'+
