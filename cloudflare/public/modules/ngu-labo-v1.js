@@ -215,7 +215,7 @@ var CSS=
   /* Barre d'outils en petits cadres (Norman, 2026-10-15 : « harmoniser tous ces boutons, plafond d'énergie etc., dans des petits cadres propres ; des MAX dépassent sur téléphone »). Un cadre par ligne : son titre en haut,
      puis des boutons de même largeur dans une grille qui s'adapte à l'écran ; rien ne peut dépasser (texte coupé par des points de suspension, boutons larges sur toute la ligne). */
   '.nl-barre-outils{display:grid;gap:8px;margin:8px 0;padding:10px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:700 13px/1.3 "Segoe UI",system-ui,sans-serif;color:#dfe5ff;min-width:0}'+
-  '.nl-barre-outils .nl-ligne{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;align-items:center;min-width:0;padding:8px;border:1px solid rgba(150,120,255,.32);border-radius:10px;background:rgba(24,14,64,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}'+
+  '.nl-barre-outils .nl-ligne{display:grid;grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:6px;align-items:center;min-width:0;padding:8px;border:1px solid rgba(150,120,255,.32);border-radius:10px;background:rgba(24,14,64,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}'+
   '.nl-barre-outils .nl-ligne>span:first-child{grid-column:1/-1;font:800 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#c9d2f7}'+
   '.nl-barre-outils .nl-ligne-input{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}'+
   '.nl-barre-outils .nl-ligne-input label{font:800 13px/1 "Segoe UI",system-ui,sans-serif;color:#c9d2f7}'+

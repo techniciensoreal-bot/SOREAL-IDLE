@@ -32,7 +32,7 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Les boutons « Tout retirer » ne prennent plus toute la largeur sur PC : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages.',
+            'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
             'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',

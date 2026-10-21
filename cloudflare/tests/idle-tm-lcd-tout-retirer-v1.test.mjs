@@ -8,5 +8,6 @@ assert.ok(css.includes(".tmm-lcd-titre,.tmm-case-titre{"), "titres des écrans i
 const aug = readFileSync(new URL("../public/modules/augmentations-page-v1.js", import.meta.url), "utf8");
 assert.ok(aug.includes(`<i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i>`), "titre court (l'écran est étroit), libellé complet en infobulle");
 const it = readFileSync(new URL("../public/soreal-idle-itopod.css", import.meta.url), "utf8");
-assert.ok(it.includes("button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}") && it.includes("@media (min-width:900px){.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120{--bt-clear-col:span 2}}"), "PC : « Tout retirer » sur la même ligne que 1/2 et 1/4 ; téléphone : toute la ligne comme avant");
+assert.ok(it.includes("button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}") && it.includes(".soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120{--bt-clear-col:span 2}"), "PC et téléphone : « Tout retirer » sur la même ligne que 1/2 et 1/4");
+assert.ok(!it.includes("@media (min-width:900px){.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120{--bt-clear-col"), "plus réservé au PC");
 console.log("idle-tm-lcd-tout-retirer-v1: OK");
