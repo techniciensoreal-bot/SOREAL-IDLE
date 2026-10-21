@@ -15,7 +15,7 @@
     'J’ai jamais couché avec votre femme !',
     'À l’abordage !',
     'Ne me touchez pas avec vos sales pattes !',
-    'C’est pas moi, c’est le voisin !',
+    'C’est pas moi, c’est l’petit !',
     'Quoi ? Qui ? Où ?',
     'Je dormais pas, je réfléchissais !',
     'Cinq minutes de plus, maman…',

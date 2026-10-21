@@ -47,8 +47,8 @@ for (const k of ["nkFlash", "nkFeu", "nkFumee", "nkOnde", "nkEtincelle"]) {
 
 // 2. Jauges de la machine : 14 minibulles + 3 grosses qui montent, dans le tube, avec unités de conteneur pour la hauteur.
 assert.ok(augm.includes("for(let i=0;i<14;i+=1)bulles+='<i class=\"tmm-bulle mini\"") && augm.includes("for(let i=0;i<3;i+=1)bulles+='<i class=\"tmm-bulle gde\""), "14 minibulles et 3 grosses bulles");
-assert.ok(augm.includes("<div class=\"tmm-liq\"></div><div class=\"tmm-bulles\">'+bulles+'</div></div>"), "bulles dans le tube, indépendantes du niveau du liquide");
-assert.ok(machine.includes(".tmm-tube{container-type:size;") && machine.includes("translateY(-98cqh)"), "les bulles montent jusqu'en haut du tube");
+assert.ok(augm.includes("<div class=\"tmm-liq\"><div class=\"tmm-bulles\">'+bulles+'</div></div></div>"), "bulles DANS le liquide : jamais au-dessus de sa surface");
+assert.ok(machine.includes(".tmm-liq{container-type:size;") && machine.includes(".tmm-bulles{position:absolute;inset:0;overflow:hidden;") && machine.includes("translateY(-98cqh)"), "les bulles montent jusqu'à la surface du liquide (hauteur du liquide, calque rogné)");
 assert.ok(/\.tmm-bulle\.mini\{width:2px;height:2px;animation-name:tmmFizz\}/.test(machine) && /\.tmm-bulle\.gde\{width:3px;height:3px;animation-name:tmmMonte/.test(machine), "minibulles très fines, grosses bulles de départ fines");
 assert.ok(/@keyframes tmmMonte\{0%\{opacity:0;[^}]*scale\(1\)\}[^]*?scale\(3\.8\)\}\}/.test(machine) && /@keyframes tmmFizz\{0%\{opacity:0;[^}]*\}[^]*?100%\{opacity:0/.test(machine), "les bulles grossissent en montant, fondu d'entrée et de sortie");
 assert.ok(machine.includes(".tmm-bulle,.tmm-rouleau"), "arrêtées avec « réduire les animations »");

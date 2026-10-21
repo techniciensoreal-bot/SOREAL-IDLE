@@ -93,8 +93,7 @@ function moduleCoffre(alea = Math.random) {
   assert.equal(o.filter((x) => x.type === "sine" && x.freqs[0] > 500 && x.freqs[0] < 1000).length, 0, "plus d'accord tenu");
   assert.ok(!/souffle\(c,out,t\+0\.85\*k,1\.5\*k,'bandpass',650,1500/.test(pierre) && (pierre.match(/glisse\(c,out,t\+1\.[5-9]/g) || []).length === 0, "plus de brise ni de chants d'oiseau");
 }
-// 4. Le banc d'essai (administrateur) a le bouton qui fait péter le Coffre avec ce son.
+// 4. Le banc d'essai d'Yggdrasil n'a plus les boutons des pets grinçants du Coffre (Norman, 2026-10-21).
 const page = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
-assert.ok(page.includes("bancPetCoffre(") && page.includes("__coffrePetForceIdleV1__=typeof id==='string'?id:true") && page.includes("A.play('coffrePet')"), "boutons du banc : pets grinçants du Coffre");
-for (const id of ["grincement-prt", "grincement-prrt-x3", "grincement-prrrrrt", "grincement-porte"]) assert.ok(page.includes("bancPetCoffre(\\'" + id + "\\')"), "bouton du banc pour " + id);
+assert.ok(!page.includes("bancPetCoffre") && !page.includes("Prrt prrt prrt"), "plus de boutons de pets du Coffre au bas d'Yggdrasil");
 console.log("idle-coffre-pet-grincement-v1: OK");

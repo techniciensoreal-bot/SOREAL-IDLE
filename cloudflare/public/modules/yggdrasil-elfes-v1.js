@@ -458,10 +458,6 @@
           '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancSonFerme()">🚪 Son de fermeture</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prt\')">💨 Prt</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrt-x3\')">💨 Prrt prrt prrt</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-prrrrrt\')">💨 Prrrrrrt</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPetCoffre(\'grincement-porte\')">💨 Pet de la porte</button>'+
           '<button type="button" class="ygg-btn" onclick="'+A+'bancRaz()">↺ Valeurs d’origine</button></div>'+
         '<div class="ygg-banc-note">Réglage retenu : '+R.cadence+' ms par image, '+(R.sens<0?'arbre → graine':'graine → arbre')+', porte ×'+String(R.porte).replace('.',',')+' ('+(R.son==='bois'?'bruit de bois':'bruit de pierre')+'). (Origine : '+REGLAGES_DEFAUT_.cadence+' ms, arbre → graine, ×1.)</div>'+
       '</div></div></div>';
@@ -634,10 +630,7 @@
     bancPorte:function(){bancPorte_();},
     bancSon:function(){son_(nomSonPorte_(),reglages_().porte);},
     bancSonFerme:function(){son_(nomSonFerme_(),reglages_().porte);},
-    /* Le pet du Coffre en grincement (prt, prrt prrt prrt, prrrrrt, pet de la porte ; sans tintement) : joué par le moteur audio du jeu, au volume des « Sons de l'interface ». */
-    bancPetCoffre:function(id){
-      try{window.__coffrePetForceIdleV1__=typeof id==='string'?id:true;var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.play==='function')A.play('coffrePet');}catch(_e){}
-    },
+    /* Les boutons des pets grinçants du Coffre grinçants ont été retirés du banc d'essai (Norman, 2026-10-21 : « le Coffre ne fait jamais ces bruits »). */
     bancRaz:function(){ecrireReglages_(REGLAGES_DEFAUT_);rafraichir_();},
     soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */

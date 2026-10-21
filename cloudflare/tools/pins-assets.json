@@ -44,8 +44,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 10,
-  "sha": "7eb47d5976097249386e692ef9f0a4461af1a4a5"
+  "pin": 11,
+  "sha": "8140e90236b012945472844e4733ab25db7c4baf"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -78,6 +78,10 @@
  "/modules/bt-lumieres-v1.js": {
   "pin": 12,
   "sha": "dab3bc57d943cdb5654f2f9958217cf83e5b9df4"
+ },
+ "/modules/bt-neon-v1.js": {
+  "pin": 1,
+  "sha": "44d22bed4fedd44d1b5b1cbed6f01fefffb05894"
  },
  "/modules/bug-report-v1.js": {
   "pin": 5,
@@ -112,8 +116,8 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 16,
-  "sha": "8ce44483440319c23081fd4b5875a69ad73ee23e"
+  "pin": 17,
+  "sha": "e3765e7af401a4ee91b671a423a423cb714aa657"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -316,8 +320,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 349,
-  "sha": "d754c37886b7f9a1ae6c759c8c614a43de63a2af"
+  "pin": 350,
+  "sha": "5aeafd7601328aa9fc9d3f3dfce0e2ae2a752ad9"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -380,12 +384,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 372,
-  "sha": "c5989eb47efc180ab0602bd4bdcd8a4a4e48d5a0"
+  "pin": 373,
+  "sha": "5111b58ff137c2378107f15e452d66b58d12c721"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 166,
-  "sha": "ebce6951d653f24efaa2dceebdca464b026b0506"
+  "pin": 167,
+  "sha": "878045c93cd9d2f512153cd3add2f4becfe551a6"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -528,8 +532,8 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 28,
-  "sha": "f8b3a5eef1283e17c5251adf6e61a99b5728dd89"
+  "pin": 30,
+  "sha": "30ea8ba02102a9bb2893c4e61a76d8944a15a86d"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 12,
@@ -548,8 +552,8 @@
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
  },
  "/soreal-idle-machine.css": {
-  "pin": 7,
-  "sha": "dc1ab2a846cbd5618a65f8b45b7c0516960fef7b"
+  "pin": 8,
+  "sha": "5ae03cd2fdc95723931f9d3f626ad50f9bb15e8a"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

@@ -1209,13 +1209,13 @@
             ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#7dff9f" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
             :'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#9fd2ff" stroke="#150c06" stroke-width="2.2" stroke-linejoin="round"/></svg>';
           /*
-           * Air qui arrive du bas de la jauge (Norman, 2026-10-21) : plein de minibulles très fines et très rapides au pied du tube, et seulement quelques-unes qui montent vraiment, en grossissant à mesure qu'elles s'éloignent. Les bulles vivent dans le TUBE (indépendamment du niveau du liquide : même vide,
-           * l'air arrive par le bas).
+           * Air qui arrive du bas de la jauge (Norman, 2026-10-21) : plein de minibulles très fines et très rapides au pied du tube, et seulement quelques-unes qui montent vraiment, en grossissant à mesure qu'elles s'éloignent. Les bulles vivent DANS le liquide (Norman, 2026-10-21 : « les bulles ne doivent jamais dépasser le liquide ») : calque rogné à la hauteur du liquide, elles
+           * s'arrêtent à sa surface quel que soit son niveau ; tube vide = aucune bulle.
            */
           let bulles='';
           for(let i=0;i<14;i+=1)bulles+='<i class="tmm-bulle mini" style="--x:'+(8+((i*41+(gauche?0:17))%84))+'%;--d:-'+(((i*0.173)%0.7)).toFixed(2)+'s;--v:'+(0.55+((i*7)%5)*0.07).toFixed(2)+'s"></i>';
           for(let i=0;i<3;i+=1)bulles+='<i class="tmm-bulle gde" style="--x:'+(24+i*26+(gauche?0:4))+'%;--d:-'+(i*0.9+(gauche?0:0.4)).toFixed(1)+'s;--v:'+(2.4+i*0.35).toFixed(2)+'s"></i>';
-          const tube='<div class="tmm-tube"><div class="tmm-liq"></div><div class="tmm-bulles">'+bulles+'</div></div>';
+          const tube='<div class="tmm-tube"><div class="tmm-liq"><div class="tmm-bulles">'+bulles+'</div></div></div>';
           const lcds='<div class="tmm-lcds">'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+

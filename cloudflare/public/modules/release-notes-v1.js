@@ -41,6 +41,9 @@
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
           ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Après une renaissance, le menu Entraînement de base est éteint ; dès que tu y places de l’énergie, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement.',
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Un NUKE fait exploser l’image du boss dans la borne d’arcade : éclair, boule de feu, ondes de choc, étincelles, et l’image tremble.',
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
