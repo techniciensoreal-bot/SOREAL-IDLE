@@ -69,7 +69,7 @@ var BOL_CALICE='M15 14 L85 14 C87 48 69 70 52 75 L48 75 C31 70 13 48 15 14 Z';
  */
 /* Toutes les scènes ont la même hauteur (Norman, 2026-10-11 : « les rituels côte à côte doivent toujours avoir la même taille ») ; le plus grand calice (rang 5) y tient. */
 var HAUTEUR_SCENE=312;
-if(typeof document!=='undefined'&&document.addEventListener&&!window.__bmPersoErr){window.__bmPersoErr=1;document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.classList&&(t.classList.contains('bm-perso')||t.classList.contains('bm-bras-img')))t.remove();},true);}
+if(typeof document!=='undefined'&&document.addEventListener&&!window.__bmPersoErr){window.__bmPersoErr=1;document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.classList&&(t.classList.contains('bm-perso')||t.classList.contains('bm-bras-img'))){var n=t.__bmEssais||0;if(n<4&&t.parentNode){t.__bmEssais=n+1;setTimeout(function(){if(!t.parentNode)return;var u=(t.getAttribute('src')||'').replace(/[?&]_r=d+/,'');t.setAttribute('src',u+(u.indexOf('?')<0?'?':'&')+'_r='+Date.now());},600*Math.pow(2,n));}else t.remove();}},true);}
 var SOURCES={tack:'punaise',papercuts:'papier',hickey:'sucon',barbedWire:'fil',bloodBank:'banque'};
 var CORPS_VERRE='M8 8 H72 L67 92 Q66.5 98 60 98 H20 Q13.5 98 13 92 Z';
 var INT_VERRE='M12 10 H68 L64 90 Q63.5 94 59 94 H21 Q16.5 94 16 90 Z';
@@ -864,7 +864,8 @@ function sangTrace(sc,m,g){
   if(!svgF||!m)return;
   var cle=m.s.toFixed(3)+'|'+m.ox.toFixed(1)+'|'+m.oy.toFixed(1)+'|'+m.W+'|'+m.H;
   sgInit(sc);sgDessiner(sc,g==null?(sc.__g==null?1:sc.__g):g);
-  if(sc.__traceCle===cle&&svgF.querySelector('.tf').getAttribute('d'))return;
+  /* Le redessin de la page (morph) réécrit l'attribut style de la scène : --sg-* (image, œil, PIED DU SUPPORT) disparaissaient alors que la clé de mesure restait la même, d'où le pied décollé de la table (Norman, 2026-10-21). */
+  if(sc.__traceCle===cle&&svgF.querySelector('.tf').getAttribute('d')&&sc.style.getPropertyValue('--sg-socle-h')&&sc.style.getPropertyValue('--sg-ox'))return;
   sc.__traceCle=cle;
   var pts=sangPoints(m),n=pts.length,i,h=SG_DEMI*m.s,R=function(v){return Math.round(v*10)/10;};
   /* axe du canal : celui du chemin, mais arrêté au-dessus de la collerette de l'anus */
@@ -1225,6 +1226,8 @@ function rythme(sc,id,n,avant){
   }
   if(src==='punaise'||src==='papier'||src==='sucon'||src==='fil'){
     var horsVoulu=!sc.querySelector('.bm-tuyau.saigne-v1');
+    /* Arrivée du personnage (Norman, 2026-10-21 : « il apparaît alors qu'il est supposé glisser depuis la gauche ») : la scène reste « hors champ » tant que l'image du personnage n'est pas chargée (sinon le glissement se jouait sur une image absente et il surgissait à sa place finale). */
+    if(!horsVoulu&&sc.classList.contains('bm-hors')&&src==='sucon'){var pe=sc.querySelector('.bm-perso');if(pe&&pe.getAttribute('src')&&!(pe.complete&&pe.naturalWidth>0))horsVoulu=true;}
     if(sc.classList.contains('bm-hors')!==horsVoulu)sc.classList.toggle('bm-hors',horsVoulu);
     /* L'animation (punaise, feuille, coupure, traces, gouttes) ne commence que quand le doigt / le bras ont fini de se mettre en place (Norman, 2026-10-11) : l'échéance est mémorisée par rituel (le redessin de la page ne la fait pas sauter) ; glissement 0,95 s + 0,2 s de décalage. */
     var avantHors=etatHors[id];
@@ -1739,6 +1742,7 @@ function majVases(){
 }
 /* Après un redessin de la page (règle « aucun redessin visible », AGENTS.md n°4) : rythme, durée de boucle (--bm-t), classes et approche sont remis tout de suite, dans la même tâche, au lieu d'attendre le prochain tour de 400 ms. */
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){if(document.querySelector('.bm-scene'))majVases();});
+(window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){var l=document.querySelectorAll('.bm-scene[data-source="sucon"]'),i;for(i=0;i<l.length;i++)if(l[i].__m)sangTrace(l[i],l[i].__m,l[i].__g==null?(l[i].__gT==null?1:l[i].__gT):l[i].__g);});
 var tic=0;
 function demarrer(){
   if(tic||typeof setInterval!=='function')return;

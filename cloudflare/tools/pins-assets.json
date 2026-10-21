@@ -316,16 +316,16 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 336,
-  "sha": "9fb5827626bded6a4b5d03c3ec29894c3abe421c"
+  "pin": 337,
+  "sha": "589862aba97e518130b0f37df290b4390e3d6762"
  },
  "/modules/runtime.js": {
   "pin": 3,
   "sha": "d755f83deeeedf49d0c066f93b5b254d5290c4d4"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 228,
-  "sha": "28bda5c59024420d1c16d8ade9b50847a9d5569d"
+  "pin": 229,
+  "sha": "d96b92e0b61a27d1f049b7692bdb059261431ee8"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -380,12 +380,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 359,
-  "sha": "b9fc99592206b792e05b45d34e82127526305dbc"
+  "pin": 360,
+  "sha": "6cf9a4918e0a26e829f78dee53e28cfef88913fe"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 153,
-  "sha": "41dffc1d1e92a70309381f2d1a2fd9d80185713d"
+  "pin": 154,
+  "sha": "a73d9c434e49a951f301394727e88c63857af098"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
