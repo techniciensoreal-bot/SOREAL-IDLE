@@ -12,6 +12,7 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle
   const store = new Map();
   if (idb) store.set("etat:2:n@x", idb);
   const pushes = [];
+  const seq = { flux: 0, gains: 0 };
   const etat = { n: 0, instant: 0, flux: [], gains: [] };
   const mondeApi = { store, pushes, etat, push: async () => ({ ok: true, ecrit: true }), vue: null };
   class Worker {
@@ -22,11 +23,17 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle
         if (m.type === "init") { const l = JSON.parse(m.export.joueurs.ligne); etat.n = Number(l[10]) || 0; etat.instant = Number(l[15]) || 0; if (m.export.reprise) { etat.flux = (m.export.reprise.flux || []).slice(); etat.gains = (m.export.reprise.gains || []).slice(); } rep(true); }
         else if (m.type === "appel") { if (!/^(obtenir|synchroniser)/.test(m.operation)) { etat.n += 1; etat.instant += 1000; } rep({ ok: true, joueur: {} }); }
         else if (m.type === "sortant") {
+          for (const e of etat.flux) if (e.n == null) e.n = ++seq.flux;   // numérotation comme le vrai Worker
+          for (const e of etat.gains) if (e.n == null) e.n = ++seq.gains;
           const out = { cells: ligne(etat.n, etat.instant), flux: etat.flux.slice(), gains: etat.gains.slice(), instant: etat.instant };
           if (m.vider) { etat.flux = []; etat.gains = []; }   // ancien protocole : les événements quittent la file dès l'extraction
           if (lenteurSortant) setTimeout(() => rep(out), lenteurSortant); else rep(out);
         } else if (m.type === "importer") { etat.n = Number(m.fichier.cells[10]) || 0; etat.instant = Number(m.fichier.cells[15]) || etat.instant; rep({ ok: true, decalees: 0, delta: 0 }); }
-        else if (m.type === "acquitter") { etat.flux.splice(0, Number(m.flux) || 0); etat.gains.splice(0, Number(m.gains) || 0); rep(true); }
+        else if (m.type === "acquitter") {
+          if (m.fluxJusqua != null || m.gainsJusqua != null) { etat.flux = etat.flux.filter((e) => !(e.n <= Number(m.fluxJusqua))); etat.gains = etat.gains.filter((e) => !(e.n <= Number(m.gainsJusqua))); }
+          else { etat.flux.splice(0, Number(m.flux) || 0); etat.gains.splice(0, Number(m.gains) || 0); }   // ancien protocole (comptage)
+          rep(true);
+        }
         else rep(true);
       });
     }

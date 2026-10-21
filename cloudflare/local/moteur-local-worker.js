@@ -35,6 +35,9 @@ let sql = null;
 let jeton = "";
 let versionLocale = 0;
 let sortant = { flux: [], gains: [] };
+/* Chaque événement de la file porte un numéro croissant (n) : l'accusé du serveur dit « jusqu'au numéro N » et ne retire jamais un événement arrivé après l'envoi, même si les réponses arrivent dans le désordre (audit anti-rollback R1, 2026-10-21). */
+let seqFlux = 0;
+let seqGains = 0;
 
 function creerSql(base) {
   return {
@@ -56,8 +59,8 @@ function surveiller(base) {
   return {
     exec(q, ...b) {
       const r = brut.exec(q, ...b);
-      if (/^\s*INSERT INTO idle_flux\(/i.test(q)) sortant.flux.push({ at: b[0], type: b[3], donnees: b[4] });
-      else if (/^\s*INSERT INTO idle_gains_exp\(/i.test(q)) sortant.gains.push({ at: b[0], operation: b[3], avant: b[4], apres: b[5] });
+      if (/^\s*INSERT INTO idle_flux\(/i.test(q)) sortant.flux.push({ at: b[0], type: b[3], donnees: b[4], n: ++seqFlux });
+      else if (/^\s*INSERT INTO idle_gains_exp\(/i.test(q)) sortant.gains.push({ at: b[0], operation: b[3], avant: b[4], apres: b[5], n: ++seqGains });
       return r;
     }
   };
@@ -94,7 +97,7 @@ async function demarrer(exp) {
   jeton = coord.consumeLaunchTicketV1(tk.ticket).sessionToken;
   /* Le ticket normalise l'identité (il perd par exemple la partie choisie, A ou B) : on remet celle de la session du serveur, telle quelle. */
   sql.exec("UPDATE idle_sessions SET user_json=? WHERE session_token=?", JSON.stringify(exp.user), jeton);
-  sortant = { flux: (exp.reprise && exp.reprise.flux) || [], gains: (exp.reprise && exp.reprise.gains) || [] };   // événements d'une session précédente pas encore reçus par le serveur
+  sortant = { flux: ((exp.reprise && exp.reprise.flux) || []).map((e) => Object.assign({}, e, { n: ++seqFlux })), gains: ((exp.reprise && exp.reprise.gains) || []).map((e) => Object.assign({}, e, { n: ++seqGains })) };   // événements d'une session précédente pas encore reçus par le serveur
   return { jeton };
 }
 
@@ -155,9 +158,10 @@ self.onmessage = async (ev) => {
       if (m.vider) sortant = { flux: [], gains: [] };
       self.postMessage({ id: m.id, ok: true, resultat: out });
     } else if (m.type === "acquitter") {
-      /* Les événements arrivent à la FIN de la file : retirer les n premiers ne touche jamais ceux qui sont survenus pendant l'envoi. */
-      sortant.flux.splice(0, Math.max(0, Number(m.flux) || 0));
-      sortant.gains.splice(0, Math.max(0, Number(m.gains) || 0));
+      /* Accusé par numéro : seuls les événements numérotés jusqu'à N (ceux de l'envoi acquitté) quittent la file. */
+      const jf = Number(m.fluxJusqua), jg = Number(m.gainsJusqua);
+      if (Number.isFinite(jf)) sortant.flux = sortant.flux.filter((e) => !(e.n <= jf));
+      if (Number.isFinite(jg)) sortant.gains = sortant.gains.filter((e) => !(e.n <= jg));
       self.postMessage({ id: m.id, ok: true, resultat: true });
     }
   } catch (e) {
