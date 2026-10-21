@@ -132,8 +132,8 @@
   "sha": "516779376922d65d78c7caf56fbe1c3256201938"
  },
  "/modules/credit-exp-admin-v1.js": {
-  "pin": 1,
-  "sha": "550fb9af0362a8e748c997bb1c6270bf60e38633"
+  "pin": 2,
+  "sha": "3d97187eec0c02589af002b109e02d278eba0246"
  },
  "/modules/cube-palier-v1.js": {
   "pin": 3,
@@ -256,8 +256,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 46,
-  "sha": "b328a77efce323c9c0d9c9b043b76c0543054192"
+  "pin": 47,
+  "sha": "4775c81b7788a7e9bb7776e3d2402d67309a3c63"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,

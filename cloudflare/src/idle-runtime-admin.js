@@ -339,6 +339,40 @@ export function crediterExpAdminSorealIdle(sessionToken, params) {
   }
 }
 
+/*
+ * Record « combat le plus long » retiré par l'administrateur (Norman, 2026-10-21 : « supprime le record de Sylvain, il est forcément faux » : 1 min 48 enregistré pendant que la page était fermée ou en arrière-plan). params = { joueur (nom ou adresse) }.
+ * Le jeu tournant dans la page de chaque joueur (jeu local), la ligne du serveur est RÉÉCRITE à chaque envoi de l'appareil : remettre le record à zéro ici ne suffirait pas (l'appareil renverrait l'ancien). La valeur retirée est donc
+ * mémorisée (table idle_records_retires) et le serveur la remet à zéro dans tout envoi qui la porte encore (idle-local-sync-v1.js) ; un record plus long, obtenu ensuite, n'est jamais touché.
+ */
+export function retirerRecordCombatLongAdminSorealIdle(sessionToken, params) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  const p = params && typeof params === 'object' ? params : {};
+  const joueur = String(p.joueur || p.email || '').trim();
+  if (!joueur) return { ok: false, code: 'PARAMETRES', message: 'Écris le prénom ou l’adresse du joueur.' };
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(1800)) return { ok: false, message: 'Le jeu est occupé.' };
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const trouve = trouverJoueurAdminSorealIdle_(feuille, joueur);
+    if (trouve.erreur === 'JOUEUR_AMBIGU') return { ok: false, code: 'JOUEUR_AMBIGU', message: 'Plusieurs joueurs correspondent : ' + trouve.noms.join(' ; ') + '. Utilise l’adresse e-mail.' };
+    if (trouve.erreur) return { ok: false, code: 'JOUEUR_INTROUVABLE', message: 'Aucun joueur avec ce nom ou cette adresse.' };
+    const cellule = feuille.getRange(trouve.ligne, c.STATS_JSON);
+    const stats = statsJoueurSorealIdle_(cellule.getValue());
+    const avant = Math.max(0, nombreSorealIdle_(stats.combatBossPlusLongSec, 0));
+    if (!(avant > 0)) return { ok: false, code: 'AUCUN_RECORD', message: 'Ce joueur n’a aucun record « combat le plus long ».' };
+    stats.combatBossPlusLongSec = 0;
+    stats.combatBossPlusLongGagne = null;
+    cellule.setValue(JSON.stringify(stats));
+    __idleCtx.__idleSql.exec('CREATE TABLE IF NOT EXISTS idle_records_retires(email TEXT NOT NULL, code TEXT NOT NULL, valeur REAL NOT NULL, at INTEGER NOT NULL)');
+    __idleCtx.__idleSql.exec('INSERT INTO idle_records_retires(email,code,valeur,at) VALUES(?,?,?,?)', trouve.email, 'combatLong', avant, Date.now());
+    SpreadsheetApp.flush();
+    return { ok: true, email: trouve.email, nom: trouve.nom, avant };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 /* Journal des variations d'EXP (administrateur) : params = { email (facultatif : sinon tous les joueurs), limite }. */
 export function lireGainsExpAdminSorealIdle(sessionToken, params) {
   exigerAdminHistoiresSorealIdle_(sessionToken);

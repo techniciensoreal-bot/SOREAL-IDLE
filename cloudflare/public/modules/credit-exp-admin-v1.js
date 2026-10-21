@@ -74,6 +74,7 @@ function ouvrir(){
     '<div class="actions">'+
       '<button type="button" id="'+ID+'-fermer">Fermer</button>'+
       '<button type="button" id="'+ID+'-journal">📜 Journal</button>'+
+      '<button type="button" id="'+ID+'-record">🗑️ Retirer son record de combat</button>'+
       '<button type="button" class="donner" id="'+ID+'-donner">Donner l’EXP</button>'+
     '</div>'+
     '<div id="'+ID+'-liste"></div>'+
@@ -117,6 +118,20 @@ function ouvrir(){
         msg((res&&res.message)||'Crédit impossible.','erreur');
       }
     }).catch(function(e){bDonner.disabled=false;desarmer();msg((e&&e.message)||'Crédit impossible.','erreur');});
+  });
+
+  /* Retirer le record « combat le plus long » du joueur nommé (deux temps : confirmation, puis envoi). */
+  var bRecord=document.getElementById(ID+'-record');
+  champJoueur.addEventListener('input',function(){bRecord.classList.remove('arme');bRecord.textContent='🗑️ Retirer son record de combat';});
+  bRecord.addEventListener('click',function(){
+    var joueur=champJoueur.value.trim();
+    if(!joueur){msg('Écris le prénom ou l’adresse du joueur.','erreur');return;}
+    if(!bRecord.classList.contains('arme')){bRecord.classList.add('arme');bRecord.textContent='Confirmer : retirer le record de '+joueur+' ?';msg('','');return;}
+    bRecord.disabled=true;msg('Envoi…','');
+    appel('retirerRecordCombatLongAdminSorealIdle',[{joueur:joueur}]).then(function(res){
+      bRecord.disabled=false;bRecord.classList.remove('arme');bRecord.textContent='🗑️ Retirer son record de combat';
+      msg(res&&res.ok?'✅ Record de '+(res.nom||res.email)+' retiré ('+Math.round(Number(res.avant)||0)+' s).':((res&&res.message)||'Retrait impossible.'),res&&res.ok?'ok':'erreur');
+    }).catch(function(e){bRecord.disabled=false;bRecord.classList.remove('arme');bRecord.textContent='🗑️ Retirer son record de combat';msg((e&&e.message)||'Retrait impossible.','erreur');});
   });
 
   bJournal.addEventListener('click',function(){

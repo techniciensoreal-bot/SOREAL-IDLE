@@ -248,6 +248,23 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
+/* Records retirés par l'administrateur (table idle_records_retires) : un envoi qui porte encore EXACTEMENT la valeur retirée la voit remise à zéro (l'appareil la garde jusqu'à son prochain démarrage). */
+const COL_STATS_JSON = 37;
+export function appliquerRecordsRetiresV1(coord, email, cells) {
+  let lignes = [];
+  try { lignes = coord.sqlAll("SELECT valeur FROM idle_records_retires WHERE email=? AND code='combatLong'", email); } catch (_e) { return false; }
+  if (!lignes.length || typeof cells[COL_STATS_JSON] !== "string") return false;
+  let st = null;
+  try { st = JSON.parse(cells[COL_STATS_JSON]); } catch (_e) { return false; }
+  if (!st || typeof st !== "object") return false;
+  const actuel = Number(st.combatBossPlusLongSec);
+  if (!(actuel > 0) || !lignes.some((l) => Math.abs(Number(l.valeur) - actuel) < 1e-6)) return false;
+  st.combatBossPlusLongSec = 0;
+  st.combatBossPlusLongGagne = null;
+  cells[COL_STATS_JSON] = JSON.stringify(st);
+  return true;
+}
+
 export function recevoirDuMoteurLocalV1(coord, p) {
   invaliderTrajectoireV1(); /* la ligne du joueur est écrite de l'extérieur : la trajectoire des multiplicateurs mise de côté n'est plus fiable */
   const s = coord.standaloneSessionV1(p && p.sessionToken);
@@ -284,6 +301,7 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), p.importPartie === true ? "avant-import" : (alertes.length ? "avant-anomalie" : ""));
     const fusion = cells.slice();
     for (const c of COLS_DU_SERVEUR) fusion[c] = serveur[c];
+    appliquerRecordsRetiresV1(coord, emailsDe(effectif(s.user))[0] || "", fusion);
     coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(fusion), Date.now(), index);
     ecrit = true;
   }
