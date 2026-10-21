@@ -116,20 +116,7 @@
       souffle(c,out,t+0.02*k,1.0*k,'lowpass',210,110,1.2,0.8,a);
       souffle(c,out,t+0.02*k,1.0*k,'bandpass',320,170,3.5,0.5,a);
       for(var i=0;i<14;i++)souffle(c,out,t+(0.06+i*0.062)*k,0.03*k,'bandpass',900+al()*1500,700+al()*900,2.5,0.22+al()*0.1,a);
-      /*
-       * Final doux et naturel (Norman, 2026-10-16 : « j'aime l'ouverture mais pas le final, il faut un truc plus mélodieux, nature, relaxation ») : plus de coup de butée. Une brise légère se lève, une petite
-       * harpe de cristal monte en gamme pentatonique (do ré mi sol la : tout sonne juste), un accord tenu très doux s'étire, et deux oiseaux chantent au loin.
-       */
-      souffle(c,out,t+0.85*k,1.5*k,'bandpass',650,1500,0.8,0.1,a);
-      [G.sol5,G.la5,G.do6,G.re6,G.mi6].forEach(function(f,i){note(c,out,t+(1.0+i*0.11)*k,f,0.85*k,0.12-i*0.012,'triangle',2.01);});
-      [G.do5,G.sol5,G.mi6/2*1.5].forEach(function(f){
-        var o=c.createOscillator();o.type='sine';o.frequency.setValueAtTime(f,t+1.05*k);
-        var g=c.createGain();g.gain.setValueAtTime(0.0001,t+1.05*k);g.gain.exponentialRampToValueAtTime(0.05,t+1.4*k);g.gain.exponentialRampToValueAtTime(0.0001,t+2.35*k);
-        o.connect(g);g.connect(out);o.start(t+1.05*k);o.stop(t+2.4*k);
-      });
-      glisse(c,out,t+1.55*k,2300,3300,0.1*k,0.045,'sine');
-      glisse(c,out,t+1.7*k,2600,3600,0.09*k,0.04,'sine');
-      glisse(c,out,t+1.83*k,2200,3000,0.11*k,0.035,'sine');
+      /* Plus de mélodie finale (Norman, 2026-10-21 : « le son de la porte est bien, mais enlève la petite mélodie après ») : le son s'arrête avec le frottement de la dalle. */
     },
     /*
      * LA PORTE SE REFERME (Norman, 2026-10-17 : le son d'ouverture joué à l'envers « donne mal »). Un son fait pour fermer, écrit à l'endroit : la dalle de pierre glisse et racle sourdement (même matière
@@ -221,8 +208,27 @@
     }catch(_e){return false;}
   }
 
+  /*
+   * Le coq (Norman, 2026-10-21 : « quand la porte s'ouvre dans Yggdrasil, un bruit de coq le matin ; juste après le son de la porte, une seule fois par renaissance, à la première animation d'ouverture ») : un vrai enregistrement, idle/ambient/coq.m4a dans le R2, servi par la route
+   * des sons d'ambiance. « Matin » = de 5 h à 11 h 59 sur l'horloge de l'appareil. Volume = barre « Sons de l'interface » ; jamais d'erreur si le fichier manque ou si le navigateur refuse la lecture.
+   */
+  var CLE_COQ_R2='idle/ambient/coq.m4a';
+  function matin(){var h=new Date().getHours();return h>=5&&h<12;}
+  function coq(delaiMs){
+    var v=volume_();
+    if(!(v>0))return false;
+    try{
+      var a=new Audio('/api/idle/media/ambient?key='+encodeURIComponent(CLE_COQ_R2));
+      a.volume=Math.min(1,v);
+      setTimeout(function(){try{var p=a.play();if(p&&p.catch)p.catch(function(){});}catch(_e){}},Math.max(0,Number(delaiMs)||0));
+      return true;
+    }catch(_e){return false;}
+  }
+
   window.__SOREAL_IDLE_YGG_SONS_V1__={
     jouer:jouer,
+    matin:matin,
+    coq:coq,
     noms:Object.keys(SONS),
     construire:function(nom,c,out,t,alea,option){if(SONS[nom])SONS[nom](c,out,t,alea,option);}
   };

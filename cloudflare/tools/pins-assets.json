@@ -316,8 +316,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 344,
-  "sha": "a6ba992e3e33511fbc4a72abc05a4ea7173dd979"
+  "pin": 346,
+  "sha": "b6382ea461b7ce648ca51850a2f7bc1d20bd0047"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -380,12 +380,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 367,
-  "sha": "2d2549b12ac7bfe1900cb97fe1a965e0374d7a71"
+  "pin": 369,
+  "sha": "77ef8ea3929a28b662926a7bfde28296aa00400a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 161,
-  "sha": "ee63ef3ca4375b0f38b541ea708e511c8010b92b"
+  "pin": 163,
+  "sha": "caacab8ddeaa910c2e782abb884b32dbf3bbcc00"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -528,12 +528,12 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 27,
-  "sha": "ce6c81de2a1cc846dd8ed40efb9a828479da57db"
+  "pin": 28,
+  "sha": "f8b3a5eef1283e17c5251adf6e61a99b5728dd89"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 11,
-  "sha": "e1f7b5d7bd13e0f8a6da1d41de55da8d5fa8bbf4"
+  "pin": 12,
+  "sha": "17baecf465d1eaa1bb7dfdf8460927504ae32024"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 10,

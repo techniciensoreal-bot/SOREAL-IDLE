@@ -87,13 +87,11 @@ function moduleCoffre(alea = Math.random) {
   const departs = [...pierre.matchAll(/glisse\(c,out,t(?:\+([0-9.]+)\*k)?,/g)].map((m) => Number(m[1] || 0));
   assert.ok(departs.every((d) => d >= 1), "aucun coup grave au début : " + departs.join(", "));
   assert.ok(!/highpass',2600/.test(pierre) && !/glisse\(c,out,t\+1\.07\*k,78,28/.test(pierre) && !/lowpass',380,120/.test(pierre), "ni verrou au début, ni coup de butée à la fin");
-  // Final : petite harpe pentatonique (cinq notes de triangle), accord tenu (trois sinus), brise et trois chants d'oiseau.
+  // Plus de petite mélodie après la porte (Norman, 2026-10-21) : ni harpe, ni accord tenu, ni brise, ni chant d'oiseau.
   const o = rendu("porte");
-  assert.ok(o.filter((x) => x.type === "triangle").length >= 5, "petite harpe : cinq notes");
-  const notes = o.filter((x) => x.type === "triangle").map((x) => Math.round(x.freqs[0])).sort((x, y) => x - y);
-  assert.deepEqual(notes.slice(0, 5), [784, 880, 1047, 1175, 1319], "gamme pentatonique sol la do ré mi");
-  assert.ok(o.filter((x) => x.type === "sine" && x.freqs[0] > 500 && x.freqs[0] < 1000).length >= 3, "accord tenu très doux");
-  assert.ok(/souffle\(c,out,t\+0\.85\*k,1\.5\*k,'bandpass',650,1500/.test(pierre) && (pierre.match(/glisse\(c,out,t\+1\.[5-9]/g) || []).length === 3, "brise légère et trois chants d'oiseau");
+  assert.equal(o.filter((x) => x.type === "triangle").length, 0, "plus de harpe");
+  assert.equal(o.filter((x) => x.type === "sine" && x.freqs[0] > 500 && x.freqs[0] < 1000).length, 0, "plus d'accord tenu");
+  assert.ok(!/souffle\(c,out,t\+0\.85\*k,1\.5\*k,'bandpass',650,1500/.test(pierre) && (pierre.match(/glisse\(c,out,t\+1\.[5-9]/g) || []).length === 0, "plus de brise ni de chants d'oiseau");
 }
 // 4. Le banc d'essai (administrateur) a le bouton qui fait péter le Coffre avec ce son.
 const page = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");

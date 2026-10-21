@@ -27,6 +27,8 @@ const code = [
   coupe(/function renaissances_\(\)\{[^\n]*\n/),
   coupe(/function portesVues_\(\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteVue_\(id\)\{[^\n]*\n/),
+  coupe(/var CLE_COQ_=[^\n]*\n/),
+  coupe(/function coqPremiereOuverture_\(vit\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function noterPorteVue_\(id,vue\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
   "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,teinte_:teinte_};"

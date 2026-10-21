@@ -321,6 +321,17 @@
     return o;
   }
   function porteVue_(id){return portesVues_().v.indexOf(id)>=0;}
+  /* Le coq : UNE fois par renaissance, à la toute première animation d'ouverture de porte (qu'il soit chanté ou non : le matin seulement), juste après le son de la porte. Mémorisé par renaissance (stockage lié au compte, règle n°6). */
+  var CLE_COQ_='soreal_idle_ygg_coq_v1';
+  function coqPremiereOuverture_(vit){
+    var r=renaissances_(),o=null;
+    try{o=JSON.parse(localStorage.getItem(CLE_COQ_)||'null');}catch(_e){}
+    if(o&&typeof o==='object'&&Number(o.r)===r)return false;
+    try{localStorage.setItem(CLE_COQ_,JSON.stringify({r:r}));}catch(_e){}
+    var S=window.__SOREAL_IDLE_YGG_SONS_V1__;
+    if(!S||typeof S.matin!=='function'||!S.matin())return false;
+    return Boolean(S.coq((reglages_().son==='bois'?1450:1100)*(Number(vit)>0?Number(vit):1)));
+  }
   function noterPorteVue_(id,vue){
     var o=portesVues_(),i=o.v.indexOf(id);
     if(vue&&i<0)o.v.push(id);else if(!vue&&i>=0)o.v.splice(i,1);else if(Number(o.r)===renaissances_()&&(vue===(i>=0)))return;
@@ -340,7 +351,7 @@
     A[id]=true;delete F[id];
     if(!etat.fermees[id]&&!etat.ouvre[id]&&!porteVue_(id))etat.fermees[id]=true;   /* premiere visite depuis la renaissance : la porte s'ouvre meme si le fruit est deja actif */
     var vit=reglages_().porte;
-    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);son_(nomSonPorte_(),vit);}
+    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);son_(nomSonPorte_(),vit);coqPremiereOuverture_(vit);}
     var t=etat.ouvre[id];
     if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
     delete etat.ouvre[id];

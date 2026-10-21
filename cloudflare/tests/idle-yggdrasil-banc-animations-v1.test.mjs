@@ -85,7 +85,7 @@ assert.ok(/son_\(nomSonPorte_\(\),vit\)/.test(src) && /DUREE_OUVERTURE_\*vit/.te
     return max;
   };
   const un = fin(1), deux = fin(2), demi = fin(0.5), defaut = fin(undefined);
-  assert.ok(un > 1.4 && un < 2.6, "porte lourde : environ 1,7 s : " + un);
+  assert.ok(un > 0.7 && un < 1.3, "porte lourde sans mélodie finale : environ 0,9 s : " + un);
   assert.ok(Math.abs(deux / un - 2) < 0.15 && Math.abs(demi / un - 0.5) < 0.1, "durée du son proportionnelle au réglage : " + [demi, un, deux]);
   assert.equal(defaut, un, "sans réglage : durée normale");
 }
