@@ -980,6 +980,12 @@ function appliquerProgressionEnergieSorealIdle__p4(bossPv, bossPvMax, combatBoss
       ?Math.max(0,ecoulePrisEnCompte)
       :0;
 
+  /*
+   * Classement « Combat le plus long » (Norman, 2026-10-21 : « Sylvain est premier avec 1 min 48, je pense que c'est impossible ») : quand la page est fermée ou en arrière-plan pendant un combat de boss, cette synchro rejoue d'un coup tout le temps
+   * écoulé (jusqu'à 12 h) : la durée comptée était celle de l'ABSENCE, pas d'un combat suivi. Un combat dont une synchro doit rattraper plus de SEUIL_PRESENCE_COMBAT_S secondes n'est plus éligible au record (les synchros d'un joueur présent se suivent à quelques secondes).
+   */
+  if(combatBossActif&&tempsRestant>30)statsCombat.combatBossDepartFrais=false;
+
   let tempsSimulation =
     derniereSynchro;
 
