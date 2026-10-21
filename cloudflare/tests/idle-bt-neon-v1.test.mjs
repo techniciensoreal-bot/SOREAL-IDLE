@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /*
- * Norman (2026-10-21) : le menu Entraînement de base s'éteint après une Renaissance et se rallume comme des tubes néon (clignotement, sons) dès qu'on y place de l'énergie.
+ * Norman (2026-10-21) : le menu Entraînement de base s'éteint après une Renaissance et se rallume comme des tubes néon (clignotement, sons) uniquement à sa première ouverture après cette Renaissance.
  */
 const code = readFileSync(new URL("../public/modules/bt-neon-v1.js", import.meta.url), "utf8");
 
@@ -11,6 +11,7 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
   const magasin = {};
   const etatJeu = { systemes: { records: { totalRebirths: renaissances } }, basicTraining: { skills: [{ unlocked: true, allocation }, { unlocked: false, allocation: 999 }] } };
   const attrs = {};
+  let ouvert = true;
   const racine = { getAttribute: (k) => (k in attrs ? attrs[k] : null), setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; } };
   let tick = null; const minuteries = [];
   const noeuds = { osc: 0, bruit: 0 };
@@ -31,11 +32,11 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
     localStorage: { getItem: (k) => (k in magasin ? magasin[k] : null), setItem: (k, v) => { magasin[k] = String(v); } }
   };
   fen.window = fen;
-  const doc = { hidden: false, getElementById: () => null, createElement: () => ({}), head: { appendChild() {} }, documentElement: { appendChild() {} }, querySelector: (s) => (/data-menu="entrainement"/.test(s) ? racine : null) };
+  const doc = { hidden: false, getElementById: () => null, createElement: () => ({}), head: { appendChild() {} }, documentElement: { appendChild() {} }, querySelector: (s) => (ouvert && /data-menu="entrainement"/.test(s) ? racine : null) };
   const sandbox = Object.assign(fen, { document: doc, localStorage: fen.localStorage, setInterval: (f) => { tick = f; return 1; }, setTimeout: (f, ms) => { minuteries.push({ f, ms }); return minuteries.length; }, clearTimeout() {} });
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);
-  return { N: sandbox.__SOREAL_IDLE_BT_NEON_V1__, etatJeu, attrs, tick: () => tick(), minuteries, noeuds, magasin, fen: sandbox, apres: () => sandbox.__SOREAL_IDLE_APRES_REDESSIN_V1__ };
+  return { ouvrir: (v) => { ouvert = v; }, N: sandbox.__SOREAL_IDLE_BT_NEON_V1__, etatJeu, attrs, tick: () => tick(), minuteries, noeuds, magasin, fen: sandbox, apres: () => sandbox.__SOREAL_IDLE_APRES_REDESSIN_V1__ };
 }
 
 // 1. Joueur sans mémoire : le menu reste allumé (aucune surprise en pleine partie).
@@ -46,47 +47,48 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
   assert.equal(m.attrs["data-bt-neon"], undefined, "menu allumé : aucun attribut");
 }
 
-// 2. Une Renaissance éteint le menu ; tant qu'aucune énergie n'est placée il reste éteint (mais utilisable).
+// 2. Une Renaissance éteint le menu ; tant qu'on ne l'ouvre pas : aucun effet, aucun son.
 {
   const m = monde({ renaissances: 3 });
   m.N.etat();
   m.etatJeu.systemes.records.totalRebirths = 4;
-  m.tick();
-  assert.equal(m.attrs["data-bt-neon"], "eteint", "après une Renaissance : éteint");
-  m.tick();
-  assert.equal(m.attrs["data-bt-neon"], "eteint", "toujours éteint sans énergie placée");
-
-  // 3. Énergie placée : allumage, avec sons, puis allumé pour de bon (jusqu'à la prochaine Renaissance).
+  m.ouvrir(false);
   m.etatJeu.basicTraining.skills[0].allocation = 100;
+  m.tick(); m.tick();
+  assert.equal(m.noeuds.osc + m.noeuds.bruit, 0, "menu fermé : aucun son même si de l'énergie est placée");
+  assert.equal(m.minuteries.length, 0, "menu fermé : aucune animation");
+
+  // 3. Première ouverture : allumage avec sons, puis allumé pour de bon (jusqu'à la prochaine Renaissance).
+  m.ouvrir(true);
   m.tick();
-  assert.equal(m.attrs["data-bt-neon"], "allumage", "activation : le menu s'allume");
+  assert.equal(m.attrs["data-bt-neon"], "allumage", "première ouverture : le menu s'allume");
   assert.ok(m.noeuds.osc > 20 && m.noeuds.bruit > 20, "sons joués (claquements, grésillements, pops, ronronnement)");
   const fin = m.minuteries.find((x) => x.ms === 3900);
   assert.ok(fin, "fin de l'allumage programmée");
   fin.f();
   assert.equal(m.attrs["data-bt-neon"], undefined, "allumé");
-  m.tick();
-  assert.equal(m.attrs["data-bt-neon"], undefined, "reste allumé");
-  m.etatJeu.basicTraining.skills[0].allocation = 0;
-  m.tick();
-  assert.equal(m.attrs["data-bt-neon"], undefined, "retirer l'énergie ne rééteint pas le menu");
+  const sons = m.noeuds.osc + m.noeuds.bruit;
+  m.ouvrir(false); m.tick(); m.ouvrir(true); m.tick();
+  assert.equal(m.attrs["data-bt-neon"], undefined, "réouverture : reste allumé, sans animation");
+  assert.equal(m.noeuds.osc + m.noeuds.bruit, sons, "réouverture : aucun nouveau son");
   m.etatJeu.systemes.records.totalRebirths = 5;
+  m.ouvrir(false);
   m.tick();
-  assert.equal(m.attrs["data-bt-neon"], "eteint", "nouvelle Renaissance : éteint de nouveau");
-  m.apres().forEach((f) => f());
-  assert.equal(m.attrs["data-bt-neon"], "eteint", "le rappel après redessin garde l'état");
+  m.ouvrir(true);
+  m.tick();
+  assert.equal(m.attrs["data-bt-neon"], "allumage", "nouvelle Renaissance : nouvelle animation à la première ouverture");
 }
 
 // 4. Volume 0 : l'allumage se fait sans aucun son ; « réduire les animations » : allumé d'un coup.
 {
   const m = monde({ renaissances: 1, volume: 0 });
   m.N.etat(); m.etatJeu.systemes.records.totalRebirths = 2; m.tick();
-  m.etatJeu.basicTraining.skills[0].allocation = 5; m.tick();
+  m.tick();
   assert.equal(m.attrs["data-bt-neon"], "allumage");
   assert.equal(m.noeuds.osc + m.noeuds.bruit, 0, "volume 0 : aucun son");
   const r = monde({ renaissances: 1, reduit: true });
   r.N.etat(); r.etatJeu.systemes.records.totalRebirths = 2; r.tick();
-  r.etatJeu.basicTraining.skills[0].allocation = 5; r.tick();
+  r.tick();
   assert.equal(r.attrs["data-bt-neon"], undefined, "animations réduites : allumé tout de suite, sans clignotement");
   assert.equal(r.noeuds.osc + r.noeuds.bruit, 0, "animations réduites : aucun son");
 }

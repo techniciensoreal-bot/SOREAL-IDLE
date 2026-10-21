@@ -3,7 +3,8 @@
  * joue là-dessus pour que l'activation du Basic Training soit un allumage de tout le menu, avec des sons »).
  *
  *  - Après une Renaissance (records.totalRebirths a changé), le menu est ÉTEINT : sombre et terne, mais utilisable.
- *  - Dès que de l'énergie est placée dans une compétence (activation du Basic Training), tout le menu s'allume, bloc après bloc (titre, barre d'outils, puis chaque ligne d'Attaque et de Défense), chacun clignotant comme un tube néon avant de tenir.
+ *  - À la PREMIÈRE ouverture du menu après une Renaissance (et seulement là), tout le menu s'allume, bloc après bloc (titre, barre d'outils, puis chaque ligne d'Attaque et de Défense), chacun clignotant comme un tube néon avant de tenir.
+ *  - Hors de cette première ouverture, ni animation ni son : le menu est simplement allumé (Norman, 2026-10-21 : « uniquement quand on va dans Basic Training la première fois après un rebirth »).
  *  - Sons synthétisés (aucun fichier) : grésillements et claquements du starter, « pop » à chaque tube qui prend, ronronnement grave qui s'installe. Volume = barre « Sons de l'interface » des Réglages (rien à volume 0).
  *  - Aucun effet pour un joueur qui n'a pas encore connu de Renaissance depuis la mise en place : le menu reste allumé.
  *  - « Réduire les animations » : le menu s'allume d'un coup, sans clignotement ni son.
@@ -35,13 +36,6 @@
     if(!s||typeof s.r!=='number'){s={r:r,on:true};ecrire_(s);return s;}
     if(s.r!==r){s={r:r,on:false};ecrire_(s);}
     return s;
-  }
-
-  /* Total d'énergie placé dans les compétences d'Entraînement de base (activation du menu). */
-  function totalPlace_(){
-    var j=etatJeu_(),bt=j&&j.basicTraining,sk=bt&&Array.isArray(bt.skills)?bt.skills:[],t=0;
-    for(var i=0;i<sk.length;i+=1){if(sk[i]&&sk[i].unlocked)t+=Math.max(0,Number(sk[i].allocation)||0);}
-    return t;
   }
 
   var enCours=false,minuterie=0;
@@ -138,7 +132,7 @@
   }
   function verifier_(){
     var s=etat();
-    if(!s.on&&!enCours&&totalPlace_()>0)allumer_();
+    if(!s.on&&!enCours&&racine_())allumer_();   /* menu ouvert pour la 1re fois depuis la Renaissance */
     appliquer_();
   }
 
