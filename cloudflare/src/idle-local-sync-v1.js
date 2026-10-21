@@ -310,7 +310,10 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   assurerFluxV1(coord.sql);
   assurerGainsV1(coord.sql);
   let flux = 0;
-  for (const e of (Array.isArray(p.flux) ? p.flux : []).slice(0, MAX_FLUX)) {
+  /* Nombre d'événements réellement pris (limites MAX_FLUX / MAX_GAINS) : la page n'acquitte que ceux-là, le reste repart à l'envoi suivant (audit anti-rollback, 2026-10-21). */
+  const fluxPris = (Array.isArray(p.flux) ? p.flux : []).slice(0, MAX_FLUX);
+  const gainsPris = (Array.isArray(p.gains) ? p.gains : []).slice(0, MAX_GAINS);
+  for (const e of fluxPris) {
     if (!e || typeof e.type !== "string") continue;
     const at = Number(e.at) || Date.now(), type = e.type.slice(0, 40), donnees = sv(e.donnees).slice(0, 4000) || "{}";
     /* Renvoi après une réponse perdue : un événement déjà reçu n'est pas enregistré deux fois. */
@@ -319,12 +322,12 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     flux += 1;
   }
   let gains = 0;
-  for (const g of (Array.isArray(p.gains) ? p.gains : []).slice(0, MAX_GAINS)) {
+  for (const g of gainsPris) {
     if (!g) continue;
     const at = Number(g.at) || Date.now(), operation = sv(g.operation).slice(0, 120), avant = Number(g.avant) || 0, apres = Number(g.apres) || 0;
     if (coord.sqlAll("SELECT 1 AS x FROM idle_gains_exp WHERE at=? AND email=? AND operation=? AND avant=? AND apres=? LIMIT 1", at, cle, operation, avant, apres).length) continue;
     coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", at, cle, nom, operation, avant, apres);
     gains += 1;
   }
-  return { ok: true, ecrit, flux, gains, alertes: alertes.length, serveurAt: Date.now() };
+  return { ok: true, ecrit, flux, gains, fluxTraites: fluxPris.length, gainsTraites: gainsPris.length, alertes: alertes.length, serveurAt: Date.now() };
 }

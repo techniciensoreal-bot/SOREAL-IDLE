@@ -211,14 +211,14 @@
       const sortant=await parler({type:"sortant",vider:false});
       /* Dernier numéro d'événement contenu dans CET envoi : l'accusé retire jusque-là, pas « N événements » (réponses dans le désordre). */
       const dernierN=function(l){let m=0;(l||[]).forEach(function(e){if(e&&e.n>m)m=e.n;});return m;};
-      const fluxJusqua=dernierN(sortant.flux),gainsJusqua=dernierN(sortant.gains);
+      const envoyes={flux:sortant.flux||[],gains:sortant.gains||[]};
       sortant.appareil=appareil;sortant.depuis=depuis;sortant.rev=revEnvoyee;
       if(importPartieEnCours)sortant.importPartie=true;
       sale=false;
       const rep=await fetch("/api/v1/local/push",{method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
       /* Reçus par le serveur (même si la LIGNE est refusée) : les événements quittent la file du Worker. */
-      if(reponse&&reponse.ok&&!reponse.conflit){try{await parler({type:"acquitter",fluxJusqua:fluxJusqua,gainsJusqua:gainsJusqua});}catch(_){}}
+      if(reponse&&reponse.ok&&!reponse.conflit){try{await parler({type:"acquitter",fluxJusqua:dernierN(envoyes.flux.slice(0,Number.isFinite(reponse.fluxTraites)?reponse.fluxTraites:undefined)),gainsJusqua:dernierN(envoyes.gains.slice(0,Number.isFinite(reponse.gainsTraites)?reponse.gainsTraites:undefined))});}catch(_){}}
       if(reponse&&reponse.conflit){conflit=true;sale=false;afficherConflit();}
       else if(!reponse||!reponse.ok)sale=true;
       else if(reponse.ecrit===false){
