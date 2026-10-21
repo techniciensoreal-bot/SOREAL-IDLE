@@ -42,11 +42,15 @@
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Un NUKE fait exploser l’image du boss dans la borne d’arcade : éclair, boule de feu, ondes de choc, étincelles, et l’image tremble.',
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
             'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Les boutons Max, 1/2, 1/4, + et − sont bien lisibles (fond plein, texte net), et le bouton « Vers les NGU de magie / d’énergie » est illuminé et étoilé, comme les cadres du chat.',
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Les achats « Double tap : boosts » et « Double tap : fusion » sont rangés dans l’onglet Débuts de la boutique d’EXP, juste après le filtre de butin.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Quand on replace de la Magie, la boule de la sangsue repart tout de suite de là où elle s’était arrêtée au lieu de sauter à la sortie ; au premier affichage de la page, le personnage glisse lui aussi depuis la gauche.',
@@ -54,6 +58,7 @@
             'Au premier lancement, une image de la sangsue qui ne charge pas est redemandée toute seule : plus besoin de quitter le menu et d’y revenir pour que l’affichage soit correct.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'De l’air monte du bas des jauges : plein de minibulles très fines et rapides au pied du tube, et quelques bulles qui montent en grossissant.',
             'Cible et ressource allouée sont de petits écrans, comme Niveau et Temps restant.',
             'L’Énergie est en vert comme sa barre, et la seconde tour reprend la couleur de sa propre barre.',
           ]}

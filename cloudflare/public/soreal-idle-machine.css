@@ -24,11 +24,15 @@
 .tmm-droite .tmm-corps{grid-template-columns:minmax(0,1fr) 34px}
 .tmm-droite .tmm-tube{order:2}
 /* tube de verre : le niveau de la barre */
-.tmm-tube{position:relative;border-radius:17px;border:3px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 40%,rgba(0,0,0,.35));box-shadow:inset 0 0 0 2px #7b8ba0,0 0 0 2px #b98a3c;overflow:hidden;min-height:210px}
+.tmm-tube{container-type:size;position:relative;border-radius:17px;border:3px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 40%,rgba(0,0,0,.35));box-shadow:inset 0 0 0 2px #7b8ba0,0 0 0 2px #b98a3c;overflow:hidden;min-height:210px}
 .tmm-liq{position:absolute;left:0;right:0;bottom:0;height:var(--fill,0%);background:linear-gradient(180deg,var(--c2),var(--c1));box-shadow:0 0 18px var(--cg)}
 .tmm-liq::before{content:"";position:absolute;left:0;right:0;top:-3px;height:6px;border-radius:50%;background:var(--c2);opacity:.9}
-.tmm-bulle{position:absolute;bottom:0;left:calc(5px + var(--x,0px));width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.75);opacity:0;animation:tmmBulle 4s linear infinite;animation-delay:var(--d,0s)}
-@keyframes tmmBulle{0%{transform:translateY(0);opacity:0}12%{opacity:.85}85%{opacity:.85}100%{transform:translateY(-200px);opacity:0}}
+.tmm-bulles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.tmm-bulle{position:absolute;bottom:1px;left:var(--x,50%);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,rgba(255,255,255,.6) 55%,rgba(255,255,255,.18));opacity:0;animation-delay:var(--d,0s);animation-duration:var(--v,1s);animation-iteration-count:infinite;animation-timing-function:linear}
+.tmm-bulle.mini{width:2px;height:2px;animation-name:tmmFizz}
+.tmm-bulle.gde{width:3px;height:3px;animation-name:tmmMonte;animation-timing-function:cubic-bezier(.35,.1,.7,.9)}
+@keyframes tmmFizz{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:.95}100%{opacity:0;transform:translateY(-34px) scale(2.2)}}
+@keyframes tmmMonte{0%{opacity:0;transform:translateY(0) translateX(0) scale(1)}8%{opacity:.95}50%{transform:translateY(-52cqh) translateX(3px) scale(2.2)}92%{opacity:.85}100%{opacity:0;transform:translateY(-98cqh) translateX(-2px) scale(3.8)}}
 .tmm-tube::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 22px,rgba(0,0,0,.45) 22px 24px);pointer-events:none}
 .tmm-lcds{display:flex;flex-direction:column;gap:9px;min-width:0}
 .tmm-lcd,.tmm-case{border-radius:10px;border:3px solid var(--encre);background:linear-gradient(180deg,#071a14,#03100c);box-shadow:inset 0 0 0 2px #46586a,inset 0 0 18px rgba(0,0,0,.8),0 0 0 2px #b98a3c;padding:6px 9px 7px;position:relative;overflow:hidden}

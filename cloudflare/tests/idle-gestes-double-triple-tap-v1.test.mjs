@@ -33,9 +33,10 @@ const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js",
   assert.throws(() => applyIdleNguAction(pauvre, { action: "buyExpShop", item: "doubleTap" }, ctx, 1000), /EXP_INSUFFISANT/);
 }
 
-// 2. Boutique EXP : les deux cartes sont dans le rayon « Aventure », nommées et expliquées, et nulle part ailleurs.
+// 2. Boutique EXP : les deux cartes sont dans le rayon « Débuts » (Norman, 2026-10-21), nommées et expliquées, et nulle part ailleurs.
 assert.ok(meta.includes("const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];"));
-assert.ok(meta.includes("IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1).map(parId)"), "dans le rayon Aventure");
+assert.ok(meta.includes("const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','doubleTap','tripleTap',"), "dans le rayon Débuts, juste après le filtre de butin (les moins chers d'abord)");
+assert.ok(!meta.includes("IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1)"), "plus dans le rayon Aventure");
 assert.equal(meta.split("IDLE_EXP_GESTES_V1.indexOf(it.id)===-1").length - 1, 3, "exclues du rayon « Slots & options » (page, liste des rayons, points rouges)");
 // 2026-10-09 : un seul geste tactile, le double tap ; les deux achats gardent leurs identifiants, seuls les intitulés changent.
 assert.ok(meta.includes("doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion'") && meta.includes("doubleTap:'adventure',tripleTap:'adventure'"), "noms, et visibles seulement avec l'Aventure (anti-spoil)");

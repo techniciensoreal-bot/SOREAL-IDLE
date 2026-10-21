@@ -601,6 +601,35 @@
         })();
       }
 
+      /*
+       * Explosion sur l'image du boss dans la borne d'arcade (Norman, 2026-10-21 : « quand on fait un NUKE, j'aimerais qu'il y ait une explosion sur l'image du boss »). Éclair blanc, boule de feu, onde de choc, étincelles qui jaillissent et fumée, pendant que l'image tremble ; 1,2 s, une seule fois par NUKE.
+       * Le calque est AJOUTÉ à la page : data-morph-garder (règle n°4) pour qu'un redessin ne le retire pas en pleine explosion. Aucun effet avec « réduire les animations ».
+       */
+      function exploserBossNukeIdleV1_(){
+        const hote=document.getElementById('sorealIdleBossImageHostV36');
+        if(!hote)return false;
+        try{if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;}catch(_e){}
+        const ancien=hote.querySelector('.nk-boum');
+        if(ancien)ancien.remove();
+        clearTimeout(hote.__nkFin);
+        const calque=document.createElement('div');
+        calque.className='nk-boum';
+        calque.setAttribute('data-morph-garder','');
+        calque.setAttribute('aria-hidden','true');
+        let etincelles='';
+        for(let i=0;i<16;i+=1){
+          etincelles+='<b style="--a:'+Math.round(i*22.5+((i*37)%11))+'deg;--d:'+(46+((i*53)%40))+'%;--t:'+(((i*29)%9)*0.012).toFixed(3)+'s"></b>';
+        }
+        calque.innerHTML='<i class="nk-flash"></i><i class="nk-feu"></i><i class="nk-fumee"></i><i class="nk-onde"></i><i class="nk-onde nk-onde2"></i>'+etincelles;
+        hote.appendChild(calque);
+        hote.classList.add('nk-tremble');
+        hote.__nkFin=setTimeout(function(){
+          hote.classList.remove('nk-tremble');
+          if(calque.parentNode)calque.parentNode.removeChild(calque);
+        },1300);
+        return true;
+      }
+
       function nukerBossIdleV1_(){
         if(
           REG.idleNukeEnCoursV1 ||
@@ -617,6 +646,7 @@
         REG.idleCombatArmeLocalV206=false;
         REG.idleEtat.combatBossActif=false;
         jouerEffetAudioIdleV199_('nuke');
+        try{exploserBossNukeIdleV1_();}catch(_e){}
         REG.idleCombatIdentiteV116='';
         REG.idleProchainCoupJoueurV116=0;
         REG.idleProchainCoupBossV116=0;
@@ -1789,6 +1819,7 @@
     combattreDepuisCarteBossIdleV91_:combattreDepuisCarteBossIdleV91_,
     definirCombatBossIdleV39_:definirCombatBossIdleV39_,
     nukerBossIdleV1_:nukerBossIdleV1_,
+    exploserBossNukeIdleV1_:exploserBossNukeIdleV1_,
     bossNukableIdleV198_:bossNukableIdleV198_,
     autoNukeDueIdleV1_:autoNukeDueIdleV1_,
     pageCombatIdleV28_:pageCombatIdleV28_,

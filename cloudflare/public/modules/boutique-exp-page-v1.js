@@ -296,14 +296,14 @@
       ];
 
       /* Achats bon marché et utiles dès le début, dans l'ordre conseillé (du moins cher au plus cher). */
-      const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
+      const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','doubleTap','tripleTap','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
 
       /* Rayon « Toc » (Norman, 2026-10-02) : les petits outils de confort, bon marché. */
       const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];
 
       const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
 
-      /* Gestes du sac, rayon « Aventure » (Norman, 2026-10-04) : Double tap 20 EXP, Triple tap 30 EXP. */
+      /* Gestes du sac (Norman, 2026-10-04) : Double tap 20 EXP, Triple tap 30 EXP. Rangés dans le rayon « Débuts » (Norman, 2026-10-21 : « les achats double appui fusion et boost dans le menu Débuts »), juste après le filtre de butin : les moins chers d'abord. */
       const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];
 
       const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={customInput1:'🔢 Bouton Input personnalisé 1',customInput2:'🔢 Bouton Input personnalisé 2',customInput3:'🔢 Bouton Input personnalisé 3',customInput4:'🔢 Bouton Input personnalisé 4',adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
@@ -385,7 +385,7 @@
         const sortie={};
         sortie.debuts=ids(IDLE_EXP_DEBUTS_V1);
         sortie.toc=ids(IDLE_EXP_TOC_V1);
-        sortie.aventure=ids(IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1));
+        sortie.aventure=ids(IDLE_EXP_STATS_AVENTURE_V1);
         sortie.slots=tous.filter(function(it){
           return visible(it)&&!it.yggFruit&&IDLE_EXP_DEBUTS_V1.indexOf(it.id)===-1&&IDLE_EXP_TOC_V1.indexOf(it.id)===-1&&IDLE_EXP_STATS_AVENTURE_V1.indexOf(it.id)===-1&&IDLE_EXP_GESTES_V1.indexOf(it.id)===-1;
         }).map(function(it){return it.id;}).concat(tous.filter(function(it){return it.yggFruit&&visible(it);}).map(function(it){return it.id;}));
@@ -525,7 +525,7 @@
           }).join('');
         }
         if(onglet==='aventure'){
-          return IDLE_EXP_STATS_AVENTURE_V1.concat(IDLE_EXP_GESTES_V1).map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopRichJerksIdleV1_(m);
+          return IDLE_EXP_STATS_AVENTURE_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,null);}).join('')+idleExpShopRichJerksIdleV1_(m);
         }
         /* slots : tout le reste (hors Débuts et statistiques d'aventure), puis Yggdrasil */
         const reste=tous.filter(function(it){
