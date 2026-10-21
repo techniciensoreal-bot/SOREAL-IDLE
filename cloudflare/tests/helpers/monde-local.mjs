@@ -8,7 +8,7 @@ export const tick = () => attendre(40);
 
 export function ligne(n, instant) { const l = new Array(38).fill(""); l[1] = "Norman"; l[10] = n; l[15] = instant; l[18] = "n@x"; return l; }
 
-export function monde({ ligneServeur, idb = null, sansMinuterie = false } = {}) {
+export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle = 0, lenteurSortant = 0 } = {}) {
   const store = new Map();
   if (idb) store.set("etat:2:n@x", idb);
   const pushes = [];
@@ -24,8 +24,9 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false } = {}) 
         else if (m.type === "sortant") {
           const out = { cells: ligne(etat.n, etat.instant), flux: etat.flux.slice(), gains: etat.gains.slice(), instant: etat.instant };
           if (m.vider) { etat.flux = []; etat.gains = []; }   // ancien protocole : les événements quittent la file dès l'extraction
-          rep(out);
-        } else if (m.type === "acquitter") { etat.flux.splice(0, Number(m.flux) || 0); etat.gains.splice(0, Number(m.gains) || 0); rep(true); }
+          if (lenteurSortant) setTimeout(() => rep(out), lenteurSortant); else rep(out);
+        } else if (m.type === "importer") { etat.n = Number(m.fichier.cells[10]) || 0; etat.instant = Number(m.fichier.cells[15]) || etat.instant; rep({ ok: true, decalees: 0, delta: 0 }); }
+        else if (m.type === "acquitter") { etat.flux.splice(0, Number(m.flux) || 0); etat.gains.splice(0, Number(m.gains) || 0); rep(true); }
         else rep(true);
       });
     }
@@ -76,11 +77,12 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false } = {}) 
     FileReader: class { readAsText(f) { setTimeout(() => { this.result = f.text; this.onload(); }, 0); } },
     location: { search: "", href: "http://x/", reload() { mondeApi.rechargements.push(structuredClone([...store.entries()])); } }, localStorage: { getItem: () => null, removeItem() {} },
     Worker, WebAssembly: {}, indexedDB, fetch, URL, URLSearchParams, performance, structuredClone, console,
-    setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
+    setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, echelle ? (ms || 0) / echelle : Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
   };
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);
   mondeApi.ML = win.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
+  mondeApi.win = win;
   mondeApi.action = () => mondeApi.ML.appeler("acheterEntrainementSorealIdle", [], undefined, "fr", "jeton");
   return mondeApi;
 }

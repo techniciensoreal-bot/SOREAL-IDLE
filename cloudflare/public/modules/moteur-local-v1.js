@@ -150,7 +150,11 @@
         exp.joueurs.ligne=JSON.stringify(fusion);
         exp.reprise={flux:rec.flux||[],gains:rec.gains||[]};
         sale=true;rev+=1;
-      }else{await kv("effacer",cleSauve);}
+      }else{
+        /* Le serveur est plus récent (autre appareil passé depuis) : il fait foi, mais la copie de cet appareil n'est jamais détruite en silence : elle est mise de côté (un seul emplacement) avant d'être retirée de la reprise. */
+        await kv("ecrire",cleSauve+":ecartee",rec);
+        await kv("effacer",cleSauve);
+      }
     }
     worker=new Worker("/moteur-local-worker-v1.js?v=ae2949aae9");
     worker.onmessage=function(ev){
