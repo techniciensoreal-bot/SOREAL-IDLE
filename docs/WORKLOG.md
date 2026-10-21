@@ -2509,3 +2509,12 @@ Versions : ui `320`, css `13`, méta `202609277`, audio `227`, notes `53`, Beta 
 - **Vérifié** : tests du coffre serveur et du vrai module client (faux navigateur) ; en direct (serveur local, partie B) : valeurs posées, stockage local vidé (« nouvel appareil »), page rechargée : `soreal_idle_montant_input_v1=123` et `soreal_idle_ygg_solomax_v1=0` retrouvés, un seul rechargement, mesures de performance non envoyées.
 - **Limites** : clés > 8 000 caractères ou au-delà de 400 clés restent locales ; une préférence écrite autrement que par `localStorage` n'est pas synchronisée ; le jeton de session reste par appareil (normal) ; deux appareils ouverts en même temps : dernier changement gagnant, appliqué à la réponse suivante (sans recharger).
 - **Règle n°6** ajoutée à AGENTS.md.
+
+## 2026-10-21 — Audit anti-rollback du jeu local (protocole d'envoi)
+
+- **Départ** : `main` = `origin/main` = `9dfc65f4` ; déploiement vérifié à ce SHA (étape « Verify deployed Git SHA » verte) ; l'étape finale « Verify deployed Piper narration in Chromium » échoue depuis le run 1039 (non investiguée, sans lien avec les sauvegardes).
+- **Confirmés par lecture puis reproduits par tests** : (1) `envoyer()` prenait `{ok:true,ecrit:false}` pour une sauvegarde et effaçait la copie IndexedDB ; (2) les événements (flux, gains d'EXP) étaient vidés du Worker avant l'accusé et perdus au moindre échec.
+- **Non confirmé tel qu'écrit** : ROLLBACK-001 (l'accusé de A efface B) : `sale` le protège déjà ; reste la fenêtre de 1 s avant la copie IndexedDB.
+- **Correctifs** : `5424e71e` : accusé lié à une révision (`rev`), refus du serveur = pas une sauvegarde (copie conservée, retentée, signalée `sauvegarde_refusee`) ; `3f04da8c` : événements acquittés après réponse (message `acquitter`), doublons ignorés côté serveur.
+- **Tests** : `idle-sauvegarde-locale-protocole-v1`, `idle-sauvegarde-locale-evenements-v1` (vrai module sur faux navigateur, valeurs réelles), `idle-sauvegarde-locale-serveur-doublons-v1`. Suite complète verte, Worker reconstruit. Rien poussé.
+- **Reste à faire** : fermeture de page avec une grosse ligne (`keepalive` seulement sous 60 000 caractères, aucune écriture IndexedDB à ce moment) ; deux onglets / deux appareils ; date future acceptée (`cells[15]`) qui ferait refuser tous les envois suivants ; bascule local/serveur avec copie non envoyée ; import suivi d'un rechargement ; smoke test Piper.
