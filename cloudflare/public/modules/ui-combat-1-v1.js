@@ -610,7 +610,14 @@
         const at=Math.max(0,idleNombre_(r.at));
         /* Un retour enregistré (at > 0) se repère à son heure ; un repli de zone refermée (at = 0, recalculé à chaque réponse) à son texte. */
         const cle=(at>0?String(at):'repli')+'|'+String(r.raison||'')+'|'+String(r.detail||'');
-        if(idleRetourSafeCleV1===null){idleRetourSafeCleV1=cle;return;}
+        if(idleRetourSafeCleV1===null){
+          idleRetourSafeCleV1=cle;
+          /* Norman (2026-10-21) : « quand je ferme le jeu et que je reviens, je suis parfois en zone sûre alors que j'étais dans une zone où aucun ennemi ne peut me battre » : au tout premier état d'une page, un retour en Zone sûre DE LA VEILLE (K.O. pendant l'absence ou défaite) est maintenant expliqué dans le journal (avant, il restait muet : on ne savait pas pourquoi). */
+          if(String(a.selectedZone||'safe')==='safe'&&(r.raison==='ko_hors_ligne'||r.raison==='defaite')&&at>0&&Date.now()-at<86400000){
+            try{ajouterLogAventureIdleV1_('system','🛡️ Retour en Zone sûre : '+String(r.detail||r.raison));}catch(_e){}
+          }
+          return;
+        }
         if(cle===idleRetourSafeCleV1)return;
         idleRetourSafeCleV1=cle;
         if(!(at>0||String(r.raison||'')==='zone_fermee'))return;

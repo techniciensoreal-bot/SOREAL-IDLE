@@ -458,6 +458,33 @@ function lignesDepuisTexte_(texte){
   clore(brut.length);
   return lignes.length?lignes:[{parleur:voix,expr:'',texte:''}];
 }
+/*
+ * Découpe aux points (Norman, 2026-10-21 : « dès que le texte a un point, il crée une case de nouveau personnage et découpe ainsi tout le texte, peu importe qu'il y ait 10 ou 20 personnages : ça me permet de générer de petites parties de voix »).
+ * Une phrase = un personnage. On coupe APRÈS un point suivi d'un espace ; « ... » (points de suspension), les nombres (3.5) et les points sans espace derrière ne coupent pas.
+ */
+function decouperPhrases_(texte){
+  var t=String(texte==null?'':texte).trim();
+  if(!t)return [''];
+  var morceaux=[],debut=0,re=/\.\s+/g,m;
+  while((m=re.exec(t))){
+    var avant=t.charAt(m.index-1);
+    if(m.index===0||avant==='.'||/\s/.test(avant))continue;
+    var piece=t.slice(debut,m.index+1).trim();
+    if(piece)morceaux.push(piece);
+    debut=m.index+m[0].length;
+  }
+  var fin=t.slice(debut).trim();
+  if(fin)morceaux.push(fin);
+  return morceaux.length?morceaux:[t];
+}
+/* Chaque cadre d'une liste de lignes devient autant de cadres que de phrases (même voix, même expression, même paragraphe u). */
+function lignesParPhrase_(lignes){
+  var out=[];
+  (lignes||[]).forEach(function(l){
+    decouperPhrases_(l.texte).forEach(function(p){out.push({parleur:l.parleur,expr:l.expr||'',texte:p,u:l.u});});
+  });
+  return out;
+}
 function texteDepuisLignes_(lignes){
   var utiles=(lignes||[]).filter(function(x){return String(x&&x.texte||'').trim();});
   return utiles.map(function(x,k){
@@ -1288,7 +1315,9 @@ function ouvrir_(cle,def,surcharge,originaux){
       for(var i=0;i<n;i+=1){
         edition.affiche[c.id][i]=listeA[i]!==undefined?listeA[i]:'';
         var l=cartesListe[i]||{parleur:'narrateur',expr:'',texte:edition.affiche[c.id][i]};
-        edition.lignes[c.id].push({parleur:l.parleur,expr:l.expr||'',texte:l.texte,u:i,id:'c'+(++uid)});
+        /* Texte jamais modifié (aucun texte dit enregistré) : un personnage par phrase. Un texte déjà modifié garde ses cadres tels que Norman les a faits. */
+        var phrases=possedeParle?[l.texte]:decouperPhrases_(l.texte);
+        phrases.forEach(function(p){edition.lignes[c.id].push({parleur:l.parleur,expr:l.expr||'',texte:p,u:i,id:'c'+(++uid)});});
       }
     }else{
       var aff=possedeParle?String(brutAff==null?'':brutAff):sansBalises_(brutAff);
@@ -1296,6 +1325,8 @@ function ouvrir_(cle,def,surcharge,originaux){
       edition.lignes[c.id]=lignesDepuisTexte_(dit).map(function(l){return {parleur:l.parleur,expr:l.expr||'',texte:l.texte,u:0,id:'c'+(++uid)};});
       /* texte d'origine sans balises : le personnage part d'une copie du texte des joueurs */
       if(edition.lignes[c.id].length===1&&!String(edition.lignes[c.id][0].texte||'').trim())edition.lignes[c.id][0].texte=aff;
+      /* Texte jamais modifié : un personnage par phrase (voir decouperPhrases_). Un texte déjà modifié garde ses cadres. */
+      if(!possedeParle)edition.lignes[c.id]=lignesParPhrase_(edition.lignes[c.id]).map(function(l){return {parleur:l.parleur,expr:l.expr||'',texte:l.texte,u:0,id:'c'+(++uid)};});
     }
   });
   edition.valeurs=lireChamps_();
