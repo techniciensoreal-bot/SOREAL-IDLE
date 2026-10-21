@@ -150,9 +150,15 @@ self.onmessage = async (ev) => {
       const reelFin = performance.timeOrigin + performance.now();
       self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin, spans: SPANS_V1.actif ? spansPrelever() : undefined } });
     } else if (m.type === "sortant") {
-      const out = { cells: ligneJoueur(), flux: sortant.flux, gains: sortant.gains, instant: Date.now() };
+      /* Copie : les événements restent en file tant que le serveur ne les a pas acquittés (message « acquitter »). */
+      const out = { cells: ligneJoueur(), flux: sortant.flux.slice(), gains: sortant.gains.slice(), instant: Date.now() };
       if (m.vider) sortant = { flux: [], gains: [] };
       self.postMessage({ id: m.id, ok: true, resultat: out });
+    } else if (m.type === "acquitter") {
+      /* Les événements arrivent à la FIN de la file : retirer les n premiers ne touche jamais ceux qui sont survenus pendant l'envoi. */
+      sortant.flux.splice(0, Math.max(0, Number(m.flux) || 0));
+      sortant.gains.splice(0, Math.max(0, Number(m.gains) || 0));
+      self.postMessage({ id: m.id, ok: true, resultat: true });
     }
   } catch (e) {
     self.postMessage({ id: m.id, ok: false, erreur: String((e && (e.code || e.message)) || e) });

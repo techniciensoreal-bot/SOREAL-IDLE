@@ -287,13 +287,18 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   let flux = 0;
   for (const e of (Array.isArray(p.flux) ? p.flux : []).slice(0, MAX_FLUX)) {
     if (!e || typeof e.type !== "string") continue;
-    coord.sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", Number(e.at) || Date.now(), cle, nom, e.type.slice(0, 40), sv(e.donnees).slice(0, 4000) || "{}");
+    const at = Number(e.at) || Date.now(), type = e.type.slice(0, 40), donnees = sv(e.donnees).slice(0, 4000) || "{}";
+    /* Renvoi après une réponse perdue : un événement déjà reçu n'est pas enregistré deux fois. */
+    if (coord.sqlAll("SELECT 1 AS x FROM idle_flux WHERE at=? AND email=? AND type=? AND donnees=? LIMIT 1", at, cle, type, donnees).length) continue;
+    coord.sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", at, cle, nom, type, donnees);
     flux += 1;
   }
   let gains = 0;
   for (const g of (Array.isArray(p.gains) ? p.gains : []).slice(0, MAX_GAINS)) {
     if (!g) continue;
-    coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", Number(g.at) || Date.now(), cle, nom, sv(g.operation).slice(0, 120), Number(g.avant) || 0, Number(g.apres) || 0);
+    const at = Number(g.at) || Date.now(), operation = sv(g.operation).slice(0, 120), avant = Number(g.avant) || 0, apres = Number(g.apres) || 0;
+    if (coord.sqlAll("SELECT 1 AS x FROM idle_gains_exp WHERE at=? AND email=? AND operation=? AND avant=? AND apres=? LIMIT 1", at, cle, operation, avant, apres).length) continue;
+    coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", at, cle, nom, operation, avant, apres);
     gains += 1;
   }
   return { ok: true, ecrit, flux, gains, alertes: alertes.length, serveurAt: Date.now() };
