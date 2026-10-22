@@ -903,6 +903,8 @@ window.__fuirBossIdleV1__=function(){
           jouerEffetAudioIdleV199_('flee');
           /* Les rires de la salle se jouent EN PLUS du son de fuite (Norman, 2026-10-04). */
           jouerEffetAudioIdleV199_('laugh');
+          /* Trois moqueurs jaillissent du bas de la borne, nous pointent du doigt et rient, puis repartent (Norman, 2026-10-22 ; modules/moqueurs-fuite-v1.js). */
+          try{const moq=window.__SOREAL_IDLE_MOQUEURS_V1__;if(moq)moq.jouer(document.getElementById('sorealIdleBossImageHostV36'));}catch(_e){}
         }
       };
 }

@@ -63,6 +63,7 @@
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
             'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
             'Quand tu tues un boss après un combat d’au moins 5 secondes, l’image du boss éclate en gros pixels sur la borne d’arcade, avec un énorme « K.O. » puis « BOSS VAINCU » et un petit air de victoire. Rien pendant un NUKE.',
+            'Quand tu prends la fuite en plein combat, trois spectateurs jaillissent du bas de l’écran, devant la photo du boss et la tienne, te montrent du doigt en riant (« HAHA ») puis repartent vers le bas, avec les rires habituels.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Les boutons Max, 1/2, 1/4, + et − sont bien lisibles (fond plein, texte net), et le bouton « Vers les NGU de magie / d’énergie » est illuminé et étoilé, comme les cadres du chat.',
