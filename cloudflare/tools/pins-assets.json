@@ -104,12 +104,12 @@
   "sha": "74182bbac547a54c1107e26e799c698c9fbddc77"
  },
  "/modules/chat-v1.js": {
-  "pin": 12,
-  "sha": "d37788d0954f972b13adaf997126be71b8492160"
+  "pin": 13,
+  "sha": "99c553af9a35b81f64f01edf1bfe11d6cae8aa6f"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 11,
-  "sha": "d773a9128d6ca5394ce0e84010bcefc72055bd33"
+  "pin": 12,
+  "sha": "3929d8495ad6bc54b494b86bb36409c35b988398"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 20,
@@ -168,8 +168,8 @@
   "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
  },
  "/modules/flux-v1.js": {
-  "pin": 37,
-  "sha": "a421aad80da93b4666cc9a2c9a5aaf0497b8df01"
+  "pin": 38,
+  "sha": "92bc383e483d684a8850656f5aeac4daba22166f"
  },
  "/modules/hud-haut-v2.js": {
   "pin": 22,
@@ -260,8 +260,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 51,
-  "sha": "3d9ffecc3628cffd4d7ba6f43d3253e67ca63e3e"
+  "pin": 52,
+  "sha": "a49fd3b72ccb51c6e2eaa080a30ee926322c74f7"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -320,8 +320,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 360,
-  "sha": "a099462fa69633288ba9758bb6b6dba7fa227b6c"
+  "pin": 361,
+  "sha": "cf92fa1367bcee53456f59e9ab42cba71cedec57"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -384,12 +384,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 382,
-  "sha": "b41fa0b1b0f94854494f97f67eebf52d610afb2c"
+  "pin": 383,
+  "sha": "0d46ae5ef5629eb1d5f77dc2f6091a1bda7b9bf8"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 176,
-  "sha": "412394a15578ed76a3a3c05220ae52c49eae8c1a"
+  "pin": 177,
+  "sha": "5273ca397a616c992e28b04e359021e3d5b98dd4"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

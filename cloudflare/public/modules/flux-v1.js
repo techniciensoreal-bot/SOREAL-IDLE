@@ -267,6 +267,25 @@
         ];
         return {icone:'💩',texte:variantes[Math.abs(Number(it.id)||0)%variantes.length]};
       }
+      /*
+       * Le joueur a nettoyé le caca de son Coffre (Norman, 2026-10-22) : plusieurs phrases d'humour, choisies selon l'événement. Même anti-spoil que l'accident : seulement pour les lecteurs qui ont déjà le menu Aventure.
+       */
+      case 'nettoyage':{
+        if(!k.menus.aventure)return null;
+        const lui=it.moi?'Tu as':nom+' a';
+        const sonCoffre=it.moi?'ton coffre':'son coffre';
+        const variantes=[
+          lui+' nettoyé le caca de '+sonCoffre+'. '+(it.moi?'Évite de serrer la main de qui que ce soit':'Évitez de lui serrer la main si vous le croisez'),
+          'Opération propreté : '+(it.moi?'tu viens de récurer':nom+' vient de récurer')+' '+sonCoffre+'. Il sent le propre… presque',
+          (it.moi?'Ton coffre':'Le coffre de '+nom)+' est de nouveau impeccable. '+(it.moi?'Toi, un bon savon s’impose':'Son propriétaire, un bon savon s’impose')+' !',
+          lui+' passé l’éponge sur '+sonCoffre+'. '+(it.moi?'On ne te demandera pas où elle a traîné':'On ne demandera pas où l’éponge a traîné'),
+          'Fin de l’alerte marron : '+(it.moi?'ton coffre est':'le coffre de '+nom+' est')+' propre. '+(it.moi?'Tes doigts, moins':'Ses doigts, beaucoup moins'),
+          (it.moi?'Tu as':nom+' a')+' frotté, frotté et refrotté '+sonCoffre+'. Courage, héros du nettoyage de caca !',
+          (it.moi?'Ton coffre brille':'Le coffre de '+nom+' brille')+' à nouveau. Par contre, ne demandez pas à '+(it.moi?'te':'lui')+' de vous passer le sel',
+          lui+' enfin nettoyé '+sonCoffre+'. Les mouches sont déçues'
+        ];
+        return {icone:'🧽',texte:variantes[Math.abs(Number(it.id)||0)%variantes.length]};
+      }
       /* Menu visité (Norman, 2026-10-07) : annoncé seulement aux lecteurs qui ont déjà ce menu (anti-spoil). */
       case 'visite':{
         const l=LIEUX_VISITE[d.menu];

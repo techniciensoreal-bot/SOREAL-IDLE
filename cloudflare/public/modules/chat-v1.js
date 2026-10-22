@@ -80,6 +80,8 @@
     const m=c.menu?{menu:c.menu}:{};
     /* Accident du Coffre (modules/coffre-digestion-v1.js) : son numéro part avec chaque battement, le serveur ne l'annonce qu'une fois. */
     if(window.__coffreAccidentNumeroIdleV1__>0)m.accident=window.__coffreAccidentNumeroIdleV1__;
+    /* Coffre nettoyé (modules/coffre-accident-v1.js) : même principe, annoncé une seule fois. */
+    if(window.__coffreNettoyageNumeroIdleV1__>0)m.nettoye=window.__coffreNettoyageNumeroIdleV1__;
     if(c.farm&&c.farm.zoneId)return Object.assign({t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''},m);
     if(c.boss>0)return Object.assign({t:'boss',boss:c.boss},m);
     return Object.assign({t:'libre'},m);

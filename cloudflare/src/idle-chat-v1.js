@@ -56,6 +56,9 @@ export function normaliserActiviteV1(brut) {
   /* Accident du Coffre (Norman, 2026-10-15) : numéro de l'accident (secondes), seulement pour « En direct » (idle-flux-v1.js) ; une valeur renvoyée à chaque battement n'est annoncée qu'une fois. */
   const accident = Math.floor(Number(a.accident) || 0);
   if (accident > 0 && accident < 4102444800) sortie.accident = accident;
+  /* Coffre nettoyé (Norman, 2026-10-22) : même principe que l'accident. */
+  const nettoye = Math.floor(Number(a.nettoye) || 0);
+  if (nettoye > 0 && nettoye < 4102444800) sortie.nettoye = nettoye;
   return sortie;
 }
 

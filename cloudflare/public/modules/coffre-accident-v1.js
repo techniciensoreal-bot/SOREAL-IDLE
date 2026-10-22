@@ -263,7 +263,10 @@
       if(fd&&fd.parentNode)fd.parentNode.removeChild(fd);
       if(fl&&fl.parentNode)fl.parentNode.removeChild(fl);
       var doigtRestant=document.querySelector('.bg-doigt-v1');if(doigtRestant&&doigtRestant.parentNode)doigtRestant.parentNode.removeChild(doigtRestant);
-      if(fl){brilleJusqua=Date.now()+DUREE_BRILLE_MS;sauver_();majBrille_();}   /* nettoyée : le Coffre brille */
+      if(fl){
+        brilleJusqua=Date.now()+DUREE_BRILLE_MS;sauver_();majBrille_();   /* nettoyée : le Coffre brille */
+        window.__coffreNettoyageNumeroIdleV1__=Math.floor(Date.now()/1000);   /* annoncé dans « En direct » avec le prochain battement (Norman, 2026-10-22) */
+      }
       appliquer_();
       return;
     }

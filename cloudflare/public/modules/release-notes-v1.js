@@ -99,6 +99,7 @@
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Quand tu compares deux objets, les statistiques qu’ils ont en commun sont colorées : la plus haute en vert, la plus faible en rouge ; deux valeurs égales et les statistiques propres à un seul objet restent blanches.',
+            'Quand tu nettoies le caca de ton coffre, les autres joueurs qui connaissent l’Aventure le voient passer dans « En direct », avec une phrase d’humour différente à chaque fois.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Quand le calcul est en attente, la barre reste pleine au lieu de repartir de zéro.',

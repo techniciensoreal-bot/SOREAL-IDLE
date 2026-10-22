@@ -275,6 +275,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0,
     boostAt: precedent ? N(precedent.boostAt, 0) : 0,
     accidentVu: precedent ? N(precedent.accidentVu, 0) : 0,
+    nettoyeVu: precedent ? N(precedent.nettoyeVu, 0) : 0,
     rituelAt: precedent ? N(precedent.rituelAt, 0) : 0
   });
   let ajoutes = 0;
@@ -307,6 +308,11 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       evenements.push({ type: "accident", donnees: {} });
       etat.accidentVu = N(activite.accident);
     }
+    /* Le joueur a nettoyé le Coffre (Norman, 2026-10-22) : annoncé une fois par nettoyage, jamais deux fois le même numéro. */
+    if (activite && N(activite.nettoye) > 0 && N(activite.nettoye) !== N(precedent.nettoyeVu, 0)) {
+      evenements.push({ type: "nettoyage", donnees: {} });
+      etat.nettoyeVu = N(activite.nettoye);
+    }
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
       if (e.type === "rituel") return now - N(precedent.rituelAt, 0) >= IDLE_FLUX_DELAI_RITUEL_MS_V1;
@@ -332,6 +338,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     if (activite && typeof activite.menu === "string" && activite.menu) { etat.menuVu = activite.menu; etat.menuVuAt = now; }
     /* Un accident survenu pendant une absence n'est jamais annoncé en rattrapage. */
     if (activite && N(activite.accident) > 0) etat.accidentVu = N(activite.accident);
+    if (activite && N(activite.nettoye) > 0) etat.nettoyeVu = N(activite.nettoye);
   }
   sql.exec("INSERT OR REPLACE INTO idle_flux_etat(email,etat,maj) VALUES(?,?,?)", cle, JSON.stringify(etat), now);
   if (ajoutes) {
