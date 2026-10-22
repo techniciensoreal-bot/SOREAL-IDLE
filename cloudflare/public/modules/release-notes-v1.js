@@ -48,6 +48,7 @@
             'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Le bouton « Lire toute l’histoire des boss débloqués » affiche maintenant le petit lecteur (pause, stop, déplaçable), comme quand on reprend depuis un boss.',
             'Quand tu écoutes plusieurs chroniques de boss d’affilée, le nom de chaque boss n’est plus prononcé : les histoires s’enchaînent comme un seul récit.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[

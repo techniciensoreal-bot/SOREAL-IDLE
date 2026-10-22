@@ -14,7 +14,7 @@ if(window.__SOREAL_IDLE_LECTEUR_CHRONIQUES_V1__)return;
 
 var CLE_POS='soreal_idle_lecteur_chroniques_pos_v1';
 var ID='sorealIdleLecteurChroniquesV1';
-var etat={actif:false,file:[],index:0,jeton:0,pause:false};
+var etat={actif:false,file:[],index:0,jeton:0,pause:false,intro:''};
 
 function tts(){return window.__SOREAL_IDLE_TUTORIAL_TTS_V209__||null;}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -152,6 +152,7 @@ function lireCourante(){
   var jeton=etat.jeton+=1;
   /* texte et nom PARLÉS fixés dans le menu Admin : la voix lit ceux-là (Norman, 2026-10-17) */
   var texte=typeof t.composerChronique==='function'?t.composerChronique(String(e.nomParle||'').trim()||e.nom,String(e.histoireParlee||'').trim()||e.description,true):e.description;
+  if(etat.index===0&&etat.intro)texte=etat.intro+' \uE000'+1500+'\uE001 '+texte;
   var demarre=t.readText(texte,null,function(ok){
     if(jeton!==etat.jeton||!etat.actif)return;
     /* Lecture arrivée à son terme : on enchaîne ; interrompue de l'extérieur ou en échec : on ferme le lecteur. */
@@ -168,13 +169,13 @@ function lireCourante(){
   if(etat.pause&&typeof t.pause==='function')t.pause();
 }
 
-function demarrer(numeroDepart){
+function demarrer(numeroDepart,intro){
   var t=tts();
   if(!t||typeof t.readText!=='function')return false;
   var file=construireFile(numeroDepart);
   if(!file.length)return false;
   if(etat.actif){etat.jeton+=1;try{t.stop();}catch(_e){}}
-  etat.file=file;etat.index=0;etat.actif=true;etat.pause=false;
+  etat.file=file;etat.index=0;etat.actif=true;etat.pause=false;etat.intro=String(intro||'');   /* introduction lue avant la première chronique (bouton « Lire toute l'histoire ») */
   afficher();
   lireCourante();
   return true;

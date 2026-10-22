@@ -1118,6 +1118,15 @@
           return;
         }
 
+        /* Norman (2026-10-22) : « quand on lit toutes les chroniques, il doit y avoir le petit lecteur » (pause / stop déplaçable), comme « à partir de ce boss » : même lecteur, depuis le premier boss découvert ; un second appui l'arrête. */
+        try{
+          const lecteur=window.__SOREAL_IDLE_LECTEUR_CHRONIQUES_V1__;
+          if(lecteur){
+            if(lecteur.actif()){lecteur.stop();return;}
+            if(lecteur.demarrer(0,texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1)))return;
+          }
+        }catch(_e){}
+
         const tts=
           window.__SOREAL_IDLE_TUTORIAL_TTS_V203__||
           window.__SOREAL_IDLE_TUTORIAL_TTS_V202__;
