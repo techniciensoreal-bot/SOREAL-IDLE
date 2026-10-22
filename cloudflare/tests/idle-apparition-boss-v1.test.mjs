@@ -101,6 +101,17 @@ function monde({ reduit = false, volume = 0.8 } = {}) {
   assert.equal(mu.nbSons(), 0, "volume 0 : aucun son");
 }
 
+// 4 bis. La classe de mort du boss précédent (opacity:0) ne reste jamais sur l'image du boss suivant (image noire, Norman 2026-10-22).
+{
+  const m = monde();
+  m.poserImage(34);
+  const retirees = [];
+  m.hote.img.classList = { remove: (c) => retirees.push(c) };
+  m.hote.img.style = { removeProperty: () => {} };
+  m.A.jouer(m.hote);
+  assert.ok(retirees.includes("soreal-idle-boss-death-v61"), "classe de mort retirée au début de l'apparition");
+}
+
 // 5. Surveillance : pas d'effet pour la première image, un effet quand le boss change, rien pendant l'écran de victoire.
 {
   const m = monde();

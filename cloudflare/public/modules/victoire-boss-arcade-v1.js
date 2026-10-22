@@ -216,6 +216,7 @@
           fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
           var passe=false;
           try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;passe=Boolean(app&&app.jouer(hote));}catch(_e){}
+          try{var im=hote.querySelector('img');if(im&&!passe)im.classList.remove('soreal-idle-boss-death-v61');}catch(_e){}   /* jamais d'image invisible après la victoire (classe de mort restée sur le boss suivant) */
           if(passe){if(calque.parentNode)calque.parentNode.removeChild(calque);}   /* le calque de l'apparition est déjà posé par-dessus : aucune image du boss suivant n'apparaît entre les deux */
           else{
             calque.style.opacity='0';

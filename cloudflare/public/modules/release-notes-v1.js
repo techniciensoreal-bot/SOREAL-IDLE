@@ -64,6 +64,7 @@
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'L’image du boss suivant n’est plus noire après une victoire : elle apparaît toujours avec son effet.',
             'Les anciens sons d’apparition de boss sont supprimés : chaque boss n’a plus que le son de son propre effet.',
             'Les spectateurs qui rient quand tu fuis couvrent maintenant tout l’écran de la borne sur PC, et restent le temps du rire.',
             'L’écran de victoire ne se joue plus que pour le boss que tu viens de combattre (plus d’image d’un autre boss qui éclate), le texte « BOSS VAINCU » du bandeau a disparu, et l’image du boss suivant reste cachée jusqu’à la fin de la victoire, puis apparaît avec son effet.',
