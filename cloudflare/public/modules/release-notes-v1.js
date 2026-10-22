@@ -32,6 +32,7 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
             'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
             'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
             'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.',
