@@ -493,7 +493,14 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
             reference = reference_voix(voix)
             if reference:
                 kwargs["audio_prompt_path"] = reference
-            wav = generer_segment(m, segment, kwargs)
+            if len(segment) < TEXTE_COURT:
+                # Segment très court (une question isolée comme « Non? » depuis que chaque question forme son segment ; Norman, 2026-10-22 : « Échec de la génération : CUDA error ») : Chatterbox plante
+                # (« device-side assert », le contexte GPU est perdu) ; dit deux fois il passe, et on ne garde que la première prononciation, comme pour les noms courts de synthetiser().
+                court = segment.rstrip(" .!?…,;:") or segment
+                fin = "?" if est_question(segment) else "."
+                wav = garder_premiere_prononciation(generer_segment(m, court + fin + " " + court + fin, kwargs), m.sr)
+            else:
+                wav = generer_segment(m, segment, kwargs)
             if torch.cuda.is_available() and os.environ.get("SOREAL_VOIX_MEMOIRE"):
                 torch.cuda.empty_cache()
             if wav.dim() == 1:
