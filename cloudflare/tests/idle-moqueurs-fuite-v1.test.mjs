@@ -34,7 +34,7 @@ function monde({ reduit = false } = {}) {
   assert.equal(m.M.jouer(m.hote), true);
   assert.equal(m.duel.enfants.length, 1, "calque posé dans le conteneur du duel, pas dans la grille de l'arène");
   const calque = m.duel.enfants[0];
-  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:0;top:0;width:640px;height:528px", "sur tout l'écran de la borne (le cadre du duel), sans rien déplacer");
+  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:0;top:0;width:100%;height:100%", "sur tout l'écran de la borne (le cadre du duel), sans rien déplacer");
   assert.ok(/moq-fuite/.test(calque.className) && /soreal-idle-boss-transition-v61/.test(calque.className));
   assert.ok("data-morph-garder" in calque.attrs, "gardé par le redessin (règle n°4)");
   const cv = calque.children[0];

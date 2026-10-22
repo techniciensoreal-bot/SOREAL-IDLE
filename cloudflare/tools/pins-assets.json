@@ -264,8 +264,8 @@
   "sha": "4bdc49a03b776547a1a259f191aef35d907231bb"
  },
  "/modules/moqueurs-fuite-v1.js": {
-  "pin": 4,
-  "sha": "2f7280db522705f1c189511f2312f71bc3355f21"
+  "pin": 5,
+  "sha": "42d1f1da7aa707eddfc68710c3b0e7be5446e315"
  },
  "/modules/morph-v1.js": {
   "pin": 4,
