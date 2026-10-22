@@ -503,21 +503,28 @@ function blocsDuTitre_(valeurs,blocs){
   return {titre:[],autres:blocs};
 }
 function blocsParCadre_(valeurs){
-  var tous=blocsDeLecture_(valeurs);
+  var tous=blocsDeLecture_(valeurs,true);
   var separes=blocsDuTitre_(valeurs,tous);
   var blocs=separes.autres;
+  var sansDoublons=function(l){var vu={};return l.filter(function(b){if(vu[b.hash])return false;vu[b.hash]=1;return true;});};
   var cadres=[];
   Object.keys(edition.lignes||{}).forEach(function(c){(edition.lignes[c]||[]).forEach(function(l,k){cadres.push({champ:c,k:k,texte:normaliser_(l.texte),blocs:[]});});});
-  if(!cadres.length)return {cadres:[],blocs:blocs,titre:separes.titre};
+  if(!cadres.length)return {cadres:[],blocs:sansDoublons(blocs),titre:separes.titre};
   var curseur=0;
   blocs.forEach(function(b){
     var debut=normaliser_(b.texte).slice(0,30);
     var trouve=-1;
-    if(debut)for(var i=curseur;i<cadres.length;i+=1){if(cadres[i].texte.indexOf(debut)!==-1){trouve=i;break;}}
+    /* D'abord un cadre qui contient ce début ET n'a pas encore reçu ce bloc (phrase répétée : le suivant la reçoit), sinon le premier qui le contient. */
+    if(debut)for(var i=curseur;i<cadres.length;i+=1){if(cadres[i].texte.indexOf(debut)!==-1&&!cadres[i].blocs.some(function(x){return x.hash===b.hash;})){trouve=i;break;}}
+    if(debut&&trouve<0)for(var j=curseur;j<cadres.length;j+=1){if(cadres[j].texte.indexOf(debut)!==-1){trouve=j;break;}}
+    /* Aucun cadre ne contient le début du bloc (texte transformé à la lecture) : il suit le cadre en cours s'il n'a encore rien ; sinon il va au prochain cadre avec du texte et sans bloc, qui sinon resterait « vide ». */
+    if(trouve<0&&cadres[curseur]&&cadres[curseur].blocs.length){
+      for(var q=curseur+1;q<cadres.length;q+=1){if(cadres[q].texte&&!cadres[q].blocs.length){trouve=q;break;}}
+    }
     if(trouve>=0)curseur=trouve;
     cadres[trouve>=0?trouve:curseur].blocs.push(b);
   });
-  return {cadres:cadres,blocs:blocs,titre:separes.titre};
+  return {cadres:cadres,blocs:sansDoublons(blocs),titre:separes.titre};
 }
 function blocsDuCadre_(champ,k,valeurs){
   var r=blocsParCadre_(valeurs||lireChamps_());
@@ -701,7 +708,8 @@ function afficherEtat_(message,erreur){
 }
 
 /* Blocs de voix du texte lu : mêmes blocs et mêmes empreintes que la lecture dans le jeu. */
-function blocsDeLecture_(valeurs){
+/* avecDoublons : garde aussi les blocs au texte identique (une phrase répétée dans deux cadres) : chaque cadre doit retrouver SON bloc, sinon il paraît vide (« Ce cadre est vide : rien à générer »). */
+function blocsDeLecture_(valeurs,avecDoublons){
   var t=tts_();
   if(!t||typeof t.planNarration!=='function'||typeof t.hashBloc!=='function'||!edition)return [];
   var brut=edition.def.texteLu(valeurs);
@@ -710,7 +718,7 @@ function blocsDeLecture_(valeurs){
   plan.forEach(function(e){
     if(!e||e.chunk==null||!String(e.chunk).trim())return;
     var hash=t.hashBloc(e.chunk);
-    if(vus[hash])return;
+    if(vus[hash]&&!avecDoublons)return;
     vus[hash]=1;
     var parleur=e.voix||(typeof t.estVoixFemme==='function'&&t.estVoixFemme(e.chunk)?'femme':'homme');
     var bloc={texte:e.chunk,hash:hash,parleur:parleur};
