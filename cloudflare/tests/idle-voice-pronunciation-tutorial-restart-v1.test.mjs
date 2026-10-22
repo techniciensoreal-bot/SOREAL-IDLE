@@ -45,7 +45,7 @@ assert.ok(ui.includes("ce sandwich est fantastique ! Jambon fromage et sauce may
 assert.equal(ui.includes("ciabatta"), false);
 
 // 5. Un tutoriel en cours n'est pas relancé
-const demarrer = ui.slice(ui.indexOf("function demarrerTutorielPagesIdleV1_(pages,cle){"), ui.indexOf("function tutorielPagesNaviguerV1_(delta){"));
+const demarrer = ui.slice(ui.indexOf("function demarrerTutorielPagesIdleV1_(pages,cle,options){"), ui.indexOf("function tutorielPagesNaviguerV1_(delta){"));
 assert.ok(demarrer.includes("idleTutorielPagesEnCoursV1&&idleTutorielPagesEnCoursV1.cle===cle"));
 assert.ok(demarrer.indexOf("idleTutorielPagesEnCoursV1.cle===cle") < demarrer.indexOf("idleTutorielPagesEnCoursV1={pages:pages,index:0,cle:cle};"), "la reprise passe avant la remise à la page 1");
 console.log("idle-voice-pronunciation-tutorial-restart-v1: OK");

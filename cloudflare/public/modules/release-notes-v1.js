@@ -32,6 +32,8 @@
         date:'2026-10-22',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Au début d’une nouvelle partie, seule l’introduction en images se joue, puis le nouveau tutoriel : l’ancien tutoriel de base n’est plus lancé. Sa fenêtre s’ouvre une fois la chronique du boss lue.',
+            'L’introduction « Le commencement » est racontée en seize images qui défilent avec leur phrase en blanc dessous ; la dernière s’arrête sur le gros bouton blanc et c’est toi qui cliques sur l’image pour continuer.',
             'Au premier lancement d’une partie (ou après une remise à zéro complète), l’introduction se lance tout de suite, sans attendre le menu Basic Training ; si la chronique du boss se lit au même moment, elle attend que le texte soit fermé et que la lecture soit terminée ou interrompue.',
             'Dans le chat, un bouton émoji (sur PC) ouvre une grille d’émojis à glisser dans ton message.',
             'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',

@@ -123,8 +123,8 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
   assert.ok(editeur.includes("Placer sur l’écran") && editeur.includes("choisirElement()") && editeur.includes("Aperçu du guide") && editeur.includes("Voir cette étape"), "éditeur : placer sur l'écran, aperçu du guide et d'une étape");
   assert.ok(editeur.includes("background:#050810"), "panneau opaque");
   assert.ok(ui.includes("window.__SOREAL_IDLE_TUTORIEL_V1__.considerer(j)") && ui.includes("window.__SOREAL_IDLE_MENUS_LISTE_V1__=function()"), "jeu : moteur appelé, liste des menus fournie à l'éditeur");
-  assert.equal((ui.match(/ancienTutorielPermisIdleV1_\(\)/g) || []).length >= 3, true, "ancien tutoriel : lanceur de pages et fenêtres de progression protégés (les popups de menu ont leur propre réglage)");
-  assert.ok(ui.includes("function demarrerTutorielPagesIdleV1_(pages,cle){\n        if(!ancienTutorielPermisIdleV1_())return;") || ui.includes("function demarrerTutorielPagesIdleV1_(pages,cle){\r\n        if(!ancienTutorielPermisIdleV1_())return;"), "lanceur de pages de l'ancien tutoriel protégé");
+  assert.equal((ui.match(/ancienTutorielPermisIdleV1_\(\)/g) || []).length >= 2, true, "ancien tutoriel : lanceur de pages protégé (la page « Le commencement » du lancement ne dépend plus du réglage : Norman, 2026-10-22 ; les popups de menu ont leur propre réglage)");
+  assert.ok(/function demarrerTutorielPagesIdleV1_\(pages,cle,options\)\{\r?\n\s*if\(!ancienTutorielPermisIdleV1_\(\)&&!\(options&&options\.toujours\)\)return;/.test(ui), "lanceur de pages de l'ancien tutoriel protégé (sauf la page « Le commencement » du lancement)");
   assert.ok(index.includes("/modules/tutoriel-v1.js") && index.includes("/modules/admin-tutoriel-v1.js"), "modules chargés par la page");
   assert.ok(readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8").includes("__SOREAL_IDLE_ADMIN_TUTORIEL_V1__.pageHtml()"), "section Tutoriel dans le menu Admin");
 }

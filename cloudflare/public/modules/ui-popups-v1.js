@@ -284,7 +284,6 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */
       function gererPopupsProgressionIdleV75_(j){
         if(!j)return;
-        if(!ancienTutorielPermisIdleV1_())return;
 
         const cle='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(j);
 
@@ -309,9 +308,11 @@
          * tutoriel de début se termine réellement (tutorielPagesFermerV1_), pour qu'un abandon en cours de
          * route relance cette fonction (et donc l'intro depuis sa toute première page) au prochain lancement.
          */
+        /* Norman (2026-10-22) : « je ne veux plus du tutoriel de base (Salut, qui que tu sois) ; je veux le nouveau que j'ai fait ». Seule la première page (« Le commencement », en images) est jouée ici ; la suite est le nouveau tutoriel (modules/tutoriel-v1.js). */
         demarrerTutorielPagesIdleV1_(
-          REG.TUTORIEL_DEBUT_JEU_PAGES_V1,
-          'soreal_idle_tutoriel_debut_v1_'+cle
+          REG.TUTORIEL_DEBUT_JEU_PAGES_V1.slice(0,1),
+          'soreal_idle_tutoriel_debut_v1_'+cle,
+          {toujours:true}
         );
       }
 

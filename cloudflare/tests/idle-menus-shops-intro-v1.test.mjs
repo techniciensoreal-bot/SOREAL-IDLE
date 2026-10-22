@@ -26,7 +26,7 @@ assert.match(corps, /overflow-y:auto/);
 assert.match(corps, /min-height:0/);
 assert.match(css, /\.soreal-idle-modal-actions-v63\{\s*flex:0 0 auto;/, "les boutons ne sont jamais poussés hors de l'écran");
 assert.match(css, /\.soreal-idle-modal-button-v63\.jouer\{\s*background:#fff;/);
-assert.match(ui, /titre:'LE COMMENCEMENT',\s*sousTitre:'\(ACCROCHE-TOI BIEN\)',\s*long:true,\s*bouton:'JOUER',/);
+assert.match(ui, /titre:'LE COMMENCEMENT',\s*sousTitre:'\(ACCROCHE-TOI BIEN\)',\s*long:true,\s*diaporama:true,\s*bouton:'JOUER',/);
 assert.match(ui, /class="soreal-idle-modal-button-v63 '\+\(page\.bouton\?'jouer':'confirm'\)\+'"/);
 assert.equal((ui.match(/bouton:'JOUER'/g) || []).length, 1, "seul le premier récit a ce bouton");
 

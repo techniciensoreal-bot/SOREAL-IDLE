@@ -195,6 +195,10 @@
   "pin": 1,
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
+ "/modules/intro-diaporama-v1.js": {
+  "pin": 2,
+  "sha": "4c743b3c372dd4944230114d64c42d9775b70643"
+ },
  "/modules/inventaire-volet-v1.js": {
   "pin": 6,
   "sha": "6a828d2ec523b89c6d7638508052f5b0d22f43c1"
@@ -344,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 384,
-  "sha": "f3d2808c6a8e1525cd3a2de229c7fb7965e089e2"
+  "pin": 386,
+  "sha": "10a067e3ccd69103dcab17f60c9880b7b3c348f9"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -408,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 406,
-  "sha": "973ac9be5d408c9180447b8f79009ca5166928bc"
+  "pin": 408,
+  "sha": "22b0a20a8a498d0110ca4201fe6ed36a26688ae6"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 200,
-  "sha": "193d4dd28c96ed9909c43ad47f0652e78523b1d0"
+  "pin": 202,
+  "sha": "c0009d4400e309386b5ae60fd074df1d0961e722"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -432,8 +436,8 @@
   "sha": "2d5584b689cc121d382d4eeaadda45bbc20643f7"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 1,
-  "sha": "9e707e158d5941cfe9dcf3b3cd7574730303efe2"
+  "pin": 2,
+  "sha": "3b12ff469482e035118af573341f0b61514caa56"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,
@@ -496,8 +500,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 4,
-  "sha": "ad89b26fe9341a4c017dac94888b636d9ffaabdd"
+  "pin": 5,
+  "sha": "0ffa710ecdfe292097f1d6dae83e1036ec54b934"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 5,
@@ -508,8 +512,8 @@
   "sha": "0b75266a8d934d245d4d01c011f8ca3ec4e0ce3f"
  },
  "/modules/ui-popups-v1.js": {
-  "pin": 5,
-  "sha": "241dc6d6056afee6987105180cb2c261fc7a7915"
+  "pin": 6,
+  "sha": "008e16d3ae0891420fbe1adc1c087f1213cb6826"
  },
  "/modules/ui-reglages-v1.js": {
   "pin": 4,
@@ -524,8 +528,8 @@
   "sha": "8833e920e97cbe600fed96805b03e79b99df2591"
  },
  "/modules/ui-tutoriel-v1.js": {
-  "pin": 2,
-  "sha": "a710600a601d64e9f4dc29305ad87cb97c4fba72"
+  "pin": 4,
+  "sha": "eb15f5173119b91429de6190bce9e62935db34ea"
  },
  "/modules/ui.js": {
   "pin": 55,
@@ -596,8 +600,8 @@
   "sha": "f70aad3ff96d5eed7ce989f8800453663f2c2eaf"
  },
  "/soreal-idle-ui.js": {
-  "pin": 653,
-  "sha": "a03fa21787c715b3696dc3844f841243bb1c286f"
+  "pin": 654,
+  "sha": "1748b05b433a4e0f96f781402339d7beaadac48c"
  },
  "/standalone-bridge.js": {
   "pin": 20,

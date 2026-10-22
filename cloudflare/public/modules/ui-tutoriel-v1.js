@@ -324,6 +324,19 @@
         const dernier=etat.index>=etat.pages.length-1;
         const premier=etat.index<=0;
 
+        /* « Le commencement » en images (Norman, 2026-10-22) : les 16 images défilent avec leur phrase en blanc dessous, la dernière reste et c'est un clic sur l'image qui continue (modules/intro-diaporama-v1.js). Le texte lu par la voix reste celui de la page. */
+        if(page.long&&page.diaporama&&window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__){
+          REG.idlePopupBloqueCombatV102=true;
+          retirerChromeTutorielV1_();
+          const modalD=document.createElement('div');
+          modalD.id='sorealIdleTutorielPagesModalV1';
+          modalD.className='soreal-idle-modal-backdrop-v63 id-fond';
+          modalD.innerHTML=window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__.html(page,texteVoixTutorielIdleV1_(page,etat.pages[etat.index-1]));
+          document.body.appendChild(modalD);
+          window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__.demarrer();
+          return;
+        }
+
         if(page.long){
           REG.idlePopupBloqueCombatV102=true;
           retirerChromeTutorielV1_();
@@ -424,8 +437,8 @@
         return !T||T.ancienPermis();
       }
 
-      function demarrerTutorielPagesIdleV1_(pages,cle){
-        if(!ancienTutorielPermisIdleV1_())return;
+      function demarrerTutorielPagesIdleV1_(pages,cle,options){
+        if(!ancienTutorielPermisIdleV1_()&&!(options&&options.toujours))return;
         if(!Array.isArray(pages)||!pages.length)return;
         if(idleTutorielPagesDejaVuV1_(cle))return;
 
@@ -459,13 +472,13 @@
          * de relancer l'intro) n'est donc marqué ICI, qu'une fois le tutoriel de début réellement fermé -- jamais
          * dès son ouverture -- pour que quitter en plein milieu la rejoue depuis le début.
          */
-        if(etat&&etat.pages===REG.TUTORIEL_DEBUT_JEU_PAGES_V1&&REG.idleEtat){
+        if(etat&&etat.pages&&etat.pages[0]===REG.TUTORIEL_DEBUT_JEU_PAGES_V1[0]&&REG.idleEtat){
           const cleBienvenue='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(REG.idleEtat);
           try{localStorage.setItem(cleBienvenue,JSON.stringify(true));}catch(e){}
           idleVuMarquerV1_('bienvenue');
         }
         /* Le sandwich est la dernière page du tutoriel de début : la voix de fond ne part que si le joueur l'a atteinte. */
-        if(etat&&etat.pages===REG.TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1)lancerVoixArrierePlanSandwichIdleV1_();
+        if(etat&&etat.pages===REG.TUTORIEL_DEBUT_JEU_PAGES_V1&&etat.index>=etat.pages.length-1)lancerVoixArrierePlanSandwichIdleV1_();   /* seulement la lecture complète (rejeu) : l'introduction seule s'arrête à ses images */
 
         retirerChromeTutorielV1_();
         REG.idleTutorielPagesEnCoursV1=null;

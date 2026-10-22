@@ -184,12 +184,41 @@ function fermer_(vu){
   if(s&&typeof s.apresFin==='function'){try{s.apresFin(Boolean(vu));}catch(_e){}}
 }
 
+/*
+ * La chronique du boss d'abord (Norman, 2026-10-22 : « le tutoriel nous fait apparaître dans Fight Boss ; la chronique de boss doit se lire, et ensuite il doit s'ouvrir et se lire aussi ») : à la première étape, une fois le jeu rendu au menu de l'étape, la fenêtre attend que le texte de la
+ * chronique soit fermé et que sa lecture soit terminée ou interrompue (libre depuis 1,5 s : la lecture automatique peut démarrer juste après l'affichage), 2 minutes au plus. Sans chronique à l'écran, l'attente se limite à ce délai.
+ */
+function chroniqueOccupee_(){
+  var p=document.getElementById('sorealIdleBossChroniqueV206');
+  if(!p)return false;
+  if(window.__chroniqueOuverteIdleV1||(p.classList&&p.classList.contains('ouverte')))return true;
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  try{if(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206'))return true;}catch(_e){}
+  try{if(tts&&typeof tts.isSpeaking==='function'&&tts.isSpeaking())return true;}catch(_e){}
+  return false;
+}
+function attendreChronique_(s,suite){
+  var debut=Date.now(),libre=0;
+  (function sonde(){
+    if(etat.enCours!==s)return;
+    if(chroniqueOccupee_()){libre=0;}
+    else if(!libre){libre=Date.now();}
+    if((libre&&Date.now()-libre>=1500)||Date.now()-debut>120000){suite();return;}
+    setTimeout(sonde,300);
+  })();
+}
+
 function afficherEtape_(){
   var s=etat.enCours;if(!s)return;
   var e=s.guide.etapes[s.i];if(!e){fermer_(true);return;}
   installerStyle_();
   /* Le jeu se rend tout seul au menu de l'étape. */
   if(e.menu&&e.menu!==menuActif_()&&typeof window.__menuIdleV28__==='function'){try{window.__menuIdleV28__(e.menu);}catch(_e){}}
+  if(!s.apercu&&s.i===0&&!s.chroniqueVue){
+    s.chroniqueVue=true;
+    attendreChronique_(s,function(){if(etat.enCours===s)afficherEtape_();});
+    return;
+  }
   var b=document.getElementById(ID),c=document.getElementById(ID_CADRE);
   if(!b){b=document.createElement('div');b.id=ID;b.setAttribute('role','dialog');b.setAttribute('data-soreal-tts-ignore','1');b.setAttribute('aria-live','polite');document.body.appendChild(b);}
   if(!c){c=document.createElement('div');c.id=ID_CADRE;c.hidden=true;document.body.appendChild(c);}

@@ -20,6 +20,7 @@
   function idleVusServeurV1_(){return REG.idleVusServeurV1_.apply(null,arguments);}
   function idleVuMarquerV1_(){return REG.idleVuMarquerV1_.apply(null,arguments);}
   function rendreTutorielPagesIdleV1_(){return REG.rendreTutorielPagesIdleV1_.apply(null,arguments);}
+  function tutorielPagesFermerV1_(){return REG.tutorielPagesFermerV1_.apply(null,arguments);}
   function menuDisponibleIdleV28_(){return REG.menuDisponibleIdleV28_.apply(null,arguments);}
   function idleVuConnuV1_(){return REG.idleVuConnuV1_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
@@ -799,6 +800,9 @@
       function tutorielPagesNaviguerV1_(delta){
         const etat=REG.idleTutorielPagesEnCoursV1;
         if(!etat)return;
+
+        /* Norman (2026-10-22) : l'introduction est maintenant seule (une page) ; « avancer » depuis la dernière page la ferme, comme son bouton « Terminé ». */
+        if(delta>0&&etat.index>=etat.pages.length-1){tutorielPagesFermerV1_();return;}
 
         etat.index=Math.max(0,Math.min(etat.pages.length-1,etat.index+delta));
         rendreTutorielPagesIdleV1_();

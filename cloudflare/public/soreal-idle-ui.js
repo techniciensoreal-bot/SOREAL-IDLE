@@ -803,6 +803,7 @@
           titre:'LE COMMENCEMENT',
           sousTitre:'(ACCROCHE-TOI BIEN)',
           long:true,
+          diaporama:true,
           bouton:'JOUER',
           paragraphes:[
             '*BLOUM*',
