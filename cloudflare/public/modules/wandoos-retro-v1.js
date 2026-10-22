@@ -656,7 +656,8 @@
    */
   try{
     var appuiTouche=null,faitsTouche=[];
-    var toucheDe_=function(e){
+    /* Nom propre : un second « toucheDe_ » remplaçait celui du son (fonction du même nom plus haut) et plus aucune touche ne faisait de bruit (Norman, 2026-10-22). */
+    var toucheAction_=function(e){
       var b=e.target&&e.target.closest?e.target.closest('.wd-touche'):null;
       if(!b||b.disabled)return null;
       var code=b.getAttribute('onclick')||'';
@@ -670,7 +671,7 @@
     };
     document.addEventListener('pointerdown',function(e){
       if(e.pointerType==='mouse'&&e.button!==0)return;
-      var t=toucheDe_(e);
+      var t=toucheAction_(e);
       if(!t)return;
       if(e.pointerType==='mouse'){declencher_(t);return;}
       appuiTouche={t:t,x:e.clientX,y:e.clientY,at:performance.now()};
@@ -682,7 +683,7 @@
     },true);
     document.addEventListener('pointercancel',function(){appuiTouche=null;},true);
     document.addEventListener('click',function(e){
-      var t=toucheDe_(e);
+      var t=toucheAction_(e);
       if(!t)return;
       var now=performance.now();
       for(var i=0;i<faitsTouche.length;i++){
