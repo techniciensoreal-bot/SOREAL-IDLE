@@ -110,10 +110,15 @@
   function barresAvecEnergie_(){
     var L=window.__SOREAL_IDLE_BT_LUMIERES_V1__,j=etatJeu_(),sk=j&&j.basicTraining&&Array.isArray(j.basicTraining.skills)?j.basicTraining.skills:[],out=[];
     if(!L||typeof L.variantePourBarre!=='function')return out;
+    var vus={};
     sk.forEach(function(b,i){
       if(!b||!b.unlocked||!(Number(b.allocation)>0))return;
       var defense=i>=6,k=i%6,d=k===0?(defense?PANNEAU_D:PANNEAU_A):(defense?1.95:1.0)+PAS*(k-1);
-      out.push({d:d,type:k===0?'allume':L.variantePourBarre(b.id)});
+      var type=k===0?'allume':L.variantePourBarre(b.id);
+      /* Une seule fois par son : une barre d'attaque et sa jumelle de défense ont le même démarrage, et les deux premières barres le même néon ; entendu deux fois, le même bruit à une seconde d'écart sonnait faux (Norman, 2026-10-22). */
+      if(vus[type])return;
+      vus[type]=1;
+      out.push({d:d,type:type});
     });
     return out;
   }

@@ -111,18 +111,16 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
 {
   const m = monde();
   const sons = [];
-  m.fen.__SOREAL_IDLE_BT_LUMIERES_V1__ = { variantePourBarre: (id) => "v:" + id, construire: (c, out, t, type) => sons.push(type) };
+  m.fen.__SOREAL_IDLE_BT_LUMIERES_V1__ = { variantePourBarre: (id) => (id === "attaque_reguliere" || id === "defense_renforcee" ? "demarrage1" : "v:" + id), construire: (c, out, t, type) => sons.push(type) };
   const ids = ["attaque_passive", "attaque_reguliere", "attaque_renforcee", "contre_palette", "percee_quai", "ultime_soreal", "blocage", "defense_renforcee", "recuperation", "boost_offensif", "charge_logistique", "ultime_logistique"];
   m.etatJeu.basicTraining.skills = ids.map((id) => ({ id, unlocked: true, allocation: 0 }));
-  m.etatJeu.basicTraining.skills[0].allocation = 5;
-  m.etatJeu.basicTraining.skills[2].allocation = 5;
-  m.etatJeu.basicTraining.skills[7].allocation = 5;
+  [0, 1, 2, 6, 7].forEach((i) => { m.etatJeu.basicTraining.skills[i].allocation = 5; });
   const b = m.N.barresAvecEnergie();
-  assert.deepEqual(JSON.parse(JSON.stringify(b.map((x) => x.type))), ["allume", "v:attaque_renforcee", "v:defense_renforcee"], "néon pour la première barre, démarrage propre aux autres");
+  assert.deepEqual(JSON.parse(JSON.stringify(b.map((x) => x.type))), ["allume", "demarrage1", "v:attaque_renforcee"], "chaque son une seule fois (la jumelle de défense et la 2e première barre ne le rejouent pas)");
   const cal = Array.from(m.N.calendrier());
-  assert.ok(Math.abs(b[0].d - cal[2]) < 1e-9 && Math.abs(b[1].d - cal[4]) < 1e-9 && Math.abs(b[2].d - cal[10]) < 1e-9, "joués à l'instant où la ligne s'allume");
+  assert.ok(Math.abs(b[0].d - cal[2]) < 1e-9 && Math.abs(b[1].d - cal[3]) < 1e-9 && Math.abs(b[2].d - cal[4]) < 1e-9, "joués à l'instant où la ligne s'allume");
   m.etatJeu.systemes.records.totalRebirths = 1;
   m.N.etat(); m.etatJeu.systemes.records.totalRebirths = 2; m.tick();
-  assert.equal(sons.length, 3, "les démarrages de base sont joués pendant l'allumage");
+  assert.equal(sons.length, 3, "les démarrages de base sont joués une fois chacun pendant l'allumage");
 }
 console.log("idle-bt-neon-v1: OK");

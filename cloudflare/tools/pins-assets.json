@@ -80,8 +80,8 @@
   "sha": "dab3bc57d943cdb5654f2f9958217cf83e5b9df4"
  },
  "/modules/bt-neon-v1.js": {
-  "pin": 3,
-  "sha": "0f31c462899f947fb4bd3ff2e65d4cf111c423bf"
+  "pin": 4,
+  "sha": "3b07a612188b045cb4f8cdb725a86fac93cd113b"
  },
  "/modules/bug-report-v1.js": {
   "pin": 5,
@@ -360,8 +360,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 22,
-  "sha": "5b8f72cdc9936e2fd8559e080e03e3e638bd41d4"
+  "pin": 23,
+  "sha": "cd84918d06ffba1d90b90e05f9b59351ac98dfac"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
