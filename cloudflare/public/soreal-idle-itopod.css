@@ -1476,8 +1476,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .team-sort-trigger-label{font-size:13px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-adventure-idle-toggle-v3 :is(span,b),html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-inv-timer-v1{font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="tower"] :is(small,label,.itp-tuile-libelle){font-size:13.5px!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.cal-sous-v1,.cal-ap-v1){font-size:12.5px!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-jour-v1{font-size:12px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.cal-sous-v1,.cal-ap-v1){font-size:13px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-jour-v1{font-size:13px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-exp-open-v213,.soreal-idle-exp-aisles-v213 span,.soreal-idle-page-root-v28[data-menu="shop"] small,.soreal-idle-page-root-v28[data-menu="shop"] .k){font-size:13px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.sic-heure,.sic-admin){font-size:13px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.wd-nomcouleur,.soreal-idle-page-root-v28[data-menu="wandoos"] small){font-size:13px!important}
@@ -1690,3 +1690,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-item-popup-actions-v165 .idle-fiche-bouton-v1:hover:not(:disabled){border-color:#d6b24a;background:linear-gradient(180deg,#2e3860,#161c36);color:#fff}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-item-popup-actions-v165 .idle-fiche-bouton-v1:active:not(:disabled){transform:translateY(1px)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-item-popup-actions-v165 .idle-fiche-bouton-v1:disabled{opacity:.4;cursor:not-allowed}
+
+/* Audit de visibilité sur PC (Norman, 2026-10-22) : sur écran d'ordinateur (≥ 1100 px) les petits textes de 11-12 px passent à 13-14 px (taille « lisible sans être énorme »), les planchers pour téléphone restent inchangés ; la page Réglages se range en deux colonnes. */
+@media (min-width:1100px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-page-sub-v28{font-size:14px;line-height:1.35}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is(.soreal-idle-v79-stat-label,.itp-tuile-libelle,.soreal-idle-bt-info-v1,.nl-pct,.nl-eta,.rb2-lib,.rb2-note,.bm-etagere-lib,.soreal-idle-exp-help-v210,.tmm-sous,.tmm-lcd-titre,.tmm-case-titre,.wd-leg,.challenges i){font-size:13px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 small{font-size:12.5px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="ngu"] :is(span,b,p):not([class]){font-size:13px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"] i{font-size:12.5px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"] :is(.soreal-idle-exp-buy-v210,.souche){font-size:13px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-button-v28 b,
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-titans-brille-v1{font-size:13px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-summary-v28{font-size:12px}
+  /* Réglages : les cartes se rangent côte à côte au lieu de s'empiler sur 3 900 px ; le titre garde toute la largeur. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;align-items:start}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>.soreal-idle-page-head-v28{grid-column:1/-1}
+}
