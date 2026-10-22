@@ -22,31 +22,33 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.5',
+    courante:'3.6',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
       {
-        version:'3.5',
-        nom:'Un démarrage à toute épreuve',
-        date:'2026-10-21',
+        version:'3.6',
+        nom:'La borne en met plein la vue',
+        date:'2026-10-22',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Sur PC, le pointeur ne clignote plus entre flèche et main quand on le place au bord d’un bouton du menu de gauche (le bouton ne se soulève plus au survol).',
-            'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',
             'Dans le chat, un bouton émoji (sur PC) ouvre une grille d’émojis à glisser dans ton message.',
+            'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',
+            'Sur PC, le pointeur ne clignote plus entre flèche et main quand on le place au bord d’un bouton du menu de gauche (le bouton ne se soulève plus au survol).',
             'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
-            'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
-            'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
-            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.',
-            'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
-            'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
-            'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
-            'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
-            'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
           ]},
-          {menu:'challenges', titre:'Défis', points:[
-            'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Le premier point placé dans n’importe quelle barre refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu perds un combat, l’image de ton personnage éclate en gros pixels comme celle d’un boss qui meurt, puis se reforme juste après.',
+            'Le bouton NUKE de la borne se referme sous un blindage d’acier quand il n’est pas disponible : deux battants et deux verrous, qui s’ouvrent (et se referment) avec leur bruit de mécanisme.',
+            'Chaque boss apparaît avec son propre effet (dix effets différents, joués dans l’ordre des boss) et son propre son ; l’image du boss suivant reste cachée jusqu’à la fin de l’écran de victoire, puis apparaît toujours avec son effet.',
+            'Quand tu tues un boss après un combat d’au moins 5 secondes, l’image de CE boss éclate en gros pixels sur la borne d’arcade, avec un énorme « K.O. » puis « BOSS VAINCU » et un petit air de victoire. Rien pendant un NUKE.',
+            'Quand tu prends la fuite en plein combat, trois spectateurs jaillissent du bas de tout l’écran de la borne, te montrent du doigt en riant (« HAHA ») puis repartent vers le bas, juste le temps du rire.',
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Un clic sur ce menu ramène toujours à l’écran de combat de la tour : la boutique des Atouts ne reste plus affichée.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'Le bouton « Lire toute l’histoire des boss débloqués » affiche maintenant le petit lecteur (pause, stop, déplaçable), comme quand on reprend depuis un boss.',
@@ -63,24 +65,34 @@
             'L’information « Libre » est retirée de l’écran (elle est déjà dans la barre du haut), et pendant le chargement de l’OS tout tient sur un seul écran, sans défilement.',
             'Quand un niveau demande moins d’une seconde, le texte sous la barre indique la vitesse en niveaux par seconde (N/s), jusqu’au maximum de 50 niveaux par seconde.',
             'Les touches du clavier de cet écran refont leur bruit de clic.',
+          ]}
+        ]
+      },
+      {
+        version:'3.5',
+        nom:'Un démarrage à toute épreuve',
+        date:'2026-10-21',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
+            'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
+            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.',
+            'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
+            'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
+            'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
+            'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
+            'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
-            'Le premier point placé dans n’importe quelle barre de l’Entraînement de base refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Quand tu perds un combat, l’image de ton personnage éclate en gros pixels comme celle d’un boss qui meurt, puis se reforme juste après.',
-            'L’image du boss suivant n’est plus noire après une victoire : elle apparaît toujours avec son effet.',
-            'Les anciens sons d’apparition de boss sont supprimés : chaque boss n’a plus que le son de son propre effet.',
-            'Les spectateurs qui rient quand tu fuis couvrent maintenant tout l’écran de la borne sur PC, et restent le temps du rire.',
-            'L’écran de victoire ne se joue plus que pour le boss que tu viens de combattre (plus d’image d’un autre boss qui éclate), le texte « BOSS VAINCU » du bandeau a disparu, et l’image du boss suivant reste cachée jusqu’à la fin de la victoire, puis apparaît avec son effet.',
-            'Le bouton NUKE de la borne se referme sous un blindage d’acier quand il n’est pas disponible : deux battants et deux verrous, qui s’ouvrent (et se referment) avec leur bruit de mécanisme.',
-            'Chaque boss apparaît avec son propre effet (dix effets différents, joués dans l’ordre des boss) et son propre son ; l’image du boss suivant n’est jamais visible avant la fin de l’écran de victoire.',
             'Un NUKE fait exploser l’image du boss dans la borne d’arcade : éclair, boule de feu, ondes de choc, étincelles, et l’image tremble.',
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
             'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
-            'Quand tu tues un boss après un combat d’au moins 5 secondes, l’image du boss éclate en gros pixels sur la borne d’arcade, avec un énorme « K.O. » puis « BOSS VAINCU » et un petit air de victoire. Rien pendant un NUKE.',
-            'Quand tu prends la fuite en plein combat, trois spectateurs jaillissent du bas de l’écran, devant la photo du boss et la tienne, te montrent du doigt en riant (« HAHA ») puis repartent vers le bas, avec les rires habituels.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Les boutons Max, 1/2, 1/4, + et − sont bien lisibles (fond plein, texte net), et le bouton « Vers les NGU de magie / d’énergie » est illuminé et étoilé, comme les cadres du chat.',
@@ -89,9 +101,7 @@
             'Les achats « Double tap : boosts » et « Double tap : fusion » sont rangés dans l’onglet Débuts de la boutique d’EXP, juste après le filtre de butin.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Quand on replace de la Magie, la boule de la sangsue repart tout de suite de là où elle s’était arrêtée au lieu de sauter à la sortie ; au premier affichage de la page, le personnage glisse lui aussi depuis la gauche.',
-            'Le pied de la sangsue reste posé sur la table même après un redessin de la page, et le personnage glisse toujours depuis la gauche (il n’entre qu’une fois son image chargée, redemandée si elle échoue) au lieu d’apparaître d’un coup.',
-            'Au premier lancement, une image de la sangsue qui ne charge pas est redemandée toute seule : plus besoin de quitter le menu et d’y revenir pour que l’affichage soit correct.',
+            'La sangsue est stable : sa boule repart tout de suite de là où elle s’était arrêtée quand on replace de la Magie, son pied reste posé sur la table après un redessin, le personnage glisse toujours depuis la gauche, et une image qui ne charge pas est redemandée toute seule.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'De l’air monte du bas des jauges : plein de minibulles très fines et rapides au pied du tube, et quelques bulles qui montent en grossissant.',
