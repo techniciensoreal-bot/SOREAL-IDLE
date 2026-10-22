@@ -528,6 +528,9 @@
 
         if(nouveauMenu==='aventure')REG.idleAdventureKoAlertV1=false;
 
+        /* ITOPOD : un clic sur le menu ramène TOUJOURS à la tour (l'écran de combat), jamais à la boutique des Atouts restée en mémoire (Norman, 2026-10-22). */
+        if(nouveauMenu==='tower')window.__itopodVueIdleV1__='tour';
+
         REG.idleMenuActifV28=
           nouveauMenu;
 

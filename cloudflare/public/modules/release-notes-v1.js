@@ -250,6 +250,7 @@
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Changer les étages avec les boutons recommence toujours au premier ennemi de l’étage choisi.',
+            'Un clic sur ce menu te ramène toujours à l’écran de combat de la tour : la boutique ne reste plus ouverte en mémoire.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Installer l’OS avec une copie réussie : un son d’ordinateur joyeux (deux bips, arpège de démarrage, carillon) ; copie de niveau insuffisant : un son d’erreur d’ordinateur.',
