@@ -260,6 +260,27 @@
         document.body.appendChild(modal);
       }
 
+      /*
+       * L'introduction (« Le commencement ») attend la chronique du boss (Norman, 2026-10-22) : à l'arrivée sur Fight Boss d'une nouvelle partie, la chronique du boss se lit toute seule ; l'introduction ne doit apparaître qu'une fois le texte de la chronique FERMÉ et la lecture
+       * TERMINÉE ou INTERROMPUE (et le panneau libre depuis un instant, la lecture automatique pouvant démarrer juste après l'affichage). Sans panneau de chronique à l'écran (autre menu), aucune attente.
+       */
+      function chroniqueBossOccupeeIdleV1_(){
+        const p=document.getElementById('sorealIdleBossChroniqueV206');
+        if(!p)return false;
+        if(window.__chroniqueOuverteIdleV1||p.classList.contains('ouverte'))return true;
+        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__||window.__SOREAL_IDLE_TUTORIAL_TTS_V203__||window.__SOREAL_IDLE_TUTORIAL_TTS_V202__;
+        try{if(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206'))return true;}catch(e){}
+        try{if(tts&&typeof tts.isSpeaking==='function'&&tts.isSpeaking())return true;}catch(e){}
+        return false;
+      }
+
+      function introductionPeutDemarrerIdleV1_(){
+        if(REG.idleTutorielPagesEnCoursV1)return true;
+        if(chroniqueBossOccupeeIdleV1_()){REG.idleIntroLibreDepuisV1=0;return false;}
+        if(!REG.idleIntroLibreDepuisV1){REG.idleIntroLibreDepuisV1=Date.now();return false;}
+        return Date.now()-REG.idleIntroLibreDepuisV1>=1200;
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */
       function gererPopupsProgressionIdleV75_(j){
         if(!j)return;
@@ -279,6 +300,8 @@
           idleVuMarquerV1_('bienvenue');
           return;
         }
+
+        if(!introductionPeutDemarrerIdleV1_())return;
 
         /*
          * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète, elle sera rejouée au prochain
@@ -568,6 +591,20 @@
           250
         );
       }
+
+  /*
+   * Vérification régulière (Norman, 2026-10-22 : « l'introduction ne se déclenche que quand on va dans Basic Training ; elle doit se déclencher avant tout ») : le jeu ne redessine la page entière qu'aux changements de menu, donc au premier lancement d'une nouvelle partie
+   * (ou après une remise à zéro complète) l'introduction n'était demandée qu'au premier changement de menu. Tant que le joueur est nouveau et n'a pas fini l'introduction, on la redemande toutes les 0,7 s ; elle part dès que la chronique du boss est fermée et lue ou interrompue.
+   */
+  if(typeof setInterval==='function'){
+    setInterval(function(){
+      if(document.hidden)return;
+      const j=REG.idleEtat;
+      if(!j||!j.profil||!j.profil.nouveauJoueur)return;
+      if(REG.idleTutorielPagesEnCoursV1||idleVuConnuV1_(j,'bienvenue'))return;
+      try{gererPopupsProgressionIdleV75_(j);}catch(e){}
+    },700);
+  }
 
   Object.assign(REG,{
     idleVuConnuV1_:idleVuConnuV1_,
