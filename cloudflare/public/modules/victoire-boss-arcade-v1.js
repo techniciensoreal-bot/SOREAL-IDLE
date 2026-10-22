@@ -1,0 +1,222 @@
+/*
+ * SOREAL IDLE — écran de victoire « arcade » sur l'image du boss (Norman, 2026-10-22 : « j'aime bien l'animation de A… le son est trop aigu… cette animation quand on bat un boss pour la PREMIÈRE fois, plus ensuite (sauf en
+ * Evil et Sadistic) ; quand on fait un NUKE, ça ne doit pas apparaître »).
+ *
+ * L'image du boss (celle de la borne) est découpée en gros pixels ; elle clignote, un éclair blanc, elle éclate en pixels de ses propres couleurs sur des rayons qui tournent, un « K.O. » claque puis « BOSS VAINCU »
+ * s'écrit lettre par lettre. Tout est dessiné dans un canvas ajouté à la borne (data-morph-garder : un redessin de la page ne le retire pas, règle n°4). Durée : 3,3 s.
+ *
+ * Quand : seulement à la victoire d'un combat de boss mené dans la page (jamais le NUKE, qui passe par sa propre cascade). Difficulté Normal : seulement le PREMIER kill de ce boss, tous comptes et appareils confondus
+ * (le plus haut boss déjà « vu » est mémorisé sous soreal_idle_victoire_arcade_max_v1, donc lié au compte : règle n°6) ; Evil (« difficile ») et Sadistic (« extreme ») : à chaque victoire.
+ * Aucun effet avec « réduire les animations ». Son : synthèse WebAudio grave et douce (aucune note aiguë, filtre passe-bas), au volume « Sons de l'interface ».
+ *   window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__ = { jouer(hote, image, etat) -> bool, doitJouer(etat) -> bool, memoriser(n), dessiner(ctx, t, px, LW, LH), sons(ctx, t, sortie) }
+ */
+(function(){
+  'use strict';
+  if(window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__)return;
+
+  var CLE_MAX='soreal_idle_victoire_arcade_max_v1';
+  var DUREE=3.3;               /* secondes */
+  var LW=160;                  /* définition de l'écran : 160 gros pixels de large */
+  var CX=32;                   /* le boss est découpé en 32 colonnes */
+
+  /* ---------- police 5×7 dessinée à la main ---------- */
+  var G={
+    A:['.###.','#...#','#...#','#####','#...#','#...#','#...#'],
+    B:['####.','#...#','#...#','####.','#...#','#...#','####.'],
+    C:['.###.','#...#','#....','#....','#....','#...#','.###.'],
+    I:['#####','..#..','..#..','..#..','..#..','..#..','#####'],
+    K:['#...#','#..#.','#.#..','##...','#.#..','#..#.','#...#'],
+    N:['#...#','##..#','##..#','#.#.#','#..##','#..##','#...#'],
+    O:['.###.','#...#','#...#','#...#','#...#','#...#','.###.'],
+    S:['.####','#....','#....','.###.','....#','....#','####.'],
+    U:['#...#','#...#','#...#','#...#','#...#','#...#','.###.'],
+    V:['#...#','#...#','#...#','#...#','#...#','.#.#.','..#..'],
+    '.':['.....','.....','.....','.....','.....','.##..','.##..'],
+    ' ':['.....','.....','.....','.....','.....','.....','.....']
+  };
+  function largeur(t,e){return t.length*6*e-e;}
+  function texte(c,t,x,y,e,couleur,ombre){
+    var x0=Math.round(x-largeur(t,e)/2),i,r,k,g;
+    for(i=0;i<t.length;i++){g=G[t[i]];if(!g)continue;
+      for(r=0;r<7;r++)for(k=0;k<5;k++){if(g[r][k]!=='#')continue;
+        if(ombre){c.fillStyle=ombre;c.fillRect(x0+i*6*e+k*e+e,y+r*e+e,e,e);}}}
+    for(i=0;i<t.length;i++){g=G[t[i]];if(!g)continue;
+      for(r=0;r<7;r++)for(k=0;k<5;k++){if(g[r][k]!=='#')continue;
+        c.fillStyle=typeof couleur==='function'?couleur(i,r):couleur;c.fillRect(x0+i*6*e+k*e,y+r*e,e,e);}}
+  }
+  function rnd(s){var x=Math.sin(s*127.1+311.7)*43758.5453;return x-Math.floor(x);}
+
+  /* ---------- le boss en gros pixels : l'image affichée, rognée comme la page (object-fit: cover) ---------- */
+  function pixelsDe(img,LH){
+    var CY=Math.max(8,Math.round(CX*LH/LW)),px=[];
+    try{
+      if(!img||!(img.naturalWidth>0))return {px:px,CY:CY};
+      var cv=document.createElement('canvas');cv.width=CX;cv.height=CY;
+      var cx=cv.getContext('2d');cx.imageSmoothingEnabled=true;
+      var ia=img.naturalWidth/img.naturalHeight,da=CX/CY,sx=0,sy=0,sw=img.naturalWidth,sh=img.naturalHeight;
+      if(ia>da){sw=sh*da;sx=(img.naturalWidth-sw)/2;}else{sh=sw/da;sy=(img.naturalHeight-sh)/2;}
+      cx.drawImage(img,sx,sy,sw,sh,0,0,CX,CY);
+      var d=cx.getImageData(0,0,CX,CY).data;
+      for(var y=0;y<CY;y++)for(var x=0;x<CX;x++){var i=(y*CX+x)*4;if(d[i+3]>70)px.push({x:x,y:y,c:'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')'});}
+    }catch(_e){px=[];}   /* image illisible (autre origine) : l'écran se joue sans les éclats, avec le texte */
+    return {px:px,CY:CY};
+  }
+
+  /* ---------- dessin : A « K.O. éclat », durée DUREE ---------- */
+  function dessiner(c,t,px,LH){
+    var e=LW/CX,oy=0;
+    c.fillStyle='#10131f';c.fillRect(0,0,LW,LH);
+    if(t<0.8){
+      var tr=Math.sin(t*90)*2*(t/0.8),clig=Math.floor(t*14)%2===0;
+      px.forEach(function(p){c.fillStyle=clig?'#fff':p.c;c.fillRect(Math.round(p.x*e+tr),Math.round(p.y*e+oy),e,e);});
+      if(t>0.6){c.fillStyle='rgba(255,255,255,'+Math.min(1,(t-0.6)*5)+')';c.fillRect(0,0,LW,LH);}
+      return;
+    }
+    var u=t-0.8,i;
+    c.save();c.translate(LW/2,LH/2);c.rotate(u*0.6);
+    for(i=0;i<14;i++){c.rotate(Math.PI*2/14);c.fillStyle=i%2?'rgba(255,210,74,.16)':'rgba(255,120,40,.12)';c.beginPath();c.moveTo(0,0);c.lineTo(190,-14);c.lineTo(190,14);c.fill();}
+    c.restore();
+    px.forEach(function(p,k){
+      var vx=(rnd(k)-.5)*160,vy=-60-rnd(k+9)*90;
+      var x=p.x*e+vx*u,y=p.y*e+vy*u+260*u*u;
+      if(y<LH+6&&u<1.6){c.fillStyle=p.c;c.globalAlpha=Math.max(0,1-u/1.6);c.fillRect(Math.round(x),Math.round(y),e,e);c.globalAlpha=1;}
+    });
+    var s=u<0.18?1+(0.18-u)*5:(u<0.3?1+Math.sin((u-0.18)*40)*0.08:1);
+    var e2=Math.max(2,Math.round(6*s)),dy=Math.round(Math.sin(Math.min(u,1)*30)*(u<0.5?2:0));
+    texte(c,'K.O.',LW/2,Math.round(LH*0.16)+dy,e2,function(j,r){return r<3?'#fff2a8':(r<5?'#ffd24a':'#ff8a1f');},'#6a1f00');
+    if(u>0.6){
+      var n=Math.min(10,Math.floor((u-0.6)*14));
+      texte(c,'BOSS'.slice(0,Math.min(4,n)),LW/2,Math.round(LH*0.5),3,'#ffffff','#1a2a6a');
+      if(n>4)texte(c,'VAINCU'.slice(0,n-4),LW/2,Math.round(LH*0.5)+24,3,'#ffffff','#1a2a6a');
+    }
+  }
+
+  /* ---------- sons : grave et doux (Norman : « trop aigu, ça casse les oreilles ») ----------
+     Notes de G3 à C5 seulement, onde triangle + un peu de carré, filtre passe-bas à 1 800 Hz sur tout, bruit d'explosion sourd, aucune étincelle aiguë. */
+  var ctxA=null;
+  function volume_(){var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;return r&&typeof r.getInterface==='function'?Number(r.getInterface()):0.75;}
+  function note(c,sortie,t,f,d,type,vol,vib){
+    var o=c.createOscillator(),g=c.createGain();
+    o.type=type||'triangle';o.frequency.setValueAtTime(f,t);
+    if(vib){var l=c.createOscillator(),lg=c.createGain();l.frequency.value=5.5;lg.gain.value=f*0.01;l.connect(lg);lg.connect(o.frequency);l.start(t+d*0.4);l.stop(t+d+0.05);}
+    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.015);
+    g.gain.setValueAtTime(vol*0.8,t+Math.max(0.02,d*0.6));g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(sortie);o.start(t);o.stop(t+d+0.03);
+  }
+  function bruit(c,sortie,t,d,vol,f0,f1){
+    var n=Math.floor(c.sampleRate*d),b=c.createBuffer(1,n,c.sampleRate),x=b.getChannelData(0),i;
+    for(i=0;i<n;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/n,1.5);
+    var s=c.createBufferSource();s.buffer=b;
+    var fl=c.createBiquadFilter();fl.type='lowpass';fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+d);
+    var g=c.createGain();g.gain.value=vol;s.connect(fl);fl.connect(g);g.connect(sortie);s.start(t);
+  }
+  function sons(c,t,sortie){
+    var G3=196,C4=261.6,E4=329.6,G4=392,C5=523.3,C2=65.4,C3=130.8;
+    bruit(c,sortie,t,0.5,0.45,1400,60);note(c,sortie,t,100,0.5,'sawtooth',0.12);   /* boum sourd */
+    note(c,sortie,t+0.55,700,0.12,'triangle',0.05);                              /* éclair, doux */
+    bruit(c,sortie,t+0.8,0.28,0.4,1800,120);note(c,sortie,t+0.8,C2,0.55,'triangle',0.4);note(c,sortie,t+0.8,C3,0.4,'triangle',0.18);
+    note(c,sortie,t+0.9,G3,0.12,'triangle',0.2);note(c,sortie,t+1.02,C4,0.12,'triangle',0.2);note(c,sortie,t+1.14,E4,0.12,'triangle',0.2);note(c,sortie,t+1.26,G4,0.14,'triangle',0.2);
+    note(c,sortie,t+1.4,C5,1.1,'triangle',0.2,true);note(c,sortie,t+1.4,C5,1.1,'square',0.035);
+    note(c,sortie,t+1.4,E4,1.1,'triangle',0.1);note(c,sortie,t+1.4,G4,1.1,'triangle',0.1);note(c,sortie,t+1.4,C3,1.1,'triangle',0.3);
+    for(var i=0;i<10;i++)note(c,sortie,t+1.4+i*0.071,330+(i%3)*40,0.03,'triangle',0.035);   /* petits tics de machine à écrire, graves */
+  }
+  function jouerSon(){
+    var v=volume_();
+    if(!(v>0))return false;
+    try{
+      var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
+      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:new C();
+      if(ctxA.state==='suspended'&&ctxA.resume)ctxA.resume();
+      var maitre=ctxA.createGain();maitre.gain.value=Math.min(1,v)*0.5;
+      var passeBas=ctxA.createBiquadFilter();passeBas.type='lowpass';passeBas.frequency.value=1800;passeBas.Q.value=0.5;
+      var comp=ctxA.createDynamicsCompressor();
+      var ech=ctxA.createDelay(0.5),fb=ctxA.createGain(),mix=ctxA.createGain();ech.delayTime.value=0.13;fb.gain.value=0.25;mix.gain.value=0.18;
+      maitre.connect(passeBas);passeBas.connect(comp);comp.connect(ctxA.destination);
+      passeBas.connect(ech);ech.connect(fb);fb.connect(ech);ech.connect(mix);mix.connect(comp);
+      sons(ctxA,ctxA.currentTime+0.03,maitre);
+      return true;
+    }catch(_e){return false;}
+  }
+
+  /* ---------- quand jouer : premier kill (Normal), toujours en Evil / Sadistic ---------- */
+  function entier(v){var n=Math.floor(Number(v));return isFinite(n)&&n>0?n:0;}
+  function maxVu_(etat){
+    var m=null;
+    try{m=localStorage.getItem(CLE_MAX);}catch(_e){}
+    if(m!==null&&m!==''&&isFinite(Number(m)))return entier(m);
+    /* Première fois : tout boss déjà battu est « déjà vu » (le plus haut boss du compte). */
+    var rec=entier(etat&&etat.systemes&&etat.systemes.records&&etat.systemes.records.highestBoss);
+    var base=Math.max(rec,0);
+    try{localStorage.setItem(CLE_MAX,String(base));}catch(_e){}
+    return base;
+  }
+  function memoriser(n){
+    n=entier(n);
+    try{var m=entier(localStorage.getItem(CLE_MAX));if(n>m)localStorage.setItem(CLE_MAX,String(n));}catch(_e){}
+  }
+  function doitJouer(etat){
+    if(!etat)return false;
+    var diff=String(etat.systemes&&etat.systemes.difficulty||'normal');
+    if(diff==='difficile'||diff==='extreme')return true;
+    var n=entier(etat.bossSelection);
+    return n>0&&n>maxVu_(etat);
+  }
+
+  /* ---------- mise en scène sur la borne ---------- */
+  var styleOk=false;
+  function style_(){
+    if(styleOk||document.getElementById('soreal-idle-victoire-arcade-style'))return;
+    styleOk=true;
+    var s=document.createElement('style');s.id='soreal-idle-victoire-arcade-style';
+    s.textContent='.soreal-idle-boss-transition-v61.vic-arcade{position:absolute;inset:0;z-index:7;display:block;pointer-events:none;overflow:hidden;border-radius:14px;background:#10131f;font-size:0;opacity:1;transition:opacity .25s}'+
+      '.soreal-idle-boss-transition-v61.vic-arcade canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}'+
+      '.soreal-idle-boss-transition-v61.vic-arcade::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.5) 100%)}'+
+      '.soreal-idle-boss-transition-v61.vic-cache{display:none}';
+    (document.head||document.documentElement).appendChild(s);
+  }
+  function jouer(hote,image,etat){
+    try{
+      if(!hote||!doitJouer(etat))return false;
+      if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+      var diff=String(etat.systemes&&etat.systemes.difficulty||'normal');
+      if(diff!=='difficile'&&diff!=='extreme')memoriser(etat.bossSelection);   /* ce boss est « vu » : plus d'écran de victoire pour lui en Normal */
+      style_();
+      var anc=hote.querySelector('.vic-arcade');if(anc)anc.remove();
+      var r=hote.getBoundingClientRect(),LH=Math.max(60,Math.round(LW*(r.height||LW)/(r.width||LW)));
+      var pk=pixelsDe(image,LH);
+      var calque=document.createElement('div');
+      calque.className='soreal-idle-boss-transition-v61 vic-arcade';
+      calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
+      var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
+      hote.appendChild(calque);
+      var c=cv.getContext('2d');c.imageSmoothingEnabled=false;
+      var t0=performance.now(),fini=false;
+      function image_(now){
+        if(fini)return;
+        var t=(now-t0)/1000;
+        if(!calque.isConnected){fini=true;return;}
+        if(t>=DUREE){
+          fini=true;calque.style.opacity='0';
+          setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},300);
+          return;
+        }
+        dessiner(c,t,pk.px,LH);
+        requestAnimationFrame(image_);
+      }
+      requestAnimationFrame(image_);
+      jouerSon();
+      return true;
+    }catch(_e){return false;}
+  }
+
+  /* Le plus haut boss « déjà vu » est fixé dès que l'état du jeu existe (avant tout combat) : si le moteur confirmait le kill avant la prédiction de la page, le record serait déjà monté et le premier écran serait manqué. */
+  (function amorcer(essais){
+    try{
+      var lire=window.__SOREAL_IDLE_LIRE_ETAT_V1__,e=typeof lire==='function'?lire():null;
+      if(e&&e.systemes&&e.systemes.records){maxVu_(e);return;}
+    }catch(_e){}
+    if(essais>0)setTimeout(function(){amorcer(essais-1);},1000);
+  })(120);
+
+  window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__={jouer:jouer,doitJouer:doitJouer,memoriser:memoriser,dessiner:dessiner,sons:sons,duree:DUREE};
+})();

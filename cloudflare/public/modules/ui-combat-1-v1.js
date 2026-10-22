@@ -294,13 +294,23 @@
           );
         }
 
+        /*
+         * Écran de victoire arcade (Norman, 2026-10-22) : au PREMIER kill d'un boss (toujours en Evil et Sadistic), l'image du boss éclate en pixels (modules/victoire-boss-arcade-v1.js) ; jamais pour un NUKE (sa propre cascade).
+         * Le bandeau texte reste en place, caché, pour le filet de sécurité « Boss vaincu » ci-dessous ; pour les kills suivants il s'affiche comme avant.
+         */
+        let victoireArcadeIdleV1=false;
+        try{
+          const arcade=window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__;
+          if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat));
+        }catch(_e){}
+
         const overlay=
           document.createElement(
             'div'
           );
 
         overlay.className=
-          'soreal-idle-boss-transition-v61';
+          'soreal-idle-boss-transition-v61'+(victoireArcadeIdleV1?' vic-cache':'');
 
         overlay.textContent=
           '🏆 BOSS VAINCU';

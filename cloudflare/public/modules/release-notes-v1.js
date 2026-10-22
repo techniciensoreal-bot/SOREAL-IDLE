@@ -62,6 +62,7 @@
             'Un NUKE fait exploser l’image du boss dans la borne d’arcade : éclair, boule de feu, ondes de choc, étincelles, et l’image tremble.',
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
             'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
+            'Quand tu bats un boss pour la première fois, l’image du boss éclate en gros pixels sur la borne d’arcade, avec un énorme « K.O. » puis « BOSS VAINCU » et un petit air de victoire. Ensuite, plus d’écran spécial pour ce boss (sauf dans les difficultés avancées). Rien pendant un NUKE.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Les boutons Max, 1/2, 1/4, + et − sont bien lisibles (fond plein, texte net), et le bouton « Vers les NGU de magie / d’énergie » est illuminé et étoilé, comme les cadres du chat.',
