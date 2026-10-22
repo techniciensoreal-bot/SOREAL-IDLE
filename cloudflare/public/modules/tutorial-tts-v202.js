@@ -240,7 +240,10 @@
     if(blocsFichiers[hash])return blocsFichiers[hash];
     var source=voixDynamiques[hash]
       ?chargerVoixR2_(hash).catch(function(){return null;})
-      :chargerManifesteVoix_().then(function(set){return set[hash]?chargerVoixR2_(hash):null;});
+      :chargerManifesteVoix_().then(function(set){
+        /* Norman (2026-10-22) : « mes fenêtres ne lisent pas les sons que j'ai générés ». Le manifeste du dépôt n'est qu'un raccourci : une voix générée depuis (studio, éditeur de voix) est sur R2 sans y figurer. Un bloc absent du manifeste est donc AUSSI demandé à R2 (404 = pas de voix, repli sur Piper ; le résultat est gardé par empreinte, une seule requête par bloc). */
+        return chargerVoixR2_(hash);
+      });
     blocsFichiers[hash]=source.catch(function(){delete blocsFichiers[hash];return null;});
     return blocsFichiers[hash];
   }

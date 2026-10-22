@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
-/* Norman (2026-10-22) : à la défaite, l'image du joueur éclate en pixels (comme un boss qui meurt) puis se reforme. */
+/* Norman (2026-10-22) : à la défaite, l'image du joueur éclate en pixels (comme un boss qui meurt) puis réapparaît à sa place en fondu (3 s). */
 const code = readFileSync(new URL("../public/modules/mort-joueur-v1.js", import.meta.url), "utf8");
 const boucle = readFileSync(new URL("../public/modules/ui-boucle-v1.js", import.meta.url), "utf8");
 const index = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
@@ -40,19 +40,20 @@ function monde({ reduit = false } = {}) {
   assert.equal(v.M.jouer(v.hote), false);
 }
 
-// 2. Le film : l'image éclate puis se reforme (pixels de retour à leur place à la fin).
+// 2. Le film : l'image éclate (les pixels bougent), puis plus aucun pixel : l'image revient en fondu de 3 s sous le calque.
 {
   const m = monde();
   const pk = m.M.pixelsDe(m.hote.img, 238, 238);
   assert.ok(pk && pk.px.length > 500, "gros pixels de l'image");
   const rects = (t) => { const c = m.canvas(); const cx = c.getContext(); m.M.dessiner(cx, t, pk.px, 238, 238); return c.log.filter((l) => l[0] === "fillRect"); };
-  const x0 = (t) => rects(t).slice(1, 6).map((l) => l[1] + "," + l[2]).join(";");
-  assert.notEqual(x0(0.6), x0(2.4), "les pixels ont bougé entre l'explosion et la fin");
-  const fin = rects(2.45).slice(1, 80).map((l) => l[1] + "," + l[2]);
-  const debut = rects(0.01).slice(1, 80).map((l) => l[1] + "," + l[2]);
-  assert.deepEqual(fin, debut, "à la fin, chaque pixel est revenu à sa place");
-  assert.ok(m.M.duree > 2 && m.M.duree < 3.5, "dure environ 2,5 s");
+  const pos = (t) => rects(t).slice(1, 8).map((l) => l[1] + "," + l[2]).join(";");
+  assert.notEqual(pos(0.01), pos(0.7), "les pixels ont bougé pendant l'explosion");
+  assert.equal(rects(1.3).length, 1, "après l'explosion : seulement le fond, plus un pixel (l'image revient en fondu)");
+  assert.ok(m.M.duree > 4 && m.M.duree < 5, "environ 1,25 s d'explosion + 3 s de fondu");
 }
+
+// 2 bis. Le fondu : le calque passe à opacité 0 en 3 s une fois l'explosion finie.
+assert.ok(code.includes("T_FONDU=3") && code.includes("'opacity '+T_FONDU+'s ease-in-out'"), "fondu en ouverture de 3 secondes");
 
 // 3. Câblage : à la défaite (après le son), sur le portrait du joueur ; module chargé.
 assert.ok(boucle.includes("jouerEffetAudioIdleV199_('defeat');") && /MORT_JOUEUR_V1__[\s\S]{0,200}sorealIdlePlayerImageHostV43/.test(boucle), "l'effet se joue à la défaite sur le portrait du joueur");

@@ -95,7 +95,7 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   assert.match(tts, /function enregistrerVoixDynamiques_\(liste\)/);
   assert.match(tts, /enregistrerVoixDynamiques:enregistrerVoixDynamiques_,/);
   assert.match(tts, /VOICE_ROUTE='api\/idle\/media\/voice\?h='/, "voix R2 par empreinte");
-  assert.match(tts, /set\[hash\]\?chargerVoixR2_\(hash\):null/, "les voix du jeu ne sont demandées à R2 que si le manifeste les déclare ; sinon repli sur Piper");
+  assert.ok(tts.includes("return chargerVoixR2_(hash);") && !tts.includes("set[hash]?chargerVoixR2_(hash):null"), "un bloc absent du manifeste est aussi demandé à R2 (voix générées depuis : Norman 2026-10-22) ; 404 = repli sur Piper");
   assert.match(tts, /voixDynamiques\[hash\]\s*\?chargerVoixR2_/, "les empreintes déclarées par une histoire interrogent R2 directement");
 }
 

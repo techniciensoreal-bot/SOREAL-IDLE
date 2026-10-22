@@ -44,7 +44,8 @@
             'Le premier point placé dans n’importe quelle barre refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Quand tu perds un combat, l’image de ton personnage éclate en gros pixels comme celle d’un boss qui meurt, puis se reforme juste après.',
+            'Quand tu perds un combat, l’image de ton personnage éclate en gros pixels comme celle d’un boss qui meurt, puis réapparaît à sa place en fondu pendant 3 secondes.',
+            'Quand un éclair tombe, l’écran de la borne d’arcade est frappé lui aussi : interférences, image qui se déchire, puis tout reprend normalement.',
             'Le bouton NUKE de la borne se referme sous un blindage d’acier quand il n’est pas disponible : deux battants et deux verrous, qui s’ouvrent (et se referment) avec leur bruit de mécanisme.',
             'Chaque boss apparaît avec son propre effet (dix effets différents, joués dans l’ordre des boss) et son propre son ; l’image du boss suivant reste cachée jusqu’à la fin de l’écran de victoire, puis apparaît toujours avec son effet.',
             'Quand tu tues un boss après un combat d’au moins 5 secondes, l’image de CE boss éclate en gros pixels sur la borne d’arcade, avec un énorme « K.O. » puis « BOSS VAINCU » et un petit air de victoire. Rien pendant un NUKE.',
