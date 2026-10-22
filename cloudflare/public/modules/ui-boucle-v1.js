@@ -1271,7 +1271,8 @@
       function ecrireSiChangeIdleV1_(el,texte){
           if(!el)return;
           if(texte.indexOf('<b class="or-somme-v1">')>=0){
-            if(el.__orHtmlV1!==texte){el.innerHTML=texte;el.__orHtmlV1=texte;}
+            /* Norman (2026-10-22) : « je peux faire le rituel sans assez d'Or ; l'animation se déroule normalement ». Un autre module (blood-magic-v1.js) réécrit parfois cette ligne en texte simple sans toucher à ce repère : le message « il manque X Or » (que la scène de la sangsue lit pour s'arrêter) n'était alors plus jamais reposé. On vérifie donc aussi ce que la ligne affiche vraiment. */
+            if(el.__orHtmlV1!==texte||!el.querySelector('.or-somme-v1')){el.innerHTML=texte;el.__orHtmlV1=texte;}
             return;
           }
           el.__orHtmlV1=null;

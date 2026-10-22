@@ -41,6 +41,9 @@
           {menu:'aventure', titre:'Aventure', points:[
             'La fiche d’un objet est refaite façon jeu de rôle : le nom à la couleur de sa rareté, le niveau en jaune, l’emplacement et l’ensemble, les statistiques (orange, bleu, jaune selon le boost qui les remplit) et, en vert en bas, ce que l’objet donne monté à fond et la récompense de son ensemble.',
           ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Quand il manque de l’Or pour un rituel, le message « Il manque X Or » reste affiché et la sangsue s’arrête et attend, au lieu de continuer son animation comme si le rituel se faisait.',
+          ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le premier point placé dans n’importe quelle barre refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
           ]},
