@@ -28,7 +28,7 @@ const code = [
   grab(/function decouperNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   grab(/function planNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   grab(/var MOTIF_NOTE_BOSS=[^\n]+;/),
-  grab(/function composerChronique_\(nom,histoire\)\{[\s\S]*?\n  \}\n/),
+  grab(/function composerChronique_\(nom,histoire,sansNom\)\{[\s\S]*?\n  \}\n/),
   grab(/function retirerParentheses_\(texte\)\{[\s\S]*?\n  \}\n/),
   "return {plan:planNarration_,retirer:retirerParentheses_,composer:composerChronique_,open:PAUSE_OPEN,close:PAUSE_CLOSE,resoudre:resoudreVoixBalise_};"
 ].join("\n");

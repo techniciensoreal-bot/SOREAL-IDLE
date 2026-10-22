@@ -21,7 +21,7 @@ assert.ok(c2.includes("function attrLectureBossIdleV1_(nom,histoire,nomParle,his
 assert.ok(c2.includes("attrLectureBossIdleV1_(b.nom,b.histoire,b.nomParle,b.histoireParlee)"), "carte du boss");
 assert.ok(c2.includes("attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)"), "fiche du boss");
 assert.ok(chro.includes("attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)"), "collection (Chroniques)");
-assert.ok(c2.includes("composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''))"), "lecture de toutes les chroniques d'affilée");
+assert.ok(c2.includes("composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''),true)") && c2.includes(".join(M(1200))"), "lecture de toutes les chroniques d'affilée, sans le nom de chaque boss");
 assert.ok(lecteur.includes("e.nomParle") && lecteur.includes("histoireParlee:String(x.histoireParlee||'')"), "lecteur de chroniques");
 
 // Comportement de l'aide (le vrai code, sur un faux module de voix).

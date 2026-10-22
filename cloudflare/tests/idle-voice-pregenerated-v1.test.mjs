@@ -31,7 +31,7 @@ const code = [
   grab(/function decouperNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   grab(/function planNarration_\(value\)\{[\s\S]*?\n  \}\n/),
   grab(/var MOTIF_NOTE_BOSS=[^\n]+;/),
-  grab(/function composerChronique_\(nom,histoire\)\{[\s\S]*?\n  \}\n/),
+  grab(/function composerChronique_\(nom,histoire,sansNom\)\{[\s\S]*?\n  \}\n/),
   grab(/function retirerParentheses_\(texte\)\{[\s\S]*?\n  \}\n/),
   "return {hash:hashBloc_,plan:planNarration_,composer:composerChronique_,open:PAUSE_OPEN,close:PAUSE_CLOSE,motif:MOTIF_NOTE_BOSS};"
 ].join("\n");
@@ -54,6 +54,9 @@ assert.deepEqual(plan(composer("Gorgonzola", "Il était une fois.")), [
 assert.deepEqual(plan(composer("Gorgonzola", "(Zone débloquée !)\n\n(Autre note.)\n\nRécit. (pas une note)")), [
   { chunk: "Gorgonzola" }, { pause: 1100 }, { chunk: "Récit." }
 ]);
+// Lecture enchaînée de plusieurs chroniques (Norman, 2026-10-22) : sans le nom du boss ni la pause qui le suit ; le récit garde exactement les mêmes blocs, donc les mêmes voix pré-générées.
+assert.deepEqual(plan(composer("Gorgonzola", "Il était une fois.", true)), [{ chunk: "Il était une fois." }]);
+assert.deepEqual(plan(composer("Gorgonzola", "(Zone débloquée !)\n\nRécit. Suite.", true)), plan(composer("Gorgonzola", "(Zone débloquée !)\n\nRécit. Suite.")).slice(2), "même récit, mêmes blocs");
 assert.match(ui, /soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss/);
 assert.match(ui, /soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100"/);
 assert.match(ui, /soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700"/);
@@ -100,10 +103,10 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
 {
   const f = ui.slice(ui.indexOf("function lireHistoireCompleteBossIdleV206_(){"), ui.indexOf("window.__lireHistoireCompleteBossIdleV206__="));
   /* 2026-10-17 : le texte et le nom PARLÉS (menu Admin) passent d'abord ; sans eux, le récit affiché. */
-  assert.match(f, /composerChronique\(String\(b\.nomParle\|\|''\)\.trim\(\)\|\|String\(b\.nom\|\|'Boss'\),String\(b\.histoireParlee\|\|''\)\.trim\(\)\|\|String\(b\.histoire\|\|''\)\)/);
+  assert.match(f, /composerChronique\(String\(b\.nomParle\|\|''\)\.trim\(\)\|\|String\(b\.nom\|\|'Boss'\),String\(b\.histoireParlee\|\|''\)\.trim\(\)\|\|String\(b\.histoire\|\|''\),true\)/);
   assert.match(f, /texteVoixSansTexteIdleV1_\(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1\)\+M\(1500\)/);
   assert.ok(ui.includes("const TEXTE_CHRONIQUES_INTRO_IDLE_V1='Chroniques de boss.';"), "le texte d'origine de l'intro n'a pas changé : mêmes voix pré-générées");
-  assert.match(f, /\.join\(M\(2000\)\)/);
+  assert.match(f, /\.join\(M\(1200\)\)/);
 }
 
 // --- Couverture : chaque bloc de chaque chronique a son fichier (généré par cloudflare/tools/voice-generate.mjs) ---

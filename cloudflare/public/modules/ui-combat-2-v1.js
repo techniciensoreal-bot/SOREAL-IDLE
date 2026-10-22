@@ -1139,12 +1139,13 @@
         const M=function(ms){return ' \uE000'+ms+'\uE001 ';};
         const composerChronique=typeof tts.composerChronique==='function'
           ?tts.composerChronique
-          :function(nom,histoire){return nom+' '+histoire;};
+          :function(nom,histoire){return histoire;};
         tts.readText(
           texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)+
           connus.map(function(b){
-            return composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''));
-          }).join(M(2000))
+            /* Sans le nom du boss : les chroniques s'enchaînent comme une histoire (Norman, 2026-10-22). */
+            return composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''),true);
+          }).join(M(1200))
         );
       }
 

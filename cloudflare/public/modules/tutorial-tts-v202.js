@@ -297,8 +297,9 @@
    * entre parenthèses n'est jamais lu, pas seulement cette note de déblocage.
    */
   var MOTIF_NOTE_BOSS=/^\(([^\n]+)\)[ \t]*(?:\n|$)\s*/;
-  function composerChronique_(nom,histoire){
-    var out=String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
+  /* sansNom : lecture enchaînée de plusieurs chroniques (Norman, 2026-10-22 : « qu'il ne prononce pas le nom de chaque boss, que ça s'enchaîne comme une histoire ») : le récit seul, sans le nom ni la pause qui le suit. Les blocs du récit sont les mêmes, donc les mêmes voix pré-générées. */
+  function composerChronique_(nom,histoire,sansNom){
+    var out=sansNom?'':String(nom||'Boss').replace(/\s+/g,' ').trim()+' '+PAUSE_OPEN+'1100'+PAUSE_CLOSE+' ';
     var narration=String(histoire||'').trim();
     var m=narration.match(MOTIF_NOTE_BOSS);
     /* Une ligne « (marius) » seule est une balise de voix, pas une note de déblocage : elle reste. */

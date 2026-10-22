@@ -44,6 +44,9 @@
           {menu:'challenges', titre:'Défis', points:[
             'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
           ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Quand tu écoutes plusieurs chroniques de boss d’affilée, le nom de chaque boss n’est plus prononcé : les histoires s’enchaînent comme un seul récit.',
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur chaque fruit prêt, la carte indique les graines que donne « Récolter » et les graines et bonus que donne « Manger » (avec la Poop si elle est cochée).',
           ]},

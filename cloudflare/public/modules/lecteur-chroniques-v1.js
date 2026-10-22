@@ -151,7 +151,7 @@ function lireCourante(){
   majAffichage();
   var jeton=etat.jeton+=1;
   /* texte et nom PARLÉS fixés dans le menu Admin : la voix lit ceux-là (Norman, 2026-10-17) */
-  var texte=typeof t.composerChronique==='function'?t.composerChronique(String(e.nomParle||'').trim()||e.nom,String(e.histoireParlee||'').trim()||e.description):e.nom+'. '+e.description;
+  var texte=typeof t.composerChronique==='function'?t.composerChronique(String(e.nomParle||'').trim()||e.nom,String(e.histoireParlee||'').trim()||e.description,true):e.description;
   var demarre=t.readText(texte,null,function(ok){
     if(jeton!==etat.jeton||!etat.actif)return;
     /* Lecture arrivée à son terme : on enchaîne ; interrompue de l'extérieur ou en échec : on ferme le lecteur. */
