@@ -336,10 +336,15 @@
       '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
     '</div>';
   }
+  /* Au-delà d'un niveau par seconde, le temps restant tomberait sous 1 s : on écrit la vitesse (niveaux par seconde) jusqu'au cap de 50 niveaux/s de Wandoos (Norman, 2026-10-22). */
+  function texteTaux_(v){
+    var n=Math.min(50,nb_(v));
+    return 'RESTE : '+(n>=10?Math.round(n):Math.round(n*10)/10).toLocaleString('fr-FR')+'/s';
+  }
   /* Temps restant avant le prochain niveau, seul sous la barre (Norman, 2026-10-07 : « juste le temps restant en dessous, pas de phrase »). */
   function texteReste_(v,p0){
     if(!(v>0))return 'RESTE : —';
-    if(v>=20)return 'RESTE : < 1 s';
+    if(v>1)return texteTaux_(v);
     return 'RESTE : '+dureeTexte_((1-Math.max(0,Math.min(1,nb_(p0))))/v);
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
@@ -534,7 +539,7 @@
       var reste=b.parentNode&&b.nextElementSibling&&b.nextElementSibling.querySelector('[data-wd-reste]');
       if(reste){
         var vit=nb_(b.getAttribute('data-v'));
-        var t=r.reste!=null?'RESTE : '+dureeTexte_(r.reste):(vit>=20?'RESTE : < 1 s':'RESTE : —');
+        var t=vit>1?texteTaux_(vit):(r.reste!=null?'RESTE : '+dureeTexte_(r.reste):'RESTE : —');
         if(reste.textContent!==t)reste.textContent=t;
       }
     }
