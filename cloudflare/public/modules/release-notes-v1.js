@@ -32,6 +32,7 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, le pointeur ne clignote plus entre flèche et main quand on le place au bord d’un bouton du menu de gauche (le bouton ne se soulève plus au survol).',
             'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',
             'Dans le chat, un bouton émoji (sur PC) ouvre une grille d’émojis à glisser dans ton message.',
             'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
@@ -56,6 +57,7 @@
             'Sur chaque fruit prêt, la carte indique les graines que donne « Récolter » et les graines et bonus que donne « Manger » (avec la Poop si elle est cochée).',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'L’information « Libre » est retirée de l’écran (elle est déjà dans la barre du haut), et pendant le chargement de l’OS tout tient sur un seul écran, sans défilement.',
             'Quand un niveau demande moins d’une seconde, le texte sous la barre indique la vitesse en niveaux par seconde (N/s), jusqu’au maximum de 50 niveaux par seconde.',
             'Les touches du clavier de cet écran refont leur bruit de clic.',
           ]},

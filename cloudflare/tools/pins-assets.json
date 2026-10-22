@@ -336,8 +336,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 376,
-  "sha": "b6eee202bbceecd7215d4b555223fca615e4b082"
+  "pin": 377,
+  "sha": "6ba84d86a21fc768ddbbf33c09b61b2ad1cbb8fd"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -400,12 +400,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 398,
-  "sha": "4b92dbfaa1807dc9ac7b2f255687f792338b5c19"
+  "pin": 399,
+  "sha": "24e17da61ed20f4efc5327961dbf750290abb969"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 192,
-  "sha": "9366716a8c17d3226d66f2031e190c09bdca3c03"
+  "pin": 193,
+  "sha": "c59a24cf8fae2ded6544fbc01a92f84c3d57bb54"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -540,8 +540,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 43,
-  "sha": "0d91174d6b950245a067080014707ce58192385c"
+  "pin": 46,
+  "sha": "7eccf78b77351137f4a687b0f8f37e04180e610f"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
@@ -580,8 +580,8 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 124,
-  "sha": "95791f1eadb400ea1dd7a5ba2d5b5ef39e10a29b"
+  "pin": 125,
+  "sha": "356cdbd5ac06b58d13f3d82402d0c63c24bf1551"
  },
  "/soreal-idle-ui.css": {
   "pin": 56,

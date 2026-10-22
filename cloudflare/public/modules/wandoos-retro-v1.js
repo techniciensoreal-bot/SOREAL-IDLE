@@ -194,8 +194,12 @@
       '.wd-touche.wd-enfoncee{transform:translateY(.7cqw);box-shadow:0 .1cqw 0 #8b836a,0 .2cqw .3cqw rgba(0,0,0,.5),inset 0 .15cqw 0 rgba(255,255,255,.5);}',
       '@container (max-width:560px){.wd-rang-boot{grid-template-columns:1fr auto;}.wd-rang-boot .wd-lib{grid-column:1/-1;}.wd-logo{font-size:1.5em;}}',
       /* Chargement de l'OS : ambre fixe (quelle que soit la couleur de l'écran), cadre pointillé et rayures qui défilent : on voit tout de suite que ce n'est PAS une barre à remplir. */
-      '.wd-chargement{margin:.6em 0 .9em;padding:.55em .7em;border:2px solid #ffb000;background:rgba(255,176,0,.08);color:#ffb000;text-shadow:0 0 .4em rgba(255,176,0,.55);}',
-      '.wd-chargeur{position:relative;height:1.25em;margin:.4em 0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
+      '.wd-chargement{margin:.3em 0 .35em;padding:.25em .5em;border:2px solid #ffb000;background:rgba(255,176,0,.08);color:#ffb000;text-shadow:0 0 .4em rgba(255,176,0,.55);}',
+      '.wd-rangee-os{display:flex;align-items:center;gap:.7em;white-space:nowrap;}',
+      '.wd-rangee-os .wd-chargeur{flex:1;min-width:0;}',
+      '.wd-ecran:has(.wd-chargement){line-height:1.08;padding-top:2.4cqw;padding-bottom:1cqw;}',
+      '.wd-ecran:has(.wd-chargement) .wd-bloc{margin-top:.2em;}',
+      '.wd-chargeur{position:relative;height:1em;margin:0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
       '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:1.42em 100%;animation:wd-defile 1s linear infinite;}',
       '@keyframes wd-defile{to{background-position:1.42em 0}}',
       '@media (prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}}',
@@ -330,10 +334,10 @@
   /* Le chargement de l'OS (vrai démarrage du wiki) : cadre ambre à rayures qui défilent, volontairement différent des barres de dump à remplir. */
   function panneauChargement_(e){
     var b=bootVu_(e.vue),pct=Math.floor(b.fraction*100);
+    /* Compact (Norman, 2026-10-22 : « tout sur un seul écran, même pendant le chargement ») : le titre, la barre et le pourcentage tiennent sur UNE ligne, puis une petite ligne. */
     return '<div class="wd-chargement" role="status">'+
-      '<div class="wd-ligne"><span>CHARGEMENT DE L’OS</span><b id="wd-ch-pct">'+pct+' %</b></div>'+
-      '<div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
-      '<div class="wd-ligne wd-petit"><span>Vitesse de Wandoos : <b id="wd-ch-vit">'+pct+' %</b> de son maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
+      '<div class="wd-rangee-os"><span>CHARGEMENT DE L’OS</span><div class="wd-chargeur" id="wd-chargeur"><i id="wd-ch-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div><b id="wd-ch-pct">'+pct+' %</b></div>'+
+      '<div class="wd-ligne wd-petit"><span>Vitesse <b id="wd-ch-vit">'+pct+' %</b> du maximum</span><span>Encore <b id="wd-ch-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
     '</div>';
   }
   /* Au-delà d'un niveau par seconde, le temps restant tomberait sous 1 s : on écrit la vitesse (niveaux par seconde) jusqu'au cap de 50 niveaux/s de Wandoos (Norman, 2026-10-22). */
@@ -353,7 +357,7 @@
     var vitTexte=vit>=50?'50 (MAXIMUM)':format_(vit);
     return '<div class="wd-bloc">'+
       '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b data-wd-niveau>'+html_(grand_(niveau))+'</b></span></div>'+
-      '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b><span class="wd-lib">LIBRE</span><b>'+html_(grand_(libre))+'</b></div>'+
+      '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b></div>'+   /* « Libre » retiré (Norman, 2026-10-22 : déjà dans la barre du haut) */
       '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
       '<div class="wd-ligne wd-petit"><span data-wd-reste>'+html_(texteReste_(vit,prog))+'</span></div>'+
     '</div>';

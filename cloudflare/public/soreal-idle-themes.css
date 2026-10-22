@@ -1358,7 +1358,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-texte-v2 small
   font-size:11px;font-weight:700;letter-spacing:.01em;color:color-mix(in srgb,var(--c1) 58%,#fff);opacity:.95;
 }
 @media (hover:hover){
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:hover{transform:translateY(-2px);box-shadow:0 12px 20px -10px var(--c1);filter:brightness(1.12)}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:hover{box-shadow:0 12px 20px -10px var(--c1);filter:brightness(1.12)}
 }
 /* Menu ouvert : la carte se remplit de sa couleur, le badge devient clair. */
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active{

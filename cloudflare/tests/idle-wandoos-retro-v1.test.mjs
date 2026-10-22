@@ -113,7 +113,7 @@ joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
 assert.ok(h.includes('data-phase="bureau"') && h.includes("EN MARCHE") && h.includes("wd-clavier"), "bureau");
 assert.ok(h.includes("NIVEAU <b data-wd-niveau>812</b>") && h.includes("NIVEAU <b data-wd-niveau>422</b>"), "niveaux des deux Dumps");
-assert.ok(h.includes("PLACÉE") && h.includes("LIBRE") && h.includes("1M") && h.includes("2M") && h.includes("RESTE : ") && !h.includes("NIV/S") && !h.includes("prochain niveau") && h.includes("VERSION OS") && !h.includes("NIVEAU DE L"), "quantités placées/libres ; sous chaque barre seulement le temps restant (Norman, 2026-10-07) ; Version OS");
+assert.ok(h.includes("PLACÉE") && !h.includes("LIBRE") && h.includes("RESTE : ") && !h.includes("NIV/S") && !h.includes("prochain niveau") && h.includes("VERSION OS") && !h.includes("NIVEAU DE L"), "quantités placées, plus de « Libre » (Norman, 2026-10-22) ; sous chaque barre seulement le temps restant (Norman, 2026-10-07) ; Version OS");
 assert.ok(!h.includes("wd-chargement") && !h.includes("CHARGEMENT"), "OS chargé : aucun cadre de chargement");
 assert.ok(h.includes('id="wd-saisie"') && h.includes('class="wd-frappe"') && h.includes('<span class="wd-invite-c">C:\\&gt;</span>'), "ligne de saisie : « C:\\> » puis ce qu'on tape, directement dans l'écran");
 assert.ok(!h.includes("<input") && !h.includes("SAISIE") && !h.includes("wd-input"), "plus de cadre de saisie ni de mot « SAISIE »");
@@ -145,7 +145,7 @@ assert.ok(h.includes('class="wd-chargeur"') && !h.includes('class="wd-chargeur w
   assert.ok(!/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{231A}-\u{23FF}]/u.test(ecranSeul), "aucun émoji sur l'écran du moniteur");
   assert.ok(page.includes("[*] EN MARCHE") && !page.includes("●"), "l'état en ASCII");
 }
-assert.ok(h.includes("Vitesse de Wandoos : <b id=\"wd-ch-vit\">50 %</b> de son maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
+assert.ok(h.includes("Vitesse <b id=\"wd-ch-vit\">50 %</b> du maximum") && h.includes("<b id=\"wd-ch-reste\">30 min 00 s</b>"), "vitesse actuelle et temps restant");
 assert.ok(!h.includes("Ce n’est pas une barre à remplir"), "plus de phrase « ce n'est pas une barre à remplir »");
 assert.ok(!h.includes("Tu peux déjà placer") && !h.includes("wd-ch-note"), "le cadre de chargement ne contient aucune phrase explicative (Norman, 2026-10-07)");
 assert.ok(h.includes('id="wd-saisie"') && h.includes(".place('energy','plus')") && h.includes("PLACÉE"), "pendant le chargement : l'énergie et la magie se placent déjà (barres du bureau visibles)");
