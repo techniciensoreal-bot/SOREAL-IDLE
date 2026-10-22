@@ -32,7 +32,7 @@ jobs:
     # occuper la file de concurrence plus de 30 minutes.
     if: github.ref == 'refs/heads/main'
     timeout-minutes: 30
-    runs-on: ubuntu-24.04   # ubuntu-latest migre vers Ubuntu 26 (19/10/2026) : Playwright 1.55 n'y installe plus Chromium (run #1056)
+    runs-on: ubuntu-22.04   # ubuntu-latest passe a Ubuntu 26 (Playwright 1.55 n'y installe plus Chromium) ; ubuntu-24.04 est reste « Queued » plus de 10 min (run #1057)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
