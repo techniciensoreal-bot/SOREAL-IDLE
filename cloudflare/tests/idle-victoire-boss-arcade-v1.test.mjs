@@ -7,7 +7,8 @@ import vm from "node:vm";
  * ça casse les oreilles »).
  */
 const code = readFileSync(new URL("../public/modules/victoire-boss-arcade-v1.js", import.meta.url), "utf8");
-const ctx2d = new Proxy({}, { get: (c, k) => (k === "fillStyle" || k === "globalAlpha" ? 1 : () => {}), set: () => true });
+const dessines = [];   /* sources passées à drawImage : l'image affichée ou la copie mémorisée du boss combattu */
+const ctx2d = new Proxy({}, { get: (c, k) => (k === "fillStyle" || k === "globalAlpha" ? 1 : k === "drawImage" ? (src) => { dessines.push(src); } : k === "getImageData" ? () => ({ data: new Uint8ClampedArray(4 * 40 * 160) }) : () => {}), set: () => true });
 function monde({ reduit = false, stock = {}, volume = 0.8 } = {}) {
   const magasin = Object.assign({}, stock);
   const ajoutes = [];
@@ -34,7 +35,7 @@ function monde({ reduit = false, stock = {}, volume = 0.8 } = {}) {
       getContext: () => ctx2d, parentNode: null }),
     getElementById: () => null, head: { appendChild() {} }, documentElement: { appendChild() {} }
   };
-  const image = { naturalWidth: 0 };
+  const image = { naturalWidth: 0, src: "/api/idle/media/boss?id=7" };
   const fen = {
     document: doc, AudioContext, performance: { now: () => 0 }, requestAnimationFrame: () => 0, setTimeout: () => 0, console,
     localStorage: { getItem: (k) => (k in magasin ? magasin[k] : null), setItem: (k, v) => { magasin[k] = String(v); } },
@@ -97,8 +98,37 @@ for (const diff of ["normal", "difficile", "extreme"]) {
 }
 
 // 5. Câblage : à la victoire d'un combat (pas le NUKE), le bandeau texte reste caché en dessous ; module chargé par la page.
+// 4b. C'est l'image du boss TUÉ qui éclate, jamais celle du suivant (le moteur local affiche déjà le suivant quand la victoire est prédite).
+{
+  const m = monde();
+  const imgFought = { naturalWidth: 400, naturalHeight: 400, src: "/api/idle/media/boss?id=6" };
+  const imgNext = { naturalWidth: 400, naturalHeight: 400, src: "/api/idle/media/boss?id=7" };
+  m.hote.querySelector = (s) => (s === "img" ? m.hote.imgAffichee : (s === ".vic-arcade" ? null : null));
+  m.hote.imgAffichee = imgNext;
+  m.fen.location = { href: "http://x/" }; m.fen.URL = URL;
+  const e = etat({ bossSelection: 7 });
+  dessines.length = 0;
+  // Sans copie mémorisée et avec l'image du SUIVANT affichée : on joue sans éclats plutôt qu'avec la mauvaise image.
+  assert.equal(m.V.jouer(m.hote, imgNext, e, 8000, 6), true);
+  assert.equal(dessines.includes(imgNext), false, "l'image du boss suivant n'est jamais utilisée pour le boss tué");
+  // L'image affichée est bien celle du boss tué : elle sert.
+  dessines.length = 0;
+  m.V.jouer(m.hote, imgFought, e, 8000, 6);
+  assert.equal(dessines.includes(imgFought), true, "l'image du boss tué sert à l'explosion");
+  // Copie mémorisée au début du combat (boss 6 affiché) ; ensuite le boss 7 s'affiche : l'explosion utilise la COPIE.
+  m.hote.imgAffichee = imgFought;
+  assert.equal(m.V.capturer(m.hote, 6), true, "copie du boss combattu");
+  assert.equal(m.V.capturer(m.hote, 7), false, "une image qui n'est pas celle du boss demandé n'est jamais copiée");
+  m.hote.imgAffichee = imgNext;
+  dessines.length = 0;
+  m.V.jouer(m.hote, imgNext, e, 8000, 6);
+  assert.equal(dessines.includes(imgNext), false);
+  assert.ok(dessines.length > 0 && dessines.every((s) => s !== imgFought && s !== imgNext), "dessiné d'après la copie mémorisée du boss 6 (un canvas)");
+}
+
 const combat1 = readFileSync(new URL("../public/modules/ui-combat-1-v1.js", import.meta.url), "utf8");
-assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0));"), "jamais pendant un NUKE ; durée du combat transmise");
+assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0,REG.idleCombatBossNumV1));"), "jamais pendant un NUKE ; durée du combat et boss combattu transmis");
+assert.ok(combat1.includes("REG.idleCombatBossNumV1=idleEntier_(REG.idleEtat.bossSelection||1);") && combat1.includes("arcade.planifierCapture(REG.idleCombatBossNumV1)"), "au début de chaque combat : le boss combattu est noté et son image mise de côté");
 assert.ok(combat1.includes("REG.idleCombatDebutV1=Date.now();"), "le début de chaque combat est noté");
 assert.ok(combat1.includes("'soreal-idle-boss-transition-v61'+(victoireArcadeIdleV1?' vic-cache':'')"), "bandeau caché mais gardé pour le filet de sécurité");
 const combat2 = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");

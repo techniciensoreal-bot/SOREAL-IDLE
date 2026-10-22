@@ -260,8 +260,8 @@
   "sha": "4bdc49a03b776547a1a259f191aef35d907231bb"
  },
  "/modules/moqueurs-fuite-v1.js": {
-  "pin": 2,
-  "sha": "3f4564e9407f954ba9c5f6486f030e5a5f66b612"
+  "pin": 3,
+  "sha": "58ef807457f50c2d1fbefb93a76d4f8402f0e2b5"
  },
  "/modules/morph-v1.js": {
   "pin": 4,
@@ -452,8 +452,8 @@
   "sha": "b9978edfdb5a6d99d68763e34aa347d42c67af90"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 12,
-  "sha": "86327ca5f6df14c8f5b443a9f760d7d55fa8c8b6"
+  "pin": 13,
+  "sha": "3deb737c25138cf9b2361332b15188b454b87890"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 11,
@@ -516,8 +516,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 2,
-  "sha": "419899210b85f35baa155f4d13a0258925e4da3e"
+  "pin": 3,
+  "sha": "035073a5e1e7768380ea7899bc8e23ea32ec9517"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 1,

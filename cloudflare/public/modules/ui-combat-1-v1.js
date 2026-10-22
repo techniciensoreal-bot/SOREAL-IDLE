@@ -65,6 +65,8 @@
 
         REG.idleCombatIdentiteV116=identite;
         REG.idleCombatDebutV1=Date.now();   /* début de CE combat : sert à l'écran de victoire arcade (combat d'au moins 5 s) */
+        REG.idleCombatBossNumV1=idleEntier_(REG.idleEtat.bossSelection||1);   /* le boss combattu : l'écran de victoire fait éclater SON image, pas celle du suivant */
+        try{const arcade=window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__;if(arcade&&arcade.planifierCapture)arcade.planifierCapture(REG.idleCombatBossNumV1);}catch(_e){}
         idleCompensationImpactJoueurV117=null;
         idleCompensationImpactBossV117=null;
 
@@ -302,7 +304,7 @@
         let victoireArcadeIdleV1=false;
         try{
           const arcade=window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__;
-          if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0));
+          if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0,REG.idleCombatBossNumV1));
         }catch(_e){}
 
         const overlay=

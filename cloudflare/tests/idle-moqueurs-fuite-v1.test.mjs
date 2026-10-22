@@ -12,7 +12,10 @@ function compteur() {
   return { n, ctx };
 }
 function monde({ reduit = false } = {}) {
-  const arene = { enfants: [], getBoundingClientRect: () => ({ width: 588, height: 494 }), querySelector: (s) => (s === ".moq-fuite" ? arene.enfants.find((e) => /moq-fuite/.test(e.className)) || null : null), appendChild(e) { this.enfants.push(e); e.isConnected = true; } };
+  /* L'arène est une GRILLE : y poser un enfant ajoutait une ligne (la borne grandissait de ~140 px). Le calque va dans le conteneur (flex), à la place exacte de l'arène. */
+  const arene = { enfants: [], getBoundingClientRect: () => ({ left: 26, top: 17, width: 588, height: 494 }), querySelector: () => null, appendChild() { throw new Error("jamais dans la grille de l'arène"); } };
+  const duel = { enfants: [], getBoundingClientRect: () => ({ left: 10, top: 5, width: 640, height: 528 }), querySelector: (s) => (s === ".moq-fuite" ? duel.enfants.find((e) => /moq-fuite/.test(e.className)) || null : null), appendChild(e) { this.enfants.push(e); e.isConnected = true; } };
+  arene.closest = (s) => (s === ".soreal-idle-duel-v41" ? duel : null);
   const hote = { closest: (s) => (s === ".soreal-idle-duel-versus-row-v42" ? arene : null), getBoundingClientRect: () => ({ width: 308, height: 308 }), querySelector: () => null, appendChild() { throw new Error("pas sur l'image du boss seule"); } };
   const doc = {
     createElement: (tag) => ({ tag, className: "", style: {}, attrs: {}, children: [], isConnected: false, width: 0, height: 0, setAttribute(k, v) { this.attrs[k] = v; }, appendChild(c) { this.children.push(c); }, remove() { this.isConnected = false; }, getContext: () => compteur().ctx, parentNode: null }),
@@ -22,22 +25,23 @@ function monde({ reduit = false } = {}) {
   const fen = { document: doc, performance: { now: () => 0 }, requestAnimationFrame: (f) => { raf.push(f); return raf.length; }, console, matchMedia: () => ({ matches: reduit }) };
   fen.window = fen;
   vm.runInNewContext(code, fen);
-  return { M: fen.__SOREAL_IDLE_MOQUEURS_V1__, hote, arene, doc, raf };
+  return { M: fen.__SOREAL_IDLE_MOQUEURS_V1__, hote, arene, duel, doc, raf };
 }
 
 // 1. Mise en scène : sur TOUT l'écran du duel (l'arène : photo du boss + photo du joueur), pas seulement l'image du boss ; gardé par le redessin ; forme de l'arène respectée.
 {
   const m = monde();
   assert.equal(m.M.jouer(m.hote), true);
-  assert.equal(m.arene.enfants.length, 1, "calque posé sur l'arène du duel");
-  const calque = m.arene.enfants[0];
+  assert.equal(m.duel.enfants.length, 1, "calque posé dans le conteneur du duel, pas dans la grille de l'arène");
+  const calque = m.duel.enfants[0];
+  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:16px;top:12px;width:588px;height:494px", "exactement à la place de l'arène : rien ne bouge");
   assert.ok(/moq-fuite/.test(calque.className) && /soreal-idle-boss-transition-v61/.test(calque.className));
   assert.ok("data-morph-garder" in calque.attrs, "gardé par le redessin (règle n°4)");
   const cv = calque.children[0];
   assert.equal(cv.height, 160); assert.equal(cv.width, Math.round(160 * 588 / 494), "canvas à la forme de l'arène (pixels carrés)");
   assert.ok(m.doc.styles.some((s) => /z-index:30/.test(s.textContent)), "au-dessus des deux photos");
   assert.equal(m.M.jouer(m.hote), true);
-  assert.equal(m.arene.enfants.filter((e) => e.isConnected).length >= 1, true);
+  assert.equal(m.duel.enfants.filter((e) => e.isConnected).length >= 1, true);
   assert.equal(monde({ reduit: true }).M.jouer(monde({ reduit: true }).hote), false, "« réduire les animations » : rien");
   assert.equal(m.M.jouer(null), false);
 }

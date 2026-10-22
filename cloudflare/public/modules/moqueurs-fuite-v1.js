@@ -124,14 +124,17 @@
       style_();
       /* Tout l'écran du duel (photo du boss + photo du joueur + VS), pas seulement l'image du boss. */
       var arene=(hote.closest&&hote.closest('.soreal-idle-duel-versus-row-v42'))||hote;
-      var anc=arene.querySelector('.moq-fuite');if(anc)anc.remove();
-      var r=arene.getBoundingClientRect(),LH=LH0;
+      /* Le calque n'est PAS posé dans la grille de l'arène (un enfant de plus y ajoutait une ligne : la borne grandissait de ~140 px) mais dans son conteneur (flex), à la place exacte de l'arène : rien ne bouge. */
+      var duel=(arene.closest&&arene.closest('.soreal-idle-duel-v41'))||arene.parentElement||arene;
+      var anc=duel.querySelector('.moq-fuite');if(anc)anc.remove();
+      var r=arene.getBoundingClientRect(),rd=duel.getBoundingClientRect(),LH=LH0;
       var LW=Math.max(120,Math.min(420,Math.round(LH*(r.width||LH)/(r.height||LH))));
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 moq-fuite';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
-      arene.appendChild(calque);
+      calque.style.cssText='inset:auto;right:auto;bottom:auto;left:'+Math.round(r.left-rd.left)+'px;top:'+Math.round(r.top-rd.top)+'px;width:'+Math.round(r.width)+'px;height:'+Math.round(r.height)+'px';
+      duel.appendChild(calque);
       var c=cv.getContext('2d');c.imageSmoothingEnabled=false;
       var t0=performance.now(),fini=false;
       (function image(now){

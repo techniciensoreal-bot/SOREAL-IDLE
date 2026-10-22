@@ -50,6 +50,8 @@
   function pixelsDe(img,LH){
     var CY=Math.max(8,Math.round(CX*LH/LW)),px=[];
     try{
+      /* source : l'image (naturalWidth) ou la copie mémorisée (canvas : width) */
+      if(img&&!(img.naturalWidth>0)&&img.width>0){img.naturalWidth=img.width;img.naturalHeight=img.height;}
       if(!img||!(img.naturalWidth>0))return {px:px,CY:CY};
       var cv=document.createElement('canvas');cv.width=CX;cv.height=CY;
       var cx=cv.getContext('2d');cx.imageSmoothingEnabled=true;
@@ -60,6 +62,39 @@
       for(var y=0;y<CY;y++)for(var x=0;x<CX;x++){var i=(y*CX+x)*4;if(d[i+3]>70)px.push({x:x,y:y,c:'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')'});}
     }catch(_e){px=[];}   /* image illisible (autre origine) : l'écran se joue sans les éclats, avec le texte */
     return {px:px,CY:CY};
+  }
+
+  /* ---------- l'image du boss TUÉ (Norman, 2026-10-22 : « c'est l'image du boss suivant qui a éclaté en pixels ») ----------
+     Le moteur local est si rapide que le boss suivant est déjà affiché quand la page prédit la victoire : lire l'image dans la borne à ce moment donnait le suivant. Au début de chaque combat on met donc de côté une copie
+     (réduite) de l'image du boss combattu, reconnue par son adresse (id=<numéro>) ; la victoire s'en sert, et si elle manque on joue sans éclats plutôt qu'avec la mauvaise image. */
+  var memoire=null;
+  function entier_(v){var n=Math.floor(Number(v));return isFinite(n)&&n>0?n:0;}
+  function imagePourBoss(img,n){
+    try{var u=new URL(img.currentSrc||img.src,location.href);return entier_(u.searchParams.get('id'))===n;}catch(_e){return false;}
+  }
+  function capturer(hote,n){
+    n=entier_(n);
+    if(!hote||!n)return false;
+    if(memoire&&memoire.n===n)return true;
+    var img=hote.querySelector&&hote.querySelector('img');
+    if(!img||!(img.naturalWidth>0)||!imagePourBoss(img,n))return false;
+    try{
+      var k=Math.min(1,256/Math.max(img.naturalWidth,img.naturalHeight));
+      var cv=document.createElement('canvas');cv.width=Math.max(1,Math.round(img.naturalWidth*k));cv.height=Math.max(1,Math.round(img.naturalHeight*k));
+      var cx=cv.getContext('2d');cx.drawImage(img,0,0,cv.width,cv.height);cx.getImageData(0,0,1,1);   /* lève une erreur si l'image est d'une autre origine */
+      memoire={n:n,source:cv};return true;
+    }catch(_e){return false;}
+  }
+  function planifierCapture(n){
+    [300,900,2000,4000].forEach(function(ms){setTimeout(function(){
+      if(!(memoire&&memoire.n===entier_(n)))capturer(document.getElementById('sorealIdleBossImageHostV36'),n);
+    },ms);});
+  }
+  function sourcePixels(image,n){
+    n=entier_(n);
+    if(memoire&&n&&memoire.n===n)return memoire.source;
+    if(image&&(!n||imagePourBoss(image,n)))return image;   /* l'image affichée n'est utilisée que si c'est bien celle du boss tué */
+    return null;
   }
 
   /* ---------- dessin : A « K.O. éclat », durée DUREE ---------- */
@@ -155,14 +190,14 @@
       '.soreal-idle-boss-transition-v61.vic-cache{display:none}';
     (document.head||document.documentElement).appendChild(s);
   }
-  function jouer(hote,image,etat,dureeCombatMs){
+  function jouer(hote,image,etat,dureeCombatMs,bossNum){
     try{
       if(!hote||!doitJouer(etat,dureeCombatMs))return false;
       if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
       style_();
       var anc=hote.querySelector('.vic-arcade');if(anc)anc.remove();
       var r=hote.getBoundingClientRect(),LH=Math.max(60,Math.round(LW*(r.height||LW)/(r.width||LW)));
-      var pk=pixelsDe(image,LH);
+      var pk=pixelsDe(sourcePixels(image,bossNum),LH);
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 vic-arcade';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
@@ -188,5 +223,5 @@
     }catch(_e){return false;}
   }
 
-  window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__={jouer:jouer,doitJouer:doitJouer,dessiner:dessiner,sons:sons,duree:DUREE,combatMinMs:COMBAT_MIN_MS};
+  window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__={jouer:jouer,doitJouer:doitJouer,dessiner:dessiner,sons:sons,duree:DUREE,combatMinMs:COMBAT_MIN_MS,capturer:capturer,planifierCapture:planifierCapture};
 })();
