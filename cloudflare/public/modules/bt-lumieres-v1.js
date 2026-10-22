@@ -93,7 +93,7 @@
     if(maintenant-dernierDemarrage<1500)return false;
     dernierDemarrage=maintenant;
     vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
-    sonner(variantePourBarre(idBarre));
+    sonner('allume');   /* Norman (2026-10-22) : l'ancien son du néon qui s'allume, pour le premier point de n'importe quelle barre */
     return true;
   }
   /* Motif d'un vacillement : un ou deux coups. Deux coups = deux extinctions très rapprochées (le second arrive avant la fin du premier « tzzzzt » et le coupe). */

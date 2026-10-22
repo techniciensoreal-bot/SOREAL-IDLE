@@ -116,11 +116,11 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
   m.etatJeu.basicTraining.skills = ids.map((id) => ({ id, unlocked: true, allocation: 0 }));
   [0, 1, 2, 6, 7].forEach((i) => { m.etatJeu.basicTraining.skills[i].allocation = 5; });
   const b = m.N.barresAvecEnergie();
-  assert.deepEqual(JSON.parse(JSON.stringify(b.map((x) => x.type))), ["allume", "demarrage1", "v:attaque_renforcee"], "chaque son une seule fois (la jumelle de défense et la 2e première barre ne le rejouent pas)");
+  assert.deepEqual(JSON.parse(JSON.stringify(b.map((x) => x.type))), ["allume"], "toute barre joue le néon qui s'allume, une seule fois (Norman, 2026-10-22)");
   const cal = Array.from(m.N.calendrier());
-  assert.ok(Math.abs(b[0].d - cal[2]) < 1e-9 && Math.abs(b[1].d - cal[3]) < 1e-9 && Math.abs(b[2].d - cal[4]) < 1e-9, "joués à l'instant où la ligne s'allume");
+  assert.ok(Math.abs(b[0].d - cal[2]) < 1e-9, "joués à l'instant où la ligne s'allume");
   m.etatJeu.systemes.records.totalRebirths = 1;
   m.N.etat(); m.etatJeu.systemes.records.totalRebirths = 2; m.tick();
-  assert.equal(sons.length, 3, "les démarrages de base sont joués une fois chacun pendant l'allumage");
+  assert.equal(sons.length, 1, "le néon est joué une seule fois pendant l'allumage, quel que soit le nombre de barres");
 }
 console.log("idle-bt-neon-v1: OK");

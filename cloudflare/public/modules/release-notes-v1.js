@@ -56,6 +56,7 @@
             'Les touches du clavier de cet écran refont leur bruit de clic.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Le premier point placé dans n’importe quelle barre de l’Entraînement de base refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
