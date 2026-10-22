@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 387,
-  "sha": "48a4d160644bce90e947e62af3102cdab05d739b"
+  "pin": 390,
+  "sha": "601824b4761e7c1c4f88253f28594eb059c9fdc0"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 409,
-  "sha": "78802676a2f4a8969611accf0492f6b89ff4ea1d"
+  "pin": 412,
+  "sha": "f9b4f3aad0b40f189de32591c46eb2c262a4d42a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 203,
-  "sha": "70a16056856dcf3a2ab2ecf17ac2eeb5626608c2"
+  "pin": 206,
+  "sha": "3d73393de5174c1a08fa262e1519b75fb81c5c6c"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 10,
-  "sha": "369e2fed49700f9759f719e2b4ec32a39a5c345f"
+  "pin": 11,
+  "sha": "d2fa4531804c194542863530a526f1398501c01e"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -564,8 +564,8 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 34,
-  "sha": "c57c1a9713514c361b9e6a9828b7032157b1abdb"
+  "pin": 36,
+  "sha": "f403934d090cae85d6e525a88064726b63fe9557"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 13,
@@ -576,8 +576,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 208,
-  "sha": "116e64256a12968c44393707bc3313499f5cce35"
+  "pin": 210,
+  "sha": "7002b48778791d90541ce54f17f456ce0a3e7290"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

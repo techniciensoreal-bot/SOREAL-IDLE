@@ -32,6 +32,7 @@
         date:'2026-10-22',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur téléphone, les petits textes (11 px et moins) passent à 12 px au minimum dans la plupart des menus, et un bouton désactivé, trop pâle, se lit mieux.',
             'Sur ordinateur, les petits textes sont plus grands (13 à 14 px) dans tous les menus, et la page Réglages range ses cartes sur deux colonnes : elle est un quart moins haute.',
             'Au début d’une nouvelle partie, seule l’introduction en images se joue, puis le nouveau tutoriel : l’ancien tutoriel de base n’est plus lancé. Sa fenêtre s’ouvre une fois la chronique du boss lue.',
             'L’introduction « Le commencement » est racontée en seize images qui défilent avec leur phrase en blanc dessous ; la dernière s’arrête sur le gros bouton blanc et c’est toi qui cliques sur l’image pour continuer.',
@@ -42,7 +43,7 @@
             'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'La fiche d’un objet est refaite façon jeu de rôle : le nom à la couleur de sa rareté, le niveau en jaune, l’emplacement et l’ensemble, les statistiques (orange, bleu, jaune selon le boost qui les remplit) et, en vert en bas, ce que l’objet donne monté à fond et la récompense de son ensemble.',
+            'La fiche d’un objet est refaite façon jeu de rôle : le nom à la couleur de sa rareté, le niveau en jaune, l’emplacement et l’ensemble, les statistiques (orange, bleu, jaune selon le boost qui les remplit) et, en vert en bas, le bonus de son ensemble une fois toutes ses pièces au maximum.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Quand il manque de l’Or pour un rituel, le message « Il manque X Or » reste affiché et la sangsue s’arrête et attend, au lieu de continuer son animation comme si le rituel se faisait.',

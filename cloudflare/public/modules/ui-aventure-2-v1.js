@@ -1753,16 +1753,8 @@
       function piedFicheObjetIdleV1_(item){
         if(!item||!(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'))return '';
         const a=aventureFicheIdleV1_()||{};
-        const niveau=idleEntier_(item.level),q=1+niveau/100;
         const lignes=[];
-        /* Ce que donne l'objet monté à fond : ses Specials au plafond. */
-        if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
-          item.specialsAll.forEach(function(sv){
-            lignes.push('Monté à fond : +'+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'% '+idleLabelSpecialBonusV1_(sv.type));
-          });
-        }else if(idleNombre_(item.baseSpecial)>0&&item.specialType){
-          lignes.push('Monté à fond : +'+formatGrandNombreIdleV70_(idleNombre_(item.baseSpecial)*q,2)+(/Pct$/.test(String(item.specialType))?'%':'')+' '+idleLabelSpecialBonusV1_(item.specialType));
-        }
+        /* Norman (2026-10-22) : pas de « monté à fond » pour l'objet lui-même (le plafond est déjà sur la ligne de la statistique) : seulement le bonus de l'ensemble. */
         /* Récompense de l'ensemble : toutes ses pièces au niveau maximum (jamais le nombre de pièces). */
         const setId=String(item.set||'');
         const def=setId&&a.setCatalog?a.setCatalog[setId]:null;

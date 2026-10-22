@@ -1648,8 +1648,8 @@ body[data-defi-sans-equip-v1] .soreal-idle-v138-paperdoll [data-occupant-id] .so
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-button-v28 b,
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-titans-brille-v1{font-size:11.5px}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-summary-v28{font-size:11px}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-jour-v1{font-size:11px}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-ap-v1{font-size:11px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-jour-v1{font-size:12px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-ap-v1{font-size:12px}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 small,
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .wd-leg,
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .challenges i{font-size:11.5px}
@@ -1705,4 +1705,12 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
   /* Réglages : les cartes se rangent côte à côte au lieu de s'empiler sur 3 900 px ; le titre garde toute la largeur. */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;align-items:start}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>.soreal-idle-page-head-v28{grid-column:1/-1}
+}
+
+/* Audit de visibilité sur téléphone (Norman, 2026-10-22) : les petits textes de 10 à 11,5 px passent à 12 px (plancher « lisible sans être énorme » sur un écran de téléphone) ; les grands titres, les tuiles du haut et l'écran de Wandoos (mise en page proportionnelle à sa largeur) ne bougent pas. */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 :is(small,.soreal-idle-v79-stat-base,.soreal-idle-v79-stat-bonus,.soreal-idle-hp-regen-v1,.soreal-idle-adventure-fight-note-v1,.team-sort-trigger-label,.bm-sous-titre,.bm-etagere-lib,.tmm-lcd-titre,.tmm-case-titre,.tmm-sous,.soreal-idle-exp-open-v213,.soreal-idle-exp-help-v210,.souche,.soreal-idle-summary-v28,.nl-pct,.nl-eta,.soreal-idle-adventure-log-line-v1,.soreal-idle-chip-v8,.cal-coche-v1){font-size:12px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="ngu"] :is(span,b,p):not([class]){font-size:12px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"] i{font-size:12px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"] .ygg-btn{font-size:12px}
 }

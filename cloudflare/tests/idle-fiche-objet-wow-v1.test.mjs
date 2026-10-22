@@ -19,7 +19,7 @@ assert.ok(pres.includes("'idle-rarity-'+i"), "la rareté vient de la même fonct
 // Les deux fiches (inventaire / équipement et coffre / collection) utilisent la même en-tête et le même pied.
 assert.ok(av.includes("enteteFicheObjetIdleV1_(item,'Niveau '+niveau+'/100'") && av.includes("piedFicheObjetIdleV1_(item)+\n          actionsObjetHtml"), "fiche de l'inventaire");
 assert.ok(pop.includes("enteteFicheObjetIdleV1_(item,mention)") && pop.includes("piedFicheObjetIdleV1_(item)+\n          actions"), "fiche du coffre et des collections");
-assert.ok(av.includes("idle-fiche-vert-v1") && av.includes("Monté à fond : +") && av.includes("monté à fond : "), "lignes vertes");
+assert.ok(av.includes("idle-fiche-vert-v1") && av.includes("monté à fond : ") && !av.includes("Monté à fond : +"), "ligne verte : seulement le bonus de l'ensemble (Norman, 2026-10-22 : « monté à fond » de l'objet déjà sur sa ligne de statistique)");
 
 // Pas de prix de vente, pas de total de pièces (règle n°2), pas d'emoji de cadenas.
 const bloc = av.slice(av.indexOf("function enteteFicheObjetIdleV1_"), av.indexOf("function afficherDetailsObjetAdventureIdleV138_"));
