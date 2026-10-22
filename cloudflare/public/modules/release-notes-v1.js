@@ -44,6 +44,9 @@
           {menu:'challenges', titre:'Défis', points:[
             'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Sur chaque fruit prêt, la carte indique les graines que donne « Récolter » et les graines et bonus que donne « Manger » (avec la Poop si elle est cochée).',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Quand un niveau demande moins d’une seconde, le texte sous la barre indique la vitesse en niveaux par seconde (N/s), jusqu’au maximum de 50 niveaux par seconde.',
             'Les touches du clavier de cet écran refont leur bruit de clic.',

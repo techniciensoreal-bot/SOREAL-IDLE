@@ -6,13 +6,13 @@
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
-import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
+import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinFruitLevelsV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
 import { IDLE_THE_END_LAST_SPELL_BLOOD_V1, idleTheEndGrantV1, IDLE_THE_END_TOWER_FIRST_FLOOR_V1, idleTheEndHasV1 } from "./idle-the-end-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import { idleYggFruitUnlockedV1, idleYggAutoActivateV1, idleYggActivationCostV1, idleYggSeedUnitV1, idleYggUsePoopV1, idleYggMayoFruitBaseV1, idleYggFruitOfQuirksQpV1, idleYggQuickActivationV1, idleYggTierSecondsV1, idleYggItopodPoopV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
-import { idleCardsMayoFruitProgressV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
+import { idleCardsMayoFruitProgressV1, idleCardsMayoFruitApercuV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
 import { idleInventoryReceiveDropV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1, advanceIdleInventoryAutoV1 } from "./idle-inventory-auto-v1.js";
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 import { IDLE_R3_NOMS_V1 } from "./idle-r3-names-v1.js";
@@ -440,6 +440,46 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
   /* Ygg extra : Auto-Activate -- le fruit repart aussitôt, sans coût. */
   if(idleYggAutoActivateV1(state,IDLE_NGU_YGG_FRUITS).includes(fruitId))result.autoActivated=true;
   return result;
+}
+
+/*
+ * Aperçu de la page Yggdrasil (Norman, 2026-10-22 : « le nombre de graines qu'on va récolter » et « les bonus qu'on va gagner en mangeant »). LECTURE SEULE : mêmes formules que useYggFruit (ci-dessus),
+ * sans rien modifier ; le test idle-ygg-apercu-v1 compare cet aperçu au vrai useYggFruit pour chaque fruit. Renvoie {harvest:{seeds}, eat:{seeds, effets:[[code,valeur],…]}} pour le fruit prêt (tier poussé
+ * actuel), avec le facteur de Poop voulu (1 = sans). À garder synchronisé avec useYggFruit : toute formule changée là doit l'être ici (le test le vérifie).
+ */
+export function apercuYggFruitV1(state,def,f,poopFactor=1){
+  const grownTier=Math.max(1,Math.min(f.tier,Math.floor(f.growthHours)));
+  const perkBonuses=perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBonuses=quirkBonusesV1(idleQuirkNiveauxV1(state));
+  const gearYgg=gearSpecialsV1(state);
+  const seedYieldMultiplier=perkBonuses.seedYieldMultiplier*quirkBonuses.seedYieldMultiplier*nguFxV1(state).yggdrasil*gearPctV1(gearYgg,"seedGainPct");
+  const firstHarvestMultiplier=(f.firstHarvestThisRun?perkBonuses.firstHarvestMultiplier:1)*Math.max(1,poopFactor);
+  const factor=Math.ceil(Math.pow(grownTier,1.5));
+  const quirkYgg=quirkBonuses.yggYieldMultiplier;
+  const yieldFruit=nguFxV1(state).yggdrasil*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
+  const effets=[];
+  if(def.effect==="gold"){
+    const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
+    effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60]);
+  }else if(def.effect==="powerAlpha")effets.push(["powerAlpha",Math.ceil(factor*yieldFruit)]);
+  else if(def.effect==="adventure"){
+    const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifV1(state),{},null).toughness);
+    effets.push(["adventure",Math.floor(factor*Math.pow(baseToughness,0.2)*yieldFruit)]);
+  }else if(def.effect==="experience")effets.push(["experience",Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonusesLectureV1(state).xpMultiplier,1))))]);
+  else if(def.effect==="luck")effets.push(["luck",Math.ceil(factor*0.7*yieldFruit)*0.05]);
+  else if(def.effect==="powerBeta")effets.push(["powerBeta",Math.ceil(factor*yieldFruit)]);
+  else if(def.effect==="numbers")effets.push(["numbers",Math.ceil(factor*3*yieldFruit)]);
+  else if(def.effect==="ap")effets.push(["ap",apWithBonusV1(state,Math.floor(Math.ceil(factor*15*firstHarvestMultiplier)))]);
+  else if(def.effect==="pp")effets.push(["pp",Math.ceil(factor*60000*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*Math.max(1,num(idleNguBonusesLectureV1(state).ppMultiplier,1))*firstHarvestMultiplier)/1e6]);
+  else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta")effets.push(["macguffin",macguffinFruitLevelsV1(def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
+  else if(def.effect==="powerDelta")effets.push(["powerDelta",Math.ceil(factor*7*yieldFruit)]);
+  else if(def.effect==="mayo")effets.push(["mayo",idleCardsMayoFruitApercuV1(state,def.mayo,idleYggMayoFruitBaseV1(grownTier,poopFactor>1?poopFactor:1))]);
+  else if(def.effect==="quirks")effets.push(["quirks",idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
+  return {
+    tier:grownTier,
+    harvest:{seeds:yggSeedGain(def,grownTier,true,seedYieldMultiplier,firstHarvestMultiplier,false)},
+    eat:{seeds:yggSeedGain(def,grownTier,def.effect==="seeds",seedYieldMultiplier,firstHarvestMultiplier,true),effets}
+  };
 }
 
 function advanceYggdrasil(state,seconds,now){

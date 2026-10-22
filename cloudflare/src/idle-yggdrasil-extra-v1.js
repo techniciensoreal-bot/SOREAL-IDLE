@@ -364,6 +364,8 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
   const used = Math.max(0, I(fx.poopUsed, 0));
   const brown = idleYggBrownHeartActiveV1(state);
   const autos = Object.fromEntries(IDLE_YGG_AUTO_ACTIVATE_V1.map((a) => [a.fruit, a]));
+  const poopFacteur = idleYggPoopFactorV1(state);
+  const poopEnStock = idleYggPoopCountV1(state) >= 1;
   return {
     poop: idleYggPoopCountV1(state),
     poopUsed: used,
@@ -386,7 +388,11 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
         autoActivate: idleYggAutoActivateOwnedV1(state, def.id),
         autoShopId: auto ? idleYggAutoShopIdV1(def.id) : null,
         autoCost: auto ? auto.cost : null,
-        autoRequiredCap: auto ? auto.requiredCap : null
+        autoRequiredCap: auto ? auto.requiredCap : null,
+        /* Ce que donnerait le fruit PRÊT (récolté / mangé), sans et avec Poop : lecture seule (page Yggdrasil, Norman 2026-10-22). Rien pour un fruit qui pousse encore ou pas découvert. */
+        apercu: typeof deps.apercu === "function" && f.active && tier >= 1 && N(f.growthHours, 0) >= 1 && idleYggFruitUnlockedV1(state, def.id)
+          ? { sans: deps.apercu(def, f, 1), avec: poopEnStock ? deps.apercu(def, f, poopFacteur) : null }
+          : null
       }];
     }))
   };

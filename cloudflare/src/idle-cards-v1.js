@@ -793,6 +793,14 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
  * Nerdy Formulas). `base` = T^1.1 x 0.025 x Poop ; on y applique la vitesse de mayo courante (perks, quirks, cartes... et le Mayo Infuser : « Affects
  * Fruit reward »). La progression est en générateurs entiers (1 = un mayo) : la partie entière est créditée, le reste est gardé.
  */
+/* Progression de mayo que donnerait un fruit de Mayo mangé, SANS rien modifier (aperçu de la page Yggdrasil). */
+export function idleCardsMayoFruitApercuV1(state, mayoId, base) {
+  if (!MAYO_IDS.includes(mayoId) || !state?.systems?.cards) return 0;
+  const mods = idleCardsModifiersV1(state);
+  const infused = N(state.selloutEffects?.remaining?.mayoInfuser, 0) > 0;
+  return Math.max(0, N(base, 0)) * mods.mayoSpeed * (infused ? IDLE_CARDS_BASE_V1.mayoInfuserFactor * idleHeartsConsumableFactorV1(state) : 1);
+}
+
 export function idleCardsMayoFruitProgressV1(state, mayoId, base) {
   if (!MAYO_IDS.includes(mayoId) || !state?.systems?.cards) return { progress: 0, whole: 0 };
   const data = cardsData(state);

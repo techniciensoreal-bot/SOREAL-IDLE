@@ -25,7 +25,7 @@ import { augmentationGoldCost, augmentationSecondsForNextLevel, externalResource
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
-import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, ritualUnlocked, yggMaxTier, yggTierUpgradeCost } from "./idle-ngu-systemes.js";
+import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, ritualUnlocked, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
 import { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, idleTheEndFinalHackSnapshotV1 } from "./idle-ngu-etat.js";
 
 function nguSnapshotV1(state, context) {
@@ -258,7 +258,7 @@ function construireSnapshotNguV1(state, context, now) {
     bloodMagicView: bloodMagicViewV1(state),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
-    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost }),
+    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost, apercu: (def, f, poopFactor) => apercuYggFruitV1(state, def, f, poopFactor) }),
     /* Anti-spoil : la liste des mineurs n'existe pas tant que le système n'est pas découvert. */
     diggerDefinitions: state.systems.diggers?.unlocked ? clone(IDLE_NGU_DIGGERS) : [],
     /* MacGuffin Fragments : catalogue, slots, compteurs et bonus permanents (idle-macguffins-v1.js). */

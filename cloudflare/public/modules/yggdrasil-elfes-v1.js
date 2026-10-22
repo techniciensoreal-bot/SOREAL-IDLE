@@ -168,6 +168,8 @@
       '.ygg-mode{display:grid;grid-template-columns:1fr 1fr;border:2px solid #000;border-radius:4px;overflow:hidden;}',
       '.ygg-mode button{min-height:36px;padding:.2em .1em;border:0;cursor:pointer;font:800 clamp(8px,1.8cqw,12px) Georgia,serif;color:#cfe8bf;background:#17381f;}',
       '.ygg-mode button+button{border-left:2px solid #000;}',
+      '.ygg-apercu{display:grid;gap:2px;margin-top:4px;padding:3px 5px;border:1px solid #000;border-radius:4px;background:rgba(10,30,14,.72);color:#e5f3d6;font:700 clamp(10px,1.9cqw,12px) Georgia,serif;line-height:1.25}',
+      '.ygg-apercu b{color:#ffe38a}',
       '.ygg-mode button[aria-pressed="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);}',
       '.ygg-poop{display:flex;align-items:center;justify-content:center;gap:.4em;min-height:36px;border:2px solid #000;border-radius:4px;cursor:pointer;font:800 clamp(8px,1.8cqw,12px) Georgia,serif;color:#e9d9b6;background:#3a2a18;}',
       '.ygg-poop[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,#8a5a2a,#5b3a18);box-shadow:0 0 10px rgba(240,170,80,.7);}',
@@ -487,6 +489,34 @@
     },700);
   }
 
+  /* Ce que donnerait le fruit prêt (lecture seule du moteur, idle-ygg-apercu-v1) : graines si on RÉCOLTE, graines et bonus si on MANGE (Norman, 2026-10-22). Avec la Poop choisie si elle est cochée et en stock. */
+  function decimal_(x,max){return nb_(x).toLocaleString('fr-FR',{maximumFractionDigits:max});}
+  function texteEffet_(code,x){
+    switch(code){
+      case 'gold':return '+'+grand_(x)+' Or';
+      case 'powerAlpha':return '+'+grand_(x)+' Fruit de Puissance α';
+      case 'powerBeta':return '+'+grand_(x)+' Fruit de Puissance β';
+      case 'powerDelta':return '+'+grand_(x)+' Fruit de Puissance δ';
+      case 'numbers':return '+'+grand_(x)+' Fruit de Nombres';
+      case 'adventure':return '+'+grand_(x)+' Puissance et Défense d’Aventure';
+      case 'experience':return '+'+grand_(x)+' EXP';
+      case 'luck':return '+'+decimal_(x,2)+' % de chance de drop';
+      case 'ap':return '+'+grand_(x)+' AP';
+      case 'pp':return '+'+decimal_(x,3)+' PP';
+      case 'macguffin':return '+'+grand_(x)+' niveaux de MacGuffin';
+      case 'quirks':return '+'+grand_(x)+' QP';
+      case 'mayo':return '+'+decimal_(x,3)+' de mayo';
+    }
+    return '';
+  }
+  function apercuHtml_(d,v,c){
+    var a=v.e&&v.e.apercu;
+    if(!v.pret||!a||!a.sans)return '';
+    var avecPoop=Boolean(c.poop&&d.poop>0&&a.avec);
+    var p=avecPoop?a.avec:a.sans;
+    var manger=['+'+grand_(p.eat.seeds)+' graines'].concat((p.eat.effets||[]).map(function(e){return texteEffet_(e[0],e[1]);}).filter(Boolean));
+    return '<div class="ygg-apercu" data-ygg-apercu><div><b>Manger</b> : '+html_(manger.join(' · '))+'</div><div><b>Récolter</b> : '+html_('+'+grand_(p.harvest.seeds)+' graines')+'</div>'+(avecPoop?'<div>(avec la Poop)</div>':'')+'</div>';
+  }
   function carte_(d,v){
     var def=v.def,id=def.id,c=choix_(id);
     if(etapeCroissance_(d,v)===19)precharger_(id);   /* prêt au tier maximum : les 20 images sont chargées d'avance */
@@ -516,6 +546,7 @@
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
       '<button type="button" class="ygg-poop" aria-pressed="'+(c.poop&&d.poop>0)+'" '+(d.poop>0?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.poop(\''+html_(id)+'\')"><span class="ygg-mini">'+image_('poop','💩')+'</span>Poop</button>'+
       '<div class="ygg-mode" role="group" aria-label="Manger ou récolter"><button type="button" aria-pressed="'+(c.mode!=='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'eat\')">Manger</button><button type="button" aria-pressed="'+(c.mode==='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'harvest\')">Récolter</button></div>'+
+      apercuHtml_(d,v,c)+
       auto+
     '</div>';
   }
