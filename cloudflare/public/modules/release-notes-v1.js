@@ -57,6 +57,9 @@
             'Sur chaque fruit prêt, la carte indique les graines que donne « Récolter » et les graines et bonus que donne « Manger » (avec la Poop si elle est cochée).',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'Au démarrage de l’ordinateur, un BIOS apparaît une demi-seconde avant l’écran d’accueil.',
+            'Quand un éclair tombe pendant que tu es sur cet écran, l’image du moniteur est frappée : interférences, image qui se déchire, puis tout reprend normalement.',
+            'La touche COULEUR de l’écran propose maintenant vingt couleurs.',
             'L’information « Libre » est retirée de l’écran (elle est déjà dans la barre du haut), et pendant le chargement de l’OS tout tient sur un seul écran, sans défilement.',
             'Quand un niveau demande moins d’une seconde, le texte sous la barre indique la vitesse en niveaux par seconde (N/s), jusqu’au maximum de 50 niveaux par seconde.',
             'Les touches du clavier de cet écran refont leur bruit de clic.',
@@ -66,6 +69,7 @@
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu perds un combat, l’image de ton personnage éclate en gros pixels comme celle d’un boss qui meurt, puis se reforme juste après.',
             'L’image du boss suivant n’est plus noire après une victoire : elle apparaît toujours avec son effet.',
             'Les anciens sons d’apparition de boss sont supprimés : chaque boss n’a plus que le son de son propre effet.',
             'Les spectateurs qui rient quand tu fuis couvrent maintenant tout l’écran de la borne sur PC, et restent le temps du rire.',

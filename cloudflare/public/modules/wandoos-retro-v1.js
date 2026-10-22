@@ -14,7 +14,16 @@
   if(window.__SOREAL_IDLE_WANDOOS_V1__)return;
 
   var CLE_COULEUR='soreal_idle_wandoos_couleur_v1';
-  var COULEURS=['vert','bleu','orange','blanc'];
+  /* Une vingtaine de couleurs d'écran (Norman, 2026-10-22 : « plein de couleurs différentes pour la touche couleur ») : nom -> teinte principale ; la teinte sombre et la lueur en sont déduites. */
+  var TEINTES={vert:'#33ff66',bleu:'#5ab8ff',orange:'#ffb000',blanc:'#f0f0f0',rouge:'#ff5a5a',rose:'#ff8ad8',magenta:'#ff3df0',violet:'#b388ff',indigo:'#7c8cff',cyan:'#3df0ff',turquoise:'#2ee6c0',menthe:'#8affc1',citron:'#d8ff3d',jaune:'#ffe94d',or:'#ffd24a',corail:'#ff8a65',pêche:'#ffc9a0',lavande:'#d9c2ff',lime:'#9dff3a',glace:'#b8ecff'};
+  var COULEURS=Object.keys(TEINTES);
+  function reglesCouleurs_(){
+    return COULEURS.filter(function(n){return n!=='vert';}).map(function(n){
+      var h=TEINTES[n],r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+      var sombre='rgb('+Math.round(r*.42)+','+Math.round(g*.42)+','+Math.round(b*.42)+')';
+      return '.wd-poste[data-couleur="'+n+'"]{--wd-c:'+h+';--wd-c2:'+sombre+';--wd-glow:rgba('+r+','+g+','+b+',.55);}';
+    });
+  }
   var BANNIERE='/api/idle/media/banner?name=wandoos.webp';
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
@@ -35,6 +44,34 @@
     if(nom)nom.textContent=suivante.toUpperCase();
     return suivante;
   }
+
+  /* ---------- Foudre (Norman, 2026-10-22) : quand un éclair tombe et qu'on est sur Wandoos, l'image du moniteur est frappée : une interférence (image qui se déchire et saute, barres blanches, couleurs qui se séparent) puis tout reprend normalement. Animations du navigateur (Web Animations) : elles ne dépendent pas d'une classe que le redessin de la page pourrait retirer. ---------- */
+  function foudre_(){
+    var ecran=document.querySelector('.wd-poste .wd-ecran');
+    if(!ecran||!ecran.animate||(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches))return false;
+    var K=[
+      {transform:'translate(0,0) skewX(0)',filter:'none',offset:0},
+      {transform:'translate(-2.4%,0) skewX(-5deg)',filter:'brightness(3.2) contrast(1.8) saturate(.2)',offset:.06},
+      {transform:'translate(3%,-1%) skewX(4deg)',filter:'brightness(1.8) contrast(2) hue-rotate(60deg)',offset:.14},
+      {transform:'translate(-1.2%,1.5%) skewX(0)',filter:'brightness(2.4) contrast(1.4) saturate(.1)',offset:.22},
+      {transform:'translate(1.6%,0) skewX(2deg)',filter:'brightness(.45) contrast(2.2) hue-rotate(-50deg)',offset:.32},
+      {transform:'translate(-.8%,.6%) skewX(-1deg)',filter:'brightness(1.5) contrast(1.6)',offset:.46},
+      {transform:'translate(.4%,0) skewX(0)',filter:'brightness(.8) contrast(1.2)',offset:.64},
+      {transform:'translate(0,0) skewX(0)',filter:'none',offset:1}
+    ];
+    try{ecran.animate(K,{duration:620,easing:'steps(14,end)'});}catch(_e){return false;}
+    /* barres de parasites : un calque gardé par le redessin, retiré à la fin */
+    var nuage=document.createElement('div');
+    nuage.className='wd-parasites';nuage.setAttribute('data-morph-garder','');nuage.setAttribute('aria-hidden','true');
+    var barres='';
+    for(var i=0;i<7;i++){barres+='<i style="top:'+Math.round(4+Math.random()*88)+'%;height:'+(2+Math.round(Math.random()*7))+'%;left:'+Math.round(Math.random()*30)+'%;width:'+(55+Math.round(Math.random()*45))+'%"></i>';}
+    nuage.innerHTML=barres;
+    ecran.appendChild(nuage);
+    try{nuage.animate([{opacity:1},{opacity:.2},{opacity:.9},{opacity:.1},{opacity:.6},{opacity:0}],{duration:560,easing:'steps(6,end)',fill:'forwards'});}catch(_e){}
+    setTimeout(function(){if(nuage.parentNode)nuage.parentNode.removeChild(nuage);},640);
+    return true;
+  }
+  if(typeof window.addEventListener==='function')window.addEventListener('soreal-eclair-v1',function(){try{foudre_();}catch(_e){}});
 
   /* ---------- Son : un clavier mécanique (claquement bref + « thock » grave), au volume des sons de l'interface ---------- */
   var ac=null;
@@ -112,9 +149,7 @@
       '.wd-poste{--wd-c:#33ff66;--wd-c2:#0f7a2c;--wd-glow:rgba(51,255,102,.55);container-type:inline-size;width:100%;max-width:min(900px,76vh);margin:10px auto 18px;}',
       'html body .soreal-idle-page-root-v28[data-menu] .wd-poste{max-width:min(900px,76vh)!important;}',
       '@media (max-width:700px){html body .soreal-idle-page-root-v28[data-menu] .wd-poste.wd-poste{max-width:none!important;width:100vw;margin-left:calc(50% - 50vw);margin-right:0;}}',
-      '.wd-poste[data-couleur="bleu"]{--wd-c:#5ab8ff;--wd-c2:#1c5a99;--wd-glow:rgba(90,184,255,.55);}',
-      '.wd-poste[data-couleur="orange"]{--wd-c:#ffb000;--wd-c2:#8a5a00;--wd-glow:rgba(255,176,0,.55);}',
-      '.wd-poste[data-couleur="blanc"]{--wd-c:#f0f0f0;--wd-c2:#6d6d6d;--wd-glow:rgba(240,240,240,.45);}',
+      reglesCouleurs_().join(''),
       /* L'écran de l'image : bordures en cqw = proportions de l'image (1254 px, vide transparent rogné par border-image-outset : écran de x162 à 1092, y195 à 891 ; image visible de x17 à 1236, y46 à 1225). */
       /* L'écran est DERRIÈRE l'image du moniteur (Norman, 2026-10-07) : l'image est posée par-dessus (son vide d'écran est transparent), sans jamais intercepter un clic. */
       '.wd-crt{position:relative;isolation:isolate;box-sizing:border-box;width:97.29cqw;margin:3.67cqw auto 0;border:solid transparent;border-width:11.88cqw 11.48cqw 26.64cqw 11.56cqw;}',
@@ -199,6 +234,11 @@
       '.wd-rangee-os .wd-chargeur{flex:1;min-width:0;}',
       '.wd-ecran:has(.wd-chargement){line-height:1.08;padding-top:2.4cqw;padding-bottom:1cqw;}',
       '.wd-ecran:has(.wd-chargement) .wd-bloc{margin-top:.2em;}',
+      '.wd-parasites{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;mix-blend-mode:screen;}',
+      '.wd-parasites i{position:absolute;display:block;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 20%,rgba(255,255,255,.55) 70%,transparent);box-shadow:0 0 .6em rgba(255,255,255,.7);}',
+      '.wd-bios{display:flex;flex-direction:column;gap:.35em;min-height:28cqw;text-align:left;}',
+      '.wd-bios-titre{font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.3em;}',
+      '.wd-bios-bas{margin-top:auto;}',
       '.wd-chargeur{position:relative;height:1em;margin:0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
       '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:1.42em 100%;animation:wd-defile 1s linear infinite;}',
       '@keyframes wd-defile{to{background-position:1.42em 0}}',
@@ -226,6 +266,8 @@
     meh:['Wandoos MEH démarre… sans enthousiasme.','Recherche de pilotes introuvables…','Installation de mises à jour inutiles…','Prêt. Enfin, disons prêt.'],
     xl:['Wandoos XL se pavane…','Chargement de la grande colline verte…','Vérification que tu n’as pas copié le disque…','Prêt. Son bouton Démarrer est très brillant.']
   };
+  /* Le BIOS apparaît une demi-seconde avant l'écran d'accueil (Norman, 2026-10-22). */
+  var BIOS_MS=500;
   var CLE_ALLUMAGE='soreal_idle_wandoos_allumage_v1';
   var allumage=null,timerTic=0,osEnAttente='';
   function maintenant_(){return (typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();}
@@ -302,11 +344,11 @@
     try{vu=localStorage.getItem(CLE_ALLUMAGE)||'';}catch(_e){}
     if(vu===String(run))return;
     try{localStorage.setItem(CLE_ALLUMAGE,String(run));}catch(_e){}
-    allumage={debut:Date.now(),duree:DUREE_ALLUMAGE_MS[e.os]||2500,os:e.os};
+    allumage={debut:Date.now(),duree:(DUREE_ALLUMAGE_MS[e.os]||2500)+BIOS_MS,os:e.os,bios:true};
   }
   function allumageProgres_(){
     if(!allumage)return 1;
-    return allumage.duree>0?Math.min(1,Math.max(0,(Date.now()-allumage.debut)/allumage.duree)):1;
+    return allumage.duree>BIOS_MS?Math.min(1,Math.max(0,(Date.now()-allumage.debut-BIOS_MS)/(allumage.duree-BIOS_MS))):1;
   }
 
   /* ---------- Écrans ---------- */
@@ -322,7 +364,20 @@
       (total>0?' Après chaque Rebirth, il met '+html_(dureeTexte_(total))+' à charger : en attendant, ce que tu places avance de plus en plus vite.':'')+'</div>'+
     '</div>';
   }
+  function ecranBios_(os){
+    var nom=NOMS_OS[os]||NOMS_OS['98'];
+    return '<div class="wd-bios" aria-hidden="true">'+
+      '<div class="wd-bios-titre">SOREAL BIOS V1.0 — © 1998 SOREAL CORP.</div>'+
+      '<div>CPU : SOREAL-286 @ 12 MHZ ........ OK</div>'+
+      '<div>MÉMOIRE : 640 KO ........ OK</div>'+
+      '<div>CLAVIER ........ OK</div>'+
+      '<div>DISQUE : DÉTECTION ........ OK</div>'+
+      '<div>DÉMARRAGE : '+html_(nom.toUpperCase())+'</div>'+
+      '<div class="wd-bios-bas">APPUYEZ SUR [SUPPR] POUR LE SETUP <span class="wd-curseur"></span></div>'+
+    '</div>';
+  }
   function ecranAllumage_(e){
+    if(allumage&&allumage.bios&&Date.now()-allumage.debut<BIOS_MS)return ecranBios_(allumage.os);
     var p=allumageProgres_(),os=allumage?allumage.os:e.os;
     var msgs=MESSAGES_BOOT[os]||MESSAGES_BOOT['98'];
     var i=Math.min(msgs.length-1,Math.floor(p*msgs.length));
@@ -406,7 +461,7 @@
     '</div></div>';
   }
   function clavier_(e,phase){
-    var couleur='<div class="wd-groupe"><span class="wd-leg">Écran</span><button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran : vert, bleu, orange, blanc" onclick="'+API+'.couleur()">COULEUR<small class="wd-nomcouleur">'+couleur_().toUpperCase()+'</small></button></div>';
+    var couleur='<div class="wd-groupe"><span class="wd-leg">Écran</span><button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran (vingt couleurs)" onclick="'+API+'.couleur()">COULEUR<small class="wd-nomcouleur">'+couleur_().toUpperCase()+'</small></button></div>';
     var demarrage=e.actif
       ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
@@ -432,7 +487,7 @@
     declencherAllumage_(e);
     var phase=phaseDe_(e);
     var ecran=phase==='allumage'?ecranAllumage_(e):(phase==='bureau'?ecranBureau_(e):ecranEteint_(e));
-    if((phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,250);
+    if((phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,100);
     planifierVie_();
     return '<div class="wd-poste" data-sans-couleur-nombre="1" data-couleur="'+c+'" data-phase="'+phase+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e,phase)+'</div>';
   }
@@ -489,6 +544,7 @@
     var e=H&&H.getIdleEtat?etat_(H.getIdleEtat()):null;
     if(!e||!e.actif||!document.querySelector('.wd-poste')){arreterTimer_();return;}
     if(allumage){
+      if(allumage.bios&&Date.now()-allumage.debut>=BIOS_MS){allumage.bios=false;rafraichirPoste_();}   /* fin du BIOS : l'écran d'accueil prend la place */
       var p=allumageProgres_();
       if(p>=1){allumage=null;rafraichirPoste_();if(!e.enChargement)arreterTimer_();return;}
       var barre=document.querySelector('#wd-boot-barre i'),pct=document.getElementById('wd-boot-pct'),msg=document.getElementById('wd-boot-msg');

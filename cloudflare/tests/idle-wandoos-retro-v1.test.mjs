@@ -90,7 +90,9 @@ assert.ok(!/MEH|XL/.test(h.replace(/Wandoos/g, "")), "anti-spoil : MEH et XL abs
 delete stockage[CLE_ALLUMAGE];
 joueurCourant = joueur(true, true);
 h = W.page(joueurCourant);
-assert.ok(h.includes('data-phase="allumage"') && h.includes("wd-barre-boot") && h.includes("Wandoos <b>98</b>"), "premier affichage du Rebirth : écran d'allumage avec nom de l'OS et barre");
+assert.ok(h.includes('data-phase="allumage"') && h.includes("wd-bios") && h.includes("SOREAL BIOS"), "premier affichage du Rebirth : le BIOS apparaît d'abord (une demi-seconde, Norman 2026-10-22)");
+maintenant += 600;
+{ const h2 = W.page(joueurCourant); assert.ok(h2.includes("wd-barre-boot") && h2.includes("Wandoos <b>98</b>") && !h2.includes("wd-bios"), "puis l'écran d'accueil avec nom de l'OS et barre"); }
 assert.ok(!h.includes('id="wd-saisie"') && !h.includes(".place(") && !h.includes("PLACÉE"), "pendant l'allumage : pas encore de barres d'énergie et de magie");
 assert.equal(stockage[CLE_ALLUMAGE], "111", "le Rebirth est mémorisé dès l'allumage (un rechargement de page ne le rejoue pas)");
 assert.ok(W.dureesAllumage["98"] < W.dureesAllumage.meh && W.dureesAllumage.meh < W.dureesAllumage.xl, "plus l'OS est récent, plus l'allumage est long");
@@ -282,11 +284,12 @@ assert.deepEqual(actions[0], { action: "selectWandoosOs", os: "xl" }, "aucun niv
 W.os("meh");
 assert.equal(actions.length, 1, "un OS qui n'est pas dans la liste débloquée est refusé côté page");
 
-// 9. Couleurs : vert -> bleu -> orange -> blanc -> vert, mémorisées.
-assert.deepEqual(Array.from(W.couleurs), ["vert", "bleu", "orange", "blanc"]);
+// 9. Couleurs : une vingtaine (Norman, 2026-10-22), dans l'ordre, puis retour au vert ; mémorisées.
+assert.equal(W.couleurs.length, 20);
+assert.deepEqual(Array.from(W.couleurs).slice(0, 4), ["vert", "bleu", "orange", "blanc"]);
 const vues = [];
-for (let i = 0; i < 4; i++) { W.couleur(); vues.push(poste.dataset.couleur); }
-assert.deepEqual(vues, ["bleu", "orange", "blanc", "vert"]);
+for (let i = 0; i < W.couleurs.length; i++) { W.couleur(); vues.push(poste.dataset.couleur); }
+assert.deepEqual(vues, [...Array.from(W.couleurs).slice(1), "vert"]);
 W.couleur();
 assert.equal(stockage.soreal_idle_wandoos_couleur_v1, "bleu", "couleur mémorisée");
 assert.ok(W.page(joueur(true, true)).includes('data-couleur="bleu"'), "la page se redessine dans la couleur choisie");

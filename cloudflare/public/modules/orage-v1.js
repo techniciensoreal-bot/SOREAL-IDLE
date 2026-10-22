@@ -83,6 +83,7 @@
     var t=Date.now();
     if(t-dernierEclair<ESPACE_MIN_MS)return false;
     dernierEclair=t;
+    try{window.dispatchEvent(new CustomEvent('soreal-eclair-v1'));}catch(_e){}   /* Wandoos : l'écran du moniteur est parasité par la foudre (Norman, 2026-10-22) */
     monter_();
     var e=trace_();
     flash.style.setProperty('--og-x',e.x+'%');

@@ -843,6 +843,8 @@
               REG.idleCombatArmeLocalV206=false;
               REG.idleEtat.combatBossActif=false;
               jouerEffetAudioIdleV199_('defeat');
+              /* Défaite : l'image du joueur éclate en pixels comme celle d'un boss qui meurt, puis se reforme (modules/mort-joueur-v1.js, Norman 2026-10-22). */
+              try{const mortJoueur=window.__SOREAL_IDLE_MORT_JOUEUR_V1__;if(mortJoueur)mortJoueur.jouer(document.getElementById('sorealIdlePlayerImageHostV43'));}catch(_e){}
 
               /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-52 */
               rafraichirCommandesFightBossIdleV167_();
