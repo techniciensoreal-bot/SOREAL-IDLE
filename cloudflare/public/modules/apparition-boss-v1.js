@@ -237,6 +237,21 @@
     }catch(_e){enCours=false;return false;}
   }
 
+  /* Calque sombre posé tout de suite sur le boss suivant, sans effet : l'écran de victoire le retire quand il démarre (annuler) et le jeu joue l'effet à la fin ; si rien ne vient en 3 s, l'effet se joue. */
+  function couvrir(hote,n){
+    try{
+      dernierId=n;style_();
+      var anc=hote.querySelector('.app-boss');if(anc)anc.remove();
+      var calque=document.createElement('div');
+      calque.className='soreal-idle-boss-transition-v61 app-boss';
+      calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
+      hote.appendChild(calque);
+      setTimeout(function(){
+        if(calque.isConnected&&!window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){calque.remove();jouer(hote);}
+      },3000);
+    }catch(_e){}
+  }
+
   /* Annule une apparition en cours (l'écran de victoire démarre : c'est lui qui, à sa fin, rejouera l'apparition du boss suivant). */
   function annuler(){
     try{[].slice.call(document.querySelectorAll('.app-boss')).forEach(function(e){if(e.parentNode)e.parentNode.removeChild(e);});}catch(_e){}
@@ -257,6 +272,7 @@
     if(dernierId===null){dernierId=n;return;}                     /* première image vue : pas d'apparition au chargement de la page */
     if(n===dernierId)return;
     if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){return;}        /* l'écran de victoire appelle jouer() à sa fin */
+    if(window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__){couvrir(hote,n);return;}   /* le boss combattu vient d'être remplacé : on masque le nouveau, la victoire (ou, à défaut, l'effet) passe juste après */
     jouer(hote);
   }
   function surveiller(){

@@ -898,6 +898,7 @@ window.__definirCombatBossIdleV39__=
 function __amorcer_598(){
 window.__fuirBossIdleV1__=function(){
         const enCombat=Boolean(REG.idleEtat&&REG.idleEtat.combatBossActif);
+        window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__=false;REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;
         definirCombatBossIdleV39_(false);
         if(enCombat){
           jouerEffetAudioIdleV199_('flee');

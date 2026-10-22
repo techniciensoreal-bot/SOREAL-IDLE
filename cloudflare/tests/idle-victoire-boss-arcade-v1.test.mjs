@@ -127,10 +127,10 @@ for (const diff of ["normal", "difficile", "extreme"]) {
 }
 
 const combat1 = readFileSync(new URL("../public/modules/ui-combat-1-v1.js", import.meta.url), "utf8");
-assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0,REG.idleCombatBossNumV1));"), "jamais pendant un NUKE ; durée du combat et boss combattu transmis");
+assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));") && combat1.includes("REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;"), "jamais pendant un NUKE ; durée et boss combattu à usage unique (un kill sans combat suivi ne rejoue pas un vieux combat), boss combattu = boss sélectionné");
 assert.ok(combat1.includes("REG.idleCombatBossNumV1=idleEntier_(REG.idleEtat.bossSelection||1);") && combat1.includes("arcade.planifierCapture(REG.idleCombatBossNumV1)"), "au début de chaque combat : le boss combattu est noté et son image mise de côté");
 assert.ok(combat1.includes("REG.idleCombatDebutV1=Date.now();"), "le début de chaque combat est noté");
-assert.ok(combat1.includes("'soreal-idle-boss-transition-v61'+(victoireArcadeIdleV1?' vic-cache':'')"), "bandeau caché mais gardé pour le filet de sécurité");
+assert.ok(combat1.includes("'soreal-idle-boss-transition-v61 vic-cache'") && combat1.includes("overlay.style.display='none'"), "le texte « BOSS VAINCU » du bandeau ne s'affiche plus, mais le bandeau est gardé pour le filet de sécurité");
 const combat2 = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");
 assert.ok(!combat2.includes("transitionMortBossIdleV61_") && !combat2.includes("VICTOIRE_ARCADE"), "la cascade du NUKE n'appelle jamais l'écran de victoire");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes('<script defer src="/modules/victoire-boss-arcade-v1.js?v='), "module chargé");

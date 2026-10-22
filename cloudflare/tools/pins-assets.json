@@ -28,8 +28,8 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 4,
-  "sha": "3738e4acb4bf30692a2ed5c6fcdbac22bf9ca173"
+  "pin": 5,
+  "sha": "dbb47f69ce995c2760456b9bfdd994269dfd33e2"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 2,
@@ -336,8 +336,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 372,
-  "sha": "0f1249ac729da9e6778ff3921400274d94293850"
+  "pin": 373,
+  "sha": "4d46e454ac5d9697a5df1a6c96b5785d46b78b19"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -400,12 +400,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 394,
-  "sha": "081d6f2fcb70a4ae1c3400ceffdc42c3cfdbbc0f"
+  "pin": 395,
+  "sha": "899b62fe51430619727413b562a2cc4af06f3d16"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 188,
-  "sha": "47dc43650edcd5065e3aff18b1d163fd13d04bd2"
+  "pin": 189,
+  "sha": "4b1da316bdb7273e0a51631495b2414c522052b6"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -436,8 +436,8 @@
   "sha": "8a91f89acf05ab71d557861db1e5cb53df79b6c2"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 4,
-  "sha": "79c6a85ae0f76acd93bf367fe8f04c49ac21edcf"
+  "pin": 5,
+  "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 4,
@@ -460,8 +460,8 @@
   "sha": "b9978edfdb5a6d99d68763e34aa347d42c67af90"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 13,
-  "sha": "3deb737c25138cf9b2361332b15188b454b87890"
+  "pin": 14,
+  "sha": "f42cfd715af96acdb64639b8bbd12a61e1eb2fbe"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 11,

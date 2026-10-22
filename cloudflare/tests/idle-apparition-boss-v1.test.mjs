@@ -112,6 +112,16 @@ function monde({ reduit = false, volume = 0.8 } = {}) {
   assert.equal(m.enfants.length, 1, "le boss change : son apparition se joue");
 }
 
+// 5 bis. Pendant un combat de boss, le changement d'image est seulement masqué (calque sombre, sans effet ni son) : la victoire passe d'abord.
+{
+  const m = monde();
+  m.poserImage(5); m.A.verifier();
+  m.fen.__SOREAL_IDLE_COMBAT_EN_COURS_V1__ = true; m.poserImage(6); m.A.verifier();
+  assert.equal(m.enfants.length, 1, "le boss suivant est masqué tout de suite");
+  assert.equal(m.nbSons(), 0, "aucun effet ni son avant la victoire");
+  assert.equal(m.A.enCours(), false);
+}
+
 // 6. L'écran de victoire passe la main : drapeau, annulation, appel de l'apparition à la fin.
 assert.ok(/__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=\s*true/.test(victoire) && /__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=\s*false/.test(victoire), "drapeau posé puis retiré");
 assert.ok(/__SOREAL_IDLE_APPARITION_BOSS_V1__/.test(victoire) && /\.annuler\(/.test(victoire) && /\.jouer\(/.test(victoire), "annule une apparition en cours, rejoue à la fin");
