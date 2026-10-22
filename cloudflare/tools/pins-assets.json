@@ -340,8 +340,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 380,
-  "sha": "4e0ba81984f56ba5b6116181eef236bdeff9e43e"
+  "pin": 381,
+  "sha": "2cc56535d3f12d096745727f0bbff9295ebc4100"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -404,12 +404,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 402,
-  "sha": "7f6522c1be6ad8321c89fdf8b960faf2ebb42bfa"
+  "pin": 403,
+  "sha": "a869c8dc3752c509109920ceb2160253f967ad48"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 196,
-  "sha": "954d6d34669c3b90357b3feac1523ac395c5bc30"
+  "pin": 197,
+  "sha": "fd17fd76c573b44eeba8c5ca496c040ade78e362"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -448,8 +448,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 6,
-  "sha": "9c8b17de5c65634fc96110f494bba9ed265c0c6e"
+  "pin": 10,
+  "sha": "369e2fed49700f9759f719e2b4ec32a39a5c345f"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 13,
@@ -504,8 +504,8 @@
   "sha": "0b75266a8d934d245d4d01c011f8ca3ec4e0ce3f"
  },
  "/modules/ui-popups-v1.js": {
-  "pin": 2,
-  "sha": "d0fb1232d7da3e2a7e31f7ec57c559257a9df611"
+  "pin": 4,
+  "sha": "87c85fb932e883f68c9260582653f0b6213b437e"
  },
  "/modules/ui-reglages-v1.js": {
   "pin": 4,
@@ -568,8 +568,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 200,
-  "sha": "a313022ab65ae4ded7464c4cc21ad807dcd6ac73"
+  "pin": 206,
+  "sha": "c433426703788650886ba0c6e366d08e5209152c"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

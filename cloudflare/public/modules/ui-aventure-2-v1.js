@@ -14,6 +14,7 @@
   function pagerSacIdleV1_(){return REG.pagerSacIdleV1_.apply(null,arguments);}
   function actionAdventureIdleV47_(){return REG.actionAdventureIdleV47_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
+  function libelleRecompenseSetAdventureIdleV163_(){return REG.libelleRecompenseSetAdventureIdleV163_.apply(null,arguments);}
   function desequiperObjetAdventureIdleV47_(){return REG.desequiperObjetAdventureIdleV47_.apply(null,arguments);}
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
   function boosterCubeAdventureIdleV47_(){return REG.boosterCubeAdventureIdleV47_.apply(null,arguments);}
@@ -1716,6 +1717,63 @@
           '</div>';
       }
 
+      /*
+       * Fiche d'objet à la façon de World of Warcraft (Norman, 2026-10-22) : le NOM de l'objet à la couleur de sa rareté (celle du fond de sa case : gris, vert, bleu, violet, orange, rouge, jaune), « Niveau n/100 » en jaune, l'emplacement à gauche et l'ensemble (ou le genre
+       * d'objet) à droite, les statistiques avec leurs intitulés orange / bleu / jaune (le boost qui les remplit), puis en VERT en bas ce que l'objet donne monté à fond et ce que rapporte son ensemble une fois toutes ses pièces au maximum. Aucun prix de vente. Aucun total
+       * de pièces (règle n°2) : seulement la récompense, jamais « x / y pièces ».
+       */
+      const COULEURS_RARETE_FICHE_IDLE_V1={'idle-rarity-0':'#c9d1dd','idle-rarity-1':'#4ade80','idle-rarity-2':'#60a5fa','idle-rarity-3':'#c084fc','idle-rarity-4':'#fb923c','idle-rarity-5':'#f87171','idle-rarity-6':'#facc15'};
+      const EMPLACEMENTS_FICHE_IDLE_V1={head:'Tête',chest:'Torse',legs:'Jambes',boots:'Bottes',weapon:'Arme',weapon2:'Arme secondaire',ring:'Anneau',amulet:'Amulette',pendant:'Pendentif',combat:'Combat',accessory:'Accessoire',special:'Objet spécial'};
+
+      function couleurRareteFicheObjetIdleV1_(item){
+        if(item&&item.kind==='boost'){
+          return item.boostType==='power'?'#ff9d2f':(item.boostType==='toughness'?'#4da3ff':'#ffd84a');
+        }
+        return COULEURS_RARETE_FICHE_IDLE_V1[idleRareteClasseObjetAdventureIdleV1_(item)]||'#e6e9f2';
+      }
+
+      function aventureFicheIdleV1_(){
+        return REG.idleEtat?aventureMetaIdleV47_(REG.idleEtat):null;
+      }
+
+      function enteteFicheObjetIdleV1_(item,mention){
+        const a=aventureFicheIdleV1_()||{};
+        const cat=(a.itemCatalog&&item.definitionId&&a.itemCatalog[item.definitionId])||{};
+        const slot=String(item.slot||cat.slot||'');
+        const gauche=item.kind==='boost'?'Boost':(item.kind==='cube'?'Cube':(EMPLACEMENTS_FICHE_IDLE_V1[slot]||(slot?slot.charAt(0).toUpperCase()+slot.slice(1):'')));
+        const setId=String(item.set||cat.set||'');
+        const setNom=String(cat.setName||(setId&&a.setCatalog&&a.setCatalog[setId]&&a.setCatalog[setId].name)||'');
+        const droite=setNom||(item.kind==='special'?'Objet spécial':'');
+        return '<div class="idle-fiche-nom-v1" style="color:'+couleurRareteFicheObjetIdleV1_(item)+'">'+idleHtml_(item.name||item.nom||'Objet')+'</div>'+
+          '<div class="idle-fiche-niveau-v1">'+idleHtml_(mention)+'</div>'+
+          ((gauche||droite)?'<div class="idle-fiche-ligne-v1"><span>'+idleHtml_(gauche)+'</span><span>'+idleHtml_(droite)+'</span></div>':'')+
+          (item.locked?'<div class="idle-fiche-verrou-v1">Objet protégé</div>':'');
+      }
+
+      function piedFicheObjetIdleV1_(item){
+        if(!item||!(item.kind==='equipment'||item.kind==='special'||item.kind==='cube'))return '';
+        const a=aventureFicheIdleV1_()||{};
+        const niveau=idleEntier_(item.level),q=1+niveau/100;
+        const lignes=[];
+        /* Ce que donne l'objet monté à fond : ses Specials au plafond. */
+        if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
+          item.specialsAll.forEach(function(sv){
+            lignes.push('Monté à fond : +'+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'% '+idleLabelSpecialBonusV1_(sv.type));
+          });
+        }else if(idleNombre_(item.baseSpecial)>0&&item.specialType){
+          lignes.push('Monté à fond : +'+formatGrandNombreIdleV70_(idleNombre_(item.baseSpecial)*q,2)+(/Pct$/.test(String(item.specialType))?'%':'')+' '+idleLabelSpecialBonusV1_(item.specialType));
+        }
+        /* Récompense de l'ensemble : toutes ses pièces au niveau maximum (jamais le nombre de pièces). */
+        const setId=String(item.set||'');
+        const def=setId&&a.setCatalog?a.setCatalog[setId]:null;
+        if(def&&def.reward&&Object.keys(def.reward).length){
+          const complet=Boolean(a.completedSets&&a.completedSets[setId]);
+          const recompense=libelleRecompenseSetAdventureIdleV163_(def.reward);
+          lignes.push((complet?'Ensemble '+String(def.name||'')+' complet : ':'Ensemble '+String(def.name||'')+' monté à fond : ')+recompense);
+        }
+        return lignes.length?'<div class="idle-fiche-vert-v1">'+lignes.map(function(l){return '<div>'+idleHtml_(l)+'</div>';}).join('')+'</div>':'';
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-262 */
       function afficherDetailsObjetAdventureIdleV138_(itemId){
         const root=document.getElementById('soreal-idle-v138-details');
@@ -1744,7 +1802,7 @@
           ['head','chest','legs','boots','weapon','weapon2'].some(function(slot){return String(equipement[slot]||'')===id;}) ||
           (Array.isArray(equipement.accessories)&&equipement.accessories.includes(id));
         const boutonDesequiper=estEquipe
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__desequiperObjetAdventureIdleV47__(\''+idleHtml_(id)+'\')">🔓 Déséquiper</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__desequiperObjetAdventureIdleV47__(\''+idleHtml_(id)+'\')">🔓 Déséquiper</button>'
           :'';
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-271 */
@@ -1753,10 +1811,10 @@
           item.kind!=='boost'&&
           !item.consumable;
         const boutonEquiper=estEquipable
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__equiperParIdAdventureIdleV138__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⚔️ Équiper</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__equiperParIdAdventureIdleV138__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⚔️ Équiper</button>'
           :'';
         const boutonConsommer=item.consumable
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__consommerObjetSkillAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🥤 Utiliser</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__consommerObjetSkillAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🥤 Utiliser</button>'
           :'';
         const peutTransformerGerbil=
           item.definitionId==='smallGerbil'&&
@@ -1772,30 +1830,30 @@
         const evolutionObjetAdv=catalogueObjetsAdv[item.definitionId]&&catalogueObjetsAdv[item.definitionId].evolutionTo;
         const peutTransformerFlubber=item.definitionId!=='smallGerbil'&&Boolean(evolutionObjetAdv)&&niveau>=100;
         const boutonTransformer=(peutTransformerGerbil||peutTransformerFlubber)
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__transformerObjetAdventureIdleV4__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🧪 Transformer</button>'
           :'';
         /* Copies de Wandoos 98/XL : +1 niveau d'OS (ou déblocage de Wandoos XL), action méta consumeWandoosCopy. */
         /* Objet de déblocage (A Number, Giant Seed, Scrap of Paper, UUG's Armpit Hair, Pissed Off Key, copie de Wandoos 98) : « Utiliser » le consomme et débloque son système pour toujours. */
         const deblocageObjet=deblocageParObjetIdleV1_(a,item);
         const boutonDebloquer=deblocageObjet
-          ?'<button type="button" class="soreal-idle-expand-button-v25" title="Utilise l’objet : il disparaît du sac et débloque '+idleHtml_(deblocageObjet.systeme)+' pour toujours" onclick="window.__utiliserObjetDeblocageIdleV1__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🔓 Utiliser</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" title="Utilise l’objet : il disparaît du sac et débloque '+idleHtml_(deblocageObjet.systeme)+' pour toujours" onclick="window.__utiliserObjetDeblocageIdleV1__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">🔓 Utiliser</button>'
           :'';
         const boutonInstallerOs=((item.definitionId==='wandoos98'&&!deblocageObjet)||item.definitionId==='wandoosXl')
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'consumeWandoosCopy\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">💾 Installer l’OS</button>'
           :'';
         /* A Giant Seed réutilisée (Yggdrasil débloqué) : max(1, ⌊L + L²/100⌋) graines, action méta consumeGiantSeed. */
         const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked&&!deblocageObjet)
-          ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
           :'';
         const estVerrouille=Boolean(item.locked);
         const boutonVerrouiller=
-          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__basculerVerrouObjetAdventureIdleV165__(\''+idleHtml_(id)+'\','+(estVerrouille?'false':'true')+')">'+
+          '<button type="button" class="idle-fiche-bouton-v1" onclick="window.__basculerVerrouObjetAdventureIdleV165__(\''+idleHtml_(id)+'\','+(estVerrouille?'false':'true')+')">'+
           (estVerrouille?'🔓 Déverrouiller':'🔒 Verrouiller')+
           '</button>';
         const boutonComparer=
-          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__comparerObjetAdventureIdleV183__(\''+idleHtml_(id)+'\')">⚖️ Comparer</button>';
+          '<button type="button" class="idle-fiche-bouton-v1" onclick="window.__comparerObjetAdventureIdleV183__(\''+idleHtml_(id)+'\')">⚖️ Comparer</button>';
         const boutonSupprimer=
-          '<button type="button" class="soreal-idle-expand-button-v25" '+
+          '<button type="button" class="idle-fiche-bouton-v1" '+
           (estVerrouille
             ?'disabled title="Déverrouille l’objet pour le supprimer"'
             :'onclick="window.__supprimerObjetAdventureIdleV165__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();"')+
@@ -1814,9 +1872,9 @@
           '</div>';
 
         corps.innerHTML=
-          '<div class="soreal-idle-window-title-v31">'+idleHtml_(item.name||item.nom||'Objet')+'</div>'+
-          '<div class="soreal-idle-v138-details-level">Niveau '+niveau+'/100</div>'+
+          enteteFicheObjetIdleV1_(item,'Niveau '+niveau+'/100'+(item.fullyMaxed?' · tout au maximum':''))+
           statsHtml+
+          piedFicheObjetIdleV1_(item)+
           actionsObjetHtml;
         root.style.display='block';
         positionnerPopupObjetAdventureIdleV1_(root);
@@ -2442,6 +2500,8 @@
     deposerSurTrashAdventureIdleV138_:deposerSurTrashAdventureIdleV138_,
     rendreTrashAdventureIdleV165_:rendreTrashAdventureIdleV165_,
     statsHtmlObjetAdventureIdleV138_:statsHtmlObjetAdventureIdleV138_,
+    enteteFicheObjetIdleV1_:enteteFicheObjetIdleV1_,
+    piedFicheObjetIdleV1_:piedFicheObjetIdleV1_,
     afficherDetailsObjetAdventureIdleV138_:afficherDetailsObjetAdventureIdleV138_,
     activerGlisserPopupObjetAdventureIdleV1_:activerGlisserPopupObjetAdventureIdleV1_,
     composerCorpsComparaisonIdleV1_:composerCorpsComparaisonIdleV1_,

@@ -37,6 +37,9 @@
             'Sur PC, le pointeur ne clignote plus entre flèche et main quand on le place au bord d’un bouton du menu de gauche (le bouton ne se soulève plus au survol).',
             'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'La fiche d’un objet est refaite façon jeu de rôle : le nom à la couleur de sa rareté, le niveau en jaune, l’emplacement et l’ensemble, les statistiques (orange, bleu, jaune selon le boost qui les remplit) et, en vert en bas, ce que l’objet donne monté à fond et la récompense de son ensemble.',
+          ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le premier point placé dans n’importe quelle barre refait le son du néon qui s’allume (l’ancien son d’Attaque passive).',
           ]},

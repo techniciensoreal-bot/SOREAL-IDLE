@@ -30,7 +30,7 @@ assert.deepEqual(IDLE_ADVENTURE_ITEM_CATALOG_V1["training:head"].specials, [], "
 
 // 3. Client : une seule fiche, ouverte par le coffre et la collection (clic ou survol de 0,5 s) ; la reprise passe par la fiche.
 assert.ok(ui.includes("function afficherPopupObjetUnifieIdleV1_(cle,ancre)"));
-assert.ok(ui.includes("statsHtmlObjetAdventureIdleV138_(item)+\n          actions;"), "mêmes statistiques que la fiche de l'inventaire");
+assert.ok(ui.includes("statsHtmlObjetAdventureIdleV138_(item)+"+String.fromCharCode(10)+"          piedFicheObjetIdleV1_(item)+"+String.fromCharCode(10)+"          actions;"), "mêmes statistiques que la fiche de l inventaire (puis les lignes vertes)");
 assert.ok(ui.includes("window.__consulterObjetIdleV1__"));
 assert.ok(ui.includes("data-popup-objet-v1=\"'+idleHtml_(clePopup)+'\""), "cases du coffre");
 assert.ok(ui.includes("data-popup-objet-v1=\"'+idleHtml_(clePopupCollection)+'\""), "cases de la collection");

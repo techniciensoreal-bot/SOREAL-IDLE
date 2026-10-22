@@ -28,6 +28,8 @@
   function dureeRunSecondesIdleV1_(){return REG.dureeRunSecondesIdleV1_.apply(null,arguments);}
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function statsHtmlObjetAdventureIdleV138_(){return REG.statsHtmlObjetAdventureIdleV138_.apply(null,arguments);}
+  function enteteFicheObjetIdleV1_(){return REG.enteteFicheObjetIdleV1_.apply(null,arguments);}
+  function piedFicheObjetIdleV1_(){return REG.piedFicheObjetIdleV1_.apply(null,arguments);}
   function activerGlisserPopupObjetAdventureIdleV1_(){return REG.activerGlisserPopupObjetAdventureIdleV1_.apply(null,arguments);}
   function formatEnergieIdleV50_(){return REG.formatEnergieIdleV50_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
@@ -381,15 +383,15 @@
         const niveau=idleEntier_(item.level);
         const idObjet=idHtmlObjetIdleV1_(item);
         const actions=e.contexte==='coffre'&&item.id
-          ?'<div class="soreal-idle-item-popup-actions-v165"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idObjet+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⬅️ Reprendre dans l’inventaire</button></div>'
+          ?'<div class="soreal-idle-item-popup-actions-v165"><button type="button" class="idle-fiche-bouton-v1" onclick="window.__retirerDuCoffreAdventureIdleV1__(\''+idObjet+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⬅️ Reprendre dans l’inventaire</button></div>'
           :'';
         const mention=e.contexte==='coffre'
           ?'Niveau '+niveau+'/100 · rangé au coffre'
           :'Niveau '+niveau+'/100'+(item.fullyMaxed?' · tout au maximum':' · niveau maximum atteint');
         corps.innerHTML=
-          '<div class="soreal-idle-window-title-v31">'+idleHtml_(item.name||item.nom||'Objet')+'</div>'+
-          '<div class="soreal-idle-v138-details-level">'+idleHtml_(mention)+'</div>'+
+          enteteFicheObjetIdleV1_(item,mention)+
           statsHtmlObjetAdventureIdleV138_(item)+
+          piedFicheObjetIdleV1_(item)+
           actions;
         root.style.display='block';
         positionnerPopupPresDeIdleV1_(root,ancre);
