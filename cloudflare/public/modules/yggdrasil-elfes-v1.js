@@ -212,7 +212,18 @@
       '.ygg-note{font-size:clamp(12px,2.1cqw,14px)!important;color:#d6ecc6}',
       '@container (max-width:560px){.ygg-grille{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:2.4cqw}}',
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"]:not(#_):not(#_){border:0!important;border-radius:0!important;padding:6px 4px 10px!important;box-shadow:none!important}',
-      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}}'
+      /* Fruits de Magic : teinte bleu-vert (la lumière du fruit est gardée, seule la couleur change) ; fruit qui pousse : une lueur s'échappe du cadre ; fruit au maximum de sa croissance : elle brille bien plus (Norman, 2026-10-22). Boucles sans à-coup : mêmes valeurs à 0 % et 100 %. */
+      '.ygg-carte{--lueur:150,255,140}',
+      '.ygg-carte.magie{--lueur:50,228,208;background:linear-gradient(180deg,rgba(36,112,108,.95),rgba(12,54,60,.97));box-shadow:inset 0 0 0 2px rgba(110,240,225,.4),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000}',
+      '.ygg-carte.magie .ygg-vitre{background:radial-gradient(ellipse at 50% 35%,#3fb3a4,#082a32)}',
+      '.ygg-carte.magie .ygg-vitre::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(160deg,#22e8c4,#1b9ad8);mix-blend-mode:hue;opacity:.9}',
+      '.ygg-carte.magie .ygg-barre i{background:linear-gradient(180deg,#b6fff0,#27b9b0);box-shadow:0 0 8px rgba(80,240,220,.7)}',
+      '.ygg-carte.pousse,.ygg-carte.pret{z-index:1}',
+      '.ygg-carte.pousse .ygg-vitre{animation:yggLueur 2.6s ease-in-out infinite}',
+      '.ygg-carte.pret .ygg-vitre{animation:yggBrille 1.6s ease-in-out infinite}',
+      '@keyframes yggLueur{0%,100%{box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 6px 1px rgba(var(--lueur),.35),0 0 14px 2px rgba(var(--lueur),.18)}50%{box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 14px 4px rgba(var(--lueur),.62),0 0 30px 8px rgba(var(--lueur),.32)}}',
+      '@keyframes yggBrille{0%,100%{box-shadow:inset 0 0 20px rgba(255,255,255,.14),0 0 16px 5px rgba(var(--lueur),.7),0 0 36px 10px rgba(var(--lueur),.4),0 0 62px 16px rgba(var(--lueur),.2)}50%{box-shadow:inset 0 0 26px rgba(255,255,255,.3),0 0 28px 10px rgba(var(--lueur),.98),0 0 58px 20px rgba(var(--lueur),.62),0 0 96px 30px rgba(var(--lueur),.34)}}',
+      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}.ygg-carte.pousse .ygg-vitre,.ygg-carte.pret .ygg-vitre{animation:none;box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 16px 4px rgba(var(--lueur),.6)}}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -538,7 +549,7 @@
     var auto='';
     if(v.e.autoActivate)auto='<div class="ygg-auto">⚡ Auto-Activate</div>';
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
-    return '<div class="ygg-carte'+(v.pret?' pret':'')+'" data-fruit="'+html_(id)+'">'+
+    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
       '<div class="ygg-vitre ygg-portrait">'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+

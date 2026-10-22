@@ -1524,7 +1524,6 @@
               String(REG.idleEtat&&REG.idleEtat.bossActuel||'');
             if(identiteGongBoss!==idleDernierGongBossV1){
               idleDernierGongBossV1=identiteGongBoss;
-              jouerEffetAudioIdleV199_('bossAppear');
             }
             return ' soreal-idle-image-fade-v61';
           }

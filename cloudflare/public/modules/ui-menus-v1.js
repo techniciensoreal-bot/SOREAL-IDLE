@@ -1001,9 +1001,32 @@
         return 'soreal_idle_menu_ordre_v3_'+generationJoueurIdleV75_(j);
       }
 
+      /*
+       * Réparation unique (Norman, 2026-10-22) : l'ancien enregistrement plaçait les menus encore verrouillés après Réglages. Une seule fois par compte, ceux qui suivent Réglages (hors le groupe de fin) sont retirés de
+       * l'ordre enregistré : ils reprennent leur place par défaut. Le drapeau voyage avec le compte (préférence soreal_idle_*).
+       */
+      const CLE_REPARATION_ORDRE_MENUS_V1='soreal_idle_menu_ordre_reparee_v1';
+      function reparerOrdreMenusIdleV1_(liste,j){
+        try{
+          if(localStorage.getItem(CLE_REPARATION_ORDRE_MENUS_V1))return liste;
+          localStorage.setItem(CLE_REPARATION_ORDRE_MENUS_V1,'1');
+        }catch(e){return liste;}
+        const iReglages=liste.indexOf('parametres');
+        if(iReglages===-1)return liste;
+        const fin=['shop','chroniques','chat','parametres','admin'];
+        const propre=liste.filter(function(id,i){return i<iReglages||fin.indexOf(id)!==-1;});
+        if(propre.length===liste.length)return liste;
+        try{localStorage.setItem(idleMenuOrdreCleV1_(j),JSON.stringify(propre));}catch(e){}
+        if(j&&j.profil&&j.profil.stats)j.profil.stats.menuOrdre=propre.slice();
+        if(SOREAL_SESSION){
+          try{google.script.run.withSuccessHandler(function(){}).withFailureHandler(function(){}).definirOrdreMenusSorealIdle(SOREAL_SESSION,propre);}catch(e){}
+        }
+        return propre;
+      }
+
       function idleMenuOrdreEnregistreV1_(j){
         const serveur=j&&j.profil&&j.profil.stats&&Array.isArray(j.profil.stats.menuOrdre)?j.profil.stats.menuOrdre:null;
-        if(serveur&&serveur.length)return serveur;
+        if(serveur&&serveur.length)return reparerOrdreMenusIdleV1_(serveur,j);
         try{
           const brut=JSON.parse(localStorage.getItem(idleMenuOrdreCleV1_(j))||'[]');
           return Array.isArray(brut)?brut:[];
@@ -1112,8 +1135,22 @@
         const visibles=Array.prototype.map.call(nav.querySelectorAll('[data-menu-id-v1]'),function(b){
           return b.getAttribute('data-menu-id-v1');
         });
-        const autres=(idleMenuOrdreTravailV1||[]).filter(function(id){return visibles.indexOf(id)===-1;});
-        return visibles.concat(autres);
+        /*
+         * Norman (2026-10-22) : « Machine temporelle est entre Réglages et Admin ». Les menus pas encore débloqués (absents de la barre) étaient ajoutés À LA FIN de l'ordre enregistré : une fois débloqués, ils
+         * apparaissaient tout en bas. Chacun reste maintenant juste après le menu qui le précède dans l'ordre de travail (sa place par défaut au départ).
+         */
+        const travail=idleMenuOrdreTravailV1||[];
+        const res=visibles.slice();
+        travail.forEach(function(id,i){
+          if(visibles.indexOf(id)!==-1)return;
+          let pos=0;
+          for(let k=i-1;k>=0;k-=1){
+            const p=res.indexOf(travail[k]);
+            if(p!==-1){pos=p+1;break;}
+          }
+          res.splice(pos,0,id);
+        });
+        return res;
       }
 
       function entrerRangementMenuIdleV1_(){
@@ -1180,7 +1217,43 @@
           bouton.classList.add('glisse');
           try{bouton.setPointerCapture(ev.pointerId);}catch(e){}
         }
+        /* Défilement automatique pendant le glissement (Norman, 2026-10-22 : « sur PC on ne peut pas glisser la barre vers le bas, on ne peut pas déplacer les éléments du bas de la liste »). */
+        let dernierY=0,boucleDefilement=0;
+        function conteneurDefilant(nav){
+          let e=nav;
+          while(e&&e!==document.body&&e!==document.documentElement){
+            const o=getComputedStyle(e).overflowY;
+            if((o==='auto'||o==='scroll')&&e.scrollHeight>e.clientHeight+2)return e;
+            e=e.parentElement;
+          }
+          return null;
+        }
+        function defilerPendantGlisse(){
+          boucleDefilement=0;
+          if(!glisse)return;
+          const nav=navMenuIdleV1_();
+          const cont=nav?conteneurDefilant(nav):null;
+          const r=cont?cont.getBoundingClientRect():{top:0,bottom:window.innerHeight};
+          const marge=70,haut=dernierY-r.top,bas=r.bottom-dernierY;
+          let dy=0;
+          if(bas<marge)dy=Math.ceil((marge-Math.max(0,bas))/5);
+          else if(haut<marge)dy=-Math.ceil((marge-Math.max(0,haut))/5);
+          if(dy){
+            if(cont)cont.scrollTop+=dy;else window.scrollBy(0,dy);
+            /* le bouton tenu suit : on réévalue l'élément sous le pointeur */
+            const cible=boutonNav(document.elementFromPoint(pointerX,dernierY));
+            if(cible&&cible!==glisse.bouton&&nav){
+              const rc=cible.getBoundingClientRect();
+              const vertical=getComputedStyle(nav).flexDirection==='column';
+              const avant=vertical?dernierY<rc.top+rc.height/2:pointerX<rc.left+rc.width/2;
+              nav.insertBefore(glisse.bouton,avant?cible:cible.nextSibling);
+            }
+          }
+          boucleDefilement=requestAnimationFrame(defilerPendantGlisse);
+        }
+        let pointerX=0;
         function terminerGlisse(){
+          if(boucleDefilement){cancelAnimationFrame(boucleDefilement);boucleDefilement=0;}
           if(!glisse)return;
           glisse.bouton.classList.remove('glisse');
           try{glisse.bouton.releasePointerCapture(glisse.id);}catch(e){}
@@ -1216,6 +1289,8 @@
           if(debut&&(Math.abs(ev.clientX-debut.x)>10||Math.abs(ev.clientY-debut.y)>10))annulerMaintien();
           if(!glisse)return;
           ev.preventDefault();
+          dernierY=ev.clientY;pointerX=ev.clientX;
+          if(!boucleDefilement)boucleDefilement=requestAnimationFrame(defilerPendantGlisse);
           const nav=navMenuIdleV1_();
           if(!nav)return;
           const sous=document.elementFromPoint(ev.clientX,ev.clientY);

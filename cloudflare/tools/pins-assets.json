@@ -108,8 +108,8 @@
   "sha": "74182bbac547a54c1107e26e799c698c9fbddc77"
  },
  "/modules/chat-v1.js": {
-  "pin": 13,
-  "sha": "99c553af9a35b81f64f01edf1bfe11d6cae8aa6f"
+  "pin": 14,
+  "sha": "4f12f1f72b70a99953273b99d9f323cdb6f5ece8"
  },
  "/modules/coffre-accident-v1.js": {
   "pin": 12,
@@ -264,8 +264,8 @@
   "sha": "4bdc49a03b776547a1a259f191aef35d907231bb"
  },
  "/modules/moqueurs-fuite-v1.js": {
-  "pin": 3,
-  "sha": "58ef807457f50c2d1fbefb93a76d4f8402f0e2b5"
+  "pin": 4,
+  "sha": "2f7280db522705f1c189511f2312f71bc3355f21"
  },
  "/modules/morph-v1.js": {
   "pin": 4,
@@ -336,8 +336,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 373,
-  "sha": "4d46e454ac5d9697a5df1a6c96b5785d46b78b19"
+  "pin": 374,
+  "sha": "96bee9a285efd389f6b854700812a54f920fb4eb"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -400,12 +400,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 395,
-  "sha": "899b62fe51430619727413b562a2cc4af06f3d16"
+  "pin": 396,
+  "sha": "581c174436d9a68103904d0055d7bc30b7204884"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 189,
-  "sha": "4b1da316bdb7273e0a51631495b2414c522052b6"
+  "pin": 190,
+  "sha": "ef8534f80166631341363801d9d8248e65a56e8d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -464,8 +464,8 @@
   "sha": "f42cfd715af96acdb64639b8bbd12a61e1eb2fbe"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 11,
-  "sha": "79a3fab45bd1d4fecc876578d03b17ba99bb7421"
+  "pin": 12,
+  "sha": "8aef44297617feb64522799a5f18a87dd163340e"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -488,8 +488,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 3,
-  "sha": "d2d1a11f2afc2adf3f0457cd4439b96aabd42db8"
+  "pin": 4,
+  "sha": "ad89b26fe9341a4c017dac94888b636d9ffaabdd"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 5,
@@ -552,8 +552,8 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 32,
-  "sha": "e33e5de90c65935b732962300deacca3615fb088"
+  "pin": 34,
+  "sha": "c57c1a9713514c361b9e6a9828b7032157b1abdb"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 13,

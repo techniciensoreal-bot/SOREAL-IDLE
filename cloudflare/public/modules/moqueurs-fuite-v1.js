@@ -12,7 +12,7 @@
   if(window.__SOREAL_IDLE_MOQUEURS_V1__)return;
 
   var LH0=160;              /* définition de l'écran : 160 gros pixels de HAUT ; la largeur suit la forme de l'arène */
-  var ENTREE=0.7,FIN=3.3,SORTIE=0.42,DUREE=4.3;
+  var ENTREE=0.45,FIN=1.7,SORTIE=0.38,DUREE=2.5;   /* Norman (2026-10-22) : à l'écran le temps du rire du jeu (≈ 2,2 s), pas plus */
 
   /* ---------- police 5×7 (H et A suffisent pour « HA » / « HAHA ») ---------- */
   var G={
@@ -127,13 +127,13 @@
       /* Le calque n'est PAS posé dans la grille de l'arène (un enfant de plus y ajoutait une ligne : la borne grandissait de ~140 px) mais dans son conteneur (flex), à la place exacte de l'arène : rien ne bouge. */
       var duel=(arene.closest&&arene.closest('.soreal-idle-duel-v41'))||arene.parentElement||arene;
       var anc=duel.querySelector('.moq-fuite');if(anc)anc.remove();
-      var r=arene.getBoundingClientRect(),rd=duel.getBoundingClientRect(),LH=LH0;
+      var rd=duel.getBoundingClientRect(),r=rd,LH=LH0;   /* Norman (2026-10-22) : sur PC les moqueurs doivent couvrir TOUT l'écran de la borne (le cadre du duel), pas seulement l'arène */
       var LW=Math.max(120,Math.min(420,Math.round(LH*(r.width||LH)/(r.height||LH))));
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 moq-fuite';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
-      calque.style.cssText='inset:auto;right:auto;bottom:auto;left:'+Math.round(r.left-rd.left)+'px;top:'+Math.round(r.top-rd.top)+'px;width:'+Math.round(r.width)+'px;height:'+Math.round(r.height)+'px';
+      calque.style.cssText='inset:auto;right:auto;bottom:auto;left:0;top:0;width:'+Math.round(r.width)+'px;height:'+Math.round(r.height)+'px';
       duel.appendChild(calque);
       var c=cv.getContext('2d');c.imageSmoothingEnabled=false;
       var t0=performance.now(),fini=false;

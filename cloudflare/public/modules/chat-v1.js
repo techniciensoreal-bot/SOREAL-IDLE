@@ -222,6 +222,14 @@
       '#sorealIdleChatV1 textarea{flex:1;min-height:42px;max-height:110px;resize:none;padding:9px 14px;border-radius:20px;border:1px solid var(--th-line,rgba(255,255,255,.2));background:rgba(0,0,0,.35);color:#fff;font:inherit;font-size:14px}'+
       '#sorealIdleChatV1 .sic-envoyer{background:linear-gradient(180deg,#8ff7e6,#25b9a4);border:0;color:#04201b}'+
       '#sorealIdleChatV1 .sic-envoyer:disabled{opacity:.5}'+
+      /* Bouton émoji (Norman, 2026-10-22) : seulement sur PC (souris) ; un téléphone a déjà son clavier d'émojis. */
+      '#sorealIdleChatV1 .sic-emo{display:none;background:rgba(0,0,0,.35);border:1px solid var(--th-line,rgba(255,255,255,.2));font-size:20px;line-height:1;padding:0 12px;border-radius:20px}'+
+      '@media (hover:hover) and (pointer:fine){#sorealIdleChatV1 .sic-emo{display:block}}'+
+      '#sorealIdleChatV1 .sic-saisie{position:relative}'+
+      '#sorealIdleChatV1 .sic-emojis{position:absolute;left:12px;bottom:calc(100% + 6px);z-index:5;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:8px;max-width:340px;border-radius:14px;background:linear-gradient(165deg,var(--th-bg,#1d2a3a),var(--th-bg2,#0f1623));border:1px solid var(--th-line,rgba(255,255,255,.2));box-shadow:0 10px 24px rgba(0,0,0,.5)}'+
+      '#sorealIdleChatV1 .sic-emojis[hidden]{display:none}'+
+      '#sorealIdleChatV1 .sic-emojis button{border:0;background:transparent;font-size:22px;line-height:1;padding:5px;border-radius:8px;cursor:pointer}'+
+      '#sorealIdleChatV1 .sic-emojis button:hover{background:rgba(255,255,255,.14)}'+
       '#sorealIdleChatV1 .sic-presence{position:absolute;inset:0;overflow-y:auto;padding:10px 12px;background:linear-gradient(165deg,var(--th-bg,#1d2a3a),var(--th-bg2,#0f1623))}'+
       '#sorealIdleChatV1 .sic-ligne{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:14px}'+
       '#sorealIdleChatV1 .sic-point{width:10px;height:10px;border-radius:50%;background:#64748b;flex:none}'+
@@ -361,6 +369,16 @@
    */
   let elChat=null;
 
+  const EMOJIS=['😀','😂','🤣','😊','😍','😎','🤔','😅','😢','😭','😡','🥳','😴','🤯','🙄','😏','👍','👎','👏','🙏','💪','👋','🔥','⭐','❤️','💀','🎉','💩','🐔','⚡','🔮','🏆'];
+  function insererEmoji(e){
+    const champ=document.querySelector('#sorealIdleChatV1 textarea');
+    if(!champ)return;
+    const d=champ.selectionStart==null?champ.value.length:champ.selectionStart,f=champ.selectionEnd==null?d:champ.selectionEnd;
+    const v=champ.value.slice(0,d)+e+champ.value.slice(f);
+    if(v.length>Number(champ.maxLength||280))return;
+    champ.value=v;champ.focus();
+    try{champ.setSelectionRange(d+e.length,d+e.length);}catch(_e){}
+  }
   function construire(){
     const el=document.createElement('div');
     el.id='sorealIdleChatV1';
@@ -375,6 +393,8 @@
           '<div class="sic-presence" hidden></div>'+
         '</div>'+
         '<div class="sic-saisie">'+
+          '<div class="sic-emojis" hidden>'+EMOJIS.map(function(e){return '<button type="button" data-sic="emoji" data-e="'+e+'" aria-label="'+e+'">'+e+'</button>';}).join('')+'</div>'+
+          '<button type="button" class="sic-btn sic-emo" data-sic="emojis" aria-label="Émojis" title="Émojis">😀</button>'+
           '<textarea rows="1" maxlength="280" placeholder="Écris un message…" enterkeyhint="send"></textarea>'+
           '<button type="button" class="sic-btn sic-envoyer" data-sic="envoyer">Envoyer</button>'+
         '</div>'+
@@ -385,6 +405,8 @@
       if(!c)return;
       const a=c.getAttribute('data-sic');
       if(a==='envoyer')envoyer();
+      else if(a==='emojis'){const p=el.querySelector('.sic-emojis');if(p)p.hidden=!p.hidden;}
+      else if(a==='emoji'){insererEmoji(c.getAttribute('data-e')||'');const p=el.querySelector('.sic-emojis');if(p)p.hidden=true;}
       else if(a==='suppr')supprimerMessage(Number(c.getAttribute('data-id')));
       else if(a==='presence'){panneauPresence=!panneauPresence;rendrePresence();if(panneauPresence)battement();}
     });

@@ -34,11 +34,11 @@ function monde({ reduit = false } = {}) {
   assert.equal(m.M.jouer(m.hote), true);
   assert.equal(m.duel.enfants.length, 1, "calque posé dans le conteneur du duel, pas dans la grille de l'arène");
   const calque = m.duel.enfants[0];
-  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:16px;top:12px;width:588px;height:494px", "exactement à la place de l'arène : rien ne bouge");
+  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:0;top:0;width:640px;height:528px", "sur tout l'écran de la borne (le cadre du duel), sans rien déplacer");
   assert.ok(/moq-fuite/.test(calque.className) && /soreal-idle-boss-transition-v61/.test(calque.className));
   assert.ok("data-morph-garder" in calque.attrs, "gardé par le redessin (règle n°4)");
   const cv = calque.children[0];
-  assert.equal(cv.height, 160); assert.equal(cv.width, Math.round(160 * 588 / 494), "canvas à la forme de l'arène (pixels carrés)");
+  assert.equal(cv.height, 160); assert.equal(cv.width, Math.round(160 * 640 / 528), "canvas à la forme de l'écran (pixels carrés)");
   assert.ok(m.doc.styles.some((s) => /z-index:30/.test(s.textContent)), "au-dessus des deux photos");
   assert.equal(m.M.jouer(m.hote), true);
   assert.equal(m.duel.enfants.filter((e) => e.isConnected).length >= 1, true);
@@ -53,9 +53,9 @@ function monde({ reduit = false } = {}) {
   const dessin = (t) => { const k = compteur(); M.scene(k.ctx, t, 191, 160); return k.n.fillRect; };
   const fond = dessin(-1);                       // avant le début : seulement le voile
   assert.equal(fond, 1);
-  const milieu = dessin(2.4);
-  assert.ok(milieu > 150, "trois personnages dessinés, avec leurs bulles (" + milieu + " rectangles)");
-  assert.ok(dessin(1.0) > fond, "ils sont entrés");
+  const milieu = dessin(1.5);
+  assert.ok(milieu > 40, "trois personnages dessinés, avec leurs bulles (" + milieu + " rectangles)");
+  assert.ok(dessin(0.7) > fond, "ils sont entrés");
   const finDernier = M.fin + 0.36 + M.sortie;
   assert.equal(dessin(finDernier + 0.01), fond, "tous repartis : plus que le voile");
   assert.ok(dessin(M.fin + 0.05) > fond, "le premier n'est pas encore parti avant FIN");

@@ -95,8 +95,7 @@ console.log("idle-ux-sounds-and-pop-v1: OK");
   const ui = lireUiComplet();
   assert.ok(ui.includes("let idleDernierGongBossV1='';"));
   assert.ok(ui.includes("String(idImageBossCanoniqueIdleV181_(idleEtat)||'')+'|'+\n              String(idleEtat&&idleEtat.bossActuel||'');"), "identité = numéro + nom du boss");
-  assert.ok(ui.includes("if(identiteGongBoss!==idleDernierGongBossV1){\n              idleDernierGongBossV1=identiteGongBoss;\n              jouerEffetAudioIdleV199_('bossAppear');"));
-  assert.equal(ui.split("jouerEffetAudioIdleV199_('bossAppear')").length - 1, 1, "un seul site d'appel");
+  assert.equal(ui.split("jouerEffetAudioIdleV199_('bossAppear')").length - 1, 0, "plus d'ancien son d'apparition de boss (Norman, 2026-10-22)");
   const fuite = ui.slice(ui.indexOf("window.__fuirBossIdleV1__=function(){"), ui.indexOf("let idleNukeEnCoursV1=false;"));
   assert.ok(!fuite.includes("bossAppear"), "la fuite ne rejoue pas le son du boss");
 }

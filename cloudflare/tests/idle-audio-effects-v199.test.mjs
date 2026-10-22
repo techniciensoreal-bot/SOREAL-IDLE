@@ -106,7 +106,7 @@ assert.ok(
   ui.includes("function jouerEffetAudioIdleV199_(nom)")&&
   ui.includes("__SOREAL_IDLE_AUDIO_V199__")&&
   ui.includes("jouerEffetAudioIdleV199_('fight')")&&
-  ui.includes("jouerEffetAudioIdleV199_('bossAppear')")&&
+  !ui.includes("jouerEffetAudioIdleV199_('bossAppear')")&&   /* Norman (2026-10-22) : les anciens sons d'apparition de boss sont supprimés, chaque effet a le sien (apparition-boss-v1.js) */
   ui.includes("jouerEffetAudioIdleV199_('victory')")&&
   ui.includes("jouerEffetAudioIdleV199_('nuke')")&&
   ui.includes("jouerEffetAudioIdleV199_('defeat')")&&

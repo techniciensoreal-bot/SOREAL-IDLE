@@ -32,6 +32,8 @@
         date:'2026-10-21',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',
+            'Dans le chat, un bouton émoji (sur PC) ouvre une grille d’émojis à glisser dans ton message.',
             'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
             'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
             'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
@@ -49,6 +51,7 @@
             'Quand tu écoutes plusieurs chroniques de boss d’affilée, le nom de chaque boss n’est plus prononcé : les histoires s’enchaînent comme un seul récit.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les fruits qui demandent de la Magic ont une teinte bleu-vert ; un fruit qui pousse a une lueur qui s’échappe de son cadre, et elle brille beaucoup plus quand il a fini de pousser.',
             'Sur chaque fruit prêt, la carte indique les graines que donne « Récolter » et les graines et bonus que donne « Manger » (avec la Poop si elle est cochée).',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
@@ -60,6 +63,8 @@
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les anciens sons d’apparition de boss sont supprimés : chaque boss n’a plus que le son de son propre effet.',
+            'Les spectateurs qui rient quand tu fuis couvrent maintenant tout l’écran de la borne sur PC, et restent le temps du rire.',
             'L’écran de victoire ne se joue plus que pour le boss que tu viens de combattre (plus d’image d’un autre boss qui éclate), le texte « BOSS VAINCU » du bandeau a disparu, et l’image du boss suivant reste cachée jusqu’à la fin de la victoire, puis apparaît avec son effet.',
             'Le bouton NUKE de la borne se referme sous un blindage d’acier quand il n’est pas disponible : deux battants et deux verrous, qui s’ouvrent (et se referment) avec leur bruit de mécanisme.',
             'Chaque boss apparaît avec son propre effet (dix effets différents, joués dans l’ordre des boss) et son propre son ; l’image du boss suivant n’est jamais visible avant la fin de l’écran de victoire.',
