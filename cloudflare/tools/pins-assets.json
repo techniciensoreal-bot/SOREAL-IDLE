@@ -116,8 +116,8 @@
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 17,
-  "sha": "e3765e7af401a4ee91b671a423a423cb714aa657"
+  "pin": 18,
+  "sha": "be2b068e1788996f5c40ec400768cfdc3f625541"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -328,8 +328,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 369,
-  "sha": "7d848998c077be2043f794bd2870c9dc0cd42e57"
+  "pin": 370,
+  "sha": "1ee925b5b9edd1969aafcb61ac9f39a4d9778ea3"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -392,12 +392,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 391,
-  "sha": "47637258d433fdd695868f3ea3601e070a285e64"
+  "pin": 392,
+  "sha": "59b9796b4716a30fccd44d07ddb2c6d55cd3a59c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 185,
-  "sha": "ba5ae8136ac98569b7bd1605aacde982c4246c64"
+  "pin": 186,
+  "sha": "390d0c2096ae5ec568cbe345284a84f2b8229802"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

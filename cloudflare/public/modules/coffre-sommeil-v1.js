@@ -25,6 +25,10 @@
     'C’était le chat, je le jure !',
     'Ouvrez pas, c’est plein de dettes !'
   ];
+  /* Remarque spontanée (Norman, 2026-10-22) : de temps en temps, quand on le regarde, le Coffre (éveillé) lâche cette réplique. Le délai n'avance que le temps où il est vu, comme tout le reste du Coffre. */
+  var REMARQUE='Pourquoi tu me regardes comme si j’allais chier sur tes affaires ?';
+  var REGARD_MIN=150000,REGARD_MAX=420000;
+  var vuEveille=0,cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);
   var dort=false,vuAvantSommeil=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuRonfle=0,cibleRonfle=1500,derniere=-1;
 
   function coffre_(){return document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');}
@@ -63,15 +67,24 @@
     vuAvantSommeil=0;cibleSommeil=MIN+Math.random()*(MAX-MIN);
     appliquer_(coffre_());
   }
+  function dire_(el,texte){
+    var b=document.createElement('span');
+    b.className='bg-desole-v1 bg-replique-v1 bg-desole-long-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.textContent=texte;
+    el.appendChild(b);
+    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
+  }
   function replique_(el){
     var i=Math.floor(Math.random()*REPLIQUES.length);
     if(i===derniere)i=(i+1+Math.floor(Math.random()*(REPLIQUES.length-1)))%REPLIQUES.length;
     derniere=i;
-    var b=document.createElement('span');
-    b.className='bg-desole-v1 bg-replique-v1 bg-desole-long-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
-    b.textContent=REPLIQUES[i];
-    el.appendChild(b);
-    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
+    dire_(el,REPLIQUES[i]);
+  }
+  /* La remarque ne se superpose jamais à une autre bulle du Coffre (excuse d'un pet, réplique de réveil). */
+  function remarque_(el){
+    if(!el||el.querySelector('.bg-desole-v1,.bg-replique-v1'))return false;
+    dire_(el,REMARQUE);
+    return true;
   }
   /* Réveil en sursaut : bond sur place, pet très fort, nuage de fumée, réplique. */
   function sursaut_(el){
@@ -107,7 +120,9 @@
     if(document.hidden||!visible_())return;
     if(!dort){
       vuAvantSommeil+=PAS;
-      if(vuAvantSommeil>=cibleSommeil)endormir_();
+      if(vuAvantSommeil>=cibleSommeil){endormir_();return;}
+      vuEveille+=PAS;
+      if(vuEveille>=cibleRegard&&remarque_(el)){vuEveille=0;cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);}
       return;
     }
     vuEndormi+=PAS;vuRonfle+=PAS;
@@ -116,5 +131,5 @@
   }
   setInterval(pas_,PAS);
   window.__coffreDortIdleV1__=false;
-  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES};
+  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,dire:remarque_};
 })();
