@@ -27,6 +27,10 @@
   "pin": 1,
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
+ "/modules/apparition-boss-v1.js": {
+  "pin": 4,
+  "sha": "3738e4acb4bf30692a2ed5c6fcdbac22bf9ca173"
+ },
  "/modules/audio-borne-v1.js": {
   "pin": 2,
   "sha": "b290f60035f32a87b1cb5c14093b97479647d6b7"
@@ -287,6 +291,10 @@
   "pin": 1,
   "sha": "f9371b216f367221c858575933feb27683c619d3"
  },
+ "/modules/nuke-blindage-v1.js": {
+  "pin": 2,
+  "sha": "72b2f43e8b2340c84925341f2501c76091db5ae1"
+ },
  "/modules/number-format-v1.js": {
   "pin": 3,
   "sha": "b3a55f0628638dd8ff464049d4f148d4ad77830d"
@@ -328,8 +336,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 370,
-  "sha": "1ee925b5b9edd1969aafcb61ac9f39a4d9778ea3"
+  "pin": 371,
+  "sha": "31217efdbc1c4220ecdaa969d4013dcbcbd959e0"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -392,12 +400,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 392,
-  "sha": "59b9796b4716a30fccd44d07ddb2c6d55cd3a59c"
+  "pin": 393,
+  "sha": "23511a22011a2904ce582454ce68a4511eefc301"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 186,
-  "sha": "390d0c2096ae5ec568cbe345284a84f2b8229802"
+  "pin": 187,
+  "sha": "8ccc79ffaae191d148fe8ef71c57ee53373ca509"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -516,8 +524,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 3,
-  "sha": "035073a5e1e7768380ea7899bc8e23ea32ec9517"
+  "pin": 4,
+  "sha": "bd8f69b1438e7c0c56cbf9eb4b65021a08021755"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 1,

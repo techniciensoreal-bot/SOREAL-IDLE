@@ -195,6 +195,9 @@
       if(!hote||!doitJouer(etat,dureeCombatMs))return false;
       if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
       style_();
+      /* L'écran de victoire a la main jusqu'à sa fin : une apparition de boss déjà lancée est annulée, et ses mutations d'image sont ignorées ; à la fin, la victoire joue l'apparition du boss suivant (modules/apparition-boss-v1.js). */
+      try{var A0=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(A0&&A0.annuler)A0.annuler();}catch(_e){}
+      window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=true;
       var anc=hote.querySelector('.vic-arcade');if(anc)anc.remove();
       var r=hote.getBoundingClientRect(),LH=Math.max(60,Math.round(LW*(r.height||LW)/(r.width||LW)));
       var pk=pixelsDe(sourcePixels(image,bossNum),LH);
@@ -208,10 +211,16 @@
       function image_(now){
         if(fini)return;
         var t=(now-t0)/1000;
-        if(!calque.isConnected){fini=true;return;}
+        if(!calque.isConnected){fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;return;}
         if(t>=DUREE){
-          fini=true;calque.style.opacity='0';
-          setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},300);
+          fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
+          var passe=false;
+          try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;passe=Boolean(app&&app.jouer(hote));}catch(_e){}
+          if(passe){if(calque.parentNode)calque.parentNode.removeChild(calque);}   /* le calque de l'apparition est déjà posé par-dessus : aucune image du boss suivant n'apparaît entre les deux */
+          else{
+            calque.style.opacity='0';
+            setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},300);
+          }
           return;
         }
         dessiner(c,t,pk.px,LH);

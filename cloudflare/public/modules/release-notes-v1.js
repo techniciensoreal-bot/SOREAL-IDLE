@@ -59,6 +59,8 @@
             'Après une renaissance, le menu Entraînement de base est éteint ; la première fois que tu l’ouvres, il s’allume comme des tubes néon : chaque bloc clignote avant de tenir, avec des sons de starter, des « pop » et un ronronnement. Chaque barre qui a de l’énergie garde son propre son de démarrage, joué quand sa ligne s’allume. Ensuite, plus d’animation ni de son jusqu’à la prochaine renaissance.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Le bouton NUKE de la borne se referme sous un blindage d’acier quand il n’est pas disponible : deux battants et deux verrous, qui s’ouvrent (et se referment) avec leur bruit de mécanisme.',
+            'Chaque boss apparaît avec son propre effet (dix effets différents, joués dans l’ordre des boss) et son propre son ; l’image du boss suivant n’est jamais visible avant la fin de l’écran de victoire.',
             'Un NUKE fait exploser l’image du boss dans la borne d’arcade : éclair, boule de feu, ondes de choc, étincelles, et l’image tremble.',
             'Après une renaissance, le bouton NUKE est cliquable tout de suite, sans changer de menu et revenir.',
             'Chaque boss a sa propre couleur de barre de vie (toujours la même pour un même boss, bien différente de celle du boss voisin).',
