@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /*
- * Norman (2026-10-22) : écran de victoire « arcade » (image du boss qui éclate en pixels, K.O., BOSS VAINCU) au PREMIER kill d'un boss, toujours en Evil et Sadistic, jamais pour un NUKE ; son grave et doux (« trop aigu,
+ * Norman (2026-10-22) : écran de victoire « arcade » (image du boss qui éclate en pixels, K.O., BOSS VAINCU) quand on tue un boss après un combat d'au moins 5 secondes, jamais pour un NUKE ; son grave et doux (« trop aigu,
  * ça casse les oreilles »).
  */
 const code = readFileSync(new URL("../public/modules/victoire-boss-arcade-v1.js", import.meta.url), "utf8");
@@ -48,36 +48,35 @@ function monde({ reduit = false, stock = {}, volume = 0.8 } = {}) {
 }
 const etat = (o) => Object.assign({ bossSelection: 6, systemes: { difficulty: "normal", records: { highestBoss: 5 } } }, o);
 
-// 1. Normal : seulement le PREMIER kill de ce boss. Le plus haut boss déjà battu au premier lancement compte comme « déjà vu ».
+// 1. Quand : victoire d'un combat de boss d'au moins 5 secondes, à chaque fois, quel que soit le boss ou la difficulté.
 {
   const m = monde();
-  assert.equal(m.V.doitJouer(etat({ bossSelection: 5 })), false, "boss déjà battu avant l'installation : pas d'écran");
-  assert.equal(m.magasin.soreal_idle_victoire_arcade_max_v1, "5", "mémorisé (lié au compte : clé soreal_idle_*)");
-  assert.equal(m.V.doitJouer(etat({ bossSelection: 6 })), true, "premier kill du boss 6");
-  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 6 })), true, "joué");
+  assert.equal(m.V.combatMinMs, 5000);
+  assert.equal(m.V.doitJouer(etat(), 4999), false, "combat de moins de 5 s : pas d'écran");
+  assert.equal(m.V.doitJouer(etat(), 0), false, "durée inconnue : pas d'écran");
+  assert.equal(m.V.doitJouer(etat(), undefined), false);
+  assert.equal(m.V.doitJouer(etat(), 5000), true, "5 s exactement : écran");
+  assert.equal(m.V.jouer(m.hote, m.image, etat(), 4000), false);
+  assert.equal(m.ajoutes.length, 0, "rien posé pour un combat court");
+  assert.equal(m.V.jouer(m.hote, m.image, etat(), 7500), true, "joué");
   assert.equal(m.ajoutes.length, 1);
   assert.ok(/vic-arcade/.test(m.ajoutes[0].className) && /soreal-idle-boss-transition-v61/.test(m.ajoutes[0].className), "calque de la borne, exclu des secousses de combat");
   assert.ok("data-morph-garder" in m.ajoutes[0].attrs, "gardé par le redessin (règle n°4)");
-  assert.equal(m.magasin.soreal_idle_victoire_arcade_max_v1, "6");
-  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 6 })), false, "le même boss tué de nouveau (après renaissance) : plus d'écran");
-  assert.equal(m.V.doitJouer(etat({ bossSelection: 4 })), false, "un boss plus bas : plus d'écran");
-  assert.equal(m.V.doitJouer(etat({ bossSelection: 7 })), true, "le boss suivant : son premier kill");
+  assert.equal(m.V.jouer(m.hote, m.image, etat(), 9000), true, "le même boss tué de nouveau (après une renaissance) : l'écran revient, il ne dépend que de la durée");
+  assert.deepEqual(Object.keys(m.magasin), [], "plus rien n'est mémorisé");
 }
-
-// 2. Evil et Sadistic : à chaque victoire, sans rien mémoriser.
-for (const diff of ["difficile", "extreme"]) {
-  const m = monde({ stock: { soreal_idle_victoire_arcade_max_v1: "50" } });
-  const e = etat({ bossSelection: 3, systemes: { difficulty: diff, records: { highestBoss: 60 } } });
-  assert.equal(m.V.doitJouer(e), true, diff + " : toujours");
-  assert.equal(m.V.jouer(m.hote, m.image, e), true);
-  assert.equal(m.V.jouer(m.hote, m.image, e), true, diff + " : encore à la victoire suivante");
-  assert.equal(m.magasin.soreal_idle_victoire_arcade_max_v1, "50", diff + " : le plus haut boss vu de Normal n'est pas touché");
+// 2. Toutes les difficultés, tous les boss.
+for (const diff of ["normal", "difficile", "extreme"]) {
+  for (const boss of [1, 6, 120]) {
+    const m = monde();
+    assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: boss, systemes: { difficulty: diff, records: { highestBoss: 200 } } }), 6000), true, diff + " boss " + boss);
+  }
 }
 
 // 3. « Réduire les animations » : rien ; sans état : rien.
 {
   const m = monde({ reduit: true });
-  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 9 })), false);
+  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 9 }), 8000), false);
   assert.equal(m.ajoutes.length, 0);
   assert.equal(monde().V.doitJouer(null), false);
 }
@@ -85,7 +84,7 @@ for (const diff of ["difficile", "extreme"]) {
 // 4. Le son est grave et doux : aucune note au-dessus de C5 (≈ 523 Hz), filtre passe-bas, volume 0 = silence.
 {
   const m = monde();
-  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 8 })), true);
+  assert.equal(m.V.jouer(m.hote, m.image, etat({ bossSelection: 8 }), 8000), true);
   assert.ok(m.oscillateurs.length > 20, "plusieurs voix : boum, accord, mélodie, tics");
   const max = Math.max(...m.oscillateurs.map((o) => o.frequency.value));
   assert.ok(max <= 800, "aucune note aiguë (la plus haute : " + max + " Hz)");
@@ -93,13 +92,14 @@ for (const diff of ["difficile", "extreme"]) {
   assert.ok(lead >= 1, "la note finale est un Do5, pas plus haut");
   assert.ok(m.filtres.some((f) => f.type === "lowpass" && f.frequency.value === 1800), "tout passe par un filtre passe-bas à 1 800 Hz");
   const muet = monde({ volume: 0 });
-  muet.V.jouer(muet.hote, muet.image, etat({ bossSelection: 8 }));
+  muet.V.jouer(muet.hote, muet.image, etat({ bossSelection: 8 }), 8000);
   assert.equal(muet.oscillateurs.length, 0, "volume 0 : aucun son");
 }
 
 // 5. Câblage : à la victoire d'un combat (pas le NUKE), le bandeau texte reste caché en dessous ; module chargé par la page.
 const combat1 = readFileSync(new URL("../public/modules/ui-combat-1-v1.js", import.meta.url), "utf8");
-assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat));"), "jamais pendant un NUKE");
+assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,REG.idleCombatDebutV1?Date.now()-REG.idleCombatDebutV1:0));"), "jamais pendant un NUKE ; durée du combat transmise");
+assert.ok(combat1.includes("REG.idleCombatDebutV1=Date.now();"), "le début de chaque combat est noté");
 assert.ok(combat1.includes("'soreal-idle-boss-transition-v61'+(victoireArcadeIdleV1?' vic-cache':'')"), "bandeau caché mais gardé pour le filet de sécurité");
 const combat2 = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");
 assert.ok(!combat2.includes("transitionMortBossIdleV61_") && !combat2.includes("VICTOIRE_ARCADE"), "la cascade du NUKE n'appelle jamais l'écran de victoire");

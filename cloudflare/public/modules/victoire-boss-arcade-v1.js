@@ -5,16 +5,16 @@
  * L'image du boss (celle de la borne) est découpée en gros pixels ; elle clignote, un éclair blanc, elle éclate en pixels de ses propres couleurs sur des rayons qui tournent, un « K.O. » claque puis « BOSS VAINCU »
  * s'écrit lettre par lettre. Tout est dessiné dans un canvas ajouté à la borne (data-morph-garder : un redessin de la page ne le retire pas, règle n°4). Durée : 3,3 s.
  *
- * Quand : seulement à la victoire d'un combat de boss mené dans la page (jamais le NUKE, qui passe par sa propre cascade). Difficulté Normal : seulement le PREMIER kill de ce boss, tous comptes et appareils confondus
- * (le plus haut boss déjà « vu » est mémorisé sous soreal_idle_victoire_arcade_max_v1, donc lié au compte : règle n°6) ; Evil (« difficile ») et Sadistic (« extreme ») : à chaque victoire.
+ * Quand (Norman, 2026-10-22, 2e version : « je trouve l'animation tellement bien que je voudrais qu'elle soit jouée quand on tue un boss et que le combat dure au moins 5 secondes ») : à la victoire d'un combat de boss mené dans
+ * la page qui a duré au moins 5 secondes (de « Fight » au dernier coup), quel que soit le boss ou la difficulté, à chaque fois. Jamais pour le NUKE (sa propre cascade, pas de combat). Un boss tué en moins de 5 s garde le bandeau habituel.
  * Aucun effet avec « réduire les animations ». Son : synthèse WebAudio grave et douce (aucune note aiguë, filtre passe-bas), au volume « Sons de l'interface ».
- *   window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__ = { jouer(hote, image, etat) -> bool, doitJouer(etat) -> bool, memoriser(n), dessiner(ctx, t, px, LW, LH), sons(ctx, t, sortie) }
+ *   window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__ = { jouer(hote, image, etat, dureeCombatMs) -> bool, doitJouer(etat, dureeCombatMs) -> bool, dessiner(ctx, t, px, LH), sons(ctx, t, sortie) }
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__)return;
 
-  var CLE_MAX='soreal_idle_victoire_arcade_max_v1';
+  var COMBAT_MIN_MS=5000;      /* le combat doit avoir duré au moins 5 s */
   var DUREE=3.3;               /* secondes */
   var LW=160;                  /* définition de l'écran : 160 gros pixels de large */
   var CX=32;                   /* le boss est découpé en 32 colonnes */
@@ -138,28 +138,9 @@
     }catch(_e){return false;}
   }
 
-  /* ---------- quand jouer : premier kill (Normal), toujours en Evil / Sadistic ---------- */
-  function entier(v){var n=Math.floor(Number(v));return isFinite(n)&&n>0?n:0;}
-  function maxVu_(etat){
-    var m=null;
-    try{m=localStorage.getItem(CLE_MAX);}catch(_e){}
-    if(m!==null&&m!==''&&isFinite(Number(m)))return entier(m);
-    /* Première fois : tout boss déjà battu est « déjà vu » (le plus haut boss du compte). */
-    var rec=entier(etat&&etat.systemes&&etat.systemes.records&&etat.systemes.records.highestBoss);
-    var base=Math.max(rec,0);
-    try{localStorage.setItem(CLE_MAX,String(base));}catch(_e){}
-    return base;
-  }
-  function memoriser(n){
-    n=entier(n);
-    try{var m=entier(localStorage.getItem(CLE_MAX));if(n>m)localStorage.setItem(CLE_MAX,String(n));}catch(_e){}
-  }
-  function doitJouer(etat){
-    if(!etat)return false;
-    var diff=String(etat.systemes&&etat.systemes.difficulty||'normal');
-    if(diff==='difficile'||diff==='extreme')return true;
-    var n=entier(etat.bossSelection);
-    return n>0&&n>maxVu_(etat);
+  /* ---------- quand jouer : combat d'au moins 5 s (de Fight au dernier coup), à chaque fois ---------- */
+  function doitJouer(etat,dureeCombatMs){
+    return Boolean(etat)&&Number(dureeCombatMs)>=COMBAT_MIN_MS;
   }
 
   /* ---------- mise en scène sur la borne ---------- */
@@ -174,12 +155,10 @@
       '.soreal-idle-boss-transition-v61.vic-cache{display:none}';
     (document.head||document.documentElement).appendChild(s);
   }
-  function jouer(hote,image,etat){
+  function jouer(hote,image,etat,dureeCombatMs){
     try{
-      if(!hote||!doitJouer(etat))return false;
+      if(!hote||!doitJouer(etat,dureeCombatMs))return false;
       if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
-      var diff=String(etat.systemes&&etat.systemes.difficulty||'normal');
-      if(diff!=='difficile'&&diff!=='extreme')memoriser(etat.bossSelection);   /* ce boss est « vu » : plus d'écran de victoire pour lui en Normal */
       style_();
       var anc=hote.querySelector('.vic-arcade');if(anc)anc.remove();
       var r=hote.getBoundingClientRect(),LH=Math.max(60,Math.round(LW*(r.height||LW)/(r.width||LW)));
@@ -209,14 +188,5 @@
     }catch(_e){return false;}
   }
 
-  /* Le plus haut boss « déjà vu » est fixé dès que l'état du jeu existe (avant tout combat) : si le moteur confirmait le kill avant la prédiction de la page, le record serait déjà monté et le premier écran serait manqué. */
-  (function amorcer(essais){
-    try{
-      var lire=window.__SOREAL_IDLE_LIRE_ETAT_V1__,e=typeof lire==='function'?lire():null;
-      if(e&&e.systemes&&e.systemes.records){maxVu_(e);return;}
-    }catch(_e){}
-    if(essais>0)setTimeout(function(){amorcer(essais-1);},1000);
-  })(120);
-
-  window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__={jouer:jouer,doitJouer:doitJouer,memoriser:memoriser,dessiner:dessiner,sons:sons,duree:DUREE};
+  window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__={jouer:jouer,doitJouer:doitJouer,dessiner:dessiner,sons:sons,duree:DUREE,combatMinMs:COMBAT_MIN_MS};
 })();
