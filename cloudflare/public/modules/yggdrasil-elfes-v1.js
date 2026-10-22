@@ -323,7 +323,7 @@
     return o;
   }
   function porteVue_(id){return portesVues_().v.indexOf(id)>=0;}
-  /* Le coq : UNE fois par renaissance, à la toute première animation d'ouverture de porte (qu'il soit chanté ou non : le matin seulement), juste après le son de la porte. Mémorisé par renaissance (stockage lié au compte, règle n°6). */
+  /* Le coq : UNE fois par renaissance, à la toute première animation d'ouverture de porte (Norman, 2026-10-22 : pas une question d'heure, la première ouverture de la porte après une renaissance), juste après le son de la porte. Mémorisé par renaissance (stockage lié au compte, règle n°6). */
   var CLE_COQ_='soreal_idle_ygg_coq_v1';
   function coqPremiereOuverture_(vit){
     var r=renaissances_(),o=null;
@@ -331,7 +331,7 @@
     if(o&&typeof o==='object'&&Number(o.r)===r)return false;
     try{localStorage.setItem(CLE_COQ_,JSON.stringify({r:r}));}catch(_e){}
     var S=window.__SOREAL_IDLE_YGG_SONS_V1__;
-    if(!S||typeof S.matin!=='function'||!S.matin())return false;
+    if(!S||typeof S.coq!=='function')return false;
     return Boolean(S.coq((reglages_().son==='bois'?1450:1100)*(Number(vit)>0?Number(vit):1)));
   }
   function noterPorteVue_(id,vue){

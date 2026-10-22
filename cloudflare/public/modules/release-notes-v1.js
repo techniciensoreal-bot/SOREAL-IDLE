@@ -34,7 +34,7 @@
           {menu:'general', titre:'Général', points:[
             'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
             'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
-            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, le matin (de 5 h à 12 h), une seule fois par renaissance, à la première ouverture d’une porte.',
+            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.',
             'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
             'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',

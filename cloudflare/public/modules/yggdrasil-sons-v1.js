@@ -210,10 +210,9 @@
 
   /*
    * Le coq (Norman, 2026-10-21 : « quand la porte s'ouvre dans Yggdrasil, un bruit de coq le matin ; juste après le son de la porte, une seule fois par renaissance, à la première animation d'ouverture ») : un vrai enregistrement, idle/ambient/coq.m4a dans le R2, servi par la route
-   * des sons d'ambiance. « Matin » = de 5 h à 11 h 59 sur l'horloge de l'appareil. Volume = barre « Sons de l'interface » ; jamais d'erreur si le fichier manque ou si le navigateur refuse la lecture.
+   * des sons d'ambiance. Aucune condition d'heure (Norman, 2026-10-22 : « à la première ouverture de la porte après un rebirth »). Volume = barre « Sons de l'interface » ; jamais d'erreur si le fichier manque ou si le navigateur refuse la lecture.
    */
   var CLE_COQ_R2='idle/ambient/coq.m4a';
-  function matin(){var h=new Date().getHours();return h>=5&&h<12;}
   function coq(delaiMs){
     var v=volume_();
     if(!(v>0))return false;
@@ -227,7 +226,6 @@
 
   window.__SOREAL_IDLE_YGG_SONS_V1__={
     jouer:jouer,
-    matin:matin,
     coq:coq,
     noms:Object.keys(SONS),
     construire:function(nom,c,out,t,alea,option){if(SONS[nom])SONS[nom](c,out,t,alea,option);}
