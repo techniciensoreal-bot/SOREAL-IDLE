@@ -1133,7 +1133,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.
 /* Fiche d'un objet : textes de jeu. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 :is(.soreal-idle-v138-details-stat,.soreal-idle-note-v4){font-family:var(--iv2-jeu)}
 /* Inventaire v2 (suite) : la police de jeu l'emporte sur la police de texte globale ; la gueule du Bagage est une ligne (image, texte). */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns,.soreal-idle-coffre-v1,.soreal-idle-item-popup-v1) :is(div,span,button,input,small,b,p,label,summary):not(.soreal-idle-window-title-v31):not(.soreal-idle-window-title-v31 *):not(.bg-texte-v1 b):not(.bg-bulle-v1){font-family:"Russo One","Arial Black",Impact,sans-serif!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-v151-inventory-columns,.soreal-idle-coffre-v1,.soreal-idle-item-popup-v1) :is(div,span,button,input,small,b,p,label,summary):not(.soreal-idle-window-title-v31):not(.soreal-idle-window-title-v31 *):not(.bg-texte-v1 b):not(.bg-bulle-v1):not(.vl-section):not(.vl-section *){font-family:"Russo One","Arial Black",Impact,sans-serif!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .bg-texte-v1 b,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .bg-bulle-v1{font-family:"Bangers","Russo One",Impact,sans-serif!important;font-weight:400!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180]{flex-direction:row!important}
 @media (max-width:640px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1 [data-idle-coffre-drop-v180]{flex-direction:column!important}}
@@ -1714,19 +1714,3 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"] i{font-size:12px}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"] .ygg-btn{font-size:12px}
 }
-
-/* Valise des consommables, en haut du Coffre (Norman, 2026-10-23) : une valise de cuir à compartiments, comme celles qui rangent des bouteilles. */
-.vc-valise-v1{position:relative;margin:10px 0 12px;padding:10px 10px 12px;border-radius:14px;border:3px solid #1f1006;background:linear-gradient(180deg,#8a5a2b 0%,#6b4220 55%,#573418 100%);box-shadow:inset 0 2px 0 rgba(255,220,160,.35),inset 0 -3px 0 rgba(0,0,0,.35),0 4px 0 #000}
-.vc-valise-v1::before,.vc-valise-v1::after{content:"";position:absolute;top:50%;width:9px;height:26px;margin-top:-13px;border-radius:3px;background:linear-gradient(180deg,#f3d27a,#b98a2c);border:1.5px solid #3a2406;box-shadow:0 1px 0 rgba(255,255,255,.4) inset}
-.vc-valise-v1::before{left:-7px}
-.vc-valise-v1::after{right:-7px}
-.vc-titre-v1{font:400 18px Bangers,"Russo One",Impact,sans-serif;letter-spacing:.08em;color:#ffe9b0;text-shadow:0 2px 0 #3a1c05;text-align:center;margin:0 0 8px}
-.vc-cases-v1{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:7px;padding:8px;border-radius:10px;background:radial-gradient(ellipse at 50% 0,#5a1522,#2e0a12 75%);box-shadow:inset 0 4px 10px rgba(0,0,0,.65),inset 0 0 0 2px rgba(0,0,0,.4)}
-.vc-case-v1{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 7px;border-radius:9px;background:linear-gradient(180deg,rgba(0,0,0,.28),rgba(0,0,0,.5));border:1.5px solid rgba(255,214,140,.28);text-align:center;min-width:0}
-.vc-case-v1 img{width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-.vc-nom-v1{font:400 12.5px/1.15 "Russo One",system-ui,sans-serif;color:#fbe9c4;overflow-wrap:anywhere}
-.vc-detail-v1{display:flex;flex-direction:column;align-items:center;gap:1px;font:400 13px/1.2 "Russo One",system-ui,sans-serif;color:#ffd24a}
-.vc-detail-v1 b{font-weight:400;color:#fff}
-.vc-detail-v1 em{font-style:normal;font-size:11.5px;color:#9be8b0}
-.vc-util-v1{margin-top:4px;padding:4px 10px;border-radius:8px;border:2px solid #000;background:linear-gradient(180deg,#34c46a,#1f8f4c);color:#fff;font:400 13px "Russo One",system-ui,sans-serif;cursor:pointer}
-.vc-util-v1:active{transform:translateY(1px)}

@@ -2265,70 +2265,10 @@
 
       const BAGAGE_CRIS_IDLE_V1=['*Gloups !*','*Miam.*','*Rrrot.*','*Crounch !*','*Encore.*'];
 
-      /*
-       * Valise des consommables (Norman, 2026-10-23 : « j'ai des Potions de magie, je ne sais pas où elles sont stockées ; un espace pour les consommables, comme ces valises faites pour mettre de l'alcool ») : en haut du Coffre, un compartiment par
-       * consommable que le joueur a en effet (temps restant, « jusqu'au Rebirth ») ou en réserve (nombre). Seulement ce qu'il possède : aucun compartiment vide, aucun nom d'un objet qu'il n'a pas.
-       */
-      const VALISE_OBJETS_IDLE_V1=[
-        {id:'energyPower',genre:'restant',nom:'Potion d’énergie',img:'energy-potion-alpha',beta:'energy-potion-beta'},
-        {id:'magicPower',genre:'restant',nom:'Potion de magie',img:'magic-potion-alpha',beta:'magic-potion-beta'},
-        {id:'r3Power',genre:'restant',nom:'Potion de Ressource 3',img:'resource-3-potion-alpha',beta:'resource-3-potion-beta'},
-        {id:'energyBars',genre:'restant',nom:'Bar Bar d’énergie',img:'energy-bar-bar'},
-        {id:'magicBars',genre:'restant',nom:'Bar Bar de magie',img:'magic-bar-bar'},
-        {id:'luck',genre:'restant',nom:'Porte-bonheur',img:'lucky-charm'},
-        {id:'poop',genre:'reserve',nom:'Poop',img:'fertilizer'},
-        {id:'beastButters',genre:'reserve',nom:'Beast Butter',img:'beast-butter'},
-        {id:'bluePills',genre:'reserve',nom:'Pilules bleues',img:'little-blue-pill'},
-        {id:'blackPens',genre:'reserve',nom:'Stylos noirs',img:'regular-black-pens'}
-      ];
-      const VALISE_POTIONS_IDLE_V1=[
-        {id:'energyPotionAlpha',nom:'Potion d’énergie α',img:'energy-potion-alpha'},
-        {id:'energyPotionBeta',nom:'Potion d’énergie β',img:'energy-potion-beta'},
-        {id:'energyPotionDelta',nom:'Potion d’énergie δ',img:'energy-potion-delta'},
-        {id:'magicPotionAlpha',nom:'Potion de magie α',img:'magic-potion-alpha'},
-        {id:'magicPotionBeta',nom:'Potion de magie β',img:'magic-potion-beta'},
-        {id:'magicPotionDelta',nom:'Potion de magie δ',img:'magic-potion-delta'},
-        {id:'resource3PotionAlpha',nom:'Potion de Ressource 3 α',img:'resource-3-potion-alpha'},
-        {id:'resource3PotionBeta',nom:'Potion de Ressource 3 β',img:'resource-3-potion-beta'},
-        {id:'resource3PotionDelta',nom:'Potion de Ressource 3 δ',img:'resource-3-potion-delta'}
-      ];
-      /* « Utiliser » : la potion sort de la valise et s'active (action moteur usePotion). */
-      document.addEventListener('click',function(ev){
-        const b=ev.target&&ev.target.closest?ev.target.closest('[data-vc-potion]'):null;
-        if(!b)return;
-        ev.preventDefault();
-        if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__({action:'usePotion',itemId:b.getAttribute('data-vc-potion')});
-      });
-      function dureeValiseIdleV1_(s){
-        const n=Math.max(0,Math.floor(Number(s)||0));
-        if(n>=86400)return Math.floor(n/3600)+' h';
-        if(n>=3600)return Math.floor(n/3600)+' h '+String(Math.floor((n%3600)/60)).padStart(2,'0');
-        if(n>=60)return Math.ceil(n/60)+' min';
-        return n+' s';
-      }
+      /* Valise des consommables (modules/valise-v1.js, Norman 2026-10-23) : posée en haut du Coffre, vivante, qui se déplie en étages. */
       function valiseConsommablesIdleV1_(){
-        const c=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.consommables;
-        if(!c)return '';
-        const cases=[];
-        /* Potions en réserve (Norman, 2026-10-23 : « stockées dans la valise ») : un compartiment par sorte, avec son bouton « Utiliser ». */
-        VALISE_POTIONS_IDLE_V1.forEach(function(p){
-          const n=Number(c.potions&&c.potions[p.id])||0;
-          if(n<=0)return;
-          cases.push('<div class="vc-case-v1 vc-potion-v1" title="'+idleHtml_(p.nom)+'"><img src="/shop/'+p.img+'.png" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()"><span class="vc-nom-v1">'+idleHtml_(p.nom)+'</span><span class="vc-detail-v1"><b>× '+idleHtml_(String(n))+'</b></span><button type="button" class="vc-util-v1" data-vc-potion="'+idleHtml_(p.id)+'">Utiliser</button></div>');
-        });
-        VALISE_OBJETS_IDLE_V1.forEach(function(o){
-          const restant=o.genre==='restant'?Number(c.restant&&c.restant[o.id])||0:0;
-          const beta=Boolean(o.beta&&c.beta&&c.beta[o.id]);
-          const stock=o.genre==='reserve'?Number(c.reserve&&c.reserve[o.id])||0:0;
-          if(restant<=0&&!beta&&stock<=0)return;
-          const detail=o.genre==='reserve'
-            ?'<b>× '+idleHtml_(String(stock))+'</b>'
-            :(restant>0?'<b>'+idleHtml_(dureeValiseIdleV1_(restant))+'</b>':'')+(beta?'<em>jusqu’au Rebirth</em>':'');
-          const image=(restant>0||o.genre==='reserve')?o.img:o.beta;
-          cases.push('<div class="vc-case-v1" title="'+idleHtml_(o.nom)+'"><img src="/shop/'+image+'.png" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()"><span class="vc-nom-v1">'+idleHtml_(o.nom)+'</span><span class="vc-detail-v1">'+detail+'</span></div>');
-        });
-        if(!cases.length)return '';
-        return '<div class="vc-valise-v1"><div class="vc-titre-v1">Valise des consommables</div><div class="vc-cases-v1">'+cases.join('')+'</div></div>';
+        const V=window.__SOREAL_IDLE_VALISE_V1__;
+        return V&&typeof V.html==='function'?V.html():'';
       }
 
       /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */

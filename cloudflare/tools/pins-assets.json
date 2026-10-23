@@ -40,8 +40,8 @@
   "sha": "a605fd5861f6fa3bba430c3fe00979d7f47e9559"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 254,
-  "sha": "fb1310d0e3c4271874c25de63382c413ff463b06"
+  "pin": 255,
+  "sha": "68037bd95eeda3fbea29e3e26826b20110dc992a"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 398,
-  "sha": "b3a7dd0969c1ca47d4842b9517e48f9aa1d1200a"
+  "pin": 400,
+  "sha": "05874ae1ba45d9f8dabd6e4f77dbbfc7d0d51599"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 420,
-  "sha": "54bc5bbfcb1d0548953d42f5c097be00dabf6c70"
+  "pin": 422,
+  "sha": "b8da3adaa50f071c6778bdb7f35b839fb551db36"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 214,
-  "sha": "30c7378af5e9553fc6715ce3f0bd345857e03573"
+  "pin": 216,
+  "sha": "943bc301fce7037206318fc6a34423dc94d087c6"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 13,
-  "sha": "18b235e24f4f7ea86604d955bb9c9ca98c727f4e"
+  "pin": 14,
+  "sha": "83aee6f31d6736bab5d9287e013c8454cfbe9d14"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -535,6 +535,10 @@
   "pin": 55,
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
+ "/modules/valise-v1.js": {
+  "pin": 10,
+  "sha": "3e763e2dc0fb8fd478234c837aa72208e6ebb4e9"
+ },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
   "sha": "9b505d5a26c2ae2bb8cbda9ffb5a3a8be6a76b92"
@@ -576,8 +580,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 212,
-  "sha": "a8e2861f8f83b2efed61bc20d0e2398ead6347bb"
+  "pin": 213,
+  "sha": "4ab11a9454ce9d9f98d211bfe0eea2546787bb8e"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

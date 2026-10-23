@@ -53,6 +53,11 @@
     joueurConnecte:{group:"presence",priority:18,maxAgeMs:2500},
     chestOpen:{group:"chest",priority:35,maxAgeMs:1000},
     chestClose:{group:"chest",priority:35,maxAgeMs:1000},
+    /* La Valise des consommables (Norman, 2026-10-23) : elle s'ouvre (cuir qui craque, fermoir, étages qui se rabattent), se referme, une potion est bue, elle est touchée. */
+    valiseOuvre:{group:"chest",priority:36,maxAgeMs:1200},
+    valiseFerme:{group:"chest",priority:36,maxAgeMs:1200},
+    valisePotion:{group:"chest",priority:37,maxAgeMs:1200},
+    valiseTouche:{group:"chest",priority:38,maxAgeMs:800},
     /* Le Coffre avale / recrache un objet (Norman, 2026-10-10) : 10 sons de chaque, tirés au hasard (modules/audio-coffre-v1.js). */
     coffreAvale:{group:"chest",priority:36,maxAgeMs:1000},
     /* La borne de Combat de boss s'allume (Norman, 2026-10-10) : une fois par Renaissance, son calé sur l'animation (modules/audio-borne-v1.js). */
@@ -1569,6 +1574,47 @@
     });
   }
 
+  /* Valise : le cuir craque, le fermoir claque, puis trois claquements de planchettes (les étages) qui se rabattent l'un après l'autre. */
+  function valiseOuvre_(){
+    return jouerWebAudio_(900,function(c){
+      bruit_(c,{duration:.30,volume:.07,frequency:620,frequencyEnd:180,decay:1.6});
+      tonal_(c,{type:"sawtooth",from:96,to:150,duration:.28,volume:.022});
+      tonal_(c,{type:"square",from:1250,to:760,duration:.05,volume:.04,delay:.30});
+      bruit_(c,{duration:.06,volume:.09,frequency:2400,frequencyEnd:1200,decay:3,delay:.30,filterType:"bandpass"});
+      for(var i=0;i<3;i+=1){
+        bruit_(c,{duration:.07,volume:.07,frequency:900,frequencyEnd:300,decay:3,delay:.42+i*.14});
+        tonal_(c,{type:"triangle",from:260+i*55,to:140,duration:.09,volume:.03,delay:.42+i*.14});
+      }
+    });
+  }
+  function valiseFerme_(){
+    return jouerWebAudio_(700,function(c){
+      for(var i=0;i<3;i+=1){
+        bruit_(c,{duration:.06,volume:.065,frequency:800,frequencyEnd:280,decay:3,delay:i*.1});
+      }
+      tonal_(c,{type:"sine",from:150,to:62,duration:.18,volume:.07,delay:.34});
+      bruit_(c,{duration:.14,volume:.09,frequency:700,frequencyEnd:160,decay:2.4,delay:.34});
+      tonal_(c,{type:"square",from:1100,to:700,duration:.05,volume:.04,delay:.5});
+    });
+  }
+  /* Potion bue : bouchon qui saute, glou-glou, petit tintement. */
+  function valisePotion_(){
+    return jouerWebAudio_(800,function(c){
+      bruit_(c,{duration:.05,volume:.08,frequency:1800,frequencyEnd:900,decay:3,filterType:"bandpass"});
+      tonal_(c,{type:"sine",from:620,to:240,duration:.11,volume:.06,delay:.05});
+      tonal_(c,{type:"sine",from:540,to:210,duration:.12,volume:.055,delay:.2});
+      tonal_(c,{type:"sine",from:480,to:190,duration:.14,volume:.05,delay:.36});
+      tonal_(c,{type:"triangle",from:1320,to:1760,duration:.22,volume:.03,delay:.52});
+    });
+  }
+  function valiseTouche_(){
+    return jouerWebAudio_(500,function(c){
+      tonal_(c,{type:"triangle",from:880,to:1180,duration:.16,volume:.045});
+      tonal_(c,{type:"sine",from:1320,to:1760,duration:.2,volume:.03,delay:.06});
+      bruit_(c,{duration:.08,volume:.06,frequency:1500,frequencyEnd:600,decay:3,filterType:"bandpass"});
+    });
+  }
+
   function coffreAvalerRecracher_(sens){
     return jouerWebAudio_(700,function(c){
       var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
@@ -1920,6 +1966,10 @@
     joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
+    valiseOuvre:valiseOuvre_,
+    valiseFerme:valiseFerme_,
+    valisePotion:valisePotion_,
+    valiseTouche:valiseTouche_,
     coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
     borneAllume:function(){return jouerWebAudio_(2700,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.allumer==="function")m.allumer(c,master||c.destination);});},
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
@@ -2207,6 +2257,10 @@
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},
+    valiseOuvre:function(){return demander_("valiseOuvre");},
+    valiseFerme:function(){return demander_("valiseFerme");},
+    valisePotion:function(){return demander_("valisePotion");},
+    valiseTouche:function(){return demander_("valiseTouche");},
     coffreAvale:function(){return demander_("coffreAvale");},
     borneAllume:function(){return demander_("borneAllume");},
     coffreRecrache:function(){return demander_("coffreRecrache");},
