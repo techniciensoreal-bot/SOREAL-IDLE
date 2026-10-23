@@ -58,6 +58,10 @@
     valiseFerme:{group:"chest",priority:36,maxAgeMs:1200},
     valisePotion:{group:"chest",priority:37,maxAgeMs:1200},
     valiseTouche:{group:"chest",priority:38,maxAgeMs:800},
+    /* L'accident de la valise : elle vomit (Norman, 2026-10-23). */
+    valiseVomi:{group:"chest",priority:39,maxAgeMs:2600},
+    /* Le ronflement de la valise (Norman, 2026-10-23) : le sien, plus aigu que celui du Coffre. */
+    valiseRonfle:{group:"chest",priority:20,maxAgeMs:1500},
     /* Le Coffre avale / recrache un objet (Norman, 2026-10-10) : 10 sons de chaque, tirés au hasard (modules/audio-coffre-v1.js). */
     coffreAvale:{group:"chest",priority:36,maxAgeMs:1000},
     /* La borne de Combat de boss s'allume (Norman, 2026-10-10) : une fois par Renaissance, son calé sur l'animation (modules/audio-borne-v1.js). */
@@ -1182,6 +1186,37 @@
     dernierSonDefaite=son.nom;
     return jouerWebAudio_(son.duree,son.construire);
   }
+  /*
+   * Défaite « rembobinée » (Norman, 2026-10-23 : « le son de défaite joué à l'envers » avec l'effet de rembobinage VHS à l'écran, modules/mort-joueur-v1.js) : le son de défaite qui vient d'être joué est construit dans un contexte hors
+   * ligne (master retiré le temps de la construction : les constructeurs écrivent alors vers la destination du contexte hors ligne), rendu, retourné échantillon par échantillon, puis joué tout de suite (pas de file d'attente : il
+   * accompagne l'image), avec un souffle de rembobinage qui monte et quelques claquements de bande.
+   */
+  function defaiteInverse_(){
+    return reveiller_().then(function(c){
+      if(!c||typeof OfflineAudioContext!=="function")return false;
+      var son=SONS_DEFAITE.filter(function(s){return s.nom===dernierSonDefaite;})[0]||SONS_DEFAITE[0];
+      var sr=Math.max(22050,Number(c.sampleRate)||44100);
+      var off=new OfflineAudioContext(1,Math.ceil(sr*(son.duree/1000+.35)),sr);
+      var ancien=master;master=null;
+      try{son.construire(off);}catch(_e){}finally{master=ancien;}
+      return off.startRendering().then(function(buf){
+        buf.getChannelData(0).reverse();
+        var src=c.createBufferSource();src.buffer=buf;
+        var g=c.createGain();g.gain.value=1;
+        src.connect(g);g.connect(master||c.destination);src.start();
+        bruit_(c,{duration:1.15,volume:.05,frequency:1800,frequencyEnd:5200,decay:.6,filterType:"bandpass"});
+        for(var i=0;i<6;i+=1)bruit_(c,{duration:.05,volume:.05,frequency:3000,frequencyEnd:800,decay:3,delay:i*.18,filterType:"bandpass"});
+        return true;
+      }).catch(function(){return false;});
+    });
+  }
+  /* Bip de réapparition (Norman, 2026-10-23) : le MÊME petit « pip » à chacun des trois clignotements de l'image du joueur qui revient (modules/mort-joueur-v1.js), joué tout de suite pour rester calé sur l'image. */
+  function reapparitionBip_(){
+    return jouerWebAudio_(190,function(c){
+      tonal_(c,{type:"square",from:880,to:880,duration:.09,volume:.045});
+      tonal_(c,{type:"sine",from:1760,to:1760,duration:.09,volume:.022});
+    });
+  }
   /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
   function ecouterDefaite_(nom){
     var son=SONS_DEFAITE.filter(function(s){return s.nom===nom;})[0];
@@ -1607,6 +1642,31 @@
       tonal_(c,{type:"triangle",from:1320,to:1760,duration:.22,volume:.03,delay:.52});
     });
   }
+  /* Vomi : des gargouillis qui montent, un « bleurgh » qui tombe, puis la flaque qui s'étale (gros « splotch » et clapotis). */
+  function valiseVomi_(){
+    return jouerWebAudio_(2400,function(c){
+      for(var i=0;i<4;i+=1){
+        tonal_(c,{type:"sawtooth",from:90+i*14,to:150+i*26,duration:.16,volume:.045,delay:i*.19});
+        bruit_(c,{duration:.15,volume:.05,frequency:420+i*60,frequencyEnd:260,decay:1.4,delay:i*.19});
+      }
+      tonal_(c,{type:"sawtooth",from:230,to:62,duration:.62,volume:.07,delay:.82});
+      bruit_(c,{duration:.6,volume:.085,frequency:760,frequencyEnd:180,decay:1.2,delay:.82});
+      bruit_(c,{duration:.28,volume:.1,frequency:520,frequencyEnd:150,decay:2.2,delay:1.5});
+      tonal_(c,{type:"sine",from:210,to:70,duration:.24,volume:.06,delay:1.5});
+      for(var k=0;k<3;k+=1)bruit_(c,{duration:.07,volume:.045,frequency:900-k*160,frequencyEnd:300,decay:3,delay:1.85+k*.11,filterType:"bandpass"});
+    });
+  }
+  /* Ronflement aigu de la valise : une inspiration qui grince (dent de scie vers 330-420 Hz, trémolo), une expiration sifflante, un petit sifflement de nez tout en haut. Un cycle d'environ 1,6 s, plus clair que le grondement du Coffre. */
+  function valiseRonfle_(){
+    return jouerWebAudio_(1900,function(c){
+      tonal_(c,{type:"sawtooth",from:300,to:430,duration:.55,volume:.032});
+      bruit_(c,{duration:.55,volume:.035,frequency:1500,frequencyEnd:2300,decay:.8,filterType:"bandpass"});
+      tonal_(c,{type:"sawtooth",from:410,to:270,duration:.7,volume:.03,delay:.62});
+      bruit_(c,{duration:.7,volume:.03,frequency:2000,frequencyEnd:1100,decay:1.1,delay:.62,filterType:"bandpass"});
+      tonal_(c,{type:"sine",from:1500,to:1750,duration:.5,volume:.012,delay:.05});
+      tonal_(c,{type:"sine",from:1650,to:1250,duration:.55,volume:.01,delay:.66});
+    });
+  }
   function valiseTouche_(){
     return jouerWebAudio_(500,function(c){
       tonal_(c,{type:"triangle",from:880,to:1180,duration:.16,volume:.045});
@@ -1970,6 +2030,8 @@
     valiseFerme:valiseFerme_,
     valisePotion:valisePotion_,
     valiseTouche:valiseTouche_,
+    valiseVomi:valiseVomi_,
+    valiseRonfle:valiseRonfle_,
     coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
     borneAllume:function(){return jouerWebAudio_(2700,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.allumer==="function")m.allumer(c,master||c.destination);});},
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
@@ -2225,6 +2287,9 @@
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
+    /* le même son de défaite, à l'envers, joué tout de suite (rembobinage VHS de la mort du joueur) */
+    defeatReverse:function(){return defaiteInverse_();},
+    reapparitionBip:function(){return reapparitionBip_();},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
     previewDiarrhee:function(id){return jouerWebAudio_(2400,function(c){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;if(m&&typeof m.jouerDiarrhee==='function')m.jouerDiarrhee(c,master||c.destination,id);});},
@@ -2261,6 +2326,8 @@
     valiseFerme:function(){return demander_("valiseFerme");},
     valisePotion:function(){return demander_("valisePotion");},
     valiseTouche:function(){return demander_("valiseTouche");},
+    valiseVomi:function(){return demander_("valiseVomi");},
+    valiseRonfle:function(){return demander_("valiseRonfle");},
     coffreAvale:function(){return demander_("coffreAvale");},
     borneAllume:function(){return demander_("borneAllume");},
     coffreRecrache:function(){return demander_("coffreRecrache");},

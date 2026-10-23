@@ -62,8 +62,8 @@ const textes = (m) => m.enfants.map((n) => n.textContent);
 
 // 4. Endormi, il ne fait pas de remarque ; une fois réveillé le compte reprend.
 {
-  const m = monde([0.999, 0]);   // remarque après ~420 s, endormissement dès 70 s
-  for (let i = 0; i < 400; i += 1) m.tic();   // 100 s : il dort
+  const m = monde([0.999, 0]);   // remarque après ~420 s, endormissement dès 240 s
+  for (let i = 0; i < 1000; i += 1) m.tic();   // 250 s : il dort
   assert.equal(m.api.dort(), true);
   const avant = textes(m).length;
   for (let i = 0; i < 100; i += 1) m.tic();

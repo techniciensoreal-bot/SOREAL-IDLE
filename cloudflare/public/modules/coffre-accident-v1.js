@@ -185,7 +185,8 @@
   document.addEventListener('pointerdown',function(e){
     if(e.button>0){suivi=null;return;}
     var fl=e.target&&e.target.closest?e.target.closest('.bg-flaque-v1'):null;
-    if(fl){retirerDoigt_();suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
+    /* Norman (2026-10-23) : la main d'apprentissage ne disparaît qu'après UNE vraie frottée (un trait compté), pas au simple toucher. */
+    if(fl){suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
     suivi=null;
   },true);
   /* Après une frottée sur la flaque, le clic qui suit ne doit pas ouvrir/fermer le Coffre. */
@@ -199,7 +200,7 @@
       if(!fl||!dedans_(fl.getBoundingClientRect(),e.clientX,e.clientY)){suivi=null;return;}
       var n=course_(suivi,e.clientX,e.clientY);
       if(suivi.total>8)ignorerClicJusqua=Date.now()+600;
-      if(n&&flaqueNiveau>0){flaqueNiveau-=1;sauver_();majFlaque_();clic_();}
+      if(n&&flaqueNiveau>0){retirerDoigt_();flaqueNiveau-=1;sauver_();majFlaque_();clic_();}
       return;
     }
   },true);
@@ -306,6 +307,8 @@
 
   window.__SOREAL_IDLE_CACA_V1__={
     souiller:souiller_,flaque:flaque_,horsEcran:horsEcran_,appliquer:appliquer_,
+    /* pour la main d'apprentissage sur l'inventaire (modules/valise-accident-v1.js) */
+    doigtSvg:SVG_DOIGT_,doigtVu:doigtDejaVu_,
     flaqueNiveau:function(){return flaqueNiveau;},
     actif:function(){return actif;},brille:function(){return brilleJusqua>Date.now();}
   };

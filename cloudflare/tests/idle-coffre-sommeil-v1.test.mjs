@@ -48,14 +48,14 @@ assert.ok(css.includes("@keyframes bgRonfle{0%,100%{transform:none}"), "respirat
   const api = window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__;
   // hors de vue ou onglet caché : il ne s'endort jamais
   visible = false;
-  for (let i = 0; i < 600; i += 1) tic();
+  for (let i = 0; i < 1500; i += 1) tic();
   assert.equal(api.dort(), false, "hors de l'écran : il ne s'endort pas");
   visible = true; cache = true;
-  for (let i = 0; i < 600; i += 1) tic();
+  for (let i = 0; i < 1500; i += 1) tic();
   assert.equal(api.dort(), false, "onglet caché : il ne s'endort pas");
   cache = false;
-  // 70 s minimum de présence à l'écran (random = 0)
-  for (let i = 0; i < 279; i += 1) tic();
+  // 240 s minimum de présence à l'écran (random = 0) : le sommeil est rare (Norman, 2026-10-23)
+  for (let i = 0; i < 959; i += 1) tic();
   assert.equal(api.dort(), false, "pas avant son délai");
   tic();
   assert.equal(api.dort(), true, "après son délai à l'écran, il s'endort");
@@ -84,7 +84,7 @@ assert.ok(css.includes("@keyframes bgRonfle{0%,100%{transform:none}"), "respirat
   assert.equal(stoppe, false, "éveillé : le clic passe normalement");
   // au bout de 150 s de présence, il se réveille tout seul
   api.endormir();
-  for (let i = 0; i < 600; i += 1) tic();
+  for (let i = 0; i < 1500; i += 1) tic();
   assert.equal(api.dort(), false, "il ne dort pas indéfiniment");
   assert.equal(joues.filter((x) => x === "coffreReveil").length, 2, "réveil tout seul : il pète aussi");
 }

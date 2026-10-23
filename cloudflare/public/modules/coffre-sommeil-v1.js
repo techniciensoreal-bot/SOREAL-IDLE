@@ -9,7 +9,7 @@
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__)return;
-  var PAS=250,MIN=70000,MAX=160000,SOMMEIL_MAX=150000,RONFLE_MIN=4500,RONFLE_MAX=7500;
+  var PAS=250,MIN=240000,MAX=540000,SOMMEIL_MAX=150000,RONFLE_MIN=4500,RONFLE_MAX=7500;
   /* Répliques du réveil en sursaut, toujours en français (comme les excuses du pet). */
   var REPLIQUES=[
     'J’ai jamais couché avec votre femme !',
@@ -120,7 +120,11 @@
     if(document.hidden||!visible_())return;
     if(!dort){
       vuAvantSommeil+=PAS;
-      if(vuAvantSommeil>=cibleSommeil){endormir_();return;}
+      if(vuAvantSommeil>=cibleSommeil){
+        /* jamais en même temps que la valise (Norman, 2026-10-23) : si elle dort, on réessaie dans 30 s */
+        if(window.__valiseDortIdleV1__){vuAvantSommeil=Math.max(0,cibleSommeil-30000);return;}
+        endormir_();return;
+      }
       vuEveille+=PAS;
       if(vuEveille>=cibleRegard&&remarque_(el)){vuEveille=0;cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);}
       return;
