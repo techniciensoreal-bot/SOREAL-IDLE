@@ -127,8 +127,8 @@
       '<g class="vl-anse"><path d="M128 53Q128 22 160 22Q192 22 192 53" fill="none" stroke="#2a1408" stroke-width="10" stroke-linecap="round"/><path d="M128 53Q128 26 160 26Q192 26 192 53" fill="none" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/><circle cx="128" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/><circle cx="192" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/></g>'+
       '<g class="vl-yeux">'+
         '<ellipse cx="124" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/><ellipse cx="196" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/>'+
-        '<circle class="vl-pupille" cx="126" cy="82" r="6" fill="#1a0d05"/><circle class="vl-pupille" cx="194" cy="82" r="6" fill="#1a0d05"/>'+
-        '<circle cx="128.5" cy="79.5" r="1.8" fill="#fff"/><circle cx="196.5" cy="79.5" r="1.8" fill="#fff"/>'+
+        '<g class="vl-pupille vl-pg"><circle cx="124" cy="80" r="5.2" fill="#1a0d05"/><circle cx="126" cy="77.8" r="1.7" fill="#fff"/></g>'+
+        '<g class="vl-pupille vl-pd"><circle cx="196" cy="80" r="5.2" fill="#1a0d05"/><circle cx="198" cy="77.8" r="1.7" fill="#fff"/></g>'+
         '<ellipse class="vl-paupiere" cx="124" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="3"/><ellipse class="vl-paupiere" cx="196" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="3"/>'+
         '<path d="M106 62Q124 52 142 62M178 62Q196 52 214 62" fill="none" stroke="#2a1608" stroke-width="5" stroke-linecap="round"/>'+
       '</g>'+
@@ -266,8 +266,12 @@ ${P} .vl-etiquette{transform-origin:232px 168px;animation:vlBalance 3.4s ease-in
 @keyframes vlBalance{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 ${P} .vl-paupiere{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:vlCligne 4.6s ease-in-out infinite}
 @keyframes vlCligne{0%,92%,100%{transform:scaleY(0)}95%,97%{transform:scaleY(1)}}
-${P} .vl-pupille{animation:vlRegard 7s ease-in-out infinite}
-@keyframes vlRegard{0%,16%,100%{transform:translateX(0)}22%,40%{transform:translateX(-5px)}46%,64%{transform:translateX(5px)}70%{transform:translateX(0)}}
+/* Les yeux d'un fou : chaque pupille part de son côté, dans une autre direction (haut, bas, de travers, louchant), à son propre rythme (durées premières : elles ne se synchronisent jamais) */
+${P} .vl-pupille{animation-timing-function:cubic-bezier(.65,0,.35,1);animation-iteration-count:infinite}
+${P} .vl-pg{animation-name:vlFouG;animation-duration:2.9s}
+${P} .vl-pd{animation-name:vlFouD;animation-duration:2.3s}
+@keyframes vlFouG{0%{transform:translate(-7px,-5px)}13%{transform:translate(8px,5px)}27%{transform:translate(-2px,6px)}41%{transform:translate(7px,-6px)}55%{transform:translate(-8px,2px)}70%{transform:translate(3px,-7px)}84%{transform:translate(7px,6px)}100%{transform:translate(-7px,-5px)}}
+@keyframes vlFouD{0%{transform:translate(8px,5px)}16%{transform:translate(-8px,-5px)}30%{transform:translate(4px,-7px)}46%{transform:translate(-3px,7px)}60%{transform:translate(8px,-2px)}75%{transform:translate(-8px,5px)}88%{transform:translate(1px,-7px)}100%{transform:translate(8px,5px)}}
 /* Le couvercle est articulé à l'ARRIÈRE (son bord haut, collé au fond de la valise) : il s'ouvre en levant seulement son avant, le dôme se raccourcit autour de ce bord (perspective), les yeux suivent */
 ${P} .vl-dome{transform-origin:160px 52px;transition:transform .55s cubic-bezier(.3,1.35,.5,1);animation:vlBaille 7s ease-in-out infinite}
 ${P} .vl-yeux{transition:transform .55s cubic-bezier(.3,1.35,.5,1)}

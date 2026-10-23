@@ -105,3 +105,12 @@ console.log("idle-valise-consommables-v1 (charnière): OK");
   assert.ok(c.includes(".vl-anim .vl-langue{clip-path:inset(0 0 calc(var(--vl-h,0)*(1 - var(--vl-p,0))*1px) 0)}"), "la langue visible suit son propre avancement");
 }
 console.log("idle-valise-consommables-v1 (cadre en retard): OK");
+
+// Les yeux d'un fou : chaque pupille a sa propre trajectoire (haut, bas, de travers), à son propre rythme (Norman, 2026-10-23).
+{
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  assert.ok(c.includes(".vl-pg{animation-name:vlFouG;animation-duration:2.9s}") && c.includes(".vl-pd{animation-name:vlFouD;animation-duration:2.3s}"), "deux pupilles, deux rythmes");
+  const g = c.match(/@keyframes vlFouG\{([^@]*?)\}\n/)[1], d = c.match(/@keyframes vlFouD\{([^@]*?)\}\n/)[1];
+  assert.ok(g !== d && /translate\([^)]*,[^)]*\)/.test(g) && /translate\([^)]*,[^)]*\)/.test(d), "trajectoires différentes, à deux dimensions");
+}
+console.log("idle-valise-consommables-v1 (yeux): OK");
