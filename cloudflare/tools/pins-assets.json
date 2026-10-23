@@ -4,12 +4,12 @@
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
  },
  "/modules/admin-histoires-v1.js": {
-  "pin": 19,
-  "sha": "a7d57ebd48d43d623158345a11a17ed1d886eb0d"
+  "pin": 20,
+  "sha": "43bae4ef9bb66d961ae8fe0e8e0b5db9a3c9968a"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 1,
-  "sha": "5be68e210265393422dfd0078d76b6077c89da7f"
+  "pin": 2,
+  "sha": "cb52b93948c3fe63f56c46441f7e6bf2ba650877"
  },
  "/modules/adventure-scene-v79.js": {
   "pin": 2042,
@@ -284,8 +284,8 @@
   "sha": "888da122d736b9a9f54b94a0ffed62a7f738229b"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 52,
-  "sha": "a49fd3b72ccb51c6e2eaa080a30ee926322c74f7"
+  "pin": 53,
+  "sha": "59d2d48dc50c47fd80a982075b0864fd0dc8acab"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -372,8 +372,8 @@
   "sha": "f274a48d5ab2852f865c75baf2e1f26a21a0b250"
  },
  "/modules/story-engine-v1.js": {
-  "pin": 8,
-  "sha": "6bf607d3bf962f7119ac4c70e6623aa653192dfd"
+  "pin": 9,
+  "sha": "a09d02cf9ecf85101448a536f2e3e941f8cdcae9"
  },
  "/modules/studio-pilote-v1.js": {
   "pin": 5,
@@ -388,8 +388,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 24,
-  "sha": "d6efe6e359ce45a0b128f7c6cd470cc61664b6d3"
+  "pin": 25,
+  "sha": "e8df84ed671f71a1819a5e7be298212d154729ab"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -436,8 +436,8 @@
   "sha": "0cff3eed908641429441796ac953c862113c6b2f"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 4,
-  "sha": "b937e4369cb0bf14cb9efb2e2b447f4d887724f6"
+  "pin": 5,
+  "sha": "4fc0e1c19b74e305b29aa4ceed576d2195dda0ac"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

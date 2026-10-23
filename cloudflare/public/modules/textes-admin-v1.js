@@ -1149,6 +1149,8 @@ function enregistrer_(){
     if(!res||res.ok===false){afficherEtat_((res&&res.message)||'Enregistrement refusé.',true);return false;}
     edition.surcharge=res.texte||charge_(valeurs);
     miseAJourApresEcriture_(edition.cle,edition.surcharge);
+    /* def.apresEnregistrer : renvoie le texte affiché à sa source (l'éditeur de guides y met à jour l'étape). */
+    try{if(typeof edition.def.apresEnregistrer==='function')edition.def.apresEnregistrer({champs:charge_(valeurs).champs});}catch(_e){}
     afficherEtat_('✔ Enregistré. '+statutLigne_());
     rafraichirFichiersVoix_();
     return true;
@@ -1297,7 +1299,8 @@ function ouvrir_(cle,def,surcharge,originaux){
   var courant={};
   def.champs.forEach(function(c){
     var s=surcharge&&surcharge.champs?surcharge.champs[c.id]:undefined;
-    courant[c.id]=s!==undefined?s:(originaux?originaux[c.id]:'');
+    /* def.champsDepuisSource : le texte affiché vient toujours de sa source (ex. l'étape d'un guide), jamais d'une copie enregistrée ici ; seuls le texte dit et les voix sont gardés. */
+    courant[c.id]=(s!==undefined&&!def.champsDepuisSource)?s:(originaux?originaux[c.id]:'');
   });
   edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,affiche:{},sel:{},voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{},
     voixTextes:surcharge&&surcharge.voixTextes&&typeof surcharge.voixTextes==='object'?Object.assign({},surcharge.voixTextes):{},

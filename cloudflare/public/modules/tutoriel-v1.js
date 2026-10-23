@@ -141,9 +141,15 @@ function declarerVoix_(guide){
     T.declarer(cleVoix_(guide,i),{
       groupe:'Tutoriel · '+String(guide.titre||guide.id),
       libelle:'Étape '+(i+1)+' — '+String(e.titre||'Sans titre'),
-      champs:[{id:'texte',label:'Texte lu',type:'texte'}],
-      original:function(){return {texte:texteOrigineVoix_(e)};},
-      texteLu:function(v){return String(v&&v.texte||'');}
+      /* Même éditeur que les textes de base (Norman, 2026-10-23) : le cadre jaune est le texte de l'étape tel que le joueur le lit (celui du guide, jamais une copie), les personnages en dessous disent ce qu'on veut. */
+      champs:[{id:'texte',label:'Texte de l’étape',type:'texte'}],
+      champsDepuisSource:true,
+      original:function(){return {texte:String(e.texte||'')};},
+      texteLu:function(v){return String(v&&v.texte||'');},
+      apresEnregistrer:function(o){
+        var A=window.__SOREAL_IDLE_ADMIN_TUTORIEL_V1__;
+        if(A&&typeof A.majTexteEtape==='function')A.majTexteEtape(guide.id,i,String(o&&o.champs&&o.champs.texte||''));
+      }
     });
   });
 }

@@ -83,6 +83,9 @@ function installerStyle_(){
     '#'+EDITEUR_ID+' .at-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}'+
     '#'+EDITEUR_ID+' .at-etat{min-height:20px;font-weight:700;margin:6px 0}'+
     '#'+EDITEUR_ID+' .at-etat.erreur{color:#ff8f8f}'+
+    '#'+EDITEUR_ID+' .at-or-etiq{color:#2a1a02;background:linear-gradient(180deg,#f7d87a,#d8a233);border:3px solid #6b4607;border-bottom:0;border-radius:14px 14px 0 0;padding:6px 12px;margin:10px 0 0}'+
+    '#'+EDITEUR_ID+' textarea.at-or{background:rgba(255,248,214,.9);color:#2a1a02;border:3px solid #6b4607;border-radius:0 0 14px 14px;font-weight:700;margin:0}'+
+    '#'+EDITEUR_ID+' .at-aide{font-size:13px;color:#9fb3d8;margin:4px 0 0}'+
     '@media (max-width:560px){#'+EDITEUR_ID+' .at-rang{grid-template-columns:1fr}}';
   (document.head||document.documentElement).appendChild(s);
 }
@@ -194,10 +197,12 @@ function etapeHtml_(e,i,total){
     '<div class="at-etape-tete"><b>Étape '+(i+1)+'</b><span>'+
       '<button type="button" data-ae="haut" data-i="'+i+'" '+(i===0?'disabled':'')+'>⬆</button> '+
       '<button type="button" data-ae="bas" data-i="'+i+'" '+(i>=total-1?'disabled':'')+'>⬇</button> '+
+      '<button type="button" class="principal" data-ae="voix" data-i="'+i+'" title="Personnages, voix, écoute et génération de cette étape (même éditeur que les textes de base)">🎙 Texte et voix</button> '+
       '<button type="button" data-ae="voir" data-i="'+i+'">▶ Voir cette étape</button> '+
       '<button type="button" class="danger" data-ae="suppr" data-i="'+i+'">🗑</button></span></div>'+
     '<label>Titre (facultatif)</label><input type="text" data-champ="titre" maxlength="80" value="'+esc_(e.titre)+'">'+
-    '<label>Texte</label><textarea data-champ="texte" maxlength="1500">'+esc_(e.texte)+'</textarea>'+
+    '<label class="at-or-etiq">Texte tel que le joueur le lit</label><textarea class="at-or" data-champ="texte" maxlength="1500">'+esc_(e.texte)+'</textarea>'+
+    '<div class="at-aide">Ce cadre jaune est le texte affiché. Pour découper par personnage, régler la prononciation et générer les voix, ouvre « 🎙 Texte et voix ».</div>'+
     '<label>Menu où se passe l’étape</label><select data-champ="menu">'+optionsMenus_(e.menu,true)+'</select>'+
     '<div class="at-cible"><b>🎯 Élément montré :</b> '+(cible?esc_(e.cible.libelle||'(élément choisi)')+'<code>'+esc_(e.cible.selecteur)+'</code>':'<i>aucun — la fenêtre s’affiche au centre</i>')+
       '<div class="at-actions"><button type="button" class="principal" data-ae="placer" data-i="'+i+'">🎯 Placer sur l’écran</button>'+(cible?' <button type="button" data-ae="sanscible" data-i="'+i+'">Sans cible</button>':'')+'</div></div>'+
@@ -251,6 +256,51 @@ function lireChamps_(){
     function c(n){var x=bloc.querySelector('[data-champ="'+n+'"]');return x;}
     e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
   });
+}
+
+/*
+ * « 🎙 Texte et voix » d'une étape : le même éditeur que les textes de base (cadre jaune = texte affiché au joueur, personnages dessous, écoute, génération, fichiers). Le guide doit exister côté serveur
+ * (la voix est rangée sous son identifiant) : un nouveau guide est d'abord enregistré, sans fermer l'éditeur.
+ */
+function persister_(g){
+  return appel_('enregistrerTutorielAdminSorealIdle',[g]).then(function(res){
+    if(!res||res.ok===false)throw new Error((res&&res.message)||'Enregistrement refusé.');
+    var idx=-1;etat.guides.forEach(function(x,i){if(x.id===res.guide.id)idx=i;});
+    if(idx>=0)etat.guides[idx]=res.guide;else etat.guides.push(res.guide);
+    etat.guides.sort(function(a,b){return (a.ordre-b.ordre)||String(a.id).localeCompare(String(b.id));});
+    return res.guide;
+  });
+}
+function ouvrirVoixEtape_(i){
+  lireChamps_();
+  var T=window.__SOREAL_IDLE_TUTORIEL_V1__,X=window.__SOREAL_IDLE_TEXTES_V1__;
+  if(!T||!X||typeof X.editer!=='function'){afficherEtat_('Éditeur de voix indisponible.',true);return;}
+  var e=edition.etapes[i];
+  if(!e||!String(e.texte||'').trim()){afficherEtat_('Écris d’abord le texte de l’étape.',true);return;}
+  var g=copie_(edition);
+  if(!String(g.titre||'').trim()){afficherEtat_('Donne un titre au guide.',true);return;}
+  if(!g.id)g.id=nouvelId_(g.titre);
+  g.etapes=g.etapes.filter(function(x){return String(x.texte||'').trim()||String(x.titre||'').trim();});
+  var ind=g.etapes.indexOf(g.etapes.filter(function(x){return x.texte===e.texte&&x.titre===e.titre;})[0]);
+  if(ind<0){afficherEtat_('Étape introuvable.',true);return;}
+  afficherEtat_('Enregistrement du guide…',false);
+  persister_(g).then(function(sauve){
+    edition.id=sauve.id;editionEstNouveau=false;
+    T.declarerVoix(sauve);
+    afficherEtat_('',false);
+    X.editer(T.cleVoix(sauve,ind));
+  }).catch(function(err){afficherEtat_(String(err&&err.message||err),true);});
+}
+/* Appelé par l'éditeur de voix quand le cadre jaune d'une étape est enregistré : l'étape du guide reçoit ce texte (et le serveur aussi). */
+function majTexteEtape_(guideId,i,texte){
+  var g=etat.guides.filter(function(x){return x.id===guideId;})[0];
+  if(!g||!g.etapes[i])return;
+  var c=copie_(g);c.etapes[i].texte=String(texte||'');
+  persister_(c).then(function(sauve){
+    if(edition&&edition.id===sauve.id&&edition.etapes[i]){edition.etapes[i].texte=sauve.etapes[i]?sauve.etapes[i].texte:texte;rendre_();}
+    var T=window.__SOREAL_IDLE_TUTORIEL_V1__;if(T&&typeof T.declarerVoix==='function')T.declarerVoix(sauve);
+    rafraichirListe_();
+  }).catch(function(){});
 }
 
 function rendre_(){
@@ -382,6 +432,7 @@ document.addEventListener('click',function(ev){
       if(window.confirm('Supprimer l’étape '+(i+1)+' ?')){edition.etapes.splice(i,1);rendre_();}
       return;
     }
+    if(b==='voix'){ouvrirVoixEtape_(i);return;}
     if(b==='voir'){
       var guide=copie_(edition);guide.etapes=guide.etapes.slice(i);
       masquerEditeur_();apercu_(guide,remontrerEditeur_);return;
@@ -409,6 +460,7 @@ window.__SOREAL_IDLE_ADMIN_TUTORIEL_V1__={
   etapeVide:etapeVide_,
   libelleDeclencheur:libelleDeclencheur_,
   nouvelId:nouvelId_,
-  pourLecteur:pourLecteur_
+  pourLecteur:pourLecteur_,
+  majTexteEtape:majTexteEtape_
 };
 })();

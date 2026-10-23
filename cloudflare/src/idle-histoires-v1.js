@@ -131,7 +131,9 @@ export function normaliserHistoireV1(brut) {
     /* Voix nommées (Norman, 2026-10-01) : l'identifiant d'une voix du registre modules/voix-nommees-v1.js (lettres minuscules, chiffres, tirets). */
     const parleurBrut = e && typeof e.parleur === "string" ? e.parleur.trim() : "";
     const parleur = parleurBrut === "femme" ? "femme" : parleurBrut !== "narrateur" && IDLE_HISTOIRE_VOIX_ID_RE_V1.test(parleurBrut) ? parleurBrut : "narrateur";
-    return { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image, parleur };
+    /* Texte AFFICHÉ au joueur (cadre jaune de l'éditeur, 2026-10-23), distinct du texte DIT (balises de voix) ; absent = le texte dit sans ses balises. */
+    const affiche = texteNettoyeV1(e && e.affiche, IDLE_HISTOIRE_MAX_TEXTE_V1);
+    return affiche ? { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), affiche, image, parleur } : { texte: texteNettoyeV1(e && e.texte, IDLE_HISTOIRE_MAX_TEXTE_V1), image, parleur };
   });
   const voix = Array.from(new Set((Array.isArray(h.voix) ? h.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_HISTOIRE_HASH_RE_V1.test(x)))).slice(0, 400);
   /* Identifiant « vu » (profil.stats.vus) : conservé tel quel pour les deux premières histoires, déjà mémorisé chez les joueurs. */
@@ -211,6 +213,6 @@ export function histoireDuBossV1(sql, boss) {
     titre: h.titre,
     vuId: h.vuId || "histoire:" + h.id,
     voix: h.voix,
-    etapes: h.etapes.map((e) => ({ texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur }))
+    etapes: h.etapes.map((e) => (e.affiche ? { texte: e.texte, affiche: e.affiche, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur } : { texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur }))
   };
 }

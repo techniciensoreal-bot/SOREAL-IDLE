@@ -231,7 +231,8 @@ function jouer_(histoire,options){
     if(passageDemande)return;
     if(i>=etapes.length){terminer_(overlay,histoire,options);return;}
     var decoupe=segmenter_(etapes[i].texte,etapes[i].parleur);
-    var texte=decoupe.affiche;
+    /* Cadre jaune de l'éditeur : le texte affiché peut différer du texte dit (Norman, 2026-10-23). */
+    var texte=String(etapes[i].affiche||'').trim()||decoupe.affiche;
     afficherImage_(etapes[i].imageUrl);
     texteEl.textContent=texte;
     prechaufferEtape_(etapes,i+1);

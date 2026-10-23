@@ -155,6 +155,12 @@ function lignesDepuisEtape_(e){
     return {parleur:parleurUi_(sg.voix),expr:t.expr,texte:t.reste};
   });
 }
+/* Texte tel que le joueur le lit quand rien n'a été écrit dans le cadre jaune : le texte dit, sans ses balises de voix, d'expression et de pause (comme le lecteur d'histoires). */
+function afficheDefaut_(e){
+  var m=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
+  try{if(m&&typeof m.segmenter==='function')return String(m.segmenter(e.texte,e.parleur).affiche||'');}catch(_e){}
+  return sansEspaces_(e.texte);
+}
 function composerEtape_(e){
   var lignes=(e.lignes||[]).filter(function(x){return String(x&&x.texte||'').trim();});
   if(!lignes.length){e.texte='';e.parleur=parleurUi_((e.lignes&&e.lignes[0]&&e.lignes[0].parleur)||e.parleur);return;}
@@ -272,6 +278,12 @@ function installerStyle_(){
     '.adm-ligne-n-v1{min-width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#5b8cff;color:#fff;font:800 13px/1 system-ui,sans-serif}'+
     '#'+EDITEUR_ID+' .adm-ligne-v1 textarea{min-height:64px}'+
     '.adm-fichiers-v1{margin-top:6px}.adm-fichiers-titre-v1{font-size:12px;font-weight:800;color:#a9b6d8;text-transform:uppercase;letter-spacing:.04em}.adm-fichiers-titre-v1 span{text-transform:none;letter-spacing:0;font-weight:400}'+
+    '.adm-or-v1{background:linear-gradient(180deg,#f7d87a,#d8a233);border:3px solid #6b4607;border-radius:14px;padding:8px 10px 10px;color:#2a1a02;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 3px 0 #000}'+
+    '.adm-or-etiq-v1{margin:0 0 4px;font-weight:800;font-size:14px}'+
+    '#'+EDITEUR_ID+' .adm-or-v1 textarea{background:rgba(255,248,214,.85);color:#2a1a02;border:2px solid #7d5410;font-weight:700;min-height:64px}'+
+    '.adm-or-note-v1{margin:6px 0 0;font-size:12.5px;color:#4a3205}'+
+    '.adm-sous-or-v1{font-weight:800;font-size:14px;color:#c9d4f0;margin:2px 0 0}'+
+    '.adm-coche-v1{width:20px;height:20px;flex:0 0 20px;accent-color:#34c46a}'+
     '.adm-mini-v1{display:none}'+
     '#'+EDITEUR_ID+'.adm-reduit{inset:auto 12px 12px auto;width:310px;max-width:calc(100vw - 24px);height:auto;overflow:visible;background:transparent;pointer-events:none}'+
     '#'+EDITEUR_ID+'.adm-reduit .adm-page,#'+EDITEUR_ID+'.adm-reduit .adm-pied-v1{display:none}'+
@@ -374,7 +386,7 @@ function histoireParId_(id){
 function versLecteur_(h){
   return {
     id:h.id,vuId:h.vuId||('histoire:'+h.id),voix:h.voix||[],
-    etapes:h.etapes.map(function(e){return {texte:e.texte,imageUrl:urlImage_(h.id,e.image)};})
+    etapes:h.etapes.map(function(e){return {texte:e.texte,affiche:e.affiche||'',imageUrl:urlImage_(h.id,e.image)};})
   };
 }
 
@@ -462,6 +474,7 @@ function ligneHtml_(e,i,k){
   var couleur=u?u.couleurVoix(l.parleur):'#5b8cff';
   return '<div class="adm-ligne-v1" data-adm-ligne="'+cle+'" data-vu-bulle="'+cle+'" style="--vu-c:'+couleur+'">'+
     '<div class="adm-ligne-tete-v1">'+
+      '<input type="checkbox" class="adm-coche-v1" data-adm-sel="'+cle+'" title="Cocher pour ne régénérer que ce personnage (bouton « Générer la sélection »)"'+((edition.sel||{})[cle]?' checked':'')+'>'+
       (u?u.chipsHtml(cle,l):'')+
       '<span style="flex:1"></span>'+badge+
     '</div>'+
@@ -497,6 +510,9 @@ function etapeHtml_(e,i){
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer':'Choisir')+'</button>'+
       '</div>'+
       '<div class="adm-lignes-v1">'+
+        '<div class="adm-or-v1"><p class="adm-or-etiq-v1">Texte tel que les joueurs le lisent</p><textarea rows="3" data-adm-affiche="'+i+'" data-adm-aff-init="'+esc_(e.affiche||afficheDefaut_(e))+'" placeholder="Le texte qui s’affiche sous l’image…">'+esc_(e.affiche||afficheDefaut_(e))+'</textarea>'+
+          '<p class="adm-or-note-v1">Ne change jamais la voix : seuls les personnages ci-dessous parlent. Écris-les comme tu veux (prononciation, découpage).</p></div>'+
+        '<div class="adm-sous-or-v1">🗣 Personnages — ils parlent à tour de rôle, dans cet ordre</div>'+
         e.lignes.map(function(l,k){return ligneHtml_(e,i,k);}).join('')+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ligne+" data-i="'+i+'" title="Ajouter un personnage (une nouvelle ligne)">＋ Ajouter un personnage</button>'+
         '<div class="soreal-idle-adm-meta-v1" style="margin-top:6px">Une ligne = un personnage qui parle. Pour une seule voix, garde une seule ligne ; les balises <b>(femme)</b>, <b>(homme)</b>… écrites dans un texte marchent toujours et sont aussi découpées en lignes à la réouverture.</div>'+
@@ -559,6 +575,7 @@ function dessinerEditeur_(){
       '<button type="button" class="soreal-idle-adm-btn-v1 primaire" data-adm-g="enregistrer">💾 Enregistrer</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="tester">▶ Tester</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="voix" id="sorealIdleAdminBtnVoixV1">🎙 Générer les voix</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="voix-sel" title="Régénère seulement les personnages cochés">🎙 Générer la sélection</button>'+
       '<details class="adm-plus-v1"><summary title="Plus d’actions">⋯</summary><div class="adm-plus-menu-v1">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-lancer" title="Lance lancer.bat sur ce PC (via le pilote)">🚀 Lancer le studio</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="studio-arreter" title="Arrête le studio de voix sur ce PC">🛑 Arrêter le studio</button>'+
@@ -635,6 +652,18 @@ function lireChamps_(){
     if(l)l.expr=inp.value;
   });
   edition.etapes.forEach(function(e){if(e.lignes)composerEtape_(e);});
+  /* Cadre jaune : modifié par Norman = enregistré tel quel ; resté tel qu'affiché = rien d'enregistré (le joueur lit le texte dit sans balises). */
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-affiche]'),function(ta){
+    var e=edition.etapes[Number(ta.getAttribute('data-adm-affiche'))];
+    if(!e||ta.value===ta.getAttribute('data-adm-aff-init'))return;
+    var v=String(ta.value||'').trim();
+    if(v&&sansEspaces_(v)!==sansEspaces_(afficheDefaut_(e)))e.affiche=v;else delete e.affiche;
+    ta.setAttribute('data-adm-aff-init',ta.value);
+  });
+  Array.prototype.forEach.call(r.querySelectorAll('[data-adm-sel]'),function(c){
+    edition.sel=edition.sel||{};
+    if(c.checked)edition.sel[c.getAttribute('data-adm-sel')]=1;else delete edition.sel[c.getAttribute('data-adm-sel')];
+  });
 }
 
 function deplacer_(i,delta){
@@ -1034,6 +1063,21 @@ function genererEtape_(i){
   lancerGeneration_(blocs,'Étape '+(i+1));
 }
 
+/* Seulement les personnages cochés (Norman, 2026-10-23 : « pouvoir refaire une voix en particulier »), toujours régénérés. */
+function genererSelection_(){
+  if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
+  lireChamps_();
+  var erreur=valider_();
+  if(erreur){afficherEtat_(erreur,true);return;}
+  var vus={},blocs=[];
+  edition.etapes.forEach(function(e,i){(e.lignes||[]).forEach(function(l,k){
+    if(!(edition.sel||{})[i+'-'+k])return;
+    blocsDeLigne_(l).forEach(function(b){if(!vus[b.hash]){vus[b.hash]=1;blocs.push(b);}});
+  });});
+  if(!blocs.length){afficherEtat_('Coche d’abord un ou plusieurs personnages (case à gauche de chaque personnage).',true);return;}
+  lancerGeneration_(blocs,'Sélection');
+}
+
 /* Une seule ligne (un seul personnage) : toujours régénérée, autant de fois qu'on veut, sans toucher au reste des dialogues. */
 function genererLigne_(i,k){
   if(generation.enCours){generation.annule=true;afficherEtat_('Arrêt demandé…');return;}
@@ -1228,6 +1272,7 @@ document.addEventListener('click',function(ev){
     if(act==='enregistrer'){enregistrer_();return;}
     if(act==='tester'){lireChamps_();var err=valider_();if(err){afficherEtat_(err,true);return;}jouer_(edition);return;}
     if(act==='voix'){genererVoix_();return;}
+    if(act==='voix-sel'){genererSelection_();return;}
     if(act==='studio-lancer'||act==='studio-arreter'){pilotageStudio_(act==='studio-lancer');return;}
     if(act==='pron-ajouter'){ajouterPrononciation_();return;}
     if(act==='pron-tester'){essayerPrononciation_((document.getElementById('sorealIdleAdminPronDitV1')||{}).value);return;}
