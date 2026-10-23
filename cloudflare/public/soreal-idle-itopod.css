@@ -1722,3 +1722,17 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1:n
 @keyframes bgBailleLangue{0%,22%{transform:scaleY(0)}34%,70%{transform:scaleY(1)}84%,100%{transform:scaleY(0)}}
 @keyframes bgBailleCorps{0%{transform:scale(1,1)}30%,72%{transform:scale(.97,1.05)}100%{transform:scale(1,1)}}
 @media (prefers-reduced-motion:reduce){.bg-bagage-v1.bg-baille-v1 *{animation:none}}
+
+/* Ouverture / fermeture du Coffre animées (Norman, 2026-10-23) : couvercle qui s'ouvre puis reprend sa respiration, contenu qui se déplie ; à la fermeture l'inverse (le clic attend 0,4 s). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.ouvre .bg-bagage-v1 .bg-couvercle{animation:bgOuvre .55s cubic-bezier(.3,1.6,.5,1) both,bgBaille 3.6s ease-in-out .55s infinite}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.ouvre>div:last-child{animation:bgDeplie .5s ease-out both}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.ferme-anim .bg-bagage-v1 .bg-couvercle{animation:bgFerme .4s ease-in both}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.ferme-anim>div:last-child{animation:bgReplie .4s ease-in both}
+@keyframes bgOuvre{from{transform:rotate(0)}to{transform:rotate(-22deg)}}
+@keyframes bgFerme{from{transform:rotate(-22deg)}to{transform:rotate(0)}}
+@keyframes bgDeplie{from{clip-path:inset(0 0 100% 0);opacity:.2}to{clip-path:inset(0);opacity:1}}
+@keyframes bgReplie{from{clip-path:inset(0);opacity:1}to{clip-path:inset(0 0 100% 0);opacity:.2}}
+@media (prefers-reduced-motion:reduce){.soreal-idle-coffre-v1.ouvre .bg-couvercle,.soreal-idle-coffre-v1.ouvre>div:last-child,.soreal-idle-coffre-v1.ferme-anim .bg-couvercle,.soreal-idle-coffre-v1.ferme-anim>div:last-child{animation:none}}
+
+/* le navigateur ne corrige pas lui-même la position de défilement quand le cadre du Coffre change de hauteur (Norman, 2026-10-23) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28{overflow-anchor:none}

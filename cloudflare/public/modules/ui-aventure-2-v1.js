@@ -2277,7 +2277,7 @@
         const V=window.__SOREAL_IDLE_VALISE_V1__;
         const fondCoffre=V&&typeof V.fond==='function'?V.fond():'';   /* dernier ouvert : velours (valise) ou tapis vert (Coffre), même refermé */
         const phraseValise=Boolean(V&&typeof V.phraseActive==='function'&&V.phraseActive());
-        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(fondCoffre==='valise'?' vl-velours':'')+(fondCoffre==='coffre'?' vl-tapis':'')+'">'+
+        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(fondCoffre==='valise'?' vl-velours':'')+(fondCoffre==='coffre'?' vl-tapis':'')+(Date.now()-(window.__coffreAnimOuvreIdleV1||0)<700?' ouvre':'')+'" data-morph-classes-gardees="^(ferme-anim|ouvre)$">'+
           '<i class="vl-velours-fond" aria-hidden="true"></i>'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+
@@ -2308,18 +2308,62 @@
         '</div>';
       }
 
+      /*
+       * Ouverture / fermeture animées (Norman, 2026-10-23) : le couvercle s'ouvre (et se referme), le contenu se déplie (et se replie). Ouverture : le redessin porte la classe « ouvre » 0,7 s ; fermeture : la classe « ferme-anim »
+       * joue 0,4 s AVANT que l'état change et que la page soit redessinée (un clic pendant ce temps est ignoré).
+       */
+      /* Le cadre s'allonge / se raccourcit en douceur (Norman, 2026-10-23 : « le cadre fait des sauts ») : hauteur animée de `de` à `vers` ; l'écran ne bouge pas (la position de défilement est remise, le navigateur n'a pas le droit de la corriger : overflow-anchor). */
+      function animerHauteurCoffreIdleV1_(racine,de,vers,ms){
+        if(!racine||!(de>0)||!(vers>0)||Math.abs(de-vers)<2)return;
+        const st=racine.style;
+        st.setProperty('transition','none');st.setProperty('height',de.toFixed(1)+'px');st.setProperty('overflow','hidden','important');
+        void racine.offsetHeight;
+        st.setProperty('transition','height '+ms+'ms cubic-bezier(.3,.8,.3,1)');
+        st.setProperty('height',vers.toFixed(1)+'px');
+        clearTimeout(racine.__hauteurT);
+        racine.__hauteurT=setTimeout(function(){st.removeProperty('transition');st.removeProperty('height');st.removeProperty('overflow');},ms+80);
+      }
       function toggleCoffreOuvertAdventureIdleV1_(){
+        if(window.__coffreBasculeIdleV1)return;
         const actuel=idleCoffreOuvertV1_();
+        const racine0=document.querySelector('.soreal-idle-coffre-v1');
+        const hAvant=racine0?racine0.getBoundingClientRect().height:0;
+        const sx=window.scrollX||0,sy=window.scrollY||0;
+        const reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        const finir=function(){
+          window.__coffreBasculeIdleV1=false;
+          document.querySelectorAll('.soreal-idle-coffre-v1.ferme-anim').forEach(function(r){r.classList.remove('ferme-anim');});
+          try{
+            localStorage.setItem('soreal_idle_coffre_ouvert_v1',actuel?'0':'1');
+          }catch(e){}
+          const root=document.querySelector('.soreal-idle-page-root-v28');
+          if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+          /* l'écran reste où il était (ouvert : la liste s'allonge vers le bas, à nous de descendre si besoin) */
+          if(Math.abs((window.scrollY||0)-sy)>1&&typeof window.scrollTo==='function')window.scrollTo(sx,sy);
+        };
         if(!actuel){
           jouerSonOuvertureCoffreIdleV1_();
+          window.__coffreAnimOuvreIdleV1=Date.now();
+          finir();
+          const racine1=document.querySelector('.soreal-idle-coffre-v1');
+          /* hauteur naturelle du cadre ouvert : le plus grand de sa hauteur mesurée et de son contenu (aucun saut final) */
+          if(racine1)animerHauteurCoffreIdleV1_(racine1,hAvant,Math.max(racine1.getBoundingClientRect().height,racine1.scrollHeight),500);
+          if(Math.abs((window.scrollY||0)-sy)>1&&typeof window.scrollTo==='function')window.scrollTo(sx,sy);
+          /* ces classes sont gardées au redessin (data-morph-classes-gardees) : on les retire nous-mêmes quand l'animation est finie, pour qu'elle rejoue à l'ouverture suivante */
+          setTimeout(function(){document.querySelectorAll('.soreal-idle-coffre-v1.ouvre').forEach(function(r){r.classList.remove('ouvre');});},800);
         }else{
           jouerSonFermetureCoffreIdleV197_();
+          const racines=document.querySelectorAll('.soreal-idle-coffre-v1');
+          if(reduit||!racines.length){finir();return;}
+          window.__coffreBasculeIdleV1=true;
+          racines.forEach(function(r){r.classList.add('ferme-anim');});
+          /* le cadre se raccourcit pendant que le contenu se replie : hauteur cible = hauteur actuelle moins le bloc replié (et ses marges) */
+          try{
+            const r0=racines[0],bloc=r0.querySelector(':scope>div:last-child:not(.vl-section)');
+            if(bloc){const cs=getComputedStyle(bloc);animerHauteurCoffreIdleV1_(r0,hAvant,Math.max(60,hAvant-bloc.getBoundingClientRect().height-(parseFloat(cs.marginTop)||0)-(parseFloat(cs.marginBottom)||0)),400);}
+          }catch(e){}
+          setTimeout(finir,400);
         }
-        try{
-          localStorage.setItem('soreal_idle_coffre_ouvert_v1',actuel?'0':'1');
-        }catch(e){}
-        const root=document.querySelector('.soreal-idle-page-root-v28');
-        if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
       }
 
       /*

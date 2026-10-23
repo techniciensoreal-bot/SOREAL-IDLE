@@ -27,3 +27,14 @@ assert.ok(v.includes("function rapprocher(s,coffre,rv)") && v.includes("rapproch
 assert.ok(v.includes('<g class="vl-yeux">\'+\n        \'<g class="vl-etiquette"><path d="M29 80') && !v.includes('<rect x="212" y="168" width="40" height="26"'), "étiquette accrochée à l'extrémité gauche, dans le groupe des yeux");
 assert.ok(v.includes(".vl-etiquette{transform-origin:29px 80px;"));
 console.log("idle-divers-2026-10-23-v1 (cadre, distance, étiquette) OK");
+/* ouverture / fermeture animées : Coffre (couvercle + contenu) et valise (bouche) */
+const av = lire("cloudflare/public/modules/ui-aventure-2-v1.js");
+assert.ok(av.includes("window.__coffreAnimOuvreIdleV1=Date.now();") && av.includes("racines.forEach(function(r){r.classList.add('ferme-anim');});") && av.includes("setTimeout(finir,400);"), "fermeture : l'animation joue AVANT le changement d'état");
+assert.ok(av.includes('data-morph-classes-gardees="^(ferme-anim|ouvre)$"') && av.includes("classList.remove('ouvre')") && av.includes("classList.remove('ferme-anim')"), "classes gardées au redessin, retirées à la fin");
+assert.ok(css.includes("@keyframes bgOuvre") && css.includes("@keyframes bgReplie") && css.includes(".soreal-idle-coffre-v1.ouvre .bg-bagage-v1 .bg-couvercle{animation:bgOuvre"));
+assert.ok(v.includes("@keyframes vlOuvre") && v.includes("@keyframes vlFerme") && v.includes("s.classList.add('vl-ferme')") && v.includes("anim|baille|ferme)$"), "bouche de la valise : vraies animations à l'ouverture et à la fermeture");
+console.log("idle-divers-2026-10-23-v1 (ouvertures animées) OK");
+/* le cadre s'allonge / se raccourcit en douceur, l'écran ne bouge pas */
+assert.ok(av.includes("function animerHauteurCoffreIdleV1_(racine,de,vers,ms)") && av.includes("window.scrollTo(sx,sy)") && av.includes("Math.max(racine1.getBoundingClientRect().height,racine1.scrollHeight)"), "hauteur animée, défilement conservé");
+assert.ok(css.includes(".soreal-idle-page-root-v28{overflow-anchor:none}"));
+console.log("idle-divers-2026-10-23-v1 (cadre en douceur) OK");

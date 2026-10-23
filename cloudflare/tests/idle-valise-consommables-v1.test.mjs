@@ -54,7 +54,7 @@ function monde(consommables, ouverte) {
   assert.ok(h.includes('data-vl-utiliser="magicPotionAlpha"') && h.includes('data-vl-utiliser="resource3PotionDelta"') && (h.match(/data-vl-utiliser=/g) || []).length === 2, "un bouton Utiliser par potion rangée");
   assert.ok(h.includes("× 2") && h.includes("45 min") && h.includes("jusqu’au Rebirth") && h.includes("Porte-bonheur") && h.includes("× 12"), "quantités, durées, réserves");
   assert.ok(!h.includes("vl-titre") && !h.includes("vl-phrase") && h.includes('aria-label="Valise des consommables"'), "ni barre de titre ni phrase au-dessus : la créature est le bouton");
-  assert.ok(h.includes('data-morph-classes-gardees="^vl-(dort|ouverte|parle|glou|anim|baille)$"'), "classes posées par le module gardées au redessin (règle n°4)");
+  assert.ok(h.includes('data-morph-classes-gardees="^vl-(dort|ouverte|parle|glou|anim|baille|ferme)$"'), "classes posées par le module gardées au redessin (règle n°4)");
 }
 {
   // Style : cuir et cadre propres à la valise, étages qui se déplient en cascade, aucune règle forcée, mouvement réduit respecté.
@@ -84,7 +84,7 @@ console.log("idle-valise-consommables-v1: OK");
 // La bouche (le couvercle) ne se referme qu'une fois la langue entièrement repliée, et s'ouvre avant que la langue sorte (Norman, 2026-10-23).
 {
   const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
-  assert.ok(c.includes("if(p===0)s.classList.remove('vl-ouverte');") && c.includes("if(o)s.classList.add('vl-ouverte');") && !c.includes("s.classList.toggle('vl-ouverte',o)"), "la classe « ouverte » ne part qu'à la fin de l'enroulement");
+  assert.ok(c.includes("s.classList.remove('vl-ouverte');") && c.includes("if(o)s.classList.add('vl-ouverte');") && !c.includes("s.classList.toggle('vl-ouverte',o)"), "la classe « ouverte » ne part qu'à la fin de l'enroulement");
   assert.ok(c.includes("var retard=vers?340:0") && c.includes("now-t0<retard"), "la bouche s'ouvre avant la sortie de la langue");
 }
 console.log("idle-valise-consommables-v1 (bouche): OK");
@@ -92,7 +92,7 @@ console.log("idle-valise-consommables-v1 (bouche): OK");
 // Le couvercle est articulé à l'arrière (son bord haut reste collé au fond) : il se raccourcit autour de ce bord au lieu de s'envoler ; plus de « dents » colorées (Norman, 2026-10-23).
 {
   const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
-  assert.ok(c.includes(".vl-dome{transform-origin:160px 52px") && c.includes(".vl-ouverte .vl-dome{animation:none;transform:scaleY(.74)}"), "charnière à l'arrière");
+  assert.ok(c.includes(".vl-dome{transform-origin:160px 52px") && c.includes("@keyframes vlOuvre{from{transform:scaleY(1)}to{transform:scaleY(.74)}}"), "charnière à l'arrière");
   assert.ok(!c.includes("translateY(-20px) scaleY(.96)"), "le couvercle ne se détache plus");
   assert.ok(!c.includes("vl-goulot") && !c.includes("#7be6a0") && !c.includes("#ffc24a"), "aucune dent de couleur");
 }

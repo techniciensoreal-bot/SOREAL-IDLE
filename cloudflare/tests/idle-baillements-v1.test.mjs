@@ -13,7 +13,7 @@ assert.match(eff,/jouerVomi\(c,master\|\|c\.destination\)/);assert.match(eff,/ba
 assert.match(coffre,/__coffreBailleIdleV1__/);assert.match(coffre,/__valiseBailleIdleV1__/);assert.match(coffre,/classList\.contains\('ouvert'\)/);
 assert.match(css,/\.bg-bagage-v1\.bg-baille-v1 \.bg-couvercle\{animation:bgBailleGrand/);
 /* valise : classe gardée au redessin, jamais avec le Coffre qui bâille, animations réduites respectées */
-assert.match(valise,/\^vl-\(dort\|ouverte\|parle\|glou\|anim\|baille\)\$/);
+assert.match(valise,/\^vl-\(dort\|ouverte\|parle\|glou\|anim\|baille\|ferme\)\$/);
 assert.match(valise,/if\(window\.__coffreBailleIdleV1__\)return false/);assert.match(valise,/!reduit\(\)/);
 /* aucun !important ajouté */
 assert.doesNotMatch(css.slice(css.indexOf('Bâillement du Coffre')),/!important/);

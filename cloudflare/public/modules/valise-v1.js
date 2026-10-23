@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_VALISE_V1__)return;
 
   var CLE='soreal_idle_valise_ouverte_v1';
-  var MOTIF_CLASSES='^vl-(dort|ouverte|parle|glou|anim|baille)$';
+  var MOTIF_CLASSES='^vl-(dort|ouverte|parle|glou|anim|baille|ferme)$';
 
   var POTIONS=[
     {id:'energyPotionAlpha',nom:'Potion d’énergie α',img:'energy-potion-alpha'},
@@ -326,7 +326,11 @@ ${P} .vl-yeux{transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 @keyframes vlBaille{0%,82%,100%{transform:scaleY(1)}88%{transform:scaleY(.9)}94%{transform:scaleY(.98)}}
 ${P} .vl-interieur,${P} .vl-coins{opacity:0;transition:opacity .4s}
 ${P}.vl-ouverte .vl-interieur,${P}.vl-ouverte .vl-coins{opacity:1}
-${P}.vl-ouverte .vl-dome{animation:none;transform:scaleY(.74)}
+/* ouverture / fermeture de la bouche : de vraies animations (la transition ne partait pas, l'animation de respiration étant retirée au même instant) (Norman, 2026-10-23) */
+${P}.vl-ouverte .vl-dome{animation:vlOuvre .5s cubic-bezier(.3,1.4,.5,1) both}
+${P}.vl-ferme .vl-dome{animation:vlFerme .45s ease-in both}
+@keyframes vlOuvre{from{transform:scaleY(1)}to{transform:scaleY(.74)}}
+@keyframes vlFerme{from{transform:scaleY(.74)}to{transform:scaleY(1)}}
 /* bâillement (Norman, 2026-10-23) : le couvercle s'ouvre en grand, les yeux se plissent, le corps s'étire, puis tout se referme (2,2 s, comme le son) */
 ${P}.vl-baille:not(.vl-ouverte) .vl-dome{animation:vlBailleGrand 2.2s ease-in-out 1}
 ${P}.vl-baille:not(.vl-ouverte) .vl-corps{animation:vlBailleCorps 2.2s ease-in-out 1}
@@ -520,7 +524,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       s.style.setProperty('--vl-p',String(p));s.style.setProperty('--vl-pf',String(p));s.style.setProperty('--vl-rr','0');
       s.classList.remove('vl-anim');
       /* la bouche (le couvercle) ne se referme qu'ici : la langue est entièrement repliée */
-      if(p===0)s.classList.remove('vl-ouverte');
+      if(p===0){
+        if(s.classList.contains('vl-ouverte')&&!reduit()){s.classList.add('vl-ferme');clearTimeout(s.__vlFermeT);s.__vlFermeT=setTimeout(function(){s.classList.remove('vl-ferme');},500);}
+        s.classList.remove('vl-ouverte');
+      }
     });
     progres=p;animId=0;
     synchroniserCoffre();

@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 16,
-  "sha": "01b534fdb5960577a6b17e74c56cabb967b29b6d"
+  "pin": 20,
+  "sha": "c5201beda245d6eca301c7abaea8812ba71ac254"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -540,8 +540,8 @@
   "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 41,
-  "sha": "a2e2c7ba70f037f69a9e9832a8f61d6549cf17ac"
+  "pin": 42,
+  "sha": "7d8ad536d6d0e10d77bd64288ed36511ca4c1c11"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
@@ -584,8 +584,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 216,
-  "sha": "3e557b4e544717bbddc0601aa7348a0426815539"
+  "pin": 218,
+  "sha": "8dbabf14d5964e6ff3dd39c55a311cd74f230075"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
