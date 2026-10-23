@@ -100,8 +100,6 @@
       '<rect x="30" y="94" width="260" height="18" rx="5" fill="url(#vlVelours)" stroke="#1f1006" stroke-width="3"/>'+
       '<rect x="31" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/><rect x="273" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/>'+
       '<ellipse class="vl-lueur" cx="160" cy="98" rx="104" ry="20" fill="url(#vlLueur)"/>'+
-      '<g class="vl-goulot vl-g1"><rect x="96" y="82" width="10" height="18" rx="3" fill="#7be6a0" stroke="#1f1006" stroke-width="2"/><rect x="95" y="77" width="12" height="7" rx="2" fill="#a06a30" stroke="#1f1006" stroke-width="2"/></g>'+
-      '<g class="vl-goulot vl-g3"><rect x="214" y="82" width="10" height="18" rx="3" fill="#ffc24a" stroke="#1f1006" stroke-width="2"/><rect x="213" y="77" width="12" height="7" rx="2" fill="#a06a30" stroke="#1f1006" stroke-width="2"/></g>'+
     '</g>'+
     '<g class="vl-corps">'+
       '<rect x="26" y="104" width="268" height="94" rx="14" fill="url(#vlCuir)" stroke="#1f1006" stroke-width="4"/>'+
@@ -119,12 +117,13 @@
     '<g class="vl-etiquette"><rect x="212" y="168" width="40" height="26" rx="3" fill="#f1deb0" stroke="#5a3a12" stroke-width="2.4"/><circle cx="231" cy="171" r="2" fill="#5a3a12"/><text x="232" y="185" text-anchor="middle" font-size="9" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text></g>'+
     '</svg>'+
     '<svg class="vl-haut" viewBox="0 0 320 232" aria-hidden="true" focusable="false">'+
-    '<g class="vl-couvercle">'+
+    '<g class="vl-couvercle"><g class="vl-dome">'+
       '<path d="M26 104Q26 56 76 50L244 50Q294 56 294 104Z" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="4"/>'+
       '<path d="M37 99Q37 65 80 59L240 59Q283 65 283 99" fill="none" stroke="#f0d79a" stroke-width="2" stroke-dasharray="6 5" opacity=".75"/>'+
       '<rect x="72" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/><rect x="228" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
       '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.6"><circle cx="82" cy="66" r="3.6"/><circle cx="82" cy="88" r="3.6"/><circle cx="238" cy="66" r="3.6"/><circle cx="238" cy="88" r="3.6"/></g>'+
       '<rect x="26" y="95" width="268" height="10" rx="3" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.4"/>'+
+      '</g>'+
       '<g class="vl-anse"><path d="M128 53Q128 22 160 22Q192 22 192 53" fill="none" stroke="#2a1408" stroke-width="10" stroke-linecap="round"/><path d="M128 53Q128 26 160 26Q192 26 192 53" fill="none" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/><circle cx="128" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/><circle cx="192" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/></g>'+
       '<g class="vl-yeux">'+
         '<ellipse cx="124" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/><ellipse cx="196" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/>'+
@@ -269,20 +268,20 @@ ${P} .vl-paupiere{transform-box:fill-box;transform-origin:50% 0;transform:scaleY
 @keyframes vlCligne{0%,92%,100%{transform:scaleY(0)}95%,97%{transform:scaleY(1)}}
 ${P} .vl-pupille{animation:vlRegard 7s ease-in-out infinite}
 @keyframes vlRegard{0%,16%,100%{transform:translateX(0)}22%,40%{transform:translateX(-5px)}46%,64%{transform:translateX(5px)}70%{transform:translateX(0)}}
-${P} .vl-couvercle{transform-origin:160px 104px;transition:transform .5s cubic-bezier(.3,1.5,.5,1);animation:vlBaille 7s ease-in-out infinite}
-@keyframes vlBaille{0%,82%,100%{transform:translateY(0)}88%{transform:translateY(-5px)}94%{transform:translateY(-1px)}}
+/* Le couvercle est articulé à l'ARRIÈRE (son bord haut, collé au fond de la valise) : il s'ouvre en levant seulement son avant, le dôme se raccourcit autour de ce bord (perspective), les yeux suivent */
+${P} .vl-dome{transform-origin:160px 52px;transition:transform .55s cubic-bezier(.3,1.35,.5,1);animation:vlBaille 7s ease-in-out infinite}
+${P} .vl-yeux{transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
+@keyframes vlBaille{0%,82%,100%{transform:scaleY(1)}88%{transform:scaleY(.9)}94%{transform:scaleY(.98)}}
 ${P} .vl-interieur,${P} .vl-coins{opacity:0;transition:opacity .4s}
 ${P}.vl-ouverte .vl-interieur,${P}.vl-ouverte .vl-coins{opacity:1}
-${P}.vl-ouverte .vl-couvercle{animation:none;transform:translateY(-20px) scaleY(.96)}
+${P}.vl-ouverte .vl-dome{animation:none;transform:scaleY(.74)}
+${P}.vl-ouverte .vl-yeux{transform:translateY(-7px)}
 ${P} .vl-lueur{animation:vlLueur 2.6s ease-in-out infinite}
 @keyframes vlLueur{0%,100%{opacity:.55}50%{opacity:1}}
-${P} .vl-goulot{animation:vlGoulot 2.8s ease-in-out infinite}
-${P} .vl-g3{animation-delay:-1.8s}
-@keyframes vlGoulot{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 /* la valise dort : yeux clos, plus de trottinement, des Z qui montent (boucle sans à-coup : fondu d'entrée et de sortie, toujours vers le haut) */
 ${P} .vl-zzz{opacity:0}
 ${P}.vl-dort .vl-paupiere{animation:none;transform:scaleY(1)}
-${P}.vl-dort .vl-pupille,${P}.vl-dort .vl-patte,${P}.vl-dort .vl-anse,${P}.vl-dort .vl-etiquette,${P}.vl-dort .vl-couvercle{animation:none}
+${P}.vl-dort .vl-pupille,${P}.vl-dort .vl-patte,${P}.vl-dort .vl-anse,${P}.vl-dort .vl-etiquette,${P}.vl-dort .vl-dome{animation:none}
 ${P}.vl-dort .vl-corps{animation-duration:6.5s}
 ${P}.vl-dort .vl-zzz{opacity:1}
 ${P}.vl-dort .vl-zzz text{animation:vlZ 3s ease-in-out infinite;transform-box:fill-box;opacity:0}

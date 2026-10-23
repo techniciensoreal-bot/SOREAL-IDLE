@@ -88,3 +88,12 @@ console.log("idle-valise-consommables-v1: OK");
   assert.ok(c.includes("var retard=vers?340:0") && c.includes("now-t0<retard"), "la bouche s'ouvre avant la sortie de la langue");
 }
 console.log("idle-valise-consommables-v1 (bouche): OK");
+
+// Le couvercle est articulé à l'arrière (son bord haut reste collé au fond) : il se raccourcit autour de ce bord au lieu de s'envoler ; plus de « dents » colorées (Norman, 2026-10-23).
+{
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  assert.ok(c.includes(".vl-dome{transform-origin:160px 52px") && c.includes(".vl-ouverte .vl-dome{animation:none;transform:scaleY(.74)}"), "charnière à l'arrière");
+  assert.ok(!c.includes("translateY(-20px) scaleY(.96)"), "le couvercle ne se détache plus");
+  assert.ok(!c.includes("vl-goulot") && !c.includes("#7be6a0") && !c.includes("#ffc24a"), "aucune dent de couleur");
+}
+console.log("idle-valise-consommables-v1 (charnière): OK");
