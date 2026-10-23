@@ -2265,6 +2265,48 @@
 
       const BAGAGE_CRIS_IDLE_V1=['*Gloups !*','*Miam.*','*Rrrot.*','*Crounch !*','*Encore.*'];
 
+      /*
+       * Valise des consommables (Norman, 2026-10-23 : « j'ai des Potions de magie, je ne sais pas où elles sont stockées ; un espace pour les consommables, comme ces valises faites pour mettre de l'alcool ») : en haut du Coffre, un compartiment par
+       * consommable que le joueur a en effet (temps restant, « jusqu'au Rebirth ») ou en réserve (nombre). Seulement ce qu'il possède : aucun compartiment vide, aucun nom d'un objet qu'il n'a pas.
+       */
+      const VALISE_OBJETS_IDLE_V1=[
+        {id:'energyPower',genre:'restant',nom:'Potion d’énergie',img:'energy-potion-alpha',beta:'energy-potion-beta'},
+        {id:'magicPower',genre:'restant',nom:'Potion de magie',img:'magic-potion-alpha',beta:'magic-potion-beta'},
+        {id:'r3Power',genre:'restant',nom:'Potion de Ressource 3',img:'resource-3-potion-alpha',beta:'resource-3-potion-beta'},
+        {id:'energyBars',genre:'restant',nom:'Bar Bar d’énergie',img:'energy-bar-bar'},
+        {id:'magicBars',genre:'restant',nom:'Bar Bar de magie',img:'magic-bar-bar'},
+        {id:'luck',genre:'restant',nom:'Porte-bonheur',img:'lucky-charm'},
+        {id:'poop',genre:'reserve',nom:'Poop',img:'fertilizer'},
+        {id:'beastButters',genre:'reserve',nom:'Beast Butter',img:'beast-butter'},
+        {id:'bluePills',genre:'reserve',nom:'Pilules bleues',img:'little-blue-pill'},
+        {id:'blackPens',genre:'reserve',nom:'Stylos noirs',img:'regular-black-pens'}
+      ];
+      function dureeValiseIdleV1_(s){
+        const n=Math.max(0,Math.floor(Number(s)||0));
+        if(n>=86400)return Math.floor(n/3600)+' h';
+        if(n>=3600)return Math.floor(n/3600)+' h '+String(Math.floor((n%3600)/60)).padStart(2,'0');
+        if(n>=60)return Math.ceil(n/60)+' min';
+        return n+' s';
+      }
+      function valiseConsommablesIdleV1_(){
+        const c=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.consommables;
+        if(!c)return '';
+        const cases=[];
+        VALISE_OBJETS_IDLE_V1.forEach(function(o){
+          const restant=o.genre==='restant'?Number(c.restant&&c.restant[o.id])||0:0;
+          const beta=Boolean(o.beta&&c.beta&&c.beta[o.id]);
+          const stock=o.genre==='reserve'?Number(c.reserve&&c.reserve[o.id])||0:0;
+          if(restant<=0&&!beta&&stock<=0)return;
+          const detail=o.genre==='reserve'
+            ?'<b>× '+idleHtml_(String(stock))+'</b>'
+            :(restant>0?'<b>'+idleHtml_(dureeValiseIdleV1_(restant))+'</b>':'')+(beta?'<em>jusqu’au Rebirth</em>':'');
+          const image=(restant>0||o.genre==='reserve')?o.img:o.beta;
+          cases.push('<div class="vc-case-v1" title="'+idleHtml_(o.nom)+'"><img src="/shop/'+image+'.png" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()"><span class="vc-nom-v1">'+idleHtml_(o.nom)+'</span><span class="vc-detail-v1">'+detail+'</span></div>');
+        });
+        if(!cases.length)return '';
+        return '<div class="vc-valise-v1"><div class="vc-titre-v1">Valise des consommables</div><div class="vc-cases-v1">'+cases.join('')+'</div></div>';
+      }
+
       /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */
       function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
@@ -2275,6 +2317,7 @@
             '<span><i class="dsn-v1 dsn-coffre" aria-hidden="true"></i> Coffre ('+occupees+')</span>'+
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
+          valiseConsommablesIdleV1_()+
           '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+
             'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
             'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+

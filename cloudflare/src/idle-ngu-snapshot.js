@@ -72,6 +72,24 @@ function nguSnapshotV1(state, context) {
   };
 }
 
+/* Consommables en cours ou en réserve (effets de la boutique AP, de la roue et des sets) : secondes restantes des potions et charmes, potions « jusqu'au Rebirth », réserves (Poop, Beast Butter, pilules, stylos). */
+function consommablesSnapshotV1(state) {
+  const fx = state.selloutEffects && typeof state.selloutEffects === "object" ? state.selloutEffects : {};
+  const restant = {};
+  for (const k of ["energyPower", "magicPower", "r3Power", "energyBars", "magicBars", "luck"]) {
+    const v = num(fx.remaining && fx.remaining[k], 0);
+    if (v > 0) restant[k] = Math.ceil(v);
+  }
+  const beta = {};
+  for (const k of ["energyPower", "magicPower", "r3Power"]) if (fx.beta && fx.beta[k]) beta[k] = true;
+  const reserve = {};
+  for (const k of ["poop", "beastButters", "bluePills", "blackPens"]) {
+    const v = Math.floor(num(fx[k], 0));
+    if (v > 0) reserve[k] = v;
+  }
+  return { restant, beta, reserve };
+}
+
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   const state = syncIdleNguState(raw, context, now);
   /* L'état est avancé : la suite ne fait que le LIRE pour construire la vue du client (portée de bonus : voir idleNguBonuses). */
@@ -248,6 +266,8 @@ function construireSnapshotNguV1(state, context, now) {
     augmentationsAdvance: Boolean(state.systems.augmentations?.data?.advanceEnergy),
     /* Préférences d'interface liées au compte (idle-ui-prefs-v1.js) : le client les remet dans son stockage local. */
     uiPrefs: Object.assign({}, state.uiPrefs || {}),
+    /* Valise des consommables (haut du Coffre, 2026-10-23) : ce que le joueur a en effet ou en réserve ; seulement ce qui est > 0 (anti-spoil : rien de ce qu'il n'a pas obtenu). */
+    consommables: consommablesSnapshotV1(state),
     ngus: nguSnapshotV1(state, context),
     /* Slots de souhaits (page Wishes, 4 au maximum) : un souhait et une allocation par slot. */
     wishSlots: wishSlotsSnapshotV1(state),
