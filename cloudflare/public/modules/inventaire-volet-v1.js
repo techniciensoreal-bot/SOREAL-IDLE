@@ -78,7 +78,11 @@ function majBouton(c,haut){
   }catch(e){}
 }
 
-function appliquer(){
+/*
+ * Mesuré sur le téléphone de Norman (journal de diagnostic du 2026-10-23) : cet écouteur de défilement forçait une mise en page à chaque événement (copie du HTML de la poupée, puis lecture de scrollHeight). Le défilement n'appelle plus que la partie légère
+ * (position du repère et état du volet), au plus une fois par image ; la copie du contenu et la hauteur du panneau restent refaites par la minuterie de 0,4 s et par les actions.
+ */
+function appliquer(leger){
   var c=colonnes(),v=volet(c),b=boite();
   if(!c||!v||!telephone()){
     retirer(b);ouvert=false;visibleDepuis=0;
@@ -100,14 +104,16 @@ function appliquer(){
   if(!b)b=creerBoite();
   b.style.top=haut+'px';
   var contenu=b.querySelector('.soreal-idle-volet-contenu-v1');
-  var pd=v.querySelector('.soreal-idle-v138-paperdoll');
+  var pd=leger===true&&contenu.__html?null:v.querySelector('.soreal-idle-v138-paperdoll');
   if(pd){
     var html=pd.outerHTML;
     if(contenu.__html!==html){contenu.__html=html;contenu.innerHTML=html;}
   }
   var panneau=b.querySelector('.soreal-idle-volet-panneau-v1');
-  var cible=ouvert?contenu.scrollHeight+'px':'0px';
-  if(panneau.style.maxHeight!==cible)panneau.style.maxHeight=cible;
+  if(leger!==true||!panneau.style.maxHeight){
+    var cible=ouvert?contenu.scrollHeight+'px':'0px';
+    if(panneau.style.maxHeight!==cible)panneau.style.maxHeight=cible;
+  }
   if(b.getAttribute('data-ouvert')!==(ouvert?'1':'0'))b.setAttribute('data-ouvert',ouvert?'1':'0');
   var l=b.querySelector('button');
   var t=ouvert?'▲ Replier l’équipement':'▼ Équipement';
@@ -116,9 +122,14 @@ function appliquer(){
 }
 
 setInterval(function(){if(!document.hidden)appliquer();},400);
+var defilementPrevu=0;
+function surDefilement(){
+  if(defilementPrevu)return;
+  defilementPrevu=requestAnimationFrame(function(){defilementPrevu=0;appliquer(true);});
+}
 if(typeof window.addEventListener==='function'){
-  window.addEventListener('resize',appliquer);
-  window.addEventListener('scroll',appliquer,{passive:true});
+  window.addEventListener('resize',function(){appliquer();});
+  window.addEventListener('scroll',surDefilement,{passive:true});
 }
 
 window.__SOREAL_IDLE_INVENTAIRE_VOLET_V1__={ouvert:function(){return ouvert;},basculer:basculer,appliquer:appliquer};

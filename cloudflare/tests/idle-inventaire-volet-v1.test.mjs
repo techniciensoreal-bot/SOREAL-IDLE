@@ -83,3 +83,10 @@ assert.ok(barre.includes("[data-volet]::after{content:\"\";grid-column:2;grid-ro
 assert.ok(!/pointer-events:s*none/.test(barre), "la barre reçoit bien le doigt");
 assert.ok(!css.includes("::after{content:\"\";position:absolute;right:-17px;"), "plus de bande en surimpression");
 console.log("idle-inventaire-volet-v1: OK");
+
+// Le défilement n'appelle que la partie légère, au plus une fois par image (journal de diagnostic du 2026-10-23 : mise en page forcée à chaque événement de défilement).
+{
+  const src = readFileSync(new URL("../public/modules/inventaire-volet-v1.js", import.meta.url), "utf8");
+  assert.ok(src.includes("window.addEventListener('scroll',surDefilement,{passive:true})") && src.includes("requestAnimationFrame(function(){defilementPrevu=0;appliquer(true);})"), "défilement : une fois par image, version légère");
+  assert.ok(src.includes("leger===true&&contenu.__html?null:") && src.includes("if(leger!==true||!panneau.style.maxHeight)"), "version légère : ni copie du HTML ni lecture de scrollHeight");
+}

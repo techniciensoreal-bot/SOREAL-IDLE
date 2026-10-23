@@ -200,8 +200,8 @@
   "sha": "a24f23e4ea9cf7d57d7d66daea0872c390895a35"
  },
  "/modules/inventaire-volet-v1.js": {
-  "pin": 6,
-  "sha": "6a828d2ec523b89c6d7638508052f5b0d22f43c1"
+  "pin": 7,
+  "sha": "2fd6055a4544c4071e705201b129e5ee9dc11b9e"
  },
  "/modules/inventory-auto-v1.js": {
   "pin": 21,
