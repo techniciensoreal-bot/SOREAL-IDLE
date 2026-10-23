@@ -147,12 +147,34 @@ export function assurerHistoiresV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_histoires(id TEXT PRIMARY KEY, json TEXT NOT NULL, maj INTEGER NOT NULL)");
   sql.exec("CREATE TABLE IF NOT EXISTS idle_histoires_meta(k TEXT PRIMARY KEY, v TEXT)");
   const fait = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v1'"))[0];
-  if (fait) return;
   const maintenant = Date.now();
-  for (const h of IDLE_HISTOIRES_SEED_V1) {
-    sql.exec("INSERT OR IGNORE INTO idle_histoires(id,json,maj) VALUES(?,?,?)", h.id, JSON.stringify(h), maintenant);
+  if (!fait) {
+    for (const h of IDLE_HISTOIRES_SEED_V1) {
+      sql.exec("INSERT OR IGNORE INTO idle_histoires(id,json,maj) VALUES(?,?,?)", h.id, JSON.stringify(h), maintenant);
+    }
+    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v1','1')");
   }
-  sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v1','1')");
+  /*
+   * Restauration (Norman, 2026-10-23 : « Un Gamin sur un Nuage. Son histoire a disparu. Celle qui commence par "Les taupes, amochées et couvertes de bleus…" ») : une seule fois, l'histoire « Le Magicien et la Grotte 2 » est
+   * remise (recréée si elle avait été supprimée) et rattachée à la mort du boss 37 (la 5e taupe géante : c'est quand le boss suivant, « Un Gamin sur un Nuage », est sélectionné qu'elle se joue) si elle n'avait AUCUN boss ;
+   * une histoire déjà rattachée à un boss, des voix déjà générées ou un texte modifié ne sont jamais touchés ; aucun autre boss n'est pris si l'histoire de la mort du 37 existe déjà.
+   */
+  const v2 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v2'"))[0];
+  if (!v2) {
+    const ligne = sqlRows(sql.exec("SELECT json FROM idle_histoires WHERE id='MagicienEtLeGrotte2'"))[0];
+    const toutes = sqlRows(sql.exec("SELECT id,json FROM idle_histoires")).map((r) => ({ id: r.id, h: safeJson(r.json, null) })).filter((x) => x.h);
+    const occupe = toutes.some((x) => x.id !== "MagicienEtLeGrotte2" && x.h.actif !== false && Number(x.h.boss) === 37);
+    if (!ligne) {
+      const seed = IDLE_HISTOIRES_SEED_V1.find((h) => h.id === "MagicienEtLeGrotte2");
+      if (seed) sql.exec("INSERT OR IGNORE INTO idle_histoires(id,json,maj) VALUES(?,?,?)", seed.id, JSON.stringify(Object.assign({}, seed, { boss: occupe ? null : 37, actif: true })), maintenant);
+    } else {
+      const h = safeJson(ligne.json, null);
+      if (h && typeof h === "object" && (h.boss === null || h.boss === undefined || h.boss === "") && !occupe) {
+        sql.exec("UPDATE idle_histoires SET json=?, maj=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(Object.assign({}, h, { boss: 37, actif: true })), maintenant);
+      }
+    }
+    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v2','1')");
+  }
 }
 
 export function lireHistoiresV1(sql) {

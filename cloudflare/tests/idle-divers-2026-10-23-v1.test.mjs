@@ -41,3 +41,9 @@ console.log("idle-divers-2026-10-23-v1 (cadre en douceur) OK");
 /* la valise garde sa taille et sa place quand le Coffre se redessine : réglages en variables du module, écrits dans son HTML ; décalage par « left » (une marge négative l'élargissait) */
 assert.ok(v.includes("function styleSection()") && v.includes('style="\'+styleSection()+\'" data-vl data-vl-sig=') && v.includes("s.style.position='relative';s.style.left=") && !v.includes("s.style.marginLeft"));
 console.log("idle-divers-2026-10-23-v1 (valise stable au redessin) OK");
+/* fiches d'objets : plus de « Special: » devant les intitulés, et intitulés sur une ligne (police réduite au besoin) */
+assert.ok(!av.includes('class="sb-special-v1">Special: ') && !av.includes('class="sb-special-v1">Special Bonus: '), "plus de préfixe « Special: » dans la description");
+const lu = lire("cloudflare/public/modules/ligne-unique-items-v1.js");
+assert.ok(lu.includes("while(l.scrollWidth>l.clientWidth+1&&taille>MIN)") && lire("cloudflare/public/index.html").includes("/modules/ligne-unique-items-v1.js"));
+assert.ok(css.includes(".soreal-idle-v138-details-stat>span{white-space:nowrap;min-width:0}") && css.includes("flex-wrap:nowrap;gap:8px;min-width:0;max-width:100%"));
+console.log("idle-divers-2026-10-23-v1 (intitulés d'objets) OK");

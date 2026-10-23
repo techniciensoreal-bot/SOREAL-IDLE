@@ -1736,3 +1736,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.f
 
 /* le navigateur ne corrige pas lui-même la position de défilement quand le cadre du Coffre change de hauteur (Norman, 2026-10-23) */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28{overflow-anchor:none}
+
+/* Fiches d'objets : les intitulés restent sur une ligne (la police se réduit au besoin : modules/ligne-unique-items-v1.js) (Norman, 2026-10-23) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat{flex-wrap:nowrap;gap:8px;min-width:0;max-width:100%}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat>span{white-space:nowrap;min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat>b{white-space:nowrap;flex:0 0 auto}

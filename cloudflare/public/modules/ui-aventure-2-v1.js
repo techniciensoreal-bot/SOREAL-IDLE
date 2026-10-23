@@ -1697,7 +1697,7 @@
               if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
                 return item.specialsAll.map(function(sv){
                   const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
-                  return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special: '+idleLabelSpecialBonusV1_(sv.type))+'" data-cmp-val="'+idleNombre_(sv.value)+'"><span class="sb-special-v1">Special: '+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                  return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special: '+idleLabelSpecialBonusV1_(sv.type))+'" data-cmp-val="'+idleNombre_(sv.value)+'"><span class="sb-special-v1">'+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
                     '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
                     ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
                   '</b></div>';
@@ -1709,7 +1709,7 @@
               const maxSpecial=baseSpecial*q;
               const specialMaxAtteint=idleNombre_(item.special)+1e-9>=maxSpecial;
               const label=idleLabelSpecialBonusV1_(item.specialType);
-              return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special Bonus: '+label)+'" data-cmp-val="'+idleNombre_(item.special)+'"><span class="sb-special-v1">Special Bonus: '+idleHtml_(label)+'</span><b>'+
+              return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special Bonus: '+label)+'" data-cmp-val="'+idleNombre_(item.special)+'"><span class="sb-special-v1">'+idleHtml_(label)+'</span><b>'+
                 '<span class="soreal-idle-v138-stat-value-v1'+(specialMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.special))+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxSpecial)+
               '</b></div>';

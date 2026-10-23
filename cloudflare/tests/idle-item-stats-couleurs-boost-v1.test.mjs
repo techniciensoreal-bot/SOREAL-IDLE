@@ -16,12 +16,12 @@ const attendu = [
   ['<span class="sb-toughness-v1">Endurance</span>', 3],
   ['<span class="sb-toughness-v1">Regen PV</span>', 1],
   ['<span class="sb-toughness-v1">Regen PV/s</span>', 1],
-  ['<span class="sb-special-v1">Special: ', 1],
-  ['<span class="sb-special-v1">Special Bonus: ', 1]
+  /* plus de préfixe « Special: » dans la description (Norman, 2026-10-23) */
+  ["<span class=\"sb-special-v1\">'+idleHtml_(", 2]
 ];
 for (const [fragment, n] of attendu) assert.equal(ui.split(fragment).length - 1, n, fragment + " : " + n + " occurrence(s)");
 // Plus aucun intitulé de statistique sans couleur de boost.
-for (const nu of ["<span>Puissance</span>", "<span>PV Max</span>", "<span>Endurance</span>", "<span>Regen PV</span>", "<span>Regen PV/s</span>", "<span>Special: ", "<span>Special Bonus: "]) {
+for (const nu of ["<span>Puissance</span>", "<span>PV Max</span>", "<span>Endurance</span>", "<span>Regen PV</span>", "<span>Regen PV/s</span>"]) {
   assert.ok(!ui.includes('details-stat">' + nu), "intitulé encore sans couleur : " + nu);
 }
 // Seuls les intitulés sont colorés : les chiffres (<b>) gardent leur couleur.

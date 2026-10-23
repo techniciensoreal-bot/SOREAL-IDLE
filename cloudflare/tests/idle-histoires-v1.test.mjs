@@ -42,7 +42,7 @@ function baseVide() {
   assert.equal(un.vuId, "histoire:magicienEtLaGrotte", "les joueurs qui ont déjà vu l'histoire 1 ne la revoient pas");
   assert.equal(deux.vuId, "histoire:magicienEtLaGrotte2");
   assert.equal(un.boss, 17, "histoire 1 : à la mort du boss 17 (comme avant)");
-  assert.equal(deux.boss, null, "histoire 2 : plus de boss de zone, à assigner dans le menu Admin");
+  assert.equal(deux.boss, 37, "histoire 2 : restaurée (2026-10-23) à la mort du boss 37, avant « Un Gamin sur un Nuage »");
   assert.match(deux.etapes[3].texte, /Stupéfait, tu le vois verser la cannette/, "découpage corrigé de la 2e histoire conservé");
   assert.ok(un.etapes.every((e) => /^legacy:\d+$/.test(e.image)), "images historiques par position");
   // Supprimer une histoire d'origine ne la recrée pas au prochain appel.
