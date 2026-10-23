@@ -2360,7 +2360,13 @@
           /* le cadre se raccourcit pendant que le contenu se replie : hauteur cible = hauteur actuelle moins le bloc replié (et ses marges) */
           try{
             const r0=racines[0],bloc=r0.querySelector(':scope>div:last-child:not(.vl-section)');
-            if(bloc){const cs=getComputedStyle(bloc);animerHauteurCoffreIdleV1_(r0,hAvant,Math.max(60,hAvant-bloc.getBoundingClientRect().height-(parseFloat(cs.marginTop)||0)-(parseFloat(cs.marginBottom)||0)),400);}
+            if(bloc){
+              /* hauteur du cadre refermé MESURÉE (contenu masqué un instant, sans rien peindre) : une estimation trop courte faisait toucher le fond du cadre au Coffre puis « sauter » à la fin (Norman, 2026-10-23) */
+              const ancien=bloc.style.display;bloc.style.display='none';
+              const ferme=r0.getBoundingClientRect().height;
+              bloc.style.display=ancien;
+              animerHauteurCoffreIdleV1_(r0,hAvant,Math.max(60,ferme),400);
+            }
           }catch(e){}
           setTimeout(finir,400);
         }
