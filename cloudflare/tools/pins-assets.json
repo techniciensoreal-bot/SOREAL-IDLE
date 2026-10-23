@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 401,
-  "sha": "ee8a98a01a19da1845a813ea5d35e7dde9d19741"
+  "pin": 402,
+  "sha": "f1719110dca8934b0733c3d8e69cdf5c02775892"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 423,
-  "sha": "dc072cee61bd6d080c0ddef8ecd75792cb3e28fa"
+  "pin": 424,
+  "sha": "551a0a001d24638fffd140c749dc63bfff4e2145"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 217,
-  "sha": "6b29514e36d85f495a25665595057440c96d984f"
+  "pin": 218,
+  "sha": "098396cabd55ba3bcf1d0c03d82664a589e1d8b5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 14,
-  "sha": "83aee6f31d6736bab5d9287e013c8454cfbe9d14"
+  "pin": 15,
+  "sha": "90450c434cfbb6eb560c19cb4ff8f220646e1afd"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -536,8 +536,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-v1.js": {
-  "pin": 25,
-  "sha": "fba67543308712a2c33ba72d9f576b8a75b5b4af"
+  "pin": 27,
+  "sha": "9e428f9fda0975df12dff87d05e15c8b571dc1e5"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,

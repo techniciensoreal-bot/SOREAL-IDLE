@@ -53,7 +53,7 @@ function monde(consommables, ouverte) {
   assert.ok(h.includes("vl-langue") && h.includes("vl-lg-racine") && h.includes("vl-lg-bout") && h.includes("vl-rouleau") && h.includes('data-n="6"'), "la langue porte les objets (racine, corps, bout, rouleau)");
   assert.ok(h.includes('data-vl-utiliser="magicPotionAlpha"') && h.includes('data-vl-utiliser="resource3PotionDelta"') && (h.match(/data-vl-utiliser=/g) || []).length === 2, "un bouton Utiliser par potion rangée");
   assert.ok(h.includes("× 2") && h.includes("45 min") && h.includes("jusqu’au Rebirth") && h.includes("Porte-bonheur") && h.includes("× 12"), "quantités, durées, réserves");
-  assert.ok(h.includes("Valise des consommables (6)"), "compteur d'objets possédés, sans total");
+  assert.ok(!h.includes("vl-titre") && !h.includes("vl-phrase") && h.includes('aria-label="Valise des consommables"'), "ni barre de titre ni phrase au-dessus : la créature est le bouton");
   assert.ok(h.includes('data-morph-classes-gardees="^vl-(dort|ouverte|parle|glou|anim)$"'), "classes posées par le module gardées au redessin (règle n°4)");
 }
 {
@@ -64,7 +64,7 @@ function monde(consommables, ouverte) {
   assert.ok(css.includes("prefers-reduced-motion"), "mouvement réduit");
   assert.ok(css.includes("height:calc(var(--vl-rr,0)*2px)") && css.includes("var(--vl-s,0)*1px") && !css.includes("vl-ro-face"), "rouleau vu de face : rayon qui diminue, peau qui défile (pas de faces vues de dessus)");
   assert.ok(css.includes("svg.vl-haut{position:absolute") && css.includes("z-index:5") && !css.includes("vl-gueule") && !css.includes("vl-sourire"), "couvercle au-dessus de la langue ; aucune bouche dessinée (la bouche est l'ouverture)");
-  assert.ok(css.includes("--vl-m:calc(min(250px,64cqw)*.444)") && css.includes("margin-top:calc(var(--vl-m)*-1)") && css.includes("width:min(210px,54cqw)"), "langue posée sur la lèvre inférieure, aussi large que la valise");
+  assert.ok(css.includes("--vl-m:calc(min(210px,70cqw)*.444)") && css.includes("margin-top:calc(var(--vl-m)*-1)") && css.includes("width:min(176px,59cqw)"), "langue posée sur la lèvre inférieure, aussi large que la valise");
   assert.ok(!/!important/.test(css), "aucune règle forcée");
   assert.ok(/@keyframes vlBulle\{0%\{opacity:0;/.test(css) && /@keyframes vlZ\{0%\{opacity:0;[\s\S]*?100%\{opacity:0;/.test(css), "boucles sans à-coup (fondu d'entrée et de sortie)");
 }
@@ -121,7 +121,21 @@ console.log("idle-valise-consommables-v1 (yeux): OK");
   const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
   assert.ok(c.includes("{id:'seeds',nom:'Graines'") && c.includes("{id:'poop',nom:'Poop'"), "graines et poop dans les réserves");
   assert.ok(c.includes("function rafraichirContenu()") && c.includes("rafraichirContenu();\n      if(document.hidden"), "contenu rafraîchi en direct");
-  assert.ok(c.includes("function phraseHtml()") && c.includes(".vl-ouverte .vl-phrase{max-height:160px"), "phrase marrante à l'ouverture");
-  assert.ok(c.includes("@media (min-width:761px)") && c.includes(":has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 350px") && c.includes(">.vl-section{grid-column:2;grid-row:2}"), "PC : dans le cadre du Coffre, à droite de « Il mange les objets… »");
+  assert.ok(c.includes("function phraseBlocHtml()") && c.includes(".vl-phrase-on .bg-texte-v1:not(.vl-phrase-bloc){display:none}") && c.includes("if(co&&!coffreAvant&&phraseActive())poserPhrase(-1);"), "la phrase de la valise remplace celle du Coffre jusqu'à l'ouverture du Coffre");
+  assert.ok(c.includes("@media (min-width:761px)") && c.includes(":has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 240px") && c.includes(">.vl-section{grid-column:2;grid-row:2}"), "PC : dans le cadre du Coffre, à droite de « Il mange les objets… »");
 }
 console.log("idle-valise-consommables-v1 (graines, PC): OK");
+
+// Mêmes traits que le Coffre, velours, plus de barre « Coffre (n) », valise à la hauteur de la phrase du Coffre (Norman, 2026-10-23).
+{
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  const svg = c.slice(c.indexOf("  var SVG="), c.indexOf("  /* Icône de graine"));
+  const epais = [...svg.matchAll(/stroke-width="([0-9.]+)"/g)].map((m) => Number(m[1]));
+  assert.ok(Math.max(...epais.filter((x) => x < 6)) <= 3.4, "traits de la valise aussi fins que ceux du Coffre (contours à 3, langue à 3,4)");
+  assert.ok(c.includes(".vl-bete{position:relative;width:min(210px,70%)}"), "même taille que le bagage du Coffre (210 px)");
+  assert.ok(c.includes(".soreal-idle-coffre-titre-v1{display:none}") && c.includes(".vl-velours-fond{position:absolute;inset:0;z-index:-1") && c.includes(".soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}"), "pas de barre de titre ; fond de velours quand la valise est ouverte");
+  assert.ok(c.includes("grid-template-columns:minmax(0,1fr) 240px") && c.includes("{margin:19px 0 0}"), "valise à droite de la phrase du Coffre, à la même hauteur");
+  const ui2 = readFileSync(new URL("../public/modules/ui-aventure-2-v1.js", import.meta.url), "utf8");
+  assert.ok(ui2.includes("vl-velours-fond") && ui2.includes("vl-phrase-on") && ui2.includes("phraseBlocHtml"), "le Coffre pose le velours et la phrase de la valise");
+}
+console.log("idle-valise-consommables-v1 (traits, velours, titre): OK");

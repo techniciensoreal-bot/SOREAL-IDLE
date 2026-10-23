@@ -2274,7 +2274,11 @@
       /* Cadre du coffre : titre repliable, case de dépôt, champ de recherche et grille. */
       function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
-        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+'">'+
+        const V=window.__SOREAL_IDLE_VALISE_V1__;
+        const valiseOuverte=Boolean(V&&typeof V.ouverte==='function'&&V.ouverte());
+        const phraseValise=Boolean(V&&typeof V.phraseActive==='function'&&V.phraseActive());
+        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(valiseOuverte?' vl-velours':'')+'">'+
+          '<i class="vl-velours-fond" aria-hidden="true"></i>'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+
             'role="button" tabindex="0" aria-expanded="'+(ouvert?'true':'false')+'">'+
@@ -2282,7 +2286,7 @@
             '<span class="soreal-idle-coffre-chevron-v1">'+(ouvert?'▲':'▼')+'</span>'+
           '</div>'+
           valiseConsommablesIdleV1_()+
-          '<div class="soreal-idle-v138-cube-slot" data-idle-coffre-drop-v180 '+
+          '<div class="soreal-idle-v138-cube-slot'+(phraseValise?' vl-phrase-on':'')+'" data-idle-coffre-drop-v180 '+
             'ondragover="window.__survolCibleAdventureIdleV138__(event)" '+
             'ondragleave="window.__quitterCibleAdventureIdleV138__(event)" '+
             'ondrop="window.__deposerSurCoffreAdventureIdleV1__(event)" '+
@@ -2295,6 +2299,7 @@
             '</div>'+
             '<div class="bg-texte-v1"><b>Il mange les objets pour les ranger.</b>'+
               '<span>Glisse ici un objet réellement maxé : il croque, avale, rote, puis le range quelque part là-dedans. Ne lui mets pas les doigts.</span></div>'+
+            (V&&typeof V.phraseBlocHtml==='function'?V.phraseBlocHtml():'')+
           '</div>'+
           (ouvert?'<div style="margin-top:10px">'+
             '<input type="search" id="sorealIdleCoffreRechercheV1" class="soreal-idle-coffre-recherche-v1" placeholder="🔎 Rechercher : un nom, ou une stat (Magic Power…)" value="'+idleHtml_(REG.idleRechercheCoffreV1)+'" oninput="window.__rechercheCoffreV1__(this.value)" autocomplete="off" spellcheck="false">'+

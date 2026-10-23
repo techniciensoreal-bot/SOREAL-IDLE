@@ -94,47 +94,47 @@
     '</defs>'+
     '<ellipse class="vl-ombre" cx="160" cy="219" rx="126" ry="9" fill="rgba(0,0,0,.45)"/>'+
     /* pieds de bois cerclés de laiton */
-    '<g class="vl-patte vl-a"><rect x="60" y="192" width="32" height="24" rx="9" fill="#5a3417" stroke="#1f1006" stroke-width="3"/><rect x="60" y="192" width="32" height="8" rx="4" fill="url(#vlLaiton)" opacity=".85"/></g>'+
-    '<g class="vl-patte vl-b"><rect x="228" y="192" width="32" height="24" rx="9" fill="#5a3417" stroke="#1f1006" stroke-width="3"/><rect x="228" y="192" width="32" height="8" rx="4" fill="url(#vlLaiton)" opacity=".85"/></g>'+
+    '<g class="vl-patte vl-a"><rect x="60" y="192" width="32" height="24" rx="9" fill="#5a3417" stroke="#1f1006" stroke-width="2.2"/><rect x="60" y="192" width="32" height="8" rx="4" fill="url(#vlLaiton)" opacity=".85"/></g>'+
+    '<g class="vl-patte vl-b"><rect x="228" y="192" width="32" height="24" rx="9" fill="#5a3417" stroke="#1f1006" stroke-width="2.2"/><rect x="228" y="192" width="32" height="8" rx="4" fill="url(#vlLaiton)" opacity=".85"/></g>'+
     /* l'intérieur, visible quand le couvercle se soulève : velours, lueur, goulots de fioles */
     '<g class="vl-interieur">'+
-      '<rect x="30" y="94" width="260" height="18" rx="5" fill="url(#vlVelours)" stroke="#1f1006" stroke-width="3"/>'+
+      '<rect x="30" y="94" width="260" height="18" rx="5" fill="url(#vlVelours)" stroke="#1f1006" stroke-width="2.2"/>'+
       '<rect x="31" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/><rect x="273" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/>'+
       '<ellipse class="vl-lueur" cx="160" cy="98" rx="104" ry="20" fill="url(#vlLueur)"/>'+
     '</g>'+
     '<g class="vl-corps">'+
-      '<rect x="26" y="104" width="268" height="94" rx="14" fill="url(#vlCuir)" stroke="#1f1006" stroke-width="4"/>'+
+      '<rect x="26" y="104" width="268" height="94" rx="14" fill="url(#vlCuir)" stroke="#1f1006" stroke-width="3"/>'+
       '<g stroke="#3a1d09" stroke-width="1.4" fill="none" opacity=".45"><path d="M44 126q8-5 16 0M110 178q9-5 18 0M200 130q9-4 17 0M262 172q8-5 16 0M150 152q7-4 14 0M58 170q6-3 12 0M268 124q6-3 12 0"/></g>'+
-      '<rect x="35" y="113" width="250" height="76" rx="9" fill="none" stroke="#f0d79a" stroke-width="2" stroke-dasharray="6 5" opacity=".75"/>'+
-      '<rect x="72" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
-      '<rect x="228" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
-      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.6"><circle cx="82" cy="120" r="3.6"/><circle cx="82" cy="152" r="3.6"/><circle cx="82" cy="184" r="3.6"/><circle cx="238" cy="120" r="3.6"/><circle cx="238" cy="152" r="3.6"/><circle cx="238" cy="184" r="3.6"/></g>'+
-      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.2"><path d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/><path transform="translate(320 0) scale(-1 1)" d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/></g>'+
+      '<rect x="35" y="113" width="250" height="76" rx="9" fill="none" stroke="#f0d79a" stroke-width="1.3" stroke-dasharray="6 5" opacity=".75"/>'+
+      '<rect x="72" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="1.5"/>'+
+      '<rect x="228" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="1.5"/>'+
+      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1"><circle cx="82" cy="120" r="3.6"/><circle cx="82" cy="152" r="3.6"/><circle cx="82" cy="184" r="3.6"/><circle cx="238" cy="120" r="3.6"/><circle cx="238" cy="152" r="3.6"/><circle cx="238" cy="184" r="3.6"/></g>'+
+      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.5"><path d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/><path transform="translate(320 0) scale(-1 1)" d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/></g>'+
     '<g class="vl-coins"><path d="M31 104H74C60 108 50 116 44 130C36 126 31 118 31 108Z" fill="#1f0810"/><path d="M289 104H246C260 108 270 116 276 130C284 126 289 118 289 108Z" fill="#1f0810"/></g>'+
-    '<g class="vl-serrure"><rect x="142" y="120" width="36" height="42" rx="7" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="3"/><circle cx="160" cy="139" r="5.5" fill="#2a1608"/><path d="M156.5 141h7l2.6 13h-12.2z" fill="#2a1608"/></g>'+
+    '<g class="vl-serrure"><rect x="142" y="120" width="36" height="42" rx="7" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.2"/><circle cx="160" cy="139" r="5.5" fill="#2a1608"/><path d="M156.5 141h7l2.6 13h-12.2z" fill="#2a1608"/></g>'+
     '</g>'+
     /* l'étiquette de parchemin pend à la serrure et se balance */
-    '<path d="M178 136Q204 142 230 166" fill="none" stroke="#3a2406" stroke-width="2.4"/>'+
-    '<g class="vl-etiquette"><rect x="212" y="168" width="40" height="26" rx="3" fill="#f1deb0" stroke="#5a3a12" stroke-width="2.4"/><circle cx="231" cy="171" r="2" fill="#5a3a12"/><text x="232" y="185" text-anchor="middle" font-size="9" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text></g>'+
+    '<path d="M178 136Q204 142 230 166" fill="none" stroke="#3a2406" stroke-width="1.5"/>'+
+    '<g class="vl-etiquette"><rect x="212" y="168" width="40" height="26" rx="3" fill="#f1deb0" stroke="#5a3a12" stroke-width="1.5"/><circle cx="231" cy="171" r="2" fill="#5a3a12"/><text x="232" y="185" text-anchor="middle" font-size="9" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text></g>'+
     '</svg>'+
     '<svg class="vl-haut" viewBox="0 0 320 232" aria-hidden="true" focusable="false">'+
     '<g class="vl-couvercle"><g class="vl-dome">'+
-      '<path d="M26 104Q26 56 76 50L244 50Q294 56 294 104Z" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="4"/>'+
-      '<path d="M37 99Q37 65 80 59L240 59Q283 65 283 99" fill="none" stroke="#f0d79a" stroke-width="2" stroke-dasharray="6 5" opacity=".75"/>'+
-      '<rect x="72" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/><rect x="228" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
-      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.6"><circle cx="82" cy="66" r="3.6"/><circle cx="82" cy="88" r="3.6"/><circle cx="238" cy="66" r="3.6"/><circle cx="238" cy="88" r="3.6"/></g>'+
-      '<rect x="26" y="95" width="268" height="10" rx="3" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.4"/>'+
+      '<path d="M26 104Q26 56 76 50L244 50Q294 56 294 104Z" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="3"/>'+
+      '<path d="M37 99Q37 65 80 59L240 59Q283 65 283 99" fill="none" stroke="#f0d79a" stroke-width="1.3" stroke-dasharray="6 5" opacity=".75"/>'+
+      '<rect x="72" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="1.5"/><rect x="228" y="51" width="20" height="53" fill="url(#vlFer)" stroke="#111" stroke-width="1.5"/>'+
+      '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1"><circle cx="82" cy="66" r="3.6"/><circle cx="82" cy="88" r="3.6"/><circle cx="238" cy="66" r="3.6"/><circle cx="238" cy="88" r="3.6"/></g>'+
+      '<rect x="26" y="95" width="268" height="10" rx="3" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.5"/>'+
       '</g>'+
-      '<g class="vl-anse"><path d="M128 53Q128 22 160 22Q192 22 192 53" fill="none" stroke="#2a1408" stroke-width="10" stroke-linecap="round"/><path d="M128 53Q128 26 160 26Q192 26 192 53" fill="none" stroke="#8a5a2b" stroke-width="4" stroke-linecap="round"/><circle cx="128" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/><circle cx="192" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2"/></g>'+
+      '<g class="vl-anse"><path d="M128 53Q128 22 160 22Q192 22 192 53" fill="none" stroke="#2a1408" stroke-width="10" stroke-linecap="round"/><path d="M128 53Q128 26 160 26Q192 26 192 53" fill="none" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/><circle cx="128" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.3"/><circle cx="192" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.3"/></g>'+
       '<g class="vl-yeux">'+
-        '<ellipse cx="124" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/><ellipse cx="196" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="3"/>'+
+        '<ellipse cx="124" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="2.2"/><ellipse cx="196" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="2.2"/>'+
         '<g class="vl-pupille vl-pg"><circle cx="124" cy="80" r="5.2" fill="#1a0d05"/><circle cx="126" cy="77.8" r="1.7" fill="#fff"/></g>'+
         '<g class="vl-pupille vl-pd"><circle cx="196" cy="80" r="5.2" fill="#1a0d05"/><circle cx="198" cy="77.8" r="1.7" fill="#fff"/></g>'+
-        '<ellipse class="vl-paupiere" cx="124" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="3"/><ellipse class="vl-paupiere" cx="196" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="3"/>'+
-        '<path d="M106 62Q124 52 142 62M178 62Q196 52 214 62" fill="none" stroke="#2a1608" stroke-width="5" stroke-linecap="round"/>'+
+        '<ellipse class="vl-paupiere" cx="124" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="2.2"/><ellipse class="vl-paupiere" cx="196" cy="80" rx="16.6" ry="14.6" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="2.2"/>'+
+        '<path d="M106 62Q124 52 142 62M178 62Q196 52 214 62" fill="none" stroke="#2a1608" stroke-width="3.4" stroke-linecap="round"/>'+
       '</g>'+
     '</g>'+
-    '<g class="vl-zzz" fill="#fff6dd" stroke="#1f1006" stroke-width="2" font-family="Bangers,Impact,sans-serif"><text class="vl-z1" x="250" y="44" font-size="26">Z</text><text class="vl-z2" x="270" y="26" font-size="20">z</text><text class="vl-z3" x="286" y="12" font-size="15">Z</text></g>'+
+    '<g class="vl-zzz" fill="#fff6dd" stroke="#1f1006" stroke-width="1.3" font-family="Bangers,Impact,sans-serif"><text class="vl-z1" x="250" y="44" font-size="26">Z</text><text class="vl-z2" x="270" y="26" font-size="20">z</text><text class="vl-z3" x="286" y="12" font-size="15">Z</text></g>'+
     '</svg>';
 
   /* ---------- la langue : trois pièces dessinées (racine, corps qui se répète, bout), mêmes bords qui se raccordent ---------- */
@@ -142,24 +142,24 @@
   function papilles(pts){return pts.map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(p[2]||2.6)+'" fill="#f4a3b8" opacity=".6"/>';}).join('');}
   var TUILE_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="262" height="160" viewBox="0 0 262 160">'+
     '<path d="M14 0C6 28 22 56 12 84C4 112 20 136 14 160H248C254 132 240 108 250 80C258 52 242 26 248 0Z" fill="'+ROSE+'"/>'+
-    '<path d="M131 0C127 40 135 80 131 120C128 140 133 150 131 160" fill="none" stroke="'+RAINURE+'" stroke-width="3" opacity=".85"/>'+
+    '<path d="M131 0C127 40 135 80 131 120C128 140 133 150 131 160" fill="none" stroke="'+RAINURE+'" stroke-width="2.2" opacity=".85"/>'+
     papilles([[50,22],[84,50],[48,96],[92,128],[176,30],[214,64],[170,108],[212,140],[110,12],[150,76],[64,150],[198,100]])+
     '<ellipse cx="66" cy="72" rx="12" ry="38" fill="#fff" opacity=".2"/>'+
-    '<path d="M14 0C6 28 22 56 12 84C4 112 20 136 14 160" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/>'+
-    '<path d="M248 0C242 26 258 52 250 80C240 108 254 132 248 160" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
+    '<path d="M14 0C6 28 22 56 12 84C4 112 20 136 14 160" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4"/>'+
+    '<path d="M248 0C242 26 258 52 250 80C240 108 254 132 248 160" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4"/></svg>';
   var TUILE='data:image/svg+xml,'+encodeURIComponent(TUILE_SVG);
   /* La racine : la base de la langue, aussi large que la bouche (l'ouverture de la valise). Posée sur la lèvre inférieure (le bord du corps de la valise), elle bombe vers l'avant, puis la langue retombe sur la façade. */
   /* La base de la langue (largeur inchangée : épaules arrondies) : posée sur la lèvre inférieure. Les coins de la bouche, de chaque côté de ses épaules, sont sombres (l'intérieur), pas de cuir. */
   var RACINE='<svg viewBox="0 0 262 72" aria-hidden="true" focusable="false"><defs><linearGradient id="vlOmbreLg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0010" stop-opacity=".85"/><stop offset=".34" stop-color="#2a0010" stop-opacity=".45"/><stop offset=".62" stop-color="#2a0010" stop-opacity="0"/></linearGradient></defs>'+
     '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="'+ROSE+'"/>'+
-    '<path d="M131 5V72" stroke="'+RAINURE+'" stroke-width="3" opacity=".85"/>'+papilles([[56,36,2.4],[100,26,2.4],[162,26,2.4],[206,36,2.4],[84,56,2.4],[180,56,2.4]])+
+    '<path d="M131 5V72" stroke="'+RAINURE+'" stroke-width="2.2" opacity=".85"/>'+papilles([[56,36,2.4],[100,26,2.4],[162,26,2.4],[206,36,2.4],[84,56,2.4],[180,56,2.4]])+
     '<ellipse cx="72" cy="40" rx="22" ry="6" fill="#fff" opacity=".22"/>'+
     '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="url(#vlOmbreLg)"/>'+
-    '<path d="M14 72V22C34 12 80 5 131 5C182 5 228 12 248 22V72" fill="none" stroke="'+CONTOUR+'" stroke-width="5" stroke-linejoin="round"/></svg>';
+    '<path d="M14 72V22C34 12 80 5 131 5C182 5 228 12 248 22V72" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4" stroke-linejoin="round"/></svg>';
   var BOUT='<svg viewBox="0 0 262 104" aria-hidden="true" focusable="false"><path d="M14 0H248C256 46 208 102 131 102C54 102 6 46 14 0Z" fill="'+ROSE+'"/>'+
-    '<path d="M131 0V74" stroke="'+RAINURE+'" stroke-width="3" opacity=".85" stroke-linecap="round"/>'+papilles([[60,20],[92,52],[170,24],[204,48],[120,84],[146,70]])+
+    '<path d="M131 0V74" stroke="'+RAINURE+'" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>'+papilles([[60,20],[92,52],[170,24],[204,48],[120,84],[146,70]])+
     '<ellipse cx="86" cy="44" rx="16" ry="24" fill="#fff" opacity=".22"/>'+
-    '<path d="M14 0C6 46 54 102 131 102C208 102 256 46 248 0" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
+    '<path d="M14 0C6 46 54 102 131 102C208 102 256 46 248 0" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4"/></svg>';
 
   /* Le rouleau de langue : le bout enroulé de la langue (un cylindre aux deux faces en spirale). Son rayon diminue à mesure que la langue se déroule et il tourne de la longueur sortie (anime()). */
   var ROULEAU='<b class="vl-ro-corps"></b>';
@@ -213,8 +213,24 @@
     ['Elle a la langue bien pendue.','Tout ce que tu possèdes est posé dessus. Ne la chatouille pas, elle rit en lançant des fioles.'],
     ['Le dépôt-vente le plus gluant du royaume.','Prends ce qu’il te faut ; ce qui est tombé par terre est à elle.']
   ];
-  var phrase=Math.floor(Math.random()*PHRASES.length);
-  function phraseHtml(){var p=PHRASES[phrase%PHRASES.length];return '<div class="vl-phrase" data-sans-traduction><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
+  var CLE_PHRASE='soreal_idle_valise_phrase_v1';   /* indice de la phrase affichée à la place de celle du Coffre ; vide = celle du Coffre */
+  function phraseIdx(){try{var v=localStorage.getItem(CLE_PHRASE);return v===null||v===''?-1:Math.max(0,parseInt(v,10)||0)%PHRASES.length;}catch(_e){return -1;}}
+  function phraseActive(){return phraseIdx()>=0;}
+  function poserPhrase(i){try{localStorage.setItem(CLE_PHRASE,i<0?'':String(i));}catch(_e){}}
+  /* Le bloc de texte de la valise, posé dans la zone du Coffre à côté de celui du Coffre ; la classe vl-phrase-on de la zone choisit lequel est affiché. */
+  function phraseBlocHtml(){var p=PHRASES[Math.max(0,phraseIdx())];return '<div class="bg-texte-v1 vl-phrase-bloc" data-sans-traduction><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
+  function coffreOuvert(){try{return localStorage.getItem('soreal_idle_coffre_ouvert_v1')==='1';}catch(_e){return false;}}
+  var coffreAvant=coffreOuvert();
+  function synchroniserCoffre(){
+    var on=phraseActive();
+    [].slice.call(document.querySelectorAll('[data-idle-coffre-drop-v180]')).forEach(function(z){
+      if(z.classList.contains('vl-phrase-on')!==on)z.classList.toggle('vl-phrase-on',on);
+      var b=z.querySelector('.vl-phrase-bloc');
+      if(on&&b){var p=PHRASES[phraseIdx()];var t=b.querySelector('b');if(t&&t.textContent!==p[0]){b.outerHTML=phraseBlocHtml();}}
+    });
+    /* le velours : le fond du Coffre devient un velours tant que la valise est ouverte (jusqu'à la fin de son enroulement) */
+    sections().forEach(function(s){var c=s.closest('.soreal-idle-coffre-v1');if(c)c.classList.toggle('vl-velours',s.classList.contains('vl-ouverte'));});
+  }
 
   function contenu(){
     var c=donnees(),n=0;
@@ -234,11 +250,7 @@
     var o=ouverte(),k=contenu();
     style_();
     return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
-      '<div class="vl-titre" role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" data-vl-bascule>'+
-        '<span class="vl-nom">Valise des consommables'+(k.n?' ('+k.n+')':'')+'</span><span class="vl-chevron">'+(o?'▲':'▼')+'</span>'+
-      '</div>'+
-      phraseHtml()+
-      '<div class="vl-creature" data-vl-bascule><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
+      '<div class="vl-creature" data-vl-bascule role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" aria-label="Valise des consommables"><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
       '<div class="vl-deplie"><div class="vl-deplie-in">'+
         k.langue+
       '</div>'+(k.n?'<i class="vl-rouleau" aria-hidden="true">'+ROULEAU+'</i>':'')+'</div>'+
@@ -254,7 +266,6 @@
       var dedans=s.querySelector('.vl-deplie-in');
       if(!dedans)return;
       dedans.innerHTML=k.langue;
-      var nom=s.querySelector('.vl-nom');if(nom)nom.textContent='Valise des consommables'+(k.n?' ('+k.n+')':'');
       var dep=s.querySelector('.vl-deplie'),rou=s.querySelector('.vl-rouleau');
       if(k.n&&!rou&&dep){var i=document.createElement('i');i.className='vl-rouleau';i.setAttribute('aria-hidden','true');i.innerHTML=ROULEAU;dep.appendChild(i);}
       if(!k.n&&rou)rou.remove();
@@ -275,11 +286,8 @@
   var CSS=`
 /* Pas de cadre propre à la valise (Norman, 2026-10-23) : elle vit dans le cadre du Coffre, sur PC comme sur téléphone */
 ${P}{container-type:inline-size;position:relative;margin:10px 0 0;padding:0 0 8px;color:#f5e6c4}
-${P} .vl-titre{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;margin:0;padding:4px 34px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;color:#ffe3a0;text-shadow:0 2px 0 #000,0 0 12px rgba(255,190,90,.5);letter-spacing:.07em;text-transform:uppercase}
-${P} .vl-nom{font:400 clamp(20px,3.2vw,26px)/1.1 Bangers,"Russo One",Impact,sans-serif}
-${P} .vl-chevron{position:absolute;right:6px;font:400 18px "Russo One",system-ui,sans-serif;color:#ffd27a}
 ${P} .vl-creature{position:relative;display:flex;justify-content:center;padding:14px 0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-${P} .vl-bete{position:relative;width:min(250px,64%)}
+${P} .vl-bete{position:relative;width:min(210px,70%)}
 ${P} .vl-bete svg{display:block;width:100%;height:auto;overflow:visible}
 /* le couvercle, les yeux et l'anse passent AU-DESSUS de la langue : elle sort de l'ouverture de la valise (entre le couvercle et le corps), la bouche, sans rien de dessiné */
 ${P} .vl-bete svg.vl-haut{position:absolute;left:0;top:0;z-index:5;pointer-events:none}
@@ -328,7 +336,7 @@ ${P}.vl-glou .vl-bete{animation:vlSaut .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes vlSaut{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-12px) scale(1.04,.97)}100%{transform:translateY(0) scale(1)}}
 /* la bouche (sous le nez-serrure) s'ouvre avec la valise : la langue en sort, d'autant plus longue qu'il y a d'objets */
 /* Le dépliage commence DANS la bouche, à la hauteur de la lèvre inférieure, ouvert comme fermé (--vl-m = la distance de la bouche au bas de la valise) : le recouvrement est compensé par une hauteur minimale, donc la mise en page ne bouge jamais et la langue ne se détache pas de la bouche pendant qu'elle s'enroule. */
-${P} .vl-deplie{--vl-m:calc(min(250px,64cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m)}
+${P} .vl-deplie{--vl-m:calc(min(210px,70cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m)}
 ${P} .vl-etiq{font-size:12px;padding:2px 4px}
 /* La partie visible de la langue = la longueur déroulée (--vl-p de 0 à 1 fois la hauteur mesurée --vl-h) : animée image par image par le module (anime()), jamais par une simple transition */
 ${P} .vl-deplie-in{overflow:hidden;padding:0;max-height:calc(var(--vl-h,0)*var(--vl-pf,var(--vl-p,0))*1px)}
@@ -338,12 +346,12 @@ ${P}.vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}
 ${P}:not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}
 ${P} .vl-rien{margin:calc(var(--vl-m) + 12px) 0 4px;text-align:center;font:400 15px/1.3 "Russo One",system-ui,sans-serif;font-style:italic;color:#e3d2a6;opacity:.9}
 /* la langue : un ruban rose qui se déroule vers le bas (rétrécie à la bouche, plus large ensuite), contour sombre, sillon au milieu, petites papilles et reflet humide */
-${P} .vl-langue{position:relative;width:min(210px,54cqw);margin:0 auto 6px;transform-origin:50% 0;filter:drop-shadow(0 8px 8px rgba(0,0,0,.5))}
+${P} .vl-langue{position:relative;width:min(176px,59cqw);margin:0 auto 6px;transform-origin:50% 0;filter:drop-shadow(0 8px 8px rgba(0,0,0,.5))}
 ${P}.vl-ouverte .vl-langue{animation:vlLangue 4.4s ease-in-out 1.2s infinite}
 /* le rouleau : cylindre vu de face (axe horizontal, perspective de la valise) dont le rayon (--vl-rr) diminue pendant que la langue se déroule ; sa peau (papilles) défile de la longueur sortie (--vl-s) ; il grossit quand la langue s'enroule */
-${P} .vl-rouleau{position:absolute;left:50%;z-index:4;width:min(210px,54cqw);margin-left:calc(min(210px,54cqw)/-2);top:calc(var(--vl-h,0)*var(--vl-p,0)*1px);height:calc(var(--vl-rr,0)*2px);transform:translateY(-50%);pointer-events:none;visibility:hidden;opacity:min(1,calc(var(--vl-p,0)*16),calc((1 - var(--vl-p,0))*16))}
+${P} .vl-rouleau{position:absolute;left:50%;z-index:4;width:min(176px,59cqw);margin-left:calc(min(176px,59cqw)/-2);top:calc(var(--vl-h,0)*var(--vl-p,0)*1px);height:calc(var(--vl-rr,0)*2px);transform:translateY(-50%);pointer-events:none;visibility:hidden;opacity:min(1,calc(var(--vl-p,0)*16),calc((1 - var(--vl-p,0))*16))}
 ${P}.vl-anim .vl-rouleau{visibility:visible}
-${P} .vl-ro-corps{position:absolute;inset:0;border:3px solid #5a1028;border-radius:calc(var(--vl-rr,0)*.6px)/calc(var(--vl-rr,0)*.9px);box-shadow:0 6px 6px rgba(0,0,0,.4);
+${P} .vl-ro-corps{position:absolute;inset:0;border:2px solid #5a1028;border-radius:calc(var(--vl-rr,0)*.6px)/calc(var(--vl-rr,0)*.9px);box-shadow:0 6px 6px rgba(0,0,0,.4);
   background:linear-gradient(180deg,rgba(60,8,28,.7),rgba(255,255,255,.3) 38%,rgba(255,255,255,0) 56%,rgba(60,8,28,.55)),linear-gradient(90deg,transparent calc(50% - 1.5px),rgba(110,15,50,.7) calc(50% - 1.5px) calc(50% + 1.5px),transparent calc(50% + 1.5px)),radial-gradient(circle,#f4a3b8 0 2.4px,transparent 3px) 0 calc(var(--vl-s,0)*1px)/26px 22px,#e3607f}
 @keyframes vlLangue{0%,100%{transform:scaleY(1) rotate(0)}50%{transform:scaleY(1.012) rotate(.5deg)}}
 ${P} .vl-lg-racine svg,${P} .vl-lg-bout svg{display:block;width:100%;height:auto;overflow:visible}
@@ -376,18 +384,26 @@ ${P} .vl-bulles::after{animation-delay:-1.3s;left:5px}
 ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
 @keyframes vlGlou{0%{transform:scale(1)}40%{transform:scale(1.35) rotate(-14deg)}100%{transform:scale(.2) rotate(30deg);opacity:0}}
 /* La phrase de la valise, quand elle est ouverte (comme « Il mange les objets… » du Coffre) */
-${P} .vl-phrase{max-height:0;overflow:hidden;opacity:0;margin:0 auto;text-align:center;transition:max-height .5s ease,opacity .4s ease .1s,margin .4s}
-${P}.vl-ouverte .vl-phrase{max-height:160px;opacity:1;margin:8px auto 0}
-${P} .vl-phrase b{display:block;margin-bottom:4px;font:400 clamp(20px,2.6vw,26px)/1.1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.04em;color:#ffe3a0;text-shadow:0 2px 0 #000}
-${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans-serif;color:#e9d9b0}
+/* Plus de barre « Coffre (n) » en haut du cadre (Norman, 2026-10-23) : le Coffre et la valise s'ouvrent en touchant leur créature */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1>.soreal-idle-coffre-titre-v1{display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1{isolation:isolate}
+/* La phrase de la valise remplace « Il mange les objets… » tant que le Coffre n'a pas été ouvert */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180] .vl-phrase-bloc{display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180].vl-phrase-on .bg-texte-v1:not(.vl-phrase-bloc){display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180].vl-phrase-on .vl-phrase-bloc{display:block}
+/* Valise ouverte : le fond du Coffre devient un joli velours (bordeaux, grain fin, ombre douce sur les bords) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .vl-velours-fond{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .7s ease;
+  background:radial-gradient(ellipse at 50% 20%,rgba(255,150,170,.16),transparent 55%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 0%,#8a1d3b 0%,#5a1229 46%,#2c0714 100%);
+  box-shadow:inset 0 0 70px rgba(0,0,0,.65)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}
 /* Sur ordinateur (Norman, 2026-10-23) : la valise est dans le MÊME cadre que le Coffre, à droite de « Il mange les objets… » ; plus de cadre de cuir propre */
 @media (min-width:761px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 350px;column-gap:12px;align-items:start}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 240px;column-gap:12px;align-items:start}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.soreal-idle-coffre-titre-v1{grid-column:1/-1}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{grid-column:1;grid-row:2}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{grid-column:2;grid-row:2}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){grid-column:1/-1}
-  ${P}{margin:6px 0 0}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){grid-column:1/-1;grid-row:3}
+  ${P}{margin:19px 0 0}
   ${P} .vl-art{width:70px}
   ${P} .vl-lg-corps{padding:6px 14px 4px}
 }
@@ -399,11 +415,12 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
 }
 @media (max-width:640px){
   ${P}{margin:0}
-  ${P} .vl-bete{width:min(230px,78%)}
-  ${P} .vl-deplie{--vl-m:calc(min(230px,78cqw)*.444)}
-  ${P} .vl-langue,${P} .vl-rouleau{width:min(193px,66cqw)}
-  ${P} .vl-rouleau{margin-left:calc(min(193px,66cqw)/-2)}
-  ${P} .vl-nom{font-size:21px;text-align:center}
+  ${P} .vl-bete{width:min(220px,70%)}
+  ${P} .vl-deplie{--vl-m:calc(min(220px,70cqw)*.444)}
+  ${P} .vl-langue,${P} .vl-rouleau{width:min(185px,59cqw)}
+  ${P} .vl-rouleau{margin-left:calc(min(185px,59cqw)/-2)}
+  ${P} .vl-art{width:76px}
+  ${P} .vl-lg-corps{padding:6px 12px 4px}
 }
 @media (prefers-reduced-motion:reduce){
   ${P} *{animation:none;transition:none}
@@ -466,6 +483,7 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
       if(p===0)s.classList.remove('vl-ouverte');
     });
     progres=p;animId=0;
+    synchroniserCoffre();
   }
   function anime(vers){
     if(animId){cancelAnimationFrame(animId);animId=0;}
@@ -491,12 +509,12 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
     try{localStorage.setItem(CLE,o?'1':'0');}catch(_e){}
     sections().forEach(function(s){
       if(o)s.classList.add('vl-ouverte');   /* fermée : la classe ne part qu'à la fin de l'enroulement (finirProgres) */
-      var t=s.querySelector('.vl-titre');if(t)t.setAttribute('aria-expanded',o?'true':'false');
-      var ch=s.querySelector('.vl-chevron');if(ch)ch.textContent=o?'▲':'▼';
+      var cr=s.querySelector('.vl-creature');if(cr)cr.setAttribute('aria-expanded',o?'true':'false');
     });
-    if(o){phrase=(phrase+1+Math.floor(Math.random()*(PHRASES.length-1)))%PHRASES.length;sections().forEach(function(s){var ph=s.querySelector('.vl-phrase');if(ph)ph.outerHTML=phraseHtml();});}
+    if(o){var ancien=phraseIdx();poserPhrase((Math.max(0,ancien)+1+Math.floor(Math.random()*(PHRASES.length-1)))%PHRASES.length);}
     if(o&&dort)reveiller(false);
     anime(o?1:0);
+    synchroniserCoffre();
     son(o?'valiseOuvre':'valiseFerme');
     return o;
   }
@@ -511,6 +529,10 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
       var l=sections();
       if(!l.length)return;
       appliquer();
+      var co=coffreOuvert();
+      if(co&&!coffreAvant&&phraseActive())poserPhrase(-1);   /* on ouvre le Coffre : sa phrase revient */
+      coffreAvant=co;
+      synchroniserCoffre();
       rafraichirContenu();
       if(document.hidden||!l.some(enVue))return;
       if(dort){
@@ -548,7 +570,7 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
   },true);
   document.addEventListener('keydown',function(ev){
     if(ev.key!=='Enter'&&ev.key!==' ')return;
-    var t=ev.target&&ev.target.closest?ev.target.closest('.vl-titre'):null;
+    var t=ev.target&&ev.target.closest?ev.target.closest('.vl-creature'):null;
     if(!t)return;
     ev.preventDefault();
     if(dort){reveiller(true);return;}
@@ -557,5 +579,5 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
 
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
 
-  window.__SOREAL_IDLE_VALISE_V1__={html:html,basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
+  window.__SOREAL_IDLE_VALISE_V1__={html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
 })();
