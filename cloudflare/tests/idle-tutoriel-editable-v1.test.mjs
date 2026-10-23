@@ -168,7 +168,7 @@ console.log("Tutoriel éditable (premier jet, réglages): OK");
   assert.equal(normaliserGuideV1(guide({ etapes: [etape({})] })).etapes[0].avanceAuClic, false, "désactivé par défaut");
   const moteur = readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
   assert.ok(moteur.includes("var DELAI_SUIVANT_MS=30000;") && moteur.includes("s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);"), "attente du clic, délai de 30 s");
-  assert.ok(moteur.includes("cible.contains(ev.target)") && moteur.includes("},80);"), "un clic sur la cible fait avancer, après que le jeu a traité le clic");
+  assert.ok(moteur.includes("cible.contains(ev.target)") && moteur.includes("},DELAI_APRES_CLIC_MS);") && moteur.includes("var DELAI_APRES_CLIC_MS=2000;"), "un clic sur la cible fait avancer, après que le jeu a traité le clic");
   assert.ok(moteur.includes("(s.attenteClic?'hidden':'')") && moteur.includes("bs.hidden=false"), "le bouton Suivant est caché puis revient (jamais bloquant)");
   const editeur = readFileSync("cloudflare/public/modules/admin-tutoriel-v1.js", "utf8");
   assert.ok(editeur.includes('data-champ="avanceAuClic"') && editeur.includes("Passe à l’étape suivante quand le joueur clique sur l’élément montré"), "case dans l'éditeur");

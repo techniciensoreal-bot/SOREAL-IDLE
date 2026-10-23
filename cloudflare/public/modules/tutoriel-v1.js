@@ -200,6 +200,8 @@ function chroniqueOccupee_(){
   try{if(tts&&typeof tts.isSpeaking==='function'&&tts.isSpeaking())return true;}catch(_e){}
   return false;
 }
+/* Norman (2026-10-23) : l’étape suivante n’arrive que 2 secondes après le clic sur la cible (le temps de voir le jeu réagir). */
+var DELAI_APRES_CLIC_MS=2000;
 function attendreChronique_(s,suite){
   var debut=Date.now(),libre=0;
   (function sonde(){
@@ -311,7 +313,7 @@ document.addEventListener('click',function(ev){
     if(!c||c!==s||c.i!==indice)return;
     if(c.i>=c.guide.etapes.length-1)fermer_(true);
     else{c.i+=1;afficherEtape_();}
-  },80);
+  },DELAI_APRES_CLIC_MS);
 },true);
 document.addEventListener('keydown',function(ev){
   if(ev.key==='Escape'&&etat.enCours&&etat.enCours.apercu)fermer_(false);

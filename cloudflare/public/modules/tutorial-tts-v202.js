@@ -812,7 +812,7 @@
     });
   }
 
-  function playBlobWebAudioPromise_(blob,targetId,expectedGeneration){
+  function playBlobWebAudioPromise_(blob,targetId,expectedGeneration,chunkTexte){
     return new Promise(function(resolve,reject){
       if(!blob||!blob.size||expectedGeneration!==generation){
         reject(new Error('NARRATION_ANNULEE'));
@@ -860,6 +860,8 @@
 
         try{
           source.start(0);
+          /* Annonce le bloc qui commence et sa durée : l'introduction en images change d'image au rythme de la voix (modules/intro-diaporama-v1.js). */
+          try{window.dispatchEvent(new CustomEvent('soreal-voix-bloc',{detail:{texte:String(chunkTexte||''),duree:buffer.duration||0}}));}catch(_e){}
         }catch(error){
           if(done)return;
           done=true;
@@ -1022,7 +1024,7 @@
         }
         return assurer(i,false).then(function(blob){
           assurer(prochainTexte(i+1),true);
-          return playBlobWebAudioPromise_(blob,targetId,myGeneration);
+          return playBlobWebAudioPromise_(blob,targetId,myGeneration,etape.chunk);
         }).then(function(){return jouer(i+1);});
       };
       task=jouer(0);

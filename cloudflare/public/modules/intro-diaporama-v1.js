@@ -178,7 +178,7 @@ function demarrer(){
   var t=r.querySelector('#sorealIdleIntroTexteV1');if(t)t.innerHTML=texteHtml(DIAPOS[0].t);
   var pts=r.querySelectorAll('.id-points i');for(var k=0;k<pts.length;k++)pts[k].className=k===0?'id-ici':'';
   precharger(1);precharger(2);
-  attenteSon=false;indiceSon(false);
+  attenteSon=false;indiceSon(false);curseur=0;annulerVoix();
   r.addEventListener('click',toucher);
   planifier();
   /* Après un instant (la voix a eu le temps d'essayer de démarrer) : si le navigateur a bloqué le son, on attend un premier appui avant de défiler. */
@@ -194,7 +194,41 @@ function demarrer(){
   return true;
 }
 
+/*
+ * Images au rythme de la voix (Norman, 2026-10-23 : « chaque image ne dure que le temps de la phrase écrite en dessous »). Le lecteur annonce chaque bloc de voix (texte + durée, événement « soreal-voix-bloc ») : on retrouve
+ * dans les phrases des images la portion que le bloc couvre et chaque image est affichée pendant la part de la durée qui correspond à SA phrase (au prorata des lettres). On ne recule jamais ; sans voix, les minuteurs de durée() prennent le relais.
+ */
+var voixMinuteries=[],curseur=0,tout='',bornes=[];
+function lettres(s){return String(s||'').toLowerCase().replace(/[^\p{L}\p{N}]/gu,'');}
+(function(){var p=0;DIAPOS.forEach(function(d){bornes.push(p);var l=lettres(d.t);tout+=l;p+=l.length;});bornes.push(p);})();
+function diapoDe(pos){for(var k=bornes.length-2;k>=0;k--){if(pos>=bornes[k])return k;}return 0;}
+function annulerVoix(){voixMinuteries.forEach(clearTimeout);voixMinuteries=[];}
+function surBlocVoix(ev){
+  var r=racine();if(!r||!r.isConnected||attenteSon)return;
+  var d=ev&&ev.detail||{},c=lettres(d.texte),duree=Number(d.duree)||0;
+  if(c.length<6||!duree)return;
+  var pos=tout.indexOf(c.slice(0,Math.min(24,c.length)),Math.max(0,curseur-4));
+  if(pos<0)return;
+  var fin=Math.min(tout.length,pos+c.length);
+  curseur=fin;
+  annulerVoix();
+  if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  var a=diapoDe(pos),b=diapoDe(Math.max(pos,fin-1));
+  for(var k=a;k<=b;k++){
+    var debut=Math.max(bornes[k],pos);
+    var delai=Math.round((debut-pos)/c.length*duree*1000);
+    (function(kk,dl){
+      var go=function(){var rr=racine();if(rr&&rr.isConnected&&kk>indice)afficher(kk);};
+      if(dl<=20)go();else voixMinuteries.push(setTimeout(go,dl));
+    })(k,delai);
+  }
+  /* Filet : si la voix s'arrête là, l'image suivante vient quand même. */
+  minuterie=setTimeout(suite,Math.round(duree*1000)+6000);
+}
+try{window.addEventListener('soreal-voix-bloc',surBlocVoix);}catch(_e){}
+
 function arreter(){
+  annulerVoix();curseur=0;
   if(minuterie){clearTimeout(minuterie);minuterie=0;}
   if(veilleSon){clearTimeout(veilleSon);veilleSon=0;}
   attenteSon=false;

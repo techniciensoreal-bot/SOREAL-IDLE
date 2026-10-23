@@ -81,3 +81,11 @@ const tut = lire("modules/ui-tutoriel-v1.js");
 assert.ok(tut.includes("page.long&&page.diaporama&&window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__") && tut.includes("texteVoixTutorielIdleV1_(page,etat.pages[etat.index-1])"), "la voix lit toujours le texte de la page");
 assert.ok(lire("index.html").includes('<script defer src="/modules/intro-diaporama-v1.js?v='), "module chargé");
 console.log("idle-intro-diaporama-v1: OK");
+
+// 4. Images au rythme de la voix (Norman, 2026-10-23 : « chaque image ne dure que le temps de la phrase écrite en dessous ») : le lecteur annonce chaque bloc (texte + durée) et l'image suit la part du bloc qui lui revient.
+{
+  const tts = lire("modules/tutorial-tts-v202.js");
+  assert.ok(tts.includes("new CustomEvent('soreal-voix-bloc',{detail:{texte:String(chunkTexte||''),duree:buffer.duration||0}})") && tts.includes("playBlobWebAudioPromise_(blob,targetId,myGeneration,etape.chunk)"), "le lecteur annonce chaque bloc de voix");
+  assert.ok(code.includes("/[^\\p{L}\\p{N}]/gu") && code.includes("addEventListener('soreal-voix-bloc',surBlocVoix)") && code.includes("kk>indice"), "l'introduction suit la voix, sans jamais reculer");
+}
+console.log("idle-intro-diaporama-v1 (voix): OK");
