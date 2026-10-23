@@ -92,9 +92,14 @@ function advanceBloodMagic(state, seconds, context) {
 
     const affordable = Math.floor(state.currencies.gold / ritual.gold);
     completions = Math.min(completions, affordable, 1000000, challengeHundredLevelsRemaining(state));
-    if (completions <= 0) continue;
+    /*
+     * Norman (2026-10-23) : « juste en plaçant de la magie dans les rituels, il valide le rituel ». Faute d'Or (ou de niveaux de défi), la progression continuait de s'empiler sans limite : plusieurs rituels d'arriéré, tous
+     * validés d'un coup dès que l'Or revenait ou que la durée changeait. La barre attend maintenant PLEINE (une seule complétion en réserve, comme le client l'affiche) : le rituel se termine dès que l'Or est là, jamais plus.
+     */
+    if (completions <= 0) { rs.progress = Math.min(rs.progress, secondsPerCompletion); continue; }
 
     rs.progress -= completions * secondsPerCompletion;
+    rs.progress = Math.min(rs.progress, secondsPerCompletion);
     rs.completions += completions;
     rs.level += completions;
     state.currencies.gold -= completions * ritual.gold;

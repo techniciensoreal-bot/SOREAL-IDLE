@@ -47,6 +47,7 @@
             'Le boss « Sundae » garde son nom d’origine partout (c’est un jeu de mots avec « Sunday »).',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Rituels : faute d’Or, la barre attend pleine au lieu d’empiler du retard ; placer de la Magie ne valide plus, d’un coup, tous les rituels qui s’étaient accumulés.',
             'Rituel de la sangsue : plus aucun jet de sang parasite quand on change la cadence (par exemple en plaçant toute la Magie) ; à cadence très rapide, la sangsue passe en écoulement continu, sans jets ni recalages qui sautent.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[

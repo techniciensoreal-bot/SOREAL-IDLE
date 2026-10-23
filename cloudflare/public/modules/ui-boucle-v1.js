@@ -474,6 +474,8 @@
               if(ecoule0>=eta0-1e-9){
                 const dus=Math.floor((ecoule0-eta0)/seconds)+1;
                 const faits=Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
+                /* Faute d'Or, la barre attend PLEINE (repère remis à maintenant) : sinon le temps d'attente s'empile et tous ces rituels sont rejoués d'un coup quand l'Or revient (Norman, 2026-10-23) */
+                if(faits<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=0;}
                 if(faits>0&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies){
                   orLiveB=Math.max(0,orLiveB-faits*coutOrB);
                   REG.idleEtat.systemes.currencies.gold=orLiveB;
