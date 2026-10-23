@@ -122,7 +122,7 @@ console.log("idle-valise-consommables-v1 (yeux): OK");
   assert.ok(c.includes("{id:'seeds',nom:'Graines'") && c.includes("{id:'poop',nom:'Poop'"), "graines et poop dans les réserves");
   assert.ok(c.includes("function rafraichirContenu()") && c.includes("rafraichirContenu();\n      if(document.hidden"), "contenu rafraîchi en direct");
   assert.ok(c.includes("function phraseBlocHtml()") && c.includes(".vl-phrase-on .bg-texte-v1:not(.vl-phrase-bloc){display:none}") && c.includes("if(co&&!coffreAvant&&phraseActive())poserPhrase(-1);"), "la phrase de la valise remplace celle du Coffre jusqu'à l'ouverture du Coffre");
-  assert.ok(c.includes("@media (min-width:761px)") && c.includes(":has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 240px") && c.includes(">.vl-section{grid-column:2;grid-row:2}"), "PC : dans le cadre du Coffre, à droite de « Il mange les objets… »");
+  assert.ok(c.includes("@media (min-width:761px)") && c.includes(":has(>.vl-section){display:grid;grid-template-columns:minmax(0,760px) 240px") && c.includes(">.vl-section{grid-column:2;grid-row:2}"), "PC : dans le cadre du Coffre, à droite de « Il mange les objets… »");
 }
 console.log("idle-valise-consommables-v1 (graines, PC): OK");
 
@@ -134,7 +134,7 @@ console.log("idle-valise-consommables-v1 (graines, PC): OK");
   assert.ok(Math.max(...epais.filter((x) => x < 6)) <= 3.4, "traits de la valise aussi fins que ceux du Coffre (contours à 3, langue à 3,4)");
   assert.ok(c.includes(".vl-bete{position:relative;width:min(210px,70%)}"), "même taille que le bagage du Coffre (210 px)");
   assert.ok(c.includes(".soreal-idle-coffre-titre-v1{display:none}") && c.includes(".vl-velours-fond{position:absolute;inset:0;z-index:-1") && c.includes(".soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}"), "pas de barre de titre ; fond de velours quand la valise est ouverte");
-  assert.ok(c.includes("grid-template-columns:minmax(0,1fr) 240px") && c.includes("{margin:var(--vl-decal,19px) 0 0}"), "valise à droite de la phrase du Coffre, à la même hauteur");
+  assert.ok(c.includes("grid-template-columns:minmax(0,760px) 240px") && c.includes("{margin:var(--vl-decal,19px) 0 0}"), "valise à droite de la phrase du Coffre, à la même hauteur");
   const ui2 = readFileSync(new URL("../public/modules/ui-aventure-2-v1.js", import.meta.url), "utf8");
   assert.ok(ui2.includes("vl-velours-fond") && ui2.includes("vl-phrase-on") && ui2.includes("phraseBlocHtml"), "le Coffre pose le velours et la phrase de la valise");
 }

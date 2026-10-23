@@ -540,8 +540,8 @@
   "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 39,
-  "sha": "1d5e65e0b558801cb2c9ff138c4660bbe1308410"
+  "pin": 40,
+  "sha": "415efd9311bf8be92fefcf9a30e628e23ae25def"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
@@ -584,8 +584,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 215,
-  "sha": "d97bba797517288bcc285b5681ccd389dfa44e09"
+  "pin": 216,
+  "sha": "3e557b4e544717bbddc0601aa7348a0426815539"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

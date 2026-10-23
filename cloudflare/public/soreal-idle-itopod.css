@@ -1167,10 +1167,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
     radial-gradient(circle at 8px 24px,#ffe9a8 0 2px,#8a5a08 3px,transparent 4px) right top/16px 48px repeat-y,
     var(--cuivre) left top/16px 100% no-repeat,
     var(--cuivre) right top/16px 100% no-repeat,
-    repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 3px,transparent 3px 58px),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 9px),
-    repeating-linear-gradient(90deg,rgba(0,0,0,.10) 0 2px,transparent 2px 23px),
-    linear-gradient(180deg,#6b4a33,#563a28 55%,#3b2618)!important;
+    /* Norman (2026-10-23) : plus de fond en bois ; le tapis vert de billard, foncé, est le fond par défaut du cadre du Coffre (le velours de la valise passe par-dessus quand elle est la dernière ouverte). */
+    repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),
+    repeating-linear-gradient(-45deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+    radial-gradient(ellipse at 50% 30%,#1a5a30 0%,#11421f 52%,#082712 100%)!important;
   box-shadow:0 14px 34px rgba(0,0,0,.6),inset 0 0 0 3px #d79a1f,inset 0 0 0 6px #5a3507,inset 0 0 38px rgba(0,0,0,.5)!important;
 }
 /* Bande de fer du titre, filet de cuivre dessous, pleine largeur malgré le remplissage du cadre. */

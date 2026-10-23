@@ -116,7 +116,6 @@
     '</g>'+
     /* l'étiquette de parchemin pend à la serrure et se balance */
     '<path d="M178 136Q204 142 230 166" fill="none" stroke="#3a2406" stroke-width="1.5"/>'+
-    '<g class="vl-etiquette"><rect x="212" y="168" width="40" height="26" rx="3" fill="#f1deb0" stroke="#5a3a12" stroke-width="1.5"/><circle cx="231" cy="171" r="2" fill="#5a3a12"/><text x="232" y="185" text-anchor="middle" font-size="9" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text></g>'+
     '</svg>'+
     '<svg class="vl-haut" viewBox="0 0 320 232" aria-hidden="true" focusable="false">'+
     '<g class="vl-couvercle"><g class="vl-dome">'+
@@ -130,6 +129,7 @@
       '</g>'+
       '<g class="vl-anse"><path d="M128 53Q128 22 160 22Q192 22 192 53" fill="none" stroke="#2a1408" stroke-width="10" stroke-linecap="round"/><path d="M128 53Q128 26 160 26Q192 26 192 53" fill="none" stroke="#8a5a2b" stroke-width="3" stroke-linecap="round"/><circle cx="128" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.3"/><circle cx="192" cy="53" r="5.5" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.3"/></g>'+
       '<g class="vl-yeux">'+
+        '<g class="vl-etiquette"><path d="M29 80Q19 86 25 97" fill="none" stroke="#2a1408" stroke-width="3" stroke-linecap="round"/><path d="M29 80Q19 86 25 97" fill="none" stroke="#8a5a2b" stroke-width="1.2" stroke-linecap="round"/><rect x="3" y="96" width="46" height="30" rx="4" fill="#f1deb0" stroke="#5a3a12" stroke-width="1.5"/><circle cx="26" cy="102" r="2.4" fill="#5a3a12"/><text x="26" y="119" text-anchor="middle" font-size="10" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text><circle cx="29" cy="80" r="3.6" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1"/></g>'+
         '<ellipse cx="124" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="2.2"/><ellipse cx="196" cy="80" rx="16" ry="14" fill="#fff6dd" stroke="#1f1006" stroke-width="2.2"/>'+
         '<g class="vl-pupille vl-pg"><circle cx="124" cy="80" r="5.2" fill="#1a0d05"/><circle cx="126" cy="77.8" r="1.7" fill="#fff"/></g>'+
         '<g class="vl-pupille vl-pd"><circle cx="196" cy="80" r="5.2" fill="#1a0d05"/><circle cx="198" cy="77.8" r="1.7" fill="#fff"/></g>'+
@@ -310,7 +310,7 @@ ${P} .vl-patte.vl-b{animation-delay:-.55s}
 @keyframes vlTrotte{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 ${P} .vl-anse{transform-box:fill-box;transform-origin:50% 100%;animation:vlAnse 5.2s ease-in-out infinite}
 @keyframes vlAnse{0%,70%,100%{transform:rotate(0)}76%{transform:rotate(-6deg)}84%{transform:rotate(5deg)}92%{transform:rotate(-2deg)}}
-${P} .vl-etiquette{transform-origin:232px 168px;animation:vlBalance 3.4s ease-in-out infinite}
+${P} .vl-etiquette{transform-origin:29px 80px;animation:vlBalance 3.4s ease-in-out infinite}
 @keyframes vlBalance{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 ${P} .vl-paupiere{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);animation:vlCligne 4.6s ease-in-out infinite}
 @keyframes vlCligne{0%,92%,100%{transform:scaleY(0)}95%,97%{transform:scaleY(1)}}
@@ -416,15 +416,12 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .
   background:radial-gradient(ellipse at 50% 20%,rgba(255,150,170,.16),transparent 55%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 0%,#8a1d3b 0%,#5a1229 46%,#2c0714 100%);
   box-shadow:inset 0 0 70px rgba(0,0,0,.65)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}
-/* tapis vert de billard du Coffre (dernier ouvert) : feutre, trame fine, lumière au centre, ombre sur les bords */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-tapis .vl-velours-fond{opacity:1;
-  background:radial-gradient(ellipse at 50% 38%,rgba(190,255,200,.2),transparent 62%),repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 30%,#2e8a4a 0%,#1f6b3a 52%,#124626 100%);
-  box-shadow:inset 0 0 70px rgba(0,0,0,.6)}
+/* le tapis vert (Coffre dernier ouvert, ou rien d'ouvert) est le fond du cadre lui-même (soreal-idle-itopod.css) : seul le velours de la valise passe par-dessus */
 /* Sur ordinateur (Norman, 2026-10-23) : la valise est dans le MÊME cadre que le Coffre, à droite de « Il mange les objets… » ; plus de cadre de cuir propre */
 @media (min-width:761px){
   /* le texte du Coffre ou de la valise est centré entre les deux (Norman, 2026-10-23) */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180] .bg-texte-v1{text-align:center}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 240px;column-gap:12px;align-items:start}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,760px) 240px;justify-content:center;column-gap:12px;align-items:start}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.soreal-idle-coffre-titre-v1{grid-column:1/-1}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{grid-column:1;grid-row:2}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{grid-column:2;grid-row:2}
@@ -567,15 +564,26 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   /* Tout ne compte QUE le temps où la valise est vue (onglet visible, valise à l'écran), comme le Coffre. */
   var PAS=250;
   /* Les roulettes de la valise sur la même ligne que les pattes du Coffre (Norman, 2026-10-23) : la valise garde sa taille (plus petite), on mesure les deux dessins et on décale la valise de la différence. PC seulement (en colonne, sur téléphone, rien à aligner). */
+  /* Norman (2026-10-23) : la valise est à la MÊME distance du texte que le Coffre (18 px entre le dessin et le bloc de texte, centré). Sur grand écran (1920) la colonne de la valise la laissait très loin : on la rapproche (marge négative, sa largeur ne change pas) jusqu'au bord droit de la zone du Coffre. */
+  function rapprocher(s,coffre,rv){
+    var z=coffre.querySelector('[data-idle-coffre-drop-v180]');if(!z)return;
+    var rz=z.getBoundingClientRect();
+    var m=s.__vlRapproche||0;
+    var cible=Math.max(0,Math.min(200,rv.left+m-rz.right));
+    if(Math.abs(cible-m)<1)return;
+    s.__vlRapproche=cible;
+    s.style.marginLeft=(-cible).toFixed(1)+'px';
+  }
   function aligner(){
     var s=sections()[0];if(!s)return;
     var coffre=s.closest('.soreal-idle-coffre-v1');if(!coffre)return;
     var cs=null;try{cs=getComputedStyle(coffre);}catch(_e){}
-    if(!cs||cs.display!=='grid'){return;}
+    if(!cs||cs.display!=='grid'){if(s.__vlRapproche){s.__vlRapproche=0;s.style.marginLeft='';}return;}
     var cb=coffre.querySelector('.bg-bagage-v1 svg'),vb=s.querySelector('.vl-bete svg');
     if(!cb||!vb)return;
     var rc=cb.getBoundingClientRect(),rv=vb.getBoundingClientRect();
     if(!(rc.height>0&&rv.height>0))return;
+    rapprocher(s,coffre,rv);
     /* bas des roulettes : 247 / 260 du dessin du Coffre, 216 / 232 de celui de la valise */
     var delta=(rc.top+rc.height*247/260)-(rv.top+rv.height*216/232);
     if(Math.abs(delta)<1.5)return;

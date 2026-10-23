@@ -30,5 +30,5 @@ assert.ok(audio.includes("coffreAvale:{group:\"chest\"") && audio.includes("joue
 const sons = readFileSync("cloudflare/public/modules/audio-coffre-v1.js", "utf8");
 assert.equal((sons.split('var ROTS=')[0].match(/{id:'/g) || []).length, 20, "10 sons pour avaler, 10 pour recracher");
 const cadre = css.slice(css.indexOf("Cadre propre au Coffre"));
-assert.ok(cadre.includes(".soreal-idle-section-v8.soreal-idle-coffre-v1{") && cadre.includes("#6b4a33") && cadre.includes("--cuivre"), "cadre du Coffre : bois et cuivre, plus le vert du thème");
+assert.ok(cadre.includes(".soreal-idle-section-v8.soreal-idle-coffre-v1{") && cadre.includes("#1a5a30") && cadre.includes("--cuivre"), "cadre du Coffre : tapis vert foncé (plus de bois) et cuivre");
 console.log("idle-inventaire-v2-bagage-v1: OK");

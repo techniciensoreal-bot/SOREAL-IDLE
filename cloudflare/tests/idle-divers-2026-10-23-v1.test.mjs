@@ -16,6 +16,13 @@ assert.ok(md.includes('id="tmmNomMob" x="130" y="296"') && md.includes("function
 assert.ok(lire("cloudflare/public/soreal-idle-machine.css").includes(".tmm-machine .tmm-case .tmm-case-val.soreal-idle-alloc-pop-v1{display:block"), "le gonflement du chiffre ne change plus la taille des cases");
 /* fond du Coffre : le dernier ouvert persiste (velours / tapis vert) */
 const v = lire("cloudflare/public/modules/valise-v1.js");
-assert.ok(v.includes("soreal_idle_dernier_ouvert_v1") && v.includes("noterDernier('valise')") && v.includes("noterDernier('coffre')") && v.includes(".vl-tapis .vl-velours-fond"));
+assert.ok(v.includes("soreal_idle_dernier_ouvert_v1") && v.includes("noterDernier('valise')") && v.includes("noterDernier('coffre')"));
 assert.ok(lire("cloudflare/public/modules/ui-aventure-2-v1.js").includes("fondCoffre==='coffre'?' vl-tapis'"));
 console.log("idle-divers-2026-10-23-v1 OK");
+/* cadre : tapis vert foncé par défaut (plus de bois) ; valise à la même distance du texte que le Coffre ; étiquette à gauche, à hauteur des yeux */
+const css = lire("cloudflare/public/soreal-idle-itopod.css");
+assert.ok(css.includes("radial-gradient(ellipse at 50% 30%,#1a5a30 0%,#11421f 52%,#082712 100%)!important;") && !css.includes("linear-gradient(180deg,#6b4a33,#563a28 55%,#3b2618)!important"), "fond par défaut vert foncé, plus de bois");
+assert.ok(v.includes("function rapprocher(s,coffre,rv)") && v.includes("rapprocher(s,coffre,rv);") && v.includes("grid-template-columns:minmax(0,760px) 240px;justify-content:center"));
+assert.ok(v.includes('<g class="vl-yeux">\'+\n        \'<g class="vl-etiquette"><path d="M29 80') && !v.includes('<rect x="212" y="168" width="40" height="26"'), "étiquette accrochée à l'extrémité gauche, dans le groupe des yeux");
+assert.ok(v.includes(".vl-etiquette{transform-origin:29px 80px;"));
+console.log("idle-divers-2026-10-23-v1 (cadre, distance, étiquette) OK");
