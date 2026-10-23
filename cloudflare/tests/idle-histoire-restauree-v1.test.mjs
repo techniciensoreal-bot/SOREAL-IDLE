@@ -37,4 +37,20 @@ const ancienne = (sql) => { sql.exec("DELETE FROM idle_histoires_meta WHERE k='s
   assurerHistoiresV1(sql);
   assert.equal(brut(sql, "MagicienEtLeGrotte2").boss, 40);
 }
+// 4. Retraduction : une base qui porte encore l'ancienne traduction la reçoit (voix vidées, images gardées) ; un texte modifié n'est jamais touché.
+{
+  const sql = base(); assurerHistoiresV1(sql);
+  const h = brut(sql, "MagicienEtLeGrotte2");
+  h.etapes = h.etapes.map((e, i) => Object.assign({}, e, { texte: i === 0 ? "Les taupes, amochées et couvertes de bleus, te laissent passer… un gaz bleu épais qui stagne." : "ancien " + i }));
+  h.voix = ["0123456789abcd"]; sql.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(h)); sql.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v3'");
+  assurerHistoiresV1(sql);
+  const r = brut(sql, "MagicienEtLeGrotte2");
+  assert.match(r.etapes[7].texte, /tu parviens à t'élever dans les airs et tu décolles/, "la phrase qui manquait (le décollage) est là");
+  assert.deepEqual(r.voix, [], "voix à refaire");
+  assert.equal(r.etapes[9].image, "legacy:10", "images gardées");
+  const sql2 = base(); assurerHistoiresV1(sql2);
+  const m = brut(sql2, "MagicienEtLeGrotte2"); m.etapes[0].texte = "Texte modifié par l'administrateur."; sql2.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(m)); sql2.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v3'");
+  assurerHistoiresV1(sql2);
+  assert.equal(brut(sql2, "MagicienEtLeGrotte2").etapes[0].texte, "Texte modifié par l'administrateur.");
+}
 console.log("idle-histoire-restauree-v1 OK");

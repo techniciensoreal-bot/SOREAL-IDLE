@@ -61,44 +61,44 @@ export const IDLE_HISTOIRES_SEED_V1 = [
   "actif": true,
   "voix": [],
   "etapes": [
-   {
-    "texte": "Les taupes, amochées et couvertes de bleus, te laissent passer en grommelant « T'es vraiment un connard, Chad... » et tu aperçois enfin ton objectif, un gaz bleu épais qui stagne tout au fond de cette grotte.",
+  {
+    "texte": "Les taupes, amochées et couvertes de bleus, te laissent passer en grommelant « T'es vraiment un connard, Chad... » et tu aperçois enfin ton objectif : un épais gaz bleu qui stagne tout au fond de cette grotte.",
     "image": "legacy:1"
    },
-   {
-    "texte": "Tu brandis la petite cannette en métal que le sorcier t'a donnée, et avec un « WHOUMPF », la majeure partie du gaz semble se faire aspirer dedans.",
+  {
+    "texte": "Tu brandis la petite cartouche de métal que le sorcier t'a donnée et, dans un « WHOUMPF », la majeure partie du gaz y est aspirée.",
     "image": "legacy:2"
    },
-   {
-    "texte": "Sur le chemin du retour vers la hutte du sorcier, tu bidouilles la machine à voyager dans le temps, te regardant tuer la Gorgone encore et encore et empocher tout ce fric. Ah, les souvenirs... Peut-être que tu achèteras ce village une fois que ce sera fini.",
+  {
+    "texte": "Sur le chemin du retour vers la cabane du sorcier, tu bricoles la machine à remonter le temps, te regardant tuer la Gorgone encore et encore et ramasser tout ce butin. Ah, les souvenirs... Peut-être que tu t'achèteras ce village quand tout sera fini.",
     "image": "legacy:3"
    },
-   {
-    "texte": "Peu après, tu te hisses à la surface, enfin capable d'avoir un moment de clarté dans ta tête. Le sorcier applaudit et glousse de joie en te voyant revenir. « Parfait, PARFAIT, j'étais presque à court de cette came. Stupéfait, tu le vois verser la cannette dans son chaudron et lui donner un petit coup, une partie du gaz bleu s'écoulant dans le mélange. Il remue une fois, deux fois, trois fois dans le sens des aiguilles d'une montre, et une fois dans l'autre sens, puis te fait signe d'approcher.",
+  {
+    "texte": "Peu après, tu te hisses à la surface, enfin capable d'avoir un instant de lucidité. Le sorcier frappe dans ses mains et glousse de joie en te voyant revenir. « Parfait, PARFAIT, j'étais presque à court de cette came ! » Stupéfait, tu le regardes vider la cartouche dans son chaudron et lui donner une petite tape, un peu de gaz bleu s'infiltrant dans le mélange. Il remue une fois, deux fois, trois fois dans le sens des aiguilles d'une montre, puis une fois dans l'autre sens, et te fait signe d'approcher.",
     "image": "legacy:4"
    },
-   {
-    "texte": "« Bon, je peux pas résoudre tes problèmes de mémoire, mais je crois savoir qui pourrait le faire. Mais d'abord, tiens, prends une gorgée.",
+  {
+    "texte": "« Bon, je ne peux pas régler tes problèmes de mémoire, mais je crois savoir qui le pourrait. Mais d'abord, tiens, bois une gorgée.",
     "image": "legacy:5"
    },
-   {
-    "texte": "Je sais pas ce qui est arrivé à tes pouvoirs magiques mais ça devrait au moins leur donner un coup de fouet ! » Ça a le goût d'un mélange de sirop contre la toux, de rhum et de tontes de pelouse, mais tu arrives à l'avaler. Ça a à peine le temps de s'installer dans ton estomac que tu sens une sensation... une sensation magique. Pourtant, ça ne te semble pas si étranger que ça. « Voilà, mon gars, tu devrais pouvoir faire quelques-uns de tes petits tours de magie ! Je suis sûr que le reste reviendra avec le temps. Maintenant, pour la personne qui pourrait t'aider... la dernière fois que j'ai entendu parler d'elle, elle se dirigeait vers cette fête interdimensionnelle. Tu sais, celle qui traverse l'espace et le temps, qui ne s'arrête jamais... et de l'alcool gratuit ! Tu devrais encore pouvoir la rattraper si tu te dépêches ! Elle doit encore voler quelque part dans le ciel ! »",
+  {
+    "texte": "Je ne sais pas ce qui est arrivé à tes pouvoirs magiques, mais ça devrait au moins leur donner un coup de fouet ! » Ça a le goût d'un mélange de sirop contre la toux, de rhum et de tonte de pelouse, mais tu parviens à l'avaler. À peine s'est-il installé dans ton estomac que tu ressens une sensation... une sensation magique. Pourtant, elle ne te semble pas si étrangère. « Voilà, mon gars, tu devrais pouvoir refaire quelques-uns de tes tours de magie ! Je suis sûr que le reste reviendra avec le temps. Maintenant, pour la personne qui peut t'aider... la dernière fois que j'en ai entendu parler, elle filait vers cette fête interdimensionnelle. Tu sais, celle qui traverse l'espace et le temps sans jamais s'arrêter... avec de l'alcool gratuit ! Tu devrais pouvoir la rattraper si tu te dépêches ! Elle doit encore voler quelque part dans le ciel ! »",
     "image": "legacy:6"
    },
-   {
-    "texte": "Tu sors et regardes vers le ciel, avant de te rappeler... tu ne sais pas voler ! Le sorcier ricane en te voyant sauter en l'air pour rien. « T'as la MAGIE maintenant, tu te rappelles ?",
+  {
+    "texte": "Tu sors et lèves les yeux au ciel, avant de te rappeler... que tu ne sais pas voler ! Le sorcier ricane en te voyant sauter en l'air pour rien. « T'as la MAGIE, maintenant, tu te rappelles ?",
     "image": "legacy:7"
    },
-   {
-    "texte": "Pff, les jeunes de nos jours, toujours à avoir la mémoire en vrac et... » Le sorcier marmonne de façon incompréhensible en rentrant chez lui. Un peu honteux, tu te concentres très fort, tu pars en courant, tu sautes...",
+  {
+    "texte": "Pfff, les jeunes d'aujourd'hui, toujours à avoir la mémoire en vrac et... » Le sorcier marmonne des mots incompréhensibles en rentrant chez lui. Un peu honteux, tu te concentres de toutes tes forces, tu prends ton élan, tu sautes... et tu trébuches. Mais tu ne touches pas le sol : tu parviens à t'élever dans les airs et tu décolles !",
     "image": "legacy:8"
    },
-   {
-    "texte": "Ouais, carrément ! Maintenant que tu es dans les airs, ça te semble presque naturel, tu plonges, tu fais des loopings... et tu rentres tête la première dans un flou jaune.",
+  {
+    "texte": "Ouais, carrément ! Maintenant que tu es en l'air, ça te paraît presque naturel : tu piques, tu fais des loopings... et tu percutes tête la première un flou jaune.",
     "image": "legacy:9"
    },
-   {
-    "texte": "Tu te reprends juste à temps pour voir un gamin bizarre avec une queue filer devant toi, l'air aussi content de lui que possible. Il est temps de lui donner une leçon.",
+  {
+    "texte": "Tu te ressaisis juste à temps pour voir un drôle de gamin avec une queue passer en trombe devant toi, l'air aussi fier de lui que possible. Il est temps de lui donner une leçon.",
     "image": "legacy:10"
    }
   ]
@@ -174,6 +174,21 @@ export function assurerHistoiresV1(sql) {
       }
     }
     sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v2','1')");
+  }
+  /*
+   * Retraduction (Norman, 2026-10-23 : « retraduis juste celui-là, le long texte où il découvre qu'il peut voler ») : une seule fois, si les dix étapes de l'histoire 2 portent encore l'ancienne traduction (la première
+   * étape contient « un gaz bleu épais »), leur texte est remplacé par la nouvelle (images et personnages gardés, voix à refaire : liste vidée). Un texte déjà modifié par l'administrateur n'est jamais touché.
+   */
+  const v3 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v3'"))[0];
+  if (!v3) {
+    const ligne = sqlRows(sql.exec("SELECT json FROM idle_histoires WHERE id='MagicienEtLeGrotte2'"))[0];
+    const seed = IDLE_HISTOIRES_SEED_V1.find((h) => h.id === "MagicienEtLeGrotte2");
+    const h = ligne ? safeJson(ligne.json, null) : null;
+    if (seed && h && Array.isArray(h.etapes) && h.etapes.length === seed.etapes.length && /un gaz bleu épais/.test(String((h.etapes[0] && h.etapes[0].texte) || ""))) {
+      const etapes = h.etapes.map((e, i) => { const n = Object.assign({}, e, { texte: seed.etapes[i].texte }); delete n.affiche; return n; });
+      sql.exec("UPDATE idle_histoires SET json=?, maj=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(Object.assign({}, h, { etapes, voix: [] })), maintenant);
+    }
+    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v3','1')");
   }
 }
 
