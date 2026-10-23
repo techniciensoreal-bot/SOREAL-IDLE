@@ -26,7 +26,7 @@ assert.ok(dig.includes("function quandEntierementVisible_(f){") && dig.includes(
 
 // Téléphone (Norman, 2026-10-17) : le doigt sortait de la petite flaque et la page changeait. Zone tactile invisible bien plus grande (touch-action:none), proportionnelle à l'échelle de la flaque, et cinq passages suffisent.
 {
-  assert.ok(/\.bg-flaque-v1::after\{content:"";position:absolute;top:calc\(-70px \/ var\(--s\)\)[^}]*touch-action:none/.test(acc), "zone tactile agrandie, touch-action:none");
+  assert.ok(/\.bg-flaque-v1::after\{content:"";position:absolute;top:50%;[^}]*pointer-events:auto[^}]*touch-action:none/.test(acc), "zone tactile sous le Coffre seulement (moitie basse), touch-action:none");
   for (const [n, s] of [[4, ".9"], [3, ".78"], [2, ".64"], [1, ".5"]]) assert.ok(acc.includes('.bg-flaque-v1[data-niveau="' + n + '"]{--s:' + s + "}"), "échelle " + n);
   assert.ok(acc.includes("x>=r.left-70") && acc.includes("y<=r.bottom+70"), "le suivi du doigt tolère 70 px autour de la flaque");
 }

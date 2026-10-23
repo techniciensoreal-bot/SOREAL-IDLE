@@ -93,12 +93,12 @@
     {id:'rot-pardon',nom:'Rot puis petit hoquet',jouer:function(c,s,t){rot(c,s,t,.55,92,.3);ton(c,s,t+.62,{type:'sine',f0:520,f1:260,d:.09,v:.2,a:.004});ton(c,s,t+.73,{type:'sine',f0:620,f1:300,d:.09,v:.16,a:.004});}}
   ];
   var PETS=[
-    {id:'pet-court',nom:'Pet sec',jouer:function(c,s,t){pet(c,s,t,.25,125,70,.3);}},
-    {id:'pet-long',nom:'Pet prolongé',jouer:function(c,s,t){pet(c,s,t,.95,95,46,.28,[38,20]);}},
-    {id:'pet-trompette',nom:'Pet trompette',jouer:function(c,s,t){ton(c,s,t,{type:'square',f0:210,f1:150,d:.5,v:.5,a:.02,vib:[58,10],filtre:['bandpass',520,3]});souffle(c,s,t,{type:'bandpass',f0:300,d:.4,v:.1,q:2,a:.02});}},
-    {id:'pet-triple',nom:'Trois petits pets',jouer:function(c,s,t){pet(c,s,t,.14,140,90,.26);pet(c,s,t+.2,.14,125,80,.26);pet(c,s,t+.4,.22,110,60,.28);}},
-    {id:'pet-siffle',nom:'Pet sifflant',jouer:function(c,s,t){souffle(c,s,t,{type:'bandpass',f0:2600,f1:900,d:.55,v:.32,q:6,a:.03});ton(c,s,t+.02,{type:'sawtooth',f0:100,f1:70,d:.5,v:.12,a:.02,vib:[50,15],filtre:['lowpass',350,2]});}},
-    {id:'pet-mouille',nom:'Pet mouillé',jouer:function(c,s,t){pet(c,s,t,.5,85,50,.26,[52,26]);for(var i=0;i<3;i+=1)glou(c,s,t+.52+i*.07,.14,200-i*30);}}
+    /* Refaits (Norman, 2026-10-23) : « sec » devient un vrai claquement qui se tasse, « trompette » une trompette qui déraille, « sifflant » un ballon qui se vide. */
+    {id:'pet-coussin',nom:'Pet coussin',jouer:function(c,s,t){
+      ton(c,s,t,{type:'sawtooth',f0:120,f1:260,d:.18,v:.3,a:.01,vib:[30,14],filtre:['lowpass',520,3]});
+      ton(c,s,t+.17,{type:'sawtooth',f0:260,f1:70,d:.7,v:.4,a:.02,vib:[44,40],filtre:['lowpass',480,3]});
+      souffle(c,s,t+.2,{type:'lowpass',f0:600,f1:160,d:.6,v:.2,q:1.4,a:.03});
+    }}
   ];
   /*
    * Pets « grincement » (Norman, 2026-10-16 : « le bruit de pet est vraiment bien, fais des variantes à partir de ce son : des prrt prrt prrt, des prrrrrt, des prt »). Tous dérivés du grincement de la porte :
@@ -135,7 +135,7 @@
     }},
     {id:'grincement-prrrrrt',nom:'Prrrrrrt',jouer:function(c,s,t){grincement(c,s,t,{d:1.15,f0:58,f1:170,vib:17,vol:.5,racle:true,butee:true});}}
   ];
-  var P_PET_RARE=.2,dernierPetRare=false,dernierGrincement=-1;
+  var P_PET_RARE=.6,dernierPetRare=false,dernierGrincement=-1;
   var dernierDigestion={rot:-1,pet:-1};
   /* type : 'rot' ou 'pet' ; tirage au hasard, jamais le même deux fois de suite. */
   function jouerDigestion(type,ctx,sortie){
@@ -295,12 +295,82 @@
     }}
   ];
   function jouerDiarrhee(ctx,sortie,index){
-    var d=typeof index==='number'?DIARRHEES[index]:DIARRHEES.filter(function(x){return x.id===index;})[0]||DIARRHEES[0];
+    var tous=ecoutables(),d=typeof index==='number'?tous[index]:tous.filter(function(x){return x.id===index;})[0]||DIARRHEES[0];
     d.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
     return d;
   }
   function jouerAccident(ctx,sortie){ACCIDENT.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);return ACCIDENT;}
   var dernierReveil=-1,dernierRonfle=-1;
+  /*
+   * Bâillements (Norman, 2026-10-23) : le Coffre, grave et lent ; la valise, aiguë et grinçante.
+   */
+  var BAILLEMENTS={
+    coffre:{id:'baille-coffre',nom:'Bâillement du Coffre',duree:2.6,jouer:function(c,s,t){
+      souffle(c,s,t,{type:'bandpass',f0:200,f1:700,d:.9,v:.16,q:1.8,a:.5});
+      ton(c,s,t+.9,{type:'sawtooth',f0:150,f1:120,d:.5,v:.26,a:.12,vib:[24,10],filtre:['lowpass',420,3]});
+      ton(c,s,t+1.35,{type:'sawtooth',f0:120,f1:52,d:1.0,v:.3,a:.05,vib:[18,16],filtre:['lowpass',360,3]});
+      souffle(c,s,t+1.0,{type:'lowpass',f0:700,f1:180,d:1.2,v:.15,q:1,a:.1});
+      ton(c,s,t+2.35,{type:'sine',f0:200,f1:90,d:.1,v:.2,a:.004});
+      souffle(c,s,t+2.35,{type:'bandpass',f0:900,f1:500,d:.06,v:.18,q:3,a:.002});
+    }},
+    valise:{id:'baille-valise',nom:'Bâillement de la valise',duree:2.2,jouer:function(c,s,t){
+      ton(c,s,t,{type:'sawtooth',f0:260,f1:520,d:.8,v:.12,a:.3,vib:[9,30],filtre:['bandpass',1500,4]});
+      souffle(c,s,t,{type:'bandpass',f0:1800,f1:2600,d:.8,v:.08,q:5,a:.3});
+      ton(c,s,t+.8,{type:'sawtooth',f0:520,f1:210,d:.8,v:.14,a:.06,vib:[12,24],filtre:['bandpass',1300,4]});
+      ton(c,s,t+1.2,{type:'sine',f0:900,f1:1250,d:.12,v:.05,a:.02});
+      souffle(c,s,t+1.0,{type:'bandpass',f0:2200,f1:1000,d:.7,v:.07,q:6,a:.1});
+      souffle(c,s,t+1.95,{type:'bandpass',f0:2400,f1:1800,d:.03,v:.3,q:3,a:.002});
+      ton(c,s,t+1.95,{type:'square',f0:420,f1:240,d:.05,v:.16,a:.002});
+    }}
+  };
+  /*
+   * Vomis (Norman, 2026-10-23) : trois variantes, tirées au hasard sans répétition ; la valise en utilise une à chaque accident. Chacune finit par la flaque.
+   */
+  function splotch(c,s,t){
+    ton(c,s,t,{type:'sine',f0:220,f1:55,d:.3,v:.34,a:.005});
+    souffle(c,s,t,{type:'lowpass',f0:1500,f1:180,d:.32,v:.32,q:2,a:.004});
+    clapotis(c,s,t+.25,5);
+  }
+  /* flaque d'un vomi plus aigu : « splotch » vers 400-500 Hz, éclaboussure claire, gouttes qui retombent */
+  function splotchAigu(c,s,t){
+    ton(c,s,t,{type:'sine',f0:460,f1:120,d:.26,v:.3,a:.004});
+    souffle(c,s,t,{type:'bandpass',f0:2200,f1:500,d:.3,v:.3,q:1.2,a:.003});
+    for(var i=0;i<6;i+=1)ton(c,s,t+.2+i*.07+Math.random()*.03,{type:'sine',f0:900+Math.random()*900,f1:300,d:.08,v:.09,a:.003});
+  }
+  var VOMIS=[
+    {id:'vomi-aigu-hurk',nom:'Hurk hurk bleuargh (aigu)',jouer:function(c,s,t){
+      for(var i=0;i<2;i+=1){
+        ton(c,s,t+i*.34,{type:'sawtooth',f0:330+i*40,f1:560+i*40,d:.26,v:.22,a:.03,vib:[22,40],filtre:['bandpass',950,4]});
+        souffle(c,s,t+i*.34,{type:'bandpass',f0:1500,f1:900,d:.22,v:.1,q:3,a:.03});
+      }
+      ton(c,s,t+.8,{type:'sawtooth',f0:560,f1:230,d:.7,v:.3,a:.04,vib:[38,60],filtre:['bandpass',1000,2.5]});
+      souffle(c,s,t+.8,{type:'lowpass',f0:2400,f1:500,d:.7,v:.3,q:1.2,a:.03});
+      for(var k=0;k<16;k+=1)bulle(c,s,t+.85+k*.045+Math.random()*.02,500+Math.random()*900,.08);
+      splotchAigu(c,s,t+1.55);
+    }},
+    {id:'vomi-hoquets',nom:'Petits hoquets mouillés',jouer:function(c,s,t){
+      for(var i=0;i<4;i+=1){
+        ton(c,s,t+i*.24,{type:'sawtooth',f0:420+i*30,f1:640+i*30,d:.16,v:.2,a:.02,vib:[30,50],filtre:['bandpass',1200,4]});
+        bulle(c,s,t+i*.24+.14,800+Math.random()*500,.1);
+      }
+      souffle(c,s,t+1.05,{type:'bandpass',f0:1600,f1:700,d:.5,v:.28,q:1.4,a:.02});
+      ton(c,s,t+1.05,{type:'sawtooth',f0:520,f1:240,d:.5,v:.26,a:.03,vib:[42,60],filtre:['bandpass',1000,2.5]});
+      for(var k=0;k<10;k+=1)bulle(c,s,t+1.1+k*.05+Math.random()*.02,600+Math.random()*900,.08);
+      splotchAigu(c,s,t+1.7);
+    }}
+  ];
+  var dernierVomi=-1;
+  function jouerVomi(ctx,sortie,index){
+    var i=typeof index==='number'?index:(dernierVomi=tirer(VOMIS,dernierVomi));
+    VOMIS[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return VOMIS[i];
+  }
+  function jouerBaillement(qui,ctx,sortie){
+    var b=BAILLEMENTS[qui==='valise'?'valise':'coffre'];
+    b.jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
+    return b;
+  }
+  function ecoutables(){return DIARRHEES.concat(VOMIS,[BAILLEMENTS.coffre,BAILLEMENTS.valise],PETS,PET_RARE);}
   function tirer(liste,dernier){var n=liste.length,i=Math.floor(Math.random()*n);if(i===dernier)i=(i+1+Math.floor(Math.random()*(n-1)))%n;return i;}
   /* index facultatif : on peut forcer une variante (page d'écoute, tests). */
   function jouerReveil(ctx,sortie,index){
@@ -313,5 +383,5 @@
     RONFLEMENTS[i].jouer(ctx,sortie||ctx.destination,ctx.currentTime+.02);
     return RONFLEMENTS[i];
   }
-  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,petRare:PET_RARE,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerAccident:jouerAccident,diarrhees:DIARRHEES,jouerDiarrhee:jouerDiarrhee,accident:ACCIDENT,jouerRonflement:jouerRonflement};
+  window.__SOREAL_IDLE_AUDIO_COFFRE_V1__={avaler:AVALER,recracher:RECRACHER,rots:ROTS,pets:PETS,petRare:PET_RARE,reveil:REVEIL,ronflements:RONFLEMENTS,jouer:jouer,jouerAleatoire:jouerAleatoire,jouerDigestion:jouerDigestion,jouerReveil:jouerReveil,jouerAccident:jouerAccident,diarrhees:ecoutables(),vomis:VOMIS,baillements:BAILLEMENTS,jouerVomi:jouerVomi,jouerBaillement:jouerBaillement,jouerDiarrhee:jouerDiarrhee,accident:ACCIDENT,jouerRonflement:jouerRonflement};
 })();

@@ -29,6 +29,8 @@
   var REMARQUE='Pourquoi tu me regardes comme si j’allais chier sur tes affaires ?';
   var REGARD_MIN=150000,REGARD_MAX=420000;
   var vuEveille=0,cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);
+  /* Bâillement (Norman, 2026-10-23) : de temps en temps, fermé, éveillé et vu, le Coffre bâille (couvercle grand ouvert, langue sortie, corps étiré, 2,6 s) avec son propre son ; jamais avec la valise qui bâille, ni pendant une bulle. */
+  var BAILLE_MIN=170000,BAILLE_MAX=450000,vuBaille=0,cibleBaille=0;   /* tirée au premier pas */
   var dort=false,vuAvantSommeil=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuRonfle=0,cibleRonfle=1500,derniere=-1;
 
   function coffre_(){return document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');}
@@ -45,6 +47,8 @@
   }
   function appliquer_(el){
     if(!el)return;
+    /* le Coffre est redessiné par le jeu : le bâillement en cours est remis sur la nouvelle balise */
+    if(window.__coffreBailleIdleV1__&&!el.classList.contains('bg-baille-v1'))el.classList.add('bg-baille-v1');
     if(dort){
       if(!el.classList.contains('bg-dort-v1'))el.classList.add('bg-dort-v1');
       zzz_(el);
@@ -56,6 +60,16 @@
   }
   function jouerSon_(id){
     try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.play==='function')a.play(id);}catch(_e){}
+  }
+  function bailler_(el){
+    if(!el||window.__valiseBailleIdleV1__||el.classList.contains('bg-baille-v1'))return false;
+    var racine=el.closest?el.closest('.soreal-idle-coffre-v1'):null;
+    if(racine&&racine.classList.contains('ouvert'))return false;
+    window.__coffreBailleIdleV1__=true;
+    el.classList.add('bg-baille-v1');
+    try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.baille==='function')a.baille('coffre');}catch(_e){}
+    setTimeout(function(){el.classList.remove('bg-baille-v1');window.__coffreBailleIdleV1__=false;},2700);
+    return true;
   }
   function endormir_(){
     dort=true;window.__coffreDortIdleV1__=true;
@@ -125,6 +139,11 @@
         if(window.__valiseDortIdleV1__){vuAvantSommeil=Math.max(0,cibleSommeil-30000);return;}
         endormir_();return;
       }
+      if(!cibleBaille)cibleBaille=BAILLE_MIN+Math.random()*(BAILLE_MAX-BAILLE_MIN);
+      vuBaille+=PAS;
+      if(vuBaille>=cibleBaille&&el&&!el.querySelector('.bg-desole-v1,.bg-replique-v1')&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)){
+        if(bailler_(el)){vuBaille=0;cibleBaille=BAILLE_MIN+Math.random()*(BAILLE_MAX-BAILLE_MIN);}else vuBaille=Math.max(0,cibleBaille-20000);
+      }
       vuEveille+=PAS;
       if(vuEveille>=cibleRegard&&remarque_(el)){vuEveille=0;cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);}
       return;
@@ -135,5 +154,5 @@
   }
   setInterval(pas_,PAS);
   window.__coffreDortIdleV1__=false;
-  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,dire:remarque_};
+  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,dire:remarque_,baille:function(){return bailler_(coffre_());}};
 })();

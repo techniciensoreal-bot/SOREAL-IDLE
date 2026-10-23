@@ -54,7 +54,7 @@ function monde(consommables, ouverte) {
   assert.ok(h.includes('data-vl-utiliser="magicPotionAlpha"') && h.includes('data-vl-utiliser="resource3PotionDelta"') && (h.match(/data-vl-utiliser=/g) || []).length === 2, "un bouton Utiliser par potion rangée");
   assert.ok(h.includes("× 2") && h.includes("45 min") && h.includes("jusqu’au Rebirth") && h.includes("Porte-bonheur") && h.includes("× 12"), "quantités, durées, réserves");
   assert.ok(!h.includes("vl-titre") && !h.includes("vl-phrase") && h.includes('aria-label="Valise des consommables"'), "ni barre de titre ni phrase au-dessus : la créature est le bouton");
-  assert.ok(h.includes('data-morph-classes-gardees="^vl-(dort|ouverte|parle|glou|anim)$"'), "classes posées par le module gardées au redessin (règle n°4)");
+  assert.ok(h.includes('data-morph-classes-gardees="^vl-(dort|ouverte|parle|glou|anim|baille)$"'), "classes posées par le module gardées au redessin (règle n°4)");
 }
 {
   // Style : cuir et cadre propres à la valise, étages qui se déplient en cascade, aucune règle forcée, mouvement réduit respecté.

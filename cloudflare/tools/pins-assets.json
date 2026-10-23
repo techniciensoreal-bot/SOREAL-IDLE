@@ -36,12 +36,12 @@
   "sha": "b290f60035f32a87b1cb5c14093b97479647d6b7"
  },
  "/modules/audio-coffre-v1.js": {
-  "pin": 9,
-  "sha": "a605fd5861f6fa3bba430c3fe00979d7f47e9559"
+  "pin": 10,
+  "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 259,
-  "sha": "be32f80ca7a5e0ac6408a2c46a18b7dd7e740e0e"
+  "pin": 260,
+  "sha": "1ffd3cd2a62f0f54bd596f6377f7ce6e47626c69"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -112,16 +112,16 @@
   "sha": "4f12f1f72b70a99953273b99d9f323cdb6f5ece8"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 13,
-  "sha": "a7a667b07c947cf221f259fdd9dd053145265a3a"
+  "pin": 14,
+  "sha": "35da2b6c0465f3ce62c0e31f9197829ccb93c0bc"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 20,
   "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 19,
-  "sha": "8affd1bf41f65f4d8e0090ba541f1e3f478111b9"
+  "pin": 22,
+  "sha": "27b8445421c7347381a274f3c9116184b5aa9de4"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 406,
-  "sha": "67f19b05b89539116eaee567b099d282b776eee4"
+  "pin": 409,
+  "sha": "16182aa1f9ea8fbc2ac825afc9f9d2c74e65e9fb"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 428,
-  "sha": "550a028093c35b697fc14abebdd8c477bfd6f075"
+  "pin": 431,
+  "sha": "b45640929523995764df47f330b2383647ceefda"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 222,
-  "sha": "d0a9f2f14b914b8e7753b3f96b5bc2244fc1a3eb"
+  "pin": 225,
+  "sha": "baf3b8a91e242a43e076dd9cfcf52f1537537458"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -536,12 +536,12 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 5,
-  "sha": "61d173b47c168c6611ea835d67f5c544197eae79"
+  "pin": 7,
+  "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 34,
-  "sha": "921ae5e85d52741409d1a274b7c767f94586ad12"
+  "pin": 38,
+  "sha": "2174220b3d3af4d3e7509d0714029400f2dcc38e"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
@@ -584,8 +584,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 213,
-  "sha": "4ab11a9454ce9d9f98d211bfe0eea2546787bb8e"
+  "pin": 215,
+  "sha": "d97bba797517288bcc285b5681ccd389dfa44e09"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

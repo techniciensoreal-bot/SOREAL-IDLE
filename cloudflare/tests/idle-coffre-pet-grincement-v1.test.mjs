@@ -65,9 +65,9 @@ function moduleCoffre(alea = Math.random) {
   const part = rares.length / ids.length;
   assert.equal(new Set(rares).size, 4, "les quatre variantes sortent");
   assert.ok(rares.every((x, i) => i === 0 || x !== rares[i - 1]), "jamais la même variante deux fois de suite");
-  assert.ok(part > 0.12 && part < 0.22, "de temps en temps : " + part.toFixed(3));
+  assert.ok(part > 0.3 && part < 0.45, "de temps en temps : " + part.toFixed(3));
   assert.ok(ids.every((x, i) => i === 0 || !(x.startsWith("grincement-") && ids[i - 1].startsWith("grincement-"))), "jamais deux pets grinçants de suite");
-  assert.equal(new Set(ids.filter((x) => !x.startsWith("grincement-"))).size, 6, "les six pets d'origine sont toujours joués");
+  assert.equal(new Set(ids.filter((x) => !x.startsWith("grincement-"))).size, 1, "le pet coussin reste joué entre deux grincements");
   // Les rots ne sont pas concernés.
   assert.ok(Array.from({ length: 200 }, () => fen.__SOREAL_IDLE_AUDIO_COFFRE_V1__.jouerDigestion("rot", ctx, {}).id).every((x) => x.startsWith("rot-")));
 }

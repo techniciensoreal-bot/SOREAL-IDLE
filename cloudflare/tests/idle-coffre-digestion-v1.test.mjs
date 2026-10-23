@@ -8,7 +8,7 @@ const dig = readFileSync("cloudflare/public/modules/coffre-digestion-v1.js", "ut
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 const themes = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 assert.equal((son.match(/\{id:'rot-(grave|aigu|double|long|gazeux|pardon)'/g) || []).length, 6, "six rots");
-assert.equal((son.match(/\{id:'pet-/g) || []).length, 6, "six pets");
+assert.equal((son.match(/\{id:'pet-/g) || []).length, 1, "un seul pet normal (coussin) depuis le choix de Norman du 2026-10-23");
 assert.ok(son.includes("jouerDigestion") && effets.includes("coffreRot") && effets.includes("coffrePet"), "sons branchés sur le moteur audio");
 assert.ok(dig.includes("MIN=20000,MAX=55000,PAS=500") && dig.includes("document.hidden") && dig.includes("coffreVisible_"), "au hasard, jamais hors de vue");
 /* Norman (2026-10-11) : le minuteur ne compte QUE le temps où le Coffre est à l'écran (jamais de bruit « en retard » à l'arrivée sur la page). */

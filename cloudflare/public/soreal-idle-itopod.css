@@ -1714,3 +1714,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="challenges"] i{font-size:12px}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="yggdrasil"] .ygg-btn{font-size:12px}
 }
+/* Bâillement du Coffre (Norman, 2026-10-23) : couvercle grand ouvert, langue sortie, corps étiré, 2,6 s  ; sans marqueur de priorité (le sélecteur ajoute une classe à la règle « fermé ») */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1:not(.ouvert) .bg-bagage-v1.bg-baille-v1 .bg-couvercle{animation:bgBailleGrand 2.6s ease-in-out 1}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1:not(.ouvert) .bg-bagage-v1.bg-baille-v1 .bg-langue{animation:bgBailleLangue 2.6s ease-in-out 1}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1:not(.ouvert) .bg-bagage-v1.bg-baille-v1 .bg-corps{animation:bgBailleCorps 2.6s ease-in-out 1}
+@keyframes bgBailleGrand{0%{transform:rotate(0)}30%,72%{transform:rotate(-34deg)}100%{transform:rotate(0)}}
+@keyframes bgBailleLangue{0%,22%{transform:scaleY(0)}34%,70%{transform:scaleY(1)}84%,100%{transform:scaleY(0)}}
+@keyframes bgBailleCorps{0%{transform:scale(1,1)}30%,72%{transform:scale(.97,1.05)}100%{transform:scale(1,1)}}
+@media (prefers-reduced-motion:reduce){.bg-bagage-v1.bg-baille-v1 *{animation:none}}

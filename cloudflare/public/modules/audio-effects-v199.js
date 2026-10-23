@@ -1644,7 +1644,10 @@
   }
   /* Vomi : des gargouillis qui montent, un « bleurgh » qui tombe, puis la flaque qui s'étale (gros « splotch » et clapotis). */
   function valiseVomi_(){
-    return jouerWebAudio_(2400,function(c){
+    return jouerWebAudio_(2600,function(c){
+      /* vomis choisis par Norman (2026-10-23) : plus aigus et plus réalistes (modules/audio-coffre-v1.js) */
+      var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;
+      if(m&&typeof m.jouerVomi==='function'){m.jouerVomi(c,master||c.destination);return;}
       for(var i=0;i<4;i+=1){
         tonal_(c,{type:"sawtooth",from:90+i*14,to:150+i*26,duration:.16,volume:.045,delay:i*.19});
         bruit_(c,{duration:.15,volume:.05,frequency:420+i*60,frequencyEnd:260,decay:1.4,delay:i*.19});
@@ -2292,6 +2295,8 @@
     reapparitionBip:function(){return reapparitionBip_();},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
+    /* bâillement du Coffre ('coffre') ou de la valise ('valise') : chacun son son (modules/audio-coffre-v1.js) */
+    baille:function(qui){return jouerWebAudio_(2900,function(c){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;if(m&&typeof m.jouerBaillement==='function')m.jouerBaillement(qui,c,master||c.destination);});},
     previewDiarrhee:function(id){return jouerWebAudio_(2400,function(c){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;if(m&&typeof m.jouerDiarrhee==='function')m.jouerDiarrhee(c,master||c.destination,id);});},
     defeatList:function(){return SONS_DEFAITE.map(function(x){return{nom:x.nom,libelle:x.libelle};});},
     previewDefeat:ecouterDefaite_,

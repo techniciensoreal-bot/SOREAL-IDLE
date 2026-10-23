@@ -67,11 +67,11 @@
       /* flaque aux roulettes */
       '@keyframes vlFlaque{0%{opacity:0;transform:scale(.1,.05)}25%{opacity:1}100%{opacity:1;transform:scale(1,1)}}',
       '@keyframes vlMorceau{0%{opacity:0;transform:scale(.2)}60%{opacity:0}100%{opacity:1;transform:scale(1)}}',
-      '.vl-flaque-v1{--s:1;position:absolute;left:-8%;bottom:-10px;width:116%;height:36px;z-index:6;transform-origin:50% 60%;animation:vlFlaque 2.4s cubic-bezier(.2,.7,.3,1) both;pointer-events:auto;cursor:'+CURSEUR+';touch-action:none;-webkit-tap-highlight-color:transparent}',
+      '.vl-flaque-v1{--s:1;position:absolute;left:-8%;bottom:-10px;width:116%;height:36px;z-index:6;transform-origin:50% 60%;animation:vlFlaque 2.4s cubic-bezier(.2,.7,.3,1) both;pointer-events:none;-webkit-tap-highlight-color:transparent}',
       '.vl-flaque-v1.deja{animation:none}',
       '.vl-flaque-v1[data-niveau="4"]{--s:.9;scale:.9;filter:opacity(.92)}.vl-flaque-v1[data-niveau="3"]{--s:.78;scale:.78;filter:opacity(.84)}.vl-flaque-v1[data-niveau="2"]{--s:.64;scale:.64;filter:opacity(.72)}.vl-flaque-v1[data-niveau="1"]{--s:.5;scale:.5;filter:opacity(.58)}',
       /* zone tactile invisible bien plus grande : le doigt qui frotte reste dedans et ne fait ni défiler ni changer de page */
-      '.vl-flaque-v1::after{content:"";position:absolute;top:calc(-70px / var(--s));bottom:calc(-50px / var(--s));left:calc(-60px / var(--s));right:calc(-60px / var(--s));touch-action:none;background:transparent}',
+      '.vl-flaque-v1::after{content:"";position:absolute;top:50%;bottom:calc(-50px / var(--s));left:calc(-60px / var(--s));right:calc(-60px / var(--s));pointer-events:auto;cursor:'+CURSEUR+';touch-action:none;background:transparent}',
       '.vl-flaque-v1 b{position:absolute;inset:0;border-radius:58% 42% 55% 45% / 62% 58% 42% 38%;background:radial-gradient(ellipse at 35% 35%,#c9dc6a 0 16%,transparent 17%),radial-gradient(ellipse at 50% 55%,'+VERT+','+VERT_FONCE+' 74%);box-shadow:0 2px 0 rgba(0,0,0,.45),inset 0 -3px 5px rgba(60,80,10,.55)}',
       '.vl-flaque-v1 b::before,.vl-flaque-v1 b::after{content:"";position:absolute;background:inherit;border-radius:50%}',
       '.vl-flaque-v1 b::before{left:-9px;top:9px;width:20px;height:11px;transform:rotate(-12deg)}',
@@ -93,6 +93,12 @@
       '@media (prefers-reduced-motion:reduce){.vl-flaque-v1,.vl-flaque-v1 i,.vl-doigt-v1,.aide-main-v1,.vl-section .vl-bete.vl-vomit{animation:none;opacity:1}}'
     ];
     for(var n=0;n<=NIVEAU_MAX;n+=1)css.push('.vl-bete[data-vomi="'+n+'"] .vl-vomi-svg{opacity:'+(n/NIVEAU_MAX).toFixed(2)+'}');
+    /* Norman (2026-10-23) : ouverte sans avoir été nettoyée, tous les objets de la valise sont pleins de vomi ; il part au fil des frottées (opacité = niveau / maximum). */
+    css.push('.vl-section .vl-art::after{content:none}');
+    css.push('.vl-section:has(.vl-bete[data-vomi]) .vl-art::after{content:"";position:absolute;inset:2px 4px;z-index:3;pointer-events:none;border-radius:10px;'+
+      'background:radial-gradient(circle at 26% 22%,#cbd96e 0 8px,transparent 9px),radial-gradient(circle at 72% 38%,#a9c04e 0 11px,transparent 12px),radial-gradient(circle at 42% 66%,#d9d077 0 9px,transparent 10px),'+
+      'linear-gradient(#b3c755,#9db444) 20% 0/7px 62% no-repeat,linear-gradient(#a7bd48,#8fa83c) 64% 0/6px 78% no-repeat;filter:drop-shadow(0 1px 0 #55631a)}');
+    for(var v=1;v<=NIVEAU_MAX;v+=1)css.push('.vl-section:has(.vl-bete[data-vomi="'+v+'"]) .vl-art::after{opacity:'+(.25+.75*v/NIVEAU_MAX).toFixed(2)+'}');
     /* Perspective (Norman, 2026-10-23) : le vomi est AU SOL, il passe EN DESSOUS de la valise : le fond de la flaque est derrière le dessin de la valise, le devant (sa moitié basse seulement) recouvre juste le bas des roulettes. */
     css=css.concat(css.filter(function(x){return x.indexOf('.vl-flaque-v1')===0&&x.indexOf('::after{content')<0;}).map(function(x){return x.replace(/.vl-flaque-v1/g,'.vl-flaque-fond-v1');}));
     css.push('.vl-flaque-fond-v1{z-index:1;pointer-events:none;cursor:auto;touch-action:auto}');

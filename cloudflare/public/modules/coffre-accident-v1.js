@@ -81,11 +81,11 @@
       /* flaque brune aux pieds du Coffre, avec ses morceaux */
       '@keyframes bgFlaque{0%{opacity:0;transform:scale(.1,.05)}25%{opacity:1}100%{opacity:1;transform:scale(1,1)}}',
       '@keyframes bgMorceau{0%{opacity:0;transform:scale(.2)}60%{opacity:0}100%{opacity:1;transform:scale(1)}}',
-      '.bg-flaque-v1{position:absolute;left:-8%;bottom:-6px;width:116%;height:38px;z-index:6;transform-origin:50% 60%;animation:bgFlaque 2.6s cubic-bezier(.2,.7,.3,1) both;pointer-events:auto;cursor:'+CURSEUR+';touch-action:none;transition:scale .3s ease,filter .3s ease}',
+      '.bg-flaque-v1{position:absolute;left:-8%;bottom:-6px;width:116%;height:38px;z-index:6;transform-origin:50% 60%;animation:bgFlaque 2.6s cubic-bezier(.2,.7,.3,1) both;pointer-events:none;transition:scale .3s ease,filter .3s ease}',
       '.bg-flaque-v1.deja{animation:none}',
       /* zone tactile invisible bien plus grande que la flaque : le doigt qui frotte reste dedans (touch-action:none) et ne fait ni défiler ni changer de page. La flaque rétrécit : la marge est divisée par l'échelle (--s). */
       '.bg-flaque-v1{--s:1}.bg-flaque-v1[data-niveau="4"]{--s:.9}.bg-flaque-v1[data-niveau="3"]{--s:.78}.bg-flaque-v1[data-niveau="2"]{--s:.64}.bg-flaque-v1[data-niveau="1"]{--s:.5}',
-      '.bg-flaque-v1::after{content:"";position:absolute;top:calc(-70px / var(--s));bottom:calc(-50px / var(--s));left:calc(-60px / var(--s));right:calc(-60px / var(--s));touch-action:none;background:transparent}',
+      '.bg-flaque-v1::after{content:"";position:absolute;top:50%;bottom:calc(-50px / var(--s));left:calc(-60px / var(--s));right:calc(-60px / var(--s));pointer-events:auto;cursor:'+CURSEUR+';touch-action:none;background:transparent}',
       /* la flaque rétrécit et pâlit à chaque aller-retour (propriétés scale et filter : l'animation d'étalement garde transform) */
       '.bg-flaque-v1[data-niveau="4"]{scale:.9;filter:opacity(.92)}',
       '.bg-flaque-v1[data-niveau="3"]{scale:.78;filter:opacity(.84)}',

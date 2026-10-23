@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_VALISE_V1__)return;
 
   var CLE='soreal_idle_valise_ouverte_v1';
-  var MOTIF_CLASSES='^vl-(dort|ouverte|parle|glou|anim)$';
+  var MOTIF_CLASSES='^vl-(dort|ouverte|parle|glou|anim|baille)$';
 
   var POTIONS=[
     {id:'energyPotionAlpha',nom:'Potion d’énergie α',img:'energy-potion-alpha'},
@@ -318,6 +318,12 @@ ${P} .vl-yeux{transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 ${P} .vl-interieur,${P} .vl-coins{opacity:0;transition:opacity .4s}
 ${P}.vl-ouverte .vl-interieur,${P}.vl-ouverte .vl-coins{opacity:1}
 ${P}.vl-ouverte .vl-dome{animation:none;transform:scaleY(.74)}
+/* bâillement (Norman, 2026-10-23) : le couvercle s'ouvre en grand, les yeux se plissent, le corps s'étire, puis tout se referme (2,2 s, comme le son) */
+${P}.vl-baille:not(.vl-ouverte) .vl-dome{animation:vlBailleGrand 2.2s ease-in-out 1}
+${P}.vl-baille:not(.vl-ouverte) .vl-corps{animation:vlBailleCorps 2.2s ease-in-out 1}
+${P}.vl-baille:not(.vl-ouverte) .vl-paupiere{animation:none;transform:scaleY(1)}
+@keyframes vlBailleGrand{0%{transform:scaleY(1)}30%,72%{transform:scaleY(.5)}100%{transform:scaleY(1)}}
+@keyframes vlBailleCorps{0%{transform:scale(1,1)}30%,72%{transform:scale(.97,1.05)}100%{transform:scale(1,1)}}
 ${P}.vl-ouverte .vl-yeux{transform:translateY(-7px)}
 ${P} .vl-lueur{animation:vlLueur 2.6s ease-in-out infinite}
 @keyframes vlLueur{0%,100%{opacity:.55}50%{opacity:1}}
@@ -390,6 +396,8 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
 /* Plus de barre « Coffre (n) » en haut du cadre (Norman, 2026-10-23) : le Coffre et la valise s'ouvrent en touchant leur créature */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1>.soreal-idle-coffre-titre-v1{display:none}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1{isolation:isolate;overflow:visible}
+/* les règles de page (.soreal-idle-page-root-v28[data-menu]) remettaient overflow:hidden au cadre : les bulles étaient coupées ; même sélecteur, plus précis (Norman, 2026-10-23 : « il faut qu'elle sorte ») */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-section-v8.soreal-idle-coffre-v1.soreal-idle-coffre-v1.soreal-idle-coffre-v1{overflow:visible}
 /* La phrase de la valise remplace « Il mange les objets… » tant que le Coffre n'a pas été ouvert */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180] .vl-phrase-bloc{display:none}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180].vl-phrase-on .bg-texte-v1:not(.vl-phrase-bloc){display:none}
@@ -401,6 +409,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}
 /* Sur ordinateur (Norman, 2026-10-23) : la valise est dans le MÊME cadre que le Coffre, à droite de « Il mange les objets… » ; plus de cadre de cuir propre */
 @media (min-width:761px){
+  /* le texte du Coffre ou de la valise est centré entre les deux (Norman, 2026-10-23) */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180] .bg-texte-v1{text-align:center}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 240px;column-gap:12px;align-items:start}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.soreal-idle-coffre-titre-v1{grid-column:1/-1}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{grid-column:1;grid-row:2}
@@ -453,6 +463,17 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       clearTimeout(s.__vlSaut);s.__vlSaut=setTimeout(function(){s.classList.remove('vl-glou');},650);
     });
   }
+  /* Bâillement rare (Norman, 2026-10-23) : jamais endormie, ouverte, en train de parler ni avec le Coffre qui bâille ; 3 à 8 minutes de présence à l'écran entre deux. */
+  var visibleBaille=0,cibleBaille=180000+Math.random()*300000;
+  function bailler(){
+    if(window.__coffreBailleIdleV1__)return false;
+    window.__valiseBailleIdleV1__=true;
+    sections().forEach(function(s){s.classList.remove('vl-baille');void s.offsetWidth;s.classList.add('vl-baille');});
+    son2('baille','valise');
+    setTimeout(function(){sections().forEach(function(s){s.classList.remove('vl-baille');});window.__valiseBailleIdleV1__=false;},2300);
+    return true;
+  }
+  function son2(m,a){try{var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A[m]==='function')A[m](a);}catch(_e){}}
   /* Le sommeil est rare (4 à 9 minutes de présence à l'écran) et jamais en même temps que celui du Coffre (Norman, 2026-10-23). */
   function endormir(){
     if(window.__coffreDortIdleV1__){visibleAvant=Math.max(0,cibleSommeil-30000);return;}   /* le Coffre dort : on réessaie dans 30 s */
@@ -567,6 +588,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
         return;
       }
       if(!ouverte()){visibleAvant+=PAS;if(visibleAvant>=cibleSommeil)endormir();}
+      visibleBaille+=PAS;
+      if(visibleBaille>=cibleBaille&&!ouverte()&&!window.__valiseBailleIdleV1__&&!(parle&&Date.now()<parle.jusqua)&&!reduit()){
+        if(bailler()){visibleBaille=0;cibleBaille=180000+Math.random()*300000;}else visibleBaille=Math.max(0,cibleBaille-20000);
+      }
       visibleRegard+=PAS;
       if(visibleRegard>=cibleRegard){visibleRegard=0;cibleRegard=150000+Math.random()*250000;dire(REMARQUE);}
     }catch(_e){}
@@ -605,5 +630,5 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
 
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
 
-  window.__SOREAL_IDLE_VALISE_V1__={dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
+  window.__SOREAL_IDLE_VALISE_V1__={baille:bailler,dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
 })();

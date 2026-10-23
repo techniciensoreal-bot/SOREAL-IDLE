@@ -32,6 +32,11 @@
         date:'2026-10-23',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’éponge ne frotte plus que la tache au sol, aux pieds du Coffre et de la valise : toucher le Coffre ou la valise elle-même les ouvre toujours.',
+            'Si tu ouvres la valise sans avoir nettoyé son vomi, tous les objets qu’elle contient en sont couverts ; il part au fil des frottées.',
+            'Sur ordinateur, le texte du Coffre et de la valise est centré entre les deux.',
+            'De temps en temps, le Coffre et la valise bâillent, chacun avec son propre son (un bâillement grave et lent pour le Coffre, aigu et grinçant pour la valise).',
+            'Les sons ont été refaits : le pet coussin remplace les anciens pets, les grincements reviennent plus souvent, et le vomi de la valise a de nouveaux sons plus aigus et plus réalistes.',
             'Dans l’introduction en images, tape sur l’image pour passer à la suivante si tu lis plus vite que la voix.',
             'Si le navigateur bloque le son au lancement de l’introduction, l’écran te demande de le toucher une fois : la voix démarre alors en même temps que les images.',
             'Dans l’introduction en images, chaque image reste le temps de la phrase écrite en dessous, au rythme de la voix.',
