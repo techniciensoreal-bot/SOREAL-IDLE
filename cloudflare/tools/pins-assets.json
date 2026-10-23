@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 390,
-  "sha": "601824b4761e7c1c4f88253f28594eb059c9fdc0"
+  "pin": 391,
+  "sha": "31e14c1af203ef8981c616c9e6efeca1b59e6b77"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 412,
-  "sha": "f9b4f3aad0b40f189de32591c46eb2c262a4d42a"
+  "pin": 413,
+  "sha": "020941c388cb270d58eb28a0eaf3aa4915dd8518"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 206,
-  "sha": "3d73393de5174c1a08fa262e1519b75fb81c5c6c"
+  "pin": 207,
+  "sha": "2244985a4edfcdcadd6f35323681bf16e2ee6bba"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -432,8 +432,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 251,
-  "sha": "2d5584b689cc121d382d4eeaadda45bbc20643f7"
+  "pin": 252,
+  "sha": "c64536a572e264e48d65455d62449ace2f4dd6b5"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 2,
@@ -512,8 +512,8 @@
   "sha": "0b75266a8d934d245d4d01c011f8ca3ec4e0ce3f"
  },
  "/modules/ui-popups-v1.js": {
-  "pin": 6,
-  "sha": "008e16d3ae0891420fbe1adc1c087f1213cb6826"
+  "pin": 7,
+  "sha": "2a7316fd49c4c5ac5385c32ce88ac72a16700de3"
  },
  "/modules/ui-reglages-v1.js": {
   "pin": 4,

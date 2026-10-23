@@ -274,11 +274,17 @@
         return false;
       }
 
+      /*
+       * Norman (2026-10-23) : « l'intro ne s'est pas lancée quand j'ai reset la partie B ; j'ai directement eu la chronique du boss ». Au premier lancement ou après une remise à zéro complète, « Le commencement » passe AVANT la chronique du boss : plus
+       * d'attente (c'est le nouveau tutoriel qui attend, lui, la fin de la chronique : modules/tutoriel-v1.js). La lecture en cours de la chronique est coupée au moment où l'introduction s'ouvre ; la voix lit alors l'introduction.
+       */
       function introductionPeutDemarrerIdleV1_(){
         if(REG.idleTutorielPagesEnCoursV1)return true;
-        if(chroniqueBossOccupeeIdleV1_()){REG.idleIntroLibreDepuisV1=0;return false;}
-        if(!REG.idleIntroLibreDepuisV1){REG.idleIntroLibreDepuisV1=Date.now();return false;}
-        return Date.now()-REG.idleIntroLibreDepuisV1>=1200;
+        try{
+          const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+          if(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206')&&typeof tts.stop==='function')tts.stop();
+        }catch(e){}
+        return true;
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */

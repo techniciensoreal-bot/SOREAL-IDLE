@@ -656,6 +656,7 @@
     return (
       document.getElementById('sorealIdleTutorielFlottantV1')||
       document.querySelector('#sorealIdleTutorielPagesModalV1 .soreal-idle-modal-card-v63')||
+      document.querySelector('#sorealIdleTutorielPagesModalV1 .id-scene')||   /* « Le commencement » en images (modules/intro-diaporama-v1.js) : lue avant la chronique du boss (Norman, 2026-10-23) */
       document.querySelector('#sorealIdleNouveauteModalV75 .soreal-idle-modal-card-v63')||
       panneauChroniqueBoss_()||
       null
