@@ -59,7 +59,7 @@ function monde(consommables, ouverte) {
 {
   // Style : cuir et cadre propres à la valise, étages qui se déplient en cascade, aucune règle forcée, mouvement réduit respecté.
   const css = monde({}, false).css;
-  assert.ok(css.includes("max-height:calc(var(--vl-h,0)*var(--vl-p,0)*1px)") && css.includes(".vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}") && css.includes(":not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}") && css.includes("vl-rouleau") && css.includes(".vl-anim .vl-rouleau") && css.includes("repeat-y"), "langue qui se déroule de la bouche, rouleau au bout, corps qui se répète");
+  assert.ok(css.includes("max-height:calc(var(--vl-h,0)*var(--vl-pf,var(--vl-p,0))*1px)") && css.includes(".vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}") && css.includes(":not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}") && css.includes("vl-rouleau") && css.includes(".vl-anim .vl-rouleau") && css.includes("repeat-y"), "langue qui se déroule de la bouche, rouleau au bout, corps qui se répète");
   assert.ok(css.includes("vlRespire") && css.includes("vlCligne") && css.includes("vlAnse") && css.includes("vl-dort"), "vivante : respire, cligne, remue l'anse, dort");
   assert.ok(css.includes("prefers-reduced-motion"), "mouvement réduit");
   assert.ok(css.includes("height:calc(var(--vl-rr,0)*2px)") && css.includes("var(--vl-s,0)*1px") && !css.includes("vl-ro-face"), "rouleau vu de face : rayon qui diminue, peau qui défile (pas de faces vues de dessus)");
@@ -97,3 +97,11 @@ console.log("idle-valise-consommables-v1 (bouche): OK");
   assert.ok(!c.includes("vl-goulot") && !c.includes("#7be6a0") && !c.includes("#ffc24a"), "aucune dent de couleur");
 }
 console.log("idle-valise-consommables-v1 (charnière): OK");
+
+// Fermeture : la langue s'enroule 0,5 s avant que le cadre rétrécisse (le cadre cachait l'animation) : la longueur visible suit --vl-p, la place du cadre suit --vl-pf en retard.
+{
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  assert.ok(c.includes("var DELAI_CADRE=vers?0:500") && c.includes("appliquerProgres(depart+(vers-depart)*facile(k),depart+(vers-depart)*facile(kf))"), "le cadre rétrécit 0,5 s après le début de l'enroulement");
+  assert.ok(c.includes(".vl-anim .vl-langue{clip-path:inset(0 0 calc(var(--vl-h,0)*(1 - var(--vl-p,0))*1px) 0)}"), "la langue visible suit son propre avancement");
+}
+console.log("idle-valise-consommables-v1 (cadre en retard): OK");

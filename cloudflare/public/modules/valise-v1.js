@@ -299,7 +299,9 @@ ${P}.vl-glou .vl-bete{animation:vlSaut .55s cubic-bezier(.3,1.6,.5,1)}
 ${P} .vl-deplie{--vl-m:calc(min(250px,64cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m)}
 ${P} .vl-etiq{font-size:12px;padding:2px 4px}
 /* La partie visible de la langue = la longueur déroulée (--vl-p de 0 à 1 fois la hauteur mesurée --vl-h) : animée image par image par le module (anime()), jamais par une simple transition */
-${P} .vl-deplie-in{overflow:hidden;padding:0;max-height:calc(var(--vl-h,0)*var(--vl-p,0)*1px)}
+${P} .vl-deplie-in{overflow:hidden;padding:0;max-height:calc(var(--vl-h,0)*var(--vl-pf,var(--vl-p,0))*1px)}
+/* la partie de langue visible suit --vl-p ; le cadre (la boîte) suit --vl-pf, en retard à la fermeture : la langue est bien visible en s'enroulant */
+${P}.vl-anim .vl-langue{clip-path:inset(0 0 calc(var(--vl-h,0)*(1 - var(--vl-p,0))*1px) 0)}
 ${P}.vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}
 ${P}:not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}
 ${P} .vl-rien{margin:calc(var(--vl-m) + 12px) 0 4px;text-align:center;font:400 15px/1.3 "Russo One",system-ui,sans-serif;font-style:italic;color:#e3d2a6;opacity:.9}
@@ -387,7 +389,10 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
   }
   /* Le dépliage, image par image : la longueur de langue sortie est --vl-p x la hauteur mesurée ; le rouleau de son bout a un rayon qui diminue (sa longueur enroulée restante) et tourne de la longueur sortie. Dans l'autre sens, la langue s'enroule dans la bouche. */
   var progres=null,animId=0;
-  function appliquerProgres(p){
+  /* p = la longueur de langue sortie (le clic du rouleau) ; pf = la place que prend le cadre : à la fermeture il rétrécit 0,5 s APRÈS le début de l'enroulement, pour ne pas cacher l'animation (Norman, 2026-10-23). */
+  function appliquerProgres(p,pf){
+    if(pf==null)pf=p;
+    progres=p;
     sections().forEach(function(s){
       var dedans=s.querySelector('.vl-deplie-in');
       if(!s.__vlH&&dedans)s.__vlH=dedans.scrollHeight+8;
@@ -396,13 +401,14 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
       if(!s.classList.contains('vl-anim'))s.classList.add('vl-anim');
       s.style.setProperty('--vl-h',String(H));
       s.style.setProperty('--vl-p',p.toFixed(4));
+      s.style.setProperty('--vl-pf',pf.toFixed(4));
       s.style.setProperty('--vl-rr',rr.toFixed(2));
       s.style.setProperty('--vl-s',(defile%26).toFixed(1));   /* la peau du rouleau (vu de face, de côté : jamais de dessus) défile verticalement de la longueur de langue sortie */
     });
   }
   function finirProgres(p){
     sections().forEach(function(s){
-      s.style.setProperty('--vl-p',String(p));s.style.setProperty('--vl-rr','0');
+      s.style.setProperty('--vl-p',String(p));s.style.setProperty('--vl-pf',String(p));s.style.setProperty('--vl-rr','0');
       s.classList.remove('vl-anim');
       /* la bouche (le couvercle) ne se referme qu'ici : la langue est entièrement repliée */
       if(p===0)s.classList.remove('vl-ouverte');
@@ -416,12 +422,14 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
     if(reduit()||depart===vers){finirProgres(vers);return;}
     /* À l'ouverture, la bouche s'ouvre d'abord (0,34 s) puis la langue sort. */
     var retard=vers?340:0,duree=(vers?1300:1000)*Math.abs(vers-depart)+150,t0=null;
+    var DELAI_CADRE=vers?0:500;   /* fermeture : le cadre ne rétrécit qu'une demi-seconde après le début de l'enroulement */
+    function facile(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;}
     function image(now){
       if(t0===null)t0=now;
       var k=Math.min(1,Math.max(0,(now-t0-retard)/duree));
-      var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
-      appliquerProgres(depart+(vers-depart)*e);
-      if(k<1||now-t0<retard)animId=requestAnimationFrame(image);else finirProgres(vers);
+      var kf=Math.min(1,Math.max(0,(now-t0-retard-DELAI_CADRE)/duree));
+      appliquerProgres(depart+(vers-depart)*facile(k),depart+(vers-depart)*facile(kf));
+      if(kf<1||now-t0<retard)animId=requestAnimationFrame(image);else finirProgres(vers);
     }
     appliquerProgres(depart);
     animId=requestAnimationFrame(image);
