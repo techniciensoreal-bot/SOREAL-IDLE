@@ -22,13 +22,13 @@ const ancienne = (sql) => { sql.exec("DELETE FROM idle_histoires_meta WHERE k='s
   const h2 = brut(sql, "MagicienEtLeGrotte2"); h2.boss = null; sql.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(h2)); assurerHistoiresV1(sql);
   assert.equal(brut(sql, "MagicienEtLeGrotte2").boss, null, "jamais refaite deux fois");
 }
-// 2. Histoire supprimée : recréée (10 étapes, images historiques).
+// 2. Histoire supprimée : recréée (un seul texte).
 {
   const sql = base(); assurerHistoiresV1(sql);
   sql.exec("DELETE FROM idle_histoires WHERE id='MagicienEtLeGrotte2'"); ancienne(sql);
   assurerHistoiresV1(sql);
   const h = lireHistoiresV1(sql).find((x) => x.id === "MagicienEtLeGrotte2");
-  assert.ok(h && h.etapes.length === 10 && h.boss === 37 && h.etapes.every((e) => /^legacy:\d+$/.test(e.image)));
+  assert.ok(h && h.etapes.length === 1 && h.boss === 37 && h.etapes[0].image === "legacy:1");
 }
 // 3. Déjà rattachée à un autre boss : jamais déplacée.
 {
@@ -37,20 +37,22 @@ const ancienne = (sql) => { sql.exec("DELETE FROM idle_histoires_meta WHERE k='s
   assurerHistoiresV1(sql);
   assert.equal(brut(sql, "MagicienEtLeGrotte2").boss, 40);
 }
-// 4. Retraduction : une base qui porte encore l'ancienne traduction la reçoit (voix vidées, images gardées) ; un texte modifié n'est jamais touché.
-{
+// 4. Un seul texte : une base qui porte encore les dix étapes (ancienne traduction ou retraduction) passe à une seule étape, voix vidées ; un texte modifié n'est jamais touché.
+for (const debut of ["Les taupes, amochées et couvertes de bleus… un gaz bleu épais qui stagne.", "Les taupes, amochées et couvertes de bleus… un épais gaz bleu qui stagne."]) {
   const sql = base(); assurerHistoiresV1(sql);
   const h = brut(sql, "MagicienEtLeGrotte2");
-  h.etapes = h.etapes.map((e, i) => Object.assign({}, e, { texte: i === 0 ? "Les taupes, amochées et couvertes de bleus, te laissent passer… un gaz bleu épais qui stagne." : "ancien " + i }));
-  h.voix = ["0123456789abcd"]; sql.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(h)); sql.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v3'");
+  h.etapes = Array.from({ length: 10 }, (_, i) => ({ texte: i === 0 ? debut : "étape " + i, image: "legacy:" + (i + 1), parleur: "narrateur" }));
+  h.voix = ["0123456789abcd"]; sql.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(h)); sql.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v4'");
   assurerHistoiresV1(sql);
   const r = brut(sql, "MagicienEtLeGrotte2");
-  assert.match(r.etapes[7].texte, /tu parviens à t'élever dans les airs et tu décolles/, "la phrase qui manquait (le décollage) est là");
+  assert.equal(r.etapes.length, 1);
+  assert.ok(/Stupéfait, tu le vois verser la cannette/.test(r.etapes[0].texte) && r.etapes[0].texte.endsWith("Il est temps de lui donner une leçon."), "tout le texte de Norman, en un seul bloc");
   assert.deepEqual(r.voix, [], "voix à refaire");
-  assert.equal(r.etapes[9].image, "legacy:10", "images gardées");
-  const sql2 = base(); assurerHistoiresV1(sql2);
-  const m = brut(sql2, "MagicienEtLeGrotte2"); m.etapes[0].texte = "Texte modifié par l'administrateur."; sql2.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(m)); sql2.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v3'");
-  assurerHistoiresV1(sql2);
-  assert.equal(brut(sql2, "MagicienEtLeGrotte2").etapes[0].texte, "Texte modifié par l'administrateur.");
+}
+{
+  const sql = base(); assurerHistoiresV1(sql);
+  const m = brut(sql, "MagicienEtLeGrotte2"); m.etapes = Array.from({ length: 10 }, (_, i) => ({ texte: "Modifié " + i, image: "legacy:" + (i + 1), parleur: "narrateur" })); sql.exec("UPDATE idle_histoires SET json=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(m)); sql.exec("DELETE FROM idle_histoires_meta WHERE k='seed_v4'");
+  assurerHistoiresV1(sql);
+  assert.equal(brut(sql, "MagicienEtLeGrotte2").etapes.length, 10, "texte modifié : jamais touché");
 }
 console.log("idle-histoire-restauree-v1 OK");

@@ -38,12 +38,12 @@ function baseVide() {
   const un = h.find((x) => x.id === "MagicienEtLaGrotte");
   const deux = h.find((x) => x.id === "MagicienEtLeGrotte2");
   assert.equal(un.etapes.length, 5);
-  assert.equal(deux.etapes.length, 10);
+  assert.equal(deux.etapes.length, 1, "histoire 2 : UN seul texte (2026-10-23)");
   assert.equal(un.vuId, "histoire:magicienEtLaGrotte", "les joueurs qui ont déjà vu l'histoire 1 ne la revoient pas");
   assert.equal(deux.vuId, "histoire:magicienEtLaGrotte2");
   assert.equal(un.boss, 17, "histoire 1 : à la mort du boss 17 (comme avant)");
   assert.equal(deux.boss, 37, "histoire 2 : restaurée (2026-10-23) à la mort du boss 37, avant « Un Gamin sur un Nuage »");
-  assert.match(deux.etapes[3].texte, /Stupéfait, tu le regardes vider la cartouche/, "découpage de la 2e histoire conservé (retraduction du 2026-10-23)");
+  assert.match(deux.etapes[0].texte, /Stupéfait, tu le vois verser la cannette/, "texte de Norman conservé tel quel");
   assert.ok(un.etapes.every((e) => /^legacy:\d+$/.test(e.image)), "images historiques par position");
   // Supprimer une histoire d'origine ne la recrée pas au prochain appel.
   supprimerHistoireV1(sql, "MagicienEtLaGrotte");
