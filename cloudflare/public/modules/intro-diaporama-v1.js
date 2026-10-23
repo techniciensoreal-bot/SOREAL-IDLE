@@ -34,7 +34,7 @@ var DIAPOS=[
   {n:'16',t:'Peut-être qu’appuyer sur un gros bouton blanc marqué « JOUER » te permettra de faire quelque chose d’amusant.'}
 ];
 var MIN_MS=3800,MS_PAR_CARACTERE=72;
-var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0;
+var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0,chronique=false;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 /* *mot* -> italique, comme le texte d'origine l'écrit. */
@@ -67,6 +67,11 @@ function style_(){
     '.id-indice{min-height:1.4em;font:400 clamp(12px,2.6vw,15px) "Russo One",sans-serif;letter-spacing:.05em;color:#ffd24a;text-align:center;opacity:0;transition:opacity .6s}'+
     '.id-fin .id-indice{opacity:1}'+
     '.id-cadre{cursor:pointer}'+
+    /* Chronique du premier boss, à la suite des images : même fond noir, l'image du boss et son texte dessous */
+    '.id-chro .id-points{display:none}'+
+    '.id-chro .id-indice{opacity:1}'+
+    '.id-chro .id-texte{max-height:30vh;overflow:auto;font-size:clamp(15px,3vw,20px);line-height:1.45;white-space:pre-line}'+
+    '.id-chro .id-cadre{aspect-ratio:4/3;max-height:48vh}'+
     '.id-son{min-height:1.4em;font:400 clamp(13px,2.8vw,16px) "Russo One",sans-serif;letter-spacing:.04em;color:#fff;text-align:center;padding:6px 14px;border-radius:999px;background:rgba(255,210,74,.16);border:1px solid rgba(255,210,74,.6);animation:idSon 1.4s ease-in-out infinite}'+
     '.id-son[hidden]{display:none}'+
     '@keyframes idSon{0%,100%{opacity:.55}50%{opacity:1}}'+
@@ -125,12 +130,44 @@ function installerBouton(r){
   var continuer=function(ev){
     if(ev&&ev.type==='keydown'&&ev.key!=='Enter'&&ev.key!==' ')return;
     if(ev){ev.preventDefault();ev.stopPropagation();}
-    arreter();
-    if(typeof window.__tutorielPagesNaviguerV1__==='function')window.__tutorielPagesNaviguerV1__(1);
+    if(chronique){terminer();return;}
+    var d=donneesChronique();
+    if(d){ouvrirChronique(r,d);return;}
+    terminer();
   };
   cadre.addEventListener('click',continuer);
   cadre.addEventListener('keydown',continuer);
   try{cadre.focus({preventScroll:true});}catch(_e){}
+}
+
+/* Fin de la cinématique : la fenêtre se ferme ; le tutoriel, lui, démarre alors (modules/tutoriel-v1.js). */
+function terminer(){
+  arreter();
+  chronique=false;
+  var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  try{if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
+  if(typeof window.__tutorielPagesNaviguerV1__==='function')window.__tutorielPagesNaviguerV1__(1);
+}
+/* Chronique du premier boss (Norman, 2026-10-23 : « elle doit s'enchaîner sur la cinématique, avec l'image du boss et le texte en dessous ») : seulement celle du boss 1, avec les données posées par la page de combat. */
+function donneesChronique(){
+  var d=window.__SOREAL_IDLE_CHRONIQUE_BOSS_V1__;
+  return d&&d.id==='1'&&d.say&&d.affiche?d:null;
+}
+function ouvrirChronique(r,d){
+  chronique=true;
+  arreter();chronique=true;
+  var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  try{if(t&&typeof t.stop==='function')t.stop();if(t&&typeof t.marquerChroniqueLue==='function')t.marquerChroniqueLue(d.id);}catch(_e){}
+  r.classList.remove('id-fin');r.classList.add('id-chro');
+  var cadre=r.querySelector('#sorealIdleIntroCadreV1'),imgs=cadre.querySelectorAll('img');
+  imgs[0].src=d.image;imgs[0].classList.add('id-on');imgs[1].classList.remove('id-on');
+  cadre.setAttribute('aria-label','Continuer');
+  var ti=r.querySelector('.id-titre');if(ti)ti.innerHTML=esc(d.nom)+'<small>Chronique du boss</small>';
+  var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx)tx.textContent=d.affiche;
+  var ind=r.querySelector('.id-indice');if(ind)ind.textContent='Touche l’image pour continuer';
+  /* La voix lit la scène par son attribut : on lui donne le texte de la chronique (mêmes voix que celles du panneau de combat) et on relance la lecture. */
+  r.setAttribute('data-soreal-tts-say',d.say);
+  try{if(t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.read==='function')t.read();}catch(_e){}
 }
 
 function planifier(){

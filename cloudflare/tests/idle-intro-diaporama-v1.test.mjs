@@ -89,3 +89,13 @@ console.log("idle-intro-diaporama-v1: OK");
   assert.ok(code.includes("/[^\\p{L}\\p{N}]/gu") && code.includes("addEventListener('soreal-voix-bloc',surBlocVoix)") && code.includes("kk>indice"), "l'introduction suit la voix, sans jamais reculer");
 }
 console.log("idle-intro-diaporama-v1 (voix): OK");
+
+// 5. La chronique du premier boss s'enchaîne sur l'introduction (Norman, 2026-10-23) : image du boss, texte dessous, même fond noir ; le guide attend la fermeture.
+{
+  assert.ok(code.includes("function ouvrirChronique(r,d)") && code.includes("d&&d.id==='1'&&d.say&&d.affiche") && code.includes("if(chronique){terminer();return;}"), "chronique du boss 1 à la suite des images");
+  assert.ok(code.includes("t.marquerChroniqueLue(d.id)") && code.includes("r.setAttribute('data-soreal-tts-say',d.say)"), "marquée lue, lue par la voix de la scène");
+  assert.ok(lire("modules/tutorial-tts-v202.js").includes("marquerChroniqueLue:marquerChroniqueLue_"), "exposée par le lecteur");
+  assert.ok(lire("modules/ui-combat-1-v1.js").includes("window.__SOREAL_IDLE_CHRONIQUE_BOSS_V1__=bossIdCine"), "la page de combat fournit les données");
+  assert.ok(/function chroniqueOccupee_\(\)\{[\s\S]{0,300}sorealIdleTutorielPagesModalV1'\)\)return true;/.test(lire("modules/tutoriel-v1.js")), "le guide attend la fermeture de la cinématique");
+}
+console.log("idle-intro-diaporama-v1 (chronique): OK");

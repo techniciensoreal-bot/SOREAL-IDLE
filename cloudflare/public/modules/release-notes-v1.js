@@ -36,6 +36,7 @@
             'Si le navigateur bloque le son au lancement de l’introduction, l’écran te demande de le toucher une fois : la voix démarre alors en même temps que les images.',
             'Dans l’introduction en images, chaque image reste le temps de la phrase écrite en dessous, au rythme de la voix.',
             'Dans un guide, une étape qui attend un clic sur un bouton n’apparaît que 2 secondes après le clic, le temps de voir le jeu réagir.',
+            'À la fin de l’introduction en images, la chronique du premier boss s’enchaîne : l’image du boss sur fond noir avec son texte en dessous. Le tutoriel ne démarre qu’une fois cette fenêtre fermée.',
             'La voix du guide d’introduction et de ses étapes lit désormais le même texte que celui préparé dans l’éditeur.',
             'Dans la fenêtre d’un guide, la voix lit maintenant le texte enregistré dans l’éditeur et ne retombe plus sur la voix de secours.',
           ]},

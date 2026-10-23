@@ -1247,6 +1247,7 @@
     estVoixFemme:estVoixFemme_,
     composerChronique:composerChronique_,
     retirerParentheses:retirerParentheses_,
+    marquerChroniqueLue:marquerChroniqueLue_,
     resoudreVoixBalise:resoudreVoixBalise_,
     resoudreExpressionBalise:resoudreExpressionBalise_,
     resoudrePauseBalise:resoudrePauseBalise_,

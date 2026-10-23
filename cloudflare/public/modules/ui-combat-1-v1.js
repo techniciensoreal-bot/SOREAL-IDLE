@@ -1856,6 +1856,15 @@
         const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&(histoireParlee||nomParle||attrHistoireVoixIdleV1_(histoire)))
           ?' data-soreal-tts-say="'+idleHtml_(ttsChronique.composerChronique(nomParle||nomBoss,histoireParlee||histoire))+'"'
           :'';
+        /*
+         * Données de la chronique du boss courant pour la cinématique de début de partie (modules/intro-diaporama-v1.js, Norman 2026-10-23) : nom, texte lu (mêmes voix que le panneau ci-dessous), texte affiché sans balises.
+         */
+        try{
+          const bossIdCine=String(j&&j.bossId||'');
+          window.__SOREAL_IDLE_CHRONIQUE_BOSS_V1__=bossIdCine&&ttsChronique&&typeof ttsChronique.composerChronique==='function'
+            ?{id:bossIdCine,nom:nomParle||nomBoss,say:ttsChronique.composerChronique(nomParle||nomBoss,histoireParlee||histoire),affiche:sansBaliseVoixIdleV1_(narration),image:'/api/idle/media/boss?id='+encodeURIComponent(bossIdCine)}
+            :null;
+        }catch(e){}
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142${window.__chroniqueOuverteIdleV1?' ouverte':''}" role="button" tabindex="0" aria-label="Chronique du boss" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}"${attrLecture}>
             <button type="button" class="soreal-idle-lore-fermer-v1" aria-label="Fermer" data-soreal-tts-ignore>✕</button>

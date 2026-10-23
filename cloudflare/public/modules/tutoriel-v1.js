@@ -198,6 +198,8 @@ function fermer_(vu){
  * chronique soit fermé et que sa lecture soit terminée ou interrompue (libre depuis 1,5 s : la lecture automatique peut démarrer juste après l'affichage), 2 minutes au plus. Sans chronique à l'écran, l'attente se limite à ce délai.
  */
 function chroniqueOccupee_(){
+  /* La cinématique de début de partie (images puis chronique du premier boss) occupe l'écran : le guide ne démarre qu'à sa fermeture (Norman, 2026-10-23). */
+  if(document.getElementById('sorealIdleTutorielPagesModalV1'))return true;
   var p=document.getElementById('sorealIdleBossChroniqueV206');
   if(!p)return false;
   if(window.__chroniqueOuverteIdleV1||(p.classList&&p.classList.contains('ouverte')))return true;
