@@ -9,7 +9,7 @@
  * « voix » liste les empreintes de blocs dont une voix a été générée depuis le menu Admin (fichiers R2 idle/voix/<empreinte>.m4a).
  *
  * Déclenchement : à la mort du boss N, c'est-à-dire quand le prochain boss sélectionné est N+1 (comme la première histoire, jouée
- * dès que le boss 17 est mort). Les deux premières histoires sont insérées UNE fois (drapeau seed_v1) : les supprimer ne les recrée pas.
+ * dès que le boss 17 est mort). La première histoire est insérée UNE fois (drapeau seed_v1) : la supprimer ne la recrée pas.
  */
 import { sqlRows, safeJson } from "./core/sqlite-core.js";
 
@@ -50,20 +50,6 @@ export const IDLE_HISTOIRES_SEED_V1 = [
    {
     "texte": "Dès ta première inspiration à l'intérieur, tu *sais* immédiatement ce que le sorcier voulait dire. L'air semble... léger, très léger. Tu sens ton cerveau faire des sauts périlleux et des roues... et c'est là que tu le vois.",
     "image": "legacy:5"
-   }
-  ]
- },
- {
-  "id": "MagicienEtLeGrotte2",
-  "vuId": "histoire:magicienEtLaGrotte2",
-  "titre": "Le Magicien et la Grotte 2",
-  "boss": null,
-  "actif": true,
-  "voix": [],
-  "etapes": [
-  {
-    "texte": "Les taupes, amochées et couvertes de bleus, te laissent passer en grommelant « T'es vraiment un connard, Chad... » et tu aperçois enfin ton objectif, un gaz bleu épais qui stagne tout au fond de cette grotte.\nTu brandis la petite cannette en métal que le sorcier t'a donnée, et avec un « WHOUMPF », la majeure partie du gaz semble se faire aspirer dedans.\nSur le chemin du retour vers la hutte du sorcier, tu bidouilles la machine à voyager dans le temps, te regardant tuer la Gorgone encore et encore et empocher tout ce fric. Ah, les souvenirs... Peut-être que tu achèteras ce village une fois que ce sera fini.\nPeu après, tu te hisses à la surface, enfin capable d'avoir un moment de clarté dans ta tête. Le sorcier applaudit et glousse de joie en te voyant revenir. « Parfait, PARFAIT, j'étais presque à court de cette came. Stupéfait, tu le vois verser la cannette dans son chaudron et lui donner un petit coup, une partie du gaz bleu s'écoulant dans le mélange. Il remue une fois, deux fois, trois fois dans le sens des aiguilles d'une montre, et une fois dans l'autre sens, puis te fait signe d'approcher.\n« Bon, je peux pas résoudre tes problèmes de mémoire, mais je crois savoir qui pourrait le faire. Mais d'abord, tiens, prends une gorgée.\nJe sais pas ce qui est arrivé à tes pouvoirs magiques mais ça devrait au moins leur donner un coup de fouet ! » Ça a le goût d'un mélange de sirop contre la toux, de rhum et de tontes de pelouse, mais tu arrives à l'avaler. Ça a à peine le temps de s'installer dans ton estomac que tu sens une sensation... une sensation magique. Pourtant, ça ne te semble pas si étranger que ça. « Voilà, mon gars, tu devrais pouvoir faire quelques-uns de tes petits tours de magie ! Je suis sûr que le reste reviendra avec le temps. Maintenant, pour la personne qui pourrait t'aider... la dernière fois que j'ai entendu parler d'elle, elle se dirigeait vers cette fête interdimensionnelle. Tu sais, celle qui traverse l'espace et le temps, qui ne s'arrête jamais... et de l'alcool gratuit ! Tu devrais encore pouvoir la rattraper si tu te dépêches ! Elle doit encore voler quelque part dans le ciel ! »\nTu sors et regardes vers le ciel, avant de te rappeler... tu ne sais pas voler ! Le sorcier ricane en te voyant sauter en l'air pour rien. « T'as la MAGIE maintenant, tu te rappelles ?\nPff, les jeunes de nos jours, toujours à avoir la mémoire en vrac et... » Le sorcier marmonne de façon incompréhensible en rentrant chez lui. Un peu honteux, tu te concentres très fort, tu pars en courant, tu sautes...\nOuais, carrément ! Maintenant que tu es dans les airs, ça te semble presque naturel, tu plonges, tu fais des loopings... et tu rentres tête la première dans un flou jaune.\nTu te reprends juste à temps pour voir un gamin bizarre avec une queue filer devant toi, l'air aussi content de lui que possible. Il est temps de lui donner une leçon.",
-    "image": "legacy:1"
    }
   ]
  }
@@ -119,40 +105,13 @@ export function assurerHistoiresV1(sql) {
     sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v1','1')");
   }
   /*
-   * Restauration (Norman, 2026-10-23 : « Un Gamin sur un Nuage. Son histoire a disparu. Celle qui commence par "Les taupes, amochées et couvertes de bleus…" ») : une seule fois, l'histoire « Le Magicien et la Grotte 2 » est
-   * remise (recréée si elle avait été supprimée) et rattachée à la mort du boss 37 (la 5e taupe géante : c'est quand le boss suivant, « Un Gamin sur un Nuage », est sélectionné qu'elle se joue) si elle n'avait AUCUN boss ;
-   * une histoire déjà rattachée à un boss, des voix déjà générées ou un texte modifié ne sont jamais touchés ; aucun autre boss n'est pris si l'histoire de la mort du 37 existe déjà.
+   * Suppression définitive (Norman, 2026-10-23 : « supprime l'histoire numéro 2, je ne la veux plus ») : une seule fois, « Le Magicien et la Grotte 2 » est retirée de la base ; elle n'est plus dans le seed, donc jamais recréée. La chronique du boss « Un Gamin
+   * sur un Nuage » (design/ngu-boss-stories-fr.json) n'est pas concernée.
    */
-  const v2 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v2'"))[0];
-  if (!v2) {
-    const ligne = sqlRows(sql.exec("SELECT json FROM idle_histoires WHERE id='MagicienEtLeGrotte2'"))[0];
-    const toutes = sqlRows(sql.exec("SELECT id,json FROM idle_histoires")).map((r) => ({ id: r.id, h: safeJson(r.json, null) })).filter((x) => x.h);
-    const occupe = toutes.some((x) => x.id !== "MagicienEtLeGrotte2" && x.h.actif !== false && Number(x.h.boss) === 37);
-    if (!ligne) {
-      const seed = IDLE_HISTOIRES_SEED_V1.find((h) => h.id === "MagicienEtLeGrotte2");
-      if (seed) sql.exec("INSERT OR IGNORE INTO idle_histoires(id,json,maj) VALUES(?,?,?)", seed.id, JSON.stringify(Object.assign({}, seed, { boss: occupe ? null : 37, actif: true })), maintenant);
-    } else {
-      const h = safeJson(ligne.json, null);
-      if (h && typeof h === "object" && (h.boss === null || h.boss === undefined || h.boss === "") && !occupe) {
-        sql.exec("UPDATE idle_histoires SET json=?, maj=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(Object.assign({}, h, { boss: 37, actif: true })), maintenant);
-      }
-    }
-    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v2','1')");
-  }
-  /*
-   * UN SEUL texte (Norman, 2026-10-23 : « remets-la en 1 seul texte que je puisse copier-coller », avec son texte collé) : une seule fois, si l'histoire 2 porte encore ses dix étapes d'origine (ancienne traduction ou retraduction de
-   * seed_v3 : première étape « Les taupes, amochées… »), elles sont remplacées par UNE étape (le texte de Norman, première image historique) ; voix à refaire. Un texte modifié par l'administrateur n'est jamais touché.
-   */
-  const v4 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v4'"))[0];
-  if (!v4) {
-    const ligne = sqlRows(sql.exec("SELECT json FROM idle_histoires WHERE id='MagicienEtLeGrotte2'"))[0];
-    const seed = IDLE_HISTOIRES_SEED_V1.find((h) => h.id === "MagicienEtLeGrotte2");
-    const h = ligne ? safeJson(ligne.json, null) : null;
-    const d = h && Array.isArray(h.etapes) && h.etapes.length === 10 ? String((h.etapes[0] && h.etapes[0].texte) || "") : "";
-    if (seed && h && /^Les taupes, amochées et couvertes de bleus/.test(d) && (/un gaz bleu épais/.test(d) || /un épais gaz bleu/.test(d))) {
-      sql.exec("UPDATE idle_histoires SET json=?, maj=? WHERE id='MagicienEtLeGrotte2'", JSON.stringify(Object.assign({}, h, { etapes: seed.etapes.map((e) => Object.assign({}, e)), voix: [] })), maintenant);
-    }
-    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v4','1')");
+  const v5 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v5'"))[0];
+  if (!v5) {
+    sql.exec("DELETE FROM idle_histoires WHERE id='MagicienEtLeGrotte2'");
+    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v5','1')");
   }
 }
 
