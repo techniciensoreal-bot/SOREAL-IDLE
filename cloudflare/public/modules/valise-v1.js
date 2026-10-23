@@ -111,6 +111,7 @@
       '<rect x="228" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
       '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.6"><circle cx="82" cy="120" r="3.6"/><circle cx="82" cy="152" r="3.6"/><circle cx="82" cy="184" r="3.6"/><circle cx="238" cy="120" r="3.6"/><circle cx="238" cy="152" r="3.6"/><circle cx="238" cy="184" r="3.6"/></g>'+
       '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.2"><path d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/><path transform="translate(320 0) scale(-1 1)" d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/></g>'+
+    '<g class="vl-coins"><path d="M31 104H74C60 108 50 116 44 130C36 126 31 118 31 108Z" fill="#1f0810"/><path d="M289 104H246C260 108 270 116 276 130C284 126 289 118 289 108Z" fill="#1f0810"/></g>'+
     '<g class="vl-serrure"><rect x="142" y="120" width="36" height="42" rx="7" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="3"/><circle cx="160" cy="139" r="5.5" fill="#2a1608"/><path d="M156.5 141h7l2.6 13h-12.2z" fill="#2a1608"/></g>'+
     '</g>'+
     /* l'étiquette de parchemin pend à la serrure et se balance */
@@ -148,11 +149,11 @@
     '<path d="M248 0C242 26 258 52 250 80C240 108 254 132 248 160" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
   var TUILE='data:image/svg+xml,'+encodeURIComponent(TUILE_SVG);
   /* La racine : la base de la langue, aussi large que la bouche (l'ouverture de la valise). Posée sur la lèvre inférieure (le bord du corps de la valise), elle bombe vers l'avant, puis la langue retombe sur la façade. */
+  /* La base de la langue (largeur inchangée : épaules arrondies) : posée sur la lèvre inférieure. Les coins de la bouche, de chaque côté de ses épaules, sont sombres (l'intérieur), pas de cuir. */
   var RACINE='<svg viewBox="0 0 262 72" aria-hidden="true" focusable="false"><defs><linearGradient id="vlOmbreLg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0010" stop-opacity=".85"/><stop offset=".34" stop-color="#2a0010" stop-opacity=".45"/><stop offset=".62" stop-color="#2a0010" stop-opacity="0"/></linearGradient></defs>'+
     '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="'+ROSE+'"/>'+
     '<path d="M131 5V72" stroke="'+RAINURE+'" stroke-width="3" opacity=".85"/>'+papilles([[56,36,2.4],[100,26,2.4],[162,26,2.4],[206,36,2.4],[84,56,2.4],[180,56,2.4]])+
     '<ellipse cx="72" cy="40" rx="22" ry="6" fill="#fff" opacity=".22"/>'+
-    /* l'ombre de la gorge : la langue sort du noir de la bouche */
     '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="url(#vlOmbreLg)"/>'+
     '<path d="M14 72V22C34 12 80 5 131 5C182 5 228 12 248 22V72" fill="none" stroke="'+CONTOUR+'" stroke-width="5" stroke-linejoin="round"/></svg>';
   var BOUT='<svg viewBox="0 0 262 104" aria-hidden="true" focusable="false"><path d="M14 0H248C256 46 208 102 131 102C54 102 6 46 14 0Z" fill="'+ROSE+'"/>'+
@@ -270,8 +271,8 @@ ${P} .vl-pupille{animation:vlRegard 7s ease-in-out infinite}
 @keyframes vlRegard{0%,16%,100%{transform:translateX(0)}22%,40%{transform:translateX(-5px)}46%,64%{transform:translateX(5px)}70%{transform:translateX(0)}}
 ${P} .vl-couvercle{transform-origin:160px 104px;transition:transform .5s cubic-bezier(.3,1.5,.5,1);animation:vlBaille 7s ease-in-out infinite}
 @keyframes vlBaille{0%,82%,100%{transform:translateY(0)}88%{transform:translateY(-5px)}94%{transform:translateY(-1px)}}
-${P} .vl-interieur{opacity:0;transition:opacity .4s}
-${P}.vl-ouverte .vl-interieur{opacity:1}
+${P} .vl-interieur,${P} .vl-coins{opacity:0;transition:opacity .4s}
+${P}.vl-ouverte .vl-interieur,${P}.vl-ouverte .vl-coins{opacity:1}
 ${P}.vl-ouverte .vl-couvercle{animation:none;transform:translateY(-20px) scaleY(.96)}
 ${P} .vl-lueur{animation:vlLueur 2.6s ease-in-out infinite}
 @keyframes vlLueur{0%,100%{opacity:.55}50%{opacity:1}}
