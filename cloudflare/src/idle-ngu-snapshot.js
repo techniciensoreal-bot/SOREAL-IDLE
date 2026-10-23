@@ -87,6 +87,9 @@ function consommablesSnapshotV1(state) {
     const v = Math.floor(num(fx[k], 0));
     if (v > 0) reserve[k] = v;
   }
+  /* Graines (monnaie d'Yggdrasil, Norman 2026-10-23 : « la valise nous montre les seeds ») : seulement s'il y en a. */
+  const graines = Math.floor(num(state.currencies && state.currencies.seeds, 0));
+  if (graines > 0) reserve.seeds = graines;
   const potions = {};
   for (const [k, v] of Object.entries(fx.stock && typeof fx.stock === "object" ? fx.stock : {})) {
     const n = Math.floor(num(v, 0));

@@ -284,8 +284,8 @@
   "sha": "888da122d736b9a9f54b94a0ffed62a7f738229b"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 55,
-  "sha": "83ce6ca480475af71bfbb4655ae66f3060f9841f"
+  "pin": 56,
+  "sha": "3daa1078097946660896372b27c0061bcf008584"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 400,
-  "sha": "05874ae1ba45d9f8dabd6e4f77dbbfc7d0d51599"
+  "pin": 401,
+  "sha": "ee8a98a01a19da1845a813ea5d35e7dde9d19741"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 422,
-  "sha": "b8da3adaa50f071c6778bdb7f35b839fb551db36"
+  "pin": 423,
+  "sha": "dc072cee61bd6d080c0ddef8ecd75792cb3e28fa"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 216,
-  "sha": "943bc301fce7037206318fc6a34423dc94d087c6"
+  "pin": 217,
+  "sha": "6b29514e36d85f495a25665595057440c96d984f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -536,8 +536,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-v1.js": {
-  "pin": 23,
-  "sha": "ccaa17fc6841f0ef5eacb31185848d147e2d2e8c"
+  "pin": 24,
+  "sha": "92b343f0c49da52601f48e054e641c1a0f9a46d6"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,

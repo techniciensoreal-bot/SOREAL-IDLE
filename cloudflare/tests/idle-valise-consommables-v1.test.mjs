@@ -72,7 +72,7 @@ function monde(consommables, ouverte) {
   // Vraie animation : la longueur déroulée, le rayon du rouleau et sa rotation sont calculés image par image (aucune simple transition).
   assert.ok(code.includes("function anime(vers)") && code.includes("requestAnimationFrame(image)") && code.includes("var rr=r0*(1-p),defile=H*p"), "animation image par image, rouleau physique");
   assert.ok(code.includes("anime(o?1:0);") && code.includes("finirProgres("), "ouvrir / fermer la lancent");
-  assert.ok(!/transition:max-height/.test(code), "plus de transition simulée sur la hauteur");
+  assert.ok(!/vl-deplie-in{[^}]*transition/.test(code), "plus de transition simulée sur la hauteur");
 }
 // Sons de la valise.
 const audio = lire("public/modules/audio-effects-v199.js");
@@ -114,3 +114,14 @@ console.log("idle-valise-consommables-v1 (cadre en retard): OK");
   assert.ok(g !== d && /translate\([^)]*,[^)]*\)/.test(g) && /translate\([^)]*,[^)]*\)/.test(d), "trajectoires différentes, à deux dimensions");
 }
 console.log("idle-valise-consommables-v1 (yeux): OK");
+
+// Graines et poop dans la réserve, valise toujours à jour, phrase à l'ouverture, disposition PC (Norman, 2026-10-23).
+{
+  assert.ok(snap.includes("if (graines > 0) reserve.seeds = graines;"), "le moteur envoie les graines (seulement s'il y en a)");
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  assert.ok(c.includes("{id:'seeds',nom:'Graines'") && c.includes("{id:'poop',nom:'Poop'"), "graines et poop dans les réserves");
+  assert.ok(c.includes("function rafraichirContenu()") && c.includes("rafraichirContenu();\n      if(document.hidden"), "contenu rafraîchi en direct");
+  assert.ok(c.includes("function phraseHtml()") && c.includes(".vl-ouverte .vl-phrase{max-height:160px"), "phrase marrante à l'ouverture");
+  assert.ok(c.includes("@media (min-width:761px)") && c.includes(":has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 350px") && c.includes(">.vl-section{grid-column:2;grid-row:2}"), "PC : dans le cadre du Coffre, à droite de « Il mange les objets… »");
+}
+console.log("idle-valise-consommables-v1 (graines, PC): OK");

@@ -36,6 +36,7 @@
     {id:'luck',nom:'Porte-bonheur',img:'lucky-charm'}
   ];
   var RESERVES=[
+    {id:'seeds',nom:'Graines',img:'',icone:'graine'},
     {id:'poop',nom:'Poop',img:'fertilizer'},
     {id:'beastButters',nom:'Beast Butter',img:'beast-butter'},
     {id:'bluePills',nom:'Pilules bleues',img:'little-blue-pill'},
@@ -163,6 +164,10 @@
   /* Le rouleau de langue : le bout enroulé de la langue (un cylindre aux deux faces en spirale). Son rayon diminue à mesure que la langue se déroule et il tourne de la longueur sortie (anime()). */
   var ROULEAU='<b class="vl-ro-corps"></b>';
 
+  /* Icône de graine (dessinée, sans fichier) : une graine brune qui germe, dans le même écrin que les images de la boutique. */
+  var GRAINE='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" fill="#cfe8b0"/><path d="M24 22C24 14 18 10 12 11C12 18 17 23 24 22Z" fill="#4aa33a" stroke="#1f3a14" stroke-width="2"/><path d="M24 22C25 15 30 11 36 12C35 19 30 23 24 22Z" fill="#5cbc47" stroke="#1f3a14" stroke-width="2"/><path d="M24 22V28" stroke="#1f3a14" stroke-width="2.4"/><ellipse cx="24" cy="34" rx="8" ry="10" fill="#a8692c" stroke="#3a200a" stroke-width="2.4"/><path d="M21 30C22 34 21 38 20 40" fill="none" stroke="#e6b97a" stroke-width="2" stroke-linecap="round"/></svg>');
+  function nb(q){var f=reg_().formatGrandNombreIdleV70_;try{return typeof f==='function'?String(f(q)):String(q);}catch(_e){return String(q);}}
+
   /* ---------- le contenu des étages ---------- */
   function artPotion(p,q){
     return '<div class="vl-art vl-potion" data-vl-art="'+esc(p.id)+'" title="'+esc(p.nom)+'">'+
@@ -184,8 +189,8 @@
   }
   function artReserve(o,n){
     return '<div class="vl-art vl-reserve" title="'+esc(o.nom)+'">'+
-      '<span class="vl-pastille">× '+esc(String(n))+'</span>'+
-      '<img src="/shop/'+o.img+'.png" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">'+
+      '<span class="vl-pastille">× '+esc(nb(n))+'</span>'+
+      '<img src="'+(o.icone==='graine'?GRAINE:'/shop/'+o.img+'.png')+'" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">'+
       '<span class="vl-etiq">'+esc(o.nom)+'</span>'+
     '</div>';
   }
@@ -200,8 +205,19 @@
     '</div><div class="vl-lg-bout">'+BOUT+'</div></div>';
   }
 
-  function html(){
-    var c=donnees(),o=ouverte(),n=0;
+  /* Phrases de la valise, affichées quand elle est ouverte (comme « Il mange les objets… » du Coffre) : toujours en français, ton rustre. Une nouvelle à chaque ouverture. */
+  var PHRASES=[
+    ['Elle ne mange pas : elle livre.','Ouvre grand : la langue te sert potions, graines et autres cochonneries. Pourboire non accepté.'],
+    ['Livraison à domicile, par la bouche.','Les fioles sont fraîches, la salive aussi.'],
+    ['Service d’étage !','Une langue, un plateau, zéro hygiène. Ne lèche pas la marchandise.'],
+    ['Elle a la langue bien pendue.','Tout ce que tu possèdes est posé dessus. Ne la chatouille pas, elle rit en lançant des fioles.'],
+    ['Le dépôt-vente le plus gluant du royaume.','Prends ce qu’il te faut ; ce qui est tombé par terre est à elle.']
+  ];
+  var phrase=Math.floor(Math.random()*PHRASES.length);
+  function phraseHtml(){var p=PHRASES[phrase%PHRASES.length];return '<div class="vl-phrase" data-sans-traduction><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
+
+  function contenu(){
+    var c=donnees(),n=0;
     var potions=[],actifs=[],reserves=[];
     POTIONS.forEach(function(p){var q=Math.floor(Number(c.potions&&c.potions[p.id])||0);if(q>0){n+=q;potions.push(artPotion(p,q));}});
     EFFETS.forEach(function(e){
@@ -209,16 +225,41 @@
       if(r>0||b){n+=1;actifs.push(artActif(e,r,b));}
     });
     RESERVES.forEach(function(e){var q=Math.floor(Number(c.reserve&&c.reserve[e.id])||0);if(q>0){n+=1;reserves.push(artReserve(e,q));}});
+    /* signature : change quand un objet arrive ou part (les temps ne comptent qu'à la minute près) */
+    var sig=JSON.stringify([c.potions||{},Object.keys(c.restant||{}).map(function(k){return k+':'+Math.floor((c.restant[k]||0)/60);}),c.beta||{},c.reserve||{}]);
+    return {n:n,sig:sig,langue:langue(potions,actifs,reserves,n)};
+  }
+
+  function html(){
+    var o=ouverte(),k=contenu();
     style_();
-    return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" data-vl data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
+    return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
       '<div class="vl-titre" role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" data-vl-bascule>'+
-        '<i class="vl-boucle" aria-hidden="true"></i><span class="vl-nom">Valise des consommables'+(n?' ('+n+')':'')+'</span><span class="vl-chevron">'+(o?'▲':'▼')+'</span>'+
+        '<i class="vl-boucle" aria-hidden="true"></i><span class="vl-nom">Valise des consommables'+(k.n?' ('+k.n+')':'')+'</span><span class="vl-chevron">'+(o?'▲':'▼')+'</span>'+
       '</div>'+
+      phraseHtml()+
       '<div class="vl-creature" data-vl-bascule><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
       '<div class="vl-deplie"><div class="vl-deplie-in">'+
-        langue(potions,actifs,reserves,n)+
-      '</div>'+(n?'<i class="vl-rouleau" aria-hidden="true">'+ROULEAU+'</i>':'')+'</div>'+
+        k.langue+
+      '</div>'+(k.n?'<i class="vl-rouleau" aria-hidden="true">'+ROULEAU+'</i>':'')+'</div>'+
     '</div>';
+  }
+
+  /* Contenu en direct : si un objet arrive (roue, set, achat…) ou part pendant que la valise est affichée, ses étages sont refaits sur place (sans redessiner la page, sans toucher à l'animation en cours). */
+  function rafraichirContenu(){
+    if(animId)return;
+    var k=null;
+    sections().forEach(function(s){
+      if(s.getAttribute('data-vl-sig')===(k=k||contenu()).sig)return;
+      var dedans=s.querySelector('.vl-deplie-in');
+      if(!dedans)return;
+      dedans.innerHTML=k.langue;
+      var nom=s.querySelector('.vl-nom');if(nom)nom.textContent='Valise des consommables'+(k.n?' ('+k.n+')':'');
+      var dep=s.querySelector('.vl-deplie'),rou=s.querySelector('.vl-rouleau');
+      if(k.n&&!rou&&dep){var i=document.createElement('i');i.className='vl-rouleau';i.setAttribute('aria-hidden','true');i.innerHTML=ROULEAU;dep.appendChild(i);}
+      if(!k.n&&rou)rou.remove();
+      s.setAttribute('data-vl-sig',k.sig);
+    });
   }
 
   /* ---------- le style : cuir, fer, laiton, parchemin ---------- */
@@ -347,6 +388,26 @@ ${P} .vl-bulles::after{animation-delay:-1.3s;left:5px}
 @keyframes vlBulle{0%{opacity:0;transform:translateY(22px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
 ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
 @keyframes vlGlou{0%{transform:scale(1)}40%{transform:scale(1.35) rotate(-14deg)}100%{transform:scale(.2) rotate(30deg);opacity:0}}
+/* La phrase de la valise, quand elle est ouverte (comme « Il mange les objets… » du Coffre) */
+${P} .vl-phrase{max-height:0;overflow:hidden;opacity:0;margin:0 auto;text-align:center;transition:max-height .5s ease,opacity .4s ease .1s,margin .4s}
+${P}.vl-ouverte .vl-phrase{max-height:160px;opacity:1;margin:8px auto 0}
+${P} .vl-phrase b{display:block;margin-bottom:4px;font:400 clamp(20px,2.6vw,26px)/1.1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.04em;color:#ffe3a0;text-shadow:0 2px 0 #000}
+${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans-serif;color:#e9d9b0}
+/* Sur ordinateur (Norman, 2026-10-23) : la valise est dans le MÊME cadre que le Coffre, à droite de « Il mange les objets… » ; plus de cadre de cuir propre */
+@media (min-width:761px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:grid;grid-template-columns:minmax(0,1fr) 350px;column-gap:12px;align-items:start}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.soreal-idle-coffre-titre-v1{grid-column:1/-1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{grid-column:1;grid-row:2}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{grid-column:2;grid-row:2}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){grid-column:1/-1}
+  ${P}{margin:6px 0 0;padding:0 0 6px;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible}
+  ${P}::before,${P} .vl-boucle{display:none}
+  ${P} .vl-titre{margin:0;padding:4px 30px;border:0;border-radius:0;background:none;box-shadow:none;text-shadow:0 2px 0 #000}
+  ${P} .vl-nom{font-size:21px}
+  ${P} .vl-chevron{right:2px}
+  ${P} .vl-art{width:70px}
+  ${P} .vl-lg-corps{padding:6px 14px 4px}
+}
 @media (max-width:640px){
   ${P}{margin:10px 8px 4px;padding:0 14px 12px}
   ${P} .vl-bete{width:min(230px,78%)}
@@ -446,6 +507,7 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
       var t=s.querySelector('.vl-titre');if(t)t.setAttribute('aria-expanded',o?'true':'false');
       var ch=s.querySelector('.vl-chevron');if(ch)ch.textContent=o?'▲':'▼';
     });
+    if(o){phrase=(phrase+1+Math.floor(Math.random()*(PHRASES.length-1)))%PHRASES.length;sections().forEach(function(s){var ph=s.querySelector('.vl-phrase');if(ph)ph.outerHTML=phraseHtml();});}
     if(o&&dort)reveiller(false);
     anime(o?1:0);
     son(o?'valiseOuvre':'valiseFerme');
@@ -462,6 +524,7 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
       var l=sections();
       if(!l.length)return;
       appliquer();
+      rafraichirContenu();
       if(document.hidden||!l.some(enVue))return;
       if(dort){
         visibleDormi+=PAS;visibleRonfle+=PAS;
