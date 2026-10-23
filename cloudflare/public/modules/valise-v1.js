@@ -235,7 +235,7 @@
     style_();
     return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
       '<div class="vl-titre" role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" data-vl-bascule>'+
-        '<i class="vl-boucle" aria-hidden="true"></i><span class="vl-nom">Valise des consommables'+(k.n?' ('+k.n+')':'')+'</span><span class="vl-chevron">'+(o?'▲':'▼')+'</span>'+
+        '<span class="vl-nom">Valise des consommables'+(k.n?' ('+k.n+')':'')+'</span><span class="vl-chevron">'+(o?'▲':'▼')+'</span>'+
       '</div>'+
       phraseHtml()+
       '<div class="vl-creature" data-vl-bascule><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
@@ -273,24 +273,11 @@
   }
   var P='html body.soreal-idle-active-v47.soreal-idle-active-v47 .vl-section';
   var CSS=`
-${P}{container-type:inline-size;position:relative;margin:12px 14px 6px;padding:0 18px 14px;border:5px solid #1f1006;border-radius:22px 22px 12px 12px;overflow:hidden;color:#f5e6c4;
-  background:
-    radial-gradient(circle at 8px 22px,#ffe9a8 0 2px,#8a5a08 3px,transparent 4px) left top/16px 44px repeat-y,
-    radial-gradient(circle at 8px 22px,#ffe9a8 0 2px,#8a5a08 3px,transparent 4px) right top/16px 44px repeat-y,
-    linear-gradient(90deg,#26262c,#8d8d98 45%,#2b2b32) left top/16px 100% no-repeat,
-    linear-gradient(90deg,#2b2b32,#8d8d98 55%,#26262c) right top/16px 100% no-repeat,
-    radial-gradient(rgba(0,0,0,.2) 1px,transparent 1.6px) 0 0/7px 7px,
-    radial-gradient(rgba(255,226,170,.09) 1px,transparent 1.6px) 3px 4px/11px 11px,
-    linear-gradient(180deg,#7d4b26,#5e371b 55%,#43250f);
-  box-shadow:0 12px 28px rgba(0,0,0,.6),inset 0 0 0 3px #b98a3c,inset 0 0 0 6px #2a1608,inset 0 0 38px rgba(0,0,0,.55)}
-${P}::before{content:"";position:absolute;inset:9px 20px 9px 20px;border:2px dashed rgba(240,215,154,.5);border-radius:14px;pointer-events:none}
-${P} .vl-titre{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;margin:10px -18px 0;padding:11px 46px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
-  border-top:3px solid #1f1006;border-bottom:4px solid #1c1208;color:#ffe3a0;text-shadow:0 2px 0 #000,0 0 12px rgba(255,190,90,.55);letter-spacing:.07em;text-transform:uppercase;
-  background:linear-gradient(180deg,#5d351a,#3d2110 58%,#281408);box-shadow:0 5px 10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,160,.25)}
+/* Pas de cadre propre à la valise (Norman, 2026-10-23) : elle vit dans le cadre du Coffre, sur PC comme sur téléphone */
+${P}{container-type:inline-size;position:relative;margin:10px 0 0;padding:0 0 8px;color:#f5e6c4}
+${P} .vl-titre{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;margin:0;padding:4px 34px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;color:#ffe3a0;text-shadow:0 2px 0 #000,0 0 12px rgba(255,190,90,.5);letter-spacing:.07em;text-transform:uppercase}
 ${P} .vl-nom{font:400 clamp(20px,3.2vw,26px)/1.1 Bangers,"Russo One",Impact,sans-serif}
-${P} .vl-chevron{position:absolute;right:16px;font:400 18px "Russo One",system-ui,sans-serif;color:#ffd27a}
-${P} .vl-boucle{position:absolute;left:14px;top:50%;width:30px;height:22px;margin-top:-11px;border:4px solid #d79a1f;border-radius:5px;background:linear-gradient(180deg,#2a1608,#1a0d05);box-shadow:inset 0 0 0 2px #7a4c06,0 2px 0 #000}
-${P} .vl-boucle::after{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:5px;margin-left:-2.5px;background:linear-gradient(90deg,#7a4c06,#ffe58a,#7a4c06);border-radius:2px}
+${P} .vl-chevron{position:absolute;right:6px;font:400 18px "Russo One",system-ui,sans-serif;color:#ffd27a}
 ${P} .vl-creature{position:relative;display:flex;justify-content:center;padding:14px 0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 ${P} .vl-bete{position:relative;width:min(250px,64%)}
 ${P} .vl-bete svg{display:block;width:100%;height:auto;overflow:visible}
@@ -400,23 +387,23 @@ ${P} .vl-phrase span{display:block;font:400 14px/1.35 "Russo One",system-ui,sans
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{grid-column:1;grid-row:2}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{grid-column:2;grid-row:2}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){grid-column:1/-1}
-  ${P}{margin:6px 0 0;padding:0 0 6px;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible}
-  ${P}::before,${P} .vl-boucle{display:none}
-  ${P} .vl-titre{margin:0;padding:4px 30px;border:0;border-radius:0;background:none;box-shadow:none;text-shadow:0 2px 0 #000}
-  ${P} .vl-nom{font-size:21px}
-  ${P} .vl-chevron{right:2px}
+  ${P}{margin:6px 0 0}
   ${P} .vl-art{width:70px}
   ${P} .vl-lg-corps{padding:6px 14px 4px}
 }
+@media (max-width:760px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:flex;flex-direction:column}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{order:1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{order:2;margin-top:8px;padding-top:12px;border-top:2px dashed rgba(216,169,63,.4)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){order:3}
+}
 @media (max-width:640px){
-  ${P}{margin:10px 8px 4px;padding:0 14px 12px}
+  ${P}{margin:0}
   ${P} .vl-bete{width:min(230px,78%)}
   ${P} .vl-deplie{--vl-m:calc(min(230px,78cqw)*.444)}
   ${P} .vl-langue,${P} .vl-rouleau{width:min(193px,66cqw)}
   ${P} .vl-rouleau{margin-left:calc(min(193px,66cqw)/-2)}
-  ${P} .vl-titre{padding:10px 36px 10px 56px}
-  ${P} .vl-nom{font-size:19px;text-align:center}
-  ${P} .vl-chevron{right:10px}
+  ${P} .vl-nom{font-size:21px;text-align:center}
 }
 @media (prefers-reduced-motion:reduce){
   ${P} *{animation:none;transition:none}
