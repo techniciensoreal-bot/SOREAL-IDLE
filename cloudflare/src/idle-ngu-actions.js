@@ -12,7 +12,7 @@ import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v
 import { idleTheEndCompleteV1, IDLE_THE_END_TEXT_V1 } from "./idle-the-end-v1.js";
 import { idleQuestingOnZoneKillV1, applyIdleQuestingActionV1 } from "./idle-questing-v1.js";
 import { idleHeartV1, idleHeartsBuyV1 } from "./idle-hearts-v1.js";
-import { idleSelloutShopBuyV1, idleSelloutShopNextCostV1, idleSelloutShopItemV1 } from "./idle-sellout-shop-v1.js";
+import { idleSelloutShopBuyV1, idleSelloutShopNextCostV1, idleSelloutShopItemV1, idleSelloutUsePotionV1 } from "./idle-sellout-shop-v1.js";
 import { idleWandoosConsumeCopyV1 } from "./idle-wandoos-os-v1.js";
 import { idleYggConsumeGiantSeedV1, idleYggAutoActivateExpShopEntriesV1, idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggAutoActivateV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleLoginCalendarReclamerV1 } from "./idle-login-calendar-v1.js";
@@ -334,6 +334,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     } else {
       result = idleSelloutShopBuyV1(state, payload.itemId);
     }
+  } else if (action === "usePotion") {
+    /* Une potion de la valise (haut du Coffre) : elle s'active maintenant. */
+    result = idleSelloutUsePotionV1(state, String(payload.itemId || ""));
   } else if (action === "consumeWandoosCopy") {
     /* Copie "A busted copy of Wandoos 98/XL" : +1 niveau d'OS ou déblocage de Wandoos XL (idle-wandoos-os-v1.js). */
     result = idleWandoosConsumeCopyV1(state, String(payload.itemId || payload.id || ""));

@@ -87,7 +87,12 @@ function consommablesSnapshotV1(state) {
     const v = Math.floor(num(fx[k], 0));
     if (v > 0) reserve[k] = v;
   }
-  return { restant, beta, reserve };
+  const potions = {};
+  for (const [k, v] of Object.entries(fx.stock && typeof fx.stock === "object" ? fx.stock : {})) {
+    const n = Math.floor(num(v, 0));
+    if (n > 0) potions[k] = n;
+  }
+  return { restant, beta, reserve, potions };
 }
 
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {

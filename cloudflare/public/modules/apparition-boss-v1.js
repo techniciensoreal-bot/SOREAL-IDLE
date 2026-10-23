@@ -189,12 +189,19 @@
   function reduit_(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 
   /* Joue l'apparition du boss actuellement affiché dans l'hôte. Le calque est posé tout de suite ; l'effet démarre dès que l'image est chargée (2 s au plus, sinon on révèle simplement). */
+  /*
+   * Écrans noirs à la place du boss suivant (Norman, 2026-10-23, « parfois ») : le calque sombre posé par couvrir() n'était retiré que par jouer(), or jouer() sortait sans rien retirer quand « réduire les animations » est actif (réglage fréquent sur Android),
+   * quand l'image manquait, ou quand l'image mettait plus de 2 s à arriver (le boss était alors « révélé » alors qu'il n'était pas encore chargé). Désormais : toute sortie sans effet retire le calque, l'attente de l'image dure jusqu'à 10 s sous le calque (l'effet se joue à son arrivée),
+   * et un calque posé par couvrir() disparaît de toute façon au bout de 12 s.
+   */
+  function liberer_(hote){try{[].slice.call((hote&&hote.querySelectorAll?hote:document).querySelectorAll('.app-boss')).forEach(function(e){if(e.parentNode)e.parentNode.removeChild(e);});}catch(_e){}}
   function jouer(hote){
     try{
-      if(!hote||reduit_())return false;
+      if(!hote){return false;}
+      if(reduit_()){liberer_(hote);return false;}
       var img=hote.querySelector&&hote.querySelector('img');
-      if(!img)return false;
-      var n=idDe(img);if(!n)return false;
+      if(!img){liberer_(hote);return false;}
+      var n=idDe(img);if(!n){liberer_(hote);return false;}
       dernierId=n;
       style_();
       nettoyerMort_(img);
@@ -233,7 +240,7 @@
         (function attendre(){
           if(fini)return;
           if(img.complete&&img.naturalWidth>0){demarrer();return;}
-          if(++essais>40){terminer();return;}
+          if(++essais>200){terminer();return;}
           setTimeout(attendre,50);
         })();
       }
@@ -244,12 +251,16 @@
   /* Calque sombre posé tout de suite sur le boss suivant, sans effet : l'écran de victoire le retire quand il démarre (annuler) et le jeu joue l'effet à la fin ; si rien ne vient en 3 s, l'effet se joue. */
   function couvrir(hote,n){
     try{
-      dernierId=n;style_();
+      dernierId=n;
+      if(reduit_())return;   /* sans animations : rien à cacher, rien à retirer ensuite */
+      style_();
       var anc=hote.querySelector('.app-boss');if(anc)anc.remove();
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 app-boss';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       hote.appendChild(calque);
+      /* Filet : jamais un calque noir plus de 12 s, quoi qu'il arrive à l'écran de victoire. */
+      setTimeout(function(){if(calque.isConnected&&!enCours){calque.remove();}},12000);
       setTimeout(function(){
         if(calque.isConnected&&!window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){calque.remove();jouer(hote);}
       },3000);

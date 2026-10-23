@@ -138,3 +138,11 @@ assert.ok(/__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=\s*true/.test(victoire) && /__SO
 assert.ok(/__SOREAL_IDLE_APPARITION_BOSS_V1__/.test(victoire) && /\.annuler\(/.test(victoire) && /\.jouer\(/.test(victoire), "annule une apparition en cours, rejoue à la fin");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes('<script defer src="/modules/apparition-boss-v1.js?v='), "module chargé");
 console.log("idle-apparition-boss-v1: OK");
+
+// Jamais d'écran noir à la place du boss suivant (Norman, 2026-10-23) : toute sortie sans effet retire le calque sombre, l'attente de l'image va jusqu'à 10 s, filet de 12 s.
+{
+  const src = readFileSync(new URL("../public/modules/apparition-boss-v1.js", import.meta.url), "utf8");
+  assert.ok(src.includes("if(reduit_()){liberer_(hote);return false;}") && src.includes("if(!img){liberer_(hote);return false;}") && src.includes("if(!n){liberer_(hote);return false;}"), "sorties sans effet : calque retiré");
+  assert.ok(src.includes("if(++essais>200){terminer();return;}") && src.includes("},12000);"), "attente de l'image 10 s, filet de 12 s");
+  assert.ok(src.includes("if(reduit_())return;   /* sans animations"), "couvrir() ne pose rien sans animations");
+}

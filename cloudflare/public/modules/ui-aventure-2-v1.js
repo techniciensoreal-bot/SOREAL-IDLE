@@ -2281,6 +2281,24 @@
         {id:'bluePills',genre:'reserve',nom:'Pilules bleues',img:'little-blue-pill'},
         {id:'blackPens',genre:'reserve',nom:'Stylos noirs',img:'regular-black-pens'}
       ];
+      const VALISE_POTIONS_IDLE_V1=[
+        {id:'energyPotionAlpha',nom:'Potion d’énergie α',img:'energy-potion-alpha'},
+        {id:'energyPotionBeta',nom:'Potion d’énergie β',img:'energy-potion-beta'},
+        {id:'energyPotionDelta',nom:'Potion d’énergie δ',img:'energy-potion-delta'},
+        {id:'magicPotionAlpha',nom:'Potion de magie α',img:'magic-potion-alpha'},
+        {id:'magicPotionBeta',nom:'Potion de magie β',img:'magic-potion-beta'},
+        {id:'magicPotionDelta',nom:'Potion de magie δ',img:'magic-potion-delta'},
+        {id:'resource3PotionAlpha',nom:'Potion de Ressource 3 α',img:'resource-3-potion-alpha'},
+        {id:'resource3PotionBeta',nom:'Potion de Ressource 3 β',img:'resource-3-potion-beta'},
+        {id:'resource3PotionDelta',nom:'Potion de Ressource 3 δ',img:'resource-3-potion-delta'}
+      ];
+      /* « Utiliser » : la potion sort de la valise et s'active (action moteur usePotion). */
+      document.addEventListener('click',function(ev){
+        const b=ev.target&&ev.target.closest?ev.target.closest('[data-vc-potion]'):null;
+        if(!b)return;
+        ev.preventDefault();
+        if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__({action:'usePotion',itemId:b.getAttribute('data-vc-potion')});
+      });
       function dureeValiseIdleV1_(s){
         const n=Math.max(0,Math.floor(Number(s)||0));
         if(n>=86400)return Math.floor(n/3600)+' h';
@@ -2292,6 +2310,12 @@
         const c=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.consommables;
         if(!c)return '';
         const cases=[];
+        /* Potions en réserve (Norman, 2026-10-23 : « stockées dans la valise ») : un compartiment par sorte, avec son bouton « Utiliser ». */
+        VALISE_POTIONS_IDLE_V1.forEach(function(p){
+          const n=Number(c.potions&&c.potions[p.id])||0;
+          if(n<=0)return;
+          cases.push('<div class="vc-case-v1 vc-potion-v1" title="'+idleHtml_(p.nom)+'"><img src="/shop/'+p.img+'.png" alt="" width="40" height="40" loading="lazy" decoding="async" onerror="this.remove()"><span class="vc-nom-v1">'+idleHtml_(p.nom)+'</span><span class="vc-detail-v1"><b>× '+idleHtml_(String(n))+'</b></span><button type="button" class="vc-util-v1" data-vc-potion="'+idleHtml_(p.id)+'">Utiliser</button></div>');
+        });
         VALISE_OBJETS_IDLE_V1.forEach(function(o){
           const restant=o.genre==='restant'?Number(c.restant&&c.restant[o.id])||0:0;
           const beta=Boolean(o.beta&&c.beta&&c.beta[o.id]);

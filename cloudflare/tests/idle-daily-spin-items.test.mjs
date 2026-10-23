@@ -19,7 +19,10 @@ function spin(totalSpins, random) {
   assert.equal(r.result.tier, 1);
   assert.deepEqual(r.result.reward.items, { magicPotionAlpha: 1 });
   const avant = idleNguBonuses(normalizeIdleNguState({}, ctx, 1_000_000)).magicPowerMultiplier;
-  assert.ok(Math.abs(idleNguBonuses(r.state).magicPowerMultiplier / avant - 2) < 1e-9, "la potion s'active immédiatement");
+  assert.ok(Math.abs(idleNguBonuses(r.state).magicPowerMultiplier / avant - 1) < 1e-9, "la potion est rangée dans la valise, pas encore active");
+  assert.equal(r.state.selloutEffects.stock.magicPotionAlpha, 1);
+  const utilisee = applyIdleNguAction(r.state, { action: "usePotion", itemId: "magicPotionAlpha" }, ctx, 10_000_000).state;
+  assert.ok(Math.abs(idleNguBonuses(utilisee).magicPowerMultiplier / avant - 2) < 1e-9, "utilisée : elle s'active");
 }
 {
   // palier 3 (30 spins) : jackpot entre 99,0 et 99,5 % (avant le 50 000 AP à 0,5 %)

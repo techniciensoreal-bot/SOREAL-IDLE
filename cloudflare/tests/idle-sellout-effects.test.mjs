@@ -3,6 +3,8 @@ import { normalizeIdleNguState, advanceIdleNguState, applyIdleNguAction, idleNgu
 
 /* 2026-09-23 : effets réels des objets de la boutique Sellout (potions, charmes, pilules, slots, Faster Wishes). */
 const ctx = { bosses: 100 };
+/* Les potions sont rangées dans la valise (2026-10-23) : elles ne s'activent qu'à l'utilisation. */
+const utiliser = (s, id) => applyIdleNguAction(s, { action: "usePotion", itemId: id }, ctx, 2_000_000).state;
 const acheter = (s, id) => applyIdleNguAction(s, { action: "sellShopBuy", itemId: id }, ctx, 2_000_000);
 
 function fresh(ap = 5_000_000) {
@@ -16,8 +18,13 @@ function fresh(ap = 5_000_000) {
   let s = fresh();
   const avant = idleNguBonuses(s).energyPowerMultiplier;
   s = acheter(s, "energyPotionAlpha").state;
+  assert.equal(s.selloutEffects.stock.energyPotionAlpha, 1, "achetée : rangée dans la valise");
+  assert.ok(Math.abs(idleNguBonuses(s).energyPowerMultiplier / avant - 1) < 1e-9, "pas encore active");
+  s = utiliser(s, "energyPotionAlpha");
+  assert.equal(s.selloutEffects.stock.energyPotionAlpha, undefined, "utilisée : sortie de la valise");
+  assert.throws(() => utiliser(s, "energyPotionAlpha"), /POTION_ABSENTE/);
   assert.ok(Math.abs(idleNguBonuses(s).energyPowerMultiplier / avant - 2) < 1e-9, "Energy Potion α : x2");
-  s = acheter(s, "energyPotionBeta").state;
+  s = utiliser(acheter(s, "energyPotionBeta").state, "energyPotionBeta");
   assert.ok(Math.abs(idleNguBonuses(s).energyPowerMultiplier / avant - 4) < 1e-9, "α et β se cumulent : x4");
   // le timer est décompté par le moteur (3600 s)
   const apres = advanceIdleNguState(s, 3601, ctx, 2_000_000 + 3_601_000);
@@ -28,7 +35,7 @@ function fresh(ap = 5_000_000) {
 {
   let s = fresh();
   const avant = idleNguBonuses(s).r3PowerMultiplier;
-  s = acheter(s, "resource3PotionAlpha").state;
+  s = utiliser(acheter(s, "resource3PotionAlpha").state, "resource3PotionAlpha");
   assert.ok(Math.abs(idleNguBonuses(s).r3PowerMultiplier / avant - 3) < 1e-9, "Resource 3 Potion α : x3");
 }
 {

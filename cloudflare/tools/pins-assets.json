@@ -28,8 +28,8 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 6,
-  "sha": "edcd0343db1be6a0b7d72f2912e6b6da7426616e"
+  "pin": 7,
+  "sha": "5640fa4559be921c255df55cafcb782e72119b96"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 2,
@@ -284,8 +284,8 @@
   "sha": "888da122d736b9a9f54b94a0ffed62a7f738229b"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 54,
-  "sha": "5e6c67005434e6be7b9216272b31b90e68842fb3"
+  "pin": 55,
+  "sha": "83ce6ca480475af71bfbb4655ae66f3060f9841f"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -348,8 +348,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 396,
-  "sha": "528b633834c2bae2dfcd1d55484e7985f0289c67"
+  "pin": 397,
+  "sha": "33ff07d82b1d79a702771b09a1ec519cf87560ff"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 418,
-  "sha": "1b64abb1c9f9185f6d8b09f05952b7bac2050dc8"
+  "pin": 419,
+  "sha": "b9388844cda73fc8b25b7def0c03198a17fd5cf2"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 212,
-  "sha": "17cb5986c2ee6f556a1af5ed43fbbd69351d8067"
+  "pin": 213,
+  "sha": "00d9156a447142dc848679e596db4b9bdc2f307d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 12,
-  "sha": "432dc8bd6de5e92c098e93358b6ddb9904aa1759"
+  "pin": 13,
+  "sha": "18b235e24f4f7ea86604d955bb9c9ca98c727f4e"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -576,8 +576,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 211,
-  "sha": "a477bf238ec1110ce1a83bead1a62efb55ec22c6"
+  "pin": 212,
+  "sha": "a8e2861f8f83b2efed61bc20d0e2398ead6347bb"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

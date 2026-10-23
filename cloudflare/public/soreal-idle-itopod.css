@@ -1728,3 +1728,5 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
 .vc-detail-v1{display:flex;flex-direction:column;align-items:center;gap:1px;font:400 13px/1.2 "Russo One",system-ui,sans-serif;color:#ffd24a}
 .vc-detail-v1 b{font-weight:400;color:#fff}
 .vc-detail-v1 em{font-style:normal;font-size:11.5px;color:#9be8b0}
+.vc-util-v1{margin-top:4px;padding:4px 10px;border-radius:8px;border:2px solid #000;background:linear-gradient(180deg,#34c46a,#1f8f4c);color:#fff;font:400 13px "Russo One",system-ui,sans-serif;cursor:pointer}
+.vc-util-v1:active{transform:translateY(1px)}

@@ -17,6 +17,11 @@ const completer = (s, setId) => {
   assert.equal(s.adventure.completedSets[setId], true, `${setId} complété`);
   return s;
 };
+/* Les potions des sets sont rangées dans la valise : on les utilise pour vérifier leur effet (2026-10-23). */
+const toutUtiliser = (s) => {
+  for (const [id, n] of Object.entries({ ...s.selloutEffects.stock })) for (let i = 0; i < n; i++) s = applyIdleNguAction(s, { action: "usePotion", itemId: id }, {}, 1).state;
+  return s;
+};
 const neuf = () => {
   const s = normalizeIdleNguState({}, {}, 0);
   s.adventure.bonusSlots = { inventory: 100 };
@@ -28,6 +33,8 @@ const neuf = () => {
   let s = neuf();
   const avant = idleNguBonuses(s);
   s = completer(s, "forest");
+  assert.equal(s.selloutEffects.stock.energyPotionAlpha, 2, "Forest : 2 potions α en réserve");
+  s = toutUtiliser(s);
   const fx = s.selloutEffects;
   assert.equal(fx.remaining.energyPower, 2 * 3600, "2 Energy potions α = 2 x 60 min");
   assert.equal(fx.beta.energyPower, true, "Energy potion β active");
@@ -43,7 +50,7 @@ const neuf = () => {
 
 // ---------- HSB ----------
 {
-  let s = completer(neuf(), "hsb");
+  let s = toutUtiliser(completer(neuf(), "hsb"));
   assert.equal(s.selloutEffects.remaining.magicPower, 3600, "1 Magic potion α");
   assert.equal(s.selloutEffects.beta.magicPower, true, "1 Magic potion β");
   assert.equal(s.selloutEffects.remaining.magicBars, 3600, "1 Magic bar bar");
@@ -62,7 +69,7 @@ const neuf = () => {
 {
   let s = neuf();
   const avant = idleNguBonuses(s).r3PowerMultiplier;
-  s = ajouter(s, "incriminatingEvidence");
+  s = toutUtiliser(ajouter(s, "incriminatingEvidence"));
   assert.equal(s.adventure.completedSets.incriminatingEvidence, true);
   assert.equal(s.selloutEffects.remaining.r3Power, 3600 + 86400, "α (60 min) + δ (1 jour) sur le même minuteur");
   assert.equal(s.selloutEffects.beta.r3Power, true, "β active");
@@ -76,9 +83,9 @@ const neuf = () => {
   delete brut.adventure.setConsumablesGrantedV1;
   brut.selloutEffects = { remaining: {}, beta: {}, bluePills: 0 };
   const recharge = normalizeIdleNguState(brut, {}, 2);
-  assert.equal(recharge.selloutEffects.remaining.energyPower, 2 * 3600, "rattrapage à la normalisation");
+  assert.equal(recharge.selloutEffects.stock.energyPotionAlpha, 2, "rattrapage à la normalisation (potions rangées dans la valise)");
   const encore = normalizeIdleNguState(recharge, {}, 3);
-  assert.equal(encore.selloutEffects.remaining.energyPower, 2 * 3600, "pas de second rattrapage");
+  assert.equal(encore.selloutEffects.stock.energyPotionAlpha, 2, "pas de second rattrapage");
 }
 
 console.log("idle-set-bonus-consumables: OK");

@@ -14,3 +14,14 @@ assert.ok(ui.includes("if(restant<=0&&!beta&&stock<=0)return;") && ui.includes("
 assert.ok(!/\d+\s*\/\s*\d+/.test(ui.slice(ui.indexOf("const VALISE_OBJETS_IDLE_V1"), ui.indexOf("function rendreCadreCoffreAdventureIdleV1_"))), "aucun total « x / y »");
 assert.ok(lire("public/soreal-idle-itopod.css").includes(".vc-valise-v1{"), "style de la valise");
 console.log("idle-valise-consommables-v1: OK");
+
+// Potions rangées dans la valise, utilisées à la demande (Norman, 2026-10-23 : « stockées dans la valise, peu importe comment fonctionne le vrai NGU »).
+{
+  const shop = lire("src/idle-sellout-shop-v1.js");
+  assert.ok(shop.includes("export const IDLE_POTIONS_STOCK_V1") && shop.includes("state.selloutEffects.stock[itemId] = I(state.selloutEffects.stock[itemId], 0)"), "acheter / gagner une potion la range");
+  assert.ok(shop.includes("export function idleSelloutUsePotionV1") && shop.includes("POTION_ABSENTE"), "utiliser une potion l'active et la sort de la valise");
+  assert.ok(lire("src/idle-ngu-actions.js").includes("action === \"usePotion\""), "action moteur usePotion");
+  assert.ok(snap.includes("return { restant, beta, reserve, potions }"), "le moteur envoie les potions en réserve");
+  assert.ok(ui.includes("const VALISE_POTIONS_IDLE_V1=[") && ui.includes("data-vc-potion=") && ui.includes("action:'usePotion'"), "compartiments de potions avec bouton Utiliser");
+}
+console.log("idle-valise-consommables-v1 (potions): OK");

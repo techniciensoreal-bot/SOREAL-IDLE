@@ -281,6 +281,16 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
   heartRainbow: { adventureItem: "heartRainbow" }
 });
 
+/*
+ * Potions en réserve (Norman, 2026-10-23 : « je veux qu'elles soient stockées dans la valise, dans le coffre ; peu importe comment fonctionne le vrai NGU, ça ne change pas l'équilibrage »). Acheter, gagner à la roue ou en récompense de set une potion
+ * la RANGE dans la valise (state.selloutEffects.stock) ; elle ne s'active que quand le joueur l'utilise (action usePotion), avec exactement le même effet qu'avant.
+ */
+export const IDLE_POTIONS_STOCK_V1 = Object.freeze([
+  "energyPotionAlpha", "energyPotionBeta", "energyPotionDelta",
+  "magicPotionAlpha", "magicPotionBeta", "magicPotionDelta",
+  "resource3PotionAlpha", "resource3PotionBeta", "resource3PotionDelta"
+]);
+
 export function createSelloutEffectsV1(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
   const remaining = {};
@@ -291,10 +301,16 @@ export function createSelloutEffectsV1(raw) {
   for (const [k, v] of Object.entries(src.beta && typeof src.beta === "object" ? src.beta : {})) if (v) beta[k] = true;
   const armed = {};
   for (const [k, v] of Object.entries(src.armed && typeof src.armed === "object" ? src.armed : {})) if (v) armed[k] = true;
+  const stock = {};
+  for (const id of IDLE_POTIONS_STOCK_V1) {
+    const v = Math.max(0, I(src.stock && typeof src.stock === "object" ? src.stock[id] : 0, 0));
+    if (v > 0) stock[id] = v;
+  }
   return {
     remaining,
     beta,
     armed,
+    stock,
     bluePills: Math.max(0, I(src.bluePills, 0)),
     beastButters: Math.max(0, I(src.beastButters, 0)),
     /* Regular Black Pens restants : +2 tiers sur chacune des prochaines cartes (idle-cards-v1.js). */
@@ -321,8 +337,28 @@ export function idleSelloutPotionFactorV1(state, key) {
   return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 * k : 1) : timed * beta;
 }
 
-/* Applique l'effet d'un objet (achat ou récompense de la roue quotidienne) `times` fois. */
+/* Applique l'effet d'un objet (achat ou récompense de la roue quotidienne) `times` fois ; une potion est rangée dans la valise au lieu de s'activer. */
 export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
+  if (IDLE_POTIONS_STOCK_V1.includes(itemId)) {
+    state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
+    state.selloutEffects.stock[itemId] = I(state.selloutEffects.stock[itemId], 0) + Math.max(0, I(times, 1));
+    return;
+  }
+  appliquerEffetDirectV1(state, itemId, times);
+}
+
+/* Utilise une potion de la valise : une de moins en réserve, son effet s'active (durée, ou jusqu'au Rebirth). */
+export function idleSelloutUsePotionV1(state, itemId) {
+  if (!IDLE_POTIONS_STOCK_V1.includes(itemId)) throw new Error("POTION_INCONNUE");
+  state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
+  const n = I(state.selloutEffects.stock[itemId], 0);
+  if (n <= 0) throw new Error("POTION_ABSENTE");
+  if (n === 1) delete state.selloutEffects.stock[itemId]; else state.selloutEffects.stock[itemId] = n - 1;
+  appliquerEffetDirectV1(state, itemId, 1);
+  return { itemId, reste: n - 1 };
+}
+
+function appliquerEffetDirectV1(state, itemId, times = 1) {
   const effect = IDLE_SELLOUT_EFFECTS_V1[itemId];
   if (!effect || effect.passive) return;
   state.selloutEffects = createSelloutEffectsV1(state.selloutEffects);
