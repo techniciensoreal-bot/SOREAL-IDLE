@@ -388,8 +388,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 23,
-  "sha": "cd84918d06ffba1d90b90e05f9b59351ac98dfac"
+  "pin": 24,
+  "sha": "d6efe6e359ce45a0b128f7c6cd470cc61664b6d3"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -436,8 +436,8 @@
   "sha": "c64536a572e264e48d65455d62449ace2f4dd6b5"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 2,
-  "sha": "3b12ff469482e035118af573341f0b61514caa56"
+  "pin": 3,
+  "sha": "4df902208a651c6908f45c0f272dc3d9d8fe2338"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

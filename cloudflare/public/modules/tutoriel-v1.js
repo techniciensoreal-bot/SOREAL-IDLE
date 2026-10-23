@@ -154,8 +154,11 @@ function texteParle_(guide,i){
   try{
     var sur=T&&typeof T.surcharge==='function'?T.surcharge(cleVoix_(guide,i)):null;
     if(sur&&typeof sur.texte==='string'&&sur.texte.trim())brut=sur.texte;
+    /* Norman (2026-10-23) : « ma fenêtre de tuto lit avec la voix de secours alors que les voix sont disponibles dans l'éditeur ». Les voix générées dans l'éditeur sont celles du texte DIT (le cadre des personnages, champ « parle »), pas du texte affiché : la lecture doit prendre ce texte-là, sinon l'empreinte du bloc ne correspond à aucun fichier et la voix de secours prend le relais. */
+    var dit=T&&typeof T.parle==='function'?T.parle(cleVoix_(guide,i),'texte'):undefined;
+    if(typeof dit==='string'&&dit.trim())brut=dit;
   }catch(_e){}
-  return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut).replace(/\s+/g,' ').trim():brut;
+  return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut;   /* sans écraser les retours à la ligne : le même texte que l'éditeur, donc les mêmes empreintes */
 }
 function lireEtape_(s,force){
   var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;

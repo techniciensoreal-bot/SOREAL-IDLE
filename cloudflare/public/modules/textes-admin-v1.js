@@ -1654,6 +1654,8 @@ document.addEventListener('change',function(ev){
 
 window.__SOREAL_IDLE_TEXTES_V1__={
   surcharge:surcharge_,
+  /* Texte DIT d'un champ (le cadre des personnages de l'éditeur), tel qu'il a été enregistré avec la voix générée ; undefined si la voix suit le texte affiché. */
+  parle:parleDe_,
   appliquerPage:appliquerPage_,
   appliquerInfo:appliquerInfo_,
   sansBalises:sansBalises_,
