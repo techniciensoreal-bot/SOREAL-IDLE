@@ -23,7 +23,8 @@
     'Haut les mains !',
     'Z’avez le mandat ?',
     'C’était le chat, je le jure !',
-    'Ouvrez pas, c’est plein de dettes !'
+    'Ouvrez pas, c’est plein de dettes !',
+    'Ne me frappez pas, Maître !'
   ];
   /* Remarque spontanée (Norman, 2026-10-22) : de temps en temps, quand on le regarde, le Coffre (éveillé) lâche cette réplique. Le délai n'avance que le temps où il est vu, comme tout le reste du Coffre. */
   var REMARQUE='Pourquoi tu me regardes comme si j’allais chier sur tes affaires ?';

@@ -56,6 +56,7 @@
             'Dans la fenêtre d’un guide, la voix lit maintenant le texte enregistré dans l’éditeur et ne retombe plus sur la voix de secours.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand on réveille le Coffre en sursaut, il peut aussi s’écrier « Ne me frappez pas, Maître ! ».',
             'Le cadre du Coffre garde le fond du dernier ouvert, même refermé : velours pour la valise, tapis vert de billard pour le Coffre.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
