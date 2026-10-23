@@ -59,16 +59,18 @@ function monde(consommables, ouverte) {
 {
   // Style : cuir et cadre propres à la valise, étages qui se déplient en cascade, aucune règle forcée, mouvement réduit respecté.
   const css = monde({}, false).css;
-  assert.ok(css.includes("max-height:calc(var(--vl-h,0)*var(--vl-p,0)*1px)") && css.includes(".vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}") && css.includes(":not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}") && css.includes("vl-rouleau") && css.includes(".vl-anim .vl-rouleau") && css.includes("vl-gueule") && css.includes("repeat-y"), "langue qui se déroule de la bouche, rouleau au bout, corps qui se répète");
+  assert.ok(css.includes("max-height:calc(var(--vl-h,0)*var(--vl-p,0)*1px)") && css.includes(".vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}") && css.includes(":not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}") && css.includes("vl-rouleau") && css.includes(".vl-anim .vl-rouleau") && css.includes("repeat-y"), "langue qui se déroule de la bouche, rouleau au bout, corps qui se répète");
   assert.ok(css.includes("vlRespire") && css.includes("vlCligne") && css.includes("vlAnse") && css.includes("vl-dort"), "vivante : respire, cligne, remue l'anse, dort");
   assert.ok(css.includes("prefers-reduced-motion"), "mouvement réduit");
-  assert.ok(css.includes("height:calc(var(--vl-rr,0)*2px)") && css.includes("rotate(calc(var(--vl-a,0)*1deg))"), "rouleau : rayon qui diminue, faces qui tournent");
+  assert.ok(css.includes("height:calc(var(--vl-rr,0)*2px)") && css.includes("var(--vl-s,0)*1px") && !css.includes("vl-ro-face"), "rouleau vu de face : rayon qui diminue, peau qui défile (pas de faces vues de dessus)");
+  assert.ok(css.includes("svg.vl-haut{position:absolute") && css.includes("z-index:5") && !css.includes("vl-gueule") && !css.includes("vl-sourire"), "couvercle au-dessus de la langue ; aucune bouche dessinée (la bouche est l'ouverture)");
+  assert.ok(css.includes("--vl-m:calc(min(250px,64cqw)*.444)") && css.includes("margin-top:calc(var(--vl-m)*-1)") && css.includes("width:min(210px,54cqw)"), "langue posée sur la lèvre inférieure, aussi large que la valise");
   assert.ok(!/!important/.test(css), "aucune règle forcée");
   assert.ok(/@keyframes vlBulle\{0%\{opacity:0;/.test(css) && /@keyframes vlZ\{0%\{opacity:0;[\s\S]*?100%\{opacity:0;/.test(css), "boucles sans à-coup (fondu d'entrée et de sortie)");
 }
 {
   // Vraie animation : la longueur déroulée, le rayon du rouleau et sa rotation sont calculés image par image (aucune simple transition).
-  assert.ok(code.includes("function anime(vers)") && code.includes("requestAnimationFrame(image)") && code.includes("var rr=r0*(1-p),angle=(H*p)/Math.max(8,r0*(1-p/2))*57.3"), "animation image par image, rouleau physique");
+  assert.ok(code.includes("function anime(vers)") && code.includes("requestAnimationFrame(image)") && code.includes("var rr=r0*(1-p),defile=H*p"), "animation image par image, rouleau physique");
   assert.ok(code.includes("anime(o?1:0);") && code.includes("finirProgres("), "ouvrir / fermer la lancent");
   assert.ok(!/transition:max-height/.test(code), "plus de transition simulée sur la hauteur");
 }
@@ -78,3 +80,11 @@ for (const s of ["valiseOuvre", "valiseFerme", "valisePotion", "valiseTouche"]) 
 // Les règles de police forcées du Coffre n'écrasent pas les polices de la valise.
 assert.ok(lire("public/soreal-idle-itopod.css").includes(":not(.vl-section):not(.vl-section *){font-family"), "polices de la valise respectées");
 console.log("idle-valise-consommables-v1: OK");
+
+// La bouche (le couvercle) ne se referme qu'une fois la langue entièrement repliée, et s'ouvre avant que la langue sorte (Norman, 2026-10-23).
+{
+  const c = readFileSync(new URL("../public/modules/valise-v1.js", import.meta.url), "utf8");
+  assert.ok(c.includes("if(p===0)s.classList.remove('vl-ouverte');") && c.includes("if(o)s.classList.add('vl-ouverte');") && !c.includes("s.classList.toggle('vl-ouverte',o)"), "la classe « ouverte » ne part qu'à la fin de l'enroulement");
+  assert.ok(c.includes("var retard=vers?340:0") && c.includes("now-t0<retard"), "la bouche s'ouvre avant la sortie de la langue");
+}
+console.log("idle-valise-consommables-v1 (bouche): OK");

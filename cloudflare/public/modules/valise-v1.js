@@ -97,10 +97,10 @@
     '<g class="vl-patte vl-b"><rect x="228" y="192" width="32" height="24" rx="9" fill="#5a3417" stroke="#1f1006" stroke-width="3"/><rect x="228" y="192" width="32" height="8" rx="4" fill="url(#vlLaiton)" opacity=".85"/></g>'+
     /* l'intérieur, visible quand le couvercle se soulève : velours, lueur, goulots de fioles */
     '<g class="vl-interieur">'+
-      '<rect x="38" y="96" width="244" height="16" rx="5" fill="url(#vlVelours)" stroke="#1f1006" stroke-width="3"/>'+
+      '<rect x="30" y="94" width="260" height="18" rx="5" fill="url(#vlVelours)" stroke="#1f1006" stroke-width="3"/>'+
+      '<rect x="31" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/><rect x="273" y="95" width="16" height="16" rx="4" fill="#1a0a10" opacity=".65"/>'+
       '<ellipse class="vl-lueur" cx="160" cy="98" rx="104" ry="20" fill="url(#vlLueur)"/>'+
       '<g class="vl-goulot vl-g1"><rect x="96" y="82" width="10" height="18" rx="3" fill="#7be6a0" stroke="#1f1006" stroke-width="2"/><rect x="95" y="77" width="12" height="7" rx="2" fill="#a06a30" stroke="#1f1006" stroke-width="2"/></g>'+
-      '<g class="vl-goulot vl-g2"><rect x="155" y="80" width="10" height="20" rx="3" fill="#6cb8ff" stroke="#1f1006" stroke-width="2"/><rect x="154" y="75" width="12" height="7" rx="2" fill="#a06a30" stroke="#1f1006" stroke-width="2"/></g>'+
       '<g class="vl-goulot vl-g3"><rect x="214" y="82" width="10" height="18" rx="3" fill="#ffc24a" stroke="#1f1006" stroke-width="2"/><rect x="213" y="77" width="12" height="7" rx="2" fill="#a06a30" stroke="#1f1006" stroke-width="2"/></g>'+
     '</g>'+
     '<g class="vl-corps">'+
@@ -111,12 +111,13 @@
       '<rect x="228" y="104" width="20" height="94" fill="url(#vlFer)" stroke="#111" stroke-width="2.5"/>'+
       '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="1.6"><circle cx="82" cy="120" r="3.6"/><circle cx="82" cy="152" r="3.6"/><circle cx="82" cy="184" r="3.6"/><circle cx="238" cy="120" r="3.6"/><circle cx="238" cy="152" r="3.6"/><circle cx="238" cy="184" r="3.6"/></g>'+
       '<g fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="2.2"><path d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/><path transform="translate(320 0) scale(-1 1)" d="M26 174v12q0 12 14 12h16v-10H42q-4 0-4-4v-10z"/></g>'+
-      '<g class="vl-bouche"><path class="vl-sourire" d="M118 176Q160 190 202 176" fill="none" stroke="#2a1608" stroke-width="4.5" stroke-linecap="round"/><ellipse class="vl-gueule" cx="160" cy="176" rx="48" ry="15" fill="#2a0a10" stroke="#1f1006" stroke-width="3"/><ellipse class="vl-gueule" cx="160" cy="182" rx="30" ry="7" fill="#7a1c35"/></g>'+
     '<g class="vl-serrure"><rect x="142" y="120" width="36" height="42" rx="7" fill="url(#vlLaiton)" stroke="#3a2406" stroke-width="3"/><circle cx="160" cy="139" r="5.5" fill="#2a1608"/><path d="M156.5 141h7l2.6 13h-12.2z" fill="#2a1608"/></g>'+
     '</g>'+
     /* l'étiquette de parchemin pend à la serrure et se balance */
     '<path d="M178 136Q204 142 230 166" fill="none" stroke="#3a2406" stroke-width="2.4"/>'+
     '<g class="vl-etiquette"><rect x="212" y="168" width="40" height="26" rx="3" fill="#f1deb0" stroke="#5a3a12" stroke-width="2.4"/><circle cx="231" cy="171" r="2" fill="#5a3a12"/><text x="232" y="185" text-anchor="middle" font-size="9" fill="#4a2a08" font-family="Bangers,Impact,sans-serif">FIOLES</text></g>'+
+    '</svg>'+
+    '<svg class="vl-haut" viewBox="0 0 320 232" aria-hidden="true" focusable="false">'+
     '<g class="vl-couvercle">'+
       '<path d="M26 104Q26 56 76 50L244 50Q294 56 294 104Z" fill="url(#vlCuirC)" stroke="#1f1006" stroke-width="4"/>'+
       '<path d="M37 99Q37 65 80 59L240 59Q283 65 283 99" fill="none" stroke="#f0d79a" stroke-width="2" stroke-dasharray="6 5" opacity=".75"/>'+
@@ -146,16 +147,21 @@
     '<path d="M14 0C6 28 22 56 12 84C4 112 20 136 14 160" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/>'+
     '<path d="M248 0C242 26 258 52 250 80C240 108 254 132 248 160" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
   var TUILE='data:image/svg+xml,'+encodeURIComponent(TUILE_SVG);
-  var RACINE='<svg viewBox="0 0 262 76" aria-hidden="true" focusable="false"><path d="M98 0H164C164 30 248 34 248 76H14C14 34 98 30 98 0Z" fill="'+ROSE+'"/>'+
-    '<path d="M131 0V76" stroke="'+RAINURE+'" stroke-width="3" opacity=".85"/>'+papilles([[118,18],[146,26],[100,54],[162,58],[60,66],[204,66]])+
-    '<path d="M98 0C98 30 14 34 14 76M164 0C164 30 248 34 248 76" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
+  /* La racine : la base de la langue, aussi large que la bouche (l'ouverture de la valise). Posée sur la lèvre inférieure (le bord du corps de la valise), elle bombe vers l'avant, puis la langue retombe sur la façade. */
+  var RACINE='<svg viewBox="0 0 262 72" aria-hidden="true" focusable="false"><defs><linearGradient id="vlOmbreLg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0010" stop-opacity=".85"/><stop offset=".34" stop-color="#2a0010" stop-opacity=".45"/><stop offset=".62" stop-color="#2a0010" stop-opacity="0"/></linearGradient></defs>'+
+    '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="'+ROSE+'"/>'+
+    '<path d="M131 5V72" stroke="'+RAINURE+'" stroke-width="3" opacity=".85"/>'+papilles([[56,36,2.4],[100,26,2.4],[162,26,2.4],[206,36,2.4],[84,56,2.4],[180,56,2.4]])+
+    '<ellipse cx="72" cy="40" rx="22" ry="6" fill="#fff" opacity=".22"/>'+
+    /* l'ombre de la gorge : la langue sort du noir de la bouche */
+    '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="url(#vlOmbreLg)"/>'+
+    '<path d="M14 72V22C34 12 80 5 131 5C182 5 228 12 248 22V72" fill="none" stroke="'+CONTOUR+'" stroke-width="5" stroke-linejoin="round"/></svg>';
   var BOUT='<svg viewBox="0 0 262 104" aria-hidden="true" focusable="false"><path d="M14 0H248C256 46 208 102 131 102C54 102 6 46 14 0Z" fill="'+ROSE+'"/>'+
     '<path d="M131 0V74" stroke="'+RAINURE+'" stroke-width="3" opacity=".85" stroke-linecap="round"/>'+papilles([[60,20],[92,52],[170,24],[204,48],[120,84],[146,70]])+
     '<ellipse cx="86" cy="44" rx="16" ry="24" fill="#fff" opacity=".22"/>'+
     '<path d="M14 0C6 46 54 102 131 102C208 102 256 46 248 0" fill="none" stroke="'+CONTOUR+'" stroke-width="5"/></svg>';
 
   /* Le rouleau de langue : le bout enroulé de la langue (un cylindre aux deux faces en spirale). Son rayon diminue à mesure que la langue se déroule et il tourne de la longueur sortie (anime()). */
-  var ROULEAU='<b class="vl-ro-corps"></b><b class="vl-ro-face g"></b><b class="vl-ro-face d"></b>';
+  var ROULEAU='<b class="vl-ro-corps"></b>';
 
   /* ---------- le contenu des étages ---------- */
   function artPotion(p,q){
@@ -247,6 +253,8 @@ ${P} .vl-boucle::after{content:"";position:absolute;left:50%;top:-4px;bottom:-4p
 ${P} .vl-creature{position:relative;display:flex;justify-content:center;padding:14px 0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 ${P} .vl-bete{position:relative;width:min(250px,64%)}
 ${P} .vl-bete svg{display:block;width:100%;height:auto;overflow:visible}
+/* le couvercle, les yeux et l'anse passent AU-DESSUS de la langue : elle sort de l'ouverture de la valise (entre le couvercle et le corps), la bouche, sans rien de dessiné */
+${P} .vl-bete svg.vl-haut{position:absolute;left:0;top:0;z-index:5;pointer-events:none}
 ${P} .vl-corps{transform-origin:160px 200px;animation:vlRespire 3.8s ease-in-out infinite}
 @keyframes vlRespire{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,.988)}}
 ${P} .vl-patte{transform-box:fill-box;transform-origin:50% 0;animation:vlTrotte 1.1s ease-in-out infinite}
@@ -268,7 +276,6 @@ ${P}.vl-ouverte .vl-couvercle{animation:none;transform:translateY(-20px) scaleY(
 ${P} .vl-lueur{animation:vlLueur 2.6s ease-in-out infinite}
 @keyframes vlLueur{0%,100%{opacity:.55}50%{opacity:1}}
 ${P} .vl-goulot{animation:vlGoulot 2.8s ease-in-out infinite}
-${P} .vl-g2{animation-delay:-.9s}
 ${P} .vl-g3{animation-delay:-1.8s}
 @keyframes vlGoulot{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 /* la valise dort : yeux clos, plus de trottinement, des Z qui montent (boucle sans à-coup : fondu d'entrée et de sortie, toujours vers le haut) */
@@ -288,28 +295,22 @@ ${P}.vl-parle .vl-bulle{opacity:1;transform:translateY(0) rotate(3deg)}
 ${P}.vl-glou .vl-bete{animation:vlSaut .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes vlSaut{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-12px) scale(1.04,.97)}100%{transform:translateY(0) scale(1)}}
 /* la bouche (sous le nez-serrure) s'ouvre avec la valise : la langue en sort, d'autant plus longue qu'il y a d'objets */
-${P} .vl-gueule{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);transition:transform .45s cubic-bezier(.3,1.5,.5,1)}
-${P}.vl-ouverte .vl-gueule{transform:scaleY(1)}
-${P} .vl-sourire{transition:opacity .25s}
-${P}.vl-ouverte .vl-sourire{opacity:0}
-${P} .vl-deplie{position:relative;z-index:3;margin-top:0;transition:margin-top .5s ease}
-${P}.vl-ouverte .vl-deplie{margin-top:calc(min(250px,64cqw)*-.17)}
+/* Le dépliage commence DANS la bouche, à la hauteur de la lèvre inférieure, ouvert comme fermé (--vl-m = la distance de la bouche au bas de la valise) : le recouvrement est compensé par une hauteur minimale, donc la mise en page ne bouge jamais et la langue ne se détache pas de la bouche pendant qu'elle s'enroule. */
+${P} .vl-deplie{--vl-m:calc(min(250px,64cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m)}
 ${P} .vl-etiq{font-size:12px;padding:2px 4px}
 /* La partie visible de la langue = la longueur déroulée (--vl-p de 0 à 1 fois la hauteur mesurée --vl-h) : animée image par image par le module (anime()), jamais par une simple transition */
 ${P} .vl-deplie-in{overflow:hidden;padding:0;max-height:calc(var(--vl-h,0)*var(--vl-p,0)*1px)}
 ${P}.vl-ouverte:not(.vl-anim) .vl-deplie-in{max-height:none}
 ${P}:not(.vl-ouverte):not(.vl-anim) .vl-langue{visibility:hidden}
-${P} .vl-rien{margin:14px 0 4px;text-align:center;font:400 15px/1.3 "Russo One",system-ui,sans-serif;font-style:italic;color:#e3d2a6;opacity:.9}
+${P} .vl-rien{margin:calc(var(--vl-m) + 12px) 0 4px;text-align:center;font:400 15px/1.3 "Russo One",system-ui,sans-serif;font-style:italic;color:#e3d2a6;opacity:.9}
 /* la langue : un ruban rose qui se déroule vers le bas (rétrécie à la bouche, plus large ensuite), contour sombre, sillon au milieu, petites papilles et reflet humide */
-${P} .vl-langue{position:relative;width:min(236px,66cqw);margin:0 auto 6px;transform-origin:50% 0;filter:drop-shadow(0 8px 8px rgba(0,0,0,.5))}
+${P} .vl-langue{position:relative;width:min(210px,54cqw);margin:0 auto 6px;transform-origin:50% 0;filter:drop-shadow(0 8px 8px rgba(0,0,0,.5))}
 ${P}.vl-ouverte .vl-langue{animation:vlLangue 4.4s ease-in-out 1.2s infinite}
-/* le rouleau : cylindre dont le rayon (--vl-rr) diminue pendant que la langue se déroule ; ses faces en spirale tournent de la longueur sortie (--vl-a) ; il s'agrandit à nouveau quand la langue s'enroule */
-${P} .vl-rouleau{position:absolute;left:50%;bottom:0;z-index:4;width:min(236px,66cqw);margin-left:calc(min(236px,66cqw)/-2);height:calc(var(--vl-rr,0)*2px);transform:translateY(50%);pointer-events:none;visibility:hidden;opacity:min(1,calc(var(--vl-p,0)*16),calc((1 - var(--vl-p,0))*16))}
+/* le rouleau : cylindre vu de face (axe horizontal, perspective de la valise) dont le rayon (--vl-rr) diminue pendant que la langue se déroule ; sa peau (papilles) défile de la longueur sortie (--vl-s) ; il grossit quand la langue s'enroule */
+${P} .vl-rouleau{position:absolute;left:50%;z-index:4;width:min(210px,54cqw);margin-left:calc(min(210px,54cqw)/-2);top:calc(var(--vl-h,0)*var(--vl-p,0)*1px);height:calc(var(--vl-rr,0)*2px);transform:translateY(-50%);pointer-events:none;visibility:hidden;opacity:min(1,calc(var(--vl-p,0)*16),calc((1 - var(--vl-p,0))*16))}
 ${P}.vl-anim .vl-rouleau{visibility:visible}
-${P} .vl-ro-corps{position:absolute;top:0;bottom:0;left:calc(var(--vl-rr,0)*1px);right:calc(var(--vl-rr,0)*1px);border-top:3px solid #5a1028;border-bottom:3px solid #5a1028;background:repeating-linear-gradient(90deg,transparent 0 31px,rgba(120,20,60,.38) 31px 33px),linear-gradient(180deg,#f58aa3,#e3607f 45%,#b8325a);box-shadow:0 6px 6px rgba(0,0,0,.4)}
-${P} .vl-ro-face{position:absolute;top:0;bottom:0;aspect-ratio:1;border-radius:50%;border:3px solid #5a1028;box-sizing:border-box;background:conic-gradient(from 0deg,rgba(90,16,40,.7) 0 14deg,transparent 14deg 360deg),repeating-radial-gradient(circle,#e3607f 0 3px,#a8305a 3px 5px);transform:rotate(calc(var(--vl-a,0)*1deg))}
-${P} .vl-ro-face.g{left:0}
-${P} .vl-ro-face.d{right:0}
+${P} .vl-ro-corps{position:absolute;inset:0;border:3px solid #5a1028;border-radius:calc(var(--vl-rr,0)*.6px)/calc(var(--vl-rr,0)*.9px);box-shadow:0 6px 6px rgba(0,0,0,.4);
+  background:linear-gradient(180deg,rgba(60,8,28,.7),rgba(255,255,255,.3) 38%,rgba(255,255,255,0) 56%,rgba(60,8,28,.55)),linear-gradient(90deg,transparent calc(50% - 1.5px),rgba(110,15,50,.7) calc(50% - 1.5px) calc(50% + 1.5px),transparent calc(50% + 1.5px)),radial-gradient(circle,#f4a3b8 0 2.4px,transparent 3px) 0 calc(var(--vl-s,0)*1px)/26px 22px,#e3607f}
 @keyframes vlLangue{0%,100%{transform:scaleY(1) rotate(0)}50%{transform:scaleY(1.012) rotate(.5deg)}}
 ${P} .vl-lg-racine svg,${P} .vl-lg-bout svg{display:block;width:100%;height:auto;overflow:visible}
 ${P} .vl-lg-racine{margin-bottom:-1px}
@@ -343,8 +344,9 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
 @media (max-width:640px){
   ${P}{margin:10px 8px 4px;padding:0 14px 12px}
   ${P} .vl-bete{width:min(230px,78%)}
-  ${P} .vl-langue,${P} .vl-rouleau{width:min(236px,80cqw)}
-  ${P} .vl-rouleau{margin-left:calc(min(236px,80cqw)/-2)}
+  ${P} .vl-deplie{--vl-m:calc(min(230px,78cqw)*.444)}
+  ${P} .vl-langue,${P} .vl-rouleau{width:min(193px,66cqw)}
+  ${P} .vl-rouleau{margin-left:calc(min(193px,66cqw)/-2)}
   ${P} .vl-titre{padding:10px 36px 10px 56px}
   ${P} .vl-nom{font-size:19px;text-align:center}
   ${P} .vl-chevron{right:10px}
@@ -390,18 +392,20 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
       var dedans=s.querySelector('.vl-deplie-in');
       if(!s.__vlH&&dedans)s.__vlH=dedans.scrollHeight+8;
       var H=s.__vlH||0,r0=Math.max(16,Math.min(46,Math.sqrt(7*H/Math.PI)));
-      var rr=r0*(1-p),angle=(H*p)/Math.max(8,r0*(1-p/2))*57.3;
+      var rr=r0*(1-p),defile=H*p;
       if(!s.classList.contains('vl-anim'))s.classList.add('vl-anim');
       s.style.setProperty('--vl-h',String(H));
       s.style.setProperty('--vl-p',p.toFixed(4));
       s.style.setProperty('--vl-rr',rr.toFixed(2));
-      s.style.setProperty('--vl-a',(angle%360).toFixed(1));
+      s.style.setProperty('--vl-s',(defile%26).toFixed(1));   /* la peau du rouleau (vu de face, de côté : jamais de dessus) défile verticalement de la longueur de langue sortie */
     });
   }
   function finirProgres(p){
     sections().forEach(function(s){
       s.style.setProperty('--vl-p',String(p));s.style.setProperty('--vl-rr','0');
       s.classList.remove('vl-anim');
+      /* la bouche (le couvercle) ne se referme qu'ici : la langue est entièrement repliée */
+      if(p===0)s.classList.remove('vl-ouverte');
     });
     progres=p;animId=0;
   }
@@ -410,13 +414,14 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
     var depart=progres==null?(vers?0:1):progres;
     sections().forEach(function(s){var d=s.querySelector('.vl-deplie-in');s.__vlH=d?d.scrollHeight+8:0;});
     if(reduit()||depart===vers){finirProgres(vers);return;}
-    var duree=(vers?1300:1000)*Math.abs(vers-depart)+150,t0=null;
+    /* À l'ouverture, la bouche s'ouvre d'abord (0,34 s) puis la langue sort. */
+    var retard=vers?340:0,duree=(vers?1300:1000)*Math.abs(vers-depart)+150,t0=null;
     function image(now){
       if(t0===null)t0=now;
-      var k=Math.min(1,(now-t0)/duree);
+      var k=Math.min(1,Math.max(0,(now-t0-retard)/duree));
       var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
       appliquerProgres(depart+(vers-depart)*e);
-      if(k<1)animId=requestAnimationFrame(image);else finirProgres(vers);
+      if(k<1||now-t0<retard)animId=requestAnimationFrame(image);else finirProgres(vers);
     }
     appliquerProgres(depart);
     animId=requestAnimationFrame(image);
@@ -425,7 +430,7 @@ ${P} .vl-art.vl-glou img{animation:vlGlou .5s ease-out}
     var o=!ouverte();
     try{localStorage.setItem(CLE,o?'1':'0');}catch(_e){}
     sections().forEach(function(s){
-      s.classList.toggle('vl-ouverte',o);
+      if(o)s.classList.add('vl-ouverte');   /* fermée : la classe ne part qu'à la fin de l'enroulement (finirProgres) */
       var t=s.querySelector('.vl-titre');if(t)t.setAttribute('aria-expanded',o?'true':'false');
       var ch=s.querySelector('.vl-chevron');if(ch)ch.textContent=o?'▲':'▼';
     });

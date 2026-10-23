@@ -536,8 +536,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-v1.js": {
-  "pin": 10,
-  "sha": "3e763e2dc0fb8fd478234c837aa72208e6ebb4e9"
+  "pin": 16,
+  "sha": "3cc34ae3aeb40912d131b5949d0afb08e21f92a4"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
