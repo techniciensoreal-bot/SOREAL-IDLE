@@ -72,8 +72,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 2,
-  "sha": "e31e9286ddbb358a45a2c7b23786d044e805d852"
+  "pin": 3,
+  "sha": "e1fa0286f26305c34f55e6bb1700a11a94ae5c02"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -260,8 +260,8 @@
   "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 6,
-  "sha": "26b1bc7ef69195669f38659541287f6223498db8"
+  "pin": 7,
+  "sha": "200865faad7c1e6ff4aa9adccf34e1f0298ba9ea"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610166,
@@ -284,8 +284,8 @@
   "sha": "fe6f0dee0038a3d400012558c912918539602eb0"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 56,
-  "sha": "3daa1078097946660896372b27c0061bcf008584"
+  "pin": 57,
+  "sha": "c3b6d5c920e926403155045f05a262e40dfa017d"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -348,16 +348,16 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 409,
-  "sha": "16182aa1f9ea8fbc2ac825afc9f9d2c74e65e9fb"
+  "pin": 412,
+  "sha": "5acc9e60ee2730cab0fc5985a0576867b43d6aee"
  },
  "/modules/runtime.js": {
   "pin": 3,
   "sha": "d755f83deeeedf49d0c066f93b5b254d5290c4d4"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 232,
-  "sha": "76ce8ac393ede1291ed499277bcc690d4cdba261"
+  "pin": 233,
+  "sha": "b010a8a392045cd439bdf5212b75615a7dd66ca5"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -412,12 +412,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 431,
-  "sha": "b45640929523995764df47f330b2383647ceefda"
+  "pin": 433,
+  "sha": "3ec38ea1eae24f1dccab2fd2fe8574dd3d134fd5"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 225,
-  "sha": "baf3b8a91e242a43e076dd9cfcf52f1537537458"
+  "pin": 227,
+  "sha": "60032e20c4f6d0bbdaa9a1d7e89a1a42826be3ef"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -456,8 +456,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 15,
-  "sha": "90450c434cfbb6eb560c19cb4ff8f220646e1afd"
+  "pin": 16,
+  "sha": "01b534fdb5960577a6b17e74c56cabb967b29b6d"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 14,
@@ -540,8 +540,8 @@
   "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 38,
-  "sha": "2174220b3d3af4d3e7509d0714029400f2dcc38e"
+  "pin": 39,
+  "sha": "1d5e65e0b558801cb2c9ff138c4660bbe1308410"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
@@ -560,8 +560,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 49,
-  "sha": "13c69825b3b399f7d984bf5bcdd5c206fd441922"
+  "pin": 54,
+  "sha": "4fb970e3b16c3348dd8165b4b74a9179ad0a5c72"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
@@ -592,8 +592,8 @@
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
  },
  "/soreal-idle-machine.css": {
-  "pin": 8,
-  "sha": "5ae03cd2fdc95723931f9d3f626ad50f9bb15e8a"
+  "pin": 9,
+  "sha": "651b68187f2c77f0049220c0f7248f2ff3b948ed"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

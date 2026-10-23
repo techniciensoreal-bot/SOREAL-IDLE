@@ -237,6 +237,19 @@
       '.wd-parasites{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden;mix-blend-mode:screen;}',
       '.wd-parasites i{position:absolute;display:block;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85) 20%,rgba(255,255,255,.55) 70%,transparent);box-shadow:0 0 .6em rgba(255,255,255,.7);}',
       '.wd-bios{display:flex;flex-direction:column;gap:.35em;min-height:28cqw;text-align:left;}',
+      /* Interrupteur de synchro (Norman, 2026-10-23) : fine glissière de métal, manette qui monte pour activer ; loupiote verte allumée / rouge éteinte. */
+      /* Norman (2026-10-23) : l'interrupteur est AU-DESSUS d'Énergie, tout petit (marge haute du clavier agrandie pour lui), identique sur téléphone. */
+      '.wd-clavier-synchro{padding-top:7.6cqw;}',
+      '.wd-synchro-flanc{position:absolute;left:3cqw;top:1.1cqw;display:flex;flex-direction:row;align-items:center;gap:1.6cqw;}',
+      '.wd-sw{all:unset;cursor:pointer;display:block;width:clamp(15px,3.2cqw,23px);aspect-ratio:40/64;-webkit-tap-highlight-color:transparent;}',
+      '.wd-sw:focus-visible{outline:2px solid #ffd84a;outline-offset:3px;border-radius:6px;}',
+      '.wd-sw svg{display:block;width:100%;height:100%;overflow:visible;}',
+      '.wd-sw .wd-sw-manette{transform:translateY(24px);transition:transform .22s cubic-bezier(.3,1.5,.5,1);}',
+      '.wd-sw[aria-checked="true"] .wd-sw-manette{transform:translateY(0);}',
+      '.wd-lampe{display:block;width:clamp(8px,1.9cqw,13px);aspect-ratio:1;border-radius:50%;border:2px solid #1d1a14;background:radial-gradient(circle at 35% 30%,#ff9a9a,#d62323 55%,#5a0a0a);box-shadow:0 0 .8cqw rgba(255,60,60,.65),inset 0 -1px 2px rgba(0,0,0,.4);transition:background .2s,box-shadow .2s;}',
+      '.wd-sw[aria-checked="true"]~.wd-lampe{background:radial-gradient(circle at 35% 30%,#d8ffd8,#33e05a 55%,#0d6a24);box-shadow:0 0 1.6cqw rgba(60,255,110,.9),inset 0 -1px 2px rgba(0,0,0,.35);}',
+      '.wd-synchro-texte{font:700 clamp(9px,1.8cqw,12px) "Courier New",monospace;letter-spacing:.08em;color:#4a4332;text-transform:uppercase;}',
+      '@media (prefers-reduced-motion:reduce){.wd-sw .wd-sw-manette,.wd-lampe{transition:none;}}',
       '.wd-bios-titre{font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.3em;}',
       '.wd-bios-bas{margin-top:auto;}',
       '.wd-chargeur{position:relative;height:1em;margin:0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
@@ -452,6 +465,35 @@
       }).join('')+
     '</div></div>';
   }
+  /* Synchro Wandoos : achetée dans le rayon Toc de la boutique EXP (le serveur l'annonce par wandoosSynchro) ; l'achat est retenu (jamais perdu par une réponse sans le champ) ; le choix est un réglage du compte. */
+  var CLE_SYNCHRO='soreal_idle_wandoos_synchro_v1',synchroAchetee_=false;
+  function synchroAchetee(j){
+    if(j&&typeof j.wandoosSynchro==='boolean'){
+      synchroAchetee_=j.wandoosSynchro;
+      /* pas (encore) acheté : tout réglage resté d'une autre partie est effacé ; à l'achat, l'interrupteur est ÉTEINT, pour le plaisir de l'allumer (Norman, 2026-10-23) */
+      if(!j.wandoosSynchro){try{localStorage.removeItem(CLE_SYNCHRO);}catch(_e){}}
+    }
+    return synchroAchetee_;
+  }
+  function synchroAllumee(){try{return localStorage.getItem(CLE_SYNCHRO)==='1';}catch(_e){return false;}}
+  function synchroActive(j){return synchroAchetee(j)&&synchroAllumee();}
+  function basculerSynchro(){
+    var H=H_();
+    if(!H||!H.getIdleEtat||!synchroAchetee(H.getIdleEtat()))return;
+    var on=!synchroAllumee();
+    try{localStorage.setItem(CLE_SYNCHRO,on?'1':'0');}catch(_e){}
+    [].slice.call(document.querySelectorAll('.wd-sw')).forEach(function(b){b.setAttribute('aria-checked',on?'true':'false');b.setAttribute('title',on?'Synchro allumée : l’énergie et la magie bougent ensemble (clique pour couper)':'Synchro éteinte : clique pour que l’énergie et la magie bougent ensemble');});
+  }
+  function synchroGroupe_(j){
+    if(!synchroAchetee(j))return '';
+    var on=synchroAllumee();
+    var svg='<svg viewBox="0 0 40 64" aria-hidden="true" focusable="false"><defs><linearGradient id="wdMet" x1="0" x2="1"><stop offset="0" stop-color="#6d7178"/><stop offset=".45" stop-color="#e3e6ea"/><stop offset="1" stop-color="#7c8088"/></linearGradient></defs>'+
+      '<rect x="12" y="2" width="16" height="60" rx="8" fill="#1d1a14" stroke="#8d9199" stroke-width="1.5"/><rect x="17" y="8" width="6" height="48" rx="3" fill="#050403"/>'+
+      '<g class="wd-sw-manette"><rect x="5" y="9" width="30" height="16" rx="6" fill="url(#wdMet)" stroke="#2b2d31" stroke-width="1.6"/><path d="M9 14H31M9 17H31M9 20H31" stroke="#6b6f76" stroke-width=".9"/></g></svg>';
+    return '<div class="wd-synchro-flanc">'+
+      '<button type="button" class="wd-sw" role="switch" aria-checked="'+(on?'true':'false')+'" aria-label="Synchro Wandoos : l’énergie et la magie bougent ensemble" title="'+(on?'Synchro allumée : l’énergie et la magie bougent ensemble (clique pour couper)':'Synchro éteinte : clique pour que l’énergie et la magie bougent ensemble')+'" onclick="'+API+'.synchro()">'+svg+'</button>'+
+      '<i class="wd-lampe" aria-hidden="true"></i><span class="wd-synchro-texte">Sync</span></div>';
+  }
   function pave_(){
     var ch=function(c){return touche_(c,'',API+".chiffre('"+c+"')",'wd-chiffre','Chiffre '+c);};
     return '<div class="wd-groupe wd-pave-groupe"><span class="wd-leg">Saisie</span><div class="wd-pave">'+
@@ -466,9 +508,14 @@
       ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
     var haut='';
-    if(phase==='bureau')haut=groupe_('Énergie','energy',e)+(e.magieOk?groupe_('Magie','magic',e):'')+pave_();
+    var flanc='';
+    if(phase==='bureau'){
+      haut=groupe_('Énergie','energy',e)+(e.magieOk?groupe_('Magie','magic',e):'')+pave_();
+      /* l'interrupteur est sur le côté GAUCHE du clavier (Norman, 2026-10-23) */
+      if(e.magieOk)flanc=synchroGroupe_(window.__SOREAL_IDLE_META_HOST_V130__&&window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat?window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat():null);
+    }
     var os=groupeOs_(e);
-    return '<div class="wd-clavier"><div class="wd-plaque">'+haut+
+    return '<div class="wd-clavier'+(flanc?' wd-clavier-synchro':'')+'">'+flanc+'<div class="wd-plaque">'+haut+
       '<div class="wd-bas">'+(os||couleur)+'<div class="wd-groupe"><span class="wd-leg">Système</span>'+demarrage+'</div></div>'+
       (os?'<div class="wd-bas wd-bas-couleur">'+couleur+'</div>':'')+
     '</div></div>';
@@ -634,7 +681,14 @@
   }
   /* Clics rapides (Norman, 2026-10-19 : « quand je clique très vite, des clics se perdent ») : une réponse du moteur arrivée entre deux appuis remettait l'ancienne valeur dans l'état ; le 2e appui repartait donc de l'ancienne base et envoyait la MÊME cible que le 1er (écartée comme doublon). On se souvient de la dernière cible demandée et on repart d'elle pendant 2,5 s. */
   var visee_={};
+  /* Synchro (Norman, 2026-10-23) : allumée, 0, −, + et CAP agissent sur l'énergie ET la magie (celle qu'on touche ou l'autre) ; faute de magie libre, on place le maximum disponible (la borne « libre » de placerUn_). */
   function placer(res,mode){
+    var H=H_();
+    var j=H&&H.getIdleEtat?H.getIdleEtat():null;
+    if(j&&synchroActive(j)){placerUn_('energy',mode);placerUn_('magic',mode);return;}
+    placerUn_(res,mode);
+  }
+  function placerUn_(res,mode){
     var H=H_();
     if(!H||!H.getIdleEtat)return;
     var j=H.getIdleEtat(),e=etat_(j);
@@ -757,5 +811,5 @@
   }catch(_e){}
 
   window.__SOREAL_IDLE_WANDOOS_V1__={page:page,couleur:changerCouleur_,couleurs:COULEURS,son:sonTouche_,construireTouche:construireTouche_,
-    demarrer:demarrer,rafraichir:rafraichirPoste_,saisir:majSaisie_,eteindre:eteindre,os:choisirOs,place:placer,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
+    demarrer:demarrer,rafraichir:rafraichirPoste_,saisir:majSaisie_,eteindre:eteindre,os:choisirOs,place:placer,synchro:basculerSynchro,chiffre:chiffre,effacer:effacer,debutEffacer:debutEffacer_,finEffacer:arreterEffacer_,analyser:analyser_,dureesAllumage:DUREE_ALLUMAGE_MS};
 })();

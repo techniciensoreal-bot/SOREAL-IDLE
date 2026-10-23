@@ -312,6 +312,16 @@ id:
         0
       ) >= 1,
 
+    /* Achat « Synchro Wandoos » (rayon Toc) : le clavier de Wandoos affiche alors l'interrupteur de synchro. */
+    wandoosSynchro:
+      nombreSorealIdle_(
+        statsEtat.metaNgu &&
+        statsEtat.metaNgu.bonuses &&
+        statsEtat.metaNgu.bonuses.expShop &&
+        statsEtat.metaNgu.bonuses.expShop.syncWandoos,
+        0
+      ) >= 1,
+
     basicTraining:
       basicTrainingSnapshotV411(
         normalizeBasicTrainingStateV411(

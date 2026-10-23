@@ -224,6 +224,11 @@
   function phraseBlocHtml(){var p=PHRASES[Math.max(0,phraseIdx())];return '<div class="bg-texte-v1 vl-phrase-bloc" data-sans-traduction><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
   function coffreOuvert(){try{return localStorage.getItem('soreal_idle_coffre_ouvert_v1')==='1';}catch(_e){return false;}}
   var coffreAvant=coffreOuvert();
+  /* Le fond du cadre est celui du DERNIER ouvert, et il persiste une fois refermé (Norman, 2026-10-23) : velours pour la valise, tapis vert de billard pour le Coffre. Lié au compte (clé soreal_idle_*). */
+  var CLE_DERNIER='soreal_idle_dernier_ouvert_v1';
+  function dernier(){try{var v=localStorage.getItem(CLE_DERNIER);return v==='valise'||v==='coffre'?v:'';}catch(_e){return '';}}
+  function noterDernier(qui){if(dernier()===qui)return;try{localStorage.setItem(CLE_DERNIER,qui);}catch(_e){}}
+  if(coffreAvant&&!dernier())noterDernier('coffre');
   function synchroniserCoffre(){
     var on=phraseActive();
     [].slice.call(document.querySelectorAll('[data-idle-coffre-drop-v180]')).forEach(function(z){
@@ -232,7 +237,11 @@
       if(on&&b){var p=PHRASES[phraseIdx()];var t=b.querySelector('b');if(t&&t.textContent!==p[0]){b.outerHTML=phraseBlocHtml();}}
     });
     /* le velours : le fond du Coffre devient un velours tant que la valise est ouverte (jusqu'à la fin de son enroulement) */
-    sections().forEach(function(s){var c=s.closest('.soreal-idle-coffre-v1');if(c)c.classList.toggle('vl-velours',s.classList.contains('vl-ouverte'));});
+    var d=dernier();
+    [].slice.call(document.querySelectorAll('.soreal-idle-coffre-v1')).forEach(function(c){
+      if(c.classList.contains('vl-velours')!==(d==='valise'))c.classList.toggle('vl-velours',d==='valise');
+      if(c.classList.contains('vl-tapis')!==(d==='coffre'))c.classList.toggle('vl-tapis',d==='coffre');
+    });
   }
 
   function contenu(){
@@ -407,6 +416,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .
   background:radial-gradient(ellipse at 50% 20%,rgba(255,150,170,.16),transparent 55%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 0%,#8a1d3b 0%,#5a1229 46%,#2c0714 100%);
   box-shadow:inset 0 0 70px rgba(0,0,0,.65)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}
+/* tapis vert de billard du Coffre (dernier ouvert) : feutre, trame fine, lumière au centre, ombre sur les bords */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-tapis .vl-velours-fond{opacity:1;
+  background:radial-gradient(ellipse at 50% 38%,rgba(190,255,200,.2),transparent 62%),repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 30%,#2e8a4a 0%,#1f6b3a 52%,#124626 100%);
+  box-shadow:inset 0 0 70px rgba(0,0,0,.6)}
 /* Sur ordinateur (Norman, 2026-10-23) : la valise est dans le MÊME cadre que le Coffre, à droite de « Il mange les objets… » ; plus de cadre de cuir propre */
 @media (min-width:761px){
   /* le texte du Coffre ou de la valise est centré entre les deux (Norman, 2026-10-23) */
@@ -534,6 +547,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   }
   function basculer(){
     var o=!ouverte();
+    if(o)noterDernier('valise');
     try{localStorage.setItem(CLE,o?'1':'0');}catch(_e){}
     sections().forEach(function(s){
       if(o)s.classList.add('vl-ouverte');   /* fermée : la classe ne part qu'à la fin de l'enroulement (finirProgres) */
@@ -576,6 +590,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       appliquer();
       aligner();
       var co=coffreOuvert();
+      if(co&&!coffreAvant)noterDernier('coffre');
       if(co&&!coffreAvant&&phraseActive())poserPhrase(-1);   /* on ouvre le Coffre : sa phrase revient */
       coffreAvant=co;
       synchroniserCoffre();
@@ -630,5 +645,5 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
 
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
 
-  window.__SOREAL_IDLE_VALISE_V1__={baille:bailler,dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
+  window.__SOREAL_IDLE_VALISE_V1__={baille:bailler,fond:dernier,dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
 })();

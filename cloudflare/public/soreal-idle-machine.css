@@ -83,3 +83,6 @@
   .tmm-tube{min-height:150px}
 }
 @media (prefers-reduced-motion:reduce){.tmm-bulle,.tmm-rouleau,.tmm-lampe,.tmm-vapeur,.tmm-orbe,.tmm-etincelle{animation:none}}
+/* Le gonflement du chiffre alloué (alloc-pop-v1) le passait en inline-block : les cases « Cible » et « Allouée » changeaient de taille à chaque ajout d'énergie (Norman, 2026-10-23). Il reste en bloc, à hauteur fixe, et gonfle depuis la gauche. */
+.tmm-machine .tmm-case .tmm-case-val.soreal-idle-alloc-pop-v1{display:block;transform-origin:left center}
+.tmm-machine .tmm-ligne{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}

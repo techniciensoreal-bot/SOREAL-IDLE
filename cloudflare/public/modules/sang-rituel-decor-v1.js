@@ -1033,6 +1033,9 @@ function sortieCaillot(sc){
   if(!so||!so.classList.contains('bm-paquets-sortie')||!cont.__sortie)return;
   if(sc.__vis===false||document.hidden||sc.classList.contains('bm-fige')||sc.classList.contains('bm-dort')||sc.classList.contains('bm-vide'))return;
   var maintenant=performance.now();
+  /* Norman (2026-10-23) : un changement de cadence (toute la Magie placée) change la période de l'animation CSS en gardant son temps écoulé : le navigateur croit alors à des dizaines de tours et lève des « fins de tour » qui n'en sont pas (jet de sang immédiat). Aucun jet dans les 350 ms qui suivent un changement de cadence ; aucun jet non plus en mode continu (cadence trop rapide pour des jets distincts : le filet coule en boucle). */
+  if(sc.__cleAt&&maintenant-sc.__cleAt<350)return;
+  if(sc.__flux)return;
   if(sc.__sortieMs&&maintenant-sc.__sortieMs<400)return;
   sc.__sortieMs=maintenant;
   /* le jet de sang tombe à cet instant précis (Norman, 2026-10-12 : « le sang ne coule pas à chaque fin de niveau ») */
@@ -1101,7 +1104,7 @@ function sangsue(sc,sec,actif){
   var m=P<3?Math.max(1,Math.round(P/0.5)):PAQ_CASES;
   /* une seule boule par niveau (mode continu : aucune, un filet complet) ; K = taille relative de la boule (un sixième du ventre) */
   var K=PAQ_CASES,Jn=1,S=P/m;
-  sc.__S=S;sc.__P=P;
+  sc.__S=S;sc.__P=P;sc.__flux=(m===1);
   /* sans horloge de barre (animation absente), on ne recale RIEN : les paquets avancent seuls ; barre pleine faute d'Or : ils attendent au bout du ventre */
   var pbBrut=phaseBarre(sc),barre=sc.querySelector('.bm-sang');
   var ligneEta=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
@@ -1135,7 +1138,7 @@ function sangsue(sc,sec,actif){
     sc.__fige=false;
     if(sc.__delai){
       /* le sang avait été rebâti figé avec un décalage : on le remet en marche depuis sa position exacte */
-      sc.__delai=false;
+      sc.__delai=false;sc.__cleAt=performance.now();
       for(i=0;i<paq.length;i++){
         var ad=paq[i].getAnimations&&paq[i].getAnimations()[0];
         var pg=ad&&ad.effect?ad.effect.getComputedTiming().progress:null;
@@ -1151,6 +1154,10 @@ function sangsue(sc,sec,actif){
     sc.__cle=cle;sc.__t0=maintenant-pb*P-((memS&&memS.cle===cle)?memS.niv*P:0);   /* nouvelle cadence : le ventre repart vide ; même cadence retrouvée après un redessin : le sang mémorisé revient */
     cont.style.setProperty('--bm-k',String(K));
     sc.style.setProperty('--bm-pas',S.toFixed(3)+'s');
+    sc.__cleAt=performance.now();
+    /* nouvelle Animation (pas la même mise à jour sur place) : son temps écoulé repart de zéro, pas de faux tours */
+    for(i=0;i<paq.length;i++){paq[i].onanimationiteration=null;paq[i].style.animation='none';}
+    void cont.offsetWidth;
     for(i=0;i<paq.length;i++){
       paq[i].classList.remove('on');
       paq[i].style.animation=(i<Jn&&m>1)?'bmBoule '+P.toFixed(3)+'s linear infinite':'none';
@@ -1161,8 +1168,8 @@ function sangsue(sc,sec,actif){
     /* ventre redessiné (page rafraîchie) juste après un pas : on repart de la position mémorisée plutôt que de l'horloge de la barre, qui peut déjà être à zéro si la Magie vient d'être retirée */
     var depuisMemoire=!!memS&&memS.cle===cle&&(performance.now()-(memS.at||0))<3000;
     for(i=0;i<Jn;i++){var an=paq[i].getAnimations&&paq[i].getAnimations()[0];if(an)an.currentTime=depuisMemoire?(memS.t[i]||0):(pb%1)*P*1000;}
-  }else if(!attente){
-    /* recalage doux sur la barre du moteur */
+  }else if(!attente&&m>1){
+    /* recalage doux sur la barre du moteur (jamais en mode continu : la phase d'une barre qui tourne plus vite que l'écran n'a plus de sens, le recalage sautait à chaque tick) */
     var a0=paq[0].getAnimations&&paq[0].getAnimations()[0],t0=a0&&a0.effect?a0.effect.getComputedTiming():null;
     if(pbBrut!=null&&t0&&t0.progress!=null){
       var pbA=pb%1,d=Math.abs(Number(t0.progress)-pbA);
@@ -1179,7 +1186,7 @@ function sangsue(sc,sec,actif){
   if(sc.classList.contains('bm-vide')!==videVoulu)sc.classList.toggle('bm-vide',videVoulu);
   /* la bouche suce au rythme des coups : une contraction par pas */
   var bo=sc.querySelector('.bm-bouche'),ab=bo&&bo.getAnimations?bo.getAnimations()[0]:null;
-  if(ab&&ab.effect&&pbBrut!=null){
+  if(ab&&ab.effect&&pbBrut!=null&&m>1){
     var tb=ab.effect.getComputedTiming(),pr=((pb*P)%S)/S;
     if(tb&&tb.progress!=null){var dd=Math.abs(Number(tb.progress)-pr);if(Math.min(dd,1-dd)>0.06)ab.currentTime=pr*S*1000;}
   }

@@ -299,14 +299,14 @@
       const IDLE_EXP_DEBUTS_V1=['inventorySpace','basicLootFilter','doubleTap','tripleTap','boostRecycling','autoMerge','daycareSlot1','trainingAutoAdvance'];
 
       /* Rayon « Toc » (Norman, 2026-10-02) : les petits outils de confort, bon marché. */
-      const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];
+      const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','syncWandoos','menuAnimations'];
 
       const IDLE_EXP_STATS_AVENTURE_V1=['adventurePower','adventureToughness','adventureHp','adventureRegen'];
 
       /* Gestes du sac (Norman, 2026-10-04) : Double tap 20 EXP, Triple tap 30 EXP. Rangés dans le rayon « Débuts » (Norman, 2026-10-21 : « les achats double appui fusion et boost dans le menu Débuts »), juste après le filtre de butin : les moins chers d'abord. */
       const IDLE_EXP_GESTES_V1=['doubleTap','tripleTap'];
 
-      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={customInput1:'🔢 Bouton Input personnalisé 1',customInput2:'🔢 Bouton Input personnalisé 2',customInput3:'🔢 Bouton Input personnalisé 3',customInput4:'🔢 Bouton Input personnalisé 4',adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
+      const IDLE_EXP_NOMS_V1=window.__SOREAL_IDLE_EXP_NOMS_V1__={customInput1:'🔢 Bouton Input personnalisé 1',customInput2:'🔢 Bouton Input personnalisé 2',customInput3:'🔢 Bouton Input personnalisé 3',customInput4:'🔢 Bouton Input personnalisé 4',adventurePower:'⚔️ Puissance d’aventure',adventureToughness:'🛡️ Robustesse d’aventure',adventureHp:'❤️ PV max d’aventure',adventureRegen:'💗 Régénération d’aventure',inventorySpace:'🎒 Espaces d’inventaire',accessorySlot1:'💍 Slot d’accessoire',accessorySlot2:'💍 Autre slot d’accessoire',diggerSlot:'⛏️ Slot de Digger',daycareSlot1:'🛠️ Item Daycare (1er slot de garderie)',daycareSlot2:'🛠️ Autre slot de garderie',daycareSlot3:'🛠️ Encore un slot de garderie',beardSlot:'🧔 Slot de Beard',autoMerge:'🔁 Auto Merge (fusion automatique)',sortInventory:'🗂️ Trier l’inventaire',menuAnimations:'🎞️ Menus animés',syncBasicTraining:'🔗 Synchro Basic Training',syncWandoos:'🔗 Synchro Wandoos',doubleTap:'👆 Double tap : boosts',tripleTap:'👆 Double tap : fusion',basicLootFilter:'🧹 Filtre de butin basique',loadoutSlots:'🎽 2 emplacements de configuration',loadoutSlot3:'🎽 Autre emplacement de configuration',boostRecycling:'♻️ Recyclage des boosts (+10 % par achat)',inventoryMergeSlot:'🟦 Slot d’automerge',trainingAutoAdvance:'🏋️ Avance automatique de l’entraînement'};
 
       /* Une ligne d'explication pour les achats de l'onglet Débuts (effets déjà décrits dans le jeu : panneau d'inventaire, Basic Training). */
       const IDLE_EXP_AIDES_V1={
@@ -320,6 +320,7 @@
         autoMerge:'Fusionne automatiquement les doublons de ton équipement (menu Inventory).',
         sortInventory:'Débloque un bouton « Trier » dans ton sac (menu Inventory) qui range tes objets par catégorie.',
         menuAnimations:'Les boutons du menu du haut s’animent quand le menu est actif (énergie, magie ou ressource 3 placée dedans, combat en cours…) : tu vois d’un coup d’œil ce qui travaille.',
+        syncWandoos:'Ajoute un interrupteur de métal sur le clavier de Wandoos : allumé, les touches 0, − , + et CAP de l’énergie agissent aussi sur la magie, avec ce que tu as de libre.',
         syncBasicTraining:'Ajoute une case à cocher sous Input dans Basic Training : cochée, l’énergie que tu places dans une compétence est placée en même temps dans sa jumelle (Attaque passive et Blocage…), pour qu’elles montent exactement à la même vitesse.',
         daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
         trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.',
@@ -337,7 +338,7 @@
       const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1={
         adventurePower:'adventure',adventureToughness:'adventure',adventureHp:'adventure',adventureRegen:'adventure',
         customInput1:'adventure',customInput2:'adventure',customInput3:'adventure',customInput4:'adventure',
-        inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',syncBasicTraining:'adventure',doubleTap:'adventure',tripleTap:'adventure',basicLootFilter:'adventure',
+        inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',syncBasicTraining:'adventure',syncWandoos:'wandoos',doubleTap:'adventure',tripleTap:'adventure',basicLootFilter:'adventure',
         loadoutSlots:'adventure',loadoutSlot3:'adventure',boostRecycling:'adventure',inventoryMergeSlot:'adventure',
         diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'daycare',daycareSlot2:'daycare',daycareSlot3:'daycare',
         macguffinSlot1:'macguffins',macguffinSlot2:'macguffins'
@@ -428,7 +429,7 @@
       const IDLE_EXP_EMOJI_DEBUT_V1=/^((?:\p{Extended_Pictographic}\uFE0F?(?:\u200D\p{Extended_Pictographic}\uFE0F?)*)+)\s*([\s\S]*)$/u;
 
       /* Vraies illustrations du rayon Toc (Norman, 2026-10-04 : trois images, une par achat, nommées d'après le menu qu'elles concernent) : fichiers de /shop/ ; si une image manque, la vignette à emoji reste. */
-      const IDLE_EXP_PHOTOS_V1={sortInventory:'exp-inventaire',syncBasicTraining:'exp-basic-training',menuAnimations:'exp-menus'};
+      const IDLE_EXP_PHOTOS_V1={sortInventory:'exp-inventaire',syncBasicTraining:'exp-basic-training',syncWandoos:'exp-basic-training',menuAnimations:'exp-menus'};
 
       function idleExpTitreAvecImageIdleV1_(titreHtml,id){
         const m=IDLE_EXP_EMOJI_DEBUT_V1.exec(String(titreHtml||''));

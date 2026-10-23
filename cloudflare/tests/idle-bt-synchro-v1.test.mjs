@@ -71,7 +71,7 @@ const runtime = lireSrc("idle-sqlite-runtime.js");
 // 4. Boutique : rayon Toc (Trier l'inventaire + Synchro), plus dans Débuts.
 {
   assert.ok(meta.includes("{id:'toc',icone:'🧰',nom:'Toc'}"));
-  assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];"));
+  assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','syncWandoos','menuAnimations'];"));
   const debuts = meta.match(/const IDLE_EXP_DEBUTS_V1=\[[^\]]*\]/)[0];
   assert.ok(!debuts.includes("sortInventory"), "Trier l'inventaire a quitté Débuts");
   assert.ok(meta.includes("syncBasicTraining:'🔗 Synchro Basic Training'"));

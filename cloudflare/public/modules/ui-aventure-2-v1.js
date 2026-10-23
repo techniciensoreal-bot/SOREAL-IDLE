@@ -2275,9 +2275,9 @@
       function rendreCadreCoffreAdventureIdleV1_(grille,occupees,ouvert){
         /* Un vrai coffre (Norman, 2026-10-02 : « ça fait classeur ») : bois, bandes de fer, couvercle ; voir .soreal-idle-coffre-v1 (soreal-idle-ui.css). */
         const V=window.__SOREAL_IDLE_VALISE_V1__;
-        const valiseOuverte=Boolean(V&&typeof V.ouverte==='function'&&V.ouverte());
+        const fondCoffre=V&&typeof V.fond==='function'?V.fond():'';   /* dernier ouvert : velours (valise) ou tapis vert (Coffre), même refermé */
         const phraseValise=Boolean(V&&typeof V.phraseActive==='function'&&V.phraseActive());
-        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(valiseOuverte?' vl-velours':'')+'">'+
+        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(fondCoffre==='valise'?' vl-velours':'')+(fondCoffre==='coffre'?' vl-tapis':'')+'">'+
           '<i class="vl-velours-fond" aria-hidden="true"></i>'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+

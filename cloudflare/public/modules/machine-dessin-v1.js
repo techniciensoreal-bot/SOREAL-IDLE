@@ -98,6 +98,8 @@
   /* Le multiplicateur peut être très grand (« ×1,23 Qa ») : la police rétrécit pour tenir dans l'écran. */
   function taillePoliceMulti(t){var n=String(t).length;return n>11?14:n>9?17:n>7?20:26;}
 
+  /* Taille du nom du mob (Norman, 2026-10-23) : le nom a toute la largeur de l'écran (300 sur 324) sur sa propre ligne, au-dessus ; plus il est long, plus il rapetisse (jamais sous 9). */
+  function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(9,Math.min(16,Math.floor(300/(n*.62))));}
   /* ---------- le centre : la grande machine (écran, cadran, baie d'engrenages, goulotte à pièces) ---------- */
   function centre(opts){
     opts=opts||{};
@@ -148,10 +150,10 @@
       '<rect x="96" y="100" width="368" height="248" rx="30" fill="url(#tmmLait)" stroke="#150c06" stroke-width="5"/><rect x="108" y="108" width="344" height="232" rx="24" fill="#120c07" stroke="#150c06" stroke-width="3"/><rect x="116" y="114" width="328" height="218" rx="18" fill="#04120d"/>'+
       '<g clip-path="url(#tmmClipEcran)"><rect x="118" y="116" width="324" height="214" fill="#07201a"/><g opacity=".85">'+grille+'</g>'+ecran+
       '<rect x="118" y="116" width="324" height="214" fill="url(#tmmVerre)"/><rect class="tmm-rouleau" x="118" y="116" width="324" height="36" fill="#7dffd0" opacity=".14"/><rect x="118" y="116" width="324" height="214" fill="url(#tmmScan)" opacity=".5"/>'+
-      '<rect x="118" y="290" width="324" height="40" fill="#000" opacity=".62"/>'+
-      '<text x="130" y="306" font-family="Russo One,sans-serif" font-size="12" letter-spacing="2" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
-      '<text id="tmmButin" x="430" y="324" text-anchor="end" font-family="Russo One,sans-serif" font-size="22" fill="#ffd84a" stroke="#000" stroke-width="2" style="paint-order:stroke">'+esc(butin)+'</text>'+
-      '<text id="tmmNomMob" x="130" y="324" font-family="Russo One,sans-serif" font-size="12" fill="#e8f7ee" opacity=".9">'+esc(nom)+'</text></g>'+
+      '<rect x="118" y="276" width="324" height="54" fill="#000" opacity=".66"/>'+
+      '<text id="tmmNomMob" x="130" y="296" font-family="Russo One,sans-serif" font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
+      '<text x="130" y="322" font-family="Russo One,sans-serif" font-size="11" letter-spacing="1" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
+      '<text id="tmmButin" x="430" y="324" text-anchor="end" font-family="Russo One,sans-serif" font-size="21" fill="#ffd84a" stroke="#000" stroke-width="2" style="paint-order:stroke">'+esc(butin)+'</text></g>'+
       '<rect x="116" y="114" width="328" height="218" rx="18" fill="none" stroke="#000" stroke-opacity=".6" stroke-width="3"/><path d="M130 130 Q250 118 360 126 L330 150 Q230 146 150 156 Z" fill="#fff" opacity=".12"/>'+
       '<g fill="url(#tmmRivet)" stroke="#150c06" stroke-width="2"><circle cx="112" cy="118" r="5"/><circle cx="448" cy="118" r="5"/><circle cx="112" cy="330" r="5"/><circle cx="448" cy="330" r="5"/></g>'+
       /* bandeau de commande : vitesse (affichage, cadran) et voyants */
@@ -277,7 +279,7 @@
     }
     var butin=document.getElementById('tmmButin');
     if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
-    var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob&&nomMob.textContent!==nom)nomMob.textContent=nom;
+    var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob){if(nomMob.textContent!==nom)nomMob.textContent=nom;var tn=String(tailleNom(nom));if(nomMob.getAttribute('font-size')!==tn)nomMob.setAttribute('font-size',tn);}
     /* Le mob a changé (un meilleur butin a été obtenu) : image remplacée sur place ; première apparition (aucun mob avant) : la page est redessinée par l'appelant. */
     var u=urlMob(v.bestGoldMob);
     ['tmmImage','tmmFond'].forEach(function(id){var im=document.getElementById(id);if(im&&u&&im.getAttribute('href')!==u)im.setAttribute('href',u);});

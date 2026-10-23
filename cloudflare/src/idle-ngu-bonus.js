@@ -977,6 +977,7 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
     /* Wiki Experience > Misc « Training Auto Advance » (300 EXP) : effet dans advanceBasicTrainingStateV411. */
     basicTrainingAutoAdvance: expShopPurchasedV1(state, "trainingAutoAdvance") >= 1,
     basicTrainingSync: expShopPurchasedV1(state, "syncBasicTraining") >= 1,
+    wandoosSync: expShopPurchasedV1(state, "syncWandoos") >= 1,
     disableEquipment: equipmentDisabled,
     numberMultiplier: number,
     augmentationMultiplier: aug,

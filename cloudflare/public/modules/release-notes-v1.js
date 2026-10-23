@@ -55,6 +55,21 @@
             'La voix du guide d’introduction et de ses étapes lit désormais le même texte que celui préparé dans l’éditeur.',
             'Dans la fenêtre d’un guide, la voix lit maintenant le texte enregistré dans l’éditeur et ne retombe plus sur la voix de secours.',
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le cadre du Coffre garde le fond du dernier ouvert, même refermé : velours pour la valise, tapis vert de billard pour le Coffre.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Le boss « Sundae » garde son nom d’origine partout (c’est un jeu de mots avec « Sunday »).',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Rituel de la sangsue : plus aucun jet de sang parasite quand on change la cadence (par exemple en plaçant toute la Magie) ; à cadence très rapide, la sangsue passe en écoulement continu, sans jets ni recalages qui sautent.',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Machine à remonter le temps : le nom de l’ennemi est écrit au-dessus, sur toute la largeur de l’écran ; dessous, seulement « Meilleur butin d’or » et l’Or. Les cases « Cible » et « Allouée » ne changent plus de taille quand on ajoute de l’énergie.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'La boutique EXP a un nouvel achat dans le rayon Toc (75 EXP), visible quand le menu concerné est découvert. Il ajoute au clavier de l’ordinateur un petit interrupteur de métal (« Sync », au-dessus d’Énergie) : on le monte pour l’allumer, la loupiote devient verte (rouge quand il est éteint). Allumé, les touches 0, −, + et CAP agissent en même temps sur l’énergie et la magie ; s’il manque de la magie, on place le maximum disponible.',
+          ]},
         ]
       },
       {

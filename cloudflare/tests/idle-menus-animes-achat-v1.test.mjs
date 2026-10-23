@@ -24,6 +24,6 @@ const ui = lireUiComplet();
 assert.ok(ui.includes("function idleMenuAlimenteV1_(id,j){\n        if(!menusAnimesAchetesIdleV1_(j))return false;"), "sans l'achat, aucun bouton n'est animé");
 assert.ok(ui.includes("return Boolean(j&&j.menusAnimes===true);"));
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','menuAnimations'];") && meta.includes("menuAnimations:'🎞️ Menus animés'"));
+assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','syncWandoos','menuAnimations'];") && meta.includes("menuAnimations:'🎞️ Menus animés'"));
 assert.ok(/menuAnimations:'Les boutons du menu du haut s’animent/.test(meta), "explication courte");
 console.log("idle-menus-animes-achat-v1: OK");

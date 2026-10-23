@@ -45,7 +45,7 @@ const acheter = (s, item, quantity = 1) => applyIdleNguAction(s, { action: "buyE
   /* Anti-spoil : la boutique ne liste que les achats dont le système est découvert ; un joueur neuf n'en voit presque aucun. */
   assert.ok(idleNguSnapshot(JSON.parse(JSON.stringify(s)), ctx, 3_000_000).expShop.every((x) => x.id !== "macguffinSlot1" && x.id !== "daycareSlot1" && !x.yggFruit), "achats de systèmes verrouillés absents");
   s.records.highestBoss = 99;
-  for (const id of ["diggers", "beards", "daycare", "macguffins", "yggdrasil"]) s.systems[id].unlocked = true;
+  for (const id of ["diggers", "beards", "daycare", "macguffins", "yggdrasil", "wandoos"]) s.systems[id].unlocked = true;
   const snap = idleNguSnapshot(s, ctx, 3_000_000);
   assert.ok(Array.isArray(snap.expShop) && snap.expShop.length === Object.values(IDLE_NGU_EXP_SHOP_V1).filter((d) => !(d.yggFruit && /Mayo$/.test(d.yggFruit))).length, "les Auto-Activate des fruits de Mayo n'apparaissent qu'avec Cards");
   assert.equal(snap.expShop.find((x) => x.id === "diggerSlot").purchased, 1);
