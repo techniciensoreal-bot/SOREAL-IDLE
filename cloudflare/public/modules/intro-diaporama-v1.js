@@ -5,6 +5,8 @@
  * Les 16 images (/intro/01.webp à 16.webp, dessins de Norman, réduites en WebP) défilent d'elles-mêmes avec un fondu, chacune avec sa phrase en blanc dessous (le texte de la page, découpé en 16 morceaux dans l'ordre : la voix de la page lit toujours le texte
  * complet, inchangé, donc les voix déjà générées servent toujours). La durée de chaque image suit la longueur de sa phrase. La dernière (la main devant le gros bouton blanc « JOUER ») ne défile plus : elle reste, éclairée, et c'est un clic (ou Entrée / Espace)
  * sur l'image qui continue. Aucun défilement automatique avec « réduire les animations » : seul le fondu disparaît.
+ * Taper sur l'image passe à l'image suivante (Norman, 2026-10-23 : « si on lit plus vite que le narrateur »). Si le navigateur bloque le son (aucun appui depuis le chargement de la page : cas d'une partie qui vient d'être remise à zéro), la scène attend UN premier appui
+ * (« Touche l'écran pour lancer la voix ») avant de défiler : l'appui débloque l'audio et la voix repart du début, en même temps que les images.
  *   window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__ = { html(page, texteVoix, etat), demarrer(), arreter(), diapos, duree(i) }
  */
 (function(){
@@ -32,7 +34,7 @@ var DIAPOS=[
   {n:'16',t:'Peut-être qu’appuyer sur un gros bouton blanc marqué « JOUER » te permettra de faire quelque chose d’amusant.'}
 ];
 var MIN_MS=3800,MS_PAR_CARACTERE=72;
-var minuterie=0,indice=0,couche=0;
+var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 /* *mot* -> italique, comme le texte d'origine l'écrit. */
@@ -64,8 +66,12 @@ function style_(){
     '.id-fin .id-cadre:focus-visible{outline:3px solid #ffd24a;outline-offset:3px}'+
     '.id-indice{min-height:1.4em;font:400 clamp(12px,2.6vw,15px) "Russo One",sans-serif;letter-spacing:.05em;color:#ffd24a;text-align:center;opacity:0;transition:opacity .6s}'+
     '.id-fin .id-indice{opacity:1}'+
+    '.id-cadre{cursor:pointer}'+
+    '.id-son{min-height:1.4em;font:400 clamp(13px,2.8vw,16px) "Russo One",sans-serif;letter-spacing:.04em;color:#fff;text-align:center;padding:6px 14px;border-radius:999px;background:rgba(255,210,74,.16);border:1px solid rgba(255,210,74,.6);animation:idSon 1.4s ease-in-out infinite}'+
+    '.id-son[hidden]{display:none}'+
+    '@keyframes idSon{0%,100%{opacity:.55}50%{opacity:1}}'+
     '@keyframes idPulse{0%,100%{box-shadow:0 0 0 2px rgba(255,210,74,.35),0 0 18px 2px rgba(255,230,140,.25),0 16px 40px rgba(0,0,0,.65)}50%{box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 46px 12px rgba(255,230,140,.6),0 16px 40px rgba(0,0,0,.65)}}'+
-    '@media (prefers-reduced-motion:reduce){.id-cadre img{transition:none}.id-fin .id-cadre{animation:none;box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 30px 6px rgba(255,230,140,.5)}}';
+    '@media (prefers-reduced-motion:reduce){.id-son{animation:none}.id-cadre img{transition:none}.id-fin .id-cadre{animation:none;box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 30px 6px rgba(255,230,140,.5)}}';
   (document.head||document.documentElement).appendChild(s);
 }
 
@@ -79,6 +85,7 @@ function html(page,texteVoix){
     '<div class="id-cadre" id="sorealIdleIntroCadreV1"><img alt="" decoding="async" draggable="false"><img alt="" decoding="async" draggable="false"></div>'+
     '<div class="id-texte" id="sorealIdleIntroTexteV1" data-soreal-tts-ignore></div>'+
     '<div class="id-points" data-soreal-tts-ignore>'+pts+'</div>'+
+    '<div class="id-son" id="sorealIdleIntroSonV1" data-soreal-tts-ignore hidden>🔊 Touche l’écran pour lancer la voix</div>'+
     '<div class="id-indice" data-soreal-tts-ignore>Clique sur le bouton pour jouer</div>'+
   '</div>';
 }
@@ -126,12 +133,40 @@ function installerBouton(r){
   try{cadre.focus({preventScroll:true});}catch(_e){}
 }
 
+function planifier(){
+  if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  if(indice<DIAPOS.length-1)minuterie=setTimeout(suite,duree(indice));
+}
 function suite(){
   var r=racine();
   if(!r||!r.isConnected){arreter();return;}
   if(indice>=DIAPOS.length-1){minuterie=0;return;}
   afficher(indice+1);
-  if(indice<DIAPOS.length-1)minuterie=setTimeout(suite,duree(indice));else minuterie=0;
+  planifier();
+}
+
+/* Le son est-il bloqué par le navigateur ? (voix automatique en marche, mais contexte audio encore suspendu : aucun appui depuis le chargement de la page) */
+function sonBloque(){
+  var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  try{return Boolean(t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.audioState==='function'&&(t.audioState()==='suspended'||t.audioState()==='none'));}catch(_e){return false;}
+}
+function indiceSon(visible){
+  var r=racine(),e=r&&r.querySelector('#sorealIdleIntroSonV1');
+  if(e)e.hidden=!visible;
+}
+/* Un appui dans la scène : le premier débloque le son (et lance les images) s'il était bloqué ; ensuite, taper sur l'image passe à la suivante. */
+function toucher(ev){
+  var r=racine();if(!r)return;
+  if(attenteSon){
+    attenteSon=false;indiceSon(false);
+    planifier();   /* le gestionnaire d'appui de la voix (capture sur le document) vient de relancer la lecture depuis le début : les images repartent avec elle */
+    return;
+  }
+  var cible=ev&&ev.target;
+  if(!(cible&&cible.closest&&cible.closest('#sorealIdleIntroCadreV1')))return;
+  if(indice>=DIAPOS.length-1)return;   /* dernière image : son propre bouton */
+  afficher(indice+1);
+  planifier();
 }
 
 function demarrer(){
@@ -143,11 +178,27 @@ function demarrer(){
   var t=r.querySelector('#sorealIdleIntroTexteV1');if(t)t.innerHTML=texteHtml(DIAPOS[0].t);
   var pts=r.querySelectorAll('.id-points i');for(var k=0;k<pts.length;k++)pts[k].className=k===0?'id-ici':'';
   precharger(1);precharger(2);
-  minuterie=setTimeout(suite,duree(0));
+  attenteSon=false;indiceSon(false);
+  r.addEventListener('click',toucher);
+  planifier();
+  /* Après un instant (la voix a eu le temps d'essayer de démarrer) : si le navigateur a bloqué le son, on attend un premier appui avant de défiler. */
+  if(veilleSon)clearTimeout(veilleSon);
+  veilleSon=setTimeout(function(){
+    veilleSon=0;
+    var rr=racine();
+    if(!rr||indice!==0||!sonBloque())return;
+    attenteSon=true;
+    if(minuterie){clearTimeout(minuterie);minuterie=0;}
+    indiceSon(true);
+  },800);
   return true;
 }
 
-function arreter(){if(minuterie){clearTimeout(minuterie);minuterie=0;}}
+function arreter(){
+  if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  if(veilleSon){clearTimeout(veilleSon);veilleSon=0;}
+  attenteSon=false;
+}
 
 window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__={html:html,demarrer:demarrer,arreter:arreter,diapos:DIAPOS,duree:duree,url:url,texteHtml:texteHtml};
 })();

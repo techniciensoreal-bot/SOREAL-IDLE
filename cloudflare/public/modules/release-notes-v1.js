@@ -22,10 +22,23 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.6',
+    courante:'3.7',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.7',
+        nom:'Un tour d’écran',
+        date:'2026-10-23',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Dans l’introduction en images, tape sur l’image pour passer à la suivante si tu lis plus vite que la voix.',
+            'Si le navigateur bloque le son au lancement de l’introduction, l’écran te demande de le toucher une fois : la voix démarre alors en même temps que les images.',
+            'La voix du guide d’introduction et de ses étapes lit désormais le même texte que celui préparé dans l’éditeur.',
+            'Dans la fenêtre d’un guide, la voix lit maintenant le texte enregistré dans l’éditeur et ne retombe plus sur la voix de secours.',
+          ]},
+        ]
+      },
       {
         version:'3.6',
         nom:'La borne en met plein la vue',

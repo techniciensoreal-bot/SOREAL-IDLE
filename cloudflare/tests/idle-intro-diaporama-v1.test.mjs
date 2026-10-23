@@ -58,6 +58,24 @@ function monde() {
   assert.equal(m.nav(), 1, "le clic sur l'image continue");
 }
 
+// 2b. Taper sur l'image passe à la suivante (Norman, 2026-10-23) et relance le minuteur ; un appui hors de l'image ne fait rien.
+{
+  const m = monde();
+  m.D.demarrer();
+  const tap = (sur) => m.racine.listeners.click({ target: { closest: (s) => (sur && s === "#sorealIdleIntroCadreV1" ? m.cadre : null) } });
+  tap(false);
+  assert.equal(m.pts[0].className, "id-ici", "un appui hors de l'image ne change rien");
+  tap(true);
+  assert.equal(m.pts[1].className, "id-ici", "taper sur l'image passe à la suivante");
+  tap(true); tap(true);
+  assert.equal(m.pts[3].className, "id-ici", "chaque appui avance d'une image");
+  assert.ok(m.timers.filter((t) => t.ms >= 3800).length >= 4, "le minuteur est replanifié après chaque appui");
+}
+
+// 2c. Son bloqué par le navigateur : la scène attend UN premier appui avant de défiler (la voix, débloquée par cet appui, repart avec les images).
+assert.ok(code.includes("sonBloque()") && code.includes("attenteSon") && code.includes("Touche l’écran pour lancer la voix"), "invite « Touche l'écran » quand le son est bloqué");
+assert.ok(code.includes("addEventListener('click',toucher)"), "appui sur la scène géré");
+
 // 3. Câblage : branche du diaporama dans la fenêtre, module chargé, texte lu par la voix inchangé.
 const tut = lire("modules/ui-tutoriel-v1.js");
 assert.ok(tut.includes("page.long&&page.diaporama&&window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__") && tut.includes("texteVoixTutorielIdleV1_(page,etat.pages[etat.index-1])"), "la voix lit toujours le texte de la page");
