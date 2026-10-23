@@ -354,7 +354,9 @@ ${P}.vl-glou .vl-bete{animation:vlSaut .55s cubic-bezier(.3,1.6,.5,1)}
 @keyframes vlSaut{0%{transform:translateY(0) scale(1)}35%{transform:translateY(-12px) scale(1.04,.97)}100%{transform:translateY(0) scale(1)}}
 /* la bouche (sous le nez-serrure) s'ouvre avec la valise : la langue en sort, d'autant plus longue qu'il y a d'objets */
 /* Le dépliage commence DANS la bouche, à la hauteur de la lèvre inférieure, ouvert comme fermé (--vl-m = la distance de la bouche au bas de la valise) : le recouvrement est compensé par une hauteur minimale, donc la mise en page ne bouge jamais et la langue ne se détache pas de la bouche pendant qu'elle s'enroule. */
-${P} .vl-deplie{--vl-m:calc(min(210px,70cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m)}
+${P} .vl-deplie{--vl-m:calc(min(210px,70cqw)*.444);position:relative;z-index:3;margin-top:calc(var(--vl-m)*-1);min-height:var(--vl-m);pointer-events:none}
+/* Norman (2026-10-23) : toute la valise ouvre, pas seulement son couvercle : le bloc déplié (qui remonte sur le dessin) ne reçoit plus les clics ; seuls ses objets et boutons en reçoivent */
+${P} .vl-deplie .vl-art,${P} .vl-deplie button{pointer-events:auto}
 ${P} .vl-etiq{font-size:12px;padding:2px 4px}
 /* La partie visible de la langue = la longueur déroulée (--vl-p de 0 à 1 fois la hauteur mesurée --vl-h) : animée image par image par le module (anime()), jamais par une simple transition */
 ${P} .vl-deplie-in{overflow:hidden;padding:0;max-height:calc(var(--vl-h,0)*var(--vl-pf,var(--vl-p,0))*1px)}

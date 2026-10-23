@@ -18,6 +18,7 @@ assert.ok(lire("cloudflare/public/soreal-idle-machine.css").includes(".tmm-machi
 const v = lire("cloudflare/public/modules/valise-v1.js");
 assert.ok(v.includes("soreal_idle_dernier_ouvert_v1") && v.includes("noterDernier('valise')") && v.includes("noterDernier('coffre')"));
 assert.ok(lire("cloudflare/public/modules/ui-aventure-2-v1.js").includes("fondCoffre==='coffre'?' vl-tapis'"));
+assert.ok(v.includes("min-height:var(--vl-m);pointer-events:none}") && v.includes(".vl-deplie .vl-art,${P} .vl-deplie button{pointer-events:auto}"), "toute la valise ouvre : le bloc déplié ne capte plus les clics");
 console.log("idle-divers-2026-10-23-v1 OK");
 /* cadre : tapis vert foncé par défaut (plus de bois) ; valise à la même distance du texte que le Coffre ; étiquette à gauche, à hauteur des yeux */
 const css = lire("cloudflare/public/soreal-idle-itopod.css");
