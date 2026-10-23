@@ -128,13 +128,19 @@
       /* Le calque n'est PAS posé dans la grille de l'arène (un enfant de plus y ajoutait une ligne : la borne grandissait de ~140 px) mais dans son conteneur (flex), à la place exacte de l'arène : rien ne bouge. */
       var duel=(arene.closest&&arene.closest('.soreal-idle-duel-v41'))||arene.parentElement||arene;
       var anc=duel.querySelector('.moq-fuite');if(anc)anc.remove();
-      var rd=duel.getBoundingClientRect(),r=rd,LH=LH0;   /* Norman (2026-10-22) : sur PC les moqueurs doivent couvrir TOUT l'écran de la borne (le cadre du duel), pas seulement l'arène */
+      /*
+       * Norman (2026-10-23) : « les hommes qui rigolent dépassent de l'écran, ils sont affichés même en dehors des bords ; ils doivent rester à l'intérieur de l'écran avec les coins arrondis ». Le calque couvrait tout le cadre du duel (la borne), plus large que l'écran de verre : il
+       * est maintenant posé et découpé exactement sur l'écran (la rangée du duel, aux coins arrondis), en pourcentages du cadre (indépendants du zoom de la page sur PC).
+       */
+      var rd=duel.getBoundingClientRect(),r=arene.getBoundingClientRect(),LH=LH0;
       var LW=Math.max(120,Math.min(420,Math.round(LH*(r.width||LH)/(r.height||LH))));
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 moq-fuite';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
-      calque.style.cssText='inset:auto;right:auto;bottom:auto;left:0;top:0;width:100%;height:100%';
+      var bw=rd.width||1,bh=rd.height||1;
+      var rayon='14px';try{rayon=getComputedStyle(arene).borderTopLeftRadius||rayon;}catch(_e){}
+      calque.style.cssText='inset:auto;right:auto;bottom:auto;overflow:hidden;border-radius:'+rayon+';left:'+((r.left-rd.left)/bw*100).toFixed(3)+'%;top:'+((r.top-rd.top)/bh*100).toFixed(3)+'%;width:'+(r.width/bw*100).toFixed(3)+'%;height:'+(r.height/bh*100).toFixed(3)+'%';
       duel.appendChild(calque);
       var c=cv.getContext('2d');c.imageSmoothingEnabled=false;
       var t0=performance.now(),fini=false;

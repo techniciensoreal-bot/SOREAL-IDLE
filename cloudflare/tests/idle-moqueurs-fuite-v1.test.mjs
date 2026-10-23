@@ -34,7 +34,7 @@ function monde({ reduit = false } = {}) {
   assert.equal(m.M.jouer(m.hote), true);
   assert.equal(m.duel.enfants.length, 1, "calque posé dans le conteneur du duel, pas dans la grille de l'arène");
   const calque = m.duel.enfants[0];
-  assert.equal(calque.style.cssText, "inset:auto;right:auto;bottom:auto;left:0;top:0;width:100%;height:100%", "sur tout l'écran de la borne (le cadre du duel), sans rien déplacer");
+  assert.ok(/^inset:auto;right:auto;bottom:auto;overflow:hidden;border-radius:[^;]+;left:[0-9.]+%;top:[0-9.]+%;width:[0-9.]+%;height:[0-9.]+%$/.test(calque.style.cssText), "posé et découpé sur l'écran (coins arrondis), en pourcentages du cadre du duel, sans rien déplacer");
   assert.ok(/moq-fuite/.test(calque.className) && /soreal-idle-boss-transition-v61/.test(calque.className));
   assert.ok("data-morph-garder" in calque.attrs, "gardé par le redessin (règle n°4)");
   const cv = calque.children[0];
@@ -71,3 +71,10 @@ assert.ok(bloc.indexOf("jouerEffetAudioIdleV199_('flee')") > 0 && bloc.indexOf("
 assert.ok(bloc.indexOf("moq.jouer(document.getElementById('sorealIdleBossImageHostV36'))") > bloc.indexOf("if(enCombat){"), "dans la branche « combat en cours »");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes('<script defer src="/modules/moqueurs-fuite-v1.js?v='), "module chargé");
 console.log("idle-moqueurs-fuite-v1: OK");
+
+// Les moqueurs restent dans l'écran, aux coins arrondis (Norman, 2026-10-23) : le calque est posé et découpé sur la rangée du duel, pas sur tout le cadre de la borne.
+{
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../public/modules/moqueurs-fuite-v1.js", import.meta.url), "utf8");
+  assert.ok(src.includes("r=arene.getBoundingClientRect()") && src.includes("overflow:hidden;border-radius:'+rayon+';left:'+((r.left-rd.left)/bw*100)"), "calque découpé sur l'écran, coins arrondis");
+}
