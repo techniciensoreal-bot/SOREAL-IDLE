@@ -38,7 +38,7 @@ function monde({ reduit = false } = {}) {
   assert.ok(/moq-fuite/.test(calque.className) && /soreal-idle-boss-transition-v61/.test(calque.className));
   assert.ok("data-morph-garder" in calque.attrs, "gardé par le redessin (règle n°4)");
   const cv = calque.children[0];
-  assert.equal(cv.height, 160); assert.equal(cv.width, Math.round(160 * 640 / 528), "canvas à la forme de l'écran (pixels carrés)");
+  assert.equal(cv.height, 160); assert.equal(cv.width, Math.round(160 * 588 / 494), "canvas à la forme de l'écran (pixels carrés)");
   assert.ok(m.doc.styles.some((s) => /z-index:30/.test(s.textContent)), "au-dessus des deux photos");
   assert.equal(m.M.jouer(m.hote), true);
   assert.equal(m.duel.enfants.filter((e) => e.isConnected).length >= 1, true);
