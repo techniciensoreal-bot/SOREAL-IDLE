@@ -34,7 +34,7 @@ function baseVide() {
 {
   const sql = baseVide();
   const h = lireHistoiresV1(sql);
-  assert.equal(h.length, 1, "une seule histoire d'origine : la 2 a été supprimée (2026-10-23)");
+  assert.equal(h.length, 2, "histoire 1 + l intro (la 2 a été supprimée, 2026-10-23)"); h.splice(h.findIndex((x) => x.id === "Intro"), 1);
   const un = h.find((x) => x.id === "MagicienEtLaGrotte");
   assert.equal(un.etapes.length, 5);
   assert.equal(un.vuId, "histoire:magicienEtLaGrotte", "les joueurs qui ont déjà vu l'histoire 1 ne la revoient pas");
@@ -42,9 +42,9 @@ function baseVide() {
   assert.ok(un.etapes.every((e) => /^legacy:\d+$/.test(e.image)), "images historiques par position");
   // Supprimer une histoire d'origine ne la recrée pas au prochain appel.
   supprimerHistoireV1(sql, "MagicienEtLaGrotte");
-  assert.equal(lireHistoiresV1(sql).length, 0);
+  assert.equal(lireHistoiresV1(sql).length, 1, "reste l intro");
   assurerHistoiresV1(sql);
-  assert.equal(lireHistoiresV1(sql).length, 0, "graine insérée une seule fois");
+  assert.equal(lireHistoiresV1(sql).length, 1, "graine insérée une seule fois (reste l intro)");
 }
 
 // 2. Enregistrer / relire / valider.

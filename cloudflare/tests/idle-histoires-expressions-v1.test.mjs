@@ -50,12 +50,13 @@ const etape = { texte: "(joyeux) Il était une fois. (femme) (dramatique) Et voi
 const lignes = T.lignesDepuisEtape_(etape);
 assert.equal(json(lignes), json([
   { parleur: "narrateur", expr: "joyeux", texte: "Il était une fois." },
-  { parleur: "femme", expr: "dramatique", texte: "Et voilà. (pause 1s) Fin." },
+  { parleur: "femme", expr: "dramatique", texte: "Et voilà." },
+  { parleur: "femme", expr: "", texte: "(pause 1s) Fin." },
   { parleur: "marius", expr: "", texte: "Salut." }
-].map((x) => x)), "expression en tête de chaque ligne ; la pause reste dans le texte");
+].map((x) => x)), "expression en tête de la ligne ; une phrase par personnage (découpe aux points, 2026-10-23) ; la pause reste dans le texte de sa phrase");
 const recompose = { texte: "", parleur: "", lignes };
 T.composerEtape_(recompose);
-assert.equal(recompose.texte, "(joyeux) Il était une fois. (femme) (dramatique) Et voilà. (pause 1s) Fin. (marius) Salut.", "aller-retour sans perte");
+assert.equal(recompose.texte, "(joyeux) Il était une fois. (femme) (dramatique) Et voilà. (femme) (pause 1s) Fin. (marius) Salut.", "aller-retour sans perte de contenu (la balise de voix se répète devant chaque phrase découpée)");
 assert.equal(recompose.parleur, "narrateur");
 
 // --- Branchement ---

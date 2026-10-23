@@ -14,7 +14,37 @@
 import { sqlRows, safeJson } from "./core/sqlite-core.js";
 
 export const IDLE_HISTOIRE_ID_RE_V1 = /^[A-Za-z0-9_-]{1,60}$/;
-export const IDLE_HISTOIRE_IMAGE_RE_V1 = /^(legacy:\d{1,2}|[A-Za-z0-9_.-]{1,90})$/;
+export const IDLE_HISTOIRE_IMAGE_RE_V1 = /^(legacy:\d{1,2}|intro:\d{2}|[A-Za-z0-9_.-]{1,90})$/;
+/* L'intro (« Le commencement », 16 images) est une scène à part entière dans le menu Admin (Norman, 2026-10-23) : identifiant réservé, jamais déclenchée par un boss, jamais supprimée, images fixes (/intro/NN.webp). */
+export const IDLE_HISTOIRE_INTRO_ID_V1 = "Intro";
+export const IDLE_HISTOIRE_INTRO_TITRE_V1 = "Intro — Le commencement";
+const IDLE_INTRO_PHRASES_V1 = [
+  "*BLOUM*",
+  "Quand tu reprends connaissance,",
+  "la première chose que tu remarques, c’est ce goût de cuivre dans ta bouche.",
+  "La seconde, c’est l’odeur d’égout à plein nez tout autour de toi.",
+  "Tu te relèves en soignant ta lèvre fendue et en te frottant la tête,",
+  "qui a l’air d’avoir reçu tout l’amour d’un bloc de béton.",
+  "Tu essaies de te rappeler comment tu es arrivé ici... enfin, peu importe où est « ici ». Tu réalises, avec un calme étonnant, que tu as complètement oublié qui tu es.",
+  "Vu l’état dans lequel tu te trouves, tu te dis qu’ils devaient être de sacrés connards.",
+  "Balancé dans une fosse d’égout dégueulasse...",
+  "Au moins, à court terme, tu as un objectif : trouver un moyen de sortir d’ici. Ça a l’air d’être la bonne chose à faire. Tu essaies de te lever",
+  "mais tes genoux tremblent, se dérobent,",
+  "et tu retombes.",
+  "C’est seulement maintenant que tu sens la faiblesse dans ton corps. Pas le genre de faiblesse normale, comme quand tu te lèves trop vite et que la tête tourne, ou quand ton bras se fait arracher dans un accident industriel.",
+  "Non, tu as l’impression que *quelque chose* a aspiré la majorité de ta force.",
+  "Bon, il n’y a rien d’autre à faire qu’essayer de récupérer un peu de cette force et sortir d’ici.",
+  "Peut-être qu’appuyer sur un gros bouton blanc marqué « JOUER » te permettra de faire quelque chose d’amusant."
+];
+export const IDLE_INTRO_SEED_V1 = {
+  id: IDLE_HISTOIRE_INTRO_ID_V1,
+  vuId: "",
+  titre: IDLE_HISTOIRE_INTRO_TITRE_V1,
+  boss: null,
+  actif: true,
+  voix: [],
+  etapes: IDLE_INTRO_PHRASES_V1.map((t, i) => ({ texte: t, image: "intro:" + String(i + 1).padStart(2, "0") }))
+};
 export const IDLE_HISTOIRE_HASH_RE_V1 = /^[0-9a-f]{14}$/;
 export const IDLE_HISTOIRE_MAX_ETAPES_V1 = 80;
 export const IDLE_HISTOIRE_VOIX_ID_RE_V1 = /^[a-z0-9-]{1,32}$/;
@@ -89,6 +119,7 @@ export function normaliserHistoireV1(brut) {
   /* Identifiant « vu » (profil.stats.vus) : conservé tel quel pour les deux premières histoires, déjà mémorisé chez les joueurs. */
   const vuBrut = String(h.vuId == null ? "" : h.vuId).trim();
   const vuId = vuBrut && vuBrut.length <= 80 && /^[A-Za-z0-9_:.-]+$/.test(vuBrut) ? vuBrut : "";
+  if (id === IDLE_HISTOIRE_INTRO_ID_V1) return { id, titre: IDLE_HISTOIRE_INTRO_TITRE_V1, boss: null, actif: true, voix, etapes, vuId: "" };
   return { id, titre, boss, actif: h.actif !== false, voix, etapes, vuId };
 }
 
@@ -113,6 +144,12 @@ export function assurerHistoiresV1(sql) {
     sql.exec("DELETE FROM idle_histoires WHERE id='MagicienEtLeGrotte2'");
     sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v5','1')");
   }
+  /* L'intro devient visible et modifiable dans le menu Admin (Norman, 2026-10-23) : insérée si elle manque (jamais écrasée) ; elle ne peut pas être supprimée (voir supprimerHistoireV1). */
+  const v6 = sqlRows(sql.exec("SELECT v FROM idle_histoires_meta WHERE k='seed_v6'"))[0];
+  if (!v6) {
+    sql.exec("INSERT OR IGNORE INTO idle_histoires(id,json,maj) VALUES(?,?,?)", IDLE_INTRO_SEED_V1.id, JSON.stringify(IDLE_INTRO_SEED_V1), maintenant);
+    sql.exec("INSERT OR REPLACE INTO idle_histoires_meta(k,v) VALUES('seed_v6','1')");
+  }
 }
 
 export function lireHistoiresV1(sql) {
@@ -129,6 +166,11 @@ export function lireHistoiresV1(sql) {
 /* Enregistre (crée ou remplace). Refuse qu'un boss ait deux histoires actives. */
 export function enregistrerHistoireV1(sql, brut, maintenant = Date.now()) {
   const h = normaliserHistoireV1(brut);
+  if (h.id === IDLE_HISTOIRE_INTRO_ID_V1) {
+    /* images et nombre d'étapes fixes : seuls les textes (affiché, dit, personnages) et les voix changent */
+    if (h.etapes.length !== IDLE_INTRO_SEED_V1.etapes.length) throw new Error("HISTOIRE_INTRO_16_ETAPES");
+    h.etapes = h.etapes.map((e, i) => Object.assign({}, e, { image: IDLE_INTRO_SEED_V1.etapes[i].image }));
+  }
   const existantes = lireHistoiresV1(sql);
   const ancienne = existantes.find((x) => x.id === h.id);
   if (ancienne && ancienne.vuId && !h.vuId) h.vuId = ancienne.vuId;
@@ -147,6 +189,7 @@ export function enregistrerHistoireV1(sql, brut, maintenant = Date.now()) {
 
 export function supprimerHistoireV1(sql, id) {
   assurerHistoiresV1(sql);
+  if (String(id || "") === IDLE_HISTOIRE_INTRO_ID_V1) return;   /* l'intro ne se supprime pas */
   sql.exec("DELETE FROM idle_histoires WHERE id=?", String(id || ""));
 }
 
@@ -155,6 +198,8 @@ export function urlImageEtapeV1(histoireId, image) {
   const img = String(image || "");
   const legacy = /^legacy:(\d{1,2})$/.exec(img);
   if (legacy) return "/api/idle/media/story?id=" + encodeURIComponent(histoireId) + "&index=" + legacy[1];
+  const intro = /^intro:(\d{2})$/.exec(img);
+  if (intro) return "/intro/" + intro[1] + ".webp?v=1";
   if (!img) return "";
   return "/api/idle/media/story-image?id=" + encodeURIComponent(histoireId) + "&f=" + encodeURIComponent(img);
 }
@@ -172,6 +217,19 @@ export function histoireDuBossV1(sql, boss) {
     id: h.id,
     titre: h.titre,
     vuId: h.vuId || "histoire:" + h.id,
+    voix: h.voix,
+    etapes: h.etapes.map((e) => (e.affiche ? { texte: e.texte, affiche: e.affiche, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur } : { texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur }))
+  };
+}
+
+/* L'intro telle que la joue le diaporama (tous les joueurs : c'est le premier écran, aucun spoil) : mêmes champs qu'une histoire de boss. */
+export function histoireIntroV1(sql) {
+  const h = lireHistoiresV1(sql).find((x) => x.id === IDLE_HISTOIRE_INTRO_ID_V1);
+  if (!h) return null;
+  return {
+    id: h.id,
+    titre: h.titre,
+    vuId: "",
     voix: h.voix,
     etapes: h.etapes.map((e) => (e.affiche ? { texte: e.texte, affiche: e.affiche, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur } : { texte: e.texte, imageUrl: urlImageEtapeV1(h.id, e.image), parleur: e.parleur }))
   };

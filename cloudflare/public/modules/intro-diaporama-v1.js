@@ -35,6 +35,37 @@ var DIAPOS=[
 ];
 var MIN_MS=3800,MS_PAR_CARACTERE=72;
 var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0,chronique=false;
+/*
+ * L'intro est une scène du menu Admin (Norman, 2026-10-23 : « je veux pouvoir voir et éditer l'intro ») : le serveur envoie ses 16 textes (cadre jaune = ce que lisent les joueurs) et, une fois leurs voix générées (une par image), le diaporama joue
+ * la voix de CHAQUE image et passe à la suivante à la fin de sa voix. Tant qu'aucune voix n'a été générée depuis le menu Admin, rien ne change : la voix de la page, découpée en 16 morceaux, comme avant.
+ */
+var serveur=null,modeEtape=false,lecture=null,jeton=0,essaisServeur=0;
+function sansBalises(t){
+  var S=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
+  try{if(S&&typeof S.segmenter==='function')return String(S.segmenter(t,'narrateur').affiche||'');}catch(_e){}
+  return String(t||'').replace(/\(\s*[^()\n]{1,40}?\s*\)/g,' ').replace(/\s{2,}/g,' ').trim();
+}
+function appliquerServeur(h){
+  if(!h||!Array.isArray(h.etapes)||h.etapes.length!==DIAPOS.length)return;
+  serveur=h;
+  h.etapes.forEach(function(e,i){
+    var t=String(e.affiche||'').trim()||sansBalises(e.texte);
+    if(t)DIAPOS[i].t=t;
+  });
+  modeEtape=Array.isArray(h.voix)&&h.voix.length>0;
+  var r=racine();
+  if(r){var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx&&!chronique)tx.innerHTML=texteHtml(DIAPOS[indice].t);}
+}
+function chargerServeur(){
+  if(serveur||essaisServeur>40)return;
+  essaisServeur+=1;
+  var appel=window.__SOREAL_IDLE_CALL_V1__;
+  if(typeof appel!=='function'){setTimeout(chargerServeur,1500);return;}
+  try{
+    Promise.resolve(appel('obtenirIntroSorealIdle',[])).then(function(res){appliquerServeur(res&&res.histoire);}).catch(function(){setTimeout(chargerServeur,5000);});
+  }catch(_e){setTimeout(chargerServeur,5000);}
+}
+setTimeout(chargerServeur,800);
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 /* *mot* -> italique, comme le texte d'origine l'écrit. */
@@ -85,7 +116,7 @@ function html(page,texteVoix){
   style_();
   var pts='';
   for(var i=0;i<DIAPOS.length;i++)pts+='<i></i>';
-  return '<div class="id-scene" id="sorealIdleIntroDiapoV1" role="dialog" aria-modal="true" data-soreal-tts-say="'+esc(texteVoix||'')+'">'+
+  return '<div class="id-scene" id="sorealIdleIntroDiapoV1" role="dialog" aria-modal="true" data-soreal-tts-say="'+esc(modeEtape?'':(texteVoix||''))+'">'+
     '<div class="id-titre">'+esc(page&&page.titre||'')+(page&&page.sousTitre?'<small>'+esc(page.sousTitre)+'</small>':'')+'</div>'+
     '<div class="id-cadre" id="sorealIdleIntroCadreV1"><img alt="" decoding="async" draggable="false"><img alt="" decoding="async" draggable="false"></div>'+
     '<div class="id-texte" id="sorealIdleIntroTexteV1" data-soreal-tts-ignore></div>'+
@@ -120,6 +151,40 @@ function afficher(i){
   var fin=i>=DIAPOS.length-1;
   r.classList.toggle('id-fin',fin);
   if(fin)installerBouton(r);
+  if(modeEtape&&!chronique&&!attenteSon)lancerEtape(i);
+}
+
+/* Mode « une voix par image » : lit la voix de l'image i, puis passe à la suivante (minuteur de durée() si la voix ne peut pas partir). */
+function annulerLecture(){
+  jeton+=1;
+  if(lecture&&typeof lecture.annuler==='function'){try{lecture.annuler();}catch(_e){}}
+  lecture=null;
+}
+function lancerEtape(i){
+  annulerLecture();
+  if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  var S=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
+  if(!serveur||!S||typeof S.lireEtape!=='function'||!serveur.etapes[i])return;
+  var mon=jeton,debut=Date.now(),plancher=duree(i);
+  var suivante=function(){
+    if(mon!==jeton)return;
+    var r=racine();if(!r||!r.isConnected||chronique)return;
+    if(indice>=DIAPOS.length-1)return;
+    afficher(indice+1);
+  };
+  try{
+    var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+    if(t&&typeof t.enregistrerVoixDynamiques==='function')t.enregistrerVoixDynamiques(serveur.voix||[]);
+  }catch(_e){}
+  var l=S.lireEtape(serveur.etapes[i],function(){
+    if(mon!==jeton)return;
+    var ecoule=Date.now()-debut;
+    minuterie=setTimeout(suivante,ecoule>=800?500:Math.max(0,plancher-ecoule));
+  });
+  lecture=l;
+  /* la voix n'a pas pu partir : le temps de lire ; filet de sécurité dans tous les cas */
+  if(!l.demarre)minuterie=setTimeout(suivante,plancher);
+  else minuterie=setTimeout(suivante,plancher+30000);
 }
 
 /* Dernière image : on ne défile plus ; le clic (ou Entrée / Espace) sur l'image continue. */
@@ -172,6 +237,7 @@ function ouvrirChronique(r,d){
 
 function planifier(){
   if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  if(modeEtape)return;
   if(indice<DIAPOS.length-1)minuterie=setTimeout(suite,duree(indice));
 }
 function suite(){
@@ -196,6 +262,7 @@ function toucher(ev){
   var r=racine();if(!r)return;
   if(attenteSon){
     attenteSon=false;indiceSon(false);
+    if(modeEtape){lancerEtape(indice);return;}
     planifier();   /* le gestionnaire d'appui de la voix (capture sur le document) vient de relancer la lecture depuis le début : les images repartent avec elle */
     return;
   }
@@ -217,7 +284,7 @@ function demarrer(){
   precharger(1);precharger(2);
   attenteSon=false;indiceSon(false);curseur=0;annulerVoix();
   r.addEventListener('click',toucher);
-  planifier();
+  if(modeEtape)lancerEtape(0);else planifier();
   /* Après un instant (la voix a eu le temps d'essayer de démarrer) : si le navigateur a bloqué le son, on attend un premier appui avant de défiler. */
   if(veilleSon)clearTimeout(veilleSon);
   veilleSon=setTimeout(function(){
@@ -225,6 +292,7 @@ function demarrer(){
     var rr=racine();
     if(!rr||indice!==0||!sonBloque())return;
     attenteSon=true;
+    annulerLecture();
     if(minuterie){clearTimeout(minuterie);minuterie=0;}
     indiceSon(true);
   },800);
@@ -241,7 +309,7 @@ function lettres(s){return String(s||'').toLowerCase().replace(/[^\p{L}\p{N}]/gu
 function diapoDe(pos){for(var k=bornes.length-2;k>=0;k--){if(pos>=bornes[k])return k;}return 0;}
 function annulerVoix(){voixMinuteries.forEach(clearTimeout);voixMinuteries=[];}
 function surBlocVoix(ev){
-  var r=racine();if(!r||!r.isConnected||attenteSon)return;
+  var r=racine();if(!r||!r.isConnected||attenteSon||modeEtape)return;
   var d=ev&&ev.detail||{},c=lettres(d.texte),duree=Number(d.duree)||0;
   if(c.length<6||!duree)return;
   var pos=tout.indexOf(c.slice(0,Math.min(24,c.length)),Math.max(0,curseur-4));
@@ -265,11 +333,11 @@ function surBlocVoix(ev){
 try{window.addEventListener('soreal-voix-bloc',surBlocVoix);}catch(_e){}
 
 function arreter(){
-  annulerVoix();curseur=0;
+  annulerVoix();curseur=0;annulerLecture();
   if(minuterie){clearTimeout(minuterie);minuterie=0;}
   if(veilleSon){clearTimeout(veilleSon);veilleSon=0;}
   attenteSon=false;
 }
 
-window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__={html:html,demarrer:demarrer,arreter:arreter,diapos:DIAPOS,duree:duree,url:url,texteHtml:texteHtml};
+window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__={appliquerServeur:appliquerServeur,modeEtape:function(){return modeEtape;},html:html,demarrer:demarrer,arreter:arreter,diapos:DIAPOS,duree:duree,url:url,texteHtml:texteHtml};
 })();

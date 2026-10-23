@@ -291,6 +291,31 @@ function jouer_(histoire,options){
   return true;
 }
 
+/*
+ * Lit à voix haute UNE étape { texte, parleur } (ses segments l'un après l'autre) pour un autre lecteur (l'intro en images, modules/intro-diaporama-v1.js). Renvoie { demarre, annuler } :
+ * demarre=false si la voix n'a pas pu partir (l'appelant se rabat sur son minuteur) ; surFin est appelé une fois, quand tous les segments sont lus (jamais après annuler()).
+ */
+function lireEtape_(etape,surFin){
+  var decoupe=segmenter_(etape&&etape.texte,etape&&etape.parleur);
+  var annule=false,fini=false,demarre=false;
+  var fin=function(){if(fini||annule)return;fini=true;if(typeof surFin==='function')surFin();};
+  var lire=function(k){
+    if(annule)return;
+    if(k>=decoupe.segments.length){fin();return;}
+    var ok=false;
+    try{
+      var t=tts_();
+      if(t&&typeof t.readText==='function'){
+        ok=t.readText(typeof t.retirerParentheses==='function'?t.retirerParentheses(decoupe.segments[k].texte):decoupe.segments[k].texte,undefined,function(){lire(k+1);});
+      }
+    }catch(_e){ok=false;}
+    if(k===0)demarre=Boolean(ok);
+    else if(!ok)fin();
+  };
+  if(decoupe.segments.length)lire(0);
+  return {demarre:demarre,annuler:function(){annule=true;try{var t=tts_();if(t&&typeof t.stop==='function')t.stop();}catch(_e){}}};
+}
+
 function terminer_(overlay,histoire,options){
   /* Vu seulement ici (fin réelle, ou clic sur « Passer » -- jamais une simple fermeture de l'app en cours de route). */
   if(options.marquerVu!==false)marquerVu_(histoire&&histoire.vuId);
@@ -337,6 +362,8 @@ function considerer_(j){
 window.__SOREAL_IDLE_STORY_ENGINE_V1__={
   considerer:considerer_,
   jouer:jouer_,
+  lireEtape:lireEtape_,
+  segmenter:segmenter_,
   enCours:function(){return enCours;},
   /* Outils de test. */
   dejaVu:dejaVu_,

@@ -6,7 +6,7 @@
 import { sqlRows, safeJson } from "./core/sqlite-core.js";
 import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { IDLE_NGU_META_VERSION } from "./idle-ngu-progression.js";
-import { histoireDuBossV1, lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1 } from "./idle-histoires-v1.js";
+import { histoireDuBossV1, histoireIntroV1, lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1 } from "./idle-histoires-v1.js";
 import { annulerVictoireTitanV1 } from "./idle-adventure-v47.js";
 import { creditDejaFaitV1, lireGainsExpV1 } from "./idle-gains-v1.js";
 import { ancienTutorielActifV1, ancienMenusActifV1, guidesPourJoueurV1, lireGuidesV1, enregistrerGuideV1, supprimerGuideV1, reglerAncienMenusV1, reglerAncienTutorielV1 } from "./idle-tutoriel-v1.js";
@@ -251,6 +251,13 @@ export function obtenirHistoireBossSorealIdle(sessionToken, boss) {
   }
   if (atteint < 0 || n > atteint + 1) return { ok: true, histoire: null };
   return { ok: true, histoire: histoireDuBossV1(__idleCtx.__idleSql, boss) };
+}
+
+/* L'intro (« Le commencement », 16 images) telle que l'administrateur l'a écrite dans le menu Admin : donnée à tout joueur (premier écran du jeu, aucun spoil). */
+export function obtenirIntroSorealIdle(sessionToken) {
+  exigerAccesSorealIdle_(sessionToken);
+  if (!__idleCtx.__idleSql) return { ok: true, histoire: null };
+  return { ok: true, histoire: histoireIntroV1(__idleCtx.__idleSql) };
 }
 
 /* Admin, SUR SON PROPRE COMPTE : annule une victoire de titan obtenue par un bug (Norman, 2026-10-04). Les récompenses déjà reçues restent. */

@@ -56,9 +56,14 @@ function urlImage_(histoireId,image){
   var img=String(image||'');
   var legacy=/^legacy:(\d{1,2})$/.exec(img);
   if(legacy)return '/api/idle/media/story?id='+encodeURIComponent(histoireId)+'&index='+legacy[1];
+  var intro=/^intro:(\d{2})$/.exec(img);
+  if(intro)return '/intro/'+intro[1]+'.webp?v=1';
   if(!img)return '';
   return '/api/idle/media/story-image?id='+encodeURIComponent(histoireId)+'&f='+encodeURIComponent(img);
 }
+
+/* L'intro (« Le commencement », 16 images) : scène à part entière, modifiable ici ; ni boss, ni suppression, ni images à changer (Norman, 2026-10-23). */
+function estIntro_(h){return Boolean(h&&h.id==='Intro');}
 
 /* Identifiant technique d'une nouvelle histoire : lettres/chiffres + suffixe aléatoire (jamais modifié ensuite : il nomme le dossier R2). */
 function nouvelId_(titre){
@@ -147,13 +152,36 @@ function exprTete_(texte){
   }
   return {expr:expr,reste:reste};
 }
+/*
+ * Découpe aux points (Norman, 2026-10-21, éditeur des boss ; 2026-10-23 pour les scènes : « les textes découpés à chaque point ») : une phrase = un personnage (même voix, même expression). On coupe APRÈS un point suivi d'un espace ;
+ * « ... », les nombres (3.5) et les points sans espace derrière ne coupent pas.
+ */
+function decouperPhrases_(texte){
+  var t=String(texte==null?'':texte).trim();
+  if(!t)return [''];
+  var morceaux=[],debut=0,re=/\.\s+/g,m;
+  while((m=re.exec(t))){
+    var avant=t.charAt(m.index-1);
+    if(m.index===0||avant==='.'||/\s/.test(avant))continue;
+    var piece=t.slice(debut,m.index+1).trim();
+    if(piece)morceaux.push(piece);
+    debut=m.index+m[0].length;
+  }
+  var fin=t.slice(debut).trim();
+  if(fin)morceaux.push(fin);
+  return morceaux.length?morceaux:[t];
+}
 function lignesDepuisEtape_(e){
   var segs=segmentsDeEtape_(e);
   if(!segs.length)return [{parleur:parleurUi_(e.parleur),expr:'',texte:''}];
-  return segs.map(function(sg){
+  /* Seulement si AUCUNE voix n'existe déjà pour cette étape : découper changerait les blocs de voix, donc rendrait muettes celles déjà générées (même règle que les textes de boss : un texte déjà voisé garde ses cadres). */
+  var voisee=typeof blocsDeEtape_==='function'&&blocsDeEtape_(e).some(function(b){return (edition&&edition.voix||[]).indexOf(b.hash)!==-1;});
+  var out=[];
+  segs.forEach(function(sg){
     var t=exprTete_(sg.texte);
-    return {parleur:parleurUi_(sg.voix),expr:t.expr,texte:t.reste};
+    (voisee?[t.reste]:decouperPhrases_(t.reste)).forEach(function(p,k){out.push({parleur:parleurUi_(sg.voix),expr:k?'':t.expr,texte:p});});
   });
+  return out;
 }
 /* Texte tel que le joueur le lit quand rien n'a été écrit dans le cadre jaune : le texte dit, sans ses balises de voix, d'expression et de pause (comme le lecteur d'histoires). */
 function afficheDefaut_(e){
@@ -305,15 +333,15 @@ function listeHtml_(){
       '<button type="button" class="soreal-idle-adm-btn-v1" title="Supprime du stockage les fichiers de voix que plus aucune histoire n’utilise (anciennes voix, textes modifiés)" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.purgerVoix()">🧹 Supprimer les voix inutiles</button></div>'+
       '<div class="soreal-idle-adm-meta-v1" id="sorealIdleAdminPurgeV1" style="margin-bottom:10px"></div>';
   if(!etat.histoires.length)html+='<div class="soreal-idle-adm-meta-v1">Aucune histoire pour le moment.</div>';
-  etat.histoires.forEach(function(h){
+  etat.histoires.slice().sort(function(a,b){return (estIntro_(b)?1:0)-(estIntro_(a)?1:0);}).forEach(function(h){
     var v=statutVoixHistoire_(h);
     var voixBadge=v.total===0?'':(v.prets>=v.total?'<span class="soreal-idle-adm-badge-v1 ok">🎙 voix studio prêtes</span>':'<span class="soreal-idle-adm-badge-v1 non">🎙 voix studio '+v.prets+'/'+v.total+'</span>');
     html+='<div class="soreal-idle-adm-carte-v1"><h4>🎬 '+esc_(h.titre)+(h.actif?'':'<span class="soreal-idle-adm-badge-v1 non">désactivée</span>')+voixBadge+'</h4>'+
-      '<div class="soreal-idle-adm-meta-v1">'+esc_(libelleBoss_(h.boss))+' · '+h.etapes.length+' étape'+(h.etapes.length>1?'s':'')+'</div>'+
+      '<div class="soreal-idle-adm-meta-v1">'+esc_(estIntro_(h)?'Se joue au tout début d’une nouvelle partie (Le commencement)':libelleBoss_(h.boss))+' · '+h.etapes.length+' étape'+(h.etapes.length>1?'s':'')+'</div>'+
       '<div class="soreal-idle-adm-actions-v1">'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-act="modifier" data-adm-id="'+esc_(h.id)+'">✏️ Modifier</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-act="jouer" data-adm-id="'+esc_(h.id)+'">▶ Jouer</button>'+
-        '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-act="supprimer" data-adm-id="'+esc_(h.id)+'">🗑 Supprimer</button>'+
+        (estIntro_(h)?'':'<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-act="supprimer" data-adm-id="'+esc_(h.id)+'">🗑 Supprimer</button>')+
       '</div></div>';
   });
   return html;
@@ -500,14 +528,14 @@ function etapeHtml_(e,i){
       '<span style="flex:1"></span>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="ecouter" data-i="'+i+'" title="Écouter toute l’étape (toutes les lignes, l’une après l’autre)">▶ Toute l’étape</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="generer" data-i="'+i+'" title="Générer (ou régénérer) toutes les lignes de cette étape">🎙 Toute l’étape</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="haut" data-i="'+i+'"'+(i===0?' disabled':'')+'>⬆</button>'+
+      (estIntro_(edition)?'':'<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="haut" data-i="'+i+'"'+(i===0?' disabled':'')+'>⬆</button>'+
       '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="bas" data-i="'+i+'"'+(i===edition.etapes.length-1?' disabled':'')+'>⬇</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'" title="Supprimer toute l’étape">🗑</button>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1 danger" data-adm-e="suppr" data-i="'+i+'" title="Supprimer toute l’étape">🗑</button>')+
     '</div>'+
     '<div class="adm-etape-corps-v1">'+
       '<div class="adm-image-v1">'+
         (url?'<img class="adm-vignette-v1" src="'+esc_(url)+'" alt="">':'<div class="adm-vignette-v1 adm-vide-v1">Pas d’image : garde celle de l’étape précédente</div>')+
-        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer':'Choisir')+'</button>'+
+        (estIntro_(edition)?'':'<button type="button" class="soreal-idle-adm-btn-v1" data-adm-e="image" data-i="'+i+'">🖼 '+(url?'Changer':'Choisir')+'</button>')+
       '</div>'+
       '<div class="adm-lignes-v1">'+
         '<div class="adm-or-v1"><p class="adm-or-etiq-v1">Texte tel que les joueurs le lisent</p><textarea rows="3" data-adm-affiche="'+i+'" data-adm-aff-init="'+esc_(e.affiche||afficheDefaut_(e))+'" placeholder="Le texte qui s’affiche sous l’image…">'+esc_(e.affiche||afficheDefaut_(e))+'</textarea>'+
@@ -559,13 +587,15 @@ function dessinerEditeur_(){
       '<div style="display:flex;align-items:center;gap:10px"><h2 style="flex:1">'+(editionEstNouvelle?'Nouvelle histoire':'Modifier l’histoire')+'</h2>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="reduire" title="Réduire en petit menu flottant : tu peux continuer à jouer pendant que les voix se génèrent">➖ Réduire</button>'+
         '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="fermer">✕ Fermer</button></div>'+
-      '<label>Titre (visible seulement ici)</label><input type="text" data-adm-champ="titre" value="'+esc_(edition.titre)+'" maxlength="80">'+
+      (estIntro_(edition)
+        ?'<div class="soreal-idle-adm-meta-v1" style="margin:6px 0 10px">🎬 <b>'+esc_(edition.titre)+'</b> — les 16 images qui défilent au tout début d’une nouvelle partie. Modifie le texte jaune (ce que lisent les joueurs) et les personnages ; une fois les voix générées ici (une par image), chaque image joue SA voix et passe à la suivante quand elle finit. Tant qu’aucune voix n’est générée, la voix d’avant est conservée.</div>'
+        :'<label>Titre (visible seulement ici)</label><input type="text" data-adm-champ="titre" value="'+esc_(edition.titre)+'" maxlength="80">'+
       '<label>Se déclenche à la mort du boss (Fight Boss)</label><select data-adm-champ="boss">'+optionsBoss_()+'</select>'+
-      '<label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:15px"><input type="checkbox" data-adm-champ="actif"'+(edition.actif?' checked':'')+'> Histoire active</label>'+
+      '<label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:15px"><input type="checkbox" data-adm-champ="actif"'+(edition.actif?' checked':'')+'> Histoire active</label>')+
       '<h3 style="margin:18px 0 0">Étapes <span style="font-weight:400;font-size:15px;color:#a9b6d8">(une image et une ou plusieurs lignes, une par personnage)</span></h3>'+
       '<div id="sorealIdleAdminEtapesV1">'+etapesHtml_()+'</div>'+
-      '<div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="ajouter">＋ Ajouter une étape</button>'+
-        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="images">🖼 Ajouter plusieurs images d’un coup</button></div>'+
+      (estIntro_(edition)?'':'<div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="ajouter">＋ Ajouter une étape</button>'+
+        '<button type="button" class="soreal-idle-adm-btn-v1" data-adm-g="images">🖼 Ajouter plusieurs images d’un coup</button></div>')+
       '<input type="file" id="sorealIdleAdminFichierV1" accept="image/webp,image/png,image/jpeg,image/gif" style="display:none">'+
       '<input type="file" id="sorealIdleAdminFichiersV1" accept="image/webp,image/png,image/jpeg,image/gif" multiple style="display:none">'+
       '<div id="sorealIdleAdminPronBlocV1">'+prononciationsHtml_()+'</div>'+

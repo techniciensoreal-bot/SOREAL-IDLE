@@ -10,7 +10,7 @@ function base() {
 }
 assert.ok(!IDLE_HISTOIRES_SEED_V1.some((h) => h.id === "MagicienEtLeGrotte2"), "plus dans le seed : jamais recréée");
 // Base neuve : une seule histoire.
-{ const sql = base(); assert.deepEqual(lireHistoiresV1(sql).map((h) => h.id), ["MagicienEtLaGrotte"]); }
+{ const sql = base(); assert.deepEqual(lireHistoiresV1(sql).map((h) => h.id), ["Intro", "MagicienEtLaGrotte"]); }
 // Base de production (histoire 2 présente, drapeau seed_v1 posé) : supprimée une fois, puis plus jamais.
 {
   const sql = base(); assurerHistoiresV1(sql);

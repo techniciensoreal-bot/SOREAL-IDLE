@@ -4,8 +4,8 @@
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
  },
  "/modules/admin-histoires-v1.js": {
-  "pin": 20,
-  "sha": "43bae4ef9bb66d961ae8fe0e8e0b5db9a3c9968a"
+  "pin": 22,
+  "sha": "661fe71ce21942a825e3e4bf609b9a6f94bdf2bb"
  },
  "/modules/admin-tutoriel-v1.js": {
   "pin": 2,
@@ -196,8 +196,8 @@
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
  "/modules/intro-diaporama-v1.js": {
-  "pin": 6,
-  "sha": "a24f23e4ea9cf7d57d7d66daea0872c390895a35"
+  "pin": 7,
+  "sha": "c0f7927fdb1e506b094c6aecee2eaa018f864e95"
  },
  "/modules/inventaire-volet-v1.js": {
   "pin": 7,
@@ -288,8 +288,8 @@
   "sha": "fe6f0dee0038a3d400012558c912918539602eb0"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 62,
-  "sha": "e3ea0991b82eb1e2e91670dd89a92d22f472851d"
+  "pin": 63,
+  "sha": "0d8beb59fde4c4e7846d7fac43f980156446f6dc"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -376,8 +376,8 @@
   "sha": "f274a48d5ab2852f865c75baf2e1f26a21a0b250"
  },
  "/modules/story-engine-v1.js": {
-  "pin": 9,
-  "sha": "a09d02cf9ecf85101448a536f2e3e941f8cdcae9"
+  "pin": 10,
+  "sha": "fd7e3d2f26d53d8bbd4db6a5320c584d223b44ac"
  },
  "/modules/studio-pilote-v1.js": {
   "pin": 5,
