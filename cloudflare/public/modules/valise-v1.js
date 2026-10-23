@@ -66,6 +66,8 @@
   var REMARQUE='Vous comptez me regarder longtemps, damoiseau ?';
 
   var dort=false,parle=null;
+  var posRapproche=0,posDecal=null;
+  function styleSection(){return (posDecal!=null?'--vl-decal:'+posDecal.toFixed(1)+'px;':'')+(posRapproche?'position:relative;left:'+(-posRapproche).toFixed(1)+'px;':'');}
   var visibleAvant=0,cibleSommeil=240000+Math.random()*300000,visibleDormi=0,visibleRonfle=0,cibleRonfle=1500,visibleRegard=0,cibleRegard=150000+Math.random()*250000;
 
   function reg_(){return window.__SOREAL_IDLE_REG__||{};}
@@ -261,7 +263,7 @@
   function html(){
     var o=ouverte(),k=contenu();
     style_();
-    return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
+    return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" style="'+styleSection()+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
       '<div class="vl-creature" data-vl-bascule role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" aria-label="Valise des consommables"><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
       '<div class="vl-deplie"><div class="vl-deplie-in">'+
         k.langue+
@@ -572,22 +574,24 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   }
   /* Tout ne compte QUE le temps où la valise est vue (onglet visible, valise à l'écran), comme le Coffre. */
   var PAS=250;
+  /* Les réglages de position (calage des roulettes, rapprochement du texte) survivent aux redessins : posés dans le HTML de la valise (voir styleSection), sinon elle apparaissait un instant à sa taille et sa place de départ quand le Coffre se referme (Norman, 2026-10-23). */
   /* Les roulettes de la valise sur la même ligne que les pattes du Coffre (Norman, 2026-10-23) : la valise garde sa taille (plus petite), on mesure les deux dessins et on décale la valise de la différence. PC seulement (en colonne, sur téléphone, rien à aligner). */
   /* Norman (2026-10-23) : la valise est à la MÊME distance du texte que le Coffre (18 px entre le dessin et le bloc de texte, centré). Sur grand écran (1920) la colonne de la valise la laissait très loin : on la rapproche (marge négative, sa largeur ne change pas) jusqu'au bord droit de la zone du Coffre. */
   function rapprocher(s,coffre,rv){
     var z=coffre.querySelector('[data-idle-coffre-drop-v180]');if(!z)return;
     var rz=z.getBoundingClientRect();
-    var m=s.__vlRapproche||0;
+    var m=posRapproche;
     var cible=Math.max(0,Math.min(200,rv.left+m-rz.right));
     if(Math.abs(cible-m)<1)return;
-    s.__vlRapproche=cible;
-    s.style.marginLeft=(-cible).toFixed(1)+'px';
+    posRapproche=cible;
+    /* décalage SANS élargir la valise (une marge négative l'élargissait : sa taille changeait) */
+    s.style.position='relative';s.style.left=(-cible).toFixed(1)+'px';
   }
   function aligner(){
     var s=sections()[0];if(!s)return;
     var coffre=s.closest('.soreal-idle-coffre-v1');if(!coffre)return;
     var cs=null;try{cs=getComputedStyle(coffre);}catch(_e){}
-    if(!cs||cs.display!=='grid'){if(s.__vlRapproche){s.__vlRapproche=0;s.style.marginLeft='';}return;}
+    if(!cs||cs.display!=='grid'){if(posRapproche){posRapproche=0;s.style.left='';}return;}
     var cb=coffre.querySelector('.bg-bagage-v1 svg'),vb=s.querySelector('.vl-bete svg');
     if(!cb||!vb)return;
     var rc=cb.getBoundingClientRect(),rv=vb.getBoundingClientRect();
@@ -596,9 +600,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
     /* bas des roulettes : 247 / 260 du dessin du Coffre, 216 / 232 de celui de la valise */
     var delta=(rc.top+rc.height*247/260)-(rv.top+rv.height*216/232);
     if(Math.abs(delta)<1.5)return;
-    var courant=s.__vlDecal==null?19:s.__vlDecal;
-    s.__vlDecal=Math.max(0,Math.min(120,courant+delta));
-    s.style.setProperty('--vl-decal',s.__vlDecal.toFixed(1)+'px');
+    var courant=posDecal==null?19:posDecal;
+    posDecal=Math.max(0,Math.min(120,courant+delta));
+    s.style.setProperty('--vl-decal',posDecal.toFixed(1)+'px');
   }
   function pas(){
     try{

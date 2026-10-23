@@ -38,3 +38,6 @@ console.log("idle-divers-2026-10-23-v1 (ouvertures animées) OK");
 assert.ok(av.includes("function animerHauteurCoffreIdleV1_(racine,de,vers,ms)") && av.includes("window.scrollTo(sx,sy)") && av.includes("Math.max(racine1.getBoundingClientRect().height,racine1.scrollHeight)"), "hauteur animée, défilement conservé");
 assert.ok(css.includes(".soreal-idle-page-root-v28{overflow-anchor:none}"));
 console.log("idle-divers-2026-10-23-v1 (cadre en douceur) OK");
+/* la valise garde sa taille et sa place quand le Coffre se redessine : réglages en variables du module, écrits dans son HTML ; décalage par « left » (une marge négative l'élargissait) */
+assert.ok(v.includes("function styleSection()") && v.includes('style="\'+styleSection()+\'" data-vl data-vl-sig=') && v.includes("s.style.position='relative';s.style.left=") && !v.includes("s.style.marginLeft"));
+console.log("idle-divers-2026-10-23-v1 (valise stable au redessin) OK");
