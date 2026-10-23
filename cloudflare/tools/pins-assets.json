@@ -159,9 +159,13 @@
   "pin": 3,
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
+ "/modules/diag-coffre-v1.js": {
+  "pin": 1,
+  "sha": "1c425e83f869fdbbe1bbfdf975753bc968edce80"
+ },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 29,
-  "sha": "75ffe66d41f82135cce4cab84e5902a5a7793d87"
+  "pin": 30,
+  "sha": "32498c573297350f6778e4929024dd9e25eceba4"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -200,8 +204,8 @@
   "sha": "c0f7927fdb1e506b094c6aecee2eaa018f864e95"
  },
  "/modules/inventaire-volet-v1.js": {
-  "pin": 7,
-  "sha": "2fd6055a4544c4071e705201b129e5ee9dc11b9e"
+  "pin": 8,
+  "sha": "ca8fc5a23edb1c280062b78cb1fb3944fdf5799e"
  },
  "/modules/inventory-auto-v1.js": {
   "pin": 21,
@@ -544,8 +548,8 @@
   "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 43,
-  "sha": "9268e7222a51e15e006c9d05a5df80d4df614204"
+  "pin": 44,
+  "sha": "7ac28ef8e7ec7679b862468f296747d009d5acec"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,

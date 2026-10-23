@@ -30,7 +30,7 @@
 
   var CLE='soreal_idle_diag_v1';
   var MAX=320;
-  var QUOTAS={tache_longue:40,image_longue:60,interaction_lente:60,operation_lente:60,barre_recule:30,vie_saut:30,combat_lance:30,combat_ordre:20};
+  var QUOTAS={saut_page:40,hauteur_page:30,redessin_coffre:30,tache_longue:40,image_longue:60,interaction_lente:60,operation_lente:60,barre_recule:30,vie_saut:30,combat_lance:30,combat_ordre:20};
   var PERIODE_MS=200;
   var journal=[];
   try{var brut=localStorage.getItem(CLE);if(brut){var l=JSON.parse(brut);if(Array.isArray(l))journal=l.slice(-MAX);}}catch(_e){}
@@ -610,6 +610,8 @@
     vider:function(){journal=[];dernierParCle={};stats={menus:{},ops:{},inter:{n:0,lentes:0,pire:0,delai:0,types:{}},loaf:{n:0,ms:0,scripts:0,style:0,rendu:0,forces:0,tops:{}},depuis:Date.now()};statsSale=true;sauverStats_();sauver_();},
     stats:function(){return JSON.parse(JSON.stringify(stats));},
     /* Une erreur avalée par un try/catch de la logique de jeu : notée sans bruit pour le joueur (une ligne par clé toutes les 5 s). */
+    /* Pour les modules qui ajoutent leurs propres mesures au journal (modules/diag-coffre-v1.js). */
+    noter:function(type,cle,details){noter_(String(type||'autre'),String(cle||'?'),details||{});},
     signaler:function(cle,e){try{noter_('erreur_avalee',String(cle||'?'),{msg:String(e&&e.message||e).slice(0,120)});}catch(_e){}},
     /* Pour les tests : entre dans l'échantillonnage sans minuteur. */
     echantillon:echantillon_,

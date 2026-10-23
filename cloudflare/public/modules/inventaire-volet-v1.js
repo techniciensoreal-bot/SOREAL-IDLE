@@ -15,6 +15,9 @@
 'use strict';
 if(window.__SOREAL_IDLE_INVENTAIRE_VOLET_V1__)return;
 
+/* Le redessin de la page (morph) ne doit pas retirer « data-volet » (posé par ce module sur les colonnes de l'inventaire) : sans cela, chaque redessin faisait SAUTER la mise en page du téléphone jusqu'au passage suivant de la minuterie de 0,4 s (Norman, 2026-10-23). */
+(window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-volet');
+
 var ouvert=false;
 /* Instant où l'équipement est redevenu visible à sa place : le volet ne repart « fermé » qu'après 1,5 s de visibilité continue (un redessin de la page ne doit pas le refermer). */
 var visibleDepuis=0;

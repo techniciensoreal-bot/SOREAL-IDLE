@@ -48,3 +48,11 @@ const lu = lire("cloudflare/public/modules/ligne-unique-items-v1.js");
 assert.ok(lu.includes("while(l.scrollWidth>l.clientWidth+1&&taille>MIN)") && lire("cloudflare/public/index.html").includes("/modules/ligne-unique-items-v1.js"));
 assert.ok(css.includes(".soreal-idle-v138-details-stat>span{white-space:nowrap;min-width:0}") && css.includes("flex-wrap:nowrap;gap:8px;min-width:0;max-width:100%"));
 console.log("idle-divers-2026-10-23-v1 (intitulés d'objets) OK");
+/* téléphone : le Coffre s'ouvre SOUS LUI-MÊME et pousse la valise ; le redessin ne retire plus « data-volet » ; le journal note sauts et redessins du Coffre */
+assert.ok(v.includes(">.vl-section{order:3;margin-top:8px;padding-top:12px;border-top:2px dashed") && v.includes(".ouvert:has(>.vl-section)>div:last-child:not(.vl-section){order:2}"), "téléphone : coffre, puis son contenu, puis la valise");
+const vo = lire("cloudflare/public/modules/inventaire-volet-v1.js");
+assert.ok(vo.includes(".push('data-volet')"), "data-volet gardé au redessin (sinon la mise en page saute à chaque redessin)");
+const dc = lire("cloudflare/public/modules/diag-coffre-v1.js"), df = lire("cloudflare/public/modules/diag-fluidite-v1.js");
+assert.ok(dc.includes("type:'layout-shift'") && dc.includes("noter('redessin_coffre'") && dc.includes("noter('hauteur_page'") && df.includes("noter:function(type,cle,details)") && df.includes("saut_page:40,hauteur_page:30,redessin_coffre:30"));
+assert.ok(lire("cloudflare/public/index.html").includes("/modules/diag-coffre-v1.js"));
+console.log("idle-divers-2026-10-23-v1 (téléphone, journal) OK");

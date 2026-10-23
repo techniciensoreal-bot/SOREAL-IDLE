@@ -441,8 +441,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
 @media (max-width:760px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:flex;flex-direction:column}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>[data-idle-coffre-drop-v180]{order:1}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{order:2;margin-top:8px;padding-top:12px;border-top:2px dashed rgba(216,169,63,.4)}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){order:3}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section)>.vl-section{order:3;margin-top:8px;padding-top:12px;border-top:2px dashed rgba(216,169,63,.4)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){order:2}
+  /* Sur téléphone (Norman, 2026-10-23) : le Coffre s'ouvre SOUS LUI-MÊME (sa case de dépôt, puis son contenu) et pousse la valise vers le bas, jamais l'inverse. */
 }
 @media (max-width:640px){
   ${P}{margin:0}
