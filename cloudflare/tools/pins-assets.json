@@ -223,6 +223,10 @@
   "pin": 1,
   "sha": "9ea1d2760e49d1c892a043cd983861b2ece88828"
  },
+ "/modules/item-difficulte-v1.js": {
+  "pin": 1,
+  "sha": "71278a3a69e3449ba8c572013a8c35628abbda5e"
+ },
  "/modules/item-extra-r2-v77.js": {
   "pin": 1,
   "sha": "7bebe79112c69dcf1403b4b81b73d7f64c754970"
