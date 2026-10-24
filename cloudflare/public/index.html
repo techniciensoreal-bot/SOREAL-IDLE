@@ -75,12 +75,15 @@
       border-radius:999px;background:#050b17;border:1px solid rgba(121,164,235,.24);
       box-shadow:inset 0 2px 6px rgba(0,0,0,.55);
     }
+    /* Barre de chargement (Norman, 2026-10-24 : « bloquée sur 12 %, puis un saut arrière, puis elle se charge ») : elle est animée par la carte graphique (transform, courbe selon le temps écoulé) et non plus par une minuterie du fil principal, que les scripts de la page bloquaient (barre figée) ; après un rechargement elle repart d'où elle était (jamais en arrière). */
     #standaloneProgress{
-      width:8%;height:100%;border-radius:inherit;
+      width:100%;height:100%;border-radius:inherit;transform-origin:0 50%;transform:scaleX(.08);
       background:linear-gradient(90deg,#2f72d9,#57a0ff,#74bbff);
       box-shadow:0 0 16px rgba(72,151,255,.55);
-      transition:width .32s ease;
+      animation:sorealChargeV1 40s linear forwards;animation-delay:var(--charge-delai,0s);
     }
+    @keyframes sorealChargeV1{0%{transform:scaleX(0.0800)}2.50%{transform:scaleX(0.1488)}5%{transform:scaleX(0.2120)}10%{transform:scaleX(0.3238)}17.50%{transform:scaleX(0.4601)}25%{transform:scaleX(0.5662)}37.50%{transform:scaleX(0.6936)}50%{transform:scaleX(0.7776)}75%{transform:scaleX(0.8694)}100%{transform:scaleX(0.9093)}}
+    @media (prefers-reduced-motion:reduce){#standaloneProgress{animation:none;transform:scaleX(.5)}}
     #standalonePercent{
       margin-top:6px;text-align:right;padding-right:8px;
       font-size:10px;font-weight:900;color:#7898ca;
@@ -115,24 +118,34 @@
     var PAGE_ACTIVE="idle";
     function header(){return "";}
 
-    /* V206 — retour de l'ancien écran bleu APP/TV avec progression douce. */
+    /* Progression douce : la barre suit une courbe du TEMPS (CSS), le pourcentage affiché la même, calculé depuis le début de la navigation ; après un rechargement (préférences du compte reçues d'un autre appareil...) on repart du dernier pourcentage affiché. */
     (function(){
-      var pct=8;
+      var CLE="soreal_idle_chargement_v1",TAU=12000;
+      var courbe=function(t){return 8+86*(1-Math.exp(-t/TAU));};
+      var t0=0;
+      try{
+        var m=JSON.parse(sessionStorage.getItem(CLE)||"null");
+        if(m&&Date.now()-m.at<20000&&m.pct>8&&m.pct<94)t0=-TAU*Math.log(1-(m.pct-8)/86);
+      }catch(e){}
+      var racine=document.documentElement;
+      if(t0>0)racine.style.setProperty("--charge-delai",(-t0/1000).toFixed(3)+"s");
+      var termine=false;
       var timer=setInterval(function(){
         var bar=document.getElementById("standaloneProgress");
         var label=document.getElementById("standalonePercent");
-        if(!bar||!label){clearInterval(timer);return;}
-        pct=Math.min(94,pct+(pct<55?4:pct<80?2:1));
-        bar.style.width=pct+"%";
-        label.textContent=pct+" %";
-      },360);
+        if(!bar||!label){clearInterval(timer);try{sessionStorage.removeItem(CLE);}catch(e){}return;}
+        var pct=Math.min(94,courbe(performance.now()+t0));
+        label.textContent=Math.round(pct)+" %";
+        try{sessionStorage.setItem(CLE,JSON.stringify({pct:pct,at:Date.now()}));}catch(e){}
+      },300);
       window.__SOREAL_IDLE_LOADING_COMPLETE_V206__=function(){
-        pct=100;
+        termine=true;
         var bar=document.getElementById("standaloneProgress");
         var label=document.getElementById("standalonePercent");
-        if(bar)bar.style.width="100%";
+        if(bar){bar.style.animation="none";bar.style.transform="scaleX(1)";}
         if(label)label.textContent="100 %";
         clearInterval(timer);
+        try{sessionStorage.removeItem(CLE);}catch(e){}
       };
     })();
   </script>

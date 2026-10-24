@@ -142,3 +142,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.equal(d["Je suis contente !"], "I'm so happy!");
   assert.ok(s.match(/PLAINTES=\[([^\]]*)\]/)[1].split("',").every((x) => d[x.replace(/^\s*'|'$/g, "")]), "chaque plainte est traduite");
 }
+
+// Barre de chargement : animée par CSS (transform, courbe du temps) et reprise après un rechargement ; plus de minuterie « pct+4 » du fil principal.
+{
+  const h = lire("cloudflare/public/index.html");
+  assert.ok(h.includes("@keyframes sorealChargeV1") && h.includes("animation:sorealChargeV1 40s linear forwards") && h.includes("soreal_idle_chargement_v1"));
+  assert.ok(!h.includes("pct+(pct<55?4:pct<80?2:1)") && !h.includes("transition:width .32s ease;"), "plus de progression par pas sur le fil principal");
+}
