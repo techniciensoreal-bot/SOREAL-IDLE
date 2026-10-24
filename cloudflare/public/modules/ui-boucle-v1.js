@@ -480,6 +480,8 @@
                   orLiveB=Math.max(0,orLiveB-faits*coutOrB);
                   REG.idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
+                  /* Diagnostic (Norman, 2026-10-24 : du sang gagné en plaçant 2 s de Magie) : un rejeu local de plusieurs rituels, ou après un long écoulé, est noté avec ses chiffres dans le journal de fluidité (🐞). */
+                  if(faits>=2||ecoule0>3*seconds){try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&typeof D.noter==='function')D.noter('rituel_rejoue',String(bloodVisual.ritual)+'#'+Math.round(maintB),{faits:faits,dus:dus,ecoule_s:Math.round(ecoule0*100)/100,eta_s:Math.round(eta0*100)/100,par_niveau_s:Math.round(seconds*1000)/1000,or_avant:Math.round(orLiveB+faits*coutOrB)});}catch(_e){}}
                   /* Chaque rituel TERMINÉ le dit à l'animation de la scène (modules/sang-rituel-decor-v1.js) : la coupure, la punaise, le jet… partent de CET événement et non d'un chiffre affiché (le compteur est borné et ne bouge pas toujours : le papier bougeait sans couper — Norman, 2026-10-15). */
                   try{window.dispatchEvent(new CustomEvent('soreal-rituel-termine',{detail:{id:String(bloodVisual.ritual),faits:faits}}));}catch(_e){}
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
