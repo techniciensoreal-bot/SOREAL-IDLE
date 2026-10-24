@@ -570,6 +570,7 @@
       }else{
         saveSessionV1(sessionV1());
       }
+      try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(42);}catch(_e){}
 
       if(!sessionV1()){
         const clientId=await clientIdGoogleV1();
@@ -595,6 +596,7 @@
         throw new Error("Interface SOREAL IDLE non chargée.");
       }
 
+      try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(52);}catch(_e){}
       window.__ouvrirSorealIdleModuleV1__();
     }catch(error){
       statusV1(error&&error.message?error.message:String(error||"Erreur SOREAL IDLE"),true);

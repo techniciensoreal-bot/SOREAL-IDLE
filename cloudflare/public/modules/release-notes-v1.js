@@ -37,6 +37,9 @@
             'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Le bandeau du haut (Attaque, Défense, Or…) gagne une case « Temps » : la durée du Rebirth en cours, mise à jour chaque seconde.',
+          ]},
           {menu:'entrainement', titre:'Basic Training', points:[
             'Basic Training : à la première ouverture après une Renaissance, les deux dernières lignes de chaque groupe (Charge, Bonus ultime…) s’allument maintenant en néon comme les autres, au lieu de rester éteintes.',
           ]},

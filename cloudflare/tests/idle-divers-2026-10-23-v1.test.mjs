@@ -143,9 +143,19 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(s.match(/PLAINTES=\[([^\]]*)\]/)[1].split("',").every((x) => d[x.replace(/^\s*'|'$/g, "")]), "chaque plainte est traduite");
 }
 
-// Barre de chargement : animée par CSS (transform, courbe du temps) et reprise après un rechargement ; plus de minuterie « pct+4 » du fil principal.
+// Barre de chargement : elle suit les vraies étapes (scripts, connexion, interface, partie, moteur local, première image), animée par Web Animations, reprise après un rechargement.
 {
-  const h = lire("cloudflare/public/index.html");
-  assert.ok(h.includes("@keyframes sorealChargeV1") && h.includes("animation:sorealChargeV1 40s linear forwards") && h.includes("soreal_idle_chargement_v1"));
-  assert.ok(!h.includes("pct+(pct<55?4:pct<80?2:1)") && !h.includes("transition:width .32s ease;"), "plus de progression par pas sur le fil principal");
+  const h = lire('cloudflare/public/index.html'), p = 'cloudflare/public/';
+  assert.ok(h.includes('__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__') && h.includes('b.animate(') && h.includes('soreal_idle_chargement_v1') && !h.includes('pct+(pct<55?4:pct<80?2:1)'));
+  assert.ok(lire(p + 'standalone-bridge.js').includes('__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(42)') && lire(p + 'standalone-bridge.js').includes('__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(52)'));
+  assert.ok(lire(p + 'modules/moteur-local-v1.js').includes('__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(65)') && lire(p + 'modules/moteur-local-v1.js').includes('__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(80)'));
+  assert.ok(lire(p + 'modules/ui-noyau-v1.js').includes('__SOREAL_IDLE_LOADING_COMPLETE_V206__'));
+}
+
+// Mort d'un boss : l'effet d'apparition ne se joue jamais sur l'image du boss TUÉ ; un calque sombre attend le suivant (jusqu'à 6 s).
+{
+  const a = lire('cloudflare/public/modules/apparition-boss-v1.js'), c = lire('cloudflare/public/modules/ui-combat-1-v1.js'), v = lire('cloudflare/public/modules/victoire-boss-arcade-v1.js');
+  assert.ok(a.includes('function jouerApres(hote,idMort,immediat)') && a.includes('app-boss-attente') && a.includes('performance.now()-debut>6000') && a.includes('jouerApres:jouerApres,idDe:idDe'));
+  assert.ok(c.includes('app.jouerApres(host,idMortV1)') && v.includes('app.jouerApres(hote,idMort,true)'));
+  assert.ok(lire('cloudflare/public/modules/ui-aventure-1-v1.js').includes('sorealIdleSummaryRebirthTempsV1') && lire('cloudflare/public/modules/temps-rebirth-v1.js').includes('setInterval(maj,1000)'), 'case « Temps » du Rebirth dans le bandeau');
 }

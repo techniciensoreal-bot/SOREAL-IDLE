@@ -1103,6 +1103,8 @@
 
         function terminerChargement(){
           chargementTermine=true;
+          /* première image du jeu : la barre de chargement du démarrage est complète */
+          try{if(window.__SOREAL_IDLE_LOADING_COMPLETE_V206__)window.__SOREAL_IDLE_LOADING_COMPLETE_V206__();}catch(_e){}
 
           if(timerRetry){
             clearTimeout(

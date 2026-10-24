@@ -32,8 +32,8 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 7,
-  "sha": "5640fa4559be921c255df55cafcb782e72119b96"
+  "pin": 8,
+  "sha": "1c6770c7b5a07143faf56c54a216c5edaea295c7"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 2,
@@ -300,8 +300,8 @@
   "sha": "fe6f0dee0038a3d400012558c912918539602eb0"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 63,
-  "sha": "0d8beb59fde4c4e7846d7fac43f980156446f6dc"
+  "pin": 64,
+  "sha": "e907783180b826cd995dc20653c1f2476ad80238"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -364,8 +364,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 419,
-  "sha": "fb32fe36a072428c87843df50a1fd72f73442729"
+  "pin": 420,
+  "sha": "2a6022b86a8eb1a6ad8fb4cafb4425b2454d090b"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -394,6 +394,10 @@
  "/modules/studio-pilote-v1.js": {
   "pin": 5,
   "sha": "d8060782bcd1b76493f4518fcde65ea07b8b604d"
+ },
+ "/modules/temps-rebirth-v1.js": {
+  "pin": 1,
+  "sha": "22519183df0b80ec71d3e93dc915dbe8bccba0ab"
  },
  "/modules/text-helpers-v1.js": {
   "pin": 1,
@@ -428,12 +432,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 444,
-  "sha": "9e16c38d956766fa59ad32e338e77d68c06c9952"
+  "pin": 446,
+  "sha": "80bea62c901f90a31b6c56f87332ddea553091ec"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 238,
-  "sha": "c9308da80a81528a194f9782d5e4d1cdf8e848be"
+  "pin": 240,
+  "sha": "ebef8535805d032b8a26c2766ce30d640b7d9bbe"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -468,8 +472,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 4,
-  "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
+  "pin": 6,
+  "sha": "acc0b85e69c9413a76964abc70c27936282b9b4d"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 25,
@@ -488,8 +492,8 @@
   "sha": "b9978edfdb5a6d99d68763e34aa347d42c67af90"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 15,
-  "sha": "befa76a6717f16b274fd2f2fd0f64c29ef13611c"
+  "pin": 16,
+  "sha": "7271dc251f8c651a63495df29d9bc630e0aa2a21"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 13,
@@ -524,8 +528,8 @@
   "sha": "d5cae822016ade0f38f40ec6c781adf4c0a934f8"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 9,
-  "sha": "77f6f20e31146ecd1cd7dc695740f9d0d21e21cb"
+  "pin": 10,
+  "sha": "c59a13ba0548ed7257105dc1cc177a1f6ed41d16"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 7,
@@ -560,8 +564,8 @@
   "sha": "7125121e944f636580945d349db255a07eacedb0"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 5,
-  "sha": "9b505d5a26c2ae2bb8cbda9ffb5a3a8be6a76b92"
+  "pin": 6,
+  "sha": "79ebafe5b8ae109d2af7f86bde39a347df9cf053"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 1,
@@ -628,7 +632,7 @@
   "sha": "68fc40d3c16e80a283e39524ccb613cebd30365c"
  },
  "/standalone-bridge.js": {
-  "pin": 20,
-  "sha": "e4ff013570c5639c2cd3016ce60968a76b4da722"
+  "pin": 21,
+  "sha": "346d494312169b2afaa33aad96373d9a2e32ea9c"
  }
 }

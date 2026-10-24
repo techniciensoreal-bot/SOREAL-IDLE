@@ -248,6 +248,46 @@
     }catch(_e){enCours=false;return false;}
   }
 
+  /*
+   * Le boss tué ne réapparaît plus (Norman, 2026-10-24 : « quand je tue un boss, on a l'animation de sa mort et quelques fois son image réapparaît avant d'être remplacée par celle du nouveau boss ») : à la victoire, l'hôte porte encore l'image du boss
+   * TUÉ (le moteur n'a pas encore répondu). Jouer l'effet d'apparition à cet instant révélait donc l'ancien boss avant le suivant. jouerApres(hote, idMort) joue l'effet tout de suite SEULEMENT si l'image est déjà celle d'un autre boss ; sinon il pose
+   * un calque sombre (fondu en même temps que la mort de l'image) et attend, jusqu'à 6 s, que le boss suivant soit dans l'hôte : l'effet se joue alors sur LUI (par ce guetteur ou par verifier()). Sans boss suivant au bout de 6 s (même boss),
+   * le calque se retire et l'image revient.
+   */
+  function jouerApres(hote,idMort,immediat){
+    try{
+      if(!hote)return false;
+      if(reduit_()){liberer_(hote);return false;}
+      var img=hote.querySelector&&hote.querySelector('img');
+      var n=img?idDe(img):0;
+      idMort=Math.floor(Number(idMort))||0;
+      if(!(idMort>0)||!img||!n||n!==idMort)return jouer(hote);
+      style_();
+      dernierId=idMort;enCours=true;
+      var anc=hote.querySelector('.app-boss');if(anc)anc.remove();
+      var calque=document.createElement('div');
+      calque.className='soreal-idle-boss-transition-v61 app-boss app-boss-attente';
+      calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
+      if(immediat){calque.style.transition='none';calque.style.opacity='1';hote.appendChild(calque);}   /* après l'écran de victoire : opaque tout de suite, aucun intervalle découvert */
+      else{calque.style.opacity='0';calque.style.transition='opacity .28s ease';hote.appendChild(calque);requestAnimationFrame(function(){calque.style.opacity='1';});}
+      var debut=performance.now();
+      (function attendre(){
+        if(!calque.isConnected){return;}                                   /* remplacé : l'effet du boss suivant est en cours (verifier) */
+        var im=hote.querySelector&&hote.querySelector('img');
+        var m=im?idDe(im):0;
+        if(m>0&&m!==idMort){if(dernierId===idMort||dernierId===null)jouer(hote);return;}
+        if(performance.now()-debut>6000){
+          enCours=false;nettoyerMort_(im);
+          calque.style.transition='opacity .3s ease';calque.style.opacity='0';
+          setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},320);
+          return;
+        }
+        setTimeout(attendre,80);
+      })();
+      return true;
+    }catch(_e){enCours=false;return false;}
+  }
+
   /* Calque sombre posé tout de suite sur le boss suivant, sans effet : l'écran de victoire le retire quand il démarre (annuler) et le jeu joue l'effet à la fin ; si rien ne vient en 3 s, l'effet se joue. */
   function couvrir(hote,n){
     try{
@@ -303,5 +343,5 @@
     [1500,4000,8000].forEach(function(ms){setTimeout(function(){try{if(dernierId===null)verifier();}catch(_e){}},ms);});
   }
 
-  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={jouer:jouer,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
+  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
 })();

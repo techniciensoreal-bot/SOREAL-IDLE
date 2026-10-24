@@ -304,6 +304,9 @@
          */
         /* Norman (2026-10-22) : « la taupe a éclaté alors que je n'étais pas à ce boss » : la durée et le numéro du combat sont à usage UNIQUE (remis à zéro ici) et le numéro doit être celui du boss sélectionné ; sinon un kill sans combat suivi (auto, Titan, tour) réutilisait un vieux combat. */
         let victoireArcadeIdleV1=false;
+        /* numéro du boss TUÉ (image encore dans l'hôte) : l'apparition ne se joue jamais sur lui (Norman, 2026-10-24) */
+        let idMortV1=0;
+        try{const appId=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;idMortV1=appId&&appId.idDe&&image?appId.idDe(image):0;}catch(_e){idMortV1=0;}
         const debutCombatV1=REG.idleCombatDebutV1,bossCombattuV1=REG.idleCombatBossNumV1;
         REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__=false;
         try{
@@ -311,7 +314,7 @@
           const memeBoss=bossCombattuV1>0&&idleEntier_(REG.idleEtat&&REG.idleEtat.bossSelection||0)===bossCombattuV1;
           if(arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));
           /* pas d'écran de victoire : le boss suivant apparaît tout de suite avec son effet (le calque d'attente éventuel est remplacé) */
-          if(!victoireArcadeIdleV1){const app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouer)app.jouer(host);}
+          if(!victoireArcadeIdleV1){const app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(host,idMortV1);else if(app&&app.jouer)app.jouer(host);}
         }catch(_e){}
 
         const overlay=

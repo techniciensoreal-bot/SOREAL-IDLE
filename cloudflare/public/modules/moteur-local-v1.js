@@ -198,6 +198,7 @@
       echec=true;vivant=false;
       attentes.forEach(function(a){a.ko(new Error("MOTEUR_LOCAL_ARRETE"));});attentes.clear();
     };
+    try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(65);}catch(_e){}
     try{
       await avecDelai(parler({type:"init",ecart:ecartServeur(),export:exp,wasmUrl:new URL("/sql-wasm-v1.wasm?v=f3aaaa47b7",location.href).href}),20000,"MOTEUR_LOCAL_DEMARRAGE_LENT");
     }catch(e){
@@ -206,6 +207,7 @@
       throw e;
     }
     vivant=true;
+    try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(80);}catch(_e){}
     /* Chronométrage par phase du moteur : demandé seulement à l'administrateur (journal de fluidité). Réessayé quelques fois : le statut d'administrateur n'est connu qu'après les premières réponses. */
     (function demanderSpans(essais){
       try{

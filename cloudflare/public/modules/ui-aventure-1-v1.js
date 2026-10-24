@@ -914,6 +914,14 @@
           (systemes.selloutShop&&systemes.selloutShop.unlockedEver)
         );
         const rebirths=Math.max(0,idleEntier_(records.totalRebirths||0));
+        /* Temps du Rebirth en cours (Norman, 2026-10-24 : « une info qu'on aime avoir sous l'œil ») : une case de plus, seulement une fois le menu Renaissance découvert (règle n°2). Mise à jour chaque seconde par modules/temps-rebirth-v1.js. */
+        let tempsRebirth='';
+        try{
+          if(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j)){
+            const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+            if(api&&typeof api.runSecondes==='function')tempsRebirth='<div class="soreal-idle-summary-v28" data-tuile="rebirth" title="Temps du Rebirth en cours">⏱️ Temps<b id="sorealIdleSummaryRebirthTempsV1" data-sans-traduction>'+api.duree(api.runSecondes(j))+'</b></div>';
+          }
+        }catch(_e){tempsRebirth='';}
 
         return `
           <div class="soreal-idle-summary-grid-v28">
@@ -939,6 +947,7 @@
                   <b id="sorealIdleSummaryApV210">${formatGrandNombreIdleV70_(monnaies.ap||0)}</b>
                 </div>`
               :''}
+            ${tempsRebirth}
           </div>
         `;
       }

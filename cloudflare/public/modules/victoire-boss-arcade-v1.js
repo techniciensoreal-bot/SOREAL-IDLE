@@ -195,6 +195,8 @@
       if(!hote||!doitJouer(etat,dureeCombatMs))return false;
       if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
       style_();
+      var idMort=0;
+      try{var appM=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;idMort=appM&&appM.idDe&&image?appM.idDe(image):0;}catch(_e){idMort=0;}   /* boss TUÉ : l'apparition ne se joue jamais sur lui (Norman, 2026-10-24) */
       /* L'écran de victoire a la main jusqu'à sa fin : une apparition de boss déjà lancée est annulée, et ses mutations d'image sont ignorées ; à la fin, la victoire joue l'apparition du boss suivant (modules/apparition-boss-v1.js). */
       try{var A0=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(A0&&A0.annuler)A0.annuler();}catch(_e){}
       window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=true;
@@ -215,7 +217,7 @@
         if(t>=DUREE){
           fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
           var passe=false;
-          try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;passe=Boolean(app&&app.jouer(hote));}catch(_e){}
+          try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;passe=Boolean(app&&(app.jouerApres?app.jouerApres(hote,idMort,true):app.jouer(hote)));}catch(_e){}
           try{var im=hote.querySelector('img');if(im&&!passe)im.classList.remove('soreal-idle-boss-death-v61');}catch(_e){}   /* jamais d'image invisible après la victoire (classe de mort restée sur le boss suivant) */
           if(passe){if(calque.parentNode)calque.parentNode.removeChild(calque);}   /* le calque de l'apparition est déjà posé par-dessus : aucune image du boss suivant n'apparaît entre les deux */
           else{
