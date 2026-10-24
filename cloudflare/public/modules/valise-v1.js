@@ -223,7 +223,7 @@
   function phraseActive(){return phraseIdx()>=0;}
   function poserPhrase(i){try{localStorage.setItem(CLE_PHRASE,i<0?'':String(i));}catch(_e){}}
   /* Le bloc de texte de la valise, posé dans la zone du Coffre à côté de celui du Coffre ; la classe vl-phrase-on de la zone choisit lequel est affiché. */
-  function phraseBlocHtml(){var p=PHRASES[Math.max(0,phraseIdx())];return '<div class="bg-texte-v1 vl-phrase-bloc" data-sans-traduction><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
+  function phraseBlocHtml(){var p=PHRASES[Math.max(0,phraseIdx())];return '<div class="bg-texte-v1 vl-phrase-bloc"><b>'+esc(p[0])+'</b><span>'+esc(p[1])+'</span></div>';}
   function coffreOuvert(){try{return localStorage.getItem('soreal_idle_coffre_ouvert_v1')==='1';}catch(_e){return false;}}
   var coffreAvant=coffreOuvert();
   /* Le fond du cadre est celui du DERNIER ouvert, et il persiste une fois refermé (Norman, 2026-10-23) : velours pour la valise, tapis vert de billard pour le Coffre. Lié au compte (clé soreal_idle_*). */
@@ -264,7 +264,7 @@
     var o=ouverte(),k=contenu();
     style_();
     return '<div class="vl-section'+(o?' vl-ouverte':'')+(dort?' vl-dort':'')+'" style="'+styleSection()+'" data-vl data-vl-sig="'+esc(k.sig)+'" data-morph-classes-gardees="'+MOTIF_CLASSES+'">'+
-      '<div class="vl-creature" data-vl-bascule role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" aria-label="Valise des consommables"><div class="vl-bete">'+SVG+'<span class="vl-bulle" data-sans-traduction aria-hidden="true"></span></div></div>'+
+      '<div class="vl-creature" data-vl-bascule role="button" tabindex="0" aria-expanded="'+(o?'true':'false')+'" aria-label="Valise des consommables"><div class="vl-bete">'+SVG+'<span class="vl-bulle" aria-hidden="true"></span></div></div>'+
       '<div class="vl-deplie"><div class="vl-deplie-in">'+
         k.langue+
       '</div>'+(k.n?'<i class="vl-rouleau" aria-hidden="true">'+ROULEAU+'</i>':'')+'</div>'+

@@ -792,13 +792,6 @@
         document.getElementById('app').innerHTML=
           header()+
           `<main class="soreal-idle-native-v4">
-            <div class="soreal-idle-hero-v4 soreal-idle-hero-banner-v95">
-              <img src="/api/idle/media/banner?name=soreal-idle.webp" alt="SOREAL IDLE" onerror="this.outerHTML='&lt;div style=&quot;height:170px;display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:1000&quot;&gt;SOREAL IDLE&lt;/div&gt;'">
-              <div class="soreal-idle-badge-v4" role="button" tabindex="0" style="cursor:pointer" title="Voir les notes de mise à jour" onclick="window.__ouvrirNotesMajIdleV1__()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__ouvrirNotesMajIdleV1__()}">
-                🔒 ${versionBadgeIdleV1_()}
-              </div>
-            </div>
-
             ${navigationIdleV28_(j)}
 
             ${rendreBarreEnergiePersistanteIdleV1_(j)}

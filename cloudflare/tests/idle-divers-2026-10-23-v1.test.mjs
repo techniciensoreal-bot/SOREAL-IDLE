@@ -120,3 +120,25 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const att = { "MACHINE TEMPORELLE": "TIME MACHINE", "MEILLEUR BUTIN D’OR": "BEST GOLD LOOT", "TIQUES/S": "TICKS/S", "TEMPS RESTANT": "TIME LEFT", "En attente d’Or": "Waiting for Gold", "Rot grave": "Deep burp" };
   for (const [k, v] of Object.entries(att)) assert.equal(d[k], v, k);
 }
+
+// Vomi de la valise : la langue passe par-dessus la flaque et porte elle aussi du vomi ; bannière du haut retirée ; effets allégeables du menu et des décors.
+{
+  const a = lire("cloudflare/public/modules/valise-accident-v1.js");
+  assert.ok(a.includes("' .vl-deplie{z-index:7}'") && a.includes("' .vl-lg-corps::before{content:"), "langue au-dessus de la flaque (z 6), vomi sur la langue");
+  const u = lire("cloudflare/public/modules/ui-noyau-v1.js");
+  assert.ok(!u.includes("soreal-idle-hero-banner-v95") && !u.includes("media/banner?name=soreal-idle.webp"), "plus de bannière dans la page de jeu");
+  const e = lire("cloudflare/public/modules/effets-legers-v1.js");
+  assert.ok(e.includes("soreal_idle_effet_nav_v1") && e.includes("soreal_idle_effet_decor_v1") && e.includes("animation:none!important"));
+  assert.ok(lire("cloudflare/public/soreal-idle-ui.js").includes("soreal_idle_effet_nav_v1") && lire("cloudflare/public/index.html").includes("/modules/effets-legers-v1.js"));
+}
+
+// Le Coffre se plaint du vomi de la valise non nettoyé ; la valise nettoyée est contente ; ces bulles sont traduites (plus de data-sans-traduction).
+{
+  const s = lire("cloudflare/public/modules/coffre-sommeil-v1.js"), v = lire("cloudflare/public/modules/valise-accident-v1.js");
+  assert.ok(s.includes("Je t’en supplie, nettoie-la, elle pue.") && s.includes("function valiseSale_()") && s.includes("PLAINTES"));
+  assert.ok(v.includes("v.dire('Je suis contente !')") && !v.includes("Merci… ça va mieux."));
+  for (const f of ["coffre-sommeil-v1", "coffre-digestion-v1", "valise-v1"]) assert.ok(!lire("cloudflare/public/modules/" + f + ".js").includes("data-sans-traduction"), f);
+  const d = JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"));
+  assert.equal(d["Je suis contente !"], "I'm so happy!");
+  assert.ok(s.match(/PLAINTES=\[([^\]]*)\]/)[1].split("',").every((x) => d[x.replace(/^\s*'|'$/g, "")]), "chaque plainte est traduite");
+}

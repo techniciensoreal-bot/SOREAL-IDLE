@@ -30,6 +30,15 @@
   var REMARQUE='Pourquoi tu me regardes comme si j’allais chier sur tes affaires ?';
   var REGARD_MIN=150000,REGARD_MAX=420000;
   var vuEveille=0,cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);
+  /* Le vomi de la valise n'est pas nettoyé (Norman, 2026-10-24) : le Coffre, éveillé et vu, s'en plaint de temps en temps (première plainte après 8 s, puis toutes les 25 à 45 s), sans jamais recouvrir une autre de ses bulles. */
+  var PLAINTES=['Je t’en supplie, nettoie-la, elle pue.',
+    'Elle a encore vomi… nettoie-la, par pitié.',
+    'Ça sent le vomi ici ! Nettoie-la !',
+    'Cette odeur… nettoie ta valise, s’il te plaît.',
+    'Moi, je pète. Elle, elle vomit. Nettoie-la.',
+    'Je ne peux plus respirer… la valise, vite !'];
+  var vuPue=0,ciblePue=8000,deniere=-1;
+  function valiseSale_(){try{var v=window.__SOREAL_IDLE_VALISE_ACCIDENT_V1__;return Boolean(v&&typeof v.niveau==='function'&&v.niveau()>0);}catch(_e){return false;}}
   /* Bâillement (Norman, 2026-10-23) : de temps en temps, fermé, éveillé et vu, le Coffre bâille (couvercle grand ouvert, langue sortie, corps étiré, 2,6 s) avec son propre son ; jamais avec la valise qui bâille, ni pendant une bulle. */
   var BAILLE_MIN=170000,BAILLE_MAX=450000,vuBaille=0,cibleBaille=0;   /* tirée au premier pas */
   var dort=false,vuAvantSommeil=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuRonfle=0,cibleRonfle=1500,derniere=-1;
@@ -84,7 +93,7 @@
   }
   function dire_(el,texte){
     var b=document.createElement('span');
-    b.className='bg-desole-v1 bg-replique-v1 bg-desole-long-v1';b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.className='bg-desole-v1 bg-replique-v1 bg-desole-long-v1';b.setAttribute('aria-hidden','true');
     b.textContent=texte;
     el.appendChild(b);
     setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
@@ -148,6 +157,14 @@
       }
       vuEveille+=PAS;
       if(vuEveille>=cibleRegard&&remarque_(el)){vuEveille=0;cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);}
+      if(valiseSale_()){
+        vuPue+=PAS;
+        if(vuPue>=ciblePue&&el&&!el.querySelector('.bg-desole-v1,.bg-replique-v1')){
+          var k=Math.floor(Math.random()*PLAINTES.length);
+          if(k===deniere)k=(k+1)%PLAINTES.length;
+          deniere=k;dire_(el,PLAINTES[k]);vuPue=0;ciblePue=25000+Math.random()*20000;
+        }
+      }else{vuPue=0;ciblePue=8000;}
       return;
     }
     vuEndormi+=PAS;vuRonfle+=PAS;
@@ -156,5 +173,5 @@
   }
   setInterval(pas_,PAS);
   window.__coffreDortIdleV1__=false;
-  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,dire:remarque_,baille:function(){return bailler_(coffre_());}};
+  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,plaintes:PLAINTES,dire:remarque_,baille:function(){return bailler_(coffre_());}};
 })();

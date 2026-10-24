@@ -12,7 +12,8 @@ for (const f of fichiers) {
 const html = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(html.includes("/api/idle/media/banner?name=soreal-idle.webp"), "écran de chargement : bannière R2");
 const ui = lireUiComplet();
-assert.ok(ui.includes('<img src="/api/idle/media/banner?name=soreal-idle.webp"'), "bannière du jeu : R2");
+/* Norman (2026-10-24) : la bannière « SOREAL IDLE » du haut de la page de jeu est retirée (l'écran de chargement garde la sienne). */
+assert.ok(!ui.includes('<img src="/api/idle/media/banner?name=soreal-idle.webp"'), "plus de bannière dans la page de jeu");
 assert.ok(!ui.includes("urlDriveRapideIdleV46_"), "plus de fonction d'adresse Drive");
 console.log("Aucun lien Google pour les images : OK");
 

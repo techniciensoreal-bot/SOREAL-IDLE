@@ -41,7 +41,7 @@
      affaires », une goutte de sueur lui perle alors au front : elle apparaît en fondu en glissant un peu, puis s'efface. */
   function bulle_(el,texte,rare,delai){
     var b=document.createElement('span');
-    b.className='bg-desole-v1'+(rare?' bg-desole-rare-v1':'');b.setAttribute('data-sans-traduction','');b.setAttribute('aria-hidden','true');
+    b.className='bg-desole-v1'+(rare?' bg-desole-rare-v1':'');b.setAttribute('aria-hidden','true');
     b.textContent=texte;
     if(delai)b.style.animationDelay=delai+'ms';
     el.appendChild(b);

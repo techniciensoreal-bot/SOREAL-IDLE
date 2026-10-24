@@ -120,12 +120,12 @@
   "sha": "301eb6eb477bbf29c080c466973c66581e4b1fda"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 23,
-  "sha": "6dcf9e5915c75635f4b9892ee78258d0ee5d9f79"
+  "pin": 24,
+  "sha": "6d157c4bdc6b3d215e8ccb0d124751363cfd8eae"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 26,
-  "sha": "3ebb42f51d979fd943877d83b43cfd6c82553c0f"
+  "pin": 27,
+  "sha": "e1a4dcd3dfd8dada427d5587e70a087e77fe3784"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -170,6 +170,10 @@
  "/modules/diag-fluidite-v1.js": {
   "pin": 31,
   "sha": "dfd57a7f54aed1480e8a56fcb96ce8cd89e11bcc"
+ },
+ "/modules/effets-legers-v1.js": {
+  "pin": 1,
+  "sha": "7c5b61b68b92c581a2cd1daf3ac9c44efd643c10"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -360,8 +364,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 417,
-  "sha": "94341527ea61d8774c04d8ccccd24039c2047788"
+  "pin": 419,
+  "sha": "fb32fe36a072428c87843df50a1fd72f73442729"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -424,12 +428,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 441,
-  "sha": "21e48b5ac9bff466a5d29fa4fa848de3b081caa1"
+  "pin": 444,
+  "sha": "9e16c38d956766fa59ad32e338e77d68c06c9952"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 235,
-  "sha": "5c4a9240c1a8e1b6d8cdcfe74ee07703a99f1d01"
+  "pin": 238,
+  "sha": "c9308da80a81528a194f9782d5e4d1cdf8e848be"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -520,8 +524,8 @@
   "sha": "d5cae822016ade0f38f40ec6c781adf4c0a934f8"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 8,
-  "sha": "0b75266a8d934d245d4d01c011f8ca3ec4e0ce3f"
+  "pin": 9,
+  "sha": "77f6f20e31146ecd1cd7dc695740f9d0d21e21cb"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 7,
@@ -548,12 +552,12 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 10,
-  "sha": "f741e1f6e37b99834bcf910567e8138e18165c76"
+  "pin": 13,
+  "sha": "67e43158223d1a3a2ec900659ec20bf52594661c"
  },
  "/modules/valise-v1.js": {
-  "pin": 53,
-  "sha": "2b9beceeacdf701ba7fcefd3fe4fded2136fa552"
+  "pin": 55,
+  "sha": "7125121e944f636580945d349db255a07eacedb0"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
@@ -620,8 +624,8 @@
   "sha": "f70aad3ff96d5eed7ce989f8800453663f2c2eaf"
  },
  "/soreal-idle-ui.js": {
-  "pin": 654,
-  "sha": "1748b05b433a4e0f96f781402339d7beaadac48c"
+  "pin": 655,
+  "sha": "68fc40d3c16e80a283e39524ccb613cebd30365c"
  },
  "/standalone-bridge.js": {
   "pin": 20,

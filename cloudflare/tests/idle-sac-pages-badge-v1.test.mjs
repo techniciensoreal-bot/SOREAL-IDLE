@@ -14,7 +14,8 @@ assert.ok(ui.includes("if(pages<2)return '';"), "pas de pager tant qu'une seule 
 assert.ok(ui.includes("window.__changerPageSacV1__=changerPageSacV1_;"), "changement de page exposé");
 assert.ok(/@media \(max-width:700px\)\{[^@]*soreal-idle-v138-bag\{grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/.test(css), "5 colonnes sur téléphone");
 // Badge de version cliquable
-assert.ok(ui.includes('class="soreal-idle-badge-v4" role="button"') && ui.includes('onclick="window.__ouvrirNotesMajIdleV1__()"'), "badge cliquable");
+/* Norman (2026-10-24) : le badge-raccourci des notes (sur la bannière) est retiré ; les notes restent dans les Réglages. */
+assert.ok(!ui.includes('class="soreal-idle-badge-v4" role="button"'), "plus de raccourci de notes sur la bannière");
 const ouvrir = ui.slice(ui.indexOf("window.__ouvrirNotesMajIdleV1__=function(){"), ui.indexOf("window.__ouvrirNotesMajIdleV1__=function(){") + 1800);
 assert.ok(ouvrir.includes("soreal_idle_notes_maj_ouvert_v1','1'") && ouvrir.includes("__menuIdleV28__('parametres')") && ouvrir.includes("scrollIntoView"), "ouvre les Réglages, déplie et affiche les notes");
 console.log("idle-sac-pages-badge-v1: OK");

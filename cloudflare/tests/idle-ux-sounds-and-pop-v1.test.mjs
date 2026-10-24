@@ -84,7 +84,7 @@ const lire = (rel) => readFileSync(rel, "utf8");
   assert.equal(badge("2.7"), "Beta 2.7", "le badge suit la version courante des notes de mise à jour");
   assert.equal(badge(""), "Version bêta");
   assert.equal(ui.includes("${IDLE_TEST_VERSION}"), false, "le libellé fixe n'est plus affiché");
-  assert.equal((ui.match(/🔒 \$\{versionBadgeIdleV1_\(\)\}/g) || []).length, 2, "les deux endroits (écran principal et écran d'erreur)");
+  assert.equal((ui.match(/🔒 \$\{versionBadgeIdleV1_\(\)\}/g) || []).length, 1, "seul l'écran d'erreur affiche le badge (la bannière du jeu est retirée, 2026-10-24)");
   assert.equal(ui.includes("Ver. Beta local"), false);
 }
 

@@ -104,6 +104,20 @@
     css.push('.vl-flaque-fond-v1{z-index:1;pointer-events:none;cursor:auto;touch-action:auto}');
     css.push('.vl-bete:has(.vl-flaque-fond-v1)>svg:not(.vl-haut):not(.vl-vomi-svg){position:relative;z-index:2}');
     css.push('.vl-flaque-v1 b{clip-path:inset(54% -20px 0 -20px)}');
+    /*
+     * La langue passe PAR-DESSUS la grosse flaque (Norman, 2026-10-24 : « quand elle vomit, sa langue doit passer par dessus la grosse flaque ») : la flaque est au sol, la langue sort de la bouche et tombe devant elle (z 7 > flaque z 6, la main reste à 9).
+     * Et la LANGUE elle-même est pleine de vomi, pas seulement les objets : des paquets et des coulures sur tout le ruban, qui partent avec le niveau comme ceux des objets.
+     */
+    var PFX='html body.soreal-idle-active-v47.soreal-idle-active-v47 .vl-section:has(.vl-bete[data-vomi])';
+    css.push(PFX+' .vl-deplie{z-index:7}');
+    css.push(PFX+' .vl-lg-corps{position:relative}');
+    css.push(PFX+' .vl-lg-corps>*{position:relative;z-index:1}');
+    css.push(PFX+' .vl-lg-corps::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:14px;'+
+      'background:radial-gradient(ellipse 15px 10px at 22% 16%,#cbd96e 0 70%,transparent 74%) 0 0/100% 150px repeat-y,radial-gradient(ellipse 20px 12px at 68% 34%,#a9c04e 0 70%,transparent 74%) 0 0/100% 150px repeat-y,'+
+      'radial-gradient(ellipse 13px 9px at 44% 62%,#d9d077 0 70%,transparent 74%) 0 0/100% 150px repeat-y,radial-gradient(ellipse 17px 11px at 84% 80%,#bcd05c 0 70%,transparent 74%) 0 0/100% 150px repeat-y,'+
+      'linear-gradient(#b3c755,#9db444) 14% 0/7px 46px repeat-y,linear-gradient(#a7bd48,#8fa83c) 58% 30px/6px 60px repeat-y,linear-gradient(#b3c755,#9db444) 90% 12px/6px 38px repeat-y;'+
+      'filter:drop-shadow(0 1px 0 #55631a)}');
+    for(var vl=1;vl<=NIVEAU_MAX;vl+=1)css.push(PFX.replace('[data-vomi]','[data-vomi="'+vl+'"]')+' .vl-lg-corps::before{opacity:'+(.25+.75*vl/NIVEAU_MAX).toFixed(2)+'}');
     s.textContent=css.join('\n');
     document.head.appendChild(s);
   }
@@ -268,7 +282,7 @@
     if(n&&niveau>0){
       retirerDoigt();   /* une vraie frottée : la main a rempli son rôle */
       niveau-=1;sauver();majFlaque();clic();
-      if(niveau===0){var v=V();if(v&&typeof v.dire==='function')v.dire('Merci… ça va mieux.');}
+      if(niveau===0){var v=V();if(v&&typeof v.dire==='function')v.dire('Je suis contente !');}
     }
   },true);
   ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){suivi=null;},true);});

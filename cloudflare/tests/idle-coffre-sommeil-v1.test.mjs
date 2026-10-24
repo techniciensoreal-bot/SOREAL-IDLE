@@ -13,7 +13,7 @@ const html = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(html.includes("/modules/coffre-sommeil-v1.js"), "module chargé");
 for (const phrase of ["J’ai jamais couché avec votre femme !", "À l’abordage !", "Ne me touchez pas avec vos sales pattes !"]) assert.ok(mod.includes(phrase), "réplique : " + phrase);
 assert.ok((mod.match(/^    '.+',?$/gm) || []).length >= 8, "plusieurs répliques possibles");
-assert.ok(mod.includes("data-sans-traduction"), "répliques toujours en français");
+assert.ok(!mod.includes("data-sans-traduction"), "répliques traduites en mode anglais (Norman, 2026-10-24)");
 assert.ok(son.includes("jouerReveil") && son.includes("jouerRonflement") && effets.includes("coffreReveil") && effets.includes("coffreRonfle"), "sons branchés sur le moteur audio");
 assert.ok(dig.includes("window.__coffreDortIdleV1__"), "pas de rot ni de pet pendant son sommeil");
 assert.ok(css.includes("@keyframes bgZzz{0%{opacity:0;") && /@keyframes bgZzz\{[^]*?100%\{opacity:0;/.test(css), "Z : fondu d'entrée et de sortie, un seul sens");

@@ -1990,7 +1990,9 @@ let idleVueAventureV1='zones';
       /* Effets visuels (Norman, 2026-10-08) : orage (éclairs) et cheminée (lueur) peuvent être coupés pour les téléphones moins puissants ; actifs par défaut, mémorisés sur l'appareil. */
       const EFFETS_VISUELS_IDLE_V1=[
         {id:'orage',cle:'soreal_idle_effet_orage_v1',libelle:'⛈️ Orage : ciel sombre et éclairs (piste d’orage)'},
-        {id:'feu',cle:'soreal_idle_effet_feu_v1',defaut:false,libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu) — peut ralentir un téléphone'}
+        {id:'feu',cle:'soreal_idle_effet_feu_v1',defaut:false,libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu) — peut ralentir un téléphone'},
+        {id:'nav',cle:'soreal_idle_effet_nav_v1',libelle:'🧭 Animations du menu du haut (cercles, battements, étoiles) — décoche pour alléger un téléphone lent'},
+        {id:'decor',cle:'soreal_idle_effet_decor_v1',libelle:'🕯️ Décors animés des cadres (torches, bulles des barres, particules) — décoche pour alléger un téléphone lent'}
       ];
       UI_PARTAGE_V1.__amorcer_1112();
 

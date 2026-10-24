@@ -20,8 +20,10 @@ assert.equal(profondeur, 0);
 // Le rangement des boutons (glisser-déposer) sait ranger une colonne.
 assert.ok(ui.includes("const verticalNav=getComputedStyle(nav).flexDirection==='column';"));
 // Ordre des enfants de <main> attendu par la grille : bandeau, menu, puis le reste.
-const i = ui.indexOf("`<main class=\"soreal-idle-native-v4\">\n            <div class=\"soreal-idle-hero-v4 soreal-idle-hero-banner-v95\">");
+/* (2026-10-24 : plus de bannière en tête de <main> ; le menu vient en premier) */
+const i = ui.indexOf("`<main class=\"soreal-idle-native-v4\">\n            ${navigationIdleV28_(j)}");
 assert.ok(i > 0);
+assert.ok(!ui.includes("soreal-idle-hero-banner-v95\">"), "plus de bannière dans la page");
 const corps = ui.slice(i, i + 2600);
 assert.ok(corps.indexOf("navigationIdleV28_(j)") > 0 && corps.indexOf("navigationIdleV28_(j)") < corps.indexOf("soreal-idle-page-root-v28"));
 console.log("idle-interface-pc-v1: OK");

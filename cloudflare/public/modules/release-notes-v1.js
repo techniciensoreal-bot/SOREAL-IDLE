@@ -34,6 +34,8 @@
           {menu:'general', titre:'Général', points:[
             'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
+            'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
+            'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
           {menu:'entrainement', titre:'Basic Training', points:[
             'Basic Training : à la première ouverture après une Renaissance, les deux dernières lignes de chaque groupe (Charge, Bonus ultime…) s’allument maintenant en néon comme les autres, au lieu de rester éteintes.',
