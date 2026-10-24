@@ -14,7 +14,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const window_ = {};
 vm.runInNewContext(registreSrc, { window: window_ });
 const reg = window_.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
-assert.equal(reg.liste.length, 11, "les 11 voix choisies à l'écoute");
+assert.equal(reg.liste.length, 12, "les 11 voix choisies à l’écoute + le petit garçon (2026-10-24)");
 assert.ok(reg.liste.every((v) => /^[a-z0-9-]{1,32}$/.test(v.id) && v.nom && ["homme", "femme"].includes(v.genre)));
 assert.equal(new Set(reg.liste.map((v) => v.id)).size, reg.liste.length, "identifiants uniques");
 assert.ok(!reg.liste.some((v) => v.id === "homme" || v.id === "femme" || v.id === "narrateur"), "pas de collision avec les voix de base");
@@ -79,7 +79,7 @@ assert.match(studio, /"voixNommees": voix_disponibles\(\)/);
 assert.match(studio, /os\.path\.join\(DOSSIER_VOIX, nom \+ "\.wav"\)/);
 assert.match(studio, /voix = donnees\.get\("voix"\) if isinstance\(donnees\.get\("voix"\), str\) and VOIX_ID_RE\.match\(donnees\.get\("voix"\)\) else "homme"/);
 const installeur = readFileSync("cloudflare/tools/voice-studio/installer_voix_nommees.py", "utf8");
-for (const v of reg.liste) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
+for (const v of reg.liste.filter((x) => x.id !== "garcon")) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
 
 // Réglages propres à une voix (Folle 2 : expressivité 0,35 et cfg 0,3, choisis à l'écoute le 2026-10-01).
 const reglages = JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8"));
@@ -89,3 +89,5 @@ assert.match(studio, /def reglages_voix\(voix\)/);
 assert.match(studio, /donnees\.get\("exaggeration", reglage\["exaggeration"\]\)/, "les réglages de la voix servent quand la requête ne précise rien");
 
 console.log("idle-voix-nommees-v1: OK");
+// Petit garçon (2026-10-24) : voix nommée dont l'extrait est fabriqué par creer_voix_garcon.py (hauteur de « Léa » montée de 5 demi-tons).
+assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_garcon.py", "utf8").includes('fabriquer("lea.wav", 5.0, cible)') && reg.existe("garcon"));

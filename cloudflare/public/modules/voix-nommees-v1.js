@@ -28,6 +28,8 @@ var LISTE=[
   {id:'niais',nom:'Niais',genre:'homme',alias:['gogole','Gogole']},
   {id:'vieille',nom:'Vieille',genre:'femme',alias:[]},
   {id:'mamie',nom:'Mamie',genre:'femme',alias:['jeune-vieille','Jeune vieille']},
+  /* Petit garçon (Norman, 2026-10-24) : extrait fabriqué en montant la hauteur de la voix « Léa » de 5 demi-tons (cloudflare/tools/voice-studio/creer_voix_garcon.py) ; à remplacer par l'enregistrement d'un vrai enfant (avec accord) pour une voix plus vraie. Repli Piper : voix de femme. */
+  {id:'garcon',nom:'Petit garçon',genre:'femme',alias:['petit-garcon','Petit garçon','enfant','gamin']},
   {id:'folle',nom:'Folle',genre:'femme',alias:['folle-2','Folle 2']}
 ];
 function normaliser(t){
