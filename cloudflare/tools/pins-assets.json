@@ -23,6 +23,10 @@
   "pin": 12,
   "sha": "b0a61bf4c174cb7e87747048dfd969dcd58fcd54"
  },
+ "/modules/animations-hors-ecran-v1.js": {
+  "pin": 1,
+  "sha": "eaf8cc82ea46ef23872e1711bf6fbfd37de998c1"
+ },
  "/modules/anti-copie-v1.js": {
   "pin": 1,
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
@@ -464,8 +468,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 23,
-  "sha": "c940f7fdd1bab70a255451b2d241bd9dcea59886"
+  "pin": 24,
+  "sha": "2253c932703cef06552487f8cff55e18651ab6c5"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 15,

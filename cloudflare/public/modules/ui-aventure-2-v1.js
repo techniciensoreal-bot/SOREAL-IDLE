@@ -2277,7 +2277,7 @@
         const V=window.__SOREAL_IDLE_VALISE_V1__;
         const fondCoffre=V&&typeof V.fond==='function'?V.fond():'';   /* dernier ouvert : velours (valise) ou tapis vert (Coffre), même refermé */
         const phraseValise=Boolean(V&&typeof V.phraseActive==='function'&&V.phraseActive());
-        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(fondCoffre==='valise'?' vl-velours':'')+(fondCoffre==='coffre'?' vl-tapis':'')+(Date.now()-(window.__coffreAnimOuvreIdleV1||0)<700?' ouvre':'')+'" data-morph-classes-gardees="^(ferme-anim|ouvre)$">'+
+        return '<div class="soreal-idle-section-v8 soreal-idle-coffre-v1'+(ouvert?' ouvert':'')+(fondCoffre==='valise'?' vl-velours':'')+(fondCoffre==='coffre'?' vl-tapis':'')+(Date.now()-(window.__coffreAnimOuvreIdleV1||0)<700?' ouvre':'')+'" data-morph-classes-gardees="^(ferme-anim|ouvre|hors-ecran)$">'+
           '<i class="vl-velours-fond" aria-hidden="true"></i>'+
           '<div class="soreal-idle-window-title-v31 soreal-idle-coffre-titre-v1" '+
             'onclick="window.__toggleCoffreOuvertAdventureIdleV1__()" '+

@@ -30,7 +30,7 @@ console.log("idle-divers-2026-10-23-v1 (cadre, distance, étiquette) OK");
 /* ouverture / fermeture animées : Coffre (couvercle + contenu) et valise (bouche) */
 const av = lire("cloudflare/public/modules/ui-aventure-2-v1.js");
 assert.ok(av.includes("window.__coffreAnimOuvreIdleV1=Date.now();") && av.includes("racines.forEach(function(r){r.classList.add('ferme-anim');});") && av.includes("setTimeout(finir,400);"), "fermeture : l'animation joue AVANT le changement d'état");
-assert.ok(av.includes('data-morph-classes-gardees="^(ferme-anim|ouvre)$"') && av.includes("classList.remove('ouvre')") && av.includes("classList.remove('ferme-anim')"), "classes gardées au redessin, retirées à la fin");
+assert.ok(av.includes('data-morph-classes-gardees="^(ferme-anim|ouvre|hors-ecran)$"') && av.includes("classList.remove('ouvre')") && av.includes("classList.remove('ferme-anim')"), "classes gardées au redessin, retirées à la fin");
 assert.ok(css.includes("@keyframes bgOuvre") && css.includes("@keyframes bgReplie") && css.includes(".soreal-idle-coffre-v1.ouvre .bg-bagage-v1 .bg-couvercle{animation:bgOuvre"));
 assert.ok(v.includes("@keyframes vlOuvre") && v.includes("@keyframes vlFerme") && v.includes("s.classList.add('vl-ferme')") && v.includes("anim|baille|ferme)$"), "bouche de la valise : vraies animations à l'ouverture et à la fermeture");
 console.log("idle-divers-2026-10-23-v1 (ouvertures animées) OK");
@@ -61,3 +61,8 @@ console.log("idle-divers-2026-10-23-v1 (téléphone, journal) OK");
 assert.ok(v.includes(":has(>.vl-section)>*{flex-shrink:0}"), "aucun bloc du cadre ne se comprime");
 assert.ok(av.includes("sb.setProperty('max-height',cb.toFixed(1)+'px','important');") && av.includes("border-top-width '+ease"), "contenu replié en douceur, en même temps que le cadre");
 console.log("idle-divers-2026-10-23-v1 (fermeture sans saut) OK");
+/* journal du téléphone (14 à 25 images/s, 57 animations CSS) : le Coffre et la valise ne s'animent que lorsqu'on les voit */
+const ah = lire("cloudflare/public/modules/animations-hors-ecran-v1.js");
+assert.ok(ah.includes("rootMargin:'150px 0px 150px 0px'") && ah.includes(".hors-ecran.hors-ecran *") && ah.includes("animation-play-state:paused") && !ah.includes("!important"), "pause hors écran, sans !important");
+assert.ok(av.includes('"^(ferme-anim|ouvre|hors-ecran)$"') && lire("cloudflare/public/index.html").includes("/modules/animations-hors-ecran-v1.js"));
+console.log("idle-divers-2026-10-23-v1 (animations hors écran) OK");
