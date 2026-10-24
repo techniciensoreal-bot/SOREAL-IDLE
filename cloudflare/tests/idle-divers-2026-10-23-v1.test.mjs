@@ -113,3 +113,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   }
   assert.ok(Object.keys(d).every((k) => !/[<>]/.test(k)), "aucune balise dans une clé");
 }
+
+// Machine temporelle et bruits : traduits ; aucun morceau traduit à moitié (« d'Gold », « l'energy »).
+{
+  const d = JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"));
+  const att = { "MACHINE TEMPORELLE": "TIME MACHINE", "MEILLEUR BUTIN D’OR": "BEST GOLD LOOT", "TIQUES/S": "TICKS/S", "TEMPS RESTANT": "TIME LEFT", "En attente d’Or": "Waiting for Gold", "Rot grave": "Deep burp" };
+  for (const [k, v] of Object.entries(att)) assert.equal(d[k], v, k);
+}
