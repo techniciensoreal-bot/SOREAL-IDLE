@@ -532,6 +532,40 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   if(!modele)return;
   const multCout=challengePermanentBonuses(state).augmentationCostMultiplier;
   const limiteDefi=state.challenge?.active==="hundredLevels";
+  /*
+   * Hors ligne (Norman, 2026-10-24 : « les barres d'Augmentations ne fonctionnent pas hors ligne ») : la boucle ci-dessous achète UN niveau par tour et s'arrête à 10 000 tours. Une longue absence (ou une grosse vitesse) vaut bien plus de
+   * niveaux (mesuré : 1 h = 134 163 niveaux en ligne, 10 000 seulement en une synchro hors ligne). Le temps d'un niveau est LINÉAIRE (n x c) et son coût en Or aussi (n x base, ou n² x base pour l'Upgrade) : on achète donc d'un coup, en formules fermées, tous
+   * les niveaux que le temps ET l'Or permettent (en laissant les deux derniers à la boucle, qui règle les cas limites : Or insuffisant, progression partielle, défi des 100 niveaux). Même résultat que la boucle, sans son plafond.
+   */
+  try{
+    const c=modele(1);
+    const lineaire=Number.isFinite(c)&&c>0&&Math.abs(modele(7)-7*c)<=1e-9*modele(7);
+    const l0=Math.max(0,int(upgrade?pair.upgradeLevel:pair.level,0));
+    if(lineaire&&remaining>0){
+      rebaserProgressionSecondesV1(pair,progressKey,c*(l0+1));
+      const p0=Math.max(0,num(pair[progressKey],0));
+      const need1=c*(l0+1)-p0;
+      const baseOr=(upgrade?def.upgrade.baseGold:def.baseGold)*multCout;
+      const S1=x=>x*(x+1)/2,S2=x=>x*(x+1)*(2*x+1)/6;
+      const Or=k=>baseOr*(upgrade?S2(l0+k)-S2(l0):S1(l0+k)-S1(l0));
+      const Temps=k=>need1+c*(S1(l0+k)-S1(l0+1));
+      const plafondDefi=limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity;
+      const ok=k=>k<=plafondDefi&&Temps(k)<=remaining&&Or(k)<=state.currencies.gold&&Number.isFinite(Or(k));
+      if(remaining>=need1&&ok(1)){
+        let bas=1,haut=2;
+        while(ok(haut)&&haut<1e9)haut*=2;
+        while(haut-bas>1){const m=Math.floor((bas+haut)/2);if(ok(m))bas=m;else haut=m;}
+        const k=bas-2;                                   /* les deux derniers niveaux restent à la boucle */
+        if(k>=200){
+          remaining-=Temps(k);
+          state.currencies.gold-=Or(k);
+          pair[progressKey]=0;
+          if(upgrade)pair.upgradeLevel=l0+k;else pair.level=l0+k;
+          challengeHundredLevelsConsume(state,k);
+        }
+      }
+    }
+  }catch(_e){}
   while(remaining>0&&guard++<10000){
     const level=upgrade?pair.upgradeLevel:pair.level;
     const needed=modele(Math.max(1,int(level,0)+1));

@@ -20,7 +20,7 @@ s = advanceIdleNguState(s, 20, ctx, T0 + 20000);
 const ms = Date.now() - t;
 assert.ok(ms < 3000, "20 s de jeu à toute vitesse en moins de 3 s de calcul (mesuré : " + ms + " ms)");
 const scissors = s.systems.augmentations.data.pairs.scissors;
-assert.equal(scissors.level, 10000, "plafond de 10 000 niveaux par appel inchangé");
+assert.ok(scissors.level > 10000, "plus de plafond de 10 000 niveaux par appel (2026-10-24 : calcul en formules fermées, hors ligne compris) : " + scissors.level);
 assert.ok(s.currencies.gold < 1e30 && s.currencies.gold > 0, "l'Or est bien débité");
 
 // Verrou orphelin : repris au bout de 20 s (voir idle-sqlite-runtime.js).
