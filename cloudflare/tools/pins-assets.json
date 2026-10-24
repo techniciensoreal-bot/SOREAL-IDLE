@@ -168,8 +168,8 @@
   "sha": "2f838e1f368da69837cdae2dc0124cf64514f1a6"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 30,
-  "sha": "32498c573297350f6778e4929024dd9e25eceba4"
+  "pin": 31,
+  "sha": "dfd57a7f54aed1480e8a56fcb96ce8cd89e11bcc"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,

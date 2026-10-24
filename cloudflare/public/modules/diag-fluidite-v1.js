@@ -330,7 +330,8 @@
   function echantillon_(){
     /* Norman (2026-10-13, audit) : la sonde est réservée à l'administrateur ; plus aucun travail à 5 Hz pour les autres joueurs */
     if(document.hidden||!estAdmin_())return;
-    poserSuspects_();
+    /* Les enveloppes chronométrées (rAF, setTimeout, Promise, écouteurs) coûtent à CHAQUE appel sur un téléphone lent et faussaient l'attribution : sur demande seulement (localStorage soreal_idle_diag_suspects_v1 = 1) ; les images longues (ci-dessous) donnent déjà le script le plus lourd. */
+    try{if(localStorage.getItem('soreal_idle_diag_suspects_v1')==='1')poserSuspects_();}catch(_e){}
     poserImagesLongues_();
     echantillonVie_();
     var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu="augmentations"]');
