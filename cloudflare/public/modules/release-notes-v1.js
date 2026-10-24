@@ -22,10 +22,27 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.7',
+    courante:'3.8',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'3.8',
+        nom:'Tout en anglais',
+        date:'2026-10-24',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
+            'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
+          ]},
+          {menu:'entrainement', titre:'Basic Training', points:[
+            'Basic Training : à la première ouverture après une Renaissance, les deux dernières lignes de chaque groupe (Charge, Bonus ultime…) s’allument maintenant en néon comme les autres, au lieu de rester éteintes.',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Les textes de la page sont maintenant aussi en anglais (titre, « meilleur butin d’or », « tiques/s », attente d’Or…).',
+          ]},
+        ]
+      },
       {
         version:'3.7',
         nom:'Un tour d’écran',
@@ -52,9 +69,6 @@
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Machine à remonter le temps : le nom de l’ennemi est écrit au-dessus, sur toute la largeur de l’écran ; dessous, seulement « Meilleur butin d’or » et l’Or. Les cases « Cible » et « Allouée » ne changent plus de taille quand on ajoute de l’énergie.',
-          ]},
-          {menu:'entrainement', titre:'Basic Training', points:[
-            'Basic Training : à la première ouverture après une Renaissance, les deux dernières lignes de chaque groupe (Charge, Bonus ultime…) s’allument maintenant en néon comme les autres, au lieu de rester éteintes.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'La boutique EXP a un nouvel achat dans le rayon Toc (75 EXP), visible quand le menu concerné est découvert. Il ajoute au clavier de l’ordinateur un petit interrupteur de métal (« Sync », au-dessus d’Énergie) : on le monte pour l’allumer, la loupiote devient verte (rouge quand il est éteint). Allumé, les touches 0, −, + et CAP agissent en même temps sur l’énergie et la magie ; s’il manque de la magie, on place le maximum disponible.',

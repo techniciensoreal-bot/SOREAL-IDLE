@@ -8,9 +8,9 @@ const window = {};
 vm.runInNewContext(readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8"), { window });
 const n = JSON.parse(JSON.stringify(window.__SOREAL_IDLE_RELEASE_NOTES_V1__));
 
-assert.equal(n.courante, "3.7");
-assert.deepEqual(n.versions.map((v) => v.version), ["3.7", "3.6", "3.5", "3.4", "3.3", "3.2", "3.1", "3.0", "2.9", "2.8", "2.7", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"], "une entrée par jour : 1.0 le 2026-09-23 puis +0.1 par jour, la plus récente en tête");
-assert.deepEqual(n.versions.map((v) => v.date), ["2026-10-23", "2026-10-22", "2026-10-21", "2026-10-20", "2026-10-19", "2026-10-17", "2026-10-16", "2026-10-15", "2026-10-14", "2026-10-13", "2026-10-12", "2026-10-11", "2026-10-10", "2026-10-07", "2026-10-06", "2026-10-05", "2026-10-04", "2026-10-03", "2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29", "2026-09-28", "2026-09-27", "2026-09-26", "2026-09-25", "2026-09-24", "2026-09-23"], "une seule entrée par jour");
+assert.equal(n.courante, "3.8");
+assert.deepEqual(n.versions.map((v) => v.version), ["3.8", "3.7", "3.6", "3.5", "3.4", "3.3", "3.2", "3.1", "3.0", "2.9", "2.8", "2.7", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"], "une entrée par jour : 1.0 le 2026-09-23 puis +0.1 par jour, la plus récente en tête");
+assert.deepEqual(n.versions.map((v) => v.date), ["2026-10-24", "2026-10-23", "2026-10-22", "2026-10-21", "2026-10-20", "2026-10-19", "2026-10-17", "2026-10-16", "2026-10-15", "2026-10-14", "2026-10-13", "2026-10-12", "2026-10-11", "2026-10-10", "2026-10-07", "2026-10-06", "2026-10-05", "2026-10-04", "2026-10-03", "2026-10-02", "2026-10-01", "2026-09-30", "2026-09-29", "2026-09-28", "2026-09-27", "2026-09-26", "2026-09-25", "2026-09-24", "2026-09-23"], "une seule entrée par jour");
 assert.equal(n.versions[0].version, n.courante, "la version courante est la première entrée");
 /* Notes regroupées par menu (Norman, 2026-10-11) : groupes { menu, titre, points }. */
 const MENUS_VALIDES = ["general", "entrainement", "combat", "aventure", "renaissance", "moneyPit", "augmentations", "avance", "machine", "sang", "tower", "daycare", "challenges", "titans", "ngu", "wandoos", "yggdrasil", "diggers", "beards", "macguffins", "hacks", "questing", "quirks", "wishes", "cards", "cooking", "shop", "chroniques", "chat", "parametres"];
