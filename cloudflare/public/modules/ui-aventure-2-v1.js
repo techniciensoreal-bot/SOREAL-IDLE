@@ -2366,6 +2366,13 @@
               const ferme=r0.getBoundingClientRect().height;
               bloc.style.display=ancien;
               animerHauteurCoffreIdleV1_(r0,hAvant,Math.max(60,ferme),400);
+              /* le contenu se replie en douceur dans la MÊME durée : la valise (en dessous) remonte avec lui, au lieu de rester cachée puis de réapparaître d'un coup à la fin (Norman, 2026-10-23) */
+              const cb=bloc.getBoundingClientRect().height,sb=bloc.style,ease='400ms cubic-bezier(.3,.8,.3,1)';
+              sb.setProperty('overflow','hidden','important');
+              sb.setProperty('max-height',cb.toFixed(1)+'px','important');
+              void bloc.offsetHeight;
+              sb.setProperty('transition','max-height '+ease+',margin-top '+ease+',margin-bottom '+ease+',padding-top '+ease+',border-top-width '+ease,'important');
+              ['max-height','margin-top','margin-bottom','padding-top','border-top-width'].forEach(function(p){sb.setProperty(p,'0px','important');});
             }
           }catch(e){}
           setTimeout(finir,400);

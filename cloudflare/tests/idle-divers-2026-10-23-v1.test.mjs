@@ -56,3 +56,8 @@ const dc = lire("cloudflare/public/modules/diag-coffre-v1.js"), df = lire("cloud
 assert.ok(dc.includes("type:'layout-shift'") && dc.includes("noter('redessin_coffre'") && dc.includes("noter('hauteur_page'") && df.includes("noter:function(type,cle,details)") && df.includes("saut_page:40,hauteur_page:30,redessin_coffre:30"));
 assert.ok(lire("cloudflare/public/index.html").includes("/modules/diag-coffre-v1.js"));
 console.log("idle-divers-2026-10-23-v1 (téléphone, journal) OK");
+
+/* fermeture : la case du Coffre ne se comprime plus (flex-shrink:0), le contenu se replie en douceur et la valise remonte avec lui */
+assert.ok(v.includes(":has(>.vl-section)>*{flex-shrink:0}"), "aucun bloc du cadre ne se comprime");
+assert.ok(av.includes("sb.setProperty('max-height',cb.toFixed(1)+'px','important');") && av.includes("border-top-width '+ease"), "contenu replié en douceur, en même temps que le cadre");
+console.log("idle-divers-2026-10-23-v1 (fermeture sans saut) OK");
