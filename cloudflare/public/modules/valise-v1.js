@@ -421,7 +421,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 [data-idle-coffre-drop-v180].vl-phrase-on .vl-phrase-bloc{display:block}
 /* Valise ouverte : le fond du Coffre devient un joli velours (bordeaux, grain fin, ombre douce sur les bords) */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1 .vl-velours-fond{position:absolute;inset:0;z-index:-1;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .7s ease;
-  background:radial-gradient(ellipse at 50% 20%,rgba(255,150,170,.16),transparent 55%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.2) 0 1px,transparent 1px 3px),radial-gradient(ellipse at 50% 0%,#8a1d3b 0%,#5a1229 46%,#2c0714 100%);
+  background:radial-gradient(ellipse at 50% 20%,rgba(255,150,170,.16),transparent 55%),radial-gradient(ellipse at 50% 0%,#8a1d3b 0%,#5a1229 46%,#2c0714 100%);
   box-shadow:inset 0 0 70px rgba(0,0,0,.65)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.vl-velours .vl-velours-fond{opacity:1}
 /* le tapis vert (Coffre dernier ouvert, ou rien d'ouvert) est le fond du cadre lui-même (soreal-idle-itopod.css) : seul le velours de la valise passe par-dessus */

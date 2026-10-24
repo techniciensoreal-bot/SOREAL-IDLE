@@ -96,3 +96,11 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const n = lire("cloudflare/public/modules/bt-neon-v1.js");
   assert.ok(n.includes('[data-rang-v1="4"]{animation:btNeonV1') && n.includes("rgSheenV1 3.2s linear infinite!important") && n.includes("rgBatV1 1.6s ease-in-out infinite!important"));
 }
+
+// Tapis du Coffre et velours de la valise : couleur seule, plus de grain de traits croisés (ralentissements sur téléphone).
+{
+  const c = lire("cloudflare/public/soreal-idle-itopod.css"), v = lire("cloudflare/public/modules/valise-v1.js");
+  const i = c.indexOf("#1a5a30 0%,#11421f 52%");
+  assert.ok(i > 0 && !c.slice(i - 400, i).includes("repeating-linear-gradient"), "tapis vert sans traits");
+  assert.ok(!v.slice(v.indexOf(".vl-velours-fond{"), v.indexOf(".vl-velours-fond{") + 600).includes("repeating-linear-gradient"), "velours sans traits");
+}

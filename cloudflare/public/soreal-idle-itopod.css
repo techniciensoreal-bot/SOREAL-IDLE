@@ -1168,8 +1168,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
     var(--cuivre) left top/16px 100% no-repeat,
     var(--cuivre) right top/16px 100% no-repeat,
     /* Norman (2026-10-23) : plus de fond en bois ; le tapis vert de billard, foncé, est le fond par défaut du cadre du Coffre (le velours de la valise passe par-dessus quand elle est la dernière ouverte). */
-    repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px),
-    repeating-linear-gradient(-45deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px),
+    /* sans le grain de traits croisés (Norman, 2026-10-24 : la texture du tapis ralentit le téléphone) : la couleur seule, les ombres fixes font le contour */
     radial-gradient(ellipse at 50% 30%,#1a5a30 0%,#11421f 52%,#082712 100%)!important;
   box-shadow:0 14px 34px rgba(0,0,0,.6),inset 0 0 0 3px #d79a1f,inset 0 0 0 6px #5a3507,inset 0 0 38px rgba(0,0,0,.5)!important;
 }
