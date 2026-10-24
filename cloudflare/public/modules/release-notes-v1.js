@@ -53,6 +53,9 @@
           {menu:'machine', titre:'Machine temporelle', points:[
             'Machine à remonter le temps : le nom de l’ennemi est écrit au-dessus, sur toute la largeur de l’écran ; dessous, seulement « Meilleur butin d’or » et l’Or. Les cases « Cible » et « Allouée » ne changent plus de taille quand on ajoute de l’énergie.',
           ]},
+          {menu:'entrainement', titre:'Basic Training', points:[
+            'Basic Training : à la première ouverture après une Renaissance, les deux dernières lignes de chaque groupe (Charge, Bonus ultime…) s’allument maintenant en néon comme les autres, au lieu de rester éteintes.',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'La boutique EXP a un nouvel achat dans le rayon Toc (75 EXP), visible quand le menu concerné est découvert. Il ajoute au clavier de l’ordinateur un petit interrupteur de métal (« Sync », au-dessus d’Énergie) : on le monte pour l’allumer, la loupiote devient verte (rouge quand il est éteint). Allumé, les touches 0, −, + et CAP agissent en même temps sur l’énergie et la magie ; s’il manque de la magie, on place le maximum disponible.',
           ]},

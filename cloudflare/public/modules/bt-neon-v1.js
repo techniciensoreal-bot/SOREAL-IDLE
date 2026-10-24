@@ -174,6 +174,10 @@
     s+=R.replace('[data-bt-neon]','[data-bt-neon="eteint"]')+'>:is(.soreal-idle-page-head-v28,.soreal-idle-bt-toolbar-v120),'+R.replace('[data-bt-neon]','[data-bt-neon="eteint"]')+'>.soreal-idle-bt-panel-v120>:is(.soreal-idle-bt-panel-head-v120,.soreal-idle-bt-row-v120){filter:brightness(.26) saturate(.25)}';
     var A=R.replace('[data-bt-neon]','[data-bt-neon="allumage"]');
     s+=A+'>:is(.soreal-idle-page-head-v28,.soreal-idle-bt-toolbar-v120),'+A+'>.soreal-idle-bt-panel-v120>:is(.soreal-idle-bt-panel-head-v120,.soreal-idle-bt-row-v120){animation:btNeonV1 '+DUREE_TUBE+'s step-end both;animation-delay:var(--btd,0s)}';
+    /* Les deux dernières lignes de chaque groupe (rang 4 et 5 : Charge, Bonus ultime, Attaque perçante, Attaque ultime) ont leur propre animation permanente (reflet, battement) posée en !important par la feuille des rangs : elle remplaçait l'allumage néon, donc ces lignes ne s'allumaient pas (Norman, 2026-10-24). On joue les DEUX : l'allumage puis, en parallèle, leur animation de rang. */
+    var PRE='html body.soreal-idle-active-v47.soreal-idle-active-v47 ';
+    s+=PRE+A+'>.soreal-idle-bt-panel-v120>.soreal-idle-bt-row-v120[data-rang-v1="4"]{animation:btNeonV1 '+DUREE_TUBE+'s step-end var(--btd,0s) both,rgSheenV1 3.2s linear infinite!important}';
+    s+=PRE+A+'>.soreal-idle-bt-panel-v120>.soreal-idle-bt-row-v120[data-rang-v1="5"]{animation:btNeonV1 '+DUREE_TUBE+'s step-end var(--btd,0s) both,rgBatV1 1.6s ease-in-out infinite!important}';
     s+=A+'>.soreal-idle-page-head-v28{--btd:'+TETE+'s}'+A+'>.soreal-idle-bt-toolbar-v120{--btd:'+BARRE+'s}';
     s+=A+'>.soreal-idle-bt-panel-v120.attack>.soreal-idle-bt-panel-head-v120{--btd:'+PANNEAU_A+'s}'+A+'>.soreal-idle-bt-panel-v120.defense>.soreal-idle-bt-panel-head-v120{--btd:'+PANNEAU_D+'s}';
     for(var i=1;i<=12;i+=1){

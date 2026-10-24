@@ -90,3 +90,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(v.includes("window.CSS.registerProperty({name:n,syntax:'*',inherits:false})") && v.includes("function poserVl(s,nom,val)"));
   assert.ok(!/s\.style\.setProperty\('--vl-(p|pf|rr|s|h)'/.test(v.replace(/if\(HERITE_VL\)\{s\.style\.setProperty\(nom,val\)/, "")), "plus d'écriture des variables sur la section");
 }
+
+// Basic Training : les lignes de rang 4 et 5 (Charge, Bonus ultime…) ont une animation permanente en !important qui remplaçait l'allumage néon : les deux sont jouées.
+{
+  const n = lire("cloudflare/public/modules/bt-neon-v1.js");
+  assert.ok(n.includes('[data-rang-v1="4"]{animation:btNeonV1') && n.includes("rgSheenV1 3.2s linear infinite!important") && n.includes("rgBatV1 1.6s ease-in-out infinite!important"));
+}
