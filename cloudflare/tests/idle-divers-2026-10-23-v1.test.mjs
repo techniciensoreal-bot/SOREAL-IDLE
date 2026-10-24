@@ -66,3 +66,7 @@ const ah = lire("cloudflare/public/modules/animations-hors-ecran-v1.js");
 assert.ok(ah.includes("rootMargin:'150px 0px 150px 0px'") && ah.includes(".hors-ecran.hors-ecran *") && ah.includes("animation-play-state:paused") && !ah.includes("!important"), "pause hors écran, sans !important");
 assert.ok(av.includes('"^(ferme-anim|ouvre|hors-ecran)$"') && lire("cloudflare/public/index.html").includes("/modules/animations-hors-ecran-v1.js"));
 console.log("idle-divers-2026-10-23-v1 (animations hors écran) OK");
+
+/* journal : numéro dans la clé (plus de lignes avalées par la limite de 5 s), état du Coffre, défilement et dernier toucher */
+assert.ok(dc.includes("x.noter(type,String(cle)+'#'+seq,o);") && dc.includes("toucher:dernierToucher.cible"), "lignes du journal contextualisées");
+console.log("idle-divers-2026-10-23-v1 (journal contextualisé) OK");

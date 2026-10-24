@@ -9,9 +9,26 @@
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_DIAG_COFFRE_V1__)return;
-  function noter(type,cle,d){
-    try{var x=window.__SOREAL_IDLE_DIAG_V1__;if(x&&typeof x.noter==='function')x.noter(type,cle,d||{});}catch(_e){}
+  /* Contexte de chaque ligne (Norman, 2026-10-24) : le journal ne garde qu'une ligne par clé toutes les 5 s, donc chaque ligne porte un numéro dans sa clé, l'état du Coffre / de la valise, la position de défilement et le dernier toucher (cible, il y a combien de temps). */
+  var seq=0,dernierToucher={cible:'-',t:0};
+  function etatCoffre(){
+    var c=document.querySelector('.soreal-idle-coffre-v1'),v=document.querySelector('.vl-section');
+    return {coffre:c?(c.classList.contains('ouvert')?'ouvert':'ferme')+(c.classList.contains('ferme-anim')?'+ferme-anim':'')+(c.classList.contains('ouvre')?'+ouvre':'')+(c.classList.contains('hors-ecran')?'+hors-ecran':''):'-',valise:v?(v.classList.contains('vl-ouverte')?'ouverte':'fermee')+(v.classList.contains('vl-anim')?'+anim':''):'-',defil:Math.round(window.scrollY||0),toucher:dernierToucher.cible+'@'+(dernierToucher.t?Date.now()-dernierToucher.t:'-')+'ms'};
   }
+  function noter(type,cle,d){
+    try{
+      var x=window.__SOREAL_IDLE_DIAG_V1__;
+      if(!x||typeof x.noter!=='function')return;
+      var e=etatCoffre(),o={};
+      for(var k in e)o[k]=e[k];
+      for(var q in (d||{}))o[q]=d[q];
+      seq+=1;
+      x.noter(type,String(cle)+'#'+seq,o);
+    }catch(_e){}
+  }
+  try{
+    document.addEventListener('pointerdown',function(ev){dernierToucher={cible:decrire(ev.target),t:Date.now()};},true);
+  }catch(_e){}
   function decrire(n){
     if(!n||n.nodeType!==1)return '?';
     var c=String(n.className&&n.className.baseVal!==undefined?n.className.baseVal:n.className||'').trim().split(/\s+/).slice(0,2).join('.');

@@ -164,8 +164,8 @@
   "sha": "ec2bd540d7c1ed5596337bf5333b0fa3f87a77ec"
  },
  "/modules/diag-coffre-v1.js": {
-  "pin": 1,
-  "sha": "1c425e83f869fdbbe1bbfdf975753bc968edce80"
+  "pin": 2,
+  "sha": "2f838e1f368da69837cdae2dc0124cf64514f1a6"
  },
  "/modules/diag-fluidite-v1.js": {
   "pin": 30,
