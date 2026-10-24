@@ -544,6 +544,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
     if(reduit()||depart===vers){finirProgres(vers);return;}
     /* À l'ouverture, la bouche s'ouvre d'abord (0,34 s) puis la langue sort. */
     var retard=vers?340:0,duree=(vers?1300:1000)*Math.abs(vers-depart)+150,t0=null;
+    try{var ah=window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__;if(ah&&ah.pause)ah.pause(retard+duree+(vers?0:500)+300);}catch(_e){}
     var DELAI_CADRE=vers?0:500;   /* fermeture : le cadre ne rétrécit qu'une demi-seconde après le début de l'enroulement */
     function facile(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;}
     function image(now){

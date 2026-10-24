@@ -70,3 +70,11 @@ console.log("idle-divers-2026-10-23-v1 (animations hors écran) OK");
 /* journal : numéro dans la clé (plus de lignes avalées par la limite de 5 s), état du Coffre, défilement et dernier toucher */
 assert.ok(dc.includes("x.noter(type,String(cle)+'#'+seq,o);") && dc.includes("toucher:dernierToucher.cible"), "lignes du journal contextualisées");
 console.log("idle-divers-2026-10-23-v1 (journal contextualisé) OK");
+
+// Ouverture / fermeture du Coffre ou de la valise : le reste de la page est mis en pause (peu d'images/s sur téléphone).
+{
+  const h = readFileSync("cloudflare/public/modules/animations-hors-ecran-v1.js", "utf8");
+  assert.ok(h.includes("html.soreal-anim-coffre body *:not(.soreal-idle-coffre-v1)") && h.includes("pause:pause"));
+  assert.ok(readFileSync("cloudflare/public/modules/valise-v1.js", "utf8").includes("ah.pause(retard+duree"));
+  assert.ok(readFileSync("cloudflare/public/modules/ui-aventure-2-v1.js", "utf8").includes("ah.pause(2200)"));
+}

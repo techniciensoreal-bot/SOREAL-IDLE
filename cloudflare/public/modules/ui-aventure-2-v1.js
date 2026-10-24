@@ -2330,6 +2330,7 @@
         const hAvant=racine0?racine0.getBoundingClientRect().height:0;
         const sx=window.scrollX||0,sy=window.scrollY||0;
         const reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        try{const ah=window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__;if(ah&&ah.pause)ah.pause(2200);}catch(e){}
         const finir=function(){
           window.__coffreBasculeIdleV1=false;
           document.querySelectorAll('.soreal-idle-coffre-v1.ferme-anim').forEach(function(r){r.classList.remove('ferme-anim');});

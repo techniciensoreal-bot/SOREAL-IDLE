@@ -14,7 +14,16 @@
     if(document.getElementById(STYLE_ID))return;
     var s=document.createElement('style');s.id=STYLE_ID;
     s.textContent='html body.soreal-idle-active-v47.soreal-idle-active-v47 '+CIBLE+'.hors-ecran.hors-ecran *,html body.soreal-idle-active-v47.soreal-idle-active-v47 '+CIBLE+'.hors-ecran.hors-ecran *::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 '+CIBLE+'.hors-ecran.hors-ecran *::after{animation-play-state:paused}';
+    /* Pendant l'ouverture / fermeture du Coffre ou de la valise : tout le reste de la page est en pause (barre du haut ~36 animations, décors), seul le cadre s'anime (Norman, 2026-10-24 : « très peu de FPS »). */
+    s.textContent+='html.soreal-anim-coffre body *:not(.soreal-idle-coffre-v1):not(.soreal-idle-coffre-v1 *),html.soreal-anim-coffre body *:not(.soreal-idle-coffre-v1):not(.soreal-idle-coffre-v1 *)::before,html.soreal-anim-coffre body *:not(.soreal-idle-coffre-v1):not(.soreal-idle-coffre-v1 *)::after{animation-play-state:paused}';
     (document.head||document.documentElement).appendChild(s);
+  }
+  var pauseT=0;
+  function pause(ms){
+    var h=document.documentElement;
+    h.classList.add('soreal-anim-coffre');
+    clearTimeout(pauseT);
+    pauseT=setTimeout(function(){h.classList.remove('soreal-anim-coffre');},Math.max(200,Number(ms)||1800));
   }
   function observer(){
     var el=document.querySelector(CIBLE);
@@ -35,5 +44,5 @@
   /* Le cadre est redessiné par le jeu : on suit l'élément courant (la classe est gardée au redessin par data-morph-classes-gardees posé au rendu). */
   style();
   setInterval(function(){if(!document.hidden)observer();},700);
-  window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__={observer:observer};
+  window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__={observer:observer,pause:pause};
 })();

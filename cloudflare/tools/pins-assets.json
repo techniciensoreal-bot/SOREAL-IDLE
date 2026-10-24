@@ -24,8 +24,8 @@
   "sha": "b0a61bf4c174cb7e87747048dfd969dcd58fcd54"
  },
  "/modules/animations-hors-ecran-v1.js": {
-  "pin": 1,
-  "sha": "eaf8cc82ea46ef23872e1711bf6fbfd37de998c1"
+  "pin": 2,
+  "sha": "b3e0fd4941664e6e90121027fb89cc66f8b9ef08"
  },
  "/modules/anti-copie-v1.js": {
   "pin": 1,
@@ -468,8 +468,8 @@
   "sha": "a15dd813e802786cad1ce4f7039f6e3b4db4c0bb"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 24,
-  "sha": "2253c932703cef06552487f8cff55e18651ab6c5"
+  "pin": 25,
+  "sha": "23c060a2db0f210226a4af7834b362a81a5109c8"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 15,
@@ -552,8 +552,8 @@
   "sha": "548121d7ba24d583461206704a4eae14d8146acb"
  },
  "/modules/valise-v1.js": {
-  "pin": 45,
-  "sha": "c5bb62907b900915e2bdfcc5833e9386ca4b6dc0"
+  "pin": 46,
+  "sha": "9e268175ee2a2d88f2c57c11ec3ae8fd528430ae"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,
