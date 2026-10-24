@@ -424,12 +424,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 437,
-  "sha": "5261416404caefd1647b9023c61ecc9aba1cd2d1"
+  "pin": 439,
+  "sha": "616af161fde82c2103a5956b9f99c989d9965942"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 231,
-  "sha": "4fd1c922b493df64927e4ea45800f65403dec89d"
+  "pin": 233,
+  "sha": "11d83f60d2a57ce347aa781c22f86eb7191e7871"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

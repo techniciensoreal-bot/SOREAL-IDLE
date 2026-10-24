@@ -104,3 +104,12 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(i > 0 && !c.slice(i - 400, i).includes("repeating-linear-gradient"), "tapis vert sans traits");
   assert.ok(!v.slice(v.indexOf(".vl-velours-fond{"), v.indexOf(".vl-velours-fond{") + 600).includes("repeating-linear-gradient"), "velours sans traits");
 }
+
+// Audit de traduction (Norman, 2026-10-24) : les phrases du Coffre, de la valise, de l'intro, du journal des attaques et du tutoriel existent en anglais.
+{
+  const d = JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"));
+  for (const k of ["Ne me frappez pas, Maître !", "Un peu de potion, messire ?", "Par Saint-Glinglin !", "Enlevez ce doigt de ma serrure !", "Oh non… pas encore les potions…", "Service d’étage !", "Bienvenue et premiers pas", "📖 Journal des attaques", "Quand tu reprends connaissance,"]) {
+    assert.ok(typeof d[k] === "string" && d[k].length > 2, "traduit : " + k);
+  }
+  assert.ok(Object.keys(d).every((k) => !/[<>]/.test(k)), "aucune balise dans une clé");
+}
