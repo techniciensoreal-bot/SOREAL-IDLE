@@ -83,3 +83,10 @@ console.log("idle-divers-2026-10-23-v1 (journal contextualisé) OK");
 for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valise-accident-v1", "coffre-accident-v1", "inventaire-volet-v1"]) {
   assert.ok(lire("cloudflare/public/modules/" + f + ".js").includes("classList.contains('soreal-anim-coffre')"), f + " : garde pendant l'animation");
 }
+
+// Valise : les variables du dépliage sont non héritées et posées sur les seuls éléments qui s'en servent (1,6 ms de style par image sur PC, dix fois plus sur téléphone).
+{
+  const v = lire("cloudflare/public/modules/valise-v1.js");
+  assert.ok(v.includes("window.CSS.registerProperty({name:n,syntax:'*',inherits:false})") && v.includes("function poserVl(s,nom,val)"));
+  assert.ok(!/s\.style\.setProperty\('--vl-(p|pf|rr|s|h)'/.test(v.replace(/if\(HERITE_VL\)\{s\.style\.setProperty\(nom,val\)/, "")), "plus d'écriture des variables sur la section");
+}

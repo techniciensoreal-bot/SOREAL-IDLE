@@ -507,6 +507,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   }
   /* Le dépliage, image par image : la longueur de langue sortie est --vl-p x la hauteur mesurée ; le rouleau de son bout a un rayon qui diminue (sa longueur enroulée restante) et tourne de la longueur sortie. Dans l'autre sens, la langue s'enroule dans la bouche. */
   var progres=null,animId=0;
+  /*
+   * Téléphone (Norman, 2026-10-24 : « très peu de FPS » à l'ouverture de la valise) : les cinq variables du dépliage étaient posées sur la section et HÉRITÉES par ses ~160 éléments : chaque image recalculait le style de toute la valise (1,6 ms sur PC, dix fois plus sur un téléphone).
+   * Elles sont maintenant déclarées NON héritées et posées seulement sur les quelques éléments qui s'en servent (aucun descendant n'est invalidé) ; le rendu est identique.
+   */
+  var NOMS_VL=['--vl-h','--vl-p','--vl-pf','--vl-rr','--vl-s'];
+  try{if(window.CSS&&typeof window.CSS.registerProperty==='function'){NOMS_VL.forEach(function(n){try{window.CSS.registerProperty({name:n,syntax:'*',inherits:false});}catch(_e){}});}}catch(_e){}
+  var HERITE_VL=!(window.CSS&&typeof window.CSS.registerProperty==='function');
+  function poserVl(s,nom,val){
+    if(HERITE_VL){s.style.setProperty(nom,val);return;}
+    var l=s.querySelectorAll('.vl-deplie-in,.vl-langue,.vl-rouleau,.vl-ro-corps');
+    for(var i=0;i<l.length;i+=1)l[i].style.setProperty(nom,val);
+  }
   /* p = la longueur de langue sortie (le clic du rouleau) ; pf = la place que prend le cadre : à la fermeture il rétrécit 0,5 s APRÈS le début de l'enroulement, pour ne pas cacher l'animation (Norman, 2026-10-23). */
   function appliquerProgres(p,pf){
     if(pf==null)pf=p;
@@ -517,16 +529,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       var H=s.__vlH||0,r0=Math.max(16,Math.min(46,Math.sqrt(7*H/Math.PI)));
       var rr=r0*(1-p),defile=H*p;
       if(!s.classList.contains('vl-anim'))s.classList.add('vl-anim');
-      s.style.setProperty('--vl-h',String(H));
-      s.style.setProperty('--vl-p',p.toFixed(4));
-      s.style.setProperty('--vl-pf',pf.toFixed(4));
-      s.style.setProperty('--vl-rr',rr.toFixed(2));
-      s.style.setProperty('--vl-s',(defile%26).toFixed(1));   /* la peau du rouleau (vu de face, de côté : jamais de dessus) défile verticalement de la longueur de langue sortie */
+      poserVl(s,'--vl-h',String(H));
+      poserVl(s,'--vl-p',p.toFixed(4));
+      poserVl(s,'--vl-pf',pf.toFixed(4));
+      poserVl(s,'--vl-rr',rr.toFixed(2));
+      poserVl(s,'--vl-s',(defile%26).toFixed(1));   /* la peau du rouleau (vu de face, de côté : jamais de dessus) défile verticalement de la longueur de langue sortie */
     });
   }
   function finirProgres(p){
     sections().forEach(function(s){
-      s.style.setProperty('--vl-p',String(p));s.style.setProperty('--vl-pf',String(p));s.style.setProperty('--vl-rr','0');
+      poserVl(s,'--vl-p',String(p));poserVl(s,'--vl-pf',String(p));poserVl(s,'--vl-rr','0');
       s.classList.remove('vl-anim');
       /* la bouche (le couvercle) ne se referme qu'ici : la langue est entièrement repliée */
       if(p===0){
