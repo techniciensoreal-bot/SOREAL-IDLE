@@ -347,6 +347,8 @@ function afficher(f){
 
 function masquer(){
   sortie=null;
+  /* déjà masqué (appelé 4 fois par seconde hors combat de titan) : aucune écriture de classe sur <html>/<body>, sinon le navigateur note un changement à chaque fois */
+  if(!document.body.classList.contains('tcv-actif')&&!document.documentElement.classList.contains('tcv-actif')&&!document.getElementById(ID+'Cale')){var el0=document.getElementById(ID);if(!el0||(el0.hidden&&!el0.classList.contains('tcv-adieu')&&!cleIdentite))return;}
   var cale=document.getElementById(ID+'Cale');
   if(cale&&cale.parentNode)cale.parentNode.removeChild(cale);
   document.documentElement.classList.remove('tcv-actif');

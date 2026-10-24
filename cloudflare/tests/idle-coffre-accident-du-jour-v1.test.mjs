@@ -61,7 +61,7 @@ const CLE = "soreal_idle_coffre_prochain_accident_v1";
 // 5. Branchements : le contrôle part de la boucle existante (aucune minuterie de plus), la probabilité par pet a disparu, les répliques de l'accident hors de vue attendent le Coffre.
 assert.ok(!dig.includes("P_ACCIDENT") && !dig.includes("accidentPermis_"), "plus d'accident au hasard à chaque pet");
 assert.equal((dig.match(/setInterval\(/g) || []).length, 2, "deux minuteries seulement : la boucle du Coffre et l'attente de visibilité (aucune de plus)");
-assert.ok(/function pas_\(\)\{\s*verifierAccident_\(\);/.test(dig), "contrôlé par la boucle existante");
+assert.ok(/function pas_\(\)\{[^]{0,400}?verifierAccident_\(\);/.test(dig), "contrôlé par la boucle existante");
 assert.ok(dig.includes("if(repliquesEnAttente&&!document.hidden&&entierementVisible_()){repliquesEnAttente=false;repliques_();}"), "répliques dites quand le Coffre est entièrement visible");
 assert.ok(readFileSync("cloudflare/public/modules/coffre-accident-v1.js", "utf8").includes("horsEcran:horsEcran_"), "la flaque et le sac se salissent hors de vue");
 console.log("idle-coffre-accident-du-jour-v1: OK");

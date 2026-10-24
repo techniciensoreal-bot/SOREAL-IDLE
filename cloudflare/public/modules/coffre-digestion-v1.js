@@ -179,6 +179,7 @@
   /* Temps passé Coffre à l'écran depuis le dernier bruit, et délai tiré au sort : le minuteur n'avance que si le Coffre est vu. */
   var vu=0,cible=MIN+Math.random()*(MAX-MIN);
   function pas_(){
+    /* pas de lecture de mise en page pendant l'ouverture / fermeture du Coffre ou de la valise (téléphone : chaque lecture forçait un calcul de page en pleine animation) */ if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
     verifierAccident_();
     /* Accident survenu hors de vue : les répliques sortent la première fois que le Coffre est entièrement à l'écran. */
     if(repliquesEnAttente&&!document.hidden&&entierementVisible_()){repliquesEnAttente=false;repliques_();}

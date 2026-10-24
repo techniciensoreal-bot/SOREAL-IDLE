@@ -86,6 +86,8 @@ function majBouton(c,haut){
  * (position du repère et état du volet), au plus une fois par image ; la copie du contenu et la hauteur du panneau restent refaites par la minuterie de 0,4 s et par les actions.
  */
 function appliquer(leger){
+  /* pas de lecture de mise en page pendant l'ouverture / fermeture du Coffre ou de la valise */
+  if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
   var c=colonnes(),v=volet(c),b=boite();
   if(!c||!v||!telephone()){
     retirer(b);ouvert=false;visibleDepuis=0;

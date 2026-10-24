@@ -324,6 +324,7 @@
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){majFlaque();});
 
   setInterval(function(){
+    if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
     verifier();
     if(niveau>0)majFlaque();
     /* accident survenu hors de vue : les répliques sortent la première fois que la valise est entièrement à l'écran */

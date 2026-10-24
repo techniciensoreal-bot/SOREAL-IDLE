@@ -78,3 +78,8 @@ console.log("idle-divers-2026-10-23-v1 (journal contextualisé) OK");
   assert.ok(readFileSync("cloudflare/public/modules/valise-v1.js", "utf8").includes("ah.pause(retard+duree"));
   assert.ok(readFileSync("cloudflare/public/modules/ui-aventure-2-v1.js", "utf8").includes("ah.pause(2200)"));
 }
+
+// Pendant l'animation du Coffre/valise, aucune minuterie ne lit la mise en page (lectures forcées en pleine animation).
+for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valise-accident-v1", "coffre-accident-v1", "inventaire-volet-v1"]) {
+  assert.ok(lire("cloudflare/public/modules/" + f + ".js").includes("classList.contains('soreal-anim-coffre')"), f + " : garde pendant l'animation");
+}

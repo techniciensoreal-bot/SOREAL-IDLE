@@ -116,16 +116,16 @@
   "sha": "4f12f1f72b70a99953273b99d9f323cdb6f5ece8"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 14,
-  "sha": "35da2b6c0465f3ce62c0e31f9197829ccb93c0bc"
+  "pin": 17,
+  "sha": "301eb6eb477bbf29c080c466973c66581e4b1fda"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 20,
-  "sha": "9b2fe0df1d99dd275e2bd203e7408743f8102230"
+  "pin": 23,
+  "sha": "6dcf9e5915c75635f4b9892ee78258d0ee5d9f79"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 23,
-  "sha": "2c6e274e647fa38d7776e6b53bc0eb4e56722260"
+  "pin": 26,
+  "sha": "3ebb42f51d979fd943877d83b43cfd6c82553c0f"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -208,8 +208,8 @@
   "sha": "c0f7927fdb1e506b094c6aecee2eaa018f864e95"
  },
  "/modules/inventaire-volet-v1.js": {
-  "pin": 8,
-  "sha": "ca8fc5a23edb1c280062b78cb1fb3944fdf5799e"
+  "pin": 12,
+  "sha": "82c1710ecb539ba9d9da0468070211749858867d"
  },
  "/modules/inventory-auto-v1.js": {
   "pin": 21,
@@ -412,8 +412,8 @@
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
  },
  "/modules/titans-combat-ecran-v1.js": {
-  "pin": 14,
-  "sha": "19bd72776c48c4cb547ffd60c9820f309059e37b"
+  "pin": 15,
+  "sha": "67d2e2e4f0051507a97ae4051b9152e29fc7bd68"
  },
  "/modules/titans-comportements-v1.js": {
   "pin": 9,
@@ -548,12 +548,12 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 7,
-  "sha": "548121d7ba24d583461206704a4eae14d8146acb"
+  "pin": 10,
+  "sha": "f741e1f6e37b99834bcf910567e8138e18165c76"
  },
  "/modules/valise-v1.js": {
-  "pin": 46,
-  "sha": "9e268175ee2a2d88f2c57c11ec3ae8fd528430ae"
+  "pin": 49,
+  "sha": "56b997e8d9da2377c92dd558d35166b5f051b9ce"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 5,

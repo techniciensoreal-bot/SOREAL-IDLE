@@ -609,6 +609,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
     s.style.setProperty('--vl-decal',posDecal.toFixed(1)+'px');
   }
   function pas(){
+    /* pas de lecture de mise en page pendant l'ouverture / fermeture du Coffre ou de la valise (téléphone : chaque lecture forçait un calcul de page en pleine animation) */ if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
     try{
       var l=sections();
       if(!l.length)return;

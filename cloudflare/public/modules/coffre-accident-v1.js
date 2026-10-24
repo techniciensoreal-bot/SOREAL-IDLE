@@ -294,6 +294,7 @@
   }
 
   setInterval(function(){
+    if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
     if(actif)appliquer_();
     if(flaqueNiveau>0)majFlaque_();
     majBrille_();

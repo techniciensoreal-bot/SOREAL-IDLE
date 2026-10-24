@@ -130,6 +130,7 @@
   },true);
 
   function pas_(){
+    /* pas de lecture de mise en page pendant l'ouverture / fermeture du Coffre ou de la valise (téléphone : chaque lecture forçait un calcul de page en pleine animation) */ if((document.documentElement&&document.documentElement.classList&&document.documentElement.classList.contains&&document.documentElement.classList.contains('soreal-anim-coffre')))return;
     var el=coffre_();
     appliquer_(el);
     if(document.hidden||!visible_())return;
