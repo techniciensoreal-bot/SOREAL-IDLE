@@ -30,6 +30,11 @@ var LISTE=[
   {id:'mamie',nom:'Mamie',genre:'femme',alias:['jeune-vieille','Jeune vieille']},
   /* Petit garçon (Norman, 2026-10-24) : extrait fabriqué en montant la hauteur de la voix « Léa » de 5 demi-tons (cloudflare/tools/voice-studio/creer_voix_garcon.py) ; à remplacer par l'enregistrement d'un vrai enfant (avec accord) pour une voix plus vraie. Repli Piper : voix de femme. */
   {id:'garcon',nom:'Petit garçon',genre:'femme',alias:['petit-garcon','Petit garçon','enfant','gamin']},
+  /* Deux hommes qui parlent français avec un accent chinois (Norman, 2026-10-24) : le studio imite le timbre ET l'accent de l'extrait, ici une voix d'homme qui lit du MANDARIN (Piper « chaowen » ; cloudflare/tools/voice-studio/creer_voix_chinoises.py) ; chinois2 : même homme, plus grave et plus lent. Repli Piper : voix d'homme. */
+  /* Robot (Norman, 2026-10-24) : la voix d'homme du studio + un effet de robot (cloudflare/tools/voice-studio/serveur.py, effet_robot) dont la force suit l'humeur choisie (Neutre, Joyeux, Énergique, Dramatique, Calme, Mystérieux, En colère). Repli Piper : voix d'homme. */
+  {id:'robot',nom:'Robot',genre:'homme',alias:['androide','Androïde','machine']},
+  {id:'chinois1',nom:'Chinois 1',genre:'homme',alias:['chinois-1','Chinois 1','chinois']},
+  {id:'chinois2',nom:'Chinois 2',genre:'homme',alias:['chinois-2','Chinois 2']},
   {id:'folle',nom:'Folle',genre:'femme',alias:['folle-2','Folle 2']}
 ];
 function normaliser(t){

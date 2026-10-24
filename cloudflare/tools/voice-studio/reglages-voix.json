@@ -6,5 +6,10 @@
   "marius": {
     "exaggeration": 0.4,
     "cfg": 0.5
+  },
+  "robot": {
+    "effet": "robot",
+    "exaggeration": 0.5,
+    "cfg": 0.45
   }
 }

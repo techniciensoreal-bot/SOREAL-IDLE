@@ -45,7 +45,7 @@ def reglages_voix(voix):
             r = json.load(f).get(voix) or {}
     except (OSError, ValueError):
         r = {}
-    return {"exaggeration": float(r.get("exaggeration", 0.5)), "cfg": float(r.get("cfg", 0.5))}
+    return {"exaggeration": float(r.get("exaggeration", 0.5)), "cfg": float(r.get("cfg", 0.5)), "effet": str(r.get("effet", ""))}
 
 
 def voix_disponibles():
@@ -356,6 +356,39 @@ def garder_premiere_prononciation(wav, sr):
     return sortie
 
 
+def effet_robot(wav, sr, intensite=0.5):
+    """Voix de robot (Norman, 2026-10-24) : modulation en anneau (timbre métallique), peigne court (résonance de tôle), définition réduite (grésillement numérique) et saturation douce.
+    L'intensité (0 à 1, l'expressivité de l'humeur demandée) règle la force de l'effet : calme = robot poli, en colère = robot rugueux. La hauteur et le rythme restent ceux de l'humeur (Chatterbox)."""
+    import numpy as np
+    import torch
+    from scipy.signal import lfilter
+    i = max(0.0, min(1.0, float(intensite)))
+    x = wav.squeeze(0).float().numpy().astype("float64")
+    n = len(x)
+    if n < 64:
+        return wav
+    t = np.arange(n) / float(sr)
+    freq = 55.0 + 60.0 * i                      # 55 Hz (calme) à 115 Hz (colère)
+    anneau = x * np.sin(2.0 * np.pi * freq * t)
+    melange = 0.35 + 0.35 * i
+    y = (1.0 - melange) * x + melange * anneau
+    d = max(2, int(sr * (0.0048 - 0.0014 * i)))   # peigne : 4,8 ms à 3,4 ms
+    fb = 0.42 + 0.22 * i
+    a = np.zeros(d + 1)
+    a[0] = 1.0
+    a[d] = -fb
+    y = lfilter([1.0], a, y)
+    pas = 2 if i < 0.7 else 3                    # définition réduite
+    y = np.repeat(y[::pas], pas)[:n]
+    crete = float(np.max(np.abs(y))) or 1.0
+    y = y / crete
+    niveaux = 90.0 - 40.0 * i
+    y = np.round(y * niveaux) / niveaux           # quantification
+    y = np.tanh(y * (1.2 + 1.2 * i)) / np.tanh(1.2 + 1.2 * i)   # saturation douce
+    y = y * 0.89
+    return torch.from_numpy(y.astype("float32")).unsqueeze(0)
+
+
 def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     import torch
     texte = normaliser_texte(texte)
@@ -365,8 +398,13 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
         court = texte.rstrip(" .!?…,;:") or texte
         fin = "?" if est_question(texte) else "."
         wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg)
-        return avec_silence_final(garder_premiere_prononciation(wav, sr), sr), sr
+        wav = garder_premiere_prononciation(wav, sr)
+        if reglages_voix(voix).get("effet") == "robot":
+            wav = effet_robot(wav, sr, exaggeration)
+        return avec_silence_final(wav, sr), sr
     wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
+    if reglages_voix(voix).get("effet") == "robot":
+        wav = effet_robot(wav, sr, exaggeration)
     return avec_silence_final(wav, sr), sr
 
 

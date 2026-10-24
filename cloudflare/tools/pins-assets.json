@@ -572,8 +572,8 @@
   "sha": "09d1e5949c9f7905e5b1a47f277e1e5214a36123"
  },
  "/modules/voix-nommees-v1.js": {
-  "pin": 3,
-  "sha": "3e6efae62275b0141092c1e39d780aaa153750b8"
+  "pin": 5,
+  "sha": "1636917dc94b5ec460d9ec9789d9882e7107eb37"
  },
  "/modules/voix-ui-v1.js": {
   "pin": 1,
