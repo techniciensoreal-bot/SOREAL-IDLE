@@ -440,12 +440,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 452,
+  "pin": 451,
   "sha": "fdca2c8b53716da60d22befd5e2a8b1a999a9d59"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 260,
-  "sha": "6159f7e26944266924db72083d614765fb02d9e7"
+  "pin": 261,
+  "sha": "1ae53c7b77c857c75390422ac42bd807094b863f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
