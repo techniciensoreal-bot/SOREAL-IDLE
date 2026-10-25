@@ -76,8 +76,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 3,
-  "sha": "e1fa0286f26305c34f55e6bb1700a11a94ae5c02"
+  "pin": 4,
+  "sha": "7b14d729e060b81a14ba89aefa3a5f8287f6fe7d"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -316,8 +316,8 @@
   "sha": "d73403c20ea9502a872d47e07b16d8baa0fef437"
  },
  "/modules/nombres-couleur-v1.js": {
-  "pin": 5,
-  "sha": "fa774d99ae393ab73ab27e7b8c2ccd4a750d363e"
+  "pin": 6,
+  "sha": "1614d3559f96176a1d679f92a1163234a1ab464f"
  },
  "/modules/nouvelle-version-v1.js": {
   "pin": 1,
@@ -328,8 +328,8 @@
   "sha": "72b2f43e8b2340c84925341f2501c76091db5ae1"
  },
  "/modules/number-format-v1.js": {
-  "pin": 3,
-  "sha": "b3a55f0628638dd8ff464049d4f148d4ad77830d"
+  "pin": 4,
+  "sha": "1cb08c893170d9cef1c29400521319c8cc3406f9"
  },
  "/modules/orage-v1.js": {
   "pin": 16,
@@ -368,8 +368,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 427,
-  "sha": "6a90b379147e9957d774815d2ed6a2b7b2117871"
+  "pin": 428,
+  "sha": "57002b827e3ba8154943205864a019750db0f8d0"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -436,12 +436,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 451,
-  "sha": "08217cba47ef6d1e72932f83ec76fc3cd3737266"
+  "pin": 452,
+  "sha": "9d126b04cd669e3763dafca4d78639f47bd7793f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 247,
-  "sha": "1ae53c7b77c857c75390422ac42bd807094b863f"
+  "pin": 248,
+  "sha": "6159f7e26944266924db72083d614765fb02d9e7"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -476,8 +476,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 6,
-  "sha": "acc0b85e69c9413a76964abc70c27936282b9b4d"
+  "pin": 7,
+  "sha": "a95392f78c7929a5cc589e4f55e8e7ea5f83e1c4"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 25,
@@ -608,8 +608,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 222,
-  "sha": "9bee6863ac130c57a2651c796f54afb78633c125"
+  "pin": 223,
+  "sha": "495a68957f859f74f96ec33872dcaa19914f078a"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
