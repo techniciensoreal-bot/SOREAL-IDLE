@@ -170,7 +170,7 @@
       '.wd-lol-v1{position:absolute;left:100%;top:0;margin-left:.3em;white-space:nowrap;font-weight:700;font-size:.8em;line-height:1.35;}',
       '.wd-rang{display:grid;grid-template-columns:5.2em 1fr 3.6em;align-items:center;gap:.6em;margin-top:.25em;}',
       '.wd-lib{color:var(--wd-c2);filter:brightness(1.6);}',
-      '.wd-pct{text-align:right;}',
+      '.wd-pct{text-align:right;white-space:nowrap;}',
       /* Barre : cases pleines à l'ancienne (blocs de 0,8 em séparés d'un filet), qui s'allument de gauche à droite. */
       '.wd-barre{position:relative;height:1.05em;border:1px solid var(--wd-c2);padding:2px;background:#010503;}',
       '.wd-barre i{display:block;height:100%;background:var(--wd-c);box-shadow:0 0 .6em var(--wd-glow);-webkit-mask:repeating-linear-gradient(90deg,#000 0 .55em,transparent .55em .72em);mask:repeating-linear-gradient(90deg,#000 0 .55em,transparent .55em .72em);}',
@@ -196,7 +196,8 @@
       /* Petit écran : un groupe de touches par ligne (4 touches de 44 px minimum ne tiennent pas côte à côte). */
       '@container (max-width:560px){.wd-plaque{grid-template-columns:1fr}.wd-clavier{width:100%;padding:3cqw}.wd-touche{min-height:48px}}',
       /* Démarrage, bureau, saisie (2026-10-07). */
-      '.wd-rang{grid-template-columns:6.6em 1fr auto;}',
+      /* Troisième colonne de largeur FIXE (Norman, 2026-10-25 : « la barre est quelques pixels plus longue par moment ») : avec « auto », elle suivait le texte (« 5% » plus court que « 50% » ou « 100% ») et la barre s'allongeait de quelques pixels sous 10 %. */
+      '.wd-rang{grid-template-columns:6.6em 1fr 3.8em;}',
       '.wd-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;min-height:28cqw;text-align:center;}',
       '.wd-logo{display:flex;align-items:center;gap:.7em;font-size:1.9em;line-height:1;}',
       '.wd-drapeau{display:grid;grid-template-columns:1fr 1fr;gap:.12em;width:1.5em;height:1.5em;transform:skewX(-8deg) rotate(-6deg);}',

@@ -10,7 +10,8 @@
   "robot": {
     "effet": "robot",
     "exaggeration": 0.5,
-    "cfg": 0.45
+    "cfg": 0.45,
+    "micro": false
   },
   "savant": {
     "exaggeration": 0.5,

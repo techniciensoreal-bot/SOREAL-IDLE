@@ -116,3 +116,11 @@ assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voi
   for (const h of ["joyeux", "energique", "dramatique", "calme", "mysterieux", "colere"]) assert.ok(serv.includes('"' + h + '":') && serv.split('"ton":').length >= 7, "humeur " + h);
   assert.ok(adm.includes("corps.humeur=String(expr)"));
 }
+
+// Même micro pour toutes les voix (2026-10-25) : le spectre moyen et le niveau de chaque voix sont rapprochés de ceux du narrateur, après la synthèse ; le narrateur et le robot ne sont pas touchés.
+{
+  const serv = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
+  assert.ok(serv.includes("def harmoniser_micro(wav, sr, voix):") && serv.includes("def cible_micro(sr):") && serv.split("wav = harmoniser_micro(wav, sr, voix)").length === 3);
+  assert.ok(serv.includes('voix in ("homme", "narrateur")'));
+  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).robot.micro, false);
+}

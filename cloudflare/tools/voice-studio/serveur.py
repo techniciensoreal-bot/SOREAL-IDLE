@@ -45,7 +45,7 @@ def reglages_voix(voix):
             r = json.load(f).get(voix) or {}
     except (OSError, ValueError):
         r = {}
-    return {"exaggeration": float(r.get("exaggeration", 0.5)), "cfg": float(r.get("cfg", 0.5)), "effet": str(r.get("effet", ""))}
+    return {"exaggeration": float(r.get("exaggeration", 0.5)), "cfg": float(r.get("cfg", 0.5)), "effet": str(r.get("effet", "")), "micro": r.get("micro", True) is not False}
 
 
 def voix_disponibles():
@@ -389,6 +389,79 @@ def effet_robot(wav, sr, intensite=0.5):
     return torch.from_numpy(y.astype("float32")).unsqueeze(0)
 
 
+# Même micro pour toutes les voix (Norman, 2026-10-25 : « certaines voix n'ont pas la même qualité audio que le narrateur ; on peut faire en sorte que le son ait l'air d'avoir été enregistré dans le même micro ? »).
+# Chaque voix imite l'extrait de référence, qui a son propre micro (bande passante, creux, souffle, niveau). Après la synthèse, on rapproche donc le SPECTRE MOYEN de la voix de celui du narrateur (voix/homme.wav) : un égaliseur
+# déduit du rapport des deux spectres moyens (lissé, limité à ±6 dB (une voix de femme ou d enfant garde ses harmoniques : on corrige le micro, pas la voix), mesuré sur les passages parlés), un filtre passe-haut commun (70 Hz) et passe-bas commun (11 kHz), puis le même niveau moyen que le narrateur.
+# La voix du narrateur n'est jamais touchée ; « micro: false » dans reglages-voix.json coupe le traitement pour une voix (inutile pour le robot, dont l'effet est voulu).
+_CIBLE_MICRO = {}
+
+
+def _spectre_moyen(y, sr, nperseg=1024):
+    """Spectre moyen (amplitude) des fenêtres parlées de y, et niveau efficace moyen de ces fenêtres."""
+    import numpy as np
+    from scipy.signal import stft
+    _f, _t, z = stft(y, fs=sr, nperseg=nperseg)
+    mag = np.abs(z)
+    niveau = np.sqrt(np.mean(mag ** 2, axis=0))
+    parle = niveau > 0.3 * float(np.max(niveau))
+    if not parle.any():
+        parle = niveau >= 0
+    return np.mean(mag[:, parle], axis=1), float(np.sqrt(np.mean(y ** 2)))
+
+
+def cible_micro(sr):
+    """Spectre moyen et niveau du narrateur (voix/homme.wav) à la fréquence d'échantillonnage sr ; None si l'extrait manque."""
+    if sr in _CIBLE_MICRO:
+        return _CIBLE_MICRO[sr]
+    resultat = None
+    try:
+        import librosa
+        chemin = reference_voix("homme")
+        if chemin:
+            y, _ = librosa.load(chemin, sr=sr, mono=True)
+            resultat = _spectre_moyen(y, sr)
+    except Exception as e:  # noqa: BLE001
+        print("Micro commun : cible indisponible :", str(e)[:200], file=sys.stderr, flush=True)
+    _CIBLE_MICRO[sr] = resultat
+    return resultat
+
+
+def harmoniser_micro(wav, sr, voix):
+    """Rapproche le spectre et le niveau de la voix de ceux du narrateur (voir plus haut). Rend la voix d'origine en cas d'erreur."""
+    if voix in ("homme", "narrateur") or reglages_voix(voix).get("micro") is False:
+        return wav
+    try:
+        import numpy as np
+        import torch
+        from scipy.signal import stft, istft, butter, sosfilt
+        from scipy.ndimage import uniform_filter1d
+        cible = cible_micro(sr)
+        if not cible:
+            return wav
+        y = wav.squeeze(0).float().numpy().astype("float64")
+        if len(y) < 4096:
+            return wav
+        courant, niveau = _spectre_moyen(y, sr)
+        gain = np.clip((cible[0] + 1e-9) / (courant + 1e-9), 10 ** (-6 / 20.0), 10 ** (6 / 20.0))
+        gain = np.exp(uniform_filter1d(np.log(gain), size=13, mode="nearest"))
+        _f, _t, z = stft(y, fs=sr, nperseg=1024)
+        _t2, y2 = istft(z * gain[:, None], fs=sr, nperseg=1024)
+        y2 = y2[: len(y)]
+        sos = butter(2, 70, btype="highpass", fs=sr, output="sos")
+        y2 = sosfilt(sos, y2)
+        if sr > 24000:
+            y2 = sosfilt(butter(4, 11000, btype="lowpass", fs=sr, output="sos"), y2)
+        niveau2 = float(np.sqrt(np.mean(y2 ** 2))) or 1e-9
+        y2 = y2 * (cible[1] / niveau2)
+        crete = float(np.max(np.abs(y2))) or 1.0
+        if crete > 0.97:
+            y2 = y2 / crete * 0.97
+        return torch.from_numpy(y2.astype("float32")).unsqueeze(0)
+    except Exception as e:  # noqa: BLE001
+        print("Micro commun ignoré :", str(e)[:200], file=sys.stderr, flush=True)
+        return wav
+
+
 # Humeurs (Norman, 2026-10-25 : « on ne sent pas de différence entre Neutre et Joyeux, c'est pareil pour toutes les humeurs »). Les réglages « exaggeration » et « cfg » de Chatterbox ne suffisent pas : la voix de référence impose
 # son caractère. Chaque humeur applique donc en plus un traitement de la voix générée : hauteur (demi-tons), débit, aigus (dB), volume, saturation, souffle, réverbération. Valeurs choisies par SOREAL à l'oreille.
 HUMEURS = {
@@ -456,11 +529,13 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur=""):
         fin = "?" if est_question(texte) else "."
         wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg)
         wav = garder_premiere_prononciation(wav, sr)
+        wav = harmoniser_micro(wav, sr, voix)
         wav = appliquer_humeur(wav, sr, humeur)
         if reglages_voix(voix).get("effet") == "robot":
             wav = effet_robot(wav, sr, exaggeration)
         return avec_silence_final(wav, sr), sr
     wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
+    wav = harmoniser_micro(wav, sr, voix)
     wav = appliquer_humeur(wav, sr, humeur)
     if reglages_voix(voix).get("effet") == "robot":
         wav = effet_robot(wav, sr, exaggeration)

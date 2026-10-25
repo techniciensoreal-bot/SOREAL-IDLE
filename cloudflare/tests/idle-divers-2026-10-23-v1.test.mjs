@@ -217,3 +217,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(u.includes("function coffreRefuseObjetIdleV1_(id)") && u.includes("if(coffreRefuseObjetIdleV1_(source)){jouerNonCoffreIdleV1_();return;}") && u.includes("if(id&&coffreRefuseObjetIdleV1_(id)){jouerNonCoffreIdleV1_();return;}"));
   assert.ok(c.includes(".bg-bagage-v1.refuse{") && c.includes("@keyframes bgNon{"));
 }
+
+// Barres de Wandoos : colonne du pourcentage de largeur fixe (la barre ne s'allonge plus sous 10 %) ; pastille de quantité de la valise hors de l'icône (2026-10-25).
+{
+  const w = lire("cloudflare/public/modules/wandoos-retro-v1.js"), v = lire("cloudflare/public/modules/valise-v1.js");
+  assert.ok(w.includes(".wd-rang{grid-template-columns:6.6em 1fr 3.8em;}") && !w.includes("6.6em 1fr auto"));
+  assert.ok(v.includes(".vl-pastille{position:absolute;right:-2px;top:-7px;"));
+}
