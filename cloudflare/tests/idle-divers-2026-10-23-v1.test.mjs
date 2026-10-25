@@ -263,3 +263,13 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const b = lire("cloudflare/public/modules/blood-magic-v1.js");
   assert.ok(b.includes("if(!(e&&((Number(e.ns)||0)>0||(Number(e.taux)||0)>0)))return 0;"));
 }
+
+// NGU : jour (ciel qui s'assombrit vers le bas, nuages, soleil) côté Énergie, nuit (lune d'Halloween, chauves-souris) côté Magie ; astre éteint sans ressource placée (2026-10-25).
+{
+  const g = lire("cloudflare/public/modules/ngu-labo-v1.js");
+  assert.ok(g.includes("var ASTRES='<span class=\"nl-astre\"") && g.includes("ETOILES+ASTRES"));
+  assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%') && g.includes("#0c2550 100%"));
+  assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px)') && g.includes('#74baf7 50%,#3d86dc 100%') && g.includes('[data-nl-onglet="magic"] .nl-haut .nl-btn[data-nl-onglet-btn]:not(#_):not(#_){background:radial-gradient(circle at 25px 50%'));
+  assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::after') && g.includes('.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after'));
+  assert.ok(g.includes("'.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;"));
+}

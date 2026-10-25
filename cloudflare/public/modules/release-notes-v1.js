@@ -49,6 +49,9 @@
             'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'NGU : côté Énergie, c’est le jour (ciel qui s’assombrit en descendant, nuages, soleil) ; côté Magie, la nuit avec une lune d’Halloween et des chauves-souris. Sans énergie (ou sans magie) placée, le soleil (la lune) ne brille pas.',
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'La carte de la chronique ne s’ouvre plus toute seule à la première rencontre d’un boss : la voix lit toujours l’histoire.',
           ]},

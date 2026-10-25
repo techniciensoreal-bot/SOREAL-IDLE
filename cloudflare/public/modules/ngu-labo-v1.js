@@ -49,6 +49,16 @@ function etoilesHtml_(){
   return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
 }
 var ETOILES=etoilesHtml_();
+/* Jour et nuit (Norman, 2026-10-25 : « le NGU côté Énergie représente le jour, avec des nuages et le soleil ; le NGU Magie la nuit, avec une lune comme celle d'Halloween ; sans énergie (ou sans magie), le soleil (la lune) ne brille pas ») : l'astre (soleil ou lune) et sa couche (nuages le jour, chauves-souris la nuit). */
+var ASTRES='<span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
+var CHAUVES_URI=(function(){
+  var chauve='M0 0C-10-14-28-16-40-6C-34-6-28-2-26 6C-20 0-12 0-8 8C-4 2 4 2 8 8C12 0 20 0 26 6C28-2 34-6 40-6C28-16 10-14 0 0Z';
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240"><g fill="#07030f">'+
+    '<path transform="translate(150 70) scale(1)" d="'+chauve+'"/><path transform="translate(330 150) scale(.7)" d="'+chauve+'"/>'+
+    '<path transform="translate(560 50) scale(.85)" d="'+chauve+'"/><path transform="translate(740 130) scale(1.15)" d="'+chauve+'"/>'+
+    '<path transform="translate(850 200) scale(.55)" d="'+chauve+'"/></g></svg>';
+  return 'data:image/svg+xml,'+encodeURIComponent(svg);
+})();
 /*
  * Étoiles fixes (Norman, 2026-10-10 : « pas d'étoile tant qu'on n'a pas activé la machine ; plus on met de machines en route, plus les étoiles brillent ; le maximum quand toute l'énergie ET la magie sont cap »).
  * Quatre tuiles SVG de 1000 px (50 étoiles chacune) : le ciel en montre 0, 1, 2, 3 ou 4 selon le niveau de lumière (data-nl-niv), et son opacité suit --nl-lueur (0 à 1).
@@ -203,6 +213,41 @@ var CSS=
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
   '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b{animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
     '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
+  /* ---- Jour (NGU d'énergie) : ciel, nuages qui dérivent, soleil ; nuit (NGU de magie) : lune d'Halloween et chauves-souris. Le niveau de lumière (--nl-lueur) règle l'éclat ; à 0 l'astre est éteint. ---- */
+  '.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;pointer-events:none;z-index:0;display:none}'+
+  '.nl-astre{top:14px;right:6%;width:96px;height:96px}'+
+  '.nl-astre::before,.nl-astre::after{content:"";position:absolute;border-radius:50%}'+
+  '.nl-astre::after{inset:0}'+
+  '.nl-nuages{left:0;right:0;top:0;height:300px;background-repeat:repeat-x;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}'+
+  /* jour */
+  '.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%,rgba(255,244,180,.6) 0,rgba(255,226,130,.22) 22%,transparent 46%),linear-gradient(180deg,#52acf5 0%,#3b8fe3 24%,#2a68b8 54%,#163f7a 82%,#0c2550 100%);border-color:rgba(255,226,140,.75);box-shadow:0 0 34px rgba(255,214,90,.35),inset 0 0 50px rgba(255,255,255,.12)}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-etoiles{display:none}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-astre,.nl-v1[data-nl-onglet="energy"] .nl-nuages{display:block}'+
+  '.nl-v1>.nl-astre{}.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-astre::after{background:radial-gradient(circle at 38% 34%,#fffbd0 0,#ffe066 45%,#ffb81f 100%);box-shadow:0 0 calc(14px + var(--nl-lueur,0)*56px) calc(var(--nl-lueur,0)*12px) rgba(255,214,80,calc(.15 + var(--nl-lueur,0)*.7))}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-astre::before{inset:-66px;background:repeating-conic-gradient(rgba(255,232,140,.6) 0 5deg,transparent 5deg 22.5deg);-webkit-mask:radial-gradient(circle,#000 26%,transparent 66%);mask:radial-gradient(circle,#000 26%,transparent 66%);opacity:calc(var(--nl-lueur,0)*.95)}'+
+  '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::after{background:radial-gradient(circle at 38% 34%,#dfe3ea 0,#a2a9b5 55%,#727a87 100%);box-shadow:none}'+
+  '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::before{opacity:0}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-nuages{background-size:640px 100%;opacity:calc(.7 + var(--nl-lueur,0)*.3);background-image:'+
+    'radial-gradient(ellipse 84px 24px at 90px 70px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 54px 22px at 62px 82px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 60px 26px at 128px 80px,#fff 0 58%,transparent 74%),'+
+    'radial-gradient(ellipse 84px 24px at 330px 150px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 54px 22px at 302px 162px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 60px 26px at 368px 160px,#fff 0 58%,transparent 74%),'+
+    'radial-gradient(ellipse 84px 24px at 540px 40px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 54px 22px at 512px 52px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 60px 26px at 578px 50px,#fff 0 58%,transparent 74%),'+
+    'radial-gradient(ellipse 92px 18px at 90px 84px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 60px 16px at 64px 94px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 66px 18px at 128px 92px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 92px 18px at 330px 164px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 60px 16px at 304px 174px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 66px 18px at 368px 172px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 92px 18px at 540px 54px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 60px 16px at 514px 64px,rgba(120,170,225,.7) 0 58%,transparent 76%),radial-gradient(ellipse 66px 18px at 578px 62px,rgba(120,170,225,.7) 0 58%,transparent 76%)}'+
+    'radial-gradient(ellipse 84px 24px at 90px 70px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 54px 22px at 62px 82px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 60px 26px at 128px 80px,#fff 0 58%,transparent 74%),'+
+    'radial-gradient(ellipse 96px 26px at 330px 150px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 58px 24px at 292px 162px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 66px 28px at 376px 160px,#fff 0 58%,transparent 74%),'+
+    'radial-gradient(ellipse 78px 22px at 540px 40px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 50px 20px at 512px 52px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 56px 24px at 584px 50px,#fff 0 58%,transparent 74%)}'+
+  '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-nuages{filter:grayscale(1) brightness(.72);opacity:.55}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-entete p{color:#eaf4ff;text-shadow:0 1px 3px rgba(5,30,70,.8)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="energy"] .nl-nuages{animation:nlNuages 150s linear infinite}.nl-v1[data-nl-onglet="energy"] .nl-astre::before{animation:nlRayons 90s linear infinite}'+
+    '@keyframes nlNuages{from{background-position:0 0}to{background-position:640px 0}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
+  /* nuit : lune d'Halloween */
+  '.nl-v1[data-nl-onglet="magic"] .nl-astre{display:block;width:108px;height:108px;top:12px;right:6%}'+
+  '.nl-v1[data-nl-onglet="magic"] .nl-astre::after{background:radial-gradient(circle at 30% 40%,rgba(150,60,8,.5) 0 9%,transparent 10%),radial-gradient(circle at 64% 28%,rgba(150,60,8,.42) 0 6%,transparent 7%),radial-gradient(circle at 56% 68%,rgba(150,60,8,.5) 0 11%,transparent 12%),radial-gradient(circle at 24% 72%,rgba(150,60,8,.38) 0 5%,transparent 6%),radial-gradient(circle at 78% 58%,rgba(150,60,8,.35) 0 4%,transparent 5%),radial-gradient(circle at 36% 32%,#ffe9a8 0,#ffb347 42%,#ff7d1a 78%,#d4560c 100%);box-shadow:0 0 calc(10px + var(--nl-lueur,0)*50px) calc(var(--nl-lueur,0)*10px) rgba(255,140,30,calc(.1 + var(--nl-lueur,0)*.7))}'+
+  '.nl-v1[data-nl-onglet="magic"] .nl-astre::before{inset:-54px;background:radial-gradient(circle,rgba(255,150,40,.6) 0,transparent 62%);opacity:calc(var(--nl-lueur,0)*.95)}'+
+  '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after{background:radial-gradient(circle at 30% 40%,rgba(40,44,60,.5) 0 9%,transparent 10%),radial-gradient(circle at 56% 68%,rgba(40,44,60,.5) 0 11%,transparent 12%),radial-gradient(circle at 64% 28%,rgba(40,44,60,.42) 0 6%,transparent 7%),radial-gradient(circle at 36% 32%,#aeb3c0 0,#6b7080 70%,#4c5060 100%);box-shadow:none}'+
+  '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::before{opacity:0}'+
+  '.nl-v1[data-nl-onglet="magic"] .nl-nuages{display:block;height:240px;background-size:900px 240px;background-image:url("'+CHAUVES_URI+'");opacity:calc(var(--nl-lueur,0)*.8)}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="magic"] .nl-nuages{animation:nlChauves 80s linear infinite}@keyframes nlChauves{from{background-position:0 0}to{background-position:-900px 0}}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
   '.nl-btn:active{transform:translateY(1px)}.nl-btn.actif{background:rgba(190,160,255,.35)}'+
@@ -266,6 +311,14 @@ var CSS=
   '.nl-boutons button:active{transform:translateY(1px)}'+
   'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-barre-outils button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-boutons button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut .nl-btn:not(#_):not(#_){background:linear-gradient(180deg,#8087ff 0%,#4a46d6 55%,#312ea8 100%);border:2px solid #d9dcff;color:#fff;-webkit-text-stroke:0;paint-order:normal;text-shadow:0 2px 0 rgba(10,8,60,.9),0 0 6px rgba(10,8,60,.6);letter-spacing:.06em;box-shadow:0 3px 0 #1b1862,0 0 10px rgba(130,125,255,.45)}'+
   'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-barre-outils button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut .nl-btn:not(#_):not(#_){font-size:17px;font-weight:400}'+
+  /* Thème Jour (Norman, 2026-10-25) : les petits cadres (Input, Plafond, Idle) et leurs boutons, avec le bouton « Vers les NGU d'énergie », prennent la couleur du jour : verre bleu clair, boutons soleil. */
+  '.nl-v1[data-nl-onglet="energy"] .nl-barre-outils .nl-ligne{background:linear-gradient(180deg,rgba(255,255,255,.28),rgba(130,190,255,.18));border-color:rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 4px 14px -8px rgba(5,30,80,.7)}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-barre-outils .nl-totaux{background:none;border:0;box-shadow:none}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-barre-outils{background:linear-gradient(180deg,rgba(40,110,190,.55),rgba(14,50,110,.6));border-color:rgba(255,255,255,.45);color:#eaf6ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1[data-nl-onglet="energy"] .nl-barre-outils .nl-totaux>*:not(#_):not(#_){background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(130,190,255,.16));border:1px solid rgba(255,255,255,.5);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-barre-outils .nl-ligne>span:first-child,.nl-v1[data-nl-onglet="energy"] .nl-barre-outils .nl-ligne-input label{color:#fff;text-shadow:0 1px 2px rgba(5,30,80,.8)}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1[data-nl-onglet="energy"] .nl-barre-outils button:not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1[data-nl-onglet="energy"] .nl-haut .nl-btn:not([data-nl-onglet-btn]):not(#_):not(#_),html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1[data-nl-onglet="magic"] .nl-haut .nl-btn[data-nl-onglet-btn]:not(#_):not(#_){background:linear-gradient(180deg,#c9e9ff 0%,#74baf7 50%,#3d86dc 100%);border:2px solid #eaf6ff;color:#fff;text-shadow:0 1px 0 #1a4a8f,0 0 6px rgba(20,70,150,.7);box-shadow:0 3px 0 #1d4f95,0 0 12px rgba(150,210,255,.6)}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1[data-nl-onglet="magic"] .nl-haut .nl-btn[data-nl-onglet-btn]:not(#_):not(#_){background:radial-gradient(circle at 25px 50%,#fffbd0 0,#ffe066 6px,#ffb21a 11px,rgba(255,200,60,.4) 14px,transparent 18px),linear-gradient(180deg,#c9e9ff 0%,#74baf7 50%,#3d86dc 100%);padding-left:48px}'+
   'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-boutons button:not(#_):not(#_){font-size:24px;font-weight:400}'+
   'html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-haut [data-nl-onglet-btn]:not(#_):not(#_){position:relative;isolation:isolate;overflow:visible;border:2px solid rgba(255,255,255,.2);border-radius:14px;color:#fff;font-size:18px;letter-spacing:.08em;background:radial-gradient(circle at 12% 30%,#fff 0 1px,transparent 2px),radial-gradient(circle at 78% 22%,#fff 0 1px,transparent 2px),radial-gradient(circle at 55% 78%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 90% 70%,#cfe9ff 0 1px,transparent 2px),radial-gradient(circle at 30% 85%,#ffd6fb 0 1px,transparent 2px),radial-gradient(circle at 66% 40%,#fff 0 1px,transparent 2px),linear-gradient(135deg,#4a22c8,#150a45 58%,#34107a);box-shadow:0 0 18px 4px rgba(195,125,255,.95),0 0 46px 8px rgba(120,70,255,.6);text-shadow:0 0 8px #fff,0 2px 0 rgba(10,4,50,.9)}'+
   '.nl-haut [data-nl-onglet-btn]::before{content:"";position:absolute;inset:-6px;z-index:-1;border-radius:19px;padding:5px;background:conic-gradient(from var(--soreal-ang-v1,0deg),#ff9ee8,#5a22d8,#21d4fd,#5a22d8,#ff9ee8);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);pointer-events:none}'+
@@ -343,7 +396,7 @@ function page(j){
   }
   var html=
     '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+'">'+ETOILES+
+    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+'">'+ETOILES+ASTRES+
       '<div class="nl-haut">'+
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
