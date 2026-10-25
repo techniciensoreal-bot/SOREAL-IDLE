@@ -75,9 +75,11 @@
         const n=Math.max(0,idleNombre_(valeur));
         if(n<1000)return n.toFixed(2).replace('.',',');
         const rang=Math.floor(Math.log10(n)/3+1e-9);
-        const fmt=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
-        const unite=fmt&&typeof fmt.suffixe==='function'?fmt.suffixe(rang):null;
-        if(unite===null||unite===undefined)return n.toExponential(2);
+        /* Mêmes unités que number-format-v1.js (suffixe) : les noms jusqu'à Tg, puis des lettres AA (10^96), AB… (2026-10-25). */
+        const noms=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg','Uvg','Dvg','Tvg','Qavg','Qivg','Sxvg','Spvg','Ocvg','Novg','Tg'];
+        const apres=rang-noms.length;
+        const unite=rang<noms.length?noms[rang]:(apres<676?String.fromCharCode(65+Math.floor(apres/26))+String.fromCharCode(65+apres%26):null);
+        if(unite===null)return n.toExponential(2);
         return (n/Math.pow(1000,rang)).toFixed(2)+unite;
       }
 

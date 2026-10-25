@@ -27,5 +27,5 @@ assert.equal(F.rangDe("K"), 1); assert.equal(F.rangDe("qa"), 5); assert.equal(F.
 assert.equal(g(1500), "1.5K");
 
 const ui = lireUiComplet();
-assert.ok(ui.includes("fmt.suffixe(rang)"), "les PV fixes du duel utilisent les mêmes unités (noms puis lettres)");
+assert.ok(ui.includes("const apres=rang-noms.length;"), "les PV fixes du duel utilisent les mêmes unités (noms puis lettres)");
 console.log("idle-grands-nombres-suffixes-v1: OK");
