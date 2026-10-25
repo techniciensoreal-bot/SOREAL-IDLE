@@ -1187,6 +1187,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.
 [data-idle-coffre-drop-v180].drag-over .bg-bagage-v1 .bg-couvercle{animation:none;transform:rotate(-38deg)}
 /* Croque : le couvercle claque, le corps gonfle, l'objet tombe, la bulle apparaît puis s'efface. */
 /* Refus (Norman, 2026-10-25) : le Bagage secoue la tête pour dire NON (balancement de gauche à droite, trois fois, qui se calme) ; pas de bouche qui croque. */
+html body.soreal-idle-active-v47 .soreal-idle-v79-stat-base.soreal-idle-v79-stat-vert{color:#1eff00}
 .bg-bagage-v1.refuse{transform-origin:50% 90%;animation:bgNon .9s ease-in-out both}
 @keyframes bgNon{0%{transform:rotate(0)}12%{transform:rotate(-9deg) translateX(-3px)}30%{transform:rotate(9deg) translateX(3px)}48%{transform:rotate(-7deg) translateX(-2px)}66%{transform:rotate(6deg) translateX(2px)}82%{transform:rotate(-3deg)}100%{transform:rotate(0)}}
 @media (prefers-reduced-motion:reduce){.bg-bagage-v1.refuse{animation:none}}

@@ -37,6 +37,7 @@
             'Équiper ou retirer une pièce qui donne du cap d’énergie ou de magie : quand l’énergie (ou la magie) que tu as placée l’empêche, un bandeau rouge te dit combien libérer. Avant, le refus ne s’affichait pas.',
             'Les très grands nombres n’utilisent plus l’écriture « e+96 » : après Tg, le jeu continue avec des lettres (AA = 1 suivi de 96 zéros, puis AB, AC… jusqu’à CS), chacune avec sa couleur. On peut aussi les saisir ainsi (par exemple « 2AA »).',
             'Comparaison de deux objets : la valeur la plus basse redevient rouge (et la plus haute verte) même quand les deux objets sont au maximum de leur niveau ; elles restaient vertes toutes les deux.',
+            'Multiplicateur de drop : quand un bonus l’augmente, le total s’affiche en vert (par exemple ×1,73) à la place de « ×1 (×1,73 avec les bonus) ».',
             'Quand tu meurs et que ton image réapparaît en fondu d’ouverture, un chœur d’anges (« aaaaah ») accompagne le fondu.',
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',

@@ -347,8 +347,12 @@
       var dc=a&&a.dropChance&&typeof a.dropChance==='object'?a.dropChance:null;
       var dBase=dc?Math.max(0,number_(dc.base)):1;
       var dTotal=dc?Math.max(0,number_(dc.total)):1;
-      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-base'),'×'+format_(dBase,2));
-      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-bonus'),dTotal>dBase+1e-9?' (×'+format_(dTotal,2)+' avec les bonus)':'');
+      /* Avec un bonus (Norman, 2026-10-25 : « il faut juste mettre ×1.73 en vert ; quand c'est vert, c'est qu'il y a un bonus, pas besoin de la phrase ») : le total remplace la base, en vert, sans « (×1.73 avec les bonus) ». */
+      var dropBase=dropLine.querySelector('.soreal-idle-v79-stat-base');
+      var dropBonus=dTotal>dBase+1e-9;
+      ecrire_(dropBase,'×'+format_(dropBonus?dTotal:dBase,2));
+      if(dropBase&&dropBase.classList)dropBase.classList.toggle('soreal-idle-v79-stat-vert',dropBonus);
+      ecrire_(dropLine.querySelector('.soreal-idle-v79-stat-bonus'),'');
     }
     var regenLine=player.querySelector('[data-player-stat="regen"]');
     if(regenLine){

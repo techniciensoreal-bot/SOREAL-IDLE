@@ -224,3 +224,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(w.includes(".wd-rang{grid-template-columns:6.6em 1fr 3.8em;}") && !w.includes("6.6em 1fr auto"));
   assert.ok(v.includes(".vl-pastille{position:absolute;right:-2px;top:-7px;"));
 }
+
+// Multiplicateur de drop : le total (avec bonus) remplace la base, en vert, sans la phrase « avec les bonus » (2026-10-25).
+{
+  const a = lire("cloudflare/public/modules/adventure-scene-v79.js"), c = lire("cloudflare/public/soreal-idle-itopod.css");
+  assert.ok(a.includes("toggle('soreal-idle-v79-stat-vert',dropBonus)") && !a.includes("avec les bonus)'"));
+  assert.ok(c.includes(".soreal-idle-v79-stat-base.soreal-idle-v79-stat-vert{color:#1eff00}"));
+}
