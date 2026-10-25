@@ -2246,7 +2246,8 @@
               :libres(g.libres);
             html+=cadreThematique(cle,g.nom,corpsZone);
           }else{
-            g.sets.forEach(function(st){html+=cadreThematique(st.id,st.nom,mannequin(st.pieces));});
+            /* Un « set » d'une seule pièce venu d'un titan (le Bout de papier) est montré comme un OBJET de titan, avec le nom de l'objet : « Set Bout de papier » n'avait pas de sens (Norman, 2026-10-25). */
+            g.sets.forEach(function(st){html+=cadreThematique(st.id,(g.groupe==='titan'&&st.pieces.length===1)?(st.pieces[0].name||st.nom):st.nom,mannequin(st.pieces));});
             if(g.libres.length)html+=cadreThematique(g.groupe||'autre',g.nom,libres(g.libres));
           }
         });

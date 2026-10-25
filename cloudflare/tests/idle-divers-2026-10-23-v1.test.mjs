@@ -284,3 +284,6 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(va.includes("var GRAINE_IMAGE='/api/idle/media/item?wikiItemId=92';") && va.includes("o.icone==='graine'?GRAINE_IMAGE:"));
   assert.ok(th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{position:static}") && th.includes(".soreal-idle-hud-v2{position:static;margin:0 0 10px;padding:0 0 4px;box-shadow:none}") && th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-top:0}"));
 }
+
+// Coffre : un set d'une seule pièce venu d'un titan porte le nom de l'objet, pas « Set … » (2026-10-25).
+assert.ok(lire("cloudflare/public/modules/ui-aventure-2-v1.js").includes("(g.groupe==='titan'&&st.pieces.length===1)?(st.pieces[0].name||st.nom):st.nom"));
