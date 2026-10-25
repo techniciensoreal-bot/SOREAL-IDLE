@@ -456,8 +456,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 255,
-  "sha": "6bca1807a94fbb70c4e6fed186305c9e1388c2cc"
+  "pin": 256,
+  "sha": "ddec591cac5e29dc290e178ca196539021b18682"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 6,
