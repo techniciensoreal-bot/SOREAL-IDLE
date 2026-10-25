@@ -1174,7 +1174,7 @@
     {nom:"orgue-toccata",libelle:"Toccata sinistre (orgue)",duree:2000,construire:defaiteToccataConstruire_},
     {nom:"orgue-foraine",libelle:"Orgue de foire triste",duree:1800,construire:defaiteForaineConstruire_}
   ];
-  var dernierSonDefaite="";
+  var dernierSonDefaite="",dernierTempsDefaite=0;
   /* Tirage au hasard parmi les sons retenus, jamais le même deux fois de suite (aucun réglage côté joueur). */
   function choisirSonDefaite_(){
     var pool=SONS_DEFAITE.filter(function(x){return x.nom!==dernierSonDefaite;});
@@ -1183,7 +1183,7 @@
   }
   function defaite_(){
     var son=choisirSonDefaite_();
-    dernierSonDefaite=son.nom;
+    dernierSonDefaite=son.nom;dernierTempsDefaite=Date.now();
     return jouerWebAudio_(son.duree,son.construire);
   }
   /*
@@ -1210,8 +1210,19 @@
       return true;
     });
   }
+  /* Le son de défaite passe par la file des événements : il peut être tiré APRÈS le début du rembobinage. On attend (1,5 s au plus) qu'un son de défaite vienne d'être tiré, pour retourner CELUI qui a été joué (Norman, 2026-10-25 : « ce n'est pas le son que j'ai entendu »). */
+  function attendreDefaite_(depart){
+    return new Promise(function(fin){
+      (function guetter(){
+        if(dernierTempsDefaite>=depart-2500||Date.now()-depart>1500)fin();
+        else setTimeout(guetter,25);
+      })();
+    });
+  }
   function construireInverse_(){
-    return reveiller_().then(function(c){
+    var depart=Date.now();
+    return Promise.all([reveiller_(),attendreDefaite_(depart)]).then(function(r){
+      var c=r[0];
       if(!c||typeof OfflineAudioContext!=="function")return null;
       var son=SONS_DEFAITE.filter(function(s){return s.nom===dernierSonDefaite;})[0]||SONS_DEFAITE[0];
       var sr=Math.max(22050,Number(c.sampleRate)||44100);

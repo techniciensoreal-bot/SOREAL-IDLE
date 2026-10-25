@@ -185,3 +185,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(a.includes("defeatReversePrepare:function(){return preparerInverse_();}") && a.includes("function construireInverse_()") && a.includes("jouerWebAudio_(3800,"));
   assert.ok(m.includes("defeatReversePrepare") && m.includes("prepare=false"));
 }
+
+// Le son retourné est celui qui a été joué : on attend le tirage du son de défaite (2026-10-25).
+{
+  const a = lire("cloudflare/public/modules/audio-effects-v199.js");
+  assert.ok(a.includes("function attendreDefaite_(depart)") && a.includes("dernierTempsDefaite=Date.now()"));
+}
