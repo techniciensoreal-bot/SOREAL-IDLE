@@ -368,8 +368,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 431,
-  "sha": "9191636b2f6eb0f18aba0e3243d2d63fac9369d3"
+  "pin": 432,
+  "sha": "f0dbfa4054ed4ea6c89981d36725b67674270832"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -608,8 +608,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 227,
-  "sha": "07990e6a143543ac00efef305010c39ab789bbbe"
+  "pin": 228,
+  "sha": "ce9a2119885bd8a9814939947fc40badc9c2189c"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
@@ -624,8 +624,8 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 125,
-  "sha": "356cdbd5ac06b58d13f3d82402d0c63c24bf1551"
+  "pin": 126,
+  "sha": "9d098cc81b400d7c4fd6f4eaf77c0bfb8eaa0728"
  },
  "/soreal-idle-ui.css": {
   "pin": 56,
