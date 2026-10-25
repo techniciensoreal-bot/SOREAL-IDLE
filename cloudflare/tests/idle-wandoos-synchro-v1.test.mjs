@@ -21,7 +21,7 @@ assert.ok(/syncWandoos:'wandoos'/.test(meta), "anti-spoil : l'achat n'apparaît 
 
 const w = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 assert.ok(w.includes('role="switch"') && w.includes("wd-lampe") && w.includes(">Sync<"), "interrupteur, loupiote, libellé « Sync »");
-assert.ok(w.includes("if(j&&synchroActive(j)){placerUn_('energy',mode);placerUn_('magic',mode);return;}"), "0, −, + et CAP agissent sur l'énergie ET la magie");
+assert.ok(w.includes("placerUn_('energy',mode,charges);placerUn_('magic',mode,charges);"), "0, −, + et CAP agissent sur l'énergie ET la magie");
 assert.ok(w.includes("synchroAchetee(j))return ''"), "sans achat, aucun interrupteur");
 assert.ok(/\.wd-sw\[aria-checked="true"\] \.wd-sw-manette\{transform:translateY\(0\)/.test(w), "la manette monte pour activer");
 assert.ok(/\.wd-sw\[aria-checked="true"\]~\.wd-lampe\{background:radial-gradient\(circle at 35% 30%,#d8ffd8/.test(w), "loupiote verte allumée, rouge sinon");

@@ -53,10 +53,10 @@
             'La carte de la chronique ne s’ouvre plus toute seule à la première rencontre d’un boss : la voix lit toujours l’histoire.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
-            'Synchro Wandoos : l’énergie et la magie sont placées en un seul coup, donc leurs barres partent exactement ensemble ; plus de petit mouvement de recul quand tu ajoutes une grosse quantité.',
+            'Synchro : l’énergie et la magie sont placées en un seul coup, donc leurs barres partent exactement ensemble ; plus de petit mouvement de recul quand tu ajoutes une grosse quantité.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
-            'Nouveau look pour Chroniques : un grimoire de cuivre pour la Collection, du bleu royal pour le Classement, de l’or pour les Succès ; onglets en marque-pages, cadres et boutons assortis.',
+            'Nouveau look pour Chroniques : tout en bleus de nuit, des onglets en verre qui s’allument dans la couleur de leur sous-menu, des puces et des cadres assortis (plus de jaune).',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',

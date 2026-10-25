@@ -7,7 +7,7 @@ const s = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 assert.ok(s.includes("var visee_={};"), "mémoire de la dernière cible");
 assert.ok(s.includes("var vis=visee_[res];") && s.includes("Date.now()-vis.at<2500"), "la dernière cible sert de base pendant 2,5 s");
 assert.ok(s.includes("visee_[res]={v:cible,at:Date.now()};"), "la cible est mémorisée avant l'envoi");
-assert.ok(s.indexOf("visee_[res]={v:cible") < s.indexOf("meta_({action:'allocate',system:'wandoos'"), "mémorisée avant meta_");
+assert.ok(s.indexOf("visee_[res]={v:cible") < s.indexOf("var charge={action:'allocate',system:'wandoos'"), "mémorisée avant meta_");
 console.log("idle-wandoos-clics-rapides-v1: OK");
 
 /* 2e cause (Norman, 2026-10-19 : « quand je mets rapidement des 20K dans Wandoos, tous les clics ne sont pas validés ») : chaque placement redessine tout le poste (outerHTML) ; un

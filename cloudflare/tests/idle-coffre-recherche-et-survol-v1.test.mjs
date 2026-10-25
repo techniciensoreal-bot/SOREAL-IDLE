@@ -58,7 +58,7 @@ assert.equal(ok(videCase, ""), true);
 // --- 3. Intégration : champ de recherche dans le coffre, grille seule redessinée, pagination sur la liste filtrée ---
 assert.ok(ui.includes('id="sorealIdleCoffreRechercheV1"') && ui.includes('oninput="window.__rechercheCoffreV1__(this.value)"'));
 assert.ok(ui.includes('<div id="sorealIdleCoffreGrilleV1">'), "seule la grille est redessinée : le champ garde le focus");
-assert.ok(ui.includes("if(requete)slots=slots.filter(function(s){return caseCoffreCorrespondIdleV1_(s,requete);});") && ui.indexOf("const totalPagesCoffre=Math.max(1,Math.ceil(slots.length/IDLE_PAGINATION_TAILLE_V1));", ui.indexOf("function grilleCoffreAdventureIdleV1_")) > ui.indexOf("caseCoffreCorrespondIdleV1_(s,requete)", ui.indexOf("function grilleCoffreAdventureIdleV1_")), "la pagination porte sur la liste filtrée");
+assert.ok(ui.includes("if(requete)slots=slots.filter(function(s){return caseCoffreCorrespondIdleV1_(s,requete);});") && ui.indexOf("const totalPagesCoffre=Math.max(1,pagesCoffre.length);", ui.indexOf("function grilleCoffreAdventureIdleV1_")) > ui.indexOf("caseCoffreCorrespondIdleV1_(s,requete)", ui.indexOf("function grilleCoffreAdventureIdleV1_")), "la pagination porte sur la liste filtrée");
 assert.ok(ui.includes("idlePageCoffreV1=1;\n        const conteneur") || ui.includes("idlePageCoffreV1=1;\r\n        const conteneur"), "retour à la page 1 à chaque frappe");
 assert.ok(ui.includes("Aucun objet du coffre ne correspond à"));
 assert.ok(css.includes(".soreal-idle-coffre-recherche-v1"));

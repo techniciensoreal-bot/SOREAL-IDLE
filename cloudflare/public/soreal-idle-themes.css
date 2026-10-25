@@ -742,25 +742,25 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"]{
   --pg-bg:
     radial-gradient(circle at 20% 15%,rgba(255,255,255,.10) 0 1px,transparent 2px) 0 0/90px 90px,
     radial-gradient(circle at 70% 60%,rgba(255,235,160,.12) 0 1px,transparent 2px) 0 0/130px 130px,
-    radial-gradient(ellipse 90% 40% at 50% 0%,rgba(242,201,76,.22),transparent 70%),
-    linear-gradient(180deg,#161c42,#0a0e24);
-  --pg-head:linear-gradient(110deg,#2a3270 0%,#3b3f8a 55%,#5a4a1a 100%);
-  --pg-card:linear-gradient(165deg,#1e2658,#0f1436);
-  --pg-btn:linear-gradient(180deg,#ffe58a,#d9a416);--pg-btn-ink:#2a1e00;
+    radial-gradient(ellipse 90% 40% at 50% 0%,color-mix(in srgb,var(--th-a) 22%,transparent),transparent 70%),
+    linear-gradient(180deg,var(--th-bg),var(--th-bg2));
+  --pg-head:linear-gradient(110deg,color-mix(in srgb,var(--th-b) 80%,#000) 0%,color-mix(in srgb,var(--th-a) 42%,#08101e) 60%,color-mix(in srgb,var(--th-b) 70%,#000) 100%);
+  --pg-card:linear-gradient(165deg,var(--th-bg),var(--th-bg2));
+  --pg-btn:linear-gradient(180deg,var(--th-c),var(--th-a));--pg-btn-ink:#06101f;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] :is(.soreal-idle-section-v8,.idle-succes-resume-v1,.idle-succes-groupe-v1){
-  outline:1px solid rgba(242,201,76,.35);outline-offset:-5px;
+  outline:1px solid var(--th-line);outline-offset:-5px;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .idle-succes-tuile-v1{
   background:linear-gradient(165deg,#252e6a,#141a44)!important;border:1px solid var(--th-line)!important;border-radius:14px!important;color:var(--th-ink)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .idle-succes-item-v1{
-  background:rgba(255,255,255,.05)!important;border:1px solid rgba(242,201,76,.28)!important;border-radius:12px!important;color:var(--th-ink)!important;
+  background:rgba(255,255,255,.05)!important;border:1px solid var(--th-line)!important;border-radius:12px!important;color:var(--th-ink)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .idle-succes-item-v1.ok{
-  background:linear-gradient(135deg,rgba(242,201,76,.28),rgba(242,201,76,.08))!important;box-shadow:0 0 18px -6px rgba(242,201,76,.8);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--th-a) 32%,transparent),color-mix(in srgb,var(--th-a) 8%,transparent))!important;box-shadow:0 0 18px -6px var(--th-a);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .soreal-idle-window-title-v31{font-family:Georgia,"Times New Roman",serif;color:#ffe58a!important;letter-spacing:.05em}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="succes"] .soreal-idle-window-title-v31{font-family:Georgia,"Times New Roman",serif;color:var(--th-c)!important;letter-spacing:.05em}
 /* Barres de titre des sections : aux couleurs de la page (annule les bandeaux colorés d'origine). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-window-title-v31{
   background:linear-gradient(100deg,color-mix(in srgb,var(--th-a) 52%,#000),color-mix(in srgb,var(--th-b) 52%,#000))!important;
@@ -776,14 +776,14 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v2
   --th-a:#ffd700;--th-b:#c0c8d8;--th-c:#cd7f32;--th-bg:#182648;--th-bg2:#0a1226;--th-line:rgba(255,215,0,.45);--th-ink:#fff7d6;--th-dim:#a9b5d6;--th-num:#ffffff;--th-glow:rgba(255,215,0,.4);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="bestiaire"]){
-  /* Chroniques v2 (Norman, 2026-10-25 : « amélioration visuelle du menu Chronique, pour chaque sous-menu ») : un grimoire (cuir sombre, or) ; chaque sous-menu a sa teinte : Collection = cuivre, Classement = bleu royal, Succès = or vif. */
-  --th-a:#d9a15a;--th-b:#9a5a22;--th-c:#ffd9a8;--th-bg:#2a1a12;--th-bg2:#130a07;--th-line:rgba(217,161,90,.5);--th-ink:#fff1dc;--th-dim:#cdb08a;--th-num:#ffffff;--th-glow:rgba(217,161,90,.45);
+  /* Chroniques v2 (Norman, 2026-10-25 : « amélioration visuelle du menu Chronique, pour chaque sous-menu ») : un grimoire (cuir sombre, or) ; chaque sous-menu a sa teinte : Collection = bleu nuit, Classement = azur, Succès = cyan (aucun jaune). */
+  --th-a:#5b8def;--th-b:#2a4fa8;--th-c:#cfe0ff;--th-bg:#14203d;--th-bg2:#0a1124;--th-line:rgba(91,141,239,.5);--th-ink:#eaf1ff;--th-dim:#9fb4e0;--th-num:#ffffff;--th-glow:rgba(91,141,239,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="classement"]){
-  --th-a:#7fb4ff;--th-b:#3a63b8;--th-c:#cfe2ff;--th-bg:#16213a;--th-bg2:#090f1e;--th-line:rgba(127,180,255,.5);--th-ink:#eaf3ff;--th-dim:#9fb6dc;--th-glow:rgba(127,180,255,.45);
+  --th-a:#38a3f5;--th-b:#1769b8;--th-c:#d4ecff;--th-bg:#112338;--th-bg2:#08121f;--th-line:rgba(56,163,245,.5);--th-ink:#eaf5ff;--th-dim:#9cc2e6;--th-num:#ffffff;--th-glow:rgba(56,163,245,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="succes"]){
-  --th-a:#f4c430;--th-b:#a8780c;--th-c:#fff0a8;--th-bg:#2b2410;--th-bg2:#150f05;--th-line:rgba(244,196,48,.5);--th-ink:#fff8dc;--th-dim:#d2c188;--th-glow:rgba(244,196,48,.45);
+  --th-a:#22c8e0;--th-b:#0f7f94;--th-c:#c9f6ff;--th-bg:#0f2830;--th-bg2:#07141a;--th-line:rgba(34,200,224,.5);--th-ink:#e6fbff;--th-dim:#8fc7d2;--th-num:#ffffff;--th-glow:rgba(34,200,224,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="chat"]){
   --th-a:#5eead4;--th-b:#f472b6;--th-c:#fbbf24;--th-bg:#1d2a3a;--th-bg2:#0f1623;--th-line:rgba(94,234,212,.42);--th-ink:#e8fffb;--th-dim:#8fb5b0;--th-num:#ffffff;--th-glow:rgba(94,234,212,.4);
@@ -832,11 +832,11 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="classement"]{
   --pg-radius:12px;--pg-deco:"🥇🥈🥉";--pg-font:inherit;
   --pg-bg:
     conic-gradient(from 270deg at 50% -10%,transparent 0 40deg,rgba(255,255,255,.07) 40deg 60deg,transparent 60deg 120deg,rgba(255,255,255,.07) 120deg 140deg,transparent 140deg),
-    radial-gradient(ellipse 90% 40% at 50% 0%,rgba(255,215,0,.20),transparent 70%),
-    linear-gradient(180deg,#14213d,#090f20);
-  --pg-head:linear-gradient(110deg,#1f3366 0%,#2b3f7a 55%,#5a4a12 100%);
-  --pg-card:linear-gradient(165deg,#1b2a52,#0e1630);
-  --pg-btn:linear-gradient(180deg,#ffe97a,#d4a30a);--pg-btn-ink:#2a1e00;
+    radial-gradient(ellipse 90% 40% at 50% 0%,color-mix(in srgb,var(--th-a) 20%,transparent),transparent 70%),
+    linear-gradient(180deg,var(--th-bg),var(--th-bg2));
+  --pg-head:linear-gradient(110deg,color-mix(in srgb,var(--th-b) 80%,#000) 0%,color-mix(in srgb,var(--th-a) 42%,#08101e) 60%,color-mix(in srgb,var(--th-b) 70%,#000) 100%);
+  --pg-card:linear-gradient(165deg,var(--th-bg),var(--th-bg2));
+  --pg-btn:linear-gradient(180deg,var(--th-c),var(--th-a));--pg-btn-ink:#06101f;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="classement"] .soreal-idle-classement-ligne-v1{
   background:rgba(255,255,255,.05)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:10px!important;color:var(--th-ink)!important;
@@ -869,11 +869,11 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] :i
   border:2px solid transparent!important;
   background:linear-gradient(165deg,var(--th-bg),var(--th-bg2)) padding-box,linear-gradient(135deg,var(--th-a),var(--th-b) 50%,var(--th-a)) border-box!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1{
-  background:linear-gradient(180deg,color-mix(in srgb,var(--th-a) 16%,var(--th-bg)),var(--th-bg2))!important;border:1px solid var(--th-line)!important;color:var(--th-ink)!important;border-radius:10px!important;
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1:not(#_){
+  background:linear-gradient(180deg,color-mix(in srgb,var(--th-a) 10%,rgba(14,22,48,.9)),rgba(6,10,24,.9))!important;border:1px solid var(--tab-bord,color-mix(in srgb,var(--th-a) 28%,transparent))!important;color:var(--th-dim)!important;border-radius:999px!important;box-shadow:none;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1.active{
-  background:linear-gradient(180deg,var(--th-c),var(--th-a) 55%,var(--th-b))!important;color:#1b1002!important;box-shadow:0 0 16px var(--th-glow),inset 0 1px 0 rgba(255,255,255,.55);
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1.active:not(#_){
+  background:linear-gradient(180deg,color-mix(in srgb,var(--th-a) 80%,#0b1530),color-mix(in srgb,var(--th-b) 80%,#050a18))!important;color:#fff!important;--tab-bord:color-mix(in srgb,var(--th-a) 70%,#fff);box-shadow:0 0 16px var(--th-glow),inset 0 1px 0 rgba(255,255,255,.3);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-page-head-v28{border:1px solid var(--th-line);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 18px -8px var(--th-glow)}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-page-title-v28{letter-spacing:.06em;text-shadow:0 2px 0 rgba(0,0,0,.6),0 0 14px var(--th-glow)}
@@ -2240,17 +2240,19 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 }
 
 /* Barre d'onglets de Chroniques (style ITOPOD : gros contour noir, ombre dure, onglet actif cerné d'or). */
-.soreal-idle-chroniques-onglets-v1{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:0 0 12px}
-.soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:1px solid rgba(255,255,255,.14);border-bottom:4px solid #000;border-radius:12px 12px 4px 4px;cursor:pointer;
-  font-family:inherit;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#cfd6f5;
-  background:linear-gradient(180deg,#2b3350,#161b30);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 3px 0 rgba(0,0,0,.5);opacity:.78;transition:transform .12s ease,opacity .15s ease}
-.soreal-idle-chroniques-onglet-v1[data-onglet="bestiaire"]{--ong:#d9a15a}
-.soreal-idle-chroniques-onglet-v1[data-onglet="classement"]{--ong:#7fb4ff}
-.soreal-idle-chroniques-onglet-v1[data-onglet="succes"]{--ong:#f4c430}
+/* Onglets du haut (Norman, 2026-10-25 : « je n'aime pas le jaune, je veux refaire les petits cadres ») : une barre de verre bleu nuit, des segments sans contour épais ; l'onglet ouvert s'allume dans la couleur de son sous-menu. */
+.soreal-idle-chroniques-onglets-v1{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin:0 0 12px;padding:4px;border:1px solid rgba(120,160,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(14,22,48,.9),rgba(6,10,24,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 20px -12px rgba(0,0,0,.8)}
+.soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:0;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9fb4e0;
+  background:transparent;box-shadow:none;opacity:1;transition:background .15s ease,color .15s ease,box-shadow .2s ease,transform .12s ease}
+.soreal-idle-chroniques-onglet-v1:hover{background:rgba(120,160,255,.10);color:#d6e3ff}
+.soreal-idle-chroniques-onglet-v1[data-onglet="bestiaire"]{--ong:#5b8def}
+.soreal-idle-chroniques-onglet-v1[data-onglet="classement"]{--ong:#38a3f5}
+.soreal-idle-chroniques-onglet-v1[data-onglet="succes"]{--ong:#22c8e0}
 .soreal-idle-chroniques-onglet-v1 i{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
 .soreal-idle-chroniques-onglet-v1 b{font-weight:900;line-height:1.1;white-space:nowrap}
-.soreal-idle-chroniques-onglet-v1:active{transform:translateY(2px)}
-.soreal-idle-chroniques-onglet-v1.actif{opacity:1;color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--ong,#d9b45a) 70%,#fff),color-mix(in srgb,var(--ong,#d9b45a) 60%,#000));border-color:color-mix(in srgb,var(--ong,#d9b45a) 70%,#fff);border-bottom-color:var(--ong,#d9b45a);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 0 16px color-mix(in srgb,var(--ong,#d9b45a) 55%,transparent);text-shadow:0 2px 0 #000}
+.soreal-idle-chroniques-onglet-v1:active{transform:scale(.97)}
+.soreal-idle-chroniques-onglet-v1.actif{color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--ong,#5b8def) 78%,#0b1530),color-mix(in srgb,var(--ong,#5b8def) 42%,#050a18));box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px color-mix(in srgb,var(--ong,#5b8def) 70%,#fff),0 0 18px -2px color-mix(in srgb,var(--ong,#5b8def) 60%,transparent);text-shadow:0 1px 0 rgba(0,0,0,.7)}
 
 /* Boucles parfaites des animations des barres (Norman, 2026-10-09 : « le cycle commence par un fondu d'entrée et finit par un fondu de sortie ; sinon on voit que la boucle n'est pas parfaite, un effet de recul sur les icônes »).
    1) Braises : dans « background:a,b,c,d,e 0 0/83px 60px » la taille de tuile ne s'appliquait qu'au DERNIER calque ; les quatre autres, grands comme la barre, glissaient de 83 px puis revenaient d'un coup en arrière.
