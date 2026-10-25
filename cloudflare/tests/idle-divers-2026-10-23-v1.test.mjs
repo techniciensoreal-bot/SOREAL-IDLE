@@ -237,7 +237,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const t = lire("cloudflare/public/soreal-idle-themes.css"), c = lire("cloudflare/public/soreal-idle-itopod.css"), v = lire("cloudflare/public/modules/valise-v1.js"), u = lire("cloudflare/public/modules/ui-aventure-2-v1.js");
   assert.ok(t.includes("grid-column:1;grid-row:1 / span 60;align-self:start;") && t.includes("position:sticky;top:0;margin:0 0 14px!important;") && t.includes("max-height:min(calc(100vh - 14px),var(--nav-dispo,100vh))"));
   assert.ok(t.includes("border-color:color-mix(in srgb,var(--c1) 30%,#000)!important;") && !t.includes("border-color:color-mix(in srgb,var(--c1) 78%,transparent)!important;"));
-  assert.ok(c.includes("border-color:color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 50%,#000)!important;") && !c.includes("border-color:#f5c14b!important"));
+  assert.ok(c.includes("border-color:color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 55%,#fff)!important;") && !c.includes("border-color:#f5c14b!important"));
   assert.ok(v.includes("(e.id==='poop'&&yggVu)") && v.includes("menuDisponibleIdleV28_('yggdrasil'"));
   assert.ok(u.includes("window.__coffreHFermeV1") && u.includes("cibleFermeture=Math.max(60,"));
 }
@@ -267,7 +267,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 // NGU : jour (ciel qui s'assombrit vers le bas, nuages, soleil) côté Énergie, nuit (lune d'Halloween, chauves-souris) côté Magie ; astre éteint sans ressource placée (2026-10-25).
 {
   const g = lire("cloudflare/public/modules/ngu-labo-v1.js");
-  assert.ok(g.includes("var ASTRES='<span class=\"nl-astre\"") && g.includes("ETOILES+ASTRES"));
+  assert.ok(g.includes("var ASTRES='<span class=\"nl-arc\"") && g.includes("ETOILES+ASTRES"));
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%') && g.includes("#0c2550 100%"));
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px)') && g.includes('.nl-v1[data-nl-onglet="magic"]>.nl-astre{display:block;right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}') && g.includes("nlAurore") && g.includes("ellipse 50% 100% at 50% 100%") && g.includes('#74baf7 50%,#3d86dc 100%') && g.includes('[data-nl-onglet="magic"] .nl-haut .nl-btn[data-nl-onglet-btn]:not(#_):not(#_){background:radial-gradient(circle at 25px 50%'));
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::after') && g.includes('.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after'));

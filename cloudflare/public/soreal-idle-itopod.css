@@ -728,7 +728,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .
 }
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-button-v28.active{
   /* Norman (2026-10-25) : pas de contour d'une autre couleur (ni liseré doré) ; le menu ouvert est le même dégradé, plus clair, avec une lueur de sa couleur. */
-  border-color:color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 50%,#000)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 14px color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 45%,transparent)!important;
+  border-color:color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 55%,#fff)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 0 0 2px color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 55%,#fff),0 0 22px 2px var(--c1,var(--nav-color,#9aa5bb))!important;
 }
 /* Emoji : même pastille colorée, plus petite, sans hexagone */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28 .soreal-idle-nav-cadre-v2{width:31px!important;height:31px!important;flex:0 0 31px!important;}

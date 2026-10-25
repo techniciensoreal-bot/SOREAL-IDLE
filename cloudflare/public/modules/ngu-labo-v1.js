@@ -51,6 +51,41 @@ function etoilesHtml_(){
 var ETOILES=etoilesHtml_();
 /* Jour et nuit (Norman, 2026-10-25 : « le NGU côté Énergie représente le jour, avec des nuages et le soleil ; le NGU Magie la nuit, avec une lune comme celle d'Halloween ; sans énergie (ou sans magie), le soleil (la lune) ne brille pas ») : l'astre (soleil ou lune) et sa couche (nuages le jour, chauves-souris la nuit). */
 var ASTRES='<span class="nl-arc" aria-hidden="true"></span><span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
+/*
+ * Aurores boréales (Norman, 2026-10-25 : « fais mieux les aurores boréales, elles sont toutes identiques ») : deux couches SVG différentes (graine, couleurs, vagues, vitesse et sens de dérive) ; chaque couche est faite de plusieurs rubans, chacun un peloton de rayons verticaux
+ * de largeur, de hauteur et d'éclat irréguliers (bord haut ondulé, dégradé vers le bas). Les vagues ont un nombre ENTIER de cycles sur 1200 px : la tuile se répète sans raccord et la dérive boucle exactement.
+ */
+function auroreUri_(graine, rubans) {
+  var a = graine;
+  function suite() { a = (a * 9301 + 49297) % 233280; return a / 233280; }
+  var defs = '', corps = '';
+  rubans.forEach(function (rb, k) {
+    defs += '<linearGradient id="g' + k + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + rb.c + '" stop-opacity="0"/><stop offset=".22" stop-color="' + rb.c + '" stop-opacity="' + rb.o + '"/><stop offset=".6" stop-color="' + rb.c2 + '" stop-opacity="' + (rb.o * 0.75).toFixed(2) + '"/><stop offset="1" stop-color="' + rb.c2 + '" stop-opacity="0"/></linearGradient>';
+    var x = 0;
+    while (x < 1200) {
+      var l = 5 + Math.floor(suite() * 15);
+      if (x + l > 1200) l = 1200 - x;
+      var onde = Math.sin(2 * Math.PI * rb.k * (x / 1200) + rb.ph) * rb.amp + Math.sin(2 * Math.PI * (rb.k + 2) * (x / 1200) + rb.ph * 2) * rb.amp * 0.4;
+      var haut = Math.max(2, rb.base + onde - suite() * rb.dispersion);
+      var bas = Math.min(300, haut + rb.hauteur * (0.6 + suite() * 0.6));
+      var op = (0.35 + suite() * 0.65).toFixed(2);
+      corps += '<rect x="' + x + '" y="' + haut.toFixed(1) + '" width="' + l + '" height="' + (bas - haut).toFixed(1) + '" fill="url(#g' + k + ')" opacity="' + op + '"/>';
+      x += l + Math.floor(suite() * 7);
+    }
+  });
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"><defs>' + defs + '</defs>' + corps + '</svg>';
+  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+}
+var AURORE_A = auroreUri_(11, [
+  { c: '#3dffa8', c2: '#1fb8d8', o: 0.85, k: 2, ph: 0.4, amp: 22, base: 58, dispersion: 26, hauteur: 190 },
+  { c: '#a76bff', c2: '#5a3ad8', o: 0.6, k: 3, ph: 2.1, amp: 16, base: 96, dispersion: 40, hauteur: 160 },
+  { c: '#6bffd4', c2: '#2aa8e0', o: 0.55, k: 5, ph: 4.0, amp: 12, base: 44, dispersion: 18, hauteur: 150 }
+]);
+var AURORE_B = auroreUri_(77, [
+  { c: '#35d8e8', c2: '#3a66e8', o: 0.7, k: 3, ph: 1.3, amp: 26, base: 70, dispersion: 32, hauteur: 180 },
+  { c: '#ff6bd5', c2: '#9a4ad8', o: 0.45, k: 4, ph: 3.2, amp: 18, base: 112, dispersion: 34, hauteur: 130 },
+  { c: '#8dff6b', c2: '#2fd8a0', o: 0.5, k: 2, ph: 5.2, amp: 20, base: 40, dispersion: 22, hauteur: 140 }
+]);
 var CHAUVES_URI=(function(){
   var chauve='M0 0C-10-14-28-16-40-6C-34-6-28-2-26 6C-20 0-12 0-8 8C-4 2 4 2 8 8C12 0 20 0 26 6C28-2 34-6 40-6C28-16 10-14 0 0Z';
   var svg='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240"><g fill="#07030f">'+
@@ -244,9 +279,11 @@ var CSS=
   '.nl-v1>.nl-arc{position:absolute;pointer-events:none;z-index:0;display:none}'+
   '.nl-v1[data-nl-onglet="energy"]>.nl-arc{display:block;left:7%;width:86%;top:46px;height:210px;filter:blur(.6px);opacity:calc(.3 + var(--nl-lueur,0)*.5);-webkit-mask:linear-gradient(180deg,#000 58%,transparent);mask:linear-gradient(180deg,#000 58%,transparent);background:radial-gradient(ellipse 50% 100% at 50% 100%,transparent 0 64%,rgba(255,70,70,.9) 65% 69%,rgba(255,150,40,.9) 69% 73%,rgba(255,226,70,.9) 73% 77%,rgba(90,205,100,.9) 77% 81%,rgba(70,160,255,.9) 81% 85%,rgba(90,80,225,.9) 85% 89%,rgba(165,90,225,.9) 89% 93%,transparent 94%)}'+
   '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"]>.nl-arc{opacity:.12;filter:grayscale(1)}'+
-  '.nl-v1[data-nl-onglet="magic"]>.nl-arc{display:block;left:0;right:0;top:0;height:300px;opacity:calc(.25 + var(--nl-lueur,0)*.75);filter:blur(3px) saturate(1.3);background:linear-gradient(180deg,transparent 0,rgba(60,255,170,.3) 10%,rgba(80,255,190,.95) 36%,rgba(50,215,235,.85) 56%,rgba(170,100,255,.7) 78%,transparent 100%);-webkit-mask:repeating-linear-gradient(96deg,#000 0,rgba(0,0,0,.2) 26px,#000 52px,rgba(0,0,0,.35) 78px,#000 104px) 0 0/416px 100%;mask:repeating-linear-gradient(96deg,#000 0,rgba(0,0,0,.2) 26px,#000 52px,rgba(0,0,0,.35) 78px,#000 104px) 0 0/416px 100%}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-arc{display:block;left:0;right:0;top:0;height:300px;opacity:calc(.25 + var(--nl-lueur,0)*.75);filter:blur(1.6px) saturate(1.25);background:url("'+AURORE_A+'") 0 0/1200px 300px repeat-x;-webkit-mask:linear-gradient(180deg,#000 70%,transparent);mask:linear-gradient(180deg,#000 70%,transparent)}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-arc::after{content:"";position:absolute;inset:0;background:url("'+AURORE_B+'") 300px 0/1200px 300px repeat-x;mix-blend-mode:screen;opacity:.9}'+
   '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"]>.nl-arc{opacity:0}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="magic"]>.nl-arc{animation:nlAurore 46s linear infinite}@keyframes nlAurore{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:416px 0;mask-position:416px 0}}}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="magic"]>.nl-arc{animation:nlAuroreA 140s linear infinite,nlAuroreRespire 9s ease-in-out infinite}.nl-v1[data-nl-onglet="magic"]>.nl-arc::after{animation:nlAuroreB 210s linear infinite reverse,nlAuroreRespire 13s ease-in-out -4s infinite}'+
+    '@keyframes nlAuroreA{from{background-position:0 0}to{background-position:1200px 0}}@keyframes nlAuroreB{from{background-position:300px 0}to{background-position:1500px 0}}@keyframes nlAuroreRespire{0%,100%{filter:blur(1.6px) saturate(1.1) brightness(.85)}50%{filter:blur(2.4px) saturate(1.5) brightness(1.2)}}}'+
   /* nuit : lune d'Halloween */
   '.nl-v1[data-nl-onglet="magic"]>.nl-astre{display:block;right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}'+
   '.nl-v1[data-nl-onglet="magic"] .nl-astre::after{background:radial-gradient(circle at 30% 40%,rgba(150,60,8,.5) 0 9%,transparent 10%),radial-gradient(circle at 64% 28%,rgba(150,60,8,.42) 0 6%,transparent 7%),radial-gradient(circle at 56% 68%,rgba(150,60,8,.5) 0 11%,transparent 12%),radial-gradient(circle at 24% 72%,rgba(150,60,8,.38) 0 5%,transparent 6%),radial-gradient(circle at 78% 58%,rgba(150,60,8,.35) 0 4%,transparent 5%),radial-gradient(circle at 36% 32%,#ffe9a8 0,#ffb347 42%,#ff7d1a 78%,#d4560c 100%);box-shadow:0 0 calc(10px + var(--nl-lueur,0)*50px) calc(var(--nl-lueur,0)*10px) rgba(255,140,30,calc(.1 + var(--nl-lueur,0)*.7))}'+
