@@ -14,7 +14,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const window_ = {};
 vm.runInNewContext(registreSrc, { window: window_ });
 const reg = window_.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
-assert.equal(reg.liste.length, 15, "les 11 voix choisies à l’écoute + le petit garçon, deux Chinois et le robot (2026-10-24)");
+assert.equal(reg.liste.length, 16, "les 11 voix choisies à l’écoute + le petit garçon, deux Chinois, le robot (2026-10-24) et le savant cynique (2026-10-25)");
 assert.ok(reg.liste.every((v) => /^[a-z0-9-]{1,32}$/.test(v.id) && v.nom && ["homme", "femme"].includes(v.genre)));
 assert.equal(new Set(reg.liste.map((v) => v.id)).size, reg.liste.length, "identifiants uniques");
 assert.ok(!reg.liste.some((v) => v.id === "homme" || v.id === "femme" || v.id === "narrateur"), "pas de collision avec les voix de base");
@@ -79,7 +79,7 @@ assert.match(studio, /"voixNommees": voix_disponibles\(\)/);
 assert.match(studio, /os\.path\.join\(DOSSIER_VOIX, nom \+ "\.wav"\)/);
 assert.match(studio, /voix = donnees\.get\("voix"\) if isinstance\(donnees\.get\("voix"\), str\) and VOIX_ID_RE\.match\(donnees\.get\("voix"\)\) else "homme"/);
 const installeur = readFileSync("cloudflare/tools/voice-studio/installer_voix_nommees.py", "utf8");
-for (const v of reg.liste.filter((x) => !["garcon", "chinois1", "chinois2", "robot"].includes(x.id))) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
+for (const v of reg.liste.filter((x) => !["garcon", "chinois1", "chinois2", "robot", "savant"].includes(x.id))) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
 
 // Réglages propres à une voix (Folle 2 : expressivité 0,35 et cfg 0,3, choisis à l'écoute le 2026-10-01).
 const reglages = JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8"));
@@ -97,3 +97,13 @@ assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_chinoises.py", 
 const serv = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");
 assert.ok(serv.includes("def effet_robot(wav, sr, intensite=0.5)") && serv.includes("effet_robot(wav, sr, exaggeration)") && reg.existe("robot"));
 assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).robot.effet, "robot");
+
+// Savant cynique (2026-10-25) : voix fabriquée (pas un clone), réglée dans reglages-voix.json ; la balise (rot) joue un rot synthétisé au milieu du texte.
+{
+  assert.ok(reg.existe("savant"));
+  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.7);
+  assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_savant.py", "utf8").includes("PAS un clone"));
+  const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8"), aud = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
+  assert.ok(tts.includes("function estBaliseRot_(t)") && tts.includes("{pause:DUREE_ROT_MS,rot:true}") && tts.includes("son.rot()"));
+  assert.ok(aud.includes("function rot_()") && aud.includes("rot:function(){return rot_();}"));
+}

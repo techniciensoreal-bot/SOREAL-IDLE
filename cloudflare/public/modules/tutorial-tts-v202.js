@@ -323,6 +323,11 @@
    * Expressions et pauses écrites comme balises (Norman, 2026-10-08) : « (joyeux) », « (pause 2s)… » -- registre modules/voix-expressions-v1.js. Une pause devient le même marqueur de silence que les
    * pauses internes ; une expression devient un marqueur qui accompagne les blocs suivants (étape.expr) : elle ne change pas la lecture, seulement la GÉNÉRATION de la voix par le studio.
    */
+  /* Rot (Norman, 2026-10-25 : une voix de savant cynique « qui peut faire des renvois ») : « (rot) », « (rots) », « (renvoi) », « (burp) » = un rot synthétisé (audio-effects-v199.js, rot) joué au milieu du texte, comme une pause qui s'entend. */
+  var ROT_MARQUE=String.fromCharCode(0xE006);
+  function estBaliseRot_(t){
+    return /^(rots?|renvois?|burp|rot sonore)$/.test(String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/s+/g,' ').trim());
+  }
   var EXPR_OPEN=String.fromCharCode(0xE004);
   var EXPR_CLOSE=String.fromCharCode(0xE005);
   function registreExpressions_(){
@@ -355,6 +360,7 @@
     return String(texte||'').replace(/\(([^)]*)\)/g,function(tout,dedans){
       var voix=resoudreVoixBalise_(dedans);
       if(voix)return ' '+VOIX_OPEN+voix+VOIX_CLOSE+' ';
+      if(estBaliseRot_(dedans))return ' '+ROT_MARQUE+' ';
       var pause=resoudrePauseBalise_(dedans);
       if(pause>0)return ' '+PAUSE_OPEN+pause+PAUSE_CLOSE+' ';
       var expression=resoudreExpressionBalise_(dedans);
@@ -410,6 +416,7 @@
   function planNarration_(value){
     var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
     var steps=[];
+    var DUREE_ROT_MS=1000;
     /* Voix courante (balise « (marius) »…) : propre à la lecture entière, elle traverse les pauses ; absente = voix par défaut (narrateur). */
     var voix='',expr='';
     for(var i=0;i<parts.length;i+=1){
@@ -419,7 +426,7 @@
         continue;
       }
       /* Voix (« (marius) ») et expressions (« (joyeux) ») dans l'ordre du texte ; une nouvelle voix revient au ton neutre, une expression dure jusqu'à la suivante. */
-      var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE,'g');
+      var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE+'|('+ROT_MARQUE+')','g');
       var texteBrut=parts[i],dernier=0,marque;
       var lire=function(morceau){
         decouperNarration_(morceau).forEach(function(chunk){
@@ -432,12 +439,13 @@
       while((marque=reMarques.exec(texteBrut))){
         lire(texteBrut.slice(dernier,marque.index));
         dernier=marque.index+marque[0].length;
-        if(marque[1]!==undefined){voix=marque[1];expr='';}
+        if(marque[3]!==undefined){steps.push({pause:DUREE_ROT_MS,rot:true});}
+        else if(marque[1]!==undefined){voix=marque[1];expr='';}
         else expr=marque[2]==='neutre'?'':marque[2];
       }
       lire(texteBrut.slice(dernier));
     }
-    while(steps.length&&steps[steps.length-1].pause!=null)steps.pop();
+    while(steps.length&&steps[steps.length-1].pause!=null&&!steps[steps.length-1].rot)steps.pop();
     return steps;
   }
 
@@ -1019,6 +1027,7 @@
         if(myGeneration!==generation)return Promise.reject(new Error('NARRATION_ANNULEE'));
         var etape=steps[i];
         if(etape.pause!=null){
+          if(etape.rot){try{var son=window.__SOREAL_IDLE_AUDIO_V199__;if(son&&typeof son.rot==='function')son.rot();}catch(_e){}}
           assurer(prochainTexte(i+1),true);
           return attendre(etape.pause).then(function(){return jouer(i+1);});
         }

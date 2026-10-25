@@ -1293,6 +1293,31 @@
       src.connect(bpS);bpS.connect(gS);gS.connect(bus);src.start(t0);src.stop(t0+3.5);
     });
   }
+  /*
+   * Rot (Norman, 2026-10-25, voix « Savant cynique » : « et qui peut faire des renvois ») : balise « (rot) » dans un texte lu (modules/tutorial-tts-v202.js). Synthétisé : une source voisée grave (dents de scie ~75 Hz qui descend à ~48 Hz, tremblotante comme un
+   * vrai rot), passée dans deux formants de gorge (520 et 1000 Hz), un souffle qui crépite, et une enveloppe irrégulière (poussée, plateau, retombée). 0,9 s.
+   */
+  function rot_(){
+    return jouerWebAudio_(900,function(c){
+      var sortie=master||c.destination,t0=c.currentTime+.02,d=.85;
+      var osc=c.createOscillator();osc.type="sawtooth";
+      osc.frequency.setValueAtTime(78,t0);osc.frequency.exponentialRampToValueAtTime(48,t0+d);
+      var lfo=c.createOscillator(),prof=c.createGain();lfo.frequency.value=29;prof.gain.value=11;lfo.connect(prof);prof.connect(osc.frequency);lfo.start(t0);lfo.stop(t0+d+.05);
+      var env=c.createGain();
+      env.gain.setValueAtTime(.0001,t0);env.gain.exponentialRampToValueAtTime(.55,t0+.09);env.gain.setValueAtTime(.5,t0+.4);env.gain.exponentialRampToValueAtTime(.0001,t0+d);
+      var tremble=c.createGain();tremble.gain.value=.8;
+      var lfo2=c.createOscillator(),prof2=c.createGain();lfo2.frequency.value=17;prof2.gain.value=.3;lfo2.connect(prof2);prof2.connect(tremble.gain);lfo2.start(t0);lfo2.stop(t0+d+.05);
+      osc.connect(tremble);
+      [[520,1,6],[1000,.6,7]].forEach(function(f){
+        var bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f[0];bp.Q.value=f[2];
+        var g=c.createGain();g.gain.value=f[1];
+        tremble.connect(bp);bp.connect(g);g.connect(env);
+      });
+      env.connect(sortie);
+      osc.start(t0);osc.stop(t0+d+.05);
+      bruit_(c,{duration:.7,volume:.05,frequency:700,frequencyEnd:300,decay:1.2,filterType:"bandpass"});
+    });
+  }
   /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
   function ecouterDefaite_(nom){
     var son=SONS_DEFAITE.filter(function(s){return s.nom===nom;})[0];
@@ -2371,6 +2396,7 @@
     defeatReverse:function(){return defaiteInverse_();},
     reapparitionBip:function(){return reapparitionBip_();},
     chorale:function(){return chorale_();},
+    rot:function(){return rot_();},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
     /* bâillement du Coffre ('coffre') ou de la valise ('valise') : chacun son son (modules/audio-coffre-v1.js) */

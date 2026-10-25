@@ -32,6 +32,8 @@ var LISTE=[
   {id:'garcon',nom:'Petit garçon',genre:'femme',alias:['petit-garcon','Petit garçon','enfant','gamin']},
   /* Deux hommes qui parlent français avec un accent chinois (Norman, 2026-10-24) : le studio imite le timbre ET l'accent de l'extrait, ici une voix d'homme qui lit du MANDARIN (Piper « chaowen » ; cloudflare/tools/voice-studio/creer_voix_chinoises.py) ; chinois2 : même homme, plus grave et plus lent. Repli Piper : voix d'homme. */
   /* Robot (Norman, 2026-10-24) : la voix d'homme du studio + un effet de robot (cloudflare/tools/voice-studio/serveur.py, effet_robot) dont la force suit l'humeur choisie (Neutre, Joyeux, Énergique, Dramatique, Calme, Mystérieux, En colère). Repli Piper : voix d'homme. */
+  /* Savant cynique (Norman, 2026-10-25 : « une voix qui ressemble à celle de Rick dans Rick & Morty ») : PAS un clone de l'acteur ; extrait fabriqué depuis la voix d'homme du studio, plus grave, traînante, nasale et rauque (creer_voix_savant.py). Repli Piper : voix d'homme. */
+  {id:'savant',nom:'Savant cynique',genre:'homme',alias:['savant-cynique','scientifique','vieux savant']},
   {id:'robot',nom:'Robot',genre:'homme',alias:['androide','Androïde','machine']},
   {id:'chinois1',nom:'Chinois 1',genre:'homme',alias:['chinois-1','Chinois 1','chinois']},
   {id:'chinois2',nom:'Chinois 2',genre:'homme',alias:['chinois-2','Chinois 2']},

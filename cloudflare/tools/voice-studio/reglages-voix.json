@@ -11,5 +11,9 @@
     "effet": "robot",
     "exaggeration": 0.5,
     "cfg": 0.45
+  },
+  "savant": {
+    "exaggeration": 0.7,
+    "cfg": 0.3
   }
 }
