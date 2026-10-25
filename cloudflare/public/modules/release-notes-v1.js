@@ -34,6 +34,7 @@
           {menu:'general', titre:'Général', points:[
             'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
             'Le son de défaite joué à l’envers part maintenant en même temps que le rembobinage de l’image (il était prêt trop tard) ; le chœur d’anges est un peu plus court.',
+            'Équiper ou retirer une pièce qui donne du cap d’énergie ou de magie : quand l’énergie (ou la magie) que tu as placée l’empêche, un bandeau rouge te dit combien libérer. Avant, le refus ne s’affichait pas.',
             'Quand tu meurs et que ton image réapparaît en fondu d’ouverture, un chœur d’anges (« aaaaah ») accompagne le fondu.',
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',

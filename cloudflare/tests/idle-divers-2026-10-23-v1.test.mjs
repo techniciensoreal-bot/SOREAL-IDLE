@@ -191,3 +191,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const a = lire("cloudflare/public/modules/audio-effects-v199.js");
   assert.ok(a.includes("function attendreDefaite_(depart)") && a.includes("dernierTempsDefaite=Date.now()"));
 }
+
+// Refus d'équiper faute de cap libre : bandeau visible, le toast restant muet (2026-10-25).
+{
+  const i = lire("cloudflare/public/modules/ui-inventaire-v1.js");
+  assert.ok(i.includes("function annoncerRefusCapEquipementIdleV1_(message)") && i.includes("/^Libère /.test(res.message)"));
+}

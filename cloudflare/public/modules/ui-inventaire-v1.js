@@ -1414,6 +1414,26 @@
         return '';
       }
 
+      /*
+       * Refus d'équiper / retirer une pièce qui donne du cap d'énergie ou de magie (Norman, 2026-10-25 : « quand on veut équiper une pièce mais qu'il faut libérer une ressource, aucun message ne nous l'indique »). Le serveur répond bien « Libère X d'énergie avant de retirer cette pièce »,
+       * mais toastIdleV5_ reste muet (l'élément #sorealIdleToastV5 n'existe pas dans la page, voulu pour d'autres textes) : ce refus-là a donc son propre bandeau, visible 6 s.
+       */
+      function annoncerRefusCapEquipementIdleV1_(message){
+        try{
+          let t=document.getElementById('sorealIdleRefusCapV1');
+          if(!t){
+            t=document.createElement('div');
+            t.id='sorealIdleRefusCapV1';
+            t.setAttribute('role','alert');
+            t.style.cssText='position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:2147483000;max-width:min(92vw,520px);text-align:center;padding:10px 18px;border:3px solid #000;border-radius:8px;background:#3a0f0f;color:#ffd0d0;font-weight:800;box-shadow:3px 3px 0 #000;';
+            document.body.appendChild(t);
+          }
+          t.textContent='⚠️ '+String(message||'');
+          clearTimeout(t.__finV1);
+          t.__finV1=setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},6000);
+        }catch(_e){}
+      }
+
       function terminerMutationInventaireIdleV160_(tx,res,erreur){
         const courant=REG.idleInventoryMutationQueueV160[0];
         if(!courant||courant.id!==tx.id){
@@ -1489,6 +1509,8 @@
             transactionId:tx.id,
             confirmed:true
           });
+          const refusCapV1=res&&typeof res.message==='string'&&/^Libère /.test(res.message)?res.message:(erreur&&typeof erreur.message==='string'&&/^Libère /.test(erreur.message)?erreur.message:'');
+          if(refusCapV1)annoncerRefusCapEquipementIdleV1_(refusCapV1);
           toastIdleV5_(
             res&&res.message
               ?res.message
