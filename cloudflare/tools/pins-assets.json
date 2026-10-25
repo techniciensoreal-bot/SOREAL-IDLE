@@ -368,8 +368,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 425,
-  "sha": "def96b788ab3186e23db96044145dff0f636cb06"
+  "pin": 426,
+  "sha": "93f9e15117eead1620ecc16a35c4ba0382bfac5d"
  },
  "/modules/runtime.js": {
   "pin": 3,
