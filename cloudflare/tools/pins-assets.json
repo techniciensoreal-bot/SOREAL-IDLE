@@ -4,8 +4,8 @@
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
  },
  "/modules/admin-histoires-v1.js": {
-  "pin": 22,
-  "sha": "661fe71ce21942a825e3e4bf609b9a6f94bdf2bb"
+  "pin": 23,
+  "sha": "018773034e510e3457b8e5bc9fd760ac4a0d5287"
  },
  "/modules/admin-tutoriel-v1.js": {
   "pin": 2,
@@ -44,8 +44,8 @@
   "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 265,
-  "sha": "02e6bf30734ce54af02de4afaaf0d915d369ab74"
+  "pin": 266,
+  "sha": "aa2bf2e80ce4df7e12f0e67ade4cb304793c3e4d"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -456,8 +456,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 256,
-  "sha": "ddec591cac5e29dc290e178ca196539021b18682"
+  "pin": 257,
+  "sha": "742ea0eaf9e851342010fc6a63a573d13ce1656c"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 6,
@@ -572,8 +572,8 @@
   "sha": "79ebafe5b8ae109d2af7f86bde39a347df9cf053"
  },
  "/modules/voix-expressions-v1.js": {
-  "pin": 1,
-  "sha": "09d1e5949c9f7905e5b1a47f277e1e5214a36123"
+  "pin": 2,
+  "sha": "34b08b87dd00937fa276bd037ff82353eb88bfa9"
  },
  "/modules/voix-nommees-v1.js": {
   "pin": 6,
