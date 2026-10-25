@@ -564,8 +564,8 @@
   "sha": "67e43158223d1a3a2ec900659ec20bf52594661c"
  },
  "/modules/valise-v1.js": {
-  "pin": 55,
-  "sha": "7125121e944f636580945d349db255a07eacedb0"
+  "pin": 56,
+  "sha": "a0aee5de6f2c82993d41e8ad3f4242f5e0eb9791"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 6,
@@ -584,8 +584,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 54,
-  "sha": "4fb970e3b16c3348dd8165b4b74a9179ad0a5c72"
+  "pin": 55,
+  "sha": "45cd2e6c08cdd97827624bf79adf744805cbd303"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
