@@ -21,8 +21,8 @@ const fn = ui.slice(ui.indexOf("function chroniquesOngletsIdleV1_(j){"), ui.inde
 assert.ok(fn.includes("j.bestiaire&&j.bestiaire.debloquee") && fn.includes("j.classement&&j.classement.debloque") && fn.includes("menuSuccesVisibleIdleV1_(j)"), "chaque onglet garde son verrou d'origine");
 const onglets = new Function("menuSuccesVisibleIdleV1_", fn + "\nreturn chroniquesOngletsIdleV1_;")((j) => Boolean(j.succes));
 assert.deepEqual(onglets({}).map((o) => o.id), [], "rien de débloqué : aucun onglet (anti-spoil)");
-assert.deepEqual(onglets({ classement: { debloque: true } }).map((o) => o.id), ["classement"]);
-assert.deepEqual(onglets({ bestiaire: { debloquee: true }, classement: { debloque: true }, succes: true }).map((o) => o.id), ["bestiaire", "classement", "succes"]);
+assert.deepEqual(onglets({ classement: { debloque: true } }).map((o) => o.id), ["classement", "cinematiques"]);
+assert.deepEqual(onglets({ bestiaire: { debloquee: true }, classement: { debloque: true }, succes: true }).map((o) => o.id), ["bestiaire", "classement", "succes", "cinematiques"]);
 assert.ok(ui.includes("onglets.length>1\n          ?'<div class=\"soreal-idle-chroniques-onglets-v1\""), "pas de barre d'onglets pour un seul onglet");
 
 // L'habillage suit l'onglet affiché ; les anciens identifiants ouvrent Chroniques.

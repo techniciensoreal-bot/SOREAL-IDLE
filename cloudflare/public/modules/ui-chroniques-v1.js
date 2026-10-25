@@ -227,6 +227,8 @@
         if(j.bestiaire&&j.bestiaire.debloquee)liste.push({nom:'Collection',icon:'🏆',id:'bestiaire'});
         if(j.classement&&j.classement.debloque)liste.push({nom:'Classement',icon:'📊',id:'classement'});
         if(menuSuccesVisibleIdleV1_(j))liste.push({nom:'Succès',icon:'🎖️',id:'succes'});
+        /* Cinématiques : jamais seule (elle ne doit pas faire apparaître le menu Chroniques d'un joueur qui n'a encore rien découvert). */
+        if(liste.length)liste.push({nom:'Cinématiques',icon:'🎬',id:'cinematiques'});
         return liste;
       }
 
@@ -240,6 +242,25 @@
       function menuStyleIdleV1_(j){
         return REG.idleMenuActifV28==='chroniques'?(chroniquesOngletActifIdleV1_(j)||'bestiaire'):REG.idleMenuActifV28;
       }
+
+      /*
+       * Cinématiques (Norman, 2026-10-25 : « on doit pouvoir revoir les cinématiques ; tout le monde doit pouvoir revoir l'intro ; d'autres scènes viendront » + « avec la première image en aperçu »). Une carte par scène : l'aperçu est la première image, un clic la rejoue sans rien
+       * marquer comme vu, et le serveur est prévenu (action watchCinematic) pour que « En direct » dise qui regarde quoi. Pour une nouvelle scène : ajouter une entrée ici ET son code dans IDLE_CINEMATIQUES_V1 (idle-ngu-actions.js) et sa phrase dans flux-v1.js.
+       */
+      const CINEMATIQUES_V1=[{id:'intro',nom:'L’intro',sous:'Le commencement',lancer:function(){return typeof window.__rejouerIntroIdleV1__==='function'&&window.__rejouerIntroIdleV1__();},apercu:function(){const d=window.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__;try{return d&&typeof d.url==='function'?d.url(0):'';}catch(_e){return '';}}}];
+      function pageCinematiquesIdleV1_(){
+        return '<div class="soreal-idle-cine-v1">'+CINEMATIQUES_V1.map(function(c){
+          const img=c.apercu();
+          return '<button type="button" class="soreal-idle-cine-carte-v1" data-cine="'+c.id+'" onclick="window.__rejouerCinematiqueIdleV1__(this.dataset.cine)">'+
+            '<span class="cine-apercu-v1">'+(img?'<img alt="" decoding="async" draggable="false" src="'+img+'">':'')+'<span class="cine-play-v1" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg></span></span>'+
+            '<b>'+c.nom+'</b><em>'+c.sous+'</em></button>';
+        }).join('')+'</div>';
+      }
+      window.__rejouerCinematiqueIdleV1__=function(id){
+        const c=CINEMATIQUES_V1.find(function(x){return x.id===id;});
+        if(!c||!c.lancer())return;
+        try{const f=window.__actionMetaIdleV130__;if(typeof f==='function')f({action:'watchCinematic',id:id});}catch(_e){}
+      };
 
       function pageChroniquesIdleV1_(j){
         const onglets=chroniquesOngletsIdleV1_(j);
@@ -256,6 +277,7 @@
         let contenu='';
         if(actif==='bestiaire')contenu=pageBestiaireIdleV110_(j);
         else if(actif==='classement')contenu=pageClassementIdleV1_(j);
+        else if(actif==='cinematiques')contenu=pageCinematiquesIdleV1_();
         else contenu=pageSystemeMetaIdleV130_(j,'achievements','Achievements');
         return barre+contenu;
       }

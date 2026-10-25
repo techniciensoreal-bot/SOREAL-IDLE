@@ -2259,6 +2259,15 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 .soreal-idle-chroniques-onglet-v1[data-onglet="bestiaire"]{--ong:#5b8def}
 .soreal-idle-chroniques-onglet-v1[data-onglet="classement"]{--ong:#38a3f5}
 .soreal-idle-chroniques-onglet-v1[data-onglet="succes"]{--ong:#22c8e0}
+.soreal-idle-chroniques-onglet-v1[data-onglet="cinematiques"]{--ong:#7a8cf0}
+.soreal-idle-cine-v1{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:6px 2px}
+.soreal-idle-cine-carte-v1{display:flex;flex-direction:column;gap:4px;padding:8px;border:1px solid rgba(120,160,255,.35);border-radius:14px;background:rgba(14,22,48,.6);color:#d6e3ff;cursor:pointer;text-align:left;font-family:inherit}
+.soreal-idle-cine-carte-v1:hover{border-color:rgba(160,190,255,.8);background:rgba(24,36,76,.7)}
+.soreal-idle-cine-carte-v1 b{font-size:15px}.soreal-idle-cine-carte-v1 em{font-style:normal;font-size:12px;color:#9fb4e0}
+.cine-apercu-v1{position:relative;display:block;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000}
+.cine-apercu-v1 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cine-play-v1{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center}
+.cine-play-v1 svg{width:22px;height:22px;margin-left:2px}
 .soreal-idle-chroniques-onglet-v1 i{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
 .soreal-idle-chroniques-onglet-v1 b{font-weight:900;line-height:1.1;white-space:nowrap}
 .soreal-idle-chroniques-onglet-v1:active{transform:scale(.97)}

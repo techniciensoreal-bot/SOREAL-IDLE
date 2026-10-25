@@ -338,6 +338,73 @@
         const connue=(c.zones||[]).some(function(z){return Number(z.id)===Number(d.zoneId);});
         return {icone:'⚔️',texte:connue&&d.zoneNom?nom+verbe(' farmes',' farme')+' dans '+d.zoneNom:nom+verbe(' farmes',' farme')+' en Aventure'};
       }
+      /*
+       * Progrès des autres systèmes (Norman, 2026-10-25 : « ça ne parle jamais de la Machine temporelle, de Wandoos, de NGU, des Mineurs d'or ; ITOPOD pourrait donner l'étage où sont les autres ; l'Entraînement avancé… ça doit être vivant »). Un niveau ou un étage n'est
+       * jamais un spoil, mais la phrase n'existe que pour un lecteur qui possède déjà ce menu (anti-spoil, règle n°2) ; plusieurs variantes par système, choisies d'après l'événement.
+       */
+      /* Une cinématique revue depuis Chroniques > Cinématiques : code 1 = l'intro. Aucune phrase pour un lecteur qui n'a pas le menu Chroniques (anti-spoil). */
+      case 'cinematique':{
+        if(!k.menus.chroniques)return null;
+        const scene=Number(d.id)===1?'l’intro':'une cinématique',v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tu revois '+scene,'Tu retournes voir '+scene+' dans les Chroniques']:[nom+' regarde '+scene,nom+' revoit '+scene+' dans les Chroniques',nom+' s’offre une séance de cinéma : '+scene];
+        return {icone:'🎬',texte:l[v%l.length]};
+      }
+      case 'tm':{
+        if(!k.menus.machine)return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        const vitesse=d.quoi!=='or';
+        const lui=vitesse
+          ?[nom+' pousse la vitesse de la Machine temporelle au niveau '+n,nom+' remonte le temps de plus en plus vite : Machine temporelle, niveau '+n,'La Machine temporelle de '+nom+' tourne au niveau '+n+' de vitesse']
+          :[nom+' fait cracher de l’or à la Machine temporelle : niveau '+n,'La Machine temporelle de '+nom+' rapporte plus d’or, niveau '+n,nom+' remonte le temps pour l’or : niveau '+n];
+        const toi=vitesse
+          ?['Tu pousses la vitesse de ta Machine temporelle au niveau '+n,'Ta Machine temporelle tourne au niveau '+n+' de vitesse']
+          :['Ta Machine temporelle rapporte plus d’or : niveau '+n,'Tu fais cracher de l’or à ta Machine temporelle : niveau '+n];
+        const l=it.moi?toi:lui;
+        return {icone:'⏱️',texte:l[v%l.length]};
+      }
+      case 'wandoosOs':{
+        if(!k.menus.wandoos)return null;
+        const v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tu changes de système sur Wandoos','Tu réinstalles Wandoos, la nostalgie en plus']:[nom+' change de système sur Wandoos',nom+' réinstalle Wandoos, la nostalgie en plus',nom+' a fini par installer un autre Wandoos'];
+        return {icone:'💻',texte:l[v%l.length]};
+      }
+      case 'wandoos':{
+        if(!k.menus.wandoos)return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tu fais ronronner Wandoos : '+n+' niveaux','Wandoos avale ton énergie : '+n+' niveaux']:[nom+' fait ronronner Wandoos : '+n+' niveaux','Wandoos de '+nom+' avale de l’énergie : '+n+' niveaux',nom+' envoie Wandoos à '+n+' niveaux'];
+        return {icone:'💻',texte:l[v%l.length]};
+      }
+      case 'ngu':{
+        if(!k.menus.ngu)return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        if(d.debut)return {icone:'♾️',texte:it.moi?'Tu lances tes premiers NGU':nom+' lance ses premiers NGU'};
+        const l=it.moi?['Tes NGU progressent : ton meilleur est au niveau '+n,'Ton meilleur NGU atteint le niveau '+n]:[nom+' fait grandir ses NGU : le meilleur est au niveau '+n,'Le meilleur NGU de '+nom+' atteint le niveau '+n,nom+' bichonne ses NGU, niveau '+n+' pour le plus avancé'];
+        return {icone:'♾️',texte:l[v%l.length]};
+      }
+      case 'diggers':{
+        if(!k.menus.diggers)return null;
+        const n=Math.max(1,Math.floor(Number(d.actifs)||1)),v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tu mets un Mineur d’or de plus au travail ('+n+' en tout)','Tes Mineurs d’or sont '+n+' à creuser']:[nom+' met un Mineur d’or de plus au travail ('+n+' en tout)','Ça creuse chez '+nom+' : '+n+' Mineurs d’or en action',nom+' embauche un Mineur d’or de plus, ils sont '+n];
+        return {icone:'⛏️',texte:l[v%l.length]};
+      }
+      case 'diggersNiveau':{
+        if(!k.menus.diggers)return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tes Mineurs d’or totalisent '+n+' niveaux','Tes Mineurs d’or creusent plus profond : '+n+' niveaux']:['Les Mineurs d’or de '+nom+' totalisent '+n+' niveaux',nom+' améliore ses Mineurs d’or : '+n+' niveaux en tout','Ça creuse de plus en plus profond chez '+nom+' : '+n+' niveaux de Mineurs d’or'];
+        return {icone:'⛏️',texte:l[v%l.length]};
+      }
+      case 'tour':{
+        if(!k.menus.tower)return null;
+        const e=Math.max(1,Math.floor(Number(d.etage)||1)),v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Tu atteins l’étage '+e+' d’ITOPOD','Tu grimpes jusqu’à l’étage '+e+' d’ITOPOD']:[nom+' atteint l’étage '+e+' d’ITOPOD',nom+' grimpe jusqu’à l’étage '+e+' d’ITOPOD','Il y a du monde à l’étage '+e+' d’ITOPOD : '+nom,nom+' arrive à l’étage '+e+' d’ITOPOD, à bout de souffle'];
+        return {icone:'🏢',texte:l[v%l.length]};
+      }
+      case 'avance':{
+        if(!k.menus.avance)return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        const l=it.moi?['Ton Entraînement avancé monte : '+n+' niveaux en tout','Tu sues à l’Entraînement avancé : '+n+' niveaux']:[nom+' pousse l’Entraînement avancé : '+n+' niveaux en tout',nom+' sue à l’Entraînement avancé : '+n+' niveaux','L’Entraînement avancé de '+nom+' atteint '+n+' niveaux'];
+        return {icone:'🏋️',texte:l[v%l.length]};
+      }
       default:return null;
     }
   }

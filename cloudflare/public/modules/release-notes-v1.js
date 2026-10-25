@@ -32,6 +32,7 @@
         date:'2026-10-25',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            '« En direct » est beaucoup plus vivant : les progrès des autres joueurs y défilent, avec plusieurs phrases différentes ; chaque phrase n’apparaît que si tu possèdes déjà le menu concerné.',
             'Réglages refaits : quatre catégories (Mon jeu, Son et image, Ma partie, Infos) au lieu d’une longue liste ; les blocs de développement et d’administrateur ne sont plus dans ce menu.',
             'Pour tout effacer, il faut maintenant taper « TOUT EFFACER » pour confirmer, afin de ne pas le faire par erreur.',
             'Sur PC, plus d’espace vide au-dessus des cadres Attaque, Défense… : le menu de gauche est au même niveau et le bandeau reste toujours visible en haut ; sur téléphone, le menu du haut ne cache plus les cadres du haut.',
@@ -52,20 +53,35 @@
             'Les compteurs de graines et de Poop sont maintenant tout en haut de la page.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'Dans « En direct », on voit maintenant les autres joueurs lancer leurs premiers NGU puis faire grandir le meilleur.',
             'NGU : côté Énergie, c’est le jour (ciel qui s’assombrit en descendant, nuages, arc-en-ciel, soleil) ; côté Magie, la nuit avec une lune d’Halloween, des aurores boréales et des chauves-souris. Sans énergie (ou sans magie) placée, le soleil (la lune) ne brille pas.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'La carte de la chronique ne s’ouvre plus toute seule à la première rencontre d’un boss : la voix lit toujours l’histoire.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'Dans « En direct », on voit maintenant les autres joueurs changer de système d’exploitation ou le faire monter de niveaux.',
             'Synchro : l’énergie et la magie sont placées en un seul coup, donc leurs barres partent exactement ensemble ; plus de petit mouvement de recul quand tu ajoutes une grosse quantité.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Chroniques a un nouvel onglet « Cinématiques » : tout le monde peut y revoir l’intro (la première image sert d’aperçu), et « En direct » dit quand un joueur la regarde. Les prochaines scènes s’y ajouteront.',
             'Nouveau look pour Chroniques : tout en bleus de nuit, des onglets en verre qui s’allument dans la couleur de leur sous-menu, des puces et des cadres assortis (plus de jaune).',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Rituels : le « Sang collecté » et le sang dans le récipient ne comptent plus de rituel terminé tant que le moteur n’en a validé aucun (par exemple quand il te manque de l’Or) ; avant, 2 rituels fantômes s’affichaient.',
             'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Dans « En direct », on voit maintenant les autres joueurs pousser la vitesse ou l’or de leur Machine temporelle.',
+          ]},
+          {menu:'diggers', titre:'Mineurs d’or', points:[
+            'Dans « En direct », on voit maintenant les autres joueurs mettre de nouveaux mineurs au travail et les améliorer.',
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Dans « En direct », on voit maintenant à quel étage de la tour sont les autres joueurs, tous les dix étages.',
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'Dans « En direct », on voit maintenant les autres joueurs monter leur Entraînement avancé.',
           ]},
         ]
       },

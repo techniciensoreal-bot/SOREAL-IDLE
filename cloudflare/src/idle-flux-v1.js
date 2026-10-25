@@ -127,11 +127,44 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   };
   const dernierPuits = Array.isArray(puits.history) && puits.history[0] ? puits.history[0] : null;
   const dernierRoue = Array.isArray(roue.history) && roue.history[0] ? roue.history[0] : null;
+  /*
+   * Progrès des autres systèmes (Norman, 2026-10-25 : « dans En direct il y a plein de choses qu'on ne voit pas : jamais la Machine temporelle, Wandoos, NGU, les Mineurs d'or ; ITOPOD pourrait donner l'étage où sont les autres ; l'Entraînement avancé… ça doit être vivant ») :
+   * niveaux et étages lus dans l'état du joueur (jamais le détail), comparés plus bas par PALIERS (trois par dizaine) pour ne pas écrire à chaque niveau.
+   */
+  const sys = (id) => (m.systems && m.systems[id] && m.systems[id].data) || {};
+  const entier = (v) => Math.max(0, Math.floor(N(v, 0)));
+  const tm = sys("timeMachine");
+  const tmVitesse = entier(tm.speedLevel);
+  const tmOr = entier(tm.goldLevel);
+  const wd = sys("wandoos");
+  const wandoosOs = String(wd.os || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 12);
+  const wandoosNiveau = entier(wd.dumpEnergyLevel) + entier(wd.dumpMagicLevel);
+  const nguD = sys("ngu");
+  const nguListe = Object.values((nguD.ngus && nguD.ngus[nguD.tier || "normal"]) || {});
+  const nguTotal = nguListe.reduce((t, x) => t + entier(x && x.level), 0);
+  const nguMax = nguListe.reduce((t, x) => Math.max(t, entier(x && x.level)), 0);
+  const diggersListe = Object.values(sys("diggers").diggers || {});
+  const diggersActifs = diggersListe.filter((x) => x && x.active).length;
+  const diggersNiveaux = diggersListe.reduce((t, x) => t + Math.max(entier(x && x.maxLevel), entier(x && x.runLevel)), 0);
+  const tourEtage = entier(sys("tower").highestFloor);
+  const avanceNiveaux = Object.values(sys("advancedTraining").tracks || {}).reduce((t, x) => t + Math.max(entier(x && x.level), entier(x && x.tempLevel)), 0);
   const puitsAt = Math.max(0, Math.floor(N(puits.lastTossAt, 0)));
   const puitsJet = dernierPuits ? { cout: Math.max(0, N(dernierPuits.cost, 0)), recompense: recompenseSure(dernierPuits.reward), boost: Boolean(dernierPuits.boost) } : null;
   const roueN = Math.max(0, Math.floor(N(roue.totalSpins, 0)));
   const roueJet = dernierRoue ? { recompense: recompenseSure(dernierRoue.reward) } : null;
   return {
+    tmVitesse,
+    tmOr,
+    wandoosOs,
+    wandoosNiveau,
+    nguTotal,
+    nguMax,
+    diggersActifs,
+    diggersNiveaux,
+    tourEtage,
+    avanceNiveaux,
+    cinematiques: entier(m.records && m.records.cinematiquesVues),
+    cinematiqueDerniere: entier(m.records && m.records.cinematiqueDerniere),
     nukes,
     nukeDernier,
     boostCube,
@@ -245,6 +278,20 @@ export function evenementsV1(avant, apres, noms = {}) {
     const id = Object.keys(apres.rituels).find((k) => apres.rituels[k] > N(avant.rituels[k], 0));
     if (id) ev.push({ type: "rituel", donnees: { id } });
   }
+  /* Progrès des systèmes : un événement par PALIER franchi (trois par dizaine à partir de 10) ; jamais au tout premier instantané (champ absent). */
+  const palier = (n) => (N(n, 0) < 10 ? 0 : Math.floor(3 * Math.log10(N(n, 0))));
+  const monte = (cle) => Number.isFinite(avant[cle]) && palier(apres[cle]) > palier(avant[cle]);
+  if (monte("tmVitesse")) ev.push({ type: "tm", donnees: { quoi: "vitesse", n: apres.tmVitesse } });
+  else if (monte("tmOr")) ev.push({ type: "tm", donnees: { quoi: "or", n: apres.tmOr } });
+  if (typeof avant.wandoosOs === "string" && avant.wandoosOs && apres.wandoosOs && apres.wandoosOs !== avant.wandoosOs) ev.push({ type: "wandoosOs", donnees: { os: apres.wandoosOs } });
+  else if (monte("wandoosNiveau")) ev.push({ type: "wandoos", donnees: { n: apres.wandoosNiveau } });
+  if (Number.isFinite(avant.nguTotal) && avant.nguTotal === 0 && apres.nguTotal > 0) ev.push({ type: "ngu", donnees: { debut: true, n: apres.nguMax } });
+  else if (monte("nguTotal")) ev.push({ type: "ngu", donnees: { n: apres.nguMax, total: apres.nguTotal } });
+  if (Number.isFinite(avant.diggersActifs) && apres.diggersActifs > avant.diggersActifs) ev.push({ type: "diggers", donnees: { actifs: apres.diggersActifs } });
+  else if (monte("diggersNiveaux")) ev.push({ type: "diggersNiveau", donnees: { n: apres.diggersNiveaux } });
+  if (Number.isFinite(avant.tourEtage) && apres.tourEtage > avant.tourEtage && Math.floor(apres.tourEtage / 10) > Math.floor(avant.tourEtage / 10)) ev.push({ type: "tour", donnees: { etage: apres.tourEtage } });
+  if (Number.isFinite(avant.cinematiques) && apres.cinematiques > avant.cinematiques && apres.cinematiqueDerniere > 0) ev.push({ type: "cinematique", donnees: { id: apres.cinematiqueDerniere } });
+  if (monte("avanceNiveaux")) ev.push({ type: "avance", donnees: { n: apres.avanceNiveaux } });
   if (apres.rebirths > avant.rebirths) ev.push({ type: "rebirth", donnees: apres.dureeRun > 0 ? { n: apres.rebirths, duree: apres.dureeRun } : { n: apres.rebirths } });
   return ev.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1);
 }

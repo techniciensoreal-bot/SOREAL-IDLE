@@ -593,6 +593,9 @@ function baseState(now) {
       speedrunBonusClaimed: 0,
       /* Secret « coin en bas à droite de l'Entraînement avancé » (0/1) : posé par l'action cornerClick. */
       cornerClicked: 0,
+      /* Cinématiques revues depuis Chroniques (Norman, 2026-10-25) : nombre de visionnages et code de la dernière (1 = l'intro) ; « En direct » annonce quand quelqu'un en regarde une. */
+      cinematiquesVues: 0,
+      cinematiqueDerniere: 0,
       /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
       portrait: "default",
       specialPrizeClaimed: 0,

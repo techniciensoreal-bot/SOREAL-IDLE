@@ -29,6 +29,9 @@ import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentation
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 
+/* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
+export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
+
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
   const state = syncIdleNguState(raw, context, t);
@@ -302,6 +305,12 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     /* Secret « Clicked the bottom right corner of the Advanced Training menu » : le caca n'existe à l'écran qu'avec Wandoos, on refuse sinon. */
     if (!state.systems.wandoos?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     state.records.cornerClicked = 1;
+  } else if (action === "watchCinematic") {
+    /* Visionnage d'une cinématique (Chroniques > Cinématiques) : compteur et code de la dernière, lus par « En direct » (idle-flux-v1.js). Codes : intro = 1 ; les prochaines scènes prennent les numéros suivants. */
+    const code = IDLE_CINEMATIQUES_V1[String(payload.id || "")];
+    if (!code) throw new Error("CINEMATIQUE_INCONNUE");
+    state.records.cinematiquesVues = Math.max(0, num(state.records.cinematiquesVues, 0)) + 1;
+    state.records.cinematiqueDerniere = code;
   } else if (action === "towerFloors") {
     result = towerSetFloorsV1(state, payload);
   } else if (action === "toggle") {

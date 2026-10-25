@@ -440,7 +440,7 @@
       function demarrerTutorielPagesIdleV1_(pages,cle,options){
         if(!ancienTutorielPermisIdleV1_()&&!(options&&options.toujours))return;
         if(!Array.isArray(pages)||!pages.length)return;
-        if(idleTutorielPagesDejaVuV1_(cle))return;
+        if(idleTutorielPagesDejaVuV1_(cle)&&!(options&&options.rejeu))return;
 
         /*
          * Déjà en cours (Norman, 2026-09-26 : « j'ai cliqué sur Shop sans fermer le popup Récompenses : il est reparti de Norman & Sébastien ») :
@@ -451,7 +451,7 @@
           return;
         }
 
-        REG.idleTutorielPagesEnCoursV1={pages:pages,index:0,cle:cle};
+        REG.idleTutorielPagesEnCoursV1={pages:pages,index:0,cle:cle,rejeu:Boolean(options&&options.rejeu)};
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-126 */
         if(pages[0]&&pages[0].long&&REG.idleEtat&&REG.idleEtat.combatBossActif){
@@ -463,16 +463,27 @@
         rendreTutorielPagesIdleV1_();
       }
 
+      /*
+       * Revoir l'intro (Norman, 2026-10-25 : « dans Chroniques, on doit pouvoir revoir les cinématiques ; pour le moment il y a l'intro ; tout le monde doit pouvoir la revoir »). Même page « Le commencement » qu'au début d'une partie, rejouée sans rien marquer comme vu
+       * (le drapeau « rejeu » saute le test « déjà vu » et la marque de fin).
+       */
+      function rejouerIntroIdleV1_(){
+        if(!REG.TUTORIEL_DEBUT_JEU_PAGES_V1||!REG.TUTORIEL_DEBUT_JEU_PAGES_V1.length)return false;
+        demarrerTutorielPagesIdleV1_(REG.TUTORIEL_DEBUT_JEU_PAGES_V1.slice(0,1),'soreal_idle_rejeu_intro_v1',{toujours:true,rejeu:true});
+        return true;
+      }
+      window.__rejouerIntroIdleV1__=rejouerIntroIdleV1_;
+
       function tutorielPagesFermerV1_(){
         const etat=REG.idleTutorielPagesEnCoursV1;
-        if(etat)idleTutorielPagesMarquerVuV1_(etat.cle);
+        if(etat&&!etat.rejeu)idleTutorielPagesMarquerVuV1_(etat.cle);   /* un rejeu (Chroniques > Cinématiques) ne marque jamais rien comme vu */
         /*
          * Norman (2026-09-27) : « Si on ne termine pas l'introduction complète, elle sera rejouée au prochain
          * lancement du jeu depuis le début ». « Bienvenue » (le flag qui empêche gererPopupsProgressionIdleV75_
          * de relancer l'intro) n'est donc marqué ICI, qu'une fois le tutoriel de début réellement fermé -- jamais
          * dès son ouverture -- pour que quitter en plein milieu la rejoue depuis le début.
          */
-        if(etat&&etat.pages&&etat.pages[0]===REG.TUTORIEL_DEBUT_JEU_PAGES_V1[0]&&REG.idleEtat){
+        if(etat&&!etat.rejeu&&etat.pages&&etat.pages[0]===REG.TUTORIEL_DEBUT_JEU_PAGES_V1[0]&&REG.idleEtat){
           const cleBienvenue='soreal_idle_bienvenue_v75_'+generationJoueurIdleV75_(REG.idleEtat);
           try{localStorage.setItem(cleBienvenue,JSON.stringify(true));}catch(e){}
           idleVuMarquerV1_('bienvenue');
