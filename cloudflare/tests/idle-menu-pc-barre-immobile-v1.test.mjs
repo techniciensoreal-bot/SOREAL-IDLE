@@ -5,5 +5,5 @@ import { readFileSync } from "node:fs";
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 assert.ok(css.includes(".soreal-idle-native-v4{padding-bottom:0!important}"), "plus de marge basse sur le conteneur (elle raccourcissait la zone de la barre)");
 assert.ok(css.includes(".soreal-idle-native-v4>.soreal-idle-page-root-v28{margin-bottom:110px;min-height:calc(100vh - 200px)}"), "marge du bas et hauteur minimale sur la page");
-assert.ok(css.includes("position:sticky;top:12px"), "barre collée");
+assert.ok(css.includes("position:sticky;top:0"), "barre collée");
 console.log("idle-menu-pc-barre-immobile-v1: OK");

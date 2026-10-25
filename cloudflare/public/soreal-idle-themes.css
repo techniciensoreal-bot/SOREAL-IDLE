@@ -1522,8 +1522,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
    * La liste n'a plus de hauteur maximale ni de défilement propre (c'était lui qui faisait apparaître et disparaître une barre dès que la hauteur variait) : elle suit la page, qui défile normalement.
    */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
-    /* Jusqu'en HAUT (Norman, 2026-10-25 : « sur PC, la barre latérale des menus doit aller jusqu'en haut, même quand on remonte le menu ouvert jusqu'en haut ; elle s'arrête sous la barre de vie ») : colonne de gauche dès la 1ʳᵉ rangée, collée au bord haut. */
     grid-column:1;grid-row:1 / span 60;align-self:start;
+    /* Jusqu'en HAUT (Norman, 2026-10-25 : « sur PC, la barre latérale des menus doit aller jusqu'en haut, même quand on remonte le menu ouvert jusqu'en haut ; elle s'arrête sous la barre de vie ») : colonne de gauche dès la 1ʳᵉ rangée, collée au bord haut. */
     position:sticky;top:0;margin:0 0 14px!important;
     display:flex!important;flex-direction:column;
     gap:8px!important;padding:10px!important;

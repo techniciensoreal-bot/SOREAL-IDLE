@@ -35,5 +35,5 @@ assert.ok(css.includes(".soreal-idle-boss-fiche-image-v1{") && css.includes("hei
 console.log("idle-menus-couleurs-shop-images-pc-v1: OK (" + menus.length + " menus, " + vus.size + " couleurs)");
 
 // 5. Boutons du menu entièrement teintés de leur couleur, plus vifs une fois ouverts (Norman, 2026-10-05).
-assert.ok(css.includes(".soreal-idle-nav-button-v28:not(.active):not([data-menu-id-v1=\"shop\"]):not(.soreal-idle-nav-dispo-v1):not(.soreal-idle-nav-adventure-ko-v1){") && css.includes("linear-gradient(160deg,color-mix(in srgb,var(--c1) 42%,#0a0a14)"), "fond teinté de la couleur du menu");
-assert.ok(css.includes(".soreal-idle-nav-button-v28.active:not([data-menu-id-v1=\"shop\"]){") && css.includes("0 0 22px 2px var(--c1)"), "menu ouvert : couleur pleine et lueur");
+assert.ok(css.includes(".soreal-idle-nav-button-v28:not(.active):not([data-menu-id-v1=\"shop\"]):not(.soreal-idle-nav-dispo-v1):not(.soreal-idle-nav-adventure-ko-v1){") && css.includes("linear-gradient(160deg,color-mix(in srgb,var(--c1) 26%,#0c0c18)"), "fond teinté de la couleur du menu");
+assert.ok(css.includes(".soreal-idle-nav-button-v28.active:not([data-menu-id-v1=\"shop\"]){") && css.includes("box-shadow:0 0 14px color-mix(in srgb,var(--c1) 45%,transparent);"), "menu ouvert : même dégradé plus clair et lueur douce (2026-10-25)");
