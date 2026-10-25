@@ -76,8 +76,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 4,
-  "sha": "7b14d729e060b81a14ba89aefa3a5f8287f6fe7d"
+  "pin": 5,
+  "sha": "eb2ac51fddb9cdc6d5db6c4e0c02d1ae1da60b9a"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -436,12 +436,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 452,
+  "pin": 451,
   "sha": "9d126b04cd669e3763dafca4d78639f47bd7793f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 248,
-  "sha": "6159f7e26944266924db72083d614765fb02d9e7"
+  "pin": 249,
+  "sha": "1ae53c7b77c857c75390422ac42bd807094b863f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -476,8 +476,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 7,
-  "sha": "a95392f78c7929a5cc589e4f55e8e7ea5f83e1c4"
+  "pin": 8,
+  "sha": "95b4fa0d28b720ad9480877d564acc752d30f84d"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 25,
