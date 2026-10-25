@@ -34,7 +34,7 @@
           {menu:'general', titre:'Général', points:[
             'Réglages refaits : quatre catégories (Mon jeu, Son et image, Ma partie, Infos) au lieu d’une longue liste ; les blocs de développement et d’administrateur ne sont plus dans ce menu.',
             'Pour tout effacer, il faut maintenant taper « TOUT EFFACER » pour confirmer, afin de ne pas le faire par erreur.',
-            'Sur PC, plus d’espace vide au-dessus des cadres Attaque, Défense…, le menu de gauche est au même niveau et rien ne bouche plus la page ; sur téléphone, le menu du haut ne cache plus les cadres du haut.',
+            'Sur PC, plus d’espace vide au-dessus des cadres Attaque, Défense… : le menu de gauche est au même niveau et le bandeau reste toujours visible en haut ; sur téléphone, le menu du haut ne cache plus les cadres du haut.',
             'Les informations entre parenthèses des chroniques de boss (une nouveauté débloquée, par exemple) s’affichent maintenant en notification, comme les trophées, avec leur propre son, dès que tu atteins le boss concerné.',
             'Toutes les notifications restent un peu plus longtemps à l’écran.',
             'Sur PC, la fiche d’un objet s’ouvre au-dessus de l’objet sur lequel tu as cliqué.',

@@ -2410,7 +2410,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 @media (prefers-reduced-motion:reduce){.dfi-tuile.cours{animation:none}.dfi-tuile{transition:none}}
 
 /* ====== Rien ne bouche, rien ne laisse d'espace vide (Norman, 2026-10-25) ======
- * PC : plus de marge vide au-dessus des cadres Attaque / Défense / Or…, le menu de gauche commence PILE au même niveau que ces cadres ; ni le bandeau ni le menu ne bouchent la page (le bandeau n'est plus collé, le menu garde son défilement propre à la molette).
+ * PC : plus de marge vide au-dessus des cadres Attaque / Défense / Or…, le menu de gauche commence PILE au même niveau que ces cadres ; le bandeau reste TOUJOURS visible et suit le défilement (collé tout en haut, Norman 2026-10-25 : « cette barre est supposée être toujours visible »), le menu garde son défilement propre à la molette.
  * Téléphone et tablette : le menu du haut n'est plus collé (il cachait les cadres EXP, AP… et la moitié de la barre d'énergie) ; seules les barres restent collées, tout en haut. */
 @media (max-width:1099px){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{position:static}
@@ -2418,6 +2418,6 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 }
 @media (min-width:1100px) and (hover:hover) and (pointer:fine), (min-width:1500px) and (min-height:800px){
   body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-top:0}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{position:static;margin:0 0 10px;padding:0 0 4px;box-shadow:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{position:sticky;top:0;margin:0 0 10px;padding:0 0 4px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2>.soreal-idle-summary-grid-v28{margin-top:0}
 }
