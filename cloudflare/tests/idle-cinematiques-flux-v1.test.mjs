@@ -23,3 +23,10 @@ for (const t of ['tm', 'wandoosOs', 'wandoos', 'ngu', 'diggers', 'diggersNiveau'
   assert.ok(flux.includes("case '" + t + "'"), 'phrase client ' + t);
 }
 console.log('ok idle-cinematiques-flux-v1');
+
+// Coffre : la hauteur fermée retenue est la VRAIE (jamais celle forcée par l'animation) ; mesurée avant ferme-anim ; connue dès l'ouverture
+const av = lire('public/modules/ui-aventure-2-v1.js');
+assert.ok(av.includes("nr.style.removeProperty('height');nr.style.removeProperty('overflow');\r\n") || av.includes("nr.style.removeProperty('height');nr.style.removeProperty('overflow');\n"));
+assert.ok(av.indexOf('fermeMesure=racines[0]') < av.indexOf("r.classList.add('ferme-anim')"), 'mesure avant la classe');
+assert.ok(av.includes('if(hAvant>0)window.__coffreHFermeV1=hAvant;'));
+console.log('ok coffre hauteur fermee');
