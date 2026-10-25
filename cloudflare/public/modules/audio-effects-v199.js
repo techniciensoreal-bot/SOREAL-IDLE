@@ -1191,9 +1191,28 @@
    * ligne (master retiré le temps de la construction : les constructeurs écrivent alors vers la destination du contexte hors ligne), rendu, retourné échantillon par échantillon, puis joué tout de suite (pas de file d'attente : il
    * accompagne l'image), avec un souffle de rembobinage qui monte et quelques claquements de bande.
    */
+  /* Le rendu hors ligne prend du temps : il est LANCÉ dès le début du rembobinage (defeatReversePrepare) pour que le son parte au bon instant, pas après l'image (Norman, 2026-10-25 : « le son se joue à l'envers trop tard »). */
+  var inversePrete=null;
+  function preparerInverse_(){
+    inversePrete=construireInverse_();
+    return true;
+  }
   function defaiteInverse_(){
+    var prete=inversePrete;inversePrete=null;
+    return (prete||construireInverse_()).then(function(r){
+      if(!r)return false;
+      var c=r.c,buf=r.buf;
+      var src=c.createBufferSource();src.buffer=buf;
+      var g=c.createGain();g.gain.value=1;
+      src.connect(g);g.connect(master||c.destination);src.start(0,.12);   /* saute le début quasi muet (queue de réverbération retournée) */
+      bruit_(c,{duration:1.15,volume:.05,frequency:1800,frequencyEnd:5200,decay:.6,filterType:"bandpass"});
+      for(var i=0;i<6;i+=1)bruit_(c,{duration:.05,volume:.05,frequency:3000,frequencyEnd:800,decay:3,delay:i*.18,filterType:"bandpass"});
+      return true;
+    });
+  }
+  function construireInverse_(){
     return reveiller_().then(function(c){
-      if(!c||typeof OfflineAudioContext!=="function")return false;
+      if(!c||typeof OfflineAudioContext!=="function")return null;
       var son=SONS_DEFAITE.filter(function(s){return s.nom===dernierSonDefaite;})[0]||SONS_DEFAITE[0];
       var sr=Math.max(22050,Number(c.sampleRate)||44100);
       var off=new OfflineAudioContext(1,Math.ceil(sr*(son.duree/1000+.35)),sr);
@@ -1201,13 +1220,8 @@
       try{son.construire(off);}catch(_e){}finally{master=ancien;}
       return off.startRendering().then(function(buf){
         buf.getChannelData(0).reverse();
-        var src=c.createBufferSource();src.buffer=buf;
-        var g=c.createGain();g.gain.value=1;
-        src.connect(g);g.connect(master||c.destination);src.start();
-        bruit_(c,{duration:1.15,volume:.05,frequency:1800,frequencyEnd:5200,decay:.6,filterType:"bandpass"});
-        for(var i=0;i<6;i+=1)bruit_(c,{duration:.05,volume:.05,frequency:3000,frequencyEnd:800,decay:3,delay:i*.18,filterType:"bandpass"});
-        return true;
-      }).catch(function(){return false;});
+        return {c:c,buf:buf};
+      }).catch(function(){return null;});
     });
   }
   /* Bip de réapparition (Norman, 2026-10-23) : le MÊME petit « pip » à chacun des trois clignotements de l'image du joueur qui revient (modules/mort-joueur-v1.js), joué tout de suite pour rester calé sur l'image. */
@@ -1220,28 +1234,28 @@
   /*
    * Chœur d'anges (Norman, 2026-10-25 : « quand on meurt et qu'on réapparaît en fondu en ouverture, un son divin, des voix d'anges qui font aaaaah, un truc catholique ») : joué avec le fondu d'ouverture de la réapparition (modules/mort-joueur-v1.js).
    * Synthétisé, aucun fichier : un accord de ré majeur étalé sur trois octaves (avec une neuvième qui scintille), chaque voix = trois dents de scie légèrement désaccordées passées dans les trois formants d'un « a » chanté (800, 1150 et 2900 Hz),
-   * vibrato lent, entrées décalées qui gonflent ensemble (attaque 1,3 s), un souffle d'air filtré, et une grande réverbération de cathédrale (réponse impulsionnelle bruitée de 3,6 s). Durée : 5,4 s.
+   * vibrato lent, entrées décalées qui gonflent ensemble (attaque 1,3 s), un souffle d'air filtré, et une grande réverbération de cathédrale (réponse impulsionnelle bruitée de 3,6 s). Durée : 3,8 s (raccourcie le 2026-10-25 à la demande de Norman : « exactement ça, mais un peu plus court »).
    */
   function chorale_(){
-    return jouerWebAudio_(5400,function(c){
+    return jouerWebAudio_(3800,function(c){
       var sortie=master||c.destination,t0=c.currentTime+.03;
       var bus=c.createGain();bus.gain.value=1;
       /* cathédrale : réverbération par convolution d'un bruit qui s'éteint */
       var sec=c.createGain(),humide=c.createGain();sec.gain.value=.55;humide.gain.value=.85;
-      var longueur=Math.floor(c.sampleRate*3.6),ir=c.createBuffer(2,longueur,c.sampleRate);
+      var longueur=Math.floor(c.sampleRate*2.6),ir=c.createBuffer(2,longueur,c.sampleRate);
       for(var ch=0;ch<2;ch+=1){var d=ir.getChannelData(ch);for(var i=0;i<longueur;i+=1){var x=i/longueur;d[i]=(Math.random()*2-1)*Math.pow(1-x,2.6)*(x<.012?x/.012:1);}}
       var conv=c.createConvolver();conv.buffer=ir;
       bus.connect(sec);sec.connect(sortie);
       bus.connect(conv);conv.connect(humide);humide.connect(sortie);
       /* les voix : [fréquence, entrée en s, volume] — ré majeur, du grave au très aigu */
-      var VOIX=[[146.83,0,.9],[293.66,.18,1],[440,.34,.9],[587.33,.5,1],[739.99,.7,.85],[880,.9,.8],[1174.66,1.1,.55],[659.26,1.35,.4]];
+      var VOIX=[[146.83,0,.9],[293.66,.12,1],[440,.24,.9],[587.33,.36,1],[739.99,.5,.85],[880,.64,.8],[1174.66,.78,.55],[659.26,.95,.4]];
       var FORMANTS=[[800,1,9],[1150,.55,11],[2900,.22,12]];
       VOIX.forEach(function(v,k){
-        var debut=t0+v[1],fin=t0+4.6,volume=.22*v[2];
+        var debut=t0+v[1],fin=t0+3.2,volume=.22*v[2];
         var env=c.createGain();
         env.gain.setValueAtTime(.0001,debut);
-        env.gain.exponentialRampToValueAtTime(volume,debut+1.3);
-        env.gain.setValueAtTime(volume,Math.max(debut+1.3,fin-1.8));
+        env.gain.exponentialRampToValueAtTime(volume,debut+.9);
+        env.gain.setValueAtTime(volume,Math.max(debut+.9,fin-1.2));
         env.gain.exponentialRampToValueAtTime(.0001,fin);
         var tenu=c.createGain();tenu.gain.value=1;
         /* vibrato lent partagé par les trois dents de scie de la voix */
@@ -1260,12 +1274,12 @@
         env.connect(bus);
       });
       /* un souffle d'air dans la voix */
-      var n=Math.floor(c.sampleRate*5),buf=c.createBuffer(1,n,c.sampleRate),dd=buf.getChannelData(0);
+      var n=Math.floor(c.sampleRate*3.5),buf=c.createBuffer(1,n,c.sampleRate),dd=buf.getChannelData(0);
       for(var j=0;j<n;j+=1)dd[j]=Math.random()*2-1;
       var src=c.createBufferSource();src.buffer=buf;
       var bpS=c.createBiquadFilter();bpS.type="bandpass";bpS.frequency.value=2200;bpS.Q.value=.7;
-      var gS=c.createGain();gS.gain.setValueAtTime(.0001,t0);gS.gain.exponentialRampToValueAtTime(.03,t0+1.6);gS.gain.exponentialRampToValueAtTime(.0001,t0+4.8);
-      src.connect(bpS);bpS.connect(gS);gS.connect(bus);src.start(t0);src.stop(t0+5);
+      var gS=c.createGain();gS.gain.setValueAtTime(.0001,t0);gS.gain.exponentialRampToValueAtTime(.03,t0+1.1);gS.gain.exponentialRampToValueAtTime(.0001,t0+3.3);
+      src.connect(bpS);bpS.connect(gS);gS.connect(bus);src.start(t0);src.stop(t0+3.5);
     });
   }
   /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
@@ -2342,6 +2356,7 @@
     nuke:function(){return demander_("nuke");},
     defeat:function(){return demander_("defeat");},
     /* le même son de défaite, à l'envers, joué tout de suite (rembobinage VHS de la mort du joueur) */
+    defeatReversePrepare:function(){return preparerInverse_();},
     defeatReverse:function(){return defaiteInverse_();},
     reapparitionBip:function(){return reapparitionBip_();},
     chorale:function(){return chorale_();},

@@ -171,7 +171,7 @@ function jouer(hote,variante){
       if(fini)return;fini=true;enCours=false;
       if(calque.parentNode)calque.parentNode.removeChild(calque);
     }
-    var fondu=false,son=false,bips=0;
+    var fondu=false,son=false,bips=0,prepare=false;
     (function image(now){
       if(fini)return;
       if(!calque.isConnected){fini=true;enCours=false;return;}
@@ -194,6 +194,7 @@ function jouer(hote,variante){
       if(variante==='rewind'){
         if(t>=DUREE2){terminer();return;}
         dessinerRewind(c,t,pk.px,LW,LH);
+        if(!prepare){prepare=true;try{var ap=window.__SOREAL_IDLE_AUDIO_V199__;if(ap&&typeof ap.defeatReversePrepare==='function')ap.defeatReversePrepare();}catch(_e){}}   /* le rendu du son à l'envers démarre tout de suite : il sera prêt à l'instant voulu */
         if(t>=T_A+T_BRUIT*.5&&!son){son=true;try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.defeatReverse==='function')a.defeatReverse();}catch(_e){}}   /* le son de défaite, à l'envers, avec le rembobinage */
         if(t>=T_A+T_BRUIT+T_REW+T_TENUE&&!fondu){fondu=true;calque.style.transition='opacity '+T_FONDU2+'s ease-out';calque.style.opacity='0';}   /* l'image reconstituée laisse place à l'image du joueur */
         requestAnimationFrame(image);

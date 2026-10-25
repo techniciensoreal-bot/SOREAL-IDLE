@@ -178,3 +178,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(a.includes("function chorale_()") && a.includes("chorale:function(){return chorale_();}") && a.includes("createConvolver") && a.includes("[800,1,9]"));
   assert.ok(m.includes("ach.chorale()"));
 }
+
+// Son de défaite à l'envers : rendu lancé dès le début du rembobinage ; chœur raccourci (2026-10-25).
+{
+  const a = lire("cloudflare/public/modules/audio-effects-v199.js"), m = lire("cloudflare/public/modules/mort-joueur-v1.js");
+  assert.ok(a.includes("defeatReversePrepare:function(){return preparerInverse_();}") && a.includes("function construireInverse_()") && a.includes("jouerWebAudio_(3800,"));
+  assert.ok(m.includes("defeatReversePrepare") && m.includes("prepare=false"));
+}
