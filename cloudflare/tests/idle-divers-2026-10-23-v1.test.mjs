@@ -261,5 +261,5 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 // Rituels : aucun « rituel terminé » affiché (ni sang collecté, ni récipient qui se remplit) tant que le serveur n'en a validé aucun (2026-10-25).
 {
   const b = lire("cloudflare/public/modules/blood-magic-v1.js");
-  assert.ok(b.includes("const valide=Boolean(e&&((Number(e.ns)||0)>0||(Number(e.taux)||0)>0));") && b.includes("if(!valide)return 0;"));
+  assert.ok(b.includes("if(!(e&&((Number(e.ns)||0)>0||(Number(e.taux)||0)>0)))return 0;"));
 }
