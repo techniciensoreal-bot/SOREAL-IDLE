@@ -1731,7 +1731,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-tuto-tts-v2
 
 /* Comparaison de deux objets (Norman, 2026-10-20) : statistiques communes, la plus haute en vert, la plus faible en rouge (une valeur égale ou propre à un seul objet reste blanche). */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .idle-compare-bloc-v1 .soreal-idle-v138-stat-value-v1.idle-cmp-haut-v1{color:#5cf08c;text-shadow:0 0 6px rgba(60,220,110,.45)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .idle-compare-bloc-v1 .soreal-idle-v138-details-stat b .soreal-idle-v138-stat-value-v1.idle-cmp-haut-v1{color:#5cf08c;text-shadow:0 0 6px rgba(60,220,110,.45)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .idle-compare-bloc-v1 .soreal-idle-v138-stat-value-v1.idle-cmp-bas-v1{color:#ff6262;text-shadow:0 0 6px rgba(255,70,70,.4)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .idle-compare-bloc-v1 .soreal-idle-v138-details-stat b .soreal-idle-v138-stat-value-v1.idle-cmp-bas-v1{color:#ff6262;text-shadow:0 0 6px rgba(255,70,70,.4)}
 
 /* Borne : Fight clignote lentement tant qu'il attend ; Nuke jaune et noir lisible (Norman, 2026-10-20). Fuite est bleue, Nuke jaune et noir. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .soreal-idle-boss-control-v39.start:not(:disabled){animation:bnFightClignote 2.8s ease-in-out infinite}

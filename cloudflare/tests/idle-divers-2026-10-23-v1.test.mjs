@@ -204,3 +204,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(n.includes("function suffixe(rang)") && n.includes("function rangDe(texte)") && !n.includes("suffixes.length"));
   assert.ok(c.includes("for(var i=0;i<71;i+=1)UNITES.push("));
 }
+
+// Comparaison : le rouge/vert l'emporte sur le vert « maxed » du popup (2026-10-25).
+{
+  const css = lire("cloudflare/public/soreal-idle-itopod.css");
+  for (const k of ["haut", "bas"]) assert.ok(css.includes(".soreal-idle-item-popup-v1 .idle-compare-bloc-v1 .soreal-idle-v138-details-stat b .soreal-idle-v138-stat-value-v1.idle-cmp-" + k + "-v1{"));
+}
