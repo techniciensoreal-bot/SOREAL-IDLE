@@ -13,7 +13,7 @@
     "cfg": 0.45
   },
   "savant": {
-    "exaggeration": 0.6,
-    "cfg": 0.55
+    "exaggeration": 0.5,
+    "cfg": 0.5
   }
 }

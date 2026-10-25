@@ -1294,28 +1294,62 @@
     });
   }
   /*
-   * Rot (Norman, 2026-10-25, voix « Savant cynique » : « et qui peut faire des renvois ») : balise « (rot) » dans un texte lu (modules/tutorial-tts-v202.js). Synthétisé : une source voisée grave (dents de scie ~75 Hz qui descend à ~48 Hz, tremblotante comme un
-   * vrai rot), passée dans deux formants de gorge (520 et 1000 Hz), un souffle qui crépite, et une enveloppe irrégulière (poussée, plateau, retombée). 0,9 s.
+   * Rots (Norman, 2026-10-25, voix « Savant cynique » : « et qui peut faire des renvois » ; puis « améliore les rots et mets-en plusieurs différents »). Balise « (rot) » dans un texte lu (modules/tutorial-tts-v202.js) : un rot au hasard parmi cinq,
+   * ou « (petit rot) », « (gros rot) », « (rot long) », « (rot liquide) ». Synthétisés : une source voisée grave irrégulière (dents de scie dont la hauteur descend, avec un tremblement comme une glotte qui vibre mal), deux formants de gorge qui
+   * glissent, un gargouillis de souffle filtré, une enveloppe à plusieurs poussées, et pour les gros rots une fin voisée « urp » (voyelle courte). Durées (ms) : petit 700, classique 1000, liquide 1200, gros 1600, long 2000.
    */
-  function rot_(){
-    return jouerWebAudio_(900,function(c){
-      var sortie=master||c.destination,t0=c.currentTime+.02,d=.85;
+  var ROTS={
+    petit:{ms:700,d:.42,f0:[128,92],form:[[700,1,7],[1350,.5,8]],trem:[24,.35],vib:[34,9],gargouille:.025,env:[[0,.0001],[.04,.5],[.2,.4],[.42,.0001]],fin:0},
+    classique:{ms:1000,d:.85,f0:[78,48],form:[[520,1,6],[1000,.6,7]],trem:[17,.3],vib:[29,11],gargouille:.05,env:[[0,.0001],[.09,.55],[.4,.5],[.85,.0001]],fin:.2},
+    liquide:{ms:1200,d:1.05,f0:[72,52],form:[[480,1,5],[900,.7,6]],trem:[40,.55],vib:[37,13],gargouille:.17,env:[[0,.0001],[.1,.45],[.5,.42],[1.05,.0001]],fin:0},
+    gros:{ms:1600,d:1.4,f0:[60,33],form:[[420,1,5],[820,.7,6]],trem:[13,.4],vib:[21,14],gargouille:.09,env:[[0,.0001],[.14,.6],[.8,.55],[1.4,.0001]],fin:.3},
+    long:{ms:2000,d:1.75,f0:[82,42],form:[[500,1,6],[950,.65,7]],trem:[19,.4],vib:[26,12],gargouille:.07,env:[[0,.0001],[.1,.55],[.62,.5],[.8,.18],[.98,.55],[1.35,.5],[1.75,.0001]],fin:.25}
+  };
+  var NOMS_ROTS=["petit","classique","liquide","gros","long"];
+  function rot_(nom){
+    var p=ROTS[nom]||ROTS[NOMS_ROTS[Math.floor(Math.random()*NOMS_ROTS.length)]];
+    return jouerWebAudio_(p.ms,function(c){
+      var sortie=master||c.destination,t0=c.currentTime+.02,d=p.d;
       var osc=c.createOscillator();osc.type="sawtooth";
-      osc.frequency.setValueAtTime(78,t0);osc.frequency.exponentialRampToValueAtTime(48,t0+d);
-      var lfo=c.createOscillator(),prof=c.createGain();lfo.frequency.value=29;prof.gain.value=11;lfo.connect(prof);prof.connect(osc.frequency);lfo.start(t0);lfo.stop(t0+d+.05);
+      osc.frequency.setValueAtTime(p.f0[0],t0);osc.frequency.exponentialRampToValueAtTime(p.f0[1],t0+d);
+      var lfo=c.createOscillator(),prof=c.createGain();lfo.frequency.value=p.vib[0];prof.gain.value=p.vib[1];lfo.connect(prof);prof.connect(osc.frequency);lfo.start(t0);lfo.stop(t0+d+.05);
       var env=c.createGain();
-      env.gain.setValueAtTime(.0001,t0);env.gain.exponentialRampToValueAtTime(.55,t0+.09);env.gain.setValueAtTime(.5,t0+.4);env.gain.exponentialRampToValueAtTime(.0001,t0+d);
-      var tremble=c.createGain();tremble.gain.value=.8;
-      var lfo2=c.createOscillator(),prof2=c.createGain();lfo2.frequency.value=17;prof2.gain.value=.3;lfo2.connect(prof2);prof2.connect(tremble.gain);lfo2.start(t0);lfo2.stop(t0+d+.05);
+      p.env.forEach(function(pt,k){
+        if(k===0)env.gain.setValueAtTime(pt[1],t0+pt[0]);
+        else env.gain.exponentialRampToValueAtTime(Math.max(.0001,pt[1]),t0+pt[0]);
+      });
+      var tremble=c.createGain();tremble.gain.value=1-p.trem[1]/2;
+      var lfo2=c.createOscillator(),prof2=c.createGain();lfo2.frequency.value=p.trem[0];prof2.gain.value=p.trem[1]/2;lfo2.connect(prof2);prof2.connect(tremble.gain);lfo2.start(t0);lfo2.stop(t0+d+.05);
       osc.connect(tremble);
-      [[520,1,6],[1000,.6,7]].forEach(function(f){
-        var bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f[0];bp.Q.value=f[2];
+      p.form.forEach(function(f,k){
+        var bp=c.createBiquadFilter();bp.type="bandpass";bp.Q.value=f[2];
+        /* les formants glissent un peu pendant le rot, comme la gorge qui se referme */
+        bp.frequency.setValueAtTime(f[0]*1.12,t0);bp.frequency.exponentialRampToValueAtTime(f[0]*.86,t0+d);
         var g=c.createGain();g.gain.value=f[1];
         tremble.connect(bp);bp.connect(g);g.connect(env);
       });
       env.connect(sortie);
       osc.start(t0);osc.stop(t0+d+.05);
-      bruit_(c,{duration:.7,volume:.05,frequency:700,frequencyEnd:300,decay:1.2,filterType:"bandpass"});
+      /* gargouillis : un souffle filtré haché à ~35 Hz */
+      var n=Math.floor(c.sampleRate*d),buf=c.createBuffer(1,n,c.sampleRate),dd=buf.getChannelData(0);
+      for(var j=0;j<n;j+=1)dd[j]=Math.random()*2-1;
+      var src=c.createBufferSource();src.buffer=buf;
+      var bpg=c.createBiquadFilter();bpg.type="bandpass";bpg.frequency.value=650;bpg.Q.value=1.4;
+      var hache=c.createGain();hache.gain.value=.5;
+      var lfo3=c.createOscillator(),prof3=c.createGain();lfo3.frequency.value=34;prof3.gain.value=.5;lfo3.connect(prof3);prof3.connect(hache.gain);lfo3.start(t0);lfo3.stop(t0+d+.05);
+      var gg=c.createGain();gg.gain.setValueAtTime(.0001,t0);gg.gain.exponentialRampToValueAtTime(Math.max(.0002,p.gargouille),t0+.12);gg.gain.exponentialRampToValueAtTime(.0001,t0+d);
+      src.connect(bpg);bpg.connect(hache);hache.connect(gg);gg.connect(sortie);src.start(t0);src.stop(t0+d);
+      /* la fin voisée « urp » : une voyelle courte et grave */
+      if(p.fin>0){
+        var t1=t0+d-.08,o2=c.createOscillator();o2.type="sawtooth";
+        o2.frequency.setValueAtTime(112,t1);o2.frequency.exponentialRampToValueAtTime(84,t1+p.fin);
+        var e2=c.createGain();e2.gain.setValueAtTime(.0001,t1);e2.gain.exponentialRampToValueAtTime(.4,t1+.04);e2.gain.exponentialRampToValueAtTime(.0001,t1+p.fin);
+        [[600,1,8],[1100,.6,9]].forEach(function(f){
+          var bq=c.createBiquadFilter();bq.type="bandpass";bq.frequency.value=f[0];bq.Q.value=f[2];
+          var gf=c.createGain();gf.gain.value=f[1];o2.connect(bq);bq.connect(gf);gf.connect(e2);
+        });
+        e2.connect(sortie);o2.start(t1);o2.stop(t1+p.fin+.05);
+      }
     });
   }
   /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
@@ -2396,7 +2430,7 @@
     defeatReverse:function(){return defaiteInverse_();},
     reapparitionBip:function(){return reapparitionBip_();},
     chorale:function(){return chorale_();},
-    rot:function(){return rot_();},
+    rot:function(nom){return rot_(nom);},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
     /* bâillement du Coffre ('coffre') ou de la valise ('valise') : chacun son son (modules/audio-coffre-v1.js) */

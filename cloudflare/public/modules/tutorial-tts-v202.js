@@ -356,7 +356,9 @@
       var voix=resoudreVoixBalise_(dedans);
       if(voix)return ' '+VOIX_OPEN+voix+VOIX_CLOSE+' ';
       /* Rot (Norman, 2026-10-25 : voix « Savant cynique », « qui peut faire des renvois ») : « (rot) », « (renvoi) », « (burp) » = un rot synthétisé (audio-effects-v199.js, rot) au milieu du texte, comme une pause qui s'entend. */
-      if(/^(rots?|renvois?|burp)$/.test(String(dedans==null?'':dedans).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/s+/g,' ').trim()))return ' '+String.fromCharCode(0xE006)+' ';
+      /* « (rot) » (au hasard), « (petit rot) », « (gros rot) », « (rot long) », « (rot liquide) » ; renvoi et burp sont des synonymes. */
+      var rotM=/^(?:(petit|gros|long|liquide|classique) )?(?:rots?|renvois?|burp)(?: (petit|gros|long|liquide|classique))?$/.exec(String(dedans==null?'':dedans).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/s+/g,' ').trim());
+      if(rotM)return ' '+String.fromCharCode(0xE006)+(rotM[1]||rotM[2]||'')+String.fromCharCode(0xE006)+' ';
       var pause=resoudrePauseBalise_(dedans);
       if(pause>0)return ' '+PAUSE_OPEN+pause+PAUSE_CLOSE+' ';
       var expression=resoudreExpressionBalise_(dedans);
@@ -412,7 +414,7 @@
   function planNarration_(value){
     var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
     var steps=[];
-    var DUREE_ROT_MS=1000,ROT_MARQUE=String.fromCharCode(0xE006);
+    var ROT_MARQUE=String.fromCharCode(0xE006),DUREES_ROT={petit:700,classique:1000,liquide:1200,gros:1600,long:2000},NOMS_ROT=['petit','classique','liquide','gros','long'];
     /* Voix courante (balise « (marius) »…) : propre à la lecture entière, elle traverse les pauses ; absente = voix par défaut (narrateur). */
     var voix='',expr='';
     for(var i=0;i<parts.length;i+=1){
@@ -422,7 +424,7 @@
         continue;
       }
       /* Voix (« (marius) ») et expressions (« (joyeux) ») dans l'ordre du texte ; une nouvelle voix revient au ton neutre, une expression dure jusqu'à la suivante. */
-      var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE+'|('+ROT_MARQUE+')','g');
+      var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE+'|'+ROT_MARQUE+'([a-z]*)'+ROT_MARQUE,'g');
       var texteBrut=parts[i],dernier=0,marque;
       var lire=function(morceau){
         decouperNarration_(morceau).forEach(function(chunk){
@@ -435,7 +437,7 @@
       while((marque=reMarques.exec(texteBrut))){
         lire(texteBrut.slice(dernier,marque.index));
         dernier=marque.index+marque[0].length;
-        if(marque[3]!==undefined){steps.push({pause:DUREE_ROT_MS,rot:true});}
+        if(marque[3]!==undefined){var nomRot=DUREES_ROT[marque[3]]?marque[3]:NOMS_ROT[Math.floor(Math.random()*NOMS_ROT.length)];steps.push({pause:DUREES_ROT[nomRot],rot:nomRot});}
         else if(marque[1]!==undefined){voix=marque[1];expr='';}
         else expr=marque[2]==='neutre'?'':marque[2];
       }
@@ -1023,7 +1025,7 @@
         if(myGeneration!==generation)return Promise.reject(new Error('NARRATION_ANNULEE'));
         var etape=steps[i];
         if(etape.pause!=null){
-          if(etape.rot){try{var son=window.__SOREAL_IDLE_AUDIO_V199__;if(son&&typeof son.rot==='function')son.rot();}catch(_e){}}
+          if(etape.rot){try{var son=window.__SOREAL_IDLE_AUDIO_V199__;if(son&&typeof son.rot==='function')son.rot(etape.rot);}catch(_e){}}
           assurer(prochainTexte(i+1),true);
           return attendre(etape.pause).then(function(){return jouer(i+1);});
         }

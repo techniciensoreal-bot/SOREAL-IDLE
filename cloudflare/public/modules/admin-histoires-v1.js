@@ -872,7 +872,7 @@ function corpsSynthese_(texte,parleur,expr){
   try{
     var reg=window.__SOREAL_IDLE_EXPRESSIONS_V1__;
     var r=expr&&reg&&typeof reg.reglages==='function'?reg.reglages(expr):null;
-    if(r){corps.exaggeration=r.exaggeration;corps.cfg=r.cfg;}
+    if(r){corps.exaggeration=r.exaggeration;corps.cfg=r.cfg;corps.humeur=String(expr);}
   }catch(_e){}
   return corps;
 }

@@ -101,9 +101,18 @@ assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voi
 // Savant cynique (2026-10-25) : voix fabriquée (pas un clone), réglée dans reglages-voix.json ; la balise (rot) joue un rot synthétisé au milieu du texte.
 {
   assert.ok(reg.existe("savant"));
-  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.6);
+  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.5);
   assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_savant.py", "utf8").includes("PAS un clone"));
   const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8"), aud = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-  assert.ok(tts.includes("(rots?|renvois?|burp)") && tts.includes("{pause:DUREE_ROT_MS,rot:true}") && tts.includes("son.rot()"));
-  assert.ok(aud.includes("function rot_()") && aud.includes("rot:function(){return rot_();}"));
+  assert.ok(tts.includes("(?:rots?|renvois?|burp)") && tts.includes("steps.push({pause:DUREES_ROT[nomRot],rot:nomRot})") && tts.includes("son.rot(etape.rot)"));
+  assert.ok(aud.includes("function rot_(nom)") && aud.includes("rot:function(nom){return rot_(nom);}"));
+  for (const nom of ["petit", "classique", "liquide", "gros", "long"]) assert.ok(aud.includes(nom + ":{ms:") && tts.includes(nom + ":"), "rot " + nom);
+}
+
+// Humeurs (2026-10-25) : en plus d'exaggeration/cfg, le studio traite la voix générée selon l'humeur (hauteur, débit, aigus, saturation, souffle, réverbération) ; le générateur envoie l'humeur.
+{
+  const serv = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8"), adm = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
+  assert.ok(serv.includes("def appliquer_humeur(wav, sr, humeur):") && serv.includes("HUMEURS = {") && serv.includes("wav = appliquer_humeur(wav, sr, humeur)") && serv.includes('donnees.get("humeur"'));
+  for (const h of ["joyeux", "energique", "dramatique", "calme", "mysterieux", "colere"]) assert.ok(serv.includes('"' + h + '":') && serv.split('"ton":').length >= 7, "humeur " + h);
+  assert.ok(adm.includes("corps.humeur=String(expr)"));
 }

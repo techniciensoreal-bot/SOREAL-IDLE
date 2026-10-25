@@ -16,12 +16,12 @@ if(window.__SOREAL_IDLE_EXPRESSIONS_V1__)return;
 
 var LISTE=[
   {id:'neutre',nom:'Neutre',emoji:'🙂',aide:'Le ton naturel de la voix.',exaggeration:null,cfg:null},
-  {id:'joyeux',nom:'Joyeux',emoji:'😄',aide:'Enjoué, souriant.',exaggeration:0.65,cfg:0.4},
-  {id:'energique',nom:'Énergique',emoji:'⚡',aide:'Vif, plein d’entrain.',exaggeration:0.8,cfg:0.5},
-  {id:'dramatique',nom:'Dramatique',emoji:'🎭',aide:'Posé, solennel, très joué.',exaggeration:0.85,cfg:0.25},
-  {id:'calme',nom:'Calme',emoji:'😌',aide:'Doux, retenu, apaisant.',exaggeration:0.3,cfg:0.6},
-  {id:'mysterieux',nom:'Mystérieux',emoji:'🕵️',aide:'Lent, feutré, intrigant.',exaggeration:0.45,cfg:0.25},
-  {id:'colere',nom:'En colère',emoji:'😠',aide:'Dur, véhément.',exaggeration:0.9,cfg:0.45}
+  {id:'joyeux',nom:'Joyeux',emoji:'😄',aide:'Enjoué, souriant.',exaggeration:0.8,cfg:0.4},
+  {id:'energique',nom:'Énergique',emoji:'⚡',aide:'Vif, plein d’entrain.',exaggeration:0.95,cfg:0.5},
+  {id:'dramatique',nom:'Dramatique',emoji:'🎭',aide:'Posé, solennel, très joué.',exaggeration:1.0,cfg:0.25},
+  {id:'calme',nom:'Calme',emoji:'😌',aide:'Doux, retenu, apaisant.',exaggeration:0.2,cfg:0.6},
+  {id:'mysterieux',nom:'Mystérieux',emoji:'🕵️',aide:'Lent, feutré, intrigant.',exaggeration:0.35,cfg:0.25},
+  {id:'colere',nom:'En colère',emoji:'😠',aide:'Dur, véhément.',exaggeration:1.0,cfg:0.45}
 ];
 
 /* Pauses proposées par l'éditeur (la balise écrite dans le texte, sa durée en millisecondes). */

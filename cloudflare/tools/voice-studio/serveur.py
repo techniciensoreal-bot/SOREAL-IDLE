@@ -389,7 +389,64 @@ def effet_robot(wav, sr, intensite=0.5):
     return torch.from_numpy(y.astype("float32")).unsqueeze(0)
 
 
-def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
+# Humeurs (Norman, 2026-10-25 : « on ne sent pas de différence entre Neutre et Joyeux, c'est pareil pour toutes les humeurs »). Les réglages « exaggeration » et « cfg » de Chatterbox ne suffisent pas : la voix de référence impose
+# son caractère. Chaque humeur applique donc en plus un traitement de la voix générée : hauteur (demi-tons), débit, aigus (dB), volume, saturation, souffle, réverbération. Valeurs choisies par SOREAL à l'oreille.
+HUMEURS = {
+    "joyeux":     {"ton": 1.6,  "vitesse": 1.08, "aigus": 4.0,  "gain": 1.0,  "sat": 0.0,  "souffle": 0.0,  "reverb": 0.0},
+    "energique":  {"ton": 1.0,  "vitesse": 1.18, "aigus": 3.0,  "gain": 1.15, "sat": 0.2,  "souffle": 0.0,  "reverb": 0.0},
+    "dramatique": {"ton": -1.5, "vitesse": 0.86, "aigus": -2.0, "gain": 1.0,  "sat": 0.0,  "souffle": 0.0,  "reverb": 0.16},
+    "calme":      {"ton": -0.8, "vitesse": 0.88, "aigus": -4.0, "gain": 0.8,  "sat": 0.0,  "souffle": 0.01, "reverb": 0.05},
+    "mysterieux": {"ton": -2.0, "vitesse": 0.84, "aigus": -5.0, "gain": 0.85, "sat": 0.0,  "souffle": 0.035, "reverb": 0.22},
+    "colere":     {"ton": 0.5,  "vitesse": 1.12, "aigus": 3.5,  "gain": 1.2,  "sat": 0.55, "souffle": 0.0,  "reverb": 0.0},
+}
+
+
+def appliquer_humeur(wav, sr, humeur):
+    """Traitement de la voix générée selon l'humeur demandée (voir HUMEURS) ; une humeur inconnue ou « neutre » ne change rien. En cas d'erreur, la voix d'origine est rendue."""
+    h = HUMEURS.get(str(humeur or "").strip().lower())
+    if not h:
+        return wav
+    try:
+        import numpy as np
+        import torch
+        import librosa
+        from scipy.signal import butter, sosfilt
+        y = wav.squeeze(0).float().numpy().astype("float64")
+        if len(y) < 256:
+            return wav
+        crete_origine = float(np.max(np.abs(y))) or 1.0
+        if h["ton"]:
+            y = librosa.effects.pitch_shift(y, sr=sr, n_steps=h["ton"])
+        if abs(h["vitesse"] - 1.0) > 0.005:
+            y = librosa.effects.time_stretch(y, rate=h["vitesse"])
+        if h["aigus"]:
+            sos = butter(2, 2500, btype="highpass", fs=sr, output="sos")
+            y = y + (10 ** (h["aigus"] / 20.0) - 1.0) * sosfilt(sos, y)
+        if h["sat"]:
+            y = y / max(1e-6, float(np.max(np.abs(y))))
+            k = 1.0 + 3.0 * h["sat"]
+            y = np.tanh(y * k) / np.tanh(k)
+        if h["souffle"]:
+            env = np.convolve(np.abs(y), np.ones(480) / 480, mode="same")
+            y = y + h["souffle"] * np.random.default_rng(11).standard_normal(len(y)) * (env / max(1e-6, float(np.max(env))))
+        if h["reverb"]:
+            n = int(sr * 0.4)
+            ir = np.random.default_rng(5).standard_normal(n) * np.exp(-np.arange(n) / (sr * 0.09))
+            ir[0] = 0.0
+            y = y + h["reverb"] * np.convolve(y, ir / max(1e-6, float(np.sqrt(np.sum(ir ** 2)))), mode="full")[: len(y)]
+        # même niveau de départ que la voix d'origine (les filtres et la hauteur changent la crête), puis le gain de l'humeur
+        crete = float(np.max(np.abs(y))) or 1.0
+        y = y / crete * crete_origine * h["gain"]
+        crete = float(np.max(np.abs(y))) or 1.0
+        if crete > 0.95:
+            y = y / crete * 0.95
+        return torch.from_numpy(y.astype("float32")).unsqueeze(0)
+    except Exception as e:  # noqa: BLE001
+        print("Humeur ignorée :", str(e)[:200], file=sys.stderr, flush=True)
+        return wav
+
+
+def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur=""):
     import torch
     texte = normaliser_texte(texte)
     if not texte:
@@ -399,10 +456,12 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5):
         fin = "?" if est_question(texte) else "."
         wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg)
         wav = garder_premiere_prononciation(wav, sr)
+        wav = appliquer_humeur(wav, sr, humeur)
         if reglages_voix(voix).get("effet") == "robot":
             wav = effet_robot(wav, sr, exaggeration)
         return avec_silence_final(wav, sr), sr
     wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
+    wav = appliquer_humeur(wav, sr, humeur)
     if reglages_voix(voix).get("effet") == "robot":
         wav = effet_robot(wav, sr, exaggeration)
     return avec_silence_final(wav, sr), sr
@@ -614,7 +673,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
             voix = donnees.get("voix") if isinstance(donnees.get("voix"), str) and VOIX_ID_RE.match(donnees.get("voix")) else "homme"
             reglage = reglages_voix(voix)
-            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]))
+            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]), str(donnees.get("humeur", ""))[:20])
             duree = float(wav.shape[-1]) / float(sr)
             audio = vers_m4a(wav, sr)
         except Exception as e:  # noqa: BLE001

@@ -22,7 +22,7 @@ assert.equal(R.resoudre("neutre"), "neutre");
 assert.equal(R.resoudre("Marius"), "", "un nom de voix n'est pas une expression");
 assert.equal(R.resoudre("une note"), "");
 assert.equal(R.reglages("neutre"), null, "neutre ne force aucun réglage : ceux de la voix");
-assert.deepEqual(JSON.parse(JSON.stringify(R.reglages("dramatique"))), { exaggeration: 0.85, cfg: 0.25 });
+assert.deepEqual(JSON.parse(JSON.stringify(R.reglages("dramatique"))), { exaggeration: 1.0, cfg: 0.25 });
 R.liste.forEach((e) => { if (e.id !== "neutre") assert.ok(e.exaggeration > 0 && e.exaggeration <= 1 && e.cfg > 0 && e.cfg <= 1, "réglages valides : " + e.id); });
 // --- Pauses ---
 assert.equal(R.pauseMs("pause"), 1000);
