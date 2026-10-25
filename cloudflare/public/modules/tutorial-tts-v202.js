@@ -323,11 +323,6 @@
    * Expressions et pauses écrites comme balises (Norman, 2026-10-08) : « (joyeux) », « (pause 2s)… » -- registre modules/voix-expressions-v1.js. Une pause devient le même marqueur de silence que les
    * pauses internes ; une expression devient un marqueur qui accompagne les blocs suivants (étape.expr) : elle ne change pas la lecture, seulement la GÉNÉRATION de la voix par le studio.
    */
-  /* Rot (Norman, 2026-10-25 : une voix de savant cynique « qui peut faire des renvois ») : « (rot) », « (rots) », « (renvoi) », « (burp) » = un rot synthétisé (audio-effects-v199.js, rot) joué au milieu du texte, comme une pause qui s'entend. */
-  var ROT_MARQUE=String.fromCharCode(0xE006);
-  function estBaliseRot_(t){
-    return /^(rots?|renvois?|burp|rot sonore)$/.test(String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/s+/g,' ').trim());
-  }
   var EXPR_OPEN=String.fromCharCode(0xE004);
   var EXPR_CLOSE=String.fromCharCode(0xE005);
   function registreExpressions_(){
@@ -360,7 +355,8 @@
     return String(texte||'').replace(/\(([^)]*)\)/g,function(tout,dedans){
       var voix=resoudreVoixBalise_(dedans);
       if(voix)return ' '+VOIX_OPEN+voix+VOIX_CLOSE+' ';
-      if(estBaliseRot_(dedans))return ' '+ROT_MARQUE+' ';
+      /* Rot (Norman, 2026-10-25 : voix « Savant cynique », « qui peut faire des renvois ») : « (rot) », « (renvoi) », « (burp) » = un rot synthétisé (audio-effects-v199.js, rot) au milieu du texte, comme une pause qui s'entend. */
+      if(/^(rots?|renvois?|burp)$/.test(String(dedans==null?'':dedans).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/s+/g,' ').trim()))return ' '+String.fromCharCode(0xE006)+' ';
       var pause=resoudrePauseBalise_(dedans);
       if(pause>0)return ' '+PAUSE_OPEN+pause+PAUSE_CLOSE+' ';
       var expression=resoudreExpressionBalise_(dedans);
@@ -416,7 +412,7 @@
   function planNarration_(value){
     var parts=String(value||'').split(new RegExp(PAUSE_OPEN+'([0-9]+)'+PAUSE_CLOSE));
     var steps=[];
-    var DUREE_ROT_MS=1000;
+    var DUREE_ROT_MS=1000,ROT_MARQUE=String.fromCharCode(0xE006);
     /* Voix courante (balise « (marius) »…) : propre à la lecture entière, elle traverse les pauses ; absente = voix par défaut (narrateur). */
     var voix='',expr='';
     for(var i=0;i<parts.length;i+=1){

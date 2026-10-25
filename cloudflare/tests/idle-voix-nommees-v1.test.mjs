@@ -104,6 +104,6 @@ assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voi
   assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.7);
   assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_savant.py", "utf8").includes("PAS un clone"));
   const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8"), aud = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
-  assert.ok(tts.includes("function estBaliseRot_(t)") && tts.includes("{pause:DUREE_ROT_MS,rot:true}") && tts.includes("son.rot()"));
+  assert.ok(tts.includes("(rots?|renvois?|burp)") && tts.includes("{pause:DUREE_ROT_MS,rot:true}") && tts.includes("son.rot()"));
   assert.ok(aud.includes("function rot_()") && aud.includes("rot:function(){return rot_();}"));
 }
