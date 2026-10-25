@@ -613,6 +613,7 @@
 
         if(cible.hasAttribute('data-idle-coffre-drop-v180')){
           /* Norman (2026-10-19) : « sur Unity le coffre a une animation quand il mange un objet ; pourquoi pas sur la version web ? » Seul le glisser-déposer HTML5 posait le drapeau d'animation ; le dépôt au doigt / à la souris (ce chemin) ne le posait pas : le Coffre à dents ne croquait jamais. */
+          if(coffreRefuseObjetIdleV1_(source)){jouerNonCoffreIdleV1_();return;}
           window.__bagageAvaleIdleV1=Date.now();
           jouerCroqueCoffreIdleV1_();
           actionAdventureIdleV47_({action:'coffreDeposer',id:source});
@@ -2398,10 +2399,39 @@
       }
       window.__jouerCroqueCoffreIdleV1__=jouerCroqueCoffreIdleV1_;
 
+      /*
+       * Objet refusé (Norman, 2026-10-25 : « quand on veut mettre un objet pas maxxé dans le coffre, il ne doit pas faire l'animation comme s'il mangeait, il doit secouer la tête pour dire NON »). Le Bagage secoue la tête
+       * (classe « refuse », .bg-bagage-v1.refuse dans soreal-idle-itopod.css) et rien n'est envoyé au serveur. Le refus ne couvre que ce que le client sait déjà : objet pas pleinement maxé, ou case de ce modèle déjà occupée ;
+       * le reste (objet équipé, non éligible) est refusé par le serveur, comme avant.
+       */
+      function jouerNonCoffreIdleV1_(){
+        const bagages=document.querySelectorAll('.bg-bagage-v1');
+        for(let i=0;i<bagages.length;i+=1){
+          const b=bagages[i];
+          b.classList.remove('croque');
+          b.classList.remove('refuse');
+          void b.offsetWidth;
+          b.classList.add('refuse');
+          clearTimeout(b.__refuseFinV1);
+          b.__refuseFinV1=setTimeout(function(){b.classList.remove('refuse');},1000);
+        }
+      }
+      window.__jouerNonCoffreIdleV1__=jouerNonCoffreIdleV1_;
+
+      function coffreRefuseObjetIdleV1_(id){
+        const a=REG.idleEtat&&aventureMetaIdleV47_(REG.idleEtat);
+        const items=a&&Array.isArray(a.inventory)?a.inventory:[];
+        const item=items.find(function(x){return String(x&&x.id)===String(id);});
+        if(!item)return false;
+        const occupee=Array.isArray(a.coffreSlots)&&a.coffreSlots.some(function(x){return x&&x.occupe&&String(x.definitionId||'')===String(item.definitionId||'');});
+        return !item.fullyMaxed||occupee;
+      }
+
       function deposerSurCoffreAdventureIdleV1_(event){
         if(event){event.preventDefault();event.stopPropagation();}
         const id=idSourceAdventureIdleV138_(event);
         nettoyerEtatDragAdventureIdleV138_();
+        if(id&&coffreRefuseObjetIdleV1_(id)){jouerNonCoffreIdleV1_();return;}
         if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
       }
 

@@ -210,3 +210,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const css = lire("cloudflare/public/soreal-idle-itopod.css");
   for (const k of ["haut", "bas"]) assert.ok(css.includes(".soreal-idle-item-popup-v1 .idle-compare-bloc-v1 .soreal-idle-v138-details-stat b .soreal-idle-v138-stat-value-v1.idle-cmp-" + k + "-v1{"));
 }
+
+// Coffre : un objet pas pleinement maxé (ou dont la case est prise) fait secouer la tête au Bagage au lieu de croquer, sans appel serveur (2026-10-25).
+{
+  const u = lire("cloudflare/public/modules/ui-aventure-2-v1.js"), c = lire("cloudflare/public/soreal-idle-itopod.css");
+  assert.ok(u.includes("function coffreRefuseObjetIdleV1_(id)") && u.includes("if(coffreRefuseObjetIdleV1_(source)){jouerNonCoffreIdleV1_();return;}") && u.includes("if(id&&coffreRefuseObjetIdleV1_(id)){jouerNonCoffreIdleV1_();return;}"));
+  assert.ok(c.includes(".bg-bagage-v1.refuse{") && c.includes("@keyframes bgNon{"));
+}
