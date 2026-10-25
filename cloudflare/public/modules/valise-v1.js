@@ -254,7 +254,10 @@
       var r=Number(c.restant&&c.restant[e.id])||0,b=Boolean(e.beta&&c.beta&&c.beta[e.id]);
       if(r>0||b){n+=1;actifs.push(artActif(e,r,b));}
     });
-    RESERVES.forEach(function(e){var q=Math.floor(Number(c.reserve&&c.reserve[e.id])||0);if(q>0){n+=1;reserves.push(artReserve(e,q));}});
+    /* Le Poop (« caca ») est toujours montré une fois Yggdrasil découvert, même à 0 (Norman, 2026-10-25 : « la valise doit montrer combien de caca on a ») ; les autres réserves n'apparaissent que s'il y en a. */
+    var yggVu=false;
+    try{var R=reg_();yggVu=Boolean(R.menuDisponibleIdleV28_&&R.idleEtat&&R.menuDisponibleIdleV28_('yggdrasil',R.idleEtat));}catch(_e){}   /* menu Yggdrasil découvert : jamais de Poop montré avant (anti-spoil) */
+    RESERVES.forEach(function(e){var q=Math.floor(Number(c.reserve&&c.reserve[e.id])||0);if(q>0||(e.id==='poop'&&yggVu)){n+=1;reserves.push(artReserve(e,q));}});
     /* signature : change quand un objet arrive ou part (les temps ne comptent qu'à la minute près) */
     var sig=JSON.stringify([c.potions||{},Object.keys(c.restant||{}).map(function(k){return k+':'+Math.floor((c.restant[k]||0)/60);}),c.beta||{},c.reserve||{}]);
     return {n:n,sig:sig,langue:langue(potions,actifs,reserves,n)};

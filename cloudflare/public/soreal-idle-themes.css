@@ -1522,12 +1522,13 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
    * La liste n'a plus de hauteur maximale ni de défilement propre (c'était lui qui faisait apparaître et disparaître une barre dès que la hauteur variait) : elle suit la page, qui défile normalement.
    */
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
-    grid-column:1;grid-row:2 / span 60;align-self:start;
-    position:sticky;top:12px;margin:12px 0 14px!important;
+    /* Jusqu'en HAUT (Norman, 2026-10-25 : « sur PC, la barre latérale des menus doit aller jusqu'en haut, même quand on remonte le menu ouvert jusqu'en haut ; elle s'arrête sous la barre de vie ») : colonne de gauche dès la 1ʳᵉ rangée, collée au bord haut. */
+    grid-column:1;grid-row:1 / span 60;align-self:start;
+    position:sticky;top:0;margin:0 0 14px!important;
     display:flex!important;flex-direction:column;
     gap:8px!important;padding:10px!important;
     /* Défilement PROPRE au menu (Norman, 2026-10-11) : la molette sur les menus ne fait défiler que les menus, sur la zone de jeu que le jeu ; aucune barre visible, et l'élan ne passe pas à la page. */
-    overflow-x:hidden!important;overflow-y:auto!important;max-height:min(calc(100vh - 62px),var(--nav-dispo,100vh))!important;
+    overflow-x:hidden!important;overflow-y:auto!important;max-height:min(calc(100vh - 14px),var(--nav-dispo,100vh))!important;
     overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;
     scroll-snap-type:none!important;
   }
@@ -1633,16 +1634,18 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="par
  * Même recette que Boutique : un reflet de la couleur du menu en haut à gauche et un dégradé nuit teinté de cette couleur (au lieu du fond bleu nuit neutre). Le menu ouvert (.active) passe en couleur pleine, plus vive, avec une lueur.
  * Les états particuliers (disponible, K.O., Boutique, qui a déjà sa recette) gardent leur propre fond. */
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:not(.active):not([data-menu-id-v1="shop"]):not(.soreal-idle-nav-dispo-v1):not(.soreal-idle-nav-adventure-ko-v1){
+  /* Norman (2026-10-25) : « quand ils ne sont pas sélectionnés, un contour d'une couleur différente : je n'en veux pas ; comme le bouton de la boutique, le même dégradé foncé ». Contour de la MÊME teinte sombre que le fond. */
   background:
-    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 55%,transparent),transparent 62%),
-    linear-gradient(160deg,color-mix(in srgb,var(--c1) 42%,#0a0a14),color-mix(in srgb,var(--c1) 17%,#05050c))!important;
-  border-color:color-mix(in srgb,var(--c1) 78%,transparent)!important;
+    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 38%,transparent),transparent 62%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c1) 26%,#0c0c18),color-mix(in srgb,var(--c1) 9%,#05050c))!important;
+  border-color:color-mix(in srgb,var(--c1) 30%,#000)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.active:not([data-menu-id-v1="shop"]){
+  /* Menu ouvert : le MÊME dégradé foncé, en plus clair (Norman, 2026-10-25), contour de la même teinte. */
   background:
-    radial-gradient(120% 140% at 0% 0%,rgba(255,255,255,.34),transparent 58%),
-    linear-gradient(150deg,color-mix(in srgb,var(--c1) 92%,#fff),var(--c1) 55%,color-mix(in srgb,var(--c1) 72%,#000))!important;
-  box-shadow:0 0 0 2px color-mix(in srgb,var(--c1) 70%,#fff),0 0 22px 2px var(--c1),0 12px 24px -8px var(--c1);
+    radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--c1) 60%,transparent),transparent 62%),
+    linear-gradient(160deg,color-mix(in srgb,var(--c1) 52%,#14141f),color-mix(in srgb,var(--c1) 24%,#08080f))!important;
+  box-shadow:0 0 14px color-mix(in srgb,var(--c1) 45%,transparent);
 }
 
 /* ====================== Bouton Shop : une boutique magique ======================

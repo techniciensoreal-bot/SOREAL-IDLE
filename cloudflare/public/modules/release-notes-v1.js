@@ -38,6 +38,8 @@
             'Les très grands nombres n’utilisent plus l’écriture « e+96 » : après Tg, le jeu continue avec des lettres (AA = 1 suivi de 96 zéros, puis AB, AC… jusqu’à CS), chacune avec sa couleur. On peut aussi les saisir ainsi (par exemple « 2AA »).',
             'Comparaison de deux objets : la valeur la plus basse redevient rouge (et la plus haute verte) même quand les deux objets sont au maximum de leur niveau ; elles restaient vertes toutes les deux.',
             'Multiplicateur de drop : quand un bonus l’augmente, le total s’affiche en vert (par exemple ×1,73) à la place de « ×1 (×1,73 avec les bonus) ».',
+            'Menu : les boutons non sélectionnés n’ont plus de contour d’une autre couleur ; ils prennent le dégradé foncé de la Boutique, et deviennent plus clairs dans le menu ouvert.',
+            'Sur PC, la barre latérale des menus monte maintenant jusqu’en haut de la page, à côté de la barre de vie, même quand on remonte le menu ouvert.',
             'Quand tu meurs et que ton image réapparaît en fondu d’ouverture, un chœur d’anges (« aaaaah ») accompagne le fondu.',
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',

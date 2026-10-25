@@ -2332,6 +2332,7 @@
         const sx=window.scrollX||0,sy=window.scrollY||0;
         const reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         try{const ah=window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__;if(ah&&ah.pause)ah.pause(2200);}catch(e){}
+        let cibleFermeture=0;
         const finir=function(){
           window.__coffreBasculeIdleV1=false;
           document.querySelectorAll('.soreal-idle-coffre-v1.ferme-anim').forEach(function(r){r.classList.remove('ferme-anim');});
@@ -2340,6 +2341,19 @@
           }catch(e){}
           const root=document.querySelector('.soreal-idle-page-root-v28');
           if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+          /*
+           * Fin de la fermeture (Norman, 2026-10-25 : « quand on referme le coffre, le cadre se rétrécit et se réagrandit légèrement pour adopter la taille qu'il doit avoir ») : la hauteur mesurée pendant l'animation pouvait être un peu plus
+           * courte que celle du cadre réellement redessiné fermé. On retient donc la VRAIE hauteur fermée une fois redessiné (window.__coffreHFermeV1) : les fermetures suivantes visent exactement elle ; et si le cadre redessiné diffère
+           * encore de la cible, il la rejoint en douceur au lieu de sauter.
+           */
+          if(actuel){
+            const nr=document.querySelector('.soreal-idle-coffre-v1');
+            if(nr){
+              const hn=nr.getBoundingClientRect().height;
+              if(hn>0)window.__coffreHFermeV1=hn;
+              if(cibleFermeture>0&&hn>0&&Math.abs(hn-cibleFermeture)>1.5)animerHauteurCoffreIdleV1_(nr,cibleFermeture,hn,180);
+            }
+          }
           /* l'écran reste où il était (ouvert : la liste s'allonge vers le bas, à nous de descendre si besoin) */
           if(Math.abs((window.scrollY||0)-sy)>1&&typeof window.scrollTo==='function')window.scrollTo(sx,sy);
         };
@@ -2367,7 +2381,10 @@
               const ancien=bloc.style.display;bloc.style.display='none';
               const ferme=r0.getBoundingClientRect().height;
               bloc.style.display=ancien;
-              animerHauteurCoffreIdleV1_(r0,hAvant,Math.max(60,ferme),400);
+              const memo=Number(window.__coffreHFermeV1)||0;
+              /* la hauteur fermée déjà vue (réelle) l'emporte sur la mesure, tant qu'elle reste plausible */
+              cibleFermeture=Math.max(60,memo>0&&Math.abs(memo-ferme)<=Math.max(40,ferme*0.35)?memo:ferme);
+              animerHauteurCoffreIdleV1_(r0,hAvant,cibleFermeture,400);
               /* le contenu se replie en douceur dans la MÊME durée : la valise (en dessous) remonte avec lui, au lieu de rester cachée puis de réapparaître d'un coup à la fin (Norman, 2026-10-23) */
               const cb=bloc.getBoundingClientRect().height,sb=bloc.style,ease='400ms cubic-bezier(.3,.8,.3,1)';
               sb.setProperty('overflow','hidden','important');
