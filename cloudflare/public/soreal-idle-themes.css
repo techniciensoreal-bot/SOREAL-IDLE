@@ -2234,13 +2234,23 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2{font-size:14px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.g{left:14px!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2.d{right:14px!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{gap:8px!important;margin-top:8px!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{gap:8px!important;margin-top:0!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28{padding:9px 12px!important;font-size:15px!important;letter-spacing:.05em}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-v28 b{font-size:24px!important;margin-top:3px}
 }
 
 /* Barre d'onglets de Chroniques (style ITOPOD : gros contour noir, ombre dure, onglet actif cerné d'or). */
 /* Onglets du haut (Norman, 2026-10-25 : « je n'aime pas le jaune, je veux refaire les petits cadres ») : une barre de verre bleu nuit, des segments sans contour épais ; l'onglet ouvert s'allume dans la couleur de son sous-menu. */
+/* Réglages : onglets de catégories (Norman, 2026-10-25), mêmes verres bleu nuit que Chroniques */
+.rg-onglets-v1{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0 0 8px;padding:4px;border:1px solid rgba(120,160,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(14,22,48,.9),rgba(6,10,24,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 20px -12px rgba(0,0,0,.8)}
+.rg-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#9fb4e0;background:transparent;transition:background .15s ease,color .15s ease,box-shadow .2s ease}
+.rg-onglet-v1 i{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
+.rg-onglet-v1 b{font-weight:900;line-height:1.1;text-align:center}
+.rg-onglet-v1:hover{background:rgba(120,160,255,.10);color:#d6e3ff}
+.rg-onglet-v1.actif{color:#fff;background:linear-gradient(180deg,#5b8def,#243f86);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 0 18px -2px rgba(91,141,239,.6);text-shadow:0 1px 0 rgba(0,0,0,.7)}
+.rg-aide-v1{margin:0 0 12px;padding:0 6px;font-size:13px;color:#9fb4e0;text-align:center}
+.rg-danger-v1{border-color:rgba(239,68,68,.55)}
+@media(max-width:520px){.rg-onglet-v1{font-size:10.5px}.rg-onglet-v1 i{font-size:19px}}
 .soreal-idle-chroniques-onglets-v1{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin:0 0 12px;padding:4px;border:1px solid rgba(120,160,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(14,22,48,.9),rgba(6,10,24,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 20px -12px rgba(0,0,0,.8)}
 .soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:0;border-radius:12px;cursor:pointer;
   font-family:inherit;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9fb4e0;
@@ -2398,3 +2408,16 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 .dfi-fermer{position:absolute;z-index:3;top:10px;right:10px;width:38px;height:38px;border-radius:50%;border:3px solid #000;background:linear-gradient(180deg,#ff6b78,#c4152b);color:#fff;font-size:17px;cursor:pointer;box-shadow:0 3px 0 #5e0a14}
 @media (max-width:560px){.dfi-grille{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.dfi-nom{font-size:21px}.dfi-embleme .dfi-emb{width:80px;height:80px}.dfi-rayons{width:150px;height:150px;margin:-75px 0 0 -75px;top:40px}.dfi-etoile{width:16px;height:16px}.dfi-jouer{padding:6px 18px 5px;font-size:22px}.dfi-gains{flex-direction:column;align-items:center;gap:4px}.dfi-tuile{padding:32px 8px 14px}.dfi-hero .dfi-nom{font-size:30px}.dfi-but-grand{font-size:38px}}
 @media (prefers-reduced-motion:reduce){.dfi-tuile.cours{animation:none}.dfi-tuile{transition:none}}
+
+/* ====== Rien ne bouche, rien ne laisse d'espace vide (Norman, 2026-10-25) ======
+ * PC : plus de marge vide au-dessus des cadres Attaque / Défense / Or…, le menu de gauche commence PILE au même niveau que ces cadres ; ni le bandeau ni le menu ne bouchent la page (le bandeau n'est plus collé, le menu garde son défilement propre à la molette).
+ * Téléphone et tablette : le menu du haut n'est plus collé (il cachait les cadres EXP, AP… et la moitié de la barre d'énergie) ; seules les barres restent collées, tout en haut. */
+@media (max-width:1099px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{position:static}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{top:0}
+}
+@media (min-width:1100px) and (hover:hover) and (pointer:fine), (min-width:1500px) and (min-height:800px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-top:0}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{position:static;margin:0 0 10px;padding:0 0 4px;box-shadow:none}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2>.soreal-idle-summary-grid-v28{margin-top:0}
+}

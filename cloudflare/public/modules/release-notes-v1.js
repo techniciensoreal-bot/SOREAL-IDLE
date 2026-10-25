@@ -32,6 +32,9 @@
         date:'2026-10-24',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Réglages refaits : quatre catégories (Mon jeu, Son et image, Ma partie, Infos) au lieu d’une longue liste ; les blocs de développement et d’administrateur ne sont plus dans ce menu.',
+            'Pour tout effacer, il faut maintenant taper « TOUT EFFACER » pour confirmer, afin de ne pas le faire par erreur.',
+            'Sur PC, plus d’espace vide au-dessus des cadres Attaque, Défense…, le menu de gauche est au même niveau et rien ne bouche plus la page ; sur téléphone, le menu du haut ne cache plus les cadres du haut.',
             'Les informations entre parenthèses des chroniques de boss (une nouveauté débloquée, par exemple) s’affichent maintenant en notification, comme les trophées, avec leur propre son, dès que tu atteins le boss concerné.',
             'Toutes les notifications restent un peu plus longtemps à l’écran.',
             'Sur PC, la fiche d’un objet s’ouvre au-dessus de l’objet sur lequel tu as cliqué.',
@@ -48,6 +51,9 @@
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
             'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les compteurs de graines et de Poop sont maintenant tout en haut de la page.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'NGU : côté Énergie, c’est le jour (ciel qui s’assombrit en descendant, nuages, arc-en-ciel, soleil) ; côté Magie, la nuit avec une lune d’Halloween, des aurores boréales et des chauves-souris. Sans énergie (ou sans magie) placée, le soleil (la lune) ne brille pas.',

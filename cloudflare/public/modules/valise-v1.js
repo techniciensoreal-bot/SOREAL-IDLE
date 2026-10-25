@@ -170,6 +170,8 @@
   var ROULEAU='<b class="vl-ro-corps"></b>';
 
   /* Icône de graine (dessinée, sans fichier) : une graine brune qui germe, dans le même écrin que les images de la boutique. */
+  /* L'image de base de la graine (Norman, 2026-10-25 : « je veux l'image de base de la graine sur la langue ») : celle de l'objet « A Giant Seed », la même que sur la page Yggdrasil ; le dessin ci-dessous ne sert que de secours. */
+  var GRAINE_IMAGE='/api/idle/media/item?wikiItemId=92';
   var GRAINE='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" fill="#cfe8b0"/><path d="M24 22C24 14 18 10 12 11C12 18 17 23 24 22Z" fill="#4aa33a" stroke="#1f3a14" stroke-width="2"/><path d="M24 22C25 15 30 11 36 12C35 19 30 23 24 22Z" fill="#5cbc47" stroke="#1f3a14" stroke-width="2"/><path d="M24 22V28" stroke="#1f3a14" stroke-width="2.4"/><ellipse cx="24" cy="34" rx="8" ry="10" fill="#a8692c" stroke="#3a200a" stroke-width="2.4"/><path d="M21 30C22 34 21 38 20 40" fill="none" stroke="#e6b97a" stroke-width="2" stroke-linecap="round"/></svg>');
   function nb(q){var f=reg_().formatGrandNombreIdleV70_;try{return typeof f==='function'?String(f(q)):String(q);}catch(_e){return String(q);}}
 
@@ -195,7 +197,7 @@
   function artReserve(o,n){
     return '<div class="vl-art vl-reserve" title="'+esc(o.nom)+'">'+
       '<span class="vl-pastille">× '+esc(nb(n))+'</span>'+
-      '<img src="'+(o.icone==='graine'?GRAINE:'/shop/'+o.img+'.png')+'" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">'+
+      '<img src="'+(o.icone==='graine'?GRAINE_IMAGE:'/shop/'+o.img+'.png')+'" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="'+(o.icone==='graine'?"this.onerror=null;this.src='"+GRAINE+"'":'this.remove()')+'">'+
       '<span class="vl-etiq">'+esc(o.nom)+'</span>'+
     '</div>';
   }

@@ -503,12 +503,22 @@
           );
       }
 
+      /* le bouton de confirmation ne s'allume que si le mot est exact */
+      window.__verifierSaisieResetIdleV1__=function(champ){
+        const b=document.getElementById('sorealIdleResetTotalConfirmV67');
+        if(b)b.disabled=String(champ&&champ.value||'').trim().toUpperCase()!=='TOUT EFFACER';
+      };
+
       function executerResetTotalIdleV67_(){
         if(
           idleResetTotalEnCoursV67
         ){
           return;
         }
+
+        /* garde : rien ne part sans le mot de confirmation */
+        const saisieReset=document.getElementById('sorealIdleResetTotalSaisieV67');
+        if(!saisieReset||String(saisieReset.value||'').trim().toUpperCase()!=='TOUT EFFACER')return;
 
         idleResetTotalEnCoursV67=true;
 
@@ -569,12 +579,15 @@
                   '<li>❌ Date de début</li>'+
                 '</ul>'+
                 '<div class="soreal-idle-total-reset-warning-v67">⚠️ Irréversible. Après le reset, le jeu recréera ton compte exactement comme lors d’une première connexion.</div>'+
+                /* Confirmation par saisie (Norman, 2026-10-25 : « pour réinitialiser sa partie, il faut qu'on nous demande de taper quelque chose pour confirmer ») : le bouton reste éteint tant que « TOUT EFFACER » n'est pas écrit. */
+                '<div style="margin-top:12px;text-align:center;font-size:13px;color:#ffd0d6;font-weight:800">Pour confirmer, tape <b data-sans-traduction style="letter-spacing:.06em">TOUT EFFACER</b> ci-dessous :</div>'+
+                '<input id="sorealIdleResetTotalSaisieV67" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Tape ici" style="display:block;width:100%;box-sizing:border-box;margin-top:8px;padding:10px;border-radius:10px;border:2px solid #7f1d1d;background:#12060a;color:#fff;font:800 16px/1 inherit;text-align:center;letter-spacing:.08em" oninput="window.__verifierSaisieResetIdleV1__(this)">'+
                 '<div id="sorealIdleResetTotalStatusV67" style="margin-top:9px;color:#d7b4ba;font-size:12px;font-weight:900;text-align:center"></div>'+
               '</div>'+
             '</div>'+
             '<div class="soreal-idle-modal-actions-v63">'+
               '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerPopupResetTotalIdleV67__()">Annuler</button>'+
-              '<button id="sorealIdleResetTotalConfirmV67" type="button" class="soreal-idle-modal-button-v63 confirm soreal-idle-total-reset-final-v67" onclick="window.__executerResetTotalIdleV67__()">🗑️ Tout effacer</button>'+
+              '<button id="sorealIdleResetTotalConfirmV67" type="button" disabled class="soreal-idle-modal-button-v63 confirm soreal-idle-total-reset-final-v67" onclick="window.__executerResetTotalIdleV67__()">🗑️ Tout effacer</button>'+
             '</div>'+
           '</div>';
 

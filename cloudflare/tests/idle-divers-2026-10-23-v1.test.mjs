@@ -273,3 +273,14 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::after') && g.includes('.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after'));
   assert.ok(g.includes("'.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;"));
 }
+
+// 2026-10-25 (suite) : Réglages en quatre catégories sans blocs développement/administrateur, réinitialisation par saisie de « TOUT EFFACER », compteurs d'Yggdrasil en haut, image de base de la graine sur la valise, PC sans espace vide ni éléments collés qui bouchent.
+{
+  const rg = lire("cloudflare/public/modules/ui-reglages-v1.js"), rn = lire("cloudflare/public/modules/ui-renaissance-v1.js"), yg = lire("cloudflare/public/modules/yggdrasil-elfes-v1.js"), va = lire("cloudflare/public/modules/valise-v1.js"), th = lire("cloudflare/public/soreal-idle-themes.css");
+  assert.ok(rg.includes("const REGLAGES_ONGLETS_IDLE_V1=[") && rg.includes("window.__reglagesOngletIdleV1__=") && !rg.includes("rendrePartiesDevIdleV1_()+") && !rg.includes("Accès à SOREAL IDLE (administrateur)</div>'+\n              '<div style"));
+  assert.ok(!/Outils de test \(administrateur\)<\/div>'\+/.test(rg) && !rg.includes("htmlReglagesDiarrheesIdleV1_()+") && !rg.includes("htmlReglagesSonsDefaiteIdleV1_()+"));
+  assert.ok(rn.includes("sorealIdleResetTotalSaisieV67") && rn.includes("TOUT EFFACER") && rn.includes("<button id=\"sorealIdleResetTotalConfirmV67\" type=\"button\" disabled"));
+  assert.ok(yg.includes('<div class="ygg-monnaies-haut">') && yg.indexOf("ygg-monnaies-haut\">") < yg.indexOf("'<div class=\"ygg-grille\">'"));
+  assert.ok(va.includes("var GRAINE_IMAGE='/api/idle/media/item?wikiItemId=92';") && va.includes("o.icone==='graine'?GRAINE_IMAGE:"));
+  assert.ok(th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{position:static}") && th.includes(".soreal-idle-hud-v2{position:static;margin:0 0 10px;padding:0 0 4px;box-shadow:none}") && th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-top:0}"));
+}

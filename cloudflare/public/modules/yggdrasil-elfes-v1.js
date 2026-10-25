@@ -182,6 +182,7 @@
       /* Bandeau du bas. */
       '.ygg-bas{margin-top:2.6cqw;padding:2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;display:grid;grid-template-columns:1.1fr 1fr;gap:2.2cqw;align-items:center;}',
       '.ygg-monnaies{display:flex;flex-wrap:wrap;gap:2.4cqw;align-items:center;}',
+      '.ygg-monnaies-haut{margin:0 0 2.6cqw;padding:1.6cqw 2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;}',
       '.ygg-monnaie{display:flex;align-items:center;gap:1.2cqw;font-size:clamp(15px,4.2cqw,28px);font-weight:900;color:var(--or);text-shadow:0 2px 0 #000;}',
       '.ygg-monnaie .ygg-vignette{position:relative;width:clamp(34px,10cqw,64px);height:clamp(34px,10cqw,64px);display:flex;align-items:center;justify-content:center;border:3px solid #000;border-radius:10px;background:radial-gradient(circle at 50% 35%,#4a8a58,#0d2a18);}',
       '.ygg-vignette .ygg-img{inset:8%;width:84%;height:84%;}',
@@ -601,13 +602,14 @@
       '<div class="ygg-entete"><button type="button" class="ygg-aide-bouton" onclick="window.__SOREAL_IDLE_YGG_V1__.aide()">Que faire ici ?</button>'+
         '<div class="ygg-titre"><i class="ygg-feu g">'+FEUILLAGE_+'</i><i class="ygg-feu d">'+FEUILLAGE_+'</i><i class="ygg-vigne">'+VIGNE_+'</i><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec du caca)</small></div></div>'+
       '<div class="ygg-aide'+(etat.aide?' ouvert':'')+'">Chaque tier donne une heure de croissance de plus. <b>Active</b> un fruit, laisse-le pousser, puis <b>mange-le</b> pour son effet ou <b>récolte-le</b> pour doubler les graines. Les graines servent à <b>améliorer</b> les fruits. Une poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.</div>'+
+      /* Compteurs de graines et de Poop EN HAUT de la page (Norman, 2026-10-25) */
+      '<div class="ygg-monnaies-haut"><div class="ygg-monnaies">'+
+        '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('seed','🌱')+'</span>'+html_(grand_(d.seeds))+'</div>'+
+        '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('poop','💩')+'</span>'+html_(grand_(d.poop))+'</div>'+
+      '</div></div>'+
       onglets+
       '<div class="ygg-grille">'+cartes+'</div>'+
       '<div class="ygg-bas">'+
-        '<div class="ygg-monnaies">'+
-          '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('seed','🌱')+'</span>'+html_(grand_(d.seeds))+'</div>'+
-          '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('poop','💩')+'</span>'+html_(grand_(d.poop))+'</div>'+
-        '</div>'+
         '<div class="ygg-actions-bas">'+
           '<button type="button" class="ygg-btn" '+(pretsMax?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.tout(\'max\')">Manger / récolter tous les fruits au tier max</button>'+
           '<button type="button" class="ygg-btn" '+(prets?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.tout(\'tous\')">Manger / récolter tous les fruits ≥ tier 1</button>'+
