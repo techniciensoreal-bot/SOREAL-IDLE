@@ -44,8 +44,8 @@
   "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 263,
-  "sha": "6694f30c08d900c4239d08374e1cc4a8375d7359"
+  "pin": 264,
+  "sha": "1e75bb24810e6e55c8564d5b3aac9e11c985bbf5"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
