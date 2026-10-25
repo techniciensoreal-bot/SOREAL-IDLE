@@ -59,6 +59,7 @@
             'Nouveau look pour Chroniques : tout en bleus de nuit, des onglets en verre qui s’allument dans la couleur de leur sous-menu, des puces et des cadres assortis (plus de jaune).',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Rituels : le « Sang collecté » et le sang dans le récipient ne comptent plus de rituel terminé tant que le moteur n’en a validé aucun (par exemple quand il te manque de l’Or) ; avant, 2 rituels fantômes s’affichaient.',
             'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[

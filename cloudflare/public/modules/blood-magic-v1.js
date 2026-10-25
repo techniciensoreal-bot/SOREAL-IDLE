@@ -368,6 +368,12 @@ function creer(hote){
        */
       const AVANCE_SECONDES_BLOOD_V1=12;
       function avanceMaxBloodIdleV1_(e){
+        /*
+         * Aucune avance tant que le serveur n'a validé AUCUNE complétion de ce rituel (Norman, 2026-10-25 : « avec le rituel du bol de barbelés, j'ai placé ma magie, du sang est apparu dans le bol et Sang collecté indiquait 120K alors que le rituel ne s'est pas terminé ;
+         * je n'ai pas ce sang »). Le « au moins 2 » d'avance faisait afficher 2 rituels terminés (donc 2 × le sang du rituel, et un récipient qui se remplit) alors que le moteur n'en avait terminé aucun (Or manquant, par exemple). Un rituel jamais validé reste à 0.
+         */
+        const valide=Boolean(e&&((Number(e.ns)||0)>0||(Number(e.taux)||0)>0));
+        if(!valide)return 0;
         return Math.max(2,Math.ceil((Number(e&&e.taux)||0)*AVANCE_SECONDES_BLOOD_V1));
       }
       function compteAfficheBloodIdleV1_(id,n){

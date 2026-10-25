@@ -257,3 +257,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(w.includes("pair:{resource:charges[1].resource,value:charges[1].value}") && w.includes("gardeBarres_[cleG]"));
   assert.ok(ng.includes('payload.pair && typeof payload.pair === "object"'));
 }
+
+// Rituels : aucun « rituel terminé » affiché (ni sang collecté, ni récipient qui se remplit) tant que le serveur n'en a validé aucun (2026-10-25).
+{
+  const b = lire("cloudflare/public/modules/blood-magic-v1.js");
+  assert.ok(b.includes("const valide=Boolean(e&&((Number(e.ns)||0)>0||(Number(e.taux)||0)>0));") && b.includes("if(!valide)return 0;"));
+}
