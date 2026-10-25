@@ -3,8 +3,8 @@
 Crée la voix « Savant cynique » (Norman, 2026-10-25 : « une voix qui ressemble à celle de Rick dans Rick & Morty ») : voix/savant.wav.
 
 Ce n'est PAS un clone de l'acteur : aucun extrait de la série n'est utilisé. L'extrait de référence est fabriqué depuis la voix d'homme du studio (voix/homme.wav) :
-un peu plus grave, un peu plus lent (voix qui traîne), un timbre nasal (bande 1,2 à 2,8 kHz renforcée) et rauque (saturation douce + souffle modulé), comme un vieux savant
-blasé. Chatterbox imite ensuite ce timbre pour tout texte. Réglage conseillé (reglages-voix.json) : exaggeration 0,7, cfg 0,3 (débit relâché, humeur marquée).
+un peu plus grave, au débit vif (pas de voix qui traîne : le ralenti rendait la voix artificielle), un timbre nasal (bande 1,2 à 2,8 kHz renforcée) et rauque (saturation douce + souffle modulé), comme un vieux savant
+blasé. Chatterbox imite ensuite ce timbre pour tout texte. Réglage conseillé (reglages-voix.json) : exaggeration 0,6, cfg 0,55 (débit naturel).
 Ne remplace pas un extrait déjà présent (--force pour refaire).
 """
 import os
@@ -21,7 +21,7 @@ ESSAIS = os.path.join(BASE, "candidats", "savant")
 FORCE = "--force" in sys.argv
 
 
-def fabriquer(sortie, demi_tons=-1.5, vitesse=0.93, rauque=0.35, nasal=0.8):
+def fabriquer(sortie, demi_tons=-1.0, vitesse=1.08, rauque=0.18, nasal=0.5):
     y, sr = librosa.load(os.path.join(VOIX, "homme.wav"), sr=24000, mono=True)
     y = y[: int(sr * 14)]
     z = librosa.effects.pitch_shift(y, sr=sr, n_steps=demi_tons)
@@ -42,7 +42,7 @@ def fabriquer(sortie, demi_tons=-1.5, vitesse=0.93, rauque=0.35, nasal=0.8):
 
 os.makedirs(ESSAIS, exist_ok=True)
 fabriquer(os.path.join(ESSAIS, "savant_a.wav"))
-fabriquer(os.path.join(ESSAIS, "savant_b_plus_rauque.wav"), -2.5, 0.9, 0.6, 1.0)
+fabriquer(os.path.join(ESSAIS, "savant_b_plus_rauque.wav"), -2.0, 1.0, 0.4, 0.8)
 cible = os.path.join(VOIX, "savant.wav")
 if os.path.isfile(cible) and not FORCE:
     print("Déjà présent :", cible)

@@ -101,7 +101,7 @@ assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voi
 // Savant cynique (2026-10-25) : voix fabriquée (pas un clone), réglée dans reglages-voix.json ; la balise (rot) joue un rot synthétisé au milieu du texte.
 {
   assert.ok(reg.existe("savant"));
-  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.7);
+  assert.equal(JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8")).savant.exaggeration, 0.6);
   assert.ok(readFileSync("cloudflare/tools/voice-studio/creer_voix_savant.py", "utf8").includes("PAS un clone"));
   const tts = readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8"), aud = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
   assert.ok(tts.includes("(rots?|renvois?|burp)") && tts.includes("{pause:DUREE_ROT_MS,rot:true}") && tts.includes("son.rot()"));
