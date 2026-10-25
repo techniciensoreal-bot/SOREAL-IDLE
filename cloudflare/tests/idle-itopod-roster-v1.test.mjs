@@ -112,3 +112,19 @@ console.log("idle-itopod-roster-v1: OK");
   const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(meta.includes("Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000"), "progression PP en chiffres complets");
 }
+
+// Avatars d'Halloween de TV (2026-10-25) : un profil dont TV donne un avatar de shared/halloween/avatars/ garde cet avatar dans l'ITOPOD (au lieu de l'emoji), et l'image est servie.
+{
+  const m = await import("../src/idle-itopod-roster-v1.js");
+  const r = m.idleItopodRosterV1({ parEmail: { a: { nom: "Marie", avatarUrl: "/assets/shared/halloween/avatars/citrouille.webp?v=3" }, b: { nom: "Paul", avatarUrl: "/assets/shared/avatars/level-3/x.webp?v=1" }, c: { nom: "Eve", avatarUrl: "/assets/shared/autre/x.webp" } } });
+  const par = Object.fromEntries(r.map((w) => [w.nom, w.avatar]));
+  assert.equal(par.Marie, "shared/halloween/avatars/citrouille.webp");
+  assert.equal(par.Paul, "shared/avatars/level-3/x.webp");
+  assert.equal(par.Eve, "", "un dossier non prévu reste refusé");
+  const env = { SOREAL_R2: { get: async (k) => (k === "shared/halloween/avatars/citrouille.webp" ? { body: "x", httpEtag: "e", writeHttpMetadata() {} } : null) } };
+  const ok = await m.idleItopodImagePartageeV1(new Request("https://x/y"), env, new URL("https://x/api/idle/media/shared?key=" + encodeURIComponent("shared/halloween/avatars/citrouille.webp")));
+  assert.equal(ok.status, 200);
+  const ko = await m.idleItopodImagePartageeV1(new Request("https://x/y"), env, new URL("https://x/api/idle/media/shared?key=" + encodeURIComponent("shared/halloween/decors/a.webp")));
+  assert.equal(ko.status, 400);
+  console.log("idle-itopod-roster-v1 (halloween) OK");
+}

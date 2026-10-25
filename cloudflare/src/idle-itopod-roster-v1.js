@@ -12,6 +12,9 @@ export const IDLE_ITOPOD_TV_ORIGIN_V1 = "https://soreal-tv.technicien-soreal.wor
 export const IDLE_ITOPOD_TV_HOTE_INTERNE_V1 = "https://soreal-tv.internal";
 export const IDLE_ITOPOD_AVATAR_PREFIX_V1 = "shared/avatars/";
 export const IDLE_ITOPOD_DECOR_PREFIX_V1 = "shared/avatar-backgrounds/";
+/* Avatars d'Halloween de TV (Norman, 2026-10-25 : « ça n'affiche pas les avatars d'Halloween dans l'ITOPOD, on a des emojis à la place ; je voudrais toujours ce que TV affiche ») : pendant la semaine, TV remplace l'avatar d'un profil par un
+   fichier de shared/halloween/avatars/ (zone halloween-avatars de TV). Ce dossier est accepté en plus, UNIQUEMENT pour l'avatar d'un profil de l'équipe (jamais dans le tirage au hasard des joueurs). */
+export const IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1 = "shared/halloween/avatars/";
 /* Décors de la tour (Norman, 2026-10-04) : idle/itopod/, un fichier par étage de 1 à 10 (le numéro est le premier nombre du nom de fichier). */
 export const IDLE_ITOPOD_ETAGE_PREFIX_V1 = "idle/itopod/";
 export const IDLE_ITOPOD_ETAGES_V1 = 10;
@@ -74,7 +77,7 @@ export function idleItopodRosterV1(cosmetics) {
   for (const item of Object.values(par && typeof par === "object" ? par : {})) {
     const nom = text(item && item.nom).slice(0, 40);
     if (!nom || IDLE_ITOPOD_EXCLUS_V1.includes(norm(nom))) continue;
-    const avatar = idleItopodCleR2V1(item.avatarUrl, IDLE_ITOPOD_AVATAR_PREFIX_V1);
+    const avatar = idleItopodCleR2V1(item.avatarUrl, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(item.avatarUrl, IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1);
     const k = norm(nom);
     if (!out.has(k) || (!out.get(k).avatar && avatar)) out.set(k, { nom, avatar });
   }
@@ -183,7 +186,7 @@ function jsonReponse(valeur) {
 /* Image partagée (avatar ou décor) servie depuis R2 : uniquement les dossiers shared/avatars/ et shared/avatar-backgrounds/. */
 export async function idleItopodImagePartageeV1(request, env, url) {
   const brute = text(url.searchParams.get("key"));
-  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_ETAGE_PREFIX_V1);
+  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_ETAGE_PREFIX_V1);
   if (!cle) return new Response("Image invalide", { status: 400, headers: { "cache-control": "no-store" } });
   if (!env || !env.SOREAL_R2 || typeof env.SOREAL_R2.get !== "function") return new Response("Média indisponible", { status: 503, headers: { "cache-control": "no-store" } });
   const objet = await env.SOREAL_R2.get(cle);
