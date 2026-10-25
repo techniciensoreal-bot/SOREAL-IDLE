@@ -18,7 +18,7 @@ assert.match(ui, /if\(res&&res\.ok\)\{\s*location\.reload\(\);/, "la page se rec
 
 // Affiché en tête de Paramètres, avant Info ; les deux parties nommées ; la partie active est grisée.
 const page = ui.slice(ui.indexOf("function pageParametresIdleV28_(j)"), ui.indexOf("function contenuMenuIdleV28_(j)"));
-assert.ok(page.indexOf("rendrePartiesDevIdleV1_()") > 0 && page.indexOf("rendrePartiesDevIdleV1_()") < page.indexOf("soreal-idle-info-titre-v1"));
+assert.ok(!page.includes("rendrePartiesDevIdleV1_()"), "les parties A/B ne sont plus dans les Réglages (2026-10-25)");
 assert.match(ui, /bouton\('a','Partie A','Ta vraie partie'\)/);
 assert.match(ui, /bouton\('b','Partie B','Comparaison NGU IDLE'\)/);
 assert.match(ui, /active\?'disabled aria-pressed="true" '/);

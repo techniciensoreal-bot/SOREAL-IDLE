@@ -20,5 +20,5 @@ assert.ok(audio.includes("previewDefeat:ecouterDefaite_"), "écoute possible (d�
 /* Réglages : section seulement en mode développement, sans case qui change le jeu */
 const sec = ui.slice(ui.indexOf("function htmlReglagesSonsDefaiteIdleV1_(){"), ui.indexOf("/* Effets visuels (Norman, 2026-10-08)"));
 assert.ok(sec.includes("if(!idlePartieDevV1||!idlePartieDevV1.actif") && sec.includes("return '';") && !sec.includes('type="checkbox"'), "section réservée au développement, écoute seulement");
-assert.ok(ui.includes("htmlReglagesSonsDefaiteIdleV1_()+"), "section posée dans les Réglages");
+assert.ok(!ui.includes("htmlReglagesSonsDefaiteIdleV1_()+"), "les sons de défaite (développement) ne sont plus dans les Réglages (2026-10-25)");
 console.log("idle-sons-defaite-choix-v1: OK");
