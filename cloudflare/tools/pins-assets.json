@@ -316,8 +316,8 @@
   "sha": "1791e998db8bfe2385867599416144e3ed5dfdf9"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 35,
-  "sha": "16b9dceb5247360bf71249842dbc1f0e3c6169e8"
+  "pin": 36,
+  "sha": "d8534e505b17845637e3673f0d7859ef05de37fa"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -612,8 +612,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 230,
-  "sha": "de2bd72bd367b43f693bde376081c23ad9d27efc"
+  "pin": 231,
+  "sha": "cf12fa42033ccda758f9d3c4942ecec8749b6c25"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
@@ -628,8 +628,8 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 129,
-  "sha": "b2823543e708b8e14c216c151a270216128d8637"
+  "pin": 130,
+  "sha": "f3078e3e9715c3832d38c94f7e8353f244a7f59e"
  },
  "/soreal-idle-ui.css": {
   "pin": 56,
