@@ -22,14 +22,14 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.8',
+    courante:'3.9',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
       {
-        version:'3.8',
-        nom:'Tout en anglais',
-        date:'2026-10-24',
+        version:'3.9',
+        nom:'Le jour et la nuit',
+        date:'2026-10-25',
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Réglages refaits : quatre catégories (Mon jeu, Son et image, Ma partie, Infos) au lieu d’une longue liste ; les blocs de développement et d’administrateur ne sont plus dans ce menu.',
@@ -38,7 +38,6 @@
             'Les informations entre parenthèses des chroniques de boss (une nouveauté débloquée, par exemple) s’affichent maintenant en notification, comme les trophées, avec leur propre son, dès que tu atteins le boss concerné.',
             'Toutes les notifications restent un peu plus longtemps à l’écran.',
             'Sur PC, la fiche d’un objet s’ouvre au-dessus de l’objet sur lequel tu as cliqué.',
-            'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
             'Le son de défaite joué à l’envers part maintenant en même temps que le rembobinage de l’image (il était prêt trop tard) ; le chœur d’anges est un peu plus court.',
             'Équiper ou retirer une pièce qui donne du cap d’énergie ou de magie : quand l’énergie (ou la magie) que tu as placée l’empêche, un bandeau rouge te dit combien libérer. Avant, le refus ne s’affichait pas.',
             'Les très grands nombres n’utilisent plus l’écriture « e+96 » : après Tg, le jeu continue avec des lettres (AA = 1 suivi de 96 zéros, puis AB, AC… jusqu’à CS), chacune avec sa couleur. On peut aussi les saisir ainsi (par exemple « 2AA »).',
@@ -48,9 +47,6 @@
             'Sur PC, la barre latérale des menus monte maintenant jusqu’en haut de la page, à côté de la barre de vie, même quand on remonte le menu ouvert.',
             'Quand tu meurs et que ton image réapparaît en fondu d’ouverture, un chœur d’anges (« aaaaah ») accompagne le fondu.',
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
-            'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
-            'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
-            'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Les compteurs de graines et de Poop sont maintenant tout en haut de la page.',
@@ -70,6 +66,19 @@
           {menu:'sang', titre:'Magie du sang', points:[
             'Rituels : le « Sang collecté » et le sang dans le récipient ne comptent plus de rituel terminé tant que le moteur n’en a validé aucun (par exemple quand il te manque de l’Or) ; avant, 2 rituels fantômes s’affichaient.',
             'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',
+          ]},
+        ]
+      },
+      {
+        version:'3.8',
+        nom:'Tout en anglais',
+        date:'2026-10-24',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
+            'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
+            'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
+            'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Une longue absence compte maintenant toutes les barres : avant, chaque barre était plafonnée à 10 000 niveaux à ton retour, alors que le jeu en ligne en gagne bien plus.',
