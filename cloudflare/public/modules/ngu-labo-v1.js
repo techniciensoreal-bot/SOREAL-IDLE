@@ -50,7 +50,7 @@ function etoilesHtml_(){
 }
 var ETOILES=etoilesHtml_();
 /* Jour et nuit (Norman, 2026-10-25 : « le NGU côté Énergie représente le jour, avec des nuages et le soleil ; le NGU Magie la nuit, avec une lune comme celle d'Halloween ; sans énergie (ou sans magie), le soleil (la lune) ne brille pas ») : l'astre (soleil ou lune) et sa couche (nuages le jour, chauves-souris la nuit). */
-var ASTRES='<span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
+var ASTRES='<span class="nl-arc" aria-hidden="true"></span><span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
 var CHAUVES_URI=(function(){
   var chauve='M0 0C-10-14-28-16-40-6C-34-6-28-2-26 6C-20 0-12 0-8 8C-4 2 4 2 8 8C12 0 20 0 26 6C28-2 34-6 40-6C28-16 10-14 0 0Z';
   var svg='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="240" viewBox="0 0 900 240"><g fill="#07030f">'+
@@ -240,10 +240,17 @@ var CSS=
   '.nl-v1[data-nl-onglet="energy"] .nl-entete p{color:#eaf4ff;text-shadow:0 1px 3px rgba(5,30,70,.8)}'+
   '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="energy"] .nl-nuages{animation:nlNuages 150s linear infinite}.nl-v1[data-nl-onglet="energy"] .nl-astre::before{animation:nlRayons 90s linear infinite}'+
     '@keyframes nlNuages{from{background-position:0 0}to{background-position:640px 0}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
+  /* Arc-en-ciel le jour, aurores boréales la nuit (Norman, 2026-10-25). Éclat selon --nl-lueur ; éteints quand rien n'est placé. */
+  '.nl-v1>.nl-arc{position:absolute;pointer-events:none;z-index:0;display:none}'+
+  '.nl-v1[data-nl-onglet="energy"]>.nl-arc{display:block;left:7%;width:86%;top:46px;height:210px;filter:blur(.6px);opacity:calc(.3 + var(--nl-lueur,0)*.5);-webkit-mask:linear-gradient(180deg,#000 58%,transparent);mask:linear-gradient(180deg,#000 58%,transparent);background:radial-gradient(ellipse 50% 100% at 50% 100%,transparent 0 64%,rgba(255,70,70,.9) 65% 69%,rgba(255,150,40,.9) 69% 73%,rgba(255,226,70,.9) 73% 77%,rgba(90,205,100,.9) 77% 81%,rgba(70,160,255,.9) 81% 85%,rgba(90,80,225,.9) 85% 89%,rgba(165,90,225,.9) 89% 93%,transparent 94%)}'+
+  '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"]>.nl-arc{opacity:.12;filter:grayscale(1)}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-arc{display:block;left:0;right:0;top:0;height:300px;opacity:calc(.25 + var(--nl-lueur,0)*.75);filter:blur(3px) saturate(1.3);background:linear-gradient(180deg,transparent 0,rgba(60,255,170,.3) 10%,rgba(80,255,190,.95) 36%,rgba(50,215,235,.85) 56%,rgba(170,100,255,.7) 78%,transparent 100%);-webkit-mask:repeating-linear-gradient(96deg,#000 0,rgba(0,0,0,.2) 26px,#000 52px,rgba(0,0,0,.35) 78px,#000 104px) 0 0/416px 100%;mask:repeating-linear-gradient(96deg,#000 0,rgba(0,0,0,.2) 26px,#000 52px,rgba(0,0,0,.35) 78px,#000 104px) 0 0/416px 100%}'+
+  '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"]>.nl-arc{opacity:0}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="magic"]>.nl-arc{animation:nlAurore 46s linear infinite}@keyframes nlAurore{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:416px 0;mask-position:416px 0}}}'+
   /* nuit : lune d'Halloween */
-  '.nl-v1[data-nl-onglet="magic"] .nl-astre{display:block;width:108px;height:108px;top:12px;right:6%}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-astre{display:block;right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}'+
   '.nl-v1[data-nl-onglet="magic"] .nl-astre::after{background:radial-gradient(circle at 30% 40%,rgba(150,60,8,.5) 0 9%,transparent 10%),radial-gradient(circle at 64% 28%,rgba(150,60,8,.42) 0 6%,transparent 7%),radial-gradient(circle at 56% 68%,rgba(150,60,8,.5) 0 11%,transparent 12%),radial-gradient(circle at 24% 72%,rgba(150,60,8,.38) 0 5%,transparent 6%),radial-gradient(circle at 78% 58%,rgba(150,60,8,.35) 0 4%,transparent 5%),radial-gradient(circle at 36% 32%,#ffe9a8 0,#ffb347 42%,#ff7d1a 78%,#d4560c 100%);box-shadow:0 0 calc(10px + var(--nl-lueur,0)*50px) calc(var(--nl-lueur,0)*10px) rgba(255,140,30,calc(.1 + var(--nl-lueur,0)*.7))}'+
-  '.nl-v1[data-nl-onglet="magic"] .nl-astre::before{inset:-54px;background:radial-gradient(circle,rgba(255,150,40,.6) 0,transparent 62%);opacity:calc(var(--nl-lueur,0)*.95)}'+
+  '.nl-v1[data-nl-onglet="magic"] .nl-astre::before{inset:-40px;background:radial-gradient(circle,rgba(255,150,40,.6) 0,transparent 62%);opacity:calc(var(--nl-lueur,0)*.95)}'+
   '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after{background:radial-gradient(circle at 30% 40%,rgba(40,44,60,.5) 0 9%,transparent 10%),radial-gradient(circle at 56% 68%,rgba(40,44,60,.5) 0 11%,transparent 12%),radial-gradient(circle at 64% 28%,rgba(40,44,60,.42) 0 6%,transparent 7%),radial-gradient(circle at 36% 32%,#aeb3c0 0,#6b7080 70%,#4c5060 100%);box-shadow:none}'+
   '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::before{opacity:0}'+
   '.nl-v1[data-nl-onglet="magic"] .nl-nuages{display:block;height:240px;background-size:900px 240px;background-image:url("'+CHAUVES_URI+'");opacity:calc(var(--nl-lueur,0)*.8)}'+
