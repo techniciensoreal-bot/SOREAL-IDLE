@@ -40,6 +40,8 @@ function stockage(initial = {}) {
 // 2. Les images suivent la cadence et le sens réglés (banc ET jeu : même fonction).
 const codeI = [
   codeR.replace(/this\.api=[^\n]*$/, ""), "var etat={};",
+  coupe(/var FRUITS_24_=\{[^}]*\};/),
+  coupe(/function nbEtapes_\(id\)\{[^\n]*\n/),
   coupe(/function urlEtape_\(id,k\)\{[^\n]*\n/), coupe(/function jouerImages_\(id,vitre,depart,R,fini\)\{[\s\S]*?\n {2}\}\n/),
   "this.api={jouerImages_:jouerImages_,reglages_:reglages_};"
 ].join("\n");

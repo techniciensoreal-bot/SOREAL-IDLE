@@ -18,6 +18,8 @@ const code = [
   coupe(/var CLE_REGLAGES_=[^\n]*\n/),
   coupe(/function reglages_\(\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function ecrireReglages_\(r\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/var FRUITS_24_=\{[^}]*\};/),
+  coupe(/function nbEtapes_\(id\)\{[^\n]*\n/),
   coupe(/function urlEtape_\(id,k\)\{[^\n]*\n/),
   coupe(/function precharger_\(id\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function jouerImages_\(id,vitre,depart,R,fini\)\{[\s\S]*?\n {2}\}\n/),
@@ -82,7 +84,7 @@ for (const e of [null, 0]) { const m = monde(); m.api.regler(e); m.api.lancerAni
 { const m = monde(); m.api.precharger_("gold"); m.api.precharger_("gold"); assert.equal(m.images.length, 20, "20 images préchargées, une fois"); assert.deepEqual(m.images.map((i) => i.srcs[0].match(/etape=(\d+)/)[1]), Array.from({ length: 20 }, (_, i) => String(i))); }
 // 6. Branchements : l'animation part du clic Manger / Récolter (et de « tout »), le préchargement dès qu'un fruit est prêt au maximum ; titre en bois sans découpe.
 assert.ok(/function lancerUsage_\(id,avecPoop\)\{[\s\S]{0,200}lancerAnimation_\(id\);/.test(src), "animation lancée par Manger / Récolter / tout (même chemin)");
-assert.ok(src.includes("if(etapeCroissance_(d,v)===19)precharger_(id);"), "préchargement dès l'arrivée d'un fruit prêt au maximum");
+assert.ok(src.includes("if(etapeCroissance_(d,v)===nbEtapes_(id)-1)precharger_(id);"), "préchargement dès l'arrivée d'un fruit prêt au maximum");
 const titre = src.match(/'\.ygg-titre\{[^\n]*/)[0];
 assert.ok(!/clip-path/.test(titre) && /border-radius:999px/.test(titre) && /repeating-linear-gradient/.test(titre) && /rgba\(132,196,84/.test(titre), "titre en branche vivante : bouts arrondis (la bordure suit le contour), écorce striée, mousse");
 assert.ok(!/filter|animation/.test(titre), "dégradés statiques seulement");

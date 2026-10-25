@@ -18,7 +18,7 @@ assert.equal(choisirCleYggR2_(plat, "gold"), "idle/yggdrasil/Fruit_of_Gold.png",
 /* Côté page : image d'après la croissance / tier maximum */
 const src = fs.readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
 const m = src.match(/function etapeCroissance_\(d,v\)\{[\s\S]*?\n  \}/);
-const table = src.match(/var ETAPES_FRUITS_={[^}]*};/)[0];
+const table = src.match(/var ETAPES_FRUITS_={[^}]*};/)[0] + src.match(/var FRUITS_24_={[^}]*};/)[0] + src.match(/function nbEtapes_\(id\)\{[^\n]*\n/)[0];
 const etape = vm.runInNewContext(table + "(" + m[0].replace("function etapeCroissance_", "function") + ")");
 const v = (tier, growth, id = "gold") => ({ def: { id }, tier, growth });
 assert.equal(etape({ maxTier: 24 }, v(0, 0)), null, "fruit non débloqué : image de départ");
@@ -27,7 +27,14 @@ assert.equal(etape({ maxTier: 24 }, v(24, 23.9)), 18, "presque au bout : pas la 
 assert.equal(etape({ maxTier: 24 }, v(24, 24)), 19, "tier max et poussé : dernière image");
 assert.equal(etape({ maxTier: 24 }, v(10, 10)), 7, "tier 10 sur 24 entièrement poussé : pas la dernière");
 assert.equal(etape({ maxTier: 10 }, v(10, 10)), 19, "maximum 10 avant les victoires au Troll");
-assert.equal(etape({ maxTier: 24 }, v(5, 5, "luck")), null, "les autres fruits gardent leur image");
+assert.equal(etape({ maxTier: 24 }, v(5, 5, "fruit-inconnu")), null, "un fruit sans images de croissance garde son image unique");
+/* Les 17 autres fruits ont 24 images (une par heure du tier maximum de 24 h) : la dernière n'apparait que fruit au tier maximum ET entièrement poussé. */
+assert.equal(etape({ maxTier: 24 }, v(0, 0, "luck")), null, "fruit non débloqué : image de départ");
+assert.equal(etape({ maxTier: 24 }, v(24, 0, "luck")), 0, "24 images : la première au début de la pousse");
+assert.equal(etape({ maxTier: 24 }, v(24, 12, "luck")), 11, "24 images : à mi-chemin");
+assert.equal(etape({ maxTier: 24 }, v(24, 23.9, "luck")), 22, "24 images : pas la dernière avant la fin");
+assert.equal(etape({ maxTier: 24 }, v(24, 24, "luck")), 23, "24 images : la dernière, mûr");
+assert.equal(etape({ maxTier: 10 }, v(10, 10, "prettyMayo")), 23, "24 images : maximum 10 avant les victoires au Troll");
 for (const id of ["powerAlpha", "powerBeta", "powerDelta"]) {
   assert.equal(etape({ maxTier: 24 }, v(24, 24, id)), 19, id + " : mêmes règles que l'or (tier max et poussé : dernière image)");
   assert.equal(etape({ maxTier: 24 }, v(4, 4, id)), 3, id + " : avance avec la croissance rapportée au tier maximum");

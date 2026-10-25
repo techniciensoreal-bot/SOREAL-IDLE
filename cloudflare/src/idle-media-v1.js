@@ -1479,6 +1479,14 @@ async function yggImage_(request,env,url){
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"){
     return new Response("Media Yggdrasil indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
+  /* ?decor=1 : le décor peint du fruit (idle/ygg-decors/<id>.webp, dossier HORS de idle/yggdrasil/ pour ne jamais être pris pour une image du fruit). */
+  if(url.searchParams.get("decor")==="1"){
+    const cleDecor="idle/ygg-decors/"+nom.replace(/[^A-Za-z0-9_-]/g,"")+".webp";
+    if(typeof env.SOREAL_R2.get!=="function")return new Response("Media Yggdrasil indisponible",{status:503,headers:{"cache-control":"no-store"}});
+    const decor=await env.SOREAL_R2.get(cleDecor);
+    if(!decor)return new Response("Décor Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+    return reponseObjetR2_(request,env,{key:cleDecor});
+  }
   if(Date.now()-yggCleCache_.at>60000){
     let keys=[];
     for(const prefix of ["idle/yggdrasil/","idle/Yggdrasil/","idle/ygg/"]){
@@ -1487,14 +1495,16 @@ async function yggImage_(request,env,url){
     }
     yggCleCache_={at:Date.now(),keys};
   }
-  /* ?etape=k (0 a 19, sur 20) : la k-ieme image de croissance du fruit, mise a l'echelle si le dossier n'en contient pas exactement 20. */
+  /* ?etape=k (0 a sur-1) : la k-ieme image de croissance du fruit, mise a l'echelle si le dossier n'en contient pas exactement `sur` (20 par defaut ; 24 pour les fruits aux 24 images, une par heure). */
   const etapeBrute=url.searchParams.get("etape");
+  const surBrut=url.searchParams.get("sur");
+  const sur=surBrut!==null&&/^\d{1,3}$/.test(surBrut)?Math.max(2,Math.min(100,parseInt(surBrut,10))):20;
   let key="";
   if(etapeBrute!==null&&/^\d{1,3}$/.test(etapeBrute)){
     const etapes=choisirEtapesYggR2_(yggCleCache_.keys,nom);
     if(etapes.length>=2){
-      const k=Math.min(19,parseInt(etapeBrute,10));
-      key=etapes[k>=19?etapes.length-1:Math.min(etapes.length-1,Math.floor(k*(etapes.length-1)/19))];
+      const k=Math.min(sur-1,parseInt(etapeBrute,10));
+      key=etapes[k>=sur-1?etapes.length-1:Math.min(etapes.length-1,Math.floor(k*(etapes.length-1)/(sur-1)))];
     }
   }
   if(!key)key=choisirCleYggR2_(yggCleCache_.keys,nom);

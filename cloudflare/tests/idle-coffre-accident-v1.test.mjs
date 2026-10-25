@@ -19,7 +19,7 @@ console.log("idle-coffre-accident-v1: OK");
   assert.ok(!acc.includes("bgFlaqueFin") && !/setTimeout\(function\(\)\{if\(f\.parentNode\)f\.parentNode\.removeChild\(f\);\}/.test(acc), "la flaque ne s'efface pas seule");
   assert.ok(acc.includes("flaqueNiveau-=1") && acc.includes("data-morph-garder") && acc.includes("ignorerClicJusqua"), "flaque : trois frottées, gardée au redessin, clic avalé");
   const ygg = lire("modules/yggdrasil-elfes-v1.js");
-  assert.ok(ygg.includes(".ygg-vitre.ygg-portrait{aspect-ratio:4/5;") && ygg.includes('class="ygg-vitre ygg-portrait"'), "cadre en portrait pour le fruit d'or (format, pas résolution)");
+  assert.ok(ygg.includes(".ygg-vitre.ygg-portrait{aspect-ratio:4/5;") && ygg.includes('class="ygg-vitre ygg-portrait'), "cadre en portrait pour le fruit d'or (format, pas résolution)");
 }
 /* Les répliques attendent que le Coffre soit entièrement à l'écran */
 assert.ok(dig.includes("function quandEntierementVisible_(f){") && dig.includes("r.top>=0&&r.left>=0&&r.bottom<=h&&r.right<=w") && dig.includes("quandEntierementVisible_(function(coffre){"), "répliques différées jusqu'à ce que le Coffre soit entièrement visible");

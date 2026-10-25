@@ -67,7 +67,7 @@
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
     /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
     /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
-    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape:'');
+    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape+(nbEtapes_(nom)===24?'&sur=24':''):'');
     return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
       'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
   }
@@ -143,6 +143,9 @@
       '.ygg-porte.referme .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both reverse;animation-delay:calc(1.15s*var(--vit,1));}',
       '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
+      /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
+      '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
+      '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
       /* Banc d'essai des animations (administrateur) */
       '.ygg-banc{margin-top:16px;padding:12px;border:3px solid #000;border-radius:10px;background:rgba(0,0,0,.3);color:#f4f8ea;}',
@@ -260,11 +263,19 @@
    */
   /* Fruits qui ont des images de croissance : l'or, et les trois Fruits de Puissance (dossier idle/yggdrasil/puissance/, voir idle-media-v1.js). */
   var ETAPES_FRUITS_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true};
+  /*
+   * Les 17 autres fruits (Norman, 2026-10-25) : 24 images de pousse, une par heure du tier maximum de 24 h, posées sur un décor peint en rapport avec leur bonus (route ygg ?decor=1).
+   * Mêmes règles que ci-dessus avec 24 images au lieu de 20 : la dernière n'apparait que fruit au tier maximum ET entièrement poussé.
+   */
+  var FRUITS_24_={adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
+  function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   function etapeCroissance_(d,v){
-    if(ETAPES_FRUITS_[v.def.id]!==true||!(v.tier>0))return null;
+    var id=v.def.id;
+    if((ETAPES_FRUITS_[id]!==true&&FRUITS_24_[id]!==true)||!(v.tier>0))return null;
+    var n=nbEtapes_(id);
     var max=Math.max(1,d.maxTier||10);
-    if(v.tier>=max&&v.growth>=max)return 19;
-    return Math.max(0,Math.min(18,Math.floor(v.growth/max*19)));
+    if(v.tier>=max&&v.growth>=max)return n-1;
+    return Math.max(0,Math.min(n-2,Math.floor(v.growth/max*(n-1))));
   }
 
   /*
@@ -402,11 +413,11 @@
   function ecrireReglages_(r){
     try{localStorage.setItem(CLE_REGLAGES_,JSON.stringify({cadence:r.cadence,sens:r.sens,porte:r.porte,son:r.son}));}catch(_e){}
   }
-  function urlEtape_(id,k){return '/api/idle/media/ygg?name='+encodeURIComponent(id)+'&etape='+k;}
+  function urlEtape_(id,k){return '/api/idle/media/ygg?name='+encodeURIComponent(id)+'&etape='+k+(nbEtapes_(id)===24?'&sur=24':'');}
   function precharger_(id){
     if(etat.precharge[id])return;
     etat.precharge[id]=[];
-    for(var k=0;k<=19;k++){var im=new Image();im.src=urlEtape_(id,k);etat.precharge[id].push(im);}
+    for(var k=0;k<nbEtapes_(id);k++){var im=new Image();im.src=urlEtape_(id,k);etat.precharge[id].push(im);}
   }
   /* Joue les images dans la vitre : un calque posé sur l'image (data-morph-garder), du stade `depart` vers la graine (sens -1) ou de la graine vers `depart` (sens 1). */
   function jouerImages_(id,vitre,depart,R,fini){
@@ -531,7 +542,7 @@
   }
   function carte_(d,v){
     var def=v.def,id=def.id,c=choix_(id);
-    if(etapeCroissance_(d,v)===19)precharger_(id);   /* prêt au tier maximum : les 20 images sont chargées d'avance */
+    if(etapeCroissance_(d,v)===nbEtapes_(id)-1)precharger_(id);   /* prêt au tier maximum : toutes les images sont chargées d'avance */
     var nom=html_(def.name||id);
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
     var heures=v.growth*d.tierSec/3600;
@@ -552,7 +563,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait">'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
