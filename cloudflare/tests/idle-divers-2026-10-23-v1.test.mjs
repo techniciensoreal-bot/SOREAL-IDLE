@@ -159,3 +159,9 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(c.includes('app.jouerApres(host,idMortV1)') && v.includes('app.jouerApres(hote,idMort,true)'));
   assert.ok(lire('cloudflare/public/modules/ui-aventure-1-v1.js').includes('sorealIdleSummaryRebirthTempsV1') && lire('cloudflare/public/modules/temps-rebirth-v1.js').includes('setInterval(maj,1000)'), 'case « Temps » du Rebirth dans le bandeau');
 }
+
+// Sang disponible en direct sur la page de Magie du sang (2026-10-25) : repères, suivi sur 12 s, avance bornée à un pas, jamais de retour en arrière.
+{
+  const b = lire("cloudflare/public/modules/blood-magic-v1.js");
+  assert.ok(b.includes("id=\"sorealIdleBloodTotalV1\"") && b.includes("function sangAfficheV1_()") && b.includes("12000") && b.includes("Math.min(t.pas,") && b.includes("sorealIdleBloodOrV1"));
+}

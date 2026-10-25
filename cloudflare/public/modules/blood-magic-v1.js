@@ -90,6 +90,55 @@ function creerCompteTick_(systemeMeta,affiche,avanceMax){
   };
 }
 
+/*
+ * Sang disponible EN DIRECT (Norman, 2026-10-25 : « le compteur de sang disponible en haut de la page de Blood Magic doit se mettre à jour en temps réel quand on est sur la page »). La case « 🩸 Sang » n'était écrite qu'au dessin de la page, qui n'est pas
+ * redessinée en continu : le sang montait sans qu'elle bouge. Le chiffre vient maintenant de l'état du jeu (relu à chaque synchro) ; entre deux synchros il avance au rythme que le moteur vient de valider (même idée que le compteur « N complété(s) » ci-dessus),
+ * au plus 5 s d'avance, et ne dépasse jamais ce rythme : quand le moteur confirme, l'affichage se cale sur lui ; un sort lancé (le sang retombe) remet le suivi à zéro. La case « 🪙 Gold » suit l'état du jeu (le jeu y retranche déjà chaque rituel rejoué).
+ */
+var suiviSangV1={n:null,ts:0,taux:0,aff:0,pas:0,echant:[]};
+function sangServeurV1_(){
+  try{
+    const H=window.__SOREAL_IDLE_META_HOST_V130__;
+    const e=H.getIdleEtat();
+    return Math.max(0,H.idleNombre_(e&&e.systemes&&e.systemes.currencies&&e.systemes.currencies.blood));
+  }catch(_e){return 0;}
+}
+/* Rythme = sang gagné sur les 12 dernières secondes (pas sur le dernier saut : un rituel rend son sang d'un coup, le rythme d'un seul saut serait énorme) ; l'avance ne dépasse jamais un « pas » (le dernier gain validé) : l'affichage ne peut donc pas dépasser la prochaine valeur du moteur ni revenir en arrière. */
+function sangAfficheV1_(){
+  const n=sangServeurV1_(),maintenant=Date.now();
+  let t=suiviSangV1;
+  if(t.n===null||n<t.n){suiviSangV1=t={n:n,ts:maintenant,taux:0,aff:n,pas:0,echant:[[maintenant,n]]};return n;}   /* premier relevé, ou le sang a baissé (sort lancé, Rebirth) */
+  if(n>t.n){
+    t.pas=n-t.n;t.n=n;t.ts=maintenant;
+    t.echant.push([maintenant,n]);
+    if(t.aff<n)t.aff=n;
+  }
+  while(t.echant.length>1&&maintenant-t.echant[0][0]>12000)t.echant.shift();
+  const premier=t.echant[0],duree=(maintenant-premier[0])/1000;
+  t.taux=duree>=2&&n>premier[1]?(n-premier[1])/duree:0;
+  const cible=n+Math.min(t.pas,t.taux*Math.min(8,(maintenant-t.ts)/1000));
+  if(cible>t.aff)t.aff=cible;
+  if(t.aff<n)t.aff=n;                            /* le moteur a rattrapé ou dépassé : on se cale sur lui */
+  return t.aff;
+}
+window.__sangAfficheV1__=sangAfficheV1_;
+if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(function(){
+  if(document.hidden)return;
+  const el=document.getElementById('sorealIdleBloodTotalV1');
+  if(!el){suiviSangV1={n:null,ts:0,taux:0,aff:0,pas:0,echant:[]};return;}   /* hors de la page : le suivi repart de zéro à l'arrivée */
+  try{
+    const H=window.__SOREAL_IDLE_META_HOST_V130__;
+    const texte=H.formatGrandNombreIdleV70_(sangAfficheV1_());
+    if(el.textContent!==texte)el.textContent=texte;
+    const or=document.getElementById('sorealIdleBloodOrV1');
+    if(or){
+      const e=H.getIdleEtat();
+      const t2=H.formatGrandNombreIdleV70_(Math.max(0,H.idleNombre_(e&&e.systemes&&e.systemes.currencies&&e.systemes.currencies.gold)));
+      if(or.textContent!==t2)or.textContent=t2;
+    }
+  }catch(_e){}
+},250);
+
 function creer(hote){
   const systemeMetaParIdIdleV130_=hote.systemeMeta;
   const envoyerAllocRapideV1_=hote.envoyerAllocRapide;
@@ -525,7 +574,7 @@ function creer(hote){
             'Le sang s’accumule dans ta réserve. Lancer un sort utilise tout ton sang d’un coup.',
             'Le sang est remis à zéro à chaque Rebirth. Les effets des sorts ne durent que jusqu’au prochain Rebirth, sauf ceux marqués « permanent ».'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Sang<b>'+H.formatGrandNombreIdleV70_(blood)+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b>'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Sang<b id="sorealIdleBloodTotalV1">'+H.formatGrandNombreIdleV70_(sangAfficheV1_())+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b id="sorealIdleBloodOrV1">'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
           sortsHtml+
           toolbar+
           '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du sang</small></h3><div class="bm-grille">'+rituelsHtml+'</div>'+

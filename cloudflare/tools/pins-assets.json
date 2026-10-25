@@ -68,8 +68,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 23,
-  "sha": "dbe63bb2755a2700b6607a283210a9e613c8b88a"
+  "pin": 26,
+  "sha": "d83e48356821e02e49aaeae3c914838bad174e4e"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -368,8 +368,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 421,
-  "sha": "87700c7dc649a5edffdd13a530fe55f14226fc3f"
+  "pin": 422,
+  "sha": "1adee4dbb34a13a48a84a993c108c5e71ee41a67"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -436,12 +436,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 447,
-  "sha": "0ac0069015f94c1fb99401c071b956dae9da37f4"
+  "pin": 448,
+  "sha": "355aa9850e4fd6a463001db65676c31eb794a015"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 241,
-  "sha": "600b7764381ed0334ed01d70cd3b119c546d1025"
+  "pin": 242,
+  "sha": "98cdeb51785d8f7e1e322881a37a77ce9387f61c"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

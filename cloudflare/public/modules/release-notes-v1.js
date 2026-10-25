@@ -37,6 +37,9 @@
             'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',
+          ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Une longue absence compte maintenant toutes les barres : avant, chaque barre était plafonnée à 10 000 niveaux à ton retour, alors que le jeu en ligne en gagne bien plus.',
           ]},
