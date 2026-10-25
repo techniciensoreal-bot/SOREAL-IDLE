@@ -480,8 +480,8 @@
   "sha": "95b4fa0d28b720ad9480877d564acc752d30f84d"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 25,
-  "sha": "23c060a2db0f210226a4af7834b362a81a5109c8"
+  "pin": 26,
+  "sha": "d6fd534afa7f397c4086cd4193c254d72f8069d9"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 16,
@@ -608,8 +608,8 @@
   "sha": "8c9fefa230a23e369bb18566ff31512f61673fd6"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 224,
-  "sha": "365f79fb0d2a184bb6f49bd9070453894d9fcbbc"
+  "pin": 225,
+  "sha": "3cdc1aafd13fc0c72c45107c0f639b28ffdb1caa"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
