@@ -1217,6 +1217,57 @@
       tonal_(c,{type:"sine",from:1760,to:1760,duration:.09,volume:.022});
     });
   }
+  /*
+   * Chœur d'anges (Norman, 2026-10-25 : « quand on meurt et qu'on réapparaît en fondu en ouverture, un son divin, des voix d'anges qui font aaaaah, un truc catholique ») : joué avec le fondu d'ouverture de la réapparition (modules/mort-joueur-v1.js).
+   * Synthétisé, aucun fichier : un accord de ré majeur étalé sur trois octaves (avec une neuvième qui scintille), chaque voix = trois dents de scie légèrement désaccordées passées dans les trois formants d'un « a » chanté (800, 1150 et 2900 Hz),
+   * vibrato lent, entrées décalées qui gonflent ensemble (attaque 1,3 s), un souffle d'air filtré, et une grande réverbération de cathédrale (réponse impulsionnelle bruitée de 3,6 s). Durée : 5,4 s.
+   */
+  function chorale_(){
+    return jouerWebAudio_(5400,function(c){
+      var sortie=master||c.destination,t0=c.currentTime+.03;
+      var bus=c.createGain();bus.gain.value=1;
+      /* cathédrale : réverbération par convolution d'un bruit qui s'éteint */
+      var sec=c.createGain(),humide=c.createGain();sec.gain.value=.55;humide.gain.value=.85;
+      var longueur=Math.floor(c.sampleRate*3.6),ir=c.createBuffer(2,longueur,c.sampleRate);
+      for(var ch=0;ch<2;ch+=1){var d=ir.getChannelData(ch);for(var i=0;i<longueur;i+=1){var x=i/longueur;d[i]=(Math.random()*2-1)*Math.pow(1-x,2.6)*(x<.012?x/.012:1);}}
+      var conv=c.createConvolver();conv.buffer=ir;
+      bus.connect(sec);sec.connect(sortie);
+      bus.connect(conv);conv.connect(humide);humide.connect(sortie);
+      /* les voix : [fréquence, entrée en s, volume] — ré majeur, du grave au très aigu */
+      var VOIX=[[146.83,0,.9],[293.66,.18,1],[440,.34,.9],[587.33,.5,1],[739.99,.7,.85],[880,.9,.8],[1174.66,1.1,.55],[659.26,1.35,.4]];
+      var FORMANTS=[[800,1,9],[1150,.55,11],[2900,.22,12]];
+      VOIX.forEach(function(v,k){
+        var debut=t0+v[1],fin=t0+4.6,volume=.22*v[2];
+        var env=c.createGain();
+        env.gain.setValueAtTime(.0001,debut);
+        env.gain.exponentialRampToValueAtTime(volume,debut+1.3);
+        env.gain.setValueAtTime(volume,Math.max(debut+1.3,fin-1.8));
+        env.gain.exponentialRampToValueAtTime(.0001,fin);
+        var tenu=c.createGain();tenu.gain.value=1;
+        /* vibrato lent partagé par les trois dents de scie de la voix */
+        var lfo=c.createOscillator(),prof=c.createGain();lfo.frequency.value=4.8+k*.23;prof.gain.value=7;lfo.connect(prof);lfo.start(debut);lfo.stop(fin+.1);
+        [-9,0,8].forEach(function(cents){
+          var o=c.createOscillator();o.type="sawtooth";o.frequency.value=v[0];o.detune.value=cents;
+          prof.connect(o.detune);
+          o.connect(tenu);o.start(debut);o.stop(fin+.1);
+        });
+        /* le « a » chanté : trois filtres passe-bande en parallèle */
+        FORMANTS.forEach(function(f){
+          var bp=c.createBiquadFilter();bp.type="bandpass";bp.frequency.value=f[0]*(v[0]>600?1.12:1);bp.Q.value=f[2];
+          var gf=c.createGain();gf.gain.value=f[1];
+          tenu.connect(bp);bp.connect(gf);gf.connect(env);
+        });
+        env.connect(bus);
+      });
+      /* un souffle d'air dans la voix */
+      var n=Math.floor(c.sampleRate*5),buf=c.createBuffer(1,n,c.sampleRate),dd=buf.getChannelData(0);
+      for(var j=0;j<n;j+=1)dd[j]=Math.random()*2-1;
+      var src=c.createBufferSource();src.buffer=buf;
+      var bpS=c.createBiquadFilter();bpS.type="bandpass";bpS.frequency.value=2200;bpS.Q.value=.7;
+      var gS=c.createGain();gS.gain.setValueAtTime(.0001,t0);gS.gain.exponentialRampToValueAtTime(.03,t0+1.6);gS.gain.exponentialRampToValueAtTime(.0001,t0+4.8);
+      src.connect(bpS);bpS.connect(gS);gS.connect(bus);src.start(t0);src.stop(t0+5);
+    });
+  }
   /* Écoute d'un son de la liste (bouton ▶ des Réglages), sans passer par la file des événements du jeu. */
   function ecouterDefaite_(nom){
     var son=SONS_DEFAITE.filter(function(s){return s.nom===nom;})[0];
@@ -2293,6 +2344,7 @@
     /* le même son de défaite, à l'envers, joué tout de suite (rembobinage VHS de la mort du joueur) */
     defeatReverse:function(){return defaiteInverse_();},
     reapparitionBip:function(){return reapparitionBip_();},
+    chorale:function(){return chorale_();},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},
     /* bâillement du Coffre ('coffre') ou de la valise ('valise') : chacun son son (modules/audio-coffre-v1.js) */

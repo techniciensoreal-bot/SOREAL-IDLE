@@ -204,6 +204,8 @@ function jouer(hote,variante){
       if(t>=T_VIDE&&!fondu){
         /* fondu en ouverture de 3 secondes : le calque sombre s'efface et l'image du joueur reparaît à sa place */
         fondu=true;calque.style.transition='opacity '+T_FONDU+'s ease-in-out';calque.style.opacity='0';
+        /* chœur d'anges (Norman, 2026-10-25) : « aaaaah » qui gonfle avec le fondu d'ouverture */
+        try{var ach=window.__SOREAL_IDLE_AUDIO_V199__;if(ach&&typeof ach.chorale==='function')ach.chorale();}catch(_e){}
       }
       requestAnimationFrame(image);
     })(t0);

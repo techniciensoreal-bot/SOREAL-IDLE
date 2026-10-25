@@ -165,3 +165,16 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const b = lire("cloudflare/public/modules/blood-magic-v1.js");
   assert.ok(b.includes("id=\"sorealIdleBloodTotalV1\"") && b.includes("function sangAfficheV1_()") && b.includes("12000") && b.includes("Math.min(t.pas,") && b.includes("sorealIdleBloodOrV1"));
 }
+
+// Attaque / Défense affichées : un petit recul (< 2 %) est tenu 15 s au plus (les niveaux arrivent par paliers, l'interpolation passe devant) ; reproduit avec la partie de Norman : 52 reculs en 30 s.
+{
+  const e = lire("cloudflare/public/modules/ui-entrainement-v1.js");
+  assert.ok(e.includes("const tenirStat=function(valeur,cle,tcle)") && e.includes("valeur>=avant*0.98") && e.includes("<15000)return avant;") && e.includes("tenirStat(attaqueArrondieBruteV1,"));
+}
+
+// Réapparition en fondu d'ouverture : chœur d'anges synthétisé (2026-10-25).
+{
+  const a = lire("cloudflare/public/modules/audio-effects-v199.js"), m = lire("cloudflare/public/modules/mort-joueur-v1.js");
+  assert.ok(a.includes("function chorale_()") && a.includes("chorale:function(){return chorale_();}") && a.includes("createConvolver") && a.includes("[800,1,9]"));
+  assert.ok(m.includes("ach.chorale()"));
+}

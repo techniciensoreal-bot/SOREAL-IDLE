@@ -1233,7 +1233,7 @@
           );
 
         /* 2026-09-25 : le 100 naturel n'est jamais multiplié (wiki NUMBER : « from Basic Training »), comme côté serveur. */
-        const attaqueArrondie=
+        const attaqueArrondieBruteV1=
           Math.max(
             100,
             100+Math.round(
@@ -1246,7 +1246,7 @@
             )
           );
 
-        const defenseArrondie=
+        const defenseArrondieBruteV1=
           Math.max(
             100,
             100+Math.round(
@@ -1255,6 +1255,22 @@
               multiplicateurPermanent
             )
           );
+
+        /*
+         * L'Attaque et la Défense affichées ne reculent plus à chaque synchro (Norman, 2026-10-25 : « la régén par seconde fait des retours arrière » ; reproduit avec sa partie : 52 reculs en 30 s). Les multiplicateurs avancent entre deux synchros par interpolation
+         * entre deux points de la trajectoire du moteur, alors que les niveaux gagnés (Augmentations, NGU…) arrivent par PALIERS : l'interpolation passe devant la marche, et chaque réponse du moteur (toutes les 0,3 à 1 s) ramenait la valeur sur la marche réelle (−0,02 % à −0,25 %,
+         * la vie max et la régénération, qui en dépendent, reculaient avec). Un petit recul (moins de 2 %) est donc tenu 15 s au plus : l'affichage reste sur sa valeur, le moteur la rattrape (la marche arrive) ; un vrai recul (objet retiré, Rebirth) passe tout de suite par sa taille ou au bout de 15 s (horizon de la trajectoire).
+         */
+        const garde=globalThis.__SOREAL_GARDE_STATS_V1__||(globalThis.__SOREAL_GARDE_STATS_V1__={a:0,ta:0,d:0,td:0});
+        const maintenantGarde=Date.now();
+        const tenirStat=function(valeur,cle,tcle){
+          const avant=garde[cle];
+          if(avant>0&&valeur<avant&&valeur>=avant*0.98&&maintenantGarde-garde[tcle]<15000)return avant;
+          garde[cle]=valeur;garde[tcle]=maintenantGarde;
+          return valeur;
+        };
+        const attaqueArrondie=tenirStat(attaqueArrondieBruteV1,'a','ta');
+        const defenseArrondie=tenirStat(defenseArrondieBruteV1,'d','td');
 
         combatPrincipal.attaqueEntrainement=
           attaque;
