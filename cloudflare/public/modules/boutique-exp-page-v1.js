@@ -125,7 +125,8 @@
         if(!m)return NaN;
         const base=Number(m[1].replace(',','.'));
         if(!m[2])return base;
-        const rang=IDLE_EXP_SUFFIXES_V1.findIndex(function(x){return x&&x.toLowerCase()===m[2].toLowerCase();});
+        const fmt=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+        const rang=fmt&&typeof fmt.rangDe==='function'?fmt.rangDe(m[2]):IDLE_EXP_SUFFIXES_V1.findIndex(function(x){return x&&x.toLowerCase()===m[2].toLowerCase();});
         return rang>0?base*Math.pow(1000,rang):NaN;
       }
 

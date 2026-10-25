@@ -197,3 +197,10 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   const i = lire("cloudflare/public/modules/ui-inventaire-v1.js");
   assert.ok(i.includes("function annoncerRefusCapEquipementIdleV1_(message)") && i.includes("/^Libère /.test(res.message)"));
 }
+
+// Grands nombres : des lettres après Tg, plus de e+ (2026-10-25).
+{
+  const n = lire("cloudflare/public/modules/number-format-v1.js"), c = lire("cloudflare/public/modules/nombres-couleur-v1.js");
+  assert.ok(n.includes("function suffixe(rang)") && n.includes("function rangDe(texte)") && !n.includes("suffixes.length"));
+  assert.ok(c.includes("for(var i=0;i<71;i+=1)UNITES.push("));
+}

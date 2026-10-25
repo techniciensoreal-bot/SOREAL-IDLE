@@ -15,6 +15,8 @@
   if(window.__SOREAL_IDLE_NOMBRES_COULEUR_V1__)return;
 
   var UNITES=['K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg','Uvg','Dvg','Tvg','Qavg','Qivg','Sxvg','Spvg','Ocvg','Novg','Tg'];
+  /* Au-delà de Tg : les lettres AA (10^96) à CS (10^303), voir number-format-v1.js (suffixe). */
+  for(var i=0;i<71;i+=1)UNITES.push(String.fromCharCode(65+Math.floor(i/26))+String.fromCharCode(65+i%26));
   UNITES.sort(function(a,b){return b.length-a.length;});
   /* chiffres, puis soit une unité, soit un exposant (E+139) ; jamais collé à une lettre ou un chiffre qui suit */
   var MOTIF='(\\d(?:[\\d.,]*\\d)?)((?:'+UNITES.join('|')+')|[eE][+\\-]?\\d+)(?![A-Za-z0-9])';
