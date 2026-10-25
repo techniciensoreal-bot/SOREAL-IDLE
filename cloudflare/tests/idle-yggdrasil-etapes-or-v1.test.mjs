@@ -23,10 +23,10 @@ const etape = vm.runInNewContext(table + "(" + m[0].replace("function etapeCrois
 const v = (tier, growth, id = "gold") => ({ def: { id }, tier, growth });
 assert.equal(etape({ maxTier: 24 }, v(0, 0)), null, "fruit non débloqué : image de départ");
 assert.equal(etape({ maxTier: 24 }, v(4, 4)), 3, "4 h sur 24 : seulement les premières images");
-assert.equal(etape({ maxTier: 24 }, v(24, 23.9)), 18, "presque au bout : pas la dernière");
-assert.equal(etape({ maxTier: 24 }, v(24, 24)), 19, "tier max et poussé : dernière image");
-assert.equal(etape({ maxTier: 24 }, v(10, 10)), 7, "tier 10 sur 24 entièrement poussé : pas la dernière");
-assert.equal(etape({ maxTier: 10 }, v(10, 10)), 19, "maximum 10 avant les victoires au Troll");
+assert.equal(etape({ maxTier: 24 }, v(24, 23.9)), 22, "presque au bout : pas la dernière");
+assert.equal(etape({ maxTier: 24 }, v(24, 24)), 23, "tier max et poussé : dernière image (24 images)");
+assert.equal(etape({ maxTier: 24 }, v(10, 10)), 9, "tier 10 sur 24 entièrement poussé : pas la dernière");
+assert.equal(etape({ maxTier: 10 }, v(10, 10)), 23, "maximum 10 avant les victoires au Troll");
 assert.equal(etape({ maxTier: 24 }, v(5, 5, "fruit-inconnu")), null, "un fruit sans images de croissance garde son image unique");
 /* Les 17 autres fruits ont 24 images (une par heure du tier maximum de 24 h) : la dernière n'apparait que fruit au tier maximum ET entièrement poussé. */
 assert.equal(etape({ maxTier: 24 }, v(0, 0, "luck")), null, "fruit non débloqué : image de départ");
@@ -36,7 +36,7 @@ assert.equal(etape({ maxTier: 24 }, v(24, 23.9, "luck")), 22, "24 images : pas l
 assert.equal(etape({ maxTier: 24 }, v(24, 24, "luck")), 23, "24 images : la dernière, mûr");
 assert.equal(etape({ maxTier: 10 }, v(10, 10, "prettyMayo")), 23, "24 images : maximum 10 avant les victoires au Troll");
 for (const id of ["powerAlpha", "powerBeta", "powerDelta"]) {
-  assert.equal(etape({ maxTier: 24 }, v(24, 24, id)), 19, id + " : mêmes règles que l'or (tier max et poussé : dernière image)");
+  assert.equal(etape({ maxTier: 24 }, v(24, 24, id)), 23, id + " : mêmes règles que l'or (tier max et poussé : dernière image)");
   assert.equal(etape({ maxTier: 24 }, v(4, 4, id)), 3, id + " : avance avec la croissance rapportée au tier maximum");
   assert.equal(etape({ maxTier: 24 }, v(0, 0, id)), null, id + " : non débloqué : image de départ");
 }

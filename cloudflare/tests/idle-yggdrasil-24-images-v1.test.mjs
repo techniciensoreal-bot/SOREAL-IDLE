@@ -7,14 +7,14 @@ import { choisirEtapesYggR2_, choisirCleYggR2_ } from "../src/idle-media-v1.js";
  * R2 : idle/yggdrasil/<id>/<id>_01..24.webp, image simple idle/yggdrasil/<id>.webp, décor idle/ygg-decors/<id>.webp (hors de idle/yggdrasil/).
  */
 const num = (i) => String(i).padStart(2, "0");
-const ids = ["adventure", "knowledge", "pomegranate", "luck", "arbitrariness", "numbers", "rage", "macguffinAlpha", "watermelon", "macguffinBeta", "quirks", "angryMayo", "sadMayo", "moldyMayo", "ayyMayo", "cincoMayo", "prettyMayo"];
+const ids = ["gold", "powerAlpha", "powerBeta", "powerDelta", "adventure", "knowledge", "pomegranate", "luck", "arbitrariness", "numbers", "rage", "macguffinAlpha", "watermelon", "macguffinBeta", "quirks", "angryMayo", "sadMayo", "moldyMayo", "ayyMayo", "cincoMayo", "prettyMayo"];
 const cles = [];
 for (const id of ids) {
   for (let i = 1; i <= 24; i++) cles.push(`idle/yggdrasil/${id}/${id}_${num(i)}.webp`);
   cles.push(`idle/yggdrasil/${id}.webp`);
 }
-/* Le fruit d'or et les fruits de Puissance gardent leurs 20 images. */
-for (let i = 1; i <= 20; i++) cles.push("idle/yggdrasil/Fruit_of_Gold_" + num(i) + ".png");
+/* Les anciennes images de Puissance (partagées, dossier puissance) restent sur R2 mais ne passent plus devant les images propres de chaque fruit. */
+for (let i = 1; i <= 20; i++) cles.push("idle/yggdrasil/puissance/" + num(i) + ".webp");
 
 for (const id of ids) {
   const e = choisirEtapesYggR2_(cles.slice().reverse(), id);
@@ -23,8 +23,8 @@ for (const id of ids) {
   assert.equal(e[23], `idle/yggdrasil/${id}/${id}_24.webp`);
   assert.equal(choisirCleYggR2_(cles, id), `idle/yggdrasil/${id}.webp`, id + " : l'image simple n'est pas une étape");
 }
-assert.equal(choisirEtapesYggR2_(cles, "gold").length, 20, "le fruit d'or garde ses 20 images");
-assert.equal(choisirEtapesYggR2_(cles, "adventure").every((k) => !k.includes("Gold")), true, "les images ne se mélangent pas entre fruits");
+assert.equal(choisirEtapesYggR2_(cles, "powerAlpha").length, 24, "Puissance α : ses 24 images propres passent devant le dossier partagé");
+assert.equal(choisirEtapesYggR2_(cles, "adventure").every((k) => k.includes("/adventure/")), true, "les images ne se mélangent pas entre fruits");
 
 /* La route : `sur` (défaut 20) met l'étape à l'échelle, `decor=1` sert idle/ygg-decors/ sans passer par la liste des images du fruit. */
 const media = fs.readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
@@ -35,7 +35,7 @@ assert.ok(media.includes('"idle/ygg-decors/"') && media.includes('url.searchPara
 /* La page : 24 images, décor derrière l'image, uniquement pour ces 17 fruits ; &sur=24 envoyé à la route. */
 const page = fs.readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 const liste = page.match(/var FRUITS_24_=\{([^}]*)\};/)[1].split(",").map((x) => x.split(":")[0].trim());
-assert.deepEqual(liste.slice().sort(), ids.slice().sort(), "les 17 fruits aux 24 images");
+assert.deepEqual(liste.slice().sort(), ids.slice().sort(), "les 21 fruits aux 24 images");
 assert.ok(page.includes("'&sur=24'"), "la page demande les 24 images");
 assert.ok(page.includes("&amp;decor=1"), "la page demande le décor");
 

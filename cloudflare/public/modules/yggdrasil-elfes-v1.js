@@ -262,12 +262,12 @@
    * acheté : un fruit monte à 4 h seulement n'avance que dans les premières images ; la dernière (19) n'apparait que fruit au tier maximum ET entièrement poussé.
    */
   /* Fruits qui ont des images de croissance : l'or, et les trois Fruits de Puissance (dossier idle/yggdrasil/puissance/, voir idle-media-v1.js). */
-  var ETAPES_FRUITS_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true};
+  var ETAPES_FRUITS_={};   /* les anciennes images à 20 étapes (or, Puissance) sont remplacées : tous les fruits ont maintenant 24 images, voir FRUITS_24_ */
   /*
-   * Les 17 autres fruits (Norman, 2026-10-25) : 24 images de pousse, une par heure du tier maximum de 24 h, posées sur un décor peint en rapport avec leur bonus (route ygg ?decor=1).
+   * Tous les fruits (Norman, 2026-10-25 : l'or et les trois fruits de Puissance sont passés au nouveau style, anciennes images de l'or sauvegardées dans idle/ygg-anciens/) : 24 images de pousse, une par heure du tier maximum de 24 h, posées sur un décor peint en rapport avec leur bonus (route ygg ?decor=1).
    * Mêmes règles que ci-dessus avec 24 images au lieu de 20 : la dernière n'apparait que fruit au tier maximum ET entièrement poussé.
    */
-  var FRUITS_24_={adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
+  var FRUITS_24_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   function etapeCroissance_(d,v){
     var id=v.def.id;
@@ -458,17 +458,17 @@
    */
   var BANC_FRUITS_=['gold','powerAlpha','powerBeta','powerDelta'];
   function admin_(){var R=window.__SOREAL_IDLE_REG__;try{return Boolean(R&&typeof R.estAdminSorealIdle_==='function'&&R.estAdminSorealIdle_());}catch(_e){return false;}}
-  function texteDuree_(ms){return (Math.round(ms*19/100)/10).toString().replace('.',',')+' s';}
+  function texteDuree_(ms){return (Math.round(ms*23/100)/10).toString().replace('.',',')+' s';}
   function banc_(){
     if(!admin_())return '';
     var R=reglages_(),f=etat.bancFruit||'gold';
     var opts=BANC_FRUITS_.map(function(x){return '<option value="'+x+'"'+(x===f?' selected':'')+'>'+html_(x)+'</option>';}).join('');
     var A='window.__SOREAL_IDLE_YGG_V1__.';
     return '<div class="ygg-banc"><div class="ygg-banc-titre">🎛️ Banc d’essai des animations et des sons <small>(administrateur seulement)</small></div>'+
-      '<div class="ygg-banc-corps"><div class="ygg-vitre ygg-portrait ygg-banc-vitre" id="yggBancVitre"><img class="ygg-img" alt="" src="'+urlEtape_(f,19)+'"></div>'+
+      '<div class="ygg-banc-corps"><div class="ygg-vitre ygg-portrait ygg-banc-vitre" id="yggBancVitre"><img class="ygg-img" alt="" src="'+urlEtape_(f,nbEtapes_(f)-1)+'"></div>'+
       '<div class="ygg-banc-regl">'+
         '<label>Fruit <select onchange="'+A+'banc(\'fruit\',this.value)">'+opts+'</select></label>'+
-        '<label>Vitesse des images : <output id="yggBancCad">'+R.cadence+' ms par image · '+texteDuree_(R.cadence)+' pour 20 images</output>'+
+        '<label>Vitesse des images : <output id="yggBancCad">'+R.cadence+' ms par image · '+texteDuree_(R.cadence)+' pour 24 images</output>'+
           '<input type="range" min="30" max="400" step="10" value="'+R.cadence+'" oninput="'+A+'bancAffiche(\'cad\',this.value)" onchange="'+A+'banc(\'cadence\',this.value)"></label>'+
         '<div class="ygg-banc-sens" role="group" aria-label="Sens des images">Sens : '+
           '<label><input type="radio" name="yggBancSens" value="-1"'+(R.sens<0?' checked':'')+' onchange="'+A+'banc(\'sens\',-1)"> arbre → graine</label> '+
@@ -495,7 +495,7 @@
     var vitre=bancVitre_();if(!vitre)return;
     var f=etat.bancFruit||'gold';precharger_(f);
     bancNettoyer_(vitre);
-    jouerImages_(f,vitre,19,reglages_(),null);
+    jouerImages_(f,vitre,nbEtapes_(f)-1,reglages_(),null);
   }
   function bancPorte_(){
     var vitre=bancVitre_();if(!vitre)return;
@@ -679,7 +679,7 @@
     bancAffiche:function(type,val){
       var o=document.getElementById(type==='porte'?'yggBancPorte':'yggBancCad');
       if(!o)return;
-      o.textContent=type==='porte'?(Math.round(1.5*Number(val)*10)/10).toString().replace('.',',')+' s (son compris)':Number(val)+' ms par image · '+texteDuree_(Number(val))+' pour 20 images';
+      o.textContent=type==='porte'?(Math.round(1.5*Number(val)*10)/10).toString().replace('.',',')+' s (son compris)':Number(val)+' ms par image · '+texteDuree_(Number(val))+' pour 24 images';
     },
     bancImages:function(){bancImages_();},
     bancPorte:function(){bancPorte_();},

@@ -54,20 +54,20 @@ function monde({ reduit = false, vitre = true, stock = {} } = {}) {
 
 // 1. Fruit au tier maximum, entièrement poussé (image 19) : les 20 images, de la dernière à la graine, à cadence régulière ; un seul calque, retiré à la fin ; la page est redessinée une fois.
 {
-  const m = monde(); m.api.regler(19);
+  const m = monde(); m.api.regler(23);
   const debut = m.maintenant();
   m.api.lancerAnimation_("gold");
   assert.equal(m.calques.length, 1, "un calque posé sur l'image");
   assert.equal(m.calques[0].attrs["data-morph-garder"], "", "le redessin périodique ne le retire pas (règle n°4)");
-  assert.equal(m.calques[0].srcs[0], "/api/idle/media/ygg?name=gold&etape=19", "part de la dernière image");
+  assert.equal(m.calques[0].srcs[0], "/api/idle/media/ygg?name=gold&etape=23&sur=24", "part de la dernière image");
   assert.ok(Number(m.api.etat.anim.gold) > debut, "animation en cours enregistrée");
   assert.equal(m.api.porteDe_("gold", false), "", "pas de porte close par-dessus pendant l'animation");
   const delais = m.jouer();
   const etapes = m.calques[0].srcs.map((u) => Number(u.match(/etape=(\d+)/)[1]));
-  assert.deepEqual(etapes, Array.from({ length: 20 }, (_, i) => 19 - i), "20 images, de 19 à 0, sans en sauter");
-  assert.ok(delais.slice(0, 19).every((d) => d === m.api.CADENCE), "cadence régulière");
+  assert.deepEqual(etapes, Array.from({ length: 24 }, (_, i) => 23 - i), "24 images, de 23 à 0, sans en sauter");
+  assert.ok(delais.slice(0, 23).every((d) => d === m.api.CADENCE), "cadence régulière");
   const duree = m.maintenant() - debut;
-  assert.ok(duree >= 1500 && duree <= 3200, "vitesse raisonnable : " + duree + " ms pour 20 images (ni flash, ni éternité)");
+  assert.ok(duree >= 1500 && duree <= 3200, "vitesse raisonnable : " + duree + " ms pour 24 images (ni flash, ni éternité)");
   assert.equal(m.calques.retires, 1, "calque retiré à la fin");
   assert.equal(m.api.rafraichissements(), 1, "page redessinée une fois, après coup");
   assert.equal(m.api.etat.anim.gold, undefined, "animation terminée");
@@ -78,10 +78,10 @@ for (const e of [null, 0]) { const m = monde(); m.api.regler(e); m.api.lancerAni
 // 3. Fruit pas au maximum : l'animation part de SON image actuelle (plus courte), même cadence.
 { const m = monde(); m.api.regler(7); m.api.lancerAnimation_("powerAlpha"); m.jouer(); assert.equal(m.calques[0].srcs.length, 8, "de l'image 7 à 0"); }
 // 4. Mouvement réduit : pas d'animation. Carte absente : rien (jamais d'erreur).
-{ const m = monde({ reduit: true }); m.api.regler(19); m.api.lancerAnimation_("gold"); assert.equal(m.calques.length, 0); }
-{ const m = monde({ vitre: false }); m.api.regler(19); m.api.lancerAnimation_("gold"); assert.equal(m.calques.length, 0); }
+{ const m = monde({ reduit: true }); m.api.regler(23); m.api.lancerAnimation_("gold"); assert.equal(m.calques.length, 0); }
+{ const m = monde({ vitre: false }); m.api.regler(23); m.api.lancerAnimation_("gold"); assert.equal(m.calques.length, 0); }
 // 5. Préchargement : les 20 images, une seule fois par fruit.
-{ const m = monde(); m.api.precharger_("gold"); m.api.precharger_("gold"); assert.equal(m.images.length, 20, "20 images préchargées, une fois"); assert.deepEqual(m.images.map((i) => i.srcs[0].match(/etape=(\d+)/)[1]), Array.from({ length: 20 }, (_, i) => String(i))); }
+{ const m = monde(); m.api.precharger_("gold"); m.api.precharger_("gold"); assert.equal(m.images.length, 24, "24 images préchargées, une fois"); assert.deepEqual(m.images.map((i) => i.srcs[0].match(/etape=(\d+)/)[1]), Array.from({ length: 24 }, (_, i) => String(i))); }
 // 6. Branchements : l'animation part du clic Manger / Récolter (et de « tout »), le préchargement dès qu'un fruit est prêt au maximum ; titre en bois sans découpe.
 assert.ok(/function lancerUsage_\(id,avecPoop\)\{[\s\S]{0,200}lancerAnimation_\(id\);/.test(src), "animation lancée par Manger / Récolter / tout (même chemin)");
 assert.ok(src.includes("if(etapeCroissance_(d,v)===nbEtapes_(id)-1)precharger_(id);"), "préchargement dès l'arrivée d'un fruit prêt au maximum");

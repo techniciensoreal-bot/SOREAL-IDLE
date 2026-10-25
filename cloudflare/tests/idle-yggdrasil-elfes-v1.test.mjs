@@ -97,7 +97,7 @@ assert.ok(actions.every((a) => a.action === "useYggFruit" && !a.poop), "aucune p
 
 // Image : manquante = plus redemandée ; route R2 : nom de fichier souple.
 Y.imageManquante("gold", null);
-assert.ok(!Y.page(etatJoueur).includes("name=gold"), "image absente : plus redemandée pendant la visite");
+assert.ok(!Y.page(etatJoueur).includes("ygg?name=gold&etape") && !Y.page(etatJoueur).includes("ygg?name=gold\""), "image absente : plus redemandée pendant la visite (le décor, lui, est un fond)");
 const cles = ["idle/yggdrasil/Fruit_of_Gold.png", "idle/yggdrasil/Fruit_of_Power_α.webp", "idle/yggdrasil/seed.png", "idle/ygg/Poop.webp", "idle/yggdrasil/pomegranate.PNG", "idle/yggdrasil/notes.txt"];
 assert.equal(choisirCleYggR2_(cles, "gold"), "idle/yggdrasil/Fruit_of_Gold.png");
 assert.equal(choisirCleYggR2_(cles, "powerAlpha"), "idle/yggdrasil/Fruit_of_Power_α.webp");
