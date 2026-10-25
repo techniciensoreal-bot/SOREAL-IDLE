@@ -44,8 +44,8 @@
   "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 264,
-  "sha": "1e75bb24810e6e55c8564d5b3aac9e11c985bbf5"
+  "pin": 265,
+  "sha": "02e6bf30734ce54af02de4afaaf0d915d369ab74"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -456,8 +456,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 254,
-  "sha": "0ce6e2d1e98a3b6299d84898bee49db0d8324436"
+  "pin": 255,
+  "sha": "6bca1807a94fbb70c4e6fed186305c9e1388c2cc"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 6,
@@ -576,8 +576,8 @@
   "sha": "09d1e5949c9f7905e5b1a47f277e1e5214a36123"
  },
  "/modules/voix-nommees-v1.js": {
-  "pin": 5,
-  "sha": "1636917dc94b5ec460d9ec9789d9882e7107eb37"
+  "pin": 6,
+  "sha": "6d9766a5e4c873f7e089fba781937758c604fa07"
  },
  "/modules/voix-ui-v1.js": {
   "pin": 1,
