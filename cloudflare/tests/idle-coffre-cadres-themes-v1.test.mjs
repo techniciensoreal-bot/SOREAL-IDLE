@@ -27,7 +27,7 @@ assert.ok(doublons.length <= 6, "décors partagés seulement entre sets voisins 
 // 3. Les cases du coffre sont regroupées en cadres : un cadre par zone (son set + ses objets), un par set de titan.
 assert.ok(ui.includes("function cadreThematique(cle,titre,corps)") && ui.includes('data-theme-set-v1="'));
 assert.ok(ui.includes("const cle=g.sets.length?g.sets[0].id:'ciel';"), "zone sans set (Le Ciel) : thème « ciel »");
-assert.ok(ui.includes("g.sets.forEach(function(st){html+=cadreThematique(st.id,st.nom,mannequin(st.pieces));});"), "un cadre par set pour les titans");
+assert.ok(ui.includes("g.sets.forEach(function(st){html+=cadreThematique(st.id,(g.groupe==='titan'&&st.pieces.length===1)?(st.pieces[0].name||st.nom):st.nom,mannequin(st.pieces));});"), "un cadre par set pour les titans (une pièce seule porte le nom de l'objet)");
 assert.ok(!ui.includes("soreal-idle-coffre-titre-groupe-v1"), "plus de titre pleine largeur : il cassait la ligne entre deux zones");
 
 // 4. Côte à côte, puis à la ligne ; centrés sur téléphone.
