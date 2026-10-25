@@ -218,6 +218,13 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       num(payload.value, 0),
       context
     );
+    /*
+     * Synchro Wandoos (Norman, 2026-10-25 : « malgré la synchro Wandoos, la barre d'énergie est légèrement en avance sur celle de la magie ») : l'énergie et la magie étaient placées par DEUX appels qui se suivaient (la magie
+     * démarrait donc un peu après l'énergie, le temps d'un aller-retour). « pair » place la seconde ressource dans le MÊME appel, au même instant : les deux barres partent ensemble.
+     */
+    if (String(payload.system || "") === "wandoos" && payload.pair && typeof payload.pair === "object") {
+      setAllocation(state, "wandoos", String(payload.pair.resource || ""), num(payload.pair.value, 0), context);
+    }
   } else if (action === "setTimeMachineTarget") {
     /* Champ « Target » de la Time Machine : niveau à atteindre (0 = aucun) ; à l'atteinte l'allocation de la piste est retirée. */
     const tm = state.systems.timeMachine;

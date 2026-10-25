@@ -501,7 +501,8 @@ function idleAdventureCoffreAccepteV1(definitionId){
   const def=IDLE_ADVENTURE_ITEM_CATALOG_V1[definitionId];
   if(!def)return false;
   if(def.kind==="equipment")return true;
-  return def.kind==="special"&&def.slot!=="consumable";
+  /* Tout objet qui peut être monté au niveau 100 a sa place (Norman, 2026-10-25 : « je ne vois pas l'emplacement pour le Mysterious Red Liquid ») : les consommables à drapeau de niveau max (Red Liquid, Purple Liquid) y entrent aussi. */
+  return def.kind==="special"&&(def.slot!=="consumable"||Boolean(def.maxFlag));
 }
 
 /*

@@ -32,6 +32,9 @@
         date:'2026-10-24',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les informations entre parenthèses des chroniques de boss (une nouveauté débloquée, par exemple) s’affichent maintenant en notification, comme les trophées, avec leur propre son, dès que tu atteins le boss concerné.',
+            'Toutes les notifications restent un peu plus longtemps à l’écran.',
+            'Sur PC, la fiche d’un objet s’ouvre au-dessus de l’objet sur lequel tu as cliqué.',
             'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
             'Le son de défaite joué à l’envers part maintenant en même temps que le rembobinage de l’image (il était prêt trop tard) ; le chœur d’anges est un peu plus court.',
             'Équiper ou retirer une pièce qui donne du cap d’énergie ou de magie : quand l’énergie (ou la magie) que tu as placée l’empêche, un bandeau rouge te dit combien libérer. Avant, le refus ne s’affichait pas.',
@@ -45,6 +48,15 @@
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
             'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'La carte de la chronique ne s’ouvre plus toute seule à la première rencontre d’un boss : la voix lit toujours l’histoire.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Synchro Wandoos : l’énergie et la magie sont placées en un seul coup, donc leurs barres partent exactement ensemble ; plus de petit mouvement de recul quand tu ajoutes une grosse quantité.',
+          ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Nouveau look pour Chroniques : un grimoire de cuivre pour la Collection, du bleu royal pour le Classement, de l’or pour les Succès ; onglets en marque-pages, cadres et boutons assortis.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Magie du sang : le compteur de sang disponible, en haut de la page, se met à jour en direct pendant que tu y es (il avançait seulement au rechargement de la page).',

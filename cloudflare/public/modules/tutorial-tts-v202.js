@@ -986,8 +986,8 @@
      */
     var chroniqueBossIdEnCours=String(targetId||'')===CHRONICLE_PANEL_ID?chroniqueBossId_(target):'';
     if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
-    /* Le texte s'affiche tout seul au moment où il est lu (Norman, 2026-10-10) : la chronique s'ouvre dès que sa lecture démarre, première rencontre ou clic sur Écouter. */
-    if(chroniqueBossIdEnCours){try{if(typeof window.__ouvrirChroniqueIdleV1__==='function')window.__ouvrirChroniqueIdleV1__(true);}catch(_){}}
+    /* La carte s'ouvre quand on clique sur Écouter, mais PLUS toute seule à la première rencontre (Norman, 2026-10-25) : la voix lit l'histoire sans que la carte s'affiche (lecture automatique : force est faux). */
+    if(chroniqueBossIdEnCours&&force){try{if(typeof window.__ouvrirChroniqueIdleV1__==='function')window.__ouvrirChroniqueIdleV1__(true);}catch(_){}}
 
     var mapped=audioSourceFor_(targetId,target,explicitSource);
     var task;

@@ -388,8 +388,36 @@
         return root;
       }
 
+      /*
+       * Sur PC, la fiche d'un objet s'ouvre AU-DESSUS de l'objet cliqué (Norman, 2026-10-25 : « sur PC, il faut que la fenêtre s'ouvre au-dessus de l'objet sur lequel on a cliqué ») : centrée sur lui, et en dessous seulement s'il n'y a pas la place au-dessus.
+       * Le dernier objet pressé est retenu (appui, phase de capture) ; la fiche l'utilise si elle s'ouvre dans la foulée. Téléphone et tablette tactile : comportement inchangé.
+       */
+      let idleDernierObjetPresseV1=null;
+      document.addEventListener('pointerdown',function(ev){
+        const el=ev.target&&ev.target.closest?ev.target.closest('.soreal-idle-v138-bag-card,.soreal-idle-v138-slot,.soreal-idle-collection-card-v1,[data-popup-objet-v1]'):null;
+        idleDernierObjetPresseV1=el?{el:el,t:Date.now()}:null;
+      },true);
+      function poserPopupAuDessusIdleV1_(root,element){
+        const a=idleDernierObjetPresseV1;
+        const cible=element&&element.getBoundingClientRect?element:(a&&Date.now()-a.t<=900&&a.el.isConnected?a.el:null);
+        if(!cible)return false;
+        if(!(window.innerWidth>=1100&&window.matchMedia&&window.matchMedia('(hover:hover)').matches))return false;
+        const r=cible.getBoundingClientRect();
+        const largeur=root.offsetWidth||320,hauteur=root.offsetHeight||160,marge=8;
+        const left=Math.min(Math.max(marge,r.left+r.width/2-largeur/2),Math.max(marge,window.innerWidth-largeur-marge));
+        let top=r.top-hauteur-8;
+        if(top<marge)top=r.bottom+8;
+        top=Math.min(Math.max(marge,top),Math.max(marge,window.innerHeight-hauteur-marge));
+        REG.idleItemPopupPositionV1_={left:Math.round(left),top:Math.round(top)};
+        root.style.left=REG.idleItemPopupPositionV1_.left+'px';
+        root.style.top=REG.idleItemPopupPositionV1_.top+'px';
+        return true;
+      }
+      window.__SOREAL_IDLE_POPUP_AU_DESSUS_V1__=poserPopupAuDessusIdleV1_;
+
       function positionnerPopupPresDeIdleV1_(root,element){
         if(!element||!element.getBoundingClientRect)return;
+        if(poserPopupAuDessusIdleV1_(root,element))return;
         const r=element.getBoundingClientRect();
         const largeur=root.offsetWidth||320;
         const hauteur=root.offsetHeight||160;

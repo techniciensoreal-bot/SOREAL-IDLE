@@ -47,6 +47,8 @@
     /* Passage d'un rayon à l'autre dans une boutique (Norman, 2026-10-03) : trois pas. Groupe à part ; l'ordonnanceur ne joue jamais deux sons à la fois, donc deux changements rapides ne se chevauchent pas. */
     shopSteps:{group:"shop-steps",priority:22,maxAgeMs:900},
     achievement:{group:"achievement",priority:88,maxAgeMs:3500},
+    /* Information de chronique de boss (nouvelle zone, nouveau titan…, Norman 2026-10-25) : un son à elle, un glockenspiel qui monte puis redescend ; même groupe que les trophées (jamais en même temps). */
+    chroniqueNote:{group:"achievement",priority:87,maxAgeMs:3500},
     /* Record personnel / montée au classement (Norman, 2026-10-17) : un son à part, différent de la fanfare des trophées. Même groupe : jamais les deux en même temps. */
     recordPerso:{group:"achievement",priority:86,maxAgeMs:3500},
     /* Un autre joueur vient de se connecter (fil « En direct », Norman 2026-10-02) : petit carillon discret. */
@@ -1598,6 +1600,17 @@
   }
 
   /* Succès débloqué : petite fanfare montante (trois notes en tierces) suivie d'un scintillement. */
+  /* Information de chronique (Norman, 2026-10-25) : un glockenspiel de six notes (do-mi-sol-do aigu, puis si-sol) avec une résonance de cloche, tout à fait différent de la fanfare des trophées. */
+  function chroniqueNote_(){
+    return jouerWebAudio_(1500,function(c){
+      [[784,0],[988,.11],[1175,.22],[1568,.33],[1319,.52],[1047,.66]].forEach(function(p,k){
+        var v=k===3?.05:.04;
+        tonal_(c,{type:"sine",from:p[0],to:p[0],duration:.5,volume:v,delay:p[1]});
+        tonal_(c,{type:"sine",from:p[0]*2.76,to:p[0]*2.76,duration:.18,volume:v*.35,delay:p[1]});
+        tonal_(c,{type:"triangle",from:p[0]*.5,to:p[0]*.5,duration:.35,volume:v*.4,delay:p[1]});
+      });
+    });
+  }
   function succes_(){
     return jouerWebAudio_(1300,function(c){
       [[523,.30,.048,0],[659,.30,.048,.14],[784,.32,.050,.28],[1047,.62,.056,.44]].forEach(function(p){
@@ -2161,6 +2174,7 @@
     shopDoor:porteMagasin_,
     achievement:succes_,
     recordPerso:recordPerso_,
+    chroniqueNote:chroniqueNote_,
     joueurConnecte:joueurConnecte_,
     chestOpen:coffreOuverture_,
     chestClose:coffreFermeture_,
@@ -2462,6 +2476,7 @@
     sortBlood:function(id){return demander_("sortBlood_"+id);},
     achievement:function(){return demander_("achievement");},
     recordPerso:function(){return demander_("recordPerso");},
+    chroniqueNote:function(){return demander_("chroniqueNote");},
     joueurConnecte:function(){return demander_("joueurConnecte");},
     chestOpen:function(){return demander_("chestOpen");},
     chestClose:function(){return demander_("chestClose");},

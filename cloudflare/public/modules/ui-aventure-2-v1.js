@@ -1875,6 +1875,8 @@
       }
 
       function positionnerPopupObjetAdventureIdleV1_(root){
+        /* PC : au-dessus de l'objet cliqué (ui-popups-v1.js) */
+        if(typeof window.__SOREAL_IDLE_POPUP_AU_DESSUS_V1__==='function'&&window.__SOREAL_IDLE_POPUP_AU_DESSUS_V1__(root))return;
         const largeur=root.offsetWidth||320;
         const hauteur=root.offsetHeight||160;
         const margeMax={
@@ -2132,13 +2134,29 @@
         const requete=normaliserRechercheIdleV1_(REG.idleRechercheCoffreV1);
         if(requete)slots=slots.filter(function(s){return caseCoffreCorrespondIdleV1_(s,requete);});
         if(requete&&!slots.length)return '<div class="soreal-idle-note-v4" style="padding:8px 2px">Aucun objet du coffre ne correspond à « '+idleHtml_(REG.idleRechercheCoffreV1.trim())+' ».</div>';
-        const totalPagesCoffre=Math.max(1,Math.ceil(slots.length/REG.IDLE_PAGINATION_TAILLE_V1));
+        /*
+         * Un set n'est JAMAIS coupé sur deux pages (Norman, 2026-10-25) : les cases sont découpées en pages par « blocs » (toutes les pièces d'un même set restent ensemble) ; un bloc qui ne tient plus sur la page en cours passe à la suivante
+         * (une page peut donc compter un peu moins de cases que la taille de page, jamais un set en deux morceaux).
+         */
+        const taillePageCoffre=Math.max(1,Number(REG.IDLE_PAGINATION_TAILLE_V1)||1);
+        const pagesCoffre=[];
+        let pageEnCours=[];
+        for(let i=0;i<slots.length;){
+          let j=i+1;
+          const s0=slots[i];
+          if(s0.set){while(j<slots.length&&slots[j].set===s0.set&&String(slots[j].groupeNom||'')===String(s0.groupeNom||''))j+=1;}
+          const bloc=slots.slice(i,j);
+          if(pageEnCours.length&&pageEnCours.length+bloc.length>taillePageCoffre){pagesCoffre.push(pageEnCours);pageEnCours=[];}
+          pageEnCours=pageEnCours.concat(bloc);
+          i=j;
+        }
+        if(pageEnCours.length)pagesCoffre.push(pageEnCours);
+        const totalPagesCoffre=Math.max(1,pagesCoffre.length);
         if(REG.idlePageCoffreV1>totalPagesCoffre)REG.idlePageCoffreV1=totalPagesCoffre;
-        const debutPageCoffre=(REG.idlePageCoffreV1-1)*REG.IDLE_PAGINATION_TAILLE_V1;
-        const slotsPage=slots.slice(debutPageCoffre,debutPageCoffre+REG.IDLE_PAGINATION_TAILLE_V1);
+        const slotsPage=pagesCoffre[REG.idlePageCoffreV1-1]||[];
 
         /* Norman (2026-10-01) : cases regroupées (zones, titans, cœurs, Looty, pendentifs...) avec un titre de section ; seules les cases déjà découvertes sont listées, donc jamais de titre de groupe encore inconnu. */
-        let groupePrecedent=debutPageCoffre>0&&slots[debutPageCoffre-1]?String(slots[debutPageCoffre-1].groupeNom||''):null;
+        let groupePrecedent=null;
         /*
          * Mannequins (Norman, 2026-10-03 : « chaque item de set comme s'il était équipé : tête, torse, jambes, bottes, comme si l'armure était posée sur un mannequin ; les sets côte à côte, et en
          * dessous quand la ligne est occupée »). Les pièces d'un même set se rangent comme sur le personnage : colonne de gauche = tête, torse, jambes, bottes ; colonne de droite = arme puis
@@ -2160,8 +2178,10 @@
         }
         function carteCoffre(s){
           if(!s.occupe){
-            return '<div class="soreal-idle-collection-card-v1">'+boutonFiltre(s)+
-              '<div class="soreal-idle-collection-card-icon-v1"><span>⬜</span></div>'+
+            /* Case vide : l'image de l'objet à placer, grisée (Norman, 2026-10-25 : « il y a déjà l'image de l'objet qu'on doit placer, mais grisée quand il n'est pas là »). Seuls les objets déjà découverts ont une case (anti-spoil inchangé). */
+            const fantome={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId};
+            return '<div class="soreal-idle-collection-card-v1 vide-coffre-v1">'+boutonFiltre(s)+
+              '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(fantome)+'</div>'+
               '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
             '</div>';
           }

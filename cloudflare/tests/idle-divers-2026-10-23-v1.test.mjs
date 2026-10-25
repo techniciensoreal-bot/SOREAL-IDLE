@@ -241,3 +241,19 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(v.includes("(e.id==='poop'&&yggVu)") && v.includes("menuDisponibleIdleV28_('yggdrasil'"));
   assert.ok(u.includes("window.__coffreHFermeV1") && u.includes("cibleFermeture=Math.max(60,"));
 }
+
+// 2026-10-25 : informations de chronique en notifications (titre d'après le contenu, son à part), carte non ouverte seule, durées +30 %, Coffre (cases fantômes, Red Liquid, sets entiers), fiche d'objet au-dessus sur PC, Wandoos synchro en un appel + pas de recul.
+{
+  const n = lire("cloudflare/public/modules/chronique-notes-notice-v1.js"), t = lire("cloudflare/public/modules/tutorial-tts-v202.js"), a = lire("cloudflare/public/modules/audio-effects-v199.js"), fd = lire("cloudflare/public/modules/fade-notice-v1.js");
+  assert.ok(n.includes("function titreDe(texte)") && n.includes("'👹 Titans'") && n.includes("'🗺️ Aventure'") && !n.includes("Chronique du boss',"));
+  assert.ok(t.includes("if(chroniqueBossIdEnCours&&force){"));
+  assert.ok(a.includes("function chroniqueNote_()") && a.includes('chroniqueNote:{group:"achievement"') && a.includes('chroniqueNote:function(){return demander_("chroniqueNote");}'));
+  assert.ok(fd.includes("*1.3)"));
+  const inv = lire("cloudflare/src/idle-adventure-inventaire.js"), u = lire("cloudflare/public/modules/ui-aventure-2-v1.js"), p = lire("cloudflare/public/modules/ui-popups-v1.js");
+  assert.ok(inv.includes('(def.slot!=="consumable"||Boolean(def.maxFlag))'));
+  assert.ok(u.includes("vide-coffre-v1") && u.includes("const pagesCoffre=[];") && u.includes("poserPopupAuDessus") === false || u.includes("__SOREAL_IDLE_POPUP_AU_DESSUS_V1__"));
+  assert.ok(p.includes("function poserPopupAuDessusIdleV1_(root,element)") && p.includes("window.__SOREAL_IDLE_POPUP_AU_DESSUS_V1__=poserPopupAuDessusIdleV1_;"));
+  const w = lire("cloudflare/public/modules/wandoos-retro-v1.js"), ng = lire("cloudflare/src/idle-ngu-actions.js");
+  assert.ok(w.includes("pair:{resource:charges[1].resource,value:charges[1].value}") && w.includes("gardeBarres_[cleG]"));
+  assert.ok(ng.includes('payload.pair && typeof payload.pair === "object"'));
+}

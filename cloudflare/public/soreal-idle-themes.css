@@ -776,7 +776,14 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v2
   --th-a:#ffd700;--th-b:#c0c8d8;--th-c:#cd7f32;--th-bg:#182648;--th-bg2:#0a1226;--th-line:rgba(255,215,0,.45);--th-ink:#fff7d6;--th-dim:#a9b5d6;--th-num:#ffffff;--th-glow:rgba(255,215,0,.4);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="bestiaire"]){
-  --th-a:#b388ff;--th-b:#4fc3f7;--th-c:#ff80ab;--th-bg:#211a46;--th-bg2:#0e0a22;--th-line:rgba(179,136,255,.5);--th-ink:#f1e9ff;--th-dim:#b8a8e0;--th-num:#ffffff;--th-glow:rgba(179,136,255,.5);
+  /* Chroniques v2 (Norman, 2026-10-25 : « amélioration visuelle du menu Chronique, pour chaque sous-menu ») : un grimoire (cuir sombre, or) ; chaque sous-menu a sa teinte : Collection = cuivre, Classement = bleu royal, Succès = or vif. */
+  --th-a:#d9a15a;--th-b:#9a5a22;--th-c:#ffd9a8;--th-bg:#2a1a12;--th-bg2:#130a07;--th-line:rgba(217,161,90,.5);--th-ink:#fff1dc;--th-dim:#cdb08a;--th-num:#ffffff;--th-glow:rgba(217,161,90,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="classement"]){
+  --th-a:#7fb4ff;--th-b:#3a63b8;--th-c:#cfe2ff;--th-bg:#16213a;--th-bg2:#090f1e;--th-line:rgba(127,180,255,.5);--th-ink:#eaf3ff;--th-dim:#9fb6dc;--th-glow:rgba(127,180,255,.45);
+}
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="succes"]){
+  --th-a:#f4c430;--th-b:#a8780c;--th-c:#fff0a8;--th-bg:#2b2410;--th-bg2:#150f05;--th-line:rgba(244,196,48,.5);--th-ink:#fff8dc;--th-dim:#d2c188;--th-glow:rgba(244,196,48,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="chat"]){
   --th-a:#5eead4;--th-b:#f472b6;--th-c:#fbbf24;--th-bg:#1d2a3a;--th-bg2:#0f1623;--th-line:rgba(94,234,212,.42);--th-ink:#e8fffb;--th-dim:#8fb5b0;--th-num:#ffffff;--th-glow:rgba(94,234,212,.4);
@@ -849,25 +856,29 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="classement"] .
 
 /* ---- Collection : l'album holographique ---- */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"]{
-  --pg-radius:14px;--pg-deco:"🏆📖";--pg-font:inherit;
+  --pg-radius:14px;--pg-deco:"📖";--pg-font:inherit;
   --pg-bg:
-    conic-gradient(from 200deg at 50% 0%,rgba(179,136,255,.14),rgba(79,195,247,.10),rgba(255,128,171,.14),rgba(179,136,255,.14)),
-    radial-gradient(ellipse 80% 40% at 50% 0%,rgba(179,136,255,.22),transparent 70%),
-    linear-gradient(180deg,#1b1538,#0b0820);
-  --pg-head:linear-gradient(110deg,#3a2a7a 0%,#2a4a8a 55%,#7a2a6a 100%);
-  --pg-card:linear-gradient(165deg,#2a2060,#150f38);
-  --pg-btn:linear-gradient(180deg,#d9c2ff,#8a5cf0);--pg-btn-ink:#160a38;
+    radial-gradient(ellipse 90% 45% at 50% 0%,color-mix(in srgb,var(--th-a) 20%,transparent),transparent 72%),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 2px,transparent 2px 6px),
+    linear-gradient(180deg,var(--th-bg),var(--th-bg2));
+  --pg-head:linear-gradient(110deg,color-mix(in srgb,var(--th-b) 80%,#000) 0%,color-mix(in srgb,var(--th-a) 42%,#1a0f05) 60%,color-mix(in srgb,var(--th-b) 70%,#000) 100%);
+  --pg-card:linear-gradient(165deg,var(--th-bg),var(--th-bg2));
+  --pg-btn:linear-gradient(180deg,var(--th-c),var(--th-a));--pg-btn-ink:#1b1002;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] :is(.soreal-idle-section-v8,.soreal-idle-collection-card-v1){
   border:2px solid transparent!important;
-  background:linear-gradient(165deg,#2a2060,#150f38) padding-box,conic-gradient(from 30deg,#b388ff,#4fc3f7,#ff80ab,#ffe082,#b388ff) border-box!important;
+  background:linear-gradient(165deg,var(--th-bg),var(--th-bg2)) padding-box,linear-gradient(135deg,var(--th-a),var(--th-b) 50%,var(--th-a)) border-box!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-collection-tab-v1{
-  background:linear-gradient(180deg,#2d2468,#190f3a)!important;border:1px solid var(--th-line)!important;color:var(--th-ink)!important;border-radius:999px!important;
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--th-a) 16%,var(--th-bg)),var(--th-bg2))!important;border:1px solid var(--th-line)!important;color:var(--th-ink)!important;border-radius:10px!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-collection-tab-v1.active{
-  background:linear-gradient(180deg,#d9c2ff,#8a5cf0)!important;color:#160a38!important;box-shadow:0 0 16px var(--th-glow);
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="bestiaire"],[data-menu="classement"]) .soreal-idle-collection-tab-v1.active{
+  background:linear-gradient(180deg,var(--th-c),var(--th-a) 55%,var(--th-b))!important;color:#1b1002!important;box-shadow:0 0 16px var(--th-glow),inset 0 1px 0 rgba(255,255,255,.55);
 }
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-page-head-v28{border:1px solid var(--th-line);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 6px 18px -8px var(--th-glow)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-page-title-v28{letter-spacing:.06em;text-shadow:0 2px 0 rgba(0,0,0,.6),0 0 14px var(--th-glow)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-bestiary-card-v110{transition:transform .15s ease,box-shadow .2s ease}
+@media (hover:hover){body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bestiaire"] .soreal-idle-bestiary-card-v110:hover{transform:translateY(-3px);box-shadow:0 10px 22px -10px var(--th-glow)}}
 
 /* ---- Chat : bulles douces ---- */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="chat"]{
@@ -2230,13 +2241,16 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 
 /* Barre d'onglets de Chroniques (style ITOPOD : gros contour noir, ombre dure, onglet actif cerné d'or). */
 .soreal-idle-chroniques-onglets-v1{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin:0 0 12px}
-.soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;padding:7px 4px 6px;border:3px solid #000;border-radius:4px;cursor:pointer;
-  font-family:inherit;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:#cfd6f5;
-  background:linear-gradient(180deg,#2b3350,#161b30);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.4),3px 3px 0 #000;opacity:.72}
-.soreal-idle-chroniques-onglet-v1 i{font-style:normal;font-size:20px;line-height:1}
+.soreal-idle-chroniques-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:1px solid rgba(255,255,255,.14);border-bottom:4px solid #000;border-radius:12px 12px 4px 4px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#cfd6f5;
+  background:linear-gradient(180deg,#2b3350,#161b30);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 3px 0 rgba(0,0,0,.5);opacity:.78;transition:transform .12s ease,opacity .15s ease}
+.soreal-idle-chroniques-onglet-v1[data-onglet="bestiaire"]{--ong:#d9a15a}
+.soreal-idle-chroniques-onglet-v1[data-onglet="classement"]{--ong:#7fb4ff}
+.soreal-idle-chroniques-onglet-v1[data-onglet="succes"]{--ong:#f4c430}
+.soreal-idle-chroniques-onglet-v1 i{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
 .soreal-idle-chroniques-onglet-v1 b{font-weight:900;line-height:1.1;white-space:nowrap}
-.soreal-idle-chroniques-onglet-v1:active{transform:translate(2px,2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),1px 1px 0 #000}
-.soreal-idle-chroniques-onglet-v1.actif{opacity:1;color:#fff;background:linear-gradient(180deg,#d9b45a,#8a6a1c);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.35),3px 3px 0 #000,0 0 0 2px #ffe08a,0 0 14px rgba(217,180,90,.55);text-shadow:0 2px 0 #000}
+.soreal-idle-chroniques-onglet-v1:active{transform:translateY(2px)}
+.soreal-idle-chroniques-onglet-v1.actif{opacity:1;color:#fff;background:linear-gradient(180deg,color-mix(in srgb,var(--ong,#d9b45a) 70%,#fff),color-mix(in srgb,var(--ong,#d9b45a) 60%,#000));border-color:color-mix(in srgb,var(--ong,#d9b45a) 70%,#fff);border-bottom-color:var(--ong,#d9b45a);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 0 16px color-mix(in srgb,var(--ong,#d9b45a) 55%,transparent);text-shadow:0 2px 0 #000}
 
 /* Boucles parfaites des animations des barres (Norman, 2026-10-09 : « le cycle commence par un fondu d'entrée et finit par un fondu de sortie ; sinon on voit que la boucle n'est pas parfaite, un effet de recul sur les icônes »).
    1) Braises : dans « background:a,b,c,d,e 0 0/83px 60px » la taille de tuile ne s'appliquait qu'au DERNIER calque ; les quatre autres, grands comme la barre, glissaient de 83 px puis revenaient d'un coup en arrière.

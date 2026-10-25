@@ -49,7 +49,8 @@ function suivante(){
 }
 
 window.__sorealFadeNoticeV1__=function(titre,lignes,options){
-  var duree=options&&Number(options.dureeMs)>0?Number(options.dureeMs):4500;
+  /* Un peu plus longtemps à l'écran (Norman, 2026-10-25 : « augmente légèrement le temps que ces notifications restent affichées, toutes ») : durée demandée × 1,3. */
+  var duree=Math.round((options&&Number(options.dureeMs)>0?Number(options.dureeMs):4500)*1.3);
   var accent=options&&/^#[0-9a-fA-F]{3,8}$/.test(String(options.accent||''))?String(options.accent):'';
   file.push({titre:String(titre||''),lignes:(Array.isArray(lignes)?lignes:[]).map(String).filter(Boolean),dureeMs:duree,accent:accent});
   suivante();

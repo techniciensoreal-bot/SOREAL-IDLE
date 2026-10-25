@@ -617,7 +617,7 @@
    * Fraction = progression connue du serveur + vitesse (niveaux par seconde) × temps écoulé depuis l'instant où il l'a calculée. Au-delà de 3 niveaux par seconde, la barre boucle trop vite
    * pour être suivie : elle reste pleine. Le temps restant écrit sous la barre suit la même horloge.
    */
-  var vivant=0;
+  var vivant=0,gardeBarres_={};
   function fractionBarre_(p0,v,at){
     var dt=Math.max(0,(maintenant_()-at)/1000);
     if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null,gain:0};
@@ -634,6 +634,15 @@
     for(var i=0;i<barres.length;i++){
       var b=barres[i];
       var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')));
+      /*
+       * Pas de petit recul (Norman, 2026-10-25 : « quand j'ajoute 100K dans Wandoos avec la synchro, les barres font un mouvement de recul très bref ») : la réponse du moteur après un placement redonne un repère (p0) légèrement en deçà de ce que la barre
+       * affichait déjà. Un recul de moins de 6 % de la barre est donc tenu (la barre reste où elle est, le temps que la vraie valeur la rattrape, 2,5 s au plus) ; un vrai passage à 0 (niveau gagné) n'est jamais retenu.
+       */
+      var cleG=b.getAttribute('data-wd-barre')||'';
+      var gb=gardeBarres_[cleG]||(gardeBarres_[cleG]={f:0,t:0});
+      var tG=maintenant_();
+      if(gb.f>0&&r.f<gb.f&&gb.f-r.f<0.06&&tG-gb.t<2500)r.f=gb.f;
+      else{gb.f=r.f;gb.t=tG;}
       var rempl=b.querySelector('[data-wd-remplissage]');
       if(rempl)rempl.style.width=(r.f*100).toFixed(2)+'%';
       /* Le niveau affiché avance avec la barre (niveau de départ + niveaux terminés depuis le repère), comme le moteur : il ne saute plus à chaque synchro. */
@@ -686,10 +695,17 @@
   function placer(res,mode){
     var H=H_();
     var j=H&&H.getIdleEtat?H.getIdleEtat():null;
-    if(j&&synchroActive(j)){placerUn_('energy',mode);placerUn_('magic',mode);return;}
+    if(j&&synchroActive(j)){
+      /* un seul appel pour les deux ressources (champ « pair ») : les barres partent au même instant */
+      var charges=[];
+      placerUn_('energy',mode,charges);placerUn_('magic',mode,charges);
+      if(charges.length===1)meta_(charges[0]);
+      else if(charges.length>1)meta_(Object.assign({},charges[0],{pair:{resource:charges[1].resource,value:charges[1].value}}));
+      return;
+    }
     placerUn_(res,mode);
   }
-  function placerUn_(res,mode){
+  function placerUn_(res,mode,collecte){
     var H=H_();
     if(!H||!H.getIdleEtat)return;
     var j=H.getIdleEtat(),e=etat_(j);
@@ -713,7 +729,8 @@
     e.st.allocation[res]=cible;
     e.vue[cleLibre]=Math.max(0,libre-(cible-actuelle));
     rafraichirPoste_();
-    meta_({action:'allocate',system:'wandoos',resource:res,value:cible});
+    var charge={action:'allocate',system:'wandoos',resource:res,value:cible};
+    if(collecte)collecte.push(charge);else meta_(charge);
   }
   /* Le cap sous forme de saisie : entier tel quel, ou notation en e (1.2345e30) arrondie vers le haut à 10 chiffres si l'entier dépasse les 18 caractères de la saisie. */
   function capTexte_(cap){
