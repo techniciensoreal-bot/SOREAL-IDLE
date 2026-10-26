@@ -31,7 +31,7 @@ for (let h = 0; h < 22; h += 0.5) assert.ok(Number(C.echelleTerre_(g(h + 0.5))) 
 assert.ok(Number(C.echelleTerre_(g(6))) > 0.5 && Number(C.echelleFruit_(g(6))) < 0.25, "la terre est déjà grosse quand le fruit est encore petit");
 assert.equal(C.echelleTerre_(g(5)), C.echelleTerre_({ growth: 5, maxTier: 24 }), "calculées sur les heures réelles, jamais sur le temps maximum débloqué");
 assert.equal(C.echelleFruit_(g(30)), "1.000", "jamais plus que la taille pleine");
-assert.ok(src.includes("/api/idle/media/ygg?terre=1") && src.includes("&fruit=1") && src.includes("ygg-terre") && src.includes("ygg-fruit"), "deux images : terre et fruit");
+assert.ok(src.includes("/api/idle/media/ygg?name=terre&terre=1") && src.includes("&fruit=1") && src.includes("ygg-terre") && src.includes("ygg-fruit"), "deux images : terre et fruit");
 assert.ok(src.includes("function etapeCroissance_(d,v){return null;}") && !src.includes("ygg-suivante") && !src.includes("fractionSuivante_") && !src.includes("DEBUT_FRUIT_"), "plus d'images intermédiaires");
 assert.ok(src.includes("--ygg-s:") && src.includes("--ygg-f:") && src.includes("var(--ygg-f,1)") && !src.includes("transform:scale(var(--ygg-"), "tailles par largeur/hauteur (jamais un transform animé, flou)");
 /* Fruits de Puissance : dossier partagé idle/yggdrasil/puissance/ (20 images), les images propres à un fruit passent devant. */

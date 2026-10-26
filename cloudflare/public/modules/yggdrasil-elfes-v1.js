@@ -293,7 +293,7 @@
     if(g<=23)return 0.08+0.30*((g-12)/11);
     return 0.38+0.62*Math.min(1,g-23);
   }
-  var URL_TERRE_='/api/idle/media/ygg?terre=1';
+  var URL_TERRE_='/api/idle/media/ygg?name=terre&terre=1';
   function couches_(d,v,id,def){
     if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
     return image_(id,emoji_(id,def.name),'ygg-fruit',null,'/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1')+'<img class="ygg-img ygg-terre" alt="" draggable="false" src="'+URL_TERRE_+'">';
