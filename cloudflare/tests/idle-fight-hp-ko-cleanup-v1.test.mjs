@@ -55,7 +55,7 @@ for (const [nom, source] of [["ui", ui], ["moteur", runtime], ["coordinateur", c
   }
 }
 assert.ok(!contract.operations.includes("reinitialiserTousLesComptesSorealIdle"), "opération retirée du contrat");
-assert.ok(runtime.includes("email.indexOf('+partieb@') !== -1"), "une éventuelle ligne de la partie B reste hors classement");
+assert.ok(runtime.includes("idleDevEstEmailPartieTestV1(email)"), "les lignes des parties B et C restent hors classement");
 assert.ok(ui.includes("Réinitialiser entièrement SOREAL IDLE"), "le reset de SA propre partie reste");
 
 console.log("idle-fight-hp-ko-cleanup-v1: OK");

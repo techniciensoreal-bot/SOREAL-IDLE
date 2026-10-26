@@ -277,7 +277,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 // 2026-10-25 (suite) : Réglages en quatre catégories sans blocs développement/administrateur, réinitialisation par saisie de « TOUT EFFACER », compteurs d'Yggdrasil en haut, image de base de la graine sur la valise, PC sans espace vide ni éléments collés qui bouchent.
 {
   const rg = lire("cloudflare/public/modules/ui-reglages-v1.js"), rn = lire("cloudflare/public/modules/ui-renaissance-v1.js"), yg = lire("cloudflare/public/modules/yggdrasil-elfes-v1.js"), va = lire("cloudflare/public/modules/valise-v1.js"), th = lire("cloudflare/public/soreal-idle-themes.css");
-  assert.ok(rg.includes("const REGLAGES_ONGLETS_IDLE_V1=[") && rg.includes("window.__reglagesOngletIdleV1__=") && !rg.includes("rendrePartiesDevIdleV1_()+") && !rg.includes("Accès à SOREAL IDLE (administrateur)</div>'+\n              '<div style"));
+  assert.ok(rg.includes("const REGLAGES_ONGLETS_IDLE_V1=[") && rg.includes("window.__reglagesOngletIdleV1__=") && !rg.includes("Accès à SOREAL IDLE (administrateur)</div>'+\n              '<div style"));
   assert.ok(!/Outils de test \(administrateur\)<\/div>'\+/.test(rg) && !rg.includes("htmlReglagesDiarrheesIdleV1_()+") && !rg.includes("htmlReglagesSonsDefaiteIdleV1_()+"));
   assert.ok(rn.includes("sorealIdleResetTotalSaisieV67") && rn.includes("TOUT EFFACER") && rn.includes("<button id=\"sorealIdleResetTotalConfirmV67\" type=\"button\" disabled"));
   assert.ok(yg.includes('<div class="ygg-monnaies-haut">') && yg.indexOf("ygg-monnaies-haut\">") < yg.indexOf("'<div class=\"ygg-grille\">'"));

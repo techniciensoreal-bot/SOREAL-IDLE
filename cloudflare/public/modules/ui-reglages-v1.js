@@ -36,7 +36,7 @@
         }
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🎮 Mes parties</div>'+
-          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Trois parties indépendantes : clique sur l’une d’elles pour y jouer. La A est ta partie principale ; la B et la C servent à essayer autre chose, sans toucher à la A. Elles n’apparaissent ni au classement ni dans « En direct ». Le bouton « Tout recommencer » ci-dessous ne concerne que la partie active.</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Trois parties indépendantes : clique sur l’une d’elles pour y jouer. La A est ta partie principale ; la B et la C servent à essayer autre chose, sans toucher à la A. Les autres joueurs ne les voient pas. Le bouton « Tout recommencer » ci-dessous ne concerne que la partie active.</div>'+
           '<div class="soreal-idle-parties-dev-v1">'+
             bouton('a','Partie A','Ma partie principale')+
             bouton('b','Partie B','Pour essayer')+
