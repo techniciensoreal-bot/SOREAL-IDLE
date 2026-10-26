@@ -52,8 +52,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 11,
-  "sha": "8140e90236b012945472844e4733ab25db7c4baf"
+  "pin": 12,
+  "sha": "3614dbb8e19297f422bab5fe053061e51758776c"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -376,8 +376,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 456,
-  "sha": "2a676ae5ca2c8b78896112f76209cddac7e625b5"
+  "pin": 457,
+  "sha": "660e0e245dc220a95beade45db1b70a59b207c90"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -444,12 +444,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 465,
-  "sha": "077cc326ad9295459ce3b259bdccae6fb0103ba0"
+  "pin": 466,
+  "sha": "b2b70971dbc48153a587550e7c44a5c3a7d6ceb5"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 285,
-  "sha": "ed80a395f2b73090de20964b225a954933b52e2b"
+  "pin": 286,
+  "sha": "3cecf1c1bb8ef8fa53f3ed2ada7b687c8265c511"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -488,8 +488,8 @@
   "sha": "95b4fa0d28b720ad9480877d564acc752d30f84d"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 34,
-  "sha": "23601159bc91f4f3f569fb506a7f92f42c4e5133"
+  "pin": 35,
+  "sha": "77185460849c44ec9970a7dd6066bba2a2f2bd4e"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 16,
@@ -572,8 +572,8 @@
   "sha": "7ac719f5008b6b895ae867553ada636dc248d3a3"
  },
  "/modules/valise-v1.js": {
-  "pin": 59,
-  "sha": "6b3171e09fa2bf9f086a38eaa7c35f1d7e6217df"
+  "pin": 60,
+  "sha": "e1c70f7c8176aec35968107fd527358ef3dab470"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 6,
@@ -604,8 +604,8 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 50,
-  "sha": "edb4021d309187b000e7f8eaf1ac522edd18ead4"
+  "pin": 51,
+  "sha": "38b20c1dda8484edfee1931e92b6bd19c10c556d"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 13,
