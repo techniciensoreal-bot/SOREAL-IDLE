@@ -47,7 +47,7 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Un fruit change d’image à chaque heure de pousse : avec un maximum de 10 h, il n’utilise que les 10 premières images ; la dernière ne s’atteint que lorsque le temps maximum de 24 h est débloqué.',
+            'Un fruit se voit déjà un tout petit peu après une heure de pousse, et la motte de terre grandit avec lui ; avec un maximum de 10 h il n’utilise que 10 images de fruit, la dernière image n’arrivant qu’avec le temps maximum de 24 h débloqué.',
           ]},
         ]
       },
