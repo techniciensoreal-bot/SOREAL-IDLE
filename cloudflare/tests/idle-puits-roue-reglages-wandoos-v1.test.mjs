@@ -18,7 +18,7 @@ assert.ok(meta.includes(".cal-case-v1.allume.nouveau{animation:calAllumeV1") && 
 assert.ok(meta.includes("(serieAvant!==null&&prises.length>serieAvant)?' nouveau':''"), "seule une case prise en plus du nombre déjà vu est « nouvelle »");
 
 // Curseurs (volumes des Réglages) : un geste sur un champ n'est jamais un changement de page.
-assert.ok(ui.includes("e.target.closest('input,select,textarea,[role=\"slider\"],[data-no-swipe]')") && ui.includes("surChampGlisseV1||"), "le swipe ignore les champs et curseurs");
+assert.ok(ui.includes("e.target.closest('input,select,textarea,[role=\"slider\"],[data-no-swipe],.bg-flaque-v1,.vl-flaque-v1')") && ui.includes("surChampGlisseV1||"), "le swipe ignore les champs et curseurs");
 
 // Wandoos : écran de taille fixe (l'image du moniteur est carrée), pleine largeur sur téléphone, temps restant seul sous les barres.
 assert.ok(wd.includes("height:55.4cqw;") && !wd.includes("min-height:34cqw"), "écran de hauteur fixe");
