@@ -56,6 +56,9 @@
           {menu:'augmentations', titre:'Augmentations', points:[
             'Le bonus total Attaque et Défense, en haut de la page, s’écrit comme la vie : avec des lettres (K, M, B…).',
           ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Sur PC, la page du combat de boss a un nouveau fond : une salle d’arcade en perspective, derrière la borne.',
+          ]},
         ]
       },
       {
