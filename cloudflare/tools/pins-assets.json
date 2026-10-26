@@ -124,12 +124,12 @@
   "sha": "301eb6eb477bbf29c080c466973c66581e4b1fda"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 24,
-  "sha": "6d157c4bdc6b3d215e8ccb0d124751363cfd8eae"
+  "pin": 25,
+  "sha": "03b66a52feea3ea2dd40140fd48971c4d2fbe0e3"
  },
  "/modules/coffre-sommeil-v1.js": {
-  "pin": 27,
-  "sha": "e1a4dcd3dfd8dada427d5587e70a087e77fe3784"
+  "pin": 28,
+  "sha": "531e24ff7113ef2cb348e0dcc1f71ff5da026968"
  },
  "/modules/combat-effets-v1.js": {
   "pin": 4,
@@ -347,6 +347,10 @@
   "pin": 17,
   "sha": "b93718c762d42a38089ff55618fd46bdcbfbf409"
  },
+ "/modules/phrases-coffre-valise-v1.js": {
+  "pin": 1,
+  "sha": "bf0283a01d995620de1d53394fbdbbf05fbb4cd4"
+ },
  "/modules/prefs-compte-v1.js": {
   "pin": 2,
   "sha": "d6c3e7f360fb69829164bcd7dd7e85c3bb5b73c1"
@@ -416,8 +420,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 26,
-  "sha": "4fac159532099858b09efdb9f01beecf4ab40e27"
+  "pin": 27,
+  "sha": "6649bb172dda9710d8f81d72cef9de5b3db20205"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -564,12 +568,12 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 13,
-  "sha": "67e43158223d1a3a2ec900659ec20bf52594661c"
+  "pin": 14,
+  "sha": "7ac719f5008b6b895ae867553ada636dc248d3a3"
  },
  "/modules/valise-v1.js": {
-  "pin": 58,
-  "sha": "5fba02b2f841f78cc67718305aacb7a586c11a95"
+  "pin": 59,
+  "sha": "6b3171e09fa2bf9f086a38eaa7c35f1d7e6217df"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 6,
