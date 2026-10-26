@@ -407,6 +407,15 @@ if(s.equipment.weapon2&&(!s.inventory.some(x=>x.id===s.equipment.weapon2)||s.equ
  *   déclencher son vrai bonus même si un ancien build avait oublié
  *   d'appeler checkSets après chargement.
  */
+/*
+ * Le Flubber solitaire est tombé tout au début du jeu, quand le taux de butin était mal réglé : personne ne l'a vraiment (Norman, 2026-10-26 : « uniquement pour cet objet, remets à 0 cette statistique »). Une seule fois par partie (drapeau
+ * flubberRemisAZeroV1), s'il n'est NI dans le sac (équipé compris), NI au Coffre, NI dans la corbeille, son « vu » et son niveau atteint repartent à zéro : sa case du Coffre n'apparaît plus avant un vrai butin.
+ */
+if(!s.flubberRemisAZeroV1){
+  s.flubberRemisAZeroV1=true;
+  const possede=s.inventory.some(o=>o&&o.definitionId==="flubber")||Boolean(s.trash&&s.trash.definitionId==="flubber")||Boolean(s.coffre&&typeof s.coffre==="object"&&s.coffre.flubber);
+  if(!possede&&s.itemList&&s.itemList.flubber)delete s.itemList.flubber;
+}
 for(const o of s.inventory){
   if(o&&o.definitionId&&idleAdventureObjetPleinementMaxeV1(o)){
     const info=s.itemList[o.definitionId]||{maxLevel:I(o.level,-1),seen:true};
