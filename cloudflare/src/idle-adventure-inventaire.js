@@ -561,6 +561,17 @@ function idleAdventureStatsTypesCoffreV1(definitionId,def){
 
 export function idleAdventureCoffreSlotsV1(s){
   const ordreGroupe=Object.fromEntries(IDLE_ADVENTURE_COFFRE_GROUPES_V1.map((g,i)=>[g.id,i]));
+  /*
+   * Emplacements révélés (Norman, 2026-10-26) : dès qu'UNE pièce d'un set (ou d'une zone) a été lootée, toutes les cases de ce set / de cette zone existent dans le Coffre, mais celles dont l'objet n'a JAMAIS été looté ne portent ni nom ni image ni
+   * identifiant (connu:false) : une case blanche vide. Dès que l'objet a été looté une fois (connu:true), la case montre son image grisée et son nom. Le reste du jeu n'est jamais révélé (anti-spoil).
+   */
+  const zonesVues=new Set(),setsVus=new Set();
+  for(const [id,d] of Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)){
+    if(!idleAdventureCoffreAccepteV1(id)||!s.itemList[id]?.seen)continue;
+    const p=IDLE_ADVENTURE_COFFRE_PLACE_V1[id];
+    if(p&&p.groupe==="zone")zonesVues.add(p.zoneNom);
+    if(d.set)setsVus.add(d.set);
+  }
   return Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)
     .filter(([definitionId])=>idleAdventureCoffreAccepteV1(definitionId))
     .sort(([a,da],[b,db])=>{
@@ -583,6 +594,15 @@ export function idleAdventureCoffreSlotsV1(s){
       const connu=Boolean(s.itemList[definitionId]?.seen);
       const place=IDLE_ADVENTURE_COFFRE_PLACE_V1[definitionId];
       const groupe=IDLE_ADVENTURE_COFFRE_GROUPES_V1.find(g=>g.id===place.groupe);
+      const revele=connu||(place.groupe==="zone"&&zonesVues.has(place.zoneNom))||Boolean(def.set&&setsVus.has(def.set));
+      if(!connu){
+        const setVu=Boolean(def.set&&setsVus.has(def.set));
+        return{
+          definitionId:"",set:def.set,setName:setVu?def.setName:"",slot:def.slot,name:"",wikiItemId:0,nameEn:"",setNameEn:"",statsTypes:[],
+          groupe:place.groupe,groupeNom:place.groupe==="zone"?place.zoneNom:groupe.nom,
+          decouvert:revele,connu:false,occupe:false,item:null
+        };
+      }
       return{
         definitionId,
         set:def.set,setName:def.setName,slot:def.slot,name:def.name,wikiItemId:def.wikiItemId||0,
@@ -593,7 +613,7 @@ export function idleAdventureCoffreSlotsV1(s){
         groupe:place.groupe,
         /* Titre de section : nom de la zone (équipement et butins de zone) ou du groupe ; le client ne l'affiche qu'avec une case découverte. */
         groupeNom:place.groupe==="zone"?place.zoneNom:groupe.nom,
-        decouvert:connu,
+        decouvert:true,connu:true,
         occupe:Boolean(occupant),
         item:occupant?{...snapshotItemAdventureV1(occupant),maxed:true,basePower:def.basePower,baseToughness:def.baseToughness}:null
       };

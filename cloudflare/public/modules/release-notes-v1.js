@@ -36,6 +36,7 @@
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans le Coffre, dès qu’une pièce d’un set est lootée, les emplacements des autres pièces de ce set et de sa zone apparaissent en cases blanches vides ; une case ne montre son image grisée et son nom qu’une fois son objet looté au moins une fois.',
             'Dans le Coffre, les titres des cadres se lisent en entier (plus de « Looty » coupé lettre par lettre) et n’ont plus qu’un seul emoji.',
             'Tous les objets qui se montent au niveau 100 ont maintenant leur case dans le Coffre.',
             'Fermer le Coffre ne fait plus descendre le cadre trop bas avant de le faire remonter d’un coup : sur PC, où la page est mise à l’échelle, il se raccourcit maintenant d’un seul geste.',

@@ -48,3 +48,18 @@ assert.ok(inv2.includes('t2:["giantSeed","mysteriousRedLiquid"]') && inv2.includ
 assert.ok(av.includes("titre=String(titre).replace(/^[^A-Za-z0-9"), 'pas de second émoji devant le titre');
 assert.ok(lire('public/soreal-idle-barre-outils.css').includes('overflow-wrap:normal;word-break:normal;hyphens:none'), 'les titres ne sont plus coupés lettre par lettre');
 console.log('ok coffre titres et liquides');
+
+// Coffre : une pièce lootée révèle les emplacements de son set et de sa zone ; seuls les objets déjà lootés ont nom et image
+import { normalizeIdleAdventureStateV47, idleAdventureSnapshotV47 } from '../src/idle-adventure-v47.js';
+{
+  const e = normalizeIdleAdventureStateV47({});
+  assert.equal(idleAdventureSnapshotV47(e, { bosses: 300 }, 1000).coffreSlots.length, 0, 'rien de looté : aucune case');
+  e.itemList['sewers:weapon'] = { seen: true, maxLevel: 3 };
+  const cs = idleAdventureSnapshotV47(e, { bosses: 300 }, 1000).coffreSlots;
+  const connus = cs.filter((c) => c.connu), blancs = cs.filter((c) => !c.connu);
+  assert.equal(connus.length, 1, 'une seule case connue');
+  assert.ok(blancs.length >= 3, 'les autres emplacements du set et de la zone existent');
+  for (const b of blancs) assert.ok(b.name === '' && b.definitionId === '' && b.nameEn === '' && !b.item && !b.occupe, 'case blanche : ni nom ni identifiant');
+  assert.ok(!blancs.some((b) => b.groupe !== 'zone'), 'seuls la zone et le set lootés sont révélés');
+}
+console.log('ok coffre cases blanches');

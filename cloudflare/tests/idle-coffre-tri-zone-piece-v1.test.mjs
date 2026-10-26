@@ -32,7 +32,7 @@ let dernierZone = -1, dernierSlotDansZone = -1;
  * 2026-10-01 : les pièces des sets de titans (GRB, Jake...) ne sont plus mêlées aux sets sans zone : elles forment le groupe « titan »
  * (voir idle-coffre-specials-v1). Cette vérification de l'ordre zone puis pièce ne porte donc que sur le groupe « zone ».
  */
-for (const slot of slots.filter((x) => x.groupe === "zone")) {
+for (const slot of slots.filter((x) => x.groupe === "zone" && x.connu !== false)) {
   const z = rangZone[slot.set] != null ? rangZone[slot.set] : MAX;
   if (z !== dernierZone) {
     assert.ok(z > dernierZone, "les zones ne reculent jamais : " + slot.definitionId);
@@ -54,6 +54,7 @@ assert.ok(slots.indexOf(slots.find((x) => x.definitionId === training[training.l
 const weaponTraining = slots.findIndex((x) => x.set === "training" && x.slot === "weapon");
 const headTraining = slots.findIndex((x) => x.set === "training" && x.slot === "head");
 assert.ok(weaponTraining >= 0 && headTraining >= 0 && weaponTraining < headTraining, "arme avant tête, même set");
-assert.equal(new Set(slots.map((x) => x.definitionId)).size, slots.length, "aucune case en double");
+const connues = slots.filter((x) => x.connu !== false);
+assert.equal(new Set(connues.map((x) => x.definitionId)).size, connues.length, "aucune case en double");
 
 console.log("idle-coffre-tri-zone-piece-v1: OK");

@@ -2177,6 +2177,8 @@
             'onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(s.definitionId))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
         }
         function carteCoffre(s){
+          /* Emplacement révélé mais objet jamais looté : une case blanche, vide, sans nom ni image (anti-spoil, Norman 2026-10-26) */
+          if(s.connu===false)return '<div class="soreal-idle-collection-card-v1 vide-coffre-v1 inconnu-coffre-v1" aria-hidden="true"></div>';
           if(!s.occupe){
             /* Case vide : l'image de l'objet à placer, grisée (Norman, 2026-10-25 : « il y a déjà l'image de l'objet qu'on doit placer, mais grisée quand il n'est pas là »). Seuls les objets déjà découverts ont une case (anti-spoil inchangé). */
             const fantome={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId};
