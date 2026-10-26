@@ -196,8 +196,10 @@
   }
   function repliques(){
     var v=V();if(!v||typeof v.dire!=='function')return;
-    var ouvertures=['Bleurgh… j’ai trop bu.','Oh non… pas encore les potions…','Ne regardez pas, c’est gênant.'];
-    v.dire(ouvertures[Math.floor(Math.random()*ouvertures.length)]);
+    /* Phrases étiquetées « la valise a vomi » (modifiables par l'administrateur, modules/phrases-coffre-valise-v1.js). « Je suis contente ! » se dit ICI, quand elle apparaît avec son vomi, jamais quand on la lave (Norman, 2026-10-26, clin d'œil à La Cité de la peur). */
+    var pc=window.__SOREAL_IDLE_PHRASES_V1__;
+    var t=pc?pc.tirer('valise','accident:V'):'Bleurgh… j’ai trop bu.';
+    if(t)v.dire(t);
   }
   function vomir(){
     var el=bete();if(!el)return false;
@@ -282,7 +284,6 @@
     if(n&&niveau>0){
       retirerDoigt();   /* une vraie frottée : la main a rempli son rôle */
       niveau-=1;sauver();majFlaque();clic();
-      if(niveau===0){var v=V();if(v&&typeof v.dire==='function')v.dire('Je suis contente !');}
     }
   },true);
   ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){suivi=null;},true);});

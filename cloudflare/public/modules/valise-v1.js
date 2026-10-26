@@ -652,7 +652,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
         if(bailler()){visibleBaille=0;cibleBaille=180000+Math.random()*300000;}else visibleBaille=Math.max(0,cibleBaille-20000);
       }
       visibleRegard+=PAS;
-      if(visibleRegard>=cibleRegard){visibleRegard=0;cibleRegard=150000+Math.random()*250000;dire(REMARQUE);}
+      if(visibleRegard>=cibleRegard){visibleRegard=0;cibleRegard=150000+Math.random()*250000;var pv=window.__SOREAL_IDLE_PHRASES_V1__;var phr=pv?pv.tirer('valise','remarque'):REMARQUE;if(phr)dire(phr);}
     }catch(_e){}
   }
   setInterval(pas,PAS);

@@ -1481,6 +1481,7 @@ function pageHtml_(){
     '<input type="text" id="sorealIdleTextesFiltreV1" placeholder="Numéro ou nom du boss (« modifie » = ceux que tu as changés)" value="'+esc_(admin.filtre)+'" '+
       'style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1.5px solid #34425f;background:#0a0e16;color:#f1f4fb;font:500 16px system-ui,sans-serif;margin-bottom:6px">'+
     '<div id="sorealIdleTextesBossListeV1">'+listeBossHtml_()+'</div>'+
+    (window.__SOREAL_IDLE_PHRASES_V1__?window.__SOREAL_IDLE_PHRASES_V1__.editeurHtml():'')+
     '<div style="margin:16px 0 4px;font-weight:800">Fenêtres et popups</div>'+
     '<div id="sorealIdleTextesPopupsListeV1">'+listePopupsHtml_()+'</div>'+
   '</div>';
@@ -1669,6 +1670,8 @@ document.addEventListener('change',function(ev){
 
 window.__SOREAL_IDLE_TEXTES_V1__={
   surcharge:surcharge_,
+  /* Met à jour (ou retire, avec champs=null) une surcharge simple enregistrée hors de l'éditeur, par exemple les listes de phrases (modules/phrases-coffre-valise-v1.js). */
+  majSimple:function(cle,champs){miseAJourApresEcriture_(cle,champs?{champs:champs,parle:{},voix:[]}:null);},
   /* Texte DIT d'un champ (le cadre des personnages de l'éditeur), tel qu'il a été enregistré avec la voix générée ; undefined si la voix suit le texte affiché. */
   parle:parleDe_,
   appliquerPage:appliquerPage_,

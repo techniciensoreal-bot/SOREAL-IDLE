@@ -107,7 +107,11 @@
   /* La remarque ne se superpose jamais à une autre bulle du Coffre (excuse d'un pet, réplique de réveil). */
   function remarque_(el){
     if(!el||el.querySelector('.bg-desole-v1,.bg-replique-v1'))return false;
-    dire_(el,REMARQUE);
+    /* phrases modifiables par l'administrateur (modules/phrases-coffre-valise-v1.js) */
+    var pc=window.__SOREAL_IDLE_PHRASES_V1__;
+    var t=pc?pc.tirer('coffre','remarque'):REMARQUE;
+    if(!t)return false;
+    dire_(el,t);
     return true;
   }
   /* Réveil en sursaut : bond sur place, pet très fort, nuage de fumée, réplique. */
@@ -160,9 +164,10 @@
       if(valiseSale_()){
         vuPue+=PAS;
         if(vuPue>=ciblePue&&el&&!el.querySelector('.bg-desole-v1,.bg-replique-v1')){
-          var k=Math.floor(Math.random()*PLAINTES.length);
-          if(k===deniere)k=(k+1)%PLAINTES.length;
-          deniere=k;dire_(el,PLAINTES[k]);vuPue=0;ciblePue=25000+Math.random()*20000;
+          var pc=window.__SOREAL_IDLE_PHRASES_V1__;
+          var plainte=pc?pc.tirer('coffre','accident:V'):PLAINTES[Math.floor(Math.random()*PLAINTES.length)];
+          if(plainte)dire_(el,plainte);
+          vuPue=0;ciblePue=25000+Math.random()*20000;
         }
       }else{vuPue=0;ciblePue=8000;}
       return;

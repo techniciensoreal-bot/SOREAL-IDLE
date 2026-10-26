@@ -136,7 +136,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 {
   const s = lire("cloudflare/public/modules/coffre-sommeil-v1.js"), v = lire("cloudflare/public/modules/valise-accident-v1.js");
   assert.ok(s.includes("Je t’en supplie, nettoie-la, elle pue.") && s.includes("function valiseSale_()") && s.includes("PLAINTES"));
-  assert.ok(v.includes("v.dire('Je suis contente !')") && !v.includes("Merci… ça va mieux."));
+  assert.ok(!v.includes("v.dire('Je suis contente !')") && !v.includes("Merci… ça va mieux."), "plus de « Je suis contente » au nettoyage (Norman, 2026-10-26) : elle le dit en apparaissant avec son vomi");
   for (const f of ["coffre-sommeil-v1", "coffre-digestion-v1", "valise-v1"]) assert.ok(!lire("cloudflare/public/modules/" + f + ".js").includes("data-sans-traduction"), f);
   const d = JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"));
   assert.equal(d["Je suis contente !"], "I'm so happy!");

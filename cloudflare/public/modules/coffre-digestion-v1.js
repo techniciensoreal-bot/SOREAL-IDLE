@@ -118,10 +118,11 @@
   }
   /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
   function repliques_(){
-    var ouverture=OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];
+    var pc=window.__SOREAL_IDLE_PHRASES_V1__;
+    var ouverture=pc?pc.tirer('coffre','accident:C'):OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];   /* liste modifiable par l'administrateur */
     quandEntierementVisible_(function(coffre){
-      var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';
-      retirer_(b1,200+2300);
+      if(ouverture){var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';
+      retirer_(b1,200+2300);}
       var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+2600);b2.className+=' bg-desole-long-v1';
       retirer_(b2,200+2600+2300);
     });
