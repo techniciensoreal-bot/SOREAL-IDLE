@@ -146,6 +146,8 @@
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
       '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transform:scale(var(--ygg-echelle,1));transform-origin:50% 90%;}',
+      '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
+      '.ygg-vitre.ygg-decor.ygg-aura .ygg-img{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
       /* Banc d'essai des animations (administrateur) */
       '.ygg-banc{margin-top:16px;padding:12px;border:3px solid #000;border-radius:10px;background:rgba(0,0,0,.3);color:#f4f8ea;}',
@@ -273,6 +275,17 @@
   function echelleImage_(d,v){
     var p=Math.max(0,Math.min(1,(Number(v.growth)||0)/24));
     return (0.3+0.7*Math.sqrt(p)).toFixed(3);   /* minuscule tas au début, plein à la 24e heure ; monte vite au début pour que le premier fruit reste visible */
+  }
+  /*
+   * Aura du fruit (Norman, 2026-10-26) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle apparaît APRÈS la 12e heure de pousse, faible puis de plus en plus forte ; la 24e heure est beaucoup plus
+   * prononcée que toutes les autres. Elle suit les heures réelles de pousse : un fruit limité à 12 h (ou moins) n'en a jamais.
+   */
+  var AURAS_={gold:'#ffb21f',powerAlpha:'#ff4a2a',powerBeta:'#7a6cff',powerDelta:'#ffa21a',adventure:'#c9d63a',knowledge:'#e87848',pomegranate:'#ff3b2c',luck:'#b9d11a',arbitrariness:'#e6b834',numbers:'#79bfee',rage:'#ff4426',macguffinAlpha:'#ff9430',watermelon:'#9ccc24',macguffinBeta:'#4a7cff',quirks:'#ff8c22',angryMayo:'#ff6126',sadMayo:'#4fb0d6',moldyMayo:'#d6b13a',ayyMayo:'#c4d824',cincoMayo:'#ff9a38',prettyMayo:'#ff9c40'};
+  function intensiteAura_(v){
+    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
+    if(g<=12)return 0;
+    if(g<=23)return 0.08+0.30*((g-12)/11);
+    return 0.38+0.62*Math.min(1,g-23);
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   function etapeCroissance_(d,v){
@@ -575,7 +588,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

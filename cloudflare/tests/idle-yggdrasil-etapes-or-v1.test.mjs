@@ -70,3 +70,17 @@ assert.equal(ech({ maxTier: 5 }, { growth: 5 }), ech({ maxTier: 24 }, { growth: 
 assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > Number(ech({ maxTier: 24 }, { growth: 1 })) && Number(ech({ maxTier: 24 }, { growth: 1 })) > 0.3, "elle grandit avec le fruit");
 assert.ok(srcY.includes("transform:scale(var(--ygg-echelle,1))") && srcY.includes("--ygg-echelle:"), "échelle appliquée à l'image du fruit");
 console.log("ok motte qui grandit");
+
+/* Aura du fruit : de la couleur du fruit, après la 12e heure, de plus en plus forte, la 24e heure beaucoup plus prononcée */
+const intens = vm.runInNewContext("(" + srcY.match(/function intensiteAura_\(v\)\{[\s\S]*?\n  \}/)[0].replace("function intensiteAura_", "function") + ")");
+assert.equal(intens({ growth: 0 }), 0); assert.equal(intens({ growth: 12 }), 0, "pas d'aura jusqu'à la 12e heure comprise");
+assert.ok(intens({ growth: 12.5 }) > 0 && intens({ growth: 12.5 }) < 0.15, "faible au début");
+assert.ok(intens({ growth: 18 }) > intens({ growth: 13 }) && intens({ growth: 23 }) > intens({ growth: 18 }), "de plus en plus forte");
+assert.equal(intens({ growth: 24 }), 1, "24e heure : maximum");
+assert.ok(intens({ growth: 24 }) - intens({ growth: 23 }) > 3 * (intens({ growth: 23 }) - intens({ growth: 22 })), "la dernière heure est bien plus marquée que les autres");
+assert.equal(intens({ growth: 10 }), 0, "un fruit limité à 10 h n'a jamais d'aura");
+const ids24 = Object.keys(JSON.parse(srcY.match(/var FRUITS_24_=(\{[^}]*\})/)[1].replace(/(\w+):true/g, '"$1":true')));
+const auras = JSON.parse(srcY.match(/var AURAS_=(\{[^}]*\})/)[1].replace(/(\w+):'/g, '"$1":"').replace(/'/g, '"'));
+for (const id of ids24) assert.ok(/^#[0-9a-f]{6}$/i.test(auras[id]), "couleur d'aura pour " + id);
+assert.ok(srcY.includes("ygg-aura") && srcY.includes("--ygg-aura-a"));
+console.log("ok aura des fruits");
