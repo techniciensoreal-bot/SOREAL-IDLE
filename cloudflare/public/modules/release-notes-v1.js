@@ -40,7 +40,7 @@
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Chaque zone a maintenant un décor peint derrière le cadre de combat, assombri pour que les barres et les cartes restent bien lisibles ; la Zone sûre et les titans gardent leur apparence.',
+            'Chaque zone a maintenant un décor peint derrière le cadre de combat, assombri pour que les barres et les cartes restent bien lisibles ; la Zone sûre garde son apparence.',
             'À l’ouverture du Coffre, le fond vert s’applique tout de suite au lieu de se faire attendre.',
             'Dans le Coffre, la langue sort quand on l’ouvre et rentre quand on le ferme, au lieu d’apparaître ou de disparaître en une image.',
             'Dans le Coffre, dès qu’une pièce d’un set est lootée, les emplacements des autres pièces de ce set et de sa zone apparaissent en cases blanches vides ; une case ne montre son image grisée et son nom qu’une fois son objet looté au moins une fois.',
