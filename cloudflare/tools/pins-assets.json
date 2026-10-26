@@ -512,8 +512,8 @@
   "sha": "7271dc251f8c651a63495df29d9bc630e0aa2a21"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 14,
-  "sha": "aca113b6d8fa49497a59a9e9ca01ba18f3718858"
+  "pin": 15,
+  "sha": "996733b289b2047667b317882567e326f3d307d5"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -620,8 +620,8 @@
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 233,
-  "sha": "0c5ba5c5b33491fa9e045f82adcba70d3d406b46"
+  "pin": 234,
+  "sha": "6bcdab023900bf63d0c22c92a3c903043ef5cd30"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
