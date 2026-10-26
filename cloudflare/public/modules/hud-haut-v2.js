@@ -78,8 +78,43 @@
     ecrire('sorealIdleHudGMagieV2',i.magie.vitesse);
     ecrire('sorealIdleHudDMagieV2',i.magie.temps);
   }
+  /*
+   * La page ne bouge plus quand une barre part ou revient (Norman, 2026-10-26 : « quand je dépense toute ma magie ou toute mon énergie, les barres disparaissent et ça fait bouger la page où je me trouve »). Le bandeau est collé en haut et sa
+   * hauteur change en douceur (voir soreal-idle-themes.css) : tout ce qui est dessous suivait, d'où le saut. Le défilement natif « ancré » est coupé sur la page (overflow-anchor:none, elle est redessinée en continu) : on le remplace ici. Chaque
+   * variation de hauteur du bandeau, image après image, est reportée sur le défilement : le contenu reste exactement où il est, la barre se déploie par-dessus. En haut de page (rien à compenser) le contenu descend ou remonte avec la barre, comme avant.
+   */
+  var hudObs=null,hudEl=null,hudPos=0;
+  /* Position dans le DOCUMENT du premier bloc sous le bandeau (marges comprises : la hauteur du bandeau seule ne suffit pas, ses marges changent aussi). */
+  function positionSous(){
+    var suite=hudEl&&hudEl.nextElementSibling;
+    if(!suite)return null;
+    return suite.getBoundingClientRect().top+(window.scrollY||document.documentElement.scrollTop||0);
+  }
+  function surveillerHud(){
+    var h=document.getElementById('sorealIdleHudV2');
+    if(h===hudEl)return;
+    if(hudObs){hudObs.disconnect();hudObs=null;}
+    hudEl=h;
+    if(!h||typeof ResizeObserver!=='function')return;
+    hudPos=positionSous();
+    hudObs=new ResizeObserver(function(){
+      if(!hudEl)return;
+      var p=positionSous();
+      if(p===null||hudPos===null){hudPos=p;return;}
+      var d=p-hudPos;
+      hudPos=p;
+      var y=window.scrollY||document.documentElement.scrollTop||0;
+      if(Math.abs(d)>=.5&&Math.abs(d)<160&&y>0){
+        window.scrollTo({top:Math.max(0,y+d),behavior:'instant'});
+        if(y+d<0)hudPos=positionSous();   /* en butée : ce qui n'a pas pu être compensé n'est pas reporté sur l'image suivante */
+      }
+    });
+    hudObs.observe(h);
+  }
+  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud};
   function maj(){
     placer();
+    surveillerHud();
     majInfos();
     majVide();
     majDepense();

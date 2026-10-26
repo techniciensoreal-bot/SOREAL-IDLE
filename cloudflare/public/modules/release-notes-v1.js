@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand une barre d’énergie ou de magie disparaît ou revient (tout dépensé, tout récupéré), la page où tu te trouves ne bouge plus : le contenu reste en place et la barre se déploie par-dessus, en douceur.',
             'Quand on fait un NUKE, un bruit de mitraillette, grave et sourd, dure tant que la fenêtre des boss enchaînés est à l’écran.',
             'Quand on lit toutes les chroniques de boss, ou qu’on les reprend à partir d’un boss, un petit « ding » est joué entre chaque boss.',
             'À la première ouverture et à chaque nouvelle partie, un écran d’accueil demande aux joueurs connectés avec Google de choisir leur pseudo : il est obligatoire et unique, on peut le changer plus tard dans les Réglages mais pas le retirer. Le bouton « Entrer dans Soreal IDLE » lance ensuite l’introduction.',
