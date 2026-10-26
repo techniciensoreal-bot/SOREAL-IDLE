@@ -59,6 +59,9 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Sur PC, la page du combat de boss a un nouveau fond : une salle d’arcade en perspective, derrière la borne.',
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Machine temporelle : les roues au sommet des tours ne tournent plus quand rien n’y est alloué, tournent d’autant plus vite que la somme est grande (au maximum quand la barre est maxée) et ralentissent doucement quand elle baisse ; celles de la machine du centre continuent.',
+          ]},
         ]
       },
       {

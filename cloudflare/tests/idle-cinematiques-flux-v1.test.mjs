@@ -78,3 +78,20 @@ const yg = lire('public/modules/yggdrasil-elfes-v1.js');
 assert.ok(yg.includes('function preparerTerre_(id)') && yg.includes("source-atop") && yg.includes("data-fruit=") && yg.includes('etat.terreTeintee[id]||URL_TERRE_'), 'terre teintée par le sol du décor');
 assert.ok(lire('public/modules/augmentations-page-v1.js').includes("return 'X '+fmt.grandNombre(v,2);"), 'bonus total en lettres comme la vie');
 console.log('ok lot 26');
+
+// Machine temporelle : les roues des tours s'arrêtent sans allocation, tournent selon allocation / K (plafond 50), la machine du centre continue
+import vm from 'node:vm';
+const md = lire('public/modules/machine-dessin-v1.js');
+const pg = lire('public/modules/augmentations-page-v1.js');
+assert.ok(md.includes("getAttribute('data-tm-alloc')") && pg.includes('data-tm-alloc=') && pg.includes('data-tm-k=') && pg.includes('alloue(ressource)'), 'la page pose allocation et K sur chaque tour, le dessin les lit');
+const f = (n) => md.match(new RegExp(String.raw`function ${n}\([^)]*\)\{[^\n]*\n`))[0];
+const rt = vm.runInNewContext(f('tourDeReference') + f('vitesseRoueTour') + f('rythmeAnneau') + '({tourDeReference,vitesseRoueTour,rythmeAnneau})');
+assert.equal(rt.vitesseRoueTour(0), 0, 'aucune allocation : roues arrêtées');
+assert.equal(rt.rythmeAnneau(0), 0, 'aucune magie : anneau arrêté');
+assert.ok(rt.vitesseRoueTour(0.2) > 0 && rt.vitesseRoueTour(0.2) < rt.vitesseRoueTour(1), 'sous 1 niveau par seconde : proportionnelle');
+assert.ok(rt.vitesseRoueTour(10) > rt.vitesseRoueTour(2) && rt.vitesseRoueTour(50) > rt.vitesseRoueTour(10), 'plus d\'allocation, plus vite');
+assert.equal(rt.vitesseRoueTour(50), rt.vitesseRoueTour(50), 'maximum à 50');
+assert.ok(rt.rythmeAnneau(50) > rt.rythmeAnneau(10) && rt.rythmeAnneau(10) > rt.rythmeAnneau(1), 'l\'anneau de magie suit aussi');
+assert.ok(md.includes("Math.min(50,a/k)") && md.includes("(d>0?3.2:.7)") && md.includes("r.closest('.tmm-haut')"), 'plafond 50, monte vite / redescend doucement, roues des tours distinguées de celles de la machine');
+assert.ok(md.includes("return Math.max(.0001,tourDeReference(vue)*dents*10);"), 'les roues de la machine gardent leur vitesse');
+console.log('ok roues des tours');

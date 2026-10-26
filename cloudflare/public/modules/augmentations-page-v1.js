@@ -1057,7 +1057,12 @@
            */
           const cleAlloc=ressource==='energy'?'vitesse':'or';
           const allocSpan=document.getElementById('sorealIdleTmAllocV1_'+cleAlloc);
-          if(allocSpan)allocSpan.textContent=H.formatGrandNombreIdleV70_(value);
+          if(allocSpan){
+            allocSpan.textContent=H.formatGrandNombreIdleV70_(value);
+            const tourEl=allocSpan.closest?allocSpan.closest('.tmm-tour'):null;
+            if(tourEl)tourEl.setAttribute('data-tm-alloc',String(value));   /* les roues de cette tour suivent tout de suite */
+            try{const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;if(D&&typeof D.rafraichir==='function')D.rafraichir();}catch(_e){}
+          }
           if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
         }
 
@@ -1238,7 +1243,9 @@
               '<div class="tmm-case"><i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
             '</div>'+
           '</div>';
-          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" style="--fill:'+largeur.toFixed(2)+'%" aria-label="'+H.idleHtml_(titre)+'">'+
+          /* allocation et durée K du niveau à 1 unité, lues par le dessin de la machine : les roues de la tour tournent selon allocation / K (arrêtées à 0) */
+          const kTour=H.idleNombre_(cle==='vitesse'?vue.speedK:vue.goldK)||0;
+          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" data-tm-alloc="'+alloue(ressource)+'" data-tm-k="'+kTour+'" style="--fill:'+largeur.toFixed(2)+'%" aria-label="'+H.idleHtml_(titre)+'">'+
             '<div class="tmm-tete">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
             '<div class="tmm-sous">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
             '<div class="tmm-haut">'+(D?(gauche?D.hautEnergie():D.hautMagie()):'')+'</div>'+

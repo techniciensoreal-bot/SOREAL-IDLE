@@ -204,14 +204,38 @@
   var cible=1,vue=1,derniere=0,boucle=0;
   var anneaux=new WeakSet();
   function tourDeReference(t){return .06+.86*Math.pow((Math.max(1,Math.min(50,t))-1)/49,.75);}   /* tours par seconde de la roue de 16 dents : 1 tique = très lente, 50 = vitesse maximale encore lisible */
+  /*
+   * Roues des tours (Norman, 2026-10-26) : « quand aucune énergie ni magie n'est allouée, les roues liées à ce cadre ne doivent plus tourner ; celles de la machine continuent ; elles tournent plus ou moins vite selon la somme attribuée, au maximum tant que la
+   * barre est maxée, et quand elle redescend, tout doucement, les engrenages suivent le rythme ». Cadence d'une tour = niveaux par seconde de sa barre = allocation / K (K : durée du niveau à 1 unité, envoyée par le serveur et posée sur la tour par la page :
+   * data-tm-alloc, data-tm-k), plafonnée à 50 comme la machine. Zéro allocation : roues arrêtées. La vitesse est lissée : elle monte vite, redescend lentement ; jamais de saut de phase.
+   */
+  var tours={vitesse:{cible:0,vue:0},or:{cible:0,vue:0}};
+  function ticksTour(piste){
+    var s=document.querySelector('.tmm-tour.'+piste);
+    if(!s)return 0;
+    var a=Number(s.getAttribute('data-tm-alloc')),k=Number(s.getAttribute('data-tm-k'));
+    return a>0&&k>0?Math.min(50,a/k):0;
+  }
+  function viserTours(depart){
+    ['vitesse','or'].forEach(function(c){var t=tours[c];t.cible=ticksTour(c);if(depart)t.vue=t.cible;});
+  }
+  function cleTour(el){var t=el.closest?el.closest('.tmm-tour'):null;return t?(t.classList.contains('vitesse')?'vitesse':'or'):'';}
+  function vitesseRoueTour(t){return t<=0?0:(t>=1?tourDeReference(t):tourDeReference(1)*t);}   /* tours par seconde de la roue de 16 dents ; sous 1 niveau par seconde, proportionnelle */
+  function rythmeAnneau(t){return t<=0?0:.15+2.2*Math.pow(Math.min(1,t/50),.75);}
+  function cadenceRoue(r){
+    var dents=16/(parseInt(r.getAttribute('data-dents'),10)||16);
+    if(r.closest&&r.closest('.tmm-haut')){var c=cleTour(r);return Math.max(0,vitesseRoueTour(c?tours[c].vue:0)*dents*10);}
+    return Math.max(.0001,tourDeReference(vue)*dents*10);
+  }
   function lancerRoues(racine){
     if(calme)return;
+    if(!racine.__toursInit){racine.__toursInit=true;viserTours(true);}
     racine.querySelectorAll('.tmm-rot').forEach(function(r){
       if(r.__tmmAnim)return;
       var off=parseFloat(r.getAttribute('data-off'))||0,sens=parseFloat(r.getAttribute('data-sens'))||1;
       r.style.transform='';
       r.__tmmAnim=r.animate([{transform:'rotate('+off+'deg)'},{transform:'rotate('+(off+360*sens)+'deg)'}],{duration:10000,iterations:Infinity,easing:'linear'});
-      r.__tmmAnim.playbackRate=Math.max(.0001,tourDeReference(vue)*(16/(parseInt(r.getAttribute('data-dents'),10)||16))*10);
+      r.__tmmAnim.playbackRate=cadenceRoue(r);
     });
     racine.querySelectorAll('.tmm-piece').forEach(function(g){
       if(g.__tmmAnim)return;
@@ -220,8 +244,9 @@
       reglerPieces(racine);
     });
     racine.querySelectorAll('.tmm-anneau').forEach(function(g){
-      if(anneaux.has(g))return;anneaux.add(g);
-      g.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:22000,iterations:Infinity,easing:'linear'});
+      if(g.__tmmAnim)return;
+      g.__tmmAnim=g.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:22000,iterations:Infinity,easing:'linear'});
+      g.__tmmAnim.playbackRate=rythmeAnneau(tours.or.vue);
     });
   }
   /* Pièces dans la goulotte : à bas rythme, peu de pièces (une, deux, quatre) qui tombent chacune en une fraction de seconde, une par tique ; à haut rythme, un flot continu de huit. */
@@ -238,7 +263,10 @@
     var racine=document.querySelector('.tmm-machine');
     if(!racine)return;
     racine.querySelectorAll('.tmm-rot').forEach(function(r){
-      if(r.__tmmAnim)r.__tmmAnim.playbackRate=Math.max(.0001,tourDeReference(vue)*(16/(parseInt(r.getAttribute('data-dents'),10)||16))*10);
+      if(r.__tmmAnim)r.__tmmAnim.playbackRate=cadenceRoue(r);
+    });
+    racine.querySelectorAll('.tmm-anneau').forEach(function(g){
+      if(g.__tmmAnim)g.__tmmAnim.playbackRate=rythmeAnneau(tours.or.vue);
     });
     reglerPieces(racine);
     var flux=document.getElementById('tmmFluxOr');if(flux)flux.style.opacity=String(Math.max(0,Math.min(1,(vue-18)/20))*.85);
@@ -248,15 +276,22 @@
     boucle=0;
     if(!document.querySelector('.tmm-machine'))return;
     var dt=Math.min(.1,(t-derniere)/1000);derniere=t;
-    var diff=cible-vue;
-    if(Math.abs(diff)>.01){vue+=diff*Math.min(1,dt*3.2);appliquerVitesse();}
-    else if(vue!==cible){vue=cible;appliquerVitesse();}
-    if(vue!==cible)boucle=requestAnimationFrame(image);
+    var bouge=false,diff=cible-vue;
+    if(Math.abs(diff)>.01){vue+=diff*Math.min(1,dt*3.2);bouge=true;}
+    else if(vue!==cible){vue=cible;bouge=true;}
+    ['vitesse','or'].forEach(function(c){
+      var T=tours[c],d=T.cible-T.vue;
+      /* monte vite, redescend tout doucement : les roues suivent le rythme de la barre */
+      if(Math.abs(d)>.005){T.vue+=d*Math.min(1,dt*(d>0?3.2:.7));bouge=true;}
+      else if(T.vue!==T.cible){T.vue=T.cible;bouge=true;}
+    });
+    if(bouge){appliquerVitesse();boucle=requestAnimationFrame(image);}
   }
+  function lancerBoucle(){if(!boucle){derniere=performance.now();boucle=requestAnimationFrame(image);}}
   function viser(ticks){
     cible=Math.max(1,Math.min(50,Number(ticks)||1));
     if(calme){vue=cible;return;}
-    if(!boucle){derniere=performance.now();boucle=requestAnimationFrame(image);}
+    lancerBoucle();
   }
 
   /* Tient à jour les textes et attributs dynamiques de la machine (à chaque synchro) ; lance les rotations si le dessin vient d'apparaître. */
@@ -269,6 +304,8 @@
     var ticks=Math.max(1,Math.min(50,Number(v.barFillsPerSecond)||1));
     lancerRoues(racine);
     viser(ticks);
+    viserTours(false);   /* allocation lue sur les tours (posée par la page) ; la boucle lisse la vitesse des roues et de l'anneau */
+    if(!calme)lancerBoucle();
     var ia=document.getElementById('tmmAiguille');if(ia)ia.style.transform='rotate('+arr(-120+240*ticks/50,1)+'deg)';
     var tv=document.getElementById('tmmVitesse');var texteV=Math.round(ticks)+' /s';if(tv&&tv.textContent!==texteV)tv.textContent=texteV;
     var multi=document.getElementById('tmmMulti');
