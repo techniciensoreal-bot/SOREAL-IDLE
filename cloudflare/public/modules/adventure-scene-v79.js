@@ -413,6 +413,8 @@
     var block=document.createElement('section');
     block.className='soreal-idle-v79-adventure-scene ready';
     block.dataset.zoneKey=key;
+    /* Fond peint de la zone derrière tout le cadre (module adventure-fond-zone-v1). */
+    if(window.__SOREAL_IDLE_FOND_ZONE_V1__)window.__SOREAL_IDLE_FOND_ZONE_V1__.appliquer(block,String(zone.id||''));
     /* Bloc posé par ce module : le rendu sur place de la page (morpherHtmlIdleV1_) ne le détruit pas, sinon 700 px de hauteur disparaissent puis reviennent. */
     block.setAttribute("data-morph-garder","1");
     block.setAttribute("data-morph-avant",".soreal-idle-adventure-player-panel-v1");

@@ -11,9 +11,13 @@
   "pin": 2,
   "sha": "cb52b93948c3fe63f56c46441f7e6bf2ba650877"
  },
+ "/modules/adventure-fond-zone-v1.js": {
+  "pin": 1,
+  "sha": "25665f3ce316124a52318f93b2c02d904b671ab5"
+ },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2043,
-  "sha": "8e06a0ad7c3c0df19ec2189853e9486fa578160b"
+  "pin": 2044,
+  "sha": "7fee2b0b804effc1313866d235d764e7cb9df2c7"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
