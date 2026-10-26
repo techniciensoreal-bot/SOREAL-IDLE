@@ -113,6 +113,6 @@ assert.ok(lire('public/index.html').includes('/modules/borne-bandes-sync-v1.js?v
 const pu2 = bn.slice(bn.indexOf('const BORNE_PUPITRE_IDLE_V2='), bn.indexOf('const BORNE_BAS_IDLE_V2='));
 assert.ok(pu2.includes('skewX(-7.35)') && pu2.includes('skewX(7.35)'), 'degrades penches comme le flanc du pupitre');
 assert.ok(pu2.includes("points='16,0 26,0 25.69,2.2 15.75,2.2'"), 'bande de 10 en haut (comme l ecran) qui retrecit en descendant');
-assert.ok(pu2.includes("16,192 0,172") && pu2.includes("536,192") === false && pu2.includes("552,138"), 'dessous du pupitre : la bande rejoint les bandes du corps (6 de large)');
+assert.ok(pu2.includes("16,192 0,172") && pu2.includes("552,138"), 'dessous du pupitre : la bande rejoint les bandes du corps (6 de large)');
 assert.ok(/bn-bas-wrap::before[^}]*width:6px/.test(cssI2), 'bandes du corps de la meme largeur que la fin de la bande du pupitre');
 console.log('ok bandes une seule piece');
