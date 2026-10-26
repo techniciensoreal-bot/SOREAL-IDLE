@@ -12,8 +12,8 @@
   "sha": "cb52b93948c3fe63f56c46441f7e6bf2ba650877"
  },
  "/modules/adventure-fond-zone-v1.js": {
-  "pin": 1,
-  "sha": "25665f3ce316124a52318f93b2c02d904b671ab5"
+  "pin": 2,
+  "sha": "b6e29aed7af24ef98c4187861e5e846d00f374f5"
  },
  "/modules/adventure-scene-v79.js": {
   "pin": 2044,
@@ -388,8 +388,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 464,
-  "sha": "b599dd7e77762d1e06400b3c0c40804cd146ee84"
+  "pin": 465,
+  "sha": "a9e71c564c1ce9ad69e90435cdac2048adc60106"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -456,12 +456,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 473,
-  "sha": "2923ce923fe27dd12dd7df16f967b27c2b3c525d"
+  "pin": 474,
+  "sha": "e0354ed4262aafc77185818f96671859df495abf"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 293,
-  "sha": "17ff707fc72b123bdd0307a40e9bd2cfa4c3ea59"
+  "pin": 294,
+  "sha": "51360e1b8a13863aabc7098cacef16a0ebe1cefd"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -616,8 +616,8 @@
   "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 51,
-  "sha": "38b20c1dda8484edfee1931e92b6bd19c10c556d"
+  "pin": 52,
+  "sha": "9f59ed79c4128192a46be3ed56eb383fed98f3e2"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 13,
