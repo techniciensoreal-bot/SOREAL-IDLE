@@ -269,27 +269,25 @@
    */
   var FRUITS_24_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   var DEBUT_FRUIT_=3;   /* index de la première image où le fruit apparaît (les images 1 à 3 sont la terre seule) */
-  /* Échelle de l'image : la motte (peinte dans l'image) est toute petite au début et grandit avec le fruit (Norman, 2026-10-26). */
+  /* Échelle de l'image : la motte (peinte dans l'image) est un minuscule tas au début et grandit avec le fruit, comme s'il sortait de la terre (Norman, 2026-10-26) ; calculée sur 24 h, jamais sur le temps maximum débloqué. */
   function echelleImage_(d,v){
-    var max=Math.max(1,d.maxTier||10),p=Math.max(0,Math.min(1,v.growth/max));
-    return (0.5+0.5*p).toFixed(3);
+    var p=Math.max(0,Math.min(1,(Number(v.growth)||0)/24));
+    return (0.3+0.7*Math.sqrt(p)).toFixed(3);   /* minuscule tas au début, plein à la 24e heure ; monte vite au début pour que le premier fruit reste visible */
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   function etapeCroissance_(d,v){
     var id=v.def.id;
     if((ETAPES_FRUITS_[id]!==true&&FRUITS_24_[id]!==true)||!(v.tier>0))return null;
     var n=nbEtapes_(id);
-    var max=Math.max(1,d.maxTier||10);
     /*
-     * Les images 1 à 3 de chaque fruit ne montrent que la motte de terre : le fruit apparaît à l'image 4 (DEBUT_FRUIT_ = 3, vérifié sur l'or, la Puissance, l'Aventure, les Nombres, la Rage, la pastèque…). Moins d'une heure de pousse : la terre seule ;
-     * dès UNE heure, le fruit se voit déjà un tout petit peu (Norman, 2026-10-26 : « après une heure, on peut déjà le manger, et je ne vois que de la terre »). Ensuite une image de plus à chaque heure, de l'image 4 à l'image finale :
-     * maximum 24 h : jusqu'à l'image 24 ; maximum 10 h : seulement 10 images de fruit (la dernière est l'image 13), jamais la 24e, qui n'arrive qu'avec le temps maximum de 24 h débloqué.
+     * La croissance suit les HEURES RÉELLES de pousse sur une échelle de 24 h, quel que soit le temps maximum débloqué (Norman, 2026-10-26 : « si on n'a que 5 h de débloquées, ça ne doit pas dépasser la croissance prévue pour 5 h »).
+     * Les images 1 à 3 de chaque fruit ne montrent que la motte de terre : le fruit apparaît à l'image 4 (DEBUT_FRUIT_ = 3, vérifié sur l'or, la Puissance, l'Aventure, les Nombres, la Rage, la pastèque…). Première heure : la terre seule ;
+     * à UNE heure, un minuscule fruit dépasse de la terre ; ensuite la croissance continue jusqu'à l'image 24 à la 24e heure. Un fruit limité à 5 h s'arrête donc là où se trouve un fruit de 5 h.
      */
-    var debut=DEBUT_FRUIT_,finale=Math.min(n-1,debut+max-1);
-    if(v.tier>=max&&v.growth>=max)return finale;
-    if(v.growth<1)return 0;
-    var k=Math.floor((v.growth-1)/Math.max(1,max-1)*Math.max(0,finale-debut));
-    return Math.max(debut,Math.min(finale-1,debut+k));
+    var debut=DEBUT_FRUIT_,finale=n-1;
+    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
+    if(g<1)return 0;
+    return Math.max(debut,Math.min(finale,debut+Math.floor((g-1)/23*(finale-debut))));
   }
 
   /*
@@ -577,7 +575,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.5')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

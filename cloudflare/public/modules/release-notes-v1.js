@@ -47,7 +47,7 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Un fruit se voit déjà un tout petit peu après une heure de pousse, et la motte de terre grandit avec lui ; avec un maximum de 10 h il n’utilise que 10 images de fruit, la dernière image n’arrivant qu’avec le temps maximum de 24 h débloqué.',
+            'Un fruit sort de terre : un minuscule tas la première heure, puis un petit fruit qui dépasse, et la croissance continue jusqu’à 24 h ; la terre grandit avec lui. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h.',
           ]},
         ]
       },

@@ -28,8 +28,9 @@ assert.equal(etape({ maxTier: 24 }, v(4, 4)), 5, "4 h : quelques images de fruit
 assert.equal(etape({ maxTier: 24 }, v(24, 23.9)), 22, "presque au bout : pas la dernière");
 assert.equal(etape({ maxTier: 24 }, v(24, 24)), 23, "tier max et poussé : dernière image (24 images)");
 assert.equal(etape({ maxTier: 24 }, v(10, 10)), 10, "tier 10 sur 24 entièrement poussé : image 11, jamais la dernière");
-assert.equal(etape({ maxTier: 10 }, v(10, 10)), 12, "maximum 10 : 10 images de fruit (image 13), jamais la 24e");
-assert.equal(etape({ maxTier: 10 }, v(10, 9.5)), 11, "maximum 10 : 10 images de fruit seulement");
+assert.equal(etape({ maxTier: 10 }, v(10, 10)), 10, "maximum 10 : s'arrête à la croissance prévue pour 10 h (image 11), jamais la 24e");
+assert.equal(etape({ maxTier: 5 }, v(5, 5)), 6, "maximum 5 : pas plus que la croissance prévue pour 5 h");
+assert.equal(etape({ maxTier: 10 }, v(10, 9.5)), 10, "maximum 10 : même image qu'à 10 h ou presque");
 assert.equal(etape({ maxTier: 10 }, v(10, 1)), 3, "maximum 10, une heure : le fruit se voit déjà");
 assert.equal(etape({ maxTier: 24 }, v(5, 5, "fruit-inconnu")), null, "un fruit sans images de croissance garde son image unique");
 /* Les 17 autres fruits ont 24 images (une par heure du tier maximum de 24 h) : la dernière n'apparait que fruit au tier maximum ET entièrement poussé. */
@@ -38,7 +39,7 @@ assert.equal(etape({ maxTier: 24 }, v(24, 0, "luck")), 0, "24 images : la premi�
 assert.equal(etape({ maxTier: 24 }, v(24, 12, "luck")), 12, "24 images : à mi-chemin");
 assert.equal(etape({ maxTier: 24 }, v(24, 23.9, "luck")), 22, "24 images : pas la dernière avant la fin");
 assert.equal(etape({ maxTier: 24 }, v(24, 24, "luck")), 23, "24 images : la dernière, mûr");
-assert.equal(etape({ maxTier: 10 }, v(10, 10, "prettyMayo")), 12, "maximum 10 : 10 images de fruit seulement, la 24e reste pour le maximum de 24 h");
+assert.equal(etape({ maxTier: 10 }, v(10, 10, "prettyMayo")), 10, "maximum 10 : jamais la 24e image");
 for (const id of ["powerAlpha", "powerBeta", "powerDelta"]) {
   assert.equal(etape({ maxTier: 24 }, v(24, 24, id)), 23, id + " : mêmes règles que l'or (tier max et poussé : dernière image)");
   assert.equal(etape({ maxTier: 24 }, v(4, 4, id)), 5, id + " : avance avec la croissance rapportée au tier maximum");
@@ -63,8 +64,9 @@ console.log("idle-yggdrasil-etapes-or-v1: OK");
 /* La motte grandit avec le fruit (Norman, 2026-10-26) : l'image est mise à l'échelle, petite au début, pleine taille à maturité */
 const srcY = fs.readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
 const ech = vm.runInNewContext("(" + srcY.match(/function echelleImage_\(d,v\)\{[\s\S]*?\n  \}/)[0].replace("function echelleImage_", "function") + ")");
-assert.equal(ech({ maxTier: 10 }, { growth: 0 }), "0.500", "toute petite au début");
-assert.equal(ech({ maxTier: 10 }, { growth: 10 }), "1.000", "pleine taille à maturité");
-assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > 0.5 && Number(ech({ maxTier: 24 }, { growth: 6 })) < 1, "elle grandit avec le fruit");
+assert.equal(ech({ maxTier: 10 }, { growth: 0 }), "0.300", "minuscule tas au début");
+assert.equal(ech({ maxTier: 24 }, { growth: 24 }), "1.000", "pleine taille à la 24e heure");
+assert.equal(ech({ maxTier: 5 }, { growth: 5 }), ech({ maxTier: 24 }, { growth: 5 }), "calculée sur les heures réelles, pas sur le maximum débloqué");
+assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > Number(ech({ maxTier: 24 }, { growth: 1 })) && Number(ech({ maxTier: 24 }, { growth: 1 })) > 0.3, "elle grandit avec le fruit");
 assert.ok(srcY.includes("transform:scale(var(--ygg-echelle,1))") && srcY.includes("--ygg-echelle:"), "échelle appliquée à l'image du fruit");
 console.log("ok motte qui grandit");
