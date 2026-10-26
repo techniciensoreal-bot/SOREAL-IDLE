@@ -16,6 +16,8 @@
   var ZONES={tutorial:1,sewers:1,forest:1,cave:1,sky:1,hsb:1,clock:1,'2d':1,ancient:1,avsp:1,mega:1,beardverse:1,badly:1,boring:1,chocolate:1,evilverse:1,pinkprincess:1,metaland:1,interdimensional:1,typozone:1,fadlands:1,jrpgville:1,radlands:1,backtoschool:1,westworld:1,breadverse:1,seventies:1,halloweenies:1,construction:1,duckduck:1,netherregions:1,aethereansea:1};
   var ID_STYLE='soreal-idle-fond-zone-v1-style';
   var VAR='--fond-zone-v1';
+  /* Décors assombris (Norman, 2026-10-26 : « il faut assombrir les décors ») : un voile noir sur tout le fond, plus dense au centre pour que les barres et les cartes restent lisibles. */
+  var VOILE='radial-gradient(ellipse at 50% 50%,rgba(4,6,14,.78) 0%,rgba(4,6,14,.62) 55%,rgba(4,6,14,.5) 100%)';
 
   function url(id){return '/api/idle/media/adventure-zone?name='+encodeURIComponent(String(id||''));}
 
@@ -24,7 +26,7 @@
     var s=document.createElement('style');s.id=ID_STYLE;
     /* Le thème de la page impose un dégradé brun en !important sur le cadre et sur l'arène : on le bat avec une règle plus précise, uniquement quand un fond existe. */
     var cadre='body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] .soreal-idle-v79-adventure-scene[data-fond-zone]';
-    s.textContent=cadre+'{background-image:var('+VAR+')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;background-color:#150f08!important}'+
+    s.textContent=cadre+'{background-image:'+VOILE+',var('+VAR+')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;background-color:#150f08!important}'+
       cadre+' .soreal-idle-v79-arena{background:transparent!important}';
     document.head.appendChild(s);
   }
