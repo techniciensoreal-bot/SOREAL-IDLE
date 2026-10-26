@@ -68,7 +68,7 @@ assert.equal(ech({ maxTier: 10 }, { growth: 0 }), "0.300", "minuscule tas au dé
 assert.equal(ech({ maxTier: 24 }, { growth: 24 }), "1.000", "pleine taille à la 24e heure");
 assert.equal(ech({ maxTier: 5 }, { growth: 5 }), ech({ maxTier: 24 }, { growth: 5 }), "calculée sur les heures réelles, pas sur le maximum débloqué");
 assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > Number(ech({ maxTier: 24 }, { growth: 1 })) && Number(ech({ maxTier: 24 }, { growth: 1 })) > 0.3, "elle grandit avec le fruit");
-assert.ok(srcY.includes("transform:scale(var(--ygg-echelle,1))") && srcY.includes("--ygg-echelle:"), "échelle appliquée à l'image du fruit");
+assert.ok(srcY.includes("width:calc(var(--ygg-echelle,1)*100%)") && srcY.includes("--ygg-echelle:") && !srcY.includes("transform:scale(var(--ygg-echelle"), "échelle appliquée par la taille de l'image (jamais un transform animé, flou)");
 console.log("ok motte qui grandit");
 
 /* Aura du fruit : de la couleur du fruit, après la 12e heure, de plus en plus forte, la 24e heure beaucoup plus prononcée */
@@ -94,5 +94,5 @@ const f2 = frac({ maxTier: 24 }, v(24, 1 + 23 / 20 / 2));
 assert.ok(f2 > 0.45 && f2 < 0.55, "à mi-chemin entre deux images : moitié-moitié");
 let ok2 = true; for (let g = 1; g < 23.9; g += 0.01) { const a = frac({ maxTier: 24 }, v(24, g)), b = frac({ maxTier: 24 }, v(24, g + 0.01)); if (b < a && !(a > 0.9 && b < 0.1)) ok2 = false; }
 assert.ok(ok2, "la part de l'image suivante ne fait que monter entre deux changements d'image");
-assert.ok(srcY.includes("ygg-suivante") && srcY.includes("transition:transform 4s linear"), "seconde image et transitions lentes");
+assert.ok(srcY.includes("ygg-suivante") && srcY.includes("transition:left 4s linear,top 4s linear,width 4s linear"), "seconde image et transitions lentes");
 console.log("ok fondu entre images");

@@ -145,7 +145,7 @@
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
-      '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transform:scale(var(--ygg-echelle,1));transform-origin:50% 90%;transition:transform 4s linear,filter 4s linear,opacity 4s linear;}',
+      '.ygg-vitre.ygg-decor .ygg-img{inset:auto;left:calc((1 - var(--ygg-echelle,1))*50%);top:calc((1 - var(--ygg-echelle,1))*90%);width:calc(var(--ygg-echelle,1)*100%);height:calc(var(--ygg-echelle,1)*100%);object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
       '.ygg-vitre.ygg-decor.ygg-aura .ygg-img{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
