@@ -128,8 +128,8 @@
   "sha": "99603c9d12306d24569640e438b9b64d08e95c7b"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 17,
-  "sha": "301eb6eb477bbf29c080c466973c66581e4b1fda"
+  "pin": 18,
+  "sha": "15da4db7002a3d62ec395eb85d3bcaa3e0d25590"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 25,
@@ -388,8 +388,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 467,
-  "sha": "d577cabf70498255ca3e70b91d5b87bf8100b11b"
+  "pin": 468,
+  "sha": "3969cc8645f356a958c73b59914433f3d647de59"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -456,12 +456,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 476,
-  "sha": "f6f314161a7f659b2c59312a5747dcc87cf3add9"
+  "pin": 477,
+  "sha": "a70ba970181c43b6ea661fbca42eb2b6a4fe319d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 296,
-  "sha": "d502cf4efc6a9f03f9d256b0f605ab871384ded2"
+  "pin": 297,
+  "sha": "d710fec114283cb13723667ee5eb27075664463d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -544,8 +544,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 5,
-  "sha": "0ffa710ecdfe292097f1d6dae83e1036ec54b934"
+  "pin": 6,
+  "sha": "b5a3b37e95a926c180b826c972f59eeeafa8f12f"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 5,
@@ -580,8 +580,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 14,
-  "sha": "7ac719f5008b6b895ae867553ada636dc248d3a3"
+  "pin": 15,
+  "sha": "456f885380a8732f32a44677c4466d9309d7214d"
  },
  "/modules/valise-v1.js": {
   "pin": 60,
