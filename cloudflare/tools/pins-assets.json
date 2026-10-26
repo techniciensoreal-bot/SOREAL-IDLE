@@ -308,16 +308,16 @@
   "sha": "d478211ff732862e2427dfc6fea23dbf0b5db567"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 71,
-  "sha": "0d984c06737f3f65b99609acc5cccf61df8428a1"
+  "pin": 72,
+  "sha": "ba320ba42ad1f41bed4ab250fd3a95554464d705"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
   "sha": "1791e998db8bfe2385867599416144e3ed5dfdf9"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 37,
-  "sha": "d3c2685809aea4d45a8acc334ace1393aeee9322"
+  "pin": 38,
+  "sha": "d2f5a0c396b7301fbf7b9e608cbecf5fc8f3b12d"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -376,8 +376,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 455,
-  "sha": "86b1d0d2fa73a4086f8ae440e973e9a8bf2508a0"
+  "pin": 456,
+  "sha": "2a676ae5ca2c8b78896112f76209cddac7e625b5"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -444,12 +444,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 464,
-  "sha": "6f4f72bc4a5284d5d997f4b5c4e5fddbb8d239df"
+  "pin": 465,
+  "sha": "077cc326ad9295459ce3b259bdccae6fb0103ba0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 284,
-  "sha": "0d419523312060f91048d8b026580eda16c4ecc0"
+  "pin": 285,
+  "sha": "ed80a395f2b73090de20964b225a954933b52e2b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
