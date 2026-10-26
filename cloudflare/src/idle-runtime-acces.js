@@ -636,10 +636,11 @@ export function trouverLigneJoueurSorealIdle_(
   feuille,
   acces
 ) {
-  if (idleDevSlotForUserV1(acces && acces.user) === 'b') {
+  const partieJoueeV1 = idleDevSlotForUserV1(acces && acces.user);
+  if (partieJoueeV1 !== 'a') {
     acces = Object.assign({}, acces, {
-      user: idleDevUserForSlotV1(acces.user, 'b'),
-      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, 'b')
+      user: idleDevUserForSlotV1(acces.user, partieJoueeV1),
+      emailAutorise: idleDevAliasEmailV1(acces.emailAutorise, partieJoueeV1)
     });
   }
 

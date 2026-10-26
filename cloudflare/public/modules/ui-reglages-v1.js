@@ -23,24 +23,27 @@
   function htmlReglagesOrageSortsIdleV1_(){return REG.htmlReglagesOrageSortsIdleV1_.apply(null,arguments);}
   function estAdminSorealIdle_(){return REG.estAdminSorealIdle_.apply(null,arguments);}
 
+      /* Trois parties pour tout le monde (Norman, 2026-10-26) : A (la tienne), B et C (essais, hors classement et hors « En direct »). Un clic sur une partie la remplace par la précédente, la page se recharge. */
       function rendrePartiesDevIdleV1_(){
         const p=REG.idlePartieDevV1;
-        if(!p||!p.actif)return '';
+        if(!p||!p.parties)return '';
         function bouton(cle,titre,detail){
           const active=p.partie===cle;
-          return '<button type="button" class="soreal-idle-parties-dev-bouton-v1'+(active?' actif':'')+'" '+
-            (active?'disabled aria-pressed="true" ':'aria-pressed="false" onclick="window.__changerPartieDevIdleV1__(\''+cle+'\')" ')+'>'+
-            '<b>'+titre+'</b><span>'+detail+'</span></button>';
+          /* Boutons du jeu (expand-button) : la partie active n'est pas grisée mais entourée d'un anneau doré. */
+          return '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-parties-dev-bouton-v1'+(active?' actif':'')+'" '+
+            (active?'aria-pressed="true" aria-current="true" style="outline:3px solid #ffd45a;outline-offset:2px;cursor:default" ':'aria-pressed="false" onclick="window.__changerPartieDevIdleV1__(\''+cle+'\')" ')+'>'+
+            '<b>'+(active?'✔ ':'')+titre+'</b><span style="display:block;font-size:12px;opacity:.85;font-weight:400">'+detail+'</span></button>';
         }
         return '<div class="soreal-idle-section-v8">'+
-          '<div class="soreal-idle-window-title-v31">🛠️ Développement — Parties</div>'+
-          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Uniquement pendant le développement. Deux parties indépendantes : la <b>A</b> est ta vraie partie (à ne jamais réinitialiser), la <b>B</b> se réinitialise à volonté pour comparer avec NGU IDLE. Le bouton de réinitialisation ci-dessous ne concerne que la partie active.</div>'+
+          '<div class="soreal-idle-window-title-v31">🎮 Mes parties</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Trois parties indépendantes : clique sur l’une d’elles pour y jouer. La A est ta partie principale ; la B et la C servent à essayer autre chose, sans toucher à la A. Elles n’apparaissent ni au classement ni dans « En direct ». Le bouton « Tout recommencer » ci-dessous ne concerne que la partie active.</div>'+
           '<div class="soreal-idle-parties-dev-v1">'+
-            bouton('a','Partie A','Ta vraie partie')+
-            bouton('b','Partie B','Comparaison NGU IDLE')+
+            bouton('a','Partie A','Ma partie principale')+
+            bouton('b','Partie B','Pour essayer')+
+            bouton('c','Partie C','Pour essayer')+
           '</div>'+
-          '<div style="font-size:14px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='b'?'B (comparaison)':'A (réelle)')+'</b></div>'+
-          (p.partie==='b'?'<div style="margin-top:10px"><button type="button" class="soreal-idle-parties-dev-bouton-v1" onclick="window.__copierPartieADevIdleV1__()"><b>Copier la partie A ici</b><span>Mêmes conditions que ta vraie partie (A n’est pas modifiée)</span></button></div>':'')+
+          '<div style="font-size:14px;color:#dce5f3;margin-top:8px">Partie active : <b>'+(p.partie==='c'?'C':p.partie==='b'?'B':'A')+'</b></div>'+
+          (p.actif&&p.partie!=='a'?'<div style="margin-top:10px"><button type="button" class="soreal-idle-expand-button-v25 soreal-idle-parties-dev-bouton-v1" onclick="window.__copierPartieADevIdleV1__()"><b>Copier la partie A ici</b><span>Mêmes conditions que ta vraie partie (A n’est pas modifiée)</span></button></div>':'')+
         '</div>';
       }
 
@@ -379,6 +382,7 @@
             htmlReglagesEffetsIdleV1_();
         }else if(actif==='partie'){
           corps=
+            rendrePartiesDevIdleV1_()+
             (window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__&&window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__.actif()
               ?'<div class="soreal-idle-section-v8" id="sorealIdlePartieServeurV1">'+
                 '<div class="soreal-idle-window-title-v31">☁️ Ma partie</div>'+

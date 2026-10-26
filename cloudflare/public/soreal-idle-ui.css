@@ -5673,7 +5673,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
  */
 .soreal-idle-parties-dev-v1{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:8px;
 }
 .soreal-idle-parties-dev-bouton-v1{

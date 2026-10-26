@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { sqlRows, safeJson } from "./core/sqlite-core.js";
-import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
+import { idleDevEstAdminV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { IDLE_NGU_META_VERSION } from "./idle-ngu-progression.js";
 import { histoireDuBossV1, histoireIntroV1, lireHistoiresV1, enregistrerHistoireV1, supprimerHistoireV1 } from "./idle-histoires-v1.js";
 import { annulerVictoireTitanV1 } from "./idle-adventure-v47.js";
@@ -97,7 +97,7 @@ export function supprimerBugSorealIdle(sessionToken, id) {
  */
 export function copierPartieASurBSorealIdle(sessionToken) {
   const acces = exigerAccesSorealIdle_(sessionToken);
-  if (!idleDevSlotsAvailableV1(acces.user) || idleDevSlotForUserV1(acces.user) !== 'b') throw new Error('PARTIE_TEST_REQUISE');
+  if (!idleDevEstAdminV1(acces.user) || idleDevSlotForUserV1(acces.user) === 'a') throw new Error('PARTIE_TEST_REQUISE');
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) return { ok: false, code: 'SOREAL_IDLE_OCCUPE', retryable: true, message: 'Le moteur termine encore une action. Réessaie dans un instant.' };
@@ -122,7 +122,7 @@ export function copierPartieASurBSorealIdle(sessionToken) {
 
 export function preparerPartieTestSorealIdle(sessionToken, options) {
   const acces = exigerAccesSorealIdle_(sessionToken);
-  if (!idleDevSlotsAvailableV1(acces.user) || idleDevSlotForUserV1(acces.user) !== 'b') throw new Error('PARTIE_TEST_REQUISE');
+  if (!idleDevEstAdminV1(acces.user) || idleDevSlotForUserV1(acces.user) === 'a') throw new Error('PARTIE_TEST_REQUISE');
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(10000)) return { ok: false, code: 'SOREAL_IDLE_OCCUPE', retryable: true, message: 'Le moteur termine encore une action. R\u00e9essaie dans un instant.' };

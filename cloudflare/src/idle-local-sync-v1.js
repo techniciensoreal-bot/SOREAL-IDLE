@@ -200,9 +200,10 @@ function emailsDe(user) {
   return Array.from(new Set(l.map((e) => sv(e).toLowerCase()).filter(Boolean)));
 }
 
-/* Partie B (essai de Norman) : sa ligne est stockée sous l'adresse alias, comme le fait le moteur (trouverLigneJoueurSorealIdle_). */
+/* Parties B et C (essai) : sa ligne est stockée sous l'adresse alias, comme le fait le moteur (trouverLigneJoueurSorealIdle_). */
 function effectif(user) {
-  return idleDevSlotForUserV1(user) === "b" ? idleDevUserForSlotV1(user, "b") : user;
+  const slot = idleDevSlotForUserV1(user);
+  return slot !== "a" ? idleDevUserForSlotV1(user, slot) : user;
 }
 
 function indexLigneJoueur(coord, user) {

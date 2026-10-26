@@ -3,7 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
-import { idleDevSlotForUserV1, idleDevSlotsAvailableV1, idleDevNormalizeSlotV1 } from "./idle-dev-save-slots-v1.js";
+import { idleDevSlotForUserV1, idleDevSlotsAvailableV1, idleDevEstAdminV1, idleDevEstEmailPartieTestV1, idleDevNormalizeSlotV1 } from "./idle-dev-save-slots-v1.js";
 import { lireProfilIdleV1, noterPassageProfilIdleV1, libelleJoueurIdleV1, nomJeuJoueurIdleV1, definirPseudoProfilIdleV1, listerJoueursExternesIdleV1, profilsParEmailIdleV1 } from "./idle-profile-v1.js";
 import { sqlRows } from "./core/sqlite-core.js";
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_, normaliserEmailSorealIdle_ } from "./idle-runtime-config.js";
@@ -41,7 +41,7 @@ export function cleJoueurSorealIdle_(acces) {
   if (typeof acces.__cleJoueurV1 === 'string' && acces.__cleJoueurV1) return acces.__cleJoueurV1;
   let cle = brut;
   try {
-    if (__idleCtx.__idleSql && idleDevSlotForUserV1(acces.user) !== 'b') {
+    if (__idleCtx.__idleSql && idleDevSlotForUserV1(acces.user) === 'a') {
       const feuille = obtenirFeuilleJoueursSorealIdle_();
       const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
       const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
@@ -431,7 +431,7 @@ function joueurExclusClassementSorealIdle_(cle, nom) {
   const libelle = String(nom || '').trim().toLowerCase();
   return (
     !email ||
-    email.indexOf('+partieb@') !== -1 ||
+    idleDevEstEmailPartieTestV1(email) ||
     !libelle ||
     libelle === 'joueur'
   );
@@ -925,15 +925,15 @@ export function estAdminSorealIdle(
 }
 
 /*
- * Sélecteur « Partie B » (2026-09-27, Norman, restauré -- voir idle-dev-save-slots-v1.js) : réservé au compte
- * administrateur. La partie effectivement jouée est mémorisée sur la session (idle_sessions.user_json.slot),
+ * Sélecteur de parties A, B et C (2026-09-27 pour la B de Norman ; ouvert à TOUS les joueurs le 2026-10-26 -- voir idle-dev-save-slots-v1.js). La partie effectivement jouée est mémorisée sur la session (idle_sessions.user_json.slot),
  * jamais sur le compte lui-même : changer d'appareil ou se reconnecter revient toujours sur la partie A.
  */
 export function obtenirPartieDevSorealIdle(sessionToken) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   return {
     ok: true,
-    actif: idleDevSlotsAvailableV1(acces.user),
+    actif: idleDevEstAdminV1(acces.user),
+    parties: idleDevSlotsAvailableV1(acces.user),
     partie: idleDevSlotForUserV1(acces.user)
   };
 }

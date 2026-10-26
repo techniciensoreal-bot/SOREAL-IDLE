@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans Réglages, l’onglet « Ma partie » propose maintenant trois parties pour tout le monde : A, B et C. Un clic sur l’une d’elles ouvre cette partie, indépendante des deux autres. La B et la C servent à essayer autre chose sans toucher à la A ; elles n’apparaissent ni au classement ni dans « En direct ».',
             'Sur PC, le menu de gauche ne bouge plus quand on arrive tout en bas d’une page : il reste exactement à la même place qu’en haut.',
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},

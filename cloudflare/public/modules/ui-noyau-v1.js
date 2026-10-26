@@ -77,21 +77,24 @@
         return n&&n.courante?'Beta '+n.courante:IDLE_TEST_VERSION;
       }
 
+      function partieDevNormaleIdleV1_(v){v=String(v||'a');return v==='b'||v==='c'?v:'a';}
+
       function rafraichirPartieDevIdleV1_(){
         if(REG.idlePartieDevV1!==null||!SOREAL_SESSION)return;
         /* Donné dans l'état (partieDev) : aucun appel à part (audit des appels, 2026-10-04). */
         if(REG.idleEtat&&REG.idleEtat.partieDev&&typeof REG.idleEtat.partieDev==='object'){
-          REG.idlePartieDevV1={actif:Boolean(REG.idleEtat.partieDev.actif),partie:String(REG.idleEtat.partieDev.partie||'a')==='b'?'b':'a',charge:true};
-          if(REG.idlePartieDevV1.actif)rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
+          REG.idlePartieDevV1={actif:Boolean(REG.idleEtat.partieDev.actif),parties:Boolean(REG.idleEtat.partieDev.parties),partie:partieDevNormaleIdleV1_(REG.idleEtat.partieDev.partie),charge:true};
+          if(REG.idlePartieDevV1.actif||REG.idlePartieDevV1.parties)rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
           return;
         }
-        REG.idlePartieDevV1={actif:false,partie:'a',charge:false};
+        REG.idlePartieDevV1={actif:false,parties:false,partie:'a',charge:false};
         google.script.run
           .withSuccessHandler(function(res){
             const avant=JSON.stringify(REG.idlePartieDevV1);
             REG.idlePartieDevV1={
               actif:Boolean(res&&res.ok&&res.actif),
-              partie:String(res&&res.partie||'a')==='b'?'b':'a',
+              parties:Boolean(res&&res.ok&&res.parties),
+              partie:partieDevNormaleIdleV1_(res&&res.partie),
               charge:true
             };
             if(JSON.stringify(REG.idlePartieDevV1)!==avant&&REG.idleEtat){

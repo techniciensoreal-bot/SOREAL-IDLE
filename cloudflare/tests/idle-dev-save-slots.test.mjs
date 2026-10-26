@@ -6,7 +6,9 @@ import {
   idleDevSlotsAvailableV1,
   idleDevSlotForUserV1,
   idleDevAliasEmailV1,
-  idleDevUserForSlotV1
+  idleDevUserForSlotV1,
+  idleDevEstAdminV1,
+  idleDevEstEmailPartieTestV1
 } from "../src/idle-dev-save-slots-v1.js";
 
 /*
@@ -23,10 +25,15 @@ assert.equal(IDLE_DEV_SAVE_SLOTS_V1.enabled, true, "actif pendant le développem
 assert.equal(idleDevAliasEmailV1(ADMIN, "b"), ALIAS);
 assert.equal(idleDevAliasEmailV1(ADMIN, "a"), ADMIN, "la partie A garde l'adresse réelle");
 assert.equal(idleDevSlotsAvailableV1({ email: ADMIN }), true);
-assert.equal(idleDevSlotsAvailableV1({ email: "hodappsebastien@gmail.com" }), false, "réservé à l'administrateur");
+assert.equal(idleDevSlotsAvailableV1({ email: "hodappsebastien@gmail.com" }), true, "ouvert à tous les joueurs (2026-10-26)");
+assert.equal(idleDevAliasEmailV1(ADMIN, "c"), "technicien.soreal+partiec@gmail.com", "partie C : sa propre adresse alias");
+assert.equal(idleDevSlotForUserV1({ email: ADMIN, slot: "c" }), "c");
+assert.equal(idleDevEstAdminV1({ email: "hodappsebastien@gmail.com" }), false, "les outils d'essai restent réservés à l'administrateur");
+assert.equal(idleDevEstAdminV1({ email: ADMIN }), true);
+assert.equal(idleDevEstEmailPartieTestV1("x+partiec@y.fr"), true);
 assert.equal(idleDevSlotForUserV1({ email: ADMIN, slot: "b" }), "b");
 assert.equal(idleDevSlotForUserV1({ email: ADMIN, slot: "x" }), "a");
-assert.equal(idleDevSlotForUserV1({ email: "hodappsebastien@gmail.com", slot: "b" }), "a", "un autre joueur ne peut pas passer en B");
+assert.equal(idleDevSlotForUserV1({ email: "hodappsebastien@gmail.com", slot: "b" }), "b", "un autre joueur peut passer en B");
 {
   const b = idleDevUserForSlotV1({ email: ADMIN, emailConnexion: ADMIN, emails: [ADMIN], prenom: "Norman" }, "b");
   assert.deepEqual([b.email, b.emailConnexion, b.emails, b.prenom], [ALIAS, ALIAS, [ALIAS], "Norman (B)"]);
@@ -64,7 +71,7 @@ function lignes() {
 }
 
 const norman = ouvrirSession(ADMIN, "Norman");
-assert.deepEqual({ ...appeler(norman, "obtenirPartieDevSorealIdle") }, { ok: true, actif: true, partie: "a" }, "par défaut : partie A");
+assert.deepEqual({ ...appeler(norman, "obtenirPartieDevSorealIdle") }, { ok: true, actif: true, parties: true, partie: "a" }, "par défaut : partie A");
 
 // Partie A : la ligne historique, sous l'adresse réelle.
 appeler(norman, "definirAutoBossSuivantSorealIdle", [true]);
@@ -97,10 +104,17 @@ assert.deepEqual(Object.keys(lignes()), [ADMIN]);
 const autreSession = ouvrirSession(ADMIN, "Norman");
 assert.equal(appeler(autreSession, "obtenirPartieDevSorealIdle").partie, "a");
 
-// Un autre joueur n'a ni sélecteur, ni partie B. Il n'a plus d'accès spécial (2026-09-25) : l'administrateur ouvre l'accès aux détenteurs du trophée Assiduité de bronze (user.idleTrophee, posé par TV).
+// Tout autre joueur a aussi les trois parties (2026-10-26), mais pas les outils d'administrateur.
 appeler(norman, "definirAccesOuvertSorealIdle", [true]);
 const sebastien = ouvrirSession("hodappsebastien@gmail.com", "Sébastien", { idleTrophee: true });
-assert.deepEqual({ ...appeler(sebastien, "obtenirPartieDevSorealIdle") }, { ok: true, actif: false, partie: "a" });
-assert.throws(() => appeler(sebastien, "definirPartieDevSorealIdle", ["b"]), /PARTIES_DEV_INDISPONIBLES/);
+assert.deepEqual({ ...appeler(sebastien, "obtenirPartieDevSorealIdle") }, { ok: true, actif: false, parties: true, partie: "a" });
+assert.equal(appeler(sebastien, "definirPartieDevSorealIdle", ["c"]).partie, "c");
+appeler(sebastien, "definirAutoBossSuivantSorealIdle", [true]);
+const cleC = "hodappsebastien+partiec@gmail.com";
+const apresC = lignes();
+assert.ok(apresC[cleC], "la partie C du joueur est une ligne à part");
+assert.equal(apresC[cleC].nom, "Sébastien (C)");
+assert.throws(() => appeler(sebastien, "preparerPartieTestSorealIdle", [{ boss: 5 }]), /PARTIE_TEST_REQUISE/, "outil d'essai réservé à l'administrateur");
+assert.equal(appeler(sebastien, "definirPartieDevSorealIdle", ["x"]).partie, "a", "valeur inconnue = partie A");
 
 console.log("idle-dev-save-slots: OK");

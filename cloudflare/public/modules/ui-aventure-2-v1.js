@@ -36,8 +36,8 @@
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
 
       function changerPartieDevIdleV1_(partie){
-        const cible=String(partie)==='b'?'b':'a';
-        if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.actif||REG.idlePartieDevV1.partie===cible)return;
+        const cible=String(partie)==='b'?'b':String(partie)==='c'?'c':'a';
+        if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.parties||REG.idlePartieDevV1.partie===cible)return;
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){
@@ -54,8 +54,8 @@
 
       /* Partie B uniquement : recopie la partie A (lue, jamais modifiée) pour tester dans les mêmes conditions. */
       function copierPartieADevIdleV1_(){
-        if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.actif||REG.idlePartieDevV1.partie!=='b')return;
-        if(!window.confirm('Copier ta partie A sur la partie B ? La partie B actuelle sera remplacée. La partie A n’est pas modifiée.'))return;
+        if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.actif||REG.idlePartieDevV1.partie==='a')return;
+        if(!window.confirm('Copier ta partie A sur cette partie ? La partie actuelle sera remplacée. La partie A n’est pas modifiée.'))return;
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){location.reload();}

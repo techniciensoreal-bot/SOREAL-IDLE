@@ -901,7 +901,7 @@ function battementSorealIdle(sessionToken, info) {
    * « En direct », la session garde l'adresse RÉELLE du compte, donc la partie B se faisait passer pour la vraie partie (même clé : ses jalons alternaient avec ceux de la partie A et s'annonçaient à chaque battement). En partie B :
    * aucune présence, aucun jalon, aucune connexion annoncée, aucun temps de jeu crédité ; la partie B ne voit que le fil des autres.
    */
-  if (idleDevSlotForUserV1(acces.user) === 'b') {
+  if (idleDevSlotForUserV1(acces.user) !== 'a') {
     return {
       ok: true,
       enLigne: [],
@@ -1016,7 +1016,7 @@ function envoyerChatSorealIdle(sessionToken, message) {
   const acces = exigerAccesSorealIdle_(sessionToken);
   if (!__idleCtx.__idleSql) return { ok: false, message: 'Chat indisponible.' };
   /* Partie d'essai : jamais de message publié sous le nom du compte réel. */
-  if (idleDevSlotForUserV1(acces.user) === 'b') return { ok: false, message: 'Le chat n\u2019est pas disponible dans la partie d\u2019essai.' };
+  if (idleDevSlotForUserV1(acces.user) !== 'a') return { ok: false, message: 'Le chat n\u2019est pas disponible dans la partie d\u2019essai.' };
   const identite = identiteJoueurSorealIdle_(acces);
   /* Le texte arrive soit seul, soit dans un objet { message } (le pont client ajoute la session au premier argument de type texte). */
   const texte = message && typeof message === 'object' ? message.message : message;

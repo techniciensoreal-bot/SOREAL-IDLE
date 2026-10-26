@@ -6,7 +6,7 @@
 import { avecProjectionSansMemoV1, syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
 import { enveloppeSpan, span } from "./idle-spans-v1.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
-import { idleDevSlotsAvailableV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
+import { idleDevEstAdminV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
 import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, dateSorealIdle_, deblocagesEtatSorealIdleV405_, inventaireCapaciteMaxSorealIdle_, nombreSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
 import { bonusEquipementSorealIdle_, construireBestiaireSorealIdle_, detailsEquipementSorealIdle_, listeCollectionSorealIdle_, parserJsonSorealIdle_, progressionCollectionsSorealIdle_, slotsEquipementSorealIdle_, statsJoueurSorealIdle_, synchroniserCollectionSorealIdle_ } from "./idle-runtime-collection.js";
@@ -931,7 +931,7 @@ coutExtensionInventaire:
      * Sélecteur « Partie B » (administrateur) : donné dans l'état pour que le client n'ait plus à le demander par un appel à part au démarrage (audit des appels, Norman 2026-10-04).
      * Même contenu que obtenirPartieDevSorealIdle ; l'état d'administrateur, lui, se lit déjà dans `reglages` (non nul pour l'administrateur seul).
      */
-    partieDev: { actif: idleDevSlotsAvailableV1(__idleCtx.__idleRuntimeUser), partie: idleDevSlotForUserV1(__idleCtx.__idleRuntimeUser) },
+    partieDev: { actif: idleDevEstAdminV1(__idleCtx.__idleRuntimeUser), parties: true, partie: idleDevSlotForUserV1(__idleCtx.__idleRuntimeUser) },
 
     /* Pseudo et nom affiché du joueur (Paramètres) ; voir idle-profile-v1.js. */
     identite: identiteJoueurSorealIdle_(

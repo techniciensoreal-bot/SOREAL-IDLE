@@ -73,7 +73,7 @@ assert.ok(String(b2.v[COL.EMAIL]).toLowerCase().includes("+partieb@"), "B garde 
 // Client : un bouton dans Paramètres, visible seulement en partie B.
 const ui = lireUiComplet();
 assert.ok(ui.includes("window.__copierPartieADevIdleV1__=copierPartieADevIdleV1_") && ui.includes(".copierPartieASurBSorealIdle(SOREAL_SESSION)"), "bouton relié à l'opération");
-assert.ok(ui.includes("(p.partie==='b'?'<div style=\"margin-top:10px\"><button") && ui.includes("Copier la partie A ici"), "bouton affiché seulement en partie B");
+assert.ok(ui.includes("(p.actif&&p.partie!=='a'?'<div style=\"margin-top:10px\"><button") && ui.includes("Copier la partie A ici"), "bouton affiché seulement à l'administrateur, hors partie A");
 const contrat = JSON.parse(readFileSync("cloudflare/contracts/idle-protocol.json", "utf8"));
 assert.ok(contrat.operations.includes("copierPartieASurBSorealIdle"), "opération déclarée au contrat");
 console.log("idle-copier-partie-a-sur-b-v1: OK");

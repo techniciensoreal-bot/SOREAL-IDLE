@@ -19,7 +19,7 @@ for (const selecteur of [".soreal-idle-parties-dev-v1", ".soreal-idle-boss-fiche
   const i = css.indexOf(selecteur + "{");
   assert.ok(i >= 0, selecteur + " introuvable");
   const bloc = css.slice(i, css.indexOf("}", i));
-  assert.match(bloc, /grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\);/, selecteur + " : les pistes doivent pouvoir rétrécir sous leur contenu (jamais forcer la page plus large)");
+  assert.match(bloc, selecteur === ".soreal-idle-parties-dev-v1" ? /grid-template-columns:repeat\(3,minmax\(0,1fr\)\);/ : /grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\);/, selecteur + " : les pistes doivent pouvoir rétrécir sous leur contenu (jamais forcer la page plus large)");
   assert.ok(!bloc.includes("grid-template-columns:1fr 1fr;"), selecteur + " : plus de piste bare 1fr");
 }
 

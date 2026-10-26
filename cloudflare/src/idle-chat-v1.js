@@ -113,7 +113,7 @@ export function battementV1(sql, { email, nom, admin, actif, connecte, activite,
 
 export function listerEnLigneV1(sql, emailMoi, now = Date.now()) {
   assurerChatV1(sql);
-  return sqlRows(sql.exec("SELECT email,nom,admin,actif,activite FROM idle_presence WHERE vu_le >= ? AND email NOT LIKE '%+partieb@%' ORDER BY nom COLLATE NOCASE", now - IDLE_PRESENCE_EN_LIGNE_MS_V1))
+  return sqlRows(sql.exec("SELECT email,nom,admin,actif,activite FROM idle_presence WHERE vu_le >= ? AND email NOT LIKE '%+partie_@%' ORDER BY nom COLLATE NOCASE", now - IDLE_PRESENCE_EN_LIGNE_MS_V1))
     .map((r) => {
       let activite = { t: "libre" };
       try { activite = normaliserActiviteV1(JSON.parse(r.activite)); } catch (_e) { /* activité illisible : « libre » */ }

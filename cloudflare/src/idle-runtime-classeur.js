@@ -353,7 +353,7 @@ export function __idleCommit(sql,workbook){
         const playerKey=emailLogin||emailPrimary||__idleKey(playerId||displayName);
         if(!playerKey)continue;
         sql.exec("DELETE FROM idle_players WHERE source_row=? AND player_key<>?",rowIndex,playerKey);
-        if(xpAvantV1!==null&&playerKey.indexOf("+partieb@")===-1){
+        if(xpAvantV1!==null&&playerKey.indexOf("+partieb@")===-1&&playerKey.indexOf("+partiec@")===-1){
           try{
             enregistrerGainExpV1(sql,{email:playerKey,nom:displayName,operation:__idleCtx.__idleOperationNomV1+(__idleCtx.__idleReferenceGainV1?":"+__idleCtx.__idleReferenceGainV1:""),avant:xpAvantV1,apres:Number(row[3]),now});
           }catch(_e){/* le journal ne doit jamais gêner le jeu */}
