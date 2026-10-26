@@ -1487,6 +1487,18 @@ async function yggImage_(request,env,url){
     if(!decor)return new Response("Décor Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
     return reponseObjetR2_(request,env,{key:cleDecor});
   }
+  /* ?terre=1 : l'image de terre unique, la même sous tous les fruits (idle/ygg-terre/terre.webp). */
+  if(url.searchParams.get("terre")==="1"){
+    const cleTerre="idle/ygg-terre/terre.webp";
+    if(typeof env.SOREAL_R2.get!=="function")return new Response("Media Yggdrasil indisponible",{status:503,headers:{"cache-control":"no-store"}});
+    if(!(await env.SOREAL_R2.get(cleTerre)))return new Response("Terre Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+    return reponseObjetR2_(request,env,{key:cleTerre});
+  }
+  /* Image du fruit SANS terre (idle/ygg-fruits/<fruit>.webp) : servie à la place de l'ancienne image fixe dès qu'elle existe (sans ?etape). */
+  if(url.searchParams.get("etape")===null&&typeof env.SOREAL_R2.get==="function"){
+    const cleFruit="idle/ygg-fruits/"+nom.replace(/[^A-Za-z0-9_-]/g,"")+".webp";
+    if(await env.SOREAL_R2.get(cleFruit))return reponseObjetR2_(request,env,{key:cleFruit});
+  }
   if(Date.now()-yggCleCache_.at>60000){
     let keys=[];
     for(const prefix of ["idle/yggdrasil/","idle/Yggdrasil/","idle/ygg/"]){

@@ -61,13 +61,13 @@
   }
 
   /* Image R2 d'un fruit (ou « seed », « poop ») avec dessin de secours ; une image absente n'est plus redemandée pendant la visite. */
-  function image_(nom,secours,classe,etape){
+  function image_(nom,secours,classe,etape,srcForce){
     var fond='<span class="ygg-secours">'+html_(secours)+'</span>';
     if(etat.manquantes[nom])return fond;
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
     /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
     /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
-    var src=nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape+(nbEtapes_(nom)===24?'&sur=24':''):'');
+    var src=srcForce?srcForce:nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape+(nbEtapes_(nom)===24?'&sur=24':''):'');
     return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
       'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
   }
@@ -145,9 +145,11 @@
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
-      '.ygg-vitre.ygg-decor .ygg-img{inset:auto;left:calc((1 - var(--ygg-echelle,1))*50%);top:calc((1 - var(--ygg-echelle,1))*90%);width:calc(var(--ygg-echelle,1)*100%);height:calc(var(--ygg-echelle,1)*100%);object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
+      '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
+      '.ygg-vitre.ygg-decor .ygg-terre{inset:auto;z-index:2;left:calc((1 - var(--ygg-s,1))*50%);top:calc((1 - var(--ygg-s,1))*98.8%);width:calc(var(--ygg-s,1)*100%);height:calc(var(--ygg-s,1)*100%);}',
+      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;opacity:var(--ygg-fo,1);left:calc((1 - var(--ygg-f,1))*50%);top:calc((0.988 - 0.138*var(--ygg-s,1) - 0.9*var(--ygg-f,1))*100%);width:calc(var(--ygg-f,1)*100%);height:calc(var(--ygg-f,1)*100%);}',
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
-      '.ygg-vitre.ygg-decor.ygg-aura .ygg-img{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
+      '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
       /* Banc d'essai des animations (administrateur) */
       '.ygg-banc{margin-top:16px;padding:12px;border:3px solid #000;border-radius:10px;background:rgba(0,0,0,.3);color:#f4f8ea;}',
@@ -270,12 +272,16 @@
    * Mêmes règles que ci-dessus avec 24 images au lieu de 20 : la dernière n'apparait que fruit au tier maximum ET entièrement poussé.
    */
   var FRUITS_24_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
-  var DEBUT_FRUIT_=3;   /* index de la première image où le fruit apparaît (les images 1 à 3 sont la terre seule) */
-  /* Échelle de l'image : la motte (peinte dans l'image) est un minuscule tas au début et grandit avec le fruit, comme s'il sortait de la terre (Norman, 2026-10-26) ; calculée sur 24 h, jamais sur le temps maximum débloqué. */
-  function echelleImage_(d,v){
-    var p=Math.max(0,Math.min(1,(Number(v.growth)||0)/24));
-    return (0.12+0.88*Math.sqrt(p)).toFixed(3);   /* la terre part d'un minuscule tas et grossit pendant la première heure (image 1), puis avec le fruit jusqu'à la taille pleine à la 24e heure */
-  }
+  /*
+   * DEUX COUCHES INDÉPENDANTES (Norman, 2026-10-26) : une image de TERRE unique (idle/ygg-terre/terre.webp, la même sous tous les fruits) et une image de FRUIT sans terre par fruit (idle/ygg-fruits/<fruit>.webp). Les deux grossissent avec les heures
+   * RÉELLES de pousse sur une échelle de 24 h (jamais sur le temps maximum débloqué : un fruit limité à 5 h s'arrête à la croissance prévue pour 5 h), mais PAS selon la même courbe :
+   *  - la terre commence minuscule dès l'heure 0 et grossit vite d'abord, puis de plus en plus lentement (arrondi vers l'extérieur) jusqu'à sa taille pleine à la 24e heure ;
+   *  - le fruit est invisible pendant la première heure (la terre seule), puis apparaît tout petit après UNE heure complète et grossit sans condition, lentement d'abord puis de plus en plus vite, jusqu'à sa taille pleine à la 24e heure.
+   * Le fruit reste posé sur la terre : sa base suit le point de contact de la terre (voir .ygg-fruit dans le style).
+   */
+  function heuresPousse_(v){return Math.max(0,Math.min(Number(v.growth)||0,24));}
+  function echelleTerre_(v){var t=heuresPousse_(v)/24;return (0.14+0.86*(1-Math.pow(1-t,2))).toFixed(3);}
+  function echelleFruit_(v){var g=heuresPousse_(v);return g<1?'0.000':(0.05+0.95*Math.pow((g-1)/23,1.15)).toFixed(3);}
   /*
    * Aura du fruit (Norman, 2026-10-26) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle apparaît APRÈS la 12e heure de pousse, faible puis de plus en plus forte ; la 24e heure est beaucoup plus
    * prononcée que toutes les autres. Elle suit les heures réelles de pousse : un fruit limité à 12 h (ou moins) n'en a jamais.
@@ -287,38 +293,14 @@
     if(g<=23)return 0.08+0.30*((g-12)/11);
     return 0.38+0.62*Math.min(1,g-23);
   }
-  /*
-   * Fondu entre deux images (Norman, 2026-10-26 : « pourquoi le fruit grandit par à-coups ? ») : il n'y a que 24 images, une par heure ; sans fondu, le fruit saute d'une image à la suivante. La part (0 à 1) du chemin parcouru vers l'image SUIVANTE
-   * est affichée par une seconde image posée dessus, de plus en plus opaque ; quand l'image change, la suivante a déjà pris la place de la précédente : aucun saut.
-   */
-  function fractionSuivante_(d,v){
-    var id=v.def.id;
-    if(FRUITS_24_[id]!==true||!(v.tier>0))return 0;
-    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
-    if(g<1)return 0;
-    var debut=DEBUT_FRUIT_,finale=nbEtapes_(id)-1,p=(g-1)/23*(finale-debut),k=Math.floor(p);
-    return debut+k>=finale?0:p-k;
-  }
-  function suivante_(d,v){
-    var f=fractionSuivante_(d,v),k=etapeCroissance_(d,v);
-    if(!(f>0.01)||k==null||etat.manquantes[v.def.id])return '';
-    return '<img class="ygg-img ygg-suivante" alt="" draggable="false" src="'+urlEtape_(v.def.id,k+1)+'" style="opacity:'+f.toFixed(3)+'">';
+  var URL_TERRE_='/api/idle/media/ygg?terre=1';
+  function couches_(d,v,id,def){
+    if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
+    return image_(id,emoji_(id,def.name),'ygg-fruit',null,'/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1')+'<img class="ygg-img ygg-terre" alt="" draggable="false" src="'+URL_TERRE_+'">';
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
-  function etapeCroissance_(d,v){
-    var id=v.def.id;
-    if((ETAPES_FRUITS_[id]!==true&&FRUITS_24_[id]!==true)||!(v.tier>0))return null;
-    var n=nbEtapes_(id);
-    /*
-     * La croissance suit les HEURES RÉELLES de pousse sur une échelle de 24 h, quel que soit le temps maximum débloqué (Norman, 2026-10-26 : « si on n'a que 5 h de débloquées, ça ne doit pas dépasser la croissance prévue pour 5 h »).
-     * Les images 1 à 3 de chaque fruit ne montrent que la motte de terre : le fruit apparaît à l'image 4 (DEBUT_FRUIT_ = 3, vérifié sur l'or, la Puissance, l'Aventure, les Nombres, la Rage, la pastèque…). Première heure : la terre seule ;
-     * à UNE heure, un minuscule fruit dépasse de la terre ; ensuite la croissance continue jusqu'à l'image 24 à la 24e heure. Un fruit limité à 5 h s'arrête donc là où se trouve un fruit de 5 h.
-     */
-    var debut=DEBUT_FRUIT_,finale=n-1;
-    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
-    if(g<1)return 0;
-    return Math.max(debut,Math.min(finale,debut+Math.floor((g-1)/23*(finale-debut))));
-  }
+  /* Plus d'images de croissance : la pousse est une taille (voir echelleTerre_ et echelleFruit_) ; la fonction reste pour les appels existants. */
+  function etapeCroissance_(d,v){return null;}
 
   /*
    * Les PORTES (Norman, 2026-10-16) : tant que l'énergie n'a pas été placée pour activer un fruit, une porte close en bois et en fer cache son image. Fermée, elle est un dessin FIXE (deux vantaux en SVG
@@ -584,7 +566,6 @@
   }
   function carte_(d,v){
     var def=v.def,id=def.id,c=choix_(id);
-    if(v.tier>=Math.max(1,d.maxTier||10)&&v.growth>=Math.max(1,d.maxTier||10))precharger_(id);   /* prêt au tier maximum : toutes les images sont chargées d'avance */
     var nom=html_(def.name||id);
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
     var heures=v.growth*d.tierSec/3600;
@@ -605,7 +586,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.12')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+suivante_(d,v)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-s:'+(v.tier>0?echelleTerre_(v):'0.14')+';--ygg-f:'+(v.tier>0?echelleFruit_(v):'0')+';--ygg-fo:'+(v.tier>0&&heuresPousse_(v)>=1?'1':'0')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
