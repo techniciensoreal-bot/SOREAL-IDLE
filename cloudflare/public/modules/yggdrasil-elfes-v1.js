@@ -274,8 +274,10 @@
     if((ETAPES_FRUITS_[id]!==true&&FRUITS_24_[id]!==true)||!(v.tier>0))return null;
     var n=nbEtapes_(id);
     var max=Math.max(1,d.maxTier||10);
-    if(v.tier>=max&&v.growth>=max)return n-1;
-    return Math.max(0,Math.min(n-2,Math.floor(v.growth/max*(n-1))));
+    /* UNE image par heure de pousse (Norman, 2026-10-26 : « si mon maximum est 10/10, le fruit ne pousse que de 10 images, pas 24 ; l'image 24 ne s'atteint que quand le temps maximum est débloqué »). Maximum 10 : images 1 à 10 ; maximum 24 : images 1 à 24. */
+    var m=Math.min(max,n);
+    if(v.tier>=max&&v.growth>=max)return m-1;
+    return Math.max(0,Math.min(m-2,Math.floor(v.growth)));
   }
 
   /*

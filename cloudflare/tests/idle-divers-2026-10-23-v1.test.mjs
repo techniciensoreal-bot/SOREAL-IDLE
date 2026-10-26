@@ -250,7 +250,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(a.includes("function chroniqueNote_()") && a.includes('chroniqueNote:{group:"achievement"') && a.includes('chroniqueNote:function(){return demander_("chroniqueNote");}'));
   assert.ok(fd.includes("*1.3)"));
   const inv = lire("cloudflare/src/idle-adventure-inventaire.js"), u = lire("cloudflare/public/modules/ui-aventure-2-v1.js"), p = lire("cloudflare/public/modules/ui-popups-v1.js");
-  assert.ok(inv.includes('(def.slot!=="consumable"||Boolean(def.maxFlag))'));
+  assert.ok(inv.includes('(def.slot!=="consumable"||Boolean(SPECIALS_EN_V1[definitionId]?.maxFlag))'));
   assert.ok(u.includes("vide-coffre-v1") && u.includes("const pagesCoffre=[];") && u.includes("poserPopupAuDessus") === false || u.includes("__SOREAL_IDLE_POPUP_AU_DESSUS_V1__"));
   assert.ok(p.includes("function poserPopupAuDessusIdleV1_(root,element)") && p.includes("window.__SOREAL_IDLE_POPUP_AU_DESSUS_V1__=poserPopupAuDessusIdleV1_;"));
   const w = lire("cloudflare/public/modules/wandoos-retro-v1.js"), ng = lire("cloudflare/src/idle-ngu-actions.js");
@@ -286,4 +286,4 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 }
 
 // Coffre : un set d'une seule pièce venu d'un titan porte le nom de l'objet, pas « Set … » (2026-10-25).
-assert.ok(lire("cloudflare/public/modules/ui-aventure-2-v1.js").includes("(g.groupe==='titan'&&st.pieces.length===1)?(st.pieces[0].name||st.nom):st.nom"));
+assert.ok(lire("cloudflare/public/modules/ui-aventure-2-v1.js").includes("g.libres.push(st.pieces[0])"));

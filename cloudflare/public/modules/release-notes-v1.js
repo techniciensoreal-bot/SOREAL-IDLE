@@ -32,11 +32,19 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, le menu de gauche ne bouge plus quand on arrive tout en bas d’une page : il reste exactement à la même place qu’en haut.',
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Tous les objets qui se montent au niveau 100 ont maintenant leur case dans le Coffre.',
             'Fermer le Coffre ne fait plus descendre le cadre trop bas avant de le faire remonter d’un coup : sur PC, où la page est mise à l’échelle, il se raccourcit maintenant d’un seul geste.',
             'Le cadre du Coffre garde sa vraie taille refermée, calculée en pixels de mise en page, quelle que soit l’échelle de l’écran.',
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Un fruit change d’image à chaque heure de pousse : avec un maximum de 10 h, il n’utilise que les 10 premières images ; la dernière ne s’atteint que lorsque le temps maximum de 24 h est débloqué.',
           ]},
         ]
       },

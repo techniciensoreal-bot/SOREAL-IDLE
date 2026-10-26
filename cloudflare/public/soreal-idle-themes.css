@@ -1540,6 +1540,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
     gap:8px!important;padding:10px!important;
     /* Défilement PROPRE au menu (Norman, 2026-10-11) : la molette sur les menus ne fait défiler que les menus, sur la zone de jeu que le jeu ; aucune barre visible, et l'élan ne passe pas à la page. */
     overflow-x:hidden!important;overflow-y:auto!important;max-height:min(calc(100vh - 14px),var(--nav-dispo,100vh))!important;
+    /* Hauteur TOTALE du menu (remplissage et bordures compris) = celle annoncée par max-height : sinon il dépassait de l'écran et la fin de page le poussait vers le haut (Norman, 2026-10-26) */
+    box-sizing:border-box;
     overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none;
     scroll-snap-type:none!important;
   }

@@ -20,11 +20,12 @@ const ids = new Set(toutes.map((c) => c.definitionId));
 assert.ok(ids.has("tubaTime"), "Tuba of Time a sa case");
 assert.ok(ids.has("cheeseGrater") && ids.has("kingLooty") && ids.has("wanderersCane"));
 for (const [id, def] of Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1)) {
-  const attendu = def.kind === "equipment" || (def.kind === "special" && def.slot !== "consumable");
+  const attendu = def.kind === "equipment" || (def.kind === "special" && (def.slot !== "consumable" || ["mysteriousRedLiquid", "mysteriousPurpleLiquid"].includes(id)));   /* les liquides rouge et violet se montent au niveau 100 : ils ont leur case (Norman, 2026-10-25/26) */
   assert.equal(ids.has(id), attendu, "case du Coffre pour " + id);
 }
 assert.equal(ids.has("tutorialCube"), false);
-assert.equal(ids.has("mysteriousRedLiquid"), false);
+assert.equal(ids.has("mysteriousRedLiquid"), true, "le Liquide rouge mystérieux a sa case");
+assert.equal(ids.has("mysteriousGreyLiquid"), false);
 assert.equal(ids.has("pissedOffKey"), true, "les objets de set de slot special (montés niveau 100 pour le bonus de complétion) ont leur case");
 
 // Tuba of Time : rangé dans la zone Forêt, avant les objets de la Caverne.
@@ -60,7 +61,7 @@ assert.ok(r.state.inventory.some((o) => o.definitionId === "tubaTime"), "repris"
 // Les objets non portables restent refusés.
 let c = agir(normalizeIdleAdventureStateV47({}), { action: "addItem", definitionId: "mysteriousRedLiquid", level: 100 }).state;
 const liquide = c.inventory.find((o) => o.definitionId === "mysteriousRedLiquid");
-if (liquide) assert.throws(() => agir(c, { action: "coffreDeposer", id: liquide.id }), /OBJET_NON_ELIGIBLE_COFFRE/);
+if (liquide) assert.doesNotThrow(() => agir(c, { action: "coffreDeposer", id: liquide.id }));
 
 
 // --- Regroupement : zones, puis titans, cœurs, Looty, pendentifs, autres ---
