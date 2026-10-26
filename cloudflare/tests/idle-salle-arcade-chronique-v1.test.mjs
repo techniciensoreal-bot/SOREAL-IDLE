@@ -27,5 +27,5 @@ assert.ok(!css.includes("calc(210px - 146px)") && !css.includes("min-width:561px
 assert.ok(ui.includes("soreal_idle_chronique_main_v1") && ui.includes("chro-main-v1") && css.includes("@keyframes chroMain"), "main d'invitation : une fois, jamais plus après le premier clic");
 assert.ok(!/:not(.ouverte)::after{[^}]*position:absolute/.test(salle), "l'invite fait partie du cadre (plus coupée)");
 /* Norman (2026-10-11) : les deux rails (bleu et rouge) ne dépassent plus au-dessus de la borne : ils commencent sous le haut du fronton. */
-assert.ok(css.includes("#ff2a3d 98.08%) 0 3.4cqw/100% calc(100% - 3.4cqw) no-repeat"), "rails bleu et rouge sous le haut du fronton");
+assert.ok(css.includes(".bn-bas-wrap::before") && !css.includes("98.08%"), "bandes bleue et rouge du corps de la borne : sous le haut du fronton (elles commencent sous le pupitre), plus de fond a rails plats");
 console.log("idle-salle-arcade-chronique-v1: OK");

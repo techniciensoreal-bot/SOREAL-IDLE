@@ -105,3 +105,12 @@ assert.ok(bn.includes('class=\\"bn-bas-wrap\\"') || bn.includes('bn-bas-wrap'), 
 const cssI2 = lire('public/soreal-idle-itopod.css');
 assert.ok(cssI2.includes('.bn-bas-wrap::before') && cssI2.includes('bnLuitB 3.2s') && !cssI2.includes('#2f7bff 0 1.92%'), 'plus de fond a bandes plates, bandes lumineuses jusqu au sol');
 console.log('ok bandes borne');
+
+// Borne : une seule bande du haut au bas (jonction écran / pupitre / dessous du pupitre / corps) : même phase, même dégradé, halo qui suit le bord, raccord sous la lèvre du pupitre
+const sy = lire('public/modules/borne-bandes-sync-v1.js');
+assert.ok(sy.includes("n==='bnLuitB'||n==='bnLuitR'") && sy.includes('a.startTime=0') && sy.includes('__SOREAL_IDLE_APRES_REDESSIN_V1__'), 'toutes les bandes pulsent en phase (horloge du document)');
+assert.ok(lire('public/index.html').includes('/modules/borne-bandes-sync-v1.js?v='), 'module de phase chargé');
+const pu2 = bn.slice(bn.indexOf('const BORNE_PUPITRE_IDLE_V2='), bn.indexOf('const BORNE_BAS_IDLE_V2='));
+assert.ok(pu2.includes('skewX(-6.5198)') && pu2.includes('skewX(6.5198)'), 'dégradés penchés comme le flanc du pupitre');
+assert.ok(pu2.includes("<rect x='0' y='176' width='26' height='10'") && pu2.includes("<rect x='526' y='176' width='26' height='10'"), 'raccord sous la lèvre du pupitre, vers les bandes du bas');
+console.log('ok bandes une seule piece');
