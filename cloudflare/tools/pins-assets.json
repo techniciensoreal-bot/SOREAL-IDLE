@@ -8,8 +8,8 @@
   "sha": "018773034e510e3457b8e5bc9fd760ac4a0d5287"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 2,
-  "sha": "cb52b93948c3fe63f56c46441f7e6bf2ba650877"
+  "pin": 3,
+  "sha": "021d097beeda3498168e5d1e7bbf73f6a849c19f"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 2,
@@ -320,8 +320,8 @@
   "sha": "d478211ff732862e2427dfc6fea23dbf0b5db567"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 73,
-  "sha": "366a31deed5d04fab529b628fa527d751beb0f24"
+  "pin": 74,
+  "sha": "cd022fa5690873e6466b36f9ea18ba3604baef87"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -388,8 +388,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 466,
-  "sha": "405f697c0975b2737febd1e7eb9da55cd6392724"
+  "pin": 467,
+  "sha": "d577cabf70498255ca3e70b91d5b87bf8100b11b"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -456,12 +456,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 475,
-  "sha": "a9e738b9af357c0c1a6a6809277342c2b973b99e"
+  "pin": 476,
+  "sha": "f6f314161a7f659b2c59312a5747dcc87cf3add9"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 295,
-  "sha": "5ccd7337d766241163f1614e32159bde474bbb97"
+  "pin": 296,
+  "sha": "d502cf4efc6a9f03f9d256b0f605ab871384ded2"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -476,12 +476,12 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 258,
-  "sha": "86edf00a220a30673a1b6feaab8b9f69296f305e"
+  "pin": 259,
+  "sha": "e9afcb04f071b8903e3fd8b063cb1c09cddc1b25"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 6,
-  "sha": "bf60d7f2edf533b00ccc1f7efcb4a011a51d158f"
+  "pin": 7,
+  "sha": "587b3809bedde6c5242f73c1990ee82742fa046b"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,
@@ -572,8 +572,8 @@
   "sha": "8833e920e97cbe600fed96805b03e79b99df2591"
  },
  "/modules/ui-tutoriel-v1.js": {
-  "pin": 5,
-  "sha": "e8436b2658c5931e169f48b8bc7a0b85ea285442"
+  "pin": 6,
+  "sha": "521892d2488cf65fb4c5b160b1c1e30255211d73"
  },
  "/modules/ui.js": {
   "pin": 55,
