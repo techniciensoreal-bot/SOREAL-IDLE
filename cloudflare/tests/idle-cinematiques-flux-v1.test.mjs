@@ -95,3 +95,12 @@ assert.ok(rt.rythmeAnneau(50) > rt.rythmeAnneau(10) && rt.rythmeAnneau(10) > rt.
 assert.ok(md.includes("Math.min(50,a/k)") && md.includes("(d>0?3.2:.7)") && md.includes("r.closest('.tmm-haut')"), 'plafond 50, monte vite / redescend doucement, roues des tours distinguées de celles de la machine');
 assert.ok(md.includes("return Math.max(.0001,tourDeReference(vue)*dents*10);"), 'les roues de la machine gardent leur vitesse');
 console.log('ok roues des tours');
+
+// Borne : plus de traits mauves au pupitre ; les bandes bleue et rouge montent le long du module et s'illuminent comme celles de l'écran
+const bn = lire('public/modules/ui-combat-2-v1.js');
+assert.ok(!bn.includes('M30 14 L10 130 M46 14 L28 130'), 'les traits mauves du pupitre sont supprimés');
+const pup = bn.slice(bn.indexOf('const BORNE_PUPITRE_IDLE_V2='), bn.indexOf('const BORNE_BAS_IDLE_V2='));
+assert.ok(pup.includes("class='bn-lueur'") && pup.includes('bnLuitB 3.2s') && pup.includes('bnLuitR 3.2s') && pup.includes("height='186'"), 'bandes bleue et rouge le long du pupitre, qui pulsent comme celles de l\'écran');
+const bas = bn.slice(bn.indexOf('const BORNE_BAS_IDLE_V2='), bn.indexOf('const BORNE_LUNAPARK_IDLE_V2='));
+assert.ok(bas.includes("class='bn-lueur'") && !bas.includes('fill=\\"#2f7bff\\"/><rect x=\\"510\\"'), 'bandes du bas : même dégradé et même halo');
+console.log('ok bandes borne');

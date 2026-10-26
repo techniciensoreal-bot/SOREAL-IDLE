@@ -57,6 +57,7 @@
             'Le bonus total Attaque et Défense, en haut de la page, s’écrit comme la vie : avec des lettres (K, M, B…).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne d’arcade, les deux traits mauves de chaque côté des boutons disparaissent : les bandes bleue et rouge du bas montent tout le long du module des boutons et brillent comme celles de l’écran.',
             'Sur PC, la page du combat de boss a un nouveau fond : une salle d’arcade en perspective, derrière la borne.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
