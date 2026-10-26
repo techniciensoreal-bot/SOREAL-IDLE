@@ -100,7 +100,7 @@ console.log('ok roues des tours');
 const bn = lire('public/modules/ui-combat-2-v1.js');
 assert.ok(!bn.includes('M30 14 L10 130 M46 14 L28 130'), 'les traits mauves du pupitre sont supprimés');
 const pup = bn.slice(bn.indexOf('const BORNE_PUPITRE_IDLE_V2='), bn.indexOf('const BORNE_BAS_IDLE_V2='));
-assert.ok(pup.includes("class='bn-lueur'") && pup.includes('bnLuitB 3.2s') && pup.includes('bnLuitR 3.2s') && pup.includes('M16 0 H26 L10 140'), 'bandes bleue et rouge qui suivent le flanc incliné du pupitre et pulsent comme celles de lecran');
+assert.ok(pup.includes("class='bn-lueur'") && pup.includes('bnLuitB 3.2s') && pup.includes('bnLuitR 3.2s') && pup.includes("points='16,0 26,0 10,140 0,140'"), 'bandes bleue et rouge qui suivent le flanc incliné du pupitre et pulsent comme celles de lecran');
 assert.ok(bn.includes('class=\\"bn-bas-wrap\\"') || bn.includes('bn-bas-wrap'), 'le soubassement porte les bandes jusqu au sol');
 const cssI2 = lire('public/soreal-idle-itopod.css');
 assert.ok(cssI2.includes('.bn-bas-wrap::before') && cssI2.includes('bnLuitB 3.2s') && !cssI2.includes('#2f7bff 0 1.92%'), 'plus de fond a bandes plates, bandes lumineuses jusqu au sol');
