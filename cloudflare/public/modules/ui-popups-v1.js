@@ -287,6 +287,87 @@
         return true;
       }
 
+      /*
+       * Écran d'accueil (Norman, 2026-10-26 : « quand on lance une nouvelle partie et/ou l'application la première fois, un écran d'accueil avec l'obligation d'entrer un pseudo, qu'on pourra changer plus tard mais pas enlever ; un bouton
+       * « Entrer dans Soreal IDLE » pour valider ; là, l'intro se lance ; les pseudos sont uniques »). Le serveur refuse un pseudo vide, trop court ou déjà pris (definirPseudoSorealIdle) : l'écran ne se ferme que sur sa réponse. Le pseudo survit à
+       * une remise à zéro : il est proposé d'office dans le champ, et un clic sur le bouton suffit pour le garder. Fait une fois PAR PARTIE (clé locale liée à la génération du joueur, donc rejouée après une remise à zéro).
+       */
+      let accueilFaitMemoireIdleV1_='';
+      function accueilCleIdleV1_(j){return 'soreal_idle_accueil_v1_'+generationJoueurIdleV75_(j);}
+      function accueilFaitIdleV1_(j){
+        const cle=accueilCleIdleV1_(j);
+        if(accueilFaitMemoireIdleV1_===cle)return true;
+        try{return localStorage.getItem(cle)==='1';}catch(e){return false;}
+      }
+      function accueilMarquerIdleV1_(j){
+        const cle=accueilCleIdleV1_(j);
+        accueilFaitMemoireIdleV1_=cle;
+        try{localStorage.setItem(cle,'1');}catch(e){}
+      }
+      function afficherAccueilPseudoIdleV1_(j){
+        if(document.getElementById('sorealIdleAccueilV1'))return;
+        const id=j&&j.identite||{};
+        if(!document.getElementById('sorealIdleAccueilStyleV1')){
+          const st=document.createElement('style');
+          st.id='sorealIdleAccueilStyleV1';
+          st.textContent=
+            '#sorealIdleAccueilV1{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(ellipse at 50% 30%,#1b2a55 0%,#0a1024 60%,#04060f 100%)}'+
+            '#sorealIdleAccueilV1 .ac-carte{width:min(440px,100%);box-sizing:border-box;padding:26px 22px;border-radius:18px;border:3px solid #000;background:linear-gradient(180deg,#1d2850,#10172f);box-shadow:0 0 0 2px #ffd45a,0 18px 50px rgba(0,0,0,.6);text-align:center;color:#e8ecfa}'+
+            '#sorealIdleAccueilV1 .ac-titre{font-family:"Bangers","Russo One",Impact,sans-serif!important;font-size:46px;letter-spacing:2px;line-height:1;color:#ffd45a;text-shadow:0 3px 0 #000,0 0 18px rgba(255,180,40,.45);margin:0 0 6px}'+
+            '#sorealIdleAccueilV1 .ac-sous{font-size:15px;color:#aeb8d8;margin:0 0 18px}'+
+            '#sorealIdleAccueilV1 label{display:block;text-align:left;font-size:14px;color:#c9d3ee;margin-bottom:6px}'+
+            '#sorealIdleAccueilV1 input{width:100%;box-sizing:border-box;padding:12px 13px;border-radius:10px;border:2px solid rgba(129,176,255,.45);background:#0d1830;color:#eef5ff;font-size:18px;text-align:center}'+
+            '#sorealIdleAccueilV1 input:focus{outline:none;border-color:#ffd45a}'+
+            '#sorealIdleAccueilV1 .ac-err{min-height:20px;margin:8px 0 12px;font-size:14px;color:#ff9d9d}'+
+            '#sorealIdleAccueilV1 .ac-note{font-size:13px;color:#7f8aa4;margin-top:12px}'+
+            '#sorealIdleAccueilV1 button{width:100%;font-family:"Bangers","Russo One",Impact,sans-serif!important;font-size:22px;letter-spacing:1px;padding:12px 10px;border:3px solid #000!important;border-radius:6px!important;color:#fff!important;text-shadow:0 2px 0 #000;background:linear-gradient(180deg,#5db0ff,#2a66d9)!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #000;cursor:pointer}'+
+            '#sorealIdleAccueilV1 button:disabled{filter:grayscale(.5) brightness(.8);cursor:default}';
+          document.head.appendChild(st);
+        }
+        const racine=document.createElement('div');
+        racine.id='sorealIdleAccueilV1';
+        racine.setAttribute('role','dialog');
+        racine.setAttribute('aria-modal','true');
+        racine.innerHTML=
+          '<form class="ac-carte" autocomplete="off">'+
+            '<div class="ac-titre">SOREAL IDLE</div>'+
+            '<p class="ac-sous">Bienvenue ! Avant de commencer, choisis ton pseudo.</p>'+
+            '<label for="sorealIdleAccueilChampV1">Ton pseudo (3 à 20 caractères, unique)</label>'+
+            '<input id="sorealIdleAccueilChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" required value="'+idleHtml_(id.pseudo||'')+'">'+
+            '<div class="ac-err" id="sorealIdleAccueilErrV1" role="alert"></div>'+
+            '<button type="submit" class="soreal-idle-expand-button-v25" id="sorealIdleAccueilBoutonV1">Entrer dans Soreal IDLE</button>'+
+            '<div class="ac-note">Tu pourras le changer plus tard dans les Réglages, mais pas le retirer.</div>'+
+          '</form>';
+        document.body.appendChild(racine);
+        const form=racine.querySelector('form'),champ=racine.querySelector('#sorealIdleAccueilChampV1'),err=racine.querySelector('#sorealIdleAccueilErrV1'),bouton=racine.querySelector('#sorealIdleAccueilBoutonV1');
+        form.addEventListener('submit',function(ev){
+          ev.preventDefault();
+          const valeur=String(champ.value||'').trim();
+          if(!valeur){err.textContent='Choisis un pseudo pour entrer.';champ.focus();return;}
+          if(!SOREAL_SESSION){err.textContent='Connexion perdue : recharge la page.';return;}
+          bouton.disabled=true;err.textContent='';
+          google.script.run
+            .withSuccessHandler(function(res){
+              if(res&&res.ok){
+                accueilMarquerIdleV1_(j);
+                if(REG.idleEtat)REG.idleEtat.identite=Object.assign({},REG.idleEtat.identite||{},res);
+                bouton.textContent='Bienvenue, '+(res.pseudo||valeur)+' !';
+                setTimeout(function(){const r=document.getElementById('sorealIdleAccueilV1');if(r&&r.parentNode)r.parentNode.removeChild(r);},900);
+              }else{
+                bouton.disabled=false;
+                err.textContent=(res&&res.message)||'Ce pseudo ne peut pas être utilisé.';
+                champ.focus();
+              }
+            })
+            .withFailureHandler(function(e){
+              bouton.disabled=false;
+              err.textContent=(e&&e.message)||'Impossible d’enregistrer le pseudo. Réessaie.';
+            })
+            .definirPseudoSorealIdle(SOREAL_SESSION,valeur);
+        });
+        setTimeout(function(){try{champ.focus();champ.select();}catch(e){}},50);
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-128 */
       function gererPopupsProgressionIdleV75_(j){
         if(!j)return;
@@ -296,6 +377,10 @@
         idleVusMigrerLocalV1_(j);
 
         if(idleTutorielPagesDejaVuLocalV1_(cle)||idleVuConnuV1_(j,'bienvenue'))return;
+
+        /* Écran d'accueil : un nouveau joueur (première ouverture ou partie remise à zéro) choisit son pseudo avant l'introduction ; tant qu'il est ouvert, rien d'autre ne démarre. */
+        if(document.getElementById('sorealIdleAccueilV1'))return;
+        if(Boolean(j&&j.profil&&j.profil.nouveauJoueur)&&!accueilFaitIdleV1_(j)){afficherAccueilPseudoIdleV1_(j);return;}
 
         if(!Boolean(j&&j.profil&&j.profil.nouveauJoueur)){
           /* Aucune intro à jouer pour un joueur déjà existant : rien à rejouer, donc marqué vu tout de suite. */
@@ -642,6 +727,7 @@
   }
 
   Object.assign(REG,{
+    afficherAccueilPseudoIdleV1_:afficherAccueilPseudoIdleV1_,
     idleVuConnuV1_:idleVuConnuV1_,
     idleVuMarquerV1_:idleVuMarquerV1_,
     fermerPopupNouveauteIdleV75_:fermerPopupNouveauteIdleV75_,
