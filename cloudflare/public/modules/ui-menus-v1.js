@@ -1347,7 +1347,7 @@
               '.soreal-idle-item-popup-v1'
             );
           /* Un curseur de volume (ou tout champ de saisie) se glisse avec le doigt : ce geste n'est jamais un changement de page (Norman, 2026-10-07 : « quand on règle les barres de volume, ça nous fait swipe de page »). */
-          const surChampGlisseV1=e.target&&e.target.closest&&e.target.closest('input,select,textarea,[role="slider"],[data-no-swipe]');
+          const surChampGlisseV1=e.target&&e.target.closest&&e.target.closest('input,select,textarea,[role="slider"],[data-no-swipe],.bg-flaque-v1,.vl-flaque-v1');
           if(!cible||surBarreNav||surInteractionInventaireV180||surChampGlisseV1||!e.touches||e.touches.length!==1){
             idleSwipeDebutXV1=null;
             idleSwipeDebutYV1=null;
@@ -1359,6 +1359,8 @@
 
         document.addEventListener('touchend',function(e){
           if(idleSwipeDebutXV1==null)return;
+          /* un geste de nettoyage (frotter la flaque du Coffre ou de la valise) vient d'avoir lieu : jamais un changement de page */
+          if(Date.now()<(window.__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__||0)){idleSwipeDebutXV1=null;idleSwipeDebutYV1=null;return;}
           const fin=e.changedTouches&&e.changedTouches[0];
           const debutX=idleSwipeDebutXV1,debutY=idleSwipeDebutYV1;
           idleSwipeDebutXV1=null;

@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur téléphone, frotter la flaque du Coffre ou de la valise pour la nettoyer ne change plus de page : le glissement ne fait plus passer à l’écran voisin pendant le nettoyage.',
             'Au lancement d’une nouvelle partie, la chronique du premier boss n’est plus lue toute seule : elle est déjà lue dans l’introduction. L’ancien tutoriel (Norman & Sébastien) est supprimé : seuls l’introduction et ton propre tutoriel restent.',
             'Quand une barre d’énergie ou de magie disparaît ou revient (tout dépensé, tout récupéré), la page où tu te trouves ne bouge plus : le contenu reste en place et la barre se déploie par-dessus, en douceur.',
             'Quand on fait un NUKE, un bruit de mitraillette, grave et sourd, dure tant que la fenêtre des boss enchaînés est à l’écran.',

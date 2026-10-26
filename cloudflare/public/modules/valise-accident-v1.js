@@ -273,6 +273,7 @@
   document.addEventListener('pointerdown',function(e){
     if(e.button>0){suivi=null;return;}
     var fl=e.target&&e.target.closest?e.target.closest('.vl-flaque-v1'):null;
+    if(fl)window.__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__=Date.now()+1500;
     suivi=fl?Object.assign(nouveau(e.clientX,e.clientY),{id:e.pointerId}):null;
   },true);
   document.addEventListener('pointermove',function(e){
@@ -280,6 +281,7 @@
     var fl=document.querySelector('.vl-flaque-v1');
     if(!fl||!dedans(fl.getBoundingClientRect(),e.clientX,e.clientY)){suivi=null;return;}
     var n=course(suivi,e.clientX,e.clientY);
+    window.__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__=Date.now()+1500;
     if(suivi.total>8)ignorerClicJusqua=Date.now()+600;
     if(n&&niveau>0){
       retirerDoigt();   /* une vraie frottée : la main a rempli son rôle */

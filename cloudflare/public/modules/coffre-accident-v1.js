@@ -186,7 +186,7 @@
     if(e.button>0){suivi=null;return;}
     var fl=e.target&&e.target.closest?e.target.closest('.bg-flaque-v1'):null;
     /* Norman (2026-10-23) : la main d'apprentissage ne disparaît qu'après UNE vraie frottée (un trait compté), pas au simple toucher. */
-    if(fl){suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
+    if(fl){window.__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__=Date.now()+1500;suivi=Object.assign(nouveau_(e.clientX,e.clientY),{flaque:true,id:e.pointerId});return;}
     suivi=null;
   },true);
   /* Après une frottée sur la flaque, le clic qui suit ne doit pas ouvrir/fermer le Coffre. */
@@ -199,6 +199,7 @@
       var fl=document.querySelector('.bg-flaque-v1');
       if(!fl||!dedans_(fl.getBoundingClientRect(),e.clientX,e.clientY)){suivi=null;return;}
       var n=course_(suivi,e.clientX,e.clientY);
+      window.__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__=Date.now()+1500;
       if(suivi.total>8)ignorerClicJusqua=Date.now()+600;
       if(n&&flaqueNiveau>0){retirerDoigt_();flaqueNiveau-=1;sauver_();majFlaque_();clic_();}
       return;
