@@ -378,9 +378,9 @@
 
         if(idleTutorielPagesDejaVuLocalV1_(cle)||idleVuConnuV1_(j,'bienvenue'))return;
 
-        /* Écran d'accueil : un nouveau joueur (première ouverture ou partie remise à zéro) choisit son pseudo avant l'introduction ; tant qu'il est ouvert, rien d'autre ne démarre. */
+        /* Écran d'accueil : un nouveau joueur connecté par Google (les joueurs SOREAL APP / TV gardent leur prénom, aucun pseudo exigé ; première ouverture ou partie remise à zéro) choisit son pseudo avant l'introduction ; tant qu'il est ouvert, rien d'autre ne démarre. */
         if(document.getElementById('sorealIdleAccueilV1'))return;
-        if(Boolean(j&&j.profil&&j.profil.nouveauJoueur)&&!accueilFaitIdleV1_(j)){afficherAccueilPseudoIdleV1_(j);return;}
+        if(Boolean(j&&j.profil&&j.profil.nouveauJoueur)&&Boolean(j.identite&&j.identite.externe)&&!accueilFaitIdleV1_(j)){afficherAccueilPseudoIdleV1_(j);return;}
 
         if(!Boolean(j&&j.profil&&j.profil.nouveauJoueur)){
           /* Aucune intro à jouer pour un joueur déjà existant : rien à rejouer, donc marqué vu tout de suite. */

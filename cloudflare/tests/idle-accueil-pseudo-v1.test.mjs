@@ -18,6 +18,7 @@ const iIntro = corps.indexOf("introductionPeutDemarrerIdleV1_()");
 assert.ok(iAccueil > 0 && iIntro > iAccueil, "l'accueil passe avant l'introduction");
 assert.ok(corps.includes("document.getElementById('sorealIdleAccueilV1'))return;"), "tant que l'écran est ouvert, rien d'autre ne démarre");
 assert.ok(popups.includes("'soreal_idle_accueil_v1_'+generationJoueurIdleV75_(j)"), "une fois par partie (clé liée à la génération : rejoué après une remise à zéro)");
+assert.ok(corps.includes("j.identite.externe"), "seulement les joueurs Google (les joueurs SOREAL gardent leur prénom)");
 assert.ok(popups.includes("value=\"'+idleHtml_(id.pseudo||'')+'\""), "le pseudo existant est proposé d'office");
 
 // Serveur : pseudo vide refusé, unique, jamais retiré.
