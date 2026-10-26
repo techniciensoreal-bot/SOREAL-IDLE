@@ -47,7 +47,7 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Un fruit sort de terre : un minuscule tas la première heure, puis un petit fruit qui dépasse, et la croissance continue jusqu’à 24 h ; la terre grandit avec lui. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',
+            'Un fruit sort de terre : la première heure, seule la terre grossit ; après une heure complète apparaît un tout petit fruit, puis la croissance continue en douceur jusqu’à 24 h, la terre grandissant avec lui. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',
           ]},
         ]
       },

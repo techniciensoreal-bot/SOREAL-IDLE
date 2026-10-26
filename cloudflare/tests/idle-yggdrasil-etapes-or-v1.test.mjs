@@ -64,10 +64,11 @@ console.log("idle-yggdrasil-etapes-or-v1: OK");
 /* La motte grandit avec le fruit (Norman, 2026-10-26) : l'image est mise à l'échelle, petite au début, pleine taille à maturité */
 const srcY = fs.readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
 const ech = vm.runInNewContext("(" + srcY.match(/function echelleImage_\(d,v\)\{[\s\S]*?\n  \}/)[0].replace("function echelleImage_", "function") + ")");
-assert.equal(ech({ maxTier: 10 }, { growth: 0 }), "0.300", "minuscule tas au début");
+assert.equal(ech({ maxTier: 10 }, { growth: 0 }), "0.120", "minuscule tas au début");
+assert.ok(Number(ech({ maxTier: 24 }, { growth: 0.5 })) > 0.12 && Number(ech({ maxTier: 24 }, { growth: 1 })) > Number(ech({ maxTier: 24 }, { growth: 0.5 })), "la terre grossit pendant la première heure");
 assert.equal(ech({ maxTier: 24 }, { growth: 24 }), "1.000", "pleine taille à la 24e heure");
 assert.equal(ech({ maxTier: 5 }, { growth: 5 }), ech({ maxTier: 24 }, { growth: 5 }), "calculée sur les heures réelles, pas sur le maximum débloqué");
-assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > Number(ech({ maxTier: 24 }, { growth: 1 })) && Number(ech({ maxTier: 24 }, { growth: 1 })) > 0.3, "elle grandit avec le fruit");
+assert.ok(Number(ech({ maxTier: 24 }, { growth: 6 })) > Number(ech({ maxTier: 24 }, { growth: 1 })), "elle grandit avec le fruit");
 assert.ok(srcY.includes("width:calc(var(--ygg-echelle,1)*100%)") && srcY.includes("--ygg-echelle:") && !srcY.includes("transform:scale(var(--ygg-echelle"), "échelle appliquée par la taille de l'image (jamais un transform animé, flou)");
 console.log("ok motte qui grandit");
 

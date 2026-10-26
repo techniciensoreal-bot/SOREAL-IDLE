@@ -274,7 +274,7 @@
   /* Échelle de l'image : la motte (peinte dans l'image) est un minuscule tas au début et grandit avec le fruit, comme s'il sortait de la terre (Norman, 2026-10-26) ; calculée sur 24 h, jamais sur le temps maximum débloqué. */
   function echelleImage_(d,v){
     var p=Math.max(0,Math.min(1,(Number(v.growth)||0)/24));
-    return (0.3+0.7*Math.sqrt(p)).toFixed(3);   /* minuscule tas au début, plein à la 24e heure ; monte vite au début pour que le premier fruit reste visible */
+    return (0.12+0.88*Math.sqrt(p)).toFixed(3);   /* la terre part d'un minuscule tas et grossit pendant la première heure (image 1), puis avec le fruit jusqu'à la taille pleine à la 24e heure */
   }
   /*
    * Aura du fruit (Norman, 2026-10-26) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle apparaît APRÈS la 12e heure de pousse, faible puis de plus en plus forte ; la 24e heure est beaucoup plus
@@ -605,7 +605,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+suivante_(d,v)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.12')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+suivante_(d,v)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
