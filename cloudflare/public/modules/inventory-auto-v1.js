@@ -433,7 +433,19 @@
     }
   }
 
+  /*
+   * Aucun saut à l'arrivée sur la page ni à l'ouverture du Coffre (Norman, 2026-10-26 : « quand on arrive sur la page Aventure et qu'on ouvre le Coffre, il y a un souci avec le cadre, seulement quand on vient d'un autre menu » ; « un mini saut
+   * quand on va dessus »). La bande des minuteurs (au-dessus du sac) et le bloc des options (sous le Coffre) sont AJOUTÉS à la page : un redessin les retirait, et ils ne revenaient qu'une fraction de seconde plus tard, quand l'état arrivait
+   * (getState est asynchrone) : le contenu dessous montait de ~32 px puis redescendait (Chrome : défilement -32 px, puis +32 px). Règle n°4 d'AGENTS.md : on les remet DANS LA MÊME TÂCHE que le redessin, avec le dernier état connu ; l'état frais suit.
+   */
+  function rendreSansAttendre(){
+    if(!dernierEtat)return;
+    try{rendre();}catch(_e){}
+  }
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(rendreSansAttendre);
+
   function rafraichir(){
+    rendreSansAttendre();
     var rt=window.__SOREAL_IDLE_RUNTIME_V1__;
     if(!rt||typeof rt.getState!=='function')return;
     rt.getState().then(function(j){if(j){dernierEtat=j;rendre();}}).catch(function(){});

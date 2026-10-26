@@ -41,6 +41,7 @@
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand on arrive sur la page Aventure, ou qu’on ouvre le Coffre après être venu d’un autre menu, la page ne fait plus de petit saut : les bandes ajoutées au sac apparaissent en même temps que le reste.',
             'Chaque zone a maintenant un décor peint derrière le cadre de combat, assombri pour que les barres et les cartes restent bien lisibles ; la Zone sûre garde son apparence.',
             'À l’ouverture du Coffre, le fond vert s’applique tout de suite au lieu de se faire attendre.',
             'Dans le Coffre, la langue sort quand on l’ouvre et rentre quand on le ferme, au lieu d’apparaître ou de disparaître en une image.',
