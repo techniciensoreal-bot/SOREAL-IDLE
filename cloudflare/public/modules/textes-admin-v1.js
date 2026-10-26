@@ -36,7 +36,7 @@ var enChargement=false;
 var essais=0;
 var abonnes=[];
 var registre={};                    // clés déclarées par le jeu : {groupe, libelle, champs, original(), texteLu(valeurs)}
-var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:''};
+var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',page:0};
 var edition=null;                   // {cle, def, voix[], estBoss, numero}
 var studio={ok:null,texte:''};
 var generation={enCours:false,annule:false};
@@ -1427,15 +1427,25 @@ function listeBossHtml_(){
     if(!f)return true;
     return String(b.numero)===f||String(b.nom||'').toLowerCase().indexOf(f)!==-1||(f==='modifie'&&b.surcharge);
   });
-  var max=60;
-  var html=lignes.slice(0,max).map(function(b){
+  /* Pages de 60 (Norman, 2026-10-26 : « au lieu des 60 premiers boss, des pages pour accéder aux 60 suivants, jusqu'au dernier ; j'ai besoin de tout voir ») */
+  var max=60,pages=Math.max(1,Math.ceil(lignes.length/max));
+  admin.page=Math.max(0,Math.min(pages-1,Number(admin.page)||0));
+  var html=lignes.slice(admin.page*max,admin.page*max+max).map(function(b){
     var s=b.surcharge;
     var badge=s?'<span class="badge">✏️ modifié'+(s.voix&&s.voix.length?' · 🎙 '+s.voix.length:'')+'</span>':'<span class="badge non">d’origine</span>';
     return '<div class="stx-adm-ligne"><span class="nom">#'+b.numero+' — '+esc_(b.nom)+'</span>'+badge+
       '<button type="button" class="stx-bouton" data-stx-boss="'+b.numero+'">✏️ Modifier</button></div>';
   }).join('');
   if(!lignes.length)html='<div class="stx-aide">Aucun boss ne correspond.</div>';
-  else if(lignes.length>max)html+='<div class="stx-aide">… '+(lignes.length-max)+' autres : précise ta recherche (numéro ou nom).</div>';
+  else if(pages>1){
+    var bt=function(p,txt,off){return '<button type="button" class="stx-bouton" data-stx-page="'+p+'"'+(off?' disabled style="opacity:.4"':'')+'>'+txt+'</button>';};
+    var deb=admin.page*max+1,fin=Math.min(lignes.length,admin.page*max+max);
+    var barre='<div class="stx-pager" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:8px 0">'+
+      bt(0,'⏮',admin.page===0)+bt(admin.page-1,'◀ Précédents',admin.page===0)+
+      '<span class="stx-aide" style="margin:0 6px">Page '+(admin.page+1)+' / '+pages+' · boss '+(lignes[0]?lignes[deb-1].numero:'')+' à '+lignes[fin-1].numero+' ('+lignes.length+' au total)</span>'+
+      bt(admin.page+1,'Suivants ▶',admin.page>=pages-1)+bt(pages-1,'⏭',admin.page>=pages-1)+'</div>';
+    html=barre+html+barre;
+  }
   return html;
 }
 
@@ -1626,6 +1636,8 @@ document.addEventListener('click',function(ev){
   }
   var cleBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-cle]'):null;
   if(cleBtn){ev.preventDefault();ev.stopPropagation();editer_(cleBtn.getAttribute('data-stx-cle'));return;}
+  var pageBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-page]'):null;
+  if(pageBtn&&!pageBtn.disabled){ev.preventDefault();ev.stopPropagation();admin.page=Number(pageBtn.getAttribute('data-stx-page'))||0;var lb=document.getElementById('sorealIdleTextesBossListeV1');if(lb){lb.innerHTML=listeBossHtml_();if(lb.scrollIntoView)lb.scrollIntoView({block:'start'});}return;}
   var bossBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-boss]'):null;
   if(bossBtn){ev.preventDefault();ev.stopPropagation();editerBoss_(bossBtn.getAttribute('data-stx-boss'));}
 },true);
@@ -1635,7 +1647,7 @@ document.addEventListener('input',function(ev){
   var el=ev.target;
   if(edition&&el&&el.getAttribute&&(el.getAttribute('data-stx-champ')||el.getAttribute('data-stx-ltexte')||el.getAttribute('data-stx-affiche'))){clearTimeout(minuterieFichiers);minuterieFichiers=setTimeout(rafraichirFichiersVoix_,700);}
   if(el&&el.id==='sorealIdleTextesFiltreV1'){
-    admin.filtre=el.value;
+    admin.filtre=el.value;admin.page=0;
     var b=document.getElementById('sorealIdleTextesBossListeV1');
     if(b)b.innerHTML=listeBossHtml_();
     return;

@@ -22,10 +22,24 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'3.9',
+    courante:'4.0',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.0',
+        nom:'Page après page',
+        date:'2026-10-26',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Fermer le Coffre ne fait plus descendre le cadre trop bas avant de le faire remonter d’un coup : sur PC, où la page est mise à l’échelle, il se raccourcit maintenant d’un seul geste.',
+            'Le cadre du Coffre garde sa vraie taille refermée, calculée en pixels de mise en page, quelle que soit l’échelle de l’écran.',
+          ]},
+        ]
+      },
       {
         version:'3.9',
         nom:'Le jour et la nuit',
@@ -50,6 +64,7 @@
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les fruits ont 24 images de pousse (une par heure du palier maximum de 24 h) sur un décor peint en rapport avec leur bonus ; l’or et les fruits de Puissance en font aussi partie.',
             'Les compteurs de graines et de Poop sont maintenant tout en haut de la page.',
           ]},
           {menu:'ngu', titre:'NGU', points:[

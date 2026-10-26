@@ -35,3 +35,9 @@ console.log('ok coffre hauteur fermee');
 const corps = av.slice(av.indexOf('function toggleCoffreOuvertAdventureIdleV1_(){'), av.indexOf('setTimeout(finir,400);'));
 assert.ok(!corps.includes('getBoundingClientRect'), 'le basculement du Coffre ne mesure qu’en pixels de mise en page');
 console.log('ok coffre echelle');
+
+// Admin : les boss s'affichent par pages de 60 jusqu'au dernier (plus de « précise ta recherche »)
+const adm = lire('public/modules/textes-admin-v1.js');
+assert.ok(adm.includes('data-stx-page') && adm.includes('Math.ceil(lignes.length/max)') && !adm.includes('précise ta recherche (numéro ou nom)'));
+assert.ok(adm.includes('admin.filtre=el.value;admin.page=0;'), 'une nouvelle recherche revient à la page 1');
+console.log('ok admin pages');
