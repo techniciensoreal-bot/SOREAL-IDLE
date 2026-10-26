@@ -1423,10 +1423,17 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte){order:3;position:relative!important;left:auto;top:auto;width:230px;max-width:86%;height:auto;min-height:104px;margin:-160px auto 0!important;transform:rotate(-1.5deg)}
   /* Le corps de la borne continue jusqu'au sol derrière la chronique (Norman, 2026-10-10) : flancs bleu/rouge, panneau sombre, filet de néon et ombre au sol. */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2{container-type:inline-size;padding-bottom:150px!important;border-bottom:24px solid #05071a!important;
-    background:linear-gradient(90deg,#2f7bff 0 1.92%,transparent 1.92% 98.08%,#ff2a3d 98.08%) 0 3.4cqw/100% calc(100% - 3.4cqw) no-repeat,#0a0d2a!important;box-shadow:0 10px 12px -4px rgba(0,0,0,.7)!important}
+    background:#0a0d2a!important;box-shadow:0 10px 12px -4px rgba(0,0,0,.7)!important}
   /* le soubassement dessiné est retiré : le corps continue sans couture jusqu'au sol */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-current-v35.borne-v2 .bn-bas-svg{clip-path:inset(0 0 16% 0);margin-bottom:-7.7cqw}
 }
+/* Bandes du corps de la borne (Norman, 2026-10-26) : les flancs bleu et rouge du soubassement jusqu'au sol sont de vraies bandes, du même dessin que celles de l'écran (cylindre lumineux, halo, pulsation de 3,2 s) ; elles prolongent celles du pupitre. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap{position:relative}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{content:"";position:absolute;top:0;bottom:-150px;width:10px;z-index:2;pointer-events:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before{left:0;background:linear-gradient(90deg,#06102a,var(--bl) 35%,#a9c8ff 50%,var(--bl) 65%,#06102a);box-shadow:0 0 22px #2f7bff,0 0 46px rgba(47,123,255,.75);animation:bnLuitB 3.2s ease-in-out infinite}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{right:0;background:linear-gradient(90deg,#2a0610,var(--ro) 35%,#ff9aa2 50%,var(--ro) 65%,#2a0610);box-shadow:0 0 22px #ff2a3d,0 0 46px rgba(255,42,61,.75);animation:bnLuitR 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{animation:none}}
+
 
 /* Coffre tout bois (Norman, 2026-10-10 : « pas de bannière noire, tout bois ; le cadre et le titre ne collent pas ensemble »). Le titre est une planche du même brun que le cadre, avec ses veines, ses clous de cuivre aux deux bouts et une rainure dessous ; lettres dorées « gravées ». */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-section-v8.soreal-idle-coffre-v1 .soreal-idle-coffre-titre-v1{
