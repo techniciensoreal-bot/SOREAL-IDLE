@@ -124,6 +124,8 @@
       '.ygg-porte-d svg{transform:scaleX(-1);}',
       '.ygg-porte-emb{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;padding:5%;box-sizing:border-box;border-radius:50%;color:var(--e);background:radial-gradient(circle at 35% 30%,hsl(var(--h) 22% 26%),#100d0b);box-shadow:0 0 0 2px var(--r),0 0 0 4px #17130f,0 3px 5px rgba(0,0,0,.6);}',
       '.ygg-porte-emb svg{display:block;width:100%;height:100%;overflow:visible;}',
+      /* Téléphone (Norman, 2026-10-26 : « sur téléphone, les portes ne sont plus à la bonne taille par rapport aux images ») : le cadre de la porte (8 px de marge et de liserés) est fait pour un grand portrait ; sur un portrait de ~140 px il mangeait 11 % de l'image et la porte paraissait trop petite. Cadre réduit de moitié en proportion. */
+      '@media (max-width:640px){.ygg-porte{border-radius:6px;box-shadow:inset 0 0 0 2px #17130f,inset 0 0 0 3px var(--r,#8a8272),inset 0 0 0 4px #17130f;}.ygg-porte-g{margin:4px 0 4px 4px;}.ygg-porte-d{margin:4px 4px 4px 0;}.ygg-porte-emb{width:38%;}}',
       '.ygg-porte-lueur{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,var(--e),transparent 70%);}',
       '@keyframes yggPorteG{0%{transform:rotateY(0)}25%{transform:rotateY(-6deg)}100%{transform:rotateY(-104deg)}}',
       '@keyframes yggPorteD{0%{transform:rotateY(0)}25%{transform:rotateY(6deg)}100%{transform:rotateY(104deg)}}',

@@ -52,6 +52,7 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Sur téléphone, les portes des fruits remplissent mieux l’image : leur cadre est plus fin, elles ne paraissent plus trop petites.',
             'La terre sous un fruit prend une légère teinte du sol de son décor : elle se fond mieux dans l’image au lieu de paraître ajoutée.',
             'Un fruit sort de terre : la première heure, seule la terre grossit ; après une heure complète apparaît un tout petit fruit qui grossit en douceur jusqu’à 24 h, la terre grandissant de son côté. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',
           ]},
