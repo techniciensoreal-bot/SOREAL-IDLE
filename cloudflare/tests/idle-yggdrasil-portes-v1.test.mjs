@@ -134,8 +134,8 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.ok(!/setInterval|setTimeout/.test(coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/)), "aucune minuterie pour les portes");
 }
 // 6. Branchement et cadres : la porte est dans la vitre de chaque fruit ; TOUS les fruits ont le cadre en portrait des deux premiers (même taille avec ou sans image) ; la porte suit les coins du cadre.
-assert.ok(src.includes("image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'"), "porte dans la vitre de chaque fruit, selon son état actif");
-assert.ok(src.includes("'<div class=\"ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'\"'") && !src.includes("etapeCroissance_(d,v)!=null?' ygg-portrait'"), "cadre portrait pour tous les fruits");
+assert.ok(src.includes("image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+suivante_(d,v)+porteDe_(id,Boolean(v.active))+'</div>'"), "porte dans la vitre de chaque fruit, selon son état actif");
+assert.ok(src.includes("'<div class=\"ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')") && !src.includes("etapeCroissance_(d,v)!=null?' ygg-portrait'"), "cadre portrait pour tous les fruits");
 assert.ok(/\.ygg-porte\{position:absolute;inset:0;[^}]*border-radius:9px;/.test(src), "la porte remplit le cadre et suit ses coins arrondis");
 console.log("idle-yggdrasil-portes-v1: OK");
 // 6. Le son de fermeture est un son à part, écrit à l'endroit (l'ouverture jouée à l'envers sonnait mal) : pierre ou bois selon le réglage, jamais de dent de scie.

@@ -84,3 +84,15 @@ const auras = JSON.parse(srcY.match(/var AURAS_=(\{[^}]*\})/)[1].replace(/(\w+):
 for (const id of ids24) assert.ok(/^#[0-9a-f]{6}$/i.test(auras[id]), "couleur d'aura pour " + id);
 assert.ok(srcY.includes("ygg-aura") && srcY.includes("--ygg-aura-a"));
 console.log("ok aura des fruits");
+
+/* Fondu entre images : pas de saut d'une image à l'autre */
+const frac = vm.runInNewContext(table + src.match(/var DEBUT_FRUIT_=3;/)[0] + "(" + srcY.match(/function fractionSuivante_\(d,v\)\{[\s\S]*?\n  \}/)[0].replace("function fractionSuivante_", "function") + ")");
+assert.equal(frac({ maxTier: 24 }, v(4, 0.5)), 0, "avant 1 h : pas de fondu");
+assert.equal(frac({ maxTier: 24 }, v(24, 24)), 0, "dernière image : pas de suivante");
+assert.equal(frac({ maxTier: 24 }, v(24, 1)), 0, "à 1 h pile : image 4 entière");
+const f2 = frac({ maxTier: 24 }, v(24, 1 + 23 / 20 / 2));
+assert.ok(f2 > 0.45 && f2 < 0.55, "à mi-chemin entre deux images : moitié-moitié");
+let ok2 = true; for (let g = 1; g < 23.9; g += 0.01) { const a = frac({ maxTier: 24 }, v(24, g)), b = frac({ maxTier: 24 }, v(24, g + 0.01)); if (b < a && !(a > 0.9 && b < 0.1)) ok2 = false; }
+assert.ok(ok2, "la part de l'image suivante ne fait que monter entre deux changements d'image");
+assert.ok(srcY.includes("ygg-suivante") && srcY.includes("transition:transform 4s linear"), "seconde image et transitions lentes");
+console.log("ok fondu entre images");

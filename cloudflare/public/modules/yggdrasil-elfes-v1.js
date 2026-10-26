@@ -145,7 +145,7 @@
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
-      '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transform:scale(var(--ygg-echelle,1));transform-origin:50% 90%;}',
+      '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transform:scale(var(--ygg-echelle,1));transform-origin:50% 90%;transition:transform 4s linear,filter 4s linear,opacity 4s linear;}',
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
       '.ygg-vitre.ygg-decor.ygg-aura .ygg-img{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
       '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
@@ -286,6 +286,23 @@
     if(g<=12)return 0;
     if(g<=23)return 0.08+0.30*((g-12)/11);
     return 0.38+0.62*Math.min(1,g-23);
+  }
+  /*
+   * Fondu entre deux images (Norman, 2026-10-26 : « pourquoi le fruit grandit par à-coups ? ») : il n'y a que 24 images, une par heure ; sans fondu, le fruit saute d'une image à la suivante. La part (0 à 1) du chemin parcouru vers l'image SUIVANTE
+   * est affichée par une seconde image posée dessus, de plus en plus opaque ; quand l'image change, la suivante a déjà pris la place de la précédente : aucun saut.
+   */
+  function fractionSuivante_(d,v){
+    var id=v.def.id;
+    if(FRUITS_24_[id]!==true||!(v.tier>0))return 0;
+    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
+    if(g<1)return 0;
+    var debut=DEBUT_FRUIT_,finale=nbEtapes_(id)-1,p=(g-1)/23*(finale-debut),k=Math.floor(p);
+    return debut+k>=finale?0:p-k;
+  }
+  function suivante_(d,v){
+    var f=fractionSuivante_(d,v),k=etapeCroissance_(d,v);
+    if(!(f>0.01)||k==null||etat.manquantes[v.def.id])return '';
+    return '<img class="ygg-img ygg-suivante" alt="" draggable="false" src="'+urlEtape_(v.def.id,k+1)+'" style="opacity:'+f.toFixed(3)+'">';
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   function etapeCroissance_(d,v){
@@ -588,7 +605,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-echelle:'+(v.tier>0?echelleImage_(d,v):'0.3')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+image_(id,emoji_(id,def.name),'',etapeCroissance_(d,v))+suivante_(d,v)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
