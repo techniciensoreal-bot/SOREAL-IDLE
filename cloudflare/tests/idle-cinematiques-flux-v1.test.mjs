@@ -30,3 +30,8 @@ assert.ok(av.includes("nr.style.removeProperty('height');nr.style.removeProperty
 assert.ok(av.indexOf('fermeMesure=racines[0]') < av.indexOf("r.classList.add('ferme-anim')"), 'mesure avant la classe');
 assert.ok(av.includes('if(hAvant>0)window.__coffreHFermeV1=hAvant;'));
 console.log('ok coffre hauteur fermee');
+
+// Coffre : hauteurs de mise en page (offsetHeight), jamais getBoundingClientRect (page mise à l'échelle chez Norman : 178 px à l'écran pour 208 réels)
+const corps = av.slice(av.indexOf('function toggleCoffreOuvertAdventureIdleV1_(){'), av.indexOf('setTimeout(finir,400);'));
+assert.ok(!corps.includes('getBoundingClientRect'), 'le basculement du Coffre ne mesure qu’en pixels de mise en page');
+console.log('ok coffre echelle');

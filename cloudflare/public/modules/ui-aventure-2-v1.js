@@ -2345,11 +2345,12 @@
         clearTimeout(racine.__hauteurT);
         racine.__hauteurT=setTimeout(function(){st.removeProperty('transition');st.removeProperty('height');st.removeProperty('overflow');},ms+80);
       }
-      function toggleCoffreOuvertAdventureIdleV1_(){
+            /* Hauteurs en pixels de MISE EN PAGE (offsetHeight), jamais getBoundingClientRect : la page peut être mise à l'échelle (PC de Norman, 2026-10-26 : rectangle 178 px pour 208 px réels) ; une hauteur mesurée à l'écran puis posée en style faisait descendre le cadre trop bas avant qu'il remonte. */
+function toggleCoffreOuvertAdventureIdleV1_(){
         if(window.__coffreBasculeIdleV1)return;
         const actuel=idleCoffreOuvertV1_();
         const racine0=document.querySelector('.soreal-idle-coffre-v1');
-        const hAvant=racine0?racine0.getBoundingClientRect().height:0;
+        const hAvant=racine0?racine0.offsetHeight:0;
         const sx=window.scrollX||0,sy=window.scrollY||0;
         const reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
         try{const ah=window.__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__;if(ah&&ah.pause)ah.pause(2200);}catch(e){}
@@ -2372,7 +2373,7 @@
             if(nr){
               /* la hauteur forcée par l'animation (style en ligne) n'est PAS la vraie : on la retire avant de mesurer, sinon la cible se retient elle-même (Chrome, 2026-10-25 : mémo à 153 px alors que le cadre fermé fait 178) */
               clearTimeout(nr.__hauteurT);nr.style.removeProperty('transition');nr.style.removeProperty('height');nr.style.removeProperty('overflow');
-              const hn=nr.getBoundingClientRect().height;
+              const hn=nr.offsetHeight;
               if(hn>0)window.__coffreHFermeV1=hn;
               if(cibleFermeture>0&&hn>0&&Math.abs(hn-cibleFermeture)>1.5)animerHauteurCoffreIdleV1_(nr,cibleFermeture,hn,180);
             }
@@ -2387,7 +2388,7 @@
           if(hAvant>0)window.__coffreHFermeV1=hAvant;
           const racine1=document.querySelector('.soreal-idle-coffre-v1');
           /* hauteur naturelle du cadre ouvert : le plus grand de sa hauteur mesurée et de son contenu (aucun saut final) */
-          if(racine1)animerHauteurCoffreIdleV1_(racine1,hAvant,Math.max(racine1.getBoundingClientRect().height,racine1.scrollHeight),500);
+          if(racine1)animerHauteurCoffreIdleV1_(racine1,hAvant,Math.max(racine1.offsetHeight,racine1.scrollHeight),500);
           if(Math.abs((window.scrollY||0)-sy)>1&&typeof window.scrollTo==='function')window.scrollTo(sx,sy);
           /* ces classes sont gardées au redessin (data-morph-classes-gardees) : on les retire nous-mêmes quand l'animation est finie, pour qu'elle rejoue à l'ouverture suivante */
           setTimeout(function(){document.querySelectorAll('.soreal-idle-coffre-v1.ouvre').forEach(function(r){r.classList.remove('ouvre');});},800);
@@ -2400,7 +2401,7 @@
           let fermeMesure=0;
           try{
             const b0=racines[0].querySelector(':scope>div:last-child:not(.vl-section)');
-            if(b0){const an=b0.style.display;b0.style.display='none';fermeMesure=racines[0].getBoundingClientRect().height;b0.style.display=an;}
+            if(b0){const an=b0.style.display;b0.style.display='none';fermeMesure=racines[0].offsetHeight;b0.style.display=an;}
           }catch(e){}
           racines.forEach(function(r){r.classList.add('ferme-anim');});
           /* le cadre se raccourcit pendant que le contenu se replie : hauteur cible = hauteur actuelle moins le bloc replié (et ses marges) */
@@ -2408,13 +2409,13 @@
             const r0=racines[0],bloc=r0.querySelector(':scope>div:last-child:not(.vl-section)');
             if(bloc){
               /* hauteur du cadre refermé MESURÉE (contenu masqué un instant, sans rien peindre) : une estimation trop courte faisait toucher le fond du cadre au Coffre puis « sauter » à la fin (Norman, 2026-10-23) */
-              const ferme=fermeMesure>0?fermeMesure:r0.getBoundingClientRect().height;
+              const ferme=fermeMesure>0?fermeMesure:r0.offsetHeight;
               const memo=Number(window.__coffreHFermeV1)||0;
               /* la hauteur fermée déjà vue (réelle) l'emporte sur la mesure, tant qu'elle reste plausible */
               cibleFermeture=Math.max(60,memo>0&&Math.abs(memo-ferme)<=Math.max(40,ferme*0.35)?memo:ferme);
               animerHauteurCoffreIdleV1_(r0,hAvant,cibleFermeture,400);
               /* le contenu se replie en douceur dans la MÊME durée : la valise (en dessous) remonte avec lui, au lieu de rester cachée puis de réapparaître d'un coup à la fin (Norman, 2026-10-23) */
-              const cb=bloc.getBoundingClientRect().height,sb=bloc.style,ease='400ms cubic-bezier(.3,.8,.3,1)';
+              const cb=bloc.offsetHeight,sb=bloc.style,ease='400ms cubic-bezier(.3,.8,.3,1)';
               sb.setProperty('overflow','hidden','important');
               sb.setProperty('max-height',cb.toFixed(1)+'px','important');
               void bloc.offsetHeight;
