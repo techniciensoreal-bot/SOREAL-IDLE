@@ -71,6 +71,10 @@
   "pin": 28,
   "sha": "eb5c5f6ee6033f7a34be10c1611acb17c506fb15"
  },
+ "/modules/borne-bandes-sync-v1.js": {
+  "pin": 1,
+  "sha": "5475492d72410526079aecec2065e0548278f84f"
+ },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
@@ -512,8 +516,8 @@
   "sha": "7271dc251f8c651a63495df29d9bc630e0aa2a21"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 15,
-  "sha": "996733b289b2047667b317882567e326f3d307d5"
+  "pin": 16,
+  "sha": "cb07ab4a0085c5626ed54ddddf9ed58478c5c6b7"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
