@@ -15,7 +15,7 @@
   if(window.__SOREAL_IDLE_YGG_V1__)return;
 
   var PAR_PAGE=9;
-  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null,fermees:{},ouvre:{},anim:{},precharge:{}};
+  var etat={page:1,aide:false,soloMax:true,choix:{},manquantes:{},chargees:{},pretsVus:null,fermees:{},ouvre:{}};
   function son_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouer)S.jouer(nom,option);}
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
@@ -150,16 +150,6 @@
       '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;opacity:var(--ygg-fo,1);left:calc((1 - var(--ygg-f,1))*50%);top:calc((0.988 - 0.138*var(--ygg-s,1) - 0.9*var(--ygg-f,1))*100%);width:calc(var(--ygg-f,1)*100%);height:calc(var(--ygg-f,1)*100%);}',
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
       '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
-      '.ygg-vitre .ygg-anim{z-index:3;pointer-events:none;}',
-      /* Banc d'essai des animations (administrateur) */
-      '.ygg-banc{margin-top:16px;padding:12px;border:3px solid #000;border-radius:10px;background:rgba(0,0,0,.3);color:#f4f8ea;}',
-      '.ygg-banc-titre{font-weight:700;font-size:clamp(13px,2.6cqw,17px);margin-bottom:8px;}.ygg-banc-titre small{font-weight:400;opacity:.75;}',
-      '.ygg-banc-corps{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;}',
-      '.ygg-banc .ygg-vitre.ygg-portrait.ygg-banc-vitre{flex:0 0 38%;max-width:230px;min-width:150px;width:38%;margin:0;}',
-      '.ygg-banc-regl{flex:1 1 220px;display:flex;flex-direction:column;gap:9px;font-size:clamp(12px,2.4cqw,15px);}',
-      '.ygg-banc-regl label{display:flex;flex-direction:column;gap:3px;}.ygg-banc-regl input[type=range]{width:100%;min-height:30px;accent-color:#e0b640;}',
-      '.ygg-banc-sens label{display:inline-flex;flex-direction:row;gap:5px;margin-right:12px;cursor:pointer;}',
-      '.ygg-banc-boutons{display:flex;gap:8px;flex-wrap:wrap;}.ygg-banc-note{font-size:.85em;opacity:.85;line-height:1.35;}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -352,7 +342,7 @@
     return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
-  /* Bruit de la porte choisi dans le banc d'essai : « porte » (pierre, lourde) ou « porteBois ». */
+  /* Bruit de la porte : « porte » (pierre, lourde) ou « porteBois ». */
   function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
   /* Bruit de la porte qui se referme : un son à part (le son d'ouverture à l'envers sonnait mal). */
   function nomSonFerme_(){return reglages_().son==='bois'?'porteFermeBois':'porteFerme';}
@@ -387,7 +377,6 @@
     try{localStorage.setItem(CLE_PORTES_VUES_,JSON.stringify({r:o.r,v:o.v}));}catch(_e){}
   }
   function porteDe_(id,actif){
-    if(etat.anim[id]&&Date.now()<etat.anim[id])return '';   /* animation de récolte en cours : pas de porte par-dessus */
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
       /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
@@ -407,134 +396,9 @@
     return '';
   }
 
-  /*
-   * Manger ou récolter un fruit qui a ses images de croissance (Norman, 2026-10-16) : les images se rejouent d'un trait, du stade où il était jusqu'à la graine (le fruit est consommé, l'arbre se
-   * résorbe) : 20 images pour un fruit au tier maximum entièrement poussé, soit environ 2,1 s à CADENCE_ANIM_MS_ par image — ni un flash, ni une éternité. Les images sont préchargées dès qu'un fruit
-   * est prêt au tier maximum (donc dès l'arrivée sur la page), pour qu'aucune ne manque en route. Un calque posé sur l'image (data-morph-garder : le redessin périodique ne le retire pas) change de
-   * source à chaque pas ; la porte close n'apparaît qu'ensuite. Mouvement réduit : pas d'animation. Pour jouer les images à l'endroit (graine -> arbre), mettre SENS_ANIM_ à 1.
-   */
-  /*
-   * Réglages des animations (Norman, 2026-10-16 : « pouvoir déclencher l'animation moi-même et régler sa vitesse pour montrer celle que je préfère ») : cadence des images (ms par image), sens (-1 : de l'arbre
-   * vers la graine, 1 : de la graine vers l'arbre) et facteur de durée de l'ouverture de la porte (son compris). Gardés dans le stockage (donc liés au compte, voir prefs-compte-v1.js) ; réglés depuis le
-   * banc d'essai en bas de la page (administrateur). Valeurs d'origine ci-dessous.
-   */
+  /* Réglages de la porte (Norman, 2026-10-26 : l'ancien module d'essai des animations et des sons est supprimé) : valeurs fixes, celles d'origine. */
   var REGLAGES_DEFAUT_={cadence:110,sens:-1,porte:1,son:'pierre'};
-  var CLE_REGLAGES_='soreal_idle_ygg_anim_v1';
-  function reglages_(){
-    var r={cadence:REGLAGES_DEFAUT_.cadence,sens:REGLAGES_DEFAUT_.sens,porte:REGLAGES_DEFAUT_.porte,son:REGLAGES_DEFAUT_.son};
-    try{
-      var o=JSON.parse(localStorage.getItem(CLE_REGLAGES_)||'null');
-      if(o&&typeof o==='object'){
-        var c=Number(o.cadence),p=Number(o.porte);
-        if(isFinite(c))r.cadence=Math.max(30,Math.min(400,Math.round(c/10)*10));
-        if(isFinite(p))r.porte=Math.max(.5,Math.min(2.5,Math.round(p*10)/10));
-        if(Number(o.sens)===1)r.sens=1;
-        if(o.son==='bois')r.son='bois';
-      }
-    }catch(_e){}
-    return r;
-  }
-  function ecrireReglages_(r){
-    try{localStorage.setItem(CLE_REGLAGES_,JSON.stringify({cadence:r.cadence,sens:r.sens,porte:r.porte,son:r.son}));}catch(_e){}
-  }
-  function urlEtape_(id,k){return '/api/idle/media/ygg?name='+encodeURIComponent(id)+'&etape='+k+(nbEtapes_(id)===24?'&sur=24':'');}
-  function precharger_(id){
-    if(etat.precharge[id])return;
-    etat.precharge[id]=[];
-    for(var k=0;k<nbEtapes_(id);k++){var im=new Image();im.src=urlEtape_(id,k);etat.precharge[id].push(im);}
-  }
-  /* Joue les images dans la vitre : un calque posé sur l'image (data-morph-garder), du stade `depart` vers la graine (sens -1) ou de la graine vers `depart` (sens 1). */
-  function jouerImages_(id,vitre,depart,R,fini){
-    var calque=document.createElement('img');
-    calque.className='ygg-img ygg-anim';calque.alt='';calque.draggable=false;calque.setAttribute('data-morph-garder','');
-    var k=R.sens<0?depart:0,bout=R.sens<0?0:depart;
-    calque.src=urlEtape_(id,k);
-    vitre.appendChild(calque);
-    (function pas(){
-      if(k===bout){
-        setTimeout(function(){
-          if(calque.parentNode)calque.parentNode.removeChild(calque);
-          if(fini)fini();
-        },R.cadence*2);
-        return;
-      }
-      k+=R.sens<0?-1:1;
-      calque.src=urlEtape_(id,k);
-      setTimeout(pas,R.cadence);
-    })();
-    return calque;
-  }
-  function lancerAnimation_(id){
-    var t=trouver_(id);if(!t)return;
-    var depart=etapeCroissance_(t.d,t.v);
-    if(depart==null||depart<1)return;
-    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    var vitre=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-vitre');
-    if(!vitre)return;
-    var R=reglages_();
-    etat.anim[id]=Date.now()+(depart+2)*R.cadence+600;
-    jouerImages_(id,vitre,depart,R,function(){delete etat.anim[id];rafraichir_();});
-  }
-
-  /*
-   * BANC D'ESSAI des animations (administrateur seulement, en bas de la page) : une vitre de démonstration indépendante du jeu (aucune action envoyée au serveur) pour lancer à volonté l'animation des
-   * images, l'ouverture de la porte et son son, et régler la vitesse jusqu'à trouver la bonne. Les réglages sont ceux qu'utilise le jeu pour ce compte ; « Valeurs d'origine » les remet.
-   */
-  var BANC_FRUITS_=['gold','powerAlpha','powerBeta','powerDelta'];
-  function admin_(){var R=window.__SOREAL_IDLE_REG__;try{return Boolean(R&&typeof R.estAdminSorealIdle_==='function'&&R.estAdminSorealIdle_());}catch(_e){return false;}}
-  function texteDuree_(ms){return (Math.round(ms*23/100)/10).toString().replace('.',',')+' s';}
-  function banc_(){
-    if(!admin_())return '';
-    var R=reglages_(),f=etat.bancFruit||'gold';
-    var opts=BANC_FRUITS_.map(function(x){return '<option value="'+x+'"'+(x===f?' selected':'')+'>'+html_(x)+'</option>';}).join('');
-    var A='window.__SOREAL_IDLE_YGG_V1__.';
-    return '<div class="ygg-banc"><div class="ygg-banc-titre">🎛️ Banc d’essai des animations et des sons <small>(administrateur seulement)</small></div>'+
-      '<div class="ygg-banc-corps"><div class="ygg-vitre ygg-portrait ygg-banc-vitre" id="yggBancVitre"><img class="ygg-img" alt="" src="'+urlEtape_(f,nbEtapes_(f)-1)+'"></div>'+
-      '<div class="ygg-banc-regl">'+
-        '<label>Fruit <select onchange="'+A+'banc(\'fruit\',this.value)">'+opts+'</select></label>'+
-        '<label>Vitesse des images : <output id="yggBancCad">'+R.cadence+' ms par image · '+texteDuree_(R.cadence)+' pour 24 images</output>'+
-          '<input type="range" min="30" max="400" step="10" value="'+R.cadence+'" oninput="'+A+'bancAffiche(\'cad\',this.value)" onchange="'+A+'banc(\'cadence\',this.value)"></label>'+
-        '<div class="ygg-banc-sens" role="group" aria-label="Sens des images">Sens : '+
-          '<label><input type="radio" name="yggBancSens" value="-1"'+(R.sens<0?' checked':'')+' onchange="'+A+'banc(\'sens\',-1)"> arbre → graine</label> '+
-          '<label><input type="radio" name="yggBancSens" value="1"'+(R.sens>0?' checked':'')+' onchange="'+A+'banc(\'sens\',1)"> graine → arbre</label></div>'+
-        '<div class="ygg-banc-sens" role="group" aria-label="Bruit de la porte">Bruit de la porte : '+
-          '<label><input type="radio" name="yggBancSon" value="pierre"'+(R.son!=='bois'?' checked':'')+' onchange="'+A+'banc(\'son\',\'pierre\')"> pierre lourde</label> '+
-          '<label><input type="radio" name="yggBancSon" value="bois"'+(R.son==='bois'?' checked':'')+' onchange="'+A+'banc(\'son\',\'bois\')"> bois qui couine</label></div>'+
-        '<label>Ouverture de la porte : <output id="yggBancPorte">'+(Math.round(1.5*R.porte*10)/10).toString().replace('.',',')+' s (son compris)</output>'+
-          '<input type="range" min="0.5" max="2.5" step="0.1" value="'+R.porte+'" oninput="'+A+'bancAffiche(\'porte\',this.value)" onchange="'+A+'banc(\'porte\',this.value)"></label>'+
-        '<div class="ygg-banc-boutons">'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancImages()">▶ Images</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancPorte()">🚪 Porte + son</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancSon()">🔊 Son seul</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancSonFerme()">🚪 Son de fermeture</button>'+
-          '<button type="button" class="ygg-btn" onclick="'+A+'bancRaz()">↺ Valeurs d’origine</button></div>'+
-        '<div class="ygg-banc-note">Réglage retenu : '+R.cadence+' ms par image, '+(R.sens<0?'arbre → graine':'graine → arbre')+', porte ×'+String(R.porte).replace('.',',')+' ('+(R.son==='bois'?'bruit de bois':'bruit de pierre')+'). (Origine : '+REGLAGES_DEFAUT_.cadence+' ms, arbre → graine, ×1.)</div>'+
-      '</div></div></div>';
-  }
-  function bancVitre_(){return document.getElementById('yggBancVitre');}
-  function bancNettoyer_(vitre){
-    Array.prototype.slice.call(vitre.querySelectorAll('.ygg-anim,.ygg-porte')).forEach(function(n){if(n.parentNode)n.parentNode.removeChild(n);});
-  }
-  function bancImages_(){
-    var vitre=bancVitre_();if(!vitre)return;
-    var f=etat.bancFruit||'gold';precharger_(f);
-    bancNettoyer_(vitre);
-    jouerImages_(f,vitre,nbEtapes_(f)-1,reglages_(),null);
-  }
-  function bancPorte_(){
-    var vitre=bancVitre_();if(!vitre)return;
-    var f=etat.bancFruit||'gold',R=reglages_();
-    bancNettoyer_(vitre);
-    var tmp=document.createElement('div');tmp.innerHTML=porte_(f,false);
-    var p=tmp.firstChild;if(!p)return;
-    p.setAttribute('data-morph-garder','');
-    vitre.appendChild(p);
-    setTimeout(function(){
-      p.className+=' ouvre';
-      son_(nomSonPorte_(),R.porte);
-      setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},Math.round(DUREE_OUVERTURE_*R.porte)+150);
-    },700);
-  }
+  function reglages_(){return {cadence:REGLAGES_DEFAUT_.cadence,sens:REGLAGES_DEFAUT_.sens,porte:REGLAGES_DEFAUT_.porte,son:REGLAGES_DEFAUT_.son};}
 
   /* Ce que donnerait le fruit prêt (lecture seule du moteur, idle-ygg-apercu-v1) : graines si on RÉCOLTE, graines et bonus si on MANGE (Norman, 2026-10-22). Avec la Poop choisie si elle est cochée et en stock. */
   function decimal_(x,max){return nb_(x).toLocaleString('fr-FR',{maximumFractionDigits:max});}
@@ -651,7 +515,6 @@
         '</div>'+
         (b?'<div class="ygg-bonus">'+b+'</div>':'')+
       '</div>'+
-      banc_()+
       '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable à la boutique AP, rayon Boosts.</div>'+
     '</div></div>';
   }
@@ -665,7 +528,6 @@
   }
   function lancerUsage_(id,avecPoop){
     var c=choix_(id);
-    lancerAnimation_(id);
     var payload={action:'useYggFruit',fruit:String(id),mode:c.mode==='harvest'?'harvest':'eat'};
     if(avecPoop)payload.poop=true;
     action_(payload);
@@ -687,29 +549,6 @@
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
     fermerAide:function(){etat.aide=false;},
     aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
-    banc:function(type,val){
-      if(type==='fruit'){etat.bancFruit=String(val);rafraichir_();return;}
-      var R=reglages_();
-      if(type==='cadence')R.cadence=Number(val);
-      else if(type==='sens')R.sens=Number(val)>0?1:-1;
-      else if(type==='porte')R.porte=Number(val);
-      else if(type==='son')R.son=String(val)==='bois'?'bois':'pierre';
-      ecrireReglages_(R);
-      rafraichir_();
-      /* Après un réglage, on rejoue tout de suite ce qui a changé. */
-      setTimeout(function(){if(type==='porte'||type==='son')bancPorte_();else bancImages_();},350);
-    },
-    bancAffiche:function(type,val){
-      var o=document.getElementById(type==='porte'?'yggBancPorte':'yggBancCad');
-      if(!o)return;
-      o.textContent=type==='porte'?(Math.round(1.5*Number(val)*10)/10).toString().replace('.',',')+' s (son compris)':Number(val)+' ms par image · '+texteDuree_(Number(val))+' pour 24 images';
-    },
-    bancImages:function(){bancImages_();},
-    bancPorte:function(){bancPorte_();},
-    bancSon:function(){son_(nomSonPorte_(),reglages_().porte);},
-    bancSonFerme:function(){son_(nomSonFerme_(),reglages_().porte);},
-    /* Les boutons des pets grinçants du Coffre grinçants ont été retirés du banc d'essai (Norman, 2026-10-21 : « le Coffre ne fait jamais ces bruits »). */
-    bancRaz:function(){ecrireReglages_(REGLAGES_DEFAUT_);rafraichir_();},
     soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */
     tout:function(critere){
