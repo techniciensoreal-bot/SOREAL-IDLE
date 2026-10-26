@@ -36,6 +36,7 @@
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans le Coffre, la langue sort quand on l’ouvre et rentre quand on le ferme, au lieu d’apparaître ou de disparaître en une image.',
             'Dans le Coffre, dès qu’une pièce d’un set est lootée, les emplacements des autres pièces de ce set et de sa zone apparaissent en cases blanches vides ; une case ne montre son image grisée et son nom qu’une fois son objet looté au moins une fois.',
             'Dans le Coffre, les titres des cadres se lisent en entier (plus de « Looty » coupé lettre par lettre) et n’ont plus qu’un seul emoji.',
             'Tous les objets qui se montent au niveau 100 ont maintenant leur case dans le Coffre.',

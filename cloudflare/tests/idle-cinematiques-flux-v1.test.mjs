@@ -63,3 +63,8 @@ import { normalizeIdleAdventureStateV47, idleAdventureSnapshotV47 } from '../src
   assert.ok(!blancs.some((b) => b.groupe !== 'zone'), 'seuls la zone et le set lootés sont révélés');
 }
 console.log('ok coffre cases blanches');
+
+// Coffre : la langue sort à l'ouverture et rentre à la fermeture (pas en une image)
+const cssI = lire('public/soreal-idle-itopod.css');
+assert.ok(cssI.includes('.soreal-idle-coffre-v1.ouvre .bg-bagage-v1 .bg-langue{animation:bgLangueSort') && cssI.includes('.ferme-anim .bg-bagage-v1 .bg-langue{animation:bgLangueRentre'));
+console.log('ok coffre langue');
