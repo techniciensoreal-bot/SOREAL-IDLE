@@ -185,10 +185,13 @@ export function supprimerGuideV1(sql, id) {
 }
 
 /* Réglage « l'ancien tutoriel est encore joué » : vrai par défaut (rien ne change tant que l'administrateur ne l'a pas décidé). */
+/*
+ * SUPPRIMÉ le 2026-10-26 (Norman : « ce n'est plus le bon tuto, il faut le supprimer ; c'est celui que j'ai fait moi-même qu'il faut ») : l'ancien tutoriel (fenêtres de Norman & Sébastien : début du jeu, premier boss, Aventure, Renaissance) n'est
+ * plus jamais joué, quel que soit le réglage enregistré. Seuls les guides écrits dans le menu Admin (et l'introduction en images) restent.
+ */
 export function ancienTutorielActifV1(sql) {
   assurerTutorielV1(sql);
-  const r = sqlRows(sql.exec("SELECT v FROM idle_tutoriel_meta WHERE k='ancien_actif'"))[0];
-  return !r || String(r.v) !== "0";
+  return false;
 }
 
 export function reglerAncienTutorielV1(sql, actif) {

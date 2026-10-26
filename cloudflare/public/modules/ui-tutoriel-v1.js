@@ -433,8 +433,8 @@
        * Tant que le réglage n'est pas connu (premier instant du jeu), rien n'est joué : on ne montre jamais un ancien popup qui serait aussitôt remplacé.
        */
       function ancienTutorielPermisIdleV1_(){
-        const T=window.__SOREAL_IDLE_TUTORIEL_V1__;
-        return !T||T.ancienPermis();
+        /* Ancien tutoriel SUPPRIMÉ (Norman, 2026-10-26 : « ce n'est plus le bon tuto ; c'est celui que j'ai fait moi-même qu'il faut ») : seule l'introduction (option « toujours ») et les guides de l'Admin se jouent. */
+        return false;
       }
 
       function demarrerTutorielPagesIdleV1_(pages,cle,options){

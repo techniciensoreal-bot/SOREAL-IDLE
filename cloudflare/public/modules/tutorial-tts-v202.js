@@ -641,6 +641,8 @@
     if(!panel)return null;
     var id=chroniqueBossId_(panel);
     if(!id||chroniqueDejaLue_(id)||bossDejaRencontre_(id))return null;
+    /* Chronique du premier boss (Norman, 2026-10-26 : « elle ne doit pas être lue automatiquement au lancement du jeu : elle est lue dans l'intro, ça fait doublon ») : jamais lue toute seule ; l'intro la lit (intro-diaporama-v1.js) et le bouton « Lire la chronique » reste disponible. */
+    if(String(id)==='1')return null;
     return panel;
   }
 

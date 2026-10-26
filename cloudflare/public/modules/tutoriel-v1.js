@@ -338,7 +338,7 @@ function demander_(cle,contexte,j){
   if(etat.demandes[cle])return;
   etat.demandes[cle]=true;
   appel_('obtenirTutorielSorealIdle',[contexte]).then(function(res){
-    if(res&&typeof res.ancienActif==='boolean')etat.ancienActif=res.ancienActif;
+    etat.ancienActif=false;   /* ancien tutoriel supprimé (Norman, 2026-10-26) */
     if(res&&typeof res.ancienMenusActif==='boolean')etat.ancienMenus=res.ancienMenusActif;
     var guides=res&&Array.isArray(res.guides)?res.guides:[];
     var hote=window.__SOREAL_IDLE_META_HOST_V130__,jeu=(hote&&typeof hote.getIdleEtat==='function'&&hote.getIdleEtat())||j;
@@ -357,7 +357,7 @@ function considerer_(j){
   if(etat.ancienActif===null&&!etat.initEnCours){
     etat.initEnCours=true;
     appel_('obtenirTutorielSorealIdle',[{}]).then(function(res){
-      etat.ancienActif=!(res&&res.ancienActif===false);
+      etat.ancienActif=false;   /* ancien tutoriel supprimé (Norman, 2026-10-26) */
       etat.ancienMenus=!(res&&res.ancienMenusActif===false);
     }).catch(function(){etat.initEnCours=false;});
   }
@@ -499,7 +499,7 @@ window.__SOREAL_IDLE_TUTORIEL_V1__={
   choisirElement:choisirElement_,
   /* null tant que le réglage n'est pas connu ; l'ancien tutoriel n'est joué que si le serveur a dit « actif » (jamais par défaut pendant l'attente). */
   ancienActif:function(){return etat.ancienActif;},
-  ancienPermis:function(){return etat.ancienActif===true;},
+  ancienPermis:function(){return false;},   /* ancien tutoriel supprimé (Norman, 2026-10-26) : seuls les guides de l'Admin et l'introduction restent */
   /* Même règle pour les anciennes fenêtres d'explication de chaque menu (réglage séparé). */
   ancienMenusPermis:function(){return etat.ancienMenus===true;},
   /* Après un changement du réglage dans l'éditeur. */

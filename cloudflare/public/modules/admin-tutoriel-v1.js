@@ -108,8 +108,8 @@ function listeHtml_(){
     '<p style="font-size:14px;color:#aeb9d4">🎙 <b>Voix :</b> chaque étape a sa voix. Dans la section « Textes » du menu Admin, cherche le groupe « Tutoriel · … » : tu y changes ce que la voix dit, tu la génères (studio de voix) et tu l’écoutes. Le joueur l’entend si sa voix est activée, et peut la relancer avec 🔊.</p>'+
     (l||'<p>Aucun guide pour le moment.</p>')+
     '<div class="at-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="principal" data-at="nouveau">➕ Nouveau guide</button></div>'+
-    '<div class="at-ancien"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" data-at="ancien" '+(etat.ancienActif?'checked':'')+'> <span><b>Jouer l’ancien tutoriel de départ</b> (les fenêtres de Norman &amp; Sébastien : début du jeu, premier boss, Aventure et Renaissance). Décoche quand tes guides de départ sont prêts : ils le remplacent.</span></label>'+
-      '<label style="display:flex;gap:8px;align-items:flex-start;margin-top:8px"><input type="checkbox" data-at="ancienmenus" '+(etat.ancienMenus?'checked':'')+'> <span><b>Jouer les anciennes fenêtres d’explication des menus</b> (celles qui s’ouvrent la première fois qu’on ouvre un menu : une trentaine). Décoche quand tu as écrit les tiennes : tant que cette case est cochée, les deux types de fenêtres peuvent se suivre.</span></label></div>';
+    '<div class="at-ancien">'+
+      '<label style="display:flex;gap:8px;align-items:flex-start;"><input type="checkbox" data-at="ancienmenus" '+(etat.ancienMenus?'checked':'')+'> <span><b>Jouer les anciennes fenêtres d’explication des menus</b> (celles qui s’ouvrent la première fois qu’on ouvre un menu : une trentaine). Décoche quand tu as écrit les tiennes : tant que cette case est cochée, les deux types de fenêtres peuvent se suivre.</span></label></div>';
 }
 
 function rafraichirListe_(){

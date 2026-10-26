@@ -53,11 +53,11 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
   for (const g of IDLE_TUTORIEL_SEED_V1) normaliserGuideV1(g);
   for (const id of graine.map((g) => g.id)) supprimerGuideV1(sql, id);
   assert.deepEqual(lireGuidesV1(sql), [], "supprimer la graine ne la recrée pas");
-  assert.equal(ancienTutorielActifV1(sql), true, "l'ancien tutoriel reste actif tant que l'administrateur ne dit rien");
+  assert.equal(ancienTutorielActifV1(sql), false, "l'ancien tutoriel est supprimé (Norman, 2026-10-26) : jamais joué");
   assert.equal(ancienMenusActifV1(sql), true, "les anciennes fenêtres des menus aussi");
   assert.equal(reglerAncienMenusV1(sql, false), false);
   assert.equal(ancienMenusActifV1(sql), false);
-  assert.equal(ancienTutorielActifV1(sql), true, "les deux réglages sont indépendants");
+  assert.equal(ancienTutorielActifV1(sql), false, "l'ancien tutoriel reste supprimé quel que soit le réglage des menus");
   reglerAncienMenusV1(sql, true);
   const e1 = enregistrerGuideV1(sql, guide({ id: "b", titre: "B", ordre: 2 }), 1000);
   enregistrerGuideV1(sql, guide({ id: "a", titre: "A", ordre: 1, declencheur: { type: "debut" } }), 1000);
@@ -71,10 +71,8 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
   assert.equal(lireGuidesV1(sql).find((g) => g.id === "b").titre, "B renommé");
   supprimerGuideV1(sql, "c");
   assert.deepEqual(lireGuidesV1(sql).map((g) => g.id), ["a", "b"]);
-  assert.equal(reglerAncienTutorielV1(sql, false), false);
-  assert.equal(ancienTutorielActifV1(sql), false);
   assert.equal(reglerAncienTutorielV1(sql, true), true);
-  assert.equal(ancienTutorielActifV1(sql), true);
+  assert.equal(ancienTutorielActifV1(sql), false, "même « réactivé », l'ancien tutoriel n'est plus jamais joué");
 }
 
 // --- ce que reçoit le joueur : jamais la liste complète (anti-spoil, AGENTS.md règle n°2) ---
@@ -114,7 +112,7 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
   const editeur = readFileSync("cloudflare/public/modules/admin-tutoriel-v1.js", "utf8");
   const ui = lireUiComplet();
   const index = readFileSync("cloudflare/public/index.html", "utf8");
-  assert.ok(moteur.includes("window.__SOREAL_IDLE_TUTORIEL_V1__={") && moteur.includes("choisirElement:choisirElement_") && moteur.includes("ancienPermis:function(){return etat.ancienActif===true;}"), "moteur exposé ; l'ancien tutoriel n'est jamais joué tant que le réglage est inconnu");
+  assert.ok(moteur.includes("window.__SOREAL_IDLE_TUTORIEL_V1__={") && moteur.includes("choisirElement:choisirElement_") && moteur.includes("ancienPermis:function(){return false;}"), "moteur exposé ; l'ancien tutoriel n'est jamais joué (supprimé)");
   assert.ok(moteur.includes("setInterval(function(){") && moteur.includes("considerer_(j)"), "vérification régulière (le rendu complet de la page n'a lieu qu'aux changements de menu)");
   assert.ok(moteur.includes("pointer-events:none") && !/#'\+ID\+'\{[^}]*pointer-events:none/.test(moteur), "la fenêtre est cliquable, le cadre lumineux laisse passer les clics (on peut cliquer sur l'élément montré)");
   assert.ok(moteur.includes("__soreal_idle_marquer_vu_v1__") && moteur.includes("opts.apercu") === false && moteur.includes("marquerVu:Boolean(o.marquerVu)&&!o.apercu"), "l'aperçu ne marque jamais un guide comme vu");
