@@ -372,8 +372,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 448,
-  "sha": "12b1bbe607bd6a9a913d04de32b49730dc3a73a5"
+  "pin": 449,
+  "sha": "cb580a5950350ef79e71d99f70a4fa5718758a0f"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -440,12 +440,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 457,
-  "sha": "3582b885236524780593827bb1bd6434292ed569"
+  "pin": 458,
+  "sha": "5a35a484d850ecd3771ebebb1fa8e2a035f404f1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 277,
-  "sha": "184dfea8017ca2f8a5dfc26c3a20a2fec1957962"
+  "pin": 278,
+  "sha": "f18664dbe083c3d2f70de6792f7c207f53c17b50"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -612,8 +612,8 @@
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 232,
-  "sha": "40ceb7bdc0417086becb67eeca6a25344300879c"
+  "pin": 233,
+  "sha": "0c5ba5c5b33491fa9e045f82adcba70d3d406b46"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
