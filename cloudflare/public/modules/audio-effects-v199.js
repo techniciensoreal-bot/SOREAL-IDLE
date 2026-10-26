@@ -1039,6 +1039,43 @@
   }
 
   /*
+   * Mitraillette du NUKE (Norman, 2026-10-26 : « quand on fait un nuke, un bruit de mitraillette qui dure tant que le popup des boss enchaînés est présent ; pas un truc aigu »). Un tir toutes les ~75 ms : un « boum » grave, un claquement
+   * court et sourd (bruit filtré vers le bas, jamais de sifflement). Tant que le son est demandé, les tirs sont planifiés en avance par petits lots ; l'arrêt (mitraillette(false)) coupe la suite, chaque tir étant très court.
+   * Volume : le curseur des effets (maître), comme les autres sons.
+   */
+  var mitrailletteEtat_=null;
+  function mitrailletteCoup_(c,delay){
+    var f=150+Math.random()*45;
+    tonal_(c,{type:"sine",from:f,to:52,duration:.075,volume:.085,delay:delay});
+    tonal_(c,{type:"triangle",from:f*1.7,to:85,duration:.05,volume:.035,delay:delay});
+    bruit_(c,{duration:.08,volume:.07,delay:delay,filterType:"lowpass",frequency:1500,frequencyEnd:280,decay:2.6});
+  }
+  function mitraillette_(marche){
+    if(!marche){
+      if(mitrailletteEtat_){mitrailletteEtat_.actif=false;clearTimeout(mitrailletteEtat_.minuterie);mitrailletteEtat_=null;}
+      return false;
+    }
+    if(mitrailletteEtat_)return true;
+    var etat={actif:true,minuterie:0,prochain:0};
+    mitrailletteEtat_=etat;
+    reveiller_().then(function(c){
+      if(!c||!etat.actif)return;
+      etat.prochain=c.currentTime+.02;
+      (function pomper(){
+        if(!etat.actif)return;
+        try{
+          while(etat.prochain<c.currentTime+.4){
+            mitrailletteCoup_(c,Math.max(0,etat.prochain-c.currentTime));
+            etat.prochain+=.072+Math.random()*.014;
+          }
+        }catch(_e){}
+        etat.minuterie=setTimeout(pomper,100);
+      })();
+    });
+    return true;
+  }
+
+  /*
    * Défaite (Norman, 2026-09-26 : « le son quand on perd un combat doit être plus adapté à une perte de combat ») : un K.O. suivi d'une petite élégie. Un coup sourd qui
    * fait craquer, puis quatre notes tristes en mineur qui redescendent (la, fa, ré, la grave qui s'affaisse) sur un bourdon qui s'éteint. Rien de commun avec la fuite
    * (les « wah-wah » comiques) ni avec la victoire (fanfare).
@@ -2438,6 +2475,7 @@
     dernierSonVictoire:function(){return dernierSonVictoire;},
     victory:function(){return demander_("victory");},
     nuke:function(){return demander_("nuke");},
+    mitraillette:mitraillette_,
     defeat:function(){return demander_("defeat");},
     /* le même son de défaite, à l'envers, joué tout de suite (rembobinage VHS de la mort du joueur) */
     defeatReversePrepare:function(){return preparerInverse_();},

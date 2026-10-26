@@ -544,6 +544,10 @@
           overlay
         );
 
+        /* Mitraillette tant que le popup des boss enchaînés est à l'écran (Norman, 2026-10-26). */
+        const audioNuke=window.__SOREAL_IDLE_AUDIO_V199__;
+        try{if(audioNuke&&typeof audioNuke.mitraillette==='function')audioNuke.mitraillette(true);}catch(_e){}
+
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-165 */
         const delai=
           defeated.length > 40
@@ -556,6 +560,7 @@
 
         (function etape(){
           if(index>=defeated.length){
+            try{if(audioNuke&&typeof audioNuke.mitraillette==='function')audioNuke.mitraillette(false);}catch(_e){}
             overlay.style.opacity=
               '0';
 
