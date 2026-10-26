@@ -6218,7 +6218,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-manne
 @media (max-width:700px){body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-mannequins-v1{justify-content:center}}
 .soreal-idle-coffre-cadre-v1{
   --t1:#94a3b8;--t2:#1e293b;--deco:"📦";
-  position:relative;flex:0 0 auto;max-width:100%;box-sizing:border-box;overflow:hidden;
+  position:relative;flex:0 0 auto;max-width:100%;min-width:136px;box-sizing:border-box;overflow:hidden;   /* assez large pour lire un titre court (Looty) sans le casser lettre par lettre */
   padding:0 0 10px;border-radius:14px;border:2px solid var(--t1);
   background:
     radial-gradient(120% 90% at 100% 100%,color-mix(in srgb,var(--t1) 24%,transparent),transparent 60%),

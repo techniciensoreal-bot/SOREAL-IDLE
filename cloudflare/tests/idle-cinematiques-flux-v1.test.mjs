@@ -41,3 +41,10 @@ const adm = lire('public/modules/textes-admin-v1.js');
 assert.ok(adm.includes('data-stx-page') && adm.includes('Math.ceil(lignes.length/max)') && !adm.includes('précise ta recherche (numéro ou nom)'));
 assert.ok(adm.includes('admin.filtre=el.value;admin.page=0;'), 'une nouvelle recherche revient à la page 1');
 console.log('ok admin pages');
+
+// Coffre : les liquides sont des butins de titans (rouge = 2e titan) ; un seul émoji devant un titre ; titres lisibles
+const inv2 = lire('src/idle-adventure-inventaire.js');
+assert.ok(inv2.includes('t2:["giantSeed","mysteriousRedLiquid"]') && inv2.includes('"mysteriousPurpleLiquid"]'), 'liquides rangés avec les objets de titans');
+assert.ok(av.includes("titre=String(titre).replace(/^[^A-Za-z0-9"), 'pas de second émoji devant le titre');
+assert.ok(lire('public/soreal-idle-barre-outils.css').includes('overflow-wrap:normal;word-break:normal;hyphens:none'), 'les titres ne sont plus coupés lettre par lettre');
+console.log('ok coffre titres et liquides');

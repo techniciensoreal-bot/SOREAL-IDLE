@@ -516,11 +516,11 @@ function idleAdventureCoffreAccepteV1(definitionId){
  */
 export const IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1=Object.freeze({
   t1:["aNumber","wandoos98"],
-  t2:["giantSeed"],
+  t2:["giantSeed","mysteriousRedLiquid"],
   t3:["stapler","ascendedForestPendant"],
   t4:["uugHair","uugSpecialRing"],
   t5:["wanderersCane","wandoosXl","fannyPack","dorkyGlasses"],
-  t6:["heroicSigil","ascendedX3Pendant","baldEgg","shrunkenVoodooDoll","pricelessVanGoghPainting","giantApple","powerPill","smallGerbil"],
+  t6:["heroicSigil","ascendedX3Pendant","baldEgg","shrunkenVoodooDoll","pricelessVanGoghPainting","giantApple","powerPill","smallGerbil","mysteriousPurpleLiquid"],
   nerd:["incriminatingEvidence","ordinaryCalculator","animeFigurine","ascendedX4Pendant","theD20","theD8","animeBodypillow","redMeeple","bagOfTrash","heartShapedPanties"],
   godmother:["severedUnicornHead","kingLooty","violinCase","molotovCocktail","godmothersRing","godmothersWand","leftFairyWing","rightFairyWing"],
   t7:["stillBeatingHeart","theJoker","antlersExile","creditCard","tentacleExile","skipCard","antennaeExile","blackLotus","busterExile"],

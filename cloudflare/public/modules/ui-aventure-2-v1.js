@@ -2219,6 +2219,8 @@
          * et passent à la ligne quand la place manque (centrés sur téléphone). Le thème (couleurs, décor) est choisi par l'identifiant du set, voir « data-theme-set-v1 » dans soreal-idle-ui.css.
          */
         function cadreThematique(cle,titre,corps){
+          /* le cadre porte déjà son emblème : pas de second émoji devant le titre (Norman, 2026-10-26) */
+          titre=String(titre).replace(/^[^A-Za-z0-9À-ÿ]+/,'');
           return '<section class="soreal-idle-coffre-cadre-v1" data-theme-set-v1="'+idleHtml_(cle)+'">'+
             '<header class="soreal-idle-coffre-cadre-titre-v1"><i class="soreal-idle-coffre-cadre-deco-v1" aria-hidden="true"></i><span>'+idleHtml_(titre)+'</span></header>'+
             '<div class="soreal-idle-coffre-cadre-corps-v1">'+corps+'</div>'+
