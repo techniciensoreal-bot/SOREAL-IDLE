@@ -143,6 +143,28 @@ function terminer(){
   fermerAffichage();
 }
 
+/*
+ * Un « ding » entre deux boss (Norman, 2026-10-26 : « quand on lit toutes les chroniques ou qu'on les reprend, entre chaque boss, le son idle/ambient/Ding.m4a ») : joué en entier à la fin d'une chronique, avant la suivante ; jamais après la
+ * dernière. Volume = barre « Sons de l'interface ». Si le fichier manque ou que le navigateur refuse de le jouer, on enchaîne tout de suite (au plus 4 s d'attente).
+ */
+var CLE_DING='idle/ambient/Ding.m4a';
+function ding(fini){
+  var rendu=false;
+  function suite(){if(rendu)return;rendu=true;fini();}
+  try{
+    var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+    var v=r&&typeof r.getInterface==='function'?Number(r.getInterface()):0.75;
+    if(!(v>0)){suite();return;}
+    var a=new Audio('/api/idle/media/ambient?key='+encodeURIComponent(CLE_DING));
+    a.volume=Math.min(1,v);
+    a.addEventListener('ended',suite);
+    a.addEventListener('error',suite);
+    setTimeout(suite,4000);
+    var p=a.play();
+    if(p&&p.catch)p.catch(suite);
+  }catch(_e){suite();}
+}
+
 function lireCourante(){
   if(!etat.actif)return;
   var t=tts();
@@ -159,9 +181,12 @@ function lireCourante(){
     if(ok!==true){terminer();return;}
     setTimeout(function(){
       if(jeton!==etat.jeton||!etat.actif)return;
-      etat.index+=1;
-      if(etat.index>=etat.file.length){terminer();return;}
-      lireCourante();
+      if(etat.index+1>=etat.file.length){etat.index+=1;terminer();return;}
+      ding(function(){
+        if(jeton!==etat.jeton||!etat.actif)return;
+        etat.index+=1;
+        lireCourante();
+      });
     },350);
   });
   /* La voix refuse de démarrer sans appeler le rappel (voix indisponible) : on ferme le lecteur au lieu de le laisser ouvert (audit du 2026-10-10, GP-011). */

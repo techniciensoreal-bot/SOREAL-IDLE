@@ -24,6 +24,8 @@ const IDLE_SHOP_MUSIQUE_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"ShopMusic.opus";
 /* Musique du menu Blood Magic (Norman, 2026-10-04) : m�me dossier, jamais tir�e au hasard non plus. */
 const IDLE_BLOOD_MUSIQUE_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"BloodMagic.opus";
 const IDLE_COQ_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"coq.m4a";
+/* Le « ding » entre deux chroniques de boss (Norman, 2026-10-26) vit dans le même dossier : jamais tiré au hasard comme son d'ambiance. */
+const IDLE_DING_R2_CLE_V1=IDLE_AMBIANT_R2_PREFIX+"Ding.m4a";
 const IDLE_AMBIANT_R2_EXTENSIONS=Object.freeze(["mp3","ogg","m4a","wav","opus","aac"]);
 /*
  * Correctif 2026-09-17 (Norman a réorganisé idle/aventure/ avec les
@@ -723,6 +725,7 @@ async function objetsAmbianceR2_(env){
     if(String(key).toLowerCase()===IDLE_BLOOD_MUSIQUE_R2_CLE_V1.toLowerCase())return false;
     /* Le chant du coq (porte d'Yggdrasil, une fois par renaissance) vit dans le même dossier : jamais tiré au hasard comme son d'ambiance. */
     if(String(key).toLowerCase()===IDLE_COQ_R2_CLE_V1.toLowerCase())return false;
+    if(String(key).toLowerCase()===IDLE_DING_R2_CLE_V1.toLowerCase())return false;
     return IDLE_AMBIANT_R2_EXTENSIONS.includes(ext);
   }).sort();
 
