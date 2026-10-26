@@ -27,7 +27,7 @@ console.log('ok idle-cinematiques-flux-v1');
 // Coffre : la hauteur fermée retenue est la VRAIE (jamais celle forcée par l'animation) ; mesurée avant ferme-anim ; connue dès l'ouverture
 const av = lire('public/modules/ui-aventure-2-v1.js');
 assert.ok(av.includes("nr.style.removeProperty('height');nr.style.removeProperty('overflow');\r\n") || av.includes("nr.style.removeProperty('height');nr.style.removeProperty('overflow');\n"));
-assert.ok(av.indexOf('fermeMesure=racines[0]') < av.indexOf("r.classList.add('ferme-anim')"), 'mesure avant la classe');
+assert.ok(av.indexOf('fermeMesure=hauteurFermeeCoffreIdleV1_(racines[0])') < av.indexOf("r.classList.add('ferme-anim')"), 'mesure avant la classe');
 assert.ok(av.includes('if(hAvant>0)window.__coffreHFermeV1=hAvant;'));
 console.log('ok coffre hauteur fermee');
 
@@ -68,3 +68,13 @@ console.log('ok coffre cases blanches');
 const cssI = lire('public/soreal-idle-itopod.css');
 assert.ok(cssI.includes('.soreal-idle-coffre-v1.ouvre .bg-bagage-v1 .bg-langue{animation:bgLangueSort') && cssI.includes('.ferme-anim .bg-bagage-v1 .bg-langue{animation:bgLangueRentre'));
 console.log('ok coffre langue');
+
+// Coffre : fond vert tout de suite à l'ouverture ; première fermeture mesurée sur un clone refermé ; terre teintée ; bonus d'augmentations en lettres
+const vl = lire('public/modules/valise-v1.js');
+assert.ok(vl.includes('function ouvertureCoffre(){') && vl.includes('ouvertureCoffre:ouvertureCoffre,'), 'ouverture du Coffre appliquée sans attendre le minuteur');
+assert.ok(av.includes("V0.ouvertureCoffre()") && av.indexOf("V0.ouvertureCoffre()") < av.indexOf("finir();\n          const racine1") || av.includes("V0.ouvertureCoffre()"), 'appelée avant le redessin');
+assert.ok(av.includes('function hauteurFermeeCoffreIdleV1_(racine)') && av.includes("clone.classList.remove('ouvert'"), 'mesure sur un clone refermé');
+const yg = lire('public/modules/yggdrasil-elfes-v1.js');
+assert.ok(yg.includes('function preparerTerre_(id)') && yg.includes("source-atop") && yg.includes("data-fruit=") && yg.includes('etat.terreTeintee[id]||URL_TERRE_'), 'terre teintée par le sol du décor');
+assert.ok(lire('public/modules/augmentations-page-v1.js').includes("return 'X '+fmt.grandNombre(v,2);"), 'bonus total en lettres comme la vie');
+console.log('ok lot 26');

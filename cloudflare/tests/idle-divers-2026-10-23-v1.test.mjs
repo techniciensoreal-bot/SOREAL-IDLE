@@ -37,7 +37,7 @@ console.log("idle-divers-2026-10-23-v1 (ouvertures animées) OK");
 /* le cadre s'allonge / se raccourcit en douceur, l'écran ne bouge pas */
 assert.ok(av.includes("function animerHauteurCoffreIdleV1_(racine,de,vers,ms)") && av.includes("window.scrollTo(sx,sy)") && av.includes("Math.max(racine1.offsetHeight,racine1.scrollHeight)"), "hauteur animée, défilement conservé");
 assert.ok(css.includes(".soreal-idle-page-root-v28{overflow-anchor:none}"));
-assert.ok(av.includes("b0.style.display='none';") && av.includes("const ferme=fermeMesure>0?fermeMesure:r0.offsetHeight;"), "hauteur refermée mesurée, pas estimée");
+assert.ok(av.includes("fermeMesure=hauteurFermeeCoffreIdleV1_(racines[0]);") && av.includes("const ferme=fermeMesure>0?fermeMesure:r0.offsetHeight;"), "hauteur refermée mesurée sur un clone refermé, pas estimée");
 console.log("idle-divers-2026-10-23-v1 (cadre en douceur) OK");
 /* la valise garde sa taille et sa place quand le Coffre se redessine : réglages en variables du module, écrits dans son HTML ; décalage par « left » (une marge négative l'élargissait) */
 assert.ok(v.includes("function styleSection()") && v.includes('style="\'+styleSection()+\'" data-vl data-vl-sig=') && v.includes("s.style.position='relative';s.style.left=") && !v.includes("s.style.marginLeft"));
@@ -268,7 +268,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 {
   const g = lire("cloudflare/public/modules/ngu-labo-v1.js");
   assert.ok(g.includes("var ASTRES='<span class=\"nl-arc\"") && g.includes("ETOILES+ASTRES"));
-  assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%') && g.includes("#0c2550 100%"));
+  assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%') && g.includes("#081b3b 100%"));
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px)') && g.includes('.nl-v1[data-nl-onglet="magic"]>.nl-astre{display:block;right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}') && g.includes("nlAurore") && g.includes("ellipse 50% 100% at 50% 100%") && g.includes('#74baf7 50%,#3d86dc 100%') && g.includes('[data-nl-onglet="magic"] .nl-haut .nl-btn[data-nl-onglet-btn]:not(#_):not(#_){background:radial-gradient(circle at 25px 50%'));
   assert.ok(g.includes('.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-astre::after') && g.includes('.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::after'));
   assert.ok(g.includes("'.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;"));

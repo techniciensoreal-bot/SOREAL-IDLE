@@ -2350,6 +2350,21 @@
         racine.__hauteurT=setTimeout(function(){st.removeProperty('transition');st.removeProperty('height');st.removeProperty('overflow');},ms+80);
       }
             /* Hauteurs en pixels de MISE EN PAGE (offsetHeight), jamais getBoundingClientRect : la page peut être mise à l'échelle (PC de Norman, 2026-10-26 : rectangle 178 px pour 208 px réels) ; une hauteur mesurée à l'écran puis posée en style faisait descendre le cadre trop bas avant qu'il remonte. */
+      function hauteurFermeeCoffreIdleV1_(racine){
+        try{
+          const clone=racine.cloneNode(true);
+          const bloc=clone.querySelector(':scope>div:last-child:not(.vl-section)');
+          if(bloc&&bloc.parentNode)bloc.parentNode.removeChild(bloc);
+          clone.classList.remove('ouvert','ferme-anim','ouvre','hors-ecran');
+          clone.removeAttribute('id');
+          Array.prototype.forEach.call(clone.querySelectorAll('[id]'),function(n){n.removeAttribute('id');});
+          clone.style.cssText='position:absolute;visibility:hidden;pointer-events:none;left:0;top:0;height:auto;width:'+racine.offsetWidth+'px;';
+          racine.parentNode.appendChild(clone);
+          const h=clone.offsetHeight;
+          racine.parentNode.removeChild(clone);
+          return h;
+        }catch(e){return 0;}
+      }
 function toggleCoffreOuvertAdventureIdleV1_(){
         if(window.__coffreBasculeIdleV1)return;
         const actuel=idleCoffreOuvertV1_();
@@ -2388,6 +2403,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
         if(!actuel){
           jouerSonOuvertureCoffreIdleV1_();
           window.__coffreAnimOuvreIdleV1=Date.now();
+          try{const V0=window.__SOREAL_IDLE_VALISE_V1__;if(V0&&typeof V0.ouvertureCoffre==='function')V0.ouvertureCoffre();}catch(e){}   /* fond vert et phrase du Coffre tout de suite */
           finir();
           if(hAvant>0)window.__coffreHFermeV1=hAvant;
           const racine1=document.querySelector('.soreal-idle-coffre-v1');
@@ -2404,8 +2420,8 @@ function toggleCoffreOuvertAdventureIdleV1_(){
           /* Hauteur du cadre refermé mesurée AVANT la classe ferme-anim (Norman, 2026-10-25, constaté dans Chrome sur sa partie : la classe change la zone du Coffre, la mesure faite après sortait 25 px trop courte : le cadre descendait à 153 px puis remontait d'un coup à 178) */
           let fermeMesure=0;
           try{
-            const b0=racines[0].querySelector(':scope>div:last-child:not(.vl-section)');
-            if(b0){const an=b0.style.display;b0.style.display='none';fermeMesure=racines[0].offsetHeight;b0.style.display=an;}
+            /* Hauteur du cadre refermé mesurée sur un CLONE refermé (sans le bloc des objets, sans la classe « ouvert ») : c'est ce que sera le vrai cadre. Avant, la première fermeture visait une mesure un peu fausse (cadre encore ouvert) et sautait à la fin ; les suivantes utilisaient la hauteur retenue. */
+            fermeMesure=hauteurFermeeCoffreIdleV1_(racines[0]);
           }catch(e){}
           racines.forEach(function(r){r.classList.add('ferme-anim');});
           /* le cadre se raccourcit pendant que le contenu se replie : hauteur cible = hauteur actuelle moins le bloc replié (et ses marges) */

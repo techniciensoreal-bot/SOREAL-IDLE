@@ -284,9 +284,44 @@
     return 0.38+0.62*Math.min(1,g-23);
   }
   var URL_TERRE_='/api/idle/media/ygg?name=terre&terre=1';
+  /*
+   * Teinte de la terre (Norman, 2026-10-26 : « une petite teinte sur le tas de terre en fonction de la terre sur laquelle il pousse, pour qu'elle se fonde mieux : elle fait image ajoutée sur une autre image ») : la couleur moyenne du SOL du décor du fruit
+   * (bande basse, au centre) est mélangée à 30 % dans l'image de terre, seulement sur les pixels de la terre. Calculée une fois par fruit dans la page, gardée en mémoire ; l'image d'origine s'affiche en attendant.
+   */
+  etat.terrePrep={};etat.terreTeintee={};
+  function preparerTerre_(id){
+    if(etat.terrePrep[id]||typeof Image==='undefined'||typeof document==='undefined')return;
+    etat.terrePrep[id]=1;
+    var decor=new Image(),terre=new Image(),n=0;
+    function fin(){
+      if(++n<2)return;
+      try{
+        var c=document.createElement('canvas');c.width=c.height=64;
+        var x=c.getContext('2d');x.drawImage(decor,0,0,64,64);
+        var d=x.getImageData(14,40,36,18).data,r=0,g=0,b=0,k=0,i;
+        for(i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];k+=1;}
+        if(!k)return;
+        var W=terre.naturalWidth||512,H=terre.naturalHeight||512;
+        var o=document.createElement('canvas');o.width=W;o.height=H;
+        var y=o.getContext('2d');y.drawImage(terre,0,0,W,H);
+        y.globalCompositeOperation='source-atop';
+        y.fillStyle='rgba('+Math.round(r/k)+','+Math.round(g/k)+','+Math.round(b/k)+',0.30)';
+        y.fillRect(0,0,W,H);
+        o.toBlob(function(blob){
+          if(!blob)return;
+          var u=URL.createObjectURL(blob);
+          etat.terreTeintee[id]=u;
+          Array.prototype.forEach.call(document.querySelectorAll('img.ygg-terre[data-fruit="'+id+'"]'),function(im){im.src=u;});
+        },'image/webp',0.92);
+      }catch(_e){}
+    }
+    decor.onload=fin;terre.onload=fin;
+    decor.src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&decor=1';
+    terre.src=URL_TERRE_;
+  }
   function couches_(d,v,id,def){
     if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
-    return image_(id,emoji_(id,def.name),'ygg-fruit',null,'/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1')+'<img class="ygg-img ygg-terre" alt="" draggable="false" src="'+URL_TERRE_+'">';
+    return image_(id,emoji_(id,def.name),'ygg-fruit',null,'/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1')+(preparerTerre_(id),'<img class="ygg-img ygg-terre" alt="" draggable="false" data-fruit="'+html_(id)+'" src="'+(etat.terreTeintee[id]||URL_TERRE_)+'">');
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   /* Plus d'images de croissance : la pousse est une taille (voir echelleTerre_ et echelleFruit_) ; la fonction reste pour les appels existants. */

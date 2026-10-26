@@ -36,6 +36,7 @@
             'Dans l’éditeur de textes de l’administrateur, les boss s’affichent par pages de soixante, jusqu’au dernier, au lieu des soixante premiers seulement.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'À l’ouverture du Coffre, le fond vert s’applique tout de suite au lieu de se faire attendre.',
             'Dans le Coffre, la langue sort quand on l’ouvre et rentre quand on le ferme, au lieu d’apparaître ou de disparaître en une image.',
             'Dans le Coffre, dès qu’une pièce d’un set est lootée, les emplacements des autres pièces de ce set et de sa zone apparaissent en cases blanches vides ; une case ne montre son image grisée et son nom qu’une fois son objet looté au moins une fois.',
             'Dans le Coffre, les titres des cadres se lisent en entier (plus de « Looty » coupé lettre par lettre) et n’ont plus qu’un seul emoji.',
@@ -46,10 +47,14 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'La terre sous un fruit prend une légère teinte du sol de son décor : elle se fond mieux dans l’image au lieu de paraître ajoutée.',
             'Un fruit sort de terre : la première heure, seule la terre grossit ; après une heure complète apparaît un tout petit fruit qui grossit en douceur jusqu’à 24 h, la terre grandissant de son côté. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Le ciel du NGU d’énergie (le jour) est plus foncé : le bleu est moins clair et fatigue moins les yeux.',
+          ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Le bonus total Attaque et Défense, en haut de la page, s’écrit comme la vie : avec des lettres (K, M, B…).',
           ]},
         ]
       },

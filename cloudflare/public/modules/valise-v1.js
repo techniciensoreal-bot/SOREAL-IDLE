@@ -689,5 +689,15 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
 
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
 
-  window.__SOREAL_IDLE_VALISE_V1__={baille:bailler,fond:dernier,dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
+  /*
+   * Ouverture du Coffre, appliquée TOUT DE SUITE (Norman, 2026-10-26 : « quand on ouvre le coffre, la couleur verte met longtemps à s'appliquer ») : le minuteur pas() ne tourne pas pendant l'animation d'ouverture (pause de lecture de mise en page,
+   * 2,2 s), donc le fond vert (dernier ouvert = Coffre) et le retour de la phrase du Coffre n'arrivaient qu'après. Appelée par le clic d'ouverture, avant le redessin.
+   */
+  function ouvertureCoffre(){
+    noterDernier('coffre');
+    if(phraseActive())poserPhrase(-1);
+    coffreAvant=true;
+    try{synchroniserCoffre();}catch(_e){}
+  }
+  window.__SOREAL_IDLE_VALISE_V1__={ouvertureCoffre:ouvertureCoffre,baille:bailler,fond:dernier,dire:dire,html:html,phraseBlocHtml:phraseBlocHtml,phraseActive:phraseActive,velours:function(){return ouverte();},basculer:basculer,ouverte:ouverte,potions:POTIONS,effets:EFFETS,reserves:RESERVES,repliques:REPLIQUES,reveils:REVEILS,dort:function(){return dort;},css:CSS};
 })();

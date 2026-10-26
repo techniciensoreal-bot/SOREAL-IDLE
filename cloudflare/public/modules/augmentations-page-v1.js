@@ -549,6 +549,9 @@
         const v=Number(m);
         if(!isFinite(v))return 'X 1';
         if(v>=100){
+          /* en haut de la page Augmentations, le bonus total s'écrit comme la vie : avec des lettres (Norman, 2026-10-26) */
+          const fmt=window.__SOREAL_IDLE_NUMBER_FORMAT_V1__;
+          if(fmt&&typeof fmt.grandNombre==='function')return 'X '+fmt.grandNombre(v,2);
           const n=Math.round(v);
           return 'X '+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(n):String(n));
         }
