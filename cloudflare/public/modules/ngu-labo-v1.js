@@ -255,7 +255,7 @@ var CSS=
   '.nl-astre::after{inset:0}'+
   '.nl-nuages{left:0;right:0;top:0;height:300px;background-repeat:repeat-x;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}'+
   /* jour */
-  '.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%,rgba(255,244,180,.6) 0,rgba(255,226,130,.22) 22%,transparent 46%),linear-gradient(180deg,#52acf5 0%,#3b8fe3 24%,#2a68b8 54%,#163f7a 82%,#0c2550 100%);border-color:rgba(255,226,140,.75);box-shadow:0 0 34px rgba(255,214,90,.35),inset 0 0 50px rgba(255,255,255,.12)}'+
+  '.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%,rgba(255,244,180,.6) 0,rgba(255,226,130,.22) 22%,transparent 46%),linear-gradient(180deg,#3a7fc8 0%,#2d69b3 24%,#1f4d90 54%,#112e60 82%,#081b3b 100%);border-color:rgba(255,226,140,.75);box-shadow:0 0 34px rgba(255,214,90,.35),inset 0 0 50px rgba(255,255,255,.12)}'+
   '.nl-v1[data-nl-onglet="energy"] .nl-etoiles{display:none}'+
   '.nl-v1[data-nl-onglet="energy"] .nl-astre,.nl-v1[data-nl-onglet="energy"] .nl-nuages{display:block}'+
   '.nl-v1>.nl-astre{}.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}'+

@@ -340,7 +340,7 @@ function migrerEdgyBootsV1(s){
   return s;
 }
 
-export function normalizeIdleAdventureStateV47(raw){__perfCompteursV1.normalisations+=1;if(raw?.version!==IDLE_ADVENTURE_V47)return base();const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
+export function normalizeIdleAdventureStateV47(raw){__perfCompteursV1.normalisations+=1;if(raw?.version!==IDLE_ADVENTURE_V47){const neuf=base();neuf.flubberRemisAZeroV1=true;return neuf;}   /* nouvelle partie : rien à remettre à zéro */const s=migrerEdgyBootsV1(Object.assign(base(),X(raw)));s.revision=Math.max(0,I(s.revision));s.recentClientMutations=(Array.isArray(s.recentClientMutations)?s.recentClientMutations:[]).filter(x=>x&&x.id).slice(-64);s.inventory=(Array.isArray(s.inventory)?s.inventory:[]).map(cleanItem).filter(Boolean);s.trash=cleanItem(s.trash);
 /*
  * Réparation (2026-09-23) : special() pose id = definitionId, et add()
  * gardait cet id -- deux exemplaires du même objet spécial (2 Pissed Off Key,
