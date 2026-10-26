@@ -58,7 +58,7 @@ import {
 } from "./idle-adventure-v47.js";
 import { __idleBuildWorkbook, __idleCanonicalSheetNameV1, __idleCommit, __idleRepairCatalogSheetNamesV1, __idleRestoreCatalogFromLegacyV2, __idleVerrouPerimeV1_ } from "./idle-runtime-classeur.js";
 import { assurerDonneesJeuSorealIdle_, emailsAutorisesSorealIdle_, exigerAccesSorealIdle_, obtenirAccesSorealIdle, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
-import { ADMIN_SOREAL_IDLE_EMAIL, cleJoueurSorealIdle_, definirAccesOuvertSorealIdle, definirAccesPublicSorealIdle, definirOrdreMenusSorealIdle, definirPartieDevSorealIdle, definirPseudoSorealIdle, estAdminSorealIdle, identiteJoueurSorealIdle_, listerJoueursExternesSorealIdle, obtenirClassementSorealIdle, obtenirMesRangsSorealIdle, obtenirIdentiteSorealIdle, obtenirPartieDevSorealIdle, reinitialiserCompteCompletSorealIdle, selectionnerBossSorealIdle } from "./idle-runtime-joueurs.js";
+import { ADMIN_SOREAL_IDLE_EMAIL, cleJoueurSorealIdle_, demarrerPartieSorealIdle, definirAccesOuvertSorealIdle, definirAccesPublicSorealIdle, definirOrdreMenusSorealIdle, definirPartieDevSorealIdle, definirPseudoSorealIdle, estAdminSorealIdle, identiteJoueurSorealIdle_, listerJoueursExternesSorealIdle, obtenirClassementSorealIdle, obtenirMesRangsSorealIdle, obtenirIdentiteSorealIdle, obtenirPartieDevSorealIdle, reinitialiserCompteCompletSorealIdle, selectionnerBossSorealIdle } from "./idle-runtime-joueurs.js";
 import { CONFIG_SOREAL_IDLE, dateSorealIdle_, nombreSorealIdle_ } from "./idle-runtime-config.js";
 import { statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
 import { annulerVictoireTitanAdminSorealIdle, copierPartieASurBSorealIdle, crediterExpAdminSorealIdle, retirerRecordCombatLongAdminSorealIdle, enregistrerHistoireAdminSorealIdle, enregistrerTexteAdminSorealIdle, enregistrerTutorielAdminSorealIdle, lireBugsSorealIdle, lireGainsExpAdminSorealIdle, listerHistoiresAdminSorealIdle, listerTextesAdminSorealIdle, listerTutorielAdminSorealIdle, obtenirHistoireBossSorealIdle, obtenirIntroSorealIdle, obtenirTextesSurchargesSorealIdle, obtenirTutorielSorealIdle, preparerPartieTestSorealIdle, reglerAncienTutorielAdminSorealIdle, signalerBugSorealIdle, supprimerBugSorealIdle, supprimerHistoireAdminSorealIdle, supprimerTexteAdminSorealIdle, supprimerTutorielAdminSorealIdle } from "./idle-runtime-admin.js";
@@ -1105,6 +1105,7 @@ const IDLE_OPERATIONS={
   recyclerObjetSorealIdle,
   recyclerObjetsSorealIdle,
   reinitialiserCompteCompletSorealIdle,
+  demarrerPartieSorealIdle,
   renaitreSorealIdle,
   signalerBugSorealIdle,
   lireBugsSorealIdle,

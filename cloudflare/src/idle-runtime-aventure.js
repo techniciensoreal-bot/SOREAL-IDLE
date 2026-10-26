@@ -1140,6 +1140,9 @@ export function statsInitiauxSorealIdleV41_() {
 
   stats.energieTickResteMs = 0;
 
+  /* La partie ne commence qu'à l'appui sur le bouton blanc de l'intro (demarrerPartieSorealIdle) : énergie à 250, horloge remise à zéro. */
+  stats.partieAttente = true;
+
   return stats;
 }
 

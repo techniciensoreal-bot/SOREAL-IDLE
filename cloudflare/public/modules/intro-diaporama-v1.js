@@ -211,7 +211,21 @@ function terminer(){
   chronique=false;
   var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
   try{if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
-  if(typeof window.__tutorielPagesNaviguerV1__==='function')window.__tutorielPagesNaviguerV1__(1);
+  /* La partie COMMENCE ici (Norman, 2026-10-26 : « elle ne doit réellement commencer qu'à l'appui sur le bouton blanc ; on arrive sur la borne avec 250 d'énergie ») : le moteur remet l'énergie à 250 et l'horloge à zéro (demarrerPartieSorealIdle,
+     sans effet pour un joueur déjà en route ni pour un rejeu), puis la fenêtre se ferme. Au plus 4 s d'attente si le moteur ne répond pas. */
+  var fini=false;
+  function suite(){
+    if(fini)return;fini=true;
+    if(typeof window.__tutorielPagesNaviguerV1__==='function')window.__tutorielPagesNaviguerV1__(1);
+  }
+  var appel=window.__SOREAL_IDLE_CALL_V1__;
+  if(typeof appel!=='function'){suite();return;}
+  setTimeout(suite,4000);
+  try{
+    Promise.resolve(appel('demarrerPartieSorealIdle',[])).then(function(){
+      return Promise.resolve(appel('synchroniserSorealIdle',[])).catch(function(){});
+    }).then(suite,suite);
+  }catch(_e){suite();}
 }
 /* Chronique du premier boss (Norman, 2026-10-23 : « elle doit s'enchaîner sur la cinématique, avec l'image du boss et le texte en dessous ») : seulement celle du boss 1, avec les données posées par la page de combat. */
 function donneesChronique(){

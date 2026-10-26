@@ -966,7 +966,8 @@ coutExtensionInventaire:
 
       nouveauJoueur:
         Boolean(
-          ageMs < 15 * 60 * 1000 &&
+          (statsEtat && statsEtat.partieAttente === true) ||
+          (ageMs < 15 * 60 * 1000 &&
           Math.floor(
             nombreSorealIdle_(
               row[c.NIVEAU - 1],
@@ -990,7 +991,7 @@ coutExtensionInventaire:
               statsEtat.lootsObtenus,
               0
             )
-          ) === 0
+          ) === 0)
         )
     },
 

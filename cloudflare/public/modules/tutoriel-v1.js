@@ -29,6 +29,9 @@ function appel_(nom,args){
   if(typeof f!=='function')return Promise.reject(new Error('Connexion au jeu indisponible.'));
   return Promise.resolve(f(nom,args));
 }
+function bienvenueFaite_(){
+  try{var f=window.__soreal_idle_vu_connu_v1__;return typeof f==='function'?Boolean(f('bienvenue')):true;}catch(_e){return true;}
+}
 function dejaVu_(j,vuId){
   try{var vus=j&&j.profil&&j.profil.stats&&j.profil.stats.vus;return Array.isArray(vus)&&vus.indexOf(vuId)!==-1;}catch(_e){return false;}
 }
@@ -200,6 +203,8 @@ function fermer_(vu){
 function chroniqueOccupee_(){
   /* La cinématique de début de partie (images puis chronique du premier boss) occupe l'écran : le guide ne démarre qu'à sa fermeture (Norman, 2026-10-23). */
   if(document.getElementById('sorealIdleTutorielPagesModalV1'))return true;
+  /* L'écran d'accueil (choix du pseudo) passe avant tout (Norman, 2026-10-26 : le tutoriel arrivait sur l'écran du pseudo). */
+  if(document.getElementById('sorealIdleAccueilV1'))return true;
   var p=document.getElementById('sorealIdleBossChroniqueV206');
   if(!p)return false;
   if(window.__chroniqueOuverteIdleV1||(p.classList&&p.classList.contains('ouverte')))return true;
@@ -362,7 +367,8 @@ function considerer_(j){
     }).catch(function(){etat.initEnCours=false;});
   }
   if(etat.ancienActif===null||etat.enCours||histoireOuModalEnCours_())return;
-  if(j.profil&&j.profil.nouveauJoueur)demander_('debut',{debut:true},j);
+  /* Le guide de départ ne commence qu'APRÈS l'introduction, une fois le bouton blanc pressé (Norman, 2026-10-26) : « bienvenue » est marqué à la fermeture de l'intro. */
+  if(j.profil&&j.profil.nouveauJoueur&&bienvenueFaite_())demander_('debut',{debut:true},j);
   var m=menuActif_();
   if(m)demander_('menu:'+m,{menu:m},j);
   var sel=Math.floor(Number(j.bossSelection));

@@ -756,6 +756,8 @@ export function statsJoueurSorealIdle_(valeur) {
     combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)?Math.max(0,nombreSorealIdle_(s.combatBossPlusLongSec,0)):0,
     /* Le combat en cours est parti d'un boss à PV pleins (un seul « Fight », sans reprise d'un boss déjà entamé). */
     combatBossDepartFrais:s.combatBossDepartFrais===true,
+    /* Partie pas encore commencée (Norman, 2026-10-26) : posé à la création d'un joueur (première ouverture ou remise à zéro), retiré par demarrerPartieSorealIdle quand le joueur appuie sur le bouton blanc de l'intro. */
+    partieAttente:s.partieAttente===true,
     forge:Math.max(0,Math.floor(nombreSorealIdle_(s.forge,0))),
     materiauxDepenses:Math.max(0,Math.floor(nombreSorealIdle_(s.materiauxDepenses,0))),
     extensionsSac:Math.max(0,Math.floor(nombreSorealIdle_(s.extensionsSac,0))),

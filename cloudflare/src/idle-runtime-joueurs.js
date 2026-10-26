@@ -10,6 +10,7 @@ import { CONFIG_SOREAL_IDLE, nombreSorealIdle_, normaliserEmailSorealIdle_ } fro
 import { LockService, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, extraireEmailsUtilisateurSorealIdle_, obtenirFeuilleJoueursSorealIdle_, obtenirSpreadsheetSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
+import { createBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { definitionBossSorealIdle_, niveauRequisBossSorealIdle_ } from "./idle-runtime-boss.js";
 
 /*
@@ -960,6 +961,58 @@ export function definirPartieDevSorealIdle(sessionToken, partie) {
   );
 
   return { ok: true, actif: true, partie: cible };
+}
+
+/*
+ * La partie commence ICI (Norman, 2026-10-26 : « la partie ne doit réellement commencer qu'à l'appui sur le bouton blanc de l'intro ; on arrive sur la borne d'arcade avec 250 d'énergie ; elle ne doit pas commencer dès qu'on reset »).
+ * Un joueur tout neuf (première ouverture ou remise à zéro) a `stats.partieAttente` : pendant l'écran du pseudo et l'intro, son énergie et son horloge avançaient. À l'appui, l'énergie revient à 250 (la moitié du plafond de départ),
+ * l'horloge de la ligne repart de maintenant (aucun temps écoulé n'est compté) et le drapeau tombe. Sans le drapeau (joueur déjà en route), rien n'est touché : jamais un moyen de remettre son énergie à 250.
+ */
+export function demarrerPartieSorealIdle(sessionToken) {
+  const acces = exigerAccesSorealIdle_(sessionToken);
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    return { ok: false, code: 'SOREAL_IDLE_OCCUPE', retryable: true, message: 'Le moteur termine encore une action. Réessaie dans un instant.' };
+  }
+  try {
+    const feuille = obtenirFeuilleJoueursSorealIdle_();
+    const ligne = trouverLigneJoueurSorealIdle_(feuille, acces);
+    assurerDonneesJeuSorealIdle_(feuille, ligne);
+    const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
+    const cellule = feuille.getRange(ligne, c.STATS_JSON);
+    const stats = statsJoueurSorealIdle_(cellule.getValue());
+    if (stats.partieAttente !== true) return { ok: true, demarre: false };
+    const maintenant = Date.now();
+    stats.partieAttente = false;
+    stats.energieTickResteMs = 0;
+    stats.entrainementBase = createBasicTrainingStateV411(maintenant);
+    /* Le vrai état de l'énergie vit dans le moteur avancé (metaNgu) : réserve, progression de la barre et horloges de la partie repartent de maintenant. */
+    stats.manaMajMs = maintenant;
+    const meta = stats.metaNgu;
+    if (meta && typeof meta === 'object') {
+      meta.updatedAt = maintenant;
+      meta.runStartedAt = maintenant;
+      const ressources = meta.resources && typeof meta.resources === 'object' ? meta.resources : {};
+      if (ressources.energy && typeof ressources.energy === 'object') {
+        ressources.energy.current = CONFIG_SOREAL_IDLE.ENERGIE_BASE / 2;
+        ressources.energy.fillProgress = 0;
+        ressources.energy.generatedThisRun = 0;
+      }
+      if (ressources.magic && typeof ressources.magic === 'object') {
+        ressources.magic.current = 0;
+        ressources.magic.fillProgress = 0;
+        ressources.magic.generatedThisRun = 0;
+      }
+    }
+    feuille.getRange(ligne, c.ENERGIE).setValue(CONFIG_SOREAL_IDLE.ENERGIE_BASE / 2);
+    feuille.getRange(ligne, c.DERNIERE_SYNCHRO).setValue(new Date(maintenant));
+    feuille.getRange(ligne, c.DATE_DEBUT).setValue(new Date(maintenant));
+    cellule.setValue(JSON.stringify(stats));
+    SpreadsheetApp.flush();
+    return { ok: true, demarre: true };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 export function reinitialiserCompteCompletSorealIdle(

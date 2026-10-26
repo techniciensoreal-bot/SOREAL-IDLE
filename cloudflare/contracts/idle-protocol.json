@@ -48,6 +48,7 @@
     "listerJoueursExternesSorealIdle",
     "listerTextesAdminSorealIdle",
     "listerTutorielAdminSorealIdle",
+    "demarrerPartieSorealIdle",
     "marquerVusSorealIdle",
     "nukerBossSorealIdle",
     "obtenirAccesSorealIdle",

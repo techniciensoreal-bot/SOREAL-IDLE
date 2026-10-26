@@ -176,7 +176,7 @@ export const OPERATIONS_DE_JEU_V1 = new Set([
   "acheterEntrainementsSorealIdle", "acheterSortSorealIdle", "acheterSortsSorealIdle", "agrandirInventairePlusieursSorealIdle", "agrandirInventaireSorealIdle",
   "ameliorerEquipementForgeSorealIdle", "ameliorerEquipementsForgeSorealIdle", "combattreAventureSorealIdle", "definirAutoBossSuivantSorealIdle", "definirCombatAutoAventureSorealIdle",
   "definirCombatBossSorealIdle", "equiperObjetsSorealIdle", "fusionnerObjetSorealIdle", "fusionnerObjetsSorealIdle", "lancerSortSorealIdle", "recyclerObjetSorealIdle",
-  "recyclerObjetsSorealIdle", "renaitreSorealIdle", "sauvegarderDispositionInventaireSorealIdle", "selectionnerBossSorealIdle", "definirClassementVisibleSorealIdle", "nukerBossSorealIdle",
+  "recyclerObjetsSorealIdle", "renaitreSorealIdle", "sauvegarderDispositionInventaireSorealIdle", "selectionnerBossSorealIdle", "definirClassementVisibleSorealIdle", "nukerBossSorealIdle", "demarrerPartieSorealIdle",
 ]);
 export function noterActionServeurV1(coord, user, operation) {
   if (!OPERATIONS_DE_JEU_V1.has(operation)) return false;
