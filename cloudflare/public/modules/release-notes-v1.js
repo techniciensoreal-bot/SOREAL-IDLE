@@ -41,7 +41,6 @@
             'Dans le Coffre, les titres des cadres se lisent en entier (plus de « Looty » coupé lettre par lettre) et n’ont plus qu’un seul emoji.',
             'Tous les objets qui se montent au niveau 100 ont maintenant leur case dans le Coffre.',
             'Fermer le Coffre ne fait plus descendre le cadre trop bas avant de le faire remonter d’un coup : sur PC, où la page est mise à l’échelle, il se raccourcit maintenant d’un seul geste.',
-            'Le cadre du Coffre garde sa vraie taille refermée, calculée en pixels de mise en page, quelle que soit l’échelle de l’écran.',
           ]},
           {menu:'titans', titre:'Titans', points:[
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
