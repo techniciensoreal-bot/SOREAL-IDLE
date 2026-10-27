@@ -132,13 +132,14 @@
       '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
       '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
       '@keyframes yggPorteEmb{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}',
-      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;background:transparent;box-shadow:none;}',
+      /* Le cadre (liserés) RESTE pendant l'ouverture et se fond avec la porte (Norman, 2026-10-26 : « les portes qui s'ouvraient laissaient voir l'image sur leurs bords extérieurs ») : seul le fond devient transparent, pour voir l'image entre les vantaux. */
+      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;background:transparent;}',
       '.ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
       '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
       '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
       '.ygg-porte.ouvre .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both;}',
       /* Fermeture (un fruit mangé ou récolté sans auto) : exactement les mêmes images que l'ouverture, jouées à l'envers. */
-      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;background:transparent;box-shadow:none;}',
+      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;background:transparent;}',
       '.ygg-porte.referme .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
       '.ygg-porte.referme .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
       '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both reverse;}',
