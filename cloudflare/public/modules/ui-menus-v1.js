@@ -816,6 +816,40 @@
        * différent de celui des boss. « Vu » est mémorisé côté serveur (idleVuMarquerV1_) : une annonce par menu et par joueur. La toute première fois
        * (joueur existant ou nouveau), les menus déjà disponibles sont seulement notés, sans annonce.
        */
+      /*
+       * Les boutons des menus qui viennent de se débloquer CLIGNOTENT 3 fois (Norman, 2026-10-26 : « pour montrer que c'est débloqué, de manière à attirer l'oeil ; si plusieurs menus se débloquent en même temps après un nuke, tous clignotent 3 fois en synchro »).
+       * Une seule animation par bouton, toutes démarrées sur le MÊME instant de l'horloge du document : parfaitement synchrones. Le bouton d'un menu qui vient d'apparaître n'existe parfois qu'une fraction de seconde plus tard (le menu se redessine) : on le
+       * cherche pendant 1,5 s au plus. Sans effet avec « réduire les animations » (le son, lui, est joué).
+       */
+      function clignoterMenusDebloquesIdleV1_(ids){
+        try{if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(_e){}
+        const restants=ids.slice();
+        let essais=0;
+        (function chercher(){
+          const trouves=[];
+          for(let i=restants.length-1;i>=0;i-=1){
+            const cible="('"+restants[i]+"')";
+            const b=Array.prototype.find.call(document.querySelectorAll('.soreal-idle-nav-v28 [onclick]'),function(x){return String(x.getAttribute('onclick')||'').indexOf(cible)!==-1;});
+            if(b){trouves.push(b);restants.splice(i,1);}
+          }
+          if(trouves.length&&typeof trouves[0].animate==='function'){
+            const debut=document.timeline&&document.timeline.currentTime;
+            trouves.forEach(function(b){
+              try{
+                const a=b.animate([
+                  {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'},
+                  {opacity:.2,boxShadow:'0 0 0 0 rgba(255,212,90,0)',offset:.5},
+                  {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'}
+                ],{duration:520,iterations:3,easing:'ease-in-out'});
+                if(debut!=null)a.startTime=debut;
+              }catch(_e){}
+            });
+          }
+          essais+=1;
+          if(restants.length&&essais<15)setTimeout(chercher,100);
+        })();
+      }
+
       function annoncerNouveauxMenusIdleV1_(j){
         if(!j||typeof window.__sorealFadeNoticeV1__!=='function')return;
         const dispo=REG.IDLE_MENUS_V1.filter(function(m){
@@ -833,7 +867,9 @@
         });
         if(!nouveaux.length)return;
         nouveaux.forEach(function(m){idleVuMarquerV1_('menu-annonce:'+m.id);});
+        /* UN seul son (trois petits bips doux), quel que soit le nombre de menus débloqués en même temps ; tous les boutons clignotent ensemble. */
         jouerEffetAudioIdleV199_('menuUnlock');
+        clignoterMenusDebloquesIdleV1_(nouveaux.map(function(m){return m.id;}));
         nouveaux.forEach(function(m){
           window.__sorealFadeNoticeV1__('🔓 Nouveau menu débloqué !',[(m.icon?m.icon+' ':'')+m.nom],{dureeMs:3800});
         });

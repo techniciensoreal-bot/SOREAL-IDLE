@@ -1422,20 +1422,15 @@
    * Nouveau menu débloqué (Norman, 2026-09-26 : « un petit bruit de victoire, pas le même que pour les boss ») : un éclat de clochettes aigu qui monte
    * (do-mi-sol-do en haut du clavier), très court, sans la fanfare des boss.
    */
+  /*
+   * Menu débloqué (Norman, 2026-10-26 : « bip bip bip agréable, pas trop aigu, pour attirer l'oeil ») : trois bips courts et doux, un par clignotement du bouton (toutes les 520 ms), même note, sinus + une octave en dessous pour la chaleur. Note grave-médium
+   * (587 Hz, ré) : jamais perçant. Un seul son même si plusieurs menus se débloquent ensemble.
+   */
   function menuDebloque_(){
-    return jouerWebAudio_(760,function(c){
-      [
-        [1047,.16,.040,0],
-        [1319,.16,.040,.09],
-        [1568,.18,.042,.18],
-        [2093,.34,.046,.29]
-      ].forEach(function(p){
-        tonal_(c,{type:"sine",from:p[0],to:p[0]*1.002,duration:p[1],volume:p[2],delay:p[3]});
-        tonal_(c,{type:"triangle",from:p[0]*2,to:p[0]*2,duration:p[1]*.6,volume:p[2]*.28,delay:p[3]});
-      });
-      bruit_(c,{
-        duration:.22,volume:.014,delay:.30,
-        filterType:"highpass",frequency:6200,frequencyEnd:9000,decay:2.4
+    return jouerWebAudio_(1400,function(c){
+      [0,.52,1.04].forEach(function(d){
+        tonal_(c,{type:"sine",from:587,to:587,duration:.17,volume:.085,delay:d});
+        tonal_(c,{type:"triangle",from:294,to:294,duration:.17,volume:.035,delay:d});
       });
     });
   }

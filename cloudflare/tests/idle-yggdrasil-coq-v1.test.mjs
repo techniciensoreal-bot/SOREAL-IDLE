@@ -57,7 +57,7 @@ assert.equal(appels[1], 2200, "durée proportionnelle au réglage de la porte");
 renaissances = 5;
 assert.equal(banc(1), true, "à toute heure : le coq chante à la première ouverture");
 assert.equal(banc(1), false, "puis plus de coq jusqu'à la prochaine renaissance");
-assert.ok(page.includes("noterPorteVue_(id,true);son_(nomSonPorte_(),vit);coqPremiereOuverture_(vit);}"), "branché sur la vraie ouverture (pas sur le banc d'essai de l'administrateur)");
+assert.ok(page.includes("noterPorteVue_(id,true);if(sonPorteUnique_('ouvre',nomSonPorte_(),vit,1200))coqPremiereOuverture_(vit);}"), "branché sur la vraie ouverture (pas sur le banc d'essai de l'administrateur)");
 assert.equal((page.match(/coqPremiereOuverture_\(/g) || []).length, 2, "définie une fois, appelée une fois");
 
 // 3. R2 : jamais tiré au hasard comme son d'ambiance.

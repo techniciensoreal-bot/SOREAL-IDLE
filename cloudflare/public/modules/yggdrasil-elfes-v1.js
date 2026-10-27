@@ -381,6 +381,15 @@
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte : « porte » (pierre, lourde) ou « porteBois ». */
+  /* UN seul son de porte à la fois (Norman, 2026-10-26 : « peu importe le nombre de portes qui s'ouvrent, un seul son de porte et de coq »). Plusieurs portes qui s'ouvrent (ou se ferment) au même instant ne jouent qu'UN son ; un nouveau son n'est possible qu'une fois le précédent presque fini. */
+  var dernierSonPorte_={};
+  function sonPorteUnique_(genre,nom,option,duree){
+    var t=Date.now();
+    if(dernierSonPorte_[genre]&&t-dernierSonPorte_[genre]<duree)return false;
+    dernierSonPorte_[genre]=t;
+    son_(nom,option);
+    return true;
+  }
   function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
   /* Bruit de la porte qui se referme : un son à part (le son d'ouverture à l'envers sonnait mal). */
   function nomSonFerme_(){return reglages_().son==='bois'?'porteFermeBois':'porteFerme';}
@@ -418,7 +427,7 @@
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
       /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
-      if(A[id]){delete A[id];F[id]=Date.now();son_(nomSonFerme_(),reglages_().porte);}
+      if(A[id]){delete A[id];F[id]=Date.now();sonPorteUnique_('ferme',nomSonFerme_(),reglages_().porte,1200);}
       etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);
       if(F[id]&&Date.now()-F[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,false,true);
       delete F[id];
@@ -427,7 +436,7 @@
     A[id]=true;delete F[id];
     if(!etat.fermees[id]&&!etat.ouvre[id]&&!porteVue_(id))etat.fermees[id]=true;   /* premiere visite depuis la renaissance : la porte s'ouvre meme si le fruit est deja actif */
     var vit=reglages_().porte;
-    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);son_(nomSonPorte_(),vit);coqPremiereOuverture_(vit);}
+    if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);if(sonPorteUnique_('ouvre',nomSonPorte_(),vit,1200))coqPremiereOuverture_(vit);}
     var t=etat.ouvre[id];
     if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
     delete etat.ouvre[id];
