@@ -131,7 +131,7 @@
       ctx=new AudioCtx();
       master=ctx.createGain();
       master.gain.value=gainMaitre_();
-      master.connect(ctx.destination);
+      (window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(ctx,master))||master.connect(ctx.destination);
       return ctx;
     }catch(_){
       ctx=null;

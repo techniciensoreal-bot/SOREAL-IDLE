@@ -24,8 +24,8 @@
   "sha": "22fe3377ba6dbe954c5c4c06b97b5b545f4d9286"
  },
  "/modules/ambient-audio-v1.js": {
-  "pin": 12,
-  "sha": "b0a61bf4c174cb7e87747048dfd969dcd58fcd54"
+  "pin": 13,
+  "sha": "be7c37fdb684da75aec2c641c6dd5f4bbceeb712"
  },
  "/modules/animations-hors-ecran-v1.js": {
   "pin": 2,
@@ -48,8 +48,8 @@
   "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 269,
-  "sha": "3430d90b08643f8422c5e50e2c7c509d07fa6a4e"
+  "pin": 270,
+  "sha": "9c81ec3ed965f40e519606e6dbffebb4b4695da5"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -92,12 +92,12 @@
   "sha": "27ffadc767a8f0c6e45777bd84524578a812484e"
  },
  "/modules/bt-lumieres-v1.js": {
-  "pin": 13,
-  "sha": "44d76d33c74a3c1207b677e5cf71fc0547d67e8b"
+  "pin": 14,
+  "sha": "fb201430d3feb0e275378506b4581c42dd411482"
  },
  "/modules/bt-neon-v1.js": {
-  "pin": 6,
-  "sha": "9cb05ed72f5ac930d2b58b396966927a05eb50f2"
+  "pin": 7,
+  "sha": "aa66de7455d088cb7f76c49dec560b29ea86512b"
  },
  "/modules/bug-report-v1.js": {
   "pin": 5,
@@ -283,6 +283,10 @@
   "pin": 1,
   "sha": "5ceb03fecfb0a6b2f8b1fa004de75b4695e79395"
  },
+ "/modules/limiteur-audio-v1.js": {
+  "pin": 1,
+  "sha": "48f5bd222c4396472cda16c7ef1832dc0419b0f2"
+ },
  "/modules/local-neural-piper-v1.js": {
   "pin": 14,
   "sha": "922af6981f263c7b4c9bf857b4fede0730fbd77e"
@@ -352,8 +356,8 @@
   "sha": "1cb08c893170d9cef1c29400521319c8cc3406f9"
  },
  "/modules/orage-v1.js": {
-  "pin": 16,
-  "sha": "263f3b9ba6c94cfff21f8af42392e6b666118e31"
+  "pin": 17,
+  "sha": "cc8ddb74fda9acfc6f04b3305d68c5f4551a1b27"
  },
  "/modules/perf-texte-v1.js": {
   "pin": 2,
@@ -392,8 +396,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 476,
-  "sha": "94f47d7733f849f1bccaeb805e7ba4141658eea0"
+  "pin": 477,
+  "sha": "afaecd9b5095aa819d0fc9c74b2d1331a5590c6b"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -460,12 +464,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 485,
-  "sha": "d749d52d1958de22dcd27c3a55f5866ca2bbdd40"
+  "pin": 486,
+  "sha": "f36c4649bd80c997fae6f67f4a28c100693f0260"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 305,
-  "sha": "bbe9df3dc8d42464e93cafac33c69da21d857026"
+  "pin": 306,
+  "sha": "89880eab01277d0ea011a086a202a093db424708"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -608,8 +612,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 56,
-  "sha": "e926857290a0591b52f6adab72da3922c89d8b6e"
+  "pin": 57,
+  "sha": "46f4c3182a169ad6cf29b934be85e38157cd19cf"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
@@ -624,8 +628,8 @@
   "sha": "67a7f1ccfd9406c84c345fc5e8f9bb3bc096761f"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 13,
-  "sha": "f61ca97171d82bed3e35b5537880ae6baface0e9"
+  "pin": 14,
+  "sha": "33e25e443820099e4891c818104ff2fdcce717d3"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,

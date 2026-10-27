@@ -274,7 +274,7 @@
     try{
       if(c.state==='suspended'&&c.resume)c.resume();
       couperVoix_(c);
-      var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*GAIN_MAITRE;maitre.connect(c.destination);
+      var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*GAIN_MAITRE;(window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(c,maitre))||maitre.connect(c.destination);
       voixCourante=maitre;
       construire_(c,maitre,c.currentTime+0.005,type);
       return true;

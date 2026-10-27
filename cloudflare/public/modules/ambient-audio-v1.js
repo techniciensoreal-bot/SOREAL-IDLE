@@ -205,7 +205,7 @@
       var gainNode=ctx.createGain();
       gainNode.gain.value=1;
       source.connect(gainNode);
-      gainNode.connect(ctx.destination);
+      (window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(ctx,gainNode))||gainNode.connect(ctx.destination);
       return gainNode;
     }catch(_){
       return null;

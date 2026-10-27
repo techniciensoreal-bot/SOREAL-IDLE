@@ -32,6 +32,7 @@
         date:'2026-10-27',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les sons du jeu ne saturent plus : tout ce qui sort passe maintenant par un limiteur qui calme seulement les dépassements (plusieurs sons en même temps, ambiances amplifiées). Le volume habituel ne change pas.',
             'Le bandeau « En direct » apparaît et disparaît maintenant en fondu, et les informations entrent toujours par la droite de l’écran puis le traversent en entier, sur PC comme sur téléphone (sur PC, la première pouvait démarrer au milieu).',
             'Les portes ne se referment plus en plein milieu de leur ouverture, et les fruits ne rétrécissent plus jamais en animation : une pousse plus petite apparaît d’un coup.',
             'Le boss suivant n’apparaît plus d’abord en entier puis noir avant de revenir : il n’est montré que par son animation d’apparition. Et Fight reste bloqué tant que le boss n’est pas apparu.',

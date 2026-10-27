@@ -123,7 +123,7 @@
     if(!c)return false;
     try{
       if(c.state==='suspended'&&c.resume)c.resume();
-      var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*0.55;maitre.connect(c.destination);
+      var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*0.55;(window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(c,maitre))||maitre.connect(c.destination);
       construireTouche_(c,maitre,c.currentTime,relache,grave);
       return true;
     }catch(_e){return false;}
