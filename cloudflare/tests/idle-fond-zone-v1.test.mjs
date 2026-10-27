@@ -56,3 +56,17 @@ const html = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(html.indexOf("/modules/adventure-fond-zone-v1.js") > 0 && html.indexOf("/modules/adventure-fond-zone-v1.js") < html.indexOf("/modules/adventure-scene-v79.js"), "module chargé avant la scène");
 
 console.log("idle-fond-zone-v1: OK");
+
+// Difficulté (2026-10-27) : Evil = fonds 3D, Sadistic = photos ; le serveur lit idle/backgrounds/adventure-evil/ puis -sadistic/.
+function avecDifficulte(d) {
+  const win = { __SOREAL_IDLE_ITEM_DIFFICULTE_V1__: { difficulte: () => d } };
+  new Function("window", "document", src)(win, { getElementById: () => ({}), createElement: () => ({}), head: { appendChild() {} } });
+  return win.__SOREAL_IDLE_FOND_ZONE_V1__.url("sky");
+}
+assert.equal(avecDifficulte(""), "/api/idle/media/adventure-zone?name=sky");
+assert.equal(avecDifficulte("difficile"), "/api/idle/media/adventure-zone?name=sky&difficulty=difficile");
+assert.equal(avecDifficulte("extreme"), "/api/idle/media/adventure-zone?name=sky&difficulty=extreme");
+const media = readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
+assert.ok(media.includes('"idle/backgrounds/adventure-evil/"') && media.includes('"idle/backgrounds/adventure-sadistic/"'));
+assert.ok(!"idle/backgrounds/adventure-evil/".startsWith("idle/backgrounds/adventure/"), "dossiers voisins");
+console.log("idle-fond-zone-v1 difficulte: OK");

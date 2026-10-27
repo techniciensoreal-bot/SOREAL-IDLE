@@ -1045,6 +1045,25 @@ async function adventureZone_(request,env,url){
   const name=nomZoneAdventureR2(url.searchParams.get("name"));
   if(!name)return new Response("Nom de zone invalide",{status:400,headers:{"cache-control":"no-store"}});
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"||typeof env.SOREAL_R2.get!=="function")return new Response("Média Adventure indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  /* Fonds par difficulté (Norman, 2026-10-27) : Evil = 3D de film d'animation, Sadistic = photos ; dossiers voisins (jamais dans idle/backgrounds/adventure/), <zone>.webp ; absent = fond normal. */
+  const dz=String(url.searchParams.get("difficulty")||"").trim().toLowerCase();
+  if(/^[a-z0-9]{1,24}$/.test(name)){
+    const dossiers=[];
+    if(dz==="extreme"||dz==="sadistic")dossiers.push("idle/backgrounds/adventure-sadistic/");
+    if(dz==="difficile"||dz==="evil"||dz==="extreme"||dz==="sadistic")dossiers.push("idle/backgrounds/adventure-evil/");
+    for(const d of dossiers){
+      const cle=d+name+".webp";
+      const o=await env.SOREAL_R2.get(cle);
+      if(o){
+        const h=new Headers();
+        if(typeof o.writeHttpMetadata==="function")o.writeHttpMetadata(h);
+        if(!h.has("content-type"))h.set("content-type","image/webp");
+        if(o.httpEtag)h.set("etag",o.httpEtag);
+        h.set("x-soreal-idle-r2-key",cle);
+        return new Response(request.method==="HEAD"?null:o.body,{status:200,headers:mediaHeaders_(h,300)});
+      }
+    }
+  }
   const keys=await clesAdventureR2_(env);
   let best="",score=0;
   for(const key of keys){

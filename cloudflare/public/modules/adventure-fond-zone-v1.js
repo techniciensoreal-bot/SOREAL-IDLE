@@ -19,7 +19,11 @@
   /* Décors assombris (Norman, 2026-10-26 : « il faut assombrir les décors ») : un voile noir sur tout le fond, plus dense au centre pour que les barres et les cartes restent lisibles. */
   var VOILE='radial-gradient(ellipse at 50% 50%,rgba(4,6,14,.78) 0%,rgba(4,6,14,.62) 55%,rgba(4,6,14,.5) 100%)';
 
-  function url(id){return '/api/idle/media/adventure-zone?name='+encodeURIComponent(String(id||''));}
+  /* Evil : fonds en 3D ; Sadistic : en photo (le serveur retombe sur le fond normal si absent). */
+  function url(id){
+    var d=window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__?window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__.difficulte():'';
+    return '/api/idle/media/adventure-zone?name='+encodeURIComponent(String(id||''))+(d?'&difficulty='+d:'');
+  }
 
   function style_(){
     if(document.getElementById(ID_STYLE))return;
