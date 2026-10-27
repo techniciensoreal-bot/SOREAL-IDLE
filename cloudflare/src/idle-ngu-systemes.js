@@ -617,6 +617,18 @@ export function toggleDigger(state,id,active){
   return{digger:id,active:true,runLevel:d.runLevel};
 }
 
+/* Pourcentage de l'effet d'un Digger à un niveau actif donné (formules du wiki, page Gold Diggers) : factorisé pour que le bonus affiché au joueur soit EXACTEMENT celui que diggerBonuses applique. */
+function diggerPctAtLevel(def,L){
+  if(def.id==="drop"||def.id==="wandoos"||def.id==="blood")return 150+L;
+  if(def.id==="stats")return 200+Math.pow(L,3);
+  if(def.id==="adventure")return 110+0.5*L;
+  if(def.id==="energyNgu"||def.id==="magicNgu"||def.id==="energyBeard"||def.id==="magicBeard")return 120+L;
+  if(def.id==="pp")return 110+L;
+  if(def.id==="daycare")return 105+0.1*L;
+  if(def.id==="experience")return 105+0.5*L;
+  return 100;
+}
+
 export function diggerBonuses(state){
   const s=state.systems.diggers;
   const out={drop:1,wandoos:1,stats:1,adventure:1,energyNgu:1,magicNgu:1,energyBeard:1,magicBeard:1,pp:1,daycare:1,blood:1,experience:1};
@@ -625,18 +637,38 @@ export function diggerBonuses(state){
   for(const def of IDLE_NGU_DIGGERS){
     const d=s.data.diggers[def.id];
     if(!d.active||d.runLevel<=0)continue;
-    const L=d.runLevel;
-    let pct=100;
-    if(def.id==="drop"||def.id==="wandoos"||def.id==="blood")pct=150+L;
-    else if(def.id==="stats")pct=200+Math.pow(L,3);
-    else if(def.id==="adventure")pct=110+0.5*L;
-    else if(def.id==="energyNgu"||def.id==="magicNgu"||def.id==="energyBeard"||def.id==="magicBeard")pct=120+L;
-    else if(def.id==="pp")pct=110+L;
-    else if(def.id==="daycare")pct=105+0.1*L;
-    else if(def.id==="experience")pct=105+0.5*L;
-    out[def.effect]=Math.max(1,pct/100*g);
+    out[def.effect]=Math.max(1,diggerPctAtLevel(def,d.runLevel)/100*g);
   }
   return out;
+}
+
+/*
+ * Vue de la page Mineurs d'or (Norman, 2026-10-27 : « il faut que ce soit représentatif de ce que ça fait ») : pour chaque Digger, le multiplicateur que donne son niveau actif (s'il travaillait), le drain à ce niveau et le coût du prochain niveau maximum ;
+ * plus le GPS brut, le drain total, les emplacements et le bonus global. Lecture seule : aucune valeur nouvelle, ce sont celles du moteur. Rien tant que le système n'est pas découvert (anti-spoil).
+ */
+export function diggerViewV1(state){
+  const s=state.systems.diggers;
+  if(!s?.unlocked)return null;
+  const g=diggerGlobalBonus(state);
+  const items={};
+  for(const def of IDLE_NGU_DIGGERS){
+    const d=s.data.diggers[def.id]||{};
+    const run=Math.max(0,int(d.runLevel,0)),max=Math.max(0,int(d.maxLevel,0));
+    items[def.id]={
+      multiplier:run>0?Math.max(1,diggerPctAtLevel(def,run)/100*g):1,
+      drain:run>0?diggerDrainAtLevel(def,run):0,
+      nextCost:max>=def.cap?null:diggerCostAtLevel(def,max+1),
+      nextDrain:diggerDrainAtLevel(def,Math.min(def.cap,run+1))
+    };
+  }
+  return {
+    globalPct:(g-1)*100,
+    grossGps:idleNguTimeMachineGrossGoldPerSecond(state),
+    drain:diggerDrainTotal(state),
+    slots:availableDiggerSlots(state),
+    active:diggerActiveCount(state),
+    items
+  };
 }
 
 /*

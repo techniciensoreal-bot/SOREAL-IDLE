@@ -303,6 +303,10 @@
   "pin": 202610167,
   "sha": "fb6c795698811126e4b214298db47830c9021b34"
  },
+ "/modules/mineurs-page-v1.js": {
+  "pin": 7,
+  "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
+ },
  "/modules/money-pit-page-v1.js": {
   "pin": 4,
   "sha": "4bdc49a03b776547a1a259f191aef35d907231bb"
@@ -320,8 +324,8 @@
   "sha": "d478211ff732862e2427dfc6fea23dbf0b5db567"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 75,
-  "sha": "ae7cd62dea1f0f77f0b798f536ff2a62a85197d8"
+  "pin": 76,
+  "sha": "83722094300f0b72c8b6771e06144c2ad1c6e5bb"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -388,8 +392,8 @@
   "sha": "c5643abfc99e96ab30c4e99d7720eb1ad107cc94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 475,
-  "sha": "222e74a448286ef1d2e6c9e337d71020608b588e"
+  "pin": 476,
+  "sha": "94f47d7733f849f1bccaeb805e7ba4141658eea0"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -456,12 +460,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 484,
-  "sha": "70536fdefe2908ab39c6dd924c33ef7e71c50588"
+  "pin": 485,
+  "sha": "d749d52d1958de22dcd27c3a55f5866ca2bbdd40"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 304,
-  "sha": "09c2f7ef22035c6e9846ad6940e28e24cc723ce8"
+  "pin": 305,
+  "sha": "bbe9df3dc8d42464e93cafac33c69da21d857026"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -612,8 +616,8 @@
   "sha": "eeb2b21eeaed50853ff91fb092114f98c2a447b5"
  },
  "/modules/yggdrasil-diggers-page-v1.js": {
-  "pin": 1,
-  "sha": "a0eff2c461da409d6bace5e7fe809009d3739edf"
+  "pin": 2,
+  "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
   "pin": 55,

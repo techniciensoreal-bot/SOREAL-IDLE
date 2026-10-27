@@ -87,17 +87,9 @@
           }).join('')+'</div>';
       }
 
+      /* Page Mineurs d'or : refaite en entier (Norman, 2026-10-27), voir modules/mineurs-page-v1.js. */
       function pageDiggersIdleV47_(j){
-        const s=systemeMetaParIdIdleV130_(j,'diggers');
-        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
-        const data=s.state.data||{};
-        const diggers=data.diggers||{};
-        /* Anti-spoil : le mineur d'un système encore verrouillé n'apparaît pas. */
-        const defs=(j&&j.systemes&&Array.isArray(j.systemes.diggerDefinitions)?j.systemes.diggerDefinitions:[]).filter(function(def){return def.id!=='daycare'||Boolean(systemeMetaParIdIdleV130_(j,'daycare')&&systemeMetaParIdIdleV130_(j,'daycare').state&&systemeMetaParIdIdleV130_(j,'daycare').state.unlocked);});
-        const active=Object.keys(diggers).filter(function(id){return diggers[id]&&diggers[id].active;}).length;
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('⛏️ Gold Diggers','Monte leur niveau maximum puis choisis le niveau actif. Les Diggers consomment le GPS produit par la Time Machine.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🎰 Slots<b>'+active+' actif(s) · '+Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(data.slots||1)-active)+' libre(s)</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+defs.map(function(def){const d=diggers[def.id]||{};const run=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.runLevel||0);const max=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(d.maxLevel||0);return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_('diggers',def.id,def.name||def.id))+'</b><span>'+run+' / '+max+'</span></div><div style="font-size:14px;color:#aeb5c8;margin-top:5px">Drain base '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.drain||0)+' GPS · cap '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.cap||0)+'</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\'})">Max +1</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.max(0,run-1)+')">−</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__setDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+Math.min(max,run+1)+')">+</button><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__toggleDiggerIdleV47__(\''+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.id)+'\','+(!d.active)+')">'+(d.active?'Désactiver':'Activer')+'</button></div></div>';}).join('')+'</div>';
+        return window.__SOREAL_IDLE_MINEURS_PAGE_V1__.page(j);
       }
 
   window.__SOREAL_IDLE_YGG_DIGGERS_PAGE_V1__={

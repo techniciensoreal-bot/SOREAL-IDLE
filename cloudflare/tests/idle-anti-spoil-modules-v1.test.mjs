@@ -78,7 +78,6 @@ const LISTE_BLANCHE = [
   { fichier: "cards-page-v1.js", contient: "🔒 Protéger", raison: "bouton « Protéger » d'une carte possédée" },
   { fichier: "boutique-exp-page-v1.js", contient: "' / '+H.idleEntier_(it.max)", raison: "plafond d'achat d'un article de boutique déjà affiché" },
   { fichier: "wishes-page-v1.js", contient: "' / '+H.idleEntier_(sl.maxLevel)", raison: "niveau / niveau maximum d'un slot de souhait déjà possédé" },
-  { fichier: "yggdrasil-diggers-page-v1.js", contient: "' / '+max", raison: "niveau de la run / meilleur niveau d'un Gold Digger déjà possédé" },
   /* Pages extraites de soreal-idle-ui.js : « verrouille » = NOM DE CLASSE CSS de la ligne d'entraînement grisée (aucun texte affiché). */
   { fichier: "ui-*", contient: "verrouille\" data-basi", raison: "nom de classe CSS, pas un texte affiché" },
   /* Code extrait de soreal-idle-ui.js (modules ui-*-v1.js, 2026-10-16) : mêmes exceptions qu'avant, dans leur nouveau fichier. */

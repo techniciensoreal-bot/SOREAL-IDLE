@@ -40,6 +40,9 @@
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Dès qu’un fruit commence à pousser, une petite aura dépasse du tas de terre, au-dessus du sol seulement : dorée pour l’or, rougeâtre pour la puissance, et d’une autre couleur pour chaque fruit.'
+          ]},
+          {menu:'diggers', titre:'Mineurs d’or', points:[
+            'Ce menu est entièrement refait : chaque mineur est un ouvrier dessiné avec sa pelle, dans un cadre qui est tout son décor, et il a vraiment l’air de travailler (il se penche, creuse, soulève la terre et la balance sur le tas). Le nom, ce qu’il améliore et les boutons sont posés sur le dessin. Tu vois l’or par seconde consommé, les emplacements en casques à lampe et le bonus de chaque mineur.'
           ]}
         ]
       },
