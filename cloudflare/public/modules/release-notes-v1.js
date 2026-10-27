@@ -32,7 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Quand un nouveau menu apparaît, son bouton clignote trois fois avec trois petits bips doux. Si plusieurs menus se débloquent en même temps, tous clignotent ensemble mais le son ne joue qu’une fois. À Yggdrasil, quel que soit le nombre de portes qui s’ouvrent d’un coup, il n’y a qu’un seul son de porte et un seul coq.',
+            'Quand un nouveau menu apparaît, son bouton clignote trois fois avec trois petits bips doux. Si plusieurs menus se débloquent en même temps, tous clignotent ensemble mais le son ne joue qu’une fois. Quand plusieurs portes s’ouvrent d’un coup, il n’y a qu’un seul son de porte et un seul coq.',
             'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',
             'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
             'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
