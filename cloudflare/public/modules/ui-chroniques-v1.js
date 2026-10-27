@@ -640,13 +640,37 @@
         {id:'exp',nom:'⭐ EXP'},
         {id:'playSeconds',nom:'⏱️ Temps de jeu actif'},
         {id:'achievements',nom:'🎖️ Succès'},
-        {id:'clics',nom:'🖱️ Clics/Tap'},
-        {id:'combatLong',nom:'⚔️ Combat le plus long'}
+        {id:'clics',nom:'🖱️ Clics/Tap'}
       ];
+      /* Onglet « Défis » (Norman, 2026-10-27) : ajouté à la fin SEULEMENT si le serveur annonce au moins un défi que le joueur voit (règle n°2 : rien tant qu'aucun défi n'est débloqué). */
+      const IDLE_CLASSEMENT_ONGLET_DEFIS_V1={id:'defis',nom:'⚔️ Défis'};
+      function ongletsClassementIdleV1_(d){
+        const visibles=d&&d.defis&&Array.isArray(d.defis.visibles)?d.defis.visibles:[];
+        return visibles.length?IDLE_CLASSEMENT_ONGLETS_V1.concat([IDLE_CLASSEMENT_ONGLET_DEFIS_V1]):IDLE_CLASSEMENT_ONGLETS_V1;
+      }
+      let idleClassementDefiV1='';
 
       let idleClassementOngletV1='global';
 
       const idleClassementV1={donnees:null,chargement:false,erreur:'',dernier:0};
+
+      function changerDefiClassementIdleV1_(id){
+        idleClassementDefiV1=String(id||'');
+        const root=document.querySelector('.soreal-idle-page-root-v28');
+        if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
+      }
+
+      window.__changerDefiClassementIdleV1__=changerDefiClassementIdleV1_;
+
+      /* Temps pour terminer un défi : « 3 h 12 min 40 s », « 12 min 05 s », « 48 s ». */
+      function formaterTempsDefiIdleV1_(ms){
+        const t=Math.max(0,Math.round(idleNombre_(ms)/1000));
+        const h=Math.floor(t/3600),m=Math.floor((t%3600)/60),sec=t%60;
+        const dd=function(n){return (n<10?'0':'')+n;};
+        if(h>0)return h+' h '+dd(m)+' min '+dd(sec)+' s';
+        if(m>0)return m+' min '+dd(sec)+' s';
+        return sec+' s';
+      }
 
       function changerOngletClassementIdleV1_(onglet){
         idleClassementOngletV1=String(onglet||'global');
@@ -699,24 +723,41 @@
 
       function valeurClassementIdleV1_(stat,valeur){
         if(stat==='playSeconds')return formaterDureeJeuIdleV1_(valeur);
-        if(stat==='combatLong'){
-          const sec=Math.max(0,idleNombre_(valeur));
-          if(sec<=0)return '—';
-          if(sec<60)return sec.toFixed(1).replace('.',',')+' s';
-          return formaterDureeJeuIdleV1_(sec)+' '+Math.floor(sec%60)+' s';
-        }
         if(stat==='boss')return 'Boss '+idleEntier_(valeur);
         if(stat==='number'||stat==='exp')return formatGrandNombreIdleV70_(valeur);
         return String(idleEntier_(valeur));
       }
 
+      /* Sous-menus de l'onglet « Défis » : un par défi que le joueur voit ; chaque classement liste, du plus court au plus long, le temps mis pour le terminer (les joueurs qui ne l'ont pas terminé n'y figurent pas). */
+      function pageClassementDefisIdleV1_(d){
+        const visibles=d.defis&&Array.isArray(d.defis.visibles)?d.defis.visibles:[];
+        if(!visibles.length)return '<div class="soreal-idle-empty-v10">Aucun défi pour le moment.</div>';
+        const choisi=visibles.some(function(v){return v.id===idleClassementDefiV1;})?idleClassementDefiV1:visibles[0].id;
+        const puces='<div class="soreal-idle-collection-tabs-v1 soreal-idle-classement-defis-v1">'+visibles.map(function(v){
+          return '<button type="button" class="soreal-idle-collection-tab-v1'+(choisi===v.id?' active':'')+'" onclick="window.__changerDefiClassementIdleV1__(\''+idleHtml_(v.id)+'\')">'+idleHtml_(v.name)+'</button>';
+        }).join('')+'</div>';
+        const liste=(d.defis.classements&&d.defis.classements[choisi])||[];
+        const corps=liste.length?liste.map(function(e){
+          const medaille=e.rang===1?'🥇':(e.rang===2?'🥈':(e.rang===3?'🥉':e.rang));
+          return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
+            '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
+            '<div class="soreal-idle-classement-nom-v1">'+idleHtml_(e.nom)+(e.moi?' <em>(toi)</em>':'')+'</div>'+
+            '<div class="soreal-idle-classement-valeur-v1"><b>'+formaterTempsDefiIdleV1_(e.ms)+'</b></div>'+
+          '</div>';
+        }).join(''):'<div class="soreal-idle-empty-v10">Personne n’a encore terminé ce défi.</div>';
+        return puces+'<div class="soreal-idle-note-v4" style="margin:8px 0 10px">Le meilleur temps de chaque joueur pour terminer le défi, du plus court au plus long.</div>'+
+          '<div class="soreal-idle-classement-liste-v1">'+corps+'</div>'+
+          '<div style="margin-top:12px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actualiserClassementIdleV1__()">↻ Actualiser</button></div>';
+      }
+
       function pageClassementIdleV1_(j){
         chargerClassementIdleV1_(false);
         const d=idleClassementV1.donnees;
-        const onglet=IDLE_CLASSEMENT_ONGLETS_V1.some(function(o){return o.id===idleClassementOngletV1;})?idleClassementOngletV1:'global';
+        const ongletsListe=ongletsClassementIdleV1_(d);
+        const onglet=ongletsListe.some(function(o){return o.id===idleClassementOngletV1;})?idleClassementOngletV1:'global';
         const tete=entetePageIdleV28_('📊 Classement','Tous les joueurs de SOREAL IDLE. Un joueur qui recommence sa partie reste listé, à zéro.');
         const onglets='<div class="soreal-idle-collection-tabs-v1">'+
-          IDLE_CLASSEMENT_ONGLETS_V1.map(function(o){
+          ongletsListe.map(function(o){
             return '<button type="button" class="soreal-idle-collection-tab-v1'+(onglet===o.id?' active':'')+'" onclick="window.__changerOngletClassementIdleV1__(\''+o.id+'\')">'+o.nom+'</button>';
           }).join('')+
         '</div>';
@@ -725,6 +766,7 @@
             idleHtml_(idleClassementV1.erreur||'Chargement du classement…')+
           '</div>';
         }
+        if(onglet==='defis')return tete+onglets+pageClassementDefisIdleV1_(d);
         const entrees=Array.isArray(d.entrees)?d.entrees.slice():[];
         let lignes;
         if(onglet==='global'){
@@ -741,7 +783,7 @@
           const medaille=rang===1?'🥇':(rang===2?'🥈':(rang===3?'🥉':rang));
           const valeur=onglet==='global'
             ?'<b>'+idleEntier_(e.points)+' pts</b><span>'+(idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_('boss',e.valeurs&&e.valeurs.boss))+'</span>'
-            :'<b>'+(onglet==='boss'&&idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet]))+'</b>'+(onglet==='combatLong'&&e.valeurs&&typeof e.valeurs.combatLongGagne==='boolean'?'<span class="soreal-idle-classement-issue-v1 '+(e.valeurs.combatLongGagne?'gagne':'perdu')+'">'+(e.valeurs.combatLongGagne?'🏆 Gagné':'💀 Perdu')+'</span>':'');
+            :'<b>'+(onglet==='boss'&&idleEntier_(e.valeurs&&e.valeurs.boss)>monBoss?'Boss ???':valeurClassementIdleV1_(onglet,e.valeurs&&e.valeurs[onglet]))+'</b>';
           return '<div class="soreal-idle-classement-ligne-v1'+(e.moi?' moi':'')+'">'+
             '<div class="soreal-idle-classement-rang-v1">'+medaille+'</div>'+
             '<div class="soreal-idle-classement-nom-v1">'+idleHtml_(e.nom)+(e.moi?' <em>(toi)</em>':'')+'</div>'+

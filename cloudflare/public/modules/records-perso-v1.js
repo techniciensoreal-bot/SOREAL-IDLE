@@ -20,7 +20,7 @@ var PERIODE_MS=120000;
 var MAX_ANNONCES=3;
 var enCours=false,dernier=0;
 
-var ONGLETS={global:'général',boss:'Boss',rebirths:'Rebirths',number:'Nombre',exp:'EXP',playSeconds:'Temps de jeu actif',achievements:'Succès',clics:'Clics/Tap',combatLong:'Combat le plus long'};
+var ONGLETS={global:'général',boss:'Boss',rebirths:'Rebirths',number:'Nombre',exp:'EXP',playSeconds:'Temps de jeu actif',achievements:'Succès',clics:'Clics/Tap'};
 
 function lire(cle){try{var b=localStorage.getItem(cle);return b?JSON.parse(b):null;}catch(_e){return null;}}
 function ecrire(cle,o){try{localStorage.setItem(cle,JSON.stringify(o));}catch(_e){}}

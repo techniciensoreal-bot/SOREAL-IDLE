@@ -1047,6 +1047,21 @@ function challengeTargetBoss(def,completion) {
   return Math.max(0,int(def.targetBoss,0)+Math.max(0,int(completion,0))*Math.max(0,int(def.targetStep,0)));
 }
 
+/*
+ * Classement des défis (Norman, 2026-10-27) : les défis dont le joueur peut voir le classement (débloqués, actifs ou déjà terminés : jamais un défi encore verrouillé, règle n°2) et ses meilleurs temps (state.challenge.bestMs : palier « normal » seulement,
+ * c'est le seul qui garde un temps). `visibles` ne dépend que de l'état du joueur qui regarde ; `temps` d'un autre joueur est filtré par les identifiants de `visibles` côté serveur.
+ */
+export function challengeClassementVuesV1(state,context={}) {
+  const defs=challengeDefsForTierV1("normal");
+  const temps={};
+  defs.forEach(def=>{
+    const ms=num(state.challenge?.bestMs?.[def.id],0);
+    if(ms>0&&Number.isFinite(ms))temps[def.id]=Math.round(ms);
+  });
+  const visibles=defs.filter(def=>def.implemented&&(challengeUnlocked(def,state,context)||temps[def.id]>0||state.challenge?.active===def.id)).map(def=>({id:def.id,name:def.name}));
+  return {visibles,temps};
+}
+
 function challengeSnapshotDefinitions(state,context={}) {
   const tier=challengeTierV1(state);
   const completions=challengeCompletionsV1(state,tier);

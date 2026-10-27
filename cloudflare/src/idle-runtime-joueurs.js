@@ -10,6 +10,8 @@ import { CONFIG_SOREAL_IDLE, nombreSorealIdle_, normaliserEmailSorealIdle_ } fro
 import { LockService, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, extraireEmailsUtilisateurSorealIdle_, obtenirFeuilleJoueursSorealIdle_, obtenirSpreadsheetSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
+import { normalizeIdleNguState } from "./idle-ngu-etat.js";
+import { challengeClassementVuesV1 } from "./idle-ngu-snapshot.js";
 import { createBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { definitionBossSorealIdle_, niveauRequisBossSorealIdle_ } from "./idle-runtime-boss.js";
 
@@ -354,7 +356,7 @@ const CLASSEMENT_STATS_SOREAL_IDLE_V1 = Object.freeze([
  * pas fausser le classement Global (qui reflète la vraie progression). Son propre rang est bien calculé (onglet
  * dédié côté client), mais exclu de la somme de points qui fait le classement Global ci-dessous.
  */
-const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics', 'combatLong']);
+const CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1 = Object.freeze(['clics']);
 
 const CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1 = Object.freeze(
   CLASSEMENT_STATS_SOREAL_IDLE_V1.concat(CLASSEMENT_STATS_HORS_GLOBAL_SOREAL_IDLE_V1)
@@ -533,6 +535,9 @@ export function obtenirClassementSorealIdle(
      */
     entree.visible = stats.classementVisible !== false;
     entree.alias = emailConnexion;
+    /* Classement des défis : meilleurs temps de ce joueur, et son état complet s'il s'agit du spectateur (pour savoir quels défis il a le droit de voir). */
+    entree.defisMs = stats && stats.metaNgu && stats.metaNgu.challenge && stats.metaNgu.challenge.bestMs && typeof stats.metaNgu.challenge.bestMs === 'object' ? stats.metaNgu.challenge.bestMs : {};
+    entree.metaBrut = emailPrincipal === moi || emailConnexion === moi ? (stats && stats.metaNgu) : null;
     parCle.set(cle, entree);
   }
 
@@ -566,7 +571,9 @@ export function obtenirClassementSorealIdle(
         cle: entree.cle,
         nom: entree.nom || 'Joueur',
         moi: entree.cle === moi || entree.alias === moi,
-        valeurs: entree.valeurs || valeursClassementJoueurSorealIdle_(null)
+        valeurs: entree.valeurs || valeursClassementJoueurSorealIdle_(null),
+        defisMs: entree.defisMs || {},
+        metaBrut: entree.metaBrut || null
       };
     });
 
@@ -607,9 +614,37 @@ export function obtenirClassementSorealIdle(
         : i + 1;
   });
 
+  /*
+   * Classement des défis (Norman, 2026-10-27) : un classement par défi, du temps le plus court au plus long, pour les seuls joueurs qui l'ont terminé. Anti-spoil (règle n°2) : le SERVEUR ne renvoie que les défis que le spectateur voit
+   * lui-même (débloqués, actifs ou terminés) : ni le nom ni les temps d'un défi qu'il n'a pas encore atteint.
+   */
+  const defis = (function() {
+    const moiEntree = entrees.find(function(e) { return e.moi && e.metaBrut; });
+    if (!moiEntree) return { visibles: [], classements: {} };
+    let vues;
+    try {
+      vues = challengeClassementVuesV1(normalizeIdleNguState(moiEntree.metaBrut, {}, Date.now()), {});
+    } catch (_e) {
+      return { visibles: [], classements: {} };
+    }
+    const classements = {};
+    vues.visibles.forEach(function(d) {
+      const liste = entrees
+        .map(function(e) { return { nom: e.nom, moi: e.moi, ms: Math.round(Number(e.defisMs && e.defisMs[d.id]) || 0) }; })
+        .filter(function(e) { return e.ms > 0; })
+        .sort(function(a, b) { return (a.ms - b.ms) || String(a.nom).localeCompare(String(b.nom), 'fr'); });
+      liste.forEach(function(e, i) {
+        e.rang = i > 0 && liste[i - 1].ms === e.ms ? liste[i - 1].rang : i + 1;
+      });
+      classements[d.id] = liste;
+    });
+    return { visibles: vues.visibles, classements: classements };
+  })();
+
   return {
     ok: true,
     joueurs: n,
+    defis: defis,
     stats: CLASSEMENT_STATS_TOUTES_SOREAL_IDLE_V1.slice(),
     entrees: entrees.map(function(entree) {
       return {

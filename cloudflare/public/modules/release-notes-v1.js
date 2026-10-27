@@ -38,12 +38,22 @@
             'Le boss suivant n’apparaît plus d’abord en entier puis noir avant de revenir : il n’est montré que par son animation d’apparition. Et Fight reste bloqué tant que le boss n’est pas apparu.',
             'Lancer un défi te fait maintenant arriver comme après un Rebirth : même bruit de voyage dans le temps, et tu retrouves la borne d’arcade.',
             'Quand un nouveau menu apparaît, son bouton clignote trois fois avec trois petits bips doux. Si plusieurs menus se débloquent en même temps, tous clignotent ensemble mais le son ne joue qu’une fois. Quand plusieurs portes s’ouvrent d’un coup, il n’y a qu’un seul son de porte et un seul coq.',
+            'Quand on lit toutes les chroniques de boss, ou qu’on les reprend à partir d’un boss, un tournement de page est joué entre chaque boss : les trois sons du fichier passent à tour de rôle (première page, deuxième, troisième, puis on recommence).',
+            'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',
+            'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
+            'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
+            'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',
+            'La partie ne commence réellement qu’à la fermeture du texte du premier boss : tu arrives sur la borne avec 250 d’énergie, qui regénère jusqu’à 500, que tu aies mis une minute ou un quart d’heure à passer le pseudo et l’introduction. Ton tutoriel de départ ne se lance qu’à ce moment-là, plus sur l’écran du pseudo.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Dès qu’un fruit commence à pousser, une petite aura dépasse du tas de terre, au-dessus du sol seulement : dorée pour l’or, rougeâtre pour la puissance, et d’une autre couleur pour chaque fruit.'
+            'Dès qu’un fruit commence à pousser, une petite aura dépasse du tas de terre, au-dessus du sol seulement : dorée pour l’or, rougeâtre pour la puissance, et d’une autre couleur pour chaque fruit.',
+            'Quand une porte d’un fruit s’ouvre ou se referme, son cadre reste en place jusqu’à la fin du fondu : on ne voit plus l’image sur les bords extérieurs de la porte.'
           ]},
           {menu:'diggers', titre:'Mineurs d’or', points:[
             'Ce menu est entièrement refait : chaque mineur est un ouvrier dessiné avec sa pelle, dans un cadre qui est tout son décor, et il a vraiment l’air de travailler (il se penche, creuse, soulève la terre et la balance sur le tas). Le nom, ce qu’il améliore et les boutons sont posés sur le dessin. Tu vois l’or par seconde consommé, les emplacements en casques à lampe et le bonus de chaque mineur.'
+          ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Dans le classement, « Combat le plus long » disparaît et un onglet « Défis » apparaît dès que tu as débloqué un défi : un sous-menu par défi, avec le meilleur temps de chaque joueur pour le terminer, du plus court au plus long. Tu ne vois que les défis que tu as déjà atteints.'
           ]}
         ]
       },
@@ -53,16 +63,10 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',
-            'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
-            'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
-            'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',
-            'La partie ne commence réellement qu’à la fermeture du texte du premier boss : tu arrives sur la borne avec 250 d’énergie, qui regénère jusqu’à 500, que tu aies mis une minute ou un quart d’heure à passer le pseudo et l’introduction. Ton tutoriel de départ ne se lance qu’à ce moment-là, plus sur l’écran du pseudo.',
             'Sur téléphone, frotter la flaque du Coffre ou de la valise pour la nettoyer ne change plus de page : le glissement ne fait plus passer à l’écran voisin pendant le nettoyage.',
             'Au lancement d’une nouvelle partie, la chronique du premier boss n’est plus lue toute seule : elle est déjà lue dans l’introduction. L’ancien tutoriel (Norman & Sébastien) est supprimé : seuls l’introduction et ton propre tutoriel restent.',
             'Quand une barre d’énergie ou de magie disparaît ou revient (tout dépensé, tout récupéré), la page où tu te trouves ne bouge plus : le contenu reste en place et la barre se déploie par-dessus, en douceur.',
             'Quand on fait un NUKE, un bruit de mitraillette, grave et sourd, dure tant que la fenêtre des boss enchaînés est à l’écran.',
-            'Quand on lit toutes les chroniques de boss, ou qu’on les reprend à partir d’un boss, un tournement de page est joué entre chaque boss : les trois sons du fichier passent à tour de rôle (première page, deuxième, troisième, puis on recommence).',
             'À la première ouverture et à chaque nouvelle partie, un écran d’accueil demande aux joueurs connectés avec Google de choisir leur pseudo : il est obligatoire et unique, on peut le changer plus tard dans les Réglages mais pas le retirer. Le bouton « Entrer dans Soreal IDLE » lance ensuite l’introduction.',
             'Dans Réglages, l’onglet « Ma partie » propose maintenant trois parties pour tout le monde : A, B et C. Un clic sur l’une d’elles ouvre cette partie, indépendante des deux autres. La B et la C servent à essayer autre chose sans toucher à la A ; les autres joueurs ne les voient pas.',
             'Sur PC, le menu de gauche ne bouge plus quand on arrive tout en bas d’une page : il reste exactement à la même place qu’en haut.',
@@ -82,7 +86,6 @@
             'Dans le Coffre, un objet de titan qui est tout seul n’a plus son propre cadre : il rejoint les autres objets de titans.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Quand une porte d’un fruit s’ouvre ou se referme, son cadre reste en place jusqu’à la fin du fondu : on ne voit plus l’image sur les bords extérieurs de la porte.',
             'Sur téléphone, les portes des fruits remplissent mieux l’image : leur cadre est plus fin, elles ne paraissent plus trop petites.',
             'La terre sous un fruit prend une légère teinte du sol de son décor : elle se fond mieux dans l’image au lieu de paraître ajoutée.',
             'Un fruit sort de terre : la première heure, seule la terre grossit ; après une heure complète apparaît un tout petit fruit qui grossit en douceur jusqu’à 24 h, la terre grandissant de son côté. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',

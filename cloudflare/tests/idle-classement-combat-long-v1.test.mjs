@@ -46,10 +46,10 @@ try {
   assert.ok(lireStats(g).combatBossPlusLongSec >= record, "le record ne baisse jamais");
 
   const c = g.op("obtenirClassementSorealIdle", "x");
-  assert.ok(c.stats.includes("combatLong"), "la statistique est dans le classement");
+  assert.ok(!c.stats.includes("combatLong"), "plus de classement du combat le plus long (Norman, 2026-10-27) : la valeur reste pour le record personnel, sans rang");
   const moi = c.entrees.find((e) => e.moi);
   assert.equal(typeof moi.valeurs.combatLong, "number");
-  assert.equal(moi.rangs.combatLong, 1);
+  assert.equal(moi.rangs.combatLong, undefined, "aucun rang pour le combat le plus long");
   assert.equal(moi.valeurs.combatLongGagne, false, "l'issue du combat le plus long est donnée (ici une défaite du niveau 1)");
   assert.equal(lireStats(g).combatBossPlusLongGagne, false);
 } finally {
@@ -63,7 +63,6 @@ try {
   assert.ok(rt.includes("combatBossPlusLongSec:(s.combatBossPlusLongGagne===true||s.combatBossPlusLongGagne===false)"), "les anciens records sans issue repartent de zéro");
 }
 const ui = lireUiComplet();
-assert.ok(ui.includes("{id:'combatLong',nom:'⚔️ Combat le plus long'}"), "onglet du classement");
-assert.ok(ui.includes("if(stat==='combatLong')"), "durée lisible");
-assert.ok(ui.includes("'🏆 Gagné':'💀 Perdu'"), "issue affichée");
+assert.ok(!ui.includes("{id:'combatLong',nom:'⚔️ Combat le plus long'}"), "plus d'onglet « Combat le plus long » dans le classement");
+assert.ok(!ui.includes("'🏆 Gagné':'💀 Perdu'"), "plus d'issue affichée dans le classement");
 console.log("idle-classement-combat-long-v1: OK");
