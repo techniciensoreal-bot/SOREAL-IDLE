@@ -552,8 +552,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 11,
-  "sha": "d8be807276a7080247f5ebc98678da7e6724c42a"
+  "pin": 12,
+  "sha": "b21fbf70efb6c976e4116c0554b200701612054f"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 5,
@@ -656,8 +656,8 @@
   "sha": "4dfcbc77161d69e8da0790eb9f4e69761cf6c42b"
  },
  "/soreal-idle-ui.css": {
-  "pin": 58,
-  "sha": "d982f18081907b28a49643d9e4aed7df8816d4fc"
+  "pin": 60,
+  "sha": "4570e395948c85628f2fe9d29b3aa103c0d1e2bc"
  },
  "/soreal-idle-ui.js": {
   "pin": 655,

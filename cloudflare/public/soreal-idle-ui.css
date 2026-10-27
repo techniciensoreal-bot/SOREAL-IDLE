@@ -5470,6 +5470,11 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
   cursor:grabbing;
   z-index:2;
 }
+/* Pendant qu'un bouton est tenu : tout ce qui bouge dans la barre est figé (tremblement des autres boutons, effets des menus), chaque changement d'ordre ne recalcule plus qu'une barre immobile (Norman, 2026-10-27 : à-coups au doigt). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28.edition.glissant,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28.edition.glissant *{
+  animation-play-state:paused;
+}
 @keyframes sorealIdleNavTremblementV1{
   from{transform:rotate(-1.2deg)}
   to{transform:rotate(1.2deg)}

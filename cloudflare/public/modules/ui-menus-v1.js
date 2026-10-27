@@ -1282,8 +1282,12 @@
         }
         function commencerGlisse(bouton,ev){
           if(glisse)return;
-          glisse={bouton:bouton,id:ev.pointerId};
+          /* Mesures faites UNE fois au début du geste (conteneur défilant, sens du menu, cadre visible) : les relire à chaque image forçait un recalcul de la mise en page par image, d'où des à-coups au doigt (Norman, 2026-10-27 : « fluide sauf quand on déplace les pages »). */
+          const nav0=navMenuIdleV1_();
+          const cont0=nav0?conteneurDefilant(nav0):null;
+          glisse={bouton:bouton,id:ev.pointerId,nav:nav0,cont:cont0,rect:cont0?cont0.getBoundingClientRect():null,vertical:nav0?getComputedStyle(nav0).flexDirection==='column':false,sale:true};
           bouton.classList.add('glisse');
+          if(nav0)nav0.classList.add('glissant');
           try{bouton.setPointerCapture(ev.pointerId);}catch(e){}
         }
         /* Défilement automatique pendant le glissement (Norman, 2026-10-22 : « sur PC on ne peut pas glisser la barre vers le bas, on ne peut pas déplacer les éléments du bas de la liste »). */
@@ -1300,21 +1304,23 @@
         function defilerPendantGlisse(){
           boucleDefilement=0;
           if(!glisse)return;
-          const nav=navMenuIdleV1_();
-          const cont=nav?conteneurDefilant(nav):null;
-          const r=cont?cont.getBoundingClientRect():{top:0,bottom:window.innerHeight};
+          const nav=glisse.nav;
+          const cont=glisse.cont;
+          const r=glisse.rect||{top:0,bottom:window.innerHeight};
           const marge=70,haut=dernierY-r.top,bas=r.bottom-dernierY;
           let dy=0;
           if(bas<marge)dy=Math.ceil((marge-Math.max(0,bas))/5);
           else if(haut<marge)dy=-Math.ceil((marge-Math.max(0,haut))/5);
           if(dy){
             if(cont)cont.scrollTop+=dy;else window.scrollBy(0,dy);
-            /* le bouton tenu suit : on réévalue l'élément sous le pointeur */
+          }
+          /* le bouton tenu suit : l'élément sous le doigt n'est cherché qu'une fois par image, et seulement si le doigt ou la liste a bougé */
+          if((dy||glisse.sale)&&nav){
+            glisse.sale=false;
             const cible=boutonNav(document.elementFromPoint(pointerX,dernierY));
-            if(cible&&cible!==glisse.bouton&&nav){
+            if(cible&&cible!==glisse.bouton){
               const rc=cible.getBoundingClientRect();
-              const vertical=getComputedStyle(nav).flexDirection==='column';
-              const avant=vertical?dernierY<rc.top+rc.height/2:pointerX<rc.left+rc.width/2;
+              const avant=glisse.vertical?dernierY<rc.top+rc.height/2:pointerX<rc.left+rc.width/2;
               nav.insertBefore(glisse.bouton,avant?cible:cible.nextSibling);
             }
           }
@@ -1325,6 +1331,7 @@
           if(boucleDefilement){cancelAnimationFrame(boucleDefilement);boucleDefilement=0;}
           if(!glisse)return;
           glisse.bouton.classList.remove('glisse');
+          if(glisse.nav)glisse.nav.classList.remove('glissant');
           try{glisse.bouton.releasePointerCapture(glisse.id);}catch(e){}
           glisse=null;
           idleMenuOrdreTravailV1=ordreDepuisNavIdleV1_();
@@ -1359,17 +1366,9 @@
           if(!glisse)return;
           ev.preventDefault();
           dernierY=ev.clientY;pointerX=ev.clientX;
+          glisse.sale=true;
           if(!boucleDefilement)boucleDefilement=requestAnimationFrame(defilerPendantGlisse);
-          const nav=navMenuIdleV1_();
-          if(!nav)return;
-          const sous=document.elementFromPoint(ev.clientX,ev.clientY);
-          const cible=boutonNav(sous);
-          if(!cible||cible===glisse.bouton)return;
-          const r=cible.getBoundingClientRect();
-          /* Menu en colonne (interface PC) : on compare à la hauteur, pas à la largeur. */
-          const verticalNav=getComputedStyle(nav).flexDirection==='column';
-          const avant=verticalNav?ev.clientY<r.top+r.height/2:ev.clientX<r.left+r.width/2;
-          nav.insertBefore(glisse.bouton,avant?cible:cible.nextSibling);
+          /* Menu en colonne (interface PC) : on compare à la hauteur, pas à la largeur (glisse.vertical, mesuré au début). Le reste du travail est fait dans la boucle d'image. */
         },{passive:false});
 
         ['pointerup','pointercancel'].forEach(function(nom){

@@ -18,7 +18,7 @@ let profondeur = 0;
 for (const c of css) { if (c === "{") profondeur++; if (c === "}") profondeur--; assert.ok(profondeur >= 0); }
 assert.equal(profondeur, 0);
 // Le rangement des boutons (glisser-déposer) sait ranger une colonne.
-assert.ok(ui.includes("const verticalNav=getComputedStyle(nav).flexDirection==='column';"));
+assert.ok(ui.includes("vertical:nav0?getComputedStyle(nav0).flexDirection==='column':false")&&ui.includes("glisse.vertical?dernierY<rc.top"));
 // Ordre des enfants de <main> attendu par la grille : bandeau, menu, puis le reste.
 /* (2026-10-24 : plus de bannière en tête de <main> ; le menu vient en premier) */
 const i = ui.indexOf("`<main class=\"soreal-idle-native-v4\">\n            ${navigationIdleV28_(j)}");
