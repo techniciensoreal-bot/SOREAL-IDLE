@@ -194,6 +194,13 @@
               const actionPatchInventaireAutoV1=actionPatchInventaireAutoV1_(payload);
               const estMutationInventaireAutoV1=actionPatchInventaireAutoV1!=null;
 
+              /* Norman (2026-10-27) : lancer un défi = un Rebirth ; même arrivée : on atterrit sur la borne d'arcade (menu Combat), page placée sous la bannière. */
+              const defiDemarreV1=Boolean(payload&&payload.action==='challenge'&&payload.mode==='start'&&res.resultat&&res.resultat.started);
+              if(defiDemarreV1){
+                const regDefi=window.__SOREAL_IDLE_REG__||{};
+                regDefi.idleMenuActifV28='combat';
+                try{regDefi.sauverMenuIdleV28_();}catch(_e){}
+              }
               if(!estCycleCombatZoneV1){
                 if(estMutationInventaireAdventureV1||estMutationInventaireAutoV1){
                   const aventureFraicheV1=window.__SOREAL_IDLE_META_HOST_V130__.aventureMetaIdleV47_(joueurMetaProtegeV208);
@@ -255,6 +262,15 @@
                 );
               }
               window.__SOREAL_IDLE_META_HOST_V130__.pousserEtatVersRuntimePartageIdleV1_();
+              if(defiDemarreV1){
+                try{
+                  const toutEnHautDefi=function(){const ban=document.querySelector('.soreal-idle-hero-banner-v95')||document.querySelector('.soreal-idle-hero-v4');window.scrollTo(0,ban?Math.max(0,Math.round(ban.getBoundingClientRect().bottom+(window.scrollY||0))):0);};
+                  toutEnHautDefi();
+                  requestAnimationFrame(function(){toutEnHautDefi();});
+                  setTimeout(toutEnHautDefi,250);
+                  setTimeout(toutEnHautDefi,700);
+                }catch(_e){}
+              }
 
               if(window.__SOREAL_IDLE_THE_END_UI_V1__){
                 const aventureFin=window.__SOREAL_IDLE_META_HOST_V130__.aventureMetaIdleV47_(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat());

@@ -49,6 +49,8 @@ function pageChallengesIdleV1_(j){
       }
 
 function demarrerDefiIdleV1_(challengeId){
+        /* Comme un Rebirth (Norman, 2026-10-27) : même bruit de machine à voyager dans le temps. */
+        try{window.__SOREAL_IDLE_REG__.jouerEffetAudioIdleV199_('timeMachine');}catch(_e){}
         actionMetaIdleV130_({action:'challenge',mode:'start',challenge:String(challengeId)});
       }
       window.__demarrerDefiIdleV1__=demarrerDefiIdleV1_;
