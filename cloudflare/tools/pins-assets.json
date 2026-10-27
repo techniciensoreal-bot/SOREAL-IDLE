@@ -180,8 +180,8 @@
   "sha": "2f838e1f368da69837cdae2dc0124cf64514f1a6"
  },
  "/modules/diag-fluidite-v1.js": {
-  "pin": 32,
-  "sha": "359a51cb39e3e5c91b66ac8562bafc48ac974369"
+  "pin": 33,
+  "sha": "2e896ecebfda4ab3f0e738b5cf2b82e3ecb265ee"
  },
  "/modules/effets-legers-v1.js": {
   "pin": 1,
