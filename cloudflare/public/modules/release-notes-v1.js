@@ -53,6 +53,7 @@
             'Ce menu est entièrement refait : chaque mineur est un ouvrier dessiné avec sa pelle, dans un cadre qui est tout son décor, et il a vraiment l’air de travailler (il se penche, creuse, soulève la terre et la balance sur le tas). Le nom, ce qu’il améliore et les boutons sont posés sur le dessin. Tu vois l’or par seconde consommé, les emplacements en casques à lampe et le bonus de chaque mineur.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'La Collection, avec les chroniques des boss, reste accessible après un Rebirth ou un défi : elle ne se reverrouille plus, tu retrouves tous les boss déjà rencontrés.',
             'Dans Chroniques, « Combat le plus long » disparaît des tableaux de rangs et un onglet « Défis » apparaît dès que tu as débloqué un défi : un sous-menu par défi, avec le meilleur temps de chaque joueur pour le terminer, du plus court au plus long. Tu ne vois que les défis que tu as déjà atteints.'
           ]}
         ]

@@ -1532,7 +1532,7 @@ export function construireBestiaireSorealIdle_(
 
   return {
     debloquee:
-      bossVaincusActuel >= 4,
+      bossVaincus >= 4,
     niveauRequis:
       requis,
     decouvertes:

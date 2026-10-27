@@ -1271,8 +1271,8 @@ console.log("SOREAL IDLE runtime calculations: OK");
     "construireBestiaireSorealIdle_ doit distinguer le compteur du run en cours (accès au menu) du high-water-mark historique (découverte)."
   );
   assert.ok(
-    bestiaireBlock.includes("debloquee:\n      bossVaincusActuel >= 4,"),
-    "Le déblocage DU MENU Bestiaire doit utiliser uniquement le compteur du run en cours (bossVaincusActuel), pas le high-water-mark historique."
+    bestiaireBlock.includes("debloquee:\n      bossVaincus >= 4,"),
+    "Le déblocage de la Collection (chroniques de boss comprises) suit le meilleur boss jamais atteint : elle ne se reverrouille plus après un Rebirth ou un défi (Norman, 2026-10-27 : « les chroniques de boss, il me les faut absolument »)."
   );
   assert.ok(
     bestiaireBlock.includes("index < bossVaincus"),
