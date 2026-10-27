@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',
             'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
             'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
             'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',

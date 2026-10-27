@@ -68,7 +68,10 @@
         const bar=document.getElementById('sorealIdleHudPvBarV2');
         if(!bar)return;
         const pct=idleNombre_(max)>0?Math.max(0,Math.min(100,idleNombre_(pv)/idleNombre_(max)*100)):0;
-        bar.style.width=pct.toFixed(2)+'%';
+        /* Audit 60 fps (Norman, 2026-10-26) : la largeur de cette barre de 1 200 px s'animait en continu (mise en page + dessin à chaque image, jusqu'à -6 images/s sur toutes les pages). La barre garde sa pleine largeur et GLISSE vers la gauche (transform, carte graphique) : le cadre du bandeau (overflow:hidden) ne montre que la part remplie, bord droit plat comme avant. Le pourcentage reste lisible dans data-idle-pct-hud-v1 (diagnostic). */
+        bar.style.width='100%';
+        bar.style.transform='translate3d('+(-(100-pct)).toFixed(2)+'%,0,0)';
+        bar.dataset.idlePctHudV1=pct.toFixed(2);
         const t=document.getElementById('sorealIdleHudPvTexteV2');
         const texte=window.__SOREAL_IDLE_TEXTE_PV_V2__(pv,max);
         if(t&&t.textContent!==texte)t.textContent=texte;

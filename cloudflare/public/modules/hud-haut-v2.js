@@ -83,6 +83,14 @@
    * hauteur change en douceur (voir soreal-idle-themes.css) : tout ce qui est dessous suivait, d'où le saut. Le défilement natif « ancré » est coupé sur la page (overflow-anchor:none, elle est redessinée en continu) : on le remplace ici. Chaque
    * variation de hauteur du bandeau, image après image, est reportée sur le défilement : le contenu reste exactement où il est, la barre se déploie par-dessus. En haut de page (rien à compenser) le contenu descend ou remonte avec la barre, comme avant.
    */
+  /* Barre de vie du bandeau : glisse par transform (voir majHudPvIdleV2_). Règle posée ici (pas dans les feuilles, plafond de !important) : seul le transform est animé, plus la largeur. */
+  (function(){
+    if(document.getElementById('soreal-idle-pv-transform-v1'))return;
+    var st=document.createElement('style');st.id='soreal-idle-pv-transform-v1';
+    st.textContent='html body #sorealIdleHudPvBarV2{transition:transform .28s linear,background .4s ease,box-shadow .4s ease!important;will-change:transform}'+
+      '@media (prefers-reduced-motion:reduce){html body #sorealIdleHudPvBarV2{transition:none!important}}';
+    (document.head||document.documentElement).appendChild(st);
+  })();
   var hudObs=null,hudEl=null,hudPos=0;
   /* Position dans le DOCUMENT du premier bloc sous le bandeau (marges comprises : la hauteur du bandeau seule ne suffit pas, ses marges changent aussi). */
   function positionSous(){

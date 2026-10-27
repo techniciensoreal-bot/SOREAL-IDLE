@@ -278,7 +278,7 @@
     for(var i=0;i<defs.length;i++){
       var el=document.getElementById(defs[i][1]);
       if(!el||(defs[i][0]==='boss'&&!el.dataset)){delete vieBarres[defs[i][0]];continue;}
-      var v=defs[i][0]==='joueur'?parseFloat(el.style&&el.style.width):parseFloat(el.dataset.idlePctV121);
+      var v=defs[i][0]==='joueur'?parseFloat(el.dataset.idlePctHudV1!==undefined?el.dataset.idlePctHudV1:(el.style&&el.style.width)):parseFloat(el.dataset.idlePctV121);
       if(!isFinite(v))continue;
       if(anneau.length)anneau[anneau.length-1][defs[i][0]==='joueur'?'j':'b']=v;
       var avant=vieBarres[defs[i][0]];
