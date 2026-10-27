@@ -74,6 +74,12 @@ function installerStyle_(){
     '#'+ID+' .tu-actions button:disabled{opacity:.45;cursor:default}'+
     '#'+ID+' .tu-apercu{font-size:12px;color:#f2c94c;margin-bottom:4px}'+
     '#'+ID+' .tu-indice{margin-top:8px;font-size:14px;font-weight:800;color:#4cd6f2}'+
+    /* Fenêtre réduite en enceinte flottante (Norman, 2026-10-26 : « la fenêtre de tuto doit être diminuée directement ; on clique sur l'enceinte pour l'agrandir ») : la voix continue, un clic dessus la rouvre. */
+    '#'+ID+'.reduit{width:54px;height:54px;padding:0;border-radius:50%;overflow:hidden;cursor:pointer}'+
+    '#'+ID+'.reduit>*{display:none}'+
+    '#'+ID+'.reduit::after{content:"🔊";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;animation:tuReduit 1.6s ease-in-out infinite}'+
+    '@keyframes tuReduit{0%,100%{opacity:.7}50%{opacity:1}}'+
+    '#'+ID+'.tu-verrou-voix .tu-indice{color:#ffd27a}'+
     '#'+ID_CADRE+'{position:fixed;z-index:99999;pointer-events:none;border-radius:12px;border:3px solid #f2c94c;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 18px 4px rgba(242,201,76,.75);animation:tuPulse 1.3s ease-in-out infinite}'+
     '#'+ID_CADRE+'[hidden]{display:none}'+
     '@keyframes tuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 10px 2px rgba(242,201,76,.55)}50%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 22px 7px rgba(242,201,76,.95)}}'+
@@ -171,9 +177,22 @@ function texteParle_(guide,i){
 }
 function lireEtape_(s,force){
   var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  s.voixEnCours=false;
   if(!tts||typeof tts.readText!=='function')return;
   if(!force&&!(typeof tts.enabled==='function'&&tts.enabled()))return;
-  try{var t=texteParle_(s.guide,s.i);if(t)tts.readText(t);}catch(_e){}
+  try{
+    var t=texteParle_(s.guide,s.i);
+    if(!t)return;
+    /* Verrou « la voix parle » (Norman, 2026-10-26) : sur une étape qui demande de cliquer (Fight), rien ne se clique tant que la voix n'a pas fini ; levé à la fin de la lecture, à son arrêt ou au plus tard après 90 s. */
+    var jeton=(s.jetonVoix||0)+1;s.jetonVoix=jeton;s.voixEnCours=true;s.voixLimite=Date.now()+90000;
+    var demarre=tts.readText(t,null,function(){if(s.jetonVoix===jeton)s.voixEnCours=false;});
+    if(!demarre)s.voixEnCours=false;
+  }catch(_e){s.voixEnCours=false;}
+}
+function voixVerrouille_(s){
+  if(!s||!s.voixEnCours)return false;
+  if(Date.now()>(s.voixLimite||0)){s.voixEnCours=false;return false;}
+  return true;
 }
 function taire_(){
   var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
@@ -226,7 +245,7 @@ function attendreChronique_(s,suite){
   })();
 }
 
-function afficherEtape_(){
+function afficherEtape_(garderTaille){
   var s=etat.enCours;if(!s)return;
   var e=s.guide.etapes[s.i];if(!e){fermer_(true);return;}
   installerStyle_();
@@ -247,6 +266,8 @@ function afficherEtape_(){
   s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);
   s.debutAttente=Date.now();
   b.hidden=false;
+  /* Une étape qui commence (départ du guide, avance au clic) s'ouvre réduite en enceinte ; un clic sur Précédent / Suivant garde la taille choisie. */
+  b.classList.toggle('reduit',!garderTaille);
   b.innerHTML=
     (s.apercu?'<div class="tu-apercu">👁 Aperçu — rien n’est enregistré</div>':'')+
     '<div class="tu-haut"><span class="tu-titre">'+esc_(e.titre||s.guide.titre||'')+'</span><span class="tu-compte">'+(s.i+1)+'/'+nbEtapes+'</span></div>'+
@@ -278,10 +299,19 @@ function suivre_(){
     var r=cible.getBoundingClientRect();
     if(r.top<60||r.bottom>window.innerHeight-60){try{cible.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){cible.scrollIntoView(true);}}
   }
-  /* Le bouton Suivant revient si le clic n'a pas eu lieu après le délai (ou si l'élément n'existe pas) : jamais bloquant. */
-  if(s.attenteClic&&Date.now()-s.debutAttente>DELAI_SUIVANT_MS){
+  /* Attendre ne lance JAMAIS l'étape suivante (Norman, 2026-10-26) : le bouton Suivant ne revient que si l'élément à cliquer n'existe pas du tout (écran où il ne peut pas apparaître), jamais au bout d'un délai. */
+  if(s.attenteClic&&!cible&&Date.now()-s.debutAttente>DELAI_SUIVANT_MS){
     var bs=b.querySelector('[data-tu="suiv"]');if(bs&&bs.hidden)bs.hidden=false;
-    var ind=b.querySelector('.tu-indice');if(ind)ind.hidden=true;
+    var ind0=b.querySelector('.tu-indice');if(ind0)ind0.hidden=true;
+  }
+  if(s.attenteClic){
+    var verrou=voixVerrouille_(s);
+    b.classList.toggle('tu-verrou-voix',verrou);
+    var ind=b.querySelector('.tu-indice');
+    if(ind){
+      var texteInd=verrou?'🔊 Écoute d’abord la voix : tu pourras ensuite cliquer sur l’élément entouré.':'👆 Clique sur l’élément entouré pour continuer.';
+      if(ind.textContent!==texteInd)ind.textContent=texteInd;
+    }
   }
   placer_(b,c,e);
 }
@@ -305,12 +335,39 @@ document.addEventListener('click',function(ev){
   var a=t.getAttribute('data-tu'),s=etat.enCours;
   if(a==='ecouter'){lireEtape_(s,true);return;}
   if(a==='passer'){fermer_(true);return;}
-  if(a==='prec'&&s.i>0){s.i-=1;afficherEtape_();return;}
+  if(a==='prec'&&s.i>0){s.i-=1;afficherEtape_(true);return;}
   if(a==='suiv'){
     if(s.i>=s.guide.etapes.length-1)fermer_(true);
-    else{s.i+=1;afficherEtape_();}
+    else{s.i+=1;afficherEtape_(true);}
   }
 },true);
+/* Un clic sur l'enceinte flottante (fenêtre réduite) la rouvre ; rien d'autre ne se passe. */
+document.addEventListener('click',function(ev){
+  var b=document.getElementById(ID);
+  if(!b||!b.classList.contains('reduit')||!ev.target||!ev.target.closest||!ev.target.closest('#'+ID))return;
+  ev.preventDefault();ev.stopPropagation();
+  b.classList.remove('reduit');
+  suivre_();
+},true);
+/*
+ * Étape « avance au clic » : rien d'autre que la cible ne se clique (Norman, 2026-10-26 : « on ne doit pas pouvoir cliquer ailleurs que sur Fight »), et la cible elle-même reste bloquée tant que la voix parle. Les clics dans la fenêtre du tutoriel
+ * (enceinte, Passer…) restent permis. Capture + arrêt immédiat : le jeu ne voit pas les clics refusés.
+ */
+function clicRefuse_(ev){
+  var s=etat.enCours;
+  if(!s||!s.attenteClic||!ev.target||!ev.target.closest)return false;
+  if(ev.target.closest('#'+ID))return false;
+  var e=s.guide.etapes[s.i],cible=e&&e.cible?cibler_(e.cible.selecteur):null;
+  if(!cible)return false;   /* pas de cible à l'écran : jamais un écran verrouillé sans issue */
+  if(voixVerrouille_(s))return true;
+  return !cible.contains(ev.target);
+}
+['click','pointerdown','mousedown','mouseup','pointerup','dblclick'].forEach(function(nom){
+  document.addEventListener(nom,function(ev){
+    if(!clicRefuse_(ev))return;
+    ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();
+  },true);
+});
 /*
  * Étape « avance au clic » : un clic sur la cible (ou dedans) passe à l'étape suivante, APRÈS que le jeu a traité le clic (le bouton fait son travail, puis le guide avance). L'écouteur est en phase de capture pour ne rien
  * rater, mais l'avance est différée.

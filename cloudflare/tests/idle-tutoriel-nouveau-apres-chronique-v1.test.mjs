@@ -18,7 +18,7 @@ assert.ok(menus.includes("if(delta>0&&etat.index>=etat.pages.length-1){tutorielP
 // 3. Le nouveau tutoriel : la fenêtre du guide attend la chronique du boss (fermée, lecture terminée ou interrompue, libre depuis 1,5 s).
 assert.ok(nouveau.includes("function chroniqueOccupee_()") && nouveau.includes("sorealIdleBossChroniqueV206") && nouveau.includes("tts.lectureCible('sorealIdleBossChroniqueV206')"), "détection de la chronique");
 assert.ok(nouveau.includes("function attendreChronique_(s,suite)") && nouveau.includes("Date.now()-libre>=1500") && nouveau.includes("Date.now()-debut>120000"), "attente : libre depuis 1,5 s, 2 minutes au plus");
-const aff = nouveau.slice(nouveau.indexOf("function afficherEtape_()"), nouveau.indexOf("function afficherEtape_()") + 900);
+const aff = nouveau.slice(nouveau.indexOf("function afficherEtape_(garderTaille)"), nouveau.indexOf("function afficherEtape_(garderTaille)") + 900);
 assert.ok(aff.indexOf("window.__menuIdleV28__(e.menu)") > 0 && aff.indexOf("attendreChronique_(s,") > aff.indexOf("window.__menuIdleV28__(e.menu)"), "le jeu se rend d'abord au menu de l'étape, puis la fenêtre attend la chronique");
 assert.ok(aff.includes("!s.apercu&&s.i===0&&!s.chroniqueVue"), "seulement à la première étape et jamais pour l'aperçu de l'éditeur");
 console.log("idle-tutoriel-nouveau-apres-chronique-v1: OK");
