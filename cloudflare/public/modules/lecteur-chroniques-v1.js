@@ -148,20 +148,43 @@ function terminer(){
  * dernière. Volume = barre « Sons de l'interface ». Si le fichier manque ou que le navigateur refuse de le jouer, on enchaîne tout de suite (au plus 4 s d'attente).
  */
 var CLE_DING='idle/ambient/Ding.m4a';
+/*
+ * Le fichier contient TROIS tournements de page distincts, séparés par des silences (mesuré : 0,27–0,75 s, 1,45–1,80 s, 2,42–3,06 s sur 3,46 s). Norman (2026-10-26) : « chacun joué à tour de rôle entre deux histoires : première page, deuxième, troisième, première… ».
+ * On joue donc UN seul tournement par intervalle, dans l'ordre, et le rang continue d'une lecture à l'autre (mémorisé comme préférence liée au compte).
+ */
+var DING_SEGMENTS=[[0.22,0.82],[1.40,1.86],[2.37,3.14]];
+var CLE_DING_RANG='soreal_idle_ding_rang_v1';
+function dingRang_(){
+  var n=0;
+  try{n=Math.floor(Number(localStorage.getItem(CLE_DING_RANG)))||0;}catch(_e){}
+  var rang=((n%DING_SEGMENTS.length)+DING_SEGMENTS.length)%DING_SEGMENTS.length;
+  try{localStorage.setItem(CLE_DING_RANG,String((rang+1)%DING_SEGMENTS.length));}catch(_e){}
+  return rang;
+}
 function ding(fini){
-  var rendu=false;
-  function suite(){if(rendu)return;rendu=true;fini();}
+  var rendu=false,arret=0;
+  function suite(){if(rendu)return;rendu=true;clearTimeout(arret);fini();}
   try{
     var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
     var v=r&&typeof r.getInterface==='function'?Number(r.getInterface()):0.75;
     if(!(v>0)){suite();return;}
+    var seg=DING_SEGMENTS[dingRang_()];
     var a=new Audio('/api/idle/media/ambient?key='+encodeURIComponent(CLE_DING));
+    a.preload='auto';
     a.volume=Math.min(1,v);
-    a.addEventListener('ended',suite);
     a.addEventListener('error',suite);
+    var lance=false;
+    function jouer(){
+      if(lance)return;lance=true;
+      try{a.currentTime=seg[0];}catch(_e){}
+      var p=a.play();
+      if(p&&p.catch)p.catch(suite);
+      /* le tournement fini, on coupe tout de suite (le fichier continue avec les deux autres) */
+      arret=setTimeout(function(){try{a.pause();}catch(_e){}suite();},Math.max(120,(seg[1]-seg[0])*1000));
+    }
+    a.addEventListener('loadedmetadata',jouer);
+    if(a.readyState>=1)jouer();
     setTimeout(suite,4000);
-    var p=a.play();
-    if(p&&p.catch)p.catch(suite);
   }catch(_e){suite();}
 }
 
