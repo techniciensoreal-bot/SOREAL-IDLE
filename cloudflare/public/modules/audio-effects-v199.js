@@ -1289,7 +1289,7 @@
   function chorale_(){
     return jouerWebAudio_(3800,function(c){
       var sortie=master||c.destination,t0=c.currentTime+.03;
-      var bus=c.createGain();bus.gain.value=1;
+      var bus=c.createGain();bus.gain.value=.78;   /* Norman (2026-10-27) : « diminuer légèrement le son du aaah quand on renaît » : -2 dB */
       /* cathédrale : réverbération par convolution d'un bruit qui s'éteint */
       var sec=c.createGain(),humide=c.createGain();sec.gain.value=.55;humide.gain.value=.85;
       var longueur=Math.floor(c.sampleRate*2.6),ir=c.createBuffer(2,longueur,c.sampleRate);
