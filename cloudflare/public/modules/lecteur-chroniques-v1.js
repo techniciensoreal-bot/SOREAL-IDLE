@@ -162,8 +162,8 @@ function dingRang_(){
   return rang;
 }
 function ding(fini){
-  var rendu=false,arret=0;
-  function suite(){if(rendu)return;rendu=true;clearTimeout(arret);fini();}
+  var rendu=false;
+  function suite(){if(rendu)return;rendu=true;fini();}
   try{
     var r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
     var v=r&&typeof r.getInterface==='function'?Number(r.getInterface()):0.75;
@@ -180,7 +180,7 @@ function ding(fini){
       var p=a.play();
       if(p&&p.catch)p.catch(suite);
       /* le tournement fini, on coupe tout de suite (le fichier continue avec les deux autres) */
-      arret=setTimeout(function(){try{a.pause();}catch(_e){}suite();},Math.max(120,(seg[1]-seg[0])*1000));
+      setTimeout(function(){try{a.pause();}catch(_e){}suite();},Math.max(120,(seg[1]-seg[0])*1000));
     }
     a.addEventListener('loadedmetadata',jouer);
     if(a.readyState>=1)jouer();
