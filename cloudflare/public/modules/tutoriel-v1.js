@@ -189,8 +189,17 @@ function lireEtape_(s,force){
     if(!demarre)s.voixEnCours=false;
   }catch(_e){s.voixEnCours=false;}
 }
+/* La voix parle encore (réglage de l'étape ignoré) : sert à finir seul une étape sans fenêtre. */
+function voixParle_(s){
+  if(!s||!s.voixEnCours)return false;
+  if(Date.now()>(s.voixLimite||0)){s.voixEnCours=false;return false;}
+  return true;
+}
+/* Verrou des clics : seulement si l'étape demande d'attendre la fin de la phrase (case de l'éditeur, cochée par défaut ; Norman, 2026-10-27). */
 function voixVerrouille_(s){
   if(!s||!s.voixEnCours)return false;
+  var etapeCourante=s.guide&&s.guide.etapes&&s.guide.etapes[s.i];
+  if(etapeCourante&&etapeCourante.attendreVoix===false)return false;
   if(Date.now()>(s.voixLimite||0)){s.voixEnCours=false;return false;}
   return true;
 }
@@ -318,7 +327,7 @@ function suivre_(){
     }
   }
   /* Sans fenêtre et sans clic demandé, personne ne peut cliquer sur « Suivant » : l'étape se termine toute seule quand la voix a fini (au moins 2,5 s, ou le temps de lire le texte si la voix est coupée). */
-  if(s.cache&&!s.attenteClic&&!voixVerrouille_(s)&&Date.now()-s.debutEtape>=s.tempsLecture){
+  if(s.cache&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture){
     var iEtape=s.i;
     if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
     s.i=iEtape+1;afficherEtape_(true);return;

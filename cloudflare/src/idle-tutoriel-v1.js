@@ -12,6 +12,7 @@
  *      cible       : null (fenêtre centrée) ou { selecteur, libelle } : l'élément de l'écran montré, choisi dans le jeu par « Placer sur l'écran » ;
  *      placement   : auto | haut | bas | gauche | droite | centre ;
  *      surbrillance: un cadre lumineux entoure la cible ;
+ *      attendreVoix: vrai (défaut) = sur une étape qui demande un clic, la cible reste bloquée tant que la voix parle ; faux = on peut cliquer dès l'affichage de l'étape (Norman, 2026-10-27) ;
  *      avanceAuClic: l'étape passe à la suivante quand le joueur CLIQUE sur la cible (le bouton « Suivant » est alors masqué 30 s, puis revient pour ne jamais bloquer ; sans cible, ignoré).
  * afficher (guide) : faux = RIEN à l'écran (ni fenêtre, ni enceinte réduite, ni texte) : seule la voix parle, le cadre lumineux de la cible reste (case « cadre lumineux » de l'étape), et l'étape avance au clic sur la cible (avanceAuClic) ou, sans clic demandé, quand la voix a fini (Norman, 2026-10-27).
  * Mémoire « vu » : profil.stats.vus (marquerVusSorealIdle), identifiant propre à chaque guide (vuId) ; réglage « ancien tutoriel » (meta) : tant qu'il est actif,
@@ -68,7 +69,7 @@ export function normaliserGuideV1(brut) {
       }
     }
     const placement = IDLE_TUTO_PLACEMENTS_V1.includes(String(etape.placement)) ? String(etape.placement) : "auto";
-    return { titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible) };
+    return { titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false };
   });
   if (!etapes.some((e) => e.texte || e.titre)) throw new Error("TUTO_ETAPES_VIDES");
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();
