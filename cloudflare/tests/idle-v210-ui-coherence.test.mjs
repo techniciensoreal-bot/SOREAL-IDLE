@@ -27,7 +27,7 @@ assert.ok(ui.includes('Build <b style="color:#dce5f3">Beta '));
 for(const token of [
   "sorealIdleSummaryApV210",
   "sorealIdleRebirthTotalV1",
-  "{id:'shop',icon:'🔮',nom:'Shop'}",
+  "{id:'shop',icon:'🔮',nom:'Boutique'}",
   "🛍️ Boutique AP",
   "systemes.selloutShop&&systemes.selloutShop.unlockedEver",
   "Les cases apparaîtront dès que tu trouveras la première pièce d’un set.",

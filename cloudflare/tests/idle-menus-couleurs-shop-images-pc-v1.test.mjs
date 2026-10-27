@@ -24,7 +24,7 @@ for (const id of menus) {
 // 2. Le Shop est mauve (teinte 260-290°) et prend l'icône d'une boutique magique.
 const hexVersTeinte = (h) => { const r = parseInt(h.slice(1, 3), 16) / 255, g = parseInt(h.slice(3, 5), 16) / 255, b = parseInt(h.slice(5, 7), 16) / 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let t = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; t *= 60; return t < 0 ? t + 360 : t; };
 for (const id of ["shop", "spendExp", "sellout"]) { const t = hexVersTeinte(couleurs[id]); assert.ok(t > 255 && t < 295, id + " mauve : " + Math.round(t) + "°"); }
-assert.ok(ui.includes("{id:'shop',icon:'🔮',nom:'Shop'}") && ui.includes("shop:{forme:'etoile',verbe:'Boutique magique'}"));
+assert.ok(ui.includes("{id:'shop',icon:'🔮',nom:'Boutique'}") && ui.includes("shop:{forme:'etoile',verbe:'Boutique magique'}"));
 assert.ok(css.includes('.soreal-idle-nav-button-v28[data-menu-id-v1="shop"]:not(.active)') && css.includes("sorealBoutiqueMagieV1"), "dégradé étoilé et étincelles");
 // 3. Menu de gauche : une seule colonne de 300 px, partout (2026-10-05).
 assert.ok(css.includes("grid-template-columns:300px minmax(0,1fr)") && !css.includes("grid-template-columns:600px minmax(0,1fr)"), "une colonne (300 px), jamais 600 px");

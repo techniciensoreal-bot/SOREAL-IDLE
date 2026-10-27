@@ -1148,7 +1148,7 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
-        {id:'shop',icon:'🔮',nom:'Shop'},
+        {id:'shop',icon:'🔮',nom:'Boutique'},
         {id:'chroniques',icon:'📜',nom:'Chroniques'},
         {id:'chat',icon:'💬',nom:'Chat'},
         {id:'parametres',icon:'⚙️',nom:'Settings'},
