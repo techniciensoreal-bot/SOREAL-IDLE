@@ -116,12 +116,13 @@
     if(!(v>0)||reduit_())return false;
     try{
       var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
-      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:new C();
+      var L=window.__SOREAL_IDLE_LIMITEUR_V1__;
+      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:((L&&L.contexte&&L.contexte())||new C());
       if(ctxA.state==='suspended'&&ctxA.resume)ctxA.resume();
       var maitre=ctxA.createGain();maitre.gain.value=Math.min(1,v)*0.55;
       var pb=ctxA.createBiquadFilter();pb.type='lowpass';pb.frequency.value=1800;pb.Q.value=0.5;
       var comp=ctxA.createDynamicsCompressor();
-      maitre.connect(pb);pb.connect(comp);comp.connect(ctxA.destination);
+      maitre.connect(pb);pb.connect(comp);(L&&L.brancher(ctxA,comp))||comp.connect(ctxA.destination);
       sons(ctxA,maitre,ctxA.currentTime+0.02,ouvre);
       return true;
     }catch(_e){return false;}

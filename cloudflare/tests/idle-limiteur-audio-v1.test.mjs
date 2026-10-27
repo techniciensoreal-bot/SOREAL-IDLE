@@ -40,3 +40,23 @@ for (const f of ["audio-effects-v199.js", "ambient-audio-v1.js", "yggdrasil-sons
 }
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/limiteur-audio-v1.js"), "le limiteur est chargé");
 console.log("idle-limiteur-audio-v1: OK");
+
+// Norman (2026-10-27) : « ça crépite encore parfois » : UN SEUL contexte audio partagé (un flux, un limiteur), au lieu d'un par module
+let creations = 0;
+class FauxContexte { constructor(o) { creations++; this.options = o; this.state = "running"; this.destination = { type: "destination" }; } }
+const bac = { window: { AudioContext: FauxContexte }, Math, Float32Array, WeakMap };
+vm.runInNewContext(src, bac);
+const L2 = bac.window.__SOREAL_IDLE_LIMITEUR_V1__;
+const a = L2.contexte(), b = L2.contexte();
+assert.ok(a === b && creations === 1, "le contexte partagé n'est créé qu'une fois");
+assert.equal(a.options.latencyHint, "balanced", "tampon un peu plus large contre les craquements");
+a.state = "closed";
+assert.ok(L2.contexte() !== a && creations === 2, "un contexte fermé est remplacé");
+const partages = ["audio-effects-v199.js", "apparition-boss-v1.js", "nuke-blindage-v1.js", "victoire-boss-arcade-v1.js", "wandoos-retro-v1.js", "orage-v1.js", "bt-neon-v1.js", "bt-lumieres-v1.js", "yggdrasil-sons-v1.js"];
+for (const f of partages) {
+  const code = lit(f);
+  assert.ok(/__SOREAL_IDLE_LIMITEUR_V1__[^;]*contexte\(\)/.test(code.replace(/\s+/g, " ")) || /L&&L\.contexte&&L\.contexte\(\)/.test(code), f + " : utilise le contexte audio partagé");
+}
+// les modules qui se mettent en pause gardent le leur (suspendre le contexte partagé couperait tout le jeu)
+for (const f of ["musique-titan-v1.js", "tutorial-tts-v202.js"]) assert.ok(!lit(f).includes("LIMITEUR_V1__.contexte"), f + " : garde son propre contexte");
+console.log("idle-limiteur-audio-v1 (contexte partagé): OK");

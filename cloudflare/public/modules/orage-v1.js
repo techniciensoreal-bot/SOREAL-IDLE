@@ -112,7 +112,7 @@
     if(ac&&ac.state!=='closed')return ac;
     var C=window.AudioContext||window.webkitAudioContext;
     if(!C)return null;
-    try{ac=new C();}catch(_e){ac=null;}
+    try{var L=window.__SOREAL_IDLE_LIMITEUR_V1__;ac=(L&&L.contexte&&L.contexte())||new C();}catch(_e){ac=null;}
     return ac;
   }
   function construireGrondement_(c,sortie,t,duree,alea){

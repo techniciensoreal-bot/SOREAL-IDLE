@@ -123,7 +123,8 @@
     for(i=0;i<n;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/n,1.2);
     var s=c.createBufferSource();s.buffer=b;
     var fl=c.createBiquadFilter();fl.type=type||'lowpass';fl.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)fl.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+d);fl.Q.value=q||0.8;
-    var g=c.createGain();g.gain.value=vol;s.connect(fl);fl.connect(g);g.connect(out);s.start(t);
+    /* attaque de 3 ms : le bruit démarrait à pleine amplitude, d'où un « clic » à chaque rafale */
+    var g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.003,d/4));s.connect(fl);fl.connect(g);g.connect(out);s.start(t);
   }
   function ton(c,out,t,f0,f1,d,vol,type){
     var o=c.createOscillator(),g=c.createGain();o.type=type||'triangle';o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+d);
@@ -159,12 +160,13 @@
     if(!(v>0))return false;
     try{
       var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
-      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:new C();
+      var L=window.__SOREAL_IDLE_LIMITEUR_V1__;
+      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:((L&&L.contexte&&L.contexte())||new C());
       if(ctxA.state==='suspended'&&ctxA.resume)ctxA.resume();
       var maitre=ctxA.createGain();maitre.gain.value=Math.min(1,v)*0.5;
       var pb=ctxA.createBiquadFilter();pb.type='lowpass';pb.frequency.value=1800;pb.Q.value=0.5;
       var comp=ctxA.createDynamicsCompressor();
-      maitre.connect(pb);pb.connect(comp);comp.connect(ctxA.destination);
+      maitre.connect(pb);pb.connect(comp);(L&&L.brancher(ctxA,comp))||comp.connect(ctxA.destination);
       sons(i,ctxA,ctxA.currentTime+0.03,maitre);
       return true;
     }catch(_e){return false;}

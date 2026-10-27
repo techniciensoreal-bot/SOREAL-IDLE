@@ -160,13 +160,14 @@
     if(!(v>0))return false;
     try{
       var C=window.AudioContext||window.webkitAudioContext;if(!C)return false;
-      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:new C();
+      var L=window.__SOREAL_IDLE_LIMITEUR_V1__;
+      ctxA=ctxA&&ctxA.state!=='closed'?ctxA:((L&&L.contexte&&L.contexte())||new C());
       if(ctxA.state==='suspended'&&ctxA.resume)ctxA.resume();
       var maitre=ctxA.createGain();maitre.gain.value=Math.min(1,v)*0.5;
       var passeBas=ctxA.createBiquadFilter();passeBas.type='lowpass';passeBas.frequency.value=1800;passeBas.Q.value=0.5;
       var comp=ctxA.createDynamicsCompressor();
       var ech=ctxA.createDelay(0.5),fb=ctxA.createGain(),mix=ctxA.createGain();ech.delayTime.value=0.13;fb.gain.value=0.25;mix.gain.value=0.18;
-      maitre.connect(passeBas);passeBas.connect(comp);comp.connect(ctxA.destination);
+      maitre.connect(passeBas);passeBas.connect(comp);(L&&L.brancher(ctxA,comp))||comp.connect(ctxA.destination);
       passeBas.connect(ech);ech.connect(fb);fb.connect(ech);ech.connect(mix);mix.connect(comp);
       sons(ctxA,ctxA.currentTime+0.03,maitre);
       return true;

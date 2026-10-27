@@ -56,7 +56,7 @@
     if(ctxAudio&&ctxAudio.state!=='closed')return ctxAudio;
     var C=window.AudioContext||window.webkitAudioContext;
     if(!C)return null;
-    try{ctxAudio=new C();}catch(_e){ctxAudio=null;}
+    try{var L=window.__SOREAL_IDLE_LIMITEUR_V1__;ctxAudio=(L&&L.contexte&&L.contexte())||new C();}catch(_e){ctxAudio=null;}
     return ctxAudio;
   }
   function bruit_(c,out,t,duree,f,q,gain){

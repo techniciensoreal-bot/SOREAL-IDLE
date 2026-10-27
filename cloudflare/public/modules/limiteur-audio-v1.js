@@ -66,5 +66,21 @@
     }
   }
 
-  window.__SOREAL_IDLE_LIMITEUR_V1__={brancher:brancher,entree:entree,plafond:PLAFOND};
+  /*
+   * UN SEUL contexte audio pour tous les sons du jeu (Norman, 2026-10-27 : « ça crépite encore parfois »). Chaque module (sons, ambiances, apparition des boss, orage, Wandoos, Yggdrasil...) ouvrait le sien : jusqu'à une dizaine de flux
+   * audio en parallèle, que le système doit mélanger et servir chacun à temps. Dès que le processeur est occupé (redessin, moteur local), l'un d'eux manque son échéance : craquement, et le mélange de plusieurs flux dépassait 1,0 hors de
+   * portée du limiteur (un limiteur par contexte). Avec un seul contexte, tout passe par le même limiteur et le même flux. Taille de tampon « balanced » : un peu plus de marge contre les craquements, pour 10 à 20 ms de plus.
+   * Exceptions (elles se mettent en pause : suspendre le contexte partagé couperait tout) : la musique des Titans et la voix des tutoriels gardent le leur.
+   */
+  var partage=null;
+  function contexte(){
+    if(partage&&partage.state!=='closed')return partage;
+    var C=window.AudioContext||window.webkitAudioContext;
+    if(!C)return null;
+    try{partage=new C({latencyHint:'balanced'});}
+    catch(_e){try{partage=new C();}catch(_f){partage=null;}}
+    return partage;
+  }
+
+  window.__SOREAL_IDLE_LIMITEUR_V1__={brancher:brancher,entree:entree,contexte:contexte,plafond:PLAFOND};
 })();

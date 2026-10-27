@@ -128,7 +128,7 @@
     var AudioCtx=window.AudioContext||window.webkitAudioContext;
     if(!AudioCtx)return null;
     try{
-      ctx=new AudioCtx();
+      ctx=(window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.contexte&&window.__SOREAL_IDLE_LIMITEUR_V1__.contexte())||new AudioCtx();
       master=ctx.createGain();
       master.gain.value=gainMaitre_();
       (window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(ctx,master))||master.connect(ctx.destination);
@@ -1242,7 +1242,9 @@
       if(!r)return false;
       var c=r.c,buf=r.buf;
       var src=c.createBufferSource();src.buffer=buf;
-      var g=c.createGain();g.gain.value=1;
+      var g=c.createGain();
+      /* fondu d'entrée de 20 ms : le tampon retourné démarre en plein milieu du signal, sans lui ce démarrage brutal fait « clac » */
+      g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+.02);
       src.connect(g);g.connect(master||c.destination);src.start(0,.12);   /* saute le début quasi muet (queue de réverbération retournée) */
       bruit_(c,{duration:1.15,volume:.05,frequency:1800,frequencyEnd:5200,decay:.6,filterType:"bandpass"});
       for(var i=0;i<6;i+=1)bruit_(c,{duration:.05,volume:.05,frequency:3000,frequencyEnd:800,decay:3,delay:i*.18,filterType:"bandpass"});
