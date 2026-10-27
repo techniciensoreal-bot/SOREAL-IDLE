@@ -265,7 +265,11 @@ function afficherEtape_(garderTaille){
   /* « Avance au clic » : on attend le clic sur la cible (indice affiché, bouton Suivant masqué le temps du délai). */
   s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);
   s.debutAttente=Date.now();
-  b.hidden=false;
+  /* Guide « sans fenêtre » (Norman, 2026-10-27 : « pour le premier tuto, rien ne doit apparaître à l'écran, ni texte ni fenêtre rétrécie ») : la fenêtre existe pour la logique (voix, clic) mais reste cachée ; le cadre lumineux de la cible n'est pas touché. */
+  s.cache=s.guide.afficher===false;
+  s.debutEtape=Date.now();
+  s.tempsLecture=Math.max(2500,Math.min(60000,String(e.texte||'').length*60));
+  b.hidden=s.cache;
   /* Une étape qui commence (départ du guide, avance au clic) s'ouvre réduite en enceinte ; un clic sur Précédent / Suivant garde la taille choisie. */
   b.classList.toggle('reduit',!garderTaille);
   b.innerHTML=
@@ -312,6 +316,12 @@ function suivre_(){
       var texteInd=verrou?'🔊 Écoute d’abord la voix : tu pourras ensuite cliquer sur l’élément entouré.':'👆 Clique sur l’élément entouré pour continuer.';
       if(ind.textContent!==texteInd)ind.textContent=texteInd;
     }
+  }
+  /* Sans fenêtre et sans clic demandé, personne ne peut cliquer sur « Suivant » : l'étape se termine toute seule quand la voix a fini (au moins 2,5 s, ou le temps de lire le texte si la voix est coupée). */
+  if(s.cache&&!s.attenteClic&&!voixVerrouille_(s)&&Date.now()-s.debutEtape>=s.tempsLecture){
+    var iEtape=s.i;
+    if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
+    s.i=iEtape+1;afficherEtape_(true);return;
   }
   placer_(b,c,e);
 }

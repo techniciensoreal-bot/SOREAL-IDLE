@@ -45,7 +45,7 @@ function nouvelId_(titre){
   return 'tuto-'+base+'-'+Date.now().toString(36);
 }
 function guideVide_(){
-  return {id:'',titre:'',declencheur:{type:'debut'},actif:true,ordre:0,etapes:[etapeVide_()]};
+  return {id:'',titre:'',declencheur:{type:'debut'},actif:true,afficher:true,ordre:0,etapes:[etapeVide_()]};
 }
 function etapeVide_(){
   return {titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false};
@@ -177,7 +177,7 @@ function pageHtml_(){
 /* ---------- aperçu ---------- */
 
 function pourLecteur_(g){
-  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur)};})};
+  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur)};}),afficher:g.afficher!==false};
 }
 function apercu_(guide,apres){
   var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
@@ -209,7 +209,7 @@ function etapeHtml_(e,i,total){
     '<div class="at-rang"><div><label>Où se place la fenêtre</label><select data-champ="placement">'+
       [['auto','Automatique (côté où il y a de la place)'],['haut','Au-dessus'],['bas','En dessous'],['gauche','À gauche'],['droite','À droite'],['centre','Au centre']].map(function(p){return '<option value="'+p[0]+'"'+(e.placement===p[0]?' selected':'')+'>'+p[1]+'</option>';}).join('')+
     '</select></div><div><label>Cadre lumineux</label><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" data-champ="surbrillance" '+(e.surbrillance!==false?'checked':'')+'> entoure l’élément montré</label></div></div>'+
-    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin-top:10px"><input type="checkbox" data-champ="avanceAuClic" '+(e.avanceAuClic?'checked':'')+(cible?'':' disabled')+'> <span><b>Passe à l’étape suivante quand le joueur clique sur l’élément montré</b> (il faut une cible). Le bouton « Suivant » est alors caché pendant 30 secondes, puis il revient pour ne jamais bloquer le joueur.</span></label>'+
+    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin-top:10px"><input type="checkbox" data-champ="avanceAuClic" '+(e.avanceAuClic?'checked':'')+(cible?'':' disabled')+'> <span><b>Passe à l’étape suivante quand le joueur clique sur l’élément montré</b> (il faut une cible ; cochée d’office quand tu places une cible). Le bouton « Suivant » est alors caché ; attendre ne lance jamais la suite.</span></label>'+
   '</div>';
 }
 
@@ -226,6 +226,7 @@ function editeurHtml_(){
     '</div></div>'+
     '<div class="at-rang"><div><label>Ordre (si plusieurs guides ont le même déclencheur)</label><input type="number" data-g="ordre" value="'+esc_(g.ordre||0)+'"></div>'+
       '<div><label>Activé</label><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" data-g="actif" '+(g.actif!==false?'checked':'')+'> le guide est joué aux joueurs</label></div></div>'+
+    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:8px 0"><input type="checkbox" data-g="afficher" '+(g.afficher!==false?'checked':'')+'> <span><b>Afficher la fenêtre et le texte à l’écran</b>. Décochée : rien n’apparaît (ni fenêtre, ni texte, ni petite enceinte), seule la voix parle ; le cadre lumineux reste si l’étape l’a coché ; une étape avance au clic sur son élément (si la case de l’étape est cochée), sinon quand la voix a fini.</span></label>'+
     '<div id="atEtapes">'+g.etapes.map(function(e,i){return etapeHtml_(e,i,g.etapes.length);}).join('')+'</div>'+
     '<div class="at-actions"><button type="button" data-ag="ajouter">➕ Ajouter une étape</button></div>'+
     '<div class="at-etat" id="atEtat"></div>'+
@@ -250,6 +251,7 @@ function lireChamps_(){
   edition.declencheur=decl;
   edition.ordre=Math.floor(Number(v('[data-g="ordre"]'))||0);
   var a=ed.querySelector('[data-g="actif"]');edition.actif=a?a.checked:true;
+  var af=ed.querySelector('[data-g="afficher"]');edition.afficher=af?af.checked:true;
   Array.prototype.forEach.call(ed.querySelectorAll('.at-etape'),function(bloc){
     var i=Number(bloc.getAttribute('data-etape'));
     var e=edition.etapes[i];if(!e)return;
@@ -337,7 +339,7 @@ function placerSurEcran_(i){
   setTimeout(function(){
     T.choisirElement().then(function(res){
       remontrerEditeur_();
-      if(res&&res.selecteur){e.cible={selecteur:res.selecteur,libelle:res.libelle};rendre_();afficherEtat_('Élément choisi : « '+(res.libelle||res.selecteur)+' ».',false);}
+      if(res&&res.selecteur){e.cible={selecteur:res.selecteur,libelle:res.libelle};e.avanceAuClic=true;rendre_();afficherEtat_('Élément choisi : « '+(res.libelle||res.selecteur)+' ».',false);}
       else if(res&&!res.selecteur){rendre_();afficherEtat_('Impossible de repérer cet élément de façon fiable : choisis-en un voisin.',true);}
       else rendre_();
     });

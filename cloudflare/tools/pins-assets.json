@@ -8,8 +8,8 @@
   "sha": "018773034e510e3457b8e5bc9fd760ac4a0d5287"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 3,
-  "sha": "021d097beeda3498168e5d1e7bbf73f6a849c19f"
+  "pin": 4,
+  "sha": "f597e21dee077573572c6190d9384ed7a4d29652"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 2,
@@ -328,8 +328,8 @@
   "sha": "d478211ff732862e2427dfc6fea23dbf0b5db567"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 78,
-  "sha": "e37293b7eb0b86e3449dd55c9922ba9f07f88e93"
+  "pin": 79,
+  "sha": "8c8088e5c8130104d0ee317a01747c57068cd87c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -396,8 +396,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 483,
-  "sha": "bea399825a69eb8ae2da8a741ebf02531eb6361d"
+  "pin": 484,
+  "sha": "77af1e703815c2d5fae1fd92270436158ecd892a"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -464,12 +464,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 492,
-  "sha": "e078290d0ead402a5bd8e6f12bcd1625e3596985"
+  "pin": 493,
+  "sha": "40e8f35a65fc8eaf4929859be005000d58cd07cf"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 312,
-  "sha": "0c614686b675dd44a441a4aab6475fe590015186"
+  "pin": 313,
+  "sha": "3c460b6ed38100b96c44763204f3f3c43235609a"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -488,8 +488,8 @@
   "sha": "e9afcb04f071b8903e3fd8b063cb1c09cddc1b25"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 9,
-  "sha": "3847f266407522fb7d24ddcf35700ab749e65b79"
+  "pin": 10,
+  "sha": "9d1c50c1dddeadad03b1498c42a11d6a7c1eef64"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

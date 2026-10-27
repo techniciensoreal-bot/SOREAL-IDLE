@@ -88,7 +88,7 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
   assert.deepEqual(guidesPourJoueurV1(sql, { boss: 5 }), [], "guide de boss désactivé supprimé : rien");
   assert.deepEqual(guidesPourJoueurV1(sql, { menu: "inconnu" }), []);
   const donnee = entrainement[0];
-  assert.deepEqual(Object.keys(donnee).sort(), ["declencheur", "etapes", "id", "titre", "vuId"], "ce dont la fenêtre a besoin, rien de plus");
+  assert.deepEqual(Object.keys(donnee).sort(), ["afficher", "declencheur", "etapes", "id", "titre", "vuId"], "ce dont la fenêtre a besoin, rien de plus");
 }
 
 // --- serveur : opérations, contrôle d'administrateur, contrat ---

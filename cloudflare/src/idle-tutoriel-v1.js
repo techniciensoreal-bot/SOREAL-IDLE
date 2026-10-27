@@ -13,6 +13,7 @@
  *      placement   : auto | haut | bas | gauche | droite | centre ;
  *      surbrillance: un cadre lumineux entoure la cible ;
  *      avanceAuClic: l'étape passe à la suivante quand le joueur CLIQUE sur la cible (le bouton « Suivant » est alors masqué 30 s, puis revient pour ne jamais bloquer ; sans cible, ignoré).
+ * afficher (guide) : faux = RIEN à l'écran (ni fenêtre, ni enceinte réduite, ni texte) : seule la voix parle, le cadre lumineux de la cible reste (case « cadre lumineux » de l'étape), et l'étape avance au clic sur la cible (avanceAuClic) ou, sans clic demandé, quand la voix a fini (Norman, 2026-10-27).
  * Mémoire « vu » : profil.stats.vus (marquerVusSorealIdle), identifiant propre à chaque guide (vuId) ; réglage « ancien tutoriel » (meta) : tant qu'il est actif,
  * les anciennes fenêtres de Norman & Sébastien et les popups de première ouverture de menu restent jouées ; le désactiver les remplace par ces guides.
  */
@@ -73,7 +74,7 @@ export function normaliserGuideV1(brut) {
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();
   const vuId = vuBrut && vuBrut.length <= 80 && /^[A-Za-z0-9_:.-]+$/.test(vuBrut) ? vuBrut : "tuto:" + id;
   const ordre = Number.isFinite(Number(g.ordre)) ? Math.max(-9999, Math.min(9999, Math.floor(Number(g.ordre)))) : 0;
-  return { id, titre, declencheur, actif: g.actif !== false, ordre, vuId, etapes };
+  return { id, titre, declencheur, actif: g.actif !== false, afficher: g.afficher !== false, ordre, vuId, etapes };
 }
 
 
@@ -229,5 +230,5 @@ export function guidesPourJoueurV1(sql, contexte) {
     if (ctx.boss != null) return g.declencheur.type === "boss" && g.declencheur.boss === Math.floor(Number(ctx.boss));
     return false;
   });
-  return bons.map((g) => ({ id: g.id, titre: g.titre, vuId: g.vuId, declencheur: g.declencheur, etapes: g.etapes }));
+  return bons.map((g) => ({ id: g.id, titre: g.titre, vuId: g.vuId, declencheur: g.declencheur, afficher: g.afficher !== false, etapes: g.etapes }));
 }
