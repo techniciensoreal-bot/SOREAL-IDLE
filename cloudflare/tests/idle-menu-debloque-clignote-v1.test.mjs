@@ -10,9 +10,10 @@ const fn = menus.slice(menus.indexOf("function annoncerNouveauxMenusIdleV1_(j){"
 assert.equal((fn.match(/jouerEffetAudioIdleV199_\('menuUnlock'\)/g) || []).length, 1, "UN seul son pour tous les menus débloqués ensemble");
 assert.ok(fn.includes("clignoterMenusDebloquesIdleV1_(nouveaux.map(function(m){return m.id;}))"), "tous les boutons débloqués clignotent ensemble");
 const clign = menus.slice(menus.indexOf("function clignoterMenusDebloquesIdleV1_(ids){"), menus.indexOf("function annoncerNouveauxMenusIdleV1_(j){"));
-assert.ok(clign.includes("iterations:3") && clign.includes("a.startTime=debut"), "3 clignotements, tous démarrés sur le même instant");
+assert.ok(clign.includes("const DUREE=520,FOIS=3;") && clign.includes("delay:-ecoule") && clign.includes("iterations:FOIS"), "3 clignotements calés sur l'horloge commune (délai négatif)");
+assert.ok(clign.includes("b.__clignoteV1===debut"), "un bouton recréé par un redessin reçoit de nouveau l'animation, synchrone avec les autres");
 assert.ok(clign.includes("prefers-reduced-motion"), "sans animation si l'utilisateur les réduit");
-assert.ok(clign.includes("essais<15"), "le bouton d'un menu qui vient d'apparaître est cherché pendant 1,5 s au plus");
+assert.ok(clign.includes("essais<30") && clign.includes("setTimeout(tour,50)"), "le bouton d'un menu qui vient d'apparaître est cherché pendant 1,5 s au plus, toutes les 50 ms");
 
 const audio = readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
 const son = audio.slice(audio.indexOf("function menuDebloque_(){"), audio.indexOf("Set complété (Norman, 2026-09-27"));

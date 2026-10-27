@@ -823,30 +823,33 @@
        */
       function clignoterMenusDebloquesIdleV1_(ids){
         try{if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;}catch(_e){}
-        const restants=ids.slice();
-        let essais=0;
-        (function chercher(){
-          const trouves=[];
-          for(let i=restants.length-1;i>=0;i-=1){
-            const cible="('"+restants[i]+"')";
-            const b=Array.prototype.find.call(document.querySelectorAll('.soreal-idle-nav-v28 [onclick]'),function(x){return String(x.getAttribute('onclick')||'').indexOf(cible)!==-1;});
-            if(b){trouves.push(b);restants.splice(i,1);}
-          }
-          if(trouves.length&&typeof trouves[0].animate==='function'){
-            const debut=document.timeline&&document.timeline.currentTime;
-            trouves.forEach(function(b){
-              try{
-                const a=b.animate([
-                  {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'},
-                  {opacity:.2,boxShadow:'0 0 0 0 rgba(255,212,90,0)',offset:.5},
-                  {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'}
-                ],{duration:520,iterations:3,easing:'ease-in-out'});
-                if(debut!=null)a.startTime=debut;
-              }catch(_e){}
-            });
-          }
+        /*
+         * Norman (2026-10-27) : « Renaissance vient d'apparaître et n'a pas clignoté 3 fois ». Le bouton d'un menu qui vient d'apparaître peut être recréé par un redessin juste après (l'animation posée sur l'ancien bouton disparaissait avec lui) :
+         * toutes les 50 ms, pendant la durée du clignotement, chaque bouton du menu qui n'a pas (ou plus) son animation la reçoit, calée sur l'horloge commune (délai négatif = ce qui s'est déjà écoulé) : les boutons restent synchrones.
+         */
+        const DUREE=520,FOIS=3;
+        let debut=null,essais=0;
+        (function tour(){
+          const maintenant=document.timeline&&document.timeline.currentTime!=null?document.timeline.currentTime:performance.now();
+          const boutons=document.querySelectorAll('.soreal-idle-nav-v28 [onclick]');
+          ids.forEach(function(id){
+            const cible="('"+id+"')";
+            const b=Array.prototype.find.call(boutons,function(x){return String(x.getAttribute('onclick')||'').indexOf(cible)!==-1;});
+            if(!b||typeof b.animate!=='function')return;
+            if(debut===null)debut=maintenant;
+            const ecoule=maintenant-debut;
+            if(b.__clignoteV1===debut||ecoule>=DUREE*FOIS)return;
+            b.__clignoteV1=debut;
+            try{
+              b.animate([
+                {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'},
+                {opacity:.2,boxShadow:'0 0 0 0 rgba(255,212,90,0)',offset:.5},
+                {opacity:1,boxShadow:'0 0 0 3px #ffd45a, 0 0 22px 8px rgba(255,212,90,.95)'}
+              ],{duration:DUREE,iterations:FOIS,delay:-ecoule,easing:'ease-in-out'});
+            }catch(_e){}
+          });
           essais+=1;
-          if(restants.length&&essais<15)setTimeout(chercher,100);
+          if(debut===null?essais<30:maintenant-debut<DUREE*FOIS)setTimeout(tour,50);
         })();
       }
 
