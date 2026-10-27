@@ -855,8 +855,24 @@ async function adventureMob_(request,env,url){
     headers:mediaHeaders_(headers,300)
   });
 }
+/* Safe zones par difficulté (Norman, 2026-10-27) : Evil = 3D de film d'animation, Sadistic = photos. Dossiers voisins, un fichier <zone>.webp par zone ; absent = image normale. */
+const IDLE_SAFE_ZONES_EVIL_R2_PREFIX="idle/safe-zones-evil/";
+const IDLE_SAFE_ZONES_SADISTIC_R2_PREFIX="idle/safe-zones-sadistic/";
+function prefixesSafeZoneParDifficulte_(url){
+  const d=String(url.searchParams.get("difficulty")||"").trim().toLowerCase();
+  const out=[];
+  if(d==="extreme"||d==="sadistic")out.push(IDLE_SAFE_ZONES_SADISTIC_R2_PREFIX);
+  if(d==="difficile"||d==="evil"||d==="extreme"||d==="sadistic")out.push(IDLE_SAFE_ZONES_EVIL_R2_PREFIX);
+  return out;
+}
 async function adventureSafeZone_(request,env,url){
   const zone=String(url.searchParams.get("zone")||"tutorial").trim().toLowerCase();
+  if(/^[a-z0-9]{1,24}$/.test(zone)&&env.SOREAL_R2&&typeof env.SOREAL_R2.get==="function"){
+    for(const prefix of prefixesSafeZoneParDifficulte_(url)){
+      const key=prefix+zone+".webp";
+      if(await env.SOREAL_R2.get(key))return reponseObjetR2_(request,env,{key});
+    }
+  }
   const folder=await dossierZoneAventureR2_(env,zone);
   if(!folder)return new Response("Zone Adventure invalide",{status:400,headers:{"cache-control":"no-store"}});
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){

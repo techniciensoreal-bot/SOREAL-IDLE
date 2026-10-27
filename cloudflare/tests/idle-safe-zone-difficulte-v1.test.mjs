@@ -15,4 +15,12 @@ assert.equal(make("extreme")({}), "/api/idle/media/safe-zone?zone=sky&difficulty
 assert.equal(new Function("window", "safeZoneVisualZone_", "URLSearchParams", m[0] + "; return safeZoneUrl_;")({}, () => "sky", URLSearchParams)({}), "/api/idle/media/safe-zone?zone=sky");
 /* Le module de difficulté est chargé avant la scène. */
 assert.ok(index.indexOf("item-difficulte-v1.js") < index.indexOf("adventure-scene-v79.js"));
+/* Le Worker IDLE sert la route lui-même (idle-media-v1.js) : mêmes dossiers, résolus avant la liste des zones normales. */
+const media = readFileSync(new URL("../src/idle-media-v1.js", import.meta.url), "utf8");
+assert.ok(media.includes('const IDLE_SAFE_ZONES_EVIL_R2_PREFIX="idle/safe-zones-evil/"'));
+assert.ok(media.includes('const IDLE_SAFE_ZONES_SADISTIC_R2_PREFIX="idle/safe-zones-sadistic/"'));
+assert.ok(media.indexOf("prefixesSafeZoneParDifficulte_(url)){") > media.indexOf("function prefixesSafeZoneParDifficulte_"));
+const corps = media.slice(media.indexOf("async function adventureSafeZone_"));
+assert.ok(corps.indexOf("prefix of prefixesSafeZoneParDifficulte_(url)") < corps.indexOf("const folder=await dossierZoneAventureR2_(env,zone);"));
+
 console.log("idle-safe-zone-difficulte-v1: OK");
