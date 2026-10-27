@@ -272,9 +272,11 @@ var CSS=
     'radial-gradient(ellipse 96px 26px at 330px 150px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 58px 24px at 292px 162px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 66px 28px at 376px 160px,#fff 0 58%,transparent 74%),'+
     'radial-gradient(ellipse 78px 22px at 540px 40px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 50px 20px at 512px 52px,#fff 0 58%,transparent 74%),radial-gradient(ellipse 56px 24px at 584px 50px,#fff 0 58%,transparent 74%)}'+
   '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-nuages{filter:grayscale(1) brightness(.72);opacity:.55}'+
+  /* Les nuages dérivent par TRANSFORM (carte graphique), plus par background-position (Norman, 2026-10-26, audit 60 fps : NGU du jour à 20 images/s ; 24 dégradés d'une bande de 300 px repeints à chaque image). L'élément déborde de 640 px à gauche (le cadre coupe : overflow:hidden) et glisse d'exactement une période du motif : même rendu, boucle sans à-coup. */
+  '.nl-v1[data-nl-onglet="energy"] .nl-nuages{left:-640px}'+
   '.nl-v1[data-nl-onglet="energy"] .nl-entete p{color:#eaf4ff;text-shadow:0 1px 3px rgba(5,30,70,.8)}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="energy"] .nl-nuages{animation:nlNuages 150s linear infinite}.nl-v1[data-nl-onglet="energy"] .nl-astre::before{animation:nlRayons 90s linear infinite}'+
-    '@keyframes nlNuages{from{background-position:0 0}to{background-position:640px 0}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="energy"] .nl-nuages{animation:nlNuages 150s linear infinite;will-change:transform}.nl-v1[data-nl-onglet="energy"] .nl-astre::before{animation:nlRayons 90s linear infinite}'+
+    '@keyframes nlNuages{from{transform:translate3d(0,0,0)}to{transform:translate3d(640px,0,0)}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
   /* Arc-en-ciel le jour, aurores boréales la nuit (Norman, 2026-10-25). Éclat selon --nl-lueur ; éteints quand rien n'est placé. */
   '.nl-v1>.nl-arc{position:absolute;pointer-events:none;z-index:0;display:none}'+
   '.nl-v1[data-nl-onglet="energy"]>.nl-arc{display:block;left:7%;width:86%;top:46px;height:210px;filter:blur(.6px);opacity:calc(.3 + var(--nl-lueur,0)*.5);-webkit-mask:linear-gradient(180deg,#000 58%,transparent);mask:linear-gradient(180deg,#000 58%,transparent);background:radial-gradient(ellipse 50% 100% at 50% 100%,transparent 0 64%,rgba(255,70,70,.9) 65% 69%,rgba(255,150,40,.9) 69% 73%,rgba(255,226,70,.9) 73% 77%,rgba(90,205,100,.9) 77% 81%,rgba(70,160,255,.9) 81% 85%,rgba(90,80,225,.9) 85% 89%,rgba(165,90,225,.9) 89% 93%,transparent 94%)}'+

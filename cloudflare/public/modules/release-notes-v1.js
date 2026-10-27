@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
             'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
             'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',
             'La partie ne commence réellement qu’à la fermeture du texte du premier boss : tu arrives sur la borne avec 250 d’énergie, qui regénère jusqu’à 500, que tu aies mis une minute ou un quart d’heure à passer le pseudo et l’introduction. Ton tutoriel de départ ne se lance qu’à ce moment-là, plus sur l’écran du pseudo.',
