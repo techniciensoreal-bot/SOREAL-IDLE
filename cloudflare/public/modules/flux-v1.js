@@ -499,7 +499,9 @@
         'box-shadow:0 -6px 18px -10px var(--th-glow,rgba(94,234,212,.5));color:var(--th-ink,#e8fffb);font:700 13px/1 inherit;-webkit-user-select:none;user-select:none;'+
         /* Norman (2026-10-13) : « le bandeau en direct fait baisser les fps, enlève la transparence » : plus d'opacité animée ni de masque dégradé (ils forçaient une composition hors écran à chaque image du défilement) ; le bandeau est opaque et se masque d'un coup */
         'contain:layout paint}'+
-      '#sorealIdleFluxV1.sif-off{display:none;pointer-events:none}'+
+      /* Norman (2026-10-27) : « le bandeau doit apparaître et disparaître en fondu » : seul le fondu d'apparition et de disparition (0,6 s) est animé, jamais le défilement ; masqué par visibility (et non display:none) pour que sa largeur reste mesurable : masqué par display:none, il mesurait 0 et la première information arrivait au milieu de l'écran au lieu d'entrer par la droite. */
+      '#sorealIdleFluxV1{opacity:1;transition:opacity .6s ease}'+
+      '#sorealIdleFluxV1.sif-off{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .6s ease,visibility 0s linear .6s}'+
       '#sorealIdleFluxV1[hidden]{display:none}'+
       '#sorealIdleFluxV1 .sif-tag{flex:0 0 auto;z-index:2;padding:0 12px;height:100%;display:flex;align-items:center;gap:6px;font-weight:900;letter-spacing:.06em;font-size:14px;'+
         'background:linear-gradient(90deg,var(--th-a,#5eead4),var(--th-b,#25b9a4));color:#06201c;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);padding-right:20px}'+
@@ -556,7 +558,10 @@
     if(vuLe!==undefined&&maintenant-vuLe<DOUBLON_MS)return;
     derniereVue.set(e.texte,maintenant);
     if(derniereVue.size>60){derniereVue.forEach(function(t,k){if(maintenant-t>=DOUBLON_MS)derniereVue.delete(k);});}
-    largeurVue=bandeau.querySelector('.sif-vue').clientWidth||largeurVue||300;
+    /* Largeur réelle de la fenêtre de défilement, jamais une valeur de repli au milieu de l'écran : repli = largeur de la page moins l'étiquette (PC comme téléphone). */
+    const vue=bandeau.querySelector('.sif-vue');
+    const etiquette=bandeau.querySelector('.sif-tag');
+    largeurVue=vue.clientWidth||Math.max(0,(document.documentElement.clientWidth||window.innerWidth||0)-(etiquette?etiquette.offsetWidth:0))||largeurVue||300;
     const modele=document.createElement('div');
     modele.innerHTML=htmlItem(e);
     const noeud=modele.firstChild;
