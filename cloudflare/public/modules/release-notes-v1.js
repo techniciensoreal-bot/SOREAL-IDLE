@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le boss suivant n’apparaît plus d’abord en entier puis noir avant de revenir : il n’est montré que par son animation d’apparition. Et Fight reste bloqué tant que le boss n’est pas apparu.',
             'Lancer un défi te fait maintenant arriver comme après un Rebirth : même bruit de voyage dans le temps, et tu retrouves la borne d’arcade.',
             'Quand un nouveau menu apparaît, son bouton clignote trois fois avec trois petits bips doux. Si plusieurs menus se débloquent en même temps, tous clignotent ensemble mais le son ne joue qu’une fois. Quand plusieurs portes s’ouvrent d’un coup, il n’y a qu’un seul son de porte et un seul coq.',
             'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',

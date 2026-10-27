@@ -424,6 +424,9 @@
         /* Fight impossible tant que le boss n'est pas AFFICHÉ (Norman, 2026-10-20 : « je peux lancer les combats alors que les boss ne sont pas encore affichés, et ça fait ça » : combat lancé contre « le boss » sans nom ni PV, puis remis à zéro à la synchro suivante). */
         if(actif&&!REG.idleEtat.combatBossActif&&!(String(REG.idleEtat.bossActuel||'').trim()&&idleNombre_(REG.idleEtat.bossPvMax)>0))return;
 
+        /* Norman (2026-10-27) : « l'écran reste noir, je peux lancer le fight alors que le boss n'est pas encore apparu » : tant que le calque de l'apparition couvre l'image (attente du boss suivant ou effet en cours), le boss n'est pas affiché. */
+        if(actif&&!REG.idleEtat.combatBossActif&&document.querySelector('#sorealIdleBossImageHostV36 .app-boss'))return;
+
         /* Un ordre de combat précédent n'est pas encore validé par le serveur : pas de nouveau Fight (raccourci clavier compris). */
         if(actif&&!REG.idleEtat.combatBossActif&&(REG.idleCombatLotEnVolV1||REG.idleFastPendingV60.combat!==null))return;
 
@@ -1539,7 +1542,11 @@
             if(identiteGongBoss!==idleDernierGongBossV1){
               idleDernierGongBossV1=identiteGongBoss;
             }
-            return ' soreal-idle-image-fade-v61';
+            /*
+             * Plus de fondu CSS de 3 s sur l'image du boss (Norman, 2026-10-27 : « l'image du boss suivant est visible tout de suite, puis ça devient noir et elle réapparaît ») : l'apparition (apparition-boss-v1.js) la révèle déjà. Le fondu retirait la classe visible
+             * d'une image déjà opaque quand son adresse changeait : elle s'éteignait en 3 s puis se rallumait.
+             */
+            return '';
           }
 
           return '';
