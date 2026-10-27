@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 /* Norman (2026-10-22) : l'aperçu des graines (Récolter) et des bonus (Manger) s'affiche sur la carte d'un fruit PRÊT seulement. */
 const src = readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
 const a = src.indexOf("  function decimal_(x,max){");
-const b = src.indexOf("  function carte_(d,v){");
+const b = src.indexOf("  etat.echelles={};");
 assert.ok(a > 0 && b > a);
 const f = new Function("nb_", "grand_", "html_", src.slice(a, b) + "\nreturn {apercuHtml_,texteEffet_};");
 const T = f((v) => Number(v) || 0, (v) => String(Math.round(Number(v) || 0)), (t) => String(t));

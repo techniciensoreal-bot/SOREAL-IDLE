@@ -20,6 +20,8 @@ const code = [
   coupe(/var THEMES_=\{[\s\S]*?\n {2}\};\n/),
   coupe(/var VANTAIL_='[^\n]*\n/),
   coupe(/function porte_\(id,ouvre,referme\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/var dernierSonPorte_=\{\};\n/),
+  coupe(/function sonPorteUnique_\([^)]*\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
   coupe(/function nomSonFerme_\(\)\{[^\n]*\n/),
   coupe(/var CLE_PORTES_VUES_=[^\n]*\n/),
