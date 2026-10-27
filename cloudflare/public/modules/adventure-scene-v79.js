@@ -105,6 +105,9 @@
   function safeZoneUrl_(a){
     var p=new URLSearchParams();
     p.set('zone',safeZoneVisualZone_(a));
+    /* Evil : safe zones en 3D ; Sadistic : en photo (le serveur retombe sur l'image normale si elle manque). */
+    var diff=window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__?window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__.difficulte():'';
+    if(diff)p.set('difficulty',diff);
     return '/api/idle/media/safe-zone?'+p.toString();
   }
 
