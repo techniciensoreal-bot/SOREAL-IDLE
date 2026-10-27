@@ -552,8 +552,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 10,
-  "sha": "d9c3b2b45f0260d3ddf8e2ee6c18480a54a16108"
+  "pin": 11,
+  "sha": "d8be807276a7080247f5ebc98678da7e6724c42a"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 5,

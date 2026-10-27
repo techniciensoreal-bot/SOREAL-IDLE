@@ -884,17 +884,19 @@
           dispo.forEach(function(m){idleVuMarquerV1_('menu-annonce:'+m.id);});
           return;
         }
+        /* Première fois de la vie du compte : annonce (fenêtre) + son + clignotement. Menu redevenu disponible après une Renaissance : son + clignotement, sans la fenêtre (Norman, 2026-10-27). */
+        const premiere={};
         const nouveaux=dispo.filter(function(m){
-          if(redebloques[m.id])return true;
-          if(m.id==='chroniques'&&['bestiaire','classement','succes'].some(function(a){return idleVuConnuV1_(j,'menu-annonce:'+a);}))return false;
-          return !idleVuConnuV1_(j,'menu-annonce:'+m.id);
+          if(m.id==='chroniques'&&['bestiaire','classement','succes'].some(function(a){return idleVuConnuV1_(j,'menu-annonce:'+a);}))return Boolean(redebloques[m.id]);
+          if(!idleVuConnuV1_(j,'menu-annonce:'+m.id)){premiere[m.id]=true;return true;}
+          return Boolean(redebloques[m.id]);
         });
         if(!nouveaux.length)return;
         nouveaux.forEach(function(m){idleVuMarquerV1_('menu-annonce:'+m.id);});
         /* UN seul son (trois petits bips doux), quel que soit le nombre de menus débloqués en même temps ; tous les boutons clignotent ensemble. */
         jouerEffetAudioIdleV199_('menuUnlock');
         clignoterMenusDebloquesIdleV1_(nouveaux.map(function(m){return m.id;}));
-        nouveaux.forEach(function(m){
+        nouveaux.filter(function(m){return premiere[m.id];}).forEach(function(m){
           window.__sorealFadeNoticeV1__('🔓 Nouveau menu débloqué !',[(m.icon?m.icon+' ':'')+m.nom],{dureeMs:3800});
         });
       }

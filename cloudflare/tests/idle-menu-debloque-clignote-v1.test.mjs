@@ -26,5 +26,7 @@ assert.ok(ygg.includes("sonPorteUnique_('ouvre',nomSonPorte_(),vit,1200))coqPrem
 assert.ok(!/[^_]son_\(nomSonPorte_\(\)/.test(ygg), "aucun appel direct au son de porte hors de la garde");
 
 // après CHAQUE Rebirth (Norman, 2026-10-27) : un menu reverrouillé au moins 2 s puis redevenu disponible est annoncé de nouveau
-assert.ok(menus.includes("const idleMenusVerrouillesDepuisV1={};") && menus.includes("if(maintenantMenus-depuis>=2000)redebloques[m.id]=true;") && menus.includes("if(redebloques[m.id])return true;"), "un menu rouvert après un Rebirth est annoncé de nouveau");
+assert.ok(menus.includes("const idleMenusVerrouillesDepuisV1={};") && menus.includes("if(maintenantMenus-depuis>=2000)redebloques[m.id]=true;") && menus.includes("return Boolean(redebloques[m.id]);"), "un menu rouvert après un Rebirth est annoncé de nouveau (son + clignotement)");
+// la fenêtre « Nouveau menu débloqué » seulement la première fois (Norman, 2026-10-27)
+assert.ok(menus.includes("premiere[m.id]=true;return true;") && menus.includes("nouveaux.filter(function(m){return premiere[m.id];}).forEach(function(m){"), "fenêtre d'annonce : première fois seulement");
 console.log("idle-menu-debloque-clignote-v1: OK");
