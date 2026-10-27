@@ -149,6 +149,7 @@
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
       '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
+      '.ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}',
       '.ygg-vitre.ygg-decor .ygg-terre{inset:auto;z-index:2;left:calc((1 - var(--ygg-s,1))*50%);top:calc((1 - var(--ygg-s,1))*98.8%);width:calc(var(--ygg-s,1)*100%);height:calc(var(--ygg-s,1)*100%);}',
       '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;opacity:var(--ygg-fo,1);left:calc((1 - var(--ygg-f,1))*50%);top:calc((0.988 - 0.138*var(--ygg-s,1) - 0.9*var(--ygg-f,1))*100%);width:calc(var(--ygg-f,1)*100%);height:calc(var(--ygg-f,1)*100%);}',
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
@@ -426,6 +427,8 @@
   function porteDe_(id,actif){
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
+      /* Norman (2026-10-27) : « les portes font un rollback à l'ouverture » : une réponse en retard qui annonce encore le fruit inactif juste après l'activation refermait la porte en pleine ouverture (puis elle se rouvrait). Pendant l'animation d'ouverture, on ne referme jamais : si le fruit est vraiment inactif, la fermeture se joue juste après. */
+      if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,true);
       /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
       if(A[id]){delete A[id];F[id]=Date.now();sonPorteUnique_('ferme',nomSonFerme_(),reglages_().porte,1200);}
       etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);
@@ -475,7 +478,16 @@
     var manger=['+'+grand_(p.eat.seeds)+' graines'].concat((p.eat.effets||[]).map(function(e){return texteEffet_(e[0],e[1]);}).filter(Boolean));
     return '<div class="ygg-apercu" data-ygg-apercu><div><b>Manger</b> : '+html_(manger.join(' · '))+'</div><div><b>Récolter</b> : '+html_('+'+grand_(p.harvest.seeds)+' graines')+'</div>'+(avecPoop?'<div>(avec la Poop)</div>':'')+'</div>';
   }
-  function carte_(d,v){
+  /*
+   * Jamais d'animation de rétrécissement (Norman, 2026-10-27 : « on voit des fruits max rétrécir jusqu'à redevenir un tas de terre : c'est du spoil »). Les images grossissent en 4 s ; mais quand une carte reçoit une pousse PLUS PETITE que celle qu'elle montrait,
+   * ou le fruit d'une autre carte (changement de page, état en retard corrigé par la synchro), elle prend sa nouvelle taille d'un coup : data-ygg-snap coupe la transition pour ce rendu.
+   */
+  etat.echelles={};
+  function snap_(pos,id,s,f){
+    var o=etat.echelles[pos];etat.echelles[pos]={id:id,s:s,f:f};
+    return Boolean(o)&&(o.id!==id||s<o.s-0.0005||f<o.f-0.0005);
+  }
+  function carte_(d,v,pos){
     var def=v.def,id=def.id,c=choix_(id);
     var nom=html_(def.name||id);
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
@@ -497,7 +509,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true?' style="--ygg-s:'+(v.tier>0?echelleTerre_(v):'0.14')+';--ygg-f:'+(v.tier>0?echelleFruit_(v):'0')+';--ygg-fo:'+(v.tier>0&&heuresPousse_(v)>=1?'1':'0')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,v.tier>0?Number(echelleTerre_(v)):0.14,v.tier>0?Number(echelleFruit_(v)):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="--ygg-s:'+(v.tier>0?echelleTerre_(v):'0.14')+';--ygg-f:'+(v.tier>0?echelleFruit_(v):'0')+';--ygg-fo:'+(v.tier>0&&heuresPousse_(v)>=1?'1':'0')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
@@ -531,7 +543,7 @@
     var pages=Math.max(1,Math.ceil(d.fruits.length/PAR_PAGE));
     if(etat.page>pages)etat.page=pages;
     var debut=(etat.page-1)*PAR_PAGE;
-    var cartes=d.fruits.slice(debut,debut+PAR_PAGE).map(function(v){return carte_(d,v);}).join('');
+    var cartes=d.fruits.slice(debut,debut+PAR_PAGE).map(function(v,i){return carte_(d,v,i);}).join('');
     var onglets='';
     if(pages>1){
       onglets='<div class="ygg-onglets" role="tablist">';
