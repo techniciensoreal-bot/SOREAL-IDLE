@@ -853,8 +853,28 @@
         })();
       }
 
+      /*
+       * Après CHAQUE Rebirth (Norman, 2026-10-27 : « la machine temporelle vient d'apparaître et n'a pas clignoté ; ça ne doit pas se produire qu'au premier déblocage, mais après chaque rebirth ») : un Rebirth reverrouille des menus, qui se rouvrent
+       * ensuite un par un. Le « vu » du serveur ne dit que « annoncé une fois dans la vie du compte » : on suit en plus, en mémoire de page, depuis quand chaque menu est verrouillé ; un menu qui redevient disponible après AU MOINS 2 s de
+       * verrouillage est annoncé de nouveau (son, clignotement, annonce). Les 2 s écartent une réponse incomplète d'une fraction de seconde. Ce suivi ne dépend pas de la page ouverte : il tourne à chaque rendu.
+       */
+      const idleMenusVerrouillesDepuisV1={};
       function annoncerNouveauxMenusIdleV1_(j){
         if(!j||typeof window.__sorealFadeNoticeV1__!=='function')return;
+        const maintenantMenus=Date.now();
+        const redebloques={};
+        REG.IDLE_MENUS_V1.forEach(function(m){
+          if(!m||!m.id||m.id==='admin')return;
+          if(menuDisponibleIdleV28_(m.id,j)){
+            const depuis=idleMenusVerrouillesDepuisV1[m.id];
+            if(depuis!==undefined){
+              delete idleMenusVerrouillesDepuisV1[m.id];
+              if(maintenantMenus-depuis>=2000)redebloques[m.id]=true;
+            }
+          }else if(idleMenusVerrouillesDepuisV1[m.id]===undefined){
+            idleMenusVerrouillesDepuisV1[m.id]=maintenantMenus;
+          }
+        });
         const dispo=REG.IDLE_MENUS_V1.filter(function(m){
           return m&&m.id&&m.id!=='admin'&&menuDisponibleIdleV28_(m.id,j);
         });
@@ -865,6 +885,7 @@
           return;
         }
         const nouveaux=dispo.filter(function(m){
+          if(redebloques[m.id])return true;
           if(m.id==='chroniques'&&['bestiaire','classement','succes'].some(function(a){return idleVuConnuV1_(j,'menu-annonce:'+a);}))return false;
           return !idleVuConnuV1_(j,'menu-annonce:'+m.id);
         });
