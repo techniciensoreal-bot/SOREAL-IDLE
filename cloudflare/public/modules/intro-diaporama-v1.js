@@ -213,6 +213,14 @@ function terminer(){
   try{if(t&&typeof t.stop==='function')t.stop();}catch(_e){}
   /* La partie COMMENCE ici (Norman, 2026-10-26 : « elle ne doit réellement commencer qu'à l'appui sur le bouton blanc ; on arrive sur la borne avec 250 d'énergie ») : le moteur remet l'énergie à 250 et l'horloge à zéro (demarrerPartieSorealIdle,
      sans effet pour un joueur déjà en route ni pour un rejeu), puis la fenêtre se ferme. Au plus 4 s d'attente si le moteur ne répond pas. */
+  /* La scène disparaît TOUT DE SUITE (Norman, 2026-10-26 : « la chronique se relit après qu'on l'a fermée ») : tant que la fenêtre restait à l'écran pendant l'attente du moteur, la lecture automatique la retrouvait, la croyait non lue et relisait la chronique. Masquée et sans texte à lire, elle n'est plus candidate ; la fenêtre est retirée juste après. */
+  try{
+    var rr=racine();
+    if(rr){rr.removeAttribute('data-soreal-tts-say');rr.setAttribute('data-soreal-tts-ignore','');}
+    var mm=document.getElementById('sorealIdleTutorielPagesModalV1');
+    if(mm)mm.style.display='none';
+    if(t&&typeof t.stop==='function')t.stop();
+  }catch(_e){}
   var fini=false;
   function suite(){
     if(fini)return;fini=true;

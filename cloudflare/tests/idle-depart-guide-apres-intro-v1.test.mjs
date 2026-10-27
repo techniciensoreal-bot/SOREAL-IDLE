@@ -11,6 +11,9 @@ const fin = intro.slice(debutTerminer, debutTerminer + 1800);
 assert.ok(fin.includes("appel('demarrerPartieSorealIdle',[])") && fin.includes("appel('synchroniserSorealIdle',[])"), "la fermeture de l'intro démarre la partie puis synchronise");
 assert.ok(fin.includes("setTimeout(suite,4000)"), "jamais bloqué si le moteur ne répond pas");
 assert.ok(fin.indexOf("demarrerPartieSorealIdle") < fin.indexOf("__tutorielPagesNaviguerV1__(1)") || fin.includes("function suite()"), "le départ précède la fermeture de la fenêtre");
+/* Norman (2026-10-26) : « la chronique se lit après qu'on l'a fermée » : pendant l'attente du moteur, la scène restait à l'écran avec son texte et la lecture automatique la relisait. */
+assert.ok(fin.includes("rr.removeAttribute('data-soreal-tts-say')") && fin.includes("mm.style.display='none'"), "la scène est masquée et sans texte à lire dès la fermeture : la chronique n'est jamais relue");
+assert.ok(fin.indexOf("mm.style.display='none'") < fin.indexOf("setTimeout(suite,4000)"), "masquée AVANT l'attente du moteur");
 const continuer = intro.slice(intro.indexOf("var continuer=function(ev){"), intro.indexOf("cadre.addEventListener('click',continuer);"));
 assert.ok(continuer.includes("if(d){ouvrirChronique(r,d);return;}") && continuer.includes("terminer();"), "le bouton blanc ouvre d'abord le texte du premier boss ; sa fermeture termine l'intro (donc démarre la partie)");
 

@@ -32,6 +32,7 @@
         date:'2026-10-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',
             'La partie ne commence réellement qu’à la fermeture du texte du premier boss : tu arrives sur la borne avec 250 d’énergie, qui regénère jusqu’à 500, que tu aies mis une minute ou un quart d’heure à passer le pseudo et l’introduction. Ton tutoriel de départ ne se lance qu’à ce moment-là, plus sur l’écran du pseudo.',
             'Sur téléphone, frotter la flaque du Coffre ou de la valise pour la nettoyer ne change plus de page : le glissement ne fait plus passer à l’écran voisin pendant le nettoyage.',
             'Au lancement d’une nouvelle partie, la chronique du premier boss n’est plus lue toute seule : elle est déjà lue dans l’introduction. L’ancien tutoriel (Norman & Sébastien) est supprimé : seuls l’introduction et ton propre tutoriel restent.',
