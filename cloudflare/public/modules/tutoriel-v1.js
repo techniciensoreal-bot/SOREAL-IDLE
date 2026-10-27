@@ -381,10 +381,16 @@ function clicRefuse_(ev){
   if(voixVerrouille_(s))return true;
   return !cible.contains(ev.target);
 }
-['click','pointerdown','mousedown','mouseup','pointerup','dblclick'].forEach(function(nom){
-  document.addEventListener(nom,function(ev){
+/*
+ * Les refus sont posés sur WINDOW (phase de capture), pas sur document : la phase de capture de window passe AVANT celle de document, donc avant tous les autres écouteurs de capture de la page. Sur document, un écouteur enregistré plus tôt (le bouton
+ * « Lire ce texte » de tutorial-tts-v202.js, chargé avant ce module) s'exécutait en premier : Norman (2026-10-27) a pu lancer la lecture de la chronique d'un boss pendant l'étape « clique sur Fight », ce qui a interrompu le tutoriel.
+ */
+['click','pointerdown','mousedown','mouseup','pointerup','dblclick','touchstart','touchend'].forEach(function(nom){
+  window.addEventListener(nom,function(ev){
     if(!clicRefuse_(ev))return;
-    ev.preventDefault();ev.stopPropagation();ev.stopImmediatePropagation();
+    /* un toucher (touchstart/touchend) n'est refusé que s'il est annulable ; le clic qui en découle est de toute façon refusé juste après */
+    if(ev.cancelable)ev.preventDefault();
+    ev.stopPropagation();ev.stopImmediatePropagation();
   },true);
 });
 /*

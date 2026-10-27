@@ -14,7 +14,7 @@ assert.ok(src.includes("b.classList.remove('reduit');"), "un clic sur l'enceinte
 // Verrou de la voix et des clics
 assert.ok(src.includes("function voixVerrouille_(s)") && src.includes("tts.readText(t,null,function(){if(s.jetonVoix===jeton)s.voixEnCours=false;})"), "verrou levé à la fin de la lecture");
 assert.ok(src.includes("function clicRefuse_(ev)") && src.includes("if(voixVerrouille_(s))return true;") && src.includes("return !cible.contains(ev.target);"), "rien d'autre que la cible ne se clique, et pas même elle tant que la voix parle");
-assert.ok(src.includes("['click','pointerdown','mousedown','mouseup','pointerup','dblclick']") && src.includes("ev.stopImmediatePropagation();"), "les clics refusés n'atteignent jamais le jeu");
+assert.ok(src.includes("['click','pointerdown','mousedown','mouseup','pointerup','dblclick','touchstart','touchend']") && src.includes("ev.stopImmediatePropagation();"), "les clics refusés n'atteignent jamais le jeu");
 assert.ok(src.includes("if(ev.target.closest('#'+ID))return false;"), "la fenêtre du tutoriel reste cliquable (enceinte, Passer)");
 // Attendre ne passe pas à l'étape suivante
 const suivre = src.slice(src.indexOf("function suivre_(){"), src.indexOf("function jouer_("));
