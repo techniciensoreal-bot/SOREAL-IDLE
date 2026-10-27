@@ -13,7 +13,7 @@ assert.ok(pv.includes("bar.style.width='100%';") && pv.includes("bar.style.trans
 assert.ok(!pv.includes("bar.style.width=pct"), "plus de largeur animée");
 assert.ok(pv.includes("bar.dataset.idlePctHudV1=pct.toFixed(2);"), "le pourcentage reste lisible (diagnostic)");
 const diag = readFileSync("cloudflare/public/modules/diag-fluidite-v1.js", "utf8");
-assert.ok(diag.includes("el.dataset.idlePctHudV1!==undefined?el.dataset.idlePctHudV1:(el.style&&el.style.width)"), "le diagnostic lit le pourcentage posé par le jeu");
+assert.ok(diag.includes("el.dataset&&el.dataset.idlePctHudV1!==undefined?el.dataset.idlePctHudV1:(el.style&&el.style.width)"), "le diagnostic lit le pourcentage posé par le jeu");
 const hud = readFileSync("cloudflare/public/modules/hud-haut-v2.js", "utf8");
 assert.ok(hud.includes("html body #sorealIdleHudPvBarV2{transition:transform .28s linear,background .4s ease,box-shadow .4s ease!important;will-change:transform}"), "transition sur le transform, couche propre");
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
