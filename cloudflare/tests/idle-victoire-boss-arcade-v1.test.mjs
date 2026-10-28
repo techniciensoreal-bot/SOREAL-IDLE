@@ -127,7 +127,7 @@ for (const diff of ["normal", "difficile", "extreme"]) {
 }
 
 const combat1 = readFileSync(new URL("../public/modules/ui-combat-1-v1.js", import.meta.url), "utf8");
-assert.ok(combat1.includes("if(arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));") && combat1.includes("REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;"), "jamais pendant un NUKE ; durée et boss combattu à usage unique (un kill sans combat suivi ne rejoue pas un vieux combat), boss combattu = boss sélectionné");
+assert.ok(combat1.includes("if(!victoireArcadeIdleV1&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));") && combat1.includes("REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;"), "jamais pendant un NUKE ; durée et boss combattu à usage unique (un kill sans combat suivi ne rejoue pas un vieux combat), boss combattu = boss sélectionné");
 assert.ok(combat1.includes("REG.idleCombatBossNumV1=idleEntier_(REG.idleEtat.bossSelection||1);") && combat1.includes("arcade.planifierCapture(REG.idleCombatBossNumV1)"), "au début de chaque combat : le boss combattu est noté et son image mise de côté");
 assert.ok(combat1.includes("REG.idleCombatDebutV1=Date.now();"), "le début de chaque combat est noté");
 assert.ok(combat1.includes("'soreal-idle-boss-transition-v61 vic-cache'") && combat1.includes("overlay.style.display='none'"), "le texte « BOSS VAINCU » du bandeau ne s'affiche plus, mais le bandeau est gardé pour le filet de sécurité");

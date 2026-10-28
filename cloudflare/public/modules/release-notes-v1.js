@@ -43,6 +43,7 @@
             'Quand une barre de magie ou d’énergie disparaît (ou revient), la page où tu te trouves ne bouge plus du tout, même tout en haut : le bandeau et le menu sont maintenant indépendants.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans la liste des zones d’Aventure, chaque ligne a sa personnalité : une icône (un feu de camp pour la Zone sûre, un rat pour la Zone Tutoriel, un alligator pour les Égouts…) et pour texture le décor de la zone vers laquelle elle mène, teinté à sa couleur. On repère les zones d’un coup d’œil.',
             'Un clic sur un objet de la langue de la valise (potion, effet en cours, graines, Poop…) ouvre une fenêtre qui dit ce qu’il fait ; une potion peut y être utilisée.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[

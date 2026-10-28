@@ -2455,10 +2455,10 @@ function pageAventureIdleV28_(j){
             '<div class="soreal-idle-zone-picker-v1">'+
               '<button type="button" class="soreal-idle-zone-arrow-v1" onclick="window.__zoneAdventurePrecedenteV1__()" aria-label="Zone précédente">◀</button>'+
               '<div class="team-sort-custom soreal-idle-zone-custom-v1" id="idleZoneSelectCustom">'+
-                '<button type="button" class="team-sort-trigger" onclick="window.__toggleMenuZoneAdventureIdleV1__(event)">'+
+                '<button type="button" class="team-sort-trigger"'+(window.__SOREAL_IDLE_ZONES_STYLE_V1__&&zone?' style="'+idleHtml_(window.__SOREAL_IDLE_ZONES_STYLE_V1__.style(zone.id,false))+'"':'')+' onclick="window.__toggleMenuZoneAdventureIdleV1__(event)">'+
                   '<span class="team-sort-trigger-main">'+
                     '<span class="team-sort-trigger-label">Zone</span>'+
-                    '<span class="team-sort-trigger-value">'+idleHtml_((zone&&(zone.name||zone.id))||'—')+'</span>'+
+                    '<span class="team-sort-trigger-value">'+(window.__SOREAL_IDLE_ZONES_STYLE_V1__&&zone?'<span class="zone-ico-v1" aria-hidden="true">'+window.__SOREAL_IDLE_ZONES_STYLE_V1__.icone(zone.id)+'</span>':'')+idleHtml_((zone&&(zone.name||zone.id))||'—')+'</span>'+
                   '</span>'+
                   '<span class="team-sort-arrow">▼</span>'+
                 '</button>'+
@@ -2470,8 +2470,12 @@ function pageAventureIdleV28_(j){
                     const idleInfo=(z.idleP!=null&&z.idleT!=null)
                       ?' · Puissance Idle '+formatGrandNombreIdleV70_(z.idleP)+' · Endurance Idle '+formatGrandNombreIdleV70_(z.idleT)
                       :'';
-                    return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option'+(active?' active':'')+'" title="Puissance '+formatGrandNombreIdleV70_(z.p||0)+' · Endurance '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
-                      '<span>'+idleHtml_(z.name||z.id)+'</span>'+
+                    /* Personnalité de la zone (Norman, 2026-10-28, modules/zones-personnalite-v1.js) : icône et couleur de toute la ligne, pour repérer les zones d'un coup d'œil. */
+                const perso=window.__SOREAL_IDLE_ZONES_STYLE_V1__;
+                const styleZone=perso?' style="'+idleHtml_(perso.style(z.id,active))+'"':'';
+                const iconeZone=perso?'<span class="zone-ico-v1" aria-hidden="true">'+perso.icone(z.id)+'</span>':'';
+                return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option zone-perso-v1'+(active?' active':'')+'"'+styleZone+' title="Puissance '+formatGrandNombreIdleV70_(z.p||0)+' · Endurance '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
+                      iconeZone+'<span>'+idleHtml_(z.name||z.id)+'</span>'+
                       (active?'<span class="team-sort-option-arrow">✓</span>':'')+
                     '</button>';
                   }).join('')+

@@ -91,3 +91,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* boutons de la fiche (lecture de la chronique) : lisibles sur le papier de la carte */
 .mtg-modal-v1 .mtg-boutons :is(.soreal-idle-tts-read-v203,.soreal-idle-chro-suite-v1){display:inline-flex;align-items:center;gap:1.2cqw;margin:0;padding:1cqw 2.8cqw;border:.4cqw solid #000;border-radius:1.8cqw;background:linear-gradient(180deg,#34343d,#16161b);color:#f6f2e2;font:700 3cqw/1.2 Georgia,"Times New Roman",serif;text-shadow:none;opacity:1;cursor:pointer;box-shadow:0 .4cqw 0 rgba(0,0,0,.45)}
 .mtg-modal-v1 .mtg-boutons :is(.soreal-idle-tts-read-v203,.soreal-idle-chro-suite-v1) svg{width:3cqw;height:3cqw;flex:0 0 auto}
+
+/* Liste des zones d'Aventure (Norman, 2026-10-28) : le fond, le liseré et le texte de chaque ligne sont posés en ligne par modules/zones-personnalite-v1.js ; ici seulement l'icône et le survol. */
+.zone-perso-v1{display:flex;align-items:center;gap:10px;transition:filter .12s}
+.zone-perso-v1:hover,.zone-perso-v1:focus{filter:brightness(1.22)}
+.zone-ico-v1{display:inline-block;flex:0 0 auto;width:1.5em;text-align:center;font-size:1.45em;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
+.team-sort-trigger-value .zone-ico-v1{margin-right:.4em;width:auto}
