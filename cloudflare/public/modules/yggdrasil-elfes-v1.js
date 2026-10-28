@@ -118,6 +118,7 @@
       /* Porte close : dessin fixe, aucune animation ; seule la classe .ouvre anime (transform et opacité, une fois). */
       '.ygg-porte{position:absolute;inset:0;z-index:4;display:flex;overflow:hidden;pointer-events:none;border-radius:9px;perspective:300px;background:#120f0c;box-shadow:inset 0 0 0 3px #17130f,inset 0 0 0 6px var(--r,#8a8272),inset 0 0 0 8px #17130f;}',
       '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;backface-visibility:hidden;}',
+      '.ygg-porte.ouvre,.ygg-porte.referme{will-change:opacity;}.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d,.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{will-change:transform;}',
       '.ygg-porte-g{margin:8px 0 8px 8px;transform-origin:0 50%;}',
       '.ygg-porte-d{margin:8px 8px 8px 0;transform-origin:100% 50%;}',
       '.ygg-porte svg{display:block;width:100%;height:100%;}',
@@ -127,8 +128,9 @@
       /* Téléphone (Norman, 2026-10-26 : « sur téléphone, les portes ne sont plus à la bonne taille par rapport aux images ») : le cadre de la porte (8 px de marge et de liserés) est fait pour un grand portrait ; sur un portrait de ~140 px il mangeait 11 % de l'image et la porte paraissait trop petite. Cadre réduit de moitié en proportion. */
       '@media (max-width:640px){.ygg-porte{border-radius:6px;box-shadow:inset 0 0 0 2px #17130f,inset 0 0 0 3px var(--r,#8a8272),inset 0 0 0 4px #17130f;}.ygg-porte-g{margin:4px 0 4px 4px;}.ygg-porte-d{margin:4px 4px 4px 0;}.ygg-porte-emb{width:38%;}}',
       '.ygg-porte-lueur{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,var(--e),transparent 70%);}',
-      '@keyframes yggPorteG{0%{transform:rotateY(0)}25%{transform:rotateY(-6deg)}100%{transform:rotateY(-104deg)}}',
-      '@keyframes yggPorteD{0%{transform:rotateY(0)}25%{transform:rotateY(6deg)}100%{transform:rotateY(104deg)}}',
+      /* Deux images clés seulement (début, fin) : une image intermédiaire à 25 % faisait repartir la courbe d'accélération de zéro (arrêt puis reprise = « mini à-coups » à l'ouverture, Norman 2026-10-28). */
+      '@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}',
+      '@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}',
       '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
       '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
       '@keyframes yggPorteEmb{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}',

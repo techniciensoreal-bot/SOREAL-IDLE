@@ -15,3 +15,13 @@ assert.ok(src.includes("return Boolean(o)&&(o.id!==id||s<o.s-0.0005||f<o.f-0.000
 assert.ok(src.includes("snap_(pos,id,v.tier>0?Number(echelleTerre_(v)):0.14,v.tier>0?Number(echelleFruit_(v)):0)?' data-ygg-snap=\"1\"':''"), "l'attribut est posé sur la vitre");
 assert.ok(src.includes("map(function(v,i){return carte_(d,v,i);})"), "la position de la carte est transmise");
 console.log("idle-ygg-porte-sans-retour-fruit-sans-recul-v1: OK");
+
+// Norman (2026-10-28) : « mini à-coups avant-arrière pendant l'ouverture » : une image clé intermédiaire à 25 % relançait la courbe d'accélération à chaque segment (arrêt puis reprise) ; deux images clés seulement, couches dédiées
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const ygg = lire("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
+  assert.ok(ygg.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}") && ygg.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}"), "porte : deux images clés, une seule courbe d'accélération");
+  assert.ok(!/@keyframes yggPorte[GD]\{[^}]*25%/.test(ygg), "aucune image intermédiaire qui ferait repartir la courbe");
+  assert.ok(ygg.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d") && ygg.includes("will-change:transform"), "vantaux sur leur propre couche");
+  console.log("idle-ygg-porte (courbe unique): OK");
+}
