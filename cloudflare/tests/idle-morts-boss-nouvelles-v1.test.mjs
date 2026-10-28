@@ -6,7 +6,7 @@ import vm from "node:vm";
  * Norman (2026-10-28) : « maintenant il en faut des nouvelles dans ce style, mais pour les boss ». Cinq morts de boss (éboulement, poussière, fonte, foudre, enfoncement), chacune avec son son synthétisé.
  * Module prêt mais PAS encore chargé par le jeu : page d'aperçu cloudflare/tools/apercu-morts/ (validation avant intégration). Ce test garde : cinq variantes, chaque image se dessine sans erreur de bout en bout, un son par variante.
  */
-const src = readFileSync("cloudflare/public/modules/morts-boss-nouvelles-v1.js", "utf8");
+const src = readFileSync("cloudflare/tools/apercu-morts/morts-boss-nouvelles-v1.js", "utf8");
 const ctxFaux = () => new Proxy({ _d: 0 }, {
   get(cible, nom) {
     if (nom in cible) return cible[nom];

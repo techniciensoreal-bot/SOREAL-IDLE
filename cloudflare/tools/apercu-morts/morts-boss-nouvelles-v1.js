@@ -7,7 +7,7 @@
  *   fonte      : il fond vers le sol en une flaque verdâtre qui bouillonne puis s'évapore ;            son : bulles, grésillement d'acide, « plop »
  *   foudre     : un éclair le traverse (négatif, os, étincelles), il noircit et tombe en étincelles ;   son : coup de tonnerre, crépitement électrique
  *   enfoncement: la terre tremble, il s'enfonce dans le sol qui se referme sur lui ;                    son : séisme, éboulis, gros choc sourd
- * Pas encore branchée sur le jeu : page d'aperçu cloudflare/tools/apercu-morts/ (validation avant intégration).
+ * Pas encore branchée sur le jeu : ce fichier vit dans cloudflare/tools/apercu-morts/ (page d aperçu, validation avant intégration) ; à la validation il passe dans public/modules/ et dans index.html.
  *   window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__ = { variantes, preparer(id,img,LW,LH), dessiner(id,c,t,cache,LW,LH), son(id), jouer(id,canvas,img,opts) }
  */
 (function(){
