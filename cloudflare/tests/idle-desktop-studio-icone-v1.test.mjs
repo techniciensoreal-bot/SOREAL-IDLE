@@ -10,7 +10,7 @@ const lire = (f) => fs.readFileSync(path.join(R, f), "utf8");
 for (const f of ["cloudflare/tools/voice-studio/pilote.py", "cloudflare/tools/voice-studio/serveur.py"]) {
   assert.match(lire(f), /workers\.dev,app:\/\/soreal,/, f + " : l'origine app://soreal doit être autorisée par défaut");
 }
-const main = lire("desktop/main.js");
+const main = lire("desktop/coeur.js");
 assert.match(main, /LIEN_STUDIO = \/\^soreal-studio:/, "le lien du studio est reconnu");
 assert.equal((main.match(/LIEN_STUDIO\.test\(url\)/g) || []).length, 2, "lien confié à Windows à la navigation ET à l'ouverture de fenêtre");
 assert.match(main, /app\.setAppUserModelId\("be\.soreal\.idle\.windows"\)/, "identité Windows (barre des tâches)");

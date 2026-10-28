@@ -139,7 +139,7 @@ const bandeau = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "module
 assert.ok(bandeau.includes("var D=window.sorealDesktop;") && bandeau.includes("typeof D.majInstaller!=='function'")&& bandeau.includes("return;"), "aucun effet hors de l'application");
 assert.ok(bandeau.includes("data-maj=\"installer\"") && bandeau.includes("data-maj=\"plus-tard\"") && bandeau.includes("maj-barre") && bandeau.includes("Redémarrage du jeu"), "Mettre à jour / Plus tard / progression / redémarrage");
 assert.ok(bandeau.includes("data-morph-garder"), "hors de la page : les redessins ne le touchent pas");
-const main = fs.readFileSync(path.join(DEPOT, "desktop", "main.js"), "utf8");
+const main = fs.readFileSync(path.join(DEPOT, "desktop", "coeur.js"), "utf8");
 assert.ok(main.includes("app.relaunch(); app.exit(0)") && main.includes("setInterval(verifierMaj, 30 * 60 * 1000)") && main.includes("revenirEnArriere"), "relance, vérification périodique, retour en arrière");
 assert.ok(!/autoUpdater|electron-updater|nsis/i.test(main), "aucun téléchargement d'installateur");
 const pre = fs.readFileSync(path.join(DEPOT, "desktop", "preload.js"), "utf8");

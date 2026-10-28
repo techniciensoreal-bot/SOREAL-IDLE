@@ -22,6 +22,7 @@ function copier(src, dest, filtre) {
 fs.rmSync(STAGE, { recursive: true, force: true });
 fs.mkdirSync(path.join(STAGE, "jeu", "cloudflare"), { recursive: true });
 copier(path.join(ICI, "main.js"), path.join(STAGE, "main.js"));
+copier(path.join(ICI, "coeur.js"), path.join(STAGE, "coeur.js"));
 copier(path.join(ICI, "preload.js"), path.join(STAGE, "preload.js"));
 copier(path.join(ICI, "src"), path.join(STAGE, "src"), (f) => !f.endsWith("serveur-essai.mjs"));
 copier(path.join(DEPOT, "cloudflare", "src"), path.join(STAGE, "jeu", "cloudflare", "src"));

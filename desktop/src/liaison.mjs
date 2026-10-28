@@ -13,7 +13,8 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { URL_PRODUCTION } from "./maj.mjs";
+/* adresse de production (la même que celle de maj.mjs) : ce fichier peut être mis à jour sans maj.mjs, qui reste celui de l'installateur */
+export const URL_PRODUCTION = "https://soreal-idle.technicien-soreal.workers.dev";
 
 const COL_DERNIERE_SYNCHRO = 15, COL_BOSS_VAINCUS = 14, COL_RENAISSANCES = 24;
 const JETON_RE = /^ils_[0-9a-f]{20,200}$/;

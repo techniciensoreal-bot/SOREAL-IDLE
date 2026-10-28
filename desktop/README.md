@@ -24,7 +24,8 @@ Les applications ouvertes et connectées affichent en haut de la fenêtre « Une
 - Le manifeste (`idle/_maj/manifeste.json` dans R2) est **signé** (Ed25519) ; l'application ne fait confiance qu'à la clé publique embarquée (`maj-cle-publique.pem`) : le code d'une mise à jour s'exécute dans l'application.
 - Une mise à jour est installée dans `…\SOREAL IDLE\maj\v<date>\` (couches : la plus récente d'abord, puis ce qu'embarque l'installateur). Si le jeu ne démarre pas avec elle, l'application revient toute seule à l'état d'avant et ne la repropose plus.
 - Routes du Worker : `/api/v1/maj/manifeste` et `/api/v1/maj/fichier?cle=idle/…` (lecture seule, sous `idle/` uniquement).
-- Ce qui ne se met PAS à jour : la coque (`main.js`, `preload.js`) ; un changement de la coque exige un nouvel installateur (rare).
+- Ce qui se met à jour : le jeu, les médias ET le cœur de l’application (`coeur.js`, `preload.js`, `icone.ico`, `src/env-local.mjs`, `src/liaison.mjs`, `src/steam.mjs`, qui voyagent dans le paquet de code). Le lanceur `main.js` charge le cœur de la dernière mise à jour seulement s’il a prouvé qu’il démarre (témoin `maj/coeur-essai.json`, liste `maj/coeur-refuse.json`), sinon celui de l’installateur.
+- Ce qui ne se met JAMAIS à jour : le lanceur `main.js`, `src/maj.mjs` et `src/zip.mjs` (la vérification des signatures), la clé publique, l’exécutable Electron lui-même et l’installateur (donc l’icône dessinée dans le fichier .exe ; celle de la fenêtre et de la barre des tâches vient du cœur). Ne jamais modifier `main.js` à la légère : un changement exigerait de réinstaller chez tout le monde.
 - Essai local complet : voir `cloudflare/tests/idle-desktop-maj-v1.test.mjs` ; pour tester l'application emballée contre un faux serveur, lancer l'exe avec `SOREAL_MAJ_URL=http://127.0.0.1:<port>`.
 
 ## Autres

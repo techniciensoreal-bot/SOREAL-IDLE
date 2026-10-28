@@ -133,7 +133,7 @@ const ligneDuServeur = (email) => { for (const l of prod.sql.exec("SELECT row_js
 const pont = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "standalone-bridge.js"), "utf8");
 assert.ok(pont.includes("function liaisonParamsV1()") && pont.includes('"http://127.0.0.1:"+l.port+"/liaison?etat="') && pont.includes("if(liaison){await modeLiaisonV1(liaison);return;}"), "page : mode liaison, retour vers 127.0.0.1, sans lancer le jeu");
 assert.ok(pont.includes("port>=1024&&port<=65535"), "port borné");
-const main = fs.readFileSync(path.join(DEPOT, "desktop", "main.js"), "utf8");
+const main = fs.readFileSync(path.join(DEPOT, "desktop", "coeur.js"), "utf8");
 assert.ok(main.includes("liaisonModule.transmissible(url.pathname)") && main.includes("return Response.error();") && main.includes('ipcMain.handle("liaison:demarrer"') && main.includes("env.definirSessionExterne"), "application : transmission, erreur réseau hors ligne, session du compte");
 assert.ok(main.includes("shell.openExternal(adresseLiaison)") && main.includes("safeStorage"), "navigateur du PC, jeton chiffré");
 const ui = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "modules", "liaison-v1.js"), "utf8");
