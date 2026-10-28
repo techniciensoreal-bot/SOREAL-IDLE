@@ -5,6 +5,13 @@
   /* Session d'un joueur connecté par Google (hors APP / TV) : conservée sur l'appareil pour ne pas se reconnecter à chaque visite. */
   const GOOGLE_SESSION_KEY="soreal_idle_google_session_v1";
   const TIMEOUT_MS=45000;
+  /*
+   * Jeu hors ligne (Norman, 2026-10-28). Deux repères gardés sur l'appareil (clés SANS le préfixe « soreal_idle_ » : ils ne sont jamais recopiés sur le serveur avec les préférences du compte, règle n°6) :
+   * le dernier jeton de session (pour rouvrir le jeu sans internet : le moteur local n'a besoin que de savoir QUEL compte, il ne contacte pas le serveur) et « l'accès au jeu a déjà été accorde à ce compte ».
+   */
+  const DERNIER_JETON_KEY="horsligne_soreal_jeton_v1";
+  const ACCES_OK_KEY="horsligne_soreal_acces_v1";
+  function horsLigneV1(){try{return navigator.onLine===false;}catch(_){return false;}}
 
   /*
    * Le frontend IDLE autonome ne charge plus Soreal_JS_01_Coeur.html.
@@ -63,8 +70,9 @@
   function googleSessionStockeeV1(){
     try{
       const brut=JSON.parse(String(localStorage.getItem(GOOGLE_SESSION_KEY)||"null"));
-      if(brut&&brut.token&&Number(brut.expiresAt)>Date.now())return String(brut.token);
-      if(brut)localStorage.removeItem(GOOGLE_SESSION_KEY);
+      /* Sans internet, une session échue reste valable POUR JOUER en local : rien n'est envoyé au serveur ; à son retour il demandera une nouvelle connexion, la partie de l'appareil est reprise à ce moment-là. */
+      if(brut&&brut.token&&(Number(brut.expiresAt)>Date.now()||horsLigneV1()))return String(brut.token);
+      if(brut&&!horsLigneV1())localStorage.removeItem(GOOGLE_SESSION_KEY);
     }catch(_){}
     return "";
   }
@@ -78,16 +86,23 @@
   function sessionV1(){
     let token="";
     try{token=String(sessionStorage.getItem(SESSION_KEY)||"").trim();}catch(_){}
-    return token||googleSessionStockeeV1();
+    if(token)return token;
+    const google=googleSessionStockeeV1();
+    if(google)return google;
+    /* Ouverture sans internet par un lancement depuis APP / TV (session de 8 h, gardée seulement le temps de l'onglet) : on reprend le dernier jeton connu. */
+    if(horsLigneV1()){try{return String(localStorage.getItem(DERNIER_JETON_KEY)||"").trim();}catch(_){}}
+    return "";
   }
 
   function saveSessionV1(value){
     const token=String(value||"").trim();
     try{
-      if(token)sessionStorage.setItem(SESSION_KEY,token);
+      if(token){sessionStorage.setItem(SESSION_KEY,token);localStorage.setItem(DERNIER_JETON_KEY,token);}
       else{
         sessionStorage.removeItem(SESSION_KEY);
         localStorage.removeItem(GOOGLE_SESSION_KEY);
+        localStorage.removeItem(DERNIER_JETON_KEY);
+        localStorage.removeItem(ACCES_OK_KEY);
       }
     }catch(_){}
     window.SOREAL_SESSION=token;
@@ -546,9 +561,11 @@
 
   /* Un joueur connecté par Google n'a accès au jeu que si l'administrateur a ouvert l'accès public : sinon message clair + changer de compte. */
   async function verifierAccesGoogleV1(){
-    let acces=null;
-    try{acces=await callIdleV1("obtenirAccesSorealIdle",[]);}catch(_){acces=null;}
-    if(acces&&acces.autorise!==false)return true;
+    let acces=null,reseauAbsent=false;
+    try{acces=await callIdleV1("obtenirAccesSorealIdle",[]);}catch(erreur){acces=null;reseauAbsent=!(erreur&&erreur.status);}
+    if(acces&&acces.autorise!==false){try{localStorage.setItem(ACCES_OK_KEY,"1");}catch(_){}return true;}
+    /* Pas de réponse du serveur (aucune réponse HTTP : internet coupé) : l'accès déjà accorde sur cet appareil suffit pour jouer en local. */
+    if(reseauAbsent){let accorde=false;try{accorde=localStorage.getItem(ACCES_OK_KEY)==="1";}catch(_){}if(accorde)return true;}
     /* Session expirée ou révoquée : retour à l'écran de connexion. */
     if(!sessionV1()){startV1();return false;}
     masquerProgressionV1();
@@ -602,6 +619,21 @@
       statusV1(error&&error.message?error.message:String(error||"Erreur SOREAL IDLE"),true);
     }
   }
+
+  /*
+   * Service worker (sw-idle-v1.js) : copie des fichiers du jeu sur l'appareil, pour rouvrir le jeu sans internet. « ?sw=0 » = arrêt d'urgence : le supprime avec ses copies.
+   */
+  (function(){
+    try{
+      if(!("serviceWorker" in navigator))return;
+      if(new URLSearchParams(location.search||"").get("sw")==="0"){
+        navigator.serviceWorker.getRegistrations().then(function(l){l.forEach(function(r){r.unregister();});}).catch(function(){});
+        if(window.caches)caches.keys().then(function(n){n.forEach(function(k){if(k.indexOf("soreal-idle-coque-")===0)caches.delete(k);});}).catch(function(){});
+        return;
+      }
+      window.addEventListener("load",function(){navigator.serviceWorker.register("/sw-idle-v1.js",{scope:"/"}).catch(function(){});});
+    }catch(_){}
+  })();
 
   window.__SOREAL_IDLE_STANDALONE_V1__={
     start:startV1,

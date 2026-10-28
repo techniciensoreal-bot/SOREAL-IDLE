@@ -8,7 +8,8 @@ import { monde, tick } from "./helpers/monde-local.mjs";
 {
   const w = monde({ sansMinuterie: true });   // la minuterie de sauvegarde ne part jamais : seul l'événement de fermeture peut sauver
   await w.action(); await w.action(); await tick();
-  assert.equal(w.store.size, 0, "rien n'est encore écrit (minuterie bloquée)");
+  /* « export-dernier » : copie du dernier export du serveur (démarrage hors ligne, 2026-10-28), écrite au démarrage ; elle n'est pas la partie. */
+  assert.equal([...w.store.keys()].filter((k) => k !== "export-dernier").length, 0, "rien de la partie n'est encore écrit (minuterie bloquée)");
   w.push = async () => { throw new Error("réseau coupé en arrière-plan"); };
   w.document.visibilityState = "hidden";
   w.evenement("visibilitychange");

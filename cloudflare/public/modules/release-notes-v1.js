@@ -33,6 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le tout premier guide n’affiche plus rien à l’écran : ni fenêtre, ni texte, ni petite enceinte. Seule la voix te guide, et tu avances en cliquant sur les éléments entourés.',
+            'Le jeu se rouvre et se joue maintenant sans internet : la page, le moteur et ta partie sont gardés sur l’appareil, et la partie est envoyée au serveur dès que la connexion revient. Ouvre le jeu au moins une fois avec internet pour que tout soit prêt.',
             'Le chœur d’anges qui accompagne ta réapparition est un peu moins fort.',
             'Les sons du jeu ne saturent plus : tout ce qui sort passe maintenant par un limiteur qui calme seulement les dépassements (plusieurs sons en même temps, ambiances amplifiées). Le volume habituel ne change pas. Les craquements qui restaient sont aussi traités : tous les sons du jeu partagent désormais un seul flux audio.',
             'Le bandeau « En direct » apparaît et disparaît maintenant en fondu, et les informations entrent toujours par la droite de l’écran puis le traversent en entier, sur PC comme sur téléphone (sur PC, la première pouvait démarrer au milieu).',

@@ -157,15 +157,53 @@
     }catch(_){}
   }
 
+  /*
+   * Jeu HORS LIGNE (Norman, 2026-10-28 : « je voulais le jeu totalement en local »). Le dernier export reçu du serveur (compte, catalogue, textes, ligne de la partie) est gardé dans IndexedDB, rangé sous l'empreinte du jeton de session (jamais le jeton
+   * lui-même). Sans réseau (aucune réponse HTTP : internet coupé ou trop lent), le moteur démarre avec lui, et avec la copie de la partie la plus récente de l'appareil (même règle que d'habitude : la plus récente gagne). Un refus du serveur
+   * (interrupteur général, session refusée) ne déclenche JAMAIS ce repli. Au retour d'internet, l'envoi normal reprend ; si un autre appareil a joué entre-temps, l'écran « Partie reprise sur un autre appareil » apparaît comme d'habitude.
+   */
+  const CLE_EXPORT="export-dernier";
+  async function empreinteJeton(j){
+    try{
+      const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(j)));
+      return Array.prototype.map.call(new Uint8Array(h),function(x){return x.toString(16).padStart(2,"0");}).join("").slice(0,32);
+    }catch(_){return "l"+String(j).length+":"+String(j).slice(-8);}
+  }
+  async function exportGarde(jeton){
+    try{
+      const g=await kv("lire",CLE_EXPORT);
+      if(g&&g.export&&g.export.ok&&g.jeton===(await empreinteJeton(jeton)))return g;
+    }catch(_){}
+    return null;
+  }
+  function garderExport(jeton,exp){
+    /* Sans attendre : le démarrage ne dépend pas de cette écriture. La copie est prise TOUT DE SUITE : plus loin le démarrage fusionne la copie de l'appareil dans la ligne de l'export, et cette fusion ne doit pas être gardée. */
+    let copie=null;
+    try{copie=JSON.parse(JSON.stringify(exp));}catch(_){return;}
+    const ecart=ecartInitial;
+    empreinteJeton(jeton).then(function(h){return kv("ecrire",CLE_EXPORT,{jeton:h,export:copie,ecart:ecart,at:Date.now()});}).catch(function(){});
+  }
+  let horsLigne=false;
   async function demarrer(jeton){
     session=jeton;
     const t0=Date.now();
-    const rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
-    const exp=await avecDelai(rep.json(),25000,"EXPORT_LOCAL_LENT");
+    let rep=null,exp=null;
+    try{
+      rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
+      exp=await avecDelai(rep.json(),25000,"EXPORT_LOCAL_LENT");
+    }catch(e){
+      /* Aucune réponse du serveur : repli sur le dernier export de cet appareil, s'il y en a un pour ce compte. */
+      const g=rep?null:await exportGarde(jeton);
+      if(!g)throw e;
+      exp=g.export;rep={ok:true};horsLigne=true;
+      ecartInitial=Number(g.ecart)||0;
+      try{window.__SOREAL_IDLE_HORS_LIGNE_V1__=true;}catch(_){}
+    }
     depuis=Number(exp&&exp.serveurAt)||Date.now();
-    /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). */
-    if(exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
+    /* Écart avec l'horloge du serveur, estimé au milieu de l'aller-retour du téléchargement ; affiné ensuite par les réponses du pont (voir ecartServeur). Hors ligne : le dernier écart mesuré. */
+    if(!horsLigne&&exp&&Number(exp.serveurAt)>0)ecartInitial=Number(exp.serveurAt)-(t0+(Date.now()-t0)/2);
     if(!rep.ok||!exp||!exp.ok)throw new Error((exp&&exp.error)||"EXPORT_LOCAL_REFUSE");
+    if(!horsLigne)garderExport(jeton,exp);
     try{empreinteTextes=(exp.textes||[]).map(function(t){return t[0]+"@"+t[2];}).join("|");}catch(_){}
     /* Préférences du compte appliquées AVANT de démarrer le moteur : si un autre appareil en a changé, la page se recharge tout de suite (la 1re réception ne vient qu'après le démarrage complet, qui était alors perdu). */
     try{const P=window.__SOREAL_IDLE_PREFS_V1__;if(P&&exp.uiPrefsCompte&&typeof P.appliquer==="function")P.appliquer({nom:exp.uiPrefsCompte.nom,systemes:{uiPrefs:exp.uiPrefsCompte.prefs}});}catch(_){}
