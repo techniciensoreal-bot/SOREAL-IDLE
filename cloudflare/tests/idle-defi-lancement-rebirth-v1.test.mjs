@@ -35,6 +35,7 @@ m.adventure.setRewards = Object.assign({}, m.adventure.setRewards, { adventurePo
 m.adventure.itemList = m.adventure.itemList || {};
 for (const s of ["head", "chest", "legs", "boots", "weapon", "necklace", "meat"]) m.adventure.itemList["grb:" + s] = { seen: true };
 m.challenge = Object.assign({}, m.challenge, { bestMs: { basic: 1000 } });
+m.runStartedAt = Date.now() - 600_000;   /* un défi fait renaître : il demande au moins 3 minutes de run (2026-10-28) */
 m.adventure.selectedZone = "z3";
 stats.autoAventure = true;
 stats.autoAventureZone = 3;
@@ -58,6 +59,23 @@ assert.equal((avant.autoAventure ?? avant.aventure?.auto).actif, true);
   assert.equal(perdu.joueur.bossVaincus, 70);
 }
 
+// Norman (2026-10-28) : un défi fait renaître, donc jamais avant 3 minutes de run (même minimum qu'un Rebirth).
+const reglerRun = (ms) => {
+  const l = sql.exec("select rowid as id,row_json from idle_catalog where sheet_name='JOUEURS' and row_index>1")[0];
+  const a = JSON.parse(l.row_json); const st = JSON.parse(a[37]);
+  st.metaNgu.runStartedAt = Date.now() - ms;
+  a[37] = JSON.stringify(st);
+  db.prepare("update idle_catalog set row_json=? where rowid=?").run(JSON.stringify(a), l.id);
+};
+reglerRun(100_000);
+const tropTot = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "challenge", mode: "start", challenge: "basic" }], user);
+assert.equal(tropTot.ok, false, "un défi n'est pas autorisé avant 3 minutes de run");
+assert.equal(tropTot.code, "DEFI_TROP_TOT");
+assert.match(tropTot.message, /au moins 3 minutes/);
+assert.equal(tropTot.joueur.bossVaincus, 70, "rien n'est modifié par un lancement refusé");
+assert.ok(!tropTot.joueur.systemes.systems.find((x) => x.id === "challenges").name, "le menu Défis n'est ni nommé ni montré avant 3 minutes (anti-spoil)");
+reglerRun(200_000);
+assert.ok(runSorealIdleOperation(sql, "obtenirEtatSorealIdle", ["local"], user).joueur.systemes.systems.find((x) => x.id === "challenges").name, "après 3 minutes le menu Défis existe");
 const start = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "challenge", mode: "start", challenge: "basic" }], user);
 assert.ok(start.ok, JSON.stringify(start));
 const j = start.joueur;

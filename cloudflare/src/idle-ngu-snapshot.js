@@ -104,6 +104,17 @@ export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
   return avecPorteeBonusV1(state, () => span("snapshot:construire", () => construireSnapshotNguV1(state, context, now)));
 }
 
+/*
+ * Défis (Norman, 2026-10-28 : « Défis ne doit apparaître qu'après 3 minutes ; ça fait un rebirth et ça n'est pas autorisé avant 3 minutes »). Lancer un défi fait renaître (wiki NGU, page Challenges) : le menu n'existe pas tant que le run n'a pas duré le minimum d'un Rebirth
+ * (180 s, moins le souhait 20). Un défi déjà en cours garde son menu (pour pouvoir l'arrêter). Même règle au lancement, dans l'action du joueur (agirProgressionSorealIdle, idle-runtime-actions.js).
+ */
+export function defiTropTotV1(state, now) {
+  if (state.challenge?.active) return false;
+  const maintenant = Number.isFinite(Number(now)) ? Number(now) : Date.now();
+  const secondes = Math.max(0, (maintenant - num(state.runStartedAt, 0)) / 1000);
+  return secondes < minRebirthSecondsV1(state);
+}
+
 function construireSnapshotNguV1(state, context, now) {
   return {
     version: state.version,
@@ -365,7 +376,7 @@ function construireSnapshotNguV1(state, context, now) {
       used: clone(state.records.newbieOffersUsed || [])
     },
     /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : un système encore verrouillé n'expose ni son nom, ni son icône, ni ce qui le débloque (objet, boss, Rebirths), ni ses pistes. */
-    systems: IDLE_NGU_SYSTEMS.map(def => { const ferme = !state.systems[def.id]?.unlocked; return {
+    systems: IDLE_NGU_SYSTEMS.map(def => { const ferme = !state.systems[def.id]?.unlocked || (def.id === "challenges" && defiTropTotV1(state, now)); return {
       id: def.id,
       name: ferme ? "" : def.name,
       icon: ferme ? "" : def.icon,

@@ -42,8 +42,14 @@
             'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.',
             'Quand une barre de magie ou d’énergie disparaît (ou revient), la page où tu te trouves ne bouge plus du tout, même tout en haut : le bandeau et le menu sont maintenant indépendants.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Un clic sur un objet de la langue de la valise (potion, effet en cours, graines, Poop…) ouvre une fenêtre qui dit ce qu’il fait ; une potion peut y être utilisée.'
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Quand tu ouvres la chronique d’un boss, elle s’affiche maintenant comme une carte à collectionner : le nom en haut, l’illustration, les capacités, l’histoire en italique et, dans le coin, son attaque et sa vie. La fiche d’un boss dans la Collection a la même carte. Sa couleur suit l’illustration du boss (bleu, rouge, vert, noir, blanc, ou or quand deux couleurs dominent). L’illustration du boss s’affiche en entier (la carte est plus haute). Un tap dessus retourne la carte, qui montre son dos ; un autre tap la remet à l’endroit. Des flèches sur les côtés passent au boss découvert précédent ou suivant, et la carte passe au-dessus du jeu, qui est flouté autour.'
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Le menu Défis n’apparaît qu’après 3 minutes de run, et un défi ne peut plus être lancé avant : lancer un défi te fait renaître, ce qui n’est pas permis avant 3 minutes.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Dans chaque barre, le bouton « Max » ne dépasse plus de son cadre sur téléphone.'

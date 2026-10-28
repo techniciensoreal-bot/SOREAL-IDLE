@@ -175,9 +175,84 @@
   var GRAINE='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" fill="#cfe8b0"/><path d="M24 22C24 14 18 10 12 11C12 18 17 23 24 22Z" fill="#4aa33a" stroke="#1f3a14" stroke-width="2"/><path d="M24 22C25 15 30 11 36 12C35 19 30 23 24 22Z" fill="#5cbc47" stroke="#1f3a14" stroke-width="2"/><path d="M24 22V28" stroke="#1f3a14" stroke-width="2.4"/><ellipse cx="24" cy="34" rx="8" ry="10" fill="#a8692c" stroke="#3a200a" stroke-width="2.4"/><path d="M21 30C22 34 21 38 20 40" fill="none" stroke="#e6b97a" stroke-width="2" stroke-linecap="round"/></svg>');
   function nb(q){var f=reg_().formatGrandNombreIdleV70_;try{return typeof f==='function'?String(f(q)):String(q);}catch(_e){return String(q);}}
 
+  /*
+   * Fiche d'un objet de la langue (Norman, 2026-10-28 : « quand on clique sur un objet de la langue de la valise, on doit avoir une fenêtre popup comme les autres items qui nous dit ce que ça fait »).
+   * Les textes sont ceux de la Boutique (ui-boutique-v1.js, IDLE_SELLOUT_TRADUCTIONS_V210) ; rien n'est inventé : un effet en cours reprend le texte de l'objet qui le donne. Les graines n'ont pas de texte de boutique : leur rôle est celui de la page Yggdrasil.
+   */
+  var EFFET_TEXTES={
+    energyPotionAlpha:'Double la puissance d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion d’énergie β.',
+    energyPotionBeta:'Double la puissance d’Énergie jusqu’au prochain Rebirth. Se cumule avec la Potion d’énergie α.',
+    energyPotionDelta:'Double la puissance d’Énergie pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion d’énergie α.',
+    magicPotionAlpha:'Double la puissance de Magie pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion de magie β.',
+    magicPotionBeta:'Double la puissance de Magie jusqu’au prochain Rebirth. Se cumule avec la Potion de magie α.',
+    magicPotionDelta:'Double la puissance de Magie pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion de magie α.',
+    resource3PotionAlpha:'Triple la puissance de Ressource 3 pendant 60 minutes, même à travers plusieurs Rebirths. Se cumule avec la Potion de Ressource 3 β.',
+    resource3PotionBeta:'Double la puissance de Ressource 3 jusqu’au prochain Rebirth. Se cumule avec la Potion de Ressource 3 α.',
+    resource3PotionDelta:'Triple la puissance de Ressource 3 pendant 24 heures, même à travers plusieurs Rebirths. Ajoute du temps au compteur de la Potion de Ressource 3 α.',
+    energyPower:'Ta puissance d’Énergie est doublée tant que le temps indiqué n’est pas écoulé (ou jusqu’au prochain Rebirth pour la potion β). Les potions α, β et δ se cumulent.',
+    magicPower:'Ta puissance de Magie est doublée tant que le temps indiqué n’est pas écoulé (ou jusqu’au prochain Rebirth pour la potion β). Les potions α, β et δ se cumulent.',
+    r3Power:'Ta puissance de Ressource 3 est multipliée tant que le temps indiqué n’est pas écoulé (ou jusqu’au prochain Rebirth pour la potion β). Les potions α, β et δ se cumulent.',
+    energyBars:'Double tes barres d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths.',
+    magicBars:'Double tes barres de Magie pendant 60 minutes, même à travers plusieurs Rebirths.',
+    luck:'Double les chances de drop en Adventure pendant le temps indiqué, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
+    seeds:'Les graines servent à améliorer tes fruits dans Yggdrasil. Manger un fruit en rapporte ; le récolter en rapporte davantage.',
+    poop:'Accorde +50 % lors de la récolte ou de la consommation d’un fruit d’Yggdrasil. Chaque tas vaut pour un fruit.',
+    beastButters:'Double la récompense de QP de ta prochaine quête.',
+    bluePills:'Double le gain de PP dans l’ITOPOD. Chaque pilule dure pendant un kill.',
+    blackPens:'Ajoute 2 tiers à la prochaine carte générée. Cet effet ne peut pas être désactivé.'
+  };
+  function trouverObjet(genre,id){
+    var l=genre==='potion'?POTIONS:genre==='actif'?EFFETS:RESERVES;
+    for(var i=0;i<l.length;i++)if(l[i].id===id)return l[i];
+    return null;
+  }
+  function fermerFiche(){var f=document.getElementById('soreal-idle-valise-fiche');if(f)f.remove();}
+  function ouvrirFiche(genre,id){
+    var o=trouverObjet(genre,id);
+    if(!o)return;
+    fermerFiche();
+    ficheStyle();
+    var c=donnees(),qte='',plaque='';
+    if(genre==='potion')qte='× '+Math.floor(Number(c.potions&&c.potions[id])||0);
+    else if(genre==='reserve')qte='× '+nb(Math.floor(Number(c.reserve&&c.reserve[id])||0));
+    else{
+      var r=Number(c.restant&&c.restant[id])||0;
+      plaque=r>0?'<span>Temps restant</span> : '+esc(duree(r)):(c.beta&&c.beta[id]?'<span>Jusqu’au prochain Rebirth</span>':'');
+    }
+    var image=genre==='actif'?((Number(c.restant&&c.restant[id])>0||!o.beta)?o.img:o.beta):o.img;
+    var src=o.icone==='graine'?GRAINE_IMAGE:(image?'/shop/'+image+'.png':'');
+    var d=document.createElement('div');
+    d.id='soreal-idle-valise-fiche';d.className='vl-fiche';
+    d.innerHTML='<div class="vl-fiche-carte" role="dialog" aria-modal="true" aria-label="'+esc(o.nom)+'">'+
+      '<button type="button" class="vl-fiche-x" data-vl-fiche-fermer aria-label="Fermer">✕</button>'+
+      (src?'<img class="vl-fiche-img" src="'+esc(src)+'" alt="" onerror="this.remove()">':'')+
+      '<div class="vl-fiche-nom">'+esc(o.nom)+'</div>'+
+      (qte?'<div class="vl-fiche-qte">'+esc(qte)+'</div>':'')+
+      (plaque?'<div class="vl-fiche-qte">'+plaque+'</div>':'')+
+      '<div class="vl-fiche-effet">'+esc(EFFET_TEXTES[id]||'')+'</div>'+
+      (genre==='potion'?'<button type="button" class="vl-fiche-util" data-vl-fiche-utiliser="'+esc(id)+'">Utiliser</button>':'')+
+    '</div>';
+    document.body.appendChild(d);
+  }
+  var ficheStyleOk=false;
+  function ficheStyle(){
+    if(ficheStyleOk||document.getElementById('soreal-idle-valise-fiche-style'))return;
+    ficheStyleOk=true;
+    var s=document.createElement('style');s.id='soreal-idle-valise-fiche-style';
+    s.textContent='.vl-fiche{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,8,16,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}'+
+      '.vl-fiche-carte{position:relative;box-sizing:border-box;width:min(380px,100%);max-height:86vh;overflow:auto;padding:22px 20px 18px;border:3px solid #d9a93a;border-radius:16px;background:linear-gradient(180deg,#26324f,#11172a);box-shadow:0 18px 50px rgba(0,0,0,.7),inset 0 0 0 2px rgba(0,0,0,.4);text-align:center;color:#f1e7cf;font-family:"Comic Neue","Russo One",system-ui,sans-serif}'+
+      '.vl-fiche-x{position:absolute;top:8px;right:8px;width:32px;height:32px;padding:0;border:0;border-radius:50%;font:400 16px/32px "Russo One",sans-serif;color:#fff;background:linear-gradient(180deg,#ff7a6f,#c1121f);box-shadow:0 3px 0 #6a0a10;cursor:pointer}'+
+      '.vl-fiche-img{display:block;width:84px;height:84px;margin:0 auto 8px;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}'+
+      '.vl-fiche-nom{font:400 22px/1.15 "Bangers","Russo One",sans-serif;letter-spacing:.04em;color:#ffd24a}'+
+      '.vl-fiche-qte{margin-top:6px;font:400 15px/1.2 "Russo One",sans-serif;color:#9fd8ff}'+
+      '.vl-fiche-effet{margin-top:12px;font-size:15px;line-height:1.45;color:#f1e7cf}'+
+      '.vl-fiche-util{margin-top:14px;padding:8px 22px;border-radius:9px;border:2px solid #1f1006;cursor:pointer;color:#fff1c8;font:400 16px/1 "Russo One",sans-serif;background:linear-gradient(180deg,#d98a2a,#9b5410);box-shadow:0 3px 0 #1f1006}';
+    (document.head||document.documentElement).appendChild(s);
+  }
+
   /* ---------- le contenu des étages ---------- */
   function artPotion(p,q){
-    return '<div class="vl-art vl-potion" data-vl-art="'+esc(p.id)+'" title="'+esc(p.nom)+'">'+
+    return '<div class="vl-art vl-potion" data-vl-art="'+esc(p.id)+'" data-vl-genre="potion" title="'+esc(p.nom)+'">'+
       '<span class="vl-pastille">× '+esc(String(q))+'</span>'+
       '<img src="/shop/'+p.img+'.png" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">'+
       '<span class="vl-etiq">'+esc(p.nom)+'</span>'+
@@ -186,7 +261,7 @@
   }
   function artActif(o,restant,beta){
     var image=(restant>0||!o.beta)?o.img:o.beta;
-    return '<div class="vl-art vl-actif" title="'+esc(o.nom)+'">'+
+    return '<div class="vl-art vl-actif" data-vl-art="'+esc(o.id)+'" data-vl-genre="actif" title="'+esc(o.nom)+'">'+
       '<span class="vl-bulles" aria-hidden="true"></span>'+
       '<img src="/shop/'+image+'.png" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="this.remove()">'+
       '<span class="vl-etiq">'+esc(o.nom)+'</span>'+
@@ -195,7 +270,7 @@
     '</div>';
   }
   function artReserve(o,n){
-    return '<div class="vl-art vl-reserve" title="'+esc(o.nom)+'">'+
+    return '<div class="vl-art vl-reserve" data-vl-art="'+esc(o.id)+'" data-vl-genre="reserve" title="'+esc(o.nom)+'">'+
       '<span class="vl-pastille">× '+esc(nb(n))+'</span>'+
       '<img src="'+(o.icone==='graine'?GRAINE_IMAGE:'/shop/'+o.img+'.png')+'" alt="" width="46" height="46" loading="lazy" decoding="async" onerror="'+(o.icone==='graine'?"this.onerror=null;this.src='"+GRAINE+"'":'this.remove()')+'">'+
       '<span class="vl-etiq">'+esc(o.nom)+'</span>'+
@@ -670,6 +745,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__({action:'usePotion',itemId:id});
       return;
     }
+    if(t.closest('[data-vl-fiche-fermer]')){ev.preventDefault();ev.stopPropagation();fermerFiche();return;}
+    var fu=t.closest('[data-vl-fiche-utiliser]');
+    if(fu){
+      ev.preventDefault();ev.stopPropagation();
+      var idF=fu.getAttribute('data-vl-fiche-utiliser');
+      fermerFiche();son('valisePotion');sauter();
+      if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__({action:'usePotion',itemId:idF});
+      return;
+    }
+    if(document.getElementById('soreal-idle-valise-fiche')){if(!t.closest('.vl-fiche-carte')){ev.preventDefault();ev.stopPropagation();fermerFiche();}return;}   /* clic hors de la fiche : elle se ferme, et c'est tout */
+    var objet=t.closest('.vl-art[data-vl-art]');
+    if(objet&&objet.closest('.vl-section')){ev.preventDefault();ev.stopPropagation();ouvrirFiche(objet.getAttribute('data-vl-genre'),objet.getAttribute('data-vl-art'));return;}   /* un objet de la langue : sa fiche, comme les autres objets */
     if(t.closest('.vl-flaque-v1')){ev.preventDefault();ev.stopPropagation();return;}   /* on frotte le vomi : ni ouverture ni fermeture */
     var b=t.closest('[data-vl-bascule]');
     if(!b||!b.closest('.vl-section'))return;
@@ -679,6 +766,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
     basculer();
   },true);
   document.addEventListener('keydown',function(ev){
+    if(ev.key==='Escape'&&document.getElementById('soreal-idle-valise-fiche')){fermerFiche();return;}
     if(ev.key!=='Enter'&&ev.key!==' ')return;
     var t=ev.target&&ev.target.closest?ev.target.closest('.vl-creature'):null;
     if(!t)return;

@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleNguResourceBudget, IDLE_NGU_META_VERSION, applyIdleNguAction, idleNguResourceGenerationPerSecond, rebirthIdleNguState } from "./idle-ngu-progression.js";
+import { defiTropTotV1, minRebirthSecondsV1 } from "./idle-ngu-snapshot.js";
 import { advanceBasicTrainingStateV411, applyBasicTrainingAllocationsV411, BASIC_TRAINING_V411, rebirthBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_, verifierAccesSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
@@ -829,6 +830,18 @@ export function agirProgressionSorealIdle(
     const stats = statsJoueurSorealIdle_(row[c.STATS_JSON - 1]);
     const collection = parserJsonSorealIdle_(row[c.COLLECTION_JSON - 1],{});
     const contexte = contexteMetaNguSorealIdle_(row,stats,collection);
+
+    /* Lancer un défi fait renaître : même minimum de run qu'un Rebirth, 3 minutes (Norman, 2026-10-28 : « ça n'est pas autorisé avant 3 minutes »). Le menu Défis n'est d'ailleurs pas affiché avant. */
+    if(action&&action.action==='challenge'&&String(action.mode||'start')==='start'&&!stats.metaNgu.challenge?.active&&defiTropTotV1(stats.metaNgu,Date.now())){
+      return {
+        ok:false,
+        code:'DEFI_TROP_TOT',
+        message:'Un défi te fait renaître : il demande au moins '+Math.round(minRebirthSecondsV1(stats.metaNgu)/60*10)/10+' minutes de run.',
+        joueur:ajouterCoutsEntrainementEtatSorealIdle_(
+          construireEtatJoueurSorealIdle_(feuille,ligne,null)
+        )
+      };
+    }
 
     const applique = applyIdleNguAction(
       stats.metaNgu,
