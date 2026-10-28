@@ -1839,3 +1839,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat{flex-wrap:nowrap;gap:8px;min-width:0;max-width:100%}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat>span{white-space:nowrap;min-width:0}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-v1 .soreal-idle-v138-details-stat>b{white-space:nowrap;flex:0 0 auto}
+
+/*
+ * Chiffres partout (Norman, 2026-10-28 : « il y a encore des 7 qui ressemblent à des 1 ; le compteur de graines, attaque, défense… »). Le correctif du 2026-10-14 (Russo One pour les nombres des cadres du haut) était repris par une règle plus forte venue ensuite (titres en Bangers, même priorité
+ * et sélecteur plus précis) ; d'autres compteurs n'avaient jamais été traités. Une seule remise en ordre pour TOUT : les CHIFFRES (0 à 9, et eux seuls) de la police de BD « Bangers » sont maintenant dessinés par Russo One, dont le 1 a un drapeau et dont le 7 est droit,
+ * partout où le jeu écrit en Bangers : cadres du haut, graines, niveaux, prix, barres. Une face de police déclarée plus tard l'emporte, pour sa plage de caractères, sur les précédentes de la même famille. Les lettres restent en Bangers.
+ */
+@font-face{font-family:'Bangers';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/russo-one-400-latin.woff2) format('woff2');unicode-range:U+0030-0039}

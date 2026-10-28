@@ -199,6 +199,9 @@ l'équipement, lancer toute la suite avec `SOREAL_IDLE_VERIF_BONUS=1` (chaque r�
 
 ## Process attendu pour tout changement
 
+0. **Avant CHAQUE push (règle primordiale de Norman, 2026-10-28)** : `node cloudflare/tools/verifier-note-du-jour.mjs` compare la date de la dernière note de mise à jour à la date de BRUXELLES (Europe/Brussels). Même jour : compléter l'entrée du jour. Note plus
+   ancienne : créer automatiquement l'entrée suivante (numéro +0,1, date de Bruxelles, `courante`, groupes par menu sans spoil, traductions anglaises, tests des listes de versions) AVANT de pousser. Ne jamais attendre qu'on le rappelle.
+
 1. Lancer la suite complète en local avant de committer :
    `for f in cloudflare/tests/*.test.mjs; do node "$f" || echo "FAIL: $f"; done`
    — zéro échec exigé.

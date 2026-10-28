@@ -32,6 +32,7 @@
         date:'2026-10-28',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les chiffres sont partout plus lisibles : le 7 ne ressemble plus à un 1 (cadres du haut, compteurs, niveaux, prix, barres). Tous les nombres du jeu ont un 1 avec un drapeau et un 7 bien droit.',
             'Le jeu se rouvre et se joue maintenant sans internet : la page, le moteur et ta partie sont gardés sur l’appareil, et la partie est envoyée au serveur dès que la connexion revient. Ouvre le jeu au moins une fois avec internet pour que tout soit prêt.',
             'Les craquements des sons sont traités : tous les sons du jeu partagent désormais un seul flux audio, au lieu d’en ouvrir plusieurs qui se disputaient la carte son.',
             'La fenêtre « Nouveau menu débloqué ! » n’apparaît que la toute première fois. Après un Rebirth, un menu qui revient fait seulement clignoter son bouton avec les trois petits bips.',
