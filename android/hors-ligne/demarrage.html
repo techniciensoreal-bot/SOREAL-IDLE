@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>SOREAL IDLE</title>
+<style>
+  html,body{margin:0;height:100%;background:#071226;color:#cfe0ff;font-family:system-ui,sans-serif}
+  body{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:24px}
+  h1{margin:0;font-size:26px;letter-spacing:.12em}
+  #m{font-size:14px;opacity:.8;max-width:420px;line-height:1.4}
+</style>
+</head>
+<body>
+<h1>SOREAL IDLE</h1>
+<div id="m">Préparation du jeu…</div>
+<script>
+/* Page de démarrage de l'APK hors ligne : enregistre le service worker (le vrai Worker du jeu, sw-idle-v1.js), attend qu'il soit prêt, puis ouvre le jeu. Servie par l'application elle-même (aucun réseau). */
+(function(){
+  var m=document.getElementById('m');
+  function dire(t){m.textContent=t;}
+  if(!('serviceWorker' in navigator)){dire("Ce système n'a pas de service worker : mets à jour « Android System WebView ».");return;}
+  var essais=0;
+  function ouvrir(){
+    fetch('/__pret',{cache:'no-store'}).then(function(r){
+      if(!r.ok)return r.text().then(function(t){throw new Error(t);});
+      location.replace('/');
+    }).catch(function(e){
+      essais+=1;
+      if(essais>3){dire('Démarrage impossible : '+(e&&e.message||e));return;}
+      setTimeout(ouvrir,800);
+    });
+  }
+  navigator.serviceWorker.register('/sw-idle-v1.js',{scope:'/'}).then(function(){return navigator.serviceWorker.ready;}).then(function(){
+    if(navigator.serviceWorker.controller)return ouvrir();
+    navigator.serviceWorker.addEventListener('controllerchange',function(){ouvrir();});
+    setTimeout(function(){if(!navigator.serviceWorker.controller)location.reload();},4000);
+  }).catch(function(e){dire('Démarrage impossible : '+(e&&e.message||e));});
+})();
+</script>
+</body>
+</html>

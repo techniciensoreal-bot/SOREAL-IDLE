@@ -17,3 +17,9 @@ manifest-checksum.txt
 store_icon.png
 *.idsig
 *.apk
+
+hors-ligne/app/src/main/assets/
+hors-ligne/app/build/
+hors-ligne/build/
+hors-ligne/.gradle/
+*.apk

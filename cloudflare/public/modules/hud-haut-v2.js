@@ -97,24 +97,18 @@
    * hauteur du bandeau, image après image (ResizeObserver : avant l'affichage de l'image) : le contenu reste où il est, en haut de page comme défilé ; le bandeau, lui, se réduit ou se déploie par-dessus. La réserve est remise à zéro quand on change de menu
    * ou que la fenêtre change de taille (le contenu est alors remplacé ou remis en page de toute façon).
    */
-  var hudObs=null,hudEl=null,hudPos=0,reserve=null,menuReserve='',graceJusqua=0;
+  var hudObs=null,hudEl=null,reserve=null,menuReserve='',graceJusqua=0;
   /* Une page qui vient de s'afficher laisse le bandeau se mettre en place (les barres déjà vides se replient en fondu ~2 s après l'arrivée) : pendant ces 5 s rien n'est absorbé, sinon la réserve laissait un grand vide entre la barre de vie et la page (Norman, 2026-10-28, Fight Boss). */
   var GRACE_MS=5000;
   function menuCourant(){var r=document.querySelector('.soreal-idle-page-root-v28');return r?(r.getAttribute('data-menu')||''):'';}
   /*
-   * Position, dans le DOCUMENT, du début du contenu : le haut du premier bloc qui suit le bandeau (et sa réserve). Mesurer le bloc lui-même, et non la réserve, garde la mesure juste quel que soit l'état de la réserve.
+   * La réserve se déduit de la HAUTEUR DU BANDEAU lui-même (jamais de la position du contenu : une mesure du contenu absorbait aussi des écarts qui ne venaient pas du bandeau, ils s'additionnaient et laissaient un GRAND vide en haut de page,
+   * Norman, 2026-10-28 : « le grand espace en début de page se produit encore, quand la barre d'énergie disparaît »). hauteurRef = la plus grande hauteur du bandeau depuis que la page est en place ; réserve = hauteurRef - hauteur actuelle : jamais
+   * plus que les barres qui ont disparu, et zéro dès qu'elles reviennent. Une fois le bandeau stable depuis 1,5 s, la réserve se referme TOUTE SEULE, en douceur (0,8 s) : le contenu glisse alors vers le haut sans à-coup, il ne reste jamais d'espace vide.
    */
-  function positionSous(){
-    if(!reserve||!reserve.isConnected)return null;
-    var suite=reserve.nextElementSibling;
-    if(!suite)return null;
-    return suite.getBoundingClientRect().top+(window.scrollY||document.documentElement.scrollTop||0);
-  }
-  /*
-   * La réserve n'existe dans la mise en page QUE quand elle sert (Norman, 2026-10-28 : « il y a toujours l'espace » dans tous les menus). Au repos elle est display:none : une page en colonne ou en grille avec un « gap » ajoutait sinon cet écart
-   * même à zéro pixel. Quand elle sert, sa marge haute annule un de ces écarts : elle ajoute exactement sa hauteur.
-   */
-  var reserveH=0;
+  var reserveH=0,hauteurRef=0,hauteurPrec=0,stableDepuis=0,fermeture=0;
+  var STABLE_MS=1500,FERMETURE_MS=800;
+  function hauteurHud(){return hudEl?hudEl.getBoundingClientRect().height:0;}
   function ecartParent(){
     var p=reserve&&reserve.parentElement;
     if(!p)return 0;
@@ -123,8 +117,11 @@
     var g=parseFloat(cs.rowGap);
     return isFinite(g)?g:0;
   }
+  /* Au repos la réserve n'existe pas dans la mise en page (display:none : l'écart d'une page en colonne ou en grille s'ajouterait sinon, même à zéro pixel) ; en service sa marge haute annule un de ces écarts : elle ajoute exactement sa hauteur. */
   function poserReserve(h){
     reserveH=Math.max(0,h);
+    if(fermeture){clearTimeout(fermeture);fermeture=0;}
+    reserve.style.transition='none';
     if(reserveH<=0.01){reserveH=0;reserve.style.display='none';reserve.style.height='0px';reserve.style.marginTop='0px';return;}
     reserve.style.display='block';
     reserve.style.height=reserveH+'px';
@@ -143,27 +140,34 @@
   }
   function remettreReserve(){
     if(reserve&&reserve.isConnected)poserReserve(0);
-    hudPos=positionSous();
+    hauteurRef=hauteurPrec=hauteurHud();
+    stableDepuis=Date.now();
     graceJusqua=Date.now()+GRACE_MS;
   }
-  /* Une variation de hauteur du bandeau : la réserve la compense, puis une seconde mesure corrige le reste (arrondis, écart de la page). */
+  /* Une variation de hauteur du bandeau : la réserve compense exactement ce que les barres ont perdu (avant l'affichage de l'image). */
   function absorber(){
     if(!hudEl||!reserve||!reserve.isConnected)return;
     var mc=menuCourant();
     if(mc!==menuReserve){menuReserve=mc;remettreReserve();return;}
-    var p=positionSous();
-    if(p===null||hudPos===null){hudPos=p;return;}
-    if(Date.now()<graceJusqua){hudPos=p;return;}   /* page qui vient de s'afficher : le bandeau se met en place, rien n'est absorbé */
-    /* une seule barre (30 px au plus, marges comprises) : une variation plus grande est un vrai changement de page ; pendant un combat de Titan le bandeau est caché volontairement */
-    if(document.body&&document.body.classList.contains('tcv-actif')){remettreReserve();return;}
-    var d=p-hudPos;
-    /* aucun seuil : pendant le fondu la hauteur varie de moins d'un pixel par image au début et à la fin, ces petits écarts s'additionneraient en un saut */
-    if(Math.abs(d)>0.01&&Math.abs(d)<60){
-      poserReserve(reserveH-d);
-      var d2=positionSous()-hudPos;
-      if(Math.abs(d2)>0.01&&Math.abs(d2)<60)poserReserve(reserveH-d2);
+    var h=hauteurHud();
+    if(Date.now()<graceJusqua||(document.body&&document.body.classList.contains('tcv-actif'))){   /* page qui vient de s'afficher (le bandeau se met en place) ou bandeau caché pendant un combat de Titan : rien n'est absorbé */
+      if(reserveH>0)poserReserve(0);
+      hauteurRef=hauteurPrec=h;stableDepuis=Date.now();return;
     }
-    hudPos=positionSous();   /* ce qui n'a pas pu être absorbé (réserve à zéro) n'est pas reporté sur l'image suivante */
+    /* ce que la réserve occupe vraiment à cet instant (elle peut être en train de se refermer) */
+    var occupe=reserveH>0?Math.max(0,reserve.getBoundingClientRect().height):0;
+    hauteurRef=Math.max(h,hauteurPrec+occupe);
+    if(Math.abs(h-hauteurPrec)>0.01)stableDepuis=Date.now();
+    hauteurPrec=h;
+    poserReserve(hauteurRef-h);
+  }
+  /* Appelée toutes les 250 ms : bandeau stable depuis 1,5 s avec une réserve ouverte = elle se referme en douceur, puis disparaît de la mise en page. */
+  function fermerReserveSiStable(){
+    if(!reserve||!reserve.isConnected||reserveH<=0||fermeture)return;
+    if(Date.now()-stableDepuis<STABLE_MS)return;
+    reserve.style.transition='height '+FERMETURE_MS+'ms ease-in-out';
+    reserve.style.height='0px';
+    fermeture=setTimeout(function(){fermeture=0;hauteurRef=hauteurPrec=hauteurHud();poserReserve(0);},FERMETURE_MS+50);
   }
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');
@@ -174,16 +178,17 @@
     hudEl=h;
     if(!h||typeof ResizeObserver!=='function')return;
     assurerReserve(h);
-    hudPos=positionSous();
+    hauteurRef=hauteurPrec=hauteurHud();stableDepuis=Date.now();
     graceJusqua=Date.now()+GRACE_MS;
     hudObs=new ResizeObserver(absorber);
     hudObs.observe(h);
   }
   window.addEventListener('resize',function(){remettreReserve();});
-  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,absorber:absorber,reserve:function(){return reserveH;}};
+  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,absorber:absorber,reserve:function(){return reserveH;},fermer:fermerReserveSiStable,stable:function(){stableDepuis=0;}};
   function maj(){
     placer();
     surveillerHud();
+    fermerReserveSiStable();
     majInfos();
     majVide();
     majDepense();

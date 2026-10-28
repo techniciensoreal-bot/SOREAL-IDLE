@@ -41,7 +41,8 @@
             'Pendant une étape du tutoriel où il faut cliquer sur un élément, plus rien d’autre ne réagit : même le bouton de lecture d’une chronique ne peut plus lancer sa voix et interrompre le guide.',
             'Toutes les parties sont maintenant sauvegardées chaque jour sur le serveur (une copie par jour, gardée 30 jours), en plus des copies de chaque joueur.',
             'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.',
-            'Quand une barre de magie ou d’énergie disparaît (ou revient), la page où tu te trouves ne bouge plus du tout, même tout en haut : le bandeau et le menu sont maintenant indépendants.'
+            'Quand une barre de magie ou d’énergie disparaît (ou revient), la page où tu te trouves ne bouge plus du tout, même tout en haut : le bandeau et le menu sont maintenant indépendants.',
+            'Quand une barre d’énergie ou de magie disparaît, il ne reste plus jamais de grand espace vide en haut de la page : la page ne saute pas au moment où la barre part, puis elle remonte doucement une fois le bandeau stable.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Dans la liste des zones d’Aventure, chaque ligne a sa personnalité : une icône (un feu de camp pour la Zone sûre, un rat pour la Zone Tutoriel, un alligator pour les Égouts…) et pour texture le décor de la zone vers laquelle elle mène, teinté à sa couleur. On repère les zones d’un coup d’œil.',
