@@ -419,6 +419,10 @@
   "pin": 3,
   "sha": "f274a48d5ab2852f865c75baf2e1f26a21a0b250"
  },
+ "/modules/steam-v1.js": {
+  "pin": 1,
+  "sha": "8b253a31d60df04dda6854064c2aeb0c4e3ac938"
+ },
  "/modules/story-engine-v1.js": {
   "pin": 10,
   "sha": "fd7e3d2f26d53d8bbd4db6a5320c584d223b44ac"
@@ -464,12 +468,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 495,
-  "sha": "417fb9ace81cd747a90a0deb49abd947930ca7da"
+  "pin": 496,
+  "sha": "46d889a94ab2b6522bd09a5fc082fa6382dcf8d0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 315,
-  "sha": "9c8cd6a97a78aee7b1f416e20b828c20744b3b6c"
+  "pin": 316,
+  "sha": "84fa9e1622a312c5fc5e9b6326103161080d9485"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -568,8 +572,8 @@
   "sha": "20c879d1da6b0330bd3d483d9c4d3198b8747add"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 6,
-  "sha": "6c1cbaeac18e79a9daa439cd2e4fd12a0292b682"
+  "pin": 7,
+  "sha": "a29544a340984220e92fd7efe6ff6b82abb11166"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 5,

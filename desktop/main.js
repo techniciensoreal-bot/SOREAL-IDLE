@@ -4,7 +4,7 @@
  * Le jeu s'ouvre dans une fenêtre qui charge « app://soreal/ » : toutes les requêtes de la page (la page, les scripts, le moteur, les images, les voix, /api/…) sont servies par le VRAI Worker de production, exécuté ici sur une base SQLite du joueur
  * (src/env-local.mjs). Aucune connexion n'est nécessaire pour jouer ; rien n'est exposé sur le réseau (pas de port ouvert, un schéma d'adresse interne à l'application).
  */
-const { app, BrowserWindow, protocol, shell, Menu } = require("electron");
+const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
@@ -52,13 +52,54 @@ async function demarrerJeu() {
   });
 }
 
+/*
+ * Ajout à Steam (Réglages > Ma partie) : la page compose les images (affiche, capsule, bannière) à partir de la bannière du jeu et les envoie ; ce processus écrit le raccourci et les images dans Steam (src/steam.mjs).
+ * Seulement depuis l'application installée : le chemin de l'exécutable doit être celui du jeu, pas celui d'Electron en développement.
+ */
+function donneesUrl(u) {
+  const t = String(u || ""), entete = "data:image/png;base64,";
+  if (!t.startsWith(entete) || t.length > 14000000) return null;
+  const donnees = t.slice(entete.length);
+  return Buffer.from(donnees, "base64");
+}
+/* .ico à une seule taille (256 x 256) qui contient directement le PNG : accepté par Windows et par Steam. */
+function icoDepuisPng(png) {
+  const entete = Buffer.alloc(22);
+  entete.writeUInt16LE(0, 0); entete.writeUInt16LE(1, 2); entete.writeUInt16LE(1, 4);
+  entete[6] = 0; entete[7] = 0; entete[8] = 0; entete[9] = 0;
+  entete.writeUInt16LE(1, 10); entete.writeUInt16LE(32, 12); entete.writeUInt32LE(png.length, 14); entete.writeUInt32LE(22, 18);
+  return Buffer.concat([entete, png]);
+}
+function installerPontSteam() {
+  const exeJeu = () => process.execPath;
+  ipcMain.handle("steam:etat", async () => {
+    if (!app.isPackaged) return { ok: true, steam: false, developpement: true };
+    const { etatSteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
+    return etatSteam({ exe: exeJeu() });
+  });
+  ipcMain.handle("steam:ajouter", async (_ev, art) => {
+    if (!app.isPackaged) return { ok: false, code: "DEVELOPPEMENT" };
+    const { ajouterASteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
+    const d = dossiers();
+    let icone = null;
+    try {
+      const png = nativeImage.createFromPath(path.join(d.dossierPublic, "icons", "icon-512.png")).resize({ width: 256, height: 256, quality: "best" }).toPNG();
+      icone = icoDepuisPng(png);
+    } catch (_e) { /* sans icône : Steam prendra celle de l'exécutable */ }
+    return ajouterASteam({
+      exe: exeJeu(), icone, dossierIcone: app.getPath("userData"),
+      images: { grille: donneesUrl(art && art.grille), portrait: donneesUrl(art && art.portrait), hero: donneesUrl(art && art.hero) }
+    });
+  });
+}
+
 function ouvrirFenetre() {
   fenetre = new BrowserWindow({
     width: 1280, height: 800, minWidth: 360, minHeight: 480,
     backgroundColor: "#071226", show: false, autoHideMenuBar: true,
     title: "SOREAL IDLE",
     icon: path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
-    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false, backgroundThrottling: false }
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false, backgroundThrottling: false, preload: path.join(__dirname, "preload.js") }
   });
   Menu.setApplicationMenu(null);
   fenetre.once("ready-to-show", () => fenetre.show());
@@ -75,6 +116,7 @@ if (!app.requestSingleInstanceLock()) {
   app.on("second-instance", () => { if (fenetre) { if (fenetre.isMinimized()) fenetre.restore(); fenetre.focus(); } });
   app.whenReady().then(async () => {
     await demarrerJeu();
+    installerPontSteam();
     ouvrirFenetre();
   }).catch((e) => { console.error(e); app.quit(); });
   app.on("window-all-closed", () => { if (env) env.fermer(); app.quit(); });
