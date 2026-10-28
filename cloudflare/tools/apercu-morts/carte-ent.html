@@ -24,6 +24,8 @@
   var notes='<div class="soreal-idle-boss-lore-info-v198">(Exemple : texte de déblocage du boss.)</div>';
   var histoire='<div class="soreal-idle-boss-lore-histoire-v142">Depuis des siècles, l’Ent veille sur la montagne. Ses racines connaissent chaque pierre, ses branches chaque orage. On dit que celui qui ose lui faire face entend le bois murmurer son nom. (Texte d’exemple pour la mise en page.)</div>';
   document.getElementById('carte').innerHTML=M.html({numero:18,nom:'Ent',monde:2,ordre:3,pv:4800000000,attaque:96000000,xp:182000,capacites:['Écorce épaisse'],notesHtml:notes,histoireHtml:histoire,image:'/cloudflare/tools/apercu-morts/ent.webp',boutonsHtml:'<button type="button" class="soreal-idle-chro-lecture-v1" style="padding:6px 18px;border-radius:9px;border:2px solid #1f1006;background:linear-gradient(180deg,#ffd75a,#ff8a1a);color:#2a1200;font:700 14px Georgia,serif;cursor:pointer">▶ Écouter</button>'});
+  /* dans le jeu le dos est servi par /api/idle/media/card-back (R2 : idle/backgrounds/MagicCardBack.webp) ; ici la même image, copiée à côté de cette page */
+  var dos=document.querySelector(".mtg-dos-image");if(dos){dos.style.display="";dos.src="/cloudflare/tools/apercu-morts/dos-carte.webp";}
 })();
 </script>
 </body>
