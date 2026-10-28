@@ -3,6 +3,7 @@ import vm from "node:vm";
 
 /* Faux navigateur (Worker, IndexedDB, fetch simulés) autour du VRAI module moteur-local-v1.js : voir idle-sauvegarde-locale-protocole-v1.test.mjs. */
 const code = fs.readFileSync(new URL("../../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
+/* Le garde-fou de 4 s d'IndexedDB (IDB_LENTE, moteur-local-v1.js) ne doit PAS être ramené à 5 ms comme les autres délais : sous charge (la suite complète, la CI) une lecture simulée dépassait 5 ms et la copie n'était pas mise de côté — test intermittent (2026-10-28). */
 export const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 export const tick = () => attendre(40);
 
@@ -84,7 +85,7 @@ export function monde({ ligneServeur, idb = null, sansMinuterie = false, echelle
     FileReader: class { readAsText(f) { setTimeout(() => { this.result = f.text; this.onload(); }, 0); } },
     location: { search: "", href: "http://x/", reload() { mondeApi.rechargements.push(structuredClone([...store.entries()])); } }, localStorage: { getItem: () => null, removeItem() {} },
     Worker, WebAssembly: {}, AbortController, indexedDB, fetch, URL, URLSearchParams, performance, structuredClone, console,
-    setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, echelle ? (ms || 0) / echelle : Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
+    setTimeout: (f, ms) => (sansMinuterie && ms >= 300 && ms < 5000 ? 0 : setTimeout(f, echelle ? (ms || 0) / echelle : ms === 4000 ? 2000 : Math.min(ms || 0, 5))), clearTimeout, setInterval: () => 0, clearInterval() {}
   };
   vm.createContext(sandbox);
   vm.runInContext(code, sandbox);
