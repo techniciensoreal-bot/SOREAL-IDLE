@@ -144,7 +144,9 @@ function style_(){
 function jouer(hote,variante){
   try{
     if(!hote||enCours)return false;
-    var CHOIX=['fondu','rewind','clignote'];
+    var NOUVELLES=window.__SOREAL_IDLE_MORTS_NOUVELLES_V1__;
+    var NOUVEAUX=NOUVELLES?Array.prototype.map.call(NOUVELLES.variantes,function(v){return v.id;}):[];   /* cendres, trou noir, vitre, tranché, âme (Norman, 2026-10-28) */
+    var CHOIX=['fondu','rewind','clignote'].concat(NOUVEAUX);
     if(CHOIX.indexOf(variante)<0){
       variante=CHOIX[Math.floor(Math.random()*CHOIX.length)];
       if(variante===derniereVariante)variante=CHOIX[(CHOIX.indexOf(variante)+1+Math.floor(Math.random()*(CHOIX.length-1)))%CHOIX.length];   /* jamais deux fois la même d'affilée */
@@ -172,10 +174,21 @@ function jouer(hote,variante){
       if(calque.parentNode)calque.parentNode.removeChild(calque);
     }
     var fondu=false,son=false,bips=0,prepare=false;
+    /* Les cinq nouvelles morts dessinent elles-mêmes l'image du joueur à la fin : un fondu de 0,25 s rend la place à l'image réelle. */
+    var neuve=NOUVEAUX.indexOf(variante)>=0?NOUVELLES.variantes.filter(function(v){return v.id===variante;})[0]:null;
+    var cacheNeuve=neuve?NOUVELLES.preparer(variante,img,LW,LH):null;
+    if(neuve){try{NOUVELLES.son(variante);}catch(_e){}}
     (function image(now){
       if(fini)return;
       if(!calque.isConnected){fini=true;enCours=false;return;}
       var t=(now-t0)/1000;
+      if(neuve){
+        if(t>=neuve.duree+.25){terminer();return;}
+        if(t<neuve.duree)NOUVELLES.dessiner(variante,c,t,cacheNeuve,LW,LH);
+        else if(!fondu){fondu=true;calque.style.transition='opacity .25s ease-out';calque.style.opacity='0';}
+        requestAnimationFrame(image);
+        return;
+      }
       if(variante==='clignote'){
         if(t>=DUREE3){terminer();return;}
         if(t<T_VIDE){dessiner(c,t,pk.px,LW,LH);}

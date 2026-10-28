@@ -47,5 +47,9 @@ for (const v of M.variantes) {
 // Un son synthétisé par variante, aucun fichier audio.
 assert.ok(!/\.(mp3|ogg|wav|m4a)/.test(src), "aucun fichier audio : sons synthétisés");
 for (const id of ids) assert.ok(src.includes("id==='" + id + "'"), "son de " + id);
-assert.ok(!readFileSync("cloudflare/public/index.html", "utf8").includes("morts-joueur-nouvelles-v1"), "pas encore branché sur le jeu (validation avant intégration)");
+const idx = readFileSync("cloudflare/public/index.html", "utf8");
+assert.ok(idx.includes("/modules/morts-joueur-nouvelles-v1.js?v="), "module chargé par le jeu (validé par Norman le 2026-10-28)");
+const mort = readFileSync("cloudflare/public/modules/mort-joueur-v1.js", "utf8");
+assert.ok(mort.includes("concat(NOUVEAUX)") && mort.includes("NOUVELLES.preparer(variante,img,LW,LH)") && mort.includes("NOUVELLES.son(variante)"), "mort-joueur tire parmi les huit variantes et joue les cinq nouvelles");
+assert.ok(readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8").includes("synth:function(dureeMs,fn)"), "leur son passe par le moteur audio du jeu (volume, silence, limiteur)");
 console.log("idle-morts-joueur-nouvelles-v1: OK");

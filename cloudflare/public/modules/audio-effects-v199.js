@@ -2479,6 +2479,8 @@
     defeatReverse:function(){return defaiteInverse_();},
     reapparitionBip:function(){return reapparitionBip_();},
     chorale:function(){return chorale_();},
+    /* Son synthétisé fourni par un module (Norman, 2026-10-28 : nouvelles morts) : passe par le contexte, le volume et le limiteur du jeu ; fn(contexte, sortie). */
+    synth:function(dureeMs,fn){return jouerWebAudio_(dureeMs,function(c){fn(c,master||c.destination);});},
     rot:function(nom){return rot_(nom);},
     /* Sons de défaite au choix (Réglages) : liste, cases cochées, écoute d'un son. */
     diarrheeList:function(){var m=window.__SOREAL_IDLE_AUDIO_COFFRE_V1__;return m&&m.diarrhees?m.diarrhees.map(function(x){return{nom:x.id,libelle:x.nom};}):[];},

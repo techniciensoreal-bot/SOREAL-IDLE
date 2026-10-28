@@ -325,7 +325,7 @@ var ctxAudio=null,bruitBuf=null;
 function audio(){
   if(ctxAudio)return ctxAudio;
   try{
-    var L=window.__SOREAL_IDLE_LIMITEUR_AUDIO_V1__;
+    var L=window.__SOREAL_IDLE_LIMITEUR_V1__;
     ctxAudio=L&&typeof L.contexte==='function'?L.contexte():new (window.AudioContext||window.webkitAudioContext)();
   }catch(_e){ctxAudio=null;}
   return ctxAudio;
@@ -336,16 +336,17 @@ function bruit(a){
   for(var i=0;i<n;i++)d[i]=Math.random()*2-1;
   bruitBuf=b;return b;
 }
+var sortieCourante=null;   /* pendant un son joué dans le jeu : la sortie du jeu (volume, limiteur) */
 function enveloppe(g,t0,att,dec,pic){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pic,t0+att);g.gain.exponentialRampToValueAtTime(0.0001,t0+att+dec);}
 function souffle(a,t0,dur,fil,f0,f1,q,pic,att){
   var s=a.createBufferSource();s.buffer=bruit(a);s.loop=true;
   var f=a.createBiquadFilter();f.type=fil;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t0);f.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);
   var g=a.createGain();enveloppe(g,t0,att||dur*.15,dur*.85,pic);
-  s.connect(f);f.connect(g);g.connect(maitre(a));s.start(t0);s.stop(t0+dur+.1);
+  s.connect(f);f.connect(g);g.connect(sortieCourante||maitre(a));s.start(t0);s.stop(t0+dur+.1);
 }
 function ton(a,t0,type,f0,f1,dur,pic,att){
   var o=a.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t0);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);
-  var g=a.createGain();enveloppe(g,t0,att||.01,dur,pic);o.connect(g);g.connect(maitre(a));o.start(t0);o.stop(t0+dur+.1);
+  var g=a.createGain();enveloppe(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
 var maitreNoeud=null;
@@ -354,10 +355,25 @@ function maitre(a){
   maitreNoeud=a.createGain();maitreNoeud.gain.value=.75;maitreNoeud.connect(a.destination);return maitreNoeud;
 }
 
+/* Dans le jeu : le son passe par le moteur audio du jeu (volume des effets, silence, limiteur), à un niveau proche de ses autres effets. Hors du jeu (page d'aperçu) : son propre contexte. */
+var DUREES_SON={cendres:3900,trounoir:3500,vitre:3700,tranche:3400,ame:4200};
 function son(id){
+  var A=window.__SOREAL_IDLE_AUDIO_V199__;
+  if(A&&typeof A.synth==='function'){
+    A.synth(DUREES_SON[id]||4000,function(a,dest){
+      var bus=a.createGain();bus.gain.value=.3;bus.connect(dest);
+      sortieCourante=bus;
+      try{construireSon(a,id);}finally{sortieCourante=null;}
+    });
+    return true;
+  }
   var a=audio();
   if(!a)return false;
   try{if(a.state==='suspended')a.resume();}catch(_e){}
+  construireSon(a,id);
+  return true;
+}
+function construireSon(a,id){
   var t=a.currentTime+.03;
   if(id==='cendres'){
     /* grondement bas du brasier + crépitements irréguliers (petits claquements filtrés) + dernier souffle */
@@ -409,7 +425,6 @@ function son(id){
     ton(a,t+2.8,'sine',784,784,1.3,.22,.01);ton(a,t+2.8,'sine',1568,1568,.9,.08,.01);ton(a,t+2.8,'sine',2349,2349,.6,.04,.01);
     souffle(a,t+2.75,.9,'highpass',1000,4000,.5,.05,.4);
   }
-  return true;
 }
 
 /* ---------- lecture sur un <canvas> ---------- */

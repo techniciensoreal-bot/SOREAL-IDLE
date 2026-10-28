@@ -48,8 +48,8 @@
   "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 272,
-  "sha": "ee9ff8fe4df4ec41154f6bcedc9f92b16de57317"
+  "pin": 273,
+  "sha": "804e0db11c2c2fd8e2db5a9dca6a7fc136523e51"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -336,8 +336,12 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 7,
-  "sha": "d478211ff732862e2427dfc6fea23dbf0b5db567"
+  "pin": 8,
+  "sha": "aa271c13cda2f63642e7d31316911e986f14ae34"
+ },
+ "/modules/morts-joueur-nouvelles-v1.js": {
+  "pin": 2,
+  "sha": "5980f6e2e519fdd6a0f157b401475c5e1c4c10db"
  },
  "/modules/moteur-local-v1.js": {
   "pin": 88,
@@ -408,8 +412,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 497,
-  "sha": "dd5db5ec623025fcc009d83f8c8191c9956d711f"
+  "pin": 498,
+  "sha": "349ad2739d0d3ed38b230ee76bea892fcc407960"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -480,12 +484,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 509,
-  "sha": "02dd25bd1f65908043a450086dd9fb2eb4b18793"
+  "pin": 510,
+  "sha": "c54c26994f04063c7ee95d1c88f0c791f56640d0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 329,
-  "sha": "9afd1526be42248d367f67db0b0fecdad522b878"
+  "pin": 330,
+  "sha": "f768aec817fe10c222234a97a640855d7683b1c1"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
