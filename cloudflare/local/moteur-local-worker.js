@@ -92,9 +92,17 @@ async function demarrer(exp) {
     sql.exec("INSERT OR REPLACE INTO idle_profiles(email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at) VALUES(?,?,?,?,?,?,?,?)",
       p.email, p.pseudo || "", p.pseudo_key || "", p.externe || 0, p.google_name || "", p.prenom || "", p.first_seen || 0, p.updated_at || 0);
   }
-  const tk = coord.createLaunchTicketV1({ source: "tv", user: exp.user });
-  if (!tk || !tk.ok) throw new Error("LOCAL_TICKET_REFUSE");
-  jeton = coord.consumeLaunchTicketV1(tk.ticket).sessionToken;
+  if (exp.user && exp.user.externe === true) {
+    /* Joueur connecté par Google (ou joueur local de l'application Windows) : un ticket APP / TV perd le drapeau « externe » (normalizeIdleLaunchUserV1) et son accès serait refusé. Il entre comme sur le serveur : par une session Google, dont le droit de jouer vient de l'accès public — ouvert ici, c'est SA partie sur SON appareil. */
+    sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1') ON CONFLICT(meta_key) DO UPDATE SET meta_value='1'");
+    const g = coord.createGoogleSessionV1({ email: exp.user.email, nom: exp.user.name || exp.user.prenom });
+    if (!g || !g.ok) throw new Error("LOCAL_TICKET_REFUSE");
+    jeton = g.sessionToken;
+  } else {
+    const tk = coord.createLaunchTicketV1({ source: "tv", user: exp.user });
+    if (!tk || !tk.ok) throw new Error("LOCAL_TICKET_REFUSE");
+    jeton = coord.consumeLaunchTicketV1(tk.ticket).sessionToken;
+  }
   /* Le ticket normalise l'identité (il perd par exemple la partie choisie, A ou B) : on remet celle de la session du serveur, telle quelle. */
   sql.exec("UPDATE idle_sessions SET user_json=? WHERE session_token=?", JSON.stringify(exp.user), jeton);
   sortant = { flux: ((exp.reprise && exp.reprise.flux) || []).map((e) => Object.assign({}, e, { n: ++seqFlux })), gains: ((exp.reprise && exp.reprise.gains) || []).map((e) => Object.assign({}, e, { n: ++seqGains })) };   // événements d'une session précédente pas encore reçus par le serveur

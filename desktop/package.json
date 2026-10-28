@@ -1,0 +1,15 @@
+{
+  "name": "soreal-idle-windows",
+  "version": "0.1.0",
+  "description": "SOREAL IDLE pour Windows : le jeu complet, jouable sans internet",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "essai": "node src/serveur-essai.mjs"
+  },
+  "devDependencies": {
+    "electron": "^45.1.0",
+    "electron-builder": "^26.18.0"
+  }
+}

@@ -1,0 +1,7 @@
+node_modules/
+medias/
+graine/
+dist/
+_stage/
+*.log
+_electron-builder.json
