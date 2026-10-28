@@ -36,8 +36,11 @@ if (args.includes("--catalogue")) {
   const source = option("catalogue", "");
   if (!source || !fs.existsSync(source)) { console.error("Fichier du catalogue introuvable : " + source); process.exit(1); }
   const j = JSON.parse(fs.readFileSync(source, "utf8"));
-  const feuilles = Array.isArray(j.feuilles) ? j.feuilles : null;
+  /* le registre CLASSEMENT contient les adresses e-mail des joueurs : jamais dans l'application distribuée */
+  const feuilles = Array.isArray(j.feuilles) ? j.feuilles.filter((f) => !(Array.isArray(f) && (f[0] === "CLASSEMENT" || f[0] === "JOUEURS"))) : null;
   if (!feuilles || !feuilles.length || !feuilles.every((f) => Array.isArray(f) && typeof f[0] === "string" && typeof f[2] === "string")) { console.error("Ce fichier n'est pas un catalogue exporté par le jeu (liste « feuilles » attendue)."); process.exit(1); }
+  const adresses = feuilles.filter((f) => /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}/.test(f[2]));
+  if (adresses.length) { console.error("Refusé : le catalogue contient encore " + adresses.length + " ligne(s) avec des adresses e-mail (feuille " + [...new Set(adresses.map((f) => f[0]))].join(", ") + ")."); process.exit(1); }
   fs.mkdirSync(path.join(ICI, "graine"), { recursive: true });
   fs.writeFileSync(path.join(ICI, "graine", "catalogue.json"), JSON.stringify({ feuilles, exporteLe: j.exporteLe || null }));
   const noms = new Set(feuilles.map((f) => f[0]));

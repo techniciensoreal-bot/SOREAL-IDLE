@@ -37,9 +37,10 @@ function semerSiVide(sql, graine) {
   const nb = sql.exec("SELECT COUNT(*) AS n FROM idle_catalog")[0];
   if (nb && Number(nb.n) > 0) return false;
   const feuille = (nom, lignes) => lignes.forEach((l, i) => sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", nom, i + 1, JSON.stringify(l), Date.now()));
-  const feuilles = graine && graine.feuilles && typeof graine.feuilles === "object" ? graine.feuilles : null;
-  if (feuilles) {
-    for (const [nom, lignes] of Object.entries(feuilles)) if (nom !== "JOUEURS" && Array.isArray(lignes)) feuille(nom, lignes);
+  /* graine.feuilles : la liste [feuille, rang, ligne JSON] exportée par le jeu (catalogue de production). JAMAIS la feuille des joueurs ni le registre CLASSEMENT (adresses e-mail des joueurs). */
+  const triplets = graine && Array.isArray(graine.feuilles) ? graine.feuilles.filter((f) => Array.isArray(f) && typeof f[0] === "string" && typeof f[2] === "string" && f[0] !== "JOUEURS" && f[0] !== "CLASSEMENT") : null;
+  if (triplets && triplets.length) {
+    for (const f of triplets) sql.exec("INSERT INTO idle_catalog(sheet_name,row_index,row_json,updated_at) VALUES(?,?,?,?)", f[0], Number(f[1]) || 1, f[2], Date.now());
   } else {
     feuille("IDLE_BOUTIQUE", [["Type", "CoutBase", "Croissance", "BonusParNiveau"], ["production", 20, 1.6, 1], ["capacite", 20, 1.6, 1], ["puissance", 20, 1.6, 1]]);
   }
