@@ -32,6 +32,7 @@
         date:'2026-10-28',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans « En direct », une victoire sur un boss s’écrit maintenant « Sébastien a battu Ent après 3 essais » : le nombre de fois où le joueur a lancé le combat avant de le vaincre (« du premier coup » s’il a gagné du premier essai).',
             'Les chiffres sont partout plus lisibles : le 7 ne ressemble plus à un 1 (cadres du haut, compteurs, niveaux, prix, barres). Tous les nombres du jeu ont un 1 avec un drapeau et un 7 bien droit.',
             'Le jeu se rouvre et se joue maintenant sans internet : la page, le moteur et ta partie sont gardés sur l’appareil, et la partie est envoyée au serveur dès que la connexion revient. Ouvre le jeu au moins une fois avec internet pour que tout soit prêt.',
             'Les craquements des sons sont traités : tous les sons du jeu partagent désormais un seul flux audio, au lieu d’en ouvrir plusieurs qui se disputaient la carte son.',

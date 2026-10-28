@@ -125,7 +125,10 @@
       case 'boss':{
         const n=Number(d.boss)||0;
         const nomBoss=n>0&&n<=Number(c.bossMax||0)?k.boss[n]:'';
-        return {icone:'👹',texte:nomBoss?nom+verbe(' viens',' vient')+' de vaincre '+nomBoss:nom+verbe(' viens',' vient')+' de vaincre un boss'};
+        /* « Sébastien a battu Ent après 3 essais » (Norman, 2026-10-28) : les essais sont le nombre de clics sur Fight dans SA partie jusqu'à la victoire ; un seul essai : « du premier coup ». Pas d'essais connus (boss tué au NUKE) : rien d'ajouté. */
+        const essais=Math.floor(Number(d.essais)||0);
+        const suite=essais>1?' après '+essais+' essais':(essais===1?' du premier coup':'');
+        return {icone:'👹',texte:nom+verbe(' as battu',' a battu')+' '+(nomBoss||'un boss')+suite};
       }
       /* Fuite / défaite contre un boss (Norman, 2026-10-04) : le nom du boss n'est donné que si le lecteur l'a lui-même atteint (anti-spoil), comme pour la victoire. */
       case 'fuite':

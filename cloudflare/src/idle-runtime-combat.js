@@ -337,6 +337,17 @@ export function definirCombatBossSorealIdle(
       const pvDepartBoss=nombreSorealIdle_(feuille.getRange(ligne,c.BOSS_PV).getValue(),0);
       const pvMaxDepartBoss=nombreSorealIdle_(feuille.getRange(ligne,c.BOSS_PV_MAX).getValue(),0);
       stats.combatBossDepartFrais=pvMaxDepartBoss>0&&pvDepartBoss>=pvMaxDepartBoss*0.999999;
+      /*
+       * Essais « En direct » (Norman, 2026-10-28 : « Sébastien a battu Ent après 3 essais : le nombre de fois qu'il a cliqué sur Fight pour enfin le tuer dans sa partie ») : un compteur par boss, +1 à chaque combat qui démarre (Fight, ou le combat enchaîné
+       * par « boss suivant »), jamais remis à zéro par un Rebirth (le boss non encore vaincu garde son compte). Seuls les six boss les plus récents sont gardés. Lu par le fil (idle-flux-v1.js) au moment où le boss est vaincu pour la première fois.
+       */
+      const numeroEssai=Math.floor(nombreSorealIdle_(stats.bossSelection,0));
+      if(numeroEssai>0){
+        const essais=(stats.fluxEssais&&typeof stats.fluxEssais==='object'&&!Array.isArray(stats.fluxEssais))?stats.fluxEssais:{};
+        essais[numeroEssai]=Math.min(9999,Math.floor(nombreSorealIdle_(essais[numeroEssai],0))+1);
+        Object.keys(essais).map(Number).sort(function(a,b){return b-a;}).slice(6).forEach(function(k){delete essais[k];});
+        stats.fluxEssais=essais;
+      }
     }
     /* une fuite ou un arrêt qui interrompt un combat actif annule son éligibilité au record */
     if(!Boolean(actif)&&stats.combatBossActif)stats.combatBossDepartFrais=false;

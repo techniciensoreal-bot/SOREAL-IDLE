@@ -775,6 +775,8 @@ export function statsJoueurSorealIdle_(valeur) {
     fluxBossFuites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossFuites,0))),
     fluxBossDefaites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDefaites,0))),
     fluxBossDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDernier,0))),
+    /* Essais par boss (clics sur Fight), annoncés par « En direct » à la première victoire (Norman, 2026-10-28) : sans ce champ la lecture des statistiques le jetterait à chaque opération. */
+    fluxEssais:(function(){const o={};if(s.fluxEssais&&typeof s.fluxEssais==="object"&&!Array.isArray(s.fluxEssais)){Object.keys(s.fluxEssais).slice(0,12).forEach(function(k){const n=Math.floor(nombreSorealIdle_(k,0)),e=Math.floor(nombreSorealIdle_(s.fluxEssais[k],0));if(n>0&&e>0)o[n]=Math.min(9999,e);});}return o;})(),
     fluxHistoires:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxHistoires,0))),
     fluxNukes:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukes,0))),
     fluxNukeDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukeDernier,0))),

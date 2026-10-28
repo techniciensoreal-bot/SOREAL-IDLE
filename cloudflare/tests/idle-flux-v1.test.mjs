@@ -202,9 +202,13 @@ const stats = (o = {}) => ({
   };
   const p = (type, donnees, ctx, moi = false) => phrase({ type, nom: "Mickaël", donnees, moi }, ctx);
 
-  assert.equal(p("boss", { boss: 12 }, expert).texte, "Mickaël vient de vaincre Gros Rat");
-  assert.equal(p("boss", { boss: 12 }, debutant).texte, "Mickaël vient de vaincre un boss", "boss inconnu : générique");
-  assert.equal(p("boss", { boss: 99 }, expert).texte, "Mickaël vient de vaincre un boss", "boss au-delà du lecteur : générique");
+  assert.equal(p("boss", { boss: 12 }, expert).texte, "Mickaël a battu Gros Rat");
+  assert.equal(p("boss", { boss: 12 }, debutant).texte, "Mickaël a battu un boss", "boss inconnu : générique");
+  assert.equal(p("boss", { boss: 99 }, expert).texte, "Mickaël a battu un boss", "boss au-delà du lecteur : générique");
+  assert.equal(p("boss", { boss: 12, essais: 3 }, expert).texte, "Mickaël a battu Gros Rat après 3 essais", "essais annoncés (Norman, 2026-10-28)");
+  assert.equal(p("boss", { boss: 12, essais: 1 }, expert).texte, "Mickaël a battu Gros Rat du premier coup");
+  assert.equal(p("boss", { boss: 12, essais: 3 }, debutant).texte, "Mickaël a battu un boss après 3 essais", "anti-spoil : le nom reste caché");
+  assert.equal(p("boss", { boss: 12, essais: 4 }, expert, true).texte, "Tu as battu Gros Rat après 4 essais");
   assert.equal(p("succes", { id: "a" }, expert).texte, "Mickaël a débloqué le trophée Premier sang");
   assert.equal(p("succes", { id: "a" }, debutant).texte, "Mickaël a débloqué un trophée");
   assert.equal(p("titan", { id: "t1" }, debutant), null, "Titans verrouillés chez le lecteur : jamais mentionnés");
@@ -227,7 +231,7 @@ const stats = (o = {}) => ({
   assert.equal(p("rebirth", { duree: 100 * 3600 + 30 * 60 }, expert).texte, "Mickaël a fait une Renaissance après 4 j 4 h de run");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, expert).texte, "Mickaël farme dans Égouts");
   assert.equal(p("farm", { zoneId: 3, zoneNom: "Égouts" }, debutant).texte, "Mickaël farme en Aventure", "zone inconnue : générique");
-  assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu viens de vaincre Gros Rat");
+  assert.equal(p("boss", { boss: 12 }, expert, true).texte, "Tu as battu Gros Rat");
   // Nouveaux événements : connexion (jamais la sienne), défi lancé (menu Challenges requis), set (nom seulement si le lecteur l'a complété).
   assert.equal(p("connexion", {}, debutant).texte, "Mickaël vient de se connecter");
   assert.equal(p("connexion", {}, debutant, true), null);

@@ -84,6 +84,11 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const bossFuites = Math.max(0, Math.floor(N(stats && stats.fluxBossFuites, 0)));
   const bossDefaites = Math.max(0, Math.floor(N(stats && stats.fluxBossDefaites, 0)));
   const bossDernier = Math.max(0, Math.floor(N(stats && stats.fluxBossDernier, 0)));
+  /* Essais (clics sur Fight) par boss, tenus par le moteur de combat : numéro de boss -> nombre d'essais (au plus six boss). */
+  const bossEssais = {};
+  if (stats && stats.fluxEssais && typeof stats.fluxEssais === "object" && !Array.isArray(stats.fluxEssais)) {
+    for (const [cle, v] of Object.entries(stats.fluxEssais).slice(0, 12)) { const n = Math.floor(N(cle, 0)), e = Math.floor(N(v, 0)); if (n > 0 && e > 0) bossEssais[n] = Math.min(9999, e); }
+  }
   /* Sorts de Blood Magic lancés (records.bloodSpellsCast / bloodSpellLast) et cinématiques vues (stats.fluxHistoires, tenu par marquerVusSorealIdle) : compteurs seuls. */
   const sorts = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellsCast, 0)));
   const sortDernier = Math.max(0, Math.floor(N(m.records && m.records.bloodSpellLast, 0)));
@@ -188,6 +193,7 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     bossFuites,
     bossDefaites,
     bossDernier,
+    bossEssais,
     achats,
     calendrier,
     defiActif,
@@ -214,7 +220,7 @@ export function evenementsV1(avant, apres, noms = {}) {
   const nom = (f, x) => { try { return String((typeof f === "function" ? (Array.isArray(x) ? f(...x) : f(x)) : "") || "").slice(0, 80); } catch (_e) { return ""; } };
   const ev = [];
   /* Ancien instantané sans record (compteur de run) : pas de comparaison cette fois-ci, pour ne rien annoncer à tort. */
-  if (Number.isFinite(avant.bossMax) && apres.bossMax > avant.bossMax) ev.push({ type: "boss", donnees: { boss: apres.bossMax, nom: nom(noms.boss, apres.bossMax) } });
+  if (Number.isFinite(avant.bossMax) && apres.bossMax > avant.bossMax) ev.push({ type: "boss", donnees: Object.assign({ boss: apres.bossMax, nom: nom(noms.boss, apres.bossMax) }, apres.bossEssais && apres.bossEssais[apres.bossMax] > 0 ? { essais: apres.bossEssais[apres.bossMax] } : {}) });
   const connus = new Set(avant.succes || []);
   let nbSucces = 0;
   for (const id of apres.succes || []) {
