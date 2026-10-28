@@ -91,34 +91,60 @@
       '@media (prefers-reduced-motion:reduce){html body #sorealIdleHudPvBarV2{transition:none!important}}';
     (document.head||document.documentElement).appendChild(st);
   })();
-  var hudObs=null,hudEl=null,hudPos=0;
-  /* Position dans le DOCUMENT du premier bloc sous le bandeau (marges comprises : la hauteur du bandeau seule ne suffit pas, ses marges changent aussi). */
+  /*
+   * Le bandeau et la page sont deux choses INDÉPENDANTES (Norman, 2026-10-28 : « quand la barre de magie ou d'énergie disparaît, ça fait encore bouger le menu ; ça doit vraiment être 2 choses indépendantes, ce petit saut n'est vraiment pas propre »).
+   * L'ancienne compensation ne jouait que page défilée (en haut de page, le contenu suivait la barre) et passait par le défilement. Maintenant une réserve (un bloc vide juste sous le bandeau, data-morph-garder) absorbe EXACTEMENT chaque variation de
+   * hauteur du bandeau, image après image (ResizeObserver : avant l'affichage de l'image) : le contenu reste où il est, en haut de page comme défilé ; le bandeau, lui, se réduit ou se déploie par-dessus. La réserve est remise à zéro quand on change de menu
+   * ou que la fenêtre change de taille (le contenu est alors remplacé ou remis en page de toute façon).
+   */
+  var hudObs=null,hudEl=null,hudPos=0,reserve=null,menuReserve='';
+  function menuCourant(){var r=document.querySelector('.soreal-idle-page-root-v28');return r?(r.getAttribute('data-menu')||''):'';}
+  /* Position, dans le DOCUMENT, du début du contenu : le bas de la réserve (marges du bandeau comprises). */
   function positionSous(){
-    var suite=hudEl&&hudEl.nextElementSibling;
-    if(!suite)return null;
-    return suite.getBoundingClientRect().top+(window.scrollY||document.documentElement.scrollTop||0);
+    if(!reserve||!reserve.isConnected)return null;
+    return reserve.getBoundingClientRect().bottom+(window.scrollY||document.documentElement.scrollTop||0);
+  }
+  function assurerReserve(h){
+    if(reserve&&reserve.isConnected&&reserve.previousElementSibling===h)return;
+    if(reserve&&reserve.parentNode)reserve.parentNode.removeChild(reserve);
+    reserve=document.createElement('div');
+    reserve.id='sorealIdleHudReserveV2';
+    reserve.setAttribute('data-morph-garder','');
+    reserve.setAttribute('aria-hidden','true');
+    reserve.style.cssText='height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none;grid-column:1/-1';
+    h.insertAdjacentElement('afterend',reserve);
+  }
+  function remettreReserve(){
+    if(reserve&&reserve.style.height!=='0px')reserve.style.height='0px';
+    hudPos=positionSous();
   }
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');
-    if(h===hudEl)return;
+    var m=menuCourant();
+    if(h&&m!==menuReserve){menuReserve=m;if(h===hudEl)remettreReserve();}
+    if(h===hudEl&&(!h||(reserve&&reserve.isConnected)))return;
     if(hudObs){hudObs.disconnect();hudObs=null;}
     hudEl=h;
     if(!h||typeof ResizeObserver!=='function')return;
+    assurerReserve(h);
     hudPos=positionSous();
     hudObs=new ResizeObserver(function(){
-      if(!hudEl)return;
+      if(!hudEl||!reserve||!reserve.isConnected)return;
       var p=positionSous();
       if(p===null||hudPos===null){hudPos=p;return;}
       var d=p-hudPos;
-      hudPos=p;
-      var y=window.scrollY||document.documentElement.scrollTop||0;
-      if(Math.abs(d)>=.5&&Math.abs(d)<160&&y>0){
-        window.scrollTo({top:Math.max(0,y+d),behavior:'instant'});
-        if(y+d<0)hudPos=positionSous();   /* en butée : ce qui n'a pas pu être compensé n'est pas reporté sur l'image suivante */
+      /* une seule barre (30 px au plus, marges comprises) : une variation plus grande est un vrai changement de page ; pendant un combat de Titan le bandeau est caché volontairement */
+      if(document.body&&document.body.classList.contains('tcv-actif')){remettreReserve();return;}
+      /* aucun seuil : pendant le fondu la hauteur varie de moins d'un pixel par image au début et à la fin, ces petits écarts s'additionneraient en un saut */
+      if(Math.abs(d)>0.01&&Math.abs(d)<60){
+        var hauteur=parseFloat(reserve.style.height)||0;
+        reserve.style.height=Math.max(0,hauteur-d)+'px';
       }
+      hudPos=positionSous();   /* ce qui n'a pas pu être absorbé (réserve à zéro) n'est pas reporté sur l'image suivante */
     });
     hudObs.observe(h);
   }
+  window.addEventListener('resize',function(){remettreReserve();});
   window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud};
   function maj(){
     placer();

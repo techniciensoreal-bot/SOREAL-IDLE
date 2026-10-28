@@ -39,7 +39,8 @@
             'Les boutons du menu se déplacent sans à-coups : pendant que tu glisses un bouton, la barre se fige au lieu de trembler, et le jeu ne recalcule plus la page à chaque mouvement du doigt.',
             'Pendant une étape du tutoriel où il faut cliquer sur un élément, plus rien d’autre ne réagit : même le bouton de lecture d’une chronique ne peut plus lancer sa voix et interrompre le guide.',
             'Toutes les parties sont maintenant sauvegardées chaque jour sur le serveur (une copie par jour, gardée 30 jours), en plus des copies de chaque joueur.',
-            'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.'
+            'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.',
+            'Quand une barre de magie ou d’énergie disparaît (ou revient), la page où tu te trouves ne bouge plus du tout, même tout en haut : le bandeau et le menu sont maintenant indépendants.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Quand tu ouvres la chronique d’un boss, elle s’affiche maintenant comme une carte à collectionner : le nom en haut, l’illustration, les capacités, l’histoire en italique et, dans le coin, son attaque et sa vie. La fiche d’un boss dans la Collection a la même carte. Sa couleur suit l’illustration du boss (bleu, rouge, vert, noir, blanc, ou or quand deux couleurs dominent). L’illustration du boss s’affiche en entier (la carte est plus haute). Un tap dessus retourne la carte, qui montre son dos ; un autre tap la remet à l’endroit. Des flèches sur les côtés passent au boss découvert précédent ou suivant, et la carte passe au-dessus du jeu, qui est flouté autour.'
