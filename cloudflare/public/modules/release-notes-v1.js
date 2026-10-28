@@ -22,10 +22,35 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.1',
+    courante:'4.2',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.2',
+        nom:'Sans réseau',
+        date:'2026-10-28',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Le jeu se rouvre et se joue maintenant sans internet : la page, le moteur et ta partie sont gardés sur l’appareil, et la partie est envoyée au serveur dès que la connexion revient. Ouvre le jeu au moins une fois avec internet pour que tout soit prêt.',
+            'Les craquements des sons sont traités : tous les sons du jeu partagent désormais un seul flux audio, au lieu d’en ouvrir plusieurs qui se disputaient la carte son.',
+            'La fenêtre « Nouveau menu débloqué ! » n’apparaît que la toute première fois. Après un Rebirth, un menu qui revient fait seulement clignoter son bouton avec les trois petits bips.',
+            'Les boutons du menu se déplacent sans à-coups : pendant que tu glisses un bouton, la barre se fige au lieu de trembler, et le jeu ne recalcule plus la page à chaque mouvement du doigt.',
+            'Pendant une étape du tutoriel où il faut cliquer sur un élément, plus rien d’autre ne réagit : même le bouton de lecture d’une chronique ne peut plus lancer sa voix et interrompre le guide.',
+            'Toutes les parties sont maintenant sauvegardées chaque jour sur le serveur (une copie par jour, gardée 30 jours), en plus des copies de chaque joueur.',
+            'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Dans chaque barre, le bouton « Max » ne dépasse plus de son cadre sur téléphone.'
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les portes s’ouvrent d’un seul mouvement, sans petits à-coups : une seule accélération du début à la fin.'
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Ce menu s’appelle maintenant « Boutique » (« Shop » en anglais) : dans l’annonce de déblocage comme sur son bouton.'
+          ]}
+        ]
+      },
       {
         version:'4.1',
         nom:'Chaque détail',
@@ -33,9 +58,8 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le tout premier guide n’affiche plus rien à l’écran : ni fenêtre, ni texte, ni petite enceinte. Seule la voix te guide, et tu avances en cliquant sur les éléments entourés.',
-            'Le jeu se rouvre et se joue maintenant sans internet : la page, le moteur et ta partie sont gardés sur l’appareil, et la partie est envoyée au serveur dès que la connexion revient. Ouvre le jeu au moins une fois avec internet pour que tout soit prêt.',
             'Le chœur d’anges qui accompagne ta réapparition est un peu moins fort.',
-            'Les sons du jeu ne saturent plus : tout ce qui sort passe maintenant par un limiteur qui calme seulement les dépassements (plusieurs sons en même temps, ambiances amplifiées). Le volume habituel ne change pas. Les craquements qui restaient sont aussi traités : tous les sons du jeu partagent désormais un seul flux audio.',
+            'Les sons du jeu ne saturent plus : tout ce qui sort passe maintenant par un limiteur qui calme seulement les dépassements (plusieurs sons en même temps, ambiances amplifiées). Le volume habituel ne change pas.',
             'Le bandeau « En direct » apparaît et disparaît maintenant en fondu, et les informations entrent toujours par la droite de l’écran puis le traversent en entier, sur PC comme sur téléphone (sur PC, la première pouvait démarrer au milieu).',
             'Les portes ne se referment plus en plein milieu de leur ouverture, et les fruits ne rétrécissent plus jamais en animation : une pousse plus petite apparaît d’un coup.',
             'Le boss suivant n’apparaît plus d’abord en entier puis noir avant de revenir : il n’est montré que par son animation d’apparition. Et Fight reste bloqué tant que le boss n’est pas apparu.',
