@@ -20,4 +20,5 @@ assert.ok(hud.includes("surveillerHud();"), "le bandeau (parfois recréé) est r
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(css.includes("soreal-idle-page-root-v28{overflow-anchor:none}"), "l'ancrage natif reste coupé (page redessinée en continu) : c'est la réserve qui compense");
 
+assert.ok(hud.includes("GRACE_MS=5000") && hud.includes("Date.now()<graceJusqua"), "page qui vient de s afficher : rien n est absorbé pendant 5 s (sinon un grand vide entre la barre de vie et la page, Norman 2026-10-28 : dans tous les menus)");
 console.log("idle-hud-barre-sans-saut-v1: OK");

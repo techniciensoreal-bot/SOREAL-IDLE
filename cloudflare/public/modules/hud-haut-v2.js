@@ -97,7 +97,9 @@
    * hauteur du bandeau, image après image (ResizeObserver : avant l'affichage de l'image) : le contenu reste où il est, en haut de page comme défilé ; le bandeau, lui, se réduit ou se déploie par-dessus. La réserve est remise à zéro quand on change de menu
    * ou que la fenêtre change de taille (le contenu est alors remplacé ou remis en page de toute façon).
    */
-  var hudObs=null,hudEl=null,hudPos=0,reserve=null,menuReserve='';
+  var hudObs=null,hudEl=null,hudPos=0,reserve=null,menuReserve='',graceJusqua=0;
+  /* Une page qui vient de s'afficher laisse le bandeau se mettre en place (les barres déjà vides se replient en fondu ~2 s après l'arrivée) : pendant ces 5 s rien n'est absorbé, sinon la réserve laissait un grand vide entre la barre de vie et la page (Norman, 2026-10-28, Fight Boss). */
+  var GRACE_MS=5000;
   function menuCourant(){var r=document.querySelector('.soreal-idle-page-root-v28');return r?(r.getAttribute('data-menu')||''):'';}
   /* Position, dans le DOCUMENT, du début du contenu : le bas de la réserve (marges du bandeau comprises). */
   function positionSous(){
@@ -117,6 +119,7 @@
   function remettreReserve(){
     if(reserve&&reserve.style.height!=='0px')reserve.style.height='0px';
     hudPos=positionSous();
+    graceJusqua=Date.now()+GRACE_MS;
   }
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');
@@ -128,11 +131,16 @@
     if(!h||typeof ResizeObserver!=='function')return;
     assurerReserve(h);
     hudPos=positionSous();
+    graceJusqua=Date.now()+GRACE_MS;
     hudObs=new ResizeObserver(function(){
       if(!hudEl||!reserve||!reserve.isConnected)return;
+      /* changement de menu détecté ici même, avant le prochain passage du minuteur : réserve à zéro et période de mise en place */
+      var mc=menuCourant();
+      if(mc!==menuReserve){menuReserve=mc;remettreReserve();return;}
       var p=positionSous();
       if(p===null||hudPos===null){hudPos=p;return;}
       var d=p-hudPos;
+      if(Date.now()<graceJusqua){hudPos=p;return;}   /* page qui vient de s'afficher : le bandeau se met en place, rien n'est absorbé */
       /* une seule barre (30 px au plus, marges comprises) : une variation plus grande est un vrai changement de page ; pendant un combat de Titan le bandeau est caché volontairement */
       if(document.body&&document.body.classList.contains('tcv-actif')){remettreReserve();return;}
       /* aucun seuil : pendant le fondu la hauteur varie de moins d'un pixel par image au début et à la fin, ces petits écarts s'additionneraient en un saut */
