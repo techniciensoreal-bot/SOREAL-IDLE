@@ -383,6 +383,39 @@ async function idleMajV1(request, env, url) {
   return new Response(objet.body, { headers: entetes });
 }
 
+/*
+ * Sauvegarde quotidienne de TOUTES les parties (Norman, 2026-10-28 : « fais bien un backup de leurs jeux »). La tâche planifiée (toutes les 5 minutes) en écrit UNE par jour dans R2 (backups/idle/joueurs-AAAA-MM-JJ.json.gz), à la première exécution du jour ;
+ * les sauvegardes de plus de 30 jours sont supprimées. En plus des copies par joueur que le serveur garde déjà (idle_sauvegardes_locales : première, quotidiennes, périodiques, avant anomalie / restauration / import).
+ */
+const SAUVEGARDE_PREFIXE_V1 = "backups/idle/joueurs-";
+const SAUVEGARDE_JOURS_V1 = 30;
+async function sauvegardeQuotidienneV1(env, maintenant = Date.now()) {
+  if (!env?.SOREAL_R2 || typeof env.SOREAL_R2.put !== "function" || !env?.SOREAL_IDLE) return { fait: false, raison: "INDISPONIBLE" };
+  const jour = new Date(maintenant).toISOString().slice(0, 10);
+  const cle = SAUVEGARDE_PREFIXE_V1 + jour + ".json.gz";
+  try {
+    if (await env.SOREAL_R2.head(cle)) return { fait: false, raison: "DEJA_FAITE" };
+    const stub = env.SOREAL_IDLE.get(env.SOREAL_IDLE.idFromName("global"));
+    const rep = await stub.fetch(new Request("https://soreal-idle.invalid/__soreal-idle-v1/backup-all", { method: "POST" }));
+    if (!rep.ok) return { fait: false, raison: "LECTURE_REFUSEE" };
+    const texte = await rep.text();
+    const donnees = await new Response(new Blob([texte]).stream().pipeThrough(new CompressionStream("gzip"))).arrayBuffer();
+    await env.SOREAL_R2.put(cle, donnees, { httpMetadata: { contentType: "application/gzip" } });
+    /* ménage : plus de 30 jours */
+    const limite = new Date(maintenant - SAUVEGARDE_JOURS_V1 * 86400000).toISOString().slice(0, 10);
+    const listees = await env.SOREAL_R2.list({ prefix: SAUVEGARDE_PREFIXE_V1, limit: 1000 });
+    const vieilles = (listees.objects || []).map((o) => o.key).filter((k) => {
+      if (!k.startsWith(SAUVEGARDE_PREFIXE_V1) || !k.endsWith(".json.gz")) return false;
+      const date = k.slice(SAUVEGARDE_PREFIXE_V1.length, SAUVEGARDE_PREFIXE_V1.length + 10);
+      return date.length === 10 && date[4] === "-" && date[7] === "-" && date < limite;
+    });
+    if (vieilles.length) await env.SOREAL_R2.delete(vieilles);
+    return { fait: true, cle, octets: donnees.byteLength, supprimees: vieilles.length };
+  } catch (e) {
+    return { fait: false, raison: "ERREUR", detail: String(e && e.message || e).slice(0, 200) };
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -497,5 +530,6 @@ export default {
   },
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(pingSorealIdleV1(env));
+    ctx.waitUntil(sauvegardeQuotidienneV1(env));
   }
 };

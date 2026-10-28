@@ -581,6 +581,18 @@ export class SorealIdleCoordinatorV1 {
       const p = await request.json().catch(() => ({}));
       return Response.json(this.readCatalogSheet(p?.sheet), { headers: { "cache-control": "no-store" } });
     }
+    /*
+     * Sauvegarde COMPLÈTE de toutes les parties (Norman, 2026-10-28 : « fais bien un backup de leurs jeux ») : toutes les lignes de la feuille JOUEURS (une par joueur, l'en-tête en premier), les profils (pseudo, adresse) et les réglages
+     * généraux. Jamais les sessions ni les billets de lancement (secrets). Lue chaque jour par le Worker (idle-worker-entry-v1.js, tâche planifiée), qui l'écrit dans R2 (backups/idle/).
+     */
+    if (path === "/__soreal-idle-v1/backup-all") {
+      const joueurs = this.sqlAll("SELECT row_index,row_json FROM idle_catalog WHERE sheet_name='JOUEURS' ORDER BY row_index").map((r) => [Number(r.row_index), r.row_json]);
+      let profils = [];
+      try { profils = this.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles ORDER BY email"); } catch (_e) { /* pas encore de table : aucun profil */ }
+      let meta = [];
+      try { meta = this.sqlAll("SELECT meta_key,meta_value FROM idle_meta ORDER BY meta_key"); } catch (_e) { /* idem */ }
+      return Response.json({ ok: true, v: 1, at: Date.now(), nbJoueurs: Math.max(0, joueurs.length - 1), joueurs, profils, meta }, { headers: { "cache-control": "no-store" } });
+    }
     if (path === "/__soreal-idle-v1/counts") {
       return Response.json({
         ok: true,
