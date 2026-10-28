@@ -140,7 +140,7 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
   const id = identifiantRaccourci(cible, nom);
   let fichierIcone = "";
   if (icone && dossierIcone) { fs.mkdirSync(dossierIcone, { recursive: true }); fichierIcone = path.join(dossierIcone, "soreal-idle.ico"); fs.writeFileSync(fichierIcone, icone); }
-  const nouveau = entreeRaccourci({ id, nom, exe: cible, dossier: '"' + path.dirname(exe) + '"', icone: fichierIcone });
+  const nouveau = entreeRaccourci({ id, nom, exe: cible, dossier: '"' + path.win32.dirname(exe) + '"', icone: fichierIcone });
   const faits = [];
   for (const c of comptes) {
     const config = path.join(steam, "userdata", c, "config");
