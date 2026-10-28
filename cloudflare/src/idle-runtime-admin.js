@@ -10,7 +10,7 @@ import { histoireDuBossV1, histoireIntroV1, lireHistoiresV1, enregistrerHistoire
 import { annulerVictoireTitanV1 } from "./idle-adventure-v47.js";
 import { creditDejaFaitV1, lireGainsExpV1 } from "./idle-gains-v1.js";
 import { ancienTutorielActifV1, ancienMenusActifV1, guidesPourJoueurV1, lireGuidesV1, enregistrerGuideV1, supprimerGuideV1, reglerAncienMenusV1, reglerAncienTutorielV1 } from "./idle-tutoriel-v1.js";
-import { surchargesPourJoueurV1, lireTextesV1, enregistrerTexteV1, invaliderCacheTextesBossV1, supprimerTexteV1 } from "./idle-textes-v1.js";
+import { surchargesPourJoueurV1, lireTextesV1, enregistrerTexteV1, invaliderCacheTextesBossV1, supprimerTexteV1, lireValidationsVoixV1, definirValidationVoixV1 } from "./idle-textes-v1.js";
 import { histoireBossFrAligneeV1 } from "./idle-traductions-v1.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, NGU_BOSS_NAMES_FR_V1, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
@@ -509,7 +509,21 @@ export function listerTextesAdminSorealIdle(sessionToken) {
     boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: histoireBossFrAligneeV1(numero, String(ligne && ligne.histoire || '')), surcharge });
   }
   boss.sort((a, b) => a.numero - b.numero);
-  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)) };
+  /* validations : { cle: 1 (jaune) | 2 (vert) } ; une clé absente = rouge (non validée). */
+  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)), validations: lireValidationsVoixV1(__idleCtx.__idleSql) };
+}
+
+/* Validation de la voix d'un texte (rouge 0 / jaune 1 / vert 2) : le premier argument est un objet { cle, etat } (le pont ajoute la session devant un argument qui n'est pas un texte). */
+export function definirValidationVoixAdminSorealIdle(sessionToken, p) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    const etat = definirValidationVoixV1(__idleCtx.__idleSql, p && p.cle, p && p.etat);
+    return { ok: true, cle: String(p.cle), etat };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (/^TEXTE_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
 }
 
 export function enregistrerTexteAdminSorealIdle(sessionToken, texte) {

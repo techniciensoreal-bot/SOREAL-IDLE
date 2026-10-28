@@ -36,7 +36,7 @@ var enChargement=false;
 var essais=0;
 var abonnes=[];
 var registre={};                    // clés déclarées par le jeu : {groupe, libelle, champs, original(), texteLu(valeurs)}
-var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',page:0};
+var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',page:0,validations:{}};
 var edition=null;                   // {cle, def, voix[], estBoss, numero}
 var studio={ok:null,texte:''};
 var generation={enCours:false,annule:false};
@@ -149,6 +149,29 @@ function charger_(){
 /* ---------- application aux textes du jeu ---------- */
 
 function liste_(v){return Array.isArray(v)?v.slice():[];}
+/* Feu de validation : 0 rouge, 1 jaune, 2 vert. Un clic passe au suivant, le troisième revient au rouge. */
+function etatFeu_(cle){var e=admin.validations&&admin.validations[cle];return e===1||e===2?e:0;}
+function feuHtml_(cle,bouton){
+  var attrs=' class="stx-feu" data-stx-feu="'+esc_(cle)+'" data-etat="'+etatFeu_(cle)+'"';
+  return bouton?'<button type="button" data-stx-act="feu"'+attrs+' aria-label="Validation de la voix"></button>':'<span'+attrs+' aria-hidden="true"></span>';
+}
+function majFeux_(){
+  var l=document.querySelectorAll('[data-stx-feu]');
+  for(var i=0;i<l.length;i++){var e=String(etatFeu_(l[i].getAttribute('data-stx-feu')));if(l[i].getAttribute('data-etat')!==e)l[i].setAttribute('data-etat',e);}
+}
+function changerFeu_(cle){
+  var avant=etatFeu_(cle),suivant=(avant+1)%3;
+  if(!admin.validations)admin.validations={};
+  if(suivant)admin.validations[cle]=suivant;else delete admin.validations[cle];
+  majFeux_();
+  appel_('definirValidationVoixAdminSorealIdle',[{cle:cle,etat:suivant}]).then(function(res){
+    if(!res||res.ok===false)throw new Error((res&&res.message)||'Réponse invalide.');
+  }).catch(function(e){
+    if(avant)admin.validations[cle]=avant;else delete admin.validations[cle];
+    majFeux_();
+    afficherEtat_('Validation non enregistrée : '+(e&&e.message?e.message:e),true);
+  });
+}
 
 /*
  * Fenêtre explicative en pages (titre, sousTitre, paragraphes) : renvoie une COPIE portant le texte à afficher (balises retirées), le texte à lire
@@ -255,6 +278,15 @@ function installerStyle_(){
     '.stx-groupe>summary::before{content:"▸";opacity:.7}.stx-groupe[open]>summary::before{content:"▾"}'+
     '.stx-pastille{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:800;background:rgba(255,255,255,.08);color:#b8c7ea;white-space:nowrap}'+
     '.stx-pastille.modif{background:rgba(255,216,74,.16);color:#ffd84a}'+
+    /* Feu de validation de la voix (Norman, 2026-10-28) : rouge = pas validée, jaune = validée mais peut mieux faire, vert = totalement validée. Aucun texte, seulement la couleur. */
+    '.stx-feu{display:inline-block;box-sizing:border-box;flex:0 0 auto;width:18px;height:18px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:#e03131;box-shadow:0 0 8px 1px rgba(224,49,49,.75)}'+
+    '.stx-feu[data-etat="1"]{background:#f5b800;box-shadow:0 0 8px 1px rgba(245,184,0,.75)}'+
+    '.stx-feu[data-etat="2"]{background:#2fbf4a;box-shadow:0 0 8px 1px rgba(47,191,74,.75)}'+
+    'button.stx-feu{width:34px;height:34px;cursor:pointer;margin-right:4px}button.stx-feu:active{transform:scale(.92)}'+
+    /* dans l'éditeur, la règle « #éditeur button » (identifiant) impose le fond des boutons : le feu la reprend avec la même force */
+    '#'+EDITEUR_ID+' button.stx-feu{width:34px;height:34px;padding:0;background:#e03131;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 10px 2px rgba(224,49,49,.75)}'+
+    '#'+EDITEUR_ID+' button.stx-feu[data-etat="1"]{background:#f5b800;box-shadow:0 0 10px 2px rgba(245,184,0,.75)}'+
+    '#'+EDITEUR_ID+' button.stx-feu[data-etat="2"]{background:#2fbf4a;box-shadow:0 0 10px 2px rgba(47,191,74,.75)}'+
     '.stx-adm-ligne{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.14);border-radius:10px;margin:6px 0;background:rgba(255,255,255,.04)}'+
     '.stx-adm-ligne .nom{flex:1;min-width:0;font-weight:700}'+
     '.stx-adm-ligne .badge{font-size:12px;padding:2px 8px;border-radius:999px;background:rgba(74,222,128,.18);color:#86efac;white-space:nowrap}'+
@@ -891,6 +923,7 @@ function dessinerEditeur_(){
       '<div class="stx-barre">'+
         '<div style="flex:1;min-width:0"><h3>✏️ '+esc_(d.libelle)+'</h3>'+
           '<div class="stx-sous">'+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+'</div></div>'+
+        feuHtml_(edition.cle,true)+
         '<button type="button" class="stx-icone" data-stx-act="reduire" title="Réduire : tu peux continuer à jouer pendant que les voix se génèrent">➖</button>'+
         '<button type="button" class="stx-icone" data-stx-act="fermer" title="Fermer">✕</button>'+
       '</div>'+
@@ -929,6 +962,8 @@ function dessinerEditeur_(){
   });
   afficherEtat_(statutLigne_());
   majBarreGeneration_();
+  /* les états de validation viennent de la liste Admin : chargée si elle ne l'est pas encore (le feu s'allume dès qu'elle arrive) */
+  if(!admin.charge)chargerAdmin_(majFeux_);
 }
 /* Liste des fichiers de voix des blocs du texte en cours d'édition (outils partagés avec l'éditeur d'histoires). */
 function fichiersVoixEditeurHtml_(){
@@ -1409,6 +1444,7 @@ function chargerAdmin_(apres){
     if(!res||res.ok===false)throw new Error((res&&res.message)||'Réponse invalide.');
     admin.boss=Array.isArray(res.boss)?res.boss:[];
     admin.popups=Array.isArray(res.popups)?res.popups:[];
+    admin.validations=res.validations&&typeof res.validations==='object'?res.validations:{};
     admin.charge=true;
     rafraichirListe_();
     if(apres)apres();
@@ -1433,7 +1469,7 @@ function listeBossHtml_(){
   var html=lignes.slice(admin.page*max,admin.page*max+max).map(function(b){
     var s=b.surcharge;
     var badge=s?'<span class="badge">✏️ modifié'+(s.voix&&s.voix.length?' · 🎙 '+s.voix.length:'')+'</span>':'<span class="badge non">d’origine</span>';
-    return '<div class="stx-adm-ligne"><span class="nom">#'+b.numero+' — '+esc_(b.nom)+'</span>'+badge+
+    return '<div class="stx-adm-ligne">'+feuHtml_('boss:'+b.numero)+'<span class="nom">#'+b.numero+' — '+esc_(b.nom)+'</span>'+badge+
       '<button type="button" class="stx-bouton" data-stx-boss="'+b.numero+'">✏️ Modifier</button></div>';
   }).join('');
   if(!lignes.length)html='<div class="stx-aide">Aucun boss ne correspond.</div>';
@@ -1466,7 +1502,7 @@ function listePopupsHtml_(){
       (modifs?'<span class="stx-pastille modif">'+modifs+' modifié'+(modifs>1?'s':'')+'</span>':'')+'</summary>'+
       liste.map(function(cle){
         var d=registre[cle],sm=surcharge_(cle);
-        return '<div class="stx-adm-ligne"><span class="nom">'+esc_(d.libelle)+'</span>'+
+        return '<div class="stx-adm-ligne">'+feuHtml_(cle)+'<span class="nom">'+esc_(d.libelle)+'</span>'+
           (sm?'<span class="badge">✏️ modifié</span>':'<span class="badge non">d’origine</span>')+
           '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button></div>';
       }).join('')+'</details>';
@@ -1572,6 +1608,7 @@ document.addEventListener('click',function(ev){
     var a=ev.target.closest('[data-stx-act]');
     if(a){
       var act=a.getAttribute('data-stx-act');
+      if(act==='feu'){changerFeu_(edition.cle);return;}
       if(act==='fermer'){fermer_();return;}
       if(act==='reduire'){edition.valeurs=lireChamps_();reduit=true;racine.classList.add('stx-reduit');afficherEtat_();return;}
       if(act==='agrandir'){reduit=false;racine.classList.remove('stx-reduit');return;}

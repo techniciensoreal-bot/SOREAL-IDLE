@@ -108,6 +108,35 @@ export function supprimerTexteV1(sql, cle) {
   sql.exec("DELETE FROM idle_textes WHERE cle=?", String(cle || ""));
 }
 
+/*
+ * Validation de la voix d'un texte (Norman, 2026-10-28 : « un bouton rouge de base, jaune au premier clic (validé mais peut mieux faire), vert au deuxième (totalement validé), rouge au troisième »). 0 = rouge (non validée, rien d'enregistré),
+ * 1 = jaune, 2 = vert. Table à part : une chronique d'origine (sans surcharge) peut être validée sans devenir un texte modifié. Administrateur seulement ; jamais envoyée aux joueurs.
+ */
+export const IDLE_VOIX_VALIDATION_MAX_V1 = 2;
+export function assurerValidationsVoixV1(sql) {
+  sql.exec("CREATE TABLE IF NOT EXISTS idle_voix_validation(cle TEXT PRIMARY KEY, etat INTEGER NOT NULL, maj INTEGER NOT NULL)");
+}
+/* { cle: 1 | 2 } : les textes rouges n'ont pas de ligne. */
+export function lireValidationsVoixV1(sql) {
+  assurerValidationsVoixV1(sql);
+  const out = {};
+  for (const r of sqlRows(sql.exec("SELECT cle,etat FROM idle_voix_validation"))) {
+    const e = Number(r.etat);
+    if (IDLE_TEXTE_CLE_RE_V1.test(String(r.cle)) && (e === 1 || e === 2)) out[String(r.cle)] = e;
+  }
+  return out;
+}
+export function definirValidationVoixV1(sql, cle, etat, maintenant = Date.now()) {
+  const k = String(cle == null ? "" : cle);
+  if (!IDLE_TEXTE_CLE_RE_V1.test(k)) throw new Error("TEXTE_CLE_INVALIDE");
+  const e = Math.floor(Number(etat));
+  if (!(e >= 0 && e <= IDLE_VOIX_VALIDATION_MAX_V1)) throw new Error("TEXTE_VALIDATION_INVALIDE");
+  assurerValidationsVoixV1(sql);
+  if (e === 0) sql.exec("DELETE FROM idle_voix_validation WHERE cle=?", k);
+  else sql.exec("INSERT OR REPLACE INTO idle_voix_validation(cle,etat,maj) VALUES(?,?,?)", k, e, maintenant);
+  return e;
+}
+
 /* Texte de remplacement d'un boss (chronique), ou null : lu à chaque construction d'un boss, donc gardé en mémoire par base. */
 const cacheBoss = { sql: null, parNumero: null };
 export function invaliderCacheTextesBossV1() {

@@ -75,6 +75,7 @@
     "supprimerHistoireAdminSorealIdle",
     "supprimerMessageChatSorealIdle",
     "supprimerTexteAdminSorealIdle",
+    "definirValidationVoixAdminSorealIdle",
     "supprimerTutorielAdminSorealIdle",
     "synchroniserSorealIdle",
     "testerAccesSorealIdle"
