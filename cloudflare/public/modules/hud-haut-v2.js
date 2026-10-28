@@ -101,10 +101,34 @@
   /* Une page qui vient de s'afficher laisse le bandeau se mettre en place (les barres déjà vides se replient en fondu ~2 s après l'arrivée) : pendant ces 5 s rien n'est absorbé, sinon la réserve laissait un grand vide entre la barre de vie et la page (Norman, 2026-10-28, Fight Boss). */
   var GRACE_MS=5000;
   function menuCourant(){var r=document.querySelector('.soreal-idle-page-root-v28');return r?(r.getAttribute('data-menu')||''):'';}
-  /* Position, dans le DOCUMENT, du début du contenu : le bas de la réserve (marges du bandeau comprises). */
+  /*
+   * Position, dans le DOCUMENT, du début du contenu : le haut du premier bloc qui suit le bandeau (et sa réserve). Mesurer le bloc lui-même, et non la réserve, garde la mesure juste quel que soit l'état de la réserve.
+   */
   function positionSous(){
     if(!reserve||!reserve.isConnected)return null;
-    return reserve.getBoundingClientRect().bottom+(window.scrollY||document.documentElement.scrollTop||0);
+    var suite=reserve.nextElementSibling;
+    if(!suite)return null;
+    return suite.getBoundingClientRect().top+(window.scrollY||document.documentElement.scrollTop||0);
+  }
+  /*
+   * La réserve n'existe dans la mise en page QUE quand elle sert (Norman, 2026-10-28 : « il y a toujours l'espace » dans tous les menus). Au repos elle est display:none : une page en colonne ou en grille avec un « gap » ajoutait sinon cet écart
+   * même à zéro pixel. Quand elle sert, sa marge haute annule un de ces écarts : elle ajoute exactement sa hauteur.
+   */
+  var reserveH=0;
+  function ecartParent(){
+    var p=reserve&&reserve.parentElement;
+    if(!p)return 0;
+    var cs=getComputedStyle(p);
+    if(cs.display.indexOf('flex')===-1&&cs.display.indexOf('grid')===-1)return 0;
+    var g=parseFloat(cs.rowGap);
+    return isFinite(g)?g:0;
+  }
+  function poserReserve(h){
+    reserveH=Math.max(0,h);
+    if(reserveH<=0.01){reserveH=0;reserve.style.display='none';reserve.style.height='0px';reserve.style.marginTop='0px';return;}
+    reserve.style.display='block';
+    reserve.style.height=reserveH+'px';
+    reserve.style.marginTop=(-ecartParent())+'px';
   }
   function assurerReserve(h){
     if(reserve&&reserve.isConnected&&reserve.previousElementSibling===h)return;
@@ -113,13 +137,33 @@
     reserve.id='sorealIdleHudReserveV2';
     reserve.setAttribute('data-morph-garder','');
     reserve.setAttribute('aria-hidden','true');
-    reserve.style.cssText='height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none;grid-column:1/-1';
+    reserve.style.cssText='display:none;height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none;grid-column:1/-1';
+    reserveH=0;
     h.insertAdjacentElement('afterend',reserve);
   }
   function remettreReserve(){
-    if(reserve&&reserve.style.height!=='0px')reserve.style.height='0px';
+    if(reserve&&reserve.isConnected)poserReserve(0);
     hudPos=positionSous();
     graceJusqua=Date.now()+GRACE_MS;
+  }
+  /* Une variation de hauteur du bandeau : la réserve la compense, puis une seconde mesure corrige le reste (arrondis, écart de la page). */
+  function absorber(){
+    if(!hudEl||!reserve||!reserve.isConnected)return;
+    var mc=menuCourant();
+    if(mc!==menuReserve){menuReserve=mc;remettreReserve();return;}
+    var p=positionSous();
+    if(p===null||hudPos===null){hudPos=p;return;}
+    if(Date.now()<graceJusqua){hudPos=p;return;}   /* page qui vient de s'afficher : le bandeau se met en place, rien n'est absorbé */
+    /* une seule barre (30 px au plus, marges comprises) : une variation plus grande est un vrai changement de page ; pendant un combat de Titan le bandeau est caché volontairement */
+    if(document.body&&document.body.classList.contains('tcv-actif')){remettreReserve();return;}
+    var d=p-hudPos;
+    /* aucun seuil : pendant le fondu la hauteur varie de moins d'un pixel par image au début et à la fin, ces petits écarts s'additionneraient en un saut */
+    if(Math.abs(d)>0.01&&Math.abs(d)<60){
+      poserReserve(reserveH-d);
+      var d2=positionSous()-hudPos;
+      if(Math.abs(d2)>0.01&&Math.abs(d2)<60)poserReserve(reserveH-d2);
+    }
+    hudPos=positionSous();   /* ce qui n'a pas pu être absorbé (réserve à zéro) n'est pas reporté sur l'image suivante */
   }
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');
@@ -132,28 +176,11 @@
     assurerReserve(h);
     hudPos=positionSous();
     graceJusqua=Date.now()+GRACE_MS;
-    hudObs=new ResizeObserver(function(){
-      if(!hudEl||!reserve||!reserve.isConnected)return;
-      /* changement de menu détecté ici même, avant le prochain passage du minuteur : réserve à zéro et période de mise en place */
-      var mc=menuCourant();
-      if(mc!==menuReserve){menuReserve=mc;remettreReserve();return;}
-      var p=positionSous();
-      if(p===null||hudPos===null){hudPos=p;return;}
-      var d=p-hudPos;
-      if(Date.now()<graceJusqua){hudPos=p;return;}   /* page qui vient de s'afficher : le bandeau se met en place, rien n'est absorbé */
-      /* une seule barre (30 px au plus, marges comprises) : une variation plus grande est un vrai changement de page ; pendant un combat de Titan le bandeau est caché volontairement */
-      if(document.body&&document.body.classList.contains('tcv-actif')){remettreReserve();return;}
-      /* aucun seuil : pendant le fondu la hauteur varie de moins d'un pixel par image au début et à la fin, ces petits écarts s'additionneraient en un saut */
-      if(Math.abs(d)>0.01&&Math.abs(d)<60){
-        var hauteur=parseFloat(reserve.style.height)||0;
-        reserve.style.height=Math.max(0,hauteur-d)+'px';
-      }
-      hudPos=positionSous();   /* ce qui n'a pas pu être absorbé (réserve à zéro) n'est pas reporté sur l'image suivante */
-    });
+    hudObs=new ResizeObserver(absorber);
     hudObs.observe(h);
   }
   window.addEventListener('resize',function(){remettreReserve();});
-  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud};
+  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,absorber:absorber,reserve:function(){return reserveH;}};
   function maj(){
     placer();
     surveillerHud();
