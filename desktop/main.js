@@ -10,6 +10,8 @@ const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
 
 const ORIGINE = "app://soreal";
+/* Le menu Admin lance le studio de voix par le lien « soreal-studio:// » (tools/voice-studio/installer_lien_studio.bat) : la fenêtre le confie à Windows, comme le ferait un navigateur. Aucun autre lien d'application n'est ouvert. */
+const LIEN_STUDIO = /^soreal-studio:\/\/demarrer/;
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
 
 /* Dossiers : en développement le dépôt lui-même ; une fois empaquetée l'application embarque sa copie (dossier « jeu » à côté de main.js). */
@@ -270,14 +272,14 @@ function ouvrirFenetre() {
     width: 1280, height: 800, minWidth: 360, minHeight: 480,
     backgroundColor: "#071226", show: false, autoHideMenuBar: true,
     title: "SOREAL IDLE",
-    icon: path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
+    icon: fs.existsSync(path.join(__dirname, "icone.ico")) ? path.join(__dirname, "icone.ico") : path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false, backgroundThrottling: false, preload: path.join(__dirname, "preload.js") }
   });
   Menu.setApplicationMenu(null);
   fenetre.once("ready-to-show", () => fenetre.show());
   /* Un lien vers un site s'ouvre dans le navigateur du PC, jamais dans le jeu. */
-  fenetre.webContents.setWindowOpenHandler(({ url }) => { if (/^https:\/\//.test(url)) shell.openExternal(url); return { action: "deny" }; });
-  fenetre.webContents.on("will-navigate", (ev, url) => { if (!url.startsWith(ORIGINE)) { ev.preventDefault(); if (/^https:\/\//.test(url)) shell.openExternal(url); } });
+  fenetre.webContents.setWindowOpenHandler(({ url }) => { if (/^https:\/\//.test(url) || LIEN_STUDIO.test(url)) shell.openExternal(url); return { action: "deny" }; });
+  fenetre.webContents.on("will-navigate", (ev, url) => { if (!url.startsWith(ORIGINE)) { ev.preventDefault(); if (/^https:\/\//.test(url) || LIEN_STUDIO.test(url)) shell.openExternal(url); } });
   /* La mise à jour installée est validée quand la page s'est chargée et que la fenêtre est restée ouverte 20 s. */
   fenetre.webContents.on("did-finish-load", () => {
     setTimeout(() => {
@@ -292,6 +294,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.on("second-instance", () => { if (fenetre) { if (fenetre.isMinimized()) fenetre.restore(); fenetre.focus(); } });
+  /* Identité Windows de l'application : la barre des tâches y rattache l'icône et regroupe la fenêtre sous elle (même identifiant que l'installateur). */
+  app.setAppUserModelId("be.soreal.idle.windows");
   app.whenReady().then(async () => {
     await demarrerJeu();
     installerPontSteam();

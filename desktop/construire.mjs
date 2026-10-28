@@ -43,6 +43,9 @@ fs.writeFileSync(path.join(STAGE, "package.json"), JSON.stringify({
   name: "soreal-idle", productName: "SOREAL IDLE", version: racine.version, description: racine.description, main: "main.js", author: "SOREAL"
 }, null, 2));
 
+/* Icône de l'application (exécutable, barre des tâches, raccourcis) : desktop/icone.ico (voir creer-icone.mjs). */
+fs.copyFileSync(path.join(ICI, "icone.ico"), path.join(STAGE, "icone.ico"));
+
 const medias = path.join(ICI, "medias");
 const avecMedias = fs.existsSync(medias) && fs.readdirSync(medias).length > 0;
 console.log(avecMedias ? "médias embarqués : " + medias : "ATTENTION : desktop/medias est vide ou absent : les images et voix du serveur ne seront PAS dans l'installateur (lancer desktop/recolter.mjs).");
@@ -54,8 +57,8 @@ const config = {
   asar: false,
   compression: "normal",
   extraResources: avecMedias ? [{ from: medias, to: "medias" }] : [],
-  win: { target: dossierSeul ? ["dir"] : ["nsis"], icon: path.join(STAGE, "jeu", "cloudflare", "public", "icons", "icon-512.png") },
-  nsis: { oneClick: false, allowToChangeInstallationDirectory: true, perMachine: false, createDesktopShortcut: true, createStartMenuShortcut: true, shortcutName: "SOREAL IDLE" },
+  win: { target: dossierSeul ? ["dir"] : ["nsis"], icon: path.join(STAGE, "icone.ico") },
+  nsis: { oneClick: false, allowToChangeInstallationDirectory: true, perMachine: false, createDesktopShortcut: true, createStartMenuShortcut: true, shortcutName: "SOREAL IDLE", installerIcon: path.join(STAGE, "icone.ico"), uninstallerIcon: path.join(STAGE, "icone.ico") },
   artifactName: "SOREAL-IDLE-Setup-${version}.${ext}"
 };
 const fichierConfig = path.join(ICI, "_electron-builder.json");

@@ -36,7 +36,7 @@ PORT_STUDIO = int(os.environ.get("SOREAL_VOIX_PORT", "8765"))
 LANCER = os.environ.get("SOREAL_PILOTE_LANCER", "").strip() or os.path.join(DOSSIER, "lancer.bat")
 ORIGINES = [o.strip() for o in os.environ.get(
     "SOREAL_PILOTE_ORIGINES",
-    "https://soreal-idle.technicien-soreal.workers.dev,http://localhost:8787,http://127.0.0.1:8787"
+    "https://soreal-idle.technicien-soreal.workers.dev,app://soreal,http://localhost:8787,http://127.0.0.1:8787"
 ).split(",") if o.strip()]
 
 _verrou = threading.Lock()

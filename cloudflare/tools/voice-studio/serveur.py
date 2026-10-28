@@ -66,7 +66,7 @@ def reference_voix(voix):
     return chemin if os.path.isfile(chemin) else None
 ORIGINES = [o.strip() for o in os.environ.get(
     "SOREAL_VOIX_ORIGINES",
-    "https://soreal-idle.technicien-soreal.workers.dev,http://localhost:8787,http://127.0.0.1:8787"
+    "https://soreal-idle.technicien-soreal.workers.dev,app://soreal,http://localhost:8787,http://127.0.0.1:8787"
 ).split(",") if o.strip()]
 MAX_TEXTE = 6000
 # Phrases plus longues que cela sont redécoupées : Chatterbox se répète parfois sur de très longs passages.
