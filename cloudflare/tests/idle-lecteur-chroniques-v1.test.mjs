@@ -15,7 +15,7 @@ const html = readFileSync("cloudflare/public/index.html", "utf8");
 // 1. La chronique s'ouvre toute seule dès que sa lecture démarre.
 assert.ok(tts.includes("window.__ouvrirChroniqueIdleV1__(true)") && ui.includes("window.__ouvrirChroniqueIdleV1__=poser"), "ouverture automatique pendant la lecture");
 // 2. Play / Stop.
-assert.ok(ui.includes("function boutonLectureChroniqueIdleV1_()") && ui.includes("${boutonLectureChroniqueIdleV1_()}") && !ui.includes("🔊 Lire la chronique</button>\n            ${window.__SOREAL_IDLE_TEXTES_V1__"), "bouton Play / Stop dans la chronique");
+assert.ok(ui.includes("function boutonLectureChroniqueIdleV1_()") && ui.includes("boutonsHtml:boutonLectureChroniqueIdleV1_()") && !ui.includes("🔊 Lire la chronique</button>\n            ${window.__SOREAL_IDLE_TEXTES_V1__"), "bouton Play / Stop dans la chronique");
 assert.ok(tts.includes("soreal-idle-chro-lecture-v1") && tts.includes("activeReadTarget===CHRONICLE_PANEL_ID") && css.includes('.soreal-idle-chro-lecture-v1[data-etat="stop"]'), "l'état du bouton suit la lecture");
 assert.ok(!css.includes('content:"Lire la chronique"'), "l'invite « Lire la chronique » est supprimée");
 // 3. Pause / reprise réelles du moteur vocal, et onDone(ok).

@@ -1069,37 +1069,26 @@
         const e=entrees.find(function(x){return x&&x.source==='boss'&&x.decouvert&&idleEntier_(x.numero)===n;});
         if(!e)return;
         fermerBossCollectionIdleV1_();
-        const stats=[
-          idleNombre_(e.pv)>0?'<div><span>❤️ Points de vie</span><b>'+formatGrandNombreIdleV70_(e.pv)+'</b></div>':'',
-          idleNombre_(e.attaque)>0?'<div><span>⚔️ Attaque</span><b>'+formatGrandNombreIdleV70_(e.attaque)+'</b></div>':'',
-          idleNombre_(e.defense)>0?'<div><span>🛡️ Défense</span><b>'+formatGrandNombreIdleV70_(e.defense)+'</b></div>':'',
-          idleNombre_(e.regen)>0?'<div><span>💚 Régénération</span><b>'+formatGrandNombreIdleV70_(e.regen)+'</b></div>':'',
-          idleNombre_(e.xp)>0?'<div><span>✨ EXP</span><b>'+formatGrandNombreIdleV70_(e.xp)+'</b></div>':'',
-          '<div><span>👁️ Rencontres</span><b>'+idleEntier_(e.rencontres)+'</b></div>'
-        ].join('');
         const idHistoire='sorealIdleCollectionBossStoryV206_'+n;
         const modal=document.createElement('div');
         modal.id='sorealIdleBossCollectionModalV1';
         modal.className='soreal-idle-modal-backdrop-v63';
+        /* Carte à collectionner (modules/carte-boss-magic-v1.js, Norman 2026-10-28) : la même que la chronique du boss ouverte. */
+        const carte=window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__;
+        const cat=REG.idleEtat&&Array.isArray(REG.idleEtat.bossCatalogue)?REG.idleEtat.bossCatalogue.find(function(b){return b&&idleEntier_(b.numero)===n;}):null;
+        const histoireHtml=e.description
+          ?'<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'
+          :'';
+        const boutons=e.description
+          ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
+            '<button type="button" class="soreal-idle-chro-suite-v1" data-lire-chroniques-depuis="'+n+'"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg><span>Lire les chroniques à partir d’ici</span></button>'
+          :'';
+        /* Administrateur : modifier le nom et la chronique de CE boss depuis la Collection (Norman, 2026-10-04) ; le bouton n'existe pas pour les autres comptes, et le serveur revérifie à l'enregistrement. */
+        const admin=window.__SOREAL_IDLE_TEXTES_V1__&&window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml?'<div class="soreal-idle-boss-fiche-admin-v1">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(n)+'</div>':'';
         modal.innerHTML=
-          '<div class="soreal-idle-modal-card-v63 soreal-idle-boss-fiche-v1" role="dialog" aria-modal="true" aria-label="'+idleHtml_(e.nom||'Boss')+'">'+
-            '<div class="soreal-idle-boss-fiche-image-v1"><img src="'+idleHtml_(urlBossR2IdleV1_(n))+'" alt="'+idleHtml_(e.nom||'Boss')+'" '+
-              'onerror="this.style.display=\'none\'"></div>'+
-            '<div class="soreal-idle-modal-top-v63" style="padding-top:14px"><div class="soreal-idle-modal-title-v63">'+idleHtml_(e.nom||'Boss')+'</div></div>'+
-            '<div class="soreal-idle-modal-body-v63">'+
-              '<div class="soreal-idle-boss-fiche-stats-v1">'+stats+'</div>'+
-              (e.description
-                ?'<div class="soreal-idle-boss-fiche-titre-v1">📜 Chronique</div>'+
-                  '<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'+
-                  '<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
-                  '<button type="button" class="soreal-idle-chro-suite-v1" data-lire-chroniques-depuis="'+n+'"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg><span>Lire les chroniques à partir d’ici</span></button>'
-                :'')+
-              /* Administrateur : modifier le nom et la chronique de CE boss depuis la Collection (Norman, 2026-10-04) ; le bouton n'existe pas pour les autres comptes, et le serveur revérifie à l'enregistrement. */
-              (window.__SOREAL_IDLE_TEXTES_V1__&&window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml?'<div class="soreal-idle-boss-fiche-admin-v1">'+window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(n)+'</div>':'')+
-            '</div>'+
-            '<div class="soreal-idle-modal-actions-v63">'+
-              '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerBossCollectionIdleV1__()">Fermer</button>'+
-            '</div>'+
+          '<div class="mtg-modal-v1 soreal-idle-boss-fiche-v1" role="dialog" aria-modal="true" aria-label="'+idleHtml_(e.nom||'Boss')+'">'+
+            '<button type="button" class="mtg-modal-fermer-v1" aria-label="Fermer" onclick="window.__fermerBossCollectionIdleV1__()">✕</button>'+
+            (carte?carte.html({numero:n,nom:e.nom,monde:cat&&cat.monde,ordre:cat&&cat.ordreMonde,pv:e.pv,attaque:e.attaque,xp:e.xp,rencontres:e.rencontres,histoireHtml:histoireHtml,boutonsHtml:boutons,adminHtml:admin,image:urlBossR2IdleV1_(n)}):'')+
           '</div>';
         modal.addEventListener('click',function(ev){if(ev.target===modal)fermerBossCollectionIdleV1_();});
         document.body.appendChild(modal);

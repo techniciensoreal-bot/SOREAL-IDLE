@@ -45,6 +45,12 @@ const documentFactice = {
   body: { appendChild: (el) => { enfants.set(el.id, el); ajoutes.push(el); } }
 };
 const fenetre = {};
+// La fiche est une carte à collectionner : le module de carte est chargé comme dans la page.
+import vm from "node:vm";
+import { readFileSync as lireFichier } from "node:fs";
+const bacCarte = { window: fenetre, document: { addEventListener() {} } };
+vm.createContext(bacCarte);
+vm.runInContext(lireFichier("cloudflare/public/modules/carte-boss-magic-v1.js", "utf8"), bacCarte);
 const ctx = {
   document: documentFactice,
   window: fenetre,
@@ -72,7 +78,8 @@ fabrique.ouvrir(4);
 assert.equal(ajoutes.length, 1);
 const html = ajoutes[0].innerHTML;
 assert.match(html, /Fake &lt;Boss&gt;/, "nom échappé");
-for (const attendu of ["Points de vie", "1200", "Attaque", "Défense", "EXP", "Rencontres", "Il était une fois."]) assert.ok(html.includes(attendu), attendu);
+/* carte à collectionner : vie et attaque dans la case du coin (pas répétées en toutes lettres), EXP et rencontres en pied de carte */
+for (const attendu of ["carte-mtg-v1", "mtg-force", "1200", "EXP", "rencontres", "Il était une fois."]) assert.ok(html.includes(attendu), attendu);
 assert.match(html, /data-soreal-tts-chronique="Fake &lt;Boss&gt;"/, "lecture vocale de la chronique conservée");
 assert.match(html, /data-soreal-tts-target="sorealIdleCollectionBossStoryV206_4"/);
 assert.match(html, /id="sorealIdleCollectionBossStoryV206_4"/);

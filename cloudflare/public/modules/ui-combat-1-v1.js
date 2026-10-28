@@ -34,6 +34,7 @@
   function mainChroniqueIdleV1_(){return REG.mainChroniqueIdleV1_.apply(null,arguments);}
   function sansBaliseVoixIdleV1_(){return REG.sansBaliseVoixIdleV1_.apply(null,arguments);}
   function boutonLectureChroniqueIdleV1_(){return REG.boutonLectureChroniqueIdleV1_.apply(null,arguments);}
+  function urlBossR2IdleV1_(){return REG.urlBossR2IdleV1_.apply(null,arguments);}
   function formatGrandNombreIdleV70_(){return REG.formatGrandNombreIdleV70_.apply(null,arguments);}
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-7 */
@@ -1868,23 +1869,40 @@
             ?{id:bossIdCine,nom:nomParle||nomBoss,say:ttsChronique.composerChronique(nomParle||nomBoss,histoireParlee||histoire),affiche:sansBaliseVoixIdleV1_(narration),image:'/api/idle/media/boss?id='+encodeURIComponent(bossIdCine)}
             :null;
         }catch(e){}
+        const notesHtml=notesDeblocage.map(function(note){
+          return '<div class="soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700">'+idleHtml_(note)+'</div>';
+        }).join('');
+        const histoireHtml=narration?'<div class="soreal-idle-boss-lore-histoire-v142" data-sans-traduction>'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>':'';
         return `
           <div id="sorealIdleBossChroniqueV206" class="soreal-idle-boss-lore-v142${window.__chroniqueOuverteIdleV1?' ouverte':''}" role="button" tabindex="0" aria-label="Chronique du boss" data-soreal-chronique-boss-id="${idleEntier_(j&&j.bossId||0)}"${attrLecture}>
             <button type="button" class="soreal-idle-lore-fermer-v1" aria-label="Fermer" data-soreal-tts-ignore>✕</button>
             ${mainChroniqueIdleV1_()}
             <div class="soreal-idle-boss-lore-title-v168" data-soreal-tts-ignore>Chronique du boss</div>
-            <div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">${idleHtml_(nomBoss)}</div>
-            <div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>
-            ${notesDeblocage.map(function(note){
-              return '<div class="soreal-idle-boss-lore-info-v198" data-soreal-tts-pause="700">'+idleHtml_(note)+'</div>';
-            }).join('')}
-            ${narration
-              ?'<div class="soreal-idle-boss-lore-histoire-v142" data-sans-traduction>'+idleHtml_(sansBaliseVoixIdleV1_(narration))+'</div>'
-              :''}
-            ${boutonLectureChroniqueIdleV1_()}
-            ${window.__SOREAL_IDLE_TEXTES_V1__?window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(j&&j.bossId):''}
+            ${carteBossChroniqueIdleV1_(j,nomBoss,notesHtml,histoireHtml)}
           </div>
         `;
+      }
+
+      /*
+       * Chronique du boss, une fois ouverte : une carte à collectionner (modules/carte-boss-magic-v1.js, Norman 2026-10-28). Fermée, la même structure reste un petit cadre au mur : le CSS n'y garde que le nom et le bouton de lecture.
+       * Les éléments de lecture (nom, notes, récit, bouton) gardent leurs classes et attributs : la voix pré-générée et la lecture automatique les retrouvent comme avant.
+       */
+      function carteBossChroniqueIdleV1_(j,nomBoss,notesHtmlBrut,histoireHtml){
+        const carte=window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__;
+        const bossId=idleEntier_(j&&j.bossId||0);
+        const cat=Array.isArray(REG.idleEtat&&REG.idleEtat.bossCatalogue)?REG.idleEtat.bossCatalogue.find(function(b){return b&&idleEntier_(b.numero)===bossId;}):null;
+        const ornement='<div class="soreal-idle-boss-lore-ornament-v184" data-soreal-tts-ignore>✦ ❦ ✦</div>';
+        const notesHtml=ornement+notesHtmlBrut;
+        const admin=window.__SOREAL_IDLE_TEXTES_V1__?window.__SOREAL_IDLE_TEXTES_V1__.boutonBossHtml(j&&j.bossId):'';
+        const caps=(Array.isArray(j&&j.bossCapacites)?j.bossCapacites:[]).map(function(c){return labelCapaciteBossIdleV70_(c);});
+        if(!carte||!bossId){
+          return '<div class="soreal-idle-boss-lore-name-v184" data-soreal-tts-pause="1100">'+idleHtml_(nomBoss)+'</div>'+notesHtml+histoireHtml+boutonLectureChroniqueIdleV1_()+admin;
+        }
+        return carte.html({
+          numero:bossId,nom:nomBoss,monde:cat&&cat.monde,ordre:cat&&cat.ordreMonde,pv:cat&&cat.pv,attaque:cat&&cat.attaque,xp:cat&&cat.xp,
+          capacites:caps,notesHtml:notesHtml,histoireHtml:histoireHtml,boutonsHtml:boutonLectureChroniqueIdleV1_(),adminHtml:admin,
+          image:urlBossR2IdleV1_(bossId)
+        });
       }
 
       function capacitesBossMarkupIdleV70_(

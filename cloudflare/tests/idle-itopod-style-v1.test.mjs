@@ -10,7 +10,10 @@ const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 
 const liens = [...index.matchAll(/<link rel="stylesheet" href="\/([a-z-]+\.css)\?v=\d+">/g)].map((m) => m[1]);
-assert.equal(liens[liens.length - 1], "soreal-idle-itopod.css", "feuille ITOPOD chargée en dernier : " + liens.join(", "));
+/* La carte de boss (2026-10-28) est la seule feuille après elle : elle redessine la chronique ouverte par-dessus le thème, à même spécificité. */
+const sansCarte = liens.filter((l) => l !== "soreal-idle-carte-boss.css");
+assert.equal(sansCarte[sansCarte.length - 1], "soreal-idle-itopod.css", "feuille ITOPOD chargée en dernier : " + liens.join(", "));
+assert.equal(liens[liens.length - 1], "soreal-idle-carte-boss.css", "feuille de la carte de boss juste après");
 assert.ok(liens.indexOf("soreal-idle-itopod.css") > liens.indexOf("soreal-idle-themes.css") && liens.indexOf("soreal-idle-itopod.css") > liens.indexOf("soreal-idle-jeu.css"));
 
 const menus = ["entrainement", "combat", "aventure", "bestiaire", "moneyPit", "augmentations", "machine", "sang", "challenges", "titans", "ngu", "wandoos", "yggdrasil", "diggers", "beards", "shop", "succes", "classement", "chat", "parametres", "admin"];

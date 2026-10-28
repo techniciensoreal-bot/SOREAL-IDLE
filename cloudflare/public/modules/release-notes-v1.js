@@ -41,6 +41,9 @@
             'Toutes les parties sont maintenant sauvegardées chaque jour sur le serveur (une copie par jour, gardée 30 jours), en plus des copies de chaque joueur.',
             'Confidentialité : la liste des joueurs du serveur n’est plus envoyée à ton appareil avec le catalogue du jeu. Seules tes propres données y sont.'
           ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu ouvres la chronique d’un boss, elle s’affiche maintenant comme une carte à collectionner : le nom en haut, l’illustration, les capacités, l’histoire en italique et, dans le coin, son attaque et sa vie. La fiche d’un boss dans la Collection a la même carte. Sa couleur suit l’illustration du boss (bleu, rouge, vert, noir, blanc, ou or quand deux couleurs dominent). Un tap sur l’illustration retourne la carte, avec la photo du boss en entier au dos ; un autre tap la remet à l’endroit.'
+          ]},
           {menu:'ngu', titre:'NGU', points:[
             'Dans chaque barre, le bouton « Max » ne dépasse plus de son cadre sur téléphone.'
           ]},
