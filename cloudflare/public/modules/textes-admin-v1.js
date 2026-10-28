@@ -1289,7 +1289,7 @@ function lancerGeneration_(o,aFaire,libelle){
   generation={enCours:true,annule:false,texte:''};
   majBoutonGenerer_();
   majProgression_(0,aFaire.length,'0 sur '+aFaire.length);
-  var fait=0;
+  var fait=0,raison='';
   var suite=Promise.resolve();
   aFaire.forEach(function(b){
     suite=suite.then(function(){
@@ -1319,12 +1319,13 @@ function lancerGeneration_(o,aFaire,libelle){
     if(ok)afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Écouter » pour entendre. '+statutLigne_());
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
+    raison=msg==='__annule__'?'arrêt demandé':msg;   /* la raison reste écrite à côté de « Arrêté (0 sur 3) » (Norman, 2026-10-28 : « Arrêté (0 sur 3) » ne disait pas pourquoi) */
     if(fait>0&&edition)enregistrer_();
     afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');
   }).then(function(){
     generation={enCours:false,annule:false,texte:''};
     majBoutonGenerer_();
-    majProgression_(fait,aFaire.length,(fait>=aFaire.length?'Terminé ✔ ':'Arrêté ')+'('+fait+' sur '+aFaire.length+')');
+    majProgression_(fait,aFaire.length,(fait>=aFaire.length?'Terminé ✔ ':'Arrêté ')+'('+fait+' sur '+aFaire.length+')'+(fait<aFaire.length&&raison?' — '+raison:''));
   });
 }
 
