@@ -48,7 +48,7 @@
             'Les portes s’ouvrent d’un seul mouvement, sans petits à-coups : une seule accélération du début à la fin.'
           ]},
           {menu:'shop', titre:'Boutique', points:[
-            'Ce menu s’appelle maintenant « Boutique » (« Shop » en anglais) : dans l’annonce de déblocage comme sur son bouton.'
+            'Ce menu s’appelle maintenant « Boutique » : dans l’annonce de déblocage comme sur son bouton.'
           ]}
         ]
       },
