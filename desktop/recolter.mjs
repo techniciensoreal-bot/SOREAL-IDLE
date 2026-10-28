@@ -138,6 +138,22 @@ try {
     for (const o of objets) if (!erreurs.some((e) => e.startsWith(o.cle + " :"))) index[o.cle] = [o.taille, String(o.etag || "")];
     fs.writeFileSync(path.join(MEDIAS, "_index.json"), JSON.stringify(index));
   }
+  /* bibliothèques de la voix de secours, chargées par la page depuis un CDN (index.html : importmap + piper_phonemize.js) : copiées telles quelles, l'application les sert à la place du CDN (main.js) */
+  const CDN = "https://cdn.jsdelivr.net";
+  for (const chemin of ["/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs", "/npm/onnxruntime-web@1.30.0/dist/ort-wasm-simd-threaded.mjs", "/npm/onnxruntime-web@1.30.0/dist/ort-wasm-simd-threaded.wasm",
+    "/npm/onnxruntime-web@1.30.0/dist/ort-wasm-simd-threaded.jsep.mjs", "/npm/onnxruntime-web@1.30.0/dist/ort-wasm-simd-threaded.jsep.wasm",
+    "/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js", "/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.wasm", "/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.data"]) {
+    const f = path.join(externes, "cdn.jsdelivr.net", ...chemin.split("/").filter(Boolean));
+    if (fs.existsSync(f) && fs.statSync(f).size > 0) continue;
+    try {
+      const r = await fetch(CDN + chemin);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      fs.mkdirSync(path.dirname(f), { recursive: true });
+      fs.writeFileSync(f, Buffer.from(await r.arrayBuffer()));
+      console.log("bibliothèque : " + chemin.split("/").pop() + " (" + mo(fs.statSync(f).size) + ")");
+    } catch (e) { erreurs.push("_externes" + chemin + " : " + (e && e.message || e)); }
+  }
+
   fs.writeFileSync(path.join(MEDIAS, "_recolte.json"), JSON.stringify({ le: new Date().toISOString(), prefixe, fichiers: objets.length, octets: total, erreurs: erreurs.length }, null, 2));
   if (erreurs.length) { console.log("\n" + erreurs.length + " erreur(s) :\n" + erreurs.slice(0, 20).join("\n") + "\nRelancer la commande : seuls les fichiers manquants sont repris."); process.exitCode = 2; }
   else console.log("\nRécolte terminée : " + objets.length + " fichiers, " + mo(total) + ", dans " + MEDIAS);

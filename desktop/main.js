@@ -4,7 +4,7 @@
  * Le jeu s'ouvre dans une fenêtre qui charge « app://soreal/ » : toutes les requêtes de la page (la page, les scripts, le moteur, les images, les voix, /api/…) sont servies par le VRAI Worker de production, exécuté ici sur une base SQLite du joueur
  * (src/env-local.mjs). Aucune connexion n'est nécessaire pour jouer ; rien n'est exposé sur le réseau (pas de port ouvert, un schéma d'adresse interne à l'application).
  */
-const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage } = require("electron");
+const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage, session, net } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
@@ -30,6 +30,7 @@ let etatMaj = null;
 let clePubliqueMaj = "";
 let majProposee = null;     /* { version, notes, octets, nb } : ce que la page affiche en haut de la fenêtre */
 let majEnCours = false;
+let dossiersMediasActifs = [];   /* couches de médias (mises à jour d'abord, puis installateur) : lues aussi pour les bibliothèques de la voix de secours */
 
 /* Ce que l'installateur embarque : index des médias (clé -> [taille, etag]) et empreinte du paquet de code, pour savoir ce qu'une mise à jour doit vraiment télécharger. */
 function lireEmbarque(d) {
@@ -67,6 +68,7 @@ async function demarrerJeu() {
   }
   let couches = majModule.couchesActives(dossierMaj, etatMaj);
   const medias = (c) => c.dossiersMedias.concat([d.dossierMedias]);
+  dossiersMediasActifs = medias(couches);
   try {
     env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
   } catch (e) {
@@ -76,6 +78,27 @@ async function demarrerJeu() {
     couches = majModule.couchesActives(dossierMaj, etatMaj);
     env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
   }
+
+  /*
+   * Bibliothèques de la voix de secours (cdn.jsdelivr.net, citées par index.html) : servies depuis la copie embarquée (medias/_externes/cdn.jsdelivr.net/…), donc sans internet ; tout autre adresse https passe normalement par le réseau.
+   * La réponse porte l'en-tête CORS du CDN (le jeu s'ouvre sur app://soreal : un module importé d'une autre origine l'exige).
+   */
+  const TYPES_EXTERNES = { ".mjs": "text/javascript", ".js": "text/javascript", ".wasm": "application/wasm", ".data": "application/octet-stream" };
+  session.defaultSession.protocol.handle("https", async (requete) => {
+    try {
+      const u = new URL(requete.url);
+      if (u.hostname === "cdn.jsdelivr.net" && requete.method === "GET") {
+        const relatif = decodeURIComponent(u.pathname).split("/").filter((s) => s && s !== "..");
+        for (const racine of dossiersMediasActifs) {
+          const f = path.join(racine, "_externes", "cdn.jsdelivr.net", ...relatif);
+          if (fs.existsSync(f) && fs.statSync(f).isFile()) {
+            return new Response(fs.readFileSync(f), { status: 200, headers: { "content-type": TYPES_EXTERNES[path.extname(f)] || "application/octet-stream", "access-control-allow-origin": "*", "cache-control": "public, max-age=31536000" } });
+          }
+        }
+      }
+    } catch (_e) { /* repli sur le réseau */ }
+    return net.fetch(requete, { bypassCustomProtocolHandlers: true });
+  });
 
   protocol.handle("app", async (requete) => {
     const url = new URL(requete.url);
