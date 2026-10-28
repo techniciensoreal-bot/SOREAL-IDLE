@@ -1,0 +1,8 @@
+{
+  "name": "soreal-recolte-lecture-seule",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-28",
+  "r2_buckets": [
+    { "binding": "SOREAL_R2", "bucket_name": "soreal" }
+  ]
+}

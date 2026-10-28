@@ -199,6 +199,14 @@ export async function creerEnvLocal(opt) {
       const f = await env.ASSETS.fetch(requete);
       if (f.status !== 404) return f;
     }
+    /* Voix de secours (Piper) : le Worker de production va chercher son modèle sur un dépôt externe ; ici la copie récoltée (medias/_externes/) est servie directement, donc sans internet. */
+    if ((requete.method === "GET" || requete.method === "HEAD") && (chemin === "/api/idle/media/piper-model.onnx" || chemin === "/api/idle/media/piper-model.onnx.json")) {
+      const f = path.join(opt.dossierMedias, "_externes", chemin.split("/").pop());
+      if (fs.existsSync(f)) {
+        const entetes = new Headers({ "content-type": chemin.endsWith(".json") ? "application/json" : "application/octet-stream", "content-length": String(fs.statSync(f).size), "cache-control": "public, max-age=604800" });
+        return requete.method === "HEAD" ? new Response(null, { headers: entetes }) : new Response(Readable.toWeb(fs.createReadStream(f)), { headers: entetes });
+      }
+    }
     const rep = await entree.fetch(requete, env);
     if (requete.method === "GET" && (chemin === "/" || chemin === "/index.html") && rep.ok && (rep.headers.get("content-type") || "").includes("text/html")) {
       const html = (await rep.text()).replace(/<head[^>]*>/i, (m) => m + scriptSession());
