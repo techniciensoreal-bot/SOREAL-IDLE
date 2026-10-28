@@ -32,9 +32,13 @@
     });
   }
   navigator.serviceWorker.register('/sw-idle-v1.js',{scope:'/'}).then(function(){return navigator.serviceWorker.ready;}).then(function(){
-    if(navigator.serviceWorker.controller)return ouvrir();
-    navigator.serviceWorker.addEventListener('controllerchange',function(){ouvrir();});
-    setTimeout(function(){if(!navigator.serviceWorker.controller)location.reload();},4000);
+    var n=0;
+    (function attendre(){
+      if(navigator.serviceWorker.controller)return ouvrir();
+      n+=1;
+      if(n>20){location.reload();return;}   /* 6 s sans que le service worker prenne la page en charge : on recommence */
+      setTimeout(attendre,300);
+    })();
   }).catch(function(e){dire('Démarrage impossible : '+(e&&e.message||e));});
 })();
 </script>
