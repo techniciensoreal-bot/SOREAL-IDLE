@@ -5,13 +5,17 @@
  * Les règles de la chronique (page Combat) répètent le long préfixe du thème : il doit battre les règles « !important » de soreal-idle-themes.css et de soreal-idle-itopod.css.
  */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) :is(.carte-mtg-v1,.mtg-avant,.mtg-cadre,.mtg-titre,.mtg-texte,.mtg-boutons){display:contents}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) :is(.mtg-dos,.mtg-art,.mtg-type,.mtg-bas,.mtg-pastilles,.mtg-force,.mtg-capacites,.mtg-filet,.mtg-admin){display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) :is(.mtg-fleche,.mtg-dos,.mtg-art,.mtg-type,.mtg-bas,.mtg-pastilles,.mtg-force,.mtg-capacites,.mtg-filet,.mtg-admin){display:none}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte{background:none!important;border:0!important;outline:0;border-radius:0!important;padding:0!important;overflow:visible;max-height:none;
-  width:min(420px,92vw,calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;box-shadow:0 0 0 100vmax rgba(0,0,0,.78)!important}
+  z-index:100000;width:min(420px,calc(100vw - 112px),calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;box-shadow:none!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte::after{display:none}
+/* tout ce qui dépasse de la carte (l'interface du jeu) est flouté et assombri : un grand calque derrière la carte, plus large que l'écran */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte::before{content:"";position:absolute;left:-100vmax;top:-100vmax;right:-100vmax;bottom:-100vmax;height:auto;z-index:-1;background:rgba(4,8,16,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .soreal-idle-boss-lore-title-v168{display:none}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .soreal-idle-lore-fermer-v1{position:absolute;float:none;top:-12px;right:-10px;margin:0;z-index:6}
 
-.mtg-modal-v1{position:relative;width:min(420px,92vw,calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;margin:auto}
+.soreal-idle-modal-backdrop-v63:has(.mtg-modal-v1){z-index:100000;background:rgba(4,8,16,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.mtg-modal-v1{position:relative;width:min(420px,calc(100vw - 112px),calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;margin:auto}
 .mtg-modal-fermer-v1{position:absolute;top:-12px;right:-10px;z-index:6;width:34px;height:34px;padding:0;border:0;border-radius:50%;font:400 18px/34px "Russo One",sans-serif;color:#fff;background:linear-gradient(180deg,#ff7a6f,#c1121f);box-shadow:0 3px 0 #6a0a10;cursor:pointer}
 
 /* conteneur qui se retourne : deux faces, l'avant (la carte) et le dos */
@@ -68,3 +72,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-dos-billes i{position:absolute;width:4cqw;height:4cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb3a6,#e0331f 55%,#7a140a);box-shadow:0 .3cqw .5cqw rgba(0,0,0,.6),0 0 0 .3cqw #3a1208;z-index:3}
 .mtg-dos-billes i:nth-child(1){left:3.2cqw;top:3.2cqw}.mtg-dos-billes i:nth-child(2){right:3.2cqw;top:3.2cqw}.mtg-dos-billes i:nth-child(3){left:3.2cqw;bottom:3.2cqw}.mtg-dos-billes i:nth-child(4){right:3.2cqw;bottom:3.2cqw}
 @media (prefers-reduced-motion:reduce){:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1{transition:none}}
+
+/* flèches des cartes voisines : sur les côtés, jamais sur la carte (la carte est réduite pour leur laisser la place sur téléphone) */
+.mtg-fleche{position:absolute;top:50%;width:44px;height:44px;margin:-22px 0 0;padding:0;display:grid;place-items:center;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(10,14,28,.72);color:#fff;cursor:pointer;z-index:7;box-shadow:0 4px 14px rgba(0,0,0,.5);transition:background .15s,transform .1s}
+.mtg-fleche svg{width:22px;height:22px;display:block}
+.mtg-fleche-prec{left:-56px}
+.mtg-fleche-suiv{right:-56px}
+.mtg-fleche:hover{background:rgba(44,70,140,.88)}
+.mtg-fleche:active{transform:scale(.92)}
+@media (prefers-reduced-motion:reduce){.mtg-fleche{transition:none}}
+
+/* boutons de la fiche (lecture de la chronique) : lisibles sur le papier de la carte */
+.mtg-modal-v1 .mtg-boutons :is(.soreal-idle-tts-read-v203,.soreal-idle-chro-suite-v1){display:inline-flex;align-items:center;gap:1.2cqw;margin:0;padding:1cqw 2.8cqw;border:.4cqw solid #000;border-radius:1.8cqw;background:linear-gradient(180deg,#34343d,#16161b);color:#f6f2e2;font:700 3cqw/1.2 Georgia,"Times New Roman",serif;text-shadow:none;opacity:1;cursor:pointer;box-shadow:0 .4cqw 0 rgba(0,0,0,.45)}
+.mtg-modal-v1 .mtg-boutons :is(.soreal-idle-tts-read-v203,.soreal-idle-chro-suite-v1) svg{width:3cqw;height:3cqw;flex:0 0 auto}

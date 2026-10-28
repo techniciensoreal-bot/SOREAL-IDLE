@@ -75,6 +75,37 @@ function colorier(img){
   }catch(_e){/* image d'une autre origine ou canvas indisponible : la couleur du monde reste */}
 }
 
+/*
+ * Cartes voisines (Norman, 2026-10-28 : flèches à gauche et à droite d'une carte ouverte) : seulement des boss DÉJÀ découverts (ceux que la Collection sait ouvrir), jamais le suivant d'un boss inconnu.
+ */
+function voisinsDe(numero){
+  var REG=window.__SOREAL_IDLE_REG__||{};
+  var e=REG.idleEtat&&REG.idleEtat.bestiaire&&Array.isArray(REG.idleEtat.bestiaire.entrees)?REG.idleEtat.bestiaire.entrees:[];
+  var prec=0,suiv=0;
+  for(var i=0;i<e.length;i++){
+    var x=e[i];
+    if(!x||x.source!=='boss'||!x.decouvert)continue;
+    var n=Math.floor(Number(x.numero)||0);
+    if(n<numero&&n>prec)prec=n;
+    if(n>numero&&(!suiv||n<suiv))suiv=n;
+  }
+  return {prec:prec,suiv:suiv};
+}
+var CHEVRON_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var CHEVRON_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function fleches(numero){
+  var v=voisinsDe(numero);
+  return (v.prec?'<button type="button" class="mtg-fleche mtg-fleche-prec" data-mtg-aller="'+v.prec+'" aria-label="Boss précédent" data-soreal-tts-ignore>'+CHEVRON_G+'</button>':'')+
+    (v.suiv?'<button type="button" class="mtg-fleche mtg-fleche-suiv" data-mtg-aller="'+v.suiv+'" aria-label="Boss suivant" data-soreal-tts-ignore>'+CHEVRON_D+'</button>':'');
+}
+/* Ouvre la fiche du boss voisin : la chronique accrochée au mur se referme, la fiche (même carte) prend le relais et porte à son tour les flèches. */
+function aller(numero){
+  var n=Math.floor(Number(numero)||0);
+  if(!n)return;
+  if(typeof window.__ouvrirChroniqueIdleV1__==='function'&&document.querySelector('.soreal-idle-boss-lore-v142.ouverte'))window.__ouvrirChroniqueIdleV1__(false);
+  if(typeof window.__ouvrirBossCollectionIdleV1__==='function')window.__ouvrirBossCollectionIdleV1__(n);
+}
+
 /* Emblème de l'extension (en bas à droite de la ligne de type) : petit écusson SOREAL. */
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
@@ -112,7 +143,7 @@ function html(o){
     ?'<div class="mtg-force"><span>'+esc(nb(o.attaque))+'</span><i>/</i><span>'+esc(nb(o.pv))+'</span></div>':'';
   var numero=Math.floor(Number(o.numero)||0);
   var couleur=couleurs[numero]!=null?couleurs[numero]:couleurMonde(o.monde);
-  return '<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
+  return fleches(numero)+'<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
     '<div class="mtg-avant">'+
     '<div class="mtg-cadre">'+
       '<div class="mtg-titre"><div class="soreal-idle-boss-lore-name-v184 mtg-nom" data-soreal-tts-pause="1100">'+esc(o.nom||'Boss')+'</div><div class="mtg-pastilles" data-soreal-tts-ignore>'+pastilles+'</div></div>'+
@@ -137,6 +168,8 @@ function html(o){
 document.addEventListener('click',function(e){
   var cible=e.target;
   if(!cible||!cible.closest)return;
+  var fleche=cible.closest('.mtg-fleche');
+  if(fleche){for(var f in retournees)delete retournees[f];aller(fleche.getAttribute('data-mtg-aller'));return;}
   var carte=cible.closest('.carte-mtg-v1');
   if(!carte){
     for(var k in retournees)delete retournees[k];       /* clic ailleurs : la chronique / la fiche se ferme, la prochaine carte sera à l'endroit */
@@ -152,7 +185,11 @@ document.addEventListener('click',function(e){
 });
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')for(var k in retournees)delete retournees[k];
+  if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
+    var b=document.querySelector('.mtg-modal-v1 .mtg-fleche-'+(e.key==='ArrowLeft'?'prec':'suiv')+',.soreal-idle-boss-lore-v142.ouverte .mtg-fleche-'+(e.key==='ArrowLeft'?'prec':'suiv'));
+    if(b)b.click();
+  }
 });
 
-window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={html:html,colorier:colorier,analyser:analyser};
+window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
 })();

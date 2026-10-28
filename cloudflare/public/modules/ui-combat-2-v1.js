@@ -1080,7 +1080,7 @@
           ?'<div id="'+idHistoire+'" class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1" data-soreal-tts-chronique="'+idleHtml_(e.nom||'Boss')+'"'+attrLectureBossIdleV1_(e.nom,e.description,e.nomParle,e.histoireParlee)+'>'+idleHtml_(sansBaliseVoixIdleV1_(e.description))+'</div>'
           :'';
         const boutons=e.description
-          ?'<button type="button" class="soreal-idle-tts-read-v203" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
+          ?'<button type="button" class="soreal-idle-tts-read-v203" style="background:linear-gradient(180deg,#34343d,#16161b)!important;color:#f6f2e2!important;border:.4cqw solid #000!important;border-radius:1.8cqw!important;padding:1cqw 2.8cqw!important;margin:0!important;font:700 3cqw/1.2 Georgia,serif!important" data-soreal-tts-target="'+idHistoire+'">🔊 Lire cette chronique</button>'+
             '<button type="button" class="soreal-idle-chro-suite-v1" data-lire-chroniques-depuis="'+n+'"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5 L13.5 8 L4 13.5 Z" fill="currentColor"/></svg><span>Lire les chroniques à partir d’ici</span></button>'
           :'';
         /* Administrateur : modifier le nom et la chronique de CE boss depuis la Collection (Norman, 2026-10-04) ; le bouton n'existe pas pour les autres comptes, et le serveur revérifie à l'enregistrement. */
