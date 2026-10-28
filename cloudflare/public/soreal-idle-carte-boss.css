@@ -56,7 +56,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-admin{margin-top:1.4cqw}
 .mtg-bas{flex:0 0 auto;display:flex;align-items:center;gap:2.2cqw;box-sizing:border-box;padding:0 20cqw 0 1cqw;font:600 2.7cqw/1.2 Georgia,serif;color:#f2eee0;text-shadow:0 .2cqw .3cqw rgba(0,0,0,.8);white-space:nowrap}
 .mtg-rencontres{margin-left:auto;font-style:italic;opacity:.85}
-.mtg-force{position:absolute;right:5.2cqw;bottom:2.1cqw;z-index:3;max-width:34cqw;box-sizing:border-box;padding:.9cqw 2.6cqw;border:.5cqw solid #101014;border-radius:1.8cqw 1.8cqw 1.8cqw 3.4cqw;background:linear-gradient(180deg,var(--mtg-barre),var(--mtg-barre2));box-shadow:0 .35cqw .8cqw rgba(0,0,0,.65),inset 0 0 1.4cqw rgba(255,255,255,.4);
+.mtg-force{position:absolute;right:5.2cqw;bottom:2.1cqw;z-index:3;width:max-content;max-width:62cqw;box-sizing:border-box;padding:.9cqw 2.6cqw;border:.5cqw solid #101014;border-radius:1.8cqw 1.8cqw 1.8cqw 3.4cqw;background:linear-gradient(180deg,var(--mtg-barre),var(--mtg-barre2));box-shadow:0 .35cqw .8cqw rgba(0,0,0,.65),inset 0 0 1.4cqw rgba(255,255,255,.4);
   font:700 4.2cqw/1.25 Georgia,"Times New Roman",serif;color:#101014;text-align:center;white-space:nowrap}
 .mtg-force>i{font-style:normal;margin:0 .6cqw}
 
