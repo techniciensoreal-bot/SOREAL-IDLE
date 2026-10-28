@@ -54,6 +54,35 @@
     '<g fill="#fff" opacity=".4"><ellipse cx="134" cy="126" rx="3.2" ry="9"/><ellipse cx="178" cy="140" rx="2.6" ry="7"/><ellipse cx="80" cy="130" rx="2.2" ry="9"/><ellipse cx="244" cy="132" rx="2.2" ry="9"/></g>'+
     '<g fill="none" stroke="#e8f2a8" stroke-width="1.2" opacity=".7"><circle cx="150" cy="154" r="3"/><circle cx="168" cy="172" r="2.2"/><circle cx="130" cy="186" r="2.4"/></g>'+
   '</g></svg>';
+  /* ---- dessin organique du vomi de la langue (tuiles SVG) ---- */
+  var CONTOUR='stroke="#55631a" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"';
+  /* paquet irrégulier : un contour fermé de courbes autour de (x,y), rayon r, déformé par d (sept points, jamais deux fois la même distance) */
+  function paquet(x,y,r,d,c){
+    var a=[0,.9,1.8,2.7,3.7,4.6,5.5],pts=a.map(function(t,i){var k=r*(1+d[i%d.length]);return [x+Math.cos(t)*k*1.18,y+Math.sin(t)*k*.86];}),dep=[(pts[pts.length-1][0]+pts[0][0])/2,(pts[pts.length-1][1]+pts[0][1])/2],h='M'+dep[0].toFixed(1)+' '+dep[1].toFixed(1);
+    for(var i=0;i<pts.length;i+=1){var p0=pts[i],p1=pts[(i+1)%pts.length],m=[(p0[0]+p1[0])/2,(p0[1]+p1[1])/2];h+='Q'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' '+m[0].toFixed(1)+' '+m[1].toFixed(1);}
+    return '<path '+CONTOUR+' fill="'+c+'" d="'+h+'Z"/>';
+  }
+  /* coulée : un paquet en haut, un filet qui ondule et s'épaissit, une grosse goutte au bout (e = finesse du filet, L = longueur, o = sens de l'ondulation) */
+  function coulee(x,y,L,e,o,c,rot){
+    var f=function(n){return n.toFixed(1);},b=e*1.9;
+    return '<g transform="rotate('+(rot||0)+' '+x+' '+y+')"><path '+CONTOUR+' fill="'+c+'" d="M'+f(x-e*2.2)+' '+f(y)+'C'+f(x-e*2.6)+' '+f(y-e*2.2)+' '+f(x-e*.6)+' '+f(y-e*2.7)+' '+f(x+e*.9)+' '+f(y-e*2.2)+'C'+f(x+e*2.8)+' '+f(y-e*1.6)+' '+f(x+e*2.6)+' '+f(y+e*.6)+' '+f(x+e*1.1)+' '+f(y+e*1.3)+
+      'C'+f(x+e*.1+o*e)+' '+f(y+L*.22)+' '+f(x+e*1.3-o*e*1.2)+' '+f(y+L*.46)+' '+f(x+e*.5+o*e*.4)+' '+f(y+L*.68)+'C'+f(x+b*1.2)+' '+f(y+L*.8)+' '+f(x+b*1.1)+' '+f(y+L*1.1)+' '+f(x+o*e*.3)+' '+f(y+L*1.1)+
+      'C'+f(x-b*1.2)+' '+f(y+L*1.12)+' '+f(x-b*1.2)+' '+f(y+L*.82)+' '+f(x-e*.7+o*e*.4)+' '+f(y+L*.66)+'C'+f(x-e*1.5-o*e*1.2)+' '+f(y+L*.46)+' '+f(x-e*.3+o*e)+' '+f(y+L*.24)+' '+f(x-e*1.1)+' '+f(y+e*1.2)+'C'+f(x-e*2.4)+' '+f(y+e*.8)+' '+f(x-e*2.9)+' '+f(y+e*.3)+' '+f(x-e*2.2)+' '+f(y)+'Z"/></g>';
+  }
+  function gouttes(l){return '<g '+CONTOUR+'>'+l.map(function(g){return '<ellipse cx="'+g[0]+'" cy="'+g[1]+'" rx="'+g[2]+'" ry="'+g[3]+'" transform="rotate('+g[5]+' '+g[0]+' '+g[1]+')" fill="'+g[4]+'"/>';}).join('')+'</g>';}
+  function reflets(l){return '<g fill="#fff" opacity=".38">'+l.map(function(g){return '<ellipse cx="'+g[0]+'" cy="'+g[1]+'" rx="'+g[2]+'" ry="'+g[3]+'" transform="rotate('+g[4]+' '+g[0]+' '+g[1]+')"/>';}).join('')+'</g>';}
+  function tuile(l,h,formes){return 'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="'+l+'" height="'+h+'" viewBox="0 0 '+l+' '+h+'">'+formes+'</svg>')+'")';}
+  var TUILE_VOMI_A=tuile(150,230,
+    paquet(40,32,13,[.14,-.24,.2,-.12,.28,-.2,.08],VERT)+coulee(42,44,66,6.6,1,VERT,6)+paquet(112,106,11,[-.2,.22,-.1,.26,-.22,.12,0],JAUNE)+coulee(110,114,46,5.2,-1,JAUNE,-9)+
+    paquet(36,176,13,[.2,-.12,.18,-.2,.1,-.14,.16],'#cbd96e')+paquet(64,192,7,[-.2,.15,-.1,.2,-.15,.1,0],VERT_FONCE)+paquet(124,206,9,[.15,-.2,.1,-.15,.2,-.1,.12],VERT)+
+    gouttes([[88,62,3.6,2.6,ROSE,20],[130,66,2.8,2.2,'#f3e9c6',-30],[14,112,2.6,2,ORANGE,40],[84,150,3,2.2,ROSE,-15],[70,126,2,1.6,'#f3e9c6',10]])+
+    reflets([[34,30,4,2.4,-20],[110,104,3.4,2.2,-20],[35,172,3,1.8,-15]]));
+  var TUILE_VOMI_B=tuile(211,270,
+    paquet(150,38,15,[.14,-.22,.2,-.12,.26,-.2,.1],'#a9c04e')+coulee(150,50,96,7.2,-1,VERT,5)+paquet(50,118,10,[-.18,.22,-.14,.24,-.22,.14,0],JAUNE)+coulee(50,126,42,4.8,1,VERT_FONCE,-10)+
+    paquet(122,222,16,[.18,-.14,.2,-.2,.12,-.16,.1],VERT_FONCE)+paquet(150,238,8,[-.2,.18,-.1,.2,-.15,.1,0],'#d9d077')+coulee(184,198,48,4.4,1,VERT,7)+paquet(22,34,9,[.2,-.15,.1,-.2,.15,-.1,.12],'#d9d077')+
+    gouttes([[100,76,3.8,2.6,ORANGE,-25],[196,70,2.6,2,ROSE,30],[96,176,3,2.2,'#f3e9c6',10],[24,200,3.4,2.4,ROSE,-35],[88,104,2.2,1.8,ORANGE,15],[180,150,2.4,1.8,'#f3e9c6',-20]])+
+    reflets([[146,34,5,3,-25],[48,116,3.4,2,-20],[120,218,4,2.2,-20]]));
+
   function style(){
     if(document.getElementById('soreal-idle-vomi-style-v1'))return;
     var s=document.createElement('style');s.id='soreal-idle-vomi-style-v1';
@@ -112,11 +141,12 @@
     css.push(PFX+' .vl-deplie{z-index:7}');
     css.push(PFX+' .vl-lg-corps{position:relative}');
     css.push(PFX+' .vl-lg-corps>*{position:relative;z-index:1}');
+    /*
+     * Le vomi de la langue est ORGANIQUE (Norman, 2026-10-28 : « moins droit, pas de lignes droites ; ça doit avoir l'air organique ») : plus de barres ni d'ellipses parfaites. Deux dessins (des tuiles SVG de tailles différentes, donc qui ne se répètent pas
+     * ensemble) faits de paquets aux bords irréguliers, de coulées qui partent d'un paquet, ondulent, s'épaississent et finissent par une grosse goutte, de petites gouttes détachées et de morceaux (rose, orange, crème). Rien n'a de bord droit.
+     */
     css.push(PFX+' .vl-lg-corps::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:14px;'+
-      'background:radial-gradient(ellipse 15px 10px at 22% 16%,#cbd96e 0 70%,transparent 74%) 0 0/100% 150px repeat-y,radial-gradient(ellipse 20px 12px at 68% 34%,#a9c04e 0 70%,transparent 74%) 0 0/100% 150px repeat-y,'+
-      'radial-gradient(ellipse 13px 9px at 44% 62%,#d9d077 0 70%,transparent 74%) 0 0/100% 150px repeat-y,radial-gradient(ellipse 17px 11px at 84% 80%,#bcd05c 0 70%,transparent 74%) 0 0/100% 150px repeat-y,'+
-      'linear-gradient(#b3c755,#9db444) 14% 0/7px 46px repeat-y,linear-gradient(#a7bd48,#8fa83c) 58% 30px/6px 60px repeat-y,linear-gradient(#b3c755,#9db444) 90% 12px/6px 38px repeat-y;'+
-      'filter:drop-shadow(0 1px 0 #55631a)}');
+      'background:'+TUILE_VOMI_A+' 0 0/150px 230px repeat,'+TUILE_VOMI_B+' 47px 83px/211px 270px repeat;filter:drop-shadow(0 1px 0 #55631a)}');
     for(var vl=1;vl<=NIVEAU_MAX;vl+=1)css.push(PFX.replace('[data-vomi]','[data-vomi="'+vl+'"]')+' .vl-lg-corps::before{opacity:'+(.25+.75*vl/NIVEAU_MAX).toFixed(2)+'}');
     s.textContent=css.join('\n');
     document.head.appendChild(s);
