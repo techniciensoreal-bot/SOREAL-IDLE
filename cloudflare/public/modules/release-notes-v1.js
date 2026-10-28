@@ -46,6 +46,7 @@
             'Un clic sur un objet de la langue de la valise (potion, effet en cours, graines, Poop…) ouvre une fenêtre qui dit ce qu’il fait ; une potion peut y être utilisée.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Cinq nouvelles morts de boss : éboulement, poussière, fonte, foudre et enfoncement, chacune avec son propre son. Quand un combat dure au moins 5 secondes, la mort du boss est tirée au hasard parmi elles et l’éclatement en pixels, jamais deux fois la même d’affilée.',
             'Cinq nouvelles morts du joueur : cendres, trou noir, vitre brisée, tranché et âme, chacune avec son propre son. Elles s’ajoutent aux trois déjà là et sont tirées au hasard, jamais deux fois la même d’affilée.',
             'Quand tu ouvres la chronique d’un boss, elle s’affiche maintenant comme une carte à collectionner : le nom en haut, l’illustration, les capacités, l’histoire en italique et, dans le coin, son attaque et sa vie. La fiche d’un boss dans la Collection a la même carte. Sa couleur suit l’illustration du boss (bleu, rouge, vert, noir, blanc, ou or quand deux couleurs dominent). L’illustration du boss s’affiche en entier (la carte est plus haute). Un tap dessus retourne la carte, qui montre son dos ; un autre tap la remet à l’endroit. Des flèches sur les côtés passent au boss découvert précédent ou suivant, et la carte passe au-dessus du jeu, qui est flouté autour.'
           ]},

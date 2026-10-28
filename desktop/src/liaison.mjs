@@ -138,8 +138,10 @@ export function ecrireLiaison(dossier, { jeton, email, expire, decision }, chiff
 }
 
 /* ---------- transmission des appels de la page au serveur (application reliée) ---------- */
+/* Les envois d'administration (voix générées, histoires, purge) vont aussi au serveur : le compte local de l'exe n'est pas administrateur, seul le compte relié l'est (Norman, 2026-10-28 : « le souci de génération de voix n'arrive qu'avec l'exe »). */
+const ROUTES_ADMIN = ["/api/v1/voice-upload", "/api/v1/story-upload", "/api/v1/voice-purge"];
 export function transmissible(chemin) {
-  return chemin === "/api/v1/call" || chemin.startsWith("/api/v1/local/");
+  return chemin === "/api/v1/call" || chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
 }
 /* Retourne { reponse } (la réponse du serveur, ré-emballée), { expiree: true } (jeton refusé), ou null (pas de réseau : la page doit voir une erreur réseau, pas une réponse). */
 export async function transmettre({ urlBase = URL_PRODUCTION, jeton, methode, chemin, recherche = "", entetes = {}, corps, fetchFn = fetch, delaiMs = 45000 }) {

@@ -6,7 +6,7 @@ import vm from "node:vm";
  * Norman (2026-10-28) : « maintenant il en faut des nouvelles dans ce style, mais pour les boss ». Cinq morts de boss (éboulement, poussière, fonte, foudre, enfoncement), chacune avec son son synthétisé.
  * Module prêt mais PAS encore chargé par le jeu : page d'aperçu cloudflare/tools/apercu-morts/ (validation avant intégration). Ce test garde : cinq variantes, chaque image se dessine sans erreur de bout en bout, un son par variante.
  */
-const src = readFileSync("cloudflare/tools/apercu-morts/morts-boss-nouvelles-v1.js", "utf8");
+const src = readFileSync("cloudflare/public/modules/morts-boss-nouvelles-v1.js", "utf8");
 const ctxFaux = () => new Proxy({ _d: 0 }, {
   get(cible, nom) {
     if (nom in cible) return cible[nom];
@@ -34,5 +34,10 @@ for (const v of M.variantes) {
 }
 assert.ok(!/\.(mp3|ogg|wav|m4a)/.test(src), "aucun fichier audio : sons synthétisés");
 for (const id of ids) assert.ok(src.includes("id==='" + id + "'"), "son de " + id);
-assert.ok(!readFileSync("cloudflare/public/index.html", "utf8").includes("morts-boss-nouvelles-v1"), "pas encore branché sur le jeu (validation avant intégration)");
+const idx = readFileSync("cloudflare/public/index.html", "utf8");
+assert.ok(idx.includes("/modules/morts-boss-nouvelles-v1.js?v="), "module chargé par le jeu (validé par Norman le 2026-10-28)");
+const combat = readFileSync("cloudflare/public/modules/ui-combat-1-v1.js", "utf8");
+assert.ok(combat.includes("nouvelle.jouerSurHote(host,image,idMortV1)") && combat.includes("arcade.doitJouer(REG.idleEtat,Date.now()-debutCombatV1)"), "branché sur la mort du boss, mêmes conditions que l'écran de victoire (combat d'au moins 5 s, pas de NUKE)");
+assert.ok(combat.indexOf("nouvelle.jouerSurHote") < combat.indexOf("arcade.jouer(host,image"), "tirage avant l'éclatement en pixels : s'il retombe dessus, l'ancien comportement joue");
+assert.ok(src.includes("jouerSurHote") && src.includes("app.jouerApres(hote,idMort,true)") && src.includes("data-morph-garder") && src.includes("derniere"), "calque gardé par le redessin, passage de main à l'apparition, jamais deux fois la même");
 console.log("idle-morts-boss-nouvelles-v1: OK");

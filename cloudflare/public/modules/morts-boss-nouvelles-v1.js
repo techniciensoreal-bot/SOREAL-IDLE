@@ -7,7 +7,8 @@
  *   fonte      : il fond vers le sol en une flaque verdâtre qui bouillonne puis s'évapore ;            son : bulles, grésillement d'acide, « plop »
  *   foudre     : un éclair le traverse (négatif, os, étincelles), il noircit et tombe en étincelles ;   son : coup de tonnerre, crépitement électrique
  *   enfoncement: la terre tremble, il s'enfonce dans le sol qui se referme sur lui ;                    son : séisme, éboulis, gros choc sourd
- * Pas encore branchée sur le jeu : ce fichier vit dans cloudflare/tools/apercu-morts/ (page d aperçu, validation avant intégration) ; à la validation il passe dans public/modules/ et dans index.html.
+ * Validées par Norman le 2026-10-28 puis branchées sur la mort des boss (ui-combat-1-v1.js, transitionMortBossIdleV61_) : à chaque victoire d'un combat d'au moins 5 s, tirage parmi ces cinq morts et l'éclatement en pixels d'avant, jamais deux fois la même d'affilée ;
+ * la mort finie, la main passe à l'apparition du boss suivant. Page d'aperçu : cloudflare/tools/apercu-morts/.
  *   window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__ = { variantes, preparer(id,img,LW,LH), dessiner(id,c,t,cache,LW,LH), son(id), jouer(id,canvas,img,opts) }
  */
 (function(){
@@ -345,5 +346,60 @@ function jouer(id,canvas,img,opts){
   });
 }
 
-window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__={variantes:VARIANTES,preparer:preparer,dessiner:dessiner,son:son,jouer:jouer};
+/*
+ * Dans le jeu : la mort du boss tué, sur l'image de la borne. Un calque opaque (data-morph-garder, règle n°4) est posé sur l'image, la mort s'y dessine ; elle finie, la main passe à l'apparition du boss suivant (idMort : le boss tué, jamais celui qui arrive).
+ * Rend faux (rien n'est fait, l'appelant garde le comportement d'avant) pour « réduire les animations », sans image lisible, ou quand le tirage retombe sur l'éclatement en pixels d'avant.
+ */
+var enCours=false,derniere='';
+function styleHote(){
+  if(document.getElementById('soreal-idle-mort-boss-style'))return;
+  var s=document.createElement('style');s.id='soreal-idle-mort-boss-style';
+  s.textContent='.soreal-idle-boss-transition-v61.mort-boss-n{position:absolute;inset:0;z-index:9;display:block;pointer-events:none;overflow:hidden;background:'+FOND+';font-size:0}'+
+    '.soreal-idle-boss-transition-v61.mort-boss-n canvas{position:absolute;inset:0;width:100%;height:100%}';
+  (document.head||document.documentElement).appendChild(s);
+}
+function jouerSurHote(hote,image,idMort){
+  try{
+    if(!hote||!image||enCours)return false;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
+    var ids=VARIANTES.map(function(v){return v.id;}).concat(['classique']);
+    var choix=ids[Math.floor(Math.random()*ids.length)];
+    if(choix===derniere)choix=ids[(ids.indexOf(choix)+1+Math.floor(Math.random()*(ids.length-1)))%ids.length];   /* jamais deux fois la même d'affilée */
+    derniere=choix;
+    if(choix==='classique')return false;
+    if(!(image.naturalWidth>0))return false;
+    var r=hote.getBoundingClientRect();
+    if(!(r.width>20&&r.height>20))return false;
+    var LW=Math.round(Math.min(220,Math.max(100,r.width))),LH=Math.round(LW*r.height/r.width);
+    var v=VARIANTES.filter(function(x){return x.id===choix;})[0];
+    var k=preparer(choix,image,LW,LH);
+    styleHote();
+    var calque=document.createElement('div');
+    calque.className='soreal-idle-boss-transition-v61 mort-boss-n';
+    calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
+    var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
+    hote.appendChild(calque);
+    var c=cv.getContext('2d');c.imageSmoothingEnabled=true;
+    enCours=true;
+    var fini=false,t0=performance.now();
+    function terminer(){
+      if(fini)return;fini=true;enCours=false;
+      /* la main passe à l'apparition du boss suivant dans la même tâche : aucune image du boss suivant n'apparaît entre les deux */
+      try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(hote,idMort,true);else if(app&&app.jouer)app.jouer(hote);}catch(_e){}
+      if(calque.parentNode)calque.parentNode.removeChild(calque);
+    }
+    try{son(choix);}catch(_e){}
+    (function image2(now){
+      if(fini)return;
+      if(!calque.isConnected){fini=true;enCours=false;return;}
+      var t=(now-t0)/1000;
+      if(t>=v.duree){terminer();return;}
+      dessiner(choix,c,t,k,LW,LH);
+      requestAnimationFrame(image2);
+    })(t0);
+    return true;
+  }catch(_e){enCours=false;return false;}
+}
+
+window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__={variantes:VARIANTES,preparer:preparer,dessiner:dessiner,son:son,jouer:jouer,jouerSurHote:jouerSurHote,duree:function(){return 3.8;}};
 })();

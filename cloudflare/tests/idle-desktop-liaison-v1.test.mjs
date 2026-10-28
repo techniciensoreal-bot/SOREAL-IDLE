@@ -115,7 +115,7 @@ const ligneDuServeur = (email) => { for (const l of prod.sql.exec("SELECT row_js
   assert.equal(ok.reponse.headers.get("content-encoding"), null, "jamais un en-tête de compression sur un corps déjà décompressé");
   assert.deepEqual(await L.transmettre({ urlBase, jeton: "ils_" + "0".repeat(40), methode: "POST", chemin: "/api/v1/call", entetes: { "content-type": "application/json" }, corps: Buffer.from(JSON.stringify({ operation: "obtenirEtatSorealIdle", args: ["ils_" + "0".repeat(40)] })) }), { expiree: true }, "jeton refusé : à relier de nouveau");
   assert.equal(await L.transmettre({ urlBase: "http://127.0.0.1:1", jeton, methode: "GET", chemin: "/api/v1/local/export", delaiMs: 800 }), null, "sans réseau : null (la page voit une erreur réseau)");
-  assert.ok(L.transmissible("/api/v1/call") && L.transmissible("/api/v1/local/push") && !L.transmissible("/api/idle/media/boss") && !L.transmissible("/modules/a.js"), "seuls les appels du jeu partent au serveur ; les images restent locales");
+  assert.ok(L.transmissible("/api/v1/call") && L.transmissible("/api/v1/local/push") && !L.transmissible("/api/idle/media/boss") && !L.transmissible("/modules/a.js") && L.transmissible("/api/v1/voice-upload") && L.transmissible("/api/v1/story-upload") && L.transmissible("/api/v1/voice-purge"), "seuls les appels du jeu partent au serveur ; les images restent locales");
 }
 
 // --- jeton gardé chiffré
@@ -134,6 +134,7 @@ const pont = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "standalon
 assert.ok(pont.includes("function liaisonParamsV1()") && pont.includes('"http://127.0.0.1:"+l.port+"/liaison?etat="') && pont.includes("if(liaison){await modeLiaisonV1(liaison);return;}"), "page : mode liaison, retour vers 127.0.0.1, sans lancer le jeu");
 assert.ok(pont.includes("port>=1024&&port<=65535"), "port borné");
 const main = fs.readFileSync(path.join(DEPOT, "desktop", "coeur.js"), "utf8");
+assert.ok(main.includes("/api/idle/media/voice") && main.includes("distante.ok"), "une voix absente de l installateur est lue sur le serveur (administrateur : écoute immédiate après génération)");
 assert.ok(main.includes("liaisonModule.transmissible(url.pathname)") && main.includes("return Response.error();") && main.includes('ipcMain.handle("liaison:demarrer"') && main.includes("env.definirSessionExterne"), "application : transmission, erreur réseau hors ligne, session du compte");
 assert.ok(main.includes("shell.openExternal(adresseLiaison)") && main.includes("safeStorage"), "navigateur du PC, jeton chiffré");
 const ui = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "modules", "liaison-v1.js"), "utf8");

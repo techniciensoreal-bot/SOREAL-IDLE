@@ -132,7 +132,15 @@ async function demarrerJeu() {
     /* Le Worker voit une adresse http ordinaire ; la page, elle, reste sur « app://soreal » (même origine à chaque lancement : le stockage de l'appareil est conservé). */
     const interne = new Request("http://soreal-idle.local" + url.pathname + url.search, { method: requete.method, headers: requete.headers, body: requete.method === "GET" || requete.method === "HEAD" ? undefined : requete.body, duplex: "half" });
     try {
-      return await env.fetch(interne);
+      const locale = await env.fetch(interne);
+      /* Une voix que l'installateur n'a pas encore (générée depuis, ou pas encore dans une mise à jour) est lue sur le serveur quand internet répond : l'administrateur peut ainsi l'écouter tout de suite. */
+      if (locale.status === 404 && requete.method === "GET" && url.pathname === "/api/idle/media/voice") {
+        try {
+          const distante = await net.fetch((process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION) + url.pathname + url.search, { bypassCustomProtocolHandlers: true, signal: AbortSignal.timeout(8000) });
+          if (distante.ok) return distante;
+        } catch (_e) { /* hors ligne : la 404 d'origine */ }
+      }
+      return locale;
     } catch (e) {
       return new Response("Erreur du jeu local : " + String(e && e.message || e), { status: 500 });
     }
