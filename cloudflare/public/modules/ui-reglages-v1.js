@@ -402,6 +402,7 @@
                 '<div id="sorealIdlePartieFichierEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
               '</div>'
               :'')+
+            (window.__SOREAL_IDLE_LIAISON_V1__?window.__SOREAL_IDLE_LIAISON_V1__.sectionHtml():'')+
             (window.__SOREAL_IDLE_STEAM_V1__?window.__SOREAL_IDLE_STEAM_V1__.sectionHtml():'')+
             '<div class="soreal-idle-section-v8 rg-danger-v1">'+
               '<div class="soreal-idle-window-title-v31">⚠️ Tout recommencer</div>'+

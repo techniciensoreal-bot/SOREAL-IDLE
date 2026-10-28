@@ -4,7 +4,7 @@
  * Le jeu s'ouvre dans une fenêtre qui charge « app://soreal/ » : toutes les requêtes de la page (la page, les scripts, le moteur, les images, les voix, /api/…) sont servies par le VRAI Worker de production, exécuté ici sur une base SQLite du joueur
  * (src/env-local.mjs). Aucune connexion n'est nécessaire pour jouer ; rien n'est exposé sur le réseau (pas de port ouvert, un schéma d'adresse interne à l'application).
  */
-const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage, session, net } = require("electron");
+const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage, session, net, safeStorage } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
@@ -30,6 +30,15 @@ let etatMaj = null;
 let clePubliqueMaj = "";
 let majProposee = null;     /* { version, notes, octets, nb } : ce que la page affiche en haut de la fenêtre */
 let majEnCours = false;
+let liaisonModule = null;
+let liaison = { lie: false };       /* compte relié : { lie, jeton, email, expire } (lu au démarrage) */
+let liaisonExpiree = false;         /* le serveur a refusé le jeton : à relier de nouveau */
+let liaisonEnCours = false;
+const appareilLiaison = "exe" + Math.random().toString(36).slice(2) + Date.now().toString(36);
+const chiffrement = {
+  chiffrer: (t) => { if (!safeStorage.isEncryptionAvailable()) throw new Error("CHIFFREMENT_INDISPONIBLE"); return safeStorage.encryptString(t).toString("base64"); },
+  dechiffrer: (b) => safeStorage.decryptString(Buffer.from(b, "base64"))
+};
 let dossiersMediasActifs = [];   /* couches de médias (mises à jour d'abord, puis installateur) : lues aussi pour les bibliothèques de la voix de secours */
 
 /* Ce que l'installateur embarque : index des médias (clé -> [taille, etag]) et empreinte du paquet de code, pour savoir ce qu'une mise à jour doit vraiment télécharger. */
@@ -100,8 +109,21 @@ async function demarrerJeu() {
     return net.fetch(requete, { bypassCustomProtocolHandlers: true });
   });
 
+  liaisonModule = await import(pathToFileURL(path.join(__dirname, "src", "liaison.mjs")).href);
+  liaison = liaisonModule.lireLiaison(app.getPath("userData"), chiffrement);
+  if (liaison.lie) env.definirSessionExterne({ token: liaison.jeton, expiresAt: liaison.expire });
+
   protocol.handle("app", async (requete) => {
     const url = new URL(requete.url);
+    /* Application RELIÉE à un compte : les appels du jeu vont au serveur avec le jeton du compte (comme la version web) ; sans réseau la page voit une erreur réseau et continue avec ce qu'elle a. */
+    if (liaison.lie && !liaisonExpiree && liaisonModule.transmissible(url.pathname)) {
+      const corps = requete.method === "GET" || requete.method === "HEAD" ? undefined : Buffer.from(await requete.arrayBuffer());
+      const r = await liaisonModule.transmettre({ urlBase: process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION, jeton: liaison.jeton, methode: requete.method, chemin: url.pathname, recherche: url.search, entetes: Object.fromEntries(requete.headers), corps });
+      if (r && r.reponse) return r.reponse;
+      if (r && r.expiree) { liaisonExpiree = true; envoyerPage("liaison:expiree", true); }
+      return Response.error();
+    }
+    if (liaison.lie && liaisonExpiree && liaisonModule.transmissible(url.pathname)) return Response.error();
     /* Le Worker voit une adresse http ordinaire ; la page, elle, reste sur « app://soreal » (même origine à chaque lancement : le stockage de l'appareil est conservé). */
     const interne = new Request("http://soreal-idle.local" + url.pathname + url.search, { method: requete.method, headers: requete.headers, body: requete.method === "GET" || requete.method === "HEAD" ? undefined : requete.body, duplex: "half" });
     try {
@@ -130,6 +152,54 @@ async function verifierMaj() {
   majProposee = r.ok && r.disponible ? { version: r.manifeste.version, notes: String(r.manifeste.notes || "").slice(0, 400), octets: r.delta.octets, nb: r.delta.nb, manifeste: r.manifeste, delta: r.delta } : null;
   envoyerPage("maj:proposee", majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null);
 }
+/*
+ * Liaison au compte (Réglages > Ma partie) : voir src/liaison.mjs. Le jeton arrive du navigateur par une adresse locale ; la réconciliation compare la partie de cet ordinateur et celle du serveur et garde la plus avancée.
+ */
+function installerPontLiaison() {
+  const etatPage = () => ({ lie: Boolean(liaison.lie), email: liaison.email || "", expiree: liaisonExpiree, enCours: liaisonEnCours, decision: liaison.decision || "" });
+  ipcMain.handle("liaison:etat", async () => etatPage());
+  ipcMain.handle("liaison:demarrer", async () => {
+    if (liaisonEnCours) return { ok: false, code: "DEJA_EN_COURS" };
+    if (!app.isPackaged && !process.env.SOREAL_LIAISON_URL) return { ok: false, code: "DEVELOPPEMENT" };
+    if (!safeStorage.isEncryptionAvailable()) return { ok: false, code: "CHIFFREMENT_INDISPONIBLE" };
+    liaisonEnCours = true;
+    const urlProd = process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION;
+    let retour = null;
+    try {
+      /* la partie de cet ordinateur est enregistrée tout de suite (le moteur la pousse vers la base de l'application) */
+      try { if (fenetre && !fenetre.isDestroyed()) await fenetre.webContents.executeJavaScript("(async()=>{var M=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;if(M&&M.envoyerMaintenant){try{return await M.envoyerMaintenant();}catch(e){return false;}}return null;})()"); } catch (_e) { /* on lit la base telle qu'elle est */ }
+      const locale = env.ligneJoueur();
+      if (!locale) return { ok: false, code: "PARTIE_LOCALE_ABSENTE" };
+      retour = await liaisonModule.demarrerRetour();
+      envoyerPage("liaison:progression", { etape: "navigateur" });
+      const adresseLiaison = urlProd + "/?liaison=" + retour.port + "&etat=" + retour.etat;
+      /* Essais automatiques seulement : SOREAL_LIAISON_FICHIER_URL reçoit l'adresse au lieu d'ouvrir le navigateur (le test joue le rôle du navigateur). */
+      if (process.env.SOREAL_LIAISON_FICHIER_URL) fs.writeFileSync(process.env.SOREAL_LIAISON_FICHIER_URL, adresseLiaison);
+      else await shell.openExternal(adresseLiaison);
+      const { jeton, expire } = await retour.attente;
+      const r = await liaisonModule.reconcilier({
+        urlBase: urlProd, jeton, appareil: appareilLiaison,
+        locale: { cells: locale.cells, pseudo: env.pseudoLocal() },
+        dossierMiseDeCote: path.join(app.getPath("userData"), "parties-mises-de-cote"),
+        progression: (p) => envoyerPage("liaison:progression", p)
+      });
+      liaisonModule.ecrireLiaison(app.getPath("userData"), { jeton, email: r.email, expire, decision: r.decision }, chiffrement);
+      liaison = { lie: true, jeton, email: r.email, expire, decision: r.decision };
+      liaisonExpiree = false;
+      env.definirSessionExterne({ token: jeton, expiresAt: expire });
+      envoyerPage("liaison:progression", { etape: "termine", decision: r.decision });
+      /* la page repart du serveur : son moteur reprend la partie du compte */
+      setTimeout(() => { try { if (fenetre && !fenetre.isDestroyed()) fenetre.webContents.reloadIgnoringCache(); } catch (_e) { /* fenêtre fermée */ } }, 1500);
+      return { ok: true, decision: r.decision, fichiers: r.fichiersMisDeCote.length };
+    } catch (e) {
+      return { ok: false, code: String(e && e.message || e).replace(/[^A-Z_]/g, "").slice(0, 40) || "LIAISON_ECHEC" };
+    } finally {
+      if (retour) retour.fermer();
+      liaisonEnCours = false;
+    }
+  });
+}
+
 function installerPontMaj() {
   ipcMain.handle("maj:etat", async () => (majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null));
   ipcMain.handle("maj:installer", async () => {
@@ -226,6 +296,7 @@ if (!app.requestSingleInstanceLock()) {
     await demarrerJeu();
     installerPontSteam();
     installerPontMaj();
+    installerPontLiaison();
     ouvrirFenetre();
   }).catch((e) => { console.error(e); app.quit(); });
   app.on("window-all-closed", () => { if (env) env.fermer(); app.quit(); });

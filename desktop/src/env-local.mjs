@@ -224,6 +224,20 @@ export async function creerEnvLocal(opt) {
     /* Toute requête du jeu passe ici : exactement ce que ferait Cloudflare (la page d'accueil porte en plus la session locale). */
     fetch: repondre,
     renouvelerSession: () => { session = nouvelleSession(); return session; },
+    /* Application reliée à un compte : la page reçoit le jeton de session du SERVEUR (celui du compte), pas une session locale ; il reste le même d'un lancement à l'autre, ce qui permet de rouvrir le jeu sans internet (dernier export gardé sous son empreinte). */
+    definirSessionExterne: (s) => { session = { token: String(s.token), expiresAt: Number(s.expiresAt) || (Date.now() + 14 * 86400000) }; },
+    /* La partie locale du joueur : { index, cells } ou null (feuille JOUEURS de la base de l'application ; l'adresse est en colonnes 18 et 19). */
+    ligneJoueur: (email) => {
+      const mail = String(email || opt.utilisateur.email).toLowerCase();
+      for (const l of sql.exec("SELECT row_index,row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index>1 ORDER BY row_index")) {
+        try { const c = JSON.parse(l.row_json); if (String(c[18] || "").toLowerCase() === mail || String(c[19] || "").toLowerCase() === mail) return { index: Number(l.row_index), cells: c }; } catch (_e) { /* ligne illisible : suivante */ }
+      }
+      return null;
+    },
+    /* Le pseudo choisi sur cet ordinateur (table des profils), ou "". */
+    pseudoLocal: (email) => {
+      try { const r = sql.exec("SELECT pseudo FROM idle_profiles WHERE email=?", String(email || opt.utilisateur.email).toLowerCase())[0]; return r ? String(r.pseudo || "") : ""; } catch (_e) { return ""; }
+    },
     fermer: () => { try { db.close(); } catch (_e) { /* déjà fermée */ } }
   };
 }

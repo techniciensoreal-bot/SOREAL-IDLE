@@ -577,9 +577,37 @@
     return false;
   }
 
+  /*
+   * LIAISON de l'application Windows (Norman, 2026-10-28) : l'application ouvre cette page dans le navigateur du PC avec « ?liaison=<port>&etat=<code> ». Ici on ne lance PAS le jeu (on ne prend la partie à aucun autre appareil) : le joueur se connecte avec Google
+   * (ou sa connexion Google déjà conservée est reprise), puis le navigateur est renvoyé vers l'application, qui écoute SEULEMENT sur cet ordinateur (127.0.0.1:<port>), avec le jeton de session. L'application vérifie le code « etat » qu'elle a donné.
+   */
+  function liaisonParamsV1(){
+    try{
+      const q=new URLSearchParams(location.search||"");
+      const port=Number(q.get("liaison")),etat=String(q.get("etat")||"");
+      if(Number.isInteger(port)&&port>=1024&&port<=65535&&/^[A-Za-z0-9]{24,64}$/.test(etat))return {port:port,etat:etat};
+    }catch(_){}
+    return null;
+  }
+  async function modeLiaisonV1(l){
+    const jeton=googleSessionStockeeV1();
+    if(jeton){
+      let expire=0;
+      try{expire=Number(JSON.parse(String(localStorage.getItem(GOOGLE_SESSION_KEY)||"null")).expiresAt)||0;}catch(_){}
+      statusV1("Retour vers SOREAL IDLE sur ton ordinateur…",false);
+      location.replace("http://127.0.0.1:"+l.port+"/liaison?etat="+encodeURIComponent(l.etat)+"&jeton="+encodeURIComponent(jeton)+"&expire="+expire);
+      return;
+    }
+    const clientId=await clientIdGoogleV1();
+    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google pour relier ta partie de l’application SOREAL IDLE à ton compte.");
+    else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
+  }
+
   async function startV1(){
     statusV1("Connexion à SOREAL IDLE…",false);
     try{
+      const liaison=liaisonParamsV1();
+      if(liaison){await modeLiaisonV1(liaison);return;}
       const ticket=ticketFromHashV1();
       if(ticket){
         await consumeLaunchTicketV1(ticket);

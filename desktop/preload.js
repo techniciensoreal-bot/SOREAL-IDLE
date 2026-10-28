@@ -10,6 +10,13 @@ contextBridge.exposeInMainWorld("sorealDesktop", {
   /* mises à jour : « maj proposée » (ou rien), installation, et les événements (proposition, progression) */
   majEtat: () => ipcRenderer.invoke("maj:etat"),
   majInstaller: () => ipcRenderer.invoke("maj:installer"),
+  /* liaison au compte Google (Réglages > Ma partie) */
+  liaisonEtat: () => ipcRenderer.invoke("liaison:etat"),
+  liaisonDemarrer: () => ipcRenderer.invoke("liaison:demarrer"),
+  liaisonSur: (rappel) => {
+    ipcRenderer.on("liaison:progression", (_ev, p) => rappel({ type: "progression", progression: p }));
+    ipcRenderer.on("liaison:expiree", () => rappel({ type: "expiree" }));
+  },
   majSur: (rappel) => {
     ipcRenderer.on("maj:proposee", (_ev, m) => rappel({ type: "proposee", maj: m }));
     ipcRenderer.on("maj:progression", (_ev, p) => rappel({ type: "progression", progression: p }));
