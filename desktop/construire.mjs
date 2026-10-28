@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const DEPOT = path.resolve(ICI, "..");
@@ -30,6 +30,13 @@ copier(path.join(DEPOT, "cloudflare", "public"), path.join(STAGE, "jeu", "cloudf
 copier(path.join(DEPOT, "design"), path.join(STAGE, "jeu", "design"));
 if (fs.existsSync(path.join(DEPOT, "cloudflare", "contracts"))) copier(path.join(DEPOT, "cloudflare", "contracts"), path.join(STAGE, "jeu", "cloudflare", "contracts"));
 if (fs.existsSync(path.join(ICI, "graine"))) copier(path.join(ICI, "graine"), path.join(STAGE, "graine"));
+
+/* Empreinte du paquet de code embarqué : identique à celle de publier-maj.mjs tant que le code n'a pas changé (la mise à jour ne retélécharge alors pas le code). Clé publique de vérification des mises à jour. */
+const { construirePaquetCode } = await import(pathToFileURL(path.join(ICI, "src", "paquet.mjs")).href);
+const paquet = construirePaquetCode(DEPOT);
+fs.writeFileSync(path.join(STAGE, "jeu", "_code.json"), JSON.stringify({ sha256: paquet.sha256, fichiers: paquet.nb }));
+if (fs.existsSync(path.join(ICI, "maj-cle-publique.pem"))) copier(path.join(ICI, "maj-cle-publique.pem"), path.join(STAGE, "maj-cle-publique.pem"));
+else console.log("ATTENTION : pas de clé publique de mise à jour (node desktop/publier-maj.mjs --creer-cle) : cet installateur ne pourra recevoir aucune mise à jour.");
 
 const racine = JSON.parse(fs.readFileSync(path.join(ICI, "package.json"), "utf8"));
 fs.writeFileSync(path.join(STAGE, "package.json"), JSON.stringify({

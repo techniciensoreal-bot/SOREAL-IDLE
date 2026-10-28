@@ -361,9 +361,32 @@ async function idleUploadAdminV1(request, env, url) {
   return idleJsonV1({ ok: true, file: fichier, bytes: octets.byteLength });
 }
 
+/*
+ * Mises à jour de l'application Windows (Norman, 2026-10-28 ; desktop/src/maj.mjs). Deux routes en lecture seule, sans authentification (le contenu est celui que le jeu sert déjà à tout le monde) :
+ *  - /api/v1/maj/manifeste : le manifeste SIGNÉ publié par le propriétaire (idle/_maj/manifeste.json) ; l'application ne le croit que si la signature vaut pour sa clé publique ;
+ *  - /api/v1/maj/fichier?cle=idle/… : un fichier du bucket sous idle/ (médias, paquet de code de la mise à jour), tel quel.
+ */
+async function idleMajV1(request, env, url) {
+  if (!env?.SOREAL_R2 || typeof env.SOREAL_R2.get !== "function") return idleJsonV1({ ok: false, error: "R2_INDISPONIBLE" }, 503);
+  if (url.pathname === "/api/v1/maj/manifeste") {
+    const objet = await env.SOREAL_R2.get("idle/_maj/manifeste.json");
+    if (!objet) return idleJsonV1({ ok: false, error: "AUCUNE_MAJ" }, 404);
+    return new Response(objet.body, { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  }
+  const cle = String(url.searchParams.get("cle") || "");
+  const interdit = !cle.startsWith("idle/") || cle.length > 300 || cle.split("/").some((seg) => seg === ".." || seg === "") || [...cle].some((c) => c.charCodeAt(0) < 32 || c === "\\");
+  if (interdit) return idleJsonV1({ ok: false, error: "CLE_INVALIDE" }, 400);
+  const objet = await env.SOREAL_R2.get(cle);
+  if (!objet) return idleJsonV1({ ok: false, error: "ABSENT" }, 404);
+  const entetes = new Headers({ "cache-control": "public, max-age=300", "content-length": String(objet.size) });
+  entetes.set("content-type", (objet.httpMetadata && objet.httpMetadata.contentType) || "application/octet-stream");
+  return new Response(objet.body, { headers: entetes });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (request.method === "GET" && (url.pathname === "/api/v1/maj/manifeste" || url.pathname === "/api/v1/maj/fichier")) return idleMajV1(request, env, url);
     const mediaResponse = await traiterRequeteIdleMedia(request, env);
     if (mediaResponse) return mediaResponse;
 

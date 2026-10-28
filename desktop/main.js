@@ -24,21 +24,58 @@ function dossiers() {
 
 let env = null;
 let fenetre = null;
+let majModule = null;
+let dossierMaj = "";
+let etatMaj = null;
+let clePubliqueMaj = "";
+let majProposee = null;     /* { version, notes, octets, nb } : ce que la page affiche en haut de la fenêtre */
+let majEnCours = false;
 
-async function demarrerJeu() {
-  const d = dossiers();
+/* Ce que l'installateur embarque : index des médias (clé -> [taille, etag]) et empreinte du paquet de code, pour savoir ce qu'une mise à jour doit vraiment télécharger. */
+function lireEmbarque(d) {
+  let index = {}, codeSha = null;
+  try { index = JSON.parse(fs.readFileSync(path.join(d.dossierMedias, "_index.json"), "utf8")); } catch (_e) { /* installation sans médias : tout sera proposé */ }
+  try { codeSha = JSON.parse(fs.readFileSync(path.join(__dirname, "jeu", "_code.json"), "utf8")).sha256 || null; } catch (_e) { /* développement */ }
+  return { index, codeSha };
+}
+
+async function lancerEnv(racineDepot, dossiersMedias) {
   const { creerEnvLocal } = await import(pathToFileURL(path.join(__dirname, "src", "env-local.mjs")).href);
-  const donnees = app.getPath("userData");
   let graine = null;
   try { graine = JSON.parse(fs.readFileSync(path.join(__dirname, "graine", "catalogue.json"), "utf8")); } catch (_e) { /* pas de graine : le catalogue minimal du moteur */ }
-  env = await creerEnvLocal({
-    racineDepot: d.racineDepot,
-    dossierPublic: d.dossierPublic,
-    dossierMedias: d.dossierMedias,
-    fichierBase: path.join(donnees, "soreal-idle.sqlite"),
+  return creerEnvLocal({
+    racineDepot,
+    dossierPublic: path.join(racineDepot, "cloudflare", "public"),
+    dossiersMedias,
+    fichierBase: path.join(app.getPath("userData"), "soreal-idle.sqlite"),
     graine,
     utilisateur: { email: "joueur@soreal-idle.local", emailConnexion: "joueur@soreal-idle.local", emails: ["joueur@soreal-idle.local"], prenom: "Joueur" }
   });
+}
+
+async function demarrerJeu() {
+  const d = dossiers();
+  majModule = await import(pathToFileURL(path.join(__dirname, "src", "maj.mjs")).href);
+  dossierMaj = path.join(app.getPath("userData"), "maj");
+  try { clePubliqueMaj = fs.readFileSync(path.join(__dirname, "maj-cle-publique.pem"), "utf8"); } catch (_e) { clePubliqueMaj = ""; }
+  const embarque = lireEmbarque(d);
+  etatMaj = majModule.lireEtat(dossierMaj, embarque);
+  /* Une mise à jour installée doit prouver qu'elle démarre : au deuxième démarrage sans validation, on revient à l'état d'avant. */
+  if (etatMaj.enAttente) {
+    if ((etatMaj.tentatives || 0) >= 1) etatMaj = majModule.revenirEnArriere(dossierMaj, etatMaj);
+    else { etatMaj = Object.assign({}, etatMaj, { tentatives: 1 }); majModule.ecrireEtat(dossierMaj, etatMaj); }
+  }
+  let couches = majModule.couchesActives(dossierMaj, etatMaj);
+  const medias = (c) => c.dossiersMedias.concat([d.dossierMedias]);
+  try {
+    env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
+  } catch (e) {
+    if (!couches.racineCode && !couches.dossiersMedias.length) throw e;
+    console.error("La mise à jour installée ne démarre pas, retour à la version précédente :", e && e.message || e);
+    etatMaj = majModule.revenirEnArriere(dossierMaj, Object.assign({}, etatMaj, { enAttente: etatMaj.enAttente || etatMaj.version }));
+    couches = majModule.couchesActives(dossierMaj, etatMaj);
+    env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
+  }
 
   protocol.handle("app", async (requete) => {
     const url = new URL(requete.url);
@@ -50,6 +87,48 @@ async function demarrerJeu() {
       return new Response("Erreur du jeu local : " + String(e && e.message || e), { status: 500 });
     }
   });
+}
+
+/*
+ * Mises à jour (modules « maj »). La page affiche un bandeau en haut de la fenêtre quand une mise à jour est proposée (« Mettre à jour » / « Plus tard ») ; l'installation se fait dans la fenêtre, avec une barre de progression, puis le jeu se relance.
+ * Aucun installateur n'est téléchargé. Vérification : 8 s après l'ouverture, puis toutes les 30 minutes, seulement si internet répond.
+ */
+const URL_MAJ = process.env.SOREAL_MAJ_URL || "";
+function envoyerPage(canal, charge) { try { if (fenetre && !fenetre.isDestroyed()) fenetre.webContents.send(canal, charge); } catch (_e) { /* fenêtre fermée */ } }
+async function verifierMaj() {
+  if (!app.isPackaged && !URL_MAJ) return;
+  if (majEnCours || !majModule || !clePubliqueMaj) return;
+  const r = await majModule.verifierMaj({ urlBase: URL_MAJ || majModule.URL_PRODUCTION, clePublique: clePubliqueMaj, etat: etatMaj });
+  if (r.ok && r.rienAFaire && r.manifeste) {
+    /* le serveur est à une autre version, mais l'appareil a déjà tout : on la note sans rien afficher */
+    etatMaj = Object.assign({}, etatMaj, { version: r.manifeste.version, date: r.manifeste.date || null });
+    majModule.ecrireEtat(dossierMaj, etatMaj);
+  }
+  majProposee = r.ok && r.disponible ? { version: r.manifeste.version, notes: String(r.manifeste.notes || "").slice(0, 400), octets: r.delta.octets, nb: r.delta.nb, manifeste: r.manifeste, delta: r.delta } : null;
+  envoyerPage("maj:proposee", majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null);
+}
+function installerPontMaj() {
+  ipcMain.handle("maj:etat", async () => (majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null));
+  ipcMain.handle("maj:installer", async () => {
+    if (!majProposee || majEnCours) return { ok: false, code: majEnCours ? "DEJA_EN_COURS" : "RIEN_A_INSTALLER" };
+    majEnCours = true;
+    try {
+      const { manifeste, delta } = majProposee;
+      etatMaj = await majModule.installerMaj({
+        urlBase: URL_MAJ || majModule.URL_PRODUCTION, manifeste, delta, dossierMaj, etat: etatMaj,
+        progression: (p) => envoyerPage("maj:progression", p)
+      });
+      envoyerPage("maj:progression", { termine: true });
+      /* le jeu se ferme proprement (la base du joueur est enregistrée) puis se relance avec la mise à jour */
+      setTimeout(() => { if (env) env.fermer(); app.relaunch(); app.exit(0); }, 1200);
+      return { ok: true };
+    } catch (e) {
+      majEnCours = false;
+      return { ok: false, code: "INSTALLATION_ECHEC", detail: String(e && e.message || e).slice(0, 200) };
+    }
+  });
+  setTimeout(verifierMaj, 8000);
+  setInterval(verifierMaj, 30 * 60 * 1000);
 }
 
 /*
@@ -106,6 +185,12 @@ function ouvrirFenetre() {
   /* Un lien vers un site s'ouvre dans le navigateur du PC, jamais dans le jeu. */
   fenetre.webContents.setWindowOpenHandler(({ url }) => { if (/^https:\/\//.test(url)) shell.openExternal(url); return { action: "deny" }; });
   fenetre.webContents.on("will-navigate", (ev, url) => { if (!url.startsWith(ORIGINE)) { ev.preventDefault(); if (/^https:\/\//.test(url)) shell.openExternal(url); } });
+  /* La mise à jour installée est validée quand la page s'est chargée et que la fenêtre est restée ouverte 20 s. */
+  fenetre.webContents.on("did-finish-load", () => {
+    setTimeout(() => {
+      if (majModule && etatMaj && etatMaj.enAttente && fenetre && !fenetre.isDestroyed()) etatMaj = majModule.validerMaj(dossierMaj, etatMaj);
+    }, 20000);
+  });
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });
 }
@@ -117,6 +202,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(async () => {
     await demarrerJeu();
     installerPontSteam();
+    installerPontMaj();
     ouvrirFenetre();
   }).catch((e) => { console.error(e); app.quit(); });
   app.on("window-all-closed", () => { if (env) env.fermer(); app.quit(); });

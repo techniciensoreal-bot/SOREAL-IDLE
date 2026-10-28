@@ -11,7 +11,7 @@ export default {
       const curseur = u.searchParams.get("curseur");
       if (curseur) options.cursor = curseur;
       const r = await env.SOREAL_R2.list(options);
-      return Response.json({ objets: r.objects.map((o) => ({ cle: o.key, taille: o.size })), tronque: r.truncated, curseur: r.truncated ? r.cursor : null });
+      return Response.json({ objets: r.objects.map((o) => ({ cle: o.key, taille: o.size, etag: o.etag })), tronque: r.truncated, curseur: r.truncated ? r.cursor : null });
     }
     if (u.pathname === "/objet") {
       const o = await env.SOREAL_R2.get(u.searchParams.get("cle") || "");

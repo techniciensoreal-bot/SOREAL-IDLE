@@ -71,7 +71,7 @@ try {
   let curseur = null;
   do {
     const r = await (await fetch(base + "/liste?prefix=" + encodeURIComponent(prefixe) + (curseur ? "&curseur=" + encodeURIComponent(curseur) : ""))).json();
-    objets.push(...r.objets.filter((o) => !o.cle.endsWith("/")));
+    objets.push(...r.objets.filter((o) => !o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj/")));
     curseur = r.curseur;
     process.stdout.write("\rinventaire : " + objets.length + " fichiers");
   } while (curseur);
@@ -129,6 +129,12 @@ try {
     } catch (e) { erreurs.push("_externes/" + nom + " : " + (e && e.message || e)); }
   }
 
+  /* index des médias embarqués (clé -> [taille, etag]) : sert aux mises à jour à ne télécharger que ce qui a changé */
+  if (!erreurs.length || !args.includes("--strict")) {
+    const index = {};
+    for (const o of objets) if (!erreurs.some((e) => e.startsWith(o.cle + " :"))) index[o.cle] = [o.taille, String(o.etag || "")];
+    fs.writeFileSync(path.join(MEDIAS, "_index.json"), JSON.stringify(index));
+  }
   fs.writeFileSync(path.join(MEDIAS, "_recolte.json"), JSON.stringify({ le: new Date().toISOString(), prefixe, fichiers: objets.length, octets: total, erreurs: erreurs.length }, null, 2));
   if (erreurs.length) { console.log("\n" + erreurs.length + " erreur(s) :\n" + erreurs.slice(0, 20).join("\n") + "\nRelancer la commande : seuls les fichiers manquants sont repris."); process.exitCode = 2; }
   else console.log("\nRécolte terminée : " + objets.length + " fichiers, " + mo(total) + ", dans " + MEDIAS);

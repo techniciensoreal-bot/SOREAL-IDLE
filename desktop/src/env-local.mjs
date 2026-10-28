@@ -75,24 +75,26 @@ function creerAssets(dossierPublic) {
 }
 
 /* ---------- SOREAL_R2 : le dossier des médias, mêmes clés que le bucket ---------- */
-function creerR2(dossierMedias) {
-  const racine = path.resolve(dossierMedias);
-  let index = null;   /* clé -> { taille, mtime } (construit au premier besoin) */
+/* dossiersMedias : un dossier, ou plusieurs COUCHES de la plus récente à la plus ancienne (mises à jour installées, puis médias de l'installateur) : pour une clé présente dans plusieurs, la couche la plus récente gagne. Les écritures vont dans la plus récente. */
+function creerR2(dossiersMedias) {
+  const racines = (Array.isArray(dossiersMedias) ? dossiersMedias : [dossiersMedias]).map((d) => path.resolve(d));
+  let index = null;   /* clé -> { taille, mtime, racine } (construit au premier besoin) */
   function construire() {
     index = new Map();
-    const parcourir = (dossier, prefixe) => {
+    const parcourir = (racine, dossier, prefixe) => {
       let entrees = [];
       try { entrees = fs.readdirSync(dossier, { withFileTypes: true }); } catch (_e) { return; }
       for (const e of entrees) {
         const cle = prefixe + e.name;
-        if (e.isDirectory()) parcourir(path.join(dossier, e.name), cle + "/");
-        else if (e.isFile()) { const st = fs.statSync(path.join(dossier, e.name)); index.set(cle, { taille: st.size, mtime: st.mtimeMs }); }
+        if (e.isDirectory()) parcourir(racine, path.join(dossier, e.name), cle + "/");
+        else if (e.isFile() && !cle.startsWith("_externes/")) { const st = fs.statSync(path.join(dossier, e.name)); index.set(cle, { taille: st.size, mtime: st.mtimeMs, racine }); }
       }
     };
-    parcourir(racine, "");
+    for (let i = racines.length - 1; i >= 0; i -= 1) parcourir(racines[i], racines[i], "");   /* de la plus ancienne à la plus récente : la dernière écrite l'emporte */
   }
+  const racine = racines[0];
   const objet = (cle, meta, avecCorps) => {
-    const f = path.join(racine, ...cle.split("/"));
+    const f = path.join(meta.racine, ...cle.split("/"));
     const ct = typeDe(f);
     const etag = createHash("sha1").update(cle + ":" + meta.taille + ":" + Math.floor(meta.mtime)).digest("hex").slice(0, 16);
     const o = {
@@ -177,7 +179,7 @@ export async function creerEnvLocal(opt) {
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },
     ASSETS: creerAssets(opt.dossierPublic),
-    SOREAL_R2: creerR2(opt.dossierMedias),
+    SOREAL_R2: creerR2(opt.dossiersMedias || opt.dossierMedias),
     CF_VERSION_METADATA: { id: "desktop" },
     GOOGLE_CLIENT_ID: ""
   };
@@ -201,8 +203,8 @@ export async function creerEnvLocal(opt) {
     }
     /* Voix de secours (Piper) : le Worker de production va chercher son modèle sur un dépôt externe ; ici la copie récoltée (medias/_externes/) est servie directement, donc sans internet. */
     if ((requete.method === "GET" || requete.method === "HEAD") && (chemin === "/api/idle/media/piper-model.onnx" || chemin === "/api/idle/media/piper-model.onnx.json")) {
-      const f = path.join(opt.dossierMedias, "_externes", chemin.split("/").pop());
-      if (fs.existsSync(f)) {
+      const f = [].concat(opt.dossiersMedias || opt.dossierMedias).map((d) => path.join(d, "_externes", chemin.split("/").pop())).find((c) => fs.existsSync(c));
+      if (f) {
         const entetes = new Headers({ "content-type": chemin.endsWith(".json") ? "application/json" : "application/octet-stream", "content-length": String(fs.statSync(f).size), "cache-control": "public, max-age=604800" });
         return requete.method === "HEAD" ? new Response(null, { headers: entetes }) : new Response(Readable.toWeb(fs.createReadStream(f)), { headers: entetes });
       }
