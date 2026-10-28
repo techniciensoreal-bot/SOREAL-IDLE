@@ -1,13 +1,13 @@
 /*
  * Carte de boss (Norman, 2026-10-28) : la chronique ouverte et la fiche de la Collection sont une carte à collectionner (modules/carte-boss-magic-v1.js).
- * Tailles en cqw (largeur de la carte) : la carte garde ses proportions 5 / 7 à toute taille. Fermée, la chronique redevient le petit cadre au mur : seuls le nom et le bouton de lecture restent.
+ * Tailles en cqw (largeur de la carte) : la carte garde ses proportions 5 / 8,4 (carte allongée pour montrer l'illustration ENTIÈRE du boss) à toute taille. Fermée, la chronique redevient le petit cadre au mur : seuls le nom et le bouton de lecture restent.
  * Six couleurs selon l'illustration (data-couleur : 0 bleu, 1 rouge, 2 vert, 3 noir, 4 blanc, 5 or). Un tap sur l'illustration retourne la carte (classe « retournee ») : dos de carte avec le titre du jeu et la photo du boss.
  * Les règles de la chronique (page Combat) répètent le long préfixe du thème : il doit battre les règles « !important » de soreal-idle-themes.css et de soreal-idle-itopod.css.
  */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) :is(.carte-mtg-v1,.mtg-avant,.mtg-cadre,.mtg-titre,.mtg-texte,.mtg-boutons){display:contents}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142:not(.ouverte) :is(.mtg-fleche,.mtg-dos,.mtg-art,.mtg-type,.mtg-bas,.mtg-pastilles,.mtg-force,.mtg-capacites,.mtg-filet,.mtg-admin){display:none}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte{background:none!important;border:0!important;outline:0;border-radius:0!important;padding:0!important;overflow:visible;max-height:none;
-  z-index:100000;width:min(420px,calc(100vw - 112px),calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;box-shadow:none!important}
+  z-index:100000;width:min(420px,calc(100vw - 112px),calc(78vh / 1.68));aspect-ratio:5 / 8.4;container-type:inline-size;perspective:1600px;box-shadow:none!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte::after{display:none}
 /* tout ce qui dépasse de la carte (l'interface du jeu) est flouté et assombri : un grand calque derrière la carte, plus large que l'écran */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte::before{content:"";position:absolute;left:-100vmax;top:-100vmax;right:-100vmax;bottom:-100vmax;height:auto;z-index:-1;background:rgba(4,8,16,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
@@ -15,7 +15,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .soreal-idle-lore-fermer-v1{position:absolute;float:none;top:-12px;right:-10px;margin:0;z-index:6}
 
 .soreal-idle-modal-backdrop-v63:has(.mtg-modal-v1){z-index:100000;background:rgba(4,8,16,.6);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.mtg-modal-v1{position:relative;width:min(420px,calc(100vw - 112px),calc(78vh / 1.4));aspect-ratio:5 / 7;container-type:inline-size;perspective:1600px;margin:auto}
+.mtg-modal-v1{position:relative;width:min(420px,calc(100vw - 112px),calc(78vh / 1.68));aspect-ratio:5 / 8.4;container-type:inline-size;perspective:1600px;margin:auto}
 .mtg-modal-fermer-v1{position:absolute;top:-12px;right:-10px;z-index:6;width:34px;height:34px;padding:0;border:0;border-radius:50%;font:400 18px/34px "Russo One",sans-serif;color:#fff;background:linear-gradient(180deg,#ff7a6f,#c1121f);box-shadow:0 3px 0 #6a0a10;cursor:pointer}
 
 /* conteneur qui se retourne : deux faces, l'avant (la carte) et le dos */
@@ -34,8 +34,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-nom,.mtg-modal-v1 .mtg-nom{flex:1 1 auto;min-width:0;margin:0;text-align:left;font:700 4.7cqw/1.25 Georgia,"Times New Roman",serif;letter-spacing:0;color:#101014!important;background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtg-pastilles{display:flex;gap:.8cqw;flex:0 0 auto}
 .mtg-pastille{display:inline-block;width:5.4cqw;height:5.4cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d4cdb0 70%);border:.35cqw solid #2d2d32;box-shadow:.25cqw .3cqw 0 rgba(0,0,0,.45);font:700 3.4cqw/5.2cqw Georgia,serif;text-align:center;color:#15151a}
-.mtg-art{flex:0 0 33%;position:relative;overflow:hidden;background:#05070d;border:.6cqw solid #101014;border-radius:.8cqw;box-shadow:0 0 0 .5cqw rgba(0,0,0,.35);cursor:pointer}
-.mtg-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 25%}
+.mtg-art{flex:0 0 auto;aspect-ratio:1 / 1;position:relative;overflow:hidden;background:#05070d;border:.6cqw solid #101014;border-radius:.8cqw;box-shadow:0 0 0 .5cqw rgba(0,0,0,.35);cursor:pointer}
+.mtg-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:50% 50%}
 .mtg-type{font:700 4.3cqw/1.2 Georgia,"Times New Roman",serif;color:#101014}
 .mtg-texte .soreal-idle-boss-lore-ornament-v184{display:none}
 .mtg-type>.mtg-type-texte{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -66,11 +66,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   background:radial-gradient(circle at 18% 12%,rgba(255,226,140,.4),transparent 38%),radial-gradient(circle at 85% 88%,rgba(110,40,18,.55),transparent 46%),repeating-linear-gradient(35deg,rgba(0,0,0,.07) 0 .6cqw,transparent .6cqw 1.5cqw),linear-gradient(140deg,#a17f34,#6d4a1c 52%,#8b5726);
   box-shadow:inset 0 0 0 .5cqw #b99650,inset 0 0 0 1cqw #3c2a10,inset 0 0 0 1.5cqw #a88a45}
 .mtg-dos-ovale::before{content:"";position:absolute;inset:6% 7%;border-radius:50%;border:.9cqw solid #3a35c4;background:radial-gradient(ellipse at 50% 45%,#bd6a40,#a14e2e 62%,#80381f);box-shadow:0 0 0 .4cqw #15103a,inset 0 0 5cqw rgba(60,20,8,.55)}
-.mtg-dos-titre{position:absolute;left:8%;top:11%;width:84%;height:auto;z-index:2;filter:drop-shadow(0 .5cqw .4cqw rgba(0,0,0,.45))}
-.mtg-dos-photo{position:absolute;left:20%;right:20%;top:41%;bottom:15%;z-index:2;display:flex;align-items:center;justify-content:center}
-.mtg-dos-photo img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:1cqw;box-shadow:0 .6cqw 1.8cqw rgba(0,0,0,.6),0 0 0 .4cqw rgba(15,8,4,.7)}
+.mtg-dos-titre{position:absolute;left:8%;top:17%;width:84%;height:auto;z-index:2;filter:drop-shadow(0 .5cqw .4cqw rgba(0,0,0,.45))}
 .mtg-dos-billes i{position:absolute;width:4cqw;height:4cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffb3a6,#e0331f 55%,#7a140a);box-shadow:0 .3cqw .5cqw rgba(0,0,0,.6),0 0 0 .3cqw #3a1208;z-index:3}
 .mtg-dos-billes i:nth-child(1){left:3.2cqw;top:3.2cqw}.mtg-dos-billes i:nth-child(2){right:3.2cqw;top:3.2cqw}.mtg-dos-billes i:nth-child(3){left:3.2cqw;bottom:3.2cqw}.mtg-dos-billes i:nth-child(4){right:3.2cqw;bottom:3.2cqw}
+/* les cinq billes de couleur au centre de l'ovale (blanc, vert, bleu, rouge, noir) */
+.mtg-dos-orbes b{position:absolute;width:6cqw;height:6cqw;border-radius:50%;z-index:2;box-shadow:0 .4cqw .7cqw rgba(0,0,0,.6),0 0 0 .35cqw #1a1209}
+.mtg-dos-orbes b:nth-child(1){left:calc(50% - 3cqw);top:58%;background:radial-gradient(circle at 35% 30%,#fffbe8,#e8dba5 60%,#a8975c)}
+.mtg-dos-orbes b:nth-child(2){left:calc(50% - 15cqw);top:65%;background:radial-gradient(circle at 35% 30%,#d6f5b5,#4aa93a 60%,#1f5a16)}
+.mtg-dos-orbes b:nth-child(3){left:calc(50% + 9cqw);top:65%;background:radial-gradient(circle at 35% 30%,#bfeaff,#2aa7e0 60%,#10587d)}
+.mtg-dos-orbes b:nth-child(4){left:calc(50% - 10cqw);top:75%;background:radial-gradient(circle at 35% 30%,#ffb7a8,#e0331f 60%,#7a140a)}
+.mtg-dos-orbes b:nth-child(5){left:calc(50% + 4cqw);top:75%;background:radial-gradient(circle at 35% 30%,#8d7f93,#2a2230 60%,#0b080d)}
 @media (prefers-reduced-motion:reduce){:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1{transition:none}}
 
 /* flèches des cartes voisines : sur les côtés, jamais sur la carte (la carte est réduite pour leur laisser la place sur téléphone) */

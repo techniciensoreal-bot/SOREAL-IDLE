@@ -19,7 +19,8 @@ const h = carte.html({ numero: 12, nom: "Bambi <b>", monde: 2, ordre: 3, pv: 100
 assert.match(h, /class="carte-mtg-v1" data-numero="12" data-couleur="1"/, "couleur de repli selon le monde (avant l'analyse de l'illustration)");
 assert.ok(h.includes('onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)"'), "la couleur suit l'illustration, analysée à son chargement");
 const iDos = h.indexOf('class="mtg-dos"');
-assert.ok(iDos > 0 && h.indexOf("SOREAL</text>", iDos) > iDos && h.indexOf("IDLE</text>") > h.indexOf("SOREAL</text>", iDos) && h.indexOf('mtg-dos-photo"><img src="/x.png"', iDos) > iDos, "dos : titre du jeu sur deux lignes puis la photo du boss");
+assert.ok(iDos > 0 && h.indexOf("SOREAL</text>", iDos) > iDos && h.indexOf("IDLE</text>") > h.indexOf("SOREAL</text>", iDos) && h.indexOf("mtg-dos-orbes", iDos) > iDos, "dos : titre du jeu sur deux lignes puis les cinq billes");
+assert.ok(!h.slice(iDos).includes("<img"), "dos : aucune photo du boss, seulement le dessin de dos de carte");
 assert.match(h, /mtg-nom[^>]*>Bambi &lt;b&gt;</, "le nom est échappé");
 assert.match(h, /<span>Boss légendaire<\/span> — <span>Monde<\/span> 2/, "ligne de type traduisible");
 assert.match(h, /mtg-force"><span>N50<\/span><i>\/<\/i><span>N1000<\/span>/, "case attaque / vie dans le coin");
@@ -54,10 +55,12 @@ assert.match(lire("cloudflare/public/index.html"), /carte-boss-magic-v1\.js\?v=\
 const css = lire("cloudflare/public/soreal-idle-carte-boss.css");
 assert.match(lire("cloudflare/public/index.html"), /soreal-idle-carte-boss\.css\?v=\d+/, "feuille de style chargée");
 assert.ok(css.includes(".carte-mtg-v1.retournee{transform:rotateY(180deg)}"), "retournement");
-assert.match(css, /\.mtg-dos-photo img\{[^}]*object-fit:contain/, "photo du dos entière, jamais rognée");
+assert.match(css, /\.mtg-art\{[^}]*aspect-ratio:1 \/ 1/, "illustration en carré : entière, jamais rognée");
+assert.match(css, /\.mtg-art img\{[^}]*object-fit:contain/, "image entière dans son cadre");
+assert.ok(css.includes("aspect-ratio:5 / 8.4"), "carte allongée pour montrer l'illustration entière");
 assert.ok(css.includes("--mtg-cadre:#2a6aa6"), "couleur 0 (bleu)");
 for (const c of [1, 2, 3, 4, 5]) assert.ok(css.includes('.carte-mtg-v1[data-couleur="' + c + '"]{--mtg-cadre'), "couleur " + c);
-assert.match(css, /aspect-ratio:5 \/ 7/, "proportions d'une carte");
+assert.match(css, /aspect-ratio:5 \/ 8\.4/, "proportions de la carte allongée");
 assert.match(css, /boss-lore-v142:not\(\.ouverte\) :is\(\.carte-mtg-v1,\.mtg-avant,\.mtg-cadre,\.mtg-titre,\.mtg-texte,\.mtg-boutons\)\{display:contents\}/, "fermée : le petit cadre au mur est inchangé");
 assert.match(css, /\.mtg-modal-v1\{/, "fiche de la Collection");
 // flèches : seulement des boss découverts (jamais le suivant d'un boss inconnu), sur les côtés, la carte est floutée autour

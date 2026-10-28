@@ -3,7 +3,7 @@
  * Mise en page copiée d'une carte de jeu de cartes : cadre noir, bandeau du nom avec pastilles à droite, illustration, ligne de type avec emblème, cadre de texte (capacités, puis récit en italique),
  * ligne de collection en bas et case attaque / vie dans le coin. Les données sont celles d'un boss DÉJÀ découvert (règle anti-spoil n°2) : ce module ne lit rien d'autre que ce qu'on lui donne.
  * Couleur du cadre (Norman, même jour : « différentes suivant ce qu'il y a dessus ») : elle suit l'ILLUSTRATION du boss, comme les couleurs d'une carte de jeu — bleu, rouge, vert, noir, blanc, ou or quand deux couleurs
- * dominent (analyse de l'image à son chargement, mémorisée par boss). Un tap sur l'illustration retourne la carte : dos de carte avec le titre du jeu sur deux lignes et la photo du boss entière ; un tap remet l'endroit.
+ * dominent (analyse de l'image à son chargement, mémorisée par boss). Un tap sur l'illustration retourne la carte : dos de carte avec le titre du jeu sur deux lignes ; un tap remet l'endroit.
  * Partagé par la chronique du boss (page Combat, ui-combat-1-v1.js) et la fiche de la Collection (ui-combat-2-v1.js). Style : soreal-idle-carte-boss.css.
  */
 (function(){
@@ -109,7 +109,7 @@ function aller(numero){
 /* Emblème de l'extension (en bas à droite de la ligne de type) : petit écusson SOREAL. */
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
-/* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et la photo du boss, entière (jamais rognée). */
+/* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et les cinq billes de couleur. Rien d'autre : pas de photo du boss (Norman, 2026-10-28). */
 function dos(o){
   var lettres='font-family="Bangers,Impact,sans-serif" font-size="92" text-anchor="middle" fill="url(#mtgBleu)" stroke="#5b1d12" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" letter-spacing="3"';
   return '<div class="mtg-dos" data-soreal-tts-ignore>'+
@@ -118,7 +118,7 @@ function dos(o){
         '<defs><linearGradient id="mtgBleu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0f2"/><stop offset=".5" stop-color="#4a8fd0"/><stop offset="1" stop-color="#2a63a8"/></linearGradient></defs>'+
         '<g transform="rotate(-4 170 100)"><text x="170" y="92" '+lettres+'>SOREAL</text><text x="170" y="190" '+lettres+'>IDLE</text></g>'+
       '</svg>'+
-      '<div class="mtg-dos-photo">'+(o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" loading="lazy" onerror="this.style.display=\'none\'">':'')+'</div>'+
+      '<div class="mtg-dos-orbes" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>'+
       '<div class="mtg-dos-billes" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'+
     '</div>'+
   '</div>';
