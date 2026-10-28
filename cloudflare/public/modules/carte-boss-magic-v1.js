@@ -109,10 +109,11 @@ function aller(numero){
 /* Emblème de l'extension (en bas à droite de la ligne de type) : petit écusson SOREAL. */
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
-/* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et les cinq billes de couleur. Rien d'autre : pas de photo du boss (Norman, 2026-10-28). */
+/* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et les cinq billes de couleur. Rien d'autre : pas de photo du boss (Norman, 2026-10-28). Le dos est l'image idle/backgrounds/MagicCardBack.webp (R2, route /api/idle/media/card-back) pour TOUTES les cartes ; ce dessin ne sert que de repli tant qu'elle manque. */
 function dos(o){
   var lettres='font-family="Bangers,Impact,sans-serif" font-size="92" text-anchor="middle" fill="url(#mtgBleu)" stroke="#5b1d12" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" letter-spacing="3"';
   return '<div class="mtg-dos" data-soreal-tts-ignore>'+
+    '<img class="mtg-dos-image" src="/api/idle/media/card-back" alt="" data-sans-traduction onerror="this.style.display=\'none\'">'+
     '<div class="mtg-dos-ovale">'+
       '<svg class="mtg-dos-titre" viewBox="0 0 340 215" aria-hidden="true" data-sans-traduction>'+
         '<defs><linearGradient id="mtgBleu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0f2"/><stop offset=".5" stop-color="#4a8fd0"/><stop offset="1" stop-color="#2a63a8"/></linearGradient></defs>'+

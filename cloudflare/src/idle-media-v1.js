@@ -1642,6 +1642,14 @@ async function debugListeR2_(request,env,url){
   return Response.json({ok:true,count:objects.length,objects:objects.sort((a,b)=>a.key.localeCompare(b.key))},{headers:{"cache-control":"no-store"}});
 }
 
+/* Dos des cartes de boss (Norman, 2026-10-28) : UNE seule image pour toutes les cartes, idle/backgrounds/MagicCardBack.webp (dossier hors de idle/backgrounds/adventure/, jamais pris pour un fond de zone). */
+async function carteDos_(request,env){
+  const cle="idle/backgrounds/MagicCardBack.webp";
+  if(typeof env.SOREAL_R2.get!=="function")return new Response("Dos de carte indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  if(!(await env.SOREAL_R2.get(cle)))return new Response("Dos de carte introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  return reponseObjetR2_(request,env,{key:cle});
+}
+
 export async function traiterRequeteIdleMedia(request,env){
   const url=new URL(request.url);
   const routes=new Set([
@@ -1659,6 +1667,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/banner",
     "/api/idle/media/bloodmagic",
     "/api/idle/media/card",
+    "/api/idle/media/card-back",
     "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
@@ -1688,6 +1697,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/banner")return bannerImage_(request,env,url);
   if(url.pathname==="/api/idle/media/bloodmagic")return bloodMagicImage_(request,env,url);
   if(url.pathname==="/api/idle/media/card")return carteImage_(request,env,url);
+  if(url.pathname==="/api/idle/media/card-back")return carteDos_(request,env);
   if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);

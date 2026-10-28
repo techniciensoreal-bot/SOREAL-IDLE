@@ -20,7 +20,10 @@ assert.match(h, /class="carte-mtg-v1" data-numero="12" data-couleur="1"/, "coule
 assert.ok(h.includes('onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)"'), "la couleur suit l'illustration, analysée à son chargement");
 const iDos = h.indexOf('class="mtg-dos"');
 assert.ok(iDos > 0 && h.indexOf("SOREAL</text>", iDos) > iDos && h.indexOf("IDLE</text>") > h.indexOf("SOREAL</text>", iDos) && h.indexOf("mtg-dos-orbes", iDos) > iDos, "dos : titre du jeu sur deux lignes puis les cinq billes");
-assert.ok(!h.slice(iDos).includes("<img"), "dos : aucune photo du boss, seulement le dessin de dos de carte");
+const imagesDos = h.slice(iDos).match(/<img [^>]*>/g) || [];
+assert.equal(imagesDos.length, 1, "dos : une seule image, jamais la photo du boss");
+assert.ok(imagesDos[0].includes("/api/idle/media/card-back") && !imagesDos[0].includes("/x.png"), "dos : l image idle/backgrounds/MagicCardBack.webp, la même pour toutes les cartes");
+assert.ok(lire("cloudflare/src/idle-media-v1.js").includes("idle/backgrounds/MagicCardBack.webp") && lire("cloudflare/src/idle-media-v1.js").includes("/api/idle/media/card-back"), "route serveur du dos de carte");
 assert.match(h, /mtg-nom[^>]*>Bambi &lt;b&gt;</, "le nom est échappé");
 assert.match(h, /<span>Boss légendaire<\/span> — <span>Monde<\/span> 2/, "ligne de type traduisible");
 assert.match(h, /mtg-force"><span>N50<\/span><i>\/<\/i><span>N1000<\/span>/, "case attaque / vie dans le coin");
