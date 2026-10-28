@@ -6,7 +6,8 @@ import { readFileSync } from "node:fs";
  */
 const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 const css = src.slice(src.indexOf(".ygg-vitre.ygg-ater::before{"), src.indexOf(".ygg-vitre.ygg-ater::before{") + 700);
-assert.ok(css.includes("bottom:1.2%") && css.includes("at 50% 100%"), "le calque s'arrête à la ligne du sol et la lueur est centrée sur le sol : rien en dessous");
+assert.ok(css.includes("bottom:0") && css.includes("at 50% 92%"), "Norman 2026-10-28 : la lueur entoure le tas de terre, au-dessus ET en dessous (le calque descend jusqu'au bas du cadre)");
+assert.ok(css.includes("var(--ygg-ac) 42%") && css.includes("var(--ygg-ac) 17%"), "intensité divisée par deux (avant : 88 % et 40 %)");
 assert.ok(css.includes("z-index:0") && css.includes("var(--ygg-ac)"), "derrière la terre, de la couleur du fruit");
 assert.ok(!/animation/.test(css), "image fixe, aucune animation");
 assert.ok(src.includes("FRUITS_24_[id]===true&&v.tier>0&&v.active?' ygg-ater':''"), "seulement quand le fruit pousse (actif)");

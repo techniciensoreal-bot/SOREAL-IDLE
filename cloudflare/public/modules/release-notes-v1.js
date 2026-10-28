@@ -48,7 +48,8 @@
             'Dans chaque barre, le bouton « Max » ne dépasse plus de son cadre sur téléphone.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Les portes s’ouvrent d’un seul mouvement, sans petits à-coups : une seule accélération du début à la fin.'
+            'Les portes s’ouvrent d’un seul mouvement, sans petits à-coups : une seule accélération du début à la fin.',
+            'La lueur autour du tas de terre est deux fois moins forte, et elle entoure maintenant le tas des deux côtés : au-dessus comme en dessous.'
           ]},
           {menu:'shop', titre:'Boutique', points:[
             'Ce menu s’appelle maintenant « Boutique » : dans l’annonce de déblocage comme sur son bouton.'
