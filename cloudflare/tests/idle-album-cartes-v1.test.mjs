@@ -76,3 +76,10 @@ assert.ok(c.includes(".alb-pochette-vide .alb-carte{visibility:hidden}") && c.in
 assert.ok(m.includes("if(L>=nbPages())return completer('',0);"), "la page après la dernière a ses 9 pochettes vides");
 assert.ok(m.includes('alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique"'), "une pochette vide est un plastique seul");
 assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau reste devant les feuilles (jamais à plat avec elles : il ne disparaît plus)");
+
+// le calage de défilement du clic ne touche jamais l'album (la couverture 3D le faisait défiler de ±100 px) et le classeur ne déborde plus de la page (hauteur du document constante)
+{
+  const menus = fs.readFileSync("cloudflare/public/modules/ui-menus-v1.js", "utf8");
+  assert.ok(menus.includes("if(el.closest&&el.closest('.alb-classeur'))return;"), "pas de calage de défilement sur l'album");
+  assert.ok(c.includes(".alb-classeur{position:relative;overflow:clip;overflow-clip-margin:30px;"), "le 3D de l'album n'allonge pas la page");
+}

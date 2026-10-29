@@ -162,6 +162,8 @@
           if(!racine||!racine.contains(el))return;
           /* Norman (2026-10-19) : « quand je lance un combat de boss, sa barre et la mienne s'arrêtent une demi-seconde ». Le profil montrait cette boucle (getBoundingClientRect à chaque image pendant 3 à 5 s) : à l'instant où le combat démarre et où la page bouge beaucoup, chaque mesure force un calcul de mise en page complet (219 ms sur les 900 premières ms). La borne d'arcade (Fight, Fuite…) ne décale jamais la page : aucun calage pour elle. */
           if(el.closest&&el.closest('.borne-v2'))return;
+          /* L'album (couverture qui pivote en 3D, feuilles) ne décale jamais la page (sa hauteur est constante) : le calage prenait le mouvement 3D de la couverture pour un déplacement de la page et la faisait défiler de ±100 px à l'ouverture (mesuré sur la partie de Norman, 2026-10-29). */
+          if(el.closest&&el.closest('.alb-classeur'))return;
           for(let n=el;n&&n!==racine;n=n.parentElement){
             if(window.getComputedStyle(n).position==='fixed')return;
           }

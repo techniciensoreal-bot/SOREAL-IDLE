@@ -10,7 +10,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 }
 @media (min-width:900px){html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{padding-left:clamp(12px,2.2vw,22px)}}
 /* La place des barres de navigation (au-dessus et en dessous) est TOUJOURS réservée, livre fermé ou ouvert : l'ouvrir ne déplace plus rien dans la page (Norman, 2026-10-29). */
-.alb-classeur{position:relative;max-width:980px;margin:0 auto;padding:var(--alb-nav-h) 0 var(--alb-nav-b);--alb-nav-h:56px;--alb-nav-b:66px}
+.alb-classeur{position:relative;overflow:clip;overflow-clip-margin:30px;max-width:980px;margin:0 auto;padding:var(--alb-nav-h) 0 var(--alb-nav-b);--alb-nav-h:56px;--alb-nav-b:66px}
 .alb-classeur>.alb-nav{position:absolute;left:0;right:0;margin:0}
 .alb-classeur>.alb-nav-haut{top:0}
 .alb-classeur>.alb-nav-bas{bottom:0}
