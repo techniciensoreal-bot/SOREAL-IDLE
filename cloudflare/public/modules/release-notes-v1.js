@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’autocollant SOREAL de la borne est centré sur l’enseigne, de travers, et le N de NGU se lit en entier.',
             'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
             'Sur PC, le cadre des menus de gauche est centré en hauteur (même marge en haut et en bas) et ses icônes restent dans le cadre quand on le fait défiler.',
             'Nettoyer le Coffre après un accident, ou la Valise après un vomi, rapporte des AP : de 1 à 100 au hasard, et très très rarement 5 000. Le gain s’envole du Coffre ou de la Valise.',
@@ -73,6 +74,7 @@
             'Dans le NGU de magie, les aurores boréales ont de vrais rideaux courbes et lumineux, au lieu de bandes droites. Les étoiles apparaissent en fondu quand tu places de la magie, et elles scintillent.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Quand tu manges un fruit, un seul fruit reste : il grossit en plein écran, hors du cadre, puis disparaît en fondu ; les autres rétrécissent.',
             'Le bouton Activer reste grisé tant que l’Énergie ou la Magie nécessaire n’est pas générée et disponible dans la barre du haut ; il se dégrise tout seul dès qu’il y en a assez. Quand il coûte de la Magie, il prend une teinte bleutée, comme le fond de la carte.',
             'Quand tu manges un fruit, on entend la mâche des fruits complets, qui rétrécissent un à un, à tour de rôle ; le fruit qui pousse encore rétrécit seulement jusqu’à disparaître, sans bruit. Quand tu les transformes en graines, seuls les fruits complets se défont en mini particules qui tombent au sol.',
             'Les cadres d’image des fruits sont maintenant carrés et montrent l’arbre en entier, du tronc aux feuilles, au lieu de couper les côtés.',
