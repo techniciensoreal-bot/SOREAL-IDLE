@@ -32,6 +32,10 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’icône du jeu est la nouvelle sur la fenêtre et sur les raccourcis du Bureau, du menu Démarrer et de la barre des tâches.',
+            'Le boss qui s’écroule en pierre se fissure exactement là où il se casse : les morceaux qui tombent suivent les fissures.',
+            'Un son de mort n’est plus joué en double : une mort qui a son propre son ne rejoue plus le son de défaite en plus.',
+            'L’album de collection des boss a des pages : des boutons (ou un glissement du doigt) tournent la page autour des anneaux du classeur, sur téléphone comme sur PC.',
             'Dans la Collection, les boss sont rangés dans un album de collection, chaque carte glissée dans sa pochette en plastique. Un clic : la carte sort de sa pochette et vient en zoom sur l’écran ; tu peux la faire tourner au doigt ou à la souris.',
             'L’autocollant SOREAL de la borne est centré sur l’enseigne, de travers, et le N de NGU se lit en entier.',
             'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
