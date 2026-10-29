@@ -16,6 +16,18 @@
       else if(racine.requestFullscreen){var p=racine.requestFullscreen();if(p&&p.catch)p.catch(function(){});}
     }catch(_e){/* refusé par le navigateur : rien */}
   };
+  /*
+   * Actualiser dans l'application Windows (Norman, 2026-10-29 : « F5 et Ctrl+R ne marchent pas »). Sans menu, Electron n'a plus ces raccourcis ; le cœur de l'application les rétablit (desktop/coeur.js, before-input-event) mais il ne se charge qu'avec la mise à jour installée
+   * ET validée (20 s de fenêtre ouverte). Cette écoute dans la page double le cœur : elle arrive avec les fichiers du jeu, dès le premier redémarrage. Quand le cœur a déjà traité la touche, la page ne la reçoit pas (jamais deux actualisations).
+   */
+  if(window.sorealDesktop){
+    document.addEventListener('keydown',function(e){
+      var k=String(e.key||'').toLowerCase();
+      if(e.altKey||!(k==='f5'||((e.ctrlKey||e.metaKey)&&k==='r')))return;
+      e.preventDefault();
+      try{location.reload();}catch(_e){/* rien */}
+    },true);
+  }
   if(document.getElementById('soreal-idle-plein-ecran-style-v1'))return;
   var s=document.createElement('style');s.id='soreal-idle-plein-ecran-style-v1';
   s.textContent=[

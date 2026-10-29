@@ -216,8 +216,8 @@
   "sha": "6c0465b808e5c98d73a1bcfd61bc9ed237edf055"
  },
  "/modules/hud-haut-v2.js": {
-  "pin": 33,
-  "sha": "6f61ca1bf079ab29d7c3fe55a917c00d9db85bd6"
+  "pin": 35,
+  "sha": "fd4cf8f31f9350eeb6482b3ee8de0072146984c4"
  },
  "/modules/icones-v1.js": {
   "pin": 2,
@@ -392,8 +392,8 @@
   "sha": "bf0283a01d995620de1d53394fbdbbf05fbb4cd4"
  },
  "/modules/plein-ecran-v1.js": {
-  "pin": 1,
-  "sha": "25ff8e73ad7cd83e300f0bf50ea681c551b4b4b8"
+  "pin": 2,
+  "sha": "071bfa9893181d0fdda4ea9a3cf8f4e0b1af4756"
  },
  "/modules/prefs-compte-v1.js": {
   "pin": 2,
@@ -420,8 +420,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 512,
-  "sha": "4039b32b9c124786146c9c6ca06b5778553b3939"
+  "pin": 513,
+  "sha": "4dfacf7031469969ec7f05a540f3823afd311759"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -492,12 +492,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 524,
-  "sha": "5c58e36c450cca6de5aaabfa1aba6ceaa6a113ee"
+  "pin": 525,
+  "sha": "13c83e6ae27097044abfe3baac8a61c08fa2bcd1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 344,
-  "sha": "5908d36043df03fe76718459c00818c8902a7e2b"
+  "pin": 345,
+  "sha": "0bc986b4402c6426f6ed307ba233a0bbb7f10f81"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

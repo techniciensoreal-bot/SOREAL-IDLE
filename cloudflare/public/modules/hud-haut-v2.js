@@ -92,121 +92,54 @@
     (document.head||document.documentElement).appendChild(st);
   })();
   /*
-   * Le bandeau et la page sont deux choses INDÉPENDANTES (Norman, 2026-10-28 : « quand la barre de magie ou d'énergie disparaît, ça fait encore bouger le menu ; ça doit vraiment être 2 choses indépendantes, ce petit saut n'est vraiment pas propre »).
-   * L'ancienne compensation ne jouait que page défilée (en haut de page, le contenu suivait la barre) et passait par le défilement. Maintenant une réserve (un bloc vide juste sous le bandeau, data-morph-garder) absorbe EXACTEMENT chaque variation de
-   * hauteur du bandeau, image après image (ResizeObserver : avant l'affichage de l'image) : le contenu reste où il est, en haut de page comme défilé ; le bandeau, lui, se réduit ou se déploie par-dessus. La réserve est remise à zéro quand on change de menu
-   * ou que la fenêtre change de taille (le contenu est alors remplacé ou remis en page de toute façon).
+   * Le bandeau (chiffres + barres) est posé PAR-DESSUS l'interface et ne la pousse JAMAIS (Norman, 2026-10-29 : « le panneau attaque défense or et les 4 barres doivent être au-dessus de l'interface ; quand il se déploie, il glisse sur le dessus du menu mais ne le pousse
+   * jamais » ; « aucun mouvement hormis la barre de PV et les autres barres »). La page ne réserve que la hauteur de BASE du bandeau (chiffres + barre de vie) ; les barres d'énergie, de magie et de 3e ressource, qui apparaissent et disparaissent, se déploient vers le bas
+   * SUR la page : le bandeau (collé en haut, au-dessus du contenu) grandit, et sa marge basse se raccourcit exactement d'autant (variable --hud-decalage lue par la feuille posée plus bas) : le contenu reste où il est, image après image (ResizeObserver : avant l'affichage).
+   * Plus de réserve, plus de défilement corrigé, plus de délai : rien à rattraper, donc aucun mouvement, ni à l'apparition ni à la disparition d'une barre, en haut de page comme défilé, sur PC comme sur téléphone.
    */
-  var hudObs=null,hudEl=null,reserve=null,menuReserve='',graceJusqua=0;
-  /* Une page qui vient de s'afficher laisse le bandeau se mettre en place (les barres déjà vides se replient en fondu ~2 s après l'arrivée) : pendant ces 5 s rien n'est absorbé, sinon la réserve laissait un grand vide entre la barre de vie et la page (Norman, 2026-10-28, Fight Boss). */
-  var GRACE_MS=5000;
-  function menuCourant(){var r=document.querySelector('.soreal-idle-page-root-v28');return r?(r.getAttribute('data-menu')||''):'';}
-  /*
-   * La réserve se déduit de la HAUTEUR DU BANDEAU lui-même (jamais de la position du contenu : une mesure du contenu absorbait aussi des écarts qui ne venaient pas du bandeau, ils s'additionnaient et laissaient un GRAND vide en haut de page,
-   * Norman, 2026-10-28 : « le grand espace en début de page se produit encore, quand la barre d'énergie disparaît »). hauteurRef = la plus grande hauteur du bandeau depuis que la page est en place ; réserve = hauteurRef - hauteur actuelle : jamais
-   * plus que les barres qui ont disparu, et zéro dès qu'elles reviennent. Depuis le 2026-10-29 plus rien ne glisse : la réserve reste tant que la page est en haut ; défilée au-delà, elle est retirée avec un défilement reculé de la même hauteur (voir fermerReserveSiStable) : jamais un pixel de mouvement.
-   */
-  var reserveH=0,hauteurRef=0,hauteurPrec=0,stableDepuis=0,fermeture=0;
-  var STABLE_MS=1500;
-  function hauteurHud(){return hudEl?hudEl.getBoundingClientRect().height:0;}
-  /* Sur PC tout ce qui est sous le menu est mis à l'échelle (zoom .86, soreal-idle-themes.css) : une hauteur CSS de la réserve est affichée × zoom. Les mesures sont en pixels d'écran ; la réserve doit donc recevoir hauteur / zoom (sinon elle compense 14 % de moins : la page bougeait de ~6 px). */
-  function zoomPage(){try{var z=parseFloat(getComputedStyle(reserve||hudEl).zoom);return z>0?z:1;}catch(_e){return 1;}}
-  function ecartParent(){
-    var p=reserve&&reserve.parentElement;
-    if(!p)return 0;
-    var cs=getComputedStyle(p);
-    if(cs.display.indexOf('flex')===-1&&cs.display.indexOf('grid')===-1)return 0;
-    var g=parseFloat(cs.rowGap);
-    return isFinite(g)?g:0;
-  }
-  /* Au repos la réserve n'existe pas dans la mise en page (display:none : l'écart d'une page en colonne ou en grille s'ajouterait sinon, même à zéro pixel) ; en service sa marge haute annule un de ces écarts : elle ajoute exactement sa hauteur. */
-  function poserReserve(h){
-    reserveH=Math.max(0,h);
-    if(fermeture){clearTimeout(fermeture);fermeture=0;}
-    reserve.style.transition='none';
-    if(reserveH<=0.01){reserveH=0;reserve.style.display='none';reserve.style.height='0px';reserve.style.marginTop='0px';return;}
-    /*
-     * Sur PC la page est une grille à deux colonnes (menu à gauche sur 60 rangées, bandeau et page à droite) : une réserve sur « 1 / -1 » ne tient pas à côté du menu et la grille la repoussait SOUS toutes ses rangées, la page descendait d'environ 700 px d'un coup (mesuré le
-     * 2026-10-29 : « le grand espace en début de page se produit encore »). La réserve prend donc exactement la colonne du bandeau, quelle que soit la mise en page (téléphone comprise).
-     */
-    try{var colonne=getComputedStyle(hudEl).gridColumn;if(colonne&&reserve.style.gridColumn!==colonne)reserve.style.gridColumn=colonne;}catch(_e){}
-    reserve.style.display='block';
-    reserve.style.height=(reserveH/zoomPage())+'px';
-    reserve.style.marginTop=(-ecartParent()/zoomPage())+'px';
-  }
-  function assurerReserve(h){
-    if(reserve&&reserve.isConnected&&reserve.previousElementSibling===h)return;
-    if(reserve&&reserve.parentNode)reserve.parentNode.removeChild(reserve);
-    reserve=document.createElement('div');
-    reserve.id='sorealIdleHudReserveV2';
-    reserve.setAttribute('data-morph-garder','');
-    reserve.setAttribute('aria-hidden','true');
-    reserve.style.cssText='display:none;height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none';
-    reserveH=0;
-    h.insertAdjacentElement('afterend',reserve);
-  }
-  function remettreReserve(){
-    if(reserve&&reserve.isConnected)poserReserve(0);
-    hauteurRef=hauteurPrec=hauteurHud();
-    stableDepuis=Date.now();
-    graceJusqua=Date.now()+GRACE_MS;
-  }
-  /* Une variation de hauteur du bandeau : la réserve compense exactement ce que les barres ont perdu (avant l'affichage de l'image). */
-  function absorber(){
-    if(!hudEl||!reserve||!reserve.isConnected)return;
-    var mc=menuCourant();
-    if(mc!==menuReserve){menuReserve=mc;remettreReserve();return;}
-    var h=hauteurHud();
-    if(Date.now()<graceJusqua||(document.body&&document.body.classList.contains('tcv-actif'))){   /* page qui vient de s'afficher (le bandeau se met en place) ou bandeau caché pendant un combat de Titan : rien n'est absorbé */
-      if(reserveH>0)poserReserve(0);
-      hauteurRef=hauteurPrec=h;stableDepuis=Date.now();return;
+  var hudObs=null,hudEl=null;
+  function zoomHud(h){try{var z=parseFloat(getComputedStyle(h).zoom);return z>0?z:1;}catch(_e){return 1;}}
+  /* Hauteur d'écran du bandeau SANS les barres qui vont et viennent (en pixels d'écran) : tout ce qui n'est ni la barre de vie ni l'une des barres d'énergie, de magie ou de 3e ressource (celles-ci, même en cours de repli, comptent avec leurs marges). */
+  function baseHud(h){
+    var z=zoomHud(h),tot=h.getBoundingClientRect().height;
+    var extras=h.querySelectorAll('.soreal-idle-energy-panel-v34:not(.soreal-idle-hud-pv-v2)');
+    for(var i=0;i<extras.length;i++){
+      var r=extras[i].getBoundingClientRect(),cs=getComputedStyle(extras[i]);
+      tot-=r.height+((parseFloat(cs.marginTop)||0)+(parseFloat(cs.marginBottom)||0))*z;
     }
-    /* ce que la réserve occupe vraiment à cet instant (elle peut être en train de se refermer) */
-    var occupe=reserveH>0?Math.max(0,reserve.getBoundingClientRect().height):0;
-    hauteurRef=Math.max(h,hauteurPrec+occupe);
-    if(Math.abs(h-hauteurPrec)>0.01)stableDepuis=Date.now();
-    hauteurPrec=h;
-    poserReserve(hauteurRef-h);
+    return tot;
   }
-  /*
-   * Appelée toutes les 250 ms. La page ne bouge JAMAIS quand une barre part (Norman, 2026-10-29 : « fais disparaître l'énergie, la magie et la 3e ressource une à une et assure-toi que JAMAIS ça ne fasse bouger la page en fond ») : plus de glissement du contenu vers le haut.
-   * Au repos, la réserve (la place des barres parties) reste tant que la page est tout en haut ; dès que la page est défilée au-delà d'elle, elle est retirée d'un coup ET le défilement est reculé de la même hauteur dans la même tâche : le contenu visible ne change pas d'un pixel.
-   * Jamais près du bas de la page (le navigateur y bornerait le défilement) : elle reste alors jusqu'au prochain changement de page.
-   */
-  function fermerReserveSiStable(){
-    if(!reserve||!reserve.isConnected||reserveH<=0||fermeture)return;
-    if(Date.now()-stableDepuis<STABLE_MS)return;
-    var occupe=reserve.getBoundingClientRect().height;
-    var haut=window.pageYOffset||document.documentElement.scrollTop||0;
-    if(!(occupe>=1)||haut<occupe+1)return;   /* en haut de page : la réserve garde le contenu en place */
-    var doc=document.documentElement,fenetre=window.innerHeight||doc.clientHeight||0;
-    if(haut+fenetre>doc.scrollHeight-occupe-2)return;   /* trop près du bas : le défilement serait borné */
-    /* Le défilement est entier (un pixel d'écran) : la réserve garde seulement sa part décimale (moins d'un pixel) pour que le contenu ne bouge pas même d'un dixième de pixel. */
-    var entier=Math.floor(occupe),reste=occupe-entier;
-    poserReserve(reste);
-    window.scrollTo(0,haut-entier);
-    hauteurPrec=hauteurHud();hauteurRef=hauteurPrec+reste;
+  var dernierDecalage=null;
+  /* Écrit (sur la racine : le redessin de la page ne touche pas à ses attributs) de combien la marge basse du bandeau doit rentrer, en pixels de mise en page du bandeau. */
+  function ajuster(){
+    if(!hudEl||!hudEl.isConnected)return;
+    var z=zoomHud(hudEl),haut=hudEl.getBoundingClientRect().height;
+    if(!(haut>0))return;   /* bandeau caché (combat de Titan…) */
+    var d=-(haut-baseHud(hudEl))/z;
+    var v=(Math.round(d*10000)/10000)+'px';
+    if(v!==dernierDecalage){dernierDecalage=v;document.documentElement.style.setProperty('--hud-decalage',v);}
   }
+  (function(){
+    if(document.getElementById('soreal-idle-hud-decalage-v1'))return;
+    var st=document.createElement('style');st.id='soreal-idle-hud-decalage-v1';
+    st.textContent='body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{margin-bottom:calc(10px + var(--hud-decalage,0px))!important;z-index:30}';
+    (document.head||document.documentElement).appendChild(st);
+  })();
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');
-    var m=menuCourant();
-    if(h&&m!==menuReserve){menuReserve=m;if(h===hudEl)remettreReserve();}
-    if(h===hudEl&&(!h||(reserve&&reserve.isConnected)))return;
+    if(h===hudEl&&(!h||hudObs))return;
     if(hudObs){hudObs.disconnect();hudObs=null;}
     hudEl=h;
     if(!h||typeof ResizeObserver!=='function')return;
-    assurerReserve(h);
-    hauteurRef=hauteurPrec=hauteurHud();stableDepuis=Date.now();
-    graceJusqua=Date.now()+GRACE_MS;
-    hudObs=new ResizeObserver(absorber);
+    hudObs=new ResizeObserver(ajuster);
     hudObs.observe(h);
+    ajuster();
   }
-  window.addEventListener('resize',function(){remettreReserve();});
-  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,absorber:absorber,reserve:function(){return reserveH;},fermer:fermerReserveSiStable,stable:function(){stableDepuis=0;}};
+  window.addEventListener('resize',function(){dernierDecalage=null;ajuster();});
+  window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,ajuster:ajuster,base:function(){return hudEl?baseHud(hudEl):0;}};
   function maj(){
     placer();
     surveillerHud();
-    fermerReserveSiStable();
     majInfos();
     majVide();
     majDepense();

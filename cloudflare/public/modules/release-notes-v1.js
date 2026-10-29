@@ -33,7 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',
-            'Quand une barre d’énergie, de magie ou de 3e ressource disparaît, la page derrière ne bouge plus du tout, ni sur PC ni sur téléphone, en haut de page comme défilée : l’espace libéré reste en place en haut de page et il est retiré sans le moindre mouvement dès que tu fais défiler. (Sur PC, la page descendait parfois d’un coup d’environ 700 pixels, et de quelques pixels de trop à chaque barre : c’est corrigé.)',
+            'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser, ni sur PC ni sur téléphone. Seules la barre de vie et les autres barres bougent.',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},

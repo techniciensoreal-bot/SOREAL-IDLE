@@ -1,37 +1,46 @@
 /*
- * Banc d'essai « les barres du bandeau partent sans jamais faire bouger la page » (Norman, 2026-10-29).
- * Une partie avec TROIS ressources visibles (énergie, magie, 3e ressource) ; elles disparaissent une à une (3e ressource, puis énergie, puis magie) ; on mesure, à chaque livraison du ResizeObserver du bandeau
- * (donc APRÈS la compensation, ce qui est peint) et toutes les 30 ms, de combien bougent 6 éléments de la page, et le défilement.
+ * Banc d'essai « le bandeau se déploie par-dessus la page et ne la pousse jamais » (Norman, 2026-10-29).
+ * Partie avec TROIS ressources visibles (énergie, magie, 3e ressource, toutes pleines : « 100 / 100 ») ; pour CHAQUE page du jeu : l'énergie disparaît puis revient, la magie disparaît puis revient, la 3e ressource disparaît puis revient.
+ * À chaque livraison du ResizeObserver du bandeau (donc APRÈS sa compensation, ce qui est peint) et toutes les 30 ms, on mesure de combien bougent : les cases de chiffres (attaque, défense, or…), le menu et 12 éléments de la page.
  *
  * Lancer :
- *   1. PARTIE_B=1 PORT=8831 PARTIE_B_OPTIONS='{"boss":150,"energieCap":1e9,"energie":1e8,"magieCap":1e9,"magie":1e8}' node cloudflare/tools/local-dev-server.mjs
- *      (boss 150 : la magie est débloquée ; la 3e ressource est imposée par ce script dans l'état du client)
- *   2. ouvrir http://localhost:8831/ ; console : sessionStorage.setItem('soreal_idle_session_v1','local'); location.reload()
- *   3. coller ce fichier dans la console, puis : await __banc(0)   (en haut de page)   et   await __banc(300)   (page défilée)
- *      téléphone : outils de développement, mode mobile (375 px), recharger, même commande.
- * Attendu : maxDecalage <= 0.1 px dans toutes les étapes, partout ; défilé, le défilement recule (la réserve est retirée d'un coup, sans que le contenu bouge) ; en haut, le défilement reste à 0.
+ *   1. PARTIE_B=1 PORT=8831 PARTIE_B_OPTIONS='{"boss":150,"energieCap":100,"energie":100,"magieCap":100,"magie":100}' node cloudflare/tools/local-dev-server.mjs
+ *   2. http://localhost:8831/ ; console : sessionStorage.setItem('soreal_idle_session_v1','local'); location.reload()
+ *   3. coller ce fichier ; puis, deux pages à la fois (la console coupe à 45 s) : window.__defile=0; await __banc(1); await __banc(2) ...   (0 à 19 ; __defile=300 : page défilée)
+ * Attendu : « pire » = { t: 0, m: 0, c <= 0.02 } (t = chiffres, m = menu, c = contenu ; 0,02 px = une unité de mise en page). Une page dont le contenu bouge seul (ex. Trou sans fond : ~9 px d'animation) se repère en mesurant 6 s SANS rien changer.
  */
-window.__banc = async function (defile) {
+window.__banc = async function (idx) {
   const R = window.__SOREAL_IDLE_REG__; const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
   const rendre = () => { try { R.rendreIdleEtat_({ ok: true, joueur: R.idleEtat }); } catch (e) { window.__err = String(e); } };
-  const original = window.__SOREAL_IDLE_DISPONIBLE_V2__; const dispo = { energie: 1e8, magie: 1e8 };
-  let r3 = 50; const imposer = setInterval(() => { try { R.idleEtat.systemes.resources.r3.current = r3; } catch (e) { /* état pas prêt */ } }, 30);
-  window.scrollTo(0, 0); await attendre(200); rendre(); await attendre(6500);
-  window.scrollTo(0, defile); await attendre(1200);
-  const racine = document.querySelector('.soreal-idle-page-root-v28');
-  const els = [...racine.querySelectorAll('h1,h2,h3,button,section,article,div')].filter((e) => { const r = e.getBoundingClientRect(); return r.height > 20 && r.width > 60 && !e.closest('#sorealIdleHudV2') && !e.closest('.soreal-idle-nav-v28') && r.top > 200 && r.top < innerHeight; }).slice(0, 6);
-  const base = els.map((e) => e.getBoundingClientRect().top); let etape = 'depart'; const res = {}; const sy0 = scrollY;
-  const hud = document.getElementById('sorealIdleHudV2');
-  const noter = () => { const r = res[etape] || (res[etape] = { livraisons: 0, maxDecalage: 0, sy: [1e9, -1e9] }); els.forEach((e, i) => { if (e.isConnected) r.maxDecalage = Math.max(r.maxDecalage, Math.abs(e.getBoundingClientRect().top - base[i])); }); r.sy[0] = Math.min(r.sy[0], scrollY); r.sy[1] = Math.max(r.sy[1], scrollY); return r; };
-  const ro = new ResizeObserver(() => { noter().livraisons++; }); ro.observe(hud);
-  const tic = setInterval(noter, 30);
-  await attendre(800);
-  etape = 'r3 a zero'; r3 = 0; clearInterval(imposer); R.idleEtat.systemes.resources.r3.current = 0; rendre(); await attendre(5500);
+  const boutons = [...document.querySelectorAll('.soreal-idle-nav-v28 button')];
+  const nomMenu = (boutons[idx].getAttribute('title') || boutons[idx].textContent || '').toString().trim().slice(0, 22);
+  boutons[idx].click(); await attendre(1500);
+  const original = window.__SOREAL_IDLE_DISPONIBLE_V2__; const dispo = { energie: 100, magie: 100 };
   window.__SOREAL_IDLE_DISPONIBLE_V2__ = function () { return { energie: dispo.energie, magie: dispo.magie, magieEnCours: false }; };
-  etape = 'energie vide'; dispo.energie = 0; await attendre(5500);
-  etape = 'magie vide'; dispo.magie = 0; await attendre(5500);
-  ro.disconnect(); clearInterval(tic); window.__SOREAL_IDLE_DISPONIBLE_V2__ = original;
-  for (const k in res) res[k].maxDecalage = +res[k].maxDecalage.toFixed(2);
-  const rs = document.getElementById('sorealIdleHudReserveV2');
-  return JSON.stringify({ defile, sy0, res, syFin: scrollY, hud: Math.round(hud.getBoundingClientRect().height), reserve: rs ? rs.style.display + '/' + rs.style.height : '-' });
+  const poserR3 = (v) => { try { const r = R.idleEtat.systemes.resources.r3; r.current = v; r.cap = 100; } catch (e) { /* état pas prêt */ } };
+  let r3 = 100; const imposer = setInterval(() => poserR3(r3), 30);
+  window.scrollTo(0, 0); await attendre(100); rendre(); await attendre(2500); window.scrollTo(0, window.__defile || 0); await attendre(400);
+  const racine = document.querySelector('.soreal-idle-page-root-v28'); const hud = document.getElementById('sorealIdleHudV2'); const nav = document.querySelector('.soreal-idle-nav-v28');
+  const tuiles = [...hud.querySelectorAll('.soreal-idle-summary-grid-v28, .soreal-idle-summary-grid-v28 > *')];
+  const contenu = [...racine.querySelectorAll('h1,h2,h3,button,section,article,div')].filter((e) => { const r = e.getBoundingClientRect(); return r.height > 12 && r.width > 40 && !e.closest('#sorealIdleHudV2') && !e.closest('.soreal-idle-nav-v28') && r.top > 150 && r.top < innerHeight - 20; }).slice(0, 12);
+  const pos = (e) => { const r = e.getBoundingClientRect(); return [r.top, r.left, r.height]; };
+  const bT = tuiles.map(pos), bC = contenu.map(pos), bN = pos(nav); let etape = 'depart'; const res = {};
+  const noter = () => {
+    const r = res[etape] || (res[etape] = { tuiles: 0, contenu: 0, menu: 0, pan: new Set() });
+    r.pan.add(hud.querySelectorAll('.soreal-idle-energy-panel-v34:not(.soreal-idle-vide-v2)').length);
+    tuiles.forEach((e, i) => { if (!e.isConnected) return; const p = pos(e); r.tuiles = Math.max(r.tuiles, Math.abs(p[0] - bT[i][0]), Math.abs(p[2] - bT[i][2]), Math.abs(p[1] - bT[i][1])); });
+    contenu.forEach((e, i) => { if (!e.isConnected) return; const p = pos(e); r.contenu = Math.max(r.contenu, Math.abs(p[0] - bC[i][0]), Math.abs(p[1] - bC[i][1])); });
+    const pn = pos(nav); r.menu = Math.max(r.menu, Math.abs(pn[0] - bN[0]), Math.abs(pn[2] - bN[2]));
+  };
+  const ro = new ResizeObserver(noter); ro.observe(hud); const tic = setInterval(noter, 30);
+  const pas = async (nom, f, ms) => { etape = nom; f(); await attendre(ms); };
+  await pas('energie-', () => { dispo.energie = 0; }, 2100); await pas('energie+', () => { dispo.energie = 100; }, 1500);
+  await pas('magie-', () => { dispo.magie = 0; }, 2100); await pas('magie+', () => { dispo.magie = 100; }, 1500);
+  await pas('r3-', () => { r3 = 0; clearInterval(imposer); poserR3(0); rendre(); }, 1500);
+  const imposer2 = setInterval(() => poserR3(r3), 30);
+  await pas('r3+', () => { r3 = 100; poserR3(100); rendre(); }, 1500);
+  ro.disconnect(); clearInterval(tic); clearInterval(imposer2); window.__SOREAL_IDLE_DISPONIBLE_V2__ = original;
+  const pire = { t: 0, c: 0, m: 0 };
+  for (const k in res) { const r = res[k]; ['tuiles', 'contenu', 'menu'].forEach((c) => { r[c] = +r[c].toFixed(2); }); pire.t = Math.max(pire.t, r.tuiles); pire.c = Math.max(pire.c, r.contenu); pire.m = Math.max(pire.m, r.menu); }
+  return JSON.stringify({ menu: nomMenu, pire, barres: Object.fromEntries(Object.entries(res).map(([k, v]) => [k, [...v.pan].join('/')])) });
 };
