@@ -11,6 +11,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
+import { lireEnClair, tailleEnClair } from "./coffre-medias.mjs";
 
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
@@ -77,7 +78,7 @@ function creerAssets(dossierPublic) {
 
 /* ---------- SOREAL_R2 : le dossier des médias, mêmes clés que le bucket ---------- */
 /* dossiersMedias : un dossier, ou plusieurs COUCHES de la plus récente à la plus ancienne (mises à jour installées, puis médias de l'installateur) : pour une clé présente dans plusieurs, la couche la plus récente gagne. Les écritures vont dans la plus récente. */
-function creerR2(dossiersMedias) {
+export function creerR2(dossiersMedias) {
   const racines = (Array.isArray(dossiersMedias) ? dossiersMedias : [dossiersMedias]).map((d) => path.resolve(d));
   let index = null;   /* clé -> { taille, mtime, racine } (construit au premier besoin) */
   function construire() {
@@ -88,7 +89,7 @@ function creerR2(dossiersMedias) {
       for (const e of entrees) {
         const cle = prefixe + e.name;
         if (e.isDirectory()) parcourir(racine, path.join(dossier, e.name), cle + "/");
-        else if (e.isFile() && !cle.startsWith("_externes/")) { const st = fs.statSync(path.join(dossier, e.name)); index.set(cle, { taille: st.size, mtime: st.mtimeMs, racine }); }
+        else if (e.isFile() && !cle.startsWith("_externes/") && !/\.(chiffre|nouveau)$/i.test(e.name)) { const fichier = path.join(dossier, e.name), st = fs.statSync(fichier); index.set(cle, { taille: tailleEnClair(fichier, st.size), mtime: st.mtimeMs, racine }); }
       }
     };
     for (let i = racines.length - 1; i >= 0; i -= 1) parcourir(racines[i], racines[i], "");   /* de la plus ancienne à la plus récente : la dernière écrite l'emporte */
@@ -102,11 +103,12 @@ function creerR2(dossiersMedias) {
       key: cle, size: meta.taille, etag, httpEtag: '"' + etag + '"', uploaded: new Date(meta.mtime),
       httpMetadata: { contentType: ct }, customMetadata: {},
       writeHttpMetadata(h) { h.set("content-type", ct); },
-      async arrayBuffer() { const b = fs.readFileSync(f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); },
-      async text() { return fs.readFileSync(f, "utf8"); },
-      async json() { return JSON.parse(fs.readFileSync(f, "utf8")); }
+      /* médias chiffrés (coffre-medias.mjs) : rendus en clair au moment de les servir ; un fichier sans l'en-tête du coffre est lu tel quel */
+      async arrayBuffer() { const b = lireEnClair(f); return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength); },
+      async text() { return lireEnClair(f).toString("utf8"); },
+      async json() { return JSON.parse(lireEnClair(f).toString("utf8")); }
     };
-    if (avecCorps) o.body = Readable.toWeb(fs.createReadStream(f));
+    if (avecCorps) o.body = fs.statSync(f).size === meta.taille ? Readable.toWeb(fs.createReadStream(f)) : new Blob([lireEnClair(f)]).stream();
     return o;
   };
   return {

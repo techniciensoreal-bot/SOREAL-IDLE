@@ -9,7 +9,7 @@ import { ecrireZip } from "./zip.mjs";
 
 const DOSSIERS = [["cloudflare", "src"], ["cloudflare", "public"], ["cloudflare", "contracts"], ["design"]];
 /* Le cœur de l'application Windows voyage lui aussi dans la mise à jour (main.js le charge, voir desktop/main.js) : jamais le lanceur main.js, ni maj.mjs et zip.mjs (la vérification des signatures reste celle de l'installateur). */
-export const FICHIERS_COEUR = ["desktop/coeur.js", "desktop/preload.js", "desktop/icone.ico", "desktop/src/env-local.mjs", "desktop/src/liaison.mjs", "desktop/src/steam.mjs"];
+export const FICHIERS_COEUR = ["desktop/coeur.js", "desktop/preload.js", "desktop/icone.ico", "desktop/src/env-local.mjs", "desktop/src/coffre-medias.mjs", "desktop/src/liaison.mjs", "desktop/src/steam.mjs"];
 const exclu = (relatif) => /(^|\/)\.well-known\//.test(relatif) || /\.apk$/i.test(relatif);
 
 export function fichiersDuCode(depot) {

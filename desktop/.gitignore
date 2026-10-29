@@ -3,5 +3,6 @@ medias/
 graine/
 dist/
 _stage/
+_medias-chiffres/
 *.log
 _electron-builder.json

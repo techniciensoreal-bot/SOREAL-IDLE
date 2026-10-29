@@ -47,8 +47,16 @@ fs.writeFileSync(path.join(STAGE, "package.json"), JSON.stringify({
 /* Icône de l'application (exécutable, barre des tâches, raccourcis) : desktop/icone.ico (voir creer-icone.mjs). */
 fs.copyFileSync(path.join(ICI, "icone.ico"), path.join(STAGE, "icone.ico"));
 
-const medias = path.join(ICI, "medias");
-const avecMedias = fs.existsSync(medias) && fs.readdirSync(medias).length > 0;
+const mediasClairs = path.join(ICI, "medias");
+const avecMedias = fs.existsSync(mediasClairs) && fs.readdirSync(mediasClairs).length > 0;
+/* Coffre des médias (Norman, 2026-10-29 : « images et sons cryptés dans le dossier d'installation ») : l'installateur reçoit une copie CHIFFRÉE de desktop/medias (src/coffre-medias.mjs) ; le dossier de développement reste en clair. */
+const medias = path.join(ICI, "_medias-chiffres");
+if (avecMedias) {
+  fs.rmSync(medias, { recursive: true, force: true });
+  const { copierChiffre } = await import(pathToFileURL(path.join(ICI, "src", "coffre-medias.mjs")).href);
+  const r = copierChiffre(mediasClairs, medias);
+  console.log("médias chiffrés : " + r.fichiers + " fichiers, " + (r.octets / 1048576).toFixed(0) + " Mo");
+}
 console.log(avecMedias ? "médias embarqués : " + medias : "ATTENTION : desktop/medias est vide ou absent : les images et voix du serveur ne seront PAS dans l'installateur (lancer desktop/recolter.mjs).");
 
 const config = {

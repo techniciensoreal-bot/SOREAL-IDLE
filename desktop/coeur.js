@@ -126,6 +126,14 @@ async function demarrerJeu() {
     return net.fetch(requete, { bypassCustomProtocolHandlers: true });
   });
 
+  /* Coffre des médias : les fichiers reçus en clair par l'ancien programme de mise à jour sont chiffrés en tâche de fond (par petits lots), jamais pendant une action du jeu. */
+  setTimeout(async () => {
+    try {
+      const coffre = await import(pathToFileURL(path.join(__dirname, "src", "coffre-medias.mjs")).href);
+      for (const d of couches.dossiersMedias || []) await coffre.chiffrerDossier(d);
+    } catch (_e) { /* au prochain démarrage */ }
+  }, 20000);
+
   liaisonModule = await import(pathToFileURL(path.join(__dirname, "src", "liaison.mjs")).href);
   liaison = liaisonModule.lireLiaison(app.getPath("userData"), chiffrement);
   if (liaison.lie) env.definirSessionExterne({ token: liaison.jeton, expiresAt: liaison.expire });
