@@ -35,6 +35,9 @@
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'La mort du boss est maintenant toujours jouée quand le combat a duré au moins 5 secondes : même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis dans le feuillage pour qu’il y ait de la place pour les 24.',
             'L’aura de l’arbre brille de plus en plus, heure après heure, jusqu’à la 24e, où elle est beaucoup plus forte.',

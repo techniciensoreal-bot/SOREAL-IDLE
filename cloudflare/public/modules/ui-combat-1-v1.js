@@ -69,6 +69,9 @@
         REG.idleCombatDebutV1=Date.now();   /* début de CE combat : sert à l'écran de victoire arcade (combat d'au moins 5 s) */
         REG.idleCombatBossNumV1=idleEntier_(REG.idleEtat.bossSelection||1);   /* le boss combattu : l'écran de victoire fait éclater SON image, pas celle du suivant */
         try{const arcade=window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__;if(arcade&&arcade.planifierCapture)arcade.planifierCapture(REG.idleCombatBossNumV1);}catch(_e){}
+        /* Adresse de l'image du boss combattu (Norman, 2026-10-29 : « souvent aucune animation de mort ») : si l'état du boss suivant arrive avant la fin de la barre de vie, l'image de l'hôte n'est déjà plus celle du boss tué ; la mort se joue alors sur cette copie. */
+        REG.idleCombatImageV1='';
+        try{const hoteC=document.getElementById('sorealIdleBossImageHostV36'),imC=hoteC&&hoteC.querySelector('img'),appC=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(imC&&appC&&appC.idDe&&appC.idDe(imC)===REG.idleCombatBossNumV1)REG.idleCombatImageV1=imC.getAttribute('src')||'';}catch(_e){}
         idleCompensationImpactJoueurV117=null;
         idleCompensationImpactBossV117=null;
 
@@ -288,13 +291,29 @@
 
         if(!host)return;
 
-        const image=
+        const imageHote=
           host.querySelector(
             'img'
           );
 
-        if(image){
-          image.classList.add(
+        /*
+         * Norman (2026-10-29) : « il arrive souvent qu'aucune animation de mort ne soit utilisée ; l'image du suivant se voit une demi-seconde, puis noir, puis le boss apparaît en fondu, sans son ». Cause : quand l'état du boss suivant arrive avant la fin de la barre de vie,
+         * l'image de l'hôte est DÉJÀ celle du suivant : la mort n'était plus jouée (le boss sélectionné n'était plus celui du combat), la classe de mort estompait l'image du SUIVANT (noir), et l'apparition attendait 6 s un boss « différent » du mort (numéro lu sur l'image : celui du suivant)
+         * avant de s'achever sans son. Désormais le boss tué est celui du COMBAT (numéro et adresse d'image gardés au début du combat) : sa mort se joue sur cette copie, la classe de mort ne touche que sa propre image, et l'apparition part tout de suite sur le suivant.
+         */
+        const debutCombatV1=REG.idleCombatDebutV1,bossCombattuV1=REG.idleCombatBossNumV1,adresseMortV1=REG.idleCombatImageV1||'';
+        REG.idleCombatImageV1='';
+        let idMortV1=0,idHoteV1=0;
+        try{const appId=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;idHoteV1=appId&&appId.idDe&&imageHote?appId.idDe(imageHote):0;}catch(_e){idHoteV1=0;}
+        let image=imageHote;
+        const dejaRemplaceV1=bossCombattuV1>0&&idHoteV1>0&&idHoteV1!==bossCombattuV1;
+        if(dejaRemplaceV1){
+          image=null;
+          if(adresseMortV1){try{const copie=new Image();copie.src=adresseMortV1;if(copie.complete&&copie.naturalWidth>0)image=copie;}catch(_e){image=null;}}
+        }
+        idMortV1=bossCombattuV1>0?bossCombattuV1:idHoteV1;
+        if(imageHote&&!dejaRemplaceV1){
+          imageHote.classList.add(
             'soreal-idle-boss-death-v61'
           );
         }
@@ -305,14 +324,10 @@
          */
         /* Norman (2026-10-22) : « la taupe a éclaté alors que je n'étais pas à ce boss » : la durée et le numéro du combat sont à usage UNIQUE (remis à zéro ici) et le numéro doit être celui du boss sélectionné ; sinon un kill sans combat suivi (auto, Titan, tour) réutilisait un vieux combat. */
         let victoireArcadeIdleV1=false;
-        /* numéro du boss TUÉ (image encore dans l'hôte) : l'apparition ne se joue jamais sur lui (Norman, 2026-10-24) */
-        let idMortV1=0;
-        try{const appId=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;idMortV1=appId&&appId.idDe&&image?appId.idDe(image):0;}catch(_e){idMortV1=0;}
-        const debutCombatV1=REG.idleCombatDebutV1,bossCombattuV1=REG.idleCombatBossNumV1;
         REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__=false;
         try{
           const arcade=window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__;
-          const memeBoss=bossCombattuV1>0&&idleEntier_(REG.idleEtat&&REG.idleEtat.bossSelection||0)===bossCombattuV1;
+          const memeBoss=bossCombattuV1>0&&Boolean(image)&&(dejaRemplaceV1||idleEntier_(REG.idleEtat&&REG.idleEtat.bossSelection||0)===bossCombattuV1);
           /* Cinq nouvelles morts de boss (Norman, 2026-10-28, modules/morts-boss-nouvelles-v1.js) : mêmes conditions que l'écran de victoire (vrai combat d'au moins 5 s, jamais un NUKE) ; tirage parmi elles et l'éclatement en pixels d'avant. */
           const nouvelle=window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__;
           if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1&&arcade.doitJouer&&arcade.doitJouer(REG.idleEtat,Date.now()-debutCombatV1))victoireArcadeIdleV1=Boolean(nouvelle.jouerSurHote(host,image,idMortV1));
