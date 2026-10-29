@@ -52,13 +52,9 @@ const etat = (o) => Object.assign({ bossSelection: 6, systemes: { difficulty: "n
 // 1. Quand : victoire d'un combat de boss d'au moins 5 secondes, à chaque fois, quel que soit le boss ou la difficulté.
 {
   const m = monde();
-  assert.equal(m.V.combatMinMs, 5000);
-  assert.equal(m.V.doitJouer(etat(), 4999), false, "combat de moins de 5 s : pas d'écran");
-  assert.equal(m.V.doitJouer(etat(), 0), false, "durée inconnue : pas d'écran");
-  assert.equal(m.V.doitJouer(etat(), undefined), false);
-  assert.equal(m.V.doitJouer(etat(), 5000), true, "5 s exactement : écran");
-  assert.equal(m.V.jouer(m.hote, m.image, etat(), 4000), false);
-  assert.equal(m.ajoutes.length, 0, "rien posé pour un combat court");
+  assert.equal(m.V.combatMinMs, 0, "plus de durée minimale (Norman, 2026-10-29)");
+  assert.equal(m.V.doitJouer(etat(), 0), true, "combat très court : écran quand même");
+  assert.equal(m.V.doitJouer(etat(), 4999), true, "moins de 5 s : écran aussi");
   assert.equal(m.V.jouer(m.hote, m.image, etat(), 7500), true, "joué");
   assert.equal(m.ajoutes.length, 1);
   assert.ok(/vic-arcade/.test(m.ajoutes[0].className) && /soreal-idle-boss-transition-v61/.test(m.ajoutes[0].className), "calque de la borne, exclu des secousses de combat");

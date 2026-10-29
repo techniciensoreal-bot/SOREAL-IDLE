@@ -416,8 +416,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 507,
-  "sha": "754bc478a23be89905c4a21730c6c927129a8811"
+  "pin": 508,
+  "sha": "72b90386c39b194644ffb625996b7b6a726e6ec8"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -488,12 +488,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 519,
-  "sha": "9cb7d314c2a17c77322fb851b41ce0ce5e57668c"
+  "pin": 520,
+  "sha": "f8ca27fec16492b4378cc718f81c6d9ea4729210"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 339,
-  "sha": "720dee66a155f69ca42693d40a26c0c368a2d5e7"
+  "pin": 340,
+  "sha": "9f571fcc2d615109fc7baa6c2929324ac070c9c5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -548,8 +548,8 @@
   "sha": "17f8d96e5f6492488aca038ac2264d8c36db7795"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 21,
-  "sha": "9b0a1c3ce00698203946367688b8f392a6407ec7"
+  "pin": 22,
+  "sha": "c5a77537fb139291a7830c450411574d2771dc33"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 22,
@@ -620,8 +620,8 @@
   "sha": "c81ff256d297df9d1163034969bd1ef29038d59d"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 7,
-  "sha": "ea43c69535bf3def869ab3c553dcd89e4259f02e"
+  "pin": 8,
+  "sha": "5bb0d11cb5d55d6ff61efa4b79cd180ba81e9e6f"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 2,

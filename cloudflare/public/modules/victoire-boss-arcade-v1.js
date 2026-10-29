@@ -14,7 +14,7 @@
   'use strict';
   if(window.__SOREAL_IDLE_VICTOIRE_ARCADE_V1__)return;
 
-  var COMBAT_MIN_MS=5000;      /* le combat doit avoir duré au moins 5 s */
+  var COMBAT_MIN_MS=0;         /* plus de durée minimale (Norman, 2026-10-29) : tout boss combattu avec Fight a sa mort ; seul le NUKE n'en a pas (ui-combat-1-v1.js) */
   var DUREE=3.3;               /* secondes */
   var LW=160;                  /* définition de l'écran : 160 gros pixels de large */
   var CX=32;                   /* le boss est découpé en 32 colonnes */

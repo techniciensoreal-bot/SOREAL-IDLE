@@ -330,7 +330,7 @@
           const memeBoss=bossCombattuV1>0&&Boolean(image)&&(dejaRemplaceV1||idleEntier_(REG.idleEtat&&REG.idleEtat.bossSelection||0)===bossCombattuV1);
           /* Cinq nouvelles morts de boss (Norman, 2026-10-28, modules/morts-boss-nouvelles-v1.js) : mêmes conditions que l'écran de victoire (vrai combat d'au moins 5 s, jamais un NUKE) ; tirage parmi elles et l'éclatement en pixels d'avant. */
           const nouvelle=window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__;
-          if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1&&arcade.doitJouer&&arcade.doitJouer(REG.idleEtat,Date.now()-debutCombatV1))victoireArcadeIdleV1=Boolean(nouvelle.jouerSurHote(host,image,idMortV1));
+          if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(nouvelle.jouerSurHote(host,image,idMortV1));
           if(!victoireArcadeIdleV1&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));
           /* pas d'écran de victoire : le boss suivant apparaît tout de suite avec son effet (le calque d'attente éventuel est remplacé) */
           if(!victoireArcadeIdleV1){const app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(host,idMortV1);else if(app&&app.jouer)app.jouer(host);}
