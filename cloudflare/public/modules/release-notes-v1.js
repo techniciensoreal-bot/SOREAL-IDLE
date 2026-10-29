@@ -33,8 +33,12 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Dans l’album des boss, la flèche tout à gauche referme le classeur et ramène à la couverture ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
+            'Sur la couverture du classeur fermé, les trous noirs sont au niveau des anneaux ; les anneaux restent visibles pendant un saut de 10 pages.',
             'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'La sangsue ne reste plus bloquée : quand elle crachait un jet puis que plus aucune boule n’apparaissait dans son ventre, elle repart toute seule (plus besoin de changer de page et de revenir).'
           ]}
         ]
       },

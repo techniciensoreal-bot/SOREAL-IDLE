@@ -1150,6 +1150,10 @@ function sangsue(sc,sec,actif){
     if(memS&&memS.cle===cle)sc.__t0=maintenant-pb*P-memS.niv*P;   /* même cadence : on reprend avec le même sang */
     else sc.__cle='';
   }
+  /*
+   * La boule n'a plus d'animation (Norman, 2026-10-30 : « la sangsue crache un jet comme si elle était bloquée, puis les boules n'apparaissent plus dans son ventre ; je dois changer de page et revenir ») : un redessin de la page (morph) remet le style de la boule à celui du gabarit, donc sans animation, alors que la cadence n'a pas changé (« sc.__cle===cle ») : plus de sortie de caillot, plus de jet, plus de boule. On rebâtit le ventre (même cadence : le sang mémorisé revient), au plus une fois toutes les 1,5 s.
+   */
+  if(sc.__cle===cle&&m>1&&!attente&&!sc.__fige&&paq[0]&&paq[0].getAnimations&&!paq[0].getAnimations().length&&performance.now()-(sc.__cleAt||0)>1500)sc.__cle='';
   if(sc.__cle!==cle){
     sc.__cle=cle;sc.__t0=maintenant-pb*P-((memS&&memS.cle===cle)?memS.niv*P:0);   /* nouvelle cadence : le ventre repart vide ; même cadence retrouvée après un redessin : le sang mémorisé revient */
     cont.style.setProperty('--bm-k',String(K));

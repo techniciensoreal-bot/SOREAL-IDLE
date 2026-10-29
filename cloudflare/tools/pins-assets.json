@@ -440,16 +440,16 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 559,
-  "sha": "4f36bcd058aa7bde8abb0d955e6becbe2b368e42"
+  "pin": 561,
+  "sha": "1c6bc79a5a43968433899c3546b5fa46fdf49015"
  },
  "/modules/runtime.js": {
   "pin": 4,
   "sha": "9b9928571cb7ffc61556938c44fa90d8abdcc69b"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 233,
-  "sha": "b010a8a392045cd439bdf5212b75615a7dd66ca5"
+  "pin": 234,
+  "sha": "25c211dedb71458dbc307e02bfbcca40998c3596"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -512,12 +512,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 572,
-  "sha": "2f1ec6cb50b9d4e3d20da47367cb4bb883c8c88c"
+  "pin": 574,
+  "sha": "31ba9710fdee627540f3627a7b1f0e092c8694a4"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 392,
-  "sha": "635b7114d0e584e548b1a8ae63bb7d565ea10811"
+  "pin": 394,
+  "sha": "e9cd4f6800e229142205af8d05cb07e1377935c4"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -684,8 +684,8 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 19,
-  "sha": "9729f0706721aa2d3f4fa3d89d326c0632b2164f"
+  "pin": 20,
+  "sha": "a16974b3b00e85fb9b1e0f3c35e818b9fe20cc08"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,

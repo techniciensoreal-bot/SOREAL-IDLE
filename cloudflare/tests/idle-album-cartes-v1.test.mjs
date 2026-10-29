@@ -94,3 +94,7 @@ assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau re
 
 // pas de double couverture : le cuir de fond n'est plus dessiné ; l'intérieur de la couverture = le dos de la couverture (même cuir, même bord, mêmes trous)
 assert.ok(c.includes(".alb-cuir{display:none}") && c.includes(".alb-face-arriere.alb-cuir-noir::after") && c.includes(".alb-page-g:has(.alb-feuille:empty){cursor:pointer;box-sizing:border-box;border:3px solid #050507"), "une seule couverture visible, texture identique avant/après l'ouverture");
+
+// couverture fermée : trous noirs au niveau des anneaux ; l'anneau reste devant les feuilles qui tournent (saut de 10 pages compris)
+assert.ok(c.includes(".alb-face-avant.alb-cuir-noir::before{content:\"\";position:absolute;top:0;bottom:0;left:-3px;width:var(--alb-lang)"), "trous noirs sur la couverture fermée");
+assert.ok(c.includes(".alb-livre:has(.alb-feuille-tournante)::before{transform:translateX(-50%) translateZ(80px) scale(.96923)}"), "l'anneau passe devant les feuilles en l'air, à la même place (perspective 2600 : 2520/2600)");
