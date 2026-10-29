@@ -11,6 +11,12 @@ const fs = require("node:fs");
 
 global.__SOREAL_RACINE_APP__ = __dirname;
 
+/*
+ * Dossier de données FIGÉ (Norman, 2026-10-29 : l'exécutable devient « SOREAL NGU IDLE ») : Electron le déduit du nom du produit ; il resterait sinon lié au nom et la partie, les préférences et les voix « disparaîtraient » à un changement de nom.
+ * Il garde donc pour toujours le nom d'origine, quel que soit le nom affiché de l'application.
+ */
+try { app.setPath("userData", path.join(app.getPath("appData"), "SOREAL IDLE")); } catch (_e) { /* chemin par défaut */ }
+
 const lireJson = (f, defaut) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch (_e) { return defaut; } };
 const ecrireJson = (f, v) => { try { fs.writeFileSync(f, JSON.stringify(v)); } catch (_e) { /* disque plein ou droits : pas de surveillance, on continue */ } };
 

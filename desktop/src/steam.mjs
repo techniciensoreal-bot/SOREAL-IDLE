@@ -120,9 +120,9 @@ export function etatSteam({ exe, nom = NOM_STEAM }, env = process.env) {
   for (const c of comptes) {
     try {
       const table = lireRaccourcis(path.join(steam, "userdata", c, "config", "shortcuts.vdf")).find((e) => e.k.toLowerCase() === "shortcuts");
-      if (table.v.some((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible)) dejaAjoute = true;
+      if (table.v.some((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")))) dejaAjoute = true;   /* par le NOM : l'exécutable a changé de nom et de dossier avec le renommage */
       /* une entrée qui porte encore un ancien nom (Norman, 2026-10-29 : « le nom dans Steam doit être SOREAL NGU IDLE ») : à renommer */
-      if (table.v.some((e) => ANCIENS_NOMS_STEAM.includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible)) ancienNom = true;
+      if (table.v.some((e) => ANCIENS_NOMS_STEAM.includes(champ(e.v, "AppName")) || (champ(e.v, "AppName") === nom && champ(e.v, "Exe") !== cible))) ancienNom = true;
     } catch (_e) { /* fichier illisible : on ne le touchera pas non plus à l'ajout */ }
   }
   return { ok: true, steam: true, comptes: comptes.length, enCours: steamEnCours(env), dejaAjoute, ancienNom };
@@ -154,7 +154,7 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
     fs.mkdirSync(config, { recursive: true });
     if (fs.existsSync(fichier) && !fs.existsSync(fichier + ".soreal-sauvegarde")) fs.copyFileSync(fichier, fichier + ".soreal-sauvegarde");
     const table = racine.find((e) => e.k.toLowerCase() === "shortcuts");
-    const i = table.v.findIndex((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible);
+    const i = table.v.findIndex((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")));   /* l'entrée existante est mise à jour sur place : nouveau nom, nouvel exécutable, même identifiant */
     /* identifiant de CE compte : celui de l'entrée existante (ancien nom compris), sinon celui du nom actuel */
     const idCompte = i >= 0 ? (Number(champ(table.v[i].v, "appid")) >>> 0) || id : id;
     if (!faits.length) premierId = idCompte;
