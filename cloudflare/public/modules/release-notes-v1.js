@@ -51,6 +51,7 @@
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le Cube de l’infini s’ouvre et se referme comme les autres objets : un appui ouvre sa fiche, un nouvel appui la ferme (souris comme tactile).',
             'Dans le coffre, les noms des équipements ne sont plus écrits sur les cases : ils cachaient l’image. Clique sur un objet pour connaître son nom.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[

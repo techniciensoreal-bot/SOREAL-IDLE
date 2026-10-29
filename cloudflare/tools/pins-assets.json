@@ -424,8 +424,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 528,
-  "sha": "c9e130b700d22e5526edb503a103cc5868f8a317"
+  "pin": 529,
+  "sha": "5eab37c413051371701bbd60208fae833e73489c"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -496,12 +496,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 541,
-  "sha": "dcabb8d19f1c226af266acdfbbf5678ab3797752"
+  "pin": 542,
+  "sha": "9549140b61be71c171ccbe0edd469ac42881299c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 361,
-  "sha": "ceb5128d5f9dab87e4a4a076d90443d780311198"
+  "pin": 362,
+  "sha": "3cbc05daf816e7231acbf61590b8ff58032d6f17"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -540,8 +540,8 @@
   "sha": "8252ec7deab028e581bc90a4f8c48fa95ccd167a"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 37,
-  "sha": "d1ede9b9e525035e3c18e500ba6a1896e2fe24f6"
+  "pin": 39,
+  "sha": "3f20b52cc457585e6a0eb34ad1b127942dd32ef4"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 16,

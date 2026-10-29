@@ -14,5 +14,5 @@ assert.ok(ui.includes("function toucherCubeAdventureIdleV1_()") && ui.includes("
 assert.ok(ui.includes("document.addEventListener('pointerup',function(event){\n          const p=idleCubeAppuiV1;"), "le tap est détecté au relâchement");
 assert.ok(ui.includes("if(maintenant-idleCubeDernierEvtMsV1<80)return;"), "pointerup + clic collés = un seul appui");
 assert.ok(ui.includes("Math.hypot(event.clientX-p.x,event.clientY-p.y)>20||Date.now()-p.t>550"), "ni glissement ni maintien ne comptent comme un tap");
-assert.ok(ui.includes("if(!gestesAchetesIdleV1_().double)return;"), "le double tap acheté reste requis");
+assert.ok(ui.includes("if(gestesAchetesIdleV1_().double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){"), "l absorption reste réservée au double tap acheté (le premier appui ouvre désormais la fiche : idle-cube-ouverture-comme-objets-v1)");
 console.log("idle-cube-double-tap-pointeur-v1: OK");

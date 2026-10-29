@@ -718,13 +718,15 @@
 
       /* Un nouvel appui sur l'objet dont la fiche est ouverte la REFERME (Norman, 2026-10-14) : l'appui ferme d'abord la fiche (clic hors du popup), puis le tap qui suit ne doit pas la rouvrir. */
       let idleFicheFermeeParAppuiV1={id:'',ms:0};
-
+      /* La fiche ouverte est celle du Cube de l'infini (Norman, 2026-10-29 : « le cube doit s'ouvrir et se refermer au clic comme les autres objets ») : le Cube n'est pas dans l'inventaire, il a donc son propre repère, lu par la même règle de fermeture. */
+      let idleFicheCubeOuverteV1=false;
       function fermerPopupDetailsSiExterieurAdventureIdleV207_(event){
         if(!popupDetailsObjetAdventureIdleOuvertV207_())return false;
         const target=event&&event.target;
         if(cibleDansPopupDetailsObjetAdventureIdleV207_(target))return false;
         const appuye=idObjetGesteAdventureIdleV196_(elementObjetGesteAdventureIdleV196_(target));
-        idleFicheFermeeParAppuiV1=appuye&&appuye===String(REG.idleFicheObjetOuverteIdV1||'')?{id:appuye,ms:Date.now()}:{id:'',ms:0};
+        const appuyeCube=Boolean(target&&target.closest&&target.closest('[data-idle-cube-drop-v180]'));
+        idleFicheFermeeParAppuiV1=appuye&&appuye===String(REG.idleFicheObjetOuverteIdV1||'')?{id:appuye,ms:Date.now()}:(appuyeCube&&idleFicheCubeOuverteV1?{id:'cube',ms:Date.now()}:{id:'',ms:0});
         fermerDetailsObjetAdventureIdleV1_();
         return true;
       }
@@ -1168,7 +1170,7 @@
           if(cubeLong){
             idleCubeIgnorerClicJusquaV1=Date.now()+750;
             idleCubeDernierTapMsV1=0;
-            afficherDetailsCubeInfiniAdventureIdleV220_();
+            ouvrirDetailsCubeParGesteIdleV1_();
             if(event.cancelable)event.preventDefault();
             event.stopPropagation();
             return;
@@ -1484,8 +1486,19 @@
             ?'<div style="margin-top:10px;font-size:14px;color:#aeb5c8"><b>Bonus du tier</b><br>'+bonus.map(idleHtml_).join('<br>')+'</div>'
             :'');
         root.style.display='block';
+        idleFicheCubeOuverteV1=true;
         positionnerPopupObjetAdventureIdleV1_(root);
         activerGlisserPopupObjetAdventureIdleV1_(root);
+      }
+
+      /* Ouvre la fiche du Cube comme celle d'un objet : un nouvel appui sur le Cube dont la fiche est ouverte la REFERME (l'appui l'a déjà fermée comme tout clic hors du popup ; le tap qui suit ne la rouvre pas). */
+      function ouvrirDetailsCubeParGesteIdleV1_(){
+        const fermee=idleFicheFermeeParAppuiV1.id==='cube'&&Date.now()-idleFicheFermeeParAppuiV1.ms<1500;
+        idleFicheFermeeParAppuiV1={id:'',ms:0};
+        nettoyerEtatDragAdventureIdleV138_();
+        if(!fermee)afficherDetailsCubeInfiniAdventureIdleV220_();
+        REG.idleAdventureIgnorerClicJusquaV165=Date.now()+750;
+        return true;
       }
 
       /*
@@ -1522,13 +1535,13 @@
         if(maintenant-idleCubeDernierEvtMsV1<80)return;
         idleCubeDernierEvtMsV1=maintenant;
         if(maintenant<idleCubeIgnorerClicJusquaV1)return;
-        if(!gestesAchetesIdleV1_().double)return;
-        if(maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
+        if(gestesAchetesIdleV1_().double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
           idleCubeDernierTapMsV1=0;
           absorberTousBoostsCubeAdventureIdleV1_();
           return;
         }
-        idleCubeDernierTapMsV1=maintenant;
+        idleCubeDernierTapMsV1=gestesAchetesIdleV1_().double?maintenant:0;
+        ouvrirDetailsCubeParGesteIdleV1_();
       }
 
       let idleCubeAppuiV1=null;
@@ -1539,7 +1552,7 @@
           ?event.pointerType
           :(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches?'touch':'mouse');
         if(typePointeur==='mouse'){
-          afficherDetailsCubeInfiniAdventureIdleV220_();
+          ouvrirDetailsCubeParGesteIdleV1_();
           return;
         }
         /*
@@ -1774,6 +1787,7 @@
         if(!root||!corps)return;
 
         const id=String(itemId||'');
+        idleFicheCubeOuverteV1=false;
         const a=REG.idleEtat&&aventureMetaIdleV47_(REG.idleEtat);
         const items=a&&Array.isArray(a.inventory)?a.inventory:[];
         const item=id?items.find(function(x){return String(x&&x.id)===id;}):null;
