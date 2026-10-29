@@ -288,6 +288,15 @@ function ouvrirFenetre() {
   });
   Menu.setApplicationMenu(null);
   fenetre.once("ready-to-show", () => fenetre.show());
+  /* Sans menu, plus de raccourci d'actualisation : F5 et Ctrl+R rechargent la page (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache). */
+  fenetre.webContents.on("before-input-event", (ev, entree) => {
+    if (entree.type !== "keyDown" || entree.alt) return;
+    const touche = String(entree.key || "").toLowerCase();
+    const f5 = touche === "f5", ctrlR = (entree.control || entree.meta) && touche === "r";
+    if (!f5 && !ctrlR) return;
+    ev.preventDefault();
+    if (entree.shift || (f5 && entree.control)) fenetre.webContents.reloadIgnoringCache(); else fenetre.webContents.reload();
+  });
   /* Un lien vers un site s'ouvre dans le navigateur du PC, jamais dans le jeu. */
   fenetre.webContents.setWindowOpenHandler(({ url }) => { if (/^https:\/\//.test(url) || LIEN_STUDIO.test(url)) shell.openExternal(url); return { action: "deny" }; });
   fenetre.webContents.on("will-navigate", (ev, url) => { if (!url.startsWith(ORIGINE)) { ev.preventDefault(); if (/^https:\/\//.test(url) || LIEN_STUDIO.test(url)) shell.openExternal(url); } });
