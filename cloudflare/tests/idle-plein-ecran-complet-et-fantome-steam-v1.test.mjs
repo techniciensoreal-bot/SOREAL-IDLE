@@ -2,7 +2,9 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 const pe = fs.readFileSync("cloudflare/public/modules/plein-ecran-v1.js", "utf8");
-assert.ok(pe.includes("html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4{width:100%!important;max-width:none!important;margin:0!important;padding-left:6px!important;padding-right:6px!important;box-sizing:border-box}"), "plein écran : toute la largeur (100 % du parent, jamais 100vw : la barre de défilement ferait déborder)");
+const MEDIA = "@media (min-width:1100px) and (hover:hover) and (pointer:fine),(min-width:1500px) and (min-height:800px){html body.soreal-idle-active-v47 .soreal-idle-native-v4{width:100%!important;max-width:none!important;margin:0!important;padding-left:6px!important;padding-right:6px!important;box-sizing:border-box}}";
+assert.ok(pe.includes(MEDIA), "largeur complète partout où la mise en page large existe (plein écran OU NON, Norman 2026-10-29), 100 % du parent et jamais 100vw : la barre de défilement ferait déborder");
+assert.ok(!pe.includes("html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4{width"), "plus de règle réservée au plein écran pour la largeur");
 assert.ok(!/html:fullscreen[^']*100vw/.test(pe), "pas de 100vw");
 assert.ok(pe.includes("html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{max-height:min(100vh,var(--nav-dispo,100vh))!important}"), "menu de gauche sur toute la hauteur de l'écran");
 const css = fs.readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");

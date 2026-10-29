@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, le jeu occupe maintenant toute la largeur de la fenêtre, même hors plein écran : plus de zones vides sur les côtés.',
             'Sur PC, l’ajout à Steam utilise maintenant de nouvelles images : affiche, en-tête, bannière, logo et icône, aux formats attendus par Steam pour un jeu non-Steam.',
             'L’introduction est maintenant entièrement traduite en anglais pendant qu’elle défile : la phrase de la quatorzième image et le premier bruitage n’étaient pas traduits.',
             'En plein écran, le jeu occupe vraiment toute la largeur et toute la hauteur de l’écran : plus de bandes vides à gauche et à droite.',

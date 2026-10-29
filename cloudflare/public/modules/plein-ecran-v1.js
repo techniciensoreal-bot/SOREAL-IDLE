@@ -35,7 +35,8 @@
     '.soreal-idle-pe-v1:hover{color:#fff}.soreal-idle-pe-v1:active{transform:translateY(1px)}',
     '.soreal-idle-pe-v1 svg{display:block;width:18px;height:18px}',
     /* Norman (2026-10-29) : « une fois le mode plein écran utilisé, il n'y a plus d'espace à gauche et à droite : l'interface doit vraiment occuper la hauteur ET la largeur » : hors plein écran le jeu garde sa largeur de 1 700 px centrée ; en plein écran il prend toute la largeur (marges réduites au strict minimum pour ne pas rogner les cadres) et le menu de gauche toute la hauteur de l’écran. */
-    'html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4{width:100%!important;max-width:none!important;margin:0!important;padding-left:6px!important;padding-right:6px!important;box-sizing:border-box}',
+    /* Norman (2026-10-29, suite) : « le mode large qui prend toute la largeur doit aussi s'appliquer quand on n'est pas en plein écran : cette zone vide est inutile » : la même largeur complète partout où la mise en page large existe (PC), plein écran ou non. */
+    '@media (min-width:1100px) and (hover:hover) and (pointer:fine),(min-width:1500px) and (min-height:800px){html body.soreal-idle-active-v47 .soreal-idle-native-v4{width:100%!important;max-width:none!important;margin:0!important;padding-left:6px!important;padding-right:6px!important;box-sizing:border-box}}',
     'html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{max-height:min(100vh,var(--nav-dispo,100vh))!important}',
     'html:fullscreen,html:fullscreen body{margin:0;padding:0;min-height:100vh}',
     'html:not(:fullscreen) .soreal-idle-pe-v1 .pe-sor{display:none}html:fullscreen .soreal-idle-pe-v1 .pe-ent{display:none}',
