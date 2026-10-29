@@ -23,7 +23,7 @@ assert.equal(fronton.split(">NGU IDLE</text>").length - 1, 2, "enseigne : « NGU
 assert.ok(!fronton.includes(">SOREAL NGU IDLE</text>") && !fronton.includes(">SOREAL IDLE</text>"), "plus l'ancien nom sur l'enseigne");
 const a = fronton.indexOf("class='bn-autocollant'"), t = fronton.lastIndexOf(">NGU IDLE</text>");
 assert.ok(a > t, "l'autocollant est dessiné APRÈS le texte : il est collé à l'avant");
-assert.ok(fronton.slice(a, a + 1400).includes(">SOREAL</text>") && fronton.slice(a, a + 200).includes("rotate(-9"), "autocollant SOREAL, légèrement penché");
+assert.ok(fronton.slice(a, a + 1400).includes(">SOREAL</text>") && fronton.slice(a, a + 200).includes("rotate(-7)"), "autocollant SOREAL, légèrement penché");
 
 // 3. l'écran de lancement : l'affiche verticale de Steam, le logo, la barre (mêmes identifiants qu'avant)
 const index = lire("cloudflare/public/index.html");
