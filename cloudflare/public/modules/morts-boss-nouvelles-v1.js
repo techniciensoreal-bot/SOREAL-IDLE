@@ -71,9 +71,11 @@ function preparer(id,img,LW,LH){
       var cx=(poly[0][0]+poly[2][0])/2,cy=(poly[0][1]+poly[2][1])/2,s=jj*40+ii;
       k.blocs.push({poly:poly,cx:cx,cy:cy,haut:(poly[3][1]+poly[2][1])/2-(poly[0][1]+poly[1][1])/2,delai:(1-cy/LH)*.0+rnd(s)*.45+(LH-cy)/LH*.55,vx:(rnd(s+1)-.5)*70,rot:(rnd(s+2)-.5)*1.4});
     }
-    /* fissures qui courent sur la pierre */
+    /* Fissures = les VRAIES cassures (Norman, 2026-10-29 : « quand il casse, les morceaux ne correspondent pas aux fissures ») : chaque fissure suit une ligne de coupe de la grille des blocs (les mêmes points que les bords des blocs) ;
+       elles courent sur la pierre l'une après l'autre, et à la fin tous les blocs sont dessinés par ces fissures : ce qui s'écroule est exactement ce qui était fendu. */
     k.fissures=[];
-    for(var f=0;f<9;f++){var x0=rnd(f*3)*LW,y0=rnd(f*5+1)*LH*.3,seg=[[x0,y0]],ax=x0,ay=y0;for(var q=0;q<8;q++){ax+=(rnd(f*17+q)-.5)*LW*.18;ay+=LH*(.07+rnd(f*9+q+3)*.09);seg.push([ax,ay]);}k.fissures.push(seg);}
+    for(var fj=1;fj<n;fj++)k.fissures.push({seg:pts[fj].slice(),debut:rnd(fj*3+1)*.45,sens:rnd(fj+9)>.5});
+    for(var fi=1;fi<n;fi++){var col=[];for(var fk=0;fk<=n;fk++)col.push(pts[fk][fi]);k.fissures.push({seg:col,debut:rnd(fi*5+40)*.45,sens:rnd(fi+31)>.5});}
   }else if(id==='poussiere'){
     k.cells=cellules(k.img,LW,LH,3);
     k.cells.forEach(function(c,i){c.t=(c.x/LW)*1.55+(rnd(i*.7)-.5)*.5;c.vx=70+rnd(i*1.3)*150;c.vy=-30-rnd(i*1.9)*70+(rnd(i*2.3)-.5)*40;c.o=rnd(i*3.1)*6.28;});
@@ -106,8 +108,9 @@ function dessinerEboulement(c,t,k,LW,LH){
     if(t>T_PIERRE){
       var u=lisse((t-T_PIERRE)/(T_FISSURE-T_PIERRE));
       c.strokeStyle='rgba(20,18,16,.9)';c.lineWidth=1.8;
-      k.fissures.forEach(function(seg){
-        var vis=1+u*(seg.length-1);c.beginPath();c.moveTo(seg[0][0],seg[0][1]);
+      k.fissures.forEach(function(f){
+        var seg=f.sens?f.seg:f.seg.slice().reverse();   /* chaque fissure part d'un bout ou de l'autre */
+        var vis=1+cl((u-f.debut)/(1-f.debut),0,1)*(seg.length-1);c.beginPath();c.moveTo(seg[0][0],seg[0][1]);
         for(var i=1;i<seg.length;i++){if(i<=vis)c.lineTo(seg[i][0],seg[i][1]);else if(i-1<vis){var r=vis-(i-1);c.lineTo(seg[i-1][0]+(seg[i][0]-seg[i-1][0])*r,seg[i-1][1]+(seg[i][1]-seg[i-1][1])*r);break;}}
         c.stroke();
       });
