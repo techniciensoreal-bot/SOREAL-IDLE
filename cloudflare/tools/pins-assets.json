@@ -340,8 +340,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 10,
-  "sha": "8db807a64b73593d407f765343bafff857960daa"
+  "pin": 11,
+  "sha": "470ba41c4807e15d80a16b8e7b3e3b81c5066dd6"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
   "pin": 3,
@@ -552,8 +552,8 @@
   "sha": "91ec323f89abbd0e785fc19728350e45830b67a1"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 16,
-  "sha": "bf18d4ed90787c1ef9974a27dd9d868ba79f2f84"
+  "pin": 17,
+  "sha": "b977eb10e364dfd771fbe717d1f3d54d3391b428"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,

@@ -156,6 +156,7 @@ function suivante_(liste){
 }
 
 function jouer(hote,variante){
+  window.__SOREAL_IDLE_MORT_SON_PROPRE_V1__=false;
   try{
     if(!hote||enCours)return false;
     var NOUVELLES=window.__SOREAL_IDLE_MORTS_NOUVELLES_V1__;
@@ -190,7 +191,8 @@ function jouer(hote,variante){
     /* Les cinq nouvelles morts dessinent elles-mêmes l'image du joueur à la fin : un fondu de 0,25 s rend la place à l'image réelle. */
     var neuve=NOUVEAUX.indexOf(variante)>=0?NOUVELLES.variantes.filter(function(v){return v.id===variante;})[0]:null;
     var cacheNeuve=neuve?NOUVELLES.preparer(variante,img,LW,LH):null;
-    if(neuve){try{NOUVELLES.son(variante);}catch(_e){}}
+    /* Les cinq nouvelles morts ont leur PROPRE son : l'appelant ne joue alors pas en plus le son de défaite générique (Norman, 2026-10-29 : « les sons de mort sont parfois en double »). */
+    if(neuve){window.__SOREAL_IDLE_MORT_SON_PROPRE_V1__=true;try{NOUVELLES.son(variante);}catch(_e){}}
     (function image(now){
       if(fini)return;
       if(!calque.isConnected){fini=true;enCours=false;return;}
