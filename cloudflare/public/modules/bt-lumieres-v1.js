@@ -126,14 +126,14 @@
         var src=c.createBufferSource();src.buffer=tampon;
         var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=0.9;
         f.frequency.setValueAtTime(f0,t+decal);f.frequency.exponentialRampToValueAtTime(f1,t+decal+duree);
-        var env=c.createGain();
+        var env=c.createGain(); env.gain.value=0.0001;
         env.gain.setValueAtTime(0.0001,t+decal);
         env.gain.linearRampToValueAtTime(1,t+decal+0.004);
         env.gain.linearRampToValueAtTime(0.75,t+decal+duree-(coupe||0.025));
         env.gain.linearRampToValueAtTime(0.0001,t+decal+duree);
-        var hache=c.createGain();hache.gain.setValueAtTime(0.5,t+decal);
+        var hache=c.createGain(); hache.gain.value=0.5;hache.gain.setValueAtTime(0.5,t+decal);
         var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(120,t+decal);
-        var prof=c.createGain();prof.gain.setValueAtTime(0.5,t+decal);
+        var prof=c.createGain(); prof.gain.value=0.5;prof.gain.setValueAtTime(0.5,t+decal);
         lfo.connect(prof);prof.connect(hache.gain);
         var niveau=c.createGain();niveau.gain.value=gain;
         src.connect(f);f.connect(hache);hache.connect(env);env.connect(niveau);niveau.connect(sortie);
@@ -144,7 +144,7 @@
         var b=c.createOscillator();b.type='sawtooth';
         b.frequency.setValueAtTime(f0,t+decal);b.frequency.exponentialRampToValueAtTime(f1,t+decal+duree);
         var fb=c.createBiquadFilter();fb.type='bandpass';fb.Q.value=1.0;fb.frequency.setValueAtTime(1200,t+decal);
-        var gb=c.createGain();
+        var gb=c.createGain(); gb.gain.value=0.0001;
         gb.gain.setValueAtTime(0.0001,t+decal);gb.gain.linearRampToValueAtTime(gain,t+decal+0.008);
         gb.gain.linearRampToValueAtTime(gain*(fin==null?0.6:fin),t+decal+duree-0.03);gb.gain.linearRampToValueAtTime(0.0001,t+decal+duree);
         b.connect(fb);fb.connect(gb);gb.connect(sortie);b.start(t+decal);b.stop(t+decal+duree+0.02);
@@ -154,7 +154,7 @@
         var o=c.createOscillator();o.type='square';
         o.frequency.setValueAtTime(2400,t+decal);o.frequency.exponentialRampToValueAtTime(600,t+decal+0.035);
         var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=1.4;f.frequency.setValueAtTime(1800,t+decal);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=0.0001;
         g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+0.002);g.gain.linearRampToValueAtTime(0.0001,t+decal+0.04);
         o.connect(f);f.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+0.05);
       },
@@ -163,7 +163,7 @@
         var o=c.createOscillator();o.type=type;
         o.frequency.setValueAtTime(f0,t+decal);o.frequency.exponentialRampToValueAtTime(Math.max(1,f1),t+decal+duree);
         var f=c.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(coupe||2400,t+decal);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=0.0001;
         g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+Math.min(0.06,duree*0.3));
         g.gain.linearRampToValueAtTime(gain*0.8,t+decal+duree*0.8);g.gain.linearRampToValueAtTime(0.0001,t+decal+duree);
         o.connect(f);f.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+duree+0.02);
@@ -176,7 +176,7 @@
         var src=c.createBufferSource();src.buffer=tampon;
         var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=q;
         f.frequency.setValueAtTime(f0,t+decal);f.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+decal+duree);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=0.0001;
         g.gain.setValueAtTime(0.0001,t+decal);g.gain.linearRampToValueAtTime(gain,t+decal+Math.min(0.02,duree*0.25));g.gain.exponentialRampToValueAtTime(0.0001,t+decal+duree);
         src.connect(f);f.connect(g);g.connect(sortie);src.start(t+decal);
       },
@@ -184,7 +184,7 @@
       ping:function(decal,gain){
         var o=c.createOscillator();o.type='sine';
         o.frequency.setValueAtTime(1900,t+decal);o.frequency.exponentialRampToValueAtTime(1500,t+decal+0.05);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=gain;
         g.gain.setValueAtTime(gain,t+decal);g.gain.exponentialRampToValueAtTime(0.0001,t+decal+0.07);
         o.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+0.09);
       }

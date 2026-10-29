@@ -103,7 +103,7 @@
       var o=c.createOscillator();o.type='sine';
       var f0=(grave?110:170)*(0.95+a()*0.1);
       o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f0*0.5,t+0.05);
-      var og=c.createGain();og.gain.setValueAtTime(0.6,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.07);
+      var og=c.createGain(); og.gain.value=0.6;og.gain.setValueAtTime(0.6,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.07);
       o.connect(og);og.connect(sortie);o.start(t);o.stop(t+0.08);
     }
   }

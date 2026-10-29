@@ -124,11 +124,11 @@
     var s=c.createBufferSource();s.buffer=b;
     var fl=c.createBiquadFilter();fl.type=type||'lowpass';fl.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)fl.frequency.exponentialRampToValueAtTime(Math.max(40,f1),t+d);fl.Q.value=q||0.8;
     /* attaque de 3 ms : le bruit démarrait à pleine amplitude, d'où un « clic » à chaque rafale */
-    var g=c.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.003,d/4));s.connect(fl);fl.connect(g);g.connect(out);s.start(t);
+    var g=c.createGain(); g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.003,d/4));s.connect(fl);fl.connect(g);g.connect(out);s.start(t);
   }
   function ton(c,out,t,f0,f1,d,vol,type){
     var o=c.createOscillator(),g=c.createGain();o.type=type||'triangle';o.frequency.setValueAtTime(f0,t);if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+d);
-    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.02,d/3));g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+Math.min(0.02,d/3));g.gain.exponentialRampToValueAtTime(0.0001,t+d);
     o.connect(g);g.connect(out);o.start(t);o.stop(t+d+0.02);
   }
   function choc(c,out,t,vol){ton(c,out,t,110,45,0.3,vol,'sine');bruit(c,out,t,0.12,vol*0.5,'lowpass',900,150,0.6);}

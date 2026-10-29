@@ -271,7 +271,7 @@ function audio(){
 }
 function bruit(a){if(bruitBuf&&bruitBuf.sampleRate===a.sampleRate)return bruitBuf;var n=a.sampleRate*3,b=a.createBuffer(1,n,a.sampleRate),d=b.getChannelData(0);for(var i=0;i<n;i++)d[i]=Math.random()*2-1;bruitBuf=b;return b;}
 function maitre(a){if(maitreNoeud&&maitreNoeud.context===a)return maitreNoeud;maitreNoeud=a.createGain();maitreNoeud.gain.value=.75;maitreNoeud.connect(a.destination);return maitreNoeud;}
-function env(g,t0,att,dec,pic){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pic,t0+att);g.gain.exponentialRampToValueAtTime(0.0001,t0+att+dec);}
+function env(g,t0,att,dec,pic){g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pic,t0+att);g.gain.exponentialRampToValueAtTime(0.0001,t0+att+dec);}
 function souffle(a,t0,dur,fil,f0,f1,q,pic,att){
   var s=a.createBufferSource();s.buffer=bruit(a);s.loop=true;
   var f=a.createBiquadFilter();f.type=fil;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t0);f.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);

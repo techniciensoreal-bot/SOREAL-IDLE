@@ -134,7 +134,7 @@
     var o=c.createOscillator(),g=c.createGain();
     o.type=type||'triangle';o.frequency.setValueAtTime(f,t);
     if(vib){var l=c.createOscillator(),lg=c.createGain();l.frequency.value=5.5;lg.gain.value=f*0.01;l.connect(lg);lg.connect(o.frequency);l.start(t+d*0.4);l.stop(t+d+0.05);}
-    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.015);
+    g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.015);
     g.gain.setValueAtTime(vol*0.8,t+Math.max(0.02,d*0.6));g.gain.exponentialRampToValueAtTime(0.0001,t+d);
     o.connect(g);g.connect(sortie);o.start(t);o.stop(t+d+0.03);
   }

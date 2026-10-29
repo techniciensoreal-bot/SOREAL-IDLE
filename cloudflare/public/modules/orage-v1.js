@@ -124,7 +124,7 @@
     for(var i=0;i<n;i++){var b=a()*2-1;dernier=(dernier+0.02*b)/1.02;d[i]=dernier*3.2;}
     var src=c.createBufferSource();src.buffer=tampon;
     var f=c.createBiquadFilter();f.type='lowpass';f.frequency.setValueAtTime(220,t);f.frequency.exponentialRampToValueAtTime(70,t+duree);f.Q.value=0.7;
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=0.0001;
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(1,t+0.25);
     g.gain.setValueAtTime(0.8,t+0.45);

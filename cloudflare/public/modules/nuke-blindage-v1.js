@@ -91,13 +91,13 @@
     var o=c.createOscillator(),g=c.createGain(),fl=c.createBiquadFilter();
     o.type='sawtooth';o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+d);
     fl.type='lowpass';fl.frequency.value=300;fl.Q.value=2;
-    g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.05);g.gain.setValueAtTime(vol,t+d-0.1);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.05);g.gain.setValueAtTime(vol,t+d-0.1);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
     o.connect(fl);fl.connect(g);g.connect(sortie);o.start(t);o.stop(t+d+0.02);
   }
   function choc(c,sortie,t,vol){   /* gros choc de battant en butée */
     var o=c.createOscillator(),g=c.createGain();
     o.type='sine';o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(48,t+0.28);
-    g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);o.connect(g);g.connect(sortie);o.start(t);o.stop(t+0.32);
+    g.gain.value=vol;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);o.connect(g);g.connect(sortie);o.start(t);o.stop(t+0.32);
     clac(c,sortie,t,330,vol*0.5);
   }
   function sons(c,sortie,t,ouvre){

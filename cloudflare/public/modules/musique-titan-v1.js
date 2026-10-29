@@ -64,7 +64,7 @@ function ton(t,o){
     osc.connect(f);noeud=f;
   }
   var a=o.a||0.005;
-  g.gain.setValueAtTime(0.0001,t);
+  g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);
   g.gain.exponentialRampToValueAtTime(Math.max(0.0002,o.v),t+a);
   g.gain.exponentialRampToValueAtTime(0.0001,t+o.d);
   noeud.connect(g);g.connect(sortie);
@@ -77,7 +77,7 @@ function souffle(t,o){
   f.frequency.setValueAtTime(o.f0,t);
   if(o.f1)f.frequency.exponentialRampToValueAtTime(Math.max(20,o.f1),t+o.d);
   var a=o.a||0.003;
-  g.gain.setValueAtTime(0.0001,t);
+  g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t);
   g.gain.exponentialRampToValueAtTime(Math.max(0.0002,o.v),t+a);
   g.gain.exponentialRampToValueAtTime(o.fin||0.0001,t+o.d);
   s.connect(f);f.connect(g);g.connect(sortie);

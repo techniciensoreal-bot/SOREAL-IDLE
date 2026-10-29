@@ -18,7 +18,7 @@
     osc.frequency.setValueAtTime(Math.max(20,o.f0),t);
     if(o.f1)osc.frequency.exponentialRampToValueAtTime(Math.max(20,o.f1),t+o.d);
     if(o.filtre){var f=ctx.createBiquadFilter();f.type=o.filtre[0];f.frequency.value=o.filtre[1];f.Q.value=o.filtre[2]||1;osc.connect(f);n=f;}
-    g.gain.setValueAtTime(.0001,t);
+    g.gain.value=.0001;g.gain.setValueAtTime(.0001,t);
     g.gain.exponentialRampToValueAtTime(o.v||.1,t+(o.a||.01));
     if(o.tenu)g.gain.setValueAtTime(o.v||.1,t+o.tenu);
     g.gain.exponentialRampToValueAtTime(.0001,t+o.d);
@@ -29,7 +29,7 @@
     src.buffer=bruit(ctx);f.type=o.type||'bandpass';f.Q.value=o.q||1;
     f.frequency.setValueAtTime(Math.max(20,o.f0),t);
     if(o.f1)f.frequency.exponentialRampToValueAtTime(Math.max(20,o.f1),t+o.d);
-    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.v||.1,t+(o.a||.005));g.gain.exponentialRampToValueAtTime(.0001,t+o.d);
+    g.gain.value=.0001;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.v||.1,t+(o.a||.005));g.gain.exponentialRampToValueAtTime(.0001,t+o.d);
     src.connect(f);f.connect(g);g.connect(s);src.start(t,Math.random()*.4);src.stop(t+o.d+.05);
   }
   /*

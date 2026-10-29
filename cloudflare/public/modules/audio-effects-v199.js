@@ -201,7 +201,7 @@
   }
 
   function gainEnv_(c,start,attack,duration,volume,destination){
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=.0001;
     g.gain.setValueAtTime(.0001,start);
     g.gain.exponentialRampToValueAtTime(
       Math.max(.0002,Number(volume)||.05),
@@ -328,7 +328,7 @@
     var d=Math.max(.05,Number(o.duration)||1);
     var a=Math.min(d*.8,Math.max(.01,Number(o.attack)||.05));
     var osc=c.createOscillator();
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=.0001;
     g.gain.setValueAtTime(.0001,start);
     g.gain.exponentialRampToValueAtTime(Math.max(.0002,Number(o.volume)||.04),start+a);
     g.gain.exponentialRampToValueAtTime(.0001,start+d);
@@ -370,7 +370,7 @@
     filter.frequency.setValueAtTime(Math.max(40,Number(o.frequency)||500),start);
     if(o.q!=null)filter.Q.setValueAtTime(Math.max(.01,Number(o.q)||1),start);
     if(o.frequencyEnd)filter.frequency.exponentialRampToValueAtTime(Math.max(40,Number(o.frequencyEnd)),start+d);
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=Math.max(.0002,Number(o.volume)||.05);
     g.gain.setValueAtTime(Math.max(.0002,Number(o.volume)||.05),start);
     g.connect(master||c.destination);
     src.connect(filter);
@@ -1242,7 +1242,7 @@
       if(!r)return false;
       var c=r.c,buf=r.buf;
       var src=c.createBufferSource();src.buffer=buf;
-      var g=c.createGain();
+      var g=c.createGain(); g.gain.value=0;
       /* fondu d'entrée de 20 ms : le tampon retourné démarre en plein milieu du signal, sans lui ce démarrage brutal fait « clac » */
       g.gain.setValueAtTime(0,c.currentTime);g.gain.linearRampToValueAtTime(1,c.currentTime+.02);
       src.connect(g);g.connect(master||c.destination);src.start(0,.12);   /* saute le début quasi muet (queue de réverbération retournée) */
@@ -1304,7 +1304,7 @@
       var FORMANTS=[[800,1,9],[1150,.55,11],[2900,.22,12]];
       VOIX.forEach(function(v,k){
         var debut=t0+v[1],fin=t0+3.2,volume=.22*v[2];
-        var env=c.createGain();
+        var env=c.createGain(); env.gain.value=.0001;
         env.gain.setValueAtTime(.0001,debut);
         env.gain.exponentialRampToValueAtTime(volume,debut+.9);
         env.gain.setValueAtTime(volume,Math.max(debut+.9,fin-1.2));
@@ -1330,7 +1330,7 @@
       for(var j=0;j<n;j+=1)dd[j]=Math.random()*2-1;
       var src=c.createBufferSource();src.buffer=buf;
       var bpS=c.createBiquadFilter();bpS.type="bandpass";bpS.frequency.value=2200;bpS.Q.value=.7;
-      var gS=c.createGain();gS.gain.setValueAtTime(.0001,t0);gS.gain.exponentialRampToValueAtTime(.03,t0+1.1);gS.gain.exponentialRampToValueAtTime(.0001,t0+3.3);
+      var gS=c.createGain(); gS.gain.value=.0001;gS.gain.setValueAtTime(.0001,t0);gS.gain.exponentialRampToValueAtTime(.03,t0+1.1);gS.gain.exponentialRampToValueAtTime(.0001,t0+3.3);
       src.connect(bpS);bpS.connect(gS);gS.connect(bus);src.start(t0);src.stop(t0+3.5);
     });
   }
@@ -1378,13 +1378,13 @@
       var bpg=c.createBiquadFilter();bpg.type="bandpass";bpg.frequency.value=650;bpg.Q.value=1.4;
       var hache=c.createGain();hache.gain.value=.5;
       var lfo3=c.createOscillator(),prof3=c.createGain();lfo3.frequency.value=34;prof3.gain.value=.5;lfo3.connect(prof3);prof3.connect(hache.gain);lfo3.start(t0);lfo3.stop(t0+d+.05);
-      var gg=c.createGain();gg.gain.setValueAtTime(.0001,t0);gg.gain.exponentialRampToValueAtTime(Math.max(.0002,p.gargouille),t0+.12);gg.gain.exponentialRampToValueAtTime(.0001,t0+d);
+      var gg=c.createGain(); gg.gain.value=.0001;gg.gain.setValueAtTime(.0001,t0);gg.gain.exponentialRampToValueAtTime(Math.max(.0002,p.gargouille),t0+.12);gg.gain.exponentialRampToValueAtTime(.0001,t0+d);
       src.connect(bpg);bpg.connect(hache);hache.connect(gg);gg.connect(sortie);src.start(t0);src.stop(t0+d);
       /* la fin voisée « urp » : une voyelle courte et grave */
       if(p.fin>0){
         var t1=t0+d-.08,o2=c.createOscillator();o2.type="sawtooth";
         o2.frequency.setValueAtTime(112,t1);o2.frequency.exponentialRampToValueAtTime(84,t1+p.fin);
-        var e2=c.createGain();e2.gain.setValueAtTime(.0001,t1);e2.gain.exponentialRampToValueAtTime(.4,t1+.04);e2.gain.exponentialRampToValueAtTime(.0001,t1+p.fin);
+        var e2=c.createGain(); e2.gain.value=.0001;e2.gain.setValueAtTime(.0001,t1);e2.gain.exponentialRampToValueAtTime(.4,t1+.04);e2.gain.exponentialRampToValueAtTime(.0001,t1+p.fin);
         [[600,1,8],[1100,.6,9]].forEach(function(f){
           var bq=c.createBiquadFilter();bq.type="bandpass";bq.frequency.value=f[0];bq.Q.value=f[2];
           var gf=c.createGain();gf.gain.value=f[1];o2.connect(bq);bq.connect(gf);gf.connect(e2);
@@ -2329,14 +2329,14 @@
     var t0=c.currentTime+debut;
     var osc=c.createOscillator();
     osc.type="sawtooth";
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=.0001;
     g.gain.setValueAtTime(.0001,t0);
     [[800,1,9],[1250,.55,11],[2700,.22,13]].forEach(function(F){
       var bp=c.createBiquadFilter();
       bp.type="bandpass";
       bp.frequency.setValueAtTime(F[0]*(.94+Math.random()*.12),t0);
       bp.Q.setValueAtTime(F[2],t0);
-      var fg=c.createGain();
+      var fg=c.createGain(); fg.gain.value=F[1];
       fg.gain.setValueAtTime(F[1],t0);
       osc.connect(bp);
       bp.connect(fg);

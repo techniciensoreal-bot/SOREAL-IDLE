@@ -38,7 +38,7 @@
     f.type=o.type||'bandpass';f.Q.value=o.q||1;
     f.frequency.setValueAtTime(Math.max(20,o.f0),t);
     if(o.f1)f.frequency.exponentialRampToValueAtTime(Math.max(20,o.f1),t+o.d);
-    g.gain.setValueAtTime(.0001,t);
+    g.gain.value=.0001;g.gain.setValueAtTime(.0001,t);
     g.gain.exponentialRampToValueAtTime(o.v||.2,t+(o.a||.008));
     g.gain.exponentialRampToValueAtTime(.0001,t+o.d);
     s.connect(f);f.connect(g);g.connect(sortie);
@@ -115,10 +115,10 @@
     var osc=c.createOscillator();osc.type='sawtooth';
     osc.frequency.setValueAtTime(o.f0,t0);osc.frequency.exponentialRampToValueAtTime(o.f1,t0+d);
     var lfo=c.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(o.vib,t0);
-    var lg=c.createGain();lg.gain.setValueAtTime(o.f0*.09,t0);lfo.connect(lg);lg.connect(osc.frequency);
+    var lg=c.createGain(); lg.gain.value=o.f0*.09;lg.gain.setValueAtTime(o.f0*.09,t0);lfo.connect(lg);lg.connect(osc.frequency);
     var f=c.createBiquadFilter();f.type='bandpass';f.Q.value=5;
     f.frequency.setValueAtTime(o.f0*7.4,t0);f.frequency.exponentialRampToValueAtTime(o.f1*10,t0+d);
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=.0001;
     g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol,t0+d*.2);g.gain.exponentialRampToValueAtTime(vol*.6,t0+d*.65);g.gain.exponentialRampToValueAtTime(.0001,t0+d*1.1);
     osc.connect(f);f.connect(g);g.connect(s);
     osc.start(t0);osc.stop(t0+d*1.15);lfo.start(t0);lfo.stop(t0+d*1.15);

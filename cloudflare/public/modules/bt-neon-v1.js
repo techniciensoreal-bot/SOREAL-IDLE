@@ -71,7 +71,7 @@
     var o=c.createOscillator();o.type=type;
     o.frequency.setValueAtTime(f0,t);
     if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+duree);
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=0.0001;
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(Math.max(0.0002,gain),t+Math.min(0.012,duree/3));
     g.gain.exponentialRampToValueAtTime(0.0001,t+duree);

@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les sons de la boutique (porte, pas) et d’autres effets ne crachouillent plus par moment : un claquement très bref, qui dépendait de l’instant exact où le son démarrait, a été supprimé.',
             'Sur téléphone, le cadre Temps ne coupe plus l’heure : elle rétrécit juste assez pour tenir en entier.',
             'Lancée depuis Steam, l’application dessine maintenant de façon à laisser la superposition Steam s’afficher par-dessus le jeu ; Maj + Tab ouvre le menu Steam.',
             'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',

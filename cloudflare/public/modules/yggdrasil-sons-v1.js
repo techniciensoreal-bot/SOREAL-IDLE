@@ -18,14 +18,14 @@
   function note(c,out,t,f,duree,gain,type,partiel){
     var o=c.createOscillator();o.type=type||'sine';
     o.frequency.setValueAtTime(f,t);
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=0.0001;
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(Math.max(0.0002,gain),t+0.008);
     g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
     o.connect(g);g.connect(out);o.start(t);o.stop(t+duree+0.02);
     if(partiel){
       var p=c.createOscillator();p.type='sine';p.frequency.setValueAtTime(f*partiel,t);
-      var pg=c.createGain();pg.gain.setValueAtTime(0.0001,t);
+      var pg=c.createGain(); pg.gain.value=0.0001;pg.gain.setValueAtTime(0.0001,t);
       pg.gain.exponentialRampToValueAtTime(Math.max(0.0002,gain*0.35),t+0.006);
       pg.gain.exponentialRampToValueAtTime(0.0001,t+duree*0.55);
       p.connect(pg);pg.connect(out);p.start(t);p.stop(t+duree);
@@ -35,7 +35,7 @@
   function glisse(c,out,t,f0,f1,duree,gain,type){
     var o=c.createOscillator();o.type=type||'sine';
     o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+duree);
-    var g=c.createGain();
+    var g=c.createGain(); g.gain.value=0.0001;
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(Math.max(0.0002,gain),t+Math.min(0.02,duree/3));
     g.gain.exponentialRampToValueAtTime(0.0001,t+duree);
@@ -153,7 +153,7 @@
         var o=c.createOscillator();o.type='square';
         o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*0.85,tt+d);
         var fl=c.createBiquadFilter();fl.type='bandpass';fl.Q.value=6;fl.frequency.setValueAtTime(900+al()*400,tt);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=0.0001;
         g.gain.setValueAtTime(0.0001,tt);g.gain.exponentialRampToValueAtTime(0.15*(1-i*0.07),tt+d*0.25);g.gain.exponentialRampToValueAtTime(0.0001,tt+d);
         o.connect(fl);fl.connect(g);g.connect(out);o.start(tt);o.stop(tt+d+0.02);
         souffle(c,out,tt,d*1.1,'bandpass',800+al()*500,700,3,0.1,a);
@@ -173,7 +173,7 @@
         var o=c.createOscillator();o.type='square';
         o.frequency.setValueAtTime(f,tt);o.frequency.exponentialRampToValueAtTime(f*1.18,tt+d);
         var fl=c.createBiquadFilter();fl.type='bandpass';fl.Q.value=6;fl.frequency.setValueAtTime(1000+al()*500,tt);
-        var g=c.createGain();
+        var g=c.createGain(); g.gain.value=0.0001;
         g.gain.setValueAtTime(0.0001,tt);g.gain.exponentialRampToValueAtTime(0.16,tt+d*0.25);g.gain.exponentialRampToValueAtTime(0.0001,tt+d);
         o.connect(fl);fl.connect(g);g.connect(out);o.start(tt);o.stop(tt+d+0.02);
         souffle(c,out,tt,d*1.1,'bandpass',900+al()*600,800,3,0.12,a);

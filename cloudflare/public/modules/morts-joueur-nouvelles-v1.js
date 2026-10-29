@@ -337,7 +337,7 @@ function bruit(a){
   bruitBuf=b;return b;
 }
 var sortieCourante=null;   /* pendant un son joué dans le jeu : la sortie du jeu (volume, limiteur) */
-function enveloppe(g,t0,att,dec,pic){g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pic,t0+att);g.gain.exponentialRampToValueAtTime(0.0001,t0+att+dec);}
+function enveloppe(g,t0,att,dec,pic){g.gain.value=0.0001;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(pic,t0+att);g.gain.exponentialRampToValueAtTime(0.0001,t0+att+dec);}
 function souffle(a,t0,dur,fil,f0,f1,q,pic,att){
   var s=a.createBufferSource();s.buffer=bruit(a);s.loop=true;
   var f=a.createBiquadFilter();f.type=fil;f.Q.value=q||1;f.frequency.setValueAtTime(f0,t0);f.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);

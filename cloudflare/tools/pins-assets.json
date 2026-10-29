@@ -36,20 +36,20 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 9,
-  "sha": "908e05c1076a59c9d3c20c820dd844afde3c4cc9"
+  "pin": 10,
+  "sha": "e58692e7284c3570a40f70fdbbdb42f996ffa340"
  },
  "/modules/audio-borne-v1.js": {
-  "pin": 2,
-  "sha": "b290f60035f32a87b1cb5c14093b97479647d6b7"
+  "pin": 3,
+  "sha": "ca442aab90784ae69ff71c0753a2cc0356b89834"
  },
  "/modules/audio-coffre-v1.js": {
-  "pin": 10,
-  "sha": "bccc44861278b0639d076abe23f99edb4816aee1"
+  "pin": 11,
+  "sha": "3e1bd4179da911f0c6ffb76c5875979ff50519e1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 273,
-  "sha": "804e0db11c2c2fd8e2db5a9dca6a7fc136523e51"
+  "pin": 274,
+  "sha": "e3183cfd5057410678651d89ce3deb151624e5c1"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -92,12 +92,12 @@
   "sha": "27ffadc767a8f0c6e45777bd84524578a812484e"
  },
  "/modules/bt-lumieres-v1.js": {
-  "pin": 15,
-  "sha": "56298b2425ce12c2bfa752474a6ab5278431c045"
+  "pin": 16,
+  "sha": "1238d36b62b0314fa3636bdb7f0eaacbfbfdc1dd"
  },
  "/modules/bt-neon-v1.js": {
-  "pin": 8,
-  "sha": "8ffcbbb845979815be2ff9f1ce94d5a0f105ce22"
+  "pin": 9,
+  "sha": "aedd8579afbe90ba664800aef7df54827eba93bb"
  },
  "/modules/bug-report-v1.js": {
   "pin": 5,
@@ -340,20 +340,20 @@
   "sha": "2d97f57c80aeed73f94bd00420c3f807b864e7d8"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 2,
-  "sha": "49a4906c3e541dfea42be6ab23731b59041ddc2d"
+  "pin": 3,
+  "sha": "3c4ffd98a8ce9d5706383f151ef781c1366e9660"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
-  "pin": 2,
-  "sha": "5980f6e2e519fdd6a0f157b401475c5e1c4c10db"
+  "pin": 3,
+  "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
   "pin": 91,
   "sha": "66b10657340693dcbe0498fac12f166ba3a244ae"
  },
  "/modules/musique-titan-v1.js": {
-  "pin": 1,
-  "sha": "1791e998db8bfe2385867599416144e3ed5dfdf9"
+  "pin": 2,
+  "sha": "04dcff82c247e0acc24286d4c2e609d9e09933b8"
  },
  "/modules/ngu-labo-v1.js": {
   "pin": 41,
@@ -368,16 +368,16 @@
   "sha": "f9371b216f367221c858575933feb27683c619d3"
  },
  "/modules/nuke-blindage-v1.js": {
-  "pin": 3,
-  "sha": "c5041c4733579e844b5847f7cab151e11235a103"
+  "pin": 4,
+  "sha": "28018cd5a0cbb9c4ca00d4fd000dbeaad694312c"
  },
  "/modules/number-format-v1.js": {
   "pin": 4,
   "sha": "1cb08c893170d9cef1c29400521319c8cc3406f9"
  },
  "/modules/orage-v1.js": {
-  "pin": 18,
-  "sha": "ebeafee31a624aec76a2ddc305d7a4e698429ec5"
+  "pin": 19,
+  "sha": "c6f4145752e99d4bbdf8028edd00e00ace71efdd"
  },
  "/modules/perf-texte-v1.js": {
   "pin": 2,
@@ -420,8 +420,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 521,
-  "sha": "90f361b4ece6fd4f04a3bf3df5153b1c338b59d4"
+  "pin": 522,
+  "sha": "250751c95aaf8b64623b50fe08da55dbf062718f"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -492,12 +492,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 534,
-  "sha": "db715dc74f58b477e01a0ffee541f8bd46a940e4"
+  "pin": 535,
+  "sha": "f68007d26c623ece0b48b1505260df985d723dee"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 354,
-  "sha": "b6bb7547790580d2c10421ce9fe9c8bfda650d0a"
+  "pin": 355,
+  "sha": "3319797d269b5fed460f6b84ef0f318abbf982ed"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -624,8 +624,8 @@
   "sha": "c81ff256d297df9d1163034969bd1ef29038d59d"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 8,
-  "sha": "5bb0d11cb5d55d6ff61efa4b79cd180ba81e9e6f"
+  "pin": 9,
+  "sha": "4530dd4cca439a6196a845b9ecd3e19c1546d677"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 2,
@@ -640,8 +640,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 58,
-  "sha": "8d627289c1a3419913c42e302ec16b78c4757bfd"
+  "pin": 59,
+  "sha": "e7add4db0a34388447c815bddaad220e638890f9"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
@@ -656,8 +656,8 @@
   "sha": "e5e0cf42738ec8635f080111ce6b94f807ea7080"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 16,
-  "sha": "18293cc61c4514bc6e67919ce7df0dda044b2c85"
+  "pin": 17,
+  "sha": "bf432b5a928f61149d7b3ca2085f5caa5ba8e62f"
  },
  "/modules/zones-personnalite-v1.js": {
   "pin": 2,
