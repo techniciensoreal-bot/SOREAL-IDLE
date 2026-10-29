@@ -568,8 +568,8 @@
   "sha": "c5a77537fb139291a7830c450411574d2771dc33"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 23,
-  "sha": "5add08debc88fe464e939642169fd6c50ce0a21c"
+  "pin": 24,
+  "sha": "13067179d90c3703bf81dcc7044381d3c55ed59c"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -664,8 +664,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 64,
-  "sha": "e5e0cf42738ec8635f080111ce6b94f807ea7080"
+  "pin": 65,
+  "sha": "dbad9e4e9e450995b81ac081b71a9d3b77f0da85"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 17,

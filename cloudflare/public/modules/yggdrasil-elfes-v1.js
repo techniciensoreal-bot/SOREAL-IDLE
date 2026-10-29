@@ -604,6 +604,26 @@
    * Animation d'usage (Norman, 2026-10-29) : MANGER = les fruits rétrécissent un par un, à tour de rôle, chacun sur un coup de mâchoire (bruit de mâche) ; RÉCOLTER (en graines) = chaque fruit se défait en mini particules qui tombent au sol.
    * Les copies des fruits vivent dans une couche à part (data-morph-garder) : la réponse du moteur vide l'arbre réel tout de suite, la couche continue seule. Sans fruit visible ou avec « réduire les animations » : seulement le son.
    */
+  /* Manger (Norman, 2026-10-29 : « tous les fruits disparaissent sauf un, qui vient en zoom plein écran, hors cadre, et disparaît en fondu », comme la sorcière et le fantôme du thème Halloween de TV et APP) : une copie du fruit, posée sur la page entière (position fixed), part de sa place dans l'arbre, grandit jusqu'à dépasser la hauteur de l'écran en glissant vers le centre, puis s'efface en fondu. Transformations et opacité seulement, sans filtre. */
+  function zoomFruit_(img,k,rot){
+    try{
+      var r=img.getBoundingClientRect();if(!r.width)return;
+      var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
+      var cx=r.left+r.width/2,cy=r.top+r.height/2,fin=Math.max(2,vh*1.3/r.height);
+      var e=document.createElement('img');e.src=img.currentSrc||img.src;e.alt='';e.setAttribute('aria-hidden','true');e.setAttribute('data-morph-garder','');
+      e.style.cssText='position:fixed;left:'+cx+'px;top:'+cy+'px;width:'+r.width+'px;height:'+r.height+'px;margin:-'+(r.height/2)+'px 0 0 -'+(r.width/2)+'px;object-fit:contain;z-index:99999;pointer-events:none;will-change:transform,opacity';
+      document.body.appendChild(e);
+      var dx=vw/2-cx,dy=vh/2-cy,t=function(p,sc,rd){return 'translate('+(dx*p).toFixed(1)+'px,'+(dy*p).toFixed(1)+'px) scale('+sc.toFixed(3)+') rotate('+rd+'deg)';};
+      var a=e.animate([
+        {transform:t(0,1,rot),opacity:1},
+        {transform:t(.15,fin*.13+.9,rot+6),opacity:1,offset:.18},
+        {transform:t(.5,fin*.4,rot-4),opacity:1,offset:.6},
+        {transform:t(1,fin,rot+3),opacity:0}
+      ],{duration:2000,easing:'ease-in',fill:'forwards'});
+      a.onfinish=function(){if(e.parentNode)e.parentNode.removeChild(e);};
+      setTimeout(function(){if(e.parentNode)e.parentNode.removeChild(e);},3000);
+    }catch(_e){}
+  }
   function animer_(id,mode){
     var recolte=mode==='harvest';
     var vit=null,imgs=[];
@@ -617,7 +637,10 @@
     var ov=document.createElement('div');ov.className='ygg-anim-v1';ov.setAttribute('data-morph-garder','');ov.setAttribute('aria-hidden','true');
     var H=vit.clientHeight||200,couleur=AURAS_[id]||'#ffd34a',teintes=[couleur,couleur,'#ffffff','#ffe9a0'];
     var fin=0;
+    var zoomImg=null;
+    if(!recolte){for(var z=0;z<imgs.length;z++)if(imgs[z].classList.contains('ygg-mur')){zoomImg=imgs[z];break;}if(!zoomImg)zoomImg=imgs[0];}
     imgs.forEach(function(img,i){
+      if(img===zoomImg){img.style.visibility='hidden';zoomFruit_(img,0,parseFloat(img.style.getPropertyValue('--ygg-r'))||0);im_+=img.classList.contains('ygg-mur')?1:0;return;}
       var copie=img.cloneNode(false);copie.classList.add('ygg-anim-fruit');
       ov.appendChild(copie);img.style.visibility='hidden';
       var k=(parseFloat(img.style.getPropertyValue('--ygg-k'))||1)*(parseFloat(img.style.getPropertyValue('--ygg-s'))||1);
