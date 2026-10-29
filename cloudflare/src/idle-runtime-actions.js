@@ -1137,6 +1137,15 @@ export function renaitreSorealIdle(
     stats.autoAventure=false;
     stats.autoAventureZone=0;
 
+    /* Norman (2026-10-29) : « après une renaissance, le boss de Fight Boss est mort tout seul quand l'écran de la borne s'est allumé » : un Fight Boss encore engagé au moment de la Renaissance (combatBossActif resté vrai) combattait le premier boss du nouveau run sans aucun clic. Comme pour un défi, la Renaissance arrête le combat : il repart seulement sur un clic explicite sur Fight. */
+    stats.combatBossActif=false;
+    stats.bossSelection=1;
+    stats.bossRespawnJusqua=0;
+    stats.bossStunJusqua=0;
+    stats.bossVulnerableJusqua=0;
+    stats.bossVulnerablePct=0;
+    stats.sceauBriseBossNumero=0;
+
     stats.bestiaireBossRunVersionV207=207;
     stats.bestiaireBossRunMaxNumeroV207=0;
 
