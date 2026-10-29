@@ -75,6 +75,7 @@
             'Dans le coffre, les noms des équipements ne sont plus écrits sur les cases : ils cachaient l’image. Clique sur un objet pour connaître son nom.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Machine temporelle : les pièces d’or sortent maintenant en file régulière, toutes de la même façon (plus aucune pièce qui fait des haut-bas), et le tas d’Or sous la goulotte grossit avec le butin : dix tas différents, d’un petit tas à une grosse pile.',
             'Quand tu places ou retires de l’Énergie ou de la Magie, les barres et les comptes à rebours ne font plus de petit retour en arrière : ils restent fluides.',
             'Sous la barre de chaque colonne, le prix en Or du niveau suivant est affiché et se met à jour à chaque niveau gagné.'
           ]},

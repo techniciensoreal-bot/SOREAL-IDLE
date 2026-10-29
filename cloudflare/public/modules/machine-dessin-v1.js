@@ -100,6 +100,28 @@
 
   /* Taille du nom du mob (Norman, 2026-10-23) : le nom a toute la largeur de l'écran (300 sur 324) sur sa propre ligne, au-dessus ; plus il est long, plus il rapetisse (jamais sous 9). */
   function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(9,Math.min(16,Math.floor(300/(n*.62))));}
+  /*
+   * Le tas d'Or sous la goulotte (Norman, 2026-10-29 : « pour chaque M, T, UVG… un tas un peu plus gros ; pas à l'infini, mais une dizaine de tas différents ») : dix tailles, choisies d'après l'unité du butin d'une barre (la même que celle affichée :
+   * K, M, B, T… Uvg…). Seuils (rang de l'unité : 0 rien, 1 K, 2 M, 4 T, 22 Uvg) : sous M, puis M, B, T, Sx, Oc, Vg, Uvg, Tvg ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
+   */
+  var SEUILS_TAS=[0,2,3,4,6,9,13,18,22,25];
+  function niveauTas(or){
+    var g=Number(or)||0,rang=g>=1000?Math.floor(Math.log10(g)/3+1e-9):0,n=0,i;
+    for(i=0;i<SEUILS_TAS.length;i++)if(rang>=SEUILS_TAS[i])n=i;
+    return n;
+  }
+  function tasInterieur(niv){
+    var B=686,w=62+niv*6,t=650-niv*1.9,L=280-w,R=280+w;   /* de plus en plus large et haut (sans dépasser le bec de la goulotte), plus de pièces à chaque niveau */
+    var d='M'+L.toFixed(1)+' '+B+' Q'+(L+6).toFixed(1)+' '+(t+24).toFixed(1)+' '+(L+30).toFixed(1)+' '+(t+22).toFixed(1)+' Q'+(L+52).toFixed(1)+' '+t.toFixed(1)+' 280 '+t.toFixed(1)+' Q'+(R-52).toFixed(1)+' '+t.toFixed(1)+' '+(R-30).toFixed(1)+' '+(t+22).toFixed(1)+' Q'+(R-6).toFixed(1)+' '+(t+24).toFixed(1)+' '+R.toFixed(1)+' '+B+' Z';
+    var clair='',sombre='',nb=5+niv*3,k;
+    for(k=0;k<nb;k++){
+      var fx=((k*0.6180339+.13)%1),x=L+12+fx*(2*w-24),dx=Math.abs(x-280)/w,haut=t+8+dx*dx*(B-t-18),y=haut+(((k*0.3819661+.2)%1))*(B-haut-9);
+      if(k%3===2)sombre+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3"/>';
+      else clair+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5"/>';
+    }
+    return '<path d="'+d+'" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/><g fill="#ffe9a0" opacity=".85">'+clair+'</g><g fill="#b87400" opacity=".7">'+sombre+'</g>';
+  }
+
   /* ---------- le centre : la grande machine (écran, cadran, baie d'engrenages, goulotte à pièces) ---------- */
   function centre(opts){
     opts=opts||{};
@@ -178,8 +200,7 @@
       /* goulotte à pièces et tas d'Or */
       '<path d="M232 600 H328 L316 626 H244 Z" fill="url(#tmmLait)" stroke="#150c06" stroke-width="4" stroke-linejoin="round"/><rect x="244" y="622" width="72" height="14" rx="4" fill="#2a1a0c" stroke="#150c06" stroke-width="3"/>'+
       '<g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="262" y="626" width="36" height="24" rx="8" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
-      '<g transform="translate(0 4)"><path d="M206 676 Q214 656 240 658 Q256 640 280 640 Q304 640 320 658 Q346 656 354 676 Z" fill="url(#tmmPiece)" stroke="#150c06" stroke-width="3" stroke-linejoin="round"/>'+
-      '<g fill="#ffe9a0" opacity=".85"><circle cx="246" cy="664" r="5"/><circle cx="272" cy="652" r="5"/><circle cx="300" cy="656" r="5"/><circle cx="324" cy="668" r="5"/><circle cx="282" cy="668" r="5"/></g><g fill="#b87400" opacity=".7"><circle cx="258" cy="670" r="3"/><circle cx="290" cy="662" r="3"/><circle cx="312" cy="672" r="3"/></g></g>'+
+      '<g id="tmmTas" transform="translate(0 4)" data-niveau="'+(opts.tas|0)+'">'+tasInterieur(opts.tas|0)+'</g>'+
       '</svg>';
   }
 
@@ -237,26 +258,32 @@
       r.__tmmAnim=r.animate([{transform:'rotate('+off+'deg)'},{transform:'rotate('+(off+360*sens)+'deg)'}],{duration:10000,iterations:Infinity,easing:'linear'});
       r.__tmmAnim.playbackRate=cadenceRoue(r);
     });
-    racine.querySelectorAll('.tmm-piece').forEach(function(g){
-      if(g.__tmmAnim)return;
-      var rang=parseInt(g.getAttribute('data-rang'),10)||0;
-      g.__tmmAnim=g.animate([{transform:'translateY(0)',opacity:0},{opacity:1,offset:.14},{opacity:1,offset:.8},{transform:'translateY(24px)',opacity:0}],{duration:1000,iterations:Infinity,delay:-rang*1000/8,easing:'linear'});
-      reglerPieces(racine);
-    });
+    reglerPieces(racine);
     racine.querySelectorAll('.tmm-anneau').forEach(function(g){
       if(g.__tmmAnim)return;
       g.__tmmAnim=g.animate([{transform:'rotate(0deg)'},{transform:'rotate(360deg)'}],{duration:22000,iterations:Infinity,easing:'linear'});
       g.__tmmAnim.playbackRate=rythmeAnneau(tours.or.vue);
     });
   }
-  /* Pièces dans la goulotte : à bas rythme, peu de pièces (une, deux, quatre) qui tombent chacune en une fraction de seconde, une par tique ; à haut rythme, un flot continu de huit. */
+  /*
+   * Pièces dans la goulotte (Norman, 2026-10-29 : « il y en a une qui fait des haut-bas, je n'aime pas ; je préfère qu'elles se suivent toutes à la file ») : une FILE régulière. Toutes les pièces tombent exactement de la même façon (même durée de chute, même vitesse, jamais d'aller-retour) ;
+   * seul le nombre de pièces par seconde change avec le rythme (1, 2, 4 ou 8), réparties à intervalles égaux : la cadence ne touche jamais la vitesse d'une pièce. La cadence n'est réglée que lorsqu'elle change de palier (pas à chaque image).
+   */
+  var CHUTE_PIECE=.5;   /* secondes de chute de chaque pièce */
   function reglerPieces(racine){
-    var nb=vue<=2?1:vue<=4?2:vue<=8?4:8,pas=8/nb,rythme=Math.max(.05,Math.min(1.6,vue/nb));
+    var cad=vue<=2?1:vue<=4?2:vue<=8?4:8;
+    if(racine.__cadencePieces===cad&&racine.querySelector('.tmm-piece').__tmmAnim)return;
+    racine.__cadencePieces=cad;
+    var periode=8/cad,f=Math.min(.99,CHUTE_PIECE/periode);   /* 8 pièces décalées d'une période/8 : cad pièces par seconde */
+    var kf=[{transform:'translateY(0)',opacity:0},{transform:'translateY('+(24*.12).toFixed(2)+'px)',opacity:1,offset:+(f*.12).toFixed(4)},{transform:'translateY('+(24*.8).toFixed(2)+'px)',opacity:1,offset:+(f*.8).toFixed(4)},{transform:'translateY(24px)',opacity:0,offset:+f.toFixed(4)},{transform:'translateY(24px)',opacity:0}];
     racine.querySelectorAll('.tmm-piece').forEach(function(g){
       var rang=parseInt(g.getAttribute('data-rang'),10)||0;
-      var visible=rang%pas===0;
-      if(g.style.display!==(visible?'':'none'))g.style.display=visible?'':'none';
-      if(g.__tmmAnim)g.__tmmAnim.playbackRate=rythme;
+      var opt={duration:periode*1000,iterations:Infinity,delay:-rang*periode*1000/8,easing:'linear'};
+      try{
+        if(g.__tmmAnim){g.__tmmAnim.effect.setKeyframes(kf);g.__tmmAnim.effect.updateTiming(opt);}
+        else g.__tmmAnim=g.animate(kf,opt);
+      }catch(_e){try{if(g.__tmmAnim)g.__tmmAnim.cancel();}catch(_f){} g.__tmmAnim=g.animate(kf,opt);}
+      if(g.style.display)g.style.display='';
     });
   }
   function appliquerVitesse(){
@@ -314,6 +341,8 @@
       var tm='×'+H.formatGrandNombreIdleV70_(m);
       if(multi.textContent!==tm){multi.textContent=tm;multi.setAttribute('font-size',String(taillePoliceMulti(tm)));}
     }
+    var tas=document.getElementById('tmmTas');
+    if(tas){var nv=niveauTas(v.goldPerBarFill);if(tas.getAttribute('data-niveau')!==String(nv)){tas.setAttribute('data-niveau',String(nv));tas.innerHTML=tasInterieur(nv);}}
     var butin=document.getElementById('tmmButin');
     if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
     var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob){if(nomMob.textContent!==nom)nomMob.textContent=nom;var tn=String(tailleNom(nom));if(nomMob.getAttribute('font-size')!==tn)nomMob.setAttribute('font-size',tn);}
@@ -328,5 +357,5 @@
   /* Après chaque redessin de la page (AGENTS.md règle n°4) : les rotations repartent dans la même tâche. */
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(rafraichir);
 
-  window.__SOREAL_IDLE_TM_DESSIN_V1__={defs:defs,centre:centre,hautEnergie:hautEnergie,hautMagie:hautMagie,rafraichir:rafraichir,maj:maj,urlMob:urlMob};
+  window.__SOREAL_IDLE_TM_DESSIN_V1__={niveauTas:niveauTas,tasInterieur:tasInterieur,defs:defs,centre:centre,hautEnergie:hautEnergie,hautMagie:hautMagie,rafraichir:rafraichir,maj:maj,urlMob:urlMob};
 })();
