@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur téléphone, placer ou retirer de l’Énergie ou de la Magie ne fait plus bouger la page : le cadre « total placé » garde toujours la même hauteur.',
             'Les sons de la boutique (porte, pas) et d’autres effets ne crachouillent plus par moment : un claquement très bref, qui dépendait de l’instant exact où le son démarrait, a été supprimé.',
             'Sur téléphone, le cadre Temps ne coupe plus l’heure : elle rétrécit juste assez pour tenir en entier.',
             'Lancée depuis Steam, l’application dessine maintenant de façon à laisser la superposition Steam s’afficher par-dessus le jeu ; Maj + Tab ouvre le menu Steam.',
@@ -49,6 +50,7 @@
             'Dans le coffre, les noms des équipements ne sont plus écrits sur les cases : ils cachaient l’image. Clique sur un objet pour connaître son nom.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Quand tu places ou retires de l’Énergie ou de la Magie, les barres et les comptes à rebours ne font plus de petit retour en arrière : ils restent fluides.',
             'Sous la barre de chaque colonne, le prix en Or du niveau suivant est affiché et se met à jour à chaque niveau gagné.'
           ]},
           {menu:'ngu', titre:'NGU', points:[

@@ -1469,7 +1469,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>[data-alloc-cadre-v1^="idle-"] button.clear{grid-column:span 2!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px;padding:8px 14px!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1 b{margin-left:auto}
-@media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{flex-wrap:wrap}}
+/* Norman (2026-10-29) : « quand on place et qu'on retire de l'énergie, la page bouge encore » : sur téléphone le cadre « total placé » passait sur 2 lignes dès que le texte s'allongeait (« 0 % » -> « 1250 % du plafond »), +20 px de hauteur, donc toute la page en dessous bougeait. Il a maintenant TOUJOURS deux lignes (libellé et nombre, puis « % du plafond » dessous) : sa hauteur ne dépend plus de son contenu. */
+@media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{display:grid!important;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;column-gap:10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1>span{min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1>small{grid-column:1/-1}}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{flex-wrap:wrap!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120>:not(label):not(input){flex:1 1 100%!important;margin:0!important}
 

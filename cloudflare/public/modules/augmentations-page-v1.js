@@ -333,6 +333,18 @@
               const m=j.systemes.resources.magic;
               m.current=Math.max(0,H.idleNombre_(m.current)-delta);
             }
+            /* Machine temporelle (Norman, 2026-10-29 : « quand on place de l'énergie ou de la magie, les barres bougent, les chronos ne sont pas fluides ») : une synchro calculée avant le clic gardait la durée et la barre PÉRIMÉES de sa réponse (1111 h -> 2222 h -> 1111 h en 50 ms). Le visuel local de la piste, celui que le clic vient de recalculer, est reporté sur l'état qui arrive, puis rebasé. */
+            if(p.system==='timeMachine'){
+              try{
+                const vp=precedent&&precedent.systemes&&precedent.systemes.timeMachineView,vj=j.systemes&&j.systemes.timeMachineView;
+                if(vj){
+                  const piste=p.resource==='energy'?'speed':'gold';
+                  if(vp&&vp!==vj)['Fill','Fraction','ProgressSeconds','EtaSeconds'].forEach(function(f){if(vp[piste+f]!==undefined)vj[piste+f]=vp[piste+f];});
+                  if(vp&&vp!==vj&&vp.__at)vj.__at=vp.__at;
+                  recalculerTimeMachineLocalIdleV1_(j,p.resource,val);
+                }
+              }catch(_e){}
+            }
           }else if(p.action==='allocateAdvancedTraining'){
             const sysAt=systemeMetaParIdIdleV130_(j,'advancedTraining');
             const pisteAt=sysAt&&sysAt.state&&sysAt.state.data&&sysAt.state.data.tracks&&sysAt.state.data.tracks[p.track];
