@@ -140,10 +140,13 @@ export function ecrireLiaison(dossier, { jeton, email, expire, decision }, chiff
 /* ---------- transmission des appels de la page au serveur (application reliée) ---------- */
 /* Les envois d'administration (voix générées, histoires, purge) vont aussi au serveur : le compte local de l'exe n'est pas administrateur, seul le compte relié l'est (Norman, 2026-10-28 : « le souci de génération de voix n'arrive qu'avec l'exe »). */
 const ROUTES_ADMIN = ["/api/v1/voice-upload", "/api/v1/story-upload", "/api/v1/voice-purge"];
+export function estRouteAdmin(chemin) { return ROUTES_ADMIN.includes(chemin); }
 export function transmissible(chemin) {
   return chemin === "/api/v1/call" || chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
 }
 /* Retourne { reponse } (la réponse du serveur, ré-emballée), { expiree: true } (jeton refusé), ou null (pas de réseau : la page doit voir une erreur réseau, pas une réponse). */
+/* Raison du dernier échec réseau (message, code de la cause) : lue par l'application pour l'expliquer à l'administrateur et la consigner (Norman, 2026-10-29 : « Failed to fetch quand je veux générer »). */
+export let derniereErreurTransmission = "";
 export async function transmettre({ urlBase = URL_PRODUCTION, jeton, methode, chemin, recherche = "", entetes = {}, corps, fetchFn = fetch, delaiMs = 45000 }) {
   try {
     const h = { authorization: "Bearer " + jeton };
@@ -153,7 +156,9 @@ export async function transmettre({ urlBase = URL_PRODUCTION, jeton, methode, ch
     const sortie = new Headers();
     r.headers.forEach((v, k) => { if (!["content-encoding", "content-length", "transfer-encoding", "connection", "set-cookie"].includes(k)) sortie.set(k, v); });
     return { reponse: new Response(Buffer.from(await r.arrayBuffer()), { status: r.status, headers: sortie }) };
-  } catch (_e) {
+  } catch (e) {
+    const cause = e && e.cause ? (e.cause.code || e.cause.message || String(e.cause)) : "";
+    derniereErreurTransmission = String((e && e.name) || "Error") + " : " + String((e && e.message) || e) + (cause ? " (" + cause + ")" : "");
     return null;
   }
 }

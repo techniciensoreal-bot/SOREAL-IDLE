@@ -144,9 +144,14 @@ async function demarrerJeu() {
     /* Application RELIÉE à un compte : les appels du jeu vont au serveur avec le jeton du compte (comme la version web) ; sans réseau la page voit une erreur réseau et continue avec ce qu'elle a. */
     if (liaison.lie && !liaisonExpiree && liaisonModule.transmissible(url.pathname)) {
       const corps = requete.method === "GET" || requete.method === "HEAD" ? undefined : Buffer.from(await requete.arrayBuffer());
-      const r = await liaisonModule.transmettre({ urlBase: process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION, jeton: liaison.jeton, methode: requete.method, chemin: url.pathname, recherche: url.search, entetes: Object.fromEntries(requete.headers), corps });
+      /* Pile réseau de Chromium (celle de Chrome : proxy, certificats de Windows, antivirus) plutôt que celle de Node. */
+      const r = await liaisonModule.transmettre({ urlBase: process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION, jeton: liaison.jeton, methode: requete.method, chemin: url.pathname, recherche: url.search, entetes: Object.fromEntries(requete.headers), corps, fetchFn: (u, o) => net.fetch(u, Object.assign({}, o, { bypassCustomProtocolHandlers: true })) });
+      const admin = liaisonModule.estRouteAdmin(url.pathname);
+      if (admin) journalLiaison_(url.pathname + " " + requete.method + " " + (corps ? corps.length : 0) + " o : " + (r && r.reponse ? "HTTP " + r.reponse.status : r && r.expiree ? "401 (jeton refusé par le serveur)" : "ÉCHEC RÉSEAU " + liaisonModule.derniereErreurTransmission));
       if (r && r.reponse) return r.reponse;
       if (r && r.expiree) { liaisonExpiree = true; envoyerPage("liaison:expiree", true); }
+      /* Routes d'administration (voix, histoires) : la page reçoit la RAISON, lisible, au lieu d'un « Failed to fetch » muet. */
+      if (admin) return new Response(JSON.stringify({ ok: false, error: r && r.expiree ? "Le serveur refuse la liaison de ce compte (jeton expiré ou révoqué) : relie de nouveau ton compte dans les Réglages." : "Impossible d'envoyer au serveur : " + (liaisonModule.derniereErreurTransmission || "pas de réponse") }), { status: r && r.expiree ? 401 : 502, headers: { "content-type": "application/json" } });
       return Response.error();
     }
     if (liaison.lie && liaisonExpiree && liaisonModule.transmissible(url.pathname)) return Response.error();
@@ -277,6 +282,16 @@ function icoDepuisPng(png) {
   entete[6] = 0; entete[7] = 0; entete[8] = 0; entete[9] = 0;
   entete.writeUInt16LE(1, 10); entete.writeUInt16LE(32, 12); entete.writeUInt32LE(png.length, 14); entete.writeUInt32LE(22, 18);
   return Buffer.concat([entete, png]);
+}
+/* Petit journal des envois d'administration (voix, histoires) : userData/liaison-diagnostic.log, 64 Ko au plus. */
+function journalLiaison_(ligne) {
+  try {
+    const f = path.join(app.getPath("userData"), "liaison-diagnostic.log");
+    let ancien = "";
+    try { ancien = fs.readFileSync(f, "utf8"); } catch (_e) { /* premier envoi */ }
+    if (ancien.length > 60000) ancien = ancien.slice(-30000);
+    fs.writeFileSync(f, ancien + new Date().toISOString() + " " + ligne + "\n");
+  } catch (_e) { /* jamais bloquant */ }
 }
 function installerPontSteam() {
   const exeJeu = () => process.execPath;
