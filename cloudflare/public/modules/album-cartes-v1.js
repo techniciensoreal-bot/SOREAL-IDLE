@@ -78,6 +78,17 @@ function dosHtml(r){var h='',i,n=nbDos(r);for(i=0;i<n;i++)h+=dosHtmlPochette(i);
 function droiteHtml(r){return r<=0?puzzleHtml():cartesDePage(r).map(pochetteHtml).join('');}
 function gaucheHtml(r){return r<=0?'':dosHtml(r-1);}   /* à gauche : le dos de la feuille d'avant ; avant le dessin, l'intérieur de la couverture */
 
+/* Pour un saut de plusieurs pages, seules la première et la dernière feuille montrent leur vrai contenu : celles du milieu passent trop vite pour être lues, elles sont dessinées en cartes simples (rien de lourd à construire). */
+function legerHtml(r){
+  var n=r<=0?PIECES:cartesDePage(r).length,h='',i;
+  for(i=0;i<n;i++)h+='<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg"><div class="alb-leger"></div></div><div class="alb-plastique"></div></div>';
+  return h;
+}
+function dosLegerHtml(r){
+  var n=nbDos(r),h='',i;
+  for(i=0;i<n;i++){var l=Math.floor(i/COLS),c=COLS-1-(i%COLS);h+='<div class="alb-pochette alb-pochette-dos" aria-hidden="true" style="grid-row:'+(l+1)+';grid-column:'+(c+1)+'"><div class="alb-carte alb-carte-mtg"><div class="alb-leger alb-leger-dos"></div></div><div class="alb-plastique"></div></div>';}
+  return h;
+}
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_GG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4 3 12l8 8M20 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -141,11 +152,11 @@ function afficher(p){   /* sans animation */
 }
 
 /* La face visible d'une feuille qui tourne : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
-function basculer(av,ar,avantD,duree,ease){
+function basculer(av,ar,avantD,duree,ease,delai){
   var v1={visibility:'visible'},h1={visibility:'hidden'};
   var kfA=avantD?[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1]:[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1];
   var kfR=avantD?[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1]:[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1];
-  var o={duration:duree,easing:ease,fill:'forwards'};
+  var o={duration:duree,easing:ease,fill:'both',delay:delai||0};
   av.animate(kfA,o);ar.animate(kfR,o);
 }
 var DUREE=1150,EASE='cubic-bezier(.5,.05,.3,1)';
@@ -226,8 +237,8 @@ function tournerUne(sens,D,silencieux){
     var feuille=document.createElement('div');
     feuille.className='alb-feuille-tournante';feuille.setAttribute('data-morph-garder','');feuille.setAttribute('aria-hidden','true');
     feuille.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
-    feuille.innerHTML='<div class="alb-face alb-face-avant alb-page"><div class="alb-feuille">'+avant+'</div><i class="alb-ombre"></i></div>'+
-                      '<div class="alb-face alb-face-arriere alb-page"><div class="alb-feuille">'+arriere+'</div><i class="alb-ombre"></i></div>';
+    feuille.innerHTML='<div class="alb-face alb-face-avant"><div class="alb-page"><div class="alb-feuille">'+avant+'</div><i class="alb-ombre"></i></div></div>'+
+                      '<div class="alb-face alb-face-arriere"><div class="alb-page"><div class="alb-feuille">'+arriere+'</div><i class="alb-ombre"></i></div></div>';
     var ombreD=document.createElement('i'),ombreG=document.createElement('i');
     ombreD.className='alb-ombre-sol alb-ombre-sol-d';ombreG.className='alb-ombre-sol alb-ombre-sol-g';
     pd.appendChild(ombreD);if(deux)pg.appendChild(ombreG);
@@ -251,7 +262,10 @@ function tournerUne(sens,D,silencieux){
         [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
         ombreD.animate([{opacity:.65},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
         if(deux)ombreG.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.6,offset:.8},{opacity:0}],{duration:D,fill:'forwards'});
-        anim.onfinish=function(){if(deux)fg.innerHTML=gaucheHtml(q);termine();};
+        anim.onfinish=function(){
+          if(deux){var nf=facesAR.querySelector('.alb-feuille');if(nf&&fg.parentNode){fg.parentNode.replaceChild(nf,fg);}else fg.innerHTML=gaucheHtml(q);}
+          termine();
+        };
       }else{
         if(deux)fg.innerHTML=gaucheHtml(q);             /* dessous (à gauche) : la page d'avant, révélée quand la feuille se lève */
         livre.appendChild(feuille);basculer(facesAV,facesAR,false,D,E);
@@ -262,15 +276,18 @@ function tournerUne(sens,D,silencieux){
         [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
         ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:D,fill:'forwards'});
         if(deux)ombreG.animate([{opacity:.6},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
-        anim.onfinish=function(){fd.innerHTML=droiteHtml(q);termine();};
+        anim.onfinish=function(){
+          var nf=facesAV.querySelector('.alb-feuille');if(nf&&fd.parentNode){fd.parentNode.replaceChild(nf,fd);}else fd.innerHTML=droiteHtml(q);
+          termine();
+        };
       }
     }catch(_e){page=q;termine();afficher(q);}
   });
 }
 function page_(sens){if(saut)return;return tournerUne(sens,DUREE,false);}
 /*
- * Sauter de plusieurs pages (Norman, 2026-10-29 : « une flèche pour avancer de 10 pages ; on doit voir une animation de 10 pages ») : les feuilles se tournent à la file, vite (0,3 s chacune), l'une après l'autre ; seule la dernière page atteinte annonce ses nouvelles cartes.
- * Un saut qui dépasse le début ou la fin s'arrête à la première ou à la dernière page.
+ * Sauter de plusieurs pages (Norman, 2026-10-29 : « quand on passe 10 pages, je veux qu'on voie 10 pages tourner en une fois, pas une par une ») : les N feuilles partent à la file (une toutes les 80 ms) et sont TOUTES en l'air en même temps, comme on feuillette un classeur ;
+ * elles retombent l'une sur l'autre (la dernière dessus). Un saut qui dépasse le début ou la fin s'arrête à la première ou à la dernière page. Seule la page atteinte annonce ses nouvelles cartes.
  */
 var saut=false;
 function sauter(n){
@@ -278,13 +295,45 @@ function sauter(n){
   var sens=n<0?-1:1,total=Math.min(Math.abs(n),sens>0?nbPages()-1-page:page);
   if(total<=0)return;
   if(total===1){page_(sens);return;}
-  saut=true;
-  var i=0,boucle=function(){
-    if(i>=total){saut=false;return;}
-    var dernier=(i===total-1);i++;
-    tournerUne(sens,300,!dernier).then(function(fait){if(!fait){saut=false;return;}boucle();});
-  };
-  boucle();
+  var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
+  if(!livre)return;
+  var p=page,q=p+sens*total;
+  var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
+  var deux=livre.classList.contains('alb-double');
+  if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);setTimeout(verifierPage,450);return;}
+  tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
+  var DUR=900,PAS=80,Z=.6,E='cubic-bezier(.45,.05,.4,1)',N=total,feuilles=[],anims=[],j;
+  if(sens>0)fd.innerHTML=droiteHtml(q);                 /* dessous : la page visée, déjà en place */
+  else if(deux)fg.innerHTML=gaucheHtml(q);              /* dessous (à gauche) : la page d'avant la page visée */
+  for(j=0;j<N;j++){
+    var rr=sens>0?p+j:p-1-j;                            /* la page dont la feuille porte le devant */
+    var vraiAvant=sens>0?(j===0):(j===N-1),vraiArriere=sens>0?(j===N-1):(j===0);
+    var f=document.createElement('div');
+    f.className='alb-feuille-tournante';f.setAttribute('data-morph-garder','');f.setAttribute('aria-hidden','true');
+    f.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
+    f.innerHTML='<div class="alb-face alb-face-avant"><div class="alb-page"><div class="alb-feuille">'+(vraiAvant?droiteHtml(rr):(rr<=0?puzzleHtml():legerHtml(rr)))+'</div></div></div>'+
+                '<div class="alb-face alb-face-arriere"><div class="alb-page"><div class="alb-feuille">'+(vraiArriere?dosHtml(rr):dosLegerHtml(rr))+'</div></div></div>';
+    livre.appendChild(f);feuilles.push(f);
+    var z0=((N-j)*Z).toFixed(2),z1=(j*Z).toFixed(2),delai=j*PAS;
+    var kf=deux
+      ?(sens>0
+        ?[{transform:'translateZ('+z0+'px) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ('+z1+'px) rotateY(-180deg)'}]
+        :[{transform:'translateZ('+z0+'px) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ('+z1+'px) rotateY(0deg)'}])
+      :(sens>0
+        ?[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}]
+        :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}]);
+    basculer(f.querySelector('.alb-face-avant'),f.querySelector('.alb-face-arriere'),sens>0,DUR,E,delai);
+    anims.push(f.animate(kf,{duration:DUR,easing:E,delay:delai,fill:'both'}));
+  }
+  Promise.all(anims.map(fin)).then(function(){
+    var dern=feuilles[N-1];                             /* la dernière feuille est retombée dessus : ses cartes (déjà dessinées) deviennent la page */
+    if(sens>0&&deux){var nf=dern.querySelector('.alb-face-arriere .alb-feuille');if(nf&&fg.parentNode)fg.parentNode.replaceChild(nf,fg);else fg.innerHTML=gaucheHtml(q);}
+    if(sens<0){var nd=dern.querySelector('.alb-face-avant .alb-feuille');if(nd&&fd.parentNode)fd.parentNode.replaceChild(nd,fd);else fd.innerHTML=droiteHtml(q);}
+    feuilles.forEach(function(x){if(x.parentNode)x.parentNode.removeChild(x);});
+    livre.classList.remove('alb-saut');
+    tourne=false;saut=false;page=q;majNav();
+    setTimeout(verifierPage,450);
+  });
 }
 
 /* ---------- le clic : la carte sort de sa pochette et vient en zoom ---------- */

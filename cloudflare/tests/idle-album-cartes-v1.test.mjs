@@ -52,7 +52,11 @@ assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:
 }
 // navigation : au-dessus ET en dessous, 1 page et 10 pages, avec l'animation des 10 feuilles
 assert.ok(m.includes("navHtml('haut')+livreHtml()+navHtml('bas')") && m.includes("alb-prec10") && m.includes("alb-suiv10") && m.includes(".sauter(-10)") && m.includes(".sauter(10)"), "barre de navigation au-dessus et en dessous : ±1 page et ±10 pages");
-assert.ok(m.includes("function sauter(n)") && m.includes("tournerUne(sens,300,!dernier)") && m.includes("Math.min(Math.abs(n),sens>0?nbPages()-1-page:page)"), "un saut de 10 pages = 10 feuilles tournées à la file (0,3 s), arrêt à la première ou à la dernière page");
+assert.ok(m.includes("function sauter(n)") && m.includes("var DUR=900,PAS=80") && m.includes("anims.push(f.animate(kf,{duration:DUR,easing:E,delay:delai,fill:'both'}))") && m.includes("Math.min(Math.abs(n),sens>0?nbPages()-1-page:page)"), "un saut de 10 pages = 10 feuilles EN L'AIR EN MÊME TEMPS (départ en cascade toutes les 80 ms), arrêt à la première ou à la dernière page");
+assert.ok(m.includes("function legerHtml(r)") && m.includes("vraiAvant") && m.includes("vraiArriere"), "seules la première et la dernière feuille ont leur vrai contenu (les autres passent trop vite)");
+assert.ok(m.includes("fg.parentNode.replaceChild(nf,fg)") && m.includes("fd.parentNode.replaceChild(nf,fd)"), "à l'atterrissage, les cartes de la feuille deviennent la page (mêmes éléments : rien ne bouge à la dernière image)");
+assert.ok(!c.includes(".alb-pochette:not(.alb-pochette-dos):not(.alb-pochette-puzzle):hover"), "plus de soulèvement au survol (les cartes ne bougent que pour s'ouvrir)");
+assert.ok(c.includes(".alb-feuille-tournante .alb-face-avant>.alb-page{") && c.includes("mask-composite:intersect") && c.includes(".alb-livre.alb-saut .alb-feuille-tournante .alb-face>.alb-page{-webkit-mask-image:none"), "la feuille est percée : l'anneau se voit à travers ses trous (masque sur l'enfant de la face, pas pendant un saut)");
 assert.ok(m.includes("sauter:sauter"), "saut exposé");
 // fichiers chargés
 assert.ok(/soreal-idle-album\.css\?v=\d+/.test(i) && /album-cartes-v1\.js\?v=\d+/.test(i), "fichiers chargés");

@@ -19,7 +19,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,255,255,.07),inset 0 0 40px rgba(0,0,0,.55)}
 .alb-classeur:not(.alb-ouvert) .alb-cuir{opacity:0}
 /* le livre : une page (téléphone : la page de droite) ou deux (PC) ; la feuille qui tourne vit dans sa perspective */
-.alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;border-radius:8px}
+.alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;transform-style:preserve-3d;border-radius:8px}
 .alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr))}
 .alb-page-g{display:none}
 .alb-double .alb-page-g{display:block}
@@ -44,18 +44,27 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
  * L'anneau passe par les deux trous, de part et d'autre du dos. Livre fermé : pas de page, donc l'anneau seul.
  */
 .alb-classeur{--alb-lang:clamp(20px,3.2vw,30px);--alb-ra:clamp(40px,8vw,58px)}   /* largeur (et hauteur) d'un anneau */
-.alb-page-d,.alb-feuille-tournante .alb-face-avant{padding-left:var(--alb-lang)}
-.alb-page-g,.alb-feuille-tournante .alb-face-arriere{padding-right:var(--alb-lang)}
-.alb-page-d::before,.alb-feuille-tournante .alb-face-avant::before,.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere::after{content:"";position:absolute;top:0;bottom:0;width:var(--alb-lang);pointer-events:none;
+.alb-page-d,.alb-feuille-tournante .alb-face-avant>.alb-page{padding-left:var(--alb-lang)}
+.alb-page-g,.alb-feuille-tournante .alb-face-arriere>.alb-page{padding-right:var(--alb-lang)}
+.alb-page-d::before,.alb-feuille-tournante .alb-face-avant>.alb-page::before,.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere>.alb-page::after{content:"";position:absolute;top:0;bottom:0;width:var(--alb-lang);pointer-events:none;
   --alb-r:calc(var(--alb-lang) * .42);
   background:
     radial-gradient(circle at 50% calc(11% + .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
     radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
     radial-gradient(circle at 50% calc(89% - .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
     linear-gradient(90deg,#171a24,#232836)}
-.alb-page-d::before,.alb-feuille-tournante .alb-face-avant::before{left:0;border-radius:0;border-right:1px dashed rgba(255,255,255,.14)}
-.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere::after{right:0;border-left:1px dashed rgba(255,255,255,.14)}
-.alb-feuille-tournante .alb-face-avant::before{border-radius:0}
+.alb-page-d::before,.alb-feuille-tournante .alb-face-avant>.alb-page::before{left:0;border-radius:0;border-right:1px dashed rgba(255,255,255,.14)}
+.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere>.alb-page::after{right:0;border-left:1px dashed rgba(255,255,255,.14)}
+.alb-feuille-tournante .alb-face-avant>.alb-page::before{border-radius:0}
+/* La feuille est percée : l'anneau, qui reste en place (sous la feuille), se voit À TRAVERS ses trous pendant qu'elle pivote autour de lui (Norman : « le trou doit se comporter naturellement quand il passe au-dessus de l'anneau »). */
+.alb-feuille-tournante .alb-face-avant>.alb-page{
+  -webkit-mask-image:radial-gradient(circle at calc(var(--alb-lang) / 2) calc(11% + .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(var(--alb-lang) / 2) 50%,transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(var(--alb-lang) / 2) calc(89% - .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px));
+  mask-image:radial-gradient(circle at calc(var(--alb-lang) / 2) calc(11% + .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(var(--alb-lang) / 2) 50%,transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(var(--alb-lang) / 2) calc(89% - .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px));
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+.alb-feuille-tournante .alb-face-arriere>.alb-page{
+  -webkit-mask-image:radial-gradient(circle at calc(100% - var(--alb-lang) / 2) calc(11% + .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(100% - var(--alb-lang) / 2) 50%,transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(100% - var(--alb-lang) / 2) calc(89% - .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px));
+  mask-image:radial-gradient(circle at calc(100% - var(--alb-lang) / 2) calc(11% + .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(100% - var(--alb-lang) / 2) 50%,transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px)),radial-gradient(circle at calc(100% - var(--alb-lang) / 2) calc(89% - .39 * var(--alb-ra)),transparent 0 calc(var(--alb-lang) * .42),#000 calc(var(--alb-lang) * .42 + .5px));
+  -webkit-mask-composite:source-in;mask-composite:intersect}
 .alb-page-g:has(.alb-feuille:empty)::after{background:
     radial-gradient(circle at 50% calc(11% + .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
     radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
@@ -84,7 +93,8 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   box-shadow:0 5px 8px -4px rgba(0,0,0,.65),inset 0 0 0 1px rgba(255,255,255,.26)}
 .alb-pochette-dos,.alb-pochette-puzzle{cursor:default}
 .alb-pochette:focus-visible{outline:2px solid #ffd24a;outline-offset:3px}
-.alb-carte{position:relative;transition:transform .3s cubic-bezier(.3,.9,.3,1),opacity .2s}
+.alb-carte{position:relative}
+.alb-pochette.alb-sorti .alb-carte{transition:transform .3s cubic-bezier(.3,.9,.3,1)}
 .alb-carte-mtg{aspect-ratio:5 / 8.4;container-type:inline-size;perspective:1600px;width:100%}
 .alb-carte-mtg *{pointer-events:none}
 .alb-carte-mtg .carte-mtg-v1{transition:none}
@@ -100,19 +110,22 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.30),inset 0 -3px 5px rgba(0,0,0,.22),inset 3px 0 3px rgba(255,255,255,.1)}
 .alb-plastique::after{content:"";position:absolute;left:3%;right:3%;bottom:2%;top:3.5%;border-radius:5px;border:1px dashed rgba(255,255,255,.18);border-top-color:transparent}
 /* au survol la carte se soulève un peu dans sa pochette ; au clic elle sort par le haut ; une carte à ranger reste invisible jusqu'à son arrivée */
-@media (hover:hover){.alb-pochette:not(.alb-pochette-dos):not(.alb-pochette-puzzle):hover .alb-carte{transform:translateY(-2.5%)}}
 .alb-pochette.alb-sorti{z-index:4}
 .alb-pochette.alb-sorti .alb-carte{transform:translateY(-30%) scale(1.04) rotate(-2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.55))}
 .alb-pochette.alb-envole .alb-carte{opacity:0;transition:none}
 .alb-pochette.alb-entre{z-index:4}
 .alb-pochette.alb-attente .alb-carte{visibility:hidden}
-@media (prefers-reduced-motion:reduce){.alb-carte{transition:none}}
+@media (prefers-reduced-motion:reduce){.alb-pochette.alb-sorti .alb-carte{transition:none}}
+/* cartes simples des feuilles qui passent vite (saut de plusieurs pages) */
+.alb-leger{position:absolute;inset:0;border-radius:5.2cqw;background:linear-gradient(180deg,#e9e1c8,#cbbf9c);box-shadow:inset 0 0 0 3cqw #0b0b0e}
+.alb-leger-dos{background:linear-gradient(180deg,#8a4a2a,#5a2c18);box-shadow:inset 0 0 0 3cqw #0b0b0e}
 /* la feuille qui tourne (deux faces) et les ombres qu'elle jette sur les pages */
 .alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;pointer-events:none;will-change:transform,opacity}
 .alb-face{position:absolute;inset:0;backface-visibility:visible;border-radius:0 8px 8px 0}
 .alb-face-arriere{visibility:hidden;transform:rotateY(180deg)}
-.alb-feuille-tournante .alb-face-avant{background:linear-gradient(270deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
-.alb-feuille-tournante .alb-face-arriere{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
+.alb-feuille-tournante .alb-face>.alb-page{position:absolute;inset:0}
+.alb-feuille-tournante .alb-face-avant>.alb-page{background:linear-gradient(270deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
+.alb-feuille-tournante .alb-face-arriere>.alb-page{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
 .alb-face .alb-ombre{position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:inherit;background:linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,0) 75%)}
 .alb-face-arriere .alb-ombre{background:linear-gradient(270deg,rgba(0,0,0,.7),rgba(0,0,0,0) 75%)}
 .alb-ombre-sol{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:5;border-radius:inherit}
@@ -142,3 +155,4 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* une seule page (téléphone, fenêtre étroite) : la page garde la taille d'une page de classeur, jamais la largeur de l'écran */
 .alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
 .alb-nav-haut{margin:0 0 10px}
+.alb-livre.alb-saut .alb-feuille-tournante .alb-face>.alb-page{-webkit-mask-image:none;mask-image:none}
