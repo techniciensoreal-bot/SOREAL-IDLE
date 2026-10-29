@@ -102,9 +102,9 @@
   function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(9,Math.min(16,Math.floor(300/(n*.62))));}
   /*
    * Le tas d'Or sous la goulotte (Norman, 2026-10-29 : « pour chaque M, T, UVG… un tas un peu plus gros ; pas à l'infini, mais une dizaine de tas différents ») : dix tailles, choisies d'après l'unité du butin d'une barre (la même que celle affichée :
-   * K, M, B, T… Uvg…). Seuils (rang de l'unité : 0 rien, 1 K, 2 M, 4 T, 22 Uvg) : sous M, puis M, B, T, Sx, Oc, Vg, Uvg, Tvg ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
+   * K, M, B, T… Uvg…). Seuils (rang de l'unité : 0 rien, 1 K, 2 M, 4 T, 22 Uvg) : sous M, puis M, B, T, Sx, Oc, Vg, Uvg, Tvg, Qavg ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
    */
-  var SEUILS_TAS=[0,2,3,4,6,9,13,18,22,25];
+  var SEUILS_TAS=[0,2,3,4,7,9,21,22,24,25];   /* rangs d'unité : M=2, B=3, T=4, Sx=7, Oc=9, Vg=21, Uvg=22, Tvg=24, Qavg=25 (audit 2026-10-29 : les anciens seuils ne tombaient pas sur Sx, Vg, Tvg) */
   function niveauTas(or){
     var g=Number(or)||0,rang=g>=1000?Math.floor(Math.log10(g)/3+1e-9):0,n=0,i;
     for(i=0;i<SEUILS_TAS.length;i++)if(rang>=SEUILS_TAS[i])n=i;

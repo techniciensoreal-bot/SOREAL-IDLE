@@ -10,3 +10,10 @@ assert.ok(i > 0 && j > i && s.slice(i, j).includes("window.__SOREAL_IDLE_VICTOIR
 const app = fs.readFileSync("cloudflare/public/modules/apparition-boss-v1.js", "utf8");
 assert.ok(app.includes("if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){return;}"), "l'observateur d'images ignore le changement de boss pendant une mort");
 console.log("idle-mort-boss-apparition-unique-v1 : OK");
+
+// une mort ou une victoire déjà en cours n'est jamais doublée par une seconde animation (audit 2026-10-29)
+{
+  const fs2 = await import("node:fs");
+  const u = fs2.readFileSync(new URL("../public/modules/ui-combat-1-v1.js", import.meta.url), "utf8");
+  assert.ok(u.includes("if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=true;"), "pas de seconde mort par-dessus une victoire en cours");
+}

@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand on tue des boss très vite, la mort et l’apparition du suivant ne se jouent plus deux fois par-dessus l’autre ; le tas d’Or de la machine temporelle grossit exactement à chaque unité (M, B, T, Sx, Oc, Vg, Uvg, Tvg…).',
             'L’album des boss garde la même taille sur toutes ses pages, même la dernière avec peu de cartes, et ouvrir le livre ne fait plus bouger la page.',
             'Le Cube de l’infini a toujours une petite aura, de la couleur de son aspect (elle change avec son palier).',
             'Les cartes de boss s’ouvrent plus grandes sur PC, au même format dans le panneau sous la borne et quand on passe au boss précédent ou suivant ; sur téléphone elles prennent presque toute la largeur, les flèches passant sous la carte.',
