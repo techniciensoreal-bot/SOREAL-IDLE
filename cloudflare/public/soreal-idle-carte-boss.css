@@ -19,19 +19,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-modal-fermer-v1{position:absolute;top:-12px;right:-10px;z-index:6;width:34px;height:34px;padding:0;border:0;border-radius:50%;font:400 18px/34px "Russo One",sans-serif;color:#fff;background:linear-gradient(180deg,#ff7a6f,#c1121f);box-shadow:0 3px 0 #6a0a10;cursor:pointer}
 
 /* conteneur qui se retourne : deux faces, l'avant (la carte) et le dos */
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1{--mtg-cadre:#2a6aa6;--mtg-cadre2:#17406b;--mtg-barre:#d3dde8;--mtg-barre2:#aebfd0;--mtg-texte:#e3ecf4;
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1{--mtg-cadre:#2a6aa6;--mtg-cadre2:#17406b;--mtg-barre:#d3dde8;--mtg-barre2:#aebfd0;--mtg-texte:#e3ecf4;
   display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.35,.1,.25,1)}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1.retournee{transform:rotateY(180deg)}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1[data-couleur="1"]{--mtg-cadre:#c0432b;--mtg-cadre2:#7d2616;--mtg-barre:#ecd2c7;--mtg-barre2:#d6aa9a;--mtg-texte:#f3e1d9}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1[data-couleur="2"]{--mtg-cadre:#2f8048;--mtg-cadre2:#1a4b2b;--mtg-barre:#cfe2cb;--mtg-barre2:#a8c7a3;--mtg-texte:#e1eedd}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1[data-couleur="3"]{--mtg-cadre:#3d3545;--mtg-cadre2:#1d1824;--mtg-barre:#cbc4cf;--mtg-barre2:#a69eac;--mtg-texte:#dcd7de}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1[data-couleur="4"]{--mtg-cadre:#d9ccaa;--mtg-cadre2:#a99a70;--mtg-barre:#f4efdf;--mtg-barre2:#e2d9bd;--mtg-texte:#f8f4e8}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1[data-couleur="5"]{--mtg-cadre:#d2a93f;--mtg-cadre2:#80601a;--mtg-barre:#f1e3b0;--mtg-barre2:#d4bb6f;--mtg-texte:#f6edd0}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-avant{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:#0b0b0e;backface-visibility:hidden;box-shadow:0 2cqw 6cqw rgba(0,0,0,.7);font-family:Georgia,"Times New Roman",serif;color:#15151a;text-align:left}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-cadre{height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:1.1cqw;padding:2.2cqw 2.4cqw 1.4cqw;border-radius:2.8cqw;background:linear-gradient(160deg,var(--mtg-cadre),var(--mtg-cadre2));box-shadow:inset 0 0 0 .4cqw rgba(0,0,0,.55)}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-titre,:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-type{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:2cqw;box-sizing:border-box;padding:.9cqw 2.4cqw;border:.4cqw solid #1b1b1f;border-radius:2.2cqw / 3cqw;
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1.retournee{transform:rotateY(180deg)}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1[data-couleur="1"]{--mtg-cadre:#c0432b;--mtg-cadre2:#7d2616;--mtg-barre:#ecd2c7;--mtg-barre2:#d6aa9a;--mtg-texte:#f3e1d9}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1[data-couleur="2"]{--mtg-cadre:#2f8048;--mtg-cadre2:#1a4b2b;--mtg-barre:#cfe2cb;--mtg-barre2:#a8c7a3;--mtg-texte:#e1eedd}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1[data-couleur="3"]{--mtg-cadre:#3d3545;--mtg-cadre2:#1d1824;--mtg-barre:#cbc4cf;--mtg-barre2:#a69eac;--mtg-texte:#dcd7de}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1[data-couleur="4"]{--mtg-cadre:#d9ccaa;--mtg-cadre2:#a99a70;--mtg-barre:#f4efdf;--mtg-barre2:#e2d9bd;--mtg-texte:#f8f4e8}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1[data-couleur="5"]{--mtg-cadre:#d2a93f;--mtg-cadre2:#80601a;--mtg-barre:#f1e3b0;--mtg-barre2:#d4bb6f;--mtg-texte:#f6edd0}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-avant{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:#0b0b0e;backface-visibility:hidden;box-shadow:0 2cqw 6cqw rgba(0,0,0,.7);font-family:Georgia,"Times New Roman",serif;color:#15151a;text-align:left}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-cadre{height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:1.1cqw;padding:2.2cqw 2.4cqw 1.4cqw;border-radius:2.8cqw;background:linear-gradient(160deg,var(--mtg-cadre),var(--mtg-cadre2));box-shadow:inset 0 0 0 .4cqw rgba(0,0,0,.55)}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-titre,:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-type{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:2cqw;box-sizing:border-box;padding:.9cqw 2.4cqw;border:.4cqw solid #1b1b1f;border-radius:2.2cqw / 3cqw;
   background:linear-gradient(180deg,var(--mtg-barre),var(--mtg-barre2));box-shadow:0 .35cqw 0 rgba(0,0,0,.4),inset 0 0 1.6cqw rgba(255,255,255,.4)}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-nom,.mtg-modal-v1 .mtg-nom{flex:1 1 auto;min-width:0;margin:0;text-align:left;font:700 4.7cqw/1.25 Georgia,"Times New Roman",serif;letter-spacing:0;color:#101014!important;background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-nom,.mtg-modal-v1 .mtg-nom,.alb-carte-mtg .mtg-nom{flex:1 1 auto;min-width:0;margin:0;text-align:left;font:700 4.7cqw/1.25 Georgia,"Times New Roman",serif;letter-spacing:0;color:#101014!important;background:none;-webkit-background-clip:border-box;background-clip:border-box;text-shadow:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtg-pastilles{display:flex;gap:.8cqw;flex:0 0 auto}
 .mtg-pastille{display:inline-block;width:5.4cqw;height:5.4cqw;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d4cdb0 70%);border:.35cqw solid #2d2d32;box-shadow:.25cqw .3cqw 0 rgba(0,0,0,.45);font:700 3.4cqw/5.2cqw Georgia,serif;text-align:center;color:#15151a}
 .mtg-art{flex:0 0 auto;aspect-ratio:1 / 1;position:relative;overflow:hidden;background:#05070d;border:.6cqw solid #101014;border-radius:.8cqw;box-shadow:0 0 0 .5cqw rgba(0,0,0,.35);cursor:pointer}
@@ -40,7 +40,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-texte .soreal-idle-boss-lore-ornament-v184{display:none}
 .mtg-type>.mtg-type-texte{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mtg-embleme{flex:0 0 auto;width:5cqw;height:5cqw}
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-texte{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:auto;padding:2.4cqw 3cqw 2cqw;background:linear-gradient(180deg,var(--mtg-texte),color-mix(in srgb,var(--mtg-texte) 82%,var(--mtg-barre2)));border:.4cqw solid #26262b;border-radius:.8cqw .8cqw 2cqw 2cqw;
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-texte{flex:1 1 0;min-height:0;box-sizing:border-box;overflow:auto;padding:2.4cqw 3cqw 2cqw;background:linear-gradient(180deg,var(--mtg-texte),color-mix(in srgb,var(--mtg-texte) 82%,var(--mtg-barre2)));border:.4cqw solid #26262b;border-radius:.8cqw .8cqw 2cqw 2cqw;
   box-shadow:inset 0 0 2.4cqw rgba(0,0,0,.18);font:400 3.75cqw/1.3 Georgia,"Times New Roman",serif;color:#15151a;scrollbar-width:thin;display:flex;flex-direction:column}
 .mtg-capacites{margin:0 0 .6cqw}
 .mtg-capacite{display:flex;align-items:flex-start;gap:2.2cqw;margin:0 0 1cqw}
@@ -49,9 +49,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-bestiary-desc-v110)::first-letter{color:inherit;font-size:1em;font-weight:inherit;float:none;line-height:inherit;padding:0;text-shadow:none}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .mtg-texte .soreal-idle-boss-lore-histoire-v142::first-letter{color:inherit;font-size:1em;float:none;line-height:inherit;padding:0;text-shadow:none}
 .mtg-filet{flex:0 0 auto;height:.35cqw;margin:.8cqw 4cqw 1.8cqw;background:linear-gradient(90deg,transparent,rgba(0,0,0,.5),transparent)}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-boss-lore-info-v198),.mtg-modal-v1 .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-bestiary-desc-v110){
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-boss-lore-info-v198),.mtg-modal-v1 .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-bestiary-desc-v110),.alb-carte-mtg .mtg-texte :is(.soreal-idle-boss-lore-histoire-v142,.soreal-idle-bestiary-desc-v110){
   font:italic 400 3.5cqw/1.32 Georgia,"Times New Roman",serif;letter-spacing:0;color:#1b1b21!important;text-shadow:none;margin:0 0 1.6cqw;padding:0;background:none;border:0;text-align:left}
-.mtg-modal-v1 .mtg-texte .soreal-idle-boss-lore-info-v198{font:italic 400 3.3cqw/1.3 Georgia,serif;color:#1b1b21}
+.mtg-modal-v1 .mtg-texte .soreal-idle-boss-lore-info-v198,.alb-carte-mtg .mtg-texte .soreal-idle-boss-lore-info-v198{font:italic 400 3.3cqw/1.3 Georgia,serif;color:#1b1b21}
 .mtg-boutons{margin-top:auto;padding-top:1.6cqw;display:flex;flex-wrap:wrap;gap:1.6cqw;justify-content:center}
 .mtg-admin{margin-top:1.4cqw}
 .mtg-bas{flex:0 0 auto;display:flex;align-items:center;gap:2.2cqw;box-sizing:border-box;padding:0 20cqw 0 1cqw;font:600 2.7cqw/1.2 Georgia,serif;color:#f2eee0;text-shadow:0 .2cqw .3cqw rgba(0,0,0,.8);white-space:nowrap}
@@ -61,7 +61,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-force>i{font-style:normal;margin:0 .6cqw}
 
 /* dos de la carte : cadre doré marbré, ovale brun bordé de bleu, quatre billes rouges aux coins, titre du jeu sur deux lignes puis la photo du boss entière */
-:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .mtg-dos{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:none;transform:rotateY(180deg);backface-visibility:hidden;box-shadow:0 2cqw 6cqw rgba(0,0,0,.7);cursor:pointer}
+:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-dos{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:none;transform:rotateY(180deg);backface-visibility:hidden;box-shadow:0 2cqw 6cqw rgba(0,0,0,.7);cursor:pointer}
 .mtg-dos-image{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;border-radius:5.2cqw;z-index:5;pointer-events:none}
 .mtg-dos-ovale{position:relative;height:100%;overflow:hidden;border-radius:1.4cqw;
   background:radial-gradient(circle at 18% 12%,rgba(255,226,140,.4),transparent 38%),radial-gradient(circle at 85% 88%,rgba(110,40,18,.55),transparent 46%),repeating-linear-gradient(35deg,rgba(0,0,0,.07) 0 .6cqw,transparent .6cqw 1.5cqw),linear-gradient(140deg,#a17f34,#6d4a1c 52%,#8b5726);
@@ -77,7 +77,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-dos-orbes b:nth-child(3){left:calc(50% + 9cqw);top:65%;background:radial-gradient(circle at 35% 30%,#bfeaff,#2aa7e0 60%,#10587d)}
 .mtg-dos-orbes b:nth-child(4){left:calc(50% - 10cqw);top:75%;background:radial-gradient(circle at 35% 30%,#ffb7a8,#e0331f 60%,#7a140a)}
 .mtg-dos-orbes b:nth-child(5){left:calc(50% + 4cqw);top:75%;background:radial-gradient(circle at 35% 30%,#8d7f93,#2a2230 60%,#0b080d)}
-@media (prefers-reduced-motion:reduce){:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1) .carte-mtg-v1{transition:none}}
+@media (prefers-reduced-motion:reduce){:is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .carte-mtg-v1{transition:none}}
 
 /* flèches des cartes voisines : sur les côtés, jamais sur la carte (la carte est réduite pour leur laisser la place sur téléphone) */
 .mtg-fleche{position:absolute;top:50%;width:44px;height:44px;margin:-22px 0 0;padding:0;display:grid;place-items:center;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(10,14,28,.72);color:#fff;cursor:pointer;z-index:7;box-shadow:0 4px 14px rgba(0,0,0,.5);transition:background .15s,transform .1s}

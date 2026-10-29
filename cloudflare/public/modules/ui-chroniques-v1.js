@@ -337,18 +337,23 @@
           return '<div class="soreal-idle-empty-v10">'+idleHtml_(vide)+'</div>';
         }
 
-        /* Album de collection (Norman, 2026-10-29) : les boss sont rangés comme des cartes à collectionner dans les pochettes en plastique d'un classeur (modules/album-cartes-v1.js, soreal-idle-album.css). */
-        const album=Boolean(window.__SOREAL_IDLE_ALBUM_V1__)&&entrees.every(function(e){return e&&idleEntier_(e.numero)>0;});
-        const cartesHtml=entrees.map(function(e){
+        /*
+         * Album de collection (Norman, 2026-10-29) : les boss sont rangés comme des cartes à collectionner dans les pochettes en plastique d'un classeur (modules/album-cartes-v1.js, soreal-idle-album.css).
+         * La carte se gagne en VAINCUANT le boss une première fois : un boss seulement rencontré n'y est pas (« vaincu » vient du moteur).
+         */
+        const albumIdle=window.__SOREAL_IDLE_ALBUM_V1__;
+        if(albumIdle&&entrees.every(function(e){return e&&idleEntier_(e.numero)>0;})){
+          if(!entrees.some(function(e){return e.vaincu;}))return '<div class="soreal-idle-empty-v10">Aucune carte pour l’instant : bats un boss pour gagner sa carte.</div>';
+          return albumIdle.rendre(entrees);
+        }
+        return '<div class="soreal-idle-bestiary-grid-v110">'+
+          entrees.map(function(e){
             if(!e||!e.decouvert)return '';
 
             /*
              * 2026-09-25 (Norman) : les cartes de boss n'affichent que l'image (plein cadre, sans bords) et le nom centré ; un clic ouvre
              * les statistiques et la chronique (ouvrirBossCollectionIdleV1_).
              */
-            if(idleEntier_(e.numero)>0&&window.__SOREAL_IDLE_ALBUM_V1__){
-              return window.__SOREAL_IDLE_ALBUM_V1__.pochette(e,urlBossR2IdleV1_(idleEntier_(e.numero)),idleHtml_);
-            }
             if(idleEntier_(e.numero)>0){
               const imageBoss=urlBossR2IdleV1_(idleEntier_(e.numero));
               return '<div class="soreal-idle-bestiary-card-v110 boss-card" role="button" tabindex="0" '+
@@ -408,10 +413,8 @@
                   :''}
               </div>
             `;
-          });
-        /* Album : des pages de pochettes qu'on tourne avec les boutons (ou d'un glissement du doigt) ; sinon la grille d'avant. */
-        if(album)return window.__SOREAL_IDLE_ALBUM_V1__.rendre(cartesHtml);
-        return '<div class="soreal-idle-bestiary-grid-v110">'+cartesHtml.join('')+'</div>';
+          }).join('')+
+        '</div>';
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-177 */
@@ -448,7 +451,7 @@
 
         /* 2026-09-25 (Norman) : les créatures d'Aventure sont les mêmes que les boss : l'onglet « Aventure » n'existe plus. */
         const onglet=idleCollectionOngletV1&&idleCollectionOngletV1!=='aventure'?idleCollectionOngletV1:'boss';
-        const decouvertesBoss=bossEntrees.filter(function(e){return e.decouvert;}).length;
+        const decouvertesBoss=bossEntrees.filter(function(e){return e.decouvert&&e.vaincu;}).length;   /* le compteur = les cartes gagnées (boss vaincus) */
         const itemsObtenus=Object.keys(itemList).length;
 
         return `

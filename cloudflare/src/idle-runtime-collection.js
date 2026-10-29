@@ -1269,6 +1269,9 @@ export function construireBestiaireSorealIdle_(
           false,
         decouvert:
           decouvert,
+        /* Album de collection (Norman, 2026-10-29 : « un boss rencontré mais pas encore tué une seule fois ne doit pas s'y trouver ; on gagne la carte quand on le tue la première fois ») : vaincu au moins une fois (même repère que « legacy » : jamais plus que ce que le joueur a déjà fait). */
+        vaincu:
+          Boolean(index < bossVaincus),
         rencontres:
           decouvert
             ? Math.max(

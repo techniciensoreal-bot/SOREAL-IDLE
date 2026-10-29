@@ -144,7 +144,7 @@ function html(o){
     ?'<div class="mtg-force"><span>'+esc(nb(o.attaque))+'</span><i>/</i><span>'+esc(nb(o.pv))+'</span></div>':'';
   var numero=Math.floor(Number(o.numero)||0);
   var couleur=couleurs[numero]!=null?couleurs[numero]:couleurMonde(o.monde);
-  return fleches(numero)+'<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
+  return (o.sansFleches?'':fleches(numero))+'<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
     '<div class="mtg-avant">'+
     '<div class="mtg-cadre">'+
       '<div class="mtg-titre"><div class="soreal-idle-boss-lore-name-v184 mtg-nom" data-soreal-tts-pause="1100">'+esc(o.nom||'Boss')+'</div><div class="mtg-pastilles" data-soreal-tts-ignore>'+pastilles+'</div></div>'+
@@ -172,6 +172,7 @@ document.addEventListener('click',function(e){
   if(Date.now()-apresGlisse<350)return;   /* le « click » qui suit une rotation ne retourne pas la carte en plus */
   var fleche=cible.closest('.mtg-fleche');
   if(fleche){for(var f in retournees)delete retournees[f];aller(fleche.getAttribute('data-mtg-aller'));return;}
+  if(cible.closest('.alb-carte-mtg'))return;   /* la miniature de l'album ne se retourne pas (le clic ouvre la carte) */
   var carte=cible.closest('.carte-mtg-v1');
   if(!carte){
     for(var k in retournees)delete retournees[k];       /* clic ailleurs : la chronique / la fiche se ferme, la prochaine carte sera à l'endroit */
@@ -238,5 +239,7 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
+/* Une carte vue de dos (pochettes des pages de gauche de l'album) : le même dos que la grande carte retournée. */
+function dosSeul(){return '<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+dos({})+'</div>';}
+window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
 })();
