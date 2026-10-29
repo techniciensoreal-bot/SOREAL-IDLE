@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans la Collection, les boss sont rangés dans un album de collection, chaque carte glissée dans sa pochette en plastique. Un clic : la carte sort de sa pochette et vient en zoom sur l’écran ; tu peux la faire tourner au doigt ou à la souris.',
             'L’autocollant SOREAL de la borne est centré sur l’enseigne, de travers, et le N de NGU se lit en entier.',
             'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
             'Sur PC, le cadre des menus de gauche est centré en hauteur (même marge en haut et en bas) et ses icônes restent dans le cadre quand on le fait défiler.',

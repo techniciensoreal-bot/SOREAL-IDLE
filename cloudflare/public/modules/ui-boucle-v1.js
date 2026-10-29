@@ -846,7 +846,7 @@
               REG.idleCombatEnPauseApresDefaiteV1=true;
               REG.idleCombatArmeLocalV206=false;
               REG.idleEtat.combatBossActif=false;
-              /* Défaite : l'image du joueur éclate en pixels comme celle d'un boss qui meurt, puis se reforme (modules/mort-joueur-v1.js, Norman 2026-10-22). Le son de défaite générique ne joue que si la mort choisie n'a pas son propre son (sinon deux sons à la suite, Norman 2026-10-29). */
+              /* Défaite : le joueur éclate puis se reforme (mort-joueur-v1.js) ; son générique seulement sans son propre. */
               try{const mortJoueur=window.__SOREAL_IDLE_MORT_JOUEUR_V1__;if(mortJoueur)mortJoueur.jouer(document.getElementById('sorealIdlePlayerImageHostV43'));}catch(_e){}
               if(!window.__SOREAL_IDLE_MORT_SON_PROPRE_V1__)jouerEffetAudioIdleV199_('defeat');
 

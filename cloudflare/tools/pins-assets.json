@@ -19,6 +19,10 @@
   "pin": 2045,
   "sha": "ccd87fbe3ec1d998fd5b7bceb4e23c0fb4ef23e3"
  },
+ "/modules/album-cartes-v1.js": {
+  "pin": 2,
+  "sha": "2a4ab2471a24783496c5c3550ce85d43b9b0c4c6"
+ },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
   "sha": "22fe3377ba6dbe954c5c4c06b97b5b545f4d9286"
@@ -112,8 +116,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 8,
-  "sha": "baeaa55147f44802915de6aa625619370a1f9889"
+  "pin": 10,
+  "sha": "ec22a3d9fba1f0862f4ab8774b8c5a4eba02cd4b"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -432,8 +436,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 538,
-  "sha": "86da19c2859242461668bbb5a1c2ad9aba9105ec"
+  "pin": 539,
+  "sha": "395245f41776ba6eca6ca258ce001af2064277b2"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -504,12 +508,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 551,
-  "sha": "70850433c637600674ff45e751a7170691511d5b"
+  "pin": 552,
+  "sha": "be4b8fc73bbcd7f9962eb180e7ccd6a943beefe3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 371,
-  "sha": "05897b757034157dccc65670610bd197d8c8b111"
+  "pin": 372,
+  "sha": "96b23e70b4c956b5df43395f4ca154b2345c3e24"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -552,16 +556,16 @@
   "sha": "91ec323f89abbd0e785fc19728350e45830b67a1"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 17,
-  "sha": "b977eb10e364dfd771fbe717d1f3d54d3391b428"
+  "pin": 18,
+  "sha": "ba16c746456be1c2114abbf423cd34fcf39e4888"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 2,
   "sha": "9d3b18b0b5c864bde0f74dd99fabd794456d12b0"
  },
  "/modules/ui-chroniques-v1.js": {
-  "pin": 6,
-  "sha": "35f22bbfbef9f60126cc2ddf9d685f58055b9a18"
+  "pin": 8,
+  "sha": "2874ed065459e81caeb8deaac3a4578374d54068"
  },
  "/modules/ui-combat-1-v1.js": {
   "pin": 24,
@@ -675,13 +679,17 @@
   "pin": 2,
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
+ "/soreal-idle-album.css": {
+  "pin": 3,
+  "sha": "96e15377a843f7060ba43a8282b395afac2a3fc8"
+ },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 10,
-  "sha": "79b398f738d1eca0bf629eed2941e364ec8df5be"
+  "pin": 11,
+  "sha": "a3eaab6b10a6d1c7b1ded806a7dd370551ccd386"
  },
  "/soreal-idle-itopod.css": {
   "pin": 245,

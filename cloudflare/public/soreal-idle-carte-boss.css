@@ -97,3 +97,5 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .zone-perso-v1:hover,.zone-perso-v1:focus{filter:brightness(1.22)}
 .zone-ico-v1{display:inline-block;flex:0 0 auto;width:1.5em;text-align:center;font-size:1.45em;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
 .team-sort-trigger-value .zone-ico-v1{margin-right:.4em;width:auto}
+.mtg-modal-v1 .carte-mtg-v1{touch-action:pan-y;cursor:grab}
+.mtg-modal-v1 .carte-mtg-v1:active{cursor:grabbing}

@@ -169,6 +169,7 @@ function html(o){
 document.addEventListener('click',function(e){
   var cible=e.target;
   if(!cible||!cible.closest)return;
+  if(Date.now()-apresGlisse<350)return;   /* le « click » qui suit une rotation ne retourne pas la carte en plus */
   var fleche=cible.closest('.mtg-fleche');
   if(fleche){for(var f in retournees)delete retournees[f];aller(fleche.getAttribute('data-mtg-aller'));return;}
   var carte=cible.closest('.carte-mtg-v1');
@@ -184,6 +185,51 @@ document.addEventListener('click',function(e){
     if(retournee)retournees[numero]=true;else delete retournees[numero];
   }
 });
+/*
+ * Faire tourner la carte (Norman, 2026-10-29 : « zoomée sur l'écran pour qu'on puisse lire et la faire tourner ») : dans la fiche zoomée, on la saisit au doigt ou à la souris et on la fait pivoter à volonté (autour de l'axe vertical, avec un léger penchement) ;
+ * au relâchement elle termine son demi-tour jusqu'à la face la plus proche (avant ou dos). Un simple tap garde son effet (retourner par l'illustration). Le défilement vertical du texte reste possible (touch-action: pan-y).
+ */
+var glisse=null,apresGlisse=0;
+document.addEventListener('pointerdown',function(e){
+  var cible=e.target;if(!cible||!cible.closest||(e.pointerType==='mouse'&&e.button!==0))return;
+  var carte=cible.closest('.mtg-modal-v1 .carte-mtg-v1');
+  if(!carte||cible.closest('button,a,input,textarea,select,.mtg-fleche'))return;
+  glisse={carte:carte,x:e.clientX,y:e.clientY,base:carte.classList.contains('retournee')?180:0,angle:null,id:e.pointerId};
+},true);
+document.addEventListener('pointermove',function(e){
+  if(!glisse||e.pointerId!==glisse.id)return;
+  var dx=e.clientX-glisse.x,dy=e.clientY-glisse.y;
+  if(glisse.angle===null){
+    if(Math.abs(dx)<10||Math.abs(dx)<Math.abs(dy))return;   /* un défilement vertical n'est pas un geste de rotation */
+    glisse.carte.style.transition='none';
+    try{glisse.carte.setPointerCapture(glisse.id);}catch(_e){}
+  }
+  glisse.angle=glisse.base+dx*0.7;
+  var pench=Math.max(-14,Math.min(14,-dy*0.12));
+  glisse.carte.style.transform='rotateX('+pench.toFixed(1)+'deg) rotateY('+glisse.angle.toFixed(1)+'deg)';
+},true);
+function finGlisse(e){
+  if(!glisse||(e&&e.pointerId!==glisse.id))return;
+  var g=glisse;glisse=null;
+  if(g.angle===null)return;
+  apresGlisse=Date.now();   /* le « click » qui suit le relâchement ne doit pas retourner la carte en plus */
+  var demi=Math.round(g.angle/180),cible=demi*180,carte=g.carte;
+  var numero=carte.getAttribute('data-numero');
+  var fin=function(){
+    carte.removeEventListener('transitionend',fin);
+    carte.style.transition='none';carte.style.transform='';
+    var dos=((demi%2)+2)%2===1;
+    carte.classList.toggle('retournee',dos);
+    if(dos)retournees[numero]=true;else delete retournees[numero];
+    void carte.offsetWidth;carte.style.transition='';
+  };
+  carte.style.transition='transform .45s cubic-bezier(.25,.9,.3,1)';
+  carte.addEventListener('transitionend',fin);
+  carte.style.transform='rotateX(0deg) rotateY('+cible+'deg)';
+  setTimeout(function(){if(carte.style.transform)fin();},700);
+}
+document.addEventListener('pointerup',finGlisse,true);
+document.addEventListener('pointercancel',finGlisse,true);
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')for(var k in retournees)delete retournees[k];
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
