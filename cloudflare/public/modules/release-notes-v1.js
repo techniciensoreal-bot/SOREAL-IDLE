@@ -22,10 +22,26 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.2',
+    courante:'4.3',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.3',
+        nom:'Les arbres',
+        date:'2026-10-29',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
+            'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis dans le feuillage pour qu’il y ait de la place pour les 24.',
+            'L’aura de l’arbre brille de plus en plus, heure après heure, jusqu’à la 24e, où elle est beaucoup plus forte.',
+            'Un fruit déjà mûr ne change jamais de place sur l’arbre, et chaque nouveau fruit apparaît loin des autres : l’arbre se remplit partout, sans amas.'
+          ]}
+        ]
+      },
       {
         version:'4.2',
         nom:'Sans réseau',

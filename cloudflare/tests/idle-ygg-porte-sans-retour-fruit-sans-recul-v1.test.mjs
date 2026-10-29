@@ -12,7 +12,7 @@ assert.ok(porte.includes("if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[i
 assert.ok(porte.indexOf("return porte_(id,true);") < porte.indexOf("F[id]=Date.now()"), "la garde passe avant le déclenchement de la fermeture");
 assert.ok(src.includes(".ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}"), "transition coupée pour le rendu concerné");
 assert.ok(src.includes("return Boolean(o)&&(o.id!==id||s<o.s-0.0005||f<o.f-0.0005);"), "recul de la pousse ou autre fruit sur la carte = prise de taille immédiate");
-assert.ok(src.includes("snap_(pos,id,v.tier>0?Number(echelleTerre_(v)):0.14,v.tier>0?Number(echelleFruit_(v)):0)?' data-ygg-snap=\"1\"':''"), "l'attribut est posé sur la vitre");
+assert.ok(src.includes("snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap=\"1\"':''"), "l'attribut est posé sur la vitre");
 assert.ok(src.includes("map(function(v,i){return carte_(d,v,i);})"), "la position de la carte est transmise");
 console.log("idle-ygg-porte-sans-retour-fruit-sans-recul-v1: OK");
 

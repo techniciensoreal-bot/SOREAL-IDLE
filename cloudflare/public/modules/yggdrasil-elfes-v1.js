@@ -152,12 +152,11 @@
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
       '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
       '.ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}',
-      '.ygg-vitre.ygg-decor .ygg-terre{inset:auto;z-index:2;left:calc((1 - var(--ygg-s,1))*50%);top:calc((1 - var(--ygg-s,1))*98.8%);width:calc(var(--ygg-s,1)*100%);height:calc(var(--ygg-s,1)*100%);}',
-      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;opacity:var(--ygg-fo,1);left:calc((1 - var(--ygg-f,1))*50%);top:calc((0.988 - 0.138*var(--ygg-s,1) - 0.9*var(--ygg-f,1))*100%);width:calc(var(--ygg-f,1)*100%);height:calc(var(--ygg-f,1)*100%);}',
-      /* Aura de la terre (Norman, 2026-10-27) : dès qu'un fruit commence à pousser, une petite lueur entoure le tas de terre, au-dessus ET en dessous (Norman, 2026-10-28 : « trop forte, et je la veux en dessous aussi » : intensité divisée par deux, centrée sur le tas), de la couleur du fruit (dorée pour l'or, rougeâtre pour la puissance…). Elle grandit avec la terre. Image fixe : aucune animation. */
-      '.ygg-vitre.ygg-ater::before{content:"";position:absolute;left:0;right:0;top:0;bottom:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse calc(var(--ygg-s,.14)*60% + 10%) calc(var(--ygg-s,.14)*46% + 8%) at 50% 92%,color-mix(in srgb,var(--ygg-ac) 42%,transparent),color-mix(in srgb,var(--ygg-ac) 17%,transparent) 55%,transparent 100%)}',
-      '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(62% 48% at 50% 68%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 72%);mix-blend-mode:screen;}',
-      '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(3px + var(--ygg-aura-a)*28px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
+      /* Arbre (Norman, 2026-10-29 : « les images du R2 sont des arbres, on oublie la terre ; les fruits sont posés sur l'arbre, de taille normale ») : le décor est l'arbre ; chaque heure de pousse ajoute un fruit sur l'un des 24 emplacements (voir EMPLACEMENTS_). Un fruit mûr a sa taille pleine ; celui de l'heure en cours grossit. Aucune image de terre. */
+      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:15%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) scale(var(--ygg-k,1));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
+      /* Aura (Norman, 2026-10-29) : de la couleur du fruit, elle brille de plus en plus avec les heures de pousse, jusqu'à la 24e. */
+      '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(72% 56% at 50% 38%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 74%);mix-blend-mode:screen;}',
+      '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(2px + var(--ygg-aura-a)*14px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -271,68 +270,50 @@
    */
   var FRUITS_24_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   /*
-   * DEUX COUCHES INDÉPENDANTES (Norman, 2026-10-26) : une image de TERRE unique (idle/ygg-terre/terre.webp, la même sous tous les fruits) et une image de FRUIT sans terre par fruit (idle/ygg-fruits/<fruit>.webp). Les deux grossissent avec les heures
-   * RÉELLES de pousse sur une échelle de 24 h (jamais sur le temps maximum débloqué : un fruit limité à 5 h s'arrête à la croissance prévue pour 5 h), mais PAS selon la même courbe :
-   *  - la terre commence minuscule dès l'heure 0 et grossit vite d'abord, puis de plus en plus lentement (arrondi vers l'extérieur) jusqu'à sa taille pleine à la 24e heure ;
-   *  - le fruit est invisible pendant la première heure (la terre seule), puis apparaît tout petit après UNE heure complète et grossit sans condition, lentement d'abord puis de plus en plus vite, jusqu'à sa taille pleine à la 24e heure.
-   * Le fruit reste posé sur la terre : sa base suit le point de contact de la terre (voir .ygg-fruit dans le style).
+   * L'ARBRE ET SES FRUITS (Norman, 2026-10-29) : le décor (R2 idle/ygg-decors/<fruit>.webp) est un arbre ; plus de terre. Chaque heure RÉELLE de pousse (échelle de 24 h, jamais le temps maximum débloqué) fait pousser un fruit sur l'un des 24 emplacements :
+   * à 10 h, dix fruits mûrs ; à 9 h 50, neuf fruits mûrs et un dixième qui pousse encore (aux 5/6 de sa taille). Taille normale (celle de l'image du fruit, idle/ygg-fruits/<fruit>.webp) ; le fruit de l'heure en cours grossit de zéro à la taille pleine.
+   * Les emplacements couvrent le feuillage (x et y en % du cadre portrait 4/5 qui montre le centre du décor carré) ; l'ordre d'apparition est calculé une fois : chaque nouveau fruit se place le plus loin possible des précédents, pour que l'arbre se remplisse partout.
    */
   function heuresPousse_(v){return Math.max(0,Math.min(Number(v.growth)||0,24));}
-  function echelleTerre_(v){var t=heuresPousse_(v)/24;return (0.14+0.86*(1-Math.pow(1-t,2))).toFixed(3);}
-  function echelleFruit_(v){var g=heuresPousse_(v);return g<1?'0.000':(0.05+0.95*Math.pow((g-1)/23,1.15)).toFixed(3);}
+  var EMPLACEMENTS_=[[62,9],[80,9],[14,21],[30,21],[46,21],[64,21],[82,21],[92,21],[9,33],[22,33],[36,33],[52,33],[70,33],[86,33],[8,45],[18,45],[32,45],[47,45],[78,45],[92,45],[14,57],[28,57],[80,57],[92,57]];
+  var ORDRE_=(function(){
+    var d=function(a,b){var dx=a[0]-b[0],dy=(a[1]-b[1])*0.8;return Math.sqrt(dx*dx+dy*dy);};
+    var reste=EMPLACEMENTS_.slice(),pris=[],i,j,m,best,bi;
+    reste.sort(function(a,b){return d(a,[50,33])-d(b,[50,33]);});
+    pris.push(reste.shift());
+    while(reste.length){
+      best=-1;bi=0;
+      for(i=0;i<reste.length;i++){m=1e9;for(j=0;j<pris.length;j++)m=Math.min(m,d(reste[i],pris[j]));if(m>best){best=m;bi=i;}}
+      pris.push(reste.splice(bi,1)[0]);
+    }
+    return pris;
+  })();
+  /* Les fruits visibles à g heures de pousse : [x, y, taille] ; taille 1 = mûr, entre 0 et 1 = en train de pousser. */
+  function fruitsArbre_(v){
+    var g=heuresPousse_(v),n=Math.floor(g),p=g-n,o=[],k;
+    for(k=0;k<n&&k<24;k++)o.push([ORDRE_[k][0],ORDRE_[k][1],1]);
+    if(n<24&&p>0)o.push([ORDRE_[n][0],ORDRE_[n][1],Math.max(0.08,p)]);
+    return o;
+  }
   /*
-   * Aura du fruit (Norman, 2026-10-26) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle apparaît APRÈS la 12e heure de pousse, faible puis de plus en plus forte ; la 24e heure est beaucoup plus
-   * prononcée que toutes les autres. Elle suit les heures réelles de pousse : un fruit limité à 12 h (ou moins) n'en a jamais.
+   * Aura du fruit (Norman, 2026-10-29) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle brille de plus en plus avec les heures réelles de pousse, jusqu'à la 24e ; la 24e heure est beaucoup plus prononcée que toutes les autres.
    */
   var AURAS_={gold:'#ffb21f',powerAlpha:'#ff4a2a',powerBeta:'#e8426f',powerDelta:'#ff7a1f',adventure:'#c9d63a',knowledge:'#e87848',pomegranate:'#ff3b2c',luck:'#b9d11a',arbitrariness:'#e6b834',numbers:'#79bfee',rage:'#ff4426',macguffinAlpha:'#ff9430',watermelon:'#9ccc24',macguffinBeta:'#4a7cff',quirks:'#ff8c22',angryMayo:'#ff6126',sadMayo:'#4fb0d6',moldyMayo:'#d6b13a',ayyMayo:'#c4d824',cincoMayo:'#ff9a38',prettyMayo:'#ff9c40'};
   function intensiteAura_(v){
-    var g=Math.max(0,Math.min(Number(v.growth)||0,24));
-    if(g<=12)return 0;
-    if(g<=23)return 0.08+0.30*((g-12)/11);
+    var g=heuresPousse_(v);
+    if(g<=0)return 0;
+    if(g<=23)return 0.06+0.32*(g/23);
     return 0.38+0.62*Math.min(1,g-23);
-  }
-  var URL_TERRE_='/api/idle/media/ygg?name=terre&terre=1';
-  /*
-   * Teinte de la terre (Norman, 2026-10-26 : « une petite teinte sur le tas de terre en fonction de la terre sur laquelle il pousse, pour qu'elle se fonde mieux : elle fait image ajoutée sur une autre image ») : la couleur moyenne du SOL du décor du fruit
-   * (bande basse, au centre) est mélangée à 30 % dans l'image de terre, seulement sur les pixels de la terre. Calculée une fois par fruit dans la page, gardée en mémoire ; l'image d'origine s'affiche en attendant.
-   */
-  etat.terrePrep={};etat.terreTeintee={};
-  function preparerTerre_(id){
-    if(etat.terrePrep[id]||typeof Image==='undefined'||typeof document==='undefined')return;
-    etat.terrePrep[id]=1;
-    var decor=new Image(),terre=new Image(),n=0;
-    function fin(){
-      if(++n<2)return;
-      try{
-        var c=document.createElement('canvas');c.width=c.height=64;
-        var x=c.getContext('2d');x.drawImage(decor,0,0,64,64);
-        var d=x.getImageData(14,40,36,18).data,r=0,g=0,b=0,k=0,i;
-        for(i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];k+=1;}
-        if(!k)return;
-        var W=terre.naturalWidth||512,H=terre.naturalHeight||512;
-        var o=document.createElement('canvas');o.width=W;o.height=H;
-        var y=o.getContext('2d');y.drawImage(terre,0,0,W,H);
-        y.globalCompositeOperation='source-atop';
-        y.fillStyle='rgba('+Math.round(r/k)+','+Math.round(g/k)+','+Math.round(b/k)+',0.30)';
-        y.fillRect(0,0,W,H);
-        o.toBlob(function(blob){
-          if(!blob)return;
-          var u=URL.createObjectURL(blob);
-          etat.terreTeintee[id]=u;
-          Array.prototype.forEach.call(document.querySelectorAll('img.ygg-terre[data-fruit="'+id+'"]'),function(im){im.src=u;});
-        },'image/webp',0.92);
-      }catch(_e){}
-    }
-    decor.onload=fin;terre.onload=fin;
-    decor.src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&decor=1';
-    terre.src=URL_TERRE_;
   }
   function couches_(d,v,id,def){
     if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
-    return image_(id,emoji_(id,def.name),'ygg-fruit',null,'/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1')+(preparerTerre_(id),'<img class="ygg-img ygg-terre" alt="" draggable="false" data-fruit="'+html_(id)+'" src="'+(etat.terreTeintee[id]||URL_TERRE_)+'">');
+    var src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1';
+    return fruitsArbre_(v).map(function(f){
+      return '<img class="ygg-img ygg-fruit" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+'">';
+    }).join('');
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
-  /* Plus d'images de croissance : la pousse est une taille (voir echelleTerre_ et echelleFruit_) ; la fonction reste pour les appels existants. */
+  /* Plus d'images de croissance : la pousse est une taille (voir fruitsArbre_) ; la fonction reste pour les appels existants. */
   function etapeCroissance_(d,v){return null;}
 
   /*
@@ -513,7 +494,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+(FRUITS_24_[id]===true&&v.tier>0&&v.active?' ygg-ater':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,v.tier>0?Number(echelleTerre_(v)):0.14,v.tier>0?Number(echelleFruit_(v)):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="--ygg-s:'+(v.tier>0?echelleTerre_(v):'0.14')+';--ygg-f:'+(v.tier>0?echelleFruit_(v):'0')+';--ygg-fo:'+(v.tier>0&&heuresPousse_(v)>=1?'1':'0')+(v.tier>0&&v.active?';--ygg-ac:'+(AURAS_[id]||'#ffd34a'):'')+(v.tier>0&&intensiteAura_(v)>0?';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3):'')+';background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="'+(v.tier>0&&intensiteAura_(v)>0?'--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3)+';':'')+'background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

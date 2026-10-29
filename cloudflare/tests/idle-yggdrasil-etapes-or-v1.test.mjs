@@ -15,25 +15,31 @@ const e2 = choisirEtapesYggR2_(dossier.slice().reverse(), "gold");
 assert.equal(e2[0], "idle/yggdrasil/gold/1.webp"); assert.equal(e2[9], "idle/yggdrasil/gold/10.webp"); assert.equal(e2[19], "idle/yggdrasil/gold/20.webp", "tri numérique (10 après 9)");
 assert.equal(choisirEtapesYggR2_(["idle/yggdrasil/gold-0.png", "idle/yggdrasil/gold-1.png", "idle/yggdrasil/gold-2.png"], "gold").length, 3);
 assert.equal(choisirCleYggR2_(plat, "gold"), "idle/yggdrasil/Fruit_of_Gold.png", "image simple inchangée");
-/* Côté page : DEUX couches indépendantes (terre unique + fruit sans terre), toutes deux sur les heures réelles de pousse (échelle de 24 h) */
+/* Côté page (Norman, 2026-10-29) : le décor est un arbre ; chaque heure de pousse ajoute un fruit sur l'un des 24 emplacements, plus de terre */
 const src = fs.readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
-const fonctions = ["heuresPousse_", "echelleTerre_", "echelleFruit_"].map((n) => src.match(new RegExp("function " + n + "\\(v\\)\\{[^\\n]*\\n"))[0]).join("");
-const C = vm.runInNewContext(fonctions + "({heuresPousse_,echelleTerre_,echelleFruit_})");
+const debut = src.indexOf("function heuresPousse_"), fin = src.indexOf("function intensiteAura_");
+const code = src.slice(debut, src.indexOf("  /*", src.indexOf("function fruitsArbre_"))) ;
+const C = vm.runInNewContext(code + "({heuresPousse_,fruitsArbre_,EMPLACEMENTS_,ORDRE_})");
 const g = (growth) => ({ growth });
-assert.equal(C.echelleTerre_(g(0)), "0.140", "la terre commence minuscule");
-assert.equal(C.echelleTerre_(g(24)), "1.000", "pleine taille à la 24e heure");
-assert.equal(C.echelleFruit_(g(0)), "0.000"); assert.equal(C.echelleFruit_(g(0.99)), "0.000", "pas de fruit pendant la première heure");
-assert.equal(C.echelleFruit_(g(1)), "0.050", "un tout petit fruit après une heure complète");
-assert.equal(C.echelleFruit_(g(24)), "1.000", "pleine taille à la 24e heure");
-for (let h = 1; h < 24; h += 0.5) assert.ok(Number(C.echelleFruit_(g(h + 0.5))) > Number(C.echelleFruit_(g(h))), "le fruit grossit à chaque instant (" + h + " h)");
-for (let h = 0; h < 22; h += 0.5) assert.ok(Number(C.echelleTerre_(g(h + 0.5))) > Number(C.echelleTerre_(g(h))), "la terre grossit à chaque instant (" + h + " h)");
-/* pas la même courbe : la terre grossit d'abord vite, le fruit d'abord lentement */
-assert.ok(Number(C.echelleTerre_(g(6))) > 0.5 && Number(C.echelleFruit_(g(6))) < 0.25, "la terre est déjà grosse quand le fruit est encore petit");
-assert.equal(C.echelleTerre_(g(5)), C.echelleTerre_({ growth: 5, maxTier: 24 }), "calculées sur les heures réelles, jamais sur le temps maximum débloqué");
-assert.equal(C.echelleFruit_(g(30)), "1.000", "jamais plus que la taille pleine");
-assert.ok(src.includes("/api/idle/media/ygg?name=terre&terre=1") && src.includes("&fruit=1") && src.includes("ygg-terre") && src.includes("ygg-fruit"), "deux images : terre et fruit");
+assert.equal(C.EMPLACEMENTS_.length, 24, "24 emplacements, un par heure");
+assert.equal(new Set(C.ORDRE_.map((e) => e.join(","))).size, 24, "l'ordre d'apparition les utilise tous, une fois chacun");
+assert.equal(C.fruitsArbre_(g(0)).length, 0, "aucun fruit au départ");
+assert.equal(C.fruitsArbre_(g(0.5)).length, 1, "le premier fruit commence à pousser tout de suite");
+assert.equal(C.fruitsArbre_(g(10)).length, 10, "à 10 h : dix fruits");
+assert.equal(C.fruitsArbre_(g(10)).filter((f) => f[2] === 1).length, 10, "à 10 h : dix fruits mûrs");
+const f98 = C.fruitsArbre_(g(9 + 50 / 60));
+assert.equal(f98.length, 10, "à 9 h 50 : dix fruits");
+assert.equal(f98.filter((f) => f[2] === 1).length, 9, "dont neuf mûrs");
+assert.ok(Math.abs(f98.find((f) => f[2] < 1)[2] - 50 / 60) < 1e-9, "et un qui pousse (aux 5/6 de sa taille)");
+assert.equal(C.fruitsArbre_(g(24)).length, 24, "24 fruits mûrs à la 24e heure");
+assert.equal(C.fruitsArbre_(g(24)).filter((f) => f[2] === 1).length, 24);
+assert.equal(C.fruitsArbre_(g(30)).length, 24, "jamais plus de 24");
+assert.deepEqual(C.fruitsArbre_(g(5.5)).slice(0, 5), C.fruitsArbre_(g(5)).slice(0, 5), "un fruit mûr ne change jamais de place");
+for (let h = 0; h < 23.9; h += 0.25) assert.ok(C.fruitsArbre_(g(h + 0.25)).length >= C.fruitsArbre_(g(h)).length, "le nombre de fruits ne baisse jamais");
+const R = C.fruitsArbre_(g(24)); for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) assert.ok(Math.abs(R[i][0] - R[j][0]) >= 8 || Math.abs(R[i][1] - R[j][1]) >= 10, "assez de place entre deux fruits (" + i + "," + j + ")");
+assert.ok(src.includes("&fruit=1") && src.includes("ygg-fruit") && !src.includes("ygg-terre") && !src.includes("terre=1"), "fruit sur l'arbre, plus de terre");
 assert.ok(src.includes("function etapeCroissance_(d,v){return null;}") && !src.includes("ygg-suivante") && !src.includes("fractionSuivante_") && !src.includes("DEBUT_FRUIT_"), "plus d'images intermédiaires");
-assert.ok(src.includes("--ygg-s:") && src.includes("--ygg-f:") && src.includes("var(--ygg-f,1)") && !src.includes("transform:scale(var(--ygg-"), "tailles par largeur/hauteur (jamais un transform animé, flou)");
+assert.ok(src.includes("--ygg-x:") && src.includes("--ygg-y:") && src.includes("--ygg-k:"), "position et taille posées sur chaque fruit");
 /* Fruits de Puissance : dossier partagé idle/yggdrasil/puissance/ (20 images), les images propres à un fruit passent devant. */
 const puissance = Array.from({ length: 20 }, (_, i) => "idle/yggdrasil/puissance/" + (i + 1) + ".webp");
 for (const id of ["powerAlpha", "powerBeta", "powerDelta"]) {
@@ -51,18 +57,17 @@ console.log("idle-yggdrasil-etapes-or-v1: OK");
 
 const srcY = src;
 
-/* Aura du fruit : de la couleur du fruit, après la 12e heure, de plus en plus forte, la 24e heure beaucoup plus prononcée */
-const intens = vm.runInNewContext("(" + srcY.match(/function intensiteAura_\(v\)\{[\s\S]*?\n  \}/)[0].replace("function intensiteAura_", "function") + ")");
-assert.equal(intens({ growth: 0 }), 0); assert.equal(intens({ growth: 12 }), 0, "pas d'aura jusqu'à la 12e heure comprise");
-assert.ok(intens({ growth: 12.5 }) > 0 && intens({ growth: 12.5 }) < 0.15, "faible au début");
-assert.ok(intens({ growth: 18 }) > intens({ growth: 13 }) && intens({ growth: 23 }) > intens({ growth: 18 }), "de plus en plus forte");
+/* Aura du fruit (2026-10-29) : de la couleur du fruit, de plus en plus forte jusqu'à la 24e heure, la 24e beaucoup plus prononcée */
+const intens = vm.runInNewContext("var heuresPousse_=" + src.match(/function heuresPousse_\(v\)\{[^\n]*\n/)[0].replace("function heuresPousse_", "function") + ";(" + src.match(/function intensiteAura_\(v\)\{[\s\S]*?\n  \}/)[0].replace("function intensiteAura_", "function") + ")");
+assert.equal(intens({ growth: 0 }), 0, "pas d'aura sans pousse");
+assert.ok(intens({ growth: 1 }) > 0 && intens({ growth: 1 }) < 0.12, "faible au début");
+for (let h = 1; h < 24; h += 0.5) assert.ok(intens({ growth: h + 0.5 }) > intens({ growth: h }), "de plus en plus forte (" + h + " h)");
 assert.equal(intens({ growth: 24 }), 1, "24e heure : maximum");
 assert.ok(intens({ growth: 24 }) - intens({ growth: 23 }) > 3 * (intens({ growth: 23 }) - intens({ growth: 22 })), "la dernière heure est bien plus marquée que les autres");
-assert.equal(intens({ growth: 10 }), 0, "un fruit limité à 10 h n'a jamais d'aura");
 const ids24 = Object.keys(JSON.parse(srcY.match(/var FRUITS_24_=(\{[^}]*\})/)[1].replace(/(\w+):true/g, '"$1":true')));
 const auras = JSON.parse(srcY.match(/var AURAS_=(\{[^}]*\})/)[1].replace(/(\w+):'/g, '"$1":"').replace(/'/g, '"'));
 for (const id of ids24) assert.ok(/^#[0-9a-f]{6}$/i.test(auras[id]), "couleur d'aura pour " + id);
 assert.ok(srcY.includes("ygg-aura") && srcY.includes("--ygg-aura-a"));
 console.log("ok aura des fruits");
 
-console.log("ok deux couches");
+console.log("ok fruits sur l'arbre");
