@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’introduction est maintenant entièrement traduite en anglais pendant qu’elle défile : la phrase de la quatorzième image et le premier bruitage n’étaient pas traduits.',
             'En plein écran, le jeu occupe vraiment toute la largeur et toute la hauteur de l’écran : plus de bandes vides à gauche et à droite.',
             'Quand on ferme l’interface Steam, l’image de Steam ne reste plus à l’écran comme un fantôme : la fenêtre se repeint toute seule.',
             'Sur PC, la barre de défilement de la page prend les couleurs de la page affichée et une texture à son image : métal rivé, écran vert, écorce, gouttes, étoiles, terre, bandes d’alerte, losanges, papier ou quadrillage.',

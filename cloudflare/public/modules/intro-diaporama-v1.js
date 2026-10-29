@@ -69,7 +69,13 @@ setTimeout(chargerServeur,800);
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 /* *mot* -> italique, comme le texte d'origine l'écrit. */
-function texteHtml(t){return esc(t).replace(/\*([^*]+)\*/g,'<em>$1</em>');}
+/* Norman (2026-10-29) : « l'intro n'a pas les textes traduits en anglais » : la mise en relief *…* coupait la phrase en morceaux (« Non, tu as l'impression que », « quelque chose », « a aspiré… ») qu'aucune entrée du dictionnaire ne connaît (idem « BLOUM ») : en anglais, la phrase ENTIÈRE est traduite d'abord (étoiles comprises), puis découpée. */
+function enAnglais(t){
+  var T=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;
+  try{if(T&&typeof T.actif==='function'&&T.actif()){var e=T.traduire(String(t));if(e)return e;}}catch(_e){}
+  return t;
+}
+function texteHtml(t){return esc(enAnglais(t)).replace(/\*([^*]+)\*/g,'<em>$1</em>');}
 function url(i){return DIR+DIAPOS[i].n+'.webp?v='+V;}
 function duree(i){return Math.max(MIN_MS,String(DIAPOS[i].t).length*MS_PAR_CARACTERE);}
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
