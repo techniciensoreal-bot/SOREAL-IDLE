@@ -18,6 +18,8 @@ node desktop/publier-maj.mjs --notes "Nouvelles images du Titan"            # si
 node desktop/publier-maj.mjs --notes "Nouvelles images du Titan" --publier  # publie
 ```
 
+(L'APK Android hors ligne se met à jour de la même façon : ajouter `--apk` aux deux commandes ; voir android/README.md.)
+
 Les applications ouvertes et connectées affichent en haut de la fenêtre « Une mise à jour est disponible : … [Mettre à jour] [Plus tard] » (vérification 8 s après l'ouverture, puis toutes les 30 minutes). « Mettre à jour » télécharge UNIQUEMENT ce qui a changé
 (le paquet de code s'il a changé, les médias nouveaux ou modifiés), avec une barre de progression, puis le jeu se relance.
 

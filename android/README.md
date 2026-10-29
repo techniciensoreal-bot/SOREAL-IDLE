@@ -32,3 +32,13 @@ Application native (WebView) qui contient TOUT le jeu : le dossier public du sit
 - `hors-ligne/app/src/main/java/be/soreal/idle/MainActivity.java` : sert les fichiers de l'APK sur `https://appassets.androidplatform.net` (plages d'octets pour les sons), pont d'enregistrement des fichiers exportés (Téléchargements) et sélecteur de fichier (« Charger une partie »).
 - Après un changement de `cloudflare/src` : `node cloudflare/tools/build-moteur-local.mjs`, `maj-pins.mjs`, puis reconstruire l'APK.
 - Vérifié : le jeu démarre dans la vraie WebView Android (émulateur Android 34) ; démarrage, pseudo, rechargement, images, voix et route des médias vérifiés dans Edge sur les mêmes fichiers. L'émulateur de ce PC plante (segfault) après quelques minutes : l'enregistrement de fichier et le sélecteur de fichier Android n'ont pas pu être essayés.
+
+## Mises à jour de l'APK hors ligne (2026-10-29) : plus de reconstruction
+
+Décision de Norman : une fois l'APK installé, les nouveautés arrivent par mise à jour, jamais en reconstruisant l'APK (sauf changement du code Java ou du manifeste Android).
+- Publier (sur le PC de Norman, après `git push` et, si des images R2 ont changé, rien d'autre : la liste des médias est lue dans R2) :
+  `node desktop/publier-maj.mjs --apk --notes "…"` (simulation) puis `… --publier`. Même clé de signature que l'exe (`%USERPROFILE%\.soreal-idle\maj-cle-privee.pem`) ; manifeste `idle/_maj-apk/manifeste.json`, paquet de code `idle/_maj-apk/code-<empreinte>.zip` (service worker construit + site + démarrage, `android/code-apk.mjs`).
+- L'application (`Maj.java`) lit le manifeste au lancement et au retour au premier plan (30 min au plus), vérifie la signature Ed25519 (`Ed25519.java`, sans bibliothèque ; clé publique `assets/maj-cle-publique.pem`), télécharge seulement les médias dont l'etag a changé (posés tout de suite, vérifiés par MD5) et, si le code a changé, le zip (SHA-256 vérifié). Plus de 40 Mo : Wi-Fi seulement.
+- Le nouveau code s'active au lancement suivant (dialogue « Relancer ? »). Il est « à l'essai » jusqu'à ce que `demarrage.html` appelle `AndroidSoreal.demarrageOk()` ; après 2 lancements sans confirmation, retour au code précédent (version refusée, jamais reprise).
+- Dossier de l'application : `files/maj/` (etat.json, pret.json, code/<empreinte>/, medias/, medias-etags.json, medias-index.json). Les assets de l'APK ne sont jamais modifiés ; `servir()` (MainActivity) regarde d'abord ce dossier.
+- Après une reconstruction de l'APK, relancer `node desktop/recolter.mjs` AVANT (les etags embarqués viennent de `desktop/medias/_index.json`, sinon tout serait retéléchargé).
