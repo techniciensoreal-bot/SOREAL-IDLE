@@ -755,7 +755,8 @@
 
       let idleAdventureLogResumeTimerV1_=null;
 
-      const IDLE_ADVENTURE_LOG_RESUME_MS_V1=6000;
+      /* Norman (2026-10-29) : le journal de combat revient tout en bas après 10 secondes sans qu'on y touche (molette, appui ou défilement repoussent l'échéance). */
+      const IDLE_ADVENTURE_LOG_RESUME_MS_V1=10000;
 
       /*
        * critique (2026-09-27, Norman : « Quand on met ou recoit un coup critique ») : suffixe
@@ -889,6 +890,7 @@
         if(!host||host.dataset.idleScrollBoundV1==='1')return;
         host.dataset.idleScrollBoundV1='1';
         host.addEventListener('scroll',gererScrollJournalAventureIdleV1_,{passive:true});
+        ['wheel','pointerdown','touchstart'].forEach(function(nom){host.addEventListener(nom,function(){if(!idleAdventureLogAutoScrollV1_)gererScrollJournalAventureIdleV1_({currentTarget:host});},{passive:true});});
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-141 */

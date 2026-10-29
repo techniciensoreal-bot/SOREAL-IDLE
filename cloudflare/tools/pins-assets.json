@@ -424,8 +424,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 530,
-  "sha": "b1e2957390961d5ebfe52bacee68f6a6d4cd5d9f"
+  "pin": 531,
+  "sha": "23211581f710aad566649b25b9176845d402441d"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -496,12 +496,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 543,
-  "sha": "afa771050487621a12f1c62044ed522b2176e2b7"
+  "pin": 544,
+  "sha": "4f16669bf0d3e5ccb3f0060247f0a92453af0b04"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 363,
-  "sha": "661b4b6c81e77b68dd469959b6374cba5fe63c0a"
+  "pin": 364,
+  "sha": "881b5cf012747c7f3fac613d8814d312d4bc166b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -536,8 +536,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 10,
-  "sha": "8252ec7deab028e581bc90a4f8c48fa95ccd167a"
+  "pin": 11,
+  "sha": "de2e20576e397eea42533d8889b2e02891314d7a"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 39,
@@ -556,7 +556,7 @@
   "sha": "17f8d96e5f6492488aca038ac2264d8c36db7795"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 22,
+  "pin": 24,
   "sha": "c5a77537fb139291a7830c450411574d2771dc33"
  },
  "/modules/ui-combat-2-v1.js": {
