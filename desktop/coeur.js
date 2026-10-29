@@ -300,7 +300,16 @@ function installerPontSteam() {
     const { etatSteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
     return etatSteam({ exe: exeJeu() });
   });
-  ipcMain.handle("steam:ajouter", async (_ev, art) => {
+  ipcMain.handle("steam:ajouter", async (_ev, art) => ajouterSteam_(art));
+  /* Renommage automatique (Norman, 2026-10-29 : « le nom qu'il met dans Steam doit être SOREAL NGU IDLE ») : l'entrée de Steam qui porte encore l'ancien nom est mise à jour toute seule, avec ses images, dès que Steam est fermé (le fichier de Steam ne s'écrit pas pendant qu'il tourne : on réessaie à chaque lancement). */
+  if (app.isPackaged && !LANCE_PAR_STEAM) setTimeout(async () => {
+    try {
+      const { etatSteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
+      const e = etatSteam({ exe: exeJeu() });
+      if (e && e.ancienNom && !e.enCours) { const r = await ajouterSteam_(null); journalLiaison_("steam renommage " + JSON.stringify({ ok: r && r.ok, code: r && r.code })); }
+    } catch (_e) { /* jamais bloquant */ }
+  }, 20000);
+  async function ajouterSteam_(art) {
     if (!app.isPackaged) return { ok: false, code: "DEVELOPPEMENT" };
     const { ajouterASteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
     const d = dossiers();
@@ -327,7 +336,7 @@ function installerPontSteam() {
         logo: lire("logo-1280x720.png")
       }
     });
-  });
+  }
 }
 
 /*
@@ -414,9 +423,8 @@ function ouvrirFenetre() {
    */
   if (LANCE_PAR_STEAM) {
     const repeindre = () => { try { if (fenetre && !fenetre.isDestroyed() && fenetre.isVisible() && !fenetre.isMinimized()) fenetre.webContents.invalidate(); } catch (_e) { /* fenêtre fermée */ } };
-    for (const evenement of ["focus", "blur", "show", "restore", "resize", "enter-full-screen", "leave-full-screen"]) fenetre.on(evenement, () => { repeindre(); setTimeout(repeindre, 120); });
-    const minuteurRepeinture = setInterval(repeindre, 250);
-    fenetre.on("closed", () => clearInterval(minuteurRepeinture));
+    /* Plus de minuterie : repeindre en continu faisait CLIGNOTER une bande noire à gauche pendant que l'interface Steam est affichée (Norman, 2026-10-29). Seulement une courte rafale à chaque changement de focus, de taille ou d'affichage (la fermeture de la superposition redonne le focus). */
+    for (const evenement of ["focus", "blur", "show", "restore", "resize", "enter-full-screen", "leave-full-screen"]) fenetre.on(evenement, () => { repeindre(); for (const ms of [60, 150, 300, 600, 1200]) setTimeout(repeindre, ms); });
   }
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });

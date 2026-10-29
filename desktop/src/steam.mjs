@@ -116,14 +116,16 @@ export function etatSteam({ exe, nom = NOM_STEAM }, env = process.env) {
   if (!steam) return { ok: true, steam: false };
   const comptes = comptesSteam(steam);
   const cible = '"' + exe + '"';
-  let dejaAjoute = false;
+  let dejaAjoute = false, ancienNom = false;
   for (const c of comptes) {
     try {
       const table = lireRaccourcis(path.join(steam, "userdata", c, "config", "shortcuts.vdf")).find((e) => e.k.toLowerCase() === "shortcuts");
       if (table.v.some((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible)) dejaAjoute = true;
+      /* une entrée qui porte encore un ancien nom (Norman, 2026-10-29 : « le nom dans Steam doit être SOREAL NGU IDLE ») : à renommer */
+      if (table.v.some((e) => ANCIENS_NOMS_STEAM.includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible)) ancienNom = true;
     } catch (_e) { /* fichier illisible : on ne le touchera pas non plus à l'ajout */ }
   }
-  return { ok: true, steam: true, comptes: comptes.length, enCours: steamEnCours(env), dejaAjoute };
+  return { ok: true, steam: true, comptes: comptes.length, enCours: steamEnCours(env), dejaAjoute, ancienNom };
 }
 
 /*

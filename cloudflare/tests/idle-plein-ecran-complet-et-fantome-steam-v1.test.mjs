@@ -14,6 +14,6 @@ const coeur = fs.readFileSync("desktop/coeur.js", "utf8");
 const i = coeur.indexOf("if (LANCE_PAR_STEAM) {\n    const repeindre");
 assert.ok(i > 0, "repeinture forcée quand le jeu est lancé par Steam");
 const bloc = coeur.slice(i, i + 900);
-assert.ok(bloc.includes("webContents.invalidate()") && bloc.includes("setInterval(repeindre, 250)") && bloc.includes('"focus", "blur"') && bloc.includes("clearInterval(minuteurRepeinture)"), "invalidation à chaque focus/taille puis 4 fois par seconde, arrêtée à la fermeture");
+assert.ok(bloc.includes("webContents.invalidate()") && bloc.includes('"focus", "blur"') && bloc.includes("[60, 150, 300, 600, 1200]") && !bloc.includes("setInterval(repeindre"), "rafale d'invalidations à chaque focus/taille, sans minuterie (elle faisait clignoter une bande noire)");
 assert.ok(bloc.includes("isMinimized()"), "pas de repeinture fenêtre réduite");
 console.log("idle-plein-ecran-complet-et-fantome-steam-v1 : OK");
