@@ -33,7 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',
-            'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser, ni sur PC ni sur téléphone. Seules la barre de vie et les autres barres bougent.',
+            'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser ni la faire défiler, ni sur PC ni sur téléphone (y compris en retirant l’énergie ou la magie dans la Machine temporelle). Seules la barre de vie et les autres barres bougent.',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
@@ -44,7 +44,7 @@
             'Sous la barre de chaque colonne, le prix en Or du niveau suivant est affiché et se met à jour à chaque niveau gagné.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Quand tu manges un fruit, on entend la mâche et les fruits de l’arbre rétrécissent un à un, à tour de rôle. Quand tu les transformes en graines, ils se défont en mini particules qui tombent au sol.',
+            'Quand tu manges un fruit, on entend la mâche des fruits complets, qui rétrécissent un à un, à tour de rôle ; le fruit qui pousse encore rétrécit seulement jusqu’à disparaître, sans bruit. Quand tu les transformes en graines, seuls les fruits complets se défont en mini particules qui tombent au sol.',
             'Les cadres d’image des fruits sont maintenant carrés et montrent l’arbre en entier, du tronc aux feuilles, au lieu de couper les côtés.',
             'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis au hasard dans le feuillage, un peu penchés et de tailles légèrement différentes, pour que l’arbre ait l’air naturel.',
             'Les fruits mûrs, prêts à être récoltés, ont une aura douce de leur couleur sur l’arbre ; le fruit qui pousse encore n’en a pas. Le cadre d’un fruit ne brille plus que lorsque ce fruit a atteint son palier maximum, d’une lueur douce de sa couleur.',

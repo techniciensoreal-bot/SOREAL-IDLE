@@ -33,8 +33,8 @@ assert.ok(cout() > 0, "sans option : quelques coups");
 
 // 2. page : rétrécissement à tour de rôle, particules au sol
 const anim = page.slice(page.indexOf("function animer_(id,mode)"), page.indexOf("function lancerUsage_"));
-assert.ok(anim.includes("var d=i*pas,dur=0.3;") && anim.includes("delay:d*1000") && anim.includes("base+'0)'"), "manger : chaque fruit rétrécit jusqu'à rien, l'un après l'autre (retard i × pas)");
-assert.ok(anim.includes("son_('manger',{n:Math.max(n,3),pas:pas})"), "un coup de mâchoire par fruit, au même rythme que le rétrécissement");
+assert.ok(anim.includes("var d=recolte?rang*0.05:rang*pas,dur=0.3;") && anim.includes("delay:d*1000") && anim.includes("base+'0)'"), "manger : chaque fruit rétrécit jusqu'à rien, l'un après l'autre (retard i × pas)");
+assert.ok(anim.includes("else if(nm)son_('manger',{n:nm,pas:pas})") && anim.includes("if(!recolte||!mur){") && anim.includes("rang=mur?im_++:nm"), "un coup de mâchoire par fruit COMPLET seulement, au rythme du rétrécissement ; le fruit qui pousse rétrécit en silence, sans graines (Norman, 2026-10-29)");
 assert.ok(anim.includes("className='ygg-part'") && anim.includes("sol=H*0.88") && anim.includes("cubic-bezier(.5,0,.9,.6)"), "récolter : mini particules qui tombent (accélération) jusqu'au sol");
 assert.ok(anim.includes("if(recolte)son_('recolter')"), "récolter garde son son");
 assert.ok(anim.includes("data-morph-garder") && anim.includes("img.style.visibility='hidden'"), "couche épargnée par le redessin (règle n°4) ; le fruit réel est masqué");

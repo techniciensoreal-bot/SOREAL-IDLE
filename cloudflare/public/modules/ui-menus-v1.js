@@ -135,6 +135,11 @@
        * quelques pixels (translate au :active, touches de Wandoos) : mesurée à l'instant du clic, sa position était décalée, et quand le doigt se levait la page « se corrigeait » de ces quelques pixels.
        */
       function hautSansTransformIdleV1_(e){
+        /*
+         * Norman (2026-10-29, Machine temporelle : « retire l'énergie : la feuille bouge encore ») : cette mesure se fait dans une image d'animation (requestAnimationFrame), AVANT que le bandeau ait rattrapé sa propre hauteur (marge compensée par son ResizeObserver, après les animations
+         * de la page). Quand une barre apparaît ou disparaît, le bouton paraissait donc décalé de la hauteur gagnée par le bandeau et le calage faisait défiler la page de 4 à 11 px (puis revenait). On demande d'abord au bandeau de se remettre d'aplomb : la mesure est alors celle que le joueur voit.
+         */
+        try{const hb=window.__SOREAL_IDLE_HUD_HAUT_V2__;if(hb&&typeof hb.ajuster==='function')hb.ajuster();}catch(_e){}
         const r=e.getBoundingClientRect();
         let ty=0;
         try{

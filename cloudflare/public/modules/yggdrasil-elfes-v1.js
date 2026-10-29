@@ -601,9 +601,10 @@
     var recolte=mode==='harvest';
     var vit=null,imgs=[];
     try{vit=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-vitre.ygg-decor');imgs=vit?[].slice.call(vit.querySelectorAll('img.ygg-fruit')):[];}catch(_e){imgs=[];}
-    var n=imgs.length;
-    var pas=n?Math.max(0.11,Math.min(0.3,2.6/n)):0.28;
-    if(recolte)son_('recolter');else son_('manger',{n:Math.max(n,3),pas:pas});
+    /* Seuls les fruits COMPLETS (mûrs) croquent et tombent en graines ; le fruit qui pousse encore (Norman, 2026-10-29) rétrécit seulement jusqu'à disparaître, en silence. */
+    var n=imgs.length,nm=imgs.filter(function(im){return im.classList.contains('ygg-mur');}).length,im_=0;
+    var pas=nm?Math.max(0.11,Math.min(0.3,2.6/nm)):0.28;
+    if(recolte)son_('recolter');else if(nm)son_('manger',{n:nm,pas:pas});
     var reduit=false;try{reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){reduit=false;}
     if(!vit||!n||reduit||typeof imgs[0].animate!=='function')return;
     var ov=document.createElement('div');ov.className='ygg-anim-v1';ov.setAttribute('data-morph-garder','');ov.setAttribute('aria-hidden','true');
@@ -614,12 +615,13 @@
       ov.appendChild(copie);img.style.visibility='hidden';
       var k=(parseFloat(img.style.getPropertyValue('--ygg-k'))||1)*(parseFloat(img.style.getPropertyValue('--ygg-s'))||1);
       var base='translate(-50%,-50%) rotate('+(parseFloat(img.style.getPropertyValue('--ygg-r'))||0)+'deg) scale(';
-      if(!recolte){
-        var d=i*pas,dur=0.3;
+      var mur=img.classList.contains('ygg-mur'),rang=mur?im_++:nm;
+      if(!recolte||!mur){
+        var d=recolte?rang*0.05:rang*pas,dur=0.3;
         copie.animate([{transform:base+k+')',opacity:1},{transform:base+(k*1.08)+')',opacity:1,offset:0.25},{transform:base+'0)',opacity:0}],{duration:dur*1000,delay:d*1000,fill:'both',easing:'ease-in'});
         fin=Math.max(fin,d+dur);
       }else{
-        var d0=i*0.05,dur0=0.22;
+        var d0=rang*0.05,dur0=0.22;
         copie.animate([{transform:base+k+')',opacity:1},{transform:base+(k*1.15)+')',opacity:0.9,offset:0.3},{transform:base+(k*0.2)+')',opacity:0}],{duration:dur0*1000,delay:d0*1000,fill:'both',easing:'ease-out'});
         var x=parseFloat(img.style.getPropertyValue('--ygg-x'))||50,y=parseFloat(img.style.getPropertyValue('--ygg-y'))||40;
         var sol=H*0.88,haut=y/100*H;

@@ -25,3 +25,12 @@ const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(css.includes("soreal-idle-page-root-v28{overflow-anchor:none}"), "l'ancrage natif reste coupé (page redessinée en continu) : c'est la réserve qui compense");
 
 console.log("idle-hud-barre-sans-saut-v1: OK");
+
+/* Norman (2026-10-29, Machine temporelle : « retire l'énergie : la feuille bouge encore ») : le calage de position du bouton cliqué (requestAnimationFrame, avant le rattrapage de hauteur du bandeau) faisait défiler la page de 4 à 11 px */
+{
+  const menus = readFileSync("cloudflare/public/modules/ui-menus-v1.js", "utf8");
+  const mesure = menus.slice(menus.indexOf("function hautSansTransformIdleV1_(e){"), menus.indexOf("return r.top-ty;"));
+  assert.ok(mesure.includes("window.__SOREAL_IDLE_HUD_HAUT_V2__") && mesure.includes("hb.ajuster()") && mesure.indexOf("hb.ajuster()") < mesure.indexOf("e.getBoundingClientRect()"), "la mesure du calage demande d'abord au bandeau de se remettre d'aplomb");
+  assert.ok(hud.includes("ajuster:ajuster"), "le bandeau expose ajuster()");
+  console.log("idle-hud-barre-sans-saut-v1 (calage du clic): OK");
+}
