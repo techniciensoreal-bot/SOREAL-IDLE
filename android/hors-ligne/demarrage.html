@@ -24,6 +24,7 @@
   function ouvrir(){
     fetch('/__pret',{cache:'no-store'}).then(function(r){
       if(!r.ok)return r.text().then(function(t){throw new Error(t);});
+      try{if(window.AndroidSoreal&&AndroidSoreal.demarrageOk)AndroidSoreal.demarrageOk();}catch(_e){}   /* l'APK sait que le jeu démarre : une mise à jour à l'essai devient définitive */
       location.replace('/');
     }).catch(function(e){
       essais+=1;

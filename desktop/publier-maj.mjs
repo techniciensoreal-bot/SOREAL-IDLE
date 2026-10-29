@@ -7,6 +7,7 @@
  *   node desktop/publier-maj.mjs --notes "Nouvelles images du Titan"      SIMULE : montre ce qui serait publié (code changé ?, médias nouveaux ou modifiés, taille) sans rien écrire
  *   node desktop/publier-maj.mjs --notes "…" --publier            PUBLIE : dépose le paquet de code et le manifeste signé dans R2 (idle/_maj/) ; les applications ouvertes l'affichent dans les 30 minutes
  *   option : --port 8793
+ *   option : --apk   publie la mise à jour de l'APK Android hors ligne (idle/_maj-apk/ : même clé de signature, même liste de médias, paquet de code propre à l'APK construit par android/code-apk.mjs)
  *
  * Les médias ne sont PAS recopiés : le manifeste liste chaque fichier de idle/ (clé, taille, etag) ; l'application télécharge seulement ceux qu'elle n'a pas ou qui ont changé. Le code (cloudflare/src, public, contracts, design) voyage dans UN zip.
  * Accès : la connexion wrangler de l'administrateur (lecture par « wrangler dev --remote », écriture par « wrangler r2 object put --remote »). Aucun jeton n'est lu ni affiché. Le manifeste est signé : l'application refuse tout autre.
@@ -39,6 +40,8 @@ if (args.includes("--creer-cle")) {
 }
 
 const publier = args.includes("--publier");
+const APK = args.includes("--apk");
+const DOSSIER_MAJ = APK ? "idle/_maj-apk/" : "idle/_maj/";
 const notes = option("notes", "");
 if (!fs.existsSync(CLE_PRIVEE)) { console.error("Pas de clé de signature : lancer d'abord « node desktop/publier-maj.mjs --creer-cle »."); process.exit(1); }
 if (!notes && publier) { console.error("Écrire de quoi il s'agit : --notes \"Nouvelles images du Titan\" (affiché dans le bandeau du joueur)."); process.exit(1); }
@@ -64,7 +67,7 @@ try {
   let curseur = null;
   do {
     const r = await (await fetch(base + "/liste?prefix=idle%2F" + (curseur ? "&curseur=" + encodeURIComponent(curseur) : ""))).json();
-    for (const o of r.objets) if (!o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj/")) medias.push([o.cle, o.taille, String(o.etag || "")]);
+    for (const o of r.objets) if (!o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj")) medias.push([o.cle, o.taille, String(o.etag || "")]);
     curseur = r.curseur;
     process.stdout.write("\rinventaire : " + medias.length + " médias");
   } while (curseur);
@@ -72,13 +75,14 @@ try {
   medias.sort((a, b) => (a[0] < b[0] ? -1 : 1));
 
   /* 2. code : paquet déterministe */
-  const paquet = construirePaquetCode(DEPOT);
-  const cleCode = "idle/_maj/jeu-" + paquet.sha256.slice(0, 16) + ".zip";
+  const tmpApk = path.join(os.tmpdir(), "soreal-code-apk");
+  const paquet = APK ? await (await import("../android/code-apk.mjs")).construirePaquetApk(tmpApk) : construirePaquetCode(DEPOT);
+  const cleCode = DOSSIER_MAJ + (APK ? "code-" : "jeu-") + paquet.sha256.slice(0, 16) + ".zip";
   console.log("code : " + paquet.nb + " fichiers, paquet " + mo(paquet.zip.length) + " (" + paquet.sha256.slice(0, 12) + "…)");
 
   /* 3. ce qui est publié aujourd'hui */
   let actuel = null;
-  try { const r = await fetch(base + "/objet?cle=" + encodeURIComponent("idle/_maj/manifeste.json")); if (r.ok) actuel = await r.json(); } catch (_e) { /* aucun */ }
+  try { const r = await fetch(base + "/objet?cle=" + encodeURIComponent(DOSSIER_MAJ + "manifeste.json")); if (r.ok) actuel = await r.json(); } catch (_e) { /* aucun */ }
   const etatActuel = { codeSha: actuel && actuel.code ? actuel.code.sha256 : null, index: Object.fromEntries(((actuel && actuel.medias) || []).map((m) => [m[0], [m[1], m[2]]])) };
   const manifeste = { v: 1, version: new Date().toISOString().replace(/\.\d+Z$/, "Z"), date: new Date().toISOString(), notes, code: { cle: cleCode, taille: paquet.zip.length, sha256: paquet.sha256 }, medias };
   const delta = calculerDelta(manifeste, etatActuel);
@@ -102,7 +106,7 @@ try {
   }
   manifeste.signature = signerManifeste(manifeste, clePrivee);
   const fm = path.join(tmp, "manifeste.json"); fs.writeFileSync(fm, JSON.stringify(manifeste));
-  console.log("dépôt du manifeste signé…"); deposer("idle/_maj/manifeste.json", fm, "application/json");
+  console.log("dépôt du manifeste signé…"); deposer(DOSSIER_MAJ + "manifeste.json", fm, "application/json");
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log("\nMise à jour publiée : " + manifeste.version + (notes ? " — « " + notes + " »" : "") + "\nLes applications ouvertes et connectées la proposent dans les 30 minutes (au plus), à l'ouverture suivante sinon.");
 } finally {
