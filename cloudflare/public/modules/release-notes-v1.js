@@ -63,6 +63,7 @@
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand un boss meurt, le son de l’apparition du boss suivant ne se joue plus deux fois (une fois pendant la mort, puis à la fin) : le même son ne revient plus à la suite.',
             'Les réapparitions sont aussi variées que les morts : après sa mort, le joueur revient en marchant sur les coins du bas, en rebondissant, en tampon, en puzzle, en faisceau, en ballon ou en toupie, chacun avec son propre son ; le simple fondu a disparu.',
             'Les boss font une entrée différente à chaque fois : sept nouvelles arrivées (écrasement, surgissement, portail, silhouette, plongeon, fumée, briques), chacune avec son son, jouées à la suite des précédentes.',
             'Après une Renaissance, le combat de boss est toujours à l’arrêt : le premier boss ne se bat plus tout seul quand l’écran de la borne s’allume ; il faut appuyer sur Fight.',

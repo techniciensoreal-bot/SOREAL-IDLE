@@ -396,9 +396,15 @@ function jouerSurHote(hote,image,idMort){
     hote.appendChild(calque);
     var c=cv.getContext('2d');c.imageSmoothingEnabled=true;
     enCours=true;
+    /*
+     * Norman (2026-10-29) : « le son de la mort et celui de l'apparition du boss suivant sont identiques, bien souvent ». Cause : l'écran de victoire classique prévenait l'apparition (VICTOIRE_EN_COURS + annuler) mais PAS ces cinq morts : le moteur remplace l'image du boss tué par le suivant dès la mort, l'apparition du boss
+     * suivant (son compris) partait alors tout de suite, PENDANT la mort, puis une seconde fois à la fin (jouerApres) : le même son joué deux fois. Comme la victoire classique, la mort a maintenant la main jusqu'à sa fin, et c'est elle qui lance l'apparition, une seule fois.
+     */
+    try{var A0=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(A0&&A0.annuler)A0.annuler();}catch(_e){}
+    window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=true;
     var fini=false,t0=performance.now();
     function terminer(){
-      if(fini)return;fini=true;enCours=false;
+      if(fini)return;fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
       /* la main passe à l'apparition du boss suivant dans la même tâche : aucune image du boss suivant n'apparaît entre les deux */
       try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(hote,idMort,true);else if(app&&app.jouer)app.jouer(hote);}catch(_e){}
       if(calque.parentNode)calque.parentNode.removeChild(calque);
@@ -406,7 +412,7 @@ function jouerSurHote(hote,image,idMort){
     try{son(choix);}catch(_e){}
     (function image2(now){
       if(fini)return;
-      if(!calque.isConnected){fini=true;enCours=false;return;}
+      if(!calque.isConnected){fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;return;}
       var t=(now-t0)/1000;
       if(t>=v.duree){terminer();return;}
       dessiner(choix,c,t,k,LW,LH);

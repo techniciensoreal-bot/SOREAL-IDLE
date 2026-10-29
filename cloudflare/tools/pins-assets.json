@@ -348,8 +348,8 @@
   "sha": "470ba41c4807e15d80a16b8e7b3e3b81c5066dd6"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 4,
-  "sha": "f2a851174eee1deaa00505c86ac1313ebfc33249"
+  "pin": 5,
+  "sha": "3259547a6b21779e92dd71d24de13828eaed6b47"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 3,
@@ -436,8 +436,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 545,
-  "sha": "8e4c0f94476690ab2b5e4f0eb1a46b7c23ece13b"
+  "pin": 546,
+  "sha": "07c84ff2266a30aca6d1906b653bb22a72845773"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -508,12 +508,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 558,
-  "sha": "6b4710a5174779cfba1b212e21b5689f2467cca9"
+  "pin": 559,
+  "sha": "e65ec426837c63ea8558732b10f58d96ab9fc5e2"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 378,
-  "sha": "5f95394cb43d1b085db93dc23bf11bf46bdce8be"
+  "pin": 379,
+  "sha": "1c50d82b13c0f86af03face4b9d91dca1c7fe1a0"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
