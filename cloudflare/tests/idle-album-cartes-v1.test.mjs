@@ -13,7 +13,7 @@ assert.ok(m.includes("if(maintenant-derniereVue>1500){ouvert=false;page=0;}") &&
 assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}") && c.includes(".alb-couv-pochette") && c.includes(".alb-cuir-noir"), "couverture de farde noire avec pochette en plastique");
 assert.ok(m.includes("cliquerGauche") && m.includes("Fermer le classeur"), "le livre se referme (bouton, ou clic sur l'intérieur de la couverture)");
 // plus de page vide devant : la première feuille est le dessin, le dos des cartes est à gauche ensuite
-assert.ok(m.includes("function gaucheHtml(r){return r<=0?'':dosHtml(r-1);}") && m.includes("function nbDos(r){return r<=0?PIECES:") && m.includes("dosSeul()"), "à gauche : le dos des cartes SOREAL de la feuille d'avant");
+assert.ok(m.includes("function gaucheHtml(r){return r<=0?'':dosHtml(r-1);}") && m.includes("function nbDos(r){return r<=0?nbPieces():") && m.includes("dosSeul()"), "à gauche : le dos des cartes SOREAL de la feuille d'avant");
 assert.ok(!m.includes("alb-pochette-dos\" aria-hidden=\"true\"><div class=\"alb-carte alb-carte-mtg\"></div>"), "plus de page vide devant");
 // le grand dessin
 assert.ok(m.includes("function puzzleHtml()") && m.includes("Math.floor(cartes.length*PIECES/TOTAL_BOSS)") && c.includes("/chargement/affiche-600x900.webp") && c.includes("background-size:324cqw 486cqw"), "l'affiche découpée en 9 cartes, une par ~34 boss vaincus");
@@ -25,7 +25,7 @@ assert.ok(k.includes("if(cible.closest('.alb-carte-mtg'))return;"), "la miniatur
 // la feuille qui tourne
 assert.ok(m.includes("alb-face-avant") && m.includes("alb-face-arriere") && m.includes("rotateY(-90deg)") && m.includes("rotateY(-180deg)") && c.includes("transform-origin:0 50%"), "feuille à deux faces qui pivote autour des anneaux");
 assert.ok(m.includes("function basculer(") && m.includes("alb-ombre-sol"), "bascule de face à mi-course, ombres sur les pages");
-assert.ok(m.includes("onclick=\"window.__SOREAL_IDLE_ALBUM_V1__.page(-1)\"") && m.includes("addEventListener('touchend'") && m.includes("prefers-reduced-motion"), "boutons, glissement du doigt, mouvement réduit");
+assert.ok(m.includes("'.page(-1)\">'") && m.includes("addEventListener('touchend'") && m.includes("prefers-reduced-motion"), "boutons, glissement du doigt, mouvement réduit");
 assert.ok(!/boss découverts|\/ ?301/.test(m.replace("TOTAL_BOSS=301","")), "aucun total de boss affiché (règle n°2)");
 // seuls les boss vaincus ont leur carte
 assert.ok(m.includes("e&&e.vaincu&&Math.floor(Number(e.numero))>0"), "carte = boss vaincu");
@@ -39,6 +39,21 @@ assert.ok(m.includes("enAttente[e.numero]=true") && c.includes(".alb-pochette.al
 assert.ok(m.includes("se rejoignent en PAQUET") && m.includes("la suivante ne part que quand la précédente est rangée") && m.includes("suite=suite.then(function(){") && m.includes("alb-vol-carte"), "paquet, puis une carte à la fois (chaîne : la suivante attend la précédente)");
 assert.ok(!c.includes("backdrop-filter") && !c.includes("blur("), "aucun flou (on voit les cartes entrer dans le classeur)");
 assert.ok(m.includes("r1.height*.62") && m.includes("translateY(-62%)") && c.includes(".alb-pochette.alb-entre{z-index:4}"), "la carte arrive devant la fente puis se glisse sous le plastique");
+// le dos de la première feuille : seulement les cartes du dessin débloquées ; ouvrir = fermer à l'envers (rien ne bouge d'un bloc) ; la feuille passe AU-DESSUS de l'anneau ; livre fermé : l'anneau seul
+assert.ok(m.includes("function nbDos(r){return r<=0?nbPieces():cartesDePage(r).length;}"), "autant de dos que de cartes du dessin gagnées");
+assert.ok(!m.includes("translateX(-25%)") && !c.includes("translateX(-25%)"), "plus de mouvement de toute la page à l'ouverture");
+assert.ok(m.includes("{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5}") && m.includes("{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5}"), "la page de gauche apparaît / disparaît au passage de la couverture (ouverture et fermeture symétriques)");
+assert.ok(c.includes("pointer-events:none;z-index:5;") && c.includes(".alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;") && c.includes(".alb-couverture{position:absolute;top:0;bottom:0;left:0;right:0;cursor:pointer;z-index:6;"), "feuille et couverture passent au-dessus de l'anneau");
+assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:8;background:var(--alb-anneau-seul)") && c.includes("--alb-anneau-seul:url("), "livre fermé : l'anneau seul, sans trou noir");
+// la languette perforée le long du dos de chaque page, trous pour les anneaux
+{
+  const cc = lire("cloudflare/public/soreal-idle-album.css");
+  assert.ok(cc.includes("--alb-lang:clamp(") && cc.includes(".alb-page-d::before") && cc.includes(".alb-page-g::after") && (cc.match(/circle at 50% (11|50|89)%/g)|| []).length >= 6 && cc.includes(".alb-feuille-tournante .alb-face-avant::before"), "languette perforée sur toute la hauteur, trois trous (là où passent les anneaux), sur les pages et sur la feuille qui tourne");
+}
+// navigation : au-dessus ET en dessous, 1 page et 10 pages, avec l'animation des 10 feuilles
+assert.ok(m.includes("navHtml('haut')+livreHtml()+navHtml('bas')") && m.includes("alb-prec10") && m.includes("alb-suiv10") && m.includes(".sauter(-10)") && m.includes(".sauter(10)"), "barre de navigation au-dessus et en dessous : ±1 page et ±10 pages");
+assert.ok(m.includes("function sauter(n)") && m.includes("tournerUne(sens,300,!dernier)") && m.includes("Math.min(Math.abs(n),sens>0?nbPages()-1-page:page)"), "un saut de 10 pages = 10 feuilles tournées à la file (0,3 s), arrêt à la première ou à la dernière page");
+assert.ok(m.includes("sauter:sauter"), "saut exposé");
 // fichiers chargés
 assert.ok(/soreal-idle-album\.css\?v=\d+/.test(i) && /album-cartes-v1\.js\?v=\d+/.test(i), "fichiers chargés");
 assert.ok(kc.includes("touch-action:pan-y"), "défilement vertical du texte conservé (rotation de la grande carte)");

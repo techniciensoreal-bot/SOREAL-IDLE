@@ -8,7 +8,7 @@
  * Un clic sur une carte : elle sort de sa pochette par le haut et vole au centre de l'écran en grandissant (fiche zoomée qu'on fait tourner). Les boutons ‹ › (ou un glissement du doigt) tournent la feuille autour des anneaux (deux faces : cartes devant, dos derrière).
  * Les cartes gagnées depuis la dernière visite s'annoncent PAGE PAR PAGE (9 au plus) : à « Ranger », elles se rejoignent en paquet puis partent UNE PAR UNE, la suivante seulement quand la précédente est rangée : chacune vole devant la fente de sa pochette et s'y glisse, sous le plastique. Sans flou.
  * Aucune animation avec « réduire les animations ».
- *   window.__SOREAL_IDLE_ALBUM_V1__ = { rendre(entrees) -> html, ouvrir(numero, element), page(sens), ouvrirLivre(), fermerLivre(), nouvelles(), ranger() }
+ *   window.__SOREAL_IDLE_ALBUM_V1__ = { rendre(entrees) -> html, ouvrir(numero, element), page(sens), sauter(n), ouvrirLivre(), fermerLivre(), nouvelles(), ranger() }
  */
 (function(){
 'use strict';
@@ -73,21 +73,26 @@ function dosHtmlPochette(i){
   return '<div class="alb-pochette alb-pochette-dos" aria-hidden="true" style="grid-row:'+(r+1)+';grid-column:'+(c+1)+'">'+
     '<div class="alb-carte alb-carte-mtg">'+(C&&C.dosSeul?C.dosSeul():'')+'</div><div class="alb-plastique"></div></div>';
 }
-function nbDos(r){return r<=0?PIECES:cartesDePage(r).length;}   /* le dos de la feuille r : 9 pour le dessin, sinon autant que de cartes */
+function nbDos(r){return r<=0?nbPieces():cartesDePage(r).length;}   /* le dos de la feuille r : autant de dos que de cartes débloquées sur sa face (Norman : « je n'ai que 3 cartes du dessin, donc 3 dos ») */
 function dosHtml(r){var h='',i,n=nbDos(r);for(i=0;i<n;i++)h+=dosHtmlPochette(i);return h;}
 function droiteHtml(r){return r<=0?puzzleHtml():cartesDePage(r).map(pochetteHtml).join('');}
 function gaucheHtml(r){return r<=0?'':dosHtml(r-1);}   /* à gauche : le dos de la feuille d'avant ; avant le dessin, l'intérieur de la couverture */
 
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-function navHtml(){
+var CHEV_GG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4 3 12l8 8M20 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var CHEV_DD='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4l8 8-8 8M4 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+/* Navigation (Norman, 2026-10-29 : « on doit pouvoir changer de page au-dessus et en dessous ; une flèche pour avancer de 1 page, une pour avancer de 10 pages ; une animation de 10 pages ») : la même barre au-dessus et en dessous du livre. */
+function navHtml(pos){
   if(!ouvert)return '';
-  var n=nbPages();
-  return '<div class="alb-nav">'+
-    '<button type="button" class="alb-bouton alb-prec" aria-label="Page précédente" '+(page<=0?'disabled ':'')+'onclick="window.__SOREAL_IDLE_ALBUM_V1__.page(-1)">'+CHEV_G+'</button>'+
+  var n=nbPages(),A='window.__SOREAL_IDLE_ALBUM_V1__';
+  return '<div class="alb-nav alb-nav-'+(pos==='haut'?'haut':'bas')+'">'+
+    '<button type="button" class="alb-bouton alb-prec10" aria-label="Reculer de 10 pages" title="−10" '+(page<=0?'disabled ':'')+'onclick="'+A+'.sauter(-10)">'+CHEV_GG+'</button>'+
+    '<button type="button" class="alb-bouton alb-prec" aria-label="Page précédente" '+(page<=0?'disabled ':'')+'onclick="'+A+'.page(-1)">'+CHEV_G+'</button>'+
     '<span class="alb-numero"><span>Page</span> <b>'+(page+1)+'</b> / <b>'+n+'</b></span>'+
-    '<button type="button" class="alb-bouton alb-suiv" aria-label="Page suivante" '+(page>=n-1?'disabled ':'')+'onclick="window.__SOREAL_IDLE_ALBUM_V1__.page(1)">'+CHEV_D+'</button>'+
-    '<button type="button" class="alb-fermer" onclick="window.__SOREAL_IDLE_ALBUM_V1__.fermerLivre()">Fermer le classeur</button>'+
+    '<button type="button" class="alb-bouton alb-suiv" aria-label="Page suivante" '+(page>=n-1?'disabled ':'')+'onclick="'+A+'.page(1)">'+CHEV_D+'</button>'+
+    '<button type="button" class="alb-bouton alb-suiv10" aria-label="Avancer de 10 pages" title="+10" '+(page>=n-1?'disabled ':'')+'onclick="'+A+'.sauter(10)">'+CHEV_DD+'</button>'+
+    (pos==='haut'?'':'<button type="button" class="alb-fermer" onclick="'+A+'.fermerLivre()">Fermer le classeur</button>')+
   '</div>';
 }
 /* La couverture : farde noire, le logo du jeu dans sa pochette en plastique ; deux faces (le dehors, l'intérieur noir) pour pivoter autour des anneaux. */
@@ -114,15 +119,17 @@ function rendre(entrees){
   derniereVue=maintenant;
   page=Math.min(page,nbPages()-1);
   setTimeout(verifierNouvelles,500);
-  return '<div class="alb-classeur'+(ouvert?' alb-ouvert':'')+'">'+livreHtml()+navHtml()+'</div>';
+  return '<div class="alb-classeur'+(ouvert?' alb-ouvert':'')+'">'+navHtml('haut')+livreHtml()+navHtml('bas')+'</div>';
 }
 try{setInterval(function(){var c=document.querySelector('.alb-classeur');if(c&&c.offsetParent)derniereVue=Date.now();},600);}catch(_e){}
-function refaire(){var c=document.querySelector('.alb-classeur');if(c)c.innerHTML=livreHtml()+navHtml();}
+function refaire(){var c=document.querySelector('.alb-classeur');if(c)c.innerHTML=navHtml('haut')+livreHtml()+navHtml('bas');}
 function majNav(){
-  var nav=document.querySelector('.alb-classeur .alb-nav');if(!nav)return;
-  var n=nbPages(),b=nav.querySelectorAll('b');
-  nav.querySelector('.alb-prec').disabled=page<=0;nav.querySelector('.alb-suiv').disabled=page>=n-1;
-  if(b.length>1){b[0].textContent=String(page+1);b[1].textContent=String(n);}
+  var navs=document.querySelectorAll('.alb-classeur .alb-nav'),n=nbPages();
+  [].forEach.call(navs,function(nav){
+    var b=nav.querySelectorAll('b'),pr=nav.querySelector('.alb-prec'),su=nav.querySelector('.alb-suiv'),p10=nav.querySelector('.alb-prec10'),s10=nav.querySelector('.alb-suiv10');
+    if(pr)pr.disabled=page<=0;if(p10)p10.disabled=page<=0;if(su)su.disabled=page>=n-1;if(s10)s10.disabled=page>=n-1;
+    if(b.length>1){b[0].textContent=String(page+1);b[1].textContent=String(n);}
+  });
 }
 function remplirPages(){
   var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille'),g=document.querySelector('.alb-classeur .alb-page-g .alb-feuille');
@@ -153,7 +160,7 @@ function ouvrirLivre(p){
     var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
     remplirPages();
     cl.classList.add('alb-ouvert');
-    if(!cl.querySelector('.alb-nav'))cl.insertAdjacentHTML('beforeend',navHtml());
+    if(!cl.querySelector('.alb-nav')){cl.insertAdjacentHTML('afterbegin',navHtml('haut'));cl.insertAdjacentHTML('beforeend',navHtml('bas'));}
     if(vite){majNav();ok();return;}
     tourne=true;
     couv.style.display='block';couv.style.zIndex='7';
@@ -163,8 +170,9 @@ function ouvrirLivre(p){
       ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
       :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
       {duration:DUREE,easing:EASE,fill:'forwards'});
-    if(deux)livre.animate([{transform:'translateX(-25%)'},{transform:'translateX(0)'}],{duration:DUREE,easing:EASE});
-    if(cuir)cuir.animate([{opacity:0},{opacity:1}],{duration:DUREE*.8,easing:'ease-out'});
+    var gauche=cl.querySelector('.alb-page-g');   /* la page de gauche ne se voit qu'une fois la couverture passée dessus (exactement la fermeture, à l'envers) */
+    if(deux&&gauche)gauche.animate([{visibility:'hidden'},{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},{visibility:'visible'}],{duration:DUREE,easing:EASE});
+    if(cuir)cuir.animate([{opacity:0},{opacity:1}],{duration:DUREE,easing:EASE});
     fin(a).then(function(){couv.style.display='';couv.style.zIndex='';try{couv.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}tourne=false;ok();});
   });
 }
@@ -174,7 +182,7 @@ function fermerLivre(){
     if(!ouvert||tourne||!cl){ok();return;}
     var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
     var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
-    var nav=cl.querySelector('.alb-nav');if(nav&&nav.parentNode)nav.parentNode.removeChild(nav);
+    [].forEach.call(cl.querySelectorAll('.alb-nav'),function(nav){if(nav.parentNode)nav.parentNode.removeChild(nav);});
     page=0;remplirPages();                       /* le livre se referme sur sa première feuille */
     ouvert=false;
     if(vite){cl.classList.remove('alb-ouvert');ok();return;}
@@ -186,11 +194,12 @@ function fermerLivre(){
       ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
       :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
       {duration:DUREE,easing:EASE,fill:'forwards'});
-    if(deux)livre.animate([{transform:'translateX(0)'},{transform:'translateX(-25%)'}],{duration:DUREE,easing:EASE,fill:'forwards'});
-    if(cuir)cuir.animate([{opacity:1},{opacity:0}],{duration:DUREE,easing:'ease-in',fill:'forwards'});
+    var gauche=cl.querySelector('.alb-page-g');
+    if(deux&&gauche)gauche.animate([{visibility:'visible'},{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},{visibility:'hidden'}],{duration:DUREE,easing:EASE,fill:'forwards'});
+    if(cuir)cuir.animate([{opacity:1},{opacity:0}],{duration:DUREE,easing:EASE,fill:'forwards'});
     fin(a).then(function(){
       cl.classList.remove('alb-ouvert');couv.style.display='';couv.style.zIndex='';
-      try{couv.getAnimations().forEach(function(x){x.cancel();});livre.getAnimations().forEach(function(x){x.cancel();});if(cuir)cuir.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}
+      try{couv.getAnimations().forEach(function(x){x.cancel();});if(gauche)gauche.getAnimations().forEach(function(x){x.cancel();});if(cuir)cuir.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}
       tourne=false;ok();
     });
   });
@@ -201,58 +210,81 @@ function cliquerGauche(){if(ouvert&&page===0)fermerLivre();}   /* l'intérieur d
  * Tourner la feuille. Une feuille a DEUX faces : devant, la page ; derrière, le dos de ses cartes (la future page de gauche). Elle pivote autour des anneaux (le bord gauche de la page de droite), se lève vers le lecteur au milieu du mouvement, projette son ombre sur les pages,
  * puis retombe à gauche (PC) ; en arrière, c'est le mouvement inverse. Sur téléphone (pas de page de gauche) la feuille pivote puis s'efface vers la gauche.
  */
-function page_(sens){
-  if(tourne||!ouvert)return;
-  var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
-  if(!livre)return;
-  var p=page,q=p+(sens<0?-1:1);
-  if(q<0||q>=nbPages())return;
-  var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
-  var deux=livre.classList.contains('alb-double');
-  if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);setTimeout(verifierPage,450);return;}
-  tourne=true;
-  var avant=sens>0?droiteHtml(p):droiteHtml(q),arriere=sens>0?dosHtml(p):dosHtml(q);
-  var feuille=document.createElement('div');
-  feuille.className='alb-feuille-tournante';feuille.setAttribute('data-morph-garder','');feuille.setAttribute('aria-hidden','true');
-  feuille.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
-  feuille.innerHTML='<div class="alb-face alb-face-avant alb-page"><div class="alb-feuille">'+avant+'</div><i class="alb-ombre"></i></div>'+
-                    '<div class="alb-face alb-face-arriere alb-page"><div class="alb-feuille">'+arriere+'</div><i class="alb-ombre"></i></div>';
-  var ombreD=document.createElement('i'),ombreG=document.createElement('i');
-  ombreD.className='alb-ombre-sol alb-ombre-sol-d';ombreG.className='alb-ombre-sol alb-ombre-sol-g';
-  pd.appendChild(ombreD);if(deux)pg.appendChild(ombreG);
-  var termine=function(){
-    tourne=false;page=q;
-    [ombreD,ombreG,feuille].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
-    majNav();
-    setTimeout(verifierPage,450);                       /* les cartes de la nouvelle page s'annoncent, puis se rangent */
+function tournerUne(sens,D,silencieux){
+  return new Promise(function(ok){
+    if(tourne||!ouvert){ok(false);return;}
+    var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
+    if(!livre){ok(false);return;}
+    var p=page,q=p+(sens<0?-1:1);
+    if(q<0||q>=nbPages()){ok(false);return;}
+    var E=D<DUREE?'cubic-bezier(.4,0,.55,1)':EASE;
+    var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
+    var deux=livre.classList.contains('alb-double');
+    if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);if(!silencieux)setTimeout(verifierPage,450);ok(true);return;}
+    tourne=true;
+    var avant=sens>0?droiteHtml(p):droiteHtml(q),arriere=sens>0?dosHtml(p):dosHtml(q);
+    var feuille=document.createElement('div');
+    feuille.className='alb-feuille-tournante';feuille.setAttribute('data-morph-garder','');feuille.setAttribute('aria-hidden','true');
+    feuille.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
+    feuille.innerHTML='<div class="alb-face alb-face-avant alb-page"><div class="alb-feuille">'+avant+'</div><i class="alb-ombre"></i></div>'+
+                      '<div class="alb-face alb-face-arriere alb-page"><div class="alb-feuille">'+arriere+'</div><i class="alb-ombre"></i></div>';
+    var ombreD=document.createElement('i'),ombreG=document.createElement('i');
+    ombreD.className='alb-ombre-sol alb-ombre-sol-d';ombreG.className='alb-ombre-sol alb-ombre-sol-g';
+    pd.appendChild(ombreD);if(deux)pg.appendChild(ombreG);
+    var termine=function(){
+      tourne=false;page=q;
+      [ombreD,ombreG,feuille].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
+      majNav();
+      if(!silencieux)setTimeout(verifierPage,450);       /* les cartes de la nouvelle page s'annoncent, puis se rangent */
+      ok(true);
+    };
+    var ombresFace=feuille.querySelectorAll('.alb-ombre'),facesAV=feuille.querySelector('.alb-face-avant'),facesAR=feuille.querySelector('.alb-face-arriere');
+    try{
+      var anim;
+      if(sens>0){
+        fd.innerHTML=droiteHtml(q);                     /* dessous : la page suivante, déjà en place */
+        livre.appendChild(feuille);basculer(facesAV,facesAR,true,D,E);
+        anim=feuille.animate(deux
+          ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
+          :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
+          {duration:D,easing:E,fill:'forwards'});
+        [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
+        ombreD.animate([{opacity:.65},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
+        if(deux)ombreG.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.6,offset:.8},{opacity:0}],{duration:D,fill:'forwards'});
+        anim.onfinish=function(){if(deux)fg.innerHTML=gaucheHtml(q);termine();};
+      }else{
+        if(deux)fg.innerHTML=gaucheHtml(q);             /* dessous (à gauche) : la page d'avant, révélée quand la feuille se lève */
+        livre.appendChild(feuille);basculer(facesAV,facesAR,false,D,E);
+        anim=feuille.animate(deux
+          ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
+          :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
+          {duration:D,easing:E,fill:'forwards'});
+        [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
+        ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:D,fill:'forwards'});
+        if(deux)ombreG.animate([{opacity:.6},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
+        anim.onfinish=function(){fd.innerHTML=droiteHtml(q);termine();};
+      }
+    }catch(_e){page=q;termine();afficher(q);}
+  });
+}
+function page_(sens){if(saut)return;return tournerUne(sens,DUREE,false);}
+/*
+ * Sauter de plusieurs pages (Norman, 2026-10-29 : « une flèche pour avancer de 10 pages ; on doit voir une animation de 10 pages ») : les feuilles se tournent à la file, vite (0,3 s chacune), l'une après l'autre ; seule la dernière page atteinte annonce ses nouvelles cartes.
+ * Un saut qui dépasse le début ou la fin s'arrête à la première ou à la dernière page.
+ */
+var saut=false;
+function sauter(n){
+  if(tourne||saut||!ouvert)return;
+  var sens=n<0?-1:1,total=Math.min(Math.abs(n),sens>0?nbPages()-1-page:page);
+  if(total<=0)return;
+  if(total===1){page_(sens);return;}
+  saut=true;
+  var i=0,boucle=function(){
+    if(i>=total){saut=false;return;}
+    var dernier=(i===total-1);i++;
+    tournerUne(sens,300,!dernier).then(function(fait){if(!fait){saut=false;return;}boucle();});
   };
-  var ombresFace=feuille.querySelectorAll('.alb-ombre'),facesAV=feuille.querySelector('.alb-face-avant'),facesAR=feuille.querySelector('.alb-face-arriere');
-  try{
-    var anim;
-    if(sens>0){
-      fd.innerHTML=droiteHtml(q);                       /* dessous : la page suivante, déjà en place */
-      livre.appendChild(feuille);basculer(facesAV,facesAR,true,DUREE,EASE);
-      anim=feuille.animate(deux
-        ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
-        :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
-        {duration:DUREE,easing:EASE,fill:'forwards'});
-      [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:DUREE,easing:EASE});});
-      ombreD.animate([{opacity:.65},{opacity:0}],{duration:DUREE*.75,easing:'ease-out',fill:'forwards'});
-      if(deux)ombreG.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.6,offset:.8},{opacity:0}],{duration:DUREE,fill:'forwards'});
-      anim.onfinish=function(){if(deux)fg.innerHTML=gaucheHtml(q);termine();};
-    }else{
-      if(deux)fg.innerHTML=gaucheHtml(q);               /* dessous (à gauche) : la page d'avant, révélée quand la feuille se lève */
-      livre.appendChild(feuille);basculer(facesAV,facesAR,false,DUREE,EASE);
-      anim=feuille.animate(deux
-        ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
-        :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
-        {duration:DUREE,easing:EASE,fill:'forwards'});
-      [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:DUREE,easing:EASE});});
-      ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:DUREE,fill:'forwards'});
-      if(deux)ombreG.animate([{opacity:.6},{opacity:0}],{duration:DUREE*.75,easing:'ease-out',fill:'forwards'});
-      anim.onfinish=function(){fd.innerHTML=droiteHtml(q);termine();};
-    }
-  }catch(_e){page=q;termine();afficher(q);}
+  boucle();
 }
 
 /* ---------- le clic : la carte sort de sa pochette et vient en zoom ---------- */
@@ -420,5 +452,5 @@ window.addEventListener('resize',function(){
   },200);
 });
 
-window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
+window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,sauter:sauter,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
 })();

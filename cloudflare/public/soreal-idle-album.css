@@ -21,7 +21,6 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* le livre : une page (téléphone : la page de droite) ou deux (PC) ; la feuille qui tourne vit dans sa perspective */
 .alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;border-radius:8px}
 .alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr))}
-.alb-classeur:not(.alb-ouvert) .alb-livre.alb-double{transform:translateX(-25%)}   /* fermé, la couverture (moitié droite) est centrée */
 .alb-page-g{display:none}
 .alb-double .alb-page-g{display:block}
 .alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}
@@ -33,11 +32,35 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* la feuille : 9 pochettes, 3 colonnes x 3 rangées */
 .alb-feuille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;gap:var(--alb-gap,10px);align-content:start}
 /* les trois anneaux : au milieu (PC) ou sur le bord gauche de la page (téléphone) */
-.alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%);width:clamp(40px,8vw,58px);pointer-events:none;z-index:8;
+.alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%);width:clamp(40px,8vw,58px);pointer-events:none;z-index:5;
   background:var(--alb-anneau) center 11%/100% auto no-repeat,var(--alb-anneau) center 50%/100% auto no-repeat,var(--alb-anneau) center 89%/100% auto no-repeat;
   filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.6))}
 .alb-livre.alb-double::before{left:50%}
-.alb-livre{--alb-anneau:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23f7f9fb'/><stop offset='.45' stop-color='%23a3a9b1'/><stop offset='1' stop-color='%23e1e5e9'/></linearGradient></defs><circle cx='28' cy='28' r='19' fill='%23050507' stroke='%23d8b377' stroke-opacity='.4' stroke-width='2'/><circle cx='28' cy='28' r='15' fill='none' stroke='%23000' stroke-opacity='.6' stroke-width='4'/><rect x='2.5' y='21.5' width='51' height='13' rx='6.5' fill='url(%23g)' stroke='%2559606a' stroke-width='1.2'/><rect x='9' y='26' width='38' height='4' rx='2' fill='%23221207' fill-opacity='.6'/></svg>")}
+/* livre fermé : l'anneau seul (pas de trou noir : la couverture est pleine), posé sur le bord de la couverture ; dès qu'il s'ouvre l'anneau repasse sous les feuilles qui tournent */
+.alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:8;background:var(--alb-anneau-seul) center 11%/100% auto no-repeat,var(--alb-anneau-seul) center 50%/100% auto no-repeat,var(--alb-anneau-seul) center 89%/100% auto no-repeat}
+.alb-livre{--alb-anneau-seul:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23f7f9fb'/><stop offset='.45' stop-color='%23a3a9b1'/><stop offset='1' stop-color='%23e1e5e9'/></linearGradient></defs><rect x='2.5' y='21.5' width='51' height='13' rx='6.5' fill='url(%23g)' stroke='%2559606a' stroke-width='1.2'/><rect x='9' y='26' width='38' height='4' rx='2' fill='%23221207' fill-opacity='.6'/></svg>");--alb-anneau:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23f7f9fb'/><stop offset='.45' stop-color='%23a3a9b1'/><stop offset='1' stop-color='%23e1e5e9'/></linearGradient></defs><rect x='2.5' y='21.5' width='51' height='13' rx='6.5' fill='url(%23g)' stroke='%2559606a' stroke-width='1.2'/><rect x='9' y='26' width='38' height='4' rx='2' fill='%23221207' fill-opacity='.6'/></svg>")}
+/*
+ * La languette (Norman, 2026-10-29 : « il faut aussi la languette tout du long, avec les trous dans lesquels on met les anneaux ») : le long du dos de chaque page (et de chaque face de la feuille qui tourne), une bande perforée sur toute la hauteur, avec un trou à l'endroit de chaque anneau.
+ * L'anneau passe par les deux trous, de part et d'autre du dos. Livre fermé : pas de page, donc l'anneau seul.
+ */
+.alb-classeur{--alb-lang:clamp(20px,3.2vw,30px)}
+.alb-page-d,.alb-feuille-tournante .alb-face-avant{padding-left:var(--alb-lang)}
+.alb-page-g,.alb-feuille-tournante .alb-face-arriere{padding-right:var(--alb-lang)}
+.alb-page-d::before,.alb-feuille-tournante .alb-face-avant::before,.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere::after{content:"";position:absolute;top:0;bottom:0;width:var(--alb-lang);pointer-events:none;
+  --alb-r:calc(var(--alb-lang) * .34);
+  background:
+    radial-gradient(circle at 50% 11%,#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% 89%,#030304 0 var(--alb-r),rgba(255,255,255,.16) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    linear-gradient(90deg,#171a24,#232836)}
+.alb-page-d::before,.alb-feuille-tournante .alb-face-avant::before{left:0;border-radius:0;border-right:1px dashed rgba(255,255,255,.14)}
+.alb-page-g::after,.alb-feuille-tournante .alb-face-arriere::after{right:0;border-left:1px dashed rgba(255,255,255,.14)}
+.alb-feuille-tournante .alb-face-avant::before{border-radius:0}
+.alb-page-g:has(.alb-feuille:empty)::after{background:
+    radial-gradient(circle at 50% 11%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% 89%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    linear-gradient(90deg,#0d0d11,#16161b)}
 /* la couverture : farde noire, logo du jeu dans sa pochette en plastique ; elle recouvre la moitié droite (PC) ou toute la page (téléphone), pivote autour des anneaux */
 .alb-couverture{position:absolute;top:0;bottom:0;left:0;right:0;cursor:pointer;z-index:6;transform-origin:0 50%;transform-style:preserve-3d;-webkit-tap-highlight-color:transparent}
 .alb-livre.alb-double .alb-couverture{left:50%}
@@ -118,3 +141,4 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-vol-carte{position:fixed;margin:0;will-change:transform;contain:layout paint;box-shadow:0 10px 18px rgba(0,0,0,.5);border-radius:6%;backface-visibility:hidden}
 /* une seule page (téléphone, fenêtre étroite) : la page garde la taille d'une page de classeur, jamais la largeur de l'écran */
 .alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
+.alb-nav-haut{margin:0 0 10px}
