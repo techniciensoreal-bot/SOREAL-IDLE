@@ -2182,9 +2182,10 @@
           if(!s.occupe){
             /* Case vide : l'image de l'objet à placer, grisée (Norman, 2026-10-25 : « il y a déjà l'image de l'objet qu'on doit placer, mais grisée quand il n'est pas là »). Seuls les objets déjà découverts ont une case (anti-spoil inchangé). */
             const fantome={set:s.set,slot:s.slot,name:s.name,level:100,definitionId:s.definitionId,wikiItemId:s.wikiItemId};
-            return '<div class="soreal-idle-collection-card-v1 vide-coffre-v1">'+boutonFiltre(s)+
+            /* Plus de nom écrit sur la case (Norman, 2026-10-29 : « les noms des équipements cachent l'image ; on clique sur l'objet pour connaître son nom ») : un clic l'affiche (message flottant). */
+            return '<div class="soreal-idle-collection-card-v1 vide-coffre-v1" data-nom-v1="'+idleHtml_(s.name)+'" aria-label="'+idleHtml_(s.name)+'" title="Clique pour connaître le nom de l’objet" '+
+              'onclick="window.__SOREAL_IDLE_REG__.messageFlottantIdleV32_(this.getAttribute(\'data-nom-v1\'))">'+boutonFiltre(s)+
               '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(fantome)+'</div>'+
-              '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
             '</div>';
           }
           const item=s.item||{};
@@ -2194,13 +2195,12 @@
           enregistrerObjetPopupIdleV1_(clePopup,Object.assign({},item,{name:item.name||s.name}),'coffre');
           return '<div class="soreal-idle-collection-card-v1 maxed'+(rareteClasse?' '+rareteClasse:'')+'" '+
             'data-popup-objet-v1="'+idleHtml_(clePopup)+'" '+
-            'onclick="window.__consulterObjetIdleV1__(\''+idleHtml_(clePopup)+'\',this)" '+
-            'title="Clique pour voir les statistiques (et reprendre l’objet dans l’inventaire)">'+
-            /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 », le ✔ et le nom (par-dessus l'image) restent. */
+            'onclick="window.__consulterObjetIdleV1__(\''+idleHtml_(clePopup)+'\',this)" aria-label="'+idleHtml_(s.name)+'" '+
+            'title="Clique pour voir le nom et les statistiques (et reprendre l’objet dans l’inventaire)">'+
+            /* Coffre épuré (Norman, 2026-10-02) : l'image prend toute la case ; seuls « 100 » et le ✔ restent, plus le nom (2026-10-29 : il cachait l'image ; la fiche s'ouvre au clic). */
             '<div class="soreal-idle-collection-check-v1" title="Niveau maximum">✔</div>'+boutonFiltre(s)+
             '<div class="soreal-idle-collection-card-icon-v1">'+iconeBaseObjetAdventureIdleV138_(pseudoItem)+'</div>'+
             '<div class="soreal-idle-collection-card-level-v1" title="Niveau 100/100">100</div>'+
-            '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(s.name)+'</div>'+
           '</div>';
         }
         const LIGNE_ARMURE={head:1,chest:2,legs:3,boots:4};

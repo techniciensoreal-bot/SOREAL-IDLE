@@ -42,9 +42,22 @@ function etoilesHtml_(){
    * (toutes les quelques secondes), dont 60 animés. Maintenant : les étoiles FIXES (la grande majorité) sont UNE seule image (SVG en fond d'une tuile, dessinée une fois puis réutilisée) ; seules 40 étoiles
    * sont de vrais éléments, animés en opacité / échelle uniquement (compositeur), dans un conteneur isolé (contain) qui n'oblige jamais la page à se remettre en page ni à se repeindre.
    */
+  /*
+   * Apparition en fondu et scintillement (Norman, 2026-10-29 : « les étoiles doivent apparaître en fondu quand on met de la magie, et elles doivent scintiller ») : chaque niveau de lumière est une couche (<u class="nl-niv nK">) dont l'opacité passe de 0 à 1 en douceur quand le niveau est atteint
+   * (au lieu d'apparaître d'un coup) ; elle porte trois groupes de la tuile fixe (<i>), chacun avec son propre scintillement (durée et décalage propres), et les étoiles individuelles de son niveau (8, 8, 12 et 12). Tout reste en opacité / échelle (compositeur).
+   */
+  var bornes=[[0,8],[8,16],[16,28],[28,40]],etoiles=[];
   for(var i=0;i<40;i+=1){
     var x=suite()*100,y=suite()*100,t=7+Math.round(suite()*9);
-    sortie+='<b style="--i:'+i+';--d:'+(3.2+((i*37)%50)/10).toFixed(1)+'s;--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"></b>';
+    etoiles.push('<b style="--i:'+i+';--d:'+(3.2+((i*37)%50)/10).toFixed(1)+'s;--x:'+x.toFixed(1)+'%;--y:'+y.toFixed(1)+'%;--s:'+t+'px"></b>');
+  }
+  for(var k=0;k<4;k+=1){
+    var groupes='';
+    for(var g=0;g<3;g+=1){
+      var n=k*3+g;
+      groupes+='<i class="g'+g+'" style="--d:'+(3.1+((n*53)%37)/10).toFixed(1)+'s;animation-delay:-'+(((n*29)%47)/10).toFixed(1)+'s"></i>';
+    }
+    sortie+='<u class="nl-niv n'+(k+1)+'">'+groupes+etoiles.slice(bornes[k][0],bornes[k][1]).join('')+'</u>';
   }
   return '<span class="nl-etoiles" aria-hidden="true">'+sortie+'</span>';
 }
@@ -56,24 +69,41 @@ var ASTRES='<span class="nl-arc" aria-hidden="true"></span><span class="nl-astre
  * de largeur, de hauteur et d'éclat irréguliers (bord haut ondulé, dégradé vers le bas). Les vagues ont un nombre ENTIER de cycles sur 1200 px : la tuile se répète sans raccord et la dérive boucle exactement.
  */
 function auroreUri_(graine, rubans) {
+  /*
+   * Rideaux (Norman, 2026-10-29 : « les aurores boréales doivent ressembler à ça ; elles sont trop rectilignes ») : plus de bandes verticales droites. Chaque couche est faite de rayons COURBES (courbe de Bézier en S, qui dérive latéralement selon une onde lente), larges et flous (le rideau),
+   * avec par-dessus quelques fils lumineux fins ; une enveloppe d'un nombre entier de cycles dessine de vrais rideaux séparés par des vides ; vif en bas (la couleur de pied), bleu-violet en haut qui s'efface. La tuile (1200 px) se répète sans raccord : les rayons de bord sont dessinés aussi de l'autre côté.
+   */
   var a = graine;
   function suite() { a = (a * 9301 + 49297) % 233280; return a / 233280; }
-  var defs = '', corps = '';
+  var TAU = 2 * Math.PI, defs = '<filter id="fl" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="6.5"/></filter><filter id="fm"><feGaussianBlur stdDeviation="1.6"/></filter>', doux = '', net = '';
   rubans.forEach(function (rb, k) {
-    defs += '<linearGradient id="g' + k + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + rb.c + '" stop-opacity="0"/><stop offset=".22" stop-color="' + rb.c + '" stop-opacity="' + rb.o + '"/><stop offset=".6" stop-color="' + rb.c2 + '" stop-opacity="' + (rb.o * 0.75).toFixed(2) + '"/><stop offset="1" stop-color="' + rb.c2 + '" stop-opacity="0"/></linearGradient>';
-    var x = 0;
+    var y0 = Math.max(0, rb.base - rb.amp * 1.4), y1 = Math.min(300, rb.base + rb.hauteur);
+    defs += '<linearGradient id="g' + k + '" gradientUnits="userSpaceOnUse" x1="0" y1="' + y0.toFixed(0) + '" x2="0" y2="' + y1.toFixed(0) + '"><stop offset="0" stop-color="' + rb.c2 + '" stop-opacity="0"/><stop offset=".3" stop-color="' + rb.c2 + '" stop-opacity="' + (rb.o * 0.5).toFixed(2) + '"/><stop offset=".72" stop-color="' + rb.c + '" stop-opacity="' + rb.o + '"/><stop offset="1" stop-color="' + rb.c + '" stop-opacity="0"/></linearGradient>';
+    var kk = Math.max(1, rb.k), phi = rb.ph, x = 0;
     while (x < 1200) {
-      var l = 5 + Math.floor(suite() * 15);
-      if (x + l > 1200) l = 1200 - x;
-      var onde = Math.sin(2 * Math.PI * rb.k * (x / 1200) + rb.ph) * rb.amp + Math.sin(2 * Math.PI * (rb.k + 2) * (x / 1200) + rb.ph * 2) * rb.amp * 0.4;
-      var haut = Math.max(2, rb.base + onde - suite() * rb.dispersion);
-      var bas = Math.min(300, haut + rb.hauteur * (0.6 + suite() * 0.6));
-      var op = (0.35 + suite() * 0.65).toFixed(2);
-      corps += '<rect x="' + x + '" y="' + haut.toFixed(1) + '" width="' + l + '" height="' + (bas - haut).toFixed(1) + '" fill="url(#g' + k + ')" opacity="' + op + '"/>';
-      x += l + Math.floor(suite() * 7);
+      var l = 12 + suite() * 26;
+      var env = Math.max(0, Math.sin(TAU * kk * (x / 1200) + phi)), env2 = Math.max(0, Math.sin(TAU * (kk + 1) * (x / 1200) + phi * 1.7 + 1));
+      var force = Math.pow(Math.max(env, env2 * 0.7), 1.2);
+      if (force > 0.04) {
+        var onde = Math.sin(TAU * kk * (x / 1200) + phi) * rb.amp + Math.sin(TAU * (kk + 2) * (x / 1200) + phi * 2) * rb.amp * 0.45;
+        var ytop = Math.max(2, rb.base + onde - suite() * rb.dispersion * 0.5);
+        var long = rb.hauteur * (0.75 + suite() * 0.7) * (0.6 + force * 0.5) * 1.2;
+        var yb = Math.min(300, ytop + long), h = yb - ytop;
+        var sway = Math.sin(TAU * (kk + 1) * (x / 1200) + phi * 1.3) * 60 + (suite() - 0.5) * 30;
+        var c1 = sway * (-0.25 + suite() * 0.5), c2 = sway * (0.8 + suite() * 0.5), fin = sway * (0.3 + suite() * 0.6);
+        var d = 'M' + x.toFixed(1) + ' ' + ytop.toFixed(1) + 'C' + (x + c1).toFixed(1) + ' ' + (ytop + h * 0.3).toFixed(1) + ' ' + (x + c2).toFixed(1) + ' ' + (ytop + h * 0.68).toFixed(1) + ' ' + (x + fin).toFixed(1) + ' ' + yb.toFixed(1);
+        var op = (force * (0.4 + suite() * 0.6)).toFixed(2);
+        var chemin = function (dx, larg, opa) { return '<path d="' + d.replace(/(-?\d+\.?\d*) (-?\d+\.?\d*)/g, function (m, px, py) { return (Number(px) + dx).toFixed(1) + ' ' + py; }) + '" stroke="url(#g' + k + ')" stroke-width="' + larg.toFixed(1) + '" opacity="' + opa + '"/>'; };
+        var copies = chemin(0, l, op);
+        if (x < 120) copies += chemin(1200, l, op);
+        if (x > 1060) copies += chemin(-1200, l, op);
+        doux += copies;
+        if (suite() < 0.16) { var lg = 2.2 + suite() * 3.4, oo = Math.min(1, Number(op) * 1.7).toFixed(2); net += chemin(0, lg, oo) + (x < 120 ? chemin(1200, lg, oo) : '') + (x > 1060 ? chemin(-1200, lg, oo) : ''); }
+      }
+      x += l * (0.35 + suite() * 0.6);
     }
   });
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"><defs>' + defs + '</defs>' + corps + '</svg>';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"><defs>' + defs + '</defs><g fill="none" stroke-linecap="round"><g filter="url(#fl)">' + doux + '</g><g filter="url(#fm)">' + net + '</g></g></svg>';
   return 'data:image/svg+xml,' + encodeURIComponent(svg);
 }
 var AURORE_A = auroreUri_(11, [
@@ -98,11 +128,12 @@ var CHAUVES_URI=(function(){
  * Étoiles fixes (Norman, 2026-10-10 : « pas d'étoile tant qu'on n'a pas activé la machine ; plus on met de machines en route, plus les étoiles brillent ; le maximum quand toute l'énergie ET la magie sont cap »).
  * Quatre tuiles SVG de 1000 px (50 étoiles chacune) : le ciel en montre 0, 1, 2, 3 ou 4 selon le niveau de lumière (data-nl-niv), et son opacité suit --nl-lueur (0 à 1).
  */
-function tuileEtoilesUri_(graine){
+function tuileEtoilesUri_(graine,groupe){
   var a=graine,svg='<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">';
   function suite(){a=(a*9301+49297)%233280;return a/233280;}
   for(var i=0;i<50;i+=1){
     var x=suite()*1000,y=suite()*1000,u=suite(),r=0.6+u*u*u*5.4,o=(0.35+suite()*0.6).toFixed(2);
+    if(i%3!==groupe)continue;   /* chaque groupe (un tiers des étoiles de la tuile) scintille à son rythme */
     if(r<1.6)svg+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+r.toFixed(1)+'" fill="#fff" fill-opacity="'+o+'"/>';
     else{
       var g=r*1.8,c=function(dx,dy){return (x+dx*g).toFixed(1)+','+(y+dy*g).toFixed(1);};
@@ -111,10 +142,8 @@ function tuileEtoilesUri_(graine){
   }
   return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
 }
-var TUILES_ETOILES=[31,97,173,251].map(tuileEtoilesUri_);
-function fondEtoiles_(k){
-  return TUILES_ETOILES.slice(0,k).map(function(u){return 'url("'+u+'") 0 0/1000px 1000px repeat';}).join(',');
-}
+var TUILES_ETOILES=[31,97,173,251].map(function(graine){return [0,1,2].map(function(g){return tuileEtoilesUri_(graine,g);});});
+function fondGroupe_(niveau,groupe){return 'url("'+TUILES_ETOILES[niveau-1][groupe]+'") 0 0/1000px 1000px repeat';}
 /* Niveau de lumière du ciel : chaque machine (NGU) compte 0 si rien n'y est placé, 1/2 si elle tourne, 1 si elle est CAP (50 niveaux par seconde) ; on fait la moyenne de toutes les machines affichées. */
 function lueurDe_(parts){
   if(!parts.length)return 0;
@@ -237,17 +266,27 @@ var CSS=
   '.nl-eta{margin:2px 0 4px;font-size:12.5px;font-weight:800;color:#cdbcff;letter-spacing:.02em}.nl-eta b{color:#fff}'+
   '.nl-v1>*:not(.nl-etoiles){position:relative;z-index:1}'+
   /* étoiles à quatre branches : lueur (b) + étoile (i), scintillement en opacité / échelle */
-  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:none;opacity:calc(.3 + var(--nl-lueur,0)*.7)}'+
-  '.nl-v1[data-nl-niv="1"] .nl-etoiles{display:block;background:'+fondEtoiles_(1)+'}'+
-  '.nl-v1[data-nl-niv="2"] .nl-etoiles{display:block;background:'+fondEtoiles_(2)+'}'+
-  '.nl-v1[data-nl-niv="3"] .nl-etoiles{display:block;background:'+fondEtoiles_(3)+'}'+
-  '.nl-v1[data-nl-niv="4"] .nl-etoiles{display:block;background:'+fondEtoiles_(4)+'}'+
+  '.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:block;opacity:calc(.3 + var(--nl-lueur,0)*.7);transition:opacity 1.6s ease}'+
+  '.nl-etoiles u{position:absolute;inset:0;opacity:0;transition:opacity 2s ease;text-decoration:none}'+
+  '.nl-v1[data-nl-niv="1"] .nl-etoiles .n1,.nl-v1[data-nl-niv="2"] .nl-etoiles :is(.n1,.n2),.nl-v1[data-nl-niv="3"] .nl-etoiles :is(.n1,.n2,.n3),.nl-v1[data-nl-niv="4"] .nl-etoiles u{opacity:1}'+
+  '.nl-etoiles u i{position:absolute;inset:0}'+
+  '.nl-etoiles .n1 i.g0{background:'+fondGroupe_(1,0)+'}'+
+  '.nl-etoiles .n1 i.g1{background:'+fondGroupe_(1,1)+'}'+
+  '.nl-etoiles .n1 i.g2{background:'+fondGroupe_(1,2)+'}'+
+  '.nl-etoiles .n2 i.g0{background:'+fondGroupe_(2,0)+'}'+
+  '.nl-etoiles .n2 i.g1{background:'+fondGroupe_(2,1)+'}'+
+  '.nl-etoiles .n2 i.g2{background:'+fondGroupe_(2,2)+'}'+
+  '.nl-etoiles .n3 i.g0{background:'+fondGroupe_(3,0)+'}'+
+  '.nl-etoiles .n3 i.g1{background:'+fondGroupe_(3,1)+'}'+
+  '.nl-etoiles .n3 i.g2{background:'+fondGroupe_(3,2)+'}'+
+  '.nl-etoiles .n4 i.g0{background:'+fondGroupe_(4,0)+'}'+
+  '.nl-etoiles .n4 i.g1{background:'+fondGroupe_(4,1)+'}'+
+  '.nl-etoiles .n4 i.g2{background:'+fondGroupe_(4,2)+'}'+
   /* étoiles à quatre branches qui scintillent : de plus en plus nombreuses et lumineuses avec le niveau */
-  '.nl-etoiles b{display:none;position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
-  '.nl-v1[data-nl-niv="1"] .nl-etoiles b:nth-child(-n+8),.nl-v1[data-nl-niv="2"] .nl-etoiles b:nth-child(-n+16),.nl-v1[data-nl-niv="3"] .nl-etoiles b:nth-child(-n+28),.nl-v1[data-nl-niv="4"] .nl-etoiles b{display:block}'+
+  '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
-  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b{animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}'+
-    '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b{animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}.nl-etoiles u i{animation:nlScint var(--d,4s) ease-in-out infinite;will-change:opacity}'+
+    '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}@keyframes nlScint{0%,100%{opacity:1}22%{opacity:.4}41%{opacity:.95}58%{opacity:.28}76%{opacity:.85}}}'+
   /* ---- Jour (NGU d'énergie) : ciel, nuages qui dérivent, soleil ; nuit (NGU de magie) : lune d'Halloween et chauves-souris. Le niveau de lumière (--nl-lueur) règle l'éclat ; à 0 l'astre est éteint. ---- */
   '.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;pointer-events:none;z-index:0;display:none}'+
   '.nl-astre{top:14px;right:6%;width:96px;height:96px}'+

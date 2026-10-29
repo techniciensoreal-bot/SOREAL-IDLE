@@ -19,9 +19,9 @@ assert.ok(src.includes("clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100
 assert.ok(/@keyframes nlEtoile\{0%,60%,100%\{opacity:\.25;transform:scale\(\.6\)\}/.test(src), "scintillement en opacité / échelle (compositeur)");
 assert.ok(src.includes("animation:nlEtoile var(--d,5s)") && !src.includes("6s + var(--i)"), "étoiles : durée de cycle bornée (3,2 à 8,1 s), jamais proportionnelle au rang");
 // Norman (2026-10-10) : pas d'étoile tant qu'aucune machine n'est en route ; plus il y en a (et plus elles sont CAP), plus le ciel est fourni et lumineux ; maximum = énergie ET magie entièrement CAP.
-assert.ok(src.includes("display:none;opacity:calc(.3 + var(--nl-lueur,0)*.7)") && src.includes('.nl-v1[data-nl-niv="4"] .nl-etoiles b{display:block}'), "ciel éteint au niveau 0, lumière et nombre d'étoiles selon le niveau");
+assert.ok(src.includes("display:block;opacity:calc(.3 + var(--nl-lueur,0)*.7);transition:opacity 1.6s ease") && src.includes('.nl-v1[data-nl-niv="4"] .nl-etoiles u{opacity:1}'), "ciel éteint au niveau 0, lumière et nombre d'étoiles selon le niveau");
 assert.ok(!/radial-gradient\(circle at 12% 18%/.test(src), "plus de petits points d'étoiles figés dans le fond");
-for (const k of ["lueurDe_", "nivDe_", "partDe_", "fondEtoiles_"]) assert.ok(src.includes("function " + k), k);
+for (const k of ["lueurDe_", "nivDe_", "partDe_", "fondGroupe_"]) assert.ok(src.includes("function " + k), k);
 const f = new Function("nombre_", src.slice(src.indexOf("function lueurDe_(parts){"), src.indexOf("function partDe_(n){")) + "return {lueurDe_,nivDe_};")((v) => Number(v) || 0);
 assert.equal(f.nivDe_(f.lueurDe_([0, 0, 0])), 0, "rien en route : aucune étoile");
 assert.equal(f.nivDe_(f.lueurDe_([.5, 0, 0, 0, 0, 0, 0, 0])), 1, "une machine : quelques étoiles");

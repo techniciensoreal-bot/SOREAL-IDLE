@@ -40,8 +40,14 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Dans le coffre, les noms des équipements ne sont plus écrits sur les cases : ils cachaient l’image. Clique sur un objet pour connaître son nom.'
+          ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Sous la barre de chaque colonne, le prix en Or du niveau suivant est affiché et se met à jour à chaque niveau gagné.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Dans le NGU de magie, les aurores boréales ont de vrais rideaux courbes et lumineux, au lieu de bandes droites. Les étoiles apparaissent en fondu quand tu places de la magie, et elles scintillent.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Quand tu manges un fruit, on entend la mâche des fruits complets, qui rétrécissent un à un, à tour de rôle ; le fruit qui pousse encore rétrécit seulement jusqu’à disparaître, sans bruit. Quand tu les transformes en graines, seuls les fruits complets se défont en mini particules qui tombent au sol.',
