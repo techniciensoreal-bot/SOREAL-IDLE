@@ -820,6 +820,9 @@ export function timeMachineViewV1(state) {
     speedTarget: Math.max(0, Math.floor(num(d.speedTarget, 0))),
     goldTarget: Math.max(0, Math.floor(num(d.goldTarget, 0))),
     /* Chantier « réactivité » : durée du niveau à 1 Energy / 1 Magic (K) et progression en secondes -> recalcul local au clic. */
+    /* Prix en Or du niveau suivant de chaque piste (Norman, 2026-10-29 : « il faut le prix que coûte un niveau sur la barre ») ; celui de la Magie n'est envoyé qu'une fois Blood Magic débloqué (anti-spoil). */
+    speedGoldCost: tmLevelGoldCost(speedLevel + 1),
+    goldGoldCost: state.systems.bloodMagic?.unlocked ? tmLevelGoldCost(goldLevel + 1) : null,
     speedK: finiOuNullV1(tmLevelSeconds(state, "energy", speedLevel + 1, 1)),
     goldK: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
     speedProgressSeconds: Number.isFinite(speedStep) ? fractionProgressionSecondesV1(d, "speedProgress", speedStep) * speedStep : Math.max(0, num(d.speedProgress, 0)),

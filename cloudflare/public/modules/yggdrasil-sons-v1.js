@@ -81,12 +81,21 @@
       [G.do5,G.mi5,G.sol5,G.do6,G.mi6].forEach(function(f,i){note(c,out,t+i*0.065,f,0.38,0.2,'triangle',2.01);});
       note(c,out,t+0.36,G.sol6,0.6,0.1,'sine',2);
     },
-    manger:function(c,out,t,a){
-      souffle(c,out,t,0.06,'bandpass',1900,1300,1.8,0.9,a);
-      souffle(c,out,t+0.085,0.07,'bandpass',1500,1000,1.8,0.8,a);
-      glisse(c,out,t,150,110,0.07,0.35,'sine');
-      glisse(c,out,t+0.2,330,150,0.12,0.3,'sine');
-      note(c,out,t+0.27,G.mi5,0.3,0.1,'sine',2);
+    /*
+     * Bruit de mâche (Norman, 2026-10-29 : « quand on décide de manger les fruits, il y ait un bruit de mâche ») : option { n, pas } = n coups de mâchoire, un toutes les « pas » secondes (la page en joue un par fruit qui rétrécit). Chaque coup : un craquement humide
+     * (bruit filtré qui descend), un « bloc » étouffé et un son grave de bouche pleine ; tous les trois coups, une déglutition. Rien de musical.
+     */
+    manger:function(c,out,t,a,option){
+      var n=Math.max(1,Math.min(40,Math.floor(Number(option&&option.n)||3)));
+      var pas=Math.max(0.08,Math.min(0.6,Number(option&&option.pas)||0.28));
+      var r=typeof a==='function'?a:Math.random;
+      for(var i=0;i<n;i++){
+        var d=t+i*pas+(r()-0.5)*pas*0.12,g=0.75+r()*0.25;
+        souffle(c,out,d,0.055,'bandpass',1700+r()*600,850,2.2,0.95*g,a);
+        souffle(c,out,d+0.03,0.075,'lowpass',950,320,0.9,0.7*g,a);
+        glisse(c,out,d,170+r()*50,85,0.1,0.34*g,'sine');
+        if(i%3===2)glisse(c,out,d+0.1,150,65,0.16,0.3*g,'sine');
+      }
     },
     recolter:function(c,out,t,a){
       souffle(c,out,t,0.24,'highpass',3800,5200,0.8,0.5,a);

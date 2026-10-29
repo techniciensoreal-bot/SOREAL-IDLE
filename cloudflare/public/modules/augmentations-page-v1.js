@@ -1158,6 +1158,12 @@
         }
         const s=systemeMetaParIdIdleV130_(j,'timeMachine');
         const data=(s&&s.state&&s.state.data)||{};
+        [['vitesse',vue.speedGoldCost],['or',vue.goldGoldCost]].forEach(function(x){
+          const el=document.querySelector('[data-tm-prix="'+x[0]+'"]');
+          if(!el||x[1]==null)return;
+          const texte='🪙 '+nombre(x[1]);
+          if(el.textContent!==texte)el.textContent=texte;
+        });
         [['vitesse',data.speedLevel],['or',data.goldLevel]].forEach(function(x){
           const el=document.querySelector('[data-tm-niveau="'+x[0]+'"]');
           if(!el)return;
@@ -1212,6 +1218,8 @@
           const largeur=Math.max(0,Math.min(100,H.idleNombre_(fill)*100));
           const etaValide=Number.isFinite(Number(etaSecondes));
           const gauche=cle==='vitesse';
+          const prixBrut=cle==='vitesse'?vue.speedGoldCost:vue.goldGoldCost;
+          const prixNiveau=prixBrut!=null&&Number.isFinite(Number(prixBrut))?prixBrut:null;
           const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
           const icone=gauche
             ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#7dff9f" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
@@ -1228,6 +1236,7 @@
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+
               '<div class="tmm-barre"><div class="tmm-rempl" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
+              (prixNiveau!=null?'<div class="tmm-prix" title="Or qu’il faut payer pour gagner le niveau suivant"><i>Niveau suivant</i><b data-tm-prix="'+cle+'">🪙 '+nombre(prixNiveau)+'</b></div>':'')+
               '<div class="tmm-eta" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
                 (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
               '</div>'+

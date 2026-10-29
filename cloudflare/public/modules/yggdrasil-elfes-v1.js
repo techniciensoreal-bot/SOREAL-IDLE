@@ -115,6 +115,8 @@
       '.ygg-secours{font-size:clamp(26px,9cqw,60px);filter:drop-shadow(0 2px 0 rgba(0,0,0,.6));}',
       /* Fruit d'or (20 images de croissance, 561 x 701 environ) : le cadre prend le FORMAT de l'image (4/5, portrait), pas sa résolution. */
       '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
+      /* Décors d'arbres (Norman, 2026-10-29 : « adapte les cadres maintenant que les images ont changé ») : images CARRÉES (1024 x 1024), montrées en entier dans un cadre carré, sur toute la largeur de la carte (le cadre 4/5 en coupait 20 % sur les côtés, feuillage compris). */
+      '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
       /* Porte close : dessin fixe, aucune animation ; seule la classe .ouvre anime (transform et opacité, une fois). */
       '.ygg-porte{position:absolute;inset:0;z-index:4;display:flex;overflow:hidden;pointer-events:none;border-radius:9px;perspective:300px;background:#120f0c;box-shadow:inset 0 0 0 3px #17130f,inset 0 0 0 6px var(--r,#8a8272),inset 0 0 0 8px #17130f;}',
       '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;backface-visibility:hidden;}',
@@ -152,8 +154,12 @@
       '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
       '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
       '.ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}',
+      /* Manger ou récolter (Norman, 2026-10-29) : une couche de copies des fruits, épargnée par le redessin (data-morph-garder), joue l'animation pendant que l'arbre réel est déjà vide. */
+      '.ygg-anim-v1{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}',
+      '.ygg-vitre.ygg-decor .ygg-fruit.ygg-anim-fruit{transition:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}',
+      '.ygg-part{position:absolute;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;pointer-events:none;will-change:transform,opacity}',
       /* Arbre (Norman, 2026-10-29 : « les images du R2 sont des arbres, on oublie la terre ; les fruits sont posés sur l'arbre, de taille normale ») : le décor est l'arbre ; chaque heure de pousse ajoute un fruit sur l'un des 24 emplacements (voir EMPLACEMENTS_). Un fruit mûr a sa taille pleine ; celui de l'heure en cours grossit. Aucune image de terre. */
-      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:15%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) scale(var(--ygg-k,1));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
+      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:13%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) scale(var(--ygg-k,1));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
       /* Aura (Norman, 2026-10-29) : de la couleur du fruit, elle brille de plus en plus avec les heures de pousse, jusqu'à la 24e. */
       '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(72% 56% at 50% 38%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 74%);mix-blend-mode:screen;}',
       '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(2px + var(--ygg-aura-a)*14px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
@@ -272,10 +278,10 @@
   /*
    * L'ARBRE ET SES FRUITS (Norman, 2026-10-29) : le décor (R2 idle/ygg-decors/<fruit>.webp) est un arbre ; plus de terre. Chaque heure RÉELLE de pousse (échelle de 24 h, jamais le temps maximum débloqué) fait pousser un fruit sur l'un des 24 emplacements :
    * à 10 h, dix fruits mûrs ; à 9 h 50, neuf fruits mûrs et un dixième qui pousse encore (aux 5/6 de sa taille). Taille normale (celle de l'image du fruit, idle/ygg-fruits/<fruit>.webp) ; le fruit de l'heure en cours grossit de zéro à la taille pleine.
-   * Les emplacements couvrent le feuillage (x et y en % du cadre portrait 4/5 qui montre le centre du décor carré) ; l'ordre d'apparition est calculé une fois : chaque nouveau fruit se place le plus loin possible des précédents, pour que l'arbre se remplisse partout.
+   * Les emplacements couvrent le feuillage (x et y en % du cadre carré qui montre l'image entière de l'arbre) ; l'ordre d'apparition est calculé une fois : chaque nouveau fruit se place le plus loin possible des précédents, pour que l'arbre se remplisse partout.
    */
   function heuresPousse_(v){return Math.max(0,Math.min(Number(v.growth)||0,24));}
-  var EMPLACEMENTS_=[[62,9],[80,9],[14,21],[30,21],[46,21],[64,21],[82,21],[92,21],[9,33],[22,33],[36,33],[52,33],[70,33],[86,33],[8,45],[18,45],[32,45],[47,45],[78,45],[92,45],[14,57],[28,57],[80,57],[92,57]];
+  var EMPLACEMENTS_=[[60,9],[74,9],[21,21],[34,21],[47,21],[61,21],[76,21],[84,21],[17,33],[28,33],[39,33],[52,33],[66,33],[79,33],[16,45],[24,45],[36,45],[48,45],[72,45],[84,45],[21,57],[32,57],[74,57],[84,57]];
   var ORDRE_=(function(){
     var d=function(a,b){var dx=a[0]-b[0],dy=(a[1]-b[1])*0.8;return Math.sqrt(dx*dx+dy*dy);};
     var reste=EMPLACEMENTS_.slice(),pris=[],i,j,m,best,bi;
@@ -412,6 +418,8 @@
   function porteDe_(id,actif){
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
+      /* l'animation de manger / récolter joue sur les fruits : la porte ne se referme qu'après (animer_ redessine la page à la fin) */
+      if(etat.anim&&etat.anim[id]&&Date.now()<etat.anim[id])return '';
       /* Norman (2026-10-27) : « les portes font un rollback à l'ouverture » : une réponse en retard qui annonce encore le fruit inactif juste après l'activation refermait la porte en pleine ouverture (puis elle se rouvrait). Pendant l'animation d'ouverture, on ne referme jamais : si le fruit est vraiment inactif, la fermeture se joue juste après. */
       if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,true);
       /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
@@ -570,8 +578,64 @@
     for(var i=0;i<d.fruits.length;i++)if(d.fruits[i].def.id===id)return {d:d,v:d.fruits[i]};
     return null;
   }
+  /*
+   * Animation d'usage (Norman, 2026-10-29) : MANGER = les fruits rétrécissent un par un, à tour de rôle, chacun sur un coup de mâchoire (bruit de mâche) ; RÉCOLTER (en graines) = chaque fruit se défait en mini particules qui tombent au sol.
+   * Les copies des fruits vivent dans une couche à part (data-morph-garder) : la réponse du moteur vide l'arbre réel tout de suite, la couche continue seule. Sans fruit visible ou avec « réduire les animations » : seulement le son.
+   */
+  function animer_(id,mode){
+    var recolte=mode==='harvest';
+    var vit=null,imgs=[];
+    try{vit=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-vitre.ygg-decor');imgs=vit?[].slice.call(vit.querySelectorAll('img.ygg-fruit')):[];}catch(_e){imgs=[];}
+    var n=imgs.length;
+    var pas=n?Math.max(0.11,Math.min(0.3,2.6/n)):0.28;
+    if(recolte)son_('recolter');else son_('manger',{n:Math.max(n,3),pas:pas});
+    var reduit=false;try{reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){reduit=false;}
+    if(!vit||!n||reduit||typeof imgs[0].animate!=='function')return;
+    var ov=document.createElement('div');ov.className='ygg-anim-v1';ov.setAttribute('data-morph-garder','');ov.setAttribute('aria-hidden','true');
+    var H=vit.clientHeight||200,couleur=AURAS_[id]||'#ffd34a',teintes=[couleur,couleur,'#ffffff','#ffe9a0'];
+    var fin=0;
+    imgs.forEach(function(img,i){
+      var copie=img.cloneNode(false);copie.classList.add('ygg-anim-fruit');
+      ov.appendChild(copie);img.style.visibility='hidden';
+      var k=parseFloat(img.style.getPropertyValue('--ygg-k'))||1;
+      var base='translate(-50%,-50%) scale(';
+      if(!recolte){
+        var d=i*pas,dur=0.3;
+        copie.animate([{transform:base+k+')',opacity:1},{transform:base+(k*1.08)+')',opacity:1,offset:0.25},{transform:base+'0)',opacity:0}],{duration:dur*1000,delay:d*1000,fill:'both',easing:'ease-in'});
+        fin=Math.max(fin,d+dur);
+      }else{
+        var d0=i*0.05,dur0=0.22;
+        copie.animate([{transform:base+k+')',opacity:1},{transform:base+(k*1.15)+')',opacity:0.9,offset:0.3},{transform:base+(k*0.2)+')',opacity:0}],{duration:dur0*1000,delay:d0*1000,fill:'both',easing:'ease-out'});
+        var x=parseFloat(img.style.getPropertyValue('--ygg-x'))||50,y=parseFloat(img.style.getPropertyValue('--ygg-y'))||40;
+        var sol=H*0.88,haut=y/100*H;
+        for(var j=0;j<11;j++){
+          var p=document.createElement('i');p.className='ygg-part';p.style.left=x+'%';p.style.top=y+'%';p.style.background=teintes[j%teintes.length];
+          var dx=(Math.random()-0.5)*H*0.16,dy=Math.max(10,sol-haut+(Math.random()-0.5)*H*0.07),tomb=0.55+Math.random()*0.5,pose=0.5,delai=d0+0.08+Math.random()*0.14;
+          p.animate([
+            {transform:'translate(0,0)',opacity:0,offset:0},
+            {transform:'translate('+(dx*0.15)+'px,'+(-H*0.02)+'px)',opacity:1,offset:0.08,easing:'cubic-bezier(.5,0,.9,.6)'},
+            {transform:'translate('+dx+'px,'+dy+'px)',opacity:1,offset:tomb/(tomb+pose)*0.92},
+            {transform:'translate('+dx+'px,'+dy+'px)',opacity:1,offset:0.94},
+            {transform:'translate('+dx+'px,'+dy+'px)',opacity:0,offset:1}
+          ],{duration:(tomb+pose)*1000,delay:delai*1000,fill:'both'});
+          ov.appendChild(p);
+          fin=Math.max(fin,delai+tomb+pose);
+        }
+        fin=Math.max(fin,d0+dur0);
+      }
+    });
+    vit.appendChild(ov);
+    var jusqua=Date.now()+fin*1000+120;
+    (etat.anim||(etat.anim={}))[id]=jusqua;
+    setTimeout(function(){
+      if(ov.parentNode)ov.parentNode.removeChild(ov);
+      if(etat.anim&&etat.anim[id]===jusqua)delete etat.anim[id];
+      rafraichir_();
+    },fin*1000+160);
+  }
   function lancerUsage_(id,avecPoop){
     var c=choix_(id);
+    animer_(id,c.mode==='harvest'?'harvest':'eat');
     var payload={action:'useYggFruit',fruit:String(id),mode:c.mode==='harvest'?'harvest':'eat'};
     if(avecPoop)payload.poop=true;
     action_(payload);
@@ -584,7 +648,6 @@
     ameliorer:function(id){son_('ameliorer');action_({action:'upgradeYggFruit',fruit:String(id)});},
     utiliser:function(id){
       var c=choix_(id);var t=trouver_(id);
-      son_(c.mode==='harvest'?'recolter':'manger');
       lancerUsage_(id,Boolean(c.poop&&t&&t.d.poop>0));
       c.poop=false;
     },

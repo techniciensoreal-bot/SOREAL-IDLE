@@ -56,8 +56,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 13,
-  "sha": "b9f750b79d2593c774d3548113884c745ccb023f"
+  "pin": 14,
+  "sha": "782e9e8d83db92aa4a9a69b67076ce2bc181a6ce"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -348,8 +348,8 @@
   "sha": "5980f6e2e519fdd6a0f157b401475c5e1c4c10db"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 89,
-  "sha": "91b2da1996a65de55b422ef861d2ee27f083221b"
+  "pin": 90,
+  "sha": "73c02e88d0e7d7d5c95825bdf16fb36c052e7207"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 1,
@@ -391,6 +391,10 @@
   "pin": 1,
   "sha": "bf0283a01d995620de1d53394fbdbbf05fbb4cd4"
  },
+ "/modules/plein-ecran-v1.js": {
+  "pin": 1,
+  "sha": "25ff8e73ad7cd83e300f0bf50ea681c551b4b4b8"
+ },
  "/modules/prefs-compte-v1.js": {
   "pin": 2,
   "sha": "d6c3e7f360fb69829164bcd7dd7e85c3bb5b73c1"
@@ -416,8 +420,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 509,
-  "sha": "ef707eda7af948a9b0701b93a20212b7744f9fc5"
+  "pin": 512,
+  "sha": "4039b32b9c124786146c9c6ca06b5778553b3939"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -464,8 +468,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 30,
-  "sha": "57abb51867e27483d657d0b24a9ea608b90e3137"
+  "pin": 31,
+  "sha": "00fc1cc7ada082837205e20122c7976779c9385a"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -488,12 +492,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 521,
-  "sha": "f1ad4d3bf07a11c6ed82855a749f0f76e6c9f01b"
+  "pin": 524,
+  "sha": "5c58e36c450cca6de5aaabfa1aba6ceaa6a113ee"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 341,
-  "sha": "e19bd247a4445b8cd69551a8635841e7e761ef83"
+  "pin": 344,
+  "sha": "5908d36043df03fe76718459c00818c8902a7e2b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -528,8 +532,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 9,
-  "sha": "fb02c755ad5418177ec8d3759084338de5bac637"
+  "pin": 10,
+  "sha": "8252ec7deab028e581bc90a4f8c48fa95ccd167a"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 36,
@@ -648,12 +652,12 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 58,
-  "sha": "d59134bfa626fde54fbd043cf66eca1935c1a9fe"
+  "pin": 60,
+  "sha": "484c2d48615c9f0a3f5bac8293de34f7fed857dc"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 15,
-  "sha": "cfc86c5bc59cfce74c0b8059cf98488c7966ec8e"
+  "pin": 16,
+  "sha": "18293cc61c4514bc6e67919ce7df0dda044b2c85"
  },
  "/modules/zones-personnalite-v1.js": {
   "pin": 2,
@@ -676,8 +680,8 @@
   "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
  },
  "/soreal-idle-machine.css": {
-  "pin": 9,
-  "sha": "651b68187f2c77f0049220c0f7248f2ff3b948ed"
+  "pin": 10,
+  "sha": "8857058e812dfe119cd367219c08f4a6d92ac051"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

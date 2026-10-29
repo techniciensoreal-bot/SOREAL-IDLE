@@ -926,8 +926,12 @@
           }
         }catch(_e){tempsRebirth='';}
 
+        /* Bouton plein écran / écran normal (modules/plein-ecran-v1.js) : dernière case de la rangée, PC seulement ; --nb-tuiles réserve sa colonne. */
+        const nbTuiles=4+(apVisible?1:0)+(tempsRebirth?1:0);
+        const boutonPleinEcran='<button type="button" class="soreal-idle-pe-v1" onclick="window.__sorealPleinEcranV1__&amp;&amp;window.__sorealPleinEcranV1__()" title="Plein écran ou écran normal" aria-label="Plein écran ou écran normal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="pe-ent" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="pe-sor" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button>';
+
         return `
-          <div class="soreal-idle-summary-grid-v28">
+          <div class="soreal-idle-summary-grid-v28" style="--nb-tuiles:${nbTuiles}">
             <div class="soreal-idle-summary-v28" data-tuile="attack">
               ⚔️ Attaque
               <b id="sorealIdleSummaryAttackV50">${formatGrandNombreIdleV70_(combat.attaque||j.puissance||0)}</b>
@@ -951,6 +955,7 @@
                 </div>`
               :''}
             ${tempsRebirth}
+            ${boutonPleinEcran}
           </div>
         `;
       }

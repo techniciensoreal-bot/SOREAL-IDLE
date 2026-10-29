@@ -7,7 +7,7 @@ const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 /* Depuis le 2026-10-08, Nombre, Rebirths et Run ont quitté les tuiles (ils sont dans la page Renaissance) : il reste Attaque, Défense, Or, EXP, AP. */
 const ids = ["attack", "defense", "gold", "exp", "ap"];
-const debut = ui.indexOf('<div class="soreal-idle-summary-grid-v28">');
+const debut = ui.indexOf('<div class="soreal-idle-summary-grid-v28" style="--nb-tuiles:${nbTuiles}">');
 const bloc = ui.slice(debut, ui.indexOf("</div>\n        `;", debut));
 for (const id of ids) assert.ok(bloc.includes(`data-tuile="${id}"`), "tuile " + id);
 assert.equal((bloc.match(/data-tuile=/g) || []).length, 5, "cinq tuiles marquées");

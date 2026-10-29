@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',
             'Quand une barre d’énergie, de magie ou de 3e ressource disparaît, la page derrière ne bouge plus du tout, ni sur PC ni sur téléphone, en haut de page comme défilée : l’espace libéré reste en place en haut de page et il est retiré sans le moindre mouvement dès que tu fais défiler. (Sur PC, la page descendait parfois d’un coup d’environ 700 pixels, et de quelques pixels de trop à chaque barre : c’est corrigé.)',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
@@ -39,9 +40,14 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Sous la barre de chaque colonne, le prix en Or du niveau suivant est affiché et se met à jour à chaque niveau gagné.'
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis dans le feuillage pour qu’il y ait de la place pour les 24.',
-            'L’aura de l’arbre brille de plus en plus, heure après heure, jusqu’à la 24e, où elle est beaucoup plus forte.',
+            'Quand tu manges un fruit, on entend la mâche et les fruits de l’arbre rétrécissent un à un, à tour de rôle. Quand tu les transformes en graines, ils se défont en mini particules qui tombent au sol.',
+            'Les cadres d’image des fruits sont maintenant carrés et montrent l’arbre en entier, du tronc aux feuilles, au lieu de couper les côtés.',
+            'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis dans le feuillage pour que chacun ait sa place.',
+            'L’aura de l’arbre brille de plus en plus, heure après heure.',
             'Un fruit déjà mûr ne change jamais de place sur l’arbre, et chaque nouveau fruit apparaît loin des autres : l’arbre se remplit partout, sans amas.'
           ]}
         ]
@@ -153,7 +159,7 @@
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur téléphone, les portes des fruits remplissent mieux l’image : leur cadre est plus fin, elles ne paraissent plus trop petites.',
             'La terre sous un fruit prend une légère teinte du sol de son décor : elle se fond mieux dans l’image au lieu de paraître ajoutée.',
-            'Un fruit sort de terre : la première heure, seule la terre grossit ; après une heure complète apparaît un tout petit fruit qui grossit en douceur jusqu’à 24 h, la terre grandissant de son côté. Avec un temps maximum de 5 h débloqué, il ne dépasse pas la croissance prévue pour 5 h. Après la 12e heure, une aura de la couleur du fruit apparaît, de plus en plus forte, et la 24e heure est beaucoup plus marquée.',
+            'Chaque fruit pousse en douceur, heure après heure, et une aura de la couleur du fruit apparaît puis devient de plus en plus forte.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'Le ciel du NGU d’énergie (le jour) est plus foncé : le bleu est moins clair et fatigue moins les yeux.',
@@ -194,7 +200,7 @@
             'L’Attaque, la Défense, la vie maximale et la régénération de vie ne reculent plus par à-coups quand tes niveaux montent vite : l’affichage tient sa valeur jusqu’à ce que le jeu la rattrape.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Les fruits ont 24 images de pousse (une par heure du palier maximum de 24 h) sur un décor peint en rapport avec leur bonus ; l’or et les fruits de Puissance en font aussi partie.',
+            'Les fruits poussent sur un décor peint en rapport avec leur bonus ; l’or et les fruits de Puissance en font aussi partie.',
             'Les compteurs de graines et de Poop sont maintenant tout en haut de la page.',
           ]},
           {menu:'ngu', titre:'NGU', points:[

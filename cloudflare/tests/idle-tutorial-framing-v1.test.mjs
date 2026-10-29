@@ -93,7 +93,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/module
   assert.ok(hint.includes("'stats-attaque-defense':{cases:['sorealIdleSummaryAttackV50','sorealIdleSummaryDefenseV50']}"));
   assert.ok(hint.includes("sorealIdleTutoIndiceCaseV1"), "clignotement doux pour les cases du résumé");
 
-  const g0 = ui.indexOf('<div class="soreal-idle-summary-grid-v28">\n            <div class="soreal-idle-summary-v28" data-tuile="attack">\n              ⚔️ Attaque');
+  const g0 = ui.indexOf('<div class="soreal-idle-summary-grid-v28" style="--nb-tuiles:${nbTuiles}">\n            <div class="soreal-idle-summary-v28" data-tuile="attack">\n              ⚔️ Attaque');
   assert.ok(g0 > 0);
   const grille = ui.slice(g0, ui.indexOf("      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-155 */", g0));
   const ordre = ["SummaryAttackV50", "SummaryDefenseV50", "SummaryGoldV50", "SummaryExpV50", "SummaryApV210"].map((id) => grille.indexOf("sorealIdle" + id));

@@ -1319,6 +1319,8 @@ function lancerGeneration_(o,aFaire,libelle){
     if(ok)afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Écouter » pour entendre. '+statutLigne_());
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
+    /* Application Windows non reliée (Norman, 2026-10-29 : « SOREAL_IDLE_ADMIN_REQUIS ») : son compte local n'est pas administrateur, l'enregistrement des voix passe par le serveur avec le compte Google relié (desktop/src/liaison.mjs, ROUTES_ADMIN). */
+    if(/SOREAL_IDLE_ADMIN_REQUIS/.test(msg)&&window.sorealDesktop)msg='compte non relié : dans l’application Windows, relie ton compte Google (Réglages > Ma partie) pour enregistrer les voix ('+msg+')';
     raison=msg==='__annule__'?'arrêt demandé':msg;   /* la raison reste écrite à côté de « Arrêté (0 sur 3) » (Norman, 2026-10-28 : « Arrêté (0 sur 3) » ne disait pas pourquoi) */
     if(fait>0&&edition)enregistrer_();
     afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');

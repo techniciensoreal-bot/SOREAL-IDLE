@@ -52,7 +52,7 @@ const avantOnglet = noeuds; S.jouer("onglet"); assert.ok(nTout > noeuds - avantO
 
 // Branchements dans la page : chaque geste a son son.
 for (const [fragment, raison] of [
-  ["son_('activer')", "activer"], ["son_('ameliorer')", "améliorer"], ["son_(c.mode==='harvest'?'recolter':'manger')", "manger / récolter"],
+  ["son_('activer')", "activer"], ["son_('ameliorer')", "améliorer"], ["son_('manger',{n:Math.max(n,3),pas:pas})", "manger (mâche, un coup par fruit)"], ["if(recolte)son_('recolter')", "récolter"],
   ["son_('interrupteur',m==='harvest')", "interrupteur Manger / Récolter"], ["son_('poop')", "poop"], ["son_('onglet')", "onglet"], ["son_('aide')", "aide"],
   ["son_('tout')", "tout manger"], ["son_('pret')", "fruit prêt"], ["son_('interrupteur',Boolean(v))", "case poop seulement au tier max"]
 ]) assert.ok(page.includes(fragment), "son branché : " + raison);
