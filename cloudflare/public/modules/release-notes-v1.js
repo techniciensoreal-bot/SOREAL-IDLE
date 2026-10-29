@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Lancée depuis Steam, l’application dessine maintenant de façon à laisser la superposition Steam s’afficher par-dessus le jeu ; Maj + Tab ouvre le menu Steam.',
             'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',
             'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser ni la faire défiler, ni sur PC ni sur téléphone (y compris en retirant l’énergie ou la magie dans la Machine temporelle). Seules la barre de vie et les autres barres bougent.',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',

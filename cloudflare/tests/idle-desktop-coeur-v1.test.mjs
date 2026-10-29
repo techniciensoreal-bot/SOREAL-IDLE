@@ -112,3 +112,15 @@ console.log("idle-desktop-coeur-v1 : OK");
   assert.ok(textes.includes("function diagnostiquerAdminExe_(msg)") && textes.includes("trop ancienne") && textes.includes("compte non relié") && textes.includes("la liaison a expiré") && textes.includes("le serveur ne te reconnaît pas comme administrateur"), "le refus d'enregistrer les voix est expliqué (cœur d'origine, compte non relié, liaison expirée, serveur)");
   console.log("idle-desktop-coeur-v1 (cœur validé tout de suite, diagnostic des voix): OK");
 }
+
+/* Norman (2026-10-29) : « l'interface Steam doit se superposer au jeu quand on le lance par Steam ; Maj + Tab ouvre le menu Steam » : lancé par Steam, le jeu dessine dans le processus principal (la superposition s'accroche au processus qui dessine) */
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const coeur = lire("desktop/coeur.js", "utf8");
+  assert.ok(coeur.includes("process.env.SteamGameId || process.env.SteamAppId || process.env.SteamOverlayGameId") && coeur.includes('app.commandLine.appendSwitch("in-process-gpu")') && coeur.includes('app.commandLine.appendSwitch("disable-direct-composition")'), "lancé par Steam : dessin dans le processus principal, sans composition directe");
+  assert.ok(coeur.indexOf("LANCE_PAR_STEAM") < coeur.indexOf("app.whenReady()"), "réglé avant l'ouverture de l'application");
+  assert.ok(/if \(LANCE_PAR_STEAM\) \{[^}]*in-process-gpu/.test(coeur), "seulement lancé par Steam (hors de Steam le processus graphique séparé reste)");
+  assert.ok(!/key[^\n]*tab/i.test(coeur) && !coeur.includes("Tab"), "Maj + Tab n'est jamais intercepté par le jeu");
+  assert.ok(lire("desktop/src/steam.mjs", "utf8").includes('entier("AllowOverlay", 1)'), "le raccourci Steam autorise la superposition");
+  console.log("idle-desktop-coeur-v1 (superposition Steam): OK");
+}

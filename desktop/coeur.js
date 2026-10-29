@@ -17,6 +17,18 @@ const ORIGINE = "app://soreal";
 const LIEN_STUDIO = /^soreal-studio:\/\/demarrer/;
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
 
+/*
+ * Superposition Steam (Norman, 2026-10-29 : « l'interface Steam doit se superposer au jeu quand on le lance par Steam, et Maj + Tab ouvre le menu Steam »). Le raccourci ajouté à Steam autorise déjà la superposition (AllowOverlay) ; il reste à la laisser s'accrocher à
+ * la fenêtre : Steam s'injecte dans le processus qui dessine à l'écran, or Chromium dessine dans un processus à part (le processus graphique) que la superposition ne voit pas. Lancé PAR Steam (Steam pose SteamGameId / SteamAppId dans l'environnement), le jeu dessine donc dans le
+ * processus principal (in-process-gpu) et sans composition directe (disable-direct-composition) : la méthode que les jeux Electron de Steam emploient. Hors de Steam rien ne change (le processus graphique séparé reste plus robuste). Maj + Tab est géré par Steam lui-même :
+ * le jeu n'intercepte jamais cette touche (voir before-input-event plus bas : seuls F5 et Ctrl+R).
+ */
+const LANCE_PAR_STEAM = Boolean(process.env.SteamGameId || process.env.SteamAppId || process.env.SteamOverlayGameId);
+if (LANCE_PAR_STEAM) {
+  app.commandLine.appendSwitch("in-process-gpu");
+  app.commandLine.appendSwitch("disable-direct-composition");
+}
+
 /* Dossiers : en développement le dépôt lui-même ; une fois empaquetée l'application embarque sa copie (dossier « jeu » à côté de main.js). */
 function dossiers() {
   const embarque = path.join(APP, "jeu");
