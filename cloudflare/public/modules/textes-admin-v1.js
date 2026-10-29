@@ -718,6 +718,18 @@ function texteVoixDe_(b){
   return t||b.texte;
 }
 
+/* Dans l'application Windows, dit POURQUOI l'enregistrement des voix est refusé (sinon le message tel quel). */
+function diagnostiquerAdminExe_(msg){
+  if(!/SOREAL_IDLE_ADMIN_REQUIS/.test(String(msg))||!window.sorealDesktop)return Promise.resolve(msg);
+  var b=window.sorealDesktop,fin=function(t){return t+' ('+msg+')';};
+  if(typeof b.coeurVersion!=='function')return Promise.resolve(fin('l’application tourne encore avec son cœur d’origine, qui ne sait pas envoyer les voix au serveur : clique « Mettre à jour » dans le bandeau, ferme complètement l’application, rouvre-la avec internet et attends que le jeu s’affiche'));
+  return Promise.all([b.liaisonEtat().catch(function(){return null;})]).then(function(r){
+    var l=r[0];
+    if(!l||!l.lie)return fin('compte non relié : dans l’application Windows, relie ton compte Google (Réglages > Ma partie) pour enregistrer les voix');
+    if(l.expiree)return fin('la liaison a expiré : relie de nouveau ton compte Google (Réglages > Ma partie)');
+    return fin('le serveur ne te reconnaît pas comme administrateur avec le compte relié ('+(l.email||'?')+')');
+  });
+}
 function afficherEtat_(message,erreur){
   majPuceStudio_();
   var el=document.getElementById('sorealIdleTexteEtatV1');
@@ -1319,11 +1331,13 @@ function lancerGeneration_(o,aFaire,libelle){
     if(ok)afficherEtat_('✔ '+fait+' voix générée'+(fait>1?'s':'')+' et enregistrée'+(fait>1?'s':'')+'. Clique sur « Écouter » pour entendre. '+statutLigne_());
   }).catch(function(e){
     var msg=e&&e.message?e.message:String(e);
-    /* Application Windows non reliée (Norman, 2026-10-29 : « SOREAL_IDLE_ADMIN_REQUIS ») : son compte local n'est pas administrateur, l'enregistrement des voix passe par le serveur avec le compte Google relié (desktop/src/liaison.mjs, ROUTES_ADMIN). */
-    if(/SOREAL_IDLE_ADMIN_REQUIS/.test(msg)&&window.sorealDesktop)msg='compte non relié : dans l’application Windows, relie ton compte Google (Réglages > Ma partie) pour enregistrer les voix ('+msg+')';
-    raison=msg==='__annule__'?'arrêt demandé':msg;   /* la raison reste écrite à côté de « Arrêté (0 sur 3) » (Norman, 2026-10-28 : « Arrêté (0 sur 3) » ne disait pas pourquoi) */
-    if(fait>0&&edition)enregistrer_();
-    afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');
+    /* Application Windows : « SOREAL_IDLE_ADMIN_REQUIS » est expliqué (Norman, 2026-10-29 : « je ne suis toujours pas considéré comme administrateur » alors que le compte était relié) : cœur d'origine, compte non relié, liaison expirée ou serveur qui refuse. */
+    return diagnostiquerAdminExe_(msg).then(function(m){
+      msg=m;
+      raison=msg==='__annule__'?'arrêt demandé':msg;   /* la raison reste écrite à côté de « Arrêté (0 sur 3) » (Norman, 2026-10-28 : « Arrêté (0 sur 3) » ne disait pas pourquoi) */
+      if(fait>0&&edition)enregistrer_();
+      afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');
+    });
   }).then(function(){
     generation={enCours:false,annule:false,texte:''};
     majBoutonGenerer_();

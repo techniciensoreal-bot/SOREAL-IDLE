@@ -171,6 +171,8 @@ async function verifierMaj() {
 function installerPontLiaison() {
   const etatPage = () => ({ lie: Boolean(liaison.lie), email: liaison.email || "", expiree: liaisonExpiree, enCours: liaisonEnCours, decision: liaison.decision || "" });
   ipcMain.handle("liaison:etat", async () => etatPage());
+  /* Quel cœur tourne : un cœur de mise à jour (version 2 ou plus) ou celui de l'installateur (qui n'a pas cette réponse : la page le sait). */
+  ipcMain.handle("coeur:version", async () => ({ version: 2, misAJour: typeof global.__SOREAL_COEUR_VALIDE__ === "function" }));
   ipcMain.handle("liaison:demarrer", async () => {
     if (liaisonEnCours) return { ok: false, code: "DEJA_EN_COURS" };
     if (!app.isPackaged && !process.env.SOREAL_LIAISON_URL) return { ok: false, code: "DEVELOPPEMENT" };
@@ -302,6 +304,11 @@ function ouvrirFenetre() {
   fenetre.webContents.on("will-navigate", (ev, url) => { if (!url.startsWith(ORIGINE)) { ev.preventDefault(); if (/^https:\/\//.test(url) || LIEN_STUDIO.test(url)) shell.openExternal(url); } });
   /* La mise à jour installée est validée quand la page s'est chargée et que la fenêtre est restée ouverte 20 s. */
   fenetre.webContents.on("did-finish-load", () => {
+    /*
+     * Un cœur de mise à jour est validé dès que sa page s'est chargée (Norman, 2026-10-29 : « F5 ne marche pas, les voix non plus » : fermer l'application dans les 20 premières secondes faisait REFUSER le nouveau cœur au démarrage suivant, et l'application retombait sur le cœur
+     * d'origine, sans F5 ni envoi des voix au serveur). Il a démarré et il affiche le jeu : c'est la preuve que main.js demande ; seul un cœur qui plante avant d'afficher la page reste refusé.
+     */
+    if (typeof global.__SOREAL_COEUR_VALIDE__ === "function") global.__SOREAL_COEUR_VALIDE__();
     setTimeout(() => {
       if (majModule && etatMaj && etatMaj.enAttente && fenetre && !fenetre.isDestroyed()) etatMaj = majModule.validerMaj(dossierMaj, etatMaj);
       /* le cœur lui-même (celui d'une mise à jour) a démarré et tenu 20 s : main.js n'a plus à le surveiller */

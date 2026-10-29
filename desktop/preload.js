@@ -12,6 +12,8 @@ contextBridge.exposeInMainWorld("sorealDesktop", {
   majInstaller: () => ipcRenderer.invoke("maj:installer"),
   /* liaison au compte Google (Réglages > Ma partie) */
   liaisonEtat: () => ipcRenderer.invoke("liaison:etat"),
+  /* quel cœur de l'application tourne (absent du cœur d'origine : la page s'en sert pour dire quoi faire) */
+  coeurVersion: () => ipcRenderer.invoke("coeur:version"),
   liaisonDemarrer: () => ipcRenderer.invoke("liaison:demarrer"),
   liaisonSur: (rappel) => {
     ipcRenderer.on("liaison:progression", (_ev, p) => rappel({ type: "progression", progression: p }));

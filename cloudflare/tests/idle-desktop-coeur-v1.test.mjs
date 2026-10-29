@@ -101,3 +101,14 @@ assert.match(coeur, /global\.__SOREAL_RACINE_APP__/, "le cœur lit le dossier de
 assert.match(coeur, /__SOREAL_COEUR_VALIDE__/, "le cœur se déclare valide après 20 s");
 assert.equal((coeur.match(/path\.join\(APP, /g) || []).length >= 5, true, "jeu, graine, clé et maj.mjs viennent de l'installateur");
 console.log("idle-desktop-coeur-v1 : OK");
+
+/* Norman (2026-10-29) : « F5 et les voix ne marchent pas » : un cœur de mise à jour fermé dans les 20 premières secondes était REFUSÉ au démarrage suivant, l'application retombait sur le cœur d'origine (sans F5, sans envoi des voix au serveur) */
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const coeur = lire("desktop/coeur.js", "utf8"), preload = lire("desktop/preload.js", "utf8"), textes = lire("cloudflare/public/modules/textes-admin-v1.js", "utf8");
+  const chargement = coeur.slice(coeur.indexOf('fenetre.webContents.on("did-finish-load"'), coeur.indexOf("fenetre.loadURL(ORIGINE"));
+  assert.ok(chargement.indexOf("global.__SOREAL_COEUR_VALIDE__()") < chargement.indexOf("setTimeout(() => {"), "le cœur est validé dès que la page est chargée, avant le délai de 20 s de la mise à jour");
+  assert.ok(coeur.includes('ipcMain.handle("coeur:version"') && preload.includes("coeurVersion: () => ipcRenderer.invoke(\"coeur:version\")"), "la page peut savoir quel cœur tourne");
+  assert.ok(textes.includes("function diagnostiquerAdminExe_(msg)") && textes.includes("cœur d’origine") && textes.includes("compte non relié") && textes.includes("la liaison a expiré") && textes.includes("le serveur ne te reconnaît pas comme administrateur"), "le refus d'enregistrer les voix est expliqué (cœur d'origine, compte non relié, liaison expirée, serveur)");
+  console.log("idle-desktop-coeur-v1 (cœur validé tout de suite, diagnostic des voix): OK");
+}
