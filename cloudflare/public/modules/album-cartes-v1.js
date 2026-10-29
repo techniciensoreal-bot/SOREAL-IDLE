@@ -1,29 +1,32 @@
 /*
- * SOREAL IDLE — l'album de collection des boss (Norman, 2026-10-29 : « dans Chroniques de boss, un aspect d'album de collection pour Magic Card, avec des feuilles en plastique ; quand on clique, la carte sort de la feuille en plastique et vient en zoom sur l'écran pour qu'on puisse
- * lire et la faire tourner » ; puis : « 4 rangées par page, 12 cartes sur la page de gauche et 12 sur la page de droite ; à gauche, le dos des cartes ; la petite carte doit être la même que la grande, l'image avec le texte dessous ; sur téléphone, seulement la page de droite »).
+ * SOREAL IDLE — l'album de collection des boss (Norman, 2026-10-29 : « dans Chroniques de boss, un aspect d'album de collection pour Magic Card, avec des feuilles en plastique ; quand on clique, la carte sort de la feuille et vient en zoom pour qu'on puisse la lire et la faire tourner »).
  *
- * Le classeur : des pages de 12 pochettes en plastique (3 colonnes x 4 rangées). Sur PC le classeur est ouvert sur deux pages : à DROITE les cartes de la page, à GAUCHE le dos des cartes de la page précédente (comme dans un vrai classeur : les cartes sont glissées dos à dos dans
- * les feuilles, tourner la feuille montre leur dos). Sur téléphone, seule la page de droite est visible. Chaque petite carte est exactement la grande carte (modules/carte-boss-magic-v1.js) en miniature : mêmes dessins, mêmes tailles relatives (unités cqw).
- * Seuls les boss VAINCUS au moins une fois ont leur carte (Norman : « on gagne la carte quand on le tue la première fois uniquement » ; un boss seulement rencontré n'y est pas). Jamais de pochette vide ni de total de boss (règle n°2).
- * Un clic : la carte sort de sa pochette par le haut puis vole au centre de l'écran en grandissant (fiche zoomée, qu'on fait tourner au doigt ou à la souris). Les boutons ‹ › (ou un glissement du doigt) tournent la feuille autour des anneaux : elle se lève, pivote en montrant son dos,
- * et retombe à gauche ; en arrière, la feuille retombe à droite. À l'ouverture du menu, les cartes gagnées depuis la dernière visite s'affichent (« 5 nouvelles cartes débloquées ! ») puis se rangent une à une dans leur pochette.
+ * LE CLASSEUR (refonte du même jour) : 9 pochettes par page (3 rangées de 3). Au départ, le livre est FERMÉ : une couverture de farde noire avec, dans sa pochette en plastique, le logo du jeu. Un clic l'ouvre. Sur PC il est ouvert sur deux pages, sur téléphone seulement sur sa page de droite.
+ * À DROITE : la page courante. À GAUCHE : le dos des cartes de la feuille précédente (les cartes sont glissées dos à dos : tourner la feuille montre leur dos), des dos de carte SOREAL.
+ * LA PREMIÈRE FEUILLE est un grand dessin : l'affiche verticale du jeu découpée en 9 cartes. Chaque carte du dessin se gagne en battant à peu près un neuvième des boss (301 boss : 34, 67, 101…) ; les cartes pas encore gagnées sont des pochettes vides, sans chiffre ni condition (règle n°2).
+ * Les feuilles suivantes : les boss VAINCUS au moins une fois (« on gagne la carte quand on le tue la première fois » ; un boss seulement rencontré n'y est pas), 9 par feuille, dans l'ordre des numéros. Chaque petite carte est la grande carte (modules/carte-boss-magic-v1.js) en miniature.
+ * Un clic sur une carte : elle sort de sa pochette par le haut et vole au centre de l'écran en grandissant (fiche zoomée qu'on fait tourner). Les boutons ‹ › (ou un glissement du doigt) tournent la feuille autour des anneaux (deux faces : cartes devant, dos derrière).
+ * Les cartes gagnées depuis la dernière visite s'annoncent PAGE PAR PAGE (9 au plus) : à « Ranger », elles se rejoignent en paquet puis partent UNE PAR UNE, la suivante seulement quand la précédente est rangée : chacune vole devant la fente de sa pochette et s'y glisse, sous le plastique. Sans flou.
  * Aucune animation avec « réduire les animations ».
- *   window.__SOREAL_IDLE_ALBUM_V1__ = { rendre(entrees) -> html, ouvrir(numero, element), page(sens), nouvelles(), ranger() }
+ *   window.__SOREAL_IDLE_ALBUM_V1__ = { rendre(entrees) -> html, ouvrir(numero, element), page(sens), ouvrirLivre(), fermerLivre(), nouvelles(), ranger() }
  */
 (function(){
 'use strict';
 if(window.__SOREAL_IDLE_ALBUM_V1__)return;
 
-var PAR_PAGE=12,COLS=3;
+var PAR_PAGE=9,COLS=3,PIECES=9,TOTAL_BOSS=301;
 var CLE_VUS='soreal_idle_album_vus_v1';   /* préférence liée au compte (règle n°6) : numéros des cartes déjà annoncées */
+var IMG_LOGO='/chargement/logo-800x450.webp';
 
-var cartes=[],page=0,tourne=false,enAttente={},popup=null;
+var cartes=[],page=0,ouvert=false,tourne=false,enAttente={},popup=null,derniereVue=0;
 
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 function double(){try{return Boolean(window.matchMedia&&window.matchMedia('(min-width:900px)').matches);}catch(_e){return false;}}
 function carteMtg(){return window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__||null;}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function reg(){return window.__SOREAL_IDLE_REG__||{};}
+function attendre(ms){return new Promise(function(ok){setTimeout(ok,ms);});}
+function fin(a){try{return a.finished.catch(function(){});}catch(_e){return Promise.resolve();}}
 function monde(n){
   try{
     var cat=reg().idleEtat&&Array.isArray(reg().idleEtat.bossCatalogue)?reg().idleEtat.bossCatalogue:[];
@@ -33,7 +36,11 @@ function monde(n){
 }
 function urlImage(n){try{var f=reg().urlBossR2IdleV1_;return typeof f==='function'?f(n):'';}catch(_e){return '';}}
 function sansBalise(t){try{var f=reg().sansBaliseVoixIdleV1_;return typeof f==='function'?f(t):t;}catch(_e){return t;}}
-function nbPages(){return Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
+
+/* Pages : 0 = le grand dessin ; 1… = les boss, 9 par feuille. */
+function nbPages(){return 1+Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
+function cartesDePage(r){return r>=1?cartes.slice((r-1)*PAR_PAGE,(r-1)*PAR_PAGE+PAR_PAGE):[];}
+function nbPieces(){return Math.min(PIECES,Math.floor(cartes.length*PIECES/TOTAL_BOSS));}
 
 /* La petite carte : exactement la grande, en miniature (le texte du récit sous l'illustration, comme sur la vraie carte). */
 function miniature(e){
@@ -51,66 +58,151 @@ function pochetteHtml(e){
     '<div class="alb-plastique" aria-hidden="true"></div>'+
   '</div>';
 }
-/* Le dos d'une carte, rangé à la place MIROIR de la carte de la page (la feuille tournée : la colonne de gauche passe à droite). */
+/* Le grand dessin : l'affiche découpée en 9 cartes ; une carte est gagnée tous les ~34 boss vaincus, les autres sont des pochettes vides. */
+function pieceHtml(k,gagnee){
+  var r=Math.floor(k/COLS),c=k%COLS;
+  var contenu=gagnee
+    ?'<div class="alb-puzzle-carte"><div class="alb-puzzle-art" style="background-position:calc(-1 * (21cqw + '+c+' * 94cqw)) calc(-1 * '+r+' * 162cqw)"></div></div>'
+    :'';
+  return '<div class="alb-pochette alb-pochette-puzzle'+(gagnee?'':' alb-pochette-vide')+'" aria-hidden="true"><div class="alb-carte alb-carte-mtg">'+contenu+'</div><div class="alb-plastique"></div></div>';
+}
+function puzzleHtml(){var n=nbPieces(),h='',k;for(k=0;k<PIECES;k++)h+=pieceHtml(k,k<n);return h;}
+/* Le dos d'une carte (dos de carte SOREAL), rangé à la place MIROIR de la carte de la feuille (la feuille tournée : la colonne de gauche passe à droite). */
 function dosHtmlPochette(i){
   var r=Math.floor(i/COLS),c=COLS-1-(i%COLS),C=carteMtg();
   return '<div class="alb-pochette alb-pochette-dos" aria-hidden="true" style="grid-row:'+(r+1)+';grid-column:'+(c+1)+'">'+
     '<div class="alb-carte alb-carte-mtg">'+(C&&C.dosSeul?C.dosSeul():'')+'</div><div class="alb-plastique"></div></div>';
 }
-function cartesDePage(p){return cartes.slice(p*PAR_PAGE,p*PAR_PAGE+PAR_PAGE);}
-function feuilleHtml(p){return cartesDePage(p).map(pochetteHtml).join('');}
-function dosHtml(p){return cartesDePage(p).map(function(_e,i){return dosHtmlPochette(i);}).join('');}
-/* à gauche : le dos des cartes de la page précédente ; avant la première page, des pochettes vides (l'intérieur de la couverture) */
-function gaucheHtml(p){
-  if(p>=1)return dosHtml(p-1);
-  var v='',i;for(i=0;i<PAR_PAGE;i++)v+='<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique"></div></div>';
-  return v;
-}
+function nbDos(r){return r<=0?PIECES:cartesDePage(r).length;}   /* le dos de la feuille r : 9 pour le dessin, sinon autant que de cartes */
+function dosHtml(r){var h='',i,n=nbDos(r);for(i=0;i<n;i++)h+=dosHtmlPochette(i);return h;}
+function droiteHtml(r){return r<=0?puzzleHtml():cartesDePage(r).map(pochetteHtml).join('');}
+function gaucheHtml(r){return r<=0?'':dosHtml(r-1);}   /* à gauche : le dos de la feuille d'avant ; avant le dessin, l'intérieur de la couverture */
 
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 function navHtml(){
-  var n=nbPages();if(n<2)return '';
+  if(!ouvert)return '';
+  var n=nbPages();
   return '<div class="alb-nav">'+
     '<button type="button" class="alb-bouton alb-prec" aria-label="Page précédente" '+(page<=0?'disabled ':'')+'onclick="window.__SOREAL_IDLE_ALBUM_V1__.page(-1)">'+CHEV_G+'</button>'+
     '<span class="alb-numero"><span>Page</span> <b>'+(page+1)+'</b> / <b>'+n+'</b></span>'+
     '<button type="button" class="alb-bouton alb-suiv" aria-label="Page suivante" '+(page>=n-1?'disabled ':'')+'onclick="window.__SOREAL_IDLE_ALBUM_V1__.page(1)">'+CHEV_D+'</button>'+
+    '<button type="button" class="alb-fermer" onclick="window.__SOREAL_IDLE_ALBUM_V1__.fermerLivre()">Fermer le classeur</button>'+
+  '</div>';
+}
+/* La couverture : farde noire, le logo du jeu dans sa pochette en plastique ; deux faces (le dehors, l'intérieur noir) pour pivoter autour des anneaux. */
+function couvertureHtml(){
+  return '<div class="alb-couverture" role="button" tabindex="0" aria-label="Ouvrir le classeur" onclick="window.__SOREAL_IDLE_ALBUM_V1__.ouvrirLivre()" '+
+      'onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.__SOREAL_IDLE_ALBUM_V1__.ouvrirLivre()}">'+
+    '<div class="alb-face alb-face-avant alb-cuir-noir"><div class="alb-couv-pochette"><div class="alb-couv-logo"><img src="'+IMG_LOGO+'" alt="" draggable="false"></div><div class="alb-plastique"></div></div></div>'+
+    '<div class="alb-face alb-face-arriere alb-cuir-noir"></div>'+
   '</div>';
 }
 function livreHtml(){
-  return '<div class="soreal-idle-bestiary-grid-v110 soreal-idle-album-v1"><div class="alb-livre'+(double()?' alb-double':'')+'">'+
-    '<div class="alb-page alb-page-g"><div class="alb-feuille">'+gaucheHtml(page)+'</div></div>'+
-    '<div class="alb-page alb-page-d"><div class="alb-feuille">'+feuilleHtml(page)+'</div></div>'+
-  '</div></div>'+navHtml();
+  return '<div class="soreal-idle-bestiary-grid-v110 soreal-idle-album-v1"><div class="alb-cuir" aria-hidden="true"></div><div class="alb-livre'+(double()?' alb-double':'')+'">'+
+    '<div class="alb-page alb-page-g" onclick="window.__SOREAL_IDLE_ALBUM_V1__.cliquerGauche()"><div class="alb-feuille">'+gaucheHtml(page)+'</div></div>'+
+    '<div class="alb-page alb-page-d"><div class="alb-feuille">'+droiteHtml(page)+'</div></div>'+
+    couvertureHtml()+
+  '</div></div>';
 }
 
 /* Le classeur entier ; les cartes viennent de la Collection (boss vaincus seulement, dans l'ordre des numéros). */
 function rendre(entrees){
   cartes=(entrees||[]).filter(function(e){return e&&e.vaincu&&Math.floor(Number(e.numero))>0;}).sort(function(a,b){return a.numero-b.numero;});
+  var maintenant=Date.now();
+  if(maintenant-derniereVue>1500){ouvert=false;page=0;}   /* on arrive dans le menu : le livre est fermé (« de base, quand on arrive dans Chroniques de boss, le livre est fermé ») */
+  derniereVue=maintenant;
   page=Math.min(page,nbPages()-1);
   setTimeout(verifierNouvelles,500);
-  return '<div class="alb-classeur">'+livreHtml()+'</div>';
+  return '<div class="alb-classeur'+(ouvert?' alb-ouvert':'')+'">'+livreHtml()+navHtml()+'</div>';
 }
-function refaire(){var c=document.querySelector('.alb-classeur');if(c)c.innerHTML=livreHtml();}
+try{setInterval(function(){var c=document.querySelector('.alb-classeur');if(c&&c.offsetParent)derniereVue=Date.now();},600);}catch(_e){}
+function refaire(){var c=document.querySelector('.alb-classeur');if(c)c.innerHTML=livreHtml()+navHtml();}
 function majNav(){
   var nav=document.querySelector('.alb-classeur .alb-nav');if(!nav)return;
   var n=nbPages(),b=nav.querySelectorAll('b');
   nav.querySelector('.alb-prec').disabled=page<=0;nav.querySelector('.alb-suiv').disabled=page>=n-1;
   if(b.length>1){b[0].textContent=String(page+1);b[1].textContent=String(n);}
 }
+function remplirPages(){
+  var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille'),g=document.querySelector('.alb-classeur .alb-page-g .alb-feuille');
+  if(d)d.innerHTML=droiteHtml(page);if(g)g.innerHTML=gaucheHtml(page);
+}
 function afficher(p){   /* sans animation */
   page=Math.max(0,Math.min(nbPages()-1,p));
-  var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille'),g=document.querySelector('.alb-classeur .alb-page-g .alb-feuille');
-  if(d)d.innerHTML=feuilleHtml(page);if(g)g.innerHTML=gaucheHtml(page);
-  majNav();
+  remplirPages();majNav();
 }
 
+/* La face visible d'une feuille qui tourne : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
+function basculer(av,ar,avantD,duree,ease){
+  var v1={visibility:'visible'},h1={visibility:'hidden'};
+  var kfA=avantD?[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1]:[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1];
+  var kfR=avantD?[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1]:[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1];
+  var o={duration:duree,easing:ease,fill:'forwards'};
+  av.animate(kfA,o);ar.animate(kfR,o);
+}
+var DUREE=1150,EASE='cubic-bezier(.5,.05,.3,1)';
+
+/* ---------- ouvrir et fermer le livre ---------- */
+function ouvrirLivre(p){
+  return new Promise(function(ok){
+    var cl=document.querySelector('.alb-classeur');
+    if(ouvert||tourne||!cl){ok();return;}
+    var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
+    ouvert=true;page=Math.max(0,Math.min(nbPages()-1,typeof p==='number'?p:page));
+    var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
+    remplirPages();
+    cl.classList.add('alb-ouvert');
+    if(!cl.querySelector('.alb-nav'))cl.insertAdjacentHTML('beforeend',navHtml());
+    if(vite){majNav();ok();return;}
+    tourne=true;
+    couv.style.display='block';couv.style.zIndex='7';
+    var faces=couv.querySelectorAll('.alb-face');
+    basculer(faces[0],faces[1],true,DUREE,EASE);
+    var a=couv.animate(deux
+      ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
+      :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
+      {duration:DUREE,easing:EASE,fill:'forwards'});
+    if(deux)livre.animate([{transform:'translateX(-25%)'},{transform:'translateX(0)'}],{duration:DUREE,easing:EASE});
+    if(cuir)cuir.animate([{opacity:0},{opacity:1}],{duration:DUREE*.8,easing:'ease-out'});
+    fin(a).then(function(){couv.style.display='';couv.style.zIndex='';try{couv.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}tourne=false;ok();});
+  });
+}
+function fermerLivre(){
+  return new Promise(function(ok){
+    var cl=document.querySelector('.alb-classeur');
+    if(!ouvert||tourne||!cl){ok();return;}
+    var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
+    var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
+    var nav=cl.querySelector('.alb-nav');if(nav&&nav.parentNode)nav.parentNode.removeChild(nav);
+    page=0;remplirPages();                       /* le livre se referme sur sa première feuille */
+    ouvert=false;
+    if(vite){cl.classList.remove('alb-ouvert');ok();return;}
+    tourne=true;
+    couv.style.display='block';couv.style.zIndex='7';
+    var faces=couv.querySelectorAll('.alb-face');
+    basculer(faces[0],faces[1],false,DUREE,EASE);
+    var a=couv.animate(deux
+      ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
+      :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
+      {duration:DUREE,easing:EASE,fill:'forwards'});
+    if(deux)livre.animate([{transform:'translateX(0)'},{transform:'translateX(-25%)'}],{duration:DUREE,easing:EASE,fill:'forwards'});
+    if(cuir)cuir.animate([{opacity:1},{opacity:0}],{duration:DUREE,easing:'ease-in',fill:'forwards'});
+    fin(a).then(function(){
+      cl.classList.remove('alb-ouvert');couv.style.display='';couv.style.zIndex='';
+      try{couv.getAnimations().forEach(function(x){x.cancel();});livre.getAnimations().forEach(function(x){x.cancel();});if(cuir)cuir.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}
+      tourne=false;ok();
+    });
+  });
+}
+function cliquerGauche(){if(ouvert&&page===0)fermerLivre();}   /* l'intérieur de la couverture : un clic referme le classeur */
+
 /*
- * Tourner la feuille. Une feuille a DEUX faces : devant, les cartes de la page ; derrière, leur dos (la future page de gauche). Elle pivote autour des anneaux (le bord gauche de la page de droite), se lève vers le lecteur au milieu du mouvement, projette son ombre sur les pages,
+ * Tourner la feuille. Une feuille a DEUX faces : devant, la page ; derrière, le dos de ses cartes (la future page de gauche). Elle pivote autour des anneaux (le bord gauche de la page de droite), se lève vers le lecteur au milieu du mouvement, projette son ombre sur les pages,
  * puis retombe à gauche (PC) ; en arrière, c'est le mouvement inverse. Sur téléphone (pas de page de gauche) la feuille pivote puis s'efface vers la gauche.
  */
 function page_(sens){
-  if(tourne)return;
+  if(tourne||!ouvert)return;
   var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
   if(!livre)return;
   var p=page,q=p+(sens<0?-1:1);
@@ -119,7 +211,7 @@ function page_(sens){
   var deux=livre.classList.contains('alb-double');
   if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);setTimeout(verifierPage,450);return;}
   tourne=true;
-  var avant=sens>0?feuilleHtml(p):feuilleHtml(q),arriere=sens>0?dosHtml(p):dosHtml(q);
+  var avant=sens>0?droiteHtml(p):droiteHtml(q),arriere=sens>0?dosHtml(p):dosHtml(q);
   var feuille=document.createElement('div');
   feuille.className='alb-feuille-tournante';feuille.setAttribute('data-morph-garder','');feuille.setAttribute('aria-hidden','true');
   feuille.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
@@ -128,28 +220,18 @@ function page_(sens){
   var ombreD=document.createElement('i'),ombreG=document.createElement('i');
   ombreD.className='alb-ombre-sol alb-ombre-sol-d';ombreG.className='alb-ombre-sol alb-ombre-sol-g';
   pd.appendChild(ombreD);if(deux)pg.appendChild(ombreG);
-  var DUREE=1150,EASE='cubic-bezier(.5,.05,.3,1)';
-  var fin=function(){
+  var termine=function(){
     tourne=false;page=q;
     [ombreD,ombreG,feuille].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     majNav();
     setTimeout(verifierPage,450);                       /* les cartes de la nouvelle page s'annoncent, puis se rangent */
   };
-  var ombresFace=feuille.querySelectorAll('.alb-ombre');
-  /* Quelle face se voit : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
-  var facesAV=feuille.querySelector('.alb-face-avant'),facesAR=feuille.querySelector('.alb-face-arriere');
-  var basculer=function(avantD){   /* avantD : la face avant se voit en premier (feuille qui se lève), sinon le dos d'abord (feuille qui retombe) */
-    var v1={visibility:'visible'},h1={visibility:'hidden'};
-    var kfA=avantD?[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1]:[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1];
-    var kfR=avantD?[h1,{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},v1]:[v1,{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},h1];
-    var o={duration:DUREE,easing:EASE,fill:'forwards'};
-    facesAV.animate(kfA,o);facesAR.animate(kfR,o);
-  };
+  var ombresFace=feuille.querySelectorAll('.alb-ombre'),facesAV=feuille.querySelector('.alb-face-avant'),facesAR=feuille.querySelector('.alb-face-arriere');
   try{
     var anim;
     if(sens>0){
-      fd.innerHTML=feuilleHtml(q);                      /* dessous : la page suivante, déjà en place */
-      livre.appendChild(feuille);basculer(true);
+      fd.innerHTML=droiteHtml(q);                       /* dessous : la page suivante, déjà en place */
+      livre.appendChild(feuille);basculer(facesAV,facesAR,true,DUREE,EASE);
       anim=feuille.animate(deux
         ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
         :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
@@ -157,10 +239,10 @@ function page_(sens){
       [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:DUREE,easing:EASE});});
       ombreD.animate([{opacity:.65},{opacity:0}],{duration:DUREE*.75,easing:'ease-out',fill:'forwards'});
       if(deux)ombreG.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.6,offset:.8},{opacity:0}],{duration:DUREE,fill:'forwards'});
-      anim.onfinish=function(){if(deux)fg.innerHTML=gaucheHtml(q);fin();};
+      anim.onfinish=function(){if(deux)fg.innerHTML=gaucheHtml(q);termine();};
     }else{
       if(deux)fg.innerHTML=gaucheHtml(q);               /* dessous (à gauche) : la page d'avant, révélée quand la feuille se lève */
-      livre.appendChild(feuille);basculer(false);
+      livre.appendChild(feuille);basculer(facesAV,facesAR,false,DUREE,EASE);
       anim=feuille.animate(deux
         ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
         :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
@@ -168,9 +250,9 @@ function page_(sens){
       [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:DUREE,easing:EASE});});
       ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:DUREE,fill:'forwards'});
       if(deux)ombreG.animate([{opacity:.6},{opacity:0}],{duration:DUREE*.75,easing:'ease-out',fill:'forwards'});
-      anim.onfinish=function(){fd.innerHTML=feuilleHtml(q);fin();};
+      anim.onfinish=function(){fd.innerHTML=droiteHtml(q);termine();};
     }
-  }catch(_e){page=q;fin();afficher(q);}
+  }catch(_e){page=q;termine();afficher(q);}
 }
 
 /* ---------- le clic : la carte sort de sa pochette et vient en zoom ---------- */
@@ -183,7 +265,7 @@ function ouvrir(n,el){
   var carte=el&&el.querySelector?el.querySelector('.alb-carte'):null;
   if(!carte||reduit()||typeof carte.animate!=='function'){ouvrirReel(n);return;}
   if(el.classList.contains('alb-sorti'))return;
-  el.classList.add('alb-sorti');                       /* 1. la carte glisse hors de la pochette, par le haut */
+  el.classList.add('alb-sorti');                       /* 1. la carte glisse hors de sa pochette, par le haut */
   setTimeout(function(){
     var r0=carte.getBoundingClientRect();
     ouvrirReel(n);
@@ -212,127 +294,113 @@ function ouvrir(n,el){
 /* ---------- les nouvelles cartes : annonce puis rangement ---------- */
 function lireVus(){try{var t=localStorage.getItem(CLE_VUS);return t==null?null:(JSON.parse(t)||[]);}catch(_e){return null;}}
 function ecrireVus(l){try{localStorage.setItem(CLE_VUS,JSON.stringify(l));}catch(_e){}}
-/* Les cartes gagnées ne s'annoncent que 12 par 12 (Norman, 2026-10-29 : « il ne doit les voir que 12 par 12 ; en tournant les pages, ils les valident à chaque fois et les rangent ») : à chaque page affichée, les cartes de CETTE page pas encore annoncées. */
-function nouvellesDePage(p){var v=lireVus()||[];return cartesDePage(p).filter(function(e){return v.indexOf(e.numero)<0;});}
+/* Les cartes gagnées ne s'annoncent que par page (Norman : « en tournant les pages, ils les valident à chaque fois et les rangent ») : à chaque page affichée, les cartes de CETTE page pas encore annoncées. */
+function nouvellesDePage(r){var v=lireVus()||[];return cartesDePage(r).filter(function(e){return v.indexOf(e.numero)<0;});}
 function nouvelles(){var v=lireVus()||[];return cartes.filter(function(e){return v.indexOf(e.numero)<0;});}
-function premierePageNeuve(){for(var p=0;p<nbPages();p++)if(nouvellesDePage(p).length)return p;return -1;}
-function verifierNouvelles(){   /* à l'ouverture : la première page qui a des cartes à annoncer */
+function premierePageNeuve(){for(var r=1;r<nbPages();r++)if(nouvellesDePage(r).length)return r;return -1;}
+function verifierNouvelles(){   /* à l'arrivée dans le menu : la première page qui a des cartes à annoncer (le livre est encore fermé) */
   try{
     if(popup||!cartes.length)return;
     var c=document.querySelector('.alb-classeur');
     if(!c||!c.offsetParent)return;                      /* l'album n'est pas affiché : l'annonce attend la prochaine ouverture */
-    var p=premierePageNeuve();
-    if(p<0)return;
-    annoncer(nouvellesDePage(p),p);
+    var r=premierePageNeuve();
+    if(r<0)return;
+    annoncer(nouvellesDePage(r),r);
   }catch(_e){}
 }
 function verifierPage(){   /* après un tour de page : les cartes de la page qu'on vient d'ouvrir */
   try{
-    if(popup||tourne)return;
+    if(popup||tourne||!ouvert)return;
     var c=document.querySelector('.alb-classeur');
     if(!c||!c.offsetParent)return;
     var neuves=nouvellesDePage(page);
     if(neuves.length)annoncer(neuves,page);
   }catch(_e){}
 }
-function annoncer(neuves,p){
+function annoncer(neuves,r){
   var C=carteMtg();if(!C)return;
   var vus=lireVus()||[];ecrireVus(vus.concat(neuves.map(function(e){return e.numero;})));   /* annoncées une seule fois, même si la fenêtre est fermée en route */
   neuves.forEach(function(e){enAttente[e.numero]=true;});
-  afficher(p);                                         /* derrière l'annonce : la page de ces cartes, leurs pochettes encore vides */
-  if(reduit()){neuves.forEach(function(e){delete enAttente[e.numero];});afficher(page);return;}
-  var n=neuves.length,voir=neuves;
+  if(ouvert)afficher(r);else{page=r;}                  /* derrière l'annonce : la page de ces cartes, leurs pochettes encore vides */
+  if(reduit()){neuves.forEach(function(e){delete enAttente[e.numero];});if(ouvert)afficher(page);return;}
+  var n=neuves.length;
   var fond=document.createElement('div');fond.className='alb-annonce';fond.setAttribute('data-morph-garder','');
   fond.innerHTML='<div class="alb-annonce-titre"><b>'+n+'</b> <span>'+(n>1?'nouvelles cartes débloquées !':'nouvelle carte débloquée !')+'</span></div>'+
-    '<div class="alb-annonce-cartes">'+voir.map(function(e){return '<div class="alb-annonce-carte alb-carte-mtg" data-n="'+e.numero+'">'+miniature(e)+'</div>';}).join('')+'</div>'+
+    '<div class="alb-annonce-cartes">'+neuves.map(function(e){return '<div class="alb-annonce-carte alb-carte-mtg" data-n="'+e.numero+'">'+miniature(e)+'</div>';}).join('')+'</div>'+
     '<button type="button" class="alb-annonce-bouton">Ranger dans l’album</button>';
   document.body.appendChild(fond);
-  popup={fond:fond,neuves:neuves,voir:voir,fini:false};
+  popup={fond:fond,neuves:neuves,page:r,fini:false};
   var els=fond.querySelectorAll('.alb-annonce-carte');
   for(var i=0;i<els.length;i++){
-    try{els[i].animate([{transform:'translateY(60px) scale(.5) rotate('+((i%2?1:-1)*8)+'deg)',opacity:0},{transform:'translateY(0) scale(1) rotate('+((i%2?1:-1)*2)+'deg)',opacity:1}],{duration:520,delay:200+i*110,easing:'cubic-bezier(.2,.9,.3,1.15)',fill:'both'});}catch(_e){}
+    try{els[i].animate([{transform:'translateY(60px) scale(.5) rotate('+((i%2?1:-1)*8)+'deg)',opacity:0},{transform:'translateY(0) scale(1) rotate('+((i%2?1:-1)*2)+'deg)',opacity:1}],{duration:520,delay:200+i*100,easing:'cubic-bezier(.2,.9,.3,1.15)',fill:'both'});}catch(_e){}
   }
   try{fond.animate([{opacity:0},{opacity:1}],{duration:260,fill:'both'});}catch(_e){}
   var go=function(){ranger();};
   fond.querySelector('.alb-annonce-bouton').addEventListener('click',function(ev){ev.stopPropagation();go();});
   fond.addEventListener('click',go);
 }
-/* Les cartes de l'annonce volent chacune jusqu'à sa pochette (celle qui est sur une autre page glisse simplement vers le classeur et s'efface). */
+
 /*
- * Le rangement (Norman, 2026-10-29 : « une fois qu'il clique sur ranger, elles doivent se rejoindre en paquet et se ranger une par une ») : 1. les cartes de l'annonce se rejoignent en un PAQUET au centre de l'écran (la première du paquet est la première carte à ranger) ;
- * 2. l'annonce s'estompe, puis la carte du dessus quitte le paquet, vole devant la fente de SA pochette et s'y glisse lentement, sous le plastique ; la suivante part quand la précédente arrive à la fente.
+ * Le rangement (Norman, 2026-10-29) : 1. l'annonce disparaît tout de suite (sans flou : on voit le classeur) ; si le livre est fermé, il s'ouvre ; 2. les cartes se rejoignent en PAQUET au centre de l'écran, la première du paquet en dessus ;
+ * 3. UNE PAR UNE : la carte du dessus quitte le paquet, vole devant la fente de sa pochette et s'y glisse, sous le plastique ; la suivante ne part que quand la précédente est rangée. Chaque carte vole dans une couche fixe à elle (mouvement lisse, rien d'autre qui bouge).
  */
 function ranger(){
   var P=popup;if(!P||P.fini)return;
   P.fini=true;
   var fond=P.fond,els=[].slice.call(fond.querySelectorAll('.alb-annonce-carte')),n=els.length;
-  var bouton=fond.querySelector('.alb-annonce-bouton');if(bouton)bouton.style.visibility='hidden';
-  var titre=fond.querySelector('.alb-annonce-titre');
-  var restant=n;
+  var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
+  var couche=document.createElement('div');couche.className='alb-vol';couche.setAttribute('data-morph-garder','');couche.setAttribute('aria-hidden','true');
+  var vols=els.map(function(el,i){
+    var r0=el.getBoundingClientRect(),c=el.cloneNode(true);
+    c.className='alb-vol-carte alb-carte-mtg';c.style.cssText='left:'+r0.left+'px;top:'+r0.top+'px;width:'+r0.width+'px;z-index:'+(n-i);
+    couche.appendChild(c);
+    return {el:c,r0:r0,n:el.getAttribute('data-n'),i:i,dx:vw/2-(r0.left+r0.width/2)+i*1.5,dy:vh/2-(r0.top+r0.height/2)-i*1.5,rot:((i%5)-2)*1.4};
+  });
+  document.body.appendChild(couche);
+  try{fond.animate([{opacity:1},{opacity:0}],{duration:240,fill:'forwards'});}catch(_e){}
+  setTimeout(function(){if(fond.parentNode)fond.parentNode.removeChild(fond);},260);
   var termine=function(){
     P.neuves.forEach(function(e){delete enAttente[e.numero];});
     document.querySelectorAll('.alb-pochette.alb-attente').forEach(function(p){p.classList.remove('alb-attente');});
-    if(fond.parentNode)fond.parentNode.removeChild(fond);
+    if(couche.parentNode)couche.parentNode.removeChild(couche);
     popup=null;
   };
-  if(!n){termine();return;}
-  var GROUPE=700,PAS_GROUPE=55,REPOS=250,VOL=800,PAS=720;
-  var debut=GROUPE+PAS_GROUPE*n+REPOS;       /* quand la première carte quitte le paquet */
-  var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
-  try{if(titre)titre.animate([{opacity:1},{opacity:0}],{duration:400,delay:GROUPE,fill:'forwards'});}catch(_e){}
-  try{fond.animate([{backgroundColor:'rgba(4,8,16,.72)'},{backgroundColor:'rgba(4,8,16,.72)',offset:.01},{backgroundColor:'rgba(4,8,16,0)'}],{duration:700,delay:debut-300,fill:'forwards'});}catch(_e){}
-  var piles=els.map(function(el,i){
-    var r0=el.getBoundingClientRect();
-    return {el:el,r0:r0,dx:vw/2-(r0.left+r0.width/2)+i*1.6,dy:vh/2-(r0.top+r0.height/2)-i*1.6,rot:((i%5)-2)*1.8,i:i};
+  var suite=Promise.resolve();
+  if(!ouvert)suite=suite.then(function(){return ouvrirLivre(P.page);});
+  suite=suite.then(function(){return attendre(250);});
+  /* le paquet */
+  suite=suite.then(function(){
+    return Promise.all(vols.map(function(v){
+      var a;try{a=v.el.animate([{transform:'translate(0,0) rotate(0deg)'},{transform:'translate('+v.dx.toFixed(1)+'px,'+v.dy.toFixed(1)+'px) rotate('+v.rot+'deg)'}],{duration:650,delay:v.i*45,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});}catch(_e){return Promise.resolve();}
+      return fin(a);
+    }));
   });
-  piles.forEach(function(c){c.el.style.zIndex=String(n-c.i);c.el.style.position='relative';});   /* la première carte est au-dessus du paquet */
-  piles.forEach(function(c){
-    var el=c.el,i=c.i;
-    var n_=el.getAttribute('data-n'),poche=document.querySelector('.alb-page-d .alb-pochette[data-album-boss="'+n_+'"]');
-    var cible=poche&&poche.querySelector('.alb-carte'),r1=cible?cible.getBoundingClientRect():null;
-    var pose='translate('+c.dx.toFixed(1)+'px,'+c.dy.toFixed(1)+'px) scale(1.04) rotate('+c.rot+'deg)';
-    var termineCarte=function(){restant-=1;if(restant<=0)termine();};
-    /* 1. le paquet */
-    try{el.animate([{transform:'translate(0,0) scale(1) rotate(0deg)'},{transform:pose}],{duration:GROUPE,delay:i*PAS_GROUPE,easing:'cubic-bezier(.3,.05,.25,1)',fill:'forwards'});}catch(_e){}
-    /* 2. la carte quitte le paquet, vole devant la fente de sa pochette, puis s'y glisse */
-    var inserer=function(){
-      if(poche&&cible){
+  suite=suite.then(function(){return attendre(250);});
+  /* une par une */
+  vols.forEach(function(v){
+    suite=suite.then(function(){
+      var poche=document.querySelector('.alb-page-d .alb-pochette[data-album-boss="'+v.n+'"]'),cible=poche&&poche.querySelector('.alb-carte');
+      var r1=cible?cible.getBoundingClientRect():null;
+      if(!(r1&&r1.width>0)){if(poche)poche.classList.remove('alb-attente');if(v.el.parentNode)v.el.parentNode.removeChild(v.el);return;}
+      var s=r1.width/v.r0.width;
+      var cx=r1.left+r1.width/2-(v.r0.left+v.r0.width/2),cy=r1.top+r1.height/2-(v.r0.top+v.r0.height/2)-r1.height*.62;   /* devant la fente, au-dessus de la pochette */
+      var pile='translate('+v.dx.toFixed(1)+'px,'+v.dy.toFixed(1)+'px) scale(1) rotate('+v.rot+'deg)',finT='translate('+cx.toFixed(1)+'px,'+cy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(0deg)';
+      var vol;try{vol=v.el.animate([{transform:pile},{transform:finT}],{duration:750,easing:'cubic-bezier(.45,0,.2,1)',fill:'forwards'});}catch(_e){vol=null;}
+      return (vol?fin(vol):Promise.resolve()).then(function(){
         poche.classList.add('alb-entre');poche.classList.remove('alb-attente');
-        if(el.parentNode)el.parentNode.removeChild(el);
-        try{
-          var g=cible.animate([
-            {transform:'translateY(-62%) rotate(0deg)'},
-            {transform:'translateY(-30%) rotate(-.8deg)',offset:.45},
-            {transform:'translateY(0) rotate(0deg)'}
-          ],{duration:1100,easing:'cubic-bezier(.4,.05,.25,1)'});
-          g.onfinish=function(){poche.classList.remove('alb-entre');termineCarte();};
-          return;
-        }catch(_e){poche.classList.remove('alb-entre');}
-      }
-      if(poche)poche.classList.remove('alb-attente');
-      if(el.parentNode)el.parentNode.removeChild(el);
-      termineCarte();
-    };
-    try{
-      if(!(r1&&r1.width>0)){setTimeout(inserer,debut+i*PAS+VOL);return;}
-      var dx=r1.left+r1.width/2-(c.r0.left+c.r0.width/2),dy=r1.top+r1.height/2-(c.r0.top+c.r0.height/2)-r1.height*.62,s=r1.width/c.r0.width;
-      var fin='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(0deg)';
-      var vol=el.animate([
-        {transform:pose},
-        {transform:'translate('+((c.dx+dx)/2).toFixed(1)+'px,'+(Math.min(c.dy,dy)-70).toFixed(1)+'px) scale('+(1+s)/2+') rotate(-6deg)',offset:.45},
-        {transform:fin,offset:.88},
-        {transform:fin}
-      ],{duration:VOL,delay:debut+i*PAS,easing:'cubic-bezier(.35,.05,.25,1)',fill:'forwards'});   /* sans remplissage avant : pendant l'attente, c'est le paquet qui tient la carte */
-      vol.onfinish=inserer;
-      el.style.zIndex=String(n-c.i);
-    }catch(_e){setTimeout(inserer,debut+i*PAS+VOL);}
+        if(v.el.parentNode)v.el.parentNode.removeChild(v.el);
+        var g;try{g=cible.animate([{transform:'translateY(-62%)'},{transform:'translateY(0)'}],{duration:850,easing:'cubic-bezier(.45,0,.25,1)'});}catch(_e){g=null;}
+        return (g?fin(g):Promise.resolve()).then(function(){poche.classList.remove('alb-entre');});
+      });
+    });
   });
+  suite.then(termine,termine);
 }
 
 /* glissement du doigt sur le classeur : vers la gauche = page suivante, vers la droite = précédente */
 var toucheX=null,toucheY=null;
 document.addEventListener('touchstart',function(e){
-  var c=e.target&&e.target.closest&&e.target.closest('.alb-classeur .soreal-idle-album-v1');
+  var c=e.target&&e.target.closest&&e.target.closest('.alb-ouvert .soreal-idle-album-v1');
   if(!c||!e.touches||e.touches.length!==1){toucheX=null;return;}
   toucheX=e.touches[0].clientX;toucheY=e.touches[0].clientY;
 },{passive:true});
@@ -352,5 +420,5 @@ window.addEventListener('resize',function(){
   },200);
 });
 
-window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,nouvelles:nouvelles,ranger:ranger};
+window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
 })();

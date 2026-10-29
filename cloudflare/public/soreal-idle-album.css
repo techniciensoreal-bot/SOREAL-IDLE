@@ -1,48 +1,74 @@
 /*
- * Album de collection des boss (Norman, 2026-10-29) : un classeur à anneaux ouvert sur deux pages (PC) ou sur sa page de droite seulement (téléphone) ; 12 pochettes en plastique par page (3 colonnes x 4 rangées) ; chaque petite carte est la grande carte en miniature
- * (soreal-idle-carte-boss.css, mêmes règles en unités cqw). Le plastique est un calque en dégradés (reflets en biais, soudures, fente en haut) : ni filtre ni ombre animée sur les pochettes. La feuille qui tourne a deux faces (cartes devant, dos derrière) : modules/album-cartes-v1.js.
+ * Album de collection des boss (Norman, 2026-10-29) : une farde noire à anneaux. Fermée : la couverture avec le logo du jeu dans sa pochette en plastique. Ouverte : deux pages (PC) ou la page de droite seulement (téléphone) ; 9 pochettes en plastique par page (3 x 3) ;
+ * chaque petite carte est la grande carte en miniature (soreal-idle-carte-boss.css, mêmes règles en unités cqw). Le plastique est un calque en dégradés (reflets en biais, soudures, fente en haut) : ni filtre ni ombre animée sur les pochettes.
+ * La feuille qui tourne a deux faces (cartes devant, dos derrière) : modules/album-cartes-v1.js.
  */
 html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{
   --alb-gap:clamp(6px,1.4vw,12px);
-  display:block;max-width:none;margin:6px auto 10px;box-sizing:border-box;position:relative;
+  display:block;max-width:none;margin:6px auto 10px;box-sizing:border-box;position:relative;background:none;border:0;box-shadow:none;
   padding:clamp(12px,2.2vw,22px) clamp(12px,2.2vw,22px) clamp(12px,2.2vw,22px) clamp(44px,8vw,22px);
-  border-radius:16px;border:3px solid #2a1608;
-  background:
-    radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.07),transparent 60%),
-    repeating-linear-gradient(45deg,rgba(0,0,0,.07) 0 2px,transparent 2px 5px),
-    linear-gradient(160deg,#5b3a1e,#3a2210 60%,#2a1608);
-  box-shadow:0 14px 28px -12px rgba(0,0,0,.7),inset 0 0 0 2px rgba(255,214,150,.12),inset 0 0 40px rgba(0,0,0,.45);
 }
 @media (min-width:900px){html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{padding-left:clamp(12px,2.2vw,22px)}}
-.alb-classeur{max-width:1120px;margin:0 auto}
+.alb-classeur{position:relative;max-width:980px;margin:0 auto}
+/* le cuir noir de la farde, derrière les pages : invisible quand le livre est fermé (seule la couverture se voit) */
+.alb-cuir{position:absolute;inset:0;border-radius:16px;border:3px solid #050507;pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.06),transparent 60%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px),
+    linear-gradient(160deg,#26262c,#141418 60%,#0b0b0e);
+  box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,255,255,.07),inset 0 0 40px rgba(0,0,0,.55)}
+.alb-classeur:not(.alb-ouvert) .alb-cuir{opacity:0}
 /* le livre : une page (téléphone : la page de droite) ou deux (PC) ; la feuille qui tourne vit dans sa perspective */
 .alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;border-radius:8px}
 .alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr))}
+.alb-classeur:not(.alb-ouvert) .alb-livre.alb-double{transform:translateX(-25%)}   /* fermé, la couverture (moitié droite) est centrée */
 .alb-page-g{display:none}
 .alb-double .alb-page-g{display:block}
-.alb-page{position:relative;box-sizing:border-box;padding:clamp(8px,1.6vw,16px);background:linear-gradient(180deg,#232836,#161a26)}
-.alb-page-g{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#232836 0%,#1b1f2c 82%,#0d0f16 100%)}
-.alb-page-d{border-radius:0 8px 8px 0;background:linear-gradient(270deg,#232836 0%,#1b1f2c 82%,#0d0f16 100%)}
-.alb-livre:not(.alb-double) .alb-page-d{border-radius:8px;background:linear-gradient(270deg,#232836 0%,#1b1f2c 88%,#10131b 100%)}
-/* la feuille : 12 pochettes, 3 colonnes x 4 rangées */
+.alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}
+.alb-page{position:relative;box-sizing:border-box;padding:clamp(8px,1.6vw,16px);background:linear-gradient(180deg,#2b2f3b,#1a1d28)}
+.alb-page-g{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
+.alb-page-d{border-radius:0 8px 8px 0;background:linear-gradient(270deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
+.alb-livre:not(.alb-double) .alb-page-d{border-radius:8px;background:linear-gradient(270deg,#2b2f3b 0%,#212531 88%,#12151e 100%)}
+.alb-page-g:has(.alb-feuille:empty){background:linear-gradient(90deg,#16161a 0%,#101014 82%,#08080a 100%);cursor:pointer}   /* l'intérieur de la couverture */
+/* la feuille : 9 pochettes, 3 colonnes x 3 rangées */
 .alb-feuille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;gap:var(--alb-gap,10px);align-content:start}
 /* les trois anneaux : au milieu (PC) ou sur le bord gauche de la page (téléphone) */
 .alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%);width:clamp(40px,8vw,58px);pointer-events:none;z-index:8;
   background:var(--alb-anneau) center 11%/100% auto no-repeat,var(--alb-anneau) center 50%/100% auto no-repeat,var(--alb-anneau) center 89%/100% auto no-repeat;
   filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.6))}
 .alb-livre.alb-double::before{left:50%}
-.alb-livre{--alb-anneau:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23f7f9fb'/><stop offset='.45' stop-color='%23a3a9b1'/><stop offset='1' stop-color='%23e1e5e9'/></linearGradient></defs><circle cx='28' cy='28' r='19' fill='%23120a04' stroke='%23d8b377' stroke-opacity='.55' stroke-width='2'/><circle cx='28' cy='28' r='15' fill='none' stroke='%23000' stroke-opacity='.6' stroke-width='4'/><rect x='2.5' y='21.5' width='51' height='13' rx='6.5' fill='url(%23g)' stroke='%2559606a' stroke-width='1.2'/><rect x='9' y='26' width='38' height='4' rx='2' fill='%23221207' fill-opacity='.6'/></svg>")}
+.alb-livre{--alb-anneau:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 56'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23f7f9fb'/><stop offset='.45' stop-color='%23a3a9b1'/><stop offset='1' stop-color='%23e1e5e9'/></linearGradient></defs><circle cx='28' cy='28' r='19' fill='%23050507' stroke='%23d8b377' stroke-opacity='.4' stroke-width='2'/><circle cx='28' cy='28' r='15' fill='none' stroke='%23000' stroke-opacity='.6' stroke-width='4'/><rect x='2.5' y='21.5' width='51' height='13' rx='6.5' fill='url(%23g)' stroke='%2559606a' stroke-width='1.2'/><rect x='9' y='26' width='38' height='4' rx='2' fill='%23221207' fill-opacity='.6'/></svg>")}
+/* la couverture : farde noire, logo du jeu dans sa pochette en plastique ; elle recouvre la moitié droite (PC) ou toute la page (téléphone), pivote autour des anneaux */
+.alb-couverture{position:absolute;top:0;bottom:0;left:0;right:0;cursor:pointer;z-index:6;transform-origin:0 50%;transform-style:preserve-3d;-webkit-tap-highlight-color:transparent}
+.alb-livre.alb-double .alb-couverture{left:50%}
+.alb-classeur.alb-ouvert .alb-couverture{display:none}
+.alb-couverture:focus-visible{outline:2px solid #ffd24a;outline-offset:3px}
+.alb-cuir-noir{border-radius:0 12px 12px 0;border:3px solid #050507;box-sizing:border-box;
+  background:
+    radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.07),transparent 60%),
+    repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px),
+    linear-gradient(160deg,#2a2a31,#17171c 60%,#0c0c0f);
+  box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,255,255,.07),inset 0 0 40px rgba(0,0,0,.55)}
+.alb-livre:not(.alb-double) .alb-cuir-noir{border-radius:12px}
+.alb-face-arriere.alb-cuir-noir{border-radius:12px 0 0 12px}
+.alb-couv-pochette{position:absolute;left:10%;right:10%;top:22%;bottom:22%;border-radius:10px;padding:4%;box-sizing:border-box;background:linear-gradient(180deg,rgba(226,234,245,.13),rgba(226,234,245,.04));box-shadow:0 5px 8px -4px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.24)}
+.alb-couv-logo{position:absolute;inset:4%;border-radius:8px;background:#0b0b0e;display:grid;place-items:center;overflow:hidden}
+.alb-couv-logo img{width:94%;height:auto;max-height:94%;object-fit:contain;display:block;pointer-events:none;user-select:none}
+.alb-couv-pochette .alb-plastique{border-radius:10px}
 /* une pochette : feuille de plastique transparente, carte dessous (la grande carte en miniature) */
 .alb-pochette{position:relative;box-sizing:border-box;padding:5% 5% 4%;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:7px;user-select:none;
   background:linear-gradient(180deg,rgba(226,234,245,.15),rgba(226,234,245,.05));
   box-shadow:0 5px 8px -4px rgba(0,0,0,.65),inset 0 0 0 1px rgba(255,255,255,.26)}
-.alb-pochette-dos{cursor:default}
+.alb-pochette-dos,.alb-pochette-puzzle{cursor:default}
 .alb-pochette:focus-visible{outline:2px solid #ffd24a;outline-offset:3px}
 .alb-carte{position:relative;transition:transform .3s cubic-bezier(.3,.9,.3,1),opacity .2s}
 .alb-carte-mtg{aspect-ratio:5 / 8.4;container-type:inline-size;perspective:1600px;width:100%}
 .alb-carte-mtg *{pointer-events:none}
 .alb-carte-mtg .carte-mtg-v1{transition:none}
 .alb-carte-mtg .mtg-texte{overflow:hidden}
+/* les cartes du grand dessin : l'affiche verticale du jeu, une neuvième partie par carte (dimensions en cqw de la carte : 94 x 162 de zone visible) */
+.alb-puzzle-carte{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:#0b0b0e;box-shadow:0 .4cqw .9cqw rgba(0,0,0,.6)}
+.alb-puzzle-art{width:100%;height:100%;border-radius:2.8cqw;background-image:url("/chargement/affiche-600x900.webp");background-repeat:no-repeat;background-size:324cqw 486cqw}
 /* le plastique : reflets en biais, soudures sur les bords, fente de la pochette en haut */
 .alb-plastique{position:absolute;inset:0;pointer-events:none;border-radius:7px;
   background:
@@ -51,7 +77,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.30),inset 0 -3px 5px rgba(0,0,0,.22),inset 3px 0 3px rgba(255,255,255,.1)}
 .alb-plastique::after{content:"";position:absolute;left:3%;right:3%;bottom:2%;top:3.5%;border-radius:5px;border:1px dashed rgba(255,255,255,.18);border-top-color:transparent}
 /* au survol la carte se soulève un peu dans sa pochette ; au clic elle sort par le haut ; une carte à ranger reste invisible jusqu'à son arrivée */
-@media (hover:hover){.alb-pochette:not(.alb-pochette-dos):hover .alb-carte{transform:translateY(-2.5%)}}
+@media (hover:hover){.alb-pochette:not(.alb-pochette-dos):not(.alb-pochette-puzzle):hover .alb-carte{transform:translateY(-2.5%)}}
 .alb-pochette.alb-sorti{z-index:4}
 .alb-pochette.alb-sorti .alb-carte{transform:translateY(-30%) scale(1.04) rotate(-2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.55))}
 .alb-pochette.alb-envole .alb-carte{opacity:0;transition:none}
@@ -61,30 +87,34 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* la feuille qui tourne (deux faces) et les ombres qu'elle jette sur les pages */
 .alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;pointer-events:none;will-change:transform,opacity}
 .alb-face{position:absolute;inset:0;backface-visibility:visible;border-radius:0 8px 8px 0}
-.alb-face-arriere{visibility:hidden}
-.alb-face-avant{background:linear-gradient(270deg,#232836 0%,#1b1f2c 82%,#0d0f16 100%)}
-.alb-face-arriere{transform:rotateY(180deg);border-radius:8px 0 0 8px;background:linear-gradient(90deg,#232836 0%,#1b1f2c 82%,#0d0f16 100%)}
+.alb-face-arriere{visibility:hidden;transform:rotateY(180deg)}
+.alb-feuille-tournante .alb-face-avant{background:linear-gradient(270deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
+.alb-feuille-tournante .alb-face-arriere{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
 .alb-face .alb-ombre{position:absolute;inset:0;pointer-events:none;opacity:0;border-radius:inherit;background:linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,0) 75%)}
 .alb-face-arriere .alb-ombre{background:linear-gradient(270deg,rgba(0,0,0,.7),rgba(0,0,0,0) 75%)}
 .alb-ombre-sol{position:absolute;inset:0;pointer-events:none;opacity:0;z-index:5;border-radius:inherit}
 .alb-ombre-sol-d{background:linear-gradient(90deg,rgba(0,0,0,.75),rgba(0,0,0,0) 65%)}
 .alb-ombre-sol-g{background:linear-gradient(270deg,rgba(0,0,0,.75),rgba(0,0,0,0) 65%)}
 /* boutons de page */
-.alb-nav{display:flex;align-items:center;justify-content:center;gap:clamp(12px,4vw,22px);margin:6px 0 14px}
-.alb-bouton{width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:50%;cursor:pointer;color:#ffe9b8;
-  border:2px solid #2a1608;background:linear-gradient(180deg,#6b4526,#3a2210);box-shadow:0 3px 0 #1a0d04,inset 0 0 0 1px rgba(255,214,150,.25);-webkit-tap-highlight-color:transparent}
+.alb-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(10px,3vw,18px);margin:6px 0 14px}
+.alb-bouton{width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:50%;cursor:pointer;color:#e8e8ee;
+  border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14);-webkit-tap-highlight-color:transparent}
 .alb-bouton svg{width:22px;height:22px}
-.alb-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #1a0d04}
+.alb-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #000}
 .alb-bouton:disabled{opacity:.35;cursor:default}
-.alb-bouton:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
-.alb-numero{min-width:110px;text-align:center;font:400 18px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1.2px;color:#ffe9b8;text-shadow:0 2px 0 #2a1608}
-/* l'annonce des nouvelles cartes */
-.alb-annonce{position:fixed;inset:0;z-index:100001;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:18px;box-sizing:border-box;overflow:auto;
-  background:rgba(4,8,16,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.alb-bouton:focus-visible,.alb-fermer:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+.alb-numero{min-width:110px;text-align:center;font:400 18px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1.2px;color:#e8e8ee;text-shadow:0 2px 0 #000}
+.alb-fermer{padding:10px 16px;border-radius:999px;cursor:pointer;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14)}
+/* l'annonce des nouvelles cartes : sans flou (on voit le classeur dès le rangement) */
+.alb-annonce{position:fixed;inset:0;z-index:100001;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:18px;box-sizing:border-box;overflow:auto;background:rgba(4,8,16,.62)}
 .alb-annonce-titre{font:400 clamp(26px,6vw,44px)/1.1 Bangers,Impact,sans-serif;letter-spacing:1.5px;text-align:center;color:#ffd24a;-webkit-text-stroke:2px #4a2a00;paint-order:stroke fill;text-shadow:0 4px 0 #4a2a00,0 0 22px rgba(255,200,60,.7)}
-.alb-annonce-cartes{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(8px,2vw,16px);max-width:min(980px,100%)}
-.alb-annonce-carte{flex:0 0 auto;width:min(150px,21vw);box-shadow:0 10px 18px rgba(0,0,0,.55);border-radius:6%}
-.alb-annonce-reste{font:400 28px/1 Bangers,Impact,sans-serif;color:#ffe9b8}
-.alb-annonce-bouton{padding:12px 26px;border-radius:999px;cursor:pointer;font:400 20px/1 Bangers,Impact,sans-serif;letter-spacing:1.2px;color:#ffe9b8;border:2px solid #2a1608;
-  background:linear-gradient(180deg,#6b4526,#3a2210);box-shadow:0 3px 0 #1a0d04,inset 0 0 0 1px rgba(255,214,150,.25)}
+.alb-annonce-cartes{display:grid;grid-template-columns:repeat(3,auto);justify-content:center;gap:clamp(8px,1.6vw,14px)}   /* 3 x 3 comme une page */
+.alb-annonce-carte{width:min(150px,24vw,calc((100vh - 230px) / 5.2));box-shadow:0 10px 18px rgba(0,0,0,.55);border-radius:6%}
+.alb-annonce-bouton{padding:12px 26px;border-radius:999px;cursor:pointer;font:400 20px/1 Bangers,Impact,sans-serif;letter-spacing:1.2px;color:#e8e8ee;border:2px solid #050507;
+  background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14)}
 .alb-annonce-bouton:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+/* la couche de vol des cartes qu'on range : fixe, une carte par élément déplacé par transform seulement */
+.alb-vol{position:fixed;inset:0;z-index:100002;pointer-events:none}
+.alb-vol-carte{position:fixed;margin:0;will-change:transform;contain:layout paint;box-shadow:0 10px 18px rgba(0,0,0,.5);border-radius:6%;backface-visibility:hidden}
+/* une seule page (téléphone, fenêtre étroite) : la page garde la taille d'une page de classeur, jamais la largeur de l'écran */
+.alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
