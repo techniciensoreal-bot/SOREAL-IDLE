@@ -132,8 +132,8 @@
   "sha": "99603c9d12306d24569640e438b9b64d08e95c7b"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 18,
-  "sha": "15da4db7002a3d62ec395eb85d3bcaa3e0d25590"
+  "pin": 19,
+  "sha": "6a8e3a5dda6fe444848907789444058a0c182a02"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 25,
@@ -320,8 +320,8 @@
   "sha": "fafb9d34fdd450e4b383e1e5da5270bddc6aaa59"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610168,
-  "sha": "7f935aeb60472a29565d4cb3fd38b5e5edaccaf7"
+  "pin": 202610169,
+  "sha": "23fb571aa5825c349a9fae976a534e147b0e57c2"
  },
  "/modules/mineurs-page-v1.js": {
   "pin": 7,
@@ -352,12 +352,16 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 93,
-  "sha": "3de00faccb83a9e7621fb4d5b5bce15ea28f09d6"
+  "pin": 94,
+  "sha": "f849fced4e2c5d9d240233dfbe635fa9cb37ff9f"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
   "sha": "04dcff82c247e0acc24286d4c2e609d9e09933b8"
+ },
+ "/modules/nettoyage-ap-v1.js": {
+  "pin": 1,
+  "sha": "6afb5fbc05603c7e57076e8878cb20dd4b98f6d0"
  },
  "/modules/ngu-labo-v1.js": {
   "pin": 41,
@@ -428,8 +432,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 536,
-  "sha": "579d5152efc99565275faa28198bbc38e3dc6448"
+  "pin": 537,
+  "sha": "1eb8bfb0818d084b88c7a8d474d22f42db4ad7a1"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -500,12 +504,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 549,
-  "sha": "cd993fbce760dee718955b2419920cfa84e72f16"
+  "pin": 550,
+  "sha": "15c2e59a5c077955212d8b273b3f34266fa0a0b6"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 369,
-  "sha": "208965e8e76d9e58f721c26c010a5e217057c670"
+  "pin": 370,
+  "sha": "b095afde69f9bd0ce2b3c79a1b8ae9ee5ffd6fa5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -624,8 +628,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 17,
-  "sha": "04cee4722de0b5d7bb11e1140cab967554e5d976"
+  "pin": 18,
+  "sha": "36c0d2ba718318c61d837dbfda67ebaeeb19144d"
  },
  "/modules/valise-v1.js": {
   "pin": 61,
@@ -696,8 +700,8 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 138,
-  "sha": "9750344771c02b00dfb82313f8832cfbc8ffbdb4"
+  "pin": 140,
+  "sha": "e2f58f8a533aaded5a3d863969471768164c5040"
  },
  "/soreal-idle-ui.css": {
   "pin": 61,

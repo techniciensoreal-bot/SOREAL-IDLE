@@ -315,7 +315,8 @@
     if(suivi.total>8)ignorerClicJusqua=Date.now()+600;
     if(n&&niveau>0){
       retirerDoigt();   /* une vraie frottée : la main a rempli son rôle */
-      niveau-=1;sauver();majFlaque();clic();
+      var elVomi=bete();niveau-=1;sauver();majFlaque();clic();
+      if(niveau<=0){try{var prime=window.__SOREAL_IDLE_NETTOYAGE_AP_V1__;if(prime)prime.reclamer('valise',elVomi);}catch(_e){}}   /* vomi nettoyé : de 1 à 100 AP (très rarement 5 000), qui s'envolent de la Valise (Norman, 2026-10-29) */
     }
   },true);
   ['pointerup','pointercancel'].forEach(function(t){document.addEventListener(t,function(){suivi=null;},true);});

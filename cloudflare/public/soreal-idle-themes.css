@@ -1535,7 +1535,8 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="wis
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{
     grid-column:1;grid-row:1 / span 60;align-self:start;
     /* Jusqu'en HAUT (Norman, 2026-10-25 : « sur PC, la barre latérale des menus doit aller jusqu'en haut, même quand on remonte le menu ouvert jusqu'en haut ; elle s'arrête sous la barre de vie ») : colonne de gauche dès la 1ʳᵉ rangée, collée au bord haut. */
-    position:sticky;top:0;margin:0 0 14px!important;
+    /* Norman (2026-10-29) : « le cadre des menus n'est pas centré en hauteur, fort collé au haut et moins au bas » : collé à environ 12 px du haut comme il l'est du bas (sa hauteur laisse 12 px en bas, voir __ajusterMenuHauteurIdleV1__) ; "contain:paint" découpe ses icônes dans le cadre quand on fait défiler le menu (même avec le dessin accéléré en processus unique de Steam). */
+    position:sticky;top:14px;margin:0 0 14px!important;contain:paint;
     display:flex!important;flex-direction:column;
     gap:8px!important;padding:10px!important;
     /* Défilement PROPRE au menu (Norman, 2026-10-11) : la molette sur les menus ne fait défiler que les menus, sur la zone de jeu que le jeu ; aucune barre visible, et l'élan ne passe pas à la page. */

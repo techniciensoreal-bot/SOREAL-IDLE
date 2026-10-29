@@ -32,6 +32,12 @@ import { activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
 
+/* Nettoyage du Coffre / de la Valise : gain tiré par le moteur (Norman, 2026-10-29). */
+export const IDLE_NETTOYAGE_AP_MAX_V1 = 100;
+export const IDLE_NETTOYAGE_CHANCE_RARE_V1 = 0.0005;
+export const IDLE_NETTOYAGE_AP_RARE_V1 = 5000;
+export const IDLE_NETTOYAGE_ESPACEMENT_MS_V1 = 20000;
+
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
   const state = syncIdleNguState(raw, context, t);
@@ -305,6 +311,22 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     /* Secret « Clicked the bottom right corner of the Advanced Training menu » : le caca n'existe à l'écran qu'avec Wandoos, on refuse sinon. */
     if (!state.systems.wandoos?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     state.records.cornerClicked = 1;
+  } else if (action === "cleanMess") {
+    /*
+     * Nettoyer le Coffre après l'accident (caca) ou la Valise après le vomi (Norman, 2026-10-29) : de 1 à 100 AP au hasard, et très très rarement (0,05 % de chance) 5 000 AP. Les AP sont versés TELS QUELS, hors bonus d'AP, pour que le « +N AP » vu s'envoler du
+     * Coffre ou de la Valise soit exactement ce qui est gagné. L'accident, lui, est tiré et suivi dans la page : le moteur ne peut pas le vérifier, il limite donc la cadence (un nettoyage au plus toutes les 20 s, un vrai demande bien plus : cinq allers-retours du doigt).
+     */
+    const dernierNettoyage = num(state.records.nettoyageAt, 0);
+    if (dernierNettoyage > 0 && t - dernierNettoyage < IDLE_NETTOYAGE_ESPACEMENT_MS_V1) throw new Error("NETTOYAGE_TROP_RAPIDE");
+    const lieu = payload.lieu === "valise" ? "valise" : "coffre";
+    /* générateur injectable par le contexte (essais seulement) ; en jeu : Math.random */
+    const alea = typeof context.alea === "function" ? context.alea : Math.random;
+    const rare = alea() < IDLE_NETTOYAGE_CHANCE_RARE_V1;
+    const ap = rare ? IDLE_NETTOYAGE_AP_RARE_V1 : 1 + Math.floor(alea() * IDLE_NETTOYAGE_AP_MAX_V1);
+    state.currencies.ap += ap;
+    state.records.nettoyageAt = t;
+    state.records.nettoyagesAP = Math.max(0, num(state.records.nettoyagesAP, 0)) + 1;
+    result = { ap, rare, lieu };
   } else if (action === "watchCinematic") {
     /* Visionnage d'une cinématique (Chroniques > Cinématiques) : compteur et code de la dernière, lus par « En direct » (idle-flux-v1.js). Codes : intro = 1 ; les prochaines scènes prennent les numéros suivants. */
     const code = IDLE_CINEMATIQUES_V1[String(payload.id || "")];

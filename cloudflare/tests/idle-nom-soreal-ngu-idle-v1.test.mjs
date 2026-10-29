@@ -27,9 +27,9 @@ assert.ok(fronton.slice(a, a + 1400).includes(">SOREAL</text>") && fronton.slice
 
 // 3. l'écran de lancement : l'affiche verticale de Steam, le logo, la barre (mêmes identifiants qu'avant)
 const index = lire("cloudflare/public/index.html");
-for (const motif of ["/chargement/affiche-600x900.webp", "/chargement/logo-800x450.webp", 'class="ls-logo"', 'id="standaloneProgress"', 'id="standalonePercent"', 'id="standaloneStatus"', "aspect-ratio:2/3"]) assert.ok(index.includes(motif), "écran de lancement : " + motif);
+for (const motif of ["/chargement/affiche-600x900.webp", "/chargement/logo-800x450.webp", 'class="ls-logo"', 'id="standaloneProgress"', 'id="standalonePercent"', 'id="standaloneStatus"', "aspect-ratio:2/3", "/chargement/banniere-1920x620.webp", "(min-width:821px) and (orientation:landscape)", "aspect-ratio:1920/620"]) assert.ok(index.includes(motif), "écran de lancement : " + motif);
 assert.ok(!index.includes("soreal-idle-loading-banner") && !index.includes("/api/idle/media/banner?name=soreal-idle.webp"), "plus la bannière horizontale");
-for (const [f, l, h] of [["affiche-600x900.webp", 600, 900], ["logo-800x450.webp", 800, 450]]) {
+for (const [f, l, h] of [["affiche-600x900.webp", 600, 900], ["logo-800x450.webp", 800, 450], ["banniere-1920x620.webp", 1920, 620]]) {
   const b = fs.readFileSync("cloudflare/public/chargement/" + f);
   assert.equal(b.subarray(0, 4).toString(), "RIFF", f + " est un WebP");
   assert.equal(b.subarray(8, 12).toString(), "WEBP");

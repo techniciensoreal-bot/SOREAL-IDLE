@@ -280,6 +280,10 @@
                 }
               }
 
+              /* Coffre ou Valise nettoyé : le moteur a tiré et versé les AP, la page montre le « +N AP » qui s'envole (modules/nettoyage-ap-v1.js). */
+              if(payload&&payload.action==='cleanMess'&&res.resultat&&Number(res.resultat.ap)>0){
+                try{window.dispatchEvent(new CustomEvent('soreal-nettoyage-ap',{detail:{ap:Number(res.resultat.ap),rare:Boolean(res.resultat.rare),lieu:String(res.resultat.lieu||'')}}));}catch(_e){}
+              }
               if(
                 res.resultat &&
                 Object.keys(res.resultat).length

@@ -268,6 +268,7 @@
       if(fl){
         brilleJusqua=Date.now()+DUREE_BRILLE_MS;sauver_();majBrille_();   /* nettoyée : le Coffre brille */
         window.__coffreNettoyageNumeroIdleV1__=Math.floor(Date.now()/1000);   /* annoncé dans « En direct » avec le prochain battement (Norman, 2026-10-22) */
+        try{var prime=window.__SOREAL_IDLE_NETTOYAGE_AP_V1__;if(prime)prime.reclamer('coffre',coffre_());}catch(_e){}   /* de 1 à 100 AP (très rarement 5 000), qui s'envolent du Coffre (Norman, 2026-10-29) */
       }
       appliquer_();
       return;

@@ -32,6 +32,9 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
+            'Sur PC, le cadre des menus de gauche est centré en hauteur (même marge en haut et en bas) et ses icônes restent dans le cadre quand on le fait défiler.',
+            'Nettoyer le Coffre après un accident, ou la Valise après un vomi, rapporte des AP : de 1 à 100 au hasard, et très très rarement 5 000. Le gain s’envole du Coffre ou de la Valise.',
             'Le jeu change de nom : il s’appelle maintenant SOREAL NGU IDLE, partout. Sur la borne d’arcade, l’enseigne affiche NGU IDLE avec un autocollant SOREAL collé devant.',
             'Au lancement, l’écran de chargement montre la grande affiche verticale du jeu avec son logo et la barre de chargement.',
             'Sur PC, le jeu occupe maintenant toute la largeur de la fenêtre, même hors plein écran : plus de zones vides sur les côtés.',

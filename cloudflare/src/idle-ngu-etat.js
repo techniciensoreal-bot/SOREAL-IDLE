@@ -601,6 +601,9 @@ function baseState(now) {
       specialPrizeClaimed: 0,
       /* Choix du Special Prize : 0 aucun, 1 = 50 000 AP, 2 = joli chaton (il donne aussi les AP). Nombre : les records sont coercés en compteurs. */
       specialPrizeChoice: 0,
+      /* Nettoyages du Coffre / de la Valise qui ont rapporté des AP : nombre et instant du dernier (cadence limitée par le moteur). */
+      nettoyagesAP: 0,
+      nettoyageAt: 0,
       // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
       moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais
