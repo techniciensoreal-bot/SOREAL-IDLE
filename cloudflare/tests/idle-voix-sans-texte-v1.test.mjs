@@ -35,7 +35,7 @@ vm.runInNewContext(readFileSync("cloudflare/public/modules/voix-expressions-v1.j
 const { plan, retirer, origine, editable } = new Function("window", code)({ __SOREAL_IDLE_VOIX_NOMMEES_V1__: voix, __SOREAL_IDLE_EXPRESSIONS_V1__: fenetre.__SOREAL_IDLE_EXPRESSIONS_V1__ });
 
 // Le texte éditable montre ses balises, lisibles : une pause et la voix de la dame
-assert.ok(editable.includes("(pause 900ms) (femme) J’ADORE SOREAL IDLE."), "balises visibles dans l'éditeur : " + editable);
+assert.ok(editable.includes("(pause 900ms) (femme) J’ADORE SOREAL NGU IDLE."), "balises visibles dans l'éditeur : " + editable);
 assert.ok(!/[-]/.test(editable), "aucun marqueur invisible dans le texte montré à l'administrateur");
 // Lecture : mêmes blocs, même pause qu'avec le texte codé d'origine ; seule la dame a en plus sa voix explicite
 const lecturePlan = plan(retirer(editable));

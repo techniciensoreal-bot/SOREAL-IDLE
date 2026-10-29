@@ -235,7 +235,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 // Menu de gauche PC jusqu'en haut ; boutons du menu au dégradé foncé de la Boutique sans contour d'une autre couleur ; Poop toujours montré dans la valise une fois Yggdrasil découvert ; fin de fermeture du Coffre sans saut (2026-10-25). Aucun !important de plus : les règles existantes sont modifiées.
 {
   const t = lire("cloudflare/public/soreal-idle-themes.css"), c = lire("cloudflare/public/soreal-idle-itopod.css"), v = lire("cloudflare/public/modules/valise-v1.js"), u = lire("cloudflare/public/modules/ui-aventure-2-v1.js");
-  assert.ok(t.includes("grid-column:1;grid-row:1 / span 60;align-self:start;") && t.includes("position:sticky;top:0;margin:0 0 14px!important;") && t.includes("max-height:min(calc(100vh - 14px),var(--nav-dispo,100vh))"));
+  assert.ok(t.includes("grid-column:1;grid-row:1 / span 60;align-self:start;") && t.includes("position:sticky;top:14px;margin:0 0 14px!important;") && t.includes("max-height:min(calc(100vh - 14px),var(--nav-dispo,100vh))"));
   assert.ok(t.includes("border-color:color-mix(in srgb,var(--c1) 30%,#000)!important;") && !t.includes("border-color:color-mix(in srgb,var(--c1) 78%,transparent)!important;"));
   assert.ok(c.includes("border-color:color-mix(in srgb,var(--c1,var(--nav-color,#9aa5bb)) 55%,#fff)!important;") && !c.includes("border-color:#f5c14b!important"));
   assert.ok(v.includes("(e.id==='poop'&&yggVu)") && v.includes("menuDisponibleIdleV28_('yggdrasil'"));

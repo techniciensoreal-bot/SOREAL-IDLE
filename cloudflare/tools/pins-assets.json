@@ -300,8 +300,8 @@
   "sha": "179a5a201bfea1f5d63c1acee06dceb16ba2ae2e"
  },
  "/modules/local-neural-piper-v1.js": {
-  "pin": 14,
-  "sha": "922af6981f263c7b4c9bf857b4fede0730fbd77e"
+  "pin": 15,
+  "sha": "201c4f16ea535b9dc9a1d95e21f8e84e0215b9f6"
  },
  "/modules/long-press-v200.js": {
   "pin": 201,

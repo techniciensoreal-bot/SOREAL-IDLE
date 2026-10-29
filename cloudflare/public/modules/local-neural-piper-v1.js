@@ -305,6 +305,8 @@ var PRONONCIATIONS_=[
   [/\bEXP\b/g,"expérience"],
   /* Le nom du jeu se dit « Soréalle Ailledeulle » (Norman, 2026-09-26 : « il prononce mal le nom du jeu »). */
   [/\bSOREAL\b/gi,"Soréalle"],
+  /* NGU s'épelle (le jeu s'appelle SOREAL NGU IDLE depuis le 2026-10-29). */
+  [/\bNGU\b/g,"Enne Gé U"],
   [/\bIDLE\b/gi,"Ailledeulle"]
 ];
 
