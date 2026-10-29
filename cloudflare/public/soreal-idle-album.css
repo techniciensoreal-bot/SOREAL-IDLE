@@ -55,6 +55,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-pochette.alb-sorti{z-index:4}
 .alb-pochette.alb-sorti .alb-carte{transform:translateY(-30%) scale(1.04) rotate(-2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.55))}
 .alb-pochette.alb-envole .alb-carte{opacity:0;transition:none}
+.alb-pochette.alb-entre{z-index:4}
 .alb-pochette.alb-attente .alb-carte{visibility:hidden}
 @media (prefers-reduced-motion:reduce){.alb-carte{transition:none}}
 /* la feuille qui tourne (deux faces) et les ombres qu'elle jette sur les pages */

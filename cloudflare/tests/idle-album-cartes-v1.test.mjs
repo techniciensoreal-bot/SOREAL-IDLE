@@ -22,9 +22,13 @@ assert.ok(m.includes("e&&e.vaincu&&Math.floor(Number(e.numero))>0"), "carte = bo
 assert.ok(u.includes("albumIdle.rendre(entrees)") && u.includes("e.decouvert&&e.vaincu"), "la Collection passe par l'album, compteur = cartes gagnées");
 const col = lire("cloudflare/src/idle-runtime-collection.js");
 assert.ok(col.includes("vaincu:\n          Boolean(index < bossVaincus)"), "le moteur envoie « vaincu » (jamais pour un boss seulement rencontré)");
-// annonce et rangement
+// annonce 12 par 12, validée à chaque page, puis rangement par la fente du haut
 assert.ok(m.includes("nouvelles cartes débloquées !") && m.includes("nouvelle carte débloquée !") && m.includes("Ranger dans l’album") && m.includes("function ranger()") && m.includes("soreal_idle_album_vus_v1"), "annonce puis rangement, mémorisé par compte");
+assert.ok(m.includes("function nouvellesDePage(p)") && m.includes("function premierePageNeuve()") && m.includes("setTimeout(verifierPage,450)") && !m.includes("cartes.length>PAR_PAGE"), "les cartes s'annoncent 12 par 12, page par page, validées à chaque tour de page (jamais une annonce de 110 cartes)");
+assert.ok(m.includes("annoncer(nouvellesDePage(p),p)") && m.includes("annoncer(neuves,page)"), "ouverture : première page avec des cartes neuves ; tour de page : celles de la nouvelle page");
 assert.ok(m.includes("enAttente[e.numero]=true") && c.includes(".alb-pochette.alb-attente .alb-carte{visibility:hidden}"), "la pochette d'une nouvelle carte reste vide jusqu'à l'arrivée de la carte");
+assert.ok(m.includes("r1.height*.62") && m.includes("translateY(-62%) rotate(0deg)") && m.includes("duration:1100") && c.includes(".alb-pochette.alb-entre{z-index:4}"), "la carte arrive devant la fente, puis se glisse lentement dans la pochette (sous le plastique)");
+assert.ok(m.includes("se rejoignent en un PAQUET") && m.includes("c.el.style.zIndex=String(n-c.i)") && m.includes("delay:debut+i*PAS") && m.includes("delay:i*PAS_GROUPE"), "à « Ranger » : d'abord un paquet au centre, puis les cartes partent une par une vers leur pochette");
 // fichiers chargés
 assert.ok(/soreal-idle-album\.css\?v=\d+/.test(i) && /album-cartes-v1\.js\?v=\d+/.test(i), "fichiers chargés");
 assert.ok(lire("cloudflare/public/soreal-idle-carte-boss.css").includes("touch-action:pan-y"), "défilement vertical du texte conservé (rotation de la grande carte)");

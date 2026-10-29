@@ -117,7 +117,7 @@ function page_(sens){
   if(q<0||q>=nbPages())return;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   var deux=livre.classList.contains('alb-double');
-  if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);return;}
+  if(reduit()||typeof pd.animate!=='function'){page=q;afficher(q);setTimeout(verifierPage,450);return;}
   tourne=true;
   var avant=sens>0?feuilleHtml(p):feuilleHtml(q),arriere=sens>0?dosHtml(p):dosHtml(q);
   var feuille=document.createElement('div');
@@ -133,6 +133,7 @@ function page_(sens){
     tourne=false;page=q;
     [ombreD,ombreG,feuille].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     majNav();
+    setTimeout(verifierPage,450);                       /* les cartes de la nouvelle page s'annoncent, puis se rangent */
   };
   var ombresFace=feuille.querySelectorAll('.alb-ombre');
   /* Quelle face se voit : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
@@ -211,37 +212,39 @@ function ouvrir(n,el){
 /* ---------- les nouvelles cartes : annonce puis rangement ---------- */
 function lireVus(){try{var t=localStorage.getItem(CLE_VUS);return t==null?null:(JSON.parse(t)||[]);}catch(_e){return null;}}
 function ecrireVus(l){try{localStorage.setItem(CLE_VUS,JSON.stringify(l));}catch(_e){}}
-function nouvelles(){
-  var vus=lireVus();
-  if(vus===null){
-    /* première visite de cet album : un joueur qui débute (peu de cartes) voit ses cartes arriver ; un joueur déjà avancé n'est pas noyé sous des centaines de cartes d'un coup */
-    if(cartes.length>PAR_PAGE){ecrireVus(cartes.map(function(e){return e.numero;}));return [];}
-    vus=[];
-  }
-  return cartes.filter(function(e){return vus.indexOf(e.numero)<0;});
-}
-function verifierNouvelles(){
+/* Les cartes gagnées ne s'annoncent que 12 par 12 (Norman, 2026-10-29 : « il ne doit les voir que 12 par 12 ; en tournant les pages, ils les valident à chaque fois et les rangent ») : à chaque page affichée, les cartes de CETTE page pas encore annoncées. */
+function nouvellesDePage(p){var v=lireVus()||[];return cartesDePage(p).filter(function(e){return v.indexOf(e.numero)<0;});}
+function nouvelles(){var v=lireVus()||[];return cartes.filter(function(e){return v.indexOf(e.numero)<0;});}
+function premierePageNeuve(){for(var p=0;p<nbPages();p++)if(nouvellesDePage(p).length)return p;return -1;}
+function verifierNouvelles(){   /* à l'ouverture : la première page qui a des cartes à annoncer */
   try{
     if(popup||!cartes.length)return;
     var c=document.querySelector('.alb-classeur');
     if(!c||!c.offsetParent)return;                      /* l'album n'est pas affiché : l'annonce attend la prochaine ouverture */
-    var neuves=nouvelles();
-    if(!neuves.length)return;
-    annoncer(neuves);
+    var p=premierePageNeuve();
+    if(p<0)return;
+    annoncer(nouvellesDePage(p),p);
   }catch(_e){}
 }
-function annoncer(neuves){
+function verifierPage(){   /* après un tour de page : les cartes de la page qu'on vient d'ouvrir */
+  try{
+    if(popup||tourne)return;
+    var c=document.querySelector('.alb-classeur');
+    if(!c||!c.offsetParent)return;
+    var neuves=nouvellesDePage(page);
+    if(neuves.length)annoncer(neuves,page);
+  }catch(_e){}
+}
+function annoncer(neuves,p){
   var C=carteMtg();if(!C)return;
   var vus=lireVus()||[];ecrireVus(vus.concat(neuves.map(function(e){return e.numero;})));   /* annoncées une seule fois, même si la fenêtre est fermée en route */
   neuves.forEach(function(e){enAttente[e.numero]=true;});
-  var idx=cartes.indexOf(neuves[0]);
-  afficher(Math.floor(idx/PAR_PAGE));                  /* derrière l'annonce : la page de la première nouvelle carte, pochettes encore vides */
+  afficher(p);                                         /* derrière l'annonce : la page de ces cartes, leurs pochettes encore vides */
   if(reduit()){neuves.forEach(function(e){delete enAttente[e.numero];});afficher(page);return;}
-  var n=neuves.length,voir=neuves.slice(0,PAR_PAGE);
+  var n=neuves.length,voir=neuves;
   var fond=document.createElement('div');fond.className='alb-annonce';fond.setAttribute('data-morph-garder','');
   fond.innerHTML='<div class="alb-annonce-titre"><b>'+n+'</b> <span>'+(n>1?'nouvelles cartes débloquées !':'nouvelle carte débloquée !')+'</span></div>'+
     '<div class="alb-annonce-cartes">'+voir.map(function(e){return '<div class="alb-annonce-carte alb-carte-mtg" data-n="'+e.numero+'">'+miniature(e)+'</div>';}).join('')+'</div>'+
-    (n>voir.length?'<div class="alb-annonce-reste">+'+(n-voir.length)+'</div>':'')+
     '<button type="button" class="alb-annonce-bouton">Ranger dans l’album</button>';
   document.body.appendChild(fond);
   popup={fond:fond,neuves:neuves,voir:voir,fini:false};
@@ -255,53 +258,74 @@ function annoncer(neuves){
   fond.addEventListener('click',go);
 }
 /* Les cartes de l'annonce volent chacune jusqu'à sa pochette (celle qui est sur une autre page glisse simplement vers le classeur et s'efface). */
+/*
+ * Le rangement (Norman, 2026-10-29 : « une fois qu'il clique sur ranger, elles doivent se rejoindre en paquet et se ranger une par une ») : 1. les cartes de l'annonce se rejoignent en un PAQUET au centre de l'écran (la première du paquet est la première carte à ranger) ;
+ * 2. l'annonce s'estompe, puis la carte du dessus quitte le paquet, vole devant la fente de SA pochette et s'y glisse lentement, sous le plastique ; la suivante part quand la précédente arrive à la fente.
+ */
 function ranger(){
   var P=popup;if(!P||P.fini)return;
   P.fini=true;
-  var fond=P.fond,els=[].slice.call(fond.querySelectorAll('.alb-annonce-carte'));
+  var fond=P.fond,els=[].slice.call(fond.querySelectorAll('.alb-annonce-carte')),n=els.length;
   var bouton=fond.querySelector('.alb-annonce-bouton');if(bouton)bouton.style.visibility='hidden';
-  var titre=fond.querySelector('.alb-annonce-titre'),reste=fond.querySelector('.alb-annonce-reste');
-  [titre,reste].forEach(function(x){if(x)try{x.animate([{opacity:1},{opacity:0}],{duration:300,fill:'forwards'});}catch(_e){}});
-  try{fond.animate([{backgroundColor:'rgba(4,8,16,.72)'},{backgroundColor:'rgba(4,8,16,0)'}],{duration:900,delay:200,fill:'forwards'});}catch(_e){}
-  var restant=els.length,classeur=document.querySelector('.alb-classeur');
+  var titre=fond.querySelector('.alb-annonce-titre');
+  var restant=n;
   var termine=function(){
     P.neuves.forEach(function(e){delete enAttente[e.numero];});
     document.querySelectorAll('.alb-pochette.alb-attente').forEach(function(p){p.classList.remove('alb-attente');});
     if(fond.parentNode)fond.parentNode.removeChild(fond);
     popup=null;
   };
-  if(!els.length){termine();return;}
-  els.forEach(function(el,i){
-    var n=el.getAttribute('data-n'),poche=document.querySelector('.alb-page-d .alb-pochette[data-album-boss="'+n+'"]');
-    var r0=el.getBoundingClientRect(),cible=poche&&poche.querySelector('.alb-carte'),r1=cible?cible.getBoundingClientRect():null;
-    /* La carte arrive AU-DESSUS de sa pochette, puis se glisse dedans par la fente du haut (Norman, 2026-10-29 : « elles doivent entrer par le haut comme si elles étaient glissées dans la pochette en plastique ») : à l'arrivée, la vraie carte de la pochette prend la place de la copie, remontée de 30 %, et redescend sous le plastique. */
-    var fini=function(){
+  if(!n){termine();return;}
+  var GROUPE=700,PAS_GROUPE=55,REPOS=250,VOL=800,PAS=720;
+  var debut=GROUPE+PAS_GROUPE*n+REPOS;       /* quand la première carte quitte le paquet */
+  var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
+  try{if(titre)titre.animate([{opacity:1},{opacity:0}],{duration:400,delay:GROUPE,fill:'forwards'});}catch(_e){}
+  try{fond.animate([{backgroundColor:'rgba(4,8,16,.72)'},{backgroundColor:'rgba(4,8,16,.72)',offset:.01},{backgroundColor:'rgba(4,8,16,0)'}],{duration:700,delay:debut-300,fill:'forwards'});}catch(_e){}
+  var piles=els.map(function(el,i){
+    var r0=el.getBoundingClientRect();
+    return {el:el,r0:r0,dx:vw/2-(r0.left+r0.width/2)+i*1.6,dy:vh/2-(r0.top+r0.height/2)-i*1.6,rot:((i%5)-2)*1.8,i:i};
+  });
+  piles.forEach(function(c){c.el.style.zIndex=String(n-c.i);c.el.style.position='relative';});   /* la première carte est au-dessus du paquet */
+  piles.forEach(function(c){
+    var el=c.el,i=c.i;
+    var n_=el.getAttribute('data-n'),poche=document.querySelector('.alb-page-d .alb-pochette[data-album-boss="'+n_+'"]');
+    var cible=poche&&poche.querySelector('.alb-carte'),r1=cible?cible.getBoundingClientRect():null;
+    var pose='translate('+c.dx.toFixed(1)+'px,'+c.dy.toFixed(1)+'px) scale(1.04) rotate('+c.rot+'deg)';
+    var termineCarte=function(){restant-=1;if(restant<=0)termine();};
+    /* 1. le paquet */
+    try{el.animate([{transform:'translate(0,0) scale(1) rotate(0deg)'},{transform:pose}],{duration:GROUPE,delay:i*PAS_GROUPE,easing:'cubic-bezier(.3,.05,.25,1)',fill:'forwards'});}catch(_e){}
+    /* 2. la carte quitte le paquet, vole devant la fente de sa pochette, puis s'y glisse */
+    var inserer=function(){
       if(poche&&cible){
-        cible.style.transition='none';cible.style.transform='translateY(-30%)';
-        poche.classList.remove('alb-attente');
+        poche.classList.add('alb-entre');poche.classList.remove('alb-attente');
         if(el.parentNode)el.parentNode.removeChild(el);
-        void cible.offsetWidth;
-        cible.style.transition='transform .7s cubic-bezier(.3,.8,.3,1)';cible.style.transform='';
-        setTimeout(function(){cible.style.transition='';},800);
-        try{poche.animate([{filter:'brightness(1.6)'},{filter:'brightness(1)'}],{duration:900,delay:450});}catch(_e){}
-        setTimeout(function(){restant-=1;if(restant<=0)termine();},750);
-        return;
+        try{
+          var g=cible.animate([
+            {transform:'translateY(-62%) rotate(0deg)'},
+            {transform:'translateY(-30%) rotate(-.8deg)',offset:.45},
+            {transform:'translateY(0) rotate(0deg)'}
+          ],{duration:1100,easing:'cubic-bezier(.4,.05,.25,1)'});
+          g.onfinish=function(){poche.classList.remove('alb-entre');termineCarte();};
+          return;
+        }catch(_e){poche.classList.remove('alb-entre');}
       }
       if(poche)poche.classList.remove('alb-attente');
       if(el.parentNode)el.parentNode.removeChild(el);
-      restant-=1;if(restant<=0)termine();
+      termineCarte();
     };
     try{
-      var dx,dy,s;
-      if(r1&&r1.width>0){dx=r1.left+r1.width/2-(r0.left+r0.width/2);dy=r1.top+r1.height/2-(r0.top+r0.height/2)-r1.height*.30;s=r1.width/r0.width;}   /* au-dessus de la pochette, à l'ouverture */
-      else{var rc=classeur?classeur.getBoundingClientRect():{left:r0.left,top:r0.top,width:0,height:0};dx=rc.left+rc.width/2-(r0.left+r0.width/2);dy=rc.top+rc.height/2-(r0.top+r0.height/2);s=.3;}
-      var a=el.animate([
-        {transform:'translate(0,0) scale(1) rotate(0deg)',opacity:1},
-        {transform:'translate('+(dx*.2).toFixed(1)+'px,'+(dy*.2-40).toFixed(1)+'px) scale(1.12) rotate(-4deg)',opacity:1,offset:.28},
-        {transform:'translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(0deg)',opacity:r1?1:0}
-      ],{duration:850,delay:300+i*170,easing:'cubic-bezier(.45,.05,.25,1)',fill:'forwards'});
-      a.onfinish=fini;
-    }catch(_e){fini();}
+      if(!(r1&&r1.width>0)){setTimeout(inserer,debut+i*PAS+VOL);return;}
+      var dx=r1.left+r1.width/2-(c.r0.left+c.r0.width/2),dy=r1.top+r1.height/2-(c.r0.top+c.r0.height/2)-r1.height*.62,s=r1.width/c.r0.width;
+      var fin='translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(0deg)';
+      var vol=el.animate([
+        {transform:pose},
+        {transform:'translate('+((c.dx+dx)/2).toFixed(1)+'px,'+(Math.min(c.dy,dy)-70).toFixed(1)+'px) scale('+(1+s)/2+') rotate(-6deg)',offset:.45},
+        {transform:fin,offset:.88},
+        {transform:fin}
+      ],{duration:VOL,delay:debut+i*PAS,easing:'cubic-bezier(.35,.05,.25,1)',fill:'forwards'});   /* sans remplissage avant : pendant l'attente, c'est le paquet qui tient la carte */
+      vol.onfinish=inserer;
+      el.style.zIndex=String(n-c.i);
+    }catch(_e){setTimeout(inserer,debut+i*PAS+VOL);}
   });
 }
 

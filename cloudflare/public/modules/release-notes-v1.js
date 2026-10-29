@@ -32,7 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Album de collection des boss, refait comme un vrai classeur de cartes : 12 pochettes par page, deux pages sur PC (le dos des cartes à gauche) et la page de droite seule sur téléphone, des petites cartes identiques aux grandes, et une feuille qui tourne vraiment autour des anneaux. On gagne la carte d’un boss en le vainquant une première fois ; à l’ouverture du menu, les cartes gagnées s’affichent puis se glissent une à une dans leur pochette.',
+            'Album de collection des boss, refait comme un vrai classeur de cartes : 12 pochettes par page, deux pages sur PC (le dos des cartes à gauche) et la page de droite seule sur téléphone, des petites cartes identiques aux grandes, et une feuille qui tourne vraiment autour des anneaux. On gagne la carte d’un boss en le vainquant une première fois ; les cartes gagnées s’annoncent 12 par 12, page par page : elles se rejoignent en paquet puis se glissent une à une dans leur pochette.',
             'Dans l’application PC, une mise à jour ne peut plus échouer parce qu’une voix a été régénérée entre-temps : le fichier concerné est mis de côté et le reste s’installe.',
             'Dans l’application PC, l’entrée Steam s’appelle SOREAL NGU IDLE (renommée toute seule au lancement, Steam fermé), et l’interface Steam ne fait plus clignoter de bande noire.',
             'L’icône du jeu est la nouvelle sur la fenêtre et sur les raccourcis du Bureau, du menu Démarrer et de la barre des tâches.',
