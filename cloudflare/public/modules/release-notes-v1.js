@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, la barre de défilement de la page prend les couleurs de la page affichée et une texture à son image : métal rivé, écran vert, écorce, gouttes, étoiles, terre, bandes d’alerte, losanges, papier ou quadrillage.',
             'Sur PC, les images et les sons de l’application sont maintenant protégés : ils ne sont plus lisibles directement dans le dossier d’installation.',
             'Sur téléphone, placer ou retirer de l’Énergie ou de la Magie ne fait plus bouger la page : le cadre « total placé » garde toujours la même hauteur.',
             'Les sons de la boutique (porte, pas) et d’autres effets ne crachouillent plus par moment : un claquement très bref, qui dépendait de l’instant exact où le son démarrait, a été supprimé.',

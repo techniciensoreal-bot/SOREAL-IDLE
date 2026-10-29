@@ -171,6 +171,10 @@
   "pin": 1,
   "sha": "be6dd4f0436d7b3f4ec2031da6eb53eda7b3430d"
  },
+ "/modules/defilement-theme-v1.js": {
+  "pin": 3,
+  "sha": "d587f5bcbf00ae791d2ee064ff7a22ee45989dac"
+ },
  "/modules/defis-page-v1.js": {
   "pin": 2,
   "sha": "bf7cb409c926cabe8a778895ef8d72883f99e311"
@@ -420,8 +424,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 526,
-  "sha": "954fb9e9b2d1b4b5a97badc1fc0c18f2ece0dd2d"
+  "pin": 527,
+  "sha": "99711a3d0191d6a575112b215307967316f0ed8e"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -492,12 +496,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 539,
-  "sha": "04a2b87b0fe848e45a27741ae1930c6fc19121ae"
+  "pin": 540,
+  "sha": "2a8402041d111c68dc44838a9a6d78f50f3c7282"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 359,
-  "sha": "249bb00a4f74bf9db7597c3c43deb5c88298e92f"
+  "pin": 360,
+  "sha": "cfb485b6be82aed89fc95508e867e8af9cac8091"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
