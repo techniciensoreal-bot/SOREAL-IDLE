@@ -67,7 +67,8 @@ assert.equal(fs.readFileSync(path.join(maj, "_externes", "cdn", "lib.mjs"), "utf
 const construire = fs.readFileSync(path.join(DEPOT, "desktop", "construire.mjs"), "utf8");
 assert.ok(construire.includes('const medias = path.join(ICI, "_medias-chiffres")') && construire.includes("copierChiffre(mediasClairs, medias)") && construire.includes("extraResources: avecMedias ? [{ from: medias, to: \"medias\" }]"), "installateur : copie chiffrée");
 const coeur = fs.readFileSync(path.join(DEPOT, "desktop", "coeur.js"), "utf8");
-assert.ok(coeur.includes("chiffrerDossier(d)") && coeur.includes("coffre-medias.mjs"), "cœur : chiffrement en tâche de fond des mises à jour reçues en clair");
+assert.ok(coeur.includes("chiffrerDossier(dossier)") && coeur.includes("coffre-medias.mjs"), "cœur : chiffrement en tâche de fond des mises à jour reçues en clair");
+assert.ok(coeur.includes("app.isPackaged ? medias(couches) : (couches.dossiersMedias || [])"), "dossier d'installation chiffré aussi (par la mise à jour, sans réinstaller), jamais le dossier de développement");
 const { FICHIERS_COEUR } = await import(pathToFileURL(path.join(DEPOT, "desktop", "src", "paquet.mjs")).href);
 assert.ok(FICHIERS_COEUR.includes("desktop/src/coffre-medias.mjs"), "le module voyage dans la mise à jour");
 console.log("idle-desktop-coffre-medias-v1 : OK");

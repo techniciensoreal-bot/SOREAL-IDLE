@@ -130,7 +130,8 @@ async function demarrerJeu() {
   setTimeout(async () => {
     try {
       const coffre = await import(pathToFileURL(path.join(__dirname, "src", "coffre-medias.mjs")).href);
-      for (const d of couches.dossiersMedias || []) await coffre.chiffrerDossier(d);
+      /* Norman (2026-10-29 : « je ne veux jamais avoir à réinstaller sauf force majeure ») : les images déjà présentes dans le dossier d'INSTALLATION (installateur ancien, en clair) sont chiffrées sur place, par la mise à jour, en tâche de fond ; seulement dans l'application installée (jamais le dossier de développement). Un fichier qui résiste (droits, antivirus) est repris au démarrage suivant. */
+      for (const dossier of app.isPackaged ? medias(couches) : (couches.dossiersMedias || [])) await coffre.chiffrerDossier(dossier);
     } catch (_e) { /* au prochain démarrage */ }
   }, 20000);
 
