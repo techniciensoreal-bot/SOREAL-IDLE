@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans l’application PC, une mise à jour ne peut plus échouer parce qu’une voix a été régénérée entre-temps : le fichier concerné est mis de côté et le reste s’installe.',
             'Dans l’application PC, l’entrée Steam s’appelle SOREAL NGU IDLE (renommée toute seule au lancement, Steam fermé), et l’interface Steam ne fait plus clignoter de bande noire.',
             'L’icône du jeu est la nouvelle sur la fenêtre et sur les raccourcis du Bureau, du menu Démarrer et de la barre des tâches.',
             'Le boss qui s’écroule en pierre se fissure exactement là où il se casse : les morceaux qui tombent suivent les fissures.',
