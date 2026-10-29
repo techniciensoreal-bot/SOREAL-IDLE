@@ -15,6 +15,6 @@ assert.ok(chat.includes('data-sic="emojis"') && chat.includes("(hover:hover) and
 
 const ygg = lire("yggdrasil-elfes-v1.js");
 assert.ok(ygg.includes("(def.resource==='magic'?' magie':'')") && ygg.includes(".ygg-carte.magie .ygg-vitre::after") && ygg.includes("mix-blend-mode:hue"), "fruits de Magic bleu-vert");
-assert.ok(ygg.includes("(v.active&&!v.pret&&v.tier>0?' pousse':'')") && ygg.includes("@keyframes yggLueur") && ygg.includes("@keyframes yggBrille"), "lueur qui pousse, plus forte au maximum");
-assert.ok(/yggLueur\{0%,100%\{([^}]*)\}50%/.test(ygg) && /yggBrille\{0%,100%\{/.test(ygg), "boucles sans à-coup (mêmes valeurs à 0 % et 100 %)");
+assert.ok(ygg.includes("(v.active&&!v.pret&&v.tier>0?' pousse':'')") && ygg.includes("@keyframes yggBrilleMax"), "lueur du cadre : seulement au palier maximum (Norman, 2026-10-29)");
+assert.ok(/yggBrilleMax\{0%,100%\{/.test(ygg), "boucle sans à-coup (mêmes valeurs à 0 % et 100 %)");
 console.log("idle-menus-chat-ygg-v1: OK");

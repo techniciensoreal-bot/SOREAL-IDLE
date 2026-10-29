@@ -107,7 +107,6 @@
       /* Grille 3 x 3. */
       '.ygg-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2cqw;}',
       '.ygg-carte{position:relative;display:flex;flex-direction:column;gap:1.1cqw;padding:1.6cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(56,110,70,.95),rgba(20,52,34,.97));box-shadow:inset 0 0 0 2px rgba(240,204,98,.38),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000;min-width:0;}',
-      '.ygg-carte.pret{box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000,0 0 18px rgba(240,204,98,.75);}',
       '.ygg-carte::before{content:"❦";position:absolute;top:-.55em;left:.35em;font-size:clamp(12px,3cqw,20px);color:var(--or);text-shadow:0 1px 0 #000,0 0 6px rgba(240,204,98,.7);}',
       '.ygg-nom{padding:.25em .5em;border:2px solid #000;border-radius:3px;text-align:center;font-weight:900;font-size:clamp(9px,2.1cqw,14px);line-height:1.15;color:#fff3c4;text-shadow:0 1px 0 #000;background:linear-gradient(180deg,#355f40,#1a3a26);min-height:2.4em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3em;}',
       '.ygg-nom span{color:var(--or);font-weight:700;}',
@@ -161,8 +160,8 @@
       /* Arbre (Norman, 2026-10-29 : « les images du R2 sont des arbres, on oublie la terre ; les fruits sont posés sur l'arbre, de taille normale ») : le décor est l'arbre ; chaque heure de pousse ajoute un fruit sur l'un des 24 emplacements (voir EMPLACEMENTS_). Un fruit mûr a sa taille pleine ; celui de l'heure en cours grossit. Aucune image de terre. */
       '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:13%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) scale(var(--ygg-k,1));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
       /* Aura (Norman, 2026-10-29) : de la couleur du fruit, elle brille de plus en plus avec les heures de pousse, jusqu'à la 24e. */
-      '.ygg-vitre.ygg-aura::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(72% 56% at 50% 38%,color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*72%),transparent),transparent 74%);mix-blend-mode:screen;}',
-      '.ygg-vitre.ygg-decor.ygg-aura .ygg-fruit{filter:drop-shadow(0 0 calc(2px + var(--ygg-aura-a)*14px) color-mix(in srgb,var(--ygg-aura) calc(var(--ygg-aura-a)*100%),transparent));}',
+      /* Aura des fruits mûrs, prêts à être récoltés (Norman, 2026-10-29) : de la couleur du fruit, douce ; le fruit qui pousse encore n'en a pas. */
+      '.ygg-vitre.ygg-decor .ygg-fruit.ygg-mur{filter:drop-shadow(0 0 3px var(--ygg-aura)) drop-shadow(0 0 8px color-mix(in srgb,var(--ygg-aura) 65%,transparent))}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -230,11 +229,11 @@
       '.ygg-carte.magie .ygg-vitre::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(160deg,#22e8c4,#1b9ad8);mix-blend-mode:hue;opacity:.9}',
       '.ygg-carte.magie .ygg-barre i{background:linear-gradient(180deg,#b6fff0,#27b9b0);box-shadow:0 0 8px rgba(80,240,220,.7)}',
       '.ygg-carte.pousse,.ygg-carte.pret{z-index:1}',
-      '.ygg-carte.pousse .ygg-vitre{animation:yggLueur 2.6s ease-in-out infinite}',
-      '.ygg-carte.pret .ygg-vitre{animation:yggBrille 1.6s ease-in-out infinite}',
-      '@keyframes yggLueur{0%,100%{box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 6px 1px rgba(var(--lueur),.35),0 0 14px 2px rgba(var(--lueur),.18)}50%{box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 14px 4px rgba(var(--lueur),.62),0 0 30px 8px rgba(var(--lueur),.32)}}',
-      '@keyframes yggBrille{0%,100%{box-shadow:inset 0 0 20px rgba(255,255,255,.14),0 0 16px 5px rgba(var(--lueur),.7),0 0 36px 10px rgba(var(--lueur),.4),0 0 62px 16px rgba(var(--lueur),.2)}50%{box-shadow:inset 0 0 26px rgba(255,255,255,.3),0 0 28px 10px rgba(var(--lueur),.98),0 0 58px 20px rgba(var(--lueur),.62),0 0 96px 30px rgba(var(--lueur),.34)}}',
-      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}.ygg-carte.pousse .ygg-vitre,.ygg-carte.pret .ygg-vitre{animation:none;box-shadow:inset 0 0 18px rgba(0,0,0,.7),0 0 16px 4px rgba(var(--lueur),.6)}}'
+      /* Lueur du cadre (Norman, 2026-10-29 : « trop fortes ; seulement quand un fruit a atteint son maximum, 10/10, 11/11… ; de la couleur du fruit ») : palier maximum seulement, douce. Boucle sans à-coup : mêmes valeurs à 0 % et 100 %. */
+      '.ygg-carte.ygg-max{z-index:1}',
+      '.ygg-carte.ygg-max .ygg-vitre{animation:yggBrilleMax 2.8s ease-in-out infinite}',
+      '@keyframes yggBrilleMax{0%,100%{box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 6px 1px rgba(var(--lueur),.34)}50%{box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 12px 3px rgba(var(--lueur),.52)}}',
+      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}.ygg-carte.ygg-max .ygg-vitre{animation:none;box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 9px 2px rgba(var(--lueur),.42)}}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -305,17 +304,13 @@
    * Aura du fruit (Norman, 2026-10-29) : de la couleur du fruit (teintes relevées sur la dernière image de chacun), elle brille de plus en plus avec les heures réelles de pousse, jusqu'à la 24e ; la 24e heure est beaucoup plus prononcée que toutes les autres.
    */
   var AURAS_={gold:'#ffb21f',powerAlpha:'#ff4a2a',powerBeta:'#e8426f',powerDelta:'#ff7a1f',adventure:'#c9d63a',knowledge:'#e87848',pomegranate:'#ff3b2c',luck:'#b9d11a',arbitrariness:'#e6b834',numbers:'#79bfee',rage:'#ff4426',macguffinAlpha:'#ff9430',watermelon:'#9ccc24',macguffinBeta:'#4a7cff',quirks:'#ff8c22',angryMayo:'#ff6126',sadMayo:'#4fb0d6',moldyMayo:'#d6b13a',ayyMayo:'#c4d824',cincoMayo:'#ff9a38',prettyMayo:'#ff9c40'};
-  function intensiteAura_(v){
-    var g=heuresPousse_(v);
-    if(g<=0)return 0;
-    if(g<=23)return 0.06+0.32*(g/23);
-    return 0.38+0.62*Math.min(1,g-23);
-  }
+  /* « r,g,b » d'une couleur #rrggbb (pour rgba(var(--lueur),α)) */
+  function rvb_(hex){var h=String(hex||'').replace('#','');if(h.length!==6)return '255,211,74';return parseInt(h.slice(0,2),16)+','+parseInt(h.slice(2,4),16)+','+parseInt(h.slice(4,6),16);}
   function couches_(d,v,id,def){
     if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
     var src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1';
     return fruitsArbre_(v).map(function(f){
-      return '<img class="ygg-img ygg-fruit" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+'">';
+      return '<img class="ygg-img ygg-fruit'+(f[2]===1?' ygg-mur':'')+'" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+'">';
     }).join('');
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
@@ -500,9 +495,9 @@
     var auto='';
     if(v.e.autoActivate)auto='<div class="ygg-auto">⚡ Auto-Activate</div>';
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
-    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+'" data-fruit="'+html_(id)+'">'+
+    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+'" data-fruit="'+html_(id)+'"'+(v.tier>0&&v.tier>=d.maxTier?' style="--lueur:'+rvb_(AURAS_[id])+'"':'')+'>'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+(FRUITS_24_[id]===true&&v.tier>0&&intensiteAura_(v)>0?' ygg-aura':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="'+(v.tier>0&&intensiteAura_(v)>0?'--ygg-aura:'+(AURAS_[id]||'#ffd34a')+';--ygg-aura-a:'+intensiteAura_(v).toFixed(3)+';':'')+'background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

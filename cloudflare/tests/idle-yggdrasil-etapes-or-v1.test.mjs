@@ -57,17 +57,12 @@ console.log("idle-yggdrasil-etapes-or-v1: OK");
 
 const srcY = src;
 
-/* Aura du fruit (2026-10-29) : de la couleur du fruit, de plus en plus forte jusqu'à la 24e heure, la 24e beaucoup plus prononcée */
-const intens = vm.runInNewContext("var heuresPousse_=" + src.match(/function heuresPousse_\(v\)\{[^\n]*\n/)[0].replace("function heuresPousse_", "function") + ";(" + src.match(/function intensiteAura_\(v\)\{[\s\S]*?\n  \}/)[0].replace("function intensiteAura_", "function") + ")");
-assert.equal(intens({ growth: 0 }), 0, "pas d'aura sans pousse");
-assert.ok(intens({ growth: 1 }) > 0 && intens({ growth: 1 }) < 0.12, "faible au début");
-for (let h = 1; h < 24; h += 0.5) assert.ok(intens({ growth: h + 0.5 }) > intens({ growth: h }), "de plus en plus forte (" + h + " h)");
-assert.equal(intens({ growth: 24 }), 1, "24e heure : maximum");
-assert.ok(intens({ growth: 24 }) - intens({ growth: 23 }) > 3 * (intens({ growth: 23 }) - intens({ growth: 22 })), "la dernière heure est bien plus marquée que les autres");
+/* Aura (Norman, 2026-10-29) : plus d'intensité par heure ; chaque fruit MÛR a une aura douce de sa couleur, le fruit qui pousse encore n'en a pas (voir idle-ygg-arbre-fruits-v1) */
+assert.ok(!srcY.includes("intensiteAura_"), "plus d'intensité d'aura par heure");
 const ids24 = Object.keys(JSON.parse(srcY.match(/var FRUITS_24_=(\{[^}]*\})/)[1].replace(/(\w+):true/g, '"$1":true')));
 const auras = JSON.parse(srcY.match(/var AURAS_=(\{[^}]*\})/)[1].replace(/(\w+):'/g, '"$1":"').replace(/'/g, '"'));
 for (const id of ids24) assert.ok(/^#[0-9a-f]{6}$/i.test(auras[id]), "couleur d'aura pour " + id);
-assert.ok(srcY.includes("ygg-aura") && srcY.includes("--ygg-aura-a"));
+assert.ok(srcY.includes("ygg-mur") && srcY.includes("--ygg-aura"));
 console.log("ok aura des fruits");
 
 console.log("ok fruits sur l'arbre");
