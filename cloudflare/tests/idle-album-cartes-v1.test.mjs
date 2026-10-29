@@ -48,7 +48,7 @@ assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:
 // la languette perforée le long du dos de chaque page, trous pour les anneaux
 {
   const cc = lire("cloudflare/public/soreal-idle-album.css");
-  assert.ok(cc.includes("--alb-lang:clamp(") && cc.includes(".alb-page-d::before") && cc.includes(".alb-page-g::after") && (cc.match(/circle at 50% (11|50|89)%/g)|| []).length >= 6 && cc.includes(".alb-feuille-tournante .alb-face-avant::before"), "languette perforée sur toute la hauteur, trois trous (là où passent les anneaux), sur les pages et sur la feuille qui tourne");
+  assert.ok(cc.includes("--alb-lang:clamp(") && cc.includes(".alb-page-d::before") && cc.includes(".alb-page-g::after") && (cc.match(/circle at 50% /g) || []).length >= 6 && cc.includes("calc(11% + .39 * var(--alb-ra))") && cc.includes("calc(89% - .39 * var(--alb-ra))") && cc.includes(".alb-feuille-tournante .alb-face-avant::before"), "languette perforée sur toute la hauteur, trois trous (là où passent les anneaux), sur les pages et sur la feuille qui tourne");
 }
 // navigation : au-dessus ET en dessous, 1 page et 10 pages, avec l'animation des 10 feuilles
 assert.ok(m.includes("navHtml('haut')+livreHtml()+navHtml('bas')") && m.includes("alb-prec10") && m.includes("alb-suiv10") && m.includes(".sauter(-10)") && m.includes(".sauter(10)"), "barre de navigation au-dessus et en dessous : ±1 page et ±10 pages");
