@@ -104,11 +104,13 @@
   /*
    * La réserve se déduit de la HAUTEUR DU BANDEAU lui-même (jamais de la position du contenu : une mesure du contenu absorbait aussi des écarts qui ne venaient pas du bandeau, ils s'additionnaient et laissaient un GRAND vide en haut de page,
    * Norman, 2026-10-28 : « le grand espace en début de page se produit encore, quand la barre d'énergie disparaît »). hauteurRef = la plus grande hauteur du bandeau depuis que la page est en place ; réserve = hauteurRef - hauteur actuelle : jamais
-   * plus que les barres qui ont disparu, et zéro dès qu'elles reviennent. Une fois le bandeau stable depuis 1,5 s, la réserve se referme TOUTE SEULE, en douceur (0,8 s) : le contenu glisse alors vers le haut sans à-coup, il ne reste jamais d'espace vide.
+   * plus que les barres qui ont disparu, et zéro dès qu'elles reviennent. Depuis le 2026-10-29 plus rien ne glisse : la réserve reste tant que la page est en haut ; défilée au-delà, elle est retirée avec un défilement reculé de la même hauteur (voir fermerReserveSiStable) : jamais un pixel de mouvement.
    */
   var reserveH=0,hauteurRef=0,hauteurPrec=0,stableDepuis=0,fermeture=0;
-  var STABLE_MS=1500,FERMETURE_MS=800;
+  var STABLE_MS=1500;
   function hauteurHud(){return hudEl?hudEl.getBoundingClientRect().height:0;}
+  /* Sur PC tout ce qui est sous le menu est mis à l'échelle (zoom .86, soreal-idle-themes.css) : une hauteur CSS de la réserve est affichée × zoom. Les mesures sont en pixels d'écran ; la réserve doit donc recevoir hauteur / zoom (sinon elle compense 14 % de moins : la page bougeait de ~6 px). */
+  function zoomPage(){try{var z=parseFloat(getComputedStyle(reserve||hudEl).zoom);return z>0?z:1;}catch(_e){return 1;}}
   function ecartParent(){
     var p=reserve&&reserve.parentElement;
     if(!p)return 0;
@@ -123,9 +125,14 @@
     if(fermeture){clearTimeout(fermeture);fermeture=0;}
     reserve.style.transition='none';
     if(reserveH<=0.01){reserveH=0;reserve.style.display='none';reserve.style.height='0px';reserve.style.marginTop='0px';return;}
+    /*
+     * Sur PC la page est une grille à deux colonnes (menu à gauche sur 60 rangées, bandeau et page à droite) : une réserve sur « 1 / -1 » ne tient pas à côté du menu et la grille la repoussait SOUS toutes ses rangées, la page descendait d'environ 700 px d'un coup (mesuré le
+     * 2026-10-29 : « le grand espace en début de page se produit encore »). La réserve prend donc exactement la colonne du bandeau, quelle que soit la mise en page (téléphone comprise).
+     */
+    try{var colonne=getComputedStyle(hudEl).gridColumn;if(colonne&&reserve.style.gridColumn!==colonne)reserve.style.gridColumn=colonne;}catch(_e){}
     reserve.style.display='block';
-    reserve.style.height=reserveH+'px';
-    reserve.style.marginTop=(-ecartParent())+'px';
+    reserve.style.height=(reserveH/zoomPage())+'px';
+    reserve.style.marginTop=(-ecartParent()/zoomPage())+'px';
   }
   function assurerReserve(h){
     if(reserve&&reserve.isConnected&&reserve.previousElementSibling===h)return;
@@ -134,7 +141,7 @@
     reserve.id='sorealIdleHudReserveV2';
     reserve.setAttribute('data-morph-garder','');
     reserve.setAttribute('aria-hidden','true');
-    reserve.style.cssText='display:none;height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none;grid-column:1/-1';
+    reserve.style.cssText='display:none;height:0;margin:0;padding:0;border:0;pointer-events:none;flex:none';
     reserveH=0;
     h.insertAdjacentElement('afterend',reserve);
   }
@@ -161,13 +168,24 @@
     hauteurPrec=h;
     poserReserve(hauteurRef-h);
   }
-  /* Appelée toutes les 250 ms : bandeau stable depuis 1,5 s avec une réserve ouverte = elle se referme en douceur, puis disparaît de la mise en page. */
+  /*
+   * Appelée toutes les 250 ms. La page ne bouge JAMAIS quand une barre part (Norman, 2026-10-29 : « fais disparaître l'énergie, la magie et la 3e ressource une à une et assure-toi que JAMAIS ça ne fasse bouger la page en fond ») : plus de glissement du contenu vers le haut.
+   * Au repos, la réserve (la place des barres parties) reste tant que la page est tout en haut ; dès que la page est défilée au-delà d'elle, elle est retirée d'un coup ET le défilement est reculé de la même hauteur dans la même tâche : le contenu visible ne change pas d'un pixel.
+   * Jamais près du bas de la page (le navigateur y bornerait le défilement) : elle reste alors jusqu'au prochain changement de page.
+   */
   function fermerReserveSiStable(){
     if(!reserve||!reserve.isConnected||reserveH<=0||fermeture)return;
     if(Date.now()-stableDepuis<STABLE_MS)return;
-    reserve.style.transition='height '+FERMETURE_MS+'ms ease-in-out';
-    reserve.style.height='0px';
-    fermeture=setTimeout(function(){fermeture=0;hauteurRef=hauteurPrec=hauteurHud();poserReserve(0);},FERMETURE_MS+50);
+    var occupe=reserve.getBoundingClientRect().height;
+    var haut=window.pageYOffset||document.documentElement.scrollTop||0;
+    if(!(occupe>=1)||haut<occupe+1)return;   /* en haut de page : la réserve garde le contenu en place */
+    var doc=document.documentElement,fenetre=window.innerHeight||doc.clientHeight||0;
+    if(haut+fenetre>doc.scrollHeight-occupe-2)return;   /* trop près du bas : le défilement serait borné */
+    /* Le défilement est entier (un pixel d'écran) : la réserve garde seulement sa part décimale (moins d'un pixel) pour que le contenu ne bouge pas même d'un dixième de pixel. */
+    var entier=Math.floor(occupe),reste=occupe-entier;
+    poserReserve(reste);
+    window.scrollTo(0,haut-entier);
+    hauteurPrec=hauteurHud();hauteurRef=hauteurPrec+reste;
   }
   function surveillerHud(){
     var h=document.getElementById('sorealIdleHudV2');

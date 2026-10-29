@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand une barre d’énergie, de magie ou de 3e ressource disparaît, la page derrière ne bouge plus du tout, ni sur PC ni sur téléphone, en haut de page comme défilée : l’espace libéré reste en place en haut de page et il est retiré sans le moindre mouvement dès que tu fais défiler. (Sur PC, la page descendait parfois d’un coup d’environ 700 pixels, et de quelques pixels de trop à chaque barre : c’est corrigé.)',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},

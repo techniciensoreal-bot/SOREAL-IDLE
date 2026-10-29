@@ -13,8 +13,15 @@ assert.ok(hud.includes("sorealIdleHudReserveV2") && hud.includes("data-morph-gar
 assert.ok(hud.includes("hauteurRef-h") && hud.includes("function hauteurHud()") && !hud.includes("positionSous"), "la réserve se déduit de la hauteur du bandeau (jamais de la position du contenu : elle absorbait des écarts étrangers et laissait un grand vide, Norman 2026-10-28)");
 assert.ok(hud.includes("poserReserve(hauteurRef-h)") && hud.includes("hauteurRef=Math.max(h,hauteurPrec+occupe)"), "la réserve vaut exactement ce que les barres ont perdu, jamais plus");
 assert.ok(hud.includes("reserve.style.display='none'") && hud.includes("ecartParent()"), "au repos la réserve n existe pas dans la mise en page (sinon le gap de la page s ajoute : grand vide, Norman 2026-10-28) ; en service sa marge annule un gap");
-assert.ok(hud.includes("function fermerReserveSiStable") && hud.includes("STABLE_MS=1500") && hud.includes("fermerReserveSiStable();"), "bandeau stable depuis 1,5 s : la réserve se referme toute seule, en douceur (plus jamais d'espace vide en haut de page)");
-assert.ok(!hud.includes("window.scrollTo("), "plus de report sur le défilement : le contenu ne bouge pas du tout, défilé ou non");
+assert.ok(hud.includes("function fermerReserveSiStable") && hud.includes("STABLE_MS=1500") && hud.includes("fermerReserveSiStable();"), "bandeau stable depuis 1,5 s : la réserve n'est retirée que sans effet visible");
+/* Norman (2026-10-29) : « assure-toi que JAMAIS ça ne fasse bouger la page en fond » : plus de glissement du contenu ; en haut de page la réserve reste, défilée au-delà d'elle elle est retirée ET le défilement reculé de la même hauteur dans la même tâche (partie entière seulement) */
+const fermer = hud.slice(hud.indexOf("function fermerReserveSiStable"), hud.indexOf("function surveillerHud"));
+assert.ok(!hud.includes("FERMETURE_MS") && !fermer.includes("transition") && !fermer.includes("setTimeout"), "aucune animation de fermeture : le contenu ne glisse jamais");
+assert.ok(fermer.includes("haut<occupe+1") && fermer.includes("window.scrollTo(0,haut-entier)") && fermer.includes("poserReserve(reste)"), "en haut de page la réserve reste ; défilé, retrait + défilement reculé de la même hauteur entière");
+assert.ok(fermer.includes("doc.scrollHeight-occupe-2"), "jamais près du bas de la page (défilement borné par le navigateur)");
+/* PC : grille à deux colonnes (menu sur 60 rangées) et zoom .86 sous le menu */
+assert.ok(!hud.includes("grid-column:1/-1") && hud.includes("getComputedStyle(hudEl).gridColumn"), "la réserve prend la colonne du bandeau (sur « 1 / -1 » la grille la repoussait sous le menu : la page descendait de ~700 px, mesuré le 2026-10-29)");
+assert.ok(hud.includes("function zoomPage()") && hud.includes("reserveH/zoomPage()"), "la hauteur de la réserve est divisée par le zoom de la page (.86 sur PC : sinon 14 % de moins compensés)");
 assert.ok(hud.includes("tcv-actif"), "le bandeau caché pendant un combat de Titan n'est pas compensé");
 assert.ok(hud.includes("remettreReserve") && hud.includes("window.addEventListener('resize'"), "réserve remise à zéro au changement de menu et de taille de fenêtre");
 assert.ok(hud.includes("surveillerHud();"), "le bandeau (parfois recréé) est ré-attaché régulièrement");
