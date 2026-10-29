@@ -9,11 +9,11 @@ assert.ok(m.includes("var PAR_PAGE=9,COLS=3,PIECES=9,TOTAL_BOSS=301;") && c.incl
 // PC / téléphone
 assert.ok(m.includes("(min-width:900px)") && c.includes(".alb-page-g{display:none}") && c.includes(".alb-double .alb-page-g{display:block}"), "PC : deux pages ; téléphone : la page de droite seule");
 // le livre fermé d'abord, la couverture avec le logo
-assert.ok(m.includes("if(maintenant-derniereVue>1500){ouvert=false;page=0;}") && m.includes("function ouvrirLivre(p)") && m.includes("function fermerLivre()") && m.includes("alb-couv-logo") && m.includes("IMG_LOGO"), "livre fermé à l'arrivée, couverture avec le logo, ouvrir / fermer");
+assert.ok(m.includes("if(!document.querySelector('.alb-classeur')){ouvert=false;page=0;}") && m.includes("function ouvrirLivre(p)") && m.includes("function fermerLivre()") && m.includes("alb-couv-logo") && m.includes("IMG_LOGO"), "livre fermé à l'arrivée, couverture avec le logo, ouvrir / fermer");
 assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}") && c.includes(".alb-couv-pochette") && c.includes(".alb-cuir-noir"), "couverture de farde noire avec pochette en plastique");
 assert.ok(m.includes("cliquerGauche") && m.includes("Fermer le classeur"), "le livre se referme (bouton, ou clic sur l'intérieur de la couverture)");
 // cartes DE FACE sur la page de gauche ET sur celle de droite (Norman : « finalement, des cartes de face des deux côtés ») ; le dos ne sert plus qu'aux cartes du grand dessin pas encore gagnées
-assert.ok(m.includes("function gaucheHtml(L){return L>=1?contenuPage(L-1):'';}") && m.includes("function droiteHtml(L){return contenuPage(L);}"), "à gauche : la page d'avant, de face ; à droite : la page courante");
+assert.ok(m.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1):'';}") && m.includes("function droiteHtml(L){return contenuPage(L);}"), "à gauche : la page d'avant, de face ; à droite : la page courante");
 assert.ok(!m.includes("function dosHtml(") && !m.includes("nbDos(") && !m.includes("dosLegerHtml"), "plus de page de dos à gauche");
 assert.ok(m.includes("function pieceHtml(k,gagnee){\n  if(!gagnee)return dosPochetteHtml();"), "tant qu'une carte du dessin n'est pas gagnée, on voit son dos (dos de carte SOREAL)");
 assert.ok(m.includes("function pageMax()") && m.includes("function norm(L)") && m.includes("double()?L-(L%2):L"), "sur PC la page de droite est toujours paire (à gauche, la page d'avant)");
@@ -67,3 +67,7 @@ assert.ok(m.includes("sauter:sauter"), "saut exposé");
 assert.ok(/soreal-idle-album\.css\?v=\d+/.test(i) && /album-cartes-v1\.js\?v=\d+/.test(i), "fichiers chargés");
 assert.ok(kc.includes("touch-action:pan-y"), "défilement vertical du texte conservé (rotation de la grande carte)");
 console.log("idle-album-cartes-v1 : OK");
+
+// la dernière page (peu de cartes) garde la taille du classeur ; ouvrir le livre ne déplace rien dans la page
+assert.ok(m.includes("function completer(h,n)") && m.includes("alb-pochette-vide") && m.includes("return completer(h,n);"), "toujours 9 emplacements par page (les vides sont invisibles)");
+assert.ok(c.includes(".alb-pochette-vide{visibility:hidden") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-classeur>.alb-nav{position:absolute"), "la place des barres de navigation est toujours réservée");

@@ -6,7 +6,7 @@
  * Le jeu s'ouvre dans une fenêtre qui charge « app://soreal/ » : toutes les requêtes de la page (la page, les scripts, le moteur, les images, les voix, /api/…) sont servies par le VRAI Worker de production, exécuté ici sur une base SQLite du joueur
  * (src/env-local.mjs). Aucune connexion n'est nécessaire pour jouer ; rien n'est exposé sur le réseau (pas de port ouvert, un schéma d'adresse interne à l'application).
  */
-const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage, session, net, safeStorage } = require("electron");
+const { app, BrowserWindow, protocol, shell, Menu, ipcMain, nativeImage, session, net, safeStorage, dialog } = require("electron");
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
@@ -14,7 +14,16 @@ const { pathToFileURL } = require("node:url");
 const APP = global.__SOREAL_RACINE_APP__ || __dirname;
 const ORIGINE = "app://soreal";
 /* Le menu Admin lance le studio de voix par le lien « soreal-studio:// » (tools/voice-studio/installer_lien_studio.bat) : la fenêtre le confie à Windows, comme le ferait un navigateur. Aucun autre lien d'application n'est ouvert. */
-const LIEN_STUDIO = /^soreal-studio:\/\/demarrer/;
+const LIEN_STUDIO = /^soreal-studio:\/\/demarrer(?:[/?#]|$)/;   /* ancré : rien d'autre après « demarrer » (pas d'arguments injectés vers le gestionnaire de protocole) */
+/* Les appels IPC ne sont acceptés que de la page du jeu (app://soreal/), jamais d'une autre origine ni d'un cadre intégré (audit 2026-10-29). */
+{
+  const handleOrigine = ipcMain.handle.bind(ipcMain);
+  ipcMain.handle = (canal, fn) => handleOrigine(canal, (ev, ...args) => {
+    const u = ev && ev.senderFrame && ev.senderFrame.url;
+    if (u && !String(u).startsWith("app://soreal/")) return { ok: false, code: "ORIGINE_REFUSEE" };
+    return fn(ev, ...args);
+  });
+}
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true } }]);
 
 /*
@@ -100,9 +109,15 @@ async function demarrerJeu() {
     env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
   } catch (e) {
     if (!couches.racineCode && !couches.dossiersMedias.length) throw e;
-    console.error("La mise à jour installée ne démarre pas, retour à la version précédente :", e && e.message || e);
-    etatMaj = majModule.revenirEnArriere(dossierMaj, Object.assign({}, etatMaj, { enAttente: etatMaj.enAttente || etatMaj.version }));
-    couches = majModule.couchesActives(dossierMaj, etatMaj);
+    console.error("Les couches installées ne démarrent pas :", e && e.message || e);
+    /*
+     * Seule une mise à jour PAS ENCORE validée est mise de côté. Une version déjà validée n'est jamais effacée ni mise sur la liste noire pour un échec qui peut venir d'ailleurs (base verrouillée par l'antivirus, disque plein) :
+     * cette session-là seulement démarre sur l'installateur, la suivante retente les couches (audit 2026-10-29).
+     */
+    const aRevenir = Boolean(etatMaj.enAttente);
+    if (aRevenir) etatMaj = majModule.revenirEnArriere(dossierMaj, etatMaj);
+    couches = aRevenir ? majModule.couchesActives(dossierMaj, etatMaj) : { racineCode: null, dossiersMedias: [] };
+    dossiersMediasActifs = medias(couches);
     env = await lancerEnv(couches.racineCode || d.racineDepot, medias(couches));
   }
 
@@ -116,9 +131,11 @@ async function demarrerJeu() {
       const u = new URL(requete.url);
       if (u.hostname === "cdn.jsdelivr.net" && requete.method === "GET") {
         const relatif = decodeURIComponent(u.pathname).split("/").filter((s) => s && s !== "..");
+        if (relatif.some((s) => /[\\:]/.test(s))) return new Response("refusé", { status: 400 });   /* « %5c » décodé en antislash, « C: » : jamais dans un nom de fichier servi */
         for (const racine of dossiersMediasActifs) {
-          const f = path.join(racine, "_externes", "cdn.jsdelivr.net", ...relatif);
-          if (fs.existsSync(f) && fs.statSync(f).isFile()) {
+          const base = path.resolve(racine, "_externes", "cdn.jsdelivr.net");
+          const f = path.join(base, ...relatif);
+          if (path.resolve(f).startsWith(base + path.sep) && fs.existsSync(f) && fs.statSync(f).isFile()) {
             return new Response(fs.readFileSync(f), { status: 200, headers: { "content-type": TYPES_EXTERNES[path.extname(f)] || "application/octet-stream", "access-control-allow-origin": "*", "cache-control": "public, max-age=31536000" } });
           }
         }
@@ -313,6 +330,23 @@ function journalLiaison_(ligne) {
     fs.writeFileSync(f, ancien + new Date().toISOString() + " " + ligne + "\n");
   } catch (_e) { /* jamais bloquant */ }
 }
+/*
+ * Ménage des mises à jour (audit 2026-10-29 : « le code de chaque mise à jour reste sur le disque pour toujours ») : après validation, on ne garde que le code installé et le précédent ;
+ * un dossier qui ne sert plus que pour ses médias perd son sous-dossier « code » (les médias restent : ce sont des couches), et un dossier que plus rien ne référence disparaît.
+ */
+function nettoyerMaj_() {
+  try {
+    if (!etatMaj || etatMaj.enAttente || !dossierMaj) return;
+    const gardeCode = new Set([etatMaj.codeDossier, etatMaj.precedent && etatMaj.precedent.codeDossier].filter(Boolean));
+    const gardeMedias = new Set((etatMaj.mediaDossiers || []).concat((etatMaj.precedent && etatMaj.precedent.mediaDossiers) || []));
+    for (const nom of fs.readdirSync(dossierMaj)) {
+      if (!/^v[A-Za-z0-9]+$/.test(nom)) continue;
+      const dossier = path.join(dossierMaj, nom);
+      if (!gardeCode.has(nom) && !gardeMedias.has(nom)) { fs.rmSync(dossier, { recursive: true, force: true }); continue; }
+      if (!gardeCode.has(nom)) fs.rmSync(path.join(dossier, "code"), { recursive: true, force: true });
+    }
+  } catch (_e) { /* jamais bloquant */ }
+}
 function installerPontSteam() {
   const exeJeu = () => process.execPath;
   ipcMain.handle("steam:etat", async () => {
@@ -430,6 +464,8 @@ function ouvrirFenetre() {
      * d'origine, sans F5 ni envoi des voix au serveur). Il a démarré et il affiche le jeu : c'est la preuve que main.js demande ; seul un cœur qui plante avant d'afficher la page reste refusé.
      */
     if (typeof global.__SOREAL_COEUR_VALIDE__ === "function") global.__SOREAL_COEUR_VALIDE__();
+    /* La mise à jour aussi : fermer l'application (ou Steam qui la ferme) dans les 20 premières secondes ne la fait plus annuler et mettre sur liste noire au démarrage suivant (audit 2026-10-29). */
+    try { if (majModule && etatMaj && etatMaj.enAttente) { etatMaj = majModule.validerMaj(dossierMaj, etatMaj); nettoyerMaj_(); } } catch (_e) { /* jamais bloquant */ }
     setTimeout(() => {
       if (majModule && etatMaj && etatMaj.enAttente && fenetre && !fenetre.isDestroyed()) etatMaj = majModule.validerMaj(dossierMaj, etatMaj);
       /* le cœur lui-même (celui d'une mise à jour) a démarré et tenu 20 s : main.js n'a plus à le surveiller */
@@ -463,6 +499,10 @@ if (!app.requestSingleInstanceLock()) {
     installerPontLiaison();
     ouvrirFenetre();
     corrigerRaccourcis_();
-  }).catch((e) => { console.error(e); app.quit(); });
+  }).catch((e) => {
+    console.error(e);
+    try { dialog.showErrorBox("SOREAL NGU IDLE", "Le jeu n'a pas pu démarrer.\n\n" + String((e && e.message) || e).slice(0, 400) + "\n\nFerme-le complètement puis relance-le ; si le problème revient, dis-le (le détail est dans le journal de l'application)."); } catch (_f) { /* sans fenêtre de dialogue */ }
+    app.quit();
+  });
   app.on("window-all-closed", () => { if (env) env.fermer(); app.quit(); });
 }

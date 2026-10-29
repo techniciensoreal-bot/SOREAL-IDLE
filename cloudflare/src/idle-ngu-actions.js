@@ -37,6 +37,7 @@ export const IDLE_NETTOYAGE_AP_MAX_V1 = 100;
 export const IDLE_NETTOYAGE_CHANCE_RARE_V1 = 0.0005;
 export const IDLE_NETTOYAGE_AP_RARE_V1 = 5000;
 export const IDLE_NETTOYAGE_ESPACEMENT_MS_V1 = 20000;
+export const IDLE_NETTOYAGE_MAX_PAR_JOUR_V1 = 150;
 
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
@@ -316,15 +317,25 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      * Nettoyer le Coffre après l'accident (caca) ou la Valise après le vomi (Norman, 2026-10-29) : de 1 à 100 AP au hasard, et très très rarement (0,05 % de chance) 5 000 AP. Les AP sont versés TELS QUELS, hors bonus d'AP, pour que le « +N AP » vu s'envoler du
      * Coffre ou de la Valise soit exactement ce qui est gagné. L'accident, lui, est tiré et suivi dans la page : le moteur ne peut pas le vérifier, il limite donc la cadence (un nettoyage au plus toutes les 20 s, un vrai demande bien plus : cinq allers-retours du doigt).
      */
-    const dernierNettoyage = num(state.records.nettoyageAt, 0);
-    if (dernierNettoyage > 0 && t - dernierNettoyage < IDLE_NETTOYAGE_ESPACEMENT_MS_V1) throw new Error("NETTOYAGE_TROP_RAPIDE");
     const lieu = payload.lieu === "valise" ? "valise" : "coffre";
+    /* Cadence PAR LIEU (nettoyer le Coffre puis la Valise de suite est normal : tout peut être sale d'un coup) ; une valeur postérieure à l'instant présent (import de partie, décalage d'horloge) est ignorée au lieu de bloquer la récompense. */
+    const cleLieu = lieu === "valise" ? "nettoyageAtValise" : "nettoyageAtCoffre";
+    let dernierNettoyage = num(state.records[cleLieu], 0);
+    if (dernierNettoyage > t) dernierNettoyage = 0;
+    if (dernierNettoyage > 0 && t - dernierNettoyage < IDLE_NETTOYAGE_ESPACEMENT_MS_V1) throw new Error("NETTOYAGE_TROP_RAPIDE");
+    /* Plafond par jour (un client modifié ne peut pas encaisser des AP toutes les 20 s toute la journée : l'accident, lui, n'est vérifiable que dans la page). */
+    const jour = Math.floor(t / 86400000);
+    let faitsAujourdhui = num(state.records.nettoyageJour, 0) === jour ? Math.max(0, num(state.records.nettoyageJourN, 0)) : 0;
+    if (faitsAujourdhui >= IDLE_NETTOYAGE_MAX_PAR_JOUR_V1) throw new Error("NETTOYAGE_LIMITE_JOUR");
     /* générateur injectable par le contexte (essais seulement) ; en jeu : Math.random */
     const alea = typeof context.alea === "function" ? context.alea : Math.random;
     const rare = alea() < IDLE_NETTOYAGE_CHANCE_RARE_V1;
     const ap = rare ? IDLE_NETTOYAGE_AP_RARE_V1 : 1 + Math.floor(alea() * IDLE_NETTOYAGE_AP_MAX_V1);
     state.currencies.ap += ap;
     state.records.nettoyageAt = t;
+    state.records[cleLieu] = t;
+    state.records.nettoyageJour = jour;
+    state.records.nettoyageJourN = faitsAujourdhui + 1;
     state.records.nettoyagesAP = Math.max(0, num(state.records.nettoyagesAP, 0)) + 1;
     result = { ap, rare, lieu };
   } else if (action === "watchCinematic") {

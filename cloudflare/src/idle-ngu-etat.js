@@ -604,6 +604,10 @@ function baseState(now) {
       /* Nettoyages du Coffre / de la Valise qui ont rapporté des AP : nombre et instant du dernier (cadence limitée par le moteur). */
       nettoyagesAP: 0,
       nettoyageAt: 0,
+      nettoyageAtCoffre: 0,
+      nettoyageAtValise: 0,
+      nettoyageJour: 0,
+      nettoyageJourN: 0,
       // Money Pit, « One-Time Bonuses » déjà versés (masque de bits, 2026-09-24).
       moneyPitOneTimeMask: 0,
       // Newbie Offers achetées (IDLE_NGU_NEWBIE_OFFERS) : permanent, jamais

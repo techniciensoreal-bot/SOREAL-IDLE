@@ -18,11 +18,15 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { spawn, spawnSync, execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { construirePaquetCode } from "./src/paquet.mjs";
+import { construirePaquetCode, FICHIERS_COEUR } from "./src/paquet.mjs";
 import { signerManifeste, calculerDelta } from "./src/maj.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const DEPOT = path.resolve(ICI, "..");
+{
+  const manquants = FICHIERS_COEUR.filter((f) => !fs.existsSync(path.join(DEPOT, ...f.split("/"))));
+  if (manquants.length) { console.error("Publication refusée : fichiers du cœur absents du dépôt : " + manquants.join(", ")); process.exit(1); }   /* un paquet signé mais incomplet ferait quitter l'application (audit 2026-10-29) */
+}
 const args = process.argv.slice(2);
 const option = (nom, defaut) => { const i = args.indexOf("--" + nom); return i >= 0 && args[i + 1] && !args[i + 1].startsWith("--") ? args[i + 1] : defaut; };
 const CLE_PRIVEE = path.join(os.homedir(), ".soreal-idle", "maj-cle-privee.pem");

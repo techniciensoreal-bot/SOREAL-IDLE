@@ -7,6 +7,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+/* un exécutable Steam/Windows dont le nom ressemble au jeu (une entrée étrangère qui porterait seulement le même nom n'est ni renommée ni écrasée) */
+const ressembleAuJeu = (exe) => /soreal/i.test(String(exe || ""));
 
 export const NOM_STEAM = "SOREAL NGU IDLE";
 /* Le jeu s'appelait « SOREAL IDLE » (renommé « SOREAL NGU IDLE », Norman, 2026-10-29) : l'entrée déjà présente dans Steam est RENOMMÉE sur place, avec son identifiant (donc ses images, son temps de jeu, ses collections), jamais dupliquée. */
@@ -79,7 +81,7 @@ export function dossierSteam(env = process.env) {
   if (env.SOREAL_STEAM_DIR) return fs.existsSync(env.SOREAL_STEAM_DIR) ? env.SOREAL_STEAM_DIR : null;
   const candidats = [];
   try {
-    const sortie = execFileSync("reg", ["query", "HKCU\\Software\\Valve\\Steam", "/v", "SteamPath"], { encoding: "utf8", windowsHide: true });
+    const sortie = execFileSync("reg", ["query", "HKCU\\Software\\Valve\\Steam", "/v", "SteamPath"], { encoding: "utf8", windowsHide: true, timeout: 4000 });
     const m = sortie.match(/SteamPath\s+REG_SZ\s+(.+)/);
     if (m) candidats.push(m[1].trim());
   } catch (_e) { /* pas de clé : Steam n'est pas installé pour cet utilisateur */ }
@@ -97,7 +99,7 @@ export function comptesSteam(steam) {
 export function steamEnCours(env = process.env) {
   if (env.SOREAL_STEAM_EN_COURS !== undefined) return env.SOREAL_STEAM_EN_COURS === "1";
   try {
-    const sortie = execFileSync("tasklist", ["/FI", "IMAGENAME eq steam.exe", "/FO", "CSV", "/NH"], { encoding: "utf8", windowsHide: true });
+    const sortie = execFileSync("tasklist", ["/FI", "IMAGENAME eq steam.exe", "/FO", "CSV", "/NH"], { encoding: "utf8", windowsHide: true, timeout: 4000 });
     return /steam\.exe/i.test(sortie);
   } catch (_e) { return false; }
 }
@@ -154,12 +156,20 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
     fs.mkdirSync(config, { recursive: true });
     if (fs.existsSync(fichier) && !fs.existsSync(fichier + ".soreal-sauvegarde")) fs.copyFileSync(fichier, fichier + ".soreal-sauvegarde");
     const table = racine.find((e) => e.k.toLowerCase() === "shortcuts");
-    const i = table.v.findIndex((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")));   /* l'entrée existante est mise à jour sur place : nouveau nom, nouvel exécutable, même identifiant */
+    const i = table.v.findIndex((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && ressembleAuJeu(champ(e.v, "Exe")));   /* l'entrée existante est mise à jour sur place : nouveau nom, nouvel exécutable, même identifiant */
     /* identifiant de CE compte : celui de l'entrée existante (ancien nom compris), sinon celui du nom actuel */
     const idCompte = i >= 0 ? (Number(champ(table.v[i].v, "appid")) >>> 0) || id : id;
     if (!faits.length) premierId = idCompte;
     const nouveau = entreeRaccourci({ id: idCompte, nom, exe: cible, dossier: '"' + path.win32.dirname(exe) + '"', icone: fichierIcone });
-    if (i >= 0) table.v[i] = { k: table.v[i].k, t: 0, v: nouveau };
+    if (i >= 0) {
+      /* mise à jour sur place : ce que le joueur a réglé dans Steam (options de lancement, collections, dernière partie, masqué) est conservé */
+      for (const cle of ["LaunchOptions", "LastPlayTime", "IsHidden", "tags"]) {
+        const ancien = table.v[i].v.find((x) => String(x.k).toLowerCase() === cle.toLowerCase());
+        const j = nouveau.findIndex((x) => String(x.k).toLowerCase() === cle.toLowerCase());
+        if (ancien && j >= 0) nouveau[j] = ancien;
+      }
+      table.v[i] = { k: table.v[i].k, t: 0, v: nouveau };
+    }
     else {
       const suivant = table.v.reduce((m, e) => Math.max(m, Number(e.k) + 1 || 0), 0);
       table.v.push({ k: String(suivant), t: 0, v: nouveau });

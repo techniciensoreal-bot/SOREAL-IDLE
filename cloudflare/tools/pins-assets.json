@@ -20,8 +20,8 @@
   "sha": "ccd87fbe3ec1d998fd5b7bceb4e23c0fb4ef23e3"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 10,
-  "sha": "1f11107950d48ec9b79c53fe1bcae83060970eb3"
+  "pin": 11,
+  "sha": "27ee8dc56a5e1d2fed6eff8a4a0b9801c0e17010"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -116,8 +116,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 11,
-  "sha": "a1d6267e95c4102697466feb0daa4fa201445c06"
+  "pin": 12,
+  "sha": "49d86b87dc2b0dd228326a4f3282d94217f77680"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -360,16 +360,16 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 95,
-  "sha": "b58a87750e5a8a067793301b20a67a385c127b73"
+  "pin": 96,
+  "sha": "c6a8dde3b53f25f265ccfcafc22316635f288e7d"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
   "sha": "04dcff82c247e0acc24286d4c2e609d9e09933b8"
  },
  "/modules/nettoyage-ap-v1.js": {
-  "pin": 1,
-  "sha": "6afb5fbc05603c7e57076e8878cb20dd4b98f6d0"
+  "pin": 2,
+  "sha": "4859e38ae124e3e9767a6d6fdf5fe88065dbf9a9"
  },
  "/modules/ngu-labo-v1.js": {
   "pin": 41,
@@ -440,8 +440,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 552,
-  "sha": "d5ad99a1137308f797e3d54cd747368f370bb526"
+  "pin": 554,
+  "sha": "9dcf656c5c7a332924de1631ed005b9eb689223f"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -512,12 +512,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 565,
-  "sha": "6cc960e66b5fe3039dc52d45fe2be9c42cd8d95f"
+  "pin": 567,
+  "sha": "7bdf76159becb07025eb2062f4aef51a7f62bf88"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 385,
-  "sha": "8882c3081b4ffa4ce57b0ceb56a6e0cfb4a04f59"
+  "pin": 387,
+  "sha": "0bdef9924cfad73cf0ccbb1d4844382fd5207bd5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -684,8 +684,8 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 12,
-  "sha": "d09173d3e02583bda8c07948da7951859a211816"
+  "pin": 13,
+  "sha": "ab600635ad9ff3b6625106a5a1b7958fcc41f6c1"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,

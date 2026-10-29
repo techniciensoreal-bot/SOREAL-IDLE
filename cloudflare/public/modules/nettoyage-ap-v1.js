@@ -75,6 +75,7 @@ function reclamer(lieu,element){
     var f=window.__actionMetaIdleV130__;
     if(typeof f!=='function')return false;
     var p=centre(element);
+    attente=attente.filter(function(a){return Date.now()-a.at<8000;});   /* une demande refusée par le moteur (cadence, plafond) ne reçoit jamais de « +N AP » : son entrée ne reste pas */
     attente.push({lieu:String(lieu||''),x:p.x,y:p.y,at:Date.now()});
     if(attente.length>6)attente.shift();
     f({action:'cleanMess',lieu:String(lieu||'coffre')});

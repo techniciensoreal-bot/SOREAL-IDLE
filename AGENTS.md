@@ -354,3 +354,7 @@ Décision de Norman (2026-10-19 : « le vrai NGU Idle est un jeu local ; je veux
 ## Ports réservés au studio de voix (8765) et à son pilote (8766)
 
 Aucun serveur de test ou d'aperçu (script, `http.server`, `node -e`, maquette) n'écoute en dur sur 8765 ou 8766 : port éphémère (0) ou 8791 et plus ; tout serveur de fond est arrêté en fin de tâche. Depuis le 2026-10-16 le lancement du studio résiste à un intrus sur son port (`cloudflare/tools/voice-studio/liberer_port.py`, partagé par `lancer.bat`, `lancer_depuis_lien.bat` et `pilote.py` : le studio se reconnaît à `serveur.py`, un serveur de développement intrus — node, python, deno, bun — est arrêté, tout autre programme est signalé sans être touché) ; test `idle-studio-port-libre-v1`. Ne jamais revenir à « quelque chose écoute sur 8765 donc le studio tourne ».
+
+## Album des boss (2026-10-29)
+
+Page 0 = affiche découpée en 9 cartes (dos tant que non gagnées ; le total 301 sert seulement au calcul côté client et n'est jamais affiché) ; ensuite 9 cartes par page, uniquement les boss vaincus. Chaque page garde TOUJOURS 9 emplacements (`completer`, `.alb-pochette-vide` invisible) et la place des barres de navigation est réservée en permanence (`--alb-nav-h/-b`) : ni la dernière page ni l'ouverture du livre ne changent la taille ou la position du classeur. Le saut « ±10 » = 10 feuilles (20 pages sur PC).

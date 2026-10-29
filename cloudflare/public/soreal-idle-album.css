@@ -9,9 +9,14 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   padding:clamp(12px,2.2vw,22px) clamp(12px,2.2vw,22px) clamp(12px,2.2vw,22px) clamp(44px,8vw,22px);
 }
 @media (min-width:900px){html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{padding-left:clamp(12px,2.2vw,22px)}}
-.alb-classeur{position:relative;max-width:980px;margin:0 auto}
+/* La place des barres de navigation (au-dessus et en dessous) est TOUJOURS réservée, livre fermé ou ouvert : l'ouvrir ne déplace plus rien dans la page (Norman, 2026-10-29). */
+.alb-classeur{position:relative;max-width:980px;margin:0 auto;padding:var(--alb-nav-h) 0 var(--alb-nav-b);--alb-nav-h:56px;--alb-nav-b:66px}
+.alb-classeur>.alb-nav{position:absolute;left:0;right:0;margin:0}
+.alb-classeur>.alb-nav-haut{top:0}
+.alb-classeur>.alb-nav-bas{bottom:0}
+.alb-pochette-vide{visibility:hidden;pointer-events:none}
 /* le cuir noir de la farde, derrière les pages : invisible quand le livre est fermé (seule la couverture se voit) */
-.alb-cuir{position:absolute;inset:0;border-radius:16px;border:3px solid #050507;pointer-events:none;
+.alb-cuir{position:absolute;inset:var(--alb-nav-h) 0 var(--alb-nav-b);border-radius:16px;border:3px solid #050507;pointer-events:none;
   background:
     radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.06),transparent 60%),
     repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px),
@@ -33,8 +38,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-feuille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;gap:var(--alb-gap,10px);align-content:start}
 /* les trois anneaux : au milieu (PC) ou sur le bord gauche de la page (téléphone) */
 .alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%);width:var(--alb-ra);pointer-events:none;z-index:5;
-  background:var(--alb-anneau) center 11%/100% auto no-repeat,var(--alb-anneau) center 50%/100% auto no-repeat,var(--alb-anneau) center 89%/100% auto no-repeat;
-  filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.6))}
+  background:var(--alb-anneau) center 11%/100% auto no-repeat,var(--alb-anneau) center 50%/100% auto no-repeat,var(--alb-anneau) center 89%/100% auto no-repeat}
 .alb-livre.alb-double::before{left:50%}
 /* livre fermé : l'anneau seul (pas de trou noir : la couverture est pleine), posé sur le bord de la couverture ; dès qu'il s'ouvre l'anneau repasse sous les feuilles qui tournent */
 .alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:8;background:var(--alb-anneau-seul) center 11%/100% auto no-repeat,var(--alb-anneau-seul) center 50%/100% auto no-repeat,var(--alb-anneau-seul) center 89%/100% auto no-repeat}

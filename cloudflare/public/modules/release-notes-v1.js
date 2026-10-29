@@ -32,6 +32,7 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’album des boss garde la même taille sur toutes ses pages, même la dernière avec peu de cartes, et ouvrir le livre ne fait plus bouger la page.',
             'Le Cube de l’infini a toujours une petite aura, de la couleur de son aspect (elle change avec son palier).',
             'Les cartes de boss s’ouvrent plus grandes sur PC, au même format dans le panneau sous la borne et quand on passe au boss précédent ou suivant ; sur téléphone elles prennent presque toute la largeur, les flèches passant sous la carte.',
             'Dans l’album des boss, on change de page au-dessus comme en dessous du livre : une flèche pour avancer d’une page, une autre pour avancer de 10 pages, avec 10 feuilles qui tournent en même temps. Le livre s’ouvre en refaisant à l’envers le geste de sa fermeture, les feuilles passent au-dessus des anneaux (qu’on voit à travers leurs trous), les cartes ne bougent plus à la fin d’un tour de page, et le dos de la première feuille ne montre que les cartes du grand dessin déjà gagnées.',
@@ -46,7 +47,6 @@
             'L’autocollant SOREAL de la borne est centré sur l’enseigne, de travers, et le N de NGU se lit en entier.',
             'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
             'Sur PC, le cadre des menus de gauche est centré en hauteur (même marge en haut et en bas) et ses icônes restent dans le cadre quand on le fait défiler.',
-            'Nettoyer le Coffre après un accident, ou la Valise après un vomi, rapporte des AP : de 1 à 100 au hasard, et très très rarement 5 000. Le gain s’envole du Coffre ou de la Valise.',
             'Le jeu change de nom : il s’appelle maintenant SOREAL NGU IDLE, partout. Sur la borne d’arcade, l’enseigne affiche NGU IDLE avec un autocollant SOREAL collé devant.',
             'Au lancement, l’écran de chargement montre la grande affiche verticale du jeu avec son logo et la barre de chargement.',
             'Sur PC, le jeu occupe maintenant toute la largeur de la fenêtre, même hors plein écran : plus de zones vides sur les côtés.',
