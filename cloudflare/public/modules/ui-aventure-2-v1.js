@@ -2580,7 +2580,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
       function basculerAccesPublicIdleV1_(){
         if(!REG.idleEtat||!REG.idleEtat.reglages||!SOREAL_SESSION)return;
         const voulu=!REG.idleEtat.reglages.accesPublic;
-        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toute personne qui se connecte avec un compte Google, sans passer par APP / TV ?'))return;
+        if(voulu&&!window.confirm('Ouvrir SOREAL NGU IDLE à toute personne qui se connecte avec un compte Google, sans passer par APP / TV ?'))return;
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){
@@ -2623,12 +2623,12 @@ function toggleCoffreOuvertAdventureIdleV1_(){
       function basculerAccesOuvertIdleV1_(){
         if(!REG.idleEtat||!REG.idleEtat.reglages||!SOREAL_SESSION)return;
         const voulu=!REG.idleEtat.reglages.accesOuvert;
-        if(voulu&&!window.confirm('Ouvrir SOREAL IDLE à toutes les personnes qui ont le trophée Assiduité de bronze (même celles qui ne travaillent plus ici) ?'))return;
+        if(voulu&&!window.confirm('Ouvrir SOREAL NGU IDLE à toutes les personnes qui ont le trophée Assiduité de bronze (même celles qui ne travaillent plus ici) ?'))return;
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){
               REG.idleEtat.reglages.accesOuvert=Boolean(res.accesOuvert);
-              toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert aux détenteurs du trophée Assiduité de bronze.':'🔒 Accès fermé : SOREAL IDLE est caché à tout le monde.');
+              toastIdleV5_(res.accesOuvert?'🔓 Accès ouvert aux détenteurs du trophée Assiduité de bronze.':'🔒 Accès fermé : SOREAL NGU IDLE est caché à tout le monde.');
               const root=document.querySelector('.soreal-idle-page-root-v28');
               if(root&&REG.idleMenuActifV28==='parametres')rafraichirMenuRacineIdleV28_();
             }else{

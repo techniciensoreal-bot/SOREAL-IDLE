@@ -755,7 +755,7 @@
         const d=idleClassementV1.donnees;
         const ongletsListe=ongletsClassementIdleV1_(d);
         const onglet=ongletsListe.some(function(o){return o.id===idleClassementOngletV1;})?idleClassementOngletV1:'global';
-        const tete=entetePageIdleV28_('📊 Classement','Tous les joueurs de SOREAL IDLE. Un joueur qui recommence sa partie reste listé, à zéro.');
+        const tete=entetePageIdleV28_('📊 Classement','Tous les joueurs de SOREAL NGU IDLE. Un joueur qui recommence sa partie reste listé, à zéro.');
         const onglets='<div class="soreal-idle-collection-tabs-v1">'+
           ongletsListe.map(function(o){
             return '<button type="button" class="soreal-idle-collection-tab-v1'+(onglet===o.id?' active':'')+'" onclick="window.__changerOngletClassementIdleV1__(\''+o.id+'\')">'+o.nom+'</button>';

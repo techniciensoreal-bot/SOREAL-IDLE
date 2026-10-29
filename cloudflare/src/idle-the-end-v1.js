@@ -154,7 +154,7 @@ export const IDLE_THE_END_TEXT_V1 = Object.freeze([
   "Tu ouvres les yeux dans la Zone de départ, le sac presque vide, le cœur léger. Tout est à refaire. Et pour la première fois, ça te fait plaisir.",
   "---",
   "À toi qui es arrivé jusqu'ici.",
-  "Merci d'avoir joué à SOREAL IDLE, d'avoir cherché les recoins, d'avoir supporté les nombres qui prennent trop de place et les nuits passées à attendre qu'une barre se remplisse. Ce jeu a été fait pour s'amuser ensemble.",
+  "Merci d'avoir joué à SOREAL NGU IDLE, d'avoir cherché les recoins, d'avoir supporté les nombres qui prennent trop de place et les nuits passées à attendre qu'une barre se remplisse. Ce jeu a été fait pour s'amuser ensemble.",
   "Reviens quand tu veux. Le monde est toujours là.",
   "— SOREAL",
   "# THE... END ?"

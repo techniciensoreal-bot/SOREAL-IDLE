@@ -8,7 +8,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-export const NOM_STEAM = "SOREAL IDLE";
+export const NOM_STEAM = "SOREAL NGU IDLE";
+/* Le jeu s'appelait « SOREAL IDLE » (renommé « SOREAL NGU IDLE », Norman, 2026-10-29) : l'entrée déjà présente dans Steam est RENOMMÉE sur place, avec son identifiant (donc ses images, son temps de jeu, ses collections), jamais dupliquée. */
+export const ANCIENS_NOMS_STEAM = ["SOREAL IDLE"];
 
 /* ---------- CRC32 (identifiant du raccourci) ---------- */
 const TABLE = (() => {
@@ -118,7 +120,7 @@ export function etatSteam({ exe, nom = NOM_STEAM }, env = process.env) {
   for (const c of comptes) {
     try {
       const table = lireRaccourcis(path.join(steam, "userdata", c, "config", "shortcuts.vdf")).find((e) => e.k.toLowerCase() === "shortcuts");
-      if (table.v.some((e) => champ(e.v, "AppName") === nom && champ(e.v, "Exe") === cible)) dejaAjoute = true;
+      if (table.v.some((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible)) dejaAjoute = true;
     } catch (_e) { /* fichier illisible : on ne le touchera pas non plus à l'ajout */ }
   }
   return { ok: true, steam: true, comptes: comptes.length, enCours: steamEnCours(env), dejaAjoute };
@@ -140,8 +142,8 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
   const id = identifiantRaccourci(cible, nom);
   let fichierIcone = "";
   if (icone && dossierIcone) { fs.mkdirSync(dossierIcone, { recursive: true }); fichierIcone = path.join(dossierIcone, "soreal-idle.ico"); fs.writeFileSync(fichierIcone, icone); }
-  const nouveau = entreeRaccourci({ id, nom, exe: cible, dossier: '"' + path.win32.dirname(exe) + '"', icone: fichierIcone });
   const faits = [];
+  let premierId = id;
   for (const c of comptes) {
     const config = path.join(steam, "userdata", c, "config");
     const fichier = path.join(config, "shortcuts.vdf");
@@ -150,7 +152,11 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
     fs.mkdirSync(config, { recursive: true });
     if (fs.existsSync(fichier) && !fs.existsSync(fichier + ".soreal-sauvegarde")) fs.copyFileSync(fichier, fichier + ".soreal-sauvegarde");
     const table = racine.find((e) => e.k.toLowerCase() === "shortcuts");
-    const i = table.v.findIndex((e) => champ(e.v, "AppName") === nom && champ(e.v, "Exe") === cible);
+    const i = table.v.findIndex((e) => [nom].concat(ANCIENS_NOMS_STEAM).includes(champ(e.v, "AppName")) && champ(e.v, "Exe") === cible);
+    /* identifiant de CE compte : celui de l'entrée existante (ancien nom compris), sinon celui du nom actuel */
+    const idCompte = i >= 0 ? (Number(champ(table.v[i].v, "appid")) >>> 0) || id : id;
+    if (!faits.length) premierId = idCompte;
+    const nouveau = entreeRaccourci({ id: idCompte, nom, exe: cible, dossier: '"' + path.win32.dirname(exe) + '"', icone: fichierIcone });
     if (i >= 0) table.v[i] = { k: table.v[i].k, t: 0, v: nouveau };
     else {
       const suivant = table.v.reduce((m, e) => Math.max(m, Number(e.k) + 1 || 0), 0);
@@ -161,12 +167,12 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
     fs.renameSync(fichier + ".soreal-nouveau", fichier);
     const grid = path.join(config, "grid");
     fs.mkdirSync(grid, { recursive: true });
-    const ecrire = (suffixe, tampon) => { if (tampon && tampon.length) fs.writeFileSync(path.join(grid, id + suffixe + ".png"), tampon); };
+    const ecrire = (suffixe, tampon) => { if (tampon && tampon.length) fs.writeFileSync(path.join(grid, idCompte + suffixe + ".png"), tampon); };
     ecrire("p", images && images.portrait);
     ecrire("", images && images.grille);
     ecrire("_hero", images && images.hero);
     ecrire("_logo", images && images.logo);
     faits.push(c);
   }
-  return { ok: true, id, comptes: faits.length, misAJour: undefined };
+  return { ok: true, id: premierId, comptes: faits.length, misAJour: undefined };
 }

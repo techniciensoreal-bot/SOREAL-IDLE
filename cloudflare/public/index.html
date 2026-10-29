@@ -29,15 +29,15 @@
   <link rel="preload" href="/fonts/comic-neue-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/russo-one-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/fonts/fonts.css">
-  <link rel="stylesheet" href="/soreal-idle-ui.css?v=60">
+  <link rel="stylesheet" href="/soreal-idle-ui.css?v=61">
   <link rel="stylesheet" href="/soreal-idle-themes.css?v=138">
   <link rel="stylesheet" href="/soreal-idle-jeu.css?v=8">
   <link rel="stylesheet" href="/soreal-idle-barre-outils.css?v=11">
   <link rel="stylesheet" href="/soreal-idle-renaissance.css?v=3">
   <link rel="stylesheet" href="/soreal-idle-machine.css?v=10">
-  <link rel="stylesheet" href="/soreal-idle-itopod.css?v=243">
+  <link rel="stylesheet" href="/soreal-idle-itopod.css?v=245">
   <link rel="stylesheet" href="/soreal-idle-carte-boss.css?v=10">
-  <title>SOREAL IDLE</title>
+  <title>SOREAL NGU IDLE</title>
   <style>
     /* Accessibilité : laisser le navigateur gérer le zoom/pinch. */
     html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -51,62 +51,62 @@
         radial-gradient(circle at 50% 20%,rgba(47,112,218,.30),transparent 38%),
         linear-gradient(180deg,#0b1b39 0%,#071226 60%,#050b16 100%);
     }
+    /*
+     * Écran de lancement (Norman, 2026-10-29) : l'AFFICHE VERTICALE de l'entrée Steam (600 x 900), le logo « SOREAL NGU IDLE » posé en haut comme Steam le superpose à la bannière, la barre de chargement en bas. La barre suit les vraies étapes
+     * du chargement (voir le script plus bas) ; les identifiants standaloneStatus / standaloneProgress / standalonePercent et la zone de connexion (ajoutée sous l'affiche) sont inchangés.
+     */
     .soreal-idle-loading-card{
-      width:min(650px,calc(100vw - 28px));box-sizing:border-box;
-      padding:14px 14px 18px;border-radius:19px;
-      background:#0d1830;border:1px solid rgba(102,156,244,.40);
-      box-shadow:0 24px 70px rgba(0,0,0,.48),inset 0 0 35px rgba(54,112,210,.08);
+      width:min(460px,calc(100vw - 24px),calc((100vh - 24px) * 2 / 3));box-sizing:border-box;
+      display:flex;flex-direction:column;gap:10px;align-items:stretch;
     }
-    .soreal-idle-loading-banner{
-      width:100%;aspect-ratio:3/1;display:block;object-fit:cover;
-      border-radius:12px;border:1px solid rgba(129,176,255,.35);
-      box-shadow:0 10px 28px rgba(0,0,0,.34);background:#091329;
+    .ls-affiche{
+      position:relative;width:100%;aspect-ratio:2/3;overflow:hidden;border-radius:18px;
+      border:3px solid #000;box-shadow:6px 6px 0 #000,0 24px 70px rgba(0,0,0,.55);background:#0b1b39;
     }
-    .soreal-idle-loading-title{
-      margin:13px 0 3px;text-align:center;font-size:19px;font-weight:950;
-      letter-spacing:.08em;color:#edf5ff;text-shadow:0 2px 12px rgba(67,136,255,.45);
-    }
+    .ls-fond{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
+    .ls-voile{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,10,24,.55) 0%,rgba(4,10,24,0) 30%,rgba(4,10,24,0) 62%,rgba(4,10,24,.88) 100%)}
+    .ls-logo{position:absolute;left:3%;top:2.5%;width:94%;height:auto;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+    .ls-bas{position:absolute;left:0;right:0;bottom:0;padding:0 7% 5.5%}
     #standaloneStatus{
-      min-height:18px;margin-top:6px;text-align:center;font-size:12px;
-      font-weight:800;color:#9eb9e7;
+      min-height:18px;margin-bottom:8px;text-align:center;font-size:13px;letter-spacing:.04em;
+      font-weight:800;color:#ffe9b0;text-shadow:0 2px 6px #000,0 0 12px rgba(0,0,0,.8);
     }
     #standaloneStatus.error{color:#ff9eae}
     .soreal-idle-loading-track{
-      position:relative;height:13px;margin:13px 8px 2px;overflow:hidden;
-      border-radius:999px;background:#050b17;border:1px solid rgba(121,164,235,.24);
-      box-shadow:inset 0 2px 6px rgba(0,0,0,.55);
+      position:relative;height:18px;margin:0;overflow:hidden;
+      border-radius:6px;background:#1a1204;border:3px solid #000;
+      box-shadow:inset 0 2px 6px rgba(0,0,0,.6),0 0 0 2px #ffb000,0 4px 12px rgba(0,0,0,.6);
     }
-    /* Barre de chargement (Norman, 2026-10-24) : elle suit les VRAIES étapes du chargement (scripts, connexion, moteur local, première image) ; animée par la carte graphique (Web Animations sur transform), donc fluide même quand les scripts occupent la page ; jamais en arrière. */
+    /* Barre de chargement (Norman, 2026-10-24) : elle suit les VRAIES étapes du chargement (scripts, connexion, moteur local, première image) ; animée par la carte graphique (Web Animations sur transform), donc fluide même quand les scripts occupent la page. Aspect ambre à rayures, comme le chargement de l'OS du jeu (2026-10-29). */
     #standaloneProgress{
       width:100%;height:100%;border-radius:inherit;transform-origin:0 50%;transform:scaleX(.08);
-      background:linear-gradient(90deg,#2f72d9,#57a0ff,#74bbff);
-      box-shadow:0 0 16px rgba(72,151,255,.55);
+      background:repeating-linear-gradient(135deg,#ffb000 0 9px,#d98c00 9px 18px);
+      box-shadow:0 0 14px rgba(255,176,0,.6);
     }
     #standalonePercent{
-      margin-top:6px;text-align:right;padding-right:8px;
-      font-size:10px;font-weight:900;color:#7898ca;
+      margin-top:6px;text-align:right;
+      font-size:12px;font-weight:900;color:#ffd24a;text-shadow:0 2px 5px #000;
     }
     @media(max-width:520px){
       .soreal-idle-standalone-status{padding:12px}
-      .soreal-idle-loading-card{padding:10px 10px 14px;border-radius:15px}
-      .soreal-idle-loading-title{font-size:16px}
+      .ls-affiche{border-radius:14px}
     }
   </style>
 </head>
 <body>
   <div id="app">
     <main class="soreal-idle-standalone-status">
-      <section class="soreal-idle-loading-card" aria-label="Chargement SOREAL IDLE">
-        <img
-          class="soreal-idle-loading-banner"
-          src="/api/idle/media/banner?name=soreal-idle.webp"
-          fetchpriority="high"
-          alt="SOREAL IDLE"
-        >
-        <div class="soreal-idle-loading-title">SOREAL IDLE</div>
-        <div id="standaloneStatus">Initialisation…</div>
-        <div class="soreal-idle-loading-track"><div id="standaloneProgress"></div></div>
-        <div id="standalonePercent">8 %</div>
+      <section class="soreal-idle-loading-card" aria-label="Chargement SOREAL NGU IDLE">
+        <div class="ls-affiche">
+          <img class="ls-fond" src="/chargement/affiche-600x900.webp" fetchpriority="high" alt="">
+          <div class="ls-voile"></div>
+          <img class="ls-logo" src="/chargement/logo-800x450.webp" fetchpriority="high" alt="SOREAL NGU IDLE">
+          <div class="ls-bas">
+            <div id="standaloneStatus">Initialisation…</div>
+            <div class="soreal-idle-loading-track"><div id="standaloneProgress"></div></div>
+            <div id="standalonePercent">8 %</div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -177,10 +177,10 @@
   <script defer src="/modules/adventure-fond-zone-v1.js?v=3"></script>
   <script defer src="/modules/perf-texte-v1.js?v=2"></script>
   <script defer src="/modules/sans-bulles-v1.js?v=2"></script>
-  <script defer src="/modules/moteur-local-v1.js?v=91"></script>
-  <script defer src="/standalone-bridge.js?v=23"></script>
+  <script defer src="/modules/moteur-local-v1.js?v=93"></script>
+  <script defer src="/standalone-bridge.js?v=24"></script>
   <script defer src="/modules/anti-copie-v1.js?v=1"></script>
-  <script defer src="/modules/runtime.js?v=3"></script>
+  <script defer src="/modules/runtime.js?v=4"></script>
   <script defer src="/modules/morph-v1.js?v=4"></script>
   <script defer src="/modules/ui.js?v=55"></script>
   <script defer src="/modules/adventure-scene-v79.js?v=2045"></script>
@@ -196,10 +196,10 @@
   <script defer src="/modules/text-helpers-v1.js?v=1"></script>
   <script defer src="/modules/inventory-presentation-v1.js?v=1"></script>
   <script defer src="/modules/text-transforms-v1.js?v=2"></script>
-  <script defer src="/modules/release-notes-v1.js?v=534"></script>
+  <script defer src="/modules/release-notes-v1.js?v=536"></script>
   <script defer src="/modules/flux-v1.js?v=41"></script>
-  <script defer src="/modules/nouvelle-version-v1.js?v=1"></script>
-  <script defer src="/modules/chat-v1.js?v=14"></script>
+  <script defer src="/modules/nouvelle-version-v1.js?v=2"></script>
+  <script defer src="/modules/chat-v1.js?v=15"></script>
   <script defer src="/modules/sang-rituel-decor-v1.js?v=233"></script>
   <script defer src="/modules/blood-magic-v1.js?v=28"></script>
   <script defer src="/modules/ngu-labo-v1.js?v=41"></script>
@@ -230,7 +230,7 @@
   <script defer src="/modules/mort-joueur-v1.js?v=10"></script>
   <script defer src="/modules/moqueurs-fuite-v1.js?v=6"></script>
   <script defer src="/modules/nuke-blindage-v1.js?v=4"></script>
-  <script defer src="/modules/meta-progression-v130.js?v=202610167"></script>
+  <script defer src="/modules/meta-progression-v130.js?v=202610168"></script>
   <script defer src="/modules/wandoos-retro-v1.js?v=60"></script>
   <script defer src="/modules/yggdrasil-sons-v1.js?v=17"></script>
   <script defer src="/modules/yggdrasil-elfes-v1.js?v=64"></script>
@@ -247,7 +247,7 @@
   <script defer src="/modules/fade-notice-v1.js?v=3"></script>
   <script defer src="/modules/chronique-notes-notice-v1.js?v=1"></script>
   <script defer src="/modules/bug-report-v1.js?v=5"></script>
-  <script defer src="/modules/diag-fluidite-v1.js?v=33"></script>
+  <script defer src="/modules/diag-fluidite-v1.js?v=34"></script>
   <script defer src="/modules/stats-detail-v1.js?v=3"></script>
   <script defer src="/modules/rebirth-live-v1.js?v=6"></script>
   <script defer src="/modules/tutorial-framing-v1.js?v=4"></script>
@@ -259,7 +259,7 @@
   <script defer src="/modules/macguffins-v1.js?v=4"></script>
   <script defer src="/modules/inventory-auto-v1.js?v=22"></script>
   <script defer src="/modules/liaison-v1.js?v=1"></script>
-  <script defer src="/modules/steam-v1.js?v=1"></script>
+  <script defer src="/modules/steam-v1.js?v=2"></script>
   <script defer src="/modules/maj-v1.js?v=1"></script>
   <script defer src="/modules/limiteur-audio-v1.js?v=2"></script>
   <script defer src="/modules/audio-volume-v1.js?v=5"></script>
@@ -305,7 +305,7 @@
   <script async src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>
   <script type="module" src="/modules/local-neural-piper-v1.js?v=14"></script>
   <script defer src="/modules/voix-expressions-v1.js?v=2"></script>
-  <script defer src="/modules/tutorial-tts-v202.js?v=259"></script>
+  <script defer src="/modules/tutorial-tts-v202.js?v=260"></script>
   <script defer src="/modules/voix-nommees-v1.js?v=6"></script>
   <script defer src="/modules/icones-v1.js?v=2"></script>
   <script defer src="/modules/voix-ui-v1.js?v=1"></script>
@@ -331,32 +331,32 @@
   <script defer src="/modules/effets-legers-v1.js?v=1"></script>
   <script defer src="/modules/temps-rebirth-v1.js?v=1"></script>
   <script defer src="/modules/valise-accident-v1.js?v=17"></script>
-  <script defer src="/modules/ui-aventure-2-v1.js?v=39"></script>
+  <script defer src="/modules/ui-aventure-2-v1.js?v=40"></script>
   <script defer src="/modules/ui-boucle-v1.js?v=16"></script>
   <script defer src="/modules/ui-boutique-v1.js?v=2"></script>
-  <script defer src="/modules/carte-boss-magic-v1.js?v=7"></script>
-  <script defer src="/modules/ui-chroniques-v1.js?v=5"></script>
+  <script defer src="/modules/carte-boss-magic-v1.js?v=8"></script>
+  <script defer src="/modules/ui-chroniques-v1.js?v=6"></script>
   <script defer src="/modules/ui-combat-1-v1.js?v=24"></script>
-  <script defer src="/modules/ui-combat-2-v1.js?v=22"></script>
+  <script defer src="/modules/ui-combat-2-v1.js?v=23"></script>
   <script defer src="/modules/ui-divers-v1.js?v=1"></script>
   <script defer src="/modules/ui-entrainement-v1.js?v=6"></script>
   <script defer src="/modules/ui-inventaire-v1.js?v=7"></script>
   <script defer src="/modules/ui-machine-temporelle-v1.js?v=6"></script>
   <script defer src="/modules/ui-magie-energie-v1.js?v=4"></script>
-  <script defer src="/modules/ui-menus-v1.js?v=13"></script>
+  <script defer src="/modules/ui-menus-v1.js?v=14"></script>
   <script defer src="/modules/ui-navigation-v1.js?v=5"></script>
-  <script defer src="/modules/ui-noyau-v1.js?v=11"></script>
-  <script defer src="/modules/ui-popups-v1.js?v=10"></script>
-  <script defer src="/modules/ui-reglages-v1.js?v=8"></script>
-  <script defer src="/modules/ui-renaissance-v1.js?v=5"></script>
+  <script defer src="/modules/ui-noyau-v1.js?v=12"></script>
+  <script defer src="/modules/ui-popups-v1.js?v=11"></script>
+  <script defer src="/modules/ui-reglages-v1.js?v=9"></script>
+  <script defer src="/modules/ui-renaissance-v1.js?v=6"></script>
   <script defer src="/modules/ui-synchro-v1.js?v=1"></script>
-  <script defer src="/modules/ui-tutoriel-v1.js?v=6"></script>
-  <script defer src="/soreal-idle-ui.js?v=656"></script>
+  <script defer src="/modules/ui-tutoriel-v1.js?v=7"></script>
+  <script defer src="/soreal-idle-ui.js?v=657"></script>
   <script defer src="/modules/plein-ecran-v1.js?v=4"></script>
   <script defer src="/modules/defilement-theme-v1.js?v=3"></script>
   <script defer src="/modules/hud-haut-v2.js?v=35"></script>
   <script defer src="/modules/traduction-interface-v1.js?v=10"></script>
-  <script defer src="/modules/traduction-anglais-v1.js?v=367"></script>
+  <script defer src="/modules/traduction-anglais-v1.js?v=369"></script>
   <script defer src="/modules/dessins-v1.js?v=3"></script>
   <script defer src="/modules/boss-reveal-v1.js?v=2"></script>
   <script defer src="/modules/nombres-couleur-v1.js?v=6"></script>

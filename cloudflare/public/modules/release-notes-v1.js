@@ -32,6 +32,8 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le jeu change de nom : il s’appelle maintenant SOREAL NGU IDLE, partout. Sur la borne d’arcade, l’enseigne affiche NGU IDLE avec un autocollant SOREAL collé devant.',
+            'Au lancement, l’écran de chargement montre la grande affiche verticale du jeu avec son logo et la barre de chargement.',
             'Sur PC, le jeu occupe maintenant toute la largeur de la fenêtre, même hors plein écran : plus de zones vides sur les côtés.',
             'Sur PC, l’ajout à Steam utilise maintenant de nouvelles images : affiche, en-tête, bannière, logo et icône, aux formats attendus par Steam pour un jeu non-Steam.',
             'L’introduction est maintenant entièrement traduite en anglais pendant qu’elle défile : la phrase de la quatorzième image et le premier bruitage n’étaient pas traduits.',
@@ -272,7 +274,7 @@
           {menu:'general', titre:'Général', points:[
             'Mode anglais : plus de 500 textes qui restaient en français sont maintenant traduits (introduction en images, tutoriel, journal des attaques, messages du flux, bulles d’aide, noms des sons…).',
             'Moins de ralentissements sur téléphone dans la page Aventure : plusieurs calculs inutiles ont disparu et les décors animés sont plus légers.',
-            'La bannière « SOREAL IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
+            'La bannière « SOREAL NGU IDLE » en haut de la page et son raccourci vers les notes de mise à jour sont retirés (les notes restent dans les Réglages).',
             'Réglages › Effets visuels : deux nouveaux réglages, « Animations du menu du haut » et « Décors animés des cadres », à décocher pour alléger un téléphone lent (cochés par défaut : rien ne change).',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
@@ -388,7 +390,7 @@
             'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
             'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
-            'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL IDLE ».',
+            'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL NGU IDLE ».',
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'Pendant le défi No Rebirth, le bouton RENAISSANCE est grisé : les renaissances y sont interdites.',
@@ -622,7 +624,7 @@
         date:'2026-10-14',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'La bannière SOREAL IDLE et toutes les images viennent maintenant du stockage du jeu : plus aucun lien Google (la bannière ne s’affichait plus).',
+            'La bannière SOREAL NGU IDLE et toutes les images viennent maintenant du stockage du jeu : plus aucun lien Google (la bannière ne s’affichait plus).',
             'Chaque version des notes affiche sa date en toutes lettres, y compris les anciennes.',
             'Les boutons Max, 1/2, 1/4, Tout retirer et le champ Input sont plus grands et plus lisibles, sur PC comme sur l’application.',
             'Les échanges avec le serveur sont plus légers (environ un tiers de données en moins à chaque synchronisation) et deux synchronisations ne se suivent plus à moins d’une seconde et demie.',

@@ -34,14 +34,14 @@ export function demarrerRetour({ delaiMs = 300000 } = {}) {
   const etat = crypto.randomBytes(18).toString("hex");
   let resoudre, rejeter;
   const attente = new Promise((ok, ko) => { resoudre = ok; rejeter = ko; });
-  const page = (titre, texte) => "<!doctype html><meta charset=utf-8><title>SOREAL IDLE</title><body style=\"font-family:system-ui;background:#071226;color:#e8ecfa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0\"><div style=\"max-width:460px;text-align:center;padding:24px\"><h1 style=\"color:#ffd24a\">" + titre + "</h1><p>" + texte + "</p></div>";
+  const page = (titre, texte) => "<!doctype html><meta charset=utf-8><title>SOREAL NGU IDLE</title><body style=\"font-family:system-ui;background:#071226;color:#e8ecfa;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0\"><div style=\"max-width:460px;text-align:center;padding:24px\"><h1 style=\"color:#ffd24a\">" + titre + "</h1><p>" + texte + "</p></div>";
   const serveur = http.createServer((req, res) => {
     const u = new URL(req.url, "http://127.0.0.1");
     if (u.pathname !== "/liaison" || req.method !== "GET") { res.writeHead(404); res.end("introuvable"); return; }
     const jeton = u.searchParams.get("jeton") || "", code = u.searchParams.get("etat") || "", expire = Number(u.searchParams.get("expire")) || 0;
-    if (code !== etat || !JETON_RE.test(jeton)) { res.writeHead(400, { "content-type": "text/html; charset=utf-8" }); res.end(page("Liaison refusée", "Ce lien n’est pas celui de la liaison en cours. Recommence depuis SOREAL IDLE.")); return; }
+    if (code !== etat || !JETON_RE.test(jeton)) { res.writeHead(400, { "content-type": "text/html; charset=utf-8" }); res.end(page("Liaison refusée", "Ce lien n’est pas celui de la liaison en cours. Recommence depuis SOREAL NGU IDLE.")); return; }
     res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-    res.end(page("✅ Compte relié", "Tu peux fermer cet onglet et retourner dans SOREAL IDLE : ta partie se prépare."));
+    res.end(page("✅ Compte relié", "Tu peux fermer cet onglet et retourner dans SOREAL NGU IDLE : ta partie se prépare."));
     resoudre({ jeton, expire });
   });
   const minuterie = setTimeout(() => { rejeter(new Error("LIAISON_DELAI")); fermer(); }, delaiMs);

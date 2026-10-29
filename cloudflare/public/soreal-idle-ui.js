@@ -817,7 +817,7 @@
         {
           titre:'Norman & Sébastien',
           paragraphes:[
-            'Salut, qui que tu sois ! Content que tu aies décidé de jeter un œil à SOREAL IDLE. Nous sommes Norman & Sébastien, les narrateurs de cette histoire. Bref, on commence !'
+            'Salut, qui que tu sois ! Content que tu aies décidé de jeter un œil à SOREAL NGU IDLE. Nous sommes Norman & Sébastien, les narrateurs de cette histoire. Bref, on commence !'
           ]
         },
         {
@@ -825,7 +825,7 @@
           cadrage:'stats',
           clignote:'stats-attaque-defense',
           paragraphes:[
-            'Donc, ton objectif principal dans SOREAL IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! En haut, en dessous de la grosse barre verte, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
+            'Donc, ton objectif principal dans SOREAL NGU IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin ! En haut, en dessous de la grosse barre verte, tu vois tes deux stats principales, Attaque et Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.'
           ]
         },
         {
@@ -1034,7 +1034,7 @@
         'Oui, je sais… Tu te dis : mais qu’est-ce que c’est que cette merde, avec des chiffres partout et des dessins d’enfants ? Je me suis dit pareil la première fois. '+
         'Mais persiste, et tu vas voir qu’il est vraiment bien. D’ailleurs, j’ai comme preuve cette dame qui a un mot à nous dire. À vous, madame :'+
         pauseVoixIdleV1_(900)+
-        'J’ADORE SOREAL IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.';
+        'J’ADORE SOREAL NGU IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.';
 
       /*
        * Voix SANS texte à l'écran, éditables elles aussi (Norman, 2026-10-08 : « je veux absolument toutes les voix éditables, même celle qui se déclenche sans texte ») : la voix de fond du sandwich et l'introduction

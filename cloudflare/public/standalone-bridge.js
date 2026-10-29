@@ -173,14 +173,14 @@
         const error=new Error(
           data&&(data.error||data.message)
             ?String(data.error||data.message)
-            :"SOREAL IDLE indisponible"
+            :"SOREAL NGU IDLE indisponible"
         );
         error.status=response.status;
         throw error;
       }
       return data;
     }catch(error){
-      if(error&&error.name==="AbortError")throw new Error("SOREAL IDLE trop lent à répondre.");
+      if(error&&error.name==="AbortError")throw new Error("SOREAL NGU IDLE trop lent à répondre.");
       throw error;
     }finally{
       clearTimeout(timer);
@@ -193,7 +193,7 @@
       headers:{accept:"application/json","content-type":"application/json"},
       body:JSON.stringify({ticket:String(ticket||"")})
     });
-    if(!data.sessionToken)throw new Error("Session SOREAL IDLE invalide.");
+    if(!data.sessionToken)throw new Error("Session SOREAL NGU IDLE invalide.");
     saveSessionV1(data.sessionToken);
     return data;
   }
@@ -502,7 +502,7 @@
       headers:{accept:"application/json","content-type":"application/json"},
       body:JSON.stringify({credential:String(credential||"")})
     });
-    if(!data.sessionToken)throw new Error("Session SOREAL IDLE invalide.");
+    if(!data.sessionToken)throw new Error("Session SOREAL NGU IDLE invalide.");
     saveGoogleSessionV1(data.sessionToken,data.expiresAt);
     return data;
   }
@@ -569,7 +569,7 @@
     /* Session expirée ou révoquée : retour à l'écran de connexion. */
     if(!sessionV1()){startV1();return false;}
     masquerProgressionV1();
-    statusV1("SOREAL IDLE n'est pas encore ouvert au public. Reviens bientôt !",true);
+    statusV1("SOREAL NGU IDLE n'est pas encore ouvert au public. Reviens bientôt !",true);
     const zone=zoneConnexionV1();
     zone.innerHTML='<button type="button" id="standaloneChangerCompte" style="padding:9px 16px;border-radius:999px;border:1px solid rgba(129,176,255,.5);background:#12213f;color:#dbe8ff;font-weight:800;cursor:pointer">Changer de compte</button>';
     const bouton=document.getElementById("standaloneChangerCompte");
@@ -594,17 +594,17 @@
     if(jeton){
       let expire=0;
       try{expire=Number(JSON.parse(String(localStorage.getItem(GOOGLE_SESSION_KEY)||"null")).expiresAt)||0;}catch(_){}
-      statusV1("Retour vers SOREAL IDLE sur ton ordinateur…",false);
+      statusV1("Retour vers SOREAL NGU IDLE sur ton ordinateur…",false);
       location.replace("http://127.0.0.1:"+l.port+"/liaison?etat="+encodeURIComponent(l.etat)+"&jeton="+encodeURIComponent(jeton)+"&expire="+expire);
       return;
     }
     const clientId=await clientIdGoogleV1();
-    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google pour relier ta partie de l’application SOREAL IDLE à ton compte.");
+    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google pour relier ta partie de l’application SOREAL NGU IDLE à ton compte.");
     else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
   }
 
   async function startV1(){
-    statusV1("Connexion à SOREAL IDLE…",false);
+    statusV1("Connexion à SOREAL NGU IDLE…",false);
     try{
       const liaison=liaisonParamsV1();
       if(liaison){await modeLiaisonV1(liaison);return;}
@@ -624,7 +624,7 @@
         }else{
           /* Pas de connexion Google configurée : plus de fausse barre de chargement bloquée à 94 %, un message clair. */
           masquerProgressionV1();
-          statusV1("La connexion directe n’est pas encore ouverte. Ouvre SOREAL IDLE depuis SOREAL APP ou SOREAL TV.",true);
+          statusV1("La connexion directe n’est pas encore ouverte. Ouvre SOREAL NGU IDLE depuis SOREAL APP ou SOREAL TV.",true);
         }
         return;
       }
@@ -638,13 +638,13 @@
       if(!window.SOREAL_USER)window.SOREAL_USER={};
 
       if(typeof window.__ouvrirSorealIdleModuleV1__!=="function"){
-        throw new Error("Interface SOREAL IDLE non chargée.");
+        throw new Error("Interface SOREAL NGU IDLE non chargée.");
       }
 
       try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(52);}catch(_e){}
       window.__ouvrirSorealIdleModuleV1__();
     }catch(error){
-      statusV1(error&&error.message?error.message:String(error||"Erreur SOREAL IDLE"),true);
+      statusV1(error&&error.message?error.message:String(error||"Erreur SOREAL NGU IDLE"),true);
     }
   }
 

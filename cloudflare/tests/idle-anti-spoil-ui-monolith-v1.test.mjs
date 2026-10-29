@@ -49,7 +49,7 @@ const cadenas = ui.split("\n").filter((l) => l.includes("🔒"));
 const autorises = [
   /versionBadgeIdleV1_\(\)/,                    // badge de version
   /estVerrouille\?'🔓 Déverrouiller':'🔒 Verrouiller'/, // verrou que le joueur pose lui-même sur un objet
-  /Accès public (ouvert|fermé)|Accès fermé : SOREAL IDLE/, // toasts d'administration
+  /Accès public (ouvert|fermé)|Accès fermé : SOREAL NGU IDLE/, // toasts d'administration
   /^\s*\*|^\s*\/\*|^\s*\/\//,                    // commentaires
 ];
 for (const l of cadenas) {

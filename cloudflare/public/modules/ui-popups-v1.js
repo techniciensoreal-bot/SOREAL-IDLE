@@ -330,7 +330,7 @@
         racine.setAttribute('aria-modal','true');
         racine.innerHTML=
           '<form class="ac-carte" autocomplete="off">'+
-            '<div class="ac-titre">SOREAL IDLE</div>'+
+            '<div class="ac-titre">SOREAL NGU IDLE</div>'+
             '<p class="ac-sous">Bienvenue ! Avant de commencer, choisis ton pseudo.</p>'+
             '<label for="sorealIdleAccueilChampV1">Ton pseudo (3 à 20 caractères, unique)</label>'+
             '<input id="sorealIdleAccueilChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" required value="'+idleHtml_(id.pseudo||'')+'">'+

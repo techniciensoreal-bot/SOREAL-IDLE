@@ -52,7 +52,7 @@
     const b=document.createElement('div');
     b.id='sorealIdleNouvelleVersionV1';
     b.setAttribute('role','status');
-    b.innerHTML='<span>🚀 Nouvelle version de SOREAL IDLE disponible ! Rafraîchis la page pour en profiter.</span>'+
+    b.innerHTML='<span>🚀 Nouvelle version de SOREAL NGU IDLE disponible ! Rafraîchis la page pour en profiter.</span>'+
       '<button type="button" class="nv-ok">Rafraîchir</button><button type="button" class="nv-x" aria-label="Plus tard" title="Plus tard">✕</button>';
     b.querySelector('.nv-ok').addEventListener('click',function(){location.reload();});
     b.querySelector('.nv-x').addEventListener('click',function(){b.remove();affichee=false;derniereVerif=Date.now()+INTERVALLE_MS;});

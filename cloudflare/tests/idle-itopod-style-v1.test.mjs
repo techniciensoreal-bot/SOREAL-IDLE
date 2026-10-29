@@ -57,7 +57,7 @@ assert.ok(!arene.includes("Bangers") && !arene.includes("areneBraisesV1"), "plus
 for (const cible of ["soreal-idle-duel-nameplate-v65", "soreal-idle-duel-portrait-v41", "soreal-idle-duel-hp-v41", "soreal-idle-vs-v41", "soreal-idle-boss-controls-v39", "soreal-idle-boss-respawn-v100", "soreal-idle-reward-v8"]) assert.ok(arene.includes(cible), "l'arène habille " + cible);
 assert.ok(!/ \{[^}]*display:none[^}]*soreal-idle-duel-portrait/.test(arene), "les portraits ne sont jamais cachés");
 // Une seule borne : le bloc duel est le corps, la rangée est l'écran, plus de rotation de chaque combattant.
-assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  SOREAL IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
+assert.ok(arene.includes(".soreal-idle-duel-v41::before") && arene.includes("★  NGU IDLE  ★") && arene.includes("rotateX(48deg)"), "une borne : marquee et tableau isométrique");
 assert.ok(!arene.includes("rotateY("), "plus de deux bornes tournées : une seule borne de face");
 assert.equal(arene.split("radial-gradient(ellipse 5.31px 2.70px at calc(50% - 4px)").length - 1, 3, "trois vrais boutons seulement sur la borne (rouge, bleu, jaune), sur une seule rangée");
 assert.ok(arene.includes("#eef1fb 75%,#8a90a8 88%,#2a2f4a 98%") && arene.includes("ellipse 17.70px 9.00px at 50%"), "anneau de métal plus haut que le dessus et socle creux");

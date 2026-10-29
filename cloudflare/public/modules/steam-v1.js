@@ -46,10 +46,10 @@ function sectionHtml(){
   var i=etat.info,absent=Boolean(i&&i.steam===false);
   var dev=Boolean(i&&i.developpement);
   var libelle=i&&i.dejaAjoute?'🔄 Mettre à jour dans Steam':'🎮 Ajouter à Steam';
-  var texte=etat.message||(absent?(dev?MESSAGES.DEVELOPPEMENT:MESSAGES.STEAM_ABSENT):(i&&i.dejaAjoute?'SOREAL IDLE est déjà dans ta bibliothèque Steam.':''));
+  var texte=etat.message||(absent?(dev?MESSAGES.DEVELOPPEMENT:MESSAGES.STEAM_ABSENT):(i&&i.dejaAjoute?'SOREAL NGU IDLE est déjà dans ta bibliothèque Steam.':''));
   return '<div class="soreal-idle-section-v8" id="sorealIdleSteamV1">'+
     '<div class="soreal-idle-window-title-v31">🎮 Steam</div>'+
-    '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Ajoute SOREAL IDLE à ta bibliothèque Steam comme jeu non-Steam, avec son nom, son icône, son affiche et sa bannière. Steam doit être fermé pendant l’ajout.</div>'+
+    '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Ajoute SOREAL NGU IDLE à ta bibliothèque Steam comme jeu non-Steam, avec son nom, son icône, son affiche et sa bannière. Steam doit être fermé pendant l’ajout.</div>'+
     '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__ajouterSteamIdleV1__(this)"'+(absent||etat.occupe?' disabled':'')+'>'+libelle+'</button>'+
     '<div id="sorealIdleSteamEtatV1" style="font-size:14px;color:'+(etat.erreur?'#ff9d9d':'#86efac')+';margin-top:8px">'+esc(texte)+'</div>'+
   '</div>';
@@ -121,7 +121,7 @@ function ajouter(bouton){
   }).then(function(r){
     if(r&&r.ok){
       etat.info=Object.assign({},etat.info||{},{steam:true,dejaAjoute:true});
-      message('SOREAL IDLE est ajouté à Steam. Ouvre Steam : le jeu apparaît dans ta bibliothèque, avec son icône et sa bannière.',false);
+      message('SOREAL NGU IDLE est ajouté à Steam. Ouvre Steam : le jeu apparaît dans ta bibliothèque, avec son icône et sa bannière.',false);
     }else{
       message(MESSAGES[r&&r.code]||'L’ajout à Steam a échoué.',true);
     }

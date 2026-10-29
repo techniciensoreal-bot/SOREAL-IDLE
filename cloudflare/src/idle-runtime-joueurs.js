@@ -1110,7 +1110,7 @@ export function reinitialiserCompteCompletSorealIdle(
       ok: true,
       resetComplet: true,
       message:
-        'Compte SOREAL IDLE entièrement réinitialisé.'
+        'Compte SOREAL NGU IDLE entièrement réinitialisé.'
     };
   } finally {
     lock.releaseLock();

@@ -386,7 +386,7 @@
         installerReductionTutoFlottantV1_();
 
         root.innerHTML=
-          '<div class="soreal-idle-tuto-flottant-drag-v1"><span>⠿</span><span>SOREAL IDLE</span></div>'+
+          '<div class="soreal-idle-tuto-flottant-drag-v1"><span>⠿</span><span>SOREAL NGU IDLE</span></div>'+
           '<div class="soreal-idle-tuto-flottant-titre-v1">'+idleHtml_(page.titre||'')+'</div>'+
           '<div class="soreal-idle-tuto-flottant-corps-v1">'+
             (page.paragraphes||[]).map(function(p){

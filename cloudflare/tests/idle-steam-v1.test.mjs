@@ -17,7 +17,7 @@ assert.equal(S.crc32("123456789"), 0xcbf43926);
 const id = S.identifiantRaccourci('"' + path.win32.join("C:", "Jeux", "SOREAL IDLE.exe") + '"', S.NOM_STEAM);
 assert.ok(id >= 0x80000000 && id <= 0xffffffff);
 assert.notEqual(id, S.identifiantRaccourci('"' + path.win32.join("C:", "Autre", "SOREAL IDLE.exe") + '"', S.NOM_STEAM));
-assert.equal(S.NOM_STEAM, "SOREAL IDLE", "nom correctement écrit");
+assert.equal(S.NOM_STEAM, "SOREAL NGU IDLE", "nom correctement écrit");
 
 // VDF : aller-retour octet pour octet
 const exemple = [{ k: "shortcuts", t: 0, v: [{ k: "0", t: 0, v: [{ k: "appid", t: 2, v: -123 }, { k: "AppName", t: 1, v: "Autre jeu" }, { k: "tags", t: 0, v: [{ k: "0", t: 1, v: "favori" }] }] }] }];
@@ -53,7 +53,7 @@ assert.equal(table.length, 2, "l'autre jeu est conservé, SOREAL IDLE ajouté à
 assert.equal(table[0].v.find((x) => x.k === "AppName").v, "Autre jeu");
 const nous = table[1].v, val = (k) => nous.find((x) => x.k === k).v;
 assert.equal(table[1].k, "1");
-assert.equal(val("AppName"), "SOREAL IDLE");
+assert.equal(val("AppName"), "SOREAL NGU IDLE");
 assert.equal(val("Exe"), '"' + exe + '"');
 assert.equal(val("StartDir"), '"' + path.win32.join("C:", "Program Files", "SOREAL IDLE") + '"');
 assert.equal(val("icon"), path.join(dossierIcone, "soreal-idle.ico"));

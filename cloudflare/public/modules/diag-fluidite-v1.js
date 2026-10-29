@@ -433,7 +433,7 @@
     try{
       var nav=window.navigator||{},cn=nav.connection||{},ctx=contexte_(),v='?';
       try{var sc=document.querySelector('script[src*="soreal-idle-ui.js"]');var mm=sc&&/[?&]v=([^&]+)/.exec(sc.getAttribute('src')||'');if(mm)v=mm[1];}catch(_e){}
-      return '=== SOREAL IDLE — journal de diagnostic ==='+'\n'+
+      return '=== SOREAL NGU IDLE — journal de diagnostic ==='+'\n'+
         'relevé : '+new Date().toLocaleString('fr-BE')+' · mode '+modeJeu+' · version client ?v='+v+'\n'+
         'appareil : '+String(nav.userAgent||'?').slice(0,110)+' · '+(nav.hardwareConcurrency||'?')+' coeurs · mémoire '+(nav.deviceMemory||'?')+' Go · écran '+(window.innerWidth||'?')+'x'+(window.innerHeight||'?')+' ×'+(window.devicePixelRatio||'?')+'\n'+
         'réseau : '+(cn.effectiveType||'?')+' · aller-retour '+(cn.rtt!==undefined?cn.rtt:'?')+' ms · débit '+(cn.downlink!==undefined?cn.downlink:'?')+' Mb/s (estimations du navigateur : « 4g » est son maximum, même en fibre)'+'\n'+

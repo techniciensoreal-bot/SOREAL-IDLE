@@ -559,11 +559,11 @@
           'soreal-idle-modal-backdrop-v63';
 
         modal.innerHTML=
-          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="Réinitialiser entièrement SOREAL IDLE">'+
+          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="Réinitialiser entièrement SOREAL NGU IDLE">'+
             '<div class="soreal-idle-modal-top-v63">'+
               '<div class="soreal-idle-modal-icon-v63">💣</div>'+
               '<div class="soreal-idle-modal-title-v63">Tout recommencer ?</div>'+
-              '<div class="soreal-idle-modal-gain-v63">Comme si tu n’avais jamais lancé SOREAL IDLE</div>'+
+              '<div class="soreal-idle-modal-gain-v63">Comme si tu n’avais jamais lancé SOREAL NGU IDLE</div>'+
             '</div>'+
             '<div class="soreal-idle-modal-body-v63">'+
               '<div class="soreal-idle-modal-info-v63">'+

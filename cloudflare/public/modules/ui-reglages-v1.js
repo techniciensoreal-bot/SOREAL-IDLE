@@ -406,8 +406,8 @@
             (window.__SOREAL_IDLE_STEAM_V1__?window.__SOREAL_IDLE_STEAM_V1__.sectionHtml():'')+
             '<div class="soreal-idle-section-v8 rg-danger-v1">'+
               '<div class="soreal-idle-window-title-v31">⚠️ Tout recommencer</div>'+
-              '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible : il faudra taper un mot pour la confirmer.</div>'+
-              '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL IDLE</button>'+
+              '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Efface entièrement la progression SOREAL NGU IDLE et recrée le personnage comme lors de la première ouverture. Cette action est irréversible : il faudra taper un mot pour la confirmer.</div>'+
+              '<button type="button" class="soreal-idle-danger-button-v67" onclick="window.__ouvrirPopupResetTotalIdleV67__()">💣 Réinitialiser entièrement SOREAL NGU IDLE</button>'+
             '</div>';
         }else{
           const infosParMenu=idleInfosParMenuIdleV1_(j);

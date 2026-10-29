@@ -1057,7 +1057,7 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
             (s?s.icon:'⚙️')+' '+(titre||(s&&s.name)||'Système'),
             s&&s.desc
               ?s.desc
-              :'Métaprogression SOREAL IDLE.'
+              :'Métaprogression SOREAL NGU IDLE.'
           )+
           bandeauMetaIdleV130_(j)+
           rendreSystemeMetaIdleV130_(

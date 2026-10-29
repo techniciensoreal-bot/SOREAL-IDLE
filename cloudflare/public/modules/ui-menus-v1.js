@@ -675,7 +675,7 @@
           libelleCible:'Ouvrir le système',
           bullets:[
             s.desc||'Ce système améliore ta progression.',
-            'Son état est sauvegardé dans le moteur partagé SOREAL IDLE.',
+            'Son état est sauvegardé dans le moteur partagé SOREAL NGU IDLE.',
             s.kind==='permanent'
               ?'Cette progression est permanente entre les Renaissances.'
               :'Vérifie ce qui est conservé ou banké lors d’une Renaissance.'
@@ -1523,7 +1523,7 @@
               </div>
 
               <div class="soreal-idle-danger-text-v67">
-                Efface entièrement ce personnage et recommence SOREAL IDLE
+                Efface entièrement ce personnage et recommence SOREAL NGU IDLE
                 exactement comme lors de ta toute première connexion.
               </div>
 
@@ -1532,7 +1532,7 @@
                 class="soreal-idle-danger-button-v67"
                 onclick="window.__ouvrirPopupResetTotalIdleV67__()"
               >
-                💣 Réinitialiser entièrement SOREAL IDLE
+                💣 Réinitialiser entièrement SOREAL NGU IDLE
               </button>
             </div>
           </div>
@@ -1552,7 +1552,7 @@
             /* Emplacement du chat ; le module le monte juste après le rendu (il garde la saisie entre deux rendus). */
             if(window.__SOREAL_IDLE_CHAT_V1__&&typeof window.__SOREAL_IDLE_CHAT_V1__.pageHtml==='function'){
               Promise.resolve().then(function(){try{window.__SOREAL_IDLE_CHAT_V1__.apresRendu();}catch(_e){}});
-              return entetePageIdleV28_('💬 Chat','Discute avec les autres joueurs de SOREAL IDLE et vois qui est en ligne.')+window.__SOREAL_IDLE_CHAT_V1__.pageHtml();
+              return entetePageIdleV28_('💬 Chat','Discute avec les autres joueurs de SOREAL NGU IDLE et vois qui est en ligne.')+window.__SOREAL_IDLE_CHAT_V1__.pageHtml();
             }
             return '';
           case 'aventure':

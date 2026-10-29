@@ -27,7 +27,7 @@ for(const asset of [
   );
 }
 
-for(const token of ["background:#071226","soreal-idle-loading-card","soreal-idle-loading-banner","/api/idle/media/banner?name=soreal-idle.webp","standaloneProgress","standalonePercent"]){
+for(const token of ["background:#071226","soreal-idle-loading-card","ls-affiche","/chargement/affiche-600x900.webp","/chargement/logo-800x450.webp","standaloneProgress","standalonePercent"]){
   assert.ok(index.includes(token),"Écran de chargement bleu manquant: "+token);
 }
 assert.ok(!index.includes("body{min-height:100vh;background:#f4f6fb;color:#17203f}"),"Le shell blanc ne doit plus être utilisé.");

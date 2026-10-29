@@ -10,7 +10,8 @@ for (const f of fichiers) {
   assert.ok(!/lh3\.googleusercontent|drive\.google\.com|drive\.usercontent|1omNowtqq/.test(s), "lien Google d'image dans " + f);
 }
 const html = readFileSync("cloudflare/public/index.html", "utf8");
-assert.ok(html.includes("/api/idle/media/banner?name=soreal-idle.webp"), "écran de chargement : bannière R2");
+/* Norman (2026-10-29) : l'écran de lancement montre l'affiche verticale de l'entrée Steam (images du jeu hébergées avec lui, jamais un lien externe). */
+assert.ok(html.includes("/chargement/affiche-600x900.webp") && html.includes("/chargement/logo-800x450.webp"), "écran de chargement : affiche et logo du jeu");
 const ui = lireUiComplet();
 /* Norman (2026-10-24) : la bannière « SOREAL IDLE » du haut de la page de jeu est retirée (l'écran de chargement garde la sienne). */
 assert.ok(!ui.includes('<img src="/api/idle/media/banner?name=soreal-idle.webp"'), "plus de bannière dans la page de jeu");

@@ -313,7 +313,7 @@
     zone.hidden=!panneauPresence&&!grandEcran;
     if(zone.hidden)return;
     zone.innerHTML=
-      '<p class="sic-note">Joueurs connectés à SOREAL IDLE en ce moment (seuls ceux qui ont le jeu ouvert apparaissent).</p>'+
+      '<p class="sic-note">Joueurs connectés à SOREAL NGU IDLE en ce moment (seuls ceux qui ont le jeu ouvert apparaissent).</p>'+
       (enLigne.length?enLigne.map(function(u){
         return '<div class="sic-ligne"><span class="sic-point '+(u.actif?'on':'away')+'"></span>'+
           '<span>'+echapper(u.nom||'?')+(u.moi?' (moi)':'')+(u.admin?'<span class="sic-admin">ADMIN</span>':'')+'</span>'+
@@ -385,7 +385,7 @@
     el.innerHTML=
       '<div class="sic-fen">'+
         '<div class="sic-tete">'+
-          '<div class="sic-titre">💬 Chat SOREAL IDLE</div>'+
+          '<div class="sic-titre">💬 Chat SOREAL NGU IDLE</div>'+
           '<button type="button" class="sic-btn sic-btn-presence" data-sic="presence">🟢 … en ligne</button>'+
         '</div>'+
         '<div class="sic-corps">'+

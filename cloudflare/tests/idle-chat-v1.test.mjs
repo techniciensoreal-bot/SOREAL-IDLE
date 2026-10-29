@@ -115,7 +115,7 @@ function charger({ interaction = true, visible = true, contexte = null, appelEch
   assert.ok(mod.includes("estAdmin?'<button") , "bouton de suppression visible de l'administrateur seulement");
   assert.ok(mod.includes('maxlength="280"') && mod.includes("slice(0,280)"));
   assert.ok(mod.includes("event.stopPropagation()"), "les raccourcis du jeu ne se déclenchent pas pendant la frappe");
-  assert.ok(mod.includes("Joueurs connectés à SOREAL IDLE"));
+  assert.ok(mod.includes("Joueurs connectés à SOREAL NGU IDLE"));
 }
 
 // 7. Menu : bouton Chat, PAGE du menu en pleine page (2026-10-01 : plus de fenêtre volante), badge, activité exposée au chat, classement = temps de jeu ACTIF.

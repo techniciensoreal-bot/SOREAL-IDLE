@@ -46,7 +46,7 @@ D.reponseRecue("agirProgressionSorealIdle", 4200);
 assert.equal(D.journal()[0].type, "reponse_lente"); assert.equal(D.journal()[0].ms, 4200);
 // 4. Le texte a un en-tête complet et une fin.
 const t = D.texte();
-assert.ok(t.startsWith("=== SOREAL IDLE — journal de diagnostic ==="), "en-tête");
+assert.ok(t.startsWith("=== SOREAL NGU IDLE — journal de diagnostic ==="), "en-tête");
 for (const m of ["appareil : TestUA", "8 coeurs", "écran 400x800", "réseau : 4g", "menu ngu", "combat 1", "FIN DU JOURNAL (1 ligne(s))"]) assert.ok(t.includes(m), m);
 // 5. Branchements : le pont signale chaque réponse, l'observateur de tâches longues appelle tacheLongue_.
 assert.ok(pont.includes("Dg.reponseRecue(operation,"), "le pont signale la durée de chaque appel");

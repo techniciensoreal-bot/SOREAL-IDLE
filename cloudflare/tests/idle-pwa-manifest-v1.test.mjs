@@ -6,7 +6,7 @@ import { readFileSync, existsSync, statSync } from "node:fs";
  * de la Trusted Web Activity est dans android/twa-manifest.json (jamais de clé de signature dans le dépôt).
  */
 const manifest = JSON.parse(readFileSync("cloudflare/public/manifest.webmanifest", "utf8"));
-assert.equal(manifest.name, "SOREAL IDLE");
+assert.equal(manifest.name, "SOREAL NGU IDLE");
 assert.equal(manifest.display, "standalone");
 assert.equal(manifest.start_url, "/");
 assert.equal(manifest.scope, "/");

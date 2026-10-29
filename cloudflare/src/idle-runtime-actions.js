@@ -62,7 +62,7 @@ function obtenirEtatSorealIdleGameV40_(
       retryable: true,
       retryAfterMs: 220,
       message:
-        'Finalisation des données SOREAL IDLE…'
+        'Finalisation des données SOREAL NGU IDLE…'
     };
   }
 
@@ -177,7 +177,7 @@ export function equiperObjetsSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -190,7 +190,7 @@ export function fusionnerObjetsSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -327,7 +327,7 @@ export function ameliorerEquipementsForgeSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -336,7 +336,7 @@ export function agrandirInventairePlusieursSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -767,7 +767,7 @@ export function acheterEntrainementsSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -776,7 +776,7 @@ export function acheterEntrainementSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1012,7 +1012,7 @@ export function acheterSortsSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1021,7 +1021,7 @@ export function acheterSortSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1030,7 +1030,7 @@ export function lancerSortSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1269,7 +1269,7 @@ export function recyclerObjetSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1278,7 +1278,7 @@ export function recyclerObjetsSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1287,7 +1287,7 @@ export function fusionnerObjetSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1296,7 +1296,7 @@ export function ameliorerEquipementForgeSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1305,7 +1305,7 @@ export function agrandirInventaireSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1314,7 +1314,7 @@ export function definirCombatAutoAventureSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }
 
@@ -1323,6 +1323,6 @@ export function combattreAventureSorealIdle(...args) {
   return {
     ok:false,
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
-    message:'Cette ancienne mécanique est désactivée. SOREAL IDLE utilise maintenant le moteur NGU V47.'
+    message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
 }

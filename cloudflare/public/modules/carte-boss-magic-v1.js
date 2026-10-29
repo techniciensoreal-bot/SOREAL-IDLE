@@ -157,7 +157,7 @@ function html(o){
         '<div class="mtg-boutons">'+(o.boutonsHtml||'')+'</div>'+
         (o.adminHtml?'<div class="mtg-admin">'+o.adminHtml+'</div>':'')+
       '</div>'+
-      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(pad4(o.numero))+' · FR</span><span data-sans-traduction>SOREAL IDLE</span>'+rencontres+'</div>'+
+      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(pad4(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span>'+rencontres+'</div>'+
     '</div>'+
     force+
     '</div>'+

@@ -80,7 +80,7 @@ resolve(joueur);
 
   function flush_(){
     renderTimer=0;
-    renderSubscribers.forEach(function(fn){try{fn();}catch(e){console.warn('SOREAL IDLE render subscriber',e);}});
+    renderSubscribers.forEach(function(fn){try{fn();}catch(e){console.warn('SOREAL NGU IDLE render subscriber',e);}});
   }
 
   function schedule_(){

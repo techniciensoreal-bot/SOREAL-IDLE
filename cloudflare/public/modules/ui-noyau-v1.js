@@ -154,7 +154,7 @@
           `<main class="soreal-idle-native-v4">
             <div class="soreal-idle-hero-v4">
               <div class="soreal-idle-kicker-v4">Prototype privé</div>
-              <div class="soreal-idle-title-v4">SOREAL IDLE</div>
+              <div class="soreal-idle-title-v4">SOREAL NGU IDLE</div>
               <div class="soreal-idle-sub-v4">Le moteur a renvoyé une erreur.</div>
               <div class="soreal-idle-badge-v4">🔒 ${versionBadgeIdleV1_()}</div>
             </div>
@@ -830,7 +830,7 @@
           rendrePendingIdleV7_();
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render pending :',
+            'SOREAL NGU IDLE post-render pending :',
             e
           );
         }
@@ -839,7 +839,7 @@
           demarrerTickerIdle_();
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render ticker :',
+            'SOREAL NGU IDLE post-render ticker :',
             e
           );
         }
@@ -848,7 +848,7 @@
           rafraichirEstAdminSorealIdle_();
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render admin :',
+            'SOREAL NGU IDLE post-render admin :',
             e
           );
         }
@@ -857,7 +857,7 @@
           rafraichirPartieDevIdleV1_();
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render parties dev :',
+            'SOREAL NGU IDLE post-render parties dev :',
             e
           );
         }
@@ -871,7 +871,7 @@
           restaurerScrollNavIdleV28_(idleNavScrollAvantRenduV1);
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render nav scroll :',
+            'SOREAL NGU IDLE post-render nav scroll :',
             e
           );
         }
@@ -880,7 +880,7 @@
           initialiserSwipeNavigationIdleV1_();
         }catch(e){
           console.error(
-            'SOREAL IDLE post-render swipe :',
+            'SOREAL NGU IDLE post-render swipe :',
             e
           );
         }
@@ -1013,7 +1013,7 @@
         const texte=
           String(
             message||
-            'Impossible de charger SOREAL IDLE.'
+            'Impossible de charger SOREAL NGU IDLE.'
           );
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-338 */
@@ -1066,7 +1066,7 @@
       function chargerSorealIdleNatifV4_(){
         if(!REG.idleAutorise){
           signalerErreurOuvertureIdleV104_(
-            'Accès SOREAL IDLE non autorisé.'
+            'Accès SOREAL NGU IDLE non autorisé.'
           );
           return;
         }
@@ -1188,7 +1188,7 @@
                   res &&
                   res.message
                     ?res.message
-                    :'Impossible de charger SOREAL IDLE.'
+                    :'Impossible de charger SOREAL NGU IDLE.'
                 );
 
                 return;
@@ -1227,7 +1227,7 @@
                     );
 
               if(
-                /moteur SOREAL IDLE est occupé|jeu est occupé|SOREAL_IDLE_OCCUPE/i
+                /moteur SOREAL NGU IDLE est occupé|jeu est occupé|SOREAL_IDLE_OCCUPE/i
                   .test(message)
               ){
                 programmerNouvelleTentative();

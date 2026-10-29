@@ -224,7 +224,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=d4618b1ac8");
+    worker=new Worker("/moteur-local-worker-v1.js?v=a5a8e6d504");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -430,14 +430,14 @@
   window.__lirePartieIdleV1__=function(input){
     const f=input&&input.files&&input.files[0];
     if(!f)return;
-    if(f.size>6*1024*1024){etatPartieFichier("⚠️ Ce fichier est trop gros pour être une partie SOREAL IDLE.",true);return;}
+    if(f.size>6*1024*1024){etatPartieFichier("⚠️ Ce fichier est trop gros pour être une partie SOREAL NGU IDLE.",true);return;}
     const lecteur=new FileReader();
     lecteur.onerror=function(){etatPartieFichier("⚠️ Impossible de lire ce fichier.",true);};
     lecteur.onload=function(){
       let o=null;
       try{o=JSON.parse(String(lecteur.result||""));}catch(_){o=null;}
       const ok=o&&o.format==="soreal-idle-partie-v1"&&Array.isArray(o.cells)&&o.cells.length===38&&typeof o.cells[37]==="string";
-      if(!ok){fichierEnAttente=null;etatPartieFichier("⚠️ Ce fichier n’est pas une partie SOREAL IDLE valide.",true);return;}
+      if(!ok){fichierEnAttente=null;etatPartieFichier("⚠️ Ce fichier n’est pas une partie SOREAL NGU IDLE valide.",true);return;}
       fichierEnAttente=o;
       const quand=new Date(Number(o.serveurAt)||0);
       etatPartieFichier("Partie du <b>"+echapper(quand.toLocaleString("fr-FR"))+"</b>"+(o.nom?" (joueur « "+echapper(o.nom)+" »)":"")+". Elle <b>remplacera ta partie actuelle</b>, sur cet appareil et sur ton compte (une copie de sécurité de ta partie actuelle est gardée). Elle reprendra exactement là où elle a été sauvegardée, sans temps écoulé. "+

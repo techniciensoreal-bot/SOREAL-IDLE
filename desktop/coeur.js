@@ -319,7 +319,7 @@ function ouvrirFenetre() {
   fenetre = new BrowserWindow({
     width: 1280, height: 800, minWidth: 360, minHeight: 480,
     backgroundColor: "#071226", show: false, autoHideMenuBar: true,
-    title: "SOREAL IDLE",
+    title: "SOREAL NGU IDLE",
     icon: fs.existsSync(path.join(__dirname, "icone.ico")) ? path.join(__dirname, "icone.ico") : path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false, backgroundThrottling: false, preload: path.join(__dirname, "preload.js") }
   });

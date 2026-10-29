@@ -58,7 +58,7 @@
    * Voix de femme (Norman, 2026-09-26) : la seule réplique lue par la dame après le popup du sandwich. Son bloc est reconnu par son texte exact ; le générateur de voix
    * (cloudflare/tools/voice-generate.mjs) la synthétise avec le modèle « Siwis » au lieu de Tom. Aucun modèle n'est chargé par le jeu : c'est un fichier pré-généré comme les autres.
    */
-  var TEXTES_VOIX_FEMME=['J’ADORE SOREAL IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.'];
+  var TEXTES_VOIX_FEMME=['J’ADORE SOREAL NGU IDLE. CROYEZ TOUT CE QU’IL VOUS DIT.'];
   function estVoixFemme_(chunk){
     return TEXTES_VOIX_FEMME.indexOf(String(chunk||'').trim())>=0;
   }
@@ -474,7 +474,7 @@
 
   function afficherErreur_(message,targetId){
     lastError=String(message||'VOIX_IA_INDISPONIBLE');
-    console.error('SOREAL IDLE narration neurale:',lastError);
+    console.error('SOREAL NGU IDLE narration neurale:',lastError);
     if(targetId){
       document.querySelectorAll('.'+READ_CLASS+'[data-soreal-tts-target]').forEach(function(button){
         if(String(button.getAttribute('data-soreal-tts-target')||'')!==String(targetId))return;
