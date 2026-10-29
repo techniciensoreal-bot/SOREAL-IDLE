@@ -38,6 +38,7 @@
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les animations de mort du boss et du joueur ne se jouent plus au hasard : elles défilent dans l’ordre, l’une après l’autre ; quand toutes ont été vues, on recommence à la première. Les prochaines s’ajouteront à la fin de la file.',
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
@@ -50,6 +51,7 @@
             'Dans le NGU de magie, les aurores boréales ont de vrais rideaux courbes et lumineux, au lieu de bandes droites. Les étoiles apparaissent en fondu quand tu places de la magie, et elles scintillent.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Le bouton Activer reste grisé tant que l’Énergie ou la Magie nécessaire n’est pas générée et disponible dans la barre du haut ; il se dégrise tout seul dès qu’il y en a assez. Quand il coûte de la Magie, il prend une teinte bleutée, comme le fond de la carte.',
             'Quand tu manges un fruit, on entend la mâche des fruits complets, qui rétrécissent un à un, à tour de rôle ; le fruit qui pousse encore rétrécit seulement jusqu’à disparaître, sans bruit. Quand tu les transformes en graines, seuls les fruits complets se défont en mini particules qui tombent au sol.',
             'Les cadres d’image des fruits sont maintenant carrés et montrent l’arbre en entier, du tronc aux feuilles, au lieu de couper les côtés.',
             'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis au hasard dans le feuillage, un peu penchés et de tailles légèrement différentes, pour que l’arbre ait l’air naturel.',

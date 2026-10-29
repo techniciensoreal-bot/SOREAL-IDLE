@@ -172,7 +172,10 @@
       '.ygg-btn:active:not(:disabled){transform:translate(2px,2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),1px 1px 0 #000;}',
       '.ygg-btn:disabled{cursor:default;color:#7d8a70;background:linear-gradient(180deg,#46543f,#2c3a2a);box-shadow:inset 0 2px 0 rgba(255,255,255,.1),3px 3px 0 #000;}',
       '.ygg-btn.vert{color:#f4edc9;background:linear-gradient(180deg,#4ea866,#256b3c);}',
-      '.ygg-btn.vert:disabled{color:#7d8a70;background:linear-gradient(180deg,#46543f,#2c3a2a);}',
+      '.ygg-btn.vert:disabled{color:#7d8a70;background:linear-gradient(180deg,#46543f,#2c3a2a)}',
+      /* Activer d'un fruit de Magic (Norman, 2026-10-29) : teinte bleutée, comme le fond de la carte */
+      '.ygg-btn.vert.ygg-act-magie{color:#032530;background:linear-gradient(180deg,#8ff2ff,#25a8c8);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),3px 3px 0 #000}',
+      '.ygg-btn.vert.ygg-act-magie:disabled{color:#6f98a4;background:linear-gradient(180deg,#3d6672,#223f49);box-shadow:inset 0 2px 0 rgba(255,255,255,.1),3px 3px 0 #000}',
       '.ygg-actions{display:grid;grid-template-columns:1fr;gap:1.1cqw;}',
       '.ygg-mode{display:grid;grid-template-columns:1fr 1fr;border:2px solid #000;border-radius:4px;overflow:hidden;}',
       '.ygg-mode button{min-height:36px;padding:.2em .1em;border:0;cursor:pointer;font:800 clamp(8px,1.8cqw,12px) Georgia,serif;color:#cfe8bf;background:#17381f;}',
@@ -505,7 +508,11 @@
     var ress=def.resource==='magic'?'Magic':'Energy';
     var principal;
     if(v.tier<=0)principal='<button type="button" class="ygg-btn vert" disabled>Activer</button>';
-    else if(!v.active)principal='<button type="button" class="ygg-btn vert" title="Coût : '+html_(grand_(coutAct))+' '+ress+'" onclick="window.__SOREAL_IDLE_YGG_V1__.activer(\''+html_(id)+'\')">Activer<small>'+html_(grand_(coutAct))+' '+ress+'</small></button>';
+    else if(!v.active){
+      /* Norman (2026-10-29) : le bouton Activer reste grisé tant que l'Énergie ou la Magie nécessaire n'est pas générée ET disponible dans la barre du haut ; bleuté quand il coûte de la Magie (comme le fond de la carte). */
+      const manque=manqueActiver_(def.resource,coutAct);
+      principal='<button type="button" class="ygg-btn vert'+(def.resource==='magic'?' ygg-act-magie':'')+'" data-ygg-act="'+html_(def.resource==='magic'?'magic':'energy')+'" data-ygg-cout="'+html_(String(nb_(coutAct)))+'" '+(manque?'disabled title="'+html_(titreManque_(def.resource))+'" ':'title="Coût : '+html_(grand_(coutAct))+' '+ress+'" ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.activer(\''+html_(id)+'\')">Activer<small>'+html_(grand_(coutAct))+' '+ress+'</small></button>';
+    }
     else if(!v.pret)principal='<button type="button" class="ygg-btn vert" disabled>Pousse…</button>';
     else principal='<button type="button" class="ygg-btn" onclick="window.__SOREAL_IDLE_YGG_V1__.utiliser(\''+html_(id)+'\')">'+(c.mode==='harvest'?'Récolter':'Manger')+'</button>';
     var coutUp=v.e.nextTierCost;
@@ -650,6 +657,31 @@
       rafraichir_();
     },fin*1000+160);
   }
+  /* Énergie / Magie libres de la barre du haut (celle que le joueur voit) ; vrai quand il n'y en a pas assez pour le coût. */
+  function disponible_(){try{var f=window.__SOREAL_IDLE_DISPONIBLE_V2__;return typeof f==='function'?f():null;}catch(_e){return null;}}
+  function manqueActiver_(ressource,cout){
+    var d=disponible_();
+    if(!d)return false;
+    var libre=ressource==='magic'?nb_(d.magie):nb_(d.energie);
+    return libre<nb_(cout);
+  }
+  function titreManque_(ressource){return ressource==='magic'?'Pas assez de Magie disponible : il faut qu’elle soit générée et libre dans la barre de magie du haut.':'Pas assez d’Énergie disponible : il faut qu’elle soit générée et libre dans la barre d’énergie du haut.';}
+  /* Remet les boutons Activer d'aplomb sans attendre le prochain redessin de la page (l'énergie et la magie se génèrent en continu) ; rappelée aussi juste après chaque redessin. */
+  function majActiver_(){
+    var bs=document.querySelectorAll('.ygg-btn[data-ygg-act]');
+    for(var i=0;i<bs.length;i+=1){
+      var b=bs[i],manque=manqueActiver_(b.getAttribute('data-ygg-act'),b.getAttribute('data-ygg-cout'));
+      if(manque!==b.disabled){
+        b.disabled=manque;
+        if(manque)b.setAttribute('title',titreManque_(b.getAttribute('data-ygg-act')));
+        else b.removeAttribute('title');
+      }
+    }
+  }
+  try{
+    (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(majActiver_);
+    setInterval(function(){if(!document.hidden&&document.querySelector('.ygg-btn[data-ygg-act]'))majActiver_();},500);
+  }catch(_e){/* sans minuterie : le redessin de la page suffit */}
   function lancerUsage_(id,avecPoop){
     var c=choix_(id);
     animer_(id,c.mode==='harvest'?'harvest':'eat');
@@ -661,7 +693,7 @@
     page:page,
     imageChargee:function(nom,img){etat.chargees[nom]=true;var f=img&&img.previousElementSibling;if(f&&f.classList&&f.classList.contains('ygg-secours'))f.style.display='none';},
     imageManquante:function(nom,img){etat.manquantes[nom]=true;if(img)img.style.display='none';},
-    activer:function(id){son_('activer');action_({action:'activateYggFruit',fruit:String(id)});},
+    activer:function(id){var b=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-btn[data-ygg-act]');if(b&&b.disabled)return;son_('activer');action_({action:'activateYggFruit',fruit:String(id)});},
     ameliorer:function(id){son_('ameliorer');action_({action:'upgradeYggFruit',fruit:String(id)});},
     utiliser:function(id){
       var c=choix_(id);var t=trouver_(id);

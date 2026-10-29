@@ -49,7 +49,7 @@ assert.deepEqual(Array.from(M.variantes), ["fondu", "rewind", "clignote"], "troi
 assert.ok(M.dureeRewind > 3 && M.dureeRewind < 4, "durée du rembobinage");
 
 // Câblage : variante tirée au hasard (jamais la même deux fois de suite le plus souvent), son à l'envers déclenché une fois, fondu final.
-assert.ok(code.includes("var CHOIX=['fondu','rewind','clignote']") && code.includes("if(variante===derniereVariante)variante=CHOIX["), "tirage au hasard, jamais deux fois la même d'affilée");
+assert.ok(code.includes("var CHOIX=['fondu','rewind','clignote']") && code.includes("variante=suivante_(CHOIX)") && !code.includes("Math.random()*CHOIX.length"), "mort suivante de la file, plus de tirage au hasard (Norman, 2026-10-29)");
 assert.ok(code.includes("a.defeatReverse()") && code.includes("t>=T_A+T_BRUIT*.5&&!son"), "le son de défaite, à l'envers, au moment du rembobinage");
 assert.ok(code.includes("calque.style.transition='opacity '+T_FONDU2+'s ease-out'"), "l'image reconstituée laisse place à l'image du joueur");
 // Le son : rendu hors ligne, retourné, joué tout de suite.

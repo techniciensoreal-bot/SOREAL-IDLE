@@ -58,3 +58,14 @@ assert.ok(moteur.includes("speedGoldCost: tmLevelGoldCost(speedLevel + 1)") && m
 assert.ok(aug.includes("data-tm-prix=") && aug.includes("[['vitesse',vue.speedGoldCost],['or',vue.goldGoldCost]]"), "ligne sous la barre, mise à jour à chaque synchro");
 assert.ok(readFileSync("cloudflare/public/soreal-idle-machine.css", "utf8").includes(".tmm-prix{"), "style de la ligne");
 console.log("idle-ygg-usage-animation-v1: OK");
+
+/* Norman (2026-10-29) : le bouton Activer est grisé tant que l'Énergie ou la Magie nécessaire n'est pas générée ET disponible dans la barre du haut ; bleuté quand il coûte de la Magie */
+{
+  const y = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
+  assert.ok(y.includes("function manqueActiver_(ressource,cout)") && y.includes("window.__SOREAL_IDLE_DISPONIBLE_V2__") && y.includes("libre<nb_(cout)"), "la disponibilité est celle de la barre du haut (énergie / magie libres)");
+  assert.ok(y.includes("(manque?'disabled title=\"'+html_(titreManque_(def.resource))+'\" '") && y.includes("data-ygg-act=") && y.includes("data-ygg-cout="), "rendu : bouton grisé (disabled) quand il manque de quoi payer");
+  assert.ok(y.includes("function majActiver_()") && y.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(majActiver_)") && y.includes("setInterval(function(){if(!document.hidden&&document.querySelector('.ygg-btn[data-ygg-act]'))majActiver_();},500)"), "dégrisé / regrisé en direct (toutes les 500 ms et juste après chaque redessin), sans attendre la synchro");
+  assert.ok(y.includes("if(b&&b.disabled)return;son_('activer')"), "un clic sur un bouton grisé n'envoie rien");
+  assert.ok(y.includes(".ygg-btn.vert.ygg-act-magie{") && y.includes(".ygg-btn.vert.ygg-act-magie:disabled{") && y.includes("(def.resource==='magic'?' ygg-act-magie':'')"), "Activer d'un fruit de Magic : teinte bleutée, y compris grisé");
+  console.log("idle-ygg-usage-animation-v1 (Activer grisé, bleuté): OK");
+}

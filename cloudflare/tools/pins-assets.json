@@ -336,12 +336,12 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 8,
-  "sha": "aa271c13cda2f63642e7d31316911e986f14ae34"
+  "pin": 9,
+  "sha": "2d97f57c80aeed73f94bd00420c3f807b864e7d8"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 1,
-  "sha": "13acd6a4cafa365ed2ee22cd00152a86599707b0"
+  "pin": 2,
+  "sha": "49a4906c3e541dfea42be6ab23731b59041ddc2d"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 2,
@@ -420,8 +420,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 517,
-  "sha": "7b7c70fe15dfb897b9705f7292ee76126c029450"
+  "pin": 518,
+  "sha": "6cd7eb1259081f8068e0e111f0b232a1e808c8c4"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -492,12 +492,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 530,
-  "sha": "0e308d10bc530e8d378bd379484833cce5e9c3a8"
+  "pin": 531,
+  "sha": "25fc057b8e9f90bf98f7c649d32ce5701e31b130"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 350,
-  "sha": "94fb55d1577c46ff5097fd7f017da3f1aa19a653"
+  "pin": 351,
+  "sha": "d75926938388824d5d3a6a702beb5ea50cd1ae43"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -652,8 +652,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 63,
-  "sha": "6c102872905d61b120edae1015b6b5420077b725"
+  "pin": 64,
+  "sha": "e5e0cf42738ec8635f080111ce6b94f807ea7080"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 16,

@@ -350,7 +350,21 @@ function jouer(id,canvas,img,opts){
  * Dans le jeu : la mort du boss tué, sur l'image de la borne. Un calque opaque (data-morph-garder, règle n°4) est posé sur l'image, la mort s'y dessine ; elle finie, la main passe à l'apparition du boss suivant (idMort : le boss tué, jamais celui qui arrive).
  * Rend faux (rien n'est fait, l'appelant garde le comportement d'avant) pour « réduire les animations », sans image lisible, ou quand le tirage retombe sur l'éclatement en pixels d'avant.
  */
-var enCours=false,derniere='';
+var enCours=false;
+/*
+ * File d'attente des morts (Norman, 2026-10-29 : « les animations de mort ne se jouent pas au hasard, mais en suivant ; quand elles sont toutes lues, on recommence à la première ; quand on en ajoute, elles se mettent en bout de file ») : l'ordre est celui de la liste ci-dessous ;
+ * on garde le NOM de la dernière jouée (préférence liée au compte, règle n°6) et la suivante est celle qui vient juste après dans la liste ; après la dernière, retour à la première. Une mort ajoutée à la fin de la liste passe donc après toutes les autres,
+ * et une mort inconnue (liste modifiée) fait repartir de la première.
+ */
+var dernierMemoire_='';
+function suivante_(liste){
+  var cle='soreal_idle_file_mort_boss_v1',dernier=dernierMemoire_;
+  try{dernier=localStorage.getItem(cle)||dernierMemoire_;}catch(_e){}
+  var choix=liste[(liste.indexOf(dernier)+1)%liste.length];   /* dernier inconnu : indexOf = -1, donc la première */
+  dernierMemoire_=choix;
+  try{localStorage.setItem(cle,choix);}catch(_e){}
+  return choix;
+}
 function styleHote(){
   if(document.getElementById('soreal-idle-mort-boss-style'))return;
   var s=document.createElement('style');s.id='soreal-idle-mort-boss-style';
@@ -362,10 +376,8 @@ function jouerSurHote(hote,image,idMort){
   try{
     if(!hote||!image||enCours)return false;
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
-    var ids=VARIANTES.map(function(v){return v.id;}).concat(['classique']);
-    var choix=ids[Math.floor(Math.random()*ids.length)];
-    if(choix===derniere)choix=ids[(ids.indexOf(choix)+1+Math.floor(Math.random()*(ids.length-1)))%ids.length];   /* jamais deux fois la même d'affilée */
-    derniere=choix;
+    /* « classique » = l'éclatement en gros pixels d'origine (victoire-boss-arcade-v1.js) : il ouvre la file, les nouvelles morts viennent à la suite, dans l'ordre de VARIANTES (les ajouts se mettent à la fin) */
+    var choix=suivante_(['classique'].concat(VARIANTES.map(function(v){return v.id;})));
     if(choix==='classique')return false;
     if(!(image.naturalWidth>0))return false;
     var r=hote.getBoundingClientRect();

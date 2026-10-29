@@ -39,5 +39,29 @@ assert.ok(idx.includes("/modules/morts-boss-nouvelles-v1.js?v="), "module charg�
 const combat = readFileSync("cloudflare/public/modules/ui-combat-1-v1.js", "utf8");
 assert.ok(combat.includes("nouvelle.jouerSurHote(host,image,idMortV1)") && combat.includes("if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)"), "branché sur la mort du boss, mêmes conditions que l'écran de victoire (plus de durée minimale : tout combat lancé avec Fight ; jamais un NUKE)");
 assert.ok(combat.indexOf("nouvelle.jouerSurHote") < combat.indexOf("arcade.jouer(host,image"), "tirage avant l'éclatement en pixels : s'il retombe dessus, l'ancien comportement joue");
-assert.ok(src.includes("jouerSurHote") && src.includes("app.jouerApres(hote,idMort,true)") && src.includes("data-morph-garder") && src.includes("derniere"), "calque gardé par le redessin, passage de main à l'apparition, jamais deux fois la même");
+assert.ok(src.includes("jouerSurHote") && src.includes("app.jouerApres(hote,idMort,true)") && src.includes("data-morph-garder") && src.includes("suivante_(['classique']"), "calque gardé par le redessin, passage de main à l'apparition, mort suivante de la file (plus de hasard)");
 console.log("idle-morts-boss-nouvelles-v1: OK");
+
+/* Norman (2026-10-29) : les morts se jouent EN SUIVANT, pas au hasard ; toutes lues, on recommence ; une mort ajoutée se met en bout de file */
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const vm = await import("node:vm");
+  for (const [fichier, cle] of [["cloudflare/public/modules/morts-boss-nouvelles-v1.js", "boss"], ["cloudflare/public/modules/mort-joueur-v1.js", "joueur"]]) {
+    const code = lire(fichier, "utf8");
+    const fonction = code.slice(code.indexOf("var dernierMemoire_='';"), code.indexOf("\n}\n", code.indexOf("function suivante_(liste){")) + 3);
+    const magasin = {};
+    const f = vm.runInNewContext("(function(){" + fonction + "return suivante_;})()", { localStorage: { getItem: (k) => (k in magasin ? magasin[k] : null), setItem: (k, v) => { magasin[k] = String(v); } } });
+    assert.ok(code.includes("soreal_idle_file_mort_" + cle + "_v1"), cle + " : clé liée au compte (règle n°6)");
+    const liste = ["a", "b", "c"];
+    assert.deepEqual([1, 2, 3, 4, 5, 6, 7].map(() => f(liste)), ["a", "b", "c", "a", "b", "c", "a"], cle + " : dans l'ordre, puis on recommence à la première");
+    assert.deepEqual([f(["a", "b", "c", "d"]), f(["a", "b", "c", "d"])], ["b", "c"], cle + " : la suite reprend là où on en était");
+    magasin["soreal_idle_file_mort_" + cle + "_v1"] = "c";
+    assert.equal(f(["a", "b", "c", "d"]), "d", cle + " : une mort ajoutée à la fin passe juste après la dernière jouée");
+    assert.equal(f(["a", "b", "c", "d"]), "a", cle + " : puis retour à la première");
+    magasin["soreal_idle_file_mort_" + cle + "_v1"] = "inconnue";
+    assert.equal(f(["a", "b", "c"]), "a", cle + " : mort inconnue : on repart de la première");
+  }
+  const boss = lire("cloudflare/public/modules/morts-boss-nouvelles-v1.js", "utf8");
+  assert.ok(boss.includes("suivante_(['classique'].concat(VARIANTES.map(function(v){return v.id;})))") && !boss.includes("Math.floor(Math.random()*ids.length)"), "boss : « classique » ouvre la file, les nouvelles morts suivent dans l'ordre de la liste");
+  console.log("idle-morts-boss-nouvelles-v1 (file en suivant): OK");
+}

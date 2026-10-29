@@ -19,7 +19,6 @@ var enCours=false;
  * Tirée au hasard à chaque mort (jamais deux fois la même d'affilée).
  */
 var T_A=1.0,T_BRUIT=.16,T_REW=1.2,T_TENUE=.4,T_FONDU2=.5,DUREE2=T_A+T_BRUIT+T_REW+T_TENUE+T_FONDU2+0.1;
-var derniereVariante='';
 /* Troisième façon : l'image du joueur CLIGNOTE trois fois en revenant, avec trois sons identiques calés sur chaque clignotement (Norman, 2026-10-23). */
 var T_CLIGNOTE=.42,T_ALLUME=.2,N_CLIGNOTEMENTS=3,DUREE3=T_VIDE+(N_CLIGNOTEMENTS-1)*T_CLIGNOTE+T_ALLUME+.6;
 
@@ -141,17 +140,28 @@ function style_(){
   (document.head||document.documentElement).appendChild(s);
 }
 
+/*
+ * File d'attente des morts (Norman, 2026-10-29 : « les animations de mort ne se jouent pas au hasard, mais en suivant ; quand elles sont toutes lues, on recommence à la première ; quand on en ajoute, elles se mettent en bout de file ») : l'ordre est celui de la liste ci-dessous ;
+ * on garde le NOM de la dernière jouée (préférence liée au compte, règle n°6) et la suivante est celle qui vient juste après dans la liste ; après la dernière, retour à la première. Une mort ajoutée à la fin de la liste passe donc après toutes les autres,
+ * et une mort inconnue (liste modifiée) fait repartir de la première.
+ */
+var dernierMemoire_='';
+function suivante_(liste){
+  var cle='soreal_idle_file_mort_joueur_v1',dernier=dernierMemoire_;
+  try{dernier=localStorage.getItem(cle)||dernierMemoire_;}catch(_e){}
+  var choix=liste[(liste.indexOf(dernier)+1)%liste.length];   /* dernier inconnu : indexOf = -1, donc la première */
+  dernierMemoire_=choix;
+  try{localStorage.setItem(cle,choix);}catch(_e){}
+  return choix;
+}
+
 function jouer(hote,variante){
   try{
     if(!hote||enCours)return false;
     var NOUVELLES=window.__SOREAL_IDLE_MORTS_NOUVELLES_V1__;
     var NOUVEAUX=NOUVELLES?Array.prototype.map.call(NOUVELLES.variantes,function(v){return v.id;}):[];   /* cendres, trou noir, vitre, tranché, âme (Norman, 2026-10-28) */
     var CHOIX=['fondu','rewind','clignote'].concat(NOUVEAUX);
-    if(CHOIX.indexOf(variante)<0){
-      variante=CHOIX[Math.floor(Math.random()*CHOIX.length)];
-      if(variante===derniereVariante)variante=CHOIX[(CHOIX.indexOf(variante)+1+Math.floor(Math.random()*(CHOIX.length-1)))%CHOIX.length];   /* jamais deux fois la même d'affilée */
-    }
-    derniereVariante=variante;
+    if(CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);   /* en suivant la liste, pas au hasard (Norman, 2026-10-29) ; les morts ajoutées arrivent à la fin */
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
     var img=hote.querySelector&&hote.querySelector('img');
     if(!img||!(img.naturalWidth>0))return false;
