@@ -156,3 +156,6 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
 .alb-nav-haut{margin:0 0 10px}
 .alb-livre.alb-saut .alb-feuille-tournante .alb-face>.alb-page{-webkit-mask-image:none;mask-image:none}
+/* annonce de deux pages à la fois (PC) : six colonnes */
+.alb-annonce-cartes.alb-large{grid-template-columns:repeat(6,auto)}
+.alb-annonce-cartes.alb-large .alb-annonce-carte{width:min(110px,13vw,calc((100vh - 230px) / 5.2))}

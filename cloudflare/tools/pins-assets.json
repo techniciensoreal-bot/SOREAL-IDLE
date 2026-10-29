@@ -20,8 +20,8 @@
   "sha": "ccd87fbe3ec1d998fd5b7bceb4e23c0fb4ef23e3"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 9,
-  "sha": "37533997d5004bd0efacfb4e9bb9832e8892b991"
+  "pin": 10,
+  "sha": "1f11107950d48ec9b79c53fe1bcae83060970eb3"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -440,8 +440,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 551,
-  "sha": "b412715bf8e6bccf1c9c21b4420534b6f4d7b56a"
+  "pin": 552,
+  "sha": "d5ad99a1137308f797e3d54cd747368f370bb526"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -512,12 +512,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 564,
-  "sha": "24f933e5baec2e1d0d8c82a770d14bc918ce0488"
+  "pin": 565,
+  "sha": "6cc960e66b5fe3039dc52d45fe2be9c42cd8d95f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 384,
-  "sha": "febebb7d297430ccad58d277ce1632dddc199721"
+  "pin": 385,
+  "sha": "8882c3081b4ffa4ce57b0ceb56a6e0cfb4a04f59"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -684,8 +684,8 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 11,
-  "sha": "f9b1ad31642b176ce21fd6f70341d53b1b11a4af"
+  "pin": 12,
+  "sha": "d09173d3e02583bda8c07948da7951859a211816"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,
