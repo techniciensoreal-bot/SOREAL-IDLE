@@ -160,8 +160,11 @@ function jouer(hote,variante){
     if(!hote||enCours)return false;
     var NOUVELLES=window.__SOREAL_IDLE_MORTS_NOUVELLES_V1__;
     var NOUVEAUX=NOUVELLES?Array.prototype.map.call(NOUVELLES.variantes,function(v){return v.id;}):[];   /* cendres, trou noir, vitre, tranché, âme (Norman, 2026-10-28) */
-    var CHOIX=['fondu','rewind','clignote'].concat(NOUVEAUX);
-    if(CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);   /* en suivant la liste, pas au hasard (Norman, 2026-10-29) ; les morts ajoutées arrivent à la fin */
+    /* Norman (2026-10-29) : « les réapparitions ne sont pas variées, c'est souvent un fondu en ouverture » : le fondu sort de la file ; après l'explosion le joueur revient en rembobinage, en clignotant ou par l'un des sept retours validés (marche sur les coins, rebond, tampon, puzzle, faisceau, ballon, toupie : modules/reapparitions-v1.js). */
+    var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__;
+    var RETOURS=REAPP&&REAPP.joueur?Array.prototype.map.call(REAPP.joueur,function(v){return v.id;}):[];
+    var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX);
+    if(variante!=='fondu'&&CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);   /* en suivant la liste, pas au hasard (Norman, 2026-10-29) ; les morts ajoutées arrivent à la fin */
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
     var img=hote.querySelector&&hote.querySelector('img');
     if(!img||!(img.naturalWidth>0))return false;
@@ -197,6 +200,16 @@ function jouer(hote,variante){
         if(t<neuve.duree)NOUVELLES.dessiner(variante,c,t,cacheNeuve,LW,LH);
         else if(!fondu){fondu=true;calque.style.transition='opacity .25s ease-out';calque.style.opacity='0';}
         requestAnimationFrame(image);
+        return;
+      }
+      if(RETOURS.indexOf(variante)>=0){
+        /* explosion en gros pixels, puis le calque (opaque) accueille le retour choisi : copie de l'image qui revient à sa place, avec son propre son */
+        if(t<T_VIDE){dessiner(c,t,pk.px,LW,LH);requestAnimationFrame(image);return;}
+        if(!fondu){
+          fondu=true;
+          c.fillStyle='#101827';c.fillRect(0,0,LW,LH);
+          REAPP.jouer('joueur',variante,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
+        }
         return;
       }
       if(variante==='clignote'){

@@ -23,7 +23,9 @@
   function cl(x,a,b){return x<a?a:x>b?b:x;}
   function ease(x){x=cl(x,0,1);return 1-Math.pow(1-x,3);}
   function easeBack(x){x=cl(x,0,1);var c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);}
-  function indexPour(n){n=Math.floor(Number(n))||1;return ((n-1)%10+10)%10;}
+  /* Dix effets d'origine, puis les sept entrées validées par Norman le 2026-10-29 (modules/reapparitions-v1.js) : écrasement, surgissement, portail, silhouette, plongeon, fumée, briques ; sans ce module, les dix premiers seuls. */
+  function nbEffets(){var R=window.__SOREAL_IDLE_REAPPARITIONS_V1__;return 10+(R&&R.boss&&R.boss.length?R.boss.length:0);}
+  function indexPour(n){n=Math.floor(Number(n))||1;var m=nbEffets();return ((n-1)%m+m)%m;}
   function neuf(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 
   /* ---------- l'image du boss (copie « cover » dans un carré) et ses variantes ---------- */
@@ -214,6 +216,8 @@
       var cv=document.createElement('canvas');cv.width=L;cv.height=L;calque.appendChild(cv);
       hote.appendChild(calque);
       var i=indexPour(n),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
+      var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__,neuf=(i>=10&&REAPP&&REAPP.boss[i-10])?REAPP.boss[i-10]:null;
+      if(neuf)calque.classList.add('app-boss-neuf');
       enCours=true;
       var fini=false;
       function terminer(){
@@ -224,6 +228,10 @@
       }
       function demarrer(){
         if(fini)return;
+        if(neuf){   /* entrées validées le 2026-10-29 : mise en scène et son propres au module des réapparitions */
+          REAPP.jouer('boss',neuf.id,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
+          return;
+        }
         var E;try{E=preparer(img,i);}catch(_e){terminer();return;}   /* image illisible : on révèle simplement le boss */
         var t0=performance.now();
         jouerSon(i);

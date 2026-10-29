@@ -49,6 +49,8 @@
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les réapparitions sont aussi variées que les morts : après sa mort, le joueur revient en marchant sur les coins du bas, en rebondissant, en tampon, en puzzle, en faisceau, en ballon ou en toupie, chacun avec son propre son ; le simple fondu a disparu.',
+            'Les boss font une entrée différente à chaque fois : sept nouvelles arrivées (écrasement, surgissement, portail, silhouette, plongeon, fumée, briques), chacune avec son son, jouées à la suite des précédentes.',
             'Après une Renaissance, le combat de boss est toujours à l’arrêt : le premier boss ne se bat plus tout seul quand l’écran de la borne s’allume ; il faut appuyer sur Fight.',
             'Les animations de mort du boss et du joueur ne se jouent plus au hasard : elles défilent dans l’ordre, l’une après l’autre ; quand toutes ont été vues, on recommence à la première. Les prochaines s’ajouteront à la fin de la file.',
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'

@@ -36,8 +36,8 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 10,
-  "sha": "e58692e7284c3570a40f70fdbbdb42f996ffa340"
+  "pin": 11,
+  "sha": "a69cc5c16d12a07e19274c86290dac0cac698e20"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 3,
@@ -340,8 +340,8 @@
   "sha": "d9b083ef76d1dba13ece57743379cd079b8b5c30"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 9,
-  "sha": "2d97f57c80aeed73f94bd00420c3f807b864e7d8"
+  "pin": 10,
+  "sha": "8db807a64b73593d407f765343bafff857960daa"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
   "pin": 3,
@@ -415,6 +415,10 @@
   "pin": 2,
   "sha": "ea61993c5d5a2c23a485e58428fdb944f71e4e7f"
  },
+ "/modules/reapparitions-v1.js": {
+  "pin": 1,
+  "sha": "a77d56d27be22c2d7e3cfe6d472142f91d3be15b"
+ },
  "/modules/rebirth-live-v1.js": {
   "pin": 6,
   "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
@@ -424,8 +428,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 533,
-  "sha": "0a130435357ecd80f45663b6e3285e42fc4b0c3e"
+  "pin": 534,
+  "sha": "fa8b611b5aa649e5564b50e104816308362fc735"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -496,12 +500,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 546,
-  "sha": "32383809b5aadf75ce766ebb3fec7d51a0af3a3b"
+  "pin": 547,
+  "sha": "738c10402c0066ef5eaf2cbc416eb4bff3455352"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 366,
-  "sha": "06332ed4510afd787b73ee3c9955e27c038cf46d"
+  "pin": 367,
+  "sha": "6981d1c8865a21532695a7fbf4e0a14394be826f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
