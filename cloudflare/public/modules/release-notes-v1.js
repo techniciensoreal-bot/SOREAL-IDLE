@@ -46,7 +46,7 @@
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Quand tu manges un fruit, on entend la mâche et les fruits de l’arbre rétrécissent un à un, à tour de rôle. Quand tu les transformes en graines, ils se défont en mini particules qui tombent au sol.',
             'Les cadres d’image des fruits sont maintenant carrés et montrent l’arbre en entier, du tronc aux feuilles, au lieu de couper les côtés.',
-            'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis dans le feuillage pour que chacun ait sa place.',
+            'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis au hasard dans le feuillage, un peu penchés et de tailles légèrement différentes, pour que l’arbre ait l’air naturel.',
             'Les fruits mûrs, prêts à être récoltés, ont une aura douce de leur couleur sur l’arbre ; le fruit qui pousse encore n’en a pas. Le cadre d’un fruit ne brille plus que lorsque ce fruit a atteint son palier maximum, d’une lueur douce de sa couleur.',
             'Un fruit déjà mûr ne change jamais de place sur l’arbre, et chaque nouveau fruit apparaît loin des autres : l’arbre se remplit partout, sans amas.'
           ]}

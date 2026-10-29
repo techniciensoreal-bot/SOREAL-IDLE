@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 assert.ok(!src.includes("ygg-ater") && !src.includes("ygg-terre") && !src.includes("echelleTerre_"), "aucune trace de la terre");
 const css = src.slice(src.indexOf(".ygg-vitre.ygg-decor .ygg-fruit{"), src.indexOf(".ygg-vitre.ygg-decor .ygg-fruit{") + 400);
-assert.ok(css.includes("left:var(--ygg-x)") && css.includes("top:var(--ygg-y)") && css.includes("scale(var(--ygg-k,1))"), "chaque fruit est placé et dimensionné par ses variables");
+assert.ok(css.includes("left:var(--ygg-x)") && css.includes("top:var(--ygg-y)") && css.includes("rotate(var(--ygg-r,0deg)) scale(calc(var(--ygg-k,1)*var(--ygg-s,1)))"), "chaque fruit est placé et dimensionné par ses variables");
 assert.ok(css.includes("width:13%"), "taille normale, identique pour tous les fruits mûrs");
 assert.ok(src.includes(".ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}"), "cadre carré : l image entière de l arbre (Norman 2026-10-29)");
 /* Norman (2026-10-29) : « retire les lueurs autour des cadres : trop fortes, et seulement quand un fruit a atteint son maximum (10/10, 11/11…), de la couleur du fruit ; une aura autour des fruits prêts à être récoltés sur l'arbre » */

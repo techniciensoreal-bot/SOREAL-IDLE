@@ -19,10 +19,24 @@ assert.equal(choisirCleYggR2_(plat, "gold"), "idle/yggdrasil/Fruit_of_Gold.png",
 const src = fs.readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
 const debut = src.indexOf("function heuresPousse_"), fin = src.indexOf("function intensiteAura_");
 const code = src.slice(debut, src.indexOf("  /*", src.indexOf("function fruitsArbre_"))) ;
-const C = vm.runInNewContext(code + "({heuresPousse_,fruitsArbre_,EMPLACEMENTS_,ORDRE_})");
+const C = vm.runInNewContext(code + "({heuresPousse_,fruitsArbre_,emplacements_,CANOPEE_DEFAUT_,CANOPEES_})");
 const g = (growth) => ({ growth });
-assert.equal(C.EMPLACEMENTS_.length, 24, "24 emplacements, un par heure");
-assert.equal(new Set(C.ORDRE_.map((e) => e.join(","))).size, 24, "l'ordre d'apparition les utilise tous, une fois chacun");
+/* Emplacements AU HASARD dans le feuillage (Norman, 2026-10-29 : « pas en lignes trop propres ») */
+const IDS = ["gold", "powerAlpha", "luck", "knowledge", "numbers", "watermelon", "prettyMayo"];
+for (const id of IDS) {
+  const E = C.emplacements_(id), c = C.CANOPEES_[id] || C.CANOPEE_DEFAUT_;
+  assert.equal(E.length, 24, id + " : 24 emplacements, un par heure");
+  assert.equal(new Set(E.map((e) => e[0] + "," + e[1])).size, 24, id + " : tous différents");
+  for (const [x, y] of E) assert.ok(((x - c.cx) / c.rx) ** 2 + ((y - c.cy) / c.ry) ** 2 <= 1.001, id + " : dans le feuillage (" + x + "," + y + ")");
+  for (let i = 0; i < 24; i++) for (let j = i + 1; j < 24; j++) assert.ok(Math.hypot(E[i][0] - E[j][0], (E[i][1] - E[j][1]) * 0.67) >= 3.2, id + " : jamais l'un sur l'autre (" + i + "," + j + ")");
+  const lignes = new Set(E.map((e) => Math.round(e[1] / 2))), colonnes = new Set(E.map((e) => Math.round(e[0] / 2)));
+  assert.ok(lignes.size >= 13 && colonnes.size >= 14, id + " : ni lignes ni colonnes (" + lignes.size + " hauteurs et " + colonnes.size + " largeurs différentes)");
+  assert.ok(E.some((e) => e[2] > 4) && E.some((e) => e[2] < -4) && new Set(E.map((e) => e[3])).size > 6, id + " : rotations et tailles variées");
+  assert.deepEqual(C.emplacements_(id), E, id + " : toujours les mêmes pour le même fruit (chez tout le monde)");
+}
+assert.notDeepEqual(C.emplacements_("gold"), C.emplacements_("luck"), "chaque arbre a sa disposition");
+const tot = C.emplacements_("gold"); let pairesProches = 0; for (let i = 1; i < 6; i++) if (Math.hypot(tot[i][0] - tot[0][0], tot[i][1] - tot[0][1]) < 14) pairesProches++;
+assert.ok(pairesProches <= 3, "les premiers fruits sont déjà répartis dans tout l'arbre");
 assert.equal(C.fruitsArbre_(g(0)).length, 0, "aucun fruit au départ");
 assert.equal(C.fruitsArbre_(g(0.5)).length, 1, "le premier fruit commence à pousser tout de suite");
 assert.equal(C.fruitsArbre_(g(10)).length, 10, "à 10 h : dix fruits");
@@ -36,7 +50,6 @@ assert.equal(C.fruitsArbre_(g(24)).filter((f) => f[2] === 1).length, 24);
 assert.equal(C.fruitsArbre_(g(30)).length, 24, "jamais plus de 24");
 assert.deepEqual(C.fruitsArbre_(g(5.5)).slice(0, 5), C.fruitsArbre_(g(5)).slice(0, 5), "un fruit mûr ne change jamais de place");
 for (let h = 0; h < 23.9; h += 0.25) assert.ok(C.fruitsArbre_(g(h + 0.25)).length >= C.fruitsArbre_(g(h)).length, "le nombre de fruits ne baisse jamais");
-const R = C.fruitsArbre_(g(24)); for (let i = 0; i < R.length; i++) for (let j = i + 1; j < R.length; j++) assert.ok(Math.abs(R[i][0] - R[j][0]) >= 8 || Math.abs(R[i][1] - R[j][1]) >= 10, "assez de place entre deux fruits (" + i + "," + j + ")");
 assert.ok(src.includes("&fruit=1") && src.includes("ygg-fruit") && !src.includes("ygg-terre") && !src.includes("terre=1"), "fruit sur l'arbre, plus de terre");
 assert.ok(src.includes("function etapeCroissance_(d,v){return null;}") && !src.includes("ygg-suivante") && !src.includes("fractionSuivante_") && !src.includes("DEBUT_FRUIT_"), "plus d'images intermédiaires");
 assert.ok(src.includes("--ygg-x:") && src.includes("--ygg-y:") && src.includes("--ygg-k:"), "position et taille posées sur chaque fruit");

@@ -75,7 +75,7 @@ assert.ok(vl.includes('function ouvertureCoffre(){') && vl.includes('ouvertureCo
 assert.ok(av.includes("V0.ouvertureCoffre()") && av.indexOf("V0.ouvertureCoffre()") < av.indexOf("finir();\n          const racine1") || av.includes("V0.ouvertureCoffre()"), 'appelée avant le redessin');
 assert.ok(av.includes('function hauteurFermeeCoffreIdleV1_(racine)') && av.includes("clone.classList.remove('ouvert'"), 'mesure sur un clone refermé');
 const yg = lire('public/modules/yggdrasil-elfes-v1.js');
-assert.ok(!yg.includes('preparerTerre_') && yg.includes('function fruitsArbre_(v)'), 'plus de terre : fruits posés sur l arbre');
+assert.ok(!yg.includes('preparerTerre_') && yg.includes('function fruitsArbre_(v,id)'), 'plus de terre : fruits posés sur l arbre');
 assert.ok(lire('public/modules/augmentations-page-v1.js').includes("return 'X '+fmt.grandNombre(v,2);"), 'bonus total en lettres comme la vie');
 console.log('ok lot 26');
 

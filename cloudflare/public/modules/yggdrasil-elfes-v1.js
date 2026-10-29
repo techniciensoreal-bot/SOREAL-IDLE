@@ -158,7 +158,7 @@
       '.ygg-vitre.ygg-decor .ygg-fruit.ygg-anim-fruit{transition:none;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55))}',
       '.ygg-part{position:absolute;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;pointer-events:none;will-change:transform,opacity}',
       /* Arbre (Norman, 2026-10-29 : « les images du R2 sont des arbres, on oublie la terre ; les fruits sont posés sur l'arbre, de taille normale ») : le décor est l'arbre ; chaque heure de pousse ajoute un fruit sur l'un des 24 emplacements (voir EMPLACEMENTS_). Un fruit mûr a sa taille pleine ; celui de l'heure en cours grossit. Aucune image de terre. */
-      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:13%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) scale(var(--ygg-k,1));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
+      '.ygg-vitre.ygg-decor .ygg-fruit{inset:auto;z-index:1;left:var(--ygg-x);top:var(--ygg-y);width:13%;height:auto;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) rotate(var(--ygg-r,0deg)) scale(calc(var(--ygg-k,1)*var(--ygg-s,1)));transition:transform 4s linear,filter 4s linear;filter:drop-shadow(0 2px 2px rgba(0,0,0,.55));}',
       /* Aura (Norman, 2026-10-29) : de la couleur du fruit, elle brille de plus en plus avec les heures de pousse, jusqu'à la 24e. */
       /* Aura des fruits mûrs, prêts à être récoltés (Norman, 2026-10-29) : de la couleur du fruit, douce ; le fruit qui pousse encore n'en a pas. */
       '.ygg-vitre.ygg-decor .ygg-fruit.ygg-mur{filter:drop-shadow(0 0 3px var(--ygg-aura)) drop-shadow(0 0 8px color-mix(in srgb,var(--ygg-aura) 65%,transparent))}',
@@ -280,24 +280,44 @@
    * Les emplacements couvrent le feuillage (x et y en % du cadre carré qui montre l'image entière de l'arbre) ; l'ordre d'apparition est calculé une fois : chaque nouveau fruit se place le plus loin possible des précédents, pour que l'arbre se remplisse partout.
    */
   function heuresPousse_(v){return Math.max(0,Math.min(Number(v.growth)||0,24));}
-  var EMPLACEMENTS_=[[60,9],[74,9],[21,21],[34,21],[47,21],[61,21],[76,21],[84,21],[17,33],[28,33],[39,33],[52,33],[66,33],[79,33],[16,45],[24,45],[36,45],[48,45],[72,45],[84,45],[21,57],[32,57],[74,57],[84,57]];
-  var ORDRE_=(function(){
-    var d=function(a,b){var dx=a[0]-b[0],dy=(a[1]-b[1])*0.8;return Math.sqrt(dx*dx+dy*dy);};
-    var reste=EMPLACEMENTS_.slice(),pris=[],i,j,m,best,bi;
-    reste.sort(function(a,b){return d(a,[50,33])-d(b,[50,33]);});
-    pris.push(reste.shift());
-    while(reste.length){
-      best=-1;bi=0;
-      for(i=0;i<reste.length;i++){m=1e9;for(j=0;j<pris.length;j++)m=Math.min(m,d(reste[i],pris[j]));if(m>best){best=m;bi=i;}}
-      pris.push(reste.splice(bi,1)[0]);
+  /*
+   * Emplacements AU HASARD dans le feuillage (Norman, 2026-10-29 : « des fruits ne sont pas dans le feuillage ; ils doivent avoir l'air placés au hasard, pas en lignes trop propres ») : pour chaque arbre, une zone de feuillage (ellipse en % de l'image : centre, demi-largeur, demi-hauteur,
+   * avec un tronc à éviter) ; 24 points tirés par « meilleur candidat » (chaque nouveau fruit, parmi 40 tirages, est le plus éloigné des précédents : répartition naturelle, jamais de grille), avec une graine propre au fruit (toujours le même arbre pour le même fruit, chez tout le monde),
+   * puis une légère rotation et une taille un peu variable. L'ordre d'apparition est l'ordre du tirage : les premiers fruits sont déjà bien répartis dans tout l'arbre.
+   */
+  var CANOPEE_DEFAUT_={cx:50,cy:32,rx:34,ry:22};
+  var CANOPEES_={};
+  function graine_(id){var h=2166136261;for(var i=0;i<id.length;i++){h^=id.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+  function alea_(g){return function(){g=(g+0x6D2B79F5)>>>0;var t=g;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};}
+  var MEMO_EMPL_={};
+  function emplacements_(id){
+    id=String(id||'gold');
+    if(MEMO_EMPL_[id])return MEMO_EMPL_[id];
+    var c=CANOPEES_[id]||CANOPEE_DEFAUT_,R=alea_(graine_(id)),pts=[],k,j,t,tir;
+    var dist=function(a,b){var dx=a[0]-b[0],dy=(a[1]-b[1])*0.67;return Math.sqrt(dx*dx+dy*dy);};
+    var dansTronc=function(x,y){return Boolean(c.tronc)&&x>=c.tronc[0]&&x<=c.tronc[1]&&y>=c.tronc[2];};
+    for(k=0;k<24;k++){
+      var meilleur=null,mieux=-1;
+      for(t=0,tir=0;t<40&&tir<400;tir++){
+        var ang=R()*Math.PI*2,ray=Math.sqrt(R());
+        var x=c.cx+Math.cos(ang)*ray*c.rx,y=c.cy+Math.sin(ang)*ray*c.ry;
+        if(dansTronc(x,y))continue;
+        t++;
+        var m=1e9;for(j=0;j<pts.length;j++)m=Math.min(m,dist([x,y],pts[j]));
+        if(!pts.length)m=0;
+        if(m>mieux){mieux=m;meilleur=[x,y];}
+      }
+      if(!meilleur)meilleur=[c.cx,c.cy];
+      pts.push(meilleur);
     }
-    return pris;
-  })();
-  /* Les fruits visibles à g heures de pousse : [x, y, taille] ; taille 1 = mûr, entre 0 et 1 = en train de pousser. */
-  function fruitsArbre_(v){
-    var g=heuresPousse_(v),n=Math.floor(g),p=g-n,o=[],k;
-    for(k=0;k<n&&k<24;k++)o.push([ORDRE_[k][0],ORDRE_[k][1],1]);
-    if(n<24&&p>0)o.push([ORDRE_[n][0],ORDRE_[n][1],Math.max(0.08,p)]);
+    MEMO_EMPL_[id]=pts.map(function(q){return [Math.round(q[0]*10)/10,Math.round(q[1]*10)/10,Math.round((R()*2-1)*14),Math.round((0.9+R()*0.22)*100)/100];});
+    return MEMO_EMPL_[id];
+  }
+  /* Les fruits visibles à g heures de pousse : [x, y, taille, rotation en degrés, échelle propre] ; taille 1 = mûr, entre 0 et 1 = en train de pousser. */
+  function fruitsArbre_(v,id){
+    var g=heuresPousse_(v),n=Math.floor(g),p=g-n,o=[],k,E=emplacements_(id);
+    for(k=0;k<n&&k<24;k++)o.push([E[k][0],E[k][1],1,E[k][2],E[k][3]]);
+    if(n<24&&p>0)o.push([E[n][0],E[n][1],Math.max(0.08,p),E[n][2],E[n][3]]);
     return o;
   }
   /*
@@ -309,8 +329,8 @@
   function couches_(d,v,id,def){
     if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
     var src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1';
-    return fruitsArbre_(v).map(function(f){
-      return '<img class="ygg-img ygg-fruit'+(f[2]===1?' ygg-mur':'')+'" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+'">';
+    return fruitsArbre_(v,id).map(function(f){
+      return '<img class="ygg-img ygg-fruit'+(f[2]===1?' ygg-mur':'')+'" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+';--ygg-r:'+f[3]+'deg;--ygg-s:'+f[4]+';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+'">';
     }).join('');
   }
   function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
@@ -592,8 +612,8 @@
     imgs.forEach(function(img,i){
       var copie=img.cloneNode(false);copie.classList.add('ygg-anim-fruit');
       ov.appendChild(copie);img.style.visibility='hidden';
-      var k=parseFloat(img.style.getPropertyValue('--ygg-k'))||1;
-      var base='translate(-50%,-50%) scale(';
+      var k=(parseFloat(img.style.getPropertyValue('--ygg-k'))||1)*(parseFloat(img.style.getPropertyValue('--ygg-s'))||1);
+      var base='translate(-50%,-50%) rotate('+(parseFloat(img.style.getPropertyValue('--ygg-r'))||0)+'deg) scale(';
       if(!recolte){
         var d=i*pas,dur=0.3;
         copie.animate([{transform:base+k+')',opacity:1},{transform:base+(k*1.08)+')',opacity:1,offset:0.25},{transform:base+'0)',opacity:0}],{duration:dur*1000,delay:d*1000,fill:'both',easing:'ease-in'});
