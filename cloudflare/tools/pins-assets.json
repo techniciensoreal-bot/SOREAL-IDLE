@@ -420,8 +420,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 522,
-  "sha": "250751c95aaf8b64623b50fe08da55dbf062718f"
+  "pin": 524,
+  "sha": "66a98fb06c6c85e5a7d486b1534d34822d2ca42f"
  },
  "/modules/runtime.js": {
   "pin": 3,
@@ -492,12 +492,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 535,
-  "sha": "f68007d26c623ece0b48b1505260df985d723dee"
+  "pin": 537,
+  "sha": "3ecba593e55930ead2f46308cc6a96c04437007c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 355,
-  "sha": "3319797d269b5fed460f6b84ef0f318abbf982ed"
+  "pin": 357,
+  "sha": "c7dc38619e55c3f419b99fa1c15c31bd3902f5e8"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -640,8 +640,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 59,
-  "sha": "e7add4db0a34388447c815bddaad220e638890f9"
+  "pin": 60,
+  "sha": "63c080358337d0a4240b63711483a688de66fdc9"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,

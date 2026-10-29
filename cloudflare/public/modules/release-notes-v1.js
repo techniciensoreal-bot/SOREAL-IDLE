@@ -61,6 +61,9 @@
             'Les décors des fruits sont maintenant de grands arbres, et la terre au sol a disparu. Les fruits poussent sur l’arbre, à taille normale : une heure de croissance de plus fait pousser un fruit de plus (à 10 h, dix fruits mûrs ; à 9 h 50, neuf mûrs et un dixième encore en train de pousser). Ils sont répartis au hasard dans le feuillage, un peu penchés et de tailles légèrement différentes, pour que l’arbre ait l’air naturel.',
             'Les fruits mûrs, prêts à être récoltés, ont une aura douce de leur couleur sur l’arbre ; le fruit qui pousse encore n’en a pas. Le cadre d’un fruit ne brille plus que lorsque ce fruit a atteint son palier maximum, d’une lueur douce de sa couleur.',
             'Un fruit déjà mûr ne change jamais de place sur l’arbre, et chaque nouveau fruit apparaît loin des autres : l’arbre se remplit partout, sans amas.'
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Au démarrage de l’ordinateur, l’écran de chargement ne bouge plus quand les messages changent : le logo, la barre et le pourcentage restent bien en place, c’est lisible.'
           ]}
         ]
       },

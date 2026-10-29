@@ -215,6 +215,11 @@
       '.wd-boot{width:min(100%,34em);}',
       '.wd-barre-boot{height:1.5em;}',
       '.wd-boot .wd-ligne{justify-content:center;gap:1em;margin-top:.6em;}',
+      /* Norman (2026-10-29) : « quand on démarre Wandoos avec le clavier, les écritures décalent le chargement, c'est illisible » : le message change de longueur (1 ou 2 lignes) et le pourcentage de largeur (9 % -> 10 %), ce qui bougeait la barre et le logo (bloc centré). La ligne du message a une hauteur fixe de deux lignes, ne revient jamais à la ligne ailleurs, et le pourcentage a une largeur fixe à chiffres de même largeur. */
+      '.wd-boot{min-height:6.6em;}',
+      '.wd-boot .wd-ligne{flex-wrap:nowrap;align-items:flex-start;min-height:2.5em;}',
+      '.wd-boot #wd-boot-msg{flex:1 1 auto;min-width:0;min-height:2.5em;text-align:center;overflow-wrap:anywhere;}',
+      '.wd-boot #wd-boot-pct{flex:0 0 auto;min-width:4ch;text-align:right;font-variant-numeric:tabular-nums;}',
       '.wd-petit{font-size:.82em;opacity:.9;}',
       '.wd-saisie{margin-top:.6em;}',
       '.wd-saisie{justify-content:flex-start;flex-wrap:wrap;align-items:baseline;gap:.6em;}',
