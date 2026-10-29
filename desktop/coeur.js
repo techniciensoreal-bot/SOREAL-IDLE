@@ -288,14 +288,28 @@ function installerPontSteam() {
     if (!app.isPackaged) return { ok: false, code: "DEVELOPPEMENT" };
     const { ajouterASteam } = await import(pathToFileURL(path.join(__dirname, "src", "steam.mjs")).href);
     const d = dossiers();
-    let icone = null;
-    try {
-      const png = nativeImage.createFromPath(path.join(d.dossierPublic, "icons", "icon-512.png")).resize({ width: 256, height: 256, quality: "best" }).toPNG();
-      icone = icoDepuisPng(png);
-    } catch (_e) { /* sans icône : Steam prendra celle de l'exécutable */ }
+    /*
+     * Images de l'entrée Steam (Norman, 2026-10-29 : « remplace les images par celles-ci, avec tous les formats nécessaires aux jeux non-Steam ») : fichiers du dossier art/steam, posés dans le dossier « grid » de Steam sous le nom du raccourci :
+     *   <id>p.png affiche 600 x 900 · <id>.png en-tête horizontal 920 x 430 · <id>_hero.png bannière 1920 x 620 (sans texte) · <id>_logo.png logo 1280 x 720 en PNG transparent ; l'icône (.ico) va dans le raccourci lui-même.
+     * Les images composées par la page restent le repli si un fichier manque.
+     */
+    const dossierArt = path.join(__dirname, "art", "steam");
+    const lire = (nom) => { try { return fs.readFileSync(path.join(dossierArt, nom)); } catch (_e) { return null; } };
+    let icone = lire("icone.ico");
+    if (!icone) {
+      try {
+        const png = nativeImage.createFromPath(path.join(d.dossierPublic, "icons", "icon-512.png")).resize({ width: 256, height: 256, quality: "best" }).toPNG();
+        icone = icoDepuisPng(png);
+      } catch (_e) { /* sans icône : Steam prendra celle de l'exécutable */ }
+    }
     return ajouterASteam({
       exe: exeJeu(), icone, dossierIcone: app.getPath("userData"),
-      images: { grille: donneesUrl(art && art.grille), portrait: donneesUrl(art && art.portrait), hero: donneesUrl(art && art.hero) }
+      images: {
+        grille: lire("grille-920x430.png") || donneesUrl(art && art.grille),
+        portrait: lire("affiche-600x900.png") || donneesUrl(art && art.portrait),
+        hero: lire("hero-1920x620.png") || donneesUrl(art && art.hero),
+        logo: lire("logo-1280x720.png")
+      }
     });
   });
 }

@@ -31,6 +31,8 @@ copier(path.join(DEPOT, "cloudflare", "public"), path.join(STAGE, "jeu", "cloudf
 copier(path.join(DEPOT, "design"), path.join(STAGE, "jeu", "design"));
 if (fs.existsSync(path.join(DEPOT, "cloudflare", "contracts"))) copier(path.join(DEPOT, "cloudflare", "contracts"), path.join(STAGE, "jeu", "cloudflare", "contracts"));
 if (fs.existsSync(path.join(ICI, "graine"))) copier(path.join(ICI, "graine"), path.join(STAGE, "graine"));
+/* Images de l'entrée Steam (Norman, 2026-10-29) : affiche, capsule, bannière, logo et icône fournies, posées dans Steam à l'ajout (desktop/art/steam/). */
+if (fs.existsSync(path.join(ICI, "art"))) copier(path.join(ICI, "art"), path.join(STAGE, "art"));
 
 /* Empreinte du paquet de code embarqué : identique à celle de publier-maj.mjs tant que le code n'a pas changé (la mise à jour ne retélécharge alors pas le code). Clé publique de vérification des mises à jour. */
 const { construirePaquetCode } = await import(pathToFileURL(path.join(ICI, "src", "paquet.mjs")).href);

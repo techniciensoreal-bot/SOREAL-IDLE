@@ -165,6 +165,7 @@ export function ajouterASteam({ exe, nom = NOM_STEAM, icone, images, dossierIcon
     ecrire("p", images && images.portrait);
     ecrire("", images && images.grille);
     ecrire("_hero", images && images.hero);
+    ecrire("_logo", images && images.logo);
     faits.push(c);
   }
   return { ok: true, id, comptes: faits.length, misAJour: undefined };
