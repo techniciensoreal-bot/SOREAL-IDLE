@@ -109,6 +109,6 @@ console.log("idle-desktop-coeur-v1 : OK");
   const chargement = coeur.slice(coeur.indexOf('fenetre.webContents.on("did-finish-load"'), coeur.indexOf("fenetre.loadURL(ORIGINE"));
   assert.ok(chargement.indexOf("global.__SOREAL_COEUR_VALIDE__()") < chargement.indexOf("setTimeout(() => {"), "le cœur est validé dès que la page est chargée, avant le délai de 20 s de la mise à jour");
   assert.ok(coeur.includes('ipcMain.handle("coeur:version"') && preload.includes("coeurVersion: () => ipcRenderer.invoke(\"coeur:version\")"), "la page peut savoir quel cœur tourne");
-  assert.ok(textes.includes("function diagnostiquerAdminExe_(msg)") && textes.includes("cœur d’origine") && textes.includes("compte non relié") && textes.includes("la liaison a expiré") && textes.includes("le serveur ne te reconnaît pas comme administrateur"), "le refus d'enregistrer les voix est expliqué (cœur d'origine, compte non relié, liaison expirée, serveur)");
+  assert.ok(textes.includes("function diagnostiquerAdminExe_(msg)") && textes.includes("trop ancienne") && textes.includes("compte non relié") && textes.includes("la liaison a expiré") && textes.includes("le serveur ne te reconnaît pas comme administrateur"), "le refus d'enregistrer les voix est expliqué (cœur d'origine, compte non relié, liaison expirée, serveur)");
   console.log("idle-desktop-coeur-v1 (cœur validé tout de suite, diagnostic des voix): OK");
 }

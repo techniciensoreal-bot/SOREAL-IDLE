@@ -722,7 +722,7 @@ function texteVoixDe_(b){
 function diagnostiquerAdminExe_(msg){
   if(!/SOREAL_IDLE_ADMIN_REQUIS/.test(String(msg))||!window.sorealDesktop)return Promise.resolve(msg);
   var b=window.sorealDesktop,fin=function(t){return t+' ('+msg+')';};
-  if(typeof b.coeurVersion!=='function')return Promise.resolve(fin('l’application tourne encore avec son cœur d’origine, qui ne sait pas envoyer les voix au serveur : clique « Mettre à jour » dans le bandeau, ferme complètement l’application, rouvre-la avec internet et attends que le jeu s’affiche'));
+  if(typeof b.coeurVersion!=='function')return Promise.resolve(fin('cette installation de l’application est trop ancienne : son programme principal (qui envoie les voix au serveur et rétablit F5) ne se met pas à jour tout seul. Réinstalle-la une seule fois avec le dernier SOREAL-IDLE-Setup (ta partie est conservée) ; ensuite tout se mettra à jour par le bandeau'));
   return Promise.all([b.liaisonEtat().catch(function(){return null;})]).then(function(r){
     var l=r[0];
     if(!l||!l.lie)return fin('compte non relié : dans l’application Windows, relie ton compte Google (Réglages > Ma partie) pour enregistrer les voix');
