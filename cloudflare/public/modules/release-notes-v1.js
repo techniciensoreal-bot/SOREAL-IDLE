@@ -32,6 +32,8 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'En plein écran, le jeu occupe vraiment toute la largeur et toute la hauteur de l’écran : plus de bandes vides à gauche et à droite.',
+            'Quand on ferme l’interface Steam, l’image de Steam ne reste plus à l’écran comme un fantôme : la fenêtre se repeint toute seule.',
             'Sur PC, la barre de défilement de la page prend les couleurs de la page affichée et une texture à son image : métal rivé, écran vert, écorce, gouttes, étoiles, terre, bandes d’alerte, losanges, papier ou quadrillage.',
             'Sur PC, les images et les sons de l’application sont maintenant protégés : ils ne sont plus lisibles directement dans le dossier d’installation.',
             'Sur téléphone, placer ou retirer de l’Énergie ou de la Magie ne fait plus bouger la page : le cadre « total placé » garde toujours la même hauteur.',

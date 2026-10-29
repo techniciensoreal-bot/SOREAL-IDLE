@@ -335,6 +335,17 @@ function ouvrirFenetre() {
       if (typeof global.__SOREAL_COEUR_VALIDE__ === "function" && fenetre && !fenetre.isDestroyed()) global.__SOREAL_COEUR_VALIDE__();
     }, 20000);
   });
+  /*
+   * Fantôme de la superposition Steam (Norman, 2026-10-29 : « quand on ferme l'interface Steam, il reste un fantôme de l'image, qui disparaît quand on bouge la page ») : Steam dessine PAR-DESSUS la fenêtre ; à sa fermeture Chromium n'a rien à
+   * repeindre (aucune partie de la page n'a changé) et l'image de Steam reste à l'écran jusqu'au prochain changement. Lancé par Steam, on force donc un repaint complet de la page à chaque changement de focus ou de taille, puis 4 fois par
+   * seconde (une invalidation, pas un rendu de la page : coût négligeable) : le fantôme disparaît en un quart de seconde.
+   */
+  if (LANCE_PAR_STEAM) {
+    const repeindre = () => { try { if (fenetre && !fenetre.isDestroyed() && fenetre.isVisible() && !fenetre.isMinimized()) fenetre.webContents.invalidate(); } catch (_e) { /* fenêtre fermée */ } };
+    for (const evenement of ["focus", "blur", "show", "restore", "resize", "enter-full-screen", "leave-full-screen"]) fenetre.on(evenement, () => { repeindre(); setTimeout(repeindre, 120); });
+    const minuteurRepeinture = setInterval(repeindre, 250);
+    fenetre.on("closed", () => clearInterval(minuteurRepeinture));
+  }
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });
 }

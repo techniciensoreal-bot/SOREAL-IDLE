@@ -34,6 +34,10 @@
     '.soreal-idle-pe-v1{appearance:none;-webkit-appearance:none;display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;color:var(--th-dim,#9fb0d8);background:linear-gradient(165deg,var(--th-bg,#0d1426),var(--th-bg2,#0a1020));border:1px solid var(--th-line,#2a3a66);border-bottom:3px solid var(--th-a,#5b8cff);border-radius:4px;box-shadow:0 6px 16px -10px var(--th-glow,#5b8cff);touch-action:manipulation;-webkit-tap-highlight-color:transparent}',
     '.soreal-idle-pe-v1:hover{color:#fff}.soreal-idle-pe-v1:active{transform:translateY(1px)}',
     '.soreal-idle-pe-v1 svg{display:block;width:18px;height:18px}',
+    /* Norman (2026-10-29) : « une fois le mode plein écran utilisé, il n'y a plus d'espace à gauche et à droite : l'interface doit vraiment occuper la hauteur ET la largeur » : hors plein écran le jeu garde sa largeur de 1 700 px centrée ; en plein écran il prend toute la largeur (marges réduites au strict minimum pour ne pas rogner les cadres) et le menu de gauche toute la hauteur de l’écran. */
+    'html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4{width:100%!important;max-width:none!important;margin:0!important;padding-left:6px!important;padding-right:6px!important;box-sizing:border-box}',
+    'html:fullscreen body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{max-height:min(100vh,var(--nav-dispo,100vh))!important}',
+    'html:fullscreen,html:fullscreen body{margin:0;padding:0;min-height:100vh}',
     'html:not(:fullscreen) .soreal-idle-pe-v1 .pe-sor{display:none}html:fullscreen .soreal-idle-pe-v1 .pe-ent{display:none}',
     /* PC seulement : une colonne de plus à la fin de la rangée des chiffres (largeur fixe), le bouton y tient quel que soit le nombre de cases */
     '@media (min-width:701px){html:not(.pe-indispo) .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28[style*="--nb-tuiles"]{grid-template-columns:repeat(var(--nb-tuiles),minmax(0,1fr)) 38px!important}html:not(.pe-indispo) .soreal-idle-pe-v1{display:flex}}'
