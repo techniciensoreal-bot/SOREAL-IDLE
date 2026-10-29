@@ -33,7 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Quand on tue des boss très vite, la mort et l’apparition du suivant ne se jouent plus deux fois par-dessus l’autre ; le tas d’Or de la machine temporelle grossit exactement à chaque unité (M, B, T, Sx, Oc, Vg, Uvg, Tvg…).',
-            'L’album des boss garde la même taille sur toutes ses pages, même la dernière avec peu de cartes, et ouvrir le livre ne fait plus bouger la page.',
+            'L’album des boss garde exactement la même taille sur toutes ses pages, y compris la dernière (les emplacements libres sont de vraies pochettes vides, la carte s’y glisse) ; plus rien ne bouge pendant un saut de pages, et l’anneau ne disparaît plus.',
             'Le Cube de l’infini a toujours une petite aura, de la couleur de son aspect (elle change avec son palier).',
             'Les cartes de boss s’ouvrent plus grandes sur PC, au même format dans le panneau sous la borne et quand on passe au boss précédent ou suivant ; sur téléphone elles prennent presque toute la largeur, les flèches passant sous la carte.',
             'Dans l’album des boss, on change de page au-dessus comme en dessous du livre : une flèche pour avancer d’une page, une autre pour avancer de 10 pages, avec 10 feuilles qui tournent en même temps. Le livre s’ouvre en refaisant à l’envers le geste de sa fermeture, les feuilles passent au-dessus des anneaux (qu’on voit à travers leurs trous), les cartes ne bougent plus à la fin d’un tour de page, et le dos de la première feuille ne montre que les cartes du grand dessin déjà gagnées.',

@@ -70,4 +70,9 @@ console.log("idle-album-cartes-v1 : OK");
 
 // la dernière page (peu de cartes) garde la taille du classeur ; ouvrir le livre ne déplace rien dans la page
 assert.ok(m.includes("function completer(h,n)") && m.includes("alb-pochette-vide") && m.includes("return completer(h,n);"), "toujours 9 emplacements par page (les vides sont invisibles)");
-assert.ok(c.includes(".alb-pochette-vide{visibility:hidden") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-classeur>.alb-nav{position:absolute"), "la place des barres de navigation est toujours réservée");
+assert.ok(c.includes(".alb-pochette-vide .alb-carte{visibility:hidden}") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-classeur>.alb-nav{position:absolute"), "la place des barres de navigation est toujours réservée");
+
+// jamais de page vide (la hauteur du classeur s'effondrait sur la page blanche après la dernière) ; les pochettes vides existent déjà ; l'anneau est au-dessus des feuilles
+assert.ok(m.includes("if(L>=nbPages())return completer('',0);"), "la page après la dernière a ses 9 pochettes vides");
+assert.ok(m.includes('alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique"'), "une pochette vide est un plastique seul");
+assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau reste devant les feuilles (jamais à plat avec elles : il ne disparaît plus)");

@@ -76,15 +76,17 @@ function pieceHtml(k,gagnee){
   return '<div class="alb-pochette alb-pochette-puzzle" aria-hidden="true"><div class="alb-carte alb-carte-mtg"><div class="alb-puzzle-carte"><div class="alb-puzzle-art" style="background-position:calc(-1 * (21cqw + '+c+' * 94cqw)) calc(-1 * '+r+' * 162cqw)"></div></div></div><div class="alb-plastique"></div></div>';
 }
 function puzzleHtml(){var n=nbPieces(),h='',k;for(k=0;k<PIECES;k++)h+=pieceHtml(k,k<n);return h;}
-/* Une page a toujours 9 emplacements : les vides sont invisibles mais gardent la taille du classeur (dernière page à 4 cartes = même classeur). */
-function completer(h,n){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=v;return h;}
-function contenuPage(L){vusTmp=lireVus()||[];if(L<0||L>=nbPages())return '';if(L===0)return puzzleHtml();var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length);}
+/* Une page a toujours 9 emplacements : les vides sont des pochettes en plastique sans carte (comme un vrai classeur) ; elles gardent la taille du classeur (dernière page à 4 cartes = même classeur) et existent déjà quand la carte arrive. */
+function completer(h,n){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=v;return h;}
+/* Après la dernière page (la page de droite de la dernière feuille, sur PC) : une page blanche de 9 emplacements invisibles, jamais vide : une page vide ferait s'effondrer la hauteur du classeur (tout le menu bougerait). */
+function contenuPage(L){vusTmp=lireVus()||[];if(L<0)return '';if(L>=nbPages())return completer('',0);if(L===0)return puzzleHtml();var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length);}
 function droiteHtml(L){return contenuPage(L);}
 function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
 
 /* Pour un saut de plusieurs pages, seules la première et la dernière page montrent leur vrai contenu : celles du milieu passent trop vite pour être lues, elles sont dessinées en cartes simples (rien de lourd à construire). */
 function legerHtml(L){
-  if(L<0||L>=nbPages())return '';
+  if(L<0)return '';
+  if(L>=nbPages())return completer('',0);
   var n=L<=0?PIECES:cartesDePage(L).length,h='',i;
   for(i=0;i<n;i++)h+='<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg"><div class="alb-leger"></div></div><div class="alb-plastique"></div></div>';
   return completer(h,n);

@@ -14,7 +14,8 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-classeur>.alb-nav{position:absolute;left:0;right:0;margin:0}
 .alb-classeur>.alb-nav-haut{top:0}
 .alb-classeur>.alb-nav-bas{bottom:0}
-.alb-pochette-vide{visibility:hidden;pointer-events:none}
+.alb-pochette-vide{pointer-events:none;cursor:default}   /* une pochette vide existe déjà (plastique seul) : la carte s'y glisse, la pochette n'apparaît jamais après */
+.alb-pochette-vide .alb-carte{visibility:hidden}
 /* le cuir noir de la farde, derrière les pages : invisible quand le livre est fermé (seule la couverture se voit) */
 .alb-cuir{position:absolute;inset:var(--alb-nav-h) 0 var(--alb-nav-b);border-radius:16px;border:3px solid #050507;pointer-events:none;
   background:
@@ -37,7 +38,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* la feuille : 9 pochettes, 3 colonnes x 3 rangées */
 .alb-feuille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;gap:var(--alb-gap,10px);align-content:start}
 /* les trois anneaux : au milieu (PC) ou sur le bord gauche de la page (téléphone) */
-.alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%);width:var(--alb-ra);pointer-events:none;z-index:5;
+.alb-livre::before{content:"";position:absolute;top:0;bottom:0;left:0;transform:translateX(-50%) translateZ(8px);width:var(--alb-ra);pointer-events:none;z-index:5;
   background:var(--alb-anneau) center 11%/100% auto no-repeat,var(--alb-anneau) center 50%/100% auto no-repeat,var(--alb-anneau) center 89%/100% auto no-repeat}
 .alb-livre.alb-double::before{left:50%}
 /* livre fermé : l'anneau seul (pas de trou noir : la couverture est pleine), posé sur le bord de la couverture ; dès qu'il s'ouvre l'anneau repasse sous les feuilles qui tournent */
