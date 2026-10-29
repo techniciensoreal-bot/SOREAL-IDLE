@@ -330,12 +330,54 @@ function installerPontSteam() {
   });
 }
 
+/*
+ * Icône du jeu (Norman, 2026-10-29 : « l'icône de l'exe n'a pas changé, il faut oublier l'ancien ») : celle de l'exécutable installé est figée dans le fichier (une mise à jour ne la change pas, et on ne réinstalle pas) ; on corrige donc ce que Windows affiche vraiment : l'icône de la fenêtre et de la barre des tâches, et celle des raccourcis du Bureau, du menu Démarrer et de la barre des tâches, repointés vers la nouvelle icône.
+ * L'icône est copiée dans le dossier des données (chemin stable, qui survit aux mises à jour).
+ */
+function fichierIcone_() {
+  try {
+    const source = path.join(__dirname, "art", "steam", "icone.ico");
+    if (!fs.existsSync(source)) return null;
+    const cible = path.join(app.getPath("userData"), "icone-soreal-ngu-idle.ico");
+    const neuf = fs.readFileSync(source);
+    let ancien = null;
+    try { ancien = fs.readFileSync(cible); } catch (_e) { /* première copie */ }
+    if (!ancien || !ancien.equals(neuf)) fs.writeFileSync(cible, neuf);
+    return cible;
+  } catch (_e) { return null; }
+}
+function corrigerRaccourcis_() {
+  if (process.platform !== "win32") return;
+  try {
+    const icone = fichierIcone_();
+    if (!icone) return;
+    const dossiers_ = [app.getPath("desktop"), path.join(app.getPath("appData"), "Microsoft", "Windows", "Start Menu", "Programs"), path.join(app.getPath("appData"), "Microsoft", "Internet Explorer", "Quick Launch", "User Pinned", "TaskBar")];
+    let change = false;
+    for (const dossier of dossiers_) {
+      let noms = [];
+      try { noms = fs.readdirSync(dossier); } catch (_e) { continue; }
+      for (const nom of noms) {
+        if (!/^SOREAL( NGU)? IDLE\.lnk$/i.test(nom)) continue;
+        const f = path.join(dossier, nom);
+        try {
+          const l = shell.readShortcutLink(f);
+          if (l.icon === icone) continue;
+          shell.writeShortcutLink(f, "update", { icon: icone, iconIndex: 0 });
+          change = true;
+        } catch (_e) { /* raccourci illisible : laissé tel quel */ }
+      }
+    }
+    /* Windows garde les anciennes icônes en cache : on lui demande de les relire. */
+    if (change) { try { require("child_process").execFile("ie4uinit.exe", ["-show"], { windowsHide: true }, () => {}); } catch (_e) { /* sans effet */ } }
+  } catch (_e) { /* jamais bloquant */ }
+}
+
 function ouvrirFenetre() {
   fenetre = new BrowserWindow({
     width: 1280, height: 800, minWidth: 360, minHeight: 480,
     backgroundColor: "#071226", show: false, autoHideMenuBar: true,
     title: "SOREAL NGU IDLE",
-    icon: fs.existsSync(path.join(__dirname, "icone.ico")) ? path.join(__dirname, "icone.ico") : path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
+    icon: fichierIcone_() || path.join(dossiers().dossierPublic, "icons", "icon-512.png"),
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false, backgroundThrottling: false, preload: path.join(__dirname, "preload.js") }
   });
   Menu.setApplicationMenu(null);
@@ -392,6 +434,7 @@ if (!app.requestSingleInstanceLock()) {
     installerPontMaj();
     installerPontLiaison();
     ouvrirFenetre();
+    corrigerRaccourcis_();
   }).catch((e) => { console.error(e); app.quit(); });
   app.on("window-all-closed", () => { if (env) env.fermer(); app.quit(); });
 }
