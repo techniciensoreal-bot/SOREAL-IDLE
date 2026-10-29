@@ -24,6 +24,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
     linear-gradient(160deg,#26262c,#141418 60%,#0b0b0e);
   box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,255,255,.07),inset 0 0 40px rgba(0,0,0,.55)}
 .alb-classeur:not(.alb-ouvert) .alb-cuir{opacity:0}
+.alb-cuir{display:none}   /* le cuir de fond dépassait des pages : une « seconde couverture » (la couverture, elle, est dessinée par le dos de la couverture et la page de gauche) */
 /* le livre : une page (téléphone : la page de droite) ou deux (PC) ; la feuille qui tourne vit dans sa perspective */
 .alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;transform-style:preserve-3d;border-radius:8px}
 .alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -34,7 +35,8 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-page-g{border-radius:8px 0 0 8px;background:linear-gradient(90deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
 .alb-page-d{border-radius:0 8px 8px 0;background:linear-gradient(270deg,#2b2f3b 0%,#212531 82%,#0e1018 100%)}
 .alb-livre:not(.alb-double) .alb-page-d{border-radius:8px;background:linear-gradient(270deg,#2b2f3b 0%,#212531 88%,#12151e 100%)}
-.alb-page-g:has(.alb-feuille:empty){background:linear-gradient(90deg,#16161a 0%,#101014 82%,#08080a 100%);cursor:pointer}   /* l'intérieur de la couverture */
+/* l'intérieur de la couverture : EXACTEMENT le dos de la couverture qui vient de se poser (même cuir, même bord, mêmes trous), pour que la texture ne disparaisse pas quand l'animation s'arrête */
+.alb-page-g:has(.alb-feuille:empty){cursor:pointer;box-sizing:border-box;border:3px solid #050507;border-radius:12px 0 0 12px;background:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.07),transparent 60%),repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 2px,transparent 2px 5px),linear-gradient(160deg,#2a2a31,#17171c 60%,#0c0c0f);box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 0 0 2px rgba(255,255,255,.07),inset 0 0 40px rgba(0,0,0,.55)}
 /* la feuille : 9 pochettes, 3 colonnes x 3 rangées */
 .alb-feuille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:min-content;gap:var(--alb-gap,10px);align-content:start}
 /* les trois anneaux : au milieu (PC) ou sur le bord gauche de la page (téléphone) */
@@ -73,8 +75,11 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-page-g:has(.alb-feuille:empty)::after{background:
     radial-gradient(circle at 50% calc(11% + .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
     radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
-    radial-gradient(circle at 50% calc(89% - .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
-    linear-gradient(90deg,#0d0d11,#16161b)}
+    radial-gradient(circle at 50% calc(89% - .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px))}
+.alb-face-arriere.alb-cuir-noir::after{content:"";position:absolute;top:0;bottom:0;right:0;width:var(--alb-lang);pointer-events:none;border-left:1px dashed rgba(255,255,255,.14);--alb-r:calc(var(--alb-lang) * .42);background:
+    radial-gradient(circle at 50% calc(11% + .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),
+    radial-gradient(circle at 50% calc(89% - .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px))}
 /* la couverture : farde noire, logo du jeu dans sa pochette en plastique ; elle recouvre la moitié droite (PC) ou toute la page (téléphone), pivote autour des anneaux */
 .alb-couverture{position:absolute;top:0;bottom:0;left:0;right:0;cursor:pointer;z-index:6;transform-origin:0 50%;transform-style:preserve-3d;-webkit-tap-highlight-color:transparent}
 .alb-livre.alb-double .alb-couverture{left:50%}
@@ -160,6 +165,8 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 /* une seule page (téléphone, fenêtre étroite) : la page garde la taille d'une page de classeur, jamais la largeur de l'écran */
 .alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
 .alb-nav-haut{margin:0 0 10px}
+.alb-nav{flex-wrap:nowrap}
+@media (max-width:480px){.alb-nav{gap:6px}.alb-bouton{width:36px;height:36px}.alb-bouton svg{width:18px;height:18px}.alb-numero{min-width:84px;font-size:15px}}
 .alb-livre.alb-saut .alb-feuille-tournante .alb-face>.alb-page{-webkit-mask-image:none;mask-image:none}
 /* annonce de deux pages à la fois (PC) : six colonnes */
 .alb-annonce-cartes.alb-large{grid-template-columns:repeat(6,auto)}

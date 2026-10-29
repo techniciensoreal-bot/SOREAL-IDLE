@@ -22,10 +22,22 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.3',
+    courante:'4.4',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.4',
+        nom:'Le classeur',
+        date:'2026-10-30',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Dans l’album des boss, la flèche tout à gauche referme le classeur et ramène à la couverture ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
+            'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
+            'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
+          ]}
+        ]
+      },
       {
         version:'4.3',
         nom:'Les arbres',

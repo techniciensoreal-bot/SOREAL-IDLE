@@ -92,6 +92,7 @@ function legerHtml(L){
   return completer(h,n);
 }
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var CHEV_DEBUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 4 11 12l8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_GG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4 3 12l8 8M20 4l-8 8 8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_DD='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 4l8 8-8 8M4 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -107,12 +108,12 @@ function navHtml(pos){
   if(!ouvert)return '';
   var A='window.__SOREAL_IDLE_ALBUM_V1__';
   return '<div class="alb-nav alb-nav-'+(pos==='haut'?'haut':'bas')+'">'+
+    '<button type="button" class="alb-bouton alb-debut" aria-label="Fermer le classeur : revenir à la couverture" title="Couverture" onclick="'+A+'.fermerLivre()">'+CHEV_DEBUT+'</button>'+
     '<button type="button" class="alb-bouton alb-prec10" aria-label="Reculer de 10 pages" title="−10" '+(page<=0?'disabled ':'')+'onclick="'+A+'.sauter(-10)">'+CHEV_GG+'</button>'+
     '<button type="button" class="alb-bouton alb-prec" aria-label="Page précédente" '+(page<=0?'disabled ':'')+'onclick="'+A+'.page(-1)">'+CHEV_G+'</button>'+
     '<span class="alb-numero">'+numeroHtml()+'</span>'+
     '<button type="button" class="alb-bouton alb-suiv" aria-label="Page suivante" '+(peutAvancer()?'':'disabled ')+'onclick="'+A+'.page(1)">'+CHEV_D+'</button>'+
     '<button type="button" class="alb-bouton alb-suiv10" aria-label="Avancer de 10 pages" title="+10" '+(peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(10)">'+CHEV_DD+'</button>'+
-    (pos==='haut'?'':'<button type="button" class="alb-fermer" onclick="'+A+'.fermerLivre()">Fermer le classeur</button>')+
   '</div>';
 }
 /* La couverture : farde noire, le logo du jeu dans sa pochette en plastique ; deux faces (le dehors, l'intérieur noir) pour pivoter autour des anneaux. */
@@ -126,7 +127,7 @@ function couvertureHtml(){
 function livreHtml(){
   return '<div class="soreal-idle-bestiary-grid-v110 soreal-idle-album-v1"><div class="alb-cuir" aria-hidden="true"></div><div class="alb-livre'+(double()?' alb-double':'')+'">'+
     '<div class="alb-page alb-page-g" onclick="window.__SOREAL_IDLE_ALBUM_V1__.cliquerGauche()"><div class="alb-feuille">'+gaucheHtml(page)+'</div></div>'+
-    '<div class="alb-page alb-page-d"><div class="alb-feuille">'+droiteHtml(page)+'</div></div>'+
+    '<div class="alb-page alb-page-d"><div class="alb-feuille" data-alb-page="'+page+'">'+droiteHtml(page)+'</div></div>'+
     couvertureHtml()+
   '</div></div>';
 }
@@ -148,13 +149,18 @@ function majNav(){
     if(nu)nu.innerHTML=numeroHtml();
   });
 }
-function remplirPages(){
+/* Le numéro de la page dessinée est noté sur la feuille de droite : une page déjà dessinée n'est JAMAIS redessinée (les images de l'affiche étaient recréées à l'ouverture du livre : la texture disparaissait un instant). */
+function marquer(p){var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille');if(d)d.setAttribute('data-alb-page',String(p));}
+function dessinee(){var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille');return Boolean(d&&d.getAttribute('data-alb-page')===String(page)&&d.children.length);}
+function remplirPages(force){
+  if(!force&&dessinee())return;
   var d=document.querySelector('.alb-classeur .alb-page-d .alb-feuille'),g=document.querySelector('.alb-classeur .alb-page-g .alb-feuille');
   if(d)d.innerHTML=droiteHtml(page);if(g)g.innerHTML=gaucheHtml(page);
+  marquer(page);
 }
 function afficher(p){   /* sans animation */
   page=norm(p);
-  remplirPages();majNav();
+  remplirPages(true);majNav();
 }
 
 /* La face visible d'une feuille qui tourne : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
@@ -252,7 +258,7 @@ function tournerUne(sens,D,silencieux){
     ombreD.className='alb-ombre-sol alb-ombre-sol-d';ombreG.className='alb-ombre-sol alb-ombre-sol-g';
     pd.appendChild(ombreD);if(deux)pg.appendChild(ombreG);
     var termine=function(){
-      tourne=false;page=norm(q);
+      tourne=false;page=norm(q);marquer(page);
       [ombreD,ombreG,feuille].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
       majNav();verifierTaille();
       if(!silencieux)setTimeout(verifierPage,450);       /* les cartes des nouvelles pages s'annoncent, puis se rangent */
@@ -344,7 +350,7 @@ function sauter(n){
     if(sens<0){var nd=dern.querySelector('.alb-face-avant .alb-feuille');if(nd&&fd.parentNode)fd.parentNode.replaceChild(nd,fd);else fd.innerHTML=droiteHtml(q);}
     feuilles.forEach(function(x){if(x.parentNode)x.parentNode.removeChild(x);});
     livre.classList.remove('alb-saut');
-    tourne=false;saut=false;page=norm(q);majNav();verifierTaille();
+    tourne=false;saut=false;page=norm(q);marquer(page);majNav();verifierTaille();
     setTimeout(verifierPage,450);
   });
 }

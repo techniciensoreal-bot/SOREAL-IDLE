@@ -83,3 +83,14 @@ assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau re
   assert.ok(menus.includes("if(el.closest&&el.closest('.alb-classeur'))return;"), "pas de calage de défilement sur l'album");
   assert.ok(c.includes(".alb-classeur{position:relative;overflow:clip;overflow-clip-margin:30px;"), "le 3D de l'album n'allonge pas la page");
 }
+
+// navigation (Norman, 2026-10-30) : la flèche tout à gauche ramène à la couverture, puis −10, −1, numéro, +1, +10 ; une page déjà dessinée n'est jamais redessinée à l'ouverture (la texture de l'affiche clignotait)
+{
+  const i = (s) => m.indexOf(s);
+  assert.ok(i("alb-debut") > 0 && i("alb-debut") < i("alb-prec10") && i("alb-prec10") < i("alb-prec\"") && i("alb-suiv\"") < i("alb-suiv10"), "ordre : couverture, −10, −1, +1, +10");
+  assert.ok(m.includes("onclick=\"'+A+'.fermerLivre()\">'+CHEV_DEBUT"), "la première flèche ferme le livre sur la couverture");
+  assert.ok(m.includes("function dessinee()") && m.includes("if(!force&&dessinee())return;") && m.includes("data-alb-page"), "page déjà dessinée : pas de redessin");
+}
+
+// pas de double couverture : le cuir de fond n'est plus dessiné ; l'intérieur de la couverture = le dos de la couverture (même cuir, même bord, mêmes trous)
+assert.ok(c.includes(".alb-cuir{display:none}") && c.includes(".alb-face-arriere.alb-cuir-noir::after") && c.includes(".alb-page-g:has(.alb-feuille:empty){cursor:pointer;box-sizing:border-box;border:3px solid #050507"), "une seule couverture visible, texture identique avant/après l'ouverture");
