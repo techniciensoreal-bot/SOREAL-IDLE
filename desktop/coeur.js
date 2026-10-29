@@ -82,6 +82,7 @@ async function lancerEnv(racineDepot, dossiersMedias) {
 
 async function demarrerJeu() {
   const d = dossiers();
+  /* Le module de mise à jour voyage lui-même par les mises à jour du cœur (celui de l'installation en repli) : un défaut du programme d'installation se corrige sans réinstaller. */
   majModule = await import(pathToFileURL(path.join(APP, "src", "maj.mjs")).href);
   dossierMaj = path.join(app.getPath("userData"), "maj");
   try { clePubliqueMaj = fs.readFileSync(path.join(APP, "maj-cle-publique.pem"), "utf8"); } catch (_e) { clePubliqueMaj = ""; }
@@ -247,11 +248,30 @@ function installerPontMaj() {
     if (!majProposee || majEnCours) return { ok: false, code: majEnCours ? "DEJA_EN_COURS" : "RIEN_A_INSTALLER" };
     majEnCours = true;
     try {
-      const { manifeste, delta } = majProposee;
-      etatMaj = await majModule.installerMaj({
-        urlBase: URL_MAJ || majModule.URL_PRODUCTION, manifeste, delta, dossierMaj, etat: etatMaj,
-        progression: (p) => envoyerPage("maj:progression", p)
-      });
+      let { manifeste, delta } = majProposee;
+      /*
+       * Un média modifié APRÈS la publication du manifeste (une voix régénérée, par exemple) ne correspond plus à sa taille annoncée : l'installateur refuse alors toute la mise à jour (Norman, 2026-10-29 : « La mise à jour n'a pas pu être installée »,
+       * en boucle). Le média fautif est écarté (jamais installé, jamais inscrit comme possédé : la mise à jour suivante le reprendra) et l'installation reprend avec le reste. Le code, lui, reste vérifié par sa signature : un paquet corrompu échoue toujours.
+       */
+      const ecartes = [];
+      for (let essai = 0; ; essai += 1) {
+        try {
+          etatMaj = await majModule.installerMaj({
+            urlBase: URL_MAJ || majModule.URL_PRODUCTION, manifeste, delta, dossierMaj, etat: etatMaj,
+            progression: (p) => envoyerPage("maj:progression", p)
+          });
+          break;
+        } catch (e) {
+          const m = /^(?:TAILLE_INATTENDUE|EMPREINTE_INATTENDUE):(.+)$/.exec(String(e && e.message || e));
+          if (!m || essai >= 20) throw e;
+          const cle = m[1];
+          ecartes.push(cle);
+          journalLiaison_("maj : média écarté (modifié depuis la publication) " + cle);
+          manifeste = Object.assign({}, manifeste, { medias: manifeste.medias.filter((x) => x[0] !== cle) });
+          delta = Object.assign({}, delta, { medias: delta.medias.filter((x) => x[0] !== cle) });
+          delta.nb = Math.max(0, (delta.codeChange ? 1 : 0) + delta.medias.length);
+        }
+      }
       envoyerPage("maj:progression", { termine: true });
       /* le jeu se ferme proprement (la base du joueur est enregistrée) puis se relance avec la mise à jour */
       setTimeout(() => { if (env) env.fermer(); app.relaunch(); app.exit(0); }, 1200);
