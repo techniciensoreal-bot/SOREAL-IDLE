@@ -528,12 +528,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 612,
-  "sha": "5ec95fb8b84232086048aa2938c1381d33599baa"
+  "pin": 613,
+  "sha": "807e1ce9cfaa08853e9e1a875d2c13661572f78a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 432,
-  "sha": "d92ba5b456370a3e236b88d858e6fa502610717d"
+  "pin": 433,
+  "sha": "9db8db34dde76aacd55c2446f4416cede4dd5503"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -632,8 +632,8 @@
   "sha": "0177cb0a600b48f242e07458c2c4e8aaafea358e"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 12,
-  "sha": "70f3f5462f2497bfc5005767207e5af0dc1a8bbd"
+  "pin": 13,
+  "sha": "1418d47708b55b3bca623191ca5ba36b5b92d764"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 6,

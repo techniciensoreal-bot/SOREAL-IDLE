@@ -309,6 +309,21 @@
         return ids;
       }
 
+      /* Application Android hors ligne seulement (Pont AndroidSoreal.versionCode, Maj.java) : empreinte courte du code actif ("embarqué" = celui de l’APK). Rien n’est stocké côté page. */
+      function htmlCodeApkIdleV1_(){
+        let v=null;
+        try{if(window.AndroidSoreal&&window.AndroidSoreal.versionCode)v=JSON.parse(String(window.AndroidSoreal.versionCode()));}catch(_e){v=null;}
+        if(!v||typeof v!=='object')return '';
+        const code=String(v.code||'');
+        let date='';
+        try{const t=Number(v.date);if(isFinite(t)&&t>0)date=new Date(t).toISOString().slice(0,10);}catch(_e){}
+        return '<div style="font-size:12px;color:#5b6178;margin-top:4px" data-apk-code-v1="1">'+
+          '<span>Code de l’application</span> <span>'+idleHtml_(code)+'</span>'+
+          (v.version?' <span>·</span> <span>'+idleHtml_(String(v.version))+'</span>':'')+
+          (date?' <span>·</span> <span>'+idleHtml_(date)+'</span>':'')+
+          (v.enAttente?' <span>·</span> <span>à l’essai</span>':'')+
+        '</div>';
+      }
       function htmlVersionNotesMajIdleV1_(v,possedes){
         if(Array.isArray(v.groupes)){
           return v.groupes.filter(function(g){return g&&Array.isArray(g.points)&&g.points.length&&possedes[g.menu];}).map(function(g){
@@ -503,6 +518,7 @@
               '<div class="soreal-idle-window-title-v31">Version</div>'+
               '<div style="font-size:14px;color:#8b93ab">Build <b style="color:#dce5f3">Beta '+idleHtml_(notesMajIdleV1_().courante)+'</b>'+
                 (notesMajIdleV1_().versions[0]?' · '+idleHtml_(notesMajIdleV1_().versions[0].nom):'')+'</div>'+
+              htmlCodeApkIdleV1_()+
               htmlNotesMajIdleV1_()+
             '</div>'+
             (window.__SOREAL_IDLE_BUG_REPORT_V1__?window.__SOREAL_IDLE_BUG_REPORT_V1__.html(estAdminSorealIdle_()):'');
