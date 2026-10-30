@@ -92,8 +92,7 @@
             'Sur un fruit prêt, le gain de « Manger » et de « Récolter » est bien plus visible (cadre doré, texte plus grand) et les unités des grands nombres (Qa…) ont leur couleur comme partout ailleurs.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'Dans NGU, « Eh, c’est le nom du jeu original ! » est maintenant sous « NGU » dans le cadre du haut, et la phrase « Fais monter tes NGU… » est sous « ÉNERGIE » ou « MAGIE ».',
-            'Dans le laboratoire NGU, le cadre jour (Énergie) et nuit (Magie) reprend le style du titre du menu : liseré arcade, ciel, soleil et nuages le jour, lune et étoiles la nuit, et il s’intitule « ÉNERGIE » ou « MAGIE ».',
+            'Dans NGU, « Eh, c’est le nom du jeu original ! » est maintenant sous « NGU » dans le cadre du haut, et le deuxième cadre (jour / nuit), devenu inutile, est supprimé.',
             'Le cadre de titre de la page prend vraiment le thème de la page : la moitié gauche est en jour (ciel bleu et soleil), la moitié droite en nuit (ciel sombre, lune et étoiles).'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[

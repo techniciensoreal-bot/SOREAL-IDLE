@@ -36,7 +36,7 @@ assert.ok(!/@keyframes nl[A-Za-z]+\{[^}]*(box-shadow|width|height|filter)/.test(
 // Les 16 couleurs sont conservées
 for (const [id, c] of Object.entries({ augments: "#868686", wandoos: "#7a96f5", powerAlpha: "#ed3e3e", magicNgu: "#9e19f1", yggdrasil: "#58c46a" })) assert.ok(src.includes(id + ":['" + c + "'"), "couleur conservée : " + id);
 // Le titre n'est pas un h1 (le thème du jeu y pose contour et ombre noirs)
-assert.ok(!src.includes("<h1>") && src.includes('class="nl-titre"'), "titre hors des règles de h1 du thème");
+assert.ok(!src.includes("<h1>") && !src.includes('class="nl-entete"') && !src.includes('class="nl-titre"'), "le deuxième cadre (en-tête jour / nuit du laboratoire) est supprimé : seul reste le cadre de titre du menu (Norman, 2026-10-30)");
 
 // Image du trou sans fond : plafonnée en hauteur sur PC
 const meta = ((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
