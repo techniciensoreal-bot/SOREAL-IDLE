@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les cadres de titre des menus ont une police plus grande et un aspect plus soigné : le nom en grosses lettres entre deux filets lumineux, la mini phrase plus lisible, un reflet et un liseré dans la couleur du menu.',
             'Sur téléphone, les voix ne crachouillent plus : elles utilisent un tampon audio plus large et passent par le même limiteur que les autres sons.',
             'Chaque menu commence par un cadre de titre (le nom du menu et une mini phrase) de la hauteur exacte des 4 barres du haut : même toutes affichées, elles ne cachent que le titre, jamais un bouton.',
             'Dans l’application PC lancée par Steam, le jeu ne clignote plus en noir quand l’interface Steam est affichée.',
