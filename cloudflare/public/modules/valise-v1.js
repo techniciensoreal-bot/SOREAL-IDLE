@@ -478,9 +478,11 @@ ${P} .vl-etiq{display:block;padding:2px 6px;border-radius:3px;background:linear-
 ${P} .vl-pastille{position:absolute;right:-2px;top:-7px;z-index:2;min-width:20px;padding:0 5px;white-space:nowrap;border-radius:50% 50% 50% 50%/55% 55% 45% 45%;background:radial-gradient(circle at 35% 30%,#ff7a6a,#b01c1c 70%);border:2px solid #4a0808;color:#fff3d8;font:400 13px/1.3 Bangers,"Russo One",sans-serif;letter-spacing:.04em;text-shadow:0 1px 0 #4a0808;box-shadow:0 2px 0 rgba(0,0,0,.5)}
 ${P} .vl-plaque{display:block;padding:1px 8px;border-radius:5px;background:linear-gradient(180deg,#ffe58a,#c8901c);border:2px solid #5a3507;color:#3a2300;font:400 13px/1.25 "Russo One",system-ui,sans-serif;box-shadow:0 2px 0 rgba(0,0,0,.5)}
 ${P} .vl-rebirth{background:linear-gradient(180deg,#bff0c9,#6cc283);color:#0f3a1c;font-size:12px}
-${P} .vl-util{margin-top:2px;padding:5px 12px;border-radius:7px;border:2px solid #1f1006;cursor:pointer;color:#fff1c8;font:400 14px/1 "Russo One",system-ui,sans-serif;text-shadow:0 1px 1px rgba(0,0,0,.65);
-  background:linear-gradient(180deg,#8a5a2b,#5a3417);box-shadow:inset 0 1px 0 rgba(255,225,170,.5),0 3px 0 #1f1006}
-${P} .vl-util:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,225,170,.5),0 1px 0 #1f1006}
+/* Le bouton Utiliser est un morceau de LANGUE (Norman, 2026-10-30 : « illisible : je veux un bouton en texture langue, un peu gonflé par rapport à la langue de base, et l'écriture en blanc ») : même rose que la langue, papilles claires, contour sombre, relief gonflé avec reflet humide, texte blanc cerné de sombre. */
+${P} .vl-util{margin-top:4px;padding:6px 16px 7px;border-radius:999px;border:2.5px solid #5a1028;cursor:pointer;color:#fff;font:400 15px/1 "Russo One",system-ui,sans-serif;letter-spacing:.03em;text-shadow:0 2px 2px rgba(58,10,28,.9);-webkit-text-stroke:1.1px #3a0a1c;paint-order:stroke fill;
+  background:radial-gradient(ellipse 60% 38% at 32% 24%,rgba(255,255,255,.6),rgba(255,255,255,0) 100%),radial-gradient(circle,rgba(244,163,184,.7) 0 1.5px,rgba(244,163,184,0) 2px) 0 0/9px 9px,linear-gradient(180deg,#dc5276,#c43f69 46%,#992b50);
+  box-shadow:inset 0 3px 4px rgba(255,235,242,.55),inset 0 -5px 6px rgba(120,20,52,.5),0 3px 0 #5a1028,0 6px 7px rgba(0,0,0,.4);transform:scale(1.05)}
+${P} .vl-util:active{transform:scale(1.05) translateY(2px);box-shadow:inset 0 3px 4px rgba(255,235,242,.45),inset 0 -3px 5px rgba(120,20,52,.5),0 1px 0 #5a1028}
 /* potions actives : une lueur et des bulles qui montent (boucle sans à-coup : elles naissent et s'évanouissent, toujours vers le haut) */
 ${P} .vl-actif::before{content:"";position:absolute;left:50%;top:-2px;width:64px;height:64px;margin-left:-32px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,160,.45),rgba(255,160,60,0) 68%);animation:vlAura 2.4s ease-in-out infinite;pointer-events:none}
 @keyframes vlAura{0%,100%{opacity:.5}50%{opacity:1}}

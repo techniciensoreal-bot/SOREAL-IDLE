@@ -184,8 +184,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 35,
-  "sha": "f30058b329d8a08457de3d9137144842ab751c33"
+  "pin": 36,
+  "sha": "aa62905c7f216795cdf4cf8897e3ff58a980b835"
  },
  "/modules/defilement-theme-v1.js": {
   "pin": 3,
@@ -660,8 +660,8 @@
   "sha": "36c0d2ba718318c61d837dbfda67ebaeeb19144d"
  },
  "/modules/valise-v1.js": {
-  "pin": 62,
-  "sha": "229df44ab4ecf511b1561febe8b5ebeb3a78ffe2"
+  "pin": 65,
+  "sha": "4803b1a7488fb8cdfaef1ab7435c3ee2d8574f40"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 9,

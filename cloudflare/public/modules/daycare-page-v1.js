@@ -338,7 +338,8 @@
       '.gd-reserve{margin-top:6px}',
       /* L'image du grenier est le fond de TOUT le cadre de la garderie (onglets, titre, armoire, texte, résumé), comme l'arcade et Wandoos (Norman, 2026-10-30 : « elle doit prendre tout le cadre ») : image haute sur téléphone, large sur PC, en couverture (cover) ; l'armoire est posée en bas de sa scène, le texte est sur des panneaux sombres translucides. */
       '#soreal-idle-garderie-section{padding:0;overflow:hidden;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.45)}',
-      '.gd-plein{position:relative;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center bottom/cover no-repeat;border-radius:16px;padding:10px 10px 14px;box-shadow:inset 0 0 0 3px #3a2410;min-height:620px}',
+      /* padding 18 px = celui d'une section : les onglets Sac / Garderie gardent EXACTEMENT la même taille et la même place dans les deux vues (Norman, 2026-10-30) */
+      '.gd-plein{position:relative;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center bottom/cover no-repeat;border-radius:16px;padding:18px;box-shadow:inset 0 0 0 3px #3a2410;min-height:620px}',
       '.gd-cadre{position:relative;width:100%;margin:0 auto 8px}',
       '.gd-haut{position:relative;z-index:3;padding:0 0 6px}.gd-haut .gd-onglets{margin:0 0 6px}.gd-haut .gd-titre{margin:2px 0 0}',
       '.gd-scene{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1/1.16}',
