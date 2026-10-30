@@ -182,7 +182,7 @@
         '</div>';
       }
 
-      const NOMS_OBJETS_ROUE_V1={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'crottin (sans effet)',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+      const NOMS_OBJETS_ROUE_V1={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
 
       function libelleRecompenseMetaV206_(entree){
         if(!entree)return '—';
@@ -216,7 +216,7 @@
         if(reward.cubeBoth)morceaux.push('+'+reward.cubeBoth+' Cube Puissance et Endurance');
         if(reward.wandoosLevels)morceaux.push('+'+reward.wandoosLevels+' niveau(x) Wandoos');
         if(reward.items){
-          const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'crottin (sans effet)',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+          const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
           Object.keys(reward.items).forEach(function(id){morceaux.push(reward.items[id]+' × '+(NOMS[id]||id));});
         }
         return morceaux.length?morceaux.join(' · '):'Récompense mystérieuse';

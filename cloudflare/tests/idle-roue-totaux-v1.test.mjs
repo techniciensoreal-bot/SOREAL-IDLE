@@ -55,5 +55,5 @@ const fab = (total) => {
 const vide = fab({ ap: 0, seeds: 0, items: {} });
 assert.ok(vide.includes("Aucun bonus pour l’instant") && !vide.includes("AP"), "rien d'obtenu : phrase d'attente, aucune ligne");
 const plein = fab({ ap: 1234, seeds: 50, items: { luckyCharm: 2, poop: 1 } });
-assert.ok(plein.includes("+1234 AP") && plein.includes("+50 graines") && plein.includes("2 × Lucky Charm") && plein.includes("1 × crottin"), "AP, graines et objets cumulés");
+assert.ok(plein.includes("+1234 AP") && plein.includes("+50 graines") && plein.includes("2 × Lucky Charm") && plein.includes("1 × Caca"), "AP, graines et objets cumulés");
 console.log("idle-roue-totaux-v1: OK");
