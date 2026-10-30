@@ -11,6 +11,7 @@ const css = readFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", "
 const sansCom = css.replace(/\/\*[\s\S]*?\*\//g, "");
 const ui = lireUiComplet();
 const index = readFileSync("cloudflare/public/index.html", "utf8");
+const gen = readFileSync("cloudflare/tools/gen-menus-boutons-v1.mjs", "utf8");
 const entetes = ["a", "b", "c", "d"].map((x) => readFileSync(`cloudflare/public/soreal-idle-entetes-${x}.css`, "utf8")).join("\n") + readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 
 assert.ok(!/!\s*important/i.test(css), "aucun !important");
@@ -43,16 +44,55 @@ for (const id of MENUS) {
   for (const c of ["nb-g", "nb-d"]) {
     const m = sansCom.match(new RegExp(D(id, ` .${c}`).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\{background:([^;]*)"));
     const u = m[1].match(/^url\("[^"]+"\)/);
-    if (u) assert.ok(entetes.includes(u[0]), `${id} : le dessin ${c} n'est pas celui du grand cadre`);
+    /* un dessin « o:nom » (original, secours contre les doublons) n'est pas dans le grand cadre ; tout autre vient du cadre */
+    const original = new RegExp(`\\b${id}: \\{[^}]*?\\b${c === "nb-g" ? "g" : "d"}: "o:`).test(gen);
+    if (u && !original) assert.ok(entetes.includes(u[0]), `${id} : le dessin ${c} n'est pas celui du grand cadre`);
   }
 }
+
+/* Norman (2026-10-30) : jamais deux dessins identiques sur un bouton (ni le même emblème répété, retourné ou teinté) : comparaison du texte, puis de la « famille » (balises SVG) */
+const echap = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const dessinDe = (id, c) => sansCom.match(new RegExp(echap(D(id, ` .${c}`)) + "\\{background:([^;]*)"))[1];
+const famille = (bg) => {
+  const m = bg.match(/^url\("data:image\/svg\+xml,([^"]*)"\)/);
+  if (!m) return "gradient:" + bg.replace(/\s[\d.]+(cqw|%).*$/, "");
+  const s = decodeURIComponent(m[1]);
+  return [...s.matchAll(/<([a-z]+)/g)].map((x) => x[1]).filter((x) => x !== "svg" && x !== "defs").sort().join(",") + [...s.matchAll(/ id="([a-z]+)"/g)].map((x) => "#" + x[1]).join("");
+};
+/* paires de dessins construites de la même façon mais vérifiées à l'œil comme DIFFÉRENTES (Hacks : invite de commande > et accolades {}) */
+const VERIFIES_A_LOEIL = new Set(["hacks"]);
+for (const id of MENUS) {
+  const g = dessinDe(id, "nb-g"), d = dessinDe(id, "nb-d");
+  assert.notEqual(g, d, `${id} : deux dessins identiques`);
+  const long = (b) => { try { return decodeURIComponent(b).length; } catch (_e) { return b.length; } };
+  const lg = long(g), ld = long(d);
+  assert.ok(VERIFIES_A_LOEIL.has(id) || famille(g) !== famille(d) || Math.abs(lg - ld) / Math.max(lg, ld) > 0.12, `${id} : deux dessins de la même famille et de même taille (même emblème répété ou retourné)`);
+}
+/* Renaissance : un tourbillon (spirale) à gauche, un signe infini à droite, en SVG original ; la spirale tourne, l'infini pulse */
+{
+  const g = decodeURIComponent(dessinDe("renaissance", "nb-g")), d = decodeURIComponent(dessinDe("renaissance", "nb-d"));
+  assert.ok(g.includes('id="tourbillon"') && !g.includes("<text"), "Renaissance : tourbillon à gauche");
+  assert.ok(d.includes('id="infini"') && !d.includes("<text"), "Renaissance : signe infini à droite (SVG, pas une police)");
+  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="renaissance"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 6s linear infinite}`), "le tourbillon tourne (360°, linéaire)");
+  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="renaissance"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_pulse `), "l'infini pulse");
+}
+/* miniature fidèle du grand cadre : le fond est celui du cadre, réduit en cqw (la boîte du décor est un conteneur) ; ITOPOD : la tour occupe toute la hauteur */
+assert.ok(/\.soreal-idle-nav-deco-v1\{[^}]*container-type:size/.test(sansCom), "le décor est un conteneur (unités cqw)");
+for (const id of MENUS) {
+  const m = sansCom.match(new RegExp(echap(D(id, "::before")) + "\\{background:([^}]*)\\}"));
+  assert.ok(m && m[1].length > 40, `${id} : fond de la miniature absent`);
+  if (id !== "daycare") assert.ok(/cqw|%/.test(m[1]), `${id} : fond non réduit`);
+  assert.ok(!/\d(px)\b/.test(m[1].replace(/url\("[^"]*"\)/g, "")), `${id} : longueur en px dans le fond (doit être réduite)`);
+  assert.ok(sansCom.includes(`data-menu-id-v1="${id}"] .soreal-idle-nav-texte-v2 b{color:`), `${id} : nom du menu sans le style du titre`);
+}
+assert.ok(/tower"\] \.soreal-idle-nav-deco-v1 \.nb-g\{[^}]*height:100cqh/.test(sansCom),"ITOPOD : la tour prend toute la hauteur du bouton");
 
 /* l'animation ne tourne QUE quand le menu travaille : jamais sur .active seul, jamais au repos */
 for (const x of sansCom.replace(/@media[^{]*\{/g, "").replace(/@keyframes[^{]*\{([^{}]*\{[^}]*\}\s*)+\}/g, "").matchAll(/(^|\})\s*([^{}@]+)\{([^}]*)\}/gm)) {
   const sel = x[2].trim();
   if (!sel) continue;
   assert.ok(sel.split(",").every((s) => s.trim().startsWith(P)), "sélecteur hors barre : " + sel.slice(0, 90));
-  if (/animation:(?!none)/.test(x[3])) assert.ok(/\.travail-v1\b/.test(sel) && !/\.active\b/.test(sel), "animation hors menu qui travaille : " + sel.slice(0, 90));
+  if (/animation:(?!none)/.test(x[3])) assert.ok(/\.travail-v1\b/.test(sel) && !/\.active\b/.test(sel), "animation hors menu qui travaille : " + sel.slice(0, 200));
 }
 
 /* boucle parfaite : chaque mouvement revient à son point de départ (ou tourne d'un tour complet) */
@@ -101,9 +141,11 @@ const rm = css.slice(css.indexOf("@media (prefers-reduced-motion:reduce)"));
 assert.ok(/\.nb-g,[^{]*\.nb-d\{animation:none\}/.test(rm), "mouvement réduit non géré");
 
 /* règle n°2 : plus d'émoji dans le bouton, aucun texte dans le décor */
-for (const c of sansCom.matchAll(/content:([^;}]*)/g)) assert.equal(c[1].trim(), '""', "le décor ne doit contenir aucun texte : " + c[1]);
+for (const c of sansCom.matchAll(/(?<![-a-z])content:([^;}]*)/g)) assert.equal(c[1].trim(), '""', "le décor ne doit contenir aucun texte : " + c[1]);
 assert.ok(!/soreal-idle-nav-emoji-v2">\$\{m\.icon\}/.test(ui), "plus d'émoji dans les boutons du menu");
-assert.ok(/\.soreal-idle-nav-cadre-v2\{visibility:hidden\}/.test(sansCom), "la pastille d'émoji ne s'affiche plus");
+assert.ok(/\.soreal-idle-nav-cadre-v2\{display:none\}/.test(sansCom), "la pastille d'émoji ne s'affiche plus");
+/* noms centrés (horizontalement et verticalement) dans chaque bouton */
+assert.ok(/\.soreal-idle-nav-texte-v2\{[^}]*justify-content:center;[^}]*text-align:center;padding:0 36px;margin-left:6px\}/.test(sansCom) && /\.soreal-idle-nav-texte-v2\{[^}]*align-items:center/.test(sansCom), "noms centrés");
 
 /* règle n°4 : les deux dessins sont des éléments du HTML du bouton (rien à remettre après un redessin), masqués aux lecteurs d'écran ; la feuille est chargée */
 assert.ok(/<span class="soreal-idle-nav-deco-v1" aria-hidden="true"><i class="nb-g"><\/i><i class="nb-d"><\/i><\/span>\s*<span class="soreal-idle-nav-cadre-v2">/.test(ui), "dessins absents du bouton du menu");
@@ -118,5 +160,27 @@ assert.ok(!/travail-v1[^\n]*REG\.idleMenuActifV28/.test(ui.slice(ui.indexOf("fun
 /* la barre se redessine avec le HTML : la classe y est déjà (aucune attente) ; un attribut posé hors rendu n'existe pas */
 assert.ok(!ui.includes("data-travail-v1"), "pas d'attribut posé après coup");
 /* la zone tactile n'est pas modifiée : aucune taille posée hors des dessins et du retrait du texte */
-assert.ok(!/\b(height|min-height|min-width|margin)\s*:/.test(sansCom.replace(/\.nb-[gd][^{]*\{[^}]*\}/g, "")), "la feuille ne touche pas la taille des boutons");
+assert.ok(!/\b(height|min-height|min-width|margin)\s*:/.test(sansCom.replace(/\.nb-[gd][^{]*\{[^}]*\}/g, "").replace(/\.soreal-idle-nav-texte-v2[^{]*\{[^}]*\}/g, "")), "la feuille ne touche pas la taille des boutons");
+
+/* Norman (2026-10-30) : les dessins gardent leurs VRAIES couleurs (jamais une teinte unique) : tout dessin SVG a au moins deux couleurs franches ; Yggdrasil = tronc brun, feuillage vert, pomme dorée */
+for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
+  const bg = dessinDe(id, c);
+  const m = bg.match(/^url\("data:image\/svg\+xml,([^"]*)"\)/);
+  if (!m || !new RegExp(`\\b${id}: \\{[^}]*?\\b${c === "nb-g" ? "g" : "d"}: "o:`).test(gen)) continue; /* les dessins repris du grand cadre gardent ses couleurs, quelles qu'elles soient */
+  const couleurs = new Set([...decodeURIComponent(m[1]).matchAll(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b|rgb\([^)]*\)/g)].map((x) => x[0].toLowerCase()));
+  assert.ok(couleurs.size >= 2, `${id} : le dessin ${c} est monochrome (${[...couleurs]})`);
+}
+{
+  const g = decodeURIComponent(dessinDe("yggdrasil", "nb-g")).toLowerCase(), d = decodeURIComponent(dessinDe("yggdrasil", "nb-d")).toLowerCase();
+  assert.ok(g.includes("#7a4a21") && g.includes("#2f9e44"), "Yggdrasil : arbre au tronc brun et au feuillage vert");
+  assert.ok(d.includes("#f2b705") && d.includes("#ffd84d") && d.includes("#fff6c9"), "Yggdrasil : pomme dorée avec son reflet");
+}
+{
+  const g = decodeURIComponent(dessinDe("beards", "nb-g")).toLowerCase(), d = decodeURIComponent(dessinDe("beards", "nb-d")).toLowerCase();
+  assert.ok(g.includes('id="peigne"') && g.includes("#15151a") && !g.includes("#d62839"), "Barbes : peigne noir à un côté");
+  assert.ok(d.includes('id="ciseaux"') && d.includes("lineargradient") && d.includes("#9aa3af"), "Barbes : ciseaux en acier (dégradé métallique) de l'autre côté");
+  assert.ok(d.includes("#d62839") && d.includes('r="6" fill="none" stroke="#d62839"'), "Barbes : anneaux des ciseaux d'une autre couleur (rouge) que la lame");
+  const m = decodeURIComponent(dessinDe("macguffins", "nb-d")).toLowerCase();
+  assert.ok(m.includes('id="puzzle"') && m.includes("#0b6e4f") && m.includes("#003a2b") && m.includes("lineargradient"), "MacGuffins : pièce de puzzle vert bouteille (dégradé, bord plus foncé)");
+}
 console.log("ok idle-menus-boutons-cadres-v1");

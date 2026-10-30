@@ -52,7 +52,7 @@ for (const [id,d] of Object.entries(DOM)) {
   t.ring=[dark,d,lighter,d,dark]; t.glow=hx(d).join(","); t.a=lighter; t.b=d;
 }
 
-/* ---- extraction des dessins des grands cadres ---- */
+/* ---- extraction des grands cadres (fond, dessins, liseré, style du titre) ---- */
 const SOURCES = ["entetes-a", "entetes-b", "entetes-c", "entetes-d", "itopod"];
 function coupe(s) { /* virgules de premier niveau */
   const r = []; let d = 0, cur = "", q = false;
@@ -64,7 +64,12 @@ function coupe(s) { /* virgules de premier niveau */
   if (cur.trim()) r.push(cur.trim());
   return r;
 }
-const CADRES = {};
+function finDeclaration(s) { /* jusqu'au premier « ; » hors guillemets et parenthèses (le fond est suivi d'autres déclarations, ex. animation) */
+  let d = 0, q = false;
+  for (let i = 0; i < s.length; i++) { const ch = s[i]; if (ch === '"') q = !q; if (q) continue; if (ch === "(") d++; if (ch === ")") d--; if (ch === ";" && d === 0) return s.slice(0, i); }
+  return s;
+}
+const CADRES = {}, LISERES = {}, TITRES = {};
 for (const f of SOURCES) {
   const t = readFileSync(`cloudflare/public/soreal-idle-${f}.css`, "utf8");
   const re = /\[data-menu="([A-Za-z]+)"\] (?:\.soreal-idle-page-head-v28|\.bm-entete)\[data-entete-menu\]::before\s*\{([^}]*)\}/g;
@@ -72,8 +77,15 @@ for (const f of SOURCES) {
   while ((m = re.exec(t))) {
     const i = m[2].indexOf("background:");
     if (i < 0 || CADRES[m[1]]) continue; /* la première règle est la version PC */
-    CADRES[m[1]] = coupe(m[2].slice(i + 11));
+    CADRES[m[1]] = coupe(finDeclaration(m[2].slice(i + 11)));
   }
+  const reA = /\[data-menu="([A-Za-z]+)"\] \.soreal-idle-page-head-v28\[data-entete-menu\]::after\s*\{([^}]*)\}/g;
+  while ((m = reA.exec(t))) {
+    const b = m[2].match(/background:([^;]*border-box)/);
+    if (b && !LISERES[m[1]]) LISERES[m[1]] = b[1].trim();
+  }
+  const reT = /\[data-menu="([A-Za-z]+)"\] \.soreal-idle-page-head-v28\[data-entete-menu\] \.soreal-idle-page-title-v28\s*\{([^}]*)\}/g;
+  while ((m = reT.exec(t))) TITRES[m[1]] = Object.assign(TITRES[m[1]] || {}, Object.fromEntries(m[2].split(";").filter(Boolean).map((x) => [x.slice(0, x.indexOf(":")).trim(), x.slice(x.indexOf(":") + 1).trim()])));
 }
 const urlDe = (couche) => { const x = couche.match(/^url\("[^"]*"\)/); if (!x) throw new Error("couche sans dessin : " + couche.slice(0, 60)); return x[0]; };
 const degrade = (couche) => { /* le dégradé seul, sans sa position ni sa taille */
@@ -81,57 +93,96 @@ const degrade = (couche) => { /* le dégradé seul, sans sa position ni sa taill
   for (let i = k; i < couche.length; i++) { if (couche[i] === "(") d++; if (couche[i] === ")" && --d === 0) return couche.slice(0, i + 1); }
   throw new Error("dégradé mal fermé");
 };
+/* Le fond du bouton est le fond du grand cadre RÉDUIT : toute longueur en px devient une part de la largeur du bouton (cqw ; le cadre PC fait ~320 px de large), les images (data:) restent telles quelles. */
+const LARGEUR_CADRE = 320;
+const cq = (n) => (Number(n) * 100 / LARGEUR_CADRE).toFixed(3).replace(/\.?0+$/, "") + "cqw";
+const reduit = (couche) => couche.split(/(url\("[^"]*"\))/).map((s) => (s.startsWith("url(") ? s : s.replace(/(-?\d*\.?\d+)px/g, (_, n) => (Number(n) === 0 ? "0" : cq(n))))).join("");
 
-/* Les deux dessins de chaque menu : indices des couches du grand cadre (feuilles entetes-*, itopod). `m` = mouvement du dessin quand le menu travaille, `t` = durée d'une boucle (s). */
-const SPEC = {
-  entrainement: { c: [1, 2], m: "sway", t: 1.6 }, combat: { c: [0, 0], m: "twinkle", t: 1.8, special: "ampoules" },
-  aventure: { c: [1, 2], m: "bob", t: 2.6 }, renaissance: { c: [1, 2], m: "spin", t: 7 },
-  moneyPit: { c: [2, 6], m: "pulse", t: 2.2, special: "pieces" }, augmentations: { c: [1, 2], m: "pulse", t: 2 },
-  avance: { c: [4, 5], m: "bob", t: 2.2 }, machine: { c: [1, 2], m: "spin", t: 9 },
-  sang: { c: [3, 4], m: "bob", t: 2.4 }, tower: { c: [1, 2], m: "bob", t: 2.8 },
-  daycare: { c: [0, 0], m: "bob", t: 3, special: "bocal" }, challenges: { c: [1, 2], m: "sway", t: 1.4 },
-  titans: { c: [1, 2], m: "pulse", t: 2.6 }, ngu: { c: [0, 1], m: "pulse", t: 3.2 },
-  wandoos: { c: [0, 0], m: "twinkle", t: 1.6, special: "fenetre" }, yggdrasil: { c: [8, 9], m: "sway", t: 3.6, special: "ecorce" },
-  diggers: { c: [1, 2], m: "sway", t: 1.5 }, beards: { c: [4, 4], m: "sway", t: 3 },
-  macguffins: { c: [2, 3], m: "pulse", t: 2.4 }, hacks: { c: [1, 2], m: "twinkle", t: 1.4 },
-  questing: { c: [1, 2], m: "sway", t: 3 }, quirks: { c: [1, 2], m: "bob", t: 2.2 },
-  wishes: { c: [1, 2], m: "twinkle", t: 2.8 }, cards: { c: [0, 1], m: "sway", t: 2.6 },
-  cooking: { c: [5, 6], m: "bob", t: 2 }, shop: { c: [1, 2], m: "twinkle", t: 2.4 },
-  chroniques: { c: [0, 1], m: "sway", t: 3.2 }, chat: { c: [0, 1], m: "bob", t: 2 },
-  parametres: { c: [4, 6], m: "spin", t: 10 }, admin: { c: [4, 5], m: "twinkle", t: 1.6 },
+/* Dessins originaux (secours : un second dessin DIFFÉRENT là où le grand cadre répète deux fois le même emblème), cohérents avec le thème du menu ; a = clair, b = ton moyen. */
+const ORIG = {
+  glove: (a, b) => `<path d="M12 22c0-8 6-14 15-14 8 0 13 5 13 12v10c0 6-4 10-10 10H20c-5 0-8-4-8-9z" fill="${a}"/><rect x="16" y="38" width="22" height="7" rx="2" fill="${b}"/><path d="M26 20c4 0 8 1 11 4" stroke="${b}" stroke-width="2" fill="none"/>`,
+  joystick: (a, b) => `<circle cx="24" cy="12" r="7" fill="${a}"/><rect x="22" y="18" width="4" height="16" fill="${b}"/><rect x="8" y="32" width="32" height="10" rx="3" fill="${b}"/><circle cx="16" cy="37" r="2.5" fill="${a}"/><circle cx="32" cy="37" r="2.5" fill="${a}"/>`,
+  coin: (a, b) => `<circle cx="24" cy="24" r="18" fill="${a}"/><circle cx="24" cy="24" r="13" fill="none" stroke="${b}" stroke-width="3"/><path d="M24 15l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z" fill="${b}"/>`,
+  flame: (a, b) => `<path d="M24 4c3 8 12 12 12 24a12 12 0 0 1-24 0c0-6 3-9 6-12 0 4 2 6 4 6 0-6-1-12 2-18z" fill="${a}"/><path d="M24 24c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 3-5 6-11z" fill="${b}"/>`,
+  shovel: (a, b) => `<path d="M22 4h4v22h-4z" fill="${b}"/><rect x="18" y="2" width="12" height="5" rx="2" fill="${a}"/><path d="M14 26h20l-4 18H18z" fill="${a}"/><path d="M24 28v14" stroke="${b}" stroke-width="2"/>`,
+  drop: (a, b) => `<path d="M24 4C18 14 10 22 10 31a14 14 0 0 0 28 0C38 22 30 14 24 4z" fill="${a}"/><path d="M17 32a7 7 0 0 0 7 7" stroke="${b}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+  tower: (a, b) => `<rect x="14" y="14" width="20" height="30" fill="${a}"/><path d="M12 14V6h5v4h4V6h6v4h4V6h5v8z" fill="${b}"/><rect x="21" y="32" width="6" height="12" rx="3" fill="${b}"/><rect x="20" y="20" width="3" height="6" fill="${b}"/><rect x="26" y="20" width="3" height="6" fill="${b}"/>`,
+  gem: (a, b) => `<path d="M12 8h24l8 12-20 24L4 20z" fill="${a}"/><path d="M4 20h40M16 8l-4 12 12 24M32 8l4 12-12 24" stroke="${b}" stroke-width="2" fill="none"/>`,
+  flag: (a, b) => `<rect x="10" y="4" width="4" height="40" fill="${b}"/><path d="M14 6h26v22H14z" fill="${a}"/>` + [[14, 6], [27, 6], [20.5, 11.5], [33.5, 11.5], [14, 17], [27, 17], [20.5, 22.5], [33.5, 22.5]].map(([x, y]) => `<rect x="${x}" y="${y}" width="6.5" height="5.5" fill="${b}"/>`).join(""),
+  skull: (a, b) => `<path d="M10 20c0-10 6-16 14-16s14 6 14 16c0 5-2 8-5 10v8H15v-8c-3-2-5-5-5-10z" fill="${a}"/><circle cx="18" cy="22" r="4" fill="${b}"/><circle cx="30" cy="22" r="4" fill="${b}"/><path d="M22 30l2-3 2 3z" fill="${b}"/><path d="M8 18C2 14 2 6 6 2c0 6 4 9 8 10zM40 18c6-4 6-12 2-16 0 6-4 9-8 10z" fill="${b}"/>`,
+  leaf: (a, b) => `<path d="M8 40C8 18 22 6 42 6c0 22-12 34-34 34z" fill="${a}"/><path d="M10 38C20 26 28 18 38 10" stroke="${b}" stroke-width="2.5" fill="none"/>`,
+  apple: (a, b) => `<path d="M24 14c-6-5-16-2-16 10 0 10 7 20 12 20 2 0 3-1 4-1s2 1 4 1c5 0 12-10 12-20 0-12-10-15-16-10z" fill="${a}"/><path d="M24 14c0-5 2-8 6-10" stroke="${b}" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30 6c4-2 8 0 8 0-1 4-5 5-8 3z" fill="${b}"/>`,
+  comb: (a, b) => `<rect x="4" y="10" width="40" height="9" rx="3" fill="${a}"/>` + [7, 13, 19, 25, 31, 37].map((x) => `<rect x="${x}" y="19" width="3" height="18" fill="${b}"/>`).join(""),
+  scissors: (a, b) => `<circle cx="14" cy="38" r="6" fill="none" stroke="${a}" stroke-width="3"/><circle cx="34" cy="38" r="6" fill="none" stroke="${a}" stroke-width="3"/><path d="M17 33L36 4M31 33L12 4" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
+  puzzle: (a, b) => `<path d="M8 14h10a5 5 0 1 1 10 0h12v10a5 5 0 1 0 0 10v10H28a5 5 0 1 0-10 0H8V34a5 5 0 1 1 0-10z" fill="${a}" stroke="${b}" stroke-width="2"/>`,
+  book: (a, b) => `<path d="M4 10c8-3 14-2 20 2v30c-6-4-12-5-20-2z" fill="${a}"/><path d="M44 10c-8-3-14-2-20 2v30c6-4 12-5 20-2z" fill="${b}"/>`,
+  chip: (a, b) => `<circle cx="24" cy="24" r="20" fill="${a}"/><circle cx="24" cy="24" r="13" fill="none" stroke="${b}" stroke-width="3" stroke-dasharray="6 5"/><circle cx="24" cy="24" r="6" fill="${b}"/>`,
+  chef: (a, b) => `<path d="M12 28c-6-2-8-12-1-15 1-6 9-9 13-4 4-5 12-2 13 4 7 3 5 13-1 15z" fill="${a}"/><rect x="12" y="28" width="24" height="14" rx="2" fill="${b}"/>`,
+  mug: (a, b) => `<rect x="8" y="12" width="26" height="30" rx="4" fill="${a}"/><path d="M34 18h4a5 5 0 0 1 0 14h-4" stroke="${a}" stroke-width="4" fill="none"/><path d="M8 12c0-6 6-8 10-6 4-3 10-1 10 4 4 0 6 2 6 2H8z" fill="${b}"/>`,
 };
-const BOCAL = (c) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8 3h8v2.2c0 .5-.3.9-.7 1.2C14.2 7 14 7.6 14 8.2V9c1.9.8 3 2.5 3 4.6V18a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-4.4C7 11.5 8.100 9.800 10 9v-.8c0-.6-.2-1.200-1.300-1.800C8.300 6.100 8 5.700 8 5.200z" fill="none" stroke="${c}" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.300 14.500c1.500-1 3-1 4.700 0s3.200 1 4.700 0" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+/* Renaissance (Norman, 2026-10-30) : un tourbillon (spirale) à gauche, un signe infini à droite, deux dessins SVG originaux (jamais un caractère de police). */
+const spirale = (() => { let p = "M24 24"; for (let i = 1; i <= 90; i++) { const th = i * 0.21, r = 1.2 + th * 1.05; p += "L" + (24 + r * Math.cos(th)).toFixed(2) + " " + (24 + r * Math.sin(th)).toFixed(2); } return p; })();
+ORIG.tourbillon = (a, b) => `<g id="tourbillon"><path d="${spirale}" fill="none" stroke="${b}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="${spirale}" fill="none" stroke="${a}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g>`;
+ORIG.infini = (a, b) => `<g id="infini"><path d="M24 24C30 12 44 14 44 24S30 36 24 24C18 12 4 14 4 24S18 36 24 24z" fill="none" stroke="${b}" stroke-width="6" stroke-linejoin="round"/><path d="M24 24C30 12 44 14 44 24S30 36 24 24C18 12 4 14 4 24S18 36 24 24z" fill="none" stroke="${a}" stroke-width="2.5" stroke-linejoin="round"/></g>`;
+/* Couleurs NATURELLES des dessins originaux (Norman : en couleur, jamais une teinte unique) : [couleur 1, couleur 2] */
+const PAL = { glove: ["#e63946", "#8d1b26"], joystick: ["#e63946", "#6b7280"], coin: ["#ffd24a", "#b8860b"], flame: ["#ff7a1a", "#ffd23b"], shovel: ["#c9ccd1", "#8b5a2b"], drop: ["#d81e3c", "#ff8a9a"],
+  tower: ["#c9b79c", "#7a6a55"], gem: ["#4fd1ff", "#e8fbff"], flag: ["#ffffff", "#222222"], skull: ["#e8e2d0", "#7a3b3b"], comb: ["#e9c46a", "#8d5a2b"], scissors: ["#f4a261", "#d0d4da"],
+  puzzle: ["#9b5de5", "#e0c8ff"], book: ["#c0392b", "#e8c58a"], chip: ["#e63946", "#ffffff"], chef: ["#ffffff", "#aeb4bd"], mug: ["#e9a23b", "#fff4d6"], tourbillon: ["#7fe3ff", "#2b6cff"], infini: ["#ffe27a", "#ff8a1a"] };
+/* Barbes : peigne NOIR (reflet gris), ciseaux en acier (reflets) aux anneaux ROUGES ; MacGuffins : pièce de puzzle VERT BOUTEILLE (dégradé, reflet, bord plus foncé) */
+ORIG.comb = () => '<g id="peigne"><rect x="4" y="9" width="40" height="10" rx="3" fill="#15151a"/><rect x="6" y="10.5" width="36" height="2.2" rx="1" fill="#5b5f6b"/>' + [7, 12.5, 18, 23.5, 29, 34.5, 40].map((x) => `<rect x="${x - 1}" y="19" width="2.6" height="19" rx="1.2" fill="#15151a"/>`).join("") + '</g>';
+ORIG.scissors = () => '<g id="ciseaux"><defs><linearGradient id="ac" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f7fb"/><stop offset=".5" stop-color="#9aa3af"/><stop offset="1" stop-color="#5b6470"/></linearGradient></defs><path d="M17 31L36 3l3 2L22 35zM31 31L12 3 9 5l17 30z" fill="url(#ac)" stroke="#3d4450" stroke-width="1"/><circle cx="14" cy="38" r="6" fill="none" stroke="#d62839" stroke-width="3.4"/><circle cx="34" cy="38" r="6" fill="none" stroke="#d62839" stroke-width="3.4"/><circle cx="24" cy="31" r="2" fill="#e8edf3" stroke="#3d4450"/></g>';
+ORIG.puzzle = () => '<g id="puzzle"><defs><linearGradient id="vb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f9e78"/><stop offset=".55" stop-color="#0b6e4f"/><stop offset="1" stop-color="#004634"/></linearGradient></defs><path d="M8 14h10a5 5 0 1 1 10 0h12v10a5 5 0 1 0 0 10v10H28a5 5 0 1 0-10 0H8V34a5 5 0 1 1 0-10z" fill="url(#vb)" stroke="#003a2b" stroke-width="2"/><path d="M11 17h6M11 20v4" stroke="#7fe0bf" stroke-width="2" stroke-linecap="round" opacity=".7"/></g>';
+/* Yggdrasil : l'arbre (tronc brun, feuillage vert) à gauche, la pomme dorée (avec son reflet) à droite */
+ORIG.arbre = () => '<g id="arbre"><path d="M20 44c1-8 1-14-1-20h10c-2 6-2 12-1 20z" fill="#7a4a21"/><path d="M22 44c.5-8 .5-14-1-20h2c-1 6-1 12-.5 20z" fill="#5a3412"/><circle cx="24" cy="14" r="10" fill="#2f9e44"/><circle cx="13" cy="21" r="8" fill="#3fae4a"/><circle cx="35" cy="21" r="8" fill="#37a24a"/><circle cx="24" cy="23" r="9" fill="#4cc15a"/><circle cx="20" cy="11" r="3" fill="#8be28f" opacity=".7"/></g>';
+ORIG.pommeor = () => '<g id="pommeor"><path d="M24 15c-6-5-17-2-17 10 0 10 7 20 13 20 2 0 3-1 4-1s2 1 4 1c6 0 13-10 13-20 0-12-11-15-17-10z" fill="#f2b705"/><path d="M24 15c-6-5-17-2-17 10 0 6 2 11 5 15 1-12 6-21 12-25z" fill="#ffd84d"/><ellipse cx="15" cy="23" rx="3" ry="6" fill="#fff6c9" opacity=".85" transform="rotate(-20 15 23)"/><path d="M24 15c0-5 2-8 6-10" stroke="#6b3e12" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30 7c4-2 9 0 9 0-1 4-6 5-9 3z" fill="#3fae4a"/></g>';
+const BOCAL = (c) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8 3h8v2.2c0 .5-.3.9-.7 1.2C14.2 7 14 7.6 14 8.2V9c1.9.8 3 2.5 3 4.6V18a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-4.4C7 11.5 8.100 9.800 10 9v-.8c0-.6-.2-1.200-1.300-1.800C8.300 6.100 8 5.700 8 5.200z" fill="#bfeaff" fill-opacity=".45" stroke="#7fc8e8" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.300 14.500c1.500-1 3-1 4.700 0s3.200 1 4.700 0" fill="none" stroke="#3fd17a" stroke-width="1.9" stroke-linecap="round"/></svg>`;
 const encode = (s) => `url("data:image/svg+xml,${encodeURIComponent(s).replace(/\(/g, "%28").replace(/\)/g, "%29")}")`;
-/* dessin g (gauche) et d (droite) d'un menu : valeur de `background` */
-function dessins(id) {
-  const sp = SPEC[id], L = CADRES[id];
-  if (sp.special === "pieces") return [degrade(L[2]), degrade(L[6])];                         /* les deux grosses pièces d'or du cadre */
-  if (sp.special === "ampoules") return [degrade(L[0]), degrade(L[0])];                       /* les ampoules de la marquise */
-  if (sp.special === "ecorce") return [degrade(L[8]), degrade(L[9])];                                                   /* les deux troncs du cadre */
-  if (sp.special === "bocal") return [1,2].map(() => encode(BOCAL("#a8f0cc")) + " center/contain no-repeat");      /* pas de grand cadre : le bocal de la Garderie */
-  if (sp.special === "fenetre") {                                                              /* le logo coloré et les trois boutons gris de la fenêtre du cadre */
-    return [
-      "linear-gradient(#ff3b3b,#ff3b3b) 4px 4px/13px 13px no-repeat,linear-gradient(#5bd13a,#5bd13a) 19px 4px/13px 13px no-repeat,linear-gradient(#3b7bff,#3b7bff) 4px 19px/13px 13px no-repeat,linear-gradient(#ffd23b,#ffd23b) 19px 19px/13px 13px no-repeat",
-      "linear-gradient(#d4d0c8,#d4d0c8) 0 12px/9px 9px no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 12px 12px/9px 9px no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 24px 12px/9px 9px no-repeat",
-    ];
+const svg48 = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">${inner}</svg>`;
+
+/* Les deux dessins de chaque menu : g (gauche) et d (droite) = n° de couche du grand cadre, « o:nom » = dessin original de secours, « s:nom » = dessin composé. `drop` = couches retirées du fond (elles sont dessinées par les deux éléments).
+   m = mouvement quand le menu travaille, t = durée d'une boucle (s). Jamais deux dessins identiques ni de la même famille (test). */
+const SPEC = {
+  entrainement: { g: 1, d: "o:glove", drop: [1, 2], m: "sway", t: 1.6 }, combat: { g: "o:coin", d: "o:joystick", drop: [], m: "twinkle", t: 1.8 },
+  aventure: { g: 1, d: 2, drop: [1, 2], m: "bob", t: 2.6 }, renaissance: { g: "o:tourbillon", d: "o:infini", drop: [1, 2], m: "spin", t: 6, md: "pulse", td: 2.4 },
+  moneyPit: { g: 2, d: "o:shovel", drop: [2, 6], m: "pulse", t: 2.2 }, augmentations: { g: 1, d: 2, drop: [1, 2], m: "pulse", t: 2 },
+  avance: { g: 4, d: 5, drop: [4, 5], m: "bob", t: 2.2 }, machine: { g: 1, d: 2, drop: [1, 2], m: "spin", t: 9 },
+  sang: { g: 3, d: "o:drop", drop: [3, 4], m: "bob", t: 2.4 }, tower: { g: 1, d: "o:tower", drop: [1, 2], m: "bob", t: 2.8, tour: true },
+  daycare: { g: "s:bocal", d: "o:gem", drop: [], m: "bob", t: 3 }, challenges: { g: 1, d: "o:flag", drop: [1, 2], m: "sway", t: 1.4 },
+  titans: { g: 1, d: "o:skull", drop: [1, 2], m: "pulse", t: 2.6 }, ngu: { g: 0, d: 1, drop: [0, 1], m: "pulse", t: 3.2 },
+  wandoos: { g: "s:logo", d: "s:boutons", drop: [2, 3, 4, 5, 6, 7, 8], m: "twinkle", t: 1.6 }, yggdrasil: { g: "o:arbre", d: "o:pommeor", drop: [], m: "sway", t: 3.6 },
+  diggers: { g: 1, d: 5, drop: [1, 2, 5, 6], m: "sway", t: 1.5 }, beards: { g: "o:comb", d: "o:scissors", drop: [], m: "sway", t: 3 },
+  macguffins: { g: 2, d: "o:puzzle", drop: [2, 3], m: "pulse", t: 2.4 }, hacks: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 1.4 },
+  questing: { g: 1, d: 2, drop: [1, 2], m: "sway", t: 3 }, quirks: { g: 1, d: "o:book", drop: [1, 2], m: "bob", t: 2.2 },
+  wishes: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 2.8 }, cards: { g: 0, d: "o:chip", drop: [0, 1], m: "sway", t: 2.6 },
+  cooking: { g: 5, d: "o:chef", drop: [5, 6], m: "bob", t: 2 }, shop: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 2.4 },
+  chroniques: { g: 0, d: 1, drop: [0, 1], m: "sway", t: 3.2 }, chat: { g: 0, d: "o:mug", drop: [0, 1], m: "bob", t: 2 },
+  parametres: { g: 4, d: 6, drop: [4, 6], m: "spin", t: 10 }, admin: { g: 4, d: 5, drop: [4, 5], m: "twinkle", t: 1.6 },
+};
+/* Un dessin = { bg: valeur de background de l'élément, asp: largeur / hauteur } */
+function dessin(id, cote, t) {
+  const sp = SPEC[id], v = sp[cote], L = CADRES[id], a = t.lighter, b = t.light;
+  if (typeof v === "number") {
+    const c = L[v];
+    if (c.startsWith("url(")) {
+      const u = urlDe(c), m = decodeURIComponent(u).match(/viewBox="[\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)"/);
+      return { bg: sp.tour ? `${u} 0 0/100% 33.3333% repeat-y` : `${u} center/contain no-repeat`, asp: m ? Number(m[1]) / Number(m[2]) : 1 };
+    }
+    return { bg: degrade(c) + " no-repeat", asp: 1 }; /* gradient du cadre (pièce d'or...) */
   }
-  return sp.c.map((i) => `${urlDe(L[i])} center/contain no-repeat`);
+  const [genre, nom] = v.split(":");
+  if (genre === "o") return { bg: encode(svg48(ORIG[nom](...(PAL[nom] || [a, b])))) + " center/contain no-repeat", asp: 1 };
+  if (nom === "bocal") return { bg: encode(BOCAL("#a8f0cc")) + " center/contain no-repeat", asp: 1 };
+  if (nom === "logo") return { bg: "linear-gradient(#ff3b3b,#ff3b3b) 8% 8%/38% 38% no-repeat,linear-gradient(#5bd13a,#5bd13a) 54% 8%/38% 38% no-repeat,linear-gradient(#3b7bff,#3b7bff) 8% 54%/38% 38% no-repeat,linear-gradient(#ffd23b,#ffd23b) 54% 54%/38% 38% no-repeat", asp: 1 };
+  if (nom === "boutons") return { bg: "linear-gradient(#d4d0c8,#d4d0c8) 0 36%/28% 28% no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 36% 36%/28% 28% no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 72% 36%/28% 28% no-repeat", asp: 1.2 };
+  throw new Error("dessin inconnu " + v);
 }
 
-/* largeur du dessin : sa forme (viewBox) à la hauteur du bouton, bornée pour ne pas manger le nom du menu */
-const largeur = (bg) => {
-  const m = bg.match(/^url\("data:image\/svg\+xml,([^"]*)"\)/);
-  if (!m) return 34;
-  const v = decodeURIComponent(m[1]).match(/viewBox="[\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)"/);
-  return v ? Math.round(Math.max(26, Math.min(40, 34 * Number(v[1]) / Number(v[2])))) : 34;
-};
 const MENUS = Object.keys(T);
 for (const id of Object.keys(DOM)) if (!SPEC[id]) throw new Error("menu sans dessins : " + id);
-for (const id of MENUS) if (!SPEC[id] || !CADRES[id] && !["daycare"].includes(id)) throw new Error("cadre introuvable : " + id);
+for (const id of MENUS) if (!SPEC[id] || (!CADRES[id] && id !== "daycare")) throw new Error("cadre introuvable : " + id);
 
 const out = [];
 const sel = (id, part = "") => `${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1${part}`;
-const ringG = (r) => `linear-gradient(90deg,${r.join(",")})`;
 const MOUVEMENTS = {
   sway: "0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}",
   bob: "0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}",
@@ -139,33 +190,52 @@ const MOUVEMENTS = {
   twinkle: "0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.08)}",
   spin: "from{transform:rotate(0)}to{transform:rotate(360deg)}",
 };
+const echelle = (v, k) => v.replace(/(-?\d*\.?\d+)px/g, (_, n) => (Math.round(Number(n) * k * 100) / 100) + "px");
 
-out.push(`/* Boutons de la barre de sélection des menus (Norman, 2026-10-30) : chaque petit bouton montre les DEUX GRANDS DESSINS du cadre de titre de son menu (mêmes images, extraites des feuilles des cadres par tools/gen-menus-boutons-v1.mjs).
+out.push(`/* Boutons de la barre de sélection des menus (Norman, 2026-10-30) : chaque petit bouton est le GRAND CADRE DE TITRE de son menu, réduit (même fond, mêmes illustrations, même liseré, même couleur de nom ; fichier généré par tools/gen-menus-boutons-v1.mjs depuis les feuilles des cadres).
+   Toute longueur du fond est en cqw (part de la largeur du bouton) : la composition garde sa forme quelle que soit la taille du bouton. Deux dessins DIFFÉRENTS par bouton (jamais le même emblème deux fois).
    Menu OUVERT (.active) = il brille ; menu fermé = sombre ; menu qui TRAVAILLE (.travail-v1, posée par la barre) = les deux dessins s'animent, ouvert ou non, mais jamais du seul fait d'être ouvert.
    Fichier généré : ne pas l'éditer à la main. Gardes : aucun mot-clé de priorité forcée, boucles parfaites (départ = arrivée, rotation complète), coupées en mouvement réduit, aucun texte (règle n°2), décor fourni par le HTML du bouton (règle n°4). */
 ${P}{position:relative;isolation:isolate}
-${P} .soreal-idle-nav-deco-v1{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none;filter:brightness(.5) saturate(.55);transition:filter .25s}
+${P} .soreal-idle-nav-deco-v1{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none;container-type:size;filter:brightness(.5) saturate(.55);transition:filter .25s}
 ${P}.active .soreal-idle-nav-deco-v1{filter:brightness(1.2) saturate(1.2)}
-${P} .soreal-idle-nav-deco-v1::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 0 34%,rgba(255,255,255,.09) 34% 48%,transparent 48% 60%)}
+${P} .soreal-idle-nav-deco-v1::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 ${P} .soreal-idle-nav-deco-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:2px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{position:absolute;top:0;bottom:0;margin:auto 0;width:34px;height:34px;display:block;transform-origin:50% 50%}
-${P} .soreal-idle-nav-deco-v1 .nb-g{left:5px}
-${P} .soreal-idle-nav-deco-v1 .nb-d{right:5px}
+${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{position:absolute;top:0;bottom:0;margin:auto 0;height:62cqh;max-width:30cqw;display:block;transform-origin:50% 50%}
+${P} .soreal-idle-nav-deco-v1 .nb-g{left:3cqw}
+${P} .soreal-idle-nav-deco-v1 .nb-d{right:3cqw}
 ${P}.active .soreal-idle-nav-deco-v1 .nb-g,${P}.active .soreal-idle-nav-deco-v1 .nb-d{filter:drop-shadow(0 0 4px rgba(255,255,255,.55)) drop-shadow(0 0 7px var(--nb-dom-v1,#fff))}
-${P} .soreal-idle-nav-cadre-v2{visibility:hidden}
-${P} .soreal-idle-nav-texte-v2{padding-right:38px}`);
+${P} .soreal-idle-nav-cadre-v2{display:none}
+${P}{align-items:center;justify-content:center}
+${P} .soreal-idle-nav-texte-v2{flex:1 1 auto;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 36px;margin-left:6px}
+${P} .soreal-idle-nav-texte-v2 b{text-align:center;margin:0}
+@media (max-width:700px){${P} .soreal-idle-nav-texte-v2{margin-left:2px}}`);
+/* Le bouton garde son retrait d'origine (gauche 8 px, droite 14 px, imposé par la feuille des thèmes) : 6 px de marge à gauche du texte (2 px sur téléphone, où le retrait est 4 / 6 px) recentrent le nom (garde de mesure dans le test). */
 
 for (const id of MENUS) {
-  const t = T[id], sp = SPEC[id];
-  const [g, d] = dessins(id);
+  const t = T[id], sp = SPEC[id], L = CADRES[id] || [];
+  const g = dessin(id, "g", t), d = dessin(id, "d", t);
+  const fond = L.filter((_, i) => !sp.drop.includes(i)).map(reduit);
+  const ring = LISERES[id] || `linear-gradient(90deg,${t.ring.join(",")}) border-box`;
   out.push(`\n/* ${id} */`);
-  out.push(`${sel(id)}{--nb-dom-v1:${t.dom};background:radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%) 0 0/auto no-repeat,linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%);box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
-  out.push(`${sel(id, "::after")}{background:${ringG(t.ring)} border-box}`);
+  const base = fond.length ? fond.join(",") : `radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%),linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%)`;
+  out.push(`${sel(id)}{--nb-dom-v1:${t.dom};box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
+  out.push(`${sel(id, "::before")}{background:${base}}`);
+  out.push(`${sel(id, "::after")}{background:${ring}}`);
   out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
-  out.push(`${sel(id, " .nb-g")}{background:${g};width:${largeur(g)}px}`);
-  out.push(`${sel(id, " .nb-d")}{background:${d};width:${largeur(d)}px${id === "beards" ? ";scale:-1 1" : ""}}`);
-  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${sp.m === "spin" ? "linear" : "ease-in-out"} infinite}`);
-  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_${sp.m} ${sp.t}s ${sp.m === "spin" ? "linear" : "ease-in-out"} infinite;animation-delay:-${(sp.t / 2).toFixed(2)}s${sp.m === "spin" ? ";animation-direction:reverse" : ""}}`);
+  const taille = (x) => (sp.tour ? ";height:100cqh;width:46.7cqh;max-width:none;aspect-ratio:auto" : `;aspect-ratio:${x.asp.toFixed(3)}`);   /* ITOPOD : la grande tour (3 étages entiers, ni coupée ni rapetissée) sur toute la hauteur, comme son cadre */
+  out.push(`${sel(id, " .nb-g")}{background:${g.bg}${taille(g)}}`);
+  out.push(`${sel(id, " .nb-d")}{background:${d.bg}${taille(d)}}`);
+  /* le nom du menu : couleur, halo et contour du titre du grand cadre, réduits (même famille de police : feuille itopod) */
+  const ti = TITRES[id] || {};
+  const regles = [`color:${ti.color || "#fff"}`];
+  regles.push(`text-shadow:${ti["text-shadow"] ? echelle(ti["text-shadow"], 0.45) : "0 1px 0 rgba(0,0,0,.85)," + `0 0 6px rgba(${t.glow},.8)`}`);
+  if (ti["-webkit-text-stroke"]) regles.push(`-webkit-text-stroke:${echelle(ti["-webkit-text-stroke"], 0.5)}`);
+  if (ti["font-family"]) regles.push(`font-family:${ti["font-family"]}`);
+  out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-texte-v2 b{${regles.join(";")}}`);
+  const md = sp.md || sp.m, td = sp.td || sp.t, ease = sp.m === "spin" ? "linear" : "ease-in-out", easeD = md === "spin" ? "linear" : "ease-in-out";
+  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${ease} infinite}`);
+  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_${md} ${td}s ${easeD} infinite;animation-delay:-${(td / 2).toFixed(2)}s${md === "spin" ? ";animation-direction:reverse" : ""}}`);
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);
