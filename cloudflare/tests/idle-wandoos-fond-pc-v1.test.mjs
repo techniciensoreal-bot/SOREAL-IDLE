@@ -18,4 +18,5 @@ assert.ok(css.includes("var(--i-photo,linear-gradient(transparent,transparent))"
 assert.ok(css.includes('@media (min-width:701px){\n  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="wandoos"]{--i-photo:url("/wandoos/fond-pc-v1.webp") center/cover no-repeat}'), "ordinateur seulement (le téléphone garde son fond)");
 assert.ok(css.includes('[data-menu="wandoos"]>.soreal-idle-page-head-v28{position:relative;z-index:1;margin:10px 22px 14px}'), "le titre est au-dessus et rentré : le dessin dépasse en haut, à gauche et à droite");
 assert.ok(hd.includes("/wandoos/*\n  Cache-Control: public, max-age=31536000, immutable"), "image versionnée par son nom : cache immuable");
+assert.ok(css.includes('[data-menu="wandoos"]{--i-a:#84cc16;--i-b:#3f6212;'), "le titre prend la couleur du menu (le vert du bouton, --nav-color #84cc16)");
 console.log("idle-wandoos-fond-pc-v1 : OK");
