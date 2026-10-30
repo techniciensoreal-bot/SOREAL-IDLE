@@ -47,6 +47,9 @@
             'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'
           ]},

@@ -737,7 +737,11 @@
           item.id,item.definitionId,item.kind,item.level,item.power,
           item.toughness,item.special,item.specialType,item.strength,
           item.boostType,item.basePower,item.baseToughness,item.wikiItemId,
-          item.name,item.nom,item.slot,item.set,Boolean(item.locked),item._idlePendingV160||0
+          item.name,item.nom,item.slot,item.set,Boolean(item.locked),item._idlePendingV160||0,
+          /* Norman (2026-10-30) : « un objet niveau 100 totalement boosté garde son point ; je dois changer d'onglet et revenir ». Le dernier boost peut ne changer que les Specials secondaires : sans ces champs la case gardait sa version et n'était pas redessinée. */
+          Boolean(item.fullyMaxed),
+          item.boostManque?[Boolean(item.boostManque.power),Boolean(item.boostManque.toughness),Boolean(item.boostManque.special)]:0,
+          Array.isArray(item.specialsAll)?item.specialsAll.map(function(sv){return sv&&sv.value;}):0
         ]));
       }
 
