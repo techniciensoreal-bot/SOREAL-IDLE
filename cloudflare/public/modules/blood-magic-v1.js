@@ -122,6 +122,39 @@ function sangAfficheV1_(){
   return t.aff;
 }
 window.__sangAfficheV1__=sangAfficheV1_;
+/*
+ * Lancer un sort demande confirmation (Norman, 2026-10-30 : « si je collecte 180K de sang, le bouton indique toujours 60K, il ne se met pas à jour ; retire l'information du bouton, rends le sang collecté plus visible et ouvre un popup de confirmation, au thème de Blood Magic »).
+ * Le montant du popup est lu AU CLIC (sangAfficheV1_ = la valeur vivante de la tuile « Sang collecté ») : jamais un chiffre figé au dernier rendu de la page.
+ */
+window.__lancerSortBloodIdleV1__=function(id){
+  try{
+    const H=window.__SOREAL_IDLE_META_HOST_V130__;
+    const ancien=document.getElementById('sorealIdleBloodConfirmV1');if(ancien)ancien.remove();
+    const nomEl=document.querySelector('.soreal-idle-blood-sort-v1[data-sort="'+String(id).replace(/"/g,'')+'"] .soreal-idle-blood-sort-tete-v1 b');
+    const nom=nomEl?nomEl.textContent.trim():'ce sort';
+    const sang=H.formatGrandNombreIdleV70_(sangAfficheV1_());
+    const fond=document.createElement('div');
+    fond.id='sorealIdleBloodConfirmV1';fond.className='bm-confirme-fond-v1';fond.setAttribute('role','dialog');fond.setAttribute('aria-modal','true');
+    const boite=document.createElement('div');boite.className='bm-confirme-v1';
+    const titre=document.createElement('div');titre.className='bm-confirme-titre-v1';titre.textContent='Lancer ce sort ?';
+    const sort=document.createElement('div');sort.className='bm-confirme-sort-v1';sort.textContent=nom;
+    const texte=document.createElement('div');texte.className='bm-confirme-texte-v1';texte.appendChild(document.createTextNode('Tout ton sang sera dépensé :'));
+    const montant=document.createElement('b');montant.className='bm-confirme-sang-v1';montant.textContent='🩸 '+sang;texte.appendChild(montant);
+    const actions=document.createElement('div');actions.className='bm-confirme-actions-v1';
+    const annuler=document.createElement('button');annuler.type='button';annuler.className='bm-confirme-annuler-v1';annuler.textContent='Annuler';
+    const lancer=document.createElement('button');lancer.type='button';lancer.className='bm-confirme-lancer-v1';lancer.textContent='Lancer le sort';
+    const touche=function(e){if(e.key==='Escape'){e.stopPropagation();fermer();}};
+    const fermer=function(){document.removeEventListener('keydown',touche,true);fond.remove();};
+    annuler.onclick=fermer;
+    lancer.onclick=function(){fermer();window.__actionMetaV47__({action:'castBloodSpell',spell:id});};
+    fond.addEventListener('click',function(e){if(e.target===fond)fermer();});
+    document.addEventListener('keydown',touche,true);
+    actions.appendChild(annuler);actions.appendChild(lancer);
+    [titre,sort,texte,actions].forEach(function(n){boite.appendChild(n);});
+    fond.appendChild(boite);document.body.appendChild(fond);
+    lancer.focus();
+  }catch(_e){}
+};
 if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(function(){
   if(document.hidden)return;
   const el=document.getElementById('sorealIdleBloodTotalV1');
@@ -559,7 +592,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__actionMetaV47__({action:\'castBloodSpell\',spell:\''+sp.id+'\'})"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer avec tout mon sang ('+H.formatGrandNombreIdleV70_(blood)+')'):'Pas assez de sang')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__lancerSortBloodIdleV1__(\''+sp.id+'\')"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer le sort'):'Pas assez de sang')+'</button></div>';
         }).join('')+'</div>';
 
         /*
@@ -576,7 +609,7 @@ function creer(hote){
             'Le sang s’accumule dans ta réserve. Lancer un sort utilise tout ton sang d’un coup.',
             'Le sang est remis à zéro à chaque Rebirth. Les effets des sorts ne durent que jusqu’au prochain Rebirth, sauf ceux marqués « permanent ».'
           ])+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">🩸 Sang<b id="sorealIdleBloodTotalV1">'+H.formatGrandNombreIdleV70_(sangAfficheV1_())+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b id="sorealIdleBloodOrV1">'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
+          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28 bm-sang-total-v1">🩸 Sang collecté<b id="sorealIdleBloodTotalV1">'+H.formatGrandNombreIdleV70_(sangAfficheV1_())+'</b></div><div class="soreal-idle-summary-v28">🪙 Gold<b id="sorealIdleBloodOrV1">'+H.formatGrandNombreIdleV70_(gold)+'</b></div></div>'+
           sortsHtml+
           toolbar+
           '<h3 class="soreal-idle-blood-titre-v1">Rituels <small>produisent du sang</small></h3><div class="bm-grille">'+rituelsHtml+'</div>'+

@@ -51,6 +51,7 @@
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Lancer un sort demande maintenant confirmation : une fenêtre aux couleurs du sang indique combien de sang sera dépensé, avec le chiffre du moment (le bouton affichait un ancien montant). Le « Sang collecté » est plus gros et plus visible, et le bouton ne porte plus de chiffre.',
             'La sangsue ne reste plus bloquée : quand elle crachait un jet puis que plus aucune boule n’apparaissait dans son ventre, elle repart toute seule (plus besoin de changer de page et de revenir).'
           ]}
         ]
