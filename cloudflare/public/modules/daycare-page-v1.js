@@ -228,7 +228,7 @@
       '</div></div>'+
       '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
       resume+detail+
-      reprise+choix+'</div></div>';
+      '</div><div class="gd-sous">'+reprise+choix+'</div></div>';
   }
 
   /* L'étagère parle (modules/etagere-personnage-v1.js, phrases « phrases:etagere ») : {D} on lui confie un objet, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
@@ -346,7 +346,9 @@
       '.gd-scene::after{content:"";position:absolute;left:20%;width:60%;bottom:-2.5%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
       '.gd-scene>.gd-armoire{position:absolute;left:13.5%;width:73%;max-width:none;bottom:0;margin:0}',
       '.gd-plein>.gd-intro,.gd-plein>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28,.gd-plein>details,.gd-plein>.gd-choix-cadre{background:rgba(16,8,2,.72);border-radius:10px}.gd-plein>.gd-intro{padding:8px 10px;color:#f1e4c6}',
-      '@media (min-width:900px){.gd-plein{background-image:url(/garderie/fond-grenier-pc-v2.webp?v=1);min-height:760px}.gd-scene{max-width:860px;aspect-ratio:860/470}.gd-scene::after{left:35%;width:30%}.gd-scene>.gd-armoire{left:35%;width:30%}}',
+      /* PC (Norman, 2026-10-30 : « l'armoire est trop petite : zoome le décor, mets les informations sur les côtés, l'armoire sur l'OMBRE ; l'emplacement est primordial ») : le cadre a le rapport 4:3 ; le décor (1564 x 1006, ombre du plancher centrée en 800, 712) est agrandi de 1,515 fois et décalé pour que l'ombre tombe EXACTEMENT sous les pieds de l'armoire (centre 50 % x 92 % du cadre) ; l'armoire fait 40 % de la largeur du cadre ; titre et texte à gauche, résumé et détail à droite. */
+      '.gd-sous{padding:12px 18px 18px}',
+      '@media (min-width:900px){.gd-plein{container-type:inline-size;max-width:860px;margin:0 auto;aspect-ratio:4/3;min-height:0;padding:0;background:none}.gd-plein::before{content:"";position:absolute;inset:0;z-index:0;background:url(/garderie/fond-grenier-pc-v2.webp?v=2) -27.5cqw 0/151.5cqw auto no-repeat}.gd-cadre,.gd-haut{display:contents}.gd-haut .gd-onglets{position:absolute;z-index:3;top:18px;left:18px;right:18px;margin:0}.gd-haut .gd-titre{position:absolute;z-index:3;top:74px;left:18px;width:calc(28cqw - 18px);margin:0;justify-content:flex-start;font-size:21px;white-space:nowrap;box-sizing:border-box;padding:5px 10px;border-radius:10px;background:rgba(16,8,2,.72)}.gd-scene{position:absolute;inset:0;z-index:2;max-width:none;aspect-ratio:auto;margin:0}.gd-scene::after{display:none}.gd-scene>.gd-armoire{left:30%;width:40%;bottom:5.33%}.gd-plein>.gd-intro{position:absolute;z-index:3;top:112px;box-sizing:border-box;left:18px;width:calc(28cqw - 18px);margin:0;text-align:left}.gd-plein>.soreal-idle-summary-grid-v28{position:absolute;z-index:3;top:76px;right:18px;width:calc(28cqw - 18px);grid-template-columns:1fr;gap:6px;margin:0}.gd-plein>details{position:absolute;z-index:3;top:262px;right:18px;width:calc(28cqw - 18px);box-sizing:border-box;margin:0}.gd-sous{margin:0 auto;max-width:860px}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
