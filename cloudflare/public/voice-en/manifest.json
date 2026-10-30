@@ -1,66 +1,82 @@
 {
  "01": {
   "texte": "*WHOOMPH*",
-  "duree": 1.14
+  "duree": 1.23,
+  "tempo": 0.92
  },
  "02": {
   "texte": "As you come to,",
-  "duree": 0.98
+  "duree": 1.05,
+  "tempo": 0.92
  },
  "03": {
   "texte": "the first thing you notice is the taste of copper in your mouth.",
-  "duree": 2.52
+  "duree": 2.77,
+  "tempo": 0.92
  },
  "04": {
   "texte": "The second being the stench of raw sewage all around you.",
-  "duree": 2.76
+  "duree": 3.0,
+  "tempo": 0.92
  },
  "05": {
   "texte": "You get up, nursing your busted lip, and rubbing your head,",
-  "duree": 2.42
+  "duree": 2.63,
+  "tempo": 0.92
  },
  "06": {
   "texte": "which feels like it was lovingly caressed by a concrete block.",
-  "duree": 2.9
+  "duree": 3.14,
+  "tempo": 0.92
  },
  "07": {
   "texte": "You try to remember how you got to... well, wherever this place is. You realize with a surprising lack of panic, that you've forgotten who you are.",
-  "duree": 6.0
+  "duree": 6.53,
+  "tempo": 0.92
  },
  "08": {
   "texte": "Based on the state you're in right now, you're thinking they must have been an asshole.",
-  "duree": 3.44
+  "duree": 3.74,
+  "tempo": 0.92
  },
  "09": {
   "texte": "Tossed in a gross pit of sewage...",
-  "duree": 1.58
+  "duree": 1.75,
+  "tempo": 0.92
  },
  "10": {
   "texte": "At least for the short term you have an objective: finding a way out of here. It kind of feels like the right thing to do. You try to stand up",
-  "duree": 5.6
+  "duree": 6.11,
+  "tempo": 0.92
  },
  "11": {
   "texte": "but your knees shake, buckle,",
-  "duree": 2.76
+  "duree": 3.0,
+  "tempo": 0.92
  },
  "12": {
   "texte": "and you fall back down.",
-  "duree": 0.8
+  "duree": 0.87,
+  "tempo": 0.92
  },
  "13": {
   "texte": "It's only now that you feel the weakness in your body. Not any normal sort of weakness, like when you stand up too quickly and get light headed, or have your arm ripped off in an industrial accident.",
-  "duree": 7.56
+  "duree": 8.24,
+  "tempo": 0.92
  },
  "14": {
   "texte": "No, you feel like *something* has sapped away the majority of your strength.",
-  "duree": 3.28
+  "duree": 3.56,
+  "tempo": 0.92
  },
  "15": {
   "texte": "Well, there's nothing to do but to try to regain some of that strength and get out of here.",
-  "duree": 5.76
+  "duree": 6.25,
+  "tempo": 0.92
  },
  "16": {
   "texte": "Maybe hitting a big white button marked \"PLAY\" will let you do something fun.",
-  "duree": 2.96
+  "duree": 3.23,
+  "tempo": 0.92
  }
 }
