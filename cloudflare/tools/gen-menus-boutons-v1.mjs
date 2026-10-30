@@ -136,6 +136,9 @@ ORIG.puzzle = () => '<g id="puzzle"><defs><linearGradient id="vb" x1="0" y1="0" 
 /* Yggdrasil : l'arbre (tronc brun, feuillage vert) à gauche, la pomme dorée (avec son reflet) à droite */
 ORIG.arbre = () => '<g id="arbre"><path d="M20 44c1-8 1-14-1-20h10c-2 6-2 12-1 20z" fill="#7a4a21"/><path d="M22 44c.5-8 .5-14-1-20h2c-1 6-1 12-.5 20z" fill="#5a3412"/><circle cx="24" cy="14" r="10" fill="#2f9e44"/><circle cx="13" cy="21" r="8" fill="#3fae4a"/><circle cx="35" cy="21" r="8" fill="#37a24a"/><circle cx="24" cy="23" r="9" fill="#4cc15a"/><circle cx="20" cy="11" r="3" fill="#8be28f" opacity=".7"/></g>';
 ORIG.pommeor = () => '<g id="pommeor"><path d="M24 15c-6-5-17-2-17 10 0 10 7 20 13 20 2 0 3-1 4-1s2 1 4 1c6 0 13-10 13-20 0-12-11-15-17-10z" fill="#f2b705"/><path d="M24 15c-6-5-17-2-17 10 0 6 2 11 5 15 1-12 6-21 12-25z" fill="#ffd84d"/><ellipse cx="15" cy="23" rx="3" ry="6" fill="#fff6c9" opacity=".85" transform="rotate(-20 15 23)"/><path d="M24 15c0-5 2-8 6-10" stroke="#6b3e12" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30 7c4-2 9 0 9 0-1 4-6 5-9 3z" fill="#3fae4a"/></g>';
+const svg64 = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 48" width="64" height="48">${inner}</svg>`;
+/* Gant de boxe (Entraînement) : rouge, poignet blanc à lacet, reflet ; tourné vers la gauche (il frappe de droite à gauche). Même dessin pour le bouton et le grand cadre. */
+ORIG.gant = () => '<g id="gant"><path d="M44 10C44 6 38 4 30 4 15 4 5 11 5 24s9 20 24 20h15z" fill="#d62828"/><path d="M44 10C44 6 38 4 30 4 15 4 5 11 5 24c0 4 1 8 3 11 3-14 14-24 36-25z" fill="#ef4b4b"/><path d="M9 22c4-8 12-12 20-12" stroke="#ffb3b3" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85"/><path d="M10 30c5 5 14 7 24 5" stroke="#8d1b1b" stroke-width="2.5" fill="none" stroke-linecap="round"/><rect x="44" y="10" width="15" height="34" rx="3" fill="#f6f6f6" stroke="#b8bcc4" stroke-width="1.2"/><path d="M47 18h9M47 24h9M47 30h9" stroke="#c9ccd3" stroke-width="2" stroke-linecap="round"/></g>';
 const BOCAL = (c) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8 3h8v2.2c0 .5-.3.9-.7 1.2C14.2 7 14 7.6 14 8.2V9c1.9.8 3 2.5 3 4.6V18a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-4.4C7 11.5 8.100 9.800 10 9v-.8c0-.6-.2-1.200-1.300-1.800C8.300 6.100 8 5.700 8 5.200z" fill="#bfeaff" fill-opacity=".45" stroke="#7fc8e8" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.300 14.500c1.500-1 3-1 4.700 0s3.200 1 4.700 0" fill="none" stroke="#3fd17a" stroke-width="1.9" stroke-linecap="round"/></svg>`;
 const encode = (s) => `url("data:image/svg+xml,${encodeURIComponent(s).replace(/\(/g, "%28").replace(/\)/g, "%29")}")`;
 const svg48 = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">${inner}</svg>`;
@@ -143,7 +146,7 @@ const svg48 = (inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4
 /* Les deux dessins de chaque menu : g (gauche) et d (droite) = n° de couche du grand cadre, « o:nom » = dessin original de secours, « s:nom » = dessin composé. `drop` = couches retirées du fond (elles sont dessinées par les deux éléments).
    m = mouvement quand le menu travaille, t = durée d'une boucle (s). Jamais deux dessins identiques ni de la même famille (test). */
 const SPEC = {
-  entrainement: { g: 1, d: "o:glove", drop: [1, 2], m: "sway", t: 1.6 }, combat: { g: "o:coin", d: "o:joystick", drop: [], m: "twinkle", t: 1.8 },
+  entrainement: { g: 1, d: "o:gant", drop: [1, 2], m: "sway", t: 1.6 }, combat: { g: "o:coin", d: "o:joystick", drop: [], m: "twinkle", t: 1.8 },
   aventure: { g: 1, d: 2, drop: [1, 2], m: "bob", t: 2.6 }, renaissance: { g: "o:tourbillon", d: "o:infini", drop: [1, 2], m: "spin", t: 6, md: "pulse", td: 2.4 },
   moneyPit: { g: 2, d: "o:shovel", drop: [2, 6], m: "pulse", t: 2.2 }, augmentations: { g: 1, d: 2, drop: [1, 2], m: "pulse", t: 2 },
   avance: { g: 4, d: 5, drop: [4, 5], m: "bob", t: 2.2 }, machine: { g: 1, d: 2, drop: [1, 2], m: "spin", t: 9 },
@@ -171,6 +174,7 @@ function dessin(id, cote, t) {
     return { bg: degrade(c) + " no-repeat", asp: 1 }; /* gradient du cadre (pièce d'or...) */
   }
   const [genre, nom] = v.split(":");
+  if (genre === "o" && nom === "gant") return { bg: encode(svg64(ORIG.gant())) + " center/contain no-repeat", asp: 64 / 48 };
   if (genre === "o") return { bg: encode(svg48(ORIG[nom](...(PAL[nom] || [a, b])))) + " center/contain no-repeat", asp: 1 };
   if (nom === "bocal") return { bg: encode(BOCAL("#a8f0cc")) + " center/contain no-repeat", asp: 1 };
   if (nom === "logo") return { bg: "linear-gradient(#ff3b3b,#ff3b3b) 8% 8%/38% 38% no-repeat,linear-gradient(#5bd13a,#5bd13a) 54% 8%/38% 38% no-repeat,linear-gradient(#3b7bff,#3b7bff) 8% 54%/38% 38% no-repeat,linear-gradient(#ffd23b,#ffd23b) 54% 54%/38% 38% no-repeat", asp: 1 };
@@ -249,11 +253,38 @@ writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n
    Sang (cadre de rituel propre) et Garderie (pas de grand cadre) ne sont pas touchés. Fichier généré : ne pas l'éditer à la main. */
 const HEAD = "html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28";
 const gros = [];
+/* Entraînement, version PC (Norman, 2026-10-30) : à GAUCHE l'haltère, collée au bord et coupée par lui (≈ 40 % de sa largeur dépasse), dont la barre MONTE ET DESCEND comme un développé (cycle de 2,4 s) ; à DROITE un GANT DE BOXE
+   (même dessin que le petit bouton) collé au bord droit, légèrement coupé, qui FRAPPE de droite à gauche (un coup rapide, retour plus lent, pause ; un coup toutes les 1,8 s). Une seule animation de background-position
+   de 7,2 s (3 cycles d'haltère = 4 coups de gant, boucle parfaite : 0 % = 100 %), échantillonnée toutes les 0,1 s ; seules ces deux couches bougent (mêmes tailles de tuile pour toutes), sur le ::before existant : rien n'est ajouté
+   au DOM. Largeur de l'haltère = 1,384 × la hauteur du cadre (156 × 70 à 62 % de la hauteur), celle du gant = 0,827 × la hauteur (64 × 48) ; hauteur du cadre = celle des 4 barres. Téléphone inchangé. */
+function haltere(r) {
+  const L = CADRES.entrainement.slice();
+  const position = (c) => { const k = c.startsWith("url(") ? c.indexOf('")') + 2 : degrade(c).length; const tail = (c.slice(k).split("/")[0] || "").trim().replace(/\s*(no-repeat|repeat-x|repeat-y|repeat)$/, ""); return tail || "0% 0%"; };
+  const H = "var(--ent-h)", REPOS = "46%", COUPE_G = -0.55, COUPE_D = 0.125, COURSE = 0.5;
+  L[1] = urlDe(L[1]) + ` calc(${H} * ${COUPE_G}) ${REPOS}/auto 62% no-repeat`;
+  L[2] = encode(svg64(ORIG.gant())) + ` calc(100% + ${H} * ${COUPE_D}) 50%/auto 62% no-repeat`;
+  const lisse = (x) => x * x * (3 - 2 * x);
+  const coup = (p) => (p < 0.2 ? Math.sqrt(p / 0.2) : p < 0.3 ? 1 : p < 0.8 ? 1 - lisse((p - 0.3) / 0.5) : 0); /* 0 = repos, 1 = coup à fond */
+  const pos = (dy, s) => L.map((c, i) => (i === 1 ? `calc(${H} * ${COUPE_G}) calc(${REPOS} + ${dy.toFixed(2)}px)` : i === 2 ? `calc(100% + ${H} * ${(COUPE_D - COURSE * s).toFixed(4)}) 50%` : position(c))).join(",");
+  const T = 7.2, N = 72, cadres = [];
+  for (let k = 0; k <= N; k++) {
+    const tt = k * T / N;
+    cadres.push(`${(k * 100 / N).toFixed(3).replace(/\.?0+$/, "")}%{background-position:${pos(7 * Math.cos(2 * Math.PI * tt / 2.4), coup((tt % 1.8) / 1.8 * 1.8))}}`);
+  }
+  const reglePc = r(L).replace("{background:", "{--ent-h:calc(var(--hud-4barres-v1,131px) - var(--vide-haut-v1,14px));animation:nbEntHalteres 7.2s linear infinite;background:");
+  return [
+    `@media (min-width:561px){${reglePc}}`,
+    `@media (max-width:560px){${r(CADRES2.entrainement || CADRES.entrainement)}}`,
+    `@keyframes nbEntHalteres{${cadres.join("")}}`,
+    `@media (prefers-reduced-motion:reduce){${HEAD}[data-menu="entrainement"] .soreal-idle-page-head-v28[data-entete-menu][data-entete-menu]::before{animation:none}}`,
+  ];
+}
 const COUVERTS = [];
 for (const id of MENUS) {
   if (["combat", "sang", "daycare"].includes(id) || !CADRES[id]) continue;
   COUVERTS.push(id);
   const r = (L) => `${HEAD}[data-menu="${id}"] .soreal-idle-page-head-v28[data-entete-menu][data-entete-menu]::before{background:${L.join(",")}}`;
+  if (id === "entrainement") { gros.push(...haltere(r)); continue; }
   gros.push(`@media (min-width:561px){${r(CADRES[id])}}`, `@media (max-width:560px){${r(CADRES2[id] || CADRES[id])}}`);
 }
 writeFileSync("cloudflare/public/soreal-idle-entetes-miniature-v1.css", `/* Cadres de titre à toute largeur (voir tools/gen-menus-boutons-v1.mjs) : même fond que la miniature du bouton, dimensionné sur la hauteur. Menus : ${COUVERTS.join(", ")}. */\n` + gros.join("\n") + "\n");

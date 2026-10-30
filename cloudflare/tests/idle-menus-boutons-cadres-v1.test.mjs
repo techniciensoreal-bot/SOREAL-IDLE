@@ -201,4 +201,35 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   assert.ok(ngu.includes("140px 140px") && ngu.includes("130px 130px") && !/circle at 13% 36%/.test(ngu), "NGU : soleil et lune à rayons dimensionnés sur la hauteur (pas de gros cercles flous en % de la largeur)");
   assert.ok(gros.includes("@media (max-width:560px)"), "version téléphone du fond");
 }
+/* Entraînement, version PC : à GAUCHE l'haltère collée au bord et coupée par lui, barre qui monte et descend (cycle 2,4 s) ; à DROITE un gant de boxe collé au bord droit, coupé, qui frappe de droite à gauche
+   (un coup toutes les 1,8 s : coup rapide, retour lent, pause) ; une seule animation de 7,2 s = 3 cycles d'haltère = 4 coups, boucle parfaite ; coupée en mouvement réduit ; téléphone inchangé */
+{
+  const gros = readFileSync("cloudflare/public/soreal-idle-entetes-miniature-v1.css", "utf8");
+  const pc = gros.match(/@media \(min-width:561px\)\{[^\n]*data-menu="entrainement"[^\n]*\}\}/)[0];
+  assert.ok(/calc\(var\(--ent-h\) \* -0\.55\) 46%\/auto 62% no-repeat/.test(pc), "haltère de gauche collée au bord gauche et coupée par lui");
+  assert.ok(/url\("data:image\/svg\+xml,[^"]*"\) calc\(100% \+ var\(--ent-h\) \* 0\.125\) 50%\/auto 62% no-repeat/.test(pc) && pc.includes('id%3D%22gant%22') && pc.includes("%23d62828"), "gant de boxe rouge à droite, légèrement coupé par le bord droit");
+  assert.ok(pc.includes("animation:nbEntHalteres 7.2s linear infinite"), "une animation de 7,2 s");
+  const kf = gros.match(/@keyframes nbEntHalteres\{(.*)\}\n/)[1];
+  const cadres = [...kf.matchAll(/([\d.]+)%\{background-position:([^}]*)\}/g)].map((m) => [Number(m[1]), m[2].split(/,(?![^(]*\))/).map((x) => x.trim())]);
+  assert.equal(cadres.length, 73, "73 images clés (toutes les 0,1 s)");
+  assert.ok(cadres.every(([, l]) => l.length === 8), "une position par couche (8 couches)");
+  assert.equal(cadres[0][0], 0); assert.equal(cadres[72][0], 100);
+  assert.deepEqual(cadres[0][1], cadres[72][1], "boucle parfaite : départ = arrivée");
+  const bouge = new Set();
+  for (const [, l] of cadres) l.forEach((x, i) => { if (x !== cadres[0][1][i]) bouge.add(i); });
+  assert.deepEqual([...bouge].sort(), [1, 2], "seules l'haltère (couche 1) et le gant (couche 2) bougent");
+  /* haltère : même position à 2,4 s qu'à 0 ; gant : même position à 1,8 s qu'à 0 (cycles désynchronisés dans la même boucle) */
+  assert.equal(cadres[24][1][1], cadres[0][1][1], "haltère : cycle de 2,4 s");
+  assert.equal(cadres[18][1][2], cadres[0][1][2], "gant : un coup toutes les 1,8 s");
+  assert.notEqual(cadres[8][1][1], cadres[0][1][1], "la barre bouge");
+  const gant = cadres.slice(0, 19).map(([, l]) => Number(l[2].match(/\* (-?[\d.]+)\) 50%/)[1]));
+  assert.ok(Math.min(...gant) < gant[0] - 0.4, "le gant avance vers la gauche (coup)");
+  assert.ok(gant.slice(0, 3).every((x, i, a) => i === 0 || x < a[i - 1]) && gant.indexOf(Math.min(...gant)) <= 3, "coup rapide (en 0,2 s)");
+  assert.ok(gant.slice(-10).every((x) => x === gant[0]), "pause avant le coup suivant");
+  const mobile = gros.match(/@media \(max-width:560px\)\{[^\n]*data-menu="entrainement"[^\n]*\}\}/)[0];
+  assert.ok(!mobile.includes("animation") && !mobile.includes("--ent-h"), "téléphone inchangé");
+  assert.ok(/prefers-reduced-motion:reduce\)\{[^\n]*data-menu="entrainement"[^\n]*::before\{animation:none\}/.test(gros), "mouvement réduit coupé");
+  /* le petit bouton montre le même gant */
+  assert.ok(sansCom.includes('id%3D%22gant%22'), "le bouton Entraînement montre le même gant");
+}
 console.log("ok idle-menus-boutons-cadres-v1");
