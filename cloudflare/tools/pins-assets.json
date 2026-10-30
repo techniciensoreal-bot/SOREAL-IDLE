@@ -616,12 +616,12 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 16,
-  "sha": "d6c2584f86ad2b2020342ba48342d587ad2f0705"
+  "pin": 17,
+  "sha": "f3cc14d7d9df4d62d57d3b6a95cc675e8b7f3e82"
  },
  "/modules/ui-navigation-v1.js": {
-  "pin": 8,
-  "sha": "888e34cf50080d20ff32995ee3da332800198126"
+  "pin": 9,
+  "sha": "1c66e76d0bd78d450d38d7f9af3716b2b4d35033"
  },
  "/modules/ui-noyau-v1.js": {
   "pin": 14,
@@ -740,8 +740,8 @@
   "sha": "8857058e812dfe119cd367219c08f4a6d92ac051"
  },
  "/soreal-idle-menus-boutons-v1.css": {
-  "pin": 7,
-  "sha": "66619803a25f70c1e380f3f6e8badc2840e200ae"
+  "pin": 9,
+  "sha": "56bdb903fca5e354d252eca521ff64207dfc61ab"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

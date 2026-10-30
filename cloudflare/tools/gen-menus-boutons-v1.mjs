@@ -1,44 +1,9 @@
-/* Générateur de cloudflare/public/soreal-idle-menus-boutons-v1.css (boutons de la barre de sélection des menus) */
-import { writeFileSync } from "node:fs";
+/* Générateur de cloudflare/public/soreal-idle-menus-boutons-v1.css (boutons de la barre de sélection des menus).
+   Norman (2026-10-30) : le petit bouton montre les DEUX GRANDS DESSINS du cadre de titre de son menu (extraits par ce script des feuilles soreal-idle-entetes-*.css / itopod.css, jamais redessinés).
+   Ouvert = il brille ; fermé = sombre ; il TRAVAILLE = ses deux dessins s'animent (classe travail-v1, posée par la barre). */
+import { readFileSync, writeFileSync } from "node:fs";
 
 const P = "html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28";
-const svgUrl = (s) => `url("data:image/svg+xml,${encodeURIComponent(s).replace(/\(/g, "%28").replace(/\)/g, "%29")}")`;
-const svg = (w, h, inner) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${inner}</svg>`;
-const g = (a, b, c) => `<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs>`;
-
-/* motifs 48x48 : dessins originaux, fond transparent, teintes du menu (c1 clair, c2 foncé) */
-const M = {
-  entrainement: (a, b) => `<rect x="3" y="21" width="42" height="6" rx="2" fill="${b}"/><rect x="6" y="11" width="8" height="26" rx="2" fill="${a}"/><rect x="34" y="11" width="8" height="26" rx="2" fill="${a}"/><rect x="1" y="16" width="5" height="16" rx="2" fill="${b}"/><rect x="42" y="16" width="5" height="16" rx="2" fill="${b}"/>`,
-  combat: (a, b) => `<circle cx="24" cy="12" r="7" fill="${a}"/><rect x="22" y="18" width="4" height="16" fill="${b}"/><rect x="10" y="32" width="28" height="10" rx="3" fill="${b}"/><circle cx="17" cy="37" r="2.5" fill="${a}"/><circle cx="31" cy="37" r="2.5" fill="${a}"/>`,
-  aventure: (a, b) => `<path d="M4 38 L18 14 L28 30 L34 22 L44 38 Z" fill="${b}"/><circle cx="36" cy="10" r="5" fill="${a}"/><path d="M4 38 L44 38" stroke="${a}" stroke-width="2"/><path d="M8 44 q8 -6 16 0 t16 0" fill="none" stroke="${a}" stroke-width="2" stroke-dasharray="2 3"/>`,
-  renaissance: (a, b) => `<path d="M24 6 a18 18 0 1 1 -16 10" fill="none" stroke="${a}" stroke-width="5" stroke-linecap="round"/><path d="M2 12 L12 22 L16 8 Z" fill="${a}"/><circle cx="24" cy="24" r="5" fill="${b}"/>`,
-  moneyPit: (a, b) => `<ellipse cx="24" cy="30" rx="20" ry="9" fill="${b}"/><ellipse cx="24" cy="28" rx="14" ry="5" fill="#000"/><circle cx="24" cy="12" r="8" fill="${a}" stroke="${b}" stroke-width="2"/><rect x="22.5" y="7" width="3" height="10" fill="${b}"/>`,
-  augmentations: (a, b) => `<path d="M8 20 L24 6 L40 20" fill="none" stroke="${b}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".45"/><path d="M8 34 L24 20 L40 34" fill="none" stroke="${a}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 46 L24 34 L40 46" fill="none" stroke="${a}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>`,
-  avance: (a, b) => `<path d="M18 4 H30 V18 L42 40 Q44 46 38 46 H10 Q4 46 6 40 L18 18 Z" fill="none" stroke="${a}" stroke-width="3" stroke-linejoin="round"/><path d="M12 34 H36 L42 40 Q44 46 38 46 H10 Q4 46 6 40 Z" fill="${b}" opacity=".85"/><circle cx="20" cy="38" r="2.5" fill="#fff"/><circle cx="28" cy="40" r="2" fill="#fff"/>`,
-  machine: (a, b) => `<circle cx="24" cy="24" r="14" fill="${b}"/><g fill="${b}"><rect x="21" y="2" width="6" height="9"/><rect x="21" y="37" width="6" height="9"/><rect x="2" y="21" width="9" height="6"/><rect x="37" y="21" width="9" height="6"/><rect x="21" y="2" width="6" height="9" transform="rotate(45 24 24)"/><rect x="21" y="37" width="6" height="9" transform="rotate(45 24 24)"/><rect x="2" y="21" width="9" height="6" transform="rotate(45 24 24)"/><rect x="37" y="21" width="9" height="6" transform="rotate(45 24 24)"/></g><circle cx="24" cy="24" r="8" fill="#0b1c22"/><path d="M24 24 V17 M24 24 L29 27" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`,
-  sang: (a, b) => `<path d="M24 3 C24 3 8 22 8 31 a16 16 0 0 0 32 0 C40 22 24 3 24 3 Z" fill="${b}"/><path d="M17 30 a8 8 0 0 0 7 9" fill="none" stroke="${a}" stroke-width="3" stroke-linecap="round" opacity=".7"/>`,
-  tower: (a, b) => `<path d="M18 46 V14 L24 4 L30 14 V46 Z" fill="${b}"/><rect x="21" y="18" width="6" height="5" fill="${a}"/><rect x="21" y="28" width="6" height="5" fill="${a}"/><rect x="21" y="38" width="6" height="5" fill="${a}"/><path d="M24 2 V-4" stroke="${a}"/><circle cx="38" cy="10" r="1.6" fill="${a}"/><circle cx="9" cy="16" r="1.3" fill="${a}"/><circle cx="40" cy="30" r="1.1" fill="${a}"/>`,
-  daycare: (a, b) => `<rect x="12" y="4" width="24" height="6" rx="2" fill="${b}"/><path d="M13 10 H35 V38 Q35 44 29 44 H19 Q13 44 13 38 Z" fill="none" stroke="${a}" stroke-width="3"/><path d="M15 26 H33 V38 Q33 42 29 42 H19 Q15 42 15 38 Z" fill="${b}" opacity=".8"/>`,
-  challenges: (a, b) => `<rect x="9" y="3" width="4" height="44" fill="${b}"/><path d="M13 5 H41 V27 H13 Z" fill="${a}"/><g fill="#14100c"><rect x="13" y="5" width="7" height="7"/><rect x="27" y="5" width="7" height="7"/><rect x="20" y="12" width="7" height="7"/><rect x="34" y="12" width="7" height="7"/><rect x="13" y="19" width="7" height="8"/><rect x="27" y="19" width="7" height="8"/></g>`,
-  titans: (a, b) => `<path d="M6 8 Q12 26 18 22 L18 36 Q24 42 30 36 L30 22 Q36 26 42 8 Q34 12 30 16 H18 Q14 12 6 8 Z" fill="${b}"/><circle cx="19" cy="28" r="2.6" fill="${a}"/><circle cx="29" cy="28" r="2.6" fill="${a}"/>`,
-  ngu: (a, b) => `<path d="M24 24 C30 10 44 10 44 24 C44 38 30 38 24 24 C18 10 4 10 4 24 C4 38 18 38 24 24 Z" fill="none" stroke="${a}" stroke-width="5" stroke-linejoin="round"/><circle cx="12" cy="24" r="2.5" fill="${b}"/><circle cx="36" cy="24" r="2.5" fill="${b}"/>`,
-  wandoos: (a, b) => `<rect x="3" y="6" width="42" height="28" rx="3" fill="#06150c" stroke="${a}" stroke-width="3"/><path d="M10 14 L18 20 L10 26 M22 27 H34" fill="none" stroke="${a}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><rect x="18" y="36" width="12" height="4" fill="${b}"/><rect x="12" y="40" width="24" height="4" rx="1" fill="${b}"/>`,
-  yggdrasil: (a, b) => `<path d="M22 46 V24 M26 46 V28" stroke="${b}" stroke-width="5"/><circle cx="24" cy="16" r="12" fill="${a}"/><circle cx="14" cy="22" r="8" fill="${b}"/><circle cx="34" cy="22" r="8" fill="${b}"/><path d="M24 46 q-8 -2 -14 -6 M24 46 q8 -2 14 -6" fill="none" stroke="${b}" stroke-width="3"/>`,
-  diggers: (a, b) => `<path d="M8 12 Q24 0 40 12" fill="none" stroke="${a}" stroke-width="6" stroke-linecap="round"/><rect x="21.5" y="8" width="5" height="38" rx="2" fill="${b}"/><path d="M36 20 L44 14 L42 24 Z" fill="${a}"/>`,
-  beards: (a, b) => `<path d="M6 12 Q6 40 24 46 Q42 40 42 12 Q34 20 24 20 Q14 20 6 12 Z" fill="${b}"/><path d="M16 30 Q24 36 32 30" fill="none" stroke="${a}" stroke-width="3" stroke-linecap="round"/><path d="M12 24 q-2 8 2 12 M36 24 q2 8 -2 12" fill="none" stroke="${a}" stroke-width="2" stroke-linecap="round"/>`,
-  macguffins: (a, b) => `<path d="M6 16 H18 a5 5 0 1 1 10 0 H40 V28 a5 5 0 1 0 0 10 V44 H6 Z" fill="${b}"/><path d="M6 16 H18 a5 5 0 1 1 10 0 H40" fill="none" stroke="${a}" stroke-width="2.4"/>`,
-  hacks: (a, b) => `<path d="M18 4 H30 V16 L42 38 Q44 46 36 46 H12 Q4 46 6 38 L18 16 Z" fill="none" stroke="${a}" stroke-width="3" stroke-linejoin="round"/><path d="M12 34 H36 L42 38 Q44 46 36 46 H12 Q4 46 6 38 Z" fill="${b}"/><circle cx="21" cy="38" r="2.4" fill="#d6ffe3"/><circle cx="29" cy="40" r="1.8" fill="#d6ffe3"/>`,
-  questing: (a, b) => `<rect x="9" y="5" width="30" height="38" rx="3" fill="${a}" opacity=".9"/><path d="M15 15 H33 M15 22 H33 M15 29 H27" stroke="${b}" stroke-width="3" stroke-linecap="round"/><circle cx="34" cy="38" r="6" fill="#b3261e" stroke="${b}" stroke-width="1.5"/>`,
-  quirks: (a, b) => `<path d="M6 8 Q15 4 24 10 Q33 4 42 8 V40 Q33 36 24 42 Q15 36 6 40 Z" fill="${b}"/><path d="M24 10 V42" stroke="${a}" stroke-width="2"/><path d="M12 16 Q17 14 20 17 M12 23 Q17 21 20 24 M28 17 Q31 14 36 16 M28 24 Q31 21 36 23" fill="none" stroke="${a}" stroke-width="2" stroke-linecap="round"/>`,
-  wishes: (a, b) => `<path d="M24 2 L29.5 17 L45 18 L33 28 L37 44 L24 35 L11 44 L15 28 L3 18 L18.5 17 Z" fill="${a}" stroke="${b}" stroke-width="2" stroke-linejoin="round"/>`,
-  cards: (a, b) => `<rect x="9" y="3" width="30" height="42" rx="4" fill="#f6f1e2" stroke="${b}" stroke-width="2"/><path d="M24 12 C24 12 14 22 14 28 a5 5 0 0 0 9 3 L22 38 H26 L25 31 a5 5 0 0 0 9 -3 C34 22 24 12 24 12 Z" fill="${a}"/>`,
-  cooking: (a, b) => `<path d="M6 20 H42 V30 Q42 42 30 42 H18 Q6 42 6 30 Z" fill="${b}"/><rect x="2" y="17" width="44" height="5" rx="2.5" fill="${a}"/><path d="M42 24 H46 M6 24 H2" stroke="${a}" stroke-width="3" stroke-linecap="round"/><path d="M16 12 q-3 -4 0 -8 M24 12 q-3 -4 0 -8 M32 12 q-3 -4 0 -8" fill="none" stroke="${a}" stroke-width="2.4" stroke-linecap="round"/>`,
-  shop: (a, b) => `<circle cx="24" cy="21" r="15" fill="${b}"/><circle cx="24" cy="21" r="15" fill="none" stroke="${a}" stroke-width="2.4"/><path d="M16 15 Q20 10 26 11" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/><path d="M12 42 Q24 36 36 42 L38 46 H10 Z" fill="${a}"/>`,
-  chroniques: (a, b) => `<path d="M10 8 Q10 4 15 4 H36 V38 H15 Q10 38 10 42 Q10 46 15 46 H38" fill="none" stroke="${a}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 12 H30 M16 19 H30 M16 26 H26" stroke="${b}" stroke-width="2.6" stroke-linecap="round"/>`,
-  chat: (a, b) => `<path d="M6 8 H42 a3 3 0 0 1 3 3 V30 a3 3 0 0 1 -3 3 H22 L12 43 V33 H6 a3 3 0 0 1 -3 -3 V11 a3 3 0 0 1 3 -3 Z" fill="${b}" stroke="${a}" stroke-width="2.4" stroke-linejoin="round"/><circle cx="16" cy="21" r="2.6" fill="${a}"/><circle cx="24" cy="21" r="2.6" fill="${a}"/><circle cx="32" cy="21" r="2.6" fill="${a}"/>`,
-  parametres: (a, b) => `<circle cx="24" cy="24" r="14" fill="${b}"/><g fill="${b}"><rect x="21" y="2" width="6" height="9"/><rect x="21" y="37" width="6" height="9"/><rect x="2" y="21" width="9" height="6"/><rect x="37" y="21" width="9" height="6"/><rect x="21" y="2" width="6" height="9" transform="rotate(45 24 24)"/><rect x="21" y="37" width="6" height="9" transform="rotate(45 24 24)"/><rect x="2" y="21" width="9" height="6" transform="rotate(45 24 24)"/><rect x="37" y="21" width="9" height="6" transform="rotate(45 24 24)"/></g><circle cx="24" cy="24" r="14" fill="none" stroke="${a}" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="#161b27" stroke="${a}" stroke-width="2"/>`,
-  admin: (a, b) => `<rect x="3" y="6" width="42" height="34" rx="3" fill="#0a0c12" stroke="${a}" stroke-width="3"/><path d="M10 16 L18 22 L10 28" fill="none" stroke="${a}" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="22" y="27" width="12" height="3.4" fill="${a}"/><rect x="14" y="43" width="20" height="3" rx="1.5" fill="${b}"/>`,
-};
 
 /* thèmes : bg [haut, milieu, bas], ring [couleurs du dégradé 90deg], glow, a (clair), b (foncé), anim */
 const T = {
@@ -85,108 +50,124 @@ for (const [id,d] of Object.entries(DOM)) {
   t.dom=d; t.light=light; t.lighter=lighter; t.dark=dark;
   t.bg=[mix(d,"#000000",Math.max(0,base-.12)),mix(d,"#000000",base+.1),mix(d,"#000000",Math.min(.9,base+.22))];
   t.ring=[dark,d,lighter,d,dark]; t.glow=hx(d).join(","); t.a=lighter; t.b=d;
-  const an=t.anim, k=an.k;
-  if(Array.isArray(an.c)) an.c=[light,lighter,d].slice(0,an.c.length>2?3:2).concat(an.c.length>3?[]:[]); else if(typeof an.c==="string"){ an.c = an.c.startsWith("rgba")?"rgba("+hx(light).join(",")+",.55)":an.c.startsWith("#")?lighter:hx(light).join(","); }
 }
-const MENUS = Object.keys(T);
-const out = [];
-const kf = [];
-const sel = (id, part = "") => `${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1${part}`;
-const ringG = (r) => `linear-gradient(90deg,${r.join(",")})`;
-const MASK_V = "linear-gradient(180deg,transparent,#000 26%,#000 74%,transparent)";
-const MASK_H = "linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)";
 
-out.push(`/* Boutons de la barre de sélection des menus (Norman, 2026-10-30) : chaque bouton reprend, en version mini, le cadre de titre de son menu (mêmes couleurs, anneau lumineux, dessin) ; le menu ACTIF a en plus une animation à lui. Fichier généré : la source est le script de dessin « gen-nav » (scratchpad), puis relu.
-   Règles : aucun mot-clé de priorité forcée (le décor est un élément à part posé dans le bouton, il ne combat aucune règle existante) ; animations en boucle PARFAITE (une période exacte de la tuile, masques en dégradé aux bouts, rotation 360°, ou départ et arrivée identiques et invisibles) ; coupées par prefers-reduced-motion ; décor fourni par le HTML du bouton (règle n°4 : rien à remettre après un redessin) ; seuls les boutons des menus déjà débloqués existent (règle n°2). Tailles en pourcentage : même rendu sur téléphone (126 x 41) et dans la colonne de gauche du PC. */
-@property --nb-ang-v1{syntax:"<angle>";inherits:false;initial-value:0deg}
-${P}{position:relative;isolation:isolate}
-${P} .soreal-idle-nav-deco-v1{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none}
-${P} .soreal-idle-nav-deco-v1::before,${P} .soreal-idle-nav-deco-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
-${P} .soreal-idle-nav-deco-v1::before{display:none}
-${P}.active .soreal-idle-nav-deco-v1::before{display:block}
-${P} .soreal-idle-nav-deco-v1::after{padding:2px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:.72}
-${P}.active .soreal-idle-nav-deco-v1::after{opacity:1}`);
-
-for (const id of MENUS) {
-  const t = T[id], an = t.anim;
-  const motif = svgUrl(svg(48, 48, `<g opacity=".7">${M[id](t.a, t.b)}</g>`));
-  const k = an.k;
-  const name = `nbV1_${id}`;
-  /* décor de base (identique actif / inactif) : voile de lecture, reflet, lueur du bas, dégradé du menu */
-  const motifOpacityFix = k === "spin" ? "" : `${motif} calc(100% - 6px) 50%/auto 58% no-repeat,`;
-  const base = `${motifOpacityFix}linear-gradient(115deg,transparent 0 34%,rgba(255,255,255,.09) 34% 48%,transparent 48% 54%,rgba(255,255,255,.04) 54% 60%,transparent 60%) 0 0/auto no-repeat,radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%) 0 0/auto no-repeat,linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 60%,${t.bg[2]} 100%) 0 0/auto no-repeat`;
-  out.push(`\n/* ${id} */`);
-  out.push(`${sel(id)}{--nb-dom-v1:${t.dom};background:${base};box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
-  out.push(`${sel(id, "::after")}{background:${ringG(t.ring)} border-box}`);
-  out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
-  const bef = sel(id, "::before");
-  const act = `${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1::before`;
-  const dot = (c, x, y, r) => `radial-gradient(circle at ${x}% ${y}%,${c} 0 ${r}px,transparent ${r + 1.1}px)`;
-  const reduce = [];
-  if (k === "rise" || k === "fall") {
-    const TX = 38, TY = an.soft ? 34 : 30, r = an.big ? 2 : 1.4, dir = k === "rise" ? -1 : 1;
-    const c = an.c, L = [dot(c[0], 16, 78, r), dot(c[1], 52, 38, r * 0.8), dot(c[2], 84, 88, r * 1.15), dot(c[1], 34, 12, r * 0.7), dot(c[0], 70, 58, r * 0.9)];
-    const bg = L.map((l) => `${l} 0 0/${TX}px ${TY}px`).join(",");
-    out.push(`${act}{background:${bg};-webkit-mask:${MASK_V};mask:${MASK_V};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:${L.map(() => "0 0").join(",")}}to{background-position:${L.map(() => `0 ${dir * TY}px`).join(",")}}}`);
-  } else if (k === "sweep") {
-    const c = an.c;
-    out.push(`${act}{background:linear-gradient(100deg,transparent 42%,rgba(${c},.55) 50%,transparent 58%) 100% 0/300% 100% no-repeat;animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:100% 0}to{background-position:0 0}}`);
-  } else if (k === "wave") {
-    const w = svgUrl(svg(60, 14, `<path d="M0 7 Q15 -3 30 7 T60 7" fill="none" stroke="${an.c}" stroke-width="1.8"/>`));
-    const w2 = svgUrl(svg(60, 14, `<path d="M0 7 Q15 -3 30 7 T60 7" fill="none" stroke="${an.c}" stroke-width="1.2" opacity=".6"/>`));
-    out.push(`${act}{background:${w} 0 70%/60px 14px repeat-x,${w2} 0 88%/60px 14px repeat-x;-webkit-mask:${MASK_H};mask:${MASK_H};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 70%,0 88%}to{background-position:60px 70%,60px 88%}}`);
-  } else if (k === "spin") {
-    const gear = svgUrl(svg(48, 48, M[id](t.a, t.b)));
-    out.push(`${bef}{display:block;inset:11% 6% 11% auto;aspect-ratio:1/1;border-radius:0;opacity:.75;background:${gear} center/contain no-repeat}`);
-    out.push(`${act}{animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
-  } else if (k === "pulse") {
-    out.push(`${act}{background:radial-gradient(ellipse 70% 120% at 82% 50%,rgba(${an.c},.6),transparent 70%);animation:${name} ${an.t}s ease-in-out infinite}`);
-    kf.push(`@keyframes ${name}{0%,100%{opacity:.15}50%{opacity:1}}`);
-  } else if (k === "flag") {
-    const ck = `conic-gradient(rgba(255,255,255,.55) 25%,transparent 0 50%,rgba(255,255,255,.55) 0 75%,transparent 0) 0 0/14px 14px repeat-x`;
-    out.push(`${act}{inset:auto 0 0 0;height:34%;background:${ck};-webkit-mask:${MASK_H};mask:${MASK_H};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 0}to{background-position:14px 0}}`);
-  } else if (k === "scan") {
-    out.push(`${act}{background:linear-gradient(180deg,transparent 43%,rgba(${hx(t.lighter).join(",")},.34) 50%,transparent 57%) 0 100%/100% 300% no-repeat,repeating-linear-gradient(0deg,transparent 0 2px,rgba(${hx(t.light).join(",")},.13) 2px 4px) 0 0/100% 4px;animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 100%,0 0}to{background-position:0 0,0 4px}}`);
-  } else if (k === "matrix") {
-    const col = (x, h, o) => svgUrl(svg(12, 26, `<defs><linearGradient id="m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${t.dom}" stop-opacity="0"/><stop offset="1" stop-color="${t.lighter}" stop-opacity="${o}"/></linearGradient></defs><rect x="${x}" y="${26 - h}" width="2" height="${h}" fill="url(#m)"/>`));
-    const a1 = col(2, 14, 0.95), a2 = col(8, 9, 0.7);
-    out.push(`${act}{background:${a1} 0 0/12px 26px repeat,${a2} 0 11px/12px 26px repeat;-webkit-mask:${MASK_V};mask:${MASK_V};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 0,0 11px}to{background-position:0 26px,0 37px}}`);
-  } else if (k === "twinkle") {
-    const c = an.c;
-    const L = [dot(c[0], 14, 30, 1.6), dot(c[1], 46, 70, 1.3), dot(c[0], 72, 24, 1.5), dot(c[1], 90, 62, 1.2), dot(c[0], 30, 86, 1.1)];
-    out.push(`${act}{background:${L.map((l) => `${l} 0 0/100% 100% no-repeat`).join(",")};animation:${name} ${an.t}s ease-in-out infinite}`);
-    kf.push(`@keyframes ${name}{0%,100%{opacity:.1;transform:scale(.85)}50%{opacity:1;transform:scale(1.05)}}`);
-  } else if (k === "beam") {
-    out.push(`${act}{inset:-120% -20%;border-radius:0;background:conic-gradient(from 0deg,transparent 0 8%,rgba(${hx(t.lighter).join(",")},.5) 14%,transparent 22% 50%,rgba(${hx(t.dom).join(",")},.7) 64%,transparent 72%);animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
-  } else if (k === "trail") {
-    const d = `radial-gradient(circle,${an.c} 0 1.7px,transparent 2.4px) 0 86%/11px 7px repeat-x`;
-    out.push(`${act}{background:${d};-webkit-mask:${MASK_H};mask:${MASK_H};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 86%}to{background-position:-11px 86%}}`);
-  } else if (k === "rainbow") {
-    out.push(`${act}{inset:auto 0 0 0;height:30%;background:linear-gradient(90deg,#ff7ad9,#ffd24a 17%,#7dffb0 34%,#5eead4 51%,#8ab4ff 68%,#c89bff 85%,#ff7ad9) 0 0/80px 100% repeat-x;opacity:.7;-webkit-mask:${MASK_H};mask:${MASK_H};animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{from{background-position:0 0}to{background-position:80px 0}}`);
-  } else if (k === "shoot") {
-    out.push(`${act}{background:linear-gradient(160deg,transparent 46%,rgba(255,255,255,.9) 50%,transparent 54%) 100% 0/300% 100% no-repeat,${dot(t.lighter, 20, 26, 1.4)} 0 0/100% 100% no-repeat,${dot(t.light, 64, 72, 1.3)} 0 0/100% 100% no-repeat;animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{0%,55%{background-position:100% 0,0 0,0 0}100%{background-position:0 0,0 0,0 0}}`);
-  } else if (k === "blink") {
-    out.push(`${act}{inset:auto 7% 24% auto;width:12%;height:12%;border-radius:1px;background:${t.a};box-shadow:0 0 6px ${t.a};animation:${name} ${an.t}s ease-in-out infinite}`);
-    kf.push(`@keyframes ${name}{0%,100%{opacity:0}50%{opacity:1}}`);
-  } else if (k === "chase") {
-    out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1::after{background:conic-gradient(from var(--nb-ang-v1),${t.ring.join(",")},${t.ring[0]}) border-box;animation:${name} ${an.t}s linear infinite}`);
-    kf.push(`@keyframes ${name}{to{--nb-ang-v1:360deg}}`);
-    out.push(`${act}{display:none}`);
+/* ---- extraction des dessins des grands cadres ---- */
+const SOURCES = ["entetes-a", "entetes-b", "entetes-c", "entetes-d", "itopod"];
+function coupe(s) { /* virgules de premier niveau */
+  const r = []; let d = 0, cur = "", q = false;
+  for (const ch of s) {
+    if (ch === '"') q = !q;
+    if (!q) { if (ch === "(") d++; if (ch === ")") d--; if (ch === "," && d === 0) { r.push(cur.trim()); cur = ""; continue; } }
+    cur += ch;
+  }
+  if (cur.trim()) r.push(cur.trim());
+  return r;
+}
+const CADRES = {};
+for (const f of SOURCES) {
+  const t = readFileSync(`cloudflare/public/soreal-idle-${f}.css`, "utf8");
+  const re = /\[data-menu="([A-Za-z]+)"\] (?:\.soreal-idle-page-head-v28|\.bm-entete)\[data-entete-menu\]::before\s*\{([^}]*)\}/g;
+  let m;
+  while ((m = re.exec(t))) {
+    const i = m[2].indexOf("background:");
+    if (i < 0 || CADRES[m[1]]) continue; /* la première règle est la version PC */
+    CADRES[m[1]] = coupe(m[2].slice(i + 11));
   }
 }
-/* Les cadres de titre des pages gardent leurs couleurs d'origine (Norman, 2026-10-30 : « les titres ne sont pas comme tu me les avais montrés ») : aucune recoloration. */
-out.push("\n" + kf.join("\n"));
-out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1,${P} .soreal-idle-nav-deco-v1::before,${P} .soreal-idle-nav-deco-v1::after{animation:none}\n}\n`);
+const urlDe = (couche) => { const x = couche.match(/^url\("[^"]*"\)/); if (!x) throw new Error("couche sans dessin : " + couche.slice(0, 60)); return x[0]; };
+const degrade = (couche) => { /* le dégradé seul, sans sa position ni sa taille */
+  const k = couche.indexOf("("); let d = 0;
+  for (let i = k; i < couche.length; i++) { if (couche[i] === "(") d++; if (couche[i] === ")" && --d === 0) return couche.slice(0, i + 1); }
+  throw new Error("dégradé mal fermé");
+};
+
+/* Les deux dessins de chaque menu : indices des couches du grand cadre (feuilles entetes-*, itopod). `m` = mouvement du dessin quand le menu travaille, `t` = durée d'une boucle (s). */
+const SPEC = {
+  entrainement: { c: [1, 2], m: "sway", t: 1.6 }, combat: { c: [0, 0], m: "twinkle", t: 1.8, special: "ampoules" },
+  aventure: { c: [1, 2], m: "bob", t: 2.6 }, renaissance: { c: [1, 2], m: "spin", t: 7 },
+  moneyPit: { c: [2, 6], m: "pulse", t: 2.2, special: "pieces" }, augmentations: { c: [1, 2], m: "pulse", t: 2 },
+  avance: { c: [4, 5], m: "bob", t: 2.2 }, machine: { c: [1, 2], m: "spin", t: 9 },
+  sang: { c: [3, 4], m: "bob", t: 2.4 }, tower: { c: [1, 2], m: "bob", t: 2.8 },
+  daycare: { c: [0, 0], m: "bob", t: 3, special: "bocal" }, challenges: { c: [1, 2], m: "sway", t: 1.4 },
+  titans: { c: [1, 2], m: "pulse", t: 2.6 }, ngu: { c: [0, 1], m: "pulse", t: 3.2 },
+  wandoos: { c: [0, 0], m: "twinkle", t: 1.6, special: "fenetre" }, yggdrasil: { c: [8, 9], m: "sway", t: 3.6, special: "ecorce" },
+  diggers: { c: [1, 2], m: "sway", t: 1.5 }, beards: { c: [4, 4], m: "sway", t: 3 },
+  macguffins: { c: [2, 3], m: "pulse", t: 2.4 }, hacks: { c: [1, 2], m: "twinkle", t: 1.4 },
+  questing: { c: [1, 2], m: "sway", t: 3 }, quirks: { c: [1, 2], m: "bob", t: 2.2 },
+  wishes: { c: [1, 2], m: "twinkle", t: 2.8 }, cards: { c: [0, 1], m: "sway", t: 2.6 },
+  cooking: { c: [5, 6], m: "bob", t: 2 }, shop: { c: [1, 2], m: "twinkle", t: 2.4 },
+  chroniques: { c: [0, 1], m: "sway", t: 3.2 }, chat: { c: [0, 1], m: "bob", t: 2 },
+  parametres: { c: [4, 6], m: "spin", t: 10 }, admin: { c: [4, 5], m: "twinkle", t: 1.6 },
+};
+const BOCAL = (c) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M8 3h8v2.2c0 .5-.3.9-.7 1.2C14.2 7 14 7.6 14 8.2V9c1.9.8 3 2.5 3 4.6V18a3 3 0 0 1-3 3h-4a3 3 0 0 1-3-3v-4.4C7 11.5 8.100 9.800 10 9v-.8c0-.6-.2-1.200-1.300-1.800C8.300 6.100 8 5.700 8 5.200z" fill="none" stroke="${c}" stroke-width="1.7" stroke-linejoin="round"/><path d="M7.300 14.500c1.500-1 3-1 4.700 0s3.200 1 4.700 0" fill="none" stroke="${c}" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+const encode = (s) => `url("data:image/svg+xml,${encodeURIComponent(s).replace(/\(/g, "%28").replace(/\)/g, "%29")}")`;
+/* dessin g (gauche) et d (droite) d'un menu : valeur de `background` */
+function dessins(id) {
+  const sp = SPEC[id], L = CADRES[id];
+  if (sp.special === "pieces") return [degrade(L[2]), degrade(L[6])];                         /* les deux grosses pièces d'or du cadre */
+  if (sp.special === "ampoules") return [degrade(L[0]), degrade(L[0])];                       /* les ampoules de la marquise */
+  if (sp.special === "ecorce") return [degrade(L[8]), degrade(L[9])];                                                   /* les deux troncs du cadre */
+  if (sp.special === "bocal") return [1,2].map(() => encode(BOCAL("#a8f0cc")) + " center/contain no-repeat");      /* pas de grand cadre : le bocal de la Garderie */
+  if (sp.special === "fenetre") {                                                              /* le logo coloré et les trois boutons gris de la fenêtre du cadre */
+    return [
+      "linear-gradient(#ff3b3b,#ff3b3b) 4px 4px/13px 13px no-repeat,linear-gradient(#5bd13a,#5bd13a) 19px 4px/13px 13px no-repeat,linear-gradient(#3b7bff,#3b7bff) 4px 19px/13px 13px no-repeat,linear-gradient(#ffd23b,#ffd23b) 19px 19px/13px 13px no-repeat",
+      "linear-gradient(#d4d0c8,#d4d0c8) 0 12px/9px 9px no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 12px 12px/9px 9px no-repeat,linear-gradient(#d4d0c8,#d4d0c8) 24px 12px/9px 9px no-repeat",
+    ];
+  }
+  return sp.c.map((i) => `${urlDe(L[i])} center/contain no-repeat`);
+}
+
+/* largeur du dessin : sa forme (viewBox) à la hauteur du bouton, bornée pour ne pas manger le nom du menu */
+const largeur = (bg) => {
+  const m = bg.match(/^url\("data:image\/svg\+xml,([^"]*)"\)/);
+  if (!m) return 34;
+  const v = decodeURIComponent(m[1]).match(/viewBox="[\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)"/);
+  return v ? Math.round(Math.max(26, Math.min(40, 34 * Number(v[1]) / Number(v[2])))) : 34;
+};
+const MENUS = Object.keys(T);
+for (const id of Object.keys(DOM)) if (!SPEC[id]) throw new Error("menu sans dessins : " + id);
+for (const id of MENUS) if (!SPEC[id] || !CADRES[id] && !["daycare"].includes(id)) throw new Error("cadre introuvable : " + id);
+
+const out = [];
+const sel = (id, part = "") => `${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1${part}`;
+const ringG = (r) => `linear-gradient(90deg,${r.join(",")})`;
+const MOUVEMENTS = {
+  sway: "0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}",
+  bob: "0%,100%{transform:translateY(2px)}50%{transform:translateY(-3px)}",
+  pulse: "0%,100%{transform:scale(.9)}50%{transform:scale(1.14)}",
+  twinkle: "0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.08)}",
+  spin: "from{transform:rotate(0)}to{transform:rotate(360deg)}",
+};
+
+out.push(`/* Boutons de la barre de sélection des menus (Norman, 2026-10-30) : chaque petit bouton montre les DEUX GRANDS DESSINS du cadre de titre de son menu (mêmes images, extraites des feuilles des cadres par tools/gen-menus-boutons-v1.mjs).
+   Menu OUVERT (.active) = il brille ; menu fermé = sombre ; menu qui TRAVAILLE (.travail-v1, posée par la barre) = les deux dessins s'animent, ouvert ou non, mais jamais du seul fait d'être ouvert.
+   Fichier généré : ne pas l'éditer à la main. Gardes : aucun mot-clé de priorité forcée, boucles parfaites (départ = arrivée, rotation complète), coupées en mouvement réduit, aucun texte (règle n°2), décor fourni par le HTML du bouton (règle n°4). */
+${P}{position:relative;isolation:isolate}
+${P} .soreal-idle-nav-deco-v1{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none;filter:brightness(.5) saturate(.55);transition:filter .25s}
+${P}.active .soreal-idle-nav-deco-v1{filter:brightness(1.2) saturate(1.2)}
+${P} .soreal-idle-nav-deco-v1::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 0 34%,rgba(255,255,255,.09) 34% 48%,transparent 48% 60%)}
+${P} .soreal-idle-nav-deco-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:2px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{position:absolute;top:0;bottom:0;margin:auto 0;width:34px;height:34px;display:block;transform-origin:50% 50%}
+${P} .soreal-idle-nav-deco-v1 .nb-g{left:5px}
+${P} .soreal-idle-nav-deco-v1 .nb-d{right:5px}
+${P}.active .soreal-idle-nav-deco-v1 .nb-g,${P}.active .soreal-idle-nav-deco-v1 .nb-d{filter:drop-shadow(0 0 4px rgba(255,255,255,.55)) drop-shadow(0 0 7px var(--nb-dom-v1,#fff))}
+${P} .soreal-idle-nav-cadre-v2{visibility:hidden}
+${P} .soreal-idle-nav-texte-v2{padding-right:38px}`);
+
+for (const id of MENUS) {
+  const t = T[id], sp = SPEC[id];
+  const [g, d] = dessins(id);
+  out.push(`\n/* ${id} */`);
+  out.push(`${sel(id)}{--nb-dom-v1:${t.dom};background:radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%) 0 0/auto no-repeat,linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%);box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
+  out.push(`${sel(id, "::after")}{background:${ringG(t.ring)} border-box}`);
+  out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
+  out.push(`${sel(id, " .nb-g")}{background:${g};width:${largeur(g)}px}`);
+  out.push(`${sel(id, " .nb-d")}{background:${d};width:${largeur(d)}px${id === "beards" ? ";scale:-1 1" : ""}}`);
+  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${sp.m === "spin" ? "linear" : "ease-in-out"} infinite}`);
+  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_${sp.m} ${sp.t}s ${sp.m === "spin" ? "linear" : "ease-in-out"} infinite;animation-delay:-${(sp.t / 2).toFixed(2)}s${sp.m === "spin" ? ";animation-direction:reverse" : ""}}`);
+}
+out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
+out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));
 console.log("ok", MENUS.length, "menus");

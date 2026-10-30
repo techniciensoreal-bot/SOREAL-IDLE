@@ -995,10 +995,18 @@
         return false;
       }
 
+      /*
+       * Un menu TRAVAILLE (Norman, 2026-10-30 : « les deux dessins s'animent quand le menu travaille, pas quand on va dedans ») : même état que ci-dessus (énergie / magie / ressource 3 placées, Aventure en zone dangereuse,
+       * défi actif, titan prêt, tour en marche, Renaissance en positif...), SANS les menus qu'on ne fait que consulter (Boutique, Chroniques, Chat, Réglages : ouverts = brillants, jamais animés). Classe « travail-v1 » du bouton.
+       */
+      function idleMenuTravailleV1_(id,j){
+        return !IDLE_MENUS_CONSULTES_V1[id]&&idleMenuAlimenteV1_(id,j);
+      }
+
       function actualiserNavAlimenteIdleV1_(){
         if(!REG.idleEtat)return;
         document.querySelectorAll('.soreal-idle-nav-button-v28[data-menu-id-v1]').forEach(function(b){
-          b.classList.toggle('alimente-v1',idleMenuAlimenteV1_(b.getAttribute('data-menu-id-v1'),REG.idleEtat));
+          b.classList.toggle('travail-v1',idleMenuTravailleV1_(b.getAttribute('data-menu-id-v1'),REG.idleEtat));
         });
       }
 
@@ -1684,6 +1692,7 @@
     tutorielPagesNaviguerV1_:tutorielPagesNaviguerV1_,
     annoncerNouveauxMenusIdleV1_:annoncerNouveauxMenusIdleV1_,
     idleMenuAlimenteV1_:idleMenuAlimenteV1_,
+    idleMenuTravailleV1_:idleMenuTravailleV1_,
     actualiserNavAlimenteIdleV1_:actualiserNavAlimenteIdleV1_,
     idleDisponibiliteMoneyPitV1_:idleDisponibiliteMoneyPitV1_,
     actualiserDisponibiliteMoneyPitNavIdleV1_:actualiserDisponibiliteMoneyPitNavIdleV1_,

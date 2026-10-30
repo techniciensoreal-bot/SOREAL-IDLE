@@ -39,7 +39,7 @@ for (const menu of ["entrainement", "avance", "machine", "sang", "wandoos", "ngu
   assert.ok(css.includes(`[data-effet-v1="${menu}"]`), `effet de ${menu}`);
 }
 assert.ok(css.includes(".soreal-idle-nav-button-v28.alimente-v1::before") && css.includes("conic-gradient(from var(--soreal-ang-v1)"), "lumière qui tourne autour du bouton (Augmentations)");
-assert.ok(ui.includes('data-effet-v1="${m.id}"') && ui.includes("idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''"));
+assert.ok(ui.includes('data-effet-v1="${m.id}"') && ui.includes("idleMenuTravailleV1_(m.id,j)?' travail-v1':''"));
 assert.ok(ui.includes("setInterval(actualiserNavAlimenteIdleV1_,500)"), "mise à jour en direct quand on place ou retire de l'énergie");
 assert.ok(css.includes("prefers-reduced-motion:reduce") && css.includes(".alimente-v1::after{animation:none!important}"), "respect de la préférence de mouvement réduit");
 console.log("idle-menu-alimente-effets-v1: OK");

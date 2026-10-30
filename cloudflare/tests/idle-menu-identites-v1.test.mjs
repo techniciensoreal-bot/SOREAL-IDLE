@@ -40,7 +40,7 @@ assert.equal(o.identites.chat.forme, "bulle");
 assert.equal(o.identites.combat.verbe, "Combattre");
 
 // 4. Le bouton : badge + nom + verbe, comportements d'origine conservés (classes, couleur, gestes, nouveautés, disponibilité).
-assert.ok(ui.includes('<span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>'));
+assert.ok(ui.includes('<span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2"></i></span></span>'));   // plus d'émoji (Norman, 2026-10-30) : les deux dessins du cadre du menu les remplacent
 assert.ok(ui.includes('<span class="soreal-idle-nav-texte-v2"><b>${htmlNomMenuIdleV1_(m,j)}') && ui.includes("<small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small>"));
 assert.ok(ui.includes("data-menu-id-v1=\"${m.id}\"") && ui.includes("onclick=\"window.__menuIdleV28__('${m.id}')\"") && ui.includes("--forme:${IDLE_NAV_FORMES_V1["));
 assert.ok(ui.includes("title=\"${idleHtml_(nomMenuIdleV1_(m,j)+"), "info-bulle : nom — verbe");

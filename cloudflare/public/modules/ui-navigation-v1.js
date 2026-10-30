@@ -23,6 +23,7 @@
   function idleDisponibiliteMoneyPitV1_(){return REG.idleDisponibiliteMoneyPitV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function idleMenuAlimenteV1_(){return REG.idleMenuAlimenteV1_.apply(null,arguments);}
+  function idleMenuTravailleV1_(){return REG.idleMenuTravailleV1_.apply(null,arguments);}
   function couleurBoutonShopIdleV1_(){return REG.couleurBoutonShopIdleV1_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function nomMenuIdleV1_(){return REG.nomMenuIdleV1_.apply(null,arguments);}
@@ -342,7 +343,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRenaissancePositif}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuAlimenteV1_(m.id,j)?' alimente-v1':''}"
+                  }${classeAlerteAventure}${classeMoneyPit}${classeRenaissancePositif}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuTravailleV1_(m.id,j)?' travail-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():REG.IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
@@ -351,8 +352,8 @@
                   title="${idleHtml_(nomMenuIdleV1_(m,j)+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
-                  <span class="soreal-idle-nav-deco-v1" aria-hidden="true"></span>
-                  <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2">${m.icon}</i></span></span>
+                  <span class="soreal-idle-nav-deco-v1" aria-hidden="true"><i class="nb-g"></i><i class="nb-d"></i></span>
+                  <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2"></i></span></span>
                   ${classeRenaissancePositif?ETOILES_BOUTON_RENAISSANCE_V1:''}
                   <span class="soreal-idle-nav-texte-v2"><b>${htmlNomMenuIdleV1_(m,j)}${m.id==='chat'&&window.__SOREAL_IDLE_CHAT_V1__?window.__SOREAL_IDLE_CHAT_V1__.badgeHtml():''}</b><small>${idleHtml_((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe||'')}</small></span>${nouveautesShop?window.__SOREAL_IDLE_BOUTIQUE_V1__.point('Nouveautés dans la boutique'):''}
                 </button>
