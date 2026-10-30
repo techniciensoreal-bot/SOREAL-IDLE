@@ -15,3 +15,5 @@
 # Service worker (hors ligne) : toujours revalide, jamais fige par le cache HTTP (sinon une correction ne partirait pas).
 /sw-idle-v1.js
   Cache-Control: no-cache
+/magic/*
+  Cache-Control: public, max-age=604800

@@ -189,6 +189,31 @@
         '</div>';
       }
 
+      /*
+       * Thème d'images (Norman, 2026-10-30) : « dans les options, je veux pouvoir activer le thème Magic ». Remplace les images des boss, des zones et des zones sûres (modules/theme-images-v1.js). Mémorisé dans le compte
+       * (clé soreal_idle_theme_v1). Ne dévoile rien : les images ne se chargent que pour ce que le joueur rencontre.
+       */
+      function htmlReglagesThemeIdleV1_(){
+        const T=window.__SOREAL_IDLE_THEME_V1__;
+        if(!T)return '';
+        const actuel=T.theme();
+        const bouton=function(code,libelle){
+          return '<button type="button" class="soreal-idle-expand-button-v25" aria-pressed="'+(actuel===code?'true':'false')+'" '+(actuel===code?'disabled ':'')+
+            'onclick="window.__changerThemeIdleV1__(\''+code+'\')">'+libelle+'</button>';
+        };
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🎨 Thème des images</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Le thème Magic remplace les images des boss, des zones et des zones sûres. La première fois que tu croises une image avec ce thème, l’ancienne reste 5 secondes, puis la nouvelle apparaît en fondu ; ensuite elle s’affiche directement.</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">'+bouton('','Normal')+bouton('magic','Magic')+'</div>'+
+        '</div>';
+      }
+      window.__changerThemeIdleV1__=function(code){
+        const T=window.__SOREAL_IDLE_THEME_V1__;
+        if(!T)return;
+        T.definir(code);
+        try{rafraichirMenuRacineIdleV28_();}catch(_e){}
+      };
+
       function htmlReglagesAudioIdleV1_(){
         const r=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
         const lignes=[
@@ -376,6 +401,7 @@
             (window.__SOREAL_IDLE_PERSO_PCT_V1__&&window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3?window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3():'');
         }else if(actif==='son'){
           corps=
+            htmlReglagesThemeIdleV1_()+
             htmlReglagesAudioIdleV1_()+
             htmlReglagesMusiqueTitanIdleV1_()+
             htmlReglagesOrageSortsIdleV1_()+

@@ -104,11 +104,15 @@
 
   function safeZoneUrl_(a){
     var p=new URLSearchParams();
-    p.set('zone',safeZoneVisualZone_(a));
+    var zoneVisuelle=safeZoneVisualZone_(a);
+    p.set('zone',zoneVisuelle);
     /* Evil : safe zones en 3D ; Sadistic : en photo (le serveur retombe sur l'image normale si elle manque). */
     var diff=window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__?window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__.difficulte():'';
     if(diff)p.set('difficulty',diff);
-    return '/api/idle/media/safe-zone?'+p.toString();
+    var base='/api/idle/media/safe-zone?'+p.toString();
+    /* Thème d'images (theme-images-v1.js) : image de base les 5 premières secondes, puis celle du thème ; Evil et Sadistic gardent les leurs. */
+    var th=window.__SOREAL_IDLE_THEME_V1__;
+    return th&&!diff?th.habiller('safe',zoneVisuelle,base):base;
   }
 
   /*

@@ -1721,9 +1721,12 @@
             ''
           );
 
-        return n
+        const base=n
           ? '/api/idle/media/boss?id='+encodeURIComponent(String(n))+(difficulte==='difficile'||difficulte==='extreme'?'&difficulty='+difficulte:'')
           : '';
+        /* Thème d'images (theme-images-v1.js) : l'image de base les 5 premières secondes, puis celle du thème (directement si déjà vue) ; seulement en difficulté normale. */
+        const theme=typeof window!=='undefined'&&window.__SOREAL_IDLE_THEME_V1__;
+        return n&&theme&&difficulte!=='difficile'&&difficulte!=='extreme'?theme.habiller('boss',n,base):base;
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-328 */
@@ -1778,6 +1781,12 @@
 
         const cacheKey=
           String(numero);
+
+        /* L'adresse suit le thème d'images : le cache ne garde pas l'adresse de base quand le thème a pris le relais. */
+        {
+          const urlActuelle=urlBossR2IdleV1_(numero);
+          if(urlActuelle&&idleBossImageCacheV36[cacheKey])idleBossImageCacheV36[cacheKey]=urlActuelle;
+        }
 
         {
           const dejaAffichee=host.querySelector('img');

@@ -22,7 +22,10 @@
   /* Evil : fonds en 3D ; Sadistic : en photo (le serveur retombe sur le fond normal si absent). */
   function url(id){
     var d=window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__?window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__.difficulte():'';
-    return '/api/idle/media/adventure-zone?name='+encodeURIComponent(String(id||''))+(d?'&difficulty='+d:'');
+    var base='/api/idle/media/adventure-zone?name='+encodeURIComponent(String(id||''))+(d?'&difficulty='+d:'');
+    /* Thème d'images (theme-images-v1.js) : fond de base les 5 premières secondes, puis celui du thème ; Evil et Sadistic gardent leurs fonds. */
+    var th=window.__SOREAL_IDLE_THEME_V1__;
+    return th&&!d?th.habiller('fonds',id,base):base;
   }
 
   function style_(){

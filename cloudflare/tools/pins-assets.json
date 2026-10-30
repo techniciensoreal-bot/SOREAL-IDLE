@@ -12,12 +12,12 @@
   "sha": "cae5a05845be3da8ce01abc06ea9a2922a5b2072"
  },
  "/modules/adventure-fond-zone-v1.js": {
-  "pin": 3,
-  "sha": "b1cb568462c14398b9783bde4c7c8dc238dfd425"
+  "pin": 4,
+  "sha": "1cabc2d046be6ca8973992e973fd4d4e94936278"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2045,
-  "sha": "ccd87fbe3ec1d998fd5b7bceb4e23c0fb4ef23e3"
+  "pin": 2046,
+  "sha": "f7f549f2657c225ce3374684a98beceae3750491"
  },
  "/modules/album-cartes-v1.js": {
   "pin": 17,
@@ -444,8 +444,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 576,
-  "sha": "de20b4ce58abb23baef342ee52bb7871f3af7f6a"
+  "pin": 577,
+  "sha": "d78527ce54deed73c4719754fccd5e86d0788732"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -499,6 +499,10 @@
   "pin": 2,
   "sha": "11ab7c375ac3765b047399bfc11832d834db3bed"
  },
+ "/modules/theme-images-v1.js": {
+  "pin": 2,
+  "sha": "60165241cfcae1906e9a6837ef5c816a01ed2a52"
+ },
  "/modules/time-format-v1.js": {
   "pin": 2,
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
@@ -516,12 +520,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 590,
-  "sha": "62700ed2e0913a1cff687561a533560b2df20af5"
+  "pin": 591,
+  "sha": "0517364d489e5696cc33b2137f02920993071ea0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 410,
-  "sha": "850c94d72e279ee5da986268b4c3e05b35ca06be"
+  "pin": 411,
+  "sha": "dd5bd1bad8bef7ff7bd37475886841cc05a30f89"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -580,8 +584,8 @@
   "sha": "ded127d72ddadc8acba230a6ef4ec97efce2d7ab"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 24,
-  "sha": "13067179d90c3703bf81dcc7044381d3c55ed59c"
+  "pin": 25,
+  "sha": "8fab0bacb3de03a99c460b1315110aac9b2dee58"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -620,8 +624,8 @@
   "sha": "0177cb0a600b48f242e07458c2c4e8aaafea358e"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 9,
-  "sha": "250886697e1cd25efe711e666ce940c9eea9e326"
+  "pin": 10,
+  "sha": "aad3e6aded8c9394347051c5c2d6cd5ce36fff82"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 6,
