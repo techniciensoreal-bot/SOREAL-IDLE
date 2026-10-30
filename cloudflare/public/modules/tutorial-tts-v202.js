@@ -63,7 +63,7 @@
     return TEXTES_VOIX_FEMME.indexOf(String(chunk||'').trim())>=0;
   }
   var voiceManifest=null;
-  var voiceStats={fichiers:0,piper:0};
+  var voiceStats={fichiers:0,piper:0,muets:0};
   var auto=false;
   var lastFingerprint='';
   var timer=0;
@@ -192,6 +192,9 @@
     return hex;
   }
 
+  /* Langue du joueur (Norman, 2026-10-31 : toutes les voix en anglais) : en « English », seules les voix ANGLAISES existent (fichiers nommés par l'empreinte du texte anglais) ; Piper est une voix FRANÇAISE, elle ne lit jamais de l'anglais. */
+  function langueAnglaise_(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
+
   function chargerManifesteVoix_(){
     if(voiceManifest)return voiceManifest;
     voiceManifest=Promise.resolve()
@@ -273,7 +276,7 @@
       if(!etape.chunk)return;
       var texte=etape.chunk;
       chargerBlocFichier_(texte).then(function(blob){
-        if(blob)return;
+        if(blob||langueAnglaise_())return;
         requestLocalNeuralAudio_(texte,'',generation,true).catch(function(){});
       });
     });
@@ -284,6 +287,8 @@
     return blocPregenere_(text,expectedGeneration).then(function(blob){
       if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
       if(blob){voiceStats.fichiers+=1;return blob;}
+      /* Anglais sans fichier de voix : MUET (null), jamais la voix française de Piper. */
+      if(langueAnglaise_()){voiceStats.muets+=1;return null;}
       voiceStats.piper+=1;
       return requestLocalNeuralAudio_(text,targetId,expectedGeneration,silent);
     });
@@ -698,7 +703,12 @@
     if(!panel)return '';
     /* Panneau dont le texte lu est construit par le jeu à partir des données (voir texteVoixTutorielIdleV1_ dans soreal-idle-ui.js). */
     if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-say')){
-      return retirerParentheses_(String(panel.getAttribute('data-soreal-tts-say')||'')).replace(/\s+/g,' ').trim();
+      var dit=String(panel.getAttribute('data-soreal-tts-say')||'');
+      /* Anglais : l'attribut n'est pas traduit par le traducteur du DOM ; on le passe par la MÊME chaîne que l'export des textes statiques (voix-en-statiques-console-v1.js), donc la même empreinte. Les chroniques de boss sont déjà l'original anglais : jamais retraduites. */
+      if(langueAnglaise_()&&!panel.hasAttribute('data-soreal-chronique-boss-id')&&!panel.hasAttribute('data-soreal-tts-sans-traduction')){
+        try{var trad=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;if(trad&&typeof trad.traduire==='function')dit=trad.traduire(dit);}catch(_e){}
+      }
+      return retirerParentheses_(dit).replace(/\s+/g,' ').trim();
     }
     /* Histoire d'un boss affichée seule (fiche du boss, collection) : lue comme la chronique complète (nom en attribut). */
     if(panel.getAttribute&&panel.hasAttribute('data-soreal-tts-chronique')){
@@ -1040,6 +1050,7 @@
         }
         return assurer(i,false).then(function(blob){
           assurer(prochainTexte(i+1),true);
+          if(!blob)return null;   /* bloc muet (anglais sans voix) : on passe au suivant */
           return playBlobWebAudioPromise_(blob,targetId,myGeneration,etape.chunk);
         }).then(function(){return jouer(i+1);});
       };
@@ -1267,7 +1278,7 @@
     resoudreVoixBalise:resoudreVoixBalise_,
     resoudreExpressionBalise:resoudreExpressionBalise_,
     resoudrePauseBalise:resoudrePauseBalise_,
-    voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper};},
+    voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper,muets:voiceStats.muets};},
     isSpeaking:function(){
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);
     },

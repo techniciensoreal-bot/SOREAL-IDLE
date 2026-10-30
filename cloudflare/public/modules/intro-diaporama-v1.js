@@ -46,7 +46,7 @@ function voixEtapes(){return modeEtape&&!langueEn();}
 /*
  * Intro ANGLAISE (Norman, 2026-10-30 : « ça doit être les textes ORIGINAUX ») : en « English », les 16 images affichent le texte d'ouverture original de NGU Idle (écran « THE BEGINNING », design/intro-original-en.json, copié en
  * /voice-en/intro-original-en.json) et chaque image joue sa voix /voice-en/intro-NN.m4a (voix par défaut du moteur, voix-en-intro-v1.py), puis passe à la suivante. Fichier manquant, lecture impossible ou son coupé : minuterie, texte seul, jamais de blocage.
- * La voix de la chronique du boss 1 reste coupée en anglais. Tant que le texte original n'est pas chargé, l'ancien texte traduit s'affiche et AUCUNE voix n'est jouée (elle lirait un autre texte).
+ * La chronique du boss 1 qui s'enchaîne se lit en anglais avec la voix ANGLAISE du lecteur (texte original du wiki, empreinte du texte anglais) ; sans fichier de voix elle reste muette (jamais Piper). Tant que le texte original n'est pas chargé, l'ancien texte traduit s'affiche et AUCUNE voix n'est jouée (elle lirait un autre texte).
  */
 var DIR_EN='/voice-en/',original=null,chargementOriginal=false,audioEn=null,fichierEn=0;
 function chargerOriginal(){
@@ -343,8 +343,10 @@ function ouvrirChronique(r,d){
   var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx)tx.textContent=d.affiche;
   var ind=r.querySelector('.id-indice');if(ind)ind.textContent='Touche l’image pour continuer';
   /* La voix lit la scène par son attribut : on lui donne le texte de la chronique (mêmes voix que celles du panneau de combat) et on relance la lecture. */
-  if(!langueEn())r.setAttribute('data-soreal-tts-say',d.say);
-  try{if(!langueEn()&&t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.read==='function')t.read();}catch(_e){}
+  /* Anglais : d.say est l'histoire ORIGINALE anglaise (le serveur envoie le texte du wiki) ; l'attribut data-soreal-tts-sans-traduction empêche le lecteur de la retraduire. La scène perd son « ignore » pour que le lecteur la lise. */
+  r.setAttribute('data-soreal-tts-say',d.say);
+  if(langueEn()){r.setAttribute('data-soreal-tts-sans-traduction','');r.removeAttribute('data-soreal-tts-ignore');}
+  try{if(t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.read==='function')t.read();}catch(_e){}
 }
 
 function planifier(){

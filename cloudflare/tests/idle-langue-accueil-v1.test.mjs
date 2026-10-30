@@ -130,7 +130,9 @@ assert.ok(intro.includes("function voixEn(){return langueEn()&&Boolean(original)
 assert.ok(/a\.onerror=function\(\)\{[^}]*repli\(\)/.test(intro) && intro.includes("setTimeout(suivante,plancher)"), "repli minuterie si fichier absent");
 assert.ok(intro.includes("NotAllowedError") && intro.includes("attenteSon=true"), "attente d'un geste si le son est bloqué");
 assert.ok(intro.includes("AV.getVoix()") && intro.includes("T.enabled()"), "volume et son coupé du joueur respectés");
-assert.ok(!/DIR_EN[^;]*chronique/.test(intro) && /if\(!langueEn\(\)\)r\.setAttribute\('data-soreal-tts-say',d\.say\)/.test(intro), "chronique du boss 1 toujours muette en anglais");
+assert.ok(!/DIR_EN[^;]*chronique/.test(intro) && /\n  r\.setAttribute\('data-soreal-tts-say',d\.say\);/.test(intro) && !/if\(!langueEn\(\)\)r\.setAttribute\('data-soreal-tts-say',d\.say\)/.test(intro), "chronique du boss 1 : plus de coupure en anglais (voix anglaise du lecteur)");
+assert.ok(intro.includes("data-soreal-tts-sans-traduction"), "l'histoire anglaise du boss 1 n'est pas retraduite par le lecteur");
+assert.ok(!/langueEn\(\)&&t&&typeof t\.enabled/.test(intro) && !/!langueEn\(\)&&t&&typeof t\.enabled/.test(intro), "la lecture de la chronique n'est plus coupée en anglais");
 // scénario : intro anglaise sur un faux navigateur, original chargé, voix jouée puis image suivante, repli si erreur
 {
   const stock = { soreal_idle_langue_v1: "en" };

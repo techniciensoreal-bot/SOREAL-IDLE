@@ -256,8 +256,8 @@
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
  "/modules/intro-diaporama-v1.js": {
-  "pin": 13,
-  "sha": "04310b0e6d765d8f62995e17aca2a7ddf057fff8"
+  "pin": 14,
+  "sha": "d9aecb380c990fb6705aa08473da8fd797082d39"
  },
  "/modules/inventaire-volet-v1.js": {
   "pin": 12,
@@ -532,12 +532,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 625,
-  "sha": "cdc76cfdcc989cfafe462396a777f00c84e27b5f"
+  "pin": 626,
+  "sha": "d0b365e5d859c6842c2067fa3b5ec5e1074f9e3f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 445,
-  "sha": "4bea7c9d6ec842c9fa6ccda4e9bfaccdee7b5fe9"
+  "pin": 446,
+  "sha": "16c8ef007fe4f4e37702cd028d1c4a8dbdfa70f0"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -552,8 +552,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 261,
-  "sha": "da91c2158ea08ad1189b15015adc8f32c9b4e644"
+  "pin": 262,
+  "sha": "f1aac5146032d48a5ecee4ee5719c7f1fbaa3681"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 12,
