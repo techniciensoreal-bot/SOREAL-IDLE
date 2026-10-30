@@ -342,6 +342,15 @@
     const firstArg=typeof liste[0]==="string"?String(liste[0]||"").trim():"";
     if(!firstArg)liste.unshift(session);
 
+    /* Application Android hors ligne : un pseudo n'est accepté que s'il est libre sur le SERVEUR (unique pour tous les joueurs) ; il y est réservé par la même occasion (modules/apk-connexion-v1.js). */
+    if(operation==="definirPseudoSorealIdle"){
+      const apk=window.__SOREAL_IDLE_APK_CONNEXION_V1__;
+      if(apk&&apk.actif()&&!apk.sansVerif()){
+        const verdict=await apk.verifierPseudo(String(liste[1]||""));
+        if(!verdict.ok)return {ok:false,code:verdict.code||"PSEUDO_REFUSE",message:verdict.message};
+      }
+    }
+
     const debutAppelDiagV1=(typeof performance!=="undefined"&&performance.now)?performance.now():0;
     try{
       /* Jeu local (modules/moteur-local-v1.js) : les actions de jeu sont calculées dans la page, par le même moteur que le serveur. */
@@ -603,9 +612,48 @@
     else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
   }
 
+  /*
+   * RELAIS de l'application Android hors ligne (Norman, 2026-10-30) : l'application ouvre cette page dans le NAVIGATEUR du téléphone avec « ?relais=<code> » (Google refuse la connexion dans sa WebView). Ici on ne lance PAS le jeu : le joueur se connecte avec
+   * Google (ou sa connexion conservée est reprise), puis le jeton de session est déposé sur le serveur sous ce code (/api/v1/relais) ; l'application le retire et continue seule. Voir modules/apk-connexion-v1.js.
+   */
+  function relaisParamsV1(){
+    try{
+      const code=String(new URLSearchParams(location.search||"").get("relais")||"").toLowerCase();
+      if(/^[0-9a-f]{24,64}$/.test(code))return code;
+    }catch(_){}
+    return "";
+  }
+  async function modeRelaisV1(code){
+    const jeton=googleSessionStockeeV1();
+    if(jeton){
+      statusV1("Connexion de l’application…",false);
+      try{
+        const reponse=await fetch("/api/v1/relais",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+jeton},body:JSON.stringify({code:code})});
+        const data=await reponse.json().catch(function(){return null;});
+        if(reponse.ok&&data&&data.ok){
+          masquerProgressionV1();
+          statusV1("✅ Compte connecté. Reviens dans l’application SOREAL NGU IDLE : elle continue toute seule.",false);
+          zoneConnexionV1().innerHTML="";
+          return;
+        }
+        throw new Error("relais");
+      }catch(_){
+        statusV1("La connexion n’a pas pu être transmise à l’application. Reviens dans l’application et réessaie.",true);
+      }
+      return;
+    }
+    const clientId=await clientIdGoogleV1();
+    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google : ton compte sera relié à l’application SOREAL NGU IDLE de ton téléphone.");
+    else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
+  }
+
   async function startV1(){
+    /* Application Android hors ligne : tant qu'aucun compte n'est relié, l'écran de connexion (l'image du jeu en plein écran) passe avant tout. */
+    try{const apk=window.__SOREAL_IDLE_APK_CONNEXION_V1__;if(apk&&apk.requis())await apk.demarrer();}catch(_e){}
     statusV1("Connexion à SOREAL NGU IDLE…",false);
     try{
+      const relais=relaisParamsV1();
+      if(relais){await modeRelaisV1(relais);return;}
       const liaison=liaisonParamsV1();
       if(liaison){await modeLiaisonV1(liaison);return;}
       const ticket=ticketFromHashV1();

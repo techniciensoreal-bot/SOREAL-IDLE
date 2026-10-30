@@ -224,7 +224,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=890db10847");
+    worker=new Worker("/moteur-local-worker-v1.js?v=dce72f4547");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -389,6 +389,21 @@
     /* Lu par le journal de diagnostic : dit POURQUOI la page joue en mode serveur (aller-retours de 0,5 à 1 s) au lieu du jeu local. */
     /* Diagnostic (administrateur) : la ligne du joueur telle que le moteur la détient, pour reproduire hors de la page un calcul lent sur un compte avancé. */
     exporterLigne:async function(){if(!vivant)return null;const s=await parler({type:"sortant",vider:false});return s&&s.cells?s.cells:null;},
+    /* Charge une partie (même format que le fichier d'« Exporter ma partie ») dans le moteur, sans interface : utilisé par la restauration de l'application Android hors ligne (modules/apk-connexion-v1.js). Le rechargement de la page est à la charge de l'appelant. */
+    chargerFichier:async function(fichier){
+      const valide=fichier&&fichier.format==="soreal-idle-partie-v1"&&Array.isArray(fichier.cells)&&fichier.cells.length===38&&typeof fichier.cells[37]==="string";
+      if(!valide)return {ok:false,erreur:"FICHIER_INVALIDE"};
+      if(!vivant)return {ok:false,erreur:"MOTEUR_NON_DEMARRE"};
+      for(let i=0;i<50&&(enVol||appelEnCours);i+=1)await new Promise(function(r){setTimeout(r,100);});
+      const r=await parler({type:"importer",fichier:fichier});
+      if(!r||!r.ok)return {ok:false,erreur:String(r&&r.erreur||"erreur")};
+      importPartieEnCours=true;sale=true;rev+=1;
+      const copieOk=await sauverCopie();
+      let envoye=false;
+      try{envoye=Boolean(await envoyer(false,true));}catch(_){envoye=false;}
+      importPartieEnCours=false;
+      return (copieOk||envoye)?{ok:true}:{ok:false,erreur:"SAUVEGARDE_IMPOSSIBLE"};
+    },
     etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit,refus:refus,rev:rev};},
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},

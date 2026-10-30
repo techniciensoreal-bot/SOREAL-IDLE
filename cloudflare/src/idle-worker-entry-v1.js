@@ -183,12 +183,29 @@ async function idleLogoutV1(request, env) {
 }
 
 /* Jeu local : export de la ligne du joueur et des catalogues au démarrage, réception de la progression (voir idle-local-sync-v1.js). */
+/*
+ * Application Android hors ligne (Norman, 2026-10-30) : sa page est servie par https://appassets.androidplatform.net et appelle ces trois routes du serveur (relais de connexion, lecture de sa partie, pseudo unique) : seule cette origine reçoit les
+ * en-têtes CORS, et seulement sur ces routes.
+ */
+const IDLE_ORIGINE_APK_V1 = "https://appassets.androidplatform.net";
+function idleCorsApkV1(request, url) {
+  if (request.headers.get("origin") !== IDLE_ORIGINE_APK_V1) return null;
+  if (!/^\/api\/v1\/(relais|pseudo|local\/export)$/.test(url.pathname)) return null;
+  return { "access-control-allow-origin": IDLE_ORIGINE_APK_V1, "access-control-allow-headers": "authorization, content-type", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-max-age": "600", vary: "origin" };
+}
+function idleAvecCorsApkV1(cors, reponse) {
+  if (!cors) return reponse;
+  const h = new Headers(reponse.headers);
+  for (const [k, v] of Object.entries(cors)) h.set(k, v);
+  return new Response(reponse.body, { status: reponse.status, headers: h });
+}
+
 async function idleLocalV1(request, env, chemin) {
   const sessionToken = idleBearerV1(request);
   if (!sessionToken) return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
   if (idleLimiteDepasseeV1("local:" + sessionToken, 10, 2)) return idleTropDeRequetesV1();
   let corps = {};
-  if (chemin === "local-export") corps.appareil = new URL(request.url).searchParams.get("appareil") || "";
+  if (chemin === "local-export") { corps.appareil = new URL(request.url).searchParams.get("appareil") || ""; corps.lecture = new URL(request.url).searchParams.get("lecture") === "1"; }
   if (chemin === "local-push") {
     const lecture = await idleLireJsonBorneV1(request, 4194304);
     if (lecture.tropGros) return idleCorpsTropGrosV1();
@@ -517,7 +534,30 @@ export default {
       const c = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
       return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/local-restaurer", { method: "POST", body: JSON.stringify({ email: c.email, id: c.id }) });
     }
-    if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleLocalV1(request, env, "local-export");
+    /* Connexion de l'application Android hors ligne (idle-relais-apk-v1.js, modules/apk-connexion-v1.js). */
+    const corsApk = idleCorsApkV1(request, url);
+    if (corsApk && request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsApk });
+    if (url.pathname === "/api/v1/relais" && request.method === "POST") {
+      const jeton = idleBearerV1(request);
+      if (!jeton) return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
+      const lecture = await idleLireJsonBorneV1(request, 2048);
+      const corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/relais-poser", { method: "POST", body: JSON.stringify({ sessionToken: jeton, code: corps.code }) });
+    }
+    if (url.pathname === "/api/v1/relais" && request.method === "GET") {
+      const code = url.searchParams.get("code") || "";
+      if (idleLimiteDepasseeV1("relais:" + code, 10, 1)) return idleAvecCorsApkV1(corsApk, idleTropDeRequetesV1());
+      return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/relais-lire", { method: "POST", body: JSON.stringify({ code }) }));
+    }
+    if (url.pathname === "/api/v1/pseudo" && request.method === "POST") {
+      const jeton = idleBearerV1(request);
+      if (!jeton) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401));
+      if (idleLimiteDepasseeV1("pseudo:" + jeton, 5, 0.5)) return idleAvecCorsApkV1(corsApk, idleTropDeRequetesV1());
+      const lecture = await idleLireJsonBorneV1(request, 2048);
+      const corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+      return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/pseudo-definir", { method: "POST", body: JSON.stringify({ sessionToken: jeton, pseudo: corps.pseudo }) }));
+    }
+    if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-export"));
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleLocalV1(request, env, "local-push");
     /* Textes modifiés par l'administrateur, relus par chaque page (le moteur local n'a pas la table du serveur). */
     if (request.method === "GET" && url.pathname === "/api/v1/local/textes") return idleLocalV1(request, env, "local-textes");

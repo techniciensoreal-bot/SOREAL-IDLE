@@ -227,7 +227,7 @@ export function textesPourMoteurLocalV1(coord) {
   }
 }
 
-export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
+export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", lectureSeule = false) {
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
   if (!localActifV1(coord)) return { ok: false, error: "IDLE_LOCAL_DESACTIVE" };
@@ -240,13 +240,14 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "") {
   const entete = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=1")[0];
   const ligne = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   if (!ligne) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
-  sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", ligne.row_json, Date.now());
+  if (!lectureSeule) sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", ligne.row_json, Date.now());
   /* JAMAIS la feuille CLASSEMENT : c'est le registre des joueurs (adresse e-mail, nom, dernière vue de chacun). Elle était envoyée à tous les joueurs avec le catalogue (2026-10-28 : 21 adresses visibles dans la réponse et gardées dans l'appareil). Le classement reste au serveur (règle n°7). */
   const feuilles = coord.sqlAll("SELECT sheet_name,row_index,row_json FROM idle_catalog WHERE sheet_name NOT IN ('JOUEURS','CLASSEMENT') ORDER BY sheet_name,row_index")
     .map((r) => [r.sheet_name, Number(r.row_index), r.row_json]);
   const profils = emailsDe(effectif(s.user)).map((e) => coord.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles WHERE email=?", e)[0]).filter(Boolean);
   const maintenant = Date.now();
-  revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
+  /* Lecture seule (restauration dans l'application Android hors ligne, 2026-10-30) : la partie du serveur est COPIÉE, jamais revendiquée par cet appareil ni écrasée. */
+  if (!lectureSeule) revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
   return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 

@@ -3,6 +3,7 @@ import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogue
 import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
+import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
 import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1, textesPourMoteurLocalV1 } from "./idle-local-sync-v1.js";
 
 /*
@@ -539,7 +540,24 @@ export class SorealIdleCoordinatorV1 {
     }
     if (path === "/__soreal-idle-v1/local-export") {
       const p = await request.json().catch(() => ({}));
-      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil)), { headers: { "cache-control": "no-store" } });
+      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil), p?.lecture === true), { headers: { "cache-control": "no-store" } });
+    }
+    /* Connexion de l'application Android hors ligne (idle-relais-apk-v1.js) : le navigateur dépose le jeton, l'application le retire. */
+    if (path === "/__soreal-idle-v1/relais-poser") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(poserRelaisV1(this, sv(p?.sessionToken), sv(p?.code)), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/relais-lire") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(lireRelaisV1(this, sv(p?.code)), { headers: { "cache-control": "no-store" } });
+    }
+    /* Pseudo UNIQUE sur le serveur (l'application hors ligne tient sa propre table : elle vérifie ici avant d'accepter un pseudo). */
+    if (path === "/__soreal-idle-v1/pseudo-definir") {
+      const p = await request.json().catch(() => ({}));
+      const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
+      const res = runSorealIdleOperation(this.sqlMoteur, "definirPseudoSorealIdle", [sv(p?.sessionToken), sv(p?.pseudo)], s.user);
+      return Response.json(res && typeof res === "object" ? res : { ok: false, message: "Pseudo refusé." }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-textes") {
       const p = await request.json().catch(() => ({}));
