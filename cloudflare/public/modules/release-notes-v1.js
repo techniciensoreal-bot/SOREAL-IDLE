@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand tu nettoies ton Coffre ou ta Valise, une phrase comique accompagne maintenant la récompense en AP (une au hasard, jamais deux fois de suite la même), avec des phrases à part pour le gain exceptionnel.',
             'Dans l’application PC lancée par Steam, les bandes noires qui apparaissaient pendant l’interface Steam (et une demi-seconde après) sont corrigées : le jeu continue de se dessiner sous la superposition.',
             'Les cadres de titre des menus ont une police plus grande et un aspect plus soigné : le nom en grosses lettres entre deux filets lumineux, la mini phrase plus lisible, un reflet et un liseré dans la couleur du menu.',
             'Sur téléphone, les voix ne crachouillent plus : elles utilisent un tampon audio plus large et passent par le même limiteur que les autres sons.',
