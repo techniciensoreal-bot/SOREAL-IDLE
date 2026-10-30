@@ -54,7 +54,7 @@ function miniature(e){
   var C=carteMtg();if(!C)return '';
   var n=Math.floor(Number(e.numero))||0,m=monde(n);
   var histoire=e.description?'<div class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1">'+esc(sansBalise(e.description))+'</div>':'';
-  return C.html({numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,xp:e.xp,rencontres:e.rencontres,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
+  return C.html({numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
 }
 function pochetteHtml(e){
   var n=Math.floor(Number(e.numero))||0,nom=esc(e.nom||'Boss');
@@ -79,11 +79,23 @@ function pieceHtml(k,gagnee){
 }
 function puzzleHtml(){var n=nbPieces(),h='',k;for(k=0;k<PIECES;k++)h+=pieceHtml(k,k<n);return h;}
 /* Une page a toujours 9 emplacements : les vides sont des pochettes en plastique sans carte (comme un vrai classeur) ; elles gardent la taille du classeur (dernière page à 4 cartes = même classeur) et existent déjà quand la carte arrive. */
-function completer(h,n){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=v;return h;}
+/*
+ * Page de gauche incomplète (PC) : on voit, à travers le plastique des emplacements vides, le DOS des cartes de la page qui est derrière (Norman, 2026-10-30 : « quand une page gauche n'est pas complète, on doit voir le dos des cartes qui sont derrière »).
+ * La page de gauche est le verso de la feuille dont le recto est la page d'avant : ce qui est derrière un emplacement est la carte de la page d'avant, à la place symétrique (même rangée, colonne opposée). derriere[i] = vrai si une VRAIE carte y est :
+ * on ne voit que le dos des cartes réellement rangées derrière (sur la première page, les cartes du grand dessin déjà gagnées), jamais un dos pour un emplacement qui n'a pas de carte (Norman : « on ne doit voir que le dos des 4 cartes »).
+ */
+function derriereGauche(r){
+  var d=[],p=r-1,i;
+  if(p<0)return d;
+  var carteDerriere=p===0?nbPieces():cartesDePage(p).length;   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
+  for(i=0;i<PAR_PAGE;i++)d.push(Math.floor(i/COLS)*COLS+(COLS-1-i%COLS)<carteDerriere);
+  return d;
+}
+function completer(h,n,derriere){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=(derriere&&derriere[i])?dosPochetteHtml():v;return h;}
 /* Après la dernière page (la page de droite de la dernière feuille, sur PC) : une page blanche de 9 emplacements invisibles, jamais vide : une page vide ferait s'effondrer la hauteur du classeur (tout le menu bougerait). */
-function contenuPage(L){vusTmp=lireVus()||[];if(L<0)return '';if(L>=nbPages())return completer('',0);if(L===0)return puzzleHtml();var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length);}
+function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):null;if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
 function droiteHtml(L){return contenuPage(L);}
-function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
+function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
 
 /* Pour un saut de plusieurs pages, seules la première et la dernière page montrent leur vrai contenu : celles du milieu passent trop vite pour être lues, elles sont dessinées en cartes simples (rien de lourd à construire). */
 function legerHtml(L){
@@ -305,7 +317,7 @@ function tournerUne(sens,D,silencieux){
     var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
     if(reduit()||typeof pd.animate!=='function'){afficher(q);if(!silencieux)setTimeout(verifierPage,450);ok(true);return;}
     var avant,arriere;
-    try{avant=contenuPage(sens>0?p:q);arriere=deux?contenuPage(sens>0?p+1:q+1):'';}catch(_e){afficher(q);ok(false);return;}   /* un contenu qui lève ne bloque jamais le livre */
+    try{avant=contenuPage(sens>0?p:q);arriere=deux?contenuPage(sens>0?p+1:q+1,true):'';}catch(_e){afficher(q);ok(false);return;}   /* un contenu qui lève ne bloque jamais le livre */
     tourne=true;
     /* une feuille : une page devant, la page suivante derrière (PC) */
     var feuille=document.createElement('div');
@@ -372,7 +384,7 @@ function sauterInterne(n,fini){
   var dispo=sens>0?(deux?Math.floor((P-page)/2):P-1-page):(deux?Math.floor(page/2):page);   /* feuilles (PC) ou pages (téléphone) tournables dans ce sens */
   var total=Math.min(Math.abs(n),dispo);
   if(total<=0)return fini();
-  if(total===1){Promise.resolve(page_(sens)).then(fini);return fini();}
+  if(total===1){Promise.resolve(page_(sens)).then(fini);return;}   /* une seule feuille : la promesse se termine à la FIN de son animation (elle se terminait tout de suite : la couverture se fermait pendant que la dernière feuille tournait encore, Norman 2026-10-30 : « double mouvement de couverture en fermant ») */
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
@@ -390,7 +402,7 @@ function sauterInterne(n,fini){
     f.className='alb-feuille-tournante';f.setAttribute('data-morph-garder','');f.setAttribute('aria-hidden','true');
     f.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
     f.innerHTML='<div class="alb-face alb-face-avant"><div class="alb-page"><div class="alb-feuille">'+(vraiAvant?contenuPage(a):legerHtml(a))+'</div></div></div>'+
-                '<div class="alb-face alb-face-arriere"><div class="alb-page"><div class="alb-feuille">'+(deux?(vraiArriere?contenuPage(a+1):legerHtml(a+1)):'')+'</div></div></div>';
+                '<div class="alb-face alb-face-arriere"><div class="alb-page"><div class="alb-feuille">'+(deux?(vraiArriere?contenuPage(a+1,true):legerHtml(a+1)):'')+'</div></div></div>';
     livre.appendChild(f);feuilles.push(f);
     var z0=((N-j)*Z).toFixed(2),z1=(j*Z).toFixed(2),delai=j*PAS;
     var kf=deux

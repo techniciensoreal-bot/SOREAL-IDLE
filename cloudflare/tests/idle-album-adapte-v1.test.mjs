@@ -52,4 +52,10 @@ assert.ok(js.includes("if(!silencieux)son('albumPage');") && js.includes("son('a
 // --- Yggdrasil : le gain Manger / Récolter bien visible, chaque nombre dans son élément (code couleur des unités)
 const ygg = lire("cloudflare/public/modules/yggdrasil-elfes-v1.js");
 assert.ok(ygg.includes("function nombreHtml_(t){") && ygg.includes("manger.map(nombreHtml_).join(' · ')") && ygg.includes(".ygg-apercu{display:grid;gap:3px;margin-top:5px;padding:5px 7px;border:2px solid #d6b24a") && ygg.includes("clamp(12px,2.7cqw,15px)"), "aperçu Manger / Récolter plus visible, nombres colorés");
+// --- page de gauche incomplète : le dos des cartes rangées derrière (seulement les vraies cartes)
+assert.ok(js.includes("function derriereGauche(r){") && js.includes("var carteDerriere=p===0?nbPieces():cartesDePage(p).length;") && js.includes("Math.floor(i/COLS)*COLS+(COLS-1-i%COLS)<carteDerriere"), "dos derrière les emplacements vides : place symétrique, seulement les vraies cartes (grand dessin : celles déjà gagnées)");
+assert.ok(js.includes("h+=(derriere&&derriere[i])?dosPochetteHtml():v;") && js.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}"), "page de gauche : completer reçoit les dos");
+assert.ok(js.includes("contenuPage(sens>0?p+1:q+1,true)") && js.includes("contenuPage(a+1,true)"), "faces arrière des feuilles qui tournent (= page de gauche) : mêmes dos");
+// --- fermeture : la couverture attend la fin de la dernière feuille (la promesse d'une seule feuille se terminait tout de suite)
+assert.ok(js.includes("if(total===1){Promise.resolve(page_(sens)).then(fini);return;}") && !js.includes("then(fini);return fini();"), "sauter() d'une seule feuille se termine à la fin de son animation");
 console.log("idle-album-adapte-v1 : OK");

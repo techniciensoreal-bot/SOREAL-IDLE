@@ -13,12 +13,12 @@ assert.ok(m.includes("if(!document.querySelector('.alb-classeur')){ouvert=false;
 assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}") && c.includes(".alb-couv-pochette") && c.includes(".alb-cuir-noir"), "couverture de farde noire avec pochette en plastique");
 assert.ok(m.includes("cliquerGauche") && m.includes("Fermer le classeur"), "le livre se referme (bouton, ou clic sur l'intérieur de la couverture)");
 // cartes DE FACE sur la page de gauche ET sur celle de droite (Norman : « finalement, des cartes de face des deux côtés ») ; le dos ne sert plus qu'aux cartes du grand dessin pas encore gagnées
-assert.ok(m.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1):'';}") && m.includes("function droiteHtml(L){return contenuPage(L);}"), "à gauche : la page d'avant, de face ; à droite : la page courante");
+assert.ok(m.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}") && m.includes("function droiteHtml(L){return contenuPage(L);}"), "à gauche : la page d'avant, de face ; à droite : la page courante");
 assert.ok(!m.includes("function dosHtml(") && !m.includes("nbDos(") && !m.includes("dosLegerHtml"), "plus de page de dos à gauche");
 assert.ok(m.includes("function pieceHtml(k,gagnee){\n  if(!gagnee)return dosPochetteHtml();"), "tant qu'une carte du dessin n'est pas gagnée, on voit son dos (dos de carte SOREAL)");
 assert.ok(m.includes("function pageMax()") && m.includes("function norm(L)") && m.includes("double()?L-(L%2):L"), "sur PC la page de droite est toujours paire (à gauche, la page d'avant)");
 // une carte pas encore annoncée reste invisible dans sa pochette
-assert.ok(m.includes("(enAttente[n]||vusTmp.indexOf(n)<0)?' alb-attente':''") && m.includes("function contenuPage(L){vusTmp=lireVus()||[];"), "une carte pas encore annoncée n'est jamais vue « déjà placée »");
+assert.ok(m.includes("(enAttente[n]||vusTmp.indexOf(n)<0)?' alb-attente':''") && m.includes("function contenuPage(L,gauche){vusTmp=lireVus()||[];"), "une carte pas encore annoncée n'est jamais vue « déjà placée »");
 assert.ok(m.includes("var L=norm(double()&&r%2===1?r+1:r);") && m.includes("if(!C||!neuves.length)return;"), "page impaire = page de gauche de la feuille suivante ; jamais d'annonce vide");
 assert.ok(m.includes("function pagesVisibles(L)") && m.includes("function neuvesVisibles(L)") && c.includes(".alb-annonce-cartes.alb-large{grid-template-columns:repeat(6,auto)}"), "l'annonce couvre les deux pages visibles (jusqu'à 18 cartes)");
 // le grand dessin
@@ -69,7 +69,7 @@ assert.ok(kc.includes("touch-action:pan-y"), "défilement vertical du texte cons
 console.log("idle-album-cartes-v1 : OK");
 
 // la dernière page (peu de cartes) garde la taille du classeur ; ouvrir le livre ne déplace rien dans la page
-assert.ok(m.includes("function completer(h,n)") && m.includes("alb-pochette-vide") && m.includes("return completer(h,n);"), "toujours 9 emplacements par page (les vides sont invisibles)");
+assert.ok(m.includes("function completer(h,n,derriere)") && m.includes("alb-pochette-vide") && m.includes("return completer(h,n);"), "toujours 9 emplacements par page (les vides sont invisibles)");
 assert.ok(c.includes(".alb-pochette-vide .alb-carte{visibility:hidden}") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-classeur>.alb-nav{position:absolute"), "la place des barres de navigation est toujours réservée");
 
 // jamais de page vide (la hauteur du classeur s'effondrait sur la page blanche après la dernière) ; les pochettes vides existent déjà ; l'anneau est au-dessus des feuilles

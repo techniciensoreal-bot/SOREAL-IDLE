@@ -55,6 +55,9 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
+            'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',
+            'Sur les cartes des boss, on voit maintenant le nombre de fois que le boss a été tué (le compte démarre aujourd’hui ; un boss déjà vaincu affiche au moins 1), et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
             'Le classeur a des sons : trois bruits doux de feuille de plastique qui se tourne, un bruit de pages qui défilent quand on avance de 10 en 10, et un bruit de couverture qui se referme.',
             'Les pochettes s’ouvrent maintenant sur le côté extérieur de la page (à gauche sur la page de gauche, à droite sur la page de droite) : le pointillé suit, et les cartes y entrent et en sortent par ce côté, même hors de l’écran.',
             'Le classeur n’a plus d’anneaux ni de ronds noirs.',

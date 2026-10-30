@@ -20,8 +20,8 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 21,
-  "sha": "c0c24efa7ed5558f070351ecd933c5022564d91d"
+  "pin": 25,
+  "sha": "6c5e1c7a8fe6d9f7f3a58a3710fb748f0ad98e36"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -116,8 +116,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 13,
-  "sha": "f2fa68f3466210866949467b2416f706a4fc1d43"
+  "pin": 14,
+  "sha": "7a23ea9d508a3ddfdd56dd0a86423600719b3215"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -364,8 +364,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 98,
-  "sha": "bf486b8dca17edf1125eed3b1086a9bc97321f6f"
+  "pin": 99,
+  "sha": "04ea1da563269701426f9b7b1e2e55a936f3e142"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -444,8 +444,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 584,
-  "sha": "5ab00a1befc698d6e7655751dcbb8c9cc0a40847"
+  "pin": 586,
+  "sha": "6baf65635ed93ea2ced4c3b40e13ed537c53481c"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -520,12 +520,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 598,
-  "sha": "08391a3f666dd068c4303c549580ac621e7dc57a"
+  "pin": 600,
+  "sha": "b8ccf0b68469c8b8f4a648453b3348b0c4d1ea05"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 418,
-  "sha": "5ca087906795e66f81cfad882f214744e31b244f"
+  "pin": 420,
+  "sha": "1cb96bc9beff93608ca0ccf61bc1288554813127"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -584,8 +584,8 @@
   "sha": "ded127d72ddadc8acba230a6ef4ec97efce2d7ab"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 25,
-  "sha": "8fab0bacb3de03a99c460b1315110aac9b2dee58"
+  "pin": 26,
+  "sha": "ed5c409b14b0f5035acf9859f1cfde560032a095"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

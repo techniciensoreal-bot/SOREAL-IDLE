@@ -13,6 +13,7 @@ import { appliquerNiveauxSorealIdle_, attaqueBossSorealIdle_, cooldownAventureSo
 import { calculerPiecesSorealIdle_ } from "./idle-runtime-etat.js";
 import { parametreSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { cloreCombatBossClassementV1_ } from "./idle-runtime-joueurs.js";
+import { compterVictoireBossV1_ } from "./idle-victoires-boss-v1.js";
 import { facteurExpBossPerkSorealIdle_ } from "./idle-runtime-combat.js";
 
 /**
@@ -1333,6 +1334,7 @@ function appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBlo
        * (colonnes inventées de la feuille IDLE_BOSS) : supprimés.
        */
 
+      compterVictoireBossV1_(statsCombat, bossCombatIndex + 1);   /* victoires par boss (cartes des boss) : chaque boss vaincu compte */
       if (!ancienBoss) {
         bossVaincus += 1;
         bossBattusMaintenant += 1;

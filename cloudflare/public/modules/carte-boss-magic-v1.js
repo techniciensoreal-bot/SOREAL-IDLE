@@ -16,7 +16,8 @@ function nb(n){
   var v=Number(n)||0;
   return typeof REG.formatGrandNombreIdleV70_==='function'?REG.formatGrandNombreIdleV70_(v):String(Math.floor(v));
 }
-function pad4(n){var s=String(Math.max(0,Math.floor(Number(n)||0)));while(s.length<4)s='0'+s;return s;}
+/* Numéro du boss sur la carte : « B 112 » (il n'y a pas 1000 boss : plus de zéros devant, Norman 2026-10-30). */
+function numeroCarte(n){return String(Math.max(0,Math.floor(Number(n)||0)));}
 
 /* Couleurs : 0 bleu, 1 rouge, 2 vert, 3 noir, 4 blanc, 5 or (deux couleurs). Repli avant l'analyse de l'image (ou si elle est impossible) : une couleur par monde. */
 function couleurMonde(monde){var m=Math.max(1,Math.floor(Number(monde)||1));return (m-1)%5;}
@@ -139,6 +140,8 @@ function html(o){
   function ligne(badge,texte){lignes+='<div class="mtg-capacite"><span class="mtg-badge">'+esc(badge)+'</span><span class="mtg-capacite-texte">'+texte+'</span></div>';}
   /* attaque et vie sont dans la case du coin (comme force / endurance sur une carte de jeu) : pas répétées dans le texte */
   if(Number(o.xp)>0)ligne('EXP',esc(nb(o.xp)));
+  /* nombre de fois que ce boss a été tué (Norman, 2026-10-30) */
+  if(Number(o.victoires)>0)ligne('TUÉ',esc(Math.floor(o.victoires))+' fois');
   (Array.isArray(o.capacites)?o.capacites:[]).forEach(function(c){if(String(c||'').trim())ligne('★',esc(c));});
   var rencontres=Number(o.rencontres)>0?'<div class="mtg-rencontres">'+esc(Math.floor(o.rencontres))+' <span>'+(o.rencontres>1?'rencontres':'rencontre')+'</span></div>':'';
   var image=o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" loading="lazy" onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)" onerror="this.style.display=\'none\'">':'';
@@ -159,7 +162,7 @@ function html(o){
         '<div class="mtg-boutons">'+(o.boutonsHtml||'')+'</div>'+
         (o.adminHtml?'<div class="mtg-admin">'+o.adminHtml+'</div>':'')+
       '</div>'+
-      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(pad4(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span>'+rencontres+'</div>'+
+      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(numeroCarte(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span>'+rencontres+'</div>'+
     '</div>'+
     force+
     '</div>'+

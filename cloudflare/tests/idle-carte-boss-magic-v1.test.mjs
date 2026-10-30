@@ -29,7 +29,13 @@ assert.match(h, /<span>Boss légendaire<\/span> — <span>Monde<\/span> 2/, "lig
 assert.match(h, /mtg-force"><span>N50<\/span><i>\/<\/i><span>N1000<\/span>/, "case attaque / vie dans le coin");
 assert.ok(!/Points de vie|Attaque/.test(h), "pas de « Points de vie » ni « Attaque » en toutes lettres");
 assert.equal((h.match(/class="mtg-badge"/g) || []).length, 2, "badges : EXP et une capacité (PV et attaque sont dans la case du coin)");
-assert.match(h, /B 0012 · FR/, "ligne de collection");
+assert.match(h, /B 12 · FR/, "ligne de collection : « B 12 » (plus de zéros devant : il n'y a pas 1000 boss, Norman 2026-10-30)");
+assert.ok(!/B 00/.test(h), "aucun zéro devant le numéro");
+assert.equal((carte.html({ numero: 112, nom: "X", monde: 1 }).match(/B 112 · FR/g) || []).length, 1, "numéro à trois chiffres : B 112");
+// nombre de fois que le boss a été tué (Norman, 2026-10-30)
+const tue = carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 3 });
+assert.match(tue, /class="mtg-badge">TUÉ<\/span><span class="mtg-capacite-texte">3 fois</, "nombre de victoires sur la carte");
+assert.ok(!/TUÉ/.test(carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 0 })), "jamais tué : rien d'affiché");
 assert.match(h, /mtg-boutons"><button>Écouter/, "boutons dans le cadre de texte");
 assert.ok(h.indexOf("note") < h.indexOf("récit"), "notes puis récit");
 // repli : cinq couleurs par monde, le sixième monde revient à la première

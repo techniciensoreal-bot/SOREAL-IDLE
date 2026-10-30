@@ -5,6 +5,7 @@
  */
 import { normalizeIdleAdventureStateV47, idleAdventureMobBestiaryEntryV1, IDLE_ADVENTURE_ZONES, IDLE_ADVENTURE_MOB_CATALOG_V1, IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "./idle-adventure-v47.js";
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
+import { normaliserVictoiresBossV1_ } from "./idle-victoires-boss-v1.js";
 import { bossCatalogueSorealIdle_, collectionsSorealIdle_, histoireBossAvecSurchargeSorealIdle_, histoireBossParleeSorealIdle_, nomBossParleSorealIdle_, lootsSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { definitionBossSorealIdle_ } from "./idle-runtime-boss.js";
 
@@ -775,6 +776,8 @@ export function statsJoueurSorealIdle_(valeur) {
     fluxBossFuites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossFuites,0))),
     fluxBossDefaites:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDefaites,0))),
     fluxBossDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxBossDernier,0))),
+    /* Victoires par boss (idle-victoires-boss-v1.js) : sans ce champ la lecture des statistiques le jetterait à chaque opération. */
+    victoiresBoss:normaliserVictoiresBossV1_(s.victoiresBoss),
     /* Essais par boss (clics sur Fight), annoncés par « En direct » à la première victoire (Norman, 2026-10-28) : sans ce champ la lecture des statistiques le jetterait à chaque opération. */
     fluxEssais:(function(){const o={};if(s.fluxEssais&&typeof s.fluxEssais==="object"&&!Array.isArray(s.fluxEssais)){Object.keys(s.fluxEssais).slice(0,12).forEach(function(k){const n=Math.floor(nombreSorealIdle_(k,0)),e=Math.floor(nombreSorealIdle_(s.fluxEssais[k],0));if(n>0&&e>0)o[n]=Math.min(9999,e);});}return o;})(),
     fluxHistoires:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxHistoires,0))),
@@ -1272,6 +1275,8 @@ export function construireBestiaireSorealIdle_(
         /* Album de collection (Norman, 2026-10-29 : « un boss rencontré mais pas encore tué une seule fois ne doit pas s'y trouver ; on gagne la carte quand on le tue la première fois ») : vaincu au moins une fois (même repère que « legacy » : jamais plus que ce que le joueur a déjà fait). */
         vaincu:
           Boolean(index < bossVaincus),
+        /* Nombre de fois que ce boss a été tué (cartes des boss) : au moins 1 s'il est déjà vaincu (rien n'était compté avant le 2026-10-30). */
+        victoires: Math.max(index < bossVaincus ? 1 : 0, Math.floor(nombreSorealIdle_((stats.victoiresBoss || {})[String(index + 1)], 0))),
         rencontres:
           decouvert
             ? Math.max(

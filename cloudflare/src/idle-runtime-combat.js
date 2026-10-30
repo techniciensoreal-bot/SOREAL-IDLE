@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleNguBonuses } from "./idle-ngu-progression.js";
+import { compterVictoireBossV1_ } from "./idle-victoires-boss-v1.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, SpreadsheetApp } from "./idle-sqlite-runtime.js";
 import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, nombreSorealIdle_ } from "./idle-runtime-config.js";
@@ -819,6 +820,7 @@ export function nukerBossSorealIdle(
         nom: nomBossSorealIdle_(bossIndexNuke)
       });
 
+      compterVictoireBossV1_(stats, bossIndexNuke + 1);   /* victoires par boss (cartes des boss) */
       bossVaincus += 1;
     }
 
