@@ -384,8 +384,8 @@
   "sha": "1badb8345262ef705a51505fff09de51588d4297"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 41,
-  "sha": "c6b7168ec8627ef1be143997d8682eb240d418d5"
+  "pin": 42,
+  "sha": "93551ef80c9d2768180d2ca30449d486c4f0a677"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -742,6 +742,10 @@
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 17,
   "sha": "c41937afa5903b987f0adf058c238c342220c283"
+ },
+ "/soreal-idle-ngu-labo-entetes-v1.css": {
+  "pin": 1,
+  "sha": "13222b7da10a7c475c318066cc088732fc6a9117"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

@@ -1276,7 +1276,7 @@ export function construireBestiaireSorealIdle_(
         vaincu:
           Boolean(index < bossVaincus),
         /* Nombre de fois que ce boss a été tué (cartes des boss) : au moins 1 s'il est déjà vaincu (rien n'était compté avant le 2026-10-30). */
-        victoires: Math.max(index < bossVaincus ? 1 : 0, Math.floor(nombreSorealIdle_((stats.victoiresBoss || {})[String(index + 1)], 0))),
+        victoires: Math.max(index < bossVaincus ? 1 : 0, Math.floor(nombreSorealIdle_((stats.victoiresBoss || {})[String(index + 1)], 0)), index < bossVaincus && decouvert ? Math.floor(nombreSorealIdle_(rencontresBossAffichageV207[index], 0)) : 0),   /* l'ancien affichage donnait le nombre de rencontres comme « fois tué » : tant que le compteur réel (né le 2026-10-30) est plus petit, on garde ce chiffre (Norman, 2026-10-30) */
         rencontres:
           decouvert
             ? Math.max(

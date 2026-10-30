@@ -313,7 +313,6 @@ var CSS=
   '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"] .nl-nuages{filter:grayscale(1) brightness(.72);opacity:.55}'+
   /* Les nuages dérivent par TRANSFORM (carte graphique), plus par background-position (Norman, 2026-10-26, audit 60 fps : NGU du jour à 20 images/s ; 24 dégradés d'une bande de 300 px repeints à chaque image). L'élément déborde de 640 px à gauche (le cadre coupe : overflow:hidden) et glisse d'exactement une période du motif : même rendu, boucle sans à-coup. */
   '.nl-v1[data-nl-onglet="energy"] .nl-nuages{left:-640px}'+
-  '.nl-v1[data-nl-onglet="energy"] .nl-entete p{color:#eaf4ff;text-shadow:0 1px 3px rgba(5,30,70,.8)}'+
   '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="energy"] .nl-nuages{animation:nlNuages 150s linear infinite;will-change:transform}.nl-v1[data-nl-onglet="energy"] .nl-astre::before{animation:nlRayons 90s linear infinite}'+
     '@keyframes nlNuages{from{transform:translate3d(0,0,0)}to{transform:translate3d(640px,0,0)}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
   /* Arc-en-ciel le jour, aurores boréales la nuit (Norman, 2026-10-25). Éclat selon --nl-lueur ; éteints quand rien n'est placé. */
@@ -336,9 +335,7 @@ var CSS=
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
   '.nl-btn:active{transform:translateY(1px)}.nl-btn.actif{background:rgba(190,160,255,.35)}'+
-  '.nl-entete{text-align:center;padding:4px 0 8px}'+
-  '.nl-entete .nl-titre{margin:0;font:900 52px/1.1 "Segoe UI Black","Segoe UI",system-ui,sans-serif;letter-spacing:.08em;background:linear-gradient(90deg,#ff9ee8,#8fdcff 50%,#ffd34d);-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 0 10px rgba(170,110,255,.7))}'+
-  '.nl-entete p{margin:2px 0 0;font:700 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#b9c2ee}'+
+  /* Cadre des deux en-têtes (jour / nuit) : feuille soreal-idle-ngu-labo-entetes-v1.css, générée depuis le cadre de titre du menu NGU (Norman, 2026-10-30). */
   '.nl-aide{margin:8px 0;padding:10px 12px;background:rgba(10,6,32,.7);border:1px solid rgba(150,120,255,.4);border-radius:12px;font:500 14px/1.5 "Segoe UI",system-ui,sans-serif;color:#dfe5ff}'+
   '.nl-aide[hidden]{display:none}.nl-aide p{margin:0 0 6px}.nl-aide ol{margin:0;padding-left:20px;display:grid;gap:4px}'+
   '.nl-paliers{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0;font:800 13px/1 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;color:#c9d2f7}'+
@@ -419,7 +416,7 @@ var CSS=
   '.nl-resume>summary{cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:.04em}'+
   '.nl-resume-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin-top:6px}'+
   '.nl-resume-grille div{display:flex;justify-content:space-between;gap:6px;padding:5px 9px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.35);border-radius:8px}'+
-  '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-entete .nl-titre{font-size:40px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
+  '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
 
 /* Totaux placés dans les NGU (Norman, 2026-10-09) : un cadre pour l'énergie, un second pour la magie quand elle est débloquée. */
 function totauxHtml_(j){
