@@ -843,6 +843,17 @@ async function adventureMob_(request,env,url){
   }
   if(!key)return new Response("Image de monstre introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
 
+  /*
+   * Thème Magic (Norman, 2026-10-30 : « le pack Magic n'agit pas sur le mode Aventure : les ennemis sont encore ceux de base ; il suffit de linker les images d'Aventure sur les boss correspondants ») : un ennemi d'Aventure EST le boss de même nom (étape 1 ci-dessus) ;
+   * avec « &theme=magic », sa réponse renvoie vers l'image Magic de ce boss (fichiers statiques /magic/boss/<numéro>.webp). Sans image Magic pour ce boss (289 et 296), l'image de base est servie comme avant.
+   */
+  if(url.searchParams.get("theme")==="magic"){
+    const numeroBoss=Number((String(key).split("/").pop().match(/^Boss_(\d+)_/i)||[])[1]);
+    if(numeroBoss>=1&&numeroBoss<=301&&numeroBoss!==289&&numeroBoss!==296){
+      return new Response(null,{status:302,headers:{location:"/magic/boss/"+numeroBoss+".webp","cache-control":"public, max-age=300","x-soreal-idle-r2-key":key}});
+    }
+  }
+
   const object=await env.SOREAL_R2.get(key);
   if(!object)return new Response("Image de monstre introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   const headers=new Headers();

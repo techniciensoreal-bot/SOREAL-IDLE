@@ -16,8 +16,8 @@
   "sha": "1cabc2d046be6ca8973992e973fd4d4e94936278"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2046,
-  "sha": "f7f549f2657c225ce3374684a98beceae3750491"
+  "pin": 2047,
+  "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
   "pin": 21,
@@ -500,8 +500,8 @@
   "sha": "11ab7c375ac3765b047399bfc11832d834db3bed"
  },
  "/modules/theme-images-v1.js": {
-  "pin": 3,
-  "sha": "e997dcf10b2876bb0c81715bf13b4ea408f30266"
+  "pin": 4,
+  "sha": "c5a0a52ac3418837dc1e3bbba2f714477071bbf4"
  },
  "/modules/time-format-v1.js": {
   "pin": 2,

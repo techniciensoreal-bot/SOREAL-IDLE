@@ -91,7 +91,10 @@
     p.set('seed',String(Math.max(0,int_(fight&&fight.monsterIndex))));
     /* Le vrai nom NGU du mob (bestiaire) choisit son image par nom quand un fichier du meme nom existe (voir choisirCleMobR2_). */
     if(fight&&fight.mobName)p.set('name',String(fight.mobName));
-    return '/api/idle/media/mob?'+p.toString();
+    var base='/api/idle/media/mob?'+p.toString();
+    /* Thème d'images (theme-images-v1.js) : un ennemi d'Aventure est le boss de même nom ; avec le thème, le serveur renvoie vers l'image du thème de ce boss (« &theme=magic »). Image de base les 5 premières secondes, puis fondu. Evil et Sadistic gardent leurs images. */
+    var th=window.__SOREAL_IDLE_THEME_V1__,diff=window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__?window.__SOREAL_IDLE_ITEM_DIFFICULTE_V1__.difficulte():'';
+    return th&&!diff&&fight&&fight.mobName?th.habiller('mob',String(fight.mobName),base,base+'&theme=magic'):base;
   }
 
   function safeZoneVisualZone_(a){
