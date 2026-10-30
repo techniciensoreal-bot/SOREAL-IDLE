@@ -321,6 +321,10 @@
             '#sorealIdleAccueilV1 .ac-err{min-height:20px;margin:8px 0 12px;font-size:14px;color:#ff9d9d}'+
             '#sorealIdleAccueilV1 .ac-note{font-size:13px;color:#7f8aa4;margin-top:12px}'+
             '#sorealIdleAccueilV1 button{width:100%;font-family:"Bangers","Russo One",Impact,sans-serif!important;font-size:22px;letter-spacing:1px;padding:12px 10px;border:3px solid #000!important;border-radius:6px!important;color:#fff!important;text-shadow:0 2px 0 #000;background:linear-gradient(180deg,#5db0ff,#2a66d9)!important;box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #000;cursor:pointer}'+
+            '#sorealIdleAccueilV1 .ac-langues{display:flex;gap:10px;margin:0 0 18px}'+
+            '#sorealIdleAccueilV1 .ac-langues .ac-lang{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;font-size:19px;padding:8px 6px;background:linear-gradient(180deg,#2b3560,#1a2142)!important;border:3px solid #000!important;box-shadow:0 3px 0 #000;opacity:.8;touch-action:manipulation}'+
+            '#sorealIdleAccueilV1 .ac-langues .ac-lang svg{width:30px;height:20px;flex:0 0 auto;border:1px solid #000;border-radius:2px}'+
+            '#sorealIdleAccueilV1 .ac-langues .ac-lang[aria-pressed="true"]{opacity:1;background:linear-gradient(180deg,#5db0ff,#2a66d9)!important;box-shadow:0 0 0 3px #ffd45a,0 3px 0 #000}'+
             '#sorealIdleAccueilV1 button:disabled{filter:grayscale(.5) brightness(.8);cursor:default}';
           document.head.appendChild(st);
         }
@@ -331,6 +335,10 @@
         racine.innerHTML=
           '<form class="ac-carte" autocomplete="off">'+
             '<div class="ac-titre">SOREAL NGU IDLE</div>'+
+            '<div class="ac-langues" role="group" aria-label="Language / Langue" data-sans-traduction>'+
+              '<button type="button" class="ac-lang" data-langue="fr" aria-pressed="false"><svg viewBox="0 0 3 2" aria-hidden="true"><rect width="1" height="2" fill="#2748b8"/><rect x="1" width="1" height="2" fill="#fff"/><rect x="2" width="1" height="2" fill="#e03a3a"/></svg><span>Français</span></button>'+
+              '<button type="button" class="ac-lang" data-langue="en" aria-pressed="false"><svg viewBox="0 0 60 40" aria-hidden="true"><rect width="60" height="40" fill="#1f3b8f"/><path d="M0 0L60 40M60 0L0 40" stroke="#fff" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#d22" stroke-width="3"/><path d="M30 0V40M0 20H60" stroke="#fff" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#d22" stroke-width="8"/></svg><span>English</span></button>'+
+            '</div>'+
             '<p class="ac-sous">Bienvenue ! Avant de commencer, choisis ton pseudo.</p>'+
             '<label for="sorealIdleAccueilChampV1">Ton pseudo (3 à 20 caractères, unique)</label>'+
             '<input id="sorealIdleAccueilChampV1" type="text" maxlength="20" autocomplete="off" spellcheck="false" required value="'+idleHtml_(id.pseudo||'')+'">'+
@@ -339,6 +347,19 @@
             '<div class="ac-note">Tu pourras le changer plus tard dans les Réglages, mais pas le retirer.</div>'+
           '</form>';
         document.body.appendChild(racine);
+        /* Langue (Norman, 2026-10-30) : même clé, même module et même rafraîchissement que les Réglages (__changerLangueIdleV1__) ; le choix ne bloque jamais l'entrée dans le jeu. Par défaut : la langue déjà enregistrée, sinon celle du navigateur si elle commence par « en », sinon le français. */
+        const langueAccueil=function(){try{const c=localStorage.getItem('soreal_idle_langue_v1');if(c==='en'||c==='fr')return c;}catch(e){}try{return /^en/i.test(String(navigator.language||''))?'en':'fr';}catch(e){return 'fr';}};
+        const marquerLangue=function(){const l=langueAccueil();racine.querySelectorAll('.ac-lang').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-langue')===l?'true':'false');});};
+        const choisirLangue=function(code){
+          try{
+            if(typeof window.__changerLangueIdleV1__==='function')window.__changerLangueIdleV1__(code);
+            else{localStorage.setItem('soreal_idle_langue_v1',code);if(typeof window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__==='function')window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__(code);}
+          }catch(e){}
+          marquerLangue();
+        };
+        racine.querySelectorAll('.ac-lang').forEach(function(b){b.addEventListener('click',function(){choisirLangue(b.getAttribute('data-langue'));});});
+        marquerLangue();
+        try{if(localStorage.getItem('soreal_idle_langue_v1')===null&&langueAccueil()==='en')choisirLangue('en');}catch(e){}
         const form=racine.querySelector('form'),champ=racine.querySelector('#sorealIdleAccueilChampV1'),err=racine.querySelector('#sorealIdleAccueilErrV1'),bouton=racine.querySelector('#sorealIdleAccueilBoutonV1');
         form.addEventListener('submit',function(ev){
           ev.preventDefault();

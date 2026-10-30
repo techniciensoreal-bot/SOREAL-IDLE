@@ -256,8 +256,8 @@
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
  "/modules/intro-diaporama-v1.js": {
-  "pin": 10,
-  "sha": "b9a5152678412496676e18697d95c088e998916a"
+  "pin": 11,
+  "sha": "93d4e3ac702ef1c0e04ecfbd83c59f29302e8d9e"
  },
  "/modules/inventaire-volet-v1.js": {
   "pin": 12,
@@ -632,8 +632,8 @@
   "sha": "a8064fadeb3f08ae4ad1b36a992d048fe8f9b862"
  },
  "/modules/ui-popups-v1.js": {
-  "pin": 11,
-  "sha": "0177cb0a600b48f242e07458c2c4e8aaafea358e"
+  "pin": 12,
+  "sha": "d942cd686a8f0ad91bb985efcee791257ab6fa8a"
  },
  "/modules/ui-reglages-v1.js": {
   "pin": 13,

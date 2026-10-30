@@ -40,6 +40,10 @@ var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0,chronique=false;
  * la voix de CHAQUE image et passe à la suivante à la fin de sa voix. Tant qu'aucune voix n'a été générée depuis le menu Admin, rien ne change : la voix de la page, découpée en 16 morceaux, comme avant.
  */
 var serveur=null,modeEtape=false,lecture=null,jeton=0,essaisServeur=0;
+/* Langue de l'intro (Norman, 2026-10-30 : « l'intro devra se lancer en anglais s'il a choisi l'anglais »). Aucune voix anglaise n'existe : en « English », textes et boutons sont en anglais et la voix FRANÇAISE est coupée (elle contredirait le texte) ;
+   les images défilent alors au rythme de la lecture (minuteries). Les voix sont celles du français, générées à partir des phrases françaises. */
+function langueEn(){try{return localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
+function voixEtapes(){return modeEtape&&!langueEn();}
 function sansBalises(t){
   var S=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
   try{if(S&&typeof S.segmenter==='function')return String(S.segmenter(t,'narrateur').affiche||'');}catch(_e){}
@@ -122,7 +126,7 @@ function html(page,texteVoix){
   style_();
   var pts='';
   for(var i=0;i<DIAPOS.length;i++)pts+='<i></i>';
-  return '<div class="id-scene" id="sorealIdleIntroDiapoV1" role="dialog" aria-modal="true" data-soreal-tts-say="'+esc(modeEtape?'':(texteVoix||''))+'">'+
+  return '<div class="id-scene" id="sorealIdleIntroDiapoV1" role="dialog" aria-modal="true" data-soreal-tts-say="'+esc(voixEtapes()||langueEn()?'':(texteVoix||''))+'"'+(langueEn()?' data-soreal-tts-ignore':'')+'>'+
     '<div class="id-titre">'+esc(page&&page.titre||'')+(page&&page.sousTitre?'<small>'+esc(page.sousTitre)+'</small>':'')+'</div>'+
     '<div class="id-cadre" id="sorealIdleIntroCadreV1"><img alt="" decoding="async" draggable="false"><img alt="" decoding="async" draggable="false"></div>'+
     '<div class="id-texte" id="sorealIdleIntroTexteV1" data-soreal-tts-ignore></div>'+
@@ -157,7 +161,7 @@ function afficher(i){
   var fin=i>=DIAPOS.length-1;
   r.classList.toggle('id-fin',fin);
   if(fin)installerBouton(r);
-  if(modeEtape&&!chronique&&!attenteSon)lancerEtape(i);
+  if(voixEtapes()&&!chronique&&!attenteSon)lancerEtape(i);
 }
 
 /* Mode « une voix par image » : lit la voix de l'image i, puis passe à la suivante (minuteur de durée() si la voix ne peut pas partir). */
@@ -259,13 +263,13 @@ function ouvrirChronique(r,d){
   var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx)tx.textContent=d.affiche;
   var ind=r.querySelector('.id-indice');if(ind)ind.textContent='Touche l’image pour continuer';
   /* La voix lit la scène par son attribut : on lui donne le texte de la chronique (mêmes voix que celles du panneau de combat) et on relance la lecture. */
-  r.setAttribute('data-soreal-tts-say',d.say);
-  try{if(t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.read==='function')t.read();}catch(_e){}
+  if(!langueEn())r.setAttribute('data-soreal-tts-say',d.say);
+  try{if(!langueEn()&&t&&typeof t.enabled==='function'&&t.enabled()&&typeof t.read==='function')t.read();}catch(_e){}
 }
 
 function planifier(){
   if(minuterie){clearTimeout(minuterie);minuterie=0;}
-  if(modeEtape)return;
+  if(voixEtapes())return;
   if(indice<DIAPOS.length-1)minuterie=setTimeout(suite,duree(indice));
 }
 function suite(){
@@ -290,7 +294,7 @@ function toucher(ev){
   var r=racine();if(!r)return;
   if(attenteSon){
     attenteSon=false;indiceSon(false);
-    if(modeEtape){lancerEtape(indice);return;}
+    if(voixEtapes()){lancerEtape(indice);return;}
     planifier();   /* le gestionnaire d'appui de la voix (capture sur le document) vient de relancer la lecture depuis le début : les images repartent avec elle */
     return;
   }
@@ -312,13 +316,13 @@ function demarrer(){
   precharger(1);precharger(2);
   attenteSon=false;indiceSon(false);curseur=0;annulerVoix();
   r.addEventListener('click',toucher);
-  if(modeEtape)lancerEtape(0);else planifier();
+  if(voixEtapes())lancerEtape(0);else planifier();
   /* Après un instant (la voix a eu le temps d'essayer de démarrer) : si le navigateur a bloqué le son, on attend un premier appui avant de défiler. */
   if(veilleSon)clearTimeout(veilleSon);
   veilleSon=setTimeout(function(){
     veilleSon=0;
     var rr=racine();
-    if(!rr||indice!==0||!sonBloque())return;
+    if(!rr||indice!==0||langueEn()||!sonBloque())return;
     attenteSon=true;
     annulerLecture();
     if(minuterie){clearTimeout(minuterie);minuterie=0;}
