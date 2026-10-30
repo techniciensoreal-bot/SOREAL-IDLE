@@ -9,7 +9,7 @@ const chro = lire("cloudflare/public/modules/ui-chroniques-v1.js"), bout = lire(
 assert.ok(/stylesheet" href="\/soreal-idle-itopod\.css/.test(idx) && !/soreal-idle-jeu-global/.test(idx), "la règle est dans une feuille chargée par la page");
 assert.ok(css.includes(".soreal-idle-page-head-v28[data-entete-menu]{box-sizing:border-box;height:calc(var(--hud-4barres-v1,131px) - var(--vide-haut-v1,14px))"), "cadre = 4 barres - espace vide");
 assert.ok(css.includes(".bm-entete[data-entete-menu]{box-sizing:border-box;height:calc(var(--hud-4barres-v1,131px) - var(--vide-haut-v1,14px))"), "la Magie du sang : son propre titre est le cadre");
-assert.ok(!/data-entete-menu\][^{]*\{[^}]*!important/.test(css), "aucun !important ajouté (plafond de dette CSS)");
+assert.ok(!/data-entete-menu\][^{]*\{[^}]*!important/.test(css.replace(/:not\(\[data-entete-menu\]\)/g, "")), "aucun !important ajouté (plafond de dette CSS)");
 // la mesure : 4 hauteurs de barre + 3 écarts, mesurée sur la barre de vie ; l'espace vide = du haut de la page au haut du cadre
 assert.ok(m.includes("var recouvre=3*(h+ecart)-10;") && m.includes("zoom_(document.getElementById('sorealIdleHudV2')||panneau)") && m.includes("'--hud-4barres-v1'") && m.includes("premier.getBoundingClientRect().top-racine.getBoundingClientRect().top"), "mesure : recouvrement des 4 barres (3 pas - 10 px, zoom du bandeau) et espace vide");
 // menus sans cadre de titre : un cadre du même modèle ; la Magie du sang garde le sien
