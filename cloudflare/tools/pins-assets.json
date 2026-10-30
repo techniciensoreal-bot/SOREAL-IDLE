@@ -184,8 +184,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 27,
-  "sha": "936298a114f2fade0534d516533ddc2539cc8aeb"
+  "pin": 31,
+  "sha": "a76f9e8802bfe6407e9e766cdf25d78754a04963"
  },
  "/modules/defilement-theme-v1.js": {
   "pin": 3,
@@ -216,8 +216,8 @@
   "sha": "5800cf37279436db5d1e41e4f8705ec37ee34b8a"
  },
  "/modules/etagere-personnage-v1.js": {
-  "pin": 14,
-  "sha": "6a893b019c1c85341c769ace8afd07d56b282d01"
+  "pin": 15,
+  "sha": "eef07cab53cbf8ee5fd0523360a8b27c60e35c69"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -532,12 +532,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 615,
-  "sha": "f08d452c80ef4bbd3bbfb4bc4490a08f83a54b00"
+  "pin": 616,
+  "sha": "b6b1e1388f3b1dd7f3f7a78b2843971327c2752f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 435,
-  "sha": "c19b23211002181b54cd8efdadbce734cd97610e"
+  "pin": 436,
+  "sha": "4eff729e8bc6f190d9995f77c1ea6d2eea1d8524"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

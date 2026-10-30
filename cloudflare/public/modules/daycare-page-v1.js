@@ -21,6 +21,7 @@
 
   /* Choix d'un objet du sac pour un récipient vide : état de page seulement (un clic le rouvre). */
   let choixOuvert=false;
+  let repriseId=null;   /* bocal occupé sur lequel on a cliqué : le panneau « Reprendre ? » est affiché */
   /* Les 6 places de l'armoire (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. */
   const PLACES=[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]];
   const SOLS=[46.8,65.2,82.0],HAUT_POT=11.0,LARG_POT=10.5,CENTRES=[36,63],AXE=47.6;
@@ -125,20 +126,19 @@
     return {
       pos:pos,
       pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="left:'+pos.left+'%;top:'+pos.top+'%"><i class="gd-ombre"></i>'+
-        '<div class="gd-bocal" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'">'+
+        '<button type="button" class="gd-bocal gd-occupe" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'" aria-label="Reprendre '+H.idleHtml_(it.name||'l’objet')+'" title="'+H.idleHtml_((it.name||'Objet')+' — '+prochain+(taux?' · '+taux:''))+'" onclick="window.__garderieReprendreV1__(\''+H.idleHtml_(it.id)+'\')">'+
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre">'+
             '<div class="gd-objet">'+icone+'</div>'+
             '<div class="gd-liq" style="transform:translateY('+decalageLiquide(e.p)+'%)"><i class="gd-bulles"></i></div>'+
             '<div class="gd-reflet"></div>'+
           '</div>'+
-        '</div></div>',
-      note:'<div class="gd-note'+(pose?' gd-pose-note':'')+'" data-gd-note="'+H.idleHtml_(it.id)+'" title="'+H.idleHtml_(prochain+(taux?' · '+taux:''))+'">'+
-        '<div class="gd-niv">Niv. <b class="gd-niv-n">'+e.niveau+'</b></div>'+
-        '<div class="gd-info">'+H.idleHtml_(it.name||it.definitionId||'Objet')+'</div>'+
-        '<div class="gd-info gd-petit">'+H.idleHtml_(prochain)+'</div>'+
-        '<button type="button" class="gd-reprendre" onclick="window.__daycareIdleV1__(\'daycareRemove\',\''+H.idleHtml_(it.id)+'\')">Reprendre</button>'+
-      '</div>'
+          /* niveau au moment du placement, puis niveau actuel EN VERT (Norman, 2026-10-30) */
+          '<span class="gd-niv-badge" data-gd-note="'+H.idleHtml_(it.id)+'">Niv. <i class="gd-niv-dep">'+H.idleEntier_(x.levelAtEntry!=null?x.levelAtEntry:it.level)+'</i> › <b class="gd-niv-n">'+e.niveau+'</b></span>'+
+        '</button></div>',
+      /* Plus de liste de notes ni de boutons sous l'armoire (Norman, 2026-10-30) : on clique sur les bocaux. Reprendre = clic sur un bocal occupé, avec avertissement (panneau ci-dessous). */
+      note:'',
+      id:it.id,nom:it.name||it.definitionId||'Objet',niveau:e.niveau,depart:(x.levelAtEntry!=null?x.levelAtEntry:it.level),progression:e.p,prochain:prochain
     };
   }
 
@@ -151,7 +151,7 @@
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre"><div class="gd-objet">'+ICONE_PLUS+'</div><div class="gd-reflet"></div></div>'+
         '</button></div>',
-      note:'<div class="gd-note'+(pose?' gd-pose-note':'')+'"><div class="gd-info gd-petit">Emplacement libre</div></div>'
+      note:''
     };
   }
 
@@ -204,21 +204,31 @@
         '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Vitesse (non rétroactive) : équipement ×'+pct(sp.gear||1)+' · Fibonacci ×'+pct(sp.fibonacci||1)+' · souhait ×'+pct(sp.wish||1)+' · Blind Evil ×'+pct(sp.blindEvil||1)+' · Blind Sadistic ×'+pct(sp.blindSadistic||1)+' · Digger ×'+pct(sp.digger||1)+' · Hack ×'+pct(sp.hack||1)+'</div>'+
         '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Emplacements : boutique EXP '+H.idleEntier_(ss.expShop||0)+' · Blind Normal '+H.idleEntier_(ss.blindNormal||0)+' · Troll Evil '+H.idleEntier_(ss.trollEvil||0)+' · perk '+H.idleEntier_(ss.perk||0)+'</div>'+
       '</details>';
+    const R2=repriseId==null?null:cases.filter(function(c){return c.id!=null&&String(c.id)===String(repriseId);})[0];
+    /* Reprendre un objet : clic sur son bocal ; l'avancée vers le niveau suivant est perdue, le panneau le dit avant (Norman, 2026-10-30) */
+    const reprise=R2
+      ?'<div class="soreal-idle-section-v8 gd-choix-cadre gd-reprise"><div class="soreal-idle-window-title-v31">Reprendre « '+H.idleHtml_(R2.nom)+' » ?</div>'+
+        '<div class="gd-reprise-txt">Placé au niv. <b>'+H.idleEntier_(R2.depart)+'</b>, il est maintenant au niv. <b class="gd-vert">'+H.idleEntier_(R2.niveau)+'</b> (il garde ses niveaux gagnés) · l’avancée actuelle vers le niveau suivant ('+pct(R2.progression)+') sera perdue.</div>'+
+        '<div class="gd-reprise-btns"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieConfirmerV1__(\''+H.idleHtml_(R2.id)+'\')">Reprendre l’objet</button> '+
+        '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieReprendreV1__(null)">Annuler</button></div></div>'
+      :'';
     const choix=(libres>0&&choixOuvert)
       ?'<div class="soreal-idle-section-v8 gd-choix-cadre"><div class="soreal-idle-window-title-v31">Choisis un objet du sac</div>'+listeSac(d)+
         '<div style="margin-top:8px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieChoisirV1__()">Annuler</button></div></div>'
       :'';
     demarrer();
-    return '<div class="soreal-idle-section-v8" id="soreal-idle-garderie-section">'+onglets(j)+
+    return '<div class="soreal-idle-section-v8" id="soreal-idle-garderie-section">'+
+      '<div class="gd-cadre"><div class="gd-haut">'+onglets(j)+
       '<div class="gd-titre"><span class="gd-titre-ico">'+ICONE_BOCAL+'</span><span>Garderie d’objets</span></div>'+
-      '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
-      resume+detail+
-      '<div class="gd-reserve"><div class="gd-scene"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
+      '</div>'+
+      '<div class="gd-scene"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
         '<div class="gd-fig"><img class="gd-img" src="/garderie/armoire-v1.webp?v=2" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
           (E2?E2.yeuxHtml():'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
+      '</div>'+
       '</div></div>'+
-      '<div class="gd-liste">'+cases.map(function(c){return c.note;}).join('')+'</div>'+choix+'</div>'+
-    '</div>';
+      '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
+      resume+detail+
+      reprise+choix+'</div>';
   }
 
   /* L'étagère parle (modules/etagere-personnage-v1.js, phrases « phrases:etagere ») : {D} on lui confie un objet, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
@@ -252,7 +262,7 @@
   function apresDepotMaxe(){if(disponible(REG_().idleEtat))parler('daycare:max');}
 
   function daycareIdleV1_(action,itemId){
-    choixOuvert=false;
+    choixOuvert=false;repriseId=null;
     if(action==='daycarePlace'){
       const it=objetDuSac(itemId),mode=it&&it.fullyMaxed?'daycare:max':'daycare';
       /* La phrase attend que l'objet ait quitté le sac (page redessinée avec la réponse du moteur) : sinon le redessin effacerait la bulle. */
@@ -264,12 +274,17 @@
   }
   window.__daycareIdleV1__=daycareIdleV1_;
   window.__garderieOngletV1__=function(onglet){
-    choixOuvert=false;
+    choixOuvert=false;repriseId=null;
     stockage(CLE_ONGLET,onglet==='garderie'?'garderie':'sac');
     try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
   };
+  window.__garderieReprendreV1__=function(id){
+    repriseId=(id==null||String(repriseId)===String(id))?null:String(id);choixOuvert=false;
+    try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
+  };
+  window.__garderieConfirmerV1__=function(id){repriseId=null;daycareIdleV1_('daycareRemove',String(id));};
   window.__garderieChoisirV1__=function(){
-    choixOuvert=!choixOuvert;
+    choixOuvert=!choixOuvert;repriseId=null;
     try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
   };
 
@@ -323,10 +338,12 @@
       '.gd-reserve{margin-top:6px}',
       /* Le grenier en fond de la garderie (Norman, 2026-10-30 : image validée sur PC et sur téléphone) : image large sur PC, image haute sur téléphone */
       /* Le grenier en fond de la garderie (Norman, 2026-10-30) : la SCÈNE a le rapport de l'image (haute sur téléphone, carrée sur PC) et l'armoire y est POSÉE sur le sol (ses pieds sur le plancher, ombre dessous) : elle ne vole plus */
-      '.gd-scene{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1024/1536;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center/100% 100% no-repeat;border-radius:16px;overflow:hidden;box-shadow:inset 0 0 0 3px #3a2410,0 6px 18px rgba(0,0,0,.45)}',
-      '.gd-scene::after{content:"";position:absolute;left:22%;width:56%;bottom:15.5%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
-      '.gd-scene>.gd-armoire{position:absolute;left:17%;width:66%;max-width:none;bottom:17%;margin:0}',
-      '@media (min-width:900px){.gd-scene{max-width:700px;aspect-ratio:1/1;background-image:url(/garderie/fond-grenier-v1.webp?v=1)}.gd-scene::after{left:28%;width:44%;bottom:15%}.gd-scene>.gd-armoire{left:27%;width:46%;bottom:16.5%}}',
+      '.gd-cadre{position:relative;width:100%;max-width:520px;margin:0 auto 10px;aspect-ratio:2/3;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center/cover no-repeat;border-radius:16px;overflow:hidden;box-shadow:inset 0 0 0 3px #3a2410,0 6px 18px rgba(0,0,0,.45)}',
+      '.gd-haut{position:relative;z-index:3;padding:10px 10px 18px;background:linear-gradient(180deg,rgba(16,8,2,.78),rgba(16,8,2,.5) 62%,rgba(16,8,2,0))}.gd-haut .gd-onglets{margin:0 0 6px}.gd-haut .gd-titre{margin:2px 0 0}',
+      '.gd-scene{position:absolute;inset:0}',
+      '.gd-scene::after{content:"";position:absolute;left:20%;width:60%;bottom:3%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
+      '.gd-scene>.gd-armoire{position:absolute;left:13.5%;width:73%;max-width:none;bottom:6%;margin:0}',
+      '@media (min-width:900px){.gd-cadre{max-width:700px;aspect-ratio:1/1;background-image:url(/garderie/fond-grenier-v1.webp?v=1)}.gd-scene::after{left:26%;width:48%}.gd-scene>.gd-armoire{left:23.5%;width:53%;bottom:5%}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
@@ -347,7 +364,10 @@
       '.gd-objet .idle-lvl-badge-v1{display:none}',
       '.gd-vide .gd-objet{color:rgba(190,225,255,.75)}',
       '.gd-plus{width:60%;height:auto}',
-      '.gd-vide{cursor:pointer}',
+      '.gd-vide,.gd-occupe{cursor:pointer}',
+      '.gd-niv-badge{position:absolute;left:50%;bottom:-17%;transform:translateX(-50%);z-index:3;padding:.3em .7em;border-radius:999px;background:rgba(20,10,0,.82);border:1px solid rgba(255,226,120,.6);color:#ffe9a8;font:800 28cqw/1 "Russo One",system-ui,sans-serif;white-space:nowrap;pointer-events:none}',
+      '.gd-niv-badge .gd-niv-n,.gd-reprise-txt .gd-vert{color:#5dff7a;text-shadow:0 0 6px rgba(60,220,90,.6)}.gd-niv-dep{font-style:normal}',
+      '.gd-reprise-txt{margin:6px 0 10px;font-size:14px;color:#f3e6c4;text-align:center}.gd-reprise-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}',
       '.gd-vide.ouvert .gd-verre{border-color:#f5c14b}',
       /* liquide : couches de saturation, ménisque brillant ; une couche animée par bocal (l’onde) */
       '.gd-liq{position:absolute;left:0;right:0;top:-8cqw;height:calc(100% + 8cqw);z-index:2;opacity:.88;background:radial-gradient(130% 40% at 50% 100%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 14%),linear-gradient(180deg,#ff4a4a 0%,#ff9f2e 17%,#ffe135 33%,#4be07b 50%,#2fb5ff 67%,#5b5bff 83%,#b24bff 100%);background-size:100% 100%,100% 100%,100% 100%;background-repeat:no-repeat;will-change:transform;',

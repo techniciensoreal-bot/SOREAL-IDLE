@@ -129,13 +129,15 @@
       '.et-paup{position:absolute;left:-4%;right:-4%;top:-3%;height:106%;display:block;transform-origin:50% 0;transform:scaleY(0);background:linear-gradient(180deg,#b06a33,#cf8a4f 78%,#8d5527);border-bottom:2px solid #3a2008;box-shadow:0 2px 3px rgba(0,0,0,.4);animation:etClin 13s ease-in-out infinite}',
       '.et-paup::after{content:"";position:absolute;left:12%;right:12%;bottom:-3px;height:3px;background:repeating-linear-gradient(90deg,#3a2008 0,#3a2008 1px,rgba(0,0,0,0) 1px,rgba(0,0,0,0) 5px)}',
       '.et-og .et-regard{animation:etRegG 17s ease-in-out infinite}.et-od .et-regard{animation:etRegD 21s ease-in-out infinite}',
-      '.gd-armoire[data-humeur="dort"] .et-regard{animation:none}',
+      /* Norman, 2026-10-30 : « la pupille de son œil tombe parfois, comme une bille qui roulerait dans sa cavité ; elle ferme plusieurs fois la paupière pour la remettre en place » : œil gauche, même boucle de 29 s pour la bille et la paupière (elles ne se désynchronisent jamais) */
+      '.et-og .et-paup{animation:etPaupG 29s ease-in-out infinite}.et-og .et-iris{animation:etBilleG 29s ease-in-out infinite}',
+      '.gd-armoire[data-humeur="dort"] .et-regard,.gd-armoire[data-humeur="dort"] .et-iris{animation:none}',
       '.gd-armoire[data-humeur="dort"] .et-paup{animation:none;transform:scaleY(1)}',
       '.gd-armoire[data-humeur="agacee"] .et-paup{animation:none;transform:scaleY(.42)}',
       '.gd-armoire[data-humeur="contente"] .et-paup{animation:none;transform:scaleY(.3)}',
       '.gd-armoire[data-humeur="clin"] .et-od .et-paup{animation:none;transform:scaleY(1)}',
       /* nez : copie découpée de l'image (rect 285,232 -> 445,394 de 768 x 1152) qui oscille doucement */
-      '.et-nez{position:absolute;z-index:5;left:37.1%;top:20.1%;width:20.8%;height:14.1%;background-image:url(/garderie/armoire-v1.webp?v=2);background-size:480% 711%;background-position:46.9% 23.4%;background-repeat:no-repeat;clip-path:ellipse(49% 47% at 50% 56%);transform-origin:50% 12%;animation:etNez 9s ease-in-out infinite;pointer-events:none}',
+      '.et-nez{position:absolute;z-index:5;left:37.1%;top:20.1%;width:20.8%;height:14.1%;background-image:url(/garderie/armoire-v1.webp?v=2);background-size:480% 711%;background-position:46.9% 23.4%;background-repeat:no-repeat;clip-path:ellipse(49% 47% at 50% 56%);transform-origin:50% 12%;animation:etNez 19s ease-in-out infinite;pointer-events:none}',
       '.et-zzz{position:absolute;z-index:7;left:66%;top:5%;width:40px;height:46px;display:none;pointer-events:none}',
       '.gd-armoire[data-humeur="dort"] .et-zzz{display:block}',
       '.et-zzz i{position:absolute;left:0;bottom:0;font:400 18px/1 "Bangers","Russo One",Impact,sans-serif;font-style:normal;color:#dff1ff;-webkit-text-stroke:.6px #1b3a5a;text-shadow:0 1px 0 #1b3a5a;opacity:0;animation:bgZzz 3.6s ease-in-out infinite}',
@@ -146,12 +148,14 @@
       '@keyframes etClin{0%,90%,100%{transform:scaleY(0)}94%{transform:scaleY(1.03)}}',
       '@keyframes etRegG{0%,100%{transform:translate(0,0)}35%{transform:translate(-1.8px,.8px)}70%{transform:translate(1.2px,-1px)}}',
       '@keyframes etRegD{0%,100%{transform:translate(0,0)}40%{transform:translate(1.8px,-.8px)}75%{transform:translate(-1.2px,1px)}}',
-      '@keyframes etNez{0%,100%{transform:rotate(0) scale(1)}30%{transform:rotate(1.5deg) scale(1.012,1.02)}65%{transform:rotate(-1.3deg) scale(1.01,1.025)}}',
+      '@keyframes etNez{0%,28%,34%,70%,76.5%,100%{transform:rotate(0) scale(1)}29.5%{transform:rotate(1.8deg) scale(1.01,1.03)}31%{transform:rotate(-1.4deg) scale(1.01,1.02)}32.5%{transform:rotate(.6deg) scale(1,1.01)}72%{transform:rotate(-2.2deg) scale(1.012,1.04)}73.6%{transform:rotate(1.6deg) scale(1.01,1.025)}75%{transform:rotate(-.8deg) scale(1,1.01)}}',
+      '@keyframes etPaupG{0%,29.6%,32.4%,65.6%,67.8%,68.6%,70.6%,71.4%,73.4%,87.6%,90.4%,100%{transform:scaleY(0)}30.6%{transform:scaleY(1.03)}66.6%{transform:scaleY(1.03)}69.6%{transform:scaleY(1.03)}72.4%{transform:scaleY(1.03)}88.8%{transform:scaleY(1.03)}}',
+      '@keyframes etBilleG{0%,60%{transform:translate(0,0)}61%{transform:translate(0,45%)}62%{transform:translate(-8%,135%)}62.8%{transform:translate(-3%,112%)}63.6%{transform:translate(-10%,132%)}64.4%{transform:translate(-6%,124%)}66.2%{transform:translate(-6%,124%)}67.3%{transform:translate(-4%,85%)}68.4%{transform:translate(-4%,85%)}69.8%{transform:translate(-2%,48%)}70.8%{transform:translate(-2%,48%)}72.7%{transform:translate(0,0)}100%{transform:translate(0,0)}}',
       '@keyframes etRespire{0%,100%{transform:scale(1)}50%{transform:scale(1.006,1.012)}}',
       '@keyframes etGrince{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(.22deg)}94%{transform:rotate(-.16deg)}97%{transform:rotate(.08deg)}}',
       '@keyframes etBulle{0%{opacity:0;transform:translate(-50%,6px)}12%{opacity:1;transform:translate(-50%,0)}86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-4px)}}',
       '@keyframes etSursaut{0%{transform:translateY(0)}30%{transform:translateY(-8px)}60%{transform:translateY(0)}78%{transform:translateY(-3px)}100%{transform:translateY(0)}}',
-      '@media (prefers-reduced-motion:reduce){.et-paup,.et-regard,.et-nez,.et-zzz i,.et-sursaut{animation:none}.et-zzz i{opacity:.8}.et-bulle{animation:none;opacity:1}}',
+      '@media (prefers-reduced-motion:reduce){.et-paup,.et-regard,.et-iris,.et-nez,.et-zzz i,.et-sursaut{animation:none}.et-zzz i{opacity:.8}.et-bulle{animation:none;opacity:1}}',
       '@media (max-width:520px){.et-bulle{font-size:13px}}'
     ].join('\n');
     document.head.appendChild(s);

@@ -86,7 +86,15 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.ok(html.includes("transform:translateY(50.00%)"), "liquide à 50 % (progression du moteur)");
   assert.ok(html.includes("data-gd-lv=\"3\"") && html.includes("<b class=\"gd-niv-n\">3</b>"), "niveau du moteur");
   assert.ok(html.includes("data-gd-r=\"" + 1 / 3600 + "\""), "vitesse du moteur : 1 niveau par heure");
-  assert.ok(html.includes("daycareRemove") && html.includes("Reprendre"));
+  /* plus de liste ni de boutons sous l'armoire : on clique sur le bocal (Norman, 2026-10-30) ; reprendre passe par un panneau qui prévient que l'avancée du niveau est perdue */
+  assert.ok(!html.includes("gd-liste") && !html.includes("class=\"gd-reprendre\"") && !html.includes("Emplacement libre"), "plus de liste de notes sous l'armoire");
+  assert.ok(html.includes("class=\"gd-bocal gd-occupe\"") && html.includes("__garderieReprendreV1__('" + id + "')"), "le bocal occupé est cliquable");
+  assert.ok(html.includes("<span class=\"gd-niv-badge\"") && html.includes("<b class=\"gd-niv-n\">3</b>"), "le niveau est sur le bocal");
+  {
+    const src = readFileSync(new URL("../public/modules/daycare-page-v1.js", import.meta.url), "utf8");
+    assert.ok(src.includes("sera perdue") && src.includes("__garderieConfirmerV1__") && src.includes("'daycareRemove',String(id)"), "reprendre : avertissement puis confirmation");
+    assert.ok(src.includes("repriseId=null;") && src.includes("window.__garderieReprendreV1__=function(id)"), "panneau de reprise : ouvrir, annuler");
+  }
   assert.ok(!html.includes("gd-vide"), "plus de récipient libre");
   assert.equal(G.boutonFiche(j, "autre", {}), "");
   /* un autre objet au sac, plus aucun emplacement libre : bouton visible mais explicite */
@@ -287,8 +295,10 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   /* yeux : pupilles petites, opposées, aucun verre grossissant ; mouvements lents, boucles parfaites */
   assert.ok(m.includes("height:26%;aspect-ratio:1") && m.includes(".et-og .et-iris{left:5%}.et-od .et-iris{right:5%}"), "petites pupilles, l'une à l'extérieur gauche, l'autre à l'extérieur droit");
   assert.ok(!/scale\(1\.2|cul de bouteille|et-loupe/.test(m), "plus de verre grossissant");
-  assert.ok(m.includes("etRegG 17s") && m.includes("etRegD 21s") && m.includes("etClin 13s") && m.includes("etNez 9s"), "mouvements lents");
-  assert.ok(/@keyframes etClin\{0%,90%,100%\{transform:scaleY\(0\)\}/.test(m) && /@keyframes etRespire\{0%,100%\{transform:scale\(1\)\}50%/.test(m) && /@keyframes etNez\{0%,100%\{transform:rotate\(0\) scale\(1\)\}/.test(m), "boucles parfaites : clignement, respiration, nez (début = fin)");
+  assert.ok(m.includes("etRegG 17s") && m.includes("etRegD 21s") && m.includes("etClin 13s") && m.includes("etNez 19s"), "mouvements lents ; le nez ne bouge qu'de temps en temps (19 s, longs repos)");
+  assert.ok(m.includes("etBilleG 29s") && m.includes("etPaupG 29s") && m.includes("@keyframes etBilleG{0%,60%{transform:translate(0,0)}") && m.includes("100%{transform:translate(0,0)}}"), "la pupille de l'œil gauche tombe comme une bille et la paupière se ferme plusieurs fois pour la remettre en place (boucle parfaite de 29 s, départ = arrivée)");
+  assert.equal((m.match(/@keyframes etPaupG\{[^]*?\}',/)[0].match(/scaleY\(1\.03\)/g) || []).length, 5, "5 fermetures : 2 clins normaux et 3 pour remettre la pupille");
+  assert.ok(/@keyframes etClin\{0%,90%,100%\{transform:scaleY\(0\)\}/.test(m) && /@keyframes etRespire\{0%,100%\{transform:scale\(1\)\}50%/.test(m) && /@keyframes etNez\{0%,28%,34%,70%,76\.5%,100%\{transform:rotate\(0\) scale\(1\)\}/.test(m), "boucles parfaites : clignement, respiration, nez (début = fin)");
   assert.ok(m.includes("prefers-reduced-motion:reduce"));
 }
 console.log("idle-garderie-etagere-v1 ok");
