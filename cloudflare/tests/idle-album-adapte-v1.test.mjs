@@ -12,7 +12,8 @@ for (const v of ["--alb-s", "--alb-w", "--alb-h", "--alb-nw", "--alb-k", "--alb-
 assert.ok(js.includes("Math.min(1,dispo/vis,haut/nh)"), "tient en largeur ET en hauteur dans la fenêtre (téléphone fermé : la couverture seule, à la taille de l'écran)");
 assert.ok(js.includes("zoomer:zoomer,adapter:adapter") && js.includes("Math.max(.5,Math.min(ZMAX,") && js.includes("var ZMAX=3;"), "zoom de 50 % à 300 %");
 // --- téléphone (2026-10-30) : toujours deux pages, le livre glisse de la page 2 à la 3 et ne tourne que pour la 4
-assert.ok(js.includes("function double(){return true;}") && js.includes("function etroit()"), "le livre est à deux pages même sur téléphone");
+assert.ok(js.includes("function double(){try{return Boolean(window.matchMedia&&window.matchMedia('(min-width:900px)').matches);}") && js.includes("function etroit(){return false;}") && js.includes("var nw=double()?980:520;") && js.includes("s=ajuste*(double()?zoom:1);"), "téléphone : une page de 9 cartes au plus, à 100 % imposé ; PC : deux pages et zoom");
+assert.ok(js.includes("if(!double())return '';") && js.includes("function precharger()") && js.includes("prechargees[u]"), "pas de + / − sur téléphone ; images des pages voisines préchargées (elles ne disparaissent plus au tour de page)");
 assert.ok(js.includes("function peutPanner(sens)") && js.includes("if(peutPanner(sens)){placer(sens>0?'d':'g');return;}") && js.includes("if(tourne)placer(sens>0?'g':'d');"), "zoomé : les flèches font glisser le livre d'abord, puis tournent la feuille et se placent sur sa première page (ou la dernière en reculant)");
 assert.ok(js.includes("if(Math.abs(cd.scrollLeft-toucheS)>2)return;"), "livre zoomé : le doigt le fait glisser, la feuille ne tourne que depuis le bord");
 assert.ok(js.includes("window.addEventListener('resize',function(){\n  clearTimeout(tailleVue);\n  adapter();") || js.includes("clearTimeout(tailleVue);\n  adapter();"), "recalcul à chaque changement de taille de la fenêtre");

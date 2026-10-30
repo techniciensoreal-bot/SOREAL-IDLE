@@ -23,11 +23,11 @@ var cartes=[],page=0,ouvert=false,tourne=false,enAttente={},popup=null;
 
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 /* Le livre est TOUJOURS ouvert sur deux pages, téléphone compris (Norman, 2026-10-30 : « sur téléphone, je veux l'album complet avec zoom et dézoom ») ; sur écran étroit il est affiché en entier, puis on zoome et on le fait glisser de page en page. */
-function double(){return true;}
+function double(){try{return Boolean(window.matchMedia&&window.matchMedia('(min-width:900px)').matches);}catch(_e){return false;}}   /* PC : deux pages ; téléphone : UNE page de 9 cartes au plus, à 100 % (Norman, 2026-10-30 : « retire le zoom sur téléphone et force le 100 % ») */
 /* Téléphone : sur la première page (et livre fermé) on ne montre que la moitié droite du livre, à la largeur de l'écran : pas de seconde « couverture » noire à gauche de la page 1 (Norman, 2026-10-30) ; dès la page 2|3 le livre s'affiche en entier. */
 var demiCible=null;
 function demi(){return etroit()&&(demiCible!==null?demiCible:(!ouvert||page===0));}
-function etroit(){try{return !(window.matchMedia&&window.matchMedia('(min-width:900px)').matches);}catch(_e){return false;}}
+function etroit(){return false;}   /* plus de mode « livre entier zoomable » sur téléphone : le glissement et la couverture agrandie ne servent plus (gardés inertes) */
 function carteMtg(){return window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__||null;}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function reg(){return window.__SOREAL_IDLE_REG__||{};}
@@ -59,7 +59,7 @@ function miniature(e){
   var C=carteMtg();if(!C)return '';
   var n=Math.floor(Number(e.numero))||0,m=monde(n);
   var histoire=e.description?'<div class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1">'+esc(sansBalise(e.description))+'</div>':'';
-  return C.html({numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,regen:e.regen,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
+  return C.html({eager:true,numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,regen:e.regen,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
 }
 function pochetteHtml(e){
   var n=Math.floor(Number(e.numero))||0,nom=esc(e.nom||'Boss');
@@ -190,6 +190,7 @@ function lireZoom(){try{var z=parseFloat(localStorage.getItem(CLE_ZOOM));if(z>=.
 var zoom=lireZoom();
 function zoomHtml(){
   var A='window.__SOREAL_IDLE_ALBUM_V1__';
+  if(!double())return '';   /* pas de + / − sur téléphone */
   return '<div class="alb-zoom"><button type="button" class="alb-bouton alb-zoom-moins" aria-label="Dézoomer" title="Dézoomer" '+(zoom<=.5?'disabled ':'')+'onclick="'+A+'.zoomer(-1)">−</button>'+
     '<button type="button" class="alb-zoom-val" aria-label="Taille d’origine" title="Taille d’origine" onclick="'+A+'.zoomer(0)">'+Math.round(zoom*100)+' %</button>'+
     '<button type="button" class="alb-bouton alb-zoom-plus" aria-label="Zoomer" title="Zoomer" '+(zoom>=ZMAX?'disabled ':'')+'onclick="'+A+'.zoomer(1)">+</button></div>';
@@ -199,15 +200,15 @@ function adapter(){
   if(!ad||!cl)return;
   var racine=document.documentElement,dispo=ad.clientWidth;
   if(!dispo)return;   /* page cachée : rien à mesurer */
-  var nw=980;
+  var nw=double()?980:520;
   racine.style.setProperty('--alb-nw',nw+'px');
   var nh=cl.offsetHeight;
   if(!nh)return;
   var haut=Math.max(220,(window.innerHeight||800)-110);
   /* Téléphone, livre fermé : seule la couverture (la moitié du livre, centrée) est affichée, à la taille de l'écran ; elle s'agrandit en glissant quand le livre s'ouvre. */
   var echelle=ad.querySelector('.alb-echelle'),ferme=demi(),vis=ferme?nw/2:nw;
-  var ajuste=Math.max(.2,Math.min(1,dispo/vis,haut/nh)),s=ajuste*zoom;
-  if(!ouvert)s=ajuste;
+  var ajuste=Math.max(.2,Math.min(1,dispo/vis,haut/nh)),s=ajuste*(double()?zoom:1);
+  if(!ouvert&&demi())s=ajuste;
   if(echelle)echelle.classList.toggle('alb-rogne',ferme&&!echelle.classList.contains('alb-glisse'));
   racine.style.setProperty('--alb-dx',(ferme?-(ouvert?nw/2:nw/4)*s:0).toFixed(1)+'px');
   var carte=cl.querySelector('.alb-pochette .alb-carte');
@@ -233,7 +234,20 @@ function zoomer(sens){
 function refaire(){var c=document.querySelector('.alb-classeur');if(c){page=norm(page);c.innerHTML=livreHtml();zonesNav();adapter();}}
 /* Les barres de navigation sont HORS du classeur (qui est mis à l'échelle) : elles gardent la taille d'un bouton normal, même quand le livre est tout petit ou zoomé ; leur place est réservée en permanence. */
 function zonesNav(){[].forEach.call(document.querySelectorAll('.alb-adapt .alb-nav-zone'),function(z){z.innerHTML=navHtml(z.classList.contains('alb-nav-zone-haut')?'haut':'bas');});}
+/* Les images des pages voisines sont chargées d'avance : une feuille qui tourne montre ses cartes tout de suite, sans image qui manque (Norman, 2026-10-30 : « quand on tourne les pages, les images disparaissent »). */
+var prechargees={};
+function precharger(){
+  try{
+    for(var d=-3;d<=3;d++){
+      cartesDePage(page+d).forEach(function(e){
+        var n=Math.floor(Number(e.numero))||0,u=urlImage(n);
+        if(u&&!prechargees[u]){prechargees[u]=true;var im=new Image();im.decoding='async';im.src=u;}
+      });
+    }
+  }catch(_e){}
+}
 function majNav(){
+  precharger();
   var navs=document.querySelectorAll('.alb-adapt .alb-nav');
   [].forEach.call(navs,function(nav){
     var pr=nav.querySelector('.alb-prec'),su=nav.querySelector('.alb-suiv'),p10=nav.querySelector('.alb-prec10'),s10=nav.querySelector('.alb-suiv10'),nu=nav.querySelector('.alb-numero');

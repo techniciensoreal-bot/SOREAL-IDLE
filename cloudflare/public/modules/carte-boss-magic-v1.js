@@ -146,7 +146,7 @@ function html(o){
   /* nombre de fois que ce boss a été tué : un chiffre précédé d'une épée, sur la ligne du type (Norman, 2026-10-30 : « juste un nombre avec une épée devant, qui ne prend pas de place ») */
   var tues=Number(o.victoires)>0?'<span class="mtg-tues" data-sans-traduction>'+EPEE+esc(Math.floor(o.victoires))+'</span>':'';
   /* pas de « rencontres » au pied de la carte : la case des PV le cachait et le chiffre n'apprenait rien (Norman, 2026-10-30) */
-  var image=o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" loading="lazy" onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)" onerror="this.style.display=\'none\'">':'';
+  var image=o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" '+(o.eager?'':'loading="lazy" ')+'onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)" onerror="this.style.display=\'none\'">':'';
   /* case du coin : le total de PV du boss et sa régénération par seconde (Norman, 2026-10-30 : « juste son total de PV et sa régen, comme sur la borne d'arcade ») */
   var force=Number(o.pv)>0
     ?'<div class="mtg-force"><span class="mtg-pv">'+COEUR+esc(nb(o.pv))+'</span>'+(Number(o.regen)>0?'<i>·</i><span class="mtg-regen">+'+esc(nb(o.regen))+'/s</span>':'')+'</div>':'';

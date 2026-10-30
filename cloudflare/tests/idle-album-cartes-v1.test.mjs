@@ -26,7 +26,7 @@ assert.ok(m.includes("function puzzleHtml()") && m.includes("Math.floor(cartes.l
 const mp = /function nbPieces\(\)\{return ([^}]*)\}/.exec(m); const pieces = new Function("cartes", "PIECES", "TOTAL_BOSS", "return " + mp[1].replace(/\bcartes\.length\b/g, "cartes"))(0, 9, 301);
 const nb = (n) => Math.min(9, Math.floor(n * 9 / 301)); assert.equal(nb(33), 0); assert.equal(nb(34), 1); assert.equal(nb(67), 2); assert.equal(nb(110), 3); assert.equal(nb(301), 9);
 // la petite carte est la grande
-assert.ok(m.includes("C.html({numero:n") && m.includes("sansFleches:true") && kc.includes(".alb-carte-mtg") && k.includes("dosSeul:dosSeul"), "miniature = la vraie carte");
+assert.ok(m.includes("C.html({eager:true,numero:n") && m.includes("sansFleches:true") && kc.includes(".alb-carte-mtg") && k.includes("dosSeul:dosSeul"), "miniature = la vraie carte");
 assert.ok(k.includes("if(cible.closest('.alb-carte-mtg'))return;"), "la miniature ne se retourne pas au clic");
 // la feuille qui tourne
 assert.ok(m.includes("alb-face-avant") && m.includes("alb-face-arriere") && m.includes("rotateY(-90deg)") && m.includes("rotateY(-180deg)") && c.includes("transform-origin:0 50%"), "feuille à deux faces qui pivote autour des anneaux");

@@ -20,8 +20,8 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 33,
-  "sha": "4c221cf97de8e8c2c1b7e8351b20f06a84dff203"
+  "pin": 34,
+  "sha": "0701ccd26f1c5a3fb2d5368034c6540d086c8f83"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -120,8 +120,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 18,
-  "sha": "0c95b08a4caacd7fdb27b57190f3f3689b21616a"
+  "pin": 19,
+  "sha": "ea8a4205f4a35ec2b4728a3e679ea93fca92fdb2"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,

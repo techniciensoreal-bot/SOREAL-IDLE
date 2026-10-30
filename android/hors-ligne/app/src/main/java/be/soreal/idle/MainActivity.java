@@ -335,6 +335,13 @@ public class MainActivity extends Activity {
     @Override public void onWindowFocusChanged(boolean f) { super.onWindowFocusChanged(f); if (f) immersif(); }
     @Override protected void onPause() { super.onPause(); if (vue != null) vue.onPause(); }
     @Override protected void onResume() { super.onResume(); if (vue != null) { vue.onResume(); verifierMiseAJour(3000); } }
-    @Override public void onBackPressed() { moveTaskToBack(true); }
+    /* Retour : l'application se FERME (comme l'ancienne version, Norman 2026-10-30 : « l'ancien se fermait ») ; la page a le temps d'enregistrer la partie (événement pagehide, comme avant une relance). */
+    private boolean fermeture = false;
+    @Override public void onBackPressed() {
+        if (fermeture) return;
+        fermeture = true;
+        if (vue != null) vue.evaluateJavascript("window.dispatchEvent(new Event('pagehide'))", null);
+        getWindow().getDecorView().postDelayed(new Runnable() { @Override public void run() { finishAndRemoveTask(); } }, vue != null ? 700 : 0);
+    }
     @Override protected void onDestroy() { if (vue != null) { vue.destroy(); vue = null; } super.onDestroy(); }
 }
