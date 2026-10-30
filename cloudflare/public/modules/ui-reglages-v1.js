@@ -195,7 +195,8 @@
        */
       function htmlReglagesThemeIdleV1_(){
         const T=window.__SOREAL_IDLE_THEME_V1__;
-        if(!T)return '';
+        /* Réservé à l'administrateur : aucun autre compte ne voit cette section. */
+        if(!T||!T.estAdmin())return '';
         const actuel=T.theme();
         const bouton=function(code,libelle){
           return '<button type="button" class="soreal-idle-expand-button-v25" aria-pressed="'+(actuel===code?'true':'false')+'" '+(actuel===code?'disabled ':'')+

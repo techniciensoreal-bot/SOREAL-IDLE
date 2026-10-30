@@ -48,13 +48,11 @@
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'
-          ]},
-          {menu:'parametres', titre:'Réglages', points:[
-            'Nouveau dans les Réglages, onglet « Son et image » : le thème des images. Le thème Magic remplace les images des boss, des zones et des zones sûres. La première fois que tu croises une image avec ce thème, l’ancienne reste 5 secondes puis la nouvelle apparaît en fondu ; les fois suivantes, elle s’affiche directement.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Lancer un sort demande maintenant confirmation : une fenêtre aux couleurs du sang indique combien de sang sera dépensé, avec le chiffre du moment (le bouton affichait un ancien montant). Le « Sang collecté » est plus gros et plus visible, et le bouton ne porte plus de chiffre.',

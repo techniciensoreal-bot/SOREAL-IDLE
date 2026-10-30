@@ -8,6 +8,7 @@ import { enveloppeSpan, span } from "./idle-spans-v1.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { idleDevEstAdminV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
+import { mondeDuBossV1 } from "./idle-boss-monde-v1.js";
 import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, dateSorealIdle_, deblocagesEtatSorealIdleV405_, inventaireCapaciteMaxSorealIdle_, nombreSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
 import { bonusEquipementSorealIdle_, construireBestiaireSorealIdle_, detailsEquipementSorealIdle_, listeCollectionSorealIdle_, parserJsonSorealIdle_, progressionCollectionsSorealIdle_, slotsEquipementSorealIdle_, statsJoueurSorealIdle_, synchroniserCollectionSorealIdle_ } from "./idle-runtime-collection.js";
 import { attaqueBossSorealIdle_, bonusSetsSorealIdle_, coutExtensionSacSorealIdle_, coutForgeSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, delaiRespawnBossSorealIdle_, mettreAJourManaStatsSorealIdle_, niveauMagieSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, nombreObjetsSacSorealIdle_, pvMaxBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, regenBossSecondeSorealIdle_, multiplicateursCombatSorealIdle_, statsCombatPrincipalSorealIdleV413_, xpBossSorealIdle_ } from "./idle-runtime-boss.js";
@@ -510,17 +511,12 @@ puissance:
     bossSelection:
       bossSelectionIndex + 1,
 
+    /* Monde = zone du mode Aventure du boss (idle-boss-monde-v1.js). */
     mondeActuel:
-      Math.floor(
-        bossSelectionIndex /
-        bossParMondeSorealIdle_()
-      ) + 1,
+      mondeDuBossV1(bossSelectionIndex + 1).monde,
 
     ordreBossMonde:
-      (
-        bossSelectionIndex %
-        bossParMondeSorealIdle_()
-      ) + 1,
+      mondeDuBossV1(bossSelectionIndex + 1).ordre,
 
     bossBloqueRenaissance:
       Boolean(
@@ -1187,15 +1183,9 @@ inventaireMeta: {
           return {
             numero: index + 1,
             monde:
-              Math.floor(
-                index /
-                bossParMondeSorealIdle_()
-              ) + 1,
+              mondeDuBossV1(index + 1).monde,
             ordreMonde:
-              (
-                index %
-                bossParMondeSorealIdle_()
-              ) + 1,
+              mondeDuBossV1(index + 1).ordre,
             /* Nom modifié par l'administrateur (idle-textes-v1.js), sinon celui du catalogue. */
             nom: nomBossSurchargeV1(__idleCtx.__idleSql, index + 1) || boss.nom,
             niveauRequis:

@@ -31,7 +31,9 @@
   var vusBrut=null;
 
   function lire_(cle){try{return window.localStorage.getItem(cle)||'';}catch(_e){return '';}}
-  function theme(){var t=lire_(CLE_THEME);return THEMES[t]===1?t:'';}
+  /* Réservé à l'administrateur (Norman, 2026-10-30 : « le thème Magic ne doit être dispo que pour moi ») : pour tout autre compte, aucun thème, quelle que soit la valeur mémorisée. */
+  function estAdmin_(){try{return typeof window.__SOREAL_IDLE_EST_ADMIN_V1__==='function'&&window.__SOREAL_IDLE_EST_ADMIN_V1__()===true;}catch(_e){return false;}}
+  function theme(){if(!estAdmin_())return '';var t=lire_(CLE_THEME);return THEMES[t]===1?t:'';}
 
   function chargerVus_(){
     var brut=lire_(CLE_VUS);
@@ -154,7 +156,7 @@
   }
 
   function definir(code){
-    var t=THEMES[code]===1?code:'';
+    var t=THEMES[code]===1&&estAdmin_()?code:'';
     try{
       if(t)window.localStorage.setItem(CLE_THEME,t);
       else window.localStorage.removeItem(CLE_THEME);
@@ -163,5 +165,5 @@
     return t;
   }
 
-  window.__SOREAL_IDLE_THEME_V1__={theme:theme,habiller:habiller,definir:definir,rafraichir:rafraichir,delai:DELAI,duree:DUREE};
+  window.__SOREAL_IDLE_THEME_V1__={estAdmin:estAdmin_,theme:theme,habiller:habiller,definir:definir,rafraichir:rafraichir,delai:DELAI,duree:DUREE};
 })();

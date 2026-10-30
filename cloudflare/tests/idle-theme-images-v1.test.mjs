@@ -23,9 +23,10 @@ for (const d of ["boss", "fonds", "safe"]) for (const f of fs.readdirSync(dossie
 assert.ok(total < 20 * 1024 * 1024, "thème complet sous 20 Mo : " + total);
 
 // --- logique : base pendant 5 s, puis thème ; « déjà vu » mémorisé
-function monde() {
+function monde(admin = true) {
   const stock = {}; const minuteries = [];
   const fen = {
+    __SOREAL_IDLE_EST_ADMIN_V1__: () => admin,
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); }, removeItem: (k) => { delete stock[k]; } },
     document: { querySelectorAll: () => [], querySelector: () => null },
     Image: function () { const o = this; Object.defineProperty(o, "src", { set(v) { o._s = v; setTimeout0(() => o.onload && o.onload()); } }); },
@@ -60,6 +61,19 @@ function monde() {
   m2.fen.__SOREAL_IDLE_THEME_V1__.definir("");
   assert.equal(m2.fen.__SOREAL_IDLE_THEME_V1__.habiller("boss", 12, base), base, "thème coupé : image de base tout de suite");
 }
+
+// --- réservé à l'administrateur (Norman, 2026-10-30)
+{
+  const m = monde(false); m.stock.soreal_idle_theme_v1 = "magic";
+  const T = m.fen.__SOREAL_IDLE_THEME_V1__;
+  assert.equal(T.theme(), "", "autre compte : aucun thème, même si la valeur est mémorisée");
+  assert.equal(T.habiller("boss", 12, "b"), "b", "autre compte : image de base");
+  T.definir("magic");
+  assert.equal(m.stock.soreal_idle_theme_v1 === "magic", false, "autre compte : le thème ne peut pas être activé");
+  assert.equal(m.minuteries.length, 0, "autre compte : aucune minuterie");
+}
+assert.ok(lire("cloudflare/public/modules/ui-reglages-v1.js").includes("if(!T||!T.estAdmin())return '';"), "section des Réglages réservée à l'administrateur");
+assert.ok(!lire("cloudflare/public/modules/release-notes-v1.js").includes("thème Magic") && !lire("cloudflare/public/modules/release-notes-v1.js").includes("thème des images"), "aucune mention du thème dans les notes de mise à jour");
 
 // --- branchements
 const combat = lire("cloudflare/public/modules/ui-combat-2-v1.js");
