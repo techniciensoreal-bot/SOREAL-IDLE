@@ -58,6 +58,12 @@
     /* La Valise des consommables (Norman, 2026-10-23) : elle s'ouvre (cuir qui craque, fermoir, étages qui se rabattent), se referme, une potion est bue, elle est touchée. */
     valiseOuvre:{group:"chest",priority:36,maxAgeMs:1200},
     valiseFerme:{group:"chest",priority:36,maxAgeMs:1200},
+    /* Le classeur des chroniques (Norman, 2026-10-30) : trois bruits différents de feuille en plastique qui se tourne, un bruit de pages qui défilent (de 10 en 10), un bruit de couverture qui se referme. Doux et discrets ; groupe à part : jamais deux à la fois. */
+    albumPage1:{group:"album-page",priority:40,maxAgeMs:700},
+    albumPage2:{group:"album-page",priority:40,maxAgeMs:700},
+    albumPage3:{group:"album-page",priority:40,maxAgeMs:700},
+    albumDix:{group:"album-page",priority:42,maxAgeMs:900},
+    albumFerme:{group:"album-page",priority:44,maxAgeMs:1000},
     valisePotion:{group:"chest",priority:37,maxAgeMs:1200},
     valiseTouche:{group:"chest",priority:38,maxAgeMs:800},
     /* L'accident de la valise : elle vomit (Norman, 2026-10-23). */
@@ -1792,6 +1798,7 @@
   }
 
   /* Valise : le cuir craque, le fermoir claque, puis trois claquements de planchettes (les étages) qui se rabattent l'un après l'autre. */
+  var albumDerniere_=0;
   function valiseOuvre_(){
     return jouerWebAudio_(900,function(c){
       bruit_(c,{duration:.30,volume:.07,frequency:620,frequencyEnd:180,decay:1.6});
@@ -1802,6 +1809,56 @@
         bruit_(c,{duration:.07,volume:.07,frequency:900,frequencyEnd:300,decay:3,delay:.42+i*.14});
         tonal_(c,{type:"triangle",from:260+i*55,to:140,duration:.09,volume:.03,delay:.42+i*.14});
       }
+    });
+  }
+  /*
+   * Feuille de plastique qui se tourne (trois variantes) : un souffle d'air filtré qui glisse, quelques craquements fins du plastique, un petit « pof » doux quand la feuille se pose. Volumes volontairement bas : agréable, jamais bruyant.
+   */
+  function albumPageA_(){
+    return jouerWebAudio_(560,function(c){
+      bruit_(c,{duration:.40,volume:.030,frequency:3200,frequencyEnd:1500,decay:1.4,filterType:"bandpass",q:.7});
+      bruit_(c,{duration:.03,volume:.016,frequency:5200,decay:3,delay:.08,filterType:"highpass"});
+      bruit_(c,{duration:.025,volume:.014,frequency:4600,decay:3,delay:.19,filterType:"highpass"});
+      bruit_(c,{duration:.03,volume:.012,frequency:5600,decay:3,delay:.27,filterType:"highpass"});
+      tonal_(c,{type:"sine",from:150,to:92,duration:.09,volume:.022,delay:.40});
+    });
+  }
+  function albumPageB_(){
+    return jouerWebAudio_(600,function(c){
+      bruit_(c,{duration:.46,volume:.028,frequency:2400,frequencyEnd:1100,decay:1.3,filterType:"bandpass",q:.6});
+      bruit_(c,{duration:.03,volume:.014,frequency:4200,decay:3,delay:.06,filterType:"highpass"});
+      bruit_(c,{duration:.028,volume:.015,frequency:5000,decay:3,delay:.15,filterType:"highpass"});
+      bruit_(c,{duration:.025,volume:.012,frequency:4800,decay:3,delay:.24,filterType:"highpass"});
+      bruit_(c,{duration:.03,volume:.012,frequency:5400,decay:3,delay:.33,filterType:"highpass"});
+      tonal_(c,{type:"triangle",from:520,to:340,duration:.07,volume:.012,delay:.44});
+    });
+  }
+  function albumPageC_(){
+    return jouerWebAudio_(520,function(c){
+      bruit_(c,{duration:.36,volume:.026,frequency:5200,frequencyEnd:2600,decay:1.5,filterType:"highpass"});
+      bruit_(c,{duration:.03,volume:.015,frequency:3800,decay:3,delay:.11,filterType:"bandpass",q:1.2});
+      bruit_(c,{duration:.03,volume:.013,frequency:4400,decay:3,delay:.22,filterType:"bandpass",q:1.2});
+      tonal_(c,{type:"sine",from:170,to:100,duration:.08,volume:.02,delay:.34});
+    });
+  }
+  /* Plusieurs pages qui défilent d'un coup (de 10 en 10) : une rafale de petits froissements de plastique qui accélère, puis la dernière feuille se pose doucement. */
+  function albumDix_(){
+    return jouerWebAudio_(900,function(c){
+      var t=[0,.10,.19,.27,.34,.40,.45,.50,.54,.58,.62];
+      for(var i=0;i<t.length;i+=1){
+        bruit_(c,{duration:.09,volume:.020+i*.0012,frequency:3600-i*120,frequencyEnd:1500,decay:1.6,filterType:"bandpass",q:.7,delay:t[i]});
+      }
+      bruit_(c,{duration:.05,volume:.012,frequency:5000,decay:3,delay:.30,filterType:"highpass"});
+      tonal_(c,{type:"sine",from:140,to:88,duration:.11,volume:.026,delay:.66});
+    });
+  }
+  /* La couverture du classeur qui se referme : froissement de plastique, puis un « poum » sourd et doux, un petit claquement de cuir. */
+  function albumFerme_(){
+    return jouerWebAudio_(700,function(c){
+      bruit_(c,{duration:.26,volume:.026,frequency:2600,frequencyEnd:1100,decay:1.4,filterType:"bandpass",q:.7});
+      tonal_(c,{type:"sine",from:118,to:52,duration:.20,volume:.06,delay:.24});
+      bruit_(c,{duration:.12,volume:.04,frequency:620,frequencyEnd:200,decay:2.4,delay:.24});
+      bruit_(c,{duration:.03,volume:.012,frequency:4200,decay:3,delay:.30,filterType:"highpass"});
     });
   }
   function valiseFerme_(){
@@ -2214,6 +2271,11 @@
     chestClose:coffreFermeture_,
     valiseOuvre:valiseOuvre_,
     valiseFerme:valiseFerme_,
+    albumPage1:albumPageA_,
+    albumPage2:albumPageB_,
+    albumPage3:albumPageC_,
+    albumDix:albumDix_,
+    albumFerme:albumFerme_,
     valisePotion:valisePotion_,
     valiseTouche:valiseTouche_,
     valiseVomi:valiseVomi_,
@@ -2519,6 +2581,10 @@
     chestClose:function(){return demander_("chestClose");},
     valiseOuvre:function(){return demander_("valiseOuvre");},
     valiseFerme:function(){return demander_("valiseFerme");},
+    /* Une des trois feuilles de plastique, jamais deux fois de suite la même. */
+    albumPage:function(){albumDerniere_=1+((albumDerniere_||0)+(Math.random()<.5?0:1))%3;return demander_("albumPage"+albumDerniere_);},
+    albumDix:function(){return demander_("albumDix");},
+    albumFerme:function(){return demander_("albumFerme");},
     valisePotion:function(){return demander_("valisePotion");},
     valiseTouche:function(){return demander_("valiseTouche");},
     valiseVomi:function(){return demander_("valiseVomi");},

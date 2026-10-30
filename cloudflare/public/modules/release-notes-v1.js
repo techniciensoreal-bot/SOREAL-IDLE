@@ -54,8 +54,13 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
-            'Quand tu ranges une carte, elle passe d’abord tout au-dessus de sa pochette (même hors de l’écran) puis glisse vers le bas pour entrer par le haut de la feuille en plastique.',
+            'Le classeur a des sons : trois bruits doux de feuille de plastique qui se tourne, un bruit de pages qui défilent quand on avance de 10 en 10, et un bruit de couverture qui se referme.',
+            'Les pochettes s’ouvrent maintenant sur le côté extérieur de la page (à gauche sur la page de gauche, à droite sur la page de droite) : le pointillé suit, et les cartes y entrent et en sortent par ce côté, même hors de l’écran.',
+            'Le classeur n’a plus d’anneaux ni de ronds noirs.',
             'Le classeur s’adapte maintenant à la taille de la fenêtre, même petite, sur ordinateur comme sur téléphone, et propose des boutons + et − pour zoomer ou dézoomer. Les cartes rangées dans les pochettes sont écrites exactement comme la carte sortie du classeur, même minuscules : leur nom n’est plus tronqué plus que sur la grande carte.'
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Sur un fruit prêt, le gain de « Manger » et de « Récolter » est bien plus visible (cadre doré, texte plus grand) et les unités des grands nombres (Qa…) ont leur couleur comme partout ailleurs.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'

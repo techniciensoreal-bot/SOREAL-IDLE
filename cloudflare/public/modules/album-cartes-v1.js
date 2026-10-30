@@ -26,6 +26,8 @@ function double(){try{return Boolean(window.matchMedia&&window.matchMedia('(min-
 function carteMtg(){return window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__||null;}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function reg(){return window.__SOREAL_IDLE_REG__||{};}
+/* Sons du classeur (modules/audio-effects-v199.js) : trois bruits de feuille de plastique, un bruit de pages qui défilent, un bruit de couverture qui se ferme ; jamais bloquant. */
+function son(nom){try{var a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a[nom]==='function')a[nom]();}catch(_e){}}
 function attendre(ms){return new Promise(function(ok){setTimeout(ok,ms);});}
 function fin(a){try{return a.finished.catch(function(){});}catch(_e){return Promise.resolve();}}
 function monde(n){
@@ -230,6 +232,7 @@ function ouvrirLivre(p){
   return new Promise(function(ok){
     var cl=document.querySelector('.alb-classeur');
     if(ouvert||tourne||!cl){ok();return;}
+    son('albumPage');
     var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
     ouvert=true;page=norm(typeof p==='number'?p:page);
     livre.classList.remove('alb-centre');                /* le livre glisse vers le centre de la page en même temps que la couverture s'ouvre */
@@ -256,6 +259,7 @@ function fermerLivre(){
   return new Promise(function(ok){
     var cl=document.querySelector('.alb-classeur');
     if(!ouvert||tourne||!cl){ok();return;}
+    son('albumFerme');
     var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
     var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
     [].forEach.call(cl.querySelectorAll('.alb-nav'),function(nav){if(nav.parentNode)nav.parentNode.removeChild(nav);});
@@ -292,6 +296,7 @@ function tournerUne(sens,D,silencieux){
     if(tourne||!ouvert){ok(false);return;}
     var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
     if(!livre){ok(false);return;}
+    if(!silencieux)son('albumPage');
     var deux=livre.classList.contains('alb-double'),pas=deux?2:1;
     var p=page,q=p+(sens<0?-pas:pas);
     if(sens>0?!peutAvancer():p<=0){ok(false);return;}
@@ -371,6 +376,7 @@ function sauterInterne(n,fini){
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
+  son('albumDix');
   tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
   var DUR=900,PAS=80,Z=.6,E='cubic-bezier(.45,.05,.4,1)',N=total,feuilles=[],anims=[],j;
   try{
@@ -435,12 +441,12 @@ function finirSortie(){
   try{if(S.fenetre.parentNode)S.fenetre.parentNode.removeChild(S.fenetre);}catch(_e){}
   rendreSortie(S.n);
 }
-function mouvementCarte(r0,r1,haut){   /* de la petite carte (r0) à la grande (r1) : [départ, sortie par le haut, arrivée] */
-  var dx=r0.left-r1.left,dy=r0.top-r1.top,s=r0.width/r1.width,h=r0.height*.3;
+function mouvementCarte(r0,r1,cote){   /* de la petite carte (r0) à la grande (r1) : [départ, sortie par le haut, arrivée] */
+  var dx=r0.left-r1.left,dy=r0.top-r1.top,s=r0.width/r1.width,h=r0.width*.3,sg=cote==='g'?-1:1;   /* sg : -1 = ouverture à gauche (page de gauche), 1 = à droite */
   return {
     petite:'translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+')',
-    sortie:'translate('+dx.toFixed(1)+'px,'+(dy-h).toFixed(1)+'px) scale('+(s*1.04).toFixed(4)+') rotate(-2deg)',
-    dessus:'translate('+dx.toFixed(1)+'px,'+(dy-r0.height-6).toFixed(1)+'px) scale('+s.toFixed(4)+')',   /* petite carte posée juste AU-DESSUS de sa pochette (hors écran si besoin) */
+    sortie:'translate('+(dx+sg*h).toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+(s*1.04).toFixed(4)+') rotate('+(sg*2)+'deg)',
+    dessus:'translate('+(dx+sg*(r0.width+6)).toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+')',   /* petite carte posée juste À CÔTÉ de sa pochette, face à l'ouverture (hors écran si besoin) */
     grande:'translate(0,0) scale(1) rotate(0deg)'
   };
 }
@@ -451,9 +457,9 @@ function retourPochette(n,fenetre,grande,r1,parent){
   fenetre.id='sorealIdleBossCollectionModalV1-sortie';fenetre.style.pointerEvents='none';
   parent.appendChild(fenetre);                          /* la fiche reste à l'écran pendant que la carte rentre */
   if(!r0||!(r0.width>0)||!(r1.width>0)||typeof grande.animate!=='function'){finirSortie();return;}
-  var m=mouvementCarte(r0,r1);
+  var m=mouvementCarte(r0,r1,el&&el.closest&&el.closest('.alb-page-g')?'g':'d');
   grande.style.transformOrigin='0 0';grande.style.willChange='transform';
-  /* Norman (2026-10-30) : « la carte doit entrer par le haut de la feuille en plastique : tout au-dessus, puis glisser en descendant, même si elle va hors écran » : elle rejoint d'abord le dessus de sa pochette, puis glisse vers le bas dans la fente. */
+  /* Norman (2026-10-30) : « la carte doit entrer par l'ouverture de la pochette, selon la page : à gauche sur la page de gauche, à droite sur la page de droite, même hors écran » : elle rejoint d'abord le côté de sa pochette, face à l'ouverture, puis glisse vers l'intérieur. */
   var a=grande.animate([
     {transform:m.grande,easing:'cubic-bezier(.3,.6,.3,1)'},
     {transform:m.dessus,offset:.5,easing:'cubic-bezier(.35,0,.25,1)'},
@@ -478,7 +484,7 @@ function ouvrir(n,el){
     var parent=fenetre.parentNode,r1=grande.getBoundingClientRect();
     if(!(r1.width>0)||!(r0.width>0)){return;}
     el.classList.add('alb-envole');                     /* la petite carte part avec la grande (même image) : seule sa pochette reste */
-    var m=mouvementCarte(r0,r1);
+    var m=mouvementCarte(r0,r1,el.closest&&el.closest('.alb-page-g')?'g':'d');
     grande.style.transformOrigin='0 0';grande.style.willChange='transform';
     var a=grande.animate([
       {transform:m.petite,easing:'cubic-bezier(.3,.9,.3,1)'},

@@ -180,8 +180,9 @@
       '.ygg-mode{display:grid;grid-template-columns:1fr 1fr;border:2px solid #000;border-radius:4px;overflow:hidden;}',
       '.ygg-mode button{min-height:36px;padding:.2em .1em;border:0;cursor:pointer;font:800 clamp(8px,1.8cqw,12px) Georgia,serif;color:#cfe8bf;background:#17381f;}',
       '.ygg-mode button+button{border-left:2px solid #000;}',
-      '.ygg-apercu{display:grid;gap:2px;margin-top:4px;padding:3px 5px;border:1px solid #000;border-radius:4px;background:rgba(10,30,14,.72);color:#e5f3d6;font:700 clamp(10px,1.9cqw,12px) Georgia,serif;line-height:1.25}',
+      '.ygg-apercu{display:grid;gap:3px;margin-top:5px;padding:5px 7px;border:2px solid #d6b24a;border-radius:6px;background:rgba(6,20,10,.88);box-shadow:0 0 8px rgba(214,178,74,.35);color:#fff;font:700 clamp(12px,2.7cqw,15px) Georgia,serif;line-height:1.3}',
       '.ygg-apercu b{color:#ffe38a}',
+      '.ygg-apercu .ygg-n{font-size:1.12em}',
       '.ygg-mode button[aria-pressed="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);}',
       '.ygg-poop{display:flex;align-items:center;justify-content:center;gap:.4em;min-height:36px;border:2px solid #000;border-radius:4px;cursor:pointer;font:800 clamp(8px,1.8cqw,12px) Georgia,serif;color:#e9d9b6;background:#3a2a18;}',
       '.ygg-poop[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,#8a5a2a,#5b3a18);box-shadow:0 0 10px rgba(240,170,80,.7);}',
@@ -481,13 +482,21 @@
     }
     return '';
   }
+  /*
+   * Le nombre de chaque gain dans son propre élément (Norman, 2026-10-30 : « Manger : +4 graines +252Qa Or doit être plus visible, avec le code couleur du Qa comme pour le reste ») : le module des nombres en couleur (nombres-couleur-v1.js) ne traite que les textes
+   * courts ; une ligne entière « Manger : +4 graines · +252Qa Or » était trop longue, le « Qa » restait de la couleur du texte.
+   */
+  function nombreHtml_(t){
+    var m=/^\+(\d[\d.,]*(?:[eE][+\-]?\d+|[A-Za-z]{0,4}))/.exec(t);
+    return m?'+<span class="ygg-n">'+html_(m[1])+'</span>'+html_(t.slice(m[0].length)):html_(t);
+  }
   function apercuHtml_(d,v,c){
     var a=v.e&&v.e.apercu;
     if(!v.pret||!a||!a.sans)return '';
     var avecPoop=Boolean(c.poop&&d.poop>0&&a.avec);
     var p=avecPoop?a.avec:a.sans;
     var manger=['+'+grand_(p.eat.seeds)+' graines'].concat((p.eat.effets||[]).map(function(e){return texteEffet_(e[0],e[1]);}).filter(Boolean));
-    return '<div class="ygg-apercu" data-ygg-apercu><div><b>Manger</b> : '+html_(manger.join(' · '))+'</div><div><b>Récolter</b> : '+html_('+'+grand_(p.harvest.seeds)+' graines')+'</div>'+(avecPoop?'<div>(avec la Poop)</div>':'')+'</div>';
+    return '<div class="ygg-apercu" data-ygg-apercu><div><b>Manger</b> : '+manger.map(nombreHtml_).join(' · ')+'</div><div><b>Récolter</b> : '+nombreHtml_('+'+grand_(p.harvest.seeds)+' graines')+'</div>'+(avecPoop?'<div>(avec la Poop)</div>':'')+'</div>';
   }
   /*
    * Jamais d'animation de rétrécissement (Norman, 2026-10-27 : « on voit des fruits max rétrécir jusqu'à redevenir un tas de terre : c'est du spoil »). Les images grossissent en 4 s ; mais quand une carte reçoit une pousse PLUS PETITE que celle qu'elle montrait,

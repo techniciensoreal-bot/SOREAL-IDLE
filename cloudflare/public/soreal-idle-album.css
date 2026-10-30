@@ -124,7 +124,8 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-plastique::after{content:"";position:absolute;left:3%;right:3%;bottom:2%;top:3.5%;border-radius:5px;border:1px dashed rgba(255,255,255,.18);border-top-color:transparent}
 /* au survol la carte se soulève un peu dans sa pochette ; au clic elle sort par le haut ; une carte à ranger reste invisible jusqu'à son arrivée */
 .alb-pochette.alb-sorti{z-index:4}
-.alb-pochette.alb-sorti .alb-carte{transform:translateY(-30%) scale(1.04) rotate(-2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.55))}
+.alb-pochette.alb-sorti .alb-carte{transform:translateX(30%) scale(1.04) rotate(2deg);filter:drop-shadow(0 8px 10px rgba(0,0,0,.55))}
+.alb-page-g .alb-pochette.alb-sorti .alb-carte,.alb-face-arriere .alb-pochette.alb-sorti .alb-carte{transform:translateX(-30%) scale(1.04) rotate(-2deg)}   /* l'ouverture est sur le côté extérieur de la page */
 .alb-pochette.alb-envole .alb-carte{opacity:0;transition:none}
 .alb-pochette.alb-entre{z-index:4}
 .alb-pochette.alb-attente .alb-carte{visibility:hidden}
@@ -205,3 +206,20 @@ html body.soreal-idle-active-v47 .alb-echelle .alb-numero{min-width:110px;font-s
 /* Les cartes des pochettes sont dessinées à la largeur de la carte sortie (--alb-ref), puis réduites : le texte est écrit comme sur la carte sortie, même minuscule (un navigateur ne rend jamais un texte sous ~6 px, et certaines valeurs de la carte sont fixes en pixels : les noms étaient tronqués). */
 html body.soreal-idle-active-v47 .alb-livre .alb-pochette .alb-carte-mtg>.carte-mtg-v1{position:absolute;left:0;top:0;width:var(--alb-ref,400px);height:calc(var(--alb-ref,400px) * 1.68);container-type:inline-size;transform-origin:0 0;transform:scale(var(--alb-k,.315))}
 html body.soreal-idle-active-v47 .alb-livre .alb-pochette .alb-carte-mtg>.carte-mtg-v1.retournee{transform:scale(var(--alb-k,.315)) translateX(var(--alb-ref,400px)) rotateY(180deg)}
+
+/*
+ * La farde n'a ni anneaux ni ronds noirs (Norman, 2026-10-30 : « la farde ne doit avoir ni anneaux, ni ronds noirs ; la garder comme elle est, mais sans ça ») : anneaux, trous des languettes, trous de la couverture et trous découpés dans les feuilles qui tournent disparaissent ;
+ * le reste (cuir, bords, languette le long du dos) ne change pas.
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-classeur .alb-livre::before{display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-d::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-feuille-tournante .alb-face-avant>.alb-page::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-g::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-feuille-tournante .alb-face-arriere>.alb-page::after{background:linear-gradient(90deg,#171a24,#232836)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-g:has(.alb-feuille:empty)::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-face-arriere.alb-cuir-noir::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-face-avant.alb-cuir-noir::before{display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-feuille-tournante .alb-face-avant>.alb-page,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-feuille-tournante .alb-face-arriere>.alb-page{-webkit-mask-image:none;mask-image:none}
+/*
+ * L'ouverture des pochettes est sur le côté EXTÉRIEUR de la page (Norman, 2026-10-30) : à gauche sur la page de gauche, à droite sur la page de droite (et sur le téléphone, page unique = page de droite). Le pointillé de soudure suit : fermé sur trois côtés, ouvert côté ouverture ;
+ * le reflet de la fente est sur ce côté.
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-plastique{background:linear-gradient(270deg,rgba(255,255,255,.30) 0,rgba(255,255,255,0) 4%),linear-gradient(116deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.06) 24%,rgba(255,255,255,0) 40%,rgba(255,255,255,.12) 58%,rgba(255,255,255,0) 72%,rgba(255,255,255,.09) 100%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-plastique::after{top:3%;bottom:3%;left:3%;right:0;border:1px dashed rgba(255,255,255,.18);border-right-color:transparent;border-radius:5px 0 0 5px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-g .alb-plastique,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-face-arriere .alb-plastique{background:linear-gradient(90deg,rgba(255,255,255,.30) 0,rgba(255,255,255,0) 4%),linear-gradient(116deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.06) 24%,rgba(255,255,255,0) 40%,rgba(255,255,255,.12) 58%,rgba(255,255,255,0) 72%,rgba(255,255,255,.09) 100%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-g .alb-plastique::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-face-arriere .alb-plastique::after{left:0;right:3%;border:1px dashed rgba(255,255,255,.18);border-left-color:transparent;border-radius:0 5px 5px 0}
