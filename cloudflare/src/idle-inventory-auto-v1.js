@@ -722,20 +722,23 @@ export function advanceIdleInventoryAutoV1(s, seconds, envFn, rng = Math.random)
   const env = typeof envFn === "function" ? envFn() : envFn;
   const interval = idleInventoryAutoIntervalSecondsV1(env);
   const out = {};
+  /*
+   * 2026-10-31 (Norman : compte à rebours qui recule, 17, 16, 17, 16…) : les deux minuteurs sont d'abord AVANCÉS et remis à zéro dans `cfg`, puis les actions partent. Chaque action relit la configuration par cfgV1,
+   * qui la RECOPIE (s.inventoryAuto devient un nouvel objet) : avancer `cfg` après une action écrivait dans un objet abandonné (le temps du second minuteur était perdu, ou son retour à zéro annulé : l'action repartait à
+   * la synchro suivante avec un reste de 1 s). Les deux minuteurs ayant la même période, ils tombent presque toujours ensemble.
+   */
+  let lancerMerge = false;
+  let lancerBoost = false;
   if (cfg.autoMerge && env?.autoMergeUnlocked) {
     cfg.mergeElapsed += seconds;
-    if (cfg.mergeElapsed >= interval) {
-      cfg.mergeElapsed %= interval;
-      out.merge = idleInventoryRunAutoMergeV1(s, env);
-    }
+    if (cfg.mergeElapsed >= interval) { cfg.mergeElapsed %= interval; lancerMerge = true; }
   }
   if (cfg.autoBoost && env?.autoBoostUnlocked) {
     cfg.boostElapsed += seconds;
-    if (cfg.boostElapsed >= interval) {
-      cfg.boostElapsed %= interval;
-      out.boost = idleInventoryRunAutoBoostV1(s, env, rng);
-    }
+    if (cfg.boostElapsed >= interval) { cfg.boostElapsed %= interval; lancerBoost = true; }
   }
+  if (lancerMerge) out.merge = idleInventoryRunAutoMergeV1(s, env);
+  if (lancerBoost) out.boost = idleInventoryRunAutoBoostV1(s, env, rng);
   return out;
 }
 

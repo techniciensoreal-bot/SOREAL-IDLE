@@ -264,8 +264,8 @@
   "sha": "82c1710ecb539ba9d9da0468070211749858867d"
  },
  "/modules/inventory-auto-v1.js": {
-  "pin": 22,
-  "sha": "deb6459987911d2c2cc73a8c2fda019fab71ab4c"
+  "pin": 23,
+  "sha": "6ad281014fccfb203747e06b8272cf943345b306"
  },
  "/modules/inventory-presentation-v1.js": {
   "pin": 1,
@@ -376,8 +376,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 107,
-  "sha": "0e48449715b99af9a96a8da5d76b2bfa139041ff"
+  "pin": 108,
+  "sha": "6ba3cdd7f52ed3e66edeb4b7e3d71e1afe5f7b3a"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -628,8 +628,8 @@
   "sha": "1c66e76d0bd78d450d38d7f9af3716b2b4d35033"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 14,
-  "sha": "a8064fadeb3f08ae4ad1b36a992d048fe8f9b862"
+  "pin": 15,
+  "sha": "7623c99a3ece3e751c409fc9e002f879f7481400"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 12,

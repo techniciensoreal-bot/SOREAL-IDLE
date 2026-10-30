@@ -51,6 +51,10 @@
         var cycle=Math.max(1,Number(el.getAttribute('data-cycle'))||1);
         var reste=Number(el.getAttribute('data-rest'))-(now-Number(el.getAttribute('data-at')))/1000;
         if(reste<=0)reste=cycle-((-reste)%cycle);
+        /* Norman (2026-10-31) : « 17, 16, 17, 16 ». Le décompte d'un minuteur ne remonte JAMAIS sauf après le déclenchement de l'action (la valeur précédente était sous 8 s, ou le nouveau reste est au moins la moitié d'une période de plus) : une réponse un peu en retard ne fait plus reculer l'affichage. */
+        var prec=el.__restePrecV1;
+        if(typeof prec==='number'&&reste>prec&&prec>8&&reste-prec<cycle*0.5)reste=prec;
+        el.__restePrecV1=reste;
         var t=(el.getAttribute('data-fmt')==='min'?dureeMin:duree)(Math.ceil(reste));
         if(el.textContent!==t)el.textContent=t;
       });

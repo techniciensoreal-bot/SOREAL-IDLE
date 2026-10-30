@@ -251,6 +251,8 @@
               return;
             }
 
+            /* Norman (2026-10-31) : « l'Auto Boost a fonctionné mais j'ai dû changer d'onglet pour voir les boosts disparus ». Une action automatique du moteur (Auto Merge, Auto Boost) change le sac entre deux synchros : la réponse remplaçait l'état sans toucher à la grille. Signature = révision de l'Aventure + taille du sac. */
+            const signatureSacAvantV1=signatureSacIdleV1_(REG.idleEtat);
             const ancienBossVaincus=
               REG.idleEtat
                 ?idleEntier_(
@@ -371,6 +373,10 @@
             /* Quel que soit le menu ouvert : le repère sert aussi à répercuter tout de suite un niveau gagné sur la vie max et l'attaque (Norman, 2026-10-16). */
             if(REG.idleEtat&&typeof window.__adopterRepereAugmentsIdleV1__==='function'){
               try{window.__adopterRepereAugmentsIdleV1__(REG.idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('repere_augments',e);}
+            }
+            /* Le sac a changé depuis la dernière réponse (action automatique du moteur) : la grille, l'équipement, le coffre et les bonus sont mis à jour EN PLACE (patch ciblé, jamais le redessin de la page : règle n°4). */
+            if(REG.idleMenuActifV28==='aventure'&&REG.idleEtat&&signatureSacIdleV1_(REG.idleEtat)!==signatureSacAvantV1&&!REG.idleInventoryBusyV160&&!(REG.idleInventoryMutationQueueV160&&REG.idleInventoryMutationQueueV160.length)&&typeof REG.patchInventaireAdventureIdleV160_==='function'){
+              try{REG.patchInventaireAdventureIdleV160_(REG.idleEtat,{action:'reconcile-v208'});}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('sac_synchro',e);}
             }
             /* Menus à l'ancienne : la page est redessinée avec les chiffres qui viennent d'arriver. */
             if(REG.IDLE_MENUS_VIVANTS_V1[REG.idleMenuActifV28]&&REG.idleEtat&&!champSaisieActifIdleV1_()){
@@ -523,6 +529,12 @@
         });
         observer.observe(document.body,{subtree:true,childList:true,characterData:true});
         appliquer69LolNoeudIdleV183_(document.body);
+      }
+
+      function signatureSacIdleV1_(j){
+        const a=j?aventureMetaIdleV47_(j):null;
+        if(!a)return '';
+        return idleEntier_(a.revision)+':'+(Array.isArray(a.inventory)?a.inventory.length:0);
       }
 
       function empreinteStructurelleIdleV1_(j){
