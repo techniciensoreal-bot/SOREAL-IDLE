@@ -16,9 +16,9 @@ assert.ok(html.indexOf("/modules/apk-connexion-v1.js") > 0 && html.indexOf("/mod
 assert.ok(!/localStorage\.\w+Item\((["'])soreal_idle_/.test(source) && !/'soreal_idle_/.test(source.replace(/\/\*[\s\S]*?\*\//g, "")), "clés propres à l'appareil (jamais recopiées avec les préférences du compte)");
 
 // ---------- comportement avec un faux navigateur
-const SERVEUR = { reseau: true, export: null, pushReponse: { ok: true, ecrit: true }, appels: [] };
+const SERVEUR = { reseau: true, export: null, pushReponse: { ok: true, ecrit: true }, sauvegardeReponse: { ok: true, sauvegardeSeule: true, ecrit: false }, appels: [] };
 function monde({ apk = true, stock = {} } = {}) {
-  const body = { appendChild(e) { (this.enfants = this.enfants || []).push(e); } };
+  const body = { appendChild(e) { e.parentNode = body; (this.enfants = this.enfants || []).push(e); }, removeChild(e) { this.enfants = (this.enfants || []).filter((x) => x !== e); e.parentNode = null; } };
   const fen = {
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); }, removeItem: (k) => { delete stock[k]; } },
     document: { hidden: false, body, getElementById: (id) => (body.enfants || []).find((e) => e.id === id) || null, createElement: () => ({ style: {}, setAttribute() {}, set innerHTML(h) { this._h = h; }, get innerHTML() { return this._h; } }), addEventListener() {} },
@@ -30,7 +30,7 @@ function monde({ apk = true, stock = {} } = {}) {
       const corps = init.body ? JSON.parse(init.body) : null;
       SERVEUR.appels.push({ url, auth: init.headers && init.headers.authorization, corps });
       if (/\/api\/v1\/local\/export\?appareil=/.test(url)) return { ok: true, status: 200, json: async () => SERVEUR.export };
-      if (/\/api\/v1\/local\/push$/.test(url)) return { ok: true, status: 200, json: async () => SERVEUR.pushReponse };
+      if (/\/api\/v1\/local\/push$/.test(url)) return { ok: true, status: 200, json: async () => (corps && corps.sauvegardeSeule ? SERVEUR.sauvegardeReponse : SERVEUR.pushReponse) };
       throw new Error("URL inattendue " + url);
     },
   };
@@ -58,11 +58,13 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   const base = { srv: "S1", loc: "L1" };
   assert.equal(d(ligne(0, 5, "L2"), ligne(0, 5, "S1"), base), "local", "serveur inchangé depuis la base : la partie du téléphone est la suite");
   assert.equal(d(ligne(0, 5, "L1"), ligne(0, 9, "S2"), base), "serveur", "le PC a joué, le téléphone non : celle du serveur");
-  assert.equal(d(ligne(0, 20, "L2"), ligne(0, 9, "S2"), base), "local", "les deux ont bougé : la plus avancée (téléphone)");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(1, 2, "S2"), base), "serveur", "les deux ont bougé : la plus avancée (serveur, une renaissance de plus)");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "serveur", "égalité avec une base : le serveur");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), null), "local", "égalité sans base : le téléphone");
-  assert.equal(d(ligne(0, 3, "L2"), ligne(0, 9, "S2"), null), "serveur", "sans base, le serveur plus avancé gagne : jamais écrasé");
+  assert.equal(d(ligne(0, 20, "L2"), ligne(0, 9, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (téléphone plus avancé)");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(1, 2, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (serveur plus avancé)");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "choix", "égalité avec une base : le joueur choisit");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), null), "local", "même progression sans base : une seule partie");
+  assert.equal(d(ligne(0, 3, "L2"), ligne(0, 9, "S2"), null), "choix", "sans base, deux parties différentes : le joueur choisit");
+  assert.equal(d(ligne(0, 0, "L2"), ligne(0, 9, "S2"), null), "serveur", "sans base, téléphone vide : celle du compte sans question");
+  assert.equal(d(ligne(0, 7, "L2"), ligne(0, 0, "S2"), null), "local", "sans base, compte vide : celle du téléphone");
 }
 { // démarrage en ligne : REVENDIQUE (export sans lecture seule), puis envoie sa partie si elle est la suite
   SERVEUR.appels = []; SERVEUR.reseau = true; SERVEUR.pushReponse = { ok: true, ecrit: true };
@@ -90,18 +92,65 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
 { // le PC a joué pendant ce temps : celle du serveur est chargée, la partie du téléphone est mise de côté
   SERVEUR.appels = []; SERVEUR.export = exportSrv(ligne(0, 40, "S9", "Redrum"));
   const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) } });
-  const loc = ligne(0, 10, "L2"); m.S.etat().moteur = moteurFaux(loc);
+  const loc = ligne(0, 10, "L1"); m.S.etat().moteur = moteurFaux(loc);
   const res = await m.S.synchroniser();
   assert.equal(res, "serveur-charge");
-  assert.equal(SERVEUR.appels.filter((a) => /push/.test(a.url)).length, 0, "rien n'est envoyé : jamais un état plus ancien sur un plus récent");
+  const envois = SERVEUR.appels.filter((a) => /push/.test(a.url));
+  assert.equal(envois.length, 1, "un seul envoi : la partie du téléphone en SAUVEGARDE SEULE, avant d'être remplacée");
+  assert.equal(envois[0].corps.sauvegardeSeule, true); assert.equal(envois[0].corps.cells[14], 10); assert.equal(envois[0].corps.choixAppareil, undefined);
   assert.equal(m.S.etat().moteur.charges.length, 1); assert.equal(m.S.etat().moteur.charges[0].cells[14], 40);
   assert.equal(JSON.parse(m.stock.idle_apk_sauvegarde_locale_v1).cells[14], 10, "la partie du téléphone est gardée de côté");
   assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).srv, "S9", "base = ce qu'on sait du serveur");
   await attendre(() => m.fen.rechargements === 1);
 }
+{ // les DEUX ont bougé : écran de choix obligatoire, sans spoil, sans fermeture ; rien n'est envoyé ni chargé avant le choix
+  SERVEUR.appels = []; SERVEUR.reseau = true; SERVEUR.pushReponse = { ok: true, ecrit: true };
+  SERVEUR.export = exportSrv(ligne(2, 40, "2026-10-30T10:00:00.000Z", "Redrum"));
+  const stock = { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
+  const m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "2026-10-29T09:00:00.000Z"));
+  assert.equal(await m.S.synchroniser(), "choix");
+  const ecran = m.fen.document.getElementById("sorealIdleApkChoixV1");
+  assert.ok(ecran, "écran de choix affiché");
+  const h = ecran._h;
+  assert.match(h, /Une partie plus récente a été trouvée sur ton compte/);
+  assert.match(h, /Prendre la partie du compte/); assert.match(h, /Garder ma partie du téléphone/);
+  assert.match(h, /gardée 30 jours en secours/, "dit que l'autre est gardée 30 jours");
+  assert.match(h, /Renaissances : 2[\s\S]*Boss vaincus : 40/); assert.match(h, /Renaissances : 1[\s\S]*Boss vaincus : 12/);
+  assert.ok(!/fermer|plus tard|Annuler/i.test(h), "aucune sortie : on est obligé de choisir");
+  assert.equal(SERVEUR.appels.filter((a) => /push/.test(a.url)).length, 0, "rien n'est envoyé avant le choix");
+  assert.equal(m.S.etat().moteur.charges.length, 0, "rien n'est chargé avant le choix");
+  assert.equal(await m.S.tick(true), false, "pas d'envoi périodique tant que le choix n'est pas fait");
+  // choix « compte » : copie du téléphone au serveur (sauvegarde seule) + sur le téléphone, puis celle du compte est chargée
+  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.serveur(), "serveur-charge");
+  const envois = SERVEUR.appels.filter((a) => /push/.test(a.url));
+  assert.equal(envois.length, 1); assert.equal(envois[0].corps.sauvegardeSeule, true); assert.equal(envois[0].corps.cells[24], 1, "la partie du TÉLÉPHONE est sauvegardée");
+  assert.equal(m.S.etat().moteur.charges[0].cells[24], 2, "celle du compte est chargée");
+  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1, "copie locale gardée sur le téléphone");
+  await attendre(() => m.fen.rechargements === 1);
+}
+{ // choix « compte » sans internet : possible, la copie reste sur le téléphone
+  SERVEUR.appels = []; SERVEUR.export = exportSrv(ligne(2, 40, "S9"));
+  const stock = { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
+  const m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
+  await m.S.synchroniser(); SERVEUR.reseau = false;
+  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.serveur(), "serveur-charge", "le choix reste possible hors ligne");
+  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1); SERVEUR.reseau = true;
+}
+{ // choix « téléphone » : elle remplace celle du serveur (choixAppareil, copie 30 jours côté serveur) ; échec réseau : on doit rechoisir
+  SERVEUR.appels = []; SERVEUR.export = exportSrv(ligne(2, 40, "S9"));
+  const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) } }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
+  await m.S.synchroniser(); SERVEUR.reseau = false;
+  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.local(), "local-echec"); assert.ok(m.fen.document.getElementById("sorealIdleApkChoixV1"), "l'écran reste : obligé de choisir");
+  SERVEUR.reseau = true;
+  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.local(), "local");
+  const push = SERVEUR.appels.filter((a) => /push/.test(a.url)).pop();
+  assert.equal(push.corps.choixAppareil, true); assert.equal(push.corps.importPartie, undefined); assert.equal(push.corps.sauvegardeSeule, undefined);
+  assert.equal(m.fen.document.getElementById("sorealIdleApkChoixV1"), null, "écran retiré après le choix");
+  assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).srv, "L2", "base mise à jour");
+}
 { // conflit (le PC a repris la partie) : l'écran « Partie reprise sur un autre appareil », plus aucun envoi
   SERVEUR.export = exportSrv(ligne(0, 5, "S1")); SERVEUR.pushReponse = { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS" };
-  const m = monde({ stock: { idle_apk_jeton_v1: JETON } });
+  const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L0" }) } });
   m.S.etat().moteur = moteurFaux(ligne(0, 7, "L2"));
   await m.S.synchroniser();
   assert.ok(m.fen.document.getElementById("sorealIdleApkConflitV1"), "écran de conflit affiché");
@@ -111,10 +160,10 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
 }
 { // envoi reçu mais refusé (serveur plus récent) : retenté, jamais compté comme sauvegardé
   SERVEUR.export = exportSrv(ligne(0, 5, "S1")); SERVEUR.pushReponse = { ok: true, ecrit: false };
-  const m = monde({ stock: { idle_apk_jeton_v1: JETON } });
+  const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L0" }) } });
   m.S.etat().moteur = moteurFaux(ligne(0, 7, "L2"));
   assert.equal(await m.S.synchroniser(), "local-refuse");
-  assert.equal(m.stock.idle_apk_base_serveur_v1, undefined, "base non avancée");
+  assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).loc, "L0", "base non avancée");
   SERVEUR.pushReponse = { ok: true, ecrit: true };
   assert.equal(await m.S.tick(false), true, "retenté et accepté ensuite");
   assert.equal(SERVEUR.appels[SERVEUR.appels.length - 1].corps.importPartie, true, "la copie « avant-import » reste demandée tant qu'aucun envoi n'a été accepté");

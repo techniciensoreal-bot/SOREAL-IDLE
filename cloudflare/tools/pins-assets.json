@@ -44,8 +44,8 @@
   "sha": "79a5fff85a10509fea2218085b67b89c29f8a1e5"
  },
  "/modules/apk-synchro-v1.js": {
-  "pin": 1,
-  "sha": "afc0f87aff4e91880ab6f35246ee8d77256e3feb"
+  "pin": 2,
+  "sha": "78353251bc15b059913253e1d8e80340a89c39a7"
  },
  "/modules/apparition-boss-v1.js": {
   "pin": 11,
@@ -376,8 +376,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 106,
-  "sha": "e3edebd39a1742152b188c1aa309be9d5b081d74"
+  "pin": 107,
+  "sha": "0e48449715b99af9a96a8da5d76b2bfa139041ff"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,

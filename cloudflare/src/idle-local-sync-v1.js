@@ -85,23 +85,37 @@ const SAUVEGARDE_INTERVALLE_MS = 15 * 60 * 1000;
 const SAUVEGARDE_RECENTES_MAX = 48;
 const SAUVEGARDE_QUOTIDIENNES_MS = 30 * 24 * 3600 * 1000;
 
+/*
+ * CHOIX D'APPAREIL (Norman, 2026-10-30, application Android : « comme sur Steam ») : quand deux appareils ont chacun une partie propre, le joueur choisit laquelle garde ; l'autre est REMPLACÉE mais gardée 30 JOURS EXACTS en secours :
+ *  - « avant-choix-appareil » : la partie du serveur, copiée juste avant d'être remplacée par celle de l'appareil choisie ;
+ *  - « appareil-ecrase » : la partie de l'appareil, envoyée au serveur comme SAUVEGARDE SEULE (jamais appliquée) quand le joueur prend celle du serveur.
+ * Ni la limite des 48 copies récentes ni la purge des quotidiennes ne les touchent ; elles ne partent qu'après 30 jours (purge à chaque nouvelle copie).
+ */
+export const MOTIFS_CHOIX_APPAREIL_V1 = ["avant-choix-appareil", "appareil-ecrase"];
+export const SAUVEGARDE_CHOIX_APPAREIL_MS = 30 * 24 * 3600 * 1000;
+const MOTIFS_A_PART_SQL = "'quotidienne','initiale','avant-choix-appareil','appareil-ecrase'";
+
 function assurerSauvegardes(coord) {
   coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_sauvegardes_locales(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL, at INTEGER NOT NULL, motif TEXT NOT NULL, row_json TEXT NOT NULL)");
   coord.sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_sauvegardes_locales_email ON idle_sauvegardes_locales(email,at)");
+  /* Appareil à l'origine de la copie (colonne ajoutée plus tard : tables déjà créées complétées une fois). */
+  const colonnes = coord.sqlAll("PRAGMA table_info(idle_sauvegardes_locales)");
+  if (!colonnes.some((c) => c.name === "appareil")) coord.sql.exec("ALTER TABLE idle_sauvegardes_locales ADD COLUMN appareil TEXT NOT NULL DEFAULT ''");
 }
 
-function copier(coord, email, rowJson, motif, now) {
+function copier(coord, email, rowJson, motif, now, appareil = "") {
   assurerSauvegardes(coord);
-  coord.sql.exec("INSERT INTO idle_sauvegardes_locales(email,at,motif,row_json) VALUES(?,?,?,?)", email, now, motif, rowJson);
-  coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN ('quotidienne','initiale') AND id NOT IN (SELECT id FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN ('quotidienne','initiale') ORDER BY id DESC LIMIT ?)", email, email, SAUVEGARDE_RECENTES_MAX);
+  coord.sql.exec("INSERT INTO idle_sauvegardes_locales(email,at,motif,row_json,appareil) VALUES(?,?,?,?,?)", email, now, motif, rowJson, sv(appareil).slice(0, 64));
+  coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN (" + MOTIFS_A_PART_SQL + ") AND id NOT IN (SELECT id FROM idle_sauvegardes_locales WHERE email=? AND motif NOT IN (" + MOTIFS_A_PART_SQL + ") ORDER BY id DESC LIMIT ?)", email, email, SAUVEGARDE_RECENTES_MAX);
   coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE email=? AND motif='quotidienne' AND at < ?", email, now - SAUVEGARDE_QUOTIDIENNES_MS);
+  coord.sql.exec("DELETE FROM idle_sauvegardes_locales WHERE motif IN ('avant-choix-appareil','appareil-ecrase') AND at < ?", now - SAUVEGARDE_CHOIX_APPAREIL_MS);
 }
 
 /* Copie la ligne actuelle du serveur si le calendrier ci-dessus le demande (ou toujours, avec « motifForce »). */
-export function sauvegarderSiBesoinLocalV1(coord, email, rowJson, now, motifForce = "") {
+export function sauvegarderSiBesoinLocalV1(coord, email, rowJson, now, motifForce = "", appareil = "") {
   if (!email || !rowJson) return false;
   assurerSauvegardes(coord);
-  if (motifForce) { copier(coord, email, rowJson, motifForce, now); return true; }
+  if (motifForce) { copier(coord, email, rowJson, motifForce, now, appareil); return true; }
   const derniere = coord.sqlAll("SELECT at FROM idle_sauvegardes_locales WHERE email=? ORDER BY at DESC LIMIT 1", email)[0];
   if (!derniere) { copier(coord, email, rowJson, "initiale", now); return true; }
   const debutJour = Date.UTC(new Date(now).getUTCFullYear(), new Date(now).getUTCMonth(), new Date(now).getUTCDate());
@@ -119,10 +133,10 @@ function indexParEmail(coord, email) {
 
 export function listerSauvegardesLocalesV1(coord, email) {
   assurerSauvegardes(coord);
-  return coord.sqlAll("SELECT id,at,motif,row_json FROM idle_sauvegardes_locales WHERE email=? ORDER BY at DESC LIMIT 200", sv(email).toLowerCase()).map((r) => {
+  return coord.sqlAll("SELECT id,at,motif,row_json,appareil FROM idle_sauvegardes_locales WHERE email=? ORDER BY at DESC LIMIT 200", sv(email).toLowerCase()).map((r) => {
     let c = [];
     try { c = JSON.parse(r.row_json); } catch (_) {}
-    return { id: Number(r.id), at: Number(r.at), motif: r.motif, bossVaincus: Number(c[COL_BOSS_VAINCUS]) || 0, renaissances: Number(c[COL_RENAISSANCES]) || 0, derniereSynchro: c[COL_DERNIERE_SYNCHRO] || "", octets: r.row_json.length };
+    return { id: Number(r.id), at: Number(r.at), motif: r.motif, appareil: sv(r.appareil), bossVaincus: Number(c[COL_BOSS_VAINCUS]) || 0, renaissances: Number(c[COL_RENAISSANCES]) || 0, derniereSynchro: c[COL_DERNIERE_SYNCHRO] || "", octets: r.row_json.length };
   });
 }
 
@@ -276,6 +290,17 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
   const cells = Array.isArray(p.cells) ? p.cells : null;
   const appareil = sv(p.appareil).slice(0, 64);
+  /* Sauvegarde SEULE : la partie d'un appareil que le joueur a choisi de remplacer par celle du serveur. Jamais appliquée, ne revendique rien, ne compte pas comme un envoi ; gardée 30 jours (« appareil-ecrase »). */
+  if (p.sauvegardeSeule === true) {
+    if (!cells || cells.length < 30) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
+    const actu = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
+    let srv = [];
+    try { srv = JSON.parse(actu.row_json); } catch (_) {}
+    const copie = cells.slice();
+    for (const c of COLS_DU_SERVEUR) copie[c] = srv[c];
+    copier(coord, emailsDe(effectif(s.user))[0] || "", JSON.stringify(copie), "appareil-ecrase", Date.now(), appareil);
+    return { ok: true, sauvegardeSeule: true, ecrit: false, serveurAt: Date.now() };
+  }
   if (appareil) {
     assurerAppareils(coord);
     const mail = emailsDe(effectif(s.user))[0] || "";
@@ -299,9 +324,11 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   if (Number.isFinite(recu) && recu > maintenantSrv + TOLERANCE_HORLOGE_MS) { recu = maintenantSrv; cells[COL_DERNIERE_SYNCHRO] = new Date(maintenantSrv).toISOString(); }
   if (Number.isFinite(connu) && connu > maintenantSrv + TOLERANCE_HORLOGE_MS) connu = maintenantSrv - TOLERANCE_HORLOGE_MS;
   let ecrit = false;
-  if (!(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
+  /* Choix d'appareil : le joueur a décidé que la partie de cet appareil REMPLACE celle du serveur, même si la date de la sienne est plus ancienne ; l'ancienne est gardée 30 jours (« avant-choix-appareil »). */
+  const choix = p.choixAppareil === true;
+  if (choix || !(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
     /* Copie de sécurité de la ligne actuelle AVANT de l'écraser (toujours, si l'anti-triche a noté une anomalie). */
-    sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), p.importPartie === true ? "avant-import" : (alertes.length ? "avant-anomalie" : ""));
+    sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), choix ? "avant-choix-appareil" : p.importPartie === true ? "avant-import" : (alertes.length ? "avant-anomalie" : ""), appareil);
     const fusion = cells.slice();
     for (const c of COLS_DU_SERVEUR) fusion[c] = serveur[c];
     appliquerRecordsRetiresV1(coord, emailsDe(effectif(s.user))[0] || "", fusion);
