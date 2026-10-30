@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les cadres de titre des menus gardent leur apparence à toute largeur de fenêtre : ils reprennent le visuel de leur petit bouton au lieu de s’étirer en gros disques flous sur un grand écran.',
             'Application Android hors ligne : au lancement en ligne, ta partie du compte est maintenant revendiquée comme sur ordinateur (un seul appareil joue à la fois) ; si une partie plus récente existe sur le compte, un écran oblige à choisir entre la partie du compte et celle du téléphone, et la partie remplacée est gardée 30 jours en secours.',
             'Application Android hors ligne : le bouton Retour ferme maintenant l’application, comme avant.',
             'Application Android hors ligne : à chaque ouverture, un dialogue propose la mise à jour tant qu’elle n’est pas appliquée (avec un bouton pour la télécharger tout de suite, même en réseau mobile), signale quand l’ancienne version a dû être remise et propose de réessayer ; le numéro de version du code actif s’affiche dans les Réglages (onglet Infos), et les médias retirés (anciennes voix) sont supprimés de l’appareil pour libérer de la place.',
@@ -63,6 +64,7 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
+            'Les onglets Sac et Garderie gardent exactement la même taille et la même place quand on passe de l’un à l’autre.',
             'Plus de boutons sous l’armoire : on clique sur les bocaux. Un « + » dans un bocal vide permet de choisir un objet disponible ; cliquer sur un bocal occupé propose de reprendre l’objet, en prévenant que l’avancée vers le niveau suivant sera perdue. Chaque bocal montre le niveau de départ puis le niveau actuel, en vert.',
             'L’image du grenier occupe tout le cadre de la Garderie (onglets et titre compris), et Mamie l’armoire a de petits mouvements : sa pupille gauche tombe parfois comme une bille et sa paupière se ferme plusieurs fois pour la remettre en place, et le bout de son nez bouge de temps en temps.',
             'La Garderie d’objets n’est plus un menu : c’est un onglet à côté du sac, tenu par une vieille armoire aux yeux fous qui parle, bougonne un peu et remue son gros nez entre deux bocaux. Chaque emplacement est un grand bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas.',
@@ -89,6 +91,7 @@
             'Sur un fruit prêt, le gain de « Manger » et de « Récolter » est bien plus visible (cadre doré, texte plus grand) et les unités des grands nombres (Qa…) ont leur couleur comme partout ailleurs.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'Dans NGU, « Eh, c’est le nom du jeu original ! » est maintenant sous « NGU » dans le cadre du haut, et la phrase « Fais monter tes NGU… » est sous « ÉNERGIE » ou « MAGIE ».',
             'Dans le laboratoire NGU, le cadre jour (Énergie) et nuit (Magie) reprend le style du titre du menu : liseré arcade, ciel, soleil et nuages le jour, lune et étoiles la nuit, et il s’intitule « ÉNERGIE » ou « MAGIE ».',
             'Le cadre de titre de la page prend vraiment le thème de la page : la moitié gauche est en jour (ciel bleu et soleil), la moitié droite en nuit (ciel sombre, lune et étoiles).'
           ]},
