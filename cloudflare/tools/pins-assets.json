@@ -216,8 +216,8 @@
   "sha": "5800cf37279436db5d1e41e4f8705ec37ee34b8a"
  },
  "/modules/etagere-personnage-v1.js": {
-  "pin": 15,
-  "sha": "eef07cab53cbf8ee5fd0523360a8b27c60e35c69"
+  "pin": 17,
+  "sha": "f5061e44c15dd5859f257e8007c130792ecff269"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -456,8 +456,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 598,
-  "sha": "e76a095ddf465308dbe8988231d812a5bf422f1a"
+  "pin": 599,
+  "sha": "a22ca530e47c90518c531e0a0f750d19ee52a2e7"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -532,12 +532,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 616,
-  "sha": "b6b1e1388f3b1dd7f3f7a78b2843971327c2752f"
+  "pin": 617,
+  "sha": "05e5df030c391f6c61895aa22285540aecc86129"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 436,
-  "sha": "4eff729e8bc6f190d9995f77c1ea6d2eea1d8524"
+  "pin": 437,
+  "sha": "eb266d4c5f68f77a7cddacf971a8eb202b796175"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

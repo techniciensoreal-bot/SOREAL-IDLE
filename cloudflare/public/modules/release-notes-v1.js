@@ -32,6 +32,8 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Application Android hors ligne : au lancement en ligne, ta partie du compte est maintenant revendiquée comme sur ordinateur (un seul appareil joue à la fois) ; si une partie plus récente existe sur le compte, un écran oblige à choisir entre la partie du compte et celle du téléphone, et la partie remplacée est gardée 30 jours en secours.',
+            'Application Android hors ligne : le bouton Retour ferme maintenant l’application, comme avant.',
             'Application Android hors ligne : à chaque ouverture, un dialogue propose la mise à jour tant qu’elle n’est pas appliquée (avec un bouton pour la télécharger tout de suite, même en réseau mobile), signale quand l’ancienne version a dû être remise et propose de réessayer ; le numéro de version du code actif s’affiche dans les Réglages (onglet Infos), et les médias retirés (anciennes voix) sont supprimés de l’appareil pour libérer de la place.',
             'Les boutons de la barre des menus (en haut sur téléphone, à gauche sur ordinateur) sont maintenant le cadre de titre de leur menu en petit, avec le nom du menu au centre : le menu ouvert brille, les autres sont sombres, et les deux dessins de chaque bouton s’animent quand ce menu travaille (avec l’achat « Menus animés »).',
             'Applications Android et PC hors ligne : les textes des chroniques et leurs voix se mettent maintenant à jour avec les mises à jour de l’application (avant, elles gardaient celles d’origine).',
@@ -61,7 +63,8 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
-            'Le fond de la Garderie est maintenant un grenier (une scène haute sur téléphone, carrée sur ordinateur) : Mamie l’armoire y est posée sur le plancher, avec son ombre.',
+            'Plus de boutons sous l’armoire : on clique sur les bocaux. Un « + » dans un bocal vide permet de choisir un objet disponible ; cliquer sur un bocal occupé propose de reprendre l’objet, en prévenant que l’avancée vers le niveau suivant sera perdue. Chaque bocal montre le niveau de départ puis le niveau actuel, en vert.',
+            'L’image du grenier occupe tout le cadre de la Garderie (onglets et titre compris), et Mamie l’armoire a de petits mouvements : sa pupille gauche tombe parfois comme une bille et sa paupière se ferme plusieurs fois pour la remettre en place, et le bout de son nez bouge de temps en temps.',
             'La Garderie d’objets n’est plus un menu : c’est un onglet à côté du sac, tenu par une vieille armoire aux yeux fous qui parle, bougonne un peu et remue son gros nez entre deux bocaux. Chaque emplacement est un grand bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas.',
             'Les bocaux apparaissent un par un sur l’étagère, au fur et à mesure que tu obtiens des emplacements, avec une petite animation de pose.',
             'Dans la fiche d’un objet, un bouton Garderie le place directement dans un bocal libre (« Garderie pleine » s’il n’y en a plus).',
@@ -72,7 +75,7 @@
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'Quand tu ranges de nouvelles cartes, chacune entre maintenant dans sa pochette par le côté extérieur de la page, sous le plastique (elle ne le traverse plus), et un bouton « Passer » (ou la touche Échap) range tout d’un coup.',
-            'Sur téléphone, l’album s’ouvre maintenant sur deux pages comme sur ordinateur : tu vois le livre entier, tu peux zoomer jusqu’à 300 % avec + et −, et les flèches font d’abord glisser le livre de la page de gauche à celle de droite avant de tourner la feuille. La première page s’affiche seule, sans seconde couverture noire à côté.',
+            'Sur téléphone, l’album montre une seule page de 9 cartes au plus, à taille fixe (plus de zoom), et les images des cartes ne disparaissent plus quand on tourne les pages.',
             'Dans le classeur, la carte reste maintenant bien visible pendant qu’elle glisse pour entrer dans sa pochette (elle disparaissait avant d’arriver).',
             'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
             'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',
