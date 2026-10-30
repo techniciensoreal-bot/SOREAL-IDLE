@@ -22,17 +22,27 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.4',
+    courante:'4.5',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.5',
+        nom:'La voix anglaise',
+        date:'2026-10-31',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'L’introduction en anglais affiche maintenant le texte original du jeu (« THE BEGINNING ») et est lue par un narrateur anglais, légèrement ralenti ; si une voix ne peut pas se jouer, l’introduction défile en texte seul.'
+          ]}
+        ]
+      },
       {
         version:'4.4',
         nom:'Le classeur',
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Au lancement du jeu, sur l’écran où l’on choisit son pseudo, on choisit aussi sa langue (Français ou English) : l’écran se traduit tout de suite et l’introduction se lance dans la langue choisie. En anglais, l’introduction affiche le texte original du jeu (« THE BEGINNING ») lu par un narrateur anglais.',
+            'Au lancement du jeu, sur l’écran où l’on choisit son pseudo, on choisit aussi sa langue (Français ou English) : l’écran se traduit tout de suite et l’introduction se lance dans la langue choisie. En anglais, l’introduction s’affiche en texte seul pour l’instant : les voix anglaises ne sont pas encore enregistrées.',
             'Les cadres de titre des menus gardent leur apparence à toute largeur de fenêtre : ils reprennent le visuel de leur petit bouton au lieu de s’étirer en gros disques flous sur un grand écran.',
             'Application Android hors ligne : au lancement en ligne, ta partie du compte est maintenant revendiquée comme sur ordinateur (un seul appareil joue à la fois) ; si une partie plus récente existe sur le compte, un écran oblige à choisir entre la partie du compte et celle du téléphone, et la partie remplacée est gardée 30 jours en secours.',
             'Application Android hors ligne : le bouton Retour ferme maintenant l’application, comme avant.',
