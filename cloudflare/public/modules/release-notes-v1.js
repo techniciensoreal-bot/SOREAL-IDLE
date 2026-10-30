@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Application Android hors ligne : au démarrage, un écran de connexion affiche l’image du jeu en plein écran ; un appui ouvre le navigateur pour choisir son compte Google. Si le compte possède une partie, elle est restaurée directement ; sinon un pseudo est demandé, et un pseudo déjà pris est refusé.',
             'Quand tu nettoies ton Coffre ou ta Valise, une phrase comique accompagne maintenant la récompense en AP (une au hasard, jamais deux fois de suite la même), avec des phrases à part pour le gain exceptionnel.',
             'Dans l’application PC lancée par Steam, les bandes noires qui apparaissaient pendant l’interface Steam (et une demi-seconde après) sont corrigées : le jeu continue de se dessiner sous la superposition.',
             'Les cadres de titre des menus ont une police plus grande et un aspect plus soigné : le nom en grosses lettres entre deux filets lumineux, la mini phrase plus lisible, un reflet et un liseré dans la couleur du menu.',
@@ -65,6 +66,9 @@
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur un fruit prêt, le gain de « Manger » et de « Récolter » est bien plus visible (cadre doré, texte plus grand) et les unités des grands nombres (Qa…) ont leur couleur comme partout ailleurs.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Le cadre de titre de la page prend vraiment le thème de la page : la moitié gauche est en jour (ciel bleu et soleil), la moitié droite en nuit (ciel sombre, lune et étoiles).'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'

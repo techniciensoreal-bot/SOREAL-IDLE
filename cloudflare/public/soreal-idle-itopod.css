@@ -1681,6 +1681,15 @@ html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v2
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="wandoos"] .wd-clavier::after{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;background:linear-gradient(90deg,rgba(190,60,255,.55),rgba(190,60,255,.22) 22%,transparent 46%,transparent 58%,rgba(90,235,50,.22) 78%,rgba(90,235,50,.52));mix-blend-mode:multiply}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="wandoos"] .wd-crt::before{content:"";position:absolute;z-index:4;pointer-events:none;top:-11.88cqw;right:-11.48cqw;bottom:-26.64cqw;left:-11.56cqw;background:linear-gradient(90deg,rgba(190,60,255,.6),rgba(190,60,255,.24) 18%,transparent 42%,transparent 60%,rgba(90,235,50,.24) 82%,rgba(90,235,50,.55));mix-blend-mode:multiply;-webkit-mask-box-image:url("/api/idle/media/banner?name=wandoos.webp") 195 162 363 162 fill / 15.55cqw 12.92cqw 28.95cqw 12.92cqw / 3.67cqw 1.36cqw 2.23cqw 1.36cqw stretch}
 }
+/* Le cadre de titre prend vraiment le thème de la page (Norman, 2026-10-30) : NGU = la moitié gauche en JOUR (ciel bleu, soleil), la moitié droite en NUIT (ciel sombre, lune et étoiles). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="ngu"] .soreal-idle-page-head-v28[data-entete-menu]::before{background:
+  radial-gradient(circle at 13% 36%,#fff7c2 0 3.2%,rgba(255,226,120,.75) 3.6% 5.6%,rgba(255,214,90,.25) 6% 11%,transparent 12%),
+  radial-gradient(circle at 87% 34%,#f4f7ff 0 2.6%,rgba(214,226,255,.55) 3% 5%,rgba(170,190,255,.2) 5.5% 9%,transparent 10%),
+  radial-gradient(circle at 60% 22%,#fff 0 .7px,transparent 1.4px),radial-gradient(circle at 68% 62%,#fff 0 .7px,transparent 1.4px),radial-gradient(circle at 74% 30%,#fff 0 1px,transparent 1.8px),
+  radial-gradient(circle at 79% 70%,#fff 0 .7px,transparent 1.4px),radial-gradient(circle at 93% 64%,#fff 0 .8px,transparent 1.6px),radial-gradient(circle at 96% 20%,#fff 0 .7px,transparent 1.4px),
+  radial-gradient(circle at 56% 74%,#fff 0 .6px,transparent 1.2px),radial-gradient(circle at 82% 14%,#fff 0 .8px,transparent 1.6px),
+  linear-gradient(180deg,rgba(255,255,255,.14) 0,transparent 35%,rgba(0,0,0,.25) 100%),
+  linear-gradient(90deg,#3d9be0 0%,#7cc4f5 38%,#a9dcff 47%,#262c6e 53%,#121847 70%,#070b2a 100%)}
 /*
  * Barre de défilement de l'inventaire sur téléphone (Norman, 2026-10-11) : « souvent on glisse une pièce en voulant glisser l'inventaire » ; puis « elle doit être incrustée dans l'interface : gagne la place libre à gauche et à droite
  * pour rétrécir le cadre en largeur et mets-y la barre ». L'inventaire (équipement et sac) gagne la marge de la page et devient une grille à deux colonnes : les cadres à gauche, une vraie barre de défilement à droite, qui

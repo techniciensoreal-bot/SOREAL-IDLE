@@ -58,4 +58,6 @@ assert.ok(js.includes("h+=(derriere&&derriere[i])?dosPochetteHtml():v;") && js.i
 assert.ok(js.includes("contenuPage(sens>0?p+1:q+1,true)") && js.includes("contenuPage(a+1,true)"), "faces arrière des feuilles qui tournent (= page de gauche) : mêmes dos");
 // --- fermeture : la couverture attend la fin de la dernière feuille (la promesse d'une seule feuille se terminait tout de suite)
 assert.ok(js.includes("if(total===1){Promise.resolve(page_(sens)).then(fini);return;}") && !js.includes("then(fini);return fini();"), "sauter() d'une seule feuille se termine à la fin de son animation");
+// --- cadre de titre de NGU : moitié gauche en jour, moitié droite en nuit (Norman, 2026-10-30)
+assert.ok(itopod.includes('[data-menu="ngu"] .soreal-idle-page-head-v28[data-entete-menu]::before{background:') && itopod.includes("linear-gradient(90deg,#3d9be0 0%,#7cc4f5 38%,#a9dcff 47%,#262c6e 53%,#121847 70%,#070b2a 100%)"), "NGU : ciel de jour à gauche, ciel de nuit à droite");
 console.log("idle-album-adapte-v1 : OK");
