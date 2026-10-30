@@ -478,7 +478,7 @@
               '</div>'+
               rendreCollectionCreaturesIdleV1_(bossEntrees,'Aucun boss vaincu pour l’instant.')
             :''}
-          ${onglet==='equipement'?rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube):''}
+          ${onglet==='equipement'?rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube,catalogueSetsCollectionIdleV164_(a)):''}
           ${onglet==='sets'?rendreCollectionIdleV22_(j):''}
         `;
       }
@@ -551,10 +551,42 @@
             return Boolean(info&&info.seen);
           });
         });
+        /* Sets d'objets (Graine, Nombre, Aisselle, cœurs…) : révélés par le moteur seulement une fois un de leurs objets obtenu ou le set complété ; seuls les objets déjà vus sont listés, jamais leur total. */
+        const setsObjets=Object.values(setCatalog).filter(function(setDef){return Boolean(setDef&&setDef.source==='objets');});
 
-        if(!sets.length){
+        if(!sets.length&&!setsObjets.length){
           return '<div class="soreal-idle-empty-v10">Aucun set découvert pour l’instant. Les cases apparaîtront dès que tu trouveras la première pièce d’un set.</div>';
         }
+
+        const htmlSetsObjets=setsObjets.map(function(setDef){
+          const setId=String(setDef.id||'');
+          const objets=Array.isArray(setDef.items)?setDef.items:[];
+          const obtenu=Boolean(completed[setId]);
+          const lignes=objets.map(function(defId){
+            const def=itemCatalog[defId]||{};
+            const info=itemList[defId]||null;
+            const niveau=idleEntier_(info&&info.maxLevel);
+            return '<div class="soreal-idle-collection-slot-v32 found'+(niveau>=100?' maxed':'')+'">'+
+              '<div>'+idleHtml_(def.name||defId)+'</div>'+
+              '<small>Niv. '+niveau+'/100'+(niveau>=100?' · ✅':'')+'</small>'+
+            '</div>';
+          }).join('');
+          const recompense=setDef.reward&&Object.keys(setDef.reward).length
+            ?'<div class="soreal-idle-collection-bonus-v1'+(obtenu?' obtenu':'')+'">'+
+                '<div class="titre">'+(obtenu?'✅ Bonus du set obtenu':'🎁 Bonus du set')+'</div>'+
+                '<div class="texte">'+idleHtml_(libelleRecompenseSetAdventureIdleV163_(setDef.reward))+'</div>'+
+                (obtenu?'':'<div class="condition">S’obtient quand les objets du set sont au niveau 100.</div>')+
+              '</div>'
+            :'';
+          return '<div class="soreal-idle-collection-zone-v32">'+
+            '<div class="soreal-idle-collection-zone-head-v32"><div>'+
+              '<div class="soreal-idle-collection-zone-name-v32">📚 '+idleHtml_(setDef.name||setId)+'</div>'+
+              recompense+
+            '</div>'+
+            '<div class="soreal-idle-collection-count-v32'+(obtenu?' done':'')+'">'+(obtenu?'✅':'')+'</div></div>'+
+            '<div class="soreal-idle-collection-slots-v32">'+lignes+'</div>'+
+          '</div>';
+        }).join('');
 
         return sets.map(function(setDef){
           const setId=String(setDef&&setDef.id||'');
@@ -625,7 +657,7 @@
             '</div>'+
             '<div class="soreal-idle-collection-slots-v32">'+cartes+'</div>'+
           '</div>';
-        }).join('');
+        }).join('')+htmlSetsObjets;
       }
 
       function pageSystemeMetaIdleV130_(j,id,titre){

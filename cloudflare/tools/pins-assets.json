@@ -20,8 +20,8 @@
   "sha": "ccd87fbe3ec1d998fd5b7bceb4e23c0fb4ef23e3"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 14,
-  "sha": "505a2bb0d124e8387113326f3867e4c189a76c6f"
+  "pin": 17,
+  "sha": "dc9a24d44363ae48f59e06771f8af918fa0618c8"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -116,8 +116,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 12,
-  "sha": "49d86b87dc2b0dd228326a4f3282d94217f77680"
+  "pin": 13,
+  "sha": "f2fa68f3466210866949467b2416f706a4fc1d43"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -360,8 +360,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 96,
-  "sha": "c6a8dde3b53f25f265ccfcafc22316635f288e7d"
+  "pin": 97,
+  "sha": "ee22064ec29fe54dc6975ff6a2fe1a6140f36a49"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -440,8 +440,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 561,
-  "sha": "1c6bc79a5a43968433899c3546b5fa46fdf49015"
+  "pin": 565,
+  "sha": "9a4bf4e136ecf9938555eee0bb2e664c1984b297"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -512,12 +512,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 574,
-  "sha": "31ba9710fdee627540f3627a7b1f0e092c8694a4"
+  "pin": 578,
+  "sha": "7f5192e6feb2c85726eab77afa2498ece670dbdf"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 394,
-  "sha": "e9cd4f6800e229142205af8d05cb07e1377935c4"
+  "pin": 398,
+  "sha": "e16c74ce33c1d4212ddec371f011855ed7289201"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -552,12 +552,12 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 11,
-  "sha": "de2e20576e397eea42533d8889b2e02891314d7a"
+  "pin": 13,
+  "sha": "c054da56a8a172ebb899ed72ad27cd1885214e20"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 40,
-  "sha": "91ec323f89abbd0e785fc19728350e45830b67a1"
+  "pin": 42,
+  "sha": "74d35cc6dc38eb0d7b1a2713bb344e9a34e4dd24"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 18,
@@ -568,8 +568,8 @@
   "sha": "9d3b18b0b5c864bde0f74dd99fabd794456d12b0"
  },
  "/modules/ui-chroniques-v1.js": {
-  "pin": 9,
-  "sha": "28e981f4aedf9b267d055b519ac817fc40d5301f"
+  "pin": 10,
+  "sha": "45a46779976488b29d3debaed6217ad662f68f97"
  },
  "/modules/ui-combat-1-v1.js": {
   "pin": 25,
@@ -588,8 +588,8 @@
   "sha": "3ee4907d1095988fe34cbe5536fe9af35714cdfa"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 7,
-  "sha": "e8a8023ee5f880ab38775ec300f096b7f7dcccfd"
+  "pin": 8,
+  "sha": "4823e83643e8d032e5bfaace1f9cf093e9c8a8b6"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 6,
@@ -684,20 +684,20 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 20,
-  "sha": "a16974b3b00e85fb9b1e0f3c35e818b9fe20cc08"
+  "pin": 21,
+  "sha": "185d003afee6a96d513c46d718a8eb76ac48b355"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 13,
-  "sha": "1a286f7ecea0394deaab8ad79718bc332957cec0"
+  "pin": 14,
+  "sha": "33c126eed661b778e8b14cf8ffe6983336673519"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 245,
-  "sha": "cce93c0f14e66456fb73c8a0c469690f2fde255c"
+  "pin": 246,
+  "sha": "27506a6b2d342d582548d683122b4ffa8415a0b0"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

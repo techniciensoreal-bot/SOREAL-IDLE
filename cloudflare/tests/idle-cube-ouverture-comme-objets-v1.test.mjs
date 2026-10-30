@@ -7,7 +7,7 @@ import { lireUiComplet, extraireElements } from "./_ui-sources.mjs";
  * idleFicheFermeeParAppuiV1). Le Cube suit la même règle, souris comme tactile ; le double tap acheté (absorber les boosts) reste, sans empêcher l'ouverture au premier appui.
  */
 const ui = lireUiComplet();
-const bloc = extraireElements(ui, ["V:idleCubeDernierTapMsV1", "V:idleCubeIgnorerClicJusquaV1", "F:ouvrirDetailsCubeParGesteIdleV1_", "F:absorberTousBoostsCubeAdventureIdleV1_", "V:idleCubeDernierEvtMsV1", "F:toucherCubeAdventureIdleV1_", "V:idleCubeAppuiV1", "F:clicCubeAdventureIdleV138_"]);
+const bloc = extraireElements(ui, ["V:idleCubeDernierTapMsV1", "V:idleCubeIgnorerClicJusquaV1", "F:ouvrirDetailsCubeParGesteIdleV1_", "F:absorberTousBoostsCubeAdventureIdleV1_", "V:idleCubeDernierEvtMsV1", "F:toucherCubeAdventureIdleV1_", "V:idleCubeAppuiV1", "V:idleCubeOuvertureDiffereeV1", "F:clicCubeAdventureIdleV138_"]);
 
 // la règle commune : la fiche du Cube a son repère, lu par la fermeture « clic hors du popup » des objets
 assert.ok(ui.includes("let idleFicheCubeOuverteV1=false;"), "repère de la fiche du Cube");
@@ -51,20 +51,27 @@ clic({ pointerType: "touch" });
 assert.equal(details.length, 3, "tactile : le second appui referme (et ne rouvre pas)");
 assert.equal(envoyes.length, 0);
 
-// Double tap acheté : le premier appui ouvre la fiche, le second (dans 420 ms) absorbe tous les boosts sans ouvrir de nouveau.
+// Double tap acheté (Norman, 2026-10-30) : le premier appui n'ouvre PAS la fiche tout de suite (elle cacherait le cube avant le second appui) ; le second (dans 420 ms) annule l'ouverture et absorbe tous les boosts.
 double = true;
 maintenant = 9000;
 clic({ pointerType: "touch" });
 const apresPremier = details.length;
-assert.equal(apresPremier, 4, "double tap : le premier appui ouvre la fiche");
+assert.equal(apresPremier, 3, "double tap acheté : le premier appui n'ouvre pas la fiche tout de suite");
 maintenant = 9200;
 clic({ pointerType: "touch" });
 assert.deepEqual(envoyes, [{ action: "inventoryAuto", mode: "boostAll", targetId: "cube" }], "double tap = absorber tous les boosts dans le Cube");
-assert.equal(details.length, apresPremier, "le second appui n'ouvre plus rien");
-// taps trop espacés : pas d'absorption, nouvelle ouverture
+await new Promise((ok) => setTimeout(ok, 600));
+assert.equal(details.length, apresPremier, "le second appui annule l'ouverture : la fiche ne s'ouvre jamais pour un double tap");
+// un appui simple (sans second appui) ouvre la fiche après le délai du double tap
+maintenant = 11000;
+clic({ pointerType: "touch" });
+await new Promise((ok) => setTimeout(ok, 600));
+assert.equal(details.length, apresPremier + 1, "appui simple avec double tap acheté : la fiche s'ouvre après le délai");
+// taps trop espacés : pas d'absorption
 maintenant = 12000;
 clic({ pointerType: "pen" });
 maintenant = 12600;
 clic({ pointerType: "pen" });
+await new Promise((ok) => setTimeout(ok, 600));
 assert.equal(envoyes.length, 1, "taps espacés de plus de 420 ms : aucune absorption");
 console.log("idle-cube-ouverture-comme-objets-v1: OK");

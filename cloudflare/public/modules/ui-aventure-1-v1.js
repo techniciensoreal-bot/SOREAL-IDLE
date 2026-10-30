@@ -2524,7 +2524,13 @@ function pageAventureIdleV28_(j){
         if(idleNombre_(r.luckyCharms)>0)parts.push('+'+idleEntier_(r.luckyCharms)+' Lucky Charms');
         if(idleNombre_(r.extraDropLevelChance)>0)parts.push('+'+formatGrandNombreIdleV70_(idleNombre_(r.extraDropLevelChance)*100,2)+' % chance niveau de drop bonus');
         if(idleNombre_(r.boostEffectiveness)>0)parts.push('+'+formatGrandNombreIdleV70_(idleNombre_(r.boostEffectiveness)*100,2)+' % efficacité des Boosts');
-        if(idleNombre_(r.nguSpeedPct)>0)parts.push('+'+formatGrandNombreIdleV70_(r.nguSpeedPct,2)+' % NGU Speed');
+        /* Récompenses des sets d'objets (Graine, Aisselle, cœurs, Wandoos…) : fractions (0,10 = +10 %), comme setRewards côté moteur. */
+        const pctFr=function(key,label){const v=idleNombre_(r[key]);if(v>0)parts.push('+'+formatGrandNombreIdleV70_(v*100,2)+' % '+label);};
+        [['nguSpeedPct','NGU Speed'],['beardSpeedPct','vitesse des Barbes'],['itopodPpPct','PP de l’ITOPOD'],['wishSpeedPct','vitesse des Wishes'],['wandoosBootedSpeedPct','vitesse de Wandoos une fois démarré']].forEach(function(c){pctFr(c[0],c[1]);});
+        if(idleNombre_(r.wandoosBootReductionPct)>0)parts.push('Démarrage de Wandoos '+formatGrandNombreIdleV70_(idleNombre_(r.wandoosBootReductionPct)*100,2)+' % plus court');
+        [['questQpPct','QP des Quêtes'],['questDropsSetPct','de drops de Quête'],['heartExpPct','EXP (cœur)'],['heartApPct','AP (cœur)'],['hackSpeedPct','vitesse des Hacks'],['consumablesEffectPct','effet des consommables'],['cardMayoSpeedPct','vitesse de la Mayo'],['cardTagEffect','effet des tags de cartes'],['adventureStatsPct','stats d’Aventure']].forEach(function(c){pctFr(c[0],c[1]);});
+        if(idleNombre_(r.poop)>0)parts.push('+'+idleEntier_(r.poop)+' Poop');
+        if(idleNombre_(r.r3PowerFlat)>0)parts.push('Ressource 3 : +'+formatGrandNombreIdleV70_(r.r3PowerFlat)+' Power'+(idleNombre_(r.r3CapFlat)>0?', +'+formatGrandNombreIdleV70_(r.r3CapFlat)+' Cap':'')+(idleNombre_(r.r3BarsFlat)>0?', +'+formatGrandNombreIdleV70_(r.r3BarsFlat)+' Bars':'')+((idleNombre_(r.r3PotionAlpha)>0||idleNombre_(r.r3PotionBeta)>0||idleNombre_(r.r3PotionDelta)>0)?', potions Alpha, Beta et Delta':''));
         return parts.length?parts.join(' · '):'Récompense NGU sans bonus numérique affichable ici';
       }
 

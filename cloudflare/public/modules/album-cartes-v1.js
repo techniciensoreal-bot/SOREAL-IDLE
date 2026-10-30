@@ -108,7 +108,7 @@ function navHtml(pos){
   if(!ouvert)return '';
   var A='window.__SOREAL_IDLE_ALBUM_V1__';
   return '<div class="alb-nav alb-nav-'+(pos==='haut'?'haut':'bas')+'">'+
-    '<button type="button" class="alb-bouton alb-debut" aria-label="Fermer le classeur : revenir à la couverture" title="Couverture" onclick="'+A+'.fermerLivre()">'+CHEV_DEBUT+'</button>'+
+    '<button type="button" class="alb-bouton alb-debut" aria-label="Fermer le classeur : revenir à la couverture" title="Couverture" onclick="'+A+'.retourCouverture()">'+CHEV_DEBUT+'</button>'+
     '<button type="button" class="alb-bouton alb-prec10" aria-label="Reculer de 10 pages" title="−10" '+(page<=0?'disabled ':'')+'onclick="'+A+'.sauter(-10)">'+CHEV_GG+'</button>'+
     '<button type="button" class="alb-bouton alb-prec" aria-label="Page précédente" '+(page<=0?'disabled ':'')+'onclick="'+A+'.page(-1)">'+CHEV_G+'</button>'+
     '<span class="alb-numero">'+numeroHtml()+'</span>'+
@@ -125,7 +125,7 @@ function couvertureHtml(){
   '</div>';
 }
 function livreHtml(){
-  return '<div class="soreal-idle-bestiary-grid-v110 soreal-idle-album-v1"><div class="alb-cuir" aria-hidden="true"></div><div class="alb-livre'+(double()?' alb-double':'')+'">'+
+  return '<div class="soreal-idle-bestiary-grid-v110 soreal-idle-album-v1"><div class="alb-cuir" aria-hidden="true"></div><div class="alb-livre'+(double()?' alb-double':'')+(ouvert?'':' alb-centre')+'">'+
     '<div class="alb-page alb-page-g" onclick="window.__SOREAL_IDLE_ALBUM_V1__.cliquerGauche()"><div class="alb-feuille">'+gaucheHtml(page)+'</div></div>'+
     '<div class="alb-page alb-page-d"><div class="alb-feuille" data-alb-page="'+page+'">'+droiteHtml(page)+'</div></div>'+
     couvertureHtml()+
@@ -180,6 +180,7 @@ function ouvrirLivre(p){
     if(ouvert||tourne||!cl){ok();return;}
     var livre=cl.querySelector('.alb-livre'),couv=cl.querySelector('.alb-couverture'),cuir=cl.querySelector('.alb-cuir');
     ouvert=true;page=norm(typeof p==='number'?p:page);
+    livre.classList.remove('alb-centre');                /* le livre glisse vers le centre de la page en même temps que la couverture s'ouvre */
     var deux=livre.classList.contains('alb-double'),vite=reduit()||typeof couv.animate!=='function';
     remplirPages();
     cl.classList.add('alb-ouvert');
@@ -208,6 +209,7 @@ function fermerLivre(){
     [].forEach.call(cl.querySelectorAll('.alb-nav'),function(nav){if(nav.parentNode)nav.parentNode.removeChild(nav);});
     page=0;remplirPages();                       /* le livre se referme sur sa première feuille */
     ouvert=false;
+    livre.classList.add('alb-centre');                   /* et se recentre sur la page pendant que la couverture se ferme */
     if(vite){cl.classList.remove('alb-ouvert');ok();return;}
     tourne=true;
     couv.style.display='block';couv.style.zIndex='7';
@@ -305,18 +307,18 @@ function page_(sens){if(saut)return;return tournerUne(sens,DUREE,false);}
  * elles retombent l'une sur l'autre (la dernière dessus). Un saut qui dépasse le début ou la fin s'arrête à la première ou à la dernière page. Seule la page atteinte annonce ses nouvelles cartes.
  */
 var saut=false;
-function sauter(n){
-  if(tourne||saut||!ouvert)return;
+function sauterInterne(n,fini){
+  if(tourne||saut||!ouvert)return fini();
   var classeur=document.querySelector('.alb-classeur'),livre=classeur&&classeur.querySelector('.alb-livre');
-  if(!livre)return;
+  if(!livre)return fini();
   var deux=livre.classList.contains('alb-double'),pas=deux?2:1,sens=n<0?-1:1,P=nbPages();
   var dispo=sens>0?(deux?Math.floor((P-page)/2):P-1-page):(deux?Math.floor(page/2):page);   /* feuilles (PC) ou pages (téléphone) tournables dans ce sens */
   var total=Math.min(Math.abs(n),dispo);
-  if(total<=0)return;
-  if(total===1){page_(sens);return;}
+  if(total<=0)return fini();
+  if(total===1){Promise.resolve(page_(sens)).then(fini);return fini();}
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
-  if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return;}
+  if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
   tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
   var DUR=900,PAS=80,Z=.6,E='cubic-bezier(.45,.05,.4,1)',N=total,feuilles=[],anims=[],j;
   try{
@@ -343,7 +345,7 @@ function sauter(n){
     basculer(f.querySelector('.alb-face-avant'),f.querySelector('.alb-face-arriere'),sens>0,DUR,E,delai);
     anims.push(f.animate(kf,{duration:DUR,easing:E,delay:delai,fill:'both'}));
   }
-  }catch(_e){feuilles.forEach(function(x){if(x.parentNode)x.parentNode.removeChild(x);});livre.classList.remove('alb-saut');tourne=false;saut=false;afficher(q);return;}
+  }catch(_e){feuilles.forEach(function(x){if(x.parentNode)x.parentNode.removeChild(x);});livre.classList.remove('alb-saut');tourne=false;saut=false;afficher(q);return fini();}
   Promise.all(anims.map(fin)).then(function(){
     var dern=feuilles[N-1];                             /* la dernière feuille est retombée dessus : ses cartes (déjà dessinées) deviennent la page */
     if(sens>0&&deux){var nf=dern.querySelector('.alb-face-arriere .alb-feuille');if(nf&&fg.parentNode)fg.parentNode.replaceChild(nf,fg);else fg.innerHTML=gaucheHtml(q);}
@@ -352,45 +354,95 @@ function sauter(n){
     livre.classList.remove('alb-saut');
     tourne=false;saut=false;page=norm(q);marquer(page);majNav();verifierTaille();
     setTimeout(verifierPage,450);
+    fini();
   });
 }
 
+/* Sauter de plusieurs pages ; la promesse se résout quand les feuilles sont retombées (ou tout de suite si rien ne bouge). */
+function sauter(n){return new Promise(function(ok){sauterInterne(n,ok);});}
+/*
+ * La flèche tout à gauche (Norman, 2026-10-30 : « il faut que toutes les pages repassent avant que la couverture se ferme ; là, on est téléporté à la page 1 ») : toutes les feuilles repassent d'un coup jusqu'à la première page, PUIS la couverture se referme.
+ */
+function retourCouverture(){
+  if(!ouvert||tourne||saut)return Promise.resolve();
+  var pas=double()?2:1,feuilles=Math.ceil(page/pas);
+  return (feuilles>0?sauter(-feuilles):Promise.resolve()).then(function(){return fermerLivre();});
+}
 /* ---------- le clic : la carte sort de sa pochette et vient en zoom ---------- */
 function rendreSortie(n){
   try{var p=document.querySelectorAll('.alb-pochette[data-album-boss="'+n+'"]');for(var i=0;i<p.length;i++)p[i].classList.remove('alb-sorti','alb-envole');}catch(_e){}
+}
+/*
+ * Consulter un boss (Norman, 2026-10-30 : « le mouvement de la carte qui sort de son étui n'est pas fluide ; et quand on la remet, il n'y a carrément pas d'animation ») :
+ * UN SEUL mouvement continu, sans attente ni saccade. La fiche est construite d'abord (la carte n'a pas encore bougé : le travail lourd ne tombe plus au milieu du mouvement), puis la grande carte part EXACTEMENT de la petite (même taille, même place), sort de la pochette par le haut et vient se poser au centre.
+ * À la fermeture, la fiche est gardée un instant (invisible pour le jeu : autre identifiant) et la carte refait le chemin inverse : elle remonte un peu puis glisse dans sa pochette ; la fiche s'efface pendant ce temps.
+ */
+var sortie=null;   /* fermeture en cours : {fenetre} */
+function finirSortie(){
+  var S=sortie;if(!S)return;sortie=null;
+  try{if(S.fenetre.parentNode)S.fenetre.parentNode.removeChild(S.fenetre);}catch(_e){}
+  rendreSortie(S.n);
+}
+function mouvementCarte(r0,r1,haut){   /* de la petite carte (r0) à la grande (r1) : [départ, sortie par le haut, arrivée] */
+  var dx=r0.left-r1.left,dy=r0.top-r1.top,s=r0.width/r1.width,h=r0.height*.3;
+  return {
+    petite:'translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+')',
+    sortie:'translate('+dx.toFixed(1)+'px,'+(dy-h).toFixed(1)+'px) scale('+(s*1.04).toFixed(4)+') rotate(-2deg)',
+    grande:'translate(0,0) scale(1) rotate(0deg)'
+  };
+}
+function retourPochette(n,fenetre,grande,r1,parent){
+  var el=document.querySelector('.alb-pochette[data-album-boss="'+n+'"]'),carte=el&&el.querySelector('.alb-carte'),r0=carte?carte.getBoundingClientRect():null;
+  if(sortie)finirSortie();
+  sortie={fenetre:fenetre,n:n};
+  fenetre.id='sorealIdleBossCollectionModalV1-sortie';fenetre.style.pointerEvents='none';
+  parent.appendChild(fenetre);                          /* la fiche reste à l'écran pendant que la carte rentre */
+  if(!r0||!(r0.width>0)||!(r1.width>0)||typeof grande.animate!=='function'){finirSortie();return;}
+  var m=mouvementCarte(r0,r1);
+  grande.style.transformOrigin='0 0';grande.style.willChange='transform';
+  var a=grande.animate([
+    {transform:m.grande,easing:'cubic-bezier(.3,.6,.3,1)'},
+    {transform:m.sortie,offset:.55,easing:'cubic-bezier(.4,0,.3,1)'},
+    {transform:m.petite}
+  ],{duration:620,fill:'forwards'});
+  try{fenetre.animate([{opacity:1},{opacity:0}],{duration:520,easing:'ease-in',fill:'forwards'});}catch(_e){}
+  fin(a).then(finirSortie);
+  setTimeout(function(){if(sortie&&sortie.fenetre===fenetre)finirSortie();},1500);   /* filet de sécurité */
 }
 function ouvrir(n,el){
   var ouvrirReel=window.__ouvrirBossCollectionIdleV1__;
   if(typeof ouvrirReel!=='function')return;
   var carte=el&&el.querySelector?el.querySelector('.alb-carte'):null;
+  if(sortie)finirSortie();                              /* une fermeture encore en cours est terminée tout de suite */
   if(!carte||reduit()||typeof carte.animate!=='function'){ouvrirReel(n);return;}
-  if(el.classList.contains('alb-sorti'))return;
-  el.classList.add('alb-sorti');                       /* 1. la carte glisse hors de sa pochette, par le haut */
-  setTimeout(function(){
-   try{
+  try{
     var r0=carte.getBoundingClientRect();
-    ouvrirReel(n);
+    ouvrirReel(n);                                      /* la fiche est construite AVANT que la carte bouge */
     var fenetre=document.querySelector('#sorealIdleBossCollectionModalV1');
     var grande=fenetre&&fenetre.querySelector('.mtg-modal-v1');
     if(!grande){rendreSortie(n);return;}
-    el.classList.add('alb-envole');                    /* la petite carte est partie : seule sa pochette reste */
-    var r1=grande.getBoundingClientRect();
-    if(r1.width>0&&r0.width>0){
-      var dx=r0.left-r1.left,dy=r0.top-r1.top,s=r0.width/r1.width;
-      grande.style.transformOrigin='0 0';
-      grande.animate([
-        {transform:'translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(-3deg)'},
-        {transform:'translate('+(dx*.35).toFixed(1)+'px,'+(dy*.35-18).toFixed(1)+'px) scale('+(s+(1-s)*.55).toFixed(4)+') rotate(2deg)',offset:.55},
-        {transform:'translate(0,0) scale(1) rotate(0deg)'}
-      ],{duration:720,easing:'cubic-bezier(.22,.8,.25,1)'});
-    }
-    try{fenetre.animate([{opacity:0},{opacity:1}],{duration:320,easing:'ease-out'});}catch(_e){}
-    var veille=setInterval(function(){                 /* 3. à la fermeture de la fiche, la carte retourne dans sa pochette */
-      if(document.getElementById('sorealIdleBossCollectionModalV1'))return;
-      clearInterval(veille);rendreSortie(n);
-    },250);
-   }catch(_e){rendreSortie(n);}
-  },300);
+    var parent=fenetre.parentNode,r1=grande.getBoundingClientRect();
+    if(!(r1.width>0)||!(r0.width>0)){return;}
+    el.classList.add('alb-envole');                     /* la petite carte part avec la grande (même image) : seule sa pochette reste */
+    var m=mouvementCarte(r0,r1);
+    grande.style.transformOrigin='0 0';grande.style.willChange='transform';
+    var a=grande.animate([
+      {transform:m.petite,easing:'cubic-bezier(.3,.9,.3,1)'},
+      {transform:m.sortie,offset:.3,easing:'cubic-bezier(.25,.8,.25,1)'},
+      {transform:m.grande}
+    ],{duration:760});
+    fin(a).then(function(){grande.style.willChange='';});
+    try{fenetre.animate([{opacity:0},{opacity:1}],{duration:300,easing:'ease-out'});}catch(_e){}
+    /* à la fermeture (bouton, fond, Échap : la fiche est retirée de la page) : la carte retourne dans sa pochette */
+    var obs=new MutationObserver(function(muts){
+      for(var i=0;i<muts.length;i++)for(var j=0;j<muts[i].removedNodes.length;j++)if(muts[i].removedNodes[j]===fenetre){
+        obs.disconnect();
+        retourPochette(n,fenetre,grande,r1,parent);
+        return;
+      }
+    });
+    obs.observe(parent,{childList:true});
+  }catch(_e){rendreSortie(n);}
 }
 
 /* ---------- les nouvelles cartes : annonce puis rangement ---------- */
@@ -535,5 +587,5 @@ window.addEventListener('resize',function(){
   },200);
 });
 
-window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,sauter:sauter,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
+window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,sauter:sauter,retourCouverture:retourCouverture,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
 })();

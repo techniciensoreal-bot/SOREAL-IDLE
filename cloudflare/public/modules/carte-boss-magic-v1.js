@@ -233,6 +233,44 @@ function finGlisse(e){
 }
 document.addEventListener('pointerup',finGlisse,true);
 document.addEventListener('pointercancel',finGlisse,true);
+/*
+ * Texte de la carte au doigt (Norman, 2026-10-30 : « sur téléphone, on ne peut pas faire glisser le texte d'une carte de chronique : ça fait glisser le fond du jeu ») : le texte défile sous le doigt dans tous les cas (la carte est en 3D, le navigateur ne donnait pas le geste au texte).
+ * Le texte a « touch-action:none » (voir le CSS) et c'est ce code qui le fait défiler : le doigt déplace le texte ; ce que le texte ne peut plus absorber (début ou fin) passe à la page, sauf dans la fenêtre d'une fiche où le fond ne bouge jamais. Un glissement horizontal reste la rotation de la carte.
+ */
+var defil=null;
+function texteDefilant(e){
+  var t=e.target&&e.target.closest?e.target.closest('.mtg-modal-v1 .mtg-texte,.soreal-idle-boss-lore-v142.ouverte .mtg-texte'):null;
+  return t;
+}
+document.addEventListener('pointerdown',function(e){
+  if(e.pointerType==='mouse')return;
+  var t=texteDefilant(e);if(!t)return;
+  defil={texte:t,id:e.pointerId,x:e.clientX,y:e.clientY,dernier:e.clientY,instant:performance.now(),v:0,mode:null,fiche:Boolean(t.closest('.mtg-modal-v1'))};
+},true);
+document.addEventListener('pointermove',function(e){
+  var d=defil;if(!d||e.pointerId!==d.id)return;
+  if(d.mode===null){
+    var dx=e.clientX-d.x,dy=e.clientY-d.y;
+    if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
+    d.mode=(d.fiche&&Math.abs(dx)>Math.abs(dy))?'rotation':'defile';   /* horizontal dans une fiche : la rotation de la carte */
+  }
+  if(d.mode!=='defile')return;
+  var delta=d.dernier-e.clientY,maintenant=performance.now();
+  d.v=delta/Math.max(1,maintenant-d.instant);d.dernier=e.clientY;d.instant=maintenant;
+  var t=d.texte,avant=t.scrollTop;
+  t.scrollTop+=delta;
+  var reste=delta-(t.scrollTop-avant);
+  if(!d.fiche&&Math.abs(reste)>0.5)window.scrollBy(0,reste);   /* le texte est au bout : la page suit (jamais dans une fiche) */
+  if(e.cancelable)e.preventDefault();
+},true);
+function finDefil(e){
+  var d=defil;if(!d||(e&&e.pointerId!==d.id))return;defil=null;
+  if(d.mode!=='defile'||Math.abs(d.v)<.2||performance.now()-d.instant>80)return;
+  var v=d.v*16,t=d.texte;   /* lancer : le texte continue un instant, en ralentissant */
+  (function pas(){if(!t.isConnected||Math.abs(v)<.4)return;var avant=t.scrollTop;t.scrollTop+=v;if(t.scrollTop===avant)return;v*=.94;requestAnimationFrame(pas);})();
+}
+document.addEventListener('pointerup',finDefil,true);
+document.addEventListener('pointercancel',finDefil,true);
 document.addEventListener('keydown',function(e){
   if(e.key==='Escape')for(var k in retournees)delete retournees[k];
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){

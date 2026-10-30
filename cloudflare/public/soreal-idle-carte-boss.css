@@ -106,6 +106,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .zone-ico-v1{display:inline-block;flex:0 0 auto;width:1.5em;text-align:center;font-size:1.45em;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
 .team-sort-trigger-value .zone-ico-v1{margin-right:.4em;width:auto}
 .mtg-modal-v1 .carte-mtg-v1{touch-action:pan-y;cursor:grab}
+/* le texte des cartes défile au doigt par script (modules/carte-boss-magic-v1.js) : le navigateur ne le faisait pas sur la carte en 3D et c'est le fond du jeu qui glissait */
+.mtg-modal-v1 .mtg-texte,.soreal-idle-boss-lore-v142.ouverte .mtg-texte{touch-action:none;overscroll-behavior:contain}
 .mtg-modal-v1 .carte-mtg-v1:active{cursor:grabbing}
 /* la fiche (fenêtre) garde exactement la largeur de la carte de la chronique : le cadre de la fenêtre ne la rogne plus */
 .soreal-idle-modal-backdrop-v63:has(.mtg-modal-v1){padding:0;box-sizing:border-box}

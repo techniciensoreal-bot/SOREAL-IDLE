@@ -1169,7 +1169,7 @@
           const cubeLong=event.target&&event.target.closest?event.target.closest('[data-idle-cube-drop-v180]'):null;
           if(cubeLong){
             idleCubeIgnorerClicJusquaV1=Date.now()+750;
-            idleCubeDernierTapMsV1=0;
+            idleCubeDernierTapMsV1=0;clearTimeout(idleCubeOuvertureDiffereeV1);
             ouvrirDetailsCubeParGesteIdleV1_();
             if(event.cancelable)event.preventDefault();
             event.stopPropagation();
@@ -1535,14 +1535,15 @@
         if(maintenant-idleCubeDernierEvtMsV1<80)return;
         idleCubeDernierEvtMsV1=maintenant;
         if(maintenant<idleCubeIgnorerClicJusquaV1)return;
-        if(gestesAchetesIdleV1_().double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){
-          idleCubeDernierTapMsV1=0;
-          absorberTousBoostsCubeAdventureIdleV1_();
-          return;
-        }
-        idleCubeDernierTapMsV1=gestesAchetesIdleV1_().double?maintenant:0;
+        /* Double tap sur le Cube (Norman, 2026-10-30 : « ça ouvre sa fenêtre et ça n'absorbe pas ; ça doit ouvrir avec un simple clic mais pas avec un double ») : avec l'achat « Double tap », le premier appui n'ouvre la fiche qu'après le délai du double tap (elle cacherait le cube) ; le second annule l'attente et absorbe. */
+        clearTimeout(idleCubeOuvertureDiffereeV1);
+        const double=gestesAchetesIdleV1_().double;
+        if(double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){idleCubeDernierTapMsV1=0;absorberTousBoostsCubeAdventureIdleV1_();return;}
+        idleCubeDernierTapMsV1=double?maintenant:0;
+        if(double){idleCubeOuvertureDiffereeV1=setTimeout(function(){idleCubeOuvertureDiffereeV1=0;idleCubeDernierTapMsV1=0;ouvrirDetailsCubeParGesteIdleV1_();},IDLE_ADVENTURE_DOUBLE_TAP_MS_V196+30);return;}
         ouvrirDetailsCubeParGesteIdleV1_();
       }
+      let idleCubeOuvertureDiffereeV1=0;
 
       let idleCubeAppuiV1=null;
 

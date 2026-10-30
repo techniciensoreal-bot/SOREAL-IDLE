@@ -92,7 +92,7 @@ assert.deepEqual(avecEtat(null).gestes(), { double: false, triple: false }, "jam
 assert.ok(ui.includes("const nTaps=compterTapsObjetIdleV1_(id,pointerType);") && !ui.includes("if(nTaps>=3&&gestes.triple){"), "plus de triple appui");
 assert.ok(ui.includes("if(nTaps===2&&(gestes.double||gestes.triple)){") && ui.includes("if(clicDroitGestesAchetesIdleV1_(id))return;"), "le double tap suit exactement la règle du clic droit : fusion tant que possible, sinon boosts");
 assert.ok(!ui.includes("actionRapideObjetAdventureIdleV209_(id)\n          ){\n            return;"), "l'ancien double tap équiper/fusionner de base est retiré");
-assert.ok(ui.includes("if(gestesAchetesIdleV1_().double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){") && ui.includes('data-soreal-longpress="idle-cube"'), "le Cube : l'absorption reste réservée au double tap acheté ; un appui ouvre la fiche comme un objet (2026-10-29, idle-cube-ouverture-comme-objets-v1)");
+assert.ok(ui.includes("if(double&&maintenant-idleCubeDernierTapMsV1<=IDLE_ADVENTURE_DOUBLE_TAP_MS_V196){") && ui.includes('data-soreal-longpress="idle-cube"'), "le Cube : l'absorption reste réservée au double tap acheté ; un appui ouvre la fiche comme un objet (2026-10-29, idle-cube-ouverture-comme-objets-v1)");
 // Le clic droit de la souris (action rapide) et « A + clic » restent.
 assert.ok(ui.includes("actionRapideObjetAdventureIdleV209_(") && ui.includes("Clic droit de la souris (PC) sur un objet du sac : action rapide équiper / fusionner"));
 console.log("idle-gestes-double-triple-tap-v1: OK");

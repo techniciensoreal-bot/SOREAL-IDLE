@@ -32,7 +32,12 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Dans l’album des boss, la flèche tout à gauche referme le classeur et ramène à la couverture ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
+            'Sur téléphone, un double tap sur le Cube de l’infini absorbe maintenant les boosts au lieu d’ouvrir sa fenêtre : un simple tap ouvre la fenêtre (avec l’achat « Double tap », elle s’ouvre juste après le délai du double tap).',
+            'Sur téléphone, l’aura du Cube de l’infini est de nouveau visible : la case ne la coupe plus.',
+            'Sur téléphone, le texte d’une carte de chronique défile maintenant sous le doigt : le fond du jeu ne glisse plus à sa place.',
+            'Dans l’album, quand tu consultes un boss, la carte sort de sa pochette en un seul mouvement fluide, et quand tu la refermes elle rentre dans sa pochette avec la même animation.',
+            'Les sets faits d’un seul objet apparaissent maintenant dans la Collection : dans l’onglet Sets (leur objet et leur bonus) et dans la liste des sets complétés de l’onglet Équipement. L’annonce « Set complété » donne leur vrai nom et leur bonus, qui est maintenant écrit en toutes lettres.',
+            'Dans l’album des boss, la flèche tout à gauche fait repasser toutes les pages d’un coup puis referme la couverture (le livre se centre sur la page en se fermant) ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
             'Sur la couverture du classeur fermé, les trous noirs sont au niveau des anneaux ; les anneaux restent visibles pendant un saut de 10 pages.',
             'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'

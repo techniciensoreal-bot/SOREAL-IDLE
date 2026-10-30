@@ -501,7 +501,7 @@
         if(root&&REG.idleEtat)rafraichirMenuRacineIdleV28_();
       }
 
-      function rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube){
+      function rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube,setCatalog){
         const setsDemarres=new Set(
           Object.keys(itemList).map(function(id){
             const def=catalog[id];
@@ -546,6 +546,12 @@
           return idleHtml_(entree?entree.setName:setId);
         });
 
+        /* Sets d'objets complétés (Graine, Nombre…) : le moteur dit qu'ils sont complétés et fournit leur nom (Norman, 2026-10-30 : le set « seed » n'apparaissait nulle part). */
+        const catSets=setCatalog&&typeof setCatalog==='object'?setCatalog:{};
+        Object.keys(completedSets).forEach(function(setId){
+          const d=catSets[setId];
+          if(completedSets[setId]&&d&&d.source==='objets')setsConnus.push(idleHtml_(d.name||setId));
+        });
         const setsHtml=setsConnus.length
           ?'<div class="soreal-idle-collection-sets-v1"><b>🏅 Sets complétés (100 % boostés)</b><div>'+setsConnus.join(' · ')+'</div></div>'
           :'';

@@ -46,7 +46,7 @@ assert.ok(m.includes("se rejoignent en PAQUET") && m.includes("la suivante ne pa
 assert.ok(!c.includes("backdrop-filter") && !c.includes("blur("), "aucun flou (on voit les cartes entrer dans le classeur)");
 assert.ok(m.includes("r1.height*.62") && m.includes("translateY(-62%)") && c.includes(".alb-pochette.alb-entre{z-index:4}"), "la carte arrive devant la fente puis se glisse sous le plastique");
 // le dos de la première feuille : seulement les cartes du dessin débloquées ; ouvrir = fermer à l'envers (rien ne bouge d'un bloc) ; la feuille passe AU-DESSUS de l'anneau ; livre fermé : l'anneau seul
-assert.ok(!m.includes("translateX(-25%)") && !c.includes("translateX(-25%)"), "plus de mouvement de toute la page à l'ouverture");
+assert.ok(!m.includes("translateX(-25%)") && c.split("translateX(-25%)").length === 2 && c.includes(".alb-livre.alb-double.alb-centre{transform:translateX(-25%)}"), "seul le LIVRE se recentre (classe alb-centre, glissement de 1,15 s synchronisé avec la couverture), jamais toute la page");
 assert.ok(m.includes("{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5}") && m.includes("{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5}"), "la page de gauche apparaît / disparaît au passage de la couverture (ouverture et fermeture symétriques)");
 assert.ok(c.includes("pointer-events:none;z-index:5;") && c.includes(".alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;") && c.includes(".alb-couverture{position:absolute;top:0;bottom:0;left:0;right:0;cursor:pointer;z-index:6;"), "feuille et couverture passent au-dessus de l'anneau");
 assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:8;background:var(--alb-anneau-seul)") && c.includes("--alb-anneau-seul:url("), "livre fermé : l'anneau seul, sans trou noir");
@@ -88,7 +88,7 @@ assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau re
 {
   const i = (s) => m.indexOf(s);
   assert.ok(i("alb-debut") > 0 && i("alb-debut") < i("alb-prec10") && i("alb-prec10") < i("alb-prec\"") && i("alb-suiv\"") < i("alb-suiv10"), "ordre : couverture, −10, −1, +1, +10");
-  assert.ok(m.includes("onclick=\"'+A+'.fermerLivre()\">'+CHEV_DEBUT"), "la première flèche ferme le livre sur la couverture");
+  assert.ok(m.includes("onclick=\"'+A+'.retourCouverture()\">'+CHEV_DEBUT") && m.includes("function retourCouverture()") && m.includes("sauter(-feuilles)") && m.includes("return fermerLivre();"), "la première flèche fait repasser toutes les feuilles, PUIS ferme la couverture");
   assert.ok(m.includes("function dessinee()") && m.includes("if(!force&&dessinee())return;") && m.includes("data-alb-page"), "page déjà dessinée : pas de redessin");
 }
 
@@ -98,3 +98,11 @@ assert.ok(c.includes(".alb-cuir{display:none}") && c.includes(".alb-face-arriere
 // couverture fermée : trous noirs au niveau des anneaux ; l'anneau reste devant les feuilles qui tournent (saut de 10 pages compris)
 assert.ok(c.includes(".alb-face-avant.alb-cuir-noir::before{content:\"\";position:absolute;top:0;bottom:0;left:-3px;width:var(--alb-lang)"), "trous noirs sur la couverture fermée");
 assert.ok(c.includes(".alb-livre:has(.alb-feuille-tournante)::before{transform:translateX(-50%) translateZ(80px) scale(.96923)}"), "l'anneau passe devant les feuilles en l'air, à la même place (perspective 2600 : 2520/2600)");
+
+// livre fermé (PC) : la couverture est centrée sur la page ; le livre glisse au centre à l'ouverture et revient à la fermeture
+assert.ok(c.includes(".alb-livre.alb-double.alb-centre{transform:translateX(-25%)}") && m.includes("livre.classList.remove('alb-centre');") && m.includes("livre.classList.add('alb-centre');") && m.includes("(ouvert?'':' alb-centre')"), "couverture centrée livre fermé");
+assert.ok(m.includes("function sauter(n){return new Promise(function(ok){sauterInterne(n,ok);});}"), "sauter rend une promesse (résolue à l'atterrissage)");
+
+// consulter un boss : UN mouvement continu (fiche construite d'abord, la grande carte part de la petite), et un vrai retour dans la pochette à la fermeture
+assert.ok(m.includes("function retourPochette(n,fenetre,grande,r1,parent)") && m.includes("new MutationObserver") && m.includes("sorealIdleBossCollectionModalV1-sortie") && m.includes("function finirSortie()"), "la fermeture garde la fiche un instant et rend la carte à sa pochette");
+assert.ok(m.includes("ouvrirReel(n);                                      /* la fiche est construite AVANT que la carte bouge */") && !m.includes("el.classList.add('alb-sorti');"), "plus de glissement CSS de 0,3 s suivi d'une construction au milieu du mouvement");

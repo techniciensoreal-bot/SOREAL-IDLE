@@ -27,7 +27,10 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-cuir{display:none}   /* le cuir de fond dépassait des pages : une « seconde couverture » (la couverture, elle, est dessinée par le dos de la couverture et la page de gauche) */
 /* le livre : une page (téléphone : la page de droite) ou deux (PC) ; la feuille qui tourne vit dans sa perspective */
 .alb-livre{position:relative;display:grid;grid-template-columns:minmax(0,1fr);perspective:2600px;transform-style:preserve-3d;border-radius:8px}
-.alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr))}
+.alb-livre.alb-double{grid-template-columns:repeat(2,minmax(0,1fr));transition:transform 1150ms cubic-bezier(.5,.05,.3,1)}
+/* Livre fermé (PC) : seule la couverture se voit, sur la moitié droite ; le livre est décalé d'un quart de sa largeur pour que la couverture soit CENTRÉE sur la page (Norman, 2026-10-30) ; il glisse au centre quand il s'ouvre et revient quand il se ferme. */
+.alb-livre.alb-double.alb-centre{transform:translateX(-25%)}
+@media (prefers-reduced-motion:reduce){.alb-livre.alb-double{transition:none}}
 .alb-page-g{display:none}
 .alb-double .alb-page-g{display:block}
 .alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}
