@@ -341,7 +341,7 @@
         customInput1:'adventure',customInput2:'adventure',customInput3:'adventure',customInput4:'adventure',
         inventorySpace:'adventure',accessorySlot1:'adventure',accessorySlot2:'adventure',autoMerge:'adventure',sortInventory:'adventure',syncBasicTraining:'adventure',syncWandoos:'wandoos',doubleTap:'adventure',tripleTap:'adventure',basicLootFilter:'adventure',
         loadoutSlots:'adventure',loadoutSlot3:'adventure',boostRecycling:'adventure',inventoryMergeSlot:'adventure',
-        diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'daycare',daycareSlot2:'daycare',daycareSlot3:'daycare',
+        diggerSlot:'diggers',beardSlot:'beards',daycareSlot1:'adventure',daycareSlot2:'daycare',daycareSlot3:'daycare',
         macguffinSlot1:'macguffins',macguffinSlot2:'macguffins'
       };
 

@@ -107,7 +107,7 @@ const TOUS = ["debuts", "toc", "energy", "magic", "r3", "aventure", "slots"];
 {
   const paliers = [
     { bosses: 0, absents: ["Magie", "Ressource 3", "Aventure", "Slots", "Rich Jerks", "Filtre de butin", "Digger", "Beard", "MacGuffin", "garderie", "Yggdrasil", "Auto-Activate", "verrouillé", "🔒"], presents: ["Débuts", "Énergie"] },
-    { bosses: 4, absents: ["Magie", "Ressource 3", "Digger", "Beard", "MacGuffin", "garderie", "Yggdrasil", "🔒"], presents: ["Filtre de butin", "Aventure", "Rich Jerks"] }
+    { bosses: 4, absents: ["Magie", "Ressource 3", "Digger", "Beard", "MacGuffin", "Yggdrasil", "🔒"], presents: ["Filtre de butin", "Aventure", "Rich Jerks"] }
   ];
   for (const palier of paliers) {
     const c = { bosses: palier.bosses };

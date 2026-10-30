@@ -55,6 +55,9 @@
             'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'
+          ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
             'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',

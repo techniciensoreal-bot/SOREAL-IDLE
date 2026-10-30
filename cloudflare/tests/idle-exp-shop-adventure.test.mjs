@@ -43,7 +43,7 @@ const acheter = (s, item, quantity = 1) => applyIdleNguAction(s, { action: "buyE
 {
   const s = acheter(fresh(30000), "diggerSlot").state;
   /* Anti-spoil : la boutique ne liste que les achats dont le système est découvert ; un joueur neuf n'en voit presque aucun. */
-  assert.ok(idleNguSnapshot(JSON.parse(JSON.stringify(s)), ctx, 3_000_000).expShop.every((x) => x.id !== "macguffinSlot1" && x.id !== "daycareSlot1" && !x.yggFruit), "achats de systèmes verrouillés absents");
+  assert.ok(idleNguSnapshot(JSON.parse(JSON.stringify(s)), ctx, 3_000_000).expShop.every((x) => x.id !== "macguffinSlot1" && x.id !== "daycareSlot2" && !x.yggFruit), "achats de systèmes verrouillés absents");
   s.records.highestBoss = 99;
   for (const id of ["diggers", "beards", "daycare", "macguffins", "yggdrasil", "wandoos"]) s.systems[id].unlocked = true;
   const snap = idleNguSnapshot(s, ctx, 3_000_000);
