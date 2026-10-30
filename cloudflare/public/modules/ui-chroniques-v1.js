@@ -262,6 +262,17 @@
         try{const f=window.__actionMetaIdleV130__;if(typeof f==='function')f({action:'watchCinematic',id:id});}catch(_e){}
       };
 
+      /* Le cadre de titre d'abord, les onglets juste dessous (Norman, 2026-10-30) : les barres du haut ne doivent jamais recouvrir un bouton (modules/entete-menu-v1.js). */
+      function barreSousEnteteIdleV1_(barre,contenu){
+        if(!barre)return contenu;
+        try{
+          const t=document.createElement('template');t.innerHTML=contenu;
+          const tete=t.content.querySelector('.soreal-idle-page-head-v28');
+          if(tete){tete.insertAdjacentHTML('afterend',barre);return t.innerHTML;}
+        }catch(_e){}
+        return barre+contenu;
+      }
+
       function pageChroniquesIdleV1_(j){
         const onglets=chroniquesOngletsIdleV1_(j);
         if(!onglets.length)return '';
@@ -279,7 +290,7 @@
         else if(actif==='classement')contenu=pageClassementIdleV1_(j);
         else if(actif==='cinematiques')contenu=pageCinematiquesIdleV1_();
         else contenu=pageSystemeMetaIdleV130_(j,'achievements','Achievements');
-        return barre+contenu;
+        return barreSousEnteteIdleV1_(barre,contenu);
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-138 */

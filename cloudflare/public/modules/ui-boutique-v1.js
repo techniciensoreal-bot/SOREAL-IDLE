@@ -541,6 +541,17 @@
         if(bouton)bouton.style.setProperty('--nav-color',couleurBoutonShopIdleV1_());
       }
 
+      /* Le cadre de titre d'abord, les onglets juste dessous (Norman, 2026-10-30) : les barres du haut ne doivent jamais recouvrir un bouton (modules/entete-menu-v1.js). */
+      function barreSousEnteteIdleV1_(barre,contenu){
+        if(!barre)return contenu;
+        try{
+          const t=document.createElement('template');t.innerHTML=contenu;
+          const tete=t.content.querySelector('.soreal-idle-page-head-v28');
+          if(tete){tete.insertAdjacentHTML('afterend',barre);return t.innerHTML;}
+        }catch(_e){}
+        return barre+contenu;
+      }
+
       function pageShopIdleV1_(j){
         const expOk=menuDisponibleIdleV28_('spendExp',j);
         const apOk=menuDisponibleIdleV28_('sellout',j);
@@ -560,8 +571,7 @@
         const pointAp=B&&apOk&&B.boutiqueNonVue('ap',achatsApParCategorieIdleV1_(j))?B.point('Nouveaux achats'):'';
         if(expOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='exp'?' active':'')+'" style="--onglet-couleur:'+REG.IDLE_NAV_COULEURS_V1.spendExp+'" onclick="window.__changerOngletShopIdleV1__(\'exp\')">✨ EXP Shop'+pointExp+'</button>');
         if(apOk)boutons.push('<button type="button" class="soreal-idle-collection-tab-v1 soreal-idle-shop-onglet-v1'+(onglet==='ap'?' active':'')+'" style="--onglet-couleur:'+REG.IDLE_NAV_COULEURS_V1.sellout+'" onclick="window.__changerOngletShopIdleV1__(\'ap\')">🛍️ Boutique AP'+pointAp+'</button>');
-        return (boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'')+
-          contenuBoutique;
+        return barreSousEnteteIdleV1_(boutons.length>1?'<div class="soreal-idle-collection-tabs-v1">'+boutons.join('')+'</div>':'',contenuBoutique);
       }
 
       function pageSpendExpIdleV1_(j){
