@@ -185,33 +185,7 @@ for (const id of MENUS) {
     out.push(`${act}{display:none}`);
   }
 }
-/* cadres de titre des pages : même couleur dominante que le bouton (teinte tournée sur le décor, lueur et titre recolorés) */
-import { readFileSync as lire } from "node:fs";
-const hue = (h) => { const [r, g, b] = hx(h).map((v) => v / 255), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; if (!d) return 0; const x = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return (x * 60 + 360) % 360; };
-const vieux = {};
-for (const lot of ["a", "b", "c", "d"]) {
-  const c = lire(`cloudflare/public/soreal-idle-entetes-${lot}.css`, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
-  for (const m of c.matchAll(/data-menu="([^"]+)"\] \.soreal-idle-page-head-v28\[data-entete-menu\](::after|)\{([^}]*)\}/g)) {
-    const [, menu, ps, body] = m; vieux[menu] ??= {};
-    if (ps === "") { const r = body.match(/box-shadow:0 0 \d+px rgba\((\d+),(\d+),(\d+)/); if (r) vieux[menu].sh = toHex([+r[1], +r[2], +r[3]]); }
-    else { const r = body.match(/background:linear-gradient\(90deg,(#[0-9a-f]{6})[^,]*,(#[0-9a-f]{6})/i); if (r) vieux[menu].ring = r[2]; }
-  }
-}
-const HP = "html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28";
-out.push("\n/* cadres de titre des pages : teinte alignée sur la couleur dominante du bouton */");
-const rot = {};
-for (const [menu, v] of Object.entries(vieux)) {
-  if (!DOM[menu]) continue;
-  const old = v.sh || v.ring; if (!old) continue;
-  const dh = Math.round(((hue(DOM[menu]) - hue(old) + 540) % 360) - 180);
-  rot[menu] = dh;
-  const th = T[menu], head = `${HP}[data-menu="${menu}"] .soreal-idle-page-head-v28[data-entete-menu]`;
-  out.push(`${head}::before,${head}::after{filter:hue-rotate(${dh}deg)}`);
-  out.push(`${head}{box-shadow:0 0 14px rgba(${th.glow},.5),0 0 26px rgba(${th.glow},.28),0 6px 0 #0a0a0e,inset 0 0 22px rgba(0,0,0,.55)}`);
-  out.push(`${head} .soreal-idle-page-title-v28{text-shadow:0 2px 0 rgba(0,0,0,.9),0 0 10px rgba(255,255,255,.45),0 0 22px rgba(${th.glow},.85),0 0 36px rgba(${th.glow},.5)}`);
-  out.push(`${head} .soreal-idle-page-sub-v28{text-shadow:0 1px 0 rgba(0,0,0,.9),0 0 8px rgba(${th.glow},.6)}`);
-}
-console.log("cadres recolorés :", Object.keys(rot).length, JSON.stringify(rot));
+/* Les cadres de titre des pages gardent leurs couleurs d'origine (Norman, 2026-10-30 : « les titres ne sont pas comme tu me les avais montrés ») : aucune recoloration. */
 out.push("\n" + kf.join("\n"));
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1,${P} .soreal-idle-nav-deco-v1::before,${P} .soreal-idle-nav-deco-v1::after{animation:none}\n}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));

@@ -87,13 +87,8 @@ for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
   const d = deltaE(dom[ids[i]], dom[ids[j]]);
   assert.ok(d >= 22, `${ids[i]} (${dom[ids[i]]}) et ${ids[j]} (${dom[ids[j]]}) ont des couleurs dominantes trop proches (écart ${d.toFixed(1)} < 22)`);
 }
-/* les cadres de titre des pages suivent la couleur dominante de leur bouton (lueur du cadre et du titre) */
-for (const id of MENUS) {
-  const head = `${HP}[data-menu="${id}"] .soreal-idle-page-head-v28[data-entete-menu]`;
-  if (!css.includes(head + "::before," + head + "::after{filter:hue-rotate(")) continue; /* combat, sang, daycare : pas de cadre générique */
-  const r = [1, 3, 5].map((i) => parseInt(dom[id].slice(i, i + 2), 16)).join(",");
-  assert.ok(css.includes(`${head}{box-shadow:0 0 14px rgba(${r},`) && css.includes(`${head} .soreal-idle-page-title-v28{text-shadow:`), `${id} : cadre de titre non aligné sur la couleur dominante`);
-}
+/* les cadres de titre des pages gardent leurs couleurs d'origine : aucune recoloration (Norman, 2026-10-30) */
+assert.ok(!css.includes("hue-rotate") && !css.includes("[data-entete-menu]"), "les cadres de titre ne sont plus recolorés");
 
 /* mouvement réduit */
 const rm = css.slice(css.indexOf("@media (prefers-reduced-motion:reduce)"));
