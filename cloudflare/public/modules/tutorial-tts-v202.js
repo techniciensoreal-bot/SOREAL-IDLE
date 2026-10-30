@@ -113,7 +113,12 @@
     if(!Ctor)return null;
     try{
       if(!audioContext||audioContext.state==='closed'){
-        audioContext=new Ctor();
+        /*
+         * Les voix crachouillaient encore sur téléphone (Norman, 2026-10-30) : leur contexte audio (volontairement à part du contexte partagé des sons : on le met en pause sans couper les sons) était ouvert avec la latence « interactive » par défaut, la plus courte,
+         * donc la moins tolérante quand le processeur est occupé, et il jouait en parallèle de celui des sons. Une voix n'a aucun besoin de réactivité : tampon le plus large (« playback »).
+         */
+        try{audioContext=new Ctor({latencyHint:'playback'});}
+        catch(_e){audioContext=new Ctor();}
       }
       return audioContext;
     }catch(_){
@@ -849,7 +854,9 @@
         var gain=ctx.createGain();
         gain.gain.value=volumeVoix_();
         source.connect(gain);
-        gain.connect(ctx.destination);
+        /* même limiteur de sortie que tous les sons du jeu (un par contexte) : aucune crête ne sature la carte son */
+        var limiteur=window.__SOREAL_IDLE_LIMITEUR_V1__;
+        if(!(limiteur&&typeof limiteur.brancher==='function'&&limiteur.brancher(ctx,gain)))gain.connect(ctx.destination);
         activeBufferSource=source;
 
         var done=false;

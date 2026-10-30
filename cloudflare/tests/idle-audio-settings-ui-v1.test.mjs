@@ -43,7 +43,7 @@ assert.match(ui, /window\.__basculerSonIdleV1__=function\(type,coche\)\{/);
 
 // --- Voix : les deux chemins de lecture (Web Audio et <audio> natif) appliquent le volume réglé ---
 assert.match(tts, /function volumeVoix_\(\)\{/);
-assert.match(tts, /var gain=ctx\.createGain\(\);\s*gain\.gain\.value=volumeVoix_\(\);\s*source\.connect\(gain\);\s*gain\.connect\(ctx\.destination\);/, "chemin Web Audio : passe par un GainNode réglé sur le volume voix");
+assert.match(tts, /var gain=ctx\.createGain\(\);\s*gain\.gain\.value=volumeVoix_\(\);\s*source\.connect\(gain\);[\s\S]{0,420}gain\.connect\(ctx\.destination\);/, "chemin Web Audio : passe par un GainNode réglé sur le volume voix");
 assert.match(tts, /audio=new Audio\(src\);\s*audio\.preload='auto';\s*audio\.volume=volumeVoix_\(\);/, "chemin <audio> natif : .volume réglé sur le volume voix");
 assert.match(tts, /try\{gain\.disconnect\(\);\}catch\(_\)\{\}/, "le GainNode est bien nettoyé (pas de fuite) comme le node source");
 
