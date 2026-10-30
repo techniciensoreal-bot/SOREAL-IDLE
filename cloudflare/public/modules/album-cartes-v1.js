@@ -407,7 +407,9 @@ function tournerUne(sens,D,silencieux){
 function page_(sens){
   if(saut||tourne)return;
   if(peutPanner(sens)){placer(sens>0?'d':'g');return;}   /* zoomé : d'abord glisser jusqu'à l'autre page de la feuille */
-  return tournerUne(sens,DUREE,false).then(function(ok){if(ok)placer(sens>0?'g':'d');return ok;});
+  var t=tournerUne(sens,DUREE,false);
+  if(tourne)placer(sens>0?'g':'d');   /* le livre glisse vers la première page de la nouvelle feuille PENDANT que la feuille tourne (on ne voit jamais les pages plus loin avant) */
+  return t;
 }
 /*
  * Sauter de plusieurs pages (Norman, 2026-10-29 : « quand on passe 10 pages, je veux qu'on voie 10 pages tourner en une fois, pas une par une ») : les N feuilles partent à la file (une toutes les 80 ms) et sont TOUTES en l'air en même temps, comme on feuillette un classeur ;
@@ -422,11 +424,12 @@ function sauterInterne(n,fini){
   var dispo=sens>0?(deux?Math.floor((P-page)/2):P-1-page):(deux?Math.floor(page/2):page);   /* feuilles (PC) ou pages (téléphone) tournables dans ce sens */
   var total=Math.min(Math.abs(n),dispo);
   if(total<=0)return fini();
-  if(total===1){tournerUne(sens,DUREE,false).then(function(ok){if(ok)placer(sens>0?'g':'d');fini();});return;}   /* une seule feuille : la promesse se termine à la FIN de son animation (elle se terminait tout de suite : la couverture se fermait pendant que la dernière feuille tournait encore, Norman 2026-10-30 : « double mouvement de couverture en fermant ») */
+  if(total===1){var t1=tournerUne(sens,DUREE,false);if(tourne)placer(sens>0?'g':'d');t1.then(function(){fini();});return;}   /* une seule feuille : la promesse se termine à la FIN de son animation (elle se terminait tout de suite : la couverture se fermait pendant que la dernière feuille tournait encore, Norman 2026-10-30 : « double mouvement de couverture en fermant ») */
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
   son('albumDix');
+  placer(sens>0?'g':'d');
   tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
   var DUR=900,PAS=80,Z=.6,E='cubic-bezier(.45,.05,.4,1)',N=total,feuilles=[],anims=[],j;
   try{
@@ -677,7 +680,7 @@ function ranger(){
 document.addEventListener('keydown',function(e){if(e.key==='Escape'&&popup&&!popup.fini)ranger();});
 /* glissement du doigt sur le classeur : vers la gauche = page suivante, vers la droite = précédente */
 var toucheX=null,toucheY=null,toucheS=0;
-function tournerSwipe(sens){if(saut||tourne)return;tournerUne(sens,DUREE,false).then(function(ok){if(ok)placer(sens>0?'g':'d');});}   /* un glissement du doigt tourne toujours la feuille (jamais un simple glissement du livre) */
+function tournerSwipe(sens){if(saut||tourne)return;tournerUne(sens,DUREE,false);if(tourne)placer(sens>0?'g':'d');}   /* un glissement du doigt tourne toujours la feuille (jamais un simple glissement du livre) */
 document.addEventListener('touchstart',function(e){
   var c=e.target&&e.target.closest&&e.target.closest('.alb-ouvert .soreal-idle-album-v1');
   if(!c||!e.touches||e.touches.length!==1){toucheX=null;return;}

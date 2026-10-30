@@ -13,7 +13,7 @@ assert.ok(js.includes("Math.min(1,dispo/vis,haut/nh)"), "tient en largeur ET en 
 assert.ok(js.includes("zoomer:zoomer,adapter:adapter") && js.includes("Math.max(.5,Math.min(ZMAX,") && js.includes("var ZMAX=3;"), "zoom de 50 % à 300 %");
 // --- téléphone (2026-10-30) : toujours deux pages, le livre glisse de la page 2 à la 3 et ne tourne que pour la 4
 assert.ok(js.includes("function double(){return true;}") && js.includes("function etroit()"), "le livre est à deux pages même sur téléphone");
-assert.ok(js.includes("function peutPanner(sens)") && js.includes("if(peutPanner(sens)){placer(sens>0?'d':'g');return;}") && js.includes("placer(sens>0?'g':'d')"), "zoomé : les flèches font glisser le livre d'abord, puis tournent la feuille et se placent sur sa première page (ou la dernière en reculant)");
+assert.ok(js.includes("function peutPanner(sens)") && js.includes("if(peutPanner(sens)){placer(sens>0?'d':'g');return;}") && js.includes("if(tourne)placer(sens>0?'g':'d');"), "zoomé : les flèches font glisser le livre d'abord, puis tournent la feuille et se placent sur sa première page (ou la dernière en reculant)");
 assert.ok(js.includes("if(Math.abs(cd.scrollLeft-toucheS)>2)return;"), "livre zoomé : le doigt le fait glisser, la feuille ne tourne que depuis le bord");
 assert.ok(js.includes("window.addEventListener('resize',function(){\n  clearTimeout(tailleVue);\n  adapter();") || js.includes("clearTimeout(tailleVue);\n  adapter();"), "recalcul à chaque changement de taille de la fenêtre");
 assert.ok(js.includes("localStorage.setItem(CLE_ZOOM") && js.includes("soreal_idle_album_zoom_v1"), "zoom mémorisé (préférence liée au compte)");
@@ -61,7 +61,7 @@ assert.ok(js.includes("function derriereGauche(r){") && js.includes("var carteDe
 assert.ok(js.includes("h+=(derriere&&derriere[i])?dosPochetteHtml():v;") && js.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}"), "page de gauche : completer reçoit les dos");
 assert.ok(js.includes("contenuPage(sens>0?p+1:q+1,true)") && js.includes("contenuPage(a+1,true)"), "faces arrière des feuilles qui tournent (= page de gauche) : mêmes dos");
 // --- fermeture : la couverture attend la fin de la dernière feuille (la promesse d'une seule feuille se terminait tout de suite)
-assert.ok(js.includes("if(total===1){tournerUne(sens,DUREE,false).then(function(ok){if(ok)placer(sens>0?'g':'d');fini();});return;}") && !js.includes("then(fini);return fini();"), "sauter() d'une seule feuille se termine à la fin de son animation");
+assert.ok(js.includes("if(total===1){var t1=tournerUne(sens,DUREE,false);if(tourne)placer(sens>0?'g':'d');t1.then(function(){fini();});return;}") && !js.includes("then(fini);return fini();"), "sauter() d'une seule feuille se termine à la fin de son animation");
 // --- cadre de titre de NGU : moitié gauche en jour, moitié droite en nuit (Norman, 2026-10-30)
 assert.ok(itopod.includes('[data-menu="ngu"] .soreal-idle-page-head-v28[data-entete-menu]::before{background:') && itopod.includes("linear-gradient(90deg,#3d9be0 0%,#7cc4f5 38%,#a9dcff 47%,#262c6e 53%,#121847 70%,#070b2a 100%)"), "NGU : ciel de jour à gauche, ciel de nuit à droite");
 // --- retour de la carte : seul le fond s'estompe, la carte reste visible jusqu'à sa pochette (la fenêtre entière s'estompait avant la fin du glissement)
