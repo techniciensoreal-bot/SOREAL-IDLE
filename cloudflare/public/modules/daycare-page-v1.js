@@ -213,10 +213,10 @@
       '<div class="gd-titre"><span class="gd-titre-ico">'+ICONE_BOCAL+'</span><span>Garderie d’objets</span></div>'+
       '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
       resume+detail+
-      '<div class="gd-reserve"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
+      '<div class="gd-reserve"><div class="gd-scene"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
         '<div class="gd-fig"><img class="gd-img" src="/garderie/armoire-v1.webp?v=2" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
           (E2?E2.yeuxHtml():'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
-      '</div>'+
+      '</div></div>'+
       '<div class="gd-liste">'+cases.map(function(c){return c.note;}).join('')+'</div>'+choix+'</div>'+
     '</div>';
   }
@@ -322,8 +322,11 @@
       '.gd-ico{vertical-align:-.2em}',
       '.gd-reserve{margin-top:6px}',
       /* Le grenier en fond de la garderie (Norman, 2026-10-30 : image validée sur PC et sur téléphone) : image large sur PC, image haute sur téléphone */
-      '.gd-reserve{background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center bottom/cover no-repeat;border-radius:16px;padding:14px 10px 12px;box-shadow:inset 0 0 0 3px #3a2410,0 6px 18px rgba(0,0,0,.45)}',
-      '@media (min-width:900px){.gd-reserve{background:url(/garderie/fond-grenier-v1.webp?v=1) center bottom/cover no-repeat;padding:16px 16px 12px}}',
+      /* Le grenier en fond de la garderie (Norman, 2026-10-30) : la SCÈNE a le rapport de l'image (haute sur téléphone, carrée sur PC) et l'armoire y est POSÉE sur le sol (ses pieds sur le plancher, ombre dessous) : elle ne vole plus */
+      '.gd-scene{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1024/1536;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center/100% 100% no-repeat;border-radius:16px;overflow:hidden;box-shadow:inset 0 0 0 3px #3a2410,0 6px 18px rgba(0,0,0,.45)}',
+      '.gd-scene::after{content:"";position:absolute;left:22%;width:56%;bottom:15.5%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
+      '.gd-scene>.gd-armoire{position:absolute;left:17%;width:66%;max-width:none;bottom:17%;margin:0}',
+      '@media (min-width:900px){.gd-scene{max-width:700px;aspect-ratio:1/1;background-image:url(/garderie/fond-grenier-v1.webp?v=1)}.gd-scene::after{left:28%;width:44%;bottom:15%}.gd-scene>.gd-armoire{left:27%;width:46%;bottom:16.5%}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
