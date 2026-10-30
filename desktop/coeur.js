@@ -481,7 +481,19 @@ function ouvrirFenetre() {
   if (LANCE_PAR_STEAM) {
     const repeindre = () => { try { if (fenetre && !fenetre.isDestroyed() && fenetre.isVisible() && !fenetre.isMinimized()) fenetre.webContents.invalidate(); } catch (_e) { /* fenêtre fermée */ } };
     /* Plus de minuterie : repeindre en continu faisait CLIGNOTER une bande noire à gauche pendant que l'interface Steam est affichée (Norman, 2026-10-29). Seulement une courte rafale à chaque changement de focus, de taille ou d'affichage (la fermeture de la superposition redonne le focus). */
-    for (const evenement of ["focus", "blur", "show", "restore", "resize", "enter-full-screen", "leave-full-screen"]) fenetre.on(evenement, () => { repeindre(); for (const ms of [60, 150, 300, 600, 1200]) setTimeout(repeindre, ms); });
+    /*
+     * Le jeu clignotait NOIR tant que l'interface Steam était affichée (Norman, 2026-10-30) : la superposition fait perdre puis rendre le focus à la fenêtre à chaque interaction, et chaque rafale de repeintures forcées (cinq par événement, sur blur, taille, affichage…) donnait une image noire pendant que Steam
+     * dessine par-dessus. Désormais : AUCUNE repeinture tant que la superposition est ouverte (la fenêtre n'a pas le focus), une seule courte rafale (deux repeintures) quand le focus REVIENT ou que la fenêtre est restaurée, et jamais plus d'une rafale toutes les 2,5 s.
+     */
+    let derniereRafale = 0;
+    const rafale = () => {
+      const maintenant = Date.now();
+      if (maintenant - derniereRafale < 2500) return;
+      derniereRafale = maintenant;
+      repeindre();
+      for (const ms of [150, 600]) setTimeout(() => { if (fenetre && !fenetre.isDestroyed() && fenetre.isFocused()) repeindre(); }, ms);
+    };
+    for (const evenement of ["focus", "restore", "leave-full-screen"]) fenetre.on(evenement, rafale);
   }
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });
