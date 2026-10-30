@@ -343,7 +343,8 @@
       '.gd-scene{position:absolute;inset:0}',
       '.gd-scene::after{content:"";position:absolute;left:20%;width:60%;bottom:3%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
       '.gd-scene>.gd-armoire{position:absolute;left:13.5%;width:73%;max-width:none;bottom:6%;margin:0}',
-      '@media (min-width:900px){.gd-cadre{max-width:700px;aspect-ratio:1/1;background-image:url(/garderie/fond-grenier-v1.webp?v=1)}.gd-scene::after{left:26%;width:48%}.gd-scene>.gd-armoire{left:23.5%;width:53%;bottom:5%}}',
+      /* PC : image LARGE (1564 x 1006) qui recouvre tout le cadre ; l'armoire est au centre, ses pieds sur le plancher (Norman, 2026-10-30) */
+      '@media (min-width:900px){.gd-cadre{max-width:860px;aspect-ratio:1564/1006;background-image:url(/garderie/fond-grenier-pc-v2.webp?v=1)}.gd-scene::after{left:35%;width:30%;bottom:2.5%}.gd-scene>.gd-armoire{left:35%;width:30%;bottom:5%}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
