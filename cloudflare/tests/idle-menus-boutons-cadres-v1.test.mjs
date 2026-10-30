@@ -113,10 +113,14 @@ for (const m of sansCom.matchAll(/animation:(nbV1_[a-z]+) ([\d.]+)s (linear|ease
 /* le dessin de droite part d'une demi-période d'écart (pas de recopie synchrone) */
 for (const m of sansCom.matchAll(/\.nb-d\{animation:nbV1_[a-z]+ ([\d.]+)s [a-z-]+ infinite;animation-delay:-([\d.]+)s/g)) assert.equal(Number(m[2]), Number(m[1]) / 2, "décalage d'une demi-période");
 
-/* états : fermé = sombre, ouvert = brille */
-assert.ok(/\.soreal-idle-nav-deco-v1\{[^}]*filter:brightness\(\.5\) saturate\(\.55\)/.test(sansCom), "menu fermé : sombre");
-assert.ok(new RegExp(P.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\.active \\.soreal-idle-nav-deco-v1\\{filter:brightness\\(1\\.2\\)").test(sansCom), "menu ouvert : il brille");
-assert.ok(/\.active \.soreal-idle-nav-deco-v1 \.nb-g,[^{]*\.nb-d\{filter:drop-shadow/.test(sansCom), "menu ouvert : les dessins brillent");
+/* états : fermé = sombre (fond ET icônes), ouvert = brille, menu qui travaille non ouvert = fond sombre mais ICÔNES en couleurs pleines (Norman, 2026-10-30) ; aucun filtre global sur le décor */
+assert.ok(!/\.soreal-idle-nav-deco-v1\{[^}]*filter:/.test(sansCom), "pas de filtre global sur le décor (il assombrirait aussi les icônes)");
+assert.ok(/\.soreal-idle-nav-deco-v1::before,[^{]*\.soreal-idle-nav-deco-v1::after,[^{]*\.nb-g,[^{]*\.nb-d\{filter:brightness\(\.5\) saturate\(\.55\)/.test(sansCom), "menu fermé : fond, liseré et icônes sombres");
+assert.ok(/\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g,[^{]*\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{filter:none\}/.test(sansCom), "menu qui travaille : icônes en couleurs pleines");
+assert.ok(!/\.travail-v1 \.soreal-idle-nav-deco-v1(::before|::after)\{[^}]*filter:none/.test(sansCom), "menu qui travaille : le fond reste sombre");
+assert.ok(sansCom.indexOf(".travail-v1 .soreal-idle-nav-deco-v1 .nb-g,") < sansCom.indexOf(".active .soreal-idle-nav-deco-v1 .nb-g,"), "ouvert l'emporte sur travaille (même spécificité, règle plus tard)");
+assert.ok(/\.active \.soreal-idle-nav-deco-v1::before,[^{]*\.active \.soreal-idle-nav-deco-v1::after\{filter:brightness\(1\.2\)/.test(sansCom), "menu ouvert : le fond brille");
+assert.ok(/\.active \.soreal-idle-nav-deco-v1 \.nb-g,[^{]*\.nb-d\{filter:brightness\(1\.2\)[^}]*drop-shadow/.test(sansCom), "menu ouvert : les dessins brillent");
 
 /* Norman (2026-10-30) : chaque menu a une couleur dominante DIFFÉRENTE de tous les autres */
 const dom = {};
