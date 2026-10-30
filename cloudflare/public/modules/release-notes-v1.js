@@ -48,7 +48,7 @@
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
-            'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu.'
+            'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'La sangsue ne reste plus bloquée : quand elle crachait un jet puis que plus aucune boule n’apparaissait dans son ventre, elle repart toute seule (plus besoin de changer de page et de revenir).'

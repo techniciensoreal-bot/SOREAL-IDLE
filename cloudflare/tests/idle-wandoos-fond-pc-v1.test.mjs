@@ -19,4 +19,6 @@ assert.ok(css.includes('@media (min-width:701px){\n  html body.soreal-idle-activ
 assert.ok(css.includes('[data-menu="wandoos"]>.soreal-idle-page-head-v28{position:relative;z-index:1;margin:10px 22px 14px}'), "le titre est au-dessus et rentré : le dessin dépasse en haut, à gauche et à droite");
 assert.ok(hd.includes("/wandoos/*\n  Cache-Control: public, max-age=31536000, immutable"), "image versionnée par son nom : cache immuable");
 assert.ok(css.includes('[data-menu="wandoos"]{--i-a:#84cc16;--i-b:#3f6212;'), "le titre prend la couleur du menu (le vert du bouton, --nav-color #84cc16)");
+assert.ok(css.includes('.wd-ecran::after{background:radial-gradient') && css.includes('.wd-clavier::after{content:""') && css.includes('.wd-crt::before{content:""'), "reflets mauve (gauche) et vert (droite) sur la vitre, le clavier et la coque");
+assert.ok(css.includes("-webkit-mask-box-image:url(\"/api/idle/media/banner?name=wandoos.webp\")"), "la teinte de la coque est découpée dans la silhouette de l'image du moniteur (rien autour)");
 console.log("idle-wandoos-fond-pc-v1 : OK");
