@@ -40,10 +40,34 @@ var minuterie=0,indice=0,couche=0,attenteSon=false,veilleSon=0,chronique=false;
  * la voix de CHAQUE image et passe à la suivante à la fin de sa voix. Tant qu'aucune voix n'a été générée depuis le menu Admin, rien ne change : la voix de la page, découpée en 16 morceaux, comme avant.
  */
 var serveur=null,modeEtape=false,lecture=null,jeton=0,essaisServeur=0;
-/* Langue de l'intro (Norman, 2026-10-30 : « l'intro devra se lancer en anglais s'il a choisi l'anglais »). Aucune voix anglaise n'existe : en « English », textes et boutons sont en anglais et la voix FRANÇAISE est coupée (elle contredirait le texte) ;
-   les images défilent alors au rythme de la lecture (minuteries). Les voix sont celles du français, générées à partir des phrases françaises. */
+/* Langue de l'intro (Norman, 2026-10-30 : « l'intro devra se lancer en anglais s'il a choisi l'anglais »). En « English » : textes ORIGINAUX anglais et voix anglaise par image (voir plus bas) ; la voix FRANÇAISE de la page est coupée (elle contredirait le texte). */
 function langueEn(){try{return localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
 function voixEtapes(){return modeEtape&&!langueEn();}
+/*
+ * Intro ANGLAISE (Norman, 2026-10-30 : « ça doit être les textes ORIGINAUX ») : en « English », les 16 images affichent le texte d'ouverture original de NGU Idle (écran « THE BEGINNING », design/intro-original-en.json, copié en
+ * /voice-en/intro-original-en.json) et chaque image joue sa voix /voice-en/intro-NN.m4a (voix par défaut du moteur, voix-en-intro-v1.py), puis passe à la suivante. Fichier manquant, lecture impossible ou son coupé : minuterie, texte seul, jamais de blocage.
+ * La voix de la chronique du boss 1 reste coupée en anglais. Tant que le texte original n'est pas chargé, l'ancien texte traduit s'affiche et AUCUNE voix n'est jouée (elle lirait un autre texte).
+ */
+var DIR_EN='/voice-en/',original=null,chargementOriginal=false,audioEn=null,fichierEn=0;
+function chargerOriginal(){
+  if(original||chargementOriginal||!langueEn())return;
+  chargementOriginal=true;
+  try{
+    fetch(DIR_EN+'intro-original-en.json').then(function(r){if(!r.ok)throw new Error('x');return r.json();}).then(function(j){
+      if(!j||!Array.isArray(j.images)||j.images.length!==16)return;
+      original=j;
+      var r=racine();
+      if(r){
+        var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx&&!chronique)tx.innerHTML=texteHtml(DIAPOS[indice].t);
+        var ti=r.querySelector('.id-titre');
+        if(ti&&!chronique)ti.innerHTML=esc(j.titre||'')+(j.sousTitre?'<small>'+esc(j.sousTitre)+'</small>':'');
+      }
+    }).catch(function(){chargementOriginal=false;});
+  }catch(_e){chargementOriginal=false;}
+}
+function voixEn(){return langueEn()&&Boolean(original);}
+function texteOriginal(i){var im=original&&original.images&&original.images[i];return im&&im.texte?String(im.texte):'';}
+chargerOriginal();
 function sansBalises(t){
   var S=window.__SOREAL_IDLE_STORY_ENGINE_V1__;
   try{if(S&&typeof S.segmenter==='function')return String(S.segmenter(t,'narrateur').affiche||'');}catch(_e){}
@@ -79,9 +103,13 @@ function enAnglais(t){
   try{if(T&&typeof T.actif==='function'&&T.actif()){var e=T.traduire(String(t));if(e)return e;}}catch(_e){}
   return t;
 }
-function texteHtml(t){return esc(enAnglais(t)).replace(/\*([^*]+)\*/g,'<em>$1</em>');}
+function texteHtml(t){
+  /* anglais : le texte ORIGINAL de l'image courante (t est la phrase française de DIAPOS : on retrouve son rang) */
+  if(langueEn()&&original){for(var k=0;k<DIAPOS.length;k++){if(DIAPOS[k].t===t){var o=texteOriginal(k);if(o)return esc(o).replace(/\*([^*]+)\*/g,'<em>$1</em>');}}}
+  return esc(enAnglais(t)).replace(/\*([^*]+)\*/g,'<em>$1</em>');
+}
 function url(i){return DIR+DIAPOS[i].n+'.webp?v='+V;}
-function duree(i){return Math.max(MIN_MS,String(DIAPOS[i].t).length*MS_PAR_CARACTERE);}
+function duree(i){var o=langueEn()?texteOriginal(i):'';return Math.max(MIN_MS,(o||String(DIAPOS[i].t)).length*MS_PAR_CARACTERE);}
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 function racine(){return document.getElementById('sorealIdleIntroDiapoV1');}
 
@@ -124,6 +152,8 @@ function style_(){
 /* Le contenu de la fenêtre (à poser dans #sorealIdleTutorielPagesModalV1) : titre, deux calques d'image (fondu), phrase, points, indice. */
 function html(page,texteVoix){
   style_();
+  chargerOriginal();
+  if(langueEn()&&original)page={titre:original.titre||(page&&page.titre),sousTitre:original.sousTitre||''};
   var pts='';
   for(var i=0;i<DIAPOS.length;i++)pts+='<i></i>';
   return '<div class="id-scene" id="sorealIdleIntroDiapoV1" role="dialog" aria-modal="true" data-soreal-tts-say="'+esc(voixEtapes()||langueEn()?'':(texteVoix||''))+'"'+(langueEn()?' data-soreal-tts-ignore':'')+'>'+
@@ -162,11 +192,61 @@ function afficher(i){
   r.classList.toggle('id-fin',fin);
   if(fin)installerBouton(r);
   if(voixEtapes()&&!chronique&&!attenteSon)lancerEtape(i);
+  else if(voixEn()&&!chronique&&!attenteSon)lancerEn(i);
+}
+
+/* Voix anglaise de l'image i : lue puis image suivante ; tout échec (fichier absent, son bloqué hors geste, son coupé) = minuterie du texte seul. */
+function arreterAudioEn(){
+  if(audioEn){var a=audioEn;audioEn=null;a.onended=a.onerror=null;try{a.pause();}catch(_e){}try{a.removeAttribute('src');a.load();}catch(_e2){}}
+}
+function lancerEn(i){
+  annulerLecture();
+  if(minuterie){clearTimeout(minuterie);minuterie=0;}
+  var mon=jeton,plancher=duree(i);
+  var suivante=function(){
+    if(mon!==jeton)return;
+    var r=racine();if(!r||!r.isConnected||chronique)return;
+    if(indice>=DIAPOS.length-1)return;
+    afficher(indice+1);
+  };
+  var repli=function(){if(mon!==jeton)return;if(minuterie)clearTimeout(minuterie);minuterie=setTimeout(suivante,plancher);};
+  var T=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__,coupe=false;
+  try{coupe=Boolean(T&&typeof T.enabled==='function'&&!T.enabled());}catch(_e){}
+  if(coupe||typeof window.Audio!=='function'){repli();return;}
+  var a;
+  try{
+    a=new window.Audio(DIR_EN+'intro-'+DIAPOS[i].n+'.m4a');
+    var AV=window.__SOREAL_IDLE_AUDIO_VOLUME_V1__;
+    a.volume=Math.max(0,Math.min(1,AV&&typeof AV.getVoix==='function'?Number(AV.getVoix()):1));
+  }catch(_e){repli();return;}
+  audioEn=a;
+  a.onended=function(){
+    if(mon!==jeton)return;
+    if(minuterie)clearTimeout(minuterie);
+    minuterie=setTimeout(suivante,500);
+  };
+  a.onerror=function(){if(mon===jeton){audioEn=null;repli();}};
+  /* filet de sécurité : si la voix ne finit jamais */
+  minuterie=setTimeout(suivante,plancher+30000);
+  try{
+    var p=a.play();
+    if(p&&typeof p.catch==='function')p.catch(function(err){
+      if(mon!==jeton)return;
+      if(err&&err.name==='NotAllowedError'&&i===0){
+        /* le navigateur bloque le son : un premier appui le débloquera (comme pour la voix française) */
+        if(minuterie){clearTimeout(minuterie);minuterie=0;}
+        audioEn=null;attenteSon=true;indiceSon(true);
+        return;
+      }
+      audioEn=null;repli();
+    });
+  }catch(_e){audioEn=null;repli();}
 }
 
 /* Mode « une voix par image » : lit la voix de l'image i, puis passe à la suivante (minuteur de durée() si la voix ne peut pas partir). */
 function annulerLecture(){
   jeton+=1;
+  arreterAudioEn();
   if(lecture&&typeof lecture.annuler==='function'){try{lecture.annuler();}catch(_e){}}
   lecture=null;
 }
@@ -201,7 +281,7 @@ function lancerEtape(i){
 function installerBouton(r){
   var cadre=r.querySelector('#sorealIdleIntroCadreV1');
   if(!cadre||cadre.getAttribute('data-pret')==='1')return;
-  cadre.setAttribute('data-pret','1');cadre.setAttribute('role','button');cadre.setAttribute('tabindex','0');cadre.setAttribute('aria-label','JOUER');
+  cadre.setAttribute('data-pret','1');cadre.setAttribute('role','button');cadre.setAttribute('tabindex','0');cadre.setAttribute('aria-label',langueEn()?'PLAY':'JOUER');
   var continuer=function(ev){
     if(ev&&ev.type==='keydown'&&ev.key!=='Enter'&&ev.key!==' ')return;
     if(ev){ev.preventDefault();ev.stopPropagation();}
@@ -269,7 +349,7 @@ function ouvrirChronique(r,d){
 
 function planifier(){
   if(minuterie){clearTimeout(minuterie);minuterie=0;}
-  if(voixEtapes())return;
+  if(voixEtapes()||voixEn())return;
   if(indice<DIAPOS.length-1)minuterie=setTimeout(suite,duree(indice));
 }
 function suite(){
@@ -295,6 +375,7 @@ function toucher(ev){
   if(attenteSon){
     attenteSon=false;indiceSon(false);
     if(voixEtapes()){lancerEtape(indice);return;}
+    if(voixEn()){lancerEn(indice);return;}
     planifier();   /* le gestionnaire d'appui de la voix (capture sur le document) vient de relancer la lecture depuis le début : les images repartent avec elle */
     return;
   }
@@ -316,7 +397,8 @@ function demarrer(){
   precharger(1);precharger(2);
   attenteSon=false;indiceSon(false);curseur=0;annulerVoix();
   r.addEventListener('click',toucher);
-  if(voixEtapes())lancerEtape(0);else planifier();
+  chargerOriginal();
+  if(voixEtapes())lancerEtape(0);else if(voixEn())lancerEn(0);else planifier();
   /* Après un instant (la voix a eu le temps d'essayer de démarrer) : si le navigateur a bloqué le son, on attend un premier appui avant de défiler. */
   if(veilleSon)clearTimeout(veilleSon);
   veilleSon=setTimeout(function(){

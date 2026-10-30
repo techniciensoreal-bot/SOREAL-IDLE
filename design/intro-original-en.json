@@ -1,0 +1,32 @@
+{
+  "source": "Écran « THE BEGINNING (YOU'RE IN FOR A WILD RIDE) » du jeu NGU Idle (texte d'ouverture original), capture d'écran fournie par Norman le 2026-10-30. Texte recopié tel quel ; il n'est pas sur le wiki. Rien n'est traduit ni reformulé.",
+  "titre": "THE BEGINNING",
+  "sousTitre": "(YOU'RE IN FOR A WILD RIDE)",
+  "paragraphes": [
+    "*WHOOMPH*",
+    "As you come to, the first thing you notice is the taste of copper in your mouth.",
+    "The second being the stench of raw sewage all around you.",
+    "You get up, nursing your busted lip, and rubbing your head, which feels like it was lovingly caressed by a concrete block. You try to remember how you got to... well, wherever this place is. You realize with a surprising lack of panic, that you've forgotten who you are. Based on the state you're in right now, you're thinking they must have been an asshole. Tossed in a gross pit of sewage...",
+    "At least for the short term you have an objective: finding a way out of here. It kind of feels like the right thing to do. You try to stand up but your knees shake, buckle, and you fall back down. It's only now that you feel the weakness in your body. Not any normal sort of weakness, like when you stand up too quickly and get light headed, or have your arm ripped off in an industrial accident. No, you feel like *something* has sapped away the majority of your strength.",
+    "Well, there's nothing to do but to try to regain some of that strength and get out of here. Maybe hitting a big white button marked \"PLAY\" will let you do something fun."
+  ],
+  "bouton": "PLAY",
+  "images": [
+    { "n": "01", "texte": "*WHOOMPH*" },
+    { "n": "02", "texte": "As you come to," },
+    { "n": "03", "texte": "the first thing you notice is the taste of copper in your mouth." },
+    { "n": "04", "texte": "The second being the stench of raw sewage all around you." },
+    { "n": "05", "texte": "You get up, nursing your busted lip, and rubbing your head," },
+    { "n": "06", "texte": "which feels like it was lovingly caressed by a concrete block." },
+    { "n": "07", "texte": "You try to remember how you got to... well, wherever this place is. You realize with a surprising lack of panic, that you've forgotten who you are." },
+    { "n": "08", "texte": "Based on the state you're in right now, you're thinking they must have been an asshole." },
+    { "n": "09", "texte": "Tossed in a gross pit of sewage..." },
+    { "n": "10", "texte": "At least for the short term you have an objective: finding a way out of here. It kind of feels like the right thing to do. You try to stand up" },
+    { "n": "11", "texte": "but your knees shake, buckle," },
+    { "n": "12", "texte": "and you fall back down." },
+    { "n": "13", "texte": "It's only now that you feel the weakness in your body. Not any normal sort of weakness, like when you stand up too quickly and get light headed, or have your arm ripped off in an industrial accident." },
+    { "n": "14", "texte": "No, you feel like *something* has sapped away the majority of your strength." },
+    { "n": "15", "texte": "Well, there's nothing to do but to try to regain some of that strength and get out of here." },
+    { "n": "16", "texte": "Maybe hitting a big white button marked \"PLAY\" will let you do something fun." }
+  ]
+}

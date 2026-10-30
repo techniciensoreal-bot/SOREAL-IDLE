@@ -1,5 +1,5 @@
 // Norman (2026-10-30) : « au moment de mettre son surnom au lancement du jeu, je veux qu'on puisse choisir sa langue aussi, et l'intro devra se lancer en anglais s'il a choisi l'anglais. »
-// L'écran de pseudo porte deux gros boutons Français / English (même clé et même mécanisme que les Réglages) ; l'intro lit la langue choisie : textes anglais, voix française coupée (aucune voix anglaise n'existe).
+// L'écran de pseudo porte deux gros boutons Français / English (même clé et même mécanisme que les Réglages) ; l'intro lit la langue choisie : textes anglais originaux, voix française coupée, voix anglaise par image (section 4).
 import fs from "node:fs";
 import vm from "node:vm";
 import assert from "node:assert/strict";
@@ -111,5 +111,53 @@ const enEn = lancerIntro("en").html({ titre: "Le commencement" }, "Texte lu");
 assert.ok(enFr.includes('data-soreal-tts-say="Texte lu"') && !enFr.includes("data-soreal-tts-ignore data-soreal-tts-ignore"), "français : la voix de la page lit le texte");
 assert.ok(enEn.includes('data-soreal-tts-say=""') && enEn.includes('" data-soreal-tts-ignore>'), "anglais : aucune voix française sur l'intro");
 assert.equal(lancerIntro("en").texteHtml(phrases[1]), "When you come to,", "texte anglais affiché");
+
+// --- 4. voix anglaise de l'intro (Norman, 2026-10-30) : texte ORIGINAL du jeu (design/intro-original-en.json), 16 voix statiques /voice-en/intro-NN.m4a
+const original = JSON.parse(fs.readFileSync("design/intro-original-en.json", "utf8"));
+assert.ok(original.source && original.images.length === 16 && original.bouton === "PLAY", "source citée, 16 images, bouton PLAY");
+const copie = JSON.parse(fs.readFileSync("cloudflare/public/voice-en/intro-original-en.json", "utf8"));
+assert.deepEqual(copie, original, "la copie publique égale la source");
+const manifeste = JSON.parse(fs.readFileSync("cloudflare/public/voice-en/manifest.json", "utf8"));
+original.images.forEach((im, i) => {
+  assert.equal(im.n, String(i + 1).padStart(2, "0"));
+  const fichier = `cloudflare/public/voice-en/intro-${im.n}.m4a`;
+  assert.ok(fs.existsSync(fichier) && fs.statSync(fichier).size > 2000, "voix non vide : " + fichier);
+  assert.equal(manifeste[im.n].texte, im.texte, "manifeste = texte original : " + im.n);
+  assert.ok(manifeste[im.n].duree > 0.5 && manifeste[im.n].duree < 60, "durée plausible : " + im.n);
+});
+assert.ok(intro.includes("DIR_EN+'intro-'+DIAPOS[i].n+'.m4a'") && intro.includes("'/voice-en/'"), "l'intro anglaise lit /voice-en/intro-NN.m4a");
+assert.ok(intro.includes("function voixEn(){return langueEn()&&Boolean(original);}"), "pas de voix tant que le texte original n'est pas chargé");
+assert.ok(/a\.onerror=function\(\)\{[^}]*repli\(\)/.test(intro) && intro.includes("setTimeout(suivante,plancher)"), "repli minuterie si fichier absent");
+assert.ok(intro.includes("NotAllowedError") && intro.includes("attenteSon=true"), "attente d'un geste si le son est bloqué");
+assert.ok(intro.includes("AV.getVoix()") && intro.includes("T.enabled()"), "volume et son coupé du joueur respectés");
+assert.ok(!/DIR_EN[^;]*chronique/.test(intro) && /if\(!langueEn\(\)\)r\.setAttribute\('data-soreal-tts-say',d\.say\)/.test(intro), "chronique du boss 1 toujours muette en anglais");
+// scénario : intro anglaise sur un faux navigateur, original chargé, voix jouée puis image suivante, repli si erreur
+{
+  const stock = { soreal_idle_langue_v1: "en" };
+  const jouees = []; const minuteries = []; let audio;
+  const classes = () => ({ add() {}, remove() {}, toggle() {} });
+  const el = () => ({ style: {}, setAttribute() {}, getAttribute: () => null, appendChild() {}, addEventListener() {}, classList: classes(), querySelector: () => el(), querySelectorAll: () => [el(), el()], removeAttribute() {}, focus() {} });
+  const racine = el(); racine.isConnected = true;
+  const document = { getElementById: (id) => (id === "sorealIdleIntroDiapoV1" ? racine : null), createElement: el, head: { appendChild() {} }, documentElement: el(), body: el(), addEventListener() {}, querySelector: () => null };
+  class FauxAudio { constructor(u) { this.src = u; audio = this; jouees.push(u); } play() { return Promise.resolve(); } pause() {} load() {} removeAttribute() {} }
+  const fenetre = { matchMedia: () => ({ matches: false }), addEventListener() {}, Audio: FauxAudio, __SOREAL_IDLE_TUTORIAL_TTS_V209__: { enabled: () => true }, __SOREAL_IDLE_AUDIO_VOLUME_V1__: { getVoix: () => 0.5 }, __SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__: { actif: () => true, traduire: (x) => x } };
+  const ctx = { Image: class {}, window: fenetre, document, setTimeout: (f, ms) => { minuteries.push([f, ms]); return minuteries.length; }, clearTimeout() {}, setInterval: () => 0, clearInterval() {}, Date, Math, String, Array, Object, Promise, console,
+    fetch: async (u) => ({ ok: true, json: async () => JSON.parse(fs.readFileSync("cloudflare/public" + u, "utf8")) }), localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem() {} } };
+  vm.runInNewContext(intro, ctx);
+  await new Promise((r) => setImmediate(r)); await new Promise((r) => setImmediate(r));
+  const api = fenetre.__SOREAL_IDLE_INTRO_DIAPORAMA_V1__;
+  assert.equal(api.texteHtml(phrases[1]), "As you come to,", "texte ORIGINAL affiché en anglais");
+  assert.ok(api.texteHtml(phrases[13]).includes("<em>something</em>"), "mise en relief du n°14");
+  assert.ok(api.texteHtml(phrases[0]).includes("WHOOMPH"), "ouverture *WHOOMPH*");
+  assert.ok(api.html({ titre: "Le commencement" }, "x").includes("THE BEGINNING"), "titre original");
+  api.demarrer();
+  assert.equal(jouees[0], "/voice-en/intro-01.m4a", "la voix de la 1re image part");
+  assert.equal(audio.volume, 0.5, "volume du joueur");
+  audio.onended();
+  const suivante = minuteries[minuteries.length - 1][0]; suivante();
+  assert.equal(jouees[1], "/voice-en/intro-02.m4a", "fin de voix : voix de l'image suivante");
+  const avant = minuteries.length; audio.onerror();
+  assert.ok(minuteries.length > avant, "fichier absent : minuterie texte seul");
+}
 
 console.log("idle-langue-accueil-v1 : OK");

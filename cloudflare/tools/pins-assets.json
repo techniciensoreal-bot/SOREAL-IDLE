@@ -256,8 +256,8 @@
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
  "/modules/intro-diaporama-v1.js": {
-  "pin": 11,
-  "sha": "93d4e3ac702ef1c0e04ecfbd83c59f29302e8d9e"
+  "pin": 13,
+  "sha": "04310b0e6d765d8f62995e17aca2a7ddf057fff8"
  },
  "/modules/inventaire-volet-v1.js": {
   "pin": 12,
