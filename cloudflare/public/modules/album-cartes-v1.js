@@ -59,7 +59,7 @@ function miniature(e){
   var C=carteMtg();if(!C)return '';
   var n=Math.floor(Number(e.numero))||0,m=monde(n);
   var histoire=e.description?'<div class="soreal-idle-bestiary-desc-v110 soreal-idle-boss-fiche-histoire-v1">'+esc(sansBalise(e.description))+'</div>':'';
-  return C.html({numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
+  return C.html({numero:n,nom:e.nom,monde:m.monde,ordre:m.ordre,pv:e.pv,attaque:e.attaque,regen:e.regen,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoire,boutonsHtml:'',adminHtml:'',image:urlImage(n),sansFleches:true});
 }
 function pochetteHtml(e){
   var n=Math.floor(Number(e.numero))||0,nom=esc(e.nom||'Boss');

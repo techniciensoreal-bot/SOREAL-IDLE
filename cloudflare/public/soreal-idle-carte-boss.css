@@ -72,7 +72,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mtg-rencontres{margin-left:auto;flex:0 0 auto;font-style:italic;opacity:.85}
 .mtg-force{position:absolute;right:5.2cqw;bottom:2.1cqw;z-index:3;width:max-content;max-width:62cqw;box-sizing:border-box;padding:.9cqw 2.6cqw;border:.5cqw solid #101014;border-radius:1.8cqw 1.8cqw 1.8cqw 3.4cqw;background:linear-gradient(180deg,var(--mtg-barre),var(--mtg-barre2));box-shadow:0 .35cqw .8cqw rgba(0,0,0,.65),inset 0 0 1.4cqw rgba(255,255,255,.4);
   font:700 4.2cqw/1.25 Georgia,"Times New Roman",serif;color:#101014;text-align:center;white-space:nowrap}
-.mtg-force>i{font-style:normal;margin:0 .6cqw}
+.mtg-force>i{font-style:normal;margin:0 1cqw}
+.mtg-pv{display:inline-flex;align-items:center;gap:.8cqw}
+.mtg-coeur{width:4.4cqw;height:4.4cqw;display:block;flex:0 0 auto}
 
 /* dos de la carte : cadre doré marbré, ovale brun bordé de bleu, quatre billes rouges aux coins, titre du jeu sur deux lignes puis la photo du boss entière */
 :is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-dos{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:none;transform:rotateY(180deg);backface-visibility:hidden;box-shadow:0 2cqw 6cqw rgba(0,0,0,.7);cursor:pointer}

@@ -1088,7 +1088,7 @@
         modal.innerHTML=
           '<div class="mtg-modal-v1 soreal-idle-boss-fiche-v1" role="dialog" aria-modal="true" aria-label="'+idleHtml_(e.nom||'Boss')+'">'+
             '<button type="button" class="mtg-modal-fermer-v1" aria-label="Fermer" onclick="window.__fermerBossCollectionIdleV1__()">✕</button>'+
-            (carte?carte.html({numero:n,nom:e.nom,monde:cat&&cat.monde,ordre:cat&&cat.ordreMonde,pv:e.pv,attaque:e.attaque,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoireHtml,boutonsHtml:boutons,adminHtml:admin,image:urlBossR2IdleV1_(n)}):'')+
+            (carte?carte.html({numero:n,nom:e.nom,monde:cat&&cat.monde,ordre:cat&&cat.ordreMonde,pv:e.pv,attaque:e.attaque,regen:e.regen,xp:e.xp,rencontres:e.rencontres,victoires:e.victoires,histoireHtml:histoireHtml,boutonsHtml:boutons,adminHtml:admin,image:urlBossR2IdleV1_(n)}):'')+
           '</div>';
         modal.addEventListener('click',function(ev){if(ev.target===modal)fermerBossCollectionIdleV1_();});
         document.body.appendChild(modal);

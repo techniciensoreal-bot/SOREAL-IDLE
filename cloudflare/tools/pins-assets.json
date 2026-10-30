@@ -20,8 +20,8 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 32,
-  "sha": "65f50bb694200ad1487fec18a28addc8058a5ce0"
+  "pin": 33,
+  "sha": "4c221cf97de8e8c2c1b7e8351b20f06a84dff203"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -120,8 +120,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 16,
-  "sha": "1a85da0bd193e8a56e2c355812dedffd7f97a509"
+  "pin": 18,
+  "sha": "0c95b08a4caacd7fdb27b57190f3f3689b21616a"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -372,8 +372,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 104,
-  "sha": "991537e1ecc382f883b3157f5464a54f14a79334"
+  "pin": 105,
+  "sha": "e5800d21c226580f9959b454f03641aecf29603c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -592,8 +592,8 @@
   "sha": "ded127d72ddadc8acba230a6ef4ec97efce2d7ab"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 26,
-  "sha": "ed5c409b14b0f5035acf9859f1cfde560032a095"
+  "pin": 27,
+  "sha": "38cd60fce4290f8ebcc2bc162a006e459e3847cd"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -708,8 +708,8 @@
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 17,
-  "sha": "dd5d104cf5600399038c7c8b242d0719f99fbeff"
+  "pin": 18,
+  "sha": "7756a43c31b6dad3902e4883b79cf0857b1d2dfd"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 4,

@@ -79,7 +79,7 @@ assert.equal(ajoutes.length, 1);
 const html = ajoutes[0].innerHTML;
 assert.match(html, /Fake &lt;Boss&gt;/, "nom échappé");
 /* carte à collectionner : vie et attaque dans la case du coin (pas répétées en toutes lettres), EXP et rencontres en pied de carte */
-for (const attendu of ["carte-mtg-v1", "mtg-force", "1200", "EXP", "rencontres", "Il était une fois."]) assert.ok(html.includes(attendu), attendu);
+for (const attendu of ["carte-mtg-v1", "mtg-force", "1200", "EXP", "Il était une fois."]) assert.ok(html.includes(attendu), attendu);
 assert.match(html, /data-soreal-tts-chronique="Fake &lt;Boss&gt;"/, "lecture vocale de la chronique conservée");
 assert.match(html, /data-soreal-tts-target="sorealIdleCollectionBossStoryV206_4"/);
 assert.match(html, /id="sorealIdleCollectionBossStoryV206_4"/);

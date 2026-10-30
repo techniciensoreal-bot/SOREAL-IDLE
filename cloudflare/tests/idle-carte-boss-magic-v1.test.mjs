@@ -26,7 +26,10 @@ assert.ok(imagesDos[0].includes("/api/idle/media/card-back") && !imagesDos[0].in
 assert.ok(lire("cloudflare/src/idle-media-v1.js").includes("idle/backgrounds/MagicCardBack.webp") && lire("cloudflare/src/idle-media-v1.js").includes("/api/idle/media/card-back"), "route serveur du dos de carte");
 assert.match(h, /mtg-nom[^>]*>Bambi &lt;b&gt;</, "le nom est échappé");
 assert.match(h, /<span>Boss légendaire<\/span> — <span>Monde<\/span> 2/, "ligne de type traduisible");
-assert.match(h, /mtg-force"><span>N50<\/span><i>\/<\/i><span>N1000<\/span>/, "case attaque / vie dans le coin");
+assert.match(h, /mtg-force"><span class="mtg-pv"><svg[^]*?<\/svg>N1000<\/span>/, "case du coin : le total de PV (avec un cœur)");
+assert.ok(!/mtg-rencontres| rencontre/.test(h), "plus de « rencontres » au pied de la carte");
+assert.match(carte.html({ numero: 3, nom: "R", monde: 1, pv: 1000, regen: 20 }), /mtg-pv"[^]*?N1000<\/span><i>·<\/i><span class="mtg-regen">\+N20\/s<\/span>/, "PV puis régénération par seconde");
+assert.ok(!/mtg-regen/.test(carte.html({ numero: 3, nom: "R", monde: 1, pv: 1000 })), "pas de régénération connue : rien d'affiché");
 assert.ok(!/Points de vie|Attaque/.test(h), "pas de « Points de vie » ni « Attaque » en toutes lettres");
 assert.equal((h.match(/class="mtg-badge"/g) || []).length, 2, "badges : EXP et une capacité (PV et attaque sont dans la case du coin)");
 assert.match(h, /B 12 · FR/, "ligne de collection : « B 12 » (plus de zéros devant : il n'y a pas 1000 boss, Norman 2026-10-30)");

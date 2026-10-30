@@ -7,7 +7,7 @@ import { normalizeIdleAdventureStateV47, idleAdventureMobBestiaryEntryV1, IDLE_A
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
 import { normaliserVictoiresBossV1_ } from "./idle-victoires-boss-v1.js";
 import { bossCatalogueSorealIdle_, collectionsSorealIdle_, histoireBossAvecSurchargeSorealIdle_, histoireBossParleeSorealIdle_, nomBossParleSorealIdle_, lootsSorealIdle_ } from "./idle-runtime-catalogue.js";
-import { definitionBossSorealIdle_ } from "./idle-runtime-boss.js";
+import { definitionBossSorealIdle_, regenBossSecondeSorealIdle_ } from "./idle-runtime-boss.js";
 
 export function parserJsonSorealIdle_(
   valeur,
@@ -1306,6 +1306,7 @@ export function construireBestiaireSorealIdle_(
           decouvert
             ? Math.max(0, nombreSorealIdle_(definitionCollection.attaque, 0))
             : 0,
+        regen: decouvert ? Math.max(0, nombreSorealIdle_(regenBossSecondeSorealIdle_(index, Math.max(1, nombreSorealIdle_(definitionCollection.pv, 1))), 0)) : 0,   /* régénération de PV par seconde du boss (comme sur la borne d'arcade), affichée sur la carte (Norman, 2026-10-30) */
         defense:
           decouvert
             ? Math.max(0, nombreSorealIdle_(definitionCollection.defense, 0))

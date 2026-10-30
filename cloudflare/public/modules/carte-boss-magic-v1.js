@@ -108,6 +108,7 @@ function aller(numero){
 }
 
 /* Emblème de l'extension (en bas à droite de la ligne de type) : petit écusson SOREAL. */
+var COEUR='<svg class="mtg-coeur" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21 3.5 12.5C1 10 1.5 6 4.5 4.8 7 3.800 9.500 5 12 8c2.500-3 5-4.200 7.500-3.200 3 1.200 3.500 5.200 1 7.700Z" fill="#a3141c" stroke="#101014" stroke-width="1.4" stroke-linejoin="round"/></svg>';
 var EPEE='<svg class="mtg-epee" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 21.5 8 12.5 17 8.5 13 17.5 4Z" fill="#1b1b22"/><path d="M6 11.5 14 19.5" stroke="#1b1b22" stroke-width="3" stroke-linecap="round"/><path d="M10.5 15.5 4 22" stroke="#1b1b22" stroke-width="3.4" stroke-linecap="round"/></svg>';
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
@@ -144,10 +145,11 @@ function html(o){
   (Array.isArray(o.capacites)?o.capacites:[]).forEach(function(c){if(String(c||'').trim())ligne('★',esc(c));});
   /* nombre de fois que ce boss a été tué : un chiffre précédé d'une épée, sur la ligne du type (Norman, 2026-10-30 : « juste un nombre avec une épée devant, qui ne prend pas de place ») */
   var tues=Number(o.victoires)>0?'<span class="mtg-tues" data-sans-traduction>'+EPEE+esc(Math.floor(o.victoires))+'</span>':'';
-  var rencontres=Number(o.rencontres)>0?'<div class="mtg-rencontres">'+esc(Math.floor(o.rencontres))+' <span>'+(o.rencontres>1?'rencontres':'rencontre')+'</span></div>':'';
+  /* pas de « rencontres » au pied de la carte : la case des PV le cachait et le chiffre n'apprenait rien (Norman, 2026-10-30) */
   var image=o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" loading="lazy" onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)" onerror="this.style.display=\'none\'">':'';
-  var force=Number(o.attaque)>0||Number(o.pv)>0
-    ?'<div class="mtg-force"><span>'+esc(nb(o.attaque))+'</span><i>/</i><span>'+esc(nb(o.pv))+'</span></div>':'';
+  /* case du coin : le total de PV du boss et sa régénération par seconde (Norman, 2026-10-30 : « juste son total de PV et sa régen, comme sur la borne d'arcade ») */
+  var force=Number(o.pv)>0
+    ?'<div class="mtg-force"><span class="mtg-pv">'+COEUR+esc(nb(o.pv))+'</span>'+(Number(o.regen)>0?'<i>·</i><span class="mtg-regen">+'+esc(nb(o.regen))+'/s</span>':'')+'</div>':'';
   var numero=Math.floor(Number(o.numero)||0);
   var couleur=couleurs[numero]!=null?couleurs[numero]:couleurMonde(o.monde);
   return (o.sansFleches?'':fleches(numero))+'<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
@@ -163,7 +165,7 @@ function html(o){
         '<div class="mtg-boutons">'+(o.boutonsHtml||'')+'</div>'+
         (o.adminHtml?'<div class="mtg-admin">'+o.adminHtml+'</div>':'')+
       '</div>'+
-      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(numeroCarte(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span>'+rencontres+'</div>'+
+      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(numeroCarte(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span></div>'+
     '</div>'+
     force+
     '</div>'+
