@@ -14,7 +14,11 @@ const DEPOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "
 const lire = (...p) => fs.readFileSync(path.join(DEPOT, ...p), "utf8").replace(/\r\n/g, "\n");
 
 // ---------- la graine embarquée : valide, à jour, sans adresse e-mail ni partie de joueur
-const graine = JSON.parse(lire("desktop", "graine", "catalogue.json"));
+/* desktop/graine/catalogue.json est un fichier LOCAL (récolte de la production, jamais versionné) : absent d'un dépôt vierge (CI), on prend une graine d'essai de même forme */
+const FICHIER_GRAINE = path.join(DEPOT, "desktop", "graine", "catalogue.json");
+const graine = fs.existsSync(FICHIER_GRAINE)
+  ? JSON.parse(lire("desktop", "graine", "catalogue.json"))
+  : { feuilles: [["CONFIG", 1, '["x"]'], ["IDLE_BOSS", 1, '["boss"]']], textes: [["boss:1", '{"champs":{"nom":"N"}}']], histoires: [{ id: "Intro", titre: "Intro", boss: null, actif: true, voix: ["aaaaaaaa"], etapes: [], maj: 1 }] };
 assert.equal(graineValideV1(graine), true, "la graine rangée est valide");
 assert.ok(Array.isArray(graine.textes) && graine.textes.length > 0, "la graine porte les textes modifiés (empreintes de voix comprises)");
 assert.ok(Array.isArray(graine.histoires) && graine.histoires.length > 0, "la graine porte les histoires de la production");
@@ -84,6 +88,8 @@ const nouvelle = { feuilles: [["CONFIG", 1, '["nouveau"]'], ["IDLE_BOSS", 1, '["
 }
 
 // ---------- essai avec le VRAI moteur de l'exe : base déjà semée avec l'ancien catalogue, partie en cours, puis démarrage avec la nouvelle graine
+/* Cette partie a besoin de la VRAIE graine (récolte de la production, fichier local jamais versionné) : ignorée sur un dépôt vierge (CI). */
+if (fs.existsSync(FICHIER_GRAINE)) {
 {
   const { creerEnvLocal } = await import(pathToFileURL(path.join(DEPOT, "desktop", "src", "env-local.mjs")).href);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "soreal-graine-"));
@@ -129,6 +135,7 @@ const nouvelle = { feuilles: [["CONFIG", 1, '["nouveau"]'], ["IDLE_BOSS", 1, '["
   fs.rmSync(tmp, { recursive: true, force: true });
 }
 
+}   /* fin de la partie « vrai moteur » (graine locale requise) */
 // ---------- câblage : le contenu voyage dans les mises à jour et les deux moteurs le réappliquent
 const sw = lire("cloudflare", "local", "sw-android.js"), coeur = lire("desktop", "coeur.js"), envLocal = lire("desktop", "src", "env-local.mjs"), codeApk = lire("android", "code-apk.mjs"), paquet = lire("desktop", "src", "paquet.mjs");
 assert.ok(sw.includes("appliquerGraineContenuV1(sql, graine)") && sw.includes('"/graine-contenu-v1.json", "/__graine.json"'), "APK : la graine de la mise à jour d'abord, celle de l'APK ensuite, appliquée à chaque démarrage");

@@ -89,7 +89,8 @@ assert.equal(lancer(m).coeur, "embarque");
 /* 7. le cœur voyage dans le paquet de mise à jour (sauf le lanceur et la vérification des signatures) */
 const { fichiersDuCode, FICHIERS_COEUR } = await import(pathToFileURL(path.join(DEPOT, "desktop", "src", "paquet.mjs")).href);
 const noms = fichiersDuCode(DEPOT).map((f) => f.nom);
-for (const f of FICHIERS_COEUR) assert.ok(noms.includes(f), f + " dans le paquet");
+/* la graine de contenu (desktop/graine/) est un fichier LOCAL de la machine de Norman, jamais versionné : absente sur un dépôt vierge (CI), elle n'est pas dans le paquet */
+for (const f of FICHIERS_COEUR) { if (f === "desktop/graine/catalogue.json" && !fs.existsSync(path.join(DEPOT, "desktop", "graine", "catalogue.json"))) continue; assert.ok(noms.includes(f), f + " dans le paquet"); }
 for (const f of ["desktop/main.js", "desktop/src/maj.mjs", "desktop/src/zip.mjs", "desktop/maj-cle-publique.pem"]) assert.ok(!noms.includes(f), f + " reste celui de l'installateur");
 /* le cœur chargé depuis la mise à jour n'importe rien d'absent du paquet */
 for (const f of FICHIERS_COEUR.filter((x) => x.endsWith(".mjs"))) {
