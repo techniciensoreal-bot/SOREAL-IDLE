@@ -56,7 +56,7 @@ assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-livre::before{z-index:
   assert.ok(cc.includes("--alb-lang:clamp(") && cc.includes(".alb-page-d::before") && cc.includes(".alb-page-g::after") && (cc.match(/circle at 50% /g) || []).length >= 6 && cc.includes("calc(11% + .39 * var(--alb-ra))") && cc.includes("calc(89% - .39 * var(--alb-ra))") && cc.includes(".alb-feuille-tournante .alb-face-avant>.alb-page::before"), "languette perforée sur toute la hauteur, trois trous (là où passent les anneaux), sur les pages et sur la feuille qui tourne");
 }
 // navigation : au-dessus ET en dessous, 1 page et 10 pages, avec l'animation des 10 feuilles
-assert.ok(m.includes("navHtml('haut')+livreHtml()+navHtml('bas')") && m.includes("alb-prec10") && m.includes("alb-suiv10") && m.includes(".sauter(-10)") && m.includes(".sauter(10)"), "barre de navigation au-dessus et en dessous : ±1 page et ±10 pages");
+assert.ok(m.includes("alb-nav-zone alb-nav-zone-haut") && m.includes("alb-nav-zone alb-nav-zone-bas") && m.includes("function zonesNav()") && m.includes("alb-prec10") && m.includes("alb-suiv10") && m.includes(".sauter(-10)") && m.includes(".sauter(10)"), "barre de navigation au-dessus et en dessous : ±1 page et ±10 pages");
 assert.ok(m.includes("function sauter(n)") && m.includes("var DUR=900,PAS=80") && m.includes("anims.push(f.animate(kf,{duration:DUR,easing:E,delay:delai,fill:'both'}))") && m.includes("var total=Math.min(Math.abs(n),dispo);"), "un saut de 10 pages = 10 feuilles EN L'AIR EN MÊME TEMPS (départ en cascade toutes les 80 ms), arrêt à la première ou à la dernière page");
 assert.ok(m.includes("function legerHtml(L)") && m.includes("vraiAvant") && m.includes("vraiArriere"), "seules la première et la dernière feuille ont leur vrai contenu (les autres passent trop vite)");
 assert.ok(m.includes("fg.parentNode.replaceChild(nf,fg)") && m.includes("fd.parentNode.replaceChild(nf,fd)"), "à l'atterrissage, les cartes de la feuille deviennent la page (mêmes éléments : rien ne bouge à la dernière image)");
@@ -70,7 +70,7 @@ console.log("idle-album-cartes-v1 : OK");
 
 // la dernière page (peu de cartes) garde la taille du classeur ; ouvrir le livre ne déplace rien dans la page
 assert.ok(m.includes("function completer(h,n,derriere)") && m.includes("alb-pochette-vide") && m.includes("return completer(h,n);"), "toujours 9 emplacements par page (les vides sont invisibles)");
-assert.ok(c.includes(".alb-pochette-vide .alb-carte{visibility:hidden}") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-classeur>.alb-nav{position:absolute"), "la place des barres de navigation est toujours réservée");
+assert.ok(c.includes(".alb-pochette-vide .alb-carte{visibility:hidden}") && c.includes("padding:var(--alb-nav-h) 0 var(--alb-nav-b)") && c.includes(".alb-nav-zone{display:flex;justify-content:center;min-height:50px}"), "la place des barres de navigation est toujours réservée");
 
 // jamais de page vide (la hauteur du classeur s'effondrait sur la page blanche après la dernière) ; les pochettes vides existent déjà ; l'anneau est au-dessus des feuilles
 assert.ok(m.includes("if(L>=nbPages())return completer('',0);"), "la page après la dernière a ses 9 pochettes vides");

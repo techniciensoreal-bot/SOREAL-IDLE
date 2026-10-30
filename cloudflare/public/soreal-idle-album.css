@@ -191,7 +191,18 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-zoom-val:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
 .alb-cadre{position:relative;width:100%;overflow-x:auto;overflow-y:clip}
 .alb-echelle{position:relative;width:var(--alb-w,100%);height:var(--alb-h,auto);margin:0 auto}
-html body.soreal-idle-active-v47 .alb-echelle>.alb-classeur{position:absolute;left:0;top:0;width:var(--alb-nw,980px);max-width:none;margin:0;transform-origin:0 0;transform:scale(var(--alb-s,1))}
+/* Barres de navigation hors du classeur mis à l'échelle (taille de bouton normale, toujours visibles même zoomé) ; leur place est réservée, livre fermé comme ouvert. */
+.alb-adapt .alb-classeur{--alb-nav-h:0px;--alb-nav-b:0px}
+.alb-nav-zone{display:flex;justify-content:center;min-height:50px}
+.alb-nav-zone-haut{align-items:flex-end;margin-bottom:10px}
+.alb-nav-zone-bas{align-items:flex-start;margin-top:10px}
+.alb-nav-zone .alb-nav{margin:0}
+/* Téléphone (Norman, 2026-10-30) : le livre est toujours à deux pages ; fermé, seule la couverture (centre du livre) est affichée, agrandie ; elle glisse vers le livre entier pendant l'ouverture (--alb-dx = décalage du classeur). */
+.alb-echelle.alb-rogne{overflow:clip}
+.alb-echelle.alb-glisse{transition:width 1150ms cubic-bezier(.5,.05,.3,1),height 1150ms cubic-bezier(.5,.05,.3,1)}
+html body.soreal-idle-active-v47 .alb-echelle.alb-glisse>.alb-classeur{transition:transform 1150ms cubic-bezier(.5,.05,.3,1),left 1150ms cubic-bezier(.5,.05,.3,1)}
+@media (prefers-reduced-motion:reduce){.alb-echelle.alb-glisse,html body.soreal-idle-active-v47 .alb-echelle.alb-glisse>.alb-classeur{transition:none}}
+html body.soreal-idle-active-v47 .alb-echelle>.alb-classeur{position:absolute;left:var(--alb-dx,0px);top:0;width:var(--alb-nw,980px);max-width:none;margin:0;transform-origin:0 0;transform:scale(var(--alb-s,1))}
 /* Dimensions de référence : plus aucune valeur ne dépend de la largeur de la fenêtre (c'est l'échelle qui s'en charge). */
 html body.soreal-idle-active-v47 .alb-echelle .alb-classeur{--alb-lang:30px;--alb-ra:58px}
 html body.soreal-idle-active-v47 .alb-echelle .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{--alb-gap:12px;padding:22px 22px 22px 44px}

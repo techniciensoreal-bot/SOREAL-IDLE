@@ -20,8 +20,8 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 26,
-  "sha": "8af27cfd9c5795dfe06ae6e51bd290783e487c1f"
+  "pin": 28,
+  "sha": "f9d20b2f512eebd6516fab6dfef8eeb293774fb6"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -700,16 +700,16 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 24,
-  "sha": "9b549874960b5ccd9b513e33d053c68f1da8a93b"
+  "pin": 26,
+  "sha": "a97e50dd3c183f6f4dd4db8a578a94532be8bba9"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 14,
-  "sha": "33c126eed661b778e8b14cf8ffe6983336673519"
+  "pin": 15,
+  "sha": "004cce96ce030fc39d43dc61e71faae4961c5d39"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 4,
