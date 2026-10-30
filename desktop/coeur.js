@@ -36,6 +36,13 @@ const LANCE_PAR_STEAM = Boolean(process.env.SteamGameId || process.env.SteamAppI
 if (LANCE_PAR_STEAM) {
   app.commandLine.appendSwitch("in-process-gpu");
   app.commandLine.appendSwitch("disable-direct-composition");
+  /*
+   * Bandes noires pendant l'interface Steam (Norman, 2026-10-30 : « les bandes noires sont toujours là ; elles persistent une demi-seconde quand j'enlève l'interface Steam »). La superposition est une fenêtre posée par-dessus : le suivi d'occultation natif de
+   * Chromium (CalculateNativeWinOcclusion) croit la fenêtre du jeu cachée, cesse de la peindre (zones noires) et ne recalcule qu'après coup. On le coupe, ainsi que la mise en veille des fenêtres « occultées » : la page continue de se peindre sous la superposition.
+   */
+  app.commandLine.appendSwitch("disable-features", "CalculateNativeWinOcclusion");
+  app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
+  app.commandLine.appendSwitch("disable-renderer-backgrounding");
 }
 
 /* Dossiers : en développement le dépôt lui-même ; une fois empaquetée l'application embarque sa copie (dossier « jeu » à côté de main.js). */
