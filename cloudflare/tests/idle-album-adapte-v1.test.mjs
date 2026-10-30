@@ -60,4 +60,6 @@ assert.ok(js.includes("contenuPage(sens>0?p+1:q+1,true)") && js.includes("conten
 assert.ok(js.includes("if(total===1){Promise.resolve(page_(sens)).then(fini);return;}") && !js.includes("then(fini);return fini();"), "sauter() d'une seule feuille se termine à la fin de son animation");
 // --- cadre de titre de NGU : moitié gauche en jour, moitié droite en nuit (Norman, 2026-10-30)
 assert.ok(itopod.includes('[data-menu="ngu"] .soreal-idle-page-head-v28[data-entete-menu]::before{background:') && itopod.includes("linear-gradient(90deg,#3d9be0 0%,#7cc4f5 38%,#a9dcff 47%,#262c6e 53%,#121847 70%,#070b2a 100%)"), "NGU : ciel de jour à gauche, ciel de nuit à droite");
+// --- retour de la carte : seul le fond s'estompe, la carte reste visible jusqu'à sa pochette (la fenêtre entière s'estompait avant la fin du glissement)
+assert.ok(retour.includes("fenetre.animate([{backgroundColor:'rgba(4,8,16,.6)'") && !retour.includes("fenetre.animate([{opacity:1},{opacity:0}]") && retour.includes("duration:900,easing:'ease-in'"), "retour : le fond s'estompe sur 900 ms comme le glissement, jamais la carte");
 console.log("idle-album-adapte-v1 : OK");

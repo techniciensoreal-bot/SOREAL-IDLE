@@ -477,7 +477,8 @@ function retourPochette(n,fenetre,grande,r1,parent){
     {transform:m.dessus,offset:.5,easing:'cubic-bezier(.35,0,.25,1)'},
     {transform:m.petite}
   ],{duration:900,fill:'forwards'});
-  try{fenetre.animate([{opacity:1},{opacity:0}],{duration:520,easing:'ease-in',fill:'forwards'});}catch(_e){}
+  /* Seul le FOND (voile et flou) s'estompe, pendant toute la durée du glissement : la carte est dans la fenêtre, elle ne doit pas s'effacer avant d'être arrivée dans sa pochette (Norman, 2026-10-30 : « quand la carte glisse pour entrer dans sa pochette, elle disparaît et apparaît une fois en place » : la fenêtre entière s'estompait en 520 ms, le glissement durait 900 ms). */
+  try{fenetre.animate([{backgroundColor:'rgba(4,8,16,.6)',backdropFilter:'blur(10px)',webkitBackdropFilter:'blur(10px)'},{backgroundColor:'rgba(4,8,16,0)',backdropFilter:'blur(0px)',webkitBackdropFilter:'blur(0px)'}],{duration:900,easing:'ease-in',fill:'forwards'});}catch(_e){}
   fin(a).then(finirSortie);
   setTimeout(function(){if(sortie&&sortie.fenetre===fenetre)finirSortie();},1800);   /* filet de sécurité */
 }
