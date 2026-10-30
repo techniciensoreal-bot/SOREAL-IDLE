@@ -75,6 +75,7 @@ export function chiffrerFichier(fichier) {
 /* Recopie un dossier de médias en le chiffrant (installateur) ; les dossiers « _externes » (bibliothèques et modèles servis tels quels) sont recopiés en clair. Rend { fichiers, octets }. */
 export function copierChiffre(source, destination) {
   let fichiers = 0, octets = 0;
+  const manifeste = {};   /* clé -> [taille en clair, date] : lu tel quel au lancement (aucun des milliers de fichiers n'a besoin d'être ouvert : env-local.mjs, creerR2) */
   const parcourir = (src, dst, externe) => {
     fs.mkdirSync(dst, { recursive: true });
     for (const e of fs.readdirSync(src, { withFileTypes: true })) {
@@ -86,10 +87,12 @@ export function copierChiffre(source, destination) {
         const sortie = enClair ? contenu : chiffrer(contenu);
         fs.writeFileSync(d, sortie);
         fichiers += 1; octets += sortie.length;
+        if (!externe) manifeste[path.relative(destination, d).split(path.sep).join("/")] = [contenu.length, Math.floor(fs.statSync(d).mtimeMs)];
       }
     }
   };
   parcourir(source, destination, false);
+  fs.writeFileSync(path.join(destination, "_inventaire-medias-v1.json"), JSON.stringify({ v: 1, fichiers: manifeste }));
   return { fichiers, octets };
 }
 

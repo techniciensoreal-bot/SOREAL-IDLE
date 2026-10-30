@@ -7,11 +7,12 @@
  */
 import { DatabaseSync } from "node:sqlite";
 import fs from "node:fs";
+import fsp from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
-import { lireEnClair, tailleEnClair } from "./coffre-medias.mjs";
+import { ENTETE, SURCOUT, lireEnClair, tailleEnClair } from "./coffre-medias.mjs";
 
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
@@ -78,21 +79,85 @@ function creerAssets(dossierPublic) {
 
 /* ---------- SOREAL_R2 : le dossier des médias, mêmes clés que le bucket ---------- */
 /* dossiersMedias : un dossier, ou plusieurs COUCHES de la plus récente à la plus ancienne (mises à jour installées, puis médias de l'installateur) : pour une clé présente dans plusieurs, la couche la plus récente gagne. Les écritures vont dans la plus récente. */
-export function creerR2(dossiersMedias) {
+export function creerR2(dossiersMedias, fichierIndex) {
   const racines = (Array.isArray(dossiersMedias) ? dossiersMedias : [dossiersMedias]).map((d) => path.resolve(d));
-  let index = null;   /* clé -> { taille, mtime, racine } (construit au premier besoin) */
-  function construire() {
-    index = new Map();
-    const parcourir = (racine, dossier, prefixe) => {
+  let index = null;   /* clé -> { taille, mtime, racine } */
+  let promesse = null;
+  /*
+   * Inventaire des médias (Norman, 2026-10-30 : « le premier lancement de l'exe met du temps : l'interface est figée, puis le jeu s'affiche »). Il se faisait d'un seul bloc, en synchrone, dans le processus de l'application : 5 000 fichiers ouverts et mesurés (5,8 s sur un
+   * disque chaud, bien plus au premier lancement quand l'antivirus examine chaque fichier), pendant lesquels RIEN d'autre ne tournait. Désormais : (1) le fichier « _inventaire-medias-v1.json » écrit à la fabrication de l'installateur est lu tel quel (aucun fichier ouvert) ;
+   * (2) sinon, le parcours est ASYNCHRONE et parallèle (l'application reste fluide) et commencé dès le démarrage, avant même que la page le demande ; (3) son résultat est gardé dans « fichierIndex » (valable tant qu'aucun dossier n'a changé) : les lancements suivants ne mesurent plus rien.
+   */
+  const NOM_MANIFESTE = "_inventaire-medias-v1.json";
+  async function enParallele(taches, nb) {
+    let i = 0;
+    await Promise.all(Array.from({ length: nb }, async () => { for (;;) { const k = i; i += 1; if (k >= taches.length) return; await taches[k](); } }));
+  }
+  async function tailleClair(fichier, tailleDisque) {
+    if (tailleDisque < SURCOUT) return tailleDisque;
+    let fh = null;
+    try {
+      fh = await fsp.open(fichier, "r");
+      const tete = Buffer.alloc(ENTETE.length);
+      await fh.read(tete, 0, tete.length, 0);
+      return tete.equals(ENTETE) ? tailleDisque - SURCOUT : tailleDisque;
+    } catch (_e) { return tailleDisque; } finally { if (fh) try { await fh.close(); } catch (_e) { /* fermé */ } }
+  }
+  /* Les fichiers (et la signature des dossiers) d'une couche, sans rien mesurer. */
+  async function lister(racine) {
+    const fichiers = [], dossiers = [];
+    const parcourir = async (dossier, prefixe) => {
       let entrees = [];
-      try { entrees = fs.readdirSync(dossier, { withFileTypes: true }); } catch (_e) { return; }
+      try { entrees = await fsp.readdir(dossier, { withFileTypes: true }); } catch (_e) { return; }
+      let st = null;
+      try { st = await fsp.stat(dossier); } catch (_e) { /* absent */ }
+      dossiers.push(prefixe + ":" + (st ? Math.floor(st.mtimeMs) : 0) + ":" + entrees.length);
+      const sous = [];
       for (const e of entrees) {
         const cle = prefixe + e.name;
-        if (e.isDirectory()) parcourir(racine, path.join(dossier, e.name), cle + "/");
-        else if (e.isFile() && !cle.startsWith("_externes/") && !/\.(chiffre|nouveau)$/i.test(e.name)) { const fichier = path.join(dossier, e.name), st = fs.statSync(fichier); index.set(cle, { taille: tailleEnClair(fichier, st.size), mtime: st.mtimeMs, racine }); }
+        if (e.isDirectory()) sous.push(parcourir(path.join(dossier, e.name), cle + "/"));
+        else if (e.isFile() && cle !== NOM_MANIFESTE && !cle.startsWith("_externes/") && !/\.(chiffre|nouveau)$/i.test(e.name)) fichiers.push({ cle, fichier: path.join(dossier, e.name) });
       }
+      await Promise.all(sous);
     };
-    for (let i = racines.length - 1; i >= 0; i -= 1) parcourir(racines[i], racines[i], "");   /* de la plus ancienne à la plus récente : la dernière écrite l'emporte */
+    await parcourir(racine, "");
+    dossiers.sort();
+    return { fichiers, signature: createHash("sha1").update(dossiers.join("|")).digest("hex") };
+  }
+  async function inventaireCouche(racine, cache) {
+    const { fichiers, signature } = await lister(racine);   /* les noms seulement (aucun fichier ouvert ni mesuré) */
+    try {   /* écrit à la fabrication de l'installateur : valable tant que les fichiers présents sont exactement ceux du manifeste (un fichier ajouté ou retiré le rend caduc) */
+      const m = JSON.parse(await fsp.readFile(path.join(racine, NOM_MANIFESTE), "utf8"));
+      if (m && m.v === 1 && m.fichiers && typeof m.fichiers === "object") {
+        const presents = new Set(fichiers.map((f) => f.cle)), cles = Object.keys(m.fichiers);
+        if (cles.length === presents.size && cles.every((k) => presents.has(k))) return { entrees: cles.map((cle) => [cle, { taille: Number(m.fichiers[cle][0]), mtime: Number(m.fichiers[cle][1]) || 0, racine }]), signature: null };
+      }
+    } catch (_e) { /* pas de manifeste : parcours */ }
+    const enCache = cache && cache[racine];
+    if (enCache && enCache.signature === signature && Array.isArray(enCache.entrees)) return { entrees: enCache.entrees.map(([cle, t, m]) => [cle, { taille: t, mtime: m, racine }]), signature, fichiers: fichiers.length };
+    const entrees = [];
+    await enParallele(fichiers.map((f) => async () => {
+      try { const st = await fsp.stat(f.fichier); entrees.push([f.cle, { taille: await tailleClair(f.fichier, st.size), mtime: st.mtimeMs, racine }]); } catch (_e) { /* disparu */ }
+    }), 64);
+    return { entrees, signature, fichiers: fichiers.length, neuf: true };
+  }
+  async function construire() {
+    if (promesse) return promesse;
+    promesse = (async () => {
+      let cache = null;
+      if (fichierIndex) { try { cache = JSON.parse(await fsp.readFile(fichierIndex, "utf8")); } catch (_e) { /* pas de cache */ } }
+      const neuf = new Map(), aGarder = {};
+      let ecrire = false;
+      const couches = await Promise.all(racines.map((r) => inventaireCouche(r, cache)));
+      for (let i = racines.length - 1; i >= 0; i -= 1) {   /* de la plus ancienne à la plus récente : la dernière écrite l'emporte */
+        const c = couches[i];
+        for (const [cle, meta] of c.entrees) neuf.set(cle, meta);
+        if (c.signature) { aGarder[racines[i]] = { signature: c.signature, entrees: c.entrees.map(([cle, m]) => [cle, m.taille, m.mtime]) }; if (c.neuf) ecrire = true; }
+      }
+      index = neuf;
+      if (fichierIndex && ecrire) { try { await fsp.mkdir(path.dirname(fichierIndex), { recursive: true }); await fsp.writeFile(fichierIndex + ".nouveau", JSON.stringify(aGarder)); await fsp.rename(fichierIndex + ".nouveau", fichierIndex); } catch (_e) { /* cache facultatif */ } }
+    })();
+    try { await promesse; } finally { if (!index) promesse = null; }
   }
   const racine = racines[0];
   const objet = (cle, meta, avecCorps) => {
@@ -113,17 +178,17 @@ export function creerR2(dossiersMedias) {
   };
   return {
     async get(cle) {
-      if (!index) construire();
+      if (!index) await construire();
       const meta = index.get(String(cle));
       return meta ? objet(String(cle), meta, true) : null;
     },
     async head(cle) {
-      if (!index) construire();
+      if (!index) await construire();
       const meta = index.get(String(cle));
       return meta ? objet(String(cle), meta, false) : null;
     },
     async list(options = {}) {
-      if (!index) construire();
+      if (!index) await construire();
       const prefixe = String(options.prefix || ""), delimiteur = options.delimiter ? String(options.delimiter) : "";
       const limite = Math.max(1, Math.min(1000, Number(options.limit) || 1000));
       const depart = Math.max(0, Number(options.cursor) || 0);
@@ -146,12 +211,13 @@ export function creerR2(dossiersMedias) {
       fs.mkdirSync(path.dirname(f), { recursive: true });
       const octets = valeur instanceof ArrayBuffer ? Buffer.from(valeur) : ArrayBuffer.isView(valeur) ? Buffer.from(valeur.buffer, valeur.byteOffset, valeur.byteLength) : Buffer.from(String(valeur));
       fs.writeFileSync(f, octets);
-      index = null;
+      index = null;promesse = null;
     },
     async delete(cles) {
       for (const c of Array.isArray(cles) ? cles : [cles]) { try { fs.unlinkSync(path.join(racine, ...String(c).split("/"))); } catch (_e) { /* déjà absent */ } }
-      index = null;
-    }
+      index = null;promesse = null;
+    },
+    prechauffer: () => construire()
   };
 }
 
@@ -177,12 +243,14 @@ export async function creerEnvLocal(opt) {
   }
   /* Le jeu est ouvert au joueur de cet ordinateur : « accès public » du serveur, posé une fois (l'administrateur du serveur fait la même chose pour les joueurs en ligne). */
   sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1') ON CONFLICT(meta_key) DO UPDATE SET meta_value='1'");
-  const premiere = semerSiVide(sql, opt.graine);
+  sql.exec("BEGIN");   /* une seule écriture sur le disque pour toute la graine (et non une par ligne) */
+  let premiere;
+  try { premiere = semerSiVide(sql, opt.graine); sql.exec("COMMIT"); } catch (e) { try { sql.exec("ROLLBACK"); } catch (_e) { /* rien à défaire */ } throw e; }
   const stub = { fetch: (requete) => coord.fetch(requete) };
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },
     ASSETS: creerAssets(opt.dossierPublic),
-    SOREAL_R2: creerR2(opt.dossiersMedias || opt.dossierMedias),
+    SOREAL_R2: creerR2(opt.dossiersMedias || opt.dossierMedias, opt.fichierIndex),
     CF_VERSION_METADATA: { id: "desktop" },
     GOOGLE_CLIENT_ID: ""
   };
@@ -195,6 +263,7 @@ export async function creerEnvLocal(opt) {
     if (!s || !s.ok) throw new Error("SESSION_LOCALE_REFUSEE:" + (s && s.error));
     return { token: s.sessionToken, expiresAt: s.expiresAt };
   }
+  env.SOREAL_R2.prechauffer().catch(() => {});   /* l'inventaire des médias commence tout de suite, en tâche de fond : la page le trouve prêt */
   let session = nouvelleSession();
   const scriptSession = () => '<script>try{localStorage.setItem("soreal_idle_google_session_v1",' + JSON.stringify(JSON.stringify({ token: session.token, expiresAt: session.expiresAt })) + ');}catch(_e){}</script>';
   async function repondre(requete) {

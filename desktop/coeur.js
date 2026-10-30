@@ -84,6 +84,7 @@ async function lancerEnv(racineDepot, dossiersMedias) {
     dossierPublic: path.join(racineDepot, "cloudflare", "public"),
     dossiersMedias,
     fichierBase: path.join(app.getPath("userData"), "soreal-idle.sqlite"),
+    fichierIndex: path.join(app.getPath("userData"), "index-medias.json"),   /* inventaire des médias gardé d'un lancement à l'autre */
     graine,
     utilisateur: { email: "joueur@soreal-idle.local", emailConnexion: "joueur@soreal-idle.local", emails: ["joueur@soreal-idle.local"], prenom: "Joueur" }
   });

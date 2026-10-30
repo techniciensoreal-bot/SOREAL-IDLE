@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans l’application PC, le premier lancement est bien plus rapide : elle ne reste plus figée pendant qu’elle prépare ses images et ses voix (le travail se fait en arrière-plan, puis est retenu pour les lancements suivants).',
             'Sur téléphone, un double tap sur le Cube de l’infini absorbe maintenant les boosts au lieu d’ouvrir sa fenêtre : un simple tap ouvre la fenêtre (avec l’achat « Double tap », elle s’ouvre juste après le délai du double tap).',
             'Sur téléphone, l’aura du Cube de l’infini est de nouveau visible : la case ne la coupe plus.',
             'Sur téléphone, le texte d’une carte de chronique défile maintenant sous le doigt : le fond du jeu ne glisse plus à sa place.',
