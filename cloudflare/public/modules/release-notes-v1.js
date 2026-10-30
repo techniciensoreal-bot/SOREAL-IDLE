@@ -32,7 +32,8 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Les boutons de la barre des menus (en haut sur téléphone, à gauche sur ordinateur) reprennent en petit le cadre de titre de leur menu, chacun avec sa propre couleur ; le menu ouvert s’anime. Les cadres de titre des pages ont été recolorés pour correspondre.',
+            'Application Android hors ligne : à chaque ouverture, un dialogue propose la mise à jour tant qu’elle n’est pas appliquée (avec un bouton pour la télécharger tout de suite, même en réseau mobile), signale quand l’ancienne version a dû être remise et propose de réessayer ; le numéro de version du code actif s’affiche dans les Réglages (onglet Infos), et les médias retirés (anciennes voix) sont supprimés de l’appareil pour libérer de la place.',
+            'Les boutons de la barre des menus (en haut sur téléphone, à gauche sur ordinateur) sont maintenant le cadre de titre de leur menu en petit, avec le nom du menu au centre : le menu ouvert brille, les autres sont sombres, et les deux dessins de chaque bouton s’animent quand ce menu travaille (avec l’achat « Menus animés »).',
             'Applications Android et PC hors ligne : les textes des chroniques et leurs voix se mettent maintenant à jour avec les mises à jour de l’application (avant, elles gardaient celles d’origine).',
             'Dans les bonus obtenus grâce à la roue, l’objet s’appelle maintenant « Caca » (et non « crottin »), sans la mention « sans effet » : il a un effet quand on l’utilise.',
             'Application Android hors ligne : au démarrage, un écran de connexion affiche l’image du jeu en plein écran ; un appui ouvre le navigateur pour choisir son compte Google. Si le compte possède une partie, elle est restaurée directement ; sinon un pseudo est demandé, et un pseudo déjà pris est refusé.',
@@ -69,10 +70,12 @@
             'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Quand tu ranges de nouvelles cartes, chacune entre maintenant dans sa pochette par le côté extérieur de la page, sous le plastique (elle ne le traverse plus), et un bouton « Passer » (ou la touche Échap) range tout d’un coup.',
+            'Sur téléphone, l’album s’ouvre maintenant sur deux pages comme sur ordinateur : tu vois le livre entier, tu peux zoomer jusqu’à 300 % avec + et −, et les flèches font d’abord glisser le livre de la page de gauche à celle de droite avant de tourner la feuille. La première page s’affiche seule, sans seconde couverture noire à côté.',
             'Dans le classeur, la carte reste maintenant bien visible pendant qu’elle glisse pour entrer dans sa pochette (elle disparaissait avant d’arriver).',
             'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
             'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',
-            'Sur les cartes des boss, on voit maintenant le nombre de fois que le boss a été tué (le compte démarre aujourd’hui ; un boss déjà vaincu affiche au moins 1), et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
+            'Sur les cartes des boss, la case du coin donne le total de PV du boss et sa régénération par seconde (comme sur la borne d’arcade) ; le nombre de fois que le boss a été tué est un chiffre précédé d’une épée (le compte démarre aujourd’hui ; un boss déjà vaincu affiche au moins 1) ; le nombre de rencontres n’est plus écrit au pied de la carte, et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
             'Le classeur a des sons : trois bruits doux de feuille de plastique qui se tourne, un bruit de pages qui défilent quand on avance de 10 en 10, et un bruit de couverture qui se referme.',
             'Les pochettes s’ouvrent maintenant sur le côté extérieur de la page (à gauche sur la page de gauche, à droite sur la page de droite) : le pointillé suit, et les cartes y entrent et en sortent par ce côté, même hors de l’écran.',
             'Le classeur n’a plus d’anneaux ni de ronds noirs.',
