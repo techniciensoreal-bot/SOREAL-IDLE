@@ -61,6 +61,7 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
+            'Le fond de la Garderie est maintenant un grenier (une scène haute sur téléphone, carrée sur ordinateur) : Mamie l’armoire y est posée sur le plancher, avec son ombre.',
             'La Garderie d’objets n’est plus un menu : c’est un onglet à côté du sac, tenu par une vieille armoire aux yeux fous qui parle, bougonne un peu et remue son gros nez entre deux bocaux. Chaque emplacement est un grand bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas.',
             'Les bocaux apparaissent un par un sur l’étagère, au fur et à mesure que tu obtiens des emplacements, avec une petite animation de pose.',
             'Dans la fiche d’un objet, un bouton Garderie le place directement dans un bocal libre (« Garderie pleine » s’il n’y en a plus).',
@@ -75,7 +76,7 @@
             'Dans le classeur, la carte reste maintenant bien visible pendant qu’elle glisse pour entrer dans sa pochette (elle disparaissait avant d’arriver).',
             'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
             'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',
-            'Sur les cartes des boss, la case du coin donne le total de PV du boss et sa régénération par seconde (comme sur la borne d’arcade) ; le nombre de fois que le boss a été tué est un chiffre précédé d’une épée (le compte démarre aujourd’hui ; un boss déjà vaincu affiche au moins 1) ; le nombre de rencontres n’est plus écrit au pied de la carte, et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
+            'Sur les cartes des boss, la case du coin donne le total de PV du boss et sa régénération par seconde (comme sur la borne d’arcade) ; le nombre de fois que le boss a été tué est un chiffre précédé d’une épée (un boss déjà vaincu reprend son ancien nombre de rencontres tant que le compteur, né aujourd’hui, est plus petit) ; le nombre de rencontres n’est plus écrit au pied de la carte, et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
             'Le classeur a des sons : trois bruits doux de feuille de plastique qui se tourne, un bruit de pages qui défilent quand on avance de 10 en 10, et un bruit de couverture qui se referme.',
             'Les pochettes s’ouvrent maintenant sur le côté extérieur de la page (à gauche sur la page de gauche, à droite sur la page de droite) : le pointillé suit, et les cartes y entrent et en sortent par ce côté, même hors de l’écran.',
             'Le classeur n’a plus d’anneaux ni de ronds noirs.',
@@ -85,6 +86,7 @@
             'Sur un fruit prêt, le gain de « Manger » et de « Récolter » est bien plus visible (cadre doré, texte plus grand) et les unités des grands nombres (Qa…) ont leur couleur comme partout ailleurs.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'Dans le laboratoire NGU, le cadre jour (Énergie) et nuit (Magie) reprend le style du titre du menu : liseré arcade, ciel, soleil et nuages le jour, lune et étoiles la nuit, et il s’intitule « ÉNERGIE » ou « MAGIE ».',
             'Le cadre de titre de la page prend vraiment le thème de la page : la moitié gauche est en jour (ciel bleu et soleil), la moitié droite en nuit (ciel sombre, lune et étoiles).'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
