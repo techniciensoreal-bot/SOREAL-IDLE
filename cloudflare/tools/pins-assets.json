@@ -204,8 +204,8 @@
   "sha": "7c5b61b68b92c581a2cd1daf3ac9c44efd643c10"
  },
  "/modules/entete-menu-v1.js": {
-  "pin": 4,
-  "sha": "0b5c485799ed2cb0aad782157b269fe9b247a728"
+  "pin": 6,
+  "sha": "5800cf37279436db5d1e41e4f8705ec37ee34b8a"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -700,8 +700,8 @@
   "sha": "33c126eed661b778e8b14cf8ffe6983336673519"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 248,
-  "sha": "2d1e8efd58fe8825ffc96378f517e8cfc81e004e"
+  "pin": 249,
+  "sha": "fb05e76890a13d4d069e9afc6f767b402dc24e45"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,

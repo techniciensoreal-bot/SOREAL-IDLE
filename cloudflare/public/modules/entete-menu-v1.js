@@ -3,7 +3,8 @@
  * espace vide + taille du cadre = la taille des 4 barres. Comme ça, même quand les 4 sont affichées, elles ne cachent que le titre et jamais un bouton »).
  * Le bandeau du haut est posé PAR-DESSUS la page (modules/hud-haut-v2.js) : les barres d'énergie, de magie et de 3e ressource recouvrent le début du menu. Le premier cadre de titre de la page (« soreal-idle-page-head-v28 », posé par entetePageIdleV28_ : le nom et sa mini phrase)
  * reçoit donc la hauteur « 4 barres - espace vide » (feuille soreal-idle-itopod.css, en fin de fichier) : le premier bouton commence toujours sous les barres. Un menu dont la page n'a pas son propre cadre en reçoit un du même modèle (nom du bouton du menu + mini phrase).
- *   --hud-4barres-v1  : hauteur de 4 barres empilées (4 hauteurs de barre + 3 écarts), mesurée sur la barre de vie du bandeau
+ *   --hud-4barres-v1  : de combien les 4 barres (vie, énergie, magie, ressource 3), TOUTES affichées, recouvrent le haut de la page. La page réserve déjà la hauteur de base du bandeau (chiffres + barre de vie) plus 10 px de marge : seules les trois autres barres recouvrent le contenu.
+ *                       Recouvrement = 3 pas de barre (hauteur + écart, mesurés sur la barre de vie : même zoom, téléphone comme PC) - 10 px de marge ; ne dépend pas des barres affichées à cet instant (elles s'ouvrent et se ferment en douceur).
  *   --vide-haut-v1    : l'espace vide déjà présent au-dessus du contenu (marge haute de la page)
  * Règle n°4 (redessin) : l'attribut data-entete-menu et le cadre généré sont posés APRÈS le rendu, remis dans la même tâche à chaque redessin (window.__SOREAL_IDLE_APRES_REDESSIN_V1__), sans attente ; le morph les laisse en place (data-morph-garder, liste des attributs gardés).
  */
@@ -28,8 +29,10 @@ function mesurer(premier){
   try{
     var pv=document.getElementById('sorealIdleHudGPvV2'),panneau=pv&&pv.closest?pv.closest('.soreal-idle-energy-panel-v34'):null;
     if(panneau){
-      var z=zoom_(panneau),h=panneau.getBoundingClientRect().height/z,ecart=parseFloat(getComputedStyle(panneau).marginBottom)||0;
-      if(h>0)poser_('--hud-4barres-v1',Math.round((4*h+3*ecart)*100)/100,'h4');
+      /* le zoom est celui du bandeau lui-même (le zoom calculé d'une barre vaut 1 : seul l'élément zoomé le porte) */
+      var z=zoom_(document.getElementById('sorealIdleHudV2')||panneau),h=panneau.getBoundingClientRect().height/z,ecart=parseFloat(getComputedStyle(panneau).marginBottom)||0;
+      var recouvre=3*(h+ecart)-10;   /* 10 px : marge basse du bandeau (feuille posée par hud-haut-v2.js) */
+      if(h>0&&recouvre>0)poser_('--hud-4barres-v1',Math.round(recouvre*100)/100,'h4');
     }
     /* l'espace vide déjà présent : du haut de la page au haut du cadre (marges et espaces compris) */
     var racine=document.querySelector('.soreal-idle-page-root-v28');
