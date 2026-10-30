@@ -47,7 +47,7 @@ for (const [definitionId, flag, fabrique, cle] of cas) {
 const ui = lireUiComplet();
 assert.ok(ui.includes("const IDLE_UNLOCK_PAR_OBJET_V1={aNumber:{cle:'aNumber',flag:'ngu'") && ui.includes("'scrap:paper':{cle:'scrapPaper',flag:'diggers'"), "mêmes correspondances que le serveur");
 assert.ok(ui.includes("🔓 Utiliser</button>") && ui.includes("window.__utiliserObjetDeblocageIdleV1__(") && ui.includes("action:'useUnlockItem',itemId:String(id||'')"));
-assert.ok(ui.includes("            boutonVerrouiller+\n            boutonDebloquer+\n            boutonConsommer+"), "le bouton est sur la fiche de l'objet");
+assert.ok(ui.includes("boutonVerrouiller+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?") && ui.includes("            boutonDebloquer+\n            boutonConsommer+"), "le bouton est sur la fiche de l'objet (après « Verrouiller » et le bouton « Garderie »)");
 assert.ok(ui.includes("if(deblocageParObjetIdleV1_(a,item)){\n          nettoyerEtatDragAdventureIdleV138_();\n          utiliserObjetDeblocageIdleV1_(objet);"), "clic droit : utilise l'objet");
 assert.ok(ui.includes("(item.definitionId==='wandoos98'&&!deblocageObjet)") && ui.includes("item.definitionId==='giantSeed'&&!item.locked&&!deblocageObjet"), "Wandoos / Graine : usages d'après-déblocage seulement une fois le système débloqué");
 // Menu de secours : seulement pour un déblocage dont l'objet réel n'est plus dans le sac.

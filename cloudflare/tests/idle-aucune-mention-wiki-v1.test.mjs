@@ -17,5 +17,6 @@ for (const f of fichiers) {
 }
 // message de garderie : lu dans meta-progression
 const meta = sansCommentaires((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()));
-assert.ok(!/publié par le wiki/.test(meta) && meta.includes("sans taux de garderie connu"), "message de garderie sans wiki");
+const garderie = sansCommentaires(readFileSync("cloudflare/public/modules/daycare-page-v1.js", "utf8"));
+assert.ok(!/publié par le wiki/.test(meta) && !/publié par le wiki/.test(garderie) && !/["'`][^"'`]*wiki[^"'`]*["'`]/i.test(garderie), "message de garderie sans wiki (la garderie vit dans le Coffre : daycare-page-v1.js)");
 console.log("idle-aucune-mention-wiki-v1: OK");

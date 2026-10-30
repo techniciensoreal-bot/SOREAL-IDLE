@@ -214,7 +214,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 // Coffre : un objet pas pleinement maxé (ou dont la case est prise) fait secouer la tête au Bagage au lieu de croquer, sans appel serveur (2026-10-25).
 {
   const u = lire("cloudflare/public/modules/ui-aventure-2-v1.js"), c = lire("cloudflare/public/soreal-idle-itopod.css");
-  assert.ok(u.includes("function coffreRefuseObjetIdleV1_(id)") && u.includes("if(coffreRefuseObjetIdleV1_(source)){jouerNonCoffreIdleV1_();return;}") && u.includes("if(id&&coffreRefuseObjetIdleV1_(id)){jouerNonCoffreIdleV1_();return;}"));
+  assert.ok(u.includes("function coffreRefuseObjetIdleV1_(id)") && u.includes("if(coffreRefuseObjetIdleV1_(source)){jouerNonCoffreIdleV1_();return;}") && u.includes("if(id&&coffreRefuseObjetIdleV1_(id)){if(!(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__&&window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.deposerNonMaxe(id)))jouerNonCoffreIdleV1_();return;}"));   /* non maxé : garderie s'il reste une place (2026-10-30), sinon refus */
   assert.ok(c.includes(".bg-bagage-v1.refuse{") && c.includes("@keyframes bgNon{"));
 }
 

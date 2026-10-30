@@ -64,6 +64,7 @@
             'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Dans le classeur, la carte reste maintenant bien visible pendant qu’elle glisse pour entrer dans sa pochette (elle disparaissait avant d’arriver).',
             'La flèche tout à gauche du classeur attend maintenant la fin de la dernière feuille avant de refermer la couverture : plus de mouvement de couverture en double à la fermeture.',
             'Sur ordinateur, quand la page de gauche du classeur n’est pas complète, les emplacements vides laissent voir le dos des cartes rangées derrière elle (seulement celles qui existent vraiment).',
             'Sur les cartes des boss, on voit maintenant le nombre de fois que le boss a été tué (le compte démarre aujourd’hui ; un boss déjà vaincu affiche au moins 1), et le numéro du bas s’écrit « B 112 » au lieu de « B 0112 ».',
