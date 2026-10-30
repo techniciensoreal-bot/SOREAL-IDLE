@@ -32,6 +32,7 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Au lancement du jeu, sur l’écran où l’on choisit son pseudo, on choisit aussi sa langue (Français ou English) : l’écran se traduit tout de suite et l’introduction se lance dans la langue choisie. En anglais, l’introduction s’affiche en texte seul pour l’instant : les voix anglaises ne sont pas encore enregistrées.',
             'Les cadres de titre des menus gardent leur apparence à toute largeur de fenêtre : ils reprennent le visuel de leur petit bouton au lieu de s’étirer en gros disques flous sur un grand écran.',
             'Application Android hors ligne : au lancement en ligne, ta partie du compte est maintenant revendiquée comme sur ordinateur (un seul appareil joue à la fois) ; si une partie plus récente existe sur le compte, un écran oblige à choisir entre la partie du compte et celle du téléphone, et la partie remplacée est gardée 30 jours en secours.',
             'Application Android hors ligne : le bouton Retour ferme maintenant l’application, comme avant.',
