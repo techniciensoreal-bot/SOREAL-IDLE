@@ -34,8 +34,9 @@ assert.ok(!/B 00/.test(h), "aucun zéro devant le numéro");
 assert.equal((carte.html({ numero: 112, nom: "X", monde: 1 }).match(/B 112 · FR/g) || []).length, 1, "numéro à trois chiffres : B 112");
 // nombre de fois que le boss a été tué (Norman, 2026-10-30)
 const tue = carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 3 });
-assert.match(tue, /class="mtg-badge">TUÉ<\/span><span class="mtg-capacite-texte">3 fois</, "nombre de victoires sur la carte");
-assert.ok(!/TUÉ/.test(carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 0 })), "jamais tué : rien d'affiché");
+assert.match(tue, /class="mtg-tues"[^>]*><svg class="mtg-epee"[^]*?<\/svg>3<\/span>/, "nombre de victoires : une épée puis le chiffre, rien d'autre");
+assert.ok(!/TUÉ| fois/.test(tue), "plus de ligne « TUÉ x fois » dans le texte");
+assert.ok(!/mtg-tues/.test(carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 0 })), "jamais tué : rien d'affiché");
 assert.match(h, /mtg-boutons"><button>Écouter/, "boutons dans le cadre de texte");
 assert.ok(h.indexOf("note") < h.indexOf("récit"), "notes puis récit");
 // repli : cinq couleurs par monde, le sixième monde revient à la première

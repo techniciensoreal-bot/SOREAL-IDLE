@@ -108,6 +108,7 @@ function aller(numero){
 }
 
 /* Emblème de l'extension (en bas à droite de la ligne de type) : petit écusson SOREAL. */
+var EPEE='<svg class="mtg-epee" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 2.5 21.5 8 12.5 17 8.5 13 17.5 4Z" fill="#1b1b22"/><path d="M6 11.5 14 19.5" stroke="#1b1b22" stroke-width="3" stroke-linecap="round"/><path d="M10.5 15.5 4 22" stroke="#1b1b22" stroke-width="3.4" stroke-linecap="round"/></svg>';
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
 /* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et les cinq billes de couleur. Rien d'autre : pas de photo du boss (Norman, 2026-10-28). Le dos est l'image idle/backgrounds/MagicCardBack.webp (R2, route /api/idle/media/card-back) pour TOUTES les cartes ; ce dessin ne sert que de repli tant qu'elle manque. */
@@ -140,9 +141,9 @@ function html(o){
   function ligne(badge,texte){lignes+='<div class="mtg-capacite"><span class="mtg-badge">'+esc(badge)+'</span><span class="mtg-capacite-texte">'+texte+'</span></div>';}
   /* attaque et vie sont dans la case du coin (comme force / endurance sur une carte de jeu) : pas répétées dans le texte */
   if(Number(o.xp)>0)ligne('EXP',esc(nb(o.xp)));
-  /* nombre de fois que ce boss a été tué (Norman, 2026-10-30) */
-  if(Number(o.victoires)>0)ligne('TUÉ',esc(Math.floor(o.victoires))+' fois');
   (Array.isArray(o.capacites)?o.capacites:[]).forEach(function(c){if(String(c||'').trim())ligne('★',esc(c));});
+  /* nombre de fois que ce boss a été tué : un chiffre précédé d'une épée, sur la ligne du type (Norman, 2026-10-30 : « juste un nombre avec une épée devant, qui ne prend pas de place ») */
+  var tues=Number(o.victoires)>0?'<span class="mtg-tues" data-sans-traduction>'+EPEE+esc(Math.floor(o.victoires))+'</span>':'';
   var rencontres=Number(o.rencontres)>0?'<div class="mtg-rencontres">'+esc(Math.floor(o.rencontres))+' <span>'+(o.rencontres>1?'rencontres':'rencontre')+'</span></div>':'';
   var image=o.image?'<img src="'+esc(o.image)+'" alt="'+esc(o.nom||'Boss')+'" loading="lazy" onload="window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__.colorier(this)" onerror="this.style.display=\'none\'">':'';
   var force=Number(o.attaque)>0||Number(o.pv)>0
@@ -154,7 +155,7 @@ function html(o){
     '<div class="mtg-cadre">'+
       '<div class="mtg-titre"><div class="soreal-idle-boss-lore-name-v184 mtg-nom" data-soreal-tts-pause="1100">'+esc(o.nom||'Boss')+'</div><div class="mtg-pastilles" data-soreal-tts-ignore>'+pastilles+'</div></div>'+
       '<div class="mtg-art" data-soreal-tts-ignore>'+image+'</div>'+
-      '<div class="mtg-type" data-soreal-tts-ignore><span class="mtg-type-texte"><span>Boss légendaire</span>'+(o.monde?' — <span>Monde</span> '+esc(o.monde):'')+'</span>'+EMBLEME+'</div>'+
+      '<div class="mtg-type" data-soreal-tts-ignore><span class="mtg-type-texte"><span>Boss légendaire</span>'+(o.monde?' — <span>Monde</span> '+esc(o.monde):'')+'</span>'+tues+EMBLEME+'</div>'+
       '<div class="mtg-texte">'+
         (o.notesHtml||'')+
         (lignes?'<div class="mtg-capacites" data-soreal-tts-ignore>'+lignes+'</div>':'')+

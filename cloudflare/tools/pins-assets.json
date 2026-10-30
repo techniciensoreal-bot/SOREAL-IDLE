@@ -120,8 +120,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 14,
-  "sha": "7a23ea9d508a3ddfdd56dd0a86423600719b3215"
+  "pin": 16,
+  "sha": "1a85da0bd193e8a56e2c355812dedffd7f97a509"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -708,8 +708,8 @@
   "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 15,
-  "sha": "004cce96ce030fc39d43dc61e71faae4961c5d39"
+  "pin": 17,
+  "sha": "dd5d104cf5600399038c7c8b242d0719f99fbeff"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 4,
