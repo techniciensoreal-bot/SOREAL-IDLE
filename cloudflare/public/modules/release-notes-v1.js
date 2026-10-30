@@ -64,6 +64,7 @@
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
+            'Sur ordinateur, la Garderie montre Mamie l’armoire en grand, posée sur l’ombre du plancher du grenier (décor agrandi) ; le titre et le texte sont à gauche, le résumé et le détail des bonus à droite, pour que l’armoire reste entièrement visible.',
             'Les onglets Sac et Garderie gardent exactement la même taille et la même place quand on passe de l’un à l’autre.',
             'Plus de boutons sous l’armoire : on clique sur les bocaux. Un « + » dans un bocal vide permet de choisir un objet disponible ; cliquer sur un bocal occupé propose de reprendre l’objet, en prévenant que l’avancée vers le niveau suivant sera perdue. Chaque bocal montre le niveau de départ puis le niveau actuel, en vert.',
             'L’image du grenier occupe tout le cadre de la Garderie (onglets et titre compris), et Mamie l’armoire a de petits mouvements : sa pupille gauche tombe parfois comme une bille et sa paupière se ferme plusieurs fois pour la remettre en place, et le bout de son nez bouge de temps en temps.',
