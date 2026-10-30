@@ -70,6 +70,8 @@ css += RACINE + " .nl-entete p{display:-webkit-box;-webkit-line-clamp:2;-webkit-
 css += "@media (max-width:560px){\n";
 css += RACINE + " .nl-entete{min-height:86px;padding:8px 12px;gap:3px}\n";
 css += RACINE + " .nl-entete .nl-titre{font-size:clamp(24px,7vw,30px);letter-spacing:1.5px}\n";
+/* titre du cadre jour/nuit : ÉNERGIE (jour) ou MAGIE (nuit) ; MAGIE n'est dans la page que si la magie est débloquée (règle n°2) */
+css += ".nl-v1 .nl-titre .nl-t-m{display:none}.nl-v1[data-nl-onglet=\"magic\"] .nl-titre .nl-t-e{display:none}.nl-v1[data-nl-onglet=\"magic\"] .nl-titre .nl-t-m{display:inline}\n";
 css += RACINE + " .nl-entete .nl-titre::before," + RACINE + " .nl-entete .nl-titre::after{display:none}\n";
 css += RACINE + " .nl-entete p{font-size:13px}\n";
 css += bloc(true);

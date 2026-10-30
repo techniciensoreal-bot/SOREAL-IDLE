@@ -321,6 +321,9 @@
       '.gd-intro{font-size:13px;color:#b9c6dc;margin:2px 0 10px;text-align:center}',
       '.gd-ico{vertical-align:-.2em}',
       '.gd-reserve{margin-top:6px}',
+      /* Le grenier en fond de la garderie (Norman, 2026-10-30 : image validée sur PC et sur téléphone) : image large sur PC, image haute sur téléphone */
+      '.gd-reserve{background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center bottom/cover no-repeat;border-radius:16px;padding:14px 10px 12px;box-shadow:inset 0 0 0 3px #3a2410,0 6px 18px rgba(0,0,0,.45)}',
+      '@media (min-width:900px){.gd-reserve{background:url(/garderie/fond-grenier-v1.webp?v=1) center bottom/cover no-repeat;padding:16px 16px 12px}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',

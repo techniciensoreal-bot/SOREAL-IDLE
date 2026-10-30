@@ -29,6 +29,7 @@ html body .nl-v1 .nl-entete p{display:-webkit-box;-webkit-line-clamp:2;-webkit-b
 @media (max-width:560px){
 html body .nl-v1 .nl-entete{min-height:86px;padding:8px 12px;gap:3px}
 html body .nl-v1 .nl-entete .nl-titre{font-size:clamp(24px,7vw,30px);letter-spacing:1.5px}
+.nl-v1 .nl-titre .nl-t-m{display:none}.nl-v1[data-nl-onglet="magic"] .nl-titre .nl-t-e{display:none}.nl-v1[data-nl-onglet="magic"] .nl-titre .nl-t-m{display:inline}
 html body .nl-v1 .nl-entete .nl-titre::before,html body .nl-v1 .nl-entete .nl-titre::after{display:none}
 html body .nl-v1 .nl-entete p{font-size:13px}
 html body .nl-v1[data-nl-onglet="energy"] .nl-entete::before{background:

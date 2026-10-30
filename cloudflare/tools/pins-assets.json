@@ -180,8 +180,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 24,
-  "sha": "d4a56d18702e0a8311192789777b1c717164a8f1"
+  "pin": 26,
+  "sha": "dcbf7ccb8e26a237e815d3c82a68ff2a4632fe56"
  },
  "/modules/defilement-theme-v1.js": {
   "pin": 3,
@@ -384,8 +384,8 @@
   "sha": "1badb8345262ef705a51505fff09de51588d4297"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 42,
-  "sha": "93551ef80c9d2768180d2ca30449d486c4f0a677"
+  "pin": 43,
+  "sha": "01f14534f929069055a32e4cf8868e09f6749e89"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -744,8 +744,8 @@
   "sha": "c41937afa5903b987f0adf058c238c342220c283"
  },
  "/soreal-idle-ngu-labo-entetes-v1.css": {
-  "pin": 1,
-  "sha": "13222b7da10a7c475c318066cc088732fc6a9117"
+  "pin": 2,
+  "sha": "f36b87f1c4cc1ae5d44d2d6dc44c4ca4a4f0807b"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,
