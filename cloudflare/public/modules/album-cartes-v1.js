@@ -24,6 +24,9 @@ var cartes=[],page=0,ouvert=false,tourne=false,enAttente={},popup=null;
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 /* Le livre est TOUJOURS ouvert sur deux pages, téléphone compris (Norman, 2026-10-30 : « sur téléphone, je veux l'album complet avec zoom et dézoom ») ; sur écran étroit il est affiché en entier, puis on zoome et on le fait glisser de page en page. */
 function double(){return true;}
+/* Téléphone : sur la première page (et livre fermé) on ne montre que la moitié droite du livre, à la largeur de l'écran : pas de seconde « couverture » noire à gauche de la page 1 (Norman, 2026-10-30) ; dès la page 2|3 le livre s'affiche en entier. */
+var demiCible=null;
+function demi(){return etroit()&&(demiCible!==null?demiCible:(!ouvert||page===0));}
 function etroit(){try{return !(window.matchMedia&&window.matchMedia('(min-width:900px)').matches);}catch(_e){return false;}}
 function carteMtg(){return window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__||null;}
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -202,11 +205,11 @@ function adapter(){
   if(!nh)return;
   var haut=Math.max(220,(window.innerHeight||800)-110);
   /* Téléphone, livre fermé : seule la couverture (la moitié du livre, centrée) est affichée, à la taille de l'écran ; elle s'agrandit en glissant quand le livre s'ouvre. */
-  var echelle=ad.querySelector('.alb-echelle'),ferme=!ouvert&&etroit(),vis=ferme?nw/2:nw;
+  var echelle=ad.querySelector('.alb-echelle'),ferme=demi(),vis=ferme?nw/2:nw;
   var ajuste=Math.max(.2,Math.min(1,dispo/vis,haut/nh)),s=ajuste*zoom;
-  if(ferme)s=ajuste;
+  if(!ouvert)s=ajuste;
   if(echelle)echelle.classList.toggle('alb-rogne',ferme&&!echelle.classList.contains('alb-glisse'));
-  racine.style.setProperty('--alb-dx',(ferme?-nw/4*s:0).toFixed(1)+'px');
+  racine.style.setProperty('--alb-dx',(ferme?-(ouvert?nw/2:nw/4)*s:0).toFixed(1)+'px');
   var carte=cl.querySelector('.alb-pochette .alb-carte');
   var ref=refCarte();
   racine.style.setProperty('--alb-ref',ref+'px');
@@ -249,7 +252,7 @@ function remplirPages(force){
 }
 function afficher(p){   /* sans animation */
   page=norm(p);
-  remplirPages(true);majNav();
+  remplirPages(true);majNav();adapter();
 }
 
 /* La face visible d'une feuille qui tourne : le basculement a lieu exactement à mi-course (feuille de champ, à 90°) ; plus fiable que la seule « face cachée » du navigateur, qui laissait voir le dos à travers le devant. */
@@ -264,12 +267,13 @@ var DUREE=1150,EASE='cubic-bezier(.5,.05,.3,1)';
 
 /* ---------- ouvrir et fermer le livre ---------- */
 /* Change l'échelle du livre (couverture agrandie sur téléphone <-> livre entier) : transitions CSS le temps de l'animation (classe alb-glisse), puis mesure finale ; ouvert : le livre se place sur sa page de droite. */
+function glisserVers(cl,moitie){demiCible=moitie;glisser(cl,false);}   /* tour de page qui quitte ou rejoint la première page (téléphone) : le livre s'élargit ou se resserre pendant que la feuille tourne */
 function glisser(cl,vite){
   var ech=cl.closest&&cl.closest('.alb-echelle');
   if(!ech||!etroit()){adapter();return;}
   if(!vite)ech.classList.add('alb-glisse');
   adapter();
-  setTimeout(function(){ech.classList.remove('alb-glisse');adapter();if(ouvert)placer('d',true);},vite?0:DUREE+80);
+  setTimeout(function(){demiCible=null;ech.classList.remove('alb-glisse');adapter();if(ouvert)placer('d',true);},vite?0:DUREE+80);
 }
 function ouvrirLivre(p){
   return new Promise(function(ok){
@@ -347,6 +351,7 @@ function tournerUne(sens,D,silencieux){
     var p=page,q=p+(sens<0?-pas:pas);
     if(sens>0?!peutAvancer():p<=0){ok(false);return;}
     if(q<0)q=0;
+    if(etroit()&&(p===0||q===0))glisserVers(classeur,q===0);
     var E=D<DUREE?'cubic-bezier(.4,0,.55,1)':EASE;
     var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
     if(reduit()||typeof pd.animate!=='function'){afficher(q);if(!silencieux)setTimeout(verifierPage,450);ok(true);return;}
@@ -428,6 +433,7 @@ function sauterInterne(n,fini){
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
+  if(etroit()&&(p===0||q===0))glisserVers(classeur,q===0);
   son('albumDix');
   placer(sens>0?'g':'d');
   tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
@@ -624,9 +630,17 @@ function annoncer(neuves,r){
  * Le rangement (Norman, 2026-10-29) : 1. l'annonce disparaît tout de suite (sans flou : on voit le classeur) ; si le livre est fermé, il s'ouvre ; 2. les cartes se rejoignent en PAQUET au centre de l'écran, la première du paquet en dessus ;
  * 3. UNE PAR UNE : la carte du dessus quitte le paquet, vole devant la fente de sa pochette et s'y glisse, sous le plastique ; la suivante ne part que quand la précédente est rangée. Chaque carte vole dans une couche fixe à elle (mouvement lisse, rien d'autre qui bouge).
  */
+/* Passer l'animation : toutes les cartes sont rangées tout de suite. */
+function passer(){
+  var P=popup;if(!P||!P.fini||P.saute)return;
+  P.saute=true;
+  [].forEach.call(document.querySelectorAll('.alb-vol'),function(c){c.style.display='none';});
+  (P.anims||[]).forEach(function(a){try{a.cancel();}catch(_e){}});
+  [].forEach.call(document.querySelectorAll('.alb-vol-carte'),function(c){try{c.getAnimations().forEach(function(a){a.cancel();});}catch(_e){}});
+}
 function ranger(){
   var P=popup;if(!P||P.fini)return;
-  P.fini=true;
+  P.fini=true;P.saute=false;P.anims=[];
   var fond=P.fond,els=[].slice.call(fond.querySelectorAll('.alb-annonce-carte')),n=els.length;
   var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
   var couche=document.createElement('div');couche.className='alb-vol';couche.setAttribute('data-morph-garder','');couche.setAttribute('aria-hidden','true');
@@ -636,13 +650,16 @@ function ranger(){
     couche.appendChild(c);
     return {el:c,r0:r0,n:el.getAttribute('data-n'),i:i,dx:vw/2-(r0.left+r0.width/2)+i*1.5,dy:vh/2-(r0.top+r0.height/2)-i*1.5,rot:((i%5)-2)*1.4};
   });
+  var bp=document.createElement('button');bp.type='button';bp.className='alb-passer';bp.textContent='Passer';bp.addEventListener('click',function(ev){ev.stopPropagation();passer();});couche.appendChild(bp);
   document.body.appendChild(couche);
+  var clsr=document.querySelector('.alb-classeur');if(clsr)clsr.classList.add('alb-rangement');   /* le classeur ne coupe plus ce qui dépasse : la carte entre depuis l'extérieur de la page */
   try{fond.animate([{opacity:1},{opacity:0}],{duration:240,fill:'forwards'});}catch(_e){}
   setTimeout(function(){if(fond.parentNode)fond.parentNode.removeChild(fond);},260);
   var termine=function(){
     P.neuves.forEach(function(e){delete enAttente[e.numero];});
     document.querySelectorAll('.alb-pochette.alb-attente').forEach(function(p){p.classList.remove('alb-attente');});
     if(couche.parentNode)couche.parentNode.removeChild(couche);
+    var c2=document.querySelector('.alb-classeur');if(c2)c2.classList.remove('alb-rangement');
     popup=null;
   };
   var suite=Promise.resolve();
@@ -656,20 +673,28 @@ function ranger(){
     }));
   });
   suite=suite.then(function(){return attendre(250);});
-  /* une par une */
+  /*
+   * Une par une (Norman, 2026-10-30) : l'ouverture des pochettes est sur le côté EXTÉRIEUR de la page ; la carte vole jusqu'à côté de l'emplacement, face à l'ouverture, DEHORS, puis glisse en entier à l'intérieur, sous le plastique : elle ne traverse jamais le plastique.
+   * « Passer » (bouton, Échap) : toutes les cartes se rangent d'un coup.
+   */
   vols.forEach(function(v){
     suite=suite.then(function(){
+      if(P.saute)return;
       var poche=document.querySelector('.alb-livre .alb-pochette[data-album-boss="'+v.n+'"]'),cible=poche&&poche.querySelector('.alb-carte');
       var r1=cible?cible.getBoundingClientRect():null;
       if(!(r1&&r1.width>0)){if(poche)poche.classList.remove('alb-attente');if(v.el.parentNode)v.el.parentNode.removeChild(v.el);return;}
+      var sg=poche.closest&&poche.closest('.alb-page-g')?-1:1,dec=sg*1.15;   /* 115 % de la largeur de la carte : entièrement hors de la pochette, côté ouverture */
       var s=r1.width/v.r0.width;
-      var cx=r1.left+r1.width/2-(v.r0.left+v.r0.width/2),cy=r1.top+r1.height/2-(v.r0.top+v.r0.height/2)-r1.height*.62;   /* devant la fente, au-dessus de la pochette */
+      var cx=r1.left+r1.width/2-(v.r0.left+v.r0.width/2)+dec*r1.width,cy=r1.top+r1.height/2-(v.r0.top+v.r0.height/2);
       var pile='translate('+v.dx.toFixed(1)+'px,'+v.dy.toFixed(1)+'px) scale(1) rotate('+v.rot+'deg)',finT='translate('+cx.toFixed(1)+'px,'+cy.toFixed(1)+'px) scale('+s.toFixed(4)+') rotate(0deg)';
       var vol;try{vol=v.el.animate([{transform:pile},{transform:finT}],{duration:750,easing:'cubic-bezier(.45,0,.2,1)',fill:'forwards'});}catch(_e){vol=null;}
+      if(vol)P.anims.push(vol);
       return (vol?fin(vol):Promise.resolve()).then(function(){
+        if(P.saute)return;
         poche.classList.add('alb-entre');poche.classList.remove('alb-attente');
         if(v.el.parentNode)v.el.parentNode.removeChild(v.el);
-        var g;try{g=cible.animate([{transform:'translateY(-62%)'},{transform:'translateY(0)'}],{duration:850,easing:'cubic-bezier(.45,0,.25,1)'});}catch(_e){g=null;}
+        var g;try{g=cible.animate([{transform:'translateX('+(dec*100)+'%)'},{transform:'translateX(0)'}],{duration:850,easing:'cubic-bezier(.45,0,.25,1)'});}catch(_e){g=null;}
+        if(g)P.anims.push(g);
         return (g?fin(g):Promise.resolve()).then(function(){poche.classList.remove('alb-entre');});
       });
     });
@@ -677,7 +702,7 @@ function ranger(){
   suite.then(termine,termine);
 }
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape'&&popup&&!popup.fini)ranger();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&popup){if(popup.fini)passer();else ranger();}});
 /* glissement du doigt sur le classeur : vers la gauche = page suivante, vers la droite = précédente */
 var toucheX=null,toucheY=null,toucheS=0;
 function tournerSwipe(sens){if(saut||tourne)return;tournerUne(sens,DUREE,false);if(tourne)placer(sens>0?'g':'d');}   /* un glissement du doigt tourne toujours la feuille (jamais un simple glissement du livre) */

@@ -20,8 +20,8 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 29,
-  "sha": "fd67fdafb269539bd233e48289d499f2c6ad161b"
+  "pin": 32,
+  "sha": "65f50bb694200ad1487fec18a28addc8058a5ce0"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -700,8 +700,8 @@
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
  "/soreal-idle-album.css": {
-  "pin": 26,
-  "sha": "a97e50dd3c183f6f4dd4db8a578a94532be8bba9"
+  "pin": 27,
+  "sha": "2ca867d85ea675140f2966f892ee55fee5ea3f86"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 11,
