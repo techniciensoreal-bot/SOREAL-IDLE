@@ -34,7 +34,7 @@ const lire = (f) => fs.readFileSync(new URL(f, import.meta.url), "utf8").replace
 {
   const entree = lire("../src/idle-worker-entry-v1.js"), coord = lire("../src/index-idle-coordinator-v1.js"), sync = lire("../src/idle-local-sync-v1.js");
   assert.ok(entree.includes('const IDLE_ORIGINE_APK_V1 = "https://appassets.androidplatform.net";') && entree.includes("request.headers.get(\"origin\") !== IDLE_ORIGINE_APK_V1"), "seule l'origine de l'application reçoit le CORS");
-  assert.ok(entree.includes("api\\/v1\\/(relais|pseudo|local\\/export)"), "CORS seulement sur les trois routes de l'application");
+  assert.ok(entree.includes("api\\/v1\\/(relais|pseudo|local\\/export|local\\/push)"), "CORS seulement sur les quatre routes de l'application");
   assert.ok(entree.includes('url.pathname === "/api/v1/relais" && request.method === "POST"') && entree.includes('url.pathname === "/api/v1/relais" && request.method === "GET"') && entree.includes('url.pathname === "/api/v1/pseudo" && request.method === "POST"'), "routes relais et pseudo");
   assert.ok(entree.includes('corps.lecture = new URL(request.url).searchParams.get("lecture") === "1"'), "export en lecture seule demandé par l'application");
   assert.ok(sync.includes("if (!lectureSeule) sauvegarderSiBesoinLocalV1(") && sync.includes("if (!lectureSeule) revendiquer("), "lecture seule : la partie du compte n'est ni revendiquée ni sauvegardée par l'application");

@@ -43,6 +43,10 @@
   "pin": 1,
   "sha": "79a5fff85a10509fea2218085b67b89c29f8a1e5"
  },
+ "/modules/apk-synchro-v1.js": {
+  "pin": 1,
+  "sha": "afc0f87aff4e91880ab6f35246ee8d77256e3feb"
+ },
  "/modules/apparition-boss-v1.js": {
   "pin": 11,
   "sha": "a69cc5c16d12a07e19274c86290dac0cac698e20"
