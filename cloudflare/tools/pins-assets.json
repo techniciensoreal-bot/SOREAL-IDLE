@@ -212,8 +212,8 @@
   "sha": "7c5b61b68b92c581a2cd1daf3ac9c44efd643c10"
  },
  "/modules/entete-menu-v1.js": {
-  "pin": 6,
-  "sha": "5800cf37279436db5d1e41e4f8705ec37ee34b8a"
+  "pin": 7,
+  "sha": "5aa252f136166e72575caffb523cd9ef32350bc2"
  },
  "/modules/etagere-personnage-v1.js": {
   "pin": 17,
@@ -388,8 +388,8 @@
   "sha": "1badb8345262ef705a51505fff09de51588d4297"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 43,
-  "sha": "01f14534f929069055a32e4cf8868e09f6749e89"
+  "pin": 44,
+  "sha": "16e64d225e7ea6148d364f1dd4b45872bfb52f68"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -532,12 +532,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 617,
-  "sha": "05e5df030c391f6c61895aa22285540aecc86129"
+  "pin": 619,
+  "sha": "fc4703583dfe4ed10f4289846e48793a1a066482"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 437,
-  "sha": "eb266d4c5f68f77a7cddacf971a8eb202b796175"
+  "pin": 439,
+  "sha": "b57129e1f6b7e216ebbbdcd1413399454652e8b3"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,

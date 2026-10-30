@@ -16,7 +16,7 @@ var PHRASES={
   combat:'Affronte les boss de la borne d’arcade.',
   aventure:'Pars en zone, combats des ennemis et ramène du butin.',
   machine:'Accélère et multiplie la production d’énergie et de magie.',
-  ngu:'Fais monter tes NGU : des bonus permanents qui grandissent avec le temps.',
+  ngu:'Eh, c’est le nom du jeu original !',
   yggdrasil:'Fais pousser des fruits, récolte-les ou mange-les pour des bonus.'
 };
 function zoom_(e){try{var z=parseFloat(getComputedStyle(e).zoom);return z>0?z:1;}catch(_e){return 1;}}
