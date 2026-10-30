@@ -69,14 +69,15 @@ function finDeclaration(s) { /* jusqu'au premier « ; » hors guillemets et pare
   for (let i = 0; i < s.length; i++) { const ch = s[i]; if (ch === '"') q = !q; if (q) continue; if (ch === "(") d++; if (ch === ")") d--; if (ch === ";" && d === 0) return s.slice(0, i); }
   return s;
 }
-const CADRES = {}, LISERES = {}, TITRES = {};
+const CADRES2 = {}, CADRES = {}, LISERES = {}, TITRES = {};
 for (const f of SOURCES) {
   const t = readFileSync(`cloudflare/public/soreal-idle-${f}.css`, "utf8");
   const re = /\[data-menu="([A-Za-z]+)"\] (?:\.soreal-idle-page-head-v28|\.bm-entete)\[data-entete-menu\]::before\s*\{([^}]*)\}/g;
   let m;
   while ((m = re.exec(t))) {
     const i = m[2].indexOf("background:");
-    if (i < 0 || CADRES[m[1]]) continue; /* la première règle est la version PC */
+    if (i < 0) continue;
+    if (CADRES[m[1]]) { if (!CADRES2[m[1]]) CADRES2[m[1]] = coupe(finDeclaration(m[2].slice(i + 11))); continue; } /* la première règle est la version PC, la seconde (≤ 560 px) la version téléphone */
     CADRES[m[1]] = coupe(finDeclaration(m[2].slice(i + 11)));
   }
   const reA = /\[data-menu="([A-Za-z]+)"\] \.soreal-idle-page-head-v28\[data-entete-menu\]::after\s*\{([^}]*)\}/g;
@@ -240,4 +241,20 @@ for (const id of MENUS) {
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));
+
+/* ---- les grands cadres de titre : la MÊME composition que la miniature, à toute largeur ----
+   Norman (2026-10-30) : « le petit menu comme visuel du grand ». Les dessins du cadre sont dimensionnés sur sa HAUTEUR (px, ou « auto N% »), jamais sur sa largeur : le dessin de gauche reste collé à gauche, celui de droite
+   à droite, le ciel en dégradé sur toute la largeur. Un ancien réglage de itopod.css (NGU : cercles en pourcentage de la largeur) étirait le soleil et la lune en gros disques flous sur un écran large : cette feuille,
+   chargée avant itopod.css, remet pour chaque menu le fond de sa miniature (celui de sa feuille de cadre) avec une spécificité plus forte, sans !important. Combat (marquise d'arcade, déjà juste à toutes les largeurs),
+   Sang (cadre de rituel propre) et Garderie (pas de grand cadre) ne sont pas touchés. Fichier généré : ne pas l'éditer à la main. */
+const HEAD = "html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28";
+const gros = [];
+const COUVERTS = [];
+for (const id of MENUS) {
+  if (["combat", "sang", "daycare"].includes(id) || !CADRES[id]) continue;
+  COUVERTS.push(id);
+  const r = (L) => `${HEAD}[data-menu="${id}"] .soreal-idle-page-head-v28[data-entete-menu][data-entete-menu]::before{background:${L.join(",")}}`;
+  gros.push(`@media (min-width:561px){${r(CADRES[id])}}`, `@media (max-width:560px){${r(CADRES2[id] || CADRES[id])}}`);
+}
+writeFileSync("cloudflare/public/soreal-idle-entetes-miniature-v1.css", `/* Cadres de titre à toute largeur (voir tools/gen-menus-boutons-v1.mjs) : même fond que la miniature du bouton, dimensionné sur la hauteur. Menus : ${COUVERTS.join(", ")}. */\n` + gros.join("\n") + "\n");
 console.log("ok", MENUS.length, "menus");

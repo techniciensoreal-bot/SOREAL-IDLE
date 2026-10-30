@@ -183,4 +183,22 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   const m = decodeURIComponent(dessinDe("macguffins", "nb-d")).toLowerCase();
   assert.ok(m.includes('id="puzzle"') && m.includes("#0b6e4f") && m.includes("#003a2b") && m.includes("lineargradient"), "MacGuffins : pièce de puzzle vert bouteille (dégradé, bord plus foncé)");
 }
+
+/* Grands cadres de titre : même composition que la miniature, à toute largeur (Norman, 2026-10-30 : « le petit menu comme visuel du grand »). Feuille générée, chargée avant itopod.css, sans !important, spécificité plus forte que
+   l'ancien réglage de itopod.css qui étirait le soleil et la lune de NGU en pourcentage de la largeur. Combat (marquise déjà juste), Sang (cadre de rituel) et Garderie (pas de grand cadre) ne sont pas touchés. */
+{
+  const gros = readFileSync("cloudflare/public/soreal-idle-entetes-miniature-v1.css", "utf8");
+  assert.ok(!/!\s*important/i.test(gros) && !gros.includes("hue-rotate"), "grands cadres : ni !important ni recoloration");
+  const idx = ["soreal-idle-menus-boutons-v1.css", "soreal-idle-entetes-miniature-v1.css", "soreal-idle-itopod.css"].map((x) => index.indexOf(x + "?v="));
+  assert.ok(idx[0] > 0 && idx[0] < idx[1] && idx[1] < idx[2], "feuille des grands cadres : après les cadres et les boutons, avant itopod.css");
+  const SANS = new Set(["combat", "sang", "daycare"]);
+  for (const id of MENUS) {
+    if (SANS.has(id)) continue;
+    assert.ok(gros.includes(`[data-menu="${id}"] .soreal-idle-page-head-v28[data-entete-menu][data-entete-menu]::before{background:`), `${id} : grand cadre non couvert par la feuille générée`);
+  }
+  /* le fond du grand cadre est celui de la miniature : mêmes images que les deux dessins du bouton quand ils viennent du cadre */
+  const ngu = gros.match(/@media \(min-width:561px\)\{[^\n]*data-menu="ngu"[^\n]*\}/)[0];
+  assert.ok(ngu.includes("140px 140px") && ngu.includes("130px 130px") && !/circle at 13% 36%/.test(ngu), "NGU : soleil et lune à rayons dimensionnés sur la hauteur (pas de gros cercles flous en % de la largeur)");
+  assert.ok(gros.includes("@media (max-width:560px)"), "version téléphone du fond");
+}
 console.log("ok idle-menus-boutons-cadres-v1");
