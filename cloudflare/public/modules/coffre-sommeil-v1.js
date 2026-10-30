@@ -99,6 +99,9 @@
     setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
   }
   function replique_(el){
+    /* phrases de réveil {R} modifiables par l'administrateur (modules/phrases-coffre-valise-v1.js) ; à défaut, les répliques d'origine ci-dessus */
+    var pr=window.__SOREAL_IDLE_PHRASES_V1__,tr=pr?pr.tirer('coffre','reveil'):'';
+    if(tr){dire_(el,tr);return;}
     var i=Math.floor(Math.random()*REPLIQUES.length);
     if(i===derniere)i=(i+1+Math.floor(Math.random()*(REPLIQUES.length-1)))%REPLIQUES.length;
     derniere=i;
@@ -178,5 +181,5 @@
   }
   setInterval(pas_,PAS);
   window.__coffreDortIdleV1__=false;
-  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,plaintes:PLAINTES,dire:remarque_,baille:function(){return bailler_(coffre_());}};
+  window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__={endormir:endormir_,reveiller:reveiller_,sursaut:function(){var el=coffre_();if(dort&&el)sursaut_(el);},pas:pas_,dort:function(){return dort;},repliques:REPLIQUES,remarque:REMARQUE,plaintes:PLAINTES,dire:remarque_,parler:function(texte){var el=coffre_();if(!el||!texte||el.querySelector('.bg-desole-v1,.bg-replique-v1'))return false;dire_(el,texte);return true;},baille:function(){return bailler_(coffre_());}};
 })();

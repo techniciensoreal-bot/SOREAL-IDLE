@@ -76,6 +76,9 @@
         /* Titans : fusionnés avec Adventure, plus de bouton de menu. */
         if(id==='titans')return false;
 
+        /* Garderie d'objets : ses emplacements vivent dans le Coffre (Norman, 2026-10-30), plus de bouton de menu. */
+        if(id==='daycare')return false;
+
         /* Admin : jamais visible d'un autre joueur (le serveur refuse de toute façon chaque opération d'administration). */
         if(id==='admin')return estAdminSorealIdle_();
 

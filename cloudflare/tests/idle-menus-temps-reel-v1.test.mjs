@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 const vivants = ui.match(/const IDLE_MENUS_VIVANTS_V1=\{([^}]*)\}/);
 assert.ok(vivants, "liste des menus vivants");
-for (const m of ["ngu", "wandoos", "yggdrasil", "diggers", "beards", "wishes", "hacks", "daycare"]) assert.ok(("," + vivants[1]).includes("," + m + ":1"), "menu vivant : " + m);
+for (const m of ["ngu", "wandoos", "yggdrasil", "diggers", "beards", "wishes", "hacks"]) assert.ok(("," + vivants[1]).includes("," + m + ":1"), "menu vivant : " + m);
 // synchro périodique des menus à mise à jour en place
 assert.ok(ui.includes("IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower'||idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000)"), "ITOPOD et Machine temporelle : synchro toutes les 4 s");
 // mise à jour en place à chaque synchro

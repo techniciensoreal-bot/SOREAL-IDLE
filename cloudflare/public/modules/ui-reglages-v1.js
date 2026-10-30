@@ -301,6 +301,11 @@
           const av=H&&typeof H.aventureMetaIdleV47_==='function'&&REG.idleEtat?H.aventureMetaIdleV47_(REG.idleEtat):null;
           if(av&&Array.isArray(av.titans)&&av.titans.some(function(t){return t&&t.progressionUnlocked!==false;}))ids.titans=true;
         }catch(e){}
+        /* « Garderie » n'est plus un menu de gauche : c'est un onglet de la page Aventure, présent dès que la garderie est débloquée (même condition que l'onglet). */
+        try{
+          const G=window.__SOREAL_IDLE_DAYCARE_PAGE_V1__;
+          if(G&&typeof G.disponible==='function'&&REG.idleEtat&&G.disponible(REG.idleEtat))ids.daycare=true;
+        }catch(e){}
         return ids;
       }
 

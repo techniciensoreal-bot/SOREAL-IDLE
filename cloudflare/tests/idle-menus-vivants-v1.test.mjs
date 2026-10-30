@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
  * n'en sort pas). Les menus à l'ancienne se synchronisent maintenant toutes les 4 s et se redessinent à l'arrivée, sans toucher au défilement ni pendant une saisie.
  */
 const ui = lireUiComplet();
-assert.ok(ui.includes("const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1,daycare:1};"));
+assert.ok(ui.includes("const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1};"));
 assert.ok(ui.includes("(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]||idleMenuActifV28==='tower'||idleMenuActifV28==='machine')&&PAGE_ACTIVE==='idle'&&Date.now()-idleMenuViveSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(4000):4000)&&!champSaisieActifIdleV1_()"), "synchro toutes les 4 s tant que le menu est ouvert");
 assert.ok(ui.includes("if(IDLE_MENUS_VIVANTS_V1[idleMenuActifV28]&&idleEtat&&!champSaisieActifIdleV1_()){") && ui.includes("else rafraichirMenuRacineIdleV28_();"), "redessin à l'arrivée de la réponse (Wandoos : seul le poste)");
 // Les menus avec champs de saisie (ITOPOD : étages) ne sont pas redessinés tant qu'un champ est en cours de saisie ou modifié sans être validé.

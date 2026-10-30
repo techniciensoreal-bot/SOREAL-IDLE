@@ -968,7 +968,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       }
 
       function pageWishesIdleV1_(){return window.__SOREAL_IDLE_WISHES_PAGE_V1__.pageWishesIdleV1_.apply(null,arguments);}
-      function pageDaycareIdleV1_(){return window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.pageDaycareIdleV1_.apply(null,arguments);}
       function pageCardsIdleV1_(){return window.__SOREAL_IDLE_CARDS_PAGE_V1__.pageCardsIdleV1_.apply(null,arguments);}
 
       /* pages Augmentations, Machine temporelle, Magie du sang (pont) et Entraînement avancé, avec leur allocation rapide : rendu dans modules/augmentations-page-v1.js (découpage du monolithe, 2026-10-16). */
@@ -1024,7 +1023,6 @@ function allocationMaxMetaIdleV48_(j,systemId,resource){
       ){
         if(id==='cards')return pageCardsIdleV1_(j);
         if(id==='augmentations')return pageAugmentationsIdleV48_(j);
-        if(id==='daycare')return pageDaycareIdleV1_(j);
         if(id==='ngu')return pageNguIdleV1_(j);
         if(id==='wishes')return pageWishesIdleV1_(j);
         if(id==='timeMachine')return pageTimeMachineIdleV48_(j);

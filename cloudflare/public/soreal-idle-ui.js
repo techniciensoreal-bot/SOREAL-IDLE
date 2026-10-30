@@ -1343,7 +1343,7 @@
 
 
       let idleOrLocalAtV1=0,idleOrLocalPatchV1=0;
-      const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1,daycare:1};
+      const IDLE_MENUS_VIVANTS_V1={ngu:1,wandoos:1,yggdrasil:1,diggers:1,beards:1,wishes:1,hacks:1};
       /* Doigt ou souris enfoncé : un redessin entre l'appui et le relâchement ferait perdre le clic. */
       let idlePointeurEnfonceV1=0;
       UI_PARTAGE_V1.__amorcer_587();

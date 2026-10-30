@@ -27,7 +27,9 @@ assert.ok(!/kills de l’ITOPOD|Special Prize/.test(prof) && !/Weiner|Sneak Prev
 
 // Notes de mise à jour : aucun nom de système réservé (voir aussi idle-release-notes-v1).
 /* Les titres de groupe (ITOPOD, Wandoos…) ne s'affichent qu'au joueur qui possède déjà le menu (idle-release-notes-groupes-v1) : seules les lignes sont contrôlées. */
-const lignesNotes = notes.split(String.fromCharCode(10)).filter((l) => l.trim().startsWith(String.fromCharCode(39))).join(String.fromCharCode(10));
+/* Le groupe « Garderie » n'est montré qu'au joueur qui a déjà la garderie (modules/ui-reglages-v1.js, menusPossedesNotesMajIdleV1_) : il est écarté comme celui des Titans. */
+const notesSansGarderie = notes.replace(/\{menu:'daycare'[\s\S]*?\]\},/, '');
+const lignesNotes = notesSansGarderie.split(String.fromCharCode(10)).filter((l) => l.trim().startsWith(String.fromCharCode(39))).join(String.fromCharCode(10));
 assert.ok(!/Mineurs d’or|Piratages|Gold Diggers|Yggdrasil|Wandoos|Garderie|ITOPOD|A Number|Giant Seed/.test(lignesNotes));
 
 // Listes : un fruit ou un mineur portant le nom d'un système verrouillé n'apparaît pas.

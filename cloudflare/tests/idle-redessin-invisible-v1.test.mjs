@@ -35,7 +35,7 @@ assert.ok(diag.includes("window.__auditerRedessinIdleV1__=function(menu)") && ui
 const m = /const IDLE_MENUS_VIVANTS_V1=\{([^}]*)\}/.exec(ui);
 assert.ok(m, "liste des menus redessinés en direct");
 const vivants = m[1].split(",").map((x) => x.split(":")[0].trim()).sort();
-assert.deepEqual(vivants, ["beards", "daycare", "diggers", "hacks", "ngu", "wandoos", "wishes", "yggdrasil"], "menus redessinés en direct : relire la règle n°4 d'AGENTS.md et auditer le nouveau menu (window.__auditerRedessinIdleV1__('menu')) avant de modifier cette liste");
+assert.deepEqual(vivants, ["beards", "diggers", "hacks", "ngu", "wandoos", "wishes", "yggdrasil"], "menus redessinés en direct : relire la règle n°4 d'AGENTS.md et auditer le nouveau menu (window.__auditerRedessinIdleV1__('menu')) avant de modifier cette liste");
 console.log("idle-redessin-invisible-v1: OK");
 /* Filet de sécurité « Boss vaincu » : le bandeau figé relance l'état du serveur et redessine, indépendamment des drapeaux de prédiction */
 {

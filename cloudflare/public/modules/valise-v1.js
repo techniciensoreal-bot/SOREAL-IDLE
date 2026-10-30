@@ -584,7 +584,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   function reveiller(avecSon){
     dort=false;window.__valiseDortIdleV1__=false;visibleAvant=0;cibleSommeil=240000+Math.random()*300000;
     if(avecSon)son('valiseTouche');
-    sauter();dire(tirer(REVEILS));
+    sauter();var pr=window.__SOREAL_IDLE_PHRASES_V1__,tr=pr?pr.tirer('valise','reveil'):'';dire(tr||tirer(REVEILS));   /* phrases {R} modifiables (phrases-coffre-valise-v1.js) */
   }
   /* Le dépliage, image par image : la longueur de langue sortie est --vl-p x la hauteur mesurée ; le rouleau de son bout a un rayon qui diminue (sa longueur enroulée restante) et tourne de la longueur sortie. Dans l'autre sens, la langue s'enroule dans la bouche. */
   var progres=null,animId=0;

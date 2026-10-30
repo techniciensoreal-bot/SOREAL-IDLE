@@ -1610,8 +1610,6 @@
             return pageCollectionIdleV22_(j);
           case 'spendExp':
             return pageSpendExpIdleV1_(j);
-          case 'daycare':
-            return pageSystemeMetaIdleV130_(j,'daycare','Item Daycare');
           case 'questing':
             return pageSystemeMetaIdleV130_(j,'questing','Questing');
           case 'quirks':

@@ -1869,7 +1869,7 @@
         const actionsObjetHtml=
           '<div class="soreal-idle-item-popup-actions-v165">'+
             (boutonEquiper||boutonDesequiper)+
-            boutonVerrouiller+
+            boutonVerrouiller+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.boutonFiche(REG.idleEtat,id,item):'')+ /* Garderie (daycare-page-v1.js) : absent si verrouillée (règle n°2) */
             boutonDebloquer+
             boutonConsommer+
             boutonTransformer+
@@ -2342,7 +2342,7 @@
               '<span>Glisse ici un objet réellement maxé : il croque, avale, rote, puis le range quelque part là-dedans. Ne lui mets pas les doigts.</span></div>'+
             (V&&typeof V.phraseBlocHtml==='function'?V.phraseBlocHtml():'')+
           '</div>'+
-          (ouvert?'<div style="margin-top:10px">'+
+          (ouvert?'<div style="margin-top:10px">'+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.panneau(REG.idleEtat):'')+
             '<input type="search" id="sorealIdleCoffreRechercheV1" class="soreal-idle-coffre-recherche-v1" placeholder="🔎 Rechercher : un nom, ou une stat (Magic Power…)" value="'+idleHtml_(REG.idleRechercheCoffreV1)+'" oninput="window.__rechercheCoffreV1__(this.value)" autocomplete="off" spellcheck="false">'+
             '<div id="sorealIdleCoffreGrilleV1">'+grille+'</div>'+
           '</div>':'')+
@@ -2512,8 +2512,8 @@ function toggleCoffreOuvertAdventureIdleV1_(){
         if(event){event.preventDefault();event.stopPropagation();}
         const id=idSourceAdventureIdleV138_(event);
         nettoyerEtatDragAdventureIdleV138_();
-        if(id&&coffreRefuseObjetIdleV1_(id)){jouerNonCoffreIdleV1_();return;}
-        if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
+        if(id&&coffreRefuseObjetIdleV1_(id)){if(!(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__&&window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.deposerNonMaxe(id)))jouerNonCoffreIdleV1_();return;}   /* non maxé : garderie (daycare-page-v1.js) */
+        if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});if(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__)window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.apresDepotMaxe();}
       }
 
       function clicCoffreAdventureIdleV1_(){

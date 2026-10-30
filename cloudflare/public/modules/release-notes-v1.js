@@ -55,6 +55,11 @@
             'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'La Garderie d’objets n’est plus un menu : chaque emplacement est maintenant un bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas. Les bocaux sont rangés avec tes objets, dans un cadre à part.',
+            'Dans la fiche d’un objet, un bouton Garderie le place directement dans un bocal libre (« Garderie pleine » s’il n’y en a plus).',
+            'Quand tu ranges un objet qui n’est pas maxé, il file dans un bocal libre de la garderie ; s’il n’y en a plus, il est refusé avec un petit commentaire et reste dans ton sac.'
+          ]},
           {menu:'shop', titre:'Boutique', points:[
             'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'
           ]},

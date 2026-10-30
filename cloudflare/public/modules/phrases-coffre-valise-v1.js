@@ -4,10 +4,11 @@
  *
  * Stockage : une surcharge de texte GLOBALE par personnage (clés « phrases:valise » et « phrases:coffre », champ « liste », voir src/idle-textes-v1.js ; lue par tous les joueurs comme les autres textes de l'administrateur).
  * Chaque phrase de la liste est un texte, précédé au besoin d'une étiquette : « {V} » (la valise a vomi), « {C} » (le Coffre a fait caca), « {VC} » (les deux ont eu leur accident). Sans étiquette : phrase de tous les jours.
+ * Étiquettes de situation (Norman, 2026-10-30) : « {R} » réveil (le joueur le réveille), « {D} » daycare (un objet est placé en garderie), « {M} » max (l'objet placé est maxé ; à défaut de {M} on prend une {D}), « {P} » plein (plus aucun emplacement de garderie libre : refus). Ces phrases ne sortent QUE dans leur situation ; elles se combinent avec {V}/{C} (ex. « {RV} »).
  * Sans surcharge, les phrases d'origine (DEFAUTS ci-dessous) s'appliquent ; « Rétablir » supprime la surcharge.
  *
  *   window.__SOREAL_IDLE_PHRASES_V1__ = { tirer(qui, mode), liste(qui), editeurHtml(), analyser(texte), conditionsRemplies(phrase) }
- *   mode : 'remarque' (toute phrase dont les conditions sont remplies) | 'accident:V' (phrase étiquetée V : l'accident de la valise vient d'avoir lieu) | 'accident:C' (étiquetée C : celui du Coffre).
+ *   mode : 'remarque' (toute phrase de tous les jours dont les conditions sont remplies) | 'reveil' | 'daycare' | 'daycare:max' (phrase {M}, repli {D}) | 'plein' | 'accident:V' (phrase étiquetée V : l'accident de la valise vient d'avoir lieu) | 'accident:C' (étiquetée C : celui du Coffre).
  */
 (function(){
 'use strict';
@@ -22,7 +23,14 @@ var DEFAUTS={
     '{V}Oh non… pas encore les potions…',
     '{V}Ne regardez pas, c’est gênant.',
     '{V}Je suis contente !',
-    '{V}C’est beaucoup trop d’émotions pour moi.'
+    '{V}C’est beaucoup trop d’émotions pour moi.',
+    '{R}Hein ? Quoi ? Un dragon ?',
+    '{R}Par la barbe de Merlin !',
+    '{R}Je ne dormais pas, je méditais !',
+    '{R}À moi, la garde !',
+    '{R}Cinq minutes de plus, maître…',
+    '{R}Qui ose réveiller une valise en plein rêve de voyage ?',
+    '{R}Mes fioles ! Où sont mes fioles ? Ah, elles sont là. Bonjour.'
   ],
   coffre:[
     'Pourquoi tu me regardes comme si j’allais chier sur tes affaires ?',
@@ -34,7 +42,32 @@ var DEFAUTS={
     '{V}Ça sent le vomi ici ! Nettoie-la !',
     '{V}Cette odeur… nettoie ta valise, s’il te plaît.',
     '{V}Moi, je pète. Elle, elle vomit. Nettoie-la.',
-    '{V}Je ne peux plus respirer… la valise, vite !'
+    '{V}Je ne peux plus respirer… la valise, vite !',
+    '{R}J’ai jamais couché avec votre femme !',
+    '{R}À l’abordage !',
+    '{R}Ne me touchez pas avec vos sales pattes !',
+    '{R}C’est pas moi, c’est l’petit !',
+    '{R}Quoi ? Qui ? Où ?',
+    '{R}Je dormais pas, je réfléchissais !',
+    '{R}Cinq minutes de plus, maman…',
+    '{R}Enlevez ce doigt de ma serrure !',
+    '{R}Haut les mains !',
+    '{R}Z’avez le mandat ?',
+    '{R}C’était le chat, je le jure !',
+    '{R}Ouvrez pas, c’est plein de dettes !',
+    '{R}Ne me frappez pas, Maître !',
+    '{D}Miam, un nouveau pensionnaire ! Dans le bocal, et que ça brasse.',
+    '{D}Au dodo, petit objet : on t’appellera quand tu auras grandi.',
+    '{D}Ça, c’est de la garderie de luxe : liquide arc-en-ciel à volonté.',
+    '{D}Je te le garde au chaud, ton machin. Va faire autre chose.',
+    '{M}Mais il est déjà parfait, celui-là ! Je le range où, dans mes dents ?',
+    '{M}Maxé ? Il n’a plus rien à apprendre, on dirait un diplômé.',
+    '{M}Un objet au sommet de sa forme : la garderie en pleure de joie.',
+    '{P}Fais de la place, c’est full là dedans !',
+    '{P}Y a plus un centimètre ici, vide-moi un bocal !',
+    '{P}Complet ! Les bocaux sont pleins, reviens quand l’un d’eux sera libre.',
+    '{P}Je ne suis pas une valise sans fond, reprends-en un avant d’en remettre !',
+    '{P}Plus de place à la garderie, va falloir faire le ménage.'
   ]
 };
 
@@ -43,11 +76,11 @@ function esc_(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,
 
 /* « {VC}texte » -> {t:'texte',v:true,c:true} */
 function analyser_(brut){
-  var s=String(brut==null?'':brut),m=/^\{(V|C|VC|CV)\}\s*/.exec(s),e=m?m[1]:'';
-  return {t:(m?s.slice(m[0].length):s).trim(),v:e.indexOf('V')>=0,c:e.indexOf('C')>=0};
+  var s=String(brut==null?'':brut),m=/^\{([VCRDMP]+)\}\s*/.exec(s),e=m?m[1]:'';
+  return {t:(m?s.slice(m[0].length):s).trim(),v:e.indexOf('V')>=0,c:e.indexOf('C')>=0,r:e.indexOf('R')>=0,d:e.indexOf('D')>=0,m:e.indexOf('M')>=0,p:e.indexOf('P')>=0};
 }
 function assembler_(p){
-  var e=(p.v?'V':'')+(p.c?'C':'');
+  var e=(p.v?'V':'')+(p.c?'C':'')+(p.r?'R':'')+(p.d?'D':'')+(p.m?'M':'')+(p.p?'P':'');
   return (e?'{'+e+'}':'')+String(p.t||'').trim();
 }
 function brutes_(qui){
@@ -69,19 +102,35 @@ function tirer_(qui,mode){
   var l=liste_(qui),m=String(mode||'remarque'),ig='',exige='';
   if(m==='accident:V'){ig='V';exige='v';}
   else if(m==='accident:C'){ig='C';exige='c';}
-  var ok=l.filter(function(p){return (!exige||p[exige])&&conditions_(p,ig);});
-  return ok.length?ok[Math.floor(Math.random()*ok.length)].t:'';
+  /* Une phrase de situation ({R} {D} {M} {P}) ne sort QUE dans sa situation ; les autres modes ne piochent que parmi les phrases sans étiquette de situation. */
+  var sit=m==='reveil'?'r':m==='daycare'?'d':m==='daycare:max'?'m':m==='plein'?'p':'';
+  var choisir=function(cle){
+    var ok=l.filter(function(p){
+      if(cle)return p[cle]&&conditions_(p,'');
+      return !(p.r||p.d||p.m||p.p)&&(!exige||p[exige])&&conditions_(p,ig);
+    });
+    return ok.length?ok[Math.floor(Math.random()*ok.length)].t:'';
+  };
+  var t=choisir(sit);
+  /* Objet maxé : une phrase {M}, à défaut une phrase {D}. */
+  if(!t&&m==='daycare:max')t=choisir('d');
+  return t;
 }
 
 /* ---------- éditeur (page Admin > Textes) ---------- */
 var brouillon={};   // qui -> [{t,v,c}] en cours d'édition
 var etat={};        // qui -> message
-function charge_(qui){if(!brouillon[qui])brouillon[qui]=liste_(qui).map(function(p){return {t:p.t,v:p.v,c:p.c};});return brouillon[qui];}
+function charge_(qui){if(!brouillon[qui])brouillon[qui]=liste_(qui).map(function(p){return {t:p.t,v:p.v,c:p.c,r:p.r,d:p.d,m:p.m,p:p.p};});return brouillon[qui];}
+function case_(cle,coche,libelle,aide){
+  return '<label title="'+esc_(aide)+'" style="display:flex;gap:5px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff"><input type="checkbox" data-php-'+cle+(coche?' checked':'')+'> '+libelle+'</label>';
+}
 function ligneHtml_(qui,i,p){
   return '<div class="php-ligne" data-qui="'+qui+'" data-i="'+i+'" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0;padding:8px;border:1px solid #34425f;border-radius:10px;background:#0a0e16">'+
     '<textarea rows="2" data-php-texte style="flex:1 1 260px;min-width:0;box-sizing:border-box;padding:8px;border-radius:8px;border:1.5px solid #34425f;background:#05080f;color:#f1f4fb;font:500 15px system-ui,sans-serif">'+esc_(p.t)+'</textarea>'+
     '<label style="display:flex;gap:5px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff"><input type="checkbox" data-php-v'+(p.v?' checked':'')+'> La valise a vomi</label>'+
     '<label style="display:flex;gap:5px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff"><input type="checkbox" data-php-c'+(p.c?' checked':'')+'> Le Coffre a fait caca</label>'+
+    case_('r',p.r,'Réveil','Phrase dite quand tu le réveilles')+
+    (qui==='coffre'?case_('d',p.d,'Daycare','Phrase dite quand tu places un objet en garderie')+case_('m',p.m,'Max','Phrase dite quand l’objet placé est maxé (à défaut, une phrase Daycare)')+case_('p',p.p,'Plein','Phrase de refus : plus aucun emplacement de garderie libre'):'')+
     '<button type="button" data-php-act="suppr" title="Enlever cette phrase" style="border:0;border-radius:8px;padding:6px 10px;background:#7a1f2b;color:#fff;cursor:pointer">🗑</button>'+
   '</div>';
 }
@@ -101,7 +150,7 @@ function blocHtml_(qui){
 function editeurHtml_(){
   return '<div id="sorealIdlePhrasesAdminV1" style="margin:16px 0 4px">'+
     '<div style="font-weight:800">Phrases du Coffre et de la valise</div>'+
-    '<div class="stx-aide">Une phrase par cadre. Sans case cochée, elle se dit de temps en temps. <b>La valise a vomi</b> : la phrase ne sort qu’après un vomi (ou, pour le Coffre, quand elle a vomi). <b>Le Coffre a fait caca</b> : idem pour son accident. Les deux cases : seulement quand <b>les deux</b> ont eu leur accident.</div>'+
+    '<div class="stx-aide">Une phrase par cadre. Sans case cochée, elle se dit de temps en temps. <b>La valise a vomi</b> : la phrase ne sort qu’après un vomi (ou, pour le Coffre, quand elle a vomi). <b>Le Coffre a fait caca</b> : idem pour son accident. Les deux cases : seulement quand <b>les deux</b> ont eu leur accident. <b>Réveil</b> : phrase dite quand tu le réveilles. <b>Daycare</b> : dite quand tu places un objet en garderie. <b>Max</b> : dite quand l’objet placé est maxé (à défaut, une phrase Daycare). <b>Plein</b> : le refus quand plus aucun emplacement de garderie n’est libre. Ces phrases ne sortent que dans leur situation.</div>'+
     blocHtml_('valise')+blocHtml_('coffre')+
   '</div>';
 }
@@ -160,6 +209,7 @@ document.addEventListener('change',function(ev){
   if(!p)return;
   if(el.hasAttribute('data-php-v'))p.v=Boolean(el.checked);
   if(el.hasAttribute('data-php-c'))p.c=Boolean(el.checked);
+  ['r','d','m','p'].forEach(function(k){if(el.hasAttribute('data-php-'+k))p[k]=Boolean(el.checked);});
 });
 document.addEventListener('click',function(ev){
   var b=ev.target&&ev.target.closest?ev.target.closest('[data-php-act]'):null;
@@ -167,7 +217,7 @@ document.addEventListener('click',function(ev){
   var bloc=b.closest('.php-bloc');if(!bloc)return;
   var qui=bloc.getAttribute('data-qui'),act=b.getAttribute('data-php-act'),l=charge_(qui);
   ev.preventDefault();ev.stopPropagation();
-  if(act==='ajout'){if(l.length>=40){message_(qui,'40 phrases au plus.',true);return;}l.push({t:'',v:false,c:false});rafraichir_(qui);}
+  if(act==='ajout'){if(l.length>=40){message_(qui,'40 phrases au plus.',true);return;}l.push({t:'',v:false,c:false,r:false,d:false,m:false,p:false});rafraichir_(qui);}
   else if(act==='suppr'){var ligne=b.closest('.php-ligne');l.splice(Number(ligne.getAttribute('data-i')),1);rafraichir_(qui);}
   else if(act==='enreg')enregistrer_(qui);
   else if(act==='retablir')retablir_(qui);

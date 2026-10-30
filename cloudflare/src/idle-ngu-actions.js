@@ -19,6 +19,7 @@ import { idleLoginCalendarReclamerV1 } from "./idle-login-calendar-v1.js";
 import { applyIdleCookingActionV1 } from "./idle-cooking-v1.js";
 import { idlePortraitSelectV1, IDLE_SPECIAL_PRIZE_AP_V1 } from "./idle-portraits-v1.js";
 import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from "./idle-daycare-v1.js";
+import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
 import { idleCardsActionV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
@@ -39,9 +40,24 @@ export const IDLE_NETTOYAGE_AP_RARE_V1 = 5000;
 export const IDLE_NETTOYAGE_ESPACEMENT_MS_V1 = 20000;
 export const IDLE_NETTOYAGE_MAX_PAR_JOUR_V1 = 150;
 
+/*
+ * Coffre et garderie (Norman, 2026-10-30) : un objet NON maxé posé dans le Coffre n'est accepté que s'il reste un emplacement de garderie libre ; il part alors dans un
+ * récipient de garderie (même action que « Garderie » de la fiche d'objet). Sans emplacement libre : DAYCARE_PLEIN (le client le transforme en phrase du Coffre) et rien ne bouge.
+ * Garderie non débloquée, objet maxé : comportement d'avant (le Coffre ne range que les objets pleinement maxés).
+ */
+function coffreVersGarderieV1(state, payload) {
+  if (String(payload.action || "").trim() !== "adventure") return payload;
+  const adv = payload.adventure && typeof payload.adventure === "object" ? payload.adventure : null;
+  if (!adv || String(adv.action || adv.mode || "") !== "coffreDeposer" || !state.systems.daycare?.unlocked) return payload;
+  const o = (state.adventure?.inventory || []).find((x) => x && String(x.id) === String(adv.id));
+  if (!o || idleAdventureObjetPleinementMaxeV1(o)) return payload;
+  return { action: "daycarePlace", itemId: String(adv.id), viaCoffre: true };
+}
+
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
   const state = syncIdleNguState(raw, context, t);
+  payload = coffreVersGarderieV1(state, payload);
   const action = String(payload.action || "").trim();
   let result = {};
 
