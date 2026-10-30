@@ -2342,7 +2342,7 @@
               '<span>Glisse ici un objet réellement maxé : il croque, avale, rote, puis le range quelque part là-dedans. Ne lui mets pas les doigts.</span></div>'+
             (V&&typeof V.phraseBlocHtml==='function'?V.phraseBlocHtml():'')+
           '</div>'+
-          (ouvert?'<div style="margin-top:10px">'+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.panneau(REG.idleEtat):'')+
+          (ouvert?'<div style="margin-top:10px">'+
             '<input type="search" id="sorealIdleCoffreRechercheV1" class="soreal-idle-coffre-recherche-v1" placeholder="🔎 Rechercher : un nom, ou une stat (Magic Power…)" value="'+idleHtml_(REG.idleRechercheCoffreV1)+'" oninput="window.__rechercheCoffreV1__(this.value)" autocomplete="off" spellcheck="false">'+
             '<div id="sorealIdleCoffreGrilleV1">'+grille+'</div>'+
           '</div>':'')+

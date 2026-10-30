@@ -1715,6 +1715,8 @@
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-279 */
         const sacItems=casesSacAdventureIdleV162_(a);
         const capacite=idleEntier_(a.inventoryCapacity||24);
+        /* Onglets Sac | Garderie (Norman, 2026-10-30) : seulement si la garderie est débloquée (règle n°2) ; l'onglet Garderie remplace le cadre du sac par l'étagère (modules/daycare-page-v1.js). */
+        const G=window.__SOREAL_IDLE_DAYCARE_PAGE_V1__;
         const utilise=idleEntier_(a.inventoryUsed!=null?a.inventoryUsed:sacItems.filter(Boolean).length);
 
         /* 2026-09-24 (Norman : « fenêtre inutile… supprime pour gagner de la place ») : ni bandeau « Inventory », ni cadres Sac / Cube / Sets
@@ -1739,8 +1741,8 @@
                 (window.__SOREAL_IDLE_THE_END_UI_V1__?window.__SOREAL_IDLE_THE_END_UI_V1__.panelHtml(a):'');
               })()+
             '</div>'+
-            '<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+
-              indiceSacZoneTutorielIdleV1_(a)+
+            (G&&G.vueGarderie(j)?G.etagere(j):'<div class="soreal-idle-section-v8" id="soreal-idle-v138-bag-section">'+
+              (G?G.onglets(j):'')+indiceSacZoneTutorielIdleV1_(a)+
               '<div class="soreal-idle-v138-bag-heading-v165">'+
                 '<div class="soreal-idle-window-title-v31" data-sac-v160="'+utilise+'/'+capacite+'"><i class="dsn-v1 dsn-sac" aria-hidden="true"></i> Sac ('+utilise+' / '+capacite+')</div>'+
                 /*
@@ -1755,7 +1757,7 @@
                 rendreTrashAdventureIdleV165_(a.trash)+
               '</div>'+
               rendreGrilleSacAdventureIdleV1_(sacItems,capacite)+
-            '</div>'+
+            '</div>')+
           '</div>'+
           '<div class="soreal-idle-item-popup-v1" id="soreal-idle-v138-details" style="display:none">'+
             '<div class="soreal-idle-item-popup-drag-v1" id="soreal-idle-v138-details-drag"><span>⠿</span><button type="button" class="soreal-idle-item-popup-close-v1" onclick="window.__fermerDetailsObjetAdventureIdleV1__()" aria-label="Fermer" title="Fermer">✕</button></div>'+

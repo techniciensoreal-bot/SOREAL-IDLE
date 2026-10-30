@@ -52,14 +52,16 @@
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'L’Auto Boost n’en laisse plus dans ton sac : l’équipement reçoit les boosts en premier, puis tout ce qu’il ne peut plus absorber part dans le Cube de l’infini (avant, le Cube attendait que toutes les stats de l’équipement soient au maximum).',
             'Dans la fiche d’un objet, les boutons ne sont plus coupés : le texte passe à la ligne et les boutons au libellé long prennent toute la largeur, sur ordinateur comme sur téléphone.',
             'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
-            'La Garderie d’objets n’est plus un menu : chaque emplacement est maintenant un bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas. Les bocaux sont rangés avec tes objets, dans un cadre à part.',
+            'La Garderie d’objets n’est plus un menu : c’est un onglet à côté du sac, tenu par une vieille armoire aux yeux fous qui parle, bougonne un peu et remue son gros nez entre deux bocaux. Chaque emplacement est un grand bocal de verre avec ton objet dedans et un liquide aux couleurs de l’arc-en-ciel qui monte ; quand il atteint le haut, l’objet gagne 1 niveau et le liquide repart du bas.',
+            'Les bocaux apparaissent un par un sur l’étagère, au fur et à mesure que tu obtiens des emplacements, avec une petite animation de pose.',
             'Dans la fiche d’un objet, un bouton Garderie le place directement dans un bocal libre (« Garderie pleine » s’il n’y en a plus).',
-            'Quand tu ranges un objet qui n’est pas maxé, il file dans un bocal libre de la garderie ; s’il n’y en a plus, il est refusé avec un petit commentaire et reste dans ton sac.'
+            'Quand tu ranges un objet qui n’est pas maxé, il file dans un bocal libre de la garderie ; s’il n’y en a plus, l’étagère le refuse avec un petit commentaire et il reste dans ton sac.'
           ]},
           {menu:'shop', titre:'Boutique', points:[
             'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'

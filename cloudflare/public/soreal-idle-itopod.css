@@ -1690,6 +1690,22 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   radial-gradient(circle at 56% 74%,#fff 0 .6px,transparent 1.2px),radial-gradient(circle at 82% 14%,#fff 0 .8px,transparent 1.6px),
   linear-gradient(180deg,rgba(255,255,255,.14) 0,transparent 35%,rgba(0,0,0,.25) 100%),
   linear-gradient(90deg,#3d9be0 0%,#7cc4f5 38%,#a9dcff 47%,#262c6e 53%,#121847 70%,#070b2a 100%)}
+/* Titre de « Combat de boss » en marquise de borne d'arcade (Norman, 2026-10-30) : panneau laqué sombre, liseré néon dégradé tiré du fond d'écran (rose magenta, violet, bleu électrique, cyan, touche d'ambre), rétro-éclairage doux, reflet de verre en diagonale, trame de lignes très fine et rangée de petites ampoules sur le bord haut. Aucune animation ni drapeau de priorité forcée. Placé AVANT la barre de défilement de l'inventaire (le test de cette barre lit la fin de la feuille). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu]{box-shadow:0 0 14px rgba(255,45,149,.45),0 0 26px rgba(61,107,255,.38),0 6px 0 #05040f,inset 0 0 22px rgba(0,0,0,.55)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu]::before{content:"";opacity:1;transform:none;font-size:0;letter-spacing:0;inset:0;right:0;top:0;border-radius:inherit;background:
+  radial-gradient(circle at 50% 50%,#fff6e0 0 1px,#ffd27a 1.6px,rgba(255,176,46,.4) 2.8px,transparent 4.2px) 0 5px/20px 10px repeat-x,
+  linear-gradient(115deg,transparent 0 30%,rgba(255,255,255,.13) 30% 46%,transparent 46% 52%,rgba(255,255,255,.06) 52% 58%,transparent 58%),
+  repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px),
+  radial-gradient(ellipse 45% 120% at 8% 115%,rgba(255,45,149,.5),transparent 70%),
+  radial-gradient(ellipse 45% 120% at 36% 120%,rgba(180,60,255,.4),transparent 70%),
+  radial-gradient(ellipse 45% 120% at 64% 120%,rgba(61,107,255,.42),transparent 70%),
+  radial-gradient(ellipse 45% 120% at 92% 115%,rgba(25,227,255,.45),transparent 70%),
+  linear-gradient(180deg,#171235 0%,#0b0a1f 55%,#07061a 100%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu]::after{inset:0;border:3px solid transparent;border-radius:inherit;background:linear-gradient(90deg,#ff2d95 0%,#b43cff 26%,#3d6bff 50%,#19e3ff 74%,#ffb02e 100%) border-box;-webkit-mask:linear-gradient(#000 0 0) padding-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) padding-box exclude,linear-gradient(#000 0 0);box-shadow:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-title-v28{color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.85),0 0 10px rgba(255,255,255,.55),0 0 22px rgba(255,45,149,.75),0 0 38px rgba(61,107,255,.6);-webkit-text-stroke:1.2px rgba(0,0,0,.6)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-title-v28::before{background:linear-gradient(90deg,transparent,#ff2d95 45%,#b43cff);box-shadow:0 0 10px rgba(255,45,149,.85)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-title-v28::after{background:linear-gradient(270deg,transparent,#19e3ff 45%,#3d6bff);box-shadow:0 0 10px rgba(25,227,255,.85)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-sub-v28{color:#e9f2ff;text-shadow:0 1px 0 rgba(0,0,0,.9),0 0 8px rgba(25,227,255,.55)}
 /*
  * Barre de défilement de l'inventaire sur téléphone (Norman, 2026-10-11) : « souvent on glisse une pièce en voulant glisser l'inventaire » ; puis « elle doit être incrustée dans l'interface : gagne la place libre à gauche et à droite
  * pour rétrécir le cadre en largeur et mets-y la barre ». L'inventaire (équipement et sac) gagne la marge de la page et devient une grille à deux colonnes : les cadres à gauche, une vraie barre de défilement à droite, qui

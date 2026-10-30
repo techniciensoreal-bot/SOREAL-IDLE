@@ -413,10 +413,6 @@ function boostCubeV1(s, boostIds, env, rng, stats, pass) {
   }
 }
 
-function targetFullyBoostedV1(s, targetId) {
-  return IDLE_BOOST_TYPES_V1.every((type) => !(roomV1(s, targetId, type) > 0));
-}
-
 export function idleInventoryRunAutoBoostV1(s, env, rng = Math.random) {
   const cfg = cfgV1(s);
   const stats = { applied: 0, recycled: 0, cube: 0 };
@@ -426,8 +422,14 @@ export function idleInventoryRunAutoBoostV1(s, env, rng = Math.random) {
     return o && o.kind !== "boost";
   });
   for (const t of targets) boostTargetV1(s, t, usableBoostIdsV1(s, pass), env, rng, stats, pass);
-  /* Infinity Cube : « the cube being boosted if all other equipment is at maximum boost ». */
-  if (s.cube?.unlocked && targets.every((t) => targetFullyBoostedV1(s, t))) boostCubeV1(s, usableBoostIdsV1(s, pass), env, rng, stats, pass);
+  /*
+   * Infinity Cube : « the cube being boosted if all other equipment is at maximum boost ».
+   * Norman (2026-10-30) : « quand l'auto boost s'active, tous les boosts doivent finir quelque part, sur l'équipement ou dans le
+   * cube : le sac se vide ». Le cube attendait que TOUTES les stats de tout l'équipement soient au maximum, même celles d'un type
+   * dont le joueur n'a aucun boost. L'équipement et les slots d'automerge passent d'abord (ci-dessus) ; tout boost utilisable qui
+   * reste (aucune marge pour son type, ou refusé par la cible) est absorbé par le cube.
+   */
+  if (s.cube?.unlocked) boostCubeV1(s, usableBoostIdsV1(s, pass), env, rng, stats, pass);
   if (stats.applied || stats.cube) {
     idleAdventureSyncInventorySlotsV1(s);
     bumpRevisionV1(s);

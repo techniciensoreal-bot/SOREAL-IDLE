@@ -1,12 +1,14 @@
 /*
- * SOREAL IDLE — Garderie d'objets (Daycare), emplacements du COFFRE (Norman, 2026-10-30 : « je veux que le coffre ait des emplacements daycare, avec l'animation ;
- * on doit bien voir que ce sont des cases à part » ; le liquide arc-en-ciel monte dans un bocal, quand il atteint le haut l'objet prend 1 niveau).
- * Plus de menu autonome : le panneau « Garderie d'objets » se range dans le Coffre ouvert (ui-aventure-2-v1.js, rendreCadreCoffreAdventureIdleV1_), dans un cadre de verre et de laiton
- * à part des cases d'objets rangés. Toutes les valeurs viennent du snapshot serveur (j.systemes.daycare, idle-daycare-v1.js) ; le niveau est compté par le MOTEUR, l'interface ne fait
- * qu'extrapoler la progression entre deux synchros avec la vitesse du moteur (règle n°5 : rien n'est lu dans le DOM pour le gameplay, les repères sont dans des attributs écrits par le rendu).
+ * SOREAL IDLE — Garderie d'objets (Daycare) : onglet « Garderie » du sac. Le décor est l'IMAGE de la vieille dame armoire (cloudflare/public/garderie/armoire-v1.webp, 768 x 1152, fournie par Norman) ;
+ * les bocaux sont rangés DANS ses 3 compartiments (2 par compartiment : 6 places au maximum). Le cadre de l'armoire a un rapport fixe : la mise en page ne bouge JAMAIS quand une place s'ajoute.
+ * Anti-spoil (règle n°2) : l'onglet n'existe que si la garderie est débloquée ; seuls les bocaux des emplacements POSSÉDÉS sont dessinés, un par un.
+ * Le liquide arc-en-ciel monte dans chaque bocal ; quand il atteint le haut, l'objet prend 1 niveau (compté par le MOTEUR : l'interface extrapole seulement la progression entre deux synchros avec la
+ * vitesse du moteur, règle n°5 ; rien n'est lu dans le DOM pour le gameplay). Toutes les valeurs viennent de j.systemes.daycare (idle-daycare-v1.js).
+ * Les yeux, le nez qui bouge et les phrases sont dans modules/etagere-personnage-v1.js.
  * Règle n°4 : la hauteur du liquide est réécrite à chaque image ET juste après chaque redessin (window.__SOREAL_IDLE_APRES_REDESSIN_V1__).
- * Règle n°3 : l'ondulation (masque en vague) et le reflet glissent d'exactement UNE période de leur tuile ; les bulles ont un fondu d'entrée et de sortie.
- * Expose window.__SOREAL_IDLE_DAYCARE_PAGE_V1__ (disponible, panneau, infoFiche, boutonFiche, deposerNonMaxe, apresDepotMaxe).
+ * Règle n°3 : l’onde du liquide avance d’exactement UNE période de sa tuile.
+ * Règle n°6 : l'onglet choisi et le nombre de places déjà montrées (pose animée une seule fois) sont des clés localStorage soreal_idle_*_v1, liées au compte.
+ * Expose window.__SOREAL_IDLE_DAYCARE_PAGE_V1__ (disponible, onglets, vueGarderie, etagere, infoFiche, boutonFiche, deposerNonMaxe, apresDepotMaxe).
  */
 (function(){
   'use strict';
@@ -19,6 +21,11 @@
 
   /* Choix d'un objet du sac pour un récipient vide : état de page seulement (un clic le rouvre). */
   let choixOuvert=false;
+  /* Les 6 places de l'armoire (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. */
+  const PLACES=[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]];
+  const SOLS=[46.8,65.2,82.0],HAUT_POT=11.0,LARG_POT=10.5,CENTRES=[36,63],AXE=47.6;
+  const CLE_ONGLET='soreal_idle_sac_onglet_v1',CLE_PLACES='soreal_idle_garderie_places_v1';
+  const poses={};                                     /* indice du bocal -> instant de sa pose animée (le temps que l'animation joue, même si la page est redessinée) */
   /* Repère de progression de chaque objet : (progression, niveau, vitesse) reçus du moteur + instant de réception. Même contenu = même repère. */
   const reperes={};
 
@@ -81,38 +88,71 @@
   }
   function decalageLiquide(p){return ((1-p)*100).toFixed(2);}
 
-  function bocalPlein(x,maintenant){
+  function stockage(cle,valeur){
+    try{
+      if(valeur===undefined)return window.localStorage.getItem(cle);
+      window.localStorage.setItem(cle,String(valeur));
+    }catch(_e){}
+    return null;
+  }
+  function ongletChoisi(){return stockage(CLE_ONGLET)==='garderie'?'garderie':'sac';}
+  function vueGarderie(j){return disponible(j)&&ongletChoisi()==='garderie';}
+  /* Onglets Sac | Garderie : seulement si la garderie est débloquée ; sinon rien (le sac reste tel qu'avant). */
+  function onglets(j){
+    if(!disponible(j))return '';
+    css();
+    const g=ongletChoisi()==='garderie';
+    return '<div class="gd-onglets" role="tablist">'+
+      '<button type="button" role="tab" aria-selected="'+(g?'false':'true')+'" class="gd-onglet'+(g?'':' actif')+'" onclick="window.__garderieOngletV1__(\'sac\')">Sac</button>'+
+      '<button type="button" role="tab" aria-selected="'+(g?'true':'false')+'" class="gd-onglet'+(g?' actif':'')+'" onclick="window.__garderieOngletV1__(\'garderie\')">'+ICONE_BOCAL+' Garderie</button>'+
+    '</div>';
+  }
+
+  function positionPlace(i){
+    const c=PLACES[i][0],col=PLACES[i][1];
+    return {top:SOLS[c]-HAUT_POT,left:CENTRES[col]-LARG_POT/2,cx:CENTRES[col],col:col,comp:c};
+  }
+  /* Un bocal rangé dans son compartiment (le verre, le liquide, l'objet) + sa fiche dans la liste dessous (niveau, nom, temps). */
+  function bocalHtml(x,maintenant,pose,i){
     const H=H_(),it=x.item||{};
     const rep=reperePour(x,maintenant);
     const e=etatA(rep,maintenant);
     const R=REG_();
+    const pos=positionPlace(i);
     const icone=typeof R.iconeObjetAdventureIdleV138_==='function'?R.iconeObjetAdventureIdleV138_(Object.assign({},it,{level:e.niveau})):'';
-    const prochain=rep.max?'Niveau max':(rep.r>0?'Prochain niveau dans '+dureeLongueNguIdleV1_((1-e.p)/rep.r):'À l’arrêt');
+    const prochain=rep.max?'Niveau max':(rep.r>0?'+1 niv. dans '+dureeLongueNguIdleV1_((1-e.p)/rep.r):'À l’arrêt');
     const taux=x.effectiveHoursPerLevel!=null?'1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600):'';
-    return '<div class="gd-case">'+
-      '<div class="gd-bocal" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'">'+
-        '<div class="gd-bouchon"></div>'+
-        '<div class="gd-verre">'+
-          '<div class="gd-objet">'+icone+'</div>'+
-          '<div class="gd-liq" style="transform:translateY('+decalageLiquide(e.p)+'%)"><i class="gd-bulle" style="--x:22%;--t:4.6s;--d:0s"></i><i class="gd-bulle" style="--x:52%;--t:5.8s;--d:1.7s"></i><i class="gd-bulle" style="--x:76%;--t:4.1s;--d:3.1s"></i></div>'+
-          '<div class="gd-reflet"></div>'+
-        '</div>'+
-      '</div>'+
-      '<div class="gd-niv">Niv. <b class="gd-niv-n">'+e.niveau+'</b></div>'+
-      '<div class="gd-info">'+H.idleHtml_(it.name||it.definitionId||'Objet')+'</div>'+
-      '<div class="gd-info gd-petit">'+H.idleHtml_(prochain)+(taux?' · '+H.idleHtml_(taux):'')+'</div>'+
-      '<button type="button" class="soreal-idle-expand-button-v25 gd-bouton" onclick="window.__daycareIdleV1__(\'daycareRemove\',\''+H.idleHtml_(it.id)+'\')">Reprendre</button>'+
-    '</div>';
+    return {
+      pos:pos,
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="left:'+pos.left+'%;top:'+pos.top+'%"><i class="gd-ombre"></i>'+
+        '<div class="gd-bocal" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'">'+
+          '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
+          '<div class="gd-verre">'+
+            '<div class="gd-objet">'+icone+'</div>'+
+            '<div class="gd-liq" style="transform:translateY('+decalageLiquide(e.p)+'%)"><i class="gd-bulles"></i></div>'+
+            '<div class="gd-reflet"></div>'+
+          '</div>'+
+        '</div></div>',
+      note:'<div class="gd-note'+(pose?' gd-pose-note':'')+'" data-gd-note="'+H.idleHtml_(it.id)+'" title="'+H.idleHtml_(prochain+(taux?' · '+taux:''))+'">'+
+        '<div class="gd-niv">Niv. <b class="gd-niv-n">'+e.niveau+'</b></div>'+
+        '<div class="gd-info">'+H.idleHtml_(it.name||it.definitionId||'Objet')+'</div>'+
+        '<div class="gd-info gd-petit">'+H.idleHtml_(prochain)+'</div>'+
+        '<button type="button" class="gd-reprendre" onclick="window.__daycareIdleV1__(\'daycareRemove\',\''+H.idleHtml_(it.id)+'\')">Reprendre</button>'+
+      '</div>'
+    };
   }
 
-  function bocalVide(){
-    return '<div class="gd-case">'+
-      '<button type="button" class="gd-bocal gd-vide'+(choixOuvert?' ouvert':'')+'" onclick="window.__garderieChoisirV1__()" aria-label="Placer un objet">'+
-        '<div class="gd-bouchon"></div>'+
-        '<div class="gd-verre"><div class="gd-objet">'+ICONE_PLUS+'</div><div class="gd-reflet"></div></div>'+
-      '</button>'+
-      '<div class="gd-info gd-petit">Emplacement libre</div>'+
-    '</div>';
+  function bocalVide(pose,i){
+    const pos=positionPlace(i);
+    return {
+      pos:pos,
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="left:'+pos.left+'%;top:'+pos.top+'%"><i class="gd-ombre"></i>'+
+        '<button type="button" class="gd-bocal gd-vide'+(choixOuvert?' ouvert':'')+'" onclick="window.__garderieChoisirV1__()" aria-label="Placer un objet">'+
+          '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
+          '<div class="gd-verre"><div class="gd-objet">'+ICONE_PLUS+'</div><div class="gd-reflet"></div></div>'+
+        '</button></div>',
+      note:'<div class="gd-note'+(pose?' gd-pose-note':'')+'"><div class="gd-info gd-petit">Emplacement libre</div></div>'
+    };
   }
 
   function listeSac(d){
@@ -128,7 +168,16 @@
     }).join('')+'</div>';
   }
 
-  function panneau(j){
+  /* Combien de places ont déjà été montrées : un bocal NOUVEAU (achat, perk, défi) se pose avec une petite animation, une seule fois (mémorisé), jamais au rechargement. */
+  function nouvellesPlaces(total,maintenant){
+    const brut=stockage(CLE_PLACES),connu=brut===null||brut===''?null:Math.max(0,parseInt(brut,10)||0);
+    if(connu===null||total<connu){stockage(CLE_PLACES,total);return;}
+    for(let i=connu;i<total;i+=1)poses[i]=maintenant;
+    if(total>connu)stockage(CLE_PLACES,total);
+  }
+
+  /* L'onglet Garderie : l'armoire. Toute la section remplace le cadre du sac (mêmes colonnes). */
+  function etagere(j){
     const H=H_();
     const d=donnees(j);
     if(!d)return '';
@@ -136,13 +185,15 @@
     const maintenant=Date.now();
     const pct=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v)*100,2)+' %';};
     const objets=Array.isArray(d.items)?d.items:[];
-    const total=Math.max(0,H.idleEntier_(d.slots));
+    const total=Math.min(PLACES.length,Math.max(H.idleEntier_(d.slots),objets.length));
     const libres=Math.max(0,total-objets.length);
-    let cases=objets.map(function(x){return bocalPlein(x,maintenant);}).join('');
-    for(let i=0;i<libres;i+=1)cases+=bocalVide();
+    nouvellesPlaces(total,maintenant);
+    const cases=objets.slice(0,PLACES.length).map(function(x,i){return bocalHtml(x,maintenant,poses[i]&&maintenant-poses[i]<1100,i);});
+    for(let i=0;i<libres;i+=1){const k=objets.length+i;cases.push(bocalVide(poses[k]&&maintenant-poses[k]<1100,k));}
+    const E2=window.__SOREAL_IDLE_ETAGERE_V1__;
     const resume=
       '<div class="soreal-idle-summary-grid-v28">'+
-        '<div class="soreal-idle-summary-v28">Emplacements<b>'+total+'</b></div>'+
+        '<div class="soreal-idle-summary-v28">Places<b>'+total+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Temps par niveau<b>×'+pct(d.timeFactor)+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Vitesse<b>×'+pct(d.speedMultiplier)+'</b></div>'+
       '</div>';
@@ -158,21 +209,21 @@
         '<div style="margin-top:8px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieChoisirV1__()">Annuler</button></div></div>'
       :'';
     demarrer();
-    return '<section class="gd-cadre" aria-label="Garderie d’objets">'+
-      '<header class="gd-cadre-titre"><span class="gd-cadre-ico">'+ICONE_BOCAL+'</span><span>Garderie d’objets</span></header>'+
-      '<div class="gd-intro">Le chat de la garderie fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
+    return '<div class="soreal-idle-section-v8" id="soreal-idle-garderie-section">'+onglets(j)+
+      '<div class="gd-titre"><span class="gd-titre-ico">'+ICONE_BOCAL+'</span><span>Garderie d’objets</span></div>'+
+      '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
       resume+detail+
-      '<div class="gd-grille">'+cases+'</div>'+
-    '</section>'+choix;
+      '<div class="gd-reserve"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
+        '<div class="gd-fig"><img class="gd-img" src="/garderie/armoire-v1.webp?v=2" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
+          (E2?E2.yeuxHtml():'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
+      '</div>'+
+      '<div class="gd-liste">'+cases.map(function(c){return c.note;}).join('')+'</div>'+choix+'</div>'+
+    '</div>';
   }
 
-  /* Phrases du Coffre (modules/phrases-coffre-valise-v1.js) : {D} placement, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
+  /* L'étagère parle (modules/etagere-personnage-v1.js, phrases « phrases:etagere ») : {D} on lui confie un objet, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
   function parler(mode){
-    try{
-      const P=window.__SOREAL_IDLE_PHRASES_V1__,S=window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__;
-      const t=P&&typeof P.tirer==='function'?P.tirer('coffre',mode):'';
-      if(t&&S&&typeof S.parler==='function')S.parler(t);
-    }catch(_e){}
+    try{const E=window.__SOREAL_IDLE_ETAGERE_V1__;if(E&&typeof E.reagir==='function')E.reagir(mode);}catch(_e){}
   }
   function objetDuSac(id){
     const R=REG_();
@@ -190,7 +241,7 @@
     if(!o||!it||it.fullyMaxed||o.baseHours==null||o.alreadyInDaycare||Number(o.level)>=100)return false;
     if((Array.isArray(d.items)?d.items.length:0)>=Math.max(0,Math.floor(Number(d.slots)||0))){
       if(typeof window.__jouerNonCoffreIdleV1__==='function')window.__jouerNonCoffreIdleV1__();
-      parler('plein');
+      parler('plein');   /* c'est l'étagère qui refuse */
       return true;
     }
     window.__bagageAvaleIdleV1=Date.now();
@@ -212,6 +263,11 @@
     actionMetaIdleV130_({action:String(action),itemId:String(itemId)});
   }
   window.__daycareIdleV1__=daycareIdleV1_;
+  window.__garderieOngletV1__=function(onglet){
+    choixOuvert=false;
+    stockage(CLE_ONGLET,onglet==='garderie'?'garderie':'sac');
+    try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
+  };
   window.__garderieChoisirV1__=function(){
     choixOuvert=!choixOuvert;
     try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
@@ -229,7 +285,8 @@
       const liq=b.querySelector('.gd-liq');
       const v='translateY('+decalageLiquide(e.p)+'%)';
       if(liq&&liq.style.transform!==v)liq.style.transform=v;
-      const n=b.parentNode&&b.parentNode.querySelector('.gd-niv-n');
+      const nn=document.querySelector('[data-gd-note="'+b.getAttribute('data-gd-id')+'"] .gd-niv-n');
+      const n=nn||null;
       if(n&&n.textContent!==String(e.niveau))n.textContent=String(e.niveau);
     }
     return liste.length;
@@ -256,49 +313,72 @@
     const s=document.createElement('style');
     s.id='gd-style-v1';
     s.textContent=[
-      '.gd-cadre{position:relative;margin:26px 0 16px;padding:14px 12px 14px;border-radius:16px;border:3px solid #c9a24a;background:linear-gradient(180deg,rgba(20,44,64,.92),rgba(10,24,40,.95));box-shadow:inset 0 0 0 2px rgba(255,236,170,.25),inset 0 0 26px rgba(80,170,255,.18),0 6px 16px rgba(0,0,0,.5)}',
-      '.gd-cadre-titre{display:flex;align-items:center;justify-content:center;gap:8px;margin:-26px auto 10px;width:max-content;max-width:92%;padding:5px 16px;border-radius:999px;background:linear-gradient(180deg,#e6c46a,#a67c25);color:#2b1d05;font:400 17px/1.2 "Bangers","Russo One",system-ui,sans-serif;letter-spacing:.04em;box-shadow:0 2px 5px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.5);text-align:center}',
-      '.gd-cadre-ico{display:inline-flex}',
-      '.gd-cadre .gd-intro{font-size:13px;color:#b9c6dc;margin:2px 0 10px;text-align:center}',
+      '.gd-onglets{display:flex;gap:8px;margin:0 0 10px}',
+      '.gd-onglet{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border-radius:12px;border:2px solid #5a4630;background:linear-gradient(180deg,#3a2a1a,#241a10);color:#d8c7a6;font:400 18px/1.15 "Bangers","Russo One",system-ui,sans-serif;letter-spacing:.04em;cursor:pointer;white-space:normal;text-align:center}',
+      '.gd-onglet.actif{border-color:#e6c46a;background:linear-gradient(180deg,#e6c46a,#a67c25);color:#2b1d05;box-shadow:0 0 10px rgba(230,196,106,.45)}',
+      '.gd-titre{display:flex;align-items:center;justify-content:center;gap:8px;margin:2px 0 6px;font:400 24px/1.15 "Bangers","Russo One",system-ui,sans-serif;letter-spacing:.05em;color:#f2d98d;text-shadow:0 2px 0 #4a2d0c,0 0 12px rgba(255,200,90,.35);text-align:center}',
+      '.gd-titre-ico{display:inline-flex;font-size:.95em}',
+      '.gd-intro{font-size:13px;color:#b9c6dc;margin:2px 0 10px;text-align:center}',
       '.gd-ico{vertical-align:-.2em}',
-      '.gd-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px 12px;margin-top:6px}',
-      '.gd-case{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-width:0}',
-      '.gd-info{font-size:14px;font-weight:700;overflow-wrap:anywhere;line-height:1.2}',
-      '.gd-info.gd-petit{font-size:12px;font-weight:500;color:#aeb5c8}',
-      '.gd-niv{font-family:"Russo One",system-ui,sans-serif;font-size:17px;color:#fff;text-shadow:0 1px 2px #000}',
-      '.gd-bouton{margin-top:4px;max-width:100%;white-space:normal}',
-      '.gd-bocal{--p:60px;position:relative;display:block;width:112px;height:176px;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit}',
-      '.gd-bouchon{position:absolute;left:50%;top:0;width:58px;height:14px;margin-left:-29px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#b88a55,#7a5530);box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 1px 2px #000;z-index:3}',
-      '.gd-verre{position:absolute;left:0;right:0;top:10px;bottom:0;border-radius:18px 18px 30px 30px;border:3px solid rgba(190,225,255,.75);background:linear-gradient(90deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 40%,rgba(255,255,255,.1));box-shadow:inset 0 0 14px rgba(160,210,255,.35),0 4px 10px rgba(0,0,0,.5);overflow:hidden;isolation:isolate}',
-      '.gd-objet{position:absolute;inset:14px 12px 22px;display:flex;align-items:center;justify-content:center;z-index:1}',
+      '.gd-reserve{margin-top:6px}',
+      /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
+      '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
+      '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
+      '.gd-img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}',
+      '.gd-armoire[data-humeur="dort"] .gd-fig{animation:etRespire 4.6s ease-in-out infinite}',
+      '.gd-armoire:not([data-humeur="dort"]) .gd-fig{animation:etGrince 14s linear infinite}',
+      /* bocal : les mesures sont des fractions de la largeur du bocal (cqw), il s'adapte donc à toutes les tailles d'écran */
+      '.gd-pot{position:absolute;width:'+LARG_POT+'%;height:'+HAUT_POT+'%;container-type:size}',
+      '.gd-ombre{position:absolute;left:-10%;bottom:-3%;width:130%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0));z-index:0}',
+      '.gd-bocal{position:relative;z-index:1;display:block;width:100%;height:100%;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit}',
+      '.gd-bouchon{position:absolute;left:50%;top:0;width:48cqw;height:15cqw;margin-left:-24cqw;border-radius:3px 3px 1px 1px;background:radial-gradient(circle at 20% 40%,rgba(90,52,20,.55) 0 1px,rgba(0,0,0,0) 1.5px),radial-gradient(circle at 66% 62%,rgba(90,52,20,.5) 0 1px,rgba(0,0,0,0) 1.6px),linear-gradient(180deg,#d5a96a,#a9743a 60%,#7a5028);box-shadow:inset 0 -1px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,236,200,.5),0 1px 2px #000;z-index:4}',
+      '.gd-col{position:absolute;left:50%;top:13cqw;width:60cqw;height:10cqw;margin-left:-30cqw;border-radius:3px;border:max(1px,2cqw) solid rgba(200,230,255,.8);background:linear-gradient(90deg,rgba(255,255,255,.32),rgba(255,255,255,.06) 45%,rgba(255,255,255,.2));z-index:3}',
+      '.gd-verre{position:absolute;left:0;right:0;top:21cqw;bottom:0;border-radius:15cqw 15cqw 27cqw 27cqw;border:max(1.5px,3.2cqw) solid rgba(190,225,255,.8);background:linear-gradient(90deg,rgba(255,255,255,.2),rgba(255,255,255,.04) 38%,rgba(255,255,255,.1) 70%,rgba(255,255,255,.24));box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),inset 0 0 10px rgba(160,210,255,.4),inset -4px -4px 8px rgba(20,60,110,.28),0 3px 6px rgba(0,0,0,.5);overflow:hidden;isolation:isolate}',
+      '.gd-verre::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.26) 0,rgba(255,255,255,0) 26%,rgba(255,255,255,0) 74%,rgba(255,255,255,.18) 92%,rgba(255,255,255,.45) 94%,rgba(255,255,255,0) 96%)}',
+      '.gd-objet{position:absolute;inset:12cqw 10cqw 12cqw;display:flex;align-items:center;justify-content:center;z-index:1}',
       '.gd-objet>*,.gd-objet img{max-width:100%;max-height:100%}',
-      '.gd-objet .idle-boost-icon-v1,.gd-objet img{width:64px;height:64px;object-fit:contain}',
+      '.gd-objet .idle-boost-icon-v1,.gd-objet img{width:56cqw;height:56cqw;object-fit:contain;filter:drop-shadow(1px 2px 1px rgba(0,0,0,.5))}',
       '.gd-objet .idle-lvl-badge-v1{display:none}',
-      '.gd-vide .gd-objet{color:rgba(190,225,255,.7)}',
+      '.gd-vide .gd-objet{color:rgba(190,225,255,.75)}',
+      '.gd-plus{width:60%;height:auto}',
       '.gd-vide{cursor:pointer}',
       '.gd-vide.ouvert .gd-verre{border-color:#f5c14b}',
-      '.gd-liq{position:absolute;left:0;right:0;top:-10px;height:calc(100% + 10px);z-index:2;opacity:.8;background:linear-gradient(180deg,#ff3d3d 0%,#ff9f2e 17%,#ffe135 33%,#4be07b 50%,#2fb5ff 67%,#5b5bff 83%,#b24bff 100%);background-size:100% 100%;background-repeat:no-repeat;will-change:transform;',
-      '-webkit-mask-image:'+WAVE+',linear-gradient(#000,#000);mask-image:'+WAVE+',linear-gradient(#000,#000);-webkit-mask-size:60px 10px,100% calc(100% - 9px);mask-size:60px 10px,100% calc(100% - 9px);-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:repeat-x,no-repeat;mask-repeat:repeat-x,no-repeat;animation:gd-onde 3.2s linear infinite}',
-      '.gd-liq::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 35%,rgba(255,255,255,.28) 50%,rgba(255,255,255,0) 65%,rgba(255,255,255,0) 100%);background-size:90px 100%;background-repeat:repeat-x;animation:gd-glisse 5s linear infinite}',
-      '.gd-bulle{position:absolute;bottom:6px;left:var(--x);width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.7);opacity:0;animation:gd-bulle var(--t) linear infinite;animation-delay:var(--d)}',
-      '.gd-reflet{position:absolute;left:10px;top:10px;bottom:24px;width:9px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05));z-index:4;pointer-events:none}',
-      '@keyframes gd-onde{from{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}to{-webkit-mask-position:60px 0,0 100%;mask-position:60px 0,0 100%}}',
-      '@keyframes gd-glisse{from{background-position:0 0}to{background-position:90px 0}}',
-      '@keyframes gd-bulle{0%{opacity:0;transform:translateY(0)}15%{opacity:.8}85%{opacity:.8}100%{opacity:0;transform:translateY(-70px)}}',
-      '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-liq::after,.gd-bulle{animation:none}}',
+      /* liquide : couches de saturation, ménisque brillant ; une couche animée par bocal (l’onde) */
+      '.gd-liq{position:absolute;left:0;right:0;top:-8cqw;height:calc(100% + 8cqw);z-index:2;opacity:.88;background:radial-gradient(130% 40% at 50% 100%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 14%),linear-gradient(180deg,#ff4a4a 0%,#ff9f2e 17%,#ffe135 33%,#4be07b 50%,#2fb5ff 67%,#5b5bff 83%,#b24bff 100%);background-size:100% 100%,100% 100%,100% 100%;background-repeat:no-repeat;will-change:transform;',
+      '-webkit-mask-image:'+WAVE+',linear-gradient(#000,#000);mask-image:'+WAVE+',linear-gradient(#000,#000);-webkit-mask-size:50cqw 8cqw,100% calc(100% - 7cqw);mask-size:50cqw 8cqw,100% calc(100% - 7cqw);-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:repeat-x,no-repeat;mask-repeat:repeat-x,no-repeat;animation:gd-onde 3.2s linear infinite}',
+      '.gd-liq::after{content:"";position:absolute;left:0;right:0;top:6cqw;height:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.85) 30%,rgba(255,255,255,.85) 60%,rgba(255,255,255,0))}',
+      '.gd-bulles{position:absolute;left:0;right:0;top:8cqw;bottom:0;pointer-events:none;background:radial-gradient(circle at 20% 82%,rgba(255,255,255,.8) 0 2px,rgba(255,255,255,0) 2.8px),radial-gradient(circle at 56% 48%,rgba(255,255,255,.75) 0 1.4px,rgba(255,255,255,0) 2px),radial-gradient(circle at 78% 70%,rgba(255,255,255,.8) 0 2.6px,rgba(255,255,255,0) 3.4px),radial-gradient(circle at 36% 24%,rgba(255,255,255,.7) 0 1.1px,rgba(255,255,255,0) 1.7px),radial-gradient(circle at 88% 20%,#fff6c0 0 .8px,rgba(255,246,192,0) 1.4px),radial-gradient(circle at 12% 46%,#fff6c0 0 .9px,rgba(255,246,192,0) 1.5px);background-size:100% 46px;background-repeat:repeat-y;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0),#000 22%,#000 78%,rgba(0,0,0,0));mask-image:linear-gradient(180deg,rgba(0,0,0,0),#000 22%,#000 78%,rgba(0,0,0,0))}',
+      '.gd-reflet{position:absolute;left:9cqw;top:11cqw;bottom:14cqw;width:7cqw;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05));z-index:4;pointer-events:none}',
+      /* liste des bocaux : 3 rangées réservées (2 colonnes), la page ne bouge pas quand une place s'ajoute */
+      '.gd-liste{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(92px,auto));gap:8px 10px;margin-top:10px;min-height:calc(3*92px + 16px)}',
+      '.gd-note{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;min-width:0;padding:6px 6px 8px;border-radius:10px;background:rgba(0,0,0,.28);border:1px solid rgba(255,226,170,.18)}',
+      '.gd-niv{font-family:"Russo One",system-ui,sans-serif;font-size:15px;color:#fff3c9;text-shadow:0 1px 2px #000}',
+      '.gd-info{font-size:13px;font-weight:700;overflow-wrap:anywhere;line-height:1.2;color:#f6e7c8;text-shadow:0 1px 2px #000}',
+      '.gd-info.gd-petit{font-size:11px;font-weight:500;color:#e0cfa8}',
+      '.gd-reprendre{margin-top:auto;width:100%;max-width:112px;box-sizing:border-box;padding:5px 4px;border-radius:9px;border:1px solid #5d4208;background:linear-gradient(180deg,#f6d77f,#c9a243 55%,#99721c);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 2px 3px rgba(0,0,0,.5);color:#2b1d05;font:400 12px/1.1 "Russo One",system-ui,sans-serif;letter-spacing:0;cursor:pointer;white-space:normal;overflow-wrap:anywhere}',
+      /* pose d'un nouveau bocal : une seule fois */
+      '.gd-pose{animation:gd-pose .8s cubic-bezier(.3,.8,.35,1) 1 both}',
+      '.gd-pose-note{animation:gd-pose-note .8s ease-out 1 both}',
+      '@keyframes gd-pose{0%{opacity:0;transform:translateY(-46px) scale(.96)}55%{opacity:1;transform:translateY(0) scale(1)}72%{transform:translateY(-7px)}100%{opacity:1;transform:translateY(0)}}',
+      '@keyframes gd-pose-note{0%{opacity:0}60%{opacity:0}100%{opacity:1}}',
+      '@keyframes gd-onde{from{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}to{-webkit-mask-position:50cqw 0,0 100%;mask-position:50cqw 0,0 100%}}',
+      '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-pose,.gd-pose-note,.gd-fig{animation:none}}',
       '.gd-choix{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}',
+      '.gd-choix-cadre{margin-top:12px}',
       '.gd-choix-objet{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:inherit;font:inherit;cursor:pointer;min-width:0}',
       '.gd-choix-ico{display:flex;width:52px;height:52px;align-items:center;justify-content:center;position:relative}',
       '.gd-choix-ico img{max-width:100%;max-height:100%}',
       '.gd-choix-nom{font-size:13px;font-weight:700;overflow-wrap:anywhere;line-height:1.15}',
-      '@media (max-width:520px){.gd-grille{grid-template-columns:repeat(2,minmax(0,1fr))}}'
+      '@media (max-width:520px){.gd-reprendre{font-size:10px;padding:5px 1px}.gd-info{font-size:12px}.gd-info.gd-petit{font-size:10px}.gd-onglet{font-size:16px}.gd-titre{font-size:21px}.gd-liste{gap:6px}.gd-note{padding:5px 3px 6px}}'
     ].join('\n');
     document.head.appendChild(s);
   }
 
   window.__SOREAL_IDLE_DAYCARE_PAGE_V1__={
     disponible:disponible,
-    panneau:panneau,
+    onglets:onglets,
+    vueGarderie:vueGarderie,
+    etagere:etagere,
     deposerNonMaxe:deposerNonMaxe,
     apresDepotMaxe:apresDepotMaxe,
     infoFiche:infoFiche,

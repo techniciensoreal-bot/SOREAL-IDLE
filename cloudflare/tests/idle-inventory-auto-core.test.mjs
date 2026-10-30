@@ -192,8 +192,27 @@ assert.equal(idleInventoryMergeSlotCountV1({
   const avant = s.cube.power;
   const stats2 = idleInventoryRunAutoBoostV1(s, { boostRecycleChance: 0 }, never);
   assert.equal(stats2.applied, 1);
-  assert.equal(stats2.cube, 1, "« the cube being boosted if all other equipment is at maximum boost »");
+  assert.equal(stats2.cube, 1, "tout boost restant est absorbé par le cube");
   assert.ok(s.cube.power > avant);
+}
+
+// --- Auto Boost : un boost sans place sur l'équipement va au cube, même si un AUTRE type (Special) a encore de la marge (Norman, 2026-10-30) ---
+{
+  const s = adv();
+  s.cube.unlocked = true;
+  const anneau = addItem(s, "sewers:ring");
+  equip(s, anneau.id, "accessory");
+  addBoost(s, "power", 1000);
+  addBoost(s, "toughness", 1000);
+  idleInventoryRunAutoBoostV1(s, { boostRecycleChance: 0 }, never);
+  assert.ok(idleAdventureBoostRoomV1(s, anneau.id, "special") > 0, "Special garde de la marge");
+  addBoost(s, "power", 10);
+  addBoost(s, "toughness", 10);
+  const avant = s.cube.power + s.cube.toughness;
+  const stats = idleInventoryRunAutoBoostV1(s, { boostRecycleChance: 0 }, never);
+  assert.equal(stats.cube, 2, "les boosts Power et Toughness sans place partent au cube malgré la marge Special");
+  assert.ok(s.cube.power + s.cube.toughness > avant);
+  assert.equal(s.inventory.filter((o) => o.kind === "boost").length, 0, "plus aucun boost dans le sac");
 }
 
 // --- Minuteur (tick) ---
