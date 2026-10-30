@@ -46,6 +46,9 @@ export async function fichiersCodeApk(tmp) {
   const fichiers = lister(PUBLIC, "public/", []);
   fichiers.push({ nom: "public/sw-idle-v1.js", chemin: sw });
   fichiers.push({ nom: "public/demarrage.html", chemin: path.join(ici, "hors-ligne", "demarrage.html") });
+  /* Contenu de la production (catalogue, textes et empreintes de voix, histoires) : voyage avec le code, donc dans chaque mise à jour ; jamais dans cloudflare/public (il serait public en ligne : spoils). Lu par le service worker (sw-android.js). */
+  const graine = path.join(depot, "desktop", "graine", "catalogue.json");
+  if (fs.existsSync(graine)) fichiers.push({ nom: "public/graine-contenu-v1.json", chemin: graine });
   return fichiers.sort((a, b) => (a.nom < b.nom ? -1 : a.nom > b.nom ? 1 : 0));
 }
 

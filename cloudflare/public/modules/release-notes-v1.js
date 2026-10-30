@@ -32,6 +32,8 @@
         date:'2026-10-30',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les boutons de la barre des menus (en haut sur téléphone, à gauche sur ordinateur) reprennent en petit le cadre de titre de leur menu, chacun avec sa propre couleur ; le menu ouvert s’anime. Les cadres de titre des pages ont été recolorés pour correspondre.',
+            'Applications Android et PC hors ligne : les textes des chroniques et leurs voix se mettent maintenant à jour avec les mises à jour de l’application (avant, elles gardaient celles d’origine).',
             'Dans les bonus obtenus grâce à la roue, l’objet s’appelle maintenant « Caca » (et non « crottin »), sans la mention « sans effet » : il a un effet quand on l’utilise.',
             'Application Android hors ligne : au démarrage, un écran de connexion affiche l’image du jeu en plein écran ; un appui ouvre le navigateur pour choisir son compte Google. Si le compte possède une partie, elle est restaurée directement ; sinon un pseudo est demandé, et un pseudo déjà pris est refusé.',
             'Quand tu nettoies ton Coffre ou ta Valise, une phrase comique accompagne maintenant la récompense en AP (une au hasard, jamais deux fois de suite la même), avec des phrases à part pour le gain exceptionnel.',

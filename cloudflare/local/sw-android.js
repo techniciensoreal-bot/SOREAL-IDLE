@@ -10,6 +10,7 @@
 import initSqlJs from "sql.js/dist/sql-wasm-browser.js";
 import { SorealIdleCoordinatorV1 } from "../src/index-idle-coordinator-v1.js";
 import entree from "../src/idle-worker-entry-v1.js";
+import { appliquerGraineContenuV1, graineValideV1 } from "../src/idle-graine-contenu-v1.js";
 
 const BASE_IDB = "soreal-idle-android-v1";
 const EN_TETE_JOUEURS = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Prod/s","Force","Endurance","Organisation","Puissance","Boss actuel","PV boss","PV boss max","Boss vaincus","Dernière synchro","Public","Rang","Email principal","Email connexion","Pièces","Inventaire JSON","Équipement JSON","Améliorations JSON","Renaissances","Essence renaissance","PV joueur","PV joueur max","KO jusqu'à","Zone aventure","Progression aventure JSON","Points aventure","Dernière action aventure","Matériaux","Collection JSON","Date début","Capacité inventaire","Stats JSON"];
@@ -161,7 +162,18 @@ async function demarrer() {
   }
   /* Le jeu est ouvert au joueur de cet appareil : « accès public » du serveur, posé une fois. */
   sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1') ON CONFLICT(meta_key) DO UPDATE SET meta_value='1'");
-  const premiere = semerSiVide(sql, await (async () => { if (Number((sql.exec("SELECT COUNT(*) AS n FROM idle_catalog")[0] || {}).n) > 0) return null; const g = await fetch("/__graine.json"); return g.ok ? g.json() : null; })());
+  /*
+   * Graine du contenu de la production : d'abord celle qui voyage dans les mises à jour (public/graine-contenu-v1.json, remplacée par le paquet de code de la mise à jour), sinon celle embarquée dans l'APK (/__graine.json).
+   * Re-appliquée à chaque démarrage où son empreinte diffère (catalogue, textes et empreintes de voix, histoires) ; la feuille JOUEURS n'est jamais touchée ; une graine absente ou invalide n'écrase rien (idle-graine-contenu-v1.js).
+   */
+  const graine = await (async () => {
+    for (const url of ["/graine-contenu-v1.json", "/__graine.json"]) {
+      try { const g = await fetch(url); if (g.ok) { const j = await g.json(); if (graineValideV1(j)) return j; } } catch (_e) { /* suivante */ }
+    }
+    return null;
+  })();
+  const premiere = semerSiVide(sql, graine);
+  const contenu = appliquerGraineContenuV1(sql, graine);
   const stub = { fetch: (requete) => coord.fetch(requete) };
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },
@@ -181,7 +193,7 @@ async function demarrer() {
     await idbEcrire("session", session);
   }
   etat = { db, sql, coord, env, session, SQL };
-  if (premiere || !octets) await sauvegarder(true);
+  if (premiere || contenu.applique || !octets) await sauvegarder(true);
   return etat;
 }
 

@@ -234,6 +234,7 @@ export async function creerEnvLocal(opt) {
   const src = (f) => pathToFileURL(path.join(opt.racineDepot, "cloudflare", "src", f)).href;
   const { SorealIdleCoordinatorV1 } = await import(src("index-idle-coordinator-v1.js"));
   const entree = (await import(src("idle-worker-entry-v1.js"))).default;
+  const { appliquerGraineContenuV1 } = await import(src("idle-graine-contenu-v1.js"));
   const { db, sql } = ouvrirBase(opt.fichierBase);
   db.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
   const coord = new SorealIdleCoordinatorV1({ storage: { sql } }, {});
@@ -246,6 +247,8 @@ export async function creerEnvLocal(opt) {
   sql.exec("BEGIN");   /* une seule écriture sur le disque pour toute la graine (et non une par ligne) */
   let premiere;
   try { premiere = semerSiVide(sql, opt.graine); sql.exec("COMMIT"); } catch (e) { try { sql.exec("ROLLBACK"); } catch (_e) { /* rien à défaire */ } throw e; }
+  /* Contenu de la production (catalogue, textes et empreintes de voix, histoires) : re-appliqué à chaque démarrage où la graine a changé (mise à jour de l'application) ; la partie du joueur n'est jamais touchée (idle-graine-contenu-v1.js). */
+  const contenu = appliquerGraineContenuV1(sql, opt.graine);
   const stub = { fetch: (requete) => coord.fetch(requete) };
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },

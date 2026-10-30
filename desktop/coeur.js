@@ -84,8 +84,14 @@ function lireEmbarque(d) {
 
 async function lancerEnv(racineDepot, dossiersMedias) {
   const { creerEnvLocal } = await import(pathToFileURL(path.join(__dirname, "src", "env-local.mjs")).href);
+  /* Graine du contenu de la production : celle de la mise à jour installée (dossier de CE fichier, voyage dans le paquet de code) ou celle de l'installateur ; la plus récente (exporteLe) l'emporte. Aucune : le catalogue minimal du moteur. */
   let graine = null;
-  try { graine = JSON.parse(fs.readFileSync(path.join(APP, "graine", "catalogue.json"), "utf8")); } catch (_e) { /* pas de graine : le catalogue minimal du moteur */ }
+  for (const fichier of [path.join(__dirname, "graine", "catalogue.json"), path.join(APP, "graine", "catalogue.json")]) {
+    try {
+      const g = JSON.parse(fs.readFileSync(fichier, "utf8"));
+      if (g && Array.isArray(g.feuilles) && (!graine || String(g.exporteLe || "") > String(graine.exporteLe || ""))) graine = g;
+    } catch (_e) { /* pas de graine ici */ }
+  }
   return creerEnvLocal({
     racineDepot,
     dossierPublic: path.join(racineDepot, "cloudflare", "public"),
