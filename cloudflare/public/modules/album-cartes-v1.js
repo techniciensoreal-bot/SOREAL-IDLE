@@ -138,9 +138,61 @@ function rendre(entrees){
   if(!document.querySelector('.alb-classeur')){ouvert=false;page=0;}   /* on arrive dans le menu (l'album n'est pas encore dans la page) : le livre est fermé ; un redessin de la page déjà ouverte garde son état, même après une longue absence de l'onglet */
   page=norm(page);
   setTimeout(verifierNouvelles,500);
-  return '<div class="alb-classeur'+(ouvert?' alb-ouvert':'')+'">'+navHtml('haut')+livreHtml()+navHtml('bas')+'</div>';
+  setTimeout(adapter,0);
+  return '<div class="alb-adapt">'+zoomHtml()+'<div class="alb-cadre"><div class="alb-echelle"><div class="alb-classeur'+(ouvert?' alb-ouvert':'')+'">'+navHtml('haut')+livreHtml()+navHtml('bas')+'</div></div></div></div>';
 }
-function refaire(){var c=document.querySelector('.alb-classeur');if(c){page=norm(page);c.innerHTML=navHtml('haut')+livreHtml()+navHtml('bas');}}
+/*
+ * Le livre s'adapte à la fenêtre (Norman, 2026-10-30 : « je veux que le livre s'adapte à la fenêtre, même s'il devient petit, et un bouton + et − pour zoomer / dézoomer ; valable sur PC comme sur téléphone »).
+ * Le classeur a une taille de référence fixe (980 px sur deux pages, 520 px sur une) : il est mis à l'échelle (transform) pour tenir en largeur ET en hauteur dans la fenêtre, puis multiplié par le zoom du joueur (50 % à 200 %,
+ * mémorisé dans le compte). Les valeurs sont posées en variables CSS sur <html> (jamais en attributs de la page : un redessin de la page ne les efface pas). Les cartes des pochettes sont dessinées à leur taille de référence
+ * (400 px de large) puis réduites : tout est écrit comme sur la carte sortie de l'album, même minuscule (le navigateur ne grossit plus un texte trop petit, ce qui tronquait les noms).
+ */
+var CLE_ZOOM='soreal_idle_album_zoom_v1';
+/* Largeur de la carte quand on la sort de l'album (--mtg-largeur, variable de la fenêtre) : c'est la taille de référence des cartes des pochettes (certains textes de la carte ont une taille fixe en pixels : seule la même largeur donne exactement le même rendu). */
+function refCarte(){
+  try{
+    var p=document.getElementById('alb-sonde');
+    if(!p){p=document.createElement('div');p.id='alb-sonde';p.setAttribute('aria-hidden','true');p.style.cssText='position:absolute;left:-9999px;top:0;height:1px;visibility:hidden;width:var(--mtg-largeur,400px)';document.body.appendChild(p);}
+    var w=p.offsetWidth;return w>=200&&w<=900?w:400;
+  }catch(_e){return 400;}
+}
+function lireZoom(){try{var z=parseFloat(localStorage.getItem(CLE_ZOOM));if(z>=.5&&z<=2)return Math.round(z*10)/10;}catch(_e){}return 1;}
+var zoom=lireZoom();
+function zoomHtml(){
+  var A='window.__SOREAL_IDLE_ALBUM_V1__';
+  return '<div class="alb-zoom"><button type="button" class="alb-bouton alb-zoom-moins" aria-label="Dézoomer" title="Dézoomer" '+(zoom<=.5?'disabled ':'')+'onclick="'+A+'.zoomer(-1)">−</button>'+
+    '<button type="button" class="alb-zoom-val" aria-label="Taille d’origine" title="Taille d’origine" onclick="'+A+'.zoomer(0)">'+Math.round(zoom*100)+' %</button>'+
+    '<button type="button" class="alb-bouton alb-zoom-plus" aria-label="Zoomer" title="Zoomer" '+(zoom>=2?'disabled ':'')+'onclick="'+A+'.zoomer(1)">+</button></div>';
+}
+function adapter(){
+  var ad=document.querySelector('.alb-adapt'),cl=ad&&ad.querySelector('.alb-classeur');
+  if(!ad||!cl)return;
+  var racine=document.documentElement,dispo=ad.clientWidth;
+  if(!dispo)return;   /* page cachée : rien à mesurer */
+  var nw=double()?980:520;
+  racine.style.setProperty('--alb-nw',nw+'px');
+  var nh=cl.offsetHeight;
+  if(!nh)return;
+  var haut=Math.max(220,(window.innerHeight||800)-110);
+  var ajuste=Math.max(.2,Math.min(1,dispo/nw,haut/nh)),s=ajuste*zoom;
+  var carte=cl.querySelector('.alb-pochette .alb-carte');
+  var ref=refCarte();
+  racine.style.setProperty('--alb-ref',ref+'px');
+  if(carte&&carte.offsetWidth)racine.style.setProperty('--alb-k',(carte.offsetWidth/ref).toFixed(4));
+  racine.style.setProperty('--alb-s',s.toFixed(4));
+  racine.style.setProperty('--alb-w',Math.ceil(nw*s)+'px');
+  racine.style.setProperty('--alb-h',Math.ceil(nh*s)+'px');
+  if(!ad.__alb_obs&&typeof ResizeObserver==='function'){ad.__alb_obs=new ResizeObserver(function(){adapter();});ad.__alb_obs.observe(ad);}
+}
+function zoomer(sens){
+  zoom=sens===0?1:Math.max(.5,Math.min(2,Math.round((zoom+sens*.1)*10)/10));
+  try{if(zoom===1)localStorage.removeItem(CLE_ZOOM);else localStorage.setItem(CLE_ZOOM,String(zoom));}catch(_e){}
+  [].forEach.call(document.querySelectorAll('.alb-zoom-val'),function(b){b.textContent=Math.round(zoom*100)+' %';});
+  [].forEach.call(document.querySelectorAll('.alb-zoom-moins'),function(b){b.disabled=zoom<=.5;});
+  [].forEach.call(document.querySelectorAll('.alb-zoom-plus'),function(b){b.disabled=zoom>=2;});
+  adapter();
+}
+function refaire(){var c=document.querySelector('.alb-classeur');if(c){page=norm(page);c.innerHTML=navHtml('haut')+livreHtml()+navHtml('bas');adapter();}}
 function majNav(){
   var navs=document.querySelectorAll('.alb-classeur .alb-nav');
   [].forEach.call(navs,function(nav){
@@ -388,6 +440,7 @@ function mouvementCarte(r0,r1,haut){   /* de la petite carte (r0) à la grande (
   return {
     petite:'translate('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px) scale('+s.toFixed(4)+')',
     sortie:'translate('+dx.toFixed(1)+'px,'+(dy-h).toFixed(1)+'px) scale('+(s*1.04).toFixed(4)+') rotate(-2deg)',
+    dessus:'translate('+dx.toFixed(1)+'px,'+(dy-r0.height-6).toFixed(1)+'px) scale('+s.toFixed(4)+')',   /* petite carte posée juste AU-DESSUS de sa pochette (hors écran si besoin) */
     grande:'translate(0,0) scale(1) rotate(0deg)'
   };
 }
@@ -400,14 +453,15 @@ function retourPochette(n,fenetre,grande,r1,parent){
   if(!r0||!(r0.width>0)||!(r1.width>0)||typeof grande.animate!=='function'){finirSortie();return;}
   var m=mouvementCarte(r0,r1);
   grande.style.transformOrigin='0 0';grande.style.willChange='transform';
+  /* Norman (2026-10-30) : « la carte doit entrer par le haut de la feuille en plastique : tout au-dessus, puis glisser en descendant, même si elle va hors écran » : elle rejoint d'abord le dessus de sa pochette, puis glisse vers le bas dans la fente. */
   var a=grande.animate([
     {transform:m.grande,easing:'cubic-bezier(.3,.6,.3,1)'},
-    {transform:m.sortie,offset:.55,easing:'cubic-bezier(.4,0,.3,1)'},
+    {transform:m.dessus,offset:.5,easing:'cubic-bezier(.35,0,.25,1)'},
     {transform:m.petite}
-  ],{duration:620,fill:'forwards'});
+  ],{duration:900,fill:'forwards'});
   try{fenetre.animate([{opacity:1},{opacity:0}],{duration:520,easing:'ease-in',fill:'forwards'});}catch(_e){}
   fin(a).then(finirSortie);
-  setTimeout(function(){if(sortie&&sortie.fenetre===fenetre)finirSortie();},1500);   /* filet de sécurité */
+  setTimeout(function(){if(sortie&&sortie.fenetre===fenetre)finirSortie();},1800);   /* filet de sécurité */
 }
 function ouvrir(n,el){
   var ouvrirReel=window.__ouvrirBossCollectionIdleV1__;
@@ -580,6 +634,7 @@ var tailleVue=0;
 function verifierTaille(){var l=document.querySelector('.alb-classeur .alb-livre');if(l&&!tourne&&l.classList.contains('alb-double')!==double())refaire();}
 window.addEventListener('resize',function(){
   clearTimeout(tailleVue);
+  adapter();
   tailleVue=setTimeout(function(){
     var livre=document.querySelector('.alb-classeur .alb-livre');
     if(!livre||tourne)return;
@@ -587,5 +642,5 @@ window.addEventListener('resize',function(){
   },200);
 });
 
-window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,sauter:sauter,retourCouverture:retourCouverture,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger};
+window.__SOREAL_IDLE_ALBUM_V1__={rendre:rendre,ouvrir:ouvrir,page:page_,ouvrirLivre:ouvrirLivre,fermerLivre:fermerLivre,sauter:sauter,retourCouverture:retourCouverture,cliquerGauche:cliquerGauche,nouvelles:nouvelles,ranger:ranger,zoomer:zoomer,adapter:adapter};
 })();

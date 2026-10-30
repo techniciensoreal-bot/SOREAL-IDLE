@@ -1851,7 +1851,7 @@
           :'';
         /* A Giant Seed réutilisée (Yggdrasil débloqué) : max(1, ⌊L + L²/100⌋) graines, action méta consumeGiantSeed. */
         const boutonSemerGraine=(item.definitionId==='giantSeed'&&!item.locked&&!deblocageObjet)
-          ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
+          ?'<button type="button" class="idle-fiche-bouton-v1 idle-fiche-bouton-large-v1" onclick="window.__actionMetaIdleV130__({action:\'consumeGiantSeed\',itemId:\''+idleHtml_(id)+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">🌱 Ajouter aux graines</button>'
           :'';
         const estVerrouille=Boolean(item.locked);
         const boutonVerrouiller=

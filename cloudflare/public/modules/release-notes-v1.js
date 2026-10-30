@@ -49,8 +49,13 @@
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Dans la fiche d’un objet, les boutons ne sont plus coupés : le texte passe à la ligne et les boutons au libellé long prennent toute la largeur, sur ordinateur comme sur téléphone.',
             'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
             'Un objet de niveau 100 dont les boosts sont au maximum perd maintenant son point de couleur tout de suite (et reçoit son V vert) : avant, il fallait changer d’onglet et revenir.'
+          ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Quand tu ranges une carte, elle passe d’abord tout au-dessus de sa pochette (même hors de l’écran) puis glisse vers le bas pour entrer par le haut de la feuille en plastique.',
+            'Le classeur s’adapte maintenant à la taille de la fenêtre, même petite, sur ordinateur comme sur téléphone, et propose des boutons + et − pour zoomer ou dézoomer. Les cartes rangées dans les pochettes sont écrites exactement comme la carte sortie du classeur, même minuscules : leur nom n’est plus tronqué plus que sur la grande carte.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Sur ordinateur, cette page a un nouveau fond : une salle de serveurs lugubre éclairée aux néons, derrière tout le cadre. Le titre reste au-dessus et le dessin dépasse en haut, à gauche et à droite. Le titre est vert, comme le bouton du menu. Le mauve des néons de gauche et le vert de ceux de droite se reflètent sur la vitre, la coque et le clavier.'

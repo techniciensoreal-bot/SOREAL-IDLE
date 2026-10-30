@@ -178,3 +178,30 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-face-avant.alb-cuir-noir::before{content:"";position:absolute;top:0;bottom:0;left:-3px;width:var(--alb-lang);pointer-events:none;border-right:1px dashed rgba(255,255,255,.14);--alb-r:calc(var(--alb-lang) * .42);background:radial-gradient(circle at 50% calc(11% + .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),radial-gradient(circle at 50% 50%,#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px)),radial-gradient(circle at 50% calc(89% - .39 * var(--alb-ra)),#030304 0 var(--alb-r),rgba(255,255,255,.12) calc(var(--alb-r) + 1px) calc(var(--alb-r) + 2.5px),transparent calc(var(--alb-r) + 3.5px))}
 /* Pendant qu'une ou plusieurs feuilles tournent, l'anneau passe devant elles (jamais caché par une feuille levée) : élevé de 80 px et réduit exactement de la perspective (2600 px) pour rester à la même place à l'écran ; son centre est le point de fuite, la compensation est exacte. */
 .alb-livre:has(.alb-feuille-tournante)::before{transform:translateX(-50%) translateZ(80px) scale(.96923)}
+
+/*
+ * Le livre s'adapte à la fenêtre et se zoome (Norman, 2026-10-30), PC comme téléphone : taille de référence fixe, mise à l'échelle par modules/album-cartes-v1.js (variables --alb-s, --alb-w, --alb-h, --alb-nw, --alb-k posées sur <html>).
+ * La barre + / − reste à taille normale au-dessus du livre.
+ */
+.alb-adapt{position:relative;width:100%}
+.alb-zoom{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px}
+.alb-zoom .alb-bouton{width:36px;height:36px;font:400 24px/1 Bangers,"Russo One",Impact,sans-serif}
+.alb-zoom-val{min-width:64px;padding:9px 12px;border-radius:999px;cursor:pointer;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14);-webkit-tap-highlight-color:transparent}
+.alb-zoom-val:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+.alb-cadre{position:relative;width:100%;overflow-x:auto;overflow-y:clip}
+.alb-echelle{position:relative;width:var(--alb-w,100%);height:var(--alb-h,auto);margin:0 auto}
+html body.soreal-idle-active-v47 .alb-echelle>.alb-classeur{position:absolute;left:0;top:0;width:var(--alb-nw,980px);max-width:none;margin:0;transform-origin:0 0;transform:scale(var(--alb-s,1))}
+/* Dimensions de référence : plus aucune valeur ne dépend de la largeur de la fenêtre (c'est l'échelle qui s'en charge). */
+html body.soreal-idle-active-v47 .alb-echelle .alb-classeur{--alb-lang:30px;--alb-ra:58px}
+html body.soreal-idle-active-v47 .alb-echelle .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1{--alb-gap:12px;padding:22px 22px 22px 44px}
+html body.soreal-idle-active-v47 .alb-echelle .soreal-idle-bestiary-grid-v110.soreal-idle-album-v1:has(>.alb-livre.alb-double){padding-left:22px}
+html body.soreal-idle-active-v47 .alb-echelle .alb-page{padding:16px}
+html body.soreal-idle-active-v47 .alb-echelle .alb-page-d,html body.soreal-idle-active-v47 .alb-echelle .alb-feuille-tournante .alb-face-avant>.alb-page{padding-left:var(--alb-lang)}
+html body.soreal-idle-active-v47 .alb-echelle .alb-page-g,html body.soreal-idle-active-v47 .alb-echelle .alb-feuille-tournante .alb-face-arriere>.alb-page{padding-right:var(--alb-lang)}
+html body.soreal-idle-active-v47 .alb-echelle .alb-nav{gap:18px}
+html body.soreal-idle-active-v47 .alb-echelle .alb-nav .alb-bouton{width:46px;height:46px}
+html body.soreal-idle-active-v47 .alb-echelle .alb-nav .alb-bouton svg{width:22px;height:22px}
+html body.soreal-idle-active-v47 .alb-echelle .alb-numero{min-width:110px;font-size:18px}
+/* Les cartes des pochettes sont dessinées à la largeur de la carte sortie (--alb-ref), puis réduites : le texte est écrit comme sur la carte sortie, même minuscule (un navigateur ne rend jamais un texte sous ~6 px, et certaines valeurs de la carte sont fixes en pixels : les noms étaient tronqués). */
+html body.soreal-idle-active-v47 .alb-livre .alb-pochette .alb-carte-mtg>.carte-mtg-v1{position:absolute;left:0;top:0;width:var(--alb-ref,400px);height:calc(var(--alb-ref,400px) * 1.68);container-type:inline-size;transform-origin:0 0;transform:scale(var(--alb-k,.315))}
+html body.soreal-idle-active-v47 .alb-livre .alb-pochette .alb-carte-mtg>.carte-mtg-v1.retournee{transform:scale(var(--alb-k,.315)) translateX(var(--alb-ref,400px)) rotateY(180deg)}
