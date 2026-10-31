@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>Mesure des badavatars</title>
+<!-- Mesure (dans le navigateur, sur les pixels) : boîte des pixels non transparents de chaque image (res.json) et tête de chaque corps dans une scène 480 x 640 en « contain » (tete.json : T = haut du crâne,
+     chin = menton [premier rang où la largeur retombe au niveau du cou], py = rang le plus large, peak = largeur de la tête, cx = axe). Écrit les deux fichiers puis affiche « terminé ». -->
+<body style="font:14px sans-serif"><p id="etat">Mesure en cours…</p><script>
+const W=480,H=640;
+const charger=k=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='img/'+encodeURI(k);});
+(async()=>{
+ const L=await (await fetch('imglist.json')).json();const res={},tete={};
+ for(const k of L){const i=await charger(k);if(!i){res[k]=null;continue;}
+  const w=i.naturalWidth,h=i.naturalHeight;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(i,0,0);const d=x.getImageData(0,0,w,h).data;
+  let x0=w,y0=h,x1=-1,y1=-1;for(let y=0;y<h;y++)for(let xx=0;xx<w;xx++){if(d[(y*w+xx)*4+3]>24){if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y;}}
+  res[k]=[w,h,x0,y0,x1,y1];
+  if(!/^Body_/.test(k))continue;
+  const c2=document.createElement('canvas');c2.width=W;c2.height=H;const x2=c2.getContext('2d',{willReadFrequently:true});const s=Math.min(W/w,H/h);x2.drawImage(i,(W-w*s)/2,(H-h*s)/2,w*s,h*s);
+  const e=x2.getImageData(0,0,W,H).data;const wd=[],lx=[],rx=[];
+  for(let y=0;y<H;y++){let a=-1,b=-1;for(let xx=0;xx<W;xx++){if(e[(y*W+xx)*4+3]>40){if(a<0)a=xx;b=xx;}}wd.push(a<0?0:b-a+1);lx.push(a);rx.push(b);}
+  const T=wd.findIndex(v=>v>0);let peak=0,py=T;
+  for(let y=T;y<H;y++){if(wd[y]>peak){peak=wd[y];py=y;}else if(wd[y]<0.72*peak&&y>py+8)break;}
+  let run=1e9,ry=py;for(let y=py;y<H;y++){if(wd[y]<run){run=wd[y];ry=y;}else if(wd[y]>run*1.25&&run<0.72*peak)break;}
+  let chin=ry;for(let y=py;y<=ry;y++){if(wd[y]<=run*1.2){chin=y;break;}}
+  tete[k]={T,chin,py,peak,cx:(lx[py]+rx[py])/2,neck:run,H:chin-T};
+ }
+ await fetch('/save/res.json',{method:'POST',body:JSON.stringify(res)});await fetch('/save/tete.json',{method:'POST',body:JSON.stringify(tete)});
+ document.getElementById('etat').textContent='terminé : '+Object.keys(res).length+' images, '+Object.keys(tete).length+' corps';document.title='done';
+})();
+</script>

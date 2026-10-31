@@ -323,13 +323,21 @@
   "pin": 1,
   "sha": "979d0c81bb7f2e8dfd8cbcf38331f69b076471c5"
  },
+ "/modules/itopod-badavatars-catalogue-v1.js": {
+  "pin": 1,
+  "sha": "c6ee4b1b6600009286c9298a19b4ed9b947ac133"
+ },
+ "/modules/itopod-badavatars-v1.js": {
+  "pin": 1,
+  "sha": "fcaaca66f8dd439d21d283ba4fc51261dc0f50bc"
+ },
  "/modules/itopod-perks-page-v1.js": {
   "pin": 1,
   "sha": "757cea57b489327f1380f4af573698f80c8a287d"
  },
  "/modules/itopod-scene-v1.js": {
-  "pin": 10,
-  "sha": "fd2ba9a0896a5875aceb073271e79261f90c4433"
+  "pin": 11,
+  "sha": "07c93bd2dc10ce8fc72f568f1d79b7d974775cef"
  },
  "/modules/journal-attaques-v1.js": {
   "pin": 5,
@@ -484,12 +492,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 10,
-  "sha": "daaa77dcdbe61583fabcf3eac2751aa1067c2a45"
+  "pin": 11,
+  "sha": "396bd0c3c64398fcfeaaa5513cf07ed2fa8edcba"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 623,
-  "sha": "bbfda2d1fcaf89bdcf04cb38f7d3ab9902607c25"
+  "pin": 624,
+  "sha": "ee70dce16a0271f05741a47782cccbe1bd57b32a"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -568,12 +576,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 646,
-  "sha": "bf0b85ab39790d2aebdb5ccc444cb83460f5ed76"
+  "pin": 647,
+  "sha": "63789134d89eb6b71209843480a7c5e555aa581b"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 466,
-  "sha": "071d3ec5b5dbdc8faa4ca3c7e786c7f5ca967cfb"
+  "pin": 467,
+  "sha": "e7027c810d840f847de434819cfb84217970a35a"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -780,8 +788,8 @@
   "sha": "807f1c52a4d2a650770f385ef9a5e5f3d16224c4"
  },
  "/soreal-idle-jeu.css": {
-  "pin": 8,
-  "sha": "e46908fae3ce8e8e6463a17ebda6aa77681b69fe"
+  "pin": 9,
+  "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
  },
  "/soreal-idle-machine.css": {
   "pin": 10,

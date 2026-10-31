@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Sur ordinateur, l’image du trou et la roue sont côte à côte, chacune avec son menu en dessous, et les deux tableaux de récompenses aussi."
+    "Chaque ennemi de la tour a maintenant un visage généré au hasard : un corps d’homme ou de femme, des cheveux, des yeux, un nez, une bouche et parfois une barbe. Un ennemi qui porte un prénom garde toujours le même visage."
   ] };
 })();

@@ -48,6 +48,27 @@ function estFlottant(cle){return String(cle||'').split('/').indexOf('level-1')!=
 /* Combat de l'écran : l'ennemi encaisse les coups un par un (le nombre de coups vient du serveur : towerHitsV1, la formule de la progression) ; purement visuel, le serveur calcule les kills. */
 var combat={auto:true,debut:0,fin:0,optimal:0,hits:1,intervalle:1,respawn:4,actif:false,killsServeur:-1,decalage:0,coups:0,mort:false,prochain:0};
 
+/*
+ * Visage de l'ennemi (Norman, 2026-10-31) : un personnage généré par modules/itopod-badavatars-v1.js. Un ennemi qui porte un NOM d'équipe a un visage FIXE (graine = son nom : même nom, même visage, sur tous les appareils) ;
+ * sans nom (repli « Pissed Off Dude ») la graine vient du nombre d'ennemis vaincus et de l'étage (un visage neuf à chaque ennemi). Les prénoms et leur origine ne changent pas.
+ * Si les images ne chargent pas, l'ancien avatar (caché par défaut) prend la place : data-itp-repli sur .itp-ennemi (attribut gardé par le morph, règle n°4).
+ */
+var memoVisages={};
+function avatarGenere(ennemi,kills,etage,ancien){
+  var B=window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__;
+  if(!B||!B.tirer||!B.catalogue||!B.catalogue.bodies||!B.catalogue.bodies.Body_Homme.length)return '';
+  var cle=ennemi&&ennemi.nom?'n:'+ennemi.nom:'k:'+kills+':'+etage;
+  var html=memoVisages[cle];
+  if(!html){
+    var design=ennemi&&ennemi.nom?B.tirerPourNom(ennemi.nom):B.tirer('k:'+Math.max(0,kills)+':'+Math.max(0,etage));
+    html=B.rendreHtml(design,{surErreurCorps:"var e=this.closest('.itp-ennemi');if(e)e.setAttribute('data-itp-repli','1')"});
+    if(Object.keys(memoVisages).length>200)memoVisages={};
+    memoVisages[cle]=html;
+  }
+  return '<div class="itp-avatar itp-badav" data-itp-badav="1">'+html+'</div>'+(ancien&&ancien.indexOf('itp-avatar-vide')===-1?ancien.replace('class="itp-avatar','loading="lazy" class="itp-avatar itp-avatar-repli'):'');
+}
+(window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-itp-repli');
+
 function contenu(etage,kills,killsSurEtage){
   /* Combats gagnés sur l'étage : ceux du serveur plus ceux de l'écran depuis la dernière synchro ; à 10 on passe à l'étage suivant. */
   var total=killsSurEtage+combat.decalage;
@@ -62,9 +83,10 @@ function contenu(etage,kills,killsSurEtage){
   var fond=decorPour(etage);
   var nom=ennemi?ennemi.nom:'Pissed Off Dude';
   var classeAvatar='itp-avatar'+(ennemi&&estFlottant(ennemi.avatar)?' itp-flotte':'');
-  var avatar=ennemi&&ennemi.avatar
+  var ancien=ennemi&&ennemi.avatar
     ?'<img class="'+classeAvatar+'" src="'+esc(urlImage(ennemi.avatar))+'" alt="" onerror="this.hidden=true">'
     :'<div class="itp-avatar itp-avatar-vide">😠</div>';
+  var avatar=avatarGenere(ennemi,kills,etage,ancien)||ancien;
   var decor=fond
     ?'<img class="itp-decor" src="'+esc(urlImage(fond))+'" alt="" onerror="this.hidden=true">'
     :'';

@@ -76,6 +76,7 @@
             'Les chats qui ont une queue visible la balancent doucement.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Chaque ennemi de la tour a maintenant un visage généré au hasard : un corps d’homme ou de femme, des cheveux, des yeux, un nez, une bouche et parfois une barbe. Un ennemi qui porte un prénom garde toujours le même visage.',
             'Le petit bouton de ce menu a une nouvelle tour à droite : en pierre, avec créneaux, fenêtre éclairée, porte en arc et fanion.',
             'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'
           ]},
