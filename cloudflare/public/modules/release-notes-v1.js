@@ -71,6 +71,10 @@
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
+          ]},
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'La scène a une nouvelle image, avec le titre et la phrase au-dessus, en français et en anglais.',
+            'Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or.'
           ]}
         ]
       },

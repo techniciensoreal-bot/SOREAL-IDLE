@@ -12,6 +12,8 @@
     "Les bocaux reposent maintenant bien sur les planches de l’étagère.",
     "Quand tu débloques une nouvelle apparence de chat, une fenêtre te l’annonce ; elle se ferme avec le bouton « Cool ».",
     "Les chats qui ont une queue visible la balancent doucement.",
-    "Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle."
+    "Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.",
+    "La scène a une nouvelle image, avec le titre et la phrase au-dessus, en français et en anglais.",
+    "Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or."
   ] };
 })();

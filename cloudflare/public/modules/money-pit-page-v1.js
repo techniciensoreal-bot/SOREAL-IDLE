@@ -581,7 +581,9 @@
           /* Mise en page (Norman, 2026-10-10 : « beaucoup plus jolie », image entière et grande) : sur PC l'image à gauche, les actions et « Ton prix » à droite ; sur téléphone tout s'empile (CSS : soreal-idle-itopod.css, « Money Pit v2 »). */
           '<div class="mp2-grille-v1">'+
           '<div class="soreal-idle-money-scene-v206">'+
-            '<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg" width="1324" height="1188" alt="Money Pit et Roue journalière">'+
+            /* Image refaite par Norman (2026-10-31), fichier statique du dépôt (donc dans le paquet hors ligne) ; l'ancienne Money_Pit.jpg reste sur le serveur, plus utilisée ici. Calques : titre, yeux, puanteur, salve d'or (soreal-idle-itopod.css, « Trou sans fond »). */
+            '<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp" width="1000" height="1000" alt="Trou sans fond">'+
+            calquesTrouSansFondIdleV1_()+
           '</div>'+
           /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
           '<div class="soreal-idle-money-actions-v206">'+
@@ -615,6 +617,62 @@
           '</div>'+
           rendreCalendrierConnexionIdleV1_(j);
       }
+
+  /*
+   * Calques du Trou sans fond (positions en % de l'image carrée, repérées sur le dessin : le noir du trou va d'environ x 29-56 %, y 43-66 %).
+   * Tout est dans le HTML de la page (le redessin le laisse intact) SAUF la salve d'or, posée seulement par window.__jeterOrSalveV1__ (data-morph-garder).
+   * Titre et phrase : la clé du titre porte un espace de largeur nulle pour avoir sa propre ligne du dictionnaire anglais (« Trou sans fond » seul = « Money Pit », nom du menu).
+   */
+  function calquesTrouSansFondIdleV1_(){
+    /* trois paires d'yeux : [x, y, période (s), décalage (s)] ; l'écart entre les deux points est fixe */
+    const yeux=[[36.8,58.2,3.1,0],[47.4,56.4,2.3,-1.1],[51.2,61.6,3.9,-2.4]].map(function(p){
+      return '<span class="mp3-yeux" style="left:'+p[0]+'%;top:'+p[1]+'%;--p:'+p[2]+'s;--d:'+p[3]+'s"><i></i><i></i></span>';
+    }).join('');
+    /* 5 volutes fines : [x, couleur, durée, décalage, amplitude du balancement en cqw] */
+    const volutes=[[34.5,'#d9c52e',9.4,0,.9],[41,'#8fd04a',11.2,-3.6,1.2],[47,'#e6cf3a',8.6,-6.1,.8],[53.5,'#7cc43e',10.4,-1.9,1.1],[59.5,'#cfc02c',12,-8.3,1]].map(function(v){
+      return '<span class="mp3-volute" style="left:'+v[0]+'%;--dur:'+v[2]+'s;--del:'+v[3]+'s;--sx:'+v[4]+'cqw"><svg viewBox="0 0 40 170" aria-hidden="true"><path d="M20 168 Q6 148 20 128 Q34 108 20 88 Q6 68 20 48 Q34 28 20 4" fill="none" stroke="'+v[1]+'" stroke-width="4" stroke-linecap="round"/></svg></span>';
+    }).join('');
+    return '<div class="mp3-calques" aria-hidden="false">'+
+      volutes+yeux+
+      '<div class="mp3-titre"><div class="mp3-titre-nom">Trou sans fond​</div><div class="mp3-titre-phrase">(Lance tout l’or gagné à la sueur de ton front dedans !)</div></div>'+
+    '</div>';
+  }
+
+  /* Salve d'or : SEULEMENT quand le joueur jette son or (meta-progression-v130.js, après la réponse du moteur à l'action moneyPit) ; n pièces, de 1 à 14. */
+  let compteurPiecesIdleV1_=0;
+  function faceDePieceIdleV1_(){
+    const u='mpc'+(++compteurPiecesIdleV1_);
+    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="'+u+'a" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#fff6c4"/><stop offset=".4" stop-color="#f6c540"/><stop offset=".8" stop-color="#c88a10"/><stop offset="1" stop-color="#8a5a06"/></radialGradient><linearGradient id="'+u+'b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe58a"/><stop offset="1" stop-color="#8a5a06"/></linearGradient></defs>'+
+      '<circle cx="50" cy="50" r="49" fill="#6a4306"/><circle cx="50" cy="50" r="46" fill="url(#'+u+'a)"/><circle cx="50" cy="50" r="46" fill="none" stroke="url(#'+u+'b)" stroke-width="6"/>'+
+      '<circle cx="50" cy="50" r="33" fill="none" stroke="#8a5a06" stroke-width="3"/><circle cx="50" cy="50" r="30.5" fill="none" stroke="#fff3b0" stroke-width="1.4" opacity=".7"/>'+
+      '<path d="M50 29 L61 50 L50 71 L39 50Z" fill="#b87a10" stroke="#6a4306" stroke-width="2"/><path d="M50 29 L61 50 L50 50Z" fill="#fff3b0" opacity=".55"/>'+
+      '<path d="M18 36 A36 36 0 0 1 44 15" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/></svg>';
+  }
+  function pieceDeOrIdleV1_(p,dl){
+    let tr='';
+    for(let k=-3;k<=3;k++)tr+='<i class="mp3-tr" style="transform:translateZ(calc(var(--t)*'+(k*0.012)+'))"></i>';
+    const st='--x1:'+p.x+'%;--y1:'+p.y+'%;--d:'+p.d+'s;--dl:'+dl+'s;--dx:'+p.dx+'cqw;--t:'+p.t+'cqw;--tours:'+p.tours+';--rx:'+p.rx+'deg;--inc:'+p.inc+'deg;';
+    const face=faceDePieceIdleV1_();
+    return '<div class="mp3-chute" style="'+st+'"><div class="mp3-derive"><div class="mp3-echelle" style="perspective:90cqw"><div class="mp3-pc">'+tr+'<div class="mp3-fa">'+face+'</div><div class="mp3-fb">'+faceDePieceIdleV1_()+'</div></div></div></div></div>'+
+      '<div class="mp3-eclat" style="'+st+'"><svg viewBox="-20 -20 40 40"><g fill="#fff3b0"><path d="M0 -16 L2.5 -2.5 L16 0 L-2.5 2.5 L0 16 L-2.5 2.5 L-16 0 L-2.5 -2.5Z"/><circle r="5" fill="#ffd24a" opacity=".6"/></g></svg></div>';
+  }
+  window.__jeterOrSalveV1__=function(n){
+    n=Math.max(1,Math.min(14,Math.round(Number(n))||8));
+    const calques=document.querySelector('.mp3-calques');
+    if(!calques)return;
+    const r=function(k){return (Math.sin(k*91.7)+1)/2;};
+    let h='';
+    for(let i=0;i<n;i++){
+      const p={x:(36+r(i+1)*13).toFixed(1),y:(55+r(i+7)*5).toFixed(1),dx:((r(i+3)-.5)*30).toFixed(1),t:(5.4+r(i+5)*2.2).toFixed(2),tours:2+Math.round(r(i+9)*3)/2,rx:(12+r(i+2)*34).toFixed(0),inc:((r(i+4)-.5)*50).toFixed(0),d:(1.0+((i*37)%5)*0.1).toFixed(2)};
+      h+=pieceDeOrIdleV1_(p,(i/n*0.55).toFixed(2));
+    }
+    /* une salve à la fois : l'ancienne est remplacée (son bloc porte data-morph-garder : le redessin de la page ne le retire pas) */
+    let c=calques.querySelector('.mp3-pieces');
+    if(!c){c=document.createElement('div');c.className='mp3-pieces';c.setAttribute('data-morph-garder','');calques.appendChild(c);}
+    c.innerHTML=h;
+    clearTimeout(c.__fin);
+    c.__fin=setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},2600);
+  };
 
   window.__SOREAL_IDLE_MONEY_PIT_V1__={
     rendreBoutonMoneyPit:rendreBoutonMoneyPitIdleV1_,

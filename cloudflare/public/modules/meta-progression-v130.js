@@ -453,6 +453,13 @@
                       window.__SOREAL_IDLE_AUDIO_V199__.moneyPit();
                     }
                   }catch(_e){}
+                  /* Salve d'or du Trou sans fond (money-pit-page-v1.js) : seulement après ce jet, 5 à 12 pièces selon log10 de l'or jeté (8 si le montant manque). */
+                  try{
+                    if(typeof window.__jeterOrSalveV1__==='function'){
+                      const orJete=Number(res&&res.resultat&&(res.resultat.cost!==undefined?res.resultat.cost:res.resultat.orPerdu));
+                      window.__jeterOrSalveV1__(orJete>0?Math.max(5,Math.min(12,Math.floor(Math.log10(orJete)))):8);
+                    }
+                  }catch(_e){}
                 }
                 if(payload&&payload.action==='loginCalendar'&&res.resultat&&res.resultat.ap){
                   try{

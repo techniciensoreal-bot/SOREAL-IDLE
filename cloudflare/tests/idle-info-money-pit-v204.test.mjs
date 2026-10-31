@@ -36,7 +36,7 @@ for(const token of [
   "soreal-idle-nav-money-yellow-v1",
   "gold>=100000",
   "imageMoneyPitAvantRenduV209",
-  "/api/idle/media/banner?name=Money_Pit.jpg",
+  "/trou/trou-sans-fond-v1.webp",
   "Balance ton argent",
   "Roue journalière !",
   "Fais-moi tourner, bébé !",

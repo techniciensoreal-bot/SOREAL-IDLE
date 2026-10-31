@@ -16,7 +16,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 for (const banni of ["rendreMoney_", "moneyEtat_", "MONEY PIT + DAILY SPIN", "Le trou et la roue", "data-v49-action=\"pit\"", "if(page==='moneyPit')"]) {
   assert.ok(!ui.includes(banni), "ui.js ne doit plus contenir : " + banni);
 }
-assert.ok(meta.includes('<img id="sorealIdleMoneyPitImageV209" src="/api/idle/media/banner?name=Money_Pit.jpg"'), "la page à image est conservée");
+assert.ok(meta.includes('<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp"'), "la page à image est conservée");
 assert.match(meta, /if\(id==='moneyPit'\)return pageMoneyPitDailySpinIdleV206_\(j\);/);
 assert.ok(index.includes("/modules/ui.js?v="));
 

@@ -4,7 +4,8 @@ import { readFileSync } from "node:fs";
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 const i = css.indexOf("circuit imprimé EN FOND");
 assert.ok(i > 0, "bloc du circuit imprimé");
-const bloc = css.slice(i);
+const fin = css.indexOf("===== Trou sans fond", i);
+const bloc = css.slice(i, fin > i ? fin : undefined);   /* le bloc du Trou sans fond, ajouté après, a ses propres animations */
 assert.ok(bloc.includes('[data-menu="augmentations"] .aug-paire-v2::after{content:""') && bloc.includes("repeat,"), "fond en tuiles sur ::after");
 assert.ok(!bloc.includes("!important"), "aucun !important dans le bloc");
 assert.ok(!/animation:(?!none)|@keyframes/.test(bloc), "décor statique");
@@ -18,7 +19,9 @@ const total = [...(readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf
 assert.ok(total >= 0);
 console.log("ok idle-augmentations-fond-circuit-v1");
 /* Norman (2026-10-31) : la piste d'Upgrade est un processeur greffé sur la carte (capot métallique, broches dorées, encoche, repère, condensateurs), sans toucher au HTML. */
-const cpu = css.slice(css.indexOf("PROCESSEUR greffé"));
+const cpuDebut = css.indexOf("PROCESSEUR greffé");
+const cpuFin = css.indexOf("===== Trou sans fond", cpuDebut);
+const cpu = css.slice(cpuDebut, cpuFin > cpuDebut ? cpuFin : undefined);   /* le bloc du Trou sans fond, ajouté après, a ses propres animations */
 const U = ".aug-piste-v2.upgrade";
 assert.ok(cpu.includes(U + "::before{") && cpu.includes("#eef2f8") && cpu.includes("mask-composite:xor"), "capot métallique sur le pourtour seulement");
 assert.ok(cpu.includes(U + "::after{") && cpu.includes("var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px") && cpu.includes("inset:-7px"), "broches dorées qui dépassent des bords");

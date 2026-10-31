@@ -19,7 +19,7 @@ assert.ok(combat2.includes("bossNukableIdleV198_:bossNukableIdleV198_,"), "règl
 // 2. Aucun saut à l'arrivée sur un menu : les modules qui ajoutent des éléments au rendu sont rappelés dans la même tâche que le rendu complet.
 assert.ok(noyau.includes("(window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).forEach(function(f){try{f();}catch(_e){}});\n        try{\n          restaurerScrollNavIdleV28_(") || /APRES_REDESSIN_V1__\|\|\[\]\)\.forEach[^]*?restaurerScrollNavIdleV28_\(idleNavScrollAvantRenduV1\)/.test(noyau), "rappel des modules au rendu complet");
 assert.ok(augm.includes("push(function(){if(typeof atTickIdleV1_==='function')atTickIdleV1_();});"), "textes des lignes d'Entraînement avancé posés dans la même tâche");
-assert.ok(pit.includes('width="1324" height="1188"'), "image du Money Pit : place réservée avant son chargement");
+assert.ok(pit.includes('width="1000" height="1000"'), "image du Money Pit : place réservée avant son chargement");
 assert.ok(itopod.includes(".mp2-grille-v1 .soreal-idle-money-scene-v206{max-width:520px!important;margin:0 auto!important;width:100%;box-sizing:border-box}"), "cadre de l'image du Money Pit : largeur définie");
 
 // 3. NGU : boutons lisibles ; « Vers les NGU » illuminé et étoilé.
