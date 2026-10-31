@@ -104,20 +104,29 @@
   function urlParDefaut(cle) { return "/api/idle/media/shared?key=" + encodeURIComponent("idle/badavatars/" + String(cle).slice(BASE.length)); }
 
   /* Pile d'images posées comme dans l'éditeur (scène 3/4, chaque image occupe toute la scène, zIndex = order, translate(x,y) en % puis rotate puis scale). */
+  function basCorps(design) {
+    var liste = (CAT.bodies && CAT.bodies[design.gender]) || [];
+    for (var i = 0; i < liste.length; i++) if (BASE + liste[i][0] === design.body) return liste[i][5] || 0;
+    return 0;
+  }
+
   function rendreHtml(design, options) {
     options = options || {};
     var url = options.url || urlParDefaut;
     var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); };
     var base = "position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:contain;pointer-events:none;user-select:none";
     var surErreur = options.surErreurCorps ? ' onerror="' + esc(options.surErreurCorps) + '"' : "";
-    var html = '<div class="itopod-badavatar" style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden">';
+    /* Pile entière décalée vers le bas : la dernière ligne opaque du corps (bas, mesuré, en pixels de la scène 480 x 640) touche le bord bas du cadre, sans changer l'échelle ; le débordement est coupé. */
+    var bas = basCorps(design);
+    var decalage = bas > 0 && bas < H ? arrondir((H - bas) / H * 100, 3) : 0;
+    var html = '<div class="itopod-badavatar" style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden"><div class="itopod-badavatar-pile" style="position:absolute;left:0;top:0;width:100%;height:100%;transform:translateY(' + decalage + '%)">';
     html += '<img alt="" draggable="false" decoding="async" src="' + esc(url(design.body)) + '"' + surErreur + ' style="' + base + ';z-index:0">';
     Object.keys(design.parts).forEach(function (c) {
       var p = design.parts[c];
       html += '<img alt="" draggable="false" decoding="async" data-piece="' + esc(c) + '" src="' + esc(url(p.key)) + '" style="' + base + ";z-index:" + (p.order || 1) +
         ";transform:translate(" + (p.x * 100) + "%," + (p.y * 100) + "%) rotate(" + p.rotation + "deg) scale(" + (p.flip ? -p.scale : p.scale) + "," + p.scale + ')">';
     });
-    return html + "</div>";
+    return html + "</div></div>";
   }
 
   window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };

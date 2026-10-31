@@ -324,12 +324,12 @@
   "sha": "979d0c81bb7f2e8dfd8cbcf38331f69b076471c5"
  },
  "/modules/itopod-badavatars-catalogue-v1.js": {
-  "pin": 1,
-  "sha": "c6ee4b1b6600009286c9298a19b4ed9b947ac133"
+  "pin": 2,
+  "sha": "69179de92bccedbdb901d364ce2091af4f70e0b6"
  },
  "/modules/itopod-badavatars-v1.js": {
-  "pin": 1,
-  "sha": "fcaaca66f8dd439d21d283ba4fc51261dc0f50bc"
+  "pin": 2,
+  "sha": "635688a38d4a77c5d6ae0d7764637c10e6453923"
  },
  "/modules/itopod-perks-page-v1.js": {
   "pin": 1,

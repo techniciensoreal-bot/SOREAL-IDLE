@@ -23,7 +23,11 @@ export function teteValide(t) {
 const bodies = { Body_Homme: [], Body_Femme: [] };
 for (const [k, t] of Object.entries(tete).sort()) {
   const dir = k.split("/")[0];
-  if (bodies[dir] && teteValide(t)) bodies[dir].push([k, t.T, t.chin, t.peak, Math.round(t.cx)]);
+  if (bodies[dir] && teteValide(t)) {
+    /* bas = rang (dans la scène 480 x 640, image en « contain ») juste sous la dernière ligne de pixels non transparents du corps : rendreHtml décale la pile pour que cette ligne touche le bord bas du cadre. */
+    const m = res[k], s = Math.min(480 / m[0], 640 / m[1]);
+    bodies[dir].push([k, t.T, t.chin, t.peak, Math.round(t.cx), Math.round(((640 - m[1] * s) / 2 + (m[5] + 1) * s) * 100) / 100]);
+  }
 }
 const parts = { Cheveux: [], Yeux: [], Oreille_Gauche: [], Oreille_Droite: [], Nez: [], Bouche: [], Barbe: [] };
 for (const [k, m] of Object.entries(res).sort()) {
@@ -34,7 +38,7 @@ for (const [k, m] of Object.entries(res).sort()) {
   if (dir === "Oreilles") cat = sous === "Gauche" ? "Oreille_Gauche" : sous === "Droite" ? "Oreille_Droite" : "";
   if (parts[cat]) parts[cat].push([k, ...m]);
 }
-const texte = "/* Généré par cloudflare/tools/generer-catalogue-badavatars.mjs : ne pas éditer à la main. [clé relative à shared/badavatars/, largeur, hauteur, x0, y0, x1, y1] (pixels non transparents) ; corps : [clé, haut de la tête, menton, largeur de la tête, axe] en pixels d'une scène 480 x 640. */\n" +
+const texte = "/* Généré par cloudflare/tools/generer-catalogue-badavatars.mjs : ne pas éditer à la main. [clé relative à shared/badavatars/, largeur, hauteur, x0, y0, x1, y1] (pixels non transparents) ; corps : [clé, haut de la tête, menton, largeur de la tête, axe, bas opaque] en pixels d'une scène 480 x 640. */\n" +
   "(function () {\n  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_CATALOGUE_V1__ = " + JSON.stringify({ version: 1, bodies, parts }) + ";\n})();\n";
 fs.writeFileSync(sortie, texte);
 console.log("écrit", sortie, "corps", Object.fromEntries(Object.entries(bodies).map(([a, b]) => [a, b.length])), "pièces", Object.fromEntries(Object.entries(parts).map(([a, b]) => [a, b.length])));

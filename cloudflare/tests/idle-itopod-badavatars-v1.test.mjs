@@ -89,4 +89,15 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const pos = (s) => index.indexOf(s);
 assert.ok(pos("itopod-badavatars-catalogue-v1.js") > 0 && pos("itopod-badavatars-catalogue-v1.js") < pos("itopod-badavatars-v1.js") && pos("itopod-badavatars-v1.js") < pos("itopod-scene-v1.js"), "scripts avant la scène, catalogue d'abord");
 assert.ok(readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8").includes(".itp-ennemi[data-itp-repli] .itp-badav{display:none}"));
+/* Corps collés au bord bas du cadre : chaque corps porte son « bas » opaque mesuré (scène 640) et la pile est décalée de (640 - bas) / 640. */
+for (const [genre, liste] of Object.entries(B.catalogue.bodies)) {
+  assert.ok(liste.length > 15, genre);
+  for (const e of liste) assert.ok(Number.isFinite(e[5]) && e[5] >= 400 && e[5] <= 640, "bas mesuré pour " + e[0]);
+}
+const exemple = B.catalogue.bodies.Body_Homme.find((e) => e[5] < 600);
+assert.ok(exemple, "un corps à marge basse existe (480x600 ou bras levés)");
+const dEx = { version: 1, gender: "Body_Homme", body: BASE + exemple[0], parts: {} };
+const attendu = Math.round((640 - exemple[5]) / 640 * 100 * 1000) / 1000;
+assert.ok(B.rendreHtml(dEx, { url: (k) => k }).includes("itopod-badavatar-pile") && B.rendreHtml(dEx, { url: (k) => k }).includes("translateY(" + attendu + "%)"), "décalage vers le bas du corps " + attendu);
+assert.equal(JSON.stringify(B.tirerPourNom("Justine")).length > 50, true);
 console.log("idle-itopod-badavatars-v1: ok");
