@@ -34,7 +34,8 @@
           {menu:'general', titre:'Général', points:[
             'L’introduction en anglais affiche maintenant le texte original du jeu (« THE BEGINNING ») et est lue par un narrateur anglais, légèrement ralenti ; si une voix ne peut pas se jouer, l’introduction défile en texte seul.',
             'Dans le menu en petit, un menu qui travaille sans être ouvert garde son fond sombre, mais ses icônes restent en couleurs pleines et animées.',
-            'En anglais, le lecteur reste muet quand aucune voix anglaise n’existe pour le texte, au lieu de lire le texte français ; les guides et le tutoriel sont traduits en entier.'
+            'En anglais, le lecteur reste muet quand aucune voix anglaise n’existe pour le texte, au lieu de lire le texte français ; les guides et le tutoriel sont traduits en entier.',
+            'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.'

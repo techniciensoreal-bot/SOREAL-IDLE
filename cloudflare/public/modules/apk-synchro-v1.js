@@ -49,6 +49,8 @@ function decider(locale,serveur,base){
     if(vide(locale))return 'serveur';
     if(comparer(locale,serveur)===0)return 'local';
   }
+  /* Même progression des deux côtés (cas d'après un choix « compte » : seule la date de dernière synchro a bougé) : rien à choisir, la partie du téléphone est la suite (copie « avant-import » côté serveur). Sans cela l'écran revenait à chaque lancement (Norman, 2026-10-31). */
+  if(comparer(locale,serveur)===0)return 'local';
   /* Les deux ont leur propre partie : le joueur choisit (écran obligatoire, voir choisir). */
   return 'choix';
 }

@@ -60,7 +60,7 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   assert.equal(d(ligne(0, 5, "L1"), ligne(0, 9, "S2"), base), "serveur", "le PC a joué, le téléphone non : celle du serveur");
   assert.equal(d(ligne(0, 20, "L2"), ligne(0, 9, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (téléphone plus avancé)");
   assert.equal(d(ligne(0, 9, "L2"), ligne(1, 2, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (serveur plus avancé)");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "choix", "égalité avec une base : le joueur choisit");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "local", "même progression des deux côtés, avec une base : pas de question (sinon l’écran revenait à chaque lancement après un choix « compte »)");
   assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), null), "local", "même progression sans base : une seule partie");
   assert.equal(d(ligne(0, 3, "L2"), ligne(0, 9, "S2"), null), "choix", "sans base, deux parties différentes : le joueur choisit");
   assert.equal(d(ligne(0, 0, "L2"), ligne(0, 9, "S2"), null), "serveur", "sans base, téléphone vide : celle du compte sans question");

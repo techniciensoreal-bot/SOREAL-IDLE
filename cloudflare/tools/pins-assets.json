@@ -44,8 +44,8 @@
   "sha": "79a5fff85a10509fea2218085b67b89c29f8a1e5"
  },
  "/modules/apk-synchro-v1.js": {
-  "pin": 2,
-  "sha": "78353251bc15b059913253e1d8e80340a89c39a7"
+  "pin": 3,
+  "sha": "914b6467ba2a8cc3ef6992a158a09aa20ac9435e"
  },
  "/modules/apparition-boss-v1.js": {
   "pin": 11,
@@ -456,8 +456,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 606,
-  "sha": "18729739d59141781a565e460b347b1a9532125e"
+  "pin": 607,
+  "sha": "968603acb6ecc1ac5a57b4311013a40a0b69d366"
  },
  "/modules/runtime.js": {
   "pin": 4,
@@ -532,12 +532,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 627,
-  "sha": "e035cc1e681c002e28cb73898b9072e7a458584a"
+  "pin": 628,
+  "sha": "f5fd049a857845c3a902dcb2957ba78f1fa64f9b"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 447,
-  "sha": "756ac18bd7133a1ed0906c2ee519fc8d5161b2de"
+  "pin": 448,
+  "sha": "b200c84dbd760029b115496b37338b1c122f986c"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
