@@ -2219,8 +2219,7 @@
           '</div>';
         }
         const LIGNE_ARMURE={head:1,chest:2,legs:3,boots:4};
-        /* libresDuCadre : les objets SANS set de la zone (Norman, 2026-10-31 : « un endroit très étrange a 2 casques mais dans le coffre il n'y a qu'une place, les 2 images se superposent » : Gaudy et A Beanie visaient tous deux la case de la tête). Seules les pièces du set se posent sur leur emplacement d'armure ; les objets libres vont toujours dans la 2e colonne, sous l'arme, quel que soit leur emplacement. */
-        function mannequin(pieces,libresDuCadre){
+        function mannequin(pieces,libresDuCadre){/* libresDuCadre : les objets SANS set de la zone (Norman, 2026-10-31 : « un endroit très étrange a 2 casques mais dans le coffre il n'y a qu'une place, les 2 images se superposent » : Gaudy et A Beanie visaient tous deux la case de la tête). Seules les pièces du set se posent sur leur emplacement d'armure ; les objets libres vont toujours dans la 2e colonne, sous l'arme, quel que soit leur emplacement. */
           let autres=1;const libresCadre=libresDuCadre||[];
           const cases=pieces.map(function(p){
             let colonne=2,ligne;const libre=libresCadre.indexOf(p)!==-1;
