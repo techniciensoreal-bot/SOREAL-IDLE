@@ -21,7 +21,7 @@ console.log("ok idle-augmentations-fond-circuit-v1");
 const cpu = css.slice(css.indexOf("PROCESSEUR greffé"));
 const U = ".aug-piste-v2.upgrade";
 assert.ok(cpu.includes(U + "::before{") && cpu.includes("#eef2f8") && cpu.includes("mask-composite:xor"), "capot métallique sur le pourtour seulement");
-assert.ok(cpu.includes(U + "::after{") && cpu.includes("#e7b84e 0 4px") && cpu.includes("inset:-7px"), "broches dorées qui dépassent des bords");
+assert.ok(cpu.includes(U + "::after{") && cpu.includes("var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px") && cpu.includes("inset:-7px"), "broches dorées qui dépassent des bords");
 assert.ok(cpu.includes("circle at 50% 7px") && cpu.includes("circle at 10px 10px"), "encoche et point repère");
 assert.ok(cpu.includes("#161a2a 2px 12px"), "condensateurs");
 assert.ok(cpu.includes("@media (max-width:700px)"), "broches réduites sur téléphone");
@@ -34,3 +34,14 @@ assert.ok(un.includes(".aug-piste-v2:not(.upgrade){border:2px dashed rgba(255,25
 assert.ok(!un.includes("!important"), "aucun !important");
 assert.ok(bloc.includes("radial-gradient(circle,#05080d 0 2.2px,#e7b84e 2.6px 4.4px"), "trous de fixation de la carte");
 console.log("ok idle-augmentations-carte-unique-v1");
+/* Norman (2026-10-31) : une couleur de circuit imprimé par augmentation, franchement distinctes (écart >= 22) et sans gêner la lecture (texte blanc, contraste >= 7). */
+import { deltaE } from "./_couleurs-v1.mjs";
+const couleurs = [...css.matchAll(/\.aug-paire-v2\[data-icone="([^"]+)"\]\{--pcb-base:(#[0-9a-f]{6});--pcb-acc:(#[0-9a-f]{6})/g)].map((m) => ({ icone: m[1], base: m[2], acc: m[3] }));
+assert.ok(couleurs.length >= 8, "sept augmentations + Inside Out ont leur couleur : " + couleurs.length);
+const tableIcones = [...js.match(/IDLE_ICONES_AUGMENTS_V1=\{([^}]*)\}/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+for (const ic of tableIcones) assert.ok(couleurs.some((c) => c.icone === ic), "couleur pour l'icône " + ic);
+for (let a = 0; a < couleurs.length; a++) for (let b = a + 1; b < couleurs.length; b++) assert.ok(deltaE(couleurs[a].base, couleurs[b].base) >= 22, "cartes trop proches : " + couleurs[a].base + " / " + couleurs[b].base);
+const lum = (hex) => { const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+for (const c of couleurs) assert.ok(1.05 / (lum(c.base) + 0.05) >= 7, "contraste du texte blanc sur " + c.base);
+assert.ok(css.includes("--pcb-acc,#e7b84e"), "accent du processeur lié à la couleur de la carte");
+console.log("ok idle-augmentations-couleurs-pcb-v1");
