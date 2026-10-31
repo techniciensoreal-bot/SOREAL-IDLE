@@ -18,7 +18,7 @@ import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNe
 import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
 import { idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
-import { skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
+import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
@@ -1308,7 +1308,9 @@ export function daycareSkinsEnvV1(state) {
     specialPrizeChoice: portraitEnvV1(state).specialPrizeChoice,
     wishLevel: id => wishLevelV1(state, id),
     perkLevel: id => num(idlePerkNiveauxV1(state)?.[id], 0),
-    achats: id => int(state.selloutShop?.purchases?.[id], 0)
+    achats: id => int(state.selloutShop?.purchases?.[id], 0),
+    highestBoss: num(state.records?.highestBoss, 0),
+    acquis: idsSkinsDeChaineV1(state.records?.daycareSkinsAcquis)
   };
 }
 

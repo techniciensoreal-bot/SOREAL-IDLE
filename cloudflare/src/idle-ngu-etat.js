@@ -5,6 +5,7 @@
  */
 import { idleWandoosBootMultiplierV1 } from "./idle-wandoos-os-v1.js";
 import { nettoyerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
+import { chaineSkinsNormaliseeV1 } from "./idle-daycare-skins-v1.js";
 import { perkBonusesV1, IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -1037,12 +1038,15 @@ function migrateLegacyMetaToV47(raw, now) {
   // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
   const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin") continue;
+    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin" || key === "daycareSkinsAcquis" || key === "daycareSkinsVus") continue;
     state.records[key] = Math.max(0, num(state.records[key], 0));
   }
   state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
   state.records.daycareSkin = typeof state.records.daycareSkin === "string" ? state.records.daycareSkin.slice(0, 40) : "";
+  /* Skins de la Garderie acquis pour toujours / annonces validées : chaînes d'ids séparés par des virgules, jamais des compteurs. */
+  state.records.daycareSkinsAcquis = chaineSkinsNormaliseeV1(state.records.daycareSkinsAcquis);
+  state.records.daycareSkinsVus = chaineSkinsNormaliseeV1(state.records.daycareSkinsVus);
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1241,7 +1245,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed" || k === "portrait" || k === "daycareSkin" || k === "loginCalendar") continue;
+    if (k === "newbieOffersUsed" || k === "portrait" || k === "daycareSkin" || k === "daycareSkinsAcquis" || k === "daycareSkinsVus" || k === "loginCalendar") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
@@ -1251,6 +1255,9 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
   /* Apparence du chat de la Garderie (idle-daycare-skins-v1.js) : identifiant texte ("" = défaut). */
   state.records.daycareSkin = typeof state.records.daycareSkin === "string" ? state.records.daycareSkin.slice(0, 40) : "";
+  /* Skins de la Garderie acquis pour toujours / annonces validées : chaînes d'ids séparés par des virgules, jamais des compteurs. */
+  state.records.daycareSkinsAcquis = chaineSkinsNormaliseeV1(state.records.daycareSkinsAcquis);
+  state.records.daycareSkinsVus = chaineSkinsNormaliseeV1(state.records.daycareSkinsVus);
 
   state.challenge = Object.assign(baseSous.challenge, source.challenge || {});
   state.challenge.completions = Object.assign(completionsDefisBase, source.challenge?.completions || {});

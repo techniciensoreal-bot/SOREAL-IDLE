@@ -18,7 +18,7 @@ import { idleYggConsumeGiantSeedV1, idleYggAutoActivateExpShopEntriesV1, idleYgg
 import { idleLoginCalendarReclamerV1 } from "./idle-login-calendar-v1.js";
 import { applyIdleCookingActionV1 } from "./idle-cooking-v1.js";
 import { idlePortraitSelectV1, IDLE_SPECIAL_PRIZE_AP_V1 } from "./idle-portraits-v1.js";
-import { choisirSkinV1 } from "./idle-daycare-skins-v1.js";
+import { acquerirSkinsV1, choisirSkinV1, marquerSkinVuV1 } from "./idle-daycare-skins-v1.js";
 import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from "./idle-daycare-v1.js";
 import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
 import { idleCardsActionV1 } from "./idle-cards-v1.js";
@@ -429,6 +429,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "loginCalendar") {
     if (!state.systems.moneyPit?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     result = idleLoginCalendarReclamerV1(state, t);
+    /* Dernière case du mois réclamée : le skin Premium est acquis tout de suite (idle-daycare-skins-v1.js). */
+    acquerirSkinsV1(state, t);
   } else if (action === "difficulty") {
     result = difficultyAction(state, payload, context, t);
   } else if (action === "buyExpShop") {
@@ -444,6 +446,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "daycareSkin") {
     /* Apparence du chat de la Garderie (cosmétique) ; seuls les skins possédés sont acceptés (idle-daycare-skins-v1.js). */
     result = { skin: choisirSkinV1(state, payload.id, daycareSkinsEnvV1(state)) };
+  } else if (action === "daycareSkinVu") {
+    /* Annonce d'un nouveau skin validée (« Cool ») : mémorisée sur le COMPTE (records.daycareSkinsVus), refus d'un skin non possédé. */
+    result = { skin: marquerSkinVuV1(state, payload.id, daycareSkinsEnvV1(state)) };
   } else if (action === "specialPrize") {
     /*
      * Tips N' Tricks, « Special Prize » (menu Info) : deux choix — 50 000 AP, ou A PRETTY KITTY (« it gives you the AP too ») ; le second clic

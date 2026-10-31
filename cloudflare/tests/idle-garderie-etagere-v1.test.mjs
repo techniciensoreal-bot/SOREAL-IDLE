@@ -35,7 +35,10 @@ const window = {
 {
   const bac = { window, document: window.document, SOREAL_SESSION: null, Date };
   vm.runInNewContext(pub("modules/meta-progression-v130.js"), bac);
-  vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);   /* données des apparences du chat : géométrie du décor, des yeux et des bocaux */
+  vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-paupieres-v1.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-regards-v1.js"), bac);
+  /* données des apparences du chat : géométrie du décor, des yeux et des bocaux */
   for (const f of PAGES_META) vm.runInNewContext(pub("modules/" + f), bac);
 }
 const G = window.__SOREAL_IDLE_DAYCARE_PAGE_V1__;
@@ -174,9 +177,9 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.equal(compte(quatre, /class="gd-pot/g), 4);
   assert.equal(compte(six, /class="gd-pot/g), 6);
   assert.equal(compte(troisVides, /gd-vide/g), 3 * 1, "places libres : un bocal vide par place possédée seulement");
-  assert.ok(un.includes("left:28.8%;top:32.73%;width:13.2%;height:13.8%"), "1er bocal : compartiment du haut, à gauche (sur la planche mesurée de l'apparence « defaut »)");
-  assert.ok(trois.includes("left:57.22%;top:32.73%") && trois.includes("left:28.8%;top:51.65%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
-  assert.ok(six.includes("left:57.22%;top:69.27%"), "6e bocal : compartiment du bas, à droite");
+  assert.ok(un.includes("left:28.8%;top:31.83%;width:13.2%;height:13.8%"), "1er bocal : compartiment du haut, à gauche (sur la planche mesurée de l'apparence « defaut »)");
+  assert.ok(trois.includes("left:57.22%;top:31.83%") && trois.includes("left:28.8%;top:50.75%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
+  assert.ok(six.includes("left:57.22%;top:68.37%"), "6e bocal : compartiment du bas, à droite");
   assert.ok(!six.includes("gd-vide") || compte(six, /gd-vide/g) === 2, "aucune place au-delà de celles possédées");
   assert.ok(!/maxSlots|sur 6|\/ ?6/.test(un.replace(/<[^>]+>/g, " ")), "le maximum n'est écrit nulle part");
   /* mise en page : l'armoire a un cadre à rapport fixe, la liste réserve 3 rangées : rien ne bouge quand une place s'ajoute */
@@ -258,26 +261,28 @@ assert.ok(m.includes("function deposerNonMaxe(id)") && m.includes("window.__joue
   };
   vm.runInNewContext(pub("modules/phrases-coffre-valise-v1.js"), bac);
   vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-paupieres-v1.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-regards-v1.js"), bac);
   vm.runInNewContext(pub("modules/etagere-personnage-v1.js"), bac);
   const P = bac.window.__SOREAL_IDLE_PHRASES_V1__, E = bac.window.__SOREAL_IDLE_ETAGERE_V1__, D = bac.window.__SOREAL_IDLE_ETAGERE_SKINS_V1__;
   const nb = (h, re) => (h.match(re) || []).length;
   const yeux = E.yeuxHtml("defaut");
-  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "left:32.03%", "left:56.64%", "--pc:#faefe1"]) assert.ok(yeux.includes(k), "yeux du chat par défaut : " + k);
+  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "left:31.38%", "left:55.859%", "--pc:#faefe1"]) assert.ok(yeux.includes(k), "yeux du chat par défaut : " + k);
   /* pupille ronde centrée : diamètre = 28 % de la HAUTEUR de l'ovale, converti en % de sa largeur (image 768 x 1152) */
-  assert.ok(yeux.includes("left:calc(50% - 11.13%)") && yeux.includes("height:28.00%"), "pupille centrée dans l'ovale mesuré");
+  assert.ok(yeux.includes("et-iris et-ir") && yeux.includes("/garderie/yeux/defaut-0.webp") && yeux.includes("/garderie/yeux/defaut-1.webp"), "regard-sprite (iris + pupille) centré dans le masque du blanc");
   /* tous les ovales de chaque apparence ont leur œil, chacun à sa phase */
   for (const id of D.ordre) {
-    const h = E.yeuxHtml(id), n = D.skins[id].yeux.length;
+    const h = E.yeuxHtml(id), n = D.skins[id].yeux.length + (id === "fibonacci" ? 4 : 0);
     assert.equal(nb(h, /<i class="et-oeil/g), n, id + " : un œil par ovale (" + n + ")");
     const delais = new Set((h.match(/--dl:-?[\d.]+s/g) || []));
-    assert.equal(delais.size, n, id + " : phases toutes différentes (jamais à l'unisson)");
+    assert.equal(delais.size, id === "fibonacci" ? 5 : 1, id + " : clignements synchrones (un seul délai) ; Fibonacci : une phase par tête, en vague");
   }
-  assert.equal(nb(E.yeuxHtml("fibonacci"), /<i class="et-oeil/g), 6);
+  assert.equal(nb(E.yeuxHtml("fibonacci"), /<i class="et-oeil/g), 10, "fibonacci : 6 ovales + 4 petits yeux des têtes lointaines");
   assert.equal(nb(E.yeuxHtml("pirate"), /<i class="et-oeil/g), 1);
-  assert.ok(E.yeuxHtml("noel").includes("--pc:#d57c26"), "paupière à la couleur du pelage de l'apparence");
+  assert.ok(E.yeuxHtml("noel").includes("--pc:#d57c26") && E.yeuxHtml("noel").includes("et-sp") && E.yeuxHtml("noel").includes("mask-image:url(/garderie/paupieres/noel-0.webp)") && E.yeuxHtml("noel").includes("et-iris et-ir"), "paupière à la couleur du pelage de l'apparence");
   assert.equal(E.yeuxHtml("inconnu"), E.yeuxHtml("defaut"), "apparence inconnue : repli sur le chat par défaut");
   const m = pub("modules/etagere-personnage-v1.js");
-  assert.deepEqual(Object.keys(E), ["yeuxHtml"], "le module ne fait que dessiner les yeux : ni état, ni minuterie, ni parole");
+  assert.deepEqual(Object.keys(E), ["yeuxHtml", "queueHtml", "queueSousHtml", "queueMasqueStyle", "figerQueues"], "le module ne fait que dessiner les yeux et les queues : ni état, ni minuterie, ni parole");
   assert.ok(!/setInterval|setTimeout|et-bulle|et-zzz|et-nez|humeur|reagir|phrase_|SOREAL_IDLE_PHRASES/.test(m), "plus de bulle, de sommeil, de nez ni de phrases");
   assert.ok(!/gd-etagere\[data-humeur|etGrince|etRespire/.test(pub("modules/daycare-page-v1.js") + m), "plus de balancement ni de respiration de l'ancienne dame");
   assert.ok(P && !P.defauts.etagere && !P.editeurHtml().includes('data-qui="etagere"'), "plus de phrases ni d'éditeur de phrases pour l'étagère");

@@ -1,0 +1,51 @@
+/*
+ * Choix du portrait du joueur sur la borne d'arcade (menu Combat de boss) : bouton rond blanc « 1P » posé sur la tranche du pupitre
+ * + fenêtre « CHOOSE YOUR PLAYER ». Maquette validée par Norman (2026-10-31). Aucun !important : la spécificité remplace.
+ * Règle n°3 : aucune animation en boucle ici (seulement un enfoncement au clic) ; prefers-reduced-motion le coupe.
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bj-btn.bj-btn{
+  position:absolute;z-index:30;left:calc(13cqw + 20px);top:calc(31.35cqw - 15.97px);width:max(40px,7cqw);height:max(40px,7cqw);min-width:0;min-height:0;margin:0;padding:0;
+  transform:translateX(-50%);background:none;border:0;border-radius:50%;box-shadow:none;clip-path:none;overflow:visible;cursor:pointer;
+  perspective:90px;perspective-origin:50% 50%;-webkit-tap-highlight-color:transparent;font-size:0;letter-spacing:0;text-transform:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bj-btn.bj-btn::before,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bj-btn.bj-btn::after{content:none;display:none}
+.soreal-idle-page-root-v28[data-menu="combat"] button.bj-btn[hidden]{display:none}
+.bj-btn .bj-collar{position:absolute;left:50%;top:50%;width:calc(max(30px,5.6cqw) * .9);height:max(26px,5.2cqw);transform:translate(-50%,-50%) rotateX(-62deg);transform-origin:50% 50%;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 30%,#25252d,#020203 70%);box-shadow:0 1px 0 #000,0 2px 2px rgba(0,0,0,.6)}
+.bj-btn .bj-dome{position:absolute;left:50%;top:50%;width:calc(max(24px,4.4cqw) * .9);height:max(20px,3.8cqw);transform:translate(-50%,-62%) rotateX(-40deg);transform-origin:50% 50%;border-radius:50%;
+  background:radial-gradient(ellipse at 35% 22%,rgba(255,255,255,.5) 0 12%,rgba(255,255,255,0) 38%),radial-gradient(ellipse at 50% 60%,#cdd1e0 0,#a9afc6 65%,#6f77a0 100%);
+  border:1.5px solid #7c85ad;box-shadow:inset 0 -3px 4px rgba(60,70,130,.6),inset 0 2px 2px rgba(255,255,255,.6),0 0 0 2px #b4bad2,0 0 0 3.5px #484e78,0 1px 0 3.5px #0e0e22;
+  display:flex;align-items:center;justify-content:center;transition:transform .05s}
+.bj-btn .bj-dome::after{content:"";position:absolute;left:14%;top:8%;width:38%;height:26%;border-radius:50%;background:rgba(255,255,255,.5);transform:rotate(-20deg);filter:blur(.4px)}
+.bj-btn .bj-txt{position:relative;font-family:"Russo One","Bangers",Impact,sans-serif;font-weight:400;font-size:max(9px,1.7cqw);line-height:1;letter-spacing:0;color:#22243a;text-shadow:0 1px 0 rgba(255,255,255,.7);transform:translateY(1px) scaleY(1.15)}
+.bj-btn:active .bj-dome{transform:translate(-50%,-56%) rotateX(-40deg)}
+.bj-btn:hover .bj-dome,.bj-btn:focus-visible .bj-dome{filter:brightness(1.05)}
+.bj-btn:focus-visible{outline:2px solid #fff}
+@media (max-width:480px){
+  .bj-btn .bj-collar{transform:translate(-50%,-50%) rotateX(-70deg)}
+  .bj-btn .bj-dome{transform:translate(-50%,-62%) rotateX(-52deg)}
+  .bj-btn:active .bj-dome{transform:translate(-50%,-56%) rotateX(-52deg)}
+}
+
+/* ===== fenêtre « CHOOSE YOUR PLAYER » (ajoutée à <body>) ===== */
+body .bj-overlay{--rose:#ff3fb4;--bleu:#38b6ff;position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(3,2,14,.78);padding:12px;box-sizing:border-box;font-family:"Russo One",system-ui,sans-serif;color:#e8e8ff}
+body .bj-overlay[hidden]{display:none}
+body .bj-overlay .bj-panel{position:relative;width:min(560px,100%);max-height:min(86vh,720px);overflow:auto;box-sizing:border-box;padding:18px 18px 14px;border-radius:10px;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 2px,transparent 2px 4px),linear-gradient(180deg,#1a1458,#0a0828);
+  border:3px solid #000;box-shadow:0 0 0 3px var(--rose),0 0 0 6px #000,0 0 26px var(--rose),0 0 60px rgba(56,182,255,.5)}
+body .bj-overlay .bj-x{position:absolute;right:8px;top:6px;width:34px;height:34px;padding:0;border-radius:6px;border:2px solid #000;background:linear-gradient(180deg,#ff5a6a,#b01228);color:#fff;font:700 22px/1 "Russo One",sans-serif;cursor:pointer;box-shadow:2px 2px 0 #000}
+body .bj-overlay .bj-title{font-family:Bangers,"Russo One",sans-serif;font-size:34px;letter-spacing:2px;text-align:center;color:#fff;text-shadow:0 0 6px var(--rose),0 0 16px var(--rose),3px 3px 0 #000;margin:0 36px 2px}
+body .bj-overlay .bj-sub{text-align:center;font-size:12px;color:#9fd8ff;margin-bottom:12px}
+body .bj-overlay .bj-set{margin:0 0 12px;padding:10px;border:2px solid #ffd24a;border-radius:6px;background:rgba(255,210,74,.1);font-size:13px;text-align:center;color:#ffe9a8}
+body .bj-overlay .bj-set[hidden]{display:none}
+body .bj-overlay .bj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+body .bj-overlay .bj-grid.off{opacity:.45;pointer-events:none;filter:grayscale(.6)}
+body .bj-overlay .bj-card{position:relative;padding:5px 5px 7px;border:3px solid #000;border-radius:8px;background:linear-gradient(180deg,#2a2a7a,#14144a);color:#fff;cursor:pointer;font:12px "Russo One",sans-serif;text-align:center;box-shadow:3px 3px 0 #000;transition:transform .08s}
+body .bj-overlay .bj-card:hover{transform:translateY(-2px);box-shadow:3px 5px 0 #000,0 0 14px var(--bleu)}
+body .bj-overlay .bj-card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;background:#000;border:2px solid #000}
+body .bj-overlay .bj-card span.n{display:block;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;text-shadow:0 2px 0 #000;font-size:12px;opacity:1}
+body .bj-overlay .bj-card.sel{border-color:#fff;background:linear-gradient(180deg,#ff3fb4,#7a1c9a);box-shadow:0 0 0 3px var(--rose),0 0 22px var(--rose),0 0 40px var(--bleu)}
+body .bj-overlay .bj-card.sel::before{content:"1P";position:absolute;left:-6px;top:-8px;z-index:2;padding:1px 7px;border:2px solid #000;border-radius:4px;background:#ffd24a;color:#000;font:700 14px/1.2 Bangers,sans-serif;letter-spacing:1px;transform:rotate(-6deg)}
+body .bj-overlay .bj-foot{margin-top:12px;text-align:center;font-size:11px;color:#8c8cc8}
+@media (max-width:480px){body .bj-overlay .bj-grid{grid-template-columns:repeat(2,1fr)}body .bj-overlay .bj-title{font-size:27px}body .bj-overlay .bj-panel{max-height:80vh}}
+@media (prefers-reduced-motion:reduce){body .bj-overlay .bj-card,.bj-btn .bj-dome{transition:none}}

@@ -55,4 +55,17 @@ for (const id of IDS) {
     assert.ok(sep, id + " bocaux " + a + " et " + b + " se chevauchent");
   }
 }
+/* Les paupières-sprites (etagere-paupieres-v1.js) suivent les ovales : même ordre, boîte du masque centrée sur l'ovale mesuré ; Fibonacci a 4 petits yeux de plus (têtes 4 et 5). */
+{
+  const w2 = {};
+  vm.runInNewContext(readFileSync("cloudflare/public/modules/etagere-paupieres-v1.js", "utf8"), { window: w2 });
+  const Pp = w2.__SOREAL_IDLE_ETAGERE_PAUPIERES_V1__;
+  for (const id of IDS) {
+    assert.equal(Pp[id].length, D.skins[id].yeux.length + (id === "fibonacci" ? 4 : 0), id + " : un sprite de paupière par ovale");
+    D.skins[id].yeux.forEach((o, i) => {
+      const p = Pp[id][i];
+      assert.ok(Math.abs((p.left + p.larg / 2) - (o.left + o.larg / 2)) < 2 && Math.abs((p.top + p.haut / 2) - (o.top + o.haut / 2)) < 2, id + " œil " + i + " : masque centré sur l'ovale");
+    });
+  }
+}
 console.log("idle-etagere-skins-donnees-v1 ok");

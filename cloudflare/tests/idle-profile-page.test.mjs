@@ -5,7 +5,7 @@ import vm from "node:vm";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
 /*
- * Page Achievements + Player Portraits (modules/profile-v1.js), rendue depuis un vrai snapshot :
+ * Page Achievements (les portraits sont sur la borne : idle-borne-joueur-v1.test.mjs) (modules/profile-v1.js), rendue depuis un vrai snapshot :
  * succès, BP et bonus d'AP, portraits (verrous, choix), Special Prize, câblage des actions et
  * chargement du module avant le monolithe.
  */
@@ -44,18 +44,9 @@ assert.match(html, /\?\?\?\?\?<\/span>[\s\S]*Tue le boss \d+ pour voir les infos
 assert.doesNotMatch(html, /\/ 50|⬜|➖/, "pas de total de portraits");
 assert.doesNotMatch(html, /Defeat Boss|Obtain /, "objectifs écrits en français, jamais le texte du wiki");
 assert.match(html, /Bonus Points<b>\d+ BP/);
-assert.match(html, /Player Portraits — 2</, "défaut + Sewers");
-assert.doesNotMatch(html, /Special Prize<\/div>/, "le Special Prize est proposé dans le menu Info (comme dans le jeu), plus sur cette page");
-assert.match(html, /__profilChoisirPortraitIdleV1__\('sewers'\)/, "portrait débloqué sélectionnable");
-assert.doesNotMatch(html, /__profilChoisirPortraitIdleV1__\('forest'\)/, "portrait verrouillé : pas de clic");
+assert.doesNotMatch(html, /Player Portraits|__profilChoisirPortraitIdleV1__|idle-portrait-btn-v1/, "le choix du portrait a quitté Chroniques (borne du menu Combat : borne-joueur-v1.js)");
 assert.doesNotMatch(html, /__profilPrixSpecialIdleV1__/);
-assert.doesNotMatch(html.slice(html.indexOf("Player Portraits")), /disabled style="opacity:\.45"|🔒/, "aucun portrait verrouillé affiché");
-
-/* Les boutons envoient les actions serveur. */
-window.__SOREAL_IDLE_META_V130__ = Object.assign({}, api, { actionMetaIdleV130_: (p) => actions.push(p) });
-window.__profilChoisirPortraitIdleV1__("sewers");
-assert.equal(JSON.stringify(actions.pop()), JSON.stringify({ action: "portrait", id: "sewers" }));
-window.__SOREAL_IDLE_META_V130__ = api;
+assert.doesNotMatch(html, /Special Prize<\/div>/, "le Special Prize est proposé dans le menu Info (comme dans le jeu), plus sur cette page");
 
 /* Câblage : module chargé avant le monolithe, menu et page dans le monolithe, portrait passé au média. */
 const index = readFileSync("cloudflare/public/index.html", "utf8");

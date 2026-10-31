@@ -134,14 +134,16 @@
     ids.forEach(function(id){if(prechargees[id])return;prechargees[id]=1;try{const im=new Image();im.decoding='async';im.src=imageSkin(id);}catch(_e){}});
   }
   const r2=function(v){return Math.round(v*100)/100;};
+  /* Le « sol » mesuré est la ARÊTE AVANT du dessus de la planche : un bocal dont le fond y touche semble posé dans le vide, au bord (Norman, 2026-10-31 : « les bocaux flottent »). Le fond du verre est remonté de 0,9 % de la hauteur de l'image (≈ 10 px sur 1152) pour reposer au milieu du dessus de la planche, ombre comprise. Même valeur partout, en % de l'image : identique sur PC et téléphone. */
+  const REMONTEE_POSE=0.9;
   function positionPlace(i){
     const P=geoCourante;
     if(P&&P.places&&P.places[i]){
       const p=P.places[i],e=Number(p.echelle)||1,w=P.larg*e,h=P.haut*e;
-      return {top:r2(p.sol-h),left:r2(p.cx-w/2),larg:r2(w),haut:r2(h)};
+      return {top:r2(p.sol-REMONTEE_POSE-h),left:r2(p.cx-w/2),larg:r2(w),haut:r2(h)};
     }
     const c=PLACES[i][0],col=PLACES[i][1];
-    return {top:r2(SOLS[c]-HAUT_POT),left:r2(CENTRES[col]-LARG_POT/2),larg:LARG_POT,haut:HAUT_POT};
+    return {top:r2(SOLS[c]-REMONTEE_POSE-HAUT_POT),left:r2(CENTRES[col]-LARG_POT/2),larg:LARG_POT,haut:HAUT_POT};
   }
   const stylePot=function(pos){return 'left:'+pos.left+'%;top:'+pos.top+'%;width:'+pos.larg+'%;height:'+pos.haut+'%';};
   /* Un bocal rangé dans son compartiment (le verre, le liquide, l'objet) + sa fiche dans la liste dessous (niveau, nom, temps). */
@@ -251,8 +253,8 @@
       '</div>'+
       '<div class="gd-scene">'+selecteur(possedes,sid)+'<div class="gd-etagere" data-skin="'+sid+'">'+
         /* id propre à chaque apparence : au changement, le redessin crée un NOUVEAU bloc (yeux repartis du repos, image neuve) au lieu de réutiliser l'ancien */
-        '<div class="gd-fig'+(sens?' gd-entre gd-entre-'+sens:'')+'" id="gd-fig-'+sid+'"><img class="gd-img" src="'+imageSkin(sid)+'" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
-          (E2?E2.yeuxHtml(sid):'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
+        '<div class="gd-fig'+(sens?' gd-entre gd-entre-'+sens:'')+'" id="gd-fig-'+sid+'">'+(E2&&E2.queueSousHtml?E2.queueSousHtml(sid):'')+'<img class="gd-img" src="'+imageSkin(sid)+'"'+(E2&&E2.queueMasqueStyle?E2.queueMasqueStyle(sid):'')+' alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
+          (E2?E2.yeuxHtml(sid)+(E2.queueHtml?E2.queueHtml(sid):''):'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
       '</div>'+
       '</div></div>'+
       '<div class="gd-intro">Ce chat fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Tant qu’un objet n’est pas sorti du bocal, il ne peut être ni fusionné ni équipé.</div>'+
@@ -358,6 +360,8 @@
     const el=typeof document!=='undefined'&&document.querySelector?document.querySelector('.gd-scene>.gd-etagere'):null;
     if(el&&!mouvementReduit()){
       ancien=el.cloneNode(true);
+      /* la queue de l'ancien chat sort FIGEE dans la pose ou elle se trouve (sinon la copie, animation neuve, repartirait du repos : saut visible) */
+      {const E3=window.__SOREAL_IDLE_ETAGERE_V1__;if(E3&&E3.figerQueues)E3.figerQueues(el,ancien);}
       ancien.classList.add('gd-sort','gd-sort-'+sens);
       ancien.setAttribute('data-morph-garder','1');ancien.setAttribute('aria-hidden','true');
       const fig=ancien.querySelector('.gd-fig');
@@ -525,7 +529,7 @@
       '.gd-img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}',
       /* bocal : les mesures sont des fractions de la largeur du bocal (cqw), il s'adapte donc à toutes les tailles d'écran */
       '.gd-pot{position:absolute;width:'+LARG_POT+'%;height:'+HAUT_POT+'%;container-type:size}',
-      '.gd-ombre{position:absolute;left:-10%;bottom:-3%;width:130%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0));z-index:0}',
+      '.gd-ombre{position:absolute;left:-8%;bottom:-4%;width:116%;height:9%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.7),rgba(0,0,0,0));z-index:0}',
       '.gd-bocal{position:relative;z-index:1;display:block;width:100%;height:100%;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit}',
       '.gd-bouchon{position:absolute;left:50%;top:0;width:48cqw;height:15cqw;margin-left:-24cqw;border-radius:3px 3px 1px 1px;background:radial-gradient(circle at 20% 40%,rgba(90,52,20,.55) 0 1px,rgba(0,0,0,0) 1.5px),radial-gradient(circle at 66% 62%,rgba(90,52,20,.5) 0 1px,rgba(0,0,0,0) 1.6px),linear-gradient(180deg,#d5a96a,#a9743a 60%,#7a5028);box-shadow:inset 0 -1px 0 rgba(0,0,0,.35),inset 0 1px 0 rgba(255,236,200,.5),0 1px 2px #000;z-index:4}',
       '.gd-col{position:absolute;left:50%;top:13cqw;width:60cqw;height:10cqw;margin-left:-30cqw;border-radius:3px;border:max(1px,2cqw) solid rgba(200,230,255,.8);background:linear-gradient(90deg,rgba(255,255,255,.32),rgba(255,255,255,.06) 45%,rgba(255,255,255,.2));z-index:3}',

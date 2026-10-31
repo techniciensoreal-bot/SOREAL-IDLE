@@ -4,10 +4,22 @@
  * aucun n'appelle les autres au chargement).
  */
 import { texteBossSurchargeV1, texteBossParleV1, nomBossParleV1 } from "./idle-textes-v1.js";
-import { CacheService, __idleCtx } from "./idle-sqlite-runtime.js";
+import { CacheService, NGU_BOSS_NAMES_FR_V1, __idleCtx } from "./idle-sqlite-runtime.js";
 import { obtenirSpreadsheetSorealIdle_ } from "./idle-runtime-acces.js";
 import { nombreSorealIdle_ } from "./idle-runtime-config.js";
 import { DriveApp } from "./idle-runtime-classeur.js";
+import HISTOIRES_COMPLEMENT_FR from "../../design/ngu-boss-stories-complement-fr.json" with { type: "json" };
+
+/*
+ * Chroniques FRANCAISES fournies par le code (design/ngu-boss-stories-complement-fr.json) pour les boss dont la cellule « Histoire » du catalogue est vide
+ * (ex. 289 « PirateGirl » : le wiki n'a pas d'histoire pour 272 a 289). Une cellule non vide du catalogue, puis une surcharge de l'administrateur
+ * (histoireBossAvecSurchargeSorealIdle_, appliquee par les appelants), l'emportent toujours.
+ */
+const HISTOIRES_COMPLEMENT_V1 = new Map(HISTOIRES_COMPLEMENT_FR.map((h) => [h.id, h.story]));
+export function histoireComplementBossV1(id, cellule) {
+  const texte = String(cellule || '').trim();
+  return texte || HISTOIRES_COMPLEMENT_V1.get(id) || '';
+}
 
 function memoTableSorealIdleV19_(nom) {
   const cle = String(nom || '');
@@ -316,10 +328,13 @@ function bossCatalogueConstruireSorealIdle_(table) {
             )
           ),
 
+        /* Boss 289 : « La Femme Pirate » (design/ngu-boss-names-fr.json, decision de Norman) l'emporte sur « Intermède » du catalogue de production. */
         nom:
-          String(
-            ligne.Nom || 'Boss'
-          ),
+          ligne.ID !== undefined && Number(ligne.ID) === 289 && NGU_BOSS_NAMES_FR_V1.get(289)
+            ? NGU_BOSS_NAMES_FR_V1.get(289)
+            : String(
+                ligne.Nom || 'Boss'
+              ),
 
         pv:
           Math.max(
@@ -398,9 +413,10 @@ function bossCatalogueConstruireSorealIdle_(table) {
         histoire:
           index===3
             ?"Alors que tu te tournes vers la sortie de cette 'pièce', tu remarques une petite souris marron. D'une voix stridente, elle couine : BIENVENUE dans SOREAL NGU IDLE ! Moi c'est Tippy. Sa petite voix de merde, te donne envie de lui péter la gueule... le besoin de vaincre CHAQUE ennemi sur ton chemin, quoi qu'il arrive. Tu peux commencer avec cette souris et arracher sa tête de con."
-            :String(
-                ligne.Histoire || ''
-              ).trim(),
+            :histoireComplementBossV1(
+                Math.max(1, Math.floor(nombreSorealIdle_(ligne.ID, index + 1))),
+                ligne.Histoire
+              ),
 
         mortVivant:
           ligne.MortVivant === true ||

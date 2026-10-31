@@ -50,6 +50,8 @@ const window = {
 const bac = { window, document: window.document, SOREAL_SESSION: null, Date, setTimeout: (f, ms) => { retardes.push([f, ms]); return retardes.length; }, clearTimeout() {} };
 vm.runInNewContext(pub("modules/meta-progression-v130.js"), bac);
 vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);
+vm.runInNewContext(pub("modules/etagere-paupieres-v1.js"), bac);
+vm.runInNewContext(pub("modules/etagere-regards-v1.js"), bac);
 for (const f of PAGES_META) vm.runInNewContext(pub("modules/" + f), bac);
 vm.runInNewContext(pub("modules/etagere-personnage-v1.js"), bac);
 const G = window.__SOREAL_IDLE_DAYCARE_PAGE_V1__;
@@ -100,17 +102,17 @@ const compte = (h, re) => (h.match(re) || []).length;
   const html = G.etagere(j);   /* le 1er rendu fixe l'apparence affichée : aucun glissement */
   assert.ok(html.includes("src=\"/api/idle/media/garderie-skin?id=noeud\" alt=\"\" width=\"768\"") && html.includes("data-skin=\"noeud\""), "image du skin actif");
   assert.ok(!html.includes("gd-entre"), "premier affichage : net, sans glissement");
-  assert.ok(html.includes("left:34.38%;top:24.74%;width:8.2%;height:4.43%") && html.includes("left:57.03%;top:24.74%"), "yeux du skin actif");
-  assert.ok(compte(html, /class="gd-pot/g) === 3 && html.includes("left:30.62%;top:38.63%;width:13.2%;height:13.8%"), "bocal 1 sur la planche du skin actif (cx 37,22 / sol 52,43)");
-  assert.ok(html.includes("left:58%;top:38.63%") && html.includes("left:30.62%;top:55.47%"), "bocaux 2 et 3 selon le skin actif");
+  assert.ok(html.includes("left:33.724%;top:24.306%;width:10.417%;height:5.99%") && html.includes("left:56.38%;top:24.306%"), "yeux du skin actif");
+  assert.ok(compte(html, /class="gd-pot/g) === 3 && html.includes("left:30.62%;top:37.73%;width:13.2%;height:13.8%"), "bocal 1 sur la planche du skin actif (cx 37,22 / sol 52,43 moins la remontée de pose 0,9)");
+  assert.ok(html.includes("left:58%;top:37.73%") && html.includes("left:30.62%;top:54.57%"), "bocaux 2 et 3 selon le skin actif");
   const j2 = joueur({ actif: "inconnu", possedes: ["defaut", "noeud"] });
   assert.ok(G.etagere(j2).includes("id=defaut"), "skin inconnu : repli sur defaut");
   const six = joueur({ actif: "fibonacci", possedes: ["defaut", "fibonacci"] });
   six.systemes.daycare.slots = 6;
   const h6 = G.etagere(six);
   assert.equal(compte(h6, /class="gd-pot/g), 6);
-  assert.equal(compte(h6, /<i class="et-oeil/g), 6, "fibonacci : 6 ovales = 6 yeux");
-  assert.ok(h6.includes("left:57.89%;top:67.97%"), "6e bocal : compartiment du bas à droite pour fibonacci (cx 64,49 / sol 81,77)");
+  assert.equal(compte(h6, /<i class="et-oeil/g), 10, "fibonacci : 10 yeux (6 ovales + 4 petits des têtes lointaines)");
+  assert.ok(h6.includes("left:57.89%;top:67.07%"), "6e bocal : compartiment du bas à droite pour fibonacci (cx 64,49 / sol 81,77)");
 }
 
 /* 4. Transition : seul un clic du joueur anime ; direction selon l'ordre ; pas de clic pendant le glissement ; calque data-morph-garder. */

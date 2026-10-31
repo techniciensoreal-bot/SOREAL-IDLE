@@ -325,13 +325,17 @@
         '</div>';
       }
       function htmlVersionNotesMajIdleV1_(v,possedes){
+        /* Lignes ajoutées depuis le dernier push, en vert (Norman, 2026-10-31) : comparées au texte FRANÇAIS d'origine (avant la traduction), la classe reste posée après traduction. Données : modules/release-notes-nouveautes-v1.js (générées par tools/marquer-nouveautes-push.mjs). */
+        const nouv=window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__;
+        const neuves=nouv&&Array.isArray(nouv.lignes)?nouv.lignes:[];
+        const liNotesMajIdleV1_=function(p){return '<li'+(neuves.indexOf(String(p))>=0?' class="note-neuve-v1"':'')+'>'+idleHtml_(p)+'</li>';};
         if(Array.isArray(v.groupes)){
           return v.groupes.filter(function(g){return g&&Array.isArray(g.points)&&g.points.length&&possedes[g.menu];}).map(function(g){
             return '<div class="soreal-idle-notes-maj-groupe-v1"><div class="soreal-idle-notes-maj-menu-v1">'+idleHtml_(g.titre||g.menu)+'</div>'+
-              '<ul>'+g.points.map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul></div>';
+              '<ul>'+g.points.map(liNotesMajIdleV1_).join('')+'</ul></div>';
           }).join('');
         }
-        return '<ul>'+(v.points||[]).map(function(p){return '<li>'+idleHtml_(p)+'</li>';}).join('')+'</ul>';
+        return '<ul>'+(v.points||[]).map(liNotesMajIdleV1_).join('')+'</ul>';
       }
 
       function htmlNotesMajIdleV1_(){

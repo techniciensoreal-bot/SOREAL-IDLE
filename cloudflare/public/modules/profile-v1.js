@@ -1,5 +1,5 @@
 /*
- * SOREAL IDLE — page Achievements (succès, bonus d'AP) et Player Portraits.
+ * SOREAL IDLE — page Achievements (succès, bonus d'AP). Le choix du portrait (Player Portraits) vit sur la borne du menu Combat de boss : borne-joueur-v1.js.
  * Moteurs : cloudflare/src/idle-achievements-v1.js et idle-portraits-v1.js ; le serveur publie
  * j.systemes.achievements et j.systemes.portraits. Branché par une seule ligne dans
  * pageSystemeMetaIdleV130_ (meta-progression-v130.js) ; les actions passent par
@@ -14,12 +14,6 @@
   function nombre(v){const n=Number(v);return Number.isFinite(n)?n:0;}
   function pct(v){return nombre(v).toFixed(2).replace('.',',')+' %';}
   function entete(titre,sous){const h=hote();return h&&h.entetePageIdleV28_?h.entetePageIdleV28_(titre,sous):'<h1>'+titre+'</h1><p>'+sous+'</p>';}
-
-  function action(payload){
-    const meta=window.__SOREAL_IDLE_META_V130__;
-    if(meta&&typeof meta.actionMetaIdleV130_==='function')meta.actionMetaIdleV130_(payload);
-  }
-  window.__profilChoisirPortraitIdleV1__=function(id){action({action:'portrait',id:String(id)});};
 
   /*
    * Catégories de succès (Norman, 2026-09-26 : « accorde plus d'importance au visuel des Achievements : des emoji, de la couleur, pour appuyer les catégories »).
@@ -168,35 +162,11 @@
       legende+groupes;
   }
 
-  function blocPortraits(p){
-    if(!p)return '';
-    const liste=Array.isArray(p.list)?p.list:[];
-    /* ANTI-SPOIL (2026-09-24) : uniquement les portraits déjà débloqués (pas de bouton verrouillé ni de condition). */
-    const boutons=liste.filter(function(x){return x.unlocked;}).map(function(x){
-      const choisi=x.id===p.selected;
-      /* Vignette = l'image R2 du portrait ; sans image : silhouette en grand, centrée. */
-      const vignette='<span class="idle-portrait-thumb-v1">'+
-        '<img src="/api/idle/media/player?portrait='+encodeURIComponent(x.file)+'" alt="" loading="lazy" draggable="false" '+
-          'onerror="this.style.display=\'none\';if(this.nextElementSibling)this.nextElementSibling.style.display=\'flex\'">'+
-        '<span class="idle-emoji-fallback-v1" data-n="1" style="display:none">🧑</span></span>';
-      return '<button type="button" class="soreal-idle-expand-button-v25 idle-portrait-btn-v1"'+
-        (choisi?' disabled':' onclick="window.__profilChoisirPortraitIdleV1__(\''+html(x.id)+'\')"')+'>'+
-        vignette+'<span>'+(choisi?'✅ ':'')+html(x.name)+'</span></button>';
-    }).join('');
-    const auto=p.auto?'<div class="soreal-idle-note-v4" style="margin-top:8px">🛡️ Les 4 pièces du set <b>'+html(p.auto.name)+'</b> sont équipées : ton héros en porte l’armure. Retire une pièce pour retrouver ton portrait choisi.</div>':'';
-    return '<div class="soreal-idle-section-v8">'+
-        '<div class="soreal-idle-window-title-v31">🖼️ Player Portraits — '+nombre(p.unlockedCount)+'</div>'+
-        '<div class="soreal-idle-note-v4">Portrait du héros en combat (cosmétique). Chaque portrait se débloque en jouant ; seuls ceux que tu as obtenus apparaissent.</div>'+
-        auto+
-        '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+boutons+'</div>'+
-      '</div>';
-  }
-
   function page(j){
     const s=(j&&j.systemes)||{};
-    return entete('🎖️ Achievements','Succès, Bonus Points et portraits du héros.')+
+    return entete('🎖️ Achievements','Succès et Bonus Points.')+
       (s.achievements?blocSucces(s.achievements):'')+
-      blocPortraits(s.portraits);
+      '';
   }
 
   window.__SOREAL_IDLE_PROFILE_V1__={page:page};

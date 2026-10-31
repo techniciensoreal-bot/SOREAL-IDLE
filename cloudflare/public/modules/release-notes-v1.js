@@ -38,7 +38,8 @@
             'En anglais, le lecteur reste muet quand aucune voix anglaise n’existe pour le texte, au lieu de lire le texte français ; les guides et le tutoriel sont traduits en entier.',
             'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.',
             'Les nombres que tu tapes dans les champs de saisie sont mieux conservés sur ton compte : plus de valeur perdue à la fermeture ou après une mise à jour.',
-            '« En direct » n’indique plus dans quel menu se trouve un joueur : on n’y voit que ses actions.'
+            '« En direct » n’indique plus dans quel menu se trouve un joueur : on n’y voit que ses actions.',
+            'Dans cette liste, les lignes ajoutées depuis la dernière mise en ligne s’affichent en vert.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.',
@@ -53,11 +54,17 @@
             'Le cadre de chaque paire est plus court : la bande du haut est supprimée et les noms des deux augmentations sont plus grands.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Le cadre de titre n’affiche plus que son titre, sans phrase en dessous.'
+            'Le cadre de titre n’affiche plus que son titre, sans phrase en dessous.',
+            'Le choix du portrait du héros se fait maintenant sur la borne : un petit bouton rond « 1P » sur la tranche du pupitre ouvre « CHOOSE YOUR PLAYER ». Il quitte la page des succès.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Un clic sur un bocal ouvre maintenant une fenêtre d’information aux couleurs de la page, et les bocaux sont un peu plus grands.',
-            'Mamie l’armoire : la pupille et la paupière sont maintenant posées exactement sur l’œil dessiné, sans second œil par-dessus.'
+            'Mamie l’armoire : la pupille et la paupière sont maintenant posées exactement sur l’œil dessiné, sans second œil par-dessus.',
+            'Le chat de la Garderie a plusieurs apparences : dès que tu en possèdes deux, une rangée de vignettes apparaît pour changer d’apparence, avec une animation de glissement d’un chat à l’autre.',
+            'Chaque chat a son propre regard : iris et pupille adaptés, et des paupières qui épousent exactement ses yeux et clignent ensemble.',
+            'Les bocaux reposent maintenant bien sur les planches de l’étagère.',
+            'Quand tu débloques une nouvelle apparence de chat, une fenêtre te l’annonce ; elle se ferme avec le bouton « Cool ».',
+            'Les chats qui ont une queue visible la balancent doucement.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'

@@ -1027,6 +1027,8 @@
                 <span class="nk-txt">NUKE</span>
               </button>
 
+              ${window.__SOREAL_IDLE_BORNE_JOUEUR_V1__?window.__SOREAL_IDLE_BORNE_JOUEUR_V1__.boutonHtml(j):''}
+
             </div>
             <div class=\"bn-bas-wrap\">${BORNE_BAS_IDLE_V2}</div>
 

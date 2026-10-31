@@ -20,7 +20,7 @@ const [maj, min] = premier[1].split(".").map(Number);
 const suivante = min >= 9 ? (maj + 1) + ".0" : maj + "." + (min + 1);
 console.log("Dernière note : " + premier[1] + " « " + premier[2] + " » du " + premier[3] + " ; courante : " + courante[1] + " ; aujourd'hui à Bruxelles : " + bruxelles);
 if (courante[1] !== premier[1]) { console.error("ERREUR : `courante` (" + courante[1] + ") n'est pas la version de tête (" + premier[1] + ")."); process.exit(2); }
-if (premier[3] === bruxelles) { console.log("=> Même jour : compléter l'entrée " + premier[1] + " avec ce qui a été fait depuis."); process.exit(0); }
+if (premier[3] === bruxelles) { console.log("=> Même jour : compléter l'entrée " + premier[1] + " avec ce qui a été fait depuis."); console.log("=> Avant le commit : node cloudflare/tools/marquer-nouveautes-push.mjs (lignes de la note en vert depuis le dernier push)."); process.exit(0); }
 if (premier[3] > bruxelles) { console.log("=> La note est datée d'un jour À VENIR (" + premier[3] + ") : vérifier la date."); process.exit(1); }
 console.error("=> La dernière note date d'un jour précédent : CRÉER l'entrée " + suivante + " du " + bruxelles + " (menus groupés, sans spoil, traduite) AVANT de pousser.");
 process.exit(1);

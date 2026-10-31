@@ -76,8 +76,9 @@ assert.ok(media.includes('searchParams.get("fallback")') && media.includes("idle
 const ui = lireUiComplet();
 assert.ok(ui.includes("j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile"));
 assert.ok(ui.includes("(repli?'&fallback='+encodeURIComponent(String(repli)):'')"));
-const profil = readFileSync("cloudflare/public/modules/profile-v1.js", "utf8");
-assert.ok(profil.includes("idle-portrait-thumb-v1") && profil.includes("ton héros en porte l’armure"));
+// (2026-10-31 : le sélecteur a quitté Chroniques pour la borne ; le texte du set équipé n'y cite plus le nom du set)
+const borneJoueur = readFileSync("cloudflare/public/modules/borne-joueur-v1.js", "utf8");
+assert.ok(borneJoueur.includes("/api/idle/media/player?portrait=") && borneJoueur.includes("Tu portes l’armure d’un set équipé"));
 
 // Emoji de repli : grand, centré, réglé selon le nombre de symboles
 assert.ok(ui.includes("function emojiRepliObjetIdleV1_(emoji)") && ui.includes("idle-emoji-fallback-v1"));
