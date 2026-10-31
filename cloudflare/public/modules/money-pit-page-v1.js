@@ -614,9 +614,9 @@
     const r=function(k){return (Math.sin(k*91.7)+1)/2;};
     let h='';
     for(let i=0;i<n;i++){
-      /* ~40 % des pièces passent le bord inférieur du trou (y > 66 %) : le bord est au premier plan, elles disparaissent en le franchissant (calque coupé en CSS) ; les autres tombent dans le noir (y 53 à 59 %) en rapetissant et en s'effaçant */
+      /* ~40 % des pièces passent le bord proche du trou (sa lèvre, y 60 à 66 % selon x) : le bord est au premier plan, elles disparaissent en le franchissant (calque coupé en CSS) ; les autres tombent dans le noir (y 50 à 56 %) en rapetissant et en s'effaçant */
       const dehors=r(i+11)<.4;
-      const p={dehors:dehors,x:(36+r(i+1)*13).toFixed(1),y:(dehors?68+r(i+7)*4:53+r(i+7)*6).toFixed(1),dx:((r(i+3)-.5)*30).toFixed(1),t:(5.4+r(i+5)*2.2).toFixed(2),tours:2+Math.round(r(i+9)*3)/2,rx:(12+r(i+2)*34).toFixed(0),inc:((r(i+4)-.5)*50).toFixed(0),d:(1.0+((i*37)%5)*0.1).toFixed(2)};
+      const p={dehors:dehors,x:(36+r(i+1)*13).toFixed(1),y:(dehors?68+r(i+7)*4:50+r(i+7)*6).toFixed(1),dx:((r(i+3)-.5)*30).toFixed(1),t:(5.4+r(i+5)*2.2).toFixed(2),tours:2+Math.round(r(i+9)*3)/2,rx:(12+r(i+2)*34).toFixed(0),inc:((r(i+4)-.5)*50).toFixed(0),d:(1.0+((i*37)%5)*0.1).toFixed(2)};
       h+=pieceDeOrIdleV1_(p,(i/n*0.55).toFixed(2));
     }
     /* une salve à la fois : l'ancienne est remplacée (son bloc porte data-morph-garder : le redessin de la page ne le retire pas) */

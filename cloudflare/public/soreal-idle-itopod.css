@@ -2026,7 +2026,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @keyframes mp3Monte{0%{opacity:0;transform:translateY(8cqw) scale(.85,.9)}15%{opacity:.8}70%{opacity:.7}100%{opacity:0;transform:translateY(-12cqw) scale(1.15,1)}}
 @keyframes mp3Balance{0%,100%{transform:translateX(0)}25%{transform:translateX(var(--sx,1cqw))}75%{transform:translateX(calc(var(--sx,1cqw)*-1))}}
 /* Salve d'or : seulement quand on jette son or (bloc ajouté par le module, data-morph-garder) */
-.mp3-pieces{position:absolute;inset:0;pointer-events:none;clip-path:inset(0 0 34% 0)}   /* le bord inférieur du trou (y 66 %) est au premier plan : une pièce qui le franchit disparaît derrière lui */
+.mp3-pieces{position:absolute;inset:0;pointer-events:none;clip-path:polygon(0 0,100% 0,100% 56%,56% 66%,54% 66%,50% 63.5%,45% 62%,40% 61%,38% 60%,33% 57%,29% 54%,0 54%)}   /* le bord proche du trou (le contour bas de la partie sombre, relevé sur l'image : de x 29 % y 54 % à x 56 % y 66 %) est au premier plan : une pièce qui le franchit disparaît derrière lui, et non plus dans l'herbe */
 .mp3-chute{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;animation:mp3ChuteY var(--d) cubic-bezier(.3,0,.8,.7) 1 both;animation-delay:var(--dl)}
 .mp3-derive{position:absolute;left:0;top:0;width:0;height:0;animation:mp3ChuteX var(--d) cubic-bezier(.2,.6,.4,1) 1 both;animation-delay:var(--dl)}
 .mp3-echelle{position:absolute;left:0;top:0;width:0;height:0;opacity:0;animation:mp3ChuteE var(--d) linear 1 both;animation-delay:var(--dl)}

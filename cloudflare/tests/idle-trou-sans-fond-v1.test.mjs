@@ -48,7 +48,7 @@ assert.ok(/c\.setAttribute\('data-morph-garder',''\)/.test(page), "salve data-mo
 
 assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}"), "mouvement réduit coupé");
 // Réalisme de la chute (Norman, 2026-10-31) : le bord inférieur du trou est au premier plan
-assert.ok(css.includes("pointer-events:none;clip-path:inset(0 0 34% 0)}"), "calque coupé au bord inférieur du trou");
+assert.ok(css.includes("pointer-events:none;clip-path:polygon(0 0,100% 0,100% 56%,56% 66%,54% 66%,50% 63.5%,45% 62%,40% 61%,38% 60%,33% 57%,29% 54%,0 54%)}"), "calque coupé au bord inférieur du trou");
 assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
 assert.ok(css.includes("100%{opacity:0;transform:scale(.08)}}"), "pièces dans le trou : rétrécissent et s'effacent");
 // PC (Norman, 2026-10-31) : images côte à côte, menus dessous, tableaux côte à côte
