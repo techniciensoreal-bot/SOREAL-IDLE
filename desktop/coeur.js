@@ -189,6 +189,22 @@ async function demarrerJeu() {
     if (liaison.lie && liaisonExpiree && liaisonModule.transmissible(url.pathname)) return Response.error();
     /* Le Worker voit une adresse http ordinaire ; la page, elle, reste sur « app://soreal » (même origine à chaque lancement : le stockage de l'appareil est conservé). */
     const interne = new Request("http://soreal-idle.local" + url.pathname + url.search, { method: requete.method, headers: requete.headers, body: requete.method === "GET" || requete.method === "HEAD" ? undefined : requete.body, duplex: "half" });
+    /*
+     * Ennemis de l'ITOPOD (Norman, 2026-10-31 : « il n'y a plus que 3 ennemis, les ouvriers et les gens venus par Google ne sont plus là ») : la liste des prénoms vient de SOREAL TV, que ce Worker local ne peut pas joindre (il
+     * ne verrait que l'équipe minimale). On lit donc la liste du serveur quand internet répond, on en garde la dernière copie sur l'appareil (userData/roster-itopod.json) et on la relit hors ligne.
+     */
+    if (requete.method === "GET" && url.pathname === "/api/idle/media/roster") {
+      const copie = path.join(app.getPath("userData"), "roster-itopod.json");
+      try {
+        const distante = await net.fetch((process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION) + url.pathname, { bypassCustomProtocolHandlers: true, signal: AbortSignal.timeout(8000) });
+        if (distante.ok) {
+          const texte = await distante.text();
+          try { if (JSON.parse(texte).workers.length > 3) fs.writeFileSync(copie, texte); } catch (_e) { /* copie non écrite */ }
+          return new Response(texte, { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+        }
+      } catch (_e) { /* hors ligne : dernière copie */ }
+      try { if (fs.existsSync(copie)) return new Response(fs.readFileSync(copie), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } }); } catch (_e) { /* liste locale réduite */ }
+    }
     try {
       const locale = await env.fetch(interne);
       /* Une voix que l'installateur n'a pas encore (générée depuis, ou pas encore dans une mise à jour) est lue sur le serveur quand internet répond : l'administrateur peut ainsi l'écouter tout de suite. */

@@ -134,3 +134,10 @@ console.log("idle-desktop-coeur-v1 : OK");
   assert.ok(coeurSteam.includes("animation-play-state:paused!important") && coeurSteam.includes("canvas{visibility:hidden!important}"), "animations CSS et calques de dessin gelés");
   assert.ok(/const degeler = async \(\) => \{[\s\S]*removeInsertedCSS\(cle\)[\s\S]*repeindre\(\);/.test(coeurSteam), "le gel est retiré avant la repeinture");
 }
+/* Norman (2026-10-31) : « il n'y a plus que 3 ennemis dans l'ITOPOD » : l'exe lit la liste des prénoms sur le serveur (SOREAL TV est hors de portée de son Worker local), en garde la dernière copie et la relit hors ligne. */
+{
+  const coeurRoster = fs.readFileSync(new URL("../../desktop/coeur.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  assert.ok(coeurRoster.includes('url.pathname === "/api/idle/media/roster"') && coeurRoster.includes("roster-itopod.json"), "liste des ennemis de l'ITOPOD : serveur d'abord, copie locale ensuite");
+  assert.ok(coeurRoster.indexOf("roster-itopod.json") < coeurRoster.indexOf("const locale = await env.fetch(interne)"), "avant le Worker local");
+}
+console.log("idle-desktop-coeur-v1 (liste des ennemis de l'ITOPOD): OK");
