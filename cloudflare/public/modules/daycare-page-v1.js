@@ -219,7 +219,7 @@
           (E2?E2.yeuxHtml():'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
       '</div>'+
       '</div></div>'+
-      '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
+      '<div class="gd-intro">Cette drôle d’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Tant qu’un objet n’est pas sorti du bocal, il ne peut être ni fusionné ni équipé.</div>'+
       resume+detail+
       '</div></div>';
   }

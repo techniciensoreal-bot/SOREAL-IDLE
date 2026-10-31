@@ -31,11 +31,10 @@ export const IDLE_FLUX_MAX_PAR_BATTEMENT_V1 = 6;
 export const IDLE_FLUX_FRAICHEUR_MS_V1 = 90 * 1000;
 /* Un joueur n'est annoncé « connecté » qu'une fois toutes les 5 minutes au plus (un onglet qui se reconnecte en boucle ne doit pas inonder le bandeau). */
 export const IDLE_FLUX_DELAI_CONNEXION_MS_V1 = 5 * 60 * 1000;
-/* Boss en cours de combat / menu visité (Norman, 2026-10-07 : « plus d'informations EN DIRECT, sans que ça spam ») : un boss n'est annoncé qu'une fois toutes les 3 minutes, une visite de menu toutes les 10. */
+/* Boss en cours de combat : un boss n'est annoncé qu'une fois toutes les 3 minutes. Plus aucune annonce de « menu visité » (Norman, 2026-10-31 : En direct ne rapporte que des ACTIONS, jamais le menu où se trouve le joueur). */
 export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
 /* Boosts versés dans une pièce ou le Cube : une annonce par minute au plus. */
 export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
-export const IDLE_FLUX_DELAI_VISITE_MS_V1 = 3 * 60 * 1000;
 /* Magie placée dans un rituel : une annonce par minute au plus (réglages en rafale, « tout allouer »). */
 export const IDLE_FLUX_DELAI_RITUEL_MS_V1 = 60 * 1000;
 
@@ -324,8 +323,6 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     farmAt: precedent ? N(precedent.farmAt, 0) : 0,
     bossVu: precedent ? N(precedent.bossVu, 0) : 0,
     bossVuAt: precedent ? N(precedent.bossVuAt, 0) : 0,
-    menuVu: precedent ? String(precedent.menuVu || "") : "",
-    menuVuAt: precedent ? N(precedent.menuVuAt, 0) : 0,
     boostAt: precedent ? N(precedent.boostAt, 0) : 0,
     accidentVu: precedent ? N(precedent.accidentVu, 0) : 0,
     nettoyeVu: precedent ? N(precedent.nettoyeVu, 0) : 0,
@@ -350,12 +347,6 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
         etat.bossVu = N(activite.boss);
         etat.bossVuAt = now;
       }
-    }
-    /* Menu consulté (boutiques, puits, Challenges, Titans, sang) : annoncé quand le menu change (au plus toutes les 3 minutes). */
-    if (activite && typeof activite.menu === "string" && activite.menu && activite.menu !== String(precedent.menuVu || "") && now - N(precedent.menuVuAt, 0) >= IDLE_FLUX_DELAI_VISITE_MS_V1) {
-      evenements.push({ type: "visite", donnees: { menu: activite.menu } });
-      etat.menuVu = activite.menu;
-      etat.menuVuAt = now;
     }
     /* Le Coffre du joueur s'est chié dessus (accident aléatoire côté jeu) : annoncé une fois par accident, jamais deux fois le même numéro. */
     if (activite && N(activite.accident) > 0 && N(activite.accident) !== N(precedent.accidentVu, 0)) {
@@ -395,7 +386,6 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       etat.farmAt = now;
     }
     if (activite && activite.t === "boss" && N(activite.boss) > 0) { etat.bossVu = N(activite.boss); etat.bossVuAt = now; }
-    if (activite && typeof activite.menu === "string" && activite.menu) { etat.menuVu = activite.menu; etat.menuVuAt = now; }
     /* Un accident survenu pendant une absence n'est jamais annoncé en rattrapage. */
     if (activite && N(activite.accident) > 0) etat.accidentVu = N(activite.accident);
     if (activite && N(activite.nettoye) > 0) etat.nettoyeVu = N(activite.nettoye);
@@ -432,10 +422,10 @@ export function lireFluxV1(sql, { apresId = 0, limite = IDLE_FLUX_LIMITE_LECTURE
   const max = Math.max(1, Math.min(IDLE_FLUX_LIMITE_LECTURE_V1, Math.floor(Number(limite) || IDLE_FLUX_LIMITE_LECTURE_V1)));
   /* seulementFrais (lecture « en direct » du bandeau) : jamais d'historique, seulement ce qui date de moins de IDLE_FLUX_FRAICHEUR_MS_V1. */
   const rows = seulementFrais
-    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND at >= ? AND email NOT LIKE '%+partie_@%' ORDER BY id LIMIT ?", after, now - IDLE_FLUX_FRAICHEUR_MS_V1, max))
+    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND at >= ? AND email NOT LIKE '%+partie_@%' AND type<>'visite' ORDER BY id LIMIT ?", after, now - IDLE_FLUX_FRAICHEUR_MS_V1, max))
     : after > 0
-    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND email NOT LIKE '%+partie_@%' ORDER BY id LIMIT ?", after, max))
-    : sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM (SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE email NOT LIKE '%+partie_@%' ORDER BY id DESC LIMIT ?) ORDER BY id", max));
+    ? sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE id > ? AND email NOT LIKE '%+partie_@%' AND type<>'visite' ORDER BY id LIMIT ?", after, max))
+    : sqlRows(sql.exec("SELECT id,at,email,nom,type,donnees FROM (SELECT id,at,email,nom,type,donnees FROM idle_flux WHERE email NOT LIKE '%+partie_@%' AND type<>'visite' ORDER BY id DESC LIMIT ?) ORDER BY id", max));
   return rows.map((r) => {
     let donnees = {};
     try { donnees = JSON.parse(r.donnees); } catch (_e) { /* détail illisible : événement sans détail */ }

@@ -262,7 +262,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   const P = bac.window.__SOREAL_IDLE_PHRASES_V1__, E = bac.window.__SOREAL_IDLE_ETAGERE_V1__;
   const tout = (qui, mode) => new Set(Array.from({ length: 500 }, () => P.tirer(qui, mode)));
   const yeux = E.yeuxHtml();
-  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "et-nez", "et-zzz", "left:29.7%", "left:57.8%"]) assert.ok(yeux.includes(k), "armoire : " + k);
+  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "et-nez", "et-zzz", "left:29.04%", "left:56.9%"]) assert.ok(yeux.includes(k), "armoire : " + k);
   assert.equal(E.classes(), "", "au repos : elle ne parle pas");
   assert.ok(!yeux.includes("et-goutte") && !/morve|goutte|fluxMorve|nez-coule/.test(pub("modules/etagere-personnage-v1.js") + pub("modules/daycare-page-v1.js")), "plus de goutte de morve");
   assert.equal(E.humeur(), "eveillee");
@@ -293,7 +293,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   const m = pub("modules/etagere-personnage-v1.js");
   assert.ok(m.includes("data-morph-garder") && m.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__"), "règle n°4");
   /* yeux : pupilles petites, opposées, aucun verre grossissant ; mouvements lents, boucles parfaites */
-  assert.ok(m.includes("height:26%;aspect-ratio:1") && m.includes(".et-og .et-iris{left:5%}.et-od .et-iris{right:5%}"), "petites pupilles, l'une à l'extérieur gauche, l'autre à l'extérieur droit");
+  assert.ok(m.includes("height:28%;aspect-ratio:1") && m.includes(".et-og .et-iris,.et-od .et-iris{left:calc(50% - 7.8%)}"), "petites pupilles noires, centrées dans l œil (Norman, 2026-10-31)");
   assert.ok(!/scale\(1\.2|cul de bouteille|et-loupe/.test(m), "plus de verre grossissant");
   assert.ok(m.includes("etRegG 17s") && m.includes("etRegD 21s") && m.includes("etClin 13s") && m.includes("etNez 19s"), "mouvements lents ; le nez ne bouge qu'de temps en temps (19 s, longs repos)");
   assert.ok(m.includes("etBilleG 29s") && m.includes("etPaupG 29s") && m.includes("@keyframes etBilleG{0%,60%{transform:translate(0,0)}") && m.includes("100%{transform:translate(0,0)}}"), "la pupille de l'œil gauche tombe comme une bille et la paupière se ferme plusieurs fois pour la remettre en place (boucle parfaite de 29 s, départ = arrivée)");

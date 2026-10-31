@@ -15,14 +15,18 @@ export function nettoyerUiPrefsV1(brut) {
   const sortie = {};
   let total = 0;
   let n = 0;
-  for (const cle of Object.keys(source).sort()) {
-    const valeur = source[cle];
-    if (!FORME_CLE.test(cle) || typeof valeur !== "string" || valeur.length > IDLE_UI_PREFS_MAX_VALEUR_V1) continue;
-    if (n >= IDLE_UI_PREFS_MAX_CLES_V1 || total + cle.length + valeur.length > IDLE_UI_PREFS_MAX_TOTAL_V1) break;
-    sortie[cle] = valeur;
-    total += cle.length + valeur.length;
+  /* Quand la limite est atteinte, ce sont les PLUS GROSSES valeurs (listes « déjà vu », notes lues) qui sont écartées, jamais les petites : un nombre tapé, une case cochée, un onglet tiennent toujours. Avant, le tri
+     alphabétique coupait la fin de la liste : des saisies (« soreal_idle_m… ») disparaissaient en silence dès que le total dépassait la limite (Norman, 2026-10-31 : « les chiffres ne se sauvegardent plus »). */
+  const valides = Object.keys(source).filter((cle) => FORME_CLE.test(cle) && typeof source[cle] === "string" && source[cle].length <= IDLE_UI_PREFS_MAX_VALEUR_V1);
+  valides.sort((x, y) => (source[x].length + x.length) - (source[y].length + y.length) || (x < y ? -1 : x > y ? 1 : 0));
+  const gardees = [];
+  for (const cle of valides) {
+    if (n >= IDLE_UI_PREFS_MAX_CLES_V1 || total + cle.length + source[cle].length > IDLE_UI_PREFS_MAX_TOTAL_V1) break;
+    gardees.push(cle);
+    total += cle.length + source[cle].length;
     n += 1;
   }
+  for (const cle of gardees.sort()) sortie[cle] = source[cle];
   return sortie;
 }
 

@@ -76,8 +76,8 @@
   function activiteActuelle(){
     const c=contexteJeu();
     if(!c)return {t:'libre'};
-    /* Menu consulté : le serveur ne garde que sa liste blanche (boutiques, puits, Challenges…), pour « En direct ». */
-    const m=c.menu?{menu:c.menu}:{};
+    /* Le menu où se trouve le joueur n'est jamais envoyé (En direct ne montre que des actions). */
+    const m={};
     /* Accident du Coffre (modules/coffre-digestion-v1.js) : son numéro part avec chaque battement, le serveur ne l'annonce qu'une fois. */
     if(window.__coffreAccidentNumeroIdleV1__>0)m.accident=window.__coffreAccidentNumeroIdleV1__;
     /* Coffre nettoyé (modules/coffre-accident-v1.js) : même principe, annoncé une seule fois. */

@@ -23,6 +23,13 @@ var natifSet=Storage.prototype.setItem, natifRem=Storage.prototype.removeItem;
 var attente={};      /* clé -> valeur (texte) ou null : changements locaux pas encore envoyés */
 var enVol={};        /* clé -> valeur : envoyés, réponse pas encore reçue */
 var connu={};        /* dernier état connu du compte */
+var vusCompte={};    /* clés que le compte a réellement renvoyées (jamais une valeur seulement envoyée) */
+var renvoyees={};    /* clés absentes du compte renvoyées une fois par page (le serveur peut en refuser : pas de boucle) */
+/* Journal des changements NON CONFIRMÉS par le compte, gardé dans le stockage de l'appareil (clé exclue de la synchro) : fermeture de l'application avant l'envoi (1,5 s), échec réseau, ancien état du
+   serveur à la réouverture... un nombre tapé n'est jamais remplacé par une vieille valeur du compte. Une entrée disparaît quand le compte renvoie exactement cette valeur. */
+var CLE_JOURNAL='soreal_idle_prefs_journal_v1';
+var journal=(function(){try{var o=JSON.parse(stock.getItem(CLE_JOURNAL)||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{};}catch(_e){return {};}})();
+function ecrireJournal(){try{if(Object.keys(journal).length)natifSet.call(stock,CLE_JOURNAL,JSON.stringify(journal));else natifRem.call(stock,CLE_JOURNAL);}catch(_e){}}
 var minuterie=0, envoiEnCours=false, echecs=0, premiereReception=true;
 
 function suivie(cle){
@@ -38,8 +45,12 @@ function planifier(delai){
 function marquer(cle,valeur){
   if(valeur!==null&&valeur.length>VALEUR_MAX)return;                       /* trop gros pour le compte : reste local */
   var deja=Object.prototype.hasOwnProperty.call(connu,cle)?connu[cle]:null;
-  if(deja===valeur&&!Object.prototype.hasOwnProperty.call(attente,cle))return; /* le compte a déjà cette valeur */
+  if(deja===valeur&&!Object.prototype.hasOwnProperty.call(attente,cle)){      /* le compte a déjà cette valeur */
+    if(Object.prototype.hasOwnProperty.call(journal,cle)){delete journal[cle];ecrireJournal();}
+    return;
+  }
   attente[cle]=valeur;
+  journal[cle]=valeur;ecrireJournal();
   planifier();
 }
 
@@ -89,8 +100,18 @@ function appliquer(joueur){
   var p=joueur&&joueur.systemes&&joueur.systemes.uiPrefs;
   if(!p||typeof p!=='object'||Array.isArray(p))return;
   var changees=0;
+  var avantVus=vusCompte;
   Object.keys(connu).forEach(function(c){delete connu[c];});
-  Object.keys(p).forEach(function(c){if(typeof p[c]==='string')connu[c]=p[c];});
+  vusCompte={};
+  Object.keys(p).forEach(function(c){if(typeof p[c]==='string'){connu[c]=p[c];vusCompte[c]=1;}});
+  /* Journal : confirmé par le compte = retiré ; sinon la valeur de CET appareil reste la bonne (jamais remplacée par une vieille valeur) et repart vers le compte. */
+  var journalChange=false;
+  Object.keys(journal).forEach(function(c){
+    var cote=Object.prototype.hasOwnProperty.call(p,c)&&typeof p[c]==='string'?p[c]:null;
+    if(cote===journal[c]){delete journal[c];journalChange=true;if(Object.prototype.hasOwnProperty.call(attente,c)&&attente[c]===cote)delete attente[c];return;}
+    if(!Object.prototype.hasOwnProperty.call(attente,c)&&!Object.prototype.hasOwnProperty.call(enVol,c))attente[c]=journal[c];
+  });
+  if(journalChange)ecrireJournal();
   var marqueInit='soreal_idle_prefs_init_v1:'+String((joueur&&joueur.nom)||'');
   var dejaInitialise=lire(marqueInit)!==null;
   Object.keys(p).forEach(function(c){
@@ -106,7 +127,10 @@ function appliquer(joueur){
     var gros=lire(c);if(gros!==null&&gros.length>VALEUR_MAX)return;   /* trop gros pour le compte : reste local, jamais supprimé*/
     if(Object.prototype.hasOwnProperty.call(attente,c)||Object.prototype.hasOwnProperty.call(enVol,c))return;
     if(!dejaInitialise){var v=lire(c);if(v!==null&&v.length<=VALEUR_MAX)attente[c]=v;}
-    else{ecrireLocal(c,null);changees+=1;}
+    else if(avantVus[c]){ecrireLocal(c,null);changees+=1;}   /* le compte l'avait et ne l'a plus : supprimée ailleurs */
+    else if(!renvoyees[c]){                                  /* le compte ne l'a jamais eue (envoi refusé ou perdu) : renvoyée, JAMAIS détruite */
+      renvoyees[c]=1;var w=lire(c);if(w!==null&&w.length<=VALEUR_MAX)attente[c]=w;
+    }
   });
   if(!dejaInitialise){try{natifSet.call(stock,marqueInit,'1');}catch(_e){}}
   if(Object.keys(attente).length)planifier();

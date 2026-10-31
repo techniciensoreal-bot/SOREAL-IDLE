@@ -25,12 +25,12 @@
   function classes_(){return parle_()?' parle':'';}
 
   /* Les yeux (dans les ovales blancs de l'image : 12,8 % x 7,3 % de l'image), le nez (copie découpée de l'image), les Z. Positions en % de l'image 768 x 1152. */
-  function oeil_(cls,gauche){
-    return '<i class="et-oeil '+cls+'" style="left:'+gauche+'%;top:17.6%;width:12.8%;height:7.3%"><b class="et-regard"><u class="et-iris"></u></b><s class="et-paup"></s></i>';
+  function oeil_(cls,gauche,larg){
+    return '<i class="et-oeil '+cls+'" style="left:'+gauche+'%;top:17.5%;width:'+larg+'%;height:7.8%"><b class="et-regard"><u class="et-iris"></u></b><s class="et-paup"></s></i>';
   }
   function yeuxHtml(){
     css();
-    return oeil_('et-og',29.7)+oeil_('et-od',57.8)+
+    return oeil_('et-og',29.04,14.06)+oeil_('et-od',56.9,14.2)+
       '<div class="et-nez" aria-hidden="true"></div><span class="et-zzz" aria-hidden="true"><i>Z</i><i>z</i><i>Z</i></span>';
   }
 
@@ -121,14 +121,14 @@
     s.id='et-style-v1';
     s.textContent=[
       /* yeux : globe blanc ombré, iris et petite pupille tournés vers l'extérieur, paupière qui descend */
-      '.et-oeil{position:absolute;z-index:6;display:block;border-radius:50%;overflow:hidden;background:radial-gradient(ellipse at 38% 30%,#fff 0,#f7f1e5 52%,#ddd2bd 100%);box-shadow:inset 0 2px 4px rgba(60,30,8,.5),inset 0 -1px 3px rgba(60,30,8,.25)}',
+      '.et-oeil{position:absolute;z-index:6;display:block;border-radius:50%;overflow:hidden;background:none}',
       '.et-regard{position:absolute;inset:0;display:block}',
-      '.et-iris{position:absolute;top:50%;height:26%;aspect-ratio:1;margin-top:-13%;display:block;border-radius:50%;background:radial-gradient(circle at 50% 50%,#0b0603 0 30%,#4a7388 33%,#2c4c5f 70%,#14262f 100%);box-shadow:0 0 0 1.5px #16262e}',
-      '.et-og .et-iris{left:5%}.et-od .et-iris{right:5%}',
-      '.et-iris::after{content:"";position:absolute;left:24%;top:16%;width:20%;height:20%;border-radius:50%;background:#fff;opacity:.92}',
-      '.et-paup{position:absolute;left:-4%;right:-4%;top:-3%;height:106%;display:block;transform-origin:50% 0;transform:scaleY(0);background:linear-gradient(180deg,#b06a33,#cf8a4f 78%,#8d5527);border-bottom:2px solid #3a2008;box-shadow:0 2px 3px rgba(0,0,0,.4);animation:etClin 13s ease-in-out infinite}',
-      '.et-paup::after{content:"";position:absolute;left:12%;right:12%;bottom:-3px;height:3px;background:repeating-linear-gradient(90deg,#3a2008 0,#3a2008 1px,rgba(0,0,0,0) 1px,rgba(0,0,0,0) 5px)}',
-      '.et-og .et-regard{animation:etRegG 17s ease-in-out infinite}.et-od .et-regard{animation:etRegD 21s ease-in-out infinite}',
+      '.et-iris{position:absolute;top:36%;height:28%;aspect-ratio:1;display:block;border-radius:50%;background:radial-gradient(circle at 50% 50%,#0b0603 0,#0b0603 100%)}',
+      '.et-og .et-iris,.et-od .et-iris{left:calc(50% - 7.8%)}',   /* Norman (2026-10-31) : pupille CENTRALE dans l'œil (iris = 28 % de la hauteur de l'ovale, soit ≈ 15,6 % de sa largeur) */
+
+      '.et-iris::after{content:"";position:absolute;left:24%;top:16%;width:20%;height:20%;border-radius:50%;background:#fff;opacity:.8}',
+      '.et-paup{position:absolute;left:-2%;right:-2%;top:-2%;height:104%;display:block;transform-origin:50% 0;transform:scaleY(0);background:linear-gradient(180deg,#c47426,#cf8130 80%,#b8651f);border-radius:0 0 50% 50%/0 0 14% 14%;border-bottom:2px solid #2a1608;animation:etClin 13s ease-in-out infinite}',
+            '.et-og .et-regard{animation:etRegG 17s ease-in-out infinite}.et-od .et-regard{animation:etRegD 21s ease-in-out infinite}',
       /* Norman, 2026-10-30 : « la pupille de son œil tombe parfois, comme une bille qui roulerait dans sa cavité ; elle ferme plusieurs fois la paupière pour la remettre en place » : œil gauche, même boucle de 29 s pour la bille et la paupière (elles ne se désynchronisent jamais) */
       '.et-og .et-paup{animation:etPaupG 29s ease-in-out infinite}.et-og .et-iris{animation:etBilleG 29s ease-in-out infinite}',
       '.gd-armoire[data-humeur="dort"] .et-regard,.gd-armoire[data-humeur="dort"] .et-iris{animation:none}',

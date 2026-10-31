@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { DatabaseSync } from "node:sqlite";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { enregistrerJalonsV1, lireFluxV1, instantaneJoueurV1, IDLE_FLUX_DELAI_BOSS_MS_V1, IDLE_FLUX_DELAI_VISITE_MS_V1 } from "../src/idle-flux-v1.js";
+import { enregistrerJalonsV1, lireFluxV1, instantaneJoueurV1, IDLE_FLUX_DELAI_BOSS_MS_V1 } from "../src/idle-flux-v1.js";
 import { normaliserActiviteV1 } from "../src/idle-chat-v1.js";
 
 /*
@@ -18,8 +18,8 @@ const inst = () => instantaneJoueurV1({ stats: { metaNgu: {} } });
 const battement = (sql, activite, now) => enregistrerJalonsV1(sql, { email: "a@x.fr", nom: "Mickaël", instantane: inst(), activite: normaliserActiviteV1(activite), now });
 const types = (sql) => lireFluxV1(sql, {}).map((e) => e.type + ":" + JSON.stringify(e.donnees));
 
-// 1. Activité normalisée : liste blanche des menus
-assert.equal(normaliserActiviteV1({ t: "libre", menu: "spendExp" }).menu, "spendExp");
+assert.equal("menu" in normaliserActiviteV1({ t: "libre", menu: "spendExp" }), false, "le menu n’est jamais gardé");
+assert.equal("menu" in normaliserActiviteV1({ t: "libre", menu: "<script>" }), false);
 assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefined, "menu hors liste blanche : ignoré");
 
 // 2. Boss en cours : jamais au 1er battement, puis seulement quand le boss change et après le délai
@@ -39,17 +39,13 @@ assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefi
   assert.ok(b[0].includes('"boss":7'));
 }
 
-// 3. Menu visité : annoncé une fois, puis plus avant le délai, même en changeant de menu
+// 3. Menu consulté : JAMAIS annoncé (En direct ne rapporte que des actions, Norman 2026-10-31)
 {
   const sql = base();
   battement(sql, { t: "libre" }, T0);
-  battement(sql, { t: "libre", menu: "spendExp" }, T0 + 20_000);
-  battement(sql, { t: "libre", menu: "spendExp" }, T0 + 40_000);
-  battement(sql, { t: "libre", menu: "sellout" }, T0 + 60_000);
-  assert.deepEqual(types(sql), ['visite:{"menu":"spendExp"}'], "une visite, pas de rafale en changeant de menu");
-  let t = T0 + 60_000;
-  for (let i = 0; i < Math.ceil(IDLE_FLUX_DELAI_VISITE_MS_V1 / 20_000) + 1; i++) { t += 20_000; battement(sql, { t: "libre", menu: "moneyPit" }, t); }
-  assert.equal(types(sql).filter((x) => x.startsWith("visite")).length, 2, "nouvelle visite après le délai");
+  let t = T0;
+  for (const menu of ["spendExp", "sellout", "moneyPit", "combat", "ngu"]) { t += 200_000; battement(sql, { t: "libre", menu }, t); }
+  assert.deepEqual(types(sql), [], "changer de menu n'écrit aucun événement");
 }
 
 // 4. Côté lecteur : phrases, anti-spoil, et jamais ses propres annonces
@@ -64,10 +60,7 @@ assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefi
   const p = (type, donnees, ctx) => phrase({ type, nom: "Mickaël", donnees, moi: false }, ctx);
   assert.equal(p("bossCombat", { boss: 12 }, expert).texte, "Mickaël combat Gros Rat");
   assert.equal(p("bossCombat", { boss: 12 }, debutant).texte, "Mickaël combat un boss", "boss inconnu du lecteur : générique");
-  assert.equal(p("visite", { menu: "spendExp" }, expert).texte, "Mickaël vide son portefeuille à la boutique EXP");
-  assert.equal(p("visite", { menu: "spendExp" }, debutant).texte, "Mickaël se promène dans un endroit que tu n’as pas encore découvert…", "menu non débloqué chez le lecteur : un endroit à découvrir, jamais son nom");
-  assert.ok(!/Blood|sang/i.test(p("visite", { menu: "sang" }, expert).texte), "menu inconnu : jamais nommé");
-  assert.equal(p("visite", { menu: "n'importe quoi" }, expert), null);
+  assert.equal(p("visite", { menu: "spendExp" }, expert), null, "un ancien événement visite n'a plus de phrase");
   assert.ok(source.includes("if(p&&!it.moi)sortie.push("), "les annonces du joueur lui-même ne sont jamais affichées");
 }
 

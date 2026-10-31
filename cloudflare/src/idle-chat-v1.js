@@ -36,12 +36,6 @@ export function assurerChatV1(sql) {
 }
 
 /* Ce que fait le joueur, réduit au strict nécessaire (le client l'envoie, le serveur ne fait confiance à rien). */
-export const IDLE_ACTIVITE_MENUS_V1 = Object.freeze([
-  "spendExp", "sellout", "shop", "moneyPit", "challenges", "titans", "sang",
-  "entrainement", "combat", "aventure", "renaissance", "augmentations", "avance", "machine", "tower", "daycare", "ngu", "wandoos", "yggdrasil", "diggers", "beards",
-  "macguffins", "hacks", "questing", "quirks", "wishes", "cards", "cooking", "chroniques", "parametres",
-]);
-
 export function normaliserActiviteV1(brut) {
   const a = brut && typeof brut === "object" ? brut : {};
   const t = a.t === "farm" || a.t === "boss" ? a.t : "libre";
@@ -51,8 +45,7 @@ export function normaliserActiviteV1(brut) {
     sortie.zoneNom = String(a.zoneNom == null ? "" : a.zoneNom).replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 60);
   }
   if (t === "boss") sortie.boss = Math.max(0, Math.min(99999, Math.floor(Number(a.boss) || 0)));
-  /* Menu consulté (liste blanche : jamais un texte libre) -- sert au fil « En direct » (« X visite la boutique »), voir idle-flux-v1.js. */
-  if (typeof a.menu === "string" && IDLE_ACTIVITE_MENUS_V1.includes(a.menu)) sortie.menu = a.menu;
+  /* Le MENU où se trouve le joueur n'est ni gardé ni renvoyé (Norman, 2026-10-31 : En direct ne montre que des actions). */
   /* Accident du Coffre (Norman, 2026-10-15) : numéro de l'accident (secondes), seulement pour « En direct » (idle-flux-v1.js) ; une valeur renvoyée à chaque battement n'est annoncée qu'une fois. */
   const accident = Math.floor(Number(a.accident) || 0);
   if (accident > 0 && accident < 4102444800) sortie.accident = accident;

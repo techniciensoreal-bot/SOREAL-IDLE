@@ -36,7 +36,9 @@
             'L’introduction en anglais affiche maintenant le texte original du jeu (« THE BEGINNING ») et est lue par un narrateur anglais, légèrement ralenti ; si une voix ne peut pas se jouer, l’introduction défile en texte seul.',
             'Dans le menu en petit, un menu qui travaille sans être ouvert garde son fond sombre, mais ses icônes restent en couleurs pleines et animées.',
             'En anglais, le lecteur reste muet quand aucune voix anglaise n’existe pour le texte, au lieu de lire le texte français ; les guides et le tutoriel sont traduits en entier.',
-            'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.'
+            'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.',
+            'Les nombres que tu tapes dans les champs de saisie sont mieux conservés sur ton compte : plus de valeur perdue à la fermeture ou après une mise à jour.',
+            '« En direct » n’indique plus dans quel menu se trouve un joueur : on n’y voit que ses actions.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.',
@@ -53,7 +55,8 @@
             'Le cadre de titre n’affiche plus que son titre, sans phrase en dessous.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
-            'Un clic sur un bocal ouvre maintenant une fenêtre d’information aux couleurs de la page, et les bocaux sont un peu plus grands.'
+            'Un clic sur un bocal ouvre maintenant une fenêtre d’information aux couleurs de la page, et les bocaux sont un peu plus grands.',
+            'Mamie l’armoire : la pupille et la paupière sont maintenant posées exactement sur l’œil dessiné, sans second œil par-dessus.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'

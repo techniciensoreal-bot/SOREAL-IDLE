@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { lireSrc } from "./_src-sources.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { IDLE_ACTIVITE_MENUS_V1, normaliserActiviteV1 } from "../src/idle-chat-v1.js";
+import { normaliserActiviteV1 } from "../src/idle-chat-v1.js";
 
 /*
  * « En direct » plus vivant (Norman, 2026-10-09 : « quand on fuit ou qu'on meurt face à un boss, ça n'apparaît pas pour les autres ; des phrases humoristiques pour les menus visités, toujours en anti-spoil »).
@@ -16,41 +16,24 @@ for (const cle of ["fluxBossFuites", "fluxBossDefaites", "fluxBossDernier", "flu
   assert.ok(corps.includes(cle + ":"), "la normalisation des statistiques conserve " + cle);
 }
 
-// Menus visités : liste blanche élargie côté serveur, jamais l'administration ni un texte libre.
-for (const m of ["shop", "entrainement", "aventure", "ngu", "wandoos", "cards", "cooking", "parametres"]) assert.ok(IDLE_ACTIVITE_MENUS_V1.includes(m), m);
-assert.ok(!IDLE_ACTIVITE_MENUS_V1.includes("admin") && !IDLE_ACTIVITE_MENUS_V1.includes("chat"));
+// Aucun menu n'est gardé ni renvoyé par le serveur (Norman, 2026-10-31 : En direct ne montre que des actions).
+assert.equal(normaliserActiviteV1({ t: "libre", menu: "cards" }).menu, undefined);
 assert.equal(normaliserActiviteV1({ t: "libre", menu: "admin" }).menu, undefined);
-assert.equal(normaliserActiviteV1({ t: "libre", menu: "cards" }).menu, "cards");
+assert.equal("menu" in normaliserActiviteV1({ t: "farm", zoneId: 3, menu: "ngu" }), false);
 
 // Phrases côté lecteur.
 const ctx = { window: { __SOREAL_IDLE_ACTIVITE_V1__: () => null }, document: { addEventListener() {}, getElementById: () => null, createElement: () => ({ style: {}, setAttribute() {}, appendChild() {} }), head: { appendChild() {} }, body: { appendChild() {} } }, setInterval() {}, setTimeout() {}, localStorage: { getItem: () => null, setItem() {} }, console };
 ctx.globalThis = ctx;
 vm.createContext(ctx);
 vm.runInContext(readFileSync("cloudflare/public/modules/flux-v1.js", "utf8"), ctx);
-const { phrase, lieuxVisite: lieux } = ctx.window.__SOREAL_IDLE_FLUX_V1__ || {};
-assert.ok(phrase && lieux);
+const { phrase } = ctx.window.__SOREAL_IDLE_FLUX_V1__ || {};
+assert.ok(phrase);
+assert.equal(ctx.window.__SOREAL_IDLE_FLUX_V1__.lieuxVisite, undefined, "plus aucune table de menus visités");
 
-const tousMenus = Object.keys(lieux);
-const menusServeur = IDLE_ACTIVITE_MENUS_V1.slice().sort();
-assert.deepEqual(tousMenus.slice().sort(), menusServeur, "chaque menu annoncé par le serveur a ses phrases côté lecteur");
+const tousMenus = [];
 const connus = (menus) => ({ zones: [], bossMax: 20, connus: { boss: { 11: "Gros Méchant" }, titan: {}, succes: {}, menus } });
-const expert = connus(Object.fromEntries(tousMenus.map((m) => [m, true])));
+const expert = connus({});
 const debutant = connus({});
-for (const m of tousMenus) {
-  assert.ok(lieux[m][2].length >= 3, m + " : au moins trois variantes");
-  lieux[m][2].forEach((v, i) => {
-    assert.ok(v.includes("{n}"), m + " : le nom du joueur figure dans la phrase");
-    const p = phrase({ id: i, type: "visite", nom: "Afflito", donnees: { menu: m } }, expert);
-    assert.ok(p && p.texte.startsWith("Afflito "), m + " : phrase lisible");
-    const inconnu = phrase({ id: i, type: "visite", nom: "Afflito", donnees: { menu: m } }, debutant).texte;
-    assert.ok(inconnu.startsWith("Afflito ") && !inconnu.includes(lieux[m][1]) && !new RegExp(m, "i").test(inconnu), m + " : menu non débloqué chez le lecteur, jamais nommé : " + inconnu);
-  });
-  // Les variantes tournent avec l'identifiant de l'événement.
-  const a = phrase({ id: 0, type: "visite", nom: "A", donnees: { menu: m } }, expert).texte;
-  const b = phrase({ id: 1, type: "visite", nom: "A", donnees: { menu: m } }, expert).texte;
-  assert.notEqual(a, b, m + " : variantes différentes");
-}
-assert.equal(phrase({ id: 0, type: "visite", nom: "Afflito", donnees: { menu: "shop" } }, expert).texte, "Afflito visite la boutique");
 
 // Fuite et défaite : variantes d'humour, nom du boss jamais donné à un lecteur qui ne l'a pas atteint.
 for (let i = 0; i < 21; i++) {
@@ -70,29 +53,17 @@ assert.ok(phrase({ id: 1, type: "fuite", nom: "Sébastien", donnees: { boss: 11 
 const distinctes = (type) => new Set(Array.from({ length: 40 }, (_, i) => phrase({ id: i, type, nom: "Ana", donnees: { boss: 11 } }, expert).texte)).size;
 assert.ok(distinctes("fuite") >= 20, "fuite : " + distinctes("fuite"));
 assert.ok(distinctes("defaite") >= 20, "défaite : " + distinctes("defaite"));
-// Vingt variantes par menu (phrases du menu + phrases communes), vingt phrases « endroit que tu n'as pas découvert ».
-for (const m of tousMenus) {
-  const n = new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte)).size;
-  assert.ok(n >= 20, m + " : " + n + " variantes");
-}
-assert.ok(new Set(Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "ngu" } }, debutant).texte)).size >= 20, "menu inconnu : au moins vingt variantes");
-// Fight Boss : un endroit où l'on se bat, jamais « fouille », « bidouille », « s'installe »… (phrases propres, sans les phrases communes).
-const combatTextes = Array.from({ length: 60 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: "combat" } }, expert).texte);
-assert.ok(new Set(combatTextes).size >= 20, "Fight Boss : au moins vingt variantes");
-assert.ok(!combatTextes.some((t) => /fouille|bidouille|s’installe|traîne|mission secrète|petites affaires|coin tranquille/.test(t)), "Fight Boss : que des phrases de combat");
-// Menus de combat et d'entraînement : phrases propres uniquement (pas de « fouille » dans un endroit où l'on se bat ou s'entraîne).
-for (const m of ["combat", "challenges", "titans", "aventure", "tower", "entrainement", "avance"]) {
-  const t = Array.from({ length: 80 }, (_, i) => phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte);
-  assert.ok(new Set(t).size >= 20, m + " : au moins vingt variantes propres");
-  assert.ok(!t.some((x) => (m === "aventure" ? /bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/ : /fouille|bidouille|s’installe|mission secrète|petites affaires|coin tranquille|traîne dans/).test(x)), m + " : aucune phrase commune");
-}
-// Noms de menus en français dans « En direct » (Norman, 2026-10-10) : aucun nom anglais du jeu d'origine dans les phrases.
 const anglais = /Basic Training|Advanced Training|Fight Boss|Item Daycare|Time Machine|Blood Magic|Gold Diggers|Rebirth|Questing|Challenges|Adventure|Beards|Hacks|Quirks|Wishes|Cards|Cooking|Money Pit/;
-for (const m of tousMenus) {
-  for (let i = 0; i < 60; i++) {
-    const t = phrase({ id: i, type: "visite", nom: "Ana", donnees: { menu: m } }, expert).texte;
-    assert.ok(!anglais.test(t), m + " : nom anglais dans « " + t + " »");
-  }
-}
 assert.ok(!anglais.test(phrase({ id: 0, type: "sort", nom: "Ana", donnees: { sort: 9 } }, Object.assign(expert, { connus: Object.assign({}, expert.connus, { menus: Object.assign({}, expert.connus.menus, { sang: true }), sorts: {} }) })).texte), "sort de sang : nom du menu en français");
+
+
+// Un ancien événement « visite » n'a plus aucune phrase (jamais « X est dans le menu Y »).
+assert.equal(phrase({ id: 1, type: "visite", nom: "Ana", donnees: { menu: "shop" } }, expert), null);
+// Zone d'Aventure : le nom n'est donné qu'au lecteur qui l'a découverte (liste `zones` de son activité), sinon « en Aventure ».
+{
+  const avecZone = { zones: [{ id: 4, nom: "Forêt" }], bossMax: 20, connus: { boss: {}, titan: {}, succes: {}, menus: {} } };
+  assert.ok(phrase({ id: 1, type: "farm", nom: "Ana", donnees: { zoneId: 4, zoneNom: "Forêt" } }, avecZone).texte.includes("Forêt"));
+  const sans = phrase({ id: 1, type: "farm", nom: "Ana", donnees: { zoneId: 9, zoneNom: "Zone Secrète" } }, avecZone).texte;
+  assert.ok(!sans.includes("Zone Secrète") && sans.includes("en Aventure"), sans);
+}
 console.log("idle-flux-vivant-v1: OK");
