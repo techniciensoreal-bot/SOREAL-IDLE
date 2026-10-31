@@ -118,7 +118,7 @@ function dos(o){
   var idB='mtgBleu'+(++cptDos);
   var lettres='font-family="Bangers,Impact,sans-serif" font-size="92" text-anchor="middle" fill="url(#'+idB+')" stroke="#5b1d12" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" letter-spacing="3"';
   return '<div class="mtg-dos" data-soreal-tts-ignore>'+
-    '<img class="mtg-dos-image" src="/api/idle/media/card-back" alt="" data-sans-traduction onerror="this.style.display=\'none\'">'+
+    '<img class="mtg-dos-image" src="/api/idle/media/card-back" alt="" data-sans-traduction onerror="this.style.display=\'none\';this.parentNode.className+=\' sans-image\'">'+
     '<div class="mtg-dos-ovale">'+
       '<svg class="mtg-dos-titre" viewBox="0 0 340 215" aria-hidden="true" data-sans-traduction>'+
         '<defs><linearGradient id="'+idB+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0f2"/><stop offset=".5" stop-color="#4a8fd0"/><stop offset="1" stop-color="#2a63a8"/></linearGradient></defs>'+
