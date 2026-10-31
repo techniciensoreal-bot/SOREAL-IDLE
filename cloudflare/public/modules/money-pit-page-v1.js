@@ -545,8 +545,11 @@
           '</div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
           /* Norman (2026-10-10) : les récompenses du Money Pit et de la roue passent au-dessus, le calendrier de connexion en bas de page. */
+          /* PC (Norman, 2026-10-31) : les deux tableaux côte à côte, chacun sous son menu (celui du trou à gauche, celui de la roue à droite) ; téléphone : l'un sous l'autre */
+          '<div class="mp-recaps-v1">'+
           cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
           cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
+          '</div>'+
           rendreCalendrierConnexionIdleV1_(j);
       }
 

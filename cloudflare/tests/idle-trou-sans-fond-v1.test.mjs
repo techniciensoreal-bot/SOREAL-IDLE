@@ -50,4 +50,7 @@ assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animati
 assert.ok(css.includes("pointer-events:none;clip-path:inset(0 0 34% 0)}"), "calque coupé au bord inférieur du trou");
 assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
 assert.ok(css.includes("100%{opacity:0;transform:scale(.08)}}"), "pièces dans le trou : rétrécissent et s'effacent");
+// PC (Norman, 2026-10-31) : images côte à côte, menus dessous, tableaux côte à côte
+assert.ok(css.includes(".mp2-grille-v1>.rb-roue{grid-column:2;grid-row:1;align-self:start}") && css.includes(".mp2-grille-v1>.soreal-idle-money-actions-v206{grid-column:1;grid-row:2}"), "PC : image du trou à gauche, roue à droite, menus en dessous");
+assert.ok(page.includes('<div class="mp-recaps-v1">') && css.includes(".mp-recaps-v1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)"), "PC : les deux tableaux de récompenses côte à côte");
 console.log("idle-trou-sans-fond-v1: OK");

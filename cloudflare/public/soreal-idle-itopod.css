@@ -2048,8 +2048,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* ===== Roue journalière refaite (Norman, 2026-10-31) : roue de la largeur du cadre du trou, en dessous ; un secteur par récompense ; modules/roue-journaliere-v1.js =====
    Règle n°3 : ampoules et halo en boucle parfaite (mêmes valeurs à 0 % et 100 %) ; mouvement réduit : plus d'animation, halo fixe. */
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-roue{grid-column:1;grid-row:2}
+/* PC (Norman, 2026-10-31) : l'image du trou et celle de la roue côte à côte (ligne 1), chacune avec son menu (boutons, prix) en dessous (ligne 2) ; téléphone : tout s'empile dans l'ordre de la page */
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-roue{grid-column:2;grid-row:1;align-self:start}
 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-prixcol{grid-column:2;grid-row:2;align-self:start}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.soreal-idle-money-actions-v206{grid-column:1;grid-row:2}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;max-width:1100px;margin:0 auto 12px}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1>.mp-cadre-v1{max-width:none;margin:0;min-width:0}
+@media (max-width:760px){.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1{grid-template-columns:1fr;gap:0}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1>.mp-cadre-v1{margin:0 auto 12px}}
 .rb-roue{box-sizing:border-box;padding:5px;border-radius:22px;background:linear-gradient(145deg,#ffd24a,#8a4b00 45%,#ff9f1c);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 40px rgba(255,190,40,.18)}
 .rb-roue-int{border-radius:17px;background:radial-gradient(circle at 50% 38%,#1f2d4b,#0b1220 75%);padding:10px 10px 12px;text-align:center}
 .rb-titre{font-family:var(--mp2-titre,"Bangers","Russo One",Impact,sans-serif);font-weight:400;font-size:clamp(22px,4.2vw,30px);letter-spacing:.05em;color:#fff;margin:0 0 2px}
@@ -2080,7 +2085,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .rb-prix-txt{font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:13px;color:#9fb2d0;margin:8px 0 0}
 @media (prefers-reduced-motion:reduce){.rb-svg .rb-gagne .rb-halo,.rb-svg .rb-ampoule,.rb-bouton.rb-dispo{animation:none}.rb-svg .rb-gagne .rb-halo{opacity:1}.rb-svg .rb-sect{transition:none}.rb-svg .rb-aiguille{transition:none}}
 @media (max-width:760px){
-  .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol){grid-column:1;grid-row:auto}
+  .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol,.soreal-idle-money-actions-v206){grid-column:1;grid-row:auto}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol){max-width:520px!important;width:100%;margin:0 auto!important;box-sizing:border-box}
   .rb-legende{grid-template-columns:1fr}
 }

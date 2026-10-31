@@ -380,8 +380,8 @@
   "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 10,
-  "sha": "af7a02666dd34157873372d0291303cd0f95fd1a"
+  "pin": 11,
+  "sha": "a5e2c98fd0691fa890e9e417ff53445c5858970a"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -484,12 +484,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 9,
-  "sha": "e326e9baaed3ca5a655027686387064d83051b15"
+  "pin": 10,
+  "sha": "daaa77dcdbe61583fabcf3eac2751aa1067c2a45"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 622,
-  "sha": "b8ff9d93898ca0dca30da7e3610fb2eabbffa8f7"
+  "pin": 623,
+  "sha": "bbfda2d1fcaf89bdcf04cb38f7d3ab9902607c25"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -568,12 +568,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 645,
-  "sha": "65ed4551b4427c79594fe37c1cdfdf18cdeac107"
+  "pin": 646,
+  "sha": "bf0b85ab39790d2aebdb5ccc444cb83460f5ed76"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 465,
-  "sha": "c5ef1778c1344eb6891aba7530c54eb82d05c62f"
+  "pin": 466,
+  "sha": "071d3ec5b5dbdc8faa4ca3c7e786c7f5ca967cfb"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -776,8 +776,8 @@
   "sha": "b6fd649adf3129b8ba3a3cd1354c4d6182e48506"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 286,
-  "sha": "9bf9935f1fcb67b569c6299e83c7575444590b20"
+  "pin": 287,
+  "sha": "807f1c52a4d2a650770f385ef9a5e5f3d16224c4"
  },
  "/soreal-idle-jeu.css": {
   "pin": 8,
