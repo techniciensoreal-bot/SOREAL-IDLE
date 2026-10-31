@@ -38,27 +38,10 @@ assert.equal(prix(agir(frais(), { action: "specialPrize" }).state).choice, "ap")
   assert.equal(normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0).records.specialPrizeChoice, 2);
 }
 
-// Le choix « chaton » débloque le portrait « Joli chaton » (image R2 idle/Kitty/BadKittyDaycareBow.webp) ; le choix « AP » ne le débloque pas
+// Le choix « chaton » débloque l'apparence « noeud » du chat de la Garderie (plus un portrait de joueur : voir idle-daycare-skins-v1.test.mjs)
 {
-  const chaton = (s) => idleNguSnapshot(s, ctx, 0).portraits.list.find((p) => p.id === "kitty");
-  /* Anti-spoil : un portrait verrouillé n'est pas envoyé du tout. */
-  assert.equal(chaton(frais()), undefined, "verrouillé au départ : absent de la réponse");
-  assert.equal(chaton(agir(frais(), { action: "specialPrize", choice: "ap" }).state), undefined, "choix AP : pas de chaton");
-  let s = agir(frais(), { action: "specialPrize", choice: "kitty" }).state;
-  assert.equal(chaton(s).unlocked, true, "choix chaton : portrait débloqué");
-  assert.equal(chaton(s).file, "BadKittyDaycareBow");
-  s = normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0);
-  s = agir(s, { action: "portrait", id: "kitty" }).state;
-  assert.equal(idleNguSnapshot(s, ctx, 0).portraits.selected, "kitty", "sélectionnable");
-  assert.throws(() => agir(agir(frais(), { action: "specialPrize", choice: "ap" }).state, { action: "portrait", id: "kitty" }), /PORTRAIT_VERROUILLE/);
-  // Special Prize réclamé avant l'existence du choix (records.specialPrizeClaimed = 1, aucun choix enregistré) : le chaton est offert.
-  const ancien = frais();
-  ancien.records.specialPrizeClaimed = 1;
-  ancien.records.specialPrizeChoice = 0;
-  assert.equal(chaton(ancien).unlocked, true, "ancien compte ayant déjà réclamé : chaton débloqué");
-  const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
-  assert.ok(media.includes("IDLE_PORTRAIT_KITTY_R2_KEY_V1") && media.includes("badkittydaycarebow"), "route média : fichier R2 désigné");
-  assert.ok(readFileSync("cloudflare/src/idle-portraits-v1.js", "utf8").includes('"idle/Kitty/BadKittyDaycareBow.webp"'));
+  assert.ok(idleNguSnapshot(agir(frais(), { action: "specialPrize", choice: "kitty" }).state, ctx, 0).daycare.skins.possedes.includes("noeud"));
+  assert.ok(!idleNguSnapshot(agir(frais(), { action: "specialPrize", choice: "ap" }).state, ctx, 0).daycare.skins.possedes.includes("noeud"));
 }
 
 // Client : la carte est dans le menu Info (toujours visible quand Info est ouvert), plus dans Achievements

@@ -1037,11 +1037,12 @@ function migrateLegacyMetaToV47(raw, now) {
   // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
   const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed" || key === "portrait") continue;
+    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin") continue;
     state.records[key] = Math.max(0, num(state.records[key], 0));
   }
   state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
+  state.records.daycareSkin = typeof state.records.daycareSkin === "string" ? state.records.daycareSkin.slice(0, 40) : "";
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1240,7 +1241,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed" || k === "portrait" || k === "loginCalendar") continue;
+    if (k === "newbieOffersUsed" || k === "portrait" || k === "daycareSkin" || k === "loginCalendar") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
@@ -1248,6 +1249,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.records.loginCalendar = idleLoginCalendarNormaliserV1(state.records.loginCalendar);
   /* Portrait de joueur choisi (idle-portraits-v1.js) : identifiant texte, pas un compteur. */
   state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
+  /* Apparence du chat de la Garderie (idle-daycare-skins-v1.js) : identifiant texte ("" = défaut). */
+  state.records.daycareSkin = typeof state.records.daycareSkin === "string" ? state.records.daycareSkin.slice(0, 40) : "";
 
   state.challenge = Object.assign(baseSous.challenge, source.challenge || {});
   state.challenge.completions = Object.assign(completionsDefisBase, source.challenge?.completions || {});

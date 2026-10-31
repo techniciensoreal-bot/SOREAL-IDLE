@@ -18,6 +18,7 @@ import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNe
 import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
 import { idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
+import { skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
@@ -321,7 +322,7 @@ function construireSnapshotNguV1(state, context, now) {
     perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
-    daycare: idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)),
+    daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
     inventoryAuto: idleInventoryAutoSnapshotV1(state.adventure, inventoryAutoEnvV1(state)),
     /* Questing (crochet 4/4) : état de quête prêt à afficher (idle-questing-v1.js). */
@@ -1298,6 +1299,16 @@ export function portraitEnvV1(state) {
      * (Norman, 2026-09-25 : « débloque le chaton sur mon compte, je ne l'ai pas choisi car il n'était pas là »).
      */
     specialPrizeChoice: num(state.records.specialPrizeChoice, 0) || (num(state.records.specialPrizeClaimed, 0) > 0 ? 2 : 0)
+  };
+}
+
+/* Conditions des apparences du chat de la Garderie (idle-daycare-skins-v1.js). */
+export function daycareSkinsEnvV1(state) {
+  return {
+    specialPrizeChoice: portraitEnvV1(state).specialPrizeChoice,
+    wishLevel: id => wishLevelV1(state, id),
+    perkLevel: id => num(idlePerkNiveauxV1(state)?.[id], 0),
+    achats: id => int(state.selloutShop?.purchases?.[id], 0)
   };
 }
 

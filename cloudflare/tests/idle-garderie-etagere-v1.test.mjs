@@ -35,6 +35,7 @@ const window = {
 {
   const bac = { window, document: window.document, SOREAL_SESSION: null, Date };
   vm.runInNewContext(pub("modules/meta-progression-v130.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);   /* données des apparences du chat : géométrie du décor, des yeux et des bocaux */
   for (const f of PAGES_META) vm.runInNewContext(pub("modules/" + f), bac);
 }
 const G = window.__SOREAL_IDLE_DAYCARE_PAGE_V1__;
@@ -64,7 +65,7 @@ const id = ajout.result.id;
   const j = joueur(T0);
   assert.equal(G.disponible(j), true);
   const html = G.etagere(j);
-  assert.ok(html.includes("gd-armoire") && html.includes("/garderie/armoire-v1.webp"), "l'armoire (son image) est le décor");
+  assert.ok(html.includes("gd-etagere") && html.includes("/api/idle/media/garderie-skin?id=defaut") && !html.includes("armoire"), "le chat-étagère (image de l'apparence active, par défaut « defaut ») est le décor");
   assert.ok(html.includes("gd-vide"), "récipient vide");
   assert.ok(!/data-gd-id=/.test(html), "aucun objet en garderie");
   assert.ok(!/\/ ?1\b|\/ ?6\b/.test(html.replace(/<[^>]+>/g, " ")), "aucun total de type x / y");
@@ -87,7 +88,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.ok(html.includes("data-gd-lv=\"3\"") && html.includes("<b class=\"gd-niv-n\">3</b>"), "niveau du moteur");
   assert.ok(html.includes("data-gd-r=\"" + 1 / 3600 + "\""), "vitesse du moteur : 1 niveau par heure");
   /* plus de liste ni de boutons sous l'armoire : on clique sur le bocal (Norman, 2026-10-30) ; reprendre passe par un panneau qui prévient que l'avancée du niveau est perdue */
-  assert.ok(!html.includes("gd-liste") && !html.includes("class=\"gd-reprendre\"") && !html.includes("Emplacement libre"), "plus de liste de notes sous l'armoire");
+  assert.ok(!html.includes("gd-liste") && !html.includes("class=\"gd-reprendre\"") && !html.includes("Emplacement libre"), "plus de liste de notes sous le chat");
   assert.ok(html.includes("class=\"gd-bocal gd-occupe\"") && html.includes("__garderieReprendreV1__('" + id + "')"), "le bocal occupé est cliquable");
   assert.ok(html.includes("<span class=\"gd-niv-badge\"") && html.includes("<b class=\"gd-niv-n\">3</b>"), "le niveau est sur le bocal");
   {
@@ -156,7 +157,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.equal(G.vueGarderie(j), false);
 }
 
-/* 5c. Armoire : 6 places dans les 3 compartiments, bocaux affichés un à un, aucune place fantôme, mise en page constante. */
+/* 5c. Chat-étagère : 6 places dans les 3 compartiments, bocaux affichés un à un, aucune place fantôme, mise en page constante. */
 {
   const rendu = (slots, pris) => {
     const j = joueur(T0);
@@ -173,16 +174,15 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.equal(compte(quatre, /class="gd-pot/g), 4);
   assert.equal(compte(six, /class="gd-pot/g), 6);
   assert.equal(compte(troisVides, /gd-vide/g), 3 * 1, "places libres : un bocal vide par place possédée seulement");
-  assert.ok(un.includes("left:29.4%;top:33%"), "1er bocal : compartiment du haut, à gauche (sur la planche)");
-  assert.ok(trois.includes("left:56.4%;top:33%") && trois.includes("left:29.4%;top:51.400000000000006%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
-  assert.ok(six.includes("left:56.4%;top:68.2%"), "6e bocal : compartiment du bas, à droite");
+  assert.ok(un.includes("left:28.8%;top:32.73%;width:13.2%;height:13.8%"), "1er bocal : compartiment du haut, à gauche (sur la planche mesurée de l'apparence « defaut »)");
+  assert.ok(trois.includes("left:57.22%;top:32.73%") && trois.includes("left:28.8%;top:51.65%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
+  assert.ok(six.includes("left:57.22%;top:69.27%"), "6e bocal : compartiment du bas, à droite");
   assert.ok(!six.includes("gd-vide") || compte(six, /gd-vide/g) === 2, "aucune place au-delà de celles possédées");
   assert.ok(!/maxSlots|sur 6|\/ ?6/.test(un.replace(/<[^>]+>/g, " ")), "le maximum n'est écrit nulle part");
   /* mise en page : l'armoire a un cadre à rapport fixe, la liste réserve 3 rangées : rien ne bouge quand une place s'ajoute */
   const m = pub("modules/daycare-page-v1.js");
   assert.ok(m.includes("aspect-ratio:768/1152") && m.includes("grid-template-rows:repeat(3,minmax(92px,auto))") && m.includes("min-height:calc(3*92px + 16px)"), "cadre fixe + 3 rangées de liste réservées");
-  const w = readFileSync("cloudflare/public/garderie/armoire-v1.webp");
-  assert.ok(w.length > 20000 && w.slice(0, 4).toString() === "RIFF" && w.slice(8, 12).toString() === "WEBP", "l'image de l'armoire est un vrai webp");
+  assert.ok(!m.includes("/garderie/armoire-v1.webp") && !pub("modules/etagere-personnage-v1.js").includes("armoire-v1"), "l'ancienne image n'est plus référencée par le code");
   /* pose animée : une seule fois, mémorisée */
   const vraiMaintenant = Date.now;
   Date.now = () => vraiMaintenant() + 5000;   /* les poses des rendus précédents sont terminées */
@@ -242,63 +242,54 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
 /* 8. Client : geste « poser sur le Coffre » et phrases. */
 {
   const m = pub("modules/daycare-page-v1.js");
-  assert.ok(m.includes("function deposerNonMaxe(id)") && m.includes("parler('plein')") && m.includes("window.__jouerNonCoffreIdleV1__()"), "refus animé + phrase {P}");
-  assert.ok(m.includes("parler(mode)") && m.includes("it.fullyMaxed?'daycare:max':'daycare'"), "phrase {D} / {M} au placement");
-  assert.ok(m.includes("function apresDepotMaxe(){if(disponible("), "phrase {M} seulement si la garderie est débloquée");
+assert.ok(m.includes("function deposerNonMaxe(id)") && m.includes("window.__jouerNonCoffreIdleV1__()"), "refus animé quand la garderie est pleine");
+  assert.ok(!m.includes("parler(") && !m.includes("apresDepotMaxe"), "les chats ne parlent pas : plus de phrase au placement ni au dépôt maxé");
   assert.ok(m.includes("if(!d)return false;"),"garderie verrouillée : comportement d'avant");
   const av2 = pub("modules/ui-aventure-2-v1.js");
   assert.ok(av2.includes("__SOREAL_IDLE_DAYCARE_PAGE_V1__.deposerNonMaxe(id)))jouerNonCoffreIdleV1_();"), "le dépôt non maxé passe par la garderie ; sinon refus d'avant");
-  assert.ok(av2.includes("__SOREAL_IDLE_DAYCARE_PAGE_V1__.apresDepotMaxe()"));
+  assert.ok(!av2.includes("apresDepotMaxe"), "plus d'appel de phrase après le dépôt d'un objet maxé");
 }
-/* 9. Mamie l'armoire est un personnage : yeux animés dans les ovales de l'image, nez qui oscille, goutte, phrases à elle ; plus de phrases de garderie au Coffre. */
+/* 9. Les yeux du chat : un ovale du décor = un œil (pupille ronde noire centrée, paupière à la couleur du pelage), délais décalés entre les yeux, plus aucune parole. */
 {
   const bac = {
     window: { __SOREAL_IDLE_TEXTES_V1__: { surcharge: () => null }, __SOREAL_IDLE_REG__: {} },
     document: { addEventListener() {}, querySelector() { return null; }, querySelectorAll() { return []; }, getElementById() { return null; }, createElement() { return { style: {}, classList: { add() {}, remove() {} } }; }, head: null, hidden: false },
-    setInterval() {}, setTimeout() {}, Math, Date
+    Math, Date
   };
   vm.runInNewContext(pub("modules/phrases-coffre-valise-v1.js"), bac);
+  vm.runInNewContext(pub("modules/etagere-skins-v1.js"), bac);
   vm.runInNewContext(pub("modules/etagere-personnage-v1.js"), bac);
-  const P = bac.window.__SOREAL_IDLE_PHRASES_V1__, E = bac.window.__SOREAL_IDLE_ETAGERE_V1__;
-  const tout = (qui, mode) => new Set(Array.from({ length: 500 }, () => P.tirer(qui, mode)));
-  const yeux = E.yeuxHtml();
-  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "et-nez", "et-zzz", "left:29.04%", "left:56.9%"]) assert.ok(yeux.includes(k), "armoire : " + k);
-  assert.equal(E.classes(), "", "au repos : elle ne parle pas");
-  assert.ok(!yeux.includes("et-goutte") && !/morve|goutte|fluxMorve|nez-coule/.test(pub("modules/etagere-personnage-v1.js") + pub("modules/daycare-page-v1.js")), "plus de goutte de morve");
-  assert.equal(E.humeur(), "eveillee");
-  assert.equal(JSON.stringify(E.etat()), JSON.stringify({ dort: false, humeur: "eveillee", parle: false }));
-  E.reagir("plein");
-  assert.equal(E.etat().humeur, "agacee", "agacée quand elle est pleine");
-  E.reagir("daycare");
-  assert.equal(E.etat().humeur, "contente", "contente quand on lui confie un objet");
-  E.reagir("daycare:max");
-  assert.equal(E.etat().humeur, "clin", "clin d'œil pour un objet maxé");
-  for (const [mode, motif] of [["reveil", /poussin|petit|mailles|rhumatismes|feuilleton|secouée|bocaux/], ["daycare", /bocal|poussin|petit|mamie|tricot|planche/], ["daycare:max", /maxé|bel objet|Parfait|brille/], ["plein", /place|libre|complet|déborde|bonshommes/]]) {
-    const t = tout("etagere", mode);
-    assert.ok(t.size >= 3 && [...t].every((x) => x && motif.test(x)), "l'armoire a ses phrases : " + mode);
+  const P = bac.window.__SOREAL_IDLE_PHRASES_V1__, E = bac.window.__SOREAL_IDLE_ETAGERE_V1__, D = bac.window.__SOREAL_IDLE_ETAGERE_SKINS_V1__;
+  const nb = (h, re) => (h.match(re) || []).length;
+  const yeux = E.yeuxHtml("defaut");
+  for (const k of ["et-oeil et-og", "et-oeil et-od", "et-regard", "et-iris", "et-paup", "left:32.03%", "left:56.64%", "--pc:#faefe1"]) assert.ok(yeux.includes(k), "yeux du chat par défaut : " + k);
+  /* pupille ronde centrée : diamètre = 28 % de la HAUTEUR de l'ovale, converti en % de sa largeur (image 768 x 1152) */
+  assert.ok(yeux.includes("left:calc(50% - 11.13%)") && yeux.includes("height:28.00%"), "pupille centrée dans l'ovale mesuré");
+  /* tous les ovales de chaque apparence ont leur œil, chacun à sa phase */
+  for (const id of D.ordre) {
+    const h = E.yeuxHtml(id), n = D.skins[id].yeux.length;
+    assert.equal(nb(h, /<i class="et-oeil/g), n, id + " : un œil par ovale (" + n + ")");
+    const delais = new Set((h.match(/--dl:-?[\d.]+s/g) || []));
+    assert.equal(delais.size, n, id + " : phases toutes différentes (jamais à l'unisson)");
   }
-  assert.ok(tout("etagere", "plein").has("Fais de la place, c’est full là dedans !"));
-  assert.ok(![...tout("etagere", "remarque")].some((x) => /full là dedans|Maxé/.test(x)), "les phrases de situation ne sortent pas en remarque");
-  for (const m of ["daycare", "daycare:max", "plein"]) assert.equal(tout("coffre", m).size === 1 && tout("coffre", m).has(""), true, "le Coffre n'a plus de phrases de garderie : " + m);
-  assert.ok(tout("coffre", "reveil").size >= 5, "le Coffre garde ses phrases de réveil");
-  const html = P.editeurHtml();
-  assert.ok(html.includes('data-qui="etagere"') && html.includes("L’étagère"), "éditeur : 3e personnage");
-  const be = html.slice(html.indexOf('data-qui="etagere"'));
-  for (const k of ["data-php-r", "data-php-d", "data-php-m", "data-php-p"]) assert.ok(be.includes(k), "armoire : case " + k);
-  const bc = html.slice(html.indexOf('data-qui="coffre"'), html.indexOf('data-qui="etagere"'));
-  assert.ok(bc.includes("data-php-r") && !bc.includes("data-php-d") && !bc.includes("data-php-p"), "le Coffre n'a plus que Réveil en plus");
-  assert.equal(P.defauts.etagere.some((x) => /^\{P\}/.test(x)), true);
-  /* règle n°2 : l'armoire n'est dessinée que par l'onglet Garderie */
-  assert.ok(!/yeuxHtml/.test(pub("modules/ui-inventaire-v1.js")) && pub("modules/daycare-page-v1.js").includes("__SOREAL_IDLE_ETAGERE_V1__"));
+  assert.equal(nb(E.yeuxHtml("fibonacci"), /<i class="et-oeil/g), 6);
+  assert.equal(nb(E.yeuxHtml("pirate"), /<i class="et-oeil/g), 1);
+  assert.ok(E.yeuxHtml("noel").includes("--pc:#d57c26"), "paupière à la couleur du pelage de l'apparence");
+  assert.equal(E.yeuxHtml("inconnu"), E.yeuxHtml("defaut"), "apparence inconnue : repli sur le chat par défaut");
   const m = pub("modules/etagere-personnage-v1.js");
-  assert.ok(m.includes("data-morph-garder") && m.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__"), "règle n°4");
-  /* yeux : pupilles petites, opposées, aucun verre grossissant ; mouvements lents, boucles parfaites */
-  assert.ok(m.includes("height:28%;aspect-ratio:1") && m.includes(".et-og .et-iris,.et-od .et-iris{left:calc(50% - 7.8%)}"), "petites pupilles noires, centrées dans l œil (Norman, 2026-10-31)");
-  assert.ok(!/scale\(1\.2|cul de bouteille|et-loupe/.test(m), "plus de verre grossissant");
-  assert.ok(m.includes("etRegG 17s") && m.includes("etRegD 21s") && m.includes("etClin 13s") && m.includes("etNez 19s"), "mouvements lents ; le nez ne bouge qu'de temps en temps (19 s, longs repos)");
+  assert.deepEqual(Object.keys(E), ["yeuxHtml"], "le module ne fait que dessiner les yeux : ni état, ni minuterie, ni parole");
+  assert.ok(!/setInterval|setTimeout|et-bulle|et-zzz|et-nez|humeur|reagir|phrase_|SOREAL_IDLE_PHRASES/.test(m), "plus de bulle, de sommeil, de nez ni de phrases");
+  assert.ok(!/gd-etagere\[data-humeur|etGrince|etRespire/.test(pub("modules/daycare-page-v1.js") + m), "plus de balancement ni de respiration de l'ancienne dame");
+  assert.ok(P && !P.defauts.etagere && !P.editeurHtml().includes('data-qui="etagere"'), "plus de phrases ni d'éditeur de phrases pour l'étagère");
+  assert.ok(P.editeurHtml().includes('data-qui="coffre"') && P.editeurHtml().includes('data-qui="valise"'), "le Coffre et la valise gardent leurs phrases");
+  /* règle n°2 : le chat n'est dessiné que par l'onglet Garderie */
+  assert.ok(!/yeuxHtml/.test(pub("modules/ui-inventaire-v1.js")) && pub("modules/daycare-page-v1.js").includes("__SOREAL_IDLE_ETAGERE_V1__"));
+  /* yeux : pupilles petites, noires, rondes ; mouvements lents, boucles parfaites ; le délai se règle par œil */
+  assert.ok(m.includes("aspect-ratio:1") && m.includes("background:#0b0603"), "pupille ronde noire");
+  assert.ok(m.includes("etRegG 17s") && m.includes("etRegD 21s") && m.includes("etClin 13s") && m.includes("var(--dl,0s)"), "mêmes durées, délai négatif propre à chaque œil");
   assert.ok(m.includes("etBilleG 29s") && m.includes("etPaupG 29s") && m.includes("@keyframes etBilleG{0%,60%{transform:translate(0,0)}") && m.includes("100%{transform:translate(0,0)}}"), "la pupille de l'œil gauche tombe comme une bille et la paupière se ferme plusieurs fois pour la remettre en place (boucle parfaite de 29 s, départ = arrivée)");
   assert.equal((m.match(/@keyframes etPaupG\{[^]*?\}',/)[0].match(/scaleY\(1\.03\)/g) || []).length, 5, "5 fermetures : 2 clins normaux et 3 pour remettre la pupille");
-  assert.ok(/@keyframes etClin\{0%,90%,100%\{transform:scaleY\(0\)\}/.test(m) && /@keyframes etRespire\{0%,100%\{transform:scale\(1\)\}50%/.test(m) && /@keyframes etNez\{0%,28%,34%,70%,76\.5%,100%\{transform:rotate\(0\) scale\(1\)\}/.test(m), "boucles parfaites : clignement, respiration, nez (début = fin)");
-  assert.ok(m.includes("prefers-reduced-motion:reduce"));
+  assert.ok(/@keyframes etClin\{0%,90%,100%\{transform:scaleY\(0\)\}/.test(m), "boucle parfaite du clignement (début = fin)");
+  assert.ok(m.includes("prefers-reduced-motion:reduce") && m.includes(".et-paup,.et-regard,.et-iris{animation:none}"), "mouvement réduit coupé");
 }
 console.log("idle-garderie-etagere-v1 ok");

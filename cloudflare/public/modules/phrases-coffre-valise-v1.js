@@ -14,8 +14,8 @@
 'use strict';
 if(window.__SOREAL_IDLE_PHRASES_V1__)return;
 
-var CLES={valise:'phrases:valise',coffre:'phrases:coffre',etagere:'phrases:etagere'};
-var NOMS={valise:'La valise',coffre:'Le Coffre',etagere:'L’étagère'};
+var CLES={valise:'phrases:valise',coffre:'phrases:coffre'};
+var NOMS={valise:'La valise',coffre:'Le Coffre'};
 var DEFAUTS={
   valise:[
     'Vous comptez me regarder longtemps, damoiseau ?',
@@ -56,33 +56,6 @@ var DEFAUTS={
     '{R}C’était le chat, je le jure !',
     '{R}Ouvrez pas, c’est plein de dettes !',
     '{R}Ne me frappez pas, Maître !'
-  ],
-  etagere:[
-    'Mon petit, tu me regardes comme si j’avais un bocal de travers.',
-    'Je tricote mon écharpe depuis 1987, elle avance bien, tu sais.',
-    'De mon temps, les étagères ne parlaient pas… on les écoutait quand même.',
-    '{R}Hein ? Quoi ? Qui m’a secouée, mon poussin ?',
-    '{R}Je ne dormais pas, je comptais mes mailles !',
-    '{R}Parle plus fort, mon petit, je n’entends que d’une oreille.',
-    '{R}Oh là là, mes rhumatismes ! Doucement avec la vieille !',
-    '{R}Cinq minutes de plus… le feuilleton n’est pas fini.',
-    '{R}Les bocaux me parlaient, mon poussin… ils disent que tu es en retard !',
-    '{D}Un petit nouveau ? Viens ici, mon poussin, je vais te mettre au chaud.',
-    '{D}Encore un bocal ? Je ne le confonds pas avec la confiture, rassure-toi.',
-    '{D}Là, là… on s’installe. Et pas de bêtises sur ma planche !',
-    '{D}De mon temps, on confiait ses affaires à sa mamie : c’était plus sûr.',
-    '{D}Je te le garde, mon petit, entre deux rangs de tricot.',
-    '{D}Il est entré dans le bocal… ou c’est le bocal qui est entré en lui ? Hihi !',
-    '{M}Il est tout maxé, celui-là ! Il ne lui manque plus rien, sauf des visites.',
-    '{M}Quel bel objet ! Je l’aurais bien posé sur mon napperon.',
-    '{M}Parfait ! Même mes lunettes en sont tombées.',
-    '{M}Il brille ! Les lutins de la cave l’ont frotté cette nuit, j’en suis sûre.',
-    '{P}Fais de la place, c’est full là dedans !',
-    '{P}Il n’y a plus de place, mon petit : je ne suis pas un placard sans fond.',
-    '{P}Plus un bocal de libre ! Reprends-en un avant d’en mettre un autre, mon poussin.',
-    '{P}Non non non, c’est complet : même ma confiture de mûres n’y rentrerait plus !',
-    '{P}Doucement ! À mon âge, on ne déborde plus.',
-    '{P}Plus de place, mon poussin ! Les petits bonshommes de la cave ont tout pris.'
   ]
 };
 
@@ -145,7 +118,6 @@ function ligneHtml_(qui,i,p){
     '<label style="display:flex;gap:5px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff"><input type="checkbox" data-php-v'+(p.v?' checked':'')+'> La valise a vomi</label>'+
     '<label style="display:flex;gap:5px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff"><input type="checkbox" data-php-c'+(p.c?' checked':'')+'> Le Coffre a fait caca</label>'+
     case_('r',p.r,'Réveil','Phrase dite quand tu le réveilles')+
-    (qui==='etagere'?case_('d',p.d,'Daycare','Phrase dite quand tu lui confies un objet')+case_('m',p.m,'Max','Phrase dite quand l’objet confié est maxé (à défaut, une phrase Daycare)')+case_('p',p.p,'Plein','Phrase de refus : plus aucun emplacement de garderie libre'):'')+
     '<button type="button" data-php-act="suppr" title="Enlever cette phrase" style="border:0;border-radius:8px;padding:6px 10px;background:#7a1f2b;color:#fff;cursor:pointer">🗑</button>'+
   '</div>';
 }
@@ -164,9 +136,9 @@ function blocHtml_(qui){
 }
 function editeurHtml_(){
   return '<div id="sorealIdlePhrasesAdminV1" style="margin:16px 0 4px">'+
-    '<div style="font-weight:800">Phrases du Coffre, de la valise et de l’étagère</div>'+
+    '<div style="font-weight:800">Phrases du Coffre et de la valise</div>'+
     '<div class="stx-aide">Une phrase par cadre. Sans case cochée, elle se dit de temps en temps. <b>La valise a vomi</b> : la phrase ne sort qu’après un vomi (ou, pour le Coffre, quand elle a vomi). <b>Le Coffre a fait caca</b> : idem pour son accident. Les deux cases : seulement quand <b>les deux</b> ont eu leur accident. <b>Réveil</b> : phrase dite quand tu le réveilles. <b>Daycare</b> : dite quand tu places un objet en garderie. <b>Max</b> : dite quand l’objet placé est maxé (à défaut, une phrase Daycare). <b>Plein</b> : le refus quand plus aucun emplacement de garderie n’est libre. Ces phrases ne sortent que dans leur situation.</div>'+
-    blocHtml_('valise')+blocHtml_('coffre')+blocHtml_('etagere')+
+    blocHtml_('valise')+blocHtml_('coffre')+
   '</div>';
 }
 function rafraichir_(qui){

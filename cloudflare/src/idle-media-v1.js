@@ -1,4 +1,5 @@
-import { idlePortraitPickR2KeyV1, IDLE_PORTRAIT_KITTY_R2_KEY_V1 } from "./idle-portraits-v1.js";
+import { idlePortraitPickR2KeyV1 } from "./idle-portraits-v1.js";
+import { IDLE_DAYCARE_SKIN_IDS_V1 } from "./idle-daycare-skins-v1.js";
 import ENNEMIS_FR_V1 from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import { idleItopodRosterReponseV1, idleItopodImagePartageeV1 } from "./idle-itopod-roster-v1.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
@@ -1259,12 +1260,9 @@ async function playerImage_(request,env,url){
   const keys=await objetsPlayerR2_(env);
   /* Player Portraits (2026-09-24, idle-portraits-v1.js) : portrait choisi ; sans fichier correspondant, comportement inchangÃ©. */
   const portrait=String(url.searchParams.get("portrait")||"").trim().slice(0,80);
-  /* Joli chaton du Special Prize : fichier R2 designe (dossier idle/Kitty/, hors idle/player/). */
-  const chaton=portrait&&portrait.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
   /* Repli (portrait automatique d'un set ï¿½quipï¿½ sans image dans R2) : le portrait choisi par le joueur, puis le dï¿½faut. */
   const repli=String(url.searchParams.get("fallback")||"").trim().slice(0,80);
-  const repliChaton=repli&&repli.toLowerCase().replace(/[^a-z0-9]+/g,"")==="badkittydaycarebow";
-  const key=chaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:((portrait&&idlePortraitPickR2KeyV1(keys,portrait))||(repliChaton?IDLE_PORTRAIT_KITTY_R2_KEY_V1:(repli&&idlePortraitPickR2KeyV1(keys,repli)))||choisirCleJoueurR2_(keys,zone));
+  const key=(portrait&&idlePortraitPickR2KeyV1(keys,portrait))||(repli&&idlePortraitPickR2KeyV1(keys,repli))||choisirCleJoueurR2_(keys,zone);
   if(!key)return new Response("Image de joueur introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }
@@ -1661,6 +1659,16 @@ async function carteDos_(request,env){
   return reponseObjetR2_(request,env,{key:cle});
 }
 
+/* Apparences du chat de la Garderie (2026-10-31) : idle/garderie-skins/<id>.webp, id en liste blanche (idle-daycare-skins-v1.js). Cosmétique : la possession n'est pas vérifiée ici, comme les autres médias. */
+async function garderieSkin_(request,env,url){
+  const id=String(url.searchParams.get("id")||"").trim();
+  if(!IDLE_DAYCARE_SKIN_IDS_V1.includes(id))return new Response("Apparence introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  const cle="idle/garderie-skins/"+id+".webp";
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function")return new Response("Apparence indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  if(!(await env.SOREAL_R2.get(cle)))return new Response("Apparence introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  return reponseObjetR2_(request,env,{key:cle});
+}
+
 export async function traiterRequeteIdleMedia(request,env){
   const url=new URL(request.url);
   const routes=new Set([
@@ -1679,6 +1687,7 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/bloodmagic",
     "/api/idle/media/card",
     "/api/idle/media/card-back",
+    "/api/idle/media/garderie-skin",
     "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
@@ -1709,6 +1718,7 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/bloodmagic")return bloodMagicImage_(request,env,url);
   if(url.pathname==="/api/idle/media/card")return carteImage_(request,env,url);
   if(url.pathname==="/api/idle/media/card-back")return carteDos_(request,env);
+  if(url.pathname==="/api/idle/media/garderie-skin")return garderieSkin_(request,env,url);
   if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);

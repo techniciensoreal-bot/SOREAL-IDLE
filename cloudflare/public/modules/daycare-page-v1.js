@@ -1,14 +1,19 @@
 /*
- * SOREAL IDLE — Garderie d'objets (Daycare) : onglet « Garderie » du sac. Le décor est l'IMAGE de la vieille dame armoire (cloudflare/public/garderie/armoire-v1.webp, 768 x 1152, fournie par Norman) ;
- * les bocaux sont rangés DANS ses 3 compartiments (2 par compartiment : 6 places au maximum). Le cadre de l'armoire a un rapport fixe : la mise en page ne bouge JAMAIS quand une place s'ajoute.
+ * SOREAL IDLE — Garderie d'objets (Daycare) : onglet « Garderie » du sac. Le décor est l'IMAGE du chat-étagère ACTIF du joueur (768 x 1152, apparences de modules/etagere-skins-v1.js, servies par
+ * /api/idle/media/garderie-skin?id=<id>) ; les bocaux sont rangés DANS ses 3 compartiments (2 par compartiment : 6 places au maximum), aux positions mesurées pour CETTE apparence. Le cadre du chat a
+ * un rapport fixe : la mise en page ne bouge JAMAIS quand une place s'ajoute ou que l'apparence change.
+ * Apparences : j.systemes.daycare.skins = { actif, possedes:[ids] } (idle-daycare-skins-v1.js, liées au COMPTE : rien dans localStorage, règle n°6). Une rangée de vignettes (seulement les apparences possédées) n'apparaît
+ * qu'à partir de 2 possédées (règle n°2 : avec une seule, rien ne trahit l'existence des autres ; jamais de total, de case vide ni de verrou). Un clic envoie { action:'daycareSkin', id }.
+ * Transition : l'ancien chat (copie figée posée dans un calque data-morph-garder) glisse hors du cadre pendant que le nouveau entre de l'autre côté (0,6 s, direction selon l'ordre des apparences) ;
+ * coupée en prefers-reduced-motion ; pas de clic pendant le glissement ; le calque est remis par window.__SOREAL_IDLE_APRES_REDESSIN_V1__ si la page est redessinée en cours de route (règle n°4).
  * Anti-spoil (règle n°2) : l'onglet n'existe que si la garderie est débloquée ; seuls les bocaux des emplacements POSSÉDÉS sont dessinés, un par un.
  * Le liquide arc-en-ciel monte dans chaque bocal ; quand il atteint le haut, l'objet prend 1 niveau (compté par le MOTEUR : l'interface extrapole seulement la progression entre deux synchros avec la
  * vitesse du moteur, règle n°5 ; rien n'est lu dans le DOM pour le gameplay). Toutes les valeurs viennent de j.systemes.daycare (idle-daycare-v1.js).
- * Les yeux, le nez qui bouge et les phrases sont dans modules/etagere-personnage-v1.js.
+ * Les yeux du chat sont dans modules/etagere-personnage-v1.js.
  * Règle n°4 : la hauteur du liquide est réécrite à chaque image ET juste après chaque redessin (window.__SOREAL_IDLE_APRES_REDESSIN_V1__).
  * Règle n°3 : l’onde du liquide avance d’exactement UNE période de sa tuile.
  * Règle n°6 : l'onglet choisi et le nombre de places déjà montrées (pose animée une seule fois) sont des clés localStorage soreal_idle_*_v1, liées au compte.
- * Expose window.__SOREAL_IDLE_DAYCARE_PAGE_V1__ (disponible, onglets, vueGarderie, etagere, infoFiche, boutonFiche, deposerNonMaxe, apresDepotMaxe).
+ * Expose window.__SOREAL_IDLE_DAYCARE_PAGE_V1__ (disponible, onglets, vueGarderie, etagere, infoFiche, boutonFiche, deposerNonMaxe).
  */
 (function(){
   'use strict';
@@ -23,7 +28,7 @@
   let choixOuvert=false;
   let derniereD=null,derniersTotaux=null;
   let repriseId=null;   /* bocal occupé sur lequel on a cliqué : le panneau « Reprendre ? » est affiché */
-  /* Les 6 places de l'armoire (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. */
+  /* Les 6 places du chat (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. Valeurs de REPLI (les données mesurées de chaque apparence, etagere-skins-v1.js, les remplacent). */
   const PLACES=[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]];
   const SOLS=[46.8,65.2,82.0],HAUT_POT=13.8,LARG_POT=13.2,CENTRES=[36,63],AXE=47.6;
   const CLE_ONGLET='soreal_idle_sac_onglet_v1',CLE_PLACES='soreal_idle_garderie_places_v1';
@@ -110,10 +115,35 @@
     '</div>';
   }
 
-  function positionPlace(i){
-    const c=PLACES[i][0],col=PLACES[i][1];
-    return {top:SOLS[c]-HAUT_POT,left:CENTRES[col]-LARG_POT/2,cx:CENTRES[col],col:col,comp:c};
+  /* Apparences (modules/etagere-skins-v1.js) : données de géométrie du chat actif ; sans elles (module absent) l'apparence par défaut et les valeurs de repli ci-dessus. */
+  const SKIN_DEFAUT='defaut',DUREE_GLISSE=600;
+  let geoCourante=null;
+  function skinsDonnees(){return window.__SOREAL_IDLE_ETAGERE_SKINS_V1__||null;}
+  function skinConnu(id){const D=skinsDonnees();return Boolean(D&&D.skins&&D.skins[id]);}
+  function skinActif(d){const s=d&&d.skins,id=s&&s.actif?String(s.actif):SKIN_DEFAUT;return skinConnu(id)?id:SKIN_DEFAUT;}
+  /* Ids possédés, dans l'ordre des apparences ; jamais d'id inconnu. */
+  function skinsPossedes(d){
+    const s=d&&d.skins,D=skinsDonnees();
+    const ids=s&&Array.isArray(s.possedes)?s.possedes.map(String):[];
+    return D&&Array.isArray(D.ordre)?D.ordre.filter(function(id){return ids.indexOf(id)>=0&&D.skins[id];}):[];
   }
+  function imageSkin(id){const D=skinsDonnees(),sk=D&&D.skins&&D.skins[id];return sk&&sk.image?sk.image:'/api/idle/media/garderie-skin?id='+SKIN_DEFAUT;}
+  const prechargees={};
+  function precharger(ids){
+    if(typeof Image!=='function')return;
+    ids.forEach(function(id){if(prechargees[id])return;prechargees[id]=1;try{const im=new Image();im.decoding='async';im.src=imageSkin(id);}catch(_e){}});
+  }
+  const r2=function(v){return Math.round(v*100)/100;};
+  function positionPlace(i){
+    const P=geoCourante;
+    if(P&&P.places&&P.places[i]){
+      const p=P.places[i],e=Number(p.echelle)||1,w=P.larg*e,h=P.haut*e;
+      return {top:r2(p.sol-h),left:r2(p.cx-w/2),larg:r2(w),haut:r2(h)};
+    }
+    const c=PLACES[i][0],col=PLACES[i][1];
+    return {top:r2(SOLS[c]-HAUT_POT),left:r2(CENTRES[col]-LARG_POT/2),larg:LARG_POT,haut:HAUT_POT};
+  }
+  const stylePot=function(pos){return 'left:'+pos.left+'%;top:'+pos.top+'%;width:'+pos.larg+'%;height:'+pos.haut+'%';};
   /* Un bocal rangé dans son compartiment (le verre, le liquide, l'objet) + sa fiche dans la liste dessous (niveau, nom, temps). */
   function bocalHtml(x,maintenant,pose,i){
     const H=H_(),it=x.item||{};
@@ -126,7 +156,7 @@
     const taux=x.effectiveHoursPerLevel!=null?'1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600):'';
     return {
       pos:pos,
-      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="left:'+pos.left+'%;top:'+pos.top+'%"><i class="gd-ombre"></i>'+
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
         '<button type="button" class="gd-bocal gd-occupe" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'" aria-label="Reprendre '+H.idleHtml_(it.name||'l’objet')+'" title="'+H.idleHtml_((it.name||'Objet')+' — '+prochain+(taux?' · '+taux:''))+'" onclick="window.__garderieReprendreV1__(\''+H.idleHtml_(it.id)+'\')">'+
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre">'+
@@ -137,7 +167,7 @@
           /* niveau au moment du placement, puis niveau actuel EN VERT (Norman, 2026-10-30) */
           '<span class="gd-niv-badge" data-gd-note="'+H.idleHtml_(it.id)+'">Niv. <i class="gd-niv-dep">'+H.idleEntier_(x.levelAtEntry!=null?x.levelAtEntry:it.level)+'</i> › <b class="gd-niv-n">'+e.niveau+'</b></span>'+
         '</button></div>',
-      /* Plus de liste de notes ni de boutons sous l'armoire (Norman, 2026-10-30) : on clique sur les bocaux. Reprendre = clic sur un bocal occupé, avec avertissement (panneau ci-dessous). */
+      /* Plus de liste de notes ni de boutons sous le chat (Norman, 2026-10-30) : on clique sur les bocaux. Reprendre = clic sur un bocal occupé, avec avertissement (panneau ci-dessous). */
       note:'',
       id:it.id,nom:it.name||it.definitionId||'Objet',niveau:e.niveau,depart:(x.levelAtEntry!=null?x.levelAtEntry:it.level),progression:e.p,prochain:prochain
     };
@@ -147,7 +177,7 @@
     const pos=positionPlace(i);
     return {
       pos:pos,
-      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="left:'+pos.left+'%;top:'+pos.top+'%"><i class="gd-ombre"></i>'+
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
         '<button type="button" class="gd-bocal gd-vide'+(choixOuvert?' ouvert':'')+'" onclick="window.__garderieChoisirV1__()" aria-label="Placer un objet">'+
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre"><div class="gd-objet">'+ICONE_PLUS+'</div><div class="gd-reflet"></div></div>'+
@@ -177,13 +207,18 @@
     if(total>connu)stockage(CLE_PLACES,total);
   }
 
-  /* L'onglet Garderie : l'armoire. Toute la section remplace le cadre du sac (mêmes colonnes). */
+  /* L'onglet Garderie : le chat-étagère. Toute la section remplace le cadre du sac (mêmes colonnes). */
   function etagere(j){
     const H=H_();
     const d=donnees(j);
     if(!d)return '';
     css();
     const maintenant=Date.now();
+    const sid=skinActif(d),possedes=skinsPossedes(d);
+    geoCourante=(function(){const D=skinsDonnees(),sk=D&&D.skins&&D.skins[sid];return sk&&sk.pots&&Array.isArray(sk.pots.places)?sk.pots:null;})();
+    precharger(possedes);
+    suivreChangementSkin(sid,maintenant);
+    const sens=glisseActif(maintenant)?transition.sens:'';
     const pct=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v)*100,2)+' %';};
     const objets=Array.isArray(d.items)?d.items:[];
     const total=Math.min(PLACES.length,Math.max(H.idleEntier_(d.slots),objets.length));
@@ -214,20 +249,17 @@
       '<div class="gd-cadre"><div class="gd-haut">'+onglets(j)+
       '<div class="gd-titre"><span class="gd-titre-ico">'+ICONE_BOCAL+'</span><span>Garderie d’objets</span></div>'+
       '</div>'+
-      '<div class="gd-scene"><div class="gd-armoire'+(E2?E2.classes():'')+'"'+(E2?' data-humeur="'+E2.humeur()+'"':'')+'>'+
-        '<div class="gd-fig"><img class="gd-img" src="/garderie/armoire-v1.webp?v=2" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
-          (E2?E2.yeuxHtml():'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
+      '<div class="gd-scene">'+selecteur(possedes,sid)+'<div class="gd-etagere" data-skin="'+sid+'">'+
+        /* id propre à chaque apparence : au changement, le redessin crée un NOUVEAU bloc (yeux repartis du repos, image neuve) au lieu de réutiliser l'ancien */
+        '<div class="gd-fig'+(sens?' gd-entre gd-entre-'+sens:'')+'" id="gd-fig-'+sid+'"><img class="gd-img" src="'+imageSkin(sid)+'" alt="" width="768" height="1152" loading="eager" decoding="async" draggable="false">'+
+          (E2?E2.yeuxHtml(sid):'')+cases.map(function(c){return c.pot;}).join('')+'</div>'+
       '</div>'+
       '</div></div>'+
-      '<div class="gd-intro">Cette drôle d’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Tant qu’un objet n’est pas sorti du bocal, il ne peut être ni fusionné ni équipé.</div>'+
+      '<div class="gd-intro">Ce chat fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Tant qu’un objet n’est pas sorti du bocal, il ne peut être ni fusionné ni équipé.</div>'+
       resume+detail+
       '</div></div>';
   }
 
-  /* L'étagère parle (modules/etagere-personnage-v1.js, phrases « phrases:etagere ») : {D} on lui confie un objet, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
-  function parler(mode){
-    try{const E=window.__SOREAL_IDLE_ETAGERE_V1__;if(E&&typeof E.reagir==='function')E.reagir(mode);}catch(_e){}
-  }
   function objetDuSac(id){
     const R=REG_();
     const a=typeof R.aventureMetaIdleV47_==='function'&&R.idleEtat?R.aventureMetaIdleV47_(R.idleEtat):null;
@@ -244,25 +276,14 @@
     if(!o||!it||it.fullyMaxed||o.baseHours==null||o.alreadyInDaycare||Number(o.level)>=100)return false;
     if((Array.isArray(d.items)?d.items.length:0)>=Math.max(0,Math.floor(Number(d.slots)||0))){
       if(typeof window.__jouerNonCoffreIdleV1__==='function')window.__jouerNonCoffreIdleV1__();
-      parler('plein');   /* c'est l'étagère qui refuse */
       return true;
     }
     window.__bagageAvaleIdleV1=Date.now();
     daycareIdleV1_('daycarePlace',id);
     return true;
   }
-  /* Un objet maxé rangé dans le Coffre comme avant : si la garderie est débloquée, il a sa phrase {M}. */
-  function apresDepotMaxe(){if(disponible(REG_().idleEtat))parler('daycare:max');}
-
   function daycareIdleV1_(action,itemId){
     choixOuvert=false;repriseId=null;majPopup();
-    if(action==='daycarePlace'){
-      const it=objetDuSac(itemId),mode=it&&it.fullyMaxed?'daycare:max':'daycare';
-      /* La phrase attend que l'objet ait quitté le sac (page redessinée avec la réponse du moteur) : sinon le redessin effacerait la bulle. */
-      let essais=0;
-      const attendre=function(){essais+=1;if(objetDuSac(itemId)&&essais<20){setTimeout(attendre,150);return;}setTimeout(function(){parler(mode);},120);};
-      setTimeout(attendre,150);
-    }
     actionMetaIdleV130_({action:String(action),itemId:String(itemId)});
   }
   window.__daycareIdleV1__=daycareIdleV1_;
@@ -279,6 +300,73 @@
   window.__garderieChoisirV1__=function(){
     choixOuvert=!choixOuvert;repriseId=null;
     majPopup();
+  };
+
+  /* SÉLECTEUR d'apparence : vignettes des seules apparences POSSÉDÉES (même image réduite), l'active entourée ; rien du tout avec moins de 2 possédées (règle n°2). */
+  function selecteur(possedes,actif){
+    if(possedes.length<2)return '';
+    return '<div class="gd-skins" role="group" aria-label="Apparence du chat">'+possedes.map(function(id){
+      return '<button type="button" class="gd-skin'+(id===actif?' actif':'')+'" aria-pressed="'+(id===actif?'true':'false')+'" aria-label="Choisir cette apparence" onclick="window.__garderieSkinV1__(\''+id+'\')">'+
+        '<img src="'+imageSkin(id)+'" alt="" width="40" height="60" loading="eager" decoding="async" draggable="false"></button>';
+    }).join('')+'</div>';
+  }
+  /*
+   * TRANSITION : au clic, l'ancien chat est COPIÉ (image, yeux, bocaux figés) ; quand le moteur répond avec la nouvelle apparence, le nouveau chat (.gd-entre-*, classe posée par le rendu) entre d'un côté
+   * pendant que la copie (calque posé dans la scène, data-morph-garder : un redessin de la page ne le retire pas) sort de l'autre. Sens : apparence suivante dans l'ordre = le chat part vers la gauche.
+   * Seul un clic du joueur anime (un changement venu d'ailleurs est net). Pas de clic pendant le glissement ; coupée en prefers-reduced-motion.
+   */
+  let skinAffiche=null,attente=null,transition=null,finTimer=0;
+  function mouvementReduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
+  function glisseActif(maintenant){return Boolean(transition&&maintenant<transition.t0+DUREE_GLISSE+40);}
+  function verrouGlisse(maintenant){return Boolean(glisseActif(maintenant)||(attente&&maintenant-attente.t<8000));}
+  function suivreChangementSkin(sid,maintenant){
+    if(skinAffiche===null||sid===skinAffiche){skinAffiche=sid;return;}
+    const a=attente;
+    attente=null;skinAffiche=sid;
+    if(!a||a.vers!==sid||maintenant-a.t>=8000||!a.ancien||mouvementReduit())return;
+    transition={de:a.de,vers:sid,sens:a.sens,t0:maintenant,ancien:a.ancien};
+    clearTimeout(finTimer);finTimer=setTimeout(finGlisse,DUREE_GLISSE+60);
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(ensureCalque);   /* filet : le crochet de redessin le pose normalement dans la même tâche */
+  }
+  function finGlisse(){
+    transition=null;clearTimeout(finTimer);finTimer=0;
+    const c=document.querySelectorAll('.gd-sort');
+    for(let i=0;i<c.length;i+=1)if(c[i].parentNode)c[i].parentNode.removeChild(c[i]);
+    const e=document.querySelectorAll('.gd-entre');   /* le nouveau chat est arrivé : plus d'animation maintenue */
+    for(let i=0;i<e.length;i+=1)e[i].classList.remove('gd-entre','gd-entre-g','gd-entre-d');
+  }
+  /* Pose (une seule fois) le calque de l'ancien chat dans la scène, à la bonne phase de l'animation (délai négatif = temps déjà écoulé). */
+  function ensureCalque(){
+    if(!transition)return;
+    const maintenant=Date.now();
+    if(!glisseActif(maintenant)){finGlisse();return;}
+    const scene=document.querySelector('.gd-scene');
+    if(!scene||scene.querySelector('.gd-sort'))return;
+    const c=transition.ancien;
+    c.style.animationDelay='-'+Math.max(0,maintenant-transition.t0)+'ms';
+    scene.appendChild(c);
+  }
+  window.__garderieSkinV1__=function(id){
+    id=String(id);
+    const d=derniereD,maintenant=Date.now();
+    if(!d||verrouGlisse(maintenant))return;
+    const possedes=skinsPossedes(d),actif=skinActif(d);
+    if(id===actif||possedes.indexOf(id)<0)return;
+    choixOuvert=false;repriseId=null;majPopup();
+    const sens=possedes.indexOf(id)>possedes.indexOf(actif)?'g':'d';
+    let ancien=null;
+    const el=typeof document!=='undefined'&&document.querySelector?document.querySelector('.gd-scene>.gd-etagere'):null;
+    if(el&&!mouvementReduit()){
+      ancien=el.cloneNode(true);
+      ancien.classList.add('gd-sort','gd-sort-'+sens);
+      ancien.setAttribute('data-morph-garder','1');ancien.setAttribute('aria-hidden','true');
+      const fig=ancien.querySelector('.gd-fig');
+      if(fig){fig.removeAttribute('id');fig.classList.remove('gd-entre','gd-entre-g','gd-entre-d');}
+      const liste=ancien.querySelectorAll('[data-gd-id]');
+      for(let i=0;i<liste.length;i+=1){liste[i].removeAttribute('data-gd-id');liste[i].removeAttribute('onclick');}
+    }
+    attente={de:actif,vers:id,sens:sens,t:maintenant,ancien:ancien};
+    actionMetaIdleV130_({action:'daycareSkin',id:id});
   };
 
   /* POPUP informatif (aux couleurs de la Garderie) : bloc ajouté à <body>, donc jamais retiré par le morph de la page (règle n°4). Son squelette ne change que si le contenu change ; les
@@ -389,7 +477,7 @@
     vide=0;
     if(!boucle&&typeof requestAnimationFrame==='function')boucle=requestAnimationFrame(pas);
   }
-  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{majPopup();if(appliquer()>0)demarrer();}catch(_e){}});
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{majPopup();if(appliquer()>0)demarrer();ensureCalque();}catch(_e){}});
 
   function css(){
     if(typeof document==='undefined'||!document.head||document.getElementById('gd-style-v1'))return;
@@ -405,7 +493,7 @@
       '.gd-intro{font-size:13px;color:#b9c6dc;margin:2px 0 10px;text-align:center}',
       '.gd-ico{vertical-align:-.2em}',
       '.gd-reserve{margin-top:6px}',
-      /* L'image du grenier est le fond de TOUT le cadre de la garderie (onglets, titre, armoire, texte, résumé), comme l'arcade et Wandoos (Norman, 2026-10-30 : « elle doit prendre tout le cadre ») : image haute sur téléphone, large sur PC, en couverture (cover) ; l'armoire est posée en bas de sa scène, le texte est sur des panneaux sombres translucides. */
+      /* L'image du grenier est le fond de TOUT le cadre de la garderie (onglets, titre, chat, texte, résumé), comme l'arcade et Wandoos (Norman, 2026-10-30 : « elle doit prendre tout le cadre ») : image haute sur téléphone, large sur PC, en couverture (cover) ; le chat est posé en bas de sa scène, le texte est sur des panneaux sombres translucides. */
       '#soreal-idle-garderie-section{padding:0;overflow:hidden;border-radius:16px;box-shadow:0 6px 18px rgba(0,0,0,.45)}',
       /* padding 18 px = celui d'une section : les onglets Sac / Garderie gardent EXACTEMENT la même taille et la même place dans les deux vues (Norman, 2026-10-30) */
       '.gd-plein{position:relative;background:url(/garderie/fond-grenier-tel-v1.webp?v=1) center bottom/cover no-repeat;border-radius:16px;padding:18px;box-shadow:inset 0 0 0 3px #3a2410;min-height:620px}',
@@ -413,16 +501,28 @@
       '.gd-haut{position:relative;z-index:3;padding:0 0 6px}.gd-haut .gd-onglets{margin:0 0 6px}.gd-haut .gd-titre{margin:2px 0 0}',
       '.gd-scene{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:1/1.16}',
       '.gd-scene::after{content:"";position:absolute;left:20%;width:60%;bottom:-2.5%;height:5%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,8,0,.55),transparent 70%);pointer-events:none}',
-      '.gd-scene>.gd-armoire{position:absolute;left:13.5%;width:73%;max-width:none;bottom:0;margin:0}',
+      '.gd-scene>.gd-etagere{position:absolute;left:13.5%;width:73%;max-width:none;bottom:0;margin:0}',
       '.gd-plein>.gd-intro,.gd-plein>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28,.gd-plein>details,.gd-plein>.gd-choix-cadre{background:rgba(16,8,2,.72);border-radius:10px}.gd-plein>.gd-intro{padding:8px 10px;color:#f1e4c6}',
-      /* PC (Norman, 2026-10-30 : « l'armoire est trop petite : zoome le décor, mets les informations sur les côtés, l'armoire sur l'OMBRE ; l'emplacement est primordial ») : le cadre a le rapport 4:3 ; le décor (1564 x 1006, ombre du plancher centrée en 800, 712) est agrandi de 1,515 fois et décalé pour que l'ombre tombe EXACTEMENT sous les pieds de l'armoire (centre 50 % x 92 % du cadre) ; l'armoire fait 40 % de la largeur du cadre ; titre et texte à gauche, résumé et détail à droite. */
-      '@media (min-width:900px){.gd-plein{container-type:inline-size;margin:0;aspect-ratio:4/3;min-height:0;padding:0;background:none}.gd-plein::before{content:"";position:absolute;inset:0;z-index:0;background:url(/garderie/fond-grenier-pc-v2.webp?v=2) -27.5cqw 0/151.5cqw auto no-repeat}.gd-cadre,.gd-haut{display:contents}.gd-haut .gd-onglets{position:absolute;z-index:3;top:18px;left:18px;right:18px;margin:0}.gd-haut .gd-titre{position:absolute;z-index:3;top:74px;left:18px;width:calc(28cqw - 18px);margin:0;justify-content:flex-start;font-size:21px;white-space:nowrap;box-sizing:border-box;padding:5px 10px;border-radius:10px;background:rgba(16,8,2,.72)}.gd-scene{position:absolute;inset:0;z-index:2;max-width:none;aspect-ratio:auto;margin:0}.gd-scene::after{display:none}.gd-scene>.gd-armoire{left:30%;width:40%;bottom:5.33%}.gd-plein>.gd-intro{position:absolute;z-index:3;top:112px;box-sizing:border-box;left:18px;width:calc(28cqw - 18px);margin:0;text-align:left}.gd-plein>.soreal-idle-summary-grid-v28{position:absolute;z-index:3;top:76px;right:18px;width:calc(28cqw - 18px);grid-template-columns:1fr;gap:6px;margin:0}.gd-plein>details{position:absolute;z-index:3;top:262px;right:18px;width:calc(28cqw - 18px);box-sizing:border-box;margin:0}}',
-      /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
-      '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
+      /* transition entre deux chats : le nouveau (.gd-entre-*) entre de l'autre côté pendant que la copie de l'ancien (.gd-sort-*, calque posé par le module) sort ; 0,6 s ease-in-out ; distance = de quoi quitter tout le cadre */
+      '.gd-scene{--gd-dx:140%}',
+      '.gd-sort{pointer-events:none;z-index:3}',
+      '.gd-sort-g{animation:gd-sort-g .6s ease-in-out both}.gd-sort-d{animation:gd-sort-d .6s ease-in-out both}',
+      '.gd-entre-g{animation:gd-entre-g .6s ease-in-out both}.gd-entre-d{animation:gd-entre-d .6s ease-in-out both}',
+      '@keyframes gd-sort-g{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--gd-dx)))}}',
+      '@keyframes gd-sort-d{from{transform:translateX(0)}to{transform:translateX(var(--gd-dx))}}',
+      '@keyframes gd-entre-g{from{transform:translateX(var(--gd-dx))}to{transform:translateX(0)}}',
+      '@keyframes gd-entre-d{from{transform:translateX(calc(-1 * var(--gd-dx)))}to{transform:translateX(0)}}',
+      /* sélecteur d'apparence : rangée de vignettes, bande verticale le long du bord gauche sur téléphone (le chat laisse 13,5 % libres de chaque côté), horizontale en bas à droite sur PC (sous le résumé ; la colonne de gauche est prise par le texte) ; défilement interne */
+      '.gd-skins{position:absolute;z-index:5;left:0;top:2%;bottom:2%;width:48px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;padding:5px 4px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:12px;background:rgba(16,8,2,.66);border:1px solid rgba(168,240,204,.4)}',
+      '.gd-skin{flex:0 0 auto;width:38px;height:56px;box-sizing:border-box;padding:2px;border-radius:9px;border:2px solid transparent;background:rgba(168,240,204,.1);cursor:pointer}',
+      '.gd-skin img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}',
+      '.gd-skin.actif{border-color:#a8f0cc;background:rgba(168,240,204,.22);box-shadow:0 0 9px rgba(168,240,204,.75)}',
+      /* PC (Norman, 2026-10-30 : le chat doit être grand, les informations sur les côtés, le chat sur l'OMBRE ; l'emplacement est primordial) : le cadre a le rapport 4:3 ; le décor (1564 x 1006, ombre du plancher centrée en 800, 712) est agrandi de 1,515 fois et décalé pour que l'ombre tombe EXACTEMENT sous les pieds du chat (centre 50 % x 92 % du cadre) ; le chat fait 40 % de la largeur du cadre ; titre et texte à gauche, résumé et détail à droite. */
+      '@media (min-width:900px){.gd-plein{container-type:inline-size;margin:0;aspect-ratio:4/3;min-height:0;padding:0;background:none}.gd-plein::before{content:"";position:absolute;inset:0;z-index:0;background:url(/garderie/fond-grenier-pc-v2.webp?v=2) -27.5cqw 0/151.5cqw auto no-repeat}.gd-cadre,.gd-haut{display:contents}.gd-haut .gd-onglets{position:absolute;z-index:3;top:18px;left:18px;right:18px;margin:0}.gd-haut .gd-titre{position:absolute;z-index:3;top:74px;left:18px;width:calc(28cqw - 18px);margin:0;justify-content:flex-start;font-size:21px;white-space:nowrap;box-sizing:border-box;padding:5px 10px;border-radius:10px;background:rgba(16,8,2,.72)}.gd-scene{position:absolute;inset:0;z-index:2;max-width:none;aspect-ratio:auto;margin:0}.gd-scene::after{display:none}.gd-scene>.gd-etagere{left:30%;width:40%;bottom:5.33%}.gd-scene{--gd-dx:190%}.gd-skins{left:auto;right:18px;top:auto;bottom:18px;width:calc(28cqw - 18px);height:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;padding:5px}.gd-plein>.gd-intro{position:absolute;z-index:3;top:112px;box-sizing:border-box;left:18px;width:calc(28cqw - 18px);margin:0;text-align:left}.gd-plein>.soreal-idle-summary-grid-v28{position:absolute;z-index:3;top:76px;right:18px;width:calc(28cqw - 18px);grid-template-columns:1fr;gap:6px;margin:0}.gd-plein>details{position:absolute;z-index:3;top:262px;right:18px;width:calc(28cqw - 18px);box-sizing:border-box;margin:0}}',
+      /* le chat-étagère : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
+      '.gd-etagere{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
       '.gd-fig{position:absolute;inset:0;transform-origin:50% 100%}',
       '.gd-img{position:absolute;inset:0;width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}',
-      '.gd-armoire[data-humeur="dort"] .gd-fig{animation:etRespire 4.6s ease-in-out infinite}',
-      '.gd-armoire:not([data-humeur="dort"]) .gd-fig{animation:etGrince 14s linear infinite}',
       /* bocal : les mesures sont des fractions de la largeur du bocal (cqw), il s'adapte donc à toutes les tailles d'écran */
       '.gd-pot{position:absolute;width:'+LARG_POT+'%;height:'+HAUT_POT+'%;container-type:size}',
       '.gd-ombre{position:absolute;left:-10%;bottom:-3%;width:130%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,0));z-index:0}',
@@ -461,7 +561,7 @@
       '@keyframes gd-pose{0%{opacity:0;transform:translateY(-46px) scale(.96)}55%{opacity:1;transform:translateY(0) scale(1)}72%{transform:translateY(-7px)}100%{opacity:1;transform:translateY(0)}}',
       '@keyframes gd-pose-note{0%{opacity:0}60%{opacity:0}100%{opacity:1}}',
       '@keyframes gd-onde{from{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}to{-webkit-mask-position:50cqw 0,0 100%;mask-position:50cqw 0,0 100%}}',
-      '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-pose,.gd-pose-note,.gd-fig{animation:none}}',
+      '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-pose,.gd-pose-note,.gd-fig{animation:none}.gd-sort{display:none}}',
       /* popup de la Garderie : teintes menthe / vert sombre de la page, au-dessus de tout (fond assombri) */
       '.gd-popup-fond{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(4,12,9,.68)}',
       '.gd-popup{position:relative;box-sizing:border-box;width:min(460px,100%);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;padding:18px 16px 16px;border-radius:14px;color:#eefcf5;background:linear-gradient(180deg,#2f4339,#1b2621);border:2px solid #a8f0cc;box-shadow:0 0 0 1px #000,0 16px 40px rgba(0,0,0,.65),inset 0 0 22px rgba(168,240,204,.18)}',
@@ -488,7 +588,6 @@
     vueGarderie:vueGarderie,
     etagere:etagere,
     deposerNonMaxe:deposerNonMaxe,
-    apresDepotMaxe:apresDepotMaxe,
     infoFiche:infoFiche,
     boutonFiche:boutonFiche
   };

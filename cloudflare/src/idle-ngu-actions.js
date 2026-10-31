@@ -18,13 +18,14 @@ import { idleYggConsumeGiantSeedV1, idleYggAutoActivateExpShopEntriesV1, idleYgg
 import { idleLoginCalendarReclamerV1 } from "./idle-login-calendar-v1.js";
 import { applyIdleCookingActionV1 } from "./idle-cooking-v1.js";
 import { idlePortraitSelectV1, IDLE_SPECIAL_PRIZE_AP_V1 } from "./idle-portraits-v1.js";
+import { choisirSkinV1 } from "./idle-daycare-skins-v1.js";
 import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from "./idle-daycare-v1.js";
 import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
 import { idleCardsActionV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
-import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
@@ -440,6 +441,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     /* Choix cosmétique du portrait de joueur ; seuls les portraits débloqués sont acceptés. */
     state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
     result = { portrait: state.records.portrait };
+  } else if (action === "daycareSkin") {
+    /* Apparence du chat de la Garderie (cosmétique) ; seuls les skins possédés sont acceptés (idle-daycare-skins-v1.js). */
+    result = { skin: choisirSkinV1(state, payload.id, daycareSkinsEnvV1(state)) };
   } else if (action === "specialPrize") {
     /*
      * Tips N' Tricks, « Special Prize » (menu Info) : deux choix — 50 000 AP, ou A PRETTY KITTY (« it gives you the AP too ») ; le second clic

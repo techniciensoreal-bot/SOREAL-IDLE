@@ -184,8 +184,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 43,
-  "sha": "da038e7e4b27a9663fb4299715ae40fd74a5d73b"
+  "pin": 44,
+  "sha": "e56e51362abb65d2c9602bda2563bf08af6546a8"
  },
  "/modules/defilement-theme-v1.js": {
   "pin": 3,
@@ -216,8 +216,12 @@
   "sha": "6d6d55e3b602b01fbfa65bb37d994f1379e32f47"
  },
  "/modules/etagere-personnage-v1.js": {
-  "pin": 19,
-  "sha": "0aea61e86befe2d0f9f8f2d27dc5ba11dec7db38"
+  "pin": 20,
+  "sha": "dec1b167ce965fe542391cf5149426cfdf28fa11"
+ },
+ "/modules/etagere-skins-v1.js": {
+  "pin": 1,
+  "sha": "6fc38756edffcad5545dce210757a624b4585fe4"
  },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
@@ -376,8 +380,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 109,
-  "sha": "ea12d7787d35fcaef78d4f94256e952b8bec963a"
+  "pin": 110,
+  "sha": "75ac03aa3fa294098e19bfc5fafbba939d9a4ad5"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -420,8 +424,8 @@
   "sha": "b93718c762d42a38089ff55618fd46bdcbfbf409"
  },
  "/modules/phrases-coffre-valise-v1.js": {
-  "pin": 5,
-  "sha": "bb9c1682e9cf4c68ebb11698a3c61ef5469dd041"
+  "pin": 6,
+  "sha": "13635d131aa922fd8be10cd4889b8cbcf57063ba"
  },
  "/modules/plein-ecran-v1.js": {
   "pin": 4,
@@ -532,12 +536,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 633,
-  "sha": "daea8ec8457c14693eafe411c2b4b2a613d3743f"
+  "pin": 634,
+  "sha": "3912dafd5727f46e779efde3818619ca1792a2fb"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 453,
-  "sha": "558d1f03bbdbd53fd7483b7991d4b2ee2d74d60a"
+  "pin": 454,
+  "sha": "5994fffc62349acf4fffb539bf31881192276956"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -576,8 +580,8 @@
   "sha": "c054da56a8a172ebb899ed72ad27cd1885214e20"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 52,
-  "sha": "ae9fe8f6209bb306e9d98e6e24e8a39acbaf0dc0"
+  "pin": 53,
+  "sha": "e0ab6c03f231558cfa69f3aad31d7e43511b81af"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 20,
@@ -636,8 +640,8 @@
   "sha": "d942cd686a8f0ad91bb985efcee791257ab6fa8a"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 14,
-  "sha": "b325705f97adf5798afe68a511e6eba8411d0996"
+  "pin": 15,
+  "sha": "1c18c1ed82be3e3fff2b6e446966b418d53225e2"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 6,

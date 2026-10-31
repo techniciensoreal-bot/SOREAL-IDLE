@@ -2513,7 +2513,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
         const id=idSourceAdventureIdleV138_(event);
         nettoyerEtatDragAdventureIdleV138_();
         if(id&&coffreRefuseObjetIdleV1_(id)){if(!(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__&&window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.deposerNonMaxe(id)))jouerNonCoffreIdleV1_();return;}   /* non maxé : garderie (daycare-page-v1.js) */
-        if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});if(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__)window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.apresDepotMaxe();}
+        if(id){window.__bagageAvaleIdleV1=Date.now();jouerCroqueCoffreIdleV1_();actionAdventureIdleV47_({action:'coffreDeposer',id:String(id)});}
       }
 
       function clicCoffreAdventureIdleV1_(){

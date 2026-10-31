@@ -1,167 +1,63 @@
 /*
- * SOREAL IDLE — mamie l'armoire de la garderie est un PERSONNAGE (Norman, 2026-10-30 : « une étagère avec des yeux et une bouche », « ça doit avoir l'air d'une vieille dame », « il faut qu'elle ait l'air folle,
- * avec des yeux qui regardent à l'extérieur, mais pas qui bougent vite »). Le décor est son IMAGE (public/garderie/armoire-v1.webp) ; ce module lui ajoute par-dessus :
- *   - deux yeux animés dans les ovales blancs vides de ses lunettes : pupilles qui regardent vers l'EXTÉRIEUR, dérive très lente et indépendante, paupières qui DESCENDENT sur l'œil (clignements rares et lents) ;
- *   - un nez qui oscille doucement (une copie découpée de l'image, qui bouge) ;
- *   - un sommeil (yeux fermés, petits Z, respiration), un réveil, des remarques et des réactions (contente quand on lui confie un objet, agacée quand elle est pleine), avec une bulle de dialogue.
- * Même logique que le Coffre (modules/coffre-sommeil-v1.js) : le délai n'avance que le temps où elle est vue à l'écran ; un clic sur une armoire endormie la réveille, le clic est avalé.
- * Phrases modifiables par l'administrateur (« phrases:etagere », modules/phrases-coffre-valise-v1.js). Les bocaux sont dans modules/daycare-page-v1.js.
- * Règle n°4 : tout est dessiné par le rendu de la page (data-humeur et classes lus depuis l'état de ce module) ET remis juste après chaque redessin ; la bulle porte data-morph-garder.
- * Règle n°3 : clignement, dérive du regard, oscillation du nez et respiration reviennent exactement à leur état de départ (boucles parfaites) ; prefers-reduced-motion les coupe.
- * Anti-spoil (règle n°2) : rien n'existe tant que la garderie n'est pas débloquée (seul l'onglet Garderie dessine l'armoire).
+ * SOREAL IDLE — les yeux du chat-étagère de la Garderie (2026-10-31). Chaque apparence (modules/etagere-skins-v1.js) fournit ses ovales blancs : ce module y dessine, pour CHAQUE ovale,
+ * une pupille ronde noire centrée, une paupière qui épouse l'ovale à la couleur du pelage de l'apparence, un clignement rare et lent, une dérive très lente du regard et, pour l'œil « g »,
+ * la pupille qui tombe de temps en temps comme une bille dans sa cavité (la paupière se ferme plusieurs fois pour la remettre en place). Les chats ne parlent pas : aucune phrase, aucune bulle.
+ * Avec plusieurs ovales (3 têtes, pirate à un seul œil…) chaque œil porte un DÉLAI NÉGATIF différent (--dl) : les paires ne sont jamais à l'unisson mécanique, et chaque œil garde ses boucles parfaites.
+ * Les bocaux et le décor sont dans modules/daycare-page-v1.js.
+ * Règle n°4 : tout est dessiné par le rendu de la page (aucun état, aucune minuterie, rien n'est ajouté après coup : un redessin ne perd donc rien). Le `.gd-fig` de chaque apparence porte un id propre :
+ * au changement d'apparence les yeux sont de NOUVEAUX éléments, ils repartent de leur état de repos.
+ * Règle n°3 : clignement, dérive du regard et chute de la bille reviennent exactement à leur état de départ (boucles parfaites) ; prefers-reduced-motion les coupe.
+ * Anti-spoil (règle n°2) : rien n'existe tant que la garderie n'est pas débloquée (seul l'onglet Garderie dessine le chat).
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_ETAGERE_V1__)return;
-  var PAS=250,MIN=240000,MAX=540000,SOMMEIL_MAX=150000,REGARD_MIN=150000,REGARD_MAX=420000;
-  var dort=false,vuAvant=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuEveille=0,cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);
-  var humeurTemp='',humeurJusqua=0,parleJusqua=0;
 
-  function humeur_(){
-    if(dort)return 'dort';
-    return humeurTemp&&Date.now()<humeurJusqua?humeurTemp:'eveillee';
-  }
-  function parle_(){return Date.now()<parleJusqua;}
-  function classes_(){return parle_()?' parle':'';}
+  /* Rapport de l'image (768 x 1152) : passe les % de l'image en pixels relatifs pour centrer la pupille ronde dans un ovale de n'importe quelle forme. */
+  var LARG_IMG=7.68,HAUT_IMG=11.52;
 
-  /* Les yeux (dans les ovales blancs de l'image : 12,8 % x 7,3 % de l'image), le nez (copie découpée de l'image), les Z. Positions en % de l'image 768 x 1152. */
-  function oeil_(cls,gauche,larg){
-    return '<i class="et-oeil '+cls+'" style="left:'+gauche+'%;top:17.5%;width:'+larg+'%;height:7.8%"><b class="et-regard"><u class="et-iris"></u></b><s class="et-paup"></s></i>';
+  function oeil_(o,i){
+    var cote=o.cote==='d'?'d':'g';
+    var pup=Number(o.pupille)>0?Number(o.pupille):0.28;
+    var l=Number(o.larg)*LARG_IMG,h=Number(o.haut)*HAUT_IMG;
+    var diametre=l>0?pup*h/l*100:pup*100;                /* diamètre de la pupille, en % de la LARGEUR de l'ovale */
+    var delai=-(((i*7.9)+(cote==='d'?2.3:0))%29);       /* décale la phase de CET œil (le plus long cycle dure 29 s) */
+    return '<i class="et-oeil et-o'+cote+'" style="left:'+o.left+'%;top:'+o.top+'%;width:'+o.larg+'%;height:'+o.haut+'%;--pc:'+(o.couleur||'#faefe1')+';--dl:'+delai.toFixed(1)+'s">'+
+      '<b class="et-regard"><u class="et-iris" style="top:'+((1-pup)/2*100).toFixed(2)+'%;height:'+(pup*100).toFixed(2)+'%;left:calc(50% - '+(diametre/2).toFixed(2)+'%)"></u></b><s class="et-paup"></s></i>';
   }
-  function yeuxHtml(){
+  /* Les yeux de l'apparence donnée (id) ; chaîne vide si les données des apparences ne sont pas chargées. */
+  function yeuxHtml(idSkin){
+    var D=window.__SOREAL_IDLE_ETAGERE_SKINS_V1__;
+    var sk=D&&D.skins?(D.skins[idSkin]||D.skins.defaut):null;
+    if(!sk||!Array.isArray(sk.yeux))return '';
     css();
-    return oeil_('et-og',29.04,14.06)+oeil_('et-od',56.9,14.2)+
-      '<div class="et-nez" aria-hidden="true"></div><span class="et-zzz" aria-hidden="true"><i>Z</i><i>z</i><i>Z</i></span>';
+    return sk.yeux.map(function(o,i){return oeil_(Object.assign({pupille:sk.pupille,couleur:sk.paupiere},o),i);}).join('');
   }
-
-  /* Remet l'état sur l'armoire affichée (appelé à chaque pas, à chaque réaction et juste après un redessin). */
-  function appliquer(){
-    var h=humeur_(),p=parle_();
-    var l=document.querySelectorAll('.gd-armoire');
-    for(var i=0;i<l.length;i+=1){
-      if(l[i].getAttribute('data-humeur')!==h)l[i].setAttribute('data-humeur',h);
-      if(l[i].classList.contains('parle')!==p)l[i].classList.toggle('parle',p);
-    }
-  }
-
-  function bulle_(texte){
-    var f=document.querySelector('.gd-armoire');
-    if(!f||!texte||f.querySelector('.et-bulle'))return false;
-    var b=document.createElement('span');
-    b.className='et-bulle';b.setAttribute('aria-hidden','true');b.setAttribute('data-morph-garder','1');
-    b.textContent=texte;
-    f.appendChild(b);
-    parleJusqua=Date.now()+Math.min(2600,900+texte.length*45);
-    appliquer();
-    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b);},3700);
-    setTimeout(appliquer,Math.max(0,parleJusqua-Date.now())+30);
-    return true;
-  }
-  function phrase_(mode){
-    var P=window.__SOREAL_IDLE_PHRASES_V1__;
-    return P&&typeof P.tirer==='function'?P.tirer('etagere',mode):'';
-  }
-  function reveiller_(){dort=false;vuAvant=0;cibleSommeil=MIN+Math.random()*(MAX-MIN);appliquer();}
-
-  /* Réaction à un geste du jeu : mode = 'daycare' (contente) | 'daycare:max' (clin d'œil) | 'plein' (agacée). */
-  function reagir(mode){
-    if(dort)reveiller_();
-    humeurTemp=mode==='plein'?'agacee':(mode==='daycare:max'?'clin':'contente');
-    humeurJusqua=Date.now()+(mode==='plein'?3600:3200);
-    appliquer();
-    var t=phrase_(mode);
-    /* L'onglet Garderie n'est pas à l'écran (geste fait depuis le sac ou le Coffre) : c'est quand même l'armoire qui parle, sa réplique sort alors dans la bulle du Coffre. */
-    if(document.querySelector('.gd-armoire'))bulle_(t);
-    else{var S=window.__SOREAL_IDLE_COFFRE_SOMMEIL_V1__;if(t&&S&&typeof S.parler==='function')S.parler(t);}
-    setTimeout(appliquer,(mode==='plein'?3600:3200)+60);
-  }
-
-  /* Le clic sur une armoire endormie la réveille (d'un sursaut) et est avalé : il ne dépose ni ne reprend rien. */
-  document.addEventListener('click',function(e){
-    if(!dort)return;
-    var t=e.target,el=t&&t.closest?t.closest('.gd-armoire'):null;
-    if(!el)return;
-    e.stopPropagation();e.preventDefault();
-    reveiller_();
-    var fig=el.querySelector('.gd-fig');
-    if(fig){fig.classList.remove('et-sursaut');void fig.offsetWidth;fig.classList.add('et-sursaut');setTimeout(function(){fig.classList.remove('et-sursaut');},700);}
-    var q=phrase_('reveil');
-    if(q)bulle_(q);
-  },true);
-
-  function vue_(){
-    var el=document.querySelector('.gd-armoire');
-    if(!el||document.hidden)return false;
-    var r=el.getBoundingClientRect();
-    return r.bottom>0&&r.top<(window.innerHeight||0);
-  }
-  /* Le temps n'avance que quand elle est vue : elle s'endort au bout de 4 à 9 minutes de présence à l'écran, se réveille seule après 2 min 30 de sommeil vu, et lâche une remarque de temps en temps. */
-  function pas_(){
-    appliquer();
-    if(!vue_())return;
-    if(!dort){
-      vuAvant+=PAS;
-      if(vuAvant>=cibleSommeil){dort=true;vuEndormi=0;appliquer();return;}
-      vuEveille+=PAS;
-      if(vuEveille>=cibleRegard){
-        var t=phrase_('remarque');
-        if(t&&bulle_(t)){vuEveille=0;cibleRegard=REGARD_MIN+Math.random()*(REGARD_MAX-REGARD_MIN);}
-      }
-      return;
-    }
-    vuEndormi+=PAS;
-    if(vuEndormi>=SOMMEIL_MAX){reveiller_();var q=phrase_('reveil');if(q)bulle_(q);}
-  }
-  setInterval(pas_,PAS);
-  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{appliquer();}catch(_e){}});
 
   function css(){
     if(typeof document==='undefined'||!document.head||document.getElementById('et-style-v1'))return;
     var s=document.createElement('style');
     s.id='et-style-v1';
     s.textContent=[
-      /* yeux : globe blanc ombré, iris et petite pupille tournés vers l'extérieur, paupière qui descend */
-      '.et-oeil{position:absolute;z-index:6;display:block;border-radius:50%;overflow:hidden;background:none}',
+      /* œil : l'ovale blanc de l'image reste visible ; pupille noire ronde centrée ; paupière unie à la couleur du pelage, qui descend sur l'ovale */
+      '.et-oeil{position:absolute;z-index:6;display:block;border-radius:50%;overflow:hidden;background:none;pointer-events:none}',
       '.et-regard{position:absolute;inset:0;display:block}',
-      '.et-iris{position:absolute;top:36%;height:28%;aspect-ratio:1;display:block;border-radius:50%;background:radial-gradient(circle at 50% 50%,#0b0603 0,#0b0603 100%)}',
-      '.et-og .et-iris,.et-od .et-iris{left:calc(50% - 7.8%)}',   /* Norman (2026-10-31) : pupille CENTRALE dans l'œil (iris = 28 % de la hauteur de l'ovale, soit ≈ 15,6 % de sa largeur) */
-
+      '.et-iris{position:absolute;aspect-ratio:1;display:block;border-radius:50%;background:#0b0603}',
       '.et-iris::after{content:"";position:absolute;left:24%;top:16%;width:20%;height:20%;border-radius:50%;background:#fff;opacity:.8}',
-      '.et-paup{position:absolute;left:-2%;right:-2%;top:-2%;height:104%;display:block;transform-origin:50% 0;transform:scaleY(0);background:linear-gradient(180deg,#c47426,#cf8130 80%,#b8651f);border-radius:0 0 50% 50%/0 0 14% 14%;border-bottom:2px solid #2a1608;animation:etClin 13s ease-in-out infinite}',
-            '.et-og .et-regard{animation:etRegG 17s ease-in-out infinite}.et-od .et-regard{animation:etRegD 21s ease-in-out infinite}',
-      /* Norman, 2026-10-30 : « la pupille de son œil tombe parfois, comme une bille qui roulerait dans sa cavité ; elle ferme plusieurs fois la paupière pour la remettre en place » : œil gauche, même boucle de 29 s pour la bille et la paupière (elles ne se désynchronisent jamais) */
-      '.et-og .et-paup{animation:etPaupG 29s ease-in-out infinite}.et-og .et-iris{animation:etBilleG 29s ease-in-out infinite}',
-      '.gd-armoire[data-humeur="dort"] .et-regard,.gd-armoire[data-humeur="dort"] .et-iris{animation:none}',
-      '.gd-armoire[data-humeur="dort"] .et-paup{animation:none;transform:scaleY(1)}',
-      '.gd-armoire[data-humeur="agacee"] .et-paup{animation:none;transform:scaleY(.42)}',
-      '.gd-armoire[data-humeur="contente"] .et-paup{animation:none;transform:scaleY(.3)}',
-      '.gd-armoire[data-humeur="clin"] .et-od .et-paup{animation:none;transform:scaleY(1)}',
-      /* nez : copie découpée de l'image (rect 285,232 -> 445,394 de 768 x 1152) qui oscille doucement */
-      '.et-nez{position:absolute;z-index:5;left:37.1%;top:20.1%;width:20.8%;height:14.1%;background-image:url(/garderie/armoire-v1.webp?v=2);background-size:480% 711%;background-position:46.9% 23.4%;background-repeat:no-repeat;clip-path:ellipse(49% 47% at 50% 56%);transform-origin:50% 12%;animation:etNez 19s ease-in-out infinite;pointer-events:none}',
-      '.et-zzz{position:absolute;z-index:7;left:66%;top:5%;width:40px;height:46px;display:none;pointer-events:none}',
-      '.gd-armoire[data-humeur="dort"] .et-zzz{display:block}',
-      '.et-zzz i{position:absolute;left:0;bottom:0;font:400 18px/1 "Bangers","Russo One",Impact,sans-serif;font-style:normal;color:#dff1ff;-webkit-text-stroke:.6px #1b3a5a;text-shadow:0 1px 0 #1b3a5a;opacity:0;animation:bgZzz 3.6s ease-in-out infinite}',
-      '.et-zzz i:nth-child(2){animation-delay:1.2s;font-size:22px}.et-zzz i:nth-child(3){animation-delay:2.4s;font-size:27px}',
-      '.et-bulle{position:absolute;left:50%;top:1%;padding:4px 12px;border-radius:12px;background:#fff;color:#3a2208;border:2px solid #3a2208;font:400 15px/1.1 "Bangers","Russo One",Impact,sans-serif;letter-spacing:.05em;max-width:90%;width:max-content;text-align:center;white-space:normal;pointer-events:none;z-index:9;opacity:0;transform:translateX(-50%);animation:etBulle 3.2s ease-in-out 1 both}',
-      '.et-bulle::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;border:6px solid transparent;border-top-color:#3a2208;border-bottom:0}',
-      '.et-sursaut{animation:etSursaut .6s ease-out 1}',
+      '.et-paup{position:absolute;left:-2%;right:-2%;top:-2%;height:104%;display:block;transform-origin:50% 0;transform:scaleY(0);background:var(--pc,#faefe1);border-radius:0 0 50% 50%/0 0 14% 14%;border-bottom:1px solid rgba(0,0,0,.4);animation:etClin 13s ease-in-out var(--dl,0s) infinite}',
+      '.et-og .et-regard{animation:etRegG 17s ease-in-out var(--dl,0s) infinite}.et-od .et-regard{animation:etRegD 21s ease-in-out var(--dl,0s) infinite}',
+      /* la pupille de l'œil « g » tombe parfois comme une bille qui roulerait dans sa cavité ; la paupière se ferme plusieurs fois pour la remettre en place : même boucle de 29 s pour la bille et la paupière (elles ne se désynchronisent jamais, même délai) */
+      '.et-og .et-paup{animation:etPaupG 29s ease-in-out var(--dl,0s) infinite}.et-og .et-iris{animation:etBilleG 29s ease-in-out var(--dl,0s) infinite}',
       '@keyframes etClin{0%,90%,100%{transform:scaleY(0)}94%{transform:scaleY(1.03)}}',
       '@keyframes etRegG{0%,100%{transform:translate(0,0)}35%{transform:translate(-1.8px,.8px)}70%{transform:translate(1.2px,-1px)}}',
       '@keyframes etRegD{0%,100%{transform:translate(0,0)}40%{transform:translate(1.8px,-.8px)}75%{transform:translate(-1.2px,1px)}}',
-      '@keyframes etNez{0%,28%,34%,70%,76.5%,100%{transform:rotate(0) scale(1)}29.5%{transform:rotate(1.8deg) scale(1.01,1.03)}31%{transform:rotate(-1.4deg) scale(1.01,1.02)}32.5%{transform:rotate(.6deg) scale(1,1.01)}72%{transform:rotate(-2.2deg) scale(1.012,1.04)}73.6%{transform:rotate(1.6deg) scale(1.01,1.025)}75%{transform:rotate(-.8deg) scale(1,1.01)}}',
       '@keyframes etPaupG{0%,29.6%,32.4%,66.4%,68%,68.6%,70.6%,71.4%,73.4%,87.6%,90.4%,100%{transform:scaleY(0)}30.6%{transform:scaleY(1.03)}66.9%{transform:scaleY(1.03)}69.6%{transform:scaleY(1.03)}72.4%{transform:scaleY(1.03)}88.8%{transform:scaleY(1.03)}}',
-      /* la bille roule le long de la cavité, oscille de part et d'autre du bas puis se stabilise au BAS CENTRE de l'œil (≈ +150 % en x, +127 % en y de sa propre taille) avant que la paupière, en se fermant trois fois, la remonte (Norman, 2026-10-30) */
+      /* la bille roule le long de la cavité, oscille de part et d'autre du bas puis se stabilise au BAS CENTRE de l'œil (≈ +150 % en x, +127 % en y de sa propre taille) avant que la paupière, en se fermant trois fois, la remonte */
       '@keyframes etBilleG{0%,60%{transform:translate(0,0)}60.8%{transform:translate(8%,35%)}61.6%{transform:translate(25%,95%)}62.6%{transform:translate(105%,128%)}63.6%{transform:translate(205%,110%)}64.6%{transform:translate(110%,126%)}65.3%{transform:translate(175%,127%)}65.9%{transform:translate(140%,127%)}66.4%{transform:translate(152%,127%)}66.9%{transform:translate(152%,127%)}67.3%{transform:translate(100%,85%)}68.4%{transform:translate(100%,85%)}69.8%{transform:translate(45%,48%)}70.8%{transform:translate(45%,48%)}72.7%{transform:translate(0,0)}100%{transform:translate(0,0)}}',
-      '@keyframes etRespire{0%,100%{transform:scale(1)}50%{transform:scale(1.006,1.012)}}',
-      '@keyframes etGrince{0%,88%,100%{transform:rotate(0)}91%{transform:rotate(.22deg)}94%{transform:rotate(-.16deg)}97%{transform:rotate(.08deg)}}',
-      '@keyframes etBulle{0%{opacity:0;transform:translate(-50%,6px)}12%{opacity:1;transform:translate(-50%,0)}86%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-4px)}}',
-      '@keyframes etSursaut{0%{transform:translateY(0)}30%{transform:translateY(-8px)}60%{transform:translateY(0)}78%{transform:translateY(-3px)}100%{transform:translateY(0)}}',
-      '@media (prefers-reduced-motion:reduce){.et-paup,.et-regard,.et-iris,.et-nez,.et-zzz i,.et-sursaut{animation:none}.et-zzz i{opacity:.8}.et-bulle{animation:none;opacity:1}}',
-      '@media (max-width:520px){.et-bulle{font-size:13px}}'
+      '@media (prefers-reduced-motion:reduce){.et-paup,.et-regard,.et-iris{animation:none}}'
     ].join('\n');
     document.head.appendChild(s);
   }
 
-  window.__SOREAL_IDLE_ETAGERE_V1__={yeuxHtml:yeuxHtml,classes:classes_,humeur:humeur_,reagir:reagir,
-    etat:function(){return {dort:dort,humeur:humeur_(),parle:parle_()};}};
+  window.__SOREAL_IDLE_ETAGERE_V1__={yeuxHtml:yeuxHtml};
 })();

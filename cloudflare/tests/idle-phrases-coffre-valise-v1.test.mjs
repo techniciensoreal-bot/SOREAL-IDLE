@@ -77,15 +77,14 @@ assert.ok(lire("public/index.html").includes("/modules/phrases-coffre-valise-v1.
   /* défauts : de quoi parler dans chaque situation, dont le refus demandé */
   const Pz = monde();
   assert.ok(tout(Pz, "coffre", "reveil").size >= 5 && tout(Pz, "valise", "reveil").size >= 5);
-  assert.ok(tout(Pz, "etagere", "daycare").size >= 3 && tout(Pz, "etagere", "daycare:max").size >= 3, "les phrases de garderie sont à l'étagère");
+  assert.equal(Pz.defauts.etagere, undefined, "les chats de la Garderie ne parlent pas : plus de phrases d'étagère");
   assert.equal(tout(Pz, "coffre", "daycare").size === 1 && tout(Pz, "coffre", "plein").has(""), true, "plus de phrases de garderie au Coffre");
-  assert.ok(tout(Pz, "etagere", "plein").has("Fais de la place, c’est full là dedans !"));
-  assert.ok(!tout(Pz, "etagere", "remarque", 600).has("Fais de la place, c’est full là dedans !"));
   assert.equal(Pz.defauts.valise.some((p) => /^{[DMP]/.test(p)), false, "la valise n'a pas de phrases de garderie");
-  /* éditeur : les trois cases demandées + « Plein », combinables avec les cases existantes */
+  /* éditeur : cases Réveil / vomi / caca (plus de personnage « étagère ») */
   const html = Pz.editeurHtml();
-  for (const k of ["data-php-r", "data-php-d", "data-php-m", "data-php-p", "data-php-v", "data-php-c", 'data-qui="etagere"']) assert.ok(html.includes(k), "case " + k);
-  for (const l of ["Réveil", "Daycare", "Max", "Plein"]) assert.ok(html.includes("> " + l + "</label>"), "libellé " + l);
+  for (const k of ["data-php-r", "data-php-v", "data-php-c"]) assert.ok(html.includes(k), "case " + k);
+  assert.ok(!html.includes('data-qui="etagere"') && !html.includes("data-php-d") && !html.includes("data-php-p"), "plus d'éditeur de phrases pour l'étagère");
+  assert.ok(html.includes("> Réveil</label>"), "libellé Réveil");
   const bv = html.slice(html.indexOf('data-qui="valise"'), html.indexOf('data-qui="coffre"'));
   assert.ok(bv.includes("data-php-r") && !bv.includes("data-php-d") && !bv.includes("data-php-p"), "la valise : seulement Réveil en plus");
 }

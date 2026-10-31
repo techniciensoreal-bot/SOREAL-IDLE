@@ -86,12 +86,8 @@ const TABLE_V1 = [
   ["sexy", "Sexy", "SEXY !", { type: MACGUFFIN, macguffin: "sexy", pct: 250 }],
   ["smart", "Smart", "SMART", { type: MACGUFFIN, macguffin: "smart", pct: 250 }],
   ["wish-weiner", "PlayerPortrait-Weiner", "Souhait « Oscar Meyer Weiner »", { type: WISH, wish: 26 }],
-  ["wish-mayo", "PlayerPortrait-Mayo", "Souhait « Mayo »", { type: WISH, wish: 75 }],
-  /* Special Prize, choix « joli chaton » (Norman, 2026-09-25) : image R2 idle/Kitty/BadKittyDaycareBow.webp (voir IDLE_PORTRAIT_KITTY_R2_KEY_V1). */
-  ["kitty", "BadKittyDaycareBow", "Joli chaton", { type: SPECIAL, choice: 2 }]
+  ["wish-mayo", "PlayerPortrait-Mayo", "Souhait « Mayo »", { type: WISH, wish: 75 }]
 ];
-/* Le chaton n'est pas dans le dossier idle/player/ : son fichier R2 est désigné explicitement. */
-export const IDLE_PORTRAIT_KITTY_R2_KEY_V1 = "idle/Kitty/BadKittyDaycareBow.webp";
 
 export const IDLE_PORTRAITS_V1 = Object.freeze(TABLE_V1.map(([id, file, name, unlock]) => Object.freeze({
   id,
@@ -107,7 +103,7 @@ export const IDLE_SPECIAL_PRIZE_AP_V1 = 50000;
 function conditionTexteV1(unlock) {
   if (unlock.type === SET) return "Compléter le set " + unlock.set;
   if (unlock.type === WISH) return "Terminer le souhait n°" + unlock.wish;
-  if (unlock.type === SPECIAL) return "Special Prize : le joli chaton";
+  if (unlock.type === SPECIAL) return "Special Prize";
   if (unlock.type === MACGUFFIN) return "Bonus permanent du fragment " + unlock.macguffin.toUpperCase() + " à " + unlock.pct + " %";
   return "Disponible dès le départ";
 }
