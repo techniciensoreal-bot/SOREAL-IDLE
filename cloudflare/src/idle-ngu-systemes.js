@@ -1262,7 +1262,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */
   /* Un objet fusionné ou boosté au niveau 100 peut compléter un set : ses EXP / AP de complétion sont versés dans les monnaies (comme après une action d'Aventure), sinon ils restaient dans adventure.permanent. */
   const avantAutoInventaire = photoRecompensesAventure(state);
-  span("avance:inventaireAuto", () => advanceIdleInventoryAutoV1(state.adventure, secs, () => inventoryAutoEnvV1(state)));
+  /* Norman (2026-10-31) : Auto Merge et Auto Boost ne tournent PAS hors ligne (l'inventaire se remplit, c'est tout) ; ils repartent dès que le joueur se reconnecte. Même seuil de 5 minutes que le farm hors ligne ; les minuteurs restent figés pendant l'absence. */
+  span("avance:inventaireAuto", () => advanceIdleInventoryAutoV1(state.adventure, seconds >= 5 * 60 ? 0 : secs, () => inventoryAutoEnvV1(state)));
   crediterRecompensesAventure(state, avantAutoInventaire);
   /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
   if (state.systems.questing?.unlocked) span("avance:quetes", () => advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now)));

@@ -49,6 +49,7 @@
             'Dans le petit menu, l’haltère est décalée à gauche et le gant frappe un peu moins loin, pour ne plus passer derrière le texte.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Auto Merge et Auto Boost ne fonctionnent plus hors ligne : l’inventaire se remplit, c’est tout. Ils repartent dès que tu te reconnectes.',
             'Les compteurs d’Auto Merge et d’Auto Boost ne reculent plus, et le sac se met à jour tout de suite après un Auto Boost.',
             'Coffre : quand une zone donne deux objets pour le même emplacement (deux casques, par exemple), ils ont chacun leur case au lieu de se superposer.',
             'Quand tu appuies sur le bouton Aventure du menu, l’inventaire (le Sac) est de nouveau affiché par défaut.',

@@ -74,7 +74,10 @@ for (const id of ["improvedLootFilter", "autoMergeBoostTimers", "loadoutSlot", "
   const arme = addItem(s, "sewers:weapon");
   equip(s, arme, "weapon");
   const double = addItem(s, "sewers:weapon", 2);
-  let t = advanceIdleNguState(s, 899, ctx, T0);
+  /* par synchros courtes (joueur connecté) : un écart de 5 minutes ou plus compte comme hors ligne, où l'Auto Merge ne tourne pas (idle-inventaire-auto-pas-hors-ligne-v1) */
+  let t = s;
+  for (let i = 0; i < 14; i++) t = advanceIdleNguState(t, 60, ctx, T0);
+  t = advanceIdleNguState(t, 59, ctx, T0);
   assert.ok(t.adventure.inventory.some((o) => o.id === double));
   t = advanceIdleNguState(t, 1, ctx, T0);
   assert.ok(!t.adventure.inventory.some((o) => o.id === double));
