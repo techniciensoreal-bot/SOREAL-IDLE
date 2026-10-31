@@ -82,6 +82,9 @@
     if(window.__coffreAccidentNumeroIdleV1__>0)m.accident=window.__coffreAccidentNumeroIdleV1__;
     /* Coffre nettoyé (modules/coffre-accident-v1.js) : même principe, annoncé une seule fois. */
     if(window.__coffreNettoyageNumeroIdleV1__>0)m.nettoye=window.__coffreNettoyageNumeroIdleV1__;
+    /* Récompense en AP du nettoyage (modules/nettoyage-ap-v1.js) : gain et lieu, annoncés une seule fois dans « En direct ». */
+    const nap=window.__nettoyageApDernierIdleV1__;
+    if(nap&&nap.n>0&&nap.ap>0){m.nettoyeApN=nap.n;m.nettoyeAp=nap.ap;m.nettoyeLieu=nap.lieu;m.nettoyeRare=Boolean(nap.rare);}
     if(c.farm&&c.farm.zoneId)return Object.assign({t:'farm',zoneId:c.farm.zoneId,zoneNom:c.farm.zoneNom||''},m);
     if(c.boss>0)return Object.assign({t:'boss',boss:c.boss},m);
     return Object.assign({t:'libre'},m);

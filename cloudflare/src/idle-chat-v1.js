@@ -59,6 +59,15 @@ export function normaliserActiviteV1(brut) {
   /* Coffre nettoyé (Norman, 2026-10-22) : même principe que l'accident. */
   const nettoye = Math.floor(Number(a.nettoye) || 0);
   if (nettoye > 0 && nettoye < 4102444800) sortie.nettoye = nettoye;
+  /* Récompense du nettoyage en AP (Norman, 2026-10-31) : numéro, gain et lieu, seulement pour « En direct » (la phrase comique s'y adapte au nom du joueur, voir idle-flux-v1.js). Valeurs bornées, lieu en liste blanche. */
+  const nettoyeApN = Math.floor(Number(a.nettoyeApN) || 0);
+  const nettoyeAp = Math.floor(Number(a.nettoyeAp) || 0);
+  if (nettoyeApN > 0 && nettoyeApN < 4102444800 && nettoyeAp > 0 && nettoyeAp <= 5000) {
+    sortie.nettoyeApN = nettoyeApN;
+    sortie.nettoyeAp = nettoyeAp;
+    sortie.nettoyeLieu = a.nettoyeLieu === "valise" ? "valise" : "coffre";
+    sortie.nettoyeRare = a.nettoyeRare === true && nettoyeAp >= 5000;
+  }
   return sortie;
 }
 

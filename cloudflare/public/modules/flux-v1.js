@@ -111,6 +111,34 @@
     return parties.join(' et ');
   }
 
+  /* Phrases du fil pour le nettoyage (Norman, 2026-10-30 / 2026-10-31) : {nom} = le joueur qui a nettoyé, {ap} = son gain. Phrase choisie d'après le numéro de l'événement (la même pour tous les lecteurs). */
+  const PHRASES_NETTOYAGE_AP={
+    coffre:[
+      '{nom} a du caca jusqu’aux coudes, mais ça valait le coup pour ses {ap} AP.',
+      '{nom} sent encore le coffre. Les doigts ne sentent plus rien, mais les {ap} AP sentent très bon.',
+      '{nom} a juré de ne plus jamais dire « c’est juste de la boue ». {ap} AP, c’est dur à digérer.',
+      'Le coffre de {nom} brille. {nom} est un peu vert. Compensation : {ap} AP.',
+      '{nom} jure que l’éponge n’était pas la sienne. {ap} AP plus tard, plus de questions.',
+      '{nom} a frotté si fort que le gant et un bout d’orgueil y sont passés. {ap} AP.',
+      '{nom} se lave les mains pour la douzième fois. {ap} AP, ça se rince mal.',
+      'Le coffre de {nom} dit merci en silence. Les {ap} AP, eux, sont plus polis.'
+    ],
+    valise:[
+      '{nom} a du vomi partout sur lui mais ça valait le coup pour ses {ap} AP.',
+      'La valise de {nom} sent la menthe et le regret. {nom} garde les {ap} AP, le regret est offert.',
+      '{nom} a nettoyé en retenant sa respiration : {ap} AP et un poumon plein de courage.',
+      '{nom} ne mangera plus jamais de spaghetti. Mais ce sera avec {ap} AP de plus.',
+      'Merci à {nom}, qui a frotté sans vomir. Presque. {ap} AP.',
+      'La valise est propre ! Les chaussettes de {nom}, un peu moins. {ap} AP quand même.',
+      '{nom} jure n’avoir touché à rien. Ses mains et ses {ap} AP disent le contraire.',
+      'Le vomi est parti, la honte reste. {nom} garde ses {ap} AP.'
+    ],
+    rare:[
+      'Jackpot ! {nom} a frotté, frotté… et la saleté a craché {ap} AP. Même la poubelle est jalouse.',
+      '{ap} AP ! {nom} n’a jamais été aussi fier d’avoir les mains sales.',
+      '{nom} a trouvé une dent en or dans la flaque : {ap} AP ! Mystère sur sa provenance.'
+    ]
+  };
   /*
    * Phrase d'un événement, ou null si elle ne doit pas être montrée à CE lecteur. Exportée pour les tests.
    * it = { type, nom, donnees, moi } ; ctx = résultat de __SOREAL_IDLE_ACTIVITE_V1__.
@@ -288,6 +316,19 @@
           lui+' enfin nettoyé '+sonCoffre+'. Les mouches sont déçues'
         ];
         return {icone:'🧽',texte:variantes[Math.abs(Number(it.id)||0)%variantes.length]};
+      }
+      /*
+       * Récompense en AP du nettoyage du Coffre ou de la Valise (Norman, 2026-10-31) : le joueur, lui, ne voit que « +N AP » ; les AUTRES lisent une phrase comique avec son nom (ex. « Sébastien a du vomi partout sur lui mais ça valait le coup pour ses 20 AP »).
+       * Même anti-spoil que l'accident : seulement pour les lecteurs qui ont déjà le menu Aventure.
+       */
+      case 'nettoyageAp':{
+        if(!k.menus.aventure)return null;
+        const ap=Math.max(0,Math.floor(Number(d.ap)||0));
+        const gain=ap>=1000?(Math.round(ap/100)/10).toString().replace('.',',')+'K':String(ap);
+        const lieu=d.lieu==='valise'?'valise':'coffre';
+        if(it.moi)return {icone:'🧽',texte:'Tu as gagné '+gain+' AP en nettoyant '+(lieu==='valise'?'ta valise':'ton coffre')};
+        const liste=d.rare?PHRASES_NETTOYAGE_AP.rare:PHRASES_NETTOYAGE_AP[lieu];
+        return {icone:d.rare?'✨':'🧽',texte:liste[Math.abs(Number(it.id)||0)%liste.length].split('{nom}').join(nom).split('{ap}').join(gain)};
       }
       /* Menu visité (Norman, 2026-10-07) : annoncé seulement aux lecteurs qui ont déjà ce menu (anti-spoil). */
       case 'visite':{

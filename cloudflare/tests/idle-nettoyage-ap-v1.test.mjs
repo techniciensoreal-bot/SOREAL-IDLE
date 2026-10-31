@@ -51,18 +51,10 @@ assert.ok(lire("cloudflare/public/modules/meta-progression-v130.js").includes("p
 const module = lire("cloudflare/public/modules/nettoyage-ap-v1.js");
 assert.ok(module.includes("f({action:'cleanMess',lieu:String(lieu||'coffre')})") && module.includes("font:400 34px") && module.includes("'.nap-v1.rare{font-size:56px;"), "action envoyée, texte et gain exceptionnel plus gros");
 assert.ok(/<script defer src="\/modules\/nettoyage-ap-v1\.js\?v=\d+"><\/script>/.test(lire("cloudflare/public/index.html")), "module chargé");
-// Phrases comiques du nettoyage (Norman, 2026-10-30) : plusieurs phrases pour le Coffre, pour la Valise et pour le gain exceptionnel ; {ap} remplacé par le gain ; jamais deux fois de suite la même.
+// Norman (2026-10-31) : le joueur ne voit que « +N AP » ; la phrase comique est pour les autres (voir idle-flux-nettoyage-ap-v1.test.mjs).
 {
-  const src = fs.readFileSync(new URL("../public/modules/nettoyage-ap-v1.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
-  const debut = src.indexOf("var PHRASES={"), fin2 = src.indexOf("function montrerPhrase");
-  assert.ok(debut > 0 && fin2 > debut, "phrases présentes");
-  const P = new Function("formater", src.slice(debut, fin2) + "\nreturn {PHRASES,phrase};")((ap) => String(ap));
-  for (const lieu of ["coffre", "valise"]) assert.ok(P.PHRASES[lieu].length >= 6 && P.PHRASES[lieu].every((x) => x.includes("{ap}")), lieu + " : au moins 6 phrases, chacune avec le gain");
-  assert.ok(P.PHRASES.rare.length >= 2 && P.PHRASES.rare.every((x) => x.includes("{ap}")), "gain exceptionnel : phrases de jackpot");
-  assert.ok(P.PHRASES.valise.some((x) => x.startsWith("Sébastien a du vomi partout sur lui mais ça valait le coup pour ses {ap} AP")), "la phrase donnée en exemple est dans la Valise");
-  let precedent = "", ok = true;
-  for (let k = 0; k < 60; k++) { const x = P.phrase("valise", 20, false); if (x === precedent) ok = false; precedent = x; assert.ok(!x.includes("{ap}") && x.includes("20"), "le gain remplace {ap}"); }
-  assert.ok(ok, "jamais deux fois de suite la même phrase");
-  assert.ok(src.includes("montrer(d.ap,d.rare,pos.x,pos.y,d.lieu||'coffre')") && src.includes("if(lieu)montrerPhrase(phrase(lieu,ap,rare),rare,x,y);"), "la phrase accompagne le gain, selon le lieu");
+  const src = lire("cloudflare/public/modules/nettoyage-ap-v1.js");
+  assert.ok(!src.includes("PHRASES") && !src.includes("montrerPhrase") && !src.includes("Sébastien a du") && !src.includes("nap-phrase-v1{"), "aucune phrase comique chez le joueur : seulement le gain");
+  assert.ok(src.includes("window.__nettoyageApDernierIdleV1__={n:"), "le gain et le lieu partent avec le prochain battement");
 }
 console.log("idle-nettoyage-ap-v1 : OK");

@@ -329,6 +329,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     boostAt: precedent ? N(precedent.boostAt, 0) : 0,
     accidentVu: precedent ? N(precedent.accidentVu, 0) : 0,
     nettoyeVu: precedent ? N(precedent.nettoyeVu, 0) : 0,
+    nettoyeApVu: precedent ? N(precedent.nettoyeApVu, 0) : 0,
     rituelAt: precedent ? N(precedent.rituelAt, 0) : 0
   });
   let ajoutes = 0;
@@ -366,6 +367,12 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       evenements.push({ type: "nettoyage", donnees: {} });
       etat.nettoyeVu = N(activite.nettoye);
     }
+    /* Récompense en AP du nettoyage (Coffre ou Valise, Norman, 2026-10-31) : une annonce par nettoyage, avec le gain ; elle remplace l'annonce simple du même battement. */
+    if (activite && N(activite.nettoyeApN) > 0 && N(activite.nettoyeApN) !== N(precedent.nettoyeApVu, 0)) {
+      for (let i = evenements.length - 1; i >= 0; i -= 1) if (evenements[i].type === "nettoyage") evenements.splice(i, 1);
+      evenements.push({ type: "nettoyageAp", donnees: { ap: N(activite.nettoyeAp), lieu: activite.nettoyeLieu === "valise" ? "valise" : "coffre", rare: activite.nettoyeRare === true } });
+      etat.nettoyeApVu = N(activite.nettoyeApN);
+    }
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
       if (e.type === "rituel") return now - N(precedent.rituelAt, 0) >= IDLE_FLUX_DELAI_RITUEL_MS_V1;
@@ -392,6 +399,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     /* Un accident survenu pendant une absence n'est jamais annoncé en rattrapage. */
     if (activite && N(activite.accident) > 0) etat.accidentVu = N(activite.accident);
     if (activite && N(activite.nettoye) > 0) etat.nettoyeVu = N(activite.nettoye);
+    if (activite && N(activite.nettoyeApN) > 0) etat.nettoyeApVu = N(activite.nettoyeApN);
   }
   sql.exec("INSERT OR REPLACE INTO idle_flux_etat(email,etat,maj) VALUES(?,?,?)", cle, JSON.stringify(etat), now);
   if (ajoutes) {

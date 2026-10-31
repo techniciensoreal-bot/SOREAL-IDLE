@@ -1799,7 +1799,7 @@ html,body{overflow-x:hidden}
             .soreal-idle-v138-equipment-sticky{
               position:sticky;
               top:62px;
-              z-index:30;
+              z-index:20; /* Norman (2026-10-31) : sous le bandeau collant (.soreal-idle-hud-v2, z-index 30 posé par hud-haut-v2.js) : à 30 les pièces équipées passaient AU-DESSUS des barres au défilement. */
             }
           }
 

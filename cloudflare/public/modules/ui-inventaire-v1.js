@@ -788,6 +788,35 @@
         return node;
       }
 
+      /* Aligne la case existante sur la case voulue sans jamais remplacer son image : même <img> (même src) = même nœud. Faux si les deux cases n'ont pas la même forme (alors la case est recréée comme avant). */
+      function synchroniserCarteEnPlaceInventaireIdleV1_(courant,voulu){
+        if(!courant||!voulu||courant.tagName!==voulu.tagName)return false;
+        const ancienImg=courant.querySelector(':scope > img'),nouvelImg=voulu.querySelector(':scope > img');
+        if(!ancienImg||!nouvelImg||ancienImg.getAttribute('src')!==nouvelImg.getAttribute('src'))return false;
+        const garde=['drag-source','drag-over'].filter(function(c){return courant.classList.contains(c);});
+        Array.from(voulu.attributes).forEach(function(at){
+          if(at.name==='class'||at.name==='style')return;
+          if(courant.getAttribute(at.name)!==at.value)courant.setAttribute(at.name,at.value);
+        });
+        Array.from(courant.attributes).forEach(function(at){
+          if(at.name==='class'||at.name==='style')return;
+          if(!voulu.hasAttribute(at.name))courant.removeAttribute(at.name);
+        });
+        const classes=(voulu.getAttribute('class')||'').split(/\s+/).filter(Boolean).concat(garde).join(' ');
+        if(courant.getAttribute('class')!==classes)courant.setAttribute('class',classes);
+        if((courant.getAttribute('style')||'')!==(voulu.getAttribute('style')||''))voulu.hasAttribute('style')?courant.setAttribute('style',voulu.getAttribute('style')):courant.removeAttribute('style');
+        const a=Array.from(courant.childNodes),b=Array.from(voulu.childNodes);
+        for(let i=0;i<b.length;i+=1){
+          const x=a[i],y=b[i];
+          if(!x){courant.appendChild(y);continue;}
+          if(x===ancienImg){continue;}
+          if(y===nouvelImg||x.isEqualNode(y))continue;
+          courant.replaceChild(y,x);
+        }
+        for(let i=a.length-1;i>=b.length;i-=1)if(a[i]!==ancienImg)courant.removeChild(a[i]);
+        return true;
+      }
+
       function patchGrilleSacInventaireIdleV160_(modele){
         const root=document.querySelector(
           '#soreal-idle-v138-bag-section .soreal-idle-v138-bag'
@@ -837,7 +866,11 @@
               node=noeudDepuisHtmlInventaireIdleV160_(
                 rendreCarteSacAdventureIdleV138_(desc.item,desc.index)
               );
-              REG.idleInventoryPerfV160.nodesCreated+=1;
+              /* Une case dont l'objet change (fusion, boost : version « en attente » puis confirmée) garde son nœud et son <img> : seuls les attributs et les petits éléments qui diffèrent sont mis à jour. */
+              if(courant&&node&&synchroniserCarteEnPlaceInventaireIdleV1_(courant,node)){
+                node=courant;
+                REG.idleInventoryPerfV160.nodesReused+=1;
+              }else REG.idleInventoryPerfV160.nodesCreated+=1;
             }
           }else{
             node=vides.shift()||noeudVideSacInventaireIdleV160_(desc.index);
@@ -874,10 +907,15 @@
          */
         const actuels=Array.from(root.children);
         if(actuels.length===noeudsFinaux.length&&actuels.every(function(n,i){return n===noeudsFinaux[i];}))return true;
+        /*
+         * Norman (2026-10-31, APK : « l'inventaire clignote dès que je fusionne ou boost »). Avant : les cases retirées restaient en place pendant la mise en ordre, donc chaque case qui suivait une case retirée (l'objet absorbé par une fusion, un boost consommé) était DÉPLACÉE
+         * (retirée puis réinsérée : l'image est repeinte) — tout le sac derrière clignotait. Maintenant : on retire d'abord les cases qui ne sont plus dans la page, puis on ne déplace que ce qui n'est vraiment pas à sa place.
+         */
+        const gardes=new Set(noeudsFinaux);
+        Array.from(root.children).forEach(function(n){if(!gardes.has(n))root.removeChild(n);});
         noeudsFinaux.forEach(function(node,i){
           if(root.children[i]!==node)root.insertBefore(node,root.children[i]||null);
         });
-        while(root.children.length>noeudsFinaux.length)root.removeChild(root.lastElementChild);
         return true;
       }
 
@@ -997,10 +1035,12 @@
         /* Comme pour le sac : on ne touche qu'aux emplacements qui ont changé (rien si tout est identique), pour ne rien faire clignoter. */
         const actuelsPaper=Array.from(courantPaper.children);
         if(!(actuelsPaper.length===noeudsFinaux.length&&actuelsPaper.every(function(n,i){return n===noeudsFinaux[i];}))){
+          /* Retire d'abord ce qui n'est plus voulu, puis ne déplace que le nécessaire (un nœud déplacé est repeint : clignotement). */
+          const gardesPaper=new Set(noeudsFinaux);
+          Array.from(courantPaper.children).forEach(function(n){if(!gardesPaper.has(n))courantPaper.removeChild(n);});
           noeudsFinaux.forEach(function(node,i){
             if(courantPaper.children[i]!==node)courantPaper.insertBefore(node,courantPaper.children[i]||null);
           });
-          while(courantPaper.children.length>noeudsFinaux.length)courantPaper.removeChild(courantPaper.lastElementChild);
         }
 
         const courantOverflow=root.querySelector('.soreal-idle-v138-accessories');
