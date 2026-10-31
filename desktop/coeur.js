@@ -211,9 +211,10 @@ async function demarrerJeu() {
  */
 const URL_MAJ = process.env.SOREAL_MAJ_URL || "";
 function envoyerPage(canal, charge) { try { if (fenetre && !fenetre.isDestroyed()) fenetre.webContents.send(canal, charge); } catch (_e) { /* fenêtre fermée */ } }
+/* Renvoie { ok, disponible, code } pour le bouton « Vérifier les mises à jour » des Réglages (Norman, 2026-10-31) ; la vérification automatique ignore le retour. */
 async function verifierMaj() {
-  if (!app.isPackaged && !URL_MAJ) return;
-  if (majEnCours || !majModule || !clePubliqueMaj) return;
+  if (!app.isPackaged && !URL_MAJ) return { ok: false, code: "DEVELOPPEMENT" };
+  if (majEnCours || !majModule || !clePubliqueMaj) return { ok: true, enCours: true };
   const r = await majModule.verifierMaj({ urlBase: URL_MAJ || majModule.URL_PRODUCTION, clePublique: clePubliqueMaj, etat: etatMaj });
   if (r.ok && r.rienAFaire && r.manifeste) {
     /* le serveur est à une autre version, mais l'appareil a déjà tout : on la note sans rien afficher */
@@ -222,6 +223,7 @@ async function verifierMaj() {
   }
   majProposee = r.ok && r.disponible ? { version: r.manifeste.version, notes: String(r.manifeste.notes || "").slice(0, 400), octets: r.delta.octets, nb: r.delta.nb, manifeste: r.manifeste, delta: r.delta } : null;
   envoyerPage("maj:proposee", majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null);
+  return { ok: Boolean(r.ok), disponible: Boolean(majProposee), code: r.code || "" };
 }
 /*
  * Liaison au compte (Réglages > Ma partie) : voir src/liaison.mjs. Le jeton arrive du navigateur par une adresse locale ; la réconciliation compare la partie de cet ordinateur et celle du serveur et garde la plus avancée.
@@ -274,6 +276,7 @@ function installerPontLiaison() {
 }
 
 function installerPontMaj() {
+  ipcMain.handle("maj:verifier", async () => verifierMaj());
   ipcMain.handle("maj:etat", async () => (majProposee ? { version: majProposee.version, notes: majProposee.notes, octets: majProposee.octets, nb: majProposee.nb } : null));
   ipcMain.handle("maj:installer", async () => {
     if (!majProposee || majEnCours) return { ok: false, code: majEnCours ? "DEJA_EN_COURS" : "RIEN_A_INSTALLER" };

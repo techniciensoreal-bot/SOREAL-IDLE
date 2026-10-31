@@ -449,6 +449,13 @@
                 '<div id="sorealIdlePartieFichierEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
               '</div>'
               :'')+
+            (window.__SOREAL_IDLE_MAJ_V1__&&window.__SOREAL_IDLE_MAJ_V1__.peutVerifier()?
+              '<div class="soreal-idle-section-v8">'+
+                '<div class="soreal-idle-window-title-v31">🔄 Mises à jour</div>'+
+                '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__verifierMajIdleV1__(this)">🔄 Vérifier les mises à jour</button>'+
+                '<div id="sorealIdleMajEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
+              '</div>'
+              :'')+
             (window.__SOREAL_IDLE_LIAISON_V1__?window.__SOREAL_IDLE_LIAISON_V1__.sectionHtml():'')+
             (window.__SOREAL_IDLE_STEAM_V1__?window.__SOREAL_IDLE_STEAM_V1__.sectionHtml():'')+
             '<div class="soreal-idle-section-v8 rg-danger-v1">'+

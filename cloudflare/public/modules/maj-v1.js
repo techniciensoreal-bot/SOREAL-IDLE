@@ -67,5 +67,32 @@ D.majSur(function(e){
 });
 Promise.resolve(D.majEtat()).then(function(m){if(m){etat.maj=m;dessiner();}}).catch(function(){});
 
-window.__SOREAL_IDLE_MAJ_V1__={etat:function(){return etat;},dessiner:dessiner};
+/* Bouton « Vérifier les mises à jour » (Réglages) : même contrôle que la vérification automatique, sans attendre ses 30 minutes. Une mise à jour trouvée réaffiche le bandeau, même si « Plus tard » avait été choisi. */
+function peutVerifier(){return typeof D.majVerifier==='function';}
+function verifier(){
+  if(!peutVerifier())return Promise.resolve({ok:false,code:'ANCIENNE_VERSION'});
+  etat.cachee='';
+  return Promise.resolve(D.majVerifier()).then(function(r){
+    r=r||{};
+    if(r.disponible)return Promise.resolve(D.majEtat()).then(function(m){if(m){etat.maj=m;dessiner();}return r;});
+    return r;
+  }).catch(function(){return {ok:false,code:'HORS_LIGNE'};});
+}
+window.__verifierMajIdleV1__=function(bouton){
+  var zone=document.getElementById('sorealIdleMajEtatV1');
+  var dire=function(t){if(zone)zone.textContent=t;};
+  if(bouton)bouton.disabled=true;
+  dire('Vérification…');
+  verifier().then(function(r){
+    if(bouton)bouton.disabled=false;
+    if(r.enCours)dire('Une mise à jour est déjà en cours d’installation.');
+    else if(r.disponible)dire('Une mise à jour est disponible : voir le bandeau en haut de la fenêtre.');
+    else if(r.ok)dire('Ton application est à jour.');
+    else if(r.code==='HORS_LIGNE')dire('Impossible de joindre le serveur : vérifie ta connexion internet.');
+    else if(r.code==='ANCIENNE_VERSION')dire('Ferme complètement l’application puis rouvre-la : elle cherchera alors la mise à jour toute seule.');
+    else dire('La vérification n’a pas abouti : réessaie dans un moment.');
+  });
+};
+
+window.__SOREAL_IDLE_MAJ_V1__={etat:function(){return etat;},dessiner:dessiner,peutVerifier:peutVerifier,verifier:verifier};
 })();

@@ -32,6 +32,7 @@
         date:'2026-10-31',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Application Windows : un bouton « Vérifier les mises à jour » dans les Réglages (Ma partie) cherche tout de suite une nouvelle version, sans attendre le contrôle automatique.',
             'L’introduction en anglais affiche maintenant le texte original du jeu (« THE BEGINNING ») et est lue par un narrateur anglais, légèrement ralenti ; si une voix ne peut pas se jouer, l’introduction défile en texte seul.',
             'Dans le menu en petit, un menu qui travaille sans être ouvert garde son fond sombre, mais ses icônes restent en couleurs pleines et animées.',
             'En anglais, le lecteur reste muet quand aucune voix anglaise n’existe pour le texte, au lieu de lire le texte français ; les guides et le tutoriel sont traduits en entier.',

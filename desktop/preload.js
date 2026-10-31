@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("sorealDesktop", {
   /* mises à jour : « maj proposée » (ou rien), installation, et les événements (proposition, progression) */
   majEtat: () => ipcRenderer.invoke("maj:etat"),
   majInstaller: () => ipcRenderer.invoke("maj:installer"),
+  majVerifier: () => ipcRenderer.invoke("maj:verifier"),
   /* liaison au compte Google (Réglages > Ma partie) */
   liaisonEtat: () => ipcRenderer.invoke("liaison:etat"),
   /* quel cœur de l'application tourne (absent du cœur d'origine : la page s'en sert pour dire quoi faire) */
