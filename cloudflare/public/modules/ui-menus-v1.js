@@ -1426,7 +1426,8 @@
               '.soreal-idle-item-popup-v1'
             );
           /* Un curseur de volume (ou tout champ de saisie) se glisse avec le doigt : ce geste n'est jamais un changement de page (Norman, 2026-10-07 : « quand on règle les barres de volume, ça nous fait swipe de page »). */
-          const surChampGlisseV1=e.target&&e.target.closest&&e.target.closest('input,select,textarea,[role="slider"],[data-no-swipe],.bg-flaque-v1,.vl-flaque-v1');
+          const surChampGlisseV1=e.target&&e.target.closest&&e.target.closest('input,select,textarea,[role="slider"],[data-no-swipe],.bg-flaque-v1,.vl-flaque-v1,.soreal-idle-coffre-v1');
+          /* Norman (2026-10-31) : « dans toute la zone du cadre coffre/valise le swipe ne fonctionne pas » : frotter pour nettoyer ne change plus jamais de page. */
           if(!cible||surBarreNav||surInteractionInventaireV180||surChampGlisseV1||!e.touches||e.touches.length!==1){
             idleSwipeDebutXV1=null;
             idleSwipeDebutYV1=null;
