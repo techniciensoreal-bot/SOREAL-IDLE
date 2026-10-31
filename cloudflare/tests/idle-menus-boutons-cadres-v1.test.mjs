@@ -115,8 +115,10 @@ for (const m of sansCom.matchAll(/\.nb-d\{animation:nbV1_[a-z]+ ([\d.]+)s [a-z-]
 
 /* états : fermé = sombre (fond ET icônes), ouvert = brille, menu qui travaille non ouvert = fond sombre mais ICÔNES en couleurs pleines (Norman, 2026-10-30) ; aucun filtre global sur le décor */
 assert.ok(!/\.soreal-idle-nav-deco-v1\{[^}]*filter:/.test(sansCom), "pas de filtre global sur le décor (il assombrirait aussi les icônes)");
-assert.ok(/\.soreal-idle-nav-deco-v1::before,[^{]*\.soreal-idle-nav-deco-v1::after\{filter:brightness\(\.5\) saturate\(\.55\)/.test(sansCom) && !/\.nb-g,[^{]*\.nb-d\{filter:(brightness\(\.5\)|none)/.test(sansCom), "menu fermé : fond et liseré sombres, icônes en couleurs pleines (Norman, 2026-10-31)");
+assert.ok(/\.soreal-idle-nav-deco-v1::before,[^{]*\.soreal-idle-nav-deco-v1::after,[^{]*\.nb-g,[^{]*\.nb-d\{filter:brightness\(\.5\) saturate\(\.55\)/.test(sansCom), "menu fermé : fond, liseré et icônes sombres");
+assert.ok(/\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g,[^{]*\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{filter:none\}/.test(sansCom), "menu qui travaille : icônes en couleurs pleines");
 assert.ok(!/\.travail-v1 \.soreal-idle-nav-deco-v1(::before|::after)\{[^}]*filter:none/.test(sansCom), "menu qui travaille : le fond reste sombre");
+assert.ok(sansCom.indexOf(".travail-v1 .soreal-idle-nav-deco-v1 .nb-g,") < sansCom.indexOf(".active .soreal-idle-nav-deco-v1 .nb-g,"), "ouvert l'emporte sur travaille (même spécificité, règle plus tard)");
 assert.ok(/\.active \.soreal-idle-nav-deco-v1::before,[^{]*\.active \.soreal-idle-nav-deco-v1::after\{filter:brightness\(1\.2\)/.test(sansCom), "menu ouvert : le fond brille");
 assert.ok(/\.active \.soreal-idle-nav-deco-v1 \.nb-g,[^{]*\.nb-d\{filter:brightness\(1\.2\)[^}]*drop-shadow/.test(sansCom), "menu ouvert : les dessins brillent");
 
