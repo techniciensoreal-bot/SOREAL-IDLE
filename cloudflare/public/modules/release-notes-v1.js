@@ -68,6 +68,9 @@
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
           ]}
         ]
       },

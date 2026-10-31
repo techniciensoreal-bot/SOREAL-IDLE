@@ -104,6 +104,13 @@ for (const line of sansCom.split("\n").filter((l) => l.startsWith("@keyframes"))
   noms.push(m[1]);
   const c = m[2];
   if (m[1] === "nbV1_halte" || m[1] === "nbV1_frappe") { const im = [...c.matchAll(/([\d.]+)%\{transform:([^}]*)\}/g)]; assert.ok(im.length > 10 && im[0][1] === "0" && im[im.length - 1][1] === "100" && im[0][2] === im[im.length - 1][2], `${m[1]} : boucle parfaite (0 % = 100 %)`); continue; }
+  /* Magie du sang : la goutte apparaît en haut, tombe et disparaît en fondu : invisible au début ET à la fin du cycle, mouvement toujours vers le bas (règle n°3) */
+  if (m[1] === "nbV1_goutte") {
+    const im = [...c.matchAll(/([\d.]+)%\{opacity:([\d.]+);transform:translateY\((-?[\d.]+)%\)\}/g)];
+    assert.ok(im.length >= 4 && im[0][1] === "0" && im[im.length - 1][1] === "100" && im[0][2] === "0" && im[im.length - 1][2] === "0", "goutte : fondu d'entrée et de sortie (opacité 0 à 0 % et à 100 %)");
+    assert.ok(im.every((x, i) => i === 0 || Number(x[3]) > Number(im[i - 1][3])), "goutte : mouvement toujours vers le bas");
+    continue;
+  }
   /* ITOPOD : la tour monte à l'infini : la texture glisse d'EXACTEMENT un étage (le tiers de la hauteur = la période du motif) par cycle, vitesse constante */
   if (m[1] === "nbV1_monte") { assert.equal(c, "0%{background-position:0 0}100%{background-position:0 33.3333cqh}", "monte : un étage exactement"); continue; }
   assert.ok(/^0%,100%\{[^}]*\}50%\{[^}]*\}$/.test(c) || c === "from{transform:rotate(0)}to{transform:rotate(360deg)}", `${m[1]} : n'est pas une boucle parfaite : ${c.slice(0, 60)}`);
@@ -254,3 +261,12 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   assert.ok(!/entrainement"\]\.active[^{]*\{[^}]*animation/.test(B), "jamais du seul fait d'être ouvert");
 }
 console.log("ok idle-menus-boutons-cadres-v1");
+/* Magie du sang (Norman, 2026-10-31) : pentacle rouge vif et qui tourne sur lui-même (plus de haut-bas), goutte plus petite qui tombe et s'efface */
+{
+  const css = readFileSync(new URL("../public/soreal-idle-menus-boutons-v1.css", import.meta.url), "utf8");
+  assert.ok(/\[data-menu-id-v1="sang"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:nbV1_spin 12s linear infinite\}/.test(css), "sang : le pentacle tourne sur lui-même");
+  assert.ok(/\[data-menu-id-v1="sang"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{animation:nbV1_goutte 2\.6s linear infinite\}/.test(css), "sang : la goutte tombe et s'efface en boucle");
+  assert.ok(/\[data-menu-id-v1="sang"\]\.active[^{]*\.nb-g,[^{]*\[data-menu-id-v1="sang"\]\.travail-v1[^{]*\.nb-g\{filter:saturate\(2\.8\)/.test(css), "sang : pentacle rouge vif quand le menu est actif ou travaille");
+  assert.ok(/\[data-menu-id-v1="sang"\] \.soreal-idle-nav-deco-v1 \.nb-d\{height:40cqh\}/.test(css), "sang : goutte plus petite");
+  assert.ok(!/\[data-menu-id-v1="sang"\][^{]*\.nb-g\{animation:nbV1_bob/.test(css), "sang : plus de haut-bas");
+}

@@ -11,6 +11,7 @@
     "Chaque chat a son propre regard : iris et pupille adaptés, et des paupières qui épousent exactement ses yeux et clignent ensemble.",
     "Les bocaux reposent maintenant bien sur les planches de l’étagère.",
     "Quand tu débloques une nouvelle apparence de chat, une fenêtre te l’annonce ; elle se ferme avec le bouton « Cool ».",
-    "Les chats qui ont une queue visible la balancent doucement."
+    "Les chats qui ont une queue visible la balancent doucement.",
+    "Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle."
   ] };
 })();

@@ -242,6 +242,15 @@ for (const id of MENUS) {
   if (ti["font-family"]) regles.push(`font-family:${ti["font-family"]}`);
   out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-texte-v2 b{${regles.join(";")}}`);
   const md = sp.md || sp.m, td = sp.td || sp.t, ease = sp.m === "spin" ? "linear" : "ease-in-out", easeD = md === "spin" ? "linear" : "ease-in-out";
+  if (id === "sang") {
+    /* Magie du sang (Norman, 2026-10-31) : quand le menu est actif ou travaille, le pentacle est d'un rouge plus vif et TOURNE SUR LUI-MÊME (rotation complète, linéaire, plus de haut-bas) ; la goutte est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle (opacité 0 au début et à la fin du cycle). Animations seulement quand le menu travaille. */
+    const rouge = "filter:saturate(2.8) brightness(1.18) drop-shadow(0 0 3px rgba(255,20,40,.9)) drop-shadow(0 0 7px rgba(255,10,30,.6))";
+    out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1 .nb-g,${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{${rouge}}`);
+    out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1 .nb-d{height:40cqh}`);
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 12s linear infinite}`);
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_goutte 2.6s linear infinite}`);
+    continue;
+  }
   if (id === "entrainement") {
     /* Entraînement (Norman, 2026-10-31) : le petit bouton reprend les mouvements du grand cadre, UNIQUEMENT quand le menu travaille (.travail-v1) : la barre de l'haltère monte et descend (cycle 2,4 s), le gant frappe de droite à gauche (un coup toutes les 1,8 s : coup rapide, retour lent, pause). Boucles parfaites (0 % = 100 %), mêmes courbes que le grand cadre. */
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_halte 2.4s linear infinite}`);
@@ -263,6 +272,8 @@ for (const id of MENUS) {
   MOUVEMENTS.halte = halte.join("");
   MOUVEMENTS.frappe = frappe.join("");
   MOUVEMENTS.monte = "0%{background-position:0 0}100%{background-position:0 33.3333cqh}";
+  /* goutte de sang : invisible au départ, apparaît en haut (fondu d'entrée), tombe, s'efface en bas (fondu de sortie) ; mouvement toujours vers le bas. */
+  MOUVEMENTS.goutte = "0%{opacity:0;transform:translateY(-62%)}14%{opacity:1;transform:translateY(-48%)}80%{opacity:1;transform:translateY(48%)}100%{opacity:0;transform:translateY(62%)}";
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);
