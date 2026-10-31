@@ -519,7 +519,9 @@
             '.mp-pager-v1 button:disabled{opacity:.4}'+
           '</style>'+
           /* Mise en page (Norman, 2026-10-10 : « beaucoup plus jolie », image entière et grande) : sur PC l'image à gauche, les actions et « Ton prix » à droite ; sur téléphone tout s'empile (CSS : soreal-idle-itopod.css, « Money Pit v2 »). */
+          /* Deux colonnes indépendantes sur PC (Norman, 2026-10-31 : « équilibrer les deux colonnes, combler les espaces vides ») : à gauche le trou (image, menu, tableau de ses récompenses), à droite la roue (image, menu, tableau) ; chaque colonne se remplit vers le bas sans laisser de vide. Téléphone : les colonnes disparaissent (display:contents) et l'ordre d'avant est rétabli par la propriété order (CSS). */
           '<div class="mp2-grille-v1">'+
+          '<div class="mp-col-v1 mp-col-trou-v1">'+
           '<div class="soreal-idle-money-scene-v206">'+
             /* Image refaite par Norman (2026-10-31), fichier statique du dépôt (donc dans le paquet hors ligne) ; l'ancienne Money_Pit.jpg reste sur le serveur, plus utilisée ici. Calques : titre, yeux, puanteur, salve d'or (soreal-idle-itopod.css, « Trou sans fond »). */
             '<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp" width="1000" height="1000" alt="Trou sans fond">'+
@@ -534,7 +536,10 @@
               prixPit+
             '</div>'+
           '</div>'+
-          /* Roue journalière (Norman, 2026-10-31) : EN DESSOUS du cadre du trou, de la même largeur (colonne de gauche) ; à droite, son titre, TON PRIX et le compte à rebours. */
+          cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
+          '</div>'+
+          '<div class="mp-col-v1 mp-col-roue-v1">'+
+          /* Roue journalière (Norman, 2026-10-31) : image de la roue (colonne de droite), puis son titre, TON PRIX et le compte à rebours, puis son tableau de récompenses. */
           (RO?RO.rendreCarte(roueSt,j,boutonRoue):'')+
           '<div class="rb-prixcol"><div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
             '<div class="soreal-idle-money-action-title-v206">Roue journalière !</div>'+
@@ -542,14 +547,11 @@
             prixRoue+
             '<div class="rb-prix-txt">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
           '</div></div>'+
+          cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
+          '</div>'+
           '</div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
           /* Norman (2026-10-10) : les récompenses du Money Pit et de la roue passent au-dessus, le calendrier de connexion en bas de page. */
-          /* PC (Norman, 2026-10-31) : les deux tableaux côte à côte, chacun sous son menu (celui du trou à gauche, celui de la roue à droite) ; téléphone : l'un sous l'autre */
-          '<div class="mp-recaps-v1">'+
-          cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
-          cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
-          '</div>'+
           rendreCalendrierConnexionIdleV1_(j);
       }
 
@@ -560,14 +562,14 @@
    */
   function calquesTrouSansFondIdleV1_(){
     /* trois paires d'yeux : [x, y, période (s), décalage (s)] ; l'écart entre les deux points est fixe */
-    const yeux=[[36.8,58.2,3.1,.12],[47.4,56.4,2.3,.3],[51.2,61.6,3.9,.5]].map(function(p){
+    const yeux=[[36.8,58.2,3.1,.8],[47.4,56.4,2.3,1.9],[51.2,61.6,3.9,3.1]].map(function(p){
       return '<span class="mp3-yeux" style="left:'+p[0]+'%;top:'+p[1]+'%;--p:'+p[2]+'s;--d:'+p[3]+'s"><i></i><i></i></span>';
     }).join('');
     /* 5 volutes fines : [x, couleur, durée, décalage, amplitude du balancement en cqw] */
     const volutes=[[34.5,'#d9c52e',9.4,0,.9],[41,'#8fd04a',11.2,-3.6,1.2],[47,'#e6cf3a',8.6,-6.1,.8],[53.5,'#7cc43e',10.4,-1.9,1.1],[59.5,'#cfc02c',12,-8.3,1]].map(function(v){
       return '<span class="mp3-volute" style="left:'+v[0]+'%;--dur:'+v[2]+'s;--del:'+v[3]+'s;--sx:'+v[4]+'cqw"><svg viewBox="0 0 40 170" aria-hidden="true"><path d="M20 168 Q6 148 20 128 Q34 108 20 88 Q6 68 20 48 Q34 28 20 4" fill="none" stroke="'+v[1]+'" stroke-width="4" stroke-linecap="round"/></svg></span>';
     }).join('');
-    return '<div class="mp3-calques" aria-hidden="false">'+
+    return '<div class="mp3-calques" aria-hidden="false" data-morph-classes-gardees="^mp3-vu$">'+
       volutes+yeux+
       '<div class="mp3-titre"><div class="mp3-titre-nom">Trou sans fond​</div><div class="mp3-titre-phrase">(Lance tout l’or gagné à la sueur de ton front dedans !)</div></div>'+
     '</div>';
@@ -591,6 +593,20 @@
     return '<div class="mp3-chute'+(p.dehors?' mp3-dehors':'')+'" style="'+st+'"><div class="mp3-derive"><div class="mp3-echelle" style="perspective:90cqw"><div class="mp3-pc">'+tr+'<div class="mp3-fa">'+face+'</div><div class="mp3-fb">'+faceDePieceIdleV1_()+'</div></div></div></div></div>'+
       (p.dehors?'':'<div class="mp3-eclat" style="'+st+'"><svg viewBox="-20 -20 40 40"><g fill="#fff3b0"><path d="M0 -16 L2.5 -2.5 L16 0 L-2.5 2.5 L0 16 L-2.5 2.5 L-16 0 L-2.5 -2.5Z"/><circle r="5" fill="#ffd24a" opacity=".6"/></g></svg></div>');
   }
+  /* Les yeux n'apparaissent qu'à partir du moment où l'image est À L'ÉCRAN (Norman, 2026-10-31) : un observateur pose la classe mp3-vu quand 60 % de l'image sont visibles ; les yeux (en pause avant) apparaissent alors l'un après l'autre. La classe est gardée par le morph (data-morph-classes-gardees). */
+  const vusIdleV1_=new WeakSet();
+  function surveillerYeuxIdleV1_(){
+    document.querySelectorAll('.mp3-calques:not(.mp3-vu)').forEach(function(c){
+      if(vusIdleV1_.has(c))return;
+      vusIdleV1_.add(c);
+      if(typeof IntersectionObserver!=='function'){c.classList.add('mp3-vu');return;}
+      const o=new IntersectionObserver(function(es){
+        if(es.some(function(e){return e.isIntersecting;})){c.classList.add('mp3-vu');o.disconnect();}
+      },{threshold:.6});
+      o.observe(c);
+    });
+  }
+  try{new MutationObserver(surveillerYeuxIdleV1_).observe(document.body,{childList:true,subtree:true});}catch(_e){}
   window.__jeterOrSalveV1__=function(n){
     n=Math.max(1,Math.min(14,Math.round(Number(n))||8));
     const calques=document.querySelector('.mp3-calques');

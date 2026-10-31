@@ -1819,8 +1819,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-item-popup-
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-titans-brille-v1{font-size:13px}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-hud-v2 .soreal-idle-summary-v28{font-size:12px}
   /* Réglages : les cartes se rangent côte à côte au lieu de s'empiler sur 3 900 px ; le titre garde toute la largeur. */
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;align-items:start}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>.soreal-idle-page-head-v28{grid-column:1/-1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{display:block;column-count:2;column-gap:16px}   /* colonnes équilibrées (Norman, 2026-10-31 : « équilibrer les deux colonnes, combler les espaces vides ») : plus de lignes de hauteur commune qui laissent du vide sous les cartes courtes */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>:is(.soreal-idle-page-head-v28,.rg-onglets-v1,.rg-aide-v1){column-span:all}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>*{break-inside:avoid}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>.soreal-idle-section-v8{margin-top:0;margin-bottom:16px}
 }
 
 /* Audit de visibilité sur téléphone (Norman, 2026-10-22) : les petits textes de 10 à 11,5 px passent à 12 px (plancher « lisible sans être énorme » sur un écran de téléphone) ; les grands titres, les tuiles du haut et l'écran de Wandoos (mise en page proportionnelle à sa largeur) ne bougent pas. */
@@ -2013,8 +2015,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mp3-titre{position:absolute;left:0;right:0;top:2.6cqw;text-align:center;color:#000;--f-texte:"Russo One","Arial Black",Impact,sans-serif;font-family:"Russo One","Arial Black",Impact,sans-serif;line-height:1.05}
 .mp3-titre-nom{font-size:9.6cqw;letter-spacing:-.01em;-webkit-text-stroke:.25cqw #000;paint-order:stroke fill;text-shadow:0.34cqw 0.00cqw 0 #eaffdc,-0.34cqw 0.00cqw 0 #eaffdc,0.00cqw 0.34cqw 0 #eaffdc,0.00cqw -0.34cqw 0 #eaffdc,0.24cqw 0.24cqw 0 #eaffdc,-0.24cqw 0.24cqw 0 #eaffdc,0.24cqw -0.24cqw 0 #eaffdc,-0.24cqw -0.24cqw 0 #eaffdc}   /* léger bord clair autour du texte (Norman, 2026-10-31 : les traits d'herbe derrière le rendaient moins visible) */
 .mp3-titre-phrase{margin:1.4cqw auto 0;max-width:92%;font-size:3.5cqw;line-height:1.12;text-transform:uppercase;-webkit-text-stroke:.08cqw #000;text-wrap:balance;text-shadow:0.16cqw 0.00cqw 0 #eaffdc,-0.16cqw 0.00cqw 0 #eaffdc,0.00cqw 0.16cqw 0 #eaffdc,0.00cqw -0.16cqw 0 #eaffdc,0.12cqw 0.12cqw 0 #eaffdc,-0.12cqw 0.12cqw 0 #eaffdc,0.12cqw -0.12cqw 0 #eaffdc,-0.12cqw -0.12cqw 0 #eaffdc}
-/* Yeux (Norman, 2026-10-31) : absents à l'arrivée, chaque paire apparaît très vite l'une après l'autre (décalages 0,12 / 0,3 / 0,5 s), puis reste FIXE, allumée */
-.mp3-yeux{position:absolute;display:flex;gap:1.9cqw;transform:translate(-50%,-50%);opacity:0;animation:mp3Yeux .2s cubic-bezier(.2,.9,.3,1.25) 1 both;animation-delay:var(--d,0s)}
+/* Yeux (Norman, 2026-10-31) : absents à l'arrivée, les yeux n'apparaissent qu'à partir du moment où l'image est à l'écran (classe mp3-vu posée par le module), une paire après l'autre (0,8 / 1,9 / 3,1 s après), puis restent FIXES, allumés */
+.mp3-yeux{position:absolute;display:flex;gap:1.9cqw;transform:translate(-50%,-50%);opacity:0;animation:mp3Yeux .45s cubic-bezier(.2,.9,.3,1.25) 1 both;animation-delay:var(--d,0s);animation-play-state:paused}
+.mp3-calques.mp3-vu .mp3-yeux{animation-play-state:running}
 .mp3-yeux i{display:block;width:.95cqw;height:.95cqw;border-radius:50%;background:#ffe81a;box-shadow:0 0 .9cqw .25cqw rgba(255,232,26,.75)}
 @keyframes mp3Yeux{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 /* Puanteur : 5 volutes fines qui montent du trou ; opacité 0 à 0 % et 100 %, montée toujours vers le haut, balancement périodique de même durée */
@@ -2049,12 +2052,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* ===== Roue journalière refaite (Norman, 2026-10-31) : roue de la largeur du cadre du trou, en dessous ; un secteur par récompense ; modules/roue-journaliere-v1.js =====
    Règle n°3 : ampoules et halo en boucle parfaite (mêmes valeurs à 0 % et 100 %) ; mouvement réduit : plus d'animation, halo fixe. */
 /* PC (Norman, 2026-10-31) : l'image du trou et celle de la roue côte à côte (ligne 1), chacune avec son menu (boutons, prix) en dessous (ligne 2) ; téléphone : tout s'empile dans l'ordre de la page */
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-roue{grid-column:2;grid-row:1;align-self:start}
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-prixcol{grid-column:2;grid-row:2;align-self:start}
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.soreal-idle-money-actions-v206{grid-column:1;grid-row:2}
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start;max-width:1100px;margin:0 auto 12px}
-.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1>.mp-cadre-v1{max-width:none;margin:0;min-width:0}
-@media (max-width:760px){.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1{grid-template-columns:1fr;gap:0}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-recaps-v1>.mp-cadre-v1{margin:0 auto 12px}}
+/* Deux colonnes indépendantes (Norman, 2026-10-31 : « équilibrer les 2 colonnes, combler les espaces vides ») : trou (image, menu, tableau) à gauche, roue (image, menu, tableau) à droite ; chaque colonne se remplit vers le bas, sans ligne commune qui laisse du vide. */
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1{display:flex;flex-direction:column;gap:14px;min-width:0}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.mp-cadre-v1{max-width:none;margin:0}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.soreal-idle-money-actions-v206,.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.rb-prixcol{align-self:stretch}
+@media (max-width:760px){.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1{display:contents}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.soreal-idle-money-scene-v206{order:1}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.soreal-idle-money-actions-v206{order:2}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.rb-roue{order:3}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>.rb-prixcol{order:4}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-trou-v1>.mp-cadre-v1{order:5}.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-roue-v1>.mp-cadre-v1{order:6}}
 .rb-roue{box-sizing:border-box;padding:5px;border-radius:22px;background:linear-gradient(145deg,#ffd24a,#8a4b00 45%,#ff9f1c);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 40px rgba(255,190,40,.18)}
 .rb-roue-int{border-radius:17px;background:radial-gradient(circle at 50% 38%,#1f2d4b,#0b1220 75%);padding:10px 10px 12px;text-align:center}
 .rb-titre{font-family:var(--mp2-titre,"Bangers","Russo One",Impact,sans-serif);font-weight:400;font-size:clamp(22px,4.2vw,30px);letter-spacing:.05em;color:#fff;margin:0 0 2px}
@@ -2085,7 +2087,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .rb-prix-txt{font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:13px;color:#9fb2d0;margin:8px 0 0}
 @media (prefers-reduced-motion:reduce){.rb-svg .rb-gagne .rb-halo,.rb-svg .rb-ampoule,.rb-bouton.rb-dispo{animation:none}.rb-svg .rb-gagne .rb-halo{opacity:1}.rb-svg .rb-sect{transition:none}.rb-svg .rb-aiguille{transition:none}}
 @media (max-width:760px){
-  .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol,.soreal-idle-money-actions-v206){grid-column:1;grid-row:auto}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol){max-width:520px!important;width:100%;margin:0 auto!important;box-sizing:border-box}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>:is(.rb-roue,.rb-prixcol,.soreal-idle-money-actions-v206,.mp-cadre-v1){max-width:520px!important;width:100%;margin:0 auto!important;box-sizing:border-box}
   .rb-legende{grid-template-columns:1fr}
 }

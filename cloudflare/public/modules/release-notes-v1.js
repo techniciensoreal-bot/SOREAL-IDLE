@@ -85,8 +85,9 @@
             'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Sur ordinateur, les deux colonnes sont équilibrées : le trou et la roue ont chacun leur colonne (image, menu, tableau de récompenses), et les Réglages comblent leurs espaces vides.',
             'Sur ordinateur, l’image du trou et la roue sont côte à côte, chacune avec son menu en dessous, et les deux tableaux de récompenses aussi.',
-            'Quand tu arrives sur l’image du trou, les yeux ne sont pas là : ils apparaissent très vite, l’un après l’autre, puis restent fixes.',
+            'Les yeux au fond du trou n’apparaissent qu’à partir du moment où l’image est à l’écran : une paire après l’autre, sans se presser, puis ils restent fixes.',
             'Quand tu jettes ton or, certaines pièces passent le bord du trou et disparaissent derrière lui, les autres rapetissent en tombant et s’effacent dans le noir.',
             'La scène a une nouvelle image, avec le titre et la phrase au-dessus, en français et en anglais.',
             'Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or.',

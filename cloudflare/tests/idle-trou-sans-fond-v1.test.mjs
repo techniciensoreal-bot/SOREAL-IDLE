@@ -27,7 +27,8 @@ assert.ok(/\.mp3-titre-phrase\{[^}]*text-transform:uppercase/.test(css), "phrase
 // Yeux : 3 paires de 2 points, luminosité 25 % à 100 %, boucle parfaite
 assert.equal((page.match(/\[\d+\.\d+,\d+\.\d+,\d\.\d,-?[\d.]+\]/g) || []).length, 3, "3 paires d'yeux");
 assert.ok(page.includes('<i></i><i></i></span>'), "deux points par paire");
-assert.ok(css.includes("animation:mp3Yeux .2s cubic-bezier(.2,.9,.3,1.25) 1 both") && !css.includes("mp3Yeux var(--p"), "yeux : apparition rapide une seule fois, puis fixes");
+assert.ok(css.includes("animation:mp3Yeux .45s cubic-bezier(.2,.9,.3,1.25) 1 both") && css.includes(".mp3-calques.mp3-vu .mp3-yeux{animation-play-state:running}") && !css.includes("mp3Yeux var(--p"), "yeux : en pause jusqu'à ce que l'image soit à l'écran, apparition une seule fois, puis fixes");
+assert.ok(page.includes("IntersectionObserver") && page.includes("data-morph-classes-gardees=\"^mp3-vu$\""), "les yeux démarrent quand l'image est visible, la classe survit au redessin");
 
 // Puanteur : 5 volutes, fondu d'entrée et de sortie, un seul sens
 assert.equal((page.match(/\[\d+(\.\d)?,'#[0-9a-f]{6}',[\d.]+,-?[\d.]+,[\d.]+\]/g) || []).length, 5, "5 volutes");
@@ -51,6 +52,6 @@ assert.ok(css.includes("pointer-events:none;clip-path:inset(0 0 34% 0)}"), "calq
 assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
 assert.ok(css.includes("100%{opacity:0;transform:scale(.08)}}"), "pièces dans le trou : rétrécissent et s'effacent");
 // PC (Norman, 2026-10-31) : images côte à côte, menus dessous, tableaux côte à côte
-assert.ok(css.includes(".mp2-grille-v1>.rb-roue{grid-column:2;grid-row:1;align-self:start}") && css.includes(".mp2-grille-v1>.soreal-idle-money-actions-v206{grid-column:1;grid-row:2}"), "PC : image du trou à gauche, roue à droite, menus en dessous");
-assert.ok(page.includes('<div class="mp-recaps-v1">') && css.includes(".mp-recaps-v1{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)"), "PC : les deux tableaux de récompenses côte à côte");
+assert.ok(css.includes(".mp-col-v1{display:flex;flex-direction:column;gap:14px;min-width:0}") && page.includes("mp-col-trou-v1") && page.includes("mp-col-roue-v1"), "PC : deux colonnes indépendantes, le trou à gauche et la roue à droite, chacune avec son menu");
+assert.ok(page.indexOf("mp-col-trou-v1") < page.indexOf("cadreRecompensesMoneyPitIdleV1_('pit'") && page.indexOf("cadreRecompensesMoneyPitIdleV1_('pit'") < page.indexOf("mp-col-roue-v1") && page.indexOf("mp-col-roue-v1") < page.indexOf("cadreRecompensesMoneyPitIdleV1_('roue'"), "chaque tableau de récompenses est dans la colonne de son menu");
 console.log("idle-trou-sans-fond-v1: OK");
