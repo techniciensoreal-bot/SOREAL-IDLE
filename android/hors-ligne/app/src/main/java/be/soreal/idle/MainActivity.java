@@ -88,7 +88,11 @@ public class MainActivity extends Activity {
         else actif = "public" + chemin;
         File sur = maj == null ? null : maj.fichier(actif);   /* un fichier mis à jour (Maj.java) prime sur celui de l'APK */
         Map<String, String> entetes = new HashMap<>();
-        entetes.put("Cache-Control", "no-cache");
+        /* Images : gardées par la WebView (sinon chaque <img> recréé, par exemple en déplaçant un objet du sac, repartait en rechargement : clignotement, images tardives). Fichiers à ?v= : immuables. Le reste (page, état) : toujours revalidé. */
+        String q = u.getQuery();
+        if (chemin.startsWith("/__medias/") && typeDe(chemin).startsWith("image/")) entetes.put("Cache-Control", "public, max-age=600");
+        else if (q != null && q.matches("(.*&)?v=[0-9]+(&.*)?") && !chemin.endsWith(".html")) entetes.put("Cache-Control", "public, max-age=31536000, immutable");
+        else entetes.put("Cache-Control", "no-cache");
         entetes.put("Accept-Ranges", "bytes");
         String type = typeDe(actif);
         AssetManager am = getAssets();
