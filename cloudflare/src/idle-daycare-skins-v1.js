@@ -31,6 +31,9 @@ export const IDLE_DAYCARE_FIBONACCI_PERK_ID_V1 = 94;
 export const IDLE_DAYCARE_FIBONACCI_NIVEAU_V1 = 1597;
 export const IDLE_DAYCARE_WISH_ART_ID_V1 = 44;
 
+/* Fenêtre annuelle d'Halloween (heure de Bruxelles) : MÊME constante pour le chat chauve-souris et le portrait Sleepy Hollow (idle-portraits-v1.js). */
+export const IDLE_FENETRE_HALLOWEEN_V1 = Object.freeze({ de: Object.freeze([10, 31]), a: Object.freeze([11, 7]) });
+
 /* [id, condition] : condition = null → jamais possédé (non publiée). */
 const TABLE_V1 = [
   ["defaut", { type: "defaut" }],
@@ -39,7 +42,7 @@ const TABLE_V1 = [
   ["fibonacci", { type: "perk", perk: IDLE_DAYCARE_FIBONACCI_PERK_ID_V1, level: IDLE_DAYCARE_FIBONACCI_NIVEAU_V1 }],
   ["dore", { type: "acquis", via: "calendrier" }],
   ["matrix", { type: "achat", achat: "daycareKittyArt" }],
-  ["chauvesouris", { type: "acquis", via: "fenetre", de: [10, 31], a: [11, 7] }],
+  ["chauvesouris", { type: "acquis", via: "fenetre", de: IDLE_FENETRE_HALLOWEEN_V1.de, a: IDLE_FENETRE_HALLOWEEN_V1.a }],
   ["tchernobyl", { type: "boss", boss: 296 }],
   ["pirate", { type: "boss", boss: 289 }],
   ["noel", { type: "acquis", via: "fenetre", de: [12, 24], a: [1, 2] }],

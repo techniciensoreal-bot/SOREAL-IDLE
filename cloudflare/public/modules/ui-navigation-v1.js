@@ -319,12 +319,12 @@
               const yggExtraNav=j&&j.systemes&&j.systemes.yggExtra;
               const classeRecolteYgg=
                 m.id==='yggdrasil'&&yggExtraNav&&yggExtraNav.harvestLight&&yggExtraNav.harvestLight.lit
-                  ?' soreal-idle-nav-money-green-v1':'';
+                  ?' soreal-idle-nav-money-green-v1 soreal-idle-nav-dispo-v1':'';
               /* Adventure Light (Boutique AP, wiki : « The Adventure button will light up when in a safe zone ») : même lueur verte que le Money Pit tant qu'on est en Zone sûre (Norman, 2026-10-12). */
               const catalogueAp=j&&j.systemes&&j.systemes.selloutShop&&Array.isArray(j.systemes.selloutShop.catalog)?j.systemes.selloutShop.catalog:[];
               const lumiereAventure=m.id==='aventure'&&catalogueAp.some(function(it){return it&&it.id==='adventureLight'&&idleNombre_(it.purchased)>0;});
               const metaAv=lumiereAventure?aventureMetaIdleV47_(j):null;
-              const classeLumiereAventure=lumiereAventure&&metaAv&&String(metaAv.selectedZone||'safe')==='safe'&&!(metaAv.fight&&metaAv.fight.active)&&REG.idleMenuActifV28!=='aventure'?' soreal-idle-nav-money-green-v1':'';
+              const classeLumiereAventure=lumiereAventure&&metaAv&&String(metaAv.selectedZone||'safe')==='safe'&&!(metaAv.fight&&metaAv.fight.active)&&REG.idleMenuActifV28!=='aventure'?' soreal-idle-nav-money-green-v1 soreal-idle-nav-dispo-v1':'';   /* même effet complet que le Trou sans fond et Yggdrasil : cadre blanc, grossissement, lueur intérieure (Norman, 2026-10-31) */
               /* Boutique : l'étoile ne scintille que dans la boutique ou quand elle a du nouveau, signalé d'un point rouge (Norman, 2026-10-04). */
               /* Renaissance en positif (Norman, 2026-10-17) : possible ET le nombre après renaissance dépasse l'actuel -> des lueurs dorées montent dans le bouton (voir soreal-idle-itopod.css). */
               const rbNav=m.id==='renaissance'&&j&&j.renaissance&&j.renaissance.debloquee?j.renaissance:null;
@@ -450,6 +450,9 @@
           String(
             menu||'combat'
           );
+
+        /* Norman (2026-10-31) : chaque appui sur Aventure & Titans remet l'inventaire (onglet Sac) par défaut. */
+        if(nouveauMenu==='aventure'){try{if(typeof window.__garderieSacParDefautV1__==='function')window.__garderieSacParDefautV1__(REG.idleMenuActifV28==='aventure');}catch(e){}}
 
         /* Norman (2026-10-13) : cliquer sur Aventure arrête le combat de titan et laisse en Zone sûre, sur la vue Zones (l'écran de combat de titan ne couvre pas le menu). */
         if(nouveauMenu==='aventure'&&arreterCombatTitanIdleV1_()){

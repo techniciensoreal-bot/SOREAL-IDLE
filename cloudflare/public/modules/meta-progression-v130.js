@@ -518,10 +518,14 @@
                   payload.system==='dailySpin'&&
                   res.resultat.reward
                 ){
-                  window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
-                    '🎡 Lot remporté : '+
-                    formaterRecompenseIdleV1_(res.resultat.reward)
-                  );
+                  /* Roue refaite (2026-10-31) : la roue tourne PUIS annonce le lot (roue-journaliere-v1.js) ; sans la roue, l'annonce est immédiate. */
+                  const annonceRoueV1=function(){
+                    window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
+                      '🎡 Lot remporté : '+
+                      formaterRecompenseIdleV1_(res.resultat.reward)
+                    );
+                  };
+                  if(!(window.__SOREAL_IDLE_ROUE_V1__&&window.__SOREAL_IDLE_ROUE_V1__.recevoir(res.resultat,annonceRoueV1)))annonceRoueV1();
                 }
               }
 
@@ -529,6 +533,7 @@
             }
 
             libererDemarrageCombatEnEchecV1_(payload);
+            if(payload&&payload.action==='collect'&&payload.system==='dailySpin'&&window.__SOREAL_IDLE_ROUE_V1__)window.__SOREAL_IDLE_ROUE_V1__.echec();
 
             /* Installation refusée (niveaux insuffisants…) : son d'erreur d'ordinateur (Norman, 2026-10-15) */
             try{if(payload&&payload.action==='consumeWandoosCopy'&&window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur();}catch(_e){}
@@ -545,6 +550,7 @@
           function(e){
             idleMetaBusyV130=false;
             libererDemarrageCombatEnEchecV1_(payload);
+            if(payload&&payload.action==='collect'&&payload.system==='dailySpin'&&window.__SOREAL_IDLE_ROUE_V1__)window.__SOREAL_IDLE_ROUE_V1__.echec();
 
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               e&&e.message

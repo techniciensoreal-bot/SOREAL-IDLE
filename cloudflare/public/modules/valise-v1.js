@@ -68,6 +68,8 @@
   var dort=false,parle=null;
   var posRapproche=0,posDecal=null;
   function styleSection(){return (posDecal!=null?'--vl-decal:'+posDecal.toFixed(1)+'px;':'')+(posRapproche?'position:relative;left:'+(-posRapproche).toFixed(1)+'px;':'');}
+  /* Norman (2026-10-31) : la valise ne ronfle que 2 ou 3 fois par sommeil (tirage à chaque endormissement). */
+  var ronflesRestants=0;
   var visibleAvant=0,cibleSommeil=240000+Math.random()*300000,visibleDormi=0,visibleRonfle=0,cibleRonfle=1500,visibleRegard=0,cibleRegard=150000+Math.random()*250000;
 
   function reg_(){return window.__SOREAL_IDLE_REG__||{};}
@@ -581,7 +583,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   /* Le sommeil est rare (4 à 9 minutes de présence à l'écran) et jamais en même temps que celui du Coffre (Norman, 2026-10-23). */
   function endormir(){
     if(window.__coffreDortIdleV1__){visibleAvant=Math.max(0,cibleSommeil-30000);return;}   /* le Coffre dort : on réessaie dans 30 s */
-    dort=true;window.__valiseDortIdleV1__=true;visibleDormi=0;visibleRonfle=0;cibleRonfle=1500;appliquer();
+    dort=true;window.__valiseDortIdleV1__=true;visibleDormi=0;visibleRonfle=0;cibleRonfle=1500;ronflesRestants=2+Math.floor(Math.random()*2);appliquer();
   }
   function reveiller(avecSon){
     dort=false;window.__valiseDortIdleV1__=false;visibleAvant=0;cibleSommeil=240000+Math.random()*300000;
@@ -719,7 +721,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
       if(document.hidden||!l.some(enVue))return;
       if(dort){
         visibleDormi+=PAS;visibleRonfle+=PAS;
-        if(visibleRonfle>=cibleRonfle){visibleRonfle=0;cibleRonfle=4500+Math.random()*3000;son('valiseRonfle');}
+        if(ronflesRestants>0&&visibleRonfle>=cibleRonfle){visibleRonfle=0;cibleRonfle=4500+Math.random()*3000;ronflesRestants-=1;son('valiseRonfle');}
         if(visibleDormi>=140000)reveiller(true);
         return;
       }

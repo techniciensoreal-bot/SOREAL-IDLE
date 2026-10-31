@@ -24,7 +24,7 @@ function faux(tag) {
 }
 const body = faux("body");
 const overlay = faux("div");
-const grille = faux("div"), mention = faux("div"), croix = faux("button");
+const grille = faux("div"), mention = faux("div"), autoBtn = faux("button"), croix = faux("button");
 let cartes = [];
 Object.defineProperty(grille, "innerHTML", {
   get() { return this._html; },
@@ -41,7 +41,7 @@ Object.defineProperty(grille, "innerHTML", {
   }
 });
 Object.defineProperty(overlay, "innerHTML", { get() { return this._html; }, set(v) { this._html = v; } });
-overlay._q = { ".bj-grid": grille, ".bj-set": mention, ".bj-x": croix };
+overlay._q = { ".bj-grid": grille, ".bj-set": mention, ".bj-auto": autoBtn, ".bj-x": croix };
 const documentFaux = {
   body, listeners: {},
   createElement() { return overlay; },
@@ -101,17 +101,32 @@ ouvrir(); overlay.listeners.mousedown[0]({ target: grille }); assert.equal(overl
 overlay.listeners.mousedown[0]({ target: overlay }); assert.equal(overlay.hidden, true, "clic dehors");
 ouvrir(); documentFaux.listeners.keydown[0]({ key: "Escape" }); assert.equal(overlay.hidden, true, "Échap");
 
-/* 6. Set équipé : grille grisée et inactive, texte sans nom de set, aucun envoi. */
-window.__SOREAL_IDLE_REG__.idleEtat = joueur([P("default"), P("training")], { selected: "default", auto: { id: "training", file: "Portrait_training", name: "Nom Secret Du Set", set: "gaudy" } });
+/* 6. Set équipé (Norman, 2026-10-31) : grille TOUJOURS active ; sans choix manuel, phrase neutre sans nom de set ; avec choix manuel, bouton « Automatique ». */
+const SET = { id: "training", file: "Portrait_training", name: "Nom Secret Du Set", set: "gaudy" };
+window.__SOREAL_IDLE_REG__.idleEtat = joueur([P("default"), P("training")], { selected: "default", auto: SET, manuel: false });
 ouvrir();
-assert.ok(grille.classList.contains("off"), "grille grisée");
+assert.equal(grille.classList.contains("off"), false, "grille jamais grisée");
 assert.equal(mention.hidden, false);
+assert.equal(autoBtn.hidden, true, "pas de choix manuel : pas de bouton Automatique");
 assert.doesNotMatch(overlay._html + grille._html, /Nom Secret Du Set|gaudy/i, "jamais le nom du set");
-assert.match(overlay._html, /Tu portes l’armure d’un set équipé\. Retire une pièce pour retrouver ton portrait choisi\./);
-assert.deepEqual(cartes.filter((c) => c.classList.contains("sel")).map((c) => c.attrs["data-id"]), ["training"], "le portrait forcé porte le 1P");
+assert.match(overlay._html, /Le portrait de ton set est affiché tant que tu n’en choisis pas un./);
+assert.doesNotMatch(overlay._html, /Tu portes l’armure/);
+assert.deepEqual(cartes.filter((c) => c.classList.contains("sel")).map((c) => c.attrs["data-id"]), ["training"], "sans choix : le portrait du set porte le 1P");
 window.__borneChoisirPortraitIdleV1__("default");
-assert.equal(envoyees.length, 0, "set équipé : aucun envoi");
-assert.equal(overlay.hidden, false, "et la fenêtre reste ouverte");
+assert.equal(JSON.stringify(envoyees.pop()), JSON.stringify({ action: "portrait", id: "default" }), "set équipé : le clic choisit quand même");
+window.__SOREAL_IDLE_REG__.idleEtat = joueur([P("default"), P("training")], { selected: "default", auto: SET, manuel: true });
+ouvrir();
+assert.equal(mention.hidden, true, "choix manuel : plus de phrase");
+assert.equal(autoBtn.hidden, false, "set équipé + choix manuel : bouton Automatique");
+assert.deepEqual(cartes.filter((c) => c.classList.contains("sel")).map((c) => c.attrs["data-id"]), ["default"], "le choix manuel porte le 1P");
+autoBtn.listeners.click[0]();
+assert.equal(JSON.stringify(envoyees.pop()), JSON.stringify({ action: "portrait", id: "auto" }));
+assert.equal(overlay.hidden, true);
+window.__SOREAL_IDLE_REG__.idleEtat = joueur([P("default"), P("training")], { selected: "default", manuel: true });
+ouvrir();
+assert.equal(autoBtn.hidden, true, "aucun set équipé : pas de bouton Automatique");
+window.__borneChoisirPortraitIdleV1__("auto");
+assert.equal(envoyees.length, 0, "« auto » sans set équipé : rien envoyé");
 
 /* 7. La fenêtre se ferme d'elle-même si le joueur n'a plus 2 portraits. */
 window.__SOREAL_IDLE_REG__.idleEtat = joueur([P("default")]);
@@ -134,7 +149,7 @@ assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ""), /!important/, "aucun !
 assert.doesNotMatch(css, /animation\s*:|@keyframes/, "aucune animation en boucle (règle n°3)");
 assert.match(css, /prefers-reduced-motion/);
 const dico = JSON.parse(readFileSync(R + "modules/traduction-anglais-dict-v1.json", "utf8"));
-for (const t of ["Choisis le portrait de ton héros (cosmétique)", "Tu portes l’armure d’un set équipé. Retire une pièce pour retrouver ton portrait choisi.", "1P = portrait actuel", "Choisir le joueur"]) {
+for (const t of ["Choisis le portrait de ton héros (cosmétique)", "Le portrait de ton set est affiché tant que tu n’en choisis pas un.", "Automatique", "1P = portrait actuel", "Choisir le joueur"]) {
   assert.ok(dico[t], "traduction anglaise : " + t);
 }
 assert.ok(!("CHOOSE YOUR PLAYER" in dico), "CHOOSE YOUR PLAYER reste tel quel");

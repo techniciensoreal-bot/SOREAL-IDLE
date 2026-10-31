@@ -294,6 +294,12 @@
     stockage(CLE_ONGLET,onglet==='garderie'?'garderie':'sac');
     try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
   };
+  /* Norman (2026-10-31) : chaque appui sur le bouton Aventure du menu remet l'onglet « Sac » (l'inventaire) par défaut, jamais l'onglet Garderie resté ouvert la fois d'avant. Déjà sur la page Aventure : on bascule et on redessine ; sinon le choix est seulement remis avant l'affichage. */
+  window.__garderieSacParDefautV1__=function(dejaSurAventure){
+    if(ongletChoisi()!=='garderie')return;
+    if(dejaSurAventure){window.__garderieOngletV1__('sac');return;}
+    stockage(CLE_ONGLET,'sac');
+  };
   window.__garderieReprendreV1__=function(id){
     repriseId=(id==null||String(repriseId)===String(id))?null:String(id);choixOuvert=false;
     majPopup();

@@ -67,6 +67,7 @@ Relevé le 2026-09-26 (nom réel lu dans R2 par le jeu). Le jeu accepte toute ex
 | Souhait « Sneak Preview » | `Portrait_Player_portrait_-_sneak_preview.png` | `portrait-wish-sneak-preview.png` |
 | Souhait « Oscar Meyer Weiner » | `Portrait_PlayerPortrait-Weiner.png` | `portrait-wish-weiner.png` |
 | Souhait « Mayo » | `Portrait_PlayerPortrait-Mayo.png` | `portrait-wish-mayo.png` |
+| Halloween (connexion) | `Portrait_PlayerPortrait_SleepyHollow.png` | `portrait-sleepyhollow.png` |
 
 Tous les autres portraits ont déjà leur nom `portrait-<id>.webp`.
 

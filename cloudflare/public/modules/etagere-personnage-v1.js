@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_ETAGERE_V1__)return;
 
   /* Rapport de l'image (768 x 1152) : passe les % de l'image en pixels relatifs pour centrer la pupille ronde dans un ovale de n'importe quelle forme. */
-  var LARG_IMG=7.68,HAUT_IMG=11.52,DECALAGE_TETE=0.4;   /* DECALAGE_TETE : secondes entre le clignement d'une tête de Fibonacci et celui de la suivante */
+  var LARG_IMG=7.68,HAUT_IMG=11.52,DECALAGE_TETE=0.4,DECALAGE_REGARD=0.9;   /* DECALAGE_TETE : secondes entre le clignement d'une tête de Fibonacci et celui de la suivante */
 
   /* Paupière-sprite de l'œil (modules/etagere-paupieres-v1.js) : même ordre que `yeux`. Absente : repli sur l'ancienne paupière unie. */
   function spriteDe_(idSkin,i){
@@ -22,15 +22,25 @@
     var l=P&&P[idSkin];
     return l&&l[i]&&(l[i].image||(l[i].images&&l[i].images.length===2))?l[i]:null;
   }
-  function oeil_(o,i,pp,rg,seul){
+  function oeil_(o,i,pp,rg,seul,idSkin){
     var cote=o.cote==='d'?'d':'g';
     var pup=Number(o.pupille)>0?Number(o.pupille):0.28;
     if(pp)o=Object.assign({},o,{left:pp.left,top:pp.top,larg:pp.larg,haut:pp.haut});   /* boîte du MASQUE exact du blanc */
     var l=Number(o.larg)*LARG_IMG,h=Number(o.haut)*HAUT_IMG;
     var diametre=l>0?pup*h/l*100:pup*100;                /* diamètre de la pupille, en % de la LARGEUR de l'ovale */
-    /* Clignements SYNCHRONES (Norman, 2026-10-31) : tous les yeux d'un chat ont le même délai (0) ; seul Fibonacci clignote en vague, une tête après l'autre (les deux yeux d'une tête ensemble), avec un décalage constant. Sans sprite (repli) : l'ancien décalage par œil. */
+    /* Clignements et regards SYNCHRONES (Norman, 2026-10-31) : tous les yeux d'un chat suivent les mêmes keyframes (modules/etagere-expression-v1.js, cycle long propre au chat) ; seul Fibonacci est en vague, une tête après l'autre
+       (paupières --dl décalées de DECALAGE_TETE, regards --dg de DECALAGE_REGARD ; les deux yeux d'une tête ensemble). Délai négatif = la boucle est déjà en cours (aucune attente). Sans sprite (repli) : l'ancien décalage par œil. */
+    var X=window.__SOREAL_IDLE_ETAGERE_EXPR_V1__,cyc=X&&X.cycle(idSkin)||29;
     var tete=pp&&pp.tete>0?pp.tete:0;
-    var delai=pp?(tete>0?-(29-tete*DECALAGE_TETE):0):-(((i*7.9)+(cote==='d'?2.3:0))%29);
+    var delai=pp?(tete>0?-(cyc-tete*DECALAGE_TETE):0):-(((i*7.9)+(cote==='d'?2.3:0))%29);
+    var delaiG=tete>0?-(cyc-tete*DECALAGE_REGARD):0;
+    /* amplitude du regard de CET œil, en % de la taille de l'iris : le disque d'iris reste dans le blanc (marge d'1 px ; un peu de plus en vertical, le masque rogne l'iris sous le trait noir) */
+    var amp='';
+    if(pp&&rg&&rg.image){
+      var Dpx=rg.larg*LARG_IMG,Wpx=pp.larg*LARG_IMG,Hpx=pp.haut*HAUT_IMG;
+      var ax=Math.min(0.6,Math.max(0.02,((Wpx-Dpx)/2-1)/Dpx)),ay=Math.min(0.25,Math.max(0.02,((Hpx-Dpx)/2-1)/Dpx+0.05));
+      amp=';--ax:'+(ax*100).toFixed(2)+'%;--ay:'+(ay*100).toFixed(2)+'%;--bq:'+(cote==='g'?1:0)+';--dg:'+(delaiG===0?'0.0':delaiG.toFixed(1))+'s';
+    }
     var masque='',lid;
     /* regard-sprite (iris + pupille + reflets de la planche validée) : boîte du disque d'iris en % de la boîte du masque ; sinon l'ancien disque noir */
     var iris=pp&&rg&&rg.image
@@ -45,8 +55,20 @@
       masque=';-webkit-mask-image:url('+pp.image+');mask-image:url('+pp.image+');-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat';
       lid='<s class="et-paup et-sp" style="background-image:url('+pp.image+')"></s>';
     }else lid='<s class="et-paup"></s>';
-    return '<i class="et-oeil et-o'+cote+(pp?' et-m':'')+(pp&&seul?' et-un':'')+'" style="left:'+o.left+'%;top:'+o.top+'%;width:'+o.larg+'%;height:'+o.haut+'%;--pc:'+(o.couleur||'#faefe1')+';--dl:'+(delai===0?'0.0':delai.toFixed(1))+'s'+masque+'">'+
+    return '<i class="et-oeil et-o'+cote+(pp?' et-m et-k-'+idSkin:'')+'" style="left:'+o.left+'%;top:'+o.top+'%;width:'+o.larg+'%;height:'+o.haut+'%;--pc:'+(o.couleur||'#faefe1')+';--dl:'+(delai===0?'0.0':delai.toFixed(1))+'s'+amp+(pp?';transform-origin:'+((50-o.left)/o.larg*100).toFixed(2)+'% '+((100-o.top)/o.haut*100).toFixed(2)+'%':'')+masque+'">'+
       '<b class="et-regard">'+iris+'</b>'+lid+'</i>';
+  }
+  /* keyframes d'expression du chat (une seule fois par chat) dans une feuille à part */
+  var exprFaites_={};
+  function exprCss_(id){
+    var X=window.__SOREAL_IDLE_ETAGERE_EXPR_V1__;
+    if(!X||exprFaites_[id]||typeof document==='undefined'||!document.head)return;
+    var t=X.cssDe(id);
+    if(!t)return;
+    exprFaites_[id]=1;
+    var s=document.getElementById('et-style-expr-v1');
+    if(!s){s=document.createElement('style');s.id='et-style-expr-v1';document.head.appendChild(s);}
+    s.appendChild(document.createTextNode(t));
   }
   /* Les yeux de l'apparence donnée (id) ; chaîne vide si les données des apparences ne sont pas chargées. */
   function yeuxHtml(idSkin){
@@ -60,8 +82,9 @@
     var n=Math.max(sk.yeux.length,lp.length),r=[];
     for(var i=0;i<n;i++){
       var o=Object.assign({pupille:sk.pupille,couleur:sk.paupiere},sk.yeux[i]||{cote:lp[i]&&lp[i].cote||(i%2?'d':'g')});
-      r.push(oeil_(o,i,spriteDe_(id,i),lr[i]||null,n===1));
+      r.push(oeil_(o,i,spriteDe_(id,i),lr[i]||null,n===1,id));
     }
+    exprCss_(id);
     return r.join('');
   }
 
@@ -118,16 +141,10 @@
       /* paupière-sprite : le sprite (forme EXACTE du blanc, pelage voisin, ourlet noir) glisse dans l'œil, clippé par le masque (l'alpha du même sprite) ; ouvert il est hors du masque : l'image d'origine est intacte. Fermé (translate 0) il recouvre le blanc exactement. */
       '.et-m{border-radius:0}',
       '.et-iris.et-ir{aspect-ratio:auto;border-radius:0;background-color:transparent;background-size:100% 100%;background-repeat:no-repeat}.et-iris.et-ir::after{display:none}',
-      '.et-og .et-iris.et-ir{animation:etBilleG2 29s ease-in-out var(--dl,0s) infinite}',
-      /* bille du regard-sprite (iris = 0,8 de la hauteur du blanc : course réduite, en % de la taille de l'iris) : roule vers le bas de la cavité, oscille puis se stabilise ; le masque du blanc la clippe, rien ne sort. Départ = arrivée. */
-      '@keyframes etBilleG2{0%,60%{transform:translate(0,0)}60.8%{transform:translate(2%,8%)}61.6%{transform:translate(5%,18%)}62.6%{transform:translate(14%,23%)}63.6%{transform:translate(22%,20%)}64.6%{transform:translate(12%,23%)}65.3%{transform:translate(18%,22%)}65.9%{transform:translate(10%,22%)}66.4%{transform:translate(10%,22%)}66.9%{transform:translate(10%,22%)}67.3%{transform:translate(6%,15%)}68.4%{transform:translate(6%,15%)}69.8%{transform:translate(3%,8%)}70.8%{transform:translate(3%,8%)}72.7%{transform:translate(0,0)}100%{transform:translate(0,0)}}',
-      '.et-paup.et-sp{left:0;top:0;right:auto;width:100%;height:100%;border:0;border-radius:0;background-size:100% 100%;background-repeat:no-repeat;background-color:transparent;--o:translateY(-102%);transform:var(--o);transform-origin:0 0;animation:etPaupG2 29s ease-in-out var(--dl,0s) infinite}',
-      /* un seul œil visible (pirate) : un clignement simple, sans les fermetures supplémentaires de la bille */
-      '.et-un .et-paup.et-sp{animation:etClin2 13s ease-in-out var(--dl,0s) infinite}',
-      '.et-og .et-paup.et-sp{animation:etPaupG2 29s ease-in-out var(--dl,0s) infinite}',
-      '.et-sp.et-pg{--o:translateX(-102%)}.et-sp.et-pd{left:auto;right:0;--o:translateX(102%)}',
-      '@keyframes etClin2{0%,90%,100%{transform:var(--o)}94%{transform:translate(0,0)}}',
-      '@keyframes etPaupG2{0%,29.6%,32.4%,66.4%,68%,68.6%,70.6%,71.4%,73.4%,87.6%,90.4%,100%{transform:var(--o)}30.6%{transform:translate(0,0)}66.9%{transform:translate(0,0)}69.6%{transform:translate(0,0)}72.4%{transform:translate(0,0)}88.8%{transform:translate(0,0)}}',
+      /* regard-sprite et paupière-sprite : animés par les keyframes du chat (modules/etagere-expression-v1.js, règles .et-k-<id> injectées avec les yeux, seulement hors mouvement réduit : yeux ouverts, regard centré sinon) */
+      '.et-m .et-regard{animation:none}.et-iris.et-ir{animation:none}',
+      '.et-paup.et-sp{left:0;top:0;right:auto;width:100%;height:100%;border:0;border-radius:0;background-size:100% 100%;background-repeat:no-repeat;background-color:transparent;--ox:0%;--oy:-102%;transform:translate(var(--ox),var(--oy));transform-origin:0 0;animation:none}',
+      '.et-sp.et-pg{--ox:-102%;--oy:0%}.et-sp.et-pd{left:auto;right:0;--ox:102%;--oy:0%}',
       /* queue : sprite pose a la place exacte de la queue masquee ; balancement doux autour du pivot (racine) ; ease-in-out sur chaque segment ; coupe en mouvement reduit */
       '.et-sous{position:absolute;z-index:0;display:block;background-size:100% 100%;background-repeat:no-repeat;pointer-events:none}',
       '.et-queue{position:absolute;z-index:5;display:block;background-size:100% 100%;background-repeat:no-repeat;pointer-events:none;animation:etQueue var(--qd,8s) ease-in-out var(--qp,0s) infinite}',

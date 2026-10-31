@@ -41,6 +41,8 @@
   function valiseSale_(){try{var v=window.__SOREAL_IDLE_VALISE_ACCIDENT_V1__;return Boolean(v&&typeof v.niveau==='function'&&v.niveau()>0);}catch(_e){return false;}}
   /* Bâillement (Norman, 2026-10-23) : de temps en temps, fermé, éveillé et vu, le Coffre bâille (couvercle grand ouvert, langue sortie, corps étiré, 2,6 s) avec son propre son ; jamais avec la valise qui bâille, ni pendant une bulle. */
   var BAILLE_MIN=170000,BAILLE_MAX=450000,vuBaille=0,cibleBaille=0;   /* tirée au premier pas */
+  /* Norman (2026-10-31) : le Coffre ne ronfle que 2 ou 3 fois par sommeil (tirage à chaque endormissement), plus toutes les 5 à 7 s pendant 2 minutes. */
+  var ronflesRestants=0;
   var dort=false,vuAvantSommeil=0,cibleSommeil=MIN+Math.random()*(MAX-MIN),vuEndormi=0,vuRonfle=0,cibleRonfle=1500,derniere=-1;
 
   function coffre_(){return document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');}
@@ -83,7 +85,7 @@
   }
   function endormir_(){
     dort=true;window.__coffreDortIdleV1__=true;
-    vuEndormi=0;vuRonfle=0;cibleRonfle=1500;
+    vuEndormi=0;vuRonfle=0;cibleRonfle=1500;ronflesRestants=2+Math.floor(Math.random()*2);
     appliquer_(coffre_());
   }
   function reveiller_(){
@@ -177,7 +179,7 @@
     }
     vuEndormi+=PAS;vuRonfle+=PAS;
     if(vuEndormi>=SOMMEIL_MAX){if(el)sursaut_(el);else reveiller_();return;}   /* réveil tout seul : même sursaut, pet, nuage et réplique */
-    if(vuRonfle>=cibleRonfle){jouerSon_('coffreRonfle');vuRonfle=0;cibleRonfle=RONFLE_MIN+Math.random()*(RONFLE_MAX-RONFLE_MIN);}
+    if(ronflesRestants>0&&vuRonfle>=cibleRonfle){jouerSon_('coffreRonfle');ronflesRestants-=1;vuRonfle=0;cibleRonfle=RONFLE_MIN+Math.random()*(RONFLE_MAX-RONFLE_MIN);}
   }
   setInterval(pas_,PAS);
   window.__coffreDortIdleV1__=false;

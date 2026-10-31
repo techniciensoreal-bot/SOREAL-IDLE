@@ -39,8 +39,8 @@ for(const token of [
   "/trou/trou-sans-fond-v1.webp",
   "Balance ton argent",
   "Roue journalière !",
-  "Fais-moi tourner, bébé !",
-  "TABLE DES RÉCOMPENSES",
+  "Tourner</button>",
+  "Ça tourne…",
   "RÉCOMPENSES DU MONEY PIT",
   "RÉCOMPENSES DE LA ROUE",
   "TON PRIX"

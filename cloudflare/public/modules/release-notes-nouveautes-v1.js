@@ -4,16 +4,20 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Dans cette liste, les lignes ajoutées depuis la dernière mise en ligne s’affichent en vert.",
-    "Coffre : quand une zone donne deux objets pour le même emplacement (deux casques, par exemple), ils ont chacun leur case au lieu de se superposer.",
-    "Le choix du portrait du héros se fait maintenant sur la borne : un petit bouton rond « 1P » sur la tranche du pupitre ouvre « CHOOSE YOUR PLAYER ». Il quitte la page des succès.",
-    "Le chat de la Garderie a plusieurs apparences : dès que tu en possèdes deux, une rangée de vignettes apparaît pour changer d’apparence, avec une animation de glissement d’un chat à l’autre.",
-    "Chaque chat a son propre regard : iris et pupille adaptés, et des paupières qui épousent exactement ses yeux et clignent ensemble.",
-    "Les bocaux reposent maintenant bien sur les planches de l’étagère.",
-    "Quand tu débloques une nouvelle apparence de chat, une fenêtre te l’annonce ; elle se ferme avec le bouton « Cool ».",
-    "Les chats qui ont une queue visible la balancent doucement.",
-    "Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.",
-    "La scène a une nouvelle image, avec le titre et la phrase au-dessus, en français et en anglais.",
-    "Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or."
+    "Tu peux choisir ton portrait de héros même quand un set complet est équipé ; un bouton « Automatique » te ramène au portrait du set.",
+    "Pour Halloween, un portrait de joueur d’Halloween se gagne en jouant, comme le chat chauve-souris ; une fenêtre te l’annonce.",
+    "Dans le petit menu, l’haltère est décalée à gauche et le gant frappe un peu moins loin, pour ne plus passer derrière le texte.",
+    "Quand tu appuies sur le bouton Aventure du menu, l’inventaire (le Sac) est de nouveau affiché par défaut.",
+    "Le bouton Aventure allumé par « Adventure Light » a la même lueur que le Trou sans fond ; dans le petit menu, la croix rouge pivote doucement et les pointillés apparaissent un à un jusqu’à elle.",
+    "Les ronflements pendant le sommeil sont limités à deux ou trois fois.",
+    "Les broches des processeurs sont bien placées sur toutes les cartes, y compris Bouclier d’énergie et Sabre laser à quatre côtés.",
+    "Le bouton « Écouter » de la chronique lance seulement la voix : pour ouvrir la carte, clique sur le panneau lui-même.",
+    "Les chats ont des regards variés (ils se tournent par moments d’un côté ou de l’autre), des clignements de plusieurs sortes, et respirent très légèrement.",
+    "Le petit bouton de ce menu a une nouvelle tour à droite : en pierre, avec créneaux, fenêtre éclairée, porte en arc et fanion.",
+    "Quand tu arrives sur l’image du trou, les yeux ne sont pas là : ils apparaissent très vite, l’un après l’autre, puis restent fixes.",
+    "Quand tu jettes ton or, certaines pièces passent le bord du trou et disparaissent derrière lui, les autres rapetissent en tombant et s’effacent dans le noir.",
+    "La roue journalière est refaite : une grande roue sous le cadre du trou, avec toutes les récompenses possibles à leur vraie proportion ; elle tourne vraiment et s’arrête sur ta récompense.",
+    "Le titre du Trou sans fond a un léger bord clair, plus lisible sur l’herbe.",
+    "Avec l’achat qui prévient quand un fruit est prêt, le bouton du menu attire l’œil comme celui du Trou sans fond et les fruits prêts brillent."
   ] };
 })();

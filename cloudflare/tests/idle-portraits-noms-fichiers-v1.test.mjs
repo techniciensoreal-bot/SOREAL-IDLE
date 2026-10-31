@@ -25,3 +25,10 @@ assert.equal(idlePortraitPickR2KeyV1(["idle/player/portrait-sewers.webp"], "Play
 const doc = readFileSync("docs/PORTRAITS-NOMS-FICHIERS.md", "utf8");
 for (const n of noms) assert.ok(doc.includes("`" + n.replace(/.webp$/, "") + "."), n + " (ou son extension actuelle) dans docs/PORTRAITS-NOMS-FICHIERS.md");
 console.log("idle-portraits-noms-fichiers-v1: OK");
+/* Norman (2026-10-31) : dans l'exe, un ancien « .png » encore présent dans les copies locales passait avant le « .webp » à jour : à nom égal, le .webp est choisi en premier */
+{
+  const { idlePortraitPickR2KeyV1: choisirCle } = await import("../src/idle-portraits-v1.js");
+  const cles = ["idle/player/Portrait_PlayerAPportrait16.png", "idle/player/Portrait_PlayerAPportrait16.webp", "idle/player/Portrait_PlayerAPportrait17.png"];
+  assert.equal(choisirCle(cles, "PlayerAPportrait16"), "idle/player/Portrait_PlayerAPportrait16.webp", "le .webp l'emporte sur un ancien .png");
+  assert.equal(choisirCle(cles.slice(0, 1), "PlayerAPportrait16"), "idle/player/Portrait_PlayerAPportrait16.png", "sans .webp, le .png reste utilisable");
+}

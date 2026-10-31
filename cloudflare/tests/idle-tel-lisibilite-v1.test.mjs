@@ -5,7 +5,8 @@ import { readFileSync } from "node:fs";
 const css = readFileSync(new URL("../public/soreal-idle-itopod.css", import.meta.url), "utf8");
 const debut = css.indexOf("/* Audit de visibilité sur téléphone");
 assert.ok(debut > 0, "bloc téléphone présent");
-const bloc = css.slice(debut);
+const finBloc = css.indexOf("===== Trou sans fond", debut);
+const bloc = css.slice(debut, finBloc > debut ? finBloc : undefined);   /* le bloc téléphone seulement : les blocs ajoutés plus loin ont leurs propres tests */
 assert.ok(bloc.includes("@media (max-width:700px){"), "réservé aux téléphones");
 assert.ok(/:is\(small,[^)]*\.souche,[^)]*\)\{font-size:12px\}/.test(bloc), "petits textes à 12 px");
 assert.ok(bloc.includes('[data-menu="ngu"] :is(span,b,p):not([class]){font-size:12px}') && bloc.includes('[data-menu="challenges"] i{font-size:12px}'), "NGU et Défis à 12 px");

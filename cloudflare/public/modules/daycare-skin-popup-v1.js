@@ -29,6 +29,9 @@ var PHRASES={
   noel:'Joyeuses fêtes ! Ce chaton est à toi pour toujours.',
   nega:'Tu as trouvé le chat Néga !'
 };
+/* Portraits de joueur gagnés (annonce identique, clé "p:<id>") : thème Halloween comme le chat chauve-souris. */
+var PORTRAITS={sleepyhollow:{nom:'Portrait d’Halloween',phrase:'Tu as gagné le portrait d’Halloween !',fichier:'PlayerPortrait-SleepyHollow',theme:'chauvesouris'}};
+var TITRE_PORTRAIT='Nouveau portrait de joueur !';
 var PHRASE_DEFAUT='Un nouveau chaton te rejoint.';
 var INDICE='Choisis-le dans la Garderie quand tu veux.';
 var TITRE='Nouveau chat pour la Garderie !';
@@ -104,7 +107,7 @@ function styles(){
     '.gsp-titre{margin:0 0 10px;font-family:Bangers,"Comic Sans MS",cursive;font-weight:400;font-size:30px;line-height:1.05;letter-spacing:1.5px;color:var(--gsp-acc);text-shadow:2px 2px 0 #000}'+
     '.gsp-cadre{display:flex;justify-content:center;margin:6px auto 8px}'+
     '.gsp-img{display:block;width:min(46vw,180px);max-height:34dvh;height:auto;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55));animation:gspFlotte 3.2s ease-in-out infinite}'+
-    '.gsp-nom{margin:4px 0 6px;font-family:"Russo One",Bangers,sans-serif;font-size:21px;letter-spacing:.5px;color:var(--gsp-acc);text-shadow:1px 1px 0 #000}'+
+    '.gsp-portrait{width:min(40vw,170px);border-radius:14px;border:3px solid var(--gsp-bord);box-sizing:border-box;image-rendering:auto}.gsp-nom{margin:4px 0 6px;font-family:"Russo One",Bangers,sans-serif;font-size:21px;letter-spacing:.5px;color:var(--gsp-acc);text-shadow:1px 1px 0 #000}'+
     '.gsp-phrase{margin:6px 0;font-family:"Comic Neue","Comic Sans MS",sans-serif;font-weight:700;font-size:16px;line-height:1.35}'+
     '.gsp-indice{margin:6px 0 14px;font-size:13.500px;opacity:.82}'+
     '.gsp-bouton{min-width:170px;padding:11px 26px;border:3px solid #000;border-radius:10px;font-family:Bangers,"Comic Sans MS",cursive;font-size:24px;letter-spacing:1.5px;color:var(--gsp-btnT);background:linear-gradient(180deg,var(--gsp-btnA),var(--gsp-btnB));box-shadow:0 4px 0 #000;cursor:pointer}'+
@@ -166,7 +169,20 @@ function nouveaux(etat){
   return l.filter(function(id){return typeof id==='string'&&NOMS[id]&&p.indexOf(id)>=0&&!valides[id];});
 }
 
+function htmlPortrait(id){
+  var pt=PORTRAITS[id],th=THEMES[pt.theme];
+  return '<div class="gsp-carte '+th.cls+'" style="--gsp-bg:'+th.bg+';--gsp-bord:'+th.bord+';--gsp-txt:'+th.txt+';--gsp-acc:'+th.acc+';--gsp-btnA:'+th.btnA+';--gsp-btnB:'+th.btnB+';--gsp-btnT:'+th.btnT+';--gsp-glow:'+th.glow+'">'+
+    decor(pt.theme)+
+    '<h2 class="gsp-titre" id="gsp-titre-v1">'+esc(TITRE_PORTRAIT)+'</h2>'+
+    '<div class="gsp-cadre"><img class="gsp-img gsp-portrait" src="/api/idle/media/player?portrait='+encodeURIComponent(pt.fichier)+'" alt="'+esc(pt.nom)+'" decoding="async"></div>'+
+    '<div class="gsp-nom">'+esc(pt.nom)+'</div>'+
+    '<p class="gsp-phrase">'+esc(pt.phrase)+'</p>'+
+    '<button type="button" class="gsp-bouton" data-gsp-cool="1">'+esc(BOUTON)+'</button>'+
+  '</div>';
+}
+
 function html(id){
+  if(id.indexOf('p:')===0&&PORTRAITS[id.slice(2)])return htmlPortrait(id.slice(2));
   var th=THEMES[id]||THEME_DEFAUT;
   var phrase=PHRASES[id]||PHRASE_DEFAUT;
   return '<div class="gsp-carte '+th.cls+'" style="--gsp-bg:'+th.bg+';--gsp-bord:'+th.bord+';--gsp-txt:'+th.txt+';--gsp-acc:'+th.acc+';--gsp-btnA:'+th.btnA+';--gsp-btnB:'+th.btnB+';--gsp-btnT:'+th.btnT+';--gsp-glow:'+th.glow+'">'+
@@ -193,7 +209,7 @@ function valider(){
   if(!id)return;
   valides[id]=true;
   fermer();
-  try{if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__({action:'daycareSkinVu',id:id});}catch(_e){}
+  try{if(typeof window.__actionMetaIdleV130__==='function')window.__actionMetaIdleV130__(id.indexOf('p:')===0?{action:'portraitVu',id:id.slice(2)}:{action:'daycareSkinVu',id:id});}catch(_e){}
   /* Le suivant (s'il y en a un) arrive à la prochaine vérification : un popup après l'autre. */
   setTimeout(essayer,350);
 }
@@ -224,6 +240,12 @@ function autreFenetreOuverte(){
   return Boolean(document.querySelector('.soreal-idle-tuto-flottant-v1,.soreal-idle-modal-v63,.soreal-idle-histoire-plein-ecran-v1,[role="dialog"]:not(#'+ID_FOND+')'));
 }
 
+function nouveauxPortraits(etat){
+  var p=etat&&etat.systemes&&etat.systemes.portraits,l=p&&p.nouveaux;
+  if(!Array.isArray(l))return [];
+  return l.filter(function(id){return typeof id==='string'&&PORTRAITS[id]&&!valides['p:'+id];}).map(function(id){return 'p:'+id;});
+}
+
 function essayer(){
   if(document.hidden)return;
   if(courant){
@@ -232,13 +254,14 @@ function essayer(){
     return;
   }
   var etat=lireEtat();
-  if(!etat||!garderieDisponible(etat))return;
-  var liste=nouveaux(etat);
+  if(!etat)return;
+  /* Chats (si la Garderie est débloquée) puis portraits : jamais en même temps. Le portrait est un cadeau : annoncé quoi qu'il en soit. */
+  var liste=(garderieDisponible(etat)?nouveaux(etat):[]).concat(nouveauxPortraits(etat));
   if(!liste.length||autreFenetreOuverte())return;
   ouvrir(liste[0]);
 }
 
 if(typeof setInterval==='function')setInterval(essayer,1500);
 
-window.__SOREAL_IDLE_DAYCARE_SKIN_POPUP_V1__={essayer:essayer,html:html,noms:NOMS,phrases:PHRASES,themes:THEMES,ouvrir:ouvrir,valider:valider};
+window.__SOREAL_IDLE_DAYCARE_SKIN_POPUP_V1__={essayer:essayer,html:html,noms:NOMS,phrases:PHRASES,themes:THEMES,portraits:PORTRAITS,ouvrir:ouvrir,valider:valider};
 })();

@@ -89,3 +89,10 @@ assert.ok(css.includes("@keyframes bgRonfle{0%,100%{transform:none}"), "respirat
   assert.equal(joues.filter((x) => x === "coffreReveil").length, 2, "réveil tout seul : il pète aussi");
 }
 console.log("idle-coffre-sommeil-v1: OK");
+/* Norman (2026-10-31) : le Coffre et la valise ne ronflent que 2 ou 3 fois par sommeil */
+{
+  const lire = (f) => readFileSync(new URL(f, import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  const c = lire("../public/modules/coffre-sommeil-v1.js"), v = lire("../public/modules/valise-v1.js");
+  assert.ok(c.includes("ronflesRestants=2+Math.floor(Math.random()*2);") && c.includes("if(ronflesRestants>0&&vuRonfle>=cibleRonfle){jouerSon_('coffreRonfle');ronflesRestants-=1;"), "Coffre : 2 ou 3 ronflements par sommeil");
+  assert.ok(v.includes("ronflesRestants=2+Math.floor(Math.random()*2);") && v.includes("if(ronflesRestants>0&&visibleRonfle>=cibleRonfle){visibleRonfle=0;cibleRonfle=4500+Math.random()*3000;ronflesRestants-=1;son('valiseRonfle');}"), "valise : 2 ou 3 ronflements par sommeil");
+}

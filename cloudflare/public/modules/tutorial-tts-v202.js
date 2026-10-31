@@ -1005,8 +1005,7 @@
      */
     var chroniqueBossIdEnCours=String(targetId||'')===CHRONICLE_PANEL_ID?chroniqueBossId_(target):'';
     if(chroniqueBossIdEnCours)marquerChroniqueLue_(chroniqueBossIdEnCours);
-    /* La carte s'ouvre quand on clique sur Écouter, mais PLUS toute seule à la première rencontre (Norman, 2026-10-25) : la voix lit l'histoire sans que la carte s'affiche (lecture automatique : force est faux). */
-    if(chroniqueBossIdEnCours&&force){try{if(typeof window.__ouvrirChroniqueIdleV1__==='function')window.__ouvrirChroniqueIdleV1__(true);}catch(_){}}
+    /* « Écouter » ne lance QUE l'audio (Norman, 2026-10-31) : la carte ne s'ouvre ni toute seule à la première rencontre (2026-10-25) ni au clic sur Écouter ; pour l'ouvrir, on clique sur le panneau lui-même (ui-amorcage-v1.js). */
 
     var mapped=audioSourceFor_(targetId,target,explicitSource);
     var task;

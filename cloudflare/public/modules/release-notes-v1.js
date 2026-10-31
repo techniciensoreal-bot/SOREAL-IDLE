@@ -39,21 +39,29 @@
             'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.',
             'Les nombres que tu tapes dans les champs de saisie sont mieux conservés sur ton compte : plus de valeur perdue à la fermeture ou après une mise à jour.',
             '« En direct » n’indique plus dans quel menu se trouve un joueur : on n’y voit que ses actions.',
-            'Dans cette liste, les lignes ajoutées depuis la dernière mise en ligne s’affichent en vert.'
+            'Dans cette liste, les lignes ajoutées depuis la dernière mise en ligne s’affichent en vert.',
+            'Tu peux choisir ton portrait de héros même quand un set complet est équipé ; un bouton « Automatique » te ramène au portrait du set.',
+            'Pour Halloween, un portrait de joueur d’Halloween se gagne en jouant, comme le chat chauve-souris ; une fenêtre te l’annonce.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.',
-            'Le petit bouton du menu reprend les mêmes animations quand le menu travaille : la barre de l’haltère monte et descend, le gant frappe.'
+            'Le petit bouton du menu reprend les mêmes animations quand le menu travaille : la barre de l’haltère monte et descend, le gant frappe.',
+            'Dans le petit menu, l’haltère est décalée à gauche et le gant frappe un peu moins loin, pour ne plus passer derrière le texte.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les compteurs d’Auto Merge et d’Auto Boost ne reculent plus, et le sac se met à jour tout de suite après un Auto Boost.',
-            'Coffre : quand une zone donne deux objets pour le même emplacement (deux casques, par exemple), ils ont chacun leur case au lieu de se superposer.'
+            'Coffre : quand une zone donne deux objets pour le même emplacement (deux casques, par exemple), ils ont chacun leur case au lieu de se superposer.',
+            'Quand tu appuies sur le bouton Aventure du menu, l’inventaire (le Sac) est de nouveau affiché par défaut.',
+            'Le bouton Aventure allumé par « Adventure Light » a la même lueur que le Trou sans fond ; dans le petit menu, la croix rouge pivote doucement et les pointillés apparaissent un à un jusqu’à elle.',
+            'Les ronflements pendant le sommeil sont limités à deux ou trois fois.'
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Chaque augmentation est maintenant posée sur sa propre carte électronique de couleur, avec un processeur pour son amélioration.',
-            'Le cadre de chaque paire est plus court : la bande du haut est supprimée et les noms des deux augmentations sont plus grands.'
+            'Le cadre de chaque paire est plus court : la bande du haut est supprimée et les noms des deux augmentations sont plus grands.',
+            'Les broches des processeurs sont bien placées sur toutes les cartes, y compris Bouclier d’énergie et Sabre laser à quatre côtés.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Le bouton « Écouter » de la chronique lance seulement la voix : pour ouvrir la carte, clique sur le panneau lui-même.',
             'Le cadre de titre n’affiche plus que son titre, sans phrase en dessous.',
             'Le choix du portrait du héros se fait maintenant sur la borne : un petit bouton rond « 1P » sur la tranche du pupitre ouvre « CHOOSE YOUR PLAYER ». Il quitte la page des succès.'
           ]},
@@ -62,19 +70,28 @@
             'Mamie l’armoire : la pupille et la paupière sont maintenant posées exactement sur l’œil dessiné, sans second œil par-dessus.',
             'Le chat de la Garderie a plusieurs apparences : dès que tu en possèdes deux, une rangée de vignettes apparaît pour changer d’apparence, avec une animation de glissement d’un chat à l’autre.',
             'Chaque chat a son propre regard : iris et pupille adaptés, et des paupières qui épousent exactement ses yeux et clignent ensemble.',
+            'Les chats ont des regards variés (ils se tournent par moments d’un côté ou de l’autre), des clignements de plusieurs sortes, et respirent très légèrement.',
             'Les bocaux reposent maintenant bien sur les planches de l’étagère.',
             'Quand tu débloques une nouvelle apparence de chat, une fenêtre te l’annonce ; elle se ferme avec le bouton « Cool ».',
             'Les chats qui ont une queue visible la balancent doucement.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Le petit bouton de ce menu a une nouvelle tour à droite : en pierre, avec créneaux, fenêtre éclairée, porte en arc et fanion.',
             'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Quand tu arrives sur l’image du trou, les yeux ne sont pas là : ils apparaissent très vite, l’un après l’autre, puis restent fixes.',
+            'Quand tu jettes ton or, certaines pièces passent le bord du trou et disparaissent derrière lui, les autres rapetissent en tombant et s’effacent dans le noir.',
             'La scène a une nouvelle image, avec le titre et la phrase au-dessus, en français et en anglais.',
-            'Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or.'
+            'Au fond du trou, des yeux jaunes brillent plus ou moins ; quelques volutes de puanteur remontent, et des pièces d’or tombent dedans uniquement quand tu jettes ton or.',
+            'La roue journalière est refaite : une grande roue sous le cadre du trou, avec toutes les récompenses possibles à leur vraie proportion ; elle tourne vraiment et s’arrête sur ta récompense.',
+            'Le titre du Trou sans fond a un léger bord clair, plus lisible sur l’herbe.'
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Avec l’achat qui prévient quand un fruit est prêt, le bouton du menu attire l’œil comme celui du Trou sans fond et les fruits prêts brillent.'
           ]}
         ]
       },

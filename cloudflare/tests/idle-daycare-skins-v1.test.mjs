@@ -168,6 +168,45 @@ assert.deepEqual({ ...skins(frais()) }, { actif: "defaut", possedes: ["defaut"],
     assert.equal(normalizeIdleNguState(c, ctx, T0).records.daycareSkinsVus, "noeud");
   }
 }
+// Portrait Sleepy Hollow : même fenêtre que le chat chauve-souris, acquis pour toujours, annonce « portraitVu »
+{
+  const { IDLE_FENETRE_HALLOWEEN_V1 } = await import("../src/idle-daycare-skins-v1.js");
+  const a = (s, ms) => applyIdleNguAction(s, { action: "daycareSkin", id: "defaut" }, ctx, ms).state;
+  const snapP = (s, ms) => idleNguSnapshot(s, ctx, ms).portraits;
+  const aP = (s) => String(s.records.portraitsAcquis);
+  assert.deepEqual(IDLE_FENETRE_HALLOWEEN_V1.de, [10, 31]);
+  const h0 = Date.parse("2026-10-30T23:00:00Z");
+  assert.ok(!aP(a(frais(), h0 - 1)).includes("sleepyhollow"), "30 oct. 23:59:59 : pas encore");
+  assert.ok(aP(a(frais(), h0)).includes("sleepyhollow"), "31 oct. 00:00:00 pile");
+  assert.ok(aP(a(frais(), Date.parse("2026-11-07T22:59:59Z"))).includes("sleepyhollow"), "7 nov. 23:59:59");
+  assert.ok(!aP(a(frais(), Date.parse("2026-11-07T23:00:00Z"))).includes("sleepyhollow"), "8 nov. : fini");
+  // identique au chat : mêmes bornes pour chaque instant testé
+  for (const iso of ["2026-10-30T22:59:59Z", "2026-10-30T23:00:00Z", "2026-11-07T22:59:59Z", "2026-11-07T23:00:00Z", "2027-10-31T12:00:00Z", "2026-06-01T12:00:00Z"]) {
+    const ms = Date.parse(iso);
+    const s = a(frais(), ms);
+    assert.equal(aP(s).includes("sleepyhollow"), String(s.records.daycareSkinsAcquis).includes("chauvesouris"), "même fenêtre que le chat : " + iso);
+  }
+  // hors acquisition : absent de la liste (anti-spoil)
+  assert.ok(!snapP(frais(), T0).list.some((p) => p.id === "sleepyhollow") && snapP(frais(), T0).nouveaux.length === 0);
+  assert.throws(() => agir(frais(), { action: "portraitVu", id: "sleepyhollow" }), /PORTRAIT_VERROUILLE/);
+  assert.throws(() => agir(frais(), { action: "portraitVu", id: "training" }), /PORTRAIT_VERROUILLE/);
+  assert.throws(() => agir(frais(), { action: "portraitVu", id: "zz" }), /PORTRAIT_INCONNU/);
+  // acquis : définitif, listé, nouveau, vu
+  const s = a(frais(), h0 + 3600000);
+  const apres = Date.parse("2027-03-15T12:00:00Z");
+  const p = snapP(s, apres);
+  assert.ok(p.list.some((x) => x.id === "sleepyhollow" && x.file === "PlayerPortrait-SleepyHollow" && x.unlocked));
+  assert.deepEqual(p.nouveaux, ["sleepyhollow"]);
+  assert.equal(agir(s, { action: "portrait", id: "sleepyhollow" }).result.portrait, "sleepyhollow");
+  const v = applyIdleNguAction(s, { action: "portraitVu", id: "sleepyhollow" }, ctx, apres);
+  assert.equal(v.result.portrait, "sleepyhollow");
+  assert.deepEqual(snapP(v.state, apres).nouveaux, []);
+  assert.deepEqual(snapP(normalizeIdleNguState(JSON.parse(JSON.stringify(v.state)), ctx, apres), apres).nouveaux, [], "vu survit à la normalisation");
+  assert.ok(snapP(v.state, apres).list.some((x) => x.id === "sleepyhollow"), "définitif");
+  const c = frais();
+  c.records.portraitsVus = "zz,sleepyhollow,sleepyhollow,training";
+  assert.equal(normalizeIdleNguState(c, ctx, T0).records.portraitsVus, "sleepyhollow");
+}
 // action refusée côté moteur
 assert.throws(() => agir(frais(), { action: "daycareSkin", id: "matrix" }), /SKIN_GARDERIE_VERROUILLE/);
 assert.throws(() => agir(frais(), { action: "daycareSkin", id: "nega" }), /SKIN_GARDERIE_VERROUILLE/);

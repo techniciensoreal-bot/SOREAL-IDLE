@@ -4,7 +4,7 @@
  * Données : j.systemes.portraits = {list:[{id,name,file,unlocked}], selected, unlockedCount, auto} (idle-portraits-v1.js côté serveur) ; action {action:'portrait',id}.
  *
  * Règle n°2 (anti-spoil) : le bouton n'existe QUE si le joueur possède au moins 2 portraits (sinon il trahirait l'existence des autres) ; la fenêtre ne montre
- * que les portraits débloqués, jamais de cadenas ni de total. Set équipé qui force le portrait : grille grisée et inactive, texte SANS nom de set.
+ * que les portraits débloqués, jamais de cadenas ni de total. Le choix manuel l'emporte sur le portrait du set équipé (grille toujours active) ; bouton « Automatique » seulement si un set est équipé ET un choix manuel posé ; aucun nom de set.
  * Règle n°4 (redessin) : la fenêtre est ajoutée à <body> avec data-morph-garder ; la grille est mise à jour sur place (sans la reconstruire si la liste est la même),
  * juste après chaque redessin de la page (window.__SOREAL_IDLE_APRES_REDESSIN_V1__). Le bouton, lui, fait partie du HTML du pupitre (ui-combat-2-v1.js).
  */
@@ -12,7 +12,7 @@
   'use strict';
   if(window.__SOREAL_IDLE_BORNE_JOUEUR_V1__)return;
 
-  var overlay=null,grille=null,mention=null,signature='';
+  var overlay=null,grille=null,mention=null,autoBtn=null,signature='';
 
   function reg(){return window.__SOREAL_IDLE_REG__||{};}
   function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -39,10 +39,15 @@
 
   function choisir(id){
     var p=portraits();
-    if(!p||p.auto)return;
+    if(!p)return;
+    if(String(id)==='auto'){
+      if(p.auto&&p.manuel)action({action:'portrait',id:'auto'});
+      fermer();
+      return;
+    }
     var ok=debloques(p).some(function(x){return String(x.id)===String(id);});
     if(!ok)return;
-    if(String(p.selected)!==String(id))action({action:'portrait',id:String(id)});
+    if(String(p.selected)!==String(id)||!p.manuel)action({action:'portrait',id:String(id)});
     fermer();
   }
   window.__borneChoisirPortraitIdleV1__=choisir;
@@ -57,12 +62,15 @@
       '<button type="button" class="bj-x" aria-label="Fermer">&times;</button>'+
       '<div class="bj-title" data-sans-traduction>CHOOSE YOUR PLAYER</div>'+
       '<div class="bj-sub">Choisis le portrait de ton héros (cosmétique)</div>'+
-      '<div class="bj-set" hidden>Tu portes l’armure d’un set équipé. Retire une pièce pour retrouver ton portrait choisi.</div>'+
+      '<div class="bj-set" hidden>Le portrait de ton set est affiché tant que tu n’en choisis pas un.</div>'+
+      '<button type="button" class="bj-auto" hidden>Automatique</button>'+
       '<div class="bj-grid"></div>'+
       '<div class="bj-foot">1P = portrait actuel</div></div>';
     document.body.appendChild(overlay);
     grille=overlay.querySelector('.bj-grid');
     mention=overlay.querySelector('.bj-set');
+    autoBtn=overlay.querySelector('.bj-auto');
+    if(autoBtn)autoBtn.addEventListener('click',function(){choisir('auto');});
     overlay.querySelector('.bj-x').addEventListener('click',fermer);
     overlay.addEventListener('mousedown',function(e){if(e.target===overlay)fermer();});
     grille.addEventListener('click',function(e){
@@ -86,9 +94,9 @@
           '<span class="n">'+esc(x.name)+'</span></button>';
       }).join('');
     }
-    var forcee=!!p.auto,courant=forcee?p.auto.id:p.selected;
+    var forcee=!!p.auto&&!p.manuel,courant=forcee?p.auto.id:p.selected;
     mention.hidden=!forcee;
-    grille.classList.toggle('off',forcee);
+    if(autoBtn)autoBtn.hidden=!(p.auto&&p.manuel);
     Array.prototype.forEach.call(grille.children,function(c){
       c.classList.toggle('sel',c.getAttribute('data-id')===String(courant));
     });

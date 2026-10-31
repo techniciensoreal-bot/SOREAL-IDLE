@@ -194,3 +194,11 @@ const compte = (h, re) => (h.match(re) || []).length;
   assert.ok(D.ordre.length === 11 && D.ordre.every((id) => D.skins[id]), "les 11 apparences ont leurs données");
 }
 console.log("idle-garderie-skins-ui-v1 ok");
+/* Norman (2026-10-31) : chaque appui sur le bouton Aventure du menu remet l'inventaire (onglet Sac) par défaut */
+{
+  const lire2 = (f) => readFileSync(new URL(f, import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  const dc = lire2("../public/modules/daycare-page-v1.js"), nav = lire2("../public/modules/ui-navigation-v1.js");
+  assert.ok(dc.includes("window.__garderieSacParDefautV1__=function(dejaSurAventure)") && dc.includes("if(ongletChoisi()!=='garderie')return;") && dc.includes("if(dejaSurAventure){window.__garderieOngletV1__('sac');return;}") && dc.includes("stockage(CLE_ONGLET,'sac');"), "remise de l'onglet Sac par défaut");
+  assert.ok(nav.includes("if(nouveauMenu==='aventure'){try{if(typeof window.__garderieSacParDefautV1__==='function')window.__garderieSacParDefautV1__(REG.idleMenuActifV28==='aventure');}catch(e){}}"), "appel à chaque appui sur Aventure");
+  assert.ok(nav.indexOf("__garderieSacParDefautV1__") < nav.indexOf("cliquer sur Aventure arrête le combat de titan"), "avant les retours anticipés du menu");
+}

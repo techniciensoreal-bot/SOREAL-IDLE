@@ -6,6 +6,7 @@
 import { idleWandoosBootMultiplierV1 } from "./idle-wandoos-os-v1.js";
 import { nettoyerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { chaineSkinsNormaliseeV1 } from "./idle-daycare-skins-v1.js";
+import { chainePortraitsNormaliseeV1 } from "./idle-portraits-v1.js";
 import { perkBonusesV1, IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -599,6 +600,8 @@ function baseState(now) {
       cinematiqueDerniere: 0,
       /* Portrait de joueur choisi (idle-portraits-v1.js) et « Special Prize » de 50 000 AP (0/1). */
       portrait: "default",
+      /* 1 = le joueur a choisi lui-même son portrait : il l'emporte sur celui du set équipé (0 = automatique). Compteur 0/1, normalisé comme les autres. */
+      portraitManuel: 0,
       specialPrizeClaimed: 0,
       /* Choix du Special Prize : 0 aucun, 1 = 50 000 AP, 2 = joli chaton (il donne aussi les AP). Nombre : les records sont coercés en compteurs. */
       specialPrizeChoice: 0,
@@ -933,6 +936,7 @@ function normalizeSystem(def, raw) {
         ?data.history.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1).map(entry=>({
             at:Math.max(0,num(entry?.at,0)),
             tier:Math.max(0,int(entry?.tier,0)),
+            secteur:int(entry?.secteur,-1),
             reward:entry?.reward&&typeof entry.reward==="object"
               ?clone(entry.reward)
               :{},
@@ -1038,7 +1042,7 @@ function migrateLegacyMetaToV47(raw, now) {
   // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
   const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin" || key === "daycareSkinsAcquis" || key === "daycareSkinsVus") continue;
+    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin" || key === "daycareSkinsAcquis" || key === "daycareSkinsVus" || key === "portraitsAcquis" || key === "portraitsVus") continue;
     state.records[key] = Math.max(0, num(state.records[key], 0));
   }
   state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
@@ -1047,6 +1051,8 @@ function migrateLegacyMetaToV47(raw, now) {
   /* Skins de la Garderie acquis pour toujours / annonces validées : chaînes d'ids séparés par des virgules, jamais des compteurs. */
   state.records.daycareSkinsAcquis = chaineSkinsNormaliseeV1(state.records.daycareSkinsAcquis);
   state.records.daycareSkinsVus = chaineSkinsNormaliseeV1(state.records.daycareSkinsVus);
+  state.records.portraitsAcquis = chainePortraitsNormaliseeV1(state.records.portraitsAcquis);
+  state.records.portraitsVus = chainePortraitsNormaliseeV1(state.records.portraitsVus);
 
   state.challenge = Object.assign(state.challenge, src.challenge || {});
   state.challenge.completions = Object.assign(
@@ -1245,7 +1251,7 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
    */
   const newbieOffersUsedSrc = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
   for (const k of Object.keys(state.records)) {
-    if (k === "newbieOffersUsed" || k === "portrait" || k === "daycareSkin" || k === "daycareSkinsAcquis" || k === "daycareSkinsVus" || k === "loginCalendar") continue;
+    if (k === "newbieOffersUsed" || k === "portrait" || k === "daycareSkin" || k === "daycareSkinsAcquis" || k === "daycareSkinsVus" || k === "portraitsAcquis" || k === "portraitsVus" || k === "loginCalendar") continue;
     state.records[k] = Math.max(0, num(state.records[k], 0));
   }
   state.records.newbieOffersUsed = Array.from(new Set(newbieOffersUsedSrc.filter(id => typeof id === "string" && id)));
@@ -1258,6 +1264,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   /* Skins de la Garderie acquis pour toujours / annonces validées : chaînes d'ids séparés par des virgules, jamais des compteurs. */
   state.records.daycareSkinsAcquis = chaineSkinsNormaliseeV1(state.records.daycareSkinsAcquis);
   state.records.daycareSkinsVus = chaineSkinsNormaliseeV1(state.records.daycareSkinsVus);
+  state.records.portraitsAcquis = chainePortraitsNormaliseeV1(state.records.portraitsAcquis);
+  state.records.portraitsVus = chainePortraitsNormaliseeV1(state.records.portraitsVus);
 
   state.challenge = Object.assign(baseSous.challenge, source.challenge || {});
   state.challenge.completions = Object.assign(completionsDefisBase, source.challenge?.completions || {});

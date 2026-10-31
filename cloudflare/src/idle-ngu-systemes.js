@@ -11,6 +11,7 @@ import { IDLE_THE_END_LAST_SPELL_BLOOD_V1, idleTheEndGrantV1, IDLE_THE_END_TOWER
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import { acquerirSkinsV1 } from "./idle-daycare-skins-v1.js";
+import { acquerirPortraitsV1 } from "./idle-portraits-v1.js";
 import { idleYggFruitUnlockedV1, idleYggAutoActivateV1, idleYggActivationCostV1, idleYggSeedUnitV1, idleYggUsePoopV1, idleYggMayoFruitBaseV1, idleYggFruitOfQuirksQpV1, idleYggQuickActivationV1, idleYggTierSecondsV1, idleYggItopodPoopV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
 import { idleCardsMayoFruitProgressV1, idleCardsMayoFruitApercuV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
@@ -1273,7 +1274,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   span("fin:renaissance", () => state.rebirth = refreshRebirthState(state, context, nowMs(now)));
   span("fin:succes", () => idleAchievementsEvaluateV1(state, achievementMetricsV1(state), nowMs(now)));
   /* Skins de la Garderie acquis par fenêtre de dates (heure de Bruxelles) ou calendrier complet : enregistrés pour toujours (idle-daycare-skins-v1.js). */
-  span("fin:skinsGarderie", () => acquerirSkinsV1(state, nowMs(now)));
+  span("fin:skinsGarderie", () => { acquerirSkinsV1(state, nowMs(now)); acquerirPortraitsV1(state, nowMs(now)); });
   span("fin:defis", () => autoCompleteChallengeV1(state, context, nowMs(now)));
   return state;
 }

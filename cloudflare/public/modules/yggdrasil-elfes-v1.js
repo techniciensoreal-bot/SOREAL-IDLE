@@ -162,6 +162,13 @@
       /* Aura (Norman, 2026-10-29) : de la couleur du fruit, elle brille de plus en plus avec les heures de pousse, jusqu'à la 24e. */
       /* Aura des fruits mûrs, prêts à être récoltés (Norman, 2026-10-29) : de la couleur du fruit, douce ; le fruit qui pousse encore n'en a pas. */
       '.ygg-vitre.ygg-decor .ygg-fruit.ygg-mur{filter:drop-shadow(0 0 3px var(--ygg-aura)) drop-shadow(0 0 8px color-mix(in srgb,var(--ygg-aura) 65%,transparent))}',
+      /* Yggdrasil Harvest Light (achat de la boutique AP) : les fruits prêts pulsent et un éclat les parcourt (Norman, 2026-10-31). Boucle parfaite : opacité 0 aux deux bouts, un seul sens ; mouvement réduit = lueur fixe. Seule la lueur (filter) et l'éclat bougent. */
+      '.ygg-carte.ygg-alerte{z-index:1}',
+      '.ygg-carte.ygg-alerte .ygg-vitre.ygg-decor .ygg-fruit.ygg-mur{animation:yggFruitAlerte 1.6s ease-in-out infinite;will-change:filter}',
+      '@keyframes yggFruitAlerte{0%,100%{filter:drop-shadow(0 0 3px var(--ygg-aura)) drop-shadow(0 0 8px color-mix(in srgb,var(--ygg-aura) 65%,transparent)) brightness(1)}50%{filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px var(--ygg-aura)) drop-shadow(0 0 28px color-mix(in srgb,var(--ygg-aura) 70%,transparent)) brightness(1.28)}}',
+      '.ygg-carte.ygg-alerte .ygg-vitre::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;background:linear-gradient(105deg,transparent 0,transparent 42%,rgba(255,255,255,.5) 50%,transparent 58%,transparent 100%) 0 0/300% 100% repeat-x;animation:yggEclatAlerte 3.2s linear infinite}',
+      '@keyframes yggEclatAlerte{0%{background-position:0 0}100%{background-position:150% 0}}',
+      '@media (prefers-reduced-motion:reduce){.ygg-carte.ygg-alerte .ygg-vitre.ygg-decor .ygg-fruit.ygg-mur{animation:none;filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 14px var(--ygg-aura)) brightness(1.2)}.ygg-carte.ygg-alerte .ygg-vitre::after{animation:none;display:none}}',
       '.ygg-img{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;filter:drop-shadow(0 3px 2px rgba(0,0,0,.6));image-rendering:auto;}',
       '.ygg-barre{position:relative;height:clamp(9px,2cqw,14px);border:2px solid #000;border-radius:3px;background:#0a1d12;overflow:hidden;}',
       '.ygg-barre i{display:block;height:100%;background:linear-gradient(180deg,#d6ff9a,#55b062);box-shadow:0 0 8px rgba(160,255,150,.6);}',
@@ -263,7 +270,8 @@
       var growth=Math.max(0,nb_(f.growthHours));
       return {def:def,f:f,e:e,tier:tier,growth:growth,active:Boolean(f.active),pret:Boolean(f.active)&&growth>=1,max:e.nextTierCost===null};
     });
-    return {s:s,m:m,x:x,data:data,fruits:visibles,seeds:ent_(m.currencies&&m.currencies.seeds),exp:nb_(m.currencies&&m.currencies.experience),poop:ent_(x.poop),
+    var brille={};(Array.isArray(x.harvestLightFruits)?x.harvestLightFruits:[]).forEach(function(i){brille[i]=true;});
+    return {s:s,m:m,x:x,data:data,fruits:visibles,brille:brille,seeds:ent_(m.currencies&&m.currencies.seeds),exp:nb_(m.currencies&&m.currencies.experience),poop:ent_(x.poop),
       maxTier:ent_(x.maxTier)||10,tierSec:nb_(x.tierSeconds)>0?nb_(x.tierSeconds):3600};
   }
 
@@ -510,6 +518,7 @@
   function carte_(d,v,pos){
     var def=v.def,id=def.id,c=choix_(id);
     var nom=html_(def.name||id);
+    var alerte=Boolean(d.brille&&d.brille[id]&&v.active&&v.tier>0);/* Yggdrasil Harvest Light : le serveur ne liste que les fruits prêts ET achetés. */
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
     var heures=v.growth*d.tierSec/3600;
     var temps=v.tier>0?(window.__SOREAL_IDLE_META_HOST_V130__.formatterHeuresIdleV47_?window.__SOREAL_IDLE_META_HOST_V130__.formatterHeuresIdleV47_(heures)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.formatterHeuresIdleV47_(v.tier*d.tierSec/3600):''):'';
@@ -531,7 +540,7 @@
     var auto='';
     if(v.e.autoActivate)auto='<div class="ygg-auto">⚡ Auto-Activate</div>';
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
-    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+'" data-fruit="'+html_(id)+'"'+(v.tier>0&&v.tier>=d.maxTier?' style="--lueur:'+rvb_(AURAS_[id])+'"':'')+'>'+
+    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'"'+(v.tier>0&&v.tier>=d.maxTier||alerte?' style="--lueur:'+rvb_(AURAS_[id])+'"':'')+'>'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
       '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+

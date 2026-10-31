@@ -39,7 +39,8 @@ body .bj-overlay .bj-sub{text-align:center;font-size:12px;color:#9fd8ff;margin-b
 body .bj-overlay .bj-set{margin:0 0 12px;padding:10px;border:2px solid #ffd24a;border-radius:6px;background:rgba(255,210,74,.1);font-size:13px;text-align:center;color:#ffe9a8}
 body .bj-overlay .bj-set[hidden]{display:none}
 body .bj-overlay .bj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-body .bj-overlay .bj-grid.off{opacity:.45;pointer-events:none;filter:grayscale(.6)}
+body .bj-overlay .bj-auto{display:block;margin:0 auto 12px;padding:6px 16px;border:2px solid #000;border-radius:6px;background:linear-gradient(180deg,#ffd24a,#c98a00);color:#000;font:13px "Russo One",sans-serif;cursor:pointer;box-shadow:2px 2px 0 #000}
+body .bj-overlay .bj-auto[hidden]{display:none}
 body .bj-overlay .bj-card{position:relative;padding:5px 5px 7px;border:3px solid #000;border-radius:8px;background:linear-gradient(180deg,#2a2a7a,#14144a);color:#fff;cursor:pointer;font:12px "Russo One",sans-serif;text-align:center;box-shadow:3px 3px 0 #000;transition:transform .08s}
 body .bj-overlay .bj-card:hover{transform:translateY(-2px);box-shadow:3px 5px 0 #000,0 0 14px var(--bleu)}
 body .bj-overlay .bj-card img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;background:#000;border:2px solid #000}

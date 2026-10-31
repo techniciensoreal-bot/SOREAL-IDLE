@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 const css = readFileSync(new URL("../public/soreal-idle-itopod.css", import.meta.url), "utf8");
 const debut = css.indexOf("/* Audit de visibilité sur PC");
 assert.ok(debut > 0, "bloc PC présent");
-const bloc = css.slice(debut);
+const bloc = css.slice(debut, css.indexOf("/* ===== Trou sans fond"));   /* bloc borné : les blocs ajoutés après (Trou sans fond, roue) ont leurs propres règles */
 assert.ok(bloc.includes("@media (min-width:1100px){"), "réservé aux écrans d'ordinateur");
 assert.ok(/\.soreal-idle-page-sub-v28\{font-size:14px/.test(bloc), "sous-titres de page à 14 px");
 assert.ok(/\.nl-pct,\.nl-eta,\.rb2-lib,\.rb2-note,\.bm-etagere-lib/.test(bloc) && /\{font-size:13px\}/.test(bloc), "libellés à 13 px");

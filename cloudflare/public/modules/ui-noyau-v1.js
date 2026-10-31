@@ -930,8 +930,8 @@
               j.apparenceJoueur&&j.apparenceJoueur.driveFileId,
               (aventureMetaIdleV47_(j)||{}).selectedZone,
               /* 4 pièces d'un même set équipées : portrait du set (repli : portrait choisi) ; sinon le portrait choisi. */
-              j.systemes&&j.systemes.portraits&&(j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile),
-              j.systemes&&j.systemes.portraits&&j.systemes.portraits.auto?j.systemes.portraits.selectedFile:''
+              j.systemes&&j.systemes.portraits&&(j.systemes.portraits.auto&&!j.systemes.portraits.manuel?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile),
+              j.systemes&&j.systemes.portraits&&j.systemes.portraits.auto&&!j.systemes.portraits.manuel?j.systemes.portraits.selectedFile:''
             );
 
             gererPopupsProgressionIdleV75_(

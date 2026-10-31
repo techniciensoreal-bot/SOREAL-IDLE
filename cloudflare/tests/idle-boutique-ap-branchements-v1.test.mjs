@@ -28,3 +28,8 @@ assert.ok(rt.includes("stats.metaNgu.selloutShop.purchases.instaTrainingCap") &&
 const ui = lireUiComplet();
 assert.ok(ui.includes("it.id==='adventureLight'&&idleNombre_(it.purchased)>0") && ui.includes("${classeLumiereAventure}"), "le bouton Aventure s'allume en Zone sûre avec l'achat");
 console.log("idle-boutique-ap-branchements-v1: OK");
+/* Norman (2026-10-31) : le bouton Aventure allumé par « Adventure Light » a la même lueur complète que le Trou sans fond et Yggdrasil */
+{
+  const nav = readFileSync(new URL("../public/modules/ui-navigation-v1.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
+  assert.ok(/classeLumiereAventure=[^;]*\?' soreal-idle-nav-money-green-v1 soreal-idle-nav-dispo-v1':''/.test(nav), "Aventure : lueur verte ET effet complet (soreal-idle-nav-dispo-v1)");
+}

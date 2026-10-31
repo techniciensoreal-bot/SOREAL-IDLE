@@ -16,7 +16,7 @@ assert.match(css,/\.bg-bagage-v1\.bg-baille-v1 \.bg-couvercle\{animation:bgBaill
 assert.match(valise,/\^vl-\(dort\|ouverte\|parle\|glou\|anim\|baille\|ferme\)\$/);
 assert.match(valise,/if\(window\.__coffreBailleIdleV1__\)return false/);assert.match(valise,/!reduit\(\)/);
 /* aucun !important ajouté */
-assert.doesNotMatch(css.slice(css.indexOf('Bâillement du Coffre')),/!important/);
+assert.doesNotMatch(css.slice(css.indexOf('Bâillement du Coffre'), css.indexOf('Bâillement du Coffre') + 3000),/!important/);   /* le bloc du bâillement seulement (les blocs ajoutés plus loin dans la feuille ont leurs propres tests) */
 console.log('idle-baillements-v1 OK');
 /* vomi sur les objets de la valise non nettoyée ; texte centré entre le Coffre et la valise (PC) */
 const acc=lire('modules/valise-accident-v1.js');

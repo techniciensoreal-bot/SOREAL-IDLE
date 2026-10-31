@@ -17,7 +17,7 @@ import { idleWandoosConsumeCopyV1 } from "./idle-wandoos-os-v1.js";
 import { idleYggConsumeGiantSeedV1, idleYggAutoActivateExpShopEntriesV1, idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggAutoActivateV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleLoginCalendarReclamerV1 } from "./idle-login-calendar-v1.js";
 import { applyIdleCookingActionV1 } from "./idle-cooking-v1.js";
-import { idlePortraitSelectV1, IDLE_SPECIAL_PRIZE_AP_V1 } from "./idle-portraits-v1.js";
+import { idlePortraitSelectV1, marquerPortraitVuV1, IDLE_SPECIAL_PRIZE_AP_V1 } from "./idle-portraits-v1.js";
 import { acquerirSkinsV1, choisirSkinV1, marquerSkinVuV1 } from "./idle-daycare-skins-v1.js";
 import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from "./idle-daycare-v1.js";
 import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
@@ -440,12 +440,20 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "cooking") {
     result = applyIdleCookingActionV1(state, payload, t);
   } else if (action === "portrait") {
-    /* Choix cosmétique du portrait de joueur ; seuls les portraits débloqués sont acceptés. */
-    state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
-    result = { portrait: state.records.portrait };
+    /* Choix cosmétique du portrait (seuls les débloqués) ; « auto » retire le choix manuel et revient au portrait du set équipé. */
+    if (String(payload.id) === "auto") {
+      state.records.portraitManuel = 0;
+    } else {
+      state.records.portrait = idlePortraitSelectV1(payload.id, portraitEnvV1(state));
+      state.records.portraitManuel = 1;
+    }
+    result = { portrait: state.records.portrait, manuel: state.records.portraitManuel > 0 };
   } else if (action === "daycareSkin") {
     /* Apparence du chat de la Garderie (cosmétique) ; seuls les skins possédés sont acceptés (idle-daycare-skins-v1.js). */
     result = { skin: choisirSkinV1(state, payload.id, daycareSkinsEnvV1(state)) };
+  } else if (action === "portraitVu") {
+    /* Annonce d'un portrait acquis (Halloween) validée (« Cool ») : mémorisée sur le compte (records.portraitsVus), refus d'un portrait non acquis. */
+    result = { portrait: marquerPortraitVuV1(state, payload.id, portraitEnvV1(state)) };
   } else if (action === "daycareSkinVu") {
     /* Annonce d'un nouveau skin validée (« Cool ») : mémorisée sur le COMPTE (records.daycareSkinsVus), refus d'un skin non possédé. */
     result = { skin: marquerSkinVuV1(state, payload.id, daycareSkinsEnvV1(state)) };

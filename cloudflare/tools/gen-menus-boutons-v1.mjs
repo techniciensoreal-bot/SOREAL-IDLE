@@ -107,7 +107,8 @@ const ORIG = {
   flame: (a, b) => `<path d="M24 4c3 8 12 12 12 24a12 12 0 0 1-24 0c0-6 3-9 6-12 0 4 2 6 4 6 0-6-1-12 2-18z" fill="${a}"/><path d="M24 24c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 3-5 6-11z" fill="${b}"/>`,
   shovel: (a, b) => `<path d="M22 4h4v22h-4z" fill="${b}"/><rect x="18" y="2" width="12" height="5" rx="2" fill="${a}"/><path d="M14 26h20l-4 18H18z" fill="${a}"/><path d="M24 28v14" stroke="${b}" stroke-width="2"/>`,
   drop: (a, b) => `<path d="M24 4C18 14 10 22 10 31a14 14 0 0 0 28 0C38 22 30 14 24 4z" fill="${a}"/><path d="M17 32a7 7 0 0 0 7 7" stroke="${b}" stroke-width="3" fill="none" stroke-linecap="round"/>`,
-  tower: (a, b) => `<rect x="14" y="14" width="20" height="30" fill="${a}"/><path d="M12 14V6h5v4h4V6h6v4h4V6h5v8z" fill="${b}"/><rect x="21" y="32" width="6" height="12" rx="3" fill="${b}"/><rect x="20" y="20" width="3" height="6" fill="${b}"/><rect x="26" y="20" width="3" height="6" fill="${b}"/>`,
+  /* Tour d'ITOPOD refaite (Norman, 2026-10-31 : l'ancienne tour de droite n'était pas belle) : fût en pierre avec joints de briques, créneaux, meurtrière éclairée, porte en arc, fanion bleu qui flotte au sommet. */
+  tower: (a, b) => `<rect x="23" y="1" width="1.6" height="9" fill="${b}"/><path d="M24.6 1.6l9 2.8-9 2.8z" fill="#7fd6ff"/><path d="M10 12h5v-3h4v3h4.5v-3h1v0h3.5v3H32v-3h4v3h2v6H10z" fill="${b}"/><path d="M10 12h28v2.5H10z" fill="${a}"/><path d="M14 18h20l2 26H12z" fill="${a}"/><path d="M14 18h4l-2 26h-4z" fill="${b}" opacity=".45"/><path d="M13 24h22M12.6 30h22.8M12.2 36h23.6" stroke="${b}" stroke-width="1.1" opacity=".7"/><path d="M20 18v6M28 24v6M20 30v6M28 36v8" stroke="${b}" stroke-width="1.1" opacity=".7"/><path d="M21.5 28v-5a2.5 2.5 0 0 1 5 0v5z" fill="#1a1020"/><path d="M22.6 27v-4a1.4 1.4 0 0 1 2.8 0v4z" fill="#ffd36a"/><path d="M20 44v-6a4 4 0 0 1 8 0v6z" fill="#2a1a12"/><path d="M10 12h28" stroke="#fff" stroke-opacity=".5" stroke-width=".8"/>`,
   gem: (a, b) => `<path d="M12 8h24l8 12-20 24L4 20z" fill="${a}"/><path d="M4 20h40M16 8l-4 12 12 24M32 8l4 12-12 24" stroke="${b}" stroke-width="2" fill="none"/>`,
   flag: (a, b) => `<rect x="10" y="4" width="4" height="40" fill="${b}"/><path d="M14 6h26v22H14z" fill="${a}"/>` + [[14, 6], [27, 6], [20.5, 11.5], [33.5, 11.5], [14, 17], [27, 17], [20.5, 22.5], [33.5, 22.5]].map(([x, y]) => `<rect x="${x}" y="${y}" width="6.5" height="5.5" fill="${b}"/>`).join(""),
   skull: (a, b) => `<path d="M10 20c0-10 6-16 14-16s14 6 14 16c0 5-2 8-5 10v8H15v-8c-3-2-5-5-5-10z" fill="${a}"/><circle cx="18" cy="22" r="4" fill="${b}"/><circle cx="30" cy="22" r="4" fill="${b}"/><path d="M22 30l2-3 2 3z" fill="${b}"/><path d="M8 18C2 14 2 6 6 2c0 6 4 9 8 10zM40 18c6-4 6-12 2-16 0 6-4 9-8 10z" fill="${b}"/>`,
@@ -220,6 +221,20 @@ ${P} .soreal-idle-nav-texte-v2 b{text-align:center;margin:0}
 @media (max-width:700px){${P} .soreal-idle-nav-texte-v2{margin-left:2px}}`);
 /* Le bouton garde son retrait d'origine (gauche 8 px, droite 14 px, imposé par la feuille des thèmes) : 6 px de marge à gauche du texte (2 px sur téléphone, où le retrait est 4 / 6 px) recentrent le nom (garde de mesure dans le test). */
 
+/* Aventure, dessin de droite (Norman, 2026-10-31) : le dessin ne bouge plus ; la croix rouge pivote doucement sur elle-même (quelques degrés à gauche puis à droite) et les pointillés qui mènent à la croix apparaissent UN À UN jusqu'à elle, puis disparaissent ensemble et recommencent. Dessin SVG animé (SMIL, valable dans une image de fond) ; utilisé seulement quand le menu travaille (le dessin fixe d'origine reste sinon, et en mouvement réduit). Les points sont posés tous les 10 unités le long de la courbe d'origine (même tracé que le pointillé « 1 9 »). */
+const REDUIT_EXTRA = [];
+function carteAnimee() {
+  const B = (p, t) => { const u = 1 - t; return [u * u * u * p[0][0] + 3 * u * u * t * p[1][0] + 3 * u * t * t * p[2][0] + t * t * t * p[3][0], u * u * u * p[0][1] + 3 * u * u * t * p[1][1] + 3 * u * t * t * p[2][1] + t * t * t * p[3][1]]; };
+  const courbes = [[[4, 66], [30, 70], [36, 38], [62, 44]], [[62, 44], [88, 50], [100, 22], [118, 30]]];
+  const pts = []; for (const c of courbes) for (let k = (pts.length ? 1 : 0); k <= 300; k++) pts.push(B(c, k / 300));
+  const dots = []; let cumul = 0, prochain = 0;
+  for (let i = 0; i < pts.length; i++) { if (i) cumul += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); if (cumul >= prochain - 1e-9) { dots.push(pts[i]); prochain += 10; } }
+  const T = 6.5, DEBUT = 0.3, PAS = 0.2, FONDU_A = 5.0, FONDU_B = 5.4;
+  const fr = (v) => String(Math.round(v / T * 10000) / 10000);
+  const points = dots.map((p, i) => { const on = DEBUT + PAS * i; return `<circle cx='${p[0].toFixed(1)}' cy='${p[1].toFixed(1)}' r='1.7' fill='#ffe9a8' opacity='0'><animate attributeName='opacity' dur='${T}s' repeatCount='indefinite' values='0;0;1;1;0;0' keyTimes='0;${fr(on)};${fr(on + 0.04)};${fr(FONDU_A)};${fr(FONDU_B)};1'/></circle>`; }).join("");
+  const croix = "<g><animateTransform attributeName='transform' type='rotate' dur='3.2s' repeatCount='indefinite' values='0 120 30;-9 120 30;0 120 30;9 120 30;0 120 30' keyTimes='0;.25;.5;.75;1' calcMode='spline' keySplines='.45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1'/><path d='M110 18L130 42M130 18L110 42' stroke='#e0432f' stroke-width='7' stroke-linecap='round'/><path d='M110 18L130 42M130 18L110 42' stroke='#ff9a7a' stroke-width='2' stroke-linecap='round'/></g>";
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='150' height='80' viewBox='0 0 150 80'>${points}${croix}</svg>`;
+}
 for (const id of MENUS) {
   const t = T[id], sp = SPEC[id], L = CADRES[id] || [];
   const g = dessin(id, "g", t), d = dessin(id, "d", t);
@@ -242,6 +257,13 @@ for (const id of MENUS) {
   if (ti["font-family"]) regles.push(`font-family:${ti["font-family"]}`);
   out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-texte-v2 b{${regles.join(";")}}`);
   const md = sp.md || sp.m, td = sp.td || sp.t, ease = sp.m === "spin" ? "linear" : "ease-in-out", easeD = md === "spin" ? "linear" : "ease-in-out";
+  if (id === "aventure") {
+    /* le dessin de gauche garde son mouvement habituel ; celui de droite ne bouge plus (voir carteAnimee) : fond animé seulement quand le menu travaille */
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${ease} infinite}`);
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{background-image:url("data:image/svg+xml,${encodeURIComponent(carteAnimee())}")}`);
+    REDUIT_EXTRA.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{background-image:${d.bg.slice(0, d.bg.indexOf(" center/"))}}`);
+    continue;
+  }
   if (id === "sang") {
     /* Magie du sang (Norman, 2026-10-31) : quand le menu est actif ou travaille, le pentacle est d'un rouge plus vif et TOURNE SUR LUI-MÊME (rotation complète, linéaire, plus de haut-bas) ; la goutte est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle (opacité 0 au début et à la fin du cycle). Animations seulement quand le menu travaille. */
     const rouge = "filter:saturate(2.8) brightness(1.18) drop-shadow(0 0 3px rgba(255,20,40,.9)) drop-shadow(0 0 7px rgba(255,10,30,.6))";
@@ -253,6 +275,9 @@ for (const id of MENUS) {
   }
   if (id === "entrainement") {
     /* Entraînement (Norman, 2026-10-31) : le petit bouton reprend les mouvements du grand cadre, UNIQUEMENT quand le menu travaille (.travail-v1) : la barre de l'haltère monte et descend (cycle 2,4 s), le gant frappe de droite à gauche (un coup toutes les 1,8 s : coup rapide, retour lent, pause). Boucles parfaites (0 % = 100 %), mêmes courbes que le grand cadre. */
+    /* Réglage de position (Norman, 2026-10-31) : l'haltère passait derrière l'écriture : décalée de ~20 px vers la gauche (collée au bord et coupée par lui) ; le gant, un tout petit peu plus à droite, s'arrête de frapper juste à l'écriture (course de 23 cqh au lieu de 40). Mesuré sur PC : écriture de 87 à 225 px, bouton de 19 à 293 px. */
+    out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1 .nb-g{left:-4.3cqw}`);
+    out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1 .nb-d{right:1.8cqw}`);
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_halte 2.4s linear infinite}`);
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_frappe 1.8s linear infinite}`);
     continue;
@@ -268,7 +293,7 @@ for (const id of MENUS) {
   const f = (v) => String(Math.round(v * 100) / 100).replace(/^-0$/, "0");
   const halte = [], frappe = [];
   for (let k = 0; k <= 24; k++) halte.push(`${f(k * 100 / 24)}%{transform:translateY(${f(10 * Math.cos(2 * Math.PI * k / 24))}%)}`);
-  for (let k = 0; k <= 18; k++) frappe.push(`${f(k * 100 / 18)}%{transform:translateX(${f(-40 * coup(k / 18))}cqh)}`);
+  for (let k = 0; k <= 18; k++) frappe.push(`${f(k * 100 / 18)}%{transform:translateX(${f(-23 * coup(k / 18))}cqh)}`);
   MOUVEMENTS.halte = halte.join("");
   MOUVEMENTS.frappe = frappe.join("");
   MOUVEMENTS.monte = "0%{background-position:0 0}100%{background-position:0 33.3333cqh}";
@@ -276,7 +301,7 @@ for (const id of MENUS) {
   MOUVEMENTS.goutte = "0%{opacity:0;transform:translateY(-62%)}14%{opacity:1;transform:translateY(-48%)}80%{opacity:1;transform:translateY(48%)}100%{opacity:0;transform:translateY(62%)}";
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
-out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);
+out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n${REDUIT_EXTRA.map((x) => "  " + x + "\n").join("")}}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));
 
 /* ---- les grands cadres de titre : la MÊME composition que la miniature, à toute largeur ----

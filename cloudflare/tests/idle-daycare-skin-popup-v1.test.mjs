@@ -72,3 +72,22 @@ assert.ok(src.includes("p.indexOf(id)>=0"), "jamais un skin non possédé");
 assert.ok(/max-height:calc\(100dvh - 24px\)/.test(src) && src.includes("@media (max-width:420px)"), "lisible sur téléphone");
 assert.ok(index.includes('/modules/daycare-skin-popup-v1.js?v='), "chargé par index.html");
 console.log("idle-daycare-skin-popup-v1 OK");
+
+// Portrait d'Halloween (Sleepy Hollow) : même popup, même thème que le chat chauve-souris, un seul bouton
+{
+  const win2 = { setTimeout() {}, setInterval() {} };
+  vm.runInNewContext(src, { window: win2, document: {}, setInterval() {}, setTimeout() {}, console });
+  const P2 = win2.__SOREAL_IDLE_DAYCARE_SKIN_POPUP_V1__;
+  const h = P2.html("p:sleepyhollow");
+  assert.equal((h.match(/<button/g) || []).length, 1, "portrait : un SEUL bouton");
+  assert.ok(/<button[^>]*data-gsp-cool="1"[^>]*>Cool<\/button>/.test(h));
+  assert.ok(h.includes("Nouveau portrait de joueur !") && h.includes("Tu as gagné le portrait d’Halloween !"));
+  assert.ok(h.includes("/api/idle/media/player?portrait=PlayerPortrait-SleepyHollow"), "image du portrait");
+  assert.ok(h.includes("gsp-halloween") && h.includes("#f77f00") && h.includes("M0 0L90 90"), "thème Halloween : citrouilles et toile");
+  assert.ok(!/×|✕/.test(h) && !/\p{Extended_Pictographic}/u.test(h), "pas de croix ni d'émoji");
+  for (const t of ["Nouveau portrait de joueur !", "Tu as gagné le portrait d’Halloween !"]) assert.ok(dico[t], "dictionnaire anglais : " + t);
+  assert.ok(src.includes("action:'portraitVu'") && src.includes("systemes.portraits") || src.includes("etat.systemes.portraits"), "annonce vue sur le compte");
+  assert.ok(src.includes(".concat(nouveauxPortraits(etat))"), "chats puis portraits, l'un après l'autre");
+  assert.ok(src.includes("if(courant){"), "jamais deux popups en même temps");
+}
+console.log("idle-daycare-skin-popup-v1 (portrait) OK");

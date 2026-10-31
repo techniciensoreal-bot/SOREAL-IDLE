@@ -24,5 +24,5 @@ assert.ok(nav.includes("ETOILES_BOUTON_RENAISSANCE_V1") && nav.includes("${class
 assert.equal((nav.match(/<i style="left:/g) || []).length, 14, "quatorze étoiles");
 assert.ok(it.includes("@keyframes navScintilleV1{0%,100%{opacity:0;") && it.includes("clip-path:polygon(50% 0,58% 42%"), "scintillement en fondu (opacité 0 aux deux bouts), étoile à quatre branches");
 assert.ok(/prefers-reduced-motion:reduce\)\{[^}]*rb2Lueurs|prefers-reduced-motion:reduce\)\{[^}]*::before\{animation:none\}/.test(rb) && it.includes(".nav-etoiles-v1 i{animation:none;opacity:.5}"), "animation coupée si mouvement réduit");
-assert.ok(!/balayage|rbEtoile|rbHalo/i.test(it.slice(it.indexOf("Bouton Renaissance du menu du haut"))), "rien de balayage/halo/étoile dans le menu du haut");
+assert.ok(!/balayage|rbEtoile|rbHalo/i.test(it.slice(it.indexOf("Bouton Renaissance du menu du haut"), it.indexOf("/* ===== Trou sans fond"))), "rien de balayage/halo/étoile dans le menu du haut");
 console.log("idle-renaissance-bouton-couleur-lueurs-v1: OK");

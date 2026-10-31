@@ -32,7 +32,9 @@ for (const id of MENUS) {
     assert.ok(!/inventé/.test(m[1]));
   }
   assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_`), `${id} : dessin gauche non animé au travail`);
-  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_`), `${id} : dessin droit non animé au travail`);
+  /* Aventure (Norman, 2026-10-31) : le dessin de droite est un SVG animé (SMIL : pointillés un à un, croix qui pivote), pas un mouvement CSS */
+  if (id === "aventure") assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{background-image:url("data:image/svg+xml,`) && !sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:`), `${id} : dessin droit animé par son propre SVG, sans mouvement CSS`);
+  else assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_`), `${id} : dessin droit non animé au travail`);
 }
 const vus = new Set([...sansCom.matchAll(/data-menu-id-v1="([^"]+)"/g)].map((m) => m[1]));
 assert.deepEqual([...vus].sort(), [...MENUS].sort(), "aucune règle hors des menus du jeu");
@@ -257,7 +259,7 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   assert.equal(h.length, 25); assert.equal(g.length, 19);
   assert.ok(new Set(h).size > 5 && new Set(g).size > 5, "ça bouge");
   const x = g.map((v) => Number(v.match(/translateX\((-?[\d.]+)cqh/)[1]));
-  assert.ok(Math.min(...x) < -30 && x[0] === 0 && x[1] < x[0] && x.slice(-3).every((v) => v === 0), "le gant part vers la gauche (coup rapide), revient, pause");
+  assert.ok(Math.min(...x) < -20 && Math.min(...x) > -26 && x[0] === 0 && x[1] < x[0] && x.slice(-3).every((v) => v === 0), "le gant part vers la gauche (coup rapide), revient, pause");
   assert.ok(!/entrainement"\]\.active[^{]*\{[^}]*animation/.test(B), "jamais du seul fait d'être ouvert");
 }
 console.log("ok idle-menus-boutons-cadres-v1");
@@ -269,4 +271,21 @@ console.log("ok idle-menus-boutons-cadres-v1");
   assert.ok(/\[data-menu-id-v1="sang"\]\.active[^{]*\.nb-g,[^{]*\[data-menu-id-v1="sang"\]\.travail-v1[^{]*\.nb-g\{filter:saturate\(2\.8\)/.test(css), "sang : pentacle rouge vif quand le menu est actif ou travaille");
   assert.ok(/\[data-menu-id-v1="sang"\] \.soreal-idle-nav-deco-v1 \.nb-d\{height:40cqh\}/.test(css), "sang : goutte plus petite");
   assert.ok(!/\[data-menu-id-v1="sang"\][^{]*\.nb-g\{animation:nbV1_bob/.test(css), "sang : plus de haut-bas");
+}
+/* Aventure, dessin de droite (Norman, 2026-10-31) : fixe ; la croix rouge pivote doucement (±9°), les pointillés apparaissent UN À UN jusqu'à la croix puis disparaissent ensemble et recommencent (boucle parfaite : opacité 0 au début et à la fin) ; mouvement réduit = dessin fixe d'origine */
+{
+  const css = readFileSync(new URL("../public/soreal-idle-menus-boutons-v1.css", import.meta.url), "utf8");
+  const m = css.match(/\[data-menu-id-v1="aventure"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{background-image:url\("data:image\/svg\+xml,([^"]*)"\)\}/);
+  assert.ok(m, "aventure : fond animé du dessin de droite au travail");
+  const svg = decodeURIComponent(m[1]);
+  const pts = [...svg.matchAll(/<circle [^>]*><animate attributeName='opacity' dur='([\d.]+)s' repeatCount='indefinite' values='0;0;1;1;0;0' keyTimes='0;([\d.]+);([\d.]+);([\d.]+);([\d.]+);1'\/><\/circle>/g)];
+  assert.ok(pts.length >= 10, "aventure : les pointillés sont des points distincts (" + pts.length + ")");
+  const debuts = pts.map((p) => Number(p[2]));
+  assert.ok(debuts.every((v, i) => i === 0 || v > debuts[i - 1]), "aventure : les points apparaissent un à un, dans l'ordre du chemin");
+  assert.ok(new Set(pts.map((p) => p[1])).size === 1 && new Set(pts.map((p) => p[4] + "-" + p[5])).size === 1, "aventure : même cycle, disparition commune");
+  assert.ok(Number(pts[0][3]) < Number(pts[0][4]) && Number(pts[pts.length - 1][3]) < Number(pts[0][4]), "aventure : tous les points sont allumés avant la disparition");
+  assert.ok(svg.includes("<animateTransform attributeName='transform' type='rotate'") && svg.includes("values='0 120 30;-9 120 30;0 120 30;9 120 30;0 120 30'"), "aventure : la croix pivote sur elle-même autour de son centre, à gauche puis à droite, et revient (boucle parfaite)");
+  assert.ok(!/stroke-dasharray/.test(svg), "aventure : plus de pointillé fixe vers la croix");
+  const reduit = css.slice(css.indexOf("prefers-reduced-motion:reduce"));
+  assert.ok(/aventure"\]\.travail-v1[^{]*\.nb-d\{background-image:url\("data:image\/svg\+xml,[^"]*stroke-dasharray/.test(reduit), "aventure : mouvement réduit = dessin fixe d'origine (pointillé complet et croix)");
 }

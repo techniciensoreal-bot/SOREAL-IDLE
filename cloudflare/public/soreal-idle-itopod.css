@@ -1086,18 +1086,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-prix-v1 .soreal-idle-offre-titre-v1{font-size:clamp(16px,3vw,19px);margin:0 0 5px}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-prix-v1 .soreal-idle-prize-v206{padding:9px 12px;border-radius:14px!important;font-size:clamp(14px,2.4vw,16px)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-prix-v1 .soreal-idle-prize-v206 .soreal-idle-prize-detail-v1{font-size:clamp(22px,4.4vw,30px)!important;margin-top:4px}
-.mp2-roue-cadre-v1{position:relative;flex:0 0 auto;width:clamp(72px,16vw,96px);padding-top:8px}
-.mp2-roue-cadre-v1::before{content:"";position:absolute;top:0;left:50%;margin-left:-8px;border:8px solid transparent;border-top:13px solid #fff;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.6))}
-.mp2-roue-v1{width:100%;aspect-ratio:1;border-radius:50%;border:4px solid #ffd24a;box-sizing:border-box;box-shadow:0 0 0 2px #8a4b00,0 6px 16px rgba(0,0,0,.5),0 0 18px rgba(255,210,74,.35);background:conic-gradient(#e63946 0 45deg,#ffd24a 0 90deg,#3ddc84 0 135deg,#2a9df4 0 180deg,#e63946 0 225deg,#ffd24a 0 270deg,#3ddc84 0 315deg,#2a9df4 0 360deg);position:relative}
-.mp2-roue-v1::after{content:"";position:absolute;inset:38%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#ffd24a 55%,#8a4b00);box-shadow:0 0 0 2px #8a4b00}
-.mp2-roue-prete-v1{animation:mp2RoueDouceV1 9s linear infinite}
-@keyframes mp2RoueDouceV1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @media (max-width:760px){
   .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1{grid-template-columns:1fr}
   .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.soreal-idle-money-scene-v206,.soreal-idle-money-actions-v206,.soreal-idle-offre-v1){grid-column:1;grid-row:auto}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .soreal-idle-money-scene-v206{max-width:520px!important;margin:0 auto!important;width:100%;box-sizing:border-box}
 }
-@media (prefers-reduced-motion:reduce){.mp2-roue-prete-v1{animation:none}}
 
 /* Calendrier de connexion compact (Norman, 2026-10-10 : « très grand, cases très grandes, écritures traitement de texte ») : panneau resserré sur PC, cases basses, police de jeu. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .cal-v1{max-width:600px!important;padding:10px 12px;font-family:var(--mp2-jeu)}
@@ -1917,26 +1910,28 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Augmentations : la piste d'UPGRADE est un PROCESSEUR greffé sur la carte (Norman, 2026-10-31). Statique, sans toucher au HTML : le boîtier = coins biseautés, un capot métallique brossé qui n'occupe que le POURTOUR (le centre garde le fond sombre et calme du contenu),
    des rangées de broches dorées qui dépassent des bords, une encoche et un point repère, deux petits condensateurs, de fines gravures sur le capot. Pseudo-éléments ::before (capot) et ::after (broches, encoche, repère, condensateurs), ni clic ni texte ;
-   le premier cadre (Augment) reste la carte simple. */
+   le premier cadre (Augment) reste la carte simple.
+   Les pseudo-éléments reprennent TOUT (taille, bordure, filtre) : les rangs 4 et 5 posent des équerres de coin de 14 et 18 px sur ::before/::after de la piste (soreal-idle-themes.css) ; sans remise à zéro, le calque des broches de Bouclier d'énergie et de Sabre laser à quatre côtés n'était qu'une équerre dans l'angle.
+   Les broches sont calées sur la boîte : un nombre entier de broches (round(down,...)) centré entre les coins, jamais coupé, quelle que soit la taille de la carte. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade{border-radius:7px}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;padding:6px;opacity:1;transform:none;animation:none;
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;padding:6px;opacity:1;transform:none;animation:none;width:auto;height:auto;border:0;filter:none;
   background:repeating-linear-gradient(90deg,transparent 0 11px,rgba(0,0,0,.22) 11px 12px),linear-gradient(135deg,#eef2f8 0%,#9aa4b6 22%,#d6dce8 38%,#6c778b 62%,#c3cbd8 82%,#8a95a8 100%);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade::after{content:"";position:absolute;inset:-7px;z-index:3;pointer-events:none;border-radius:0;opacity:1;transform:none;animation:none;background:
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade::after{content:"";position:absolute;inset:-7px;z-index:3;pointer-events:none;border-radius:0;opacity:1;transform:none;animation:none;width:auto;height:auto;border:0;filter:none;background:
   radial-gradient(circle at 10px 10px,#10131f 0 2.4px,transparent 2.8px) 0 0/100% 100% no-repeat,
   radial-gradient(circle at 50% 7px,#0b0e18 0 5px,transparent 5.5px) 0 0/100% 100% no-repeat,
   linear-gradient(90deg,#c9d0dc 0 2px,#161a2a 2px 12px,#c9d0dc 12px 14px,transparent 14px) calc(100% - 26px) 1px/14px 5px no-repeat,
   linear-gradient(90deg,#c9d0dc 0 2px,#161a2a 2px 12px,#c9d0dc 12px 14px,transparent 14px) 26px calc(100% - 1px)/14px 5px no-repeat,
-  repeating-linear-gradient(90deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 0 0/100% 7px no-repeat,
-  repeating-linear-gradient(90deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 0 100%/100% 7px no-repeat,
-  repeating-linear-gradient(180deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 0 0/7px 100% no-repeat,
-  repeating-linear-gradient(180deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 100% 0/7px 100% no-repeat}
+  repeating-linear-gradient(90deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 50% 0/round(down,calc(100% - 34px),9px) 7px no-repeat,
+  repeating-linear-gradient(90deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 50% 100%/round(down,calc(100% - 34px),9px) 7px no-repeat,
+  repeating-linear-gradient(180deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 0 50%/7px round(down,calc(100% - 34px),9px) no-repeat,
+  repeating-linear-gradient(180deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 100% 50%/7px round(down,calc(100% - 34px),9px) no-repeat}
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2.upgrade::after{background:
     radial-gradient(circle at 10px 10px,#10131f 0 2.4px,transparent 2.8px) 0 0/100% 100% no-repeat,
     radial-gradient(circle at 50% 7px,#0b0e18 0 5px,transparent 5.5px) 0 0/100% 100% no-repeat,
-    repeating-linear-gradient(90deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 0 0/100% 7px no-repeat,
-    repeating-linear-gradient(90deg,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px,transparent 4px 9px) 0 100%/100% 7px no-repeat}
+    repeating-linear-gradient(90deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 50% 0/round(down,calc(100% - 34px),9px) 7px no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 2.5px,color-mix(in srgb,var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px,transparent 6.5px 9px) 50% 100%/round(down,calc(100% - 34px),9px) 7px no-repeat}
 }
 
 /* Une paire = UN SEUL circuit imprimé (la carte, avec sa bordure et son fond) + UN processeur (la piste d'Upgrade) (Norman, 2026-10-31). Le titre n'a plus de cadre : il est inscrit sur la carte, souligné d'un trait de sérigraphie ;
@@ -2016,19 +2011,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp3-calques{position:absolute;left:5px;right:5px;top:50%;transform:translateY(-50%);aspect-ratio:1/1;container-type:inline-size;overflow:hidden;border-radius:17px;pointer-events:none}
 /* Titre et phrase : police du jeu la plus proche du texte noir gras de l'image d'origine (Russo One), noir, centré, sur l'herbe */
 .mp3-titre{position:absolute;left:0;right:0;top:2.6cqw;text-align:center;color:#000;--f-texte:"Russo One","Arial Black",Impact,sans-serif;font-family:"Russo One","Arial Black",Impact,sans-serif;line-height:1.05}
-.mp3-titre-nom{font-size:9.6cqw;letter-spacing:-.01em;-webkit-text-stroke:.25cqw #000;paint-order:stroke fill}
-.mp3-titre-phrase{margin:1.4cqw auto 0;max-width:92%;font-size:3.5cqw;line-height:1.12;text-transform:uppercase;-webkit-text-stroke:.08cqw #000;text-wrap:balance}
-/* Yeux : trois paires de points jaunes dans le noir du trou, luminosité 25 % à 100 % (périodes et décalages différents) ; mêmes valeurs à 0 % et 100 % */
-.mp3-yeux{position:absolute;display:flex;gap:1.9cqw;transform:translate(-50%,-50%);animation:mp3Yeux var(--p,3s) ease-in-out infinite;animation-delay:var(--d,0s)}
+.mp3-titre-nom{font-size:9.6cqw;letter-spacing:-.01em;-webkit-text-stroke:.25cqw #000;paint-order:stroke fill;text-shadow:0.34cqw 0.00cqw 0 #eaffdc,-0.34cqw 0.00cqw 0 #eaffdc,0.00cqw 0.34cqw 0 #eaffdc,0.00cqw -0.34cqw 0 #eaffdc,0.24cqw 0.24cqw 0 #eaffdc,-0.24cqw 0.24cqw 0 #eaffdc,0.24cqw -0.24cqw 0 #eaffdc,-0.24cqw -0.24cqw 0 #eaffdc}   /* léger bord clair autour du texte (Norman, 2026-10-31 : les traits d'herbe derrière le rendaient moins visible) */
+.mp3-titre-phrase{margin:1.4cqw auto 0;max-width:92%;font-size:3.5cqw;line-height:1.12;text-transform:uppercase;-webkit-text-stroke:.08cqw #000;text-wrap:balance;text-shadow:0.16cqw 0.00cqw 0 #eaffdc,-0.16cqw 0.00cqw 0 #eaffdc,0.00cqw 0.16cqw 0 #eaffdc,0.00cqw -0.16cqw 0 #eaffdc,0.12cqw 0.12cqw 0 #eaffdc,-0.12cqw 0.12cqw 0 #eaffdc,0.12cqw -0.12cqw 0 #eaffdc,-0.12cqw -0.12cqw 0 #eaffdc}
+/* Yeux (Norman, 2026-10-31) : absents à l'arrivée, chaque paire apparaît très vite l'une après l'autre (décalages 0,12 / 0,3 / 0,5 s), puis reste FIXE, allumée */
+.mp3-yeux{position:absolute;display:flex;gap:1.9cqw;transform:translate(-50%,-50%);opacity:0;animation:mp3Yeux .2s cubic-bezier(.2,.9,.3,1.25) 1 both;animation-delay:var(--d,0s)}
 .mp3-yeux i{display:block;width:.95cqw;height:.95cqw;border-radius:50%;background:#ffe81a;box-shadow:0 0 .9cqw .25cqw rgba(255,232,26,.75)}
-@keyframes mp3Yeux{0%,100%{opacity:.25}50%{opacity:1}}
+@keyframes mp3Yeux{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 /* Puanteur : 5 volutes fines qui montent du trou ; opacité 0 à 0 % et 100 %, montée toujours vers le haut, balancement périodique de même durée */
 .mp3-volute{position:absolute;top:30cqw;width:5.6cqw;height:23.8cqw;opacity:0;animation:mp3Monte var(--dur,10s) linear infinite;animation-delay:var(--del,0s)}
 .mp3-volute svg{display:block;width:100%;height:100%;overflow:visible;animation:mp3Balance var(--dur,10s) ease-in-out infinite;animation-delay:var(--del,0s)}
 @keyframes mp3Monte{0%{opacity:0;transform:translateY(8cqw) scale(.85,.9)}15%{opacity:.8}70%{opacity:.7}100%{opacity:0;transform:translateY(-12cqw) scale(1.15,1)}}
 @keyframes mp3Balance{0%,100%{transform:translateX(0)}25%{transform:translateX(var(--sx,1cqw))}75%{transform:translateX(calc(var(--sx,1cqw)*-1))}}
 /* Salve d'or : seulement quand on jette son or (bloc ajouté par le module, data-morph-garder) */
-.mp3-pieces{position:absolute;inset:0;pointer-events:none}
+.mp3-pieces{position:absolute;inset:0;pointer-events:none;clip-path:inset(0 0 34% 0)}   /* le bord inférieur du trou (y 66 %) est au premier plan : une pièce qui le franchit disparaît derrière lui */
 .mp3-chute{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;animation:mp3ChuteY var(--d) cubic-bezier(.3,0,.8,.7) 1 both;animation-delay:var(--dl)}
 .mp3-derive{position:absolute;left:0;top:0;width:0;height:0;animation:mp3ChuteX var(--d) cubic-bezier(.2,.6,.4,1) 1 both;animation-delay:var(--dl)}
 .mp3-echelle{position:absolute;left:0;top:0;width:0;height:0;opacity:0;animation:mp3ChuteE var(--d) linear 1 both;animation-delay:var(--dl)}
@@ -2040,10 +2035,52 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mp3-fb{transform:rotateY(180deg) translateZ(calc(var(--t)*.06))}
 .mp3-eclat{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;opacity:0;animation:mp3Eclat var(--d) linear 1 both;animation-delay:var(--dl)}
 .mp3-eclat svg{position:absolute;left:-5cqw;top:-5cqw;width:10cqw;height:10cqw;overflow:visible}
+/* pièce qui passe le bord : taille constante, aucun fondu (c'est le bord qui la cache) ; les autres rapetissent et s'effacent en fondu fermé dans le trou */
+.mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}
+@keyframes mp3ChuteD{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
 @keyframes mp3ChuteY{0%{transform:translateY(-30cqw)}100%{transform:translateY(0)}}
 @keyframes mp3ChuteX{0%{transform:translateX(var(--dx))}100%{transform:translateX(0)}}
-@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}58%{opacity:1;transform:scale(1)}88%{opacity:.9;transform:scale(.42)}100%{opacity:0;transform:scale(.18)}}
+@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}50%{opacity:1;transform:scale(1)}85%{opacity:.7;transform:scale(.4)}100%{opacity:0;transform:scale(.08)}}
 @keyframes mp3Tourne{from{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(0)}to{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(calc(var(--tours)*360deg))}}
 @keyframes mp3Eclat{0%,70%{opacity:0;transform:scale(.2)}77%{opacity:1;transform:scale(1)}92%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
 @media (max-width:760px){.mp3-titre-nom{font-size:10.4cqw}.mp3-titre-phrase{font-size:3.9cqw}}
-@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:.8}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}
+@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}
+
+/* ===== Roue journalière refaite (Norman, 2026-10-31) : roue de la largeur du cadre du trou, en dessous ; un secteur par récompense ; modules/roue-journaliere-v1.js =====
+   Règle n°3 : ampoules et halo en boucle parfaite (mêmes valeurs à 0 % et 100 %) ; mouvement réduit : plus d'animation, halo fixe. */
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-roue{grid-column:1;grid-row:2}
+.soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.rb-prixcol{grid-column:2;grid-row:2;align-self:start}
+.rb-roue{box-sizing:border-box;padding:5px;border-radius:22px;background:linear-gradient(145deg,#ffd24a,#8a4b00 45%,#ff9f1c);box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 40px rgba(255,190,40,.18)}
+.rb-roue-int{border-radius:17px;background:radial-gradient(circle at 50% 38%,#1f2d4b,#0b1220 75%);padding:10px 10px 12px;text-align:center}
+.rb-titre{font-family:var(--mp2-titre,"Bangers","Russo One",Impact,sans-serif);font-weight:400;font-size:clamp(22px,4.2vw,30px);letter-spacing:.05em;color:#fff;margin:0 0 2px}
+.rb-svg{display:block;width:100%;height:auto;overflow:visible;touch-action:manipulation}
+.rb-bouton{display:block;width:100%;box-sizing:border-box;margin-top:10px;border:0;border-radius:14px;padding:14px 12px;font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:clamp(17px,3.4vw,20px);letter-spacing:.03em;cursor:pointer;color:#032b14;background:linear-gradient(180deg,#9ff3c3,#3ddc84 50%,#1fa75b);box-shadow:0 5px 0 #0b6b36,0 10px 22px rgba(61,220,132,.3)}
+.rb-bouton:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #0b6b36}
+.rb-bouton:disabled{cursor:default;color:#c9d2e6;background:linear-gradient(180deg,#4a5166,#383e50);box-shadow:0 5px 0 #2f3441;font-size:clamp(15px,3vw,18px)}
+.rb-bouton.rb-dispo{animation:rbDispo 1.6s ease-in-out infinite}
+@keyframes rbDispo{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+.rb-legende{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 10px;margin-top:12px;font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:12px;text-align:left}
+.rb-leg{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:8px;color:#dce6fa}
+.rb-leg i{flex:0 0 12px;height:12px;border-radius:3px;display:block}
+.rb-leg span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-leg em{font-style:normal;color:#9fb2d0}
+.rb-leg.rb-gagnant{background:rgba(255,210,74,.2);outline:1px solid #ffd24a;color:#fff}
+.rb-jackpot-detail{margin-top:8px;font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:11.5px;line-height:1.35;color:#b9c6e0;text-align:left}
+.rb-jackpot-detail b{color:#ffd24a;font-weight:400}
+.rb-svg .rb-sect{transition:opacity .35s}
+.rb-svg.rb-fini .rb-sect:not(.rb-gagne){opacity:.42}
+.rb-svg .rb-halo{opacity:0;pointer-events:none}
+.rb-svg .rb-gagne .rb-halo{animation:rbHalo 1.4s ease-in-out infinite}
+@keyframes rbHalo{0%,100%{opacity:.25}50%{opacity:1}}
+.rb-svg .rb-ampoule{animation:rbAmp 1.2s ease-in-out infinite}
+.rb-svg .rb-ampoule.b{animation-delay:-.6s}
+@keyframes rbAmp{0%,100%{opacity:1}50%{opacity:.35}}
+.rb-svg .rb-aiguille{transform-box:fill-box;transform-origin:50% 12%;transition:transform .09s ease-out;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6))}
+.rb-prixcol .soreal-idle-money-action-v206{box-sizing:border-box}
+.rb-prix-txt{font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:13px;color:#9fb2d0;margin:8px 0 0}
+@media (prefers-reduced-motion:reduce){.rb-svg .rb-gagne .rb-halo,.rb-svg .rb-ampoule,.rb-bouton.rb-dispo{animation:none}.rb-svg .rb-gagne .rb-halo{opacity:1}.rb-svg .rb-sect{transition:none}.rb-svg .rb-aiguille{transition:none}}
+@media (max-width:760px){
+  .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol){grid-column:1;grid-row:auto}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>:is(.rb-roue,.rb-prixcol){max-width:520px!important;width:100%;margin:0 auto!important;box-sizing:border-box}
+  .rb-legende{grid-template-columns:1fr}
+}

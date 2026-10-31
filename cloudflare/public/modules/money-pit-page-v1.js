@@ -26,7 +26,7 @@
       function libelleRechargeDailySpinIdleV1_(restantS){
         const h=Math.floor(restantS/3600);
         const m=Math.floor((restantS%3600)/60);
-        return '🎡 Prochain tour · '+(h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s')));
+        return 'Prochain tour dans '+(h>0?(h+'h '+m+'m'):(m>0?(m+'m'):(restantS+'s')));
       }
       let minuteurRechargeIdleV1=null;
       function demarrerMinuteurRechargeIdleV1_(){
@@ -70,8 +70,8 @@
       }
 
       /*
-       * Roue du Daily Spin (Norman, 2026-10-10 : « un effet de roue qui tourne ») : huit parts dessinées en CSS, repère fixe au-dessus. Prête, elle tourne doucement ; au clic elle fait un vrai tour de roue
-       * (départ rapide, ralentissement long, arrêt sur une part au hasard), PUIS la demande part au serveur : le lot s'annonce quand la roue s'arrête. Sans animation (prefers-reduced-motion), la demande part tout de suite.
+       * Roue du Daily Spin refaite (Norman, 2026-10-31) : voir modules/roue-journaliere-v1.js (grande roue de la largeur du cadre du trou, un secteur par récompense réelle, flux « le moteur tire, la roue s'arrête
+       * sur son résultat »). Ici : l'état « prête ? » et le bouton.
        */
       const rangCouleurMemoIdleV1={};
 
@@ -79,37 +79,6 @@
         const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
         return readyAt-(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now())<=0;
       }
-      function rendreRoueIdleV1_(st){
-        return '<div class="mp2-roue-cadre-v1" aria-hidden="true"><div class="mp2-roue-v1'+(roueDisponibleIdleV1_(st)?' mp2-roue-prete-v1':'')+'"></div></div>';
-      }
-      let roueEnCoursIdleV1=false;
-      function lancerRoueIdleV1_(){
-        if(roueEnCoursIdleV1)return;
-        const roue=document.querySelector('.mp2-roue-v1');
-        let reduit=false;
-        try{reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(_e){}
-        if(!roue||reduit||typeof roue.animate!=='function'){collecterSystemeMetaIdleV130_('dailySpin');return;}
-        roueEnCoursIdleV1=true;
-        roue.classList.remove('mp2-roue-prete-v1');
-        const bouton=document.querySelector('.mp2-spin-bouton-v1');
-        if(bouton)bouton.disabled=true;
-        let envoye=false;
-        const envoyer=function(){
-          if(envoye)return;
-          envoye=true;
-          roueEnCoursIdleV1=false;
-          collecterSystemeMetaIdleV130_('dailySpin');
-        };
-        try{
-          const angle=1800+Math.floor(Math.random()*8)*45+22.5;
-          const anim=roue.animate([{transform:'rotate(0deg)'},{transform:'rotate('+angle+'deg)'}],{duration:2800,easing:'cubic-bezier(.08,.7,.12,1)',fill:'forwards'});
-          /* son du cliquet calé sur la roue (un tic par part, aux instants réels), puis plus de son à la réponse du serveur */
-          try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.roueTourne==='function'){window.__roueSonneeIdleV1__=true;window.__SOREAL_IDLE_AUDIO_V199__.roueTourne(angle,2800);}}catch(_e){}
-          anim.onfinish=function(){setTimeout(envoyer,350);};
-          setTimeout(envoyer,4000);
-        }catch(_e){envoyer();}
-      }
-      window.__lancerRoueIdleV1__=lancerRoueIdleV1_;
 
       function rendreBoutonDailySpinIdleV203_(st){
         const readyAt=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(st&&st.data&&st.data.readyAt);
@@ -117,9 +86,9 @@
         if(restantMs>0){
           const restantS=Math.ceil(restantMs/1000);
           demarrerMinuteurRechargeIdleV1_();
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="spin" data-fin="'+readyAt+'">'+libelleRechargeDailySpinIdleV1_(restantS)+'</button>';
+          return '<button type="button" class="rb-bouton" disabled data-idle-recharge-v1="spin" data-fin="'+readyAt+'">'+libelleRechargeDailySpinIdleV1_(restantS)+'</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1 mp2-spin-bouton-v1" onclick="window.__lancerRoueIdleV1__()">🎡 Fais-moi tourner, bébé !</button>';
+        return '<button type="button" class="rb-bouton rb-dispo glow-dispo-v1 mp2-spin-bouton-v1" onclick="window.__lancerRoueIdleV1__()">Tourner</button>';
       }
 
 
@@ -182,7 +151,7 @@
         '</div>';
       }
 
-      const NOMS_OBJETS_ROUE_V1={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+      const NOMS_OBJETS_ROUE_V1={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter',macguffinMuffin:'MacGuffin Muffin'};
 
       function libelleRecompenseMetaV206_(entree){
         if(!entree)return '—';
@@ -216,46 +185,13 @@
         if(reward.cubeBoth)morceaux.push('+'+reward.cubeBoth+' Cube Puissance et Endurance');
         if(reward.wandoosLevels)morceaux.push('+'+reward.wandoosLevels+' niveau(x) Wandoos');
         if(reward.items){
-          const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter (sans effet)',macguffinMuffin:'MacGuffin Muffin (sans effet)'};
+          const NOMS={energyPotionAlpha:'Potion Energy α',energyPotionBeta:'Potion Energy β',energyPotionDelta:'Potion Energy δ',magicPotionAlpha:'Potion Magic α',magicPotionBeta:'Potion Magic β',magicPotionDelta:'Potion Magic δ',luckyCharm:'Lucky Charm',superLuckyCharm:'Super Lucky Charm',energyBarBar:'Energy Bar Bar',magicBarBar:'Magic Bar Bar',littleBluePill1000:'× 1000 Little Blue Pill',poop:'Caca',beastButter:'Beast Butter',macguffinMuffin:'MacGuffin Muffin'};
           Object.keys(reward.items).forEach(function(id){morceaux.push(reward.items[id]+' × '+(NOMS[id]||id));});
         }
         return morceaux.length?morceaux.join(' · '):'Récompense mystérieuse';
       }
 
 
-      function tierDailySpinIdleV206_(totalSpins){
-        const n=Math.max(0,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(totalSpins));
-        const seuils=[0,7,14,30,60,120,180,365];
-        let tier=0;
-        seuils.forEach(function(seuil,index){
-          if(n>=seuil)tier=index;
-        });
-        return tier;
-      }
-
-
-      function recompensesDailySpinTierIdleV206_(tier){
-        const tables=[
-          ['50 AP · 70 %','100 AP · 30 %'],
-          ['100 AP · 53 %','200 AP · 35 %','1 000 AP · 10 %'],
-          ['200 AP · 53 %','400 AP · 30 %','2 000 AP · 10 %'],
-          ['300 AP · 37 %','600 AP · 25 %','3 000 AP · 10 %','20 graines · 10 %','50 000 AP · 0,5 %'],
-          ['500 AP · 50 %','1 000 AP · 25 %','5 000 AP · 10 %','100 graines · 5 %','75 000 AP · 0,5 %'],
-          ['800 AP · 36 %','1 600 AP · 25 %','8 000 AP · 10 %','400 graines · 10 %','100 000 AP · 0,5 %'],
-          ['1 200 AP · 35 %','2 400 AP · 25 %','12 000 AP · 10 %','2 000 graines · 10 %','150 000 AP · 0,5 %'],
-          ['1 500 AP · 35 %','3 000 AP · 25 %','15 000 AP · 10 %','5 000 graines · 10 %','175 000 AP · 0,5 %']
-        ];
-        return tables[Math.max(0,Math.min(tables.length-1,window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(tier)))]||tables[0];
-      }
-
-
-      /*
-       * Phrases du Trou (Norman, 2026-09-26 : « les petites phrases humoristiques, traduites en français »). Le wiki NGU ne publie que trois messages du
-       * Puits : le boost (« The Pit belches and spits out a Toughness Boost 1! », donné par Norman), « The Pit belches and it smells awful » (Wandoos déjà au
-       * maximum) et la graine avant Yggdrasil (« A giant green seed shoots out of the pit and lands by your feet! Before you can grab it, it hops back into
-       * the pit! WTF was that?? ») : ceux-là sont traduits fidèlement. Les autres phrases sont écrites par SOREAL dans le même ton (une par récompense).
-       * Le choix entre deux variantes est fixé par l'heure du jet (la même phrase à chaque affichage).
-       */
       function phraseMoneyPitIdleV1_(entree,j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const nb=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
@@ -480,14 +416,16 @@
 
       function pageMoneyPitDailySpinIdleV206_(j){
         const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
-        const roue=systemeMetaParIdIdleV130_(j,'dailySpin');
+        const roueReelle=systemeMetaParIdIdleV130_(j,'dailySpin');
         const pitSt=pit&&pit.state||{};
-        const roueSt=roue&&roue.state||{};
+        const RO=window.__SOREAL_IDLE_ROUE_V1__;
+        /* Pendant que la roue tourne, TOUT l'affichage lié au tour (prix, totaux, historique, bouton) reste celui d'AVANT : le résultat n'apparaît qu'à l'arrêt de la roue. */
+        const roueEnCours=Boolean(RO&&RO.enCours());
+        const roueSt=roueEnCours&&RO.stAvant()?RO.stAvant():(roueReelle&&roueReelle.state||{});
+        const roue={state:roueSt};
         const pitData=pitSt.data||{};
         const roueData=roueSt.data||{};
         const totalSpins=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(roueData.totalSpins||roueSt.level||0);
-        const tier=tierDailySpinIdleV206_(totalSpins);
-        const table=recompensesDailySpinTierIdleV206_(tier);
         const listePit=lignesMoneyPitIdleV1_(pit);
         const listeRoue=lignesRoueIdleV1_(roue);
         const historique=historiqueMoneyPitIdleV206_(pit,roue);
@@ -525,6 +463,7 @@
         /* Un « Ton prix » sous CHAQUE bouton (Norman, 2026-10-16) : le dernier gain du Money Pit sous « Balance ton argent », le dernier de la roue sous la roue, chacun avec son propre compteur de couleur. */
         const couleurPrix=rangCouleurPrix_(derniere,'soreal_idle_prix_couleur_v1');
         const couleurPrixRoue=rangCouleurPrix_(derniereRoue,'soreal_idle_prix_couleur_roue_v1',totalSpins);
+        if(RO)RO.memoPrix(derniereRoue,totalSpins);
         const H0=window.__SOREAL_IDLE_META_HOST_V130__;
         const prixPit='<div class="soreal-idle-offre-v1 mp2-prix-v1">'+
             '<div class="soreal-idle-offre-titre-v1">🎁 TON PRIX</div>'+
@@ -544,6 +483,7 @@
             '</div>'+
           '</div>';
 
+        const boutonRoue=roueEnCours?'<button type="button" class="rb-bouton" disabled>Ça tourne…</button>':rendreBoutonDailySpinIdleV203_(roueSt);
         return ''+
           window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_(
             '🕳️ Money Pit & 🎡 Roue journalière',
@@ -593,28 +533,20 @@
               rendreBoutonMoneyPitIdleV1_(j,pitSt)+
               prixPit+
             '</div>'+
-            '<div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
-              '<div class="mp2-spin-tete-v1">'+
-                rendreRoueIdleV1_(roueSt)+
-                '<div><div class="soreal-idle-money-action-title-v206">Roue journalière !</div>'+
-                '<div class="soreal-idle-money-action-note-v206">Bon, ça ne « tourne » pas vraiment, mais c’est aléatoire !</div></div>'+
-              '</div>'+
-              rendreBoutonDailySpinIdleV203_(roueSt)+
-              prixRoue+
-            '</div>'+
           '</div>'+
+          /* Roue journalière (Norman, 2026-10-31) : EN DESSOUS du cadre du trou, de la même largeur (colonne de gauche) ; à droite, son titre, TON PRIX et le compte à rebours. */
+          (RO?RO.rendreCarte(roueSt,j,boutonRoue):'')+
+          '<div class="rb-prixcol"><div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
+            '<div class="soreal-idle-money-action-title-v206">Roue journalière !</div>'+
+            '<div class="soreal-idle-money-action-note-v206">Une fois par jour. Chaque part de la roue est une récompense possible : sa largeur suit sa chance.</div>'+
+            prixRoue+
+            '<div class="rb-prix-txt">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
+          '</div></div>'+
           '</div>'+
           /* Norman (2026-10-03) : « Ton prix » juste sous les boutons, puis le bonus des jours cumulés (avec son total d'AP), puis un cadre par liste de récompenses. */
           /* Norman (2026-10-10) : les récompenses du Money Pit et de la roue passent au-dessus, le calendrier de connexion en bas de page. */
           cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
           cadreRecompensesMoneyPitIdleV1_('roue','🎡 RÉCOMPENSES DE LA ROUE',listeRoue,'Tier','Le tableau se remplira dès ton premier tour de roue.')+
-          '<div class="soreal-idle-section-v8">'+
-            '<div class="soreal-idle-window-title-v31">🎡 TABLE DES RÉCOMPENSES · TIER '+tier+'</div>'+
-            '<div style="font-size:13px;color:#8b93ab;margin-bottom:8px">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
-            '<table class="soreal-idle-reward-table-v206"><tbody>'+
-              table.map(function(x){return '<tr><td>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(x)+'</td></tr>';}).join('')+
-            '</tbody></table>'+
-          '</div>'+
           rendreCalendrierConnexionIdleV1_(j);
       }
 
@@ -625,7 +557,7 @@
    */
   function calquesTrouSansFondIdleV1_(){
     /* trois paires d'yeux : [x, y, période (s), décalage (s)] ; l'écart entre les deux points est fixe */
-    const yeux=[[36.8,58.2,3.1,0],[47.4,56.4,2.3,-1.1],[51.2,61.6,3.9,-2.4]].map(function(p){
+    const yeux=[[36.8,58.2,3.1,.12],[47.4,56.4,2.3,.3],[51.2,61.6,3.9,.5]].map(function(p){
       return '<span class="mp3-yeux" style="left:'+p[0]+'%;top:'+p[1]+'%;--p:'+p[2]+'s;--d:'+p[3]+'s"><i></i><i></i></span>';
     }).join('');
     /* 5 volutes fines : [x, couleur, durée, décalage, amplitude du balancement en cqw] */
@@ -653,8 +585,8 @@
     for(let k=-3;k<=3;k++)tr+='<i class="mp3-tr" style="transform:translateZ(calc(var(--t)*'+(k*0.012)+'))"></i>';
     const st='--x1:'+p.x+'%;--y1:'+p.y+'%;--d:'+p.d+'s;--dl:'+dl+'s;--dx:'+p.dx+'cqw;--t:'+p.t+'cqw;--tours:'+p.tours+';--rx:'+p.rx+'deg;--inc:'+p.inc+'deg;';
     const face=faceDePieceIdleV1_();
-    return '<div class="mp3-chute" style="'+st+'"><div class="mp3-derive"><div class="mp3-echelle" style="perspective:90cqw"><div class="mp3-pc">'+tr+'<div class="mp3-fa">'+face+'</div><div class="mp3-fb">'+faceDePieceIdleV1_()+'</div></div></div></div></div>'+
-      '<div class="mp3-eclat" style="'+st+'"><svg viewBox="-20 -20 40 40"><g fill="#fff3b0"><path d="M0 -16 L2.5 -2.5 L16 0 L-2.5 2.5 L0 16 L-2.5 2.5 L-16 0 L-2.5 -2.5Z"/><circle r="5" fill="#ffd24a" opacity=".6"/></g></svg></div>';
+    return '<div class="mp3-chute'+(p.dehors?' mp3-dehors':'')+'" style="'+st+'"><div class="mp3-derive"><div class="mp3-echelle" style="perspective:90cqw"><div class="mp3-pc">'+tr+'<div class="mp3-fa">'+face+'</div><div class="mp3-fb">'+faceDePieceIdleV1_()+'</div></div></div></div></div>'+
+      (p.dehors?'':'<div class="mp3-eclat" style="'+st+'"><svg viewBox="-20 -20 40 40"><g fill="#fff3b0"><path d="M0 -16 L2.5 -2.5 L16 0 L-2.5 2.5 L0 16 L-2.5 2.5 L-16 0 L-2.5 -2.5Z"/><circle r="5" fill="#ffd24a" opacity=".6"/></g></svg></div>');
   }
   window.__jeterOrSalveV1__=function(n){
     n=Math.max(1,Math.min(14,Math.round(Number(n))||8));
@@ -663,7 +595,9 @@
     const r=function(k){return (Math.sin(k*91.7)+1)/2;};
     let h='';
     for(let i=0;i<n;i++){
-      const p={x:(36+r(i+1)*13).toFixed(1),y:(55+r(i+7)*5).toFixed(1),dx:((r(i+3)-.5)*30).toFixed(1),t:(5.4+r(i+5)*2.2).toFixed(2),tours:2+Math.round(r(i+9)*3)/2,rx:(12+r(i+2)*34).toFixed(0),inc:((r(i+4)-.5)*50).toFixed(0),d:(1.0+((i*37)%5)*0.1).toFixed(2)};
+      /* ~40 % des pièces passent le bord inférieur du trou (y > 66 %) : le bord est au premier plan, elles disparaissent en le franchissant (calque coupé en CSS) ; les autres tombent dans le noir (y 53 à 59 %) en rapetissant et en s'effaçant */
+      const dehors=r(i+11)<.4;
+      const p={dehors:dehors,x:(36+r(i+1)*13).toFixed(1),y:(dehors?68+r(i+7)*4:53+r(i+7)*6).toFixed(1),dx:((r(i+3)-.5)*30).toFixed(1),t:(5.4+r(i+5)*2.2).toFixed(2),tours:2+Math.round(r(i+9)*3)/2,rx:(12+r(i+2)*34).toFixed(0),inc:((r(i+4)-.5)*50).toFixed(0),d:(1.0+((i*37)%5)*0.1).toFixed(2)};
       h+=pieceDeOrIdleV1_(p,(i/n*0.55).toFixed(2));
     }
     /* une salve à la fois : l'ancienne est remplacée (son bloc porte data-morph-garder : le redessin de la page ne le retire pas) */

@@ -345,16 +345,19 @@ export function idleYggHarvestLightOwnedV1(state) {
   return Math.max(0, I(state?.selloutShop?.purchases?.yggdrasilHarvestLight, 0)) >= 1;
 }
 
-export function idleYggHarvestLightLitV1(state, fruitDefs) {
+/* Un fruit précis allume-t-il la lueur ? (actif, découvert, tier atteint ou première récolte du Rebirth prête). Sans l'achat : jamais. */
+export function idleYggFruitLitV1(state, def) {
   const data = state?.systems?.yggdrasil?.data;
   if (!idleYggHarvestLightOwnedV1(state) || !state?.systems?.yggdrasil?.unlocked || !data?.fruits) return false;
-  return fruitDefs.some((def) => {
-    const f = data.fruits[def.id];
-    const tier = I(f?.tier, 0);
-    if (!f || !f.active || tier < 1 || !idleYggFruitUnlockedV1(state, def.id)) return false;
-    const heures = Math.max(0, N(f.growthHours, 0));
-    return heures >= tier || (Boolean(f.firstHarvestThisRun) && heures >= 1);
-  });
+  const f = data.fruits[def.id];
+  const tier = I(f?.tier, 0);
+  if (!f || !f.active || tier < 1 || !idleYggFruitUnlockedV1(state, def.id)) return false;
+  const heures = Math.max(0, N(f.growthHours, 0));
+  return heures >= tier || (Boolean(f.firstHarvestThisRun) && heures >= 1);
+}
+
+export function idleYggHarvestLightLitV1(state, fruitDefs) {
+  return fruitDefs.some((def) => idleYggFruitLitV1(state, def));
 }
 
 /* ---------- Instantané client ---------- */
@@ -377,6 +380,8 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
     maxTier: deps.maxTier,
     /* Yggdrasil Harvest Light : achetée, et allumée (menu Yggdrasil à faire briller). */
     harvestLight: { owned: idleYggHarvestLightOwnedV1(state), lit: idleYggHarvestLightLitV1(state, fruitDefs) },
+    /* Les fruits (découverts) qui font briller la page Yggdrasil : liste vide sans l'achat. */
+    harvestLightFruits: fruitDefs.filter((def) => idleYggFruitLitV1(state, def)).map((def) => def.id),
     fruits: Object.fromEntries(fruitDefs.map((def) => {
       const f = state?.systems?.yggdrasil?.data?.fruits?.[def.id] || {};
       const auto = autos[def.id];

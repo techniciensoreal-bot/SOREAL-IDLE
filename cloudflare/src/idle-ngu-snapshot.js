@@ -17,7 +17,7 @@ import { idleDaycareSnapshotV1 } from "./idle-daycare-v1.js";
 import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1 } from "./idle-inventory-auto-v1.js";
 import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
-import { idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
+import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
@@ -345,9 +345,11 @@ function construireSnapshotNguV1(state, context, now) {
     timeMachineView: state.systems.timeMachine?.unlocked ? timeMachineViewV1(state) : null,
     wandoosView: state.systems.wandoos?.unlocked ? wandoosViewV1(state, now) : null,
     /* Calendrier de connexion (Money Pit) : seulement une fois le Money Pit découvert (idle-login-calendar-v1.js). */
+    /* Roue journalière : palier courant et table des récompenses (affichage de la roue, jamais utilisée pour tirer côté client). */
+    roueJournaliere: dailySpinSnapshotV1(state),
     loginCalendar: state.systems.moneyPit?.unlocked ? idleLoginCalendarSnapshotV1(state.records.loginCalendar, nowMs(now)) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
-    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0)),
+    portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0), num(state.records.portraitManuel, 0) > 0, state.records.portraitsVus),
     richJerks: {
       attackLevel: Math.max(0, int(state.bonuses.richJerksAttackLevel, 0)),
       defenseLevel: Math.max(0, int(state.bonuses.richJerksDefenseLevel, 0)),
@@ -879,6 +881,50 @@ export function tossMoneyPit(state, now) {
   return resultat;
 }
 
+/*
+ * 2026-09-23 : table complète de la page Daily Spin (chaque palier totalise 100 %). Les potions, Lucky Charm et
+ * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement. MacGuffin Muffin : réel depuis le
+ * 2026-09-23 (IDLE_SELLOUT_EFFECTS_V1.macguffinMuffin, consommé au Rebirth par idle-macguffins-v1.js). Beast
+ * Butter (Questing) et Poop (IDLE_SELLOUT_EFFECTS_V1.poop -> stock state.selloutEffects.poop, utilisé sur un fruit
+ * d'Yggdrasil, idle-yggdrasil-extra-v1.js) sont réels depuis le 2026-09-23.
+ */
+const P = (item, poids, n = 1) => ({ items: { [item]: n }, poids });
+export const IDLE_DAILY_SPIN_JACKPOTS_V1 = {
+  3: { energyPotionAlpha: 1, energyPotionBeta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 2 },
+  4: { energyPotionAlpha: 1, energyPotionBeta: 1, energyPotionDelta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, magicPotionDelta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 5, superLuckyCharm: 1, littleBluePill1000: 1 },
+  5: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 1, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 1, luckyCharm: 2, energyBarBar: 2, magicBarBar: 2, poop: 10, superLuckyCharm: 1, littleBluePill1000: 2, beastButter: 1, macguffinMuffin: 1 },
+  6: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 2, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 2, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 2, littleBluePill1000: 3, beastButter: 2, macguffinMuffin: 2 },
+  7: { energyPotionAlpha: 3, energyPotionBeta: 3, energyPotionDelta: 3, magicPotionAlpha: 3, magicPotionBeta: 3, magicPotionDelta: 3, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 3, littleBluePill1000: 5, beastButter: 3, macguffinMuffin: 3 }
+};
+const J = (t, poids) => ({ items: IDLE_DAILY_SPIN_JACKPOTS_V1[t], poids });
+export const IDLE_DAILY_SPIN_REWARDS_V1 = [
+  [{ ap: 50, poids: 70 }, { ap: 100, poids: 30 }],
+  [{ ap: 100, poids: 53 }, { ap: 200, poids: 35 }, { ap: 1000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1)],
+  [{ ap: 200, poids: 53 }, { ap: 400, poids: 30 }, { ap: 2000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1)],
+  [{ ap: 300, poids: 37 }, { ap: 600, poids: 25 }, { ap: 3000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 20, poids: 10 }, P("poop", 5, 2), J(3, 0.5), { ap: 50000, poids: 0.5 }],
+  [{ ap: 500, poids: 50 }, { ap: 1000, poids: 25 }, { ap: 5000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1), { seeds: 100, poids: 5 }, P("poop", 1, 5), J(4, 0.5), { ap: 75000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
+  [{ ap: 800, poids: 36 }, { ap: 1600, poids: 25 }, { ap: 8000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 400, poids: 10 }, P("poop", 5, 10), J(5, 0.5), { ap: 100000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
+  [{ ap: 1200, poids: 35 }, { ap: 2400, poids: 25 }, { ap: 12000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 2000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(6, 0.5), { ap: 150000, poids: 0.5 }],
+  [{ ap: 1500, poids: 35 }, { ap: 3000, poids: 25 }, { ap: 15000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 5000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(7, 0.5), { ap: 175000, poids: 0.5 }]
+];
+
+/*
+ * Table de la roue pour l'AFFICHAGE (Norman, 2026-10-31 : « la roue montre chacune des récompenses possibles ») : lue ICI, à la source du tirage, jamais recopiée côté client.
+ * Un élément par récompense, dans l'ordre du tirage : { poids (en %), ap | seeds | items:{id:nombre} } ; plusieurs ids dans items = le Jackpot.
+ */
+export function dailySpinTableAffichageV1(tier) {
+  const table = IDLE_DAILY_SPIN_REWARDS_V1[Math.max(0, Math.min(IDLE_DAILY_SPIN_REWARDS_V1.length - 1, int(tier, 0)))];
+  return table.map(e => e.items ? { poids: e.poids, items: Object.assign({}, e.items) } : (e.ap ? { poids: e.poids, ap: e.ap } : { poids: e.poids, seeds: e.seeds }));
+}
+export function dailySpinSnapshotV1(state) {
+  const s = state.systems.dailySpin;
+  if (!s || !s.unlocked) return null;
+  const tier = dailySpinTierV48_(Math.max(0, int(s.data.totalSpins, s.level)));
+  /* Table du palier du DERNIER tour si elle diffère (la roue figée « déjà tourné » montre le secteur gagnant sur la roue de ce tour-là). */
+  const dernier = Array.isArray(s.data.history) && s.data.history[0] ? Math.max(0, int(s.data.history[0].tier, 0)) : -1;
+  return { tier, table: dailySpinTableAffichageV1(tier), derniere: dernier >= 0 && dernier !== tier ? { tier: dernier, table: dailySpinTableAffichageV1(dernier) } : null };
+}
+
 function dailySpinTierV48_(spins) {
   const thresholds=[0,7,14,30,60,120,180,365];
   let tier=0;
@@ -915,32 +961,6 @@ function spinDaily(state, now) {
    * instead") — repris tel quel (5000), car c'est le comportement RÉEL
    * vécu par les joueurs, pas la valeur nominale jamais atteignable.
    */
-  /*
-   * 2026-09-23 : table complète de la page Daily Spin (chaque palier totalise 100 %). Les potions, Lucky Charm et
-   * Bar Bar sont désormais réels (boutique Sellout) et s'activent immédiatement. MacGuffin Muffin : réel depuis le
-   * 2026-09-23 (IDLE_SELLOUT_EFFECTS_V1.macguffinMuffin, consommé au Rebirth par idle-macguffins-v1.js). Beast
-   * Butter (Questing) et Poop (IDLE_SELLOUT_EFFECTS_V1.poop -> stock state.selloutEffects.poop, utilisé sur un fruit
-   * d'Yggdrasil, idle-yggdrasil-extra-v1.js) sont réels depuis le 2026-09-23.
-   */
-  const P = (item, poids, n = 1) => ({ items: { [item]: n }, poids });
-  const JACKPOTS = {
-    3: { energyPotionAlpha: 1, energyPotionBeta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 2 },
-    4: { energyPotionAlpha: 1, energyPotionBeta: 1, energyPotionDelta: 1, magicPotionAlpha: 1, magicPotionBeta: 1, magicPotionDelta: 1, luckyCharm: 1, energyBarBar: 1, magicBarBar: 1, poop: 5, superLuckyCharm: 1, littleBluePill1000: 1 },
-    5: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 1, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 1, luckyCharm: 2, energyBarBar: 2, magicBarBar: 2, poop: 10, superLuckyCharm: 1, littleBluePill1000: 2, beastButter: 1, macguffinMuffin: 1 },
-    6: { energyPotionAlpha: 2, energyPotionBeta: 2, energyPotionDelta: 2, magicPotionAlpha: 2, magicPotionBeta: 2, magicPotionDelta: 2, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 2, littleBluePill1000: 3, beastButter: 2, macguffinMuffin: 2 },
-    7: { energyPotionAlpha: 3, energyPotionBeta: 3, energyPotionDelta: 3, magicPotionAlpha: 3, magicPotionBeta: 3, magicPotionDelta: 3, luckyCharm: 3, energyBarBar: 3, magicBarBar: 3, poop: 25, superLuckyCharm: 3, littleBluePill1000: 5, beastButter: 3, macguffinMuffin: 3 }
-  };
-  const J = (t, poids) => ({ items: JACKPOTS[t], poids });
-  const IDLE_DAILY_SPIN_REWARDS_V1 = [
-    [{ ap: 50, poids: 70 }, { ap: 100, poids: 30 }],
-    [{ ap: 100, poids: 53 }, { ap: 200, poids: 35 }, { ap: 1000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1)],
-    [{ ap: 200, poids: 53 }, { ap: 400, poids: 30 }, { ap: 2000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1)],
-    [{ ap: 300, poids: 37 }, { ap: 600, poids: 25 }, { ap: 3000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 20, poids: 10 }, P("poop", 5, 2), J(3, 0.5), { ap: 50000, poids: 0.5 }],
-    [{ ap: 500, poids: 50 }, { ap: 1000, poids: 25 }, { ap: 5000, poids: 10 }, P("energyPotionAlpha", 1), P("magicPotionAlpha", 1), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 1), P("energyBarBar", 1), P("magicBarBar", 1), { seeds: 100, poids: 5 }, P("poop", 1, 5), J(4, 0.5), { ap: 75000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
-    [{ ap: 800, poids: 36 }, { ap: 1600, poids: 25 }, { ap: 8000, poids: 10 }, P("energyPotionAlpha", 2), P("magicPotionAlpha", 2), P("energyPotionBeta", 1), P("magicPotionBeta", 1), P("luckyCharm", 2), P("energyBarBar", 2), P("magicBarBar", 2), { seeds: 400, poids: 10 }, P("poop", 5, 10), J(5, 0.5), { ap: 100000, poids: 0.5 }, P("energyPotionDelta", 0.5), P("magicPotionDelta", 0.5)],
-    [{ ap: 1200, poids: 35 }, { ap: 2400, poids: 25 }, { ap: 12000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 2000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(6, 0.5), { ap: 150000, poids: 0.5 }],
-    [{ ap: 1500, poids: 35 }, { ap: 3000, poids: 25 }, { ap: 15000, poids: 10 }, P("energyPotionAlpha", 2, 2), P("magicPotionAlpha", 2, 2), P("energyPotionBeta", 1, 2), P("magicPotionBeta", 1, 2), P("luckyCharm", 2, 2), P("energyBarBar", 2, 2), P("magicBarBar", 2, 2), { seeds: 5000, poids: 10 }, P("poop", 5, 25), P("energyPotionDelta", 1), P("magicPotionDelta", 1), J(7, 0.5), { ap: 175000, poids: 0.5 }]
-  ];
   const table = IDLE_DAILY_SPIN_REWARDS_V1[Math.min(tier, IDLE_DAILY_SPIN_REWARDS_V1.length - 1)];
   const poidsTotal = table.reduce((sum, entree) => sum + entree.poids, 0);
   let curseur = Math.random() * poidsTotal;
@@ -949,6 +969,8 @@ function spinDaily(state, now) {
     if (curseur < entree.poids) { choix = entree; break; }
     curseur -= entree.poids;
   }
+  /* Rang du lot tiré dans la table du palier : la roue (affichage) s'arrête sur ce secteur, elle ne tire rien. */
+  const secteur = table.indexOf(choix);
   let reward;
   if (choix.items) {
     reward = { items: Object.assign({}, choix.items) };
@@ -977,6 +999,7 @@ function spinDaily(state, now) {
   const resultat={
     reward,
     tier,
+    secteur,
     totalSpins:s.data.totalSpins,
     bankedMs,
     readyAt:s.data.readyAt
@@ -985,6 +1008,7 @@ function spinDaily(state, now) {
   historique.unshift({
     at:now,
     tier,
+    secteur,
     reward:Object.assign({},reward),
     totalSpins:s.data.totalSpins
   });
@@ -1292,6 +1316,7 @@ export function portraitEnvV1(state) {
     equippedSet: state.adventure?.autoPortraitSet || "",
     equippedSetTier: state.adventure?.autoPortraitTier || 0,
     completedSets: state.adventure?.completedSets || {},
+    acquis: idsPortraitsDeChaineV1(state.records.portraitsAcquis),
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),
     /*

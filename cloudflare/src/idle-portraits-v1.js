@@ -1,3 +1,5 @@
+import { IDLE_FENETRE_HALLOWEEN_V1, dansFenetreAnnuelleV1, jourBruxellesV1 } from "./idle-daycare-skins-v1.js";
+
 /*
  * Player Portraits (2026-09-24) -- wiki NGU : pages "Player Portraits", "Portrait pack pictures",
  * "MacGuffin Fragments" et "Wishes".
@@ -27,6 +29,7 @@ const SET = "set";
 const WISH = "wish";
 const MACGUFFIN = "macguffin";
 const SPECIAL = "special";
+const ACQUIS = "acquis";
 
 const TABLE_V1 = [
   ["default", "PlayerAPportrait16", "Portrait par défaut", { type: "default" }],
@@ -86,7 +89,9 @@ const TABLE_V1 = [
   ["sexy", "Sexy", "SEXY !", { type: MACGUFFIN, macguffin: "sexy", pct: 250 }],
   ["smart", "Smart", "SMART", { type: MACGUFFIN, macguffin: "smart", pct: 250 }],
   ["wish-weiner", "PlayerPortrait-Weiner", "Souhait « Oscar Meyer Weiner »", { type: WISH, wish: 26 }],
-  ["wish-mayo", "PlayerPortrait-Mayo", "Souhait « Mayo »", { type: WISH, wish: 75 }]
+  ["wish-mayo", "PlayerPortrait-Mayo", "Souhait « Mayo »", { type: WISH, wish: 75 }],
+  /* Connexion d'Halloween (Norman, 2026-10-31) : acquis pour toujours à la première synchro dans la fenêtre IDLE_FENETRE_HALLOWEEN_V1 (records.portraitsAcquis). */
+  ["sleepyhollow", "PlayerPortrait-SleepyHollow", "Portrait d'Halloween", { type: ACQUIS, via: "halloween" }]
 ];
 
 export const IDLE_PORTRAITS_V1 = Object.freeze(TABLE_V1.map(([id, file, name, unlock]) => Object.freeze({
@@ -104,6 +109,7 @@ function conditionTexteV1(unlock) {
   if (unlock.type === SET) return "Compléter le set " + unlock.set;
   if (unlock.type === WISH) return "Terminer le souhait n°" + unlock.wish;
   if (unlock.type === SPECIAL) return "Special Prize";
+  if (unlock.type === ACQUIS) return "Connexion pendant Halloween";
   if (unlock.type === MACGUFFIN) return "Bonus permanent du fragment " + unlock.macguffin.toUpperCase() + " à " + unlock.pct + " %";
   return "Disponible dès le départ";
 }
@@ -115,6 +121,7 @@ export function idlePortraitUnlockedV1(portrait, env = {}) {
   if (u.type === SET) return Boolean(env.completedSets && env.completedSets[u.set]);
   if (u.type === WISH) return typeof env.wishLevel === "function" && Number(env.wishLevel(u.wish)) >= 1;
   if (u.type === SPECIAL) return Number(env.specialPrizeChoice) === u.choice;
+  if (u.type === ACQUIS) return Array.isArray(env.acquis) && env.acquis.includes(portrait.id);
   if (u.type === MACGUFFIN) return typeof env.macguffinPct === "function" && Number(env.macguffinPct(u.macguffin)) >= u.pct;
   return false;
 }
@@ -152,7 +159,7 @@ export function idlePortraitForEquippedSetV1(setId, tier = 0) {
   return meilleur || candidats[0];
 }
 
-export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0) {
+export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaimed = false, specialPrizeChoice = 0, manuel = false, vus = "") {
   const selected = idlePortraitSelectedIdV1(selectedId, env);
   const auto = idlePortraitForEquippedSetV1(env.equippedSet, env.equippedSetTier);
   /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : la réponse contenait chaque portrait verrouillé avec sa CONDITION et le total. Seuls les portraits obtenus (et le choisi) sont envoyés, sans condition. */
@@ -168,11 +175,52 @@ export function idlePortraitsSnapshotV1(selectedId, env = {}, specialPrizeClaime
     selected,
     selectedFile: idlePortraitByIdV1(selected).file,
     auto: auto ? { id: auto.id, file: auto.file, name: auto.name, set: String(env.equippedSet) } : null,
+    /* Additif : true = le joueur a choisi lui-même son portrait ; il l'emporte sur `auto` (le client n'affiche alors pas le portrait du set). */
+    manuel: Boolean(manuel),
     unlockedCount: complete.filter(p => p.unlocked).length,
     total: complete.filter(p => p.unlocked).length,
     list,
+    /* Portraits ACQUIS (fenêtre annuelle) dont l'annonce n'a pas été validée (records.portraitsVus). */
+    nouveaux: portraitsNouveauxV1(env, vus),
     specialPrize: { ap: IDLE_SPECIAL_PRIZE_AP_V1, claimed: Boolean(specialPrizeClaimed), choice: Number(specialPrizeChoice) === 2 ? "kitty" : (specialPrizeClaimed ? "ap" : "") }
   };
+}
+
+/* Listes d'ids (chaîne « a,b,c ») : ids de portraits à acquisition par fenêtre seulement, sans doublon. */
+const IDS_ACQUIS_V1 = IDLE_PORTRAITS_V1.filter(p => p.unlock.type === ACQUIS).map(p => p.id);
+export function idsPortraitsDeChaineV1(v) {
+  const s = new Set(String(typeof v === "string" ? v : "").split(","));
+  return IDS_ACQUIS_V1.filter(id => s.has(id));
+}
+export const chainePortraitsNormaliseeV1 = v => idsPortraitsDeChaineV1(v).join(",");
+
+/* Enregistre les portraits « acquis » vus à l'instant ms (heure du moteur, jour de Bruxelles). Idempotent. */
+export function acquerirPortraitsV1(state, ms) {
+  const actuels = idsPortraitsDeChaineV1(state.records.portraitsAcquis);
+  const jb = jourBruxellesV1(ms);
+  const nouveaux = new Set(actuels);
+  if (dansFenetreAnnuelleV1(jb.mois, jb.jour, IDLE_FENETRE_HALLOWEEN_V1.de, IDLE_FENETRE_HALLOWEEN_V1.a)) {
+    for (const p of IDLE_PORTRAITS_V1) if (p.unlock.type === ACQUIS && p.unlock.via === "halloween") nouveaux.add(p.id);
+  }
+  if (nouveaux.size === actuels.length) return false;
+  state.records.portraitsAcquis = chainePortraitsNormaliseeV1([...nouveaux].join(","));
+  return true;
+}
+
+function portraitsNouveauxV1(env, vus) {
+  const v = idsPortraitsDeChaineV1(vus);
+  return IDS_ACQUIS_V1.filter(id => Array.isArray(env.acquis) && env.acquis.includes(id) && !v.includes(id));
+}
+
+/* Action « portraitVu » : refuse un portrait inconnu ou non acquis (aucune fuite). */
+export function marquerPortraitVuV1(state, id, env = {}) {
+  const p = idlePortraitByIdV1(id);
+  if (!p) throw new Error("PORTRAIT_INCONNU");
+  if (p.unlock.type !== ACQUIS || !idlePortraitUnlockedV1(p, env)) throw new Error("PORTRAIT_VERROUILLE");
+  const vus = new Set(idsPortraitsDeChaineV1(state.records.portraitsVus));
+  vus.add(p.id);
+  state.records.portraitsVus = chainePortraitsNormaliseeV1([...vus].join(","));
+  return p.id;
 }
 
 /* Action « select » : refuse un portrait verrouillé ou inconnu. */
@@ -206,12 +254,14 @@ export function idlePortraitPickR2KeyV1(keys, portraitFile) {
   if (!cible || !Array.isArray(keys)) return "";
   const base = k => normaliserV1(String(k).split("/").pop().replace(/\.[^.]+$/, ""));
   const entree = IDLE_PORTRAITS_V1.find(p => normaliserV1(p.file) === cible || normaliserV1(p.id) === cible);
+  /* Norman (2026-10-31) : le portrait de base restait l'ANCIENNE image dans l'exe : un vieux « .png » encore présent dans les copies locales passait avant le « .webp » à jour. À nom égal, le .webp (format actuel des médias) est donc choisi en premier. */
+  const choisir = pred => { const c = keys.filter(pred); return c.find(k => /\.webp$/i.test(String(k))) || c[0] || ""; };
   if (entree) {
     const simple = normaliserV1(idlePortraitNomFichierV1(entree.id).replace(/\.webp$/, ""));
-    const trouve = keys.find(k => base(k) === simple);
+    const trouve = choisir(k => base(k) === simple);
     if (trouve) return trouve;
   }
-  const exact = keys.find(k => base(k) === cible);
+  const exact = choisir(k => base(k) === cible);
   if (exact) return exact;
-  return keys.find(k => base(k).endsWith(cible)) || "";
+  return choisir(k => base(k).endsWith(cible));
 }

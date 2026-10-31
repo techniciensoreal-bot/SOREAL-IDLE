@@ -1560,6 +1560,20 @@
     tonal_(c,{type:"sine",from:1568*2,to:1568*2,duration:.30,volume:.018,delay:dureeS+.02});
     tonal_(c,{type:"triangle",from:2093,to:2093,duration:.34,volume:.026,delay:dureeS+.06});
   }
+  /* Roue journalière refaite (2026-10-31) : les cliquets tombent aux instants EXACTS où la roue franchit une frontière de secteur (calculés par roue-journaliere-v1.js), puis le tintement final. */
+  function roueCliquets_(instantsS,dureeS){
+    var d=Math.max(.3,Number(dureeS)||4.2),liste=Array.isArray(instantsS)?instantsS:[];
+    return jouerWebAudio_(d*1000+700,function(c){
+      liste.forEach(function(t){
+        var lent=Math.min(1,.55+t/d*.6);
+        tonal_(c,{type:"square",from:1450,to:1250,duration:.025,volume:.032*lent,delay:t});
+        bruit_(c,{duration:.02,volume:.020*lent,filterType:"highpass",frequency:3600,decay:3.2,delay:t});
+      });
+      tonal_(c,{type:"sine",from:1568,to:1568,duration:.48,volume:.052,delay:d+.02});
+      tonal_(c,{type:"sine",from:1568*2,to:1568*2,duration:.30,volume:.018,delay:d+.02});
+      tonal_(c,{type:"triangle",from:2093,to:2093,duration:.34,volume:.026,delay:d+.06});
+    });
+  }
   function roueTourne_(angle,dureeMs){
     var a=Number(angle)||1800,d=Math.max(300,Number(dureeMs)||2800);
     return jouerWebAudio_(d+700,function(c){roueTourneConstruire_(c,a,d/1000);});
@@ -2611,6 +2625,7 @@
     wandoosErreur:function(){return demander_("wandoosErreur");},
     dailySpin:function(){return demander_("dailySpin");},
     roueTourne:function(angle,dureeMs){return roueTourne_(angle,dureeMs);},
+    roueCliquets:function(instantsS,dureeS){return roueCliquets_(instantsS,dureeS);},
     roueInstants:instantsRoue_,
     debugState:function(){
       return {

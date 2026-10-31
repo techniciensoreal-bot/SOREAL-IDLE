@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 import { createIdleAdventureStateV47, applyIdleAdventureActionV47, idleAdventureEquipItemV1, idleAdventureUnequipItemV1 } from "../src/idle-adventure-v47.js";
+import { normalizeIdleNguState, applyIdleNguAction, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 import { idlePortraitsSnapshotV1, idlePortraitForEquippedSetV1, IDLE_PORTRAITS_V1 } from "../src/idle-portraits-v1.js";
 
 /*
@@ -74,11 +75,49 @@ const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
 assert.ok(media.includes('searchParams.get("fallback")') && media.includes("idlePortraitPickR2KeyV1(keys,repli)"));
 // Client : portrait automatique en priorité, choix manuel en repli ; vignettes R2 dans le sélecteur
 const ui = lireUiComplet();
-assert.ok(ui.includes("j.systemes.portraits.auto?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile"));
+assert.ok(ui.includes("j.systemes.portraits.auto&&!j.systemes.portraits.manuel?j.systemes.portraits.auto.file:j.systemes.portraits.selectedFile"), "le portrait du set ne s'applique que sans choix manuel");
 assert.ok(ui.includes("(repli?'&fallback='+encodeURIComponent(String(repli)):'')"));
 // (2026-10-31 : le sélecteur a quitté Chroniques pour la borne ; le texte du set équipé n'y cite plus le nom du set)
 const borneJoueur = readFileSync("cloudflare/public/modules/borne-joueur-v1.js", "utf8");
-assert.ok(borneJoueur.includes("/api/idle/media/player?portrait=") && borneJoueur.includes("Tu portes l’armure d’un set équipé"));
+assert.ok(borneJoueur.includes("/api/idle/media/player?portrait=") && !borneJoueur.includes("Tu portes l’armure d’un set équipé"));
+assert.ok(!borneJoueur.includes("classList.toggle('off'"), "le sélecteur n'est plus jamais grisé");
+
+// Choix manuel (Norman, 2026-10-31) : « changer de portrait même avec toutes les pièces équipées »
+{
+  const env = { equippedSet: "training", completedSets: { training: true, sewers: true } };
+  const auto = idlePortraitsSnapshotV1("sewers", env, false, 0, false);
+  assert.equal(auto.manuel, false);
+  assert.equal(auto.auto.id, "training", "sans choix manuel : le portrait du set s'applique comme avant");
+  const manuel = idlePortraitsSnapshotV1("sewers", env, false, 0, true);
+  assert.equal(manuel.manuel, true);
+  assert.equal(manuel.selected, "sewers", "choix manuel : le portrait de l'état est le portrait choisi");
+  assert.equal(manuel.selectedFile, "PlayerAPportrait18");
+  assert.ok(manuel.auto && manuel.auto.id === "training", "le champ auto reste renvoyé (additif)");
+}
+{
+  const ctx = { bosses: 100, basicTrainingComplete: true };
+  const act = (s, p) => applyIdleNguAction(s, p, ctx, 1000);
+  const snap = (s) => idleNguSnapshot(s, ctx, 0).portraits;
+  let s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 0);
+  s.adventure.completedSets.training = true;
+  s.adventure.completedSets.sewers = true;
+  s.adventure.autoPortraitSet = "training";
+  assert.equal(snap(s).manuel, false);
+  assert.equal(snap(s).auto.id, "training", "set équipé sans choix : portrait du set");
+  s = act(s, { action: "portrait", id: "sewers" }).state;
+  assert.equal(s.records.portraitManuel, 1);
+  assert.equal(snap(s).manuel, true);
+  assert.equal(snap(s).selected, "sewers", "set équipé + choix manuel = portrait choisi");
+  s = normalizeIdleNguState(JSON.parse(JSON.stringify(s)), ctx, 0);
+  assert.equal(snap(s).manuel, true, "le choix manuel survit à la normalisation");
+  s = act(s, { action: "portrait", id: "auto" }).state;
+  assert.equal(s.records.portraitManuel, 0);
+  assert.equal(snap(s).manuel, false, "« auto » : retour au portrait du set");
+  assert.equal(snap(s).auto.id, "training");
+  assert.throws(() => act(s, { action: "portrait", id: "forest" }), /PORTRAIT_VERROUILLE/, "portrait verrouillé refusé même avec un set équipé");
+  assert.equal(s.records.portraitManuel, 0, "un refus ne pose pas de choix manuel");
+  assert.ok(!JSON.stringify(snap(s).list).includes('"forest"'), "aucun portrait verrouillé dans la liste");
+}
 
 // Emoji de repli : grand, centré, réglé selon le nombre de symboles
 assert.ok(ui.includes("function emojiRepliObjetIdleV1_(emoji)") && ui.includes("idle-emoji-fallback-v1"));

@@ -27,7 +27,7 @@ assert.ok(/\.mp3-titre-phrase\{[^}]*text-transform:uppercase/.test(css), "phrase
 // Yeux : 3 paires de 2 points, luminosité 25 % à 100 %, boucle parfaite
 assert.equal((page.match(/\[\d+\.\d+,\d+\.\d+,\d\.\d,-?[\d.]+\]/g) || []).length, 3, "3 paires d'yeux");
 assert.ok(page.includes('<i></i><i></i></span>'), "deux points par paire");
-assert.ok(/@keyframes mp3Yeux\{0%,100%\{opacity:\.25\}50%\{opacity:1\}\}/.test(css), "fondu 25 % à 100 %, même valeur à 0 % et 100 %");
+assert.ok(css.includes("animation:mp3Yeux .2s cubic-bezier(.2,.9,.3,1.25) 1 both") && !css.includes("mp3Yeux var(--p"), "yeux : apparition rapide une seule fois, puis fixes");
 
 // Puanteur : 5 volutes, fondu d'entrée et de sortie, un seul sens
 assert.equal((page.match(/\[\d+(\.\d)?,'#[0-9a-f]{6}',[\d.]+,-?[\d.]+,[\d.]+\]/g) || []).length, 5, "5 volutes");
@@ -45,5 +45,9 @@ assert.equal((meta.match(/__jeterOrSalveV1__\(/g) || []).length, 1, "un seul app
 // Règle n°4 : le bloc ajouté par le module porte data-morph-garder
 assert.ok(/c\.setAttribute\('data-morph-garder',''\)/.test(page), "salve data-morph-garder");
 
-assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:.8}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}"), "mouvement réduit coupé");
+assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}"), "mouvement réduit coupé");
+// Réalisme de la chute (Norman, 2026-10-31) : le bord inférieur du trou est au premier plan
+assert.ok(css.includes("pointer-events:none;clip-path:inset(0 0 34% 0)}"), "calque coupé au bord inférieur du trou");
+assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
+assert.ok(css.includes("100%{opacity:0;transform:scale(.08)}}"), "pièces dans le trou : rétrécissent et s'effacent");
 console.log("idle-trou-sans-fond-v1: OK");

@@ -24,14 +24,26 @@ const cpuFin = css.indexOf("===== Trou sans fond", cpuDebut);
 const cpu = css.slice(cpuDebut, cpuFin > cpuDebut ? cpuFin : undefined);   /* le bloc du Trou sans fond, ajouté après, a ses propres animations */
 const U = ".aug-piste-v2.upgrade";
 assert.ok(cpu.includes(U + "::before{") && cpu.includes("#eef2f8") && cpu.includes("mask-composite:xor"), "capot métallique sur le pourtour seulement");
-assert.ok(cpu.includes(U + "::after{") && cpu.includes("var(--pcb-acc,#e7b84e) 60%,#e7b84e) 0 4px") && cpu.includes("inset:-7px"), "broches dorées qui dépassent des bords");
+assert.ok(cpu.includes(U + "::after{") && cpu.includes("var(--pcb-acc,#e7b84e) 60%,#e7b84e) 2.5px 6.5px") && cpu.includes("inset:-7px"), "broches dorées qui dépassent des bords");
+/* Norman (2026-10-31) : « les dents du processeur sont mal placées » sur Bouclier d'énergie et Sabre laser à quatre côtés. Cause : les rangs 4 et 5 posent des équerres de coin (width/height 14 et 18 px, bordure, filtre) sur ::before/::after de la piste (soreal-idle-themes.css) et le calque du processeur
+   n'en remettait pas la taille à zéro : il se réduisait à une équerre dans l'angle. Les deux pseudo-éléments reprennent donc taille, bordure et filtre ; les broches sont en nombre entier, centrées entre les coins (round), sans motif coupé. */
+for (const pseudo of ["::before{", "::after{"]) {
+  const regle = cpu.slice(cpu.indexOf(U + pseudo), cpu.indexOf("}", cpu.indexOf(U + pseudo)));
+  assert.ok(regle.includes("width:auto;height:auto;border:0;filter:none;"), "le calque du processeur " + pseudo + " annule les équerres de rang 4 et 5");
+}
+const themes = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
+assert.ok(/data-rang-v1="5"\]::after\{[^}]*width:18px/.test(themes), "les équerres de rang qui motivent la remise à zéro existent toujours");
+assert.equal(cpu.split("round(down,calc(100% - 34px),9px)").length - 1, 6, "4 rangées de broches sur ordinateur (2 sur téléphone), en nombre entier");
+assert.ok(!cpu.includes("0 4px,transparent 4px 9px"), "plus de motif de broches qui se coupe à l'arbitraire au bout du côté");
 assert.ok(cpu.includes("circle at 50% 7px") && cpu.includes("circle at 10px 10px"), "encoche et point repère");
 assert.ok(cpu.includes("#161a2a 2px 12px"), "condensateurs");
 assert.ok(cpu.includes("@media (max-width:700px)"), "broches réduites sur téléphone");
 assert.ok(!cpu.includes("!important") && !/animation:(?!none)|@keyframes/.test(cpu), "statique, sans !important");
 console.log("ok idle-augmentations-processeur-v1");
 /* Norman (2026-10-31) : pour 2 barres, UN SEUL circuit imprimé + UN processeur ; le titre n'a plus de cadre, l'Augment n'a plus de cadre plein. */
-const un = css.slice(css.indexOf("UN SEUL circuit imprimé"));
+const unDebut = css.indexOf("UN SEUL circuit imprimé");
+const unFin = css.indexOf("===== Trou sans fond", unDebut);
+const un = css.slice(unDebut, unFin > unDebut ? unFin : undefined);   /* bornée : les blocs ajoutés après (Trou sans fond, roue) ont leurs propres tests */
 assert.ok(!css.includes(".aug-carte-tete") && !js.includes("aug-carte-tete") && !js.includes("aug-pastilles"), "bande supérieure (icône + titre + pastilles Boss / Amélioration) supprimée");
 assert.ok(css.includes(".aug-nom-piste-v2{font:900 clamp(19px,2.2vw,26px)"), "titre de colonne agrandi");
 assert.ok(un.includes(".aug-piste-v2:not(.upgrade){border:2px dashed rgba(255,255,255,.3);border-radius:6px}"), "piste d'Augment posée sur le circuit, contour de sérigraphie");

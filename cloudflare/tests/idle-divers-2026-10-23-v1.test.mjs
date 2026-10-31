@@ -246,7 +246,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
 {
   const n = lire("cloudflare/public/modules/chronique-notes-notice-v1.js"), t = lire("cloudflare/public/modules/tutorial-tts-v202.js"), a = lire("cloudflare/public/modules/audio-effects-v199.js"), fd = lire("cloudflare/public/modules/fade-notice-v1.js");
   assert.ok(n.includes("function titreDe(texte)") && n.includes("'👹 Titans'") && n.includes("'🗺️ Aventure'") && !n.includes("Chronique du boss',"));
-  assert.ok(t.includes("if(chroniqueBossIdEnCours&&force){"));
+  assert.ok(!t.includes("__ouvrirChroniqueIdleV1__(true)"));   /* 2026-10-31 : « Écouter » ne lance que l'audio, la carte ne s'ouvre plus */
   assert.ok(a.includes("function chroniqueNote_()") && a.includes('chroniqueNote:{group:"achievement"') && a.includes('chroniqueNote:function(){return demander_("chroniqueNote");}'));
   assert.ok(fd.includes("*1.3)"));
   const inv = lire("cloudflare/src/idle-adventure-inventaire.js"), u = lire("cloudflare/public/modules/ui-aventure-2-v1.js"), p = lire("cloudflare/public/modules/ui-popups-v1.js");
