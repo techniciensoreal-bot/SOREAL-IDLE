@@ -77,7 +77,7 @@ assert.equal(pc.boite, null, "aucun volet sur ordinateur");
 /* Norman (2026-10-11) : une barre de défilement INCRUSTÉE à droite de l'inventaire : les cadres se rétrécissent (marges de la page récupérées), la barre est une vraie colonne, collée sous le bandeau, qui fait défiler la page sans attraper de pièce. */
 const i = css.indexOf("Barre de défilement de l'inventaire sur téléphone");
 assert.ok(i > 0, "barre de défilement présente");
-const barre = css.slice(i);
+const barre = css.slice(i, css.indexOf("Notes de mise à jour en police de BD", i));
 assert.ok(barre.includes("@media (max-width:700px){") && barre.includes("grid-template-columns:minmax(0,1fr) 30px") && barre.includes("margin-left:-11px!important;margin-right:-11px!important"), "grille à deux colonnes : cadres à gauche, barre à droite, marges récupérées");
 assert.ok(barre.includes("[data-volet]::after{content:\"\";grid-column:2;grid-row:1/span 2;") && barre.includes("position:sticky;top:calc(var(--inv-haut,191px) + 8px)") && barre.includes("touch-action:pan-y"), "vraie colonne collée sous le bandeau, défilement vertical natif");
 assert.ok(!/pointer-events:s*none/.test(barre), "la barre reçoit bien le doigt");
