@@ -13,7 +13,7 @@
 if(window.__SOREAL_IDLE_ENTETE_MENU_V1__)return;
 var dernier={h4:null,vide:null};
 var PHRASES={
-  combat:'Affronte les boss de la borne d’arcade.',
+  combat:'',   /* Norman (2026-10-31) : le cadre de Combat de boss n'a que son titre, sans mini phrase */
   aventure:'Pars en zone, combats des ennemis et ramène du butin.',
   machine:'Accélère et multiplie la production d’énergie et de magie.',
   ngu:'Eh, c’est le nom du jeu original !',
@@ -47,8 +47,8 @@ function creerEntete(racine,menu,nom){
   var e=document.createElement('div');
   e.className='soreal-idle-page-head-v28';e.setAttribute('data-morph-garder','');e.setAttribute('data-entete-genere',menu);
   var t=document.createElement('div');t.className='soreal-idle-page-title-v28';t.textContent=nom;
-  var s=document.createElement('div');s.className='soreal-idle-page-sub-v28';s.textContent=PHRASES[menu];
-  e.appendChild(t);e.appendChild(s);
+  e.appendChild(t);
+  if(PHRASES[menu]){var s=document.createElement('div');s.className='soreal-idle-page-sub-v28';s.textContent=PHRASES[menu];e.appendChild(s);}
   racine.insertBefore(e,racine.firstChild);
   return e;
 }
@@ -66,7 +66,7 @@ function marquer(){
     }else{
       if(genere&&genere.getAttribute('data-entete-genere')!==menu){genere.parentNode.removeChild(genere);genere=null;}   /* la page a changé */
       var nom=nomDuMenu();
-      if(!genere&&PHRASES[menu]&&nom)genere=creerEntete(racine,menu,nom);
+      if(!genere&&PHRASES[menu]!=null&&nom)genere=creerEntete(racine,menu,nom);
       if(genere){
         var tt=genere.querySelector('.soreal-idle-page-title-v28');
         if(nom&&tt&&tt.textContent!==nom)tt.textContent=nom;

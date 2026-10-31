@@ -950,7 +950,7 @@
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+'"><div class="aug-carte-tete"><b class="aug-nom">'+(IDLE_ICONES_AUGMENTS_V1[def.id]?'<i class="aug-icone">'+IDLE_ICONES_AUGMENTS_V1[def.id]+'</i>':'')+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id)+'</b><span class="aug-pastilles"><em>Boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+'</em>'+(upgradeOk?'<em>Upgrade '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade.unlockBoss||0)+'</em>':'')+'</span></div>'+'<div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
+              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+'"><div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
             }).join('')+'</div>';
           })();
       }

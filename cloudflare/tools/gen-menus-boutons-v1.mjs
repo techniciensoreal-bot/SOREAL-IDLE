@@ -242,8 +242,27 @@ for (const id of MENUS) {
   if (ti["font-family"]) regles.push(`font-family:${ti["font-family"]}`);
   out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-texte-v2 b{${regles.join(";")}}`);
   const md = sp.md || sp.m, td = sp.td || sp.t, ease = sp.m === "spin" ? "linear" : "ease-in-out", easeD = md === "spin" ? "linear" : "ease-in-out";
-  out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${ease} infinite}`);
+  if (id === "entrainement") {
+    /* Entraînement (Norman, 2026-10-31) : le petit bouton reprend les mouvements du grand cadre, UNIQUEMENT quand le menu travaille (.travail-v1) : la barre de l'haltère monte et descend (cycle 2,4 s), le gant frappe de droite à gauche (un coup toutes les 1,8 s : coup rapide, retour lent, pause). Boucles parfaites (0 % = 100 %), mêmes courbes que le grand cadre. */
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_halte 2.4s linear infinite}`);
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_frappe 1.8s linear infinite}`);
+    continue;
+  }
+  /* ITOPOD (Norman, 2026-10-31) : la grande tour de gauche MONTE À L'INFINI : sa texture (étages de 33,3333 % de la hauteur, répétés) descend d'exactement UN étage par cycle, donc 100 % = 0 % visuellement (boucle parfaite, vitesse constante) et on a l'impression de grimper. Seulement quand le menu travaille. */
+  if (id === "tower") out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_monte 2.4s linear infinite}`);
+  else out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${ease} infinite}`);
   out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_${md} ${td}s ${easeD} infinite;animation-delay:-${(td / 2).toFixed(2)}s${md === "spin" ? ";animation-direction:reverse" : ""}}`);
+}
+{
+  const lisse = (x) => x * x * (3 - 2 * x);
+  const coup = (p) => (p < 0.2 ? Math.sqrt(p / 0.2) : p < 0.3 ? 1 : p < 0.8 ? 1 - lisse((p - 0.3) / 0.5) : 0); /* même courbe que le grand cadre */
+  const f = (v) => String(Math.round(v * 100) / 100).replace(/^-0$/, "0");
+  const halte = [], frappe = [];
+  for (let k = 0; k <= 24; k++) halte.push(`${f(k * 100 / 24)}%{transform:translateY(${f(10 * Math.cos(2 * Math.PI * k / 24))}%)}`);
+  for (let k = 0; k <= 18; k++) frappe.push(`${f(k * 100 / 18)}%{transform:translateX(${f(-40 * coup(k / 18))}cqh)}`);
+  MOUVEMENTS.halte = halte.join("");
+  MOUVEMENTS.frappe = frappe.join("");
+  MOUVEMENTS.monte = "0%{background-position:0 0}100%{background-position:0 33.3333cqh}";
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n}\n`);

@@ -103,9 +103,13 @@ for (const line of sansCom.split("\n").filter((l) => l.startsWith("@keyframes"))
   assert.ok(m, "keyframes illisible : " + line.slice(0, 60));
   noms.push(m[1]);
   const c = m[2];
+  if (m[1] === "nbV1_halte" || m[1] === "nbV1_frappe") { const im = [...c.matchAll(/([\d.]+)%\{transform:([^}]*)\}/g)]; assert.ok(im.length > 10 && im[0][1] === "0" && im[im.length - 1][1] === "100" && im[0][2] === im[im.length - 1][2], `${m[1]} : boucle parfaite (0 % = 100 %)`); continue; }
+  /* ITOPOD : la tour monte à l'infini : la texture glisse d'EXACTEMENT un étage (le tiers de la hauteur = la période du motif) par cycle, vitesse constante */
+  if (m[1] === "nbV1_monte") { assert.equal(c, "0%{background-position:0 0}100%{background-position:0 33.3333cqh}", "monte : un étage exactement"); continue; }
   assert.ok(/^0%,100%\{[^}]*\}50%\{[^}]*\}$/.test(c) || c === "from{transform:rotate(0)}to{transform:rotate(360deg)}", `${m[1]} : n'est pas une boucle parfaite : ${c.slice(0, 60)}`);
 }
 assert.ok(noms.length >= 4 && kfs.length >= 0);
+assert.ok(/\[data-menu-id-v1="tower"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:nbV1_monte 2\.4s linear infinite\}/.test(sansCom) && /\.nb-g\{[^}]*repeat-y/.test(sansCom.slice(sansCom.indexOf('[data-menu-id-v1="tower"] .soreal-idle-nav-deco-v1 .nb-g{'))), "ITOPOD : la tour de gauche monte à l'infini (texture répétée, un étage par cycle)");
 for (const m of sansCom.matchAll(/animation:(nbV1_[a-z]+) ([\d.]+)s (linear|ease-in-out) infinite/g)) {
   assert.ok(noms.includes(m[1]), `${m[1]} : keyframes absent`);
   if (m[1] === "nbV1_spin") assert.equal(m[3], "linear", "la rotation complète est linéaire (aucun à-coup)");
@@ -235,5 +239,18 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   assert.ok(/prefers-reduced-motion:reduce\)\{[^\n]*data-menu="entrainement"[^\n]*::before\{animation:none\}/.test(gros), "mouvement réduit coupé");
   /* le petit bouton montre le même gant */
   assert.ok(sansCom.includes('id%3D%22gant%22'), "le bouton Entraînement montre le même gant");
+}
+/* Petit bouton Entraînement : mêmes mouvements que le grand cadre, seulement quand le menu travaille ; coupés en mouvement réduit par la règle générale du fichier */
+{
+  const B = sansCom;
+  assert.ok(B.includes('[data-menu-id-v1="entrainement"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_halte 2.4s linear infinite}'), "haltère du bouton : la barre monte et descend (2,4 s) au travail");
+  assert.ok(B.includes('[data-menu-id-v1="entrainement"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_frappe 1.8s linear infinite}'), "gant du bouton : un coup toutes les 1,8 s au travail");
+  const kf = (n) => [...B.match(new RegExp("@keyframes nbV1_" + n + "\\{(.*)\\}"))[1].matchAll(/([\d.]+)%\{transform:([^}]*)\}/g)].map((m) => m[2]);
+  const h = kf("halte"), g = kf("frappe");
+  assert.equal(h.length, 25); assert.equal(g.length, 19);
+  assert.ok(new Set(h).size > 5 && new Set(g).size > 5, "ça bouge");
+  const x = g.map((v) => Number(v.match(/translateX\((-?[\d.]+)cqh/)[1]));
+  assert.ok(Math.min(...x) < -30 && x[0] === 0 && x[1] < x[0] && x.slice(-3).every((v) => v === 0), "le gant part vers la gauche (coup rapide), revient, pause");
+  assert.ok(!/entrainement"\]\.active[^{]*\{[^}]*animation/.test(B), "jamais du seul fait d'être ouvert");
 }
 console.log("ok idle-menus-boutons-cadres-v1");

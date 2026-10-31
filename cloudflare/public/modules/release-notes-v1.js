@@ -39,13 +39,24 @@
             'Application Android : après avoir choisi la partie du compte, l’écran « deux parties » ne revient plus à chaque lancement.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
-            'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.'
+            'Le titre du menu : l’haltère à gauche, coupée par le bord, avec sa barre qui monte et descend ; le gant de boxe à droite, qui frappe de droite à gauche.',
+            'Le petit bouton du menu reprend les mêmes animations quand le menu travaille : la barre de l’haltère monte et descend, le gant frappe.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les compteurs d’Auto Merge et d’Auto Boost ne reculent plus, et le sac se met à jour tout de suite après un Auto Boost.'
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
-            'Chaque augmentation est maintenant posée sur sa propre carte électronique de couleur, avec un processeur pour son amélioration.'
+            'Chaque augmentation est maintenant posée sur sa propre carte électronique de couleur, avec un processeur pour son amélioration.',
+            'Le cadre de chaque paire est plus court : la bande du haut est supprimée et les noms des deux augmentations sont plus grands.'
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Le cadre de titre n’affiche plus que son titre, sans phrase en dessous.'
+          ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'Un clic sur un bocal ouvre maintenant une fenêtre d’information aux couleurs de la page, et les bocaux sont un peu plus grands.'
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Sur le petit bouton du menu, la grande tour de gauche monte à l’infini quand le menu travaille.'
           ]}
         ]
       },

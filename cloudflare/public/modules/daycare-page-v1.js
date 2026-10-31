@@ -21,10 +21,11 @@
 
   /* Choix d'un objet du sac pour un récipient vide : état de page seulement (un clic le rouvre). */
   let choixOuvert=false;
+  let derniereD=null,derniersTotaux=null;
   let repriseId=null;   /* bocal occupé sur lequel on a cliqué : le panneau « Reprendre ? » est affiché */
   /* Les 6 places de l'armoire (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. */
   const PLACES=[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]];
-  const SOLS=[46.8,65.2,82.0],HAUT_POT=11.0,LARG_POT=10.5,CENTRES=[36,63],AXE=47.6;
+  const SOLS=[46.8,65.2,82.0],HAUT_POT=13.8,LARG_POT=13.2,CENTRES=[36,63],AXE=47.6;
   const CLE_ONGLET='soreal_idle_sac_onglet_v1',CLE_PLACES='soreal_idle_garderie_places_v1';
   const poses={};                                     /* indice du bocal -> instant de sa pose animée (le temps que l'animation joue, même si la page est redessinée) */
   /* Repère de progression de chaque objet : (progression, niveau, vitesse) reçus du moteur + instant de réception. Même contenu = même repère. */
@@ -204,18 +205,10 @@
         '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Vitesse (non rétroactive) : équipement ×'+pct(sp.gear||1)+' · Fibonacci ×'+pct(sp.fibonacci||1)+' · souhait ×'+pct(sp.wish||1)+' · Blind Evil ×'+pct(sp.blindEvil||1)+' · Blind Sadistic ×'+pct(sp.blindSadistic||1)+' · Digger ×'+pct(sp.digger||1)+' · Hack ×'+pct(sp.hack||1)+'</div>'+
         '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Emplacements : boutique EXP '+H.idleEntier_(ss.expShop||0)+' · Blind Normal '+H.idleEntier_(ss.blindNormal||0)+' · Troll Evil '+H.idleEntier_(ss.trollEvil||0)+' · perk '+H.idleEntier_(ss.perk||0)+'</div>'+
       '</details>';
-    const R2=repriseId==null?null:cases.filter(function(c){return c.id!=null&&String(c.id)===String(repriseId);})[0];
-    /* Reprendre un objet : clic sur son bocal ; l'avancée vers le niveau suivant est perdue, le panneau le dit avant (Norman, 2026-10-30) */
-    const reprise=R2
-      ?'<div class="soreal-idle-section-v8 gd-choix-cadre gd-reprise"><div class="soreal-idle-window-title-v31">Reprendre « '+H.idleHtml_(R2.nom)+' » ?</div>'+
-        '<div class="gd-reprise-txt">Placé au niv. <b>'+H.idleEntier_(R2.depart)+'</b>, il est maintenant au niv. <b class="gd-vert">'+H.idleEntier_(R2.niveau)+'</b> (il garde ses niveaux gagnés) · l’avancée actuelle vers le niveau suivant ('+pct(R2.progression)+') sera perdue.</div>'+
-        '<div class="gd-reprise-btns"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieConfirmerV1__(\''+H.idleHtml_(R2.id)+'\')">Reprendre l’objet</button> '+
-        '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieReprendreV1__(null)">Annuler</button></div></div>'
-      :'';
-    const choix=(libres>0&&choixOuvert)
-      ?'<div class="soreal-idle-section-v8 gd-choix-cadre"><div class="soreal-idle-window-title-v31">Choisis un objet du sac</div>'+listeSac(d)+
-        '<div style="margin-top:8px"><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__garderieChoisirV1__()">Annuler</button></div></div>'
-      :'';
+    /* Reprendre / choisir un objet : popup au-dessus de la page (Norman, 2026-10-31), plus de panneau sous le cadre. */
+    derniereD=d;derniersTotaux={libres:libres};
+    if(repriseId!=null&&!objets.some(function(x){return x&&x.item&&String(x.item.id)===String(repriseId);}))repriseId=null;
+    if(libres<=0)choixOuvert=false;
     demarrer();
     return '<div class="soreal-idle-section-v8" id="soreal-idle-garderie-section"><div class="gd-plein">'+
       '<div class="gd-cadre"><div class="gd-haut">'+onglets(j)+
@@ -228,7 +221,7 @@
       '</div></div>'+
       '<div class="gd-intro">Mamie l’armoire fait gagner des niveaux à tes objets avec le temps, même hors ligne : quand le liquide atteint le haut du bocal, l’objet prend 1 niveau. Un seul exemplaire de chaque objet ; niveau maximum 100. Un objet en garderie ne peut pas être fusionné ni équipé.</div>'+
       resume+detail+
-      '</div><div class="gd-sous">'+reprise+choix+'</div></div>';
+      '</div></div>';
   }
 
   /* L'étagère parle (modules/etagere-personnage-v1.js, phrases « phrases:etagere ») : {D} on lui confie un objet, {M} objet maxé, {P} plus de place. Seulement quand la garderie est débloquée (règle n°2). */
@@ -262,7 +255,7 @@
   function apresDepotMaxe(){if(disponible(REG_().idleEtat))parler('daycare:max');}
 
   function daycareIdleV1_(action,itemId){
-    choixOuvert=false;repriseId=null;
+    choixOuvert=false;repriseId=null;majPopup();
     if(action==='daycarePlace'){
       const it=objetDuSac(itemId),mode=it&&it.fullyMaxed?'daycare:max':'daycare';
       /* La phrase attend que l'objet ait quitté le sac (page redessinée avec la réponse du moteur) : sinon le redessin effacerait la bulle. */
@@ -274,19 +267,94 @@
   }
   window.__daycareIdleV1__=daycareIdleV1_;
   window.__garderieOngletV1__=function(onglet){
-    choixOuvert=false;repriseId=null;
+    choixOuvert=false;repriseId=null;majPopup();
     stockage(CLE_ONGLET,onglet==='garderie'?'garderie':'sac');
     try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
   };
   window.__garderieReprendreV1__=function(id){
     repriseId=(id==null||String(repriseId)===String(id))?null:String(id);choixOuvert=false;
-    try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
+    majPopup();
   };
-  window.__garderieConfirmerV1__=function(id){repriseId=null;daycareIdleV1_('daycareRemove',String(id));};
+  window.__garderieConfirmerV1__=function(id){repriseId=null;majPopup();daycareIdleV1_('daycareRemove',String(id));};
   window.__garderieChoisirV1__=function(){
     choixOuvert=!choixOuvert;repriseId=null;
-    try{const H=H_();if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();}catch(_e){}
+    majPopup();
   };
+
+  /* POPUP informatif (aux couleurs de la Garderie) : bloc ajouté à <body>, donc jamais retiré par le morph de la page (règle n°4). Son squelette ne change que si le contenu change ; les
+     valeurs vivantes (niveau actuel, avancée) sont réécrites sur place à chaque image sans toucher au reste : aucun clignotement. Fermeture : croix, clic dehors, Échap. */
+  let popupHtml='';
+  function popupContenu(){
+    const H=H_();
+    if(repriseId!=null&&derniereD){
+      const o=(Array.isArray(derniereD.items)?derniereD.items:[]).filter(function(x){return x&&x.item&&String(x.item.id)===String(repriseId);})[0];
+      if(!o)return null;
+      const it=o.item||{};
+      const depart=o.levelAtEntry!=null?o.levelAtEntry:it.level;
+      return '<div class="gd-pop-titre">Reprendre « '+H.idleHtml_(it.name||it.definitionId||'Objet')+' » ?</div>'+
+        '<div class="gd-reprise-txt">Placé au niv. <b>'+H.idleEntier_(depart)+'</b>, il est maintenant au niv. <b class="gd-vert" data-gd-pop-niv="1">'+H.idleEntier_(it.level)+'</b> (il garde ses niveaux gagnés) · l’avancée actuelle vers le niveau suivant (<span data-gd-pop-prog="1"></span>) sera perdue.</div>'+
+        '<div class="gd-reprise-btns"><button type="button" class="gd-pop-btn" onclick="window.__garderieConfirmerV1__(\''+H.idleHtml_(it.id)+'\')">Reprendre l’objet</button> '+
+        '<button type="button" class="gd-pop-btn gd-pop-sec" onclick="window.__garderieReprendreV1__(null)">Annuler</button></div>';
+    }
+    if(choixOuvert&&derniereD&&derniersTotaux&&derniersTotaux.libres>0){
+      return '<div class="gd-pop-titre">Choisis un objet du sac</div>'+listeSac(derniereD)+
+        '<div class="gd-reprise-btns" style="margin-top:10px"><button type="button" class="gd-pop-btn gd-pop-sec" onclick="window.__garderieChoisirV1__()">Annuler</button></div>';
+    }
+    return null;
+  }
+  function fermerPopup(){
+    if(repriseId==null&&!choixOuvert)return;
+    repriseId=null;choixOuvert=false;majPopup();
+  }
+  function majPopup(){
+    if(typeof document==='undefined'||!document.body)return;
+    let contenu=null;
+    if(document.getElementById('soreal-idle-garderie-section'))contenu=popupContenu();
+    else{repriseId=null;choixOuvert=false;}
+    let fond=document.getElementById('gd-popup-fond');
+    /* boutons des bocaux vides : bascule de l'état « ouvert » sans redessiner la page */
+    const vides=document.querySelectorAll('.gd-vide');
+    for(let i=0;i<vides.length;i+=1)vides[i].classList.toggle('ouvert',Boolean(choixOuvert));
+    if(contenu==null){
+      popupHtml='';
+      if(fond)fond.remove();
+      return;
+    }
+    css();
+    if(!fond){
+      fond=document.createElement('div');
+      fond.id='gd-popup-fond';
+      fond.className='gd-popup-fond';
+      fond.setAttribute('role','dialog');fond.setAttribute('aria-modal','true');
+      fond.innerHTML='<div class="gd-popup"><button type="button" class="gd-pop-x" aria-label="Fermer">×</button><div class="gd-pop-corps"></div></div>';
+      fond.addEventListener('click',function(ev){if(ev.target===fond)fermerPopup();});
+      fond.querySelector('.gd-pop-x').addEventListener('click',fermerPopup);
+      document.body.appendChild(fond);
+      popupHtml='';
+    }
+    if(popupHtml!==contenu){
+      popupHtml=contenu;
+      fond.querySelector('.gd-pop-corps').innerHTML=contenu;
+    }
+    majPopupVivant();
+  }
+  /* valeurs vivantes du popup de reprise : réécrites sur place, seulement si elles changent */
+  function majPopupVivant(){
+    if(repriseId==null)return;
+    const fond=document.getElementById('gd-popup-fond');
+    if(!fond)return;
+    const liste=document.querySelectorAll('.gd-bocal[data-gd-id]');
+    let b=null;
+    for(let i=0;i<liste.length;i+=1)if(liste[i].getAttribute('data-gd-id')===String(repriseId)){b=liste[i];break;}
+    if(!b)return;
+    const rep={p:parseFloat(b.getAttribute('data-gd-p'))||0,lv:parseInt(b.getAttribute('data-gd-lv'),10)||0,r:parseFloat(b.getAttribute('data-gd-r'))||0,t0:parseFloat(b.getAttribute('data-gd-t0'))||Date.now(),max:b.getAttribute('data-gd-max')==='1'?1:0};
+    const e=etatA(rep,Date.now());
+    const n=fond.querySelector('[data-gd-pop-niv]');
+    if(n&&n.textContent!==String(e.niveau))n.textContent=String(e.niveau);
+    const pr=fond.querySelector('[data-gd-pop-prog]');
+    if(pr){const t=H_().formatGrandNombreIdleV70_(e.p*100,2)+' %';if(pr.textContent!==t)pr.textContent=t;}
+  }
+  if(typeof document!=='undefined'&&document.addEventListener)document.addEventListener('keydown',function(ev){if(ev.key==='Escape')fermerPopup();});
 
   /* Animation : la hauteur du liquide suit le temps (progression + vitesse du moteur) ; la boucle s'arrête d'elle-même quand plus aucun récipient n'est affiché. */
   let boucle=0;
@@ -304,6 +372,7 @@
       const n=nn||null;
       if(n&&n.textContent!==String(e.niveau))n.textContent=String(e.niveau);
     }
+    majPopupVivant();
     return liste.length;
   }
   function pas(){
@@ -320,7 +389,7 @@
     vide=0;
     if(!boucle&&typeof requestAnimationFrame==='function')boucle=requestAnimationFrame(pas);
   }
-  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{if(appliquer()>0)demarrer();}catch(_e){}});
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{majPopup();if(appliquer()>0)demarrer();}catch(_e){}});
 
   function css(){
     if(typeof document==='undefined'||!document.head||document.getElementById('gd-style-v1'))return;
@@ -347,7 +416,6 @@
       '.gd-scene>.gd-armoire{position:absolute;left:13.5%;width:73%;max-width:none;bottom:0;margin:0}',
       '.gd-plein>.gd-intro,.gd-plein>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28,.gd-plein>details,.gd-plein>.gd-choix-cadre{background:rgba(16,8,2,.72);border-radius:10px}.gd-plein>.gd-intro{padding:8px 10px;color:#f1e4c6}',
       /* PC (Norman, 2026-10-30 : « l'armoire est trop petite : zoome le décor, mets les informations sur les côtés, l'armoire sur l'OMBRE ; l'emplacement est primordial ») : le cadre a le rapport 4:3 ; le décor (1564 x 1006, ombre du plancher centrée en 800, 712) est agrandi de 1,515 fois et décalé pour que l'ombre tombe EXACTEMENT sous les pieds de l'armoire (centre 50 % x 92 % du cadre) ; l'armoire fait 40 % de la largeur du cadre ; titre et texte à gauche, résumé et détail à droite. */
-      '.gd-sous{padding:12px 18px 18px}.gd-sous:empty{display:none}',
       '@media (min-width:900px){.gd-plein{container-type:inline-size;margin:0;aspect-ratio:4/3;min-height:0;padding:0;background:none}.gd-plein::before{content:"";position:absolute;inset:0;z-index:0;background:url(/garderie/fond-grenier-pc-v2.webp?v=2) -27.5cqw 0/151.5cqw auto no-repeat}.gd-cadre,.gd-haut{display:contents}.gd-haut .gd-onglets{position:absolute;z-index:3;top:18px;left:18px;right:18px;margin:0}.gd-haut .gd-titre{position:absolute;z-index:3;top:74px;left:18px;width:calc(28cqw - 18px);margin:0;justify-content:flex-start;font-size:21px;white-space:nowrap;box-sizing:border-box;padding:5px 10px;border-radius:10px;background:rgba(16,8,2,.72)}.gd-scene{position:absolute;inset:0;z-index:2;max-width:none;aspect-ratio:auto;margin:0}.gd-scene::after{display:none}.gd-scene>.gd-armoire{left:30%;width:40%;bottom:5.33%}.gd-plein>.gd-intro{position:absolute;z-index:3;top:112px;box-sizing:border-box;left:18px;width:calc(28cqw - 18px);margin:0;text-align:left}.gd-plein>.soreal-idle-summary-grid-v28{position:absolute;z-index:3;top:76px;right:18px;width:calc(28cqw - 18px);grid-template-columns:1fr;gap:6px;margin:0}.gd-plein>details{position:absolute;z-index:3;top:262px;right:18px;width:calc(28cqw - 18px);box-sizing:border-box;margin:0}}',
       /* l'armoire : cadre à rapport fixe (la mise en page ne bouge jamais), image en fond, tout le reste en pourcentages de l'image */
       '.gd-armoire{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:768/1152;container-type:inline-size}',
@@ -394,6 +462,15 @@
       '@keyframes gd-pose-note{0%{opacity:0}60%{opacity:0}100%{opacity:1}}',
       '@keyframes gd-onde{from{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}to{-webkit-mask-position:50cqw 0,0 100%;mask-position:50cqw 0,0 100%}}',
       '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-pose,.gd-pose-note,.gd-fig{animation:none}}',
+      /* popup de la Garderie : teintes menthe / vert sombre de la page, au-dessus de tout (fond assombri) */
+      '.gd-popup-fond{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(4,12,9,.68)}',
+      '.gd-popup{position:relative;box-sizing:border-box;width:min(460px,100%);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;padding:18px 16px 16px;border-radius:14px;color:#eefcf5;background:linear-gradient(180deg,#2f4339,#1b2621);border:2px solid #a8f0cc;box-shadow:0 0 0 1px #000,0 16px 40px rgba(0,0,0,.65),inset 0 0 22px rgba(168,240,204,.18)}',
+      '.gd-pop-x{position:absolute;top:6px;right:8px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(168,240,204,.6);background:rgba(0,0,0,.35);color:#eefcf5;font:400 22px/1 system-ui,sans-serif;cursor:pointer;padding:0}',
+      '.gd-pop-titre{margin:0 34px 10px 0;font:400 22px/1.15 "Bangers","Russo One",system-ui,sans-serif;letter-spacing:.04em;color:#a8f0cc;text-shadow:0 2px 0 #0e1a14}',
+      '.gd-pop-btn{padding:9px 14px;border-radius:10px;border:1px solid #1f6b4d;background:linear-gradient(180deg,#a8f0cc,#4fb88a 60%,#2f8a64);color:#07261a;font:400 15px/1.1 "Russo One",system-ui,sans-serif;cursor:pointer}',
+      '.gd-pop-sec{background:linear-gradient(180deg,#4c6c5c,#2f4339);color:#eefcf5;border-color:#a8f0cc}',
+      '.gd-popup .gd-choix-objet{border-color:rgba(168,240,204,.35);background:rgba(168,240,204,.08)}',
+      '.gd-popup .gd-reprise-txt{color:#eefcf5}',
       '.gd-choix{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}',
       '.gd-choix-cadre{margin-top:12px}',
       '.gd-choix-objet{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:inherit;font:inherit;cursor:pointer;min-width:0}',

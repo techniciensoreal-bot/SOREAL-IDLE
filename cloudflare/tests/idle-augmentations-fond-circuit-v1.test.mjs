@@ -29,7 +29,8 @@ assert.ok(!cpu.includes("!important") && !/animation:(?!none)|@keyframes/.test(c
 console.log("ok idle-augmentations-processeur-v1");
 /* Norman (2026-10-31) : pour 2 barres, UN SEUL circuit imprimé + UN processeur ; le titre n'a plus de cadre, l'Augment n'a plus de cadre plein. */
 const un = css.slice(css.indexOf("UN SEUL circuit imprimé"));
-assert.ok(un.includes(".aug-carte-tete{border-bottom:2px dashed rgba(255,255,255,.26)}"), "titre sans cadre : un simple trait de sérigraphie");
+assert.ok(!css.includes(".aug-carte-tete") && !js.includes("aug-carte-tete") && !js.includes("aug-pastilles"), "bande supérieure (icône + titre + pastilles Boss / Amélioration) supprimée");
+assert.ok(css.includes(".aug-nom-piste-v2{font:900 clamp(19px,2.2vw,26px)"), "titre de colonne agrandi");
 assert.ok(un.includes(".aug-piste-v2:not(.upgrade){border:2px dashed rgba(255,255,255,.3);border-radius:6px}"), "piste d'Augment posée sur le circuit, contour de sérigraphie");
 assert.ok(!un.includes("!important"), "aucun !important");
 assert.ok(bloc.includes("radial-gradient(circle,#05080d 0 2.2px,#e7b84e 2.6px 4.4px"), "trous de fixation de la carte");
