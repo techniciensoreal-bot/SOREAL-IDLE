@@ -510,6 +510,29 @@ function ouvrirFenetre() {
       for (const ms of [150, 600]) setTimeout(() => { if (fenetre && !fenetre.isDestroyed() && fenetre.isFocused()) repeindre(); }, ms);
     };
     for (const evenement of ["focus", "restore", "leave-full-screen"]) fenetre.on(evenement, rafale);
+    /*
+     * Le jeu clignote encore NOIR tant que l'interface Steam est ouverte, en plein écran comme en fenêtre, puis reste noir une demi-seconde à sa fermeture (Norman, 2026-10-31) : les animations de la page (aurores, braises, lumières de la borne…) soumettent une image à chaque rafraîchissement
+     * alors que Steam intercepte la présentation pour dessiner sa superposition, d'où des images noires. Tant que la fenêtre n'a PAS le focus (la superposition le prend), les animations CSS et les calques de dessin sont donc GELÉS (aucune nouvelle image à présenter : l'écran reste stable
+     * sous la superposition, qui assombrit déjà le jeu) ; au retour du focus le gel est retiré AVANT la repeinture (plus d'attente d'une demi-seconde). Le moteur du jeu, lui, continue de tourner.
+     */
+    let gele = false, cleGel = null;
+    const CSS_GEL = "*,*::before,*::after{animation-play-state:paused!important;transition:none!important}canvas{visibility:hidden!important}";
+    const geler = async () => {
+      if (gele || !fenetre || fenetre.isDestroyed()) return;
+      gele = true;
+      try {
+        const cle = await fenetre.webContents.insertCSS(CSS_GEL);
+        if (gele) cleGel = cle; else await fenetre.webContents.removeInsertedCSS(cle);   /* le focus est revenu pendant l'insertion */
+      } catch (_e) { /* fenêtre fermée */ }
+    };
+    const degeler = async () => {
+      gele = false;
+      const cle = cleGel; cleGel = null;
+      try { if (cle && fenetre && !fenetre.isDestroyed()) await fenetre.webContents.removeInsertedCSS(cle); } catch (_e) { /* fenêtre fermée */ }
+      repeindre();
+    };
+    fenetre.on("blur", geler);
+    fenetre.on("focus", degeler);
   }
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });
