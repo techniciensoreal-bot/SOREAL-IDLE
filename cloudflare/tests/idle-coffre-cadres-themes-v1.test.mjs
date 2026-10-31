@@ -48,6 +48,6 @@ console.log("idle-coffre-cadres-themes-v1: OK (" + lignes.length + " thèmes)");
 {
   const { readFileSync } = await import("node:fs");
   const ui2 = lireUiComplet();
-  assert.ok(ui2.includes("mannequin(i===0?st.pieces.concat(g.libres):st.pieces)"), "accessoires de la zone dans le mannequin, sous l'arme");
+  assert.ok(ui2.includes("mannequin(i===0?st.pieces.concat(g.libres):st.pieces,i===0?g.libres:[])") && ui2.includes("const libre=libresCadre.indexOf(p)!==-1;") && ui2.includes("if(!libre&&LIGNE_ARMURE[p.slot])"), "accessoires de la zone dans le mannequin, sous l arme ; un casque libre ne se superpose jamais à celui du set (A Beanie et Gaudy)");
   console.log("idle-coffre-cadres-themes-v1 (accessoires sous l'arme): OK");
 }

@@ -45,7 +45,8 @@
             'Le petit bouton du menu reprend les mêmes animations quand le menu travaille : la barre de l’haltère monte et descend, le gant frappe.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Les compteurs d’Auto Merge et d’Auto Boost ne reculent plus, et le sac se met à jour tout de suite après un Auto Boost.'
+            'Les compteurs d’Auto Merge et d’Auto Boost ne reculent plus, et le sac se met à jour tout de suite après un Auto Boost.',
+            'Coffre : quand une zone donne deux objets pour le même emplacement (deux casques, par exemple), ils ont chacun leur case au lieu de se superposer.'
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Chaque augmentation est maintenant posée sur sa propre carte électronique de couleur, avec un processeur pour son amélioration.',
