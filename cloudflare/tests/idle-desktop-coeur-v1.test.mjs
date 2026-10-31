@@ -131,6 +131,6 @@ console.log("idle-desktop-coeur-v1 : OK");
 {
   const coeurSteam = fs.readFileSync(new URL("../../desktop/coeur.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   assert.ok(/if \(LANCE_PAR_STEAM\) \{[\s\S]*fenetre\.on\("blur", geler\);[\s\S]*fenetre\.on\("focus", degeler\);/.test(coeurSteam), "gel des animations à la perte du focus, dégel au retour (Steam seulement)");
-  assert.ok(coeurSteam.includes("document.getAnimations()") && coeurSteam.includes("setTimeout") && !coeurSteam.includes("insertCSS"), "gel par l'API des animations, après un délai sans focus, sans feuille de style universelle");
-  assert.ok(/const degeler = () => {[sS]*JS_DEGEL[sS]*repeindre();/.test(coeurSteam), "les animations sont remises avant la repeinture");
+  assert.ok(coeurSteam.includes("animation-play-state:paused!important") && coeurSteam.includes("canvas{visibility:hidden!important}"), "animations CSS et calques de dessin gelés");
+  assert.ok(/const degeler = async \(\) => \{[\s\S]*removeInsertedCSS\(cle\)[\s\S]*repeindre\(\);/.test(coeurSteam), "le gel est retiré avant la repeinture");
 }

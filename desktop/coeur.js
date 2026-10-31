@@ -515,22 +515,20 @@ function ouvrirFenetre() {
      * alors que Steam intercepte la présentation pour dessiner sa superposition, d'où des images noires. Tant que la fenêtre n'a PAS le focus (la superposition le prend), les animations CSS et les calques de dessin sont donc GELÉS (aucune nouvelle image à présenter : l'écran reste stable
      * sous la superposition, qui assombrit déjà le jeu) ; au retour du focus le gel est retiré AVANT la repeinture (plus d'attente d'une demi-seconde). Le moteur du jeu, lui, continue de tourner.
      */
-    /*
-     * Version allégée (Norman, 2026-10-31 : « depuis la mise à jour de l'interface Steam, les scrolls de souris sont moins fluides ») : le gel par une feuille de style universelle (« * {animation-play-state:paused!important} », canvas masqués) imposait un nouveau calcul de style de TOUTE la page à chaque perte ou retour du focus, et Steam
-     * les fait alterner souvent. Désormais : (1) le gel n'a lieu qu'après 400 ms SANS focus (une alternance rapide ne fait plus rien) ; (2) il met en pause les animations en cours par l'API Web Animations (document.getAnimations()), sans toucher à aucune feuille de style, et les remet exactement où elles étaient au retour du focus ; (3) les calques de
-     * dessin ne sont plus masqués. Le moteur du jeu continue de tourner.
-     */
-    let gele = false, minuterieGel = null;
-    const JS_GEL = "(()=>{try{document.getAnimations().forEach((a)=>{if(a.playState==='running'){a.__soGele=true;a.pause();}});}catch(e){}})()";
-    const JS_DEGEL = "(()=>{try{document.getAnimations().forEach((a)=>{if(a.__soGele){a.__soGele=false;a.play();}});}catch(e){}})()";
-    const executer = (js) => { try { if (fenetre && !fenetre.isDestroyed()) fenetre.webContents.executeJavaScript(js).catch(() => {}); } catch (_e) { /* fenêtre fermée */ } };
-    const geler = () => {
-      if (minuterieGel || gele) return;
-      minuterieGel = setTimeout(() => { minuterieGel = null; if (fenetre && !fenetre.isDestroyed() && !fenetre.isFocused()) { gele = true; executer(JS_GEL); } }, 400);
+    let gele = false, cleGel = null;
+    const CSS_GEL = "*,*::before,*::after{animation-play-state:paused!important;transition:none!important}canvas{visibility:hidden!important}";
+    const geler = async () => {
+      if (gele || !fenetre || fenetre.isDestroyed()) return;
+      gele = true;
+      try {
+        const cle = await fenetre.webContents.insertCSS(CSS_GEL);
+        if (gele) cleGel = cle; else await fenetre.webContents.removeInsertedCSS(cle);   /* le focus est revenu pendant l'insertion */
+      } catch (_e) { /* fenêtre fermée */ }
     };
-    const degeler = () => {
-      if (minuterieGel) { clearTimeout(minuterieGel); minuterieGel = null; }
-      if (gele) { gele = false; executer(JS_DEGEL); }
+    const degeler = async () => {
+      gele = false;
+      const cle = cleGel; cleGel = null;
+      try { if (cle && fenetre && !fenetre.isDestroyed()) await fenetre.webContents.removeInsertedCSS(cle); } catch (_e) { /* fenêtre fermée */ }
       repeindre();
     };
     fenetre.on("blur", geler);
