@@ -7,7 +7,7 @@ const lire = (f) => fs.readFileSync(new URL(f, import.meta.url), "utf8").replace
 const entree = lire("../src/idle-worker-entry-v1.js"), sync = lire("../src/idle-local-sync-v1.js"), html = lire("../public/index.html"), source = lire("../public/modules/apk-synchro-v1.js");
 
 // ---------- contenu : serveur (CORS limité à l'application, export qui revendique, push) et page
-assert.ok(entree.includes("(relais|pseudo|local\\/export|local\\/push)$/"), "CORS de l'application aussi sur l'envoi des sauvegardes");
+assert.ok(entree.includes("(relais|pseudo|local\\/export|local\\/push|call|profil-badavatar)$/"),"CORS de l'application aussi sur l'envoi des sauvegardes");
 assert.ok(entree.includes('return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-push"))'), "la réponse du push porte les en-têtes CORS");
 assert.ok(sync.includes("if (!lectureSeule) revendiquer(") && sync.includes('p.importPartie === true ? "avant-import"'), "export sans lecture seule = revendication ; premier envoi = copie « avant-import »");
 assert.ok(sync.includes("Number(p.depuis) < Number(propre.vu)) return { ok: false, conflit: true"), "le serveur refuse un envoi parti avant la dernière revendication");

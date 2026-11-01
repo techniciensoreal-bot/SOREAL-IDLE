@@ -30,10 +30,41 @@
         }
       }
 
+      /* Application Android hors ligne (2026-11-01) : le moteur local joue sur un compte local factice, `reglages` y vaut toujours null. L'administrateur y est PROUVÉ par le serveur de production avec le jeton réel (apk-connexion-v1.js, verifierAdmin) ;
+         tant qu'il n'a pas répondu (ni cache valide) on ne mémorise RIEN de faux : l'état reste « inconnu » (null). Un autre compte donne toujours faux. */
+      let apkAdminEcouteV1=false;
+      function apkConnexionV1_(){
+        const A=window.__SOREAL_IDLE_APK_CONNEXION_V1__;
+        return A&&typeof A.estApk==='function'&&A.estApk()&&typeof A.verifierAdmin==='function'?A:null;
+      }
+      function appliquerPreuveApkV1_(p){
+        if(p===true&&idleEstAdminV1!==true){
+          idleEstAdminV1=true;
+          if(REG.idleEtat){
+            rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
+            if(REG.idleTutorielPagesEnCoursV1)rendreTutorielPagesIdleV1_();
+          }
+        }else if(p===false&&idleEstAdminV1!==false){
+          const etait=idleEstAdminV1===true;
+          idleEstAdminV1=false;
+          if(etait&&REG.idleEtat)rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
+        }
+      }
+      function verifierAdminApkV1_(A){
+        if(!apkAdminEcouteV1&&typeof A.surPreuveAdmin==='function'){
+          apkAdminEcouteV1=true;
+          A.surPreuveAdmin(function(p){appliquerPreuveApkV1_(p);});
+        }
+        const connue=A.preuveAdmin();
+        if(connue!==null)appliquerPreuveApkV1_(connue);   /* mémoire ou cache valide : le menu est là tout de suite, même hors ligne */
+        A.verifierAdmin().then(function(res){if(res&&typeof res.admin==='boolean')appliquerPreuveApkV1_(res.admin);}).catch(function(){});
+      }
+
       function rafraichirEstAdminSorealIdle_(){
         if(idleEstAdminV1!==null||!SOREAL_SESSION)return;
+        const apk=apkConnexionV1_();
         /* L'état contient déjà la réponse (`reglages` n'est donné qu'à l'administrateur) : aucun appel à part (audit des appels, 2026-10-04). */
-        if(REG.idleEtat&&REG.idleEtat.reglages!==undefined){
+        if(REG.idleEtat&&REG.idleEtat.reglages!==undefined&&(!apk||REG.idleEtat.reglages)){
           idleEstAdminV1=Boolean(REG.idleEtat.reglages);
           if(idleEstAdminV1){
             rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
@@ -41,6 +72,7 @@
           }
           return;
         }
+        if(apk){verifierAdminApkV1_(apk);return;}
         google.script.run
           .withSuccessHandler(function(res){
             const estAdminAvant=idleEstAdminV1===true;

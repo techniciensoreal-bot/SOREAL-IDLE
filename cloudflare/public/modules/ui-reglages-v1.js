@@ -327,6 +327,19 @@
           (v.enAttente?' <span>·</span> <span>à l’essai</span>':'')+
         '</div>';
       }
+      /* Application Android hors ligne seulement (Norman, 2026-11-01) : relance la connexion Google (apk-connexion-v1.js, reconnecter) sans toucher à la partie. Rien n'est affiché ailleurs que dans l'application. */
+      function htmlReconnexionApkIdleV1_(){
+        const A=window.__SOREAL_IDLE_APK_CONNEXION_V1__;
+        let apk=false;
+        try{apk=Boolean(A&&typeof A.estApk==='function'&&A.estApk()&&typeof A.reconnecter==='function');}catch(_e){apk=false;}
+        if(!apk)return '';
+        return '<div class="soreal-idle-section-v8" id="sorealIdleReconnexionV1">'+
+          '<div class="soreal-idle-window-title-v31">🔗 Mon compte</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">Si ton compte n’est plus reconnu sur ce téléphone, reconnecte-le : ta partie n’est pas touchée.</div>'+
+          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__SOREAL_IDLE_APK_CONNEXION_V1__.reconnecter()">🔗 Reconnecter mon compte</button>'+
+          '<div id="sorealIdleReconnexionEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
+        '</div>';
+      }
       function htmlVersionNotesMajIdleV1_(v,possedes){
         /* Lignes ajoutées depuis le dernier push, en vert (Norman, 2026-10-31) : comparées au texte FRANÇAIS d'origine (avant la traduction), la classe reste posée après traduction. Données : modules/release-notes-nouveautes-v1.js (générées par tools/marquer-nouveautes-push.mjs). */
         const nouv=window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__;
@@ -462,6 +475,7 @@
                 '<div id="sorealIdlePartieFichierEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
               '</div>'
               :'')+
+            htmlReconnexionApkIdleV1_()+
             (window.__SOREAL_IDLE_MAJ_V1__&&window.__SOREAL_IDLE_MAJ_V1__.peutVerifier()?
               '<div class="soreal-idle-section-v8">'+
                 '<div class="soreal-idle-window-title-v31">🔄 Mises à jour</div>'+

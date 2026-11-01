@@ -286,33 +286,55 @@ document.addEventListener('pointerup',function(ev){
 document.documentElement.addEventListener('mouseleave',reposFiche);
 
 /*
- * Gyroscope (Norman, 2026-11-01 : « sur téléphone, utilise le gyroscope pour faire bouger la carte ») : l'inclinaison PHYSIQUE du téléphone (deviceorientation, beta / gamma, relatifs à la position de repos prise à l'ouverture de la fiche)
- * incline la carte (bornée à +/-25 degres, lissée) et pilote l'hologramme comme le pointeur. Ecouteur ajouté a l'ouverture de la fiche et RETIRE a sa fermeture ; mise a jour par requestAnimationFrame seulement quand l'angle change de plus de 0,5 degre ;
- * arret si l'onglet est masque ; le doigt pose sur la carte reste prioritaire ; sans capteur (PC : valeurs nulles) ou avec « reduire les animations » : rien. iOS : requestPermission() au premier toucher de la fiche ; refus : comportement doigt / pointeur, sans message.
+ * Gyroscope (Norman, 2026-11-01 : « sur téléphone, utilise le gyroscope pour faire bouger la carte » ; 2026-11-01 : « les mouvements ne semblent pas naturels »). On n'utilise PAS beta / gamma tels quels (angles d'Euler : instables près de beta = 90, sauts de 180) mais la direction
+ * de la HAUTEUR (gravite) dans le repere du telephone, u = (-cos b sin g, sin b, cos b cos g) : continue, independante d'alpha (tourner sur soi ne fait rien) et de gamma quand le telephone est vertical.
+ * Pose de repos u0 = filtre passe-bas de u (constante 2 s) : seuls les MOUVEMENTS animent la carte, qui revient doucement a plat si on tient le telephone immobile. Inclinaison = angles (roulis, tangage) de u dans le repere de u0.
+ * CONVENTION (Norman : « la carte penche dans le mauvais sens ») : la carte est posee sur l'ecran et GARDE son orientation dans le monde ; relativement a l'ecran elle penche donc a l'OPPOSE du mouvement du telephone, et le reflet d'une lumiere fixe
+ * glisse aussi a l'oppose. Telephone : bord droit vers l'arriere (roulis < 0) => carte : bord droit vers soi, --ry < 0, reflet (--mx, --lx) vers la gauche ; bord haut vers soi (tangage > 0) => carte : bord haut vers l'arriere, --rx > 0, reflet (--my, --ly) vers le haut. Gauche et bas : l'inverse. Carte : gain ~0,35 a 0,5 (progressif), butee douce +/-12 degres (tanh) ;
+ * hologramme : pleine plage (tanh(angle / 22)). Lissage exponentiel avec le dt reel de l'image (constante 60 a 150 ms : plus longue pres du repos, ce qui filtre le tremblement de la main sans retard visible), aucune zone morte.
+ * Ecouteur ajoute a l'ouverture de la fiche et RETIRE a sa fermeture ; boucle requestAnimationFrame arretee des que tout est a plat ; arret si l'onglet est masque ; le doigt pose sur la carte reste prioritaire ; sans capteur (PC : valeurs nulles) ou avec
+ * « reduire les animations » : rien. iOS : requestPermission() au premier toucher de la fiche ; refus : comportement doigt / pointeur, sans message.
  */
-var GY_MAX=25,gy={on:false,base:null,cible:{x:0,y:0},lisse:{x:0,y:0},dernier:{b:null,g:null},raf:0,ecoute:false,demande:false};
+var GY_LIM=12,GY_REPOS=2000,gy={on:false,u:null,u0:null,t:0,tRepos:0,tImage:0,lisse:{x:0,y:0,rx:0,ry:0},raf:0,ecoute:false,demande:false};
 function gyReduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 function gyTactile(){try{return Boolean(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)||('ontouchstart' in window);}catch(_e){return false;}}
-function gyBorne(v){return Math.max(-1,Math.min(1,v));}
+function gyHauteur(b,g){b*=Math.PI/180;g*=Math.PI/180;return [-Math.cos(b)*Math.sin(g),Math.sin(b),Math.cos(b)*Math.cos(g)];}
+function gyScal(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
+function gyNorme(a){var n=Math.sqrt(gyScal(a,a))||1;return [a[0]/n,a[1]/n,a[2]/n];}
+/* Inclinaison de u dans le repere de la pose de repos u0 : roulis (autour de l'axe long) et tangage, en degres. */
+function gyInclinaison(u,u0){
+  var f1=gyNorme([1-u0[0]*u0[0],-u0[0]*u0[1],-u0[0]*u0[2]]),f2=[u0[1]*f1[2]-u0[2]*f1[1],u0[2]*f1[0]-u0[0]*f1[2],u0[0]*f1[1]-u0[1]*f1[0]],c=gyScal(u,u0);
+  return {roulis:Math.atan2(gyScal(u,f1),c)*180/Math.PI/Math.max(.5,Math.abs(u0[2])),tangage:Math.atan2(gyScal(u,f2),c)*180/Math.PI};
+}
+function gyCarte(d){var u=.5*d*(.7+.3*Math.min(Math.abs(d)/20,1.5));return GY_LIM*Math.tanh(u/GY_LIM);}   /* gain progressif, butee douce */
+function gyRepos(t){
+  var k=1-Math.exp(-Math.max(0,t-gy.tRepos)/GY_REPOS);gy.tRepos=Math.max(gy.tRepos,t);
+  gy.u0=gyNorme([gy.u0[0]+(gy.u[0]-gy.u0[0])*k,gy.u0[1]+(gy.u[1]-gy.u0[1])*k,gy.u0[2]+(gy.u[2]-gy.u0[2])*k]);
+}
 function gyEvenement(ev){
   if(!gy.on||!ev||ev.beta==null||ev.gamma==null||gyReduit())return;
   if(!document.getElementById('sorealIdleTitanCollectionModalV1')){gyFermer();return;}   /* fiche retiree par un autre chemin : plus d'ecouteur */
   var b=Number(ev.beta),g=Number(ev.gamma);if(!isFinite(b)||!isFinite(g))return;
-  if(!gy.base)gy.base={b:b,g:g};   /* position de repos : celle de l'ouverture */
-  if(gy.dernier.b!==null&&Math.abs(b-gy.dernier.b)<=.5&&Math.abs(g-gy.dernier.g)<=.5)return;   /* moins de 0,5 degre : rien (batterie) */
-  gy.dernier={b:b,g:g};
-  gy.cible={x:gyBorne((g-gy.base.g)/GY_MAX),y:gyBorne((b-gy.base.b)/GY_MAX)};
+  var t=ev.timeStamp>0?ev.timeStamp:Date.now();
+  if(gy.u0)gyRepos(t);   /* le repos rattrape l'ANCIENNE hauteur jusqu'a cet instant (jamais la nouvelle : un mouvement ne s'efface pas) */
+  gy.u=gyHauteur(b,g);gy.t=t;
+  if(!gy.u0){gy.u0=gy.u.slice();gy.tRepos=t;gy.tImage=t;}   /* pose de repos : celle de l'ouverture, qui suit ensuite le telephone */
   if(!gy.raf)gy.raf=requestAnimationFrame(gyPas);
 }
-function gyPas(){
+function gyPas(ts){
   gy.raf=0;
   var c=ficheCarte(),k=c&&c.querySelector('.alb-titan-carte');
   if(!gy.on||!k)return;
+  gy.tImage=fi&&fi.glisse?0:gy.tImage;
   if(fi&&fi.glisse){gy.raf=requestAnimationFrame(gyPas);return;}   /* le doigt est pose : le doigt est prioritaire, le gyroscope reprend en douceur au relachement */
-  gy.lisse.x+=(gy.cible.x-gy.lisse.x)*.2;gy.lisse.y+=(gy.cible.y-gy.lisse.y)*.2;
-  var x=gy.lisse.x,y=gy.lisse.y;
-  appliquerInclinaison(c,k,{tx:x,ty:y,dir:Math.atan2(y,x)*180/Math.PI,force:Math.min(1,Math.sqrt(x*x+y*y))},GY_MAX*.8,GY_MAX*.7);   /* carte bornee a +/-20 et +/-17,5 degres */
-  if(Math.abs(gy.cible.x-x)>.005||Math.abs(gy.cible.y-y)>.005)gy.raf=requestAnimationFrame(gyPas);
+  var t=typeof ts==='number'?ts:gy.t,dt=gy.tImage?Math.max(1,Math.min(100,t-gy.tImage)):16.7,L=gy.lisse;gy.tImage=t;
+  gyRepos(t);
+  var i=gyInclinaison(gy.u,gy.u0),ci={x:Math.tanh(i.roulis/22),y:-Math.tanh(i.tangage/22),rx:gyCarte(i.tangage),ry:gyCarte(i.roulis)};
+  var ecart=Math.abs(ci.rx-L.rx)+Math.abs(ci.ry-L.ry),a=1-Math.exp(-dt/(60+90*Math.exp(-ecart/2)));
+  L.x+=(ci.x-L.x)*a;L.y+=(ci.y-L.y)*a;L.rx+=(ci.rx-L.rx)*a;L.ry+=(ci.ry-L.ry)*a;
+  appliquerInclinaison(c,k,{tx:L.x,ty:L.y,dir:Math.atan2(L.y,L.x)*180/Math.PI,force:Math.min(1,Math.sqrt(L.x*L.x+L.y*L.y))},0,0);
+  k.style.setProperty('--ry',L.ry.toFixed(2));k.style.setProperty('--rx',L.rx.toFixed(2));
+  if(Math.abs(L.rx)+Math.abs(L.ry)>.05||Math.abs(ci.rx)+Math.abs(ci.ry)>.05)gy.raf=requestAnimationFrame(gyPas);   /* tout est a plat : la boucle s'arrete */
 }
 function gyEcouter(oui){
   if(oui===gy.ecoute)return;
@@ -323,13 +345,13 @@ function gyVisible(){gyEcouter(!document.hidden&&gy.on);}
 function gyOuvrir(){
   gyFermer();
   if(gyReduit()||!gyTactile()||typeof window.addEventListener!=='function')return;
-  gy.on=true;gy.base=null;gy.cible={x:0,y:0};gy.lisse={x:0,y:0};gy.dernier={b:null,g:null};
+  gy.on=true;gy.u=null;gy.u0=null;gy.tImage=0;gy.lisse={x:0,y:0,rx:0,ry:0};
   var D=window.DeviceOrientationEvent;
   if(D&&typeof D.requestPermission==='function'){gy.demande=false;return;}   /* iOS : on attend le premier toucher (geste de l'utilisateur) */
   gyEcouter(true);
 }
 function gyFermer(){
-  gy.on=false;gy.base=null;gyEcouter(false);
+  gy.on=false;gy.u=null;gy.u0=null;gyEcouter(false);
   if(gy.raf){try{cancelAnimationFrame(gy.raf);}catch(_e){}gy.raf=0;}
 }
 document.addEventListener('pointerdown',function(ev){

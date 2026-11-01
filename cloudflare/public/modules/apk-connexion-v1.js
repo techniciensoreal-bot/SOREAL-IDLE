@@ -221,18 +221,144 @@ function acces(){
 /* ---------- pseudo unique : vérifié et réservé sur le serveur AVANT d'être accepté par l'application ---------- */
 function verifierPseudo(pseudo){
   var t=json(CLE_JETON);
-  if(!t||!t.jeton)return Promise.resolve({ok:false,code:'PSEUDO_COMPTE',message:'Ton compte n’est pas connecté : ferme puis rouvre l’application pour te connecter.'});
-  if(t.expire&&Number(t.expire)<Date.now())return Promise.resolve({ok:false,code:'PSEUDO_COMPTE',message:'Ta connexion au compte a expiré : ferme puis rouvre l’application.'});
+  if(!t||!t.jeton)return Promise.resolve({ok:false,code:'PSEUDO_COMPTE',message:'Ton compte n’est pas connecté : touche « Reconnecter mon compte » dans les Réglages (onglet Ma partie).'});
+  if(t.expire&&Number(t.expire)<Date.now())return Promise.resolve({ok:false,code:'PSEUDO_COMPTE',message:'Ta connexion au compte a expiré : touche « Reconnecter mon compte » dans les Réglages (onglet Ma partie).'});
   return fetch(PROD+'/api/v1/pseudo',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+t.jeton},body:JSON.stringify({pseudo:String(pseudo||'')})}).then(function(r){
     return r.json().catch(function(){return null;}).then(function(d){
       if(d&&d.ok)return {ok:true,pseudo:d.pseudo};
-      if(r.status===401)return {ok:false,code:'PSEUDO_COMPTE',message:'Ta connexion au compte a expiré : ferme puis rouvre l’application.'};
+      if(r.status===401)return {ok:false,code:'PSEUDO_COMPTE',message:'Ta connexion au compte a expiré : touche « Reconnecter mon compte » dans les Réglages (onglet Ma partie).'};
       return {ok:false,code:d&&d.code,message:(d&&d.message)||'Ce pseudo ne peut pas être utilisé.'};
     });
   }).catch(function(){return {ok:false,code:'PSEUDO_RESEAU',message:'Internet est nécessaire pour vérifier que ce pseudo est libre : réessaie quand tu as du réseau.'};});
 }
 
-window.__SOREAL_IDLE_APK_CONNEXION_V1__={acces:acces,requis:requis,actif:actif,demarrer:demarrer,verifierPseudo:verifierPseudo,sansVerif:function(){return contourVerif;},progression:progression,comparer:comparer,restaurer:restaurer};
+/* ---------- administrateur : prouvé par le SERVEUR avec le jeton réel, jamais lu dans un texte local (Norman, 2026-11-01 : « je n'ai ni le menu Admin ni le journal de fluidité sur l'application ») ----------
+ * L'application joue sur un compte local factice : le moteur local ne peut pas savoir que c'est l'administrateur. Le serveur de production compare l'e-mail de la session à celui de l'administrateur (opération estAdminSorealIdle) ;
+ * la réponse est gardée en mémoire et dans « idle_apk_admin_v1 » (clé SANS préfixe soreal_idle_ : propre à l'appareil, jamais recopiée sur le compte, règle n°6), valable au plus jusqu'à l'expiration du jeton, pour que le hors ligne garde le menu.
+ * Le cache ne contient ni jeton ni e-mail. Sans réponse du serveur et sans cache valide : rien n'est mémorisé (jamais de « non administrateur » conclu faute de réseau). Un cache falsifié n'ouvre au pire que l'interface locale : le serveur
+ * refuse toute opération d'administration réelle. */
+var CLE_ADMIN='idle_apk_admin_v1',QUATORZE_JOURS=14*24*3600*1000,ATTENTE_RETENTE_MS=60*1000;
+var adminMem=null,verifEnCours=null,prochaineVerif=0,ecouteursAdmin=[];
+function jetonValide(){var t=json(CLE_JETON);return t&&t.jeton&&!(t.expire&&Number(t.expire)<Date.now())?t:null;}
+function limiteJeton(t){var e=Number(t&&t.expire)||0,max=Date.now()+QUATORZE_JOURS;return e>0?Math.min(e,max):max;}
+function cacheAdmin(){var c=json(CLE_ADMIN);return c&&typeof c.admin==='boolean'&&Number(c.jusqua)>Date.now()?c.admin:null;}
+/* true / false (réponse du serveur, en mémoire ou en cache valide) ou null (inconnu). Synchrone. */
+function preuveAdmin(){
+  if(!estApk())return null;
+  if(adminMem!==null)return adminMem;
+  if(!jetonValide())return null;
+  return cacheAdmin();
+}
+function surPreuveAdmin(f){if(typeof f==='function')ecouteursAdmin.push(f);}
+function prevenirAdmin(){ecouteursAdmin.slice().forEach(function(f){try{f(preuveAdmin());}catch(_e){}});}
+function jetonRefuse(r,d){return (r&&r.status===401)||Boolean(d&&(d.code==='LAUNCH_TICKET_REQUIRED'||/SESSION|TICKET/i.test(String(d.error||''))));}
+function verifierAdmin(){
+  if(!estApk())return Promise.resolve({admin:null,raison:'hors-apk'});
+  var t=jetonValide();
+  if(!t)return Promise.resolve({admin:null,raison:'jeton-absent'});
+  if(adminMem!==null)return Promise.resolve({admin:adminMem,raison:'memoire'});
+  if(verifEnCours)return verifEnCours;
+  if(Date.now()<prochaineVerif)return Promise.resolve({admin:null,raison:'attente'});
+  verifEnCours=fetch(PROD+'/api/v1/call',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+t.jeton},body:JSON.stringify({operation:'estAdminSorealIdle',args:[t.jeton]}),cache:'no-store'}).then(function(r){
+    return Promise.resolve(r.json()).catch(function(){return null;}).then(function(d){
+      if(jetonRefuse(r,d)){
+        retirer(CLE_ADMIN);adminMem=null;prochaineVerif=Date.now()+ATTENTE_RETENTE_MS;
+        proposerReconnexion();
+        return {admin:null,raison:'jeton-refuse'};
+      }
+      if(d&&d.ok===true&&typeof d.isAdmin==='boolean'){
+        adminMem=d.isAdmin;ecrire(CLE_ADMIN,JSON.stringify({admin:adminMem,jusqua:limiteJeton(t)}));
+        retirerBandeau();   /* le serveur reconnaît le jeton : plus rien à proposer */
+        prevenirAdmin();
+        return {admin:adminMem,raison:'serveur'};
+      }
+      prochaineVerif=Date.now()+ATTENTE_RETENTE_MS;
+      return {admin:null,raison:'erreur'};
+    });
+  }).catch(function(){
+    prochaineVerif=Date.now()+ATTENTE_RETENTE_MS;
+    return {admin:null,raison:'reseau'};   /* hors ligne : le cache (s'il est valide) reste la seule preuve, rien de faux n'est mémorisé */
+  }).then(function(res){verifEnCours=null;return res;});
+  return verifEnCours;
+}
+
+/* ---------- reconnexion du compte (sans toucher à la partie) ----------
+ * Même relais que l'écran de connexion (« ?relais=<code> » ouvre le navigateur) mais seul le JETON est remplacé : la partie, le pseudo et l'état du jeu ne sont ni lus ni écrits. */
+var reconnexionEnCours=false,codeReco='',limiteReco=0,minuterieReco=null,bandeauMontre=false,bandeau=null;
+function etatReconnexion(texte,erreur){
+  [document.getElementById('sorealIdleApkReconEtatV1'),document.getElementById('sorealIdleReconnexionEtatV1')].forEach(function(e){if(e){e.textContent=texte||'';e.className=(e.className||'').replace(/\s*erreur/g,'')+(erreur?' erreur':'');}});
+}
+function styleBandeau(){
+  if(document.getElementById('sorealIdleApkReconStyleV1'))return;
+  var s=document.createElement('style');s.id='sorealIdleApkReconStyleV1';
+  s.textContent=
+    '#sorealIdleApkReconV1{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:2147482000;box-sizing:border-box;width:min(94vw,460px);padding:12px 14px;border:2px solid #000;border-radius:14px;background:linear-gradient(180deg,#1c2a4d,#101a33);color:#eaf1ff;font:400 14px/1.35 "Russo One","Trebuchet MS",Arial,sans-serif;box-shadow:0 6px 0 #000,0 0 20px rgba(66,133,244,.45);-webkit-tap-highlight-color:transparent}'+
+    '#sorealIdleApkReconV1 .recon-texte{margin:0 0 10px}'+
+    '#sorealIdleApkReconV1 .recon-boutons{display:flex;gap:8px;flex-wrap:wrap}'+
+    '#sorealIdleApkReconV1 button{flex:1 1 120px;min-height:44px;padding:8px 14px;border:2px solid #000;border-radius:10px;cursor:pointer;font:700 17px/1.1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#fff;text-shadow:0 2px 0 #000,0 0 4px #000;background:linear-gradient(180deg,#3573e0,#143f98);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 3px 0 #000}'+
+    '#sorealIdleApkReconV1 button.recon-plus-tard{background:linear-gradient(180deg,#3a4566,#232b45)}'+
+    '#sorealIdleApkReconV1 button[disabled]{filter:grayscale(.5) brightness(.8);cursor:default}'+
+    '#sorealIdleApkReconV1 .recon-etat{min-height:0;margin-top:8px;font-size:13px;color:#cfe0ff}'+
+    '#sorealIdleApkReconV1 .recon-etat.erreur{color:#ffb4b4}';
+  document.head.appendChild(s);
+}
+function retirerBandeau(){if(bandeau&&bandeau.parentNode)bandeau.parentNode.removeChild(bandeau);bandeau=null;}
+/* Petit bandeau discret, une seule fois par lancement : jamais bloquant (rien ne recouvre le jeu, on peut jouer hors ligne sans y répondre). */
+function proposerReconnexion(){
+  if(!actif()||bandeauMontre||reconnexionEnCours)return false;
+  bandeauMontre=true;
+  try{
+    styleBandeau();
+    bandeau=document.createElement('div');
+    bandeau.id='sorealIdleApkReconV1';bandeau.setAttribute('role','status');
+    bandeau.innerHTML=
+      '<p class="recon-texte">Ton compte n’est plus connecté sur ce téléphone. Reconnecte-le pour retrouver l’administration et le profil.</p>'+
+      '<div class="recon-boutons"><button type="button" id="sorealIdleApkReconOuiV1">Reconnecter</button><button type="button" class="recon-plus-tard" id="sorealIdleApkReconPlusTardV1">Plus tard</button></div>'+
+      '<div class="recon-etat" id="sorealIdleApkReconEtatV1" role="status"></div>';
+    document.body.appendChild(bandeau);
+    var oui=document.getElementById('sorealIdleApkReconOuiV1'),non=document.getElementById('sorealIdleApkReconPlusTardV1');
+    if(oui)oui.addEventListener('click',function(){reconnecter();});
+    if(non)non.addEventListener('click',function(){retirerBandeau();});
+  }catch(_e){return false;}
+  return true;
+}
+function attendreReconnexion(code){
+  if(code!==codeReco||!reconnexionEnCours)return;
+  if(Date.now()>limiteReco){reconnexionEnCours=false;etatReconnexion('La connexion n’a pas été terminée à temps. Touche « Reconnecter » pour réessayer.',true);return;}
+  fetch(PROD+'/api/v1/relais?code='+encodeURIComponent(code),{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
+    if(code!==codeReco||!reconnexionEnCours)return;
+    if(d&&d.ok&&d.jeton){apresReconnexion(String(d.jeton),Number(d.expire)||0);return;}
+    if(d&&d.ok&&d.attente){minuterieReco=setTimeout(function(){attendreReconnexion(code);},2000);return;}
+    reconnexionEnCours=false;etatReconnexion('La connexion a échoué. Touche « Reconnecter » pour réessayer.',true);
+  }).catch(function(){
+    if(code!==codeReco||!reconnexionEnCours)return;
+    etatReconnexion('Internet est nécessaire pour reconnecter ton compte… nouvelle tentative.',true);
+    minuterieReco=setTimeout(function(){attendreReconnexion(code);},3000);
+  });
+}
+function apresReconnexion(jeton,expire){
+  ecrire(CLE_JETON,JSON.stringify({jeton:jeton,expire:expire}));
+  retirer(CLE_ADMIN);adminMem=null;prochaineVerif=0;verifEnCours=null;   /* nouveau jeton : l'ancienne preuve ne vaut plus */
+  reconnexionEnCours=false;
+  etatReconnexion('Compte reconnecté !',false);
+  verifierAdmin().then(function(){prevenirAdmin();});
+  setTimeout(retirerBandeau,1500);
+}
+function reconnecter(){
+  if(!estApk()||reconnexionEnCours)return false;
+  reconnexionEnCours=true;codeReco=codeAleatoire();limiteReco=Date.now()+10*60*1000;
+  var oui=document.getElementById('sorealIdleApkReconOuiV1');if(oui)oui.disabled=true;
+  etatReconnexion('Le navigateur s’ouvre : choisis ton compte Google, puis reviens dans l’application.',false);
+  try{window.location.href=PROD+'/?relais='+codeReco;}catch(_e){/* l'application ouvre le navigateur à la place */}
+  attendreReconnexion(codeReco);
+  return true;
+}
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&reconnexionEnCours&&codeReco){clearTimeout(minuterieReco);attendreReconnexion(codeReco);}
+});
+
+window.__SOREAL_IDLE_APK_CONNEXION_V1__={acces:acces,requis:requis,actif:actif,demarrer:demarrer,verifierPseudo:verifierPseudo,sansVerif:function(){return contourVerif;},progression:progression,comparer:comparer,restaurer:restaurer,
+  estApk:estApk,verifierAdmin:verifierAdmin,preuveAdmin:preuveAdmin,surPreuveAdmin:surPreuveAdmin,reconnecter:reconnecter,proposerReconnexion:proposerReconnexion,jetonValide:function(){return Boolean(jetonValide());}};
 
 /* Une restauration restée en attente (application fermée avant la fin) reprend toute seule. */
 if(estApk()){
@@ -241,5 +367,7 @@ if(estApk()){
   /* juste après la connexion, la restauration démarre dès que le jeu s'ouvre */
   var guet=setInterval(function(){if(json(CLE_ATTENTE)){clearInterval(guet);restaurer();}},800);
   setTimeout(function(){clearInterval(guet);},15*60*1000);
+  /* Compte relié mais jeton absent ou échu : une seule proposition par lancement, discrète (jamais pendant une restauration, jamais bloquante). */
+  setTimeout(function(){if(actif()&&!jetonValide()&&!json(CLE_ATTENTE))proposerReconnexion();},4000);
 }
 })();

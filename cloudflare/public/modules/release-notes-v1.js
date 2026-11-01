@@ -32,6 +32,7 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.',
             'Dans le Profil, les éléments du badavatar tournent sur 360°, passent devant ou derrière les autres et se placent partout sur le corps.',
             'Le badavatar montré dans Réglages › Profil est maintenant exactement celui que les autres voient dans la tour.',
             'Quand un rangement a plusieurs pages, les numéros de pages sont aussi affichés en haut, juste sous la barre de recherche.',
@@ -51,6 +52,7 @@
             'Application Android : les images se chargent plus vite et ne clignotent plus après un moment d’inactivité (le service du jeu ne démarre plus tout son moteur pour afficher une image, et les images déjà vues sont gardées).'
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Le petit crayon qui sert à changer tes boutons « Mes nombres » n’est plus coupé : il est maintenant à gauche du nombre, bien visible et facile à toucher (Augmentations et autres menus).',
             'Dans les Augmentations, toutes les informations sont maintenant dans de petits écrans incrustés (LED sur le circuit, LCD sur le processeur), une couleur par paire. Le titre, la barre d’avancement, l’écran Cible et les boutons ont aussi changé d’aspect, et il n’y a plus de pointillés.',
             'Dans les Augmentations, les barres d’avancement ont un effet LED (grille de petits points lumineux) mais restent continues, sans coupure, de la couleur de la paire ; les écrans des processeurs sont maintenant des écrans LCD rétroéclairés, au fond clair lumineux et aux caractères sombres.',
             'Dans les Augmentations, les petits textes des écrans du circuit (« Niveau suivant dans… », « Niveau », « Prochain niveau », « Cible » et leurs valeurs) sont beaucoup plus clairs et plus lisibles, pour toutes les paires.'
@@ -80,6 +82,7 @@
             'Le texte d’une carte de chronique se fait défiler à la souris : avec la molette, ou en gardant le clic gauche enfoncé et en bougeant la souris.',
             'Les cartes spéciales du classeur sortent maintenant de leur pochette comme les autres : touche-en une, elle vient au centre, tu peux la saisir et la faire pivoter (le dos se montre de l’autre côté), et l’effet hologramme bleu, rouge, vert et couleur de base brille selon le coin vers lequel elle penche, sans rien qui bouge tout seul (le reflet blanc qui passait à intervalle régulier est supprimé) ; la main disparaît pendant que tu tiens une carte.',
             'Sur téléphone, une carte spéciale zoomée suit l’inclinaison de ton téléphone (gyroscope) : elle penche et l’effet hologramme brille selon l’angle ; ton doigt posé sur la carte reste prioritaire.',
+            'Gyroscope : la carte spéciale zoomée réagit maintenant de façon plus naturelle : elle garde son orientation quand tu inclines le téléphone (elle penche dans le sens inverse) et le reflet suit une lumière fixe ; elle bouge en douceur, sans saccade, et revient doucement à plat quand le téléphone reste immobile.',
             'Les cartes spéciales du classeur commencent maintenant sur une nouvelle page, avec leurs dos visibles avant de tourner la page.',
             'Changer de langue dans les Réglages recharge maintenant la page : les noms de boss, les chroniques et les voix sont tout de suite dans la bonne langue.',
             'Sur les cartes de boss, le bas de la carte indique la langue (EN en anglais) et le nom du boss suit la langue choisie.',

@@ -136,7 +136,7 @@ assert.ok(t.includes("/dos-cartes/normal/titan-"), "dos de titan : dos-cartes/no
 assert.ok(t.includes("window.addEventListener('deviceorientation',gyEvenement)") && t.includes("window.removeEventListener('deviceorientation',gyEvenement)"), "ecouteur deviceorientation ajoute puis RETIRE");
 assert.ok(t.includes("function gyFermer()") && /function fermerFiche\(\)\{[^}]*gyFermer\(\)/.test(t) && t.includes("gyOuvrir();\n  return m;"), "ecouteur ajoute a l'ouverture de la fiche, retire a sa fermeture");
 assert.ok(t.includes("requestPermission") && t.includes("gy.demande=true") && t.includes(".catch(function(){})"), "iOS : requestPermission() au premier toucher, refus sans message");
-assert.ok(t.includes("var GY_MAX=25") && t.includes("gyBorne(") && t.includes("Math.abs(b-gy.dernier.b)<=.5"), "bornes +/-25 degres et seuil de 0,5 degre");
+assert.ok(t.includes("GY_LIM=12") && t.includes("gyHauteur(") && t.includes("Math.tanh("), "butee douce +/-12 degres, hauteur (gravite) continue (voir idle-album-titans-gyro-naturel-v1)");
 assert.ok(t.includes("prefers-reduced-motion: reduce") && t.includes("gyReduit()"), "« reduire les animations » desactive le gyroscope");
 assert.ok(t.includes("if(fi&&fi.glisse){gy.raf=requestAnimationFrame(gyPas);return;}"), "le doigt pose est prioritaire sur le gyroscope");
 assert.ok(t.includes("document.addEventListener('visibilitychange',gyVisible)") && t.includes("!document.hidden&&gy.on"), "arret si l'onglet est masque");
@@ -157,12 +157,11 @@ assert.ok(!/localStorage/.test(t), "aucune preference stockee (regle n°6)");
   const vider = () => { let n = 0; while (file.length && n++ < 200) file.shift()(); };
   G.gyroOuvrir();
   assert.equal(ecoutes.filter((e) => e[0] === "add" && e[1] === "deviceorientation").length, 1, "gyroscope : un ecouteur ajoute a l'ouverture (Android : sans permission)");
-  G.gyroEvenement({ beta: 45, gamma: 0 }); vider();
-  G.gyroEvenement({ beta: 45.2, gamma: 0.2 }); assert.equal(file.length, 0, "moins de 0,5 degre : aucune mise a jour");
-  G.gyroEvenement({ beta: 45, gamma: 20 }); vider();
-  assert.ok(Number(props["--ry"]) > 8 && Number(props["--ry"]) <= 25, "incliner a droite change --ry (borne 25 degres)");
-  G.gyroEvenement({ beta: 75, gamma: 90 }); vider();
-  assert.ok(Math.abs(Number(props["--ry"])) <= 25 && Math.abs(Number(props["--rx"])) <= 25, "valeurs bornees meme pour une inclinaison extreme");
+  G.gyroEvenement({ beta: 45, gamma: 0, timeStamp: 1 }); vider();
+  G.gyroEvenement({ beta: 45, gamma: 20, timeStamp: 17 }); vider();
+  assert.ok(Number(props["--ry"]) !== 0, "incliner a droite change --ry");
+  G.gyroEvenement({ beta: 75, gamma: 90, timeStamp: 40 }); vider();
+  assert.ok(Math.abs(Number(props["--ry"])) <= 12.01 && Math.abs(Number(props["--rx"])) <= 12.01, "valeurs bornees meme pour une inclinaison extreme");
   assert.ok(["--mx", "--my", "--ha", "--hi", "--wd", "--wr", "--wb", "--wv"].every((n) => n in props), "pilote aussi tout l'hologramme");
   G.gyroEvenement({ beta: null, gamma: null });   // capteur absent : rien, jamais d'erreur
   G.gyroFermer();

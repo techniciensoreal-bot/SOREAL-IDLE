@@ -353,7 +353,7 @@ var CSS=
   '.nl-barre-outils .nl-large{grid-column:span 2}'+
   '.nl-barre-outils [data-perso-ngu-v1]{grid-column:1/-1}'+
   /* rangée « Mes nombres » (modules/perso-boutons-v1.js) : même cadre que les autres lignes */
-  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .nl-barre-outils [data-perso-input-rangee]{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(72px,1fr))!important;gap:6px!important;align-items:center;margin:0!important;min-width:0;padding:8px!important;border:1px solid rgba(150,120,255,.32)!important;border-radius:10px!important;background:rgba(24,14,64,.55)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important}'+
+  'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .nl-barre-outils [data-perso-input-rangee]{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;--bt-btn-h:30px;--bt-btn-fs:15px;gap:4px 6px!important;align-items:center;margin:0!important;min-width:0;padding:8px!important;border:1px solid rgba(150,120,255,.32)!important;border-radius:10px!important;background:rgba(24,14,64,.55)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)!important}'+
   'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .nl-barre-outils [data-perso-input-rangee]>span:first-child{grid-column:1/-1;font:800 12px/1.2 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#c9d2f7}'+
   '.nl-avance{display:inline-flex;align-items:center;gap:8px;margin:4px 0;font:800 16px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer;color:#fff}'+
   '.nl-avance input{width:24px;height:24px;accent-color:#b58aff}'+

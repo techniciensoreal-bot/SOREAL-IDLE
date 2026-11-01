@@ -57,7 +57,7 @@
   }
   function appeler(corps) {
     var a = acces(), t = a ? a.jeton : jeton();
-    if (a && !t) return Promise.resolve({ ok: false, message: "Ton compte n’est pas connecté : ferme puis rouvre l’application pour te connecter." });
+    if (a && !t) { try { if (window.__SOREAL_IDLE_APK_CONNEXION_V1__ && window.__SOREAL_IDLE_APK_CONNEXION_V1__.proposerReconnexion) window.__SOREAL_IDLE_APK_CONNEXION_V1__.proposerReconnexion(); } catch (_e) { /* la proposition est facultative */ } return Promise.resolve({ ok: false, message: "Ton compte n’est pas connecté : touche « Reconnecter mon compte » dans les Réglages (onglet Ma partie)." }); }
     return fetch(base() + "/api/v1/profil-badavatar", { method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + t }, body: JSON.stringify(corps) })
       .then(function (r) { return r.json().catch(function () { return { ok: false, message: "Réponse illisible." }; }); })
       .catch(function () { return { ok: false, message: "Pas de connexion au serveur : réessaie plus tard." }; });

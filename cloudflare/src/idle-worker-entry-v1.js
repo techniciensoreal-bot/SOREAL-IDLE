@@ -185,13 +185,13 @@ async function idleLogoutV1(request, env) {
 
 /* Jeu local : export de la ligne du joueur et des catalogues au démarrage, réception de la progression (voir idle-local-sync-v1.js). */
 /*
- * Application Android hors ligne (Norman, 2026-10-30) : sa page est servie par https://appassets.androidplatform.net et appelle ces quatre routes du serveur (relais de connexion, lecture puis revendication de sa partie, envoi de ses sauvegardes, pseudo unique) : seule cette origine reçoit les
+ * Application Android hors ligne (Norman, 2026-10-30) : sa page est servie par https://appassets.androidplatform.net et appelle ces routes du serveur (relais de connexion, lecture puis revendication de sa partie, envoi de ses sauvegardes, pseudo unique, profil de badavatar, et /api/v1/call pour la seule preuve d'administrateur estAdminSorealIdle, jeton réel en Bearer) : seule cette origine reçoit les
  * en-têtes CORS, et seulement sur ces routes.
  */
 const IDLE_ORIGINE_APK_V1 = "https://appassets.androidplatform.net";
 function idleCorsApkV1(request, url) {
   if (request.headers.get("origin") !== IDLE_ORIGINE_APK_V1) return null;
-  if (!/^\/api\/v1\/(relais|pseudo|local\/export|local\/push)$/.test(url.pathname)) return null;
+  if (!/^\/api\/v1\/(relais|pseudo|local\/export|local\/push|call|profil-badavatar)$/.test(url.pathname)) return null;
   return { "access-control-allow-origin": IDLE_ORIGINE_APK_V1, "access-control-allow-headers": "authorization, content-type", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-max-age": "600", vary: "origin" };
 }
 function idleAvecCorsApkV1(cors, reponse) {

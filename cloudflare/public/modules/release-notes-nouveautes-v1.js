@@ -4,7 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Sur l’écran de la borne, les chiffres de la vie du boss sont sous la jauge, à gauche, sur la même ligne que la régénération.",
-    "Machine temporelle : les barres sont maintenant aussi fluides que dans les autres menus (60 images par seconde au lieu de 45 à 50) : les tubes de verre ne ralentissent plus la page, et la barre ne recule plus quand le moteur répond après un clic : elle rejoint sa vraie valeur en douceur, même si tu cliques en rafale."
+    "Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.",
+    "Le petit crayon qui sert à changer tes boutons « Mes nombres » n’est plus coupé : il est maintenant à gauche du nombre, bien visible et facile à toucher (Augmentations et autres menus).",
+    "Gyroscope : la carte spéciale zoomée réagit maintenant de façon plus naturelle : elle garde son orientation quand tu inclines le téléphone (elle penche dans le sens inverse) et le reflet suit une lumière fixe ; elle bouge en douceur, sans saccade, et revient doucement à plat quand le téléphone reste immobile."
   ] };
 })();
