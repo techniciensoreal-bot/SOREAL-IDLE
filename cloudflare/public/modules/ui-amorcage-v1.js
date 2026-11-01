@@ -1566,7 +1566,9 @@ window.__changerLangueIdleV1__=function(langue){
         /* Norman (2026-11-01) : « il faut actualiser la page quand on passe de français à anglais » : noms de boss, chroniques et voix restaient dans l'ancienne langue. Jeu déjà ouvert : le choix est envoyé au compte puis la page se recharge. */
         if(REG.idleEtat&&document.querySelector('.soreal-idle-page-root-v28')){
           try{if(window.__SOREAL_IDLE_PREFS_V1__&&typeof window.__SOREAL_IDLE_PREFS_V1__.envoyer==='function')window.__SOREAL_IDLE_PREFS_V1__.envoyer();}catch(_e){}
-          setTimeout(function(){location.reload();},350);
+          /* Jeu local : le choix de langue n'existe d'abord que dans la ligne du moteur de la page ; recharger avant son envoi au serveur le perdait (retour au français). On envoie la partie au serveur AVANT de recharger (6 s au plus). */
+          const rechargerApres=function(){location.reload();};
+          setTimeout(function(){const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;if(!ML||typeof ML.envoyerMaintenant!=='function'){rechargerApres();return;}let fait=false;const une=function(){if(fait)return;fait=true;rechargerApres();};setTimeout(une,6000);Promise.resolve(ML.envoyerMaintenant()).then(une,une);},500);
           return;
         }
         /* Resynchronisation complète : le serveur renvoie aussitôt les textes dans la nouvelle langue, puis la page se redessine. */
