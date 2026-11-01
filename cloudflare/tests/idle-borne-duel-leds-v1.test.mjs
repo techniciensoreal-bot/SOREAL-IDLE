@@ -47,3 +47,10 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("miniText(pv.regen,") && led.includes("var MINI={"), "régénération en petite police 3x5");
   console.log("idle-borne-duel-leds-v1 (unités + mini) : OK");
 }
+// Norman (2026-11-01) : chiffres de la vie du boss SOUS la jauge, à gauche, sur la ligne de la régénération (petite police)
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
+  const b = led.slice(led.indexOf("function barre(t){"), led.indexOf("var cbId=-1;"));
+  assert.ok(b.includes("miniText(txt,2,lr,BLA,255,fnUnites(txt))") && b.includes("miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen))") && !b.includes("text(txt,tx,ty"), "chiffres sous la jauge à gauche, régénération à droite, même ligne, plus de texte dans la jauge");
+  console.log("idle-borne-duel-leds-v1 (vie sous la jauge) : OK");
+}

@@ -647,16 +647,15 @@ function barre(t){
     var on=x<lit,seam=1;   /* barre pleine, sans traits qui la coupent (Norman, 2026-11-01) */
     for(j=0;j<GH;j++)px(x0+x,gy+j,BARRE,(on?255:30)*seam);
   }
-  var hx=x0+2,hy=gy+Math.floor((GH-6)/2),hp=[],i,r,q,room=W-13-3,txt=pv.cur+' / '+pv.max,pts=[];   /* le petit cœur, à gauche dans la jauge */
+  var hx=x0+2,hy=gy+Math.floor((GH-6)/2),hp=[],r,q,txt=pv.cur+' / '+pv.max,lr=gy+GH+2;   /* le petit cœur, à gauche dans la jauge */
   for(r=0;r<SPR.coeurP.length;r++)for(q=0;q<SPR.coeurP[r].length;q++)if(SPR.coeurP[r][q]!=='.')hp.push([hx+q,hy+r]);
   contour(hp,gy,gy+GH);sprite(SPR.coeurP,hx,hy,255,ROS);
-  if(twidth(txt,1)>room)txt=pv.cur+'/'+pv.max;
-  if(twidth(txt,1)>room)txt=pv.cur;
-  var tx=13+Math.floor((room-twidth(txt,1))/2),ty=gy+1;
-  text(txt,tx,ty,BLA,1,255,{fn:function(q,gx,gy2){pts.push([gx,gy2]);return [BLA,0];}});
-  contour(pts,gy,gy+GH);   /* contour sombre des chiffres */
-  var fu=fnUnites(txt);text(txt,tx,ty,BLA,1,255,fu?{fn:fu}:undefined);
-  if(pv.regen)miniText(pv.regen,W-2-miniWidth(pv.regen),gy+GH+2,VER,255,fnUnites(pv.regen));
+  /* Norman (2026-11-01) : les chiffres de la vie sont SOUS la jauge, calés à gauche, sur la même ligne que la régénération (à droite), en petite police 3x5 */
+  var room=W-3-(pv.regen?miniWidth(pv.regen)+4:0);
+  if(miniWidth(txt)>room)txt=pv.cur+'/'+pv.max;
+  if(miniWidth(txt)>room)txt=pv.cur;
+  miniText(txt,2,lr,BLA,255,fnUnites(txt));
+  if(pv.regen)miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen));
 }
 var cbId=-1;
 function couleurBarre(r,e){

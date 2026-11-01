@@ -86,6 +86,7 @@
             'Les comptes d’ouvrier absents de la liste de l’équipe apparaissent maintenant comme ennemis dans la tour, avec le badavatar de leur Profil.',
             'Sur l’écran de la borne, les lettres des grands nombres (K, M, AB…) ont leur couleur habituelle et la régénération est écrite plus petit.',
             'Le journal de combat de l’Aventure reste toujours calé sur la dernière ligne, même quand le combat va très vite.',
+            'Sur l’écran de la borne, les chiffres de la vie du boss sont sous la jauge, à gauche, sur la même ligne que la régénération.',
             'L’écran LED de la borne est plus net (points au bord franc, halo plus discret) et ses chiffres sont plus petits.',
             'Les flèches du classeur ont un nouveau style fantasy : métal doré, gemme lumineuse, pointes taillées en relief, « 10 » sur les flèches de dix pages, et un aspect terni quand elles sont inactives.',
             'Au bout du classeur, de nouvelles pages peuvent apparaître avec des cartes spéciales : un cadre particulier aux couleurs de chaque personnage et un effet hologramme qui suit ton doigt ou ta souris.',
