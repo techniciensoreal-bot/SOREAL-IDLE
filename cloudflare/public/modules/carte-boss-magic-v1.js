@@ -18,6 +18,9 @@ function nb(n){
 }
 /* Numéro du boss sur la carte : « B 112 » (il n'y a pas 1000 boss : plus de zéros devant, Norman 2026-10-30). */
 function numeroCarte(n){return String(Math.max(0,Math.floor(Number(n)||0)));}
+/* Langue de la carte (Norman, 2026-11-01 : « les noms de boss sont toujours en français sur les cartes, et en bas il est écrit FR ») : le code du bas suit la langue du joueur et le nom passe par le dictionnaire quand l'anglais est actif. */
+function langueCarte(){try{return window.__SOREAL_IDLE_LANGUE_V1__&&window.__SOREAL_IDLE_LANGUE_V1__()==='en'?'EN':'FR';}catch(_e){return 'FR';}}
+function nomCarte(n){try{var T=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;return T&&T.actif()?T.traduire(n):n;}catch(_e){return n;}}
 
 /* Couleurs : 0 bleu, 1 rouge, 2 vert, 3 noir, 4 blanc, 5 or (deux couleurs). Repli avant l'analyse de l'image (ou si elle est impossible) : une couleur par monde. */
 function couleurMonde(monde){var m=Math.max(1,Math.floor(Number(monde)||1));return (m-1)%5;}
@@ -113,12 +116,15 @@ var EPEE='<svg class="mtg-epee" viewBox="0 0 24 24" aria-hidden="true"><path d="
 var EMBLEME='<svg class="mtg-embleme" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 21 6v6c0 5-4 8.5-9 10C7 20.5 3 17 3 12V6z" fill="#1b1b22" stroke="#e9d9a2" stroke-width="1.6"/><path d="M12 6.5l1.8 3.8 4.1.5-3 2.8.8 4.1L12 15.6 8.3 17.7l.8-4.1-3-2.8 4.1-.5z" fill="#e9d9a2"/></svg>';
 
 /* Dos de carte : cadre doré, ovale brun bordé de bleu, titre du jeu sur deux lignes (lettres bleues à contour brun-rouge) et les cinq billes de couleur. Rien d'autre : pas de photo du boss (Norman, 2026-10-28). Le dos est l'image idle/backgrounds/MagicCardBack.webp (R2, route /api/idle/media/card-back) pour TOUTES les cartes ; ce dessin ne sert que de repli tant qu'elle manque. */
+/* Dos des cartes de boss en partie NORMALE (Norman, 2026-11-01) : 9 variantes (cloudflare/public/dos-cartes/normal/boss-1.webp … boss-9.webp) ; on ne voit jamais plus de 9 dos en même temps (9 emplacements par page) : le dos suit la place de la carte (numéro de boss ou emplacement, modulo 9). Evil et Sadistik : à venir (le dos d'avant, /api/idle/media/card-back, reste le repli). */
+var NB_DOS_NORMAL=9;
+function urlDosNormal(k){var n=Math.floor(Number(k));if(!(n>=1))n=1;return '/dos-cartes/normal/boss-'+(((n-1)%NB_DOS_NORMAL)+1)+'.webp';}
 var cptDos=0;
 function dos(o){
   var idB='mtgBleu'+(++cptDos);
   var lettres='font-family="Bangers,Impact,sans-serif" font-size="92" text-anchor="middle" fill="url(#'+idB+')" stroke="#5b1d12" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" letter-spacing="3"';
-  return '<div class="mtg-dos" data-soreal-tts-ignore>'+
-    '<img class="mtg-dos-image" src="'+((o&&o.dosImage)||'/api/idle/media/card-back')+'" alt="" data-sans-traduction onerror="this.style.display=\'none\';this.parentNode.className+=\' sans-image\'">'+
+  return '<div class="mtg-dos'+(o&&o.dosImage?' mtg-dos-plein':'')+'" data-soreal-tts-ignore>'+   /* dos d'image fournie (Titans) : étiré pour ne pas montrer les bords noirs (Norman, 2026-11-01) */
+    '<img class="mtg-dos-image" src="'+((o&&o.dosImage)||urlDosNormal(o&&o.numero))+'" alt="" data-sans-traduction onerror="this.style.display=\'none\';this.parentNode.className+=\' sans-image\'">'+
     '<div class="mtg-dos-ovale">'+
       '<svg class="mtg-dos-titre" viewBox="0 0 340 215" aria-hidden="true" data-sans-traduction>'+
         '<defs><linearGradient id="'+idB+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0f2"/><stop offset=".5" stop-color="#4a8fd0"/><stop offset="1" stop-color="#2a63a8"/></linearGradient></defs>'+
@@ -155,7 +161,7 @@ function html(o){
   return (o.sansFleches?'':fleches(numero))+'<div class="carte-mtg-v1'+(retournees[numero]?' retournee':'')+'" data-numero="'+numero+'" data-couleur="'+couleur+'">'+
     '<div class="mtg-avant">'+
     '<div class="mtg-cadre">'+
-      '<div class="mtg-titre"><div class="soreal-idle-boss-lore-name-v184 mtg-nom" data-soreal-tts-pause="1100">'+esc(o.nom||'Boss')+'</div><div class="mtg-pastilles" data-soreal-tts-ignore>'+pastilles+'</div></div>'+
+      '<div class="mtg-titre"><div class="soreal-idle-boss-lore-name-v184 mtg-nom" data-soreal-tts-pause="1100">'+esc(nomCarte(o.nom||'Boss'))+'</div><div class="mtg-pastilles" data-soreal-tts-ignore>'+pastilles+'</div></div>'+
       '<div class="mtg-art" data-soreal-tts-ignore>'+image+'</div>'+
       '<div class="mtg-type" data-soreal-tts-ignore><span class="mtg-type-texte"><span>Boss légendaire</span>'+(o.monde?' — <span>Monde</span> '+esc(o.monde):'')+'</span>'+tues+EMBLEME+'</div>'+
       '<div class="mtg-texte">'+
@@ -165,7 +171,7 @@ function html(o){
         '<div class="mtg-boutons">'+(o.boutonsHtml||'')+'</div>'+
         (o.adminHtml?'<div class="mtg-admin">'+o.adminHtml+'</div>':'')+
       '</div>'+
-      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(numeroCarte(o.numero))+' · FR</span><span data-sans-traduction>SOREAL NGU IDLE</span></div>'+
+      '<div class="mtg-bas" data-soreal-tts-ignore><span data-sans-traduction>B '+esc(numeroCarte(o.numero))+' · '+langueCarte()+'</span><span data-sans-traduction>SOREAL NGU IDLE</span></div>'+
     '</div>'+
     force+
     '</div>'+
@@ -301,6 +307,6 @@ document.addEventListener('keydown',function(e){
 });
 
 /* Une carte vue de dos (pochettes des pages de gauche de l'album) : le même dos que la grande carte retournée. */
-function dosSeul(){return '<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+dos({})+'</div>';}
+function dosSeul(k){return '<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+dos({numero:k||1})+'</div>';}
 window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,dos:dos,html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
 })();

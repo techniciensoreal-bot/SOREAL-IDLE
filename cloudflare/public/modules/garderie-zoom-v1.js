@@ -18,7 +18,7 @@
   let couche=null,idOuvert=null,minuterie=0,focusAvant=null;
 
   function duree(s){
-    try{const M=window.__SOREAL_IDLE_META_PARTAGE_V130__;return M.dureeLongueNguIdleV1_(s);}catch(_e){return '';}
+    try{if(typeof window.__SOREAL_IDLE_DUREE_JHM_V1__==='function')return window.__SOREAL_IDLE_DUREE_JHM_V1__(s);const M=window.__SOREAL_IDLE_META_PARTAGE_V130__;return M.dureeLongueNguIdleV1_(s);}catch(_e){return '';}
   }
   function trouverOriginal(id){
     const l=document.querySelectorAll('.gd-bocal[data-gd-id]');

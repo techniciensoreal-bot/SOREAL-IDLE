@@ -2270,8 +2270,8 @@
             if(g.libres.length)html+=cadreThematique(g.groupe||'autre',g.nom,libres(g.libres));
           }
         });
-        return '<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1 soreal-idle-coffre-mannequins-v1">'+html+'</div>'+
-        rendrePaginationIdleV1_(REG.idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');
+        const paginationCoffre=rendrePaginationIdleV1_(REG.idlePageCoffreV1,totalPagesCoffre,'window.__changerPageCoffreV1__');   /* pages aussi EN HAUT, sous la recherche (Norman, 2026-11-01) */
+        return paginationCoffre+'<div class="soreal-idle-collection-grid-v1 soreal-idle-coffre-grille-v1 soreal-idle-coffre-mannequins-v1">'+html+'</div>'+paginationCoffre;
       }
 
       /*

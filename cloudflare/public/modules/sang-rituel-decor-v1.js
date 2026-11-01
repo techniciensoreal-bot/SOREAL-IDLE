@@ -1443,11 +1443,19 @@ function banqueIndex(e){
   if(e<h+BANQUE_PAUSE)return BANQUE_IMAGE_FRIGO;
   return Math.min(BANQUE_N-1,Math.floor((e-BANQUE_PAUSE)/dt));
 }
+/* Dernière durée connue d'un niveau de CE rituel (secondes), 0 si inconnue : lue dans la mémoire de phaseRituelEtat, qui garde la dernière vue même quand la synchro la retire un instant. */
+function banqueDureeNiveau(sc){
+  var m=vueRituelMemo[sc.getAttribute('data-bm-id')],s=m&&m.v?Number(m.v.secondsPerCompletion):0;
+  return s>0?s:0;
+}
 function banqueCadre(sc,maintenant){
   var actif=!!sc.querySelector('.bm-tuyau.saigne-v1')&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var ligne=document.getElementById('sorealIdleBloodEtaLineV1_'+sc.getAttribute('data-bm-id'));
   if(!actif||(ligne&&/il manque .* Or/i.test(ligne.textContent||''))){sc.__bt0=0;sc.__bPb=null;sc.__bWrap=0;sc.__bP=0;return 0;}
   var pb=phaseBarre(sc);
+  /* Norman (2026-11-01 : « j'ai placé ma magie, l'animation s'est déclenchée alors qu'il me fallait environ 2 minutes ») : la durée d'un niveau est CONNUE (repère du rituel) ; la scène ne joue alors jamais en boucle continue, quelle que soit la durée « mesurée » entre deux recommencements ou l'absence passagère de la vue du rituel. La boucle continue ne sert qu'aux niveaux plus courts que l'animation. */
+  var dn=banqueDureeNiveau(sc);
+  var niveauLong=dn>BANQUE_TOTAL;
   if(pb!=null){
     if(sc.__bPb!=null&&pb<sc.__bPb-0.3){
       if(sc.__bWrap)sc.__bP=(maintenant-sc.__bWrap)/1000;   /* durée mesurée d'un niveau */
@@ -1455,9 +1463,9 @@ function banqueCadre(sc,maintenant){
     }
     sc.__bPb=pb;
   }
-  if(sc.__bP>0&&sc.__bP<BANQUE_TOTAL)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
+  if(!niveauLong&&sc.__bP>0&&sc.__bP<BANQUE_TOTAL)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
   /* Norman (2026-10-13) : « l'animation de la banque du sang ne se joue pas » : quand les niveaux sont si courts que la barre du moteur n'a plus d'animation à lire (phaseBarre null : barre figée pleine), aucun recommencement ne peut être détecté et l'image restait sur la première. Le rituel tourne (il n'est ni arrêté ni bloqué par l'Or, voir plus haut) : la scène joue alors en boucle continue, comme pour un niveau de moins de 4 s. */
-  if(pb==null&&!sc.__bt0)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
+  if(pb==null&&!sc.__bt0&&!niveauLong)return banqueIndex((maintenant/1000)%BANQUE_TOTAL);
   if(!sc.__bt0)return 0;
   var ecoule=(maintenant-sc.__bt0)/1000;
   if(ecoule>=BANQUE_TOTAL){sc.__bt0=0;return 0;}

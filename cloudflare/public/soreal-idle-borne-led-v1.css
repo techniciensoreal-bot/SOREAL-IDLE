@@ -1,0 +1,14 @@
+/*
+ * Panneau LED de la borne d'arcade (Norman, 2026-11-01 : « au-dessus de la barre de vie de l'ennemi » et « ça doit remplacer le nom du boss et le numéro ») : un écran plat, pleine largeur de la colonne du boss, posé à la place de la plaque « BOSS #n + nom » dans la cellule de la plaque du duel, juste au-dessus de sa barre de vie. Le fronton « NGU IDLE » n'est pas touché ; la barre de vie du boss n'a AUCUNE règle ici (même rendu, même place, juste dessous).
+ * Grille de points : scènes 120 x 14 sur PC, 90 x 12 sur téléphone, PLUS la vie du boss en dessous ; la taille d un point est FIXE (4 px sur PC, 3 px sur téléphone), le nombre de colonnes et de rangées s adapte à l hôte (rapport 3 sur PC, 2,5 sur téléphone) : plus l écran est grand, plus il y a de LED ; le canvas est posé par modules/borne-led-v1.js.
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led{position:relative;display:block;width:100%;aspect-ratio:120/40;margin:0;overflow:hidden;border-radius:6px;background:#020202;box-shadow:0 0 0 2px #05071a,0 0 0 3px #ffd24a66,inset 0 0 12px rgba(0,0,0,.85);contain:layout paint;text-align:left}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led-canvas{display:block;image-rendering:pixelated}
+/* Le nom du boss reste dans le HTML (traduction, lecteurs d'écran) mais masqué à la vue : seul le panneau l'affiche (Norman, 2026-11-01) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* L'ancienne barre de vie du boss (cœur rose, PV, régénération) reste dans la page, MASQUÉE : le code qui la met à jour continue de la lire, mais l'écran dessine la vie du boss lui-même (Norman, 2026-11-01 : « en écran de jeu quoi ») */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-pv-source{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;pointer-events:none}
+/* Écran TRÈS NOIR une fois allumé (Norman, 2026-11-01 : « je crois que tu as mis un reflet sur l'écran LED, ça doit être très noir ») : aucune vitre, aucun reflet blanc, les points éteints sont presque noirs */
+@container (max-width:470px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led{aspect-ratio:90/36}
+}

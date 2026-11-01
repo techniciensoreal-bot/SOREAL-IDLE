@@ -165,10 +165,11 @@
     '<ellipse cx="72" cy="40" rx="22" ry="6" fill="#fff" opacity=".22"/>'+
     '<path d="M14 22C34 12 80 5 131 5C182 5 228 12 248 22V72H14Z" fill="url(#vlOmbreLg)"/>'+
     '<path d="M14 72V22C34 12 80 5 131 5C182 5 228 12 248 22V72" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4" stroke-linejoin="round"/></svg>';
-  var BOUT='<svg viewBox="0 0 262 104" aria-hidden="true" focusable="false"><path d="M14 0H248C256 46 208 102 131 102C54 102 6 46 14 0Z" fill="'+ROSE+'"/>'+
-    '<path d="M131 0V74" stroke="'+RAINURE+'" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>'+papilles([[60,20],[92,52],[170,24],[204,48],[120,84],[146,70]])+
+  /* Le bout de langue (Norman, 2026-11-01 : « un trait horizontal montre un rajout : je ne veux pas le voir ») : son remplissage et ses contours démarrent 10 unités AU-DESSUS du raccord avec le corps (recouvrement franc, deux bords antialiasés ne se superposent plus), et le corps est calé sur son BAS : la tuile finit exactement là où le bout commence (mêmes bords). */
+  var BOUT='<svg viewBox="0 0 262 104" aria-hidden="true" focusable="false"><path d="M14 -10H248V0C256 46 208 102 131 102C54 102 6 46 14 0Z" fill="'+ROSE+'"/>'+
+    '<path d="M131 -10V74" stroke="'+RAINURE+'" stroke-width="2.2" opacity=".85" stroke-linecap="round"/>'+papilles([[60,20],[92,52],[170,24],[204,48],[120,84],[146,70]])+
     '<ellipse cx="86" cy="44" rx="16" ry="24" fill="#fff" opacity=".22"/>'+
-    '<path d="M14 0C6 46 54 102 131 102C208 102 256 46 248 0" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4"/></svg>';
+    '<path d="M14 -10V0C6 46 54 102 131 102C208 102 256 46 248 0V-10" fill="none" stroke="'+CONTOUR+'" stroke-width="3.4"/></svg>';
 
   /* Le rouleau de langue : le bout enroulé de la langue (un cylindre aux deux faces en spirale). Son rayon diminue à mesure que la langue se déroule et il tourne de la longueur sortie (anime()). */
   var ROULEAU='<b class="vl-ro-corps"></b>';
@@ -468,8 +469,8 @@ ${P} .vl-ro-corps{position:absolute;inset:0;border:2px solid #5a1028;border-radi
 @keyframes vlLangue{0%,100%{transform:scaleY(1) rotate(0)}50%{transform:scaleY(1.012) rotate(.5deg)}}
 ${P} .vl-lg-racine svg,${P} .vl-lg-bout svg{display:block;width:100%;height:auto;overflow:visible}
 ${P} .vl-lg-racine{margin-bottom:-1px}
-${P} .vl-lg-bout{margin-top:-1px}
-${P} .vl-lg-corps{display:grid;gap:12px;justify-items:center;padding:6px 18px 4px;background:url("${TUILE}") center top/100% auto repeat-y}
+${P} .vl-lg-bout{margin-top:-3px;position:relative;z-index:1}
+${P} .vl-lg-corps{display:grid;gap:12px;justify-items:center;padding:6px 18px 14px;background:url("${TUILE}") center bottom/100% auto repeat-y}
 ${P} .vl-groupe{width:100%}
 ${P} .vl-enseigne{display:flex;justify-content:center;margin:0 0 4px}
 ${P} .vl-enseigne span{padding:2px 20px 3px;font:400 16px/1.1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.07em;color:#3a2300;background:linear-gradient(180deg,#f6e6b5,#dcc17c);clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%)}
@@ -525,7 +526,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1.ouvert:has(>.vl-section)>div:last-child:not(.vl-section){grid-column:1/-1;grid-row:3}
   ${P}{margin:var(--vl-decal,19px) 0 0}
   ${P} .vl-art{width:70px}
-  ${P} .vl-lg-corps{padding:6px 14px 4px}
+  ${P} .vl-lg-corps{padding:6px 14px 14px}
 }
 @media (max-width:760px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-section-v8.soreal-idle-coffre-v1:has(>.vl-section){display:flex;flex-direction:column}
@@ -543,7 +544,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-coffre-v1.v
   ${P} .vl-langue,${P} .vl-rouleau{width:min(185px,59cqw)}
   ${P} .vl-rouleau{margin-left:calc(min(185px,59cqw)/-2)}
   ${P} .vl-art{width:76px}
-  ${P} .vl-lg-corps{padding:6px 12px 4px}
+  ${P} .vl-lg-corps{padding:6px 12px 14px}
 }
 @media (prefers-reduced-motion:reduce){
   ${P} *{animation:none;transition:none}

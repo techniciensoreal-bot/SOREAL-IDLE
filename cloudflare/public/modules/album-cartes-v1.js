@@ -50,11 +50,12 @@ function sansBalise(t){try{var f=reg().sansBaliseVoixIdleV1_;return typeof f==='
 /* Après les pages des boss : les pages des TITANS déjà vaincus (modules/album-titans-v1.js), 9 par page ; aucune page de titans tant qu'aucun n'est vaincu. */
 function titansMod(){return window.__SOREAL_IDLE_ALBUM_TITANS_V1__||null;}
 function pagesBoss(){return Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
-function pagesTitans(){var T=titansMod();return T?T.nbPages(titans.length):0;}
+function pagesTitans(){var T=titansMod();return T&&T.nbPagesAlbum?T.nbPagesAlbum():0;}
 function nbPages(){return 1+pagesBoss()+pagesTitans();}
 function cartesDePage(r){return r>=1&&r<=pagesBoss()?cartes.slice((r-1)*PAR_PAGE,(r-1)*PAR_PAGE+PAR_PAGE):[];}
-function titansDePage(r){var T=titansMod();return T&&r>pagesBoss()&&r<nbPages()?T.page(titans,r-pagesBoss()-1):[];}
-function nbCartesPage(r){return cartesDePage(r).length||titansDePage(r).length;}
+/* Les pages de titans commencent TOUJOURS après la dernière page de boss (jamais sur la même page) ; chacune a 9 emplacements (carte de face ou dos). */
+function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()&&r<nbPages();}
+function nbCartesPage(r){return cartesDePage(r).length||(estTitans(r)?PAR_PAGE:0);}
 function nbPieces(){return Math.min(PIECES,Math.floor(cartes.length*PIECES/TOTAL_BOSS));}
 /* Page affichée (celle de droite sur PC, où elle est toujours paire : à gauche, la page d'avant) ; la dernière page peut être seule à gauche, sa voisine de droite est alors vide. */
 function pageMax(){var n=nbPages();return double()?(((n-1)%2===0)?n-1:n):n-1;}
@@ -79,13 +80,13 @@ function pochetteHtml(e){
   '</div>';
 }
 /* Le dos d'une carte (dos de carte SOREAL) : même dos que la grande carte retournée. */
-function dosPochetteHtml(){
+function dosPochetteHtml(k){
   var C=carteMtg();
-  return '<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg">'+(C&&C.dosSeul?C.dosSeul():'')+'</div><div class="alb-plastique"></div></div>';
+  return '<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg">'+(C&&C.dosSeul?C.dosSeul(k):'')+'</div><div class="alb-plastique"></div></div>';
 }
 /* Le grand dessin : l'affiche découpée en 9 cartes ; une carte est gagnée tous les ~34 boss vaincus ; tant qu'elle ne l'est pas, on voit son dos. */
 function pieceHtml(k,gagnee){
-  if(!gagnee)return dosPochetteHtml();
+  if(!gagnee)return dosPochetteHtml(k+1);
   var r=Math.floor(k/COLS),c=k%COLS;
   return '<div class="alb-pochette alb-pochette-puzzle" aria-hidden="true"><div class="alb-carte alb-carte-mtg"><div class="alb-puzzle-carte"><div class="alb-puzzle-art" style="background-position:calc(-1 * (21cqw + '+c+' * 94cqw)) calc(-1 * '+r+' * 162cqw)"></div></div></div><div class="alb-plastique"></div></div>';
 }
@@ -101,11 +102,24 @@ function derriereGauche(r){
   if(p<0)return d;
   var carteDerriere=p===0?nbPieces():nbCartesPage(p);   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
   for(i=0;i<PAR_PAGE;i++)d.push(Math.floor(i/COLS)*COLS+(COLS-1-i%COLS)<carteDerriere);
+  d.titan=estTitans(p);   /* derrière : une page de titans → on voit des dos de titans */
   return d;
 }
-function completer(h,n,derriere){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=(derriere&&derriere[i])?dosPochetteHtml():v;return h;}
+/*
+ * Page de DROITE incomplète (PC) : la feuille a pour verso la page suivante ; si c'est la première page de titans, on voit à travers le plastique des emplacements vides les DOS de ses cartes (Norman, 2026-11-01 : « on doit voir les dos avant de tourner la page »),
+ * à la place symétrique (même rangée, colonne opposée). Rien derrière une page de boss ni derrière la dernière page.
+ */
+function derriereDroite(L){
+  var d=[],i;
+  if(!double()||L<1||!estTitans(L+1))return null;
+  for(i=0;i<PAR_PAGE;i++)d.push(true);
+  d.titan=true;
+  return d;
+}
+function miroir(i){return Math.floor(i/COLS)*COLS+(COLS-1-i%COLS);}
+function completer(h,n,derriere){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=(derriere&&derriere[i])?(derriere.titan&&titansMod()?titansMod().dosPochetteHtml(miroir(i)+1):dosPochetteHtml(i+1)):v;return h;}
 /* Après la dernière page (la page de droite de la dernière feuille, sur PC) : une page blanche de 9 emplacements invisibles, jamais vide : une page vide ferait s'effondrer la hauteur du classeur (tout le menu bougerait). */
-function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):null;if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();var tl=titansDePage(L);if(tl.length)return completer(tl.map(titansMod().pochetteHtml).join(''),tl.length,dd);var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
+function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):derriereDroite(L);if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-1);var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
 function droiteHtml(L){return contenuPage(L);}
 function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
 
@@ -189,7 +203,6 @@ function noterPage(){if(!ouvert)return;try{localStorage.setItem(CLE_PAGE,String(
 /* Le classeur entier ; les cartes viennent de la Collection (boss vaincus seulement, dans l'ordre des numéros). */
 function rendre(entrees){
   cartes=(entrees||[]).filter(function(e){return e&&e.vaincu&&Math.floor(Number(e.numero))>0;}).sort(function(a,b){return a.numero-b.numero;});
-  titans=titansMod()?titansMod().titansVaincus():[];   /* seulement les titans déjà vaincus (règle n°2) */
   if(!document.querySelector('.alb-classeur')){ouvert=true;arrivee=true;page=pageMemorisee();}   /* on arrive dans le menu : le livre est OUVERT sur la dernière page où le joueur s'était arrêté (Norman, 2026-11-01) ; un redessin de la page déjà ouverte garde son état */
   page=norm(page);
   setTimeout(verifierNouvelles,500);

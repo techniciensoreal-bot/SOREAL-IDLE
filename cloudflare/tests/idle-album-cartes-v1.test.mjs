@@ -15,7 +15,7 @@ assert.ok(m.includes("cliquerGauche") && m.includes("Fermer le classeur"), "le l
 // cartes DE FACE sur la page de gauche ET sur celle de droite (Norman : « finalement, des cartes de face des deux côtés ») ; le dos ne sert plus qu'aux cartes du grand dessin pas encore gagnées
 assert.ok(m.includes("function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}") && m.includes("function droiteHtml(L){return contenuPage(L);}"), "à gauche : la page d'avant, de face ; à droite : la page courante");
 assert.ok(!m.includes("function dosHtml(") && !m.includes("nbDos(") && !m.includes("dosLegerHtml"), "plus de page de dos à gauche");
-assert.ok(m.includes("function pieceHtml(k,gagnee){\n  if(!gagnee)return dosPochetteHtml();"), "tant qu'une carte du dessin n'est pas gagnée, on voit son dos (dos de carte SOREAL)");
+assert.ok(m.includes("function pieceHtml(k,gagnee){\n  if(!gagnee)return dosPochetteHtml(k+1);"), "tant qu'une carte du dessin n'est pas gagnée, on voit son dos (dos de carte SOREAL)");
 assert.ok(m.includes("function pageMax()") && m.includes("function norm(L)") && m.includes("double()?L-(L%2):L"), "sur PC la page de droite est toujours paire (à gauche, la page d'avant)");
 // une carte pas encore annoncée reste invisible dans sa pochette
 assert.ok(m.includes("(enAttente[n]||vusTmp.indexOf(n)<0)?' alb-attente':''") && m.includes("function contenuPage(L,gauche){vusTmp=lireVus()||[];"), "une carte pas encore annoncée n'est jamais vue « déjà placée »");

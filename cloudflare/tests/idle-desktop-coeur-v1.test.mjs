@@ -132,7 +132,7 @@ console.log("idle-desktop-coeur-v1 : OK");
   const coeurSteam = fs.readFileSync(new URL("../../desktop/coeur.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
   assert.ok(/if \(LANCE_PAR_STEAM\) \{[\s\S]*fenetre\.on\("blur", \(\) => \{ ajuster\(\);[\s\S]*fenetre\.on\("focus", \(\) => \{[\s\S]*degeler\(\); \}\);/.test(coeurSteam), "gel des animations à la perte du focus, dégel au retour (Steam seulement)");
   assert.ok(coeurSteam.includes("getCursorScreenPoint()") && coeurSteam.includes("if (curseurSurLaFenetre()) geler(); else if (gele) degeler();"), "gel seulement si le curseur est sur la fenêtre (superposition Steam), pas quand on clique ailleurs");
-  assert.ok(coeurSteam.includes("animation-play-state:paused!important") && coeurSteam.includes("canvas{visibility:hidden!important}"), "animations CSS et calques de dessin gelés");
+  assert.ok(coeurSteam.includes("animation-play-state:paused!important") && coeurSteam.includes("{visibility:hidden!important}") && coeurSteam.includes("canvas:not(.bm-sangsue-gl):not(.bm-banque-cv):not(.bm-fil):not([data-steam-visible])"), "animations CSS et calques de dessin gelés");
   assert.ok(/const degeler = async \(\) => \{[\s\S]*removeInsertedCSS\(cle\)[\s\S]*repeindre\(\);/.test(coeurSteam), "le gel est retiré avant la repeinture");
 }
 /* Norman (2026-10-31) : « il n'y a plus que 3 ennemis dans l'ITOPOD » : l'exe lit la liste des prénoms sur le serveur (SOREAL TV est hors de portée de son Worker local), en garde la dernière copie et la relit hors ligne. */

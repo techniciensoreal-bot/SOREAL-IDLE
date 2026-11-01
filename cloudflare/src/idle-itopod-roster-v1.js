@@ -116,6 +116,44 @@ export function idleItopodEtagesV1(cles) {
 let cache = { at: 0, valeur: null };
 const DUREE_CACHE_MS = 10 * 60 * 1000;
 
+/*
+ * Nom d'un ennemi tel que le roster le publie : texte nettoyé, 40 caractères au plus. C'est CE nom que l'ITOPOD donne à tirerPourNom : le profil de badavatar d'un joueur (src/idle-profil-badavatar-v1.js)
+ * doit partir du même nom, sinon il désigne un autre visage que celui vu dans la tour (Norman, 2026-11-01).
+ */
+export function idleItopodNomRosterV1(nom) { return text(nom).slice(0, 40); }
+
+/* Nom d'un ouvrier dans le roster d'après son adresse (même champ que idleItopodRosterV1 : `nom` du profil d'équipe de TV) ; "" si l'adresse n'y figure pas. */
+export function idleItopodNomRosterParEmailV1(cosmetics, emails) {
+  const par = cosmetics && typeof cosmetics === "object" && cosmetics.parEmail && typeof cosmetics.parEmail === "object" ? cosmetics.parEmail : null;
+  if (!par) return "";
+  const adresses = (Array.isArray(emails) ? emails : [emails]).map((e) => text(e).toLowerCase()).filter(Boolean);
+  const index = new Map(Object.keys(par).map((k) => [text(k).toLowerCase(), par[k]]));
+  for (const a of adresses) {
+    const nom = idleItopodNomRosterV1(index.get(a) && index.get(a).nom);
+    if (nom && !IDLE_ITOPOD_EXCLUS_V1.includes(norm(nom))) return nom;
+  }
+  return "";
+}
+
+/* Profils d'équipe de TV (liaison de service, comme le roster) ; mémorisés 10 min (30 s après un échec). null si TV est injoignable. */
+let cacheCosmetiques = { at: 0, valeur: null };
+export async function idleItopodCosmetiquesV1(env, fetchFn) {
+  const maintenant = Date.now();
+  if (maintenant - cacheCosmetiques.at < (cacheCosmetiques.valeur ? DUREE_CACHE_MS : 30000)) return cacheCosmetiques.valeur;
+  let valeur = null;
+  try {
+    const init = { headers: { accept: "application/json" } };
+    const r = fetchFn
+      ? await fetchFn(IDLE_ITOPOD_TV_ORIGIN_V1 + "/api/cosmetiques-equipe", init)
+      : env && env.SOREAL_TV_API && typeof env.SOREAL_TV_API.fetch === "function"
+        ? await env.SOREAL_TV_API.fetch(new Request(IDLE_ITOPOD_TV_HOTE_INTERNE_V1 + "/api/cosmetiques-equipe", init))
+        : null;
+    if (r && r.ok) valeur = await r.json();
+  } catch (_) { /* TV injoignable : le nom retombe sur le prénom de la session */ }
+  cacheCosmetiques = { at: maintenant, valeur };
+  return valeur;
+}
+
 /* Réponse JSON { ok, workers:[{nom, avatar}], decors:{1..6:[clé]} } ; en cas d'échec de TV, la liste réduite aux deux toujours présents. */
 export async function idleItopodRosterReponseV1(request, env, fetchFn) {
   const maintenant = Date.now();

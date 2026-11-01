@@ -1,7 +1,8 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogueV1 } from "./idle-sqlite-runtime.js";
 import { profilsParEmailIdleV1, libelleJoueurIdleV1, lireProfilIdleV1 } from "./idle-profile-v1.js";
-import { idleBadavatarListePubliqueV1, idleBadavatarPhotoV1, idleBadavatarReinitialiserParNomV1, idleBadavatarReinitialiserV1, idleBadavatarEnregistrerV1, idleBadavatarLireV1, idleBadavatarCleNomV1 } from "./idle-profil-badavatar-v1.js";
+import { idleBadavatarListePubliqueV1, idleBadavatarPhotoV1, idleBadavatarReinitialiserParNomV1, idleBadavatarReinitialiserV1, idleBadavatarEnregistrerV1, idleBadavatarLireV1, idleBadavatarCleNomV1, idleBadavatarMigrerNomV1 } from "./idle-profil-badavatar-v1.js";
+import { idleItopodNomRosterV1, idleItopodNomRosterParEmailV1, idleItopodCosmetiquesV1 } from "./idle-itopod-roster-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
 import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
@@ -580,11 +581,15 @@ export class SorealIdleCoordinatorV1 {
       if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
       const email = sv(s.user?.email || s.user?.emailConnexion || (Array.isArray(s.user?.emails) ? s.user.emails[0] : "")).toLowerCase();
       if (!email) return Response.json({ ok: false, code: "BADAVATAR_COMPTE", message: "Compte introuvable." }, { headers: { "cache-control": "no-store" } });
-      const profil = lireProfilIdleV1(this.sql, email);
-      /* Nom vu des autres dans l'ITOPOD : celui de la liste des ennemis (externe : pseudo ou prénom Google ; ouvrier : prénom). */
-      const nom = s.user?.externe === true ? libelleJoueurIdleV1(profil || { externe: true, googleName: sv(s.user?.name), pseudo: "", prenom: "" }, "") : (sv(s.user?.prenom) || sv(profil?.prenom));
-      const nomCle = idleBadavatarCleNomV1(nom && nom.toLowerCase() !== "joueur" ? nom : "");
       const action = sv(p?.action);
+      const profil = lireProfilIdleV1(this.sql, email);
+      /* Nom vu des autres dans l'ITOPOD = celui de la liste des ennemis. Un ouvrier : le nom de SON entrée du roster (profil d'équipe de TV, même champ que l'ITOPOD) ; à défaut son prénom de session. Un externe : le libellé du roster. Toujours coupé à 40 caractères comme le roster. */
+      const emailsCompte = [email].concat(Array.isArray(s.user?.emails) ? s.user.emails : [], [s.user?.emailConnexion]).map((e) => sv(e).toLowerCase()).filter(Boolean);
+      const nomRosterTv = s.user?.externe === true ? "" : idleItopodNomRosterParEmailV1(await idleItopodCosmetiquesV1(this.env), emailsCompte);
+      const nomBrut = nomRosterTv || (s.user?.externe === true ? libelleJoueurIdleV1(profil || { externe: true, googleName: sv(s.user?.name), pseudo: "", prenom: "" }, "") : (sv(s.user?.prenom) || sv(profil?.prenom)));
+      const nom = idleItopodNomRosterV1(nomBrut);
+      const nomCle = idleBadavatarCleNomV1(nom && nom.toLowerCase() !== "joueur" ? nom : "");
+      if (nomCle && action !== "reinitialiser" && action !== "enregistrer") idleBadavatarMigrerNomV1(this.sql, email, nomCle);
       if (action === "reinitialiser") return Response.json(idleBadavatarReinitialiserV1(this.sql, email), { headers: { "cache-control": "no-store" } });
       if (action === "enregistrer") return Response.json(idleBadavatarEnregistrerV1(this.sql, email, nomCle, { pieces: p?.pieces, photo: p?.photo, cat: p?.cat }), { headers: { "cache-control": "no-store" } });
       /* lire : le profil enregistré (avec l'image) et le nom d'après lequel le badavatar est tiré par défaut. */

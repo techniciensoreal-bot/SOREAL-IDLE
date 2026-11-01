@@ -47,6 +47,8 @@ function analyser(src) {
  * LISTE BLANCHE (fichier -> fragments autorisés, avec la raison).
  */
 const LISTE_BLANCHE = [
+  /* borne-led-v1.js : « PV / PV max » de la barre de vie du boss COURANT (déjà découvert), dessinée sur le panneau comme l'ancienne barre ; ce n'est pas un total de collection. */
+  { fichier: "borne-led-v1.js", contient: "' / '+pv.max", raison: "points de vie du boss en cours (même affichage que l'ancienne barre), pas un total de contenu" },
   /* challenges-v1.js : « ??? » remplace une valeur NON affichable (nombre trop grand pour la mise en forme) dans le détail d'un défi
      DÉJÀ débloqué ; ce n'est pas une case d'un contenu non découvert. */
   { fichier: "challenges-v1.js", contient: "???", raison: "valeur numérique non affichable d'un défi déjà débloqué, pas un contenu verrouillé" },

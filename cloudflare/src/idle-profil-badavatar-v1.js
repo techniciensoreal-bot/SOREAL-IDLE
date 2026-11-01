@@ -15,19 +15,23 @@ import { sqlRows } from "./core/sqlite-core.js";
 export const IDLE_BADAVATAR_PIECES_V1 = Object.freeze(["Cheveux", "Yeux", "Oreille_Gauche", "Oreille_Droite", "Nez", "Bouche", "Barbe"]);
 /* Bornes (fractions de la scène 480 x 640 ; la tête fait environ 0,3 de large) : une pièce reste dans les environs de la tête. */
 export const IDLE_BADAVATAR_BORNES_V1 = Object.freeze({
-  dx: [-0.2, 0.2],
-  dy: [-0.2, 0.2],
-  k: [0.5, 2],
-  rot: [-25, 25],
+  /* position : toute la scène (Norman, 2026-11-01) ; le rendu garde le centre de la pièce dans la zone visible */
+  dx: [-0.5, 0.5],
+  dy: [-0.5, 0.5],
+  k: [0.3, 4],
+  /* rotation complète (Norman, 2026-11-01) : valeur affichée de −180 à +180 degrés */
+  rot: [-180, 180],
+  /* ordre d'empilement relatif à l'ordre d'origine du badavatar désigné (0 = inchangé), entier */
+  z: [-20, 20],
   /* visage : décalage par rapport au centre de la tête, en largeurs de tête */
-  photoX: [-1, 1],
-  photoY: [-1, 1],
+  photoX: [-4, 4],
+  photoY: [-4, 6],
   photoK: [0.3, 4],
   /* étirement séparé en largeur (kx) et en hauteur (ky) : multiplicateurs de k ; k x kx et k x ky restent dans photoLimite (taille réelle de chaque côté) */
   photoKx: [0.4, 2.5],
   photoKy: [0.4, 2.5],
   photoLimite: [0.3, 4],
-  photoRot: [-25, 25]
+  photoRot: [-180, 180]
 });
 /* Visage personnalisé : au plus 100 000 caractères d'image en base 64 (environ 75 Ko, 384 px de côté), webp ou png. */
 export const IDLE_BADAVATAR_PHOTO_MAX_V1 = 100000;
@@ -39,6 +43,8 @@ const nombre = (v, [min, max], defaut) => {
   return Math.round(Math.min(max, Math.max(min, n)) * 10000) / 10000;
 };
 const horsBornes = (v, [min, max]) => typeof v !== "number" || !Number.isFinite(v) || v < min || v > max;
+/* z : absent = 0 (anciens profils) ; sinon un entier dans les bornes (refusé sinon, jamais corrigé en silence). */
+const zHorsBornes = (v) => v !== undefined && (!Number.isInteger(v) || v < IDLE_BADAVATAR_BORNES_V1.z[0] || v > IDLE_BADAVATAR_BORNES_V1.z[1]);
 
 /* Même normalisation que itopod-badavatars-v1.js (nomNormalise) : minuscules, sans accents, espaces simples. */
 export function idleBadavatarCleNomV1(nom) {
@@ -57,7 +63,8 @@ export function idleBadavatarValiderPiecesV1(brut) {
     if (horsBornes(p.dx, IDLE_BADAVATAR_BORNES_V1.dx) || horsBornes(p.dy, IDLE_BADAVATAR_BORNES_V1.dy) || horsBornes(p.k, IDLE_BADAVATAR_BORNES_V1.k) || horsBornes(p.rot, IDLE_BADAVATAR_BORNES_V1.rot)) {
       return { ok: false, code: "BADAVATAR_BORNES" };
     }
-    pieces[cle] = { visible: p.visible, dx: nombre(p.dx, IDLE_BADAVATAR_BORNES_V1.dx, 0), dy: nombre(p.dy, IDLE_BADAVATAR_BORNES_V1.dy, 0), k: nombre(p.k, IDLE_BADAVATAR_BORNES_V1.k, 1), rot: nombre(p.rot, IDLE_BADAVATAR_BORNES_V1.rot, 0) };
+    if (zHorsBornes(p.z)) return { ok: false, code: "BADAVATAR_BORNES" };
+    pieces[cle] = { visible: p.visible, z: p.z === undefined ? 0 : p.z, dx: nombre(p.dx, IDLE_BADAVATAR_BORNES_V1.dx, 0), dy: nombre(p.dy, IDLE_BADAVATAR_BORNES_V1.dy, 0), k: nombre(p.k, IDLE_BADAVATAR_BORNES_V1.k, 1), rot: nombre(p.rot, IDLE_BADAVATAR_BORNES_V1.rot, 0) };
   }
   return { ok: true, pieces };
 }
@@ -82,10 +89,10 @@ export function idleBadavatarValiderPlacementPhotoV1(p) {
   const B = IDLE_BADAVATAR_BORNES_V1;
   if (horsBornes(p.x, B.photoX) || horsBornes(p.y, B.photoY) || horsBornes(p.k, B.photoK) || horsBornes(p.rot, B.photoRot)) return { ok: false, code: "BADAVATAR_BORNES" };
   const kx = p.kx === undefined ? 1 : p.kx, ky = p.ky === undefined ? 1 : p.ky;
-  if (horsBornes(kx, B.photoKx) || horsBornes(ky, B.photoKy)) return { ok: false, code: "BADAVATAR_BORNES" };
+  if (horsBornes(kx, B.photoKx) || horsBornes(ky, B.photoKy) || zHorsBornes(p.z)) return { ok: false, code: "BADAVATAR_BORNES" };
   /* garde-fou : la taille réelle de chaque côté (k x kx, k x ky) reste dans la plage, sinon la tête sortirait de la scène ou disparaîtrait */
   if (horsBornes(p.k * kx, B.photoLimite) || horsBornes(p.k * ky, B.photoLimite)) return { ok: false, code: "BADAVATAR_BORNES" };
-  return { ok: true, placement: { visible: p.visible, x: nombre(p.x, B.photoX, 0), y: nombre(p.y, B.photoY, 0), k: nombre(p.k, B.photoK, 1), kx: nombre(kx, B.photoKx, 1), ky: nombre(ky, B.photoKy, 1), rot: nombre(p.rot, B.photoRot, 0) } };
+  return { ok: true, placement: { visible: p.visible, x: nombre(p.x, B.photoX, 0), y: nombre(p.y, B.photoY, 0), k: nombre(p.k, B.photoK, 1), kx: nombre(kx, B.photoKx, 1), ky: nombre(ky, B.photoKy, 1), rot: nombre(p.rot, B.photoRot, 0), z: p.z === undefined ? 0 : p.z } };
 }
 
 const TABLES_PRETES_V1 = new WeakSet();
@@ -147,6 +154,31 @@ export function idleBadavatarEnregistrerV1(sql, email, nomCle, entree, maintenan
   sql.exec("INSERT INTO idle_badavatar_profils(email,nom_cle,base,cat,pieces,photo,photo_placement,maj) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET nom_cle=excluded.nom_cle,base=excluded.base,cat=excluded.cat,pieces=excluded.pieces,photo=excluded.photo,photo_placement=excluded.photo_placement,maj=excluded.maj",
     cle, nomCle, base, cat, JSON.stringify(pieces.pieces), image, placement, maintenant);
   return { ok: true, profil: idleBadavatarLireV1(sql, cle) };
+}
+
+/*
+ * Migration (Norman, 2026-11-01, « le badavatar du Profil n'est pas celui de l'ITOPOD ») : `base` fixée à partir d'un nom qui n'était pas celui du roster. Tant que le joueur n'a rien personnalisé (aucune pièce
+ * déplacée, masquée ou redimensionnée, aucun visage), `base` suit le nom du roster ; sinon sa base est gardée. La clé publique (nom_cle) suit TOUJOURS le nom du roster : c'est elle que l'ITOPOD cherche.
+ * Renvoie true si une ligne a changé.
+ */
+export function idleBadavatarProfilParDefautV1(l) {
+  if (l.photo || (l.photo_placement && String(l.photo_placement) !== "")) return false;
+  const pieces = json(l.pieces, {});
+  return Object.keys(pieces).every((c) => {
+    const p = pieces[c] || {};
+    return p.visible !== false && !(Number(p.dx) || 0) && !(Number(p.dy) || 0) && !(Number(p.z) || 0) && (p.k == null || Number(p.k) === 1) && !(Number(p.rot) || 0);
+  });
+}
+export function idleBadavatarMigrerNomV1(sql, email, nomCle) {
+  const cle = String(email || "").trim().toLowerCase();
+  if (!cle || !nomCle) return false;
+  idleBadavatarAssurerTableV1(sql);
+  const l = sqlRows(sql.exec("SELECT nom_cle,base,pieces,photo,photo_placement FROM idle_badavatar_profils WHERE email=?", cle))[0];
+  if (!l) return false;
+  const base = idleBadavatarProfilParDefautV1(l) ? nomCle : String(l.base);
+  if (base === String(l.base) && nomCle === String(l.nom_cle)) return false;
+  sql.exec("UPDATE idle_badavatar_profils SET nom_cle=?,base=? WHERE email=?", nomCle, base, cle);
+  return true;
 }
 
 /* Retour au badavatar désigné (le joueur) ; l'administrateur peut aussi le faire pour un nom (idleBadavatarReinitialiserParNomV1). */

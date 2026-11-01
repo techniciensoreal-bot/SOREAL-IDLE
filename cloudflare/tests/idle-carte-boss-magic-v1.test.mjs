@@ -22,7 +22,8 @@ const iDos = h.indexOf('class="mtg-dos"');
 assert.ok(iDos > 0 && h.indexOf("SOREAL</text>", iDos) > iDos && h.indexOf("IDLE</text>") > h.indexOf("SOREAL</text>", iDos) && h.indexOf("mtg-dos-orbes", iDos) > iDos, "dos : titre du jeu sur deux lignes puis les cinq billes");
 const imagesDos = h.slice(iDos).match(/<img [^>]*>/g) || [];
 assert.equal(imagesDos.length, 1, "dos : une seule image, jamais la photo du boss");
-assert.ok(imagesDos[0].includes("/api/idle/media/card-back") && !imagesDos[0].includes("/x.png"), "dos : l image idle/backgrounds/MagicCardBack.webp, la même pour toutes les cartes");
+// Norman (2026-11-01) : en partie NORMALE, 9 variantes de dos (boss-1..9.webp), choisies par la place de la carte (numéro 12 → variante 3) ; l'ancien dos (route card-back) reste le repli prévu pour Evil
+assert.ok(imagesDos[0].includes("/dos-cartes/normal/boss-3.webp") && !imagesDos[0].includes("/x.png"), "dos : variante de la place de la carte (12 -> 3), jamais la photo du boss");
 assert.ok(lire("cloudflare/src/idle-media-v1.js").includes("idle/backgrounds/MagicCardBack.webp") && lire("cloudflare/src/idle-media-v1.js").includes("/api/idle/media/card-back"), "route serveur du dos de carte");
 assert.match(h, /mtg-nom[^>]*>Bambi &lt;b&gt;</, "le nom est échappé");
 assert.match(h, /<span>Boss légendaire<\/span> — <span>Monde<\/span> 2/, "ligne de type traduisible");
@@ -35,6 +36,13 @@ assert.equal((h.match(/class="mtg-badge"/g) || []).length, 2, "badges : EXP et u
 assert.match(h, /B 12 · FR/, "ligne de collection : « B 12 » (plus de zéros devant : il n'y a pas 1000 boss, Norman 2026-10-30)");
 assert.ok(!/B 00/.test(h), "aucun zéro devant le numéro");
 assert.equal((carte.html({ numero: 112, nom: "X", monde: 1 }).match(/B 112 · FR/g) || []).length, 1, "numéro à trois chiffres : B 112");
+// Langue (Norman, 2026-11-01) : en anglais, le bas de la carte dit EN et le nom passe par le dictionnaire
+ctx.window.__SOREAL_IDLE_LANGUE_V1__ = () => "en";
+ctx.window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__ = { actif: () => true, traduire: (t) => (t === "Caca Flottant" ? "Floating Sewage" : t) };
+const enCarte = carte.html({ numero: 2, nom: "Caca Flottant", monde: 1 });
+assert.match(enCarte, /B 2 · EN/, "bas de la carte : EN en anglais");
+assert.ok(enCarte.includes(">Floating Sewage</div>") && !enCarte.includes("Caca Flottant"), "nom du boss traduit sur la carte");
+delete ctx.window.__SOREAL_IDLE_LANGUE_V1__; delete ctx.window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;
 // nombre de fois que le boss a été tué (Norman, 2026-10-30)
 const tue = carte.html({ numero: 12, nom: "X", monde: 1, xp: 7, victoires: 3 });
 assert.match(tue, /class="mtg-tues"[^>]*><svg class="mtg-epee"[^]*?<\/svg>3<\/span>/, "nombre de victoires : une épée puis le chiffre, rien d'autre");

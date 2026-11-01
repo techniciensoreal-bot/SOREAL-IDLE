@@ -16,9 +16,10 @@ assert.ok(api, 'module exposé');
 for (const t of ['155Dd', '1.50K', '10K Or', '2.3T', '1.2E+139']) assert.ok(api.admissible(t), t + ' coloré');
 for (const t of ['Nécessite 5K niveaux pour débloquer la suite du jeu', 'Boss 12', '3 jours']) assert.ok(!api.admissible(t), t + ' laissé intact');
 
-/* Augmentations : la somme est verte (ok) ou rouge (non) */
-assert.match(css, /aug-cout-val\.ok/, 'somme verte');
-assert.match(css, /aug-cout-val\.non/, 'somme rouge');
+/* Augmentations : la somme est dans la couleur de son écran (ok) ou rouge (non) — 2026-11-01, écrans LED/LCD */
+const cssEcrans = fs.readFileSync('cloudflare/public/soreal-idle-augment-led-v1.css', 'utf8');
+assert.match(cssEcrans, /aug-cout-val\.ok/, 'somme ok');
+assert.match(cssEcrans, /aug-cout-val\.non/, 'somme rouge');
 console.log('idle-nombres-couleur-v1: OK');
 
 /* 2026-10-09 : une couleur par unité (toutes différentes), Qa bleu, Spd vert, exposant à part, et toujours un espace entre les chiffres et la lettre. */

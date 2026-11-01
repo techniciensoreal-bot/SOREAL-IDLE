@@ -45,11 +45,44 @@ function nettoyerV1(valeur, max) {
   return String(valeur == null ? "" : valeur).replace(/\r\n?/g, "\n").trim().slice(0, max);
 }
 
+/*
+ * « Le saviez-vous ? » du panneau LED de la borne (Norman, 2026-11-01 : « dans Admin, je puisse ajouter des phrases qui suivent "Le saviez-vous ?" »).
+ * Une surcharge GLOBALE de clé `saviez-vous:borne`, lue par tous les joueurs comme les autres textes (surchargesPourJoueurV1, export du moteur local) :
+ *   champs.liste   : phrases en français (1 à 200) ; champs.listeEn : leur traduction anglaise (même rang, "" = pas de version anglaise) ;
+ *   champs.remplace: "1" = elles remplacent les cinq phrases d'origine du panneau, "0" = elles s'y ajoutent.
+ * Validation stricte (jamais de HTML) : texte brut, une seule ligne, 90 caractères au plus (le panneau est petit et le texte défile), aucun caractère de contrôle.
+ */
+export const IDLE_TEXTE_CLE_SAVIEZ_V1 = "saviez-vous:borne";
+export const IDLE_SAVIEZ_MAX_PHRASES_V1 = 200;
+export const IDLE_SAVIEZ_MAX_LONGUEUR_V1 = 90;
+function phraseSaviezV1(v, obligatoire) {
+  if (typeof v !== "string") throw new Error("TEXTE_SAVIEZ_PHRASE_INVALIDE");
+  if (/[\u0000-\u001f\u007f-\u009f\u2028\u2029\u200b-\u200f\u202a-\u202e\u2060\ufeff]/.test(v)) throw new Error("TEXTE_SAVIEZ_CARACTERE_INTERDIT");
+  const s = v.trim().replace(/ {2,}/g, " ");
+  if (/[<>]/.test(s)) throw new Error("TEXTE_SAVIEZ_HTML_REFUSE");
+  if (obligatoire && !s) throw new Error("TEXTE_SAVIEZ_PHRASE_VIDE");
+  if (Array.from(s).length > IDLE_SAVIEZ_MAX_LONGUEUR_V1) throw new Error("TEXTE_SAVIEZ_PHRASE_TROP_LONGUE");
+  return s;
+}
+function normaliserSaviezVousV1(t) {
+  const source = t.champs && typeof t.champs === "object" && !Array.isArray(t.champs) ? t.champs : {};
+  for (const nom of Object.keys(source)) if (nom !== "liste" && nom !== "listeEn" && nom !== "remplace") throw new Error("TEXTE_CHAMP_INVALIDE");
+  if (!Array.isArray(source.liste) || !source.liste.length) throw new Error("TEXTE_SAVIEZ_LISTE_REQUISE");
+  if (source.liste.length > IDLE_SAVIEZ_MAX_PHRASES_V1) throw new Error("TEXTE_SAVIEZ_TROP_DE_PHRASES");
+  const liste = source.liste.map((x) => phraseSaviezV1(x, true));
+  const brutEn = source.listeEn == null ? [] : source.listeEn;
+  if (!Array.isArray(brutEn) || brutEn.length > liste.length) throw new Error("TEXTE_SAVIEZ_LISTE_EN_INVALIDE");
+  const listeEn = liste.map((_x, i) => (i < brutEn.length ? phraseSaviezV1(brutEn[i], false) : ""));
+  const remplace = source.remplace === true || source.remplace === 1 || source.remplace === "1" ? "1" : "0";
+  return { cle: IDLE_TEXTE_CLE_SAVIEZ_V1, champs: { liste, listeEn, remplace }, parle: {}, voix: [], voixTextes: {}, voixFaites: {} };
+}
+
 /* Valide et normalise une surcharge envoyée par l'administrateur. Lève une Error au message lisible. */
 export function normaliserTexteV1(brut) {
   const t = brut && typeof brut === "object" ? brut : {};
   const cle = String(t.cle == null ? "" : t.cle).trim();
   if (!IDLE_TEXTE_CLE_RE_V1.test(cle)) throw new Error("TEXTE_CLE_INVALIDE");
+  if (cle === IDLE_TEXTE_CLE_SAVIEZ_V1) return normaliserSaviezVousV1(t);
   const boss = IDLE_TEXTE_BOSS_RE_V1.exec(cle);
   if (cle.startsWith("boss:") && (!boss || Number(boss[1]) < 1)) throw new Error("TEXTE_BOSS_INVALIDE");
   const source = t.champs && typeof t.champs === "object" && !Array.isArray(t.champs) ? t.champs : {};

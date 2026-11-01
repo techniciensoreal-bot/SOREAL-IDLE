@@ -22,6 +22,17 @@
   function systemeMetaParIdIdleV130_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.systemeMetaParIdIdleV130_.apply(null,arguments);}
   function actionMetaIdleV130_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.actionMetaIdleV130_.apply(null,arguments);}
   function dureeLongueNguIdleV1_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.dureeLongueNguIdleV1_.apply(null,arguments);}
+  /* Durées de la Garderie en JOURS / HEURES / MINUTES (Norman, 2026-11-01 : « pas des 7,5 h au lieu de 7 h 30 ») : « 7 h 36 min », « 2 j 3 h 15 min » ; au-delà de 1000 jours, le format abrégé partagé. */
+  function dureeJhmGarderieV1_(s){
+    const n=Number(s);
+    if(!Number.isFinite(n)||n<=0)return '—';
+    if(n<1)return '< 1 s';
+    if(n<60)return Math.round(n)+' s';
+    const tot=Math.round(n/60),j=Math.floor(tot/1440),h=Math.floor((tot%1440)/60),m=tot%60;
+    if(j>=1000)return window.__SOREAL_IDLE_META_PARTAGE_V130__.dureeLongueNguIdleV1_(n);
+    return [j?j+' j':'',h?h+' h':'',m?m+' min':''].filter(Boolean).join(' ')||'< 1 min';
+  }
+  window.__SOREAL_IDLE_DUREE_JHM_V1__=dureeJhmGarderieV1_;
   function REG_(){return window.__SOREAL_IDLE_REG__||{};}
 
   /* Choix d'un objet du sac pour un récipient vide : état de page seulement (un clic le rouvre). */
@@ -154,8 +165,8 @@
     const R=REG_();
     const pos=positionPlace(i);
     const icone=typeof R.iconeObjetAdventureIdleV138_==='function'?R.iconeObjetAdventureIdleV138_(Object.assign({},it,{level:e.niveau})):'';
-    const prochain=rep.max?'Niveau max':(rep.r>0?'+1 niv. dans '+dureeLongueNguIdleV1_((1-e.p)/rep.r):'À l’arrêt');
-    const taux=x.effectiveHoursPerLevel!=null?'1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600):'';
+    const prochain=rep.max?'Niveau max':(rep.r>0?'+1 niv. dans '+dureeJhmGarderieV1_((1-e.p)/rep.r):'À l’arrêt');
+    const taux=x.effectiveHoursPerLevel!=null?'1 niveau / '+dureeJhmGarderieV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600):'';
     return {
       pos:pos,
       pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" data-rang="'+(i+1)+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+

@@ -15,11 +15,11 @@ assert.ok(t.includes("window.__SOREAL_IDLE_ALBUM_TITANS_V1__={") && t.startsWith
 assert.ok(idx.indexOf("/modules/album-titans-v1.js") > 0 && idx.indexOf("/modules/album-titans-v1.js") < idx.indexOf("/modules/album-cartes-v1.js"), "chargé AVANT le module de l'album");
 assert.ok(idx.includes("/soreal-idle-album-titans.css"), "feuille de style liée");
 // l'album ne compte les pages de titans que s'il y en a
-assert.ok(a.includes("function nbPages(){return 1+pagesBoss()+pagesTitans();}") && a.includes("T?T.nbPages(titans.length):0"), "pages de titans APRÈS les pages des boss, zéro page sans titan");
-assert.ok(a.includes("function cartesDePage(r){return r>=1&&r<=pagesBoss()") && a.includes("function titansDePage(r)") && a.includes("function nbCartesPage(r)"), "les pages de boss et de titans sont distinctes (les titans n'entrent jamais dans les annonces de nouvelles cartes)");
-assert.ok(a.includes("var tl=titansDePage(L);if(tl.length)return completer(tl.map(titansMod().pochetteHtml).join(''),tl.length,dd);"), "page de titans : 9 emplacements via completer()");
+assert.ok(a.includes("function nbPages(){return 1+pagesBoss()+pagesTitans();}") && a.includes("T&&T.nbPagesAlbum?T.nbPagesAlbum():0"), "pages de titans APRÈS les pages des boss, zéro page sans titan");
+assert.ok(a.includes("function cartesDePage(r){return r>=1&&r<=pagesBoss()") && a.includes("function estTitans(r)") && a.includes("function nbCartesPage(r)"), "les pages de boss et de titans sont distinctes (les titans n'entrent jamais dans les annonces de nouvelles cartes)");
+assert.ok(a.includes("if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-1);"), "page de titans : 9 emplacements (carte de face ou dos) fabriques par le module des titans");
 assert.ok(a.includes("nbCartesPage(p)") && a.includes("nbCartesPage(L)"), "dos visible à gauche et feuilles légères comptent aussi les cartes de titans");
-assert.ok(a.includes("titans=titansMod()?titansMod().titansVaincus():[];"), "la liste vient des titans vaincus");
+assert.ok(!a.includes("titans=titansMod()?titansMod().titansVaincus()"), "plus de liste de titans vaincus dans l'album : les emplacements viennent des titans connus (rang) et de carteTitanObtenue");
 
 // ---- comportements purs : on exécute le vrai module sur un faux navigateur ----
 const ecouteurs = [];
@@ -95,6 +95,43 @@ const cbc = lire("cloudflare/public/soreal-idle-carte-boss.css");
 assert.ok(cb.includes("classList.add('mtg-tenue')") && cb.includes("function lacher()") && cb.includes("classList.remove('mtg-tenue')") && cb.includes("window.addEventListener('blur',lacher)") && cb.includes("addEventListener('visibilitychange',lacher)") && /function finGlisse\(e\)\{\n  lacher\(\);/.test(cb), "curseur masque pendant le glisse, retabli au relachement / blur / visibilitychange / pointercancel");
 assert.ok(/html\.mtg-tenue [^{]*\{cursor:none\}/.test(cbc), "cursor:none pendant que la carte est tenue");
 
+
+// ---- les titans commencent TOUJOURS sur une nouvelle page, avec leurs dos visibles avant de tourner la page (Norman, 2026-11-01) ----
+assert.ok(a.includes("function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()&&r<nbPages();}"), "pages de titans = toujours APRES la derniere page de boss (jamais sur la meme page)");
+assert.ok(a.includes("function cartesDePage(r){return r>=1&&r<=pagesBoss()?"), "une page de boss ne contient jamais de titan");
+assert.ok(a.includes("function derriereDroite(L)") && a.includes("!estTitans(L+1)") && a.includes("var dd=gauche?derriereGauche(L):derriereDroite(L);"), "avant de tourner la page : la page de droite montre les dos de la page de titans qui est derriere");
+assert.ok(a.includes("d.titan=estTitans(p);") && a.includes("function miroir(i)"), "dos de titans aussi derriere une page de gauche (place symetrique)");
+assert.ok(a.includes("var d=[],i;\n  if(!double()||L<1||!estTitans(L+1))return null;"), "derriere de droite : PC seulement, jamais derriere une page de titans / la derniere page");
+assert.ok(t.includes("function carteTitanObtenue(rang,t)") && t.includes("carteTitanObtenue:carteTitanObtenue") && t.includes("window.__SOREAL_IDLE_ALBUM_TITANS_V1__.carteTitanObtenue"), "point d'extension carteTitanObtenue(rang, titan), remplacable");
+assert.ok(t.includes("/dos-cartes/normal/titan-"), "dos de titan : dos-cartes/normal/titan-1..9.webp");
+{
+  const fen2 = { document: doc, requestAnimationFrame: (f) => 0, setTimeout, clearTimeout, __SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__: { dos: (o) => "<img src=\"" + o.dosImage + "\">" }, __SOREAL_IDLE_REG__: { idleEtat: { systemes: { adventure: { titans: [titan("t1", 2), titan("t2", 1), titan("t3", 0)] } } }, aventureMetaIdleV47_: (j) => j.systemes.adventure } };
+  fen2.window = fen2;
+  vm.runInNewContext(t, fen2);
+  const T2 = fen2.__SOREAL_IDLE_ALBUM_TITANS_V1__;
+  assert.equal(T2.nbPagesAlbum(), 1, "un titan connu : une page de titans");
+  const pg = T2.pageHtml(0);
+  assert.equal((pg.match(/alb-pochette /g) || []).length, 9, "TOUJOURS 9 emplacements");
+  assert.equal((pg.match(/alb-pochette-titan/g) || []).length, 2, "2 cartes de face (titans obtenus)");
+  assert.equal((pg.match(/alb-pochette-dos-titan/g) || []).length, 7, "7 dos pour les emplacements sans carte (dont le titan connu non vaincu)");
+  for (let k = 3; k <= 9; k++) assert.ok(pg.includes("/dos-cartes/normal/titan-" + k + ".webp"), "emplacement " + k + " : dos de titan n°" + k);
+  assert.ok(!/Nom complet t3|Nom t3/.test(pg) && !/ \/ |\?\?\?/.test(pg.replace(/<[^>]+>/g, " ")), "aucun nom sur un dos, aucun total, aucun « x / 9 »");
+  // extension : une condition venue d'ailleurs
+  T2.carteTitanObtenue = (rang, tt) => rang === 2;
+  assert.equal(T2.pageHtml(0).match(/alb-pochette-titan/g).length, 1, "carteTitanObtenue remplacee : seule la carte de rang 2 est de face");
+  assert.equal(T2.nbPagesAlbum(), 1);
+  // plus de 9 : les pages de 9 s'enchainent
+  T2.carteTitanObtenue = (rang) => true;
+  fen2.__SOREAL_IDLE_REG__.idleEtat.systemes.adventure.titans = Array.from({ length: 12 }, (_, i) => titan("t" + (i + 1), 1));
+  assert.equal(T2.nbPagesAlbum(), 2, "12 titans obtenus : 2 pages de 9 emplacements");
+  assert.equal((T2.pageHtml(1).match(/alb-pochette /g) || []).length, 9, "la page suivante a aussi 9 emplacements");
+  // anti-spoil : sans titan connu, aucune page
+  fen2.__SOREAL_IDLE_REG__.idleEtat.systemes.adventure.titans = [];
+  assert.equal(T2.nbPagesAlbum(), 0, "aucun titan connu : aucune page de dos (l'album est inchange)");
+  fen2.__SOREAL_IDLE_REG__.idleEtat = null;
+  assert.equal(T2.nbPagesAlbum(), 0, "etat absent : zero page, jamais d'erreur");
+}
+
 // ---- gyroscope (telephone) : l'inclinaison physique incline la carte et pilote l'hologramme ----
 assert.ok(t.includes("window.addEventListener('deviceorientation',gyEvenement)") && t.includes("window.removeEventListener('deviceorientation',gyEvenement)"), "ecouteur deviceorientation ajoute puis RETIRE");
 assert.ok(t.includes("function gyFermer()") && /function fermerFiche\(\)\{[^}]*gyFermer\(\)/.test(t) && t.includes("gyOuvrir();\n  return m;"), "ecouteur ajoute a l'ouverture de la fiche, retire a sa fermeture");
@@ -135,9 +172,8 @@ assert.ok(!/localStorage/.test(t), "aucune preference stockee (regle n°6)");
 // ---- textes affichés : traduits ----
 for (const k of ["Titan", "Forme", "victoire", "victoires"]) assert.ok(typeof dict[k] === "string" && dict[k], "entrée anglaise : " + k);
 // ---- dos propre aux cartes de Titan (Norman, 2026-11-01) : image compressée du dépôt, le dos des boss reste inchangé ----
-assert.ok(t.includes("C.dos({dosImage:'/titans/dos-titan-v1.webp'})"), "la fiche de titan utilise son propre dos");
+assert.ok(t.includes("C.dos({dosImage:urlDos(r.rang+1)})"), "la fiche de titan utilise son propre dos (9 variantes, place du titan modulo 9)");
 const cbmDos = lire("cloudflare/public/modules/carte-boss-magic-v1.js");
-assert.ok(cbmDos.includes("((o&&o.dosImage)||'/api/idle/media/card-back')"), "dos(o) : image du dos de boss par défaut");
-const dosImg = "cloudflare/public/titans/dos-titan-v1.webp";
-assert.ok(fs.existsSync(dosImg) && fs.statSync(dosImg).size > 20000 && fs.statSync(dosImg).size < 200000, "image du dos compressée (< 200 Ko)");
+assert.ok(cbmDos.includes("((o&&o.dosImage)||urlDosNormal(o&&o.numero))"), "dos(o) : image du dos de boss par défaut");
+for (let i = 1; i <= 9; i++) { const dosImg = "cloudflare/public/dos-cartes/normal/titan-" + i + ".webp"; assert.ok(fs.existsSync(dosImg) && fs.statSync(dosImg).size > 20000 && fs.statSync(dosImg).size < 150000, "dos de titan " + i + " présent et compressé"); }
 console.log("idle-album-titans-v1 : ok");

@@ -45,8 +45,9 @@ const unDebut = css.indexOf("UN SEUL circuit imprimé");
 const unFin = css.indexOf("===== Trou sans fond", unDebut);
 const un = css.slice(unDebut, unFin > unDebut ? unFin : undefined);   /* bornée : les blocs ajoutés après (Trou sans fond, roue) ont leurs propres tests */
 assert.ok(!css.includes(".aug-carte-tete") && !js.includes("aug-carte-tete") && !js.includes("aug-pastilles"), "bande supérieure (icône + titre + pastilles Boss / Amélioration) supprimée");
-assert.ok(css.includes(".aug-nom-piste-v2{font:900 clamp(19px,2.2vw,26px)"), "titre de colonne agrandi");
-assert.ok(un.includes(".aug-piste-v2:not(.upgrade){border:2px dashed rgba(255,255,255,.3);border-radius:6px}"), "piste d'Augment posée sur le circuit, contour de sérigraphie");
+/* 2026-11-01 : le nom (et son logo) est maintenant dans un petit écran LED/LCD incrusté (soreal-idle-augment-led-v1.css) */
+assert.ok(readFileSync("cloudflare/public/soreal-idle-augment-led-v1.css", "utf8").includes(".aug-nom-piste-v2{flex:1 1 0;min-width:0;font-size:clamp(14px,1.7vw,19px)"), "nom de piste dans son écran");
+assert.ok(un.includes(".aug-piste-v2:not(.upgrade){border:0;border-radius:6px}"), "piste d'Augment posée sur le circuit, sans contour (plus aucun pointillé, 2026-11-01)");
 assert.ok(!un.includes("!important"), "aucun !important");
 assert.ok(bloc.includes("radial-gradient(circle,#05080d 0 2.2px,#e7b84e 2.6px 4.4px"), "trous de fixation de la carte");
 console.log("ok idle-augmentations-carte-unique-v1");

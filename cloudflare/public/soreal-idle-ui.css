@@ -711,7 +711,7 @@ html,body{overflow-x:hidden}
            * cartes, barres) : jamais deux systèmes qui pourraient
            * diverger.
            */
-          .soreal-idle-page-head-v28{
+          .soreal-idle-page-head-v28:where(:not(.soreal-idle-page-root-v28[data-menu="augmentations"] *)){
             background:
               linear-gradient(
                 135deg,
@@ -1396,7 +1396,7 @@ html,body{overflow-x:hidden}
               width:100% !important;
             }
 
-            .soreal-idle-page-head-v28{
+            .soreal-idle-page-head-v28:where(:not(.soreal-idle-page-root-v28[data-menu="augmentations"] *)){
               margin-left:0 !important;
               margin-right:0 !important;
               border-radius:8px !important;
@@ -1577,7 +1577,7 @@ html,body{overflow-x:hidden}
             box-shadow:0 20px 50px rgba(6,10,20,.18);
           }
 
-          .soreal-idle-page-head-v28{
+          .soreal-idle-page-head-v28:where(:not(.soreal-idle-page-root-v28[data-menu="augmentations"] *)){
             background:
               linear-gradient(
                 135deg,
@@ -2790,7 +2790,7 @@ body.soreal-idle-active-v47 .soreal-idle-section-v8{
            * color-mix(--nav-color) -- un seul résultat visuel possible,
            * quelle que soit la règle qui gagne la cascade.
            */
-          body.soreal-idle-active-v47 .soreal-idle-page-head-v28{
+          body.soreal-idle-active-v47 .soreal-idle-page-head-v28:where(:not(.soreal-idle-page-root-v28[data-menu="augmentations"] *)){
             background:
               linear-gradient(
                 135deg,

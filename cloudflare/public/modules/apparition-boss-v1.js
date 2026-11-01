@@ -353,5 +353,33 @@
     [1500,4000,8000].forEach(function(ms){setTimeout(function(){try{if(dernierId===null)verifier();}catch(_e){}},ms);});
   }
 
-  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
+  /*
+   * Portrait qui n'apparaît pas après un NUKE (Norman, 2026-11-01 : « son image ne s'affichait pas ; j'ai dû changer de menu et revenir »). Mécanisme reproduit : si la requête de l'image du boss échoue au moment où l'adresse change (serveur local de l'exe
+   * pas encore prêt, réseau), la balise reste en erreur (largeur naturelle 0) ; les redessins suivants gardent la même adresse et ne la redemandent jamais, tandis que l'apparition attendait 10 s sous son calque sombre puis le retirait : portrait invisible
+   * jusqu'à ce qu'un changement de menu recrée la balise. La cause de l'échec de la première requête n'est pas établie ; le garde-fou la rend sans effet : sur une erreur de chargement de l'image de l'hôte, on la redemande 1 s puis 5 s plus tard (deux fois
+   * au plus par adresse : le compteur repart à zéro quand l'adresse change), sans redessiner la page ; l'apparition en attente la joue dès que l'image arrive.
+   */
+  var RETENTES=[1000,5000];
+  function retenter_(img){
+    try{
+      if(!img||!img.closest||!img.closest('#'+HOTE_ID))return false;
+      var u=img.getAttribute('src')||'';if(!u)return false;
+      if(img.__retenteSrc!==u){img.__retenteSrc=u;img.__retenteN=0;}
+      if(img.__retenteN>=RETENTES.length)return false;
+      var d=RETENTES[img.__retenteN++];
+      setTimeout(function(){
+        try{
+          if(!img.isConnected||img.getAttribute('src')!==u)return;      /* l'adresse a changé ou la balise est partie : rien à refaire */
+          if(img.complete&&img.naturalWidth>0)return;                    /* déjà chargée */
+          img.removeAttribute('src');img.setAttribute('src',u);
+        }catch(_e){}
+      },d);
+      return true;
+    }catch(_e){return false;}
+  }
+  if(typeof document!=='undefined'&&document.addEventListener){
+    document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.tagName==='IMG')retenter_(t);},true);
+  }
+
+  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={retenter:retenter_,jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
 })();

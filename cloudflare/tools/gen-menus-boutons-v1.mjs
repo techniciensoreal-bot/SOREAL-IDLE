@@ -266,7 +266,8 @@ for (const id of MENUS) {
   }
   if (id === "sang") {
     /* Magie du sang (Norman, 2026-10-31) : quand le menu est actif ou travaille, le pentacle est d'un rouge plus vif et TOURNE SUR LUI-MÊME (rotation complète, linéaire, plus de haut-bas) ; la goutte est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle (opacité 0 au début et à la fin du cycle). Animations seulement quand le menu travaille. */
-    const rouge = "filter:saturate(2.8) brightness(1.18) drop-shadow(0 0 3px rgba(255,20,40,.9)) drop-shadow(0 0 7px rgba(255,10,30,.6))";
+    /* 2026-11-01 (Norman : « le pentacle doit briller plus en rouge ») : rouge plus vif et halo rouge plus large */
+    const rouge = "filter:saturate(4.2) brightness(1.45) drop-shadow(0 0 3px rgba(255,40,50,1)) drop-shadow(0 0 8px rgba(255,10,30,.95)) drop-shadow(0 0 16px rgba(255,0,20,.7))";
     out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1 .nb-g,${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{${rouge}}`);
     out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1 .nb-d{height:40cqh}`);
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 12s linear infinite}`);
@@ -286,6 +287,22 @@ for (const id of MENUS) {
   if (id === "tower") out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_monte 2.4s linear infinite}`);
   else out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_${sp.m} ${sp.t}s ${ease} infinite}`);
   out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_${md} ${td}s ${easeD} infinite;animation-delay:-${(td / 2).toFixed(2)}s${md === "spin" ? ";animation-direction:reverse" : ""}}`);
+}
+/* Mineurs d'or (Norman, 2026-11-01) : le tas d'or du dessin de droite est posé PLUS BAS (au ras du bas du bouton) et, quand le menu est actif ou travaille, des pièces TOMBENT dedans (deux pièces décalées, chute de haut en bas dans le tas, fondu d'entrée et de sortie : opacité 0 au début et à la fin du cycle, un seul sens, boucle parfaite ; coupé en mouvement réduit). Les pièces sont des pseudo-éléments du tas : elles bougent avec lui, sans élément ajouté à la page. */
+{
+  const D = `${P}[data-menu-id-v1="diggers"] .soreal-idle-nav-deco-v1 .nb-d`;
+  const ACT = `${P}[data-menu-id-v1="diggers"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d`;   /* « menu actif » = le menu travaille (.travail-v1), comme pour les autres boutons : jamais animé du seul fait d'être ouvert */
+  out.push(`${D}{top:auto;bottom:-6cqh;margin:0}`);
+  const piece = "radial-gradient(circle at 35% 30%,#fff6bf 0 18%,#ffd24a 19% 62%,#b8860b 63% 100%)";
+  out.push(`${D}::before,${D}::after{content:"";position:absolute;top:-4cqh;width:11cqh;height:11cqh;border-radius:50%;background:${piece};box-shadow:0 0 0 .6cqh #7a5206;opacity:0;pointer-events:none}`);
+  out.push(`${D}::before{left:24%}`);
+  out.push(`${D}::after{left:56%}`);
+  const chute = (nom) => `@keyframes ${nom}{0%{opacity:0;transform:translateY(0) scale(.9)}12%{opacity:1}72%{opacity:1;transform:translateY(31cqh) scale(1)}86%{opacity:0;transform:translateY(36cqh) scale(.8)}100%{opacity:0;transform:translateY(36cqh) scale(.8)}}`;
+  out.push(`${ACT.split(", ").map((x) => x + "::before").join(",")}{animation:nbV1_pieceun 1.6s linear infinite}`);
+  out.push(`${ACT.split(", ").map((x) => x + "::after").join(",")}{animation:nbV1_piecedeux 1.6s linear infinite;animation-delay:-.8s}`);
+  out.push(chute("nbV1_pieceun"));
+  out.push(chute("nbV1_piecedeux"));
+  REDUIT_EXTRA.push(`${ACT.split(", ").map((x) => x + "::before").join(",")},${ACT.split(", ").map((x) => x + "::after").join(",")}{animation:none;opacity:0}`);
 }
 {
   const lisse = (x) => x * x * (3 - 2 * x);

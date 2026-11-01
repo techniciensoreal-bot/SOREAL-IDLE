@@ -560,7 +560,7 @@ function ouvrirFenetre() {
      * sous la superposition, qui assombrit déjà le jeu) ; au retour du focus le gel est retiré AVANT la repeinture (plus d'attente d'une demi-seconde). Le moteur du jeu, lui, continue de tourner.
      */
     let gele = false, cleGel = null;
-    const CSS_GEL = "*,*::before,*::after{animation-play-state:paused!important;transition:none!important}canvas{visibility:hidden!important}";
+    const CSS_GEL = "*,*::before,*::after{animation-play-state:paused!important;transition:none!important}canvas:not(.bm-sangsue-gl):not(.bm-banque-cv):not(.bm-fil):not([data-steam-visible]){visibility:hidden!important}";   /* Blood Magic (écran de la banque, sangsue WebGL, fil barbelé) et tout calque marqué data-steam-visible restent VISIBLES : ils disparaissaient dès que la souris passait sur la fenêtre sans focus (Norman, 2026-11-01) */
     const geler = async () => {
       if (gele || !fenetre || fenetre.isDestroyed()) return;
       gele = true;

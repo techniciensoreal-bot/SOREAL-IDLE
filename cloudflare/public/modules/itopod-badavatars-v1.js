@@ -195,26 +195,59 @@
    * photo = visage personnalisé { x, y, k, rot, visible } (x et y en largeurs de tête depuis le centre de la tête, k = 1 : le visage couvre la tête). Mêmes bornes que le serveur (src/idle-profil-badavatar-v1.js).
    * Le MÊME rendu sert l'éditeur des Réglages et l'ITOPOD : appliquerProfil ne change que le design, rendreHtml pose le visage.
    */
-  var BORNES = { dx: [-0.2, 0.2], dy: [-0.2, 0.2], k: [0.5, 2], rot: [-25, 25], photoX: [-1, 1], photoY: [-1, 1], photoK: [0.3, 4], photoKx: [0.4, 2.5], photoKy: [0.4, 2.5], photoLimite: [0.3, 4], photoRot: [-25, 25] };
+  var BORNES = { dx: [-0.5, 0.5], dy: [-0.5, 0.5], k: [0.3, 4], rot: [-180, 180], z: [-20, 20], photoX: [-4, 4], photoY: [-4, 6], photoK: [0.3, 4], photoKx: [0.4, 2.5], photoKy: [0.4, 2.5], photoLimite: [0.3, 4], photoRot: [-180, 180] };
   function borner(v, b, defaut) { if (v == null || v === "") return defaut; v = Number(v); return isFinite(v) ? Math.min(b[1], Math.max(b[0], v)) : defaut; }
   function reglagePiece(profil, c) {
     var r = profil && profil.pieces && profil.pieces[c];
-    return { visible: !r || r.visible !== false, dx: borner(r && r.dx, BORNES.dx, 0), dy: borner(r && r.dy, BORNES.dy, 0), k: borner(r && r.k, BORNES.k, 1), rot: borner(r && r.rot, BORNES.rot, 0) };
+    return { visible: !r || r.visible !== false, z: Math.round(borner(r && r.z, BORNES.z, 0)), dx: borner(r && r.dx, BORNES.dx, 0), dy: borner(r && r.dy, BORNES.dy, 0), k: borner(r && r.k, BORNES.k, 1), rot: borner(r && r.rot, BORNES.rot, 0) };
   }
+  /* Centre (pixels de scène) du rectangle mesuré des pixels d'une pièce posée : c'est le point autour duquel le joueur la fait tourner. */
+  function centrePiece(p, m) {
+    var s0 = Math.min(W / m[1], H / m[2]), a = p.rotation * Math.PI / 180;
+    var px = ((m[3] + m[5] + 1) / 2 - m[1] / 2) * s0, py = ((m[4] + m[6] + 1) / 2 - m[2] / 2) * s0;
+    return { x: W / 2 + p.x * W + p.scale * (px * Math.cos(a) - py * Math.sin(a)), y: H / 2 + p.y * H + p.scale * (px * Math.sin(a) + py * Math.cos(a)) };
+  }
+  /* Zone de la pile (coordonnées avant cadrage) dont le centre d'une pièce reste VISIBLE : le cadre montre y de H − H/s − décalage à H − décalage et x de W/2 ± W/(2s) (s = échelle du cadrage). Une pièce ne peut donc jamais sortir du cadre. */
+  function zoneVisible(design) {
+    var cad = cadrage(design), s = cad.echelle || 1;
+    return { l: W / 2 - W / (2 * s), r: W / 2 + W / (2 * s), t: H - H / s - cad.decalage, b: H - cad.decalage };
+  }
+  /* Réglages du joueur (Norman, 2026-11-01) : rotation libre de −180 à +180 degrés AUTOUR DU CENTRE de la pièce (x et y sont compensés), et ordre d'empilement relatif : order = ordre d'origine + z (z = 0 : inchangé). */
   function appliquerProfil(design, profil) {
-    var sortie = { version: design.version, gender: design.gender, body: design.body, parts: {} };
+    var sortie = { version: design.version, gender: design.gender, body: design.body, parts: {} }, zone = null;
     Object.keys(design.parts).forEach(function (c) {
       var p = design.parts[c], r = reglagePiece(profil, c);
       if (!r.visible) return;
-      sortie.parts[c] = { key: p.key, x: arrondir(p.x + r.dx, 4), y: arrondir(p.y + r.dy, 4), scale: arrondir(Math.min(4, Math.max(0.15, p.scale * r.k)), 4), rotation: arrondir(p.rotation + r.rot, 2), order: p.order, flip: p.flip };
+      var q = { key: p.key, x: arrondir(p.x + r.dx, 4), y: arrondir(p.y + r.dy, 4), scale: arrondir(Math.min(4, Math.max(0.15, p.scale * r.k)), 4), rotation: arrondir(p.rotation + r.rot, 2), order: (p.order || 1) + r.z, flip: p.flip };
+      var m = r.rot || r.dx || r.dy ? metaPiece(p.key) : null;
+      if (m && r.rot) {
+        var avant = centrePiece({ x: q.x, y: q.y, scale: q.scale, rotation: p.rotation }, m), apres = centrePiece(q, m);
+        q.x = arrondir(q.x + (avant.x - apres.x) / W, 4); q.y = arrondir(q.y + (avant.y - apres.y) / H, 4);
+      }
+      if (m && (r.dx || r.dy)) {
+        var ce = centrePiece(q, m); zone = zone || zoneVisible(design);
+        var nx = Math.min(zone.r, Math.max(zone.l, ce.x)), ny = Math.min(zone.b, Math.max(zone.t, ce.y));
+        if (nx !== ce.x) q.x = arrondir(q.x + (nx - ce.x) / W, 4);
+        if (ny !== ce.y) q.y = arrondir(q.y + (ny - ce.y) / H, 4);
+      }
+      sortie.parts[c] = q;
     });
     return sortie;
+  }
+  /* Ordre d'empilement final : { body, visage, parts } ; le visage a un z propre (0 = juste au-dessus du corps), le corps passe sous tout (jamais devant une pièce ni le visage). Sans réglage : corps 0, visage 0, pièces = leur ordre d'origine (inchangé). */
+  function empilement(design, photo) {
+    var zv = photo && photo.url && photo.visible !== false ? Math.round(borner(photo.z, BORNES.z, 0)) : null;
+    var parts = {}, mn = Infinity;
+    Object.keys(design.parts).forEach(function (c) { var o = design.parts[c].order, z = Math.round(typeof o === "number" && isFinite(o) ? o : 1); parts[c] = z; if (z <= 0 && z < mn) mn = z; });
+    if (zv !== null && zv < 0 && zv < mn) mn = zv;
+    return { body: mn <= 0 ? mn - 1 : 0, visage: zv === null ? 0 : zv, parts: parts };
   }
   /* Boîte du visage dans la scène (pixels) : centre = centre de la tête mesurée du corps + (x, y) largeurs de tête ; côté = 1,5 largeur de tête x k. */
   function boiteVisage(design, ph) {
     var e = corpsEntree(design);
     if (!e || !ph) return null;
     var largeur = e[3], cx = e[4] + borner(ph.x, BORNES.photoX, 0) * largeur, cy = (e[1] + e[2]) / 2 + borner(ph.y, BORNES.photoY, 0) * largeur;
+    if (ph.x || ph.y) { var zv = zoneVisible(design); cx = Math.min(zv.r, Math.max(zv.l, cx)); cy = Math.min(zv.b, Math.max(zv.t, cy)); }
     var k = borner(ph.k, BORNES.photoK, 1), kx = borner(ph.kx, BORNES.photoKx, 1), ky = borner(ph.ky, BORNES.photoKy, 1);
     var cote = 1.5 * largeur * k, cw = 1.5 * largeur * borner(k * kx, BORNES.photoLimite, 1), ch = 1.5 * largeur * borner(k * ky, BORNES.photoLimite, 1);
     return { cx: cx, cy: cy, cote: cote, cw: cw, ch: ch, rot: borner(ph.rot, BORNES.photoRot, 0) };
@@ -222,7 +255,7 @@
   function styleVisage(design, photo) {
     var b = boiteVisage(design, photo);
     if (!b) return "";
-    return "position:absolute;max-width:none;pointer-events:none;user-select:none;z-index:0;left:" + arrondir((b.cx - b.cw / 2) / W * 100, 3) + "%;top:" + arrondir((b.cy - b.ch / 2) / H * 100, 3) + "%;width:" + arrondir(b.cw / W * 100, 3) + "%;height:" + arrondir(b.ch / H * 100, 3) + "%;transform:rotate(" + b.rot + "deg)";
+    return "position:absolute;max-width:none;pointer-events:none;user-select:none;z-index:" + empilement(design, photo).visage + ";left:" + arrondir((b.cx - b.cw / 2) / W * 100, 3) + "%;top:" + arrondir((b.cy - b.ch / 2) / H * 100, 3) + "%;width:" + arrondir(b.cw / W * 100, 3) + "%;height:" + arrondir(b.ch / H * 100, 3) + "%;transform:rotate(" + b.rot + "deg)";
   }
   function htmlVisage(design, photo, esc) {
     if (!photo || !photo.url || photo.visible === false) return "";
@@ -241,7 +274,9 @@
     if (Boolean(visage) !== Boolean(photo && photo.url && photo.visible !== false)) return false;
     for (var n = 0; n < imgs.length; n++) if (!design.parts[imgs[n].getAttribute("data-piece")]) return false;
     pile.style.transform = transformPile(design);
-    for (var m = 0; m < imgs.length; m++) imgs[m].style.transform = transformPiece(design.parts[imgs[m].getAttribute("data-piece")]);
+    var emp = empilement(design, photo), corps = pile.querySelector("img:not([data-piece]):not([data-visage])");
+    if (corps) corps.style.zIndex = String(emp.body);
+    for (var m = 0; m < imgs.length; m++) { var cat = imgs[m].getAttribute("data-piece"); imgs[m].style.transform = transformPiece(design.parts[cat]); imgs[m].style.zIndex = String(emp.parts[cat]); }
     if (visage) visage.style.cssText = styleVisage(design, photo);
     return true;
   }
@@ -256,15 +291,16 @@
     var cad = cadrage(design);
     var decalage = arrondir(cad.decalage / H * 100, 3), echelle = arrondir(cad.echelle, 4);
     var html = '<div class="itopod-badavatar" style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden"><div class="itopod-badavatar-pile" style="position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;transform:scale(' + echelle + ') translateY(' + decalage + '%)">';
-    html += '<img alt="" draggable="false" decoding="async" src="' + esc(url(design.body)) + '"' + surErreur + ' style="' + base + ';z-index:0">';
+    var emp = empilement(design, options.photo);
+    html += '<img alt="" draggable="false" decoding="async" src="' + esc(url(design.body)) + '"' + surErreur + ' style="' + base + ';z-index:' + emp.body + '">';
     html += htmlVisage(design, options.photo, esc);
     Object.keys(design.parts).forEach(function (c) {
       var p = design.parts[c];
-      html += '<img alt="" draggable="false" decoding="async" data-piece="' + esc(c) + '" src="' + esc(url(p.key)) + '" style="' + base + ";z-index:" + (p.order || 1) +
+      html += '<img alt="" draggable="false" decoding="async" data-piece="' + esc(c) + '" src="' + esc(url(p.key)) + '" style="' + base + ";z-index:" + emp.parts[c] +
         ";transform:" + transformPiece(p) + '">';
     });
     return html + "</div></div>";
   }
 
-  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, corrigerBarbe: corrigerBarbe, seuilBarbe: SEUIL_BARBE, boitePiece: boitePiece, metaPiece: metaPiece, cadrage: cadrage, appliquerProfil: appliquerProfil, miseAJour: miseAJour, reglagePiece: reglagePiece, boiteVisage: boiteVisage, bornes: BORNES, corpsEntree: corpsEntree, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
+  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, corrigerBarbe: corrigerBarbe, seuilBarbe: SEUIL_BARBE, boitePiece: boitePiece, metaPiece: metaPiece, cadrage: cadrage, appliquerProfil: appliquerProfil, zoneVisible: zoneVisible, empilement: empilement, centrePiece: centrePiece, miseAJour: miseAJour, reglagePiece: reglagePiece, boiteVisage: boiteVisage, bornes: BORNES, corpsEntree: corpsEntree, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
 })();

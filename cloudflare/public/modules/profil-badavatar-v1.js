@@ -38,7 +38,7 @@
     if (!b || !b.appliquerProfil || !p || !p.base) return null;
     if (p.cat && String(p.cat) !== String(b.versionCatalogue)) return null;
     var design = b.appliquerProfil(b.tirerPourNom(p.base), p);
-    var photo = p.photo ? { url: urlVisage(nomCle, p.photo.v), visible: p.photo.visible !== false, x: p.photo.x, y: p.photo.y, k: p.photo.k, kx: p.photo.kx, ky: p.photo.ky, rot: p.photo.rot } : null;
+    var photo = p.photo ? { url: urlVisage(nomCle, p.photo.v), visible: p.photo.visible !== false, z: p.photo.z, x: p.photo.x, y: p.photo.y, k: p.photo.k, kx: p.photo.kx, ky: p.photo.ky, rot: p.photo.rot } : null;
     return { design: design, photo: photo, sig: JSON.stringify([p.base, p.pieces, p.photo]) };
   }
 

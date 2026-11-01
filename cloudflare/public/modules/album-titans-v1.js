@@ -22,15 +22,42 @@ function reg(){return window.__SOREAL_IDLE_REG__||{};}
 /* Rang d'un titan dans l'ordre du jeu : le nombre de son identifiant (t2 avant t10). */
 function rang(t){var m=/(\d+)/.exec(String(t&&t.id));return m?parseInt(m[1],10):1e9;}
 
-/* Les titans déjà vaincus au moins une fois, dans l'ordre du jeu. La liste envoyée par le serveur est déjà filtrée (règle n°2) : on ne garde en plus que les victoires. */
-function titansVaincus(){
+/* Les titans CONNUS (la liste envoyée par le serveur est déjà filtrée : règle n°2), dans l'ordre du jeu. */
+function connus(){
   try{
     var R=reg(),a=typeof R.aventureMetaIdleV47_==='function'&&R.idleEtat?R.aventureMetaIdleV47_(R.idleEtat):null;
     var l=a&&Array.isArray(a.titans)?a.titans:[];
-    return l.filter(function(t){return t&&t.id&&ent(t.state&&t.state.kills)>0;}).sort(function(x,y){return rang(x)-rang(y);});
+    return l.filter(function(t){return t&&t.id;}).sort(function(x,y){return rang(x)-rang(y);});
   }catch(_e){return [];}
 }
-/* Pages de titans : 9 emplacements par page, aucune page quand il n'y a aucun titan vaincu. */
+/*
+ * POINT D'EXTENSION (Norman, 2026-11-01) : « je vais mettre un système pour trouver 9 cartes qui iront au dos des 9 premiers titans ». L'emplacement k d'une page de titans (rang = rang du titan dans l'ordre où ils sont obtenus, 0 pour le premier) montre la carte
+ * du titan quand carteTitanObtenue(rang, titan) est vrai, sinon le DOS de titan n° (rang % 9) + 1. Aujourd'hui : carte obtenue = titan vaincu au moins une fois. Plus tard : remplacer par une condition lue dans l'état du serveur (window.__SOREAL_IDLE_ALBUM_TITANS_V1__.carteTitanObtenue = function(rang, titan){…}).
+ */
+function carteTitanObtenue(rang,t){return ent(t&&t.state&&t.state.kills)>0;}
+function obtenue(rg,t){var f=window.__SOREAL_IDLE_ALBUM_TITANS_V1__&&window.__SOREAL_IDLE_ALBUM_TITANS_V1__.carteTitanObtenue;try{return Boolean((typeof f==='function'?f:carteTitanObtenue)(rg,t));}catch(_e){return false;}}
+/* Les titans dont la carte est obtenue (dans l'ordre du jeu) : la fiche zoomée et ses flèches ne parlent que d'eux. */
+function titansVaincus(){var l=connus();return l.filter(function(t,i){return obtenue(i,t);});}
+/*
+ * Pages de titans : TOUJOURS une nouvelle page après la dernière page de boss, 9 emplacements, emplacement k = titan de rang k (carte de face si obtenue, sinon son dos). Exception décidée par Norman (2026-11-01) à la règle n°2 :
+ * ces dos sont visibles AVANT tout titan vaincu, mais SEULEMENT si au moins un titan est déjà connu (liste du serveur non vide) ; sinon aucune page. Jamais de total, jamais de nom sur un dos.
+ */
+function nbPagesAlbum(){
+  var l=connus();if(!l.length)return 0;
+  var max=-1,i;for(i=0;i<l.length;i++)if(obtenue(i,l[i]))max=i;
+  return Math.max(1,Math.ceil((max+1)/PAR_PAGE));
+}
+function urlDos(k){return '/dos-cartes/normal/titan-'+((((Math.floor(Number(k))||1)-1)%9+9)%9+1)+'.webp';}
+/* Un dos de titan dans sa pochette (k = 1, 2, … : le dos n° ((k-1) % 9) + 1). */
+function dosPochetteHtml(k){
+  var C=window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__;
+  return '<div class="alb-pochette alb-pochette-dos alb-pochette-dos-titan" aria-hidden="true"><div class="alb-carte alb-carte-mtg">'+(C&&C.dos?'<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+C.dos({dosImage:urlDos(k)})+'</div>':'')+'</div><div class="alb-plastique"></div></div>';
+}
+function pageHtml(p){
+  var l=connus(),h='',k;
+  for(k=0;k<PAR_PAGE;k++){var rg=p*PAR_PAGE+k,t=l[rg];h+=t&&obtenue(rg,t)?pochetteHtml(t):dosPochetteHtml(rg+1);}
+  return h;
+}
 function nbPages(n){n=Math.max(0,ent(n));return n?Math.ceil(n/PAR_PAGE):0;}
 function page(liste,p){return (liste||[]).slice(p*PAR_PAGE,p*PAR_PAGE+PAR_PAGE);}
 
@@ -82,7 +109,7 @@ function pochetteHtml(t){
 /* ---------- la fiche zoomée : la grande carte (face = carte du titan, dos = le dos des cartes de boss, sans aucune information de jeu) ---------- */
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-function trouver(id){var l=titansVaincus(),i;for(i=0;i<l.length;i++)if(String(l[i].id)===String(id))return {t:l[i],i:i,liste:l};return null;}
+function trouver(id){var l=titansVaincus(),i,tous=connus(),j;for(i=0;i<l.length;i++)if(String(l[i].id)===String(id)){for(j=0;j<tous.length;j++)if(tous[j]===l[i])break;return {t:l[i],i:i,rang:j,liste:l};}return null;}
 function nomDe(t){return String(t.nomComplet||t.name||t.id);}
 function ficheContenu(id){
   var r=trouver(id);if(!r)return '';
@@ -93,7 +120,7 @@ function ficheContenu(id){
     (suiv?'<button type="button" class="mtg-fleche mtg-fleche-suiv" data-titan-aller="'+esc(suiv.id)+'" aria-label="Titan suivant" data-soreal-tts-ignore>'+CHEV_D+'</button>':'')+
     '<div class="carte-mtg-v1 alb-titan-fiche-carte" data-numero="titan-'+esc(r.t.id)+'" data-couleur="5">'+
       '<div class="alb-t-face" aria-label="'+esc(nomDe(r.t))+'">'+carteHtml(r.t)+'</div>'+
-      (C&&C.dos?C.dos({dosImage:'/titans/dos-titan-v1.webp'}):'')+   /* dos propre aux cartes de Titan (Norman, 2026-11-01), image compressée du dépôt */
+      (C&&C.dos?C.dos({dosImage:urlDos(r.rang+1)}):'')+   /* dos propre aux cartes de Titan en partie NORMALE (Norman, 2026-11-01) : 9 variantes dorées (dos-cartes/normal/titan-1..9.webp) selon la place du titan dans la liste des titans vaincus (modulo 9) */
     '</div>';
 }
 function fermerFiche(){var m=document.getElementById('sorealIdleTitanCollectionModalV1');gyFermer();if(m)m.remove();}
@@ -313,5 +340,5 @@ document.addEventListener('pointerdown',function(ev){
 },true);
 document.addEventListener('visibilitychange',gyVisible);
 
-window.__SOREAL_IDLE_ALBUM_TITANS_V1__={titansVaincus:titansVaincus,pochetteHtml:pochetteHtml,gyroEvenement:gyEvenement,gyroOuvrir:gyOuvrir,gyroFermer:gyFermer,ficheContenu:ficheContenu,ouvrirFiche:ouvrirFiche,fermerFiche:fermerFiche,nbPages:nbPages,page:page,teinte:teinte,urlImage:urlImage,PAR_PAGE:PAR_PAGE};
+window.__SOREAL_IDLE_ALBUM_TITANS_V1__={titansVaincus:titansVaincus,pochetteHtml:pochetteHtml,gyroEvenement:gyEvenement,connus:connus,carteTitanObtenue:carteTitanObtenue,nbPagesAlbum:nbPagesAlbum,pageHtml:pageHtml,dosPochetteHtml:dosPochetteHtml,urlDos:urlDos,gyroOuvrir:gyOuvrir,gyroFermer:gyFermer,ficheContenu:ficheContenu,ouvrirFiche:ouvrirFiche,fermerFiche:fermerFiche,nbPages:nbPages,page:page,teinte:teinte,urlImage:urlImage,PAR_PAGE:PAR_PAGE};
 })();

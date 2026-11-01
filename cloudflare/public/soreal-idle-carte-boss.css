@@ -78,6 +78,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* dos de la carte : cadre doré marbré, ovale brun bordé de bleu, quatre billes rouges aux coins, titre du jeu sur deux lignes puis la photo du boss entière */
 :is(.soreal-idle-boss-lore-v142.ouverte,.mtg-modal-v1,.alb-carte-mtg) .mtg-dos{position:absolute;inset:0;box-sizing:border-box;padding:3cqw;border-radius:5.2cqw;background:none;transform:rotateY(180deg);backface-visibility:hidden;cursor:pointer}
+/* Dos d'image des cartes de Titan : l'image est agrandie de 8 % et rognée par le contour arrondi de la carte : plus aucun bord noir visible (Norman, 2026-11-01) */
+.mtg-dos.mtg-dos-plein{overflow:hidden;padding:0}
+.mtg-dos.mtg-dos-plein .mtg-dos-image{transform:scale(1.08);filter:none}
 .mtg-dos-image{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:5;pointer-events:none;filter:drop-shadow(0 2cqw 3cqw rgba(0,0,0,.7))}
 .mtg-dos.sans-image .mtg-dos-ovale{display:block}
 .mtg-dos-ovale{display:none;position:relative;height:100%;overflow:hidden;border-radius:1.4cqw;/* dessin de repli : visible seulement si l'image du dos manque (classe sans-image) ; sinon son cadre doré dépassait de l'image à bords transparents (Norman, 2026-10-31) */

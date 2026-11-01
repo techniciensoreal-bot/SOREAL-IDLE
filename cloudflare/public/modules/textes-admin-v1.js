@@ -1567,6 +1567,7 @@ function pageHtml_(){
       'style="width:100%;box-sizing:border-box;padding:10px;border-radius:10px;border:1.5px solid #34425f;background:#0a0e16;color:#f1f4fb;font:500 16px system-ui,sans-serif;margin-bottom:6px">'+
     '<div id="sorealIdleTextesBossListeV1">'+listeBossHtml_()+'</div>'+
     (window.__SOREAL_IDLE_PHRASES_V1__?window.__SOREAL_IDLE_PHRASES_V1__.editeurHtml():'')+
+    (window.__SOREAL_IDLE_SAVIEZ_VOUS_V1__?window.__SOREAL_IDLE_SAVIEZ_VOUS_V1__.editeurHtml():'')+
     '<div style="margin:16px 0 4px;font-weight:800">Fenêtres et popups</div>'+
     '<div id="sorealIdleTextesPopupsListeV1">'+listePopupsHtml_()+'</div>'+
   '</div>';

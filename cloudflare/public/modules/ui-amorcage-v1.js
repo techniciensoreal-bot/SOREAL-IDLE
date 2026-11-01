@@ -1563,6 +1563,12 @@ window.__changerLangueIdleV1__=function(langue){
         try{localStorage.setItem('soreal_idle_langue_v1',choix);}catch(_e){}
         /* Interface en anglais : le module traduction-anglais-v1.js traduit (ou restitue) le texte affiché tout de suite. */
         if(typeof window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__==='function')window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__(choix);
+        /* Norman (2026-11-01) : « il faut actualiser la page quand on passe de français à anglais » : noms de boss, chroniques et voix restaient dans l'ancienne langue. Jeu déjà ouvert : le choix est envoyé au compte puis la page se recharge. */
+        if(REG.idleEtat&&document.querySelector('.soreal-idle-page-root-v28')){
+          try{if(window.__SOREAL_IDLE_PREFS_V1__&&typeof window.__SOREAL_IDLE_PREFS_V1__.envoyer==='function')window.__SOREAL_IDLE_PREFS_V1__.envoyer();}catch(_e){}
+          setTimeout(function(){location.reload();},350);
+          return;
+        }
         /* Resynchronisation complète : le serveur renvoie aussitôt les textes dans la nouvelle langue, puis la page se redessine. */
         synchroniserJeuIdleV7_(true);
         setTimeout(function(){
