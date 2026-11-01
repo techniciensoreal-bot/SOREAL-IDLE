@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { construireWorker } from "../../android/code-apk.mjs";
+import { createRequire } from "node:module";
 
 /*
  * Norman (2026-11-01) : « l'APK est lent : les images clignotent, il galère à charger ce qu'il a en mémoire ». Cause : le service worker (Worker du jeu) est arrêté par Android quand il est inactif, et chaque image réveillée attendait le démarrage complet du moteur (sql.js, base, graine).
@@ -12,6 +12,10 @@ import { construireWorker } from "../../android/code-apk.mjs";
 const source = fs.readFileSync(new URL("../local/sw-android.js", import.meta.url), "utf8");
 assert.ok(source.includes("envLeger") && source.includes("repondreImage") && source.includes('req.destination === "image"'), "le service worker a un chemin léger pour les images");
 
+/* esbuild n'est installé que sur le PC de Norman (cloudflare/local/node_modules, hors dépôt) : sans lui (CI), on s'en tient aux contrôles du code ci-dessus. */
+try { createRequire(new URL("../local/package.json", import.meta.url))("esbuild"); }
+catch (_e) { console.log("idle-apk-images-sw-v1: OK (contrôles du code seulement : esbuild absent)"); process.exit(0); }
+const { construireWorker } = await import("../../android/code-apk.mjs");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sw-apk-"));
 const sortie = path.join(tmp, "sw.js");
 await construireWorker(sortie);
