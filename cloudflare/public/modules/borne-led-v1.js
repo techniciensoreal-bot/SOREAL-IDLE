@@ -914,7 +914,7 @@ function image(now){
    Texte ambre ; trop long = va-et-vient avec pause aux deux bouts (immobile, tronqué, si l'animation est réduite). */
 var minis=[];
 function sMini(){
-  var p=P.p,bt=clamp(Math.round((P.H-7)/2),3,Math.max(3,P.H-7)),x=p.x;
+  var p=P.p,bt=Math.max(0,Math.floor((P.H-7)/2)),x=p.x;   /* texte centré en hauteur (Norman, 2026-11-01 : « il est collé sur le bas du cadre ») : le nombre de rangées est impair, donc marges haut et bas égales */
   if(p.spr){sprite(SPR[p.spr],x,bt,255);x+=9;}
   rich(p.segs,x,bt,1,255);
 }
@@ -926,7 +926,7 @@ function tailleMini(m){
   var h=m.host,w=h.clientWidth,hh=h.clientHeight;
   if(!(w>0)||!(hh>0))return;
   var dpr=window.devicePixelRatio||1,cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*dpr));
-  var W=clamp(Math.floor(w*dpr/cell),20,W_MAX),H=clamp(Math.floor(hh*dpr/cell),9,40);
+  var W=clamp(Math.floor(w*dpr/cell),20,W_MAX),H=clamp(Math.floor(hh*dpr/cell),9,40);if((H-7)%2!==0)H-=1;
   if(W!==m.panel.W||H!==m.panel.H)m.panel.setGrid(W,H);
   m.panel.fit(cell,w,hh);m.sig='';
 }
