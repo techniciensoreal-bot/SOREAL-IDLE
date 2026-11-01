@@ -354,7 +354,7 @@ function oneDigitRoll(dTarget,x,bt,sc,col,p){
   P.cy0=oldy0;P.cy1=oldy1;
 }
 function pageScore(label,value,col,lt,W,H){
-  var ds=H>=14?2:1,pas=5*ds+2,s=String(value),n=s.length,dw=n*pas-2,lw=twidth(label,1),tot=lw+6+dw,x=Math.floor((W-tot)/2);
+  var ds=1,pas=5*ds+2,s=String(value),n=s.length,dw=n*pas-2,lw=twidth(label,1),tot=lw+6+dw,x=Math.floor((W-tot)/2);
   text(label,x,cb(),BLA,1,255);
   for(var j=0;j<7;j++)if(j%2===0)px(x+lw+2,cb()+j,AMB,90);
   var bt=Math.round((H-7*ds)/2);
@@ -395,7 +395,7 @@ function sObjet(t){
   if(wn+8+wt<=room){text(nom,x0,bt,AMB,1,255);text(dur,x0+wn+8,bt,VER,1,255);return;}   /* tient sur une ligne */
   var m=2.2,ph=P.reduced||t<m?0:1,u=ph?t-m:t,v=P.reduced?1:sm(u/0.15)*(1-sm((u-(m-0.15))/0.15));
   if(ph===0)text(nom,x0+(wn>room?-clamp((u-0.5)/1.2,0,1)*(wn-room):0),bt,AMB,1,255*v,{edge:{a:x0-1,b:W-3,f:3}});   /* le nom, puis son temps restant */
-  else{var sc=H>=14&&twidth(dur,2)<=room?2:1;text(dur,x0,Math.round((H-7*sc)/2),VER,sc,255*v);}
+  else{var sc=1;text(dur,x0,Math.round((H-7*sc)/2),VER,sc,255*v);}
 }
 
 /* 11. NUKE : treize petites animations muettes (une seule fois, TN s), tirées sans répétition immédiate ; puis « +N BOSS » si le client connaît le nombre (différence des boss vaincus de l'état) */
@@ -671,12 +671,11 @@ Panel.prototype.sprites=function(){
       var I=l/8,rgb=RGB[c],k=document.createElement('canvas'),g=document.createElement('canvas'),x;
       k.width=k.height=cell;x=k.getContext('2d');
       var hot=rgb.map(function(q){return Math.round(q+(255-q)*0.5);});
-      var gr=x.createRadialGradient(cell/2,cell/2,0,cell/2,cell/2,cell*0.42);
-      gr.addColorStop(0,'rgba('+hot+','+I+')');gr.addColorStop(0.6,'rgba('+rgb+','+I+')');gr.addColorStop(1,'rgba('+rgb+','+(I*0.85)+')');
-      x.fillStyle=gr;x.beginPath();x.arc(cell/2,cell/2,cell*0.4,0,6.2832);x.fill();
+      x.fillStyle='rgba('+rgb+','+I+')';x.beginPath();x.arc(cell/2,cell/2,cell*0.4,0,6.2832);x.fill();   /* bord franc : Norman, 2026-11-01 « ça m'a l'air flou » */
+      x.fillStyle='rgba('+hot+','+I+')';x.beginPath();x.arc(cell/2,cell/2,cell*0.24,0,6.2832);x.fill();
       g.width=g.height=cell*3;x=g.getContext('2d');
       var gg=x.createRadialGradient(cell*1.5,cell*1.5,cell*0.2,cell*1.5,cell*1.5,cell*1.5);
-      gg.addColorStop(0,'rgba('+rgb+','+(0.42*I)+')');gg.addColorStop(1,'rgba('+rgb+',0)');
+      gg.addColorStop(0,'rgba('+rgb+','+(0.16*I)+')');gg.addColorStop(1,'rgba('+rgb+',0)');
       x.fillStyle=gg;x.fillRect(0,0,cell*3,cell*3);
       core[c][l]=k;glow[c][l]=g;
     }
