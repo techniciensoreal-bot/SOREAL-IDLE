@@ -18,7 +18,9 @@
   };
   /* Opérations qui restent au serveur mais MODIFIENT la ligne du joueur (administration, partie d'essai, changement de pseudo : le profil copié dans la page doit être rechargé) : avant, on envoie ce que la page a de neuf ; après, on recharge la page pour repartir de l'état du serveur. */
   const MODIFIENT_LE_JOUEUR={annulerVictoireTitanAdminSorealIdle:1,crediterExpAdminSorealIdle:1,retirerRecordCombatLongAdminSorealIdle:1,reinitialiserCompteCompletSorealIdle:1,preparerPartieTestSorealIdle:1,copierPartieASurBSorealIdle:1,definirPartieDevSorealIdle:1,definirPseudoSorealIdle:1};
-  const INTERVALLE_ENVOI_MS=10000;
+  /* Application Android hors ligne (2026-11-01) : l'envoi passe par le service worker du téléphone, qui relit le classeur et réexporte toute sa base dans IndexedDB à chaque fois. 30 s au lieu de 10 s ; la fermeture, le passage en arrière-plan et le bouton « Envoyer ma partie » envoient toujours tout de suite. */
+  const EST_APK_ENVOI=(function(){try{return typeof window.AndroidSoreal!=="undefined"&&window.AndroidSoreal!==null;}catch(_){return false;}})();
+  const INTERVALLE_ENVOI_MS=EST_APK_ENVOI?30000:10000;
   const DELAI_ENVOI_MS=20000;
   let delaiEnvoi=0;
 

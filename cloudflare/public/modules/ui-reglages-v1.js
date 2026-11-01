@@ -271,7 +271,10 @@
       }
 
       function effetVisuelActifIdleV1_(e){
-        try{const v=localStorage.getItem(e.cle);return e.defaut===false?v==='1':v!=='0';}catch(_e){return e.defaut!==false;}
+        /* nav et decor : « léger » par défaut dans l'application Android hors ligne seulement (effets-legers-v1.js, defautPour), tant que le joueur n'a rien choisi. */
+        const EL=(e.id==='nav'||e.id==='decor')?window.__SOREAL_IDLE_EFFETS_LEGERS_V1__:null;
+        const defautActif=EL&&EL.defautPour?EL.defautPour():e.defaut!==false;
+        try{const v=localStorage.getItem(e.cle);return v===null?defautActif:(e.defaut===false?v==='1':v!=='0');}catch(_e){return defautActif;}
       }
 
       function htmlReglagesEffetsIdleV1_(){

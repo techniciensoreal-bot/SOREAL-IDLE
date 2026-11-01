@@ -21,7 +21,7 @@ assert.match(act, /"Télécharger maintenant \(réseau mobile\)"/);
 assert.match(act, /"Plus tard"/);
 assert.match(act, /"Relancer"/);
 assert.match(act, /m\.telechargerForce\(ecouteurMaj\(\)\)/, "le bouton force le téléchargement");
-assert.match(act, /new Thread\(new Runnable\(\) \{ @Override public void run\(\) \{\s*try \{ m\.telechargerForce/, "hors du fil d'interface");
+assert.match(act, /new Thread\(new Runnable\(\) \{ @Override public void run\(\) \{\s*(?:android\.os\.Process\.setThreadPriority\([^;]*;[^\n]*\s*)?try \{ m\.telechargerForce/, "hors du fil d'interface (priorité basse permise)");
 assert.match(act, /bloqueMobile\(final long octets, final String notes\)[\s\S]*proposerTelechargementMobile\(octets, notes\)/);
 assert.match(act, /Math\.round\(octets \/ 1048576\.0\) \+ " Mo"/, "la taille est dite");
 assert.match(act, /m\.verifierEnLigne\(ecouteurMaj\(\), false\)/, "vérification au lancement et au retour (délai de 30 min dans Maj)");

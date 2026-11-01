@@ -219,8 +219,11 @@ function attendreMoteur(essais,suite){
   setTimeout(function(){attendreMoteur(essais-1,suite);},700);
 }
 var enCours=false;
-function lancer(){
+var prochainEssai=0;   /* sans réseau, un essai toutes les 4 s réveillait le moteur et ouvrait une connexion pour rien : 30 s entre deux essais (le retour d'internet et le retour au premier plan réessaient tout de suite) */
+function lancer(urgent){
   if(enCours||etat.pret||etat.arrete||etat.adoption)return;
+  if(urgent===true)prochainEssai=0;
+  if(Date.now()<prochainEssai)return;
   if(!estApk()||!lire(CLE_COMPTE)||json(CLE_ATTENTE))return;   /* compte pas encore relié, ou restauration en attente (elle recharge la page) */
   enCours=true;
   attendreMoteur(170,function(ML){
@@ -229,6 +232,7 @@ function lancer(){
     synchroniser().then(function(res){
       enCours=false;
       if(res==='local'||res==='local-refuse')etat.pret=true;
+      if(res==='hors-ligne')prochainEssai=Date.now()+30000;
     },function(){enCours=false;});
   });
 }
@@ -239,8 +243,8 @@ if(estApk()){
   /* Essais réguliers : compte relié après le chargement de la page, réseau absent au démarrage, restauration terminée. */
   setInterval(function(){lancer();},4000);
   setInterval(function(){tick(false);},INTERVALLE_MS);
-  window.addEventListener('online',function(){lancer();tick(false);});
-  document.addEventListener('visibilitychange',function(){if(document.hidden)tick(true);else lancer();});
+  window.addEventListener('online',function(){lancer(true);tick(false);});
+  document.addEventListener('visibilitychange',function(){if(document.hidden)tick(true);else lancer(true);});
   window.addEventListener('pagehide',function(){tick(true);});
   lancer();
 }

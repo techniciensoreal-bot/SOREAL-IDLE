@@ -18,7 +18,10 @@
   'use strict';
 
   const CLE_VU='soreal_idle_chat_vu_v2';
-  const BATTEMENT_MS=20000;
+  /* Application Android hors ligne (Norman, 2026-11-01 : fluidité) : ici le « serveur » est le service worker du téléphone ; chaque battement le réveille (Android l'arrête après quelques secondes), relit tout le classeur SQLite et réexporte la base dans IndexedDB.
+     Espacé à 60 s et jamais en arrière-plan (personne d'autre n'est en ligne sur ce serveur local) ; ailleurs rien ne change. */
+  const EST_APK=(function(){try{return typeof window.AndroidSoreal!=='undefined'&&window.AndroidSoreal!==null;}catch(_e){return false;}})();
+  const BATTEMENT_MS=EST_APK?60000:20000;
   const INTERVALLE_OUVERT_MS=4000;
   const FENETRE_ACTIVITE_MS=120000;
   const MAX_MESSAGES=200;
@@ -494,7 +497,7 @@
       if(typeof window.__SOREAL_IDLE_CHAT_MAJ_MENU__==='function')window.__SOREAL_IDLE_CHAT_MAJ_MENU__();
     });
     /* Même onglet en arrière-plan : le battement continue (le joueur reste « en ligne », mais pas « actif »). */
-    timerBattement=setInterval(battement,BATTEMENT_MS);
+    timerBattement=setInterval(function(){if(EST_APK&&document.hidden)return;battement();},BATTEMENT_MS);
   }
 
   window.__SOREAL_IDLE_CHAT_V1__={

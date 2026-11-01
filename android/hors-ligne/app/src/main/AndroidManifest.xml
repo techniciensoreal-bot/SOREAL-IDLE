@@ -10,6 +10,8 @@
         android:hardwareAccelerated="true"
         android:largeHeap="true"
         android:theme="@android:style/Theme.Black.NoTitleBar">
+        <!-- Aucune consultation « Navigation sécurisée » : tout le contenu est local (appassets), la vérification ne servait qu'à ajouter des appels aux services Google à chaque navigation. -->
+        <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

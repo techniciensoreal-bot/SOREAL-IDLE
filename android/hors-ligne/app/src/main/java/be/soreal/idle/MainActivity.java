@@ -7,6 +7,7 @@ import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import java.util.regex.Pattern;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -65,6 +66,9 @@ public class MainActivity extends Activity {
         TYPES.put("onnx", "application/octet-stream"); TYPES.put("mp4", "video/mp4"); TYPES.put("webm", "video/webm"); TYPES.put("txt", "text/plain");
     }
 
+    /* Précompilé : servir() tourne pour CHAQUE requête (images, sons, scripts) ; String.matches recompilait l'expression à chaque appel. */
+    private static final Pattern VERSIONNE = Pattern.compile("(.*&)?v=[0-9]+(&.*)?");
+
     private static String typeDe(String chemin) {
         int p = chemin.lastIndexOf('.');
         String t = p >= 0 ? TYPES.get(chemin.substring(p + 1).toLowerCase(Locale.ROOT)) : null;
@@ -90,8 +94,8 @@ public class MainActivity extends Activity {
         Map<String, String> entetes = new HashMap<>();
         /* Images : gardées par la WebView (sinon chaque <img> recréé, par exemple en déplaçant un objet du sac, repartait en rechargement : clignotement, images tardives). Fichiers à ?v= : immuables. Le reste (page, état) : toujours revalidé. */
         String q = u.getQuery();
-        if (chemin.startsWith("/__medias/") && typeDe(chemin).startsWith("image/")) entetes.put("Cache-Control", "public, max-age=600");
-        else if (q != null && q.matches("(.*&)?v=[0-9]+(&.*)?") && !chemin.endsWith(".html")) entetes.put("Cache-Control", "public, max-age=31536000, immutable");
+        if (chemin.startsWith("/__medias/") && typeDe(chemin).startsWith("image/")) entetes.put("Cache-Control", "public, max-age=86400");
+        else if (q != null && VERSIONNE.matcher(q).matches() && !chemin.endsWith(".html")) entetes.put("Cache-Control", "public, max-age=31536000, immutable");
         else entetes.put("Cache-Control", "no-cache");
         entetes.put("Accept-Ranges", "bytes");
         String type = typeDe(actif);
@@ -100,14 +104,21 @@ public class MainActivity extends Activity {
             Map<String, String> h = req.getRequestHeaders();
             String plage = h == null ? null : (h.get("Range") != null ? h.get("Range") : h.get("range"));
             long taille = -1;
-            if (sur != null) taille = sur.length();
-            else try (AssetFileDescriptor fd = am.openFd(actif)) { taille = fd.getLength(); } catch (IOException e) { /* fichier compressé : taille inconnue */ }
-            if ("HEAD".equals(req.getMethod())) {
-                if (taille < 0) { try (InputStream is = am.open(actif)) { taille = is.available(); } }
+            boolean tete = "HEAD".equals(req.getMethod());
+            /* Un SEUL accès au fichier (avant : openFd pour la taille PUIS open pour le flux = deux ouvertures par image). Les médias sont stockés non compressés dans l'APK (noCompress) : openFd donne un descripteur positionnable (skip = lseek, pas de décompression). Repli en flux seulement pour un fichier compressé. */
+            InputStream flux;
+            if (sur != null) { taille = sur.length(); flux = tete ? null : new FileInputStream(sur); }
+            else {
+                AssetFileDescriptor fd = null;
+                try { fd = am.openFd(actif); } catch (IOException e) { /* fichier compressé (ou absent) : repli en flux */ }
+                if (fd != null) { taille = fd.getLength(); if (tete) { fd.close(); flux = null; } else flux = fd.createInputStream(); }
+                else if (tete) { try (InputStream is = am.open(actif)) { taille = is.available(); } flux = null; }
+                else flux = am.open(actif, AssetManager.ACCESS_STREAMING);
+            }
+            if (tete) {
                 entetes.put("Content-Length", String.valueOf(taille));
                 return reponse(200, "OK", type, entetes, new ByteArrayInputStream(new byte[0]));
             }
-            InputStream flux = sur != null ? new FileInputStream(sur) : am.open(actif, AssetManager.ACCESS_STREAMING);
             if (plage != null && plage.startsWith("bytes=") && taille > 0) {
                 String[] r = plage.substring(6).split(",")[0].split("-", -1);
                 long debut, fin;
@@ -248,7 +259,12 @@ public class MainActivity extends Activity {
                 catch (RuntimeException e) { choixFichier = null; return false; }
                 return true;
             }
-            @Override public boolean onConsoleMessage(ConsoleMessage m) { Log.i("SorealIdle", m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")"); return true; }
+            /* Seuls les avertissements et erreurs vont dans Logcat : chaque Log.i passe par le pont natif et le journal système, sur le fil de la WebView. */
+            @Override public boolean onConsoleMessage(ConsoleMessage m) {
+                ConsoleMessage.MessageLevel n = m.messageLevel();
+                if (n == ConsoleMessage.MessageLevel.ERROR || n == ConsoleMessage.MessageLevel.WARNING) Log.w("SorealIdle", m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")");
+                return true;
+            }
         });
         immersif();
         vue.loadUrl(ORIGINE + "/");
@@ -300,6 +316,7 @@ public class MainActivity extends Activity {
             .setMessage((notes == null || notes.isEmpty() ? "" : notes + "\n\n") + "Une mise à jour de " + taille + " attend le Wi-Fi. Tu peux la télécharger maintenant avec ton réseau mobile.")
             .setPositiveButton("Télécharger maintenant (réseau mobile)", new android.content.DialogInterface.OnClickListener() { @Override public void onClick(android.content.DialogInterface d, int w) {
                 new Thread(new Runnable() { @Override public void run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
                     try { m.telechargerForce(ecouteurMaj()); } catch (Exception e) { /* silencieux : le jeu n'est pas concerné */ }
                 } }, "maj-apk-forcee").start();
             } })
@@ -313,6 +330,7 @@ public class MainActivity extends Activity {
         final Maj m = maj;
         vue.postDelayed(new Runnable() { @Override public void run() {
             new Thread(new Runnable() { @Override public void run() {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);   /* ne dispute pas le processeur au jeu */
                 m.verifierEnLigne(ecouteurMaj(), false);
             } }, "maj-apk").start();
         } }, delai);

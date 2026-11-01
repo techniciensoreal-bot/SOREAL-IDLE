@@ -79,8 +79,13 @@ const ASSETS = {
 };
 
 /* ---------- SOREAL_R2 : /__medias/<clé>, index des clés dans /__medias/_index.json ({ clé: taille }) ---------- */
+function borneInferieure(tableau, x) {
+  let a = 0, b = tableau.length;
+  while (a < b) { const m = (a + b) >> 1; if (tableau[m] < x) a = m + 1; else b = m; }
+  return a;
+}
 function creerR2() {
-  let index = null;
+  let index = null, triees = null;
   async function charger() {
     if (index) return index;
     const rep = await fetch("/__medias/_index.json");
@@ -123,19 +128,23 @@ function creerR2() {
       const prefixe = String(options.prefix || ""), delimiteur = options.delimiter ? String(options.delimiter) : "";
       const limite = Math.max(1, Math.min(1000, Number(options.limit) || 1000));
       const depart = Math.max(0, Number(options.cursor) || 0);
-      const cles = [...idx.keys()].filter((k) => k.startsWith(prefixe) && !k.startsWith("_externes/")).sort();
+      /* Clés triées UNE fois par réveil (avant : filtre + tri des ~5 000 clés à chaque list(), appelé par plusieurs routes de médias) ; le préfixe est une tranche contiguë de la liste triée. */
+      const toutes = triees || (triees = [...idx.keys()].filter((k) => !k.startsWith("_externes/")).sort());
+      const debut = borneInferieure(toutes, prefixe);
+      let fin = debut;
+      while (fin < toutes.length && toutes[fin].startsWith(prefixe)) fin += 1;
       const objets = [], prefixes = new Set();
-      let i = depart;
-      for (; i < cles.length && objets.length + prefixes.size < limite; i += 1) {
-        const k = cles[i];
+      let i = debut + depart;
+      for (; i < fin && objets.length + prefixes.size < limite; i += 1) {
+        const k = toutes[i];
         if (delimiteur) {
           const reste = k.slice(prefixe.length), pos = reste.indexOf(delimiteur);
           if (pos >= 0) { prefixes.add(prefixe + reste.slice(0, pos + delimiteur.length)); continue; }
         }
         objets.push(objet(k, Number(idx.get(k))));
       }
-      const tronque = i < cles.length;
-      return { objects: objets, delimitedPrefixes: [...prefixes], truncated: tronque, cursor: tronque ? String(i) : undefined };
+      const tronque = i < fin;
+      return { objects: objets, delimitedPrefixes: [...prefixes], truncated: tronque, cursor: tronque ? String(i - debut) : undefined };
     },
     /* L'APK est en lecture seule : les téléversements d'administration (voix, histoires) n'y ont pas de sens. */
     async put() { throw new Error("APK_LECTURE_SEULE"); },
@@ -149,9 +158,80 @@ let pret = null;
 let derniereSauvegarde = 0;
 let sauvegardeEnCours = null;
 
+/* Empreinte FNV sur deux voies des OCTETS d'un fichier (une seule passe, sans décodage ni JSON.stringify). */
+function empreinteOctets(tampon) {
+  const o = new Uint8Array(tampon);
+  let a = 0x811c9dc5, b = 0x01000193 ^ o.length;
+  for (let i = 0; i < o.length; i += 1) { const c = o[i]; a = Math.imul(a ^ c, 0x01000193); b = Math.imul(b ^ c ^ (a >>> 7), 0x85ebca6b); }
+  return (a >>> 0).toString(16).padStart(8, "0") + (b >>> 0).toString(16).padStart(8, "0") + "-" + o.length.toString(16);
+}
+const URLS_GRAINE = ["/graine-contenu-v1.json", "/__graine.json"];
+/* Premier fichier de graine lisible à partir du rang « debut » : { rang, id, tampon } (id = adresse + empreinte des octets). Rien n'est analysé ici. */
+async function lireGraineBrute(debut) {
+  for (let k = debut; k < URLS_GRAINE.length; k += 1) {
+    try { const g = await fetch(URLS_GRAINE[k]); if (g.ok) { const tampon = await g.arrayBuffer(); return { rang: k, id: URLS_GRAINE[k] + "|" + empreinteOctets(tampon), tampon }; } } catch (_e) { /* suivante */ }
+  }
+  return null;
+}
+function analyserGraine(brute) {
+  try { const j = JSON.parse(new TextDecoder().decode(brute.tampon)); return graineValideV1(j) ? j : null; } catch (_e) { return null; }
+}
+function lireMeta(sql, cle) {
+  try { const r = sql.exec("SELECT meta_value AS v FROM idle_meta WHERE meta_key=?", cle)[0]; return r ? String(r.v) : ""; } catch (_e) { return ""; }
+}
+
+/*
+ * Lignes des joueurs (la partie) gardées À PART dans IndexedDB, à chaque changement (Norman, 2026-11-01 : « l'APK est beaucoup moins fluide »). Avant, CHAQUE écriture (la page envoie sa partie toutes les 10 s) exportait TOUTE la base SQLite (catalogue, textes,
+ * histoires : plusieurs Mo) puis l'écrivait dans IndexedDB. Maintenant la ligne du joueur (≈ 100 à 200 Ko) est écrite seule, tout de suite et AVANT la réponse à l'envoi de la page (qui efface alors sa propre copie) ; la base entière n'est plus exportée qu'au plus
+ * toutes les 2 minutes (tables lentes : sessions, présence, sauvegardes de sécurité), à la création d'une ligne ou d'une session, et au premier démarrage. Au réveil, les lignes gardées remplacent celles de la base exportée (elles sont toujours au moins aussi récentes).
+ */
+const BASE_COMPLETE_MS = 120000;
+let derniereLignes = null, gardeEnCours = null, gardeARefaire = false, baseCompleteRequise = false;
+function lireLignes(sql) {
+  return sql.exec("SELECT row_index AS i,row_json AS j FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index>1 ORDER BY row_index").map((r) => [Number(r.i), String(r.j)]);
+}
+function memesLignes(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  for (let k = 0; k < a.length; k += 1) if (a[k][0] !== b[k][0] || a[k][1] !== b[k][1]) return false;
+  return true;
+}
+function appliquerLignesGardees(sql, lignes) {
+  for (const l of lignes) {
+    if (!Array.isArray(l) || typeof l[1] !== "string") continue;
+    const ex = sql.exec("SELECT row_json AS j FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", Number(l[0]))[0];
+    if (ex && String(ex.j) !== l[1]) sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", l[1], Date.now(), Number(l[0]));
+  }
+}
+function gardeLigne() {
+  if (!etat) return Promise.resolve();
+  if (gardeEnCours) { gardeARefaire = true; return gardeEnCours; }
+  gardeEnCours = (async () => {
+    await null;   /* le « finally » ne doit jamais s'exécuter avant l'affectation ci-dessus (aucune attente sur le chemin « rien de changé ») */
+    try {
+      do {
+        gardeARefaire = false;
+        const lignes = lireLignes(etat.sql);
+        if (memesLignes(lignes, derniereLignes)) continue;
+        const nouvelle = !derniereLignes || lignes.length !== derniereLignes.length || lignes.some((l, k) => l[0] !== derniereLignes[k][0]);
+        await idbEcrire("lignes", lignes);
+        derniereLignes = lignes;
+        if (nouvelle) baseCompleteRequise = true;
+      } while (gardeARefaire);
+    } catch (_e) { /* IndexedDB refuse : la prochaine requête réessaie (derniereLignes n'a pas bougé) */ }
+    finally { gardeEnCours = null; }
+  })();
+  return gardeEnCours;
+}
+
 async function demarrer() {
-  const SQL = await initSqlJs({ locateFile: () => "/sql-wasm-v1.wasm" });
-  const octets = await idbLire("sqlite");
+  /* Tout ce qui est indépendant part en parallèle (avant : wasm, puis base, puis graine, puis session, l'un après l'autre à chaque réveil). */
+  const [SQL, octets, lignesGardees, sessionIdb, graineBrute] = await Promise.all([
+    initSqlJs({ locateFile: () => "/sql-wasm-v1.wasm" }),
+    idbLire("sqlite"),
+    idbLire("lignes").catch(() => null),
+    idbLire("session"),
+    lireGraineBrute(0)
+  ]);
   const db = octets ? new SQL.Database(new Uint8Array(octets)) : new SQL.Database();
   const sql = creerSql(db);
   db.run("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
@@ -162,28 +242,36 @@ async function demarrer() {
   }
   /* Le jeu est ouvert au joueur de cet appareil : « accès public » du serveur, posé une fois. */
   sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1') ON CONFLICT(meta_key) DO UPDATE SET meta_value='1'");
+  /* Les lignes de joueurs gardées à part sont au moins aussi récentes que la base exportée. */
+  if (octets && Array.isArray(lignesGardees)) appliquerLignesGardees(sql, lignesGardees);
   /*
    * Graine du contenu de la production : d'abord celle qui voyage dans les mises à jour (public/graine-contenu-v1.json, remplacée par le paquet de code de la mise à jour), sinon celle embarquée dans l'APK (/__graine.json).
    * Re-appliquée à chaque démarrage où son empreinte diffère (catalogue, textes et empreintes de voix, histoires) ; la feuille JOUEURS n'est jamais touchée ; une graine absente ou invalide n'écrase rien (idle-graine-contenu-v1.js).
+   * Réveil rapide (2026-11-01) : l'empreinte des OCTETS du fichier est gardée DANS la base (idle_meta « graine_texte_id », elle voyage donc avec l'export) ; si elle n'a pas changé, le fichier n'est ni décodé, ni analysé, ni ré-empreint (avant : JSON.parse + JSON.stringify
+   * + empreinte de 500 Ko à chaque réveil du service worker).
    */
-  const graine = await (async () => {
-    for (const url of ["/graine-contenu-v1.json", "/__graine.json"]) {
-      try { const g = await fetch(url); if (g.ok) { const j = await g.json(); if (graineValideV1(j)) return j; } } catch (_e) { /* suivante */ }
+  let premiere = false, contenu = { applique: false }, baseASauver = false;
+  const aJour = Boolean(graineBrute) && lireMeta(sql, "graine_texte_id") === graineBrute.id && lireMeta(sql, "graine_empreinte") !== "";
+  if (!aJour) {
+    let brute = graineBrute, graine = brute ? analyserGraine(brute) : null;
+    if (brute && !graine) { brute = await lireGraineBrute(brute.rang + 1); graine = brute ? analyserGraine(brute) : null; }
+    premiere = semerSiVide(sql, graine);
+    contenu = appliquerGraineContenuV1(sql, graine);
+    if (graine && brute && (contenu.applique || contenu.raison === "A_JOUR")) {
+      sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES('graine_texte_id',?) ON CONFLICT(meta_key) DO UPDATE SET meta_value=excluded.meta_value", brute.id);
+      baseASauver = true;
     }
-    return null;
-  })();
-  const premiere = semerSiVide(sql, graine);
-  const contenu = appliquerGraineContenuV1(sql, graine);
+  }
   const stub = { fetch: (requete) => coord.fetch(requete) };
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },
     ASSETS,
-    SOREAL_R2: creerR2(),
+    SOREAL_R2: r2Partage || (r2Partage = creerR2()),
     CF_VERSION_METADATA: { id: "android" },
     GOOGLE_CLIENT_ID: ""
   };
   /* Session du joueur local : la même d'un lancement à l'autre tant qu'elle vaut encore deux jours (la table des sessions est dans la base gardée). */
-  let session = await idbLire("session");
+  let session = sessionIdb;
   const valide = session && session.token && Number(session.expiresAt) > Date.now() + 2 * 86400000
     && sql.exec("SELECT COUNT(*) AS n FROM idle_sessions WHERE session_token=?", session.token)[0].n > 0;
   if (!valide) {
@@ -191,21 +279,25 @@ async function demarrer() {
     if (!s || !s.ok) throw new Error("SESSION_LOCALE_REFUSEE:" + (s && s.error));
     session = { token: s.sessionToken, expiresAt: s.expiresAt };
     await idbEcrire("session", session);
+    baseASauver = true;   /* la session doit être dans la base gardée, sinon elle serait refusée au réveil suivant */
   }
+  derniereLignes = lireLignes(sql);
   etat = { db, sql, coord, env, session, SQL };
-  if (premiere || contenu.applique || !octets) await sauvegarder(true);
+  if (premiere || contenu.applique || !octets || baseASauver) await sauvegarder(true);
   return etat;
 }
 
 function init() { return pret || (pret = demarrer().catch((e) => { pret = null; throw e; })); }
 
-/* Exporte la base dans IndexedDB (au plus une fois toutes les 4 s, sauf demande) ; l'export de sql.js libère les requêtes préparées, ce qui est sans effet ici (chaque appel en prépare une). */
-function sauvegarder(force) {
+/* Exporte la base entière dans IndexedDB : au plus une fois toutes les 2 minutes (sauf demande) ; l'export de sql.js libère les requêtes préparées, ce qui est sans effet ici (chaque appel en prépare une). Les lignes des joueurs, elles, sont gardées à chaque changement (gardeLigne). */
+function sauvegarder(force, ecriture) {
   if (!etat) return Promise.resolve();
-  if (!force && Date.now() - derniereSauvegarde < 4000) return Promise.resolve();
+  if (!force && !baseCompleteRequise && !(ecriture && Date.now() - derniereSauvegarde >= BASE_COMPLETE_MS)) return Promise.resolve();
   if (sauvegardeEnCours) return sauvegardeEnCours;
   sauvegardeEnCours = (async () => {
     try {
+      await gardeLigne();
+      baseCompleteRequise = false;
       const octets = etat.db.export();
       await idbEcrire("sqlite", octets.buffer.slice(octets.byteOffset, octets.byteOffset + octets.byteLength));
       derniereSauvegarde = Date.now();
@@ -223,12 +315,15 @@ function scriptSession(session) {
  * Images lentes sur l'APK (Norman, 2026-11-01 : « les images clignotent, il galère à charger ce qu'il a en mémoire ; la fluidité est beaucoup moindre que l'APK en ligne »). Cause : tout /api/ passe par ce service worker, et Android l'arrête après quelques secondes d'inactivité ; à chaque réveil,
  * la moindre image attendait init() : démarrage de sql.js, chargement de la base depuis IndexedDB, application de la graine du contenu. Deux remèdes :
  *  1) les routes d'images n'ont pas besoin du moteur : elles tournent avec un env LÉGER dont le coordinateur ne démarre qu'à la première utilisation (envLeger) ;
- *  2) une image déjà vue est rendue tout de suite par le Cache API (rafraîchie une fois par service worker en arrière-plan : une image remplacée par une mise à jour apparaît à la vue suivante), sans même réveiller le Worker.
+ *  2) une image déjà vue est rendue tout de suite par le Cache API, sans même réveiller le Worker. Elle n est relue en arrière-plan que si sa copie a plus de 6 h (en-tête x-garde-le : une image remplacée par une mise à jour des médias apparaît à la vue suivante) ;
+ *     avant, CHAQUE réveil du service worker relisait en arrière-plan chaque image affichée (R2, index, moteur léger) : des dizaines de requêtes inutiles par réveil, au moment même où la page en demandait d autres.
  * Bornes : images d'au plus 300 Ko, 600 entrées (les plus anciennes partent d'abord).
  */
 const CACHE_IMAGES = "soreal-idle-images-v1";
 const IMAGE_MAX_OCTETS = 300 * 1024, IMAGES_MAX = 600;
+const REFRAICHIR_APRES_MS = 6 * 3600 * 1000;
 const rafraichies = new Set();
+let ajouts = 0;
 function envLeger() {
   if (etat) return etat.env;
   const stub = { fetch: async (requete) => (await init()).coord.fetch(requete) };
@@ -244,9 +339,9 @@ async function garderImage(cache, cle, rep) {
     const copie = rep.clone();
     const octets = await copie.arrayBuffer();
     if (octets.byteLength > IMAGE_MAX_OCTETS) return;
-    await cache.put(cle, new Response(octets, { status: 200, headers: { "content-type": ct, "cache-control": "no-cache" } }));
-    const cles = await cache.keys();
-    for (let i = 0; i < cles.length - IMAGES_MAX; i += 1) await cache.delete(cles[i]);
+    await cache.put(cle, new Response(octets, { status: 200, headers: { "content-type": ct, "cache-control": "no-cache", "x-garde-le": String(Date.now()) } }));
+    /* Ménage seulement de temps en temps (cache.keys() liste toute la base à chaque appel). */
+    if (++ajouts % 25 === 0) { const cles = await cache.keys(); for (let i = 0; i < cles.length - IMAGES_MAX; i += 1) await cache.delete(cles[i]); }
   } catch (_e) { /* pas de copie : l'image est tout de même rendue */ }
 }
 async function repondreImage(ev, requete, url) {
@@ -255,7 +350,8 @@ async function repondreImage(ev, requete, url) {
   const deja = await cache.match(cle);
   const frais = async () => { const rep = await repondre(requete, true); ev.waitUntil(garderImage(cache, cle, rep.clone())); return rep; };
   if (deja) {
-    if (!rafraichies.has(cle)) { rafraichies.add(cle); ev.waitUntil(frais().catch(() => {})); }
+    const age = Date.now() - (Number(deja.headers.get("x-garde-le")) || 0);
+    if (age > REFRAICHIR_APRES_MS && !rafraichies.has(cle)) { rafraichies.add(cle); ev.waitUntil(frais().catch(() => {})); }
     return deja;
   }
   return frais();
@@ -281,6 +377,27 @@ async function repondre(requete, leger) {
   return rep;
 }
 
+function reponseJson(donnees) {
+  return new Response(JSON.stringify(donnees), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-soreal-now": String(Date.now()) } });
+}
+const BATTEMENT_REEL_MS = 90000;
+let dernierBattement = null;   // { jeton, at, donnees }
+async function appelerApi(requete) {
+  let corps = null;
+  try { corps = JSON.parse(await requete.clone().text()); } catch (_e) { corps = null; }
+  if (corps && corps.operation === "battementSorealIdle") {
+    const jeton = (requete.headers.get("authorization") || "").replace(/^Bearers+/i, "");
+    const info = Array.isArray(corps.args) ? corps.args.find((a) => a && typeof a === "object") : null;
+    const amorce = Boolean(info && info.amorceFlux === true);
+    const c = dernierBattement;
+    if (jeton && !amorce && c && c.jeton === jeton && Date.now() - c.at < BATTEMENT_REEL_MS) return reponseJson(Object.assign({}, c.donnees, { flux: [], maintenant: Date.now() }));
+    const rep = await repondre(requete);
+    if (jeton && rep.ok) { try { const d = await rep.clone().json(); if (d && d.ok) dernierBattement = { jeton, at: Date.now(), donnees: d }; } catch (_e) { /* réponse non JSON : pas gardée */ } }
+    return rep;
+  }
+  return repondre(requete);
+}
+
 self.addEventListener("install", () => { self.skipWaiting(); });
 self.addEventListener("activate", (ev) => { ev.waitUntil(self.clients.claim()); });
 self.addEventListener("fetch", (ev) => {
@@ -302,6 +419,25 @@ self.addEventListener("fetch", (ev) => {
     ev.respondWith(repondre(req, true).catch((err) => new Response(JSON.stringify({ ok: false, error: "APK_HORS_LIGNE:" + String((err && err.message) || err) }), { status: 500, headers: { "content-type": "application/json" } })));
     return;
   }
-  ev.respondWith(repondre(req).catch((err) => new Response(JSON.stringify({ ok: false, error: "APK_HORS_LIGNE:" + String((err && err.message) || err) }), { status: 500, headers: { "content-type": "application/json" } })));
-  if (req.method !== "GET" && req.method !== "HEAD") ev.waitUntil(sauvegarder(false));
+  /*
+   * Routes de l'API que l'application hors ligne n'a aucune raison de faire travailler (2026-11-01) :
+   *  - GET /api/v1/local/textes (la page l'appelle toutes les minutes) : les textes viennent de la graine, déjà dans l'export du démarrage ; seule une mise à jour de l'application les change (relancement). Réponse immédiate « rien de neuf », sans réveiller le moteur ;
+   *  - battementSorealIdle (toutes les 20 s) : présence, temps de jeu, fil « En direct » d'un joueur seul sur son téléphone. Le vrai calcul n'a lieu qu'au plus toutes les 90 s (et au premier battement de la page) ; entre deux, la dernière réponse est rendue (sans événements).
+   */
+  if (req.method === "GET" && p === "/api/v1/local/textes") {
+    ev.respondWith(Promise.resolve(reponseJson({ ok: false, error: "APK_TEXTES_LOCAUX" })));
+    return;
+  }
+  const estPush = req.method === "POST" && p === "/api/v1/local/push";
+  const travail = req.method === "POST" && p === "/api/v1/call" ? appelerApi(req) : repondre(req);
+  ev.respondWith(travail.then(async (rep) => {
+    /* La ligne du joueur est gardée à part (peu coûteuse) AVANT de répondre à un envoi de la page : elle efface sa propre copie dès qu'elle reçoit « ok ». Pour le reste : en arrière-plan. */
+    if (etat) {
+      const ecriture = req.method !== "GET" && req.method !== "HEAD";
+      const garde = gardeLigne().catch(() => {});
+      if (estPush) await garde;
+      ev.waitUntil(garde.then(() => sauvegarder(false, ecriture)));
+    }
+    return rep;
+  }).catch((err) => new Response(JSON.stringify({ ok: false, error: "APK_HORS_LIGNE:" + String((err && err.message) || err) }), { status: 500, headers: { "content-type": "application/json" } })));
 });

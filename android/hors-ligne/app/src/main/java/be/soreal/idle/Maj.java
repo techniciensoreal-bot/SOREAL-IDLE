@@ -46,6 +46,8 @@ final class Maj {
     private final File racine;
     private final AtomicBoolean enCours = new AtomicBoolean(false);
     private long derniereVerification = 0;
+    /* Code courant en mémoire : fichier() est appelé pour CHAQUE requête de la WebView (des centaines au démarrage) et relisait puis analysait etat.json à chaque fois. Invalidé à chaque écriture de etat.json. */
+    private volatile String courantMemo = null;
 
     Maj(Context c) {
         ctx = c.getApplicationContext();
@@ -65,6 +67,7 @@ final class Maj {
             File tmp = new File(f.getPath() + ".tmp");
             try (FileOutputStream os = new FileOutputStream(tmp)) { os.write(o.toString().getBytes("UTF-8")); }
             if (!tmp.renameTo(f)) { f.delete(); tmp.renameTo(f); }
+            if (f.getName().equals("etat.json")) courantMemo = null;
         } catch (Exception e) { /* tant pis : l'état précédent reste */ }
     }
 
@@ -198,12 +201,17 @@ final class Maj {
 
     /* ---------- lecture : le dossier de mise à jour prime sur les assets de l'APK ---------- */
 
+    /* Sans getCanonicalPath (plusieurs appels système par requête) : un chemin avec « .. » ou une barre inverse est refusé, ce qui suffit à ne pas sortir du dossier. */
     private static File dansDossier(File base, String relatif) {
-        try {
-            File f = new File(base, relatif);
-            String b = base.getCanonicalPath() + File.separator;
-            return f.getCanonicalPath().startsWith(b) && f.isFile() ? f : null;
-        } catch (IOException e) { return null; }
+        if (relatif.contains("..") || relatif.contains("\\") || relatif.startsWith("/")) return null;
+        File f = new File(base, relatif);
+        return f.isFile() ? f : null;
+    }
+
+    private String courant() {
+        String c = courantMemo;
+        if (c == null) { c = etat().optString("courant", ""); courantMemo = c; }
+        return c;
     }
 
     /* `actif` : « public/… » (code) ou « medias/… ». Renvoie le fichier mis à jour, ou null (alors c'est l'APK qui sert). */
@@ -212,7 +220,7 @@ final class Maj {
             if (actif.equals("medias/_index.json")) return dansDossier(racine, "medias-index.json");
             if (actif.startsWith("medias/")) return dansDossier(new File(racine, "medias"), actif.substring(7));
             if (actif.startsWith("public/")) {
-                String courant = etat().optString("courant", "");
+                String courant = courant();
                 if (courant.isEmpty()) return null;
                 return dansDossier(new File(racine, "code/" + courant), actif);
             }
@@ -253,7 +261,7 @@ final class Maj {
     }
 
     /* Télécharge dans `dest` (écriture atomique) et renvoie ses empreintes {md5, sha256} en hexadécimal. */
-    private String[] telechargerVers(String cle, File dest, long tailleAttendue) throws Exception {
+    private String[] telechargerVers(String cle, File dest, long tailleAttendue, boolean sha256) throws Exception {
         dest.getParentFile().mkdirs();
         File part = new File(dest.getPath() + ".part");
         MessageDigest md5 = MessageDigest.getInstance("MD5"), sha = MessageDigest.getInstance("SHA-256");
@@ -264,7 +272,7 @@ final class Maj {
             try (InputStream is = c.getInputStream(); FileOutputStream os = new FileOutputStream(part)) {
                 byte[] t = new byte[65536];
                 int n;
-                while ((n = is.read(t)) > 0) { os.write(t, 0, n); md5.update(t, 0, n); sha.update(t, 0, n); total += n; }
+                while ((n = is.read(t)) > 0) { os.write(t, 0, n); md5.update(t, 0, n); if (sha256) sha.update(t, 0, n); total += n; }   /* SHA-256 seulement pour le paquet de code : les médias se vérifient par MD5 */
             }
         } finally { c.disconnect(); }
         if (tailleAttendue >= 0 && total != tailleAttendue) { part.delete(); throw new IOException("taille inattendue : " + cle); }
@@ -445,7 +453,7 @@ final class Maj {
             String cle = f.optString(0), etag = f.optString(2);
             if (cle.isEmpty() || cle.contains("..") || cle.startsWith("/")) continue;
             try {
-                String[] h = telechargerVers(cle, new File(racine, "medias/" + cle), f.optLong(1, -1));
+                String[] h = telechargerVers(cle, new File(racine, "medias/" + cle), f.optLong(1, -1), false);
                 if (etag.matches("[0-9a-f]{32}") && !etag.equals(h[0])) { new File(racine, "medias/" + cle).delete(); continue; }
                 etags.put(cle, etag);
                 index.put(cle, f.optLong(1));
@@ -457,7 +465,7 @@ final class Maj {
         if (codeNeuf) {
             String dossier = shaCode.substring(0, 16);
             File zip = new File(racine, "code-" + dossier + ".zip");
-            String[] h = telechargerVers(code.optString("cle"), zip, code.optLong("taille", -1));
+            String[] h = telechargerVers(code.optString("cle"), zip, code.optLong("taille", -1), true);
             if (!h[1].equals(shaCode)) { zip.delete(); return; }
             File tmp = new File(racine, "code/" + dossier + ".tmp");
             supprimer(tmp);

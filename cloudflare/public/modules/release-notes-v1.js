@@ -32,6 +32,7 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Application Android : le jeu demande beaucoup moins de travail au téléphone (sauvegardes plus légères, échanges espacés, démarrage et lecture des fichiers plus rapides) ; les effets visuels sont allégés par défaut, tu peux les remettre dans les Réglages.',
             'Application Android : les images se chargent plus vite et ne clignotent plus après un moment d’inactivité (le service du jeu ne démarre plus tout son moteur pour afficher une image, et les images déjà vues sont gardées).'
           ]}
         ]

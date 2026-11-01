@@ -11,7 +11,10 @@
   if(window.__SOREAL_IDLE_EFFETS_LEGERS_V1__)return;
   var CLES={nav:'soreal_idle_effet_nav_v1',decor:'soreal_idle_effet_decor_v1'};
   var CLASSES={nav:'soreal-nav-calme',decor:'soreal-decor-calme'};
-  function actif(cle){try{return localStorage.getItem(cle)!=='0';}catch(_e){return true;}}
+  /* Application Android hors ligne (Norman, 2026-11-01 : fluidité très inférieure à l'ancienne application) : réglé « léger » par défaut TANT QUE le joueur n'a rien choisi (règle n°6 : un choix posé, '1' ou '0', l'emporte). Web et exe : inchangés. */
+  var EST_APK=(function(){try{return typeof window.AndroidSoreal!=='undefined'&&window.AndroidSoreal!==null;}catch(_e){return false;}})();
+  function defautPour(){return !EST_APK;}
+  function actif(cle){try{var v=localStorage.getItem(cle);return v===null?defautPour():v!=='0';}catch(_e){return defautPour();}}
   function style(){
     if(document.getElementById('soreal-idle-effets-legers-style'))return;
     var s=document.createElement('style');s.id='soreal-idle-effets-legers-style';
@@ -32,5 +35,5 @@
   window.addEventListener('soreal-effets-v1',appliquer);
   /* le compte peut remettre les préférences APRÈS le chargement (prefs-compte-v1.js) */
   setInterval(function(){if(!document.hidden)appliquer();},3000);
-  window.__SOREAL_IDLE_EFFETS_LEGERS_V1__={appliquer:appliquer,actif:actif};
+  window.__SOREAL_IDLE_EFFETS_LEGERS_V1__={appliquer:appliquer,actif:actif,defautPour:defautPour};
 })();

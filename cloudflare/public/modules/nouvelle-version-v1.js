@@ -59,7 +59,11 @@
     document.body.appendChild(b);
   }
 
+  /* Application Android hors ligne : le code vient de l'APK et de ses mises à jour (Maj.java), jamais du site ; relire /index.html réveillerait le service worker du téléphone (démarrage de sql.js) toutes les 3 minutes pour rien. */
+  const EST_APK=(function(){try{return typeof window.AndroidSoreal!=='undefined'&&window.AndroidSoreal!==null;}catch(_e){return false;}})();
+
   function verifier(){
+    if(EST_APK)return;
     if(affichee||document.visibilityState!=='visible')return;
     if(Date.now()-derniereVerif<ATTENTE_MIN_MS)return;
     derniereVerif=Date.now();
