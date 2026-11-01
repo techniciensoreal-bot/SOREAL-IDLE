@@ -56,11 +56,14 @@ var memoVisages={};
 function avatarGenere(ennemi,kills,etage,ancien){
   var B=window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__;
   if(!B||!B.tirer||!B.catalogue||!B.catalogue.bodies||!B.catalogue.bodies.Body_Homme.length)return '';
-  var cle=ennemi&&ennemi.nom?'n:'+ennemi.nom:'k:'+kills+':'+etage;
+  /* Profil enregistré par le joueur (Réglages > Profil, profil-badavatar-v1.js) : même badavatar désigné, pièces déplacées / redimensionnées / masquées et visage personnalisé éventuel. Sans profil : inchangé. */
+  var PB=window.__SOREAL_IDLE_PROFIL_BADAVATAR_V1__;
+  var prof=PB&&ennemi&&ennemi.nom?PB.pour(ennemi.nom):null;
+  var cle=(ennemi&&ennemi.nom?'n:'+ennemi.nom:'k:'+kills+':'+etage)+(prof?'|'+prof.sig:'');
   var html=memoVisages[cle];
   if(!html){
-    var design=ennemi&&ennemi.nom?B.tirerPourNom(ennemi.nom):B.tirer('k:'+Math.max(0,kills)+':'+Math.max(0,etage));
-    html=B.rendreHtml(design,{surErreurCorps:"var e=this.closest('.itp-ennemi');if(e)e.setAttribute('data-itp-repli','1')"});
+    var design=prof?prof.design:ennemi&&ennemi.nom?B.tirerPourNom(ennemi.nom):B.tirer('k:'+Math.max(0,kills)+':'+Math.max(0,etage));
+    html=B.rendreHtml(design,{photo:prof?prof.photo:null,surErreurCorps:"var e=this.closest('.itp-ennemi');if(e)e.setAttribute('data-itp-repli','1')"});
     if(Object.keys(memoVisages).length>200)memoVisages={};
     memoVisages[cle]=html;
   }
@@ -162,6 +165,9 @@ function pas(){
   }
 }
 if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(pas,150);
+
+/* La liste des profils de badavatar arrive après le premier rendu : les arènes affichées sont redessinées une fois (la clé du mémo contient la signature du profil). */
+if(typeof document!=='undefined'&&typeof document.addEventListener==='function')document.addEventListener('soreal-profils-badavatar',function(){Array.prototype.forEach.call(document.querySelectorAll('.'+CLASSE),remplir);});
 
 function charger(){
   if(roster||chargement||Date.now()-dernierEssai<30000)return;

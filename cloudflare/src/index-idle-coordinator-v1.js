@@ -1,6 +1,7 @@
 import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogueV1 } from "./idle-sqlite-runtime.js";
-import { profilsParEmailIdleV1, libelleJoueurIdleV1 } from "./idle-profile-v1.js";
+import { profilsParEmailIdleV1, libelleJoueurIdleV1, lireProfilIdleV1 } from "./idle-profile-v1.js";
+import { idleBadavatarListePubliqueV1, idleBadavatarPhotoV1, idleBadavatarReinitialiserParNomV1, idleBadavatarReinitialiserV1, idleBadavatarEnregistrerV1, idleBadavatarLireV1, idleBadavatarCleNomV1 } from "./idle-profil-badavatar-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1 } from "./idle-traductions-v1.js";
 import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
@@ -558,6 +559,39 @@ export class SorealIdleCoordinatorV1 {
       if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
       const res = runSorealIdleOperation(this.sqlMoteur, "definirPseudoSorealIdle", [sv(p?.sessionToken), sv(p?.pseudo)], s.user);
       return Response.json(res && typeof res === "object" ? res : { ok: false, message: "Pseudo refusé." }, { headers: { "cache-control": "no-store" } });
+    }
+    /* Profil de badavatar (idle-profil-badavatar-v1.js) : donnée partagée, hors de l'état du jeu. Écriture réservée au joueur authentifié (jeton de session) ; la liste et l'image sont publiques. */
+    if (path === "/__soreal-idle-v1/badavatar-publics") {
+      return Response.json({ ok: true, profils: idleBadavatarListePubliqueV1(this.sql) }, { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/badavatar-photo") {
+      const p = await request.json().catch(() => ({}));
+      const photo = idleBadavatarPhotoV1(this.sql, sv(p?.nom));
+      if (!photo) return new Response("Introuvable", { status: 404, headers: { "cache-control": "no-store" } });
+      return new Response(photo.octets, { headers: { "content-type": photo.type, "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/badavatar-admin-reinitialiser") {
+      const p = await request.json().catch(() => ({}));
+      return Response.json(idleBadavatarReinitialiserParNomV1(this.sql, sv(p?.nom)), { headers: { "cache-control": "no-store" } });
+    }
+    if (path === "/__soreal-idle-v1/badavatar-moi") {
+      const p = await request.json().catch(() => ({}));
+      const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
+      const email = sv(s.user?.email || s.user?.emailConnexion || (Array.isArray(s.user?.emails) ? s.user.emails[0] : "")).toLowerCase();
+      if (!email) return Response.json({ ok: false, code: "BADAVATAR_COMPTE", message: "Compte introuvable." }, { headers: { "cache-control": "no-store" } });
+      const profil = lireProfilIdleV1(this.sql, email);
+      /* Nom vu des autres dans l'ITOPOD : celui de la liste des ennemis (externe : pseudo ou prénom Google ; ouvrier : prénom). */
+      const nom = s.user?.externe === true ? libelleJoueurIdleV1(profil || { externe: true, googleName: sv(s.user?.name), pseudo: "", prenom: "" }, "") : (sv(s.user?.prenom) || sv(profil?.prenom));
+      const nomCle = idleBadavatarCleNomV1(nom && nom.toLowerCase() !== "joueur" ? nom : "");
+      const action = sv(p?.action);
+      if (action === "reinitialiser") return Response.json(idleBadavatarReinitialiserV1(this.sql, email), { headers: { "cache-control": "no-store" } });
+      if (action === "enregistrer") return Response.json(idleBadavatarEnregistrerV1(this.sql, email, nomCle, { pieces: p?.pieces, photo: p?.photo, cat: p?.cat }), { headers: { "cache-control": "no-store" } });
+      /* lire : le profil enregistré (avec l'image) et le nom d'après lequel le badavatar est tiré par défaut. */
+      const actuel = idleBadavatarLireV1(this.sql, email);
+      let image = "";
+      if (actuel && actuel.photo) { const ph = idleBadavatarPhotoV1(this.sql, actuel.nomCle); if (ph) image = ph.type; }
+      return Response.json({ ok: true, nom: nom || "", nomCle, profil: actuel, photoType: image }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-textes") {
       const p = await request.json().catch(() => ({}));

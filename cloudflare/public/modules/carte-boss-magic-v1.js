@@ -118,7 +118,7 @@ function dos(o){
   var idB='mtgBleu'+(++cptDos);
   var lettres='font-family="Bangers,Impact,sans-serif" font-size="92" text-anchor="middle" fill="url(#'+idB+')" stroke="#5b1d12" stroke-width="9" stroke-linejoin="round" paint-order="stroke fill" letter-spacing="3"';
   return '<div class="mtg-dos" data-soreal-tts-ignore>'+
-    '<img class="mtg-dos-image" src="/api/idle/media/card-back" alt="" data-sans-traduction onerror="this.style.display=\'none\';this.parentNode.className+=\' sans-image\'">'+
+    '<img class="mtg-dos-image" src="'+((o&&o.dosImage)||'/api/idle/media/card-back')+'" alt="" data-sans-traduction onerror="this.style.display=\'none\';this.parentNode.className+=\' sans-image\'">'+
     '<div class="mtg-dos-ovale">'+
       '<svg class="mtg-dos-titre" viewBox="0 0 340 215" aria-hidden="true" data-sans-traduction>'+
         '<defs><linearGradient id="'+idB+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fd0f2"/><stop offset=".5" stop-color="#4a8fd0"/><stop offset="1" stop-color="#2a63a8"/></linearGradient></defs>'+
@@ -203,6 +203,7 @@ document.addEventListener('pointerdown',function(e){
   var cible=e.target;if(!cible||!cible.closest||(e.pointerType==='mouse'&&e.button!==0))return;
   var carte=cible.closest('.mtg-modal-v1 .carte-mtg-v1');
   if(!carte||cible.closest('button,a,input,textarea,select,.mtg-fleche'))return;
+  try{document.documentElement.classList.add('mtg-tenue');}catch(_e){}   /* la carte est tenue : la main (curseur) disparaît jusqu'au relâchement */
   glisse={carte:carte,x:e.clientX,y:e.clientY,base:carte.classList.contains('retournee')?180:0,angle:null,id:e.pointerId};
 },true);
 document.addEventListener('pointermove',function(e){
@@ -217,7 +218,12 @@ document.addEventListener('pointermove',function(e){
   var pench=Math.max(-14,Math.min(14,-dy*0.12));
   glisse.carte.style.transform='rotateX('+pench.toFixed(1)+'deg) rotateY('+glisse.angle.toFixed(1)+'deg)';
 },true);
+function lacher(){try{document.documentElement.classList.remove('mtg-tenue');}catch(_e){}}
+if(typeof window.addEventListener==='function')window.addEventListener('blur',lacher);
+document.addEventListener('visibilitychange',lacher);
+document.addEventListener('mouseleave',lacher);
 function finGlisse(e){
+  lacher();
   if(!glisse||(e&&e.pointerId!==glisse.id))return;
   var g=glisse;glisse=null;
   if(g.angle===null)return;
@@ -296,5 +302,5 @@ document.addEventListener('keydown',function(e){
 
 /* Une carte vue de dos (pochettes des pages de gauche de l'album) : le même dos que la grande carte retournée. */
 function dosSeul(){return '<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+dos({})+'</div>';}
-window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
+window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,dos:dos,html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
 })();

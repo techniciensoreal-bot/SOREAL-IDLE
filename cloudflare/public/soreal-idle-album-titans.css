@@ -1,8 +1,7 @@
 /*
  * Cartes de TITANS de l'album des boss (modules/album-titans-v1.js). Toutes les dimensions sont en cqw de la carte (.alb-carte-mtg est un conteneur) : la carte est la même à toutes les tailles du classeur.
  * Cadre doré à facettes de cristal teinté par --ta (teinte tirée de l'image du titan), fond sombre, illustration, bandeau « Titan », victoires.
- * Hologramme : reflet irisé qui suit le pointeur (--mx / --my, posés seulement sur la carte survolée ou touchée) + balayage lumineux en boucle PARFAITE (règle n°3 : opacité 0 aux deux bouts, une seule
- * période, toujours dans le même sens ; coupé par « réduire les animations »). Seuls transform et opacity sont animés.
+ * Hologramme : reflet irisé qui suit le pointeur (--mx / --my, posés seulement sur la carte survolée ou touchée) ; AUCUNE animation en boucle (le balayage lumineux a été retiré, 2026-11-01) : rien ne bouge sans toucher la carte. Seuls transform et opacity changent.
  */
 .alb-pochette-titan{cursor:default}
 .alb-pochette-titan:focus-visible{outline:2px solid #ffd24a;outline-offset:3px}
@@ -23,12 +22,14 @@
 .alb-t-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none}
 .alb-t-secours{position:absolute;inset:0;align-items:center;justify-content:center;font-size:30cqw}
 /* hologramme de l'illustration : dégradé conique arc-en-ciel centré sur le pointeur + fines rayures de feuille holographique */
-.alb-t-holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:.18;
+.alb-t-holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:.06;
+  /* quatre lavis de coin, larges et diffus, SANS foyer ni rayure : haut-gauche = couleur de BASE du titan (--ta), haut-droit = rouge, bas-gauche = bleu, bas-droit = vert ; le poids de chaque coin suit l'inclinaison */
   background:
-    repeating-linear-gradient(115deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 2.2cqw,rgba(255,255,255,.22) 2.6cqw,rgba(255,255,255,0) 3cqw),
-    conic-gradient(from 20deg at var(--mx) var(--my),#ff5e9c,#ffd45e,#6dff8f,#5ec8ff,#b07dff,#ff5e9c);
-  background-size:100% 100%,100% 100%}
-.alb-pochette-titan.alb-titan-actif .alb-t-holo{opacity:.6}
+    linear-gradient(45deg,hsl(215 85% 66% / var(--wb,.12)) 0%,hsl(215 85% 66% / 0) 78%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(225deg,hsl(355 80% 66% / var(--wr,.12)) 0%,hsl(355 80% 66% / 0) 78%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(315deg,hsl(140 65% 60% / var(--wv,.12)) 0%,hsl(140 65% 60% / 0) 78%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(135deg,hsl(var(--ta) 75% 68% / var(--wd,.4)) 0%,hsl(var(--ta) 75% 68% / 0) 78%) 0 0 / 100% 100% no-repeat}
+.alb-pochette-titan.alb-titan-actif .alb-t-holo{opacity:.55}
 .alb-t-type{display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:.8cqw 3cqw;border-radius:2cqw;
   background:linear-gradient(180deg,hsl(var(--ta) 50% 18%),hsl(var(--ta) 55% 9%));box-shadow:inset 0 0 0 .35cqw hsl(var(--ta) 85% 66% / .7)}
 .alb-t-type span:first-child{font:400 6.4cqw/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.9cqw;text-transform:uppercase;color:#fff;text-shadow:0 .3cqw 0 #000,0 0 2cqw hsl(var(--ta) 100% 62%)}
@@ -36,23 +37,29 @@
 .alb-t-pied{padding:1cqw 3cqw;border-radius:2cqw;text-align:center;font:400 5.2cqw/1.1 "Russo One",Impact,sans-serif;color:hsl(var(--ta) 100% 86%);background:rgba(0,0,0,.45)}
 .alb-t-pied b{font-size:6.4cqw;color:#fff}
 /* reflet qui suit le pointeur sur toute la carte (cadre compris) */
-.alb-t-reflet{position:absolute;inset:0;pointer-events:none;border-radius:inherit;mix-blend-mode:overlay;opacity:0;
+.alb-t-reflet{position:absolute;inset:0;pointer-events:none;border-radius:inherit;mix-blend-mode:screen;opacity:0;
+  /* toute la carte (cadre et bandeau compris) : « vernis » = bande blanche tres douce et large dont la position suit l'inclinaison (jamais un foyer), puis les quatre lavis de coin plus lumineux */
   background:
-    radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.85),rgba(255,255,255,0) 42%),
-    linear-gradient(115deg,hsl(calc(var(--ta) - 60) 100% 70% / .5),hsl(var(--ta) 100% 70% / .0) 45%,hsl(calc(var(--ta) + 70) 100% 70% / .5))}
-.alb-pochette-titan.alb-titan-actif .alb-t-reflet{opacity:.85}
-/* balayage lumineux : un seul sens, fondu d'entrée et de sortie (opacité 0 à 0 % et à 100 %), une période exacte */
-.alb-t-balai{position:absolute;top:-10%;bottom:-10%;left:0;width:38%;pointer-events:none;opacity:0;transform:translateX(-140%) skewX(-18deg);
-  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));animation:albTitanBalai 6s linear infinite}
-@keyframes albTitanBalai{
-  0%{transform:translateX(-140%) skewX(-18deg);opacity:0}
-  12%{opacity:.7}
-  40%{opacity:.7}
-  52%{transform:translateX(330%) skewX(-18deg);opacity:0}
-  100%{transform:translateX(330%) skewX(-18deg);opacity:0}
-}
+    linear-gradient(calc(115deg + var(--ha,0) * .6deg),rgba(255,255,255,0) 28%,rgba(255,255,255,.2) 50%,rgba(255,255,255,0) 72%) var(--mx) var(--my) / 300% 300% no-repeat,
+    linear-gradient(45deg,hsl(215 70% 68% / var(--wb,.12)) 0%,hsl(215 70% 68% / 0) 75%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(225deg,hsl(355 70% 68% / var(--wr,.12)) 0%,hsl(355 70% 68% / 0) 75%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(315deg,hsl(140 60% 62% / var(--wv,.12)) 0%,hsl(140 60% 62% / 0) 75%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(135deg,hsl(var(--ta) 70% 68% / var(--wd,.2)) 0%,hsl(var(--ta) 70% 68% / 0) 75%) 0 0 / 100% 100% no-repeat}
+.alb-pochette-titan.alb-titan-actif .alb-t-reflet{opacity:.6}
 @media (prefers-reduced-motion:reduce){
-  .alb-t-balai{animation:none;opacity:0}
   .alb-titan-carte{transition:none}
   .alb-pochette-titan.alb-titan-actif .alb-titan-carte{transform:none}
 }
+
+/* ---------- la fiche zoomée (grande carte de titan, pivotante) : l'effet suit la rotation et le pointeur, un peu plus marqué que sur la miniature (x1,3), toujours en pastel ---------- */
+.alb-t-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.alb-t-face .alb-titan-carte{transform:rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg));will-change:transform}
+.alb-t-face .alb-t-holo{opacity:calc(.35 + var(--hi,0) * .6)}
+.alb-t-face .alb-t-reflet{opacity:calc(.35 + var(--hi,0) * .65)}
+/* contraste et saturation de l'illustration qui montent avec l'inclinaison : couche soft-light (pas de filtre) */
+.alb-t-face .alb-t-art::after{content:"";position:absolute;inset:0;pointer-events:none;mix-blend-mode:soft-light;opacity:calc(var(--hi,0) * .7);background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(0,0,0,.45))}
+/* liseré lumineux sur le cadre doré, du côté éclairé (le coin vers lequel la carte penche) */
+.alb-t-face .alb-titan-carte{box-shadow:0 .5cqw 1.2cqw rgba(0,0,0,.65),0 0 3cqw -1cqw hsl(var(--ta) 100% 60% / .75),inset 0 0 0 .5cqw rgba(0,0,0,.55),inset calc(var(--lx,0) * -.9cqw) calc(var(--ly,0) * -.9cqw) 1.6cqw -.4cqw rgba(255,244,205,calc(var(--hi,0) * .85))}
+.alb-titan-fiche .alb-t-art{cursor:pointer}
+.alb-titan-fiche .alb-t-img{pointer-events:none}
+@media (prefers-reduced-motion:reduce){.alb-t-face .alb-titan-carte{transform:none}}

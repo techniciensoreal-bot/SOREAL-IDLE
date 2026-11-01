@@ -58,21 +58,86 @@ assert.equal(new Set(th).size, th.length, "chaque titan a sa teinte");
 assert.equal(T.teinte("t3"), T.teinte("t3"), "teinte stable");
 assert.ok(t.includes("addEventListener('load',function(e)") && t.includes("getImageData") && t.includes("memoTeinte[id]=h"), "teinte tirée de l'image (canvas), mémorisée, repli si illisible");
 
-// ---- l'effet : pointeur, hologramme, boucle parfaite ----
+// ---- l'effet : pilote par le pointeur et l'inclinaison, jamais en boucle ----
 assert.ok(t.includes("'--mx'") && t.includes("'--my'") && t.includes("alb-titan-actif") && t.includes("requestAnimationFrame(poser)"), "reflet suivi par --mx / --my, un seul calcul par image");
-assert.ok(c.includes("conic-gradient") && c.includes("mix-blend-mode:color-dodge") && c.includes("mix-blend-mode:overlay") && c.includes("var(--mx)") && c.includes("var(--my)"), "dégradé conique irisé + mélange");
-assert.ok(c.includes(".alb-pochette-titan.alb-titan-actif .alb-t-reflet{opacity:.85}"), "reflet fort seulement sur la carte survolée / touchée");
-assert.ok(!/filter\s*:|backdrop-filter|blur\(/.test(c), "aucun filtre coûteux (téléphone) : transform et opacity seulement");
-const kf = /@keyframes albTitanBalai\{([\s\S]*?)\n\}/.exec(c)[1];
-assert.match(kf, /0%\{[^}]*opacity:0/, "balayage : fondu d'entrée (opacité 0 au départ)");
-assert.match(kf, /100%\{[^}]*opacity:0/, "balayage : fondu de sortie (opacité 0 à l'arrivée)");
-const xs = [...kf.matchAll(/translateX\((-?[\d.]+)%\)/g)].map((m) => Number(m[1]));
-assert.ok(xs.length >= 3 && xs.every((x, i) => i === 0 || x >= xs[i - 1]), "balayage : toujours dans le même sens");
-assert.equal(xs[0], -140, "départ hors de la carte (invisible)"); assert.ok(xs[xs.length - 1] > 100, "arrivée hors de la carte");
-assert.ok(c.includes("animation:albTitanBalai 6s linear infinite"), "une seule période exacte, linéaire, en boucle");
-assert.match(c, /prefers-reduced-motion:reduce\)\{[\s\S]*\.alb-t-balai\{animation:none/, "« réduire les animations » coupe le balayage");
+assert.ok(!/infinite/.test(c) && !/@keyframes/.test(c) && !/animation\s*:/.test(c), "aucune animation en boucle dans la feuille des cartes de titan (le balayage lumineux a ete retire)");
+assert.ok(!c.includes("alb-t-balai") && !t.includes("alb-t-balai"), "plus d'element de balayage");
+assert.ok(!/radial-gradient\([^)]*var\(--m[xy]\)/.test(c) && !/at var\(--m[xy]\)/.test(c) && !c.includes("conic-gradient"), "aucun foyer central : ni radial-gradient ni conic-gradient centres sur --mx / --my");
+assert.ok(!c.includes("repeating-linear-gradient"), "aucune rayure fine repetee");
+assert.ok(c.includes("hsl(215 ") && c.includes("hsl(355 ") && c.includes("hsl(140 ") && c.includes("hsl(var(--ta) "), "quatre couleurs : bleu, rouge, vert et la couleur de base du titan");
+assert.ok(!/#ffd45e|#b07dff|#ff5e9c|#6dff8f|#5ec8ff/i.test(c), "plus d'arc-en-ciel sature");
+assert.ok(/linear-gradient\(45deg,hsl\(215 [^)]*var\(--wb/.test(c) && /linear-gradient\(225deg,hsl\(355 [^)]*var\(--wr/.test(c) && /linear-gradient\(315deg,hsl\(140 [^)]*var\(--wv/.test(c) && /linear-gradient\(135deg,hsl\(var\(--ta\)[^)]*var\(--wd/.test(c), "chaque coin a sa couleur (bas-gauche bleu, haut-droit rouge, bas-droit vert, haut-gauche base)");
+assert.ok(t.includes("function poserCoins(") && t.includes("'--wb'") && t.includes("'--wr'") && t.includes("'--wv'") && t.includes("'--wd'"), "poids des coins pilotes par l'inclinaison");
+assert.ok(t.includes("function inclinaison(") && /Math\.atan2\(ty,tx\)/.test(t) && t.includes("--ha") && t.includes("--hi"), "teinte selon la DIRECTION d'inclinaison (deux axes) et intensite selon l'angle");
+assert.ok(!/filter\s*:|backdrop-filter|blur\(/.test(c), "aucun filtre couteux (telephone) : transform et opacity seulement");
 assert.ok(!c.includes("!important"), "pas de !important (plafond de l'audit)");
+
+// ---- la carte sort de sa pochette comme une carte de boss ----
+const poch = T.pochetteHtml(titan("t5", 4, { forms: [{}, {}, {}, {}, {}] }));
+assert.ok(poch.includes('role="button"') && poch.includes("data-album-titan=\"t5\"") && poch.includes("__SOREAL_IDLE_ALBUM_V1__.ouvrirTitan("), "un clic (ou Entree / Espace) sur la pochette d'un titan appelle ouvrirTitan");
+assert.ok(a.includes("function ouvrir(n,el){return sortirCarte(n,el,window.__ouvrirBossCollectionIdleV1__,'#sorealIdleBossCollectionModalV1');}") && a.includes("function ouvrirTitan(id,el)") && a.includes("return sortirCarte(String(id),el,T.ouvrirFiche,'#sorealIdleTitanCollectionModalV1');"), "meme animation de sortie (sortirCarte) pour les boss et les titans");
+assert.ok(a.includes("function selPochette(n)") && a.includes("data-album-titan=") && a.includes("mouvementCarte(r0,r1,el.closest&&el.closest('.alb-page-g')?'g':'d')"), "memes ancrages gauche / droite selon la page, meme retour dans la pochette");
+assert.ok(a.includes("ouvrirTitan:ouvrirTitan"), "ouvrirTitan exposee");
+for (const k of ["ficheContenu", "ouvrirFiche", "fermerFiche"]) assert.ok(t.includes(k + ":" + k), k + " exposee");
+assert.ok(t.includes("sorealIdleTitanCollectionModalV1") && t.includes("mtg-modal-v1") && t.includes("carte-mtg-v1") && t.includes("C.dos({dosImage:"), "fiche : meme fenetre, meme mecanisme de rotation / dos que les boss (dos sans aucune information de jeu)");
+assert.ok(t.includes("data-titan-aller") && t.includes("Titan précédent") && t.includes("Titan suivant"), "fleches precedent / suivant entre titans");
+assert.ok(t.includes("r.i>0?r.liste[r.i-1]:null") && t.includes("r.i<r.liste.length-1?r.liste[r.i+1]:null"), "navigation dans la famille des titans VAINCUS seulement (jamais de titan non decouvert, pas de total)");
+assert.ok(t.includes("e.key==='Escape'") && t.includes("ev.target===m"), "Echap et clic hors de la carte ferment la fiche");
+// la fiche avec le vrai module
+fen.__SOREAL_IDLE_REG__.idleEtat = { systemes: { adventure: { titans: [titan("t2", 1), titan("t5", 4, { forms: [{}, {}, {}, {}, {}] }), titan("t6", 0)] } } };
+const fc = T.ficheContenu("t5");
+assert.ok(fc.includes("Nom complet t5") && fc.includes("<b>4</b>") && fc.includes('data-titan-aller="t2"') && !fc.includes('data-titan-aller="t6"'), "fiche de titan : carte du titan, fleche vers le precedent vaincu seulement (t6 non vaincu = absent)");
+assert.equal(T.ficheContenu("t6"), "", "un titan non vaincu n'a pas de fiche");
+assert.ok(!/ \/ |\?\?\?/.test(fc), "aucun total dans la fiche");
+// curseur masque pendant que la carte est tenue
+const cb = lire("cloudflare/public/modules/carte-boss-magic-v1.js");
+const cbc = lire("cloudflare/public/soreal-idle-carte-boss.css");
+assert.ok(cb.includes("classList.add('mtg-tenue')") && cb.includes("function lacher()") && cb.includes("classList.remove('mtg-tenue')") && cb.includes("window.addEventListener('blur',lacher)") && cb.includes("addEventListener('visibilitychange',lacher)") && /function finGlisse\(e\)\{\n  lacher\(\);/.test(cb), "curseur masque pendant le glisse, retabli au relachement / blur / visibilitychange / pointercancel");
+assert.ok(/html\.mtg-tenue [^{]*\{cursor:none\}/.test(cbc), "cursor:none pendant que la carte est tenue");
+
+// ---- gyroscope (telephone) : l'inclinaison physique incline la carte et pilote l'hologramme ----
+assert.ok(t.includes("window.addEventListener('deviceorientation',gyEvenement)") && t.includes("window.removeEventListener('deviceorientation',gyEvenement)"), "ecouteur deviceorientation ajoute puis RETIRE");
+assert.ok(t.includes("function gyFermer()") && /function fermerFiche\(\)\{[^}]*gyFermer\(\)/.test(t) && t.includes("gyOuvrir();\n  return m;"), "ecouteur ajoute a l'ouverture de la fiche, retire a sa fermeture");
+assert.ok(t.includes("requestPermission") && t.includes("gy.demande=true") && t.includes(".catch(function(){})"), "iOS : requestPermission() au premier toucher, refus sans message");
+assert.ok(t.includes("var GY_MAX=25") && t.includes("gyBorne(") && t.includes("Math.abs(b-gy.dernier.b)<=.5"), "bornes +/-25 degres et seuil de 0,5 degre");
+assert.ok(t.includes("prefers-reduced-motion: reduce") && t.includes("gyReduit()"), "« reduire les animations » desactive le gyroscope");
+assert.ok(t.includes("if(fi&&fi.glisse){gy.raf=requestAnimationFrame(gyPas);return;}"), "le doigt pose est prioritaire sur le gyroscope");
+assert.ok(t.includes("document.addEventListener('visibilitychange',gyVisible)") && t.includes("!document.hidden&&gy.on"), "arret si l'onglet est masque");
+assert.ok(t.includes("ev.beta==null||ev.gamma==null"), "sans capteur (PC : valeurs nulles) : rien");
+assert.ok(!/localStorage/.test(t), "aucune preference stockee (regle n°6)");
+// avec un faux evenement : --rx / --ry changent
+{
+  const props = {}, ecoutes = [], file = [];
+  const k = { style: { setProperty: (n, v) => { props[n] = v; }, removeProperty() {} } };
+  const face = { classList: { add() {}, remove() {} } };
+  const carte = { querySelector: (q) => (q === ".alb-titan-carte" ? k : q === ".alb-t-face" ? face : null), closest: () => null };
+  const w = { addEventListener: (n, f) => ecoutes.push(["add", n, f]), removeEventListener: (n, f) => ecoutes.push(["rm", n, f]), matchMedia: () => ({ matches: true }), DeviceOrientationEvent: function () {}, ontouchstart: null };
+  const d = { addEventListener() {}, documentElement: { addEventListener() {} }, hidden: false, getElementById: () => ({}), querySelector: () => carte, createElement: () => ({}), querySelectorAll: () => [] };
+  const f2 = { window: w, document: d, requestAnimationFrame: (f) => { file.push(f); return file.length; }, cancelAnimationFrame() {}, setTimeout, clearTimeout, __SOREAL_IDLE_REG__: {} };
+  w.matchMedia = (q) => ({ matches: /pointer: coarse/.test(q) });
+  vm.runInNewContext(t, f2);
+  const G = f2.window.__SOREAL_IDLE_ALBUM_TITANS_V1__;
+  const vider = () => { let n = 0; while (file.length && n++ < 200) file.shift()(); };
+  G.gyroOuvrir();
+  assert.equal(ecoutes.filter((e) => e[0] === "add" && e[1] === "deviceorientation").length, 1, "gyroscope : un ecouteur ajoute a l'ouverture (Android : sans permission)");
+  G.gyroEvenement({ beta: 45, gamma: 0 }); vider();
+  G.gyroEvenement({ beta: 45.2, gamma: 0.2 }); assert.equal(file.length, 0, "moins de 0,5 degre : aucune mise a jour");
+  G.gyroEvenement({ beta: 45, gamma: 20 }); vider();
+  assert.ok(Number(props["--ry"]) > 8 && Number(props["--ry"]) <= 25, "incliner a droite change --ry (borne 25 degres)");
+  G.gyroEvenement({ beta: 75, gamma: 90 }); vider();
+  assert.ok(Math.abs(Number(props["--ry"])) <= 25 && Math.abs(Number(props["--rx"])) <= 25, "valeurs bornees meme pour une inclinaison extreme");
+  assert.ok(["--mx", "--my", "--ha", "--hi", "--wd", "--wr", "--wb", "--wv"].every((n) => n in props), "pilote aussi tout l'hologramme");
+  G.gyroEvenement({ beta: null, gamma: null });   // capteur absent : rien, jamais d'erreur
+  G.gyroFermer();
+  assert.equal(ecoutes.filter((e) => e[0] === "rm" && e[1] === "deviceorientation").length, 1, "gyroscope : ecouteur retire a la fermeture");
+}
 
 // ---- textes affichés : traduits ----
 for (const k of ["Titan", "Forme", "victoire", "victoires"]) assert.ok(typeof dict[k] === "string" && dict[k], "entrée anglaise : " + k);
+// ---- dos propre aux cartes de Titan (Norman, 2026-11-01) : image compressée du dépôt, le dos des boss reste inchangé ----
+assert.ok(t.includes("C.dos({dosImage:'/titans/dos-titan-v1.webp'})"), "la fiche de titan utilise son propre dos");
+const cbmDos = lire("cloudflare/public/modules/carte-boss-magic-v1.js");
+assert.ok(cbmDos.includes("((o&&o.dosImage)||'/api/idle/media/card-back')"), "dos(o) : image du dos de boss par défaut");
+const dosImg = "cloudflare/public/titans/dos-titan-v1.webp";
+assert.ok(fs.existsSync(dosImg) && fs.statSync(dosImg).size > 20000 && fs.statSync(dosImg).size < 200000, "image du dos compressée (< 200 Ko)");
 console.log("idle-album-titans-v1 : ok");

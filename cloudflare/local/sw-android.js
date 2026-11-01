@@ -17,7 +17,7 @@ const EN_TETE_JOUEURS = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Pro
 const JOUEUR = { email: "joueur@soreal-idle.local", prenom: "Joueur" };
 
 const TYPES = {
-  html: "text/html; charset=utf-8", js: "text/javascript; charset=utf-8", css: "text/css; charset=utf-8", json: "application/json; charset=utf-8", webmanifest: "application/manifest+json",
+  html: "text/html; charset=utf-8", js: "text/javascript; charset=utf-8", mjs: "text/javascript; charset=utf-8", tflite: "application/octet-stream", css: "text/css; charset=utf-8", json: "application/json; charset=utf-8", webmanifest: "application/manifest+json",
   wasm: "application/wasm", svg: "image/svg+xml", png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif", ico: "image/x-icon",
   woff2: "font/woff2", woff: "font/woff", ttf: "font/ttf", m4a: "audio/mp4", mp3: "audio/mpeg", opus: "audio/ogg", ogg: "audio/ogg", wav: "audio/wav", onnx: "application/octet-stream", mp4: "video/mp4", webm: "video/webm"
 };

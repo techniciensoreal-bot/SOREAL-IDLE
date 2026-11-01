@@ -391,6 +391,7 @@
        */
       const REGLAGES_ONGLETS_IDLE_V1=[
         {id:'jeu',icone:'👤',nom:'Mon jeu',aide:'Ton profil, ta place dans le classement et la langue.'},
+        {id:'profil',icone:'🧑',nom:'Profil',aide:'Ton badavatar : place et redimensionne ses éléments, puis enregistre.'},
         {id:'son',icone:'🔊',nom:'Son et image',aide:'Le volume, les musiques et les effets visuels.'},
         {id:'partie',icone:'💾',nom:'Ma partie',aide:'Sauvegarder, changer d’appareil, tout recommencer.'},
         {id:'infos',icone:'ℹ️',nom:'Infos',aide:'Explications des menus, version et signalement de bug.'}
@@ -427,6 +428,11 @@
               :'')+
             htmlReglagesLangueIdleV1_()+
             (window.__SOREAL_IDLE_PERSO_PCT_V1__&&window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3?window.__SOREAL_IDLE_PERSO_PCT_V1__.blocReglageR3():'');
+        }else if(actif==='profil'){
+          /* Éditeur du badavatar (modules/profil-badavatar-editeur-v1.js) : nœud persistant rattaché à cet emplacement après chaque redessin (règle n°4). */
+          const EDI=window.__SOREAL_IDLE_PROFIL_EDITEUR_V1__;
+          corps='<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🧑 Mon badavatar</div><div id="profilBadavEditeurV1"></div></div>';
+          if(EDI){requestAnimationFrame(EDI.monter);setTimeout(EDI.monter,150);}
         }else if(actif==='son'){
           corps=
             htmlReglagesThemeIdleV1_()+

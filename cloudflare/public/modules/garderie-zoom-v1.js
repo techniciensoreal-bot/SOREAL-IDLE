@@ -76,7 +76,7 @@
     d.className='gdz-fond';d.setAttribute('data-morph-garder','1');d.setAttribute('role','dialog');d.setAttribute('aria-modal','true');d.setAttribute('aria-label',nom||'Bocal');
     d.innerHTML=
       '<div class="gdz-carte">'+
-        '<div class="gd-etagere gdz-etagere" data-skin="'+String(skin).replace(/[^a-z]/g,'')+'"><div class="gd-pot gdz-pot"><i class="gd-ombre"></i></div></div>'+
+        '<div class="gd-etagere gdz-etagere" data-skin="'+String(skin).replace(/[^a-z]/g,'')+'"><div class="gd-pot gdz-pot" data-rang="'+String(pot&&pot.getAttribute('data-rang')||'1').replace(/[^0-9]/g,'')+'"><i class="gd-ombre"></i></div></div>'+
         '<div class="gdz-info">'+
           '<div class="gdz-nom"></div>'+
           '<div class="gdz-ligne"><span>Niv.</span> <i data-gdz-dep></i> › <b data-gdz-niv></b></div>'+
@@ -85,6 +85,11 @@
         '</div>'+
         '<div class="gdz-btns"><button type="button" class="gdz-btn" data-gdz-reprendre>Reprendre</button><button type="button" class="gdz-btn gdz-sec" data-gdz-ranger>Ranger</button></div>'+
       '</div>';
+    /* boule de Noël : la copie reprend l'instant du cycle de couleurs de l'original (purement visuel) */
+    try{
+      const lq=orig.querySelector('.gd-liq'),an=lq&&lq.getAnimations?lq.getAnimations().filter(function(a){return a.animationName==='gd-noel-teintes';})[0]:null;
+      if(an&&an.currentTime!=null)d.querySelector('.gdz-etagere').style.setProperty('--gd-noel-d','-'+(Number(an.currentTime)/1000).toFixed(2)+'s');
+    }catch(_e){}
     d.querySelector('.gdz-nom').textContent=nom;
     d.querySelector('.gdz-pot').appendChild(copie);
     d.addEventListener('click',function(ev){

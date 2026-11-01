@@ -158,7 +158,7 @@
     const taux=x.effectiveHoursPerLevel!=null?'1 niveau / '+dureeLongueNguIdleV1_(H.idleNombre_(x.effectiveHoursPerLevel)*3600):'';
     return {
       pos:pos,
-      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" data-rang="'+(i+1)+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
         '<button type="button" class="gd-bocal gd-occupe" data-gd-id="'+H.idleHtml_(it.id)+'" data-gd-p="'+rep.p+'" data-gd-lv="'+rep.lv+'" data-gd-r="'+rep.r+'" data-gd-t0="'+rep.t0+'" data-gd-max="'+rep.max+'" aria-label="Reprendre '+H.idleHtml_(it.name||'l’objet')+'" title="'+H.idleHtml_((it.name||'Objet')+' — '+prochain+(taux?' · '+taux:''))+'" onclick="window.__garderieReprendreV1__(\''+H.idleHtml_(it.id)+'\')">'+
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre">'+
@@ -179,7 +179,7 @@
     const pos=positionPlace(i);
     return {
       pos:pos,
-      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
+      pot:'<div class="gd-pot'+(pose?' gd-pose':'')+'" data-rang="'+(i+1)+'" style="'+stylePot(pos)+'"><i class="gd-ombre"></i>'+
         '<button type="button" class="gd-bocal gd-vide'+(choixOuvert?' ouvert':'')+'" onclick="window.__garderieChoisirV1__()" aria-label="Placer un objet">'+
           '<div class="gd-bouchon"></div><div class="gd-col"></div>'+
           '<div class="gd-verre"><div class="gd-objet">'+ICONE_PLUS+'</div><div class="gd-reflet"></div></div>'+
@@ -565,9 +565,9 @@
       '.gd-etagere[data-skin="chauvesouris"]{--gd-liq:linear-gradient(180deg,#ff3b3b 0%,#c3101c 45%,#6d0510 100%)}',
       '.gd-etagere[data-skin="tchernobyl"]{--gd-liq:linear-gradient(180deg,#e8ff5a 0%,#9be000 50%,#4f9a00 100%)}',
       '.gd-etagere[data-skin="pirate"]{--gd-liq:linear-gradient(180deg,#e7a64a 0%,#a8641c 50%,#5e3410 100%)}',
-      '.gd-etagere[data-skin="noel"]{--gd-liq:linear-gradient(180deg,#ff6a6a 0%,#d62b2b 45%,#17803a 100%)}',
+      '.gd-etagere[data-skin="noel"]{--gd-liq:linear-gradient(180deg,#ff6a6a 0%,#d62b2b 45%,#8a1018 100%)}',
       '.gd-etagere[data-skin="nega"]{--gd-liq:linear-gradient(180deg,#7b3bd6 0%,#3a1578 50%,#14062e 100%)}',
-      '.gd-liq::after{content:"";position:absolute;left:0;right:0;top:6cqw;height:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.85) 30%,rgba(255,255,255,.85) 60%,rgba(255,255,255,0))}',
+      /* Norman, 2026-11-01 : plus de ligne blanche (coupée par les vagues) à la surface du liquide, on garde seulement les vagues. */
       '.gd-bulles{position:absolute;left:0;right:0;top:8cqw;bottom:0;pointer-events:none;background:radial-gradient(circle at 20% 82%,rgba(255,255,255,.8) 0 2px,rgba(255,255,255,0) 2.8px),radial-gradient(circle at 56% 48%,rgba(255,255,255,.75) 0 1.4px,rgba(255,255,255,0) 2px),radial-gradient(circle at 78% 70%,rgba(255,255,255,.8) 0 2.6px,rgba(255,255,255,0) 3.4px),radial-gradient(circle at 36% 24%,rgba(255,255,255,.7) 0 1.1px,rgba(255,255,255,0) 1.7px),radial-gradient(circle at 88% 20%,#fff6c0 0 .8px,rgba(255,246,192,0) 1.4px),radial-gradient(circle at 12% 46%,#fff6c0 0 .9px,rgba(255,246,192,0) 1.5px);background-size:100% 46px;background-repeat:repeat-y;-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0),#000 22%,#000 78%,rgba(0,0,0,0));mask-image:linear-gradient(180deg,rgba(0,0,0,0),#000 22%,#000 78%,rgba(0,0,0,0))}',
       '.gd-reflet{position:absolute;left:9cqw;top:11cqw;bottom:14cqw;width:7cqw;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05));z-index:4;pointer-events:none}',
       /* liste des bocaux : 3 rangées réservées (2 colonnes), la page ne bouge pas quand une place s'ajoute */

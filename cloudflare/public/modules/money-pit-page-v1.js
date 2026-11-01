@@ -592,7 +592,7 @@
     const st='--x1:'+p.x+'%;--y1:'+p.y+'%;--d:'+p.d+'s;--dl:'+dl+'s;--dx:'+p.dx+'cqw;--t:'+p.t+'cqw;--tours:'+p.tours+';--rx:'+p.rx+'deg;--inc:'+p.inc+'deg;';
     const face=faceDePieceIdleV1_();
     return '<div class="mp3-chute'+(p.dehors?' mp3-dehors':'')+'" style="'+st+'"><div class="mp3-derive"><div class="mp3-echelle" style="perspective:90cqw"><div class="mp3-pc">'+tr+'<div class="mp3-fa">'+face+'</div><div class="mp3-fb">'+faceDePieceIdleV1_()+'</div></div></div></div></div>'+
-      (p.dehors?'':'<div class="mp3-eclat" style="'+st+'"><svg viewBox="-20 -20 40 40"><g fill="#fff3b0"><path d="M0 -16 L2.5 -2.5 L16 0 L-2.5 2.5 L0 16 L-2.5 2.5 L-16 0 L-2.5 -2.5Z"/><circle r="5" fill="#ffd24a" opacity=".6"/></g></svg></div>');
+      '';
   }
   /* Les yeux n'apparaissent qu'à partir du moment où l'image est À L'ÉCRAN (Norman, 2026-10-31) : un observateur pose la classe mp3-vu quand 60 % de l'image sont visibles ; les yeux (en pause avant) apparaissent alors l'un après l'autre. La classe est gardée par le morph (data-morph-classes-gardees). */
   const vusIdleV1_=new WeakSet();

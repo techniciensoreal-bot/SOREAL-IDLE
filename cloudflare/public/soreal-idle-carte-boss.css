@@ -122,3 +122,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* la fiche (fenêtre) garde exactement la largeur de la carte de la chronique : le cadre de la fenêtre ne la rogne plus */
 .soreal-idle-modal-backdrop-v63:has(.mtg-modal-v1){padding:0;box-sizing:border-box}
 .mtg-modal-v1{flex:none;max-width:none}
+
+/* carte tenue (souris enfoncée ou doigt posé) : plus de main, rétablie au relâchement (carte-boss-magic-v1.js : lacher) */
+html.mtg-tenue .soreal-idle-modal-backdrop-v63,html.mtg-tenue .soreal-idle-modal-backdrop-v63 .mtg-modal-v1 *{cursor:none}

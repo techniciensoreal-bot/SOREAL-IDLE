@@ -32,6 +32,7 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Réglages : un nouvel onglet « Profil » montre ton badavatar ; tu peux déplacer, agrandir, tourner ou masquer ses éléments, puis l’enregistrer : c’est lui que les autres joueurs voient. Un visage personnalisé est possible en option, détouré sur ton appareil, même sans connexion.',
             'Quand l’orage frappe l’image d’un écran, la déformation reste maintenant à l’intérieur de l’écran sans jamais déborder du cadre.',
             'Les en-têtes des pages où l’on place ses ressources sont beaucoup plus petites : Input dans son petit cadre, puis les cadres Plafond et Idle de chaque ressource sur la même ligne.',
             'Les barres de progression vont maintenant toujours jusqu’au bout avant de repartir, même quand un niveau se gagne en une fraction de seconde.',
@@ -50,7 +51,13 @@
             'Quand un mineur est activé, les icônes du menu restent allumées dans la barre même si tu n’es pas dans ce menu : seul le fond s’assombrit.'
           ]}
           ,{menu:'chroniques', titre:'Chroniques', points:[
+            'Les cartes spéciales du classeur ont leur propre dos, une image de carte dorée et brune, plus belle.',
+            'Le livre des chroniques n’est plus fermé au départ : il s’ouvre directement sur la dernière page où tu t’étais arrêté (la même sur tous tes appareils), et sur ordinateur les flèches sont de chaque côté du livre : −10 et −1 à gauche, +1 et +10 à droite, avec le numéro de page discret sous le livre.',
+            'Le lecteur des chroniques a la forme d’une cassette de walkman (les bobines tournent pendant la lecture) avec les touches précédent, lecture/pause, suivant et stop ; il peut se réduire en petite enceinte, déplaçable où tu veux, qu’un toucher agrandit.',
             'Le texte d’une carte de chronique se fait défiler à la souris : avec la molette, ou en gardant le clic gauche enfoncé et en bougeant la souris.',
+            'Les cartes spéciales du classeur sortent maintenant de leur pochette comme les autres : touche-en une, elle vient au centre, tu peux la saisir et la faire pivoter (le dos se montre de l’autre côté), et l’effet hologramme bleu, rouge, vert et couleur de base brille selon le coin vers lequel elle penche, sans rien qui bouge tout seul (le reflet blanc qui passait à intervalle régulier est supprimé) ; la main disparaît pendant que tu tiens une carte.',
+            'Sur téléphone, une carte spéciale zoomée suit l’inclinaison de ton téléphone (gyroscope) : elle penche et l’effet hologramme brille selon l’angle ; ton doigt posé sur la carte reste prioritaire.',
+            'Les flèches du classeur ont un nouveau style fantasy : métal doré, gemme lumineuse, pointes taillées en relief, « 10 » sur les flèches de dix pages, et un aspect terni quand elles sont inactives.',
             'Au bout du classeur, de nouvelles pages peuvent apparaître avec des cartes spéciales : un cadre particulier aux couleurs de chaque personnage et un effet hologramme qui suit ton doigt ou ta souris.',
             'Dans la Collection, les boosts du bas sont toujours rangés par valeur (1, 2, 5, 10, 20, 50, 100), puis dans l’ordre orange, bleu, jaune, qu’ils soient complétés ou non.'
           ]}
@@ -59,6 +66,7 @@
             'Application Windows : les éléments de Blood Magic ne disparaissent plus quand tu cliques en dehors de la fenêtre.'
           ]}
           ,{menu:'daycare', titre:'Garderie', points:[
+            'La ligne blanche coupée qui courait à la surface du liquide des bocaux a disparu : il ne reste que les vagues.',
             'Les bocaux ont une forme propre à chaque apparence de ton chat ; le niveau s’affiche sous le bocal, et les fioles sont posées au milieu de la planche.',
             'Chaque chat a une ombre au sol, un fond mieux cadré sur téléphone, et des pupilles en fente qui s’élargissent et se contractent.',
             'Un clic sur un bocal le met en gros plan avec le temps avant le prochain niveau et avant le niveau 100, puis « Reprendre » ou « Ranger ».',
@@ -130,6 +138,7 @@
             'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Les pièces d’or qui ne passent pas le bord du trou continuent leur chute en devenant de plus en plus petites, puis disparaissent en fondu, sans éclat.',
             'Les filets de puanteur qui sortent du trou bougent chacun de leur côté : montée et balancement n’ont plus le même rythme d’un filet à l’autre.',
             'Au fond du trou, la deuxième puis la troisième paire d’yeux apparaissent minuscules et grossissent en se déplaçant très lentement jusqu’à leur place (la troisième arrive du haut à gauche et se place au-dessus des deux autres), comme si quelque chose s’approchait de l’ouverture pour te regarder ; les yeux sont d’un jaune rougeâtre, pour ne pas les confondre avec les pièces d’or.',
             'Sur ordinateur, les deux colonnes sont équilibrées : le trou et la roue ont chacun leur colonne (image, menu, tableau de récompenses), et les Réglages comblent leurs espaces vides.',

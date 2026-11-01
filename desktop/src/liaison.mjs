@@ -142,7 +142,7 @@ export function ecrireLiaison(dossier, { jeton, email, expire, decision }, chiff
 const ROUTES_ADMIN = ["/api/v1/voice-upload", "/api/v1/story-upload", "/api/v1/voice-purge"];
 export function estRouteAdmin(chemin) { return ROUTES_ADMIN.includes(chemin); }
 export function transmissible(chemin) {
-  return chemin === "/api/v1/call" || chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
+  return chemin === "/api/v1/call" || chemin === "/api/v1/profil-badavatar" || chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
 }
 /* Retourne { reponse } (la réponse du serveur, ré-emballée), { expiree: true } (jeton refusé), ou null (pas de réseau : la page doit voir une erreur réseau, pas une réponse). */
 /* Raison du dernier échec réseau (message, code de la cause) : lue par l'application pour l'expliquer à l'administrateur et la consigner (Norman, 2026-10-29 : « Failed to fetch quand je veux générer »). */

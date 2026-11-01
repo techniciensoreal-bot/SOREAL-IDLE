@@ -2039,16 +2039,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .mp3-pc svg{width:100%;height:100%;display:block}
 .mp3-fa{transform:translateZ(calc(var(--t)*.06))}
 .mp3-fb{transform:rotateY(180deg) translateZ(calc(var(--t)*.06))}
-.mp3-eclat{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;opacity:0;animation:mp3Eclat var(--d) linear 1 both;animation-delay:var(--dl)}
-.mp3-eclat svg{position:absolute;left:-5cqw;top:-5cqw;width:10cqw;height:10cqw;overflow:visible}
 /* pièce qui passe le bord : taille constante, aucun fondu (c'est le bord qui la cache) ; les autres rapetissent et s'effacent en fondu fermé dans le trou */
 .mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}
+.mp3-chute:not(.mp3-dehors){animation-name:mp3ChuteYn}
 @keyframes mp3ChuteD{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
 @keyframes mp3ChuteY{0%{transform:translateY(-30cqw)}100%{transform:translateY(0)}}
 @keyframes mp3ChuteX{0%{transform:translateX(var(--dx))}100%{transform:translateX(0)}}
-@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}50%{opacity:1;transform:scale(1)}85%{opacity:.7;transform:scale(.4)}100%{opacity:0;transform:scale(.08)}}
+/* pièce qui ne passe pas le bord (Norman, 2026-11-01) : elle CONTINUE sa chute dans le noir en rapetissant de plus en plus, puis s'efface en fondu à la fermeture ; aucun éclat */
+@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}60%{opacity:1;transform:scale(.55)}100%{opacity:0;transform:scale(.06)}}
+@keyframes mp3ChuteYn{0%{transform:translateY(-30cqw)}100%{transform:translateY(9cqw)}}
 @keyframes mp3Tourne{from{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(0)}to{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(calc(var(--tours)*360deg))}}
-@keyframes mp3Eclat{0%,70%{opacity:0;transform:scale(.2)}77%{opacity:1;transform:scale(1)}92%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
 @media (max-width:760px){.mp3-titre-nom{font-size:10.4cqw}.mp3-titre-phrase{font-size:3.9cqw}}
 @media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-yeux.mp3-approche{transform:translate(-50%,-50%)}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}
 

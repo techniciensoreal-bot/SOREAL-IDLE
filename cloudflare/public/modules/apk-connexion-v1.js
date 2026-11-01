@@ -211,6 +211,13 @@ function appliquerPseudo(pseudo){
   return Promise.resolve(window.__SOREAL_IDLE_CALL_V1__('definirPseudoSorealIdle',[session,pseudo])).catch(function(){}).then(function(){contourVerif=false;});
 }
 
+/* Adresse du serveur et jeton du compte pour ce qui est PARTAGÉ avec les autres joueurs (profil de badavatar, profil-badavatar-v1.js) : l'application ne le fait pas elle-même. null hors APK ; jeton "" si le compte n'est pas relié ou expiré. */
+function acces(){
+  if(!estApk())return null;
+  var t=json(CLE_JETON),ok=t&&t.jeton&&!(t.expire&&Number(t.expire)<Date.now());
+  return {base:PROD,jeton:ok?String(t.jeton):''};
+}
+
 /* ---------- pseudo unique : vérifié et réservé sur le serveur AVANT d'être accepté par l'application ---------- */
 function verifierPseudo(pseudo){
   var t=json(CLE_JETON);
@@ -225,7 +232,7 @@ function verifierPseudo(pseudo){
   }).catch(function(){return {ok:false,code:'PSEUDO_RESEAU',message:'Internet est nécessaire pour vérifier que ce pseudo est libre : réessaie quand tu as du réseau.'};});
 }
 
-window.__SOREAL_IDLE_APK_CONNEXION_V1__={requis:requis,actif:actif,demarrer:demarrer,verifierPseudo:verifierPseudo,sansVerif:function(){return contourVerif;},progression:progression,comparer:comparer,restaurer:restaurer};
+window.__SOREAL_IDLE_APK_CONNEXION_V1__={acces:acces,requis:requis,actif:actif,demarrer:demarrer,verifierPseudo:verifierPseudo,sansVerif:function(){return contourVerif;},progression:progression,comparer:comparer,restaurer:restaurer};
 
 /* Une restauration restée en attente (application fermée avant la fin) reprend toute seule. */
 if(estApk()){

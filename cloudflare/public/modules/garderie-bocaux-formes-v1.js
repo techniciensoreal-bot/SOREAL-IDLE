@@ -7,7 +7,8 @@
  * Boîte d'un bocal : rapport 100 x 157 (13,2 % x 13,8 % de l'image du chat 768 x 1152), tous les dessins sont en viewBox 0 0 100 157 (preserveAspectRatio none).
  * Cadrage téléphone (< 900 px) : le fond du grenier (1024 x 1536, ombre du plancher centrée à 49,8 % x 71,6 %) est posé pour que cette ombre tombe sous les pieds du chat, avec --gd-s = largeur de
  * la scène ; sous l'image le plancher se fond dans le brun sombre du cadre.
- * Expose window.__SOREAL_IDLE_GARDERIE_FORMES_V1__ { formes, css, assurer }.
+ * SIX récipients par apparence : rang 1 = FORMES ci-dessous, rangs 2 à 6 = garderie-bocaux-formes-a/b/c-v1.js, choisis par data-rang (numéro de la place) posé par daycare-page-v1.js.
+ * Expose window.__SOREAL_IDLE_GARDERIE_FORMES_V1__ { formes, rangs, css, assurer }.
  */
 (function(){
   'use strict';
@@ -36,10 +37,10 @@
     fibonacci:{d:'M40 16H60V54C84 60 98 80 98 106C98 134 78 154 50 154C22 154 2 134 2 106C2 80 16 60 40 54Z',
       deco:'<path d="M50 112a7 7 0 0 1 7-7a12 12 0 0 1 12 12a20 20 0 0 1-20 20a33 33 0 0 1-33-33" fill="none" stroke="#ffe58a" stroke-width="1.8" stroke-linecap="round" opacity=".85"/><rect x="36" y="38" width="28" height="6" rx="2" fill="#e6b84a" stroke="#7a5a10" stroke-width="1.2"/><rect x="37" y="5" width="26" height="14" rx="5" fill="#e6b84a" stroke="#7a5a10" stroke-width="1.4"/>',
       trait:'#f3d77a',hautObj:70,basObj:150,ico:50},
-    /* Matrix : éprouvette (graduations numériques) */
-    matrix:{d:'M26 10H74V136C74 148 63 154 50 154C37 154 26 148 26 136Z',
-      deco:'<rect x="21" y="5" width="58" height="9" rx="3" fill="rgba(10,40,20,.6)" stroke="#7dff9b" stroke-width="1.6"/><path d="M26 40H37M26 58H33M26 76H37M26 94H33M26 112H37" stroke="#7dff9b" stroke-width="1.4" fill="none"/>',
-      trait:'#8bffa8',hautObj:20,basObj:148,ico:40,fond:'linear-gradient(90deg,rgba(0,40,10,.45),rgba(0,30,8,.25) 40%,rgba(0,40,10,.35) 72%,rgba(40,120,60,.45))'},
+    /* Matrix : PILULE ROUGE (remplace l'éprouvette, Norman 2026-11-01) ; son liquide est rouge (surcharge de --gd-liq pour le rang 1, garderie-bocaux-effets-v1.js) */
+    matrix:{d:'M50 4Q76 4 76 30V126Q76 154 50 154Q24 154 24 126V30Q24 4 50 4Z',
+      deco:'<path d="M24 80H76" stroke="#ffb0b0" stroke-width="2"/><path d="M33 26Q34 14 44 10" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".75"/><path d="M50 4Q76 4 76 30V126Q76 154 50 154Q24 154 24 126V30Q24 4 50 4Z" transform="translate(50 78) scale(.86) translate(-50 -78)" fill="none" stroke="#ffd0d0" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity=".7"/>',
+      trait:'#ff9a9a',hautObj:36,basObj:124,ico:34,fond:'linear-gradient(90deg,rgba(60,0,10,.5),rgba(45,0,8,.3) 40%,rgba(60,0,10,.4) 72%,rgba(170,40,50,.5))'},
     /* Tchernobyl : fût de matière radioactive (couvercle rayé, cerclages) */
     tchernobyl:{d:'M12 20H88Q94 20 94 26V146Q94 154 86 154H14Q6 154 6 146V26Q6 20 12 20Z',
       deco:'<rect x="4" y="14" width="92" height="13" rx="3" fill="#f2d700" stroke="#222" stroke-width="1.6"/><path d="M12 14L20 27M26 14L34 27M40 14L48 27M54 14L62 27M68 14L76 27M82 14L90 27" stroke="#222" stroke-width="3" fill="none"/><rect x="5" y="62" width="90" height="5" fill="rgba(30,30,0,.55)"/><rect x="5" y="112" width="90" height="5" fill="rgba(30,30,0,.55)"/>',
@@ -64,8 +65,8 @@
   const ECHELLES={noeud:0.75};
 
   const uri=function(inner){return 'url("data:image/svg+xml,'+encodeURIComponent(SVG_O+inner+'</svg>')+'")';};
-  const regle=function(id,f){
-    const S='.gd-etagere[data-skin="'+id+'"] ';
+  const regle=function(id,f,rang){
+    const S='.gd-etagere[data-skin="'+id+'"] '+(rang?'.gd-pot[data-rang="'+rang+'"] ':'');
     const masque=uri('<path d="'+f.d+'" fill="#000"/>');
     const cadre=uri('<path d="'+f.d+'" fill="none" stroke="'+f.trait+'" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>'+f.deco);
     const verre=f.fond||'linear-gradient(90deg,rgba(255,255,255,.2),rgba(255,255,255,.05) 38%,rgba(255,255,255,.1) 70%,rgba(255,255,255,.24))';
@@ -82,6 +83,15 @@
   function css(){
     const L=[];
     Object.keys(FORMES).forEach(function(id){L.push(regle(id,FORMES[id]));});
+    /* RANGS 2 à 6 (garderie-bocaux-rangs-v1.js et formes-a/b/c) : la place n° k de l'étagère (data-rang = k) a sa propre silhouette ; le rang 1 reste la forme ci-dessus (ou le bocal classique du défaut) */
+    const RG=window.__SOREAL_IDLE_GARDERIE_RANGS_V1__;
+    if(RG&&RG.skins)Object.keys(RG.skins).forEach(function(id){RG.skins[id].forEach(function(f,i){
+      L.push(regle(id,f,i+2));
+      /* récipient agrandi (ex. nuage de Nyan, moniteur de Matrix : la place le permet) : transform statique ancré au pied, étiquette remise à sa taille, vue zoom à taille pleine */
+      if(f.echelle){const S='.gd-etagere[data-skin="'+id+'"] .gd-pot[data-rang="'+(i+2)+'"]:not(.gdz-pot) ';L.push(S+'.gd-bocal{transform:scale('+f.echelle+');transform-origin:50% 100%}');L.push(S+'.gd-niv-badge{transform:translateX(-50%) scale('+(1/f.echelle).toFixed(3)+');transform-origin:50% 0}');}
+    });});
+    /* couleurs de liquide par rang et neige du globe (garderie-bocaux-effets-v1.js) */
+    if(RG&&typeof RG.effets==='function')L.push(RG.effets());
     /* Pretty Kitty (noeud) : sa place est moindre, les flacons rangés sur l'étagère sont 25 % plus petits (transform statique ancré au pied du bocal, le pied reste sur la planche) ; l'étiquette est remise à sa taille ; la vue zoom (.gdz-pot) garde la taille pleine */
     Object.keys(ECHELLES).forEach(function(id){
       const k=ECHELLES[id],S='.gd-etagere[data-skin="'+id+'"] .gd-pot:not(.gdz-pot) ';
@@ -109,6 +119,6 @@
     if(!s){s=document.createElement('style');s.id='gd-formes-style-v1';s.textContent=css();}
     document.head.appendChild(s);   /* (re)placé en dernier : à spécificité égale il passe après la feuille de la page */
   }
-  window.__SOREAL_IDLE_GARDERIE_FORMES_V1__={formes:FORMES,ombres:OMBRES,css:css,assurer:assurer};
+  window.__SOREAL_IDLE_GARDERIE_FORMES_V1__={formes:FORMES,rangs:function(){const RG=window.__SOREAL_IDLE_GARDERIE_RANGS_V1__;return RG?RG.skins:{};},ombres:OMBRES,css:css,assurer:assurer};
   assurer();
 })();

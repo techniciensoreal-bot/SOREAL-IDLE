@@ -147,11 +147,29 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-ombre-sol-g{background:linear-gradient(270deg,rgba(0,0,0,.75),rgba(0,0,0,0) 65%)}
 /* boutons de page */
 .alb-nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(10px,3vw,18px);margin:6px 0 14px}
-.alb-bouton{width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:50%;cursor:pointer;color:#e8e8ee;
-  border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14);-webkit-tap-highlight-color:transparent}
-.alb-bouton svg{width:22px;height:22px}
-.alb-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #000}
-.alb-bouton:disabled{opacity:.35;cursor:default}
+/*
+ * Flèches du classeur, style jeu vidéo fantasy (Norman, 2026-11-01) : bouton de métal doré à liseré de bronze, fond de cuir sombre, pointes de flèche taillées en relief (SVG plein), petite gemme de cristal en haut qui s'éclaire au survol,
+ * « 10 » en lettres Bangers sur les boutons doubles. Tout est STATIQUE (dégradés et box-shadow, aucun filtre ni flou, aucune animation) ; désactivé : métal terni, gemme éteinte, plus de halo. Zone de toucher >= 44 px.
+ */
+.alb-bouton{position:relative;box-sizing:border-box;width:46px;height:46px;padding:0;display:grid;place-items:center;border-radius:14px;cursor:pointer;color:#f5d98a;-webkit-tap-highlight-color:transparent;
+  border:3px solid transparent;
+  background:linear-gradient(180deg,#2d2418,#110d08) padding-box,linear-gradient(145deg,#fbe39a 0%,#c4922f 38%,#6a4812 70%,#e0bb5e 100%) border-box;
+  box-shadow:0 3px 0 #2a1a05,0 5px 7px rgba(0,0,0,.55),0 0 9px rgba(255,190,70,.2),inset 0 0 0 1px rgba(255,240,180,.35),inset 0 5px 7px rgba(255,255,255,.07)}
+.alb-bouton svg{width:24px;height:24px;display:block;fill:currentColor;stroke:#2b1b06;stroke-width:1.1;stroke-linejoin:round;paint-order:stroke}
+.alb-bouton::after{content:"";position:absolute;top:2px;left:50%;width:6px;height:6px;margin-left:-3px;transform:rotate(45deg);border-radius:1px;pointer-events:none;
+  background:linear-gradient(135deg,#ffffff,#8fe3ff 45%,#1f74ad);box-shadow:0 0 5px rgba(120,220,255,.75),0 0 0 1px #0a2a40}
+.alb-prec10::before,.alb-suiv10::before{content:"10";position:absolute;left:0;right:0;bottom:1px;text-align:center;font:400 11px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.5px;color:#ffe9a8;text-shadow:0 1px 0 #000,0 0 3px rgba(0,0,0,.8);pointer-events:none}
+.alb-prec10 svg,.alb-suiv10 svg{width:22px;height:22px;transform:translateY(-4px)}
+.alb-bouton:hover:not(:disabled){color:#fff0b8;box-shadow:0 3px 0 #2a1a05,0 5px 7px rgba(0,0,0,.55),0 0 14px rgba(255,205,90,.5),inset 0 0 0 1px rgba(255,248,205,.6),inset 0 5px 7px rgba(255,255,255,.12)}
+.alb-bouton:hover:not(:disabled)::after{background:linear-gradient(135deg,#fff,#b9f0ff 45%,#3b9bd6);box-shadow:0 0 8px rgba(150,235,255,.95),0 0 0 1px #0a2a40}
+.alb-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #2a1a05,0 2px 4px rgba(0,0,0,.55),0 0 12px rgba(255,205,90,.55),inset 0 0 0 1px rgba(255,248,205,.6)}
+.alb-bouton:disabled{cursor:default;color:#6f685a;
+  background:linear-gradient(180deg,#1d1914,#0e0c09) padding-box,linear-gradient(145deg,#6d6656,#3e3a30 60%,#59523f) border-box;
+  box-shadow:0 3px 0 #15110a,0 4px 5px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.06)}
+.alb-bouton:disabled svg{stroke:#14110a}
+.alb-bouton:disabled::after{background:linear-gradient(135deg,#6a6a70,#35353a);box-shadow:0 0 0 1px #17171a}
+.alb-bouton:disabled::before{color:#6f685a;text-shadow:0 1px 0 #000}
+.alb-zoom .alb-bouton::before,.alb-zoom .alb-bouton::after{display:none}
 .alb-bouton:focus-visible,.alb-fermer:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
 .alb-numero{min-width:110px;text-align:center;font:400 18px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1.2px;color:#e8e8ee;text-shadow:0 2px 0 #000}
 .alb-fermer{padding:10px 16px;border-radius:999px;cursor:pointer;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14)}
@@ -170,7 +188,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-livre:not(.alb-double){max-width:520px;margin-left:auto;margin-right:auto}
 .alb-nav-haut{margin:0 0 10px}
 .alb-nav{flex-wrap:nowrap}
-@media (max-width:480px){.alb-nav{gap:6px}.alb-bouton{width:36px;height:36px}.alb-bouton svg{width:18px;height:18px}.alb-numero{min-width:84px;font-size:15px}}
+@media (max-width:480px){.alb-nav{gap:6px}.alb-bouton{width:44px;height:44px}.alb-bouton svg{width:22px;height:22px}.alb-prec10 svg,.alb-suiv10 svg{width:20px;height:20px}.alb-numero{min-width:76px;font-size:15px}}
 .alb-livre.alb-saut .alb-feuille-tournante .alb-face>.alb-page{-webkit-mask-image:none;mask-image:none}
 /* annonce de deux pages à la fois (PC) : six colonnes */
 .alb-annonce-cartes.alb-large{grid-template-columns:repeat(6,auto)}
@@ -186,7 +204,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
  */
 .alb-adapt{position:relative;width:100%}
 .alb-zoom{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 8px}
-.alb-zoom .alb-bouton{width:36px;height:36px;font:400 24px/1 Bangers,"Russo One",Impact,sans-serif}
+.alb-zoom .alb-bouton{width:36px;height:36px;border-radius:50%;font:400 24px/1 Bangers,"Russo One",Impact,sans-serif}
 .alb-zoom-val{min-width:64px;padding:9px 12px;border-radius:999px;cursor:pointer;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14);-webkit-tap-highlight-color:transparent}
 .alb-zoom-val:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
 .alb-cadre{position:relative;width:100%;overflow-x:auto;overflow-y:clip}
@@ -239,3 +257,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .alb-page-g .alb-plastiq
 html body.soreal-idle-active-v47 .alb-classeur.alb-rangement{overflow:visible}
 .alb-vol .alb-passer{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);pointer-events:auto;padding:10px 22px;border-radius:999px;cursor:pointer;font:400 17px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14);z-index:2}
 .alb-vol .alb-passer:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
+/* PC (Norman, 2026-11-01) : plus de barre en haut ni en bas ; deux flèches de chaque côté du livre (−10 −1 à gauche, +1 +10 à droite), centrées sur le livre ; un petit numéro de page sous le livre. Téléphone : rien ne change. */
+.alb-cote,.alb-pied{display:none}
+@media (min-width:900px){
+  .alb-adapt .alb-nav-zone{display:none}
+  .alb-adapt .alb-corps{display:flex;align-items:center;gap:8px}
+  .alb-adapt .alb-corps>.alb-cadre{flex:1 1 0;min-width:0;width:auto}
+  .alb-adapt .alb-cote{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .alb-adapt .alb-cote .alb-bouton{width:44px;height:44px}
+  .alb-adapt .alb-pied{display:block;min-height:22px;margin-top:8px;text-align:center;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1.2px;color:#e8e8ee;text-shadow:0 2px 0 #000;pointer-events:none}
+}

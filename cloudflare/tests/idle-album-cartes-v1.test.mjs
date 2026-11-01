@@ -9,7 +9,7 @@ assert.ok(m.includes("var PAR_PAGE=9,COLS=3,PIECES=9,TOTAL_BOSS=301;") && c.incl
 // PC / téléphone
 assert.ok(m.includes("(min-width:900px)") && c.includes(".alb-page-g{display:none}") && c.includes(".alb-double .alb-page-g{display:block}"), "PC : deux pages ; téléphone : la page de droite seule");
 // le livre fermé d'abord, la couverture avec le logo
-assert.ok(m.includes("if(!document.querySelector('.alb-classeur')){ouvert=false;page=0;}") && m.includes("function ouvrirLivre(p)") && m.includes("function fermerLivre()") && m.includes("alb-couv-logo") && m.includes("IMG_LOGO"), "livre fermé à l'arrivée, couverture avec le logo, ouvrir / fermer");
+assert.ok(m.includes("if(!document.querySelector('.alb-classeur')){ouvert=true;arrivee=true;page=pageMemorisee();}") && m.includes("function ouvrirLivre(p)") && m.includes("function fermerLivre()") && m.includes("alb-couv-logo") && m.includes("IMG_LOGO"), "livre fermé à l'arrivée, couverture avec le logo, ouvrir / fermer");
 assert.ok(c.includes(".alb-classeur:not(.alb-ouvert) .alb-page{visibility:hidden}") && c.includes(".alb-couv-pochette") && c.includes(".alb-cuir-noir"), "couverture de farde noire avec pochette en plastique");
 assert.ok(m.includes("cliquerGauche") && m.includes("Fermer le classeur"), "le livre se referme (bouton, ou clic sur l'intérieur de la couverture)");
 // cartes DE FACE sur la page de gauche ET sur celle de droite (Norman : « finalement, des cartes de face des deux côtés ») ; le dos ne sert plus qu'aux cartes du grand dessin pas encore gagnées
@@ -87,7 +87,8 @@ assert.ok(c.includes("transform:translateX(-50%) translateZ(8px)"), "l'anneau re
 
 // navigation (Norman, 2026-10-30) : la flèche tout à gauche ramène à la couverture, puis −10, −1, numéro, +1, +10 ; une page déjà dessinée n'est jamais redessinée à l'ouverture (la texture de l'affiche clignotait)
 {
-  const i = (s) => m.indexOf(s);
+  const nav = m.slice(m.indexOf("function navHtml(pos)"));   // la barre du téléphone (sur PC : flèches de côté, voir idle-album-fleches-cotes-v1)
+  const i = (s) => nav.indexOf(s);
   assert.ok(i("alb-debut") > 0 && i("alb-debut") < i("alb-prec10") && i("alb-prec10") < i("alb-prec\"") && i("alb-suiv\"") < i("alb-suiv10"), "ordre : couverture, −10, −1, +1, +10");
   assert.ok(m.includes("onclick=\"'+A+'.retourCouverture()\">'+CHEV_DEBUT") && m.includes("function retourCouverture()") && m.includes("sauter(-feuilles)") && m.includes("return fermerLivre();"), "la première flèche fait repasser toutes les feuilles, PUIS ferme la couverture");
   assert.ok(m.includes("function dessinee()") && m.includes("if(!force&&dessinee())return;") && m.includes("data-alb-page"), "page déjà dessinée : pas de redessin");

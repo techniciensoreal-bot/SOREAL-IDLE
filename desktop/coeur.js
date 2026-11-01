@@ -201,6 +201,24 @@ async function demarrerJeu() {
      * Ennemis de l'ITOPOD (Norman, 2026-10-31 : « il n'y a plus que 3 ennemis, les ouvriers et les gens venus par Google ne sont plus là ») : la liste des prénoms vient de SOREAL TV, que ce Worker local ne peut pas joindre (il
      * ne verrait que l'équipe minimale). On lit donc la liste du serveur quand internet répond, on en garde la dernière copie sur l'appareil (userData/roster-itopod.json) et on la relit hors ligne.
      */
+    /* Profils de badavatar des autres joueurs (donnée partagée du serveur, jamais dans le Worker local) : lus sur le serveur quand internet répond ; la liste est gardée sur l'appareil pour le hors ligne. */
+    if (requete.method === "GET" && (url.pathname === "/api/idle/media/profils-badavatar" || url.pathname === "/api/idle/media/badavatar-photo")) {
+      const copieProfils = path.join(app.getPath("userData"), "profils-badavatar.json");
+      try {
+        const distante = await net.fetch((process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION) + url.pathname + url.search, { bypassCustomProtocolHandlers: true, signal: AbortSignal.timeout(8000) });
+        if (distante.ok && url.pathname.endsWith("profils-badavatar")) {
+          const texte = await distante.text();
+          try { JSON.parse(texte); fs.writeFileSync(copieProfils, texte); } catch (_e) { /* copie non écrite */ }
+          return new Response(texte, { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+        }
+        if (distante.ok) return distante;
+      } catch (_e) { /* hors ligne */ }
+      if (url.pathname.endsWith("profils-badavatar")) {
+        try { if (fs.existsSync(copieProfils)) return new Response(fs.readFileSync(copieProfils), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } }); } catch (_e) { /* aucun profil */ }
+        return new Response(JSON.stringify({ ok: true, profils: {} }), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+      }
+      return new Response("Introuvable", { status: 404 });
+    }
     if (requete.method === "GET" && url.pathname === "/api/idle/media/roster") {
       const copie = path.join(app.getPath("userData"), "roster-itopod.json");
       try {

@@ -2253,7 +2253,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 /* Barre d'onglets de Chroniques (style ITOPOD : gros contour noir, ombre dure, onglet actif cerné d'or). */
 /* Onglets du haut (Norman, 2026-10-25 : « je n'aime pas le jaune, je veux refaire les petits cadres ») : une barre de verre bleu nuit, des segments sans contour épais ; l'onglet ouvert s'allume dans la couleur de son sous-menu. */
 /* Réglages : onglets de catégories (Norman, 2026-10-25), mêmes verres bleu nuit que Chroniques */
-.rg-onglets-v1{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0 0 8px;padding:4px;border:1px solid rgba(120,160,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(14,22,48,.9),rgba(6,10,24,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 20px -12px rgba(0,0,0,.8)}
+.rg-onglets-v1{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:0 0 8px;padding:4px;border:1px solid rgba(120,160,255,.22);border-radius:16px;background:linear-gradient(180deg,rgba(14,22,48,.9),rgba(6,10,24,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 8px 20px -12px rgba(0,0,0,.8)}
 .rg-onglet-v1{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;padding:9px 4px 8px;border:0;border-radius:12px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#9fb4e0;background:transparent;transition:background .15s ease,color .15s ease,box-shadow .2s ease}
 .rg-onglet-v1 i{font-style:normal;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.55))}
 .rg-onglet-v1 b{font-weight:900;line-height:1.1;text-align:center}

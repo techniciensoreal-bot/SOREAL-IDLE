@@ -475,6 +475,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/api/v1/maj/manifeste" || url.pathname === "/api/v1/maj/fichier")) return idleMajV1(request, env, url);
+    /* Profils de badavatar (idle-profil-badavatar-v1.js) : lecture publique (liste réduite, jamais d'adresse e-mail) et image du visage personnalisé ; écriture : POST /api/v1/profil-badavatar plus bas. */
+    if (request.method === "GET" && url.pathname === "/api/idle/media/profils-badavatar") {
+      const r = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-publics", { method: "POST", body: "{}" });
+      return new Response(r.body, { status: r.status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
+    }
+    if (request.method === "GET" && url.pathname === "/api/idle/media/badavatar-photo") {
+      if (idleLimiteDepasseeV1("badavatar-photo", 60, 20)) return idleTropDeRequetesV1();
+      const r = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-photo", { method: "POST", body: JSON.stringify({ nom: url.searchParams.get("nom") || "" }) });
+      /* L'adresse change avec ?v= (date d'enregistrement) : la réponse peut être gardée longtemps. nosniff + sandbox : une image, rien d'autre. */
+      return new Response(r.ok ? r.body : "Introuvable", { status: r.ok ? 200 : 404, headers: { "content-type": r.ok ? (r.headers.get("content-type") || "image/webp") : "text/plain", "cache-control": r.ok ? "public, max-age=31536000, immutable" : "no-store", "x-content-type-options": "nosniff", "content-security-policy": "sandbox", "access-control-allow-origin": "*" } });
+    }
     const mediaResponse = await traiterRequeteIdleMedia(request, env);
     if (mediaResponse) return mediaResponse;
 
@@ -594,6 +605,21 @@ export default {
       const lecture = await idleLireJsonBorneV1(request, 2048);
       const corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
       return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/pseudo-definir", { method: "POST", body: JSON.stringify({ sessionToken: jeton, pseudo: corps.pseudo }) }));
+    }
+    /* Profil de badavatar : le joueur authentifié lit, enregistre ou réinitialise SON profil ; l'administrateur peut réinitialiser celui d'un nom. Corps borné (image réduite comprise). */
+    if (url.pathname === "/api/v1/profil-badavatar" && request.method === "POST") {
+      const jeton = idleBearerV1(request);
+      if (!jeton) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401));
+      if (idleLimiteDepasseeV1("badavatar:" + jeton, 6, 0.2)) return idleAvecCorsApkV1(corsApk, idleTropDeRequetesV1());
+      const lecture = await idleLireJsonBorneV1(request, 160000);
+      if (lecture.tropGros) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: false, code: "BADAVATAR_PHOTO_GROSSE", message: "L’image est trop lourde." }, 413));
+      const corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+      if (corps.action === "admin-reinitialiser") {
+        if (!(await idleEstAdminV1(request, env))) return idleJsonV1({ ok: false, error: "SOREAL_IDLE_ADMIN_REQUIS" }, 403);
+        return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-admin-reinitialiser", { method: "POST", body: JSON.stringify({ nom: corps.nom }) });
+      }
+      const action = ["lire", "enregistrer", "reinitialiser"].includes(corps.action) ? corps.action : "lire";
+      return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-moi", { method: "POST", body: JSON.stringify({ sessionToken: jeton, action, pieces: corps.pieces, photo: corps.photo, cat: corps.cat }) }));
     }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-export"));
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-push"));
