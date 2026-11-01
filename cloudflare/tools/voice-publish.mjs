@@ -47,6 +47,17 @@ function envoyer(hash, fichier) {
   });
 }
 
+/* Un manifeste déjà « partiel » (voix françaises pas toutes générées) le reste : envoyer des voix anglaises ne le rend jamais « complet ». */
+function partielExistant_() {
+  try { return JSON.parse(fs.readFileSync(path.join(PUBLIC_VOICE, "manifest.json"), "utf8")).partiel === true; } catch (_e) { return false; }
+}
+/* Manifeste fusionné : les empreintes déjà listées restent, les nouvelles s'ajoutent (jamais remplacé par la seule liste du dossier). */
+function fusion_(nouvelles) {
+  let existantes = [];
+  try { existantes = JSON.parse(fs.readFileSync(path.join(PUBLIC_VOICE, "manifest.json"), "utf8")).files || []; } catch (_e) { /* pas de manifeste */ }
+  return Array.from(new Set([...existantes, ...nouvelles])).sort();
+}
+
 async function main() {
   if (!DOSSIER || !fs.existsSync(DOSSIER)) throw new Error("--dir <dossier des .m4a> requis");
   /* Un fichier écrit il y a moins de 30 s est peut-être encore en cours d'écriture : on l'ignore. */
@@ -54,7 +65,37 @@ async function main() {
   if (!fichiers.length) throw new Error("aucun fichier <empreinte>.m4a dans " + DOSSIER);
   const etatChemin = path.join(DOSSIER, "_publies.json");
   const publies = fs.existsSync(etatChemin) ? JSON.parse(fs.readFileSync(etatChemin, "utf8")) : {};
-  const aEnvoyer = fichiers.filter((f) => publies[f] !== fs.statSync(path.join(DOSSIER, f)).size);
+  /*
+ * GARDE-FOU (Norman, 2026-11-01) : une voix anglaise dont le texte est IDENTIQUE au français (un nom : « Lester », « Kenny », « Hooloovoo »…) a la MÊME empreinte que la voix française validée ; l'envoi la remplaçait dans R2 (30 voix écrasées le 2026-10-31, dont 3 enregistrements validés). Ne sont donc JAMAIS envoyées :
+ *  - les empreintes déjà au manifeste du dépôt qui n'ont pas été envoyées par CET outil (voix françaises, statiques) ;
+ *  - les empreintes déclarées dans la liste « voix » d'un texte ou d'une histoire enregistrés (desktop/graine/catalogue.json) ;
+ *  - celles de --proteger <fichier> (JSON ou une empreinte par ligne).
+ * Le manifeste du dépôt est FUSIONNÉ avec l'existant (jamais remplacé par la seule liste du dossier envoyé).
+ */
+function empreintesProtegees(publiesDeCetOutil) {
+  const p = new Set();
+  try { for (const h of JSON.parse(fs.readFileSync(path.join(PUBLIC_VOICE, "manifest.json"), "utf8")).files || []) if (!publiesDeCetOutil.has(h)) p.add(h); } catch (_e) { /* pas de manifeste */ }
+  try {
+    const c = JSON.parse(fs.readFileSync(path.join(RACINE, "desktop", "graine", "catalogue.json"), "utf8"));
+    for (const t of c.textes || []) { try { for (const h of (JSON.parse(t[1]).voix || [])) p.add(String(h.h || h)); } catch (_e) { /* texte sans liste */ } }
+    for (const hi of c.histoires || []) { for (const h of (hi.voix || [])) p.add(String(h)); for (const et of hi.etapes || []) for (const h of (et.voix || [])) p.add(String(h.h || h)); }
+  } catch (_e) { /* pas de catalogue */ }
+  /* Inventaire de R2 de la dernière récolte (desktop/medias/_index.json) : toute voix déjà en production, hors celles de cet outil, est protégée. */
+  try { for (const k of Object.keys(JSON.parse(fs.readFileSync(path.join(RACINE, "desktop", "medias", "_index.json"), "utf8")))) { const m = /^idle\/voix\/([0-9a-f]{14})\.m4a$/.exec(k); if (m && !publiesDeCetOutil.has(m[1])) p.add(m[1]); } } catch (_e) { /* pas d'inventaire */ }
+  const extra = arg("proteger", "");
+  if (extra && extra !== true && fs.existsSync(String(extra))) {
+    const brut = fs.readFileSync(String(extra), "utf8").trim();
+    let liste = [];
+    try { liste = JSON.parse(brut); } catch (_e) { liste = brut.split(/\s+/); }
+    for (const h of liste) p.add(String(h).replace(/\.m4a$/, ""));
+  }
+  return p;
+}
+const dejaPublies = new Set(Object.keys(publies).map((x) => x.replace(/\.m4a$/, "")));
+const protegees = empreintesProtegees(dejaPublies);
+const protegeesIgnorees = fichiers.filter((f) => protegees.has(f.slice(0, -4)) && !dejaPublies.has(f.slice(0, -4)));
+if (protegeesIgnorees.length) console.log(protegeesIgnorees.length + " voix NON envoyées car la même empreinte existe déjà (voix française ou voix validée) : " + protegeesIgnorees.slice(0, 8).join(", ") + (protegeesIgnorees.length > 8 ? " …" : ""));
+const aEnvoyer = fichiers.filter((f) => publies[f] !== fs.statSync(path.join(DOSSIER, f)).size && !(protegees.has(f.slice(0, -4)) && !dejaPublies.has(f.slice(0, -4))));
   const octets = aEnvoyer.reduce((t, f) => t + fs.statSync(path.join(DOSSIER, f)).size, 0);
   console.log(fichiers.length + " voix dans " + DOSSIER + " : " + aEnvoyer.length + " à envoyer (" + (octets / 1048576).toFixed(1) + " Mo) vers r2://" + BUCKET + "/" + PREFIXE);
   if (A_SEC) return;
@@ -98,7 +139,7 @@ async function main() {
   fs.mkdirSync(PUBLIC_VOICE, { recursive: true });
   const anciens = fs.readdirSync(PUBLIC_VOICE).filter((f) => f.endsWith(".m4a") || f.includes(".tmp"));
   anciens.forEach((f) => fs.unlinkSync(path.join(PUBLIC_VOICE, f)));
-  fs.writeFileSync(path.join(PUBLIC_VOICE, "manifest.json"), JSON.stringify({ v: 1, voice: manifesteSource.voice || "cb1", partiel: PARTIEL, format: "m4a-aac-mono", stockage: "r2:idle/voix/", files: fichiers.map((f) => f.slice(0, -4)) }) + "\n");
+  fs.writeFileSync(path.join(PUBLIC_VOICE, "manifest.json"), JSON.stringify({ v: 1, voice: manifesteSource.voice || "cb1", partiel: PARTIEL || partielExistant_(), format: "m4a-aac-mono", stockage: "r2:idle/voix/", files: fusion_(fichiers.map((f) => f.slice(0, -4))) }) + "\n");
   console.log("manifest.json : " + fichiers.length + " voix ; " + anciens.length + " ancien(s) fichier(s) .m4a retiré(s) du dépôt (cloudflare/public/voice).");
 }
 
