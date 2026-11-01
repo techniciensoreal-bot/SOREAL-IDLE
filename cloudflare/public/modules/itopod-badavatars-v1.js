@@ -93,7 +93,50 @@
         design.parts.Oreille_Droite.order = ORDRE.Oreille_Droite;
       }
     });
+    corrigerBarbe(design, corps);
     return design;
+  }
+
+  /* Boîte (haut, bas, gauche, droite) d'une pièce posée, en pixels de scène : les 4 coins de la boîte mesurée de ses pixels, après translation, rotation et échelle comme dans l'éditeur. */
+  function boitePiece(p, m) {
+    var s0 = Math.min(W / m[1], H / m[2]), a = p.rotation * Math.PI / 180, b = { t: Infinity, b: -Infinity, l: Infinity, r: -Infinity };
+    [[m[3], m[4]], [m[5] + 1, m[4]], [m[3], m[6] + 1], [m[5] + 1, m[6] + 1]].forEach(function (c) {
+      var px = (c[0] - m[1] / 2) * s0, py = (c[1] - m[2] / 2) * s0;
+      var x = W / 2 + p.x * W + p.scale * (px * Math.cos(a) - py * Math.sin(a));
+      var y = H / 2 + p.y * H + p.scale * (px * Math.sin(a) + py * Math.cos(a));
+      b.t = Math.min(b.t, y); b.b = Math.max(b.b, y); b.l = Math.min(b.l, x); b.r = Math.max(b.r, x);
+    });
+    return b;
+  }
+  /*
+   * Règle générale (Norman, 2026-11-01, « la barbe accrochée sur le nez », cas de Massimo) : le HAUT de la boîte de la barbe doit rester sous le haut du nez d'au moins SEUIL_BARBE (17 % de la tête).
+   * Mesuré sur les barbes déjà en place : les bonnes sont entre 18 % et 45 % sous le haut du nez (une moustache bien posée est juste sous les narines) ; Massimo est à 5 %. On ne peut pas exiger « sous le bas du nez » :
+   * la boîte de presque toutes les barbes (moustache comprise) est plus haute que le bas du nez, le résultat serait une barbe trop basse partout.
+   * Une barbe qui respecte la règle n'est PAS touchée (même visage qu'avant). Sinon : on la descend jusqu'à CIBLE_BARBE (20 %), d'abord de 15 % de la tête au plus, puis on la réduit autour de son bord bas
+   * (jusqu'à 70 %), puis on la descend encore s'il le faut. Ni le tirage ni les autres pièces ne changent.
+   */
+  var SEUIL_BARBE = 0.17, CIBLE_BARBE = 0.20;
+  function corrigerBarbe(design, tete) {
+    var pb = design.parts.Barbe, pn = design.parts.Nez;
+    if (!pb || !pn) return;
+    var mb = metaPiece(pb.key), mn = metaPiece(pn.key);
+    if (!mb || !mn) return;
+    var hauteur = tete[2] - tete[1];
+    var nez = boitePiece(pn, mn);
+    var avant = boitePiece(pb, mb);
+    if (avant.t >= nez.t + SEUIL_BARBE * hauteur) return;
+    var cible = nez.t + CIBLE_BARBE * hauteur;
+    var hb = avant.b - avant.t, need = cible - avant.t;
+    var d = Math.min(need, 0.15 * hauteur), s = 1;
+    if (need > d) {
+      s = Math.max(0.7, (hb - (need - d)) / hb);
+      if (avant.b + d - s * hb < cible) d = cible - avant.b + s * hb;
+    }
+    var cx = (avant.l + avant.r) / 2, bas = avant.b + d;
+    pb.scale = arrondir(Math.max(0.15, pb.scale * s), 4);
+    var ap = boitePiece(pb, mb);
+    pb.y = arrondir(pb.y + (bas - ap.b) / H, 4);
+    pb.x = arrondir(pb.x + (cx - (ap.l + ap.r) / 2) / W, 4);
   }
 
   /* Les clés des designs sont celles de l'éditeur (shared/badavatars/…) ; les images sont servies depuis la copie idle/badavatars/… (hors ligne : miroir R2 de l'exe). */
@@ -166,5 +209,5 @@
     return html + "</div></div>";
   }
 
-  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, cadrage: cadrage, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
+  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, corrigerBarbe: corrigerBarbe, seuilBarbe: SEUIL_BARBE, boitePiece: boitePiece, metaPiece: metaPiece, cadrage: cadrage, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
 })();

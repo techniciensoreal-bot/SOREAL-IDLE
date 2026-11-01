@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les nombres que tu tapes dans les champs sont mieux gardés : espaces, virgules et suffixes (k, m, b, t) sont compris, le champ ne se trompe plus de menu, et les saisies de départ et de fin d’étage ainsi que la quantité personnalisée de la boutique sont conservées.",
-    "Les ennemis défilent maintenant l’un après l’autre, du premier au dernier de la liste, puis tout recommence au premier. Leurs visages ne sont plus coupés en haut et les corps ne flottent plus."
+    "Une barbe qui montait sur le nez d’un personnage (comme Massimo) est replacée juste sous le nez ; tous les autres visages restent exactement comme avant."
   ] };
 })();

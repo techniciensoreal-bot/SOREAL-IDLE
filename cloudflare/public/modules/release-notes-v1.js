@@ -55,6 +55,7 @@
             'La couleur du liquide des bocaux suit l’apparence du chat : transparent pour le chat de base, rose bonbon pour le coquet, or pour le doré, sang pour Halloween, arc-en-ciel pour Nyan…'
           ]}
           ,{menu:'tower', titre:'ITOPOD', points:[
+            'Une barbe qui montait sur le nez d’un personnage (comme Massimo) est replacée juste sous le nez ; tous les autres visages restent exactement comme avant.',
             'Les ennemis défilent maintenant l’un après l’autre, du premier au dernier de la liste, puis tout recommence au premier. Leurs visages ne sont plus coupés en haut et les corps ne flottent plus.'
           ]}
         ]

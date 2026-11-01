@@ -114,4 +114,33 @@ for (let i = 1; i <= 600; i++) {
 }
 assert.ok(reduits > 0, "au moins un personnage a la tête trop haute et se réduit");
 console.log("réduits:", reduits, "/ 600");
+
+/* Barbe jamais « accrochée sur le nez » (Massimo, 2026-11-01) : le haut de la barbe reste à au moins 17 % de la tête sous le haut du nez, pour TOUS les corps, nez et barbes (la correction ne touche que les barbes fautives). */
+{
+  const rng = () => 0.5;
+  let combos = 0, corrigees = 0;
+  for (const [g, corpsListe] of Object.entries(B.catalogue.bodies)) for (const corps of corpsListe) for (const nez of B.catalogue.parts.Nez) for (const barbe of B.catalogue.parts.Barbe) {
+    const d = { gender: g, body: BASE + corps[0], parts: { Nez: B.placer("Nez", nez, corps, rng, 3), Barbe: B.placer("Barbe", barbe, corps, rng, 1.5) } };
+    const hauteur = corps[2] - corps[1];
+    const avant = B.boitePiece(d.parts.Barbe, B.metaPiece(d.parts.Barbe.key)).t;
+    const seuil = B.boitePiece(d.parts.Nez, B.metaPiece(d.parts.Nez.key)).t + B.seuilBarbe * hauteur;
+    B.corrigerBarbe(d, corps);
+    const apres = B.boitePiece(d.parts.Barbe, B.metaPiece(d.parts.Barbe.key)).t;
+    combos++;
+    if (avant < seuil) corrigees++; else assert.equal(apres, avant, "barbe déjà bonne : pas touchée");
+    assert.ok(apres >= seuil - 0.5, "barbe sous le nez (" + corps[0] + ", " + nez[0] + ", " + barbe[0] + ")");
+  }
+  assert.equal(combos, 30 * 44 * 42, "toutes les combinaisons barbe x corps x nez");
+  assert.ok(corrigees > 0 && corrigees < combos, "la correction ne touche qu'une partie des barbes");
+  for (let i = 1; i <= 3000; i++) {
+    const d = B.tirer(i);
+    if (!d.parts.Barbe) continue;
+    const e = B.catalogue.bodies[d.gender].find((x) => BASE + x[0] === d.body);
+    assert.ok(B.boitePiece(d.parts.Barbe, B.metaPiece(d.parts.Barbe.key)).t >= B.boitePiece(d.parts.Nez, B.metaPiece(d.parts.Nez.key)).t + B.seuilBarbe * (e[2] - e[1]) - 0.5, "barbe sous le nez, graine " + i);
+    assert.ok(validateDesign(d), "design valide après correction, graine " + i);
+  }
+  assert.equal(JSON.stringify(B.tirerPourNom("Massimo")), JSON.stringify(B.tirerPourNom("massimo")));
+  assert.equal(B.tirerPourNom("Massimo").parts.Barbe.key, BASE + "Barbe/barbe_fine_pointue.webp");
+  assert.equal(B.tirerPourNom("Massimo").parts.Barbe.y, -0.0967, "barbe de Massimo descendue (avant : -0,1438) ; si ce nombre change, les visages changent");
+}
 console.log("idle-itopod-badavatars-v1: ok");

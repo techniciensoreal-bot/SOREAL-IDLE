@@ -328,8 +328,8 @@
   "sha": "0ecf22ba9e9e30882e0ba5872ba6212c08af0d0d"
  },
  "/modules/itopod-badavatars-v1.js": {
-  "pin": 3,
-  "sha": "22dd3dd1ca0706535a5c63469e4f04aa343f2a8f"
+  "pin": 4,
+  "sha": "6bb9337a5992a5c990a26589c95feb82497e5f53"
  },
  "/modules/itopod-perks-page-v1.js": {
   "pin": 2,
@@ -500,12 +500,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 25,
-  "sha": "afce527c8c183f4d6c5d0022eddcd08ea5a418e6"
+  "pin": 27,
+  "sha": "1303babac45b8ad02acf53177a4a5d92eaff3929"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 639,
-  "sha": "c14505a5f6ddeb5583057ca4eb357c2ecfe7a77a"
+  "pin": 640,
+  "sha": "f7d8c1dbfcf711e07bbdc6b32cdd120fc21536f2"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -584,12 +584,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 661,
-  "sha": "b9bfa61bbfd619e7eba277efcd56d7355432105d"
+  "pin": 662,
+  "sha": "0ee62a6ede0775296ce42c489b01c21646729dff"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 481,
-  "sha": "5a0813152dba0a2a8209108c99fd4672cc297d53"
+  "pin": 482,
+  "sha": "1e30f83ff028ab1dcfaba2823f9a876de2657f6d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
