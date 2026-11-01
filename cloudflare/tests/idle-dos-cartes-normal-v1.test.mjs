@@ -16,5 +16,5 @@ const a = lire("cloudflare/public/modules/album-cartes-v1.js");
 assert.ok(a.includes("dosPochetteHtml(k+1)") && a.includes("dosPochetteHtml(i+1)"), "dos des pochettes : emplacement de la page");
 // dos des Titans étiré, sans bord noir visible (Norman, 2026-11-01)
 const css = lire("cloudflare/public/soreal-idle-carte-boss.css");
-assert.ok(m.includes("' mtg-dos-plein'") && css.includes(".mtg-dos.mtg-dos-plein{overflow:hidden;padding:0}") && css.includes(".mtg-dos.mtg-dos-plein .mtg-dos-image{transform:scale(1.08);filter:none}"), "dos d'image : agrandi de 8 % et rogné par le contour de la carte");
+assert.ok(m.includes("' mtg-dos-plein'") && css.includes(".mtg-dos.mtg-dos-plein{overflow:hidden;padding:0}") && css.includes(".mtg-dos.mtg-dos-plein .mtg-dos-image{transform:scaleX(1.08);filter:none}"), "dos d'image : agrandi de 8 % et rogné par le contour de la carte");
 console.log("idle-dos-cartes-normal-v1 : OK");
