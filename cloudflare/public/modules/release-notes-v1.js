@@ -83,6 +83,7 @@
             'Changer de langue dans les Réglages recharge maintenant la page : les noms de boss, les chroniques et les voix sont tout de suite dans la bonne langue.',
             'Sur les cartes de boss, le bas de la carte indique la langue (EN en anglais) et le nom du boss suit la langue choisie.',
             'Les comptes d’ouvrier absents de la liste de l’équipe apparaissent maintenant comme ennemis dans la tour, avec le badavatar de leur Profil.',
+            'Sur l’écran de la borne, les lettres des grands nombres (K, M, AB…) ont leur couleur habituelle et la régénération est écrite plus petit.',
             'L’écran LED de la borne est plus net (points au bord franc, halo plus discret) et ses chiffres sont plus petits.',
             'Les flèches du classeur ont un nouveau style fantasy : métal doré, gemme lumineuse, pointes taillées en relief, « 10 » sur les flèches de dix pages, et un aspect terni quand elles sont inactives.',
             'Au bout du classeur, de nouvelles pages peuvent apparaître avec des cartes spéciales : un cadre particulier aux couleurs de chaque personnage et un effet hologramme qui suit ton doigt ou ta souris.',

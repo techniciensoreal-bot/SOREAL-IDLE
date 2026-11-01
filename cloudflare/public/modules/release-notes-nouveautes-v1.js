@@ -7,6 +7,7 @@
     "Chaque processeur a maintenant ses propres couleurs d’écran (fond et police différents), et les barres d’avancement sont pleines, d’une seule couleur, sans dégradé ni trait.",
     "Sur la borne, la ligne rouge et les cadres des deux images ont disparu : elles font corps avec l’écran. Ton nom et le nombre de fois que tu as tué le boss s’affichent sur de petits écrans LED sous les images.",
     "Les comptes d’ouvrier absents de la liste de l’équipe apparaissent maintenant comme ennemis dans la tour, avec le badavatar de leur Profil.",
+    "Sur l’écran de la borne, les lettres des grands nombres (K, M, AB…) ont leur couleur habituelle et la régénération est écrite plus petit.",
     "L’écran LED de la borne est plus net (points au bord franc, halo plus discret) et ses chiffres sont plus petits."
   ] };
 })();

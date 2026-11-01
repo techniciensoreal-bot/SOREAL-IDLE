@@ -86,6 +86,35 @@ function glyphDe(ch){
   return GL[ch];
 }
 var REMPL={'’':"'",'‘':"'",'`':"'",'«':'"','»':'"','“':'"','”':'"','–':'-','—':'-','…':'...','Œ':'OE','Æ':'AE','ß':'SS','Ø':'O','Ł':'L','Đ':'D',' ':' ','\t':' ','_':'-','=':'-','•':'·','×':'X'};
+/* Lettres d'unité des grands nombres (K, M, AB, TG…) en couleur (Norman, 2026-11-01 : « je veux aussi les lettres en couleur, AB etc ») : mêmes couleurs que partout dans le jeu, lues dans les règles .nb-suf[data-suf="…"] de la feuille de style (aucune table recopiée) ; une couleur de plus dans la palette par unité rencontrée. */
+var SUF=null,SUF_RE=null,COUL_IDX={};
+function suffixes(){
+  if(SUF)return SUF;
+  SUF={};
+  try{
+    for(var a=0;a<document.styleSheets.length;a++){
+      var rules;try{rules=document.styleSheets[a].cssRules;}catch(_e){continue;}
+      for(var b=0;rules&&b<rules.length;b++){
+        var rg=rules[b],m=rg.selectorText&&/nb-suf\[data-suf="([A-Za-z]+)"\]/.exec(rg.selectorText),c=m&&rg.style&&/(\d+)[ ,]+(\d+)[ ,]+(\d+)/.exec(rg.style.color||'');
+        if(m&&c)SUF[m[1].toUpperCase()]=[+c[1],+c[2],+c[3]];
+      }
+    }
+  }catch(_e){}
+  var ks=Object.keys(SUF).sort(function(x,y){return y.length-x.length;});
+  SUF_RE=ks.length?new RegExp('(\\d(?:[\\d.,]*\\d)?)('+ks.join('|')+')(?![A-Za-z0-9])','g'):null;
+  return SUF;
+}
+function indexCouleur(rgb){var k=rgb.join(',');if(COUL_IDX[k])return COUL_IDX[k];if(RGB.length>=250)return AMB;RGB.push(rgb);COUL_IDX[k]=RGB.length-1;return COUL_IDX[k];}
+/* fn de text() : la couleur de l'unité pour chaque lettre d'unité, la couleur de base ailleurs */
+function fnUnites(s){
+  suffixes();
+  if(!SUF_RE)return null;
+  s=canon(s);var marques=[],m,any=false;
+  SUF_RE.lastIndex=0;
+  while((m=SUF_RE.exec(s))){var col=SUF[m[2]];if(!col)continue;var ci=indexCouleur(col),d=m.index+m[1].length;for(var i=0;i<m[2].length;i++)marques[d+i]=ci;any=true;}
+  return any?function(i){return marques[i]||0;}:null;
+}
+
 /* texte → suite de caractères que la police sait dessiner */
 function canon(s){
   var up=String(s==null?'':s).toUpperCase(),out='',i,ch;
@@ -151,6 +180,16 @@ function sprite(rows,x,y,v,colOver){
   for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
     var ch=rows[j][i];if(ch==='.'||ch===' ')continue;
     px(x+i,y+j,colOver||PAL[ch]||AMB,v);
+  }
+}
+/* Petite police 3x5 (chiffres, + - . /, A-Z) pour la régénération sous la jauge (Norman, 2026-11-01 : « tu peux écrire la regen plus petit ? ») : 5 rangées au lieu de 7, 3 colonnes au lieu de 5. */
+var MINI={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111','.':'000000000000010','+':'000010111010000','-':'000000111000000','/':'001001010100100','A':'010101111101101','B':'110101110101110','C':'011100100100011','D':'110101101101110','E':'111100110100111','F':'111100110100100','G':'011100101101011','H':'101101111101101','I':'111010010010111','J':'001001001101010','K':'101101110101101','L':'100100100100111','M':'101111111101101','N':'110101101101101','O':'010101101101010','P':'110101110100100','Q':'010101101111011','R':'110101110101101','S':'011100010001110','T':'111010010010010','U':'101101101101111','V':'101101101101010','W':'101101111111101','X':'101101010101101','Y':'101101010010010','Z':'111001010100111'};
+function miniWidth(s){s=canon(s);return Math.max(0,s.length*4-1);}
+function miniText(s,x,bt,col,v,fn){
+  s=canon(s);
+  for(var i=0;i<s.length;i++){
+    var g=MINI[s[i]];
+    if(g)for(var r=0;r<5;r++)for(var c=0;c<3;c++)if(g[r*3+c]==='1'){var cc=fn?(fn(i)||col):col;px(x+i*4+c,bt+r,cc,v);}
   }
 }
 function twidth(s,sc){s=canon(s);var w=0;for(var i=0;i<s.length;i++)w+=gl(s[i]).w+1;return Math.max(0,(w-1))*sc;}
@@ -616,8 +655,8 @@ function barre(t){
   var tx=13+Math.floor((room-twidth(txt,1))/2),ty=gy+1;
   text(txt,tx,ty,BLA,1,255,{fn:function(q,gx,gy2){pts.push([gx,gy2]);return [BLA,0];}});
   contour(pts,gy,gy+GH);   /* contour sombre des chiffres */
-  text(txt,tx,ty,BLA,1,255);
-  if(pv.regen)text(pv.regen,W-2-twidth(pv.regen,1),gy+GH+1,VER,1,255);
+  var fu=fnUnites(txt);text(txt,tx,ty,BLA,1,255,fu?{fn:fu}:undefined);
+  if(pv.regen)miniText(pv.regen,W-2-miniWidth(pv.regen),gy+GH+2,VER,255,fnUnites(pv.regen));
 }
 var cbId=-1;
 function couleurBarre(r,e){
@@ -677,9 +716,14 @@ Panel.prototype.resize=function(cssW,cssH){
   return this.fit(Math.max(3,Math.floor(cssW*dpr/this.W+1e-6)),cssW,cssH);
 };
 Panel.prototype.sprites=function(){
-  var cell=this.cell,core=[],glow=[],c,l;
-  for(c=1;c<=7;c++){
-    core[c]=[];glow[c]=[];
+  this.core=[];this.glow=[];
+  for(var c=1;c<=7;c++)this.mk(c);
+};
+/* sprites d'une couleur de la palette (les 7 de base d'office, les couleurs d'unités de nombres à la demande) */
+Panel.prototype.mk=function(c){
+  var cell=this.cell,core=[],glow=[],l;
+  {
+    core=[];glow=[];
     for(l=1;l<=8;l++){
       var I=l/8,rgb=RGB[c],k=document.createElement('canvas'),g=document.createElement('canvas'),x;
       k.width=k.height=cell;x=k.getContext('2d');
@@ -690,10 +734,10 @@ Panel.prototype.sprites=function(){
       var gg=x.createRadialGradient(cell*1.5,cell*1.5,cell*0.2,cell*1.5,cell*1.5,cell*1.5);
       gg.addColorStop(0,'rgba('+rgb+','+(0.16*I)+')');gg.addColorStop(1,'rgba('+rgb+',0)');
       x.fillStyle=gg;x.fillRect(0,0,cell*3,cell*3);
-      core[c][l]=k;glow[c][l]=g;
+      core[l]=k;glow[l]=g;
     }
   }
-  this.core=core;this.glow=glow;
+  this.core[c]=core;this.glow[c]=glow;
 };
 Panel.prototype.bg=function(){
   var cell=this.cell,b=document.createElement('canvas'),x;b.width=this.canvas.width;b.height=this.canvas.height;x=b.getContext('2d');
@@ -710,9 +754,9 @@ Panel.prototype.draw=function(fn,t,gain,params){
   var ctx=this.ctx,cell=this.cell,W=this.W,i,n=W*this.HT,ns=W*this.H,v,l,x,y;
   ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
   ctx.globalCompositeOperation='lighter';
-  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<70)continue;l=Math.min(8,Math.ceil(v/255*8));x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[this.c[i]][l],x-cell,y-cell);}
+  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<70)continue;l=Math.min(8,Math.ceil(v/255*8));x=(i%W)*cell;y=((i/W)|0)*cell;if(!this.glow[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.glow[this.c[i]][l],x-cell,y-cell);}
   ctx.globalCompositeOperation='source-over';
-  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
+  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
   P=null;
 };
 

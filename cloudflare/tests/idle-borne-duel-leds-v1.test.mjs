@@ -40,3 +40,10 @@ assert.ok(/\.bn-led-mini\{[^}]*background:#020202/.test(cssLed) && !/!important/
 /* 5. la barre de vie LED est PLEINE : ni trait qui la coupe, ni rangées atténuées */
 assert.ok(/seam=1;/.test(led), "barre de vie pleine, sans coupure");
 console.log("idle-borne-duel-leds-v1: OK");
+// Norman (2026-11-01) : lettres d'unité (K, M, AB…) en couleur sur l'écran LED, régénération en petite police 3x5
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
+  assert.ok(led.includes("function fnUnites(s)") && led.includes("nb-suf") && led.includes("fnUnites(txt)"), "unités des PV en couleur (couleurs lues dans la feuille de style du jeu)");
+  assert.ok(led.includes("miniText(pv.regen,") && led.includes("var MINI={"), "régénération en petite police 3x5");
+  console.log("idle-borne-duel-leds-v1 (unités + mini) : OK");
+}
