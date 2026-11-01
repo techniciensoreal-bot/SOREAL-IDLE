@@ -108,16 +108,17 @@ var SPR={
   hero1:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','..A.A....','.A...A...'],
   hero2:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','...AA....','...AA....'],
   hero3:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','..AAA....','.........'],
-  pique:['.R.','RRR']
+  pique:['.R.','RRR'],
+  epee:['......W','.....WW','....WW.','.A.WW..','..AW...','.A.A...','A......']
 };
 var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 
 /* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
 var TXT={
-  fr:{fight:'FIGHT !',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
+  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
     jokes:['Les pixels ne font pas mal','Un guerrier hydraté est un guerrier heureux',"Ce panneau clignote, c'est son travail",'Respire, tout va bien se passer','Petite pause café ?']},
-  en:{fight:'FIGHT !',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
+  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
     jokes:['Pixels do not hurt','A hydrated warrior is a happy warrior','This sign blinks, it is its job','Breathe, everything will be fine','Coffee break ?']}
 };
@@ -180,7 +181,7 @@ function text(s,x,bt,col,sc,v,opt){
 function rich(segs,x,bt,sc,v,opt){var cx=x;segs.forEach(function(g){cx+=text(g[0],cx,bt,g[1],sc,v,opt)+sc*2;});return cx-x;}
 
 /* ------------------------------------------------------------------ état lu dans le jeu (rempli avant chaque image ; les scènes ne font que le lire) */
-var S={num:0,nom:'',vic:0,boss:false,combat:false,bar:{v:1,g:1,gv:0},obj:{},now:0,pv:null};
+var S={num:0,nom:'',nomJ:'',morts:0,vic:0,boss:false,combat:false,bar:{v:1,g:1,gv:0},obj:{},now:0,pv:null};
 
 /* ------------------------------------------------------------------ scènes (fonctions pures du temps t en secondes depuis le début de la scène) */
 function bigSc(s){return P.H>=14&&twidth(s,2)<=P.W-4?2:1;}   /* lettres doublées (échelle entière, jamais fractionnaire) quand la hauteur et la largeur le permettent, sinon taille simple */
@@ -215,6 +216,17 @@ function sBase(t){
     var per=tw+26,off=P.reduced?0:(t*26)%per;
     for(var k=0;k<2;k++)rich(segs,4-off+k*per,bt,1,255,{edge:{a:3,b:W-3,f:6}});
   }
+}
+
+/* 1 bis. « TUÉ N FOIS » (Norman, 2026-11-01 : « la bande passante au-dessus doit indiquer le nombre de fois qu'on l'a tué ») : nombre de victoires du boss COURANT (bestiaire.entrees[].victoires, la donnée de sa carte), jamais de total ; la scène n'existe pas à 0. */
+function sMorts(t){
+  var W=P.W,bt=cb(),n=String(Math.min(S.morts,999999)),num=[['#'+S.num,BLA],['·',ROU]];
+  var cands=[num.concat([[T('tue')+' ',AMB],[n+' ',BLA],[T('fois'),AMB]]),[[T('tue')+' ',AMB],[n+' ',BLA],[T('fois'),AMB]],[['X ',AMB],[n,BLA]]],i,segs=cands[0],w=0;
+  chase(t,1);
+  for(i=0;i<cands.length;i++){w=11+rwidth(cands[i],1);if(w<=W-8){segs=cands[i];break;}if(i===cands.length-1){segs=cands[i];w=11+rwidth(segs,1);}}
+  var x0=w<=W-8?Math.floor((W-w)/2):4;
+  sprite(SPR.epee,x0,bt,255);
+  rich(segs,x0+11,bt,1,255);
 }
 
 /* 2. FIGHT ! : affiché TOUT LE TEMPS du combat. À l'apparition (u < ~1 s) : lettre par lettre, secousse, anneau, cadre qui clignote ; ensuite une boucle PARFAITE de 2 s (reflet blanc qui traverse, luminosité qui respire ;
@@ -593,8 +605,8 @@ function barre(t){
   var x0=1,len=W-2,lit=Math.round(pv.pct*len);
   if(pv.pct>0&&lit<1)lit=1;
   for(x=0;x<len;x++){
-    var on=x<lit,seam=(x%5===4)?0.55:1;
-    for(j=0;j<GH;j++)px(x0+x,gy+j,BARRE,(on?255:30)*seam*((j===0||j===GH-1)?0.6:1));
+    var on=x<lit,seam=1;   /* barre pleine, sans traits qui la coupent (Norman, 2026-11-01) */
+    for(j=0;j<GH;j++)px(x0+x,gy+j,BARRE,(on?255:30)*seam);
   }
   var hx=x0+2,hy=gy+Math.floor((GH-6)/2),hp=[],i,r,q,room=W-13-3,txt=pv.cur+' / '+pv.max,pts=[];   /* le petit cœur, à gauche dans la jauge */
   for(r=0;r<SPR.coeurP.length;r++)for(q=0;q<SPR.coeurP[r].length;q++)if(SPR.coeurP[r][q]!=='.')hp.push([hx+q,hy+r]);
@@ -626,6 +638,7 @@ var SC={
   jokes:{fn:sJokes,dur:function(p,W){return jokeDuree(p,W);},prio:1,cap:0.5},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
   nuke:{fn:sNuke,dur:NUKE_DUR,prio:4,cap:3.0},
+  morts:{fn:sMorts,dur:4,prio:1,cap:1.0},
   score:{fn:sScore,dur:function(){return S.vic>0?8:4;},prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
@@ -713,6 +726,10 @@ function lire(now){
   S.combat=Boolean(e&&e.combatBossActif);
   S.num=e?Math.max(0,Math.floor(nombre(e.bossSelection))):0;
   S.vic=e?Math.max(0,Math.floor(nombre(e.bossVaincus))):0;
+  S.nomJ=e?String(e.nom||'Joueur').trim().replace(/\s+/g,' '):'';
+  /* victoires du boss COURANT : la même donnée que la carte du boss (bestiaire.entrees[].victoires) ; 0 = rien d'affiché */
+  S.morts=0;
+  if(e&&e.bestiaire&&Array.isArray(e.bestiaire.entrees)){var sel=Math.floor(nombre(e.bossSelection)),en=e.bestiaire.entrees;for(var q=0;q<en.length;q++){var x=en[q];if(x&&x.source==='boss'&&x.decouvert&&Math.floor(nombre(x.numero))===sel){S.morts=Math.max(0,Math.floor(nombre(x.victoires)));break;}}}
   /* même source que la plaque du duel : le nom du boss sélectionné, tel qu'elle l'affiche (traduit si le jeu est en anglais) ; rien tant que le jeu ne connaît pas de boss */
   var nom=e?String(e.bossActuel||'').trim():'';
   if(nom){var pl=document.getElementById('sorealIdleBossNomTexteV65');if(pl&&pl.textContent.trim())nom=pl.textContent.trim().replace(/\s+/g,' ');}
@@ -773,7 +790,7 @@ function phraseAdmin(){
 function suivante(now){
   if(S.combat){combatFight(now,false);return cur;}
   if(objetDu(now)){var so=objetSuivant(now,false);if(so)return so;}
-  var seq=S.boss?['base','score','base','jokes']:['base','jokes'],id=seq[rot%seq.length];rot+=1;
+  var seq=S.boss?(S.morts>0?['base','morts','score','base','jokes']:['base','score','base','jokes']):['base','jokes'],id=seq[rot%seq.length];rot+=1;
   if(id==='jokes'){jk=(jk+1)%TXT.fr.jokes.length;return mk('jokes',now,{k:jk,txt:phraseAdmin()});}
   return mk(id,now);
 }
@@ -846,6 +863,70 @@ function image(now){
     interN+=1;demarrer(mk(interN%2?'bars':'mascot',now));interAt=now+cur.dur*1000+5000;
   }
   dessiner(now);
+  try{dessinerMinis(now);}catch(_e){}
+}
+/* ------------------------------------------------------------------ petits écrans LED du duel (Norman, 2026-11-01 : « le nom du joueur doit aussi être sur un écran LED », « l'information avec le nombre de fois qu'on a déjà tué ce boss doit passer aussi »)
+   Même moteur de points, mêmes polices et même rendu 1:1 que le grand panneau ; hôte `.bn-led-mini.bn-led-joueur` du HTML de la page, canvas ajouté ici avec data-morph-garder.
+   Seul le nom du joueur est ici ; le nombre de fois que le boss a été tué est dans la rotation du grand panneau (scène « morts »).
+   Texte ambre ; trop long = va-et-vient avec pause aux deux bouts (immobile, tronqué, si l'animation est réduite). */
+var minis=[];
+function sMini(){
+  var p=P.p,bt=clamp(Math.round((P.H-7)/2),3,Math.max(3,P.H-7)),x=p.x;
+  if(p.spr){sprite(SPR[p.spr],x,bt,255);x+=9;}
+  rich(p.segs,x,bt,1,255);
+}
+function contenuMini(m){
+  if(!S.nomJ)return null;
+  var seg=[[S.nomJ,AMB]];return {segs:seg,spr:null,w:rwidth(seg,1)};
+}
+function tailleMini(m){
+  var h=m.host,w=h.clientWidth,hh=h.clientHeight;
+  if(!(w>0)||!(hh>0))return;
+  var dpr=window.devicePixelRatio||1,cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*dpr));
+  var W=clamp(Math.floor(w*dpr/cell),20,W_MAX),H=clamp(Math.floor(hh*dpr/cell),9,40);
+  if(W!==m.panel.W||H!==m.panel.H)m.panel.setGrid(W,H);
+  m.panel.fit(cell,w,hh);m.sig='';
+}
+function syncMinis(){
+  var hs=document.querySelectorAll('.bn-led-mini'),i,j;
+  for(i=minis.length-1;i>=0;i--)if(!minis[i].host.isConnected||Array.prototype.indexOf.call(hs,minis[i].host)<0){if(minis[i].ro)minis[i].ro.disconnect();minis.splice(i,1);}
+  for(i=0;i<hs.length;i++){
+    var h=hs[i],m=null;
+    for(j=0;j<minis.length;j++)if(minis[j].host===h)m=minis[j];
+    var cv=h.querySelector('canvas.bn-led-canvas');
+    if(!cv){
+      cv=document.createElement('canvas');cv.className='bn-led-canvas';
+      cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('aria-hidden','true');
+      h.appendChild(cv);m=null;
+    }
+    if(m&&m.panel.canvas!==cv){if(m.ro)m.ro.disconnect();minis.splice(minis.indexOf(m),1);m=null;}
+    if(!m){
+      m={host:h,kind:'joueur',panel:new Panel(cv,60,11,true),sig:'',t0:performance.now(),ro:null};
+      minis.push(m);
+      try{if(typeof ResizeObserver==='function'){m.ro=new ResizeObserver(function(){tailleMini(m);});m.ro.observe(h);}}catch(_e){}
+      tailleMini(m);
+    }
+  }
+}
+function dessinerMinis(now){
+  var rm=reduit();
+  for(var i=0;i<minis.length;i++){
+    var m=minis[i],pn=m.panel,c;
+    if(!(pn.cell>0))continue;
+    c=contenuMini(m);
+    var x,off=0,sig;
+    if(!c){sig='vide|'+pn.W+'|'+pn.cell;if(sig!==m.sig){m.sig=sig;pn.draw(function(){},0,1,{segs:[],x:0});}continue;}
+    var dispo=pn.W-6;
+    if(c.w<=dispo)x=Math.floor((pn.W-c.w)/2);
+    else{
+      var trajet=c.w-dispo,pause=1.5,vit=14,tt=trajet/vit,per=2*(pause+tt),u=rm?0:((now-m.t0)/1000)%per;
+      var d=u<pause?0:u<pause+tt?(u-pause)/tt:u<2*pause+tt?1:1-(u-2*pause-tt)/tt;
+      off=Math.round(clamp(d,0,1)*trajet);x=3-off;
+    }
+    sig=m.kind+'|'+c.segs.map(function(g){return g[0];}).join(' ')+'|'+x+'|'+pn.W+'x'+pn.H+'|'+pn.cell+'|'+langue;
+    if(sig===m.sig)continue;
+    m.sig=sig;pn.draw(sMini,0,1,{segs:c.segs,spr:c.spr,x:x});
+  }
 }
 function actif(){return Boolean(panel&&host&&host.isConnected&&onScreen&&!document.hidden);}
 function boucle(ts){
@@ -871,15 +952,19 @@ function taille(){
   var hh=host.clientHeight;
   if(!(hh>0))return;
   var g=grille(w,hh,window.devicePixelRatio||1);
-  if(g.W!==panel.W||g.H!==panel.H)panel.setGrid(g.W,g.H);
-  panel.fit(g.cell,w,hh);
+  var grille2=g.W!==panel.W||g.H!==panel.H;
+  if(grille2)panel.setGrid(g.W,g.H);
+  var neuf=panel.fit(g.cell,w,hh);
   last='';
+  /* Norman (2026-11-01) : « l'écran devient noir par moment » : changer la grille ou la taille d'un point efface le canvas ; on le redessine DANS LA MÊME TÂCHE (jamais d'image noire en attendant la prochaine image d'animation). */
+  if(grille2||neuf){try{image(performance.now());}catch(_e){}}
 }
 /* appelé après chaque redessin de la page (et à la première image) : rattache le panneau à l'hôte `.bn-led`, sans jamais recréer un canvas encore valide */
 function ensure(){
   var h=document.querySelector('.bn-led');
   if(!h){
     if(panel){arreter();if(io)io.disconnect();if(ro)ro.disconnect();panel=null;host=null;}
+    syncMinis();
     return false;
   }
   var cv=h.querySelector('canvas.bn-led-canvas');
@@ -899,6 +984,7 @@ function ensure(){
     }catch(_e){}
     taille();
   }
+  syncMinis();
   relancer();
   return true;
 }

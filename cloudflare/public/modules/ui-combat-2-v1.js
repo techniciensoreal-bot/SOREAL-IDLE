@@ -852,10 +852,12 @@
               <div class="soreal-idle-duel-versus-row-v42">
                 <div class="soreal-idle-duel-fighter-v42">
                   <div class="soreal-idle-duel-nameplate-v65 player">
-                    <div class="soreal-idle-duel-role-v65">
+                    <!-- Le nom du joueur s'affiche sur un petit écran LED ambre (modules/borne-led-v1.js, Norman, 2026-11-01) ; le texte reste dans la page, masqué à la vue (traduction, lecteurs d'écran). -->
+                    <div class="bn-led-mini bn-led-joueur" role="img" aria-label="${idleHtml_(j.nom||'Joueur')}" data-morph-vivant></div>
+                    <div class="soreal-idle-duel-role-v65 bn-sr-only">
                       ⚡ JOUEUR
                     </div>
-                    <div class="soreal-idle-duel-name-text-v65">
+                    <div class="soreal-idle-duel-name-text-v65 bn-sr-only">
                       ${idleHtml_(j.nom||'Joueur')}
                     </div>
                   </div>

@@ -53,7 +53,7 @@ const fausseToile = () => {
   const ctx = new Proxy({}, { get: (_t, k) => (k === "createRadialGradient" || k === "createLinearGradient" ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
   return { width: 0, height: 0, style: {}, getContext: () => ctx, setAttribute() {}, className: "" };
 };
-const documentFaux = { hidden: false, createElement: () => fausseToile(), querySelector: () => null, addEventListener() {}, getElementById: () => null };
+const documentFaux = { hidden: false, createElement: () => fausseToile(), querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, getElementById: () => null };
 const fenetre = {
   innerWidth: 1000, addEventListener() {}, devicePixelRatio: 1, document: documentFaux, performance: { now: () => 0 },
   matchMedia: () => ({ matches: false }), requestAnimationFrame: () => 1, cancelAnimationFrame() {},

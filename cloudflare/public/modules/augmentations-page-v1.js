@@ -965,7 +965,7 @@
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+';--led-paire:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length]+'"><div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
+              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+';--led-paire:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][0]+';--led-fond:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][1]+'"><div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
             }).join('')+'</div>';
           })();
       }
@@ -1424,7 +1424,8 @@
       /* Couleur de chaque paire, du premier Augment (froid) au dernier (brûlant) : la montée en puissance se lit d'un coup d'œil. */
       const COULEURS_RANG_AUGMENTS_V1=['#6aa9ff','#3fd6c8','#6bdc5a','#ffd24a','#ff8a3d','#ff4d6d'];
       /* Couleur LED de l'écran Cible et de la barre d'une paire (Norman, 2026-11-01) : selon le rang de la paire dans la liste (jamais un total), la même pour l'Augment et son Upgrade. */
-      const COULEURS_LED_AUGMENTS_V1=['#ffb000','#39ff6a','#22e5ff','#ff3b3b','#ff3df0','#fff23a','#3d6bff','#ff7a1a','#fff1d6','#b266ff'];
+      /* une palette d'écran par paire : [police/points, fond] ; l'Augment et son Upgrade la partagent */
+      const COULEURS_LED_AUGMENTS_V1=[['#ffb000','#2a1c00'],['#39ff6a','#03240d'],['#22e5ff','#032430'],['#ff5a5a','#2a0404'],['#ff3df0','#2c0429'],['#fff23a','#262500'],['#6f93ff','#060d33'],['#ff7a1a','#331200'],['#fff1d6','#2b2218'],['#b266ff','#190a30']];
 
       const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
 

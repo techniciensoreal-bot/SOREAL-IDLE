@@ -13,7 +13,7 @@ const code = src.replace(/\/\*[\s\S]*?\*\//g, "");
 
 const stockage = { soreal_idle_langue_v1: "fr" };
 const toile = () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => ({ addColorStop() {} }), set: () => true }) });
-const fen = { innerWidth: 1000, addEventListener() {}, devicePixelRatio: 1, localStorage: { getItem: (k) => stockage[k] ?? null }, matchMedia: () => ({ matches: false }), requestAnimationFrame: () => 1, cancelAnimationFrame() {}, performance: { now: () => 0 }, document: { hidden: false, createElement: toile, querySelector: () => null, addEventListener() {}, getElementById: () => null } };
+const fen = { innerWidth: 1000, addEventListener() {}, devicePixelRatio: 1, localStorage: { getItem: (k) => stockage[k] ?? null }, matchMedia: () => ({ matches: false }), requestAnimationFrame: () => 1, cancelAnimationFrame() {}, performance: { now: () => 0 }, document: { hidden: false, createElement: toile, querySelector: () => null, querySelectorAll: () => [], addEventListener() {}, getElementById: () => null } };
 fen.window = fen;
 const c = vm.createContext({ ...fen, window: fen, document: fen.document, localStorage: fen.localStorage, Math, Uint8Array, String, Number, Boolean, parseInt, isFinite, JSON, setTimeout, clearTimeout });
 const idx = src.lastIndexOf("})();");

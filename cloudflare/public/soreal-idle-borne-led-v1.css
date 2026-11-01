@@ -12,3 +12,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @container (max-width:470px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led{aspect-ratio:90/36}
 }
+/* Petits écrans LED du duel (Norman, 2026-11-01) : le nom du joueur sous son image, le nombre de fois que le boss COURANT a été tué sous la sienne. Même boîtier noir que le grand écran, aucun cadre de couleur autour des deux images, plus de ligne rouge sous le panneau : tout fait corps avec l'écran. Points posés par modules/borne-led-v1.js (rendu 1:1, bord franc). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led-mini{position:relative;display:block;width:100%;height:40px;margin:0;overflow:hidden;border-radius:5px;background:#020202;box-shadow:0 0 0 2px #05071a,0 0 0 3px #ffd24a66,inset 0 0 12px rgba(0,0,0,.85);contain:layout paint;text-align:left}
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-led-mini{height:30px}
+}

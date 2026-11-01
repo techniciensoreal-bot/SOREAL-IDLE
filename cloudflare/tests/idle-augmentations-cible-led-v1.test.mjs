@@ -17,10 +17,10 @@ const led = /\.aug-piste-v2\{([^}]*)\}/.exec(css)[1];
 const lcd = /\.aug-piste-v2\.upgrade\{([^}]*)\}/.exec(css)[1];
 assert.match(led, /--e-txt:var\(--led-paire,/);
 assert.match(led, /--e-glow:0 0 5px/, "LED : halo");
-assert.match(lcd, /--e-fond:#9bb08a/);
-assert.match(lcd, /--e-txt:#2b3a28/);
+assert.match(led, /--e-fond:var\(--led-fond,/, "LED : fond de la paire");
+assert.ok(!/--e-fond|--e-txt/.test(lcd), "LCD : hérite du fond et de la police de la paire");
 assert.match(lcd, /--e-glow:none/, "LCD : aucun halo");
-assert.ok(!/--led-paire|neon/.test(lcd), "LCD : pas de couleur de paire");
+assert.ok(!/neon/.test(lcd));
 
 // tout texte d'information est dans un écran (nom + logo, niveau, énergie, coût, temps, cible) et chaque écran a sa matrice
 for (const k of [".aug-tete-v2", ".aug-niv-bloc", ".soreal-idle-bt-allocation-v120", ".aug-cout-ligne", ".aug-eta", ".aug-cible-v2"]) {
@@ -33,14 +33,22 @@ assert.ok(!/animation|@keyframes|filter:/.test(css.replace(/\/\*[\s\S]*?\*\//g, 
 assert.ok(!css.includes("!important"), "aucun !important");
 
 // barre : masque statique par-dessus, le remplissage garde son animation (rien n'est recréé par segment)
-assert.match(css, /\.aug-tube-v2::before\{background:var\(--e-grille\),repeating-linear-gradient/);
-assert.match(css, /\.aug-liquide-v2\{background:var\(--e-txt\)/);
+// barre PLEINE et continue (Norman) : aucun trait ni segment, couleur unie, aucun dégradé dans les règles de la barre
+assert.match(css, /\.aug-tube-v2::before\{content:none;background:none\}/);
+assert.match(css, /\.aug-liquide-v2,[^{]*\.aug-piste-v2\.upgrade \.aug-liquide-v2\{background:var\(--e-txt\);box-shadow:none\}/);
+for (const r of css.split("\n").filter((l) => /aug-(tube|liquide|reflet)-v2/.test(l))) assert.ok(!/gradient\(|repeating|dashed|dotted/.test(r), "barre sans dégradé ni trait : " + r.slice(0, 120));
 assert.ok(js.includes("transform:scaleX('+(pct/100)+')"), "remplissage toujours en scaleX");
 
 // une couleur par paire : palette distincte, posée sur la paire (l'Augment et son Upgrade la partagent)
-const palette = /COULEURS_LED_AUGMENTS_V1=\[([^\]]+)\]/.exec(js)[1].match(/#[0-9a-f]{6}/gi);
-assert.ok(palette.length >= 10 && new Set(palette).size === palette.length, "10 couleurs distinctes");
-assert.ok(js.includes("--led-paire:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length]"), "couleur selon le rang de la paire");
+const brut = /COULEURS_LED_AUGMENTS_V1=\[(.*)\];/.exec(js)[1];
+const paires = [...brut.matchAll(/\['(#[0-9a-f]{6})','(#[0-9a-f]{6})'\]/gi)].map((m) => ({ txt: m[1], fond: m[2] }));
+assert.ok(paires.length >= 10, "10 palettes");
+assert.equal(new Set(paires.map((x) => x.txt)).size, paires.length, "polices distinctes");
+assert.equal(new Set(paires.map((x) => x.fond)).size, paires.length, "fonds distincts");
+const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+for (const x of paires) { const [a, b] = [lum(x.txt), lum(x.fond)].sort((u, v) => v - u); assert.ok((a + 0.05) / (b + 0.05) >= 4.5, "contraste lisible " + x.txt + " / " + x.fond); }
+const I = "COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length]";
+assert.ok(js.includes("--led-paire:'+" + I + "[0]+';--led-fond:'+" + I + "[1]"), "police et fond selon le rang de la paire");
 
 // boutons : composants du circuit (poussoir) et touches de la puce, états survol / appui / désactivé, aucun pointillé
 assert.match(css, /\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120 button\{[^}]*--bague:color-mix\(in srgb,var\(--pcb-acc/);
@@ -62,7 +70,9 @@ assert.ok(haut.split('[data-menu="augmentations"]').length - 1 >= haut.split("\n
 assert.match(haut, /\.soreal-idle-bt-presets-v120 button\{--cap:#22232a/);
 assert.match(haut, /\.soreal-idle-page-head-v28\[data-entete-menu\]\{background:var\(--e-fond\)/);
 assert.match(haut, /\.soreal-idle-page-title-v28::before[^{]*\{content:none\}/);
-assert.ok(itopod.includes(':not([data-menu="augmentations"]) *):is(') || itopod.includes('not([data-menu="augmentations"] *):is('), "boutons partagés exclus pour Augmentations");
+assert.ok(itopod.includes(':not([data-menu="augmentations"]) *):is(') || itopod.includes('not([data-menu="augmentations"] *):is(') || itopod.includes(':where(:not([data-menu="augmentations"] *)):is('), "boutons partagés exclus pour Augmentations");
+// Norman (2026-11-01) : « pourquoi tu as changé les boutons Fight, Fuite, Nuke ? » : l'exclusion ne doit AJOUTER AUCUNE spécificité à la règle partagée (sinon elle écrase les styles propres de la borne) : :where() obligatoire
+assert.ok(!itopod.includes('[data-menu] :not([data-menu="augmentations"] *):is('), "l'exclusion Augmentations passe par :where(), spécificité inchangée pour tous les autres boutons");
 assert.ok(itopod.includes('[data-menu]:not([data-menu="augmentations"]) .soreal-idle-page-head-v28'), "en-tête partagé exclu pour Augmentations");
 assert.ok(readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8").includes('.soreal-idle-page-head-v28:where(:not(.soreal-idle-page-root-v28[data-menu="augmentations"] *))'), "fond d'en-tête de ui.css exclu pour Augmentations");
 assert.ok(/soreal-idle-augment-led-haut-v1\.css\?v=\d+/.test(html), "feuille du haut liée");

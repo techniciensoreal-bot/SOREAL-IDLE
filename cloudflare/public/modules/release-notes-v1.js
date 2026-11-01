@@ -51,9 +51,11 @@
             'Application Android : les images se chargent plus vite et ne clignotent plus après un moment d’inactivité (le service du jeu ne démarre plus tout son moteur pour afficher une image, et les images déjà vues sont gardées).'
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
-            'Dans les Augmentations, toutes les informations sont maintenant dans de petits écrans incrustés (LED sur le circuit, LCD sur le processeur), une couleur par paire. Le titre, la barre d’avancement, l’écran Cible et les boutons ont aussi changé d’aspect, et il n’y a plus de pointillés.'
+            'Dans les Augmentations, toutes les informations sont maintenant dans de petits écrans incrustés (LED sur le circuit, LCD sur le processeur), une couleur par paire. Le titre, la barre d’avancement, l’écran Cible et les boutons ont aussi changé d’aspect, et il n’y a plus de pointillés.',
+            'Chaque processeur a maintenant ses propres couleurs d’écran (fond et police différents), et les barres d’avancement sont pleines, d’une seule couleur, sans dégradé ni trait.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne, la ligne rouge et les cadres des deux images ont disparu : elles font corps avec l’écran. Ton nom et le nombre de fois que tu as tué le boss s’affichent sur de petits écrans LED sous les images.',
             'L’écran à LED de la borne est maintenant très noir quand il est allumé : plus aucun reflet sur la vitre, et les points éteints sont presque noirs.',
             'Le panneau de la borne affiche aussi, de temps en temps, le temps restant de l’objet actif (porte-bonheur, potions…).',
             'Chaque NUKE déclenche maintenant une animation différente sur le panneau de la borne, avec le nombre de boss franchis.',
