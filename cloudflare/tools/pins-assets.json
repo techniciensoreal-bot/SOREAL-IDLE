@@ -76,8 +76,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 23,
-  "sha": "19716d9a20f3208ba2dc97f1f8591c01d83529bc"
+  "pin": 24,
+  "sha": "ea7d3c9ea5501d25cdadfad6aaadf93ceeace190"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 11,
@@ -560,12 +560,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 57,
-  "sha": "fe561ab3e6ead4e9aa4f0a28e4ef5396d3551c00"
+  "pin": 59,
+  "sha": "e9daed934118feca8e4d7a78d471c56f2c64157d"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 689,
-  "sha": "9aa4a838e56a571dc664f2ad2f443a0be7cf0215"
+  "pin": 691,
+  "sha": "51fcd6850a0a2cf25d84ea6541753ce98d3f8d10"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -644,12 +644,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 715,
-  "sha": "ae897ab80ac3967363a186e9fef89f359cb1d8ea"
+  "pin": 717,
+  "sha": "6cb77cbaaf523ebf217881020a6bc62c235cf430"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 535,
-  "sha": "1492fe760a32f586a2b4f671043ebe86f808ccec"
+  "pin": 537,
+  "sha": "568cd0d26a8fd3ac0fcef32c03b677f49565222b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -724,8 +724,8 @@
   "sha": "87c250b88f8948dc12ca5695830726bb30d1e4e9"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 6,
-  "sha": "3f0e29f05698d1cc45eee4fda3ca3b25136e5793"
+  "pin": 9,
+  "sha": "db50996c7624091d2b895058b89954384e2d8c98"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 5,
@@ -880,8 +880,8 @@
   "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
  },
  "/soreal-idle-machine.css": {
-  "pin": 10,
-  "sha": "8857058e812dfe119cd367219c08f4a6d92ac051"
+  "pin": 11,
+  "sha": "e864b9f4bc91d14a8d2b9536f8ce979d15bf7b21"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 27,

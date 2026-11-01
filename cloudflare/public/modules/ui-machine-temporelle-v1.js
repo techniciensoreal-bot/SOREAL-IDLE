@@ -33,9 +33,17 @@
         const lcd=piste?piste.querySelector('[data-tm-lcd-eta]'):null;
         if(lcd&&lcd.textContent!==texte)lcd.textContent=texte;
       }
+      /*
+       * Niveau du tube (Norman, 2026-11-01 : « le menu Machine temporelle est plus lent que les autres, il y a une latence quand je place les points ») : la hauteur du liquide passait par une variable CSS (`--fill`)
+       * écrite sur la tour entière, à chaque image. Une variable héritée recalcule le style de TOUT le sous-arbre de la tour (tube, dizaines de bulles animées, dessin de la machine) : mesuré, la page tombait à 45-50 images
+       * par seconde (images de 33 ms) contre 60 pour Augmentations ou NGU, et la barre avançait par à-coups. La hauteur s'écrit désormais DIRECTEMENT sur l'élément du liquide : seul ce nœud est recalculé, rendu identique, 60 images par seconde.
+       */
       function poserTubeTmIdleV1_(barreEl,largeur){
         const piste=barreEl&&barreEl.closest?barreEl.closest('.tmm-piste'):null;
-        if(piste&&piste.style.getPropertyValue('--fill')!==largeur)piste.style.setProperty('--fill',largeur);
+        if(!piste)return;
+        let liq=piste.__tmLiqV1;
+        if(!liq||!liq.isConnected){liq=piste.querySelector('.tmm-liq');piste.__tmLiqV1=liq;}
+        if(liq&&liq.style.height!==largeur)liq.style.height=largeur;
       }
 
       function assurerPisteMagicTimeMachineIdleV1_(){
@@ -171,7 +179,7 @@
             else if(franchis>0)tauxTm=palier>0?1/palier:0;
             else if(fill0<1)tauxTm=base>0?(1-fill0)/base:0;
             barreEl.__tmAnim={f:fill,t:Date.now(),r:tauxTm};
-            const largeurTm=(fill*100).toFixed(4)+'%';
+            const largeurTm=(Math.max(0,Math.min(1,fill+decalageBarreTmIdleV1_(barreEl,maintenant)))*100).toFixed(4)+'%';
             if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
             poserTubeTmIdleV1_(barreEl,largeurTm);
             if(typeof lancerLissageBarresTmIdleV1_==='function')lancerLissageBarresTmIdleV1_();
@@ -181,11 +189,35 @@
 
       const SEUIL_NIVEAU_RAPIDE_TM_V1=0.25;
 
+      /*
+       * Plus aucun recul de barre à la réponse du moteur (Norman, 2026-11-01 : « on règle complètement la latence de la Machine temporelle »). Le moteur applique une allocation au moment où il reçoit la requête, un peu après le clic
+       * (attente de 70 ms + appel) : sa barre est donc légèrement en avance ou en retard sur celle que l'écran a déjà recalculée au clic, et la réponse la faisait sauter d'autant. Comme pour les barres d'Augmentations, l'écran garde
+       * son affichage : l'écart entre ce qui est affiché et la valeur du moteur (projetée à l'instant présent) devient un décalage visuel qui fond en 600 ms, la barre rejoignant la valeur du moteur sans saut. Un écart de plus de 5 %
+       * (niveau gagné, refus, plafond, autre appareil) n'est jamais lissé : la barre prend tout de suite la valeur du moteur.
+       */
+      const DUREE_FONTE_DECALAGE_TM_V1=600;
+      const ECART_MAX_DECALAGE_TM_V1=0.05;
+      function decalageBarreTmIdleV1_(barreEl,maintenant){
+        const c=barreEl&&barreEl.__tmCorr;
+        if(!c)return 0;
+        const p=(maintenant-c.t)/c.dur;
+        if(!(p<1)){barreEl.__tmCorr=null;return 0;}
+        return c.d*(1-Math.max(0,p));
+      }
+
       /* Dessin d'une barre à l'instant donné : valeur enregistrée + vitesse × temps écoulé, bornée à 100 %, largeur à 4 décimales (pas de marche d'escalier). */
       function peindreBarreTmIdleV1_(barreEl,maintenant){
         const a=barreEl&&barreEl.__tmAnim;
-        if(!a)return;
-        const fill=Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000));
+        if(!a){
+          /* barre immobile qui rejoint la valeur du moteur : valeur du moteur + décalage qui fond */
+          const c=barreEl&&barreEl.__tmCorr;
+          if(!c||c.base===undefined)return;
+          const l=(Math.max(0,Math.min(1,c.base+decalageBarreTmIdleV1_(barreEl,maintenant)))*100).toFixed(4)+'%';
+          if(barreEl.style.width!==l)barreEl.style.width=l;
+          poserTubeTmIdleV1_(barreEl,l);
+          return;
+        }
+        const fill=Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000+decalageBarreTmIdleV1_(barreEl,maintenant)));
         const largeur=(fill*100).toFixed(4)+'%';
         if(barreEl.style.width!==largeur)barreEl.style.width=largeur;
         poserTubeTmIdleV1_(barreEl,largeur);
@@ -199,7 +231,7 @@
           const barres=document.querySelectorAll('.tmm-rempl');
           let anime=false;
           const maintenant=Date.now();
-          barres.forEach(function(b){if(b.__tmAnim){anime=true;peindreBarreTmIdleV1_(b,maintenant);}});
+          barres.forEach(function(b){if(b.__tmAnim||b.__tmCorr){anime=true;peindreBarreTmIdleV1_(b,maintenant);}});
           if(anime)idleLissageTmV1=requestAnimationFrame(image);
         };
         idleLissageTmV1=requestAnimationFrame(image);
@@ -216,6 +248,7 @@
         }
 
         const vue=j.systemes.timeMachineView;
+        const affichees=[];   /* [barre, fraction affichée avant ce patch] : sert à fondre l'écart avec la valeur du moteur (decalageBarreTmIdleV1_) */
         [
           ['vitesse',vue.speedFill,vue.speedEtaSeconds],
           ['or',vue.goldFill,vue.goldEtaSeconds]
@@ -238,7 +271,13 @@
           /* niveaux très courts (durée d'un niveau = ETA / (1 - remplissage)) : barre pleine, comme dans le tick */
           const etaPatch=Number(entree[2]),resteFill=1-pct/100,palierPatch=Number.isFinite(etaPatch)&&resteFill>1e-9?etaPatch/resteFill:0;
           if(palierPatch>0&&palierPatch<=SEUIL_NIVEAU_RAPIDE_TM_V1)pct=100;
+          const avantPx=parseFloat(remplissage.style.width);
+          if(Number.isFinite(avantPx)){
+            /* fraction réellement affichée à cet instant (décalage en cours compris) */
+            affichees.push([remplissage,avantPx/100]);
+          }
           remplissage.__tmAnim=null;   // la synchro vient de poser la valeur ; le prochain calcul relance l'animation
+          remplissage.__tmCorr=null;
           remplissage.style.width=pct.toFixed(4)+'%';
           poserTubeTmIdleV1_(remplissage,pct.toFixed(4)+'%');
           remplissage.dataset.tmFill0=(pct/100).toFixed(6);
@@ -269,6 +308,23 @@
             poserLcdTmIdleV1_(eta,etaValide?formaterEtaTimeMachineIdleV1_(entree[2]):'—');
           }
         });
+
+        /* La valeur du moteur est projetée à l'instant présent (même tâche, pas d'image figée), puis l'écart avec l'affichage d'avant fond en douceur au lieu de faire sauter la barre. */
+        if(affichees.length){
+          try{actualiserCompteReboursTimeMachineIdleV1_();}catch(_e){}
+          const maintenantFonte=Date.now();
+          affichees.forEach(function(x){
+            const b=x[0];
+            const apres=parseFloat(b.style.width)/100;
+            const ecart=x[1]-apres;
+            if(!Number.isFinite(ecart)||Math.abs(ecart)<1e-5||Math.abs(ecart)>ECART_MAX_DECALAGE_TM_V1)return;
+            b.__tmCorr={d:ecart,t:maintenantFonte,dur:DUREE_FONTE_DECALAGE_TM_V1,base:b.__tmAnim?undefined:apres};
+            const l=(Math.max(0,Math.min(1,apres+ecart))*100).toFixed(4)+'%';
+            b.style.width=l;
+            poserTubeTmIdleV1_(b,l);
+            if(typeof lancerLissageBarresTmIdleV1_==='function')lancerLissageBarresTmIdleV1_();
+          });
+        }
 
         /* Chiffres de la page (GPS, multiplicateurs, niveaux) : mis à jour en place avec la synchro. */
         if(typeof window.__patcherChiffresTimeMachineIdleV1__==='function')window.__patcherChiffresTimeMachineIdleV1__(j);

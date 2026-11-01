@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Sur l’écran de la borne, les chiffres de la vie du boss sont sous la jauge, à gauche, sur la même ligne que la régénération."
+    "Sur l’écran de la borne, les chiffres de la vie du boss sont sous la jauge, à gauche, sur la même ligne que la régénération.",
+    "Machine temporelle : les barres sont maintenant aussi fluides que dans les autres menus (60 images par seconde au lieu de 45 à 50) : les tubes de verre ne ralentissent plus la page, et la barre ne recule plus quand le moteur répond après un clic : elle rejoint sa vraie valeur en douceur, même si tu cliques en rafale."
   ] };
 })();

@@ -1258,7 +1258,7 @@
           let bulles='';
           for(let i=0;i<14;i+=1)bulles+='<i class="tmm-bulle mini" style="--x:'+(8+((i*41+(gauche?0:17))%84))+'%;--d:-'+(((i*0.173)%0.7)).toFixed(2)+'s;--v:'+(0.55+((i*7)%5)*0.07).toFixed(2)+'s"></i>';
           for(let i=0;i<3;i+=1)bulles+='<i class="tmm-bulle gde" style="--x:'+(24+i*26+(gauche?0:4))+'%;--d:-'+(i*0.9+(gauche?0:0.4)).toFixed(1)+'s;--v:'+(2.4+i*0.35).toFixed(2)+'s"></i>';
-          const tube='<div class="tmm-tube"><div class="tmm-liq"><div class="tmm-bulles">'+bulles+'</div></div></div>';
+          const tube='<div class="tmm-tube"><div class="tmm-liq" style="height:'+largeur.toFixed(2)+'%"><div class="tmm-bulles">'+bulles+'</div></div></div>';
           const lcds='<div class="tmm-lcds">'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+
@@ -1281,7 +1281,7 @@
           '</div>';
           /* allocation et durée K du niveau à 1 unité, lues par le dessin de la machine : les roues de la tour tournent selon allocation / K (arrêtées à 0) */
           const kTour=H.idleNombre_(cle==='vitesse'?vue.speedK:vue.goldK)||0;
-          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" data-tm-alloc="'+alloue(ressource)+'" data-tm-k="'+kTour+'" style="--fill:'+largeur.toFixed(2)+'%" aria-label="'+H.idleHtml_(titre)+'">'+
+          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" data-tm-alloc="'+alloue(ressource)+'" data-tm-k="'+kTour+'" aria-label="'+H.idleHtml_(titre)+'">'+
             '<div class="tmm-tete">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
             '<div class="tmm-sous">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
             '<div class="tmm-haut">'+(D?(gauche?D.hautEnergie():D.hautMagie()):'')+'</div>'+
