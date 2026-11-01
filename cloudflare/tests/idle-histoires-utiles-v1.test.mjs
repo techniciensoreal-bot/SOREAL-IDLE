@@ -15,6 +15,8 @@ const R = path.resolve(import.meta.dirname, "..", "..");
 const lire = (f) => fs.readFileSync(path.join(R, f), "utf8");
 const bruit = () => {};
 
+/* Les parties 1 et 2 lisent le VRAI catalogue de production (desktop/graine/catalogue.json, jamais dans le dépôt : absent en CI et dans un clone) : elles sont sautées s'il manque. */
+async function avecVraiCatalogue() {
 /* ---- 1. le vrai catalogue : seule l'introduction existe ---- */
 const reel = chargerPlanVoix(R);
 assert.ok(reel.ok, "catalogue réel exploitable : " + reel.raison);
@@ -57,6 +59,10 @@ assert.ok(!reel.histoiresIds.has("MagicienEtLaGrotte") && !reel.histoiresIds.has
     assert.equal((await clesVoixObsoletes(entree, { racine, journal: bruit })).size, 0, "catalogue incomplet : rien n'est écarté");
   } finally { fs.rmSync(racine, { recursive: true, force: true }); }
 }
+
+}
+if (fs.existsSync(path.join(R, "desktop", "graine", "catalogue.json"))) await avecVraiCatalogue();
+else console.log("idle-histoires-utiles-v1 : parties 1 et 2 sautées (catalogue de production absent du dépôt)");
 
 /* ---- 3. applications déjà installées : clé retirée du manifeste = plus servie, fichier de mise à jour supprimé ---- */
 {
