@@ -872,11 +872,10 @@
       function gererScrollJournalAventureIdleV1_(event){
         const host=event&&event.currentTarget;
         if(!host)return;
-        const enBas=journalCombatEstEnBasV70_(host);
-        idleAdventureLogAutoScrollV1_=enBas;
-        idleAdventureLogScrollMemoV1_=host.scrollTop;
-
-        if(enBas)clearTimeout(idleAdventureLogResumeTimerV1_);else armerRetourJournalAventureIdleV1_();
+        /* Norman (2026-11-01, journal pas calé sur la dernière ligne, PC) : l'événement « scroll » d'un défilement fait par le jeu arrive APRÈS l'ajout des lignes suivantes (deux lignes par tick, plus de 24 px d'écart) : il coupait le suivi automatique. Seuls les flèches du journal peuvent le couper (la molette et le doigt ne commandent plus le journal, décision du 2026-11-01). */
+        const enBas=journalCombatEstEnBasV70_(host),direct=performance.now()-(host.__interV1||0)<1500;
+        if(enBas||direct){idleAdventureLogAutoScrollV1_=enBas;idleAdventureLogScrollMemoV1_=host.scrollTop;}
+        if(enBas)clearTimeout(idleAdventureLogResumeTimerV1_);else if(direct)armerRetourJournalAventureIdleV1_();
       }
 
       /* Retour tout en bas après 15 secondes sans mouvement dans le journal (chaque défilement ou appui de flèche relance l'échéance). */
@@ -899,7 +898,7 @@
       /* Flèches du journal (modules/journal-fleches-v1.js, Norman 2026-11-01) : un appui vers le haut fige la lecture ; chaque appui relance les 15 secondes avant le retour tout en bas. */
       function installerFlechesJournalAventureIdleV1_(host){
         const M=window.__SOREAL_IDLE_JOURNAL_FLECHES_V1__;
-        if(M)M.installer(host,function(sens){if(sens<0)idleAdventureLogAutoScrollV1_=false;armerRetourJournalAventureIdleV1_();});
+        if(M)M.installer(host,function(sens){host.__interV1=performance.now();if(sens<0)idleAdventureLogAutoScrollV1_=false;armerRetourJournalAventureIdleV1_();});
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-141 */

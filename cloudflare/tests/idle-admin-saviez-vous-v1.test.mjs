@@ -117,10 +117,10 @@ const edSrc = lire("public/modules/admin-saviez-vous-v1.js");
 const html = monde({ champs: { liste: ["Ma phrase \"citée\" & <test>"], listeEn: ["My sentence"], remplace: "1" } }).editeurHtml();
 assert.ok(html.includes("Le saviez-vous ?") && html.includes("panneau de la borne"), "section « Le saviez-vous ? (panneau de la borne) »");
 assert.ok(html.includes("rien qui révèle ce que le joueur n’a pas encore découvert") && html.includes("anti-spoil"), "rappel anti-spoil");
-for (const k of ["data-sv-act=\"ajout\"", "data-sv-act=\"enreg\"", "data-sv-act=\"retablir\"", "data-sv-act=\"suppr\"", "data-sv-remplace", "canvas class=\"sv-apercu\"", "/ 90"]) assert.ok(html.includes(k), "éditeur : " + k);
-assert.ok(html.includes("Remettre les 5 phrases d’origine") && html.includes("Remplacer les phrases d’origine") && html.includes("Aperçu sur le panneau"));
+for (const k of ["data-sv-act=\"ajout\"", "data-sv-act=\"enreg\"", "data-sv-act=\"retablir\"", "data-sv-act=\"suppr\"", "canvas class=\"sv-apercu\"", "/ 90"]) assert.ok(html.includes(k), "éditeur : " + k);
+assert.ok(html.includes("Tout effacer") && !html.includes("Remplacer les phrases d’origine") && !html.includes("5 phrases d’origine") && html.includes("Aperçu sur le panneau"), "Norman, 2026-11-01 : seulement SES phrases, plus de phrases d'origine ni d'option pour les remplacer");
 assert.ok(!html.includes("<test>") && html.includes("&lt;test&gt;") && html.includes("&quot;citée&quot;"), "le texte saisi est toujours échappé (jamais de HTML)");
-assert.ok(/data-sv-remplace checked/.test(html), "case cochée quand la liste remplace");
+assert.ok(!html.includes("data-sv-remplace"), "plus de case « Remplacer les phrases d'origine » (aucune phrase d'origine)");
 assert.ok(!/innerHTML\s*=\s*[^;]*\.(fr|en)\b/.test(edSrc), "aucune phrase n'est injectée sans échappement");
 assert.ok(edSrc.includes("enregistrerTexteAdminSorealIdle") && edSrc.includes("supprimerTexteAdminSorealIdle") && edSrc.includes("majSimple"), "mêmes opérations que les textes d'administrateur");
 assert.ok(!/fetch\(|XMLHttpRequest|setInterval/.test(edSrc), "aucune requête ni minuterie permanente");
@@ -145,8 +145,8 @@ assert.ok(led.includes("localStorage.getItem('soreal_idle_langue_v1')==='en'?'en
   assert.equal(ev("phraseAdmin()"), "");
   // avec un module (liste de l'administrateur) : la phrase choisie est celle du module, sans répétition immédiate côté panneau
   fen.__SOREAL_IDLE_SAVIEZ_VOUS_V1__ = { tirer: (l, d, o) => (l === "en" ? "EN: " : "FR: ") + (d ? "bis" : "un") + o.length };
-  assert.equal(ev("phraseAdmin()"), "FR: un5");
-  assert.equal(ev("phraseAdmin()"), "FR: bis5", "la dernière phrase est transmise au tirage");
+  assert.equal(ev("phraseAdmin()"), "FR: un0");
+  assert.equal(ev("phraseAdmin()"), "FR: bis0", "la dernière phrase est transmise au tirage");
   stockage.soreal_idle_langue_v1 = "en";
   ev("langueLue=-1e9;langueDe(5000)");
   assert.equal(ev("phraseAdmin()").slice(0, 3), "EN:", "langue anglaise");
@@ -161,6 +161,6 @@ assert.ok(led.includes("localStorage.getItem('soreal_idle_langue_v1')==='en'?'en
   assert.ok(dg.retires.includes("☺") && dg.retires.includes("日"), "caractères sans équivalent annoncés comme retirés");
   assert.equal(fen.__SOREAL_IDLE_BORNE_LED_V1__.diagnostic("Les accents é è ê à â ô î ù ë suffisent").remplaces.length + fen.__SOREAL_IDLE_BORNE_LED_V1__.diagnostic("Les accents é è ê à â ô î ù ë suffisent").retires.length, 0, "les accents de la police ne déclenchent aucun avertissement");
   assert.equal(typeof fen.__SOREAL_IDLE_BORNE_LED_V1__.apercu, "function", "aperçu LED exposé (même moteur que le panneau)");
-  assert.equal(fen.__SOREAL_IDLE_BORNE_LED_V1__.originales("fr").length, 5);
+  assert.equal(fen.__SOREAL_IDLE_BORNE_LED_V1__.originales("fr").length, 0, "plus aucune phrase d'origine");
 }
 console.log("idle-admin-saviez-vous-v1: OK");

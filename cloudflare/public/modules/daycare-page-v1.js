@@ -502,7 +502,7 @@
 
   function css(){
     if(typeof document==='undefined'||!document.head||document.getElementById('gd-style-v1'))return;
-    const WAVE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='10' viewBox='0 0 60 10'%3E%3Cpath d='M0 5Q15 0 30 5T60 5V10H0Z'/%3E%3C/svg%3E\")";
+    const WAVE="url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='10' viewBox='0 0 180 10'%3E%3Cpath d='M0 5Q15 0 30 5T60 5T90 5T120 5T150 5T180 5V10H0Z'/%3E%3C/svg%3E\")";
     const s=document.createElement('style');
     s.id='gd-style-v1';
     s.textContent=[
@@ -565,7 +565,7 @@
       '.gd-vide.ouvert .gd-verre{border-color:#f5c14b}',
       /* liquide : couches de saturation, ménisque brillant ; une couche animée par bocal (l’onde) */
       '.gd-liq{position:absolute;left:0;right:0;top:-8cqw;height:calc(100% + 8cqw);z-index:2;opacity:.88;background:radial-gradient(130% 40% at 50% 100%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 14%),var(--gd-liq,linear-gradient(180deg,#ff4a4a 0%,#ff9f2e 17%,#ffe135 33%,#4be07b 50%,#2fb5ff 67%,#5b5bff 83%,#b24bff 100%));background-size:100% 100%,100% 100%,100% 100%;background-repeat:no-repeat;will-change:transform;',
-      '-webkit-mask-image:'+WAVE+',linear-gradient(#000,#000);mask-image:'+WAVE+',linear-gradient(#000,#000);-webkit-mask-size:50cqw 8cqw,100% calc(100% - 7cqw);mask-size:50cqw 8cqw,100% calc(100% - 7cqw);-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:repeat-x,no-repeat;mask-repeat:repeat-x,no-repeat;animation:gd-onde 3.2s linear infinite}',
+      '-webkit-mask-image:'+WAVE+',linear-gradient(#000,#000);mask-image:'+WAVE+',linear-gradient(#000,#000);-webkit-mask-size:150cqw 8cqw,100% calc(100% - 7cqw);mask-size:150cqw 8cqw,100% calc(100% - 7cqw);-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%;-webkit-mask-repeat:repeat-x,no-repeat;mask-repeat:repeat-x,no-repeat;animation:gd-onde 3.2s linear infinite}',
       /* Couleur du liquide selon l'apparence du chat (Norman, 2026-11-01) : base = liquide transparent, coquet = rose bonbon, doré = or en fusion, chauve-souris (Halloween) = sang, Nyan = arc-en-ciel (la couleur par défaut) ; les autres apparences : teinte choisie d'après leur thème. Seule la 3e couche de .gd-liq change (var --gd-liq), reflets, ménisque et bulles restent. */
       '.gd-etagere[data-skin="defaut"]{--gd-liq:linear-gradient(180deg,rgba(200,230,250,.5),rgba(120,185,230,.78))}',
       '.gd-etagere[data-skin="noeud"]{--gd-liq:linear-gradient(180deg,#ffc2e4 0%,#ff8fcf 50%,#ff5fb8 100%)}',
@@ -593,7 +593,8 @@
       '.gd-pose-note{animation:gd-pose-note .8s ease-out 1 both}',
       '@keyframes gd-pose{0%{opacity:0;transform:translateY(-46px) scale(.96)}55%{opacity:1;transform:translateY(0) scale(1)}72%{transform:translateY(-7px)}100%{opacity:1;transform:translateY(0)}}',
       '@keyframes gd-pose-note{0%{opacity:0}60%{opacity:0}100%{opacity:1}}',
-      '@keyframes gd-onde{from{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}to{-webkit-mask-position:50cqw 0,0 100%;mask-position:50cqw 0,0 100%}}',
+      /* Norman, 2026-11-01 : plus de trait noir a la surface. Cause : la tuile de la vague (50cqw, largeur fractionnaire) se repetait dans le liquide, et sa jointure laissait une colonne de pixels a moitie transparente (un trait sombre vertical sur la vague). Maintenant UNE tuile de 3 periodes (150cqw) qui couvre tout le liquide ; elle glisse de -50cqw a 0 (= une periode, boucle parfaite) : la jointure reste hors du liquide. */
+      '@keyframes gd-onde{from{-webkit-mask-position:-50cqw 0,0 100%;mask-position:-50cqw 0,0 100%}to{-webkit-mask-position:0 0,0 100%;mask-position:0 0,0 100%}}',
       '@media (prefers-reduced-motion:reduce){.gd-liq,.gd-pose,.gd-pose-note,.gd-fig{animation:none}.gd-sort{display:none}}',
       /* popup de la Garderie : teintes menthe / vert sombre de la page, au-dessus de tout (fond assombri) */
       '.gd-popup-fond{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;background:rgba(4,12,9,.68)}',

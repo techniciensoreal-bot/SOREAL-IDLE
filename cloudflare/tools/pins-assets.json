@@ -8,8 +8,8 @@
   "sha": "b2c3a6de60586cc9d79fb0c8b90f3f76e73d1b76"
  },
  "/modules/admin-saviez-vous-v1.js": {
-  "pin": 3,
-  "sha": "0953864329a76c71bd4d56e3ad6d2a0073a2adaa"
+  "pin": 5,
+  "sha": "61f704eb8694cc62ee209aef2078226974cb0215"
  },
  "/modules/admin-tutoriel-v1.js": {
   "pin": 5,
@@ -76,8 +76,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 22,
-  "sha": "c3484d9793623335601a5381761013753901ffca"
+  "pin": 23,
+  "sha": "19716d9a20f3208ba2dc97f1f8591c01d83529bc"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 11,
@@ -104,8 +104,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 19,
-  "sha": "2baed32c7ec258124c26f7d3431b89624bdd68cd"
+  "pin": 21,
+  "sha": "04ea177a368d7e898369dea450aac0f358afb24f"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -204,8 +204,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 55,
-  "sha": "3d78c748fb025122077ccb3c44d00dcab05b8d0c"
+  "pin": 56,
+  "sha": "2a1349ced256f870547ca7793ebe55ff8325d78a"
  },
  "/modules/daycare-skin-popup-v1.js": {
   "pin": 3,
@@ -560,12 +560,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 53,
-  "sha": "7822e55ff4cf4b7d1a71adb0d1ff5c134cb40ee5"
+  "pin": 56,
+  "sha": "15b4ea62078c9854e3044a2c7f3ebda644a43d42"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 685,
-  "sha": "c45aedef7dacd28fae1296528aa5b96324d3abad"
+  "pin": 688,
+  "sha": "9713325bf48234bdb8bc4a2cc42a59bec7c8a75b"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -644,12 +644,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 711,
-  "sha": "d165a77cbf300e8dbfc65f9c0f98ec52f857dab2"
+  "pin": 714,
+  "sha": "3551580ca5de75b317198a4fb4cebecc5b9cecc6"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 531,
-  "sha": "46ad3521164dfb61a921e0dd14e0168e519a69cd"
+  "pin": 534,
+  "sha": "cddc2ed70d2a1fde3c35bcff316b7e159e2c7b09"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -684,8 +684,8 @@
   "sha": "ff7a9440b4f50c39310f284ba1bb78ec67bda473"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 17,
-  "sha": "9f327baa567460ec1f073cdd348d3153c73fce39"
+  "pin": 19,
+  "sha": "eee55ae1ede372c6889862386e2690b77e9a13dc"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 55,
@@ -828,8 +828,8 @@
   "sha": "427cbe3fb9f10ec74dd65498e17cad7388748ac2"
  },
  "/soreal-idle-augment-led-v1.css": {
-  "pin": 8,
-  "sha": "2bd8d80f787b6e4a79a09cc75927b8b9820078a7"
+  "pin": 13,
+  "sha": "04d7c5ccf2d924ca28ec5ce64e5c285ad8eafb0a"
  },
  "/soreal-idle-barre-outils.css": {
   "pin": 12,

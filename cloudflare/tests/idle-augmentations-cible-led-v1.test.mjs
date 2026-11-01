@@ -18,8 +18,12 @@ const lcd = /\.aug-piste-v2\.upgrade\{([^}]*)\}/.exec(css)[1];
 assert.match(led, /--e-txt:var\(--led-paire,/);
 assert.match(led, /--e-glow:0 0 5px/, "LED : halo");
 assert.match(led, /--e-fond:var\(--led-fond,/, "LED : fond de la paire");
-assert.ok(!/--e-fond|--e-txt/.test(lcd), "LCD : hérite du fond et de la police de la paire");
-assert.match(lcd, /--e-glow:none/, "LCD : aucun halo");
+// LCD rétroéclairé : fond clair teinté de la paire + lueur intérieure, caractères sombres, halo doux AUTOUR de l'écran (pas de néon sur le texte)
+assert.ok(lcd.includes("--e-fond:color-mix(in srgb,var(--led-paire,#ffb000) 28%,#f4f7ea)"), "LCD : fond clair teinté");
+assert.match(lcd, /--e-ecran:radial-gradient\(ellipse/, "LCD : lueur intérieure plus claire au centre");
+assert.ok(lcd.includes("--e-txt:color-mix(in srgb,var(--led-fond,#1d271b) 78%,#000)"), "LCD : caractères sombres");
+assert.match(lcd, /--e-glow:none/, "LCD : aucun néon sur le texte");
+assert.ok(css.includes(".aug-piste-v2.upgrade :is(.aug-tete-v2,.aug-niv-bloc,.soreal-idle-bt-allocation-v120,.aug-cout-ligne,.aug-eta,.aug-cible-v2){box-shadow:inset 0 0 14px rgba(255,255,255,.65)") && css.includes("0 0 12px 3px color-mix(in srgb,var(--led-paire,#ffb000) 55%,transparent)"), "LCD : halo rétroéclairé autour de l'écran");
 assert.ok(!/neon/.test(lcd));
 
 // tout texte d'information est dans un écran (nom + logo, niveau, énergie, coût, temps, cible) et chaque écran a sa matrice
@@ -32,11 +36,10 @@ assert.match(css, /\.aug-cible-v2 input\{[^}]*caret-color:var\(--e-txt\)/);
 assert.ok(!/animation|@keyframes|filter:/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "aucune animation ni filtre");
 assert.ok(!css.includes("!important"), "aucun !important");
 
-// barre : masque statique par-dessus, le remplissage garde son animation (rien n'est recréé par segment)
-// barre PLEINE et continue (Norman) : aucun trait ni segment, couleur unie, aucun dégradé dans les règles de la barre
-assert.match(css, /\.aug-tube-v2::before\{content:none;background:none\}/);
-assert.match(css, /\.aug-liquide-v2,[^{]*\.aug-piste-v2\.upgrade \.aug-liquide-v2\{background:var\(--e-txt\);box-shadow:none\}/);
-for (const r of css.split("\n").filter((l) => /aug-(tube|liquide|reflet)-v2/.test(l))) assert.ok(!/gradient\(|repeating|dashed|dotted/.test(r), "barre sans dégradé ni trait : " + r.slice(0, 120));
+// barre = EFFET LED CONTINU : trame de points au pas entier (6 px), un seul calque, aucun trait ni coupure ni dégradé de couleur ; remplissage plein de la couleur de la paire
+assert.ok(css.includes('.aug-tube-v2::before{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 0 1.9px,var(--led-fond,#050403) 2.3px) 0 0/6px 6px}'), "trame de LED, pas de 6 px entier, un seul calque");
+assert.ok(css.includes(".aug-liquide-v2{background:var(--led-paire,#ffb000);box-shadow:none}"), "remplissage plein, sans dégradé");
+for (const r of css.split("\n").filter((l) => /aug-(tube|liquide|reflet)-v2/.test(l))) assert.ok(!/repeating|linear-gradient|dashed|dotted/.test(r), "barre sans trait ni coupure : " + r.slice(0, 120));
 assert.ok(js.includes("transform:scaleX('+(pct/100)+')"), "remplissage toujours en scaleX");
 
 // une couleur par paire : palette distincte, posée sur la paire (l'Augment et son Upgrade la partagent)
@@ -49,6 +52,23 @@ const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 
 for (const x of paires) { const [a, b] = [lum(x.txt), lum(x.fond)].sort((u, v) => v - u); assert.ok((a + 0.05) / (b + 0.05) >= 4.5, "contraste lisible " + x.txt + " / " + x.fond); }
 const I = "COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length]";
 assert.ok(js.includes("--led-paire:'+" + I + "[0]+';--led-fond:'+" + I + "[1]"), "police et fond selon le rang de la paire");
+
+// lisibilité (Norman, 2026-11-01) : sur le circuit, étiquettes (Niveau, Prochain niveau, Cible), valeurs, minuterie et valeur « non » >= 7 avec le fond de l'écran, pour les 10 paires
+const mix = (h1, h2, k) => "#" + [1, 3, 5].map((i) => Math.round(parseInt(h1.slice(i, i + 2), 16) * k + parseInt(h2.slice(i, i + 2), 16) * (1 - k)).toString(16).padStart(2, "0")).join("");
+const ratio = (x, y) => { const [m, n] = [lum(x), lum(y)].sort((u, v) => v - u); return (m + 0.05) / (n + 0.05); };
+assert.ok(led.includes("--e-dim:color-mix(in srgb,var(--e-txt) 70%,#fff)"), "étiquettes : 70 % de la couleur + 30 % de blanc");
+const non = /--e-non:(#[0-9a-f]{6})/i.exec(led)[1];
+for (const x of paires) {
+  assert.ok(ratio(x.txt, x.fond) >= 7, "valeurs et minuterie >= 7 : " + x.txt);
+  assert.ok(ratio(mix(x.txt, "#ffffff", 0.7), x.fond) >= 7, "étiquettes >= 7 : " + x.txt);
+  assert.ok(ratio(non, x.fond) >= 7, "valeur « non » >= 7 : " + non + " / " + x.fond);
+}
+const ECR = ":is(.aug-tete-v2,.aug-niv-bloc,.soreal-idle-bt-allocation-v120,.aug-cout-ligne,.aug-eta,.aug-cible-v2)";
+assert.ok(css.includes('font:900 12px/1.2 "Russo One"'), "étiquettes 12 px");
+assert.ok(css.includes(":not(.upgrade) .aug-eta{font-size:16px}"), "minuterie 16 px");
+assert.ok(css.includes(":not(.upgrade) " + ECR + "{isolation:isolate}"));
+assert.ok(css.includes(":not(.upgrade) " + ECR + "::after{z-index:-1}"), "trame de LED sous le texte, jamais par-dessus");
+for (const l of css.split("\n").filter((x) => /(\.aug-eta|\.aug-niv-lib|\.aug-cout-lib|\.aug-cible-v2>span)[^{]*\{/.test(x))) assert.ok(!/opacity|filter/.test(l), "aucune opacité ni filtre sur ces textes");
 
 // boutons : composants du circuit (poussoir) et touches de la puce, états survol / appui / désactivé, aucun pointillé
 assert.match(css, /\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120 button\{[^}]*--bague:color-mix\(in srgb,var\(--pcb-acc/);

@@ -81,8 +81,8 @@ assert.ok(c.twidth("FIGHT !") > 0);
 /* dictionnaire FR / EN : mêmes clés, aucun Ç, pas de « 3-2-1 » */
 const dico = ev("TXT");
 assert.deepEqual(Object.keys(dico.fr).sort().join(), Object.keys(dico.en).sort().join(), "mêmes clés français / anglais");
-assert.equal(dico.fr.jokes.length, 5);
-assert.equal(dico.en.jokes.length, 5);
+assert.equal(dico.fr.jokes.length, 0, "Norman (2026-11-01) : aucune phrase d'origine, seulement celles de l'administrateur");
+assert.equal(dico.en.jokes.length, 0);
 assert.equal(dico.en.win, "VICTORY !");
 assert.ok(!JSON.stringify(dico).includes("Ç"), "aucun Ç dans les textes du panneau");
 

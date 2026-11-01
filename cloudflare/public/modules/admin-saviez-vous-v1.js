@@ -47,7 +47,7 @@ function messageCode_(code){
     TEXTE_SAVIEZ_CARACTERE_INTERDIT:'Caractère de contrôle ou invisible interdit.',
     TEXTE_SAVIEZ_PHRASE_VIDE:'Une phrase française est vide.',
     TEXTE_SAVIEZ_TROP_DE_PHRASES:MAX_PHRASES+' phrases au plus.',
-    TEXTE_SAVIEZ_LISTE_REQUISE:'Au moins une phrase est nécessaire (ou « Remettre les phrases d’origine »).',
+    TEXTE_SAVIEZ_LISTE_REQUISE:'Au moins une phrase est nécessaire.',
     TEXTE_SAVIEZ_PHRASE_INVALIDE:'Phrase invalide.',TEXTE_SAVIEZ_LISTE_EN_INVALIDE:'Liste anglaise invalide.'
   };
   return m[code]||code;
@@ -114,12 +114,11 @@ function blocHtml_(){
     '<div class="sv-apercu-cadre" style="margin:6px 0 8px;max-width:600px"><div class="stx-aide" style="margin:0 0 3px">Aperçu sur le panneau (la phrase sur laquelle tu écris) :</div>'+
       '<canvas class="sv-apercu" aria-hidden="true" style="display:block;width:100%;aspect-ratio:120/14;background:#050403;border-radius:8px;border:1px solid #34425f"></canvas>'+
       '<div class="sv-apercu-texte stx-aide" style="margin:3px 0 0"></div></div>'+
-    '<label style="display:flex;gap:6px;align-items:center;font:600 13px system-ui,sans-serif;color:#cfe1ff;margin:4px 0"><input type="checkbox" data-sv-remplace'+(b.remplace?' checked':'')+'> Remplacer les phrases d’origine (sinon, mes phrases s’ajoutent aux cinq d’origine)</label>'+
     b.items.map(function(p,i){return ligneHtml_(i,p);}).join('')+
     '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px">'+
       '<button type="button" data-sv-act="ajout" style="border:0;border-radius:8px;padding:8px 12px;background:#245a2e;color:#fff;cursor:pointer;font-weight:700">＋ Ajouter une phrase</button>'+
       '<button type="button" data-sv-act="enreg" style="border:0;border-radius:8px;padding:8px 12px;background:#2b5fb3;color:#fff;cursor:pointer;font-weight:700">💾 Enregistrer</button>'+
-      '<button type="button" data-sv-act="retablir" style="border:0;border-radius:8px;padding:8px 12px;background:#4a4a55;color:#fff;cursor:pointer">↩ Remettre les 5 phrases d’origine</button>'+
+      '<button type="button" data-sv-act="retablir" style="border:0;border-radius:8px;padding:8px 12px;background:#4a4a55;color:#fff;cursor:pointer">↩ Tout effacer</button>'+
     '</div>'+
     '<div class="sv-etat" style="min-height:20px;margin-top:4px;font:600 13px system-ui,sans-serif;color:'+(etatErreur?'#ff9d9d':'#9fe0a8')+'">'+esc_(etat)+'</div>'+
   '</div>';

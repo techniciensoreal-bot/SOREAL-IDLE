@@ -113,7 +113,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
 {
   const m = pub("modules/daycare-page-v1.js");
   for (const c of ["#ff4a4a", "#ffe135", "#4be07b", "#2fb5ff", "#b24bff"]) assert.ok(m.includes(c), "bandes de l'arc-en-ciel : " + c);
-  assert.ok(m.includes("mask-size:50cqw 8cqw") && m.includes("to{-webkit-mask-position:50cqw 0"), "l'onde glisse d'exactement une tuile (50 cqw)");
+  assert.ok(m.includes("mask-size:150cqw 8cqw") && m.includes("from{-webkit-mask-position:-50cqw 0") && m.includes("to{-webkit-mask-position:0 0"), "l'onde (tuile de 3 périodes de 50 cqw) glisse d'exactement une période (50 cqw)");
   assert.ok(m.includes("mask-image:linear-gradient(180deg,rgba(0,0,0,0),#000 22%,#000 78%,rgba(0,0,0,0))") && !m.includes("gd-bulles 5s"), "bulles : fondu aux deux bouts, statiques (la couche animée du bocal est la morve)");
   assert.ok(m.includes("gd-bouchon") && m.includes("gd-col") && m.includes("gd-verre") && m.includes("container-type:size"), "bocal détaillé (liège, col, verre) dont les mesures suivent sa taille (cqw)");
   assert.ok(!/gd-bocal[^}]*animation/.test(m) && (m.match(/\.gd-liq\{[^}]*animation:gd-onde/g) || []).length === 1, "par bocal : l'onde du liquide + la rigole qui l'alimente, pas plus de deux couches animées");

@@ -4,10 +4,9 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Chaque processeur a maintenant ses propres couleurs d’écran (fond et police différents), et les barres d’avancement sont pleines, d’une seule couleur, sans dégradé ni trait.",
-    "Sur la borne, la ligne rouge et les cadres des deux images ont disparu : elles font corps avec l’écran. Ton nom et le nombre de fois que tu as tué le boss s’affichent sur de petits écrans LED sous les images.",
-    "Les comptes d’ouvrier absents de la liste de l’équipe apparaissent maintenant comme ennemis dans la tour, avec le badavatar de leur Profil.",
-    "Sur l’écran de la borne, les lettres des grands nombres (K, M, AB…) ont leur couleur habituelle et la régénération est écrite plus petit.",
-    "L’écran LED de la borne est plus net (points au bord franc, halo plus discret) et ses chiffres sont plus petits."
+    "Dans les Augmentations, les barres d’avancement ont un effet LED (grille de petits points lumineux) mais restent continues, sans coupure, de la couleur de la paire ; les écrans des processeurs sont maintenant des écrans LCD rétroéclairés, au fond clair lumineux et aux caractères sombres.",
+    "Dans les Augmentations, les petits textes des écrans du circuit (« Niveau suivant dans… », « Niveau », « Prochain niveau », « Cible » et leurs valeurs) sont beaucoup plus clairs et plus lisibles, pour toutes les paires.",
+    "Le journal de combat de l’Aventure reste toujours calé sur la dernière ligne, même quand le combat va très vite.",
+    "Les petits traits noirs qui apparaissaient à la surface du liquide des bocaux, en vue normale comme en vue zoom, ont disparu : la surface est propre."
   ] };
 })();

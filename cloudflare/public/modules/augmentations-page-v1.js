@@ -1425,7 +1425,7 @@
       const COULEURS_RANG_AUGMENTS_V1=['#6aa9ff','#3fd6c8','#6bdc5a','#ffd24a','#ff8a3d','#ff4d6d'];
       /* Couleur LED de l'écran Cible et de la barre d'une paire (Norman, 2026-11-01) : selon le rang de la paire dans la liste (jamais un total), la même pour l'Augment et son Upgrade. */
       /* une palette d'écran par paire : [police/points, fond] ; l'Augment et son Upgrade la partagent */
-      const COULEURS_LED_AUGMENTS_V1=[['#ffb000','#2a1c00'],['#39ff6a','#03240d'],['#22e5ff','#032430'],['#ff5a5a','#2a0404'],['#ff3df0','#2c0429'],['#fff23a','#262500'],['#6f93ff','#060d33'],['#ff7a1a','#331200'],['#fff1d6','#2b2218'],['#b266ff','#190a30']];
+      const COULEURS_LED_AUGMENTS_V1=[['#ffb000','#2a1c00'],['#39ff6a','#03240d'],['#22e5ff','#032430'],['#ff7a7a','#2a0404'],['#ff6df4','#2c0429'],['#fff23a','#262500'],['#8ea8ff','#060d33'],['#ff8f3a','#331200'],['#fff1d6','#2b2218'],['#c78cff','#190a30']];
 
       const IDLE_ICONES_AUGMENTS_V1={scissors:'✂️',milk:'🥛',cannon:'💥',minigun:'🔫',buster:'⚡',exoskeleton:'🦾',laserSword:'🗡️',insideOut:'🌀'};
 

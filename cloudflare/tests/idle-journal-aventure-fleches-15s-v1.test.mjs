@@ -34,7 +34,7 @@ const r = s.indexOf("function armerRetourJournalAventureIdleV1_()");
 const arme = s.slice(r, r + 500);
 assert.ok(arme.includes("clearTimeout(idleAdventureLogResumeTimerV1_)") && arme.includes("IDLE_ADVENTURE_LOG_RESUME_MS_V1") && arme.includes("hostActuel.scrollTop=hostActuel.scrollHeight"), "retour tout en bas après 15 s");
 const i = s.indexOf("function gererScrollJournalAventureIdleV1_(event)");
-assert.ok(s.slice(i, i + 700).includes("if(enBas)clearTimeout(idleAdventureLogResumeTimerV1_);else armerRetourJournalAventureIdleV1_();"), "minuterie relancée à chaque défilement hors du bas");
+assert.ok(s.slice(i, i + 1400).includes("if(enBas)clearTimeout(idleAdventureLogResumeTimerV1_);else if(direct)armerRetourJournalAventureIdleV1_();"), "minuterie relancée à chaque défilement voulu par le joueur (flèches) hors du bas ; un défilement du jeu ne coupe plus le suivi (idle-journal-aventure-suivi-v1)");
 
 // style des flèches ; pas de flèches sur le voile du téléphone
 assert.ok(css.includes(".soreal-idle-journal-fleches-v1{position:absolute") && titan.includes(".soreal-idle-journal-fleches-v1{display:none}"), "style des flèches ; pas de flèches sur le voile du téléphone");

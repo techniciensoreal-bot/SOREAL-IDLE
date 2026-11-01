@@ -146,10 +146,10 @@ var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 var TXT={
   fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
-    jokes:['Les pixels ne font pas mal','Un guerrier hydraté est un guerrier heureux',"Ce panneau clignote, c'est son travail",'Respire, tout va bien se passer','Petite pause café ?']},
+    jokes:[]},   /* Norman (2026-11-01) : « je ne veux que les phrases que j'ai écrites » : aucune phrase d'origine, seulement celles de l'administrateur */
   en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
-    jokes:['Pixels do not hurt','A hydrated warrior is a happy warrior','This sign blinks, it is its job','Breathe, everything will be fine','Coffee break ?']}
+    jokes:[]}
 };
 var langue='fr',langueLue=-1e9;
 function langueDe(now){
@@ -373,7 +373,7 @@ function sKO(t){
 }
 
 /* 8. « Le saviez-vous ? » : titre fixe puis phrase générique qui défile (p.k = numéro de la phrase) */
-function phraseDe(p){var J=TXT[langue].jokes;return typeof p.txt==='string'&&p.txt?p.txt:J[(p.k||0)%J.length];}
+function phraseDe(p){var J=TXT[langue].jokes;return typeof p.txt==='string'&&p.txt?p.txt:(J.length?J[(p.k||0)%J.length]:'');}
 function jokeDuree(p,W){return 2.0+(twidth(phraseDe(p),1)+W)/30;}
 function sJokes(t){
   var W=P.W,j=phraseDe(P.p),bt=cb(),u=t;
@@ -835,7 +835,7 @@ function suivante(now){
   if(S.combat){combatFight(now,false);return cur;}
   if(objetDu(now)){var so=objetSuivant(now,false);if(so)return so;}
   var seq=S.boss?(S.morts>0?['base','morts','score','base','jokes']:['base','score','base','jokes']):['base','jokes'],id=seq[rot%seq.length];rot+=1;
-  if(id==='jokes'){jk=(jk+1)%TXT.fr.jokes.length;return mk('jokes',now,{k:jk,txt:phraseAdmin()});}
+  if(id==='jokes'){var tx=phraseAdmin();if(tx)return mk('jokes',now,{k:0,txt:tx});id='base';}   /* sans phrase de l'administrateur : pas de scène « Le saviez-vous ? » */
   return mk(id,now);
 }
 function pousser(id,now,p){
@@ -940,7 +940,7 @@ function syncMinis(){
     var cv=h.querySelector('canvas.bn-led-canvas');
     if(!cv){
       cv=document.createElement('canvas');cv.className='bn-led-canvas';
-      cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('aria-hidden','true');
+      cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('data-steam-visible','');cv.setAttribute('aria-hidden','true');
       h.appendChild(cv);m=null;
     }
     if(m&&m.panel.canvas!==cv){if(m.ro)m.ro.disconnect();minis.splice(minis.indexOf(m),1);m=null;}
@@ -1014,7 +1014,7 @@ function ensure(){
   var cv=h.querySelector('canvas.bn-led-canvas');
   if(!cv){
     cv=document.createElement('canvas');cv.className='bn-led-canvas';
-    cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('aria-hidden','true');
+    cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('data-steam-visible','');cv.setAttribute('aria-hidden','true');
     h.appendChild(cv);
   }
   if(!panel||panel.canvas!==cv||host!==h){
@@ -1035,6 +1035,9 @@ function ensure(){
 
 window.addEventListener('resize',function(){taille();});   /* zoom de la page : le rapport de pixels change */
 document.addEventListener('visibilitychange',function(){if(document.hidden)arreter();else relancer();});
+/* Exe (Steam) : la superposition prend le focus ; le gel de la page (desktop/coeur.js) cache les canvas sauf ceux marqués data-steam-visible (les écrans LED le sont : jamais noirs). Pour ne présenter aucune image pendant la superposition, le dessin s'arrête à la perte du focus (la dernière image reste affichée) et repart au retour du focus (Norman, 2026-11-01 : « toujours noir puis ça revient »). */
+window.addEventListener('blur',function(){arreter();});
+window.addEventListener('focus',function(){relancer();});
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{ensure();}catch(_e){}});
 
 /* ------------------------------------------------------------------ outils de l'éditeur Admin (modules/admin-saviez-vous-v1.js) : mêmes polices et même moteur que le panneau */

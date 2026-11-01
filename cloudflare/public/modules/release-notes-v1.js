@@ -52,7 +52,8 @@
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Dans les Augmentations, toutes les informations sont maintenant dans de petits écrans incrustés (LED sur le circuit, LCD sur le processeur), une couleur par paire. Le titre, la barre d’avancement, l’écran Cible et les boutons ont aussi changé d’aspect, et il n’y a plus de pointillés.',
-            'Chaque processeur a maintenant ses propres couleurs d’écran (fond et police différents), et les barres d’avancement sont pleines, d’une seule couleur, sans dégradé ni trait.'
+            'Dans les Augmentations, les barres d’avancement ont un effet LED (grille de petits points lumineux) mais restent continues, sans coupure, de la couleur de la paire ; les écrans des processeurs sont maintenant des écrans LCD rétroéclairés, au fond clair lumineux et aux caractères sombres.',
+            'Dans les Augmentations, les petits textes des écrans du circuit (« Niveau suivant dans… », « Niveau », « Prochain niveau », « Cible » et leurs valeurs) sont beaucoup plus clairs et plus lisibles, pour toutes les paires.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Sur la borne, la ligne rouge et les cadres des deux images ont disparu : elles font corps avec l’écran. Ton nom et le nombre de fois que tu as tué le boss s’affichent sur de petits écrans LED sous les images.',
@@ -84,6 +85,7 @@
             'Sur les cartes de boss, le bas de la carte indique la langue (EN en anglais) et le nom du boss suit la langue choisie.',
             'Les comptes d’ouvrier absents de la liste de l’équipe apparaissent maintenant comme ennemis dans la tour, avec le badavatar de leur Profil.',
             'Sur l’écran de la borne, les lettres des grands nombres (K, M, AB…) ont leur couleur habituelle et la régénération est écrite plus petit.',
+            'Le journal de combat de l’Aventure reste toujours calé sur la dernière ligne, même quand le combat va très vite.',
             'L’écran LED de la borne est plus net (points au bord franc, halo plus discret) et ses chiffres sont plus petits.',
             'Les flèches du classeur ont un nouveau style fantasy : métal doré, gemme lumineuse, pointes taillées en relief, « 10 » sur les flèches de dix pages, et un aspect terni quand elles sont inactives.',
             'Au bout du classeur, de nouvelles pages peuvent apparaître avec des cartes spéciales : un cadre particulier aux couleurs de chaque personnage et un effet hologramme qui suit ton doigt ou ta souris.',
@@ -98,6 +100,7 @@
           ,{menu:'daycare', titre:'Garderie', points:[
             'Dans la Garderie, les durées s’affichent en jours, heures et minutes (« 7 h 36 min » au lieu de « 7,6 h »).',
             'La ligne blanche coupée qui courait à la surface du liquide des bocaux a disparu : il ne reste que les vagues.',
+            'Les petits traits noirs qui apparaissaient à la surface du liquide des bocaux, en vue normale comme en vue zoom, ont disparu : la surface est propre.',
             'Les bocaux ont une forme propre à chaque apparence de ton chat ; le niveau s’affiche sous le bocal, et les fioles sont posées au milieu de la planche.',
             'Chaque chat a une ombre au sol, un fond mieux cadré sur téléphone, et des pupilles en fente qui s’élargissent et se contractent.',
             'Un clic sur un bocal le met en gros plan avec le temps avant le prochain niveau et avant le niveau 100, puis « Reprendre » ou « Ranger ».',
