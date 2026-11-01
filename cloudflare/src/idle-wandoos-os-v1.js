@@ -87,5 +87,6 @@ export function idleWandoosConsumeCopyV1(state, itemId) {
   objet.level = niveauObjet - nouveau;
   niveaux[cle] = nouveau;
   adventure.revision = Math.max(0, I(adventure.revision, 0)) + 1;
-  return { definitionId: objet.definitionId, osLevel: nouveau, source: cle, remainingItemLevel: objet.level };
+  /* osAvant : niveau d'OS avant l'installation (popup de validation du client, 2026-11-01). */
+  return { definitionId: objet.definitionId, osLevel: nouveau, osAvant: actuel, source: cle, remainingItemLevel: objet.level };
 }

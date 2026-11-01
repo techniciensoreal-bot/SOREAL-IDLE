@@ -428,6 +428,7 @@ function demander_(cle,contexte,j){
     etat.ancienActif=false;   /* ancien tutoriel supprimé (Norman, 2026-10-26) */
     if(res&&typeof res.ancienMenusActif==='boolean')etat.ancienMenus=res.ancienMenusActif;
     var guides=res&&Array.isArray(res.guides)?res.guides:[];
+    if(cle==='debut'){etat.debutResolu=true;etat.debutVuId=guides.length&&guides[0].vuId?String(guides[0].vuId):'';}   /* sert à introFinie() : le guide de départ est connu (ou absent) */
     var hote=window.__SOREAL_IDLE_META_HOST_V130__,jeu=(hote&&typeof hote.getIdleEtat==='function'&&hote.getIdleEtat())||j;
     for(var i=0;i<guides.length;i++){
       if(dejaVu_(jeu,guides[i].vuId))continue;
@@ -584,6 +585,23 @@ window.__SOREAL_IDLE_TUTORIEL_V1__={
   jouer:jouer_,
   fermer:function(){fermer_(false);},
   enCours:function(){return Boolean(etat.enCours);},
+  /*
+   * L'introduction d'un NOUVEAU joueur est-elle entièrement terminée ? (Norman, 2026-11-01 : « pour un nouveau joueur, les popups des objets débloqués (Garderie, portrait…) n'arrivent qu'après toute l'introduction ».) Vrai pour un joueur existant. Pour un nouveau : l'intro en images est finie (« bienvenue » vu),
+   * le guide de départ est connu ET terminé (vu) ou absent, aucun guide ni fenêtre d'histoire n'est ouvert. Les popups d'annonce attendent cette condition au lieu de s'intercaler entre deux étapes.
+   */
+  introFinie:function(j){
+    try{
+      var hote=window.__SOREAL_IDLE_META_HOST_V130__;
+      j=j||(hote&&typeof hote.getIdleEtat==='function'&&hote.getIdleEtat())||null;
+      if(!j||!j.profil||!j.profil.nouveauJoueur)return true;
+      if(!bienvenueFaite_())return false;
+      if(document.getElementById('sorealIdleIntroDiapoV1')||histoireOuModalEnCours_())return false;
+      if(etat.enCours)return false;
+      if(!etat.debutResolu)return false;
+      if(etat.debutVuId&&!dejaVu_(j,etat.debutVuId))return false;
+      return true;
+    }catch(_e){return true;}
+  },
   choisirElement:choisirElement_,
   /* null tant que le réglage n'est pas connu ; l'ancien tutoriel n'est joué que si le serveur a dit « actif » (jamais par défaut pendant l'attente). */
   ancienActif:function(){return etat.ancienActif;},

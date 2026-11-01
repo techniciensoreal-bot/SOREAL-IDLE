@@ -258,6 +258,9 @@ function essayer(){
   /* Chats (si la Garderie est débloquée) puis portraits : jamais en même temps. Le portrait est un cadeau : annoncé quoi qu'il en soit. */
   var liste=(garderieDisponible(etat)?nouveaux(etat):[]).concat(nouveauxPortraits(etat));
   if(!liste.length||autreFenetreOuverte())return;
+  /* Nouveau joueur : rien avant la fin de TOUTE l'introduction (images, puis guide de départ). */
+  var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
+  if(T&&typeof T.introFinie==='function'&&!T.introFinie(etat))return;
   ouvrir(liste[0]);
 }
 

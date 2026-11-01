@@ -48,12 +48,13 @@
     var maintenant=Date.now();
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
-      if(maintenant-videDepuis[cle]>=1200){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
+      /* Instantané (Norman, 2026-11-01 : « les barres d'énergie et de magie disparaissent instantanément quand on n'en a plus et réapparaissent instantanément quand on en récupère ») : plus de délai de 1,2 s ni de 0,7 s. */
+      if(true){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
       if(!pleinDepuis[cle])pleinDepuis[cle]=maintenant;
-      if(maintenant-pleinDepuis[cle]>=700&&panneau.classList.contains('soreal-idle-vide-v2'))reapparaitSansDecaler(panneau);
+      if(panneau.classList.contains('soreal-idle-vide-v2'))reapparaitSansDecaler(panneau);
     }
   }
   function majVide(){

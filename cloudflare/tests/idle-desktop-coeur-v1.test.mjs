@@ -130,7 +130,8 @@ console.log("idle-desktop-coeur-v1 : OK");
 /* Norman (2026-10-31) : l'interface Steam faisait clignoter le jeu en noir tant qu'elle était ouverte : les animations sont gelées quand la fenêtre perd le focus, dégelées AVANT la repeinture au retour du focus */
 {
   const coeurSteam = fs.readFileSync(new URL("../../desktop/coeur.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
-  assert.ok(/if \(LANCE_PAR_STEAM\) \{[\s\S]*fenetre\.on\("blur", geler\);[\s\S]*fenetre\.on\("focus", degeler\);/.test(coeurSteam), "gel des animations à la perte du focus, dégel au retour (Steam seulement)");
+  assert.ok(/if \(LANCE_PAR_STEAM\) \{[\s\S]*fenetre\.on\("blur", \(\) => \{ ajuster\(\);[\s\S]*fenetre\.on\("focus", \(\) => \{[\s\S]*degeler\(\); \}\);/.test(coeurSteam), "gel des animations à la perte du focus, dégel au retour (Steam seulement)");
+  assert.ok(coeurSteam.includes("getCursorScreenPoint()") && coeurSteam.includes("if (curseurSurLaFenetre()) geler(); else if (gele) degeler();"), "gel seulement si le curseur est sur la fenêtre (superposition Steam), pas quand on clique ailleurs");
   assert.ok(coeurSteam.includes("animation-play-state:paused!important") && coeurSteam.includes("canvas{visibility:hidden!important}"), "animations CSS et calques de dessin gelés");
   assert.ok(/const degeler = async \(\) => \{[\s\S]*removeInsertedCSS\(cle\)[\s\S]*repeindre\(\);/.test(coeurSteam), "le gel est retiré avant la repeinture");
 }

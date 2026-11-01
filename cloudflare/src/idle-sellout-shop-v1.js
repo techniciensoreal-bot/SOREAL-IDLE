@@ -19,6 +19,7 @@
  */
 
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
+import { idleYggPoopFactorV1 } from "./idle-yggdrasil-extra-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
 const I = (v, d = 0) => Math.floor(N(v, d));
@@ -288,7 +289,9 @@ export const IDLE_SELLOUT_EFFECTS_V1 = Object.freeze({
 export const IDLE_POTIONS_STOCK_V1 = Object.freeze([
   "energyPotionAlpha", "energyPotionBeta", "energyPotionDelta",
   "magicPotionAlpha", "magicPotionBeta", "magicPotionDelta",
-  "resource3PotionAlpha", "resource3PotionBeta", "resource3PotionDelta"
+  "resource3PotionAlpha", "resource3PotionBeta", "resource3PotionDelta",
+  /* Porte-bonheur (Norman, 2026-11-01 : « j'ai reçu un Lucky Charm, il s'est activé automatiquement ; je veux pouvoir stocker les consommables, avec un bouton Utiliser ») : rangés dans la valise comme les potions, activés seulement par « Utiliser » (action usePotion), même effet qu'avant (Drop Chance x2, 30 min / 12 h). */
+  "luckyCharm", "superLuckyCharm"
 ]);
 
 export function createSelloutEffectsV1(raw) {
@@ -355,7 +358,33 @@ export function idleSelloutUsePotionV1(state, itemId) {
   if (n <= 0) throw new Error("POTION_ABSENTE");
   if (n === 1) delete state.selloutEffects.stock[itemId]; else state.selloutEffects.stock[itemId] = n - 1;
   appliquerEffetDirectV1(state, itemId, 1);
-  return { itemId, reste: n - 1 };
+  return { itemId, reste: n - 1, effet: effetPourReponseV1(state, itemId) };
+}
+
+/*
+ * Ce que l'objet vient de faire, pour le popup de validation du client (Norman, 2026-11-01 : « tous les items qu'on peut utiliser et qui ont un effet doivent nous l'indiquer avec un popup »).
+ * Champs AJOUTÉS à la réponse (rien n'est retiré ni renommé) ; tous les chiffres viennent de l'état APRÈS l'effet : jamais de valeur écrite à la main.
+ *  cle / facteur / sec / restant / beta : minuteur ou potion bêta (facteur = multiplicateur réellement appliqué maintenant, bonus de consommables compris) ;
+ *  pills / butters / blackPens / poop : quantités ajoutées, `reserve` = total en réserve après l'effet ; `facteurPoop` : bonus d'une Poop ; `arme` : effet armé jusqu'au prochain Rebirth.
+ */
+export function effetPourReponseV1(state, itemId) {
+  const e = IDLE_SELLOUT_EFFECTS_V1[itemId];
+  if (!e || e.passive || e.adventureItem) return null;
+  const fx = state.selloutEffects || {};
+  const out = {};
+  const cle = e.timer || e.beta || "";
+  if (cle) {
+    out.cle = cle;
+    if (e.beta) out.beta = true;
+    if (e.timer) { out.sec = N(e.sec, 0); out.restant = Math.round(N(fx.remaining?.[e.timer], 0)); }
+    if (["energyPower", "magicPower", "r3Power", "luck", "energyBars", "magicBars"].includes(cle)) out.facteur = idleSelloutPotionFactorV1(state, cle);
+  }
+  if (e.arm) out.arme = true;
+  if (e.pills) { out.pills = e.pills; out.reserve = I(fx.bluePills, 0); }
+  if (e.butters) { out.butters = e.butters; out.reserve = I(fx.beastButters, 0); }
+  if (e.blackPens) { out.blackPens = e.blackPens; out.reserve = I(fx.blackPens, 0); }
+  if (e.poop) { out.poop = e.poop; out.reserve = I(fx.poop, 0); out.facteurPoop = idleYggPoopFactorV1(state); }
+  return out;
 }
 
 function appliquerEffetDirectV1(state, itemId, times = 1) {
@@ -434,5 +463,8 @@ export function idleSelloutShopBuyV1(state, itemId, options = {}) {
   }
   idleSelloutApplyEffectV1(state, item.id, 1);
 
+  /* Popup du client : seulement un effet appliqué tout de suite (une potion rangée dans la valise n'en a pas encore, une capacité passive non plus). */
+  const effet = IDLE_POTIONS_STOCK_V1.includes(item.id) ? null : effetPourReponseV1(state, item.id);
+  if (effet) return { itemId: item.id, cost, purchased: already + 1, max: item.max, effet, nom: item.name };
   return { itemId: item.id, cost, purchased: already + 1, max: item.max };
 }

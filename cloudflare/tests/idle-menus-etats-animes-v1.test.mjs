@@ -60,4 +60,7 @@ for (const id of ["aventure", "renaissance", "challenges", "titans", "shop", "ch
 for (const id of ["succes", "classement", "bestiaire"]) assert.ok(!css.includes(`.alimente-v1[data-effet-v1="${id}"]`), "plus d'effet pour " + id);
 // Plus de bloc grand écran à deux colonnes : le menu reste sur une colonne (2026-10-05).
 assert.ok(!css.includes("@media (min-width:1800px) and (min-height:1000px){"));
+// Mineurs d'or (Norman, 2026-11-01) : un mineur activé fait travailler le menu (icônes allumées, fond sombre seulement quand il n'est pas ouvert), même sans énergie ni magie placées.
+const menus = readFileSync("cloudflare/public/modules/ui-menus-v1.js", "utf8");
+assert.ok(menus.includes("if(id==='diggers'){const m=donnees.diggers||{};return Object.keys(m).some(function(k){const d=m[k]||{};return d.active&&idleNombre_(d.runLevel)>0;});}"), "mineur activé = menu qui travaille");
 console.log("idle-menus-etats-animes-v1: OK");

@@ -25,7 +25,9 @@
     {id:'magicPotionDelta',nom:'Potion de magie δ',img:'magic-potion-delta'},
     {id:'resource3PotionAlpha',nom:'Potion de Ressource 3 α',img:'resource-3-potion-alpha'},
     {id:'resource3PotionBeta',nom:'Potion de Ressource 3 β',img:'resource-3-potion-beta'},
-    {id:'resource3PotionDelta',nom:'Potion de Ressource 3 δ',img:'resource-3-potion-delta'}
+    {id:'resource3PotionDelta',nom:'Potion de Ressource 3 δ',img:'resource-3-potion-delta'},
+    {id:'luckyCharm',nom:'Porte-bonheur',img:'lucky-charm'},
+    {id:'superLuckyCharm',nom:'Super porte-bonheur',img:'super-lucky-charm'}
   ];
   var EFFETS=[
     {id:'energyPower',nom:'Potion d’énergie',img:'energy-potion-alpha',beta:'energy-potion-beta'},
@@ -197,6 +199,8 @@
     energyBars:'Double tes barres d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths.',
     magicBars:'Double tes barres de Magie pendant 60 minutes, même à travers plusieurs Rebirths.',
     luck:'Double les chances de drop en Adventure pendant le temps indiqué, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
+    luckyCharm:'Double les chances de drop en Adventure pendant 30 minutes, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
+    superLuckyCharm:'Double les chances de drop en Adventure pendant 12 heures, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
     seeds:'Les graines servent à améliorer tes fruits dans Yggdrasil. Manger un fruit en rapporte ; le récolter en rapporte davantage.',
     poop:'Accorde +50 % lors de la récolte ou de la consommation d’un fruit d’Yggdrasil. Chaque tas vaut pour un fruit.',
     beastButters:'Double la récompense de QP de ta prochaine quête.',

@@ -32,8 +32,25 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Pour un nouveau joueur, les fenêtres d’annonce (nouveau portrait, nouveau chat) attendent la fin de toute l’introduction avant de s’afficher.',
+            'Les barres d’Énergie et de Magie disparaissent instantanément quand il n’y en a plus, et réapparaissent instantanément quand tu en récupères.',
+            'Quand tu utilises un objet qui a un effet (potion, copie de système, graine géante, Poop, palier de 100 boosts…), une fenêtre te confirme ce qui vient de se passer, avec les vrais chiffres.',
+            'Voix : un texte enregistré ne lit plus que les voix que tu as validées ; 30 voix françaises écrasées par erreur (des noms identiques en anglais) sont restaurées ; les voix anglaises des chroniques sont terminées. La chronique d’un boss rangée sous le mauvais boss est corrigée dans tous les cas.',
             'Application Android : le jeu demande beaucoup moins de travail au téléphone (sauvegardes plus légères, échanges espacés, démarrage et lecture des fichiers plus rapides) ; les effets visuels sont allégés par défaut, tu peux les remettre dans les Réglages.',
             'Application Android : les images se chargent plus vite et ne clignotent plus après un moment d’inactivité (le service du jeu ne démarre plus tout son moteur pour afficher une image, et les images déjà vues sont gardées).'
+          ]}
+          ,{menu:'diggers', titre:'Mineurs d’or', points:[
+            'Quand un mineur est activé, les icônes du menu restent allumées dans la barre même si tu n’es pas dans ce menu : seul le fond s’assombrit.'
+          ]}
+          ,{menu:'chroniques', titre:'Chroniques', points:[
+            'Dans la Collection, les boosts du bas sont toujours rangés par valeur (1, 2, 5, 10, 20, 50, 100), puis dans l’ordre orange, bleu, jaune, qu’ils soient complétés ou non.'
+          ]}
+          ,{menu:'sang', titre:'Magie du sang', points:[
+            'Le bol de fil barbelé : le calice suivant arrive maintenant vraiment vide, et il ne peut plus y avoir deux calices en même temps pendant l’échange.',
+            'Application Windows : les éléments de Blood Magic ne disparaissent plus quand tu cliques en dehors de la fenêtre.'
+          ]}
+          ,{menu:'daycare', titre:'Garderie', points:[
+            'La couleur du liquide des bocaux suit l’apparence du chat : transparent pour le chat de base, rose bonbon pour le coquet, or pour le doré, sang pour Halloween, arc-en-ciel pour Nyan…'
           ]}
         ]
       },

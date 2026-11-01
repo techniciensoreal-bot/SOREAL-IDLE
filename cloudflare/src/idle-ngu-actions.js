@@ -55,9 +55,21 @@ function coffreVersGarderieV1(state, payload) {
   return { action: "daycarePlace", itemId: String(adv.id), viaCoffre: true };
 }
 
+function boostsMaxesV1(state) {
+  return Math.max(0, Math.floor(num(state?.adventure?.setRewards?.boostCompletions, 0)));
+}
+
+/* +2 % d'efficacité des boosts par boost maxé, 39 au plus (idle-adventure-inventaire.js, boostEffectivenessFactorV1) : annoncé au client pour son popup (champ ajouté, rien de retiré). */
+function ajouterBoostPalierV1(state, result, avant) {
+  const apres = boostsMaxesV1(state);
+  if (!(apres > avant) || !result || typeof result !== "object" || Array.isArray(result)) return result;
+  const gainPct = (Math.min(39, apres) - Math.min(39, avant)) * 2;
+  return Object.assign({}, result, { boostPalier: { niveaux: apres - avant, gainPct, totalPct: Math.min(39, apres) * 2 } });
+}
+
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
-  const state = syncIdleNguState(raw, context, t);
+  const state = syncIdleNguState(raw, context, t); const boostsMaxesAvantV1 = boostsMaxesV1(state); /* palier de boosts gagné PAR CE GESTE (l'Auto Merge/Boost tombe dans la synchro ci-dessus) */
   payload = coffreVersGarderieV1(state, payload);
   const action = String(payload.action || "").trim();
   let result = {};
@@ -497,7 +509,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     throw new Error("ACTION_META_INCONNUE");
   }
 
-  state.updatedAt = t;
+  result = ajouterBoostPalierV1(state, result, boostsMaxesAvantV1); state.updatedAt = t;
   state.rebirth = refreshRebirthState(state, context, t);
   if (clientMutationId) {
     state.recentClientMutations.push({ id: clientMutationId, result: result === undefined ? null : clone(result) });

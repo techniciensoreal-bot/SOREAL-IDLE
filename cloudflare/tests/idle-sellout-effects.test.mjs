@@ -42,6 +42,11 @@ function fresh(ap = 5_000_000) {
   let s = fresh();
   const avant = idleNguBonuses(s).dropMultiplier;
   s = acheter(s, "luckyCharm").state;
+  /* Rangé dans la valise, jamais activé tout seul (Norman, 2026-11-01) : aucun effet avant « Utiliser ». */
+  assert.equal(s.selloutEffects.stock.luckyCharm, 1, "Lucky Charm rangé dans la valise");
+  assert.ok(Math.abs(idleNguBonuses(s).dropMultiplier / avant - 1) < 1e-9, "pas d'effet avant Utiliser");
+  s = utiliser(s, "luckyCharm");
+  assert.ok(!s.selloutEffects.stock.luckyCharm, "Lucky Charm consommé");
   assert.ok(Math.abs(idleNguBonuses(s).dropMultiplier / avant - 2) < 1e-9, "Lucky Charm : Drop Chance x2");
 }
 {

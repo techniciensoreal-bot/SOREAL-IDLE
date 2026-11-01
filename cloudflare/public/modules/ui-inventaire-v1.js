@@ -519,8 +519,16 @@
           }
           return Boolean(itemList[id]&&itemList[id].seen);
         });
+        /* Boosts en bas de la Collection (Norman, 2026-11-01) : TOUJOURS classés par valeur croissante (1, 2, 5, 10, 20, 50, 100), et à valeur égale dans l'ordre orange (puissance), bleu (endurance), jaune (spécial), qu'ils soient complétés ou non. */
+        const ORDRE_COULEUR_BOOST_V1={power:0,toughness:1,special:2};
         const idsBoosts=Object.keys(itemList).filter(function(id){
           return IDLE_COLLECTION_BOOST_RE_V1.test(id);
+        }).sort(function(a,b){
+          const ma=IDLE_COLLECTION_BOOST_RE_V1.exec(a),mb=IDLE_COLLECTION_BOOST_RE_V1.exec(b);
+          const fa=Number(ma[2]),fb=Number(mb[2]);
+          if(fa!==fb)return fa-fb;
+          const ca=ORDRE_COULEUR_BOOST_V1[ma[1]],cb=ORDRE_COULEUR_BOOST_V1[mb[1]];
+          return (ca===undefined?9:ca)-(cb===undefined?9:cb);
         });
 
         const totalPagesEquipement=Math.max(1,Math.ceil(idsEquipementToutes.length/REG.IDLE_PAGINATION_TAILLE_V1));
@@ -1523,6 +1531,8 @@
         REG.idleInventoryBusyV160=false;
 
         if(!erreur&&res&&res.ok&&res.joueur){
+          /* Fusion ou boost glissé qui atteint le niveau 100 d'un boost : popup de validation (popup-effet-objet-v1.js ; l'Auto Merge / Auto Boost ne passent pas par ici). */
+          try{if(window.__SOREAL_IDLE_POPUP_EFFET_V1__)window.__SOREAL_IDLE_POPUP_EFFET_V1__.apres({action:'adventure',adventure:tx.payload},res);}catch(_e){}
           const restAvant=REG.idleEtat&&REG.idleEtat.adventureRestPv;
           if(!appliquerSynchroCombatSansReflowIdleV116_(res.joueur)){
             REG.idleEtat=res.joueur;

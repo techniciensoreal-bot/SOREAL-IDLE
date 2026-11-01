@@ -61,6 +61,9 @@ const neuf = () => {
   let s = neuf();
   const avant = idleNguBonuses(s).dropMultiplier;
   s = completer(s, "gaudy");
+  assert.equal(s.selloutEffects.stock.luckyCharm, 2, "2 Lucky Charms rangés dans la valise (2026-11-01)");
+  assert.ok(!s.selloutEffects.remaining.luck, "aucun activé tout seul");
+  s = toutUtiliser(s);
   assert.equal(s.selloutEffects.remaining.luck, 2 * 1800, "2 Lucky Charms = 2 x 30 min");
   assert.ok(Math.abs(idleNguBonuses(s).dropMultiplier - avant * 2) < 1e-9, "Drop Chance x2 pendant le Lucky Charm");
 }

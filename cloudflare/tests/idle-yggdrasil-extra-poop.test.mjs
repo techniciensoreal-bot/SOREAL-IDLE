@@ -43,7 +43,7 @@ const manger = (s, fruit, mode = "eat", poop = true) => applyIdleNguAction(s, { 
   const r = manger(pret("powerAlpha", 4, 3), "powerAlpha");
   assert.equal(r.state.systems.yggdrasil.data.runPowerAlphaValue, 12, "⌈8 x 1,5⌉");
   assert.equal(r.state.selloutEffects.poop, 2);
-  assert.deepEqual(r.result.poop, { consumed: true, free: false, remaining: 2 });
+  assert.deepEqual(r.result.poop, { consumed: true, free: false, remaining: 2, factor: 1.5 });
   const s = pret("gold", 4, 1);
   const avant = s.currencies.seeds;
   const h = manger(s, "gold", "harvest");

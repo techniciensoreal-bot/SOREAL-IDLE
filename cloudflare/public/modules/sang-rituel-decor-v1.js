@@ -483,6 +483,8 @@ var FILM_FOND=0.07,FILM_CALICE=0.22;
 function filmFond(id,compte,f){
   f=Math.max(0,Math.min(1,f));
   if(id==='tack'||!(Number(compte)>=1))return f;
+  /* Quatrième rituel (Norman, 2026-11-01 : « le 2e calice a déjà du sang alors qu'il n'a reçu aucun jet ») : un calice qui n'a reçu AUCUNE goutte (fraction 0 : le suivant qui attend, ou le calice qui vient d'entrer) est vide ; la couche de fond n'apparaît qu'avec la première goutte reçue. */
+  if(f<=0&&SOURCES[id]==='fil')return 0;
   /* le calice (bol à fond arrondi et étroit) demande une couche un peu plus haute pour qu'on la voie (Norman, 2026-10-13 : « dans les barbelés, je ne vois pas le sang ») */
   var fm=typeContenant(id)==='calice'?FILM_CALICE:FILM_FOND;
   return fm+(1-fm)*f;
@@ -588,7 +590,12 @@ function scene(opts){
     '<div class="bm-bac'+(opts.saigne?' on':'')+(compte>=1?' bm-baxter-ok':'')+'" data-bm-bac="'+opts.id+'">'+bac(paliers(opts.id,compte).fraction,!!opts.saigne)+'</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(compte*(Number(opts.sang)||0))+'</div>';
   }
-  if(SOURCES[opts.id]==='fil')compte=filNAffiche(opts.id,compte,null);
+  if(SOURCES[opts.id]==='fil'){
+    /* Le compte du serveur peut retarder sur ce que la scène montre déjà (rituels rejoués en local) : un redessin ne doit jamais ramener un calice plus bas (le nouveau calice repeint plein, un suivant en trop). Même règle que stabiliser(). */
+    var dejaAff=affiches[opts.id];
+    if(dejaAff!==undefined&&compte<dejaAff&&compte>dejaAff/2)compte=dejaAff;
+    compte=filNAffiche(opts.id,compte,null);
+  }
   var pal=paliers(opts.id,compte),cap=pal.cap,type=typeContenant(opts.id),dim=dimensions(opts.id,opts.rang);
   var fraction=filmFond(opts.id,compte,pal.fraction);
   var rendu=suivantVu[opts.id];
@@ -605,8 +612,8 @@ function scene(opts){
         ?'<div class="bm-bec bm-bec-flot" aria-hidden="true"><i class="bm-filet"></i></div>'
         :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
-      '<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
-      (pal.fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':'')+
+      (echangeProtege(opts.id)?'':'<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
+      (pal.fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':''))+
     '</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
 }
@@ -632,20 +639,63 @@ function ajouterSuivant(sc,type,anime){
   sc.appendChild(n);
   return n;
 }
+/*
+ * Pendant un échange, les deux calices (celui qui sort, celui qui entre) sont à l'abri du redessin de la page : le morph laisse en place un bloc marqué data-morph-garder, et scene() n'écrit plus de calice tant que
+ * l'échange dure (echangeProtege). Sans cela, un redessin remplaçait le calice qui sort par un calice vide, ou retirait celui qui entre (Norman, 2026-11-01 : deux calices en même temps au quatrième rituel).
+ */
+function protegerVases(sc,oui){
+  var l=sc.querySelectorAll('.bm-vase'),i;
+  for(i=0;i<l.length;i++){if(oui)l[i].setAttribute('data-morph-garder','');else l[i].removeAttribute('data-morph-garder');}
+}
+function echangeProtege(id){
+  if(typeof document==='undefined'||typeof document.querySelector!=='function')return false;   /* rendu pur (tests) */
+  try{return !!document.querySelector('.bm-scene[data-bm-id="'+id+'"] .bm-vase[data-morph-garder]');}catch(_e){return false;}
+}
+/* Fin de l'échange, GARANTIE : tout calice autre que celui qui entre quitte la scène (celui qui sort, et tout reste), quelle que soit l'animation (annulée, interrompue, onglet masqué). */
+function finEchange(sc,b){
+  if(b&&b.parentNode===sc){
+    var l=sc.querySelectorAll('.bm-vase'),i;
+    for(i=0;i<l.length;i++)if(l[i]!==b&&l[i].parentNode)l[i].parentNode.removeChild(l[i]);
+    b.classList.remove('bm-suivant','bm-avance','bm-apparait','bm-sort');b.removeAttribute('aria-hidden');
+  }
+  protegerVases(sc,false);
+  sc.__swap=false;sc.__plein=false;sc.__vide=false;sc.__fin=null;
+}
 function echanger(sc,type){
   var a=sc.querySelector('.bm-vase:not(.bm-suivant)'),b=sc.querySelector('.bm-vase.bm-suivant');
   if(!a||!b)return;
   var reduit=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  sc.__swap=true;sc.__vide=true;
-  function fin(){
-    if(a.parentNode)a.parentNode.removeChild(a);
-    b.classList.remove('bm-suivant','bm-avance','bm-apparait');b.removeAttribute('aria-hidden');
-    sc.__swap=false;sc.__vide=false;
-  }
+  sc.__swap=true;sc.__vide=true;sc.__swapT0=performance.now();
+  protegerVases(sc,true);
+  var fait=false;
+  function fin(){if(fait)return;fait=true;finEchange(sc,b);}
+  sc.__fin=fin;
   if(reduit){fin();return;}
   b.classList.remove('bm-apparait');
   a.classList.add('bm-sort');b.classList.add('bm-avance');
   setTimeout(fin,DUREE_ECHANGE);
+}
+/*
+ * Un seul calice courant par scène à tout instant : hors échange, aucun calice ne glisse vers la sortie, il n'y a qu'un calice courant (le dernier) et au plus un suivant ; s'il n'y en a aucun (page redessinée en plein
+ * échange, scène recréée), un calice courant est recréé. Un échange qui dépasse 3 s (minuteur perdu) est terminé de force.
+ */
+function normaliserVases(sc,id,type,fraction){
+  var maintenant=performance.now();
+  if(sc.__swap&&sc.__swapT0&&maintenant-sc.__swapT0>3000){var f=sc.__fin;if(f)f();else finEchange(sc,null);}
+  if(sc.__swap)return;
+  var l=sc.querySelectorAll('.bm-vase'),i,cour=[],suiv=[];
+  for(i=0;i<l.length;i++){
+    if(l[i].hasAttribute('data-morph-garder'))l[i].removeAttribute('data-morph-garder');
+    if(l[i].classList.contains('bm-sort')){if(l[i].parentNode)l[i].parentNode.removeChild(l[i]);continue;}
+    if(l[i].classList.contains('bm-avance'))l[i].classList.remove('bm-avance');
+    (l[i].classList.contains('bm-suivant')?suiv:cour).push(l[i]);
+  }
+  for(i=0;i<cour.length-1;i++)if(cour[i].parentNode)cour[i].parentNode.removeChild(cour[i]);
+  for(i=1;i<suiv.length;i++)if(suiv[i].parentNode)suiv[i].parentNode.removeChild(suiv[i]);
+  if(!cour.length){
+    var n=document.createElement('div');n.className='bm-vase';n.innerHTML=contenant(type,fraction,id);
+    sc.insertBefore(n,suiv.length?suiv[0]:null);
+  }
 }
 /*
  * La goutte tombe jusqu'au SANG (Norman, 2026-10-11, coupures de papier) : sa hauteur de chute suit le niveau du liquide dans le verre (verre vide : elle va jusqu'au fond, presque plein : elle tombe de peu).
@@ -1700,6 +1750,7 @@ function majScene(sc){
   var nv=sc.getAttribute('data-source')==='fil'?filNAffiche(id,n,sc):n;
   var pal=paliers(id,nv),cap=pal.cap,pleins=pal.pleins,fraction=pal.fraction;
   if(sc.getAttribute('data-bm-cap')!==String(cap))sc.setAttribute('data-bm-cap',String(cap));
+  if(sc.getAttribute('data-source')==='fil')normaliserVases(sc,id,type,filmFond(id,nv,fraction));
   rythme(sc,id,n,derniers[id]===undefined?n:derniers[id]);
   derniers[id]=n;
   var avant=vus[id];
@@ -1709,7 +1760,8 @@ function majScene(sc){
     if(!attend){
       /* le suivant n'était pas encore là (gros saut de niveaux) : il arrive d'abord d'en dehors du cadre, le plein reste plein pendant ce temps, puis il le pousse */
       ajouterSuivant(sc,type,true);
-      sc.__swap=true;sc.__plein=true;
+      sc.__swap=true;sc.__plein=true;sc.__swapT0=performance.now();
+      protegerVases(sc,true);
       setTimeout(function(){sc.__plein=false;sc.__swap=false;echanger(sc,type);},900);
     }else echanger(sc,type);
   }else if(!sc.__swap){

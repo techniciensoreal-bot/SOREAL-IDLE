@@ -19,6 +19,7 @@ import ENNEMIS from "../../design/traductions/fr/mobs.json" with { type: "json" 
 import BOSS_NOMS from "../../design/ngu-boss-names-fr.json" with { type: "json" };
 import BOSS_HISTOIRES_EN from "../../design/ngu-boss-stories-en.json" with { type: "json" };
 import BOSS_HISTOIRES_FR from "../../design/ngu-boss-stories-fr.json" with { type: "json" };
+import HISTOIRES_COMPLEMENT_FR from "../../design/ngu-boss-stories-complement-fr.json" with { type: "json" };
 import { NOMS_PIECES_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1 } from "./idle-noms-fr-v1.js";
 import {
   SET_ITEM_NAMES_EN_V1,
@@ -57,13 +58,19 @@ const FR_VERS_EN_V1 = (() => {
  */
 const HISTOIRES_FR_V1 = new Map(BOSS_HISTOIRES_FR.map((h) => [h.id, h.story]));
 /*
+ * Boss SANS chronique dans le référentiel du wiki (272 à 289) : le catalogue de production y range quand même la chronique du boss SUIVANT (le texte « *ZWOUP* Et tu atterris… » du boss 290 « Un Seul Rat » apparaissait sous le 289, 2026-11-01). Avant, la correction exigeait une chronique de référence
+ * pour le boss lui-même et laissait donc ce décalage tel quel. Maintenant : le texte du boss suivant est remplacé par la chronique fournie par le code (design/ngu-boss-stories-complement-fr.json, ex. 289 « La Femme Pirate »), sinon retiré (aucun mauvais texte affiché).
+ */
+const COMPLEMENTS_FR_V1 = new Map(HISTOIRES_COMPLEMENT_FR.map((h) => [h.id, h.story]));
+const histoireDeReferenceFrV1 = (n) => (HISTOIRES_FR_V1.has(n) ? HISTOIRES_FR_V1.get(n) : (COMPLEMENTS_FR_V1.get(n) || ""));
+/*
  * Chronique d'ORIGINE d'un boss pour l'éditeur de textes / de voix du menu Admin (Norman, 2026-10-13 : « quand j'édite la fiche d'un boss pour générer les voix, il me met encore les anciens textes, ceux des mauvais boss »).
  * Le catalogue de production range parfois la chronique du boss N+1 sous le boss N ; les réponses du jeu étaient déjà corrigées (histoiresBossFrDecalees_), pas la liste de l'éditeur. Si la chronique du catalogue est exactement celle du boss
  * suivant dans le référentiel français, on rend celle du boss lui-même ; sinon (texte propre, texte modifié) elle reste telle quelle.
  */
 export function histoireBossFrAligneeV1(numero, histoire) {
-  const original = HISTOIRES_FR_V1.get(numero), suivant = HISTOIRES_FR_V1.get(numero + 1);
-  if (original && suivant && original !== suivant && histoire === suivant) return original;
+  const original = histoireDeReferenceFrV1(numero), suivant = HISTOIRES_FR_V1.get(numero + 1);
+  if (suivant && original !== suivant && histoire === suivant) return original;
   return histoire;
 }
 /* Corrige uniquement la chronique catalogue d'un boss identique à celle du boss suivant.
@@ -72,8 +79,8 @@ export function histoireBossFrAligneeV1(numero, histoire) {
 function histoiresBossFrDecalees_(v) {
   const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
   if (n < 80) return null;
-  const original = HISTOIRES_FR_V1.get(n), suivant = HISTOIRES_FR_V1.get(n + 1);
-  if (!original || !suivant) return null;
+  const original = histoireDeReferenceFrV1(n), suivant = HISTOIRES_FR_V1.get(n + 1);
+  if (!suivant || original === suivant) return null;
   let correction = null;
   if (v.histoire === suivant && "conseil" in v) correction = { histoire: original };
   if (v.description === suivant && v.type === "boss_principal") correction = Object.assign(correction || {}, { description: original });
@@ -83,8 +90,14 @@ function histoiresBossFrDecalees_(v) {
 const HISTOIRES_EN_V1 = new Map(BOSS_HISTOIRES_EN.map((h) => [h.id, h.story]));
 function histoiresBossEn_(v) {
   const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
-  const original = n > 0 ? HISTOIRES_EN_V1.get(n) : undefined;
-  if (original === undefined) return null;
+  let original = n > 0 ? HISTOIRES_EN_V1.get(n) : undefined;
+  /* Boss sans chronique sur le wiki (272 à 289) : seul un texte IDENTIQUE à celui du boss suivant (décalage du catalogue de production) est retiré ; un texte écrit par l'administrateur reste. */
+  const suivantEn = n > 0 ? HISTOIRES_EN_V1.get(n + 1) : undefined;
+  if (original === undefined) {
+    if (suivantEn === undefined) return null;
+    if (v.histoire !== suivantEn && v.description !== suivantEn && v.bossHistoire !== suivantEn) return null;
+    original = "";
+  }
   let rempl = null;
   /* Catalogue des boss (Fight Boss, Collection) : histoire + conseil ; liste de la Collection : description du boss principal ; boss sélectionné : bossHistoire. */
   if (typeof v.histoire === "string" && v.histoire && "conseil" in v) rempl = { histoire: original };

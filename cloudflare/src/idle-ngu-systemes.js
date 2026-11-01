@@ -360,7 +360,7 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
   state.currencies.seeds+=seedGain;
   const factor=Math.ceil(Math.pow(grownTier,1.5));
   const result={fruit:fruitId,mode:harvest?"harvest":"eat",tier:grownTier,seeds:seedGain};
-  if(poop)result.poop={consumed:poop.consumed,free:poop.free,remaining:poop.remaining};
+  if(poop)result.poop={consumed:poop.consumed,free:poop.free,remaining:poop.remaining,factor:poop.factor};
   /*
    * 2026-09-23 (audit) : wiki Yggdrasil > Fruit Yields. Chaque fruit a sa formule :
    * ceil(ceil(T^1.5) x constante du fruit x Poop x NGU_Ygg x Quirk_Ygg x Equip_YggYield x

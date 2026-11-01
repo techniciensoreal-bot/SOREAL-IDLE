@@ -139,3 +139,11 @@ console.log("idle-valise-consommables-v1 (graines, PC): OK");
   assert.ok(ui2.includes("vl-velours-fond") && ui2.includes("vl-phrase-on") && ui2.includes("phraseBlocHtml"), "le Coffre pose le velours et la phrase de la valise");
 }
 console.log("idle-valise-consommables-v1 (traits, velours, titre): OK");
+/* Porte-bonheur et Super porte-bonheur (Norman, 2026-11-01) : rangés dans la valise avec un bouton « Utiliser », jamais activés tout seuls. */
+{
+  const valise = lire("public/modules/valise-v1.js");
+  const shop = lire("src/idle-sellout-shop-v1.js");
+  assert.ok(valise.includes("{id:'luckyCharm',nom:'Porte-bonheur',img:'lucky-charm'}") && valise.includes("{id:'superLuckyCharm',nom:'Super porte-bonheur',img:'super-lucky-charm'}"), "les porte-bonheur sont des objets de la valise");
+  assert.ok(/IDLE_POTIONS_STOCK_V1 = Object\.freeze\(\[[^\]]*"luckyCharm", "superLuckyCharm"/.test(shop), "le moteur les range en réserve au lieu de les activer");
+}
+console.log("idle-valise-consommables-v1 (porte-bonheur en réserve): OK");

@@ -188,12 +188,12 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 47,
-  "sha": "68531f3a2b1c27f570924b91b5d79b33882d226b"
+  "pin": 48,
+  "sha": "9101c9e1ff0d98a929899664152ab27d7af04514"
  },
  "/modules/daycare-skin-popup-v1.js": {
-  "pin": 2,
-  "sha": "18fca000604cf722fa1cac2251deb62a5e0fbebb"
+  "pin": 3,
+  "sha": "24e04d10ff39f0846ade71f19e0ce171b0cf3121"
  },
  "/modules/defilement-theme-v1.js": {
   "pin": 3,
@@ -272,8 +272,8 @@
   "sha": "6c0465b808e5c98d73a1bcfd61bc9ed237edf055"
  },
  "/modules/hud-haut-v2.js": {
-  "pin": 35,
-  "sha": "fd4cf8f31f9350eeb6482b3ee8de0072146984c4"
+  "pin": 36,
+  "sha": "6587225c71cecb382cbee22db3ae1708883a9055"
  },
  "/modules/icones-v1.js": {
   "pin": 2,
@@ -380,8 +380,8 @@
   "sha": "9f1f386887f2946ef63087d40fe87ccbccdeff14"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610172,
-  "sha": "28d92927340c10f9a96ecf4152dfd64d48404f29"
+  "pin": 202610173,
+  "sha": "5a42cc85e20b3e4a1147da011174b2bdcf4bbd58"
  },
  "/modules/mineurs-page-v1.js": {
   "pin": 7,
@@ -412,8 +412,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 115,
-  "sha": "6ed52c558667e13bfdc5ae6496595db0f5fb35c1"
+  "pin": 119,
+  "sha": "8b4a021ecad76eddf6e2bab18e01a2ec5c0ca745"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -463,6 +463,10 @@
   "pin": 4,
   "sha": "d5ca766dd2619c822b691eb23a74518ade754d49"
  },
+ "/modules/popup-effet-objet-v1.js": {
+  "pin": 1,
+  "sha": "707df2a3ec9cce4aa4ef065d3df63b7c51647977"
+ },
  "/modules/prefs-compte-v1.js": {
   "pin": 3,
   "sha": "20602f35dc5665e88c4fb2491b372ccfa91daf31"
@@ -492,12 +496,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 18,
-  "sha": "6f5eda62cddecde286b7491b21f993a78c6c8a4a"
+  "pin": 22,
+  "sha": "964baac5f18a70c6d0a5cec5c641a45c3db222c0"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 629,
-  "sha": "8f4677ca325d4319d4d6865b38deb99b92199dc0"
+  "pin": 636,
+  "sha": "2e8feb3235d135694b22f58e779486b67b6a07e2"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -508,8 +512,8 @@
   "sha": "9b9928571cb7ffc61556938c44fa90d8abdcc69b"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 234,
-  "sha": "25c211dedb71458dbc307e02bfbcca40998c3596"
+  "pin": 235,
+  "sha": "f906fae1339f43a1d540beb285f8d7071ce4790e"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -576,12 +580,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 652,
-  "sha": "b824f626ba0f70caa5477f10e290e7667ce011c1"
+  "pin": 658,
+  "sha": "a7d911bcc4b313b20520d78ed26d01db669e9233"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 472,
-  "sha": "504b345d86e5d3dfb63b0da20f0ea3f0ed7e025b"
+  "pin": 478,
+  "sha": "101750d2af6dfc842cbf843b4bbf9a91d5bb28a5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -600,8 +604,8 @@
   "sha": "aa10017306dcda28586132dea1015bbf36248812"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 12,
-  "sha": "00f636b0730684ae1bae1b6063ff51a3deb2f4db"
+  "pin": 13,
+  "sha": "8a0d42b187437f1b00f346b740096aac45822efe"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,
@@ -652,8 +656,8 @@
   "sha": "3ee4907d1095988fe34cbe5536fe9af35714cdfa"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 11,
-  "sha": "f6307990fb93038d64cf1882c485dca2b2059bf3"
+  "pin": 13,
+  "sha": "87c250b88f8948dc12ca5695830726bb30d1e4e9"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 6,
@@ -664,8 +668,8 @@
   "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 18,
-  "sha": "128cd8b11cc21cb25ef7bec6a6846f916d265af2"
+  "pin": 19,
+  "sha": "6ec1d6475d71d350d697c1df138eda7e3ab59377"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 10,
@@ -704,8 +708,8 @@
   "sha": "36c0d2ba718318c61d837dbfda67ebaeeb19144d"
  },
  "/modules/valise-v1.js": {
-  "pin": 66,
-  "sha": "35fd77bf055f5e41e10ff6b4dd4e045336631654"
+  "pin": 68,
+  "sha": "3a53fe16814ca340a37257335ebb6b83cc3b6b85"
  },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 9,
@@ -804,8 +808,8 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 142,
-  "sha": "e2f58f8a533aaded5a3d863969471768164c5040"
+  "pin": 143,
+  "sha": "ac89e774ce1ff892b2a6d408b58980e5ff0e0801"
  },
  "/soreal-idle-ui.css": {
   "pin": 64,

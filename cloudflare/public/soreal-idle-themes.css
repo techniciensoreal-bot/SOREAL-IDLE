@@ -2118,11 +2118,11 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.sore
 /* Barre entièrement dépensée : elle s'efface en fondu, puis l'espace se referme en douceur et les barres du dessous remontent ; au retour, l'espace se rouvre puis la barre réapparaît en fondu. */
 @media all{
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34{
-    max-height:24px;transition:max-height .45s ease,margin-bottom .45s ease,opacity .45s ease .2s;
+    max-height:24px;transition:none;   /* instantané (Norman, 2026-11-01) */
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2{
     opacity:0;max-height:0;margin-bottom:0!important;pointer-events:none;overflow:clip;overflow-clip-margin:8px;
-    transition:opacity .45s ease,max-height .45s ease .35s,margin-bottom .45s ease .35s;
+    transition:none;
   }
 }
 @media (prefers-reduced-motion:reduce){

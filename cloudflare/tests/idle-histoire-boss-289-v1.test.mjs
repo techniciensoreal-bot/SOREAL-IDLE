@@ -4,7 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 import { enregistrerTexteV1, invaliderCacheTextesBossV1 } from "../src/idle-textes-v1.js";
 import { histoireComplementBossV1, histoireBossAvecSurchargeSorealIdle_ } from "../src/idle-runtime-catalogue.js";
 import { __idleCtx } from "../src/idle-sqlite-runtime.js";
-import { traduireReponseV1 } from "../src/idle-traductions-v1.js";
+import { traduireReponseV1, histoireBossFrAligneeV1 } from "../src/idle-traductions-v1.js";
 import { lireSrc } from "./_src-sources.mjs";
 
 /*
@@ -43,6 +43,18 @@ assert.equal(histoireBossAvecSurchargeSorealIdle_(289, histoireComplementBossV1(
 // Anglais : pas de texte wiki pour 289, la réponse garde le français.
 const rep = { numero: 289, histoire: attendu, conseil: "Test" };
 assert.equal(traduireReponseV1(rep, "en").histoire, attendu);
+
+// Décalage du catalogue de production (Norman, 2026-11-01) : la chronique du boss 290 « Un Seul Rat » (*ZWOUP*…) rangée sous le 289 est remplacée par celle du 289 (FR) ou retirée (EN) ; un texte propre au 289 n'est jamais touché.
+const stories = JSON.parse(readFileSync("design/ngu-boss-stories-fr.json", "utf8"));
+const storiesEn = JSON.parse(readFileSync("design/ngu-boss-stories-en.json", "utf8"));
+const rat = stories.find((h) => h.id === 290).story;
+const ratEn = storiesEn.find((h) => h.id === 290).story;
+assert.ok(rat.startsWith("*ZWOUP*"));
+assert.equal(traduireReponseV1({ numero: 289, histoire: rat, conseil: "x" }, "fr").histoire, attendu, "FR : le texte du boss suivant est remplacé par celui du 289");
+assert.equal(traduireReponseV1({ numero: 289, histoire: "Texte de l'administrateur", conseil: "x" }, "fr").histoire, "Texte de l'administrateur", "un texte propre reste");
+assert.equal(traduireReponseV1({ numero: 289, histoire: ratEn, conseil: "x" }, "en").histoire, "", "EN : le texte du boss suivant est retiré");
+assert.equal(traduireReponseV1({ numero: 289, histoire: "Admin text", conseil: "x" }, "en").histoire, "Admin text", "EN : un texte propre reste");
+assert.equal(histoireBossFrAligneeV1(289, rat), attendu, "éditeur admin : même correction");
 
 // Branchement : le catalogue (donc la fiche, la collection, l'éditeur admin, tous filtrés par boss atteint) passe par le complément.
 const cat = lireSrc("idle-runtime-catalogue.js");

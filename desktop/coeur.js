@@ -547,8 +547,21 @@ function ouvrirFenetre() {
       try { if (cle && fenetre && !fenetre.isDestroyed()) await fenetre.webContents.removeInsertedCSS(cle); } catch (_e) { /* fenêtre fermée */ }
       repeindre();
     };
-    fenetre.on("blur", geler);
-    fenetre.on("focus", degeler);
+    /*
+     * Blood Magic et tout calque de dessin DISPARAISSAIENT quand on cliquait hors de la fenêtre (Norman, 2026-11-01) : le gel se déclenchait à CHAQUE perte de focus, même vers une autre fenêtre ou le bureau, alors que le jeu reste visible. La superposition Steam, elle, s'affiche PAR-DESSUS la fenêtre (le curseur y reste) :
+     * on ne gèle donc que si le curseur est sur la fenêtre au moment de la perte de focus ; tant que le focus manque, un contrôle toutes les 0,4 s dégèle dès que le curseur sort de la fenêtre et regèle quand il y revient.
+     */
+    const { screen } = require("electron");
+    let veille = null;
+    const curseurSurLaFenetre = () => {
+      try { const p = screen.getCursorScreenPoint(), b = fenetre.getBounds(); return p.x >= b.x && p.x < b.x + b.width && p.y >= b.y && p.y < b.y + b.height; } catch (_e) { return true; }
+    };
+    const ajuster = () => {
+      if (!fenetre || fenetre.isDestroyed() || fenetre.isFocused()) return;
+      if (curseurSurLaFenetre()) geler(); else if (gele) degeler();
+    };
+    fenetre.on("blur", () => { ajuster(); if (!veille) veille = setInterval(ajuster, 400); });
+    fenetre.on("focus", () => { if (veille) { clearInterval(veille); veille = null; } degeler(); });
   }
   fenetre.loadURL(ORIGINE + "/");
   fenetre.on("closed", () => { fenetre = null; });

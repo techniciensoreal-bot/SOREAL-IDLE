@@ -288,6 +288,9 @@
                 res.resultat &&
                 Object.keys(res.resultat).length
               ){
+                /* Popup de validation d'un objet utilisé (potion, copie de Wandoos, graine géante, Poop, objet de déblocage, achat à effet, palier de boosts) : popup-effet-objet-v1.js. Les actions automatiques n'arrivent jamais ici. */
+                let popupEffetObjetV1=false;
+                try{if(window.__SOREAL_IDLE_POPUP_EFFET_V1__)popupEffetObjetV1=window.__SOREAL_IDLE_POPUP_EFFET_V1__.apres(payload,res);}catch(_e){}
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-293 */
                 if(!estCycleCombatZoneV1){
                   /* A + clic sans rien d'absorbé : on dit pourquoi. */
@@ -425,7 +428,8 @@
                   payload.action==='adventure'&&
                   payload.adventure&&
                   payload.adventure.action==='consumeUnlock'&&
-                  res.resultat.flag
+                  res.resultat.flag&&
+                  !popupEffetObjetV1
                 ){
                   const nomsSystemesDeblocageV1={
                     ngu:'NGU',yggdrasil:'Yggdrasil',diggers:'Diggers',
@@ -491,7 +495,7 @@
                 if(payload&&payload.action==='consumeWandoosCopy'){
                   /* Son « ordinateur positif » à chaque mise à jour de Wandoos (Norman, 2026-10-15) */
                   try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosMaj==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosMaj();}catch(_e){}
-                  window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
+                  if(!popupEffetObjetV1)window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
                     res.resultat.unlocked==='xl'
                       ?'💾 Wandoos XL débloqué !'
                       :'💾 Wandoos : niveau d’OS '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.osLevel)+' ('+(res.resultat.source==='consumedXl'?'copie de Wandoos XL':'copie de Wandoos 98')+')'

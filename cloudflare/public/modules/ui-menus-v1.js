@@ -990,6 +990,8 @@
         const enSomme=function(objet,cles){
           return Object.keys(objet||{}).some(function(k){const p=objet[k]||{};return cles.some(function(c){return idleNombre_(p[c])>0;});});
         };
+        /* Mineurs d'or (Norman, 2026-11-01 : « Mineurs d'or reste éteint ») : un mineur ACTIVÉ (et réglé sur un niveau) fait travailler le menu, même sans énergie ni magie placées. */
+        if(id==='diggers'){const m=donnees.diggers||{};return Object.keys(m).some(function(k){const d=m[k]||{};return d.active&&idleNombre_(d.runLevel)>0;});}
         if(id==='augmentations')return enSomme(donnees.pairs,['energy','upgradeEnergy']);
         if(id==='avance')return enSomme(donnees.tracks,['energy']);
         return false;
