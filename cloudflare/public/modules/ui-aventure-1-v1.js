@@ -755,8 +755,8 @@
 
       let idleAdventureLogResumeTimerV1_=null;
 
-      /* Norman (2026-10-29) : le journal de combat revient tout en bas après 10 secondes sans qu'on y touche (molette, appui ou défilement repoussent l'échéance). */
-      const IDLE_ADVENTURE_LOG_RESUME_MS_V1=10000;
+      /* Norman (2026-11-01) : le journal de combat reste TOUJOURS tout en bas (ligne la plus récente) ; molette et doigt ne le font plus défiler (le défilement va à la page) ; deux flèches (haut / bas) permettent de remonter, et après 15 secondes sans mouvement dans le journal il revient à sa position de base. */
+      const IDLE_ADVENTURE_LOG_RESUME_MS_V1=15000;
 
       /*
        * critique (2026-09-27, Norman : « Quand on met ou recoit un coup critique ») : suffixe
@@ -876,21 +876,30 @@
         idleAdventureLogAutoScrollV1_=enBas;
         idleAdventureLogScrollMemoV1_=host.scrollTop;
 
+        if(enBas)clearTimeout(idleAdventureLogResumeTimerV1_);else armerRetourJournalAventureIdleV1_();
+      }
+
+      /* Retour tout en bas après 15 secondes sans mouvement dans le journal (chaque défilement ou appui de flèche relance l'échéance). */
+      function armerRetourJournalAventureIdleV1_(){
         clearTimeout(idleAdventureLogResumeTimerV1_);
-        if(!enBas){
-          idleAdventureLogResumeTimerV1_=setTimeout(function(){
-            idleAdventureLogAutoScrollV1_=true;
-            const hostActuel=document.getElementById('sorealIdleAdventureLogV1');
-            if(hostActuel)hostActuel.scrollTop=hostActuel.scrollHeight;
-          },IDLE_ADVENTURE_LOG_RESUME_MS_V1);
-        }
+        idleAdventureLogResumeTimerV1_=setTimeout(function(){
+          idleAdventureLogAutoScrollV1_=true;
+          const hostActuel=document.getElementById('sorealIdleAdventureLogV1');
+          if(hostActuel)hostActuel.scrollTop=hostActuel.scrollHeight;
+        },IDLE_ADVENTURE_LOG_RESUME_MS_V1);
       }
 
       function attacherEcouteurScrollJournalAventureIdleV1_(host){
         if(!host||host.dataset.idleScrollBoundV1==='1')return;
         host.dataset.idleScrollBoundV1='1';
         host.addEventListener('scroll',gererScrollJournalAventureIdleV1_,{passive:true});
-        ['wheel','pointerdown','touchstart'].forEach(function(nom){host.addEventListener(nom,function(){if(!idleAdventureLogAutoScrollV1_)gererScrollJournalAventureIdleV1_({currentTarget:host});},{passive:true});});
+        installerFlechesJournalAventureIdleV1_(host);
+      }
+
+      /* Flèches du journal (modules/journal-fleches-v1.js, Norman 2026-11-01) : un appui vers le haut fige la lecture ; chaque appui relance les 15 secondes avant le retour tout en bas. */
+      function installerFlechesJournalAventureIdleV1_(host){
+        const M=window.__SOREAL_IDLE_JOURNAL_FLECHES_V1__;
+        if(M)M.installer(host,function(sens){if(sens<0)idleAdventureLogAutoScrollV1_=false;armerRetourJournalAventureIdleV1_();});
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-141 */

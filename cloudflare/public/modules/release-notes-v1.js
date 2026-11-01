@@ -32,6 +32,7 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le journal de combat reste toujours tout en bas, sur la ligne la plus récente : la molette et le doigt ne le font plus défiler. Deux flèches (haut et bas) permettent de remonter ; après 15 secondes sans mouvement, il revient tout seul en bas.',
             'Pour un nouveau joueur, les fenêtres d’annonce (nouveau portrait, nouveau chat) attendent la fin de toute l’introduction avant de s’afficher.',
             'Les barres d’Énergie et de Magie disparaissent instantanément quand il n’y en a plus, et réapparaissent instantanément quand tu en récupères.',
             'Quand tu utilises un objet qui a un effet (potion, copie de système, graine géante, Poop, palier de 100 boosts…), une fenêtre te confirme ce qui vient de se passer, avec les vrais chiffres.',

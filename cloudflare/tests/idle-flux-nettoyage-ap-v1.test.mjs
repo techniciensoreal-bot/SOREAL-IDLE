@@ -55,4 +55,6 @@ assert.equal(F.phrase({ type: "nettoyageAp", nom: "Sébastien", donnees: { ap: 2
 // Chaîne côté page : le gain affiché est mémorisé, le battement l'envoie.
 const chat = readFileSync(new URL("../public/modules/chat-v1.js", import.meta.url), "utf8");
 assert.ok(chat.includes("m.nettoyeApN=nap.n;m.nettoyeAp=nap.ap;m.nettoyeLieu=nap.lieu;"), "le battement envoie le gain du nettoyage");
+// Phrase demandée par Norman (2026-11-01), sans faute, telle quelle : « {nom} a malencontreusement mis son doigt dans l’anus de son coffre en nettoyant son caca ».
+assert.ok(src.includes("'{nom} a malencontreusement mis son doigt dans l’anus de son coffre en nettoyant son caca'"), "phrase du doigt dans le coffre");
 console.log("idle-flux-nettoyage-ap-v1: OK");

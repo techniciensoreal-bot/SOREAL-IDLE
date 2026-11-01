@@ -148,8 +148,8 @@
   "sha": "99603c9d12306d24569640e438b9b64d08e95c7b"
  },
  "/modules/coffre-accident-v1.js": {
-  "pin": 19,
-  "sha": "6a8e3a5dda6fe444848907789444058a0c182a02"
+  "pin": 20,
+  "sha": "deae5981fbba589d224f71bd23fe657d270fe02a"
  },
  "/modules/coffre-digestion-v1.js": {
   "pin": 25,
@@ -260,8 +260,8 @@
   "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
  },
  "/modules/flux-v1.js": {
-  "pin": 43,
-  "sha": "d1fc111088c8ac69e10907aada2640aef2d46ab4"
+  "pin": 44,
+  "sha": "c9fe5a1b562822edfcb3d9df6db09e14eebbe039"
  },
  "/modules/fond-combat-v1.js": {
   "pin": 1,
@@ -342,6 +342,10 @@
  "/modules/journal-attaques-v1.js": {
   "pin": 5,
   "sha": "3496ca127b40e6cba99b541b72708d9a7673a861"
+ },
+ "/modules/journal-fleches-v1.js": {
+  "pin": 1,
+  "sha": "94fab409dca29867aea6feffa466ae3437cfdda6"
  },
  "/modules/lecteur-chroniques-v1.js": {
   "pin": 9,
@@ -496,12 +500,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 22,
-  "sha": "964baac5f18a70c6d0a5cec5c641a45c3db222c0"
+  "pin": 23,
+  "sha": "bf11e5a4afe488616f640646cccbf2938373c6d7"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 636,
-  "sha": "2e8feb3235d135694b22f58e779486b67b6a07e2"
+  "pin": 637,
+  "sha": "b2b1deb8faf9fd59e6bf9bcb269e82f6f2b4f572"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -568,8 +572,8 @@
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
  },
  "/modules/titans-combat-ecran-v1.js": {
-  "pin": 15,
-  "sha": "67d2e2e4f0051507a97ae4051b9152e29fc7bd68"
+  "pin": 16,
+  "sha": "2c83b2c4a0e5cd6b0b2da34d4390414b2c8cc370"
  },
  "/modules/titans-comportements-v1.js": {
   "pin": 9,
@@ -580,12 +584,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 658,
-  "sha": "a7d911bcc4b313b20520d78ed26d01db669e9233"
+  "pin": 659,
+  "sha": "89e26fc95680a603f7a362c64c36f73d6053e328"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 478,
-  "sha": "101750d2af6dfc842cbf843b4bbf9a91d5bb28a5"
+  "pin": 479,
+  "sha": "fc950b7b5bfc6b95f698f192cdbb0f4dde812825"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -620,8 +624,8 @@
   "sha": "581737fecec9092372909dc0320d2751855a90ea"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 15,
-  "sha": "c054da56a8a172ebb899ed72ad27cd1885214e20"
+  "pin": 17,
+  "sha": "9f327baa567460ec1f073cdd348d3153c73fce39"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 53,
@@ -704,8 +708,8 @@
   "sha": "af97f980b47a1257e9cd66448485da5ab91ff7e8"
  },
  "/modules/valise-accident-v1.js": {
-  "pin": 18,
-  "sha": "36c0d2ba718318c61d837dbfda67ebaeeb19144d"
+  "pin": 19,
+  "sha": "a55bb86fe283e0f79988d4923564fdd41b9bf968"
  },
  "/modules/valise-v1.js": {
   "pin": 68,
@@ -812,8 +816,8 @@
   "sha": "ac89e774ce1ff892b2a6d408b58980e5ff0e0801"
  },
  "/soreal-idle-ui.css": {
-  "pin": 64,
-  "sha": "fe842642d7029145a6d70d6de213656da0ebfd82"
+  "pin": 66,
+  "sha": "10b5102941ba05daaeed552b32606bb0266d6432"
  },
  "/soreal-idle-ui.js": {
   "pin": 658,

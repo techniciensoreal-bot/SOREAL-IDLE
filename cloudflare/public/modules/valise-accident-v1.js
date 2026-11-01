@@ -96,7 +96,7 @@
       /* flaque aux roulettes */
       '@keyframes vlFlaque{0%{opacity:0;transform:scale(.1,.05)}25%{opacity:1}100%{opacity:1;transform:scale(1,1)}}',
       '@keyframes vlMorceau{0%{opacity:0;transform:scale(.2)}60%{opacity:0}100%{opacity:1;transform:scale(1)}}',
-      '.vl-flaque-v1{--s:1;position:absolute;left:-8%;bottom:-10px;width:116%;height:36px;z-index:6;transform-origin:50% 60%;animation:vlFlaque 2.4s cubic-bezier(.2,.7,.3,1) both;pointer-events:none;-webkit-tap-highlight-color:transparent}',
+      '.vl-flaque-v1{--s:1;position:absolute;left:-8%;bottom:-10px;width:116%;height:36px;z-index:6;transform-origin:50% 60%;animation:vlFlaque 2.4s cubic-bezier(.2,.7,.3,1) both;pointer-events:none;touch-action:none;-webkit-tap-highlight-color:transparent}',   /* touch-action:none sur la flaque elle-même (pas seulement sur ::after, ignoré par Chrome Android : pointercancel après 2 mouvements) */
       '.vl-flaque-v1.deja{animation:none}',
       '.vl-flaque-v1[data-niveau="4"]{--s:.9;scale:.9;filter:opacity(.92)}.vl-flaque-v1[data-niveau="3"]{--s:.78;scale:.78;filter:opacity(.84)}.vl-flaque-v1[data-niveau="2"]{--s:.64;scale:.64;filter:opacity(.72)}.vl-flaque-v1[data-niveau="1"]{--s:.5;scale:.5;filter:opacity(.58)}',
       /* zone tactile invisible bien plus grande : le doigt qui frotte reste dedans et ne fait ni défiler ni changer de page */

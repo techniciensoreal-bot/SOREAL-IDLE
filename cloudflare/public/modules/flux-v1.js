@@ -121,7 +121,9 @@
       '{nom} jure que l’éponge n’était pas la sienne. {ap} AP plus tard, plus de questions.',
       '{nom} a frotté si fort que le gant et un bout d’orgueil y sont passés. {ap} AP.',
       '{nom} se lave les mains pour la douzième fois. {ap} AP, ça se rince mal.',
-      'Le coffre de {nom} dit merci en silence. Les {ap} AP, eux, sont plus polis.'
+      'Le coffre de {nom} dit merci en silence. Les {ap} AP, eux, sont plus polis.',
+      /* Phrase demandée par Norman (2026-11-01), telle quelle. */
+      '{nom} a malencontreusement mis son doigt dans l’anus de son coffre en nettoyant son caca'
     ],
     valise:[
       '{nom} a du vomi partout sur lui mais ça valait le coup pour ses {ap} AP.',
