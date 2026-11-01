@@ -214,9 +214,8 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
       if (r.ok) {
         const rep = await r.json();
         nomsJoueurs = rep.noms || [];
-        /* Un compte d'ouvrier absent des profils d'équipe de TV (adresse inconnue de TV) est aussi un ennemi, sous son libellé « pseudo (prénom) ». */
-        const parEmail = cosmetics && cosmetics.parEmail && typeof cosmetics.parEmail === "object" ? new Set(Object.keys(cosmetics.parEmail).map((k) => text(k).toLowerCase())) : null;
-        if (parEmail) for (const c of Array.isArray(rep.internes) ? rep.internes : []) if (c && !parEmail.has(text(c.email).toLowerCase())) nomsJoueurs.push(c.nom);
+        /* Un compte d'ouvrier (non externe) est aussi un ennemi sous son libellé « pseudo (prénom) » (Norman, 2026-11-01 : « Redrum (Norman) n'est jamais montré ») : sans condition sur les profils d'équipe de TV (son adresse peut y figurer sous un autre nom). Un libellé identique à un nom déjà dans la liste est ignoré (idleItopodAjouterJoueursV1). */
+        for (const c of Array.isArray(rep.internes) ? rep.internes : []) if (c && c.nom) nomsJoueurs.push(c.nom);
       }
     }
   } catch (_) { /* sans les joueurs */ }
