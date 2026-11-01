@@ -114,10 +114,10 @@ var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 
 /* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
 var TXT={
-  fr:{fight:'FIGHT !',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
+  fr:{fight:'FIGHT !',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
     jokes:['Les pixels ne font pas mal','Un guerrier hydraté est un guerrier heureux',"Ce panneau clignote, c'est son travail",'Respire, tout va bien se passer','Petite pause café ?']},
-  en:{fight:'FIGHT !',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
+  en:{fight:'FIGHT !',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
     jokes:['Pixels do not hurt','A hydrated warrior is a happy warrior','This sign blinks, it is its job','Breathe, everything will be fine','Coffee break ?']}
 };
