@@ -195,6 +195,26 @@
   /* Langue du joueur (Norman, 2026-10-31 : toutes les voix en anglais) : en « English », seules les voix ANGLAISES existent (fichiers nommés par l'empreinte du texte anglais) ; Piper est une voix FRANÇAISE, elle ne lit jamais de l'anglais. */
   function langueAnglaise_(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
 
+  var manifesteSync_=null;
+  /*
+   * RÈGLE STRICTE (Norman, 2026-11-01 : « tout ce que je considère comme validé dans les voix doit être la SEULE version qui existe ») : un texte ENREGISTRÉ est un texte dont au moins un bloc figure dans une liste « voix » déclarée
+   * (enregistrerVoixDynamiques) sans être une voix statique du manifeste (un bloc à la fois déclaré et au manifeste, comme le nom d'un boss, ne suffit pas). Pour un tel texte, SEULS les fichiers déclarés sont lus : un bloc qui n'est
+   * pas déclaré (ancienne variante du texte, voix recalculée, voix héritée du manifeste) n'est ni demandé au manifeste ni à R2 ; il retombe sur la voix de secours. Retourne { empreinte: true } des blocs interdits de ce texte.
+   */
+  function blocsInterdits_(steps){
+    var interdits={},hashes=[],enregistre=false,i,h;
+    if(!manifesteSync_)chargerManifesteVoix_();   /* le manifeste sert à distinguer un bloc enregistré d'un bloc statique commun (nom d'un boss…) : chargé au plus tôt */
+    for(i=0;i<(steps||[]).length;i+=1){
+      if(steps[i].chunk==null)continue;
+      h=hashBloc_(steps[i].chunk);
+      hashes.push(h);
+      if(voixDynamiques[h]&&!(manifesteSync_&&manifesteSync_[h]))enregistre=true;
+    }
+    if(!enregistre)return interdits;
+    for(i=0;i<hashes.length;i+=1)if(!voixDynamiques[hashes[i]])interdits[hashes[i]]=true;
+    return interdits;
+  }
+
   function chargerManifesteVoix_(){
     if(voiceManifest)return voiceManifest;
     voiceManifest=Promise.resolve()
@@ -206,6 +226,7 @@
       .then(function(m){
         var set={};
         (m&&Array.isArray(m.files)?m.files:[]).forEach(function(h){set[String(h)]=true;});
+        manifesteSync_=set;
         return set;
       })
       .catch(function(){return {};});
@@ -243,8 +264,10 @@
       return blob&&blob.size?blob:null;
     });
   }
-  function chargerBlocFichier_(text){
+  function chargerBlocFichier_(text,interdits){
     var hash=hashBloc_(text);
+    /* Règle stricte : bloc d'un texte enregistré qui n'est pas dans sa liste déclarée = aucun fichier (voir blocsInterdits_). */
+    if(interdits&&interdits[hash]&&!voixDynamiques[hash])return Promise.resolve(null);
     if(blocsFichiers[hash])return blocsFichiers[hash];
     var source=voixDynamiques[hash]
       ?chargerVoixR2_(hash).catch(function(){return null;})
@@ -257,8 +280,8 @@
   }
 
   /* Fichier pré-généré du bloc (Blob) ou null : l'appelant se rabat alors sur Piper. */
-  function blocPregenere_(text,expectedGeneration){
-    return chargerBlocFichier_(text).then(function(blob){
+  function blocPregenere_(text,expectedGeneration,interdits){
+    return chargerBlocFichier_(text,interdits).then(function(blob){
       if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
       return blob;
     });
@@ -272,10 +295,11 @@
    */
   function prechauffer_(value){
     if(!supported_())return false;
-    planNarration_(String(value||'')).forEach(function(etape){
+    var etapesPre=planNarration_(String(value||'')),interditsPre=blocsInterdits_(etapesPre);
+    etapesPre.forEach(function(etape){
       if(!etape.chunk)return;
       var texte=etape.chunk;
-      chargerBlocFichier_(texte).then(function(blob){
+      chargerBlocFichier_(texte,interditsPre).then(function(blob){
         if(blob||langueAnglaise_())return;
         requestLocalNeuralAudio_(texte,'',generation,true).catch(function(){});
       });
@@ -283,8 +307,8 @@
     return true;
   }
 
-  function obtenirAudioBloc_(text,targetId,expectedGeneration,silent){
-    return blocPregenere_(text,expectedGeneration).then(function(blob){
+  function obtenirAudioBloc_(text,targetId,expectedGeneration,silent,interdits){
+    return blocPregenere_(text,expectedGeneration,interdits).then(function(blob){
       if(expectedGeneration!==generation)throw new Error('NARRATION_ANNULEE');
       if(blob){voiceStats.fichiers+=1;return blob;}
       /* Anglais sans fichier de voix : MUET (null), jamais la voix française de Piper. */
@@ -1019,6 +1043,7 @@
        * Seule l'étape attendue affiche sa progression sur le bouton.
        */
       var steps=planNarration_(text);
+      var interditsTexte=blocsInterdits_(steps);
       var blobs={};
       var idCible=String(targetId||'__manual_text__');
       var prochainTexte=function(from){
@@ -1030,7 +1055,7 @@
       var assurer=function(i,silent){
         if(i<0||i>=steps.length)return null;
         if(!blobs[i]){
-          blobs[i]=obtenirAudioBloc_(steps[i].chunk,idCible,myGeneration,silent);
+          blobs[i]=obtenirAudioBloc_(steps[i].chunk,idCible,myGeneration,silent,interditsTexte);
           blobs[i].catch(function(){});
         }
         return blobs[i];
@@ -1249,6 +1274,7 @@
     readTarget:lireCible_,
     prechauffer:prechauffer_,
     enregistrerVoixDynamiques:enregistrerVoixDynamiques_,
+    blocsInterdits:blocsInterdits_,
     /*
      * onDone (2026-09-27, popup d'histoire) : optionnel, invoqué exactement une fois quand
      * CETTE lecture se termine (succès, échec ou voix indisponible) -- voir narrate_.

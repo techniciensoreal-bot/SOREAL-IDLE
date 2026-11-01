@@ -1,5 +1,6 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
+import { planPurgeVoixStrictV1, lireCorpsPurgeV1 } from "./idle-voix-purge-v1.js";
 import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
 /*
@@ -319,11 +320,48 @@ async function idlePurgerVoixAdminV1(request, env, url) {
    * Voix pré-générées des textes du jeu (public/voice/manifest.json, stockées au même endroit sur R2) : jamais supprimées non plus. Avant ce
    * garde, une purge effaçait aussi les ~900 voix du tutoriel et des popups, qui n'appartiennent à aucune histoire.
    */
+  let manifesteVoix = [];
   if (env?.ASSETS && typeof env.ASSETS.fetch === "function") {
     const m = await env.ASSETS.fetch(new Request(new URL("/voice/manifest.json", request.url)));
     const manifeste = m && m.ok ? await m.json().catch(() => null) : null;
     if (!manifeste || !Array.isArray(manifeste.files)) return idleJsonV1({ ok: false, error: "MANIFESTE_VOIX_ILLISIBLE" }, 502);
+    manifesteVoix = manifeste.files.map(String);
     for (const hash of manifeste.files) utiles.add(String(hash));
+  }
+  if (url.searchParams.get("strict") === "1") {
+    /*
+     * MODE STRICT (2026-11-01) : voir idle-voix-purge-v1.js. Utile = déclarée (histoires + textes enregistrés) OU statique du manifeste non liée à un texte enregistré (la liste « liees » vient du navigateur de l'administrateur, qui
+     * calcule les empreintes avec le vrai module de narration) ; le reste, anciennes variantes comprises, est à supprimer. Simulation PAR DÉFAUT : rien n'est supprimé sans « dry » absent ET « confirmer » égal au nombre exact de fichiers
+     * annoncé par la simulation. La réponse liste toujours ce qui sera / est supprimé (clé, taille, raison).
+     */
+    const corps = lireCorpsPurgeV1(await request.json().catch(() => null));
+    const fichiers = [];
+    let curseur;
+    do {
+      const options = { prefix: "idle/voix/", limit: 1000 };
+      if (curseur) options.cursor = curseur;
+      const l = await env.SOREAL_R2.list(options);
+      for (const o of (l && l.objects) || []) fichiers.push({ cle: String(o.key), taille: Number(o.size) || 0 });
+      curseur = l && l.truncated && l.cursor ? l.cursor : undefined;
+    } while (curseur);
+    /* « utiles » contient aussi tout le manifeste : on ne garde ici que les voix DÉCLARÉES, le manifeste est traité à part (b). Sans manifeste lisible on ne classe rien (sinon toutes les voix statiques paraîtraient orphelines). */
+    if (!manifesteVoix.length) return idleJsonV1({ ok: false, error: "MANIFESTE_VOIX_ILLISIBLE" }, 502);
+    const declareesSeules = new Set();
+    for (const h of donnees.histoires.flatMap((x) => (Array.isArray(x.voix) ? x.voix : []))) declareesSeules.add(String(h));
+    for (const t of [].concat(Array.isArray(textes.popups) ? textes.popups : [], (Array.isArray(textes.boss) ? textes.boss : []).map((b) => b && b.surcharge).filter(Boolean))) {
+      for (const h of Array.isArray(t.voix) ? t.voix : []) declareesSeules.add(String(h));
+    }
+    const manifesteSeul = new Set(manifesteVoix);
+    const plan = planPurgeVoixStrictV1({ fichiers, declarees: declareesSeules, manifeste: manifesteSeul, liees: corps.liees });
+    const simulation = url.searchParams.get("dry") === "1" || corps.confirmer !== plan.aSupprimer.length;
+    if (!simulation) {
+      for (let i = 0; i < plan.aSupprimer.length; i += 500) await env.SOREAL_R2.delete(plan.aSupprimer.slice(i, i + 500).map((x) => x.cle));
+    }
+    return idleJsonV1({
+      ok: true, strict: true, simulation, supprimees: plan.aSupprimer.length, gardees: plan.gardees.length, octetsLiberes: plan.octetsLiberes,
+      inattendus: plan.inattendus.length, confirmationRequise: simulation ? plan.aSupprimer.length : undefined,
+      liste: plan.aSupprimer.slice(0, 5000), listeTronquee: plan.aSupprimer.length > 5000
+    });
   }
   const aSupprimer = [];
   let gardees = 0;

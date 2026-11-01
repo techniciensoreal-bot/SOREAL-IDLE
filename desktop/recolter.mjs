@@ -19,6 +19,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn, execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { clesVoixObsoletes } from "./src/voix-utiles.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const MEDIAS = path.join(ICI, "medias");
@@ -74,7 +75,7 @@ try {
   let curseur = null;
   do {
     const r = await (await fetch(base + "/liste?prefix=" + encodeURIComponent(prefixe) + (curseur ? "&curseur=" + encodeURIComponent(curseur) : ""))).json();
-    objets.push(...r.objets.filter((o) => !o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj/")));
+    objets.push(...r.objets.filter((o) => !o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj")));
     curseur = r.curseur;
     process.stdout.write("\rinventaire : " + objets.length + " fichiers");
   } while (curseur);
@@ -87,8 +88,13 @@ try {
   console.log("TOTAL".padEnd(33) + String(objets.length).padStart(10) + mo(total).padStart(12));
   if (seulementListe) { console.log("\n(--liste : rien n'a été téléchargé)"); process.exit(0); }
 
+  /* Règle STRICTE des voix (desktop/src/voix-utiles.mjs) : une voix obsolète (orpheline ou ancienne variante d'un texte enregistré) n'est pas téléchargée ; elle reste dans l'inventaire (_index.json). Rien n'est supprimé, ni ici ni sur R2. */
+  const obsoletes = await clesVoixObsoletes(objets);
+  if (obsoletes.size) console.log("voix obsolètes ignorées (non téléchargées) : " + obsoletes.size);
   /* téléchargement : ce qui manque ou dont la taille diffère ; reprise possible */
-  const aFaire = objets.filter((o) => { try { return fs.statSync(path.join(MEDIAS, ...o.cle.split("/"))).size !== o.taille; } catch (_e) { return true; } });
+  /* Une voix régénérée sous la MÊME empreinte (même texte) peut avoir la même taille : l'etag de l'inventaire précédent est comparé aussi (boss 98, 2026-11-01 : une ancienne voix restait dans la copie locale, donc dans l'APK). */
+  let ancienIndex = {}; try { ancienIndex = JSON.parse(fs.readFileSync(path.join(MEDIAS, "_index.json"), "utf8")); } catch (_e) { /* premier passage */ }
+  const aFaire = objets.filter((o) => !obsoletes.has(o.cle)).filter((o) => { try { if (fs.statSync(path.join(MEDIAS, ...o.cle.split("/"))).size !== o.taille) return true; const ancien = ancienIndex[o.cle]; return Boolean(ancien && ancien[1] && o.etag && ancien[1] !== String(o.etag)); } catch (_e) { return true; } });
   console.log("\nA télécharger : " + aFaire.length + " fichiers (" + mo(aFaire.reduce((s, o) => s + o.taille, 0)) + "), déjà présents : " + (objets.length - aFaire.length));
   let fait = 0, erreurs = [], i = 0;
   async function ouvrier() {
@@ -135,7 +141,7 @@ try {
   /* index des médias embarqués (clé -> [taille, etag]) : sert aux mises à jour à ne télécharger que ce qui a changé */
   if (!erreurs.length || !args.includes("--strict")) {
     const index = {};
-    for (const o of objets) if (!erreurs.some((e) => e.startsWith(o.cle + " :"))) index[o.cle] = [o.taille, String(o.etag || "")];
+    for (const o of objets) if (!erreurs.some((e) => e.startsWith(o.cle + " :"))) index[o.cle] = [o.taille, String(o.etag || ""), String(o.date || "")];
     fs.writeFileSync(path.join(MEDIAS, "_index.json"), JSON.stringify(index));
   }
   /* bibliothèques de la voix de secours, chargées par la page depuis un CDN (index.html : importmap + piper_phonemize.js) : copiées telles quelles, l'application les sert à la place du CDN (main.js) */

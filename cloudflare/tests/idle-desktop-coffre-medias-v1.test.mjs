@@ -65,7 +65,7 @@ assert.equal(fs.readFileSync(path.join(maj, "_externes", "cdn", "lib.mjs"), "utf
 
 // 6. câblage : l'installateur est construit avec la copie chiffrée, le cœur chiffre en tâche de fond, le paquet de mise à jour embarque le module
 const construire = fs.readFileSync(path.join(DEPOT, "desktop", "construire.mjs"), "utf8");
-assert.ok(construire.includes('const medias = path.join(ICI, "_medias-chiffres")') && construire.includes("copierChiffre(mediasClairs, medias)") && construire.includes("extraResources: avecMedias ? [{ from: medias, to: \"medias\" }]"), "installateur : copie chiffrée");
+assert.ok(construire.includes('const medias = path.join(ICI, "_medias-chiffres")') && construire.includes("copierChiffre(mediasClairs, medias, { exclure:") && construire.includes("extraResources: avecMedias ? [{ from: medias, to: \"medias\" }]"), "installateur : copie chiffrée");
 const coeur = fs.readFileSync(path.join(DEPOT, "desktop", "coeur.js"), "utf8");
 assert.ok(coeur.includes("chiffrerDossier(dossier)") && coeur.includes("coffre-medias.mjs"), "cœur : chiffrement en tâche de fond des mises à jour reçues en clair");
 assert.ok(coeur.includes("app.isPackaged ? medias(couches) : (couches.dossiersMedias || [])"), "dossier d'installation chiffré aussi (par la mise à jour, sans réinstaller), jamais le dossier de développement");

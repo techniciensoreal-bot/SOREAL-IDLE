@@ -67,11 +67,14 @@ const index = {}, etags = {};
 if (!sansMedias) {
   const MED = path.join(depot, "desktop", "medias");
   let indexRecolte = {}; try { indexRecolte = JSON.parse(fs.readFileSync(path.join(MED, "_index.json"), "utf8")); } catch (_e) { /* pas d'empreintes : tout sera revérifié */ }
+  /* Règle STRICTE des voix (desktop/src/voix-utiles.mjs) : seules les voix utiles sont embarquées ; la copie locale n'est pas touchée. */
+  const { voixObsoletesAEcarter } = await import("../desktop/src/voix-utiles.mjs");
+  const voixEcartees = await voixObsoletesAEcarter(MED);
   const marcher = (dossier, prefixe) => {
     for (const e of fs.readdirSync(dossier, { withFileTypes: true })) {
       const cleM = prefixe + e.name, f = path.join(dossier, e.name);
       if (e.isDirectory()) { marcher(f, cleM + "/"); continue; }
-      if (cleM === "_index.json" || cleM === "_recolte.json") continue;
+      if (cleM === "_index.json" || cleM === "_recolte.json" || voixEcartees.has(cleM)) continue;
       const dst = path.join(assets, "medias", ...cleM.split("/"));
       fs.mkdirSync(path.dirname(dst), { recursive: true });
       fs.copyFileSync(f, dst);

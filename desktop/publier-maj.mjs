@@ -67,16 +67,22 @@ try {
   if (!pret) { console.error("L'accès au bucket n'a pas démarré (connexion wrangler ?). Dernières lignes :\n" + journal.split("\n").slice(-10).join("\n")); process.exit(1); }
 
   /* 1. médias : tout idle/ sauf idle/_maj/ */
-  const medias = [];
+  let medias = [];
   let curseur = null;
   do {
     const r = await (await fetch(base + "/liste?prefix=idle%2F" + (curseur ? "&curseur=" + encodeURIComponent(curseur) : ""))).json();
-    for (const o of r.objets) if (!o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj")) medias.push([o.cle, o.taille, String(o.etag || "")]);
+    for (const o of r.objets) if (!o.cle.endsWith("/") && !o.cle.startsWith("idle/_maj")) medias.push([o.cle, o.taille, String(o.etag || ""), String(o.date || "")]);
     curseur = r.curseur;
     process.stdout.write("\rinventaire : " + medias.length + " médias");
   } while (curseur);
   console.log("");
   medias.sort((a, b) => (a[0] < b[0] ? -1 : 1));
+  /* Règle STRICTE des voix (src/voix-utiles.mjs) : une voix obsolète n'est pas listée au manifeste des mises à jour (rien n'est supprimé sur R2). */
+  const { clesVoixObsoletes } = await import("./src/voix-utiles.mjs");
+  const voixEcartees = await clesVoixObsoletes(medias.map((m) => ({ cle: m[0], taille: m[1], date: m[3] || "" })), { sansDate: "ecarter" });
+  for (let i = medias.length - 1; i >= 0; i -= 1) if (voixEcartees.has(medias[i][0])) medias.splice(i, 1);
+  medias = medias.map((m) => m.slice(0, 3));   /* le manifeste signé garde sa forme [clé, taille, etag] */
+  console.log("voix obsolètes non publiées : " + voixEcartees.size);
 
   /* 2. code : paquet déterministe */
   const tmpApk = path.join(os.tmpdir(), "soreal-code-apk");

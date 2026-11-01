@@ -30,7 +30,7 @@ assert.match(src, /const PREFIXE = "idle\/voix\/";/);
 assert.match(src, /if \(classe === "obsolete"\) obsoletesLocales\.push/);
 assert.match(src, /if \(classe === "obsolete"\) obsoletesR2\.push/);
 assert.match(src, /if \(!FORME\.test\(hash\)\) return "douteuse";/, "nom inattendu = douteuse");
-assert.match(src, /if \(manifeste\.has\(hash\)\) return "douteuse";/, "voix du seul manifeste = douteuse");
+assert.match(src, /if \(manifeste\.has\(hash\) && !liees\.has\(hash\)\) return "douteuse";/, "voix statique du manifeste NON liée à un texte enregistré = douteuse (jamais supprimée) ; liée = ancienne variante = obsolète (règle stricte)");
 assert.match(src, /> 0\.4 \* /, "garde-fou des 40 %");
 assert.ok(!/rmSync|rmdirSync|recursive: true/.test(src), "aucune suppression de dossier");
 

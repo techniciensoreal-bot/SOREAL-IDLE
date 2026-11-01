@@ -36,7 +36,7 @@ assert.ok(tts.includes("retryAuGeste=true") && tts.includes("if(retryAuGeste){re
 
 // 4. Préchargement des voix de la page suivante d'un popup
 assert.ok(tts.includes("function prechauffer_(value)") && tts.includes("prechauffer:prechauffer_,"));
-assert.ok(tts.includes("var blocsFichiers={};") && tts.includes("function chargerBlocFichier_(text)"), "cache par empreinte, indépendant de la narration en cours");
+assert.ok(tts.includes("var blocsFichiers={};") && tts.includes("function chargerBlocFichier_(text,interdits)"), "cache par empreinte, indépendant de la narration en cours");
 assert.match(ui, /tts\.prechauffer\(texteVoixTutorielIdleV1_\(suivante,etat\.pages\[etat\.index\+decalage-1\]\)\)/);
 assert.ok(ui.indexOf("prechaufferVoixTutorielIdleV1_(etat);") > ui.indexOf("function rendreTutorielPagesIdleV1_(){"));
 

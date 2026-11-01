@@ -66,7 +66,7 @@ const motifJeu = ui.match(/const infoMatch=narration\.match\((\/[^\n]+\/)\);/)[1
 assert.equal(motif.toString(), motifJeu, "même motif de notes dans l'affichage et dans la narration");
 
 // --- Client : fichier pré-généré d'abord, Piper en repli ---
-assert.match(tts, /blobs\[i\]=obtenirAudioBloc_\(steps\[i\]\.chunk,idCible,myGeneration,silent\);/);
+assert.match(tts, /blobs\[i\]=obtenirAudioBloc_\(steps\[i\]\.chunk,idCible,myGeneration,silent,interditsTexte\);/);
 assert.match(tts, /if\(blob\)\{voiceStats\.fichiers\+=1;return blob;\}(?:\s*(?:\/\*[^\n]*\*\/|if\(langueAnglaise_\(\)\)\{[^}]*\}))*\s*voiceStats\.piper\+=1;\s*return requestLocalNeuralAudio_\(/);
 assert.match(tts, /VOICE_DIR\+'manifest\.json'/);
 assert.match(tts, /VOICE_ROUTE\+hash/, "les voix du jeu sont lues sur R2 (api/idle/media/voice?h=<empreinte>)");

@@ -68,7 +68,7 @@ const purge = (env, dry, jeton = "jeton-valide") => worker.fetch(new Request("ht
 {
   const admin = readFileSync("cloudflare/public/modules/admin-histoires-v1.js", "utf8");
   assert.match(admin, /🧹 Supprimer les voix inutiles/);
-  assert.match(admin, /fetch\('\/api\/v1\/voice-purge'\+\(dry\?'\?dry=1':''\)/, "comptage (dry) avant la suppression");
+  assert.match(admin, /fetch\('\/api\/v1\/voice-purge\?strict=1'\+\(dry\?'&dry=1':''\)/, "comptage (dry) avant la suppression");
   assert.match(admin, /window\.confirm\('Supprimer '\+d\.supprimees/, "confirmation avant de supprimer");
   assert.match(admin, /edition\.voix=\(edition\.voix\|\|\[\]\)\.filter\(function\(h\)\{return actuelles\[h\];\}\)/, "empreintes de textes modifiés retirées à l'enregistrement");
   assert.match(admin, /if\(tts_\(\)&&typeof tts_\(\)\.planNarration==='function'\)edition\.voix/, "jamais d'élagage sans le module de narration");

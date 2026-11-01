@@ -1472,6 +1472,38 @@ function chargerAdmin_(apres){
   });
 }
 
+/*
+ * Empreintes « liées » aux textes ENREGISTRÉS (purge stricte des voix, 2026-11-01) : tous les blocs que ce navigateur calcule, avec le vrai module de narration, à partir du texte d'ORIGINE, du texte affiché et du texte DIT de chaque
+ * texte qui a une liste de voix (chroniques de boss : avec ou sans le nom, comme les lecteurs ; popups, guides, systèmes). Une voix statique du manifeste qui figure ici mais pas dans la liste « voix » est une ANCIENNE variante :
+ * la purge stricte (POST /api/v1/voice-purge?strict=1, corps { liees:[…] }) la supprime. Rappelle apres(liste) quand la liste Admin est chargée.
+ */
+function hashesLiesAuxTextes_(apres){
+  chargerAdmin_(function(){
+    var t=tts_(),out={};
+    if(!t||typeof t.planNarration!=='function'||typeof t.hashBloc!=='function'){apres([]);return;}
+    function plat(v,sortie){if(typeof v==='string'){if(v.trim())sortie.push(v);}else if(Array.isArray(v))v.forEach(function(x){plat(x,sortie);});else if(v&&typeof v==='object')Object.keys(v).forEach(function(k){plat(v[k],sortie);});}
+    function ajouter(texte){try{t.planNarration(typeof t.retirerParentheses==='function'?t.retirerParentheses(String(texte)):String(texte)).forEach(function(e){if(e.chunk!=null)out[t.hashBloc(e.chunk)]=1;});}catch(_e){}}
+    function ajouterChronique(texte){try{t.planNarration(String(texte)).forEach(function(e){if(e.chunk!=null)out[t.hashBloc(e.chunk)]=1;});}catch(_e){}}
+    function chronique(noms,textes){noms.forEach(function(nom){textes.forEach(function(x){ajouterChronique(t.composerChronique(nom,x));ajouterChronique(t.composerChronique(nom,x,true));});});}
+    admin.boss.forEach(function(b){
+      var s=b&&b.surcharge;
+      if(!s||!Array.isArray(s.voix)||!s.voix.length)return;
+      var noms=[],textes=[];
+      [b.nomOriginal,b.nom,s.champs&&s.champs.nom,s.parle&&s.parle.nom].forEach(function(n){if(typeof n==='string'&&n.trim()&&noms.indexOf(n)===-1)noms.push(n);});
+      [b.original,s.champs&&s.champs.texte,s.parle&&s.parle.texte].forEach(function(x){if(typeof x==='string'&&x.trim()&&textes.indexOf(x)===-1)textes.push(x);});
+      chronique(noms,textes);
+    });
+    (admin.popups||[]).forEach(function(p){
+      if(!p||!Array.isArray(p.voix)||!p.voix.length)return;
+      var l=[],def=registre[p.cle];
+      plat(p.champs,l);plat(p.parle,l);
+      try{if(def&&typeof def.original==='function')plat(def.original(),l);}catch(_e){}
+      l.forEach(ajouter);
+    });
+    apres(Object.keys(out));
+  });
+}
+
 function listeBossHtml_(){
   if(admin.erreur)return '<div class="stx-aide" style="color:#ff9d9d">'+esc_(admin.erreur)+'</div>';
   if(!admin.charge)return '<div class="stx-aide">Chargement des textes…</div>';
@@ -1737,6 +1769,7 @@ window.__SOREAL_IDLE_TEXTES_V1__={
   boutonBossHtml:boutonBossHtml_,
   editer:editer_,
   editerBoss:editerBoss_,
+  hashesLiesAuxTextes:hashesLiesAuxTextes_,
   pageHtml:pageHtml_,
   surChangement:function(f){if(typeof f==='function')abonnes.push(f);if(chargees){try{f();}catch(_e){}}},
   recharger:function(){chargees=false;enChargement=false;essais=0;charger_();},

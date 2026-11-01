@@ -330,7 +330,7 @@ function listeHtml_(){
   if(etat.erreur)return '<div class="adm-erreur-v1">'+esc_(etat.erreur)+'</div><div class="soreal-idle-adm-actions-v1"><button type="button" class="soreal-idle-adm-btn-v1" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.recharger()">Réessayer</button></div>';
   var html='<div class="soreal-idle-adm-meta-v1" style="margin-bottom:10px">Une histoire se joue <b>une seule fois par joueur</b>, à la mort du boss choisi (Fight Boss). Chaque étape = une image + un texte lu à voix haute ; on passe à l’image suivante dès que la lecture est terminée.</div>'+
     '<div class="soreal-idle-adm-actions-v1" style="margin:0 0 12px"><button type="button" class="soreal-idle-adm-btn-v1 primaire" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.nouvelle()">＋ Nouvelle histoire</button>'+
-      '<button type="button" class="soreal-idle-adm-btn-v1" title="Supprime du stockage les fichiers de voix que plus aucune histoire n’utilise (anciennes voix, textes modifiés)" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.purgerVoix()">🧹 Supprimer les voix inutiles</button></div>'+
+      '<button type="button" class="soreal-idle-adm-btn-v1" title="Supprime du stockage les fichiers de voix qui ne sont pas dans les voix enregistrées (anciennes variantes, orphelines) ; simulation et confirmation d’abord" onclick="window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.purgerVoix()">🧹 Supprimer les voix inutiles</button></div>'+
       '<div class="soreal-idle-adm-meta-v1" id="sorealIdleAdminPurgeV1" style="margin-bottom:10px"></div>';
   if(!etat.histoires.length)html+='<div class="soreal-idle-adm-meta-v1">Aucune histoire pour le moment.</div>';
   etat.histoires.slice().sort(function(a,b){return (estIntro_(b)?1:0)-(estIntro_(a)?1:0);}).forEach(function(h){
@@ -352,24 +352,40 @@ function rafraichirListe_(){
   if(el)el.innerHTML=listeHtml_();
 }
 
-/* Supprime de R2 les voix qu'aucune histoire n'utilise : d'abord un comptage (rien n'est supprimé), puis confirmation. */
+/*
+ * Supprime de R2 les voix inutiles, en mode STRICT (Norman, 2026-11-01) : est utile uniquement une voix listée dans « voix » d'un texte ou d'une histoire enregistrés, ou une voix statique du jeu (manifeste) qui n'est pas liée à un texte
+ * enregistré ; une ancienne variante d'un texte enregistré est supprimée. Toujours d'abord une simulation (la réponse liste ce qui serait supprimé), puis une confirmation qui renvoie le nombre exact de fichiers annoncé.
+ */
 function purgerVoix_(){
   var zone=document.getElementById('sorealIdleAdminPurgeV1');
   function message(t){if(zone)zone.textContent=t;}
-  function appeler(dry){
-    return fetch('/api/v1/voice-purge'+(dry?'?dry=1':''),{method:'POST',headers:{authorization:'Bearer '+jeton_()}})
+  function appeler(liees,dry,confirmer){
+    var corps={liees:liees};
+    if(typeof confirmer==='number')corps.confirmer=confirmer;
+    return fetch('/api/v1/voice-purge?strict=1'+(dry?'&dry=1':''),{method:'POST',headers:{authorization:'Bearer '+jeton_(),'content-type':'application/json'},body:JSON.stringify(corps)})
       .then(function(r){return r.json().catch(function(){return null;}).then(function(d){
         if(!r.ok||!d||!d.ok)throw new Error((d&&d.error)||('Refusé ('+r.status+')'));
         return d;
       });});
   }
+  function empreintesLiees(){
+    var textes=window.__SOREAL_IDLE_TEXTES_V1__;
+    if(!textes||typeof textes.hashesLiesAuxTextes!=='function')return Promise.reject(new Error('éditeur de textes indisponible'));
+    return new Promise(function(resolve){textes.hashesLiesAuxTextes(resolve);});
+  }
   message('Comptage des voix inutiles…');
-  appeler(true).then(function(d){
-    var mo=(d.octetsLiberes/1048576).toFixed(1).replace('.',',');
-    if(!d.supprimees){message('Rien à nettoyer : les '+d.gardees+' voix stockées sont toutes utilisées.');return;}
-    if(!window.confirm('Supprimer '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' de voix inutile'+(d.supprimees>1?'s':'')+' ('+mo+' Mo) ? Les '+d.gardees+' voix utilisées sont conservées.')){message('Nettoyage annulé.');return;}
-    message('Suppression…');
-    return appeler(false).then(function(f){message('✔ '+f.supprimees+' fichier'+(f.supprimees>1?'s':'')+' supprimé'+(f.supprimees>1?'s':'')+' ('+mo+' Mo libérés), '+f.gardees+' conservé'+(f.gardees>1?'s':'')+'.');});
+  empreintesLiees().then(function(liees){
+    return appeler(liees,true).then(function(d){
+      var mo=(d.octetsLiberes/1048576).toFixed(1).replace('.',',');
+      if(!d.supprimees){message('Rien à nettoyer : les '+d.gardees+' voix stockées sont toutes utilisées.');return;}
+      var exemples=(d.liste||[]).slice(0,8).map(function(x){return x.cle.replace('idle/voix/','')+' ('+x.raison+')';}).join(', ');
+      if(!window.confirm('Supprimer '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' de voix inutile'+(d.supprimees>1?'s':'')+' ('+mo+' Mo) ? Les '+d.gardees+' voix utilisées sont conservées.\n\nExemples : '+exemples)){message('Nettoyage annulé : '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' à supprimer ('+mo+' Mo), rien n’a été supprimé.');return;}
+      message('Suppression…');
+      return appeler(liees,false,d.supprimees).then(function(f){
+        if(f.simulation){message('Rien n’a été supprimé : la liste a changé entre-temps, recommence.');return;}
+        message('✔ '+f.supprimees+' fichier'+(f.supprimees>1?'s':'')+' supprimé'+(f.supprimees>1?'s':'')+' ('+mo+' Mo libérés), '+f.gardees+' conservé'+(f.gardees>1?'s':'')+'.');
+      });
+    });
   }).catch(function(e){message('Nettoyage impossible : '+(e&&e.message?e.message:e));});
 }
 

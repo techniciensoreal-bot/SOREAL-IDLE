@@ -8,20 +8,20 @@
  *   node desktop/purger-voix-obsoletes.mjs --r2             supprime AUSSI les voix obsolètes du bucket R2 de production (wrangler r2 object delete --remote). IRREVERSIBLE.
  *                                                           Sans cette option le script imprime seulement la commande et la liste, il ne touche JAMAIS à R2.
  *
- * Une voix (fichier idle/voix/<empreinte de 14 hexa>.m4a ; l'empreinte est celle du texte lu, voir hashBloc_ dans modules/tutorial-tts-v202.js) est :
- *   - REFERENCEE-PROUVEE si son empreinte est (a) listée dans « voix » d'un texte modifié (desktop/graine/catalogue.json, récolte de production), ou d'une histoire, ou
- *     (b) recalculée à partir du texte actuel d'une chronique de boss (design/ngu-boss-*-fr.json et textes du catalogue) ou d'un texte du catalogue, avec le vrai module de narration ;
- *   - DOUTEUSE si elle n'est prouvée que par le manifeste public/voice/manifest.json (textes statiques du jeu : popups, tutoriel, systèmes ; non recalculables hors navigateur), ou si son nom
- *     n'a pas la forme d'une empreinte (fichier inattendu) : JAMAIS supprimée ;
- *   - OBSOLETE si aucune des sources ci-dessus ne la mentionne : même définition que la route serveur /api/v1/voice-purge (histoires + textes + manifeste), en plus large.
+ * RÈGLE STRICTE (Norman, 2026-11-01 : « tout ce que je considère comme validé dans les voix doit être la SEULE version qui existe » ; règle de desktop/src/voix-utiles.mjs et de la route POST /api/v1/voice-purge?strict=1). Une voix
+ * (fichier idle/voix/<empreinte de 14 hexa>.m4a ; empreinte = celle du texte lu, hashBloc_ de modules/tutorial-tts-v202.js) est UTILE si et seulement si :
+ *   (a) son empreinte est dans la liste « voix » d'un texte enregistré ou d'une histoire (desktop/graine/catalogue.json) ;
+ *   (b) c'est une voix statique du manifeste public/voice/manifest.json NON liée à un texte enregistré (voix anglaises des chroniques comprises : elles sont au manifeste et ne sont jamais liées) ;
+ * Tout le reste est OBSOLETE : orphelines ET anciennes variantes d'un texte enregistré (texte d'origine, affiché ou ancien texte dit, même si le manifeste les cite encore). « Référencée » = (a) ; « douteuse » = (b), jamais supprimée.
  * Garde-fous : refuse de classer si le catalogue est absent ou incomplet ; refuse d'agir si plus de 40 % des voix seraient obsolètes (sauf --force) ; --r2 ne supprime que des obsolètes.
  * Les dossiers autres que idle/voix/ ne sont jamais touchés. Le fichier _index.json sert de copie de l'inventaire R2 (récolte du jour indiqué dans _recolte.json) : l'inventaire R2 n'est pas relu en direct.
  */
 import fs from "node:fs";
 import path from "node:path";
-import vm from "node:vm";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+
+import { chargerPlanVoix } from "./src/voix-utiles.mjs";
 
 const ICI = path.dirname(fileURLToPath(import.meta.url));
 const RACINE = path.resolve(ICI, "..");
@@ -40,60 +40,15 @@ const FORME = /^[0-9a-f]{14}$/;
 
 function lireJson(chemin) { return JSON.parse(fs.readFileSync(chemin, "utf8")); }
 
-/* ----- le vrai module de narration (empreintes identiques à celles du jeu) ----- */
-function chargerNarration() {
-  const source = fs.readFileSync(path.join(RACINE, "cloudflare", "public", "modules", "tutorial-tts-v202.js"), "utf8");
-  const rien = () => {};
-  const win = { location: { href: "http://localhost/" }, localStorage: { getItem() { return null; }, setItem() {} }, navigator: { userAgent: "node" } };
-  const doc = new Proxy({}, { get: (_t, k) => (k === "readyState" ? "loading" : rien) });
-  win.document = doc;
-  vm.runInContext(source, vm.createContext({ window: win, document: doc, navigator: win.navigator, localStorage: win.localStorage, location: win.location, console, setTimeout: rien, setInterval: rien, addEventListener: rien, fetch: () => Promise.reject(new Error("hors ligne")) }));
-  const api = win.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
-  if (!api || typeof api.hashBloc !== "function" || typeof api.planNarration !== "function") throw new Error("module de narration illisible");
-  return api;
-}
-
-function empreintesRecalculees(api, catalogue) {
-  const out = new Set();
-  const ajouter = (texte) => { for (const e of api.planNarration(texte)) if (e.chunk != null) out.add(api.hashBloc(e.chunk)); };
-  const pause = (ms) => " " + String.fromCharCode(0xe000) + ms + String.fromCharCode(0xe001) + " ";
-  ajouter("Chroniques de boss." + pause(1500));
-  const noms = new Map(lireJson(path.join(RACINE, "design", "ngu-boss-names-fr.json")).map((b) => [Number(b.id), String(b.nomFr || "")]));
-  for (const b of lireJson(path.join(RACINE, "design", "ngu-boss-stories-fr.json"))) {
-    const histoire = String(b.story || "").trim();
-    if (!histoire) continue;
-    const nom = noms.get(Number(b.id)) || "Boss";
-    ajouter(api.composerChronique(nom, histoire)); ajouter(api.composerChronique(nom, histoire, true));
-  }
-  for (const [cle, json] of catalogue.textes) {
-    const o = JSON.parse(json);
-    const p = o.parle || o.champs || {};
-    if (String(cle).startsWith("boss:")) {
-      for (const t of [p.texte, (o.champs || {}).texte]) { if (!t) continue; for (const nom of [p.nom || "", (o.champs || {}).nom || ""]) { ajouter(api.composerChronique(nom, t)); ajouter(api.composerChronique(nom, t, true)); } }
-    } else {
-      for (const t of [p.texte, (o.champs || {}).texte]) if (t) ajouter(t);
-    }
-  }
-  return out;
-}
-
-/* ----- classement ----- */
-const cataloguePath = path.join(ICI, "graine", "catalogue.json");
-if (!fs.existsSync(cataloguePath)) { console.error("desktop/graine/catalogue.json absent : impossible de classer les voix (rien n'est supprimé)."); process.exit(1); }
-const catalogue = lireJson(cataloguePath);
-if (!Array.isArray(catalogue.textes) || catalogue.textes.length < 50 || !Array.isArray(catalogue.histoires)) { console.error("Catalogue incomplet (textes/histoires manquants) : refus de classer."); process.exit(1); }
-
-const declarees = new Set(); // voix déclarées par un texte modifié ou une histoire (prouvées)
-for (const [, json] of catalogue.textes) for (const h of (JSON.parse(json).voix || [])) declarees.add(String(h));
-for (const h of catalogue.histoires) for (const x of (h.voix || [])) declarees.add(String(x));
-let recalculees = new Set();
-try { recalculees = empreintesRecalculees(chargerNarration(), catalogue); } catch (e) { console.error("Avertissement : empreintes non recalculées (" + (e && e.message || e) + ") ; seules les sources déclarées protègent les voix."); }
-const manifeste = new Set(lireJson(path.join(RACINE, "cloudflare", "public", "voice", "manifest.json")).files.map(String));
-
+/* ----- classement STRICT (règle de desktop/src/voix-utiles.mjs, la même que la route POST /api/v1/voice-purge?strict=1) ----- */
+const plan = chargerPlanVoix(RACINE);
+if (!plan.ok) { console.error("Impossible de classer les voix (" + plan.raison + ") : rien n'est supprimé."); process.exit(1); }
+const { declarees, manifeste, liees } = plan;
+const catalogue = plan.catalogue;
 function classer(hash) {
   if (!FORME.test(hash)) return "douteuse";
-  if (declarees.has(hash) || recalculees.has(hash)) return "referencee";
-  if (manifeste.has(hash)) return "douteuse";
+  if (declarees.has(hash)) return "referencee";
+  if (manifeste.has(hash) && !liees.has(hash)) return "douteuse";
   return "obsolete";
 }
 
@@ -127,7 +82,7 @@ for (const [cle, valeur] of Object.entries(index)) {
 let inventaireDu = "";
 try { inventaireDu = lireJson(path.join(MEDIAS, "_recolte.json")).le || ""; } catch (_e) { /* pas de date */ }
 
-console.log("Sources : " + declarees.size + " empreintes déclarées (catalogue du " + (catalogue.exporteLe || "?") + "), " + recalculees.size + " recalculées, " + manifeste.size + " au manifeste.");
+console.log("Sources : " + declarees.size + " empreintes déclarées (catalogue du " + (catalogue.exporteLe || "?") + "), " + liees.size + " liées à un texte enregistré, " + manifeste.size + " au manifeste. RÈGLE STRICTE : seules les voix déclarées et les voix statiques non liées sont utiles.");
 for (const r of [local, r2]) {
   const total = r.referencee[0] + r.douteuse[0] + r.obsolete[0];
   console.log(r.nom + " : " + total + " voix. référencées " + r.referencee[0] + " (" + mo(r.referencee[1]) + "), douteuses " + r.douteuse[0] + " (" + mo(r.douteuse[1]) + "), OBSOLETES " + r.obsolete[0] + " (" + mo(r.obsolete[1]) + ")");

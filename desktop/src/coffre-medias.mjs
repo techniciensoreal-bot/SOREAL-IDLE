@@ -73,7 +73,7 @@ export function chiffrerFichier(fichier) {
 }
 
 /* Recopie un dossier de médias en le chiffrant (installateur) ; les dossiers « _externes » (bibliothèques et modèles servis tels quels) sont recopiés en clair. Rend { fichiers, octets }. */
-export function copierChiffre(source, destination) {
+export function copierChiffre(source, destination, { exclure } = {}) {
   let fichiers = 0, octets = 0;
   const manifeste = {};   /* clé -> [taille en clair, date] : lu tel quel au lancement (aucun des milliers de fichiers n'a besoin d'être ouvert : env-local.mjs, creerR2) */
   const parcourir = (src, dst, externe) => {
@@ -82,6 +82,7 @@ export function copierChiffre(source, destination) {
       const s = path.join(src, e.name), d = path.join(dst, e.name);
       if (e.isDirectory()) parcourir(s, d, externe || e.name === "_externes");
       else if (e.isFile()) {
+        if (exclure && exclure.has(path.relative(source, s).split(path.sep).join("/"))) continue;   /* voix obsolète (règle stricte) : jamais embarquée */
         const contenu = fs.readFileSync(s);
         const enClair = externe || (/\.json$/i.test(e.name) && path.dirname(s) === source);
         const sortie = enClair ? contenu : chiffrer(contenu);

@@ -56,7 +56,9 @@ const medias = path.join(ICI, "_medias-chiffres");
 if (avecMedias) {
   fs.rmSync(medias, { recursive: true, force: true });
   const { copierChiffre } = await import(pathToFileURL(path.join(ICI, "src", "coffre-medias.mjs")).href);
-  const r = copierChiffre(mediasClairs, medias);
+  /* Règle STRICTE des voix (src/voix-utiles.mjs) : une voix obsolète n'entre pas dans l'installateur ; desktop/medias n'est pas modifié. */
+  const { voixObsoletesAEcarter } = await import(pathToFileURL(path.join(ICI, "src", "voix-utiles.mjs")).href);
+  const r = copierChiffre(mediasClairs, medias, { exclure: await voixObsoletesAEcarter(mediasClairs) });
   console.log("médias chiffrés : " + r.fichiers + " fichiers, " + (r.octets / 1048576).toFixed(0) + " Mo");
 }
 console.log(avecMedias ? "médias embarqués : " + medias : "ATTENTION : desktop/medias est vide ou absent : les images et voix du serveur ne seront PAS dans l'installateur (lancer desktop/recolter.mjs).");
