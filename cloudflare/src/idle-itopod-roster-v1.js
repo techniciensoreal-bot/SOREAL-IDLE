@@ -211,7 +211,13 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
     if (env && env.SOREAL_IDLE && typeof env.SOREAL_IDLE.get === "function") {
       const stub = env.SOREAL_IDLE.get(env.SOREAL_IDLE.idFromName("global"));
       const r = await stub.fetch(new Request("https://soreal-idle.invalid/__soreal-idle-v1/noms-joueurs"));
-      if (r.ok) nomsJoueurs = (await r.json()).noms || [];
+      if (r.ok) {
+        const rep = await r.json();
+        nomsJoueurs = rep.noms || [];
+        /* Un compte d'ouvrier absent des profils d'équipe de TV (adresse inconnue de TV) est aussi un ennemi, sous son libellé « pseudo (prénom) ». */
+        const parEmail = cosmetics && cosmetics.parEmail && typeof cosmetics.parEmail === "object" ? new Set(Object.keys(cosmetics.parEmail).map((k) => text(k).toLowerCase())) : null;
+        if (parEmail) for (const c of Array.isArray(rep.internes) ? rep.internes : []) if (c && !parEmail.has(text(c.email).toLowerCase())) nomsJoueurs.push(c.nom);
+      }
     }
   } catch (_) { /* sans les joueurs */ }
   const valeur = { ok: true, workers: idleItopodAjouterJoueursV1(idleItopodRosterV1(cosmetics), nomsJoueurs, clesAvatars), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };

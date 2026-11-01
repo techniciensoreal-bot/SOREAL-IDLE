@@ -486,14 +486,17 @@ export class SorealIdleCoordinatorV1 {
     /* Noms vus des autres joueurs externes (Google) : leur pseudo, sinon le prénom de leur compte Google (ITOPOD : les joueurs sont des ennemis, Norman 2026-10-04). Jamais d'adresse e-mail. */
     if (path === "/__soreal-idle-v1/noms-joueurs") {
       const noms = [];
+      /* Comptes d'ouvrier (non externes) : leur adresse reste dans CE Worker (route interne) ; le roster ne garde que ceux dont l'adresse n'est pas dans un profil d'équipe de TV (Norman, 2026-11-01 : « Redrum (Norman) n'est jamais montré »). Aucune adresse n'est renvoyée au client. */
+      const internes = [];
       try {
         for (const profil of profilsParEmailIdleV1(this.sql).values()) {
-          if (!profil.externe) continue;
           const nom = String(libelleJoueurIdleV1(profil, "") || "").trim().slice(0, 40);
-          if (nom && !nom.includes("@") && nom.toLowerCase() !== "joueur" && !noms.includes(nom)) noms.push(nom);
+          if (!nom || nom.includes("@") || nom.toLowerCase() === "joueur") continue;
+          if (!profil.externe) { if (profil.email) internes.push({ nom, email: profil.email }); continue; }
+          if (!noms.includes(nom)) noms.push(nom);
         }
       } catch (_e) { /* pas de liste */ }
-      return Response.json({ ok: true, noms }, { headers: { "cache-control": "no-store" } });
+      return Response.json({ ok: true, noms, internes }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/launch-ticket-consume") {
       const p = await request.json().catch(() => ({}));
