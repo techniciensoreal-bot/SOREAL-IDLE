@@ -79,7 +79,7 @@ function creerAssets(dossierPublic) {
 
 /* ---------- SOREAL_R2 : le dossier des médias, mêmes clés que le bucket ---------- */
 /* dossiersMedias : un dossier, ou plusieurs COUCHES de la plus récente à la plus ancienne (mises à jour installées, puis médias de l'installateur) : pour une clé présente dans plusieurs, la couche la plus récente gagne. Les écritures vont dans la plus récente. */
-export function creerR2(dossiersMedias, fichierIndex) {
+export function creerR2(dossiersMedias, fichierIndex, cleRetiree) {
   const racines = (Array.isArray(dossiersMedias) ? dossiersMedias : [dossiersMedias]).map((d) => path.resolve(d));
   let index = null;   /* clé -> { taille, mtime, racine } */
   let promesse = null;
@@ -154,6 +154,8 @@ export function creerR2(dossiersMedias, fichierIndex) {
         for (const [cle, meta] of c.entrees) neuf.set(cle, meta);
         if (c.signature) { aGarder[racines[i]] = { signature: c.signature, entrees: c.entrees.map(([cle, m]) => [cle, m.taille, m.mtime]) }; if (c.neuf) ecrire = true; }
       }
+      /* Clés RETIRÉES par une mise à jour (voix obsolètes, histoires supprimées) : jamais servies, même si le fichier est encore dans le dossier d'installation. */
+      if (typeof cleRetiree === "function") for (const k of [...neuf.keys()]) if (cleRetiree(k)) neuf.delete(k);
       index = neuf;
       if (fichierIndex && ecrire) { try { await fsp.mkdir(path.dirname(fichierIndex), { recursive: true }); await fsp.writeFile(fichierIndex + ".nouveau", JSON.stringify(aGarder)); await fsp.rename(fichierIndex + ".nouveau", fichierIndex); } catch (_e) { /* cache facultatif */ } }
     })();
@@ -253,7 +255,7 @@ export async function creerEnvLocal(opt) {
   const env = {
     SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub },
     ASSETS: creerAssets(opt.dossierPublic),
-    SOREAL_R2: creerR2(opt.dossiersMedias || opt.dossierMedias, opt.fichierIndex),
+    SOREAL_R2: creerR2(opt.dossiersMedias || opt.dossierMedias, opt.fichierIndex, opt.cleRetiree),
     CF_VERSION_METADATA: { id: "desktop" },
     GOOGLE_CLIENT_ID: ""
   };

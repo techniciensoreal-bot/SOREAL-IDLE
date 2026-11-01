@@ -73,14 +73,17 @@ export function chargerPlanVoix(racine = RACINE) {
     if (!fs.existsSync(chemin)) return { ok: false, raison: "desktop/graine/catalogue.json absent" };
     const catalogue = lireJson(chemin);
     if (!Array.isArray(catalogue.textes) || catalogue.textes.length < 50 || !Array.isArray(catalogue.histoires)) return { ok: false, raison: "catalogue incomplet (textes/histoires manquants)" };
+    if (!Date.parse(catalogue.exporteLe || "")) return { ok: false, raison: "catalogue sans date d'export (périmé ou non fiable)" };
     const declarees = new Set();
     for (const [, json] of catalogue.textes) for (const h of (JSON.parse(json).voix || [])) declarees.add(String(h));
     for (const h of catalogue.histoires) for (const x of (h.voix || [])) declarees.add(String(x));
     const manifeste = new Set(lireJson(path.join(racine, "cloudflare", "public", "voice", "manifest.json")).files.map(String));
     if (manifeste.size < 100) return { ok: false, raison: "manifeste des voix vide ou illisible" };
     const liees = empreintesLiees(chargerNarration(racine), catalogue, racine);
+    /* Histoires ACTUELLES : seules leurs images (dossier idle/story/<id>/) sont utiles. Un catalogue sans l'introduction ou sans histoire n'est pas fiable pour classer les médias d'histoire. */
+    const histoiresIds = new Set(catalogue.histoires.map((h) => String(h && h.id || "")).filter(Boolean));
     return {
-      ok: true, catalogue, declarees, manifeste, liees,
+      ok: true, catalogue, declarees, manifeste, liees, histoiresIds,
       /* fichiers : [{ cle: "idle/voix/<h>.m4a", taille }] -> { gardees, aSupprimer, inattendus, octetsLiberes } */
       classer: async (fichiers) => {
         const { planPurgeVoixStrictV1 } = await import(pathToFileURL(path.join(racine, "cloudflare", "src", "idle-voix-purge-v1.js")).href);
@@ -101,8 +104,18 @@ export async function clesVoixObsoletes(entrees, { racine = RACINE, journal = co
   const plan = chargerPlanVoix(racine);
   if (!plan.ok) { journal("Voix : règle stricte non appliquée (" + plan.raison + ") : aucune voix n'est écartée."); return new Set(); }
   const exporte = Date.parse(plan.catalogue.exporteLe || "") || 0;
-  const fichiers = entrees.map((c) => (typeof c === "string" ? { cle: c, taille: 0 } : c)).filter((c) => String(c.cle).startsWith("idle/voix/"));
+  const toutes = entrees.map((c) => (typeof c === "string" ? { cle: c, taille: 0 } : c));
+  const fichiers = toutes.filter((c) => String(c.cle).startsWith("idle/voix/"));
   const r = await plan.classer(fichiers);
+  /* Médias d'histoire : idle/story/<id>/<fichier> est obsolète si <id> n'est plus une histoire du catalogue (Norman, 2026-11-01 : histoires supprimées du jeu = plus embarquées). */
+  const histoiresOk = plan.histoiresIds.has("Intro");
+  if (!histoiresOk) journal("Histoires : catalogue sans l'introduction (périmé ?) : aucun média d'histoire n'est écarté.");
+  for (const c of toutes) {
+    const morceaux = String(c.cle).split("/");   /* idle / story / <id> / <fichier…> : un fichier posé directement sous idle/story/ n'est jamais touché */
+    if (!histoiresOk || morceaux.length < 4 || morceaux[0] !== "idle" || morceaux[1] !== "story" || !morceaux[2]) continue;
+    fichiers.push(c);
+    if (!plan.histoiresIds.has(morceaux[2])) r.aSupprimer.push({ cle: c.cle, taille: Number(c.taille) || 0, raison: "histoire-supprimee" });
+  }
   const dates = new Map(fichiers.map((c) => [c.cle, Date.parse(c.date || "") || 0]));
   const sortie = new Set(); let proteges = 0, sansDateGardees = 0;
   for (const x of r.aSupprimer) {
@@ -122,14 +135,14 @@ export async function clesVoixObsoletes(entrees, { racine = RACINE, journal = co
  */
 export async function voixObsoletesAEcarter(medias = path.join(RACINE, "desktop", "medias"), opts = {}) {
   const dossier = path.join(medias, "idle", "voix");
-  if (!fs.existsSync(dossier)) return new Set();
   let index = {};
   try { index = lireJson(path.join(medias, "_index.json")); } catch (_e) { /* pas d'inventaire : aucune date, rien n'est écarté */ }
-  const entrees = fs.readdirSync(dossier).filter((f) => f.endsWith(".m4a")).map((f) => {
-    const cle = "idle/voix/" + f;
-    return { cle, taille: fs.statSync(path.join(dossier, f)).size, date: (index[cle] && index[cle][2]) || "" };
-  });
+  const entrees = [];
+  const ajouter = (cle) => { try { entrees.push({ cle, taille: fs.statSync(path.join(medias, ...cle.split("/"))).size, date: (index[cle] && index[cle][2]) || "" }); } catch (_e) { /* disparu */ } };
+  if (fs.existsSync(dossier)) for (const f of fs.readdirSync(dossier)) if (f.endsWith(".m4a")) ajouter("idle/voix/" + f);
+  const dossierHistoires = path.join(medias, "idle", "story");
+  if (fs.existsSync(dossierHistoires)) for (const d of fs.readdirSync(dossierHistoires, { withFileTypes: true })) if (d.isDirectory()) for (const f of fs.readdirSync(path.join(dossierHistoires, d.name))) ajouter("idle/story/" + d.name + "/" + f);
   const sortie = await clesVoixObsoletes(entrees, opts);
-  console.log("Voix : " + sortie.size + " voix obsolètes (règle stricte) ne sont pas embarquées.");
+  console.log("Médias : " + sortie.size + " fichiers obsolètes (voix hors règle stricte, images d'histoires supprimées) ne sont pas embarqués.");
   return sortie;
 }

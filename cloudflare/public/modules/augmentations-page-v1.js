@@ -79,6 +79,9 @@
           /* Le menu quitté est celui retenu jusqu'ici (jamais relu maintenant : le menu actif est déjà le nouveau). */
           const ancien=menuMontantIdleV1;
           if(!nouveau||nouveau===ancien)return;
+          /* Un champ encore actif (clavier, navigation sans clic) est validé AVANT le changement : sinon son « blur » arrivait APRÈS, quand la page change, et rangeait le nombre tapé dans le NOUVEAU menu
+             (le nombre du menu quitté se perdait, l'autre était écrasé). Même cause pour le nombre tapé dans Augmentations puis retrouvé à 500 après un passage par les NGU (Norman, 2026-11-01). */
+          try{const actif=typeof document!=='undefined'?document.activeElement:null;if(actif&&actif.tagName==='INPUT'&&/Input/.test(String(actif.id||'')))actif.blur();}catch(_e){}
           if(ancien)memoriserMontantMenuIdleV1_();
           menuMontantIdleV1=nouveau;
           const v=Math.floor(Number(montantsMenuIdleV1[nouveau]));
@@ -90,12 +93,24 @@
 
       function montantAugmentLireIdleV1_(){
         const el=document.getElementById('sorealIdleAugInputV1');
-        const n=Math.floor(Number(el&&el.value));
+        const n=typeof window.__analyserMontantSaisieIdleV1__==='function'?window.__analyserMontantSaisieIdleV1__(el&&el.value):Math.floor(Number(el&&el.value));
         if(Number.isFinite(n)&&n>=1){montantAugmentIdleV1=n;memoriserMontantMenuIdleV1_();}
         return montantAugmentIdleV1;
       }
+      /*
+       * Lecture d'un nombre tapé dans un champ Input (Norman, 2026-11-01 : « les chiffres dans Input ne se sauvegardent pas »). Avant, Number(texte) refusait en silence « 1 000 », « 1,5 », « 2k » ou « 5M » : la valeur
+       * restait affichée, jamais gardée, puis le prochain redessin remettait l'ancienne. Même écriture que le clavier de Wandoos : espaces ignorés, virgule = point, e-notation, suffixes k m b t. Renvoie un entier >= 1 ou 0.
+       */
+      window.__analyserMontantSaisieIdleV1__=function(texte){
+        const t=String(texte==null?'':texte).trim().replace(/[\s  _]/g,'').replace(',','.');
+        const m=/^(\d+(?:\.\d+)?(?:e\+?\d+)?)([kmbt]?)$/i.exec(t);
+        if(!m)return 0;
+        const mult={'':1,k:1e3,m:1e6,b:1e9,t:1e12}[m[2].toLowerCase()];
+        const n=Math.floor(Number(m[1])*mult);
+        return Number.isFinite(n)&&n>=1?n:0;
+      };
       window.__saisirMontantAugmentIdleV1__=function(v){
-        const n=Math.floor(Number(v));
+        const n=window.__analyserMontantSaisieIdleV1__(v);
         if(Number.isFinite(n)&&n>=1){
           montantAugmentIdleV1=n;
           try{localStorage.setItem('soreal_idle_montant_input_v1',String(n));}catch(_e){}

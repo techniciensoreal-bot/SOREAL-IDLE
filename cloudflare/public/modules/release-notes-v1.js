@@ -32,6 +32,7 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les nombres que tu tapes dans les champs sont mieux gardés : espaces, virgules et suffixes (k, m, b, t) sont compris, le champ ne se trompe plus de menu, et les saisies de départ et de fin d’étage ainsi que la quantité personnalisée de la boutique sont conservées.',
             'Le journal de combat reste toujours tout en bas, sur la ligne la plus récente : la molette et le doigt ne le font plus défiler. Deux flèches (haut et bas) permettent de remonter ; après 15 secondes sans mouvement, il revient tout seul en bas.',
             'Pour un nouveau joueur, les fenêtres d’annonce (nouveau portrait, nouveau chat) attendent la fin de toute l’introduction avant de s’afficher.',
             'Les barres d’Énergie et de Magie disparaissent instantanément quand il n’y en a plus, et réapparaissent instantanément quand tu en récupères.',
@@ -52,6 +53,9 @@
           ]}
           ,{menu:'daycare', titre:'Garderie', points:[
             'La couleur du liquide des bocaux suit l’apparence du chat : transparent pour le chat de base, rose bonbon pour le coquet, or pour le doré, sang pour Halloween, arc-en-ciel pour Nyan…'
+          ]}
+          ,{menu:'tower', titre:'ITOPOD', points:[
+            'Les ennemis défilent maintenant l’un après l’autre, du premier au dernier de la liste, puis tout recommence au premier. Leurs visages ne sont plus coupés en haut et les corps ne flottent plus.'
           ]}
         ]
       },

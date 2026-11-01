@@ -87,19 +87,18 @@ assert.equal(idleItopodCleR2V1("//shared/avatars/level-1/a.webp", "shared/avatar
   assert.ok(media.includes('"/api/idle/media/roster"') && media.includes('"/api/idle/media/shared"'));
 }
 
-// Client : décor selon l'étage (idle/itopod/ 1 à 10), ennemi jamais répété deux fois de suite
+// Client : décor selon l'étage (idle/itopod/ 1 à 10), ennemis dans l'ordre de la liste
 {
   const fenetre = {};
   vm.runInNewContext(readFileSync("cloudflare/public/modules/itopod-scene-v1.js", "utf8"), { window: fenetre, document: { querySelectorAll: () => [] }, fetch: () => Promise.reject(new Error("x")), Date });
   const api = fenetre.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
   assert.deepEqual([1, 10, 11, 20, 21, 1599].map((e) => api.numeroDecor(e)), [1, 10, 1, 10, 1, 9], "décor de l'étage : de 1 à 10 en boucle");
-  for (const n of [2, 3, 5, 7, 12, 23, 24]) {
-    let prev = -1;
+  /* ennemis à la suite, du premier au dernier, puis on recommence au premier (Norman, 2026-11-01) : roster[kills mod n], sans dépendance à l'étage */
+  for (const n of [1, 2, 3, 5, 7, 12, 23, 24]) {
     for (let k = 0; k < 200; k++) {
       const i = api.indexEnnemi(n, k, 10);
-      assert.ok(i >= 0 && i < n);
-      assert.notEqual(i, prev, "deux ennemis de suite identiques (n=" + n + ")");
-      prev = i;
+      assert.equal(i, n <= 1 ? 0 : k % n, "ordre séquentiel (n=" + n + ", kills=" + k + ")");
+      assert.equal(i, api.indexEnnemi(n, k, 77), "indépendant de l'étage");
     }
   }
   // sans liste chargée : le Dude d'origine

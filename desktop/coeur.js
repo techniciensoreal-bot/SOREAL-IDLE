@@ -82,6 +82,13 @@ function lireEmbarque(d) {
   return { index, codeSha };
 }
 
+let retireesMaj = new Set();
+function cleRetireeMaj_(cle) {
+  if (!etatMaj || !Array.isArray(etatMaj.retirees)) return false;
+  if (retireesMaj.size !== etatMaj.retirees.length) retireesMaj = new Set(etatMaj.retirees);
+  return retireesMaj.has(cle);
+}
+
 async function lancerEnv(racineDepot, dossiersMedias) {
   const { creerEnvLocal } = await import(pathToFileURL(path.join(__dirname, "src", "env-local.mjs")).href);
   /* Graine du contenu de la production : celle de la mise à jour installée (dossier de CE fichier, voyage dans le paquet de code) ou celle de l'installateur ; la plus récente (exporteLe) l'emporte. Aucune : le catalogue minimal du moteur. */
@@ -98,6 +105,7 @@ async function lancerEnv(racineDepot, dossiersMedias) {
     dossiersMedias,
     fichierBase: path.join(app.getPath("userData"), "soreal-idle.sqlite"),
     fichierIndex: path.join(app.getPath("userData"), "index-medias.json"),   /* inventaire des médias gardé d'un lancement à l'autre */
+    cleRetiree: (cle) => cleRetireeMaj_(cle),   /* voix obsolètes / histoires supprimées retirées par une mise à jour : plus servies */
     graine,
     utilisateur: { email: "joueur@soreal-idle.local", emailConnexion: "joueur@soreal-idle.local", emails: ["joueur@soreal-idle.local"], prenom: "Joueur" }
   });
@@ -235,6 +243,8 @@ async function verifierMaj() {
   if (r.ok && r.rienAFaire && r.manifeste) {
     /* le serveur est à une autre version, mais l'appareil a déjà tout : on la note sans rien afficher */
     etatMaj = Object.assign({}, etatMaj, { version: r.manifeste.version, date: r.manifeste.date || null });
+    /* clés retirées du manifeste (voix obsolètes, histoires supprimées) : plus servies, fichiers de mise à jour supprimés */
+    if (typeof majModule.appliquerRetirees === "function") etatMaj = majModule.appliquerRetirees(dossierMaj, etatMaj, r.manifeste);
     majModule.ecrireEtat(dossierMaj, etatMaj);
   }
   majProposee = r.ok && r.disponible ? { version: r.manifeste.version, notes: String(r.manifeste.notes || "").slice(0, 400), octets: r.delta.octets, nb: r.delta.nb, manifeste: r.manifeste, delta: r.delta } : null;

@@ -118,6 +118,10 @@ function pageItopodIdleV1_(j){
         /* Mode Auto : la montée part de l étage où tu es (elle ne repart jamais de 0) ; le champ « Départ » le montre au lieu d afficher 0 (Norman, 2026-10-07 : « départ 0, arrivée 18 » semblait un redémarrage). */
         const debut=H.idleEntier_(d.startFloor==null?etage:d.startFloor);
         const fin=H.idleEntier_(d.endFloor==null?optimal:d.endFloor);
+        /* Brouillon des champs Départ / Fin (Norman, 2026-11-01 : « les chiffres que je tape ne se sauvegardent pas ») : un nombre tapé mais pas encore appliqué survit au redessin, au changement de menu et au rechargement
+           (clé liée au compte, règle n°6) ; il disparaît à « Appliquer » et « Auto ». */
+        const brouillon=lireBrouillonItopodIdleV1_();
+        const champDebut=brouillon?brouillon.d:debut,champFin=brouillon?brouillon.f:fin;   /* le texte « Départ → fin » reste celui du SERVEUR (ce qui est appliqué) */
         const ppProgress=Math.max(0,H.idleNombre_(d.ppProgress));
         const pp=H.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);
         const pourcent=Math.max(0,Math.min(100,ppProgress/10000));
@@ -125,7 +129,7 @@ function pageItopodIdleV1_(j){
         const champ=function(id,libelle,valeur){
           return '<div class="itp-champ"><label for="'+id+'">'+libelle+'</label>'+
             '<div class="itp-pas"><button type="button" class="itp-pas-bouton" aria-label="Moins" onclick="window.__itopodPasIdleV1__(this,-1)">−</button>'+
-            '<input id="'+id+'" class="itp-saisie" type="number" inputmode="numeric" min="0" max="1600" value="'+valeur+'">'+
+            '<input id="'+id+'" class="itp-saisie" type="number" inputmode="numeric" min="0" max="1600" value="'+valeur+'" oninput="window.__itopodBrouillonIdleV1__()" onchange="window.__itopodBrouillonIdleV1__()">'+
             '<button type="button" class="itp-pas-bouton" aria-label="Plus" onclick="window.__itopodPasIdleV1__(this,1)">+</button></div></div>';
         };
         const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
@@ -148,7 +152,7 @@ function pageItopodIdleV1_(j){
           '<section class="itp-panneau itp-montee">'+
             '<div class="itp-titre">🪜 Étages à gravir</div>'+
             '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin))+'</div>'+
-            '<div class="itp-champs">'+champ('itopodDebutV1','Départ',debut)+champ('itopodFinV1','Fin',fin)+'</div>'+
+            '<div class="itp-champs">'+champ('itopodDebutV1','Départ',champDebut)+champ('itopodFinV1','Fin',champFin)+'</div>'+
             '<div class="itp-actions">'+
               '<button type="button" class="itp-bouton" onclick="window.__itopodEtagesIdleV1__()">Appliquer</button>'+
               '<button type="button" class="itp-bouton itp-bouton-auto" title="Règle tes étages sur ton meilleur étage (l’étage optimal du moment). Reclique plus tard pour le remettre à jour." onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
@@ -219,17 +223,40 @@ function itopodPasIdleV1_(bouton,delta){
         const el=bouton&&bouton.parentNode?bouton.parentNode.querySelector('input'):null;
         if(!el)return;
         el.value=String(Math.max(0,Math.min(1600,(Number(el.value)||0)+(Number(delta)||0))));
+        ecrireBrouillonItopodIdleV1_();
       }
       window.__itopodPasIdleV1__=itopodPasIdleV1_;
+
+const CLE_BROUILLON_ITOPOD_V1='soreal_idle_itopod_etages_v1';
+function lireBrouillonItopodIdleV1_(){
+        try{
+          const o=JSON.parse(localStorage.getItem(CLE_BROUILLON_ITOPOD_V1)||'null');
+          if(!o||typeof o!=='object'||o.d==null||o.f==null)return null;
+          const d=Math.floor(Number(o.d)),f=Math.floor(Number(o.f));
+          return Number.isFinite(d)&&Number.isFinite(f)&&d>=0&&f>=0&&d<=1600&&f<=1600?{d:d,f:f}:null;
+        }catch(_e){return null;}
+      }
+function ecrireBrouillonItopodIdleV1_(){
+        const debut=document.getElementById('itopodDebutV1');
+        const fin=document.getElementById('itopodFinV1');
+        if(!debut||!fin)return;
+        const d=Math.floor(Number(debut.value)),f=Math.floor(Number(fin.value));
+        if(String(debut.value).trim()===''||String(fin.value).trim()===''||!Number.isFinite(d)||!Number.isFinite(f)||d<0||f<0||d>1600||f>1600)return;   /* champ vide ou en cours de frappe : l'ancien brouillon reste */
+        try{localStorage.setItem(CLE_BROUILLON_ITOPOD_V1,JSON.stringify({d:d,f:f}));}catch(_e){}
+      }
+function effacerBrouillonItopodIdleV1_(){try{localStorage.removeItem(CLE_BROUILLON_ITOPOD_V1);}catch(_e){}}
+window.__itopodBrouillonIdleV1__=ecrireBrouillonItopodIdleV1_;
 
 function itopodEtagesIdleV1_(){
         const debut=document.getElementById('itopodDebutV1');
         const fin=document.getElementById('itopodFinV1');
+        effacerBrouillonItopodIdleV1_();
         actionMetaIdleV130_({action:'towerFloors',start:Number(debut&&debut.value)||0,end:Number(fin&&fin.value)||0});
       }
       window.__itopodEtagesIdleV1__=itopodEtagesIdleV1_;
 
 function itopodAutoIdleV1_(){
+        effacerBrouillonItopodIdleV1_();
         actionMetaIdleV130_({action:'towerFloors',auto:true});
       }
       window.__itopodAutoIdleV1__=itopodAutoIdleV1_;

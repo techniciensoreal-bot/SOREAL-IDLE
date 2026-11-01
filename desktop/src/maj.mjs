@@ -54,7 +54,9 @@ export function lireEtat(dossierMaj, embarque = {}) {
     enAttente: e.enAttente || null,
     tentatives: Number(e.tentatives) || 0,
     precedent: e.precedent && typeof e.precedent === "object" ? e.precedent : null,
-    refusees: Array.isArray(e.refusees) ? e.refusees : []
+    refusees: Array.isArray(e.refusees) ? e.refusees : [],
+    /* Clés RETIRÉES du manifeste (voix obsolètes, images d'histoires supprimées) : plus jamais servies, même si le fichier traîne dans l'installation (voir calculerRetirees, creerR2). */
+    retirees: Array.isArray(e.retirees) ? e.retirees.filter((k) => typeof k === "string").slice(0, 50000) : []
   };
 }
 export function ecrireEtat(dossierMaj, etat) {
@@ -73,6 +75,26 @@ export function couchesActives(dossierMaj, etat) {
 }
 
 /* ---------- ce qu'il y a à télécharger ---------- */
+/* Dossiers où une clé absente du manifeste signé est RETIRÉE (le propriétaire supprime pour alléger) ; les images, musiques, etc. ne sont jamais retirées par cette voie. */
+export const PREFIXES_RETIRABLES = ["idle/voix/", "idle/story/"];
+/* Clés que l'appareil possédait (index) ou savait retirées, retirables, et que le nouveau manifeste ne liste plus. Une clé de nouveau listée n'est plus retirée. */
+export function calculerRetirees(manifeste, etat) {
+  const listees = new Set((Array.isArray(manifeste.medias) ? manifeste.medias : []).map((m) => m[0]));
+  const sortie = new Set();
+  const candidates = Object.keys(etat.index || {}).concat(Array.isArray(etat.retirees) ? etat.retirees : []);
+  for (const k of candidates) if (PREFIXES_RETIRABLES.some((p) => k.startsWith(p)) && !listees.has(k)) sortie.add(k);
+  return [...sortie];
+}
+
+/* Note les clés retirées d'un manifeste sans rien télécharger (mise à jour « rien à faire ») : index allégé, fichiers retirés supprimés du dossier maj de l'appareil (jamais du dossier d'installation). Rend le nouvel état (non écrit). */
+export function appliquerRetirees(dossierMaj, etat, manifeste) {
+  const retirees = calculerRetirees(manifeste, etat);
+  const index = Object.assign({}, etat.index);
+  for (const k of retirees) delete index[k];
+  try { for (const d of etat.mediaDossiers) for (const k of retirees) fs.rmSync(path.join(dossierMaj, d, "medias", ...k.split("/")), { force: true }); } catch (_e) { /* facultatif */ }
+  return Object.assign({}, etat, { retirees, index });
+}
+
 export function calculerDelta(manifeste, etat) {
   const codeChange = Boolean(manifeste.code && manifeste.code.sha256 && manifeste.code.sha256 !== etat.codeSha);
   const medias = [];
@@ -175,16 +197,23 @@ export async function installerMaj({ urlBase = URL_PRODUCTION, manifeste, delta,
   /* inscription : l'index devient celui du manifeste (ce que l'appareil possède maintenant) */
   const index = Object.assign({}, etat.index);
   for (const m of manifeste.medias) index[m[0]] = [m[1], m[2]];
+  const retirees = calculerRetirees(manifeste, etat);
+  for (const k of retirees) delete index[k];
   const nouveau = Object.assign({}, etat, {
+    retirees,
     version: manifeste.version, date: manifeste.date || null, index,
     codeSha: delta.codeChange ? manifeste.code.sha256 : etat.codeSha,
     codeDossier: delta.codeChange ? id : etat.codeDossier,
     mediaDossiers: delta.medias.length ? etat.mediaDossiers.concat(id) : etat.mediaDossiers,
     enAttente: manifeste.version, tentatives: 0,
     /* de quoi revenir en arrière si le jeu ne démarre pas avec cette mise à jour (voir revenirEnArriere) */
-    precedent: { version: etat.version, date: etat.date, codeSha: etat.codeSha, codeDossier: etat.codeDossier, mediaDossiers: etat.mediaDossiers, index: etat.index }
+    precedent: { version: etat.version, date: etat.date, codeSha: etat.codeSha, codeDossier: etat.codeDossier, mediaDossiers: etat.mediaDossiers, index: etat.index, retirees: etat.retirees }
   });
   ecrireEtat(dossierMaj, nouveau);
+  /* Les fichiers RETIRÉS des anciennes mises à jour (dossier maj de l'appareil, jamais le dossier d'installation) sont supprimés. */
+  try {
+    for (const d of nouveau.mediaDossiers) for (const k of retirees) fs.rmSync(path.join(dossierMaj, d, "medias", ...k.split("/")), { force: true });
+  } catch (_e) { /* ménage facultatif : la clé n'est de toute façon plus servie */ }
   /* ménage : on ne garde que le code installé et le précédent ; les dossiers de médias restent (couches) */
   try {
     for (const d of fs.readdirSync(dossierMaj)) {
@@ -206,7 +235,7 @@ export function revenirEnArriere(dossierMaj, etat) {
   const p = etat.precedent;
   const nouveau = Object.assign({}, etat, {
     version: p ? p.version : null, date: p ? p.date : null, codeSha: p ? p.codeSha : null, codeDossier: p ? p.codeDossier : null,
-    mediaDossiers: p ? p.mediaDossiers : [], index: p ? p.index : undefined,
+    mediaDossiers: p ? p.mediaDossiers : [], index: p ? p.index : undefined, retirees: p && Array.isArray(p.retirees) ? p.retirees : [],
     refusees: etat.enAttente ? etat.refusees.concat(etat.enAttente) : etat.refusees, enAttente: null, tentatives: 0, precedent: null
   });
   ecrireEtat(dossierMaj, nouveau);

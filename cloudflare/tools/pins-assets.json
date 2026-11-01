@@ -68,8 +68,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 16,
-  "sha": "30621c3451d8761c0a42de5fe3d7cfd8351bcfcf"
+  "pin": 17,
+  "sha": "ad2fe81d483da9938409058f194b89f083d610d0"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 10,
@@ -100,8 +100,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 6,
-  "sha": "42fd575df044072339938055cc258b33e8e29425"
+  "pin": 7,
+  "sha": "7a349cdbcccf8ebe838c68bc145eeefc6ed0c502"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -324,20 +324,20 @@
   "sha": "979d0c81bb7f2e8dfd8cbcf38331f69b076471c5"
  },
  "/modules/itopod-badavatars-catalogue-v1.js": {
-  "pin": 2,
-  "sha": "69179de92bccedbdb901d364ce2091af4f70e0b6"
+  "pin": 3,
+  "sha": "0ecf22ba9e9e30882e0ba5872ba6212c08af0d0d"
  },
  "/modules/itopod-badavatars-v1.js": {
-  "pin": 2,
-  "sha": "635688a38d4a77c5d6ae0d7764637c10e6453923"
+  "pin": 3,
+  "sha": "22dd3dd1ca0706535a5c63469e4f04aa343f2a8f"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 1,
-  "sha": "757cea57b489327f1380f4af573698f80c8a287d"
+  "pin": 2,
+  "sha": "ff37836e9a2797c8ff003c800f4bbe69d852997c"
  },
  "/modules/itopod-scene-v1.js": {
-  "pin": 11,
-  "sha": "07c93bd2dc10ce8fc72f568f1d79b7d974775cef"
+  "pin": 12,
+  "sha": "5b34a60d8f69cc5039e82a37dab9349719ca6ae1"
  },
  "/modules/journal-attaques-v1.js": {
   "pin": 5,
@@ -428,8 +428,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 45,
-  "sha": "7bced4d849e235e1179f8e42dbeab97116217106"
+  "pin": 46,
+  "sha": "e9a1069bfd8aaf9935bc63506e436a19d3be6bdb"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -500,12 +500,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 23,
-  "sha": "bf11e5a4afe488616f640646cccbf2938373c6d7"
+  "pin": 25,
+  "sha": "afce527c8c183f4d6c5d0022eddcd08ea5a418e6"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 637,
-  "sha": "b2b1deb8faf9fd59e6bf9bcb269e82f6f2b4f572"
+  "pin": 639,
+  "sha": "c14505a5f6ddeb5583057ca4eb357c2ecfe7a77a"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -584,12 +584,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 659,
-  "sha": "89e26fc95680a603f7a362c64c36f73d6053e328"
+  "pin": 661,
+  "sha": "b9bfa61bbfd619e7eba277efcd56d7355432105d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 479,
-  "sha": "fc950b7b5bfc6b95f698f192cdbb0f4dde812825"
+  "pin": 481,
+  "sha": "5a0813152dba0a2a8209108c99fd4672cc297d53"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -668,8 +668,8 @@
   "sha": "3f0e29f05698d1cc45eee4fda3ca3b25136e5793"
  },
  "/modules/ui-magie-energie-v1.js": {
-  "pin": 4,
-  "sha": "96845339107f93b03043fc430f8f1ca808bb87c4"
+  "pin": 5,
+  "sha": "7fee53ea4fa8fe43feffa84d209cb6227caa1a4d"
  },
  "/modules/ui-menus-v1.js": {
   "pin": 19,

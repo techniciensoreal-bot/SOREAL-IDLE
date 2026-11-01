@@ -31,12 +31,11 @@ function decorPour(etage){
   return liste&&liste[numeroDecor(etage)]?liste[numeroDecor(etage)]:'';
 }
 
-function pgcd(a,b){while(b){var t=b;b=a%b;a=t;}return a;}
-/* Ennemi n° kills : un pas premier avec la taille de la liste, pour ne jamais retomber sur le même nom deux fois de suite. */
+/* Ennemi n° kills (Norman, 2026-11-01 : « on affronte chacun des personnages à la suite, du premier au dernier, et ça recommence au premier ») : défilement séquentiel dans l'ordre de la liste du roster (déjà triée par le serveur), en boucle : roster[kills mod n].
+   Stable d'un rendu et d'un appareil à l'autre ; l'étage n'intervient plus (le paramètre est gardé pour les appelants). */
 function indexEnnemi(n,kills,etage){
   if(n<=1)return 0;
-  var pas=[7,11,13,17,19,23,29,31,37].filter(function(p){return pgcd(p,n)===1;})[0]||1;
-  return ((Math.max(0,kills)*pas)+Math.max(0,etage)*3)%n;
+  return Math.max(0,Math.floor(Number(kills)||0))%n;
 }
 
 /*

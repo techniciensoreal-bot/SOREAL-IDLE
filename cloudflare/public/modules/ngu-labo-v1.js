@@ -198,7 +198,8 @@ function plafond_(j,res){
 /* Quantité des boutons + et − : la case « Input » partagée (Basic Training, Augmentations, Time Machine, Entraînement avancé…). */
 function pas_(){
   var el=document.getElementById('sorealIdleAugInputV1');
-  var n=Math.floor(Number(el&&el.value));
+  var an=window.__analyserMontantSaisieIdleV1__;
+  var n=typeof an==='function'?an(el&&el.value):Math.floor(Number(el&&el.value));
   if(isFinite(n)&&n>=1)return n;
   var m=typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125;
   return Math.max(1,Math.floor(Number(m))||125);
@@ -427,7 +428,8 @@ function totauxHtml_(j){
 
 function barreOutilsHtml_(j){
   var el=document.getElementById('sorealIdleAugInputV1');
-  var valeur=el&&el.value?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
+  /* Le texte déjà dans le champ n'est repris que s'il appartient à CETTE page (redessin des NGU) : arrivant d'un autre menu, le champ encore présent est celui de l'autre page, et son nombre prenait la place de celui des NGU (Norman, 2026-11-01). */
+  var valeur=el&&el.value&&el.closest&&el.closest('.nl-v1')?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
   var lib=libre_(j,onglet);
   return '<div class="nl-barre-outils">'+
     '<div class="nl-ligne nl-ligne-input"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+

@@ -93,7 +93,14 @@
       function idleResoudreFractionInputV1_(input){
         if(!input)return;
         const resolu=idleParseFractionEnergieV1_(input.value,REG.idleEtat&&REG.idleEtat.energie);
-        if(resolu!=null)input.value=String(resolu);
+        if(resolu!=null){input.value=String(resolu);return;}
+        /* Pas une fraction : « 1 000 », « 2,5k », « 5M »… sont lus et réécrits en entier ; un texte illisible (vide, 0, lettres) redonne le nombre GARDÉ, au lieu de rester affiché sans l'être (Norman, 2026-11-01). */
+        const analyser=window.__analyserMontantSaisieIdleV1__;
+        if(typeof analyser!=='function')return;
+        const n=analyser(input.value);
+        if(n>=1){input.value=String(n);return;}
+        const garde=typeof window.__lireMontantAugmentIdleV1__==='function'?Math.floor(Number(window.__lireMontantAugmentIdleV1__())):0;
+        if(Number.isFinite(garde)&&garde>=1)input.value=String(garde);
       }
 
       function formatEnergieIdleV50_(v){

@@ -138,6 +138,25 @@ try {
     } catch (e) { erreurs.push("_externes/" + nom + " : " + (e && e.message || e)); }
   }
 
+  /*
+   * NETTOYAGE LOCAL (jamais R2) : voix obsolètes et images d'histoires supprimées (desktop/src/voix-utiles.mjs), ainsi que tout fichier idle/voix ou idle/story absent de l'inventaire R2 (supprimé du bucket : la copie locale, donc l'exe
+   * et l'APK, ne doit plus le porter ; Norman, 2026-11-01). Journalisé. Rien n'est fait si un téléchargement a échoué ou si l'inventaire est suspect (moins de 1000 fichiers).
+   */
+  if (!erreurs.length && objets.length > 1000) {
+    const presents = new Set(objets.map((o) => o.cle));
+    const retires = []; let octets = 0;
+    const parcourir = (dossier, cle) => {
+      for (const e of fs.readdirSync(dossier, { withFileTypes: true })) {
+        const k = cle + e.name;
+        if (e.isDirectory()) { parcourir(path.join(dossier, e.name), k + "/"); continue; }
+        if (obsoletes.has(k) || !presents.has(k)) { const f = path.join(dossier, e.name); octets += fs.statSync(f).size; fs.unlinkSync(f); retires.push(k); }
+      }
+      if (cle !== "idle/voix/" && cle !== "idle/story/" && !fs.readdirSync(dossier).length) fs.rmdirSync(dossier);
+    };
+    for (const base of ["idle/voix/", "idle/story/"]) { const d = path.join(MEDIAS, ...base.split("/").filter(Boolean)); if (fs.existsSync(d)) parcourir(d, base); }
+    for (const k of retires) console.log("retiré du disque local : " + k);
+    console.log("nettoyage local : " + retires.length + " fichier(s) retiré(s) (" + mo(octets) + "), R2 intact.");
+  }
   /* index des médias embarqués (clé -> [taille, etag]) : sert aux mises à jour à ne télécharger que ce qui a changé */
   if (!erreurs.length || !args.includes("--strict")) {
     const index = {};

@@ -104,10 +104,47 @@
   function urlParDefaut(cle) { return "/api/idle/media/shared?key=" + encodeURIComponent("idle/badavatars/" + String(cle).slice(BASE.length)); }
 
   /* Pile d'images posées comme dans l'éditeur (scène 3/4, chaque image occupe toute la scène, zIndex = order, translate(x,y) en % puis rotate puis scale). */
-  function basCorps(design) {
+  function corpsEntree(design) {
     var liste = (CAT.bodies && CAT.bodies[design.gender]) || [];
-    for (var i = 0; i < liste.length; i++) if (BASE + liste[i][0] === design.body) return liste[i][5] || 0;
-    return 0;
+    for (var i = 0; i < liste.length; i++) if (BASE + liste[i][0] === design.body) return liste[i];
+    return null;
+  }
+  var metas = null;
+  function metaPiece(cle) {
+    if (!metas) {
+      metas = {};
+      Object.keys(CAT.parts || {}).forEach(function (c) { CAT.parts[c].forEach(function (m) { metas[BASE + m[0]] = m; }); });
+    }
+    return metas[cle] || null;
+  }
+  /* Haut réel d'une pièce posée (ordonnée de scène, 0 en haut) : le plus haut des 4 coins de la boîte mesurée de ses pixels, après translation, rotation et échelle comme dans l'éditeur. */
+  function hautPiece(p, m) {
+    var s0 = Math.min(W / m[1], H / m[2]), a = p.rotation * Math.PI / 180, haut = Infinity;
+    [[m[3], m[4]], [m[5] + 1, m[4]], [m[3], m[6] + 1], [m[5] + 1, m[6] + 1]].forEach(function (c) {
+      var px = (c[0] - m[1] / 2) * s0, py = (c[1] - m[2] / 2) * s0;
+      var y = H / 2 + p.y * H + p.scale * (px * Math.sin(a) + py * Math.cos(a));
+      if (y < haut) haut = y;
+    });
+    return haut;
+  }
+  var MARGE_HAUT = 6.4;   /* pixels de scène (1 % de la hauteur) gardés libres au-dessus du personnage */
+  /*
+   * Cadrage de la pile : (1) le bas du TORSE (médiane des colonnes centrales du corps, sans les bras ni les mains) est calé sur le bord bas du cadre (les bras peuvent déborder) ;
+   * (2) si, une fois descendu, le haut réel du personnage (crâne, cheveux et pièces avec leur transformation) dépasse du cadre, toute la pile rétrécit autour du bas-centre juste assez
+   * pour garder MARGE_HAUT de libre, sans jamais décoller le bas du bord. Ne change ni le tirage ni le placement des pièces.
+   */
+  function cadrage(design) {
+    var e = corpsEntree(design);
+    var torse = e ? (e[6] || e[5] || 0) : 0;
+    var decalage = torse > 0 && torse < H ? H - torse : 0;
+    var haut = e ? e[1] : 0;
+    Object.keys(design.parts).forEach(function (c) {
+      var m = metaPiece(design.parts[c].key);
+      if (m) haut = Math.min(haut, hautPiece(design.parts[c], m));
+    });
+    var echelle = 1;
+    if (haut + decalage < MARGE_HAUT) echelle = Math.max(0.5, (H - MARGE_HAUT) / (H - (haut + decalage)));
+    return { decalage: decalage, echelle: echelle, haut: haut };
   }
 
   function rendreHtml(design, options) {
@@ -116,10 +153,10 @@
     var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); };
     var base = "position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:contain;pointer-events:none;user-select:none";
     var surErreur = options.surErreurCorps ? ' onerror="' + esc(options.surErreurCorps) + '"' : "";
-    /* Pile entière décalée vers le bas : la dernière ligne opaque du corps (bas, mesuré, en pixels de la scène 480 x 640) touche le bord bas du cadre, sans changer l'échelle ; le débordement est coupé. */
-    var bas = basCorps(design);
-    var decalage = bas > 0 && bas < H ? arrondir((H - bas) / H * 100, 3) : 0;
-    var html = '<div class="itopod-badavatar" style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden"><div class="itopod-badavatar-pile" style="position:absolute;left:0;top:0;width:100%;height:100%;transform:translateY(' + decalage + '%)">';
+    /* Cadrage de la pile (voir cadrage) : bas du torse sur le bord bas, haut du personnage jamais rogné ; le débordement latéral et celui des bras sont coupés. */
+    var cad = cadrage(design);
+    var decalage = arrondir(cad.decalage / H * 100, 3), echelle = arrondir(cad.echelle, 4);
+    var html = '<div class="itopod-badavatar" style="position:relative;width:100%;aspect-ratio:3/4;overflow:hidden"><div class="itopod-badavatar-pile" style="position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:50% 100%;transform:scale(' + echelle + ') translateY(' + decalage + '%)">';
     html += '<img alt="" draggable="false" decoding="async" src="' + esc(url(design.body)) + '"' + surErreur + ' style="' + base + ';z-index:0">';
     Object.keys(design.parts).forEach(function (c) {
       var p = design.parts[c];
@@ -129,5 +166,5 @@
     return html + "</div></div>";
   }
 
-  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
+  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, cadrage: cadrage, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
 })();

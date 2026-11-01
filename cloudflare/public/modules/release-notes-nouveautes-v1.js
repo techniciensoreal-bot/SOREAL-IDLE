@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le journal de combat reste toujours tout en bas, sur la ligne la plus récente : la molette et le doigt ne le font plus défiler. Deux flèches (haut et bas) permettent de remonter ; après 15 secondes sans mouvement, il revient tout seul en bas."
+    "Les nombres que tu tapes dans les champs sont mieux gardés : espaces, virgules et suffixes (k, m, b, t) sont compris, le champ ne se trompe plus de menu, et les saisies de départ et de fin d’étage ainsi que la quantité personnalisée de la boutique sont conservées.",
+    "Les ennemis défilent maintenant l’un après l’autre, du premier au dernier de la liste, puis tout recommence au premier. Leurs visages ne sont plus coupés en haut et les corps ne flottent plus."
   ] };
 })();

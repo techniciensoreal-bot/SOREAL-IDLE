@@ -54,7 +54,7 @@ const cache = path.join(tmp, "index-medias.json");
 }
 // 4. la fabrication de l'installateur et le lancement utilisent bien ces points
 const env = fs.readFileSync(D + "src/env-local.mjs", "utf8").replace(/\r\n/g, "\n"), coeur = fs.readFileSync(D + "coeur.js", "utf8").replace(/\r\n/g, "\n");
-assert.ok(env.includes("env.SOREAL_R2.prechauffer().catch(() => {});") && env.includes("creerR2(opt.dossiersMedias || opt.dossierMedias, opt.fichierIndex)"), "l'inventaire commence au démarrage, en tâche de fond");
+assert.ok(env.includes("env.SOREAL_R2.prechauffer().catch(() => {});") && env.includes("creerR2(opt.dossiersMedias || opt.dossierMedias, opt.fichierIndex, opt.cleRetiree)"), "l'inventaire commence au démarrage, en tâche de fond");
 assert.ok(env.includes('sql.exec("BEGIN");') && env.includes('sql.exec("COMMIT")'), "la graine du catalogue s'écrit en une seule transaction");
 assert.ok(coeur.includes('fichierIndex: path.join(app.getPath("userData"), "index-medias.json")'), "l'inventaire est gardé dans le dossier de données du joueur");
 assert.ok(!/function construire\(\) \{\n\s+index = new Map\(\);/.test(env), "plus d'inventaire synchrone");

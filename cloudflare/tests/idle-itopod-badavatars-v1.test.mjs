@@ -93,11 +93,25 @@ assert.ok(readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8").includes
 for (const [genre, liste] of Object.entries(B.catalogue.bodies)) {
   assert.ok(liste.length > 15, genre);
   for (const e of liste) assert.ok(Number.isFinite(e[5]) && e[5] >= 400 && e[5] <= 640, "bas mesuré pour " + e[0]);
+  for (const e of liste) assert.ok(Number.isFinite(e[6]) && e[6] >= 400 && e[6] <= e[5] + 1, "bas du torse mesuré (sans les bras) pour " + e[0]);
 }
-const exemple = B.catalogue.bodies.Body_Homme.find((e) => e[5] < 600);
+const exemple = B.catalogue.bodies.Body_Homme.find((e) => e[6] < 600);
 assert.ok(exemple, "un corps à marge basse existe (480x600 ou bras levés)");
 const dEx = { version: 1, gender: "Body_Homme", body: BASE + exemple[0], parts: {} };
-const attendu = Math.round((640 - exemple[5]) / 640 * 100 * 1000) / 1000;
+const attendu = Math.round((640 - exemple[6]) / 640 * 100 * 1000) / 1000;
 assert.ok(B.rendreHtml(dEx, { url: (k) => k }).includes("itopod-badavatar-pile") && B.rendreHtml(dEx, { url: (k) => k }).includes("translateY(" + attendu + "%)"), "décalage vers le bas du corps " + attendu);
 assert.equal(JSON.stringify(B.tirerPourNom("Justine")).length > 50, true);
+/* Cadrage : le bas du torse sur le bord bas ; le haut du personnage (crâne, cheveux, pièces) n'est jamais rogné : marge de 6,4 px de scène, échelle de la pile réduite autour du bas-centre seulement si nécessaire. */
+let reduits = 0;
+for (let i = 1; i <= 600; i++) {
+  const d = B.tirer(i), c = B.cadrage(d);
+  assert.ok(c.echelle > 0 && c.echelle <= 1 && c.echelle >= 0.5, "échelle de pile bornée");
+  if (c.echelle < 1) reduits++;
+  const hautFinal = 640 - c.echelle * (640 - (c.haut + c.decalage));
+  assert.ok(hautFinal >= 6.3, "haut non rogné, graine " + i + " (" + hautFinal.toFixed(1) + ")");
+  const e = B.catalogue.bodies[d.gender].find((x) => BASE + x[0] === d.body);
+  assert.ok(Math.abs(c.decalage - (640 - e[6])) < 1e-6 || e[6] >= 640, "bas du torse calé, graine " + i);
+}
+assert.ok(reduits > 0, "au moins un personnage a la tête trop haute et se réduit");
+console.log("réduits:", reduits, "/ 600");
 console.log("idle-itopod-badavatars-v1: ok");

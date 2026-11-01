@@ -18,7 +18,11 @@ const charger=k=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror
   for(let y=T;y<H;y++){if(wd[y]>peak){peak=wd[y];py=y;}else if(wd[y]<0.72*peak&&y>py+8)break;}
   let run=1e9,ry=py;for(let y=py;y<H;y++){if(wd[y]<run){run=wd[y];ry=y;}else if(wd[y]>run*1.25&&run<0.72*peak)break;}
   let chin=ry;for(let y=py;y<=ry;y++){if(wd[y]<=run*1.2){chin=y;break;}}
-  tete[k]={T,chin,py,peak,cx:(lx[py]+rx[py])/2,neck:run,H:chin-T};
+  /* torse = bas du TORSE : médiane des dernières lignes opaques des colonnes centrales (±84 px autour de l'axe de la tête, soit ~35 % de la largeur), ce qui ignore les bras et les mains qui pendent plus bas. */
+  const axe=Math.round((lx[py]+rx[py])/2);const bas=[];
+  for(let xx=Math.max(0,axe-84);xx<=Math.min(W-1,axe+84);xx++){let dern=-1;for(let y=H-1;y>=0;y--){if(e[(y*W+xx)*4+3]>40){dern=y;break;}}if(dern>=0)bas.push(dern+1);}
+  bas.sort((a,b)=>a-b);const torse=bas.length?bas[Math.floor(bas.length/2)]:H;
+  tete[k]={T,chin,py,peak,cx:(lx[py]+rx[py])/2,neck:run,H:chin-T,torse};
  }
  await fetch('/save/res.json',{method:'POST',body:JSON.stringify(res)});await fetch('/save/tete.json',{method:'POST',body:JSON.stringify(tete)});
  document.getElementById('etat').textContent='terminé : '+Object.keys(res).length+' images, '+Object.keys(tete).length+' corps';document.title='done';

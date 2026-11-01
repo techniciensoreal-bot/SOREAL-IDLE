@@ -138,6 +138,20 @@
       }
 
       /* Quantité d'achats d'un champ : la valeur posée par −, + ou Max est gardée telle quelle (le texte affiché est arrondi), une saisie à la main est relue. */
+      /* Quantité tapée dans « Quantité personnalisée » : gardée par champ (clé liée au compte, règle n°6) pour survivre au redessin, au changement de menu et au rechargement (Norman, 2026-11-01 : « les chiffres que je tape ne se sauvegardent pas »). */
+      const CLE_LOTS_EXP_IDLE_V1='soreal_idle_exp_lots_v1';
+      function idleExpLotsGardesIdleV1_(){try{const o=JSON.parse(localStorage.getItem(CLE_LOTS_EXP_IDLE_V1)||'{}');return o&&typeof o==='object'&&!Array.isArray(o)?o:{};}catch(_e){return {};}}
+      function idleExpLotGardeIdleV1_(id){const q=Math.floor(Number(idleExpLotsGardesIdleV1_()[id]));return Number.isFinite(q)&&q>=1?q:0;}
+      function idleExpLotMemoriserIdleV1_(id,qty){
+        const q=Math.floor(Number(qty));
+        if(!id||!Number.isFinite(q)||q<1)return;
+        const o=idleExpLotsGardesIdleV1_();
+        if(Math.floor(Number(o[id]))===q)return;
+        o[id]=q;
+        const cles=Object.keys(o);
+        if(cles.length>60)delete o[cles[0]];
+        try{localStorage.setItem(CLE_LOTS_EXP_IDLE_V1,JSON.stringify(o));}catch(_e){}
+      }
       function idleExpQuantiteChampIdleV1_(input,gain){
         if(input&&input.dataset&&input.dataset.qtxt===input.value&&Number(input.dataset.qty)>=1)return Math.floor(Number(input.dataset.qty));
         return idleExpAchatsDepuisSaisieIdleV1_(input?input.value:'',gain);
@@ -153,21 +167,26 @@
         const idApercu=idleExpShopIdApercu_(res,stat);
         const gain=Number(achat.gain)>0?Number(achat.gain):1;
         const coutUnitaire=H.idleEntier_(achat.cost||0);
+        const qteGardee=idleExpLotGardeIdleV1_(idInput);
+        const qte=qteGardee>=1?qteGardee:1;
+        const apresInit=Number(achat.hardCap)>0?Math.min(Number(achat.hardCap),(Number(actuel)||0)+qte*gain):(Number(actuel)||0)+qte*gain;
+        const coutInit=H.idleEntier_(coutUnitaire*qte);
+        const valeurChamp=qteGardee>=1?H.formatGrandNombreIdleV70_(Math.round(qteGardee*gain*1e6)/1e6,2):H.formatGrandNombreIdleV70_(gain,2);
         const nom=statDef?statDef.icone+' '+statDef.nom:'';
         const args='\''+H.idleHtml_(res)+'\',\''+H.idleHtml_(stat)+'\'';
-        return '<div class="soreal-idle-exp-custom-v210 detail" id="'+idHtml_attr_(idInput)+'-panneau" data-gain="'+gain+'" data-cout="'+coutUnitaire+'" data-actuel="'+(Number(actuel)||0)+'" data-plafond="'+(Number(achat.hardCap)||0)+'">'+
+        return '<div class="soreal-idle-exp-custom-v210 detail'+(qteGardee>=1&&idleExpExpDisponibleIdleV1_()<coutInit?' manque':'')+'" id="'+idHtml_attr_(idInput)+'-panneau" data-gain="'+gain+'" data-cout="'+coutUnitaire+'" data-actuel="'+(Number(actuel)||0)+'" data-plafond="'+(Number(achat.hardCap)||0)+'">'+
           '<label>Quantité personnalisée'+(nom?' · <b>'+H.idleHtml_(nom)+'</b>':'')+'</label>'+
           '<div class="saisie">'+
             '<button type="button" class="pm" aria-label="Moins" onclick="window.__idleExpShopAjusterLot__('+args+',-1)">−</button>'+
-            '<input type="text" inputmode="decimal" value="'+H.formatGrandNombreIdleV70_(gain,2)+'" data-gain="'+gain+'" id="'+idHtml_attr_(idInput)+'" oninput="window.__idleExpShopApercuLotPersonnalise__('+args+','+coutUnitaire+')">'+
+            '<input type="text" inputmode="decimal" value="'+valeurChamp+'"'+(qteGardee>=1?' data-qtxt="'+valeurChamp+'" data-qty="'+qteGardee+'"':'')+' data-gain="'+gain+'" id="'+idHtml_attr_(idInput)+'" oninput="window.__idleExpShopApercuLotPersonnalise__('+args+','+coutUnitaire+')">'+
             '<button type="button" class="pm" aria-label="Plus" onclick="window.__idleExpShopAjusterLot__('+args+',1)">+</button>'+
             '<button type="button" class="pm max" onclick="window.__idleExpShopAjusterLot__('+args+',0)">Max</button>'+
           '</div>'+
           '<div class="recap">'+
-            '<div class="l"><span class="k">Tu gagnes</span><b class="gv" data-r="gain">+'+H.formatGrandNombreIdleV70_(gain,2)+'</b><span class="nm">'+H.idleHtml_(nom)+'</span></div>'+
-            '<div class="l"><span class="k">Avant · après</span><span class="av" data-r="avant">'+H.formatGrandNombreIdleV70_(actuel||0,2)+'</span><i class="fl" aria-hidden="true"></i><b class="ap" data-r="apres">'+H.formatGrandNombreIdleV70_((Number(actuel)||0)+gain,2)+'</b></div>'+
-            '<div class="l"><span class="k">Coût</span><b class="cv">★ <span id="'+idHtml_attr_(idApercu)+'">'+coutUnitaire+'</span> EXP</b></div>'+
-            '<div class="l"><span class="k" data-r="restek">'+(idleExpExpDisponibleIdleV1_()>=coutUnitaire?'Il te restera':'Il te manque')+'</span><b class="rs" data-r="reste">★ '+H.formatGrandNombreIdleV70_(Math.round(Math.abs(idleExpExpDisponibleIdleV1_()-coutUnitaire)))+' EXP</b></div>'+
+            '<div class="l"><span class="k">Tu gagnes</span><b class="gv" data-r="gain">+'+H.formatGrandNombreIdleV70_(qte*gain,2)+'</b><span class="nm">'+H.idleHtml_(nom)+'</span></div>'+
+            '<div class="l"><span class="k">Avant · après</span><span class="av" data-r="avant">'+H.formatGrandNombreIdleV70_(actuel||0,2)+'</span><i class="fl" aria-hidden="true"></i><b class="ap" data-r="apres">'+H.formatGrandNombreIdleV70_(apresInit,2)+'</b></div>'+
+            '<div class="l"><span class="k">Coût</span><b class="cv">★ <span id="'+idHtml_attr_(idApercu)+'">'+coutInit+'</span> EXP</b></div>'+
+            '<div class="l"><span class="k" data-r="restek">'+(idleExpExpDisponibleIdleV1_()>=coutInit?'Il te restera':'Il te manque')+'</span><b class="rs" data-r="reste">★ '+H.formatGrandNombreIdleV70_(Math.round(Math.abs(idleExpExpDisponibleIdleV1_()-coutInit)))+' EXP</b></div>'+
           '</div>'+
           '<button type="button" class="soreal-idle-exp-buy-v210 primary" onclick="window.__acheterRessourceLotPersonnaliseMetaIdleV130__('+args+')">Acheter</button>'+
         '</div>';
@@ -183,6 +202,7 @@
         const panneau=document.getElementById(idleExpShopIdInput_(res,stat)+'-panneau');
         const gain=Number(input.getAttribute('data-gain'))>0?Number(input.getAttribute('data-gain')):1;
         const qty=idleExpQuantiteChampIdleV1_(input,gain);
+        idleExpLotMemoriserIdleV1_(input.id,qty);
         const cout=H.idleEntier_(coutUnitaire*qty);
         apercu.textContent=H.formatGrandNombreIdleV70_(cout,2);
         if(!panneau)return;
