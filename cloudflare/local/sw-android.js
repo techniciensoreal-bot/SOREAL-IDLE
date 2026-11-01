@@ -219,8 +219,50 @@ function scriptSession(session) {
   return '<script>try{localStorage.setItem("soreal_idle_google_session_v1",' + JSON.stringify(JSON.stringify({ token: session.token, expiresAt: session.expiresAt })) + ');}catch(_e){}</script>';
 }
 
-async function repondre(requete) {
-  const e = await init();
+/*
+ * Images lentes sur l'APK (Norman, 2026-11-01 : « les images clignotent, il galère à charger ce qu'il a en mémoire ; la fluidité est beaucoup moindre que l'APK en ligne »). Cause : tout /api/ passe par ce service worker, et Android l'arrête après quelques secondes d'inactivité ; à chaque réveil,
+ * la moindre image attendait init() : démarrage de sql.js, chargement de la base depuis IndexedDB, application de la graine du contenu. Deux remèdes :
+ *  1) les routes d'images n'ont pas besoin du moteur : elles tournent avec un env LÉGER dont le coordinateur ne démarre qu'à la première utilisation (envLeger) ;
+ *  2) une image déjà vue est rendue tout de suite par le Cache API (rafraîchie une fois par service worker en arrière-plan : une image remplacée par une mise à jour apparaît à la vue suivante), sans même réveiller le Worker.
+ * Bornes : images d'au plus 300 Ko, 600 entrées (les plus anciennes partent d'abord).
+ */
+const CACHE_IMAGES = "soreal-idle-images-v1";
+const IMAGE_MAX_OCTETS = 300 * 1024, IMAGES_MAX = 600;
+const rafraichies = new Set();
+function envLeger() {
+  if (etat) return etat.env;
+  const stub = { fetch: async (requete) => (await init()).coord.fetch(requete) };
+  return { SOREAL_IDLE: { idFromName: () => ({ nom: "global" }), get: () => stub }, ASSETS, SOREAL_R2: r2Partage || (r2Partage = creerR2()), CF_VERSION_METADATA: { id: "android" }, GOOGLE_CLIENT_ID: "" };
+}
+let r2Partage = null;
+const routeMedia = (url) => url.pathname.startsWith("/api/idle/media/");
+async function garderImage(cache, cle, rep) {
+  try {
+    const ct = rep.headers.get("content-type") || "";
+    const taille = Number(rep.headers.get("content-length")) || 0;
+    if (rep.status !== 200 || !ct.startsWith("image/") || (taille && taille > IMAGE_MAX_OCTETS)) return;
+    const copie = rep.clone();
+    const octets = await copie.arrayBuffer();
+    if (octets.byteLength > IMAGE_MAX_OCTETS) return;
+    await cache.put(cle, new Response(octets, { status: 200, headers: { "content-type": ct, "cache-control": "no-cache" } }));
+    const cles = await cache.keys();
+    for (let i = 0; i < cles.length - IMAGES_MAX; i += 1) await cache.delete(cles[i]);
+  } catch (_e) { /* pas de copie : l'image est tout de même rendue */ }
+}
+async function repondreImage(ev, requete, url) {
+  const cache = await caches.open(CACHE_IMAGES);
+  const cle = url.pathname + url.search;
+  const deja = await cache.match(cle);
+  const frais = async () => { const rep = await repondre(requete, true); ev.waitUntil(garderImage(cache, cle, rep.clone())); return rep; };
+  if (deja) {
+    if (!rafraichies.has(cle)) { rafraichies.add(cle); ev.waitUntil(frais().catch(() => {})); }
+    return deja;
+  }
+  return frais();
+}
+
+async function repondre(requete, leger) {
+  const e = leger ? { env: envLeger() } : await init();
   /* Une requête de navigation ne peut pas être recopiée par le Worker (new Request(req, …) la refuse) : on la refait telle quelle, en requête ordinaire. */
   if (requete.mode === "navigate") requete = new Request(requete.url, { method: requete.method, headers: requete.headers });
   const chemin = new URL(requete.url).pathname;
@@ -251,6 +293,15 @@ self.addEventListener("fetch", (ev) => {
     return;
   }
   if (!(p === "/" || p === "/index.html" || p.startsWith("/api/"))) return;   // fichiers du jeu : la WebView les sert (APK)
+  if (req.method === "GET" && routeMedia(url) && req.destination === "image" && !req.headers.get("range")) {
+    ev.respondWith(repondreImage(ev, req, url).catch((err) => new Response("Image indisponible : " + String((err && err.message) || err), { status: 502 })));
+    return;
+  }
+  /* Les autres routes de médias (voix, roster, listes…) n'ont pas non plus besoin du moteur au réveil : env léger, le coordinateur ne démarre que s'il est vraiment appelé. */
+  if (req.method === "GET" && routeMedia(url)) {
+    ev.respondWith(repondre(req, true).catch((err) => new Response(JSON.stringify({ ok: false, error: "APK_HORS_LIGNE:" + String((err && err.message) || err) }), { status: 500, headers: { "content-type": "application/json" } })));
+    return;
+  }
   ev.respondWith(repondre(req).catch((err) => new Response(JSON.stringify({ ok: false, error: "APK_HORS_LIGNE:" + String((err && err.message) || err) }), { status: 500, headers: { "content-type": "application/json" } })));
   if (req.method !== "GET" && req.method !== "HEAD") ev.waitUntil(sauvegarder(false));
 });
