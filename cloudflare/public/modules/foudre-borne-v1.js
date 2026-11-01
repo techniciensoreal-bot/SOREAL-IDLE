@@ -42,7 +42,13 @@ function cible(){
 
 function frapper(el){
   if(!el||!el.animate||reduit_())return false;
-  try{el.animate(KEYFRAMES,{duration:620,easing:'steps(14,end)'});}catch(_e){return false;}
+  /* Norman, 2026-11-01 : « la déformation ne doit pas sortir de l'écran » : le cadre de l'écran reste FIXE et rogné (overflow: clip) ; ce sont ses contenus qui sont déformés, jamais le cadre lui-même. */
+  var contenus=Array.prototype.filter.call(el.children,function(c){return !c.classList.contains('fb-parasites');});
+  if(!contenus.length)return false;
+  var avant=el.style.overflow;
+  el.style.overflow='clip';
+  try{contenus.forEach(function(c){c.animate(KEYFRAMES,{duration:620,easing:'steps(14,end)'});});}catch(_e){el.style.overflow=avant;return false;}
+  setTimeout(function(){el.style.overflow=avant;},660);
   style_();
   var nuage=document.createElement('div');
   nuage.className='fb-parasites';nuage.setAttribute('data-morph-garder','');nuage.setAttribute('aria-hidden','true');

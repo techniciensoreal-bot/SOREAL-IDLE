@@ -461,6 +461,9 @@
         return '<span class="soreal-idle-exp-img-v1'+(photo?' avec-photo':'')+'" aria-hidden="true">'+icone+image+'</span><span class="soreal-idle-exp-titre-v1">'+texte+'</span>';
       }
 
+      /* Petit « i » des articles de déblocage (modules/boutique-info-i-v1.js) : appelé seulement pour les cartes dessinées, donc déjà visibles (règle n°2). */
+      function idleExpInfoIIdleV1_(it,quoi){const I=window.__SOREAL_IDLE_BOUTIQUE_INFO_I_V1__;return I&&typeof I[quoi]==='function'?I[quoi](it):'';}
+
       function idleExpShopItemCarteIdleV1_(it,aide){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const fini=it.nextCost==null;
@@ -482,7 +485,7 @@
         }).join('');
         /* Prix et gain de chaque quantité : écrits dans la carte (jamais dans les boutons). Prix variable : le total réellement payé. */
         const prixCarte='';
-        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name),it.id)}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>`+
+        return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(IDLE_EXP_NOMS_V1[it.id]||H.idleHtml_(it.name),it.id)}${idleExpPointIdleV1_(it.id)}${idleExpInfoIIdleV1_(it,'bouton')}</span><div class="soreal-idle-exp-current-v211"><small>Acheté</small><strong>${H.idleEntier_(it.purchased)}${it.max!=null?' / '+H.idleEntier_(it.max):''}</strong></div></div>${idleExpInfoIIdleV1_(it,'bloc')}`+
           (aide?`<div class="soreal-idle-exp-help-v210">${H.idleHtml_(aide)}</div>`:'')+prixCarte+
           (fini?'<div class="soreal-idle-exp-max-v210">✔ Maximum atteint</div>':`<div class="soreal-idle-exp-tuiles-v1">${boutons}</div>`)+
           '</div>';
@@ -507,7 +510,7 @@
         return '<div class="soreal-idle-exp-resource-v210">🌱 Yggdrasil : Auto-Activate</div>'+
           items.map(function(it){
             const fini=it.nextCost==null;
-            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>`+
+            return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}${idleExpInfoIIdleV1_(it,'bouton')}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>${idleExpInfoIIdleV1_(it,'bloc')}`+
               (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':idleExpPrixCarteIdleV1_([{q:1,gain:'',cout:H.formatGrandNombreIdleV70_(it.nextCost)}],'EXP')+`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',1)">Acheter</button></div>`)+
               '</div>';
           }).join('');

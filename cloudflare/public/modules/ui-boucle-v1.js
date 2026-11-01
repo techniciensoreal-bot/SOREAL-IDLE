@@ -1324,7 +1324,14 @@
                 ],
               (tenir&&seconds>=2)?{duration:duration,iterations:1,fill:'forwards',easing:'linear'}:{duration:duration,iterations:Infinity,easing:'linear'}
             );
-            animation.currentTime=Math.max(0,Math.min(.999999,idleNombre_(progress)))*duration;
+            /*
+             * La barre doit aller JUSQU'AU BOUT avant de repartir (Norman, 2026-11-01 : « les barres, notamment Augmentations, ne frappent jamais le bout »). Une animation dont on règle `currentTime`
+             * reste « en attente » jusqu'à la prochaine image peinte : elle démarre donc une image (20 à 60 ms) après le calcul du jeu. À chaque niveau gagné (la durée change, l'animation est recréée)
+             * la barre était remplacée à 72-95 % de sa course sur un cycle de 0,4 s, sans jamais toucher 100 %. On fixe donc l'heure de DÉPART sur l'horloge du jeu (même origine que
+             * performance.now) : la nouvelle animation est exactement à la phase du calcul, sans attente, et celle qui précède a bien fini sa course.
+             */
+            const phaseDepart=Math.max(0,Math.min(.999999,idleNombre_(progress)));
+            try{animation.startTime=performance.now()-phaseDepart*duration;}catch(_e){animation.currentTime=phaseDepart*duration;}
             el.__idleAugAnimationV217=animation;
             el.dataset.idleAugDurationV217=String(duration);
           }else{

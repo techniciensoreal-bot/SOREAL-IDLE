@@ -22,6 +22,8 @@
     var l=P&&P[idSkin];
     return l&&l[i]&&(l[i].image||(l[i].images&&l[i].images.length===2))?l[i]:null;
   }
+  /* Pupille FENTE verticale qui se dilate / se contracte (modules/etagere-pupilles-v1.js) : '' pour les yeux non félins (Nyan, Matrix, Fibonacci, négatif, Tchernobyl) */
+  function pupilleFente_(idSkin){var P=window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__;return P&&P.html?P.html(idSkin):'';}
   function oeil_(o,i,pp,rg,seul,idSkin){
     var cote=o.cote==='d'?'d':'g';
     var pup=Number(o.pupille)>0?Number(o.pupille):0.28;
@@ -44,7 +46,7 @@
     var masque='',lid;
     /* regard-sprite (iris + pupille + reflets de la planche validée) : boîte du disque d'iris en % de la boîte du masque ; sinon l'ancien disque noir */
     var iris=pp&&rg&&rg.image
-      ?'<u class="et-iris et-ir" style="left:'+((rg.left-pp.left)/pp.larg*100).toFixed(3)+'%;top:'+((rg.top-pp.top)/pp.haut*100).toFixed(3)+'%;width:'+(rg.larg/pp.larg*100).toFixed(3)+'%;height:'+(rg.haut/pp.haut*100).toFixed(3)+'%;background-image:url('+rg.image+')"></u>'
+      ?'<u class="et-iris et-ir" style="left:'+((rg.left-pp.left)/pp.larg*100).toFixed(3)+'%;top:'+((rg.top-pp.top)/pp.haut*100).toFixed(3)+'%;width:'+(rg.larg/pp.larg*100).toFixed(3)+'%;height:'+(rg.haut/pp.haut*100).toFixed(3)+'%;background-image:url('+rg.image+')">'+pupilleFente_(idSkin)+'</u>'
       :'<u class="et-iris" style="top:'+((1-pup)/2*100).toFixed(2)+'%;height:'+(pup*100).toFixed(2)+'%;left:calc(50% - '+(diametre/2).toFixed(2)+'%)"></u>';
     if(pp&&pp.images){
       /* deux moitiés (tchernobyl) : chacune entre par son bord et elles se touchent au milieu */

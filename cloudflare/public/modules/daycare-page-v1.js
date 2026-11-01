@@ -135,7 +135,7 @@
   }
   const r2=function(v){return Math.round(v*100)/100;};
   /* Le « sol » mesuré est la ARÊTE AVANT du dessus de la planche : un bocal dont le fond y touche semble posé dans le vide, au bord (Norman, 2026-10-31 : « les bocaux flottent »). Le fond du verre est remonté de 0,9 % de la hauteur de l'image (≈ 10 px sur 1152) pour reposer au milieu du dessus de la planche, ombre comprise. Même valeur partout, en % de l'image : identique sur PC et téléphone. */
-  const REMONTEE_POSE=0.9;
+  const REMONTEE_POSE=1.7;   /* 2026-11-01 (Norman : « les fioles sont trop près du bord ») : 0,9 -> 1,7 % ; le dessus visible d'une planche mesure ≈ 4 % de la hauteur de l'image, le fond du bocal est donc à ≈ 40 % de la profondeur depuis l'arête avant */
   function positionPlace(i){
     const P=geoCourante;
     if(P&&P.places&&P.places[i]){
@@ -591,6 +591,10 @@
       '.gd-pop-titre{margin:0 34px 10px 0;font:400 22px/1.15 "Bangers","Russo One",system-ui,sans-serif;letter-spacing:.04em;color:#a8f0cc;text-shadow:0 2px 0 #0e1a14}',
       '.gd-pop-btn{padding:9px 14px;border-radius:10px;border:1px solid #1f6b4d;background:linear-gradient(180deg,#a8f0cc,#4fb88a 60%,#2f8a64);color:#07261a;font:400 15px/1.1 "Russo One",system-ui,sans-serif;cursor:pointer}',
       '.gd-pop-sec{background:linear-gradient(180deg,#4c6c5c,#2f4339);color:#eefcf5;border-color:#a8f0cc}',
+      /* Annuler lisible quoi qu'il arrive (Norman, 2026-11-01 : « illisible à cause de la couleur ») : sélecteur plus précis, texte blanc plein sur fond vert très sombre, sans ombre ni remplissage hérité */
+      '.gd-popup .gd-pop-btn{-webkit-text-fill-color:currentColor;text-shadow:none}',
+      '.gd-popup .gd-pop-btn.gd-pop-sec{background:#16221c;color:#ffffff;border:2px solid #a8f0cc;font-weight:700}',
+      '.gd-popup .gd-pop-btn.gd-pop-sec:hover{background:#24372e}',
       '.gd-popup .gd-choix-objet{border-color:rgba(168,240,204,.35);background:rgba(168,240,204,.08)}',
       '.gd-popup .gd-reprise-txt{color:#eefcf5}',
       '.gd-choix{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}',
@@ -602,6 +606,8 @@
       '@media (max-width:520px){.gd-reprendre{font-size:10px;padding:5px 1px}.gd-info{font-size:12px}.gd-info.gd-petit{font-size:10px}.gd-onglet{font-size:16px}.gd-titre{font-size:21px}.gd-liste{gap:6px}.gd-note{padding:5px 3px 6px}}'
     ].join('\n');
     document.head.appendChild(s);
+    /* formes de bocaux, étiquette sous le bocal, ombrage du chat, cadrage téléphone (garderie-bocaux-formes-v1.js) : feuille posée APRÈS celle-ci */
+    try{const F=window.__SOREAL_IDLE_GARDERIE_FORMES_V1__;if(F&&F.assurer)F.assurer();}catch(_e){}
   }
 
   window.__SOREAL_IDLE_DAYCARE_PAGE_V1__={

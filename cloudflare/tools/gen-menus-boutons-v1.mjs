@@ -204,9 +204,9 @@ out.push(`/* Boutons de la barre de sélection des menus (Norman, 2026-10-30) : 
    Fichier généré : ne pas l'éditer à la main. Gardes : aucun mot-clé de priorité forcée, boucles parfaites (départ = arrivée, rotation complète), coupées en mouvement réduit, aucun texte (règle n°2), décor fourni par le HTML du bouton (règle n°4). */
 ${P}{position:relative;isolation:isolate}
 ${P} .soreal-idle-nav-deco-v1{position:absolute;inset:0;z-index:-1;border-radius:inherit;overflow:hidden;pointer-events:none;container-type:size}
-/* Assombrissement par couche (jamais un filtre sur le décor entier) : le fond (::before) et le liseré (::after) sont sombres sauf menu ouvert ; les deux dessins sont sombres aussi, SAUF quand le menu travaille (icônes en couleurs pleines, fond toujours sombre) ou qu'il est ouvert (tout brille). */
+/* Assombrissement par couche (jamais un filtre sur le décor entier) : le fond (::before) et le liseré (::after) sont sombres sauf menu ouvert ; les deux dessins sont sombres aussi, SAUF quand le menu travaille (icônes fluo comme le menu ouvert, Norman 2026-11-01 : « tout le reste doit être foncé » ; fond toujours sombre) ou qu'il est ouvert (tout brille). */
 ${P} .soreal-idle-nav-deco-v1::before,${P} .soreal-idle-nav-deco-v1::after,${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{filter:brightness(.5) saturate(.55);transition:filter .25s}
-${P}.travail-v1 .soreal-idle-nav-deco-v1 .nb-g,${P}.travail-v1 .soreal-idle-nav-deco-v1 .nb-d{filter:none}
+${P}.travail-v1 .soreal-idle-nav-deco-v1 .nb-g,${P}.travail-v1 .soreal-idle-nav-deco-v1 .nb-d{filter:brightness(1.2) saturate(1.2) drop-shadow(0 0 4px rgba(255,255,255,.55)) drop-shadow(0 0 7px var(--nb-dom-v1,#fff))}
 ${P}.active .soreal-idle-nav-deco-v1::before,${P}.active .soreal-idle-nav-deco-v1::after{filter:brightness(1.2) saturate(1.2)}
 ${P} .soreal-idle-nav-deco-v1::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 ${P} .soreal-idle-nav-deco-v1::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;padding:2px;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}

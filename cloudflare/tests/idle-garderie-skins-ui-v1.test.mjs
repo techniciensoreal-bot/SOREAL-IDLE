@@ -103,8 +103,8 @@ const compte = (h, re) => (h.match(re) || []).length;
   assert.ok(html.includes("src=\"/api/idle/media/garderie-skin?id=noeud\" alt=\"\" width=\"768\"") && html.includes("data-skin=\"noeud\""), "image du skin actif");
   assert.ok(!html.includes("gd-entre"), "premier affichage : net, sans glissement");
   assert.ok(html.includes("left:33.724%;top:24.306%;width:10.417%;height:5.99%") && html.includes("left:56.38%;top:24.306%"), "yeux du skin actif");
-  assert.ok(compte(html, /class="gd-pot/g) === 3 && html.includes("left:30.62%;top:37.73%;width:13.2%;height:13.8%"), "bocal 1 sur la planche du skin actif (cx 37,22 / sol 52,43 moins la remontée de pose 0,9)");
-  assert.ok(html.includes("left:58%;top:37.73%") && html.includes("left:30.62%;top:54.57%"), "bocaux 2 et 3 selon le skin actif");
+  assert.ok(compte(html, /class="gd-pot/g) === 3 && html.includes("left:30.62%;top:36.93%;width:13.2%;height:13.8%"), "bocal 1 sur la planche du skin actif (cx 37,22 / sol 52,43 moins la remontée de pose 1,7)");
+  assert.ok(html.includes("left:58%;top:36.93%") && html.includes("left:30.62%;top:53.77%"), "bocaux 2 et 3 selon le skin actif");
   const j2 = joueur({ actif: "inconnu", possedes: ["defaut", "noeud"] });
   assert.ok(G.etagere(j2).includes("id=defaut"), "skin inconnu : repli sur defaut");
   const six = joueur({ actif: "fibonacci", possedes: ["defaut", "fibonacci"] });
@@ -112,7 +112,7 @@ const compte = (h, re) => (h.match(re) || []).length;
   const h6 = G.etagere(six);
   assert.equal(compte(h6, /class="gd-pot/g), 6);
   assert.equal(compte(h6, /<i class="et-oeil/g), 10, "fibonacci : 10 yeux (6 ovales + 4 petits des têtes lointaines)");
-  assert.ok(h6.includes("left:57.89%;top:67.07%"), "6e bocal : compartiment du bas à droite pour fibonacci (cx 64,49 / sol 81,77)");
+  assert.ok(h6.includes("left:57.89%;top:66.27%"), "6e bocal : compartiment du bas à droite pour fibonacci (cx 64,49 / sol 81,77)");
 }
 
 /* 4. Transition : seul un clic du joueur anime ; direction selon l'ordre ; pas de clic pendant le glissement ; calque data-morph-garder. */

@@ -20,8 +20,12 @@
   "sha": "3d442c74f20e0f96f8aadc05e0c3dd7735d0fe1f"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 34,
-  "sha": "0701ccd26f1c5a3fb2d5368034c6540d086c8f83"
+  "pin": 35,
+  "sha": "b5e397742caa02ae3064216ba27c3ae91b79f1a0"
+ },
+ "/modules/album-titans-v1.js": {
+  "pin": 1,
+  "sha": "58e7cc7789df8f9a607dd33f4baf377140bc65f7"
  },
  "/modules/alloc-pop-v1.js": {
   "pin": 4,
@@ -68,12 +72,12 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 17,
-  "sha": "ad2fe81d483da9938409058f194b89f083d610d0"
+  "pin": 19,
+  "sha": "dda718d22ac04ee602ef727fc9d270c7d590ef62"
  },
  "/modules/barre-allocation-v1.js": {
-  "pin": 10,
-  "sha": "20f3f57d90c33b1885692bfb58ef564b01674c6d"
+  "pin": 11,
+  "sha": "0018e13c8a921738574d2666f1e7457b40e05a08"
  },
  "/modules/barres-actives-v1.js": {
   "pin": 5,
@@ -84,8 +88,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 29,
-  "sha": "6d8cc224cb9c11e8885b0d251a85d2acefc5ef3e"
+  "pin": 30,
+  "sha": "d0e68cb0bb33701914d729c3314e762aae17f775"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -100,8 +104,12 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 7,
-  "sha": "7a349cdbcccf8ebe838c68bc145eeefc6ed0c502"
+  "pin": 8,
+  "sha": "394fe415b2d53dc3d03324c22b76bcba311f998b"
+ },
+ "/modules/boutique-info-i-v1.js": {
+  "pin": 1,
+  "sha": "0610cf04b43cce5cc3a8b55d3ecbe219d6ac6fde"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -128,8 +136,8 @@
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
  },
  "/modules/carte-boss-magic-v1.js": {
-  "pin": 20,
-  "sha": "48f87bc10ad0b547779da2c3a6b38b01f1fb675f"
+  "pin": 21,
+  "sha": "254e1407d60e503272dde39dd72b7dea1c805322"
  },
  "/modules/cartes-v1.js": {
   "pin": 1,
@@ -188,8 +196,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 48,
-  "sha": "9101c9e1ff0d98a929899664152ab27d7af04514"
+  "pin": 51,
+  "sha": "3e2208d5f9edf33367b38e8911912e92ce20875c"
  },
  "/modules/daycare-skin-popup-v1.js": {
   "pin": 3,
@@ -232,8 +240,12 @@
   "sha": "cacabe0ad00c7670b3cab043dd6bfbba51686371"
  },
  "/modules/etagere-personnage-v1.js": {
-  "pin": 23,
-  "sha": "84998e4092ae84efd5a19978a88bc135c083bb5f"
+  "pin": 24,
+  "sha": "a6a2541fef6b6342719a0211956ddd309c306899"
+ },
+ "/modules/etagere-pupilles-v1.js": {
+  "pin": 1,
+  "sha": "c09eafda4ce3cb5259ba08027392699674519485"
  },
  "/modules/etagere-queues-v1.js": {
   "pin": 1,
@@ -268,8 +280,16 @@
   "sha": "2795c3c34b2adba4b7be6926a342139931387fb5"
  },
  "/modules/foudre-borne-v1.js": {
+  "pin": 2,
+  "sha": "7b270240a48856d458ad84bdfb73b69318286b63"
+ },
+ "/modules/garderie-bocaux-formes-v1.js": {
   "pin": 1,
-  "sha": "6c0465b808e5c98d73a1bcfd61bc9ed237edf055"
+  "sha": "6af26ced2e31a449c358903070cf0d8dcfca0826"
+ },
+ "/modules/garderie-zoom-v1.js": {
+  "pin": 1,
+  "sha": "53e21cd096ed2ccabe54947c631b6f944acbb95b"
  },
  "/modules/hud-haut-v2.js": {
   "pin": 36,
@@ -392,8 +412,8 @@
   "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 14,
-  "sha": "6f7eb38ef0a32fcf7cd0753b3426171315c9a64f"
+  "pin": 23,
+  "sha": "816cf19bfeab307ec9d984e264dffdb58e8f2a21"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -416,8 +436,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 119,
-  "sha": "8b4a021ecad76eddf6e2bab18e01a2ec5c0ca745"
+  "pin": 120,
+  "sha": "da2c76096cd0b6dd78004a695aa4a5817fae13f4"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -428,8 +448,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 46,
-  "sha": "e9a1069bfd8aaf9935bc63506e436a19d3be6bdb"
+  "pin": 48,
+  "sha": "a81c9919e508eece8c24f2e796dea17851d3148f"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -500,12 +520,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 27,
-  "sha": "1303babac45b8ad02acf53177a4a5d92eaff3929"
+  "pin": 39,
+  "sha": "fa5b31b99342371fe528ec12f20cf63789ef19df"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 640,
-  "sha": "f7d8c1dbfcf711e07bbdc6b32cdd120fc21536f2"
+  "pin": 657,
+  "sha": "fcfc47dc84d8d3fdb3e621eca5ca446ee0d03ff4"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 1,
@@ -584,12 +604,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 662,
-  "sha": "0ee62a6ede0775296ce42c489b01c21646729dff"
+  "pin": 680,
+  "sha": "328fe5c7b5c547dc09acd740679600b853678abe"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 482,
-  "sha": "1e30f83ff028ab1dcfaba2823f9a876de2657f6d"
+  "pin": 500,
+  "sha": "df26f95e043e46dd0f1dfa876cfe2dbb2a15a30e"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 10,
@@ -632,8 +652,8 @@
   "sha": "e0ab6c03f231558cfa69f3aad31d7e43511b81af"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 20,
-  "sha": "ba16c746456be1c2114abbf423cd34fcf39e4888"
+  "pin": 21,
+  "sha": "662ecb73b0470d8db58c897fe620057e8f3d0866"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,
@@ -656,8 +676,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 6,
-  "sha": "3ee4907d1095988fe34cbe5536fe9af35714cdfa"
+  "pin": 7,
+  "sha": "31663b9f26e51d25c339da2dd689aa95b7ee6ac8"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 13,
@@ -732,8 +752,8 @@
   "sha": "632cdd1abcbe7e42c6db8a24fbaa737fae283bc8"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 60,
-  "sha": "63c080358337d0a4240b63711483a688de66fdc9"
+  "pin": 62,
+  "sha": "8f3a68844f713c041492512e0a7a906d0dade358"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 1,
@@ -755,21 +775,25 @@
   "pin": 2,
   "sha": "1b70818e0a8dc77c28ba46199da4b8b786a9b906"
  },
+ "/soreal-idle-album-titans.css": {
+  "pin": 1,
+  "sha": "411448a1acb97c448405045f1d00d9ab90ab48fe"
+ },
  "/soreal-idle-album.css": {
   "pin": 27,
   "sha": "2ca867d85ea675140f2966f892ee55fee5ea3f86"
  },
  "/soreal-idle-barre-outils.css": {
-  "pin": 11,
-  "sha": "099b96a26a563276b4c8c045b6cf9c256742824b"
+  "pin": 12,
+  "sha": "fc3e14c140816fae74ad36a4dab516c7c1cd1948"
  },
  "/soreal-idle-borne-joueur-v1.css": {
-  "pin": 2,
-  "sha": "1554c2470a56caacd5635ba37b9efb5d3c13c716"
+  "pin": 3,
+  "sha": "f9c49987bf6515601467ba25fca2e64a8d9b1072"
  },
  "/soreal-idle-carte-boss.css": {
-  "pin": 20,
-  "sha": "f778ebac505a02d0621655d13b6af71923fcb24e"
+  "pin": 21,
+  "sha": "b868f46e24136e7a76f3b5ce20ffe0c7482b85b7"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 5,
@@ -783,6 +807,10 @@
   "pin": 4,
   "sha": "784b4310f6581974959b9f032a34042a00362811"
  },
+ "/soreal-idle-entetes-compactes-v1.css": {
+  "pin": 2,
+  "sha": "9e6d2bbfde75fcfa14a0cb1add0c8f741dd7bdd1"
+ },
  "/soreal-idle-entetes-d.css": {
   "pin": 4,
   "sha": "21d1cb76c31da123d1b9d0a7134df54eee3ff781"
@@ -792,8 +820,8 @@
   "sha": "b6fd649adf3129b8ba3a3cd1354c4d6182e48506"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 290,
-  "sha": "266141c7d204a6371df8a980451fbf8e616a8f3f"
+  "pin": 295,
+  "sha": "d8ec5d701a88d909ab08bb17a88f5a358f89fd8c"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
@@ -804,8 +832,8 @@
   "sha": "8857058e812dfe119cd367219c08f4a6d92ac051"
  },
  "/soreal-idle-menus-boutons-v1.css": {
-  "pin": 24,
-  "sha": "17fff13bb20f68f55bb94854a8d5740039165154"
+  "pin": 25,
+  "sha": "5700b49ff947d87cf1a1711d2105a3bc9f1ee827"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

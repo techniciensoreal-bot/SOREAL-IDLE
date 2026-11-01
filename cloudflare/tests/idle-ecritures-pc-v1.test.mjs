@@ -10,7 +10,8 @@ const debut = bloc.indexOf("@media (min-width:701px){");
 assert.ok(debut > 0, "le bloc est entièrement sous la requête « ordinateur »");
 const corps = bloc.slice(debut);
 assert.ok(!corps.includes("@media (max-width"), "aucune règle téléphone dans ce bloc");
-const tailles = [...corps.matchAll(/font-size:([\d.]+)px!important/g)].map((m) => Number(m[1]));
+/* 2026-11-01 : les tailles de la barre d'outils passent par des variables --bt-* avec la même valeur de repli ; la règle les compte aussi. */
+const tailles = [...corps.matchAll(/font-size:(?:var\(--[\w-]+,)?([\d.]+)px\)?!important/g)].map((m) => Number(m[1]));
 assert.ok(tailles.length >= 14, "règles présentes : " + tailles.length);
 assert.ok(Math.min(...tailles) >= 12, "plus aucun texte sous 12 px sur ordinateur (minimum : " + Math.min(...tailles) + ")");
 // Les accolades du bloc sont équilibrées : il ne déborde pas sur les règles suivantes.

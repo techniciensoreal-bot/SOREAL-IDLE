@@ -177,9 +177,9 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
   assert.equal(compte(quatre, /class="gd-pot/g), 4);
   assert.equal(compte(six, /class="gd-pot/g), 6);
   assert.equal(compte(troisVides, /gd-vide/g), 3 * 1, "places libres : un bocal vide par place possédée seulement");
-  assert.ok(un.includes("left:28.8%;top:31.83%;width:13.2%;height:13.8%"), "1er bocal : compartiment du haut, à gauche (sur la planche mesurée de l'apparence « defaut »)");
-  assert.ok(trois.includes("left:57.22%;top:31.83%") && trois.includes("left:28.8%;top:50.75%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
-  assert.ok(six.includes("left:57.22%;top:68.37%"), "6e bocal : compartiment du bas, à droite");
+  assert.ok(un.includes("left:28.8%;top:31.03%;width:13.2%;height:13.8%"), "1er bocal : compartiment du haut, à gauche (sur la planche mesurée de l'apparence « defaut »)");
+  assert.ok(trois.includes("left:57.22%;top:31.03%") && trois.includes("left:28.8%;top:49.95%"), "2e bocal à droite du 1er compartiment, 3e dans le compartiment du milieu");
+  assert.ok(six.includes("left:57.22%;top:67.57%"), "6e bocal : compartiment du bas, à droite");
   assert.ok(!six.includes("gd-vide") || compte(six, /gd-vide/g) === 2, "aucune place au-delà de celles possédées");
   assert.ok(!/maxSlots|sur 6|\/ ?6/.test(un.replace(/<[^>]+>/g, " ")), "le maximum n'est écrit nulle part");
   /* mise en page : l'armoire a un cadre à rapport fixe, la liste réserve 3 rangées : rien ne bouge quand une place s'ajoute */

@@ -432,13 +432,15 @@ function barreOutilsHtml_(j){
   var valeur=el&&el.value&&el.closest&&el.closest('.nl-v1')?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
   var lib=libre_(j,onglet);
   return '<div class="nl-barre-outils">'+
-    '<div class="nl-ligne nl-ligne-input"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
-      '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div>'+
+    '<div class="soreal-idle-bt-entree-v1 nl-ligne"><div class="nl-ligne-input"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
+      '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div></div>'+
+    '<div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="'+(onglet==='magic'?'magic':'energy')+'">'+
     '<div class="nl-ligne" data-nl-plafond="1"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
       '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button></div>'+
     '<div class="nl-ligne">'+
       '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
       '<button type="button" class="nl-large" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout retirer</button></div>'+
+    '</div>'+
     totauxHtml_(j)+
   '</div>';
 }
@@ -542,7 +544,8 @@ function tick_(){
     if(cible>0&&niveau>cible)niveau=cible;
     var liq=f.querySelector('[data-nl-fill]');
     if(liq){
-      var v=Math.round(frac*500)/500;
+      /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : sur un cycle court, la dernière image peinte avant le retour à 0 montrait 90 % ; les derniers ~40 ms du cycle restent pleins. */
+      var v=Math.round(Math.min(1,frac/(1-Math.min(.15,Math.max(.004,.04/spl))))*500)/500;
       if(String(v)!==liq.getAttribute('data-nl-v')){
         liq.setAttribute('data-nl-v',String(v));
         liq.style.transform='scaleX('+v+')';

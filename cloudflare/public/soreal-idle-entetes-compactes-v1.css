@@ -1,0 +1,64 @@
+/*
+ * Entêtes d'allocation compactes (Norman, 2026-11-01 : « elles sont beaucoup trop grandes ; la ligne INPUT dans son propre petit cadre, à sa droite un cadre PLAFOND D'ÉNERGIE + IDLE, et à droite le même pour la MAGIE »).
+ *
+ * Structure (rendue par barre-allocation-v1.js et les pages qui dessinent leur propre barre d'outils) :
+ *   .soreal-idle-bt-toolbar-v120
+ *     .soreal-idle-bt-entree-v1             cadre INPUT (champ + « Mes nombres » posé juste après par perso-boutons-v1.js)
+ *     .soreal-idle-bt-info-v1               phrase d'aide / énergie libre : ligne discrète sous la rangée
+ *     .soreal-idle-bt-groupe-v1[data-bt-groupe-v1=energy|magic|r3]   deux petits cadres (Plafond, Idle) + le total placé
+ *
+ * Aucune déclaration prioritaire ici (plafond de l'audit d'architecture) : les anciennes règles prioritaires lisent des variables --bt-* (barre-outils.css, itopod.css) que cette feuille fixe sur la barre d'outils.
+ * PC large : une seule rangée [Input | Énergie | Magie] ; PC étroit : Input pleine largeur puis les groupes côte à côte ; téléphone : tout empilé, sans défilement horizontal.
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){
+  --bt-btn-h:28px;--bt-btn-hh:auto;--bt-btn-fs:13px;--bt-btn-pad:2px 6px;--bt-col-min:36px;
+  --bt-lbl-fs:11px;--bt-fs:12px;--bt-input-fs:14px;
+  --bt-cadre-pad:4px 6px;--bt-cadre-gap:4px;--bt-gap:6px;--bt-pad:6px;--bt-total-pad:3px 10px;
+  --bt-cols:repeat(var(--bt-n,1),minmax(0,1fr));
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:2}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:3}
+
+/* Cadre INPUT : champ compact et « Mes nombres » (rangée de petits boutons) dans le même petit cadre. */
+.soreal-idle-bt-entree-v1{--bt-gc:1/-1;display:grid;align-content:start;gap:4px;min-width:0;box-sizing:border-box;padding:5px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(0,0,0,.2)}
+.soreal-idle-bt-entree-v1 .soreal-idle-bt-input-box-v120 input{min-width:0;box-sizing:border-box;height:28px;padding:2px 8px}
+.soreal-idle-bt-entree-v1 .soreal-idle-bt-input-box-v120 label{white-space:nowrap}
+
+/* Cadre d'une ressource : deux petits cadres (Plafond, Idle) puis le total placé, fin. */
+.soreal-idle-bt-groupe-v1{--bt-gc:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:5px;min-width:0;box-sizing:border-box;padding:5px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(0,0,0,.2)}
+.soreal-idle-bt-groupe-v1>.soreal-idle-bt-presets-v120{margin:0;min-width:0}
+/* Petits cadres (Input, Plafond, Idle, Mes nombres, total) : marge intérieure réduite (avant : 10 px, soreal-idle-ui.css). */
+.soreal-idle-bt-toolbar-v120 :is(.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120){padding:var(--bt-cadre-pad,6px 8px)}
+.soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120.soreal-idle-bt-total-v1{padding:var(--bt-total-pad,6px 10px)}
+.soreal-idle-bt-groupe-v1>.soreal-idle-bt-total-v1{grid-column:1/-1}
+.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-info-v1{order:5}
+
+/* Une seule ressource (Augmentations, Entraînement…) : [Input | groupe] sur une rangée dès 800 px ; deux ressources : il faut 1360 px (voir plus bas). */
+@media (min-width:801px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(0,.8fr) minmax(0,1.6fr)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1]))>.soreal-idle-bt-entree-v1{--bt-gc:auto}
+}
+/* PC large : tout sur UNE rangée. */
+@media (min-width:1360px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(0,.8fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1{--bt-gc:auto}
+}
+
+/* Téléphone : cadres empilés pleine largeur (les deux petits cadres d'un groupe aussi), mêmes éléments compacts mais gardés faciles à toucher. */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){--bt-btn-h:34px;--bt-btn-fs:14px;--bt-col-min:40px;--bt-input-fs:16px;--bt-fs:12px}
+  .soreal-idle-bt-groupe-v1{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Menu NGU (une ressource à la fois, onglets Énergie / Magie) : Input à gauche, cadre [Plafond | Idle] à droite, totaux dessous. */
+.nl-barre-outils .soreal-idle-bt-groupe-v1>.nl-ligne{margin:0;min-width:0;grid-template-columns:repeat(auto-fit,minmax(var(--bt-col-min,62px),1fr))}
+.nl-barre-outils>.soreal-idle-bt-entree-v1.nl-ligne{grid-template-columns:minmax(0,1fr);align-content:start;gap:4px;padding:5px}
+.nl-barre-outils .nl-ligne-input{gap:4px 8px}
+.nl-barre-outils .nl-ligne-input input[type=text]{height:28px;padding:2px 8px;width:110px}
+.nl-barre-outils .nl-totaux{padding:0}
+.nl-barre-outils .nl-totaux>.soreal-idle-bt-total-v1{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;min-width:0;padding:var(--bt-total-pad,3px 10px)}
+.nl-barre-outils .nl-totaux>.soreal-idle-bt-total-v1>*{font-size:var(--bt-fs,12px)}
+@media (min-width:701px){
+  .nl-barre-outils{grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);align-items:stretch}
+  .nl-barre-outils>.nl-totaux{grid-column:1/-1}
+}

@@ -249,8 +249,9 @@ function texteDefilant(e){
   return t;
 }
 document.addEventListener('pointerdown',function(e){
-  if(e.pointerType==='mouse')return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;   /* Norman, 2026-11-01 : à la souris aussi, clic gauche maintenu + mouvement = le texte défile */
   var t=texteDefilant(e);if(!t)return;
+  if(e.pointerType==='mouse'&&e.target.closest&&e.target.closest('button,a,input,textarea,select,.mtg-fleche'))return;
   defil={texte:t,id:e.pointerId,x:e.clientX,y:e.clientY,dernier:e.clientY,instant:performance.now(),v:0,mode:null,fiche:Boolean(t.closest('.mtg-modal-v1'))};
 },true);
 document.addEventListener('pointermove',function(e){
@@ -275,6 +276,14 @@ function finDefil(e){
   var v=d.v*16,t=d.texte;   /* lancer : le texte continue un instant, en ralentissant */
   (function pas(){if(!t.isConnected||Math.abs(v)<.4)return;var avant=t.scrollTop;t.scrollTop+=v;if(t.scrollTop===avant)return;v*=.94;requestAnimationFrame(pas);})();
 }
+/* Molette de la souris (Norman, 2026-11-01) : sur le texte d'une carte, elle fait défiler le texte (la carte est en 3D : sans cela la molette partait sur la page) ; au bout du texte, dans une fiche, rien ne bouge derrière. */
+document.addEventListener('wheel',function(e){
+  var t=texteDefilant(e);if(!t||e.ctrlKey)return;
+  var fiche=Boolean(t.closest('.mtg-modal-v1'));
+  var avant=t.scrollTop;
+  t.scrollTop+=e.deltaMode===1?e.deltaY*16:e.deltaY;
+  if(fiche||t.scrollTop!==avant){if(e.cancelable)e.preventDefault();}
+},{capture:true,passive:false});
 document.addEventListener('pointerup',finDefil,true);
 document.addEventListener('pointercancel',finDefil,true);
 document.addEventListener('keydown',function(e){

@@ -133,9 +133,13 @@ export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
  * unlockItems/consumeUnlock du moteur Aventure : cette action n'est possible
  * qu'une fois Yggdrasil débloqué, et retire l'objet du sac.
  */
+/*
+ * Décision de Norman (2026-11-01) : « si on stack 2 graines et qu'on utilise l'objet, il doit en donner 2 » : une graine de niveau L est un stack de L + 1 graines (chaque fusion monte le niveau de 1) ; l'usage ne donne JAMAIS moins que la taille du stack. La formule du wiki reste la
+ * référence dès qu'elle donne plus (à partir du niveau 10 : 11, 75 au niveau 50, 200 au niveau 100). La récompense unique du niveau 100 (bonus du set) n'est pas touchée : elle ne dépend pas de cette fonction.
+ */
 export function idleYggGiantSeedSeedsV1(level) {
   const l = Math.max(0, I(level, 0));
-  return Math.max(1, Math.floor(l + (l * l) / 100));
+  return Math.max(l + 1, Math.floor(l + (l * l) / 100));
 }
 
 export function idleYggConsumeGiantSeedV1(state, itemId) {

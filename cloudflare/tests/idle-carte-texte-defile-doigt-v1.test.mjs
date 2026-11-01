@@ -4,7 +4,8 @@ import fs from "node:fs";
 import assert from "node:assert/strict";
 const lire = (f) => fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n");
 const m = lire("cloudflare/public/modules/carte-boss-magic-v1.js"), c = lire("cloudflare/public/soreal-idle-carte-boss.css");
-assert.ok(c.includes(".mtg-modal-v1 .mtg-texte,.soreal-idle-boss-lore-v142.ouverte .mtg-texte{touch-action:none;overscroll-behavior:contain}"), "le texte reçoit tout le geste tactile");
+assert.ok(c.includes(".mtg-modal-v1 .mtg-texte,.soreal-idle-boss-lore-v142.ouverte .mtg-texte{touch-action:none;overscroll-behavior:contain;"), "le texte reçoit tout le geste tactile");
 assert.ok(m.includes("function texteDefilant(e)") && m.includes("d.mode=(d.fiche&&Math.abs(dx)>Math.abs(dy))?'rotation':'defile';") && m.includes("t.scrollTop+=delta;") && m.includes("window.scrollBy(0,reste)"), "défilement du texte au doigt, la page suit seulement hors fiche");
-assert.ok(m.includes("if(e.pointerType==='mouse')return;"), "la souris garde le défilement natif");
+// 2026-11-01 (Norman) : la souris défile aussi (molette + clic gauche maintenu), voir idle-texte-carte-souris-v1 ; seul un autre bouton que le gauche est ignoré.
+assert.ok(m.includes("if(e.pointerType==='mouse'&&e.button!==0)return;"), "la souris défile avec le clic gauche seulement");
 console.log("idle-carte-texte-defile-doigt-v1 : OK");

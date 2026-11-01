@@ -41,7 +41,9 @@ import { idleYggGiantSeedSeedsV1 } from "../src/idle-yggdrasil-extra-v1.js";
 
 // ---------- Graines rendues : exemples de la fiche ----------
 assert.equal(idleYggGiantSeedSeedsV1(0), 1, "max(1, 0)");
-assert.equal(idleYggGiantSeedSeedsV1(1), 1);
+assert.equal(idleYggGiantSeedSeedsV1(1), 2, "un stack de 2 graines (niveau 1) donne 2 graines (Norman, 2026-11-01)");
+assert.equal(idleYggGiantSeedSeedsV1(14), 15, "un stack de 15 graines donne 15");
+for (let l = 0; l <= 120; l++) assert.ok(idleYggGiantSeedSeedsV1(l) >= l + 1 && idleYggGiantSeedSeedsV1(l) >= Math.floor(l + (l * l) / 100), "jamais moins que le stack ni que la formule du wiki : niveau " + l);
 assert.equal(idleYggGiantSeedSeedsV1(50), 75);
 assert.equal(idleYggGiantSeedSeedsV1(100), 200);
 assert.equal(idleYggGiantSeedSeedsV1(15), 17, "⌊15 + 2,25⌋");

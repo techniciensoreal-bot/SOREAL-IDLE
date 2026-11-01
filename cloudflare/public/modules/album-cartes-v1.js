@@ -19,7 +19,7 @@ var PAR_PAGE=9,COLS=3,PIECES=9,TOTAL_BOSS=301;
 var CLE_VUS='soreal_idle_album_vus_v1';   /* préférence liée au compte (règle n°6) : numéros des cartes déjà annoncées */
 var IMG_LOGO='/chargement/logo-800x450.webp';
 
-var cartes=[],page=0,ouvert=false,tourne=false,enAttente={},popup=null;
+var cartes=[],titans=[],page=0,ouvert=false,tourne=false,enAttente={},popup=null;
 
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 /* Le livre est TOUJOURS ouvert sur deux pages, téléphone compris (Norman, 2026-10-30 : « sur téléphone, je veux l'album complet avec zoom et dézoom ») ; sur écran étroit il est affiché en entier, puis on zoome et on le fait glisser de page en page. */
@@ -46,8 +46,14 @@ function urlImage(n){try{var f=reg().urlBossR2IdleV1_;return typeof f==='functio
 function sansBalise(t){try{var f=reg().sansBaliseVoixIdleV1_;return typeof f==='function'?f(t):t;}catch(_e){return t;}}
 
 /* Pages : 0 = le grand dessin ; 1… = les boss, 9 par page. */
-function nbPages(){return 1+Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
-function cartesDePage(r){return r>=1?cartes.slice((r-1)*PAR_PAGE,(r-1)*PAR_PAGE+PAR_PAGE):[];}
+/* Après les pages des boss : les pages des TITANS déjà vaincus (modules/album-titans-v1.js), 9 par page ; aucune page de titans tant qu'aucun n'est vaincu. */
+function titansMod(){return window.__SOREAL_IDLE_ALBUM_TITANS_V1__||null;}
+function pagesBoss(){return Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
+function pagesTitans(){var T=titansMod();return T?T.nbPages(titans.length):0;}
+function nbPages(){return 1+pagesBoss()+pagesTitans();}
+function cartesDePage(r){return r>=1&&r<=pagesBoss()?cartes.slice((r-1)*PAR_PAGE,(r-1)*PAR_PAGE+PAR_PAGE):[];}
+function titansDePage(r){var T=titansMod();return T&&r>pagesBoss()&&r<nbPages()?T.page(titans,r-pagesBoss()-1):[];}
+function nbCartesPage(r){return cartesDePage(r).length||titansDePage(r).length;}
 function nbPieces(){return Math.min(PIECES,Math.floor(cartes.length*PIECES/TOTAL_BOSS));}
 /* Page affichée (celle de droite sur PC, où elle est toujours paire : à gauche, la page d'avant) ; la dernière page peut être seule à gauche, sa voisine de droite est alors vide. */
 function pageMax(){var n=nbPages();return double()?(((n-1)%2===0)?n-1:n):n-1;}
@@ -92,13 +98,13 @@ function puzzleHtml(){var n=nbPieces(),h='',k;for(k=0;k<PIECES;k++)h+=pieceHtml(
 function derriereGauche(r){
   var d=[],p=r-1,i;
   if(p<0)return d;
-  var carteDerriere=p===0?nbPieces():cartesDePage(p).length;   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
+  var carteDerriere=p===0?nbPieces():nbCartesPage(p);   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
   for(i=0;i<PAR_PAGE;i++)d.push(Math.floor(i/COLS)*COLS+(COLS-1-i%COLS)<carteDerriere);
   return d;
 }
 function completer(h,n,derriere){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=(derriere&&derriere[i])?dosPochetteHtml():v;return h;}
 /* Après la dernière page (la page de droite de la dernière feuille, sur PC) : une page blanche de 9 emplacements invisibles, jamais vide : une page vide ferait s'effondrer la hauteur du classeur (tout le menu bougerait). */
-function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):null;if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
+function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):null;if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();var tl=titansDePage(L);if(tl.length)return completer(tl.map(titansMod().pochetteHtml).join(''),tl.length,dd);var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
 function droiteHtml(L){return contenuPage(L);}
 function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
 
@@ -106,7 +112,7 @@ function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}   /* à 
 function legerHtml(L){
   if(L<0)return '';
   if(L>=nbPages())return completer('',0);
-  var n=L<=0?PIECES:cartesDePage(L).length,h='',i;
+  var n=L<=0?PIECES:nbCartesPage(L),h='',i;
   for(i=0;i<n;i++)h+='<div class="alb-pochette alb-pochette-dos" aria-hidden="true"><div class="alb-carte alb-carte-mtg"><div class="alb-leger"></div></div><div class="alb-plastique"></div></div>';
   return completer(h,n);
 }
@@ -164,6 +170,7 @@ function livreHtml(){
 /* Le classeur entier ; les cartes viennent de la Collection (boss vaincus seulement, dans l'ordre des numéros). */
 function rendre(entrees){
   cartes=(entrees||[]).filter(function(e){return e&&e.vaincu&&Math.floor(Number(e.numero))>0;}).sort(function(a,b){return a.numero-b.numero;});
+  titans=titansMod()?titansMod().titansVaincus():[];   /* seulement les titans déjà vaincus (règle n°2) */
   if(!document.querySelector('.alb-classeur')){ouvert=false;page=0;}   /* on arrive dans le menu (l'album n'est pas encore dans la page) : le livre est fermé ; un redessin de la page déjà ouverte garde son état, même après une longue absence de l'onglet */
   page=norm(page);
   setTimeout(verifierNouvelles,500);

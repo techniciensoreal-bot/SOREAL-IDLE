@@ -137,7 +137,9 @@
     var t=titre_(res);
     var A='window.__SOREAL_IDLE_ALLOC_V1__';
     var r="'"+res+"'",s="'"+html_(systeme)+"'";
-    return '<div class="soreal-idle-bt-presets-v120" data-alloc-cadre-v1="cap-'+res+'"><span>'+t.cap+'</span>'+
+    /* Entêtes compactes (Norman, 2026-11-01) : les deux petits cadres et le total d'une ressource vivent dans UN cadre « groupe » (soreal-idle-entetes-compactes-v1.css). */
+    return '<div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="'+res+'">'+
+      '<div class="soreal-idle-bt-presets-v120" data-alloc-cadre-v1="cap-'+res+'"><span>'+t.cap+'</span>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'cap\',1)">Max</button>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'cap\',.5)">1/2</button>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'cap\',.25)">1/4</button></div>'+
@@ -145,15 +147,15 @@
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.5)">1/2</button>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.25)">1/4</button>'+
         '<button type="button" class="clear" onclick="'+A+'.vider('+r+','+s+')">Tout retirer</button></div>'+
-      compteur(res,systeme);
+      compteur(res,systeme)+'</div>';
   }
 
   /* Champ Input des menus génériques (Barbes, Hacks…) : même valeur partagée que partout. */
   function entree(id){
-    return '<div class="soreal-idle-bt-input-box-v120"><label for="'+id+'">🎚️ Input</label>'+
+    return '<div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-bt-input-box-v120"><label for="'+id+'">🎚️ Input</label>'+
       '<input id="'+id+'" type="text" inputmode="decimal" value="'+montant_()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" '+
       'oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)" '+
-      'onblur="window.__resoudreFractionInputIdleV1__&&window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"></div>';
+      'onblur="window.__resoudreFractionInputIdleV1__&&window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"></div></div>';
   }
 
   /* + / − / MAX d'une ressource d'un système générique : valeurs ABSOLUES (le serveur borne au maximum et à ce qui est libre). */

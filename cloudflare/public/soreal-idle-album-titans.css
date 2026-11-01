@@ -1,0 +1,58 @@
+/*
+ * Cartes de TITANS de l'album des boss (modules/album-titans-v1.js). Toutes les dimensions sont en cqw de la carte (.alb-carte-mtg est un conteneur) : la carte est la même à toutes les tailles du classeur.
+ * Cadre doré à facettes de cristal teinté par --ta (teinte tirée de l'image du titan), fond sombre, illustration, bandeau « Titan », victoires.
+ * Hologramme : reflet irisé qui suit le pointeur (--mx / --my, posés seulement sur la carte survolée ou touchée) + balayage lumineux en boucle PARFAITE (règle n°3 : opacité 0 aux deux bouts, une seule
+ * période, toujours dans le même sens ; coupé par « réduire les animations »). Seuls transform et opacity sont animés.
+ */
+.alb-pochette-titan{cursor:default}
+.alb-pochette-titan:focus-visible{outline:2px solid #ffd24a;outline-offset:3px}
+.alb-titan-carte{--ta:40;--mx:50%;--my:30%;--rx:0;--ry:0;position:absolute;inset:0;box-sizing:border-box;padding:2.8cqw;border-radius:5.4cqw;overflow:hidden;isolation:isolate;
+  background:
+    linear-gradient(135deg,hsl(var(--ta) 85% 78%) 0%,hsl(var(--ta) 60% 30%) 22%,hsl(var(--ta) 90% 66%) 38%,#f3d98a 50%,hsl(var(--ta) 60% 28%) 64%,hsl(var(--ta) 90% 70%) 82%,hsl(var(--ta) 60% 34%) 100%);
+  box-shadow:0 .5cqw 1.2cqw rgba(0,0,0,.65),0 0 3cqw -1cqw hsl(var(--ta) 100% 60% / .75),inset 0 0 0 .5cqw rgba(0,0,0,.55);
+  transform:rotateX(0) rotateY(0);transition:transform .14s linear;transform-origin:50% 50%;color:#fff4dc}
+.alb-pochette-titan.alb-titan-actif .alb-titan-carte{transform:rotateX(calc(var(--rx) * 1deg)) rotateY(calc(var(--ry) * 1deg));will-change:transform}
+.alb-t-cadre{position:relative;width:100%;height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:1.6cqw;padding:2.2cqw;border-radius:3.4cqw;
+  background:radial-gradient(ellipse at 50% 0,hsl(var(--ta) 55% 24%),hsl(var(--ta) 45% 9%) 75%);
+  box-shadow:inset 0 0 0 .45cqw hsl(var(--ta) 80% 62% / .7),inset 0 0 4cqw rgba(0,0,0,.6)}
+.alb-t-tete{display:flex;align-items:center;justify-content:space-between;gap:2cqw;min-height:13cqw;padding:1.2cqw 3cqw;border-radius:2.4cqw;
+  background:linear-gradient(180deg,hsl(var(--ta) 50% 16%),hsl(var(--ta) 55% 8%));box-shadow:inset 0 0 0 .35cqw hsl(var(--ta) 85% 66% / .75),0 .4cqw .8cqw rgba(0,0,0,.5)}
+.alb-t-nom{flex:1;min-width:0;font:400 7.4cqw/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.2cqw;color:#ffe9a8;text-shadow:0 .35cqw 0 #000,0 0 2.4cqw hsl(var(--ta) 100% 60% / .8);text-wrap:balance;overflow-wrap:anywhere}
+.alb-t-gemme{flex:0 0 5.6cqw;width:5.6cqw;height:5.6cqw;transform:rotate(45deg);border-radius:.8cqw;background:linear-gradient(135deg,#fff,hsl(var(--ta) 95% 62%) 45%,hsl(var(--ta) 90% 28%));box-shadow:0 0 2cqw hsl(var(--ta) 100% 65% / .9),inset 0 0 0 .3cqw rgba(0,0,0,.6)}
+.alb-t-art{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;border-radius:2.2cqw;background:radial-gradient(circle at 50% 40%,hsl(var(--ta) 40% 18%),#07060a 80%);box-shadow:inset 0 0 0 .5cqw #000,0 0 0 .4cqw hsl(var(--ta) 85% 66% / .8)}
+.alb-t-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;user-select:none}
+.alb-t-secours{position:absolute;inset:0;align-items:center;justify-content:center;font-size:30cqw}
+/* hologramme de l'illustration : dégradé conique arc-en-ciel centré sur le pointeur + fines rayures de feuille holographique */
+.alb-t-holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;opacity:.18;
+  background:
+    repeating-linear-gradient(115deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 2.2cqw,rgba(255,255,255,.22) 2.6cqw,rgba(255,255,255,0) 3cqw),
+    conic-gradient(from 20deg at var(--mx) var(--my),#ff5e9c,#ffd45e,#6dff8f,#5ec8ff,#b07dff,#ff5e9c);
+  background-size:100% 100%,100% 100%}
+.alb-pochette-titan.alb-titan-actif .alb-t-holo{opacity:.6}
+.alb-t-type{display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:.8cqw 3cqw;border-radius:2cqw;
+  background:linear-gradient(180deg,hsl(var(--ta) 50% 18%),hsl(var(--ta) 55% 9%));box-shadow:inset 0 0 0 .35cqw hsl(var(--ta) 85% 66% / .7)}
+.alb-t-type span:first-child{font:400 6.4cqw/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.9cqw;text-transform:uppercase;color:#fff;text-shadow:0 .3cqw 0 #000,0 0 2cqw hsl(var(--ta) 100% 62%)}
+.alb-t-forme{font:400 4.4cqw/1 "Russo One",Impact,sans-serif;color:hsl(var(--ta) 100% 80%)}
+.alb-t-pied{padding:1cqw 3cqw;border-radius:2cqw;text-align:center;font:400 5.2cqw/1.1 "Russo One",Impact,sans-serif;color:hsl(var(--ta) 100% 86%);background:rgba(0,0,0,.45)}
+.alb-t-pied b{font-size:6.4cqw;color:#fff}
+/* reflet qui suit le pointeur sur toute la carte (cadre compris) */
+.alb-t-reflet{position:absolute;inset:0;pointer-events:none;border-radius:inherit;mix-blend-mode:overlay;opacity:0;
+  background:
+    radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.85),rgba(255,255,255,0) 42%),
+    linear-gradient(115deg,hsl(calc(var(--ta) - 60) 100% 70% / .5),hsl(var(--ta) 100% 70% / .0) 45%,hsl(calc(var(--ta) + 70) 100% 70% / .5))}
+.alb-pochette-titan.alb-titan-actif .alb-t-reflet{opacity:.85}
+/* balayage lumineux : un seul sens, fondu d'entrée et de sortie (opacité 0 à 0 % et à 100 %), une période exacte */
+.alb-t-balai{position:absolute;top:-10%;bottom:-10%;left:0;width:38%;pointer-events:none;opacity:0;transform:translateX(-140%) skewX(-18deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.55),rgba(255,255,255,0));animation:albTitanBalai 6s linear infinite}
+@keyframes albTitanBalai{
+  0%{transform:translateX(-140%) skewX(-18deg);opacity:0}
+  12%{opacity:.7}
+  40%{opacity:.7}
+  52%{transform:translateX(330%) skewX(-18deg);opacity:0}
+  100%{transform:translateX(330%) skewX(-18deg);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .alb-t-balai{animation:none;opacity:0}
+  .alb-titan-carte{transition:none}
+  .alb-pochette-titan.alb-titan-actif .alb-titan-carte{transform:none}
+}

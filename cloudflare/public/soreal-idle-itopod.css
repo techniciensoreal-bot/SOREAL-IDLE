@@ -430,8 +430,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120{padding:7px 44px 6px!important;margin-bottom:8px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120 strong{font-size:1.2em!important;letter-spacing:.05em!important;white-space:nowrap}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120::after{width:28px;height:28px;margin-top:-14px}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{gap:6px!important;padding:8px!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 :is(.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120){padding:6px 8px!important;gap:6px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{gap:var(--bt-gap,6px)!important;padding:var(--bt-pad,8px)!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 :is(.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120){padding:var(--bt-cadre-pad,6px 8px)!important;gap:var(--bt-cadre-gap,6px)!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120 button{min-height:34px!important;padding:4px 6px!important}
 }
 
@@ -1440,29 +1440,29 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Barre d'outils d'allocation : UNE grille propre pour tous les menus (Norman, 2026-10-10 : « pas de trous, une configuration propre appliquée partout »).
    Ligne 1 : Input pleine largeur ; puis, pour chaque ressource, [Plafond | Idle] côte à côte (4 colonnes alignées : Max = 2, 1/2 et 1/4 = 1 ; 1/2, 1/4 = 1 et Tout retirer = 2) et le total placé pleine largeur. */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:stretch!important;padding:10px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{display:grid!important;grid-template-columns:var(--bt-cols,repeat(2,minmax(0,1fr)))!important;gap:var(--bt-gap,8px)!important;align-items:stretch!important;padding:var(--bt-pad,10px)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>*{margin:0!important;min-width:0!important;max-width:none!important;flex:none!important;width:auto!important;box-sizing:border-box}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>:not(.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)){grid-column:1/-1}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{display:flex!important;flex-direction:row!important;align-items:center;gap:10px!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120 label{flex:0 0 auto;white-space:nowrap}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120 input{flex:1 1 auto;width:auto!important;min-width:0}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;align-content:stretch!important;align-items:stretch}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)>span{grid-column:1/-1!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1) button{grid-column:span 1!important;min-width:0;white-space:nowrap;padding:4px 4px!important;font-size:16px!important;-webkit-text-stroke:0!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>:not(.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)){grid-column:var(--bt-gc,1/-1)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-input-box-v120{display:flex!important;flex-direction:row!important;align-items:center;gap:10px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-input-box-v120 label{flex:0 0 auto;white-space:nowrap}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-input-box-v120 input{flex:1 1 auto;width:auto!important;min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important;align-content:stretch!important;align-items:stretch}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1)>span{grid-column:1/-1!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1) button{grid-column:span 1!important;min-width:0;white-space:nowrap;padding:4px 4px!important;font-size:16px!important;-webkit-text-stroke:0!important}
 /* « Tout retirer » : une ligne entière sous les boutons de partage (Norman, 2026-10-12 : « ils ne couvrent que « tout » et à côté sur téléphone ») : la colonne d'un quart du cadre est trop étroite pour le mot (30 px pour ~64 px de texte) */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1) button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1) button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}
 /* « Tout retirer » sur la même ligne que 1/2 et 1/4, PC comme téléphone (Norman, 2026-10-21 : « énorme, il fait perdre de la place ; je veux que cette zone prenne moins de place en gardant sa lisibilité »). */
-.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120{--bt-clear-col:span 2}
+.soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120{--bt-clear-col:span 2}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>[data-alloc-cadre-v1^="cap-"] button:first-of-type{grid-column:span 2!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>[data-alloc-cadre-v1^="idle-"] button.clear{grid-column:span 2!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px;padding:8px 14px!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1 b{margin-left:auto}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-total-v1{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between;gap:10px;padding:var(--bt-total-pad,8px 14px)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-total-v1 b{margin-left:auto}
 /* Norman (2026-10-29) : « quand on place et qu'on retire de l'énergie, la page bouge encore » : sur téléphone le cadre « total placé » passait sur 2 lignes dès que le texte s'allongeait (« 0 % » -> « 1250 % du plafond »), +20 px de hauteur, donc toute la page en dessous bougeait. Il a maintenant TOUJOURS deux lignes (libellé et nombre, puis « % du plafond » dessous) : sa hauteur ne dépend plus de son contenu. */
-@media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1{display:grid!important;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;column-gap:10px}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1>span{min-width:0}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-total-v1>small{grid-column:1/-1}}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120{flex-wrap:wrap!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-input-box-v120>:not(label):not(input){flex:1 1 100%!important;margin:0!important}
+@media (max-width:420px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-total-v1{display:grid!important;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;column-gap:10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-total-v1>span{min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-total-v1>small{grid-column:1/-1}}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-input-box-v120{flex-wrap:wrap!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-input-box-v120>:not(label):not(input){flex:1 1 100%!important;margin:0!important}
 
 /* Le Coffre se trémousse quand il rote (il gonfle puis se tasse) ou pète (il tressaute de côté) : une seule fois, puis retour exact à l'état de départ. */
 @keyframes bgRote{0%,100%{transform:none}25%{transform:scale(1.07,.93)}50%{transform:scale(.95,1.07) translateY(-3px)}75%{transform:scale(1.03,.98)}}
@@ -1542,7 +1542,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * Énergie placée, niveaux et cibles des NGU, calendrier, boutique, étages de la tour, horodatages du chat…). Sur ordinateur (au-dessus de 700 px), chacun passe à 13 ou 14 px ; le téléphone n'est pas touché.
  */
 @media (min-width:701px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-toolbar-v120 :is(label,span,small,button,b,.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1){font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-toolbar-v120 :is(label,span,small,button,b,.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1){font-size:var(--bt-fs,14px)!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1,.soreal-idle-summary-v28){font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1 :is(small,.nl-niveau,.nl-effet,.nl-niveau b,.nl-cible span,.nl-cible){font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-boss-lore-name-v184{font-size:14px!important}
@@ -1563,7 +1563,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * « Tout retirer » garde la même hauteur mais reste plus large (son texte est long) ; la colonne des boutons de chaque ligne d'Entraînement s'élargit pour les contenir.
  */
 @media (min-width:701px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-at-boutons-v1,.soreal-idle-tm-boutons-v1,.nl-boutons,.nl-ligne) button{box-sizing:border-box;width:56px!important;min-width:56px!important;height:56px!important;min-height:56px!important;padding:0!important;display:inline-grid!important;place-items:center;font-size:20px!important;font-weight:900!important;line-height:1!important;border-radius:12px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-at-boutons-v1,.soreal-idle-tm-boutons-v1,.nl-boutons,.nl-ligne) button{box-sizing:border-box;width:56px!important;min-width:56px!important;height:var(--bt-btn-hh,56px)!important;min-height:56px!important;padding:0!important;display:inline-grid!important;place-items:center;font-size:20px!important;font-weight:900!important;line-height:1!important;border-radius:12px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-presets-v120,.soreal-idle-bt-actions-v120,.soreal-idle-at-boutons-v1,.soreal-idle-tm-boutons-v1,.nl-boutons,.nl-ligne) button.clear{width:auto!important;min-width:56px!important;padding:0 16px!important;font-size:16px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-row-v120{grid-template-columns:minmax(0,1fr) 100px 120px 256px!important}
 }
@@ -1745,10 +1745,10 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-summary-v28
  * Boutons de préréglage lisibles (Norman, 2026-10-14 : « les boutons 1/2, 1/4 ou Input personnalisés ne sont pas très lisibles, sur PC comme sur APP ») : ils étaient en 12 px avec un contour noir de 1 px qui mangeait les lettres,
  * et les libellés (Input, Plafond d'énergie, Idle) en gris pâle sur fond sombre. Texte plus grand, sans contour, plus clair ; zone de clic d'au moins 46 px (téléphone et APP).
  */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120 button{font-size:18px!important;letter-spacing:.06em!important;line-height:1.1!important;-webkit-text-stroke:0!important;text-shadow:0 2px 0 rgba(0,0,0,.7)!important;min-height:46px!important;min-width:64px!important;padding:6px 12px!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120 button{font-size:18px!important;letter-spacing:.06em!important;line-height:1.1!important;-webkit-text-stroke:0!important;text-shadow:0 2px 0 rgba(0,0,0,.7)!important;min-height:46px!important;min-width:64px!important;padding:var(--bt-btn-pad,6px 12px)!important}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-actions-v120 button{font-size:22px!important;-webkit-text-stroke:0!important;text-shadow:0 2px 0 rgba(0,0,0,.7)!important;min-height:48px!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120>span,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 label{font-size:16px!important;font-weight:700!important;letter-spacing:.04em;color:#dbe6fb!important}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 input{font-size:20px!important;font-weight:700!important;letter-spacing:.03em;color:#fff!important;border:2px solid #7f9fd6!important;background:#0a1224!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120>span,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 label{font-size:var(--bt-lbl-fs,16px)!important;font-weight:700!important;letter-spacing:.04em;color:#dbe6fb!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-input-box-v120 input{font-size:var(--bt-input-fs,20px)!important;font-weight:700!important;letter-spacing:.03em;color:#fff!important;border:2px solid #7f9fd6!important;background:#0a1224!important}
 
 /* Défi sans équipement (Norman, 2026-10-17) : les pièces portées ne comptent plus, elles sont grisées (le marqueur est posé par rendreSlotPaperdollAdventureIdleV138_). */
 /* l'image (et le niveau) sont grisés, mais PAS les 3 petits points bleu / jaune / orange : ils disent quels boosts on peut encore y envoyer (Norman, 2026-10-17) */
@@ -2018,11 +2018,14 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* Yeux (Norman, 2026-10-31) : absents à l'arrivée, les yeux n'apparaissent qu'à partir du moment où l'image est à l'écran (classe mp3-vu posée par le module), une paire après l'autre (0,8 / 1,9 / 3,1 s après), puis restent FIXES, allumés */
 .mp3-yeux{position:absolute;display:flex;gap:1.9cqw;transform:translate(-50%,-50%);opacity:0;animation:mp3Yeux .45s cubic-bezier(.2,.9,.3,1.25) 1 both;animation-delay:var(--d,0s);animation-play-state:paused}
 .mp3-calques.mp3-vu .mp3-yeux{animation-play-state:running}
-.mp3-yeux i{display:block;width:.95cqw;height:.95cqw;border-radius:50%;background:#ffe81a;box-shadow:0 0 .9cqw .25cqw rgba(255,232,26,.75)}
+/* Paire qui approche (Norman, 2026-11-01) : minuscule et pâle tout au fond du trou, elle grossit et descend très lentement (16 s, une seule fois) jusqu'à sa place de l'image de base (taille normale), puis reste fixe. */
+.mp3-yeux.mp3-approche{animation:mp3Approche 14s cubic-bezier(.35,0,.35,1) 1 both;animation-delay:var(--d,0s)}
+@keyframes mp3Approche{0%{opacity:0;transform:translate(calc(-50% + var(--sx,0cqw)),calc(-50% + var(--sy,0cqw))) scale(.16)}7%{opacity:.85}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.mp3-yeux i{display:block;width:.95cqw;height:.95cqw;border-radius:50%;background:#ffa51c;box-shadow:0 0 .9cqw .25cqw rgba(255,110,20,.75)}
 @keyframes mp3Yeux{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}60%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 /* Puanteur : 5 volutes fines qui montent du trou ; opacité 0 à 0 % et 100 %, montée toujours vers le haut, balancement périodique de même durée */
 .mp3-volute{position:absolute;top:30cqw;width:5.6cqw;height:23.8cqw;opacity:0;animation:mp3Monte var(--dur,10s) linear infinite;animation-delay:var(--del,0s)}
-.mp3-volute svg{display:block;width:100%;height:100%;overflow:visible;animation:mp3Balance var(--dur,10s) ease-in-out infinite;animation-delay:var(--del,0s)}
+.mp3-volute svg{display:block;width:100%;height:100%;overflow:visible;animation:mp3Balance var(--bal,6s) ease-in-out infinite;animation-delay:var(--bd,0s)}
 @keyframes mp3Monte{0%{opacity:0;transform:translateY(8cqw) scale(.85,.9)}15%{opacity:.8}70%{opacity:.7}100%{opacity:0;transform:translateY(-12cqw) scale(1.15,1)}}
 @keyframes mp3Balance{0%,100%{transform:translateX(0)}25%{transform:translateX(var(--sx,1cqw))}75%{transform:translateX(calc(var(--sx,1cqw)*-1))}}
 /* Salve d'or : seulement quand on jette son or (bloc ajouté par le module, data-morph-garder) */
@@ -2047,7 +2050,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @keyframes mp3Tourne{from{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(0)}to{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(calc(var(--tours)*360deg))}}
 @keyframes mp3Eclat{0%,70%{opacity:0;transform:scale(.2)}77%{opacity:1;transform:scale(1)}92%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}
 @media (max-width:760px){.mp3-titre-nom{font-size:10.4cqw}.mp3-titre-phrase{font-size:3.9cqw}}
-@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}
+@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-yeux.mp3-approche{transform:translate(-50%,-50%)}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}
 
 /* ===== Roue journalière refaite (Norman, 2026-10-31) : roue de la largeur du cadre du trou, en dessous ; un secteur par récompense ; modules/roue-journaliere-v1.js =====
    Règle n°3 : ampoules et halo en boucle parfaite (mêmes valeurs à 0 % et 100 %) ; mouvement réduit : plus d'animation, halo fixe. */

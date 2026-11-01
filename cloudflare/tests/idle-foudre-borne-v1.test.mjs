@@ -9,7 +9,9 @@ const index = readFileSync(new URL("../public/index.html", import.meta.url), "ut
 
 function monde({ reduit = false, ecran = true } = {}) {
   const anims = []; const ecouteurs = {}; const enfants = [];
-  const el = { isConnected: true, animate: (k, o) => { anims.push({ k, o }); }, getBoundingClientRect: () => ({ width: 500, height: 400, top: 100, bottom: 500 }), appendChild(e) { enfants.push(e); e.parentNode = el; }, removeChild(e) { enfants.splice(enfants.indexOf(e), 1); } };
+  /* Le cadre de l'écran ne bouge jamais (Norman, 2026-11-01 : « la déformation ne doit pas sortir de l'écran ») : ce sont ses contenus qui s'animent, le cadre est rogné (overflow: clip). */
+  const contenu = { classList: { contains: () => false }, animate: (k, o) => { anims.push({ k, o }); } };
+  const el = { isConnected: true, style: {}, children: [contenu], animate: () => { throw new Error("le cadre de l'écran ne doit pas être déformé"); }, getBoundingClientRect: () => ({ width: 500, height: 400, top: 100, bottom: 500 }), appendChild(e) { enfants.push(e); e.parentNode = el; }, removeChild(e) { enfants.splice(enfants.indexOf(e), 1); } };
   const doc = { querySelector: (s) => (ecran && s === ".soreal-idle-duel-v41" ? el : null), getElementById: () => null, head: { appendChild() {} }, documentElement: { appendChild() {} },
     createElement: () => ({ style: {}, attrs: {}, setAttribute(k, v) { this.attrs[k] = v; }, animate(k, o) { anims.push({ k, o, nuage: true }); } }) };
   const fen = { document: doc, innerHeight: 800, matchMedia: () => ({ matches: reduit }), setTimeout: () => 0, addEventListener: (n, f) => { ecouteurs[n] = f; } };

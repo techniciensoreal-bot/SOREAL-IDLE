@@ -561,13 +561,14 @@
    * Titre et phrase : la clé du titre porte un espace de largeur nulle pour avoir sa propre ligne du dictionnaire anglais (« Trou sans fond » seul = « Money Pit », nom du menu).
    */
   function calquesTrouSansFondIdleV1_(){
-    /* trois paires d'yeux : [x, y, période (s), décalage (s)] ; l'écart entre les deux points est fixe */
-    const yeux=[[36.8,58.2,3.1,.8],[47.4,56.4,2.3,1.9],[51.2,61.6,3.9,3.1]].map(function(p){
-      return '<span class="mp3-yeux" style="left:'+p[0]+'%;top:'+p[1]+'%;--p:'+p[2]+'s;--d:'+p[3]+'s"><i></i><i></i></span>';
+    /* Deux paires d'yeux (Norman, 2026-11-01) : la 1re s'ouvre comme avant ; la suivante est de MINUSCULES yeux jaunes tout au fond du trou qui grossissent en se déplaçant très lentement vers l'ouverture, comme une bête qui approche pour nous regarder. [x, y, décalage (s)] ; l'écart entre les deux points est fixe */
+    /* trois paires d'yeux, positions finales de l'image de base : [x, y, décalage (s), départ x, départ y (cqw)] ; la 1re s'ouvre, les deux suivantes arrivent l'une après l'autre en grossissant depuis le fond */
+    const yeux=[[36.0,55.0,.8,0,0,0],[47.4,56.4,3.4,0,-3,1],[42.0,52.0,9.6,-5,-4.5,1]].map(function(p){
+      return '<span class="mp3-yeux'+(p[5]?' mp3-approche':'')+'" style="left:'+p[0]+'%;top:'+p[1]+'%;--d:'+p[2]+'s;--sx:'+p[3]+'cqw;--sy:'+p[4]+'cqw"><i></i><i></i></span>';
     }).join('');
-    /* 5 volutes fines : [x, couleur, durée, décalage, amplitude du balancement en cqw] */
-    const volutes=[[34.5,'#d9c52e',9.4,0,.9],[41,'#8fd04a',11.2,-3.6,1.2],[47,'#e6cf3a',8.6,-6.1,.8],[53.5,'#7cc43e',10.4,-1.9,1.1],[59.5,'#cfc02c',12,-8.3,1]].map(function(v){
-      return '<span class="mp3-volute" style="left:'+v[0]+'%;--dur:'+v[2]+'s;--del:'+v[3]+'s;--sx:'+v[4]+'cqw"><svg viewBox="0 0 40 170" aria-hidden="true"><path d="M20 168 Q6 148 20 128 Q34 108 20 88 Q6 68 20 48 Q34 28 20 4" fill="none" stroke="'+v[1]+'" stroke-width="4" stroke-linecap="round"/></svg></span>';
+    /* 5 volutes fines : [x, couleur, durée de la montée, décalage, amplitude du balancement en cqw, période du balancement, décalage du balancement] : montée ET balancement sont deux boucles INDÉPENDANTES, de durées différentes pour chaque volute (Norman, 2026-11-01 : « chacune indépendante ») */
+    const volutes=[[34.5,'#d9c52e',9.4,0,.9,4.3,-1.1],[41,'#8fd04a',12.7,-5.2,1.3,6.1,-4.7],[47,'#e6cf3a',7.9,-2.4,.8,3.7,-2.2],[53.5,'#7cc43e',11.1,-8.9,1.1,5.3,-0.6],[59.5,'#cfc02c',14.3,-1.7,1,7.9,-6.3]].map(function(v){
+      return '<span class="mp3-volute" style="left:'+v[0]+'%;--dur:'+v[2]+'s;--del:'+v[3]+'s;--sx:'+v[4]+'cqw;--bal:'+v[5]+'s;--bd:'+v[6]+'s"><svg viewBox="0 0 40 170" aria-hidden="true"><path d="M20 168 Q6 148 20 128 Q34 108 20 88 Q6 68 20 48 Q34 28 20 4" fill="none" stroke="'+v[1]+'" stroke-width="4" stroke-linecap="round"/></svg></span>';
     }).join('');
     return '<div class="mp3-calques" aria-hidden="false" data-morph-classes-gardees="^mp3-vu$">'+
       volutes+yeux+

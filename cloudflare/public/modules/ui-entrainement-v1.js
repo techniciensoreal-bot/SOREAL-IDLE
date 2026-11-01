@@ -1670,7 +1670,7 @@
               · Energy Power n’accélère pas Basic Training
             </div>
 
-            <div class="soreal-idle-bt-input-box-v120">
+            <div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-bt-input-box-v120">
               <label for="sorealIdleTrainingInputV120">🎚️ Input</label>
               <input
                 id="sorealIdleTrainingInputV120"
@@ -1691,8 +1691,9 @@
                 >
                 🔗 Synchro
               </label>`:''}
-            </div>
+            </div></div>
 
+            <div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="energy">
             <div class="soreal-idle-bt-presets-v120">
               <span>⚡ Plafond d’énergie</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('cap',1)">Max</button>
@@ -1707,6 +1708,7 @@
               <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
             </div>
             ${window.__SOREAL_IDLE_ALLOC_V1__&&window.__SOREAL_IDLE_ALLOC_V1__.compteur?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','basicTraining'):''}
+            </div>
           </div>
 
           ${groupeBasicTrainingIdleV120_(

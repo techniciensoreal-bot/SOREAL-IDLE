@@ -32,6 +32,11 @@
         date:'2026-11-01',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Quand l’orage frappe l’image d’un écran, la déformation reste maintenant à l’intérieur de l’écran sans jamais déborder du cadre.',
+            'Les en-têtes des pages où l’on place ses ressources sont beaucoup plus petites : Input dans son petit cadre, puis les cadres Plafond et Idle de chaque ressource sur la même ligne.',
+            'Les barres de progression vont maintenant toujours jusqu’au bout avant de repartir, même quand un niveau se gagne en une fraction de seconde.',
+            'Dans le choix du portrait de la borne, les noms sous les portraits sont plus gros, sur un fond sombre, et passent sur deux lignes au lieu d’être coupés.',
+            'Dans la barre des menus, les icônes des menus qui travaillent brillent en couleurs vives comme celles du menu ouvert ; tout le reste est foncé, pour voir d’un coup d’œil où sont placées tes ressources.',
             'Les nombres que tu tapes dans les champs sont mieux gardés : espaces, virgules et suffixes (k, m, b, t) sont compris, le champ ne se trompe plus de menu, et les saisies de départ et de fin d’étage ainsi que la quantité personnalisée de la boutique sont conservées.',
             'Le journal de combat reste toujours tout en bas, sur la ligne la plus récente : la molette et le doigt ne le font plus défiler. Deux flèches (haut et bas) permettent de remonter ; après 15 secondes sans mouvement, il revient tout seul en bas.',
             'Pour un nouveau joueur, les fenêtres d’annonce (nouveau portrait, nouveau chat) attendent la fin de toute l’introduction avant de s’afficher.',
@@ -45,6 +50,8 @@
             'Quand un mineur est activé, les icônes du menu restent allumées dans la barre même si tu n’es pas dans ce menu : seul le fond s’assombrit.'
           ]}
           ,{menu:'chroniques', titre:'Chroniques', points:[
+            'Le texte d’une carte de chronique se fait défiler à la souris : avec la molette, ou en gardant le clic gauche enfoncé et en bougeant la souris.',
+            'Au bout du classeur, de nouvelles pages peuvent apparaître avec des cartes spéciales : un cadre particulier aux couleurs de chaque personnage et un effet hologramme qui suit ton doigt ou ta souris.',
             'Dans la Collection, les boosts du bas sont toujours rangés par valeur (1, 2, 5, 10, 20, 50, 100), puis dans l’ordre orange, bleu, jaune, qu’ils soient complétés ou non.'
           ]}
           ,{menu:'sang', titre:'Magie du sang', points:[
@@ -52,6 +59,10 @@
             'Application Windows : les éléments de Blood Magic ne disparaissent plus quand tu cliques en dehors de la fenêtre.'
           ]}
           ,{menu:'daycare', titre:'Garderie', points:[
+            'Les bocaux ont une forme propre à chaque apparence de ton chat ; le niveau s’affiche sous le bocal, et les fioles sont posées au milieu de la planche.',
+            'Chaque chat a une ombre au sol, un fond mieux cadré sur téléphone, et des pupilles en fente qui s’élargissent et se contractent.',
+            'Un clic sur un bocal le met en gros plan avec le temps avant le prochain niveau et avant le niveau 100, puis « Reprendre » ou « Ranger ».',
+            'Dans la fenêtre qui propose de reprendre un objet, le bouton Annuler est lisible : texte blanc sur fond vert très sombre, avec un contour clair.',
             'La couleur du liquide des bocaux suit l’apparence du chat : transparent pour le chat de base, rose bonbon pour le coquet, or pour le doré, sang pour Halloween, arc-en-ciel pour Nyan…'
           ]}
           ,{menu:'tower', titre:'ITOPOD', points:[
@@ -119,6 +130,8 @@
             'Dans le petit menu, le pentacle est d’un rouge plus vif quand le menu est actif et tourne sur lui-même ; la goutte de sang est plus petite : elle apparaît en haut, tombe et disparaît en fondu, en boucle.'
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Les filets de puanteur qui sortent du trou bougent chacun de leur côté : montée et balancement n’ont plus le même rythme d’un filet à l’autre.',
+            'Au fond du trou, la deuxième puis la troisième paire d’yeux apparaissent minuscules et grossissent en se déplaçant très lentement jusqu’à leur place (la troisième arrive du haut à gauche et se place au-dessus des deux autres), comme si quelque chose s’approchait de l’ouverture pour te regarder ; les yeux sont d’un jaune rougeâtre, pour ne pas les confondre avec les pièces d’or.',
             'Sur ordinateur, les deux colonnes sont équilibrées : le trou et la roue ont chacun leur colonne (image, menu, tableau de récompenses), et les Réglages comblent leurs espaces vides.',
             'Sur ordinateur, l’image du trou et la roue sont côte à côte, chacune avec son menu en dessous, et les deux tableaux de récompenses aussi.',
             'Les yeux au fond du trou n’apparaissent qu’à partir du moment où l’image est à l’écran : une paire après l’autre, sans se presser, puis ils restent fixes.',
@@ -129,7 +142,11 @@
             'Le titre du Trou sans fond a un léger bord clair, plus lisible sur l’herbe.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Une pile de graines utilisée d’un coup ajoute autant de graines qu’elle en contient (une pile de 15 en donne 15).',
             'Avec l’achat qui prévient quand un fruit est prêt, le bouton du menu attire l’œil comme celui du Trou sans fond et les fruits prêts brillent.'
+          ]}
+          ,{menu:'shop', titre:'Boutique', points:[
+            'Un petit « i » sur les articles qui débloquent une fonction (emplacements, outils du sac…) explique en une phrase ce que l’achat fera, avant de l’acheter.'
           ]}
         ]
       },

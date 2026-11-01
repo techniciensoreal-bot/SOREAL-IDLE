@@ -59,7 +59,13 @@
       {transform:'translate(.4%,0) skewX(0)',filter:'brightness(.8) contrast(1.2)',offset:.64},
       {transform:'translate(0,0) skewX(0)',filter:'none',offset:1}
     ];
-    try{ecran.animate(K,{duration:620,easing:'steps(14,end)'});}catch(_e){return false;}
+    /* Norman, 2026-11-01 : « la déformation ne doit pas sortir de l'écran » : le cadre de l'écran reste FIXE et rogné (overflow: clip) ; ce sont ses contenus qui sont déformés, jamais le cadre lui-même. */
+    var contenus=Array.prototype.filter.call(ecran.children,function(c){return !c.classList.contains('wd-parasites');});
+    if(!contenus.length)return false;
+    var avant=ecran.style.overflow;
+    ecran.style.overflow='clip';
+    try{contenus.forEach(function(c){c.animate(K,{duration:620,easing:'steps(14,end)'});});}catch(_e){ecran.style.overflow=avant;return false;}
+    setTimeout(function(){ecran.style.overflow=avant;},660);
     /* barres de parasites : un calque gardé par le redessin, retiré à la fin */
     var nuage=document.createElement('div');
     nuage.className='wd-parasites';nuage.setAttribute('data-morph-garder','');nuage.setAttribute('aria-hidden','true');
@@ -630,7 +636,9 @@
     if(v>=20)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
     var brut=p0+v*dt;
     var f=brut-Math.floor(brut);
-    return {f:f,reste:(1-f)/v,gain:Math.floor(brut)};
+    /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : les derniers ~40 ms du cycle restent pleins, sinon la dernière image avant le retour à 0 montrait 90 % sur un cycle court. */
+    var affichee=Math.min(1,f/(1-Math.min(.15,Math.max(.004,.04*v))));
+    return {f:affichee,reste:(1-f)/v,gain:Math.floor(brut)};
   }
   function vivre_(){
     vivant=0;

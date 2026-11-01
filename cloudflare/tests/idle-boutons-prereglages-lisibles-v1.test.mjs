@@ -9,6 +9,6 @@ const taille = Number((/font-size:(\d+)px!important/.exec(regle) || [])[1]);
 assert.ok(taille >= 16, "boutons de préréglage d'au moins 16 px (étaient en 12 px) : " + taille);
 assert.ok(regle.includes("-webkit-text-stroke:0!important"), "plus de contour noir qui mange les petites lettres");
 assert.ok(/\.soreal-idle-bt-presets-v120 button\{font-size:18px!important[^}]*min-height:46px!important/.test(css), "zone de clic d'au moins 46 px");
-assert.ok(/\.soreal-idle-bt-input-box-v120 input\{font-size:20px!important/.test(css), "champ Input plus grand et contrasté");
-assert.ok(/\.soreal-idle-bt-presets-v120>span[^{]*\{font-size:16px!important[^}]*color:#dbe6fb!important/.test(css), "libellés plus clairs (Input, Plafond d'énergie, Idle)");
+assert.ok(/\.soreal-idle-bt-input-box-v120 input\{font-size:(?:20px|var\(--bt-input-fs,20px\))!important/.test(css), "champ Input plus grand et contrasté");
+assert.ok(/\.soreal-idle-bt-presets-v120>span[^{]*\{font-size:(?:16px|var\(--bt-lbl-fs,16px\))!important[^}]*color:#dbe6fb!important/.test(css), "libellés plus clairs (Input, Plafond d'énergie, Idle)");
 console.log("Boutons de préréglage lisibles: OK");

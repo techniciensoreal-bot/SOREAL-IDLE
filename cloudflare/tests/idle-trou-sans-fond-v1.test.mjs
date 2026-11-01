@@ -24,14 +24,16 @@ assert.equal(dico["Trou sans fond"], "Money Pit", "le nom du menu reste Money Pi
 assert.ok(/\.mp3-titre\{[^}]*color:#000;--f-texte:"Russo One"[^}]*font-family:"Russo One"/.test(css), "titre noir, police du jeu");
 assert.ok(/\.mp3-titre-phrase\{[^}]*text-transform:uppercase/.test(css), "phrase en capitales (français et anglais)");
 
-// Yeux : 3 paires de 2 points, luminosité 25 % à 100 %, boucle parfaite
-assert.equal((page.match(/\[\d+\.\d+,\d+\.\d+,\d\.\d,-?[\d.]+\]/g) || []).length, 3, "3 paires d'yeux");
+// Yeux : une paire qui s'ouvre + une paire minuscule qui s'approche lentement (Norman, 2026-11-01), 2 points chacune, luminosité 25 % à 100 %, boucle parfaite
+assert.equal((page.match(/\[\d+\.\d+,\d+\.\d+,\d*\.?\d+,-?[\d.]+,-?[\d.]+,[01]\]/g) || []).length, 3, "3 paires d'yeux");
+assert.ok(page.includes("' mp3-approche'") && css.includes("@keyframes mp3Approche") && css.includes("scale(.16)") && css.includes("100%{opacity:1;transform:translate(-50%,-50%) scale(1)}"), "2e et 3e paires : minuscules, arrivent l'une après l'autre et finissent à la position et la taille de l'image de base");
 assert.ok(page.includes('<i></i><i></i></span>'), "deux points par paire");
 assert.ok(css.includes("animation:mp3Yeux .45s cubic-bezier(.2,.9,.3,1.25) 1 both") && css.includes(".mp3-calques.mp3-vu .mp3-yeux{animation-play-state:running}") && !css.includes("mp3Yeux var(--p"), "yeux : en pause jusqu'à ce que l'image soit à l'écran, apparition une seule fois, puis fixes");
 assert.ok(page.includes("IntersectionObserver") && page.includes("data-morph-classes-gardees=\"^mp3-vu$\""), "les yeux démarrent quand l'image est visible, la classe survit au redessin");
 
 // Puanteur : 5 volutes, fondu d'entrée et de sortie, un seul sens
-assert.equal((page.match(/\[\d+(\.\d)?,'#[0-9a-f]{6}',[\d.]+,-?[\d.]+,[\d.]+\]/g) || []).length, 5, "5 volutes");
+assert.equal((page.match(/\[\d+(\.\d)?,'#[0-9a-f]{6}',[\d.]+,-?[\d.]+,[\d.]+,[\d.]+,-?[\d.]+\]/g) || []).length, 5, "5 volutes");
+assert.ok(css.includes("animation:mp3Balance var(--bal,6s) ease-in-out infinite;animation-delay:var(--bd,0s)") && page.includes("--bal:'+v[5]+'s;--bd:'+v[6]+'s"), "volutes : le balancement est une boucle indépendante de la montée, propre à chaque volute");
 const monte = /@keyframes mp3Monte\{0%\{opacity:0;transform:translateY\(8cqw\)[^}]*\}15%\{opacity:\.8\}70%\{opacity:\.7\}100%\{opacity:0;transform:translateY\(-12cqw\)/.exec(css);
 assert.ok(monte, "volute : opacité 0 à 0 % et 100 %, toujours vers le haut");
 
@@ -46,7 +48,7 @@ assert.equal((meta.match(/__jeterOrSalveV1__\(/g) || []).length, 1, "un seul app
 // Règle n°4 : le bloc ajouté par le module porte data-morph-garder
 assert.ok(/c\.setAttribute\('data-morph-garder',''\)/.test(page), "salve data-morph-garder");
 
-assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}"), "mouvement réduit coupé");
+assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animation:none;opacity:1}.mp3-yeux.mp3-approche{transform:translate(-50%,-50%)}.mp3-volute,.mp3-volute svg{animation:none}.mp3-volute{display:none}.mp3-pieces{display:none}}"), "mouvement réduit coupé");
 // Réalisme de la chute (Norman, 2026-10-31) : le bord inférieur du trou est au premier plan
 assert.ok(css.includes("pointer-events:none;clip-path:polygon(0 0,100% 0,100% 56%,56% 66%,54% 66%,50% 63.5%,45% 62%,40% 61%,38% 60%,33% 57%,29% 54%,0 54%)}"), "calque coupé au bord inférieur du trou");
 assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
