@@ -379,7 +379,8 @@ function construireSnapshotNguV1(state, context, now) {
       used: clone(state.records.newbieOffersUsed || [])
     },
     /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : un système encore verrouillé n'expose ni son nom, ni son icône, ni ce qui le débloque (objet, boss, Rebirths), ni ses pistes. */
-    systems: IDLE_NGU_SYSTEMS.map(def => { const ferme = !state.systems[def.id]?.unlocked || (def.id === "challenges" && defiTropTotV1(state, now)); return {
+    systems: IDLE_NGU_SYSTEMS.map(def => { const ferme = !state.systems[def.id]?.unlocked; return {   /* Norman (2026-11-02) : le menu Défis RESTE affiché même avant les 3 minutes de run (le lancement, lui, reste refusé : DEFI_TROP_TOT) */
+
       id: def.id,
       name: ferme ? "" : def.name,
       icon: ferme ? "" : def.icon,

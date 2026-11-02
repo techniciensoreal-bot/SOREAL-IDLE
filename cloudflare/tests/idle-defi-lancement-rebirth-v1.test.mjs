@@ -35,6 +35,9 @@ m.adventure.setRewards = Object.assign({}, m.adventure.setRewards, { adventurePo
 m.adventure.itemList = m.adventure.itemList || {};
 for (const s of ["head", "chest", "legs", "boots", "weapon", "necklace", "meat"]) m.adventure.itemList["grb:" + s] = { seen: true };
 m.challenge = Object.assign({}, m.challenge, { bestMs: { basic: 1000 } });
+/* Insta Training Cap + Synchro Basic Training achetés (Norman, 2026-11-02 : « en partie normale ça se fait bien, c'est en lançant un défi que le souci apparaît ») */
+m.selloutShop = Object.assign({}, m.selloutShop, { purchases: { instaTrainingCap: 1 } });
+m.bonuses = Object.assign({}, m.bonuses, { expShop: Object.assign({}, m.bonuses && m.bonuses.expShop, { syncBasicTraining: 1 }) });
 m.runStartedAt = Date.now() - 600_000;   /* un défi fait renaître : il demande au moins 3 minutes de run (2026-10-28) */
 m.adventure.selectedZone = "z3";
 stats.autoAventure = true;
@@ -73,7 +76,7 @@ assert.equal(tropTot.ok, false, "un défi n'est pas autorisé avant 3 minutes de
 assert.equal(tropTot.code, "DEFI_TROP_TOT");
 assert.match(tropTot.message, /au moins 3 minutes/);
 assert.equal(tropTot.joueur.bossVaincus, 70, "rien n'est modifié par un lancement refusé");
-assert.ok(!tropTot.joueur.systemes.systems.find((x) => x.id === "challenges").name, "le menu Défis n'est ni nommé ni montré avant 3 minutes (anti-spoil)");
+assert.ok(tropTot.joueur.systemes.systems.find((x) => x.id === "challenges").name, "le menu Défis RESTE affiché avant 3 minutes (Norman, 2026-11-02) : seul le lancement est refusé");
 reglerRun(200_000);
 assert.ok(runSorealIdleOperation(sql, "obtenirEtatSorealIdle", ["local"], user).joueur.systemes.systems.find((x) => x.id === "challenges").name, "après 3 minutes le menu Défis existe");
 const start = runSorealIdleOperation(sql, "agirProgressionSorealIdle", ["local", { action: "challenge", mode: "start", challenge: "basic" }], user);
@@ -84,6 +87,9 @@ assert.equal(j.bossVaincus, 0, "boss du run remis à 0");
 assert.equal(j.systemes.adventure.selectedZone, "safe", "Adventure repart en Safe Zone");
 assert.equal((j.autoAventure ?? j.aventure?.auto).actif, false, "plus de farm automatique");
 assert.equal(j.pvJoueur, j.pvJoueurMax, "PV au maximum, comme après un Rebirth");
+const compIdle = (id) => j.basicTraining.skills.find((x) => x.id === id).allocation;
+assert.equal(compIdle("attaque_passive"), 6, "Insta Training Cap : 6 d'énergie dans Attaque passive dès le lancement du défi, comme à une Renaissance");
+assert.equal(compIdle("blocage"), 6, "Insta Training Cap + Synchro : 6 aussi dans Blocage");
 // Menus et zones re-verrouillés (wiki, page Rebirths) : Augmentations/Time Machine/Blood Magic fermés, plus aucune zone d'Aventure avant de retuer les boss du run.
 const etatSys = (id) => j.systemes.systems.find((x) => x.id === id).state.unlocked;
 assert.equal(etatSys("augmentations"), false);

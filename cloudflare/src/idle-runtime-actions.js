@@ -831,7 +831,7 @@ export function agirProgressionSorealIdle(
     const collection = parserJsonSorealIdle_(row[c.COLLECTION_JSON - 1],{});
     const contexte = contexteMetaNguSorealIdle_(row,stats,collection);
 
-    /* Lancer un défi fait renaître : même minimum de run qu'un Rebirth, 3 minutes (Norman, 2026-10-28 : « ça n'est pas autorisé avant 3 minutes »). Le menu Défis n'est d'ailleurs pas affiché avant. */
+    /* Lancer un défi fait renaître : même minimum de run qu'un Rebirth, 3 minutes (Norman, 2026-10-28 : « ça n'est pas autorisé avant 3 minutes »). Le menu Défis, lui, reste affiché (Norman, 2026-11-02) : seul le lancement est refusé avant. */
     if(action&&action.action==='challenge'&&String(action.mode||'start')==='start'&&!stats.metaNgu.challenge?.active&&defiTropTotV1(stats.metaNgu,Date.now())){
       return {
         ok:false,
@@ -933,6 +933,8 @@ export function agirProgressionSorealIdle(
       :null;
     if(energieMetaAction){
       row[c.ENERGIE - 1]=Math.max(0,nombreSorealIdle_(energieMetaAction.current,0));
+      /* Lancer un défi = renaître : Insta Training Cap (Boutique AP) place ses 6 d'énergie comme à une Renaissance (Norman, 2026-11-02). */
+      if(defiLance)row[c.ENERGIE - 1]=instaTrainingCapSorealIdle_(stats,row[c.ENERGIE - 1],true);
       row[c.ENERGIE_MAX - 1]=Math.max(0,nombreSorealIdle_(energieMetaAction.cap,0));
       row[c.PROD_SECONDE - 1]=Math.max(0,idleNguResourceGenerationPerSecond(stats.metaNgu,"energy"));
       feuille.getRange(ligne,c.ENERGIE).setValue(row[c.ENERGIE - 1]);
@@ -1169,15 +1171,8 @@ export function renaitreSorealIdle(
      * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). Dès le Rebirth, 6 d'énergie
      * sont placées sur Attaque passive (et 6 sur Blocage avec la Synchro Basic Training) ; le reste de l'énergie de départ reste libre.
      */
-    let energieLibreDepart = energieDepart;
-    if (stats.metaNgu && stats.metaNgu.selloutShop && stats.metaNgu.selloutShop.purchases && stats.metaNgu.selloutShop.purchases.instaTrainingCap) {
-      /* Norman (2026-10-19) : « il est supposé placer 6 points dans Attaque passive, et si on a acheté la synchro du Basic Training, 6 aussi dans la première barre de la défense (Blocage) ». L'ancienne version mettait 1 point dans chaque entraînement ouvert, soit 1 seul point à un Rebirth (une seule compétence ouverte). */
-      const voulu = { attaque_passive: 6 };
-      if (Math.floor(Number(stats.metaNgu?.bonuses?.expShop?.syncBasicTraining) || 0) >= 1) voulu.blocage = 6;
-      const insta = applyBasicTrainingAllocationsV411(stats.entrainementBase, voulu, energieDepart, energieDepart, {});
-      stats.entrainementBase = insta.state;
-      energieLibreDepart = Math.max(0, nombreSorealIdle_(insta.idleEnergy, 0));
-    }
+    /* Insta Training Cap (Boutique AP) : voir instaTrainingCapSorealIdle_ (partagée avec le lancement d'un défi). */
+    const energieLibreDepart = instaTrainingCapSorealIdle_(stats, energieDepart);
     feuille.getRange(ligne,c.ENERGIE).setValue(energieLibreDepart);
     feuille.getRange(ligne,c.BOSS_ACTUEL).setValue(boss.nom);
     feuille.getRange(ligne,c.BOSS_PV).setValue(boss.pv);
@@ -1325,4 +1320,25 @@ export function combattreAventureSorealIdle(...args) {
     code:'SOREAL_IDLE_V47_LEGACY_DISABLED',
     message:'Cette ancienne mécanique est désactivée. SOREAL NGU IDLE utilise maintenant le moteur NGU V47.'
   };
+}
+
+/*
+ * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). À CHAQUE début de run : 6 d'énergie sont placées sur Attaque passive
+ * (et 6 sur Blocage avec la Synchro Basic Training) ; le reste de l'énergie de départ reste libre. Norman (2026-11-02) : « en partie normale ça se fait bien, c'est en lançant un défi que le souci apparaît » : le lancement d'un défi fait renaître (wiki NGU,
+ * page Challenges) et doit donc donner la même chose ; il ne le faisait pas (attaque, défense et vie du run restaient trop bas jusqu'à une visite de l'Entraînement de base). Retourne l'énergie qui reste libre.
+ */
+function instaTrainingCapSorealIdle_(stats, energieDepart, offert = false) {
+  let energieLibre = energieDepart;
+  if (stats && stats.metaNgu && stats.metaNgu.selloutShop && stats.metaNgu.selloutShop.purchases && stats.metaNgu.selloutShop.purchases.instaTrainingCap) {
+    /* Norman (2026-10-19) : « il est supposé placer 6 points dans Attaque passive, et si on a acheté la synchro du Basic Training, 6 aussi dans la première barre de la défense (Blocage) ». */
+    const voulu = { attaque_passive: 6 };
+    if (Math.floor(Number(stats.metaNgu?.bonuses?.expShop?.syncBasicTraining) || 0) >= 1) voulu.blocage = 6;
+    /* `offert` (lancement d'un défi) : un défi démarre à 0 d'énergie (une Renaissance, à ENERGIE_BASE) ; les 6 (ou 12) d'énergie de l'achat sont donc accordées en plus, l'énergie libre reste intacte. */
+    const besoin = Object.values(voulu).reduce((t, v) => t + v, 0);
+    const budget = offert ? energieDepart + besoin : energieDepart;
+    const insta = applyBasicTrainingAllocationsV411(stats.entrainementBase, voulu, budget, budget, {});
+    stats.entrainementBase = insta.state;
+    energieLibre = offert ? energieDepart : Math.max(0, nombreSorealIdle_(insta.idleEnergy, 0));
+  }
+  return energieLibre;
 }

@@ -4,7 +4,7 @@ import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progr
 import { defiTropTotV1 } from "../src/idle-ngu-snapshot.js";
 
 /*
- * Norman (2026-10-28) : « Défis ne doit apparaître qu'après 3 minutes. Ça fait un rebirth et ça n'est pas autorisé avant 3 minutes. »
+ * Norman (2026-10-28) : « Défis ne doit apparaître qu'après 3 minutes. Ça fait un rebirth et ça n'est pas autorisé avant 3 minutes. » ; RÉVISÉ le 2026-11-02 : le menu RESTE affiché, seul le lancement est refusé avant 3 minutes.
  * Lancer un défi fait renaître (wiki NGU, page Challenges) : le menu n'existe pas tant que le run n'a pas duré le minimum d'un Rebirth (180 s, moins le souhait 20), et le serveur refuse le lancement avant.
  */
 const T0 = 1_000_000;
@@ -36,5 +36,6 @@ assert.equal(defiTropTotV1(arrete, T0 + 3000), true, "défi arrêté juste aprè
 /* le menu n'est jamais annoncé tôt : nom, icône et pistes absents du snapshot (anti-spoil, règle n°2) */
 const snap = readFileSync("cloudflare/src/idle-ngu-snapshot.js", "utf8");
 assert.ok(readFileSync("cloudflare/src/idle-runtime-actions.js", "utf8").includes("code:'DEFI_TROP_TOT'"), "refus au lancement dans l'action du joueur");
-assert.ok(snap.includes('const ferme = !state.systems[def.id]?.unlocked || (def.id === "challenges" && defiTropTotV1(state, now));'), "menu fermé côté client avant 3 minutes");
+assert.ok(!snap.includes('(def.id === "challenges" && defiTropTotV1(state, now))'), "le menu Défis reste affiché avant 3 minutes (Norman, 2026-11-02) : seul le lancement est refusé");
+assert.ok(snap.includes("const ferme = !state.systems[def.id]?.unlocked; return {"), "le menu ne se ferme que si le système n'est pas débloqué (anti-spoil)");
 console.log("idle-defis-apres-3-minutes-v1: OK");

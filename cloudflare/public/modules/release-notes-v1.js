@@ -62,6 +62,10 @@
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Le bouton du menu et les illustrations de la page ont été retravaillés.',
           ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',
+            'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',
+          ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
           ]},
