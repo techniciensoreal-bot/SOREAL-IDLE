@@ -1877,7 +1877,9 @@
         /* Texte et nom PARLÉS fixés par l'administrateur : la voix lit ceux-là, quoi que dise le texte affiché (Norman, 2026-10-11). */
         const histoireParlee=String(j&&j.bossHistoireParlee||'').trim();
         const nomParle=String(j&&j.bossNomParle||'').trim();
-        const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&(histoireParlee||nomParle||attrHistoireVoixIdleV1_(histoire)))
+        /* Anglais (Norman, 2026-11-02 : « la carte sous la borne ne lit que le titre ») : sans cet attribut le lecteur lit le TEXTE DE LA CARTE (nom, monde, PV, attaque… puis récit), dont l'empreinte ne correspond à aucune voix anglaise générée ; avec lui il lit nom + récit original, comme le générateur de voix. */
+        let carteEnAnglais=false;try{carteEnAnglais=window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){}
+        const attrLecture=(ttsChronique&&typeof ttsChronique.composerChronique==='function'&&(histoireParlee||nomParle||carteEnAnglais||attrHistoireVoixIdleV1_(histoire)))
           ?' data-soreal-tts-say="'+idleHtml_(ttsChronique.composerChronique(nomParle||nomBoss,histoireParlee||histoire))+'"'
           :'';
         /*

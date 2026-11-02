@@ -442,7 +442,10 @@
     if(vue&&i<0)o.v.push(id);else if(!vue&&i>=0)o.v.splice(i,1);else if(Number(o.r)===renaissances_()&&(vue===(i>=0)))return;
     try{localStorage.setItem(CLE_PORTES_VUES_,JSON.stringify({r:o.r,v:o.v}));}catch(_e){}
   }
+  /* Portes SUPPRIMÉES (Norman, 2026-11-02) : il fournira ses propres portes, une par arbre et fruit. Tant qu'elles ne sont pas là, aucune porte n'est dessinée (ni son, ni coq) ; le code des anciennes portes reste ci-dessous, inutilisé, pour l'ouverture animée des futures images. */
+  var PORTES_ACTIVES_=false;
   function porteDe_(id,actif){
+    if(!PORTES_ACTIVES_)return '';
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
       /* l'animation de manger / récolter joue sur les fruits : la porte ne se referme qu'après (animer_ redessine la page à la fin) */

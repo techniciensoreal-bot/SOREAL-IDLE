@@ -4,9 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».",
-    "Le Troll Challenge affiche maintenant des minuteries pour ses trolls.",
-    "Pendant le Troll Challenge, l’entraînement de base ne progresse plus hors ligne.",
-    "Les descriptions des défis reprennent désormais le texte d’origine du jeu."
+    "En anglais, la carte de chronique sous la borne lit maintenant tout le texte (et plus seulement le titre)."
   ] };
 })();

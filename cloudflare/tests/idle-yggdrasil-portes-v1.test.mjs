@@ -11,7 +11,7 @@ const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={fermees:{},ouvre:{},anim:{}};",
-  "var sons=[];function son_(n){sons.push(n);}",
+  "var PORTES_ACTIVES_=true;var sons=[];function son_(n){sons.push(n);}",
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
   coupe(/var REGLAGES_DEFAUT_=\{[^\n]*\n/),
   coupe(/function reglages_\(\)\{[^\n]*\n/),
@@ -146,4 +146,10 @@ console.log("idle-yggdrasil-portes-v1: OK");
   assert.ok(!/sawtooth/.test(bloc("porteFerme", "porteFermeBois")) && !/sawtooth/.test(bloc("porteFermeBois", "porteBois")), "aucune dent de scie dans les sons de fermeture");
   assert.ok(!/jouerEnvers|OfflineAudioContext/.test(sons), "plus de son retourné");
   assert.ok(/function nomSonFerme_\(\)\{return reglages_\(\)\.son==='bois'\?'porteFermeBois':'porteFerme';\}/.test(src), "le réglage pierre / bois choisit aussi le bruit de fermeture");
+}
+
+// Norman (2026-11-02) : les portes d'Yggdrasil sont supprimées (il fournira les siennes) : le jeu n'en dessine plus aucune
+{
+  assert.ok(src.includes("var PORTES_ACTIVES_=false;") && src.includes("if(!PORTES_ACTIVES_)return '';"), "aucune porte dessinée tant que les nouvelles ne sont pas là");
+  console.log("idle-yggdrasil-portes-v1 (portes supprimées) : OK");
 }
