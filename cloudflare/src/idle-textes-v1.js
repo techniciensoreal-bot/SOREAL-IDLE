@@ -77,14 +77,28 @@ export function normaliserTexteV1(brut) {
   if (boss && typeof champs.nom === "string") champs.nom = champs.nom.replace(/\s+/g, " ").trim().slice(0, IDLE_TEXTE_MAX_NOM_BOSS_V1);
   if (boss && typeof champs.texte !== "string" && !(typeof champs.nom === "string" && champs.nom)) throw new Error("TEXTE_BOSS_CHAMP_TEXTE_REQUIS");
   if (boss && typeof champs.nom === "string" && !champs.nom) delete champs.nom;
+  /*
+   * Blocs d'une liste (Norman, 2026-11-02 : « je dois pouvoir supprimer un texte… si c'était 3 textes jaunes, je peux le mettre en 1 ou 5 ») : le joueur voit EXACTEMENT les blocs enregistrés, jamais un bloc vide.
+   * Un bloc vide d'une liste est retiré ; la liste parlée du même champ (un texte dit par bloc) perd les mêmes rangs quand elle est de même longueur.
+   */
+  const rangsGardes = {};
+  for (const nom of noms) {
+    if (!Array.isArray(champs[nom])) continue;
+    const gardes = champs[nom].map((x) => Boolean(x));
+    rangsGardes[nom] = gardes;
+    champs[nom] = champs[nom].filter((x, i) => gardes[i]);
+  }
   /* Texte parlé : mêmes noms de champs, mêmes bornes ; un nom de champ absent de `champs` est ignoré. */
   const parle = {};
   const sourceParle = t.parle && typeof t.parle === "object" && !Array.isArray(t.parle) ? t.parle : {};
   for (const nom of Object.keys(sourceParle)) {
     if (!IDLE_TEXTE_NOM_CHAMP_RE_V1.test(nom) || !(nom in champs)) continue;
     const v = sourceParle[nom];
-    if (Array.isArray(v)) parle[nom] = v.slice(0, IDLE_TEXTE_MAX_LISTE_V1).map((x) => nettoyerV1(x, IDLE_TEXTE_MAX_CHAMP_V1));
-    else if (typeof v === "string") parle[nom] = nettoyerV1(v, IDLE_TEXTE_MAX_CHAMP_V1);
+    if (Array.isArray(v)) {
+      const dits = v.slice(0, IDLE_TEXTE_MAX_LISTE_V1).map((x) => nettoyerV1(x, IDLE_TEXTE_MAX_CHAMP_V1));
+      const gardes = rangsGardes[nom];
+      parle[nom] = gardes && gardes.length === dits.length ? dits.filter((x, i) => gardes[i]) : dits;
+    } else if (typeof v === "string") parle[nom] = nettoyerV1(v, IDLE_TEXTE_MAX_CHAMP_V1);
   }
   if (boss && typeof parle.nom === "string") parle.nom = parle.nom.replace(/\s+/g, " ").trim().slice(0, IDLE_TEXTE_MAX_NOM_BOSS_V1);
   const voix = Array.from(new Set((Array.isArray(t.voix) ? t.voix : []).map((x) => String(x || "").trim()).filter((x) => IDLE_TEXTE_HASH_RE_V1.test(x)))).slice(0, 400);

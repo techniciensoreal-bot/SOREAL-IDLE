@@ -642,7 +642,7 @@ function uniteHtml_(c,i){
     r.cadres.forEach(function(x){if(x.champ===champ&&x.k===k)blocs=x.blocs;});
     return cadreHtml_(champ,k,l,blocs);
   }).join('');
-  var titreUnite=c.type==='liste'?esc_(c.label)+' — paragraphe '+(i+1):esc_(c.label);
+  var titreUnite=c.type==='liste'?esc_(c.label)+' — texte '+(i+1):esc_(c.label);
   var champOr=ligne
     ?'<input type="text" data-stx-affiche="'+esc_(champ)+'|'+i+'" value="'+esc_(aff)+'">'
     :'<textarea rows="'+(c.type==='liste'?4:6)+'" data-stx-affiche="'+esc_(champ)+'|'+i+'">'+esc_(aff)+'</textarea>';
@@ -650,9 +650,9 @@ function uniteHtml_(c,i){
     '<div class="stx-champ-titre">'+titreUnite+'</div>'+
     '<div class="stx-or"><p class="stx-etiq">'+(edition.def.titre===champ?'Titre tel que les joueurs le lisent':'Texte tel que les joueurs le lisent')+'</p>'+champOr+
       '<div class="stx-rang"><button type="button" class="stx-bor" data-stx-act="enregistrer">💾 Enregistrer</button>'+
-        (c.type==='liste'?'<button type="button" class="stx-bor stx-bor-danger" data-stx-act="unite-" data-c="'+esc_(champ)+'" data-u="'+i+'" title="Retirer ce paragraphe et ses personnages">🗑 Retirer ce paragraphe</button>':'')+
+        (c.type==='liste'?'<button type="button" class="stx-bor stx-bor-danger" data-stx-act="unite-" data-c="'+esc_(champ)+'" data-u="'+i+'" title="Retirer ce texte (cadre jaune) et ses personnages : les joueurs ne le verront plus et il ne sera plus lu">🗑 Retirer ce texte</button>':'')+
         '<span class="stx-info">Ne change jamais la voix : seuls les personnages ci-dessous parlent.</span></div></div>'+
-    '<div class="stx-sous-or"><p class="stx-etiq2">🗣 '+(edition.def.titre===champ?'Titre tel qu’il doit être prononcé':(c.type==='liste'?'Personnages de ce paragraphe — ils parlent à tour de rôle':'Personnages — ils parlent à tour de rôle, dans cet ordre'))+' <span class="stx-info2">— c’est ce que les joueurs entendent, quel que soit le texte doré</span></p>'+
+    '<div class="stx-sous-or"><p class="stx-etiq2">🗣 '+(edition.def.titre===champ?'Titre tel qu’il doit être prononcé':(c.type==='liste'?'Personnages de ce texte — ils parlent à tour de rôle':'Personnages — ils parlent à tour de rôle, dans cet ordre'))+' <span class="stx-info2">— c’est ce que les joueurs entendent, quel que soit le texte doré</span></p>'+
       '<div class="stx-persos">'+cartes+'<button type="button" class="stx-ajout" data-stx-act="cadre+" data-c="'+esc_(champ)+'" data-u="'+i+'" title="Ajouter un personnage">＋ Ajouter un personnage</button></div></div>'+
   '</section>';
 }
@@ -662,7 +662,7 @@ function cadresChampHtml_(champ){
   var n=Math.max(1,(edition.affiche[champ]||[]).length);
   var h='';
   for(var i=0;i<n;i+=1)h+=uniteHtml_(c,i);
-  if(c.type==='liste')h+='<button type="button" class="stx-ajout" data-stx-act="unite+" data-c="'+esc_(champ)+'">＋ Ajouter un paragraphe</button>';
+  if(c.type==='liste')h+='<button type="button" class="stx-ajout" data-stx-act="unite+" data-c="'+esc_(champ)+'">＋ Ajouter un texte</button>';
   return h;
 }
 /* Re-dessine tout le bloc d'un texte (les numéros des personnages changent quand on en ajoute ou retire un). */
@@ -1387,6 +1387,11 @@ function lancerGeneration_(o,aFaire,libelle){
   });
 }
 
+/* Texte d'un seul tenant -> blocs : un bloc par ligne non vide (c'est ainsi que les fenêtres du jeu découpent leur texte). */
+function blocsDepuisChaine_(t){
+  return String(t==null?'':t).split(/\n+/).map(function(x){return x.trim();}).filter(Boolean);
+}
+
 /* Ouvre l'éditeur d'un texte déclaré (popup, fenêtre explicative) ou d'un boss (voir editerBoss). */
 function ouvrir_(cle,def,surcharge,originaux){
   if(edition)fermer_();
@@ -1411,6 +1416,9 @@ function ouvrir_(cle,def,surcharge,originaux){
     var brutAff=courant[c.id];
     var possedeParle=Boolean(surcharge&&surcharge.parle&&surcharge.parle[c.id]!==undefined);
     if(c.type==='liste'){
+      /* Ancien texte enregistré en un seul bloc (chaîne) ou original en chaîne : une liste d'un bloc (ou d'un bloc par ligne quand le texte dit a autant de lignes). */
+      if(typeof brutAff==='string'){brutAff=blocsDepuisChaine_(brutAff);courant[c.id]=brutAff;}
+      if(typeof dit==='string'){dit=dit.trim()?(function(l){return l.length===brutAff.length?l:(brutAff.length<=1?[dit]:[]);})(blocsDepuisChaine_(dit)):[];}
       var listeA=(Array.isArray(brutAff)?brutAff:[]).map(function(x){return possedeParle?String(x||''):sansBalises_(x);});
       var listeD=Array.isArray(dit)?dit:[];
       var n=Math.max(listeA.length,listeD.length,1);

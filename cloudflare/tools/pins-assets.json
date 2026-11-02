@@ -148,8 +148,8 @@
   "sha": "51f6b543014f6a2cf72831d7cf07c634d57a7ee0"
  },
  "/modules/challenges-v1.js": {
-  "pin": 27,
-  "sha": "b37a2c1e29ed5519117ce3296ca26a6c17353b9a"
+  "pin": 28,
+  "sha": "a32f9913a0356af29303ef866ac6666a44694c53"
  },
  "/modules/chat-v1.js": {
   "pin": 18,
@@ -464,8 +464,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 140,
-  "sha": "d67f1da57aaec73eb7816c4fc3db14d982ecf1cd"
+  "pin": 141,
+  "sha": "65e4b399aed87481876387fca25e35e4de299382"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -616,8 +616,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 37,
-  "sha": "97429bd790fc8a39094e7a5228443c1df7f9f744"
+  "pin": 38,
+  "sha": "bda94bdca379c76b2ff25b62e37acff40914576c"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -676,8 +676,8 @@
   "sha": "aa10017306dcda28586132dea1015bbf36248812"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 13,
-  "sha": "8a0d42b187437f1b00f346b740096aac45822efe"
+  "pin": 14,
+  "sha": "2b971c93b687f7f311289115459b206a20cab289"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

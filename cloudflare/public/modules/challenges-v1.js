@@ -202,7 +202,14 @@ function enAnglaisTroll(texte){
   try{var tr=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;return tr&&typeof tr.traduire==='function'?tr.traduire(texte):texte;}catch(_e){return texte;}
 }
 /* Texte lu d'un troll : le message, une courte pause, puis la description de l'effet (le même texte pour la voix du joueur, l'éditeur et la génération). */
-function texteVoixTroll(message,effet){return String(message||'').trim()+PAUSE_TROLL+String(effet||'').trim();}
+/* Blocs (« textes jaunes ») d'un champ : une chaîne ou une liste ; les blocs vides n'existent pas. */
+function blocsTroll(v){return (Array.isArray(v)?v:[v]).map(function(x){return String(x==null?'':x).trim();}).filter(Boolean);}
+function texteVoixTroll(message,effet){
+  var m=blocsTroll(message),e=blocsTroll(effet);
+  /* Un message et un effet d'un bloc chacun : « message pause effet », comme avant. Plusieurs blocs : une pause entre chacun ; un bloc supprimé n'est plus lu. */
+  if(m.length<=1&&e.length<=1)return (m[0]||'')+PAUSE_TROLL+(e[0]||'');
+  return m.concat(e).join(PAUSE_TROLL);
+}
 var trollsDeclares=false;
 function declarerTrolls(){
   if(trollsDeclares)return;
@@ -214,7 +221,8 @@ function declarerTrolls(){
     T.declarer('troll:'+id,{
       groupe:'Trolls du Troll Challenge',
       libelle:t.titre,
-      champs:[{id:'message',label:'Message du popup',type:'texte'},{id:'effet',label:'Description de l’effet (2e ligne du popup)',type:'texte'}],
+      /* Chaque champ est une LISTE de textes (cadres jaunes) : l'administrateur en retire ou en ajoute (3 -> 1 ou 5), le popup montre exactement ceux enregistrés. */
+      champs:[{id:'message',label:'Message du popup',type:'liste'},{id:'effet',label:'Description de l’effet (2e ligne du popup)',type:'liste'}],
       original:function(){return {message:t.msg,effet:t.effet};},
       texteLu:function(v){return texteVoixTroll(v&&v.message,v&&v.effet);}
     });
@@ -234,12 +242,26 @@ function textesTroll(id,j){
   }
   function remplir(s){return x===null?s:String(s).replace(/\bX\b/,x);}
   function champ(nom,origine){
-    var s=sur&&typeof sur[nom]==='string'&&sur[nom].trim()?sur[nom]:null;
+    var brut=sur?sur[nom]:undefined;
+    /* Version de l'administrateur : une liste de blocs (ou une chaîne, anciens textes) ; une liste vide = tout supprimé, rien n'est affiché ni lu. */
+    var estListe=Array.isArray(brut);
+    var s=estListe?blocsTroll(brut):(typeof brut==='string'&&brut.trim()?[brut.trim()]:null);
     var p=null;
     try{p=T&&typeof T.parle==='function'?T.parle('troll:'+id,nom):null;}catch(_e){}
-    var affiche=s!==null?(T&&typeof T.sansBalises==='function'?T.sansBalises(s):s):origine;
-    var dit=(typeof p==='string'&&p.trim())?p:(s!==null?s:enAnglaisTroll(origine));
-    return {affiche:remplir(affiche),dit:remplir(dit)};
+    var affiche,dit;
+    if(s!==null){
+      affiche=s.map(function(b){return T&&typeof T.sansBalises==='function'?T.sansBalises(b):b;}).filter(function(b){return String(b).trim();});
+      /* Texte dit : un par bloc de la liste (même longueur que la liste enregistrée) ; sinon la chaîne dite ; sinon le texte enregistré lui-même. */
+      var pl=Array.isArray(p)?blocsTroll(p):null;
+      if(pl&&pl.length===s.length)dit=pl;
+      else if(typeof p==='string'&&p.trim())dit=[p];
+      else dit=s;
+    }else{
+      affiche=[origine];
+      dit=(typeof p==='string'&&p.trim())?[p]:[enAnglaisTroll(origine)];
+    }
+    affiche=affiche.map(remplir);dit=dit.map(remplir);
+    return {affiche:affiche.join('\n'),dit:dit.length>1?dit.join(PAUSE_TROLL):(dit[0]||''),blocs:affiche,blocsDits:dit};
   }
   return {message:champ('message',t.msg),effet:champ('effet',t.effet)};
 }
@@ -247,7 +269,7 @@ function lireTroll(tx){
   var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
   if(!tts||typeof tts.readText!=='function'||!(typeof tts.enabled==='function'&&tts.enabled()))return;
   try{
-    var brut=texteVoixTroll(tx.message.dit,tx.effet.dit);
+    var brut=texteVoixTroll(tx.message.blocsDits,tx.effet.blocsDits);
     tts.readText(typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut,null);
   }catch(_e){}
 }
@@ -733,7 +755,7 @@ function jouerTroll(troll,j){
   if(!t)return;
   var tx=textesTroll(troll.id,j);   /* texte modifié par l'administrateur (affiché et dit) sinon l'original */
   fermerTrollsVisuels();
-  annonce('😈 '+t.titre,[tx.message.affiche,tx.effet.affiche],t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);
+  annonce('😈 '+t.titre,tx.message.blocs.concat(tx.effet.blocs),t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);
   lireTroll(tx);   /* le message reste 12 s (Norman, 2026-11-02 : « le message doit rester plus longtemps ») */
   if(troll.id==='boxes')jouerBoites();
   if(troll.id==='kitty')jouerChaton();
