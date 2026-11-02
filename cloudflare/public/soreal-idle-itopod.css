@@ -2096,4 +2096,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:761px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.soreal-idle-money-scene-v206{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.rb-roue{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
+  /* les deux colonnes ne collent plus le cadre d'au-dessus : même écart (14 px) que celui qui sépare les autres cadres de la page (Norman, 2026-11-02 : « ils ne doivent pas être superposés ») */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1{margin-top:14px!important}
 }
