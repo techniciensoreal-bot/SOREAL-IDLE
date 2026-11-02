@@ -812,12 +812,12 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 79,
-  "sha": "1d497b4b28d40a4a0c20a02ec33cebf46459d99f"
+  "pin": 80,
+  "sha": "203ee493580afa3b5992794acfe1199fee01b159"
  },
  "/modules/yggdrasil-sons-v1.js": {
-  "pin": 18,
-  "sha": "8295fab682dedb0e55ed5b77c8b1a4fe7cdddd08"
+  "pin": 19,
+  "sha": "099981ef6a1d470d18b698547fcdb0f8c5e5c8e1"
  },
  "/modules/zones-personnalite-v1.js": {
   "pin": 2,

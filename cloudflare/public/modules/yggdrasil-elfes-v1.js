@@ -116,28 +116,21 @@
       '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
       /* Décors d'arbres (Norman, 2026-10-29 : « adapte les cadres maintenant que les images ont changé ») : images CARRÉES (1024 x 1024), montrées en entier dans un cadre carré, sur toute la largeur de la carte (le cadre 4/5 en coupait 20 % sur les côtés, feuillage compris). */
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
-      /* Porte en image, en DEUX VOLETS (Norman, 2026-11-02 : « fais s'ouvrir les portes comme les anciennes, en 2 volets » ; « fais-les couvrir tout le noir, si les bords ou les enjolivures dépassent du cadre, c'est rien ») : elle déborde de 6 px tout autour du cadre (qui ne coupe plus) ; chaque volet montre une moitié de l'image et pivote sur son bord extérieur. Deux images clés (une courbe unique). */
+      /* Porte en image, qui se RELÈVE PAR LE HAUT comme la herse d'un château fort (Norman, 2026-11-02 : « les portes de Ygg qui s'ouvrent par le haut comme un château fort ; un son lourd, comme si les portes étaient vraiment lourdes ») : la boîte de la porte déborde de 6,25 % autour du cadre et COUPE ce qui dépasse (la herse disparaît par le haut, derrière le bord) ; la porte reste une image entière (deux moitiés collées, même mouvement). Elle tressaute d'abord (verrou, poids), puis monte lentement ; à la fermeture le même mouvement à l'envers : elle tombe de plus en plus vite et claque. Une lueur dorée passe sous elle. */
       '.ygg-vitre.ygg-decor{overflow:visible;border:0;}',
-      '.ygg-porte{position:absolute;inset:-6.25%;z-index:7;display:flex;pointer-events:none;perspective:300px;background:transparent;}',
-      '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;overflow:hidden;backface-visibility:hidden;}',
-      '.ygg-porte-g{transform-origin:0 50%;}.ygg-porte-d{transform-origin:100% 50%;}',
+      '.ygg-porte{position:absolute;inset:-6.25%;z-index:7;display:flex;overflow:hidden;pointer-events:none;background:transparent;}',
+      '.ygg-porte-g,.ygg-porte-d{position:relative;z-index:1;flex:1 1 50%;overflow:hidden;}',
       '.ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;max-width:none;object-fit:cover;}',
       '.ygg-porte-g img{left:0;}.ygg-porte-d img{right:0;}',
-      '.ygg-porte-lueur{position:absolute;inset:0;z-index:2;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(255,226,140,.95),transparent 70%);}',
-      '.ygg-porte.ouvre,.ygg-porte.referme{will-change:opacity;}.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d,.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{will-change:transform;}',
-      '@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}',
-      '@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}',
-      '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
-      '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
-      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;}',
-      '.ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
-      '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
-      '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
-      /* Fermeture : exactement les mêmes images que l'ouverture, jouées à l'envers. */
-      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;}',
-      '.ygg-porte.referme .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
-      '.ygg-porte.referme .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
-      '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both reverse;}',
+      '.ygg-porte-lueur{position:absolute;inset:0;z-index:0;opacity:0;background:linear-gradient(0deg,rgba(255,226,140,.9),transparent 55%);}',
+      '.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d,.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{will-change:transform;}',
+      '@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}',
+      '@keyframes yggPorteLueur{0%,25%{opacity:0}60%{opacity:1}100%{opacity:0}}',
+      '.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d{animation:yggHerse calc(2.6s*var(--vit,1)) cubic-bezier(.45,.02,.2,1) both;}',
+      '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(2.6s*var(--vit,1)) ease-out both;}',
+      /* Fermeture : exactement les mêmes images que l'ouverture, jouées à l'envers (elle retombe en accélérant, puis claque). */
+      '.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{animation:yggHerse calc(2.2s*var(--vit,1)) cubic-bezier(.45,.02,.2,1) both reverse;}',
+      '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(2.2s*var(--vit,1)) ease-out both reverse;}',
       '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
@@ -365,7 +358,7 @@
   /* Décor du titre : une touffe de feuilles (dessin SVG fixe, utilisé aux deux bouts) et une vigne. */
   var FEUILLAGE_='<svg viewBox="0 0 64 56" focusable="false" aria-hidden="true"><g fill="#3f8a3a" stroke="#1b3512" stroke-width="1.5" stroke-linejoin="round"><path d="M30 28C26 6 48 0 60 8 58 24 44 32 30 28z"/><path d="M30 28C22 40 30 54 50 52 54 38 44 28 30 28z" fill="#357a32"/><path d="M30 28C10 30 2 16 6 6 22 4 32 14 30 28z" fill="#55a449"/><path d="M30 28C12 32 4 46 12 54 26 54 34 42 30 28z" fill="#2f6e2e"/></g><g stroke="#b6e79a" stroke-width="1" fill="none" opacity=".75"><path d="M31 27 49 11M31 29 47 45M29 27 11 13M29 30 13 47"/></g><circle cx="30" cy="28" r="3.4" fill="#f0c94c" stroke="#6a4a10" stroke-width="1.2"/></svg>';
   var VIGNE_='<svg viewBox="0 0 200 17" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path d="M0 3C22 14 38 1 62 8S104 15 128 6 176 2 200 9" fill="none" stroke="#4d9b3b" stroke-width="2.4" stroke-linecap="round"/><g fill="#5db04a" stroke="#1b3512" stroke-width="1"><ellipse cx="22" cy="12" rx="6" ry="3" transform="rotate(35 22 12)"/><ellipse cx="62" cy="13" rx="6" ry="3" transform="rotate(-30 62 13)"/><ellipse cx="104" cy="14" rx="6" ry="3" transform="rotate(40 104 14)"/><ellipse cx="148" cy="9" rx="6" ry="3" transform="rotate(-35 148 9)"/><ellipse cx="184" cy="12" rx="6" ry="3" transform="rotate(30 184 12)"/></g><g fill="#f4e27a" stroke="#7a5a10" stroke-width=".8"><circle cx="42" cy="6" r="2.2"/><circle cx="126" cy="7" r="2.2"/></g></svg>';
-  var DUREE_OUVERTURE_=1500;
+  var DUREE_OUVERTURE_=2600;
   /*
    * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle s'ouvre EN DEUX VOLETS, comme les anciennes
    * portes (Norman, 2026-11-02) : chaque moitié de l'image pivote sur son bord extérieur, une lueur passe, le tout se fond ; à la fermeture c'est l'inverse, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
@@ -415,7 +408,7 @@
     try{localStorage.setItem(CLE_COQ_,JSON.stringify({r:r}));}catch(_e){}
     var S=window.__SOREAL_IDLE_YGG_SONS_V1__;
     if(!S||typeof S.coq!=='function')return false;
-    return Boolean(S.coq(1500*(Number(vit)>0?Number(vit):1)));
+    return Boolean(S.coq(2600*(Number(vit)>0?Number(vit):1)));
   }
   function noterPorteVue_(id,vue){
     var o=portesVues_(),i=o.v.indexOf(id);

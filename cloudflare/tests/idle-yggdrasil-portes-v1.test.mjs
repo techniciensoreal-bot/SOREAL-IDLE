@@ -88,7 +88,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", true).includes("ygg-porte ouvre"), "la porte reste en train de s'ouvrir pendant l'animation (redessin sans la relancer)");
   assert.equal(m.api.sons.length, 1, "pas de second son pendant un redessin");
-  m.avancer(900);
+  m.avancer(2000);
   assert.equal(m.api.porteDe_("gold", true), "", "ouverture terminée : plus de porte");
   assert.equal(m.api.sons.length, 1);
   const h2 = m.api.porteDe_("gold", false);
@@ -97,16 +97,16 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
   assert.equal(m.api.sons.length, 2);
-  m.avancer(900);
+  m.avancer(2000);
   assert.ok(ferme(m.api.porteDe_("gold", false)), "fermeture terminée : porte close fixe");
   const m5 = monde();
   assert.ok(ferme(m5.api.porteDe_("luck", false)) && m5.api.sons.length === 0, "pas de fermeture sans ouverture vue");
 }
 // 4. S'ouvre EN DEUX VOLETS comme les anciennes portes (Norman, 2026-11-02) : chaque moitié pivote sur son bord extérieur, une lueur passe, le tout se fond ; la fermeture est la même animation à l'envers ; elle déborde du cadre (rien de noir) ; mouvement réduit : pas d'animation.
 {
-  assert.ok(src.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}") && src.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}"), "deux volets qui pivotent");
-  assert.ok(!src.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}25%") && !src.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}25%"), "aucune image intermédiaire (pas d'à-coup)");
-  assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG") && src.includes(".ygg-porte.referme .ygg-porte-g{animation:yggPorteG") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
+  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("overflow:hidden;pointer-events:none;background:transparent;}"), "la porte se relève par le haut comme une herse, coupée par le bord de la boîte (rien ne dépasse au-dessus)");
+  assert.ok(!src.includes("rotateY(-104deg)") && !src.includes("rotateY(104deg)"), "plus de volets qui pivotent");
+  assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d{animation:yggHerse") && src.includes(".ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{animation:yggHerse") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
   const m = monde(); const h = m.api.porte_("gold", false);
   assert.ok(h.includes('class="ygg-porte-g"') && h.includes('class="ygg-porte-d"') && h.split("<img ").length === 3, "deux volets, chacun avec l'image de la porte");
   assert.ok(src.includes(".ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;") && src.includes(".ygg-porte-d img{right:0;}"), "chaque volet montre sa moitié de l'image");

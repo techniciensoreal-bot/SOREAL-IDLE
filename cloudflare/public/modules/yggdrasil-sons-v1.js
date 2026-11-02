@@ -125,32 +125,45 @@
      * vit = facteur de durée (0,4 à 3).
      */
     herse:function(c,out,t,a,vit){
-      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.03;
-      souffle(c,out,t,1.5*k,'lowpass',170,105,1.1,0.7,a);
-      souffle(c,out,t,1.5*k,'bandpass',280,190,3,0.32,a);
-      for(i=0;i<20;i++){
-        souffle(c,out,t+tt*k,0.05*k,'bandpass',2300+al()*2600,3200,7,0.2+al()*0.12,a);
-        note(c,out,t+tt*k,1500+al()*900,0.045*k,0.028,'square');
-        tt+=0.085-i*0.002;
+      /* LOURDE (Norman, 2026-11-02 : « un son lourd comme si les portes étaient vraiment lourdes ») : 2,6 s comme l'animation. Un déclic de verrou qui lâche, le treuil qui peine (grondement sourd et large, jamais tonal qui vibre), de GROS maillons lents qui claquent (fer, bas médium), des frottements de pierre dans les rainures, et à la fin une butée énorme : choc sourd + fer qui résonne + poussière. */
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.28;
+      souffle(c,out,t,0.1*k,'lowpass',420,160,1,0.7,a);glisse(c,out,t,150,70,0.16*k,0.55,'sine');                    /* le verrou lâche : clonk sourd */
+      souffle(c,out,t+0.12*k,2.35*k,'lowpass',150,85,1.1,1.0,a);                                                     /* le treuil peine : grondement de fond, fort */
+      souffle(c,out,t+0.12*k,2.35*k,'bandpass',240,150,2.5,0.5,a);
+      souffle(c,out,t+0.3*k,2.0*k,'bandpass',480,330,1.6,0.16,a);                                                    /* pierre qui frotte dans les rainures */
+      for(i=0;i<12;i++){                                                                                             /* gros maillons : lents, graves, appuyés */
+        souffle(c,out,t+tt*k,0.09*k,'bandpass',1000+al()*900,1400,4.5,0.34+al()*0.16,a);
+        note(c,out,t+tt*k,780+al()*420,0.07*k,0.05,'square');
+        glisse(c,out,t+tt*k,200,110,0.07*k,0.14,'sine');
+        tt+=0.19-i*0.0045;
       }
-      for(i=0;i<4;i++)souffle(c,out,t+(0.12+i*0.34)*k,0.2*k,'bandpass',620+al()*350,520,4,0.12,a);
-      glisse(c,out,t+1.42*k,130,62,0.22*k,0.45,'sine');
-      souffle(c,out,t+1.42*k,0.1*k,'lowpass',520,200,1,0.4,a);
-      note(c,out,t+1.43*k,G.sol5*0.75,0.45*k,0.07,'triangle',2.76);
+      var fin=2.42;                                                                                                  /* butée en haut : énorme */
+      glisse(c,out,t+fin*k,120,38,0.5*k,0.85,'sine');
+      souffle(c,out,t+fin*k,0.35*k,'lowpass',620,130,1,0.85,a);
+      souffle(c,out,t+fin*k,0.08*k,'bandpass',1500,900,3,0.55,a);
+      note(c,out,t+(fin+0.01)*k,G.sol5*0.5,0.9*k,0.07,'triangle',2.76);
+      note(c,out,t+(fin+0.02)*k,G.do5*0.75,1.0*k,0.045,'triangle',2.76);
+      souffle(c,out,t+(fin+0.08)*k,0.7*k,'highpass',2600,4200,0.7,0.05,a);
     },
     herseFerme:function(c,out,t,a,vit){
-      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.02;
-      souffle(c,out,t,1.15*k,'lowpass',110,200,1.1,0.55,a);
+      /* La herse retombe, lourde (2,2 s comme l'animation) : la chaîne glisse et accélère, la herse gronde dans ses rainures, puis CLAQUE au sol : boum profond, fer qui résonne, un second rebond plus faible, poussière. */
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.05;
+      souffle(c,out,t,2.05*k,'lowpass',90,230,1.1,0.8,a);
+      souffle(c,out,t+0.1*k,1.95*k,'bandpass',200,420,2.2,0.28,a);
       for(i=0;i<14;i++){
-        souffle(c,out,t+tt*k,0.05*k,'bandpass',2000+al()*2400,2800,7,0.17+al()*0.1,a);
-        note(c,out,t+tt*k,1300+al()*800,0.04*k,0.022,'square');
-        tt+=0.07;
+        souffle(c,out,t+tt*k,0.07*k,'bandpass',1100+al()*900,1500,4.5,0.26+al()*0.14,a);
+        note(c,out,t+tt*k,820+al()*380,0.06*k,0.04,'square');
+        tt+=Math.max(0.07,0.2-i*0.011);
       }
-      glisse(c,out,t+1.0*k,120,36,0.45*k,0.75,'sine');
-      souffle(c,out,t+1.0*k,0.26*k,'lowpass',420,110,1,0.55,a);
-      note(c,out,t+1.01*k,G.sol5*0.5,0.7*k,0.08,'triangle',2.76);
-      note(c,out,t+1.03*k,G.do5*0.75,0.9*k,0.05,'triangle',2.76);
-      souffle(c,out,t+1.05*k,0.55*k,'highpass',3000,4600,0.7,0.05,a);
+      var im=2.12;
+      glisse(c,out,t+im*k,105,26,0.85*k,1.0,'sine');
+      souffle(c,out,t+im*k,0.5*k,'lowpass',520,100,1,1.0,a);
+      souffle(c,out,t+im*k,0.1*k,'bandpass',1300,800,3,0.6,a);
+      note(c,out,t+(im+0.01)*k,G.sol5*0.5,1.0*k,0.09,'triangle',2.76);
+      note(c,out,t+(im+0.02)*k,G.do5*0.75,1.2*k,0.06,'triangle',2.76);
+      glisse(c,out,t+(im+0.22)*k,95,34,0.4*k,0.4,'sine');                                                            /* rebond */
+      souffle(c,out,t+(im+0.22)*k,0.2*k,'lowpass',380,110,1,0.3,a);
+      souffle(c,out,t+(im+0.1)*k,0.9*k,'highpass',2800,4600,0.7,0.06,a);
     },
     porte:function(c,out,t,a,vit){
       var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
