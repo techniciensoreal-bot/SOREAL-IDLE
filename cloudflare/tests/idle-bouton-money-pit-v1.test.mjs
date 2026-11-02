@@ -16,10 +16,10 @@ assert.match(bloc, /\.nb-g\{background:url\("data:image\/svg\+xml,[^"]+"\) cente
 assert.match(bloc, /\.nb-d\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/contain no-repeat;aspect-ratio:1\/1;width:auto;right:13\.5cqw\}/, "roue à droite");
 
 // animations : rien au repos ; pièce quand le Money Pit est disponible (vert), roue quand elle est prête (jaune) ; seulement des transformations
-assert.match(bloc, /\.soreal-idle-nav-money-green-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:moneyPitPieceV1 [\d.]+s ease-in-out infinite\}/, "la pièce se retourne quand le pit est dispo");
-assert.match(bloc, /\.soreal-idle-nav-money-yellow-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{animation:moneyPitRoueV1 [\d.]+s linear infinite\}/, "la roue tourne quand elle est prête");
+assert.match(bloc, /\.soreal-idle-nav-money-green-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:nbV1_piecepit [\d.]+s ease-in-out infinite\}/, "la pièce se retourne quand le pit est dispo");
+assert.match(bloc, /\.soreal-idle-nav-money-yellow-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{animation:nbV1_rouepit [\d.]+s linear infinite\}/, "la roue tourne quand elle est prête");
 assert.match(bloc, /\.nb-g,[^{]*\.nb-d\{animation:none\}/, "aucune animation au repos");
-const kPiece = /@keyframes moneyPitPieceV1\{([^@]*?)\}\}/.exec(bloc), kRoue = /@keyframes moneyPitRoueV1\{([^@]*?)\}\}/.exec(bloc);
+const kPiece = /@keyframes nbV1_piecepit\{([^@]*?)\}\}/.exec(bloc), kRoue = /@keyframes nbV1_rouepit\{([^@]*?)\}\}/.exec(bloc);
 assert.ok(kPiece && kRoue, "images clés présentes");
 assert.ok(/^0%,100%\{transform:scaleX\(1\)/.test(kPiece[1]), "pièce : boucle parfaite (0 % = 100 %)");
 assert.ok(!/filter|box-shadow|opacity/.test(kPiece[1] + kRoue[1]), "seulement des transformations");

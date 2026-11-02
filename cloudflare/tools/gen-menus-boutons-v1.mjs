@@ -379,11 +379,11 @@ function rouePit() {
   out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto;right:13.5cqw}`);
   /* animations : rien par défaut (les anciennes animations du bouton sont coupées), la pièce se retourne quand le Money Pit est disponible (vert), la roue tourne quand elle est prête (jaune) */
   out.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);
-  out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:moneyPitPieceV1 1.5s ease-in-out infinite}`);
-  out.push(`${M}.soreal-idle-nav-money-yellow-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:moneyPitRoueV1 2.6s linear infinite}`);
-  out.push(`@keyframes moneyPitPieceV1{0%,100%{transform:scaleX(1) translateY(0)}25%{transform:scaleX(.55) translateY(-6%)}50%{transform:scaleX(.08) translateY(-9%)}75%{transform:scaleX(.55) translateY(-6%)}}`);
-  out.push(`@keyframes moneyPitRoueV1{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
-  REDUIT_EXTRA.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none!important}`);
+  out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_piecepit 1.5s ease-in-out infinite}`);
+  out.push(`${M}.soreal-idle-nav-money-yellow-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_rouepit 2.6s linear infinite}`);
+  out.push(`@keyframes nbV1_piecepit{0%,100%{transform:scaleX(1) translateY(0)}50%{transform:scaleX(.08) translateY(-9%)}}`);
+  out.push(`@keyframes nbV1_rouepit{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
+  REDUIT_EXTRA.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);
 }
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n${REDUIT_EXTRA.map((x) => "  " + x + "\n").join("")}}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));

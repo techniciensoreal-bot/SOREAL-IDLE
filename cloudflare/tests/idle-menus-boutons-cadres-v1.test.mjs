@@ -94,7 +94,8 @@ for (const x of sansCom.replace(/@media[^{]*\{/g, "").replace(/@keyframes[^{]*\{
   const sel = x[2].trim();
   if (!sel) continue;
   assert.ok(sel.split(",").every((s) => s.trim().startsWith(P)), "sélecteur hors barre : " + sel.slice(0, 90));
-  if (/animation:(?!none)/.test(x[3])) assert.ok(/\.travail-v1\b/.test(sel) && !/\.active\b/.test(sel), "animation hors menu qui travaille : " + sel.slice(0, 200));
+  /* exception décidée par Norman (2026-11-02) : sur le bouton Money Pit, la pièce se retourne quand le pit est disponible (classe verte) et la roue tourne quand elle est prête (classe jaune) */
+  if (/animation:(?!none)/.test(x[3])) assert.ok((/\.travail-v1\b/.test(sel) || /moneyPit"\]\.soreal-idle-nav-money-(green|yellow)-v1 \.soreal-idle-nav-deco-v1 \.nb-[gd]$/.test(sel)) && !/\.active\b/.test(sel), "animation hors menu qui travaille : " + sel.slice(0, 200));
 }
 
 /* boucle parfaite : chaque mouvement revient à son point de départ (ou tourne d'un tour complet) */
