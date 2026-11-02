@@ -113,7 +113,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
   assert.ok(led.includes("function camionRows(bras,phase,fille)") && led.includes("put(1,29,'YYY')") && led.includes("put(2,29,'SSS')") && led.includes("put(4,28,'PPPPP')"), "fourgon de profil et fille dans la benne (cheveux jaunes, robe rose)");
-  assert.ok(led.includes("function geoCourse(xe)") && led.includes("tx:sxL+Math.round(3*es)-gap-tw"), "le fourgon roule devant Leatherface, toujours dans l'écran");
+  assert.ok(led.includes("function geoCourse(xe)") && led.includes("var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));"), "la fille est au bout de la barre de vie, le fourgon roule devant, Leatherface derrière : tout suit la barre (Norman, 2026-11-02)");
   assert.ok(led.includes("if(fin){") && led.includes("var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}") && led.includes("G.tx-Math.round(uf*uf*40+uf*10)") && led.includes("}else danseFinale(t,fl,xd,uf-TC);"), "victoire : le fourgon sort de l'écran et Leatherface fait sa danse là où il s'est arrêté");
   assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&combatAnim==='sweep'){p.anim='sweep';p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
   assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep';") && led.includes("dur:function(p){return p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");

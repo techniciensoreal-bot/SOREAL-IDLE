@@ -386,7 +386,7 @@ var HEROS_TRONCO=(function(){
    Le personnage ressemble à Leatherface : cheveux noirs bouclés, masque pâle aux orbites noires et à la bouche ouverte, veste sombre ouverte, chemise et tablier crème, cravate noire. Les trois poses des photos s'enchaînent en boucle : (1) face, tronçonneuse brandie à deux mains au-dessus de la tête ;
    (2) de dos, en silhouette, tronçonneuse haute ; (3) le grand coup de côté (un bras tendu, la lame vers le bas, la veste qui s'envole), d'abord vers la gauche puis vers la droite. Fond : ciel de coucher de soleil, soleil bas à l'horizon, silhouette noire par-dessus. */
 var DANSE_L=26,DANSE_H=24;
-var DANSE_COUL={J:[BLA,95],N:[BLA,70],K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
+var DANSE_COUL={J:[AMB,1],N:[AMB,1],K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
 function posesDanse(){
   function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
   function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
@@ -494,13 +494,13 @@ function dessinerCoul(rows,coul,sx,sy,e){
   var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
   for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=coul[c];if(q)px(sx+i,sy+j,q[0],q[1]);}}
 }
-/* géométrie de la poursuite à une position donnée du bout de la barre de vie : Leatherface le suit, le fourgon roule devant (à gauche) ; tous deux restent dans l'écran (le fourgon n'en sort qu'à la fuite) */
+/* géométrie de la poursuite à une position donnée du bout de la barre de vie xe (Norman, 2026-11-02 : « le fourgon ne doit pas s'arrêter, il continue de suivre la barre de vie ; Leatherface est derrière ; la barre de vie montre la position de la fille dans le fourgon ») :
+   la FILLE (colonne 30 du fourgon) est exactement au bout de la barre ; le fourgon roule devant, Leatherface court derrière lui (à droite). Quand la vie baisse, tout avance vers la gauche et le fourgon finit par sortir de l'écran avec la barre. */
 function geoCourse(xe){
   var W=P.W,H=P.H,fl=H-2,es=echelleDanse(),ec=es*1.6,tw=Math.round(CAMION_L*ec),th=Math.round(CAMION_H*ec),gap=Math.max(5,Math.round(8*es));
-  var xmin=tw+gap-Math.round(3*es),sxL=Math.max(xe-Math.round(4*es),xmin);
-  sxL=Math.min(sxL,W-Math.round(26*es));
+  var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));
   var dhs=Math.round(DANSE_H*es);
-  return {fl:fl,es:es,ec:ec,tw:tw,th:th,gap:gap,xmin:xmin,sxL:sxL,tx:sxL+Math.round(3*es)-gap-tw,sy:fl-2-(dhs-1),syT:fl-2-(th-1)};
+  return {fl:fl,es:es,ec:ec,tw:tw,th:th,gap:gap,sxL:sxL,tx:tx,sy:fl-2-(dhs-1),syT:fl-2-(th-1)};
 }
 
 function cielCouchant(fl,xc,lev,t){
