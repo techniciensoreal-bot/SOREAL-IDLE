@@ -220,3 +220,11 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   assert.ok(lire("cloudflare/src/idle-runtime-aventure.js").includes("plafondHorsLigneSorealIdle_(stats.metaNgu)"), "progression d'aventure : plafond du défi");
   console.log("idle-troll-challenge-deroulement-v1 (entraînement de base hors ligne) : OK");
 }
+
+// Norman (2026-11-02) : « les chats passent dans le mauvais sens par rapport à l'image » : les images regardent vers la GAUCHE, donc le chaton géant traverse de droite à gauche
+{
+  const fs = await import("node:fs");
+  const src = fs.readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(src.includes("@keyframes sorealChatGrosV1{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}"), "chaton : de droite à gauche (il regarde à gauche)");
+  console.log("idle-troll-challenge-deroulement-v1 (sens du chaton) : OK");
+}

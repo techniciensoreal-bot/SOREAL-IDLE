@@ -501,7 +501,7 @@ function styleTroll(){
   var st=document.createElement('style');
   st.id='sorealDefiStyleV1';
   st.textContent='@keyframes sorealChatonV1{from{transform:translateX(-110vw)}to{transform:translateX(110vw)}}'+
-    '@keyframes sorealChatGrosV1{from{transform:translateX(-100%)}to{transform:translateX(100vw)}}'+
+    '@keyframes sorealChatGrosV1{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}'+
     '#sorealDefiChatonV1.gros{position:fixed;inset:0;width:auto;height:auto;z-index:99990;pointer-events:auto;overflow:hidden;cursor:not-allowed;background:transparent}'+
     '#sorealDefiChatonV1.gros img{position:absolute;top:-5vh;left:0;height:110vh;width:auto;max-width:none;user-select:none;animation:sorealChatGrosV1 14s linear forwards}'+
     '#sorealDefiChatonV1{position:fixed;left:0;top:18vh;width:100vw;height:64vh;z-index:99990;pointer-events:none;overflow:hidden}'+
