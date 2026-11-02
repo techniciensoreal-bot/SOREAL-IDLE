@@ -431,6 +431,8 @@ export function reclaimAllocatedResource(state,resource,context={}){
     released+=amount;
     s.allocation[resource]=0;
     if(def.id==="advancedTraining"&&resource==="energy")for(const t of Object.values(s.data?.tracks||{}))t.energy=0;
+    /* Augmentations : l'énergie est posée PAR PAIRE (energy / upgradeEnergy), allocation.energy n'en est que la somme, recalculée à chaque tick : sans ceci la touche R laissait toute l'énergie des Augmentations en place (Norman, 2026-11-02). */
+    if(def.id==="augmentations"&&resource==="energy")for(const p of Object.values(s.data?.pairs||{})){p.energy=0;p.upgradeEnergy=0;}
     if(def.id==="ngu"){clearNguAllocationsV1(s,resource);syncNguAllocationTotalsV1(s);}
     if(def.id==="wishes")clearWishSlotAllocationsV1(s,resource);
     if(def.id==="bloodMagic"&&resource==="magic")for(const r of Object.values(s.data?.rituals||{}))r.magic=0;

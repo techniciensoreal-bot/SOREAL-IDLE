@@ -24,7 +24,7 @@ import { advanceIdleQuestingV1 } from "./idle-questing-v1.js";
 import { tickSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
 import { idleAchievementsEvaluateV1 } from "./idle-achievements-v1.js";
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
-import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
+import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
 import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
@@ -1145,7 +1145,7 @@ function clearActiveDiggersV1(state) {
   if (d) for (const x of Object.values(d)) x.active = false;
 }
 
-function applyTrollEffectV1(state, id) {
+export function applyTrollEffectV1(state, id) {
   if (id === "augments") {
     for (const pair of Object.values(state.systems.augmentations?.data?.pairs || {})) {
       pair.level = Math.floor(Math.max(0, num(pair.level, 0)) / 2);
@@ -1162,6 +1162,8 @@ function applyTrollEffectV1(state, id) {
   } else if (id === "gold") {
     state.currencies.gold = 0;
   } else if (id === "energy" || id === "magic") {
+    /* « Removes all energy / magic » : TOUT, y compris ce qui est déjà alloué (Norman, 2026-11-02 : « il retire aussi les ressources déjà allouées, comme quand on appuie sur R ») : les allocations sont d'abord reprises (même calcul que la touche R), puis la réserve est vidée. */
+    try { reclaimAllocatedResource(state, id); } catch (_e) { /* magie pas encore débloquée : rien d'alloué */ }
     const r = state.resources[id];
     if (r) { r.current = 0; r.fillProgress = 0; }
   } else if (id === "wandoos") {
