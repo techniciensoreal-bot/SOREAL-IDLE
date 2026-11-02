@@ -28,6 +28,8 @@ function depart(termines = 0) {
   for (const slot of ["head", "chest", "legs", "boots", "weapon", "necklace", "meat"]) s.adventure.itemList["grb:" + slot] = { seen: true };
   s.challenge.bestMs = { basic: 1000 };
   s.challenge.active = "troll";
+  /* les trolls ne tombent que sur des systèmes possédés (anti-spoil) : tout est débloqué pour viser chaque troll */
+  for (const id of ["augmentations", "bloodMagic", "timeMachine", "wandoos", "ngu", "beards"]) if (s.systems[id]) s.systems[id].unlocked = true;
   s.challenge.startedAt = T0;
   s.challenge.completions = Object.assign({}, s.challenge.completions, { troll: termines });
   s.runStartedAt = T0;
@@ -266,4 +268,19 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   D.verifier({ systemes: { challenge: { active: "", troll: null }, challengeDefinitions: [] } });
   assert.ok(!("soreal_idle_troll_boites_v1" in stock), "défi terminé : rien n'est rejoué");
   console.log("idle-troll-challenge-deroulement-v1 (popups mémorisés) : OK");
+}
+
+// Norman (2026-11-02) : « un troll pour les barbes alors que je ne les ai pas encore » : anti-spoil (règle n°2), un troll ne tombe que sur un système déjà débloqué
+{
+  const { trollPossibleV1 } = await import("../src/idle-ngu-systemes.js");
+  const e = depart();
+  for (const id of ["augmentations", "bloodMagic", "timeMachine", "wandoos", "ngu", "beards"]) e.systems[id].unlocked = false;
+  for (const id of ["augments", "blood", "magic", "timeMachine", "wandoos", "wandoosOff", "ngu", "beards"]) assert.equal(trollPossibleV1(e, id), false, id + " : système verrouillé, pas de troll");
+  for (const id of ["gold", "boxes", "energy", "kitty", "menu", "ruin", "bossDivider"]) assert.equal(trollPossibleV1(e, id), true, id + " : sans système, toujours possible");
+  e.systems.beards.unlocked = true;
+  assert.equal(trollPossibleV1(e, "beards"), true);
+  // le tirage du moteur ne garde que les trolls possibles (la réserve filtrée n'est jamais vide)
+  const src = (await import("node:fs")).readFileSync("cloudflare/src/idle-ngu-systemes.js", "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(src.includes("const possibles = complet.filter((x) => trollPossibleV1(state, x));") && src.includes("const pool = possibles.length ? possibles : complet;"), "tirage limité aux systèmes possédés");
+  console.log("idle-troll-challenge-deroulement-v1 (anti-spoil des trolls) : OK");
 }

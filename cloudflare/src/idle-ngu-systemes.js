@@ -1120,6 +1120,16 @@ const IDLE_TROLL_BIG_V1 = Object.freeze(["ngu", "beards", "menu", "ruin", "wando
 /* « All small trolls except kitty and boxes » (gros troll « I basically ruined everything just now »). */
 const IDLE_TROLL_RUIN_V1 = Object.freeze(["augments", "blood", "timeMachine", "gold", "energy", "magic", "wandoos"]);
 
+/*
+ * Anti-spoil (règle n°2 ; Norman, 2026-11-02 : « un troll pour les barbes alors que je ne les ai pas encore ») : un troll ne tombe que sur un système que le joueur POSSÈDE déjà (son message, son nom et son effet ne révèlent jamais un système verrouillé).
+ * Trolls sans système (or, énergie, boîtes, chaton, menus, multiplicateur de boss, « tout ruiner ») : toujours possibles.
+ */
+const IDLE_TROLL_SYSTEME_V1 = Object.freeze({ augments: "augmentations", blood: "bloodMagic", magic: "bloodMagic", timeMachine: "timeMachine", wandoos: "wandoos", wandoosOff: "wandoos", ngu: "ngu", beards: "beards" });
+export function trollPossibleV1(state, id) {
+  const sys = IDLE_TROLL_SYSTEME_V1[id];
+  return !sys || Boolean(state.systems?.[sys]?.unlocked);
+}
+
 export function createTrollStateV1(raw) {
   const f = raw?.flags || {};
   const last = raw?.last && typeof raw.last === "object" ? raw.last : null;
@@ -1176,7 +1186,9 @@ function fireTrollV1(state) {
   const t = state.challenge.troll;
   t.count += 1;
   const big = t.count % 5 === 0;
-  const pool = big ? IDLE_TROLL_BIG_V1 : IDLE_TROLL_SMALL_V1;
+  const complet = big ? IDLE_TROLL_BIG_V1 : IDLE_TROLL_SMALL_V1;
+  const possibles = complet.filter((x) => trollPossibleV1(state, x));
+  const pool = possibles.length ? possibles : complet;
   const id = pool[Math.min(pool.length - 1, Math.floor(Math.random() * pool.length))];
   if (id === "ngu") { t.flags.ngu = true; clearActiveDiggersV1(state); }
   else if (id === "beards") { t.flags.beards = true; clearActiveDiggersV1(state); }
