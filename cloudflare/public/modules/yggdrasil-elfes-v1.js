@@ -232,6 +232,11 @@
       '.ygg-carte.magie .ygg-vitre::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(160deg,#22e8c4,#1b9ad8);mix-blend-mode:hue;opacity:.9}',
       '.ygg-carte.magie .ygg-barre i{background:linear-gradient(180deg,#b6fff0,#27b9b0);box-shadow:0 0 8px rgba(80,240,220,.7)}',
       '.ygg-carte.pousse,.ygg-carte.pret{z-index:1}',
+      '.ygg-carte[data-fruit],.ygg-carte.magie[data-fruit]{background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 30%/.97),hsl(var(--yg-h,130) var(--yg-s,50%) 13%/.98));box-shadow:inset 0 0 0 2px hsl(var(--yg-h,130) 75% 68%/.5),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000}',
+      '.ygg-carte[data-fruit] .ygg-nom{background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 25%),hsl(var(--yg-h,130) var(--yg-s,50%) 12%))}',
+      '.ygg-carte[data-fruit] .ygg-barre{background:hsl(var(--yg-h,130) var(--yg-s,50%) 6%)}',
+      '.ygg-carte[data-fruit] .ygg-barre i,.ygg-carte.magie[data-fruit] .ygg-barre i{background:linear-gradient(180deg,hsl(var(--yg-h,130) 90% 80%),hsl(var(--yg-h,130) 65% 48%));box-shadow:0 0 8px hsl(var(--yg-h,130) 90% 65%/.6)}',
+      '.ygg-carte[data-fruit] .ygg-barre.vide i{background:#7a2d2d}',
       /* Lueur du cadre (Norman, 2026-10-29 : « trop fortes ; seulement quand un fruit a atteint son maximum, 10/10, 11/11… ; de la couleur du fruit ») : palier maximum seulement, douce. Boucle sans à-coup : mêmes valeurs à 0 % et 100 %. */
       '.ygg-carte.ygg-max{z-index:1}',
       '.ygg-carte.ygg-max .ygg-vitre{animation:yggBrilleMax 2.8s ease-in-out infinite}',
@@ -355,6 +360,9 @@
    * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle s'ouvre EN DEUX VOLETS, comme les anciennes
    * portes (Norman, 2026-11-02) : chaque moitié de l'image pivote sur son bord extérieur, une lueur passe, le tout se fond ; à la fermeture c'est l'inverse, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
    */
+  /* Couleurs des cadres (Norman, 2026-11-02 : « pour chacun des cadres d'Yggdrasil, adapte les couleurs par rapport à la porte qu'il a ») : [teinte en degrés, saturation en %] de la couleur du CHAMP de chaque porte (pas de son liseré doré). Le cadre de la carte, la plaque du nom et la barre de croissance en dérivent. */
+  var PALETTES_PORTES_={gold:[42,70],powerAlpha:[2,70],powerBeta:[262,60],powerDelta:[26,80],adventure:[130,55],knowledge:[290,50],pomegranate:[0,70],luck:[100,55],arbitrariness:[28,75],numbers:[208,35],rage:[354,72],macguffinAlpha:[22,78],watermelon:[128,55],macguffinBeta:[226,60],quirks:[8,70],angryMayo:[6,70],sadMayo:[204,70],moldyMayo:[42,28],ayyMayo:[78,60],cincoMayo:[4,65],prettyMayo:[8,70]};
+  function styleCouleursPorte_(id){var p=PALETTES_PORTES_[id];return p?'--yg-h:'+p[0]+';--yg-s:'+p[1]+'%;':'';}
   var PORTES_IMAGES_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   function porte_(id,ouvre,referme){
     var img='<img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false">';
@@ -506,7 +514,7 @@
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
     /* Aucun fruit n'est jamais visible derrière une porte close (Norman, 2026-11-02) : même si l'image de la porte tarde ou manque, les fruits ne sont pas dessinés tant que le fruit n'est pas actif. */
     var porteHtml=porteDe_(id,Boolean(v.active));
-    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'"'+(v.tier>0&&v.tier>=d.maxTier||alerte?' style="--lueur:'+rvb_(AURAS_[id])+'"':'')+'>'+
+    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'" style="'+styleCouleursPorte_(id)+(v.tier>0&&v.tier>=d.maxTier||alerte?'--lueur:'+rvb_(AURAS_[id])+';':'')+'">'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
       '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+

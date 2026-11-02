@@ -3,7 +3,5 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un troll qui retire l’énergie ou la magie retire aussi ce qui était déjà alloué ; la touche R reprend maintenant aussi l’énergie placée dans les améliorations."
-  ] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
 })();
