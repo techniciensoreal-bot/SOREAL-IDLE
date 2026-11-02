@@ -58,6 +58,9 @@
             'Le pentacle du bouton du menu bat comme un cœur, de son rouge jusqu’au rouge de la goutte de sang, quand de la magie est placée ; les icônes du menu bougent dès qu’un rituel a de la magie.',
             'Rituel du fil barbelé : le calice suivant n’arrive plus trop tôt, le calice plein part et le suivant prend sa place.',
           ]},
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Le bouton du menu et les illustrations de la page ont été retravaillés.',
+          ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
           ]},
