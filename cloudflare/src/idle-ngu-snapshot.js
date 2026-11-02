@@ -347,6 +347,8 @@ function construireSnapshotNguV1(state, context, now) {
     /* Calendrier de connexion (Money Pit) : seulement une fois le Money Pit découvert (idle-login-calendar-v1.js). */
     /* Roue journalière : palier courant et table des récompenses (affichage de la roue, jamais utilisée pour tirer côté client). */
     roueJournaliere: dailySpinSnapshotV1(state),
+    /* Trou sans fond : lots possibles du palier de l'Or en stock (affichage, jamais utilisé pour tirer). */
+    puitRecompenses: moneyPitSnapshotV1(state),
     loginCalendar: state.systems.moneyPit?.unlocked ? idleLoginCalendarSnapshotV1(state.records.loginCalendar, nowMs(now)) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
     portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0), num(state.records.portraitManuel, 0) > 0, state.records.portraitsVus),
@@ -690,6 +692,27 @@ export function roueTotauxNormalisesV1(raw, history) {
   return t;
 }
 
+/* Table des lots du Money Pit par palier (wiki NGU Idle, page Money Pit, « Pit Reward Tiers »). Un seul lot de la liste du palier est tiré ; lue aussi pour l'AFFICHAGE (moneyPitSnapshotV1). */
+export const IDLE_MONEY_PIT_REWARDS_V1 = [
+  [],
+  [{ adventureStats: 1 }, { boost: 1 }, { adventureHp: 10 }, { adventureRegen: 0.1 }],
+  [{ adventureStats: 2 }, { boost: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 1 }],
+  [{ adventureStats: 5 }, { boost: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }, { experience: 2 }],
+  [{ adventureStats: 10 }, { boost: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }, { experience: 3 }],
+  /*
+   * 2026-09-23 (audit, page Money Pit) : paliers 5 à 11 complétés avec TOUTES leurs colonnes
+   * (Adv Stat, Cube P/T ou les deux, HP, regen, EXP, Wandoos, Seeds). Le tirage reste un seul
+   * type de récompense au hasard. « Equip +1 LVL » (équipement/Daycare) n'est pas modélisé.
+   */
+  [{ adventureStats: 20 }, { cubePower: 5 }, { cubeToughness: 5 }, { cubeBoth: 3 }, { adventureHp: 150 }, { adventureRegen: 1.5 }, { experience: 10 }, { seeds: 10 }],
+  [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 }, { cubeBoth: 5 }, { adventureHp: 200 }, { adventureRegen: 2 }, { experience: 25 }, { wandoos: 1, wandoosMax: 20 }, { seeds: 25 }],
+  [{ adventureStats: 100 }, { cubePower: 20 }, { cubeToughness: 20 }, { cubeBoth: 10 }, { adventureHp: 300 }, { adventureRegen: 3 }, { experience: 25 }, { wandoos: 1, wandoosMax: 50 }, { seeds: 100 }],
+  [{ adventureStats: 150 }, { cubePower: 50 }, { cubeToughness: 50 }, { cubeBoth: 25 }, { adventureHp: 450 }, { adventureRegen: 5 }, { experience: 200 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 200 }],
+  [{ adventureStats: 200 }, { cubePower: 100 }, { cubeToughness: 100 }, { cubeBoth: 50 }, { adventureHp: 700 }, { adventureRegen: 6 }, { experience: 300 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 300 }],
+  [{ adventureStats: 250 }, { cubePower: 150 }, { cubeToughness: 150 }, { cubeBoth: 75 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { experience: 400 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 500 }],
+  [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
+];
+
 export function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -760,25 +783,6 @@ export function tossMoneyPit(state, now) {
    * Les colonnes Equip/Wandoos/Cube des paliers suivants restent hors de
    * cette passe plutôt que d'être remplacées par une récompense inventée.
    */
-  const IDLE_MONEY_PIT_REWARDS_V1 = [
-    [],
-    [{ adventureStats: 1 }, { boost: 1 }, { adventureHp: 10 }, { adventureRegen: 0.1 }],
-    [{ adventureStats: 2 }, { boost: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 1 }],
-    [{ adventureStats: 5 }, { boost: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }, { experience: 2 }],
-    [{ adventureStats: 10 }, { boost: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }, { experience: 3 }],
-    /*
-     * 2026-09-23 (audit, page Money Pit) : paliers 5 à 11 complétés avec TOUTES leurs colonnes
-     * (Adv Stat, Cube P/T ou les deux, HP, regen, EXP, Wandoos, Seeds). Le tirage reste un seul
-     * type de récompense au hasard. « Equip +1 LVL » (équipement/Daycare) n'est pas modélisé.
-     */
-    [{ adventureStats: 20 }, { cubePower: 5 }, { cubeToughness: 5 }, { cubeBoth: 3 }, { adventureHp: 150 }, { adventureRegen: 1.5 }, { experience: 10 }, { seeds: 10 }],
-    [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 }, { cubeBoth: 5 }, { adventureHp: 200 }, { adventureRegen: 2 }, { experience: 25 }, { wandoos: 1, wandoosMax: 20 }, { seeds: 25 }],
-    [{ adventureStats: 100 }, { cubePower: 20 }, { cubeToughness: 20 }, { cubeBoth: 10 }, { adventureHp: 300 }, { adventureRegen: 3 }, { experience: 25 }, { wandoos: 1, wandoosMax: 50 }, { seeds: 100 }],
-    [{ adventureStats: 150 }, { cubePower: 50 }, { cubeToughness: 50 }, { cubeBoth: 25 }, { adventureHp: 450 }, { adventureRegen: 5 }, { experience: 200 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 200 }],
-    [{ adventureStats: 200 }, { cubePower: 100 }, { cubeToughness: 100 }, { cubeBoth: 50 }, { adventureHp: 700 }, { adventureRegen: 6 }, { experience: 300 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 300 }],
-    [{ adventureStats: 250 }, { cubePower: 150 }, { cubeToughness: 150 }, { cubeBoth: 75 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { experience: 400 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 500 }],
-    [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
-  ];
   const candidats = IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)];
   const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
 
@@ -880,6 +884,45 @@ export function tossMoneyPit(state, now) {
   s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1);
 
   return resultat;
+}
+
+/* Seuils d'Or du palier 1 à 11 (wiki Money Pit, « Pit Reward Tiers », colonne MIN GOLD). */
+export const IDLE_MONEY_PIT_SEUILS_V1 = Object.freeze([1e5, 1e7, 1e9, 1e11, 1e13, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30]);
+
+/*
+ * Récompenses POSSIBLES du palier que l'Or EN STOCK atteindrait (Norman, 2026-11-02 : « suivant ce que le joueur a en stock, montre-lui les récompenses possibles pour son palier »), pour l'AFFICHAGE du Trou sans fond.
+ * Lu ICI, à la source du tirage (IDLE_MONEY_PIT_REWARDS_V1), jamais recopié côté client. Le wiki NGU Idle (page Money Pit) liste les lots de chaque palier mais NE PUBLIE AUCUNE probabilité (« hidden reward index ») :
+ * aucun pourcentage n'est envoyé ; le moteur tire un lot parmi la liste du palier (tossMoneyPit), la liste envoyée est donc l'ensemble exact des tirages possibles.
+ * Anti-spoil (règle n°2) : un lot n'est envoyé que si le système auquel il se rapporte est déjà débloqué (Cube de l'Infini, Wandoos, Yggdrasil) ; l'Aventure, l'EXP et l'AP sont toujours connus.
+ * `min` / `suivant` ne servent qu'au client pour redemander une synchro quand l'Or franchit un palier (jamais affichés).
+ */
+export function moneyPitSnapshotV1(state) {
+  const s = state.systems.moneyPit;
+  if (!s || !s.unlocked) return null;
+  const or = Math.floor(Math.max(0, num(state.currencies.gold, 0)));
+  const tier = moneyPitTierV48_(or);
+  const sys = (id) => Boolean(state.systems[id] && state.systems[id].unlocked);
+  const xp = Math.max(0, num(idleNguBonusesLectureV1(state).xpMultiplier, 1));
+  const lots = [];
+  if (tier > 0) {
+    for (const choix of IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)]) {
+      if ((choix.cubePower || choix.cubeToughness || choix.cubeBoth) && !sys("infinityCube")) continue;
+      if (choix.wandoos && !sys("wandoos")) continue;
+      if (choix.seeds && !sys("yggdrasil")) continue;
+      const lot = Object.assign({}, choix);
+      /* Wiki : « EXP rewards are affected by EXP bonus » : on montre ce que le tirage donnerait vraiment. */
+      if (lot.experience) lot.experience = lot.experience * xp;
+      lots.push(lot);
+    }
+  }
+  return {
+    tier,
+    min: tier > 0 ? IDLE_MONEY_PIT_SEUILS_V1[tier - 1] : 0,
+    suivant: tier < IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_V1[tier] : 0,
+    lots,
+    /* Wiki : « The pit also rewards AP using the formula log10(gold) » (en plus du lot, avec le bonus AP commun). */
+    ap: tier > 0 ? apWithBonusV1(state, Math.floor(Math.log10(Math.max(1, or)))) : 0
+  };
 }
 
 /*

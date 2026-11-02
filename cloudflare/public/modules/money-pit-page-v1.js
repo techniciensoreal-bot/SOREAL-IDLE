@@ -52,6 +52,39 @@
         },500);
       }
 
+
+      /*
+       * Palier du trou (Norman, 2026-11-02) : la liste des lots possibles est celle du palier de l'Or EN STOCK, calculée par le moteur à chaque synchro (state.systemes.puitRecompenses = { tier, min, suivant, lots, ap }).
+       * Entre deux synchros l'Or monte (ou baisse : achats) ; ce petit guetteur compare l'Or affiché à la plage du palier annoncé (min / suivant : jamais affichés) et, SI elle est franchie, redemande une synchro (au plus
+       * une toutes les 4 s). Il ne redessine la page QUE lorsque le palier de l'état reçu diffère de celui dessiné (data-mp-palier) : aucun redessin périodique (règle n°4).
+       */
+      let guetteurPalierTrouIdleV1=null,derniereSynchroPalierIdleV1=0;
+      function guetterPalierTrouIdleV1_(){
+        if(guetteurPalierTrouIdleV1||typeof setInterval!=='function')return;
+        guetteurPalierTrouIdleV1=setInterval(function(){
+          const carte=document.querySelector('[data-trou-v1][data-mp-palier]');
+          if(!carte)return;
+          const H=window.__SOREAL_IDLE_META_HOST_V130__;
+          const etat=H&&typeof H.getIdleEtat==='function'?H.getIdleEtat():null;
+          const d=etat&&etat.systemes&&etat.systemes.puitRecompenses;
+          if(!d)return;
+          const RO=window.__SOREAL_IDLE_ROUE_V1__;
+          if(RO&&RO.enCours())return;
+          if(Number(d.tier)!==Number(carte.getAttribute('data-mp-palier'))){
+            if(document.querySelector('.soreal-idle-page-root-v28[data-menu="moneyPit"]')&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
+            return;
+          }
+          const or=H.idleNombre_(etat.systemes.currencies&&etat.systemes.currencies.gold);
+          const suivant=Number(d.suivant)||0;
+          const hors=or<(Number(d.min)||0)||(suivant>0&&or>=suivant);
+          const maintenant=Date.now();
+          if(hors&&maintenant-derniereSynchroPalierIdleV1>4000){
+            derniereSynchroPalierIdleV1=maintenant;
+            try{const r=window.__SOREAL_IDLE_REG__;if(r&&typeof r.synchroniserJeuIdleV7_==='function')r.synchroniserJeuIdleV7_(true);}catch(_e){}
+          }
+        },1000);
+      }
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-301 */
       function rendreBoutonMoneyPitIdleV1_(j,st){
         const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.gold);
@@ -60,13 +93,13 @@
         if(restantMs>0){
           const restantS=Math.ceil(restantMs/1000);
           demarrerMinuteurRechargeIdleV1_();
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled data-idle-recharge-v1="pit" data-fin="'+nextAt+'">'+libelleRechargeMoneyPitIdleV1_(restantS)+'</button>';
+          return '<button type="button" class="rb-bouton" disabled data-idle-recharge-v1="pit" data-fin="'+nextAt+'">'+libelleRechargeMoneyPitIdleV1_(restantS)+'</button>';
         }
         /* Sous 100 000 Or le trou prend quand même l'or (message « Tu te sens bien plus pauvre… », comme dans le jeu d'origine) : le bouton reste actif tant qu'il y a de l'or. */
         if(gold<1){
-          return '<button type="button" class="soreal-idle-expand-button-v25" disabled>🕳️ Jeter de l’or (tu n’as plus d’Or)</button>';
+          return '<button type="button" class="rb-bouton" disabled>🕳️ Jeter de l’or (tu n’as plus d’Or)</button>';
         }
-        return '<button type="button" class="soreal-idle-expand-button-v25 glow-dispo-v1" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
+        return '<button type="button" class="rb-bouton rb-dispo glow-dispo-v1 mp2-spin-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'moneyPit\'})">🕳️ Balance ton argent</button>';
       }
 
       /*
@@ -419,6 +452,8 @@
         const roueReelle=systemeMetaParIdIdleV130_(j,'dailySpin');
         const pitSt=pit&&pit.state||{};
         const RO=window.__SOREAL_IDLE_ROUE_V1__;
+        const TR=window.__SOREAL_IDLE_TROU_V1__;
+        guetterPalierTrouIdleV1_();
         /* Pendant que la roue tourne, TOUT l'affichage lié au tour (prix, totaux, historique, bouton) reste celui d'AVANT : le résultat n'apparaît qu'à l'arrêt de la roue. */
         const roueEnCours=Boolean(RO&&RO.enCours());
         const roueSt=roueEnCours&&RO.stAvant()?RO.stAvant():(roueReelle&&roueReelle.state||{});
@@ -522,18 +557,20 @@
           /* Deux colonnes indépendantes sur PC (Norman, 2026-10-31 : « équilibrer les deux colonnes, combler les espaces vides ») : à gauche le trou (image, menu, tableau de ses récompenses), à droite la roue (image, menu, tableau) ; chaque colonne se remplit vers le bas sans laisser de vide. Téléphone : les colonnes disparaissent (display:contents) et l'ordre d'avant est rétabli par la propriété order (CSS). */
           '<div class="mp2-grille-v1">'+
           '<div class="mp-col-v1 mp-col-trou-v1">'+
+          /* Image du trou inchangée (Norman, 2026-11-02 : « l'image du trou reste comme avant »). Les récompenses possibles du palier de l'Or en stock sont listées dessous, dans la carte d'action, à la place de la légende de la roue. */
           '<div class="soreal-idle-money-scene-v206">'+
             /* Image refaite par Norman (2026-10-31), fichier statique du dépôt (donc dans le paquet hors ligne) ; l'ancienne Money_Pit.jpg reste sur le serveur, plus utilisée ici. Calques : titre, yeux, puanteur, salve d'or (soreal-idle-itopod.css, « Trou sans fond »). */
             '<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp" width="1000" height="1000" alt="Trou sans fond">'+
             calquesTrouSansFondIdleV1_()+
           '</div>'+
-          /* 2026-09-26 (Norman) : les deux boutons sous l'image, chacun sur la moitié de sa largeur. */
           '<div class="soreal-idle-money-actions-v206">'+
             '<div class="soreal-idle-money-action-v206 soreal-idle-money-pit-action-v206">'+
               '<div class="soreal-idle-money-action-title-v206">Balance ton argent</div>'+
               '<div class="soreal-idle-money-action-note-v206">Le trou prend tout ton Or actuel.</div>'+
               rendreBoutonMoneyPitIdleV1_(j,pitSt)+
+              (TR?TR.rendreLegende(j):'')+
               prixPit+
+              '<div class="rb-prix-txt">Jets effectués : <b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(pitSt.level||0)+'</b>.</div>'+
             '</div>'+
           '</div>'+
           cadreRecompensesMoneyPitIdleV1_('pit','🕳️ RÉCOMPENSES DU MONEY PIT',listePit,'Palier','Le tableau se remplira dès ton premier lancer dans le trou.')+
