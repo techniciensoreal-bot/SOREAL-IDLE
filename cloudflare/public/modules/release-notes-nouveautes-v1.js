@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Une des animations de la borne a été refaite, avec un nouveau décor et de nouveaux personnages : à toi de la découvrir.",
     "La barre de vie suit mieux le moteur : un combat de boss ne rend plus plus de vie quand la défense monte pendant une longue synchro.",
     "La vie regagnée au repos ne prend plus de retard quand la fenêtre est en arrière-plan : plus de saut en avant au retour.",
     "Les dégâts annoncés d’un boss tiennent compte de la difficulté choisie.",

@@ -13,7 +13,7 @@ const dico = JSON.parse(lire("public/modules/traduction-anglais-dict-v1.json"));
 // Image statique légère, référencée par la page ; plus d'appel à l'ancienne image
 assert.ok(fs.existsSync(new URL("../public/trou/trou-sans-fond-v1.webp", import.meta.url)), "image du trou dans le dépôt");
 assert.ok(fs.statSync(new URL("../public/trou/trou-sans-fond-v1.webp", import.meta.url)).size < 150000, "image légère (< 150 Ko)");
-assert.ok(page.includes('src="/trou/trou-sans-fond-v1.webp"'), "la page référence trou-sans-fond-v1.webp");
+assert.ok(page.includes("/trou/trou-sans-fond-v1.webp") && page.includes("__SOREAL_IDLE_TROU_NUIT_V1__"), "la page référence trou-sans-fond-v1.webp (et l'image de nuit via le module du soleil)");
 assert.ok(!page.includes('src="/api/idle/media/banner?name=Money_Pit.jpg"'), "plus l'ancienne image dans la page");
 
 // Titre et phrase, français + dictionnaire anglais, police du jeu

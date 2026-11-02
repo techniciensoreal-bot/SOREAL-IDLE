@@ -73,8 +73,9 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
   assert.ok(!led.includes("var HEROS_GRAND="), "plus de héros « mascotte à la tronçonneuse » : c'est Leatherface");
   assert.ok(!led.includes("pousser('hit',now,") && !led.includes("objetDu(now)){var oi=objetSuivant(now,true)") && !led.includes("demarrer(mk('bars',now))"), "aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur (Norman, 2026-11-02 : l'animation se voit du début à la fin)");
-  assert.ok(led.includes("dessinerPose(DANSE_POSES[3],sx,sy,es)"), "Leatherface scie du début à la fin, sur la piste de vie");
-  assert.ok(led.includes("put(D,16,9,'SS');put(D,16,13,'SS')"), "tronçonneuse tenue à deux mains");
+  assert.ok(led.includes("dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,G.sxL,G.sy-rebond,G.es);"), "Leatherface court derrière le fourgon du début à la fin, sur la piste de vie (Norman, 2026-11-02)");
+  assert.ok(led.includes("put(g,1,14,'HHHH');put(g,2,3,'GGGGGGGGGG')"), "tronçonneuse brandie au-dessus de la tête, bras levé");
+  assert.ok(!led.includes("la chaîne : les dents défilent, rouges de sang") && !led.includes("flaque et éclaboussures au bout de la piste"), "plus de sang contre la barre");
   const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
   assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
   assert.ok(m.includes("hx=Math.min(x0+n,W-10)") && m.includes("hx=x0-Math.round(sp*(t-pp.te))"), "calée sur le bout de la barre, sort par la gauche quand elle est vide");
@@ -107,4 +108,14 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(!fs.existsSync(racine + "public/modules/admin-saviez-vous-v1.js"), "module d'éditeur supprimé");
   assert.ok(!/IDLE_SAVIEZ|normaliserSaviezVous|phraseSaviez/.test(srv) && srv.includes("DELETE FROM idle_textes WHERE cle LIKE 'saviez-vous:%'"), "serveur : validation supprimée, ancienne ligne effacée");
   console.log("idle-borne-duel-leds-v1 (« Le saviez-vous ? » supprimé) : OK");
+}
+// Norman (2026-11-02) : la poursuite — un fourgon comme dans le film roule devant Leatherface (fille dans la benne) ; combat gagné : le fourgon se sauve puis la danse ; combat perdu : Leatherface tue la fille
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
+  assert.ok(led.includes("function camionRows(bras,phase,fille)") && led.includes("put(1,29,'YYY')") && led.includes("put(2,29,'SSS')") && led.includes("put(4,28,'PPPPP')"), "fourgon de profil et fille dans la benne (cheveux jaunes, robe rose)");
+  assert.ok(led.includes("function geoCourse(xe)") && led.includes("tx:sxL+Math.round(3*es)-gap-tw"), "le fourgon roule devant Leatherface, toujours dans l'écran");
+  assert.ok(led.includes("if(fin){") && led.includes("var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}") && led.includes("G.tx-Math.round(uf*uf*40+uf*10)") && led.includes("}else danseFinale(t,fl,xd,uf-TC);"), "victoire : le fourgon sort de l'écran et Leatherface fait sa danse là où il s'est arrêté");
+  assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&combatAnim==='sweep'){p.anim='sweep';p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
+  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep';") && led.includes("dur:function(p){return p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
+  console.log("idle-borne-duel-leds-v1 (poursuite du fourgon) : OK");
 }

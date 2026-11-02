@@ -433,6 +433,70 @@ function posesDanse(){
   return out2;
 }
 var DANSE_POSES=posesDanse();
+/* LA POURSUITE (Norman, 2026-11-02 : « un peu avant Leatherface, un fourgon comme dans le film, qui roule devant lui ; il court derrière en tenant sa tronçonneuse au niveau de sa tête, bras levé ; une fille à l'arrière, représentée dessus ; si on gagne le combat, la voiture se sauve et il fait sa danse ; si on perd, Leatherface tue la fille ») :
+   le pick-up bleu de la photo (de profil, le capot à gauche), la fille dans la benne (cheveux jaunes, robe rose, bras en l'air qui s'agitent), et Leatherface de profil qui court, la tronçonneuse brandie au-dessus de la tête (plus de sang contre la barre). Même grille de lettres que les poses de la danse. */
+var CAMION_COUL={B:[BLE,235],b:[BLE,140],w:[BLE,45],W:[BLA,240],T:[BLE,70],r:[BLA,210],h:[BLA,120],O:[AMB,255],R:[ROU,255],Y:[AMB,255],S:[BLA,215],P:[ROS,255],M:[ROU,255]};
+var CAMION_L=36,CAMION_H=15;
+function camionRows(bras,phase,fille){
+  var g=[],j;for(j=0;j<CAMION_H;j++)g.push(new Array(CAMION_L+1).join('.').split(''));
+  function put(r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<CAMION_H&&x>=0&&x<CAMION_L&&str[i]!=='.')g[y][x]=str[i];}}
+  put(0,15,'BBBBBBBB');put(1,14,'BBBBBBBBBB');
+  put(2,13,'BwwwBwwwwwBB');put(3,12,'BwwwwBwwwwwBB');put(4,11,'BBBBBBBBBBBBBB');
+  put(5,2,'BBBBBBBBBBBBBBBBBBBBBBBB');
+  put(5,26,'BBBBBBBBBB');
+  for(j=6;j<=8;j++)put(j,1,'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+  put(9,1,'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');put(10,1,'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+  put(6,27,'bbbbbbbb');put(7,27,'bbbbbbbb');                      /* intérieur sombre de la benne */
+  put(8,0,'W');put(9,0,'W');put(10,0,'W');put(8,35,'W');put(9,35,'W');put(10,35,'W');   /* pare-chocs */
+  put(7,1,'O');put(7,35,'R');
+  function roue(cx,cy){
+    var m=['.TTTTT.','TrrrrrT',phase?'TrhrhrT':'TrhhhrT',phase?'ThrhrhT':'TrhhhrT',phase?'TrhrhrT':'TrhhhrT','TrrrrrT','.TTTTT.'],k;
+    for(k=0;k<7;k++)put(cy-3+k,cx-3,m[k]);
+  }
+  roue(8,11);roue(29,11);
+  if(fille){
+    put(1,29,'YYY');put(2,28,'Y');put(2,29,'SSS');put(2,32,'Y');put(3,30,'S');put(4,28,'PPPPP');put(3,29,'P');put(3,31,'P');
+    put(2,30,'M');
+    if(bras){put(0,27,'S');put(1,27,'S');put(2,28,'S');put(0,33,'S');put(1,33,'S');put(2,32,'S');}
+    else{put(3,26,'SSS');put(3,32,'SSS');put(4,27,'S');put(4,33,'S');}
+  }
+  return g.map(function(r){return r.join('');});
+}
+var CAMIONS={};
+function camion(fille,bras,phase){var k=(fille?1:0)+'|'+bras+'|'+phase;return CAMIONS[k]||(CAMIONS[k]=camionRows(bras,phase,fille));}
+function posesCourse(){
+  function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
+  function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
+  function course(jambes){
+    var g=grille(),q;
+    put(g,6,8,'KKKKKK');put(g,7,7,'KKKKKKKK');                                    /* cheveux */
+    put(g,8,6,'SSSSKKK');put(g,9,6,'SKSSKKK');put(g,10,6,'SSSSKK');put(g,11,6,'MMSSK');put(g,12,7,'SSSK');   /* masque de profil, orbite noire, bouche ouverte */
+    put(g,13,8,'CCKKKKKK');put(g,14,8,'CTKKKKKKK');put(g,15,9,'CTKKKKKK');put(g,16,10,'CKKKKKK');put(g,17,11,'KKKKKK');put(g,18,12,'KKKKK');   /* buste penché : chemise, cravate, veste */
+    [[15,17],[16,18],[17,19],[18,19]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras arrière */
+    [[12,14],[11,14],[10,15],[9,15],[8,15],[7,15],[6,15]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras levé vers la scie */
+    put(g,5,15,'SS');
+    put(g,1,14,'HHHH');put(g,2,3,'GGGGGGGGGG');put(g,2,13,'DDDDDDD');put(g,3,3,'OGOGOGOGOG');put(g,3,13,'DRRRDDD');put(g,4,3,'GGGGGGGGGG');put(g,4,13,'DDDDDDD');   /* tronçonneuse au-dessus de la tête, lame devant */
+    q=jambes?[[19,10],[20,10],[21,10],[22,9],[23,9],[19,12],[20,12],[21,12],[22,13],[23,14]]:[[19,10],[20,9],[21,8],[22,7],[23,6],[19,12],[20,13],[21,14],[22,15],[23,16]];
+    q.forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  return [course(false),course(true)];
+}
+var COURSE_POSES=posesCourse();
+/* dessin d'une grille de lettres avec une table de couleurs, mise à l'échelle au plus proche voisin (e peut dépasser 1) */
+function dessinerCoul(rows,coul,sx,sy,e){
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
+  for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=coul[c];if(q)px(sx+i,sy+j,q[0],q[1]);}}
+}
+/* géométrie de la poursuite à une position donnée du bout de la barre de vie : Leatherface le suit, le fourgon roule devant (à gauche) ; tous deux restent dans l'écran (le fourgon n'en sort qu'à la fuite) */
+function geoCourse(xe){
+  var W=P.W,H=P.H,fl=H-2,es=echelleDanse(),ec=es*1.6,tw=Math.round(CAMION_L*ec),th=Math.round(CAMION_H*ec),gap=Math.max(5,Math.round(8*es));
+  var xmin=tw+gap-Math.round(3*es),sxL=Math.max(xe-Math.round(4*es),xmin);
+  sxL=Math.min(sxL,W-Math.round(26*es));
+  var dhs=Math.round(DANSE_H*es);
+  return {fl:fl,es:es,ec:ec,tw:tw,th:th,gap:gap,xmin:xmin,sxL:sxL,tx:sxL+Math.round(3*es)-gap-tw,sy:fl-2-(dhs-1),syT:fl-2-(th-1)};
+}
+
 function cielCouchant(fl,xc,lev,t){
   var W=P.W,i,j,hor=fl-2,tt=t||0;
   for(j=0;j<hor;j++){var g=j/hor,c=g<0.5?ROU:AMB,v=90+Math.round(120*g*g);for(i=0;i<W;i++)px(i,j,c,v);}     /* ciel de coucher de soleil */
@@ -482,18 +546,20 @@ function sSweep(t){
     cielCouchant(fl,Math.max(14,x0+18),1,t);
     for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
     for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
-    if(pc<=0.002){var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;}
-    P.p.te=null;
-    var es=echelleDanse(),dhs=Math.round(DANSE_H*es),vb=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx=Math.max(0,Math.min(xe,W-Math.round(26*es))),sy=fl-2-(dhs-1)-vb;
-    dessinerPose(DANSE_POSES[3],sx,sy,es);
-    var cw=Math.max(5,Math.round(9*es)),cy=sy+Math.round(21*es),chh=es<0.7?2:3;
-    for(i=0;i<cw;i++)for(j=0;j<chh;j++)px(sx+i,cy+j,((i+ch)%4<2)===(j<(chh>2?2:1))?ROU:BLA,255);   /* la chaîne : les dents défilent, rouges de sang */
-    if(P.reduced)return;
-    for(i=0;i<14;i++){                                             /* du SANG gicle de la lame (au lieu d'étincelles), retombe en gouttes sur la piste */
-      var u=((t*1.5+R(i,7))%1),dx=u*(5+R(i,9)*11),dy=Math.sin(u*3.1416)*(4+R(i,8)*8)-u*u*3,al=255*Math.sin(u*3.1416);
-      px(sx-1-dx,fl-3-dy,i%4?ROU:ROS,al);
+    var G=geoCourse(xe),bras=(!P.reduced&&Math.floor(t*3)%2)?1:0,phase=(!P.reduced&&Math.floor(t*12)%2)?1:0,rebond=(!P.reduced&&Math.floor(t/0.07)%2)?1:0;
+    if(fin){                                                       /* le combat est gagné (scène de victoire) : le fourgon se sauve par la gauche pendant que Leatherface freine et court jusqu'à sa place, puis il fait sa danse (le texte VICTOIRE s'écrit à droite) */
+      var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}
+      var uf=t-pp.te,TC=1.0,xd=clamp(x0+18,14,W-14);
+      if(uf<TC){
+        cielCouchant(fl,xd,1,t);
+        var ar=sm(uf/TC),sxr=Math.round(pp.sx0+(xd-Math.round(12*G.es)-pp.sx0)*ar);
+        dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,sxr,G.sy-rebond,G.es);
+      }else danseFinale(t,fl,xd,uf-TC);
+      dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx-Math.round(uf*uf*40+uf*10),G.syT-rebond,G.ec);
+      return;
     }
-    for(i=0;i<6;i++)px(xe+((i*3+Math.floor(t*4))%7)-3,fl-2,ROU,120+60*R(i,3));   /* flaque et éclaboussures au bout de la piste */
+    dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx,G.syT-rebond,G.ec);                    /* le fourgon roule devant, la fille dans la benne agite les bras */
+    dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,G.sxL,G.sy-rebond,G.es);   /* Leatherface court derrière, tronçonneuse brandie */
     return;
   }
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
@@ -533,8 +599,26 @@ function sWin(t){
 }
 
 /* 7. K.O. puis RECOMMENCE ? (texte seul : rien n'est cliquable, rien n'a l'allure d'un bouton) */
+/* Défaite après la poursuite (Norman, 2026-11-02 : « si on perd le combat, Leatherface tue la fille ») : le fourgon cale, Leatherface le rattrape, grand coup de tronçonneuse : une gerbe rouge, la fille disparaît de la benne ; puis il brandit sa tronçonneuse. Dessin d'ombres en pixels, sans détail. */
+function tueRie(t){
+  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=clamp(P.p.pc0==null?1:P.p.pc0,0,1),n=Math.round(pc*len),i;
+  cielCouchant(fl,Math.max(14,x0+18),1,t);
+  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+  var G=geoCourse(x0+n),tCoup=1.3,ap=sm(t/0.7),contact=G.tx+G.tw-Math.round(3*G.es)+2,sxl=Math.round(G.sxL-(G.sxL-contact)*ap);
+  var tr=(!P.reduced&&t<0.45)?Math.floor(t*22)%2:0,phase=(!P.reduced&&t<0.45&&Math.floor(t*12)%2)?1:0,bras=(!P.reduced&&Math.floor(t*6)%2)?1:0,vivante=t<tCoup;
+  dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
+  var pose=t<tCoup-0.35?COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0]:(t<tCoup+0.55?DANSE_POSES[2]:DANSE_POSES[0]);
+  dessinerPose(pose,pose===DANSE_POSES[0]?Math.round(sxl-4*G.es):sxl,G.sy,G.es);
+  var bx=G.tx+Math.round(30*G.ec),by=G.syT+Math.round(4*G.ec);
+  if(!P.reduced){burst(bx,by,t-tCoup,16,5,22,1.1,[ROU,ROU,ROS],14);}
+  if(t>tCoup)for(i=0;i<7;i++)px(G.tx+Math.round((27+i*1.3)*G.ec),G.syT+Math.round(5.5*G.ec),ROU,200);   /* il reste du rouge dans la benne */
+}
 function sKO(t){
-  var W=P.W,H=P.H,bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*t),0,1);
+  var W=P.W,H=P.H,an=P.p.anim==='sweep';
+  if(an)tueRie(t);
+  var tk=t-(an?2.4:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
+  t=tk;
   var vk=sm(t/0.15)*(1-sm((t-3.0)/0.3));
   if(vk>0){
     var s=T('ko'),ks=bigSc(s),tw=twidth(s,ks),bt=Math.round((H-7*ks)/2),sh=t<0.6&&!P.reduced?Math.round(Math.sin(t*75)*1.5):0;
@@ -843,7 +927,7 @@ var SC={
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
   win:{fn:sWin,dur:function(p){return p.anim?8.6:7.2;},prio:5,cap:4.2},
-  ko:{fn:sKO,dur:6.4,prio:5,cap:3.9}
+  ko:{fn:sKO,dur:function(p){return p.anim?8.8:6.4;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
 var COUPE={win:5.0,ko:4.2};
@@ -1016,6 +1100,7 @@ function objetSuivant(now,inter){
 function mk(id,now,p){
   var d=SC[id].dur;p=p||{};
   if(id==='win')p.anim=combatAnim;
+  if(id==='ko'&&combatAnim==='sweep'){p.anim='sweep';p.pc0=S.pv?S.pv.pct:1;}
   if(p.long)d=1e9;
   return {id:id,t0:(id==='fight'||p.long)?fightT0:now,p:p,prio:SC[id].prio,dur:typeof d==='function'?d(p,panel?panel.W:120):d};
 }
@@ -1251,5 +1336,13 @@ window.addEventListener('focus',function(){relancer();});
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{ensure();}catch(_e){}});
 
 
-window.__SOREAL_IDLE_BORNE_LED_V1__={ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+/* Contrôle visuel d'une scène sur un canvas de test (grille W x H, instant t, vie du boss pct) : outil de vérification, jamais utilisé par le jeu */
+function dessinerSceneEssai(cv,id,t,pct,W,H,params){
+  if(!cv||!cv.getContext||!SC[id])return false;
+  var avant=S.pv,p=new Panel(cv,W||136,H||26,true);
+  S.pv={pct:pct==null?1:pct,cur:'0',max:'0',regen:''};
+  try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;}
+  return true;
+}
+window.__SOREAL_IDLE_BORNE_LED_V1__={dessinerSceneEssai:dessinerSceneEssai,ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
 })();
