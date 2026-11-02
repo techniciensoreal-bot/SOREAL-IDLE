@@ -21,6 +21,7 @@ import BOSS_HISTOIRES_EN from "../../design/ngu-boss-stories-en.json" with { typ
 import BOSS_HISTOIRES_FR from "../../design/ngu-boss-stories-fr.json" with { type: "json" };
 import HISTOIRES_COMPLEMENT_FR from "../../design/ngu-boss-stories-complement-fr.json" with { type: "json" };
 import { NOMS_PIECES_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1 } from "./idle-noms-fr-v1.js";
+import { aSurchargesBossEnV1, texteBossSurchargeV1, nomBossSurchargeV1, texteBossParleV1, nomBossParleV1 } from "./idle-textes-v1.js";
 import {
   SET_ITEM_NAMES_EN_V1,
   SPECIALS_EN_V1,
@@ -107,6 +108,8 @@ function histoiresBossEn_(v) {
 }
 
 export const IDLE_LANGUES_V1 = Object.freeze(["fr", "en"]);
+/* Opérations dont la réponse porte des textes écrits par l'administrateur : jamais traduits (voir index-idle-coordinator-v1.js). */
+export const OPERATIONS_SANS_TRADUCTION_V1 = new Set(["listerTextesAdminSorealIdle", "enregistrerTexteAdminSorealIdle", "obtenirTextesSurchargesSorealIdle"]);
 export const idleLangueValideV1 = (l) => (l === "en" ? "en" : "fr");
 
 /* Champs « parlés » d'un boss (état, catalogue, collection, fiche) : français d'administrateur, jamais envoyés en anglais. */
@@ -158,10 +161,80 @@ function marcher_(v, table) {
   return copie || v;
 }
 
-/* Traduit une réponse du moteur selon la langue du joueur. Renvoie la même valeur si rien ne change. */
-export function traduireReponseV1(reponse, langue) {
-  const table = idleLangueValideV1(langue) === "en" ? FR_VERS_EN_V1 : EN_VERS_FR_V1;
-  return marcher_(reponse, table);
+/*
+ * Original ANGLAIS d'un boss pour l'éditeur de textes / de voix de l'Admin quand le jeu est en anglais (Norman, 2026-11-02) : la chronique du wiki et le nom anglais (le texte que voit le joueur anglais sans surcharge).
+ * Vide pour un boss sans chronique sur le wiki (272 à 289).
+ */
+export const histoireBossEnOriginaleV1 = (numero) => HISTOIRES_EN_V1.get(Math.floor(Number(numero) || 0)) || "";
+const NOMS_BOSS_EN_V1 = new Map(BOSS_NOMS.map((b) => [b.id, b.nomEn]));
+export const nomBossEnOriginalV1 = (numero) => NOMS_BOSS_EN_V1.get(Math.floor(Number(numero) || 0)) || "";
+
+/*
+ * Surcharges d'administrateur ANGLAISES d'un boss (clé boss:<N>:en), appliquées APRÈS la traduction : en anglais la chronique est l'original du wiki, remplacé ici par le texte écrit pour l'anglais (affiché),
+ * le texte et le nom PARLÉS (ce que dit la voix anglaise) et le nom. Mêmes formes d'objet que histoiresBossEn_ (catalogue, collection, boss sélectionné). Copie à l'écriture ; une réponse sans objet boss ne change pas.
+ * Anti-spoil : seuls les objets déjà présents dans la réponse (donc découverts) sont touchés, jamais de total ni de boss ajouté.
+ */
+function surchargeBossEnDe_(v, sql) {
+  const n = Number.isInteger(v.numero) ? v.numero : (Number.isInteger(v.bossSelection) ? v.bossSelection : 0);
+  if (n < 1) return null;
+  const catalogue = typeof v.histoire === "string" && "conseil" in v;
+  const collection = typeof v.description === "string" && v.type === "boss_principal" && v.decouvert === true;
+  const selection = typeof v.bossHistoire === "string" && Number.isInteger(v.bossSelection);
+  if (!catalogue && !collection && !selection) return null;
+  const texte = texteBossSurchargeV1(sql, n, "en"), nom = nomBossSurchargeV1(sql, n, "en");
+  const parleTexte = texteBossParleV1(sql, n, "en"), parleNom = nomBossParleV1(sql, n, "en");
+  if (texte == null && !nom && !parleTexte && !parleNom) return null;
+  const out = {};
+  if (texte != null) {
+    if (catalogue) out.histoire = texte;
+    if (collection) out.description = texte;
+    if (selection) out.bossHistoire = texte;
+  }
+  if (nom) {
+    if (catalogue || collection) out.nom = nom;
+    if (selection) out.bossActuel = nom;
+  }
+  if (catalogue || collection) {
+    if (parleTexte) out.histoireParlee = parleTexte;
+    if (parleNom) out.nomParle = parleNom;
+  }
+  if (selection) {
+    if (parleTexte) out.bossHistoireParlee = parleTexte;
+    if (parleNom) out.bossNomParle = parleNom;
+  }
+  return Object.keys(out).length ? out : null;
+}
+function marcherSurchargesEn_(v, sql) {
+  if (v === null || typeof v !== "object") return v;
+  if (Array.isArray(v)) {
+    let copie = null;
+    for (let i = 0; i < v.length; i++) {
+      const y = marcherSurchargesEn_(v[i], sql);
+      if (y !== v[i]) { if (!copie) copie = v.slice(); copie[i] = y; }
+    }
+    return copie || v;
+  }
+  const h = surchargeBossEnDe_(v, sql);
+  let copie = h ? Object.assign({}, v, h) : null;
+  for (const k of Object.keys(v)) {
+    if (h && k in h) continue;
+    const x = v[k];
+    if (x === null || typeof x !== "object") continue;
+    const y = marcherSurchargesEn_(x, sql);
+    if (y !== x) { if (!copie) copie = Object.assign({}, v); copie[k] = y; }
+  }
+  return copie || v;
+}
+export function appliquerSurchargesBossEnV1(reponse, sql) {
+  if (!sql || !aSurchargesBossEnV1(sql)) return reponse;
+  return marcherSurchargesEn_(reponse, sql);
+}
+
+/* Traduit une réponse du moteur selon la langue du joueur. Renvoie la même valeur si rien ne change. Avec `sql`, les surcharges d'administrateur ANGLAISES des boss sont ensuite appliquées (anglais seulement). */
+export function traduireReponseV1(reponse, langue, sql) {
+  const en = idleLangueValideV1(langue) === "en";
+  const traduite = marcher_(reponse, en ? FR_VERS_EN_V1 : EN_VERS_FR_V1);
+  return en && sql ? appliquerSurchargesBossEnV1(traduite, sql) : traduite;
 }
 
 export const IDLE_TRADUCTIONS_STATS_V1 = Object.freeze({ enVersFr: EN_VERS_FR_V1.size, frVersEn: FR_VERS_EN_V1.size });

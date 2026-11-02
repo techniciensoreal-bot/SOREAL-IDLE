@@ -207,6 +207,8 @@ async function idleLocalV1(request, env, chemin) {
   if (idleLimiteDepasseeV1("local:" + sessionToken, 10, 2)) return idleTropDeRequetesV1();
   let corps = {};
   if (chemin === "local-export") { corps.appareil = new URL(request.url).searchParams.get("appareil") || ""; corps.lecture = new URL(request.url).searchParams.get("lecture") === "1"; }
+  /* Langue du joueur : le moteur local ne reçoit que les textes d'administrateur de SA langue (idle-textes-v1.js). */
+  if (chemin === "local-export" || chemin === "local-textes") corps.langue = new URL(request.url).searchParams.get("langue") === "en" ? "en" : "fr";
   if (chemin === "local-push") {
     const lecture = await idleLireJsonBorneV1(request, 4194304);
     if (lecture.tropGros) return idleCorpsTropGrosV1();

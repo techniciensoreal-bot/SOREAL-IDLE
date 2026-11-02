@@ -190,6 +190,76 @@ var TROLLS={
   bossDivider:{big:true,titre:'GROS troll : multiplicateur de boss',msg:'« Je viens de diviser ton multiplicateur de boss par X. De rien :3 »',effet:'Divise le multiplicateur de boss du NOMBRE par 2 + le nombre de complétions du Troll Challenge'}
 };
 
+/*
+ * Textes et voix des trolls MODIFIABLES depuis l'Admin (Norman, 2026-11-02) : chaque troll est déclaré à l'éditeur « Textes et voix » (clé troll:<id>, groupe « Trolls du Troll Challenge ») avec deux champs, le message du popup et la description de l'effet.
+ * La version de l'administrateur remplace le texte affiché ET celui que la voix dit (champ « parle », avec balises de voix) quand le troll tombe ; sans modification, le texte d'origine ci-dessus est affiché et lu. En anglais l'éditeur enregistre sous
+ * troll:<id>:en (le joueur anglais ne reçoit que celles-là) et le texte d'origine lu est la traduction anglaise de la phrase française (dictionnaire du jeu, textes du wiki). La voix suit le réglage de lecture automatique des popups.
+ */
+var PAUSE_TROLL=' (pause 450ms) ';
+function langueAnglaiseTroll(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
+function enAnglaisTroll(texte){
+  if(!langueAnglaiseTroll())return texte;
+  try{var tr=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;return tr&&typeof tr.traduire==='function'?tr.traduire(texte):texte;}catch(_e){return texte;}
+}
+/* Texte lu d'un troll : le message, une courte pause, puis la description de l'effet (le même texte pour la voix du joueur, l'éditeur et la génération). */
+function texteVoixTroll(message,effet){return String(message||'').trim()+PAUSE_TROLL+String(effet||'').trim();}
+var trollsDeclares=false;
+function declarerTrolls(){
+  if(trollsDeclares)return;
+  var T=window.__SOREAL_IDLE_TEXTES_V1__;
+  if(!T||typeof T.declarer!=='function')return;
+  trollsDeclares=true;
+  Object.keys(TROLLS).forEach(function(id){
+    var t=TROLLS[id];
+    T.declarer('troll:'+id,{
+      groupe:'Trolls du Troll Challenge',
+      libelle:t.titre,
+      champs:[{id:'message',label:'Message du popup',type:'texte'},{id:'effet',label:'Description de l’effet (2e ligne du popup)',type:'texte'}],
+      original:function(){return {message:t.msg,effet:t.effet};},
+      texteLu:function(v){return texteVoixTroll(v&&v.message,v&&v.effet);}
+    });
+  });
+}
+declarerTrolls();
+/* Textes à AFFICHER (balises de voix retirées) et à DIRE d'un troll : la version de l'administrateur si elle existe, sinon l'original (traduit en anglais pour la voix). x remplace le « X » du multiplicateur de boss. */
+function textesTroll(id,j){
+  var t=TROLLS[id],T=window.__SOREAL_IDLE_TEXTES_V1__;
+  var sur=null;
+  try{sur=T&&typeof T.surcharge==='function'?T.surcharge('troll:'+id):null;}catch(_e){}
+  var x=null;
+  if(id==='bossDivider'){
+    var defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
+    var d=defs.filter(function(q){return q&&q.id==='troll';})[0];
+    x=String(2+(d?ent(d.completion):0));
+  }
+  function remplir(s){return x===null?s:String(s).replace(/\bX\b/,x);}
+  function champ(nom,origine){
+    var s=sur&&typeof sur[nom]==='string'&&sur[nom].trim()?sur[nom]:null;
+    var p=null;
+    try{p=T&&typeof T.parle==='function'?T.parle('troll:'+id,nom):null;}catch(_e){}
+    var affiche=s!==null?(T&&typeof T.sansBalises==='function'?T.sansBalises(s):s):origine;
+    var dit=(typeof p==='string'&&p.trim())?p:(s!==null?s:enAnglaisTroll(origine));
+    return {affiche:remplir(affiche),dit:remplir(dit)};
+  }
+  return {message:champ('message',t.msg),effet:champ('effet',t.effet)};
+}
+function lireTroll(tx){
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  if(!tts||typeof tts.readText!=='function'||!(typeof tts.enabled==='function'&&tts.enabled()))return;
+  try{
+    var brut=texteVoixTroll(tx.message.dit,tx.effet.dit);
+    tts.readText(typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut,null);
+  }catch(_e){}
+}
+/* Textes de tous les trolls tels que la voix les lit (outil de génération des voix : voix-en-statiques-console-v1.js et voice-generate.mjs, via window.__sorealVoiceTextesIdleV1__). Le multiplicateur de boss garde son « X ». */
+function textesVoixTrolls(){
+  var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+  return Object.keys(TROLLS).map(function(id){
+    var brut=texteVoixTroll(TROLLS[id].msg,TROLLS[id].effet);
+    return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut;
+  });
+}
+
 /* ---------- Utilitaires ---------- */
 
 function hote(){return window.__SOREAL_IDLE_META_HOST_V130__||{};}
@@ -661,14 +731,10 @@ var DUREE_ANNONCE_TROLL=12000;
 function jouerTroll(troll,j){
   var t=TROLLS[troll.id];
   if(!t)return;
-  var msg=t.msg;
-  if(troll.id==='bossDivider'){
-    var defs=j&&j.systemes&&Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
-    var d=defs.filter(function(x){return x&&x.id==='troll';})[0];
-    msg=msg.replace('X',String(2+(d?ent(d.completion):0)));
-  }
+  var tx=textesTroll(troll.id,j);   /* texte modifié par l'administrateur (affiché et dit) sinon l'original */
   fermerTrollsVisuels();
-  annonce('😈 '+t.titre,[msg,t.effet],t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);   /* le message reste 12 s (Norman, 2026-11-02 : « le message doit rester plus longtemps ») */
+  annonce('😈 '+t.titre,[tx.message.affiche,tx.effet.affiche],t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);
+  lireTroll(tx);   /* le message reste 12 s (Norman, 2026-11-02 : « le message doit rester plus longtemps ») */
   if(troll.id==='boxes')jouerBoites();
   if(troll.id==='kitty')jouerChaton();
 }
@@ -858,6 +924,7 @@ function verifierTroll(j){
   }
 }
 if(typeof window.setInterval==='function')window.setInterval(function(){
+  declarerTrolls();   /* l'éditeur de textes peut se charger après ce module */
   if(typeof document!=='undefined'&&document.hidden)return;
   var r=window.__SOREAL_IDLE_REG__;
   try{if(r&&r.idleEtat)verifierTroll(r.idleEtat);}catch(_e){}
@@ -877,5 +944,5 @@ function verifier(j){
   }
 }
 
-window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,prochainsTrolls:prochainsTrolls,minutesSecondes:minutesSecondes,jouerBoites:jouerBoites,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,prochainsTrolls:prochainsTrolls,minutesSecondes:minutesSecondes,jouerBoites:jouerBoites,textesTroll:textesTroll,textesVoix:textesVoixTrolls,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

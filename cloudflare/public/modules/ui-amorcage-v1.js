@@ -688,6 +688,8 @@ window.__sorealVoiceTextesIdleV1__=function(){
         Object.keys(definitions).forEach(function(cle){textes.push(texteVoixNouveauteIdleV1_(definitions[cle]));});
         textes.push(texteVoixNouveauteIdleV1_(infoMoneyPitIdleV1_()));
         textes.push(REG.VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);
+        /* Popups des trolls du Troll Challenge (modules/challenges-v1.js) : leurs voix (françaises, puis anglaises par le dictionnaire) se génèrent avec les autres textes statiques. */
+        try{const D=window.__SOREAL_IDLE_DEFIS_V1__;if(D&&typeof D.textesVoix==='function')D.textesVoix().forEach(function(t){textes.push(t);});}catch(_e){}
         /*
          * Histoires plein écran (2026-09-30) : elles sont désormais créées dans le menu Admin (base serveur), plus dans le code ; leurs
          * voix sont générées depuis ce menu (bouton « Générer les voix », voix réaliste sur le PC de l'administrateur) et stockées sur

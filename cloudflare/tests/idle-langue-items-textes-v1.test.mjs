@@ -38,7 +38,7 @@ assert.equal(traduireReponseV1(rien, "fr"), rien);
 
 // Câblage : le coordinateur traduit avant l'allègement des catalogues, le pont envoie la langue, les Réglages la proposent.
 const coordinateur = readFileSync("cloudflare/src/index-idle-coordinator-v1.js", "utf8");
-assert.ok(coordinateur.includes("allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation("), "traduction avant allègement");
+assert.ok(coordinateur.includes("traduireReponseV1(brute, payload?.langue, this.sqlMoteur)") && coordinateur.includes("allegerCataloguesV1(traduite, payload?.catalogHashes)"), "traduction avant allègement");
 assert.ok(coordinateur.includes("payload?.langue"));
 const entree = readFileSync("cloudflare/src/idle-worker-entry-v1.js", "utf8");
 assert.ok(entree.includes('langue: body && body.langue === "en" ? "en" : "fr"'));

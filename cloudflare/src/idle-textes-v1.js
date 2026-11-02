@@ -21,6 +21,15 @@ import { sqlRows, safeJson } from "./core/sqlite-core.js";
 export const IDLE_TEXTE_CLE_RE_V1 = /^[A-Za-z0-9:_.-]{1,80}$/;
 export const IDLE_TEXTE_HASH_RE_V1 = /^[0-9a-f]{14}$/;
 export const IDLE_TEXTE_BOSS_RE_V1 = /^boss:(\d{1,3})$/;
+/*
+ * Langues (Norman, 2026-11-02 : « quand je mets le jeu en anglais, j'édite les voix ANGLAISES… et quand je mets en FR, j'édite uniquement le FR ») : la surcharge ANGLAISE d'un texte est stockée sous la clé « <clé>:en »
+ * (« boss:12:en », « tuto:debut:2:en »), strictement séparée de la française. Un joueur qui joue en anglais ne reçoit QUE les « :en » (clé renvoyée sans le suffixe), en français que les autres : jamais de fuite d'une langue dans l'autre.
+ */
+export const IDLE_TEXTE_BOSS_EN_RE_V1 = /^boss:(\d{1,3}):en$/;
+export const IDLE_TEXTE_SUFFIXE_EN_V1 = ":en";
+export const estCleEnV1 = (cle) => String(cle == null ? "" : cle).endsWith(IDLE_TEXTE_SUFFIXE_EN_V1);
+export const cleSansLangueV1 = (cle) => { const c = String(cle == null ? "" : cle); return c.endsWith(IDLE_TEXTE_SUFFIXE_EN_V1) ? c.slice(0, -IDLE_TEXTE_SUFFIXE_EN_V1.length) : c; };
+export const cleAvecLangueV1 = (cle, langue) => (langue === "en" ? cleSansLangueV1(cle) + IDLE_TEXTE_SUFFIXE_EN_V1 : cleSansLangueV1(cle));
 const IDLE_TEXTE_MAX_CHAMP_V1 = 6000;
 const IDLE_TEXTE_MAX_LISTE_V1 = 40;
 const IDLE_TEXTE_MAX_CHAMPS_V1 = 12;
@@ -51,7 +60,7 @@ export function normaliserTexteV1(brut) {
   const cle = String(t.cle == null ? "" : t.cle).trim();
   if (!IDLE_TEXTE_CLE_RE_V1.test(cle)) throw new Error("TEXTE_CLE_INVALIDE");
   if (cle.startsWith("saviez-vous:")) throw new Error("TEXTE_CLE_INVALIDE");   /* fonctionnalité supprimée (2026-11-02) */
-  const boss = IDLE_TEXTE_BOSS_RE_V1.exec(cle);
+  const boss = IDLE_TEXTE_BOSS_RE_V1.exec(cle) || IDLE_TEXTE_BOSS_EN_RE_V1.exec(cle);
   if (cle.startsWith("boss:") && (!boss || Number(boss[1]) < 1)) throw new Error("TEXTE_BOSS_INVALIDE");
   const source = t.champs && typeof t.champs === "object" && !Array.isArray(t.champs) ? t.champs : {};
   const noms = Object.keys(source);
@@ -141,52 +150,64 @@ export function definirValidationVoixV1(sql, cle, etat, maintenant = Date.now())
 }
 
 /* Texte de remplacement d'un boss (chronique), ou null : lu à chaque construction d'un boss, donc gardé en mémoire par base. */
-const cacheBoss = { sql: null, parNumero: null };
+const cacheBoss = { sql: null, parNumero: null, parNumeroEn: null };
 export function invaliderCacheTextesBossV1() {
   cacheBoss.sql = null;
   cacheBoss.parNumero = null;
+  cacheBoss.parNumeroEn = null;
 }
-export function texteBossSurchargeV1(sql, numero) {
-  const n = Math.floor(Number(numero) || 0);
-  if (!sql || n < 1) return null;
+/* Surcharge d'un boss dans la langue demandée (« fr » par défaut, « en » = clé boss:<N>:en) ou undefined ; un seul passage remplit les deux tables. */
+function entreeBossV1(sql, n, langue) {
   if (cacheBoss.sql !== sql || !cacheBoss.parNumero) {
     const parNumero = new Map();
+    const parNumeroEn = new Map();
     try {
       for (const t of lireTextesV1(sql)) {
         const m = IDLE_TEXTE_BOSS_RE_V1.exec(t.cle);
-        if (m && (typeof t.champs.texte === "string" || (typeof t.champs.nom === "string" && t.champs.nom))) parNumero.set(Number(m[1]), t);
+        const me = m ? null : IDLE_TEXTE_BOSS_EN_RE_V1.exec(t.cle);
+        const lien = m || me;
+        if (lien && (typeof t.champs.texte === "string" || (typeof t.champs.nom === "string" && t.champs.nom))) (m ? parNumero : parNumeroEn).set(Number(lien[1]), t);
       }
     } catch (_e) { /* base indisponible : on garde les textes d'origine */ }
     cacheBoss.sql = sql;
     cacheBoss.parNumero = parNumero;
+    cacheBoss.parNumeroEn = parNumeroEn;
   }
-  const t = cacheBoss.parNumero.get(n);
+  return (langue === "en" ? cacheBoss.parNumeroEn : cacheBoss.parNumero).get(n);
+}
+/* Au moins une chronique ou un nom de boss écrit en ANGLAIS (clé boss:<N>:en) ? Évite de reparcourir toute une réponse quand il n'y en a aucune. */
+export function aSurchargesBossEnV1(sql) {
+  if (!sql) return false;
+  entreeBossV1(sql, 0, "en");
+  return Boolean(cacheBoss.parNumeroEn && cacheBoss.parNumeroEn.size);
+}
+export function texteBossSurchargeV1(sql, numero, langue) {
+  const n = Math.floor(Number(numero) || 0);
+  if (!sql || n < 1) return null;
+  const t = entreeBossV1(sql, n, langue);
   return t && typeof t.champs.texte === "string" ? t.champs.texte : null;
 }
 
 /* Texte PARLÉ de la chronique d'un boss (ce que la voix dit, quel que soit le texte affiché), ou null. */
-export function texteBossParleV1(sql, numero) {
+export function texteBossParleV1(sql, numero, langue) {
   const n = Math.floor(Number(numero) || 0);
   if (!sql || n < 1) return null;
-  texteBossSurchargeV1(sql, n);
-  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  const t = entreeBossV1(sql, n, langue);
   return t && t.parle && typeof t.parle.texte === "string" && t.parle.texte ? t.parle.texte : null;
 }
 /* Nom PARLÉ d'un boss (ce que la voix prononce), ou null. */
-export function nomBossParleV1(sql, numero) {
+export function nomBossParleV1(sql, numero, langue) {
   const n = Math.floor(Number(numero) || 0);
   if (!sql || n < 1) return null;
-  texteBossSurchargeV1(sql, n);
-  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  const t = entreeBossV1(sql, n, langue);
   return t && t.parle && typeof t.parle.nom === "string" && t.parle.nom ? t.parle.nom : null;
 }
 
 /* Nom de remplacement d'un boss (affiché ET prononcé), ou null : même cache que la chronique. */
-export function nomBossSurchargeV1(sql, numero) {
+export function nomBossSurchargeV1(sql, numero, langue) {
   const n = Math.floor(Number(numero) || 0);
   if (!sql || n < 1) return null;
-  texteBossSurchargeV1(sql, n); /* remplit le cache si besoin */
-  const t = cacheBoss.parNumero && cacheBoss.parNumero.get(n);
+  const t = entreeBossV1(sql, n, langue);
   return t && typeof t.champs.nom === "string" && t.champs.nom ? t.champs.nom : null;
 }
 
@@ -195,13 +216,17 @@ export function nomBossSurchargeV1(sql, numero) {
  * surcharges (identifiants opaques). Le texte d'une chronique de boss n'est jamais envoyé ici : il arrive avec le boss, seulement quand il est
  * affiché (anti-spoil, AGENTS.md règle n°2).
  */
-export function surchargesPourJoueurV1(sql) {
+export function surchargesPourJoueurV1(sql, langue) {
   const textes = lireTextesV1(sql);
   const popups = {};
   const voix = new Set();
+  const en = langue === "en";
   for (const t of textes) {
+    /* Langue du joueur : en anglais SEULES les surcharges « :en » (renvoyées sous la clé sans suffixe, le jeu ne change pas), sinon seulement les françaises. */
+    if (estCleEnV1(t.cle) !== en) continue;
     for (const h of t.voix) voix.add(h);
-    if (!IDLE_TEXTE_BOSS_RE_V1.test(t.cle)) popups[t.cle] = { champs: t.champs, parle: t.parle, voix: t.voix };
+    const cle = en ? cleSansLangueV1(t.cle) : t.cle;
+    if (!IDLE_TEXTE_BOSS_RE_V1.test(cle)) popups[cle] = { champs: t.champs, parle: t.parle, voix: t.voix };
   }
   return { popups, voix: Array.from(voix) };
 }

@@ -38,7 +38,7 @@ assert.ok(admin.includes("validations: lireValidationsVoixV1(__idleCtx.__idleSql
 // 4. client : feu sans texte dans les listes, bouton à trois états dans l'éditeur, cycle rouge -> jaune -> vert -> rouge
 const ui = readFileSync("cloudflare/public/modules/textes-admin-v1.js", "utf8");
 assert.ok(ui.includes("function etatFeu_(cle)") && ui.includes("(avant+1)%3"), "cycle à trois états");
-assert.ok(ui.includes("feuHtml_('boss:'+b.numero)") && ui.includes("feuHtml_(cle)+'<span class=\"nom\">'"), "feu dans la liste des chroniques et des popups");
+assert.ok(ui.includes("feuHtml_(cleL_('boss:'+b.numero))") && ui.includes("feuHtml_(cleL_(cle))+'<span class=\"nom\">'"), "feu dans la liste des chroniques et des popups");
 assert.ok(ui.includes("feuHtml_(edition.cle,true)") && ui.includes("if(act==='feu'){changerFeu_(edition.cle);return;}"), "bouton dans l'éditeur, pour n'importe quel texte");
 assert.ok(!/<span class="stx-feu"[^>]*>[^<]+</.test(ui) && ui.includes("aria-hidden=\"true\"></span>"), "le feu de la liste ne contient aucun texte");
 assert.ok(ui.includes("'#'+EDITEUR_ID+' button.stx-feu[data-etat=\"2\"]{background:#2fbf4a"), "couleurs reprises dans l'éditeur (la règle « #éditeur button » imposait sinon son fond)");

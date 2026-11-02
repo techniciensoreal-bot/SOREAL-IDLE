@@ -885,6 +885,8 @@ function synthetiser_(texte,parleur,expr){
  */
 function corpsSynthese_(texte,parleur,expr){
   var corps={texte:texte,voix:voixStudio_(parleur)};
+  /* Langue de la voix (Norman, 2026-11-02) : jeu en anglais = voix ANGLAISE (le studio utilise la voix par défaut, sans extrait de référence ; balises de voix nommées sans effet). */
+  try{if(window.localStorage.getItem('soreal_idle_langue_v1')==='en')corps.langue='en';}catch(_e){}
   try{
     var reg=window.__SOREAL_IDLE_EXPRESSIONS_V1__;
     var r=expr&&reg&&typeof reg.reglages==='function'?reg.reglages(expr):null;

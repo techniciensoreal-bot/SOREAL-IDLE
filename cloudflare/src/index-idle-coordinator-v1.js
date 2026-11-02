@@ -4,7 +4,7 @@ import { profilsParEmailIdleV1, libelleJoueurIdleV1, lireProfilIdleV1 } from "./
 import { idleBadavatarListePubliqueV1, idleBadavatarPhotoV1, idleBadavatarReinitialiserParNomV1, idleBadavatarReinitialiserV1, idleBadavatarEnregistrerV1, idleBadavatarLireV1, idleBadavatarCleNomV1, idleBadavatarMigrerNomV1 } from "./idle-profil-badavatar-v1.js";
 import { idleItopodNomRosterV1, idleItopodNomRosterParEmailV1, idleItopodCosmetiquesV1 } from "./idle-itopod-roster-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
-import { traduireReponseV1 } from "./idle-traductions-v1.js";
+import { traduireReponseV1, OPERATIONS_SANS_TRADUCTION_V1 } from "./idle-traductions-v1.js";
 import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
 import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1, textesPourMoteurLocalV1 } from "./idle-local-sync-v1.js";
 
@@ -309,16 +309,21 @@ export class SorealIdleCoordinatorV1 {
       throw error;
     }
     const operation = sv(payload?.operation);
-    const args = Array.isArray(payload?.args) ? payload.args : [];
+    let args = Array.isArray(payload?.args) ? payload.args : [];
+    /* Textes d'administrateur (Norman, 2026-11-02) : le joueur reçoit les surcharges de SA langue seulement (idle-textes-v1.js, surchargesPourJoueurV1). La langue vient du pont, jamais de l'argument du client. */
+    if (operation === "obtenirTextesSurchargesSorealIdle") args = [args[0], payload?.langue === "en" ? "en" : "fr"];
 
     /* Réponse allégée des catalogues que le client a déjà (idle-catalogues-v1.js) : même contrat, moins d'octets. */
     /* Langue des items et des textes (idle-traductions-v1.js) : traduction de la réponse AVANT l'allègement, donc l'empreinte des catalogues dépend de la langue. */
-    const reponse = allegerCataloguesV1(traduireReponseV1(runSorealIdleOperation(
+    const brute = runSorealIdleOperation(
       this.sqlMoteur,
       operation,
       args,
       session.user
-    ), payload?.langue), payload?.catalogHashes);
+    );
+    /* Les textes écrits par l'administrateur (liste Admin, enregistrement, surcharges envoyées aux joueurs) sont rendus tels quels : ce sont les mots de l'auteur, jamais traduits ni retraduits (un texte anglais « Goblin » ne devient pas « Gobelin »). */
+    const traduite = OPERATIONS_SANS_TRADUCTION_V1.has(operation) ? brute : traduireReponseV1(brute, payload?.langue, this.sqlMoteur);
+    const reponse = allegerCataloguesV1(traduite, payload?.catalogHashes);
     /* Action de jeu passée par le SERVEUR (appareil resté en mode serveur) : elle revendique la partie (voir idle-local-sync-v1.js). Jamais dans le Worker du jeu local. */
     if (!this.__modeLocalV1) { try { noterActionServeurV1(this, session.user, operation); } catch (_e) { /* la revendication ne doit jamais faire échouer l'action */ } }
     return reponse;
@@ -545,7 +550,7 @@ export class SorealIdleCoordinatorV1 {
     }
     if (path === "/__soreal-idle-v1/local-export") {
       const p = await request.json().catch(() => ({}));
-      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil), p?.lecture === true), { headers: { "cache-control": "no-store" } });
+      return Response.json(exporterPourMoteurLocalV1(this, sv(p?.sessionToken), sv(p?.appareil), p?.lecture === true, p?.langue === "en" ? "en" : "fr"), { headers: { "cache-control": "no-store" } });
     }
     /* Connexion de l'application Android hors ligne (idle-relais-apk-v1.js) : le navigateur dépose le jeton, l'application le retire. */
     if (path === "/__soreal-idle-v1/relais-poser") {
@@ -604,7 +609,7 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/local-textes") {
       const p = await request.json().catch(() => ({}));
       const s = this.standaloneSessionV1(sv(p?.sessionToken));
-      return Response.json(s.ok ? { ok: true, textes: textesPourMoteurLocalV1(this) } : { ok: false, error: s.error }, { headers: { "cache-control": "no-store" } });
+      return Response.json(s.ok ? { ok: true, textes: textesPourMoteurLocalV1(this, p?.langue === "en" ? "en" : "fr") } : { ok: false, error: s.error }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-push") {
       const p = await request.json().catch(() => ({}));

@@ -11,7 +11,7 @@ import { annulerVictoireTitanV1 } from "./idle-adventure-v47.js";
 import { creditDejaFaitV1, lireGainsExpV1 } from "./idle-gains-v1.js";
 import { ancienTutorielActifV1, ancienMenusActifV1, guidesPourJoueurV1, lireGuidesV1, enregistrerGuideV1, supprimerGuideV1, reglerAncienMenusV1, reglerAncienTutorielV1 } from "./idle-tutoriel-v1.js";
 import { surchargesPourJoueurV1, lireTextesV1, enregistrerTexteV1, invaliderCacheTextesBossV1, supprimerTexteV1, lireValidationsVoixV1, definirValidationVoixV1 } from "./idle-textes-v1.js";
-import { histoireBossFrAligneeV1 } from "./idle-traductions-v1.js";
+import { histoireBossFrAligneeV1, histoireBossEnOriginaleV1, nomBossEnOriginalV1 } from "./idle-traductions-v1.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, NGU_BOSS_NAMES_FR_V1, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
 import { ADMIN_SOREAL_IDLE_EMAIL } from "./idle-runtime-joueurs.js";
@@ -490,10 +490,11 @@ export function reglerAncienTutorielAdminSorealIdle(sessionToken, actif) {
  * texte d'une chronique de boss : il arrive avec le boss). Administrateur : lister (tous les boss, texte d'origine compris) / enregistrer /
  * supprimer. Le contrôle d'administrateur compare l'adresse RÉELLE du compte (jamais celle de la partie B) : il fonctionne dans les deux parties.
  */
-export function obtenirTextesSurchargesSorealIdle(sessionToken) {
+export function obtenirTextesSurchargesSorealIdle(sessionToken, langue) {
   exigerAccesSorealIdle_(sessionToken);
   if (!__idleCtx.__idleSql) return { ok: true, popups: {}, voix: [] };
-  return Object.assign({ ok: true }, surchargesPourJoueurV1(__idleCtx.__idleSql));
+  /* Langue du joueur : « en » = seulement les surcharges anglaises (clés renvoyées sans « :en »), sinon seulement les françaises. */
+  return Object.assign({ ok: true }, surchargesPourJoueurV1(__idleCtx.__idleSql, langue === "en" ? "en" : "fr"));
 }
 
 export function listerTextesAdminSorealIdle(sessionToken) {
@@ -504,13 +505,17 @@ export function listerTextesAdminSorealIdle(sessionToken) {
   for (const [numero, nom] of NGU_BOSS_NAMES_FR_V1) {
     const ligne = catalogue[numero - 1];
     const surcharge = textes.find((t) => t.cle === 'boss:' + numero) || null;
+    /* Version ANGLAISE (Norman, 2026-11-02) : surcharge boss:<N>:en, nom et chronique d'origine en anglais (wiki) pour l'éditeur quand le jeu est en anglais. */
+    const surchargeEn = textes.find((t) => t.cle === 'boss:' + numero + ':en') || null;
+    const nomEnOriginal = nomBossEnOriginalV1(numero);
+    const nomEnActuel = surchargeEn && surchargeEn.champs && typeof surchargeEn.champs.nom === 'string' && surchargeEn.champs.nom ? surchargeEn.champs.nom : nomEnOriginal;
     /* nom = nom ACTUEL (peut être modifié) ; nomOriginal = celui du catalogue NGU français. */
     const nomActuel = surcharge && surcharge.champs && typeof surcharge.champs.nom === 'string' && surcharge.champs.nom ? surcharge.champs.nom : nom;
-    boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: histoireBossFrAligneeV1(numero, String(ligne && ligne.histoire || '')), surcharge });
+    boss.push({ numero, nom: nomActuel, nomOriginal: nom, original: histoireBossFrAligneeV1(numero, String(ligne && ligne.histoire || '')), surcharge, surchargeEn, nomEn: nomEnActuel, nomEnOriginal, originalEn: histoireBossEnOriginaleV1(numero) });
   }
   boss.sort((a, b) => a.numero - b.numero);
   /* validations : { cle: 1 (jaune) | 2 (vert) } ; une clé absente = rouge (non validée). */
-  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)), validations: lireValidationsVoixV1(__idleCtx.__idleSql) };
+  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)),   /* contient aussi les « <clé>:en » (surcharges anglaises) : l'éditeur choisit selon la langue du jeu */ validations: lireValidationsVoixV1(__idleCtx.__idleSql) };
 }
 
 /* Validation de la voix d'un texte (rouge 0 / jaune 1 / vert 2) : le premier argument est un objet { cle, etat } (le pont ajoute la session devant un argument qui n'est pas un texte). */

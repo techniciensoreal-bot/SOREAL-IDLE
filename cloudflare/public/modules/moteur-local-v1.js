@@ -191,7 +191,7 @@
     const t0=Date.now();
     let rep=null,exp=null;
     try{
-      rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
+      rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil)+"&langue="+langueTextes(),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
       exp=await avecDelai(rep.json(),25000,"EXPORT_LOCAL_LENT");
     }catch(e){
       /* Aucune réponse du serveur : repli sur le dernier export de cet appareil, s'il y en a un pour ce compte. */
@@ -226,7 +226,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=8f0709954a");
+    worker=new Worker("/moteur-local-worker-v1.js?v=55c08b81e8");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -362,12 +362,14 @@
    * ces voix doivent être instantanément remplacées par les dernières, et le texte aussi »). Appelé tout de suite après chaque enregistrement ou suppression d'un texte par l'administrateur (standalone-bridge.js), puis toutes les minutes pour les autres joueurs.
    * Rien n'est renvoyé au moteur si la liste n'a pas changé (empreinte de la liste : clés + dates de modification).
    */
+  /* Langue du joueur : le serveur ne renvoie que les textes d'administrateur de cette langue (écrits en anglais = clés « :en »). Changer de langue recharge la page. */
+  function langueTextes(){try{return window.localStorage.getItem("soreal_idle_langue_v1")==="en"?"en":"fr";}catch(_e){return "fr";}}
   let empreinteTextes="";
   async function rafraichirTextes(force){
     if(!vivant)return false;
     const jeton=session;
     if(!jeton)return false;
-    const rep=await fetch("/api/v1/local/textes",{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
+    const rep=await fetch("/api/v1/local/textes?langue="+langueTextes(),{headers:{accept:"application/json",authorization:"Bearer "+jeton}});
     const d=await rep.json();
     if(!rep.ok||!d||!d.ok||!Array.isArray(d.textes))return false;
     const empreinte=d.textes.map(function(t){return t[0]+"@"+t[2];}).join("|");

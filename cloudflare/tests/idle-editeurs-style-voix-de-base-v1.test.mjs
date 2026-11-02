@@ -29,5 +29,5 @@ assert.ok(tuto.includes("data-ae=\"voix\"") && tuto.includes("Texte tel que le j
 const moteurTuto = lire("tutoriel-v1.js");
 assert.ok(moteurTuto.includes("champsDepuisSource:true") && moteurTuto.includes("apresEnregistrer:function(o)"), "guide : le texte affiché vient du guide");
 const txt = lire("textes-admin-v1.js");
-assert.ok(txt.includes("!def.champsDepuisSource") && txt.includes("edition.def.apresEnregistrer({champs:charge_(valeurs).champs})"), "éditeur de base : texte affiché lié à sa source");
+assert.ok(txt.includes("!(def.champsDepuisSource&&!enAnglais_())") && txt.includes("edition.def.apresEnregistrer({champs:charge_(valeurs).champs})"), "éditeur de base : texte affiché lié à sa source");
 console.log("idle-editeurs-style-voix-de-base-v1: OK");

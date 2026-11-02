@@ -59,7 +59,7 @@ const lire = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");
 const worker = lire("../local/moteur-local-worker.js");
 assert.ok(worker.includes("remplacerTextes(exp.textes)") && worker.includes('m.type === "textes"') && worker.includes("invaliderCacheTextesBossV1();"), "le Worker remplace sa table des textes au démarrage et à la demande");
 const page = lire("../public/modules/moteur-local-v1.js");
-assert.ok(page.includes('fetch("/api/v1/local/textes"') && page.includes('parler({type:"textes"') && page.includes("},60000);"), "la page relit les textes chaque minute");
+assert.ok(page.includes('fetch("/api/v1/local/textes?langue="+langueTextes()') && page.includes('parler({type:"textes"') && page.includes("},60000);"), "la page relit les textes chaque minute");
 assert.ok(page.includes("rafraichirTextes:rafraichirTextes"), "exposé au pont");
 const pont = lire("../public/standalone-bridge.js");
 assert.ok(pont.includes('operation==="enregistrerTexteAdminSorealIdle"||operation==="supprimerTexteAdminSorealIdle"') && pont.includes("await ML.rafraichirTextes(true)"), "relecture IMMÉDIATE après un enregistrement d'administrateur, avant la réponse");
