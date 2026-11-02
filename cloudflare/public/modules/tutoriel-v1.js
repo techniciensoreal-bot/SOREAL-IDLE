@@ -138,6 +138,10 @@ function placer_(bulle,cadre,etape){
  * studio local et les envoie sur R2 ; même chaîne que les popups d'explication. Sans modification, la voix dit le titre puis le texte de l'étape ; le texte lu peut être changé (balises de voix, d'expression, de pause)
  * sans toucher au texte affiché. La lecture est automatique si la voix est activée par le joueur ; le bouton 🔊 relit l'étape.
  */
+/* Texte d'une étape en blocs : une chaîne ou une liste -> un texte, un bloc par ligne, sans bloc vide (c'est ce que la fenêtre affiche et ce que la voix lit). */
+function blocsEtape_(v){
+  return (Array.isArray(v)?v:String(v==null?'':v).split(/\n+/)).map(function(x){return String(x==null?'':x).trim();}).filter(Boolean).join('\n');
+}
 function cleVoix_(guide,i){return 'guide:'+String(guide&&guide.id||'')+':'+i;}
 function texteOrigineVoix_(e){
   var t=String(e&&e.titre||'').trim(),x=String(e&&e.texte||'').replace(/\s+/g,' ').trim();
@@ -151,13 +155,14 @@ function declarerVoix_(guide){
       groupe:'Tutoriel · '+String(guide.titre||guide.id),
       libelle:'Étape '+(i+1)+' — '+String(e.titre||'Sans titre'),
       /* Même éditeur que les textes de base (Norman, 2026-10-23) : le cadre jaune est le texte de l'étape tel que le joueur le lit (celui du guide, jamais une copie), les personnages en dessous disent ce qu'on veut. */
-      champs:[{id:'texte',label:'Texte de l’étape',type:'texte'}],
+      /* Liste de textes (Norman, 2026-11-02 : « je dois pouvoir supprimer un texte… de 3 à 1 ou 5 ») : un cadre jaune par ligne du texte de l'étape (la fenêtre du joueur affiche un paragraphe par ligne) ; on en retire ou on en ajoute. */
+      champs:[{id:'texte',label:'Texte de l’étape',type:'liste'}],
       champsDepuisSource:true,
-      original:function(){return {texte:String(e.texte||'')};},
-      texteLu:function(v){return String(v&&v.texte||'');},
+      original:function(){return {texte:blocsEtape_(e.texte).split('\n').filter(Boolean)};},
+      texteLu:function(v){return blocsEtape_(v&&v.texte);},
       apresEnregistrer:function(o){
         var A=window.__SOREAL_IDLE_ADMIN_TUTORIEL_V1__;
-        if(A&&typeof A.majTexteEtape==='function')A.majTexteEtape(guide.id,i,String(o&&o.champs&&o.champs.texte||''));
+        if(A&&typeof A.majTexteEtape==='function')A.majTexteEtape(guide.id,i,blocsEtape_(o&&o.champs&&o.champs.texte));
       }
     });
   });
@@ -168,9 +173,11 @@ function texteParle_(guide,i){
   var e=guide.etapes[i],brut=texteOrigineVoix_(e);
   try{
     var sur=T&&typeof T.surcharge==='function'?T.surcharge(cleVoix_(guide,i)):null;
+    if(sur&&Array.isArray(sur.texte))sur={texte:blocsEtape_(sur.texte)};   /* liste de textes (cadres jaunes) : un bloc par ligne */
     if(sur&&typeof sur.texte==='string'&&sur.texte.trim())brut=sur.texte;
     /* Norman (2026-10-23) : « ma fenêtre de tuto lit avec la voix de secours alors que les voix sont disponibles dans l'éditeur ». Les voix générées dans l'éditeur sont celles du texte DIT (le cadre des personnages, champ « parle »), pas du texte affiché : la lecture doit prendre ce texte-là, sinon l'empreinte du bloc ne correspond à aucun fichier et la voix de secours prend le relais. */
     var dit=T&&typeof T.parle==='function'?T.parle(cleVoix_(guide,i),'texte'):undefined;
+    if(Array.isArray(dit))dit=blocsEtape_(dit);   /* un texte dit par bloc (cadre jaune) : les blocs supprimés ne sont plus lus */
     if(typeof dit==='string'&&dit.trim())brut=dit;
   }catch(_e){}
   return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut;   /* sans écraser les retours à la ligne : le même texte que l'éditeur, donc les mêmes empreintes */
