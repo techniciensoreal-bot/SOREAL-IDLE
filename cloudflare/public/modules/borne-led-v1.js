@@ -1057,7 +1057,7 @@ function evenements(now){
   if(debut&&debut!==L.debut)pousser('fight',now);
   if(!debut)L.hitN=0;
   L.debut=debut;
-  if(S.combat&&res!==L.res){L.hitN+=1;if(L.hitN%3===0){L.mot=1-L.mot;pousser('hit',now,{mot:L.mot?'BAM !':'POW !',n:L.hitN});}}
+  /* Norman (2026-11-02) : « l'animation ne doit pas être interrompue par des BAM et compagnie, on doit la voir du début à la fin » : plus de POW ! / BAM ! (la scène 'hit' n'est plus jamais déclenchée) */
   L.res=res;
   var nk=Boolean(r.idleNukeEnCoursV1);                              /* un NUKE part (même drapeau que la victoire arcade ignore) : une animation parmi treize */
   if(nk&&!L.nuke)pousser('nuke',now,{v:nukeChoix(),base:S.vic});
@@ -1103,10 +1103,7 @@ function image(now){
   }else if(S.combat&&(cur.id==='base'||cur.id==='jokes'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
   else if(!S.combat&&enCombat(cur))demarrer(suivante(now));
   else if(cur.id==='fight'&&combatAnim&&S.pv&&now-fightT0>2200)demarrer(mk(combatAnim,now,{long:true}));   /* FIGHT ! pendant 2,2 s, puis l'animation du combat */
-  else if((cur.id==='fight'||cur.p.long)&&objetDu(now)){var oi=objetSuivant(now,true);if(oi)demarrer(oi);}
-  else if((cur.id==='fight'||cur.p.long)&&now>=interAt){            /* un petit interlude : la barre de vie du joueur, puis retour à l'animation */
-    interN+=1;demarrer(mk('bars',now));interAt=now+SC.bars.dur*1000+14000;
-  }
+  /* aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur ; l'animation du combat se voit du début à la fin (Norman, 2026-11-02) */
   dessiner(now);
   try{dessinerMinis(now);}catch(_e){}
 }

@@ -104,8 +104,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 41,
-  "sha": "3bae794f873dd14074a0e51a344680c189add4ce"
+  "pin": 42,
+  "sha": "dcefffefb66b08dea3aba846960c4df4ce72fd67"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -560,8 +560,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 72,
-  "sha": "f53c0ba1d6866fd165ab2794e4f5bb12e9b3fa91"
+  "pin": 73,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 705,

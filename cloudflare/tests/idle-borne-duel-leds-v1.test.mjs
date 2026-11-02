@@ -72,6 +72,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
   assert.ok(!led.includes("var HEROS_GRAND="), "plus de héros « mascotte à la tronçonneuse » : c'est Leatherface");
+  assert.ok(!led.includes("pousser('hit',now,") && !led.includes("objetDu(now)){var oi=objetSuivant(now,true)") && !led.includes("demarrer(mk('bars',now))"), "aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur (Norman, 2026-11-02 : l'animation se voit du début à la fin)");
   assert.ok(led.includes("dessinerPose(DANSE_POSES[3],sx,sy)"), "Leatherface scie du début à la fin, sur la piste de vie");
   assert.ok(led.includes("put(D,16,9,'SS');put(D,16,13,'SS')"), "tronçonneuse tenue à deux mains");
   const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
