@@ -239,7 +239,8 @@ function carteAnimee() {
 function herbe(cote) {
   const brins = [["rgb(150,230,70)","M0 60 Q3 50 2 36"],["rgb(105,200,55)","M0 60 Q7 52 11 42"],["rgb(190,240,100)","M0 60 Q10 57 17 53"],["rgb(150,230,70)","M0 60 Q5 55 7 46"],["rgb(105,200,55)","M0 46 Q4 42 8 36"],["rgb(190,240,100)","M0 46 Q2 40 2 32"],["rgb(150,230,70)","M0 32 Q4 28 8 22"],["rgb(105,200,55)","M0 32 Q2 26 2 18"],["rgb(190,240,100)","M0 32 Q6 31 11 29"],["rgb(150,230,70)","M0 18 Q4 14 8 9"],["rgb(105,200,55)","M0 18 Q2 12 3 5"],["rgb(190,240,100)","M0 8 Q4 5 9 1"],["rgb(150,230,70)","M0 8 Q3 3 4 0"]];
   const tracés = brins.map(([, d]) => `<path d='${d}' stroke='rgb(12,48,18)' stroke-width='5.6' stroke-linecap='round' fill='none'/>`).join("") + brins.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='3.2' stroke-linecap='round' fill='none'/>`).join("");   /* liseré sombre puis brin clair : lisible sur le vert du bouton */
-  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${tracés}</g>` : tracés;
+  const bande = "<path d='M0 0 L8.5 0 Q11.5 7 8.5 15 Q11.5 24 8.5 33 Q11.5 43 8.5 52 Q10 56 8 60 L0 60Z' fill='rgb(34,120,44)'/><path d='M0 0 L4.8 0 Q7.8 7 4.8 15 Q7.8 24 4.8 33 Q7.8 43 4.8 52 Q6.2 56 4.6 60 L0 60Z' fill='rgb(78,184,62)'/>";   /* bord de terre couvert d'herbe : une bande verte pleine (sombre dehors, claire au bord), les brins par-dessus */
+  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${bande}${tracés}</g>` : bande + tracés;
   return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'>${g}</svg>`)}") ${cote === "d" ? "right" : "left"} bottom/auto 100% no-repeat`;
 }
 for (const id of MENUS) {
