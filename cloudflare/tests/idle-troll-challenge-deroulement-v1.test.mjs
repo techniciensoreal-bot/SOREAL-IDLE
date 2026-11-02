@@ -281,6 +281,6 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   assert.equal(trollPossibleV1(e, "beards"), true);
   // le tirage du moteur ne garde que les trolls possibles (la réserve filtrée n'est jamais vide)
   const src = (await import("node:fs")).readFileSync("cloudflare/src/idle-ngu-systemes.js", "utf8").split(String.fromCharCode(13)).join("");
-  assert.ok(src.includes("const possibles = complet.filter((x) => trollPossibleV1(state, x));") && src.includes("const pool = possibles.length ? possibles : complet;"), "tirage limité aux systèmes possédés");
+  assert.ok(src.includes("const possibles = complet.filter((x) => trollPossibleV1(state, x));") && src.includes("const base = possibles.length ? possibles : complet;") && src.includes("let pool = base.filter((x) => !recents.includes(x));"), "tirage limité aux systèmes possédés");
   console.log("idle-troll-challenge-deroulement-v1 (anti-spoil des trolls) : OK");
 }

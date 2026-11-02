@@ -66,6 +66,7 @@
           {menu:'sang', titre:'Magie du sang', points:[
             'Le pentacle du bouton du menu bat comme un cœur, de son rouge jusqu’au rouge de la goutte de sang, quand de la magie est placée ; les icônes du menu bougent dès qu’un rituel a de la magie.',
             'Rituel du fil barbelé : le calice suivant n’arrive plus trop tôt, le calice plein part et le suivant prend sa place.',
+            'Les boutons « Lancer le sort » se débloquent dès que ton sang suffit, sans changer d’onglet et revenir.',
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Le bouton du menu et les illustrations de la page ont été retravaillés.',

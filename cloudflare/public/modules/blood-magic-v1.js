@@ -155,6 +155,25 @@ window.__lancerSortBloodIdleV1__=function(id){
     lancer.focus();
   }catch(_e){}
 };
+/* Les boutons « Lancer le sort » suivent le sang EN DIRECT (Norman, 2026-11-02 : « pour que le sang soit pris en compte et qu'on puisse cliquer pour lancer le rituel, on doit changer d'onglet et revenir pour que le bouton soit cliquable ») : la page n'est pas redessinée pendant que le sang monte, leur état était figé au dernier rendu.
+   Le sang minimum et la recharge sont posés sur le bouton au rendu ; ici on ne fait que les comparer au sang reçu du moteur (même source que le chiffre affiché), sans toucher à la page entière. */
+function majBoutonsSortsV1_(){
+  const sang=sangServeurV1_();
+  document.querySelectorAll('.soreal-idle-blood-lancer-v1[data-sang-mini]').forEach(function(b){
+    const mini=Number(b.getAttribute('data-sang-mini'))||1,recharge=b.getAttribute('data-recharge')==='1';
+    const peut=sang>=mini&&!recharge,id=b.getAttribute('data-sort-id')||'';
+    if(peut){
+      if(b.disabled)b.disabled=false;
+      const clic="window.__lancerSortBloodIdleV1__('"+id+"')";
+      if(b.getAttribute('onclick')!==clic)b.setAttribute('onclick',clic);
+      if(b.textContent!=='Lancer le sort')b.textContent='Lancer le sort';
+    }else if(!recharge){
+      if(!b.disabled)b.disabled=true;
+      if(b.hasAttribute('onclick'))b.removeAttribute('onclick');
+      if(b.textContent!=='Pas assez de sang')b.textContent='Pas assez de sang';
+    }
+  });
+}
 if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(function(){
   if(document.hidden)return;
   const el=document.getElementById('sorealIdleBloodTotalV1');
@@ -163,6 +182,7 @@ if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(fu
     const H=window.__SOREAL_IDLE_META_HOST_V130__;
     const texte=H.formatGrandNombreIdleV70_(sangAfficheV1_());
     if(el.textContent!==texte)el.textContent=texte;
+    majBoutonsSortsV1_();
     const or=document.getElementById('sorealIdleBloodOrV1');
     if(or){
       const e=H.getIdleEtat();
@@ -592,7 +612,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
-            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" '+(peutLancer?'onclick="window.__lancerSortBloodIdleV1__(\''+sp.id+'\')"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer le sort'):'Pas assez de sang')+'</button></div>';
+            '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" data-sort-id="'+idSort+'" data-sang-mini="'+sangMini+'" data-recharge="'+(recharge?'1':'0')+'" '+(peutLancer?'onclick="window.__lancerSortBloodIdleV1__(\''+sp.id+'\')"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer le sort'):'Pas assez de sang')+'</button></div>';
         }).join('')+'</div>';
 
         /*
