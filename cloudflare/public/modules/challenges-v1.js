@@ -446,7 +446,7 @@ function page(j){
       '<div class="dfi-chrono">'+etiquette('⏱️','Temps écoulé')+compteurDefi(etat.startedAt)+'</div>'+
       '<div class="dfi-but">'+etiquette('🎯','Objectif')+'<div class="dfi-but-leg">'+h(oa.leg)+'</div><div class="dfi-but-grand">'+h(oa.grand)+'</div></div>'+
       '<div class="dfi-interdit">'+etiquette('⛔','Restrictions')+'<p>'+h(t.restriction)+'</p></div>'+
-      (actifDef.id==='troll'&&etat.troll?'<div class="dfi-bulle">'+etiquette('😈','Trolls')+'<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p></div>':'')+
+      (actifDef.id==='troll'&&etat.troll?'<div class="dfi-bulle">'+etiquette('😈','Trolls')+'<p>Trolls subis dans ce défi : <b>'+ent(etat.troll.count)+'</b></p><p>Prochain troll dans : <b data-troll-prochain data-sans-traduction>'+minutesSecondes(prochainsTrolls(etat.troll,actifDef.completion,0).prochain)+'</b></p><p>Prochain gros troll dans : <b data-troll-gros data-sans-traduction>'+minutesSecondes(prochainsTrolls(etat.troll,actifDef.completion,0).gros)+'</b></p></div>':'')+
       '<div class="dfi-actions"><button type="button" class="dfi-abandon" onclick="window.__abandonnerDefiIdleV1__()">✖ Abandonner le défi</button></div>'+
     '</article>';
   }
@@ -625,6 +625,74 @@ function jouerTroll(troll,j){
   if(troll.id==='kitty')jouerChaton();
 }
 
+/* --- minuteries du Troll Challenge (Norman, 2026-11-02 : « il doit y avoir un timer qui nous dit quand le prochain petit troll va arriver, et pareil pour le gros troll ») --- */
+
+/* Délai entre deux trolls selon le nombre de complétions déjà faites (wiki, Troll Challenge : 120, 110, 100, 90, 85, 80, 75 secondes) ; « every fifth troll is a big troll ». */
+var INTERVALLES_TROLL=[120,110,100,90,85,80,75];
+
+/* troll : { timer (secondes depuis le dernier troll, à la dernière synchro), count (trolls déjà subis) } ; termines : complétions faites ; ecouleS : secondes écoulées depuis la synchro.
+   Retourne les secondes avant le prochain troll (petit ou gros : le 5e, 10e... est un gros) et avant le prochain gros troll. */
+function prochainsTrolls(troll,termines,ecouleS){
+  var iv=INTERVALLES_TROLL[Math.min(INTERVALLES_TROLL.length-1,Math.max(0,ent(termines)))];
+  var compte=Math.max(0,ent(troll&&troll.count));
+  var timer=Math.max(0,Number(troll&&troll.timer)||0)+Math.max(0,Number(ecouleS)||0);
+  var avant=Math.max(0,iv-timer);
+  var rang=compte+1;                      /* numéro du prochain troll */
+  var gros=Math.ceil(rang/5)*5;           /* numéro du prochain gros troll */
+  return {intervalle:iv,prochain:avant,prochainEstGros:rang%5===0,gros:avant+(gros-rang)*iv,numero:rang,numeroGros:gros};
+}
+function minutesSecondes(s){
+  var t=Math.max(0,Math.ceil(Number(s)||0));
+  return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2);
+}
+
+var ancreTroll=null;   /* dernier état de troll vu et l'heure à laquelle on l'a vu : le décompte avance entre deux synchros */
+function etatMinuteursTroll(){
+  var r=window.__SOREAL_IDLE_REG__,j=r&&r.idleEtat;
+  var etat=j&&j.systemes&&j.systemes.challenge;
+  if(!etat||String(etat.active||'')!=='troll'||!etat.troll)return null;
+  var defs=Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
+  var d=defs.filter(function(x){return x&&x.id==='troll';})[0];
+  var tr=etat.troll;
+  if(!ancreTroll||ancreTroll.timer!==tr.timer||ancreTroll.count!==tr.count)ancreTroll={timer:tr.timer,count:tr.count,t:Date.now()};
+  return prochainsTrolls(tr,d?d.completion:0,(Date.now()-ancreTroll.t)/1000);
+}
+
+function styleMinuteursTroll(){
+  if(document.getElementById('sorealTrollTimerStyleV1'))return;
+  var st=document.createElement('style');
+  st.id='sorealTrollTimerStyleV1';
+  st.textContent='#sorealTrollTimerV1{position:fixed;right:10px;bottom:10px;z-index:9000;pointer-events:none;background:rgba(15,10,24,.88);color:#fff;border:2px solid #9be23b;border-radius:12px;padding:7px 11px;font:700 12px/1.5 system-ui,sans-serif;box-shadow:0 4px 14px #0008}'+
+    '#sorealTrollTimerV1 b{margin-left:6px;color:#9be23b;font-variant-numeric:tabular-nums}'+
+    '#sorealTrollTimerV1 .gros b{color:#ff6a5e}';
+  document.head.appendChild(st);
+}
+
+/* Écrit les temps dans tous les endroits qui les montrent (pastille en bas à droite, cadre « Trolls » de la page Défis). Texte comparé avant écriture (règle n°4 : aucun redessin inutile). */
+function majMinuteursTroll(){
+  if(typeof document==='undefined'||!document.body||document.hidden)return;
+  var p=etatMinuteursTroll();
+  var w=document.getElementById('sorealTrollTimerV1');
+  if(!p){
+    ancreTroll=null;
+    if(w&&w.parentNode)w.parentNode.removeChild(w);
+    return;
+  }
+  if(!w){
+    styleMinuteursTroll();
+    w=document.createElement('div');
+    w.id='sorealTrollTimerV1';
+    w.setAttribute('data-morph-garder','1');
+    w.innerHTML='<div>😈 <span>Prochain troll</span><b data-troll-prochain data-sans-traduction></b></div><div class="gros">💀 <span>Prochain gros troll</span><b data-troll-gros data-sans-traduction></b></div>';
+    document.body.appendChild(w);
+  }
+  var a=minutesSecondes(p.prochain),g=minutesSecondes(p.gros);
+  var l1=document.querySelectorAll('[data-troll-prochain]'),l2=document.querySelectorAll('[data-troll-gros]'),i;
+  for(i=0;i<l1.length;i++)if(l1[i].textContent!==a)l1[i].textContent=a;
+  for(i=0;i<l2.length;i++)if(l2[i].textContent!==g)l2[i].textContent=g;
+}
+if(typeof window.setInterval==='function')window.setInterval(majMinuteursTroll,1000);
+
 /* --- Blind Challenge : nombres masqués --- */
 
 /*
@@ -738,5 +806,5 @@ function verifier(j){
   }
 }
 
-window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,prochainsTrolls:prochainsTrolls,minutesSecondes:minutesSecondes,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

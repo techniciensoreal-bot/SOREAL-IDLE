@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Le Troll Challenge affiche maintenant des minuteries pour ses trolls.",
     "Les descriptions des défis reprennent désormais le texte d’origine du jeu."
   ] };
 })();
