@@ -235,16 +235,6 @@ function carteAnimee() {
   const croix = "<g><animateTransform attributeName='transform' type='rotate' dur='3.2s' repeatCount='indefinite' values='0 120 30;-9 120 30;0 120 30;9 120 30;0 120 30' keyTimes='0;.25;.5;.75;1' calcMode='spline' keySplines='.45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1'/><path d='M110 18L130 42M130 18L110 42' stroke='#e0432f' stroke-width='7' stroke-linecap='round'/><path d='M110 18L130 42M130 18L110 42' stroke='#ff9a7a' stroke-width='2' stroke-linecap='round'/></g>";
   return `<svg xmlns='http://www.w3.org/2000/svg' width='150' height='80' viewBox='0 0 150 80'>${points}${croix}</svg>`;
 }
-/* Money Pit (Norman, 2026-11-02) : un peu d'herbe aux deux EXTRÉMITÉS du bouton, pour montrer que ce sont les bords du trou du vrai Money Pit (pas beaucoup : quelques brins, bas, milieu, haut) ; SVG sans filtre ni animation, couches du fond (::before). */
-function herbe(cote) {
-  /* Norman (2026-11-02, avec l'extrait de l'image du trou en exemple) : l'herbe du vrai Money Pit = un aplat VERT sur le bord (contour irrégulier en touffes) et, par-dessus, des traits VERT FONCÉ en zigzag, dessinés à la main, qui montent. */
-  const bord = "<path d='M0 0 L9 0 L11.5 5 L8.5 9 L12.5 14 L8.5 18 L11.5 24 L8.5 28 L13.5 34 L8.5 38 L12.5 44 L8.5 48 L12.5 54 L9 58 L10 60 L0 60Z' fill='rgb(26,160,72)'/>";
-  const traits = [["rgb(8,92,44)", "M2 57 L4 44 L6 52 L9 38"], ["rgb(8,92,44)", "M5 59 L7 48 L9 55 L12 42"], ["rgb(14,118,56)", "M1 44 L3 34 L5 40 L8 26"], ["rgb(8,92,44)", "M4 36 L6 25 L8 31 L11 20"], ["rgb(14,118,56)", "M1 26 L3 16 L5 22 L8 9"], ["rgb(8,92,44)", "M5 24 L7 14 L9 19 L11 6"], ["rgb(8,92,44)", "M2 12 L4 4 L6 9 L8 1"], ["rgb(14,118,56)", "M6 49 L8 42"]];
-  const tracés = traits.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`).join("");
-  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${bord}${tracés}</g>` : bord + tracés;
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'>${g}</svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${cote === "d" ? "right" : "left"} bottom/auto 100% no-repeat`;
-}
 for (const id of MENUS) {
   const t = T[id], sp = SPEC[id], L = CADRES[id] || [];
   const g = dessin(id, "g", t), d = dessin(id, "d", t);
@@ -254,8 +244,6 @@ for (const id of MENUS) {
   const base = fond.length ? fond.join(",") : `radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%),linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%)`;
   out.push(`${sel(id)}{--nb-dom-v1:${t.dom};box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
   out.push(`${sel(id, "::before")}{background:${base}}`);
-  if (id === "moneyPit") out.push(`${P}[data-menu-id-v1="moneyPit"]::before{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;background:${herbe("g")},${herbe("d")}}`);
-  if (id === "moneyPit") out.push(`${sel(id, " .nb-g")}{left:11cqw}`, `${sel(id, " .nb-d")}{right:11cqw}`);   /* la pièce et la pelle restent entières, à côté de l'herbe (jamais recouvertes par elle) */   /* AU-DESSUS du fond du bouton (le dessin du fond est derrière le fond coloré du bouton) */
   out.push(`${sel(id, "::after")}{background:${ring}}`);
   out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
   const taille = (x) => (sp.tour ? ";height:100cqh;width:46.7cqh;max-width:none;aspect-ratio:auto" : `;aspect-ratio:${x.asp.toFixed(3)}`);   /* ITOPOD : la grande tour (3 étages entiers, ni coupée ni rapetissée) sur toute la hauteur, comme son cadre */
@@ -338,6 +326,65 @@ for (const id of MENUS) {
   MOUVEMENTS.goutte = "0%{opacity:0;transform:translateY(-62%)}14%{opacity:1;transform:translateY(-48%)}80%{opacity:1;transform:translateY(48%)}100%{opacity:0;transform:translateY(62%)}";
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));
+/* ------------------------------------------------------------------ Money Pit : bouton refait entièrement (Norman, 2026-11-02)
+   « on doit voir le vert sur les contours et le trou au milieu ; à gauche un dessin de pièce animé quand le pit est dispo, à droite une roue qui tourne sur elle-même quand elle est prête ;
+   des bords d'herbe plus longs, arrondis, EN DESSOUS du cadre ». Tout est dans la couche de fond (deco::before), donc sous le liseré (deco::after) ; seules des transformations (retournement de la pièce, rotation de la roue) sont animées. */
+function herbeBord(cote) {
+  const bord = "<path d='M0 0 L13 0 Q17.5 6 13 12 Q18.5 19 13 25 Q19 32 13 38 Q18.5 45 13 51 Q17 56 13 60 L0 60Z' fill='rgb(44,184,90)'/>";
+  const traits = [["rgb(8,92,44)", "M2 57 L4 44 L6 52 L9 38"], ["rgb(8,92,44)", "M7 59 L9 48 L11 55 L14 42"], ["rgb(14,118,56)", "M1 44 L3 34 L5 40 L8 26"], ["rgb(8,92,44)", "M6 36 L8 25 L10 31 L14 20"], ["rgb(14,118,56)", "M1 26 L3 16 L5 22 L8 9"], ["rgb(8,92,44)", "M7 24 L9 14 L11 19 L14 6"], ["rgb(8,92,44)", "M2 12 L4 4 L6 9 L8 1"], ["rgb(14,118,56)", "M9 50 L11 42"], ["rgb(14,118,56)", "M10 33 L12 26"]];
+  const tracés = traits.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`).join("");
+  const g = cote === "d" ? `<g transform='translate(30,0) scale(-1,1)'>${bord}${tracés}</g>` : bord + tracés;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 60'>${g}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${cote === "d" ? "right" : "left"} center/auto 100% no-repeat`;
+}
+function herbeSemis() {
+  /* traits vert foncé en zigzag semés sur TOUT le vert (pas seulement aux bords), position, hauteur et inclinaison variables, comme l'herbe de l'image du trou ; graine fixe : le dessin ne change jamais */
+  let z = 20261102;
+  const alea = () => { z = (z * 1664525 + 1013904223) % 4294967296; return z / 4294967296; };
+  let traits = "";
+  for (let k = 0; k < 46; k++) {
+    let x = 3 + alea() * 194, y = 8 + alea() * 50;
+    const pas = 3 + Math.floor(alea() * 2), haut = 5 + alea() * 4, pente = (alea() - 0.5) * 3;
+    let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
+    for (let i = 0; i < pas; i++) { x += (i % 2 ? 1 : -1) * (1.3 + alea() * 1.4) + pente; y -= haut * (0.8 + alea() * 0.5); d += ` L${x.toFixed(1)} ${y.toFixed(1)}`; }
+    traits += `<path d='${d}' stroke='${alea() > 0.4 ? "rgb(8,92,44)" : "rgb(14,118,56)"}' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`;
+  }
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'>${traits}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 0 0/auto 100% repeat-x`;
+}
+function piecePit() {
+  const svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><radialGradient id='o' cx='38%' cy='34%' r='75%'><stop offset='0' stop-color='rgb(255,246,176)'/><stop offset='.5' stop-color='rgb(255,210,74)'/><stop offset='1' stop-color='rgb(190,125,16)'/></radialGradient></defs>"
+    + "<circle cx='20' cy='20' r='18.4' fill='url(#o)' stroke='rgb(122,78,6)' stroke-width='2'/><circle cx='20' cy='20' r='13.2' fill='none' stroke='rgb(240,170,30)' stroke-width='1.8'/>"
+    + "<path d='M20 11.5 L22.4 17.6 L29 18 L23.9 22.2 L25.6 28.6 L20 25 L14.4 28.6 L16.1 22.2 L11 18 L17.6 17.6Z' fill='rgb(255,236,140)' stroke='rgb(160,100,10)' stroke-width='.9' stroke-linejoin='round'/>"
+    + "<path d='M9 14 Q13 6.5 21 5.6' fill='none' stroke='rgb(255,255,255)' stroke-opacity='.75' stroke-width='2' stroke-linecap='round'/></svg>";
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") center/contain no-repeat`;
+}
+function rouePit() {
+  const pt = (a, r) => `${(20 + r * Math.sin(a)).toFixed(2)} ${(20 - r * Math.cos(a)).toFixed(2)}`;
+  let parts = "";
+  for (let i = 0; i < 8; i++) {
+    const a0 = (i * Math.PI) / 4, a1 = ((i + 1) * Math.PI) / 4;
+    parts += `<path d='M20 20 L${pt(a0, 16.6)} A16.6 16.6 0 0 1 ${pt(a1, 16.6)}Z' fill='${i % 2 ? "rgb(255,210,74)" : "rgb(228,56,70)"}' stroke='rgb(122,78,6)' stroke-width='.6'/>`;
+  }
+  let clous = "";
+  for (let i = 0; i < 8; i++) clous += `<circle cx='${(20 + 18.2 * Math.sin((i + 0.5) * Math.PI / 4)).toFixed(2)}' cy='${(20 - 18.2 * Math.cos((i + 0.5) * Math.PI / 4)).toFixed(2)}' r='1.15' fill='rgb(255,246,176)'/>`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'>${parts}<circle cx='20' cy='20' r='17.4' fill='none' stroke='rgb(214,150,24)' stroke-width='2.6'/>${clous}<circle cx='20' cy='20' r='4.2' fill='rgb(255,210,74)' stroke='rgb(122,78,6)' stroke-width='1.2'/><circle cx='20' cy='20' r='1.5' fill='rgb(122,78,6)'/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") center/contain no-repeat`;
+}
+{
+  const M = `${P}[data-menu-id-v1="moneyPit"]`, MD = `${M} .soreal-idle-nav-deco-v1`;
+  out.push(`\n/* moneyPit : bouton refait (voir plus haut) */`);
+  out.push(`${sel("moneyPit", "::before")}{background:${herbeBord("g")},${herbeBord("d")},radial-gradient(ellipse 36% 50% at 50% 50%,#050302 0 48%,#2e1a0b 55%,#7a4a22 68%,#a8703a 78%,rgba(168,112,58,0) 92%),${herbeSemis()},rgb(20,124,58)}`);
+  out.push(`${sel("moneyPit", " .nb-g")}{background:${piecePit()};aspect-ratio:1/1;width:auto;left:13.5cqw}`);
+  out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto;right:13.5cqw}`);
+  /* animations : rien par défaut (les anciennes animations du bouton sont coupées), la pièce se retourne quand le Money Pit est disponible (vert), la roue tourne quand elle est prête (jaune) */
+  out.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);
+  out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:moneyPitPieceV1 1.5s ease-in-out infinite}`);
+  out.push(`${M}.soreal-idle-nav-money-yellow-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:moneyPitRoueV1 2.6s linear infinite}`);
+  out.push(`@keyframes moneyPitPieceV1{0%,100%{transform:scaleX(1) translateY(0)}25%{transform:scaleX(.55) translateY(-6%)}50%{transform:scaleX(.08) translateY(-9%)}75%{transform:scaleX(.55) translateY(-6%)}}`);
+  out.push(`@keyframes moneyPitRoueV1{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
+  REDUIT_EXTRA.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none!important}`);
+}
 out.push(`\n@media (prefers-reduced-motion:reduce){\n  ${P} .soreal-idle-nav-deco-v1 .nb-g,${P} .soreal-idle-nav-deco-v1 .nb-d{animation:none}\n${REDUIT_EXTRA.map((x) => "  " + x + "\n").join("")}}\n`);
 writeFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", out.join("\n"));
 
