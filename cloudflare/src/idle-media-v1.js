@@ -1534,6 +1534,13 @@ async function yggImage_(request,env,url){
     if(!decor)return new Response("Décor Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
     return reponseObjetR2_(request,env,{key:cleDecor});
   }
+  /* ?porte=1 : la porte du fruit (idle/ygg-portes/<id>.webp, 1024 x 1024, fournie par Norman) ; 404 tant que le fruit n'a pas sa porte. */
+  if(url.searchParams.get("porte")==="1"){
+    const clePorte="idle/ygg-portes/"+nom.replace(/[^A-Za-z0-9_-]/g,"")+".webp";
+    if(typeof env.SOREAL_R2.get!=="function")return new Response("Media Yggdrasil indisponible",{status:503,headers:{"cache-control":"no-store"}});
+    if(!(await env.SOREAL_R2.get(clePorte)))return new Response("Porte Yggdrasil introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+    return reponseObjetR2_(request,env,{key:clePorte});
+  }
   /* ?terre=1 : l'image de terre unique, la même sous tous les fruits (idle/ygg-terre/terre.webp). */
   if(url.searchParams.get("terre")==="1"){
     const cleTerre="idle/ygg-terre/terre.webp";

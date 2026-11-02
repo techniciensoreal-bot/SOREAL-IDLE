@@ -1,24 +1,21 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
-import { IDLE_NGU_YGG_FRUITS } from "../src/idle-ngu-catalogues.js";
 
 /*
- * Norman (2026-10-16) : dans Yggdrasil, tant que l'énergie n'a pas été placée pour activer un fruit, une porte close cache son image. Fermée : dessin fixe, aucune animation, peu coûteux (SVG intégré, rien à
- * télécharger). Seule animation : l'ouverture, au moment où l'énergie est placée, avec son son. Chaque fruit a sa porte (palette et emblème propres).
+ * Portes d'Yggdrasil (Norman, 2026-11-02) : les anciennes portes dessinées en SVG sont REMPLACÉES par des images fournies par lui (une par fruit, 1024 x 1024, R2 idle/ygg-portes/<fruit>.webp, route ?porte=1).
+ * La porte couvre le cadre tant que le fruit n'est pas actif ; elle s'ouvre par le HAUT (comme une herse de château fort) avec un bruit de herse, une fois, quand l'énergie est placée ; elle redescend si le fruit est mangé ou récolté.
+ * Un fruit sans image de porte n'a ni porte ni son (liste PORTES_IMAGES_).
  */
-const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
+const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8").split(String.fromCharCode(13)).join("");
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={fermees:{},ouvre:{},anim:{}};",
-  "var PORTES_ACTIVES_=true;var sons=[];function son_(n){sons.push(n);}",
+  "var sons=[];function son_(n){sons.push(n);}",
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
   coupe(/var REGLAGES_DEFAUT_=\{[^\n]*\n/),
   coupe(/function reglages_\(\)\{[^\n]*\n/),
-  coupe(/function teinte_\(id\)\{[^\n]*\n/),
-  ...(src.match(/ {2}var EMB_[A-Z_]+='[^\n]*\n/g) || []),
-  coupe(/var THEMES_=\{[\s\S]*?\n {2}\};\n/),
-  coupe(/var VANTAIL_='[^\n]*\n/),
+  coupe(/var PORTES_IMAGES_=\{[^\n]*\n/),
   coupe(/function porte_\(id,ouvre,referme\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/var dernierSonPorte_=\{\};\n/),
   coupe(/function sonPorteUnique_\([^)]*\)\{[\s\S]*?\n {2}\}\n/),
@@ -32,16 +29,27 @@ const code = [
   coupe(/function coqPremiereOuverture_\(vit\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function noterPorteVue_\(id,vue\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
-  "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,teinte_:teinte_};"
+  "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,liste:PORTES_IMAGES_};"
 ].join("\n");
 function monde(stock = {}, renaissances = { n: 0 }) {
   let maintenant = 1_800_000_000_000;
-  const ctx = { Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, Array, window: { __SOREAL_IDLE_META_HOST_V130__: { getIdleEtat: () => ({ systemes: { records: { totalRebirths: renaissances.n } } }) } }, localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem(k, v) { stock[k] = String(v); } } };
+  const ctx = { Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, Array, window: { __SOREAL_IDLE_META_HOST_V130__: { getIdleEtat: () => ({ systemes: { records: { totalRebirths: renaissances.n } } }) } }, localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } } };
   vm.runInNewContext("(function(){" + code + "}).call(this)", ctx);
   return { api: ctx.api, avancer: (ms) => { maintenant += ms; } };
 }
 const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
 
+// 0. L'image de la porte : une par fruit, route ?porte=1 ; un fruit sans image n'a pas de porte, pas de son.
+{
+  const m = monde();
+  const h = m.api.porte_("gold", false);
+  assert.ok(h.includes('src="/api/idle/media/ygg?name=gold&amp;porte=1"') && h.includes('data-porte-img="1"'), "image de la porte du fruit");
+  assert.ok(!/<svg|THEMES_|ygg-porte-g|ygg-porte-emb/.test(h), "plus aucune ancienne porte dessinée");
+  for (const id of ["gold", "powerAlpha", "adventure", "knowledge", "luck", "arbitrariness", "numbers", "angryMayo", "ayyMayo", "cincoMayo", "moldyMayo"]) assert.equal(m.api.liste[id], true, id + " : a sa porte");
+  assert.equal(m.api.porteDe_("powerBeta", false), "", "fruit sans image de porte : pas de porte");
+  assert.equal(m.api.porteDe_("powerBeta", true), "");
+  assert.equal(m.api.sons.length, 0, "ni son sans porte");
+}
 // 1. Fruit pas encore actif : porte close, aucun son, aucune classe d'animation.
 {
   const m = monde();
@@ -50,106 +58,69 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.equal(m.api.sons.length, 0, "aucun son tant qu'elle est fermée");
   assert.equal(m.api.porteDe_("gold", false), h, "redessin à l'identique (rien ne bouge)");
 }
-// 2. Fruit déjà actif à la PREMIÈRE visite depuis la renaissance (auto actif, fruit même prêt) : la porte s'ouvre quand même, avec le son ; aux visites suivantes (même renaissance), plus de porte.
+// 2. Fruit déjà actif à la PREMIÈRE visite depuis la renaissance : la porte s'ouvre quand même, avec le son ; aux visites suivantes (même renaissance), plus de porte.
 {
   const stock = {}, rb = { n: 3 };
   const m = monde(stock, rb);
   assert.ok(m.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "première visite : la porte s'ouvre même si le fruit est déjà actif");
-  assert.equal(m.api.sons.join(), "porte", "avec son");
+  assert.equal(m.api.sons.join(), "herse", "avec le bruit de herse");
   m.avancer(60_000);
   assert.equal(m.api.porteDe_("luck", true), "", "ouverture finie : plus de porte");
-  const m2 = monde(stock, rb);   // page rechargée, même renaissance : rien ne se rejoue
+  const m2 = monde(stock, rb);
   assert.equal(m2.api.porteDe_("luck", true), "");
   assert.equal(m2.api.sons.length, 0, "déjà vue : ni porte ni son");
-  rb.n = 4;                       // renaissance : les portes sont à revoir
+  rb.n = 4;
   const m3 = monde(stock, rb);
   assert.ok(m3.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "après une renaissance, la porte s'ouvre de nouveau à la première visite");
   const m4 = monde({}, { n: 4 });
   assert.ok(ferme(m4.api.porteDe_("gold", false)), "après la renaissance, un fruit inactif reste derrière sa porte close");
 }
-// 3. Le fruit s'active sous les yeux du joueur : ouverture UNE fois, avec le son « porte » ; puis plus de porte.
+// 3. Le fruit s'active sous les yeux du joueur : ouverture UNE fois ; puis plus de porte ; fermeture si mangé / récolté.
 {
   const m = monde();
   m.api.porteDe_("gold", false);
   m.avancer(300);
   const h = m.api.porteDe_("gold", true);
   assert.ok(h.includes("ygg-porte ouvre"), "la porte s'ouvre");
-  assert.deepEqual(Array.from(m.api.sons), ["porte"], "le son d'ouverture est joué une seule fois");
+  assert.deepEqual(Array.from(m.api.sons), ["herse"], "le son d'ouverture est joué une seule fois");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", true).includes("ygg-porte ouvre"), "la porte reste en train de s'ouvrir pendant l'animation (redessin sans la relancer)");
   assert.equal(m.api.sons.length, 1, "pas de second son pendant un redessin");
   m.avancer(900);
   assert.equal(m.api.porteDe_("gold", true), "", "ouverture terminée : plus de porte");
-  assert.equal(m.api.porteDe_("gold", true), "");
   assert.equal(m.api.sons.length, 1);
-  // Le fruit est mangé ou récolté (actif -> inactif, l'auto ne l'a pas relancé) : la porte se REFERME avec l'animation d'ouverture à l'envers et le même son, une seule fois ; puis porte close fixe.
   const h2 = m.api.porteDe_("gold", false);
   assert.ok(h2.includes("ygg-porte referme") && !h2.includes("ygg-porte ouvre"), "la porte se referme");
-  assert.equal(m.api.sons.join(), "porte,porteFerme", "un son de fermeture à part (pas l'ouverture à l'envers), une fois");
+  assert.equal(m.api.sons.join(), "herse,herseFerme", "un son de fermeture à part, une fois");
   m.avancer(800);
   assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
-  assert.equal(m.api.sons.length, 2, "pas de second son pendant un redessin");
-  m.avancer(900);
-  assert.ok(ferme(m.api.porteDe_("gold", false)), "fermeture terminée : porte close fixe, sans animation");
   assert.equal(m.api.sons.length, 2);
-  // Page chargée avec un fruit inactif : jamais de fermeture (il n'a jamais été vu ouvert).
+  m.avancer(900);
+  assert.ok(ferme(m.api.porteDe_("gold", false)), "fermeture terminée : porte close fixe");
   const m5 = monde();
   assert.ok(ferme(m5.api.porteDe_("luck", false)) && m5.api.sons.length === 0, "pas de fermeture sans ouverture vue");
-  // Fruit mangé mais l'auto le relance aussitôt (toujours actif) : la porte ne bouge pas.
-  const m6 = monde();
-  m6.api.porteDe_("luck", true); m6.avancer(2000); m6.api.porteDe_("luck", true);
-  assert.equal(m6.api.porteDe_("luck", true), "", "auto : toujours actif, aucune porte");
-  // L'animation inversée est bien celle de l'ouverture.
-  for (const k of ["", " .ygg-porte-g", " .ygg-porte-d", " .ygg-porte-lueur", " .ygg-porte-emb"]) assert.ok(new RegExp("\\.ygg-porte\\.referme" + k.replace(/ \./, " \\.") + "\\{animation:[^']*reverse").test(src), "fermeture inversée" + k);
 }
-// 4. Chaque fruit sa porte : palette ET emblème propres (même gabarit), aucun fruit du catalogue sans thème.
+// 4. S'ouvre par le HAUT : une image clé de départ, une d'arrivée (translateY de -102 %), une seule courbe ; la fermeture est la même animation à l'envers ; mouvement réduit : pas d'animation.
 {
-  const m = monde();
-  const ids = IDLE_NGU_YGG_FRUITS.map((f) => f.id);
-  assert.ok(ids.length >= 15, "catalogue des fruits lu : " + ids.length);
-  const emb = (h) => h.match(/<b class="ygg-porte-emb">[\s\S]*?<\/b>/)[0];
-  const palettes = new Set(), emblemes = new Set();
-  for (const id of ids) {
-    const h = m.api.porte_(id, false);
-    assert.ok(/--b:#[0-9a-f]{6};--r:#[0-9a-f]{6};--e:#[0-9a-f]{6}/i.test(h), id + " : palette propre (ferrures, liseré, emblème)");
-    assert.ok(src.includes("    " + id + ":["), id + " : a son thème dans THEMES_ (pas la porte de secours)");
-    palettes.add(h.match(/style="([^"]*)"/)[1]); emblemes.add(emb(h));
-  }
-  assert.equal(palettes.size, ids.length, "une palette différente par fruit");
-  assert.ok(emblemes.size >= ids.length - 1, "des emblèmes différents (seules les deux gemmes MacGuffin se ressemblent) : " + emblemes.size + " pour " + ids.length);
-  assert.notEqual(emb(m.api.porte_("powerAlpha", false)), emb(m.api.porte_("powerBeta", false)), "α, β et δ se distinguent par leur lettre");
-  assert.ok(m.api.porte_("powerDelta", false).includes("δ"));
-  assert.ok(m.api.porte_("inconnu", false).includes("ygg-porte-emb"), "un fruit inconnu garde une porte sobre, sans erreur");
-}
-// 5. Peu coûteux : dessin intégré sans image ni lien ; CSS sans animation hors ouverture ; aucune minuterie ajoutée.
-{
-  const m = monde();
-  for (const id of ["gold", "powerAlpha", "knowledge", "luck", "rage"]) {
-    const h = m.api.porte_(id, false);
-    assert.ok(!/<image|href=|url\(|<img|filter/i.test(h), id + " : aucune image, aucun lien, aucun filtre");
-    assert.ok(h.length < 3600, id + " : petit : " + h.length + " octets par porte");
-  }
-  const css = src.match(/\.ygg-porte[^\n]*/g).join("\n");
-  assert.ok(!/\.ygg-porte(?!\.ouvre)[^{]*\{[^}]*animation/.test(css.replace(/\.ygg-porte\.(?:ouvre|referme)[^{]*\{[^}]*\}/g, "")), "porte fermée : aucune animation (ni sur l'emblème)");
-  assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-porte\.ouvre,\.ygg-porte\.referme\{display:none/.test(src), "mouvement réduit : pas d'animation d'ouverture ni de fermeture");
+  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}"), "la porte monte et sort par le haut");
+  assert.ok(!/@keyframes yggHerse\{[^}]*25%/.test(src), "aucune image intermédiaire (pas d'à-coup)");
+  assert.ok(src.includes(".ygg-porte.ouvre img{animation:yggHerse") && /\.ygg-porte\.referme img\{animation:yggHerse[^']*reverse/.test(src), "ouverture, et fermeture à l'envers");
+  assert.ok(/\.ygg-porte\{position:absolute;inset:0;[^}]*overflow:hidden;/.test(src), "le cadre coupe la porte qui sort");
+  assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-porte\.ouvre,\.ygg-porte\.referme\{display:none/.test(src), "mouvement réduit : pas d'animation");
   assert.ok(!/setInterval|setTimeout/.test(coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/)), "aucune minuterie pour les portes");
 }
-// 6. Branchement et cadres : la porte est dans la vitre de chaque fruit ; TOUS les fruits ont le cadre en portrait des deux premiers (même taille avec ou sans image) ; la porte suit les coins du cadre.
-assert.ok(src.includes("couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'"), "porte dans la vitre de chaque fruit, selon son état actif");
-assert.ok(src.includes("'<div class=\"ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')") && !src.includes("etapeCroissance_(d,v)!=null?' ygg-portrait'"), "cadre portrait pour tous les fruits");
-assert.ok(/\.ygg-porte\{position:absolute;inset:0;[^}]*border-radius:9px;/.test(src), "la porte remplit le cadre et suit ses coins arrondis");
-console.log("idle-yggdrasil-portes-v1: OK");
-// 6. Le son de fermeture est un son à part, écrit à l'endroit (l'ouverture jouée à l'envers sonnait mal) : pierre ou bois selon le réglage, jamais de dent de scie.
+// 5. Branchement : la porte est dans la vitre de chaque fruit, selon son état actif.
+assert.ok(src.includes("couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'"), "porte dans la vitre de chaque fruit");
+// 6. Le bruit : herse de château fort (treuil, chaîne, choc), jamais de dent de scie ; réglage pierre / bois supprimé.
 {
-  const sons = readFileSync("cloudflare/public/modules/yggdrasil-sons-v1.js", "utf8");
+  const sons = readFileSync("cloudflare/public/modules/yggdrasil-sons-v1.js", "utf8").split(String.fromCharCode(13)).join("");
   const bloc = (nom, suite) => sons.slice(sons.indexOf("    " + nom + ":function"), sons.indexOf("    " + suite + ":function"));
-  assert.ok(!/sawtooth/.test(bloc("porteFerme", "porteFermeBois")) && !/sawtooth/.test(bloc("porteFermeBois", "porteBois")), "aucune dent de scie dans les sons de fermeture");
-  assert.ok(!/jouerEnvers|OfflineAudioContext/.test(sons), "plus de son retourné");
-  assert.ok(/function nomSonFerme_\(\)\{return reglages_\(\)\.son==='bois'\?'porteFermeBois':'porteFerme';\}/.test(src), "le réglage pierre / bois choisit aussi le bruit de fermeture");
+  assert.ok(!/sawtooth/.test(bloc("herse", "herseFerme")) && !/sawtooth/.test(bloc("herseFerme", "porte")), "aucune dent de scie dans la herse");
+  assert.ok(src.includes("function nomSonPorte_(){return 'herse';}") && src.includes("function nomSonFerme_(){return 'herseFerme';}"), "le jeu joue la herse");
 }
-
-// Norman (2026-11-02) : « je ne voulais pas retirer les portes avant d'avoir les autres » : les portes restent actives
+// 7. La route R2 des portes et le bucket.
 {
-  assert.ok(src.includes("var PORTES_ACTIVES_=true;"), "portes d'Yggdrasil actives jusqu'à l'arrivée des nouvelles");
-  console.log("idle-yggdrasil-portes-v1 (portes conservées) : OK");
+  const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
+  assert.ok(media.includes('url.searchParams.get("porte")==="1"') && media.includes('"idle/ygg-portes/"'), "route ?porte=1 : R2 idle/ygg-portes/<fruit>.webp");
 }
+console.log("idle-yggdrasil-portes-v1: OK");

@@ -116,37 +116,13 @@
       '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
       /* Décors d'arbres (Norman, 2026-10-29 : « adapte les cadres maintenant que les images ont changé ») : images CARRÉES (1024 x 1024), montrées en entier dans un cadre carré, sur toute la largeur de la carte (le cadre 4/5 en coupait 20 % sur les côtés, feuillage compris). */
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
-      /* Porte close : dessin fixe, aucune animation ; seule la classe .ouvre anime (transform et opacité, une fois). */
-      '.ygg-porte{position:absolute;inset:0;z-index:4;display:flex;overflow:hidden;pointer-events:none;border-radius:9px;perspective:300px;background:#120f0c;box-shadow:inset 0 0 0 3px #17130f,inset 0 0 0 6px var(--r,#8a8272),inset 0 0 0 8px #17130f;}',
-      '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;backface-visibility:hidden;}',
-      '.ygg-porte.ouvre,.ygg-porte.referme{will-change:opacity;}.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d,.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{will-change:transform;}',
-      '.ygg-porte-g{margin:8px 0 8px 8px;transform-origin:0 50%;}',
-      '.ygg-porte-d{margin:8px 8px 8px 0;transform-origin:100% 50%;}',
-      '.ygg-porte svg{display:block;width:100%;height:100%;}',
-      '.ygg-porte-d svg{transform:scaleX(-1);}',
-      '.ygg-porte-emb{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);display:block;padding:5%;box-sizing:border-box;border-radius:50%;color:var(--e);background:radial-gradient(circle at 35% 30%,hsl(var(--h) 22% 26%),#100d0b);box-shadow:0 0 0 2px var(--r),0 0 0 4px #17130f,0 3px 5px rgba(0,0,0,.6);}',
-      '.ygg-porte-emb svg{display:block;width:100%;height:100%;overflow:visible;}',
-      /* Téléphone (Norman, 2026-10-26 : « sur téléphone, les portes ne sont plus à la bonne taille par rapport aux images ») : le cadre de la porte (8 px de marge et de liserés) est fait pour un grand portrait ; sur un portrait de ~140 px il mangeait 11 % de l'image et la porte paraissait trop petite. Cadre réduit de moitié en proportion. */
-      '@media (max-width:640px){.ygg-porte{border-radius:6px;box-shadow:inset 0 0 0 2px #17130f,inset 0 0 0 3px var(--r,#8a8272),inset 0 0 0 4px #17130f;}.ygg-porte-g{margin:4px 0 4px 4px;}.ygg-porte-d{margin:4px 4px 4px 0;}.ygg-porte-emb{width:38%;}}',
-      '.ygg-porte-lueur{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,var(--e),transparent 70%);}',
-      /* Deux images clés seulement (début, fin) : une image intermédiaire à 25 % faisait repartir la courbe d'accélération de zéro (arrêt puis reprise = « mini à-coups » à l'ouverture, Norman 2026-10-28). */
-      '@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}',
-      '@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}',
-      '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
-      '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
-      '@keyframes yggPorteEmb{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}}',
-      /* Le cadre (liserés) RESTE pendant l'ouverture et se fond avec la porte (Norman, 2026-10-26 : « les portes qui s'ouvraient laissaient voir l'image sur leurs bords extérieurs ») : seul le fond devient transparent, pour voir l'image entre les vantaux. */
-      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;background:transparent;}',
-      '.ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
-      '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
-      '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
-      '.ygg-porte.ouvre .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both;}',
-      /* Fermeture (un fruit mangé ou récolté sans auto) : exactement les mêmes images que l'ouverture, jouées à l'envers. */
-      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;background:transparent;}',
-      '.ygg-porte.referme .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
-      '.ygg-porte.referme .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
-      '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both reverse;}',
-      '.ygg-porte.referme .ygg-porte-emb{animation:yggPorteEmb calc(.35s*var(--vit,1)) ease-in both reverse;animation-delay:calc(1.15s*var(--vit,1));}',
+      /* Porte en image (Norman, 2026-11-02) : elle couvre tout le cadre ; à l'ouverture elle monte comme une herse et sort par le haut (le cadre coupe), à la fermeture elle redescend. Deux images clés (une courbe unique), transform seulement. */
+      '.ygg-porte{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;border-radius:9px;background:#120f0c;}',
+      '.ygg-porte img{display:block;width:100%;height:100%;object-fit:cover;}',
+      '.ygg-porte.ouvre,.ygg-porte.referme{background:transparent;}.ygg-porte.ouvre img,.ygg-porte.referme img{will-change:transform;}',
+      '@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}',
+      '.ygg-porte.ouvre img{animation:yggHerse calc(1.5s*var(--vit,1)) cubic-bezier(.55,0,.7,.4) both;}',
+      '.ygg-porte.referme img{animation:yggHerse calc(1.5s*var(--vit,1)) cubic-bezier(.55,0,.7,.4) both reverse;}',
       '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
@@ -359,44 +335,13 @@
   var FEUILLAGE_='<svg viewBox="0 0 64 56" focusable="false" aria-hidden="true"><g fill="#3f8a3a" stroke="#1b3512" stroke-width="1.5" stroke-linejoin="round"><path d="M30 28C26 6 48 0 60 8 58 24 44 32 30 28z"/><path d="M30 28C22 40 30 54 50 52 54 38 44 28 30 28z" fill="#357a32"/><path d="M30 28C10 30 2 16 6 6 22 4 32 14 30 28z" fill="#55a449"/><path d="M30 28C12 32 4 46 12 54 26 54 34 42 30 28z" fill="#2f6e2e"/></g><g stroke="#b6e79a" stroke-width="1" fill="none" opacity=".75"><path d="M31 27 49 11M31 29 47 45M29 27 11 13M29 30 13 47"/></g><circle cx="30" cy="28" r="3.4" fill="#f0c94c" stroke="#6a4a10" stroke-width="1.2"/></svg>';
   var VIGNE_='<svg viewBox="0 0 200 17" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path d="M0 3C22 14 38 1 62 8S104 15 128 6 176 2 200 9" fill="none" stroke="#4d9b3b" stroke-width="2.4" stroke-linecap="round"/><g fill="#5db04a" stroke="#1b3512" stroke-width="1"><ellipse cx="22" cy="12" rx="6" ry="3" transform="rotate(35 22 12)"/><ellipse cx="62" cy="13" rx="6" ry="3" transform="rotate(-30 62 13)"/><ellipse cx="104" cy="14" rx="6" ry="3" transform="rotate(40 104 14)"/><ellipse cx="148" cy="9" rx="6" ry="3" transform="rotate(-35 148 9)"/><ellipse cx="184" cy="12" rx="6" ry="3" transform="rotate(30 184 12)"/></g><g fill="#f4e27a" stroke="#7a5a10" stroke-width=".8"><circle cx="42" cy="6" r="2.2"/><circle cx="126" cy="7" r="2.2"/></g></svg>';
   var DUREE_OUVERTURE_=1500;
-  function teinte_(id){var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%360;return h;}
   /*
-   * Une porte par fruit (Norman, 2026-10-16 : « un style en rapport avec le fruit »). Même gabarit, mais chaque fruit a SA palette (bois, ferrures, liseré) et SON emblème gravé sur un médaillon :
-   * pièce d'or, lettre grecque, boussole, livre, grenade, trèfle, dé, chiffres, flamme, gemme, pastèque, étoile. Dessins SVG intégrés de quelques dizaines d'octets, fixes ; l'emblème s'efface à l'ouverture.
-   * Format : [teinte du bois, saturation, couleur des ferrures, couleur du liseré, couleur de l'emblème, dessin de l'emblème].
+   * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle est tirée vers le HAUT
+   * comme une herse (translateY de -100 %) à l'ouverture, redescend à la fermeture, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
    */
-  var EMB_PIECE_='<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M9 9.3c0-1.5 1.4-2.2 3-2.2s3 .7 3 2.2-1.4 1.9-3 2.4-3 .9-3 2.4 1.4 2.2 3 2.2 3-.7 3-2.2"/>';
-  var EMB_ECLAIR_='<path d="M13.5 2 5 13.5h6L10 22l9-12h-6z" fill="currentColor" fill-opacity=".14" stroke-opacity=".45" stroke-width="1"/>';
-  var EMB_GEMME_='<path d="M7 4h10l4 6-9 11L3 10z"/><path d="M3 10h18M9 4l-2 6 5 11 5-11-2-6" stroke-width="1.1"/>';
-  /* Les fruits « Mayo » : un pot de mayonnaise, chacun avec son humeur. */
-  var EMB_POT_='<rect x="6" y="9.5" width="12" height="11.5" rx="3"/><rect x="7.5" y="5.5" width="9" height="3.5" rx="1"/>';
-  var THEMES_={
-    gold:[38,52,'#bf9433','#e8c566','#ffe08a',EMB_PIECE_],
-    powerAlpha:[212,24,'#5e7184','#9db4cc','#bfe0ff',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">α</text>'],
-    powerBeta:[262,24,'#6b5e84','#b5a4d8','#e1d4ff',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">β</text>'],
-    powerDelta:[355,30,'#84575e','#d49aa4','#ffd0d6',EMB_ECLAIR_+'<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">δ</text>'],
-    adventure:[28,42,'#5a4326','#b58a4a','#f3d9a0','<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5z" fill="currentColor" fill-opacity=".35"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2" stroke-width="1.2"/>'],
-    knowledge:[275,30,'#3e2a57','#a98bd6','#e6d6ff','<path d="M3 6c3-1.5 6-1.5 9 1 3-2.5 6-2.5 9-1v13c-3-1.5-6-1.5-9 1-3-2.5-6-2.5-9-1z"/><path d="M12 7v13"/>'],
-    pomegranate:[345,45,'#4a1c27','#cf6a7c','#ffb3c0','<circle cx="12" cy="13.5" r="7.5"/><path d="M8.5 6.5 10 8.5l2-2 2 2 1.5-2"/>'],
-    luck:[135,38,'#1f4a2c','#6ec27f','#b9f5c4','<circle cx="9" cy="9" r="3.4"/><circle cx="15" cy="9" r="3.4"/><circle cx="9" cy="15" r="3.4"/><circle cx="15" cy="15" r="3.4"/><path d="M12 14c0 3 1 5 3 7"/>'],
-    arbitrariness:[190,40,'#17434d','#5fb7c9','#c9f3fb','<rect x="4" y="4" width="16" height="16" rx="3.5"/><g fill="currentColor" stroke="none"><circle cx="8.5" cy="8.5" r="1.4"/><circle cx="15.5" cy="8.5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="8.5" cy="15.5" r="1.4"/><circle cx="15.5" cy="15.5" r="1.4"/></g>'],
-    numbers:[55,40,'#4a4416','#cbbd54','#fff3a0','<text x="12" y="16.5" text-anchor="middle" font-size="11.5" font-weight="700" font-family="Georgia,serif" fill="currentColor" stroke="none">123</text>'],
-    rage:[8,55,'#4d1410','#e0553c','#ffb199','<path d="M12 2.5c1 3.5 5.5 5.5 5.5 11a5.5 5.5 0 0 1-11 0c0-2.2 1-3.7 2-4.7.3 1.6 1 2.4 1.8 2.7C10 8.4 10.6 5.2 12 2.5z" fill="currentColor" fill-opacity=".3"/>'],
-    macguffinAlpha:[300,30,'#4a1f55','#d17be0','#f6c8ff',EMB_GEMME_],
-    macguffinBeta:[175,35,'#154a44','#4fd1c0','#bff7ee',EMB_GEMME_],
-    watermelon:[100,40,'#1c4a22','#e0627a','#ff9aa8','<path d="M3 10a9 9 0 0 0 18 0z" fill="currentColor" fill-opacity=".3"/><path d="M3 10h18"/><g fill="currentColor" stroke="none"><circle cx="9" cy="13.3" r=".9"/><circle cx="12" cy="15" r=".9"/><circle cx="15" cy="13.3" r=".9"/></g>'],
-    quirks:[320,38,'#4d1b3a','#e07bb8','#ffc8e6','<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>'],
-    angryMayo:[4,50,'#4d1210','#e24b3a','#ffb0a4',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="10" cy="15" r="1"/><circle cx="14" cy="15" r="1"/></g><path d="M8.5 12.5 11 13.6M15.5 12.5 13 13.6M10 18.4q2-1.3 4 0" stroke-width="1.3"/>'],
-    sadMayo:[210,35,'#1b3552','#5a9bd6','#bfe0ff',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="10" cy="14.5" r="1"/><circle cx="14" cy="14.5" r="1"/><path d="M14.4 16.2c.9 1.1.9 1.8 0 2.1-.9-.3-.9-1 0-2.1z"/></g><path d="M10 18.8q2-1.4 4 0" stroke-width="1.3"/>'],
-    moldyMayo:[90,22,'#2f3a1c','#8aa04a','#d4e6a0',EMB_POT_+'<g fill="currentColor" stroke="none"><circle cx="9.6" cy="13" r="1.3"/><circle cx="14.2" cy="15.5" r="1.7"/><circle cx="10.5" cy="18" r="1"/><circle cx="15" cy="12.2" r=".8"/></g>'],
-    ayyMayo:[110,55,'#1c4d20','#59e06a','#c6ffcb','<path d="M12 3c5 0 8 3.5 8 7.5 0 5-4 9.5-8 11.5-4-2-8-6.5-8-11.5C4 6.5 7 3 12 3z"/><g fill="currentColor" stroke="none"><ellipse cx="8.6" cy="11" rx="1.9" ry="3" transform="rotate(-22 8.6 11)"/><ellipse cx="15.4" cy="11" rx="1.9" ry="3" transform="rotate(22 15.4 11)"/></g>'],
-    cincoMayo:[130,40,'#1e4a2a','#d94b4b','#fff2c8','<path d="M12 21.5V6.5a2 2 0 0 1 4 0V13M12 17H8.5A1.5 1.5 0 0 1 7 15.5V11M5 21.5h14" stroke-linecap="round"/>'],
-    prettyMayo:[330,45,'#52203d','#f08cc4','#ffd2ea',EMB_POT_+'<path d="M12 19s-3.4-2.1-3.4-4.4a1.8 1.8 0 0 1 3.4-.9 1.8 1.8 0 0 1 3.4.9c0 2.3-3.4 4.4-3.4 4.4z" fill="currentColor" stroke="none"/>']
-  };
-  var VANTAIL_='<svg viewBox="0 0 50 100" preserveAspectRatio="none" focusable="false"><rect width="50" height="100" style="fill:hsl(var(--h) var(--s) 24%)"/><g style="fill:hsl(var(--h) var(--s) 31%)"><rect x="1" width="15" height="100"/><rect x="17.5" width="15" height="100"/><rect x="34" width="15" height="100"/></g><g style="fill:var(--b)"><rect y="17" width="50" height="9"/><rect y="73" width="50" height="9"/></g><g style="fill:var(--e)"><circle cx="6" cy="21.5" r="1.6"/><circle cx="20" cy="21.5" r="1.6"/><circle cx="34" cy="21.5" r="1.6"/><circle cx="6" cy="77.5" r="1.6"/><circle cx="20" cy="77.5" r="1.6"/><circle cx="34" cy="77.5" r="1.6"/></g></svg>';
+  var PORTES_IMAGES_={gold:true,powerAlpha:true,adventure:true,knowledge:true,luck:true,arbitrariness:true,numbers:true,angryMayo:true,ayyMayo:true,cincoMayo:true,moldyMayo:true};
   function porte_(id,ouvre,referme){
-    var t=THEMES_[id]||[teinte_(id),34,'#3a3a44','#9a9484','#e8e0c8',EMB_PIECE_];
-    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" style="--h:'+t[0]+';--s:'+t[1]+'%;--b:'+t[2]+';--r:'+t[3]+';--e:'+t[4]+';--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+VANTAIL_+'</div><div class="ygg-porte-d">'+VANTAIL_+'</div><b class="ygg-porte-emb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false">'+t[5]+'</svg></b></div>';
+    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" data-porte-img="1" style="--vit:'+reglages_().porte+'" aria-hidden="true"><img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false"></div>';
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte : « porte » (pierre, lourde) ou « porteBois ». */
@@ -409,9 +354,9 @@
     son_(nom,option);
     return true;
   }
-  function nomSonPorte_(){return reglages_().son==='bois'?'porteBois':'porte';}
+  function nomSonPorte_(){return 'herse';}
   /* Bruit de la porte qui se referme : un son à part (le son d'ouverture à l'envers sonnait mal). */
-  function nomSonFerme_(){return reglages_().son==='bois'?'porteFermeBois':'porteFerme';}
+  function nomSonFerme_(){return 'herseFerme';}
   /*
    * Portes revues après une renaissance (Norman, 2026-10-16) : « après un rebirth, les portes doivent être fermées ; avec l'auto actif, on doit quand même les voir s'ouvrir à la première visite du
    * menu, même si le fruit est déjà bien avancé, voire prêt ». On retient, par renaissance (records.totalRebirths), les fruits dont on a déjà vu la porte s'ouvrir ; un fruit actif absent de cette liste
@@ -435,7 +380,7 @@
     try{localStorage.setItem(CLE_COQ_,JSON.stringify({r:r}));}catch(_e){}
     var S=window.__SOREAL_IDLE_YGG_SONS_V1__;
     if(!S||typeof S.coq!=='function')return false;
-    return Boolean(S.coq((reglages_().son==='bois'?1450:1100)*(Number(vit)>0?Number(vit):1)));
+    return Boolean(S.coq(1500*(Number(vit)>0?Number(vit):1)));
   }
   function noterPorteVue_(id,vue){
     var o=portesVues_(),i=o.v.indexOf(id);
@@ -443,9 +388,8 @@
     try{localStorage.setItem(CLE_PORTES_VUES_,JSON.stringify({r:o.r,v:o.v}));}catch(_e){}
   }
   /* Les portes restent en place tant que Norman n'a pas fourni les siennes (une par arbre et fruit) : mettre PORTES_ACTIVES_ à false seulement à ce moment-là (2026-11-02 : retirées trop tôt, puis remises). */
-  var PORTES_ACTIVES_=true;
   function porteDe_(id,actif){
-    if(!PORTES_ACTIVES_)return '';
+    if(PORTES_IMAGES_[id]!==true)return '';
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
       /* l'animation de manger / récolter joue sur les fruits : la porte ne se referme qu'après (animer_ redessine la page à la fin) */

@@ -118,6 +118,40 @@
      *  - porteBois (BOIS) : loquet, gonds qui couinent par à-coups (saccades de bois qui frotte, hauteur qui change à chaque saccade), puis deux coups sourds de bois qui arrive en butée.
      * vit = facteur de durée (0,5 à 2,5) : instants et durées multipliés, hauteurs inchangées.
      */
+    /*
+     * LA HERSE DU CHÂTEAU FORT (Norman, 2026-11-02 : « un son de porte de château fort » ; la porte s'ouvre par le haut). Rien de tonal et grave qui vibre (le piège du « pet ») : que du bruit filtré et des chocs.
+     *  - herse : le treuil tire la herse : grondement sourd, maillons de chaîne qui tintent de plus en plus serrés (bruit métallique + petits « tic » carrés), frottements de bois dans les rainures, puis un coup de fer en butée en haut ;
+     *  - herseFerme : la chaîne se déroule vite, puis la herse retombe lourdement : choc sourd, résonance de fer qui s'éteint, poussière.
+     * vit = facteur de durée (0,4 à 3).
+     */
+    herse:function(c,out,t,a,vit){
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.03;
+      souffle(c,out,t,1.5*k,'lowpass',170,105,1.1,0.7,a);
+      souffle(c,out,t,1.5*k,'bandpass',280,190,3,0.32,a);
+      for(i=0;i<20;i++){
+        souffle(c,out,t+tt*k,0.05*k,'bandpass',2300+al()*2600,3200,7,0.2+al()*0.12,a);
+        note(c,out,t+tt*k,1500+al()*900,0.045*k,0.028,'square');
+        tt+=0.085-i*0.002;
+      }
+      for(i=0;i<4;i++)souffle(c,out,t+(0.12+i*0.34)*k,0.2*k,'bandpass',620+al()*350,520,4,0.12,a);
+      glisse(c,out,t+1.42*k,130,62,0.22*k,0.45,'sine');
+      souffle(c,out,t+1.42*k,0.1*k,'lowpass',520,200,1,0.4,a);
+      note(c,out,t+1.43*k,G.sol5*0.75,0.45*k,0.07,'triangle',2.76);
+    },
+    herseFerme:function(c,out,t,a,vit){
+      var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random,i,tt=0.02;
+      souffle(c,out,t,1.15*k,'lowpass',110,200,1.1,0.55,a);
+      for(i=0;i<14;i++){
+        souffle(c,out,t+tt*k,0.05*k,'bandpass',2000+al()*2400,2800,7,0.17+al()*0.1,a);
+        note(c,out,t+tt*k,1300+al()*800,0.04*k,0.022,'square');
+        tt+=0.07;
+      }
+      glisse(c,out,t+1.0*k,120,36,0.45*k,0.75,'sine');
+      souffle(c,out,t+1.0*k,0.26*k,'lowpass',420,110,1,0.55,a);
+      note(c,out,t+1.01*k,G.sol5*0.5,0.7*k,0.08,'triangle',2.76);
+      note(c,out,t+1.03*k,G.do5*0.75,0.9*k,0.05,'triangle',2.76);
+      souffle(c,out,t+1.05*k,0.55*k,'highpass',3000,4600,0.7,0.05,a);
+    },
     porte:function(c,out,t,a,vit){
       var k=Number(vit)>0?Math.max(.4,Math.min(3,Number(vit))):1,al=typeof a==='function'?a:Math.random;
       /* Pas de « boom » ni de verrou au début (Norman, 2026-10-16) : le son démarre directement par le frottement. */

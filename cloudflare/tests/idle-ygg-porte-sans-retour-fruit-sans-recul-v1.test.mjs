@@ -20,8 +20,8 @@ console.log("idle-ygg-porte-sans-retour-fruit-sans-recul-v1: OK");
 {
   const { readFileSync: lire } = await import("node:fs");
   const ygg = lire("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
-  assert.ok(ygg.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}") && ygg.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}"), "porte : deux images clés, une seule courbe d'accélération");
-  assert.ok(!/@keyframes yggPorte[GD]\{[^}]*25%/.test(ygg), "aucune image intermédiaire qui ferait repartir la courbe");
-  assert.ok(ygg.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d") && ygg.includes("will-change:transform"), "vantaux sur leur propre couche");
+  assert.ok(ygg.includes("@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}"), "porte : deux images clés, une seule courbe d'accélération, vers le haut");
+  assert.ok(!/@keyframes yggHerse{[^}]*25%/.test(ygg), "aucune image intermédiaire qui ferait repartir la courbe");
+  assert.ok(ygg.includes(".ygg-porte.ouvre img,.ygg-porte.referme img{will-change:transform;}"), "la porte sur sa propre couche");
   console.log("idle-ygg-porte (courbe unique): OK");
 }

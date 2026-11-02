@@ -72,6 +72,9 @@
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',
             'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les portes des fruits ont de nouveaux dessins et s’ouvrent par le haut, avec un bruit de herse de château fort.',
+          ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
           ]},

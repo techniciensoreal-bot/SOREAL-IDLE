@@ -48,12 +48,12 @@ const banc = vm.runInNewContext("(function(localStorage,window,reglages_){functi
   () => ({ son: "pierre" })
 );
 assert.equal(banc(1), true, "première ouverture de la renaissance 3 : le coq chante");
-assert.equal(appels.length, 1); assert.equal(appels[0], 1100, "juste après la porte de pierre (durée × réglage de vitesse)");
+assert.equal(appels.length, 1); assert.equal(appels[0], 1500, "juste après le bruit de herse (durée × réglage de vitesse)");
 assert.equal(banc(1), false, "deuxième ouverture : pas de coq");
 assert.equal(banc(1), false); assert.equal(appels.length, 1);
 renaissances = 4;
 assert.equal(banc(2), true, "nouvelle renaissance : le coq chante de nouveau à la première ouverture");
-assert.equal(appels[1], 2200, "durée proportionnelle au réglage de la porte");
+assert.equal(appels[1], 3000, "durée proportionnelle au réglage de la porte");
 renaissances = 5;
 assert.equal(banc(1), true, "à toute heure : le coq chante à la première ouverture");
 assert.equal(banc(1), false, "puis plus de coq jusqu'à la prochaine renaissance");
