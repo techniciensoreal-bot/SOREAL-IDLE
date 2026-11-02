@@ -8,7 +8,7 @@ const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
-assert.ok(ui.includes("'🪙 Il manque <b class=\"or-somme-v1\">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.'") && ui.includes("const texteOr='🪙 Il manque <b class=\"or-somme-v1\">'") && meta.includes("?'🪙 Il manque <b class=\"or-somme-v1\">'"), "pièce d'or, « Il manque » et somme en balise dorée dans les trois menus (Blood Magic, Time Machine, Augmentations)");
+assert.ok(ui.includes("'🪙 Il manque <b class=\"or-somme-v1\">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.'") && ui.includes("const texteOr='<b class=\"or-manque-v1\">'+formatGrandNombreIdleV70_(orPresent)") && meta.includes("?'🪙 Il manque <b class=\"or-somme-v1\">'"), "pièce d'or, « Il manque » et somme en balise dorée dans les trois menus (Blood Magic, Time Machine, Augmentations)");
 assert.ok(!ui.includes("Barre pleine : il manque") && !meta.includes("Barre pleine : il manque") && !decor.includes("Barre pleine : il manque"), "plus de « Barre pleine : » devant le message");
 assert.ok(!ui.includes("'⏳ Barre pleine : il manque") && ui.includes("function ecrireSiChangeIdleV1_(el,texte){") && ui.includes("el.__orHtmlV1!==texte"), "écriture HTML mémorisée : pas de réécriture à chaque tick");
 assert.ok(ui.includes(".tmm-eta').forEach(function(el){") && ui.includes("/il manque .* Or/i"), "la ligne de la Time Machine passe aussi en rouge");

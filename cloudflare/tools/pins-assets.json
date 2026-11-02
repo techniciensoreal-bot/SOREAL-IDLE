@@ -100,8 +100,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 54,
-  "sha": "f30de510711e3b32f7084a4b246755149f3d1d12"
+  "pin": 56,
+  "sha": "492334b2d7329886ffb415ac1a2b3e98049fb77c"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -732,8 +732,8 @@
   "sha": "87c250b88f8948dc12ca5695830726bb30d1e4e9"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 9,
-  "sha": "db50996c7624091d2b895058b89954384e2d8c98"
+  "pin": 10,
+  "sha": "5d0b63886ae006478ef07319ddbea9d9b7c7f436"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 6,
@@ -880,8 +880,8 @@
   "sha": "2a95a2793e4771c26398228a47ea6acffa06d12b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 321,
-  "sha": "a6f0dcdfb35babfc4b623e4e925fae8930a03765"
+  "pin": 322,
+  "sha": "9ccbc51d53818fd57a8be03abfafa0d25c04d036"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,

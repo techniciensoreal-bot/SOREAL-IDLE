@@ -450,7 +450,8 @@ function camionRows(bras,phase,fille){
   put(8,0,'W');put(9,0,'W');put(10,0,'W');put(8,35,'W');put(9,35,'W');put(10,35,'W');   /* pare-chocs */
   put(7,1,'O');put(7,35,'R');
   function roue(cx,cy){
-    var m=['.TTTTT.','TrrrrrT',phase?'TrhrhrT':'TrhhhrT',phase?'ThrhrhT':'TrhhhrT',phase?'TrhrhrT':'TrhhhrT','TrrrrrT','.TTTTT.'],k;
+    /* roue ronde (disque de 7 points, coins coupés) dont les rayons tournent d'une image à l'autre */
+    var m=['..TTT..','.TrrrT.',phase?'TrhrhrT':'TrrhrrT',phase?'TrrhrrT':'ThhrhhT',phase?'TrhrhrT':'TrrhrrT','.TrrrT.','..TTT..'],k;
     for(k=0;k<7;k++)put(cy-3+k,cx-3,m[k]);
   }
   roue(8,11);roue(29,11);
@@ -464,31 +465,63 @@ function camionRows(bras,phase,fille){
 }
 var CAMIONS={};
 function camion(fille,bras,phase){var k=(fille?1:0)+'|'+bras+'|'+phase;return CAMIONS[k]||(CAMIONS[k]=camionRows(bras,phase,fille));}
-function posesCourse(){
+function posesProfil(){
   function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
   function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
-  function course(jambes){
-    var g=grille(),q;
-    /* Leatherface de PROFIL (Norman, 2026-11-02 : « mieux fait de profil quand il court, on ne le reconnaît plus ») : grosse tête au masque pâle de profil (orbite noire, bouche rouge ouverte aux dents), cheveux noirs en bataille, veste grise, chemise crème et grand tablier taché de rouge, pantalon et bottes ; tronçonneuse brandie bras levé, autre bras qui balance */
-    put(g,4,8,'KKKK');put(g,5,7,'KKKKKKK');put(g,6,6,'KKKKKKKKK');                               /* cheveux : sommet et mèches */
-    put(g,7,5,'SSSKKKKK');put(g,8,4,'SSSKSKKKK');put(g,9,4,'SSSSSKKKK');put(g,10,4,'SSSSSSKKK');   /* masque : front, orbite noire (x7), pommette, joue */
-    put(g,11,4,'MTMTSSKK');put(g,12,5,'SSSSSK');put(g,13,6,'SSSK');                                    /* bouche ouverte aux dents, menton */
-    put(g,14,8,'KJJJ');                                                                                 /* cou et col */
-    put(g,15,6,'CCCJJJJJJ');put(g,16,6,'CCCCJJJJJ');put(g,17,6,'CRCCCJJJJ');put(g,18,7,'CCRCCJJJ');put(g,19,7,'CCCRCJJ');put(g,20,8,'CCCCJJ');   /* buste penché : tablier crème taché de rouge, veste grise */
-    put(g,21,9,'JJJJJ');                                                                                /* hanches */
-    [[16,16],[17,17],[18,18],[19,19],[20,19]].forEach(function(p){put(g,p[0],p[1],'JJ');});   /* bras arrière qui balance */
-    [[14,13],[13,13],[12,14],[11,14],[10,15],[9,15],[8,15],[7,15]].forEach(function(p){put(g,p[0],p[1],'JJ');});   /* bras levé vers la scie */
-    put(g,6,15,'SS');
-    put(g,1,14,'HHHH');put(g,2,3,'GGGGGGGGGG');put(g,2,13,'DDDDDDD');put(g,3,3,'OGOGOGOGOG');put(g,3,13,'DRRRDDD');put(g,4,3,'GGGGGGGGGG');put(g,4,13,'DDDDDDD');   /* tronçonneuse au-dessus de la tête, lame devant */
-    q=jambes?[[22,10],[23,10]]:[[22,9],[23,8]];
-    q.forEach(function(p){put(g,p[0],p[1],'NN');});
-    if(jambes){put(g,22,12,'NN');put(g,23,12,'NN');put(g,23,10,'NNKK');put(g,23,12,'NNKK');}
-    else{put(g,23,6,'KKK');put(g,22,13,'NN');put(g,23,14,'NNKK');put(g,22,11,'NN');}
+  /* Leatherface de PROFIL, tourné vers la gauche, avec les MÊMES vêtements que de face (Norman, 2026-11-02) : cheveux noirs en bataille, une partie du visage blanc (masque pâle) avec UN œil noir et la bouche ouverte, chemise blanche, cravate noire, veste noire, pantalon noir.
+     Le noir est « éteint » sur le ciel de coucher de soleil : le personnage se détache en silhouette, avec son visage et sa chemise blancs. */
+  function corps(g){
+    put(g,4,9,'KKKKK');put(g,5,8,'KKKKKKK');put(g,6,7,'SKKKKKKK');                                  /* cheveux : sommet, mèches, front pâle qui dépasse */
+    put(g,7,6,'SSSSKKKKK');put(g,8,5,'SKSSSKKKK');put(g,9,4,'SSKSSSKKK');put(g,10,5,'SSSSSSKK');   /* visage blanc de profil : front, œil noir (x6), nez qui dépasse (x4), joue */
+    put(g,11,5,'MMSSSSK');put(g,12,6,'SSSSK');                                                        /* bouche ouverte, menton */
+    put(g,13,7,'CCKKK');                                                                              /* col de chemise blanc, nuque noire */
+    put(g,14,6,'CCKKKKKKK');put(g,15,6,'CKCKKKKKK');put(g,16,6,'CKCKKKKKK');put(g,17,7,'CKCKKKKK');put(g,18,7,'CKCKKKKK');put(g,19,8,'CCCKKKKK');   /* chemise blanche, cravate noire au milieu, veste noire */
+    put(g,20,9,'KKKKKKK');                                                                            /* hanches */
+  }
+  function jambes(g,type){
+    var a=type===0?[[21,9],[22,8],[23,7],[21,12],[22,13],[23,14]]:type===1?[[21,10],[22,10],[23,10],[21,12],[22,13],[23,14]]:[[21,8],[22,7],[23,6],[21,12],[22,14],[23,16]];
+    a.forEach(function(p){put(g,p[0],p[1],'KK');});
+  }
+  function scieHaut(g){put(g,0,14,'HHHH');put(g,1,3,'GGGGGGGGGG');put(g,1,13,'DDDDDDD');put(g,2,3,'OGOGOGOGOG');put(g,2,13,'DRRRDDD');put(g,3,3,'GGGGGGGGGG');put(g,3,13,'DDDDDDD');}
+  function course(pas){
+    var g=grille();corps(g);jambes(g,pas);
+    [[13,13],[12,14],[11,14],[10,15],[9,15],[8,15],[7,15],[6,15]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras levé, tronçonneuse brandie au-dessus de la tête */
+    put(g,5,15,'SS');scieHaut(g);
+    [[15,15],[16,16],[17,17],[18,18],[19,18]].forEach(function(p){put(g,p[0],p[1],'KK');});                       /* l'autre bras balance */
     return g.map(function(r){return r.join('');});
   }
-  return [course(false),course(true)];
+  /* Le coup qui coupe la tête (trois poses faites pour cela, pas la danse) : 1. armé, la scie levée en arrière à l'oblique ; 2. le coup, bras tendus, la lame à l'horizontale à hauteur du cou de la fille ; 3. l'élan, la scie retombe en bas à gauche */
+  function arme(){
+    var g=grille();corps(g);jambes(g,2);
+    [[13,13],[12,14],[11,15],[10,16],[9,17],[8,18]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    put(g,7,18,'SS');
+    for(var k=0;k<9;k++){put(g,6-Math.floor(k*0.55),19+k>25?25:19+k,k%2?'G':'O');}   /* lame levée vers l'arrière-haut */
+    put(g,3,15,'HHH');put(g,4,15,'DDDDD');put(g,5,15,'DRRRD');put(g,6,15,'DDDDD');
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  function coup(){
+    var g=grille();corps(g);jambes(g,2);
+    [[13,13],[12,13],[11,12],[10,11],[9,10],[8,9],[7,8],[6,8],[5,8]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras tendus vers l'avant-haut */
+    put(g,4,7,'SS');
+    scieHaut(g);
+    put(g,1,0,'GGGGGGGGGGGG');put(g,2,0,'OGOGOGOGOGOG');put(g,3,0,'GGGGGGGGGGGG');                                  /* la lame s'allonge vers la cible */
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  function elan(){
+    var g=grille();corps(g);jambes(g,0);
+    [[13,13],[12,12],[11,11],[10,10],[9,9],[8,8]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    put(g,7,7,'SS');
+    for(var k=0;k<10;k++){var yy=6+k,xx=7-k;if(xx>=0)put(g,yy,xx,k%2?'OG':'GO');}                                   /* la scie retombe en diagonale vers le bas-gauche */
+    put(g,5,8,'HHH');put(g,6,9,'DDDD');put(g,7,10,'DRRD');
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  return {course:[course(0),course(1)],arme:arme(),coup:coup(),elan:elan()};
 }
-var COURSE_POSES=posesCourse();
+var PROFIL=posesProfil();
+var COURSE_POSES=PROFIL.course;
 /* dessin d'une grille de lettres avec une table de couleurs, mise à l'échelle au plus proche voisin (e peut dépasser 1) */
 function dessinerCoul(rows,coul,sx,sy,e){
   var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
@@ -614,8 +647,14 @@ function tueRie(t){
   var G=geoCourse(x0+n),tCoup=1.3,ap=sm(t/0.7),contact=G.tx+G.tw-Math.round(3*G.es)+2,sxl=Math.round(G.sxL-(G.sxL-contact)*ap);
   var tr=(!P.reduced&&t<0.45)?Math.floor(t*22)%2:0,phase=(!P.reduced&&t<0.45&&Math.floor(t*12)%2)?1:0,bras=(!P.reduced&&Math.floor(t*6)%2)?1:0,vivante=t<tCoup;
   dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
-  var pose=t<tCoup-0.35?COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0]:(t<tCoup+0.55?DANSE_POSES[2]:DANSE_POSES[0]);
-  dessinerPose(pose,pose===DANSE_POSES[0]?Math.round(sxl-4*G.es):sxl,G.sy,G.es);
+  /* le coup : il court, puis arme la tronçonneuse (0,3 s), puis se fend vers la gauche et frappe à l'instant tCoup, puis la scie retombe ; ensuite il reste debout, la tronçonneuse brandie */
+  var pose,lunge=0;
+  if(t<tCoup-0.45)pose=COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0];
+  else if(t<tCoup-0.15)pose=PROFIL.arme;
+  else if(t<tCoup+0.12){pose=PROFIL.coup;lunge=Math.round(7*G.es*sm((t-(tCoup-0.15))/0.27));}
+  else if(t<tCoup+0.5)pose=PROFIL.elan;
+  else pose=COURSE_POSES[0];
+  dessinerPose(pose,sxl-lunge,G.sy,G.es);
   var u=t-tCoup,bx=G.tx+Math.round(30*G.ec),by=G.syT+Math.round(2.5*G.ec);
   if(u>=0){
     /* la TÊTE de la fille est tranchée : elle part vers la gauche, monte, retombe sur la route et rebondit une fois ; le corps reste affaissé dans la benne, du rouge jaillit du cou puis coule */

@@ -2116,3 +2116,4 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   /* « Login rewards » prend la largeur des DEUX cadres réunis (87,5 % de la grille + 2,5 px de gouttière) */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .cal-v1{max-width:none!important;width:calc(100% * .875 + 2.5px)!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
 }
+.soreal-idle-page-root-v28 .or-manque-v1.or-manque-v1{color:#ff3b3b!important;font-weight:900;text-shadow:0 1px 0 #000}

@@ -110,7 +110,7 @@
           const niveau0=donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null;
           let restant=base-(maintenant-at)/1000;
           let palier=fill0<1&&base>0?base/(1-fill0):0;
-          let franchis=0,faussesOr=false,manqueOr=0;
+          let franchis=0,faussesOr=false,manqueOr=0,orPresent=0;
           if(restant<=0&&niveau0!==null&&palier>0){
             /*
              * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et
@@ -124,7 +124,7 @@
               const cibleNiv=niveau0+franchis+1;
               if(franchis>=deja){
                 const coutNiv=5000000*Math.max(1,cibleNiv);
-                if(monnaiesTm&&orTm+1e-9<coutNiv){faussesOr=true;manqueOr=coutNiv-orTm;restant=0;break;}
+                if(monnaiesTm&&orTm+1e-9<coutNiv){faussesOr=true;manqueOr=coutNiv-orTm;orPresent=orTm;restant=0;break;}
                 if(monnaiesTm)orTm-=coutNiv;
                 deja+=1;
               }
@@ -140,7 +140,7 @@
             if(niveau0!==null&&fill0>=1&&base<=0){
               const coutAttente=5000000*Math.max(1,niveau0+1);
               const orAttente=idleNombre_(REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies&&REG.idleEtat.systemes.currencies.gold);
-              if(orAttente+1e-9<coutAttente){faussesOr=true;manqueOr=coutAttente-orAttente;}
+              if(orAttente+1e-9<coutAttente){faussesOr=true;manqueOr=coutAttente-orAttente;orPresent=orAttente;}
               else if(Date.now()-idleTmSyncNiveauV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(2000):2000)){idleTmSyncNiveauV1=Date.now();synchroniserJeuIdleV7_(true);}
             }
           }
@@ -154,7 +154,7 @@
           }
           const secondesAffichees=Math.ceil(restant);
           if(faussesOr){
-            const texteOr='🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(manqueOr)+' Or</b> pour le niveau suivant.';
+            const texteOr='<b class="or-manque-v1">'+formatGrandNombreIdleV70_(orPresent)+' Or</b>';
             if(el.__orHtmlV1!==texteOr){el.innerHTML=texteOr;el.__orHtmlV1=texteOr;}
             el.dataset.tmEtaLast='or';
             poserLcdTmIdleV1_(el,'En attente d’Or');

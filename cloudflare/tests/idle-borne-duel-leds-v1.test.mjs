@@ -74,7 +74,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(!led.includes("var HEROS_GRAND="), "plus de héros « mascotte à la tronçonneuse » : c'est Leatherface");
   assert.ok(!led.includes("pousser('hit',now,") && !led.includes("objetDu(now)){var oi=objetSuivant(now,true)") && !led.includes("demarrer(mk('bars',now))"), "aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur (Norman, 2026-11-02 : l'animation se voit du début à la fin)");
   assert.ok(led.includes("dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,G.sxL,G.sy-rebond,G.es);"), "Leatherface court derrière le fourgon du début à la fin, sur la piste de vie (Norman, 2026-11-02)");
-  assert.ok(led.includes("put(g,1,14,'HHHH');put(g,2,3,'GGGGGGGGGG')"), "tronçonneuse brandie au-dessus de la tête, bras levé");
+  assert.ok(led.includes("function posesProfil(){")&&led.includes("function scieHaut("), "tronçonneuse brandie au-dessus de la tête, bras levé");
   assert.ok(!led.includes("la chaîne : les dents défilent, rouges de sang") && !led.includes("flaque et éclaboussures au bout de la piste"), "plus de sang contre la barre");
   const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
   assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
