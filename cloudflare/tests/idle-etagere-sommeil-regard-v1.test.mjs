@@ -41,7 +41,9 @@ console.log("idle-etagere-sommeil-regard-v1 : OK");
 // Norman (2026-11-02) : « quand les yeux suivent la souris, la pupille doit se déplacer (effet de changement de vue) »
 {
   const pup = readFileSync("cloudflare/public/modules/etagere-pupilles-v1.js", "utf8").split(String.fromCharCode(13)).join("");
-  assert.ok(pup.includes("html.et-suit .et-pf{translate:calc(var(--et-mx,0)*var(--ptx,45%)) calc(var(--et-my,0)*10%);"), "la pupille glisse dans l'iris vers la souris");
-  assert.ok(pup.includes("html.et-suit.et-pup-bat .et-pf{--ptx:34%}") && pup.includes("html.et-suit.et-pup-arrivee .et-pf,html.et-suit.et-pup-zoom .et-pf{--ptx:9%}"), "amplitude réduite quand la pupille est large (reste dans l'iris)");
+  assert.ok(pup.includes("html.et-suit .et-pf{translate:calc(var(--et-mx,0)*var(--ptx,45%)) calc(var(--et-my,0)*var(--pty,10%));"), "la pupille glisse dans l'iris vers la souris");
+  assert.ok(pup.includes("html.et-suit.et-pup-bat .et-pf{--ptx:34%}") && pup.includes("html.et-suit.et-pup-arrivee .et-pf,html.et-suit.et-pup-zoom .et-pf{--ptx:7%;--pty:4%}"), "amplitude réduite quand la pupille est large (reste dans l'iris)");
+  assert.ok(pup.includes(".et-iris.et-ir{clip-path:circle(50% at 50% 50%)}"), "la pupille ne déborde jamais de son iris : le disque d'iris coupe ce qui sort (Norman, 2026-11-02)");
+  assert.ok(pup.includes("#000 86%,rgba(0,0,0,0))") && pup.includes("width:44%;height:110%"), "le patch recouvre franchement la pupille dessinée du sprite (aucun reste presque invisible au centre)");
   console.log("idle-etagere-sommeil-regard-v1 (pupille qui suit) : OK");
 }

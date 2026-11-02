@@ -248,8 +248,8 @@
   "sha": "a6a2541fef6b6342719a0211956ddd309c306899"
  },
  "/modules/etagere-pupilles-v1.js": {
-  "pin": 3,
-  "sha": "a785288f3ab23c11ba8b4bd5ef792fca9decd7b2"
+  "pin": 4,
+  "sha": "d02b0e0056475b1375c3e844d34026eee444ae56"
  },
  "/modules/etagere-queues-v1.js": {
   "pin": 1,
