@@ -15,5 +15,5 @@ assert.ok(!src.includes("ygg-vitre.ygg-aura") && !src.includes("@keyframes yggLu
 assert.ok(src.includes("(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')") && src.includes("--lueur:'+rvb_(AURAS_[id])"), "lueur du cadre seulement au palier maximum, de la couleur du fruit");
 const lueur = src.match(/@keyframes yggBrilleMax\{0%,100%\{[^}]*\}50%\{[^}]*\}\}/)[0];
 assert.ok(/0 0 12px 3px rgba\(var\(--lueur\),\.52\)/.test(lueur) && !/\d{2}px \d{2}px/.test(lueur) && /yggBrilleMax\{0%,100%\{/.test(lueur), "lueur douce (12 px au plus fort ; l'ancienne montait à 96 px), boucle sans à-coup");
-assert.ok(src.includes(".ygg-fruit.ygg-mur{filter:drop-shadow(0 0 3px var(--ygg-aura))") && src.includes("(f[2]===1?' ygg-mur':'')") && src.includes("--ygg-aura:'+(AURAS_[id]||'#ffd34a')"), "aura de la couleur du fruit sur chaque fruit mûr de l'arbre (jamais sur celui qui pousse)");
+assert.ok(src.includes("drop-shadow(0 0 3px var(--ygg-aura)) drop-shadow(0 0 8px color-mix(in srgb,var(--ygg-aura) 65%,transparent))}") && src.includes("(f[2]===1?' ygg-mur':'')") && src.includes("--ygg-aura:'+(AURAS_[id]||'#ffd34a')"), "aura de la couleur du fruit sur chaque fruit mûr de l'arbre (jamais sur celui qui pousse)");
 console.log("idle-ygg-arbre-fruits-v1: OK");

@@ -152,3 +152,8 @@ console.log("idle-yggdrasil-portes-v1: OK");
   assert.ok(src.includes(".ygg-carte[data-fruit] .ygg-btn.vert{color:hsl(var(--yg-h,130) 70% 9%);background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 66%)"), "boutons CLAIRS (66 %) sur un fond foncé (30 % à 13 %) : jamais la même couleur que le fond");
   console.log("idle-yggdrasil-portes-v1 (couleurs des cadres) : OK");
 }
+{
+  const y = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
+  assert.ok(y.includes("filter:saturate(.9) contrast(.97) brightness(.96) blur(.45px) drop-shadow(0 1.5px 2px rgba(15,8,0,.55));}") && y.includes(".ygg-fruit.ygg-mur{filter:saturate(.9) contrast(.97) brightness(.96) blur(.45px)") && y.includes("mix-blend-mode:soft-light}"), "fruits unifiés avec l'arbre : même étalonnage, léger flou, ombre chaude, voile de lumière commun (Norman, 2026-11-02)");
+  assert.ok(y.includes("@keyframes yggFruitAlerte{"), "l'alerte des fruits mûrs garde son propre éclat");
+}
