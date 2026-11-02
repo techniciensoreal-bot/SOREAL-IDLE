@@ -651,11 +651,13 @@ function barre(t){
   for(r=0;r<SPR.coeurP.length;r++)for(q=0;q<SPR.coeurP[r].length;q++)if(SPR.coeurP[r][q]!=='.')hp.push([hx+q,hy+r]);
   contour(hp,gy,gy+GH);sprite(SPR.coeurP,hx,hy,255,ROS);
   /* Norman (2026-11-01) : les chiffres de la vie sont SOUS la jauge, calés à gauche, sur la même ligne que la régénération (à droite), en petite police 3x5 */
+  /* Norman (2026-11-02) : « la vie du boss dans la barre LED ne doit pas montrer 10 HP / 10 HP ; ça ne doit s'inscrire que HORS COMBAT, quand le boss régénère sa vie » : pas de chiffres en combat, ni à pleine vie, ni sans régénération. */
+  if(S.combat||pv.pct>=1||!pv.regen)return;
   var room=W-3-(pv.regen?miniWidth(pv.regen)+4:0);
   if(miniWidth(txt)>room)txt=pv.cur+'/'+pv.max;
   if(miniWidth(txt)>room)txt=pv.cur;
   miniText(txt,2,lr,BLA,255,fnUnites(txt));
-  if(pv.regen)miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen));
+  miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen));
 }
 var cbId=-1;
 function couleurBarre(r,e){
@@ -920,7 +922,7 @@ function dessiner(now){
   var s=cur,sc=SC[s.id],u=(now-s.t0)/1000,rm=reduit(),g=1;
   panel.reduced=rm;
   if(rm){
-    var sig=s.id+'|'+S.num+'|'+S.nom+'|'+S.vic+'|'+Math.round(S.bar.v*50)+'|'+langue+'|'+panel.cell+'|'+panel.W+'|'+(S.pv?S.pv.pct.toFixed(3)+S.pv.cur+S.pv.max+S.pv.regen:'')+RGB[BARRE].join();
+    var sig=s.id+'|'+S.num+'|'+S.nom+'|'+S.vic+'|'+Math.round(S.bar.v*50)+'|'+langue+'|'+panel.cell+'|'+panel.W+'|'+(S.pv?S.pv.pct.toFixed(3)+S.pv.cur+S.pv.max+S.pv.regen+(S.combat?'c':''):'')+RGB[BARRE].join();
     if(sig===last)return;
     last=sig;panel.draw(sc.fn,sc.cap,1,s.p);return;
   }

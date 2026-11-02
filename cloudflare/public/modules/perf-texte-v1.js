@@ -17,8 +17,15 @@
         var f=this.firstChild;
         if(f&&f===this.lastChild&&f.nodeType===3&&f.nodeValue===s)return;
         if(!f&&s==='')return;
+        /* Anglais (audit de fluidité du 2026-11-02) : le traducteur du DOM change en place le texte affiché d'un compteur (nodeValue du MÊME nœud) : la comparaison avec le DOM échoue donc à chaque image et le compteur était réécrit (et retraduit) ~60 fois par seconde (10 400 réécritures en 13 s sur Augmentations). On retient la dernière valeur demandée et le nœud de texte créé : tant que c'est le même nœud et que son texte est soit la valeur demandée, soit UNE traduction stable de celle-ci, on ne réécrit pas ; tout autre texte (réécrit par un autre module) est remplacé comme avant. */
+        if(this.__tcDernierV1===s&&f&&f===this.lastChild&&f===this.__tcNoeudV1&&f.nodeType===3){
+          if(f.nodeValue===s||f.nodeValue===this.__tcTradV1)return;
+          if(this.__tcTradV1===undefined){this.__tcTradV1=f.nodeValue;return;}
+        }
       }
-      return ecrire.call(this,valeur);
+      var res=ecrire.call(this,valeur);
+      if(this.nodeType===1){var g=this.firstChild;this.__tcDernierV1=valeur==null?'':String(valeur);this.__tcNoeudV1=(g&&g===this.lastChild&&g.nodeType===3)?g:null;this.__tcTradV1=undefined;}
+      return res;
     };
     garde.__perfTexteV1=true;
     Object.defineProperty(Node.prototype,'textContent',{configurable:true,enumerable:d.enumerable,get:d.get,set:garde});

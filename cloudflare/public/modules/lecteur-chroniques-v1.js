@@ -179,9 +179,10 @@ function afficher(){
   }
   el.querySelector('.lc-reduire-v1').addEventListener('click',function(){regler(true);});
   /* l'enceinte se DÉPLACE au glisser (comme le lecteur) ; un simple toucher l'agrandit */
+  /* Norman (2026-11-02) : « j'ai réduit le lecteur, je n'arrive plus à l'ouvrir » : rendreDeplacable() capture le pointeur sur le lecteur entier (setPointerCapture) dès qu'on touche autre chose qu'un bouton : le pointerup n'arrivait donc JAMAIS à l'enceinte (div) et un simple toucher n'agrandissait plus. Le toucher est maintenant écouté sur le lecteur lui-même, tant qu'il est réduit. */
   var enc=el.querySelector('.lc-enceinte-v1'),dep=null;
-  enc.addEventListener('pointerdown',function(ev){dep={x:ev.clientX,y:ev.clientY};});
-  enc.addEventListener('pointerup',function(ev){var d=dep;dep=null;if(d&&Math.abs(ev.clientX-d.x)<6&&Math.abs(ev.clientY-d.y)<6)regler(false);});
+  el.addEventListener('pointerdown',function(ev){dep=el.classList.contains('mini')?{x:ev.clientX,y:ev.clientY,id:ev.pointerId}:null;},true);
+  el.addEventListener('pointerup',function(ev){var d=dep;dep=null;if(d&&ev.pointerId===d.id&&el.classList.contains('mini')&&Math.abs(ev.clientX-d.x)<6&&Math.abs(ev.clientY-d.y)<6)regler(false);},true);
   enc.addEventListener('keydown',function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();regler(false);}});
   if(mini)regler(true);
   el.querySelector('.lc-pause-v1').addEventListener('click',function(){if(etat.pause)reprendre();else pause();});

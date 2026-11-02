@@ -22,9 +22,62 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
   function morpherSignatureIdleV1_(n){
     return n.tagName+"."+String(n.getAttribute("class")||"").split(" ")[0];
   }
+  /*
+   * Traduction et redessin (audit de fluidité 2026-11-02) : les traducteurs du DOM (traduction-anglais-v1.js, traduction-interface-v1.js) remplacent le texte français / anglais d'origine par le texte affiché. Le HTML neuf
+   * porte toujours le texte d'ORIGINE : sans précaution, chaque redessin réécrivait des centaines de nœuds (origine) que le traducteur retraduisait aussitôt (affichage), pour rien.
+   * Ici le moteur se souvient, par nœud, de l'origine et du texte affiché (window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__ = { texte: WeakMap nœud -> {src,out}, attr: WeakMap élément -> { nom: {src,out} }, accrocs: [...] }) :
+   *  - origine identique ET texte affiché encore celui du traducteur : le nœud n'est PAS touché (0 écriture) ;
+   *  - origine changée : le texte est écrit directement TRADUIT par l'accroche du traducteur actif (une seule écriture, jamais le texte d'origine entre-aperçu) ; sans traducteur actif, comportement d'avant.
+   * La mémoire n'est jamais crue sans preuve : elle ne vaut que si le texte affiché du nœud est exactement le dernier écrit par le traducteur.
+   */
+  function memoireTraductionIdleV1_(){return window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__||null;}
+  function ecrireTexteIdleV1_(a,brut){
+    const M=memoireTraductionIdleV1_();
+    const val=a.nodeValue;
+    if(M&&a.nodeType===3){
+      const e=M.texte.get(a);
+      if(e&&e.out===val&&e.src===brut)return;
+      if(val!==brut){
+        const accrocs=M.accrocs||[];
+        for(let i=0;i<accrocs.length;i+=1){
+          let t=null;
+          try{t=accrocs[i].texte(a,brut);}catch(_e){t=null;}
+          if(typeof t==='string'){
+            if(t!==val)a.nodeValue=t;
+            M.texte.set(a,{src:brut,out:t});
+            return;
+          }
+        }
+      }
+    }
+    if(val!==brut)a.nodeValue=brut;
+  }
+  function ecrireAttributIdleV1_(a,nom,valeur){
+    const courant=a.getAttribute(nom);
+    const M=memoireTraductionIdleV1_();
+    if(M&&(nom==='title'||nom==='placeholder'||nom==='aria-label'||nom==='alt')){
+      const mem=M.attr.get(a);
+      const e=mem&&mem[nom];
+      if(e&&e.out===courant&&e.src===valeur)return;
+      if(courant!==valeur){
+        const accrocs=M.accrocs||[];
+        for(let i=0;i<accrocs.length;i+=1){
+          let t=null;
+          try{t=accrocs[i].attr(a,nom,valeur);}catch(_e){t=null;}
+          if(typeof t==='string'){
+            if(t!==courant)a.setAttribute(nom,t);
+            const m=mem||(M.attr.set(a,{}),M.attr.get(a));
+            m[nom]={src:valeur,out:t};
+            return;
+          }
+        }
+      }
+    }
+    if(courant!==valeur)a.setAttribute(nom,valeur);
+  }
   function morpherNoeudIdleV1_(a,b){
     if(a.nodeType!==1){
-      if(a.nodeValue!==b.nodeValue)a.nodeValue=b.nodeValue;
+      if(a.nodeValue!==b.nodeValue||(a.nodeType===3&&memoireTraductionIdleV1_()))ecrireTexteIdleV1_(a,b.nodeValue);
       return;
     }
     /*
@@ -43,6 +96,14 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
     /* data-morph-vivant : un élément dont un module dessine lui-même les attributs (toile, tracé SVG…), descendants compris : le redessin n'en retire jamais aucun (sinon la toile se vidait à chaque redessin). */
     /* Perf (audit fluidité 2026-11-02) : parcours par index sans copie, et la remontée « closest » ne se fait QUE si un attribut est à retirer (cas rare) : même résultat, nettement moins de temps par nœud. */
     const attrsA=a.attributes;
+    const attrsB=b.attributes;
+    /* Chemin rapide : mêmes attributs, dans le même ordre, avec les mêmes valeurs (cas de presque tous les éléments à chaque redessin) : rien à retirer, rien à écrire. */
+    let memesAttributs=attrsA.length===attrsB.length;
+    for(let i=0;memesAttributs&&i<attrsB.length;i+=1){
+      const x=attrsA[i],y=attrsB[i];
+      if(x.name!==y.name||x.value!==y.value)memesAttributs=false;
+    }
+    if(!memesAttributs){
     let aRetirer=null;
     for(let i=0;i<attrsA.length;i+=1){
       const nom=attrsA[i].name;
@@ -57,7 +118,6 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
      */
     let motifClasses=null;
     try{motifClasses=a.hasAttribute('data-morph-classes-gardees')?new RegExp(a.getAttribute('data-morph-classes-gardees')):null;}catch(_e){motifClasses=null;}
-    const attrsB=b.attributes;
     for(let i=0;i<attrsB.length;i+=1){
       const at=attrsB[i];
       let valeur=at.value;
@@ -66,7 +126,8 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
         (a.getAttribute('class')||'').split(/\s+/).forEach(function(k){if(k&&motifClasses.test(k)&&nouvelles.indexOf(k)===-1)nouvelles.push(k);});
         valeur=nouvelles.join(' ');
       }
-      if(a.getAttribute(at.name)!==valeur)a.setAttribute(at.name,valeur);
+      ecrireAttributIdleV1_(a,at.name,valeur);
+    }
     }
     const tag=a.tagName;
     if(tag==='SCRIPT'||tag==='STYLE'){
@@ -139,6 +200,23 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
     modele.innerHTML=String(html==null?'':html);
     morpherEnfantsIdleV1_(element,modele.content);
   }
+  /*
+   * HTML identique au dernier redessin (audit de fluidité 2026-11-02) : sur Yggdrasil et les Mineurs, 98 % des redessins (plusieurs par seconde, après chaque synchro) recevaient exactement le même HTML que le précédent ; le template était
+   * analysé et toute la page comparée pour ne rien changer. Si le HTML est identique ET que les enfants directs du conteneur sont encore ceux du dernier redessin, on ne fait rien ; une resynchronisation complète a lieu au moins toutes les 4 s
+   * (tout ce qu'un autre module aurait modifié entre-temps est remis au HTML du jeu, comme avant, avec au plus ce délai). Le HTML d'une page qui change (autre menu, autre contenu) est toujours différent : jamais ignoré.
+   */
+  const RESYNC_MS_IDLE_V1=4000;
+  function identiqueIdleV1_(element,html){
+    const m=element.__morphDernierV1;
+    /* Seulement le conteneur du contenu d'un menu (redessiné après chaque synchro) : le rendu complet de la page (#app) garde toujours la comparaison complète. */
+    if(!m||!element.classList||!element.classList.contains('soreal-idle-page-root-v28'))return false;
+    const M=memoireTraductionIdleV1_();
+    return m.generation===(M&&M.generation||0)&&m.html===html&&m.premier===element.firstChild&&m.dernier===element.lastChild&&m.nb===(element.childNodes?element.childNodes.length:-1)&&(Date.now()-m.t)<RESYNC_MS_IDLE_V1;
+  }
+  function memoriserIdleV1_(element,html){
+    const M=memoireTraductionIdleV1_();
+    element.__morphDernierV1={generation:(M&&M.generation||0),html:html,premier:element.firstChild,dernier:element.lastChild,nb:element.childNodes?element.childNodes.length:-1,t:Date.now()};
+  }
   /* L'affectation « element.innerHTML=… » de ces deux conteneurs (la page entière, le contenu d'un menu) devient une mise à jour sur place. */
   function installerMorphIdleV1_(element){
     try{
@@ -148,8 +226,13 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
         configurable:true,
         get:function(){return original.get.call(this);},
         set:function(html){
-          try{morpherHtmlIdleV1_(this,html);}
-          catch(e){original.set.call(this,html);}
+          try{
+            const h=String(html==null?'':html);
+            if(identiqueIdleV1_(this,h))return;
+            morpherHtmlIdleV1_(this,h);
+            memoriserIdleV1_(this,h);
+          }
+          catch(e){this.__morphDernierV1=null;original.set.call(this,html);}
         }
       });
       element.__morphIdleV1__=true;

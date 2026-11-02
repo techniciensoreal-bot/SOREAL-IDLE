@@ -1376,6 +1376,44 @@
         `;
       }
 
+      /*
+       * Audit de fluidité (2026-11-02) : `document.querySelectorAll('[data-sort-idle-v90]')` partait à CHAQUE image du tick (~30 à 60 fois par seconde, y compris sur les pages sans aucun sort). La liste des boutons de sorts est
+       * mémorisée ; un observateur ne la déclare périmée que si un VRAI élément est ajouté ou retiré dans la page (les spans nb-suf des chiffres colorés, recréés à chaque changement de nombre, ne comptent pas) ou si l'attribut
+       * data-sort-idle-v90 change : jamais une liste périmée (elle est relue dès le lot de modifications suivant, avant l'image suivante).
+       */
+      let boutonsSortsV90=[];
+      let boutonsSortsSalesV90=true;
+      let observateurSortsV90=null;
+      let hoteSortsV90=null;
+      function noeudsUtilesSortsV90_(noeuds){
+        for(let k=0;k<noeuds.length;k+=1){
+          const n=noeuds[k];
+          if(n.nodeType===1&&!(n.classList&&n.classList.contains('nb-suf')))return true;
+        }
+        return false;
+      }
+      function boutonsSortsIdleV90_(){
+        const hote=document.body;
+        if(typeof MutationObserver==='function'&&hote&&hoteSortsV90!==hote){
+          if(observateurSortsV90)observateurSortsV90.disconnect();
+          hoteSortsV90=hote;
+          observateurSortsV90=new MutationObserver(function(lots){
+            for(let i=0;i<lots.length;i+=1){
+              const m=lots[i];
+              if(m.type==='attributes'||noeudsUtilesSortsV90_(m.addedNodes)||noeudsUtilesSortsV90_(m.removedNodes)){boutonsSortsSalesV90=true;return;}
+            }
+          });
+          observateurSortsV90.observe(hote,{childList:true,subtree:true,attributes:true,attributeFilter:['data-sort-idle-v90']});
+          boutonsSortsSalesV90=true;
+        }
+        if(boutonsSortsSalesV90||!observateurSortsV90){
+          if(observateurSortsV90)observateurSortsV90.takeRecords();
+          boutonsSortsV90=Array.prototype.slice.call(document.querySelectorAll('[data-sort-idle-v90]'));
+          boutonsSortsSalesV90=false;
+        }
+        return boutonsSortsV90;
+      }
+
       function actualiserManaSortsIdleV90_(
         maintenant
       ){
@@ -1463,10 +1501,7 @@
             '%';
         }
 
-        document
-          .querySelectorAll(
-            '[data-sort-idle-v90]'
-          )
+        boutonsSortsIdleV90_()
           .forEach(function(button){
             const sort=
               sortParIdIdleV90_(

@@ -272,6 +272,12 @@ for (const id of MENUS) {
     out.push(`${P}[data-menu-id-v1="${id}"] .soreal-idle-nav-deco-v1 .nb-d{height:40cqh}`);
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 12s linear infinite}`);
     out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_goutte 2.6s linear infinite}`);
+    /* Battement de cœur du pentacle (Norman, 2026-11-02) : par intermittence (deux battements rapprochés puis une pause, cycle 2,2 s) le pentacle, qui tourne toujours, passe de sa couleur à celle de la goutte de sang (#d81e3c, son remplissage) puis la reprend.
+       Fluidité : seul l'OPACITÉ d'un second tracé du pentacle (::after de .nb-g : mêmes formes, rouge de la goutte, halo rouge FIXE) est animée, jamais un filtre ni une ombre ; le calque tourne avec le pentacle (c'est son enfant) ; invisible (opacité 0) au début et à la fin du cycle (règle n°3) ; seulement quand le menu travaille. */
+    const rayons = Array.from({ length: 12 }, (_, i) => { const t = i * Math.PI / 6, c = Math.cos(t), n = Math.sin(t); return `<line x1="${(50 + 38 * c).toFixed(1)}" y1="${(50 + 38 * n).toFixed(1)}" x2="${(50 + 44 * c).toFixed(1)}" y2="${(50 + 44 * n).toFixed(1)}"/>`; }).join("");
+    const pentacleRouge = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><g fill="none" stroke="#d81e3c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="50" cy="50" r="44"/><circle cx="50" cy="50" r="36" stroke-width="1.6"/><path d="M50 12 L83 69 L17 69Z"/><path d="M50 88 L17 31 L83 31Z"/><circle cx="50" cy="50" r="9"/>${rayons}</g></svg>`;
+    out.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g::after{content:"";position:absolute;inset:0;pointer-events:none;background:url("data:image/svg+xml,${encodeURIComponent(pentacleRouge)}") center/contain no-repeat;filter:drop-shadow(0 0 4px rgba(216,30,60,.95));opacity:0;will-change:opacity;animation:nbV1_battement 2.2s linear infinite}`);
+    REDUIT_EXTRA.push(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g::after{animation:none;opacity:0}`);
     continue;
   }
   if (id === "entrainement") {
@@ -315,6 +321,8 @@ for (const id of MENUS) {
   MOUVEMENTS.frappe = frappe.join("");
   MOUVEMENTS.monte = "0%{background-position:0 0}100%{background-position:0 33.3333cqh}";
   /* goutte de sang : invisible au départ, apparaît en haut (fondu d'entrée), tombe, s'efface en bas (fondu de sortie) ; mouvement toujours vers le bas. */
+  /* battement de cœur : deux battements (montée vive, retombée, second battement plus doux) puis pause ; opacité 0 aux deux bouts */
+  MOUVEMENTS.battement = "0%{opacity:0}8%{opacity:1}18%{opacity:.12}28%{opacity:.8}42%{opacity:0}100%{opacity:0}";
   MOUVEMENTS.goutte = "0%{opacity:0;transform:translateY(-62%)}14%{opacity:1;transform:translateY(-48%)}80%{opacity:1;transform:translateY(48%)}100%{opacity:0;transform:translateY(62%)}";
 }
 out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}{${c}}`).join("\n"));

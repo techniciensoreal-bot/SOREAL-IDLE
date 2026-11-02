@@ -574,11 +574,23 @@
    * (exécuté avant la peinture) la construit maintenant tout de suite, dans le même tour, à partir de l'état déjà en mémoire ; la minuterie reste pour les mises à jour suivantes.
    */
   var enConstruction=false;
+  function ajoutElementUtile_(lots){
+    for(var i=0;i<lots.length;i+=1){
+      var ajoutes=lots[i].addedNodes;
+      for(var j=0;j<ajoutes.length;j+=1){
+        var n=ajoutes[j];
+        if(n.nodeType===1&&!(n.classList&&n.classList.contains('nb-suf')))return true;
+      }
+    }
+    return false;
+  }
   function observerEntree_(){
     var hote=document.getElementById('app')||document.body;
     if(!hote||typeof MutationObserver==='undefined'){setTimeout(observerEntree_,0);return;}
-    new MutationObserver(function(){
+    new MutationObserver(function(lots){
       if(enConstruction)return;
+      /* Audit de fluidité (2026-11-02) : seuls de VRAIS éléments ajoutés peuvent amener la page Aventure ; les spans nb-suf des chiffres colorés (recréés ~30 fois par seconde en combat) ne comptent pas (deux recherches DOM évitées à chaque lot). */
+      if(!ajoutElementUtile_(lots))return;
       var root=root_();
       if(!root||!adventurePage_(root)||root.querySelector('.soreal-idle-v79-adventure-scene'))return;
       runtime=window.__SOREAL_IDLE_RUNTIME_V1__||runtime;

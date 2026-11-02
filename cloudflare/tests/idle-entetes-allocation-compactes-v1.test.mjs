@@ -35,7 +35,7 @@ assert.ok(perso.includes("boite.parentNode.insertBefore(r,boite.nextSibling)") &
 assert.ok(/@media \(min-width:1360px\)\{[^@]*--bt-cols:minmax\(0,\.8fr\) repeat\(var\(--bt-n,1\),minmax\(0,1\.2fr\)\)/.test(css), "rangée unique : Input puis une colonne par ressource");
 assert.ok(css.includes("--bt-n:2") && css.includes("--bt-n:3"), "nombre de ressources déduit des groupes");
 assert.ok(/\.soreal-idle-bt-groupe-v1\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/.test(css), "un groupe = deux petits cadres côte à côte");
-assert.ok(/@media \(max-width:700px\)\{[\s\S]*\.soreal-idle-bt-groupe-v1\{grid-template-columns:minmax\(0,1fr\)\}/.test(css), "téléphone : groupes empilés");
+assert.ok(/@media \(max-width:700px\)\{[\s\S]*\.soreal-idle-bt-groupe-v1(?:,[^{]*)?\{grid-template-columns:minmax\(0,1fr\)[;}]/.test(css), "téléphone : groupes empilés");
 assert.ok(css.includes(".soreal-idle-bt-groupe-v1>.soreal-idle-bt-total-v1{grid-column:1/-1}"), "le total placé reste, fin, sous les deux petits cadres");
 assert.ok(css.includes("--bt-btn-h:28px"), "boutons plus petits");
 assert.ok(!/!important/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "aucun !important dans la nouvelle feuille");

@@ -32,15 +32,33 @@
         date:'2026-11-02',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les entêtes d’allocation (Input, plafonds d’énergie et de magie, Idle) sont plus compacts sur PC : l’Input passe à gauche sur la même rangée, les lignes « placée » sont collées en bas du cadre et les boutons profitent de la place gagnée.',
             'Le jeu est plus fluide partout : le dessin de l’écran de la borne est environ sept fois moins coûteux, le jeu ne se rafraîchit plus plus de 60 fois par seconde, les menus se redessinent plus vite et les écrans qui sortent de l’image se mettent en pause.',
             'Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Les circuits imprimés portent de petites dents dorées sur leur bord, comme le connecteur d’une barrette de mémoire (à gauche sur PC, en haut sur téléphone).',
             'Le petit crayon qui sert à changer tes boutons « Mes nombres » n’est plus coupé : il est maintenant à gauche du nombre, bien visible et facile à toucher (Augmentations et autres menus).',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'En anglais, la lecture d’une carte de chronique utilise bien la voix anglaise du début à la fin.',
+            'Le lecteur des chroniques réduit en petite enceinte se rouvre de nouveau d’un simple toucher.',
             'Album des cartes : sur téléphone, les cartes ne clignotent plus quand tu tournes la page. Les images de la page suivante sont préparées avant que la feuille ne tourne, et la page qui part est déplacée au lieu d’être redessinée.',
             'Gyroscope : la carte spéciale zoomée réagit maintenant de façon plus naturelle : elle garde son orientation quand tu inclines le téléphone (elle penche dans le sens inverse) et le reflet suit une lumière fixe ; elle bouge en douceur, sans saccade, et revient doucement à plat quand le téléphone reste immobile.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne, les coins noirs qui dépassaient derrière les images du duel sont maintenant arrondis comme les images.',
+            'La vie du boss sous la barre de l’écran de la borne ne s’affiche plus qu’hors combat, quand le boss régénère sa vie.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'La lune est une vraie pleine lune brillante, avec ses cratères et son halo ; et tant qu’aucune énergie n’est placée, un gros nuage gris couvre le ciel : le soleil et les nuages blancs n’apparaissent qu’ensuite.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Le pentacle du bouton du menu bat comme un cœur, de son rouge jusqu’au rouge de la goutte de sang, quand de la magie est placée ; les icônes du menu bougent dès qu’un rituel a de la magie.',
+            'Rituel du fil barbelé : le calice suivant n’arrive plus trop tôt, le calice plein part et le suivant prend sa place.',
+          ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
           ]},
         ],
       },

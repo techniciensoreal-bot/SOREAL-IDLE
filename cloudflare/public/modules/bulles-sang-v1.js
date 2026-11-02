@@ -8,7 +8,10 @@
   if(window.__SOREAL_IDLE_BULLES_SANG_V1__)return;
   /* Seulement la barre de vie du joueur en haut de l'écran et celles de Fight Boss (Norman, 2026-10-10 : « pas dans le reste du jeu »). */
   var BARRES='#sorealIdleHudPvBarV2,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-bossbar-v7,.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-playerbar-v15';
-  var HTML='<i class="sg-bulles-v1" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i>';
+  /* Règle n°4 (redessin) : le calque est un bloc AJOUTÉ à la page, il porte data-morph-garder (le morph le laisse où il est, au lieu de le retirer à chaque redessin puis de le remettre jusqu'à 700 ms plus tard), et l'hôte porte l'attribut data-sg-hote
+     (inscrit dans la liste des attributs gardés ; la classe sg-hote-v1, elle, est réécrite par le morph) qui garde overflow:hidden. */
+  var HTML='<i class="sg-bulles-v1" aria-hidden="true" data-morph-garder><b></b><b></b><b></b><b></b><b></b><b></b></i>';
+  (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-sg-hote');
   /* Barre d'un boss (Norman, 2026-10-11) : les premiers boss ont des bulles de la couleur de leur barre (en plus foncé) ; plus le numéro monte, plus certaines bulles prennent une autre teinte que le fond. */
   var DECALAGES=[0,0,120,0,-100,0,200,60,-150,0];
   function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,h=0,s=0,d=mx-mn;if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}return [h,s,l];}
@@ -35,13 +38,18 @@
     var vieux=document.querySelectorAll('.sg-bulles-v1');
     for(var v=0;v<vieux.length;v+=1){
       var h=vieux[v].parentElement;
-      if(!h||!h.matches(BARRES)){h&&h.classList.remove('sg-hote-v1');vieux[v].remove();}
+      if(!h||!h.matches(BARRES)){if(h){h.classList.remove('sg-hote-v1');h.removeAttribute('data-sg-hote');}vieux[v].remove();}
     }
     var liste=document.querySelectorAll(BARRES);
     for(var i=0;i<liste.length;i+=1){
       var el=liste[i];
-      if(el.querySelector(':scope > .sg-bulles-v1'))continue;
+      if(el.querySelector(':scope > .sg-bulles-v1')){
+        /* Le morph réécrit la classe de l'hôte : l'attribut (gardé) tient overflow:hidden, la classe n'est plus nécessaire. */
+        if(!el.hasAttribute('data-sg-hote'))el.setAttribute('data-sg-hote','');
+        continue;
+      }
       el.classList.add('sg-hote-v1');
+      el.setAttribute('data-sg-hote','');
       if(getComputedStyle(el).position==='static')el.style.position='relative';
       el.insertAdjacentHTML('beforeend',HTML);
     }
@@ -49,5 +57,12 @@
   }
   poser_();
   setInterval(poser_,700);
+  /* Juste après chaque redessin de la page, dans la même tâche : si la barre du boss vient d'être recréée (changement de page : plus d'attribut data-sg-hote), les calques reviennent avant la peinture. Test très léger (un getElementById) : poser_() complet (deux recherches DOM et une lecture de style forcée) ne tourne que dans ce cas. */
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){
+    try{
+      var b=document.getElementById('sorealIdleBossBarV7');
+      if(b&&!b.hasAttribute('data-sg-hote'))poser_();
+    }catch(_e){}
+  });
   window.__SOREAL_IDLE_BULLES_SANG_V1__={poser:poser_};
 })();

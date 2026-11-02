@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__)return;
 
   var CLE_LANGUE='soreal_idle_langue_v1';
-  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=722';
+  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=723';
   var ATTRIBUTS=['title','placeholder','aria-label','alt'];
 
   function langue_(){
@@ -29,6 +29,8 @@
   var cache=new Map();
   var originauxTexte=new WeakMap();
   var originauxAttr=new WeakMap();
+  /* Mémoire partagée avec le rendu sur place (morph-v1.js, audit de fluidité 2026-11-02) : par nœud, le texte d'origine (src) et le texte affiché (out). Un redessin dont l'origine n'a pas changé ne touche pas le nœud traduit. */
+  var memoire=window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__||(window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__={texte:new WeakMap(),attr:new WeakMap(),accrocs:[]});
 
   function norme_(s){
     return String(s).replace(/[  ]/g,' ').replace(/[’‘]/g,"'");
@@ -108,6 +110,7 @@
     var tr=traduireTexte_(val);
     if(tr!==val){
       originauxTexte.set(n,{francais:val,anglais:tr});
+      memoire.texte.set(n,{src:val,out:tr});
       n.nodeValue=tr;
     }else if(orig)originauxTexte.delete(n);
   }
@@ -123,6 +126,9 @@
       if(t!==v){
         if(!mem){mem={};originauxAttr.set(el,mem);}
         mem[a]={francais:v,anglais:t};
+        var mm=memoire.attr.get(el);
+        if(!mm){mm={};memoire.attr.set(el,mm);}
+        mm[a]={src:v,out:t};
         el.setAttribute(a,t);
       }
     }
@@ -181,19 +187,43 @@
     if(!racine)return;
     observateur=new MutationObserver(function(mutations){
       if(langue_()!=='en')return;
-      var vus=new Set();
+      /* Chaque sorte de changement ne retraduit que ce qui a changé : un texte réécrit = ce nœud ; un attribut = cet élément ; un nœud ajouté = son arbre (avant : un simple attribut faisait reparcourir tout le sous-arbre de l'élément). */
+      var arbres=new Set(),textes=new Set(),attrs=new Set();
       for(var i=0;i<mutations.length;i++){
         var m=mutations[i];
-        if(m.type==='characterData'||m.type==='attributes'){vus.add(m.target);continue;}
+        if(m.type==='characterData'){textes.add(m.target);continue;}
+        if(m.type==='attributes'){attrs.add(m.target);continue;}
         for(var j=0;j<m.addedNodes.length;j++){
           var n=m.addedNodes[j];
-          if(n.nodeType===1||n.nodeType===3)vus.add(n);
+          if(n.nodeType===1||n.nodeType===3)arbres.add(n);
         }
       }
-      vus.forEach(function(n){if(n.isConnected!==false)traduireArbre_(n);});
+      arbres.forEach(function(n){if(n.isConnected!==false)traduireArbre_(n);});
+      textes.forEach(function(n){if(n.isConnected!==false&&!exclu_(n))traduireNoeudTexte_(n);});
+      attrs.forEach(function(el){if(el.isConnected!==false&&!exclAttr_(el))traduireAttributs_(el);});
     });
     observateur.observe(racine,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:ATTRIBUTS});
   }
+
+  /* Accroche du rendu sur place : un texte ou un attribut d'origine NOUVEAU est écrit directement traduit (une seule écriture, jamais le français entre-aperçu). */
+  memoire.accrocs.push({
+    texte:function(n,brut){
+      if(langue_()!=='en'||!regle||exclu_(n))return null;
+      var tr=traduireTexte_(brut);
+      if(tr===brut)return null;
+      originauxTexte.set(n,{francais:brut,anglais:tr});
+      return tr;
+    },
+    attr:function(el,nom,brut){
+      if(langue_()!=='en'||!regle||ATTRIBUTS.indexOf(nom)<0||exclAttr_(el))return null;
+      var t=traduireTexte_(brut);
+      if(t===brut)return null;
+      var mem=originauxAttr.get(el);
+      if(!mem){mem={};originauxAttr.set(el,mem);}
+      mem[nom]={francais:brut,anglais:t};
+      return t;
+    }
+  });
 
   /* Messages natifs du navigateur (alert, confirm, prompt) : traduits eux aussi. */
   function brancherDialogues_(){
@@ -227,6 +257,8 @@
 
   /* Appelé par le menu Réglages quand la langue change. */
   window.__SOREAL_IDLE_LANGUE_CHANGEE_V1__=function(choix){
+    /* Changement de langue : le rendu sur place ne saute plus un redessin « identique » (morph-v1.js) et remet tout au HTML du jeu, traduit dans la nouvelle langue. */
+    memoire.generation=(memoire.generation||0)+1;
     if(choix==='en'){
       if(charge){observer_();traduireArbre_(document.body);titre_();}else charger_();
     }else restaurer_();

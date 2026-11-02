@@ -52,11 +52,11 @@ assert.ok(t.includes('class="bm-nom"') && t.includes(">Norman</text>"), "étique
 assert.ok(t.includes("bm-punaise") && (t.match(/class="bm-goutte-doigt"/g) || []).length === 1 && !t.includes("bm-plaie") && t.includes("bm-doigt"), "doigt, punaise et UNE seule goutte par piqûre (née du point piqué)");
 assert.ok(t.includes("Sang collecté") && t.includes('<b class="bm-etagere-n">2500</b>') && !t.includes("bm-mini"), "premier rituel : sang collecté = 2500 piqûres × 1 Blood");
 
-// un seul récipient sous le doigt ; le suivant n'est dessiné qu'à l'approche du plein (SEUIL_ARRIVEE = 0,9)
+// un seul récipient sous le doigt ; le suivant n'est dessiné qu'à l'approche du plein (SEUIL_ARRIVEE = 0,9 ET, sans cadence mesurée, 97 %)
 assert.ok(!t.includes("bm-suivant"), "à moitié plein : un seul récipient");
-const pres = d.scene({ id: "tack", sang: 1, compte: 2950, barre: "", rang: 0 });
+const pres = d.scene({ id: "tack", sang: 1, compte: 2975, barre: "", rang: 0 });
 assert.ok(pres.includes('class="bm-vase bm-suivant bm-apparait"'), "près du plein : le suivant arrive d'en dehors du cadre");
-assert.ok(!d.scene({ id: "tack", sang: 1, compte: 2960, barre: "", rang: 0 }).includes("bm-apparait") && d.scene({ id: "tack", sang: 1, compte: 2960, barre: "", rang: 0 }).includes("bm-suivant"), "un redessin ne le fait pas surgir : il est déjà là");
+assert.ok(!d.scene({ id: "tack", sang: 1, compte: 2985, barre: "", rang: 0 }).includes("bm-apparait") && d.scene({ id: "tack", sang: 1, compte: 2985, barre: "", rang: 0 }).includes("bm-suivant"), "un redessin ne le fait pas surgir : il est déjà là");
 assert.ok(!d.scene({ id: "tack", sang: 1, compte: 2100, barre: "", rang: 0 }).includes("bm-suivant"), "juste après un plein : un seul récipient");
 
 // deuxième rituel (cinquante coupures de papier) : un bras tranché par une feuille, un verre à moutarde, 5000 coupures pour le remplir

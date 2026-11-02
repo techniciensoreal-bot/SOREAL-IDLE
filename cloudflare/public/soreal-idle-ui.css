@@ -6321,10 +6321,19 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-coffre-manne
 .soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-icon-v1{filter:grayscale(1) brightness(.78);opacity:.82}
 .soreal-idle-collection-card-v1.nonmax .soreal-idle-collection-card-name-v1{opacity:.75}
 .soreal-idle-collection-card-v1.nonmax:hover .soreal-idle-collection-card-icon-v1{filter:grayscale(.6) brightness(.9);opacity:1}
-/* Le mot « Titans » du menu brille quand un Titan est prêt (Norman, 2026-10-11) : filtre seulement (animé par la carte graphique), boucle sans à-coup. */
-@keyframes soreal-idle-nav-titans-brille-v1{0%,100%{filter:brightness(1) drop-shadow(0 0 2px rgba(255,176,0,.7))}50%{filter:brightness(1.7) drop-shadow(0 0 9px rgba(255,214,74,1))}}
-.soreal-idle-nav-titans-brille-v1{display:inline-block;color:#ffe27a;animation:soreal-idle-nav-titans-brille-v1 1.5s ease-in-out infinite}
-@media (prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1{animation:none;filter:drop-shadow(0 0 6px rgba(255,214,74,.9))}}
+/* Le mot « Titans » du menu brille quand un Titan est prêt (Norman, 2026-10-11) : boucle sans à-coup (opacité 0 au début et à la fin du cycle, règle n°3).
+ * Audit de fluidité (2026-11-02) : l'ancienne animation de `filter` (brightness + drop-shadow) forçait un repeint et un nouveau découpage en calques À CHAQUE IMAGE (mesuré : Layerize 1,4 ms par image, 77 ms/s sur PC, ~4,6 ms par image sur téléphone émulé ×4, plus de la moitié de la
+ * facture des animations du menu). Même rendu, mais seule l'OPACITÉ bouge (carte graphique, rien à repeindre) : le mot garde son halo doux fixe, et un second exemplaire du mot (::after, texte lu dans data-t), plus clair (même filtre brightness(1,7) fixe) et au halo large, apparaît en fondu par-dessus à 50 % du cycle. */
+@keyframes soreal-idle-nav-titans-brille-v1{0%,100%{opacity:0}50%{opacity:1}}
+.soreal-idle-nav-titans-brille-v1{position:relative;display:inline-block;color:#ffe27a;filter:drop-shadow(0 0 2px rgba(255,176,0,.7))}
+.soreal-idle-nav-titans-brille-v1::after{content:attr(data-t);position:absolute;left:0;top:0;white-space:nowrap;color:#ffe27a;text-shadow:none;filter:brightness(1.7) drop-shadow(0 0 9px rgba(255,214,74,1));opacity:0;pointer-events:none;will-change:opacity;animation:soreal-idle-nav-titans-brille-v1 1.5s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1{filter:drop-shadow(0 0 6px rgba(255,214,74,.9))}.soreal-idle-nav-titans-brille-v1::after{animation:none;display:none}}
+
+/* Boutons du menu hors de l'écran (audit de fluidité, 2026-11-02) : toutes leurs animations en pause (classe posée par ui-navigation-v1.js, IntersectionObserver ; reprise au même point). !important : certaines animations des voyants sont posées avec !important. */
+html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1,html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1::before,html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1::after,html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1 *,html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1 *::before,html body .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.nav-hors-v1 *::after{animation-play-state:paused!important}
+
+/* Barre du bandeau entièrement dépensée (opacité 0, hauteur 0) : ses animations (braises, runes, étoiles, code) sont en pause tant qu'elle est invisible (audit de fluidité, 2026-11-02 : chaque élément animé coûte un recalcul de style par image, même invisible). */
+html body .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2 *,html body .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2 *::before,html body .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2 *::after{animation-play-state:paused!important}
 
 /* Magie du sang (Norman, 2026-10-30) : « sang collecté » bien visible au-dessus des sorts, et fenêtre de confirmation au thème de la page (lie-de-vin, liseré rose sang, lueur cramoisie) avant de dépenser tout le sang. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-summary-v28.bm-sang-total-v1{color:#ffd9e0;font-size:15px;outline:2px solid #ff6b86;outline-offset:-6px;filter:drop-shadow(0 0 10px rgba(235,40,80,.7))}

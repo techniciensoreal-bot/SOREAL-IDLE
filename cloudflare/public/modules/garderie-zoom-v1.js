@@ -114,7 +114,12 @@
     }
     try{d.querySelector('[data-gdz-reprendre]').focus({preventScroll:true});}catch(_e){}
     clearInterval(minuterie);minuterie=setInterval(maj,250);
+    pupillesZoom(true);
     return true;
+  }
+  /* Norman, 2026-11-02 : bocal pris pour consulter son temps = les pupilles du chat deviennent RONDES (état stable) tant que la vue est ouverte ; fentes à la fermeture (etagere-pupilles-v1.js, classe sur <html>). */
+  function pupillesZoom(ouvert){
+    try{const P=window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__;if(P&&typeof P.zoom==='function')P.zoom(ouvert);}catch(_e){}
   }
   function mouvementReduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
   function fermer(silencieux){
@@ -122,6 +127,7 @@
     if(couche&&couche.parentNode)couche.parentNode.removeChild(couche);
     const avait=Boolean(couche);
     couche=null;idOuvert=null;
+    pupillesZoom(false);
     if(avait&&!silencieux&&focusAvant&&focusAvant.focus){try{focusAvant.focus({preventScroll:true});}catch(_e){}}
     if(!silencieux)focusAvant=null;
   }

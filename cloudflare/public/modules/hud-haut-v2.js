@@ -140,6 +140,7 @@
   window.__SOREAL_IDLE_HUD_HAUT_V2__={surveiller:surveillerHud,ajuster:ajuster,base:function(){return hudEl?baseHud(hudEl):0;}};
   function maj(){
     placer();
+    try{var nh=window.__SOREAL_IDLE_NAV_HORS_ECRAN_V1__;if(nh)nh.observer();}catch(_e){}   /* boutons du menu neufs (nav redessinée) : on les observe pour mettre leurs animations en pause hors de l'écran */
     surveillerHud();
     majInfos();
     majVide();

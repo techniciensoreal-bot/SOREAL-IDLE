@@ -1,31 +1,97 @@
 /*
- * SOREAL IDLE — pupilles en FENTE verticale des chats de la Garderie (Norman, 2026-11-01 : « les pupilles s'élargissent ou se contractent verticalement comme le font vraiment les chats »).
- * Les sprites de regard (/garderie/yeux/<id>-<n>.webp) portent une pupille dessinée ; pour la faire bouger sans toucher aux sprites, chaque iris reçoit deux éléments : un PATCH (couleur de l'iris, bord
- * adouci par un masque radial) qui recouvre la pupille dessinée, et la PUPILLE-FENTE noire (ellipse haute) dont la largeur varie en transform scaleX (jamais de layout, aucun filtre).
- * Mouvement : dilatation lente et irrégulière (le chat « regarde » : 18 % -> 30 % la fente s'ouvre presque ronde, se rétrécit, se resserre en fine fente quand la lumière du bocal est vive, puis revient) ;
- * durée DIFFÉRENTE par chat (7,7 à 12,7 s) et décalage négatif par œil. Règle n°3 : 0 % et 100 % ont la même valeur (boucle parfaite). Mouvement réduit : fente fixe.
- * Règle n°4 : tout est dessiné par le rendu de la page (même principe que les yeux : aucun état, aucune minuterie) ; un seul animation CSS par pupille, une seule par œil.
+ * SOREAL IDLE — pupilles des chats de la Garderie : fente verticale qui se dilate en DISQUE presque plein (Norman, 2026-11-01 puis 2026-11-02 :
+ * « le mouvement des pupilles doit être plus rare » ; « quand elles sont rondes, le cercle noir doit grandir PROGRESSIVEMENT, ne laisse qu'un FIN bord de couleur, puis se rétrécir pour redevenir une pupille en ligne »).
+ * Les sprites de regard (/garderie/yeux/<id>-<n>.webp) portent une pupille dessinée ; chaque iris reçoit un PATCH (couleur de l'iris, bord adouci par un masque radial) qui la recouvre, et UNE SEULE pupille noire :
+ * un cercle de base (84 % de la hauteur de l'iris) dont transform: scale(sx, 1) fait toute la forme : sx = .17 = fente fine (les bouts haut et bas touchent presque l'iris), sx = .5 = ellipse verticale douce (battement du repos),
+ * sx = 1 = disque presque plein (il ne reste qu'un fin anneau de couleur, ~8 % de la hauteur de l'iris). La forme est continue (fente -> ellipse -> disque) : aucun fondu entre deux formes, aucun filtre, aucune ombre.
+ * Sources (réflexe pupillaire) : une pupille verticale de chat varie d'environ 135 fois en surface entre sa fermeture et sa dilatation maximale (Banks et al., UC Berkeley, 2015, relayé par phys.org) ; elle ne se referme pas
+ * complètement en pleine lumière ; elle se dilate à la pénombre, à la surprise, à l'excitation ou à la peur (vétérinaires : mydriase normale, qui disparaît avec l'émotion) ; chez les mammifères la CONTRACTION (muscle
+ * sphincter, parasympathique) est plus rapide que la DILATATION (muscle dilatateur, sympathique, latence et constante de temps plus longues) : contraction ~0,6 s, dilatation ~1,2 s, mouvement lisse (ease-in-out).
+ * Mouvement (Norman : « un chat ne change pas ses pupilles aussi souvent ») :
+ *  - AU REPOS : fente fine ; un battement lent (fente -> ellipse -> fente, ~3 s) toutes les 14 à 25 s environ (cycle propre à chaque chat, 1re échéance aléatoire propre à chaque chat) ;
+ *  - À L'ARRIVÉE dans le menu Garderie : disque presque plein ~3 s (dilatation 1,2 s, tenue, contraction 0,6 s), UNE fois par entrée. L'entrée est détectée par un petit guetteur (voir « entree ») : première fois que les
+ *    pupilles apparaissent dans la page après une absence ; un redessin périodique (morph, 4 s) ne les fait jamais disparaître, il ne relance donc rien ;
+ *  - VUE ZOOM d'un bocal (garderie-zoom-v1.js) : disque presque plein tant qu'elle est ouverte (état stable), fente à la fermeture.
+ * L'état est porté par trois classes de <html> (hors de la page : jamais retirées par un redessin, règle n°4) : et-pup-bat, et-pup-arrivee, et-pup-zoom ; la forme suit par une TRANSITION CSS de transform (continue depuis
+ * n'importe quel point, même si l'état change en pleine course) : retour exact à la fente (règle n°3, aucune boucle imparfaite possible). Mouvement réduit : rien ne bouge (fente fixe, disque fixe dans la vue zoom).
  * Yeux NON félins (gardent leur identité, pas de fente) : arcenciel (anneaux), fibonacci (spirale), matrix (glyphes), nega (croissant), tchernobyl (tache irrégulière).
- * window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__ = { skins, html(idSkin), css }.
+ * window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__ = { skins, html(idSkin), css, arrondir(ms), zoom(booleen), entree }.
  */
 (function(){
   'use strict';
   if(typeof window==='undefined'||window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__)return;
-  /* teinte du centre de l'iris (patch), pupille dessinée ronde ou fente, durée du cycle */
+  /* teinte du centre de l'iris (patch), pupille dessinée ronde ou fente, cycle de repos (14 à 25 s : un battement par cycle) */
   var SKINS={
-    defaut:{tone:'#9cc0d8',rond:1,d:9.3},
-    noeud:{tone:'#b583dc',rond:0,d:11.1},
-    dore:{tone:'#eba315',rond:0,d:7.7},
-    chauvesouris:{tone:'#c92a2a',rond:0,d:12.7},
-    pirate:{tone:'#bf7a2b',rond:1,d:10.4},
-    noel:{tone:'#38b958',rond:1,d:8.6}
+    defaut:{tone:'#9cc0d8',rond:1,d:17.3},
+    noeud:{tone:'#b583dc',rond:0,d:21.1},
+    dore:{tone:'#eba315',rond:0,d:14.7},
+    chauvesouris:{tone:'#c92a2a',rond:0,d:24.7},
+    pirate:{tone:'#bf7a2b',rond:1,d:19.4},
+    noel:{tone:'#38b958',rond:1,d:16.6}
   };
+  var DUREE_ARRONDI_MS=3000;   /* dilatation 1,2 s + tenue ~1,8 s ; la contraction (0,6 s) suit */
+  var DUREE_BATTEMENT_MS=2400; /* dilatation 1,2 s + tenue 1,2 s ; la contraction (0,6 s) suit */
+  var phases={};               /* phase aléatoire par chat, tirée une fois par visite de la page (mémoire du module : un redessin réutilise la même) */
+  var actuel={id:'',d:17};
+  function phase(id,d){
+    if(typeof phases[id]!=='number')phases[id]=Math.random()*d;
+    return phases[id];
+  }
   function html(id){
     var s=SKINS[id];
     if(!s)return '';
     css();
-    var dl=-(s.d*0.37);   /* décalage fixe par chat : les deux yeux réagissent ensemble, et un redessin ne change jamais le style */
-    return '<em class="et-pc'+(s.rond?' et-pc-r':'')+'" style="--pt:'+s.tone+'"></em><em class="et-pf" style="--pd:'+s.d+'s;--pdl:'+dl.toFixed(1)+'s"></em>';
+    actuel={id:id,d:s.d};
+    entree();
+    return '<em class="et-pc'+(s.rond?' et-pc-r':'')+'" style="--pt:'+s.tone+'"></em><em class="et-pf"></em>';
+  }
+  function racine(){return typeof document!=='undefined'?document.documentElement:null;}
+  var minuterieArrondi=0,minuterieBat=0;
+  /* pupilles rondes quelques secondes (arrivée dans le menu) : classe sur <html>, retirée seule */
+  function arrondir(ms){
+    var r=racine();
+    if(!r)return;
+    r.classList.add('et-pup-arrivee');
+    if(typeof setTimeout!=='function')return;
+    clearTimeout(minuterieArrondi);
+    minuterieArrondi=setTimeout(function(){r.classList.remove('et-pup-arrivee');},ms>0?ms:DUREE_ARRONDI_MS);
+  }
+  /* vue zoom : rondes tant qu'elle est ouverte */
+  function zoom(ouvert){
+    var r=racine();
+    if(!r)return;
+    r.classList.toggle('et-pup-zoom',Boolean(ouvert));
+  }
+  /* battement de repos : ellipse douce quelques secondes, puis plus rien pendant ~un cycle (14 à 25 s) ; première échéance aléatoire propre au chat */
+  function battre(premier){
+    if(typeof setTimeout!=='function')return;
+    clearTimeout(minuterieBat);
+    var d=actuel.d,delai=premier?Math.max(3,d-phase(actuel.id,d)):d*(0.85+0.3*Math.random());
+    minuterieBat=setTimeout(function(){
+      var r=racine();
+      if(!r)return;
+      r.classList.add('et-pup-bat');
+      minuterieBat=setTimeout(function(){r.classList.remove('et-pup-bat');battre(false);},DUREE_BATTEMENT_MS);
+    },delai*1000);
+  }
+  function arreterBattements(){
+    var r=racine();
+    if(typeof clearTimeout==='function')clearTimeout(minuterieBat);
+    if(r)r.classList.remove('et-pup-bat');
+  }
+  /* Détection de l'entrée dans le menu : un guetteur léger (250 ms) regarde si des pupilles sont dans la page. Absentes -> présentes = ENTRÉE (arrondi unique, battements de repos armés) ; il s'arrête quand tout est parti
+   * (un menu quitté), et html() le relance au prochain rendu de la Garderie. Un redessin du menu garde les mêmes nœuds : aucune entrée n'est vue. */
+  var guet=0,present=false;
+  function entree(){
+    if(guet||typeof document==='undefined'||typeof setInterval!=='function')return;
+    var vides=0;
+    guet=setInterval(function(){
+      var la=Boolean(document.querySelector('.et-pf'));
+      if(la&&!present){present=true;vides=0;arrondir(DUREE_ARRONDI_MS);battre(true);return;}
+      if(la)return;
+      vides+=1;
+      if(present||vides>40){present=false;clearInterval(guet);guet=0;arreterBattements();}
+    },250);
   }
   function css(){
     if(typeof document==='undefined'||!document.head||document.getElementById('et-style-pupilles-v1'))return;
@@ -34,12 +100,13 @@
     s.textContent=[
       '.et-pc{position:absolute;left:50%;top:50%;width:36%;height:104%;margin:0;transform:translate(-50%,-50%);background:var(--pt,#999);border-radius:50%;pointer-events:none;-webkit-mask-image:radial-gradient(closest-side,#000 62%,rgba(0,0,0,0));mask-image:radial-gradient(closest-side,#000 62%,rgba(0,0,0,0))}',
       '.et-pc.et-pc-r{width:68%;height:68%}',
-      '.et-pf{position:absolute;left:50%;top:50%;width:44%;height:88%;margin:0;border-radius:50%;background:#050302;pointer-events:none;transform:translate(-50%,-50%) scaleX(.34);animation:etPup var(--pd,9s) ease-in-out var(--pdl,0s) infinite}',
-      /* 0 % = 100 % (boucle parfaite) ; ouverte presque ronde vers 30 %, fine fente vers 62 % */
-      '@keyframes etPup{0%,100%{transform:translate(-50%,-50%) scaleX(.34)}18%{transform:translate(-50%,-50%) scaleX(.4)}30%{transform:translate(-50%,-50%) scaleX(1)}46%{transform:translate(-50%,-50%) scaleX(.78)}62%{transform:translate(-50%,-50%) scaleX(.26)}80%{transform:translate(-50%,-50%) scaleX(.48)}}',
-      '@media (prefers-reduced-motion:reduce){.et-pf{animation:none;transform:translate(-50%,-50%) scaleX(.34)}}'
+      /* cercle de base (84 % de la hauteur de l'iris, centré) ; scale(sx,1) fait la forme : .17 fente fine, .5 ellipse douce, 1 disque. Contraction rapide (.6 s), dilatation plus lente (1,2 s). */
+      '.et-pf{position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;height:84%;aspect-ratio:1;border-radius:50%;background:#050302;pointer-events:none;transform:scale(.17,1);transition:transform .6s cubic-bezier(.4,0,.2,1)}',
+      '@media (prefers-reduced-motion:no-preference){.et-pup-bat .et-pf{transform:scale(.5,1);transition-duration:1.2s}.et-pup-arrivee .et-pf{transform:scale(1,1);transition-duration:1.2s}}',
+      '.et-pup-zoom .et-pf{transform:scale(1,1);transition-duration:1.2s}',
+      '@media (prefers-reduced-motion:reduce){.et-pf{transition:none}}'
     ].join('\n');
     document.head.appendChild(s);
   }
-  window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__={skins:SKINS,html:html,css:css};
+  window.__SOREAL_IDLE_ETAGERE_PUPILLES_V1__={skins:SKINS,html:html,css:css,arrondir:arrondir,zoom:zoom,entree:entree};
 })();

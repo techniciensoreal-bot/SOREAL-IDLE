@@ -54,6 +54,8 @@
   /* Images insérées en HTML (innerHTML) : le navigateur ne passe pas par le setter. On ne regarde que les nœuds ajoutés. */
   function corriger_(noeud){
     if(!noeud||noeud.nodeType!==1)return;
+    /* Audit de fluidité (2026-11-02) : un élément sans enfant (span nb-suf des chiffres colorés, recréé ~30 fois par seconde en combat) ne contient aucune image : pas de recherche. */
+    if(noeud.tagName!=='IMG'&&!noeud.firstElementChild)return;
     var liste=noeud.tagName==='IMG'?[noeud]:noeud.querySelectorAll?noeud.querySelectorAll('img[src^="/api/idle/media/item?"],img[src^="/api/idle/media/boost?"]'):[];
     for(var i=0;i<liste.length;i++){
       var img=liste[i];

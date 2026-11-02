@@ -995,6 +995,8 @@
         };
         /* Mineurs d'or (Norman, 2026-11-01 : « Mineurs d'or reste éteint ») : un mineur ACTIVÉ (et réglé sur un niveau) fait travailler le menu, même sans énergie ni magie placées. */
         if(id==='diggers'){const m=donnees.diggers||{};return Object.keys(m).some(function(k){const d=m[k]||{};return d.active&&idleNombre_(d.runLevel)>0;});}
+        /* Magie du sang (Norman, 2026-11-02 : « les icônes ne bougeaient pas alors que de la magie est placée dedans ») : la magie est placée PAR RITUEL (data.rituals[id].magic), jamais dans allocation.magic. */
+        if(id==='sang')return enSomme(donnees.rituals,['magic']);
         if(id==='augmentations')return enSomme(donnees.pairs,['energy','upgradeEnergy']);
         if(id==='avance')return enSomme(donnees.tracks,['energy']);
         return false;
@@ -1176,7 +1178,7 @@
         if(m.id==='aventure'&&/ & Titans$/.test(nom)){
           try{
             const api=window.__SOREAL_IDLE_TITANS_V1__;
-            if(api&&typeof api.disponible==='function'&&api.disponible(j))return idleHtml_(nom.slice(0,-6))+'<span class="soreal-idle-nav-titans-brille-v1">Titans</span>';
+            if(api&&typeof api.disponible==='function'&&api.disponible(j))return idleHtml_(nom.slice(0,-6))+'<span class="soreal-idle-nav-titans-brille-v1" data-t="Titans">Titans</span>';
           }catch(e){}
         }
         return idleHtml_(nom);

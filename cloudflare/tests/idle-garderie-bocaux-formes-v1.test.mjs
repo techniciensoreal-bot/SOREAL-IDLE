@@ -106,8 +106,8 @@ assert.ok(!/possedes|skins\.actif/.test(formes.replace(/\/\*[\s\S]*?\*\//g, ""))
   for (const id of ["defaut", "noeud", "dore", "chauvesouris", "pirate", "noel"]) assert.ok(P.html(id).includes("et-pf"), id + " : pupille fente");
   assert.equal(new Set(Object.values(P.skins).map((s) => s.d)).size, Object.keys(P.skins).length, "durées différentes d'un chat à l'autre");
   assert.equal(P.html("dore"), P.html("dore"), "rendu identique à chaque redessin (aucun saut)");
-  assert.ok(src.includes("@keyframes etPup{0%,100%{transform:translate(-50%,-50%) scaleX(.34)}"), "boucle parfaite : 0 % = 100 %");
-  assert.ok(src.includes("prefers-reduced-motion:reduce") && src.includes(".et-pf{animation:none"), "mouvement réduit = fente fixe");
+  assert.ok(src.includes("transform:scale(.17,1)") && !src.includes("@keyframes"), "retour exact à la fente (transition de transform, aucune boucle imparfaite)");
+  assert.ok(src.includes("prefers-reduced-motion:reduce") && src.includes(".et-pf{transition:none}"), "mouvement réduit = fente fixe");
   assert.ok(!src.includes("filter:"), "aucun filtre");
   assert.ok(pub("modules/etagere-personnage-v1.js").includes("pupilleFente_(idSkin)"), "les yeux reçoivent la fente");
   const h = pub("index.html");

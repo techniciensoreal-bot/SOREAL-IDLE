@@ -601,7 +601,8 @@ function scene(opts){
   var rendu=suivantVu[opts.id];
   var pleins=pal.pleins;
   demarrer();
-  suivantVu[opts.id]=pal.fraction>=SEUIL_ARRIVEE;
+  var attendu=suivantAttendu(opts.id,pal);
+  suivantVu[opts.id]=attendu;
   var marque=!!(marqueVue[opts.id]&&opts.saigne);
   return '<div class="bm-scene'+(marque?' bm-marque':'')+(SOURCES[opts.id]==='sucon'&&!opts.saigne?' bm-dort':'')+((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(!opts.saigne||etatHors[opts.id]===true||(SOURCES[opts.id]==='sucon'&&etatHors[opts.id]===undefined))?' bm-hors':((SOURCES[opts.id]==='punaise'||SOURCES[opts.id]==='papier'||SOURCES[opts.id]==='sucon'||SOURCES[opts.id]==='fil')&&(installeA[opts.id]===undefined||performance.now()>=installeA[opts.id])?' bm-installe':''))+'" data-morph-classes-gardees="^bm-" data-bm-id="'+opts.id+'" data-bm-pleins="'+pleins+'" data-bm-cap="'+cap+'" data-bm-sang="'+(Number(opts.sang)||0)+'" data-contenant="'+type+'" data-source="'+(SOURCES[opts.id]||'bride')+'" style="--vw:'+dim.vw+'px;--vh:'+dim.vh+'px;--vb:'+dim.vb+'px;--sh:'+dim.sh+'px;--pas:'+(dim.vw+4)+'px'+(dim.ox?';--cx:'+(dim.vw/2+12+dim.ox)+'px':'')+(function(){var h=chuteSang(SOURCES[opts.id],type,dim.vh,dim.vb,dim.sh,fraction);return h==null?'':';--chute:'+h+'px';})()+'">'+
       bibliotheque(opts.rang)+
@@ -613,7 +614,7 @@ function scene(opts){
         :'<div class="bm-bec" aria-hidden="true"><i class="bm-goutte" style="animation-delay:-.2s"></i><i class="bm-goutte" style="animation-delay:-.75s"></i><i class="bm-goutte" style="animation-delay:-1.25s"></i></div>')+
       (dim.autel?'<div class="bm-autel" aria-hidden="true"></div>':'')+
       (echangeProtege(opts.id)?'':'<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
-      (pal.fraction>=SEUIL_ARRIVEE?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':''))+
+      (attendu?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':''))+
     '</div>'+
     '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
 }
@@ -677,11 +678,11 @@ function echanger(sc,type){
 }
 /*
  * Un seul calice courant par scène à tout instant : hors échange, aucun calice ne glisse vers la sortie, il n'y a qu'un calice courant (le dernier) et au plus un suivant ; s'il n'y en a aucun (page redessinée en plein
- * échange, scène recréée), un calice courant est recréé. Un échange qui dépasse 3 s (minuteur perdu) est terminé de force.
+ * échange, scène recréée), un calice courant est recréé. Un échange qui dépasse sa durée (DUREE_ECHANGE + 0,3 s ; 3 s pour l'attente du suivant) est terminé de force par le tour de mise à jour (minuteur perdu ou gelé), jamais seulement par un minuteur.
  */
 function normaliserVases(sc,id,type,fraction){
   var maintenant=performance.now();
-  if(sc.__swap&&sc.__swapT0&&maintenant-sc.__swapT0>3000){var f=sc.__fin;if(f)f();else finEchange(sc,null);}
+  if(sc.__swap&&sc.__swapT0&&maintenant-sc.__swapT0>(sc.__plein?3000:DUREE_ECHANGE+300)){var f=sc.__fin;if(f)f();else finEchange(sc,null);}
   if(sc.__swap)return;
   var l=sc.querySelectorAll('.bm-vase'),i,cour=[],suiv=[];
   for(i=0;i<l.length;i++){
@@ -1763,19 +1764,9 @@ function majScene(sc){
   derniers[id]=n;
   var avant=vus[id];
   if(avant===undefined)avant=Number(sc.getAttribute('data-bm-pleins'))||0;
-  var attend=sc.querySelector('.bm-vase.bm-suivant');
-  if(pleins>avant&&!sc.__swap){
-    if(!attend){
-      /* le suivant n'était pas encore là (gros saut de niveaux) : il arrive d'abord d'en dehors du cadre, le plein reste plein pendant ce temps, puis il le pousse */
-      ajouterSuivant(sc,type,true);
-      sc.__swap=true;sc.__plein=true;sc.__swapT0=performance.now();
-      protegerVases(sc,true);
-      setTimeout(function(){sc.__plein=false;sc.__swap=false;echanger(sc,type);},900);
-    }else echanger(sc,type);
-  }else if(!sc.__swap){
-    if(fraction>=SEUIL_ARRIVEE&&!attend){ajouterSuivant(sc,type,true);suivantVu[id]=true;}
-    else if(fraction<SEUIL_ARRIVEE){suivantVu[id]=false;if(attend&&attend.parentNode)attend.parentNode.removeChild(attend);}
-  }
+  noterNiveau(id,n,typeof performance!=='undefined'?performance.now():Date.now());
+  pal.nv=nv;
+  var vuApres=gererVases(sc,id,type,pal,avant,n);
   var fAff=sc.__plein?1:filmFond(id,nv,sc.__vide?0:fraction);
   niveauLiquide(sc,fAff,c);
   var ch=chuteSang(sc.getAttribute('data-source'),type,parseFloat(sc.style.getPropertyValue('--vh')),parseFloat(sc.style.getPropertyValue('--vb')),parseFloat(sc.style.getPropertyValue('--sh')),fAff);
@@ -1784,7 +1775,67 @@ function majScene(sc){
   var et=sc.parentNode&&sc.parentNode.querySelector('[data-bm-etagere="'+id+'"]');
   var nEl=et&&et.querySelector('.bm-etagere-n');
   if(nEl){var txt=formatSang(n*(Number(sc.getAttribute('data-bm-sang'))||0));if(nEl.textContent!==txt)nEl.textContent=txt;}
-  vus[id]=pleins;
+  vus[id]=vuApres;
+}
+/*
+ * Cycle des récipients, CALCULÉ (jamais d'animationend, jamais d'un nombre affiché pour décider d'une sortie) : « avant » = nombre de récipients pleins déjà montrés, « pal.pleins » = nombre de récipients pleins d'après le niveau.
+ *  - pleins > avant : le plein part et le suivant prend sa place ; si un échange est déjà en cours, on NE note PAS le nouveau compte (retour d'« avant ») : l'échange manquant est joué dès la fin du premier (plus de récipient plein
+ *    « oublié » quand plusieurs récipients se terminent entre deux images ou pendant une pause) ; plusieurs récipients terminés d'un coup : un seul échange visible, le courant repart du bon niveau ;
+ *  - pleins <= avant : le suivant arrive vide (arriveeSuivant) ; il repart si le niveau retombe sous SEUIL_ARRIVEE (renaissance).
+ * Renvoie la valeur à mémoriser comme « montrés ».
+ */
+function gererVases(sc,id,type,pal,avant,nReel){
+  var pleins=pal.pleins,fraction=pal.fraction;
+  var attend=sc.querySelector('.bm-vase.bm-suivant');
+  if(pleins>avant){
+    if(sc.__swap)return avant;
+    if(!attend){
+      /* le suivant n'était pas encore là (gros saut de niveaux) : il arrive d'abord d'en dehors du cadre, le plein reste plein pendant ce temps, puis il le pousse */
+      ajouterSuivant(sc,type,true);
+      sc.__swap=true;sc.__plein=true;sc.__swapT0=performance.now();
+      protegerVases(sc,true);
+      setTimeout(function(){sc.__plein=false;sc.__swap=false;echanger(sc,type);},900);
+    }else echanger(sc,type);
+    return pleins;
+  }
+  if(!sc.__swap){
+    if(suivantAttendu(id,pal,nReel)&&!attend){ajouterSuivant(sc,type,true);suivantVu[id]=true;}
+    else if(fraction<SEUIL_ARRIVEE){suivantVu[id]=false;if(attend&&attend.parentNode)attend.parentNode.removeChild(attend);}
+  }
+  return pleins;
+}
+/*
+ * Arrivée du suivant (Norman, 2026-11-02 : « le premier est plein mais il ne part pas, le 2e est vide et il attend ») : le suivant arrivait à 90 % du récipient. Quand un récipient compte des centaines de niveaux (capacité par paliers,
+ * jusqu'à 10 B, 100 B…), ces 10 % durent des dizaines de secondes à plusieurs minutes : le premier paraît plein et reste en place, le second attend vide à côté. Désormais le suivant n'arrive qu'à l'approche réelle du plein : à 90 %
+ * ET quand le temps restant, d'après la cadence mesurée des niveaux (noterNiveau / cadenceNiveaux), tient dans DELAI_ARRIVEE_S (le temps de son entrée, 0,9 s, plus une marge). Cadence inconnue (page ouverte à l'instant, rituel à l'arrêt) : seulement à 97 %.
+ * Une fois arrivé (suivantVu), il reste jusqu'à ce que le niveau retombe sous 90 % : la page redessinée en rend le même nombre de récipients, aucun va-et-vient.
+ */
+var DELAI_ARRIVEE_S=3.5,FRACTION_SANS_CADENCE=0.97,echantNiv={};
+function noterNiveau(id,n,maintenant){
+  var e=echantNiv[id]||(echantNiv[id]=[]),d=e[e.length-1];
+  n=Number(n);if(!isFinite(n))return;
+  if(d&&n<d[1]){e.length=0;d=null;}   /* le compte a reculé (Renaissance) : on repart de zéro */
+  if(!d||n!==d[1]||maintenant-d[0]>=1000)e.push([maintenant,n]);
+  while(e.length>2&&maintenant-e[0][0]>60000)e.shift();
+  if(e.length>64)e.splice(1,e.length-64);
+}
+function cadenceNiveaux(id){
+  var e=echantNiv[id];
+  if(!e||e.length<2)return 0;
+  var f=e[e.length-1],i=0;
+  while(i<e.length-1&&e[i][1]>=f[1])i++;   /* premier relevé strictement plus bas que le dernier */
+  var d=e[i];
+  if(!(d[1]<f[1])||f[0]-d[0]<1500)return 0;
+  return (f[1]-d[1])/((f[0]-d[0])/1000);
+}
+function suivantAttendu(id,pal,nReel){
+  if(!(pal.fraction>=SEUIL_ARRIVEE))return false;
+  if(suivantVu[id])return true;
+  var c=cadenceNiveaux(id);
+  if(!(c>0))return pal.fraction>=FRACTION_SANS_CADENCE;   /* cadence pas encore mesurée (page ouverte à l'instant) ou rituel à l'arrêt : seulement tout près du plein */
+  /* le niveau affiché (pal.nv) peut retarder de plusieurs secondes sur le compte réel (nReel) : le temps restant se compte depuis le compte réel */
+  var retard=(isFinite(nReel)&&isFinite(pal.nv))?Math.max(0,nReel-pal.nv):0;
+  return Math.max(0,pal.cap*(1-pal.fraction)-retard)/c<=DELAI_ARRIVEE_S;
 }
 /*
  * Cartes visibles seulement (Norman, 2026-10-12, audit de fluidité) : les 7 rituels font ~7 400 px de haut et seuls un ou deux sont à l'écran. Une carte hors écran n'est plus dessinée (content-visibility:auto, voir le CSS) et

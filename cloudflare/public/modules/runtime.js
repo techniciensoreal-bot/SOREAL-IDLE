@@ -95,8 +95,16 @@ resolve(joueur);
     return function(){renderSubscribers.delete(fn);};
   }
 
+  /*
+   * Audit de fluidité (2026-11-02) : les chiffres colorés (nombres-couleur-v1.js) recréent un <span class="nb-suf"> à CHAQUE changement de nombre (PV en combat : ~30 fois par seconde). Ces ajouts/retraits d'éléments
+   * étaient pris pour de vrais changements de page et relançaient tous les abonnés (item-*, interaction-repair, basic-training-stability, adventure-scene, cube-aura : ~11 réveils par seconde chacun). Un span nb-suf ne
+   * contient que du texte : il ne compte pas. Tout autre élément ajouté ou retiré relance les abonnés comme avant.
+   */
   function avecElement_(noeuds){
-    for(var k=0;k<noeuds.length;k++)if(noeuds[k].nodeType===1)return true;
+    for(var k=0;k<noeuds.length;k++){
+      var n=noeuds[k];
+      if(n.nodeType===1&&!(n.classList&&n.classList.contains('nb-suf')))return true;
+    }
     return false;
   }
 

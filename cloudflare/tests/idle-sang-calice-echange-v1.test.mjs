@@ -17,7 +17,7 @@ assert.ok(/echangeProtege\(opts\.id\)\?'':'<div class="bm-vase">'/.test(src), "s
 assert.ok(/var dejaAff=affiches\[opts\.id\];[\s\S]{0,200}compte=dejaAff/.test(src), "scene() du 4e rituel ne repart jamais d'un compte du serveur plus bas que celui déjà montré");
 assert.ok(/function finEchange\(sc,b\)\{[\s\S]*?l\[i\]!==b[\s\S]*?removeChild/.test(src), "fin d'échange : tout calice autre que celui qui entre est retiré");
 assert.ok(/function normaliserVases\(/.test(src) && /data-source'\)==='fil'\)normaliserVases\(/.test(src), "un seul calice courant par scène, vérifié à chaque mise à jour");
-assert.ok(/maintenant-sc\.__swapT0>3000/.test(src), "un échange qui dépasse 3 s est terminé de force (ne dépend pas d'animationend ni d'un seul minuteur)");
+assert.ok(/maintenant-sc\.__swapT0>\(sc\.__plein\?3000:DUREE_ECHANGE\+300\)/.test(src), "un échange qui dépasse sa durée est terminé de force par le tour de mise à jour (ne dépend pas d'animationend ni d'un seul minuteur)");
 assert.ok(!/animationend/.test(src.slice(src.indexOf("function finEchange"), src.indexOf("var DEPART_GOUTTE"))), "la sortie ne dépend pas de animationend");
 assert.ok(!/setTimeout\([^)]*protegerVases/.test(src), "aucune attente entre un redessin et la protection");
 

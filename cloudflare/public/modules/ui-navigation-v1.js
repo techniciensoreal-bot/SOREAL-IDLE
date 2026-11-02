@@ -348,6 +348,7 @@
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():REG.IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
                   data-menu-id-v1="${m.id}"
+                  data-morph-classes-gardees="^nav-hors-v1$"
                   data-effet-v1="${m.id}"
                   title="${idleHtml_(nomMenuIdleV1_(m,j)+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
@@ -549,6 +550,37 @@
           joueur:REG.idleEtat
         });
       }
+
+  /*
+   * Boutons du menu hors de l'écran : leurs animations sont mises en PAUSE (audit de fluidité, 2026-11-02).
+   * Mesuré : chaque élément animé coûte un recalcul de style à chaque image, vu ou non ; sur téléphone la barre de menus défile (20 boutons, 6 visibles) et les voyants (anneau « nouveau », lueur « disponible », étoiles de Renaissance) tournaient
+   * tous, soit ~40 % de la facture de style d'une image. Un seul IntersectionObserver pose la classe nav-hors-v1 (feuille soreal-idle-ui.css : animation-play-state paused) ; à l'entrée dans l'écran le bouton reprend là où il s'était arrêté (aucune animation n'est touchée par script). Le redessin de la page garde la classe (data-morph-classes-gardees posé sur chaque bouton).
+   * Sans IntersectionObserver, ou pour un bouton pas encore observé : rien n'est arrêté (comportement d'avant).
+   */
+  const navHorsObs={io:null,vus:typeof WeakSet==='function'?new WeakSet():null};
+  function navHorsAppliquerV1_(bouton,hors){
+    if(hors===bouton.classList.contains('nav-hors-v1'))return;
+    /* classe seulement : ne jamais toucher aux objets Animation (un currentTime écrit par script retire l'animation du contrôle de la feuille de style : la pause CSS ne s'appliquerait plus) */
+    if(hors)bouton.classList.add('nav-hors-v1');else bouton.classList.remove('nav-hors-v1');
+  }
+  function observerNavHorsEcranV1_(){
+    try{
+      if(typeof IntersectionObserver!=='function'||!navHorsObs.vus)return;
+      if(!navHorsObs.io){
+        navHorsObs.io=new IntersectionObserver(function(entrees){
+          entrees.forEach(function(e){navHorsAppliquerV1_(e.target,!e.isIntersecting);});
+        },{rootMargin:'40px'});
+      }
+      document.querySelectorAll('.soreal-idle-nav-v28 .soreal-idle-nav-button-v28').forEach(function(b){
+        if(navHorsObs.vus.has(b))return;
+        navHorsObs.vus.add(b);
+        navHorsObs.io.observe(b);
+      });
+    }catch(_e){}
+  }
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(observerNavHorsEcranV1_);
+  window.__SOREAL_IDLE_NAV_HORS_ECRAN_V1__={observer:observerNavHorsEcranV1_};
+  setTimeout(observerNavHorsEcranV1_,1500);
 
   Object.assign(REG,{
     menuDisponibleIdleV28_:menuDisponibleIdleV28_,

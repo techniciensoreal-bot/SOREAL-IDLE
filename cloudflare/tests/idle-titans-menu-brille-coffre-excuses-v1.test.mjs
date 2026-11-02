@@ -6,7 +6,9 @@ import vm from "node:vm";
 const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 assert.ok(ui.includes("function htmlNomMenuIdleV1_(m,j)") && ui.includes("soreal-idle-nav-titans-brille-v1") && ui.includes("api.disponible(j)") && ui.includes("<b>${htmlNomMenuIdleV1_(m,j)}"), "mot Titans du menu, même condition que le bouton de la page Aventure");
-assert.ok(/@keyframes soreal-idle-nav-titans-brille-v1\{0%,100%\{filter:[^}]*\}50%\{filter:/.test(css) && css.includes("prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1"), "brillance en boucle sans à-coup, coupée en mouvement réduit");
+/* Audit de fluidité (2026-11-02) : seule l'opacité d'un second exemplaire du mot bouge (plus d'animation de filtre : repeint à chaque image) ; invisible à 0 % et à 100 % (règle n°3) */
+assert.ok(css.includes("@keyframes soreal-idle-nav-titans-brille-v1{0%,100%{opacity:0}50%{opacity:1}}") && css.includes(".soreal-idle-nav-titans-brille-v1::after{content:attr(data-t)") && css.includes("animation:soreal-idle-nav-titans-brille-v1 1.5s ease-in-out infinite}") && css.includes("prefers-reduced-motion:reduce){.soreal-idle-nav-titans-brille-v1{"), "brillance en boucle sans à-coup (opacité seule), coupée en mouvement réduit");
+assert.ok(css.includes(".soreal-idle-nav-titans-brille-v1{position:relative;display:inline-block;color:#ffe27a;filter:drop-shadow(0 0 2px rgba(255,176,0,.7))}") && ui.includes('data-t="Titans"'), "le mot lui-même n'est plus animé (halo fixe) ; le texte du calque vient de data-t");
 
 const dig = readFileSync("cloudflare/public/modules/coffre-digestion-v1.js", "utf8");
 for (const t of ["'Désolé'", "'Oups'", "'Vous avez entendu ?'", "'Il y a de l’orage on dirait'"]) assert.ok(dig.includes(t), "variante " + t);

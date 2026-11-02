@@ -109,6 +109,9 @@ function histoiresBossEn_(v) {
 export const IDLE_LANGUES_V1 = Object.freeze(["fr", "en"]);
 export const idleLangueValideV1 = (l) => (l === "en" ? "en" : "fr");
 
+/* Champs « parlés » d'un boss (état, catalogue, collection, fiche) : français d'administrateur, jamais envoyés en anglais. */
+const PARLE_BOSS_V1 = new Set(["bossHistoireParlee", "bossNomParle", "histoireParlee", "nomParle"]);
+
 function marcher_(v, table) {
   if (typeof v === "string") {
     const t = table.get(v);
@@ -138,6 +141,12 @@ function marcher_(v, table) {
   for (const k of Object.keys(v)) {
     /* Champs d'origine (nameEn, setNameEn) : jamais traduits (recherche du coffre dans les deux langues). */
     if (k === "nameEn" || k === "setNameEn") continue;
+    /* Norman (2026-11-02) : « quand je mets le jeu en anglais, ce sont les voix françaises quand je clique sur Listen d'une carte de chronique » : le nom et le texte PARLÉS d'un boss (surcharges d'administrateur écrites en français, voir texteBossParleV1) sont lus à la place du texte affiché ; en anglais la voix doit lire l'original anglais affiché (fichiers de voix anglais nommés par l'empreinte de ce texte) : on les retire de la réponse, le client lit alors le texte affiché. */
+    if (table === FR_VERS_EN_V1 && PARLE_BOSS_V1.has(k) && typeof v[k] === "string" && v[k]) {
+      if (!copie) copie = Object.assign({}, v);
+      copie[k] = "";
+      continue;
+    }
     const x = v[k];
     if (copie && (k === "histoire" || k === "description" || k === "bossHistoire") && copie[k] !== x) continue;
     const y = marcher_(x, table);

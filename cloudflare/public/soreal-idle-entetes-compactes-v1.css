@@ -25,8 +25,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .soreal-idle-bt-entree-v1 .soreal-idle-bt-input-box-v120 label{white-space:nowrap}
 
 /* Cadre d'une ressource : deux petits cadres (Plafond, Idle) puis le total placé, fin. */
-.soreal-idle-bt-groupe-v1{--bt-gc:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;gap:5px;min-width:0;box-sizing:border-box;padding:5px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(0,0,0,.2)}
+.soreal-idle-bt-groupe-v1{--bt-gc:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;min-width:0;box-sizing:border-box;padding:5px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(0,0,0,.2)}
 .soreal-idle-bt-groupe-v1>.soreal-idle-bt-presets-v120{margin:0;min-width:0}
+/* Total collé en bas, cadres Plafond/Idle étirés (Norman, 2026-11-02 : « sous énergie placée il reste un petit espace vide ; mets-les contre le bord inférieur et agrandis plafond d'énergie et magie »).
+   Cause : le groupe est étiré à la hauteur du cadre Input voisin (surtout avec « Mes nombres » sur 2 rangées) mais ses lignes restaient en haut (align-content:start) : le vide tombait SOUS le total.
+   Maintenant la 1re ligne (Plafond + Idle) prend toute la place libre, la 2e (total placé) est contre le bord inférieur ; dans chaque petit cadre, les boutons absorbent la hauteur gagnée (le libellé garde la sienne).
+   La hauteur naturelle du groupe ne change pas : l'entête n'est jamais plus haut qu'avant. */
+.soreal-idle-bt-groupe-v1{align-content:stretch}
+.soreal-idle-bt-groupe-v1:has(>.soreal-idle-bt-total-v1){grid-template-rows:minmax(0,1fr) auto}
+.soreal-idle-bt-groupe-v1>.soreal-idle-bt-total-v1{align-self:end}
+.soreal-idle-bt-groupe-v1>.soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1){align-self:stretch;grid-template-rows:auto minmax(var(--bt-btn-h,28px),1fr)}
 /* Petits cadres (Input, Plafond, Idle, Mes nombres, total) : marge intérieure réduite (avant : 10 px, soreal-idle-ui.css). */
 .soreal-idle-bt-toolbar-v120 :is(.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120){padding:var(--bt-cadre-pad,6px 8px)}
 .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120.soreal-idle-bt-total-v1{padding:var(--bt-total-pad,6px 10px)}
@@ -47,11 +55,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* Téléphone : cadres empilés pleine largeur (les deux petits cadres d'un groupe aussi), mêmes éléments compacts mais gardés faciles à toucher. */
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){--bt-btn-h:34px;--bt-btn-fs:14px;--bt-col-min:40px;--bt-input-fs:16px;--bt-fs:12px}
-  .soreal-idle-bt-groupe-v1{grid-template-columns:minmax(0,1fr)}
+  .soreal-idle-bt-groupe-v1,.soreal-idle-bt-groupe-v1:has(>.soreal-idle-bt-total-v1){grid-template-columns:minmax(0,1fr);grid-template-rows:none}
 }
 
 /* Menu NGU (une ressource à la fois, onglets Énergie / Magie) : Input à gauche, cadre [Plafond | Idle] à droite, totaux dessous. */
-.nl-barre-outils .soreal-idle-bt-groupe-v1>.nl-ligne{margin:0;min-width:0;grid-template-columns:repeat(auto-fit,minmax(var(--bt-col-min,62px),1fr))}
+.nl-barre-outils .soreal-idle-bt-groupe-v1>.nl-ligne{margin:0;min-width:0;grid-template-columns:repeat(auto-fit,minmax(var(--bt-col-min,62px),1fr));grid-template-rows:auto minmax(var(--bt-btn-h,28px),1fr);align-content:stretch;align-items:stretch}
 .nl-barre-outils>.soreal-idle-bt-entree-v1.nl-ligne{grid-template-columns:minmax(0,1fr);align-content:start;gap:4px;padding:5px}
 .nl-barre-outils .nl-ligne-input{gap:4px 8px}
 .nl-barre-outils .nl-ligne-input input[type=text]{height:28px;padding:2px 8px;width:110px}
@@ -61,4 +69,21 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @media (min-width:701px){
   .nl-barre-outils{grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);align-items:stretch}
   .nl-barre-outils>.nl-totaux{grid-column:1/-1}
+}
+
+/* Une seule rangée de cadres sur PC (Norman, 2026-11-02 : « descends Input tout à gauche de ces 4 cadres et gagne encore une ligne »). La colonne Input mesure au moins 360 px et « Mes nombres » tient alors sur UNE rangée (4 paires de 2 colonnes de 34 px au moins) :
+   avant, ses 2 rangées rendaient le cadre Input plus haut que les cadres Plafond/Idle, donc tout l'entête. Seuils en largeur de fenêtre (la colonne de gauche du jeu retire ~380 px) : une ressource dès 1200 px, deux ressources dès 1480 px ; en dessous, l'ancienne disposition (repli propre). Téléphone et NGU (2 rangées voulues) inchangés. */
+@media (min-width:1200px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(360px,.8fr) minmax(0,1.6fr)}
+  .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1]))>.soreal-idle-bt-entree-v1 [data-perso-input-rangee]{--bt-col-min:34px}
+}
+@media (min-width:1480px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(360px,.9fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
+  .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1 [data-perso-input-rangee]{--bt-col-min:34px}
+}
+/* PC : plus aucun espace perdu dans les cadres (marges intérieures et écarts d'un point de moins) ; la cible tactile des boutons ne change pas (hauteur gardée par --bt-btn-h). */
+@media (min-width:1200px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cadre-pad:3px 6px;--bt-cadre-gap:3px;--bt-total-pad:2px 10px}
+  .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1{gap:3px;padding:4px}
+  .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-groupe-v1{gap:4px;padding:4px}
 }

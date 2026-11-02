@@ -106,13 +106,16 @@
     return s;
   }
 
+  /* Mémoire partagée avec le rendu sur place (morph-v1.js, audit de fluidité 2026-11-02) : par nœud, le texte d'origine (src) et le texte affiché (out) ; un redessin dont l'origine n'a pas changé ne touche pas le nœud traduit. */
+  var memoire=window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__||(window.__SOREAL_IDLE_TRAD_MEMOIRE_V1__={texte:new WeakMap(),attr:new WeakMap(),accrocs:[]});
+
   function traduireNoeud_(racine){
     if(!racine||langue_()!=='fr')return;
     if(exclu_(racine))return;
     var cible=racine.nodeType===3?null:racine;
     if(racine.nodeType===3){
       var v=racine.nodeValue,t=traduireTexte_(v);
-      if(t!==v)racine.nodeValue=t;
+      if(t!==v){memoire.texte.set(racine,{src:v,out:t});racine.nodeValue=t;}
       return;
     }
     var marcheur=document.createTreeWalker(cible,NodeFilter.SHOW_TEXT,{
@@ -121,7 +124,7 @@
     var n;
     while((n=marcheur.nextNode())){
       var val=n.nodeValue,tr=traduireTexte_(val);
-      if(tr!==val)n.nodeValue=tr;
+      if(tr!==val){memoire.texte.set(n,{src:val,out:tr});n.nodeValue=tr;}
     }
     /* Textes dans les attributs affichés (infobulle, texte de saisie, étiquette d'accessibilité), l'élément racine compris. */
     var avecAttr=cible.querySelectorAll?Array.prototype.slice.call(cible.querySelectorAll('[title],[placeholder],[aria-label]')):[];
@@ -137,9 +140,30 @@
       var a=el.getAttribute(ATTRIBUTS[k]);
       if(!a)continue;
       var b=traduireTexte_(a);
-      if(b!==a)el.setAttribute(ATTRIBUTS[k],b);
+      if(b!==a){
+        var mm=memoire.attr.get(el);
+        if(!mm){mm={};memoire.attr.set(el,mm);}
+        mm[ATTRIBUTS[k]]={src:a,out:b};
+        el.setAttribute(ATTRIBUTS[k],b);
+      }
     }
   }
+
+  /* Accroche du rendu sur place : un texte ou un attribut d'origine NOUVEAU est écrit directement traduit (une seule écriture, jamais l'anglais entre-aperçu). */
+  memoire.accrocs.push({
+    texte:function(n,brut){
+      if(langue_()!=='fr'||exclu_(n))return null;
+      var t=traduireTexte_(brut);
+      return t===brut?null:t;
+    },
+    attr:function(el,nom,brut){
+      if(langue_()!=='fr'||ATTRIBUTS.indexOf(nom)<0||!brut)return null;
+      if(exclu_(el)&&el.tagName!=='INPUT'&&el.tagName!=='TEXTAREA')return null;
+      if(el.closest&&el.closest('[class*="sic-"],[class*="sif-"],[data-sans-traduction]'))return null;
+      var t=traduireTexte_(brut);
+      return t===brut?null:t;
+    }
+  });
 
   var attente=[];
   var planifie=false;

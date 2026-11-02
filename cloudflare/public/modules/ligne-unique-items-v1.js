@@ -34,7 +34,7 @@
         var t=muts[i].target;
         if(t&&t.closest&&t.closest('.soreal-idle-item-popup-v1')){planifier();return;}
         var a=muts[i].addedNodes;
-        for(var j=0;j<a.length;j+=1){if(a[j].nodeType===1&&(a[j].matches&&a[j].matches('.soreal-idle-item-popup-v1')||a[j].querySelector&&a[j].querySelector('.soreal-idle-item-popup-v1'))){planifier();return;}}
+        for(var j=0;j<a.length;j+=1){if(a[j].nodeType===1&&(a[j].matches&&a[j].matches('.soreal-idle-item-popup-v1')||a[j].firstElementChild&&a[j].querySelector('.soreal-idle-item-popup-v1'))){planifier();return;}}
       }
     });
     var demarrer=function(){if(document.body)obs.observe(document.body,{childList:true,subtree:true});};

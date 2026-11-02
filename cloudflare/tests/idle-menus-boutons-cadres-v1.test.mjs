@@ -120,6 +120,8 @@ for (const line of sansCom.split("\n").filter((l) => l.startsWith("@keyframes"))
     assert.ok(im.every((x, i) => i === 0 || Number(x[3]) >= Number(im[i - 1][3])), "pièce : mouvement toujours vers le bas");
     continue;
   }
+  /* Battement de cœur du pentacle (2026-11-02) : opacité seule, 0 au début et à la fin du cycle */
+  if (m[1] === "nbV1_battement") { assert.ok(/^0%\{opacity:0\}(\d+%\{opacity:[\d.]+\})+100%\{opacity:0\}$/.test(c), "battement : opacité seule, 0 à 0 % et à 100 %"); continue; }
   /* ITOPOD : la tour monte à l'infini : la texture glisse d'EXACTEMENT un étage (le tiers de la hauteur = la période du motif) par cycle, vitesse constante */
   if (m[1] === "nbV1_monte") { assert.equal(c, "0%{background-position:0 0}100%{background-position:0 33.3333cqh}", "monte : un étage exactement"); continue; }
   assert.ok(/^0%,100%\{[^}]*\}50%\{[^}]*\}$/.test(c) || c === "from{transform:rotate(0)}to{transform:rotate(360deg)}", `${m[1]} : n'est pas une boucle parfaite : ${c.slice(0, 60)}`);
@@ -278,6 +280,14 @@ console.log("ok idle-menus-boutons-cadres-v1");
   assert.ok(/\[data-menu-id-v1="sang"\]\.active[^{]*\.nb-g,[^{]*\[data-menu-id-v1="sang"\]\.travail-v1[^{]*\.nb-g\{filter:saturate\(4\.2\) brightness\(1\.45\)/.test(css), "sang : pentacle rouge très vif quand le menu est actif ou travaille (2026-11-01 : brille plus en rouge)");
   assert.ok(/\[data-menu-id-v1="sang"\] \.soreal-idle-nav-deco-v1 \.nb-d\{height:40cqh\}/.test(css), "sang : goutte plus petite");
   assert.ok(!/\[data-menu-id-v1="sang"\][^{]*\.nb-g\{animation:nbV1_bob/.test(css), "sang : plus de haut-bas");
+  /* Battement de cœur du pentacle (Norman, 2026-11-02) : un second tracé rouge (rouge de la goutte #d81e3c) dont SEULE l'opacité bat ; ni filtre ni ombre animés ; seulement quand le menu travaille ; coupé en mouvement réduit */
+  const reg = css.match(/\[data-menu-id-v1="sang"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g::after\{[^}]*\}/);
+  assert.ok(reg, "sang : calque du battement (::after de .nb-g, seulement .travail-v1)");
+  assert.ok(reg[0].includes("opacity:0") && reg[0].includes("animation:nbV1_battement 2.2s linear infinite") && reg[0].includes("%23d81e3c"), "sang : battement par l'opacité, rouge de la goutte");
+  assert.ok(!/@keyframes nbV1_battement\{[^@]*(filter|box-shadow|drop-shadow)/.test(css), "sang : le battement n'anime ni filtre ni ombre");
+  const kb = css.match(/@keyframes nbV1_battement\{([^\n]*)\}\n/);
+  assert.ok(kb && /^0%\{opacity:0\}/.test(kb[1]) && /100%\{opacity:0\}$/.test(kb[1]), "sang : battement invisible au début et à la fin du cycle (règle n°3)");
+  assert.ok(/reduce\)[\s\S]*\[data-menu-id-v1="sang"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g::after\{animation:none;opacity:0\}/.test(css), "sang : battement coupé en mouvement réduit");
 }
 /* Aventure, dessin de droite (Norman, 2026-10-31) : fixe ; la croix rouge pivote doucement (±9°), les pointillés apparaissent UN À UN jusqu'à la croix puis disparaissent ensemble et recommencent (boucle parfaite : opacité 0 au début et à la fin) ; mouvement réduit = dessin fixe d'origine */
 {
