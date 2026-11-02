@@ -650,14 +650,12 @@ function barre(t){
   var hx=x0+2,hy=gy+Math.floor((GH-6)/2),hp=[],r,q,txt=pv.cur+' / '+pv.max,lr=gy+GH+2;   /* le petit cœur, à gauche dans la jauge */
   for(r=0;r<SPR.coeurP.length;r++)for(q=0;q<SPR.coeurP[r].length;q++)if(SPR.coeurP[r][q]!=='.')hp.push([hx+q,hy+r]);
   contour(hp,gy,gy+GH);sprite(SPR.coeurP,hx,hy,255,ROS);
-  /* Norman (2026-11-01) : les chiffres de la vie sont SOUS la jauge, calés à gauche, sur la même ligne que la régénération (à droite), en petite police 3x5 */
-  /* Norman (2026-11-02) : « la vie du boss dans la barre LED ne doit pas montrer 10 HP / 10 HP ; ça ne doit s'inscrire que HORS COMBAT, quand le boss régénère sa vie » : pas de chiffres en combat, ni à pleine vie, ni sans régénération. */
-  if(S.combat||pv.pct>=1||!pv.regen)return;
-  var room=W-3-(pv.regen?miniWidth(pv.regen)+4:0);
+  /* Norman (2026-11-02, dernier mot) : la régénération du boss est inutile ; la vie est CENTRÉE sous la jauge, toujours au format « 10 / 10 » (compact « 10/10 » puis la vie seule si la place manque), en petite police 3x5 */
+  txt=pv.cur+' / '+pv.max;
+  var room=W-3;
   if(miniWidth(txt)>room)txt=pv.cur+'/'+pv.max;
   if(miniWidth(txt)>room)txt=pv.cur;
-  miniText(txt,2,lr,BLA,255,fnUnites(txt));
-  miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen));
+  miniText(txt,Math.max(1,Math.floor((W-miniWidth(txt))/2)),lr,BLA,255,fnUnites(txt));
 }
 var cbId=-1;
 function couleurBarre(r,e){

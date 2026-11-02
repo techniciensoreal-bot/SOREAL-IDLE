@@ -48,7 +48,7 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Sur la borne, les coins noirs qui dépassaient derrière les images du duel sont maintenant arrondis comme les images.',
-            'La vie du boss sous la barre de l’écran de la borne ne s’affiche plus qu’hors combat, quand le boss régénère sa vie.',
+            'Sur la borne, la vie du boss est centrée sous la barre de l’écran, toujours au format « vie / vie max », et sa régénération n’y est plus affichée.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'La lune est une vraie pleine lune brillante, avec ses cratères et son halo ; et tant qu’aucune énergie n’est placée, un gros nuage gris couvre le ciel : le soleil et les nuages blancs n’apparaissent qu’ensuite.',

@@ -44,22 +44,23 @@ console.log("idle-borne-duel-leds-v1: OK");
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
   assert.ok(led.includes("function fnUnites(s)") && led.includes("nb-suf") && led.includes("fnUnites(txt)"), "unités des PV en couleur (couleurs lues dans la feuille de style du jeu)");
-  assert.ok(led.includes("miniText(pv.regen,") && led.includes("var MINI={"), "régénération en petite police 3x5");
+  assert.ok(led.includes("var MINI={"), "petite police 3x5 pour la vie");
   console.log("idle-borne-duel-leds-v1 (unités + mini) : OK");
 }
 // Norman (2026-11-01) : chiffres de la vie du boss SOUS la jauge, à gauche, sur la ligne de la régénération (petite police)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
   const b = led.slice(led.indexOf("function barre(t){"), led.indexOf("var cbId=-1;"));
-  assert.ok(b.includes("miniText(txt,2,lr,BLA,255,fnUnites(txt))") && b.includes("miniText(pv.regen,W-2-miniWidth(pv.regen),lr,VER,255,fnUnites(pv.regen))") && !b.includes("text(txt,tx,ty"), "chiffres sous la jauge à gauche, régénération à droite, même ligne, plus de texte dans la jauge");
+  assert.ok(b.includes("miniText(txt,Math.max(1,Math.floor((W-miniWidth(txt))/2)),lr,BLA,255,fnUnites(txt))") && !b.includes("text(txt,tx,ty"), "chiffres sous la jauge à gauche, régénération à droite, même ligne, plus de texte dans la jauge");
   console.log("idle-borne-duel-leds-v1 (vie sous la jauge) : OK");
 }
-// Norman (2026-11-02) : « la vie du boss dans la barre LED ne doit pas montrer 10 HP / 10 HP ; ça ne s'inscrit que hors combat, quand le boss régénère sa vie »
+// Norman (2026-11-02, corrigé) : la vie du boss est TOUJOURS affichée ; « 5 / 10 » seulement hors combat quand il régénère, sinon la vie seule (qui descend pendant le combat)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
   const b = led.slice(led.indexOf("function barre(t){"), led.indexOf("var cbId=-1;"));
-  assert.ok(b.includes("if(S.combat||pv.pct>=1||!pv.regen)return;"), "pas de chiffres en combat, ni à pleine vie, ni sans régénération");
-  assert.ok(b.indexOf("if(S.combat||pv.pct>=1||!pv.regen)return;") < b.indexOf("miniText(txt,2,lr,BLA,255,fnUnites(txt))"), "la condition précède l'écriture des chiffres");
+  assert.ok(!b.includes("if(S.combat||pv.pct>=1||!pv.regen)return;"), "la vie n'est jamais masquée");
+  assert.ok(!b.includes("pv.regen"), "plus de régénération affichée (inutile, Norman 2026-11-02)");
+  assert.ok(b.includes("txt=pv.cur+' / '+pv.max;"), "format cur / max toujours");
   assert.ok(led.includes("(S.combat?'c':'')"), "le changement combat / hors combat redessine la jauge");
-  console.log("idle-borne-duel-leds-v1 (chiffres de vie seulement hors combat et en régénération) : OK");
+  console.log("idle-borne-duel-leds-v1 (vie centrée, toujours cur / max, sans régénération) : OK");
 }
