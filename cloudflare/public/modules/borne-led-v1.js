@@ -386,7 +386,7 @@ var HEROS_TRONCO=(function(){
    Le personnage ressemble à Leatherface : cheveux noirs bouclés, masque pâle aux orbites noires et à la bouche ouverte, veste sombre ouverte, chemise et tablier crème, cravate noire. Les trois poses des photos s'enchaînent en boucle : (1) face, tronçonneuse brandie à deux mains au-dessus de la tête ;
    (2) de dos, en silhouette, tronçonneuse haute ; (3) le grand coup de côté (un bras tendu, la lame vers le bas, la veste qui s'envole), d'abord vers la gauche puis vers la droite. Fond : ciel de coucher de soleil, soleil bas à l'horizon, silhouette noire par-dessus. */
 var DANSE_L=26,DANSE_H=24;
-var DANSE_COUL={K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
+var DANSE_COUL={J:[BLA,95],N:[BLA,70],K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
 function posesDanse(){
   function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
   function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
@@ -469,15 +469,21 @@ function posesCourse(){
   function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
   function course(jambes){
     var g=grille(),q;
-    put(g,6,8,'KKKKKK');put(g,7,7,'KKKKKKKK');                                    /* cheveux */
-    put(g,8,6,'SSSSKKK');put(g,9,6,'SKSSKKK');put(g,10,6,'SSSSKK');put(g,11,6,'MMSSK');put(g,12,7,'SSSK');   /* masque de profil, orbite noire, bouche ouverte */
-    put(g,13,8,'CCKKKKKK');put(g,14,8,'CTKKKKKKK');put(g,15,9,'CTKKKKKK');put(g,16,10,'CKKKKKK');put(g,17,11,'KKKKKK');put(g,18,12,'KKKKK');   /* buste penché : chemise, cravate, veste */
-    [[15,17],[16,18],[17,19],[18,19]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras arrière */
-    [[12,14],[11,14],[10,15],[9,15],[8,15],[7,15],[6,15]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras levé vers la scie */
-    put(g,5,15,'SS');
+    /* Leatherface de PROFIL (Norman, 2026-11-02 : « mieux fait de profil quand il court, on ne le reconnaît plus ») : grosse tête au masque pâle de profil (orbite noire, bouche rouge ouverte aux dents), cheveux noirs en bataille, veste grise, chemise crème et grand tablier taché de rouge, pantalon et bottes ; tronçonneuse brandie bras levé, autre bras qui balance */
+    put(g,4,8,'KKKK');put(g,5,7,'KKKKKKK');put(g,6,6,'KKKKKKKKK');                               /* cheveux : sommet et mèches */
+    put(g,7,5,'SSSKKKKK');put(g,8,4,'SSSKSKKKK');put(g,9,4,'SSSSSKKKK');put(g,10,4,'SSSSSSKKK');   /* masque : front, orbite noire (x7), pommette, joue */
+    put(g,11,4,'MTMTSSKK');put(g,12,5,'SSSSSK');put(g,13,6,'SSSK');                                    /* bouche ouverte aux dents, menton */
+    put(g,14,8,'KJJJ');                                                                                 /* cou et col */
+    put(g,15,6,'CCCJJJJJJ');put(g,16,6,'CCCCJJJJJ');put(g,17,6,'CRCCCJJJJ');put(g,18,7,'CCRCCJJJ');put(g,19,7,'CCCRCJJ');put(g,20,8,'CCCCJJ');   /* buste penché : tablier crème taché de rouge, veste grise */
+    put(g,21,9,'JJJJJ');                                                                                /* hanches */
+    [[16,16],[17,17],[18,18],[19,19],[20,19]].forEach(function(p){put(g,p[0],p[1],'JJ');});   /* bras arrière qui balance */
+    [[14,13],[13,13],[12,14],[11,14],[10,15],[9,15],[8,15],[7,15]].forEach(function(p){put(g,p[0],p[1],'JJ');});   /* bras levé vers la scie */
+    put(g,6,15,'SS');
     put(g,1,14,'HHHH');put(g,2,3,'GGGGGGGGGG');put(g,2,13,'DDDDDDD');put(g,3,3,'OGOGOGOGOG');put(g,3,13,'DRRRDDD');put(g,4,3,'GGGGGGGGGG');put(g,4,13,'DDDDDDD');   /* tronçonneuse au-dessus de la tête, lame devant */
-    q=jambes?[[19,10],[20,10],[21,10],[22,9],[23,9],[19,12],[20,12],[21,12],[22,13],[23,14]]:[[19,10],[20,9],[21,8],[22,7],[23,6],[19,12],[20,13],[21,14],[22,15],[23,16]];
-    q.forEach(function(p){put(g,p[0],p[1],'KK');});
+    q=jambes?[[22,10],[23,10]]:[[22,9],[23,8]];
+    q.forEach(function(p){put(g,p[0],p[1],'NN');});
+    if(jambes){put(g,22,12,'NN');put(g,23,12,'NN');put(g,23,10,'NNKK');put(g,23,12,'NNKK');}
+    else{put(g,23,6,'KKK');put(g,22,13,'NN');put(g,23,14,'NNKK');put(g,22,11,'NN');}
     return g.map(function(r){return r.join('');});
   }
   return [course(false),course(true)];
@@ -610,9 +616,25 @@ function tueRie(t){
   dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
   var pose=t<tCoup-0.35?COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0]:(t<tCoup+0.55?DANSE_POSES[2]:DANSE_POSES[0]);
   dessinerPose(pose,pose===DANSE_POSES[0]?Math.round(sxl-4*G.es):sxl,G.sy,G.es);
-  var bx=G.tx+Math.round(30*G.ec),by=G.syT+Math.round(4*G.ec);
-  if(!P.reduced){burst(bx,by,t-tCoup,16,5,22,1.1,[ROU,ROU,ROS],14);}
-  if(t>tCoup)for(i=0;i<7;i++)px(G.tx+Math.round((27+i*1.3)*G.ec),G.syT+Math.round(5.5*G.ec),ROU,200);   /* il reste du rouge dans la benne */
+  var u=t-tCoup,bx=G.tx+Math.round(30*G.ec),by=G.syT+Math.round(2.5*G.ec);
+  if(u>=0){
+    /* la TÊTE de la fille est tranchée : elle part vers la gauche, monte, retombe sur la route et rebondit une fois ; le corps reste affaissé dans la benne, du rouge jaillit du cou puis coule */
+    var he=G.ec*1.15,hh=Math.max(3,Math.round(3*he)),sol=G.fl-2-hh+1,vx=11,vy=-36,gr=95,ty=by+vy*u+0.5*gr*u*u;
+    var tChute=(-vy+Math.sqrt(vy*vy+2*gr*Math.max(1,sol-by)))/gr,hx=bx-2+vx*Math.min(u,tChute),hy=ty;   /* la tête jaillit vers le haut, retombe sur la route derrière le fourgon et y reste (un petit rebond) */
+    if(u>=tChute){var ur=u-tChute;hy=sol-(ur<0.3?Math.max(0,5*Math.sin(ur/0.3*3.1416)):0);hx+=ur<0.3?ur*10:3;}
+    dessinerCoul(['.YYY.','YSSSY','.YSY.'],CAMION_COUL,Math.round(hx),Math.round(Math.min(hy,sol)),he);
+    dessinerCoul(['PPPPP','PPPPP'],CAMION_COUL,G.tx+Math.round(28*G.ec),G.syT+Math.round(4.2*G.ec),G.ec*0.8);
+    /* BEAUCOUP de sang : trois gerbes qui retombent en pluie, une fontaine qui jaillit du cou en arcs successifs, des éclaboussures qui restent sur le fourgon, une mare qui s'étend sur la route */
+    if(!P.reduced){
+      burst(bx,by+2,u,44,5,34,1.9,[ROU,ROU,ROU,ROS],22);burst(bx-3,by+4,u-0.12,32,15,24,1.7,[ROU,ROU,ROS],26);burst(bx+3,by+1,u-0.25,28,25,40,1.5,[ROU,ROS],20);
+      if(u<1.8)for(i=0;i<16;i++){var ph=(u*2.2+i*0.17)%1,ax=(i%2?1:-1)*(3+ph*(8+(i%5)*2)),ay=-Math.sin(ph*3.1416)*(7+(i%4)*2.5)+ph*ph*14;px(bx+ax*0.9,by+3+ay,ROU,255*(1-u/1.8)*(1-ph*0.4));}
+      for(i=0;i<40;i++){var sp=Math.min(1,u*1.6);if(R(i,31)>sp)continue;px(G.tx+Math.round((6+R(i,32)*28)*G.ec),G.syT+Math.round((1+R(i,33)*9)*G.ec),ROU,150+90*R(i,34));}   /* éclaboussures sur la carrosserie */
+    }
+    var mare=Math.min(1,u/2.2),mx=Math.round(hx)+3,ml=Math.round(4+mare*14);
+    for(i=0;i<ml;i++){px(mx-ml/2+i,G.fl-1,ROU,170+60*R(i,41));if(mare>0.35&&i>2&&i<ml-2)px(mx-ml/2+i,G.fl-2,ROU,120+60*R(i,42));}
+    for(i=0;i<16;i++)px(G.tx+Math.round((26+i*0.7)*G.ec),G.syT+Math.round((5.5+(i%3)*0.8)*G.ec),ROU,210);   /* du rouge partout dans la benne */
+    for(i=0;i<5;i++){var cu=Math.min(1,Math.max(0,(u-0.6)/1.6));px(G.tx+Math.round((27+i*2.2)*G.ec),G.syT+Math.round((7+cu*(4+i%3*2))*G.ec),ROU,230);}   /* ça coule le long de la benne */
+  }
 }
 function sKO(t){
   var W=P.W,H=P.H,an=P.p.anim==='sweep';
