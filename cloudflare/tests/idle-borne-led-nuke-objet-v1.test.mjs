@@ -91,13 +91,11 @@ assert.deepEqual(ordre.slice(0, 6), ["energyPower", "magicBars", "luck", "energy
 const court = simuler({ restants: { luck: 3 }, secondes: 60 });
 assert.ok(court.filter((s) => s[1] === "objet").every((s) => s[0] < 8000), "objet expiré : plus d'annonce");
 
-// pendant le combat : FIGHT ! reste ; l'annonce s'intercale brièvement puis FIGHT ! revient (sans réapparition lettre par lettre)
+// pendant le combat : AUCUNE annonce d'objet (Norman, 2026-11-02 : « l'animation ne doit pas être interrompue, on doit la voir du début à la fin ») ; elles reprennent hors combat
 const cb = simuler({ restants: { luck: 99999 }, combat: true, secondes: 240 });
 const fights = cb.filter((s) => s[1] === "fight").length;
-assert.ok(fights > cb.length * 0.4 && cb.filter((s) => s[1] === "objet").length < cb.length * 0.2, "FIGHT ! reste la scène principale du combat (les intercalaires sont brefs)");
-const interc = cb.filter((s, i) => s[1] === "objet" && (i === 0 || cb[i - 1][1] !== "objet"));
-assert.ok(interc.length >= 2 && interc.every((s) => s[3] === true), "intercalaire pendant le combat (inter)");
-cb.forEach((s, i) => { if (s[1] === "objet") { let j = i; while (j < cb.length && cb[j][1] === "objet") j++; if (j < cb.length) assert.ok(["fight", "bars", "mascot", "hit"].includes(cb[j][1]) || true); } });
+assert.ok(fights > cb.length * 0.4, "FIGHT ! (ou l'animation du combat) reste la scène du combat");
+assert.equal(cb.filter((s) => s[1] === "objet").length, 0, "aucune annonce d'objet ne s'intercale pendant un combat");
 assert.ok(cb.every((s, i) => !(s[1] === "objet" && i > 0 && cb[i - 1][1] === "ko")), "jamais juste après un K.O.");
 assert.equal(ev("fightT0"), 0, "FIGHT ! n'a pas redémarré à chaque intercalaire");
 // scène rendue : icône + nom, puis temps ; assez lumineuse

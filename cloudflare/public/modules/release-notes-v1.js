@@ -63,6 +63,7 @@
             'Le bouton du menu et les illustrations de la page ont été retravaillés.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
+            'Les descriptions des défis reprennent désormais le texte d’origine du jeu.',
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',
             'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',
           ]},

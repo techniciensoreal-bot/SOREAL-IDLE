@@ -49,7 +49,7 @@ function R(q,t,s){return {q:q,t:t,s:Boolean(s)};}
 var DEFIS={
   basic:{
     nom:'Basic Challenge',
-    desc:{normal:'Un défi simple. Ton NOMBRE revient à 1 et tu remontes du boss 1 jusqu’au boss 58. Cette perte de NOMBRE est permanente, mais tu le regagneras bien plus vite qu’il ne t’a fallu pour en arriver là. Rien d’autre n’est réinitialisé : tu gardes tes améliorations d’EXP, tes stats d’Aventure, etc.'},
+    desc:{normal:'Un défi simple et basique. Perds toute ton Attaque et ta Défense, remets ton NOMBRE à 1 et remonte du boss 1 jusqu’au boss 58 ! NOTE : cette perte de NOMBRE est permanente, mais tu le regagneras bien plus vite qu’il ne t’a fallu pour en arriver là, je te le promets. Rien d’autre que ton nombre n’est réinitialisé pendant ce défi : tu gardes toutes tes améliorations d’EXP achetées, tes compétences NGU, tes stats d’Aventure, etc.',difficile:'Ton nombre est remis à 1 et tu dois remonter jusqu’au boss 58 pour terminer le défi. Rien d’autre que ton nombre n’est réinitialisé pendant ce défi : tu gardes toutes tes améliorations d’EXP achetées, tes compétences NGU, tes stats d’Aventure, etc.',extreme:'Ton nombre est remis à 1 et tu dois remonter jusqu’au boss 58 pour terminer le défi. Rien d’autre que ton nombre n’est réinitialisé pendant ce défi : tu gardes toutes tes améliorations d’EXP achetées, tes compétences NGU, tes stats d’Aventure, etc.'},
     restriction:'Aucune ! Tu peux renaître autant que tu veux et tout faire.',
     conseil:{normal:'Aucune stat particulière. Laisse-toi quand même un peu de temps avant de le lancer.',difficile:'À faire dès ton entrée en Evil : il n’impose aucune restriction, et repasser de 1 à 1 ne change rien. Des stats d’Aventure gratuites !'},
     recompenses:{
@@ -60,7 +60,7 @@ var DEFIS={
   },
   noAugmentations:{
     nom:'No Augmentations Challenge',
-    desc:{normal:'Pas d’augmentations pour toi ! Ton NOMBRE revient à 1 et tu remontes comme d’habitude. Mais le menu Augmentations est totalement interdit pendant toute la durée du défi.'},
+    desc:{normal:'Pas d’augmentations pour toi ! Reviens à un NOMBRE de 1 et remonte comme d’habitude. Mais la fonctionnalité des augmentations est entièrement interdite pendant toute la durée de ce défi !'},
     restriction:'Le menu Augmentations est verrouillé pendant le défi. Tout le reste est disponible.',
     conseil:{normal:'Compense l’absence d’augmentations avec tes autres sources de puissance.'},
     recompenses:{
@@ -71,7 +71,7 @@ var DEFIS={
   },
   twentyFourHours:{
     nom:'24 Hour Challenge',
-    desc:{normal:'Ton NOMBRE revient à 1 et tu disposes de 24 heures de temps de jeu pour atteindre le boss cible. Chaque réussite relève le boss cible du défi suivant.'},
+    desc:{normal:'Ton NOMBRE est remis à 1, et tu as 24 heures de temps de jeu pour atteindre le boss cible ! Chaque défi réussi relève le boss cible du défi suivant.'},
     restriction:'La progression hors ligne est désactivée pendant le défi. Mais le chrono ne tourne pas non plus pendant ce temps : prends-le comme un avantage !',
     conseil:{normal:'Plus tu es fort, mieux c’est.'},
     recompenses:{
@@ -83,7 +83,7 @@ var DEFIS={
   },
   hundredLevels:{
     nom:'100 Levels Challenge',
-    desc:{normal:'Ton NOMBRE revient à 1 et tu remontes ! Sauf que cette fois, tu ne peux gagner que 100 niveaux au maximum, par Renaissance, en tout depuis les Augmentations, la Blood Magic, la Time Machine, Wandoos et les Barbes réunis.'},
+    desc:{normal:'Reviens à un NOMBRE de 1 et remonte ! Sauf que, cette fois, tu ne peux gagner que 100 niveaux au maximum, en tout, grâce aux Augmentations, à la Blood Magic, à la Time Machine, à Wandoos et aux Barbes réunis, pendant chaque renaissance.'},
     restriction:'Tu peux tout utiliser, mais le total de niveaux gagnés par Renaissance dans toutes ces fonctions (sauf l’entraînement de base et les NGU) est plafonné à 100. Les niveaux d’Advanced Training gagnés pendant la Renaissance comptent aussi (pas ceux du perk d’Advanced Training instantané, ni ceux des banques ou des niveaux temporaires de barbes). La progression hors ligne est désactivée.',
     conseil:{normal:'Beaucoup de capacité et de puissance d’Énergie et de Magie.'},
     recompenses:{
@@ -94,7 +94,7 @@ var DEFIS={
   },
   noEquipment:{
     nom:'No Equipment Challenge',
-    desc:{normal:'L’équipement t’aide à tout faire mieux : alors on te l’enlève.'},
+    desc:{normal:'L’équipement t’aide à tout faire mieux, alors on va te l’enlever.'},
     restriction:'Aucun bonus d’équipement : tu peux mettre et enlever des pièces, mais rien ne compte tant que le défi est actif.',
     conseil:{normal:'Beaucoup de Puissance d’Énergie et de Puissance de Magie de base.'},
     recompenses:{
@@ -105,7 +105,7 @@ var DEFIS={
   },
   troll:{
     nom:'Troll Challenge',
-    desc:{normal:'Tu vas m’affronter, moi, 4G, en grimpant les boss. De temps en temps, je te ferai une vacherie : peut-être effacer ta progression d’augmentations, peut-être désactiver Wandoos, peut-être te noyer sous les popups. Quoi que je fasse, ce sera mauvais.'},
+    desc:{normal:'Tu vas m’affronter, moi, 4G, pendant que tu grimpes les boss. De temps en temps, je vais te faire une vacherie d’une façon ou d’une autre. Peut-être que j’efface toute ta progression d’augmentations. Peut-être que je désactive Wandoos. Peut-être que je te spamme de popups. Mais quoi que je fasse, ce sera mauvais.'},
     restriction:'Laisse tes dernières traces de bon sens à la porte. La progression hors ligne est désactivée. Toutes les quelques dizaines de secondes, un troll s’abat sur toi (un gros troll tous les cinq trolls, souvent bien plus sévère).',
     conseil:{normal:'De la patience pour les bêtises que je vais te faire subir.'},
     recompenses:{
@@ -116,7 +116,7 @@ var DEFIS={
   },
   noRebirth:{
     nom:'No Rebirth Challenge',
-    desc:{normal:'Les Renaissances, c’est amusant, non ? Moi, je déteste ça. AUCUNE RENAISSANCE, JAMAIS ! Ton NOMBRE revient à 1 et tu dois atteindre le boss cible sans jamais renaître.'},
+    desc:{normal:'Dis donc, les renaissances, c’est amusant, non ?\n\nJe déteste ce qui est amusant.\n\nAUCUNE. RENAISSANCE. JAMAIS ! Ton nombre est remis à 1 et tu dois atteindre le boss cible sans jamais renaître.'},
     restriction:'Interdit de renaître !',
     conseil:{normal:'Tout ce qui augmente directement ton Attaque et ta Défense.'},
     recompenses:{
@@ -127,7 +127,7 @@ var DEFIS={
   },
   laserSword:{
     nom:'Laser Sword Challenge',
-    desc:{normal:'Jensen, le gars des augmentations, veut une augmentation Laser Sword 2/2. Fabrique-lui en une et il rendra tes augmentations bien plus efficaces. RIEN N’EST RÉINITIALISÉ dans ce défi : c’est simplement une Renaissance normale (ton NOMBRE ne revient pas à 1).'},
+    desc:{normal:'Jensen, le gars des augmentations, veut une augmentation Laser Sword 2/2. Va lui en fabriquer une. Fais-le et il rendra tes augmentations bien plus redoutables. NOTE : RIEN N’EST RÉINITIALISÉ DANS CE DÉFI ! Il effectue simplement une renaissance normale !',difficile:'Jensen, le gars des augmentations, veut une augmentation Laser Sword 2/2. Va lui en fabriquer une. Fais-le et il rendra tes augmentations bien plus redoutables. NOTE : RIEN N’EST RÉINITIALISÉ DANS CE DÉFI ! Il effectue simplement une renaissance normale !(Sans remise à zéro du NOMBRE)',extreme:'Jensen, le gars des augmentations, veut une augmentation Laser Sword 2/2. Va lui en fabriquer une. Fais-le et il rendra tes augmentations bien plus redoutables. NOTE : RIEN N’EST RÉINITIALISÉ DANS CE DÉFI ! Il effectue simplement une renaissance normale !(Sans remise à zéro du NOMBRE)'},
     restriction:'Absolument aucune !',
     conseil:{normal:'Assez de puissance pour fabriquer la Laser Sword demandée. Ce n’est pas si compliqué.'},
     recompenses:{
@@ -138,7 +138,7 @@ var DEFIS={
   },
   blind:{
     nom:'Blind Challenge',
-    desc:{normal:'Ton NOMBRE revient à 1 et tu remontes jusqu’au boss cible. Mais, oh non ! La plupart des nombres affichés dans le jeu sont devenus invisibles ! T’entraînes-tu correctement ? As-tu bien réglé tes augmentations ? Renais-tu vers un NOMBRE plus haut ou plus bas ? Espère t’en souvenir.'},
+    desc:{normal:'Tu vas revenir à un NOMBRE de 1 et refaire l’ascension jusqu’au boss cible. Mais, oh non ! La plupart des nombres affichés dans le jeu sont maintenant invisibles ! T’entraînes-tu correctement ? As-tu bien réglé tes augmentations ? Renais-tu seulement vers un NOMBRE plus haut ou plus bas ? Espère que tu t’en souviens.'},
     restriction:'Rien n’est interdit, tu es simplement aveugle comme une taupe. Le défi devient « plus aveugle » à chaque niveau réussi : de plus en plus de nombres sont masqués.',
     conseil:{normal:'Une bonne mémoire et un peu de calcul mental. Astuce : le menu des détails de stats reste utile, et l’objet équipé qui monte jusqu’au boss 100 te dit à quel boss tu en es.'},
     recompenses:{
@@ -149,7 +149,7 @@ var DEFIS={
   },
   noNgu:{
     nom:'No NGU Challenge',
-    desc:{normal:'Ces NGU sont sacrément puissants ! Voyons comment tu t’en sors sans eux.',difficile:'Tu ne tires aucun bonus des NGU !'},
+    desc:{normal:'Ces NGU sont drôlement puissants ! Voyons comment tu t’en sors sans eux.',difficile:'Tu ne reçois aucun bonus des NGU !',extreme:'Tu ne reçois aucun bonus des NGU !'},
     restriction:'Les NGU ne donnent absolument aucun bonus.',
     conseil:{normal:'Tout ce qui n’est pas NGU !',difficile:'Tout ce qui n’est pas NGU ! Il faudra peut-être attendre 30 minutes pour que le Fruit of Power Beta fasse effet.'},
     recompenses:{
@@ -357,7 +357,7 @@ function ficheDefi(def,tier){
     blocObjectif(def)+
     '<div class="dfi-gains dfi-gains-gros">'+pastilleGain('exp',i.exp)+pastilleGain('ap',i.ap)+(mult?'<span class="dfi-mult">'+h(mult)+'</span>':'')+'</div>'+
     '<div class="dfi-interdit">'+etiquette('⛔','Restrictions')+'<p>'+h(t.restriction)+'</p></div>'+
-    '<div class="dfi-parchemin">'+etiquette('📜','Description')+'<p>'+h(desc)+'</p></div>'+
+    '<div class="dfi-parchemin">'+etiquette('📜','Description')+desc.split('\n\n').map(function(p){return '<p>'+h(p)+'</p>';}).join('')+'</div>'+
     (conseil?'<div class="dfi-bulle">'+etiquette('💡','Conseil')+'<p>'+h(conseil)+'</p></div>':'')+
     '<div class="dfi-butin">'+etiquette('🎁','Récompenses')+'<ul class="dfi-slots">'+(slots||'<li class="dfi-slot"><span class="dfi-slot-t">Seulement de l’EXP et des AP.</span></li>')+'</ul><p class="dfi-note">Au-delà du maximum, plus d’EXP, d’AP ni de bonus.</p></div>'+
     (i.peutDemarrer?'<div class="dfi-actions"><button type="button" class="dfi-jouer dfi-jouer-gros" onclick="window.__demarrerDefiIdleV1__(\''+id+'\');window.__fermerDefiIdleV1__()">Jouer</button></div>':'')+
@@ -501,6 +501,9 @@ function styleTroll(){
   var st=document.createElement('style');
   st.id='sorealDefiStyleV1';
   st.textContent='@keyframes sorealChatonV1{from{transform:translateX(-110vw)}to{transform:translateX(110vw)}}'+
+    '@keyframes sorealChatGrosV1{from{transform:translateX(-100%)}to{transform:translateX(100vw)}}'+
+    '#sorealDefiChatonV1.gros{position:fixed;inset:0;width:auto;height:auto;z-index:99990;pointer-events:auto;overflow:hidden;cursor:not-allowed;background:transparent}'+
+    '#sorealDefiChatonV1.gros img{position:absolute;top:-5vh;left:0;height:110vh;width:auto;max-width:none;user-select:none;animation:sorealChatGrosV1 14s linear forwards}'+
     '#sorealDefiChatonV1{position:fixed;left:0;top:18vh;width:100vw;height:64vh;z-index:99990;pointer-events:none;overflow:hidden}'+
     '#sorealDefiChatonV1 svg{position:absolute;top:0;height:100%;width:auto;animation:sorealChatonV1 14s linear forwards}'+
     '#sorealDefiBoitesV1{position:fixed;inset:0;z-index:99991;pointer-events:none}'+
@@ -538,15 +541,54 @@ function jouerBoites(){
   document.body.appendChild(zone);
 }
 
-function jouerChaton(){
+/* Un chaton volontairement mal dessiné (« I drew a kitty for you ») : repli quand les vrais chats du dossier ne sont pas joignables (hors ligne). */
+function chatonDessine(){
   styleTroll();
   retirer('sorealDefiChatonV1');
   var zone=document.createElement('div');
   zone.id='sorealDefiChatonV1';
-  /* Un chaton volontairement mal dessiné (« I drew a kitty for you »). */
   zone.innerHTML='<svg viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg"><g fill="#ffb84d" stroke="#222" stroke-width="5" stroke-linejoin="round"><path d="M40 90 L52 20 L95 62 Z"/><path d="M180 90 L168 20 L125 62 Z"/><ellipse cx="110" cy="130" rx="76" ry="66"/><path d="M60 190 Q40 235 100 230 Q170 236 165 190 Z"/></g><g fill="#222"><circle cx="80" cy="120" r="9"/><circle cx="142" cy="126" r="7"/><path d="M104 148 L118 146 L110 158 Z"/></g><g fill="none" stroke="#222" stroke-width="4" stroke-linecap="round"><path d="M110 158 Q98 174 84 168"/><path d="M110 158 Q124 176 140 166"/><path d="M60 140 L20 132"/><path d="M60 152 L18 160"/><path d="M162 142 L204 128"/><path d="M162 154 L206 162"/></g></svg>';
   document.body.appendChild(zone);
   setTimeout(function(){retirer('sorealDefiChatonV1');},14500);
+}
+
+/* Les chats du Troll Challenge (Norman, 2026-11-02) : les images du dossier idle/garderie-skins/TrollChallenge/ (R2), listées par le serveur (/api/idle/media/troll-chats). La liste est gardée tant qu'elle n'est pas vide. */
+var chatsTrollListe=null;
+function chargerChatsTroll(suite){
+  if(chatsTrollListe&&chatsTrollListe.length)return suite(chatsTrollListe);
+  var fini=false;
+  function fin(l){if(fini)return;fini=true;if(l.length)chatsTrollListe=l;suite(l);}
+  try{
+    fetch('/api/idle/media/troll-chats').then(function(r){return r.ok?r.json():null;}).then(function(j){fin(j&&Array.isArray(j.noms)?j.noms:[]);}).catch(function(){fin([]);});
+    setTimeout(function(){fin([]);},4000);
+  }catch(_e){fin([]);}
+}
+
+/* Un chat ÉNORME qui prend tout l'écran et traverse en 14 s : pendant ce temps il bloque les clics (Norman, 2026-11-02 : « pour nous empêcher de cliquer »). */
+function montrerChatTroll(img){
+  styleTroll();
+  retirer('sorealDefiChatonV1');
+  var zone=document.createElement('div');
+  zone.id='sorealDefiChatonV1';
+  zone.className='gros';
+  img.alt='';
+  img.draggable=false;
+  zone.appendChild(img);
+  document.body.appendChild(zone);
+  setTimeout(function(){retirer('sorealDefiChatonV1');},14500);
+}
+
+function jouerChaton(){
+  styleTroll();
+  retirer('sorealDefiChatonV1');
+  chargerChatsTroll(function(noms){
+    if(!noms.length){chatonDessine();return;}
+    var nom=noms[Math.floor(Math.random()*noms.length)];
+    var img=new Image();
+    img.onload=function(){montrerChatTroll(img);};
+    img.onerror=function(){chatonDessine();};
+    img.src='/api/idle/media/troll-chat?f='+encodeURIComponent(nom);
+  });
 }
 
 function activerMenuAleatoire(actif){

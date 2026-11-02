@@ -1669,6 +1669,26 @@ async function garderieSkin_(request,env,url){
   return reponseObjetR2_(request,env,{key:cle});
 }
 
+/* Chats du Troll Challenge (Norman, 2026-11-02) : le troll du chaton montre les images de idle/garderie-skins/TrollChallenge/ (R2). Liste JSON des noms, puis une image par nom ; noms plats uniquement, extensions d'image seulement : jamais un acces R2 arbitraire. */
+const TROLL_CHATS_DOSSIER_V1="idle/garderie-skins/TrollChallenge/";
+const TROLL_CHATS_EXTENSIONS_V1=/\.(webp|png|jpe?g|gif|avif)$/i;
+async function trollChatsListe_(request,env){
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"){
+    return Response.json({ok:false,noms:[]},{status:503,headers:{"cache-control":"no-store"}});
+  }
+  const liste=await env.SOREAL_R2.list({prefix:TROLL_CHATS_DOSSIER_V1,limit:200});
+  const noms=(liste.objects||[]).map(o=>String(o.key||"").slice(TROLL_CHATS_DOSSIER_V1.length)).filter(n=>n&&!n.includes("/")&&TROLL_CHATS_EXTENSIONS_V1.test(n)).sort();
+  return Response.json({ok:true,noms},{headers:mediaHeaders_({},300)});
+}
+async function trollChatImage_(request,env,url){
+  const nom=String(url.searchParams.get("f")||"");
+  if(!nom||nom.includes("/")||nom.includes("\\")||nom.includes("..")||!TROLL_CHATS_EXTENSIONS_V1.test(nom))return new Response("Chat introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  const cle=TROLL_CHATS_DOSSIER_V1+nom;
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function")return new Response("Chat indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  if(!(await env.SOREAL_R2.get(cle)))return new Response("Chat introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
+  return reponseObjetR2_(request,env,{key:cle});
+}
+
 export async function traiterRequeteIdleMedia(request,env){
   const url=new URL(request.url);
   const routes=new Set([
@@ -1688,6 +1708,8 @@ export async function traiterRequeteIdleMedia(request,env){
     "/api/idle/media/card",
     "/api/idle/media/card-back",
     "/api/idle/media/garderie-skin",
+    "/api/idle/media/troll-chats",
+    "/api/idle/media/troll-chat",
     "/api/idle/media/ygg",
     "/api/idle/media/roster",
     "/api/idle/media/shared",
@@ -1719,6 +1741,8 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/card")return carteImage_(request,env,url);
   if(url.pathname==="/api/idle/media/card-back")return carteDos_(request,env);
   if(url.pathname==="/api/idle/media/garderie-skin")return garderieSkin_(request,env,url);
+  if(url.pathname==="/api/idle/media/troll-chats")return trollChatsListe_(request,env);
+  if(url.pathname==="/api/idle/media/troll-chat")return trollChatImage_(request,env,url);
   if(url.pathname==="/api/idle/media/ygg")return yggImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story")return storyImage_(request,env,url);
   if(url.pathname==="/api/idle/media/story-image")return storyImageFichier_(request,env,url);
