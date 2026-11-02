@@ -84,7 +84,7 @@
             'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
-            'Les touches du clavier de Wandoos font exactement le même bruit que les boutons de l’application SOREAL, barre d’espace comprise.',
+            'Les touches du clavier de ce menu font exactement le même bruit que les boutons de l’application SOREAL, barre d’espace comprise.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'La page de la machine reprend la couleur et le fond du bouton de son menu.',
