@@ -704,6 +704,12 @@ function rrObstacles(t,tg,G,libre){
   dessinerCoul(NAIN_POSES[po],NAIN_COUL,nxx,ny,e);
 }
 /* un homme qui s'enfonce dans la clairière : plus il avance dans l'ouverture (d de 0 à 1), plus il rapetisse, remonte vers l'horizon et se rapproche du centre (le trou) ; il disparaît à d = 1 */
+/* le poursuivant à la victoire (Norman, 2026-11-02 : « le 2e perso ne doit pas sortir, il doit s'arrêter et disparaître en fondu ») : il s'arrête, debout, à la place où il courait, et s'efface en fondu (k : 1 à 0) ; il ne passe jamais le rideau */
+function rrHommeFondu(rows,sx,sy,e,k){
+  if(k<=0)return;
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
+  for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=HOMME_COUL[c];if(q)px(sx+i,sy+j,q[0],Math.max(1,Math.round(q[1]*k)));}}
+}
 function rrDessinHomme(rows,fx,G,reb,op){
   var e=G.e,ctr=fx+G.mw/2,d=op>0?clamp((RR_OC+RR_OW/2-ctr)/RR_OW,0,1):0;
   if(d>=1)return;
@@ -721,7 +727,8 @@ function sRedroom(t){
   if(!fin)rrObstacles(t,tg,G);
   var xe=x0+Math.round(vie*len),fx=fin?6-Math.round(RR_SP*0.5*t):Math.min(xe+2,W-G.mw*2-gp-2);
   var fr=P.reduced?0:Math.floor(t/0.14)%2,reb=(!P.reduced&&fr)?-1:0;
-  rrDessinHomme(HOMMES[(fr+1)%2],fx+G.mw+gp,G,reb,op);   /* le poursuivant, derrière (à droite), l'autre foulée */
+  if(fin)rrHommeFondu(HOMMES[2],6+G.mw+gp,G.fl-2-(G.mh-1),e,P.reduced?0:1-sm((t-0.2)/1.0));   /* à la victoire : debout, immobile à sa place, puis fondu */
+  else rrDessinHomme(HOMMES[(fr+1)%2],fx+G.mw+gp,G,reb,op);   /* le poursuivant, derrière (à droite), l'autre foulée */
   rrDessinHomme(HOMMES[fr],fx,G,reb,op);
 }
 /* Défaite : le poursuivant rattrape le fuyard (tCatch), pose la main sur son épaule ; le fuyard s'arrête net, figé ; le sol et les passants s'arrêtent aussi. */

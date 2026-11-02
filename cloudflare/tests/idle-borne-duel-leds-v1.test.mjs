@@ -153,3 +153,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   const led5 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
   assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom')?forcee:['mascot','sweep','redroom']"), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
 }
+{
+  const led6 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led6.includes("function rrHommeFondu(rows,sx,sy,e,k){") && led6.includes("if(fin)rrHommeFondu(HOMMES[2],6+G.mw+gp,G.fl-2-(G.mh-1),e,P.reduced?0:1-sm((t-0.2)/1.0));"), "victoire Red Room : le 2e homme s'arrête et disparaît en fondu, il ne passe pas le rideau (Norman, 2026-11-02)");
+}
