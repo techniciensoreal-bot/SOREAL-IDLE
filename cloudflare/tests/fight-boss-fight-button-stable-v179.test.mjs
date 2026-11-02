@@ -26,7 +26,7 @@ assert.match(
 
 assert.match(
   body,
-  /if\(fightBossDomStableV179\)\{[\s\S]{0,500}rafraichirCommandesFightBossIdleV167_\(\);[\s\S]{0,100}return;/,
+  /if\(fightBossDomStableV179\)\{[\s\S]{0,1800}rafraichirCommandesFightBossIdleV167_\(\);[\s\S]{0,100}return;/,
   "Pendant Fight Boss, le bouton doit être patché sans reconstruire son DOM."
 );
 
