@@ -317,19 +317,126 @@ function sHits(t){
   }
 }
 
-/* 5. Mascotte qui court et saute (boucle sans à-coup : la période des piques est celle du saut) */
+/* 5. Mascotte qui court et saute (boucle sans à-coup : la période des piques est celle du saut).
+   Norman (2026-11-02) : elle court dans l'AUTRE sens (vers la gauche), calée sur le bout de la piste de vie du boss (comme le héros à la tronçonneuse : elle avance à mesure que la vie descend) ; quand la barre est vide elle SORT de l'écran, comme si elle avait terminé le niveau.
+   Hors boss (pas de piste de vie) : position fixe d'origine. Les piques restent ancrées à la mascotte (même phase de saut qu'avant, symétrique). */
+/* Fin de niveau, clin d'œil à Mario (Norman, 2026-11-02 : « sur la fin du stage, on voit un château et il entre dedans, avec des feux d'artifice ») : le château glisse depuis la gauche quand la vie du boss est presque vide, la mascotte entre par sa porte (elle disparaît à la porte), puis les feux d'artifice partent au-dessus. */
+var CHATEAU=['......W......','......WRR....','......W......','..A.A.A.A.A..','.AAAAAAAAAAA.','.AAAAAAAAAAA.','.AAWAAAAAWAA.','.AAAAAAAAAAA.','.AAAA...AAAA.','.AAAA...AAAA.','.AAAA...AAAA.','.AAAA...AAAA.'];
+function spriteDepuis(rows,x,y,v,xMin){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
+    var ch=rows[j][i];if(ch==='.'||ch===' '||x+i<xMin)continue;
+    px(x+i,y+j,PAL[ch]||AMB,v);
+  }
+}
 function sMascot(t){
-  var W=P.W,H=P.H,sp=30,per=50,T0=per/sp,hx=14,phi=(t%T0),pc=11/sp,jt=(phi-(pc-0.36))/0.72,air=jt>0&&jt<1;
-  var jy=air?Math.min(8,H-10)*4*jt*(1-jt):0,fl=H-2,i;
-  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i+Math.floor(t*sp))%4)===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
-  for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente) */
-    var sx=((R(i,3)*W-t*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
+  var W=P.W,H=P.H,sp=30,per=50,T0=per/sp,phi=(t%T0),pc=11/sp,jt=(phi-(pc-0.36))/0.72,air=jt>0&&jt<1,pp=P.p;
+  var jy=air?Math.min(8,H-10)*4*jt*(1-jt):0,fl=H-2,i,x0=2,len=W-4,vie=S.pv?clamp(S.pv.pct,0,1):-1,hx;
+  if(vie<0)hx=14;
+  else{
+    var n=Math.round(vie*len);
+    if(vie<=0.002){if(pp.te==null||pp.te===undefined)pp.te=t;hx=x0-Math.round(sp*(t-pp.te));}   /* barre vide : la mascotte quitte l'écran par la gauche */
+    else{pp.te=null;hx=Math.min(x0+n,W-10);}
+  }
+  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(t*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  if(vie>=0){var nn=Math.round(vie*len);for(i=0;i<nn;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl+1<H?fl+1:fl,BARRE,255);}}   /* la piste de vie du boss, sous ses pieds */
+  for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente, vers la droite) */
+    var sx=((R(i,3)*W+t*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
     px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(t/2+R(i,5)))));
   }
-  for(var k=-1;k<Math.ceil(W/per)+1;k++){var ox=hx+14-sp*phi+k*per;sprite(SPR.pique,Math.round(ox),fl-2,255);}
-  var fr=air?SPR.hero3:(Math.floor(t/0.12)%2?SPR.hero1:SPR.hero2);
-  sprite(fr,hx,Math.round(fl-8-jy),255);
-  if(air&&jt>0.3&&jt<0.7)px(hx+9,fl-8-jy-1,BLA,255);              /* éclat sur l'épée */
+  var chat=vie>=0&&vie<0.14,cx0=chat?Math.round(-13+14*sm((0.14-vie)/0.08)):-99,porte=cx0+6;
+  if(!chat)for(var k=-1;k<Math.ceil(W/per)+1;k++){var ox=hx-6+sp*phi-k*per;sprite(SPR.pique,Math.round(ox),fl-2,255);}   /* plus de piques devant le château */
+  if(chat){sprite(CHATEAU,cx0,fl-12,255);if(vie<=0.002&&!P.reduced){var uf=t-pp.te,fx=cx0+6;   /* feux d'artifice au-dessus du château, l'un après l'autre */
+    for(i=0;i<4;i++)burst(fx+[-5,7,1,10][i],[5,3,7,4][i],uf-0.25-i*0.5,30,11+i*7,22,0.9,[BLA,AMB,ROU,VER],14);}}
+  var fr=(chat&&vie<=0.002)?SPR.hero3:air?SPR.hero3:(Math.floor(t/0.12)%2?SPR.hero1:SPR.hero2);
+  spriteDepuis(fr.map(function(r){return r.split('').reverse().join('');}),hx,Math.round(fl-8-(chat?0:jy)),255,chat?porte:-1e9);
+  if(air&&jt>0.3&&jt<0.7)px(hx-1,fl-8-jy-1,BLA,255);              /* éclat sur l'épée */
+}
+
+/* 5 bis. Le héros à la tronçonneuse (Norman, 2026-11-02 : « un bonhomme qui balaie au fur et à mesure que la vie du boss descend, il suit la ligne de fin de vie » ; « une tronçonneuse plutôt qu'un balai, bien visible, il peut être plus grand » ; « je voulais le même personnage qui saute mais en plus grand, et ses yeux noirs au lieu de jaunes »).
+   Le MÊME personnage que la mascotte (tête blanche, corps ambre), dessiné deux fois plus grand, de profil vers la gauche ; yeux = deux trous noirs. Une piste de LED à la longueur de la vie du boss : il se tient à son bout, la lame (dents de chaîne qui défilent) sur la dernière LED, et il recule vers la gauche à mesure que la vie descend. */
+var HEROS_TRONCO=(function(){
+  var tete=['..WWW..','.WWWWW.','.W.W.W.','..WWW..','.AAAAA.','AAAAAAA','..A.A..','.A...A.'];    /* hero1 sans l'épée ; yeux = trous noirs */
+  var moteur={6:'RRR',7:'RRR'},rows=[],j;
+  for(j=0;j<8;j++){
+    var l='.........'.split('');                                      /* colonnes 0-8 : lame (0-5, dessinée par le code) puis moteur (6-8) */
+    if(moteur[j])for(var i=0;i<3;i++)l[6+i]=moteur[j][i];
+    rows.push(l.join('')+tete[j].split('').reverse().join('')+'.');   /* le héros regarde à gauche : rangée inversée */
+  }
+  /* DEUX MAINS (Norman, 2026-11-02) : une poignée au-dessus du moteur (rangée 5, colonnes 6 à 8), une main à chaque bout, reliées au corps par les avant-bras (rangée 4, colonnes 7 à 9) */
+  rows[5]=rows[5].slice(0,6)+'WAW'+rows[5].slice(9);
+  rows[4]=rows[4].slice(0,7)+'WWW'+rows[4].slice(10);
+  return rows;
+})();
+/* Version GRANDE, dessinée à la main (Norman, 2026-11-02 : « ça doit être lui, en plus grand et mieux fait ») : même personnage que la mascotte (tête blanche, yeux noirs, corps ambre), 26 colonnes x 21 rangées, tronçonneuse tenue À DEUX MAINS ;
+   la lame (rangées 18 à 20, colonnes 0 à 8) est dessinée par le code (dents de chaîne qui défilent) et pose sur la piste de vie. */
+var HEROS_GRAND=(function(){
+  var g=[],j,seg=[
+    [0,16,'WWWWW'],[1,15,'WWWWWWW'],[2,15,'WWWWWWW'],[3,15,'W..W..W'],[4,15,'W..W..W'],[5,15,'WWWWWWW'],[6,16,'W.W.W'],[7,17,'WWW'],[8,18,'W'],
+    [9,14,'AAAAAAAAA'],[10,15,'AAAAAAA'],[11,15,'AAAAAAA'],[12,15,'AAAAAAA'],[13,15,'AAAAAAA'],[14,15,'WWWWWWW'],
+    [10,14,'A'],[11,14,'A'],[12,14,'A'],[13,13,'A'],[14,13,'W'],
+    [10,13,'A'],[11,12,'A'],[12,11,'A'],[13,10,'A'],[14,9,'W'],[14,10,'WWW'],
+    [15,16,'AA'],[16,16,'AA'],[17,16,'AA'],[18,16,'AA'],[19,16,'AA'],[15,20,'AA'],[16,20,'AA'],[17,20,'AA'],[18,20,'AA'],[19,20,'AA'],
+    [20,15,'AAAA'],[20,19,'AAAA'],
+    [15,9,'RRRRR'],[16,9,'RRRRR'],[17,9,'RRRRR'],[18,9,'RRRRR'],[19,9,'RRRRR'],[20,9,'RRRRR'],[16,11,'W']];
+  for(j=0;j<21;j++)g.push('..........................'.split(''));
+  seg.forEach(function(q){for(var i=0;i<q[2].length;i++)g[q[0]][q[1]+i]=q[2][i];});
+  return g.map(function(r){return r.join('');});
+})();
+/* La danse finale (Norman, 2026-11-02 : « à la fin, le gars à la tronçonneuse tourne sur lui-même en faisant tournoyer sa tronçonneuse, comme à la fin du premier Massacre à la tronçonneuse ») : corps seul, bras levés ;
+   la tronçonneuse est dessinée par le code au-dessus de sa tête, elle tournoie (angle = temps), le corps se rétrécit en largeur puis se rouvre (tour sur lui-même), un soleil se lève derrière lui. */
+var HEROS_CORPS=(function(){
+  var g=[],j,seg=[
+    [1,16,'WWWWW'],[2,15,'WWWWWWW'],[3,15,'WWWWWWW'],[4,15,'W..W..W'],[5,15,'W..W..W'],[6,15,'WWWWWWW'],[7,16,'W.W.W'],[8,17,'WWW'],[9,18,'W'],
+    [10,14,'AAAAAAAAA'],[11,15,'AAAAAAA'],[12,15,'AAAAAAA'],[13,15,'AAAAAAA'],[14,15,'AAAAAAA'],[15,15,'WWWWWWW'],
+    [16,16,'AA'],[17,16,'AA'],[18,16,'AA'],[19,16,'AA'],[20,16,'AA'],[16,20,'AA'],[17,20,'AA'],[18,20,'AA'],[19,20,'AA'],[20,20,'AA'],[21,15,'AAAA'],[21,19,'AAAA'],
+    [10,13,'A'],[9,13,'A'],[8,13,'A'],[7,13,'A'],[6,13,'A'],[5,13,'A'],[4,13,'A'],[3,13,'A'],[2,13,'A'],[1,13,'W'],
+    [10,23,'A'],[9,23,'A'],[8,23,'A'],[7,23,'A'],[6,23,'A'],[5,23,'A'],[4,23,'A'],[3,23,'A'],[2,23,'A'],[1,23,'W']];
+  for(j=0;j<22;j++)g.push('..........................'.split(''));
+  seg.forEach(function(q){for(var i=0;i<q[2].length;i++)g[q[0]][q[1]+i]=q[2][i];});
+  return g.map(function(r){return r.join('');});
+})();
+function danseFinale(t,fl,xc,u){
+  var H=P.H,sy=fl-21,tour=u*9.4*(P.reduced?0:1),fw=Math.max(0.1,Math.abs(Math.cos(tour))),i,j,ch=Math.floor(t*14);
+  var lev=clamp(u/3,0,1),cx=xc,cy=fl+4-Math.round(eo(lev)*16);                    /* le soleil se lève derrière lui */
+  for(j=-9;j<=9;j++)for(i=-9;i<=9;i++)if(i*i+j*j<=81&&cy+j<fl-1)px(cx+i,cy+j,i*i+j*j<40?AMB:ROS,110);
+  var rows=HEROS_CORPS,vib=(!P.reduced&&Math.floor(t/0.06)%2)?1:0;
+  for(j=0;j<rows.length;j++)for(i=0;i<rows[j].length;i++){
+    var c=rows[j][i];if(c==='.')continue;
+    px(xc+Math.round((i-18)*fw),sy+j-vib,PAL[c]||AMB,255);
+  }
+  var a=P.reduced?0.6:u*19,px0=xc,py0=sy-1-vib,dx=Math.cos(a),dy=Math.sin(a)*0.35;      /* la tronçonneuse brandie, qui tournoie */
+  for(i=-4;i<=10;i++){var qx=px0+i*dx,qy=py0+i*dy;px(qx,qy,i<0?ROU:((i+ch)%2?AMB:BLA),255);px(qx,qy-1,i<0?ROU:BLA,i<0?255:120);}
+}
+function sprite2(rows,x,y,k,v){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
+    var ch=rows[j][i];if(ch==='.'||ch===' ')continue;
+    for(var b=0;b<k;b++)for(var a=0;a<k;a++)px(x+i*k+a,y+j*k+b,PAL[ch]||AMB,v);
+  }
+}
+function sSweep(t){
+  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=S.pv?clamp(S.pv.pct,0,1):1,n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
+  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+  var vib=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx,sy;
+  if(S.pv&&pc<=0.002&&H>=24&&W>=40){                               /* barre vide : la danse finale */
+    var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;
+    danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;
+  }
+  if(S.pv&&pc>0.002)P.p.te=null;
+  if(H>=24&&W>=30){                                                /* grande version dessinée à la main */
+    sx=Math.max(0,Math.min(xe,W-26));sy=fl-20-vib;
+    sprite(HEROS_GRAND,sx,sy,255);
+    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+18+j,((i+ch)%4<2)===(j<2)?AMB:BLA,255);   /* la chaîne : les dents défilent */
+  }else{
+    sx=Math.max(0,Math.min(xe,W-17*K));sy=fl-8*K+1-vib;
+    sprite2(HEROS_TRONCO,sx,sy,K,255);
+    for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx+i,sy+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
+  }
+  if(P.reduced)return;
+  for(i=0;i<9;i++){                                                /* étincelles et éclats de vie chassés vers la gauche, fondu d'entrée et de sortie */
+    var u=((t*1.6+R(i,7))%1),dx=u*(6+R(i,9)*8),dy=Math.sin(u*3.1416)*(3+R(i,8)*6),al=255*Math.sin(u*3.1416);
+    px(sx-1-dx,fl-2-dy,i%3?BLA:BARRE,al);
+  }
 }
 
 /* 6. La ola puis VICTOIRE ! */
@@ -672,6 +779,7 @@ function couleurBarre(r,e){
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
+  sweep:{fn:sSweep,dur:3.4,prio:0,cap:0.5},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
   jokes:{fn:sJokes,dur:function(p,W){return jokeDuree(p,W);},prio:1,cap:0.5},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
@@ -833,7 +941,7 @@ function lire(now){
 
 /* ------------------------------------------------------------------ gestionnaire de scènes : une à la fois, priorité aux événements de combat, retour automatique à l'affichage de base */
 var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke:false};
-var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1};
+var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1};
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
 /* objets actifs (ordre fixe), avec au moins une seconde restante */
@@ -934,13 +1042,13 @@ function image(now){
   evenements(now);
   if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=COUPE[cur.id])){pend=false;combatFight(now,true);}
   if(!cur||(now-cur.t0)/1000>=cur.dur){
-    if(cur&&(cur.id==='mascot'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
+    if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
     else demarrer(suivante(now));
   }else if(S.combat&&(cur.id==='base'||cur.id==='jokes'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
   else if(!S.combat&&enCombat(cur))demarrer(suivante(now));
   else if(cur.id==='fight'&&objetDu(now)){var oi=objetSuivant(now,true);if(oi)demarrer(oi);}
   else if(cur.id==='fight'&&now>=interAt){                         /* un petit interlude (barre de vie du joueur, mascotte) puis retour à FIGHT ! */
-    interN+=1;demarrer(mk(interN%2?'bars':'mascot',now));interAt=now+cur.dur*1000+5000;
+    interN+=1;demarrer(mk(interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot',now));interAt=now+cur.dur*1000+5000;
   }
   dessiner(now);
   try{dessinerMinis(now);}catch(_e){}

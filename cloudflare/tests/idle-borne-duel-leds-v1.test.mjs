@@ -64,3 +64,18 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("(S.combat?'c':'')"), "le changement combat / hors combat redessine la jauge");
   console.log("idle-borne-duel-leds-v1 (vie centrée, toujours cur / max, sans régénération) : OK");
 }
+// Norman (2026-11-02) : héros à la tronçonneuse (grand, dessiné à la main, deux mains, yeux noirs) qui suit la fin de la piste de vie ; mascotte qui court vers la gauche calée sur la barre, château et feux d'artifice quand elle est vide
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/
+/g, "
+");
+  assert.ok(led.includes("var HEROS_GRAND=") && led.includes("sweep:{fn:sSweep"), "interlude du héros à la tronçonneuse");
+  assert.ok(led.includes("[3,15,'W..W..W']") && !led.includes("WAWAW..'"), "yeux noirs (trous), plus de yeux ambre sur le grand héros");
+  assert.ok(led.includes("[14,9,'W'],[14,10,'WWW']") && led.includes("[14,13,'W']"), "deux mains sur la tronçonneuse");
+  const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
+  assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
+  assert.ok(m.includes("hx=Math.min(x0+n,W-10)") && m.includes("hx=x0-Math.round(sp*(t-pp.te))"), "calée sur le bout de la barre, sort par la gauche quand elle est vide");
+  assert.ok(m.includes("CHATEAU") && m.includes("burst(fx+"), "château et feux d'artifice en fin de niveau");
+  assert.ok(led.includes("function danseFinale(") && led.includes("danseFinale(t,fl,") && led.includes("pc<=0.002"), "danse finale (tour sur lui-même, tronçonneuse qui tournoie, soleil levant) quand la barre est vide");
+  console.log("idle-borne-duel-leds-v1 (héros tronçonneuse, mascotte vers la gauche, château) : OK");
+}

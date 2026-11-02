@@ -47,6 +47,7 @@
             'Gyroscope : la carte spéciale zoomée réagit maintenant de façon plus naturelle : elle garde son orientation quand tu inclines le téléphone (elle penche dans le sens inverse) et le reflet suit une lumière fixe ; elle bouge en douceur, sans saccade, et revient doucement à plat quand le téléphone reste immobile.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne, un nouvel interlude : un héros avec une tronçonneuse suit la ligne de fin de vie du boss et la découpe à mesure qu’elle descend ; quand la barre est vide il tourne sur lui-même, sa tronçonneuse brandie, devant un soleil levant ; le héros qui saute court maintenant vers la gauche en suivant la barre, et quand elle est vide il entre dans un château avec des feux d’artifice.',
             'Sur la borne, les coins noirs qui dépassaient derrière les images du duel sont maintenant arrondis comme les images.',
             'Sur la borne, la vie du boss est centrée sous la barre de l’écran, toujours au format « vie / vie max », et sa régénération n’y est plus affichée.',
           ]},
