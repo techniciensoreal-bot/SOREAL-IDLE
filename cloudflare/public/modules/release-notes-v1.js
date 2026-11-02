@@ -50,6 +50,7 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Des animations ont été ajoutées sur l’écran de la borne.',
             'Une des animations de la borne a été refaite, avec un nouveau décor et de nouveaux personnages : à toi de la découvrir.',
+            'Cette animation a maintenant une fin différente selon que tu gagnes ou que tu perds.',
             'La barre de vie suit mieux le moteur : un combat de boss ne rend plus plus de vie quand la défense monte pendant une longue synchro.',
             'La vie regagnée au repos ne prend plus de retard quand la fenêtre est en arrière-plan : plus de saut en avant au retour.',
             'Les dégâts annoncés d’un boss tiennent compte de la difficulté choisie.',
@@ -84,6 +85,7 @@
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'La page de la machine reprend la couleur et le fond du bouton de son menu.',
+            'Quand il te manque de l’Or pour le niveau suivant, plus de phrase : seul l’Or que tu as déjà s’affiche, en rouge.',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Les portes des fruits ont de nouveaux dessins et s’ouvrent par le haut, avec un bruit de herse de château fort.',
