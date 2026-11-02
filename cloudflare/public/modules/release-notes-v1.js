@@ -54,6 +54,7 @@
             'Cette animation a maintenant une fin différente selon que tu gagnes ou que tu perds.',
             'Sur la borne, l’animation de victoire est vue en entier avant que le nom du boss suivant ne s’écrive.',
             'L’autre animation de la borne a aussi sa propre fin quand tu perds.',
+            'L’image du boss suivant ne reste plus invisible après une victoire : un filet de sécurité la fait réapparaître.',
             'La barre de vie suit mieux le moteur : un combat de boss ne rend plus plus de vie quand la défense monte pendant une longue synchro.',
             'La vie regagnée au repos ne prend plus de retard quand la fenêtre est en arrière-plan : plus de saut en avant au retour.',
             'Les dégâts annoncés d’un boss tiennent compte de la difficulté choisie.',
@@ -99,6 +100,7 @@
             'Les portes des fruits ont de nouveaux dessins et s’ouvrent par le haut, avec un bruit de herse de château fort.',
             'Les cadres des fruits prennent les couleurs de leur porte (cadre, nom, boutons et barre de croissance), avec un ombrage à l’intérieur.',
             'Les portes ont toutes la même taille, ne sont plus coupées et ne laissent plus voir le cadre derrière elles.',
+            'Les fruits se fondent mieux dans l’image de leur arbre : même teinte, légèrement adoucis, avec une ombre chaude.',
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',

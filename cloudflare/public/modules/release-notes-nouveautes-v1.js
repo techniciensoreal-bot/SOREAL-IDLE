@@ -4,7 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Une troisième animation de la borne a été ajoutée.",
-    "L’autre animation de la borne a aussi sa propre fin quand tu perds."
+    "L’image du boss suivant ne reste plus invisible après une victoire : un filet de sécurité la fait réapparaître.",
+    "Les fruits se fondent mieux dans l’image de leur arbre : même teinte, légèrement adoucis, avec une ombre chaude."
   ] };
 })();
