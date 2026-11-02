@@ -447,7 +447,14 @@
           (systemes.selloutShop&&systemes.selloutShop.unlockedEver)
         );
         const apExistant=document.getElementById('sorealIdleSummaryApV210');
-        if(apVisible&&!apExistant){
+        /* Norman (2026-11-02) : la case « Temps » du Rebirth doit apparaître DÈS que le menu Renaissance apparaît (pas environ trois minutes plus tard, au prochain dessin complet du bandeau) : même condition que resumeStatsIdleV28_ (ui-aventure-1-v1.js). */
+        let tempsVoulu=false;
+        try{
+          const apiTemps=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
+          tempsVoulu=Boolean(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j)&&apiTemps&&typeof apiTemps.runSecondes==='function');
+        }catch(_e){tempsVoulu=false;}
+        const tempsExistant=document.getElementById('sorealIdleSummaryRebirthTempsV1');
+        if((apVisible&&!apExistant)||(tempsVoulu&&!tempsExistant)){
           const attaqueNode=document.getElementById('sorealIdleSummaryAttackV50');
           const grille=attaqueNode&&attaqueNode.closest('.soreal-idle-summary-grid-v28');
           if(grille){

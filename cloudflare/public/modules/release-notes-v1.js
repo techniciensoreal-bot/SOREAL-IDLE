@@ -32,6 +32,7 @@
         date:'2026-11-02',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le compteur de temps du bandeau du haut apparaît désormais dès la renaissance, en même temps que le menu Renaissance.',
             'Les entêtes d’allocation (Input, plafonds d’énergie et de magie, Idle) sont plus compacts sur PC : l’Input passe à gauche sur la même rangée, les lignes « placée » sont collées en bas du cadre et les boutons profitent de la place gagnée.',
             'Le jeu est plus fluide partout : le dessin de l’écran de la borne est environ sept fois moins coûteux, le jeu ne se rafraîchit plus plus de 60 fois par seconde, les menus se redessinent plus vite et les écrans qui sortent de l’image se mettent en pause.',
             'Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.',
