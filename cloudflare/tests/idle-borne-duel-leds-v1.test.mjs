@@ -119,3 +119,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep';") && led.includes("dur:function(p){return p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
   console.log("idle-borne-duel-leds-v1 (poursuite du fourgon) : OK");
 }
+{
+  const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led2.includes("function coupeApres(s){return s.id==='win'&&s.p&&s.p.anim?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))){pend=false;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
+}

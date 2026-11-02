@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Sur la borne, l’animation de victoire est vue en entier avant que le nom du boss suivant ne s’écrive.",
     "Les trolls alternent : un petit troll qui vient de tomber ne revient pas avant trois autres, et le popup d’un troll reste moins longtemps à l’écran."
   ] };
 })();

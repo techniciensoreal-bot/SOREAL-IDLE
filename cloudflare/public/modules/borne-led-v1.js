@@ -992,6 +992,8 @@ var SC={
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
 var COUPE={win:5.0,ko:4.2};
+/* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
+function coupeApres(s){return s.id==='win'&&s.p&&s.p.anim?s.dur:COUPE[s.id];}
 
 /* ------------------------------------------------------------------ rendu : un seul canvas */
 var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
@@ -1198,7 +1200,7 @@ function pousser(id,now,p){
   if(id==='fight'){
     if(cur&&cur.id==='nom'&&S.num===combatNum)return;
     if(enCombat(cur)&&S.num===combatNum)return;           /* même boss, déjà en combat : rien ne clignote ; un NOUVEAU boss (numéro différent) repart par l'écriture de son nom */
-    if(cur&&COUPE[cur.id]&&(now-cur.t0)/1000<COUPE[cur.id]){pend=true;return;}
+    if(cur&&COUPE[cur.id]&&(now-cur.t0)/1000<coupeApres(cur)){pend=true;return;}
     pend=false;combatFight(now,true);return;
   }
   if(id==='nuke'&&cur&&cur.prio>=5)return;                         /* une victoire ou un K.O. déjà en cours n'est pas interrompu */
@@ -1253,7 +1255,7 @@ function dessiner(now){
 function image(now){
   lire(now);
   evenements(now);
-  if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=COUPE[cur.id])){pend=false;combatFight(now,true);}
+  if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=coupeApres(cur))){pend=false;combatFight(now,true);}
   if(!cur||(now-cur.t0)/1000>=cur.dur){
     if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
     else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
