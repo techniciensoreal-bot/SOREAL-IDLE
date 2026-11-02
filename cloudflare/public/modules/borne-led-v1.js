@@ -1353,7 +1353,8 @@ function combatFight(now,neuf){
   var dedans=enCombat(cur);
   if(neuf||!dedans){
     fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
-    animChoisie=['mascot','sweep','redroom'][Math.min(2,Math.floor(Math.random()*3))];combatAnim='';animDecision=0;
+    var forcee=window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__;   /* outil de réglage (console, jamais enregistré) : window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__='redroom' | 'sweep' | 'mascot' impose l'animation des prochains combats ; supprimer la variable pour revenir au tirage */
+    animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom')?forcee:['mascot','sweep','redroom'][Math.min(2,Math.floor(Math.random()*3))];combatAnim='';animDecision=0;
     if(neuf&&S.boss&&S.nom){demarrer(mk('nom',now));return;}   /* le nom du nouveau boss s'écrit d'abord ; FIGHT ! suit (voir image) */
   }
   if(!neuf&&dedans&&combatAnim&&S.pv)demarrer(mk(combatAnim,now,{long:true}));

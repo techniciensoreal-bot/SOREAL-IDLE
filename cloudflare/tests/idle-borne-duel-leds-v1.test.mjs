@@ -149,3 +149,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
   console.log("idle-borne-duel-leds-v1 (Red Room) : OK");
 }
+{
+  const led5 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom')?forcee:['mascot','sweep','redroom']"), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
+}
