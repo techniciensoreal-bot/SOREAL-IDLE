@@ -5,3 +5,10 @@ const s = fs.readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8
 for (const regle of [".wd-boot{min-height:6.6em;}", ".wd-boot .wd-ligne{flex-wrap:nowrap;align-items:flex-start;min-height:2.5em;}", ".wd-boot #wd-boot-msg{flex:1 1 auto;min-width:0;min-height:2.5em;", ".wd-boot #wd-boot-pct{flex:0 0 auto;min-width:4ch;text-align:right;font-variant-numeric:tabular-nums;}"]) assert.ok(s.includes(regle), "règle présente : " + regle);
 assert.ok(s.includes('id="wd-boot-msg"') && s.includes('id="wd-boot-pct"'), "identifiants lus par le minuteur d'allumage");
 console.log("idle-wandoos-allumage-stable-v1 : OK");
+
+// Norman (2026-11-02) : Wandoos doit pouvoir être cappé même pendant l'allumage / le chargement (il faut juste assez de ressources)
+{
+  const src = (await import("node:fs")).readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(src.includes("if(phase!=='eteint'){") && src.includes("phaseDe_(e)==='eteint'||(res!=='energy'&&res!=='magic')"), "clavier d'allocation et bouton CAP actifs pendant l'allumage");
+  console.log("idle-wandoos-allumage-stable-v1 (allocation pendant l'allumage) : OK");
+}

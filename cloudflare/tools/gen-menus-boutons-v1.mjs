@@ -373,8 +373,8 @@ function rouePit() {
   const M = `${P}[data-menu-id-v1="moneyPit"]`, MD = `${M} .soreal-idle-nav-deco-v1`;
   out.push(`\n/* moneyPit : bouton refait (voir plus haut) */`);
   out.push(`${sel("moneyPit", "::before")}{background:${trouNaturel()},rgb(20,124,58)}`);
-  out.push(`${sel("moneyPit", " .nb-g")}{background:${piecePit()};aspect-ratio:1/1;width:auto;left:13.5cqw}`);
-  out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto;right:13.5cqw}`);
+  out.push(`${sel("moneyPit", " .nb-g")}{background:${piecePit()};aspect-ratio:1/1;width:auto}`);
+  out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto}`);
   /* animations : rien par défaut (les anciennes animations du bouton sont coupées), la pièce se retourne quand le Money Pit est disponible (vert), la roue tourne quand elle est prête (jaune) */
   out.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);
   out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_piecepit 1.5s ease-in-out infinite}`);

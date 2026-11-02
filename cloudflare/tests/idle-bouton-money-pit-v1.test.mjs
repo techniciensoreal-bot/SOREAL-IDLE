@@ -11,9 +11,9 @@ const bloc = css.slice(i, css.indexOf("@media (prefers-reduced-motion:reduce)", 
 assert.match(bloc, /\[data-menu-id-v1="moneyPit"\] \.soreal-idle-nav-deco-v1::before\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/88% 100% no-repeat,rgb\(20,124,58\)\}/, "trou creusé au milieu sur un fond vert uni : aucune herbe dessinée (ni bandes de bord, ni zigzags)");
 assert.ok(!/\[data-menu-id-v1="moneyPit"\][^{]*::after\{background:[^}]*svg/.test(bloc), "le liseré (::after) reste celui du cadre, au-dessus");
 
-// icônes : une pièce à gauche, une roue à droite, carrées
-assert.match(bloc, /\.nb-g\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/contain no-repeat;aspect-ratio:1\/1;width:auto;left:13\.5cqw\}/, "pièce à gauche");
-assert.match(bloc, /\.nb-d\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/contain no-repeat;aspect-ratio:1\/1;width:auto;right:13\.5cqw\}/, "roue à droite");
+// icônes : une pièce à gauche, une roue à droite, carrées ; alignées comme celles des autres menus (3cqw du bord, même hauteur : Norman 2026-11-02)
+assert.match(bloc, /\.nb-g\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/contain no-repeat;aspect-ratio:1\/1;width:auto\}/, "pièce à gauche");
+assert.match(bloc, /\.nb-d\{background:url\("data:image\/svg\+xml,[^"]+"\) center\/contain no-repeat;aspect-ratio:1\/1;width:auto\}/, "roue à droite");
 
 // animations : rien au repos ; pièce quand le Money Pit est disponible (vert), roue quand elle est prête (jaune) ; seulement des transformations
 assert.match(bloc, /\.soreal-idle-nav-money-green-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:nbV1_piecepit [\d.]+s ease-in-out infinite\}/, "la pièce se retourne quand le pit est dispo");

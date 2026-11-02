@@ -6,7 +6,7 @@
 import { BASIC_TRAINING_V411, createBasicTrainingStateV411, advanceBasicTrainingStateV411, totalBasicTrainingAllocationV411 } from "./idle-basic-training.js";
 import { IDLE_NGU_META_VERSION, idleNguBonuses } from "./idle-ngu-progression.js";
 import { parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
-import { CONFIG_SOREAL_IDLE, bossMondeCibleZoneSorealIdle_, nombreSorealIdle_, seuilPuissanceAventureSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
+import { CONFIG_SOREAL_IDLE, plafondHorsLigneSorealIdle_, bossMondeCibleZoneSorealIdle_, nombreSorealIdle_, seuilPuissanceAventureSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
 import { boutiqueConfigSorealIdle_, parametreSorealIdle_, zonesTableSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
 import { obtenirSpreadsheetSorealIdle_ } from "./idle-runtime-acces.js";
@@ -1328,8 +1328,7 @@ export function synchroniserEntrainementBaseSorealIdleV41_(
     advanceBasicTrainingStateV411(
       stats.entrainementBase,
       maintenant,
-      CONFIG_SOREAL_IDLE
-        .PROGRESSION_HORS_LIGNE_MAX_SECONDES,
+      plafondHorsLigneSorealIdle_(stats.metaNgu),
       niveauxParBarreEntrainementSorealIdle_(stats),
       { autoAdvance: autoAvanceEntrainementSorealIdle_(stats) }
     );

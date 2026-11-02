@@ -55,6 +55,9 @@
           {menu:'ngu', titre:'NGU', points:[
             'La lune est une vraie pleine lune brillante, avec ses cratères et son halo ; et tant qu’aucune énergie n’est placée, un gros nuage gris couvre le ciel : le soleil et les nuages blancs n’apparaissent qu’ensuite.',
           ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Le clavier de l’ordinateur rétro reste utilisable (bouton CAP compris) pendant l’allumage et le chargement.',
+          ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Le pentacle du bouton du menu bat comme un cœur, de son rouge jusqu’au rouge de la goutte de sang, quand de la magie est placée ; les icônes du menu bougent dès qu’un rituel a de la magie.',
             'Rituel du fil barbelé : le calice suivant n’arrive plus trop tôt, le calice plein part et le suivant prend sa place.',
@@ -65,6 +68,7 @@
           {menu:'challenges', titre:'Défis', points:[
             'Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».',
             'Le Troll Challenge affiche maintenant des minuteries pour ses trolls.',
+            'Pendant le Troll Challenge, l’entraînement de base ne progresse plus hors ligne.',
             'Les descriptions des défis reprennent désormais le texte d’origine du jeu.',
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',
             'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',

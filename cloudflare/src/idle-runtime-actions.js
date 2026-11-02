@@ -9,7 +9,7 @@ import { advanceBasicTrainingStateV411, applyBasicTrainingAllocationsV411, BASIC
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_, verifierAccesSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
 import { ameliorationsSorealIdle_, autoAvanceEntrainementSorealIdle_, bonusAmeliorationsSorealIdle_, coutAmeliorationSorealIdle_, initialiserModeleJoueurSorealIdleV41SiNecessaire_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
-import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
+import { CONFIG_SOREAL_IDLE, nombreSorealIdle_, plafondHorsLigneSorealIdle_ } from "./idle-runtime-config.js";
 import { parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
 import { appliquerProgressionEnergieSorealIdle_, contexteMetaNguSorealIdle_ } from "./idle-runtime-progression.js";
 import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle_ } from "./idle-runtime-etat.js";
@@ -677,7 +677,7 @@ export function definirAllocationsEntrainementSorealIdle(
       advanceBasicTrainingStateV411(
         stats.entrainementBase,
         Date.now(),
-        CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES,
+        plafondHorsLigneSorealIdle_(stats.metaNgu),
         niveauxParBarreEntrainementSorealIdle_(stats),
         { autoAdvance: autoAvance }
       ).state;

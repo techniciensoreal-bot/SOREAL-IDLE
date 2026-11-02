@@ -206,3 +206,17 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   assert.ok(iTroll > src.indexOf('span("avance:avanceurAventure"') && iTroll > src.indexOf("passesDuTempsSeulV1(state, secs, context, now);"), "le troll s'applique après toute la production du temps écoulé");
   console.log("idle-troll-challenge-deroulement-v1 (ordre troll / production) : OK");
 }
+
+// Norman (2026-11-02) : « l'avancée doit être désactivée hors ligne pendant ce challenge » : l'entraînement de base est plafonné à 60 s comme les autres systèmes (Troll, 24 Hour et 100 Levels)
+{
+  await import("../src/idle-sqlite-runtime.js");
+  const { plafondHorsLigneSorealIdle_, CONFIG_SOREAL_IDLE } = await import("../src/idle-runtime-config.js");
+  for (const id of ["troll", "twentyFourHours", "hundredLevels"]) assert.equal(plafondHorsLigneSorealIdle_({ challenge: { active: id } }), 60, id);
+  assert.equal(plafondHorsLigneSorealIdle_({ challenge: { active: "" } }), CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES);
+  assert.equal(plafondHorsLigneSorealIdle_(null), CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES);
+  const fs = await import("node:fs");
+  const lire = (f) => fs.readFileSync(f, "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(lire("cloudflare/src/idle-runtime-actions.js").includes("plafondHorsLigneSorealIdle_(stats.metaNgu)"), "synchro / répartition : plafond du défi");
+  assert.ok(lire("cloudflare/src/idle-runtime-aventure.js").includes("plafondHorsLigneSorealIdle_(stats.metaNgu)"), "progression d'aventure : plafond du défi");
+  console.log("idle-troll-challenge-deroulement-v1 (entraînement de base hors ligne) : OK");
+}

@@ -148,6 +148,14 @@ export const CONFIG_SOREAL_IDLE = {
     30 * 24 * 60 * 60
 };
 
+/* Défis sans progression hors ligne (wiki, page Challenges : « Offline progress disabled » pour le Troll Challenge, le 24 Hour Challenge et le 100 Levels Challenge) : le rattrapage de l'entraînement de base est plafonné à 60 s, comme celui de tous les autres systèmes (IDLE_CHALLENGE_OFFLINE_DISABLED_IDS, idle-ngu-systemes.js). */
+export function plafondHorsLigneSorealIdle_(metaNgu) {
+  const actif = metaNgu && metaNgu.challenge ? metaNgu.challenge.active : "";
+  return actif === "troll" || actif === "twentyFourHours" || actif === "hundredLevels"
+    ? 60
+    : CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES;
+}
+
 export function normaliserEmailSorealIdle_(email) {
   return String(email || '')
     .trim()
