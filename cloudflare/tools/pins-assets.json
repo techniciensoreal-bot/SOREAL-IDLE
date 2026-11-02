@@ -152,8 +152,8 @@
   "sha": "51f6b543014f6a2cf72831d7cf07c634d57a7ee0"
  },
  "/modules/challenges-v1.js": {
-  "pin": 20,
-  "sha": "7c93174ee4ae9a35041e7b625ddfeaa83ca25948"
+  "pin": 21,
+  "sha": "a57547734bd34d3eeedd3a8f45e68498401b43c8"
  },
  "/modules/chat-v1.js": {
   "pin": 18,

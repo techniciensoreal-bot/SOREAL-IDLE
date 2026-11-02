@@ -187,7 +187,8 @@ assert.ok(actions.includes("if(state.challenge.troll)state.challenge.troll.flags
 
 // 7. les trolls visuels (boîtes, chaton, menu au hasard) sont joués par le client d'après le troll annoncé
 const client = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
-assert.ok(client.includes("var N=50;") && client.includes("Math.random()<0.3") && client.includes("(inverse?annuler+fermer:fermer+annuler)"), "50 fenêtres « Fermer » / « Annuler », certaines aux boutons inversés au hasard, sans indice");
+assert.ok(client.includes("var N=50;") && client.includes("(inverse?annuler+fermer:fermer+annuler)"), "50 fenêtres « Fermer » / « Annuler », certaines aux boutons inversés, sans indice");
+assert.ok(client.includes("var nbInverses=Math.random()<0.25?2:1;") && client.includes("while(g.inverses.length<nbInverses){"), "pancartes inversées RARES : une seule par paquet le plus souvent, deux parfois, jamais plus");
 assert.ok(client.includes("if(bt.getAttribute('data-k')==='annuler'){ouvrirTout();return;}"), "« Annuler » rouvre TOUTES les fenêtres ; « Fermer » ferme la fenêtre");
 assert.ok(client.includes("aller.call(window,'combat')") && client.includes("allerAuMenuFightBoss();"), "les fenêtres s'ouvrent sur le menu Fight Boss");
 assert.ok(client.includes("if(i===0)retirer('sorealDefiBloqueMenuV1');") && client.includes("id='sorealDefiBloqueMenuV1'"), "la dernière fenêtre à fermer (le bas de la pile) est celle qui bloque les boutons du menu");

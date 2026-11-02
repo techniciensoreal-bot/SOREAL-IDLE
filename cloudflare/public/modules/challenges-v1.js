@@ -541,7 +541,7 @@ function jouerBoites(){
     var b=document.createElement('div');
     b.className='sorealDefiBoiteV1';
     b.style.cssText='left:'+(g.x0+Math.round(i*g.dx))+'px;top:'+(g.y0+Math.round(i*g.dy))+'px;width:'+g.bw+'px;height:'+g.bh+'px;z-index:'+(i+1);
-    var inverse=Math.random()<0.3;
+    var inverse=g.inverses.indexOf(i)>=0;   /* pancarte inversée : tirée une fois par paquet (voir ouvrirTout) */
     var fermer='<button type="button" data-k="fermer">Fermer</button>',annuler='<button type="button" data-k="annuler">Annuler</button>';
     b.innerHTML='<b>😈 4G</b><div class="txt"></div><div class="bts">'+(inverse?annuler+fermer:fermer+annuler)+'</div>';
     b.querySelector('.txt').textContent='Encore une boîte à fermer !';
@@ -561,7 +561,10 @@ function jouerBoites(){
     var L=window.innerWidth,H=window.innerHeight,m=rectMenu();
     var x0=Math.max(0,Math.round(m.left)),y0=Math.max(0,Math.round(m.top));
     var bw=Math.min(380,Math.round(L*0.92)),bh=Math.min(210,Math.round(H*0.5));
-    var g={x0:x0,y0:y0,bw:bw,bh:bh,dx:Math.max(0,(L-x0-bw)/(N-1)),dy:Math.max(0,(H-y0-bh)/(N-1))};
+    var g={x0:x0,y0:y0,bw:bw,bh:bh,dx:Math.max(0,(L-x0-bw)/(N-1)),dy:Math.max(0,(H-y0-bh)/(N-1)),inverses:[]};
+    /* Pancartes aux boutons inversés : RARES (Norman, 2026-11-02) : le plus souvent UNE seule par paquet de 50, parfois DEUX, jamais plus ; autant de tirages que de paquets (« Annuler » en rouvre un nouveau) */
+    var nbInverses=Math.random()<0.25?2:1;
+    while(g.inverses.length<nbInverses){var k=Math.floor(Math.random()*N);if(g.inverses.indexOf(k)<0)g.inverses.push(k);}
     /* zone transparente sur tout le menu, retirée avec la DERNIÈRE fenêtre : tant qu'elle reste, les boutons du menu sont inaccessibles */
     var bloc=document.createElement('div');
     bloc.id='sorealDefiBloqueMenuV1';
