@@ -100,8 +100,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 59,
-  "sha": "2784af20cce082d91e4e27a6ddc65915df07074d"
+  "pin": 60,
+  "sha": "a41cd8ba8d670c14fb2a3cd58c2adef5929d8be1"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,

@@ -688,10 +688,9 @@ function sKO(t){
     box(1,1,W-2,H-2,ROU,90*vk*bl);
   }
   var v2=sm((t-3.3)/0.4);
-  if(v2>0){
+  /* Pas de « RECOMMENCE ? » pendant l'animation de Leatherface (Norman, 2026-11-02 : « ne mets pas recommence pour Leatherface ») : la scène finit sur lui. */
+  if(v2>0&&!an){
     var s2=T('again'),tw2=twidth(s2+' ?',1),bt2=cb(),x=Math.floor((W-tw2)/2);
-    /* « RECOMMENCE ? » pendant l'animation de Leatherface (Norman, 2026-11-02 : « n'est pas lisible avec la couleur de fond ») : un contour éteint d'un point autour des lettres (jamais un cadre : Leatherface reste visible) ; la scène reste visible autour. */
-    if(an){var dx0=-1,dy0;for(dx0=-1;dx0<=1;dx0++)for(dy0=-1;dy0<=1;dy0++)if(dx0||dy0){var wq0=text(s2,x+dx0,bt2+dy0,BLA,1,1);text('?',x+wq0+4+dx0,bt2+dy0,BLA,1,1);}}   /* contour éteint autour des lettres seulement : Leatherface reste visible */
     var wq=text(s2,x,bt2,AMB,1,255*v2);
     text('?',x+wq+4,bt2,BLA,1,255*v2*(P.reduced?1:0.2+0.8*(0.5+0.5*Math.sin(6.2832*t/1.0))));
     if(x>9){sprite(SPR.crane,2,bt2,200*v2,ROU);sprite(SPR.crane,W-7,bt2,200*v2,ROU);}
