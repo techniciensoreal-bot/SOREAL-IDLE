@@ -329,25 +329,17 @@ out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}
 /* ------------------------------------------------------------------ Money Pit : bouton refait entièrement (Norman, 2026-11-02)
    « on doit voir le vert sur les contours et le trou au milieu ; à gauche un dessin de pièce animé quand le pit est dispo, à droite une roue qui tourne sur elle-même quand elle est prête ;
    des bords d'herbe plus longs, arrondis, EN DESSOUS du cadre ». Tout est dans la couche de fond (deco::before), donc sous le liseré (deco::after) ; seules des transformations (retournement de la pièce, rotation de la roue) sont animées. */
-function herbeBord(cote) {
-  const bord = "<path d='M0 0 L13 0 Q17.5 6 13 12 Q18.5 19 13 25 Q19 32 13 38 Q18.5 45 13 51 Q17 56 13 60 L0 60Z' fill='rgb(44,184,90)'/>";
-  const traits = [["rgb(8,92,44)", "M2 57 L4 44 L6 52 L9 38"], ["rgb(8,92,44)", "M7 59 L9 48 L11 55 L14 42"], ["rgb(14,118,56)", "M1 44 L3 34 L5 40 L8 26"], ["rgb(8,92,44)", "M6 36 L8 25 L10 31 L14 20"], ["rgb(14,118,56)", "M1 26 L3 16 L5 22 L8 9"], ["rgb(8,92,44)", "M7 24 L9 14 L11 19 L14 6"], ["rgb(8,92,44)", "M2 12 L4 4 L6 9 L8 1"], ["rgb(14,118,56)", "M9 50 L11 42"], ["rgb(14,118,56)", "M10 33 L12 26"]];
-  const tracés = traits.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`).join("");
-  const g = cote === "d" ? `<g transform='translate(30,0) scale(-1,1)'>${bord}${tracés}</g>` : bord + tracés;
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 60'>${g}</svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${cote === "d" ? "right" : "left"} center/auto 100% no-repeat`;
-}
 function herbeSemis() {
   /* traits vert foncé en zigzag semés sur TOUT le vert (pas seulement aux bords), position, hauteur et inclinaison variables, comme l'herbe de l'image du trou ; graine fixe : le dessin ne change jamais */
   let z = 20261102;
   const alea = () => { z = (z * 1664525 + 1013904223) % 4294967296; return z / 4294967296; };
   let traits = "";
-  for (let k = 0; k < 46; k++) {
+  for (let k = 0; k < 64; k++) {
     let x = 3 + alea() * 194, y = 8 + alea() * 50;
     const pas = 3 + Math.floor(alea() * 2), haut = 5 + alea() * 4, pente = (alea() - 0.5) * 3;
     let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
     for (let i = 0; i < pas; i++) { x += (i % 2 ? 1 : -1) * (1.3 + alea() * 1.4) + pente; y -= haut * (0.8 + alea() * 0.5); d += ` L${x.toFixed(1)} ${y.toFixed(1)}`; }
-    traits += `<path d='${d}' stroke='${alea() > 0.4 ? "rgb(8,92,44)" : "rgb(14,118,56)"}' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`;
+    traits += `<path d='${d}' stroke='${alea() > 0.25 ? "rgb(8,92,44)" : "rgb(14,118,56)"}' stroke-width='2.1' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`;
   }
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'>${traits}</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 0 0/auto 100% repeat-x`;
@@ -374,7 +366,7 @@ function rouePit() {
 {
   const M = `${P}[data-menu-id-v1="moneyPit"]`, MD = `${M} .soreal-idle-nav-deco-v1`;
   out.push(`\n/* moneyPit : bouton refait (voir plus haut) */`);
-  out.push(`${sel("moneyPit", "::before")}{background:${herbeBord("g")},${herbeBord("d")},radial-gradient(ellipse 36% 50% at 50% 50%,#050302 0 48%,#2e1a0b 55%,#7a4a22 68%,#a8703a 78%,rgba(168,112,58,0) 92%),${herbeSemis()},rgb(20,124,58)}`);
+  out.push(`${sel("moneyPit", "::before")}{background:radial-gradient(ellipse 36% 50% at 50% 50%,#050302 0 48%,#2e1a0b 55%,#7a4a22 68%,#a8703a 78%,rgba(168,112,58,0) 92%),${herbeSemis()},rgb(20,124,58)}`);
   out.push(`${sel("moneyPit", " .nb-g")}{background:${piecePit()};aspect-ratio:1/1;width:auto;left:13.5cqw}`);
   out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto;right:13.5cqw}`);
   /* animations : rien par défaut (les anciennes animations du bouton sont coupées), la pièce se retourne quand le Money Pit est disponible (vert), la roue tourne quand elle est prête (jaune) */

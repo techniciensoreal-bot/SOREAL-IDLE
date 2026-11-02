@@ -8,7 +8,7 @@ assert.ok(i > 0, "bloc du bouton refait présent");
 const bloc = css.slice(i, css.indexOf("@media (prefers-reduced-motion:reduce)", i) > 0 ? css.indexOf("@media (prefers-reduced-motion:reduce)", i) : undefined);
 
 // fond : herbe sur les deux bords, trou (dégradé radial) au centre, vert en contour ; le tout dans deco::before, donc SOUS le liseré (deco::after)
-assert.match(bloc, /\[data-menu-id-v1="moneyPit"\] \.soreal-idle-nav-deco-v1::before\{background:url\("data:image\/svg\+xml,[^"]+"\) left center\/auto 100% no-repeat,url\("data:image\/svg\+xml,[^"]+"\) right center\/auto 100% no-repeat,radial-gradient\(ellipse .+\),url\("data:image\/svg\+xml,[^"]+"\) 0 0\/auto 100% repeat-x,rgb\(20,124,58\)\}/, "herbe à gauche et à droite, trou au milieu, traits en zigzag semés sur tout le vert, vert en fond");
+assert.match(bloc, /\[data-menu-id-v1="moneyPit"\] \.soreal-idle-nav-deco-v1::before\{background:radial-gradient\(ellipse .+\),url\("data:image\/svg\+xml,[^"]+"\) 0 0\/auto 100% repeat-x,rgb\(20,124,58\)\}/, "trou au milieu, traits en zigzag semés sur tout le vert, vert en fond (aucune bande de bord : elles faisaient tache)");
 assert.ok(!/\[data-menu-id-v1="moneyPit"\][^{]*::after\{background:[^}]*svg/.test(bloc), "le liseré (::after) reste celui du cadre, au-dessus");
 
 // icônes : une pièce à gauche, une roue à droite, carrées
