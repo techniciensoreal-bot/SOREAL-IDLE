@@ -30,3 +30,14 @@ const reduit = css.slice(css.indexOf("@media (prefers-reduced-motion:reduce)"));
 assert.ok(reduit.includes('[data-menu-id-v1="moneyPit"][data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g'), "animations coupées en mouvement réduit");
 
 console.log("idle-bouton-money-pit-v1 : OK");
+
+// Norman (2026-11-02) : la pièce (trou disponible) et la roue (prête) sont ILLUMINÉES même quand on n'est pas dans le menu
+{
+  const css = readFileSync("cloudflare/public/soreal-idle-menus-boutons-v1.css", "utf8");
+  const g = css.match(/\.soreal-idle-nav-money-green-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{filter:([^}]*)\}/);
+  const d = css.match(/\.soreal-idle-nav-money-yellow-v1 \.soreal-idle-nav-deco-v1 \.nb-d\{filter:([^}]*)\}/);
+  assert.ok(g && /brightness\(1\.25\)/.test(g[1]) && /drop-shadow/.test(g[1]), "pièce illuminée, menu ouvert ou non");
+  assert.ok(d && /brightness\(1\.25\)/.test(d[1]) && /drop-shadow/.test(d[1]), "roue illuminée quand elle est prête");
+  assert.ok(!/!important/.test(g[0] + d[0]), "sans !important");
+  console.log("idle-bouton-money-pit-v1 (pièce et roue illuminées) : OK");
+}

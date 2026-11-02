@@ -800,8 +800,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 71,
-  "sha": "da5376042500c228789fd02ec724b2b54cfb3f5f"
+  "pin": 72,
+  "sha": "26a57f4283b1fe129f848cc31b4a06c635e98194"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 18,
@@ -880,8 +880,8 @@
   "sha": "e864b9f4bc91d14a8d2b9536f8ce979d15bf7b21"
  },
  "/soreal-idle-menus-boutons-v1.css": {
-  "pin": 45,
-  "sha": "829cf1b042690932f9f02b6cdb7dc66ded62d8a6"
+  "pin": 46,
+  "sha": "d2459bc846135bb1bef6f499d266d187c887fb40"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,

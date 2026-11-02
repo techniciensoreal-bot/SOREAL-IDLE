@@ -379,6 +379,9 @@ function rouePit() {
   out.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);
   out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_piecepit 1.5s ease-in-out infinite}`);
   out.push(`${M}.soreal-idle-nav-money-yellow-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_rouepit 2.6s linear infinite}`);
+  /* ILLUMINÉS (Norman, 2026-11-02 : « la pièce tourne mais elle n'est pas illuminée… pareil pour la roue quand elle est prête ; quand on se trouve en dehors du menu je parle ») : le filtre sombre des icônes de menu s'applique tant qu'on n'est pas dans le menu ; la pièce (trou disponible) et la roue (prête) gardent, elles, l'éclat des icônes actives, menu ouvert ou non. Filtre fixe, jamais animé. */
+  out.push(`${M}.soreal-idle-nav-money-green-v1 .soreal-idle-nav-deco-v1 .nb-g{filter:brightness(1.25) saturate(1.3) drop-shadow(0 0 4px rgba(255,255,255,.6)) drop-shadow(0 0 8px rgba(255,214,74,.95))}`);
+  out.push(`${M}.soreal-idle-nav-money-yellow-v1 .soreal-idle-nav-deco-v1 .nb-d{filter:brightness(1.25) saturate(1.3) drop-shadow(0 0 4px rgba(255,255,255,.6)) drop-shadow(0 0 8px rgba(255,214,74,.95))}`);
   out.push(`@keyframes nbV1_piecepit{0%,100%{transform:scaleX(1) translateY(0)}50%{transform:scaleX(.08) translateY(-9%)}}`);
   out.push(`@keyframes nbV1_rouepit{from{transform:rotate(0)}to{transform:rotate(360deg)}}`);
   REDUIT_EXTRA.push(`${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-g,${M}[data-menu-id-v1] .soreal-idle-nav-deco-v1 .nb-d{animation:none}`);

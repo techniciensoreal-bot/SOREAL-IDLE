@@ -117,7 +117,9 @@
       /* Décors d'arbres (Norman, 2026-10-29 : « adapte les cadres maintenant que les images ont changé ») : images CARRÉES (1024 x 1024), montrées en entier dans un cadre carré, sur toute la largeur de la carte (le cadre 4/5 en coupait 20 % sur les côtés, feuillage compris). */
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
       /* Porte en image (Norman, 2026-11-02) : elle couvre tout le cadre ; à l'ouverture elle monte comme une herse et sort par le haut (le cadre coupe), à la fermeture elle redescend. Deux images clés (une courbe unique), transform seulement. */
-      '.ygg-porte{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;border-radius:9px;background:#120f0c;}',
+      /* La porte couvre TOUTE la surface du cadre, liseré compris (Norman, 2026-11-02 : « les portes doivent couvrir toute la surface, il ne doit pas y avoir de noir ») : le cadre des arbres n'a plus de bordure noire (la porte et l'arbre vont jusqu'au bord) et la porte n'a aucun fond sombre. */
+      '.ygg-vitre.ygg-decor{border:0;}',
+      '.ygg-porte{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;border-radius:inherit;background:transparent;}',
       '.ygg-porte img{display:block;width:100%;height:100%;object-fit:cover;}',
       '.ygg-porte.ouvre,.ygg-porte.referme{background:transparent;}.ygg-porte.ouvre img,.ygg-porte.referme img{will-change:transform;}',
       '@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}',
