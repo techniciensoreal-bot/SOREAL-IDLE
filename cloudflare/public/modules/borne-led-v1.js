@@ -337,13 +337,16 @@ function sMascot(t){
     if(vie<=0.002){if(pp.te==null||pp.te===undefined)pp.te=t;hx=x0-Math.round(sp*(t-pp.te));}   /* barre vide : la mascotte quitte l'écran par la gauche */
     else{pp.te=null;hx=Math.min(x0+n,W-10);}
   }
-  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(t*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  /* Norman (2026-11-02) : quand le château est à son emplacement final, le SOL ARRÊTE de bouger (sol, étoiles) ; seul le bonhomme continue de marcher jusqu'à entrer dedans. tg = le temps du décor : il se fige à l'arrivée du château. */
+  var chat=vie>=0&&vie<0.14,arrive=chat&&vie<=0.06,tg=t;
+  if(arrive){if(pp.tArr==null)pp.tArr=t;tg=pp.tArr;}else pp.tArr=null;
+  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
   if(vie>=0){var nn=Math.round(vie*len);for(i=0;i<nn;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl+1<H?fl+1:fl,BARRE,255);}}   /* la piste de vie du boss, sous ses pieds */
   for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente, vers la droite) */
-    var sx=((R(i,3)*W+t*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
+    var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
     px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(t/2+R(i,5)))));
   }
-  var chat=vie>=0&&vie<0.14,cx0=chat?Math.round(-13+14*sm((0.14-vie)/0.08)):-99,porte=cx0+6;
+  var cx0=chat?Math.round(-13+14*sm((0.14-vie)/0.08)):-99,porte=cx0+6;
   if(!chat)for(var k=-1;k<Math.ceil(W/per)+1;k++){var ox=hx-6+sp*phi-k*per;sprite(SPR.pique,Math.round(ox),fl-2,255);}   /* plus de piques devant le château */
   if(chat){sprite(CHATEAU,cx0,fl-12,255);if(vie<=0.002&&!P.reduced){var uf=t-pp.te,fx=cx0+6;   /* feux d'artifice au-dessus du château, l'un après l'autre */
     for(i=0;i<4;i++)burst(fx+[-5,7,1,10][i],[5,3,7,4][i],uf-0.25-i*0.5,30,11+i*7,22,0.9,[BLA,AMB,ROU,VER],14);}}

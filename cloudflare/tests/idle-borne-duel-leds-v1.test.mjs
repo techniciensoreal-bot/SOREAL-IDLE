@@ -79,6 +79,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
   assert.ok(m.includes("hx=Math.min(x0+n,W-10)") && m.includes("hx=x0-Math.round(sp*(t-pp.te))"), "calée sur le bout de la barre, sort par la gauche quand elle est vide");
   assert.ok(m.includes("CHATEAU") && m.includes("burst(fx+"), "château et feux d'artifice en fin de niveau");
+  assert.ok(m.includes("arrive=chat&&vie<=0.06") && m.includes("tg=pp.tArr") && m.includes("Math.floor(tg*sp)") && m.includes("R(i,3)*W+tg*7"), "château arrivé : le sol et les étoiles se figent, seul le bonhomme continue de marcher (Norman, 2026-11-02)");
   assert.ok(led.includes("var DANSE_POSES=posesDanse();") && led.includes("ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4"), "la danse enchaîne face, coup à gauche, dos, coup à droite (poses des photos du film)");
   console.log("idle-borne-duel-leds-v1 (une animation par combat : mascotte ou Leatherface) : OK");
 }
