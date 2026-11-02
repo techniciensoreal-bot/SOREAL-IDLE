@@ -49,6 +49,7 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Des animations ont été ajoutées sur l’écran de la borne.',
+            'Une troisième animation de la borne a été ajoutée.',
             'Une des animations de la borne a été refaite, avec un nouveau décor et de nouveaux personnages : à toi de la découvrir.',
             'Cette animation a maintenant une fin différente selon que tu gagnes ou que tu perds.',
             'Sur la borne, l’animation de victoire est vue en entier avant que le nom du boss suivant ne s’écrive.',

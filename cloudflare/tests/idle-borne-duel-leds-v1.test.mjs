@@ -67,7 +67,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("animChoisie=Math.random()<0.5?'mascot':'sweep'"), "l'animation du combat est tirée au début du combat");
+  assert.ok(led.includes("animChoisie=['mascot','sweep','redroom'][Math.min(2,Math.floor(Math.random()*3))];"), "l'animation du combat est tirée au début du combat, parmi trois");
   assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
@@ -134,4 +134,18 @@ console.log("idle-borne-duel-leds-v1: OK");
   const corps = led4.slice(led4.indexOf("function ecrase(t){"), led4.indexOf("function sKO(t){"));
   assert.ok(corps.includes("burst(hx+4,fl-1,u,28,31,24,1.3,[ROU],46)") && corps.includes("rect(hx+4-w,fl,2*w+1,1,ROU,235)"), "le sang gicle et la flaque s'étale");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
+}
+// Norman (2026-11-02) : la Red Room, troisième animation (deux hommes, rideau rouge, Vénus de Milo, nain qui danse ; victoire : le rideau s'ouvre sur une clairière de nuit ; défaite : la main sur l'épaule, éclairs et lueur bleue)
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led.includes("redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5}") && led.includes("var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1};") && led.includes("cur.id==='redroom'||cur.id==='bars'"), "la Red Room est une scène de combat comme les deux autres");
+  assert.ok(led.includes("if(id==='ko'&&combatAnim==='redroom'){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("if(an==='redroom')sRedroom(t);else (an==='sweep'?sSweep:sMascot)(t);") && led.includes("else if(rr)perduRedroom(t);"), "victoire et défaite de la Red Room");
+  assert.ok(led.includes("var VENUS=[") && led.includes("var NAIN_POSES=[") && led.includes("function rrNainPose(t)") && led.includes("var HOMMES=[hommeRows(0),hommeRows(1),hommeRows(2),hommeRows(3)];"), "Vénus de Milo, nain qui danse, homme en deux exemplaires");
+  assert.ok(led.includes("var q=(((x+sh)%8)+8)%8,tri=q<4?q:8-q") && led.includes("sh=Math.floor(tg*RR_SP)"), "sol en chevrons : période de 8 colonnes, glissement entier (boucle parfaite)");
+  assert.ok(led.includes("rrDessinHomme(HOMMES[fr],fx,G,reb,op);") && led.includes("function rrClairiere(x,G,t)") && led.includes("6.2832*(t/2+R(u,y))"), "victoire : le rideau s'ouvre sur une clairière étoilée où les hommes s'enfoncent (étoiles : période 2 s)");
+  const corps = led.slice(led.indexOf("function perduRedroom(t){"), led.indexOf("/* 6. La ola puis VICTOIRE ! */"));
+  assert.ok(corps.includes("tCatch=1.2") && corps.includes("bleu=2") && corps.includes("bleu=1") && corps.includes("HOMMES[caught?3:"), "défaite : main sur l'épaule, éclairs puis lueur bleue, le fuyard reste figé");
+  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom';"), "pas de « RECOMMENCE ? » pendant la Red Room");
+  assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
+  console.log("idle-borne-duel-leds-v1 (Red Room) : OK");
 }

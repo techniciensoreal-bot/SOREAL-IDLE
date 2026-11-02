@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Une troisième animation de la borne a été ajoutée.",
     "L’autre animation de la borne a aussi sa propre fin quand tu perds."
   ] };
 })();
