@@ -195,7 +195,7 @@ assert.ok(client.includes("if(i===0)retirer('sorealDefiBloqueMenuV1');") && clie
 assert.ok(client.includes("dx:Math.max(0,(L-x0-bw)/(N-1))") && client.includes("var bw=Math.min(380,Math.round(L*0.92))"), "fenêtres de taille normale, posées en cascade depuis le menu jusqu'au coin opposé de l'écran");
 assert.ok(client.includes("function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');memoriser(CLE_BOITES,null);memoriser(CLE_CHATON,null);}") && client.includes("  fermerTrollsVisuels();\n  annonce("), "les boîtes et le chaton disparaissent quand le troll suivant tombe");
 assert.ok(client.includes("if(Math.random()<0.75)"), "menu au hasard : 75 % de chances");
-assert.ok(client.includes("animation:sorealChatonV1 14s linear forwards"), "le chaton traverse l'écran");
+assert.ok(client.includes("animation:sorealChatonV1 15s linear forwards"), "le chaton traverse l'écran");
 
 console.log("idle-troll-challenge-deroulement-v1 : OK");
 
@@ -248,7 +248,7 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   const defis = fs.readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
   assert.ok(defis.includes("var CLE_BOITES='soreal_idle_troll_boites_v1',CLE_CHATON='soreal_idle_troll_chaton_v1';"), "clés de mémorisation (préférences du compte)");
   assert.ok(defis.includes("memoriser(CLE_BOITES,'1');") && defis.includes("if(!zone.querySelector('.sorealDefiBoiteV1')){retirer('sorealDefiBoitesV1');memoriser(CLE_BOITES,null);}"), "boîtes : mémorisées à l'ouverture, oubliées quand la dernière est fermée");
-  assert.ok(defis.includes("memoriser(CLE_CHATON,Date.now()+14500);") && defis.split("memoriser(CLE_CHATON,null);},14500);").length === 3, "chaton : mémorisé jusqu'à sa fin");
+  assert.ok(defis.includes("memoriser(CLE_CHATON,Date.now()+15500);") && defis.split("memoriser(CLE_CHATON,null);},15500);").length === 3, "chaton : mémorisé jusqu'à sa fin");
   assert.ok(defis.includes("if(dernierTroll===null){dernierTroll=seqTroll;reprendreTrollsVisuels();}") && defis.includes("if(lireMemo(CLE_BOITES)==='1'&&!document.getElementById('sorealDefiBoitesV1'))jouerBoites();"), "à la réouverture du jeu, le défi Troll actif rejoue ce qui n'était pas fini");
   // comportement : les boîtes sont rejouées après un « rechargement » (état mémorisé, nouvelle exécution du module)
   const stock = { soreal_idle_troll_boites_v1: "1" };

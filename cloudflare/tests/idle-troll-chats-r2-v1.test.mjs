@@ -55,8 +55,8 @@ const client = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8"
 assert.ok(client.includes("fetch('/api/idle/media/troll-chats')") && client.includes("'/api/idle/media/troll-chat?f='+encodeURIComponent(nom)"), "le client liste puis charge les chats du dossier");
 assert.ok(client.includes("var nom=noms[Math.floor(Math.random()*noms.length)];"), "un chat tiré au hasard dans le dossier");
 assert.ok(client.includes("if(!noms.length){chatonDessine();return;}") && client.includes("img.onerror=function(){chatonDessine();};"), "repli sur le chaton dessiné si le dossier est injoignable ou vide");
-assert.ok(client.includes("#sorealDefiChatonV1.gros{position:fixed;inset:0;") && client.includes("pointer-events:auto"), "le chat couvre tout l'écran et BLOQUE les clics");
-assert.ok(client.includes("height:110vh") && client.includes("animation:sorealChatGrosV1 14s linear forwards"), "chat énorme (plus haut que l'écran), traversée de 14 s");
-assert.ok(client.includes("setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},14500);"), "retiré à la fin de la traversée : le jeu redevient cliquable");
+assert.ok(client.includes("#sorealDefiChatonV1.gros{position:fixed;inset:0;") && !client.includes("#sorealDefiChatonV1.gros{position:fixed;inset:0;width:auto;height:auto;z-index:99990;pointer-events:auto"), "le chat couvre tout l'écran mais LAISSE PASSER les clics (Norman, 2026-11-02)");
+assert.ok(client.includes("height:110vh") && client.includes("animation:sorealChatGrosV1 15s linear forwards"), "chat énorme (plus haut que l'écran), traversée de 14 s");
+assert.ok(client.includes("setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},15500);"), "retiré à la fin de la traversée : le jeu redevient cliquable");
 
 console.log("idle-troll-chats-r2-v1 : OK");

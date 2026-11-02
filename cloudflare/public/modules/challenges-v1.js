@@ -513,10 +513,10 @@ function styleTroll(){
   st.id='sorealDefiStyleV1';
   st.textContent='@keyframes sorealChatonV1{from{transform:translateX(-110vw)}to{transform:translateX(110vw)}}'+
     '@keyframes sorealChatGrosV1{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}'+
-    '#sorealDefiChatonV1.gros{position:fixed;inset:0;width:auto;height:auto;z-index:99990;pointer-events:auto;overflow:hidden;cursor:not-allowed;background:transparent}'+
-    '#sorealDefiChatonV1.gros img{position:absolute;top:-5vh;left:0;height:110vh;width:auto;max-width:none;user-select:none;animation:sorealChatGrosV1 14s linear forwards}'+
+    '#sorealDefiChatonV1.gros{position:fixed;inset:0;width:auto;height:auto;z-index:99990;pointer-events:none;overflow:hidden;background:transparent}'+
+    '#sorealDefiChatonV1.gros img{position:absolute;top:-5vh;left:0;height:110vh;width:auto;max-width:none;user-select:none;animation:sorealChatGrosV1 15s linear forwards}'+
     '#sorealDefiChatonV1{position:fixed;left:0;top:18vh;width:100vw;height:64vh;z-index:99990;pointer-events:none;overflow:hidden}'+
-    '#sorealDefiChatonV1 svg{position:absolute;top:0;height:100%;width:auto;animation:sorealChatonV1 14s linear forwards}'+
+    '#sorealDefiChatonV1 svg{position:absolute;top:0;height:100%;width:auto;animation:sorealChatonV1 15s linear forwards}'+
     '#sorealDefiBoitesV1{position:fixed;inset:0;z-index:99991;pointer-events:none}'+
     '.sorealDefiBoiteV1{position:absolute;pointer-events:auto;display:flex;flex-direction:column;box-sizing:border-box;background:#eef1f6;color:#111;border:2px solid #667;border-radius:8px;box-shadow:0 6px 18px #0009;font:15px system-ui,sans-serif;padding:12px 14px}'+
     '.sorealDefiBoiteV1 b{display:block;margin-bottom:8px;font-size:16px}'+
@@ -595,7 +595,7 @@ function chatonDessine(){
   zone.id='sorealDefiChatonV1';
   zone.innerHTML='<svg viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg"><g fill="#ffb84d" stroke="#222" stroke-width="5" stroke-linejoin="round"><path d="M40 90 L52 20 L95 62 Z"/><path d="M180 90 L168 20 L125 62 Z"/><ellipse cx="110" cy="130" rx="76" ry="66"/><path d="M60 190 Q40 235 100 230 Q170 236 165 190 Z"/></g><g fill="#222"><circle cx="80" cy="120" r="9"/><circle cx="142" cy="126" r="7"/><path d="M104 148 L118 146 L110 158 Z"/></g><g fill="none" stroke="#222" stroke-width="4" stroke-linecap="round"><path d="M110 158 Q98 174 84 168"/><path d="M110 158 Q124 176 140 166"/><path d="M60 140 L20 132"/><path d="M60 152 L18 160"/><path d="M162 142 L204 128"/><path d="M162 154 L206 162"/></g></svg>';
   document.body.appendChild(zone);
-  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},14500);
+  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},15500);
 }
 
 /* Les chats du Troll Challenge (Norman, 2026-11-02) : les images du dossier idle/garderie-skins/TrollChallenge/ (R2), listées par le serveur (/api/idle/media/troll-chats). La liste est gardée tant qu'elle n'est pas vide. */
@@ -621,13 +621,13 @@ function montrerChatTroll(img){
   img.draggable=false;
   zone.appendChild(img);
   document.body.appendChild(zone);
-  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},14500);
+  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},15500);
 }
 
 function jouerChaton(){
   styleTroll();
   retirer('sorealDefiChatonV1');
-  memoriser(CLE_CHATON,Date.now()+14500);
+  memoriser(CLE_CHATON,Date.now()+15500);
   chargerChatsTroll(function(noms){
     if(!noms.length){chatonDessine();return;}
     var nom=noms[Math.floor(Math.random()*noms.length)];
