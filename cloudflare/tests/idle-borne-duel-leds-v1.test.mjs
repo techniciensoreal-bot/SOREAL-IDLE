@@ -64,18 +64,20 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("(S.combat?'c':'')"), "le changement combat / hors combat redessine la jauge");
   console.log("idle-borne-duel-leds-v1 (vie centrée, toujours cur / max, sans régénération) : OK");
 }
-// Norman (2026-11-02) : héros à la tronçonneuse (grand, dessiné à la main, deux mains, yeux noirs) qui suit la fin de la piste de vie ; mascotte qui court vers la gauche calée sur la barre, château et feux d'artifice quand elle est vide
+// Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
-  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/
-/g, "
-");
-  assert.ok(led.includes("var HEROS_GRAND=") && led.includes("sweep:{fn:sSweep"), "interlude du héros à la tronçonneuse");
-  assert.ok(led.includes("[3,15,'W..W..W']") && !led.includes("WAWAW..'"), "yeux noirs (trous), plus de yeux ambre sur le grand héros");
-  assert.ok(led.includes("[14,9,'W'],[14,10,'WWW']") && led.includes("[14,13,'W']"), "deux mains sur la tronçonneuse");
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
+  assert.ok(led.includes("combatAnim=Math.random()<0.5?'mascot':'sweep'"), "l'animation du combat est tirée au début du combat");
+  assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
+  assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
+  assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
+  assert.ok(!led.includes("var HEROS_GRAND="), "plus de héros « mascotte à la tronçonneuse » : c'est Leatherface");
+  assert.ok(led.includes("dessinerPose(DANSE_POSES[3],sx,sy)"), "Leatherface scie du début à la fin, sur la piste de vie");
+  assert.ok(led.includes("put(D,16,9,'SS');put(D,16,13,'SS')"), "tronçonneuse tenue à deux mains");
   const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
   assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
   assert.ok(m.includes("hx=Math.min(x0+n,W-10)") && m.includes("hx=x0-Math.round(sp*(t-pp.te))"), "calée sur le bout de la barre, sort par la gauche quand elle est vide");
   assert.ok(m.includes("CHATEAU") && m.includes("burst(fx+"), "château et feux d'artifice en fin de niveau");
-  assert.ok(led.includes("function danseFinale(") && led.includes("danseFinale(t,fl,") && led.includes("pc<=0.002"), "danse finale (tour sur lui-même, tronçonneuse qui tournoie, soleil levant) quand la barre est vide");
-  console.log("idle-borne-duel-leds-v1 (héros tronçonneuse, mascotte vers la gauche, château) : OK");
+  assert.ok(led.includes("var DANSE_POSES=posesDanse();") && led.includes("ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4"), "la danse enchaîne face, coup à gauche, dos, coup à droite (poses des photos du film)");
+  console.log("idle-borne-duel-leds-v1 (une animation par combat : mascotte ou Leatherface) : OK");
 }

@@ -330,7 +330,7 @@ function spriteDepuis(rows,x,y,v,xMin){
 }
 function sMascot(t){
   var W=P.W,H=P.H,sp=30,per=50,T0=per/sp,phi=(t%T0),pc=11/sp,jt=(phi-(pc-0.36))/0.72,air=jt>0&&jt<1,pp=P.p;
-  var jy=air?Math.min(8,H-10)*4*jt*(1-jt):0,fl=H-2,i,x0=2,len=W-4,vie=S.pv?clamp(S.pv.pct,0,1):-1,hx;
+  var jy=air?Math.min(8,H-10)*4*jt*(1-jt):0,fl=H-2,i,x0=2,len=W-4,vie=P.p.fin?0:(S.pv?clamp(S.pv.pct,0,1):-1),hx;
   if(vie<0)hx=14;
   else{
     var n=Math.round(vie*len);
@@ -367,45 +367,73 @@ var HEROS_TRONCO=(function(){
   rows[4]=rows[4].slice(0,7)+'WWW'+rows[4].slice(10);
   return rows;
 })();
-/* Version GRANDE, dessinée à la main (Norman, 2026-11-02 : « ça doit être lui, en plus grand et mieux fait ») : même personnage que la mascotte (tête blanche, yeux noirs, corps ambre), 26 colonnes x 21 rangées, tronçonneuse tenue À DEUX MAINS ;
-   la lame (rangées 18 à 20, colonnes 0 à 8) est dessinée par le code (dents de chaîne qui défilent) et pose sur la piste de vie. */
-var HEROS_GRAND=(function(){
-  var g=[],j,seg=[
-    [0,16,'WWWWW'],[1,15,'WWWWWWW'],[2,15,'WWWWWWW'],[3,15,'W..W..W'],[4,15,'W..W..W'],[5,15,'WWWWWWW'],[6,16,'W.W.W'],[7,17,'WWW'],[8,18,'W'],
-    [9,14,'AAAAAAAAA'],[10,15,'AAAAAAA'],[11,15,'AAAAAAA'],[12,15,'AAAAAAA'],[13,15,'AAAAAAA'],[14,15,'WWWWWWW'],
-    [10,14,'A'],[11,14,'A'],[12,14,'A'],[13,13,'A'],[14,13,'W'],
-    [10,13,'A'],[11,12,'A'],[12,11,'A'],[13,10,'A'],[14,9,'W'],[14,10,'WWW'],
-    [15,16,'AA'],[16,16,'AA'],[17,16,'AA'],[18,16,'AA'],[19,16,'AA'],[15,20,'AA'],[16,20,'AA'],[17,20,'AA'],[18,20,'AA'],[19,20,'AA'],
-    [20,15,'AAAA'],[20,19,'AAAA'],
-    [15,9,'RRRRR'],[16,9,'RRRRR'],[17,9,'RRRRR'],[18,9,'RRRRR'],[19,9,'RRRRR'],[20,9,'RRRRR'],[16,11,'W']];
-  for(j=0;j<21;j++)g.push('..........................'.split(''));
-  seg.forEach(function(q){for(var i=0;i<q[2].length;i++)g[q[0]][q[1]+i]=q[2][i];});
-  return g.map(function(r){return r.join('');});
-})();
-/* La danse finale (Norman, 2026-11-02 : « à la fin, le gars à la tronçonneuse tourne sur lui-même en faisant tournoyer sa tronçonneuse, comme à la fin du premier Massacre à la tronçonneuse ») : corps seul, bras levés ;
-   la tronçonneuse est dessinée par le code au-dessus de sa tête, elle tournoie (angle = temps), le corps se rétrécit en largeur puis se rouvre (tour sur lui-même), un soleil se lève derrière lui. */
-var HEROS_CORPS=(function(){
-  var g=[],j,seg=[
-    [1,16,'WWWWW'],[2,15,'WWWWWWW'],[3,15,'WWWWWWW'],[4,15,'W..W..W'],[5,15,'W..W..W'],[6,15,'WWWWWWW'],[7,16,'W.W.W'],[8,17,'WWW'],[9,18,'W'],
-    [10,14,'AAAAAAAAA'],[11,15,'AAAAAAA'],[12,15,'AAAAAAA'],[13,15,'AAAAAAA'],[14,15,'AAAAAAA'],[15,15,'WWWWWWW'],
-    [16,16,'AA'],[17,16,'AA'],[18,16,'AA'],[19,16,'AA'],[20,16,'AA'],[16,20,'AA'],[17,20,'AA'],[18,20,'AA'],[19,20,'AA'],[20,20,'AA'],[21,15,'AAAA'],[21,19,'AAAA'],
-    [10,13,'A'],[9,13,'A'],[8,13,'A'],[7,13,'A'],[6,13,'A'],[5,13,'A'],[4,13,'A'],[3,13,'A'],[2,13,'A'],[1,13,'W'],
-    [10,23,'A'],[9,23,'A'],[8,23,'A'],[7,23,'A'],[6,23,'A'],[5,23,'A'],[4,23,'A'],[3,23,'A'],[2,23,'A'],[1,23,'W']];
-  for(j=0;j<22;j++)g.push('..........................'.split(''));
-  seg.forEach(function(q){for(var i=0;i<q[2].length;i++)g[q[0]][q[1]+i]=q[2][i];});
-  return g.map(function(r){return r.join('');});
-})();
-function danseFinale(t,fl,xc,u){
-  var H=P.H,sy=fl-21,tour=u*9.4*(P.reduced?0:1),fw=Math.max(0.1,Math.abs(Math.cos(tour))),i,j,ch=Math.floor(t*14);
-  var lev=clamp(u/3,0,1),cx=xc,cy=fl+4-Math.round(eo(lev)*16);                    /* le soleil se lève derrière lui */
-  for(j=-9;j<=9;j++)for(i=-9;i<=9;i++)if(i*i+j*j<=81&&cy+j<fl-1)px(cx+i,cy+j,i*i+j*j<40?AMB:ROS,110);
-  var rows=HEROS_CORPS,vib=(!P.reduced&&Math.floor(t/0.06)%2)?1:0;
-  for(j=0;j<rows.length;j++)for(i=0;i<rows[j].length;i++){
-    var c=rows[j][i];if(c==='.')continue;
-    px(xc+Math.round((i-18)*fw),sy+j-vib,PAL[c]||AMB,255);
+/* La danse finale (Norman, 2026-11-02 : « à la fin, le gars à la tronçonneuse tourne sur lui-même en faisant tournoyer sa tronçonneuse, comme à la fin du premier Massacre à la tronçonneuse » puis, avec quatre photos du film : « fais en sorte qu'il lui ressemble, il ne doit pas juste faire tournoyer, je t'ai mis les mouvements »).
+   Le personnage ressemble à Leatherface : cheveux noirs bouclés, masque pâle aux orbites noires et à la bouche ouverte, veste sombre ouverte, chemise et tablier crème, cravate noire. Les trois poses des photos s'enchaînent en boucle : (1) face, tronçonneuse brandie à deux mains au-dessus de la tête ;
+   (2) de dos, en silhouette, tronçonneuse haute ; (3) le grand coup de côté (un bras tendu, la lame vers le bas, la veste qui s'envole), d'abord vers la gauche puis vers la droite. Fond : ciel de coucher de soleil, soleil bas à l'horizon, silhouette noire par-dessus. */
+var DANSE_L=26,DANSE_H=24;
+var DANSE_COUL={K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
+function posesDanse(){
+  function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
+  function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
+  function corps(g,dx,face,flare){                                 /* tête, buste, jambes (centrés sur la colonne 10,5 + dx) */
+    put(g,5,dx+8,'KKKKKK');put(g,6,dx+7,'KKKKKKKK');put(g,7,dx+6,'KKKKKKKKKK');put(g,8,dx+6,'KK');put(g,8,dx+14,'KK');put(g,9,dx+7,'K');put(g,9,dx+14,'K');put(g,10,dx+7,'K');put(g,10,dx+14,'K');put(g,11,dx+8,'K');put(g,11,dx+13,'K');
+    if(face){
+      put(g,7,dx+8,'SSSSSS');put(g,8,dx+8,'SSSSSS');put(g,9,dx+8,'SSSSSS');put(g,10,dx+8,'SSSSSS');put(g,11,dx+9,'SSSS');
+      put(g,8,dx+9,'K');put(g,8,dx+12,'K');put(g,9,dx+9,'K');put(g,9,dx+12,'K');          /* orbites noires */
+      put(g,10,dx+9,'MMMM');put(g,11,dx+10,'TT');                                          /* bouche ouverte */
+      put(g,7,dx+8,'KKKK');                                                                /* mèche sur le front */
+    }else{put(g,8,dx+8,'KKKKKK');put(g,9,dx+8,'KKKKKK');put(g,10,dx+8,'KKKKKK');put(g,11,dx+9,'KKKK');}
+    put(g,12,dx+5,'KKKK');put(g,12,dx+13,'KKKK');put(g,12,dx+9,face?'CCCC':'KKKK');
+    var r;for(r=13;r<=16;r++){put(g,r,dx+4,'KKKKK');put(g,r,dx+13,'KKKKK');put(g,r,dx+9,face?'CCCC':'KKKK');}
+    if(face){put(g,13,dx+10,'K');put(g,14,dx+10,'K');put(g,15,dx+10,'K');put(g,16,dx+8,'CCCCCC');put(g,17,dx+8,'CCCCCC');put(g,18,dx+8,'CCCCCC');}
+    if(flare){put(g,14,dx+2,'KK');put(g,15,dx+1,'KKK');put(g,16,dx+0,'KKKK');put(g,17,dx+0,'KKK');put(g,14,dx+17,'KK');put(g,15,dx+17,'KKK');put(g,16,dx+18,'KKKK');put(g,17,dx+19,'KKK');}
+    put(g,17,dx+7,'KKKKKKKK');put(g,18,dx+7,'KKKKKKKK');
+    for(r=19;r<=22;r++){put(g,r,dx+7,'KKK');put(g,r,dx+12,'KKK');}
+    put(g,23,dx+6,'KKKK');put(g,23,dx+12,'KKKK');
   }
-  var a=P.reduced?0.6:u*19,px0=xc,py0=sy-1-vib,dx=Math.cos(a),dy=Math.sin(a)*0.35;      /* la tronçonneuse brandie, qui tournoie */
-  for(i=-4;i<=10;i++){var qx=px0+i*dx,qy=py0+i*dy;px(qx,qy,i<0?ROU:((i+ch)%2?AMB:BLA),255);px(qx,qy-1,i<0?ROU:BLA,i<0?255:120);}
+  function sciehaut(g,dx,dy){                                      /* tronçonneuse horizontale : poignée au-dessus du moteur (gris, bande rouge), longue lame à chaîne (dents ambre) */
+    put(g,dy,dx+10,'HHHH');put(g,dy+1,dx,'GGGGGGGGG');put(g,dy+1,dx+9,'DDDDDDD');
+    put(g,dy+2,dx,'OGOGOGOGO');put(g,dy+2,dx+9,'DRRRDDD');put(g,dy+3,dx,'GGGGGGGGG');put(g,dy+3,dx+9,'DDDDDDD');
+  }
+  function brasHauts(g,dx,mains){                                  /* deux bras levés, coudes écartés */
+    var L=[[5,4],[6,4],[7,4],[8,5],[9,6],[10,7],[11,8]],Rr=[[5,15],[6,15],[7,15],[8,14],[9,13],[10,12],[11,11]];
+    L.concat(Rr).forEach(function(q){put(g,q[0],dx+q[1],'KK');});
+    put(g,4,dx+4,mains?'SS':'KK');put(g,4,dx+14,mains?'SS':'KK');
+  }
+  var A=grille();corps(A,4,true,false);brasHauts(A,4,true);sciehaut(A,4,0);                     /* 1. face, brandie à deux mains */
+  var B=grille();corps(B,4,false,true);brasHauts(B,4,false);sciehaut(B,4,0);                    /* 2. de dos, silhouette, veste ouverte */
+  var C=grille();corps(C,8,true,true);                                                          /* 3. le grand coup de côté vers la gauche : une main sur la poignée, la lame vers le bas */
+  [[12,14],[11,14],[10,13],[9,13],[8,12],[7,12],[6,11],[5,11]].forEach(function(q){put(C,q[0],q[1],'KK');});
+  put(C,4,11,'SS');put(C,0,10,'HHHH');put(C,1,9,'DDDDDDD');put(C,2,9,'DRRRDDD');put(C,3,9,'DDDDDDD');
+  for(var k=0;k<9;k++){var yy=3+k,xx=8-k;put(C,yy,xx,k%2?'OG':'GO');}
+  [[12,23],[13,23],[14,23],[15,22]].forEach(function(q){put(C,q[0],q[1],'KK');});
+  var D=grille();corps(D,10,true,false);                                                        /* 4. il scie : tronçonneuse tenue à deux mains devant lui, la lame vers la gauche, posée sur la piste de vie */
+  [[12,14],[13,13],[14,12],[15,11],[16,10]].forEach(function(q){put(D,q[0],q[1],'KK');});
+  [[12,15],[13,14],[14,14],[15,14]].forEach(function(q){put(D,q[0],q[1],'KK');});
+  put(D,16,9,'SS');put(D,16,13,'SS');put(D,17,9,'HHHH');put(D,18,9,'DDDDDD');put(D,19,9,'DRRRDD');put(D,20,9,'DDDDDD');put(D,21,9,'DDDDDD');put(D,22,9,'DDDDDD');put(D,23,9,'DDDDDD');
+  put(D,21,0,'GGGGGGGGG');put(D,22,0,'OGOGOGOGO');put(D,23,0,'GGGGGGGGG');
+  var out=[A,B,C,D];
+  var out2=out.map(function(g){return g.map(function(r){return r.join('');});});
+  out2.push(out2[2].map(function(r){return r.split('').reverse().join('');}));                 /* le même coup vers la droite (pose 5) */
+  return out2;
+}
+var DANSE_POSES=posesDanse();
+function cielCouchant(fl,xc,lev){
+  var W=P.W,i,j,hor=fl-2;
+  for(j=0;j<hor;j++){var g=j/hor,c=g<0.5?ROU:AMB,v=90+Math.round(120*g*g);for(i=0;i<W;i++)px(i,j,c,v);}     /* ciel de coucher de soleil */
+  var sunY=hor+4-Math.round(lev*10),sunX=Math.min(W-14,xc+24);
+  for(j=-8;j<=8;j++)for(i=-10;i<=10;i++)if(i*i/1.5+j*j<=60&&sunY+j<hor)px(sunX+i,sunY+j,BLA,j*j+i*i/2<22?255:150);
+}
+function dessinerPose(rows,sx,sy){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var ch=rows[j][i];if(ch==='.')continue;var q=DANSE_COUL[ch];if(q)px(sx+i,sy+j,q[0],q[1]);}
+}
+function danseFinale(t,fl,xc,u){
+  var W=P.W,H=P.H,i,j,lev=sm(u/2.5);
+  cielCouchant(fl,xc,lev);
+  var cycle=u%2.8,ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4;                                              /* face, coup à gauche, de dos, coup à droite */
+  if(P.reduced)ph=0;
+  var rows=DANSE_POSES[ph],sy=fl-2-(DANSE_H-1)-((!P.reduced&&Math.floor(t/0.06)%2)?1:0),sx=xc-12;
+  dessinerPose(rows,sx,sy);
 }
 function sprite2(rows,x,y,k,v){
   for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
@@ -414,35 +442,36 @@ function sprite2(rows,x,y,k,v){
   }
 }
 function sSweep(t){
-  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=S.pv?clamp(S.pv.pct,0,1):1,n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
+  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,fin=Boolean(P.p.fin),pc=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
+  if(H>=26&&W>=40){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
+    cielCouchant(fl,Math.max(14,x0+18),1);
+    for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+    for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+    if(pc<=0.002){var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;}
+    P.p.te=null;
+    var vb=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx=Math.max(0,Math.min(xe,W-26)),sy=fl-2-(DANSE_H-1)-vb;
+    dessinerPose(DANSE_POSES[3],sx,sy);
+    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+21+j,((i+ch)%4<2)===(j<2)?AMB:BLA,255);   /* la chaîne : les dents défilent */
+    if(P.reduced)return;
+    for(i=0;i<9;i++){                                              /* étincelles et éclats de vie chassés vers la gauche */
+      var u=((t*1.6+R(i,7))%1),dx=u*(6+R(i,9)*8),dy=Math.sin(u*3.1416)*(3+R(i,8)*6),al=255*Math.sin(u*3.1416);
+      px(sx-1-dx,fl-2-dy,i%3?BLA:BARRE,al);
+    }
+    return;
+  }
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
   for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
-  var vib=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx,sy;
-  if(S.pv&&pc<=0.002&&H>=24&&W>=40){                               /* barre vide : la danse finale */
-    var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;
-    danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;
-  }
-  if(S.pv&&pc>0.002)P.p.te=null;
-  if(H>=24&&W>=30){                                                /* grande version dessinée à la main */
-    sx=Math.max(0,Math.min(xe,W-26));sy=fl-20-vib;
-    sprite(HEROS_GRAND,sx,sy,255);
-    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+18+j,((i+ch)%4<2)===(j<2)?AMB:BLA,255);   /* la chaîne : les dents défilent */
-  }else{
-    sx=Math.max(0,Math.min(xe,W-17*K));sy=fl-8*K+1-vib;
-    sprite2(HEROS_TRONCO,sx,sy,K,255);
-    for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx+i,sy+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
-  }
-  if(P.reduced)return;
-  for(i=0;i<9;i++){                                                /* étincelles et éclats de vie chassés vers la gauche, fondu d'entrée et de sortie */
-    var u=((t*1.6+R(i,7))%1),dx=u*(6+R(i,9)*8),dy=Math.sin(u*3.1416)*(3+R(i,8)*6),al=255*Math.sin(u*3.1416);
-    px(sx-1-dx,fl-2-dy,i%3?BLA:BARRE,al);
-  }
+  var sx2=Math.max(0,Math.min(xe,W-17*K)),sy2=fl-8*K+1;
+  sprite2(HEROS_TRONCO,sx2,sy2,K,255);
+  for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx2+i,sy2+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
 }
 
 /* 6. La ola puis VICTOIRE ! */
 function sWin(t){
-  var W=P.W,H=P.H,x,y;
-  if(t<3.0){
+  var W=P.W,H=P.H,x,y,an=P.p.anim;
+  if(an&&t<4.6){P.p.fin=true;(an==='sweep'?sSweep:sMascot)(t);return;}   /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface */
+  if(an)t=t-1.8;
+  if(!an&&t<3.0){
     var A=sm(t/0.5)*(1-sm((t-2.3)/0.7));
     for(x=0;x<W;x++){
       var hgt=(0.5+0.5*Math.sin(x/W*6.2832*1.5-t*5.2))*H*A;
@@ -779,7 +808,7 @@ function couleurBarre(r,e){
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
-  sweep:{fn:sSweep,dur:3.4,prio:0,cap:0.5},
+  sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
   jokes:{fn:sJokes,dur:function(p,W){return jokeDuree(p,W);},prio:1,cap:0.5},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
@@ -788,7 +817,7 @@ var SC={
   score:{fn:sScore,dur:function(){return S.vic>0?8:4;},prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
-  win:{fn:sWin,dur:7.2,prio:5,cap:4.2},
+  win:{fn:sWin,dur:function(p){return p.anim?9:7.2;},prio:5,cap:4.2},
   ko:{fn:sKO,dur:6.4,prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
@@ -942,6 +971,9 @@ function lire(now){
 /* ------------------------------------------------------------------ gestionnaire de scènes : une à la fois, priorité aux événements de combat, retour automatique à l'affichage de base */
 var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke:false};
 var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1};
+/* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
+   où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
+var combatAnim='';
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
 /* objets actifs (ordre fixe), avec au moins une seconde restante */
@@ -958,14 +990,17 @@ function objetSuivant(now,inter){
 }
 function mk(id,now,p){
   var d=SC[id].dur;p=p||{};
-  return {id:id,t0:id==='fight'?fightT0:now,p:p,prio:SC[id].prio,dur:typeof d==='function'?d(p,panel?panel.W:120):d};
+  if(id==='win')p.anim=combatAnim;
+  if(p.long)d=1e9;
+  return {id:id,t0:(id==='fight'||p.long)?fightT0:now,p:p,prio:SC[id].prio,dur:typeof d==='function'?d(p,panel?panel.W:120):d};
 }
 function demarrer(s){cur=s;}
 /* le combat commence (ou reprend après un message) : FIGHT ! ; `neuf` = nouvelle apparition (lettre par lettre), sinon on reprend la boucle là où elle en était */
 function combatFight(now,neuf){
   var dedans=enCombat(cur);
-  if(neuf||!dedans){fightT0=now;interAt=now+5000;objTour=0;if(objAt<now+8000)objAt=now+8000;}
-  demarrer(mk('fight',now));
+  if(neuf||!dedans){fightT0=now;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;combatAnim=Math.random()<0.5?'mascot':'sweep';}
+  if(!neuf&&dedans&&combatAnim&&S.pv&&now-fightT0>2200)demarrer(mk(combatAnim,now,{long:true}));
+  else demarrer(mk('fight',now));
 }
 /* « Le saviez-vous ? » : phrases ajoutées par l'administrateur (modules/admin-saviez-vous-v1.js, lues dans les textes déjà synchronisés : aucune requête) ; '' = aucune, on garde les cinq d'origine (jk) ; jamais deux fois la même d'affilée */
 var phraseDerniere='';
@@ -1046,9 +1081,10 @@ function image(now){
     else demarrer(suivante(now));
   }else if(S.combat&&(cur.id==='base'||cur.id==='jokes'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
   else if(!S.combat&&enCombat(cur))demarrer(suivante(now));
-  else if(cur.id==='fight'&&objetDu(now)){var oi=objetSuivant(now,true);if(oi)demarrer(oi);}
-  else if(cur.id==='fight'&&now>=interAt){                         /* un petit interlude (barre de vie du joueur, mascotte) puis retour à FIGHT ! */
-    interN+=1;demarrer(mk(interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot',now));interAt=now+cur.dur*1000+5000;
+  else if(cur.id==='fight'&&combatAnim&&S.pv&&now-fightT0>2200)demarrer(mk(combatAnim,now,{long:true}));   /* FIGHT ! pendant 2,2 s, puis l'animation du combat */
+  else if((cur.id==='fight'||cur.p.long)&&objetDu(now)){var oi=objetSuivant(now,true);if(oi)demarrer(oi);}
+  else if((cur.id==='fight'||cur.p.long)&&now>=interAt){            /* un petit interlude : la barre de vie du joueur, puis retour à l'animation */
+    interN+=1;demarrer(mk('bars',now));interAt=now+SC.bars.dur*1000+14000;
   }
   dessiner(now);
   try{dessinerMinis(now);}catch(_e){}
