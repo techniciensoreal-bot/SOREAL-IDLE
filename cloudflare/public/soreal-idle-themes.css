@@ -2375,3 +2375,9 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2{position:sticky;top:0;margin:0 0 10px;padding:0 0 4px}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2>.soreal-idle-summary-grid-v28{margin-top:0}
 }
+
+/* Machine temporelle : fond des barres vides du haut (vie, énergie, magie, ressource 3) = la couleur de la page mais TRÈS foncée (Norman, 2026-11-02 : « le fond des barres de vie quand elles sont vides a trop la couleur de la page ; comme sur les autres pages, la couleur mais très foncé »).
+   Le verre du tube est translucide : sur les autres pages la page derrière est déjà sombre, ici elle est turquoise vif, donc on pose une base turquoise presque noire sous le même verre. */
+body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]) .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{
+  background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 45%,rgba(0,0,0,.35)),#04201e!important;
+}
