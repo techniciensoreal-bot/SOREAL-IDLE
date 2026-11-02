@@ -560,8 +560,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 81,
-  "sha": "fb8d88d9c6ec7b43522c201c4b43970e337323e2"
+  "pin": 82,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 713,
@@ -804,8 +804,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 68,
-  "sha": "2bfcdb472e7199ae69904d9d8308803c3908cea0"
+  "pin": 69,
+  "sha": "4fd4228e56ceddf8dc8a773809258cda9bfe0df3"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 17,

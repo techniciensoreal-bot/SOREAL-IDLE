@@ -148,8 +148,8 @@ console.log("idle-yggdrasil-portes-v1: OK");
   assert.ok(/function nomSonFerme_\(\)\{return reglages_\(\)\.son==='bois'\?'porteFermeBois':'porteFerme';\}/.test(src), "le réglage pierre / bois choisit aussi le bruit de fermeture");
 }
 
-// Norman (2026-11-02) : les portes d'Yggdrasil sont supprimées (il fournira les siennes) : le jeu n'en dessine plus aucune
+// Norman (2026-11-02) : « je ne voulais pas retirer les portes avant d'avoir les autres » : les portes restent actives
 {
-  assert.ok(src.includes("var PORTES_ACTIVES_=false;") && src.includes("if(!PORTES_ACTIVES_)return '';"), "aucune porte dessinée tant que les nouvelles ne sont pas là");
-  console.log("idle-yggdrasil-portes-v1 (portes supprimées) : OK");
+  assert.ok(src.includes("var PORTES_ACTIVES_=true;"), "portes d'Yggdrasil actives jusqu'à l'arrivée des nouvelles");
+  console.log("idle-yggdrasil-portes-v1 (portes conservées) : OK");
 }

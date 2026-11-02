@@ -442,8 +442,8 @@
     if(vue&&i<0)o.v.push(id);else if(!vue&&i>=0)o.v.splice(i,1);else if(Number(o.r)===renaissances_()&&(vue===(i>=0)))return;
     try{localStorage.setItem(CLE_PORTES_VUES_,JSON.stringify({r:o.r,v:o.v}));}catch(_e){}
   }
-  /* Portes SUPPRIMÉES (Norman, 2026-11-02) : il fournira ses propres portes, une par arbre et fruit. Tant qu'elles ne sont pas là, aucune porte n'est dessinée (ni son, ni coq) ; le code des anciennes portes reste ci-dessous, inutilisé, pour l'ouverture animée des futures images. */
-  var PORTES_ACTIVES_=false;
+  /* Les portes restent en place tant que Norman n'a pas fourni les siennes (une par arbre et fruit) : mettre PORTES_ACTIVES_ à false seulement à ce moment-là (2026-11-02 : retirées trop tôt, puis remises). */
+  var PORTES_ACTIVES_=true;
   function porteDe_(id,actif){
     if(!PORTES_ACTIVES_)return '';
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
