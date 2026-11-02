@@ -49,6 +49,9 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Des animations ont été ajoutées sur l’écran de la borne.',
+            'La barre de vie suit mieux le moteur : un combat de boss ne rend plus plus de vie quand la défense monte pendant une longue synchro.',
+            'La vie regagnée au repos ne prend plus de retard quand la fenêtre est en arrière-plan : plus de saut en avant au retour.',
+            'Les dégâts annoncés d’un boss tiennent compte de la difficulté choisie.',
             'Sur la borne, les animations ne se lancent que pour un combat d’au moins 6 secondes, et le nom du boss s’écrit dès qu’il apparaît.',
             'En anglais, la carte de chronique sous la borne lit maintenant tout le texte (et plus seulement le titre).',
             'Sur la borne, les coins noirs qui dépassaient derrière les images du duel sont maintenant arrondis comme les images.',
@@ -63,6 +66,8 @@
           ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Le bouton du menu et les illustrations de la page ont été retravaillés.',
+            'L’image du trou passe en version nuit du coucher au lever du soleil de l’endroit où tu joues.',
+            'Sous l’image du trou, tu vois les récompenses possibles avec l’Or que tu as en stock.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».',

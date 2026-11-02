@@ -104,6 +104,10 @@
       '.et-pf{position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;height:84%;aspect-ratio:1;border-radius:50%;background:#050302;pointer-events:none;transform:scale(.17,1);transition:transform .6s cubic-bezier(.4,0,.2,1)}',
       '@media (prefers-reduced-motion:no-preference){.et-pup-bat .et-pf{transform:scale(.5,1);transition-duration:1.2s}.et-pup-arrivee .et-pf{transform:scale(1,1);transition-duration:1.2s}}',
       '.et-pup-zoom .et-pf{transform:scale(1,1);transition-duration:1.2s}',
+      /* Quand le regard SUIT la souris (modules/etagere-sommeil-regard-v1.js, classe et-suit sur <html>), la pupille glisse DANS l'iris vers le pointeur, plus loin que l'iris dans l'œil : effet de changement de point de vue (Norman, 2026-11-02 : « la pupille doit se déplacer, là on dirait qu'il regarde toujours tout droit »). Propriété translate (indépendante de transform : la forme fente / ellipse / disque garde ses transitions) ; amplitude limitée pour que la pupille reste dans l'iris : fente 45 %, ellipse 34 %, disque 9 % de sa propre largeur ; vertical 10 %. */
+      'html.et-suit .et-pf{translate:calc(var(--et-mx,0)*var(--ptx,45%)) calc(var(--et-my,0)*10%);transition:transform .6s cubic-bezier(.4,0,.2,1),translate .14s ease-out}',
+      'html.et-suit.et-pup-bat .et-pf{--ptx:34%}',
+      'html.et-suit.et-pup-arrivee .et-pf,html.et-suit.et-pup-zoom .et-pf{--ptx:9%}',
       '@media (prefers-reduced-motion:reduce){.et-pf{transition:none}}'
     ].join('\n');
     document.head.appendChild(s);

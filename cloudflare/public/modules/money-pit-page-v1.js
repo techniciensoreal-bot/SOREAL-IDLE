@@ -560,7 +560,8 @@
           /* Image du trou inchangée (Norman, 2026-11-02 : « l'image du trou reste comme avant »). Les récompenses possibles du palier de l'Or en stock sont listées dessous, dans la carte d'action, à la place de la légende de la roue. */
           '<div class="soreal-idle-money-scene-v206">'+
             /* Image refaite par Norman (2026-10-31), fichier statique du dépôt (donc dans le paquet hors ligne) ; l'ancienne Money_Pit.jpg reste sur le serveur, plus utilisée ici. Calques : titre, yeux, puanteur, salve d'or (soreal-idle-itopod.css, « Trou sans fond »). */
-            '<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp" width="1000" height="1000" alt="Trou sans fond">'+
+            /* Image de JOUR ou de NUIT (Norman, 2026-11-02) : celle de nuit du coucher au lever du soleil de l'endroit où l'on joue (modules/trou-nuit-v1.js) */
+            '<img id="sorealIdleMoneyPitImageV209" src="'+(window.__SOREAL_IDLE_TROU_NUIT_V1__?window.__SOREAL_IDLE_TROU_NUIT_V1__.src():'/trou/trou-sans-fond-v1.webp')+'" width="1000" height="1000" alt="Trou sans fond">'+
             calquesTrouSansFondIdleV1_()+
           '</div>'+
           '<div class="soreal-idle-money-actions-v206">'+

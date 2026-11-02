@@ -37,3 +37,11 @@ const d4 = S.direction({ x: 100, y: 100 }, { x: 100, y: 100 });
 assert.ok(d4.x === 0 && d4.y === 0, "sur l'œil : centré");
 assert.equal(S.dort(), false);
 console.log("idle-etagere-sommeil-regard-v1 : OK");
+
+// Norman (2026-11-02) : « quand les yeux suivent la souris, la pupille doit se déplacer (effet de changement de vue) »
+{
+  const pup = readFileSync("cloudflare/public/modules/etagere-pupilles-v1.js", "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(pup.includes("html.et-suit .et-pf{translate:calc(var(--et-mx,0)*var(--ptx,45%)) calc(var(--et-my,0)*10%);"), "la pupille glisse dans l'iris vers la souris");
+  assert.ok(pup.includes("html.et-suit.et-pup-bat .et-pf{--ptx:34%}") && pup.includes("html.et-suit.et-pup-arrivee .et-pf,html.et-suit.et-pup-zoom .et-pf{--ptx:9%}"), "amplitude réduite quand la pupille est large (reste dans l'iris)");
+  console.log("idle-etagere-sommeil-regard-v1 (pupille qui suit) : OK");
+}

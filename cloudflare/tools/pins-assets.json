@@ -248,8 +248,8 @@
   "sha": "a6a2541fef6b6342719a0211956ddd309c306899"
  },
  "/modules/etagere-pupilles-v1.js": {
-  "pin": 2,
-  "sha": "3a4e06c92a83ee8662815abb9aee665ba38ce267"
+  "pin": 3,
+  "sha": "a785288f3ab23c11ba8b4bd5ef792fca9decd7b2"
  },
  "/modules/etagere-queues-v1.js": {
   "pin": 1,
@@ -440,8 +440,8 @@
   "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 27,
-  "sha": "deb0780680ee25f75912447818447f2896d8884b"
+  "pin": 28,
+  "sha": "ef461e58d87bd6a8e4f1dc751d989b56265b1899"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -560,12 +560,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 90,
-  "sha": "2a6be6b95984427f4a2a3742e9f0f71a028b92f5"
+  "pin": 91,
+  "sha": "99630e4641f5b83105943157333971879fc6a8b8"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 720,
-  "sha": "7dc259ff668abec8ce09ebe8eef674df324aca12"
+  "pin": 721,
+  "sha": "3b9138d35fe62a7bf7e8b1ac9e46d67321172fbd"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -644,12 +644,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 748,
-  "sha": "311b3e35de73ee9695a6b45122869e7e6a82735f"
+  "pin": 749,
+  "sha": "ce92f7d48e521fadc12e550696fcef403e090efa"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 569,
-  "sha": "397839d005df123cada17d90e4c2303215dc59c1"
+  "pin": 570,
+  "sha": "6b1b0795acc1172fc4b55184f4be16b561c9dc52"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

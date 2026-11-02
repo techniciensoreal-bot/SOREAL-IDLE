@@ -53,7 +53,7 @@ const lots6 = [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 },
   const croissant = (t, r) => { const a = r.map((x) => t.indexOf(x)); return a.every((x, i) => x >= 0 && (i === 0 || x > a[i - 1])); };
   assert.ok(croissant(trou, ["soreal-idle-money-scene-v206\">'", "sorealIdleMoneyPitImageV209", "calquesTrouSansFondIdleV1_()", "soreal-idle-money-actions-v206", "money-action-title-v206\">Balance ton argent", "rendreBoutonMoneyPitIdleV1_(j,pitSt)", "TR.rendreLegende(j)", "prixPit", "rb-prix-txt\">Jets effectués", "cadreRecompensesMoneyPitIdleV1_('pit'"]), "trou : image, carte, titre, bouton, liste, prix, compteur, historique");
   assert.ok(croissant(roue, ["RO.rendreCarte(roueSt,j,boutonRoue)", "rb-prixcol", "money-action-title-v206\">Roue journalière !", "RO.rendreControles(roueSt,j,boutonRoue)", "prixRoue", "rb-prix-txt\">Tours effectués", "cadreRecompensesMoneyPitIdleV1_('roue'"]), "roue : même suite");
-  assert.ok(trou.includes('<img id="sorealIdleMoneyPitImageV209" src="/trou/trou-sans-fond-v1.webp" width="1000" height="1000" alt="Trou sans fond">'), "image du trou inchangée");
+  assert.ok(trou.includes("<img id=\"sorealIdleMoneyPitImageV209\" src=\"'+(window.__SOREAL_IDLE_TROU_NUIT_V1__?window.__SOREAL_IDLE_TROU_NUIT_V1__.src():'/trou/trou-sans-fond-v1.webp')+'\" width=\"1000\" height=\"1000\" alt=\"Trou sans fond\">"), "image du trou : même image, jour ou nuit selon le soleil (modules/trou-nuit-v1.js)");
   assert.ok(!/TR\.rendreCarte|mp-hub|mp-disque/.test(pageSrc), "plus de disque pour le trou");
   assert.ok(pageSrc.includes('class="rb-bouton rb-dispo glow-dispo-v1 mp2-spin-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\\\'moneyPit\\\'})"'), "même bouton que celui de la roue");
 }
