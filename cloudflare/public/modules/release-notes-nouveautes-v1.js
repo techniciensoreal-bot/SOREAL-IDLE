@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les touches du clavier de ce menu font exactement le même bruit que les boutons de l’application SOREAL, barre d’espace comprise."
+    "Les trolls alternent : un petit troll qui vient de tomber ne revient pas avant trois autres, et le popup d’un troll reste moins longtemps à l’écran."
   ] };
 })();

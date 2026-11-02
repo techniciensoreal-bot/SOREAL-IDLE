@@ -1113,7 +1113,9 @@ const IDLE_CHALLENGE_OFFLINE_DISABLED_IDS = Object.freeze(["twentyFourHours", "h
  */
 export const IDLE_TROLL_INTERVALS_S_V1 = Object.freeze([120, 110, 100, 90, 85, 80, 75]);
 
-const IDLE_TROLL_SMALL_V1 = Object.freeze(["augments", "blood", "timeMachine", "gold", "boxes", "energy", "magic", "wandoos", "kitty"]);
+const IDLE_TROLL_HIST_V1 = 3;
+
+const IDLE_TROLL_SMALL_V1 =Object.freeze(["augments", "blood", "timeMachine", "gold", "boxes", "energy", "magic", "wandoos", "kitty"]);
 
 const IDLE_TROLL_BIG_V1 = Object.freeze(["ngu", "beards", "menu", "ruin", "wandoosOff", "bossDivider"]);
 
@@ -1137,7 +1139,9 @@ export function createTrollStateV1(raw) {
     timer: Math.max(0, num(raw?.timer, 0)),
     count: Math.max(0, int(raw?.count, 0)),
     flags: { ngu: Boolean(f.ngu), beards: Boolean(f.beards), wandoos: Boolean(f.wandoos), menu: Boolean(f.menu), bossDivider: Boolean(f.bossDivider) },
-    last: last ? { id: String(last.id || ""), big: Boolean(last.big), seq: Math.max(0, int(last.seq, 0)) } : null
+    last: last ? { id: String(last.id || ""), big: Boolean(last.big), seq: Math.max(0, int(last.seq, 0)) } : null,
+    /* Les trolls déjà tombés en dernier (récents en fin de liste) : un troll ne retombe pas tout de suite (voir fireTrollV1). */
+    hist: Array.isArray(raw?.hist) ? raw.hist.map((x) => String(x)).slice(-IDLE_TROLL_HIST_V1) : []
   };
 }
 
@@ -1188,8 +1192,15 @@ function fireTrollV1(state) {
   const big = t.count % 5 === 0;
   const complet = big ? IDLE_TROLL_BIG_V1 : IDLE_TROLL_SMALL_V1;
   const possibles = complet.filter((x) => trollPossibleV1(state, x));
-  const pool = possibles.length ? possibles : complet;
+  /* Alternance (Norman, 2026-11-02 : « il me faut non stop le troll de me prendre mon énergie ; il doit y avoir une limite, ça empêche d'avancer ; il doit alterner ») : un troll qui vient de tomber ne retombe pas pendant les
+     IDLE_TROLL_HIST_V1 tirages suivants ; s'il n'en reste aucun (peu de systèmes possédés), on évite au moins le dernier. */
+  const base = possibles.length ? possibles : complet;
+  const recents = big ? [] : (t.hist || []).slice(-IDLE_TROLL_HIST_V1);   /* l'historique ne suit que les petits trolls (le gros, un tirage sur cinq, a sa propre réserve) */
+  let pool = base.filter((x) => !recents.includes(x));
+  if (!pool.length) pool = base.filter((x) => x !== recents[recents.length - 1]);
+  if (!pool.length) pool = base;
   const id = pool[Math.min(pool.length - 1, Math.floor(Math.random() * pool.length))];
+  if (!big) t.hist = [...recents, id].slice(-IDLE_TROLL_HIST_V1);
   if (id === "ngu") { t.flags.ngu = true; clearActiveDiggersV1(state); }
   else if (id === "beards") { t.flags.beards = true; clearActiveDiggersV1(state); }
   else if (id === "menu") t.flags.menu = true;

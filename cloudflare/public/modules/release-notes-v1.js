@@ -74,6 +74,7 @@
           {menu:'challenges', titre:'Défis', points:[
             'Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».',
             'Le Troll Challenge affiche maintenant des minuteries pour ses trolls.',
+            'Les trolls alternent : un petit troll qui vient de tomber ne revient pas avant trois autres, et le popup d’un troll reste moins longtemps à l’écran.',
             'Un troll ne tombe plus que sur ce que tu possèdes déjà : plus de troll qui parle d’un système que tu n’as pas encore.',
             'Un troll qui retire l’énergie ou la magie retire aussi ce qui était déjà alloué ; la touche R reprend maintenant aussi l’énergie placée dans les améliorations.',
             'Les trolls et leurs popups se produisent aussi quand on reste sur le combat, et fermer puis rouvrir le jeu ne les fait plus disparaître.',
