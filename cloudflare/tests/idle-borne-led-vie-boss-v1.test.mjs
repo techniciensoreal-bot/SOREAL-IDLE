@@ -84,7 +84,7 @@ for (const r of [pc, ph]) {
   assert.ok(r.couleurs[7] > 100, "jauge dans la couleur du boss (7)");
   assert.ok(r.couleurs[6] > 15, "petit cœur rose (6)");
   assert.ok(r.couleurs[3] > 30, "texte blanc des PV (3)");
-  assert.ok(r.couleurs[4] > 15, "régénération verte (4)");
+  assert.ok(!r.couleurs[4], "plus de régénération affichée sur la borne (Norman, 2026-11-02 : « sa regen de vie est inutile »)");
   assert.ok(r.bas > 150, "la vie du boss est dessinée sous les scènes");
 }
 // rangées : rainure en y = H, jauge H+2..H+10, régénération H+12..H+18, rien au-delà
