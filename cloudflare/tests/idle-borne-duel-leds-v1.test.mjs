@@ -123,3 +123,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
   assert.ok(led2.includes("function coupeApres(s){return s.id==='win'&&s.p&&s.p.anim?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))){pend=false;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
 }
+{
+  const led3 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led3.includes("if(an){rect(x-4,bt2-2,tw2+8,11,BLA,1);if(x>9){rect(0,bt2-2,10,11,BLA,1);rect(W-10,bt2-2,10,11,BLA,1);}}"), "« RECOMMENCE ? » sur un bandeau éteint pendant l'animation de Leatherface (Norman, 2026-11-02)");
+}

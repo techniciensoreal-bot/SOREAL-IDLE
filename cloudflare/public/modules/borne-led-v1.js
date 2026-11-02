@@ -690,6 +690,8 @@ function sKO(t){
   var v2=sm((t-3.3)/0.4);
   if(v2>0){
     var s2=T('again'),tw2=twidth(s2+' ?',1),bt2=cb(),x=Math.floor((W-tw2)/2);
+    /* « RECOMMENCE ? » pendant l'animation de Leatherface (Norman, 2026-11-02 : « n'est pas lisible avec la couleur de fond ») : un bandeau éteint derrière le texte (et derrière les deux crânes) ; la scène reste visible autour. */
+    if(an){rect(x-4,bt2-2,tw2+8,11,BLA,1);if(x>9){rect(0,bt2-2,10,11,BLA,1);rect(W-10,bt2-2,10,11,BLA,1);}}
     var wq=text(s2,x,bt2,AMB,1,255*v2);
     text('?',x+wq+4,bt2,BLA,1,255*v2*(P.reduced?1:0.2+0.8*(0.5+0.5*Math.sin(6.2832*t/1.0))));
     if(x>9){sprite(SPR.crane,2,bt2,200*v2,ROU);sprite(SPR.crane,W-7,bt2,200*v2,ROU);}
