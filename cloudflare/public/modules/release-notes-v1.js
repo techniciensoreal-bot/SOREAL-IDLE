@@ -63,6 +63,7 @@
             'Le bouton du menu et les illustrations de la page ont été retravaillés.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
+            'Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».',
             'Le Troll Challenge affiche maintenant des minuteries pour ses trolls.',
             'Les descriptions des défis reprennent désormais le texte d’origine du jeu.',
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',

@@ -1237,7 +1237,6 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. */
   if (state.challenge?.active === "twentyFourHours" && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
-  span("avance:troll", () => advanceTrollChallengeV1(state, secs));
 
   /*
    * 2026-09-24 (page Rebirths, « What do I lose when I rebirth? ») : « Access to the Adventure, Augmentation, Time
@@ -1257,6 +1256,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   span("avance:systemesTardifs", () => advanceLateSystems(state, secs, context, nowMs(now)));
   span("avance:avanceurAventure", () => advanceAdventureAdvancerV1(state, context, nowMs(now)));
   span("avance:r3", () => advanceR3NomV1(state));
+  /* Les trolls tombent APRÈS la production de l'intervalle (Norman, 2026-11-02 : « il dit qu'il a volé mon or mais il est toujours là ») : sinon la production du reste de l'intervalle (jusqu'à 60 s hors ligne) remplissait de nouveau l'or / l'énergie / la magie juste après le vol. */
+  span("avance:troll", () => advanceTrollChallengeV1(state, secs));
   /* Item Daycare : même delta en ligne et hors ligne (plafond 30 j / 60 s sous défi hors ligne interdit). */
   if (state.systems.daycare?.data?.slots?.length) span("avance:garderie", () => advanceIdleDaycareV1(state.systems.daycare.data, secs, daycareFactorsV1(state)));
   /* Auto Merge / Auto Boost : minuteurs communs (idle-inventory-auto-v1.js), bonus calculés seulement si un minuteur tourne. */

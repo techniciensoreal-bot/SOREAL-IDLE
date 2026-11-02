@@ -198,3 +198,11 @@ assert.ok(client.includes("if(Math.random()<0.75)"), "menu au hasard : 75 % de c
 assert.ok(client.includes("animation:sorealChatonV1 14s linear forwards"), "le chaton traverse l'écran");
 
 console.log("idle-troll-challenge-deroulement-v1 : OK");
+
+// Norman (2026-11-02) : « il dit qu'il a volé mon or mais il est toujours là » -> le troll tombe APRÈS la production de l'intervalle, jamais avant
+{
+  const src = (await import("node:fs")).readFileSync("cloudflare/src/idle-ngu-systemes.js", "utf8").split(String.fromCharCode(13)).join("");
+  const iTroll = src.indexOf('span("avance:troll"');
+  assert.ok(iTroll > src.indexOf('span("avance:avanceurAventure"') && iTroll > src.indexOf("passesDuTempsSeulV1(state, secs, context, now);"), "le troll s'applique après toute la production du temps écoulé");
+  console.log("idle-troll-challenge-deroulement-v1 (ordre troll / production) : OK");
+}

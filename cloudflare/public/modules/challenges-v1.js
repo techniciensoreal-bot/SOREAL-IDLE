@@ -173,21 +173,21 @@ var DEFIS={
 
 /* Trolls (page Challenges, section Trolls). big : gros troll. */
 var TROLLS={
-  augments:{big:false,titre:'Troll : augmentations',msg:'« Oups, je viens de perdre la moitié de tes niveaux d’augmentations et d’améliorations ! »'},
-  blood:{big:false,titre:'Troll : sang',msg:'« Oups, j’ai perdu tout ton sang… ET remis ton multiplicateur de Renaissance de Blood Magic à 1 ! Bien fait pour toi, nul. »'},
-  timeMachine:{big:false,titre:'Troll : Time Machine',msg:'« Zut, voilà ta Time Machine partie ! PS : j’ai aussi éteint tes Diggers. »'},
-  gold:{big:false,titre:'Troll : or',msg:'« Je viens de voler tout ton or, merci, salut. »'},
-  boxes:{big:false,titre:'Troll : boîtes',msg:'« TU ADORES FERMER CES BOÎTES, ALORS EN VOILÀ 50 DE PLUS ! »'},
-  energy:{big:false,titre:'Troll : énergie',msg:'« Tu n’avais pas besoin de toute cette Énergie, non ? »'},
-  magic:{big:false,titre:'Troll : magie',msg:'« Tu n’avais pas besoin de toute cette Magie, non ? »'},
-  wandoos:{big:false,titre:'Troll : Wandoos',msg:'« Oh non, Wandoos vient de planter et a perdu tous ses niveaux ! Qui aurait pu le prévoir, quelle horreur, etc. »'},
-  kitty:{big:false,titre:'Troll : chaton',msg:'« J’ai dessiné un chaton pour toi, j’espère qu’il te plaît c: »'},
-  ngu:{big:true,titre:'GROS troll : NGU',msg:'« Je viens de casser tes NGU, espèce d’idiot ! Ils ne te donnent plus aucun bonus jusqu’à ta prochaine Renaissance ! PS : j’ai aussi éteint tes Diggers. »'},
-  beards:{big:true,titre:'GROS troll : barbes',msg:'« Je viens de casser tes Barbes, espèce d’idiot ! Elles ne te donnent plus aucun bonus jusqu’à ta prochaine Renaissance ! PS : j’ai aussi éteint tes Diggers. »'},
-  menu:{big:true,titre:'GROS troll : menus',msg:'« 75 % de chances que tu atterrisses dans un menu au hasard, jusqu’à ta prochaine Renaissance. De rien <3 »'},
-  ruin:{big:true,titre:'GROS troll : tout',msg:'« Je viens à peu près de tout ruiner :) »'},
-  wandoosOff:{big:true,titre:'GROS troll : Wandoos',msg:'« Bon, Wandoos vient d’avoir un écran bleu. Plus aucun bonus Wandoos jusqu’à ta prochaine Renaissance ! »'},
-  bossDivider:{big:true,titre:'GROS troll : multiplicateur de boss',msg:'« Je viens de diviser ton multiplicateur de boss par X. De rien :3 »'}
+  augments:{big:false,titre:'Troll : augmentations',msg:'« Désolé, je viens de perdre la moitié de tes niveaux d’augmentations et d’améliorations ! »',effet:'Retire la moitié des niveaux d’augmentations'},
+  blood:{big:false,titre:'Troll : sang',msg:'« Oups, j’ai perdu tout ton sang… ET remis ton multiplicateur de renaissance de la Blood Magic à 1 ! Bien fait pour toi, le nerd. »',effet:'Retire tout le sang accumulé et le bonus de renaissance de la Blood Magic'},
+  timeMachine:{big:false,titre:'Troll : Time Machine',msg:'« Zut, voilà ta Time Machine qui s’en va ! PS : j’ai aussi éteint tes Diggers. »',effet:'Retire tous les niveaux de la Time Machine et éteint les Diggers actifs'},
+  gold:{big:false,titre:'Troll : or',msg:'« Hé, je viens de te voler ton or, merci, salut. »',effet:'Retire tout l’or'},
+  boxes:{big:false,titre:'Troll : boîtes',msg:'« J’ESPÈRE QUE TU ADORES FERMER CES BOÎTES, TU EN AS 50 DE PLUS ! »',effet:'Affiche 50 boîtes de message à fermer, dont certaines aux boutons inversés'},
+  energy:{big:false,titre:'Troll : énergie',msg:'« Tu n’avais pas besoin de toute cette énergie, non ? »',effet:'Retire toute l’énergie'},
+  magic:{big:false,titre:'Troll : magie',msg:'« Tu n’avais pas besoin de toute cette magie, non ? »',effet:'Retire toute la magie'},
+  wandoos:{big:false,titre:'Troll : Wandoos',msg:'« Oh non, Wandoos vient de planter et a perdu tous ses niveaux ! Qui aurait pu le prévoir, l’horreur, etc… »',effet:'Retire tous les niveaux de Wandoos'},
+  kitty:{big:false,titre:'Troll : chaton',msg:'« Je t’ai dessiné un chaton, j’espère qu’il te plaît c: »',effet:'Affiche un énorme chaton qui couvre l’écran'},
+  ngu:{big:true,titre:'GROS troll : NGU',msg:'« Je viens de casser tes NGU, espèce d’idiot ! Ils ne te donnent plus aucun bonus avant ta prochaine renaissance ! PS : j’ai aussi éteint tes Diggers. »',effet:'Désactive complètement les NGU jusqu’à la renaissance et éteint les Diggers actifs'},
+  beards:{big:true,titre:'GROS troll : barbes',msg:'« Je viens de casser tes Barbes, espèce d’idiot ! Elles ne te donnent plus aucun bonus avant ta prochaine renaissance ! PS : j’ai aussi éteint tes Diggers. »',effet:'Désactive complètement les barbes jusqu’à la renaissance et éteint les Diggers actifs'},
+  menu:{big:true,titre:'GROS troll : menus',msg:'« 75 % de chances que tu ailles dans un menu au hasard, maintenant, jusqu’à ta prochaine renaissance. De rien ♥ »',effet:'75 % de chances d’aller dans un menu au hasard quand tu cliques'},
+  ruin:{big:true,titre:'GROS troll : tout',msg:'« J’ai à peu près tout ruiné à l’instant :) »',effet:'Tous les petits trolls, sauf le chaton et les boîtes'},
+  wandoosOff:{big:true,titre:'GROS troll : Wandoos',msg:'« Bon, Wandoos vient d’avoir un écran bleu. Plus aucun bonus Wandoos pour toi avant ta prochaine renaissance ! »',effet:'Désactive complètement Wandoos jusqu’à la renaissance'},
+  bossDivider:{big:true,titre:'GROS troll : multiplicateur de boss',msg:'« Je viens de diviser ton multiplicateur de boss par X. De rien :3 »',effet:'Divise le multiplicateur de boss du NOMBRE par 2 + le nombre de complétions du Troll Challenge'}
 };
 
 /* ---------- Utilitaires ---------- */
@@ -654,7 +654,7 @@ function jouerTroll(troll,j){
     msg=msg.replace('X',String(2+(d?ent(d.completion):0)));
   }
   fermerTrollsVisuels();
-  annonce('😈 '+t.titre,[msg],t.big?'#ef4444':'#f59e0b');
+  annonce('😈 '+t.titre,[msg,t.effet],t.big?'#ef4444':'#f59e0b');
   if(troll.id==='boxes')jouerBoites();
   if(troll.id==='kitty')jouerChaton();
 }
