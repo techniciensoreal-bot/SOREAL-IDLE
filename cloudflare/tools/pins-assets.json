@@ -440,8 +440,8 @@
   "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 25,
-  "sha": "cfc674485ac0cc8372236994dfbb996be972dedc"
+  "pin": 27,
+  "sha": "deb0780680ee25f75912447818447f2896d8884b"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -464,8 +464,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 137,
-  "sha": "79fb10d02dfc3c4fb3fbe0d0972d94ca7db18cbe"
+  "pin": 138,
+  "sha": "d47d16847f08fd8b6cca3ea94aaf3578e3db240a"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -568,8 +568,8 @@
   "sha": "7dc259ff668abec8ce09ebe8eef674df324aca12"
  },
  "/modules/roue-journaliere-v1.js": {
-  "pin": 2,
-  "sha": "b1d8b0ee849e1832033765700ad4a8007538f289"
+  "pin": 3,
+  "sha": "2f96d2e1449ba7c45a65f81f06cc297f21186851"
  },
  "/modules/runtime.js": {
   "pin": 5,
@@ -658,6 +658,10 @@
  "/modules/trou-nuit-v1.js": {
   "pin": 1,
   "sha": "9b5516aea7f5dc123506aa6ccea9c78b94de160c"
+ },
+ "/modules/trou-recompenses-v1.js": {
+  "pin": 2,
+  "sha": "06b7682e9170eae8929b7d526675ff611d8d5ef3"
  },
  "/modules/tutorial-framing-v1.js": {
   "pin": 4,
@@ -876,7 +880,7 @@
   "sha": "2a95a2793e4771c26398228a47ea6acffa06d12b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 319,
+  "pin": 321,
   "sha": "a6f0dcdfb35babfc4b623e4e925fae8930a03765"
  },
  "/soreal-idle-jeu.css": {

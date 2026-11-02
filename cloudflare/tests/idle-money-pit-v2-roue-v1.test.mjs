@@ -25,7 +25,7 @@ assert.ok(!/Georgia/.test(cal));
 console.log("idle-money-pit-v2-roue-v1: OK");
 /* Un « Ton prix » sous chaque bouton, cartes resserrées (Norman, 2026-10-16). */
 {
-  assert.ok(meta.includes("rendreBoutonMoneyPitIdleV1_(j,pitSt)+\n              prixPit+") || /rendreBoutonMoneyPitIdleV1_\(j,pitSt\)\+\s*prixPit\+/.test(meta), "Ton prix du Money Pit sous son bouton");
+  assert.ok(meta.includes("rendreBoutonMoneyPitIdleV1_(j,pitSt)+\n              prixPit+") || /rendreBoutonMoneyPitIdleV1_\(j,pitSt\)\+\s*(\(TR\?TR\.rendreLegende\(j\):''\)\+\s*)?prixPit\+/.test(meta), "Ton prix du Money Pit sous son bouton");
   assert.ok(/prixRoue\+\s*'<div class="rb-prix-txt">/.test(meta), "Ton prix de la roue dans sa carte, à côté de la roue");
   assert.ok(meta.includes("genre:'pit'") && meta.includes("genre:'roue'"), "dernier gain propre à chaque cadre");
   assert.ok(!css.includes("grid-template-rows:1fr 1fr}") || !/mp2-grille-v1>\.soreal-idle-money-actions-v206\{[^}]*grid-template-rows:1fr 1fr/.test(css), "cartes plus étirées (plus de vide)");

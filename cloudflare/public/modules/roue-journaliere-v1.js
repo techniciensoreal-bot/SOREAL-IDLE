@@ -285,6 +285,6 @@
     totalAvant:function(){return anim?anim.totalAvant:null;},
     prixAvant:function(){return anim?anim.prixAvant:null;},
     memoPrix:function(prix,total){if(!anim){prixMemo=prix;totalMemo=total;}},
-    secteurs:secteurs,secteurDepuisLot:secteurDepuisLot,NOMS:NOMS,DUREE_MS:DUREE_MS,TOURS:TOURS,ease:ease
+    secteurs:secteurs,secteurDepuisLot:secteurDepuisLot,NOMS:NOMS,ICONES:ICONES,DUREE_MS:DUREE_MS,TOURS:TOURS,ease:ease
   };
 })();
