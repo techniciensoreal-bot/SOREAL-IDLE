@@ -94,7 +94,7 @@ console.log("idle-troll-minuteurs-v1 : OK");
 // Norman (2026-11-02) : « les messages qui expliquent le troll doivent apparaître exactement au moment où il se produit, et rester plus longtemps »
 {
   const challenges = norm(readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8"));
-  assert.ok(challenges.includes("var DUREE_ANNONCE_TROLL=12000;") && challenges.includes("t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);"), "message du troll : 12 s (x1,3 par le module d'annonce), passe devant toute autre annonce");
+  assert.ok(challenges.includes("var DUREE_ANNONCE_TROLL=7000;") && challenges.includes("t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);"), "message du troll : 7 s (x1,3 par le module d'annonce), passe devant toute autre annonce");
   assert.ok(challenges.includes("armerSyncTroll(prochainsTrolls(tr,d?d.completion:0,0).prochain)") && challenges.includes("Math.round(secondes*1000)+40") && challenges.includes("setTimeout(syncTroll,700)"), "synchro demandée à l'instant où le minuteur arrive à zéro, puis une de rattrapage");
   const fade = norm(readFileSync("cloudflare/public/modules/fade-notice-v1.js", "utf8"));
   assert.ok(fade.includes("options&&options.immediat") && fade.includes("if(mienne!==generation)return;"), "annonce immédiate : remplace l'annonce affichée, les minuteries de l'ancienne ne touchent pas la nouvelle");
@@ -107,10 +107,10 @@ console.log("idle-troll-minuteurs-v1 : OK");
   const notice = sb.window.__sorealFadeNoticeV1__;
   notice("Premiere", ["a"], { dureeMs: 5000 }); notice("En file", ["b"], { dureeMs: 5000 });
   assert.ok(elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Premiere"));
-  notice("Troll", ["c"], { dureeMs: 12000, immediat: true });
+  notice("Troll", ["c"], { dureeMs: 7000, immediat: true });
   assert.ok(elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Troll"), "le troll s'affiche tout de suite");
   for (const [, f] of timers.slice(0, 2)) f();   // les minuteries de la première annonce ne retirent pas celle du troll
   assert.ok(elems.get("soreal-idle-fade-notice-v1") && elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Troll"), "l'annonce du troll reste");
-  assert.ok(timers.some(([ms]) => ms === Math.round(12000 * 1.3)), "durée du troll : 15,6 s");
+  assert.ok(timers.some(([ms]) => ms === Math.round(7000 * 1.3)), "durée du troll : 9,1 s");
   console.log("idle-troll-minuteurs-v1 (annonce immédiate et longue) : OK");
 }

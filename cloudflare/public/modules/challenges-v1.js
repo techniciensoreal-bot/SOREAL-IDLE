@@ -749,14 +749,14 @@ function activerMenuAleatoire(actif){
   }
 }
 
-var DUREE_ANNONCE_TROLL=12000;
+var DUREE_ANNONCE_TROLL=7000;
 function jouerTroll(troll,j){
   var t=TROLLS[troll.id];
   if(!t)return;
   var tx=textesTroll(troll.id,j);   /* texte modifié par l'administrateur (affiché et dit) sinon l'original */
   fermerTrollsVisuels();
   annonce('😈 '+t.titre,tx.message.blocs.concat(tx.effet.blocs),t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);
-  lireTroll(tx);   /* le message reste 12 s (Norman, 2026-11-02 : « le message doit rester plus longtemps ») */
+  lireTroll(tx);   /* le message reste 7 s (Norman, 2026-11-02 : « le popup des trolls est trop long » ; avant 12 s) */
   if(troll.id==='boxes')jouerBoites();
   if(troll.id==='kitty')jouerChaton();
 }
