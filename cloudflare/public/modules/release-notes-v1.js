@@ -104,6 +104,7 @@
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
+            'Les yeux des chats : la pupille ne dépasse plus jamais de l’iris et il n’y a plus de pupille de fond ni de rectangle clair derrière elle.',
           ]},
         ],
       },

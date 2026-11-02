@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "L’image du boss suivant ne reste plus invisible après une victoire : un filet de sécurité la fait réapparaître.",
-    "Les fruits se fondent mieux dans l’image de leur arbre : même teinte, légèrement adoucis, avec une ombre chaude."
+    "Les yeux des chats : la pupille ne dépasse plus jamais de l’iris et il n’y a plus de pupille de fond ni de rectangle clair derrière elle."
   ] };
 })();
