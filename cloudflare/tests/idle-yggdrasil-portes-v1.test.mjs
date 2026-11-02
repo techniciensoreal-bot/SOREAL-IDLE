@@ -148,5 +148,7 @@ console.log("idle-yggdrasil-portes-v1: OK");
   assert.ok(src.includes(".ygg-carte.magie[data-fruit]{background:linear-gradient(100deg,transparent 35%,hsl(var(--yg-h2,"), "le cadre suit la porte, même pour les fruits de magie");
   assert.ok(src.includes("arbitrariness:[28,75,184,60]"), "Arbitraire : deux couleurs (orange et turquoise)");
   assert.ok(src.includes(".ygg-vitre.ygg-decor::before{content:\"\";position:absolute;inset:0;z-index:6;") && src.includes("inset 0 0 14px 3px rgba(0,0,0,.6)"), "ombrage dans le cadre de chaque image");
+  for (const sel of [".ygg-carte[data-fruit] .ygg-btn.vert{", ".ygg-carte[data-fruit] .ygg-btn.vert:disabled{", ".ygg-carte[data-fruit] .ygg-mode button[aria-pressed="true"]{", ".ygg-carte[data-fruit] .ygg-poop{", ".ygg-carte[data-fruit] .ygg-auto{"]) assert.ok(src.includes(sel), "boutons accordés à la porte : " + sel);
+  assert.ok(src.includes(".ygg-carte[data-fruit] .ygg-btn.vert{color:hsl(var(--yg-h,130) 70% 9%);background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 66%)"), "boutons CLAIRS (66 %) sur un fond foncé (30 % à 13 %) : jamais la même couleur que le fond");
   console.log("idle-yggdrasil-portes-v1 (couleurs des cadres) : OK");
 }

@@ -236,6 +236,14 @@
       /* Ombrage DANS le cadre de chaque image (Norman, 2026-11-02) : un voile d'ombre sur les bords, par-dessus la porte et l'arbre, qui donne du relief ; fixe, jamais animé. */
       '.ygg-vitre.ygg-decor::before{content:"";position:absolute;inset:0;z-index:6;pointer-events:none;border-radius:inherit;box-shadow:inset 0 0 14px 3px rgba(0,0,0,.6),inset 0 3px 10px rgba(0,0,0,.35),inset 0 -4px 12px rgba(0,0,0,.45)}',
       '.ygg-carte[data-fruit] .ygg-nom{background:linear-gradient(90deg,hsl(var(--yg-h,130) var(--yg-s,50%) 25%),hsl(var(--yg-h2,var(--yg-h,130)) var(--yg-s2,var(--yg-s,50%)) 22%))}',
+      /* Boutons de chaque carte : de la couleur de la porte, mais CLAIRS (le fond est foncé) pour ne jamais se confondre avec lui (Norman, 2026-11-02 : « les boutons doivent s'accorder avec la couleur, sans être la même que celle de fond »). Porte à deux couleurs : dégradé de l'une à l'autre. */
+      '.ygg-carte[data-fruit] .ygg-btn.vert{color:hsl(var(--yg-h,130) 70% 9%);background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 66%),hsl(var(--yg-h2,var(--yg-h,130)) var(--yg-s2,var(--yg-s,50%)) 46%));box-shadow:inset 0 2px 0 rgba(255,255,255,.45),3px 3px 0 #000}',
+      '.ygg-carte[data-fruit] .ygg-btn.vert:disabled{color:hsl(var(--yg-h,130) 12% 62%);background:linear-gradient(180deg,hsl(var(--yg-h,130) 14% 34%),hsl(var(--yg-h,130) 14% 22%));box-shadow:inset 0 2px 0 rgba(255,255,255,.1),3px 3px 0 #000}',
+      '.ygg-carte[data-fruit] .ygg-mode button{color:hsl(var(--yg-h,130) 55% 84%);background:hsl(var(--yg-h,130) var(--yg-s,50%) 22%)}',
+      '.ygg-carte[data-fruit] .ygg-mode button[aria-pressed="true"]{color:hsl(var(--yg-h,130) 70% 9%);background:linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 68%),hsl(var(--yg-h2,var(--yg-h,130)) var(--yg-s2,var(--yg-s,50%)) 50%))}',
+      '.ygg-carte[data-fruit] .ygg-poop{color:hsl(var(--yg-h,130) 40% 86%);background:hsl(var(--yg-h,130) 22% 24%)}',
+      '.ygg-carte[data-fruit] .ygg-poop[aria-pressed="true"]{color:#fff;background:linear-gradient(180deg,hsl(var(--yg-h,130) 45% 42%),hsl(var(--yg-h,130) 45% 28%));box-shadow:0 0 10px hsl(var(--yg-h,130) 80% 60%/.7)}',
+      '.ygg-carte[data-fruit] .ygg-auto{color:hsl(var(--yg-h,130) 80% 82%)}',
       '.ygg-carte[data-fruit] .ygg-barre{background:hsl(var(--yg-h,130) var(--yg-s,50%) 6%)}',
       '.ygg-carte[data-fruit] .ygg-barre i,.ygg-carte.magie[data-fruit] .ygg-barre i{background:linear-gradient(90deg,hsl(var(--yg-h,130) 90% 68%),hsl(var(--yg-h2,var(--yg-h,130)) 80% 62%));box-shadow:0 0 8px hsl(var(--yg-h,130) 90% 65%/.6)}',
       '.ygg-carte[data-fruit] .ygg-barre.vide i{background:#7a2d2d}',
