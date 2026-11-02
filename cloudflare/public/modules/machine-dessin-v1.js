@@ -333,6 +333,7 @@
     viser(ticks);
     viserTours(false);   /* allocation lue sur les tours (posée par la page) ; la boucle lisse la vitesse des roues et de l'anneau */
     if(!calme)lancerBoucle();
+    suivreCentre(racine);
     var ia=document.getElementById('tmmAiguille');if(ia)ia.style.transform='rotate('+arr(-120+240*ticks/50,1)+'deg)';
     var tv=document.getElementById('tmmVitesse');var texteV=Math.round(ticks)+' /s';if(tv&&tv.textContent!==texteV)tv.textContent=texteV;
     var multi=document.getElementById('tmmMulti');
@@ -351,6 +352,32 @@
     ['tmmImage','tmmFond'].forEach(function(id){var im=document.getElementById(id);if(im&&u&&im.getAttribute('href')!==u)im.setAttribute('href',u);});
     var presente=Boolean(document.getElementById('tmmImage')),attendue=Boolean(u);
     if(presente!==attendue&&typeof H.rafraichirMenuRacineIdleV28_==='function'&&Date.now()-(maj.__redessin||0)>1500){maj.__redessin=Date.now();H.rafraichirMenuRacineIdleV28_();}
+  }
+  /*
+   * Hors écran, la grande machine et le haut des tours ne s'animent plus (audit de fluidité, 2026-11-02) : ses engrenages, sa vapeur, ses lampes et ses étincelles sont des éléments SVG, dont chaque image d'animation redessine l'arbre SVG entier (mesuré : ~60 ms/s de mise en
+   * page, seulement pour eux). Sur téléphone la machine est au-dessus des tours : dès qu'on descend vers les boutons + / − / Max, elle sort de l'écran et ses animations sont mises en pause (marge de 120 px : elles repartent avant d'être revisibles).
+   * Aucun changement visible : une animation en pause hors écran reprend là où elle s'était arrêtée. Seules les animations posées par CE module de pause sont reprises (marqueur __tmmPause).
+   */
+  var zonesObs=null,zonesSuivies=[];
+  function poserPauseZone(ze){
+    if(!ze||!ze.isConnected||typeof ze.getAnimations!=='function')return;
+    var l=ze.getAnimations({subtree:true}),i,a;
+    for(i=0;i<l.length;i++){
+      a=l[i];
+      if(ze.__tmmHors){if(a.playState==='running'){a.__tmmPause=true;a.pause();}}
+      else if(a.__tmmPause){a.__tmmPause=false;if(a.playState==='paused')a.play();}
+    }
+  }
+  function suivreCentre(racine){
+    if(!racine||!racine.querySelectorAll||typeof IntersectionObserver!=='function'||calme)return;
+    var zones=racine.querySelectorAll('.tmm-centre,.tmm-haut'),i,nouvelle=zones.length!==zonesSuivies.length;
+    for(i=0;i<zones.length&&!nouvelle;i++)if(zones[i]!==zonesSuivies[i])nouvelle=true;
+    if(nouvelle){
+      if(zonesObs)zonesObs.disconnect();
+      zonesSuivies=Array.prototype.slice.call(zones);
+      zonesObs=new IntersectionObserver(function(es){es.forEach(function(e){e.target.__tmmHors=!e.isIntersecting;poserPauseZone(e.target);});},{rootMargin:'120px 0px'});
+      zonesSuivies.forEach(function(z){z.__tmmHors=false;zonesObs.observe(z);});
+    }else zonesSuivies.forEach(function(z){if(z.__tmmHors)poserPauseZone(z);});   /* animations créées depuis (redessin de la page) : remises en pause */
   }
   function rafraichir(){maj(null);}
 

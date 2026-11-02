@@ -11,7 +11,7 @@ const agents = fs.readFileSync(new URL("../../AGENTS.md", import.meta.url), "utf
  */
 assert.ok(agents.includes("## Règle n°4 (redessin périodique) : aucun redessin visible") && agents.includes("__auditerRedessinIdleV1__"), "la règle est écrite dans AGENTS.md");
 /* Le morph : attributs gardés, éléments vivants, blocs gardés */
-assert.ok(morph.includes("window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__") && morph.includes("attributsGardes.indexOf(at.name)===-1") && morph.includes("a.closest('[data-morph-vivant]')") && morph.includes("data-morph-garder"), "le morph respecte les ajouts des modules");
+assert.ok(morph.includes("window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__") && morph.includes("attributsGardes.indexOf(nom)===-1") && morph.includes("a.closest('[data-morph-vivant]')") && morph.includes("data-morph-garder"), "le morph respecte les ajouts des modules");
 /* Le redessin de la page rejoue les fonctions d'animation dans la même tâche */
 assert.ok(ui.includes("window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).forEach(function(f){try{f();}catch(_e){}})"), "appel des remises en état après le redessin");
 const rafraichir = ui.slice(ui.indexOf("function rafraichirMenuRacineIdleV28_(){"), ui.indexOf("function surveillerEvenementsAventureIdleV1_"));

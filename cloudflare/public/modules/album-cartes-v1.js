@@ -289,8 +289,46 @@ function precharger(){
     }
   }catch(_e){}
 }
+/*
+ * Images PRÊTES avant de tourner (Norman, 2026-11-02 : « les chroniques clignotent quand on tourne la page sur téléphone »). Cause mesurée : chaque tour recréait 17 à 36 <img> (page d'arrivée + copie de la page qui part) et, faute de référence gardée, le navigateur les redemandait à son
+ * cache (9 à 14 requêtes par tour, même pour une page déjà vue) puis les décodait de façon asynchrone : au premier instant du tour, jusqu'à 9 images visibles (art ou dos) n'étaient pas encore peintes, d'où l'éclair. Désormais : (1) les images des pages voisines (page-1, page, page+1) sont TENUES
+ * (objets Image gardés, décodés) ; (2) un tour ou un saut vers une page dont les images ne sont pas prêtes les attend d'abord (au plus 650 ms, jamais bloquant) ; (3) la feuille qui part emporte les nœuds de la page affichée au lieu d'en recréer une copie (voir tournerUne).
+ */
+var gardees={},pretesUrl={},lotUrls={},passePrepa=null;
+function urlsPage(L){
+  var cle=L+'/'+cartes.length+'/'+pagesTitans()+'/'+(double()?1:0);
+  if(lotUrls[cle])return lotUrls[cle];
+  var u=[],vu={};
+  try{
+    var h='';
+    pagesVisibles(L).forEach(function(r){h+=contenuPage(r,r<L);});
+    var t=document.createElement('template');t.innerHTML=h;   /* un gabarit est inerte : il ne charge aucune image */
+    [].forEach.call(t.content.querySelectorAll('img'),function(im){var s=im.getAttribute('src');if(s&&!vu[s]){vu[s]=true;u.push(s);}});
+  }catch(_e){}
+  lotUrls[cle]=u;return u;
+}
+function tenir(u){
+  var im=gardees[u];if(im)return im.__p;
+  im=new Image();gardees[u]=im;
+  var fait=function(){pretesUrl[u]=true;};
+  im.src=u;
+  im.__p=(typeof im.decode==='function'?im.decode():Promise.resolve()).then(fait,fait);   /* une image en erreur ne bloque rien */
+  return im.__p;
+}
+function pretes(L){return urlsPage(L).every(function(u){return pretesUrl[u];});}
+var cibleTour=-1;   /* page d'arrivée d'un tour en préparation : ses images ne sont pas élaguées */
+function preparer(L){cibleTour=L;return Promise.race([Promise.all(urlsPage(L).map(tenir)),attendre(650)]).then(function(){cibleTour=-1;});}
+function retenir(){
+  try{
+    var pas=double()?2:1,garde={},d,L,ls=[];
+    for(d=-1;d<=1;d++){L=page+d*pas;if(L>=0&&L<=pageMax())ls.push(L);}
+    if(cibleTour>=0)ls.push(cibleTour);
+    ls.forEach(function(r){urlsPage(r).forEach(function(u){garde[u]=true;tenir(u);});});
+    Object.keys(gardees).forEach(function(u){if(!garde[u]){delete gardees[u];delete pretesUrl[u];}});
+  }catch(_e){}
+}
 function majNav(){
-  precharger();
+  precharger();retenir();
   var navs=document.querySelectorAll('.alb-adapt .alb-nav, .alb-adapt .alb-cote');
   var pied=document.querySelector('.alb-adapt .alb-pied');if(pied)pied.innerHTML=double()&&ouvert?numeroPiedHtml():'';
   [].forEach.call(navs,function(nav){
@@ -410,12 +448,17 @@ function tournerUne(sens,D,silencieux){
     var p=page,q=p+(sens<0?-pas:pas);
     if(sens>0?!peutAvancer():p<=0){ok(false);return;}
     if(q<0)q=0;
+    /* les images de la page d'arrivée ne sont pas encore prêtes : on les attend (650 ms au plus) AVANT de tourner, jamais pendant */
+    if(passePrepa===q)passePrepa=null;
+    else if(!reduit()&&!pretes(q)){tourne=true;preparer(q).then(function(){tourne=false;passePrepa=q;tournerUne(sens,D,silencieux).then(function(r){ok(r);});});return;}
     if(etroit()&&(p===0||q===0))glisserVers(classeur,q===0);
     var E=D<DUREE?'cubic-bezier(.4,0,.55,1)':EASE;
     var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
     if(reduit()||typeof pd.animate!=='function'){afficher(q);if(!silencieux)setTimeout(verifierPage,450);ok(true);return;}
     var avant,arriere;
-    try{avant=contenuPage(sens>0?p:q);arriere=deux?contenuPage(sens>0?p+1:q+1,true):'';}catch(_e){afficher(q);ok(false);return;}   /* un contenu qui lève ne bloque jamais le livre */
+    /* téléphone, vers l'avant : la feuille qui part EMPORTE les nœuds de la page affichée (mêmes <img> déjà peintes) au lieu d'en recréer une copie qui se redécode */
+    var emporte=!deux&&sens>0;
+    try{avant=emporte?'':contenuPage(sens>0?p:q);arriere=deux?contenuPage(sens>0?p+1:q+1,true):'';}catch(_e){afficher(q);ok(false);return;}   /* un contenu qui lève ne bloque jamais le livre */
     tourne=true;
     /* une feuille : une page devant, la page suivante derrière (PC) */
     var feuille=document.createElement('div');
@@ -437,6 +480,7 @@ function tournerUne(sens,D,silencieux){
     try{
       var anim;
       if(sens>0){
+        if(emporte){var cibleAv=facesAV.querySelector('.alb-feuille');while(fd.firstChild)cibleAv.appendChild(fd.firstChild);}
         fd.innerHTML=contenuPage(q);                    /* dessous : la page suivante, déjà en place */
         livre.appendChild(feuille);basculer(facesAV,facesAR,true,D,E);
         anim=feuille.animate(deux
@@ -492,12 +536,17 @@ function sauterInterne(n,fini){
   var p=page,q=p+sens*total*pas;
   var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
   if(reduit()||typeof pd.animate!=='function'){afficher(q);setTimeout(verifierPage,450);return fini();}
+  /* images de la page visée pas encore prêtes : on les attend (650 ms au plus) avant de lever les feuilles */
+  if(passePrepa===q)passePrepa=null;
+  else if(!pretes(q)){tourne=true;preparer(q).then(function(){tourne=false;passePrepa=q;sauterInterne(n,fini);});return;}
   if(etroit()&&(p===0||q===0))glisserVers(classeur,q===0);
   son('albumDix');
   placer(sens>0?'g':'d');
   tourne=true;saut=true;livre.classList.add('alb-saut');   /* plusieurs feuilles en l'air : pas de trous découpés (trop lourd, et on ne les verrait pas) */
   var DUR=900,PAS=80,Z=.6,E='cubic-bezier(.45,.05,.4,1)',N=total,feuilles=[],anims=[],j;
+  var emporte=!deux&&sens>0,vieux=null;                  /* téléphone, vers l'avant : la première feuille emporte les nœuds de la page affichée (pas de copie à redécoder) */
   try{
+  if(emporte){vieux=document.createDocumentFragment();while(fd.firstChild)vieux.appendChild(fd.firstChild);}
   if(sens>0)fd.innerHTML=contenuPage(q);                /* dessous : la page visée, déjà en place */
   else if(deux)fg.innerHTML=gaucheHtml(q);              /* dessous (à gauche) : la page d'avant la page visée */
   for(j=0;j<N;j++){
@@ -507,8 +556,9 @@ function sauterInterne(n,fini){
     var f=document.createElement('div');
     f.className='alb-feuille-tournante';f.setAttribute('data-morph-garder','');f.setAttribute('aria-hidden','true');
     f.style.cssText='left:'+pd.offsetLeft+'px;top:'+pd.offsetTop+'px;width:'+pd.offsetWidth+'px;height:'+pd.offsetHeight+'px';
-    f.innerHTML='<div class="alb-face alb-face-avant"><div class="alb-page"><div class="alb-feuille">'+(vraiAvant?contenuPage(a):legerHtml(a))+'</div></div></div>'+
+    f.innerHTML='<div class="alb-face alb-face-avant"><div class="alb-page"><div class="alb-feuille">'+(vraiAvant?((emporte&&j===0)?'':contenuPage(a)):legerHtml(a))+'</div></div></div>'+
                 '<div class="alb-face alb-face-arriere"><div class="alb-page"><div class="alb-feuille">'+(deux?(vraiArriere?contenuPage(a+1,true):legerHtml(a+1)):'')+'</div></div></div>';
+    if(emporte&&j===0&&vieux)f.querySelector('.alb-face-avant .alb-feuille').appendChild(vieux);
     livre.appendChild(f);feuilles.push(f);
     var z0=((N-j)*Z).toFixed(2),z1=(j*Z).toFixed(2),delai=j*PAS;
     var kf=deux

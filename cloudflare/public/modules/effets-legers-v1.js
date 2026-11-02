@@ -31,9 +31,32 @@
     var h=document.documentElement;
     Object.keys(CLES).forEach(function(k){h.classList.toggle(CLASSES[k],!actif(CLES[k]));});
   }
+  /*
+   * Mode économe commun (audit fluidité 2026-11-02, docs/AUDIT-ANDROID-FLUIDITE-2026-11-01.md §4) : classe soreal-mode-eco sur <html>, posée au chargement du module quand l'application Android existe OU sur un appareil tactile
+   * à petit écran / peu de cœurs. Elle ne change AUCUN affichage : seulement la réactivité du toucher (pas de délai de double-tap, pas de halo gris au toucher, pas de rebond de page). Les autres modules peuvent la lire
+   * (document.documentElement.classList.contains('soreal-mode-eco')) pour espacer leurs minuteries.
+   */
+  function appareilEconome(){
+    try{
+      if(EST_APK)return true;
+      var tactile=(navigator.maxTouchPoints||0)>0||('ontouchstart' in window);
+      if(!tactile)return false;
+      var petit=Math.min(window.innerWidth||9999,window.innerHeight||9999)<=700;
+      var faible=Number(navigator.hardwareConcurrency||8)<=6;
+      return petit||faible;
+    }catch(_e){return false;}
+  }
+  try{
+    if(appareilEconome()){
+      document.documentElement.classList.add('soreal-mode-eco');
+      var se=document.createElement('style');se.id='soreal-idle-mode-eco-style';
+      se.textContent='html.soreal-mode-eco{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}html.soreal-mode-eco body{touch-action:manipulation}';
+      (document.head||document.documentElement).appendChild(se);
+    }
+  }catch(_e){}
   style();appliquer();
   window.addEventListener('soreal-effets-v1',appliquer);
   /* le compte peut remettre les préférences APRÈS le chargement (prefs-compte-v1.js) */
   setInterval(function(){if(!document.hidden)appliquer();},3000);
-  window.__SOREAL_IDLE_EFFETS_LEGERS_V1__={appliquer:appliquer,actif:actif,defautPour:defautPour};
+  window.__SOREAL_IDLE_EFFETS_LEGERS_V1__={appareilEconome:appareilEconome,appliquer:appliquer,actif:actif,defautPour:defautPour};
 })();

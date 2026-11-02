@@ -21,6 +21,8 @@ function pagePerksIdleV1_(j){
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
         const pp=j&&j.systemes&&j.systemes.currencies?H.idleEntier_(j.systemes.currencies.pp||0):0;
+        /* Audit de fluidité (2026-11-02) : le rafraîchissement en direct de la page ITOPOD (à chaque synchro) ne lit que le solde de PP ; il ne fabrique plus (ni ne fait analyser) toutes les vitrines de perks. */
+        if(window.__itopodLegerV1__)return '<div class="pk-solde"><b>'+pp+'</b></div>';
         /*
          * Magasin des Perks (Norman, 2026-10-04) : une boutique à part, en vitrines (néon violet et rose, étagères) et non en rayons à auvent comme les boutiques EXP et AP ;
          * une image par achat : celle du wiki NGU Idle (https://ngu-idle.fandom.com/wiki/Perk_Points), copiée dans /perks/<numéro du perk>.webp. Aucun total (anti-spoil).
@@ -195,7 +197,8 @@ function rafraichirItopodIdleV1_(j){
         /* La scène animée est mise de côté pendant ce calcul : son HTML réinitialise le combat de l'écran (coups, ennemi suivant) ; sans cette précaution les ennemis ne défilaient plus (toujours le même, remis à zéro toutes les 4 s). */
         const scene=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
         window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;
-        try{tmp.innerHTML=pageItopodIdleV1_(j);}finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;}
+        window.__itopodLegerV1__=true;
+        try{tmp.innerHTML=pageItopodIdleV1_(j);}finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;window.__itopodLegerV1__=false;}
         const neuf=tmp.querySelector('.itp-page');
         if(!neuf)return;
         const copier=function(racineVive,racineNeuve,sel){

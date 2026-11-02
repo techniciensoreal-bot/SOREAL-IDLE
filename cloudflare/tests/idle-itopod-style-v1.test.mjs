@@ -22,7 +22,7 @@ for (const m of menus) {
   assert.ok(bloc.test(css), "palette complète pour le menu " + m);
 }
 assert.ok(/\.soreal-idle-page-root-v28\[data-menu\]\{--i-a:/.test(css), "palette par défaut (ITOPOD, violet et or)");
-for (const fragment of ["border:3px solid #000", "5px 5px 0 #000", "itpTorche", "var(--i-glow)"]) assert.ok(css.includes(fragment), "langage de l'ITOPOD : " + fragment);
+for (const fragment of ["border:3px solid #000", "5px 5px 0 #000", "page-root-v28[data-menu]::before", "var(--i-glow)"]) assert.ok(css.includes(fragment), "langage de l'ITOPOD : " + fragment);
 assert.ok(!/@import|url\(\s*["']?https?:/i.test(css), "aucune ressource externe");
 // Écritures « BD » : Bangers (titres, boutons) et Comic Neue (textes), chargées par index.html ; seul l'écran rétro garde sa police.
 assert.ok(index.includes('href="/fonts/fonts.css"') && !index.includes("fonts.googleapis.com"), "polices BD chargées par la page, hébergées sur le site (plus de Google)");

@@ -415,7 +415,10 @@
               /* La somme est verte quand on a l'Or, rouge sinon (Norman, 2026-10-08). */
               if(coutEl){
                 const coutAffiche=k>0?coutK(k):cout0;
-                coutEl.dataset.cout=String(coutAffiche);
+                /* Audit fluidité 2026-11-02 : écrit seulement si la valeur change (avant : ~840 écritures identiques par seconde, chacune notifiée à tous les MutationObserver de la page). */
+                /* Audit fluidité 2026-11-02 : écrit seulement si la valeur change (avant : ~840 écritures identiques par seconde, chacune notifiée à tous les MutationObserver de la page). */
+                const coutTexteIdleV1=String(coutAffiche);
+                if(coutEl.dataset.cout!==coutTexteIdleV1)coutEl.dataset.cout=coutTexteIdleV1;
                 const assezOr=orLive>=coutAffiche;
                 if(coutEl.classList.contains('ok')!==assezOr||coutEl.classList.contains('non')===assezOr){coutEl.classList.toggle('ok',assezOr);coutEl.classList.toggle('non',!assezOr);}
               }
@@ -1946,8 +1949,10 @@
          */
         const intervalleFrameJeuVisibleV214=1000/15;
         let coutTickMsV1=1;
+        const INTERVALLE_TICK_PLAFOND_MS_V1=15;
         function intervalleAdaptatifJeuV1_(){
-          if(coutTickMsV1<4.5)return 0;
+          /* Plafond de 60 images de jeu par seconde (audit fluidité 2026-11-02) : sur un écran 120 Hz, le tick complet (barres, compteurs, PV) était refait à CHAQUE image, soit 120 fois par seconde, sans rien gagner de visible (dt est le temps réel écoulé). 15 ms : laisse passer toutes les images d'un écran 60 Hz (gigue comprise), une image sur deux à 120 Hz. */
+          if(coutTickMsV1<4.5)return INTERVALLE_TICK_PLAFOND_MS_V1;
           if(coutTickMsV1<9)return 1000/30-3;
           return intervalleFrameJeuVisibleV214;
         }

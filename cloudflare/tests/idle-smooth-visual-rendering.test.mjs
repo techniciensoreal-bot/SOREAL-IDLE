@@ -16,7 +16,7 @@ const ui = lireUiComplet();
 assert.ok(ui.includes("const intervalleFrameJeuVisibleV214=1000/15;"));
 assert.ok(ui.includes("maintenantFrame-dernierFrameJeuVisibleV214>=intervalleFrameJeuVisibleV214"));
 // 60 FPS (Norman, 2026-10-19) : le plafond de 15 Hz est le plancher des appareils lents ; la cadence monte à chaque image tant que le tick coûte peu.
-assert.ok(ui.includes("intervalleAdaptatifJeuV1_()") && ui.includes("if(coutTickMsV1<4.5)return 0;"));
+assert.ok(ui.includes("intervalleAdaptatifJeuV1_()") && ui.includes("if(coutTickMsV1<4.5)return INTERVALLE_TICK_PLAFOND_MS_V1;"));
 assert.ok(ui.includes("mettreAJourJeuIdleLocalV7_();"));
 
 // Plus de second rendu séparé à la fréquence native de l'écran : la boucle rAF ne fait plus que le tic lourd.

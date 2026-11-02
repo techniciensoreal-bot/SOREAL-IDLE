@@ -688,8 +688,9 @@ var COUPE={win:5.0,ko:4.2};
 
 /* ------------------------------------------------------------------ rendu : un seul canvas */
 var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
-function Panel(canvas,W,H,sansBarre){this.canvas=canvas;this.ctx=canvas.getContext('2d');this.extra=sansBarre?0:BARH;this.setGrid(W,H);this.reduced=false;this.cell=0;this.p={};}
-Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;this.c=new Uint8Array(W*this.HT);this.v=new Uint8Array(W*this.HT);this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
+/* Fluidité (2026-11-02) : canvas opaque (le fond est toujours dessiné plein) ; `neuf` = rien d'affiché au bon format, tout est à redessiner (voir Panel.draw : seules les cellules qui ont changé sont repeintes) */
+function Panel(canvas,W,H,sansBarre){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.extra=sansBarre?0:BARH;this.setGrid(W,H);this.reduced=false;this.cell=0;this.p={};}
+Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;var n=W*this.HT;this.c=new Uint8Array(n);this.v=new Uint8Array(n);this.pc=new Uint8Array(n);this.pl=new Uint8Array(n);this.pg=new Uint8Array(n);this.dm=new Uint8Array(n);this.sm=new Uint8Array(n);this.ch=new Int32Array(n);this.neuf=true;this.nd=0;this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
 /* Écran plus grand = PLUS DE LED, jamais un dessin agrandi (Norman, 2026-11-01) : la TAILLE d'un point est fixe (4 px CSS sur PC, 3 px sur téléphone, arrondie à un nombre ENTIER de pixels d'écran pour rester net) ;
    c'est le nombre de colonnes et de rangées qui s'adapte à l'hôte (taille()). Rendu 1:1 : le canvas est affiché à sa taille exacte canvas.width/dpr x canvas.height/dpr (jamais étiré par le CSS, donc jamais
    rééchantillonné) et centré dans l'hôte noir sur un nombre entier de pixels d'écran ; le petit reste devient des marges noires symétriques. */
@@ -697,7 +698,7 @@ Panel.prototype.fit=function(cell,cssW,cssH){
   var dpr=window.devicePixelRatio||1,cv=this.canvas,st=cv.style,changed=cell!==this.cell||dpr!==this.dpr;
   this.dpr=dpr;
   if(changed){
-    this.cell=cell;cv.width=cell*this.W;cv.height=cell*this.HT;
+    this.cell=cell;cv.width=cell*this.W;cv.height=cell*this.HT;this.neuf=true;
     this.sprites();this.bg();
   }
   if(st){
@@ -715,7 +716,7 @@ Panel.prototype.resize=function(cssW,cssH){
   return this.fit(Math.max(3,Math.floor(cssW*dpr/this.W+1e-6)),cssW,cssH);
 };
 Panel.prototype.sprites=function(){
-  this.core=[];this.glow=[];
+  this.core=[];this.glow=[];this.neuf=true;   /* les sprites changent (couleur du boss) : tout est repeint */
   for(var c=1;c<=7;c++)this.mk(c);
 };
 /* sprites d'une couleur de la palette (les 7 de base d'office, les couleurs d'unités de nombres à la demande) */
@@ -750,12 +751,48 @@ Panel.prototype.draw=function(fn,t,gain,params){
   P=this;this.p=params||{};this.c.fill(0);this.v.fill(0);this.yoff=0;this.cy0=0;this.cy1=this.H-1;this.YM=this.H;
   fn(t);
   if(this.extra){this.yoff=0;this.cy0=0;this.cy1=this.HT-1;this.YM=this.HT;barre(t);this.YM=this.H;this.cy1=this.H-1;}   /* la vie du boss est dessinée APRÈS la scène, hors du fondu : elle reste toujours affichée */
-  var ctx=this.ctx,cell=this.cell,W=this.W,i,n=W*this.HT,ns=W*this.H,v,l,x,y;
+  var ctx=this.ctx,cell=this.cell,W=this.W,HT=this.HT,i,n=W*this.HT,ns=W*this.H,v,l,x,y;
+  /* Fluidité (2026-11-02) : on compare la grille à celle déjà affichée (couleur, niveau du coeur, niveau du halo de chaque point) ; rien de changé = aucun dessin ; sinon seules les cellules changées
+     (et leurs voisines, le halo déborde d'une cellule) sont repeintes, dans un rectangle de découpe : le résultat est identique pixel pour pixel à un redessin complet. La vie du boss, immobile presque toujours, n'est plus repeinte. */
+  var pc=this.pc,pl=this.pl,pg=this.pg,nc=0,ch=this.ch,cc=this.c,vv=this.v,L2,G2,col;
+  for(i=0;i<n;i++){
+    v=vv[i]*(i<ns?gain:1);
+    L2=v<=0?0:Math.max(1,Math.min(8,Math.ceil(v/255*8)));G2=v<70?0:Math.min(8,Math.ceil(v/255*8));col=L2?cc[i]:0;
+    if(L2&&!this.core[col])this.mk(col);
+    if(col!==pc[i]||L2!==pl[i]||G2!==pg[i]){ch[nc++]=i;pc[i]=col;pl[i]=L2;pg[i]=G2;}
+  }
+  this.nd=(this.nd||0)+1;
+  if(nc===0&&!this.neuf&&this.nd%240!==0){P=null;return;}   /* rien n'a changé : le canvas reste tel quel (un redessin complet de sécurité toutes les 240 images) */
+  if(this.neuf||this.nd%240===0||nc*3>n){
+    this.neuf=false;
+    ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
+    ctx.globalCompositeOperation='lighter';
+    for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<70)continue;l=Math.min(8,Math.ceil(v/255*8));x=(i%W)*cell;y=((i/W)|0)*cell;if(!this.glow[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.glow[this.c[i]][l],x-cell,y-cell);}
+    ctx.globalCompositeOperation='source-over';
+    for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
+    P=null;return;
+  }
+  var dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run;
+  dm.fill(0);sm.fill(0);
+  for(k=0;k<nc;k++){
+    i=ch[k];cx=i%W;cy=(i/W)|0;
+    for(b=-2;b<=2;b++){y=cy+b;if(y<0||y>=HT)continue;for(a=-2;a<=2;a++){x=cx+a;if(x<0||x>=W)continue;if(a>=-1&&a<=1&&b>=-1&&b<=1)dm[y*W+x]=1;sm[y*W+x]=1;}}   /* dm = cellules à repeindre (voisines comprises) ; sm = cellules dont le halo peut les toucher */
+  }
+  ctx.save();ctx.beginPath();
+  for(y=0;y<HT;y++){
+    run=-1;
+    for(x=0;x<=W;x++){
+      if(x<W&&dm[y*W+x]){if(run<0)run=x;}
+      else if(run>=0){ctx.rect(run*cell,y*cell,(x-run)*cell,cell);run=-1;}
+    }
+  }
+  ctx.clip();
   ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
   ctx.globalCompositeOperation='lighter';
-  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<70)continue;l=Math.min(8,Math.ceil(v/255*8));x=(i%W)*cell;y=((i/W)|0)*cell;if(!this.glow[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.glow[this.c[i]][l],x-cell,y-cell);}
+  for(i=0;i<n;i++){if(!sm[i]||pg[i]===0)continue;x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[pc[i]][pg[i]],x-cell,y-cell);}
   ctx.globalCompositeOperation='source-over';
-  for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
+  for(i=0;i<n;i++){if(!dm[i]||pl[i]===0)continue;ctx.drawImage(this.core[pc[i]][pl[i]],(i%W)*cell,((i/W)|0)*cell);}
+  ctx.restore();
   P=null;
 };
 
@@ -1070,5 +1107,5 @@ function apercu(cv,texte){
   return h;
 }
 
-window.__SOREAL_IDLE_BORNE_LED_V1__={ensure:ensure,diagnostic:diagnostic,apercu:apercu,canon:canon,originales:function(l){return TXT[l==='en'?'en':'fr'].jokes.slice();},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+window.__SOREAL_IDLE_BORNE_LED_V1__={ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},diagnostic:diagnostic,apercu:apercu,canon:canon,originales:function(l){return TXT[l==='en'?'en':'fr'].jokes.slice();},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
 })();

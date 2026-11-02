@@ -564,85 +564,35 @@
         );
       }
 
-      function actualiserCooldownAventureIdleV100_(
-        maintenant
-      ){
-        if(
-          !REG.idleEtat ||
-          !REG.idleEtat.aventure
-        ){
-          return;
+      /*
+       * Audit de fluidité (2026-11-02) : cette fonction tourne à CHAQUE image du jeu ; ses deux querySelectorAll (sélecteur d'attribut sur tout le document) coûtaient ~15 ms/s sur PC, donc
+       * 60 à 120 ms/s sur téléphone, alors qu'aucun élément de ce genre n'est plus dessiné. Les éléments trouvés sont gardés (mémo), relus quand l'un est détaché, après chaque redessin de la page
+       * et au plus toutes les 750 ms ; le texte et la classe ne sont réécrits que s'ils changent (une écriture identique remplaçait quand même le nœud texte et réveillait le calcul de style).
+       */
+      let cooldownMemoV1=null,cooldownMemoAtV1=0;
+      (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){cooldownMemoV1=null;});
+      function actualiserCooldownAventureIdleV100_(maintenant){
+        if(!REG.idleEtat||!REG.idleEtat.aventure)return;
+        const t=performance.now();
+        if(cooldownMemoV1&&!cooldownMemoV1.cd.every(function(e){return e.isConnected;})||cooldownMemoV1&&!cooldownMemoV1.zb.every(function(e){return e.isConnected;}))cooldownMemoV1=null;
+        if(!cooldownMemoV1||t-cooldownMemoAtV1>750){
+          cooldownMemoV1={cd:Array.prototype.slice.call(document.querySelectorAll('[id^="sorealIdleAdventureCooldown_"]')),zb:Array.prototype.slice.call(document.querySelectorAll('.soreal-idle-zone-button-v16[data-aventure-zone]'))};
+          cooldownMemoAtV1=t;
         }
-
-        const fin=
-          Math.max(
-            0,
-            idleNombre_(
-              REG.idleEtat.aventure.cooldownJusqua
-            )
-          );
-
-        const restant=
-          Math.max(
-            0,
-            (
-              fin-
-              maintenant
-            )/
-            1000
-          );
-
-        document
-          .querySelectorAll(
-            '[id^="sorealIdleAdventureCooldown_"]'
-          )
-          .forEach(function(el){
-            el.textContent=
-              restant>0.01
-                ?'⏳ Prochaine rencontre dans '+
-                  restant.toFixed(1)+
-                  ' s'
-                :'✅ Rencontre disponible';
-
-            el.classList.toggle(
-              'ready',
-              restant<=0.01
-            );
-          });
-
-        const zones=
-          REG.idleEtat.aventure&&
-          Array.isArray(
-            REG.idleEtat.aventure.zones
-          )
-            ?REG.idleEtat.aventure.zones
-            :[];
-
-        document
-          .querySelectorAll(
-            '.soreal-idle-zone-button-v16[data-aventure-zone]'
-          )
-          .forEach(function(button){
-            const id=
-              idleEntier_(
-                button.getAttribute(
-                  'data-aventure-zone'
-                )
-              );
-
-            const zone=
-              zones.find(function(z){
-                return idleEntier_(z.id)===id;
-              });
-
-
-            button.disabled=
-              Boolean(
-                REG.idleAventureEnCoursV17 ||
-                !zone ||
-                !zone.debloquee
-              );
-          });
+        if(!cooldownMemoV1.cd.length&&!cooldownMemoV1.zb.length)return;
+        const restant=Math.max(0,(Math.max(0,idleNombre_(REG.idleEtat.aventure.cooldownJusqua))-maintenant)/1000);
+        const texte=restant>0.01?'⏳ Prochaine rencontre dans '+restant.toFixed(1)+' s':'✅ Rencontre disponible';
+        cooldownMemoV1.cd.forEach(function(el){
+          if(el.textContent!==texte)el.textContent=texte;
+          el.classList.toggle('ready',restant<=0.01);
+        });
+        const zones=Array.isArray(REG.idleEtat.aventure.zones)?REG.idleEtat.aventure.zones:[];
+        cooldownMemoV1.zb.forEach(function(button){
+          const id=idleEntier_(button.getAttribute('data-aventure-zone'));
+          const zone=zones.find(function(z){return idleEntier_(z.id)===id;});
+          const off=Boolean(REG.idleAventureEnCoursV17||!zone||!zone.debloquee);
+          if(button.disabled!==off)button.disabled=off;
+        });
       }
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-101 */

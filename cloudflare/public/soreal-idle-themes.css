@@ -1161,12 +1161,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .sore
  * portrait bougeait comme celui du boss »). Chaque combattant n'obéit qu'à SA vie (--i-boss / --i-joueur) : plus elle baisse, plus il tremble vite et fort. Le boss est lourd et lent (élan vers la
  * gauche, secousses amples) ; le joueur est vif et léger (élan vers la droite avec un petit saut, tremblement vertical rapide). Pleine vie : un simple élan, aucune secousse. */
 @media (prefers-reduced-motion:no-preference){
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41){
-    animation:sorealHaloBossV1 calc(1.9s - var(--i-boss,0)*1.3s) ease-in-out infinite;
-  }
-  body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-player-portrait-v41{
-    animation:sorealHaloJoueurV1 calc(1.2s - var(--i-joueur,0)*.7s) ease-in-out infinite;
-  }
+  /* Fluidité (2026-11-02) : l'ancien halo animé des cadres (animation sorealHaloBossV1 / sorealHaloJoueurV1, box-shadow repeinte à chaque image) était TOUJOURS invisible : les portraits portent box-shadow:none!important (soreal-idle-itopod.css, « aucun cadre autour des deux images »). Il ne servait qu'à forcer un recalcul de style par image sur chaque portrait ; retiré, rendu strictement identique. Les @keyframes restent définis. */
   body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-duel-v41.combat-actif .soreal-idle-duel-portrait-v41:not(.soreal-idle-player-portrait-v41) > :not(.soreal-idle-boss-transition-v61){
     animation:sorealElanBossV1 calc(1.8s - var(--i-boss,0)*1.1s) ease-in-out infinite,sorealSecousseBossV1 calc(1.1s - var(--i-boss,0)*.7s) linear infinite;
     filter:saturate(calc(1 + var(--i-boss,0)*.7)) brightness(calc(1 - var(--i-boss,0)*.12)) drop-shadow(0 0 calc(var(--i-boss,0)*14px) rgba(255,60,30,.95));

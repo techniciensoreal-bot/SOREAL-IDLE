@@ -41,17 +41,25 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
      */
     const attributsGardes=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[];
     /* data-morph-vivant : un élément dont un module dessine lui-même les attributs (toile, tracé SVG…), descendants compris : le redessin n'en retire jamais aucun (sinon la toile se vidait à chaque redessin). */
-    const vivant=Boolean(a.closest&&a.closest('[data-morph-vivant]'));
-    Array.prototype.slice.call(a.attributes).forEach(function(at){
-      if(!b.hasAttribute(at.name)&&!vivant&&attributsGardes.indexOf(at.name)===-1)a.removeAttribute(at.name);
-    });
+    /* Perf (audit fluidité 2026-11-02) : parcours par index sans copie, et la remontée « closest » ne se fait QUE si un attribut est à retirer (cas rare) : même résultat, nettement moins de temps par nœud. */
+    const attrsA=a.attributes;
+    let aRetirer=null;
+    for(let i=0;i<attrsA.length;i+=1){
+      const nom=attrsA[i].name;
+      if(!b.hasAttribute(nom)&&attributsGardes.indexOf(nom)===-1)(aRetirer||(aRetirer=[])).push(nom);
+    }
+    if(aRetirer&&!(a.closest&&a.closest('[data-morph-vivant]'))){
+      for(let i=0;i<aRetirer.length;i+=1)a.removeAttribute(aRetirer[i]);
+    }
     /*
      * data-morph-classes-gardees="<expression>" (présent dans le HTML ET sur l'élément) : les classes de l'élément qui correspondent à l'expression sont posées et retirées par un module (ex. bm-coup, bm-installe, bm-marque de la
      * scène de Blood Magic) : le redessin ne les retire pas — retirer « bm-coup » en pleine coupure l'interrompait (Norman, 2026-10-15 : plus jamais de bug d'animation dans Blood Magic ; AGENTS.md, règle n°4).
      */
     let motifClasses=null;
     try{motifClasses=a.hasAttribute('data-morph-classes-gardees')?new RegExp(a.getAttribute('data-morph-classes-gardees')):null;}catch(_e){motifClasses=null;}
-    Array.prototype.slice.call(b.attributes).forEach(function(at){
+    const attrsB=b.attributes;
+    for(let i=0;i<attrsB.length;i+=1){
+      const at=attrsB[i];
       let valeur=at.value;
       if(at.name==='class'&&motifClasses){
         const nouvelles=valeur.split(/\s+/).filter(Boolean);
@@ -59,7 +67,7 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
         valeur=nouvelles.join(' ');
       }
       if(a.getAttribute(at.name)!==valeur)a.setAttribute(at.name,valeur);
-    });
+    }
     const tag=a.tagName;
     if(tag==='SCRIPT'||tag==='STYLE'){
       if(a.textContent!==b.textContent)a.textContent=b.textContent;

@@ -4,8 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.",
-    "Le petit crayon qui sert à changer tes boutons « Mes nombres » n’est plus coupé : il est maintenant à gauche du nombre, bien visible et facile à toucher (Augmentations et autres menus).",
-    "Gyroscope : la carte spéciale zoomée réagit maintenant de façon plus naturelle : elle garde son orientation quand tu inclines le téléphone (elle penche dans le sens inverse) et le reflet suit une lumière fixe ; elle bouge en douceur, sans saccade, et revient doucement à plat quand le téléphone reste immobile."
+    "Le jeu est plus fluide partout : le dessin de l’écran de la borne est environ sept fois moins coûteux, le jeu ne se rafraîchit plus plus de 60 fois par seconde, les menus se redessinent plus vite et les écrans qui sortent de l’image se mettent en pause.",
+    "Album des cartes : sur téléphone, les cartes ne clignotent plus quand tu tournes la page. Les images de la page suivante sont préparées avant que la feuille ne tourne, et la page qui part est déplacée au lieu d’être redessinée."
   ] };
 })();

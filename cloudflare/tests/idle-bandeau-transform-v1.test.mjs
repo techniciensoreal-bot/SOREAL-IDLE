@@ -9,9 +9,9 @@ import { readFileSync } from "node:fs";
  */
 const menus = readFileSync("cloudflare/public/modules/ui-menus-v1.js", "utf8");
 const pv = menus.slice(menus.indexOf("function majHudPvIdleV2_("), menus.indexOf("function jumeauxClicIdleV1_"));
-assert.ok(pv.includes("bar.style.width='100%';") && pv.includes("bar.style.transform='translate3d('+(-(100-pct)).toFixed(2)+'%,0,0)';"), "la barre de vie glisse par transform, pleine largeur");
+assert.ok(pv.includes("bar.style.width='100%';") && pv.includes("bar.style.transform=transformVoulu;") && pv.includes("'translate3d('+(-(100-pct)).toFixed(2)+'%,0,0)'"), "la barre de vie glisse par transform, pleine largeur (écrit seulement si ça change)");
 assert.ok(!pv.includes("bar.style.width=pct"), "plus de largeur animée");
-assert.ok(pv.includes("bar.dataset.idlePctHudV1=pct.toFixed(2);"), "le pourcentage reste lisible (diagnostic)");
+assert.ok(pv.includes("bar.dataset.idlePctHudV1=pctTexte;")&&pv.includes("const pctTexte=pct.toFixed(2);"), "le pourcentage reste lisible (diagnostic)");
 const diag = readFileSync("cloudflare/public/modules/diag-fluidite-v1.js", "utf8");
 assert.ok(diag.includes("el.dataset&&el.dataset.idlePctHudV1!==undefined?el.dataset.idlePctHudV1:(el.style&&el.style.width)"), "le diagnostic lit le pourcentage posé par le jeu");
 const hud = readFileSync("cloudflare/public/modules/hud-haut-v2.js", "utf8");

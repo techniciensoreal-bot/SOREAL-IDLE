@@ -26,6 +26,6 @@ console.log("idle-menus-vivants-v1: OK");
   const m = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   const i = m.indexOf("function rafraichirItopodIdleV1_(j){");
   const bloc = m.slice(i, i + 1400);
-  assert.ok(bloc.includes("window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;") && bloc.includes("finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;}"));
+  assert.ok(bloc.includes("window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;") && bloc.includes("finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;window.__itopodLegerV1__=false;}"));
   console.log("idle-menus-vivants-v1 (scène ITOPOD intacte): OK");
 }
