@@ -105,7 +105,7 @@ assert.equal(sans.couleurs[7] || 0, 0);
 assert.equal(sans.couleurs[6] || 0, 0, "pas de cœur sans boss connu");
 // la vie reste affichée pendant TOUTES les scènes (FIGHT !, coup, objet actif, NUKE, victoire, K.O.) : rangées de la barre inchangées d'une scène à l'autre
 const reference = rendu(0.5).v.split(",").slice(15 * 120).join(",");
-for (const [scene, params, t] of [["fight", "{}", 1.5], ["hit", "{mot:'POW !'}", 0.4], ["objet", "{o:'luck'}", 1.0], ["nuke", "{v:0,base:0}", 1.2], ["win", "{}", 4], ["ko", "{}", 1], ["bars", "{}", 1], ["jokes", "{txt:'Salut'}", 5], ["mascot", "{}", 1], ["score", "{}", 1]]) {
+for (const [scene, params, t] of [["fight", "{}", 1.5], ["hit", "{mot:'POW !'}", 0.4], ["objet", "{o:'luck'}", 1.0], ["nuke", "{v:0,base:0}", 1.2], ["win", "{}", 4], ["ko", "{}", 1], ["bars", "{}", 1], ["mascot", "{}", 1], ["score", "{}", 1]]) {
   const r = rendu(0.5, { scene, params, t });
   assert.equal(r.v.split(",").slice(15 * 120).join(","), reference, "la vie du boss reste la même et visible pendant « " + scene + " »");
 }

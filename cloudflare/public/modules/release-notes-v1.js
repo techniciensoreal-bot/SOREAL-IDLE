@@ -117,7 +117,6 @@
             'Chaque NUKE déclenche maintenant une animation différente sur le panneau de la borne, avec le nombre de boss franchis.',
             'La barre de vie du boss est maintenant intégrée dans l’écran de la borne, sous le panneau LED.',
             'Le texte du panneau LED est net, et l’écran affiche plus de LED quand il est plus large.',
-            'Les phrases de « Le saviez-vous ? » du panneau de la borne peuvent être complétées par l’équipe.',
             'Borne d’arcade : plus d’espace entre l’enseigne et l’écran, et les bandes lumineuses bleue et rouge descendent maintenant sans coupure jusqu’en bas.',
             'Le portrait du boss suivant s’affiche toujours : si son image n’a pas pu se charger, elle est redemandée automatiquement.',
             'Le nom et le numéro du boss s’affichent maintenant sur un panneau à LED, au-dessus de sa barre de vie : FIGHT ! reste affiché pendant tout le combat, avec des animations pour les coups, la victoire et le K.O.'

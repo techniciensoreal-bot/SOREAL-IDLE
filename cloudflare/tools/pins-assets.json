@@ -7,10 +7,6 @@
   "pin": 24,
   "sha": "b2c3a6de60586cc9d79fb0c8b90f3f76e73d1b76"
  },
- "/modules/admin-saviez-vous-v1.js": {
-  "pin": 5,
-  "sha": "61f704eb8694cc62ee209aef2078226974cb0215"
- },
  "/modules/admin-tutoriel-v1.js": {
   "pin": 5,
   "sha": "cae5a05845be3da8ce01abc06ea9a2922a5b2072"
@@ -104,8 +100,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 44,
-  "sha": "c20de58effa43c1a41c6e6151cf17bdaa5cd52cb"
+  "pin": 45,
+  "sha": "dfc329832613c299287bf246651d7da80578735a"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -464,8 +460,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 132,
-  "sha": "d8082d46d2af2d37b89ae28c04cbc2a81c5d2af3"
+  "pin": 133,
+  "sha": "ba15c69bba6063cf1b3fc0dd2b749478bc80a3dd"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -564,8 +560,8 @@
   "sha": "b327372ad343bafdad9cb17a7485d6efb701814c"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 715,
-  "sha": "bd4f61ef6000b3a9b7dd05548b17465c25389d82"
+  "pin": 716,
+  "sha": "772abde70c6ea79d488e99528f7f50fbc7d191e4"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 2,
@@ -616,8 +612,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 35,
-  "sha": "246dc80c80d6fb7ea5e076e12cc682240c6c6dfc"
+  "pin": 36,
+  "sha": "a4e43afcbdcab9527e2512e7a0ab4d8ea7e27b1d"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 2,
@@ -644,12 +640,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 743,
-  "sha": "414f084fff600967c96897e98175d7b798362803"
+  "pin": 744,
+  "sha": "5ff8dd2e8fe20cbb2e796e3d1c96a0648e3f6357"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 564,
-  "sha": "abca6df3c9f241d4de37ef1fcb8296547720979e"
+  "pin": 565,
+  "sha": "eb7d1606add05ed4b7b08b1b3a40fae1538d8972"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

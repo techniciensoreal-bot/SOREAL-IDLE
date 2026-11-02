@@ -12,7 +12,7 @@
  *   - un coup (le résumé de combat d'une seconde, REG.idleCombatLogDernierResumeV70, un sur trois) : POW ! / BAM ! en alternance (aucun « critique » n'existe côté client : aucun n'est affiché) ;
  *   - victoire (window.__SOREAL_IDLE_VICTOIRE_EN_COURS__ : même condition que l'écran de victoire arcade) : la ola puis VICTOIRE ! ;
  *   - défaite (REG.idleCombatEnPauseApresDefaiteV1) : K.O. puis RECOMMENCE ? (simple texte, aucun clic) ;
- *   - entre deux combats : « Le saviez-vous ? » (cinq phrases génériques, aucune information de jeu) et le tableau des scores (numéro du boss, victoires : jamais de total) ;
+ *   - entre deux combats : le tableau des scores (numéro du boss, victoires : jamais de total) ;
  *   - la caméra de stade (objet rare) N'EST PAS branchée : aucun événement « objet rare obtenu » fiable et neutre n'existe côté client.
  *
  * Règle n°2 : jamais le nom d'un boss non découvert (même source que la plaque) ; les phrases ne parlent de rien de verrouillé ; aucun dénominateur.
@@ -144,12 +144,12 @@ var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 
 /* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
 var TXT={
-  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',savLong:'LE SAVIEZ-VOUS',savCourt:'SAVIEZ-VOUS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
+  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
-    jokes:[]},   /* Norman (2026-11-01) : « je ne veux que les phrases que j'ai écrites » : aucune phrase d'origine, seulement celles de l'administrateur */
-  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',savLong:'DID YOU KNOW',savCourt:'DID YOU KNOW',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
+    },
+  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
-    jokes:[]}
+    }
 };
 var langue='fr',langueLue=-1e9;
 function langueDe(now){
@@ -551,24 +551,6 @@ function sKO(t){
   }
 }
 
-/* 8. « Le saviez-vous ? » : titre fixe puis phrase générique qui défile (p.k = numéro de la phrase) */
-function phraseDe(p){var J=TXT[langue].jokes;return typeof p.txt==='string'&&p.txt?p.txt:(J.length?J[(p.k||0)%J.length]:'');}
-function jokeDuree(p,W){return 2.0+(twidth(phraseDe(p),1)+W)/30;}
-function sJokes(t){
-  var W=P.W,j=phraseDe(P.p),bt=cb(),u=t;
-  chase(t,0.5,BLA);
-  if(P.reduced){text(j,4,bt,AMB,1,255,{edge:{a:3,b:W-3,f:6}});return;}
-  if(u<2.0){
-    var hd=W>=100?T('savLong'):T('savCourt'),w=twidth(hd,1),x=Math.floor((W-w-8)/2);
-    var v=sm(u/0.3)*(1-sm((u-1.7)/0.3));
-    text(hd,x,bt,BLA,1,255*v);
-    text('?',x+w+4,bt,ROU,1,255*v*(Math.floor(u*4)%2?0.35:1));
-  }else{
-    var off=(u-2.0)*30;
-    text(j,W-3-off,bt,AMB,1,255,{edge:{a:3,b:W-3,f:6}});
-  }
-}
-
 /* 10. Tableau des scores : chiffres qui roulent (numéro du boss, victoires ; jamais de total) */
 function digit(d,x,bt,sc,col,v){
   var g=gl(String(d)),o=Math.floor((5-g.w)/2);
@@ -854,7 +836,6 @@ var SC={
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
   sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
-  jokes:{fn:sJokes,dur:function(p,W){return jokeDuree(p,W);},prio:1,cap:0.5},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
   nuke:{fn:sNuke,dur:NUKE_DUR,prio:4,cap:3.0},
   morts:{fn:sMorts,dur:4,prio:1,cap:1.0},
@@ -1061,19 +1042,10 @@ function majAnimation(now){
     if(total>=6){animDecision=1;combatAnim=animChoisie;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
   }else if(el>=4)animDecision=-1;
 }
-/* « Le saviez-vous ? » : phrases ajoutées par l'administrateur (modules/admin-saviez-vous-v1.js, lues dans les textes déjà synchronisés : aucune requête) ; '' = aucune, on garde les cinq d'origine (jk) ; jamais deux fois la même d'affilée */
-var phraseDerniere='';
-function phraseAdmin(){
-  var m=window.__SOREAL_IDLE_SAVIEZ_VOUS_V1__,t='';
-  try{if(m&&typeof m.tirer==='function')t=String(m.tirer(langue,phraseDerniere,TXT[langue].jokes)||'');}catch(_e){t='';}
-  if(t)phraseDerniere=t;
-  return t;
-}
 function suivante(now){
   if(S.combat){combatFight(now,false);return cur;}
   if(objetDu(now)){var so=objetSuivant(now,false);if(so)return so;}
-  var seq=S.boss?(S.morts>0?['base','morts','score','base','jokes']:['base','score','base','jokes']):['base','jokes'],id=seq[rot%seq.length];rot+=1;
-  if(id==='jokes'){var tx=phraseAdmin();if(tx)return mk('jokes',now,{k:0,txt:tx});id='base';}   /* sans phrase de l'administrateur : pas de scène « Le saviez-vous ? » */
+  var seq=S.boss?(S.morts>0?['base','morts','score','base']:['base','score','base']):['base'],id=seq[rot%seq.length];rot+=1;
   return mk(id,now);
 }
 function pousser(id,now,p){
@@ -1140,7 +1112,7 @@ function image(now){
     if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
     else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
     else demarrer(suivante(now));
-  }else if(S.combat&&(cur.id==='base'||cur.id==='jokes'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
+  }else if(S.combat&&(cur.id==='base'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
   else if(!S.combat&&enCombat(cur))demarrer(suivante(now));
   else majAnimation(now);   /* FIGHT ! une seconde, puis l'animation du combat si celui-ci doit durer 6 s au moins */
   /* aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur ; l'animation du combat se voit du début à la fin (Norman, 2026-11-02) */
@@ -1278,36 +1250,6 @@ window.addEventListener('blur',function(){arreter();});
 window.addEventListener('focus',function(){relancer();});
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{ensure();}catch(_e){}});
 
-/* ------------------------------------------------------------------ outils de l'éditeur Admin (modules/admin-saviez-vous-v1.js) : mêmes polices et même moteur que le panneau */
-/* caractères que la police ne dessine pas tels quels : remplacés (Ç -> C) ou retirés (sans équivalent) */
-function diagnostic(s){
-  var seen={},rempl=[],ret=[],i,ch,up,c,l=Array.from?Array.from(String(s==null?'':s)):String(s==null?'':s).split('');
-  for(i=0;i<l.length;i++){
-    ch=l[i];if(ch===' '||seen[ch])continue;
-    up=ch.toUpperCase();c=canon(ch);
-    if(c===up)continue;
-    seen[ch]=1;
-    if(c==='')ret.push(ch);else rempl.push([ch,c]);
-  }
-  return {remplaces:rempl,retires:ret};
-}
-/* aperçu animé d'une phrase sur un canvas de l'éditeur (grille PC 120 x 14) : la phrase défile exactement comme sur la borne ; s'arrête quand le canvas quitte la page ou que l'onglet est masqué */
-function apercu(cv,texte){
-  if(!cv||!cv.getContext)return null;
-  if(cv.__apercuLedV1)cv.__apercuLedV1.arret();
-  var p=new Panel(cv,120,14,true),txt=String(texte==null?'':texte)||' ',params={txt:txt},t0=performance.now(),id=0,fin=false,rm=reduit();
-  p.reduced=rm;
-  p.resize((cv.clientWidth||cv.parentNode&&cv.parentNode.clientWidth)||416);
-  function image(now){
-    id=0;if(fin||!cv.isConnected)return;
-    if(!document.hidden){var dur=jokeDuree(params,p.W)-2;p.draw(sJokes,rm?2:2+((now-t0)/1000)%dur,1,params);}
-    if(!rm)id=requestAnimationFrame(image);
-  }
-  var h={arret:function(){fin=true;if(id){cancelAnimationFrame(id);id=0;}}};
-  cv.__apercuLedV1=h;
-  image(t0);
-  return h;
-}
 
-window.__SOREAL_IDLE_BORNE_LED_V1__={ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},diagnostic:diagnostic,apercu:apercu,canon:canon,originales:function(l){return TXT[l==='en'?'en':'fr'].jokes.slice();},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+window.__SOREAL_IDLE_BORNE_LED_V1__={ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
 })();

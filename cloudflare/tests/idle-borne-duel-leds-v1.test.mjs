@@ -25,7 +25,7 @@ assert.ok(/\[S\.nomJ,AMB\]/.test(led) && /rich\(p\.segs,x,bt,1,255\)/.test(led),
 /* 3. le nombre de morts : PAS sous l'image du boss, mais dans la rotation du grand panneau ; boss courant seulement, jamais de total, rien à 0 */
 assert.ok(!/bn-led-morts|bn-avec-morts/.test(combat + css + cssLed + led), "aucun écran de morts sous l'image du boss");
 assert.ok(/morts:\{fn:sMorts/.test(led), "scène « morts » du panneau");
-assert.ok(/S\.morts>0\?\['base','morts','score','base','jokes'\]:\['base','score','base','jokes'\]/.test(led), "dans la rotation seulement si > 0");
+assert.ok(/S\.morts>0\?\['base','morts','score','base'\]:\['base','score','base'\]/.test(led), "dans la rotation seulement si > 0");
 assert.ok(/x\.source==='boss'&&x\.decouvert&&Math\.floor\(nombre\(x\.numero\)\)===sel/.test(led), "source = bestiaire.entrees (boss sélectionné)");
 const m = led.slice(led.indexOf("function sMorts"), led.indexOf("/* 2. FIGHT"));
 assert.ok(!/'\s*\/\s*'/.test(m) && !/S\.vic|bossCatalogue|\.length/.test(m.replace(/cands\.length/g, "")), "aucun total (pas de « x / y »)");
@@ -94,4 +94,17 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}"), "puis FIGHT !");
   assert.ok(led.includes("function echelleDanse()") && led.includes("if(H>=15&&W>=30){") && !led.includes("if(H>=26&&W>=40){"), "Leatherface tient dans un écran moins haut (réduit au plus proche voisin)");
   console.log("idle-borne-duel-leds-v1 (6 s, nom, FIGHT 1 s, Leatherface adapté) : OK");
+}
+// Norman (2026-11-02) : « supprime "Le saviez-vous ?" de la borne, toute trace de son existence, du menu admin aussi »
+{
+  const racine = "cloudflare/";
+  const led = fs.readFileSync(racine + "public/modules/borne-led-v1.js", "utf8");
+  const txt = fs.readFileSync(racine + "public/modules/textes-admin-v1.js", "utf8");
+  const idx = fs.readFileSync(racine + "public/index.html", "utf8");
+  const srv = fs.readFileSync(racine + "src/idle-textes-v1.js", "utf8");
+  assert.ok(!/saviez|jokes|sJokes|phraseAdmin|apercu/i.test(led), "plus rien dans le panneau LED");
+  assert.ok(!/SAVIEZ_VOUS|saviez/i.test(txt) && !/saviez/i.test(idx), "plus rien dans le menu Admin ni dans la page");
+  assert.ok(!fs.existsSync(racine + "public/modules/admin-saviez-vous-v1.js"), "module d'éditeur supprimé");
+  assert.ok(!/IDLE_SAVIEZ|normaliserSaviezVous|phraseSaviez/.test(srv) && srv.includes("DELETE FROM idle_textes WHERE cle LIKE 'saviez-vous:%'"), "serveur : validation supprimée, ancienne ligne effacée");
+  console.log("idle-borne-duel-leds-v1 (« Le saviez-vous ? » supprimé) : OK");
 }
