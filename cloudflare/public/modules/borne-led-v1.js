@@ -675,10 +675,41 @@ function tueRie(t){
     for(i=0;i<5;i++){var cu=Math.min(1,Math.max(0,(u-0.6)/1.6));px(G.tx+Math.round((27+i*2.2)*G.ec),G.syT+Math.round((7+cu*(4+i%3*2))*G.ec),ROU,230);}   /* ça coule le long de la benne */
   }
 }
+/* LA MORT DU PERSONNAGE QUI COURT (Norman, 2026-11-02 : « quand on meurt, ce truc lui tombe dessus et l'écrase avec du sang qui gicle », photo d'un Thwomp : bloc de pierre gris, sourcils froncés, yeux rouges, dents, piques tout autour) : il court à l'endroit où s'est arrêtée la vie du boss (p.pc0), le bloc apparaît en haut, tremble,
+   tombe et l'écrase ; le sang gicle de chaque côté, la flaque s'étale, le bloc remonte un peu et reste, taché de rouge. Dessin en lettres comme les autres sprites (palette THWOMP_COUL). */
+var THWOMP=['...S...S...S...','..SSS.SSS.SSS..','.SDDDDDDDDDDDS.','SSDGGGGGGGGGDSS','.SDGDGGGGGDGDS.','SSDGGWRGWRGGDSS','.SDGGGGGGGGGDS.','SSDGWWWWWWWGDSS','.SDGKKKKKKKGDS.','SSDGWWWWWWWGDSS','.SDGGGGGGGGGDS.','SSDDDDDDDDDDDSS','..SSS.SSS.SSS..','...S...S...S...'];
+var THWOMP_COUL={S:[BLA,215],D:[BLA,28],G:[BLA,92],W:[BLA,255],R:[ROU,255],K:[BLA,1]};
+function ecrase(t){
+  var W=P.W,H=P.H,fl=H-2,sp=30,i,th=THWOMP.length,tw=THWOMP[0].length;
+  var vie=clamp(P.p.pc0==null?0.5:P.p.pc0,0,1),hx=Math.min(2+Math.round(vie*(W-4)),W-10);
+  var tt=P.reduced?1.9:t,tApp=0.45,tTombe=1.0,tImp=1.22,u=tt-tImp,aplati=tt>=tImp;
+  var tg=Math.min(tt,tImp);                                          /* le décor s'arrête à l'impact */
+  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  for(i=0;i<6;i++){var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(tg/2+R(i,5)))));}
+  var tx=hx+4-Math.floor(tw/2),ty;
+  if(!aplati){
+    var fr=Math.floor(tt/0.12)%2?SPR.hero1:SPR.hero2;
+    spriteDepuis(fr.map(function(r){return r.split('').reverse().join('');}),hx,fl-8,255,-1e9);
+    if(tt<tApp)ty=-th-2;
+    else if(tt<tTombe){var a=sm((tt-tApp)/(tTombe-tApp));ty=Math.round(-th-2+a*7)+(P.reduced?0:Math.round(Math.sin(tt*70)*1));}   /* il descend un peu dans l'écran en tremblant */
+    else{var f=(tt-tTombe)/(tImp-tTombe);ty=Math.round(-th+5+f*f*(fl+1-th-(-th+5)));}                                              /* puis il tombe, de plus en plus vite */
+  }else{
+    var rise=sm((tt-tImp-0.35)/0.6);
+    ty=Math.round(fl+1-th-rise*8);
+    var w=Math.min(14,Math.round(Math.max(0,u)*18));
+    rect(hx+4-w,fl,2*w+1,1,ROU,235);                                 /* la flaque s'étale */
+    rect(hx,fl-1,9,2,ROU,255);rect(hx+1,fl-1,2,1,BLA,255);rect(hx+5,fl-1,3,1,AMB,255);   /* le bonhomme aplati : tête blanche, corps ambre, tout rouge autour */
+    if(!P.reduced){
+      burst(hx+4,fl-1,u,28,31,24,1.3,[ROU],46);burst(hx-1,fl-1,u,12,41,18,1.1,[ROU],38);burst(hx+9,fl-1,u,12,51,18,1.1,[ROU],38);burst(hx+4,fl-2,u-0.12,16,61,14,1.0,[ROU,AMB],30);
+    }
+  }
+  dessinerCoul(THWOMP,THWOMP_COUL,tx,ty,1);
+  if(aplati){for(i=0;i<9;i++)px(tx+3+i,ty+th-3+(i%3===0?1:0),ROU,255);px(tx+4,ty+th-1+Math.min(2,Math.max(0,Math.floor(u*3))),ROU,230);px(tx+10,ty+th-1+Math.min(2,Math.max(0,Math.floor(u*2.5))),ROU,230);}   /* du sang sur la pierre qui coule */
+}
 function sKO(t){
-  var W=P.W,H=P.H,an=P.p.anim==='sweep';
-  if(an)tueRie(t);
-  var tk=t-(an?2.4:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
+  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';
+  if(an)tueRie(t);else if(am)ecrase(t);
+  var tk=t-(an||am?2.4:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
   t=tk;
   var vk=sm(t/0.15)*(1-sm((t-3.0)/0.3));
   if(vk>0){
@@ -691,6 +722,7 @@ function sKO(t){
   /* Pas de « RECOMMENCE ? » pendant l'animation de Leatherface (Norman, 2026-11-02 : « ne mets pas recommence pour Leatherface ») : la scène finit sur lui. */
   if(v2>0&&!an){
     var s2=T('again'),tw2=twidth(s2+' ?',1),bt2=cb(),x=Math.floor((W-tw2)/2);
+    if(am){var dx0,dy0;for(dx0=-1;dx0<=1;dx0++)for(dy0=-1;dy0<=1;dy0++)if(dx0||dy0){var wq0=text(s2,x+dx0,bt2+dy0,BLA,1,1);text('?',x+wq0+4+dx0,bt2+dy0,BLA,1,1);}}   /* contour éteint autour des lettres pour qu'elles se lisent sur la scène */
     var wq=text(s2,x,bt2,AMB,1,255*v2);
     text('?',x+wq+4,bt2,BLA,1,255*v2*(P.reduced?1:0.2+0.8*(0.5+0.5*Math.sin(6.2832*t/1.0))));
     if(x>9){sprite(SPR.crane,2,bt2,200*v2,ROU);sprite(SPR.crane,W-7,bt2,200*v2,ROU);}
@@ -1164,7 +1196,7 @@ function objetSuivant(now,inter){
 function mk(id,now,p){
   var d=SC[id].dur;p=p||{};
   if(id==='win')p.anim=combatAnim;
-  if(id==='ko'&&combatAnim==='sweep'){p.anim='sweep';p.pc0=S.pv?S.pv.pct:1;}
+  if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
   if(p.long)d=1e9;
   return {id:id,t0:(id==='fight'||p.long)?fightT0:now,p:p,prio:SC[id].prio,dur:typeof d==='function'?d(p,panel?panel.W:120):d};
 }
