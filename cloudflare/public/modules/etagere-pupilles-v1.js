@@ -1,7 +1,7 @@
 /*
  * SOREAL IDLE — pupilles des chats de la Garderie : fente verticale qui se dilate en DISQUE presque plein (Norman, 2026-11-01 puis 2026-11-02 :
  * « le mouvement des pupilles doit être plus rare » ; « quand elles sont rondes, le cercle noir doit grandir PROGRESSIVEMENT, ne laisse qu'un FIN bord de couleur, puis se rétrécir pour redevenir une pupille en ligne »).
- * Les sprites de regard (/garderie/yeux/<id>-<n>.webp) portent une pupille dessinée ; chaque iris reçoit un PATCH (couleur de l'iris, bord adouci par un masque radial) qui la recouvre, et UNE SEULE pupille noire :
+ * Les sprites de regard (/garderie/yeux/<id>-<n>.webp) NE portent PLUS de pupille dessinée (2026-11-02 : retirée des images, plus de plaque de la couleur de l'iris par-dessus) ; il n'y a que UNE SEULE pupille noire :
  * un cercle de base (84 % de la hauteur de l'iris) dont transform: scale(sx, 1) fait toute la forme : sx = .17 = fente fine (les bouts haut et bas touchent presque l'iris), sx = .5 = ellipse verticale douce (battement du repos),
  * sx = 1 = disque presque plein (il ne reste qu'un fin anneau de couleur, ~8 % de la hauteur de l'iris). La forme est continue (fente -> ellipse -> disque) : aucun fondu entre deux formes, aucun filtre, aucune ombre.
  * Sources (réflexe pupillaire) : une pupille verticale de chat varie d'environ 135 fois en surface entre sa fermeture et sa dilatation maximale (Banks et al., UC Berkeley, 2015, relayé par phys.org) ; elle ne se referme pas
@@ -43,7 +43,7 @@
     css();
     actuel={id:id,d:s.d};
     entree();
-    return '<em class="et-pc'+(s.rond?' et-pc-r':'')+'" style="--pt:'+s.tone+'"></em><em class="et-pf"></em>';
+    return '<em class="et-pf"></em>';
   }
   function racine(){return typeof document!=='undefined'?document.documentElement:null;}
   var minuterieArrondi=0,minuterieBat=0;
@@ -98,9 +98,7 @@
     var s=document.createElement('style');
     s.id='et-style-pupilles-v1';
     s.textContent=[
-      /* Le patch recouvre FRANCHEMENT la pupille dessinée dans le sprite (Norman, 2026-11-02 : « dans le centre, il reste une pupille qui a presque la même couleur que le fond ») : plus large, plus haut, opaque jusqu'à 86 % avant un bord adouci court, pour qu'aucun reste de la fente dessinée ne se voie quand la pupille noire s'écarte (regard qui suit la souris). */
-      '.et-pc{position:absolute;left:50%;top:50%;width:44%;height:110%;margin:0;transform:translate(-50%,-50%);background:var(--pt,#999);border-radius:50%;pointer-events:none;-webkit-mask-image:radial-gradient(closest-side,#000 86%,rgba(0,0,0,0));mask-image:radial-gradient(closest-side,#000 86%,rgba(0,0,0,0))}',
-      '.et-pc.et-pc-r{width:72%;height:72%}',
+      /* Plus de plaque de la couleur de l'œil (Norman, 2026-11-02 : « il ne faut pas la pupille de fond, celle de la même couleur que l'œil ») : les images d'iris (/garderie/yeux/<id>-<n>.webp) n'ont plus de pupille dessinée (retirée, iris rempli par interpolation, reflets conservés) ; seule la pupille noire de ce module reste. */
       /* cercle de base (84 % de la hauteur de l'iris, centré) ; scale(sx,1) fait la forme : .17 fente fine, .5 ellipse douce, 1 disque. Contraction rapide (.6 s), dilatation plus lente (1,2 s). */
       '.et-pf{position:absolute;left:0;right:0;top:0;bottom:0;margin:auto;height:84%;aspect-ratio:1;border-radius:50%;background:#050302;pointer-events:none;transform:scale(.17,1);transition:transform .6s cubic-bezier(.4,0,.2,1)}',
       '@media (prefers-reduced-motion:no-preference){.et-pup-bat .et-pf{transform:scale(.5,1);transition-duration:1.2s}.et-pup-arrivee .et-pf{transform:scale(1,1);transition-duration:1.2s}}',

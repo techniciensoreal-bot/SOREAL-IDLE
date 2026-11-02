@@ -44,6 +44,8 @@ console.log("idle-etagere-sommeil-regard-v1 : OK");
   assert.ok(pup.includes("html.et-suit .et-pf{translate:calc(var(--et-mx,0)*var(--ptx,45%)) calc(var(--et-my,0)*var(--pty,10%));"), "la pupille glisse dans l'iris vers la souris");
   assert.ok(pup.includes("html.et-suit.et-pup-bat .et-pf{--ptx:34%}") && pup.includes("html.et-suit.et-pup-arrivee .et-pf,html.et-suit.et-pup-zoom .et-pf{--ptx:7%;--pty:4%}"), "amplitude réduite quand la pupille est large (reste dans l'iris)");
   assert.ok(pup.includes(".et-iris.et-ir{clip-path:circle(50% at 50% 50%)}"), "la pupille ne déborde jamais de son iris : le disque d'iris coupe ce qui sort (Norman, 2026-11-02)");
-  assert.ok(pup.includes("#000 86%,rgba(0,0,0,0))") && pup.includes("width:44%;height:110%"), "le patch recouvre franchement la pupille dessinée du sprite (aucun reste presque invisible au centre)");
+  assert.ok(!pup.includes("et-pc") && pup.includes("return '<em class=\"et-pf\"></em>';"), "plus de plaque de la couleur de l'œil : seule la pupille noire du module (Norman, 2026-11-02)");
+  const { statSync } = await import("node:fs");
+  for (const id of ["defaut-0", "defaut-1", "noeud-0", "noeud-1", "dore-0", "dore-1", "chauvesouris-0", "chauvesouris-1", "pirate-0", "noel-0", "noel-1"]) assert.ok(statSync("cloudflare/public/garderie/yeux/" + id + ".webp").size > 1000, "image d'iris sans pupille dessinée : " + id);
   console.log("idle-etagere-sommeil-regard-v1 (pupille qui suit) : OK");
 }
