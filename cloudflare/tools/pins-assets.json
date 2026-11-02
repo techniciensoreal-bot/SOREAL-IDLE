@@ -52,8 +52,8 @@
   "sha": "a8917d24fac8736f09d321c713450fabf8aea35b"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 12,
-  "sha": "188c5107db59947d36a21d8cde73213ed94c75ae"
+  "pin": 13,
+  "sha": "c8492d3c2b739f957aad4d9634cec5f8541b3e1d"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 3,

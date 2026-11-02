@@ -192,6 +192,49 @@
   function nettoyerMort_(img){try{if(img&&img.classList){img.classList.remove('soreal-idle-boss-death-v61');img.style.removeProperty('opacity');}}catch(_e){}}
   function reduit_(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 
+
+  /*
+   * Filet de sécurité (Norman, 2026-11-02 : « j'ai tué le boss 71 et l'image du 72 n'est pas apparue ; j'ai dû changer d'onglet et revenir »). Cause exacte non établie (pas de reproduction) ; tout ce qui peut laisser l'image du boss courant invisible est
+   * défait quelques secondes après une apparition : calque .app-boss plus vieux que sa durée de vie maximale (10 s d'attente + effet, 6 s d'attente, 12 s de couvrir), classe de mort ou opacité 0 restées sur l'image, image restée en erreur ou sans taille.
+   * Quatre vérifications au plus par apparition (pas de boucle permanente, aucun redessin de la page : on ne touche qu'à des éléments déjà posés par ce module ou à l'image de l'hôte). Ne révèle jamais l'ancien boss : un calque plus jeune que sa durée de vie
+   * reste en place, et pendant une victoire/mort la vérification est repoussée.
+   */
+  var AGE_MAX=14000,GARDE_DELAIS=[4000,9000,15000,22000],gardeMinuteur=null,gardeRang=0;
+  function assurer_(){
+    var etat={retires:0,nettoye:false,rechargee:false,repousse:false};
+    try{
+      var hote=document.getElementById(HOTE_ID);
+      if(!hote)return etat;
+      if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){etat.repousse=true;return etat;}
+      var now=performance.now();
+      [].slice.call(hote.querySelectorAll('.app-boss')).forEach(function(e){
+        var d=e.__depuis;
+        if(typeof d!=='number'||now-d>AGE_MAX){if(e.parentNode)e.parentNode.removeChild(e);etat.retires++;}
+        else etat.repousse=true;   /* encore dans sa durée de vie : on revérifiera */
+      });
+      var img=hote.querySelector('img');
+      if(!img)return etat;
+      if(!hote.querySelector('.app-boss')){
+        if(img.classList&&img.classList.contains('soreal-idle-boss-death-v61')){img.classList.remove('soreal-idle-boss-death-v61');etat.nettoye=true;}
+        if(img.style&&img.style.opacity==='0'){img.style.removeProperty('opacity');etat.nettoye=true;}
+        var u=img.getAttribute('src')||'';
+        if(u&&img.complete&&!(img.naturalWidth>0)&&!img.__garde){img.__garde=true;img.removeAttribute('src');img.setAttribute('src',u);etat.rechargee=true;}
+      }
+    }catch(_e){}
+    return etat;
+  }
+  function garde_(){
+    try{
+      if(typeof setTimeout!=='function')return;
+      clearTimeout(gardeMinuteur);gardeRang=0;
+      (function suite(){
+        if(gardeRang>=GARDE_DELAIS.length)return;
+        var d=GARDE_DELAIS[gardeRang]-(gardeRang?GARDE_DELAIS[gardeRang-1]:0);gardeRang++;
+        gardeMinuteur=setTimeout(function(){assurer_();suite();},d);
+      })();
+    }catch(_e){}
+  }
+
   /* Joue l'apparition du boss actuellement affiché dans l'hôte. Le calque est posé tout de suite ; l'effet démarre dès que l'image est chargée (2 s au plus, sinon on révèle simplement). */
   /*
    * Écrans noirs à la place du boss suivant (Norman, 2026-10-23, « parfois ») : le calque sombre posé par couvrir() n'était retiré que par jouer(), or jouer() sortait sans rien retirer quand « réduire les animations » est actif (réglage fréquent sur Android),
@@ -214,7 +257,7 @@
       calque.className='soreal-idle-boss-transition-v61 app-boss';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       var cv=document.createElement('canvas');cv.width=L;cv.height=L;calque.appendChild(cv);
-      hote.appendChild(calque);
+      calque.__depuis=performance.now();hote.appendChild(calque);garde_();
       var i=indexPour(n),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
       var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__,neuf=(i>=10&&REAPP&&REAPP.boss[i-10])?REAPP.boss[i-10]:null;
       if(neuf)calque.classList.add('app-boss-neuf');
@@ -277,7 +320,7 @@
       var anc=hote.querySelector('.app-boss');if(anc)anc.remove();
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 app-boss app-boss-attente';
-      calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
+      calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');calque.__depuis=performance.now();garde_();
       if(immediat){calque.style.transition='none';calque.style.opacity='1';hote.appendChild(calque);}   /* après l'écran de victoire : opaque tout de suite, aucun intervalle découvert */
       else{calque.style.opacity='0';calque.style.transition='opacity .28s ease';hote.appendChild(calque);requestAnimationFrame(function(){calque.style.opacity='1';});}
       var debut=performance.now();
@@ -285,7 +328,7 @@
         if(!calque.isConnected){return;}                                   /* remplacé : l'effet du boss suivant est en cours (verifier) */
         var im=hote.querySelector&&hote.querySelector('img');
         var m=im?idDe(im):0;
-        if(m>0&&m!==idMort){if(dernierId===idMort||dernierId===null)jouer(hote);return;}
+        if(m>0&&m!==idMort){jouer(hote);return;}   /* le calque d'attente est encore là : personne n'a pris le relais, on joue (avant : seulement si dernierId était resté à idMort, sinon le calque opaque restait) */
         if(performance.now()-debut>6000){
           enCours=false;nettoyerMort_(im);
           calque.style.transition='opacity .3s ease';calque.style.opacity='0';
@@ -308,7 +351,7 @@
       var calque=document.createElement('div');
       calque.className='soreal-idle-boss-transition-v61 app-boss';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
-      hote.appendChild(calque);
+      calque.__depuis=performance.now();hote.appendChild(calque);garde_();
       /* Filet : jamais un calque noir plus de 12 s, quoi qu'il arrive à l'écran de victoire. */
       setTimeout(function(){if(calque.isConnected&&!enCours){calque.remove();}},12000);
       setTimeout(function(){
@@ -381,5 +424,5 @@
     document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.tagName==='IMG')retenter_(t);},true);
   }
 
-  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={retenter:retenter_,jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
+  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={retenter:retenter_,assurer:assurer_,garde:garde_,jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
 })();
