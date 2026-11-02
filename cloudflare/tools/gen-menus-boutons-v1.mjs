@@ -329,23 +329,8 @@ out.push("\n" + Object.entries(MOUVEMENTS).map(([n, c]) => `@keyframes nbV1_${n}
 /* ------------------------------------------------------------------ Money Pit : bouton refait entièrement (Norman, 2026-11-02)
    « on doit voir le vert sur les contours et le trou au milieu ; à gauche un dessin de pièce animé quand le pit est dispo, à droite une roue qui tourne sur elle-même quand elle est prête ;
    des bords d'herbe plus longs, arrondis, EN DESSOUS du cadre ». Tout est dans la couche de fond (deco::before), donc sous le liseré (deco::after) ; seules des transformations (retournement de la pièce, rotation de la roue) sont animées. */
-function herbeSemis() {
-  /* traits vert foncé en VRAIS zigzags (pointes nettes, hauts, épais) semés sur TOUT le vert, comme l'herbe de l'image du trou ; graine fixe : le dessin ne change jamais */
-  let z = 20261102;
-  const alea = () => { z = (z * 1664525 + 1013904223) % 4294967296; return z / 4294967296; };
-  let traits = "";
-  for (let k = 0; k < 40; k++) {
-    let x = 4 + alea() * 192, y = 30 + alea() * 30;
-    const pas = 4 + Math.floor(alea() * 3), haut = 6 + alea() * 5, ampl = 2.4 + alea() * 2.4, pente = (alea() - 0.5) * 1.6;
-    let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
-    for (let i = 0; i < pas; i++) { x += (i % 2 ? 1 : -1) * ampl + pente; y -= haut * (0.85 + alea() * 0.4); d += ` L${x.toFixed(1)} ${y.toFixed(1)}`; }
-    traits += `<path d='${d}' stroke='${alea() > 0.3 ? "rgb(6,84,40)" : "rgb(12,112,54)"}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='miter' stroke-miterlimit='6' fill='none'/>`;
-  }
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 60'>${traits}</svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") 0 0/auto 100% repeat-x`;
-}
 function trouNaturel() {
-  /* un trou CREUSÉ, pas une ellipse parfaite (Norman, 2026-11-02) : contour irrégulier tiré d'une graine fixe, bord de terre à deux épaisseurs inégales, fond noir avec une ombre plus profonde, miettes de terre autour et quelques brins d'herbe qui retombent sur le bord */
+  /* un trou CREUSÉ, pas une ellipse parfaite (Norman, 2026-11-02) : contour irrégulier tiré d'une graine fixe, bord de terre à deux épaisseurs inégales, fond noir avec une ombre plus profonde, miettes de terre autour ; AUCUNE herbe dessinée (Norman, 2026-11-02 : « ne garde que le vert ») */
   let z = 7311;
   const alea = () => { z = (z * 1664525 + 1013904223) % 4294967296; return z / 4294967296; };
   const cx = 50, cy = 21, rx = 34, ry = 14.8, n = 20;
@@ -361,10 +346,6 @@ function trouNaturel() {
   for (let i = 0; i < 16; i++) {
     const a = alea() * Math.PI * 2, r = 1.18 + alea() * 0.3;
     g += `<ellipse cx='${(cx + rx * r * Math.cos(a)).toFixed(1)}' cy='${(cy + ry * r * Math.sin(a)).toFixed(1)}' rx='${(0.8 + alea() * 1.6).toFixed(1)}' ry='${(0.6 + alea() * 1.1).toFixed(1)}' fill='${alea() > 0.5 ? "rgb(120,74,34)" : "rgb(78,46,20)"}'/>`;
-  }
-  for (let i = 0; i < 7; i++) {   /* brins d'herbe qui retombent sur le bord de terre */
-    const a = alea() * Math.PI * 2, x = cx + rx * 1.06 * Math.cos(a), y = cy + ry * 1.06 * Math.sin(a), s = Math.sin(a) > 0 ? 1 : -1;
-    g += `<path d='M${x.toFixed(1)} ${y.toFixed(1)} L${(x - 1.5).toFixed(1)} ${(y - 3 * s).toFixed(1)} L${(x + 0.5).toFixed(1)} ${(y - 5.5 * s).toFixed(1)} L${(x - 0.8).toFixed(1)} ${(y - 8 * s).toFixed(1)}' stroke='rgb(8,92,44)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`;
   }
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 42' preserveAspectRatio='none'>${g}</svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}") center/88% 100% no-repeat`;
@@ -391,7 +372,7 @@ function rouePit() {
 {
   const M = `${P}[data-menu-id-v1="moneyPit"]`, MD = `${M} .soreal-idle-nav-deco-v1`;
   out.push(`\n/* moneyPit : bouton refait (voir plus haut) */`);
-  out.push(`${sel("moneyPit", "::before")}{background:${trouNaturel()},${herbeSemis()},rgb(20,124,58)}`);
+  out.push(`${sel("moneyPit", "::before")}{background:${trouNaturel()},rgb(20,124,58)}`);
   out.push(`${sel("moneyPit", " .nb-g")}{background:${piecePit()};aspect-ratio:1/1;width:auto;left:13.5cqw}`);
   out.push(`${sel("moneyPit", " .nb-d")}{background:${rouePit()};aspect-ratio:1/1;width:auto;right:13.5cqw}`);
   /* animations : rien par défaut (les anciennes animations du bouton sont coupées), la pièce se retourne quand le Money Pit est disponible (vert), la roue tourne quand elle est prête (jaune) */
