@@ -353,7 +353,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v2
   --th-a:#27d3b4;--th-b:#2aa3ff;--th-c:#9be15d;--th-bg:#10262c;--th-bg2:#09151b;--th-line:rgba(39,211,180,.42);--th-ink:#dff7f1;--th-dim:#86b9b0;--th-num:#ffffff;--th-glow:rgba(39,211,180,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]){
-  --th-a:#ffd24a;--th-b:#c98a06;--th-c:#38e8ff;--th-bg:#2e1f08;--th-bg2:#130c04;--th-line:rgba(255,205,70,.5);--th-ink:#fff3d0;--th-dim:#d8b873;--th-num:#fff0a8;--th-glow:rgba(255,205,70,.5);
+  --th-a:#22b8cf;--th-b:#0f766e;--th-c:#ffe08a;--th-bg:#0f766e;--th-bg2:#0b554f;--th-line:rgba(34,184,207,.55);--th-ink:#eafcff;--th-dim:#a8e6df;--th-num:#d6fffa;--th-glow:rgba(34,184,207,.5);
 }
 body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="aventure"]){
   --th-a:#e2b25a;--th-b:#6aa84f;--th-c:#c46a2b;--th-bg:#2a1e12;--th-bg2:#16100a;--th-line:rgba(226,178,90,.45);--th-ink:#f6e7c8;--th-dim:#c8ad80;--th-num:#fff3d6;--th-glow:rgba(226,178,90,.4);
@@ -434,48 +434,48 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"]{
   --pg-radius:18px;--pg-deco:"💰⚙️";--pg-font:inherit;
   --pg-bg:
-    radial-gradient(ellipse 60% 38% at 88% 0%,rgba(255,205,70,.24),transparent 70%),
-    radial-gradient(ellipse 50% 34% at 6% 8%,rgba(56,232,255,.13),transparent 70%),
-    repeating-radial-gradient(circle at 50% 135%,rgba(255,205,70,.055) 0 2px,transparent 2px 26px),
-    linear-gradient(180deg,#1e1508,#0c0905);
-  --pg-head:linear-gradient(110deg,#4a3005 0%,#a8730a 50%,#4a3005 100%);
-  --pg-card:linear-gradient(165deg,rgba(62,41,8,.94),rgba(22,14,4,.96));
-  --pg-btn:linear-gradient(180deg,#ffe27a,#d99a12);--pg-btn-ink:#3a2300;
+    radial-gradient(ellipse 60% 38% at 88% 0%,rgba(34,184,207,.24),transparent 70%),
+    radial-gradient(ellipse 50% 34% at 6% 8%,rgba(255,224,138,.10),transparent 70%),
+    repeating-radial-gradient(circle at 50% 135%,rgba(34,184,207,.07) 0 2px,transparent 2px 26px),
+    linear-gradient(180deg,#0f766e,#0b554f);
+  --pg-head:linear-gradient(110deg,#0b554f 0%,#0f766e 50%,#0b554f 100%);
+  --pg-card:linear-gradient(165deg,rgba(9,66,61,.94),rgba(5,38,35,.96));
+  --pg-btn:linear-gradient(180deg,#5fe3d3,#14a89a);--pg-btn-ink:#032b28;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-v1,.soreal-idle-tm-piste-v1,.soreal-idle-tm-stats-v1,.soreal-idle-tm-hero-v1){
   background:var(--pg-card)!important;border:2px solid var(--th-line)!important;border-radius:18px!important;color:var(--th-ink)!important;
-  box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(255,236,160,.06),inset 0 0 22px rgba(255,205,70,.05);
+  box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(190,246,255,.06),inset 0 0 22px rgba(34,184,207,.05);
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){color:#ffe28a!important;text-shadow:0 0 12px rgba(255,205,70,.65);letter-spacing:.08em}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-titre-v1,.soreal-idle-tm-stats-titre-v1){color:#9fe9ff!important;text-shadow:0 0 12px rgba(34,184,207,.65);letter-spacing:.08em}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-soustitre-v1,.soreal-idle-tm-eta-v1){color:var(--th-dim)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-barre-v1{
-  background:#120c03!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px rgba(255,205,70,.5),0 0 14px -4px var(--th-glow);height:16px;
+  background:#04201e!important;border-radius:999px!important;box-shadow:inset 0 0 0 1px rgba(34,184,207,.5),0 0 14px -4px var(--th-glow);height:16px;
 }
 /* Barres de niveau : de l'or fondu (vitesse) et de l'or clair (multiplicateur), avec des rouages qui défilent. */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-remplissage-v1{
   background:
     repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 2px,transparent 2px 14px),
-    linear-gradient(90deg,#b86e05,#ffc83a 60%,#fff0a0)!important;border-radius:999px;box-shadow:0 0 16px rgba(255,200,58,.85);
+    linear-gradient(90deg,#0b7a72,#22b8cf 60%,#bff6ff)!important;border-radius:999px;box-shadow:0 0 16px rgba(34,184,207,.85);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-piste-v1.or .soreal-idle-tm-remplissage-v1{
   background:
     repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 2px,transparent 2px 14px),
-    linear-gradient(90deg,#d9a21b,#ffe27a 60%,#ffffff)!important;
+    linear-gradient(90deg,#14b8a6,#7ae3d6 60%,#ffffff)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{border-radius:999px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 b,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 strong{color:#fff3c4!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 strong{color:#eafcff!important}
 
 /* Bandeau d'identité : l'Or par seconde en grand, la barre d'Or, des pièces qui tombent. */
 .soreal-idle-tm-hero-v1{position:relative;overflow:hidden;text-align:center;padding:14px 14px 12px}
 .soreal-idle-tm-hero-v1::before{content:"⚙️";position:absolute;left:-14px;top:-18px;font-size:84px;opacity:.10;animation:sorealTmRouageV1 24s linear infinite;pointer-events:none}
 .soreal-idle-tm-hero-v1::after{content:"⚙️";position:absolute;right:-20px;bottom:-26px;font-size:96px;opacity:.09;animation:sorealTmRouageV1 32s linear infinite reverse;pointer-events:none}
 @keyframes sorealTmRouageV1{to{transform:rotate(360deg)}}
-.soreal-idle-tm-hero-titre-v1{position:relative;z-index:1;font-size:13px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#ffd978!important;text-shadow:0 0 10px rgba(255,205,70,.55)}
+.soreal-idle-tm-hero-titre-v1{position:relative;z-index:1;font-size:13px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#9fe9ff!important;text-shadow:0 0 10px rgba(34,184,207,.55)}
 .soreal-idle-tm-hero-gps-v1{position:relative;z-index:1;display:flex;align-items:baseline;justify-content:center;gap:8px;margin:2px 0 4px;flex-wrap:wrap}
-.soreal-idle-tm-hero-gps-v1 b{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:clamp(34px,7vw,56px);line-height:1;letter-spacing:.02em;color:#ffe27a!important;text-shadow:0 2px 0 #7a4d00,0 0 22px rgba(255,205,70,.75)}
-.soreal-idle-tm-hero-gps-v1 span{font-size:15px;font-weight:900;color:#ffd978}
-.soreal-idle-tm-hero-sous-v1{position:relative;z-index:1;font-size:13px;font-weight:800;color:var(--th-dim,#d8b873)}
+.soreal-idle-tm-hero-gps-v1 b{font-family:Impact,"Arial Black",system-ui,sans-serif;font-size:clamp(34px,7vw,56px);line-height:1;letter-spacing:.02em;color:#9fe9ff!important;text-shadow:0 2px 0 #0b3b38,0 0 22px rgba(34,184,207,.75)}
+.soreal-idle-tm-hero-gps-v1 span{font-size:15px;font-weight:900;color:#9fe9ff}
+.soreal-idle-tm-hero-sous-v1{position:relative;z-index:1;font-size:13px;font-weight:800;color:var(--th-dim,#a8e6df)}
 .soreal-idle-tm-hero-v1 .soreal-idle-tm-or-v1{position:relative;z-index:1}
 .soreal-idle-tm-hero-pieces-v1{position:absolute;inset:0;pointer-events:none;z-index:0}
 .soreal-idle-tm-hero-pieces-v1 i{position:absolute;top:-24px;font-style:normal;font-size:20px;opacity:0;animation:sorealTmPieceV1 4.8s linear infinite}
@@ -492,22 +492,22 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .sor
 
 /* Machine d'Or (suite) : en-tête de laiton, saisie, aide et boutons dans la même matière. */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1{background:transparent!important;border:0!important;box-shadow:none!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1{background:var(--pg-head)!important;border:2px solid var(--th-line)!important;border-radius:18px!important;color:#fff3c4!important;box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(255,236,160,.15)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 h1{color:#ffe27a!important;text-shadow:0 2px 0 #5a3900,0 0 18px rgba(255,205,70,.6)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 p{color:#ffe9b0!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1{background:var(--pg-head)!important;border:2px solid var(--th-line)!important;border-radius:18px!important;color:#eafcff!important;box-shadow:0 0 22px -10px var(--th-glow),inset 0 0 0 1px rgba(190,246,255,.15)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 h1{color:#9fe9ff!important;text-shadow:0 2px 0 #0b3b38,0 0 18px rgba(34,184,207,.6)}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-entete-v1 p{color:#cdf5f2!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] :is(.soreal-idle-tm-input-v1,.soreal-idle-aide-v1){background:var(--pg-card)!important;border:2px solid var(--th-line)!important;border-radius:16px!important;color:var(--th-ink)!important;box-shadow:0 0 18px -10px var(--th-glow)}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 :is(label,span,summary,li,p){color:var(--th-ink)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-sous-v1,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 span{color:#ffd978!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 b{color:#ffe27a!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-titre-v1{color:#ffd978!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-legende-v1{color:#ffe9a8!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-barre-v1{background:linear-gradient(180deg,#1b1204,#0c0803)!important;border:2px solid #c98a06!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{background:var(--pg-btn)!important;color:var(--pg-btn-ink)!important;border:2px solid #7a4d00!important;box-shadow:0 2px 0 #7a4d00!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 span{color:#9fe9ff!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-gps-v1 b{color:#9fe9ff!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-hero-titre-v1{color:#9fe9ff!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-legende-v1{color:#cdf5f2!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-or-barre-v1{background:linear-gradient(180deg,#04201e,#031413)!important;border:2px solid #22b8cf!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button{background:var(--pg-btn)!important;color:var(--pg-btn-ink)!important;border:2px solid #0b3b38!important;box-shadow:0 2px 0 #0b3b38!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-boutons-v1 button:active{transform:translateY(1px);box-shadow:none!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-tm-input-v1 input{background:#120c03!important;color:#fff3c4!important;border:2px solid #c98a06!important;border-radius:8px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-v1 .soreal-idle-tm-input-v1 input{background:#04201e!important;color:#eafcff!important;border:2px solid #22b8cf!important;border-radius:8px!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-stats-v1{background:var(--pg-card)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-gps-v1{color:#ffe27a!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-tm-gps-v1{color:#9fe9ff!important}
 
 /* ====================== ADVENTURE : le parchemin ====================== */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"]{
