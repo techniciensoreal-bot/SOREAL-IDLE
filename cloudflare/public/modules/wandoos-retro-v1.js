@@ -521,7 +521,7 @@
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
     var haut='';
     var flanc='';
-    if(phase!=='eteint'){   /* Norman (2026-11-02) : Wandoos se règle (cap compris) même pendant l'allumage / le chargement : il faut juste assez de ressources */
+    if(phase==='bureau'){
       haut=groupe_('Énergie','energy',e)+(e.magieOk?groupe_('Magie','magic',e):'')+pave_();
       /* l'interrupteur est sur le côté GAUCHE du clavier (Norman, 2026-10-23) */
       if(e.magieOk)flanc=synchroGroupe_(window.__SOREAL_IDLE_META_HOST_V130__&&window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat?window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat():null);
@@ -722,7 +722,7 @@
     var H=H_();
     if(!H||!H.getIdleEtat)return;
     var j=H.getIdleEtat(),e=etat_(j);
-    if(!e||phaseDe_(e)==='eteint'||(res!=='energy'&&res!=='magic'))return;
+    if(!e||phaseDe_(e)!=='bureau'||(res!=='energy'&&res!=='magic'))return;
     if(res==='magic'&&!e.magieOk)return;
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
     var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));

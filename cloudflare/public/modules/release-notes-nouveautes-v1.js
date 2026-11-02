@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le clavier de l’ordinateur rétro reste utilisable (bouton CAP compris) pendant l’allumage et le chargement.",
     "Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».",
     "Le Troll Challenge affiche maintenant des minuteries pour ses trolls.",
     "Pendant le Troll Challenge, l’entraînement de base ne progresse plus hors ligne.",
