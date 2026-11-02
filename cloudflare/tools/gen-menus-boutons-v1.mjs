@@ -235,6 +235,13 @@ function carteAnimee() {
   const croix = "<g><animateTransform attributeName='transform' type='rotate' dur='3.2s' repeatCount='indefinite' values='0 120 30;-9 120 30;0 120 30;9 120 30;0 120 30' keyTimes='0;.25;.5;.75;1' calcMode='spline' keySplines='.45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1'/><path d='M110 18L130 42M130 18L110 42' stroke='#e0432f' stroke-width='7' stroke-linecap='round'/><path d='M110 18L130 42M130 18L110 42' stroke='#ff9a7a' stroke-width='2' stroke-linecap='round'/></g>";
   return `<svg xmlns='http://www.w3.org/2000/svg' width='150' height='80' viewBox='0 0 150 80'>${points}${croix}</svg>`;
 }
+/* Money Pit (Norman, 2026-11-02) : un peu d'herbe aux deux EXTRÉMITÉS du bouton, pour montrer que ce sont les bords du trou du vrai Money Pit (pas beaucoup : quelques brins, bas, milieu, haut) ; SVG sans filtre ni animation, couches du fond (::before). */
+function herbe(cote) {
+  const brins = [["rgb(150,230,70)","M0 60 Q3 50 2 36"],["rgb(105,200,55)","M0 60 Q7 52 11 42"],["rgb(190,240,100)","M0 60 Q10 57 17 53"],["rgb(150,230,70)","M0 60 Q5 55 7 46"],["rgb(105,200,55)","M0 46 Q4 42 8 36"],["rgb(190,240,100)","M0 46 Q2 40 2 32"],["rgb(150,230,70)","M0 32 Q4 28 8 22"],["rgb(105,200,55)","M0 32 Q2 26 2 18"],["rgb(190,240,100)","M0 32 Q6 31 11 29"],["rgb(150,230,70)","M0 18 Q4 14 8 9"],["rgb(105,200,55)","M0 18 Q2 12 3 5"],["rgb(190,240,100)","M0 8 Q4 5 9 1"],["rgb(150,230,70)","M0 8 Q3 3 4 0"]];
+  const tracés = brins.map(([, d]) => `<path d='${d}' stroke='rgb(12,48,18)' stroke-width='5.6' stroke-linecap='round' fill='none'/>`).join("") + brins.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='3.2' stroke-linecap='round' fill='none'/>`).join("");   /* liseré sombre puis brin clair : lisible sur le vert du bouton */
+  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${tracés}</g>` : tracés;
+  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'>${g}</svg>`)}") ${cote === "d" ? "right" : "left"} bottom/auto 100% no-repeat`;
+}
 for (const id of MENUS) {
   const t = T[id], sp = SPEC[id], L = CADRES[id] || [];
   const g = dessin(id, "g", t), d = dessin(id, "d", t);
@@ -244,6 +251,7 @@ for (const id of MENUS) {
   const base = fond.length ? fond.join(",") : `radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%),linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%)`;
   out.push(`${sel(id)}{--nb-dom-v1:${t.dom};box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
   out.push(`${sel(id, "::before")}{background:${base}}`);
+  if (id === "moneyPit") out.push(`${P}[data-menu-id-v1="moneyPit"]::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:inherit;background:${herbe("g")},${herbe("d")}}`);   /* AU-DESSUS du fond du bouton (le dessin du fond est derrière le fond coloré du bouton) */
   out.push(`${sel(id, "::after")}{background:${ring}}`);
   out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
   const taille = (x) => (sp.tour ? ";height:100cqh;width:46.7cqh;max-width:none;aspect-ratio:auto" : `;aspect-ratio:${x.asp.toFixed(3)}`);   /* ITOPOD : la grande tour (3 étages entiers, ni coupée ni rapetissée) sur toute la hauteur, comme son cadre */
