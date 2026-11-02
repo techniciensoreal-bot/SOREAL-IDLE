@@ -30,9 +30,11 @@ function style(){
   document.head.appendChild(st);
 }
 
+var generation=0;   /* chaque annonce affichée a son numéro : les minuteries d'une annonce remplacée ne touchent plus la suivante */
 function suivante(){
   if(enCours||!file.length)return;
   enCours=true;
+  var mienne=++generation;
   var n=file.shift();
   style();
   var old=document.getElementById('soreal-idle-fade-notice-v1');
@@ -44,14 +46,16 @@ function suivante(){
   el.innerHTML='<div class="titre"'+(n.accent?' style="color:'+n.accent+'"':'')+'>'+esc(n.titre)+'</div>'+n.lignes.map(function(l){return '<div class="ligne">'+esc(l)+'</div>';}).join('');
   document.body.appendChild(el);
   requestAnimationFrame(function(){requestAnimationFrame(function(){el.classList.add('on');});});
-  setTimeout(function(){el.classList.remove('on');},n.dureeMs);
-  setTimeout(function(){if(el.parentNode)el.remove();enCours=false;suivante();},n.dureeMs+700);
+  setTimeout(function(){if(mienne===generation)el.classList.remove('on');},n.dureeMs);
+  setTimeout(function(){if(mienne!==generation)return;if(el.parentNode)el.remove();enCours=false;suivante();},n.dureeMs+700);
 }
 
 window.__sorealFadeNoticeV1__=function(titre,lignes,options){
   /* Un peu plus longtemps à l'écran (Norman, 2026-10-25 : « augmente légèrement le temps que ces notifications restent affichées, toutes ») : durée demandée × 1,3. */
   var duree=Math.round((options&&Number(options.dureeMs)>0?Number(options.dureeMs):4500)*1.3);
   var accent=options&&/^#[0-9a-fA-F]{3,8}$/.test(String(options.accent||''))?String(options.accent):'';
+  /* immediat : l'annonce passe devant tout, tout de suite (les trolls : le message doit apparaître à l'instant où le troll se produit, jamais derrière une autre annonce) */
+  if(options&&options.immediat){file.length=0;var vieille=document.getElementById('soreal-idle-fade-notice-v1');if(vieille)vieille.remove();enCours=false;generation+=1;}
   file.push({titre:String(titre||''),lignes:(Array.isArray(lignes)?lignes:[]).map(String).filter(Boolean),dureeMs:duree,accent:accent});
   suivante();
 };

@@ -90,3 +90,27 @@ const dico = JSON.parse(readFileSync("cloudflare/public/modules/traduction-angla
 for (const k of ["Prochain troll", "Prochain gros troll", "Prochain troll dans :", "Prochain gros troll dans :"]) assert.ok(dico[k], "traduit en anglais : " + k);
 
 console.log("idle-troll-minuteurs-v1 : OK");
+
+// Norman (2026-11-02) : « les messages qui expliquent le troll doivent apparaître exactement au moment où il se produit, et rester plus longtemps »
+{
+  const challenges = norm(readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8"));
+  assert.ok(challenges.includes("var DUREE_ANNONCE_TROLL=12000;") && challenges.includes("t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);"), "message du troll : 12 s (x1,3 par le module d'annonce), passe devant toute autre annonce");
+  assert.ok(challenges.includes("armerSyncTroll(prochainsTrolls(tr,d?d.completion:0,0).prochain)") && challenges.includes("Math.round(secondes*1000)+40") && challenges.includes("setTimeout(syncTroll,700)"), "synchro demandée à l'instant où le minuteur arrive à zéro, puis une de rattrapage");
+  const fade = norm(readFileSync("cloudflare/public/modules/fade-notice-v1.js", "utf8"));
+  assert.ok(fade.includes("options&&options.immediat") && fade.includes("if(mienne!==generation)return;"), "annonce immédiate : remplace l'annonce affichée, les minuteries de l'ancienne ne touchent pas la nouvelle");
+  // comportement : une annonce immédiate remplace celle qui est affichée et vide la file
+  const elems = new Map(); const timers = [];
+  const doc = { head: { appendChild() {} }, body: { appendChild(e) { elems.set(e.id, e); } }, getElementById: (id) => elems.get(id) || null, createElement: () => ({ style: {}, classList: { add() {}, remove() {} }, setAttribute() {}, remove() { elems.delete(this.id); }, get parentNode() { return elems.get(this.id) === this ? {} : null; } }) };
+  const sb = { window: {}, document: doc, requestAnimationFrame: (f) => f(), setTimeout: (f, ms) => { timers.push([ms, f]); return timers.length; } };
+  sb.window.window = sb.window;
+  vm.runInNewContext(fade, sb);
+  const notice = sb.window.__sorealFadeNoticeV1__;
+  notice("Premiere", ["a"], { dureeMs: 5000 }); notice("En file", ["b"], { dureeMs: 5000 });
+  assert.ok(elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Premiere"));
+  notice("Troll", ["c"], { dureeMs: 12000, immediat: true });
+  assert.ok(elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Troll"), "le troll s'affiche tout de suite");
+  for (const [, f] of timers.slice(0, 2)) f();   // les minuteries de la première annonce ne retirent pas celle du troll
+  assert.ok(elems.get("soreal-idle-fade-notice-v1") && elems.get("soreal-idle-fade-notice-v1").innerHTML.includes("Troll"), "l'annonce du troll reste");
+  assert.ok(timers.some(([ms]) => ms === Math.round(12000 * 1.3)), "durée du troll : 15,6 s");
+  console.log("idle-troll-minuteurs-v1 (annonce immédiate et longue) : OK");
+}

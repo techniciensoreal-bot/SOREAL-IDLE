@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les portes des fruits ont de nouveaux dessins et s’ouvrent par le haut, avec un bruit de herse de château fort."
+    "Le message d’un troll apparaît à l’instant où il se produit et reste plus longtemps à l’écran."
   ] };
 })();

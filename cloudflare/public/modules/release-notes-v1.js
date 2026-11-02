@@ -67,6 +67,7 @@
           {menu:'challenges', titre:'Défis', points:[
             'Les trolls disent maintenant leurs vraies phrases, et leurs effets tombent après la production du moment : plus de vol « sans effet ».',
             'Le Troll Challenge affiche maintenant des minuteries pour ses trolls.',
+            'Le message d’un troll apparaît à l’instant où il se produit et reste plus longtemps à l’écran.',
             'Pendant le Troll Challenge, l’entraînement de base ne progresse plus hors ligne.',
             'Les descriptions des défis reprennent désormais le texte d’origine du jeu.',
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',

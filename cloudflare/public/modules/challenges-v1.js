@@ -464,9 +464,9 @@ var dernierTroll=null;  /* seq du dernier troll vu */
 var menuTroll=false;
 var menuOriginal=null;
 
-function annonce(titre,lignes,accent){
+function annonce(titre,lignes,accent,dureeMs,immediat){
   var f=window.__sorealFadeNoticeV1__;
-  if(typeof f==='function')f(titre,lignes,{dureeMs:5200,accent:accent||'#f43f5e'});
+  if(typeof f==='function')f(titre,lignes,{dureeMs:dureeMs||5200,accent:accent||'#f43f5e',immediat:Boolean(immediat)});
 }
 
 function annoncerFin(fin,j){
@@ -644,6 +644,7 @@ function activerMenuAleatoire(actif){
   }
 }
 
+var DUREE_ANNONCE_TROLL=12000;
 function jouerTroll(troll,j){
   var t=TROLLS[troll.id];
   if(!t)return;
@@ -654,7 +655,7 @@ function jouerTroll(troll,j){
     msg=msg.replace('X',String(2+(d?ent(d.completion):0)));
   }
   fermerTrollsVisuels();
-  annonce('😈 '+t.titre,[msg,t.effet],t.big?'#ef4444':'#f59e0b');
+  annonce('😈 '+t.titre,[msg,t.effet],t.big?'#ef4444':'#f59e0b',DUREE_ANNONCE_TROLL,true);   /* le message reste 12 s (Norman, 2026-11-02 : « le message doit rester plus longtemps ») */
   if(troll.id==='boxes')jouerBoites();
   if(troll.id==='kitty')jouerChaton();
 }
@@ -680,6 +681,17 @@ function minutesSecondes(s){
   return Math.floor(t/60)+':'+('0'+(t%60)).slice(-2);
 }
 
+/* Le troll tombe À L'INSTANT où son minuteur arrive à zéro (Norman, 2026-11-02 : « le message doit apparaître exactement au moment où il se produit ») : le client connaît le temps restant (même règle que le moteur) et demande une synchro à cet instant précis ; le message et l'effet arrivent avec la réponse. Une seconde synchro 0,7 s plus tard rattrape un décalage de quelques dizaines de ms. */
+var timerSyncTroll=0;
+function syncTroll(){
+  var r=window.__SOREAL_IDLE_REG__;
+  try{if(r&&typeof r.synchroniserJeuIdleV7_==='function')r.synchroniserJeuIdleV7_(true);}catch(_e){}
+}
+function armerSyncTroll(secondes){
+  if(timerSyncTroll){clearTimeout(timerSyncTroll);timerSyncTroll=0;}
+  if(typeof setTimeout!=='function'||!(secondes>=0))return;
+  timerSyncTroll=setTimeout(function(){timerSyncTroll=0;syncTroll();setTimeout(syncTroll,700);},Math.round(secondes*1000)+40);
+}
 var ancreTroll=null;   /* dernier état de troll vu et l'heure à laquelle on l'a vu : le décompte avance entre deux synchros */
 function etatMinuteursTroll(){
   var r=window.__SOREAL_IDLE_REG__,j=r&&r.idleEtat;
@@ -688,7 +700,7 @@ function etatMinuteursTroll(){
   var defs=Array.isArray(j.systemes.challengeDefinitions)?j.systemes.challengeDefinitions:[];
   var d=defs.filter(function(x){return x&&x.id==='troll';})[0];
   var tr=etat.troll;
-  if(!ancreTroll||ancreTroll.timer!==tr.timer||ancreTroll.count!==tr.count)ancreTroll={timer:tr.timer,count:tr.count,t:Date.now()};
+  if(!ancreTroll||ancreTroll.timer!==tr.timer||ancreTroll.count!==tr.count){ancreTroll={timer:tr.timer,count:tr.count,t:Date.now()};armerSyncTroll(prochainsTrolls(tr,d?d.completion:0,0).prochain);}
   return prochainsTrolls(tr,d?d.completion:0,(Date.now()-ancreTroll.t)/1000);
 }
 
