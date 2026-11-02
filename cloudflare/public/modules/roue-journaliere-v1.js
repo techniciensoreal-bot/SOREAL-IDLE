@@ -177,8 +177,14 @@
   function rendreCarte(st,j,boutonHtml){
     if(!anim)memo={st:st,j:j};
     const e=etatAffiche(j,st);
-    if(!e)return '<div class="rb-roue"><div class="rb-roue-int"><div class="rb-titre">Roue journalière</div>'+boutonHtml+'</div></div>';
-    return '<div class="rb-roue" data-roue-v1="1"><div class="rb-roue-int"><div class="rb-titre">Roue journalière</div>'+svgRoue(e.liste,e.rot,e.gagnant)+boutonHtml+legende(e.liste,e.gagnant)+'</div></div>';
+    /* Norman (2026-11-02, « repense les placements pour que tout s'emboîte parfaitement ») : la carte de la roue ne porte plus que son titre et la roue (même hauteur que l'image du trou) ; le bouton et la légende des chances passent dans la carte du dessous (rendreControles). */
+    if(!e)return '<div class="rb-roue"><div class="rb-roue-int"><div class="rb-titre">Roue journalière</div></div></div>';
+    return '<div class="rb-roue" data-roue-v1="1"><div class="rb-roue-int"><div class="rb-titre">Roue journalière</div>'+svgRoue(e.liste,e.rot,e.gagnant)+'</div></div>';
+  }
+  /* Le bouton de la roue puis la légende de ses chances (affichés dans la carte « Roue journalière ! », sous la roue). */
+  function rendreControles(st,j,boutonHtml){
+    const e=etatAffiche(j,st);
+    return boutonHtml+(e?legende(e.liste,e.gagnant):'');
   }
 
   /* ---------- lancement : le MOTEUR d'abord, la roue ensuite ---------- */
@@ -273,7 +279,7 @@
   window.__lancerRoueIdleV1__=lancer;
 
   window.__SOREAL_IDLE_ROUE_V1__={
-    rendreCarte:rendreCarte,lancer:lancer,recevoir:recevoir,echec:echec,
+    rendreCarte:rendreCarte,rendreControles:rendreControles,lancer:lancer,recevoir:recevoir,echec:echec,
     enCours:function(){return Boolean(anim);},
     stAvant:function(){return anim?anim.stAvant:null;},
     totalAvant:function(){return anim?anim.totalAvant:null;},

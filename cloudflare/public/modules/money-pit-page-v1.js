@@ -544,6 +544,7 @@
           '<div class="rb-prixcol"><div class="soreal-idle-money-action-v206 soreal-idle-money-spin-action-v206">'+
             '<div class="soreal-idle-money-action-title-v206">Roue journalière !</div>'+
             '<div class="soreal-idle-money-action-note-v206">Une fois par jour. Chaque part de la roue est une récompense possible : sa largeur suit sa chance.</div>'+
+            (RO&&typeof RO.rendreControles==='function'?RO.rendreControles(roueSt,j,boutonRoue):boutonRoue)+
             prixRoue+
             '<div class="rb-prix-txt">Tours effectués : <b>'+totalSpins+'</b>.</div>'+
           '</div></div>'+

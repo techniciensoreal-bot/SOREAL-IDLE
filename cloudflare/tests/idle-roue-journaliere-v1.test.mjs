@@ -97,9 +97,13 @@ const j = { systemes: { roueJournaliere: { tier: 5, table: table5, derniere: nul
 
   const h = RO.rendreCarte(st, j, "<button>BOUTON</button>");
   assert.equal((h.match(/class="rb-sect/g) || []).length, table5.length, "la roue dessine un secteur par récompense");
-  assert.equal((h.match(/class="rb-leg[ "]/g) || []).length, table5.length, "la légende les liste toutes");
-  assert.ok(h.includes("0,5 %") && h.includes("36 %"), "pourcentages réels dans la légende");
-  assert.ok(!/Bonus<\/span>|\?\?\?|verrouill/i.test(h), "aucun secteur générique ni masqué (exception anti-spoil validée)");
+  /* Norman (2026-11-02) : la carte de la roue ne porte plus que son titre et son dessin ; le bouton et la légende des chances sont dans la carte du dessous (rendreControles) */
+  assert.ok(!h.includes("BOUTON") && !/class="rb-leg[ "]/.test(h), "la carte de la roue n'a plus ni bouton ni légende");
+  const ctl = RO.rendreControles(st, j, "<button>BOUTON</button>");
+  assert.ok(ctl.startsWith("<button>BOUTON</button>"), "le bouton vient d'abord");
+  assert.equal((ctl.match(/class="rb-leg[ "]/g) || []).length, table5.length, "la légende les liste toutes");
+  assert.ok(ctl.includes("0,5 %") && ctl.includes("36 %"), "pourcentages réels dans la légende");
+  assert.ok(!/Bonus<\/span>|\?\?\?|verrouill/i.test(h + ctl), "aucun secteur générique ni masqué (exception anti-spoil validée)");
 
   // Flux : le MOTEUR d'abord. Au clic : demande envoyée, la roue n'a pas bougé.
   RO.lancer();

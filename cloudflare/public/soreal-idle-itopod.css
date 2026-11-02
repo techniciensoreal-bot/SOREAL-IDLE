@@ -2094,8 +2094,25 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* Trou sans fond et roue journalière, sur PC : l'image du trou et la roue sont 25 % plus petites (Norman, 2026-11-02 : « ils sont énormes, 25 % plus petit et tu gardes une symétrie sur la page »). Les deux colonnes gardent la même largeur ;
    chaque image est CENTRÉE dans sa colonne, tops alignés, donc la page reste symétrique (mêmes marges de part et d'autre). Les cartes d'action (Jeter l'or, prix de la roue) gardent toute la largeur de leur colonne. Téléphone inchangé (<= 760 px). */
 @media (min-width:761px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.soreal-idle-money-scene-v206{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.rb-roue{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
-  /* les deux colonnes ne collent plus le cadre d'au-dessus : même écart (14 px) que celui qui sépare les autres cadres de la page (Norman, 2026-11-02 : « ils ne doivent pas être superposés ») */
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1{margin-top:14px!important}
+  /* SYMÉTRIE PARFAITE (Norman, 2026-11-02 : « les 2 mêmes colonnes, une symétrie parfaite ») : les deux colonnes ne sont plus deux piles indépendantes mais UNE grille à 3 rangées communes (image / roue, cartes d'action, cadres de récompenses) ;
+     à chaque rangée, les deux cadres ont la MÊME hauteur et le même haut ; chacun fait 75 % de sa moitié, centré, donc les marges gauche et droite sont identiques. « Login rewards » (en dessous) prend la largeur des deux. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto;row-gap:14px;column-gap:20px;align-items:stretch;margin-top:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-v1{display:contents}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-trou-v1>:nth-child(1){grid-column:1;grid-row:1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-trou-v1>:nth-child(2){grid-column:1;grid-row:2}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-trou-v1>:nth-child(3){grid-column:1;grid-row:3}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-roue-v1>:nth-child(1){grid-column:2;grid-row:1}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-roue-v1>:nth-child(2){grid-column:2;grid-row:2}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-roue-v1>:nth-child(3){grid-column:2;grid-row:3}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-v1>*{width:75%!important;max-width:75%!important;margin:0!important;justify-self:center;align-self:stretch;box-sizing:border-box}
+  /* rangée 1 : l'image du trou et la carte de la roue sont deux CARRÉS identiques (la roue ne porte plus que son titre et son dessin ; le bouton et la légende des chances sont dans la carte du dessous) */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-roue-v1>.rb-roue{aspect-ratio:1/1;display:flex;flex-direction:column;height:auto!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-roue-v1>.rb-roue>.rb-roue-int{flex:1 1 0;min-height:0;display:flex;flex-direction:column;box-sizing:border-box;padding:8px 10px 10px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-roue-v1>.rb-roue svg{flex:1 1 0;min-height:0;width:100%;height:auto;max-height:100%}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-trou-v1>.soreal-idle-money-scene-v206{aspect-ratio:1/1;display:flex;align-items:center;height:auto!important}
+  /* rangée 2 : les deux cartes d'action remplissent toute leur rangée (contenu réparti, jamais de vide en bas) */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>:is(.soreal-idle-money-actions-v206,.rb-prixcol){display:flex;flex-direction:column}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>:is(.soreal-idle-money-actions-v206,.rb-prixcol)>.soreal-idle-money-action-v206{flex:1 1 auto;justify-content:space-between!important}
+  /* « Login rewards » prend la largeur des DEUX cadres réunis (87,5 % de la grille + 2,5 px de gouttière) */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .cal-v1{max-width:none!important;width:calc(100% * .875 + 2.5px)!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
 }

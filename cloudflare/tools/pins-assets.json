@@ -440,8 +440,8 @@
   "sha": "7f53d3b32144988d2f50b116fdb5b5dacefc03f3"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 24,
-  "sha": "e9f0c156decd99e17a67fff2d3c3ad4f97b8fdeb"
+  "pin": 25,
+  "sha": "cfc674485ac0cc8372236994dfbb996be972dedc"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -568,8 +568,8 @@
   "sha": "11dba3ab6c491beae7ee2fb74e929dee798c24f2"
  },
  "/modules/roue-journaliere-v1.js": {
-  "pin": 1,
-  "sha": "d688f356de0b359014a976fa60cbfe6a439aae1e"
+  "pin": 2,
+  "sha": "b1d8b0ee849e1832033765700ad4a8007538f289"
  },
  "/modules/runtime.js": {
   "pin": 5,
@@ -872,8 +872,8 @@
   "sha": "2a95a2793e4771c26398228a47ea6acffa06d12b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 314,
-  "sha": "7b895b035fed57feb17843f98b7800123dc60398"
+  "pin": 319,
+  "sha": "a6f0dcdfb35babfc4b623e4e925fae8930a03765"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
