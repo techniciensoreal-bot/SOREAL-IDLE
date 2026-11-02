@@ -654,18 +654,20 @@ function dessinerMasque(rows,coul,sx,sy,e,xMin){
 }
 /* La clairière derrière le rideau ouvert (photo de Norman, 2026-11-02) : grands sapins vert très sombre, ciel pâle rosé au centre en haut, jeunes arbres nus clairs et fins, sol de terre brune (aiguilles), et au centre le trou bordé de cendre blanche. Une colonne à la fois ; u = colonne dans l'ouverture entière (l'ouverture est une fenêtre qui s'élargit sur ce paysage fixe). */
 function rrClairiere(x,G,t){
-  var u=x-(RR_OC-Math.floor(RR_OW/2)),H=P.H,gy=G.ft-5,y,hw,i,tr=[2,5,8,15,18,20];
+  var u=x-(RR_OC-Math.floor(RR_OW/2)),H=P.H,gy=G.ft-5,y,hw,i;
   for(y=0;y<gy;y++){
     hw=Math.max(0,4.4-0.4*y)+((y+u)%2?0.6:0);
     if(Math.abs(u-(RR_OW-1)/2)<=hw){px(x,y,BLE,40);if((u*5+y*11)%7===0)px(x,y,BLA,P.reduced?200:Math.round(40+215*(0.5+0.5*Math.sin(6.2832*(t/2+R(u,y))))));}   /* ciel de nuit étoilé : les étoiles scintillent en boucle parfaite (période 2 s) */
     else px(x,y,VER,(u*7+y*3)%5===0?24:14);
   }
   for(y=gy;y<H;y++)px(x,y,AMB,((x*7+y*13)%6===0)?52:28);
-  for(i=0;i<tr.length;i++){
-    var top=4+(i%3)*2,v=125+(i%2)*25;
-    if(u===tr[i])for(y=top;y<gy+3+(i%2);y++)px(x,y,BLE,v+40);
-    if(u===tr[i]-1)px(x,top+1,BLE,v);
-    if(u===tr[i]+1)px(x,top+2,BLE,v);
+  /* jeunes arbres nus ÉPARPILLÉS (Norman, 2026-11-02 : « les arbres autour du trou sont mis trop parfaitement, ils doivent être éparpillés ») : positions, hauteurs, longueurs, éclairage et inclinaison irréguliers, quelques-uns plus proches (grands, clairs) et d'autres lointains (courts, ternes), jamais alignés ni espacés pareil ; [colonne, haut, bas (au-dessus du sol), éclat, pente : décalage d'une colonne à partir de la rangée indiquée (0 = droit)] */
+  var ARBRES=[[1,5,0,150,0],[3,2,1,95,0],[6,7,2,120,9],[8,3,0,170,0],[10,8,3,85,0],[13,4,1,140,6],[15,7,4,100,0],[17,2,0,165,8],[19,6,2,115,0],[21,4,1,135,5]];
+  for(i=0;i<ARBRES.length;i++){
+    var ar=ARBRES[i],bas=gy+3-ar[2];
+    for(y=ar[1];y<bas;y++){var dec=ar[4]&&y>=ar[4]?1:0;if(u===ar[0]+dec)px(x,y,BLE,ar[3]+(y%3===0?20:0));}
+    if(u===ar[0]-1&&ar[3]>=130)px(x,ar[1]+1,BLE,ar[3]-20);   /* une branche */
+    if(u===ar[0]+2&&ar[3]>=140)px(x,ar[1]+2,BLE,ar[3]-35);
   }
   var cu=Math.floor(RR_OW/2),hy=gy+2;
   if(u>=cu-3&&u<=cu+3){
@@ -683,7 +685,7 @@ function rrDecor(tg,G,pc,op,bleu,t){
     px(x,G.ft-1,cr,22);
   }
   for(y=G.ft;y<H;y++){
-    for(x=0;x<W;x++){var q=(((x+sh)%8)+8)%8,tri=q<4?q:8-q,cl=((y-G.ft+tri)%4)<2;
+    for(x=0;x<W;x++){var q=(((x-sh)%8)+8)%8,tri=q<4?q:8-q,cl=((y-G.ft+tri)%4)<2;
       if(bleu===2)px(x,y,cl?BLA:BLE,cl?255:150);else if(bleu===1)px(x,y,cl?BLA:BLE,cl?120:44);else px(x,y,cl?BLA:ROU,cl?150:58);}
   }
   for(x=ox0;x<ox0+ow;x++)rrClairiere(x,G,t);
@@ -692,9 +694,9 @@ function rrDecor(tg,G,pc,op,bleu,t){
 }
 function rrObstacles(t,tg,G,libre){
   var W=P.W,per=W+60,off=Math.round((W+8)*0.35),e=G.e,vx,nx,po;
-  vx=Math.round(W+8-((tg*RR_SP+off)%per));
+  vx=Math.round(((tg*RR_SP+off)%per)-(per-W-8));   /* ils courent vers la gauche : le sol et les passants défilent vers la DROITE (Norman, 2026-11-02 : « le sol défile dans le mauvais sens »), entrent par la gauche et sortent par la droite */
   dessinerCoul(VENUS,VENUS_COUL,vx,G.fl-2-(Math.round(18*e)-1),e);
-  nx=Math.round(W+8-((tg*RR_SP+off+Math.round(per/2))%per));
+  nx=Math.round(((tg*RR_SP+off+Math.round(per/2))%per)-(per-W-8));
   po=P.reduced?0:rrNainPose(t);
   var ny=G.fl-2-(Math.round(10*e)-1),nxx=nx+((po===3)?1:0);
   if(libre&&nxx+Math.round(7*e)>=libre[0]&&nxx<=libre[1])return;   /* après la prise : le nain ne reste pas planté entre les deux hommes */
