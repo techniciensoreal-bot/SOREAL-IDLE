@@ -125,5 +125,5 @@ console.log("idle-borne-duel-leds-v1: OK");
 }
 {
   const led3 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led3.includes("if(an){rect(x-4,bt2-2,tw2+8,11,BLA,1);if(x>9){rect(0,bt2-2,10,11,BLA,1);rect(W-10,bt2-2,10,11,BLA,1);}}"), "« RECOMMENCE ? » sur un bandeau éteint pendant l'animation de Leatherface (Norman, 2026-11-02)");
+  assert.ok(led3.includes("if(an){var dx0=-1,dy0;for(dx0=-1;dx0<=1;dx0++)for(dy0=-1;dy0<=1;dy0++)if(dx0||dy0){var wq0=text(s2,x+dx0,bt2+dy0,BLA,1,1);") && !led3.includes("rect(x-4,bt2-2,tw2+8,11,BLA,1)"), "« RECOMMENCE ? » : contour éteint autour des lettres, jamais un cadre qui cache Leatherface (Norman, 2026-11-02)");
 }
