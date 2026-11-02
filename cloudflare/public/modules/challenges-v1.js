@@ -507,38 +507,69 @@ function styleTroll(){
     '#sorealDefiChatonV1{position:fixed;left:0;top:18vh;width:100vw;height:64vh;z-index:99990;pointer-events:none;overflow:hidden}'+
     '#sorealDefiChatonV1 svg{position:absolute;top:0;height:100%;width:auto;animation:sorealChatonV1 14s linear forwards}'+
     '#sorealDefiBoitesV1{position:fixed;inset:0;z-index:99991;pointer-events:none}'+
-    '.sorealDefiBoiteV1{position:absolute;pointer-events:auto;width:210px;background:#eef1f6;color:#111;border:2px solid #667;border-radius:6px;box-shadow:0 4px 14px #0007;font:12px system-ui;padding:8px}'+
-    '.sorealDefiBoiteV1 b{display:block;margin-bottom:6px}'+
-    '.sorealDefiBoiteV1 .bts{display:flex;gap:6px;justify-content:flex-end}'+
-    '.sorealDefiBoiteV1 button{padding:3px 10px;border:1px solid #556;background:#dde;border-radius:4px;cursor:pointer}';
+    '.sorealDefiBoiteV1{position:absolute;pointer-events:auto;display:flex;flex-direction:column;box-sizing:border-box;background:#eef1f6;color:#111;border:2px solid #667;border-radius:8px;box-shadow:0 6px 18px #0009;font:15px system-ui,sans-serif;padding:12px 14px}'+
+    '.sorealDefiBoiteV1 b{display:block;margin-bottom:8px;font-size:16px}'+
+    '.sorealDefiBoiteV1 .txt{flex:1 1 auto}'+
+    '.sorealDefiBoiteV1 .bts{display:flex;gap:12px;justify-content:flex-end}'+
+    '.sorealDefiBoiteV1 button{min-width:96px;padding:8px 18px;font-size:15px;border:1px solid #556;background:#dde;border-radius:6px;cursor:pointer}';
   document.head.appendChild(st);
+}
+
+/* Les boîtes du troll (Norman, 2026-11-02) : 50 fenêtres de taille normale qui s'ouvrent SUR LE MENU FIGHT BOSS et partent EN CASCADE depuis le menu jusqu'au coin opposé de l'écran (la cascade, pas une fenêtre, occupe l'écran). Deux boutons : « Fermer » ferme la fenêtre, « Annuler » ROUVRE TOUTES les fenêtres.
+   Au hasard, certaines fenêtres ont leurs boutons inversés (aucun indice) : il faut lire avant de cliquer, pas spammer. Seuls les boutons de la fenêtre du dessus sont atteignables ; la DERNIÈRE à fermer (le bas de la pile, posée sur le menu) est celle qui bloque l'accès aux boutons du menu. */
+function allerAuMenuFightBoss(){
+  var aller=menuOriginal||window.__menuIdleV28__;   /* la fonction d'origine : le gros troll « menu au hasard » ne doit pas détourner cette navigation */
+  try{if(typeof aller==='function')aller.call(window,'combat');}catch(_e){}
 }
 
 function jouerBoites(){
   styleTroll();
   retirer('sorealDefiBoitesV1');
+  allerAuMenuFightBoss();
   var zone=document.createElement('div');
   zone.id='sorealDefiBoitesV1';
-  var restantes=50;
-  var piege=Math.floor(Math.random()*50);
-  function boite(i){
+  document.body.appendChild(zone);
+  var N=50;
+
+  function rectMenu(){
+    var m=document.querySelector('.soreal-idle-nav-v28');
+    var r=m&&m.getBoundingClientRect?m.getBoundingClientRect():null;
+    return r&&r.width>0&&r.height>0?r:{left:0,top:0,width:0,height:0};
+  }
+
+  function boite(i,g){
     var b=document.createElement('div');
     b.className='sorealDefiBoiteV1';
-    b.style.left=Math.round(Math.random()*Math.max(10,window.innerWidth-230))+'px';
-    b.style.top=Math.round(Math.random()*Math.max(10,window.innerHeight-130))+'px';
-    var inverse=i===piege;
-    b.innerHTML='<b>😈 4G</b><div class="txt"></div><div class="bts">'+(inverse?'<button data-k="non">Non</button><button data-k="oui">Oui</button>':'<button data-k="oui">Oui</button><button data-k="non">Non</button>')+'</div>';
-    b.querySelector('.txt').textContent=inverse?'Boîte piégée : les boutons sont inversés !':'Encore une boîte à fermer !';
+    b.style.cssText='left:'+(g.x0+Math.round(i*g.dx))+'px;top:'+(g.y0+Math.round(i*g.dy))+'px;width:'+g.bw+'px;height:'+g.bh+'px;z-index:'+(i+1);
+    var inverse=Math.random()<0.3;
+    var fermer='<button type="button" data-k="fermer">Fermer</button>',annuler='<button type="button" data-k="annuler">Annuler</button>';
+    b.innerHTML='<b>😈 4G</b><div class="txt"></div><div class="bts">'+(inverse?annuler+fermer:fermer+annuler)+'</div>';
+    b.querySelector('.txt').textContent='Encore une boîte à fermer !';
     b.addEventListener('click',function(ev){
-      if(!ev.target||ev.target.tagName!=='BUTTON')return;
+      var bt=ev.target&&ev.target.closest?ev.target.closest('button'):null;
+      if(!bt)return;
+      if(bt.getAttribute('data-k')==='annuler'){ouvrirTout();return;}   /* « Annuler » : tout se rouvre */
       if(b.parentNode)b.parentNode.removeChild(b);
-      restantes-=1;
-      if(restantes<=0)retirer('sorealDefiBoitesV1');
+      if(i===0)retirer('sorealDefiBloqueMenuV1');                      /* la dernière fenêtre fermée libère le menu */
+      if(!zone.querySelector('.sorealDefiBoiteV1'))retirer('sorealDefiBoitesV1');
     });
     return b;
   }
-  for(var i=0;i<50;i++)zone.appendChild(boite(i));
-  document.body.appendChild(zone);
+
+  function ouvrirTout(){
+    zone.innerHTML='';
+    var L=window.innerWidth,H=window.innerHeight,m=rectMenu();
+    var x0=Math.max(0,Math.round(m.left)),y0=Math.max(0,Math.round(m.top));
+    var bw=Math.min(380,Math.round(L*0.92)),bh=Math.min(210,Math.round(H*0.5));
+    var g={x0:x0,y0:y0,bw:bw,bh:bh,dx:Math.max(0,(L-x0-bw)/(N-1)),dy:Math.max(0,(H-y0-bh)/(N-1))};
+    /* zone transparente sur tout le menu, retirée avec la DERNIÈRE fenêtre : tant qu'elle reste, les boutons du menu sont inaccessibles */
+    var bloc=document.createElement('div');
+    bloc.id='sorealDefiBloqueMenuV1';
+    bloc.style.cssText='position:fixed;left:'+Math.round(m.left)+'px;top:'+Math.round(m.top)+'px;width:'+Math.round(m.width)+'px;height:'+Math.round(m.height)+'px;z-index:0;pointer-events:auto;background:transparent';
+    zone.appendChild(bloc);
+    for(var i=0;i<N;i++)zone.appendChild(boite(i,g));
+  }
+  setTimeout(ouvrirTout,60);   /* après la navigation vers le menu Fight Boss : le menu est à sa place quand on le mesure */
 }
 
 /* Un chaton volontairement mal dessiné (« I drew a kitty for you ») : repli quand les vrais chats du dossier ne sont pas joignables (hors ligne). */
@@ -806,5 +837,5 @@ function verifier(j){
   }
 }
 
-window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,prochainsTrolls:prochainsTrolls,minutesSecondes:minutesSecondes,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
+window.__SOREAL_IDLE_DEFIS_V1__={dureeLongue:dureeLongue,page:page,verifier:verifier,verifierFin:verifierFin,traduire:traduire,prochainsTrolls:prochainsTrolls,minutesSecondes:minutesSecondes,jouerBoites:jouerBoites,textes:{DEFIS:DEFIS,TROLLS:TROLLS,DIFFICULTES:DIFFICULTES,MESSAGES_ERREUR:MESSAGES_ERREUR}};
 })();

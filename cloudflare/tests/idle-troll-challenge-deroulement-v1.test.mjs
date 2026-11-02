@@ -187,7 +187,11 @@ assert.ok(actions.includes("if(state.challenge.troll)state.challenge.troll.flags
 
 // 7. les trolls visuels (boîtes, chaton, menu au hasard) sont joués par le client d'après le troll annoncé
 const client = readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
-assert.ok(client.includes("var restantes=50;") && client.includes("var piege=Math.floor(Math.random()*50);"), "50 boîtes, dont une aux boutons inversés");
+assert.ok(client.includes("var N=50;") && client.includes("Math.random()<0.3") && client.includes("(inverse?annuler+fermer:fermer+annuler)"), "50 fenêtres « Fermer » / « Annuler », certaines aux boutons inversés au hasard, sans indice");
+assert.ok(client.includes("if(bt.getAttribute('data-k')==='annuler'){ouvrirTout();return;}"), "« Annuler » rouvre TOUTES les fenêtres ; « Fermer » ferme la fenêtre");
+assert.ok(client.includes("aller.call(window,'combat')") && client.includes("allerAuMenuFightBoss();"), "les fenêtres s'ouvrent sur le menu Fight Boss");
+assert.ok(client.includes("if(i===0)retirer('sorealDefiBloqueMenuV1');") && client.includes("id='sorealDefiBloqueMenuV1'"), "la dernière fenêtre à fermer (le bas de la pile) est celle qui bloque les boutons du menu");
+assert.ok(client.includes("dx:Math.max(0,(L-x0-bw)/(N-1))") && client.includes("var bw=Math.min(380,Math.round(L*0.92))"), "fenêtres de taille normale, posées en cascade depuis le menu jusqu'au coin opposé de l'écran");
 assert.ok(client.includes("function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');}") && client.includes("  fermerTrollsVisuels();\n  annonce("), "les boîtes et le chaton disparaissent quand le troll suivant tombe");
 assert.ok(client.includes("if(Math.random()<0.75)"), "menu au hasard : 75 % de chances");
 assert.ok(client.includes("animation:sorealChatonV1 14s linear forwards"), "le chaton traverse l'écran");
