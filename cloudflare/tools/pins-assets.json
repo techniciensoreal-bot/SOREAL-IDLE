@@ -263,6 +263,10 @@
   "pin": 2,
   "sha": "cf450bfb4c8ae7472651c8f57ce4a291093dcde1"
  },
+ "/modules/etagere-sommeil-regard-v1.js": {
+  "pin": 1,
+  "sha": "0627eee13b38c24aeccbd9d98324a98b860999d9"
+ },
  "/modules/etat-monotone-v1.js": {
   "pin": 1,
   "sha": "9a418a74f641934f4857b095a423b2637ffe36e2"
@@ -556,8 +560,8 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 85,
-  "sha": "dfc0201f435e4f7931bb488b80afd2d0a9b8afda"
+  "pin": 86,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 717,
