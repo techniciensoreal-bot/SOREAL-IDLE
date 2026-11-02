@@ -281,7 +281,7 @@
       }
 
       /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 11 lignes. */
-      function mettreAJourJeuIdleLocalV7__p3(dt){
+      function mettreAJourJeuIdleLocalV7__p3(dt,dtRepos){
         if(!REG.idleEtat.combatBossActif){
           const regenPvSecJoueurReposV1=
             regenPvFightBossNguParSecondeV164_(
@@ -290,7 +290,7 @@
           REG.idleEtat.pvJoueur=
             Math.min(
               idleNombre_(REG.idleEtat.pvJoueurMax),
-              idleNombre_(REG.idleEtat.pvJoueur)+regenPvSecJoueurReposV1*dt
+              idleNombre_(REG.idleEtat.pvJoueur)+regenPvSecJoueurReposV1*Math.max(dt,idleNombre_(dtRepos))
             );
         }
       }
@@ -1550,6 +1550,23 @@
             )
           );
 
+        /*
+         * Temps RÉELLEMENT écoulé depuis le tick précédent, pour la seule régénération de vie au repos (Norman, 2026-11-02 : « ma barre de vie a fait un saut en avant à la synchro »). Le tick local est plafonné à 1 s
+         * par passage (ecouleTickMs) ; quand le navigateur ralentit les minuteries (fenêtre cachée ou masquée : un passage par seconde, puis par minute) ou qu'une tâche longue bloque la page, chaque passage ne comptait qu'une
+         * seconde de régénération pendant que le moteur, lui, comptait tout le temps écoulé : la vie affichée restait en retard puis sautait en avant à la synchro suivante. Les autres événements qui remettent
+         * idleDernierTickLocalV40 à « maintenant » (retour sur l'onglet, démarrage de combat...) ne sont pas comptés ici non plus. Borné à 10 minutes ; le moteur corrige le reste à la synchro.
+         */
+        const dtRepos=
+          Math.max(
+            ecouleTickMs,
+            Math.min(
+              600000,
+              maintenantTick-
+              REG.idleDernierTickLocalV40
+            )
+          )/
+          1000;
+
         REG.idleDernierTickLocalV40=
           maintenantTick;
 
@@ -1653,7 +1670,7 @@
         actualiserCompteReboursTimeMachineIdleV1_();
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-35 */
-        mettreAJourJeuIdleLocalV7__p3(dt);
+        mettreAJourJeuIdleLocalV7__p3(dt,dtRepos);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-36 */
         mettreAJourJeuIdleLocalV7__p4(dt);

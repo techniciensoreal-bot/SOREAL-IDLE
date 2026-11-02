@@ -24,7 +24,7 @@ assert.ok(
   "defenseBossSorealIdle_ doit exister, pendant de attaqueBossSorealIdle_."
 );
 assert.ok(
-  source.includes("const defenseBossSelection =") && source.includes("defenseBossSorealIdle_(\n      bossSelectionIndex\n    );"),
+  source.includes("const defenseBossSelection =") && source.includes("defenseBossSorealIdle_(\n      bossSelectionIndex,\n      metaNguEtat.difficulty\n    );"),
   "defenseBossSelection doit être calculée pour le boss actuellement sélectionné, comme attaqueBossSelection."
 );
 assert.ok(
