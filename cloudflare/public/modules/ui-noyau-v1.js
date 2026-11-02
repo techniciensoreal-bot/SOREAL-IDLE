@@ -747,6 +747,10 @@
           );
 
         if(fightBossDomStableV179){
+          /* Les annonces (succès, records, défis et trolls) ne dépendent pas de la page : elles se jouent aussi quand le rendu s'arrête ici (Norman, 2026-11-02 : « les popups et les trolls ne se produisent réellement que quand on change d'onglet »). Chacune est idempotente. */
+          try{if(window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__)window.__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__.verifier(j,'soreal_idle_succes_annonces_v1_'+generationJoueurIdleV75_(j));}catch(_e){}
+          try{if(window.__SOREAL_IDLE_RECORDS_PERSO_V1__)window.__SOREAL_IDLE_RECORDS_PERSO_V1__.verifier(j,'soreal_idle_records_perso_v1_'+generationJoueurIdleV75_(j));}catch(_e){}
+          try{if(window.__SOREAL_IDLE_DEFIS_V1__)window.__SOREAL_IDLE_DEFIS_V1__.verifier(j);}catch(_e){}
           patcherResumeStatsIdleV28_(j);
           rafraichirEnergieEtBoutonsIdleV9_();
           rafraichirCommandesFightBossIdleV167_();

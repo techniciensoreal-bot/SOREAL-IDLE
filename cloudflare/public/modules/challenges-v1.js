@@ -494,7 +494,18 @@ function annoncerFin(fin,j){
 
 function retirer(id){var e=document.getElementById(id);if(e&&e.parentNode)e.parentNode.removeChild(e);}
 
-function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');}
+/* Les popups d'un troll (boîtes, chaton) SURVIVENT à la fermeture du jeu (Norman, 2026-11-02 : « il suffit de fermer et de rouvrir le jeu et ils ne sont plus là ») : leur état est gardé dans le stockage de l'appareil (lié au compte, règle n°6 : clés soreal_idle_*) et rejoué à la réouverture tant que le défi Troll est actif. */
+var CLE_BOITES='soreal_idle_troll_boites_v1',CLE_CHATON='soreal_idle_troll_chaton_v1';
+function memoriser(cle,valeur){try{if(valeur==null)window.localStorage.removeItem(cle);else window.localStorage.setItem(cle,String(valeur));}catch(_e){}}
+function lireMemo(cle){try{return window.localStorage.getItem(cle);}catch(_e){return null;}}
+var reprisTrolls=false;
+function reprendreTrollsVisuels(){
+  if(reprisTrolls)return;
+  reprisTrolls=true;
+  if(lireMemo(CLE_BOITES)==='1'&&!document.getElementById('sorealDefiBoitesV1'))jouerBoites();
+  if(Number(lireMemo(CLE_CHATON))>Date.now())jouerChaton();
+}
+function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');memoriser(CLE_BOITES,null);memoriser(CLE_CHATON,null);}
 
 function styleTroll(){
   if(document.getElementById('sorealDefiStyleV1'))return;
@@ -525,6 +536,7 @@ function allerAuMenuFightBoss(){
 function jouerBoites(){
   styleTroll();
   retirer('sorealDefiBoitesV1');
+  memoriser(CLE_BOITES,'1');
   allerAuMenuFightBoss();
   var zone=document.createElement('div');
   zone.id='sorealDefiBoitesV1';
@@ -551,7 +563,7 @@ function jouerBoites(){
       if(bt.getAttribute('data-k')==='annuler'){ouvrirTout();return;}   /* « Annuler » : tout se rouvre */
       if(b.parentNode)b.parentNode.removeChild(b);
       if(i===0)retirer('sorealDefiBloqueMenuV1');                      /* la dernière fenêtre fermée libère le menu */
-      if(!zone.querySelector('.sorealDefiBoiteV1'))retirer('sorealDefiBoitesV1');
+      if(!zone.querySelector('.sorealDefiBoiteV1')){retirer('sorealDefiBoitesV1');memoriser(CLE_BOITES,null);}
     });
     return b;
   }
@@ -583,7 +595,7 @@ function chatonDessine(){
   zone.id='sorealDefiChatonV1';
   zone.innerHTML='<svg viewBox="0 0 220 240" xmlns="http://www.w3.org/2000/svg"><g fill="#ffb84d" stroke="#222" stroke-width="5" stroke-linejoin="round"><path d="M40 90 L52 20 L95 62 Z"/><path d="M180 90 L168 20 L125 62 Z"/><ellipse cx="110" cy="130" rx="76" ry="66"/><path d="M60 190 Q40 235 100 230 Q170 236 165 190 Z"/></g><g fill="#222"><circle cx="80" cy="120" r="9"/><circle cx="142" cy="126" r="7"/><path d="M104 148 L118 146 L110 158 Z"/></g><g fill="none" stroke="#222" stroke-width="4" stroke-linecap="round"><path d="M110 158 Q98 174 84 168"/><path d="M110 158 Q124 176 140 166"/><path d="M60 140 L20 132"/><path d="M60 152 L18 160"/><path d="M162 142 L204 128"/><path d="M162 154 L206 162"/></g></svg>';
   document.body.appendChild(zone);
-  setTimeout(function(){retirer('sorealDefiChatonV1');},14500);
+  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},14500);
 }
 
 /* Les chats du Troll Challenge (Norman, 2026-11-02) : les images du dossier idle/garderie-skins/TrollChallenge/ (R2), listées par le serveur (/api/idle/media/troll-chats). La liste est gardée tant qu'elle n'est pas vide. */
@@ -609,12 +621,13 @@ function montrerChatTroll(img){
   img.draggable=false;
   zone.appendChild(img);
   document.body.appendChild(zone);
-  setTimeout(function(){retirer('sorealDefiChatonV1');},14500);
+  setTimeout(function(){retirer('sorealDefiChatonV1');memoriser(CLE_CHATON,null);},14500);
 }
 
 function jouerChaton(){
   styleTroll();
   retirer('sorealDefiChatonV1');
+  memoriser(CLE_CHATON,Date.now()+14500);
   chargerChatsTroll(function(noms){
     if(!noms.length){chatonDessine();return;}
     var nom=noms[Math.floor(Math.random()*noms.length)];
@@ -827,16 +840,15 @@ function verifierFin(j){
 }
 
 /* Appelé à chaque rendu (voir soreal-idle-ui.js). */
-function verifier(j){
+/* Les trolls : idempotent (suit le numéro du dernier troll). Appelé à CHAQUE état reçu ET par une surveillance de 0,4 s (Norman, 2026-11-02 : « les popups et les trolls ne se produisent réellement que quand on change d'onglet ») : en combat, le rendu d'état s'arrête tôt quand la page de combat est déjà en place (ui-noyau-v1.js, fightBossDomStableV179) et n'appelait plus ce module. */
+function verifierTroll(j){
   if(!j||!j.systemes)return;
   var etat=j.systemes.challenge||{};
-  verifierFin(j);
-
   var actif=String(etat.active||'');
   var troll=etat.troll||null;
   var seqTroll=troll&&troll.last?ent(troll.last.seq):0;
   if(actif==='troll'&&troll){
-    if(dernierTroll===null)dernierTroll=seqTroll;
+    if(dernierTroll===null){dernierTroll=seqTroll;reprendreTrollsVisuels();}
     else if(seqTroll>dernierTroll){dernierTroll=seqTroll;jouerTroll(troll.last,j);}
     activerMenuAleatoire(Boolean(troll.flags&&troll.flags.menu));
   }else{
@@ -844,6 +856,19 @@ function verifier(j){
     activerMenuAleatoire(false);
     fermerTrollsVisuels();
   }
+}
+if(typeof window.setInterval==='function')window.setInterval(function(){
+  if(typeof document!=='undefined'&&document.hidden)return;
+  var r=window.__SOREAL_IDLE_REG__;
+  try{if(r&&r.idleEtat)verifierTroll(r.idleEtat);}catch(_e){}
+},400);
+
+function verifier(j){
+  if(!j||!j.systemes)return;
+  var etat=j.systemes.challenge||{};
+  verifierFin(j);
+  verifierTroll(j);
+  var actif=String(etat.active||'');
 
   if(actif==='blind'){
     regler(true);

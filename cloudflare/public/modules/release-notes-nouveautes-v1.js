@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le message d’un troll apparaît à l’instant où il se produit et reste plus longtemps à l’écran."
+    "Les trolls et leurs popups se produisent aussi quand on reste sur le combat, et fermer puis rouvrir le jeu ne les fait plus disparaître."
   ] };
 })();

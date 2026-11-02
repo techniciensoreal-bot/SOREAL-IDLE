@@ -193,7 +193,7 @@ assert.ok(client.includes("if(bt.getAttribute('data-k')==='annuler'){ouvrirTout(
 assert.ok(client.includes("aller.call(window,'combat')") && client.includes("allerAuMenuFightBoss();"), "les fenêtres s'ouvrent sur le menu Fight Boss");
 assert.ok(client.includes("if(i===0)retirer('sorealDefiBloqueMenuV1');") && client.includes("id='sorealDefiBloqueMenuV1'"), "la dernière fenêtre à fermer (le bas de la pile) est celle qui bloque les boutons du menu");
 assert.ok(client.includes("dx:Math.max(0,(L-x0-bw)/(N-1))") && client.includes("var bw=Math.min(380,Math.round(L*0.92))"), "fenêtres de taille normale, posées en cascade depuis le menu jusqu'au coin opposé de l'écran");
-assert.ok(client.includes("function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');}") && client.includes("  fermerTrollsVisuels();\n  annonce("), "les boîtes et le chaton disparaissent quand le troll suivant tombe");
+assert.ok(client.includes("function fermerTrollsVisuels(){retirer('sorealDefiBoitesV1');retirer('sorealDefiChatonV1');memoriser(CLE_BOITES,null);memoriser(CLE_CHATON,null);}") && client.includes("  fermerTrollsVisuels();\n  annonce("), "les boîtes et le chaton disparaissent quand le troll suivant tombe");
 assert.ok(client.includes("if(Math.random()<0.75)"), "menu au hasard : 75 % de chances");
 assert.ok(client.includes("animation:sorealChatonV1 14s linear forwards"), "le chaton traverse l'écran");
 
@@ -227,4 +227,43 @@ console.log("idle-troll-challenge-deroulement-v1 : OK");
   const src = fs.readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
   assert.ok(src.includes("@keyframes sorealChatGrosV1{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}"), "chaton : de droite à gauche (il regarde à gauche)");
   console.log("idle-troll-challenge-deroulement-v1 (sens du chaton) : OK");
+}
+
+// Norman (2026-11-02) : « les popups et les trolls ne se produisent réellement que quand on change d'onglet » : en combat, le rendu d'état s'arrêtait tôt et n'appelait plus le module des défis
+{
+  const fs = await import("node:fs");
+  const lire = (f) => fs.readFileSync(f, "utf8").split(String.fromCharCode(13)).join("");
+  const defis = lire("cloudflare/public/modules/challenges-v1.js");
+  const noyau = lire("cloudflare/public/modules/ui-noyau-v1.js");
+  assert.ok(defis.includes("function verifierTroll(j){") && defis.includes("verifierTroll(r.idleEtat)") && defis.includes("},400);"), "surveillance des trolls toutes les 0,4 s, indépendante du rendu de la page");
+  const i = noyau.indexOf("if(fightBossDomStableV179){");
+  const bloc = noyau.slice(i, noyau.indexOf("return;", i));
+  assert.ok(bloc.includes("__SOREAL_IDLE_DEFIS_V1__.verifier(j)") && bloc.includes("__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__") && bloc.includes("__SOREAL_IDLE_RECORDS_PERSO_V1__"), "le rendu qui s'arrête tôt en combat joue quand même les annonces");
+  console.log("idle-troll-challenge-deroulement-v1 (annonces en combat) : OK");
+}
+
+// Norman (2026-11-02) : « il suffit de fermer et de rouvrir le jeu et les popups du troll ne sont plus là » : boîtes et chaton sont mémorisés (clés soreal_idle_*, liées au compte) et rejoués à la réouverture
+{
+  const fs = await import("node:fs");
+  const defis = fs.readFileSync("cloudflare/public/modules/challenges-v1.js", "utf8").split(String.fromCharCode(13)).join("");
+  assert.ok(defis.includes("var CLE_BOITES='soreal_idle_troll_boites_v1',CLE_CHATON='soreal_idle_troll_chaton_v1';"), "clés de mémorisation (préférences du compte)");
+  assert.ok(defis.includes("memoriser(CLE_BOITES,'1');") && defis.includes("if(!zone.querySelector('.sorealDefiBoiteV1')){retirer('sorealDefiBoitesV1');memoriser(CLE_BOITES,null);}"), "boîtes : mémorisées à l'ouverture, oubliées quand la dernière est fermée");
+  assert.ok(defis.includes("memoriser(CLE_CHATON,Date.now()+14500);") && defis.split("memoriser(CLE_CHATON,null);},14500);").length === 3, "chaton : mémorisé jusqu'à sa fin");
+  assert.ok(defis.includes("if(dernierTroll===null){dernierTroll=seqTroll;reprendreTrollsVisuels();}") && defis.includes("if(lireMemo(CLE_BOITES)==='1'&&!document.getElementById('sorealDefiBoitesV1'))jouerBoites();"), "à la réouverture du jeu, le défi Troll actif rejoue ce qui n'était pas fini");
+  // comportement : les boîtes sont rejouées après un « rechargement » (état mémorisé, nouvelle exécution du module)
+  const stock = { soreal_idle_troll_boites_v1: "1" };
+  const els = new Map();
+  const doc = { hidden: false, head: { appendChild() {} }, body: { appendChild(e) { els.set(e.id, e); } }, getElementById: (id) => els.get(id) || null, querySelector: () => null, querySelectorAll: () => [], createElement: () => ({ style: {}, setAttribute() {}, appendChild() {}, addEventListener() {}, querySelector: () => null, remove() {}, get parentNode() { return null; } }) };
+  const timers = [];
+  const sb = { window: { localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); }, removeItem: (k) => { delete stock[k]; } }, innerWidth: 1200, innerHeight: 800, __menuIdleV28__() {}, setInterval: () => 0 }, document: doc, requestAnimationFrame() {}, setTimeout: (f, ms) => { timers.push(f); return timers.length; }, clearTimeout() {} };
+  sb.window.window = sb.window;
+  const vm = await import("node:vm");
+  vm.runInNewContext(defis, sb);
+  const D = sb.window.__SOREAL_IDLE_DEFIS_V1__;
+  D.verifier({ systemes: { challenge: { active: "troll", troll: { last: { seq: 3, id: "boxes" }, flags: {}, count: 3, timer: 0 } }, challengeDefinitions: [] } });
+  assert.ok(els.has("sorealDefiBoitesV1"), "après réouverture, les boîtes du troll sont de retour");
+  assert.equal(stock.soreal_idle_troll_boites_v1, "1", "toujours mémorisées tant qu'elles ne sont pas toutes fermées");
+  D.verifier({ systemes: { challenge: { active: "", troll: null }, challengeDefinitions: [] } });
+  assert.ok(!("soreal_idle_troll_boites_v1" in stock), "défi terminé : rien n'est rejoué");
+  console.log("idle-troll-challenge-deroulement-v1 (popups mémorisés) : OK");
 }
