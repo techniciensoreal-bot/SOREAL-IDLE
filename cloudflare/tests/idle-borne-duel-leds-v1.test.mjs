@@ -67,13 +67,13 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("combatAnim=Math.random()<0.5?'mascot':'sweep'"), "l'animation du combat est tirée au début du combat");
+  assert.ok(led.includes("animChoisie=Math.random()<0.5?'mascot':'sweep'"), "l'animation du combat est tirée au début du combat");
   assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
   assert.ok(!led.includes("var HEROS_GRAND="), "plus de héros « mascotte à la tronçonneuse » : c'est Leatherface");
   assert.ok(!led.includes("pousser('hit',now,") && !led.includes("objetDu(now)){var oi=objetSuivant(now,true)") && !led.includes("demarrer(mk('bars',now))"), "aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur (Norman, 2026-11-02 : l'animation se voit du début à la fin)");
-  assert.ok(led.includes("dessinerPose(DANSE_POSES[3],sx,sy)"), "Leatherface scie du début à la fin, sur la piste de vie");
+  assert.ok(led.includes("dessinerPose(DANSE_POSES[3],sx,sy,es)"), "Leatherface scie du début à la fin, sur la piste de vie");
   assert.ok(led.includes("put(D,16,9,'SS');put(D,16,13,'SS')"), "tronçonneuse tenue à deux mains");
   const m = led.slice(led.indexOf("function sMascot(t){"), led.indexOf("/* 5 bis."));
   assert.ok(m.includes("r.split('').reverse().join('')") && m.includes("hx-6+sp*phi-k*per"), "la mascotte court vers la gauche (sprite et piques inversés)");
@@ -82,4 +82,16 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(m.includes("arrive=chat&&vie<=0.06") && m.includes("tg=pp.tArr") && m.includes("Math.floor(tg*sp)") && m.includes("R(i,3)*W+tg*7"), "château arrivé : le sol et les étoiles se figent, seul le bonhomme continue de marcher (Norman, 2026-11-02)");
   assert.ok(led.includes("var DANSE_POSES=posesDanse();") && led.includes("ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4"), "la danse enchaîne face, coup à gauche, dos, coup à droite (poses des photos du film)");
   console.log("idle-borne-duel-leds-v1 (une animation par combat : mascotte ou Leatherface) : OK");
+}
+// Norman (2026-11-02) : animations seulement pour un combat d'au moins 6 s ; FIGHT ! une seconde avant elle ; le nom du boss s'écrit dès qu'il apparaît ; Leatherface s'adapte à un écran moins haut
+{
+  const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
+  assert.ok(led.includes("if(now-fightT0<1000)return;") && led.includes("if(total>=6){animDecision=1;combatAnim=animChoisie;"), "animation décidée après 1 s de FIGHT !, seulement si la durée estimée atteint 6 s");
+  assert.ok(led.includes("var total=el+S.pv.pct/(chute/el);") && led.includes("else if(el>=4)animDecision=-1;"), "durée estimée = écoulé + vie restante / vitesse de baisse ; sans baisse après 4 s, pas d'animation");
+  assert.ok(!led.includes("now-fightT0>2200"), "plus de FIGHT ! de 2,2 s");
+  assert.ok(led.includes("combatAnim='';animDecision=0;") && led.includes("if(id==='win')p.anim=combatAnim;"), "combat court : la victoire n'utilise pas d'animation");
+  assert.ok(led.includes("function sNom(t)") && led.includes("nom:{fn:sNom") && led.includes("demarrer(mk('nom',now));return;"), "le nom du nouveau boss s'écrit d'abord");
+  assert.ok(led.includes("cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}"), "puis FIGHT !");
+  assert.ok(led.includes("function echelleDanse()") && led.includes("if(H>=15&&W>=30){") && !led.includes("if(H>=26&&W>=40){"), "Leatherface tient dans un écran moins haut (réduit au plus proche voisin)");
+  console.log("idle-borne-duel-leds-v1 (6 s, nom, FIGHT 1 s, Leatherface adapté) : OK");
 }

@@ -257,6 +257,18 @@ function sBase(t){
   }
 }
 
+/* 1 ter. Le NOM du boss s'ÉCRIT lettre par lettre dès qu'un nouveau boss apparaît (Norman, 2026-11-02 : « dès que le boss suivant apparaît, ça doit écrire son nom »), puis FIGHT ! ; un nom trop long pour l'écran défile comme sur l'affichage de base. */
+function nomSegs(){return [['#'+S.num,BLA],['·',ROU],[S.nom,AMB]];}
+function nomLongueur(){return String(S.num).length+2+S.nom.length+2;}
+function sNom(t){
+  var segs=nomSegs(),W=P.W,bt=cb(),tw=rwidth(segs,1),n=P.reduced?999:Math.floor(t*20),out=[],k=0,i;
+  if(tw>W-8){sBase(t);return;}
+  chase(t,1);
+  for(i=0;i<segs.length&&k<n;i++){var g=segs[i],tx=String(g[0]),take=Math.min(tx.length,n-k);out.push([tx.slice(0,take),g[1]]);k+=take+1;}
+  var x0=Math.floor((W-tw)/2),dx=rich(out,x0,bt,1,255);
+  if(!P.reduced&&k<=n+2&&Math.floor(t*6)%2===0)for(i=0;i<7;i++)px(x0+dx,bt+i,AMB,255);   /* curseur qui clignote tant que le nom s'écrit */
+}
+
 /* 1 bis. « TUÉ N FOIS » (Norman, 2026-11-01 : « la bande passante au-dessus doit indiquer le nombre de fois qu'on l'a tué ») : nombre de victoires du boss COURANT (bestiaire.entrees[].victoires, la donnée de sa carte), jamais de total ; la scène n'existe pas à 0. */
 function sMorts(t){
   var W=P.W,bt=cb(),n=String(Math.min(S.morts,999999)),num=[['#'+S.num,BLA],['·',ROU]];
@@ -440,16 +452,22 @@ function cielCouchant(fl,xc,lev,t){
   var tx=W-9;for(j=0;j<9;j++)px(tx,hor-1-j,AMB,1);                 /* arbre nu à droite */
   [[-1,-5],[-2,-6],[1,-6],[2,-7],[-3,-8],[0,-9],[3,-9]].forEach(function(q){px(tx+q[0],hor+q[1],AMB,1);px(tx+q[0]*0.5,hor+q[1]+1,AMB,1);});
 }
-function dessinerPose(rows,sx,sy){
-  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var ch=rows[j][i];if(ch==='.')continue;var q=DANSE_COUL[ch];if(q)px(sx+i,sy+j,q[0],q[1]);}
+/* Échelle de Leatherface (Norman, 2026-11-02 : « je n'ai pas l'animation de Leatherface » : sur un écran de borne moins haut que 26 rangées, c'était l'ancien petit personnage) : réduit au plus proche voisin pour tenir dans la zone, jamais en dessous de 15 rangées. */
+function echelleDanse(){return Math.min(1,(P.H-4)/DANSE_H);}
+function dessinerPose(rows,sx,sy,e){
+  e=e||1;
+  if(e>=1){for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var ch=rows[j][i];if(ch==='.')continue;var q=DANSE_COUL[ch];if(q)px(sx+i,sy+j,q[0],q[1]);}return;}
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e);
+  for(var j2=0;j2<dh;j2++){var r=rows[Math.min(rows.length-1,Math.floor(j2/e))];for(var i2=0;i2<dw;i2++){var c2=r[Math.min(r.length-1,Math.floor(i2/e))];if(c2==='.')continue;var q2=DANSE_COUL[c2];if(q2)px(sx+i2,sy+j2,q2[0],q2[1]);}}
 }
 function danseFinale(t,fl,xc,u){
   var W=P.W,H=P.H,i,j,lev=sm(u/2.5);
   cielCouchant(fl,xc,lev,t);
   var cycle=u%2.8,ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4;                                              /* face, coup à gauche, de dos, coup à droite */
   if(P.reduced)ph=0;
-  var rows=DANSE_POSES[ph],sy=fl-2-(DANSE_H-1)-((!P.reduced&&Math.floor(t/0.06)%2)?1:0),sx=xc-12;
-  dessinerPose(rows,sx,sy);
+  var e=echelleDanse(),dh=Math.round(DANSE_H*e);
+  var rows=DANSE_POSES[ph],sy=fl-2-(dh-1)-((!P.reduced&&Math.floor(t/0.06)%2)?1:0),sx=xc-Math.round(12*e);
+  dessinerPose(rows,sx,sy,e);
   if(!P.reduced)for(i=0;i<3;i++)burst(xc+(i-1)*3,sy+1,((u*1.1+i*0.33)%1.0),16,5+i*3,20,1.0,[ROU,ROU,ROS],12);   /* gerbes de sang de la tronçonneuse brandie */
 }
 function sprite2(rows,x,y,k,v){
@@ -460,15 +478,16 @@ function sprite2(rows,x,y,k,v){
 }
 function sSweep(t){
   var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,fin=Boolean(P.p.fin),pc=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
-  if(H>=26&&W>=40){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
+  if(H>=15&&W>=30){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
     cielCouchant(fl,Math.max(14,x0+18),1,t);
     for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
     for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
     if(pc<=0.002){var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;}
     P.p.te=null;
-    var vb=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx=Math.max(0,Math.min(xe,W-26)),sy=fl-2-(DANSE_H-1)-vb;
-    dessinerPose(DANSE_POSES[3],sx,sy);
-    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+21+j,((i+ch)%4<2)===(j<2)?ROU:BLA,255);   /* la chaîne : les dents défilent, rouges de sang */
+    var es=echelleDanse(),dhs=Math.round(DANSE_H*es),vb=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx=Math.max(0,Math.min(xe,W-Math.round(26*es))),sy=fl-2-(dhs-1)-vb;
+    dessinerPose(DANSE_POSES[3],sx,sy,es);
+    var cw=Math.max(5,Math.round(9*es)),cy=sy+Math.round(21*es),chh=es<0.7?2:3;
+    for(i=0;i<cw;i++)for(j=0;j<chh;j++)px(sx+i,cy+j,((i+ch)%4<2)===(j<(chh>2?2:1))?ROU:BLA,255);   /* la chaîne : les dents défilent, rouges de sang */
     if(P.reduced)return;
     for(i=0;i<14;i++){                                             /* du SANG gicle de la lame (au lieu d'étincelles), retombe en gouttes sur la piste */
       var u=((t*1.5+R(i,7))%1),dx=u*(5+R(i,9)*11),dy=Math.sin(u*3.1416)*(4+R(i,8)*8)-u*u*3,al=255*Math.sin(u*3.1416);
@@ -831,6 +850,7 @@ function couleurBarre(r,e){
 /* ------------------------------------------------------------------ catalogue : durée, priorité (un événement de combat l'emporte sur le reste), instant de l'image fixe (prefers-reduced-motion) */
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
+  nom:{fn:sNom,dur:function(){return Math.max(1.4,Math.min(2.6,nomLongueur()/20+0.6));},prio:0,cap:3.0},
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
   sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
@@ -997,7 +1017,7 @@ var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke
 var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1};
 /* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
    où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
-var combatAnim='';
+var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
 /* objets actifs (ordre fixe), avec au moins une seconde restante */
@@ -1022,9 +1042,24 @@ function demarrer(s){cur=s;}
 /* le combat commence (ou reprend après un message) : FIGHT ! ; `neuf` = nouvelle apparition (lettre par lettre), sinon on reprend la boucle là où elle en était */
 function combatFight(now,neuf){
   var dedans=enCombat(cur);
-  if(neuf||!dedans){fightT0=now;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;combatAnim=Math.random()<0.5?'mascot':'sweep';}
-  if(!neuf&&dedans&&combatAnim&&S.pv&&now-fightT0>2200)demarrer(mk(combatAnim,now,{long:true}));
+  if(neuf||!dedans){
+    fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
+    animChoisie=Math.random()<0.5?'mascot':'sweep';combatAnim='';animDecision=0;
+    if(neuf&&S.boss&&S.nom){demarrer(mk('nom',now));return;}   /* le nom du nouveau boss s'écrit d'abord ; FIGHT ! suit (voir image) */
+  }
+  if(!neuf&&dedans&&combatAnim&&S.pv)demarrer(mk(combatAnim,now,{long:true}));
   else demarrer(mk('fight',now));
+}
+/* Une animation (mascotte ou Leatherface) seulement pour un combat qui durera 6 s au moins (Norman, 2026-11-02) : durée estimée = temps écoulé + vie restante / vitesse à laquelle elle baisse depuis le début ; FIGHT ! ne reste alors qu'UNE seconde. Sans baisse mesurable au bout de 4 s : pas d'animation. */
+function majAnimation(now){
+  if(animDecision!==0||!S.combat||!S.pv||!cur||cur.id!=='fight')return;
+  if(S.pv.pct>pct0){pct0=S.pv.pct;combatT0=now;}                    /* la vie d'un nouveau boss arrive après le début : la référence suit */
+  if(now-fightT0<1000)return;
+  var el=(now-combatT0)/1000,chute=pct0-S.pv.pct;
+  if(chute>1e-6&&el>0){
+    var total=el+S.pv.pct/(chute/el);
+    if(total>=6){animDecision=1;combatAnim=animChoisie;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+  }else if(el>=4)animDecision=-1;
 }
 /* « Le saviez-vous ? » : phrases ajoutées par l'administrateur (modules/admin-saviez-vous-v1.js, lues dans les textes déjà synchronisés : aucune requête) ; '' = aucune, on garde les cinq d'origine (jk) ; jamais deux fois la même d'affilée */
 var phraseDerniere='';
@@ -1043,7 +1078,8 @@ function suivante(now){
 }
 function pousser(id,now,p){
   if(id==='fight'){
-    if(enCombat(cur))return;                              /* déjà en combat (le boss suivant s'enchaîne) : FIGHT ! reste affiché, sans clignoter */
+    if(cur&&cur.id==='nom'&&S.num===combatNum)return;
+    if(enCombat(cur)&&S.num===combatNum)return;           /* même boss, déjà en combat : rien ne clignote ; un NOUVEAU boss (numéro différent) repart par l'écriture de son nom */
     if(cur&&COUPE[cur.id]&&(now-cur.t0)/1000<COUPE[cur.id]){pend=true;return;}
     pend=false;combatFight(now,true);return;
   }
@@ -1101,11 +1137,12 @@ function image(now){
   evenements(now);
   if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=COUPE[cur.id])){pend=false;combatFight(now,true);}
   if(!cur||(now-cur.t0)/1000>=cur.dur){
-    if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
+    if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
+    else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
     else demarrer(suivante(now));
   }else if(S.combat&&(cur.id==='base'||cur.id==='jokes'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
   else if(!S.combat&&enCombat(cur))demarrer(suivante(now));
-  else if(cur.id==='fight'&&combatAnim&&S.pv&&now-fightT0>2200)demarrer(mk(combatAnim,now,{long:true}));   /* FIGHT ! pendant 2,2 s, puis l'animation du combat */
+  else majAnimation(now);   /* FIGHT ! une seconde, puis l'animation du combat si celui-ci doit durer 6 s au moins */
   /* aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur ; l'animation du combat se voit du début à la fin (Norman, 2026-11-02) */
   dessiner(now);
   try{dessinerMinis(now);}catch(_e){}

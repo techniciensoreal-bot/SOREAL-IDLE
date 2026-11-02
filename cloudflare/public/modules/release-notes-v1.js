@@ -49,6 +49,7 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Des animations ont été ajoutées sur l’écran de la borne.',
+            'Sur la borne, les animations ne se lancent que pour un combat d’au moins 6 secondes, et le nom du boss s’écrit dès qu’il apparaît.',
             'En anglais, la carte de chronique sous la borne lit maintenant tout le texte (et plus seulement le titre).',
             'Sur la borne, les coins noirs qui dépassaient derrière les images du duel sont maintenant arrondis comme les images.',
             'Sur la borne, la vie du boss est centrée sous la barre de l’écran, toujours au format « vie / vie max », et sa régénération n’y est plus affichée.',

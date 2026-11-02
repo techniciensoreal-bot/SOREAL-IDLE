@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "En anglais, la carte de chronique sous la borne lit maintenant tout le texte (et plus seulement le titre)."
+    "Sur la borne, les animations ne se lancent que pour un combat d’au moins 6 secondes, et le nom du boss s’écrit dès qu’il apparaît."
   ] };
 })();

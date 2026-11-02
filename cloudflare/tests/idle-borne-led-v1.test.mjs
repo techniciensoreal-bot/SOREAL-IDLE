@@ -120,7 +120,7 @@ const identique = ev(`(function(){
 assert.deepEqual(Array.from(identique), [true, true, true], "FIGHT ! : boucle parfaite de 2 s, animée");
 
 /* priorités : un coup, une victoire, un K.O. passent devant ; FIGHT ! enchaîné (boss suivant) ne se relance pas */
-assert.ok(/if\(enCombat\(cur\)\)return;/.test(src), "FIGHT ! déjà affiché : pas de redémarrage au boss suivant");
+assert.ok(src.includes("if(enCombat(cur)&&S.num===combatNum)return;"), "FIGHT ! déjà affiché pour le MÊME boss : pas de redémarrage ; un nouveau boss repart par l'écriture de son nom (Norman, 2026-11-02)");
 assert.ok(/win:\{fn:sWin,dur:function\(p\)\{return p\.anim\?8\.6:7\.2;\},prio:5/.test(src) && /ko:\{fn:sKO,dur:6\.4,prio:5/.test(src) && /hit:\{fn:sHits,dur:1\.5,prio:3/.test(src));
 
 /* ---------- branchement dans le jeu ---------- */
