@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les portes ont toutes la même taille, ne sont plus coupées et ne laissent plus voir le cadre derrière elles."
+    "Les touches du clavier de Wandoos font exactement le même bruit que les boutons de l’application SOREAL, barre d’espace comprise."
   ] };
 })();

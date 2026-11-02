@@ -30,6 +30,7 @@
     btPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
+    clavierApp:{group:"clavier-app",priority:25,maxAgeMs:350},
     tmPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     tmMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     tmCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
@@ -1718,6 +1719,11 @@
     return jouerWebAudio_(150,function(c){clavierClic_(c,false);});
   }
 
+  /* Le clic de touche de SOREAL APP, tel quel (Norman, 2026-11-02 : « je veux exactement le même bruit que le bruit de pression sur APP SOREAL » ; SOREAL-APP, index.html, clavierClicV1_) : la touche normale, aussi pour la barre d'espace. */
+  function clavierApp_(){
+    return jouerWebAudio_(150,function(c){clavierClic_(c,false);});
+  }
+
   function btMoins_(){
     return jouerWebAudio_(150,function(c){clavierClic_(c,true);});
   }
@@ -2264,6 +2270,7 @@
     btPlus:btPlus_,
     btMinus:btMoins_,
     btCap:btCap_,
+    clavierApp:clavierApp_,
     tmPlus:tmPlus_,
     tmMinus:tmMoins_,
     tmCap:tmCap_,
@@ -2571,6 +2578,7 @@
     btPlus:function(){return demander_("btPlus");},
     btMinus:function(){return demander_("btMinus");},
     btCap:function(){return demander_("btCap");},
+    clavierApp:function(){return demander_("clavierApp");},
     tmPlus:function(){return demander_("tmPlus");},
     tmMinus:function(){return demander_("tmMinus");},
     tmCap:function(){return demander_("tmCap");},

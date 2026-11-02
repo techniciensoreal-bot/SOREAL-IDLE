@@ -83,6 +83,9 @@
             'Lancer un défi donne maintenant la même énergie de départ dans l’entraînement qu’une renaissance (amélioration de la boutique).',
             'Le menu Défis reste affiché même quand on ne peut pas encore lancer de défi.',
           ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Les touches du clavier de Wandoos font exactement le même bruit que les boutons de l’application SOREAL, barre d’espace comprise.',
+          ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'La page de la machine reprend la couleur et le fond du bouton de son menu.',
             'Quand il te manque de l’Or pour le niveau suivant, plus de phrase : seul l’Or que tu as déjà s’affiche, en rouge.',

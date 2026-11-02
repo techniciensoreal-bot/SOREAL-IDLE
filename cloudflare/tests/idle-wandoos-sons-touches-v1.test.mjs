@@ -32,14 +32,14 @@ const lancer = (nom, cible, type) => (ecouteurs[nom] || []).forEach((f) => f(eve
 
 // Touche + (placement) : son de touche normale ; barre d'espace : son grave ; touche sans action de placement (couleur, effacer) : aussi un son.
 lancer("pointerdown", touche(["wd-touche"], "window.__SOREAL_IDLE_WANDOOS_V1__.place(1)"));
-assert.deepEqual(jouees.splice(0), ["btPlus"], "touche + : bruit de clavier");
+assert.deepEqual(jouees.splice(0), ["clavierApp"], "touche + : bruit de clavier");
 lancer("pointerdown", touche(["wd-touche", "wd-espace"], "window.__SOREAL_IDLE_WANDOOS_V1__.place(1)"));
-assert.deepEqual(jouees.splice(0), ["btMinus"], "barre d'espace : bruit grave");
+assert.deepEqual(jouees.splice(0), ["clavierApp"], "barre d espace : même clic que SOREAL APP");
 lancer("pointerdown", touche(["wd-touche"], "window.__SOREAL_IDLE_WANDOOS_V1__.chiffre(5)"));
-assert.deepEqual(jouees.splice(0), ["btPlus"], "chiffre : bruit de clavier");
+assert.deepEqual(jouees.splice(0), ["clavierApp"], "chiffre : bruit de clavier");
 lancer("pointerdown", touche(["wd-touche", "wd-touche-couleur"], "window.__SOREAL_IDLE_WANDOOS_V1__.couleur()"));
-assert.deepEqual(jouees.splice(0), ["btPlus"], "touche sans placement : bruit aussi");
+assert.deepEqual(jouees.splice(0), ["clavierApp"], "touche sans placement : bruit aussi");
 // Le doigt (pointeur tactile) : le son part à l'appui comme pour la souris.
 lancer("pointerdown", touche(["wd-touche"], "window.__SOREAL_IDLE_WANDOOS_V1__.place(1)"), "touch");
-assert.deepEqual(jouees.splice(0), ["btPlus"], "tactile : bruit à l'appui");
+assert.deepEqual(jouees.splice(0), ["clavierApp"], "tactile : bruit à l'appui");
 console.log("idle-wandoos-sons-touches-v1: OK");

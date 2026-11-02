@@ -118,7 +118,7 @@
     var A=window.__SOREAL_IDLE_AUDIO_V199__;
     if(!A||typeof A.play!=='function')return null;
     if(relache)return true;
-    try{A.play(grave?'btMinus':'btPlus');return true;}catch(_e){return null;}
+    try{A.play('clavierApp');return true;}catch(_e){return null;}
   }
   function sonTouche_(relache,grave){
     var v=volume_();
