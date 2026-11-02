@@ -126,7 +126,8 @@
       '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
-      '.ygg-vitre.ygg-decor{background-size:cover;background-position:center;}',
+      /* L'arbre tient TOUJOURS dans son cadre (Norman, 2026-11-02 : « Puissance β n'est pas bien cadré ») : le fond des fruits de MAGIE (.ygg-carte.magie .ygg-vitre, raccourci background) remettait la taille et la position de l'image à zéro : l'arbre apparaissait à sa taille réelle, coupé. Spécificité au moins égale. */
+      '.ygg-vitre.ygg-decor,.ygg-carte .ygg-vitre.ygg-decor,.ygg-carte.magie .ygg-vitre.ygg-decor{background-size:cover;background-position:center;background-repeat:no-repeat;}',
       '.ygg-vitre.ygg-decor .ygg-img{inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:none;transition:left 4s linear,top 4s linear,width 4s linear,height 4s linear,filter 4s linear,opacity 4s linear;}',
       '.ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}',
       /* Manger ou récolter (Norman, 2026-10-29) : une couche de copies des fruits, épargnée par le redessin (data-morph-garder), joue l'animation pendant que l'arbre réel est déjà vide. */
@@ -339,7 +340,7 @@
    * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle est tirée vers le HAUT
    * comme une herse (translateY de -100 %) à l'ouverture, redescend à la fermeture, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
    */
-  var PORTES_IMAGES_={gold:true,powerAlpha:true,adventure:true,knowledge:true,luck:true,arbitrariness:true,numbers:true,angryMayo:true,ayyMayo:true,cincoMayo:true,moldyMayo:true};
+  var PORTES_IMAGES_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   function porte_(id,ouvre,referme){
     return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" data-porte-img="1" style="--vit:'+reglages_().porte+'" aria-hidden="true"><img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false"></div>';
   }
@@ -487,9 +488,11 @@
     var auto='';
     if(v.e.autoActivate)auto='<div class="ygg-auto">⚡ Auto-Activate</div>';
     else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterExpShopIdleV1__(\''+html_(v.e.autoShopId)+'\',1)">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
+    /* Aucun fruit n'est jamais visible derrière une porte close (Norman, 2026-11-02) : même si l'image de la porte tarde ou manque, les fruits ne sont pas dessinés tant que le fruit n'est pas actif. */
+    var porteHtml=porteDe_(id,Boolean(v.active));
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'"'+(v.tier>0&&v.tier>=d.maxTier||alerte?' style="--lueur:'+rvb_(AURAS_[id])+'"':'')+'>'+
       '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

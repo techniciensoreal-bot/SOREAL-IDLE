@@ -45,9 +45,11 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   const h = m.api.porte_("gold", false);
   assert.ok(h.includes('src="/api/idle/media/ygg?name=gold&amp;porte=1"') && h.includes('data-porte-img="1"'), "image de la porte du fruit");
   assert.ok(!/<svg|THEMES_|ygg-porte-g|ygg-porte-emb/.test(h), "plus aucune ancienne porte dessinée");
-  for (const id of ["gold", "powerAlpha", "adventure", "knowledge", "luck", "arbitrariness", "numbers", "angryMayo", "ayyMayo", "cincoMayo", "moldyMayo"]) assert.equal(m.api.liste[id], true, id + " : a sa porte");
-  assert.equal(m.api.porteDe_("powerBeta", false), "", "fruit sans image de porte : pas de porte");
-  assert.equal(m.api.porteDe_("powerBeta", true), "");
+  const f24 = src.match(/var FRUITS_24_={([^}]*)};/)[1].split(",").map((x) => x.split(":")[0]);
+  assert.equal(f24.length, 21);
+  for (const id of f24) assert.equal(m.api.liste[id], true, id + " : a sa porte");
+  assert.equal(m.api.porteDe_("inconnu", false), "", "fruit sans image de porte : pas de porte");
+  assert.equal(m.api.porteDe_("inconnu", true), "");
   assert.equal(m.api.sons.length, 0, "ni son sans porte");
 }
 // 1. Fruit pas encore actif : porte close, aucun son, aucune classe d'animation.
@@ -110,7 +112,8 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.ok(!/setInterval|setTimeout/.test(coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/)), "aucune minuterie pour les portes");
 }
 // 5. Branchement : la porte est dans la vitre de chaque fruit, selon son état actif.
-assert.ok(src.includes("couches_(d,v,id,def)+porteDe_(id,Boolean(v.active))+'</div>'"), "porte dans la vitre de chaque fruit");
+assert.ok(src.includes("(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'") && src.includes("var porteHtml=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
+assert.ok(src.includes(".ygg-carte.magie .ygg-vitre.ygg-decor{background-size:cover;background-position:center;background-repeat:no-repeat;}"), "l'arbre des fruits de magie tient dans son cadre (le fond de .magie ne remet plus sa taille à zéro)");
 // 6. Le bruit : herse de château fort (treuil, chaîne, choc), jamais de dent de scie ; réglage pierre / bois supprimé.
 {
   const sons = readFileSync("cloudflare/public/modules/yggdrasil-sons-v1.js", "utf8").split(String.fromCharCode(13)).join("");

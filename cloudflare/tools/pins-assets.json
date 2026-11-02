@@ -804,8 +804,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 70,
-  "sha": "bc5cb2ea77dfd98e9ccbbcd0593173596068836a"
+  "pin": 71,
+  "sha": "da5376042500c228789fd02ec724b2b54cfb3f5f"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 18,
