@@ -116,15 +116,28 @@
       '.ygg-vitre.ygg-portrait{aspect-ratio:4/5;width:84%;margin:0 auto;}',
       /* Décors d'arbres (Norman, 2026-10-29 : « adapte les cadres maintenant que les images ont changé ») : images CARRÉES (1024 x 1024), montrées en entier dans un cadre carré, sur toute la largeur de la carte (le cadre 4/5 en coupait 20 % sur les côtés, feuillage compris). */
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
-      /* Porte en image (Norman, 2026-11-02) : elle couvre tout le cadre ; à l'ouverture elle monte comme une herse et sort par le haut (le cadre coupe), à la fermeture elle redescend. Deux images clés (une courbe unique), transform seulement. */
-      /* La porte couvre TOUTE la surface du cadre, liseré compris (Norman, 2026-11-02 : « les portes doivent couvrir toute la surface, il ne doit pas y avoir de noir ») : le cadre des arbres n'a plus de bordure noire (la porte et l'arbre vont jusqu'au bord) et la porte n'a aucun fond sombre. */
-      '.ygg-vitre.ygg-decor{border:0;}',
-      '.ygg-porte{position:absolute;inset:0;z-index:4;overflow:hidden;pointer-events:none;border-radius:inherit;background:transparent;}',
-      '.ygg-porte img{display:block;width:100%;height:100%;object-fit:cover;}',
-      '.ygg-porte.ouvre,.ygg-porte.referme{background:transparent;}.ygg-porte.ouvre img,.ygg-porte.referme img{will-change:transform;}',
-      '@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}',
-      '.ygg-porte.ouvre img{animation:yggHerse calc(1.5s*var(--vit,1)) cubic-bezier(.55,0,.7,.4) both;}',
-      '.ygg-porte.referme img{animation:yggHerse calc(1.5s*var(--vit,1)) cubic-bezier(.55,0,.7,.4) both reverse;}',
+      /* Porte en image, en DEUX VOLETS (Norman, 2026-11-02 : « fais s'ouvrir les portes comme les anciennes, en 2 volets » ; « fais-les couvrir tout le noir, si les bords ou les enjolivures dépassent du cadre, c'est rien ») : elle déborde de 6 px tout autour du cadre (qui ne coupe plus) ; chaque volet montre une moitié de l'image et pivote sur son bord extérieur. Deux images clés (une courbe unique). */
+      '.ygg-vitre.ygg-decor{overflow:visible;border:0;}',
+      '.ygg-porte{position:absolute;inset:-6px;z-index:4;display:flex;pointer-events:none;perspective:300px;background:transparent;}',
+      '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;overflow:hidden;backface-visibility:hidden;}',
+      '.ygg-porte-g{transform-origin:0 50%;}.ygg-porte-d{transform-origin:100% 50%;}',
+      '.ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;max-width:none;object-fit:cover;}',
+      '.ygg-porte-g img{left:0;}.ygg-porte-d img{right:0;}',
+      '.ygg-porte-lueur{position:absolute;inset:0;z-index:2;opacity:0;background:radial-gradient(ellipse at 50% 55%,rgba(255,226,140,.95),transparent 70%);}',
+      '.ygg-porte.ouvre,.ygg-porte.referme{will-change:opacity;}.ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d,.ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{will-change:transform;}',
+      '@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}',
+      '@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}',
+      '@keyframes yggPorteLueur{0%,20%{opacity:0}55%{opacity:1}100%{opacity:0}}',
+      '@keyframes yggPorteFin{0%,80%{opacity:1}100%{opacity:0}}',
+      '.ygg-porte.ouvre{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both;}',
+      '.ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
+      '.ygg-porte.ouvre .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both;}',
+      '.ygg-porte.ouvre .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both;}',
+      /* Fermeture : exactement les mêmes images que l'ouverture, jouées à l'envers. */
+      '.ygg-porte.referme{animation:yggPorteFin calc(1.5s*var(--vit,1)) linear both reverse;}',
+      '.ygg-porte.referme .ygg-porte-g{animation:yggPorteG calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
+      '.ygg-porte.referme .ygg-porte-d{animation:yggPorteD calc(1.25s*var(--vit,1)) cubic-bezier(.45,.05,.3,1) both reverse;}',
+      '.ygg-porte.referme .ygg-porte-lueur{animation:yggPorteLueur calc(1.4s*var(--vit,1)) ease-out both reverse;}',
       '@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}',
       '.ygg-portrait .ygg-img{inset:3%;width:94%;height:94%;}',
       /* Fruits aux 24 images : même cadre portrait 4/5 que l'or et les fruits de Puissance (les cartes d'une rangée restent alignées) ; le décor carré est recadré au centre (le fruit et sa terre y tiennent) et l'image du fruit, fond transparent, est recadrée de la même façon pour se superposer exactement, sans marge ni ombre portée. */
@@ -339,12 +352,13 @@
   var VIGNE_='<svg viewBox="0 0 200 17" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path d="M0 3C22 14 38 1 62 8S104 15 128 6 176 2 200 9" fill="none" stroke="#4d9b3b" stroke-width="2.4" stroke-linecap="round"/><g fill="#5db04a" stroke="#1b3512" stroke-width="1"><ellipse cx="22" cy="12" rx="6" ry="3" transform="rotate(35 22 12)"/><ellipse cx="62" cy="13" rx="6" ry="3" transform="rotate(-30 62 13)"/><ellipse cx="104" cy="14" rx="6" ry="3" transform="rotate(40 104 14)"/><ellipse cx="148" cy="9" rx="6" ry="3" transform="rotate(-35 148 9)"/><ellipse cx="184" cy="12" rx="6" ry="3" transform="rotate(30 184 12)"/></g><g fill="#f4e27a" stroke="#7a5a10" stroke-width=".8"><circle cx="42" cy="6" r="2.2"/><circle cx="126" cy="7" r="2.2"/></g></svg>';
   var DUREE_OUVERTURE_=1500;
   /*
-   * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle est tirée vers le HAUT
-   * comme une herse (translateY de -100 %) à l'ouverture, redescend à la fermeture, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
+   * LES PORTES (Norman, 2026-11-02 : « les portes des fruits : une image par fruit, qui s'ouvre par le haut ») : une porte = une image 1024 x 1024 fournie par Norman (R2 idle/ygg-portes/<fruit>.webp, route ?porte=1), posée sur tout le cadre. Elle s'ouvre EN DEUX VOLETS, comme les anciennes
+   * portes (Norman, 2026-11-02) : chaque moitié de l'image pivote sur son bord extérieur, une lueur passe, le tout se fond ; à la fermeture c'est l'inverse, avec un bruit de porte de château fort. Un fruit sans porte dans la liste ci-dessous n'a PAS de porte (ni son) : ajouter son nom ici dès que son image est sur R2.
    */
   var PORTES_IMAGES_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
   function porte_(id,ouvre,referme){
-    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" data-porte-img="1" style="--vit:'+reglages_().porte+'" aria-hidden="true"><img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false"></div>';
+    var img='<img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false">';
+    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" data-porte-img="1" style="--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+img+'</div><div class="ygg-porte-d">'+img+'</div></div>';
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte : « porte » (pierre, lourde) ou « porteBois ». */

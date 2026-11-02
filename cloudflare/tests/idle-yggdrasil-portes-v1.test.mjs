@@ -44,7 +44,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   const m = monde();
   const h = m.api.porte_("gold", false);
   assert.ok(h.includes('src="/api/idle/media/ygg?name=gold&amp;porte=1"') && h.includes('data-porte-img="1"'), "image de la porte du fruit");
-  assert.ok(!/<svg|THEMES_|ygg-porte-g|ygg-porte-emb/.test(h), "plus aucune ancienne porte dessinée");
+  assert.ok(!/<svg|THEMES_|ygg-porte-emb/.test(h), "plus aucune ancienne porte dessinée");
   const f24 = src.match(/var FRUITS_24_={([^}]*)};/)[1].split(",").map((x) => x.split(":")[0]);
   assert.equal(f24.length, 21);
   for (const id of f24) assert.equal(m.api.liste[id], true, id + " : a sa porte");
@@ -102,14 +102,18 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   const m5 = monde();
   assert.ok(ferme(m5.api.porteDe_("luck", false)) && m5.api.sons.length === 0, "pas de fermeture sans ouverture vue");
 }
-// 4. S'ouvre par le HAUT : une image clé de départ, une d'arrivée (translateY de -102 %), une seule courbe ; la fermeture est la même animation à l'envers ; mouvement réduit : pas d'animation.
+// 4. S'ouvre EN DEUX VOLETS comme les anciennes portes (Norman, 2026-11-02) : chaque moitié pivote sur son bord extérieur, une lueur passe, le tout se fond ; la fermeture est la même animation à l'envers ; elle déborde du cadre (rien de noir) ; mouvement réduit : pas d'animation.
 {
-  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}100%{transform:translateY(-102%)}}"), "la porte monte et sort par le haut");
-  assert.ok(!/@keyframes yggHerse\{[^}]*25%/.test(src), "aucune image intermédiaire (pas d'à-coup)");
-  assert.ok(src.includes(".ygg-porte.ouvre img{animation:yggHerse") && /\.ygg-porte\.referme img\{animation:yggHerse[^']*reverse/.test(src), "ouverture, et fermeture à l'envers");
-  assert.ok(/\.ygg-porte\{position:absolute;inset:0;[^}]*overflow:hidden;/.test(src), "le cadre coupe la porte qui sort");
-  assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-porte\.ouvre,\.ygg-porte\.referme\{display:none/.test(src), "mouvement réduit : pas d'animation");
-  assert.ok(!/setInterval|setTimeout/.test(coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/)), "aucune minuterie pour les portes");
+  assert.ok(src.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}100%{transform:rotateY(-104deg)}}") && src.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}100%{transform:rotateY(104deg)}}"), "deux volets qui pivotent");
+  assert.ok(!src.includes("@keyframes yggPorteG{0%{transform:rotateY(0)}25%") && !src.includes("@keyframes yggPorteD{0%{transform:rotateY(0)}25%"), "aucune image intermédiaire (pas d'à-coup)");
+  assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g{animation:yggPorteG") && src.includes(".ygg-porte.referme .ygg-porte-g{animation:yggPorteG") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
+  const m = monde(); const h = m.api.porte_("gold", false);
+  assert.ok(h.includes('class="ygg-porte-g"') && h.includes('class="ygg-porte-d"') && h.split("<img ").length === 3, "deux volets, chacun avec l'image de la porte");
+  assert.ok(src.includes(".ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;") && src.includes(".ygg-porte-d img{right:0;}"), "chaque volet montre sa moitié de l'image");
+  assert.ok(src.includes(".ygg-porte{position:absolute;inset:-6px;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
+  assert.ok(src.includes("@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}"), "mouvement réduit : pas d'animation");
+  const corps = src.slice(src.indexOf("function porteDe_(id,actif){"), src.indexOf("function porteDe_(id,actif){") + 1800);
+  assert.ok(!corps.includes("setInterval") && !corps.includes("setTimeout"), "aucune minuterie pour les portes");
 }
 // 5. Branchement : la porte est dans la vitre de chaque fruit, selon son état actif.
 assert.ok(src.includes("(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'") && src.includes("var porteHtml=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
