@@ -27,7 +27,7 @@ import { createIdleAdventureStateV47, idleAdventureSnapshotV47 } from "../src/id
 }
 // client : la Collection liste les sets d'objets (onglet Sets) et les sets complétés (onglet Équipement), avec leur bonus en français
 const lire = (f) => fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n");
-const chro = lire("cloudflare/public/modules/ui-chroniques-v1.js"), inv = lire("cloudflare/public/modules/ui-inventaire-v1.js"), av = lire("cloudflare/public/modules/ui-aventure-1-v1.js");
+const chro = lire("cloudflare/public/modules/ui-chroniques-v1.js") + lire("cloudflare/public/modules/page-chroniques-v1.js"), inv = lire("cloudflare/public/modules/ui-inventaire-v1.js"), av = lire("cloudflare/public/modules/ui-aventure-1-v1.js");
 assert.ok(chro.includes("setDef.source==='objets'") && chro.includes("htmlSetsObjets") && chro.includes("!sets.length&&!setsObjets.length"), "onglet Sets : les sets d'objets");
 assert.ok(chro.includes("rendreCollectionEquipementIdleV1_(itemList,catalog,completedSets,cube,catalogueSetsCollectionIdleV164_(a))") && inv.includes("d.source==='objets'"), "onglet Équipement : sets d'objets complétés");
 assert.ok(av.includes("if(idleNombre_(r.poop)>0)parts.push('+'+idleEntier_(r.poop)+' Poop');") && av.includes("['beardSpeedPct','vitesse des Barbes']") && av.includes("['nguSpeedPct','NGU Speed']"), "libellés de bonus des sets d'objets");

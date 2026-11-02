@@ -499,6 +499,10 @@
   "pin": 19,
   "sha": "c6f4145752e99d4bbdf8028edd00e00ace71efdd"
  },
+ "/modules/page-chroniques-v1.js": {
+  "pin": 2,
+  "sha": "c6d7888cd9805100105390b1cb4aaae544f1523e"
+ },
  "/modules/perf-texte-v1.js": {
   "pin": 3,
   "sha": "25872a549af6da0a037b02ed5bcbcd6d60905c27"
@@ -560,12 +564,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 105,
-  "sha": "4ae2c006a51ce7bf21a1d08933419e1e00431ae2"
+  "pin": 107,
+  "sha": "a0b47d5248b7dbec14b307c7d23255723b040cca"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 733,
-  "sha": "2069e895af888d9e3b06a20975fc9a32caffd90a"
+  "pin": 735,
+  "sha": "5a1a44ba08f47afe8f4237eaf34017903691f074"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -644,12 +648,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 761,
-  "sha": "9fc242baf62ec215924b50b6f2f9bb5c284b4aa6"
+  "pin": 764,
+  "sha": "e055e54b15e8b72492cba4d8cc082ccc2448e425"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 582,
-  "sha": "f88e6fa3d10f2db11e909122ef5e538465457a59"
+  "pin": 585,
+  "sha": "ad60c73ebd81709feae2fd52bb15567f75c272cb"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -708,8 +712,8 @@
   "sha": "ea31721ae095016980783be267fcc3236e21e24e"
  },
  "/modules/ui-chroniques-v1.js": {
-  "pin": 11,
-  "sha": "7b16d26cac319f6b3c276caf23c80ffa5ff54fd5"
+  "pin": 13,
+  "sha": "931606eff73efca6a728bea41d48c9559d66f52b"
  },
  "/modules/ui-combat-1-v1.js": {
   "pin": 26,
@@ -728,8 +732,8 @@
   "sha": "31663b9f26e51d25c339da2dd689aa95b7ee6ac8"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 13,
-  "sha": "87c250b88f8948dc12ca5695830726bb30d1e4e9"
+  "pin": 14,
+  "sha": "fe6b65c59c484806f0c614ef4c5e8d0334b110e2"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 10,
@@ -854,6 +858,10 @@
  "/soreal-idle-carte-boss.css": {
   "pin": 24,
   "sha": "00472e69a976fe03ea2bf600a42d0fdef1c31e68"
+ },
+ "/soreal-idle-chroniques.css": {
+  "pin": 3,
+  "sha": "ea58411772f1fb0c1e344713877fea9caa051a95"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 5,

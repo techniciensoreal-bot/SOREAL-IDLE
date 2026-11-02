@@ -19,7 +19,7 @@ assert.ok(!/\n  sang:'/.test(m) && m.includes("if(!natif&&menu==='sang')natif=ra
 assert.ok(m.includes("__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__") && m.includes("push('data-entete-menu')") && m.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__") && m.includes("setAttribute('data-morph-garder','')"), "redessin invisible");
 assert.ok(idx.includes('modules/entete-menu-v1.js?v='), "module chargé par la page");
 // les onglets passent SOUS le cadre de titre (Boutique, Chroniques) : aucun bouton avant le cadre
-assert.ok(chro.includes("return barreSousEnteteIdleV1_(barre,contenu);") && bout.includes("barreSousEnteteIdleV1_(boutons.length>1?"), "onglets sous le titre");
+assert.ok(chro.includes("barreSousEnteteIdleV1_(barre,contenu)") && bout.includes("barreSousEnteteIdleV1_(boutons.length>1?"), "onglets sous le titre");
 // traductions des mini phrases générées
 for (const v of Object.values({ b: "Pars en zone, combats des ennemis et ramène du butin.", c: "Accélère et multiplie la production d’énergie et de magie.", d: "Eh, c’est le nom du jeu original !", e: "Fais pousser des fruits, récolte-les ou mange-les pour des bonus." })) assert.ok(dict[v], "traduit : " + v);
 // police plus grande et cadre soigné : la règle \u00ab 1,5 em !important \u00bb ne touche plus les cadres marqués (sinon elle l'emporterait sur la nouvelle taille) ; le titre ne passe jamais à la ligne

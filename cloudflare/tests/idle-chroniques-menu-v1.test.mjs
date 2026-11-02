@@ -23,7 +23,7 @@ const onglets = new Function("menuSuccesVisibleIdleV1_", fn + "\nreturn chroniqu
 assert.deepEqual(onglets({}).map((o) => o.id), [], "rien de débloqué : aucun onglet (anti-spoil)");
 assert.deepEqual(onglets({ classement: { debloque: true } }).map((o) => o.id), ["classement", "cinematiques"]);
 assert.deepEqual(onglets({ bestiaire: { debloquee: true }, classement: { debloque: true }, succes: true }).map((o) => o.id), ["bestiaire", "classement", "succes", "cinematiques"]);
-assert.ok(ui.includes("onglets.length>1\n          ?'<div class=\"soreal-idle-chroniques-onglets-v1\""), "pas de barre d'onglets pour un seul onglet");
+assert.ok(ui.includes("onglets.length>1?window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__.barreOnglets(onglets,actif):''"), "pas de barre d'onglets pour un seul onglet");
 
 // L'habillage suit l'onglet affiché ; les anciens identifiants ouvrent Chroniques.
 assert.ok(ui.includes('data-menu="${idleHtml_(menuStyleIdleV1_(j))}"'), "data-menu = onglet affiché");

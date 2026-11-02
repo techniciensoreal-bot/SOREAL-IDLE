@@ -561,11 +561,11 @@
           if(completedSets[setId]&&d&&d.source==='objets')setsConnus.push(idleHtml_(d.name||setId));
         });
         const setsHtml=setsConnus.length
-          ?'<div class="soreal-idle-collection-sets-v1"><b>🏅 Sets complétés (100 % boostés)</b><div>'+setsConnus.join(' · ')+'</div></div>'
+          ?'<div class="soreal-idle-collection-sets-v1">'+(window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__?window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__.icone('couronne'):'')+'<b>Sets complétés (100 % boostés)</b><div>'+setsConnus.join(' · ')+'</div></div>'
           :'';
 
         const cubeHtml=cube&&cube.unlocked
-          ?'<div class="soreal-idle-collection-cube-v1">🧊 <b>Cube de l’infini</b> — Puissance '+formatGrandNombreIdleV70_(cube.power||0)+' · Endurance '+formatGrandNombreIdleV70_(cube.toughness||0)+'</div>'
+          ?'<div class="soreal-idle-collection-cube-v1">'+(window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__?window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__.icone('cube'):'')+' <b>Cube de l’infini</b> — Puissance '+formatGrandNombreIdleV70_(cube.power||0)+' · Endurance '+formatGrandNombreIdleV70_(cube.toughness||0)+'</div>'
           :'';
 
         const grilleEquipement='<div class="soreal-idle-collection-grid-v1">'+
@@ -624,7 +624,7 @@
         rendrePaginationIdleV1_(idlePageCollectionEquipementV1,totalPagesEquipement,'window.__changerPageCollectionEquipementV1__');
 
         const grilleBoosts=idsBoosts.length
-          ?'<div class="soreal-idle-collection-sets-v1"><b>⚡ Boosts obtenus</b>'+
+          ?'<div class="soreal-idle-collection-sets-v1">'+(window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__?window.__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__.icone('boost'):'')+'<b>Boosts obtenus</b>'+
             (function(){
               const maxes=idsBoosts.filter(function(id){return itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100;}).length;
               return maxes?'<div>✔ '+maxes+' boost'+(maxes>1?'s':'')+' au niveau 100 : +'+(maxes*2)+' % d’efficacité de tous les boosts</div>':'';

@@ -25,9 +25,8 @@ assert.match(ui, /notice\('🧩 Set complété : '/);
 assert.match(ui, /notice\('🧊 Infinity Cube débloqué !'/);
 
 // Collection : bonus du set en évidence, doré puis vert une fois obtenu
-assert.match(ui, /soreal-idle-collection-bonus-v1'\+\(obtenu\?' obtenu':''\)/);
-assert.match(css, /\.soreal-idle-collection-bonus-v1\.obtenu\{/);
-assert.match(css, /\.soreal-idle-collection-bonus-v1\{[^}]*font|\.soreal-idle-collection-bonus-v1 \.texte\{margin-top:2px;font-size:15px/);
+assert.match(ui, /sc-sceau'\+\(obtenu\?' obtenu':''\)/);
+assert.match(readFileSync("cloudflare/public/soreal-idle-chroniques.css", "utf8"), /\.sc-sceau\.obtenu\{/);
 
 // Zones : envoi fiable et combat local interrompu pour les flèches comme pour le menu (une seule fonction)
 assert.match(ui, /function envoyerChoixZoneFiableIdleV1_\(\)\{/);

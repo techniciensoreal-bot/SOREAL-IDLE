@@ -42,6 +42,8 @@
             'Le petit crayon qui sert à changer tes boutons « Mes nombres » n’est plus coupé : il est maintenant à gauche du nombre, bien visible et facile à toucher (Augmentations et autres menus).',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Tout le menu Chroniques change d’allure, façon forge sombre : onglets en plaques biseautées avec une gemme qui s’allume, sous-onglets, cadres et boutons dorés, titres et textes redessinés (Collection, Succès, Cinématiques…).',
+            'La page des sets de la Collection est refaite : une grande carte ornée par set, avec son propre motif de fond, les pièces trouvées avec leur niveau, le sceau du bonus et un cadre doré quand un set est complet.',
             'En anglais, la lecture d’une carte de chronique utilise bien la voix anglaise du début à la fin.',
             'Le lecteur des chroniques réduit en petite enceinte se rouvre de nouveau d’un simple toucher.',
             'Album des cartes : sur téléphone, les cartes ne clignotent plus quand tu tournes la page. Les images de la page suivante sont préparées avant que la feuille ne tourne, et la page qui part est déplacée au lieu d’être redessinée.',

@@ -1,0 +1,292 @@
+/*
+ * SOREAL IDLE — menu Chroniques, design « Diablo » (Norman, 2026-11-02). Fichier généré à partir d'un source où html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 = le préfixe de spécificité
+ * (html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1) pour passer devant les anciennes feuilles.
+ * Polices : Bangers (titres), Russo One (textes). Toutes les animations sont en CSS pur, en boucle parfaite (fondu d'entrée et de sortie, un seul sens),
+ * et coupées par prefers-reduced-motion. Rien n'est ajouté à la page après le rendu (règle n°4).
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1{
+  --noir:#0a0607;--char:#1a1210;--char2:#2b1d17;--sang:#8e1218;--sang2:#d1262d;--or:#d9a94a;--or2:#f7de92;--bronze:#8c5a2b;--acier:#9aa4b0;--acier2:#4a525c;--parch:#ecdcb8;--encre:#150a07;
+  --a:var(--sang2);--glow:rgba(209,38,45,.45);
+  font-family:"Russo One",system-ui,sans-serif;color:var(--parch);
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 *:not(:where(.soreal-idle-page-head-v28 *)):not(:where([class*="alb-"] *)){font-family:"Russo One",system-ui,sans-serif}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1.chr-ong-bestiaire{--a:#d1262d;--glow:rgba(209,38,45,.45)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1.chr-ong-classement{--a:#4f8fc4;--glow:rgba(79,143,196,.45)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1.chr-ong-succes{--a:#e0a82e;--glow:rgba(224,168,46,.45)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1.chr-ong-cinematiques{--a:#e0661a;--glow:rgba(224,102,26,.45)}
+
+/* ---------- Barre d'onglets du menu : plaques forgées ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglets{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:7px;margin:4px 0 4px;padding:0 0 4px;border:0;background:none;box-shadow:none;border-radius:0;
+  filter:drop-shadow(0 3px 0 rgba(0,0,0,.75)) drop-shadow(0 7px 8px rgba(0,0,0,.5))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet{--ch:13px;--ch2:11px;position:relative;isolation:isolate;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:9px;min-width:0;min-height:56px;padding:8px 12px 8px 26px;
+  border:0;border-radius:0;cursor:pointer;color:#bda987;font-family:Bangers,cursive!important;font-size:21px;letter-spacing:.09em;text-transform:uppercase;text-shadow:0 2px 0 #000;
+  background:linear-gradient(180deg,#9b7640,#4b331a 50%,#1b1109);box-shadow:none;opacity:1;overflow:hidden;
+  clip-path:polygon(var(--ch) 0,calc(100% - var(--ch)) 0,100% var(--ch),100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,var(--ch) 100%,0 calc(100% - var(--ch)),0 var(--ch));
+  transition:transform .12s ease,color .15s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet::before{content:"";position:absolute;inset:3px;z-index:-1;
+  background:radial-gradient(120% 150% at 50% 0,#33241c,#140b08 72%);
+  clip-path:polygon(var(--ch2) 0,calc(100% - var(--ch2)) 0,100% var(--ch2),100% calc(100% - var(--ch2)),calc(100% - var(--ch2)) 100%,var(--ch2) 100%,0 calc(100% - var(--ch2)),0 var(--ch2))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet[data-onglet="bestiaire"]{--a:#d1262d}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet[data-onglet="classement"]{--a:#4f8fc4}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet[data-onglet="succes"]{--a:#e0a82e}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet[data-onglet="cinematiques"]{--a:#e0661a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet b{font-weight:400;line-height:1;white-space:nowrap;font-family:Bangers,cursive!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet-ico{display:flex;font-style:normal;filter:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet-ico .chr-ico{width:24px;height:24px;filter:drop-shadow(0 2px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-gemme{position:absolute;left:10px;top:50%;width:9px;height:9px;margin-top:-4.5px;transform:rotate(45deg);background:radial-gradient(circle at 35% 30%,#6b5a48,#251a12);border:1px solid #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet:hover{color:#f0dfb8;transform:translateY(-1px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet:active{transform:translateY(1px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif{color:#fff3cf;background:linear-gradient(180deg,#fbe9a6,#c18a2a 45%,#6b4410)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif::before{background:radial-gradient(130% 170% at 50% -10%,color-mix(in srgb,var(--a) 62%,#2a0d0a),#150808 74%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif .chr-gemme{background:radial-gradient(circle at 35% 30%,#fff,var(--a) 45%,#000);box-shadow:0 0 10px 2px var(--a);animation:chrGemme 3.2s ease-in-out infinite}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif .chr-ico{color:var(--or2)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:34%;z-index:1;pointer-events:none;background:linear-gradient(100deg,transparent,rgba(255,244,200,.32),transparent);
+  transform:translateX(-160%) skewX(-18deg);opacity:0;animation:chrReflet 5.2s linear infinite}
+@keyframes chrGemme{0%,100%{opacity:.72}50%{opacity:1}}
+@keyframes chrReflet{0%{transform:translateX(-160%) skewX(-18deg);opacity:0}6%{opacity:1}34%{transform:translateX(420%) skewX(-18deg);opacity:1}40%{opacity:0}100%{transform:translateX(420%) skewX(-18deg);opacity:0}}
+
+/* Filet orné sous la barre */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-filet{height:10px;margin:2px 4px 14px;color:var(--or);opacity:.75}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-filet .chr-frise{display:block;width:100%;height:10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-frise{display:block;width:100%;height:9px;color:var(--or)}
+
+/* ---------- Sous-onglets (Collection, Classement, défis) ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;padding:0;background:none;border:0;filter:drop-shadow(0 3px 0 rgba(0,0,0,.7))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton{--ch:9px;--ch2:7px;--sa:var(--a);position:relative;isolation:isolate;flex:1 1 130px;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:7px 14px;border:0;border-radius:0;cursor:pointer;
+  color:#bda987;font-family:Bangers,cursive!important;font-size:19px;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 0 #000;
+  background:linear-gradient(180deg,#8a8f98,#3d4147 50%,#16181b);box-shadow:none;
+  clip-path:polygon(var(--ch) 0,calc(100% - var(--ch)) 0,100% var(--ch),100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,var(--ch) 100%,0 calc(100% - var(--ch)),0 var(--ch));transition:transform .12s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton::before{content:"";position:absolute;inset:2px;z-index:-1;background:linear-gradient(180deg,#26201d,#100b09);
+  clip-path:polygon(var(--ch2) 0,calc(100% - var(--ch2)) 0,100% var(--ch2),100% calc(100% - var(--ch2)),calc(100% - var(--ch2)) 100%,var(--ch2) 100%,0 calc(100% - var(--ch2)),0 var(--ch2))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton b{font-weight:400;white-space:nowrap;font-family:Bangers,cursive!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton[data-sous="boss"]{--sa:#d1262d}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton[data-sous="equipement"]{--sa:#d08a3a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton[data-sous="sets"]{--sa:#9a63e6}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-ico{display:flex;font-style:normal}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-ico .chr-ico{width:22px;height:22px;filter:drop-shadow(0 2px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton:hover{color:#f0dfb8;transform:translateY(-1px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton.actif{color:#fff3cf;background:linear-gradient(180deg,#f6dc8c,#b8862e 50%,#5f3d10)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton.actif::before{background:radial-gradient(130% 180% at 50% -20%,color-mix(in srgb,var(--sa) 70%,#1a0a08),#120808 78%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton.actif .chr-ico{color:var(--or2)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-puce{min-width:26px;padding:1px 7px;font-family:"Russo One",sans-serif;font-size:13px;letter-spacing:0;text-shadow:none;color:#1b0f04;border-radius:3px;background:linear-gradient(180deg,#f6dc8c,#b8862e);box-shadow:0 0 0 1px #000,inset 0 1px 0 rgba(255,255,255,.6);text-align:center}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-sous .chr-sous-bouton{flex:1 1 92px;min-height:40px;font-size:16px;padding:5px 10px}
+
+/* ---------- Cadres de page ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan{position:relative;padding:22px 14px 16px;border-radius:6px;border:2px solid #000;
+  box-shadow:inset 0 0 0 2px var(--cb),inset 0 0 0 4px #000,inset 0 0 40px rgba(0,0,0,.6),0 10px 24px -8px rgba(0,0,0,.8);background:var(--cf)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="boss"]{--cb:#7c1a1d;--cf:radial-gradient(130% 60% at 50% -5%,rgba(150,14,22,.5),transparent 70%),repeating-linear-gradient(115deg,rgba(0,0,0,.2) 0 2px,transparent 2px 15px),linear-gradient(180deg,#1d0c0e,#0d0607)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="equipement"]{--cb:#8a6a3e;--cf:radial-gradient(120% 50% at 50% -5%,rgba(190,140,70,.22),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 5px),linear-gradient(180deg,#25211e,#0f0d0c)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="sets"]{--cb:#6a4aa6;--cf:radial-gradient(120% 55% at 50% -5%,rgba(120,70,200,.34),transparent 70%),radial-gradient(circle at 20% 80%,rgba(217,169,74,.08),transparent 40%),linear-gradient(180deg,#1a1326,#0a0710)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan::before{content:"";position:absolute;left:8px;right:8px;top:6px;height:12px;pointer-events:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="boss"]::before{background:radial-gradient(ellipse 5px 7px at 14px 0,#a3141c 0 90%,transparent),radial-gradient(ellipse 4px 11px at 37px 0,#7c0d13 0 90%,transparent);background-size:56px 12px;background-repeat:repeat-x}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="equipement"]::before{background:radial-gradient(circle at 10px 6px,#f1cf86 0 2.2px,#6b4a1b 3px,transparent 3.6px);background-size:30px 12px;background-repeat:repeat-x}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan[data-ong="sets"]::before{background:linear-gradient(90deg,transparent,rgba(217,169,74,.7),transparent) center 6px/100% 1px no-repeat,radial-gradient(circle at 50% 6px,#f7de92 0 3px,transparent 3.6px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan .soreal-idle-section-v8{background:none;border:0;box-shadow:none;padding:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-lire{margin:4px 0 14px}
+
+/* Boutons dorés (Lire / Actualiser) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-bouton{--ch:9px;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:8px 20px;border:0;border-radius:0;cursor:pointer;
+  font-family:Bangers,cursive;font-size:19px;letter-spacing:.07em;color:#2a1700;text-shadow:0 1px 0 rgba(255,255,255,.4);
+  background:linear-gradient(180deg,#fbe9a6,#d9a02e 52%,#8a5a12);box-shadow:0 3px 0 #2f1b06,0 6px 10px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.6);
+  clip-path:polygon(var(--ch) 0,calc(100% - var(--ch)) 0,100% 50%,calc(100% - var(--ch)) 100%,var(--ch) 100%,0 50%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-bouton .chr-ico{width:20px;height:20px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-bouton:hover{filter:brightness(1.1)}
+
+/* Message vide */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-empty-v10{margin:8px 0;padding:22px 18px;text-align:center;color:var(--parch);font-size:15px;line-height:1.5;border:1px dashed rgba(217,169,74,.55);border-radius:4px;background:rgba(0,0,0,.35)!important}
+
+/* ---------- Collection : Boss (cartes de secours) ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-bestiary-card-v110{background:linear-gradient(180deg,#2a1013,#10070a);border:2px solid #7c1a1d;border-radius:6px;box-shadow:0 0 0 1px #000,0 6px 14px rgba(0,0,0,.6);color:var(--parch)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-bestiary-name-v110{font-family:Bangers,cursive;letter-spacing:.06em;color:var(--or2)}
+
+/* ---------- Collection : Équipement ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-grid-v1{grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:12px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1{border:2px solid #000!important;border-radius:5px!important;padding:14px 8px 10px;gap:7px;color:var(--parch);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 30%),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px),linear-gradient(180deg,#3a342f,#151210)!important;
+  box-shadow:inset 0 0 0 1px #8a6a3e,inset 0 0 0 3px #000,0 6px 12px -4px rgba(0,0,0,.8)!important;transition:transform .15s ease,box-shadow .2s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1::after{content:"";position:absolute;top:6px;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f7de92,#6b4a1b);box-shadow:0 1px 0 #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1::before{left:6px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1::after{right:6px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1:hover{box-shadow:inset 0 0 0 1px #f1cf86,inset 0 0 0 3px #000,0 10px 18px -4px rgba(0,0,0,.9),0 0 18px -4px var(--or)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-v1.maxed{box-shadow:inset 0 0 0 1px #f7de92,inset 0 0 0 3px #000,0 6px 12px -4px rgba(0,0,0,.8),0 0 14px -2px rgba(217,169,74,.7)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-name-v1{font-size:12.5px;font-weight:400;color:var(--or2);line-height:1.25}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-level-v1{font-size:12px;color:#c9b998}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-details-v1{border-top:1px solid rgba(217,169,74,.35);color:var(--parch)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-check-v1{top:5px;right:16px;background:linear-gradient(180deg,#f6dc8c,#b8862e);color:#2a1700;box-shadow:0 0 0 1px #000;width:20px;height:20px;border-radius:3px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-check-v1{font-size:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-check-v1::after{content:"";width:9px;height:5px;border-left:2.5px solid #2a1700;border-bottom:2.5px solid #2a1700;transform:rotate(-45deg) translate(1px,-1px);display:block;margin:5px 0 0 5px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-card-icon-v1 img{border-radius:3px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-sets-v1,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-cube-v1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0 0 14px;padding:12px 14px;border-radius:4px;border:2px solid #000;
+  background:linear-gradient(180deg,#2f2823,#14100e);box-shadow:inset 0 0 0 1px #8a6a3e,inset 0 0 0 3px #000;color:var(--parch);font-size:14px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-sets-v1>.chr-ico,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-cube-v1>.chr-ico{width:22px;height:22px;color:var(--or)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-sets-v1 b{font-family:Bangers,cursive;font-weight:400;font-size:19px;letter-spacing:.07em;color:var(--or2)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-collection-sets-v1 div{flex-basis:100%;margin-top:2px;color:#9fe0a6}
+
+/* ---------- Collection : Sets (cartes ornées) ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:18px;align-items:start}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-vide{display:flex;flex-direction:column;align-items:center;gap:10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-vide-ico .chr-ico{width:42px;height:42px;color:var(--or);opacity:.8}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-carte{--s1:#2a0c10;--s2:#d8434b;--ms:32px;position:relative;isolation:isolate;overflow:hidden;padding:16px 14px 14px;border-radius:8px;border:2px solid #000;color:var(--parch);
+  background:radial-gradient(130% 70% at 50% -10%,color-mix(in srgb,var(--s2) 34%,transparent),transparent 70%),linear-gradient(180deg,color-mix(in srgb,var(--s1) 100%,#000),#0b0709);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--s2) 70%,#3a2a10),inset 0 0 0 4px #000,inset 0 0 0 5px rgba(217,169,74,.55),0 12px 22px -8px rgba(0,0,0,.85)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t0{--s1:#34090e;--s2:#d8434b}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t1{--s1:#0a2a1d;--s2:#3fc58a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t2{--s1:#0b1a3a;--s2:#4a8be0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t3{--s1:#34200a;--s2:#e0902a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t4{--s1:#22103a;--s2:#9b62e0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-t5{--s1:#08292c;--s2:#2fb7b7}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-motif{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.2;background-image:var(--motif);background-size:var(--ms) var(--ms);background-repeat:repeat;
+  -webkit-mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.35) 70%,#000);mask-image:linear-gradient(180deg,#000,rgba(0,0,0,.35) 70%,#000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m0{--ms:30px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Crect width='15' height='15' fill='white'/%3E%3Crect x='15' y='15' width='15' height='15' fill='white'/%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m1{--ms:28px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='20'%3E%3Cg fill='none' stroke='white' stroke-width='1.3'%3E%3Cpath d='M0 10a7 7 0 0 0 14 0a7 7 0 0 0 14 0M-7 0a7 7 0 0 0 14 0a7 7 0 0 0 14 0a7 7 0 0 0 14 0M0 20a7 7 0 0 0 14 0a7 7 0 0 0 14 0'/%3E%3C/g%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m2{--ms:24px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 8l12 8 12-8M0 20l12 8 12-8M0-4l12 8 12-8' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m3{--ms:26px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26'%3E%3Cpath d='M13 2l11 11-11 11L2 13z' fill='none' stroke='white' stroke-width='1.4'/%3E%3Cpath d='M13 8l5 5-5 5-5-5z' fill='white'/%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m4{--ms:40px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='16'%3E%3Cpath d='M0 8c5-8 15-8 20 0s15 8 20 0M0 16c5-8 15-8 20 0s15 8 20 0M0 0c5-8 15-8 20 0s15 8 20 0' fill='none' stroke='white' stroke-width='1.2'/%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m5{--ms:34px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34'%3E%3Cpath d='M17 5l2.4 9.6L29 17l-9.6 2.4L17 29l-2.4-9.6L5 17l9.6-2.4z' fill='white'/%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m6{--ms:44px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='white' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M22 22c0-5 6-6 8-2s-2 9-8 9-12-6-9-13 10-8 14-5'/%3E%3Cpath d='M0 40c8 0 10-6 16-6M44 4c-8 0-10 6-16 6'/%3E%3C/g%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-m7{--ms:28px;--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cg fill='none' stroke='white' stroke-width='1.4'%3E%3Cpath d='M14 4v20M4 14h20'/%3E%3Ccircle cx='14' cy='14' r='5'/%3E%3C/g%3E%3C/svg%3E")}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-coin{position:absolute;width:14px;height:14px;pointer-events:none;border:2px solid var(--or);opacity:.9}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-coin-a{left:7px;top:7px;border-right:0;border-bottom:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-coin-b{right:7px;top:7px;border-left:0;border-bottom:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-coin-c{left:7px;bottom:7px;border-right:0;border-top:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-coin-d{right:7px;bottom:7px;border-left:0;border-top:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-tete{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;margin-bottom:10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-medaillon{position:relative;display:flex;align-items:center;justify-content:center;width:50px;height:56px;color:var(--or2);
+  background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--s2) 60%,#000),#0b0709 80%);clip-path:polygon(50% 0,100% 18%,100% 70%,50% 100%,0 70%,0 18%);filter:drop-shadow(0 2px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-medaillon>.chr-ico{width:26px;height:26px;filter:drop-shadow(0 1px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-couronne{position:absolute;left:50%;top:-6px;margin-left:-11px;width:22px;height:18px;color:#ffe08a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-couronne .chr-ico{width:22px;height:22px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-titre{min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-set-nom{margin:0 0 3px;font-family:Bangers,cursive;font-weight:400;font-size:clamp(22px,4.6vw,28px);line-height:1.05;letter-spacing:.07em;color:var(--or2);text-shadow:0 2px 0 #000,0 0 14px color-mix(in srgb,var(--s2) 70%,transparent);overflow-wrap:anywhere}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-titre .chr-frise{color:color-mix(in srgb,var(--s2) 80%,#d9a94a);opacity:.9}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-compte{display:flex;align-items:center;gap:4px;min-width:34px;justify-content:center;padding:4px 9px;border-radius:3px;font-size:16px;color:#e8dcc0;background:rgba(0,0,0,.55);border:1px solid rgba(217,169,74,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-compte.done{color:#2a1700;background:linear-gradient(180deg,#f7de92,#c18a2a);border-color:#000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-compte .chr-ico{width:15px;height:15px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-stat{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 4px;border-radius:3px;background:rgba(0,0,0,.45);border:1px solid rgba(217,169,74,.28)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-stat em{font-style:normal;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:#bda987;text-align:center}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-stat b{font-size:17px;color:var(--or2);font-weight:400}
+
+/* Sceau du bonus */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:10px 12px;border-radius:5px;border:2px solid #000;color:var(--parch);
+  background:linear-gradient(135deg,rgba(0,0,0,.55),rgba(0,0,0,.3));box-shadow:inset 0 0 0 1px rgba(217,169,74,.55)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-cire{position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 44px;width:44px;height:44px;color:#5a4a36;filter:drop-shadow(0 2px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-cire .chr-ico{width:44px;height:44px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-btxt{min-width:0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau .titre{font-family:Bangers,cursive;font-size:17px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:#c9b998}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau .texte{margin-top:2px;font-size:15px;font-weight:400;color:var(--or2);line-height:1.3}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau .condition{margin-top:3px;font-size:12.5px;font-weight:400;opacity:.8;line-height:1.35;color:#bda987}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu{border-color:#000;background:linear-gradient(135deg,rgba(120,80,10,.55),rgba(40,26,4,.7));box-shadow:inset 0 0 0 1px #f7de92,0 0 16px -2px rgba(247,222,146,.55)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu .titre{color:#ffe9a8}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu .cire,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu .sc-cire{color:#e8b53a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu .sc-cire::after{content:"";position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;background:#fff;box-shadow:0 0 10px 4px rgba(255,244,200,.9);animation:scScint 2.8s ease-in-out infinite}
+@keyframes scScint{0%,100%{opacity:0;transform:translate(-9px,-9px) scale(.4)}50%{opacity:1;transform:translate(9px,9px) scale(1)}}
+
+/* Pièces */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-pieces{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:8px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-piece{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-height:96px;padding:9px 6px 8px;text-align:center;cursor:default;
+  border-radius:4px;border:1px solid #000;color:var(--parch);font-size:11px;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(0,0,0,.35)),rgba(0,0,0,.4);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--s2) 55%,#3a2a10)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-piece.found{cursor:pointer}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-piece.n100{box-shadow:inset 0 0 0 1px #e0902a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-piece.maxed{box-shadow:inset 0 0 0 1px #f7de92,0 0 10px -2px rgba(247,222,146,.6);background:linear-gradient(180deg,rgba(247,222,146,.16),rgba(0,0,0,.35)),rgba(0,0,0,.4)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-icone{display:flex;font-size:22px;line-height:1}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-icone img{width:34px;height:34px;object-fit:cover;border-radius:3px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-pnom{font-size:11.5px;line-height:1.2;color:var(--or2);overflow-wrap:anywhere}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-niv{font-size:11px;color:#c9b998;display:flex;align-items:center;justify-content:center;gap:3px;flex-wrap:wrap}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-ok{width:13px;height:13px;color:#7fe08f}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-jauge{display:block;width:100%;height:5px;margin-top:auto;border-radius:2px;background:#000;box-shadow:inset 0 0 0 1px rgba(217,169,74,.35);overflow:hidden}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-jauge i{display:block;height:100%;background:linear-gradient(90deg,color-mix(in srgb,var(--s2) 70%,#000),var(--s2))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-piece.maxed .sc-jauge i{background:linear-gradient(90deg,#b8862e,#f7de92)}
+
+/* Set complet : cadre or, reflet qui passe */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-complet{box-shadow:inset 0 0 0 2px #f7de92,inset 0 0 0 4px #000,inset 0 0 0 5px #b8862e,0 0 22px -4px rgba(247,222,146,.55),0 12px 22px -8px rgba(0,0,0,.85)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-complet::after{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:30%;pointer-events:none;z-index:2;background:linear-gradient(100deg,transparent,rgba(255,244,200,.22),transparent);
+  transform:translateX(-160%) skewX(-18deg);opacity:0;animation:scReflet 6.4s linear infinite}
+@keyframes scReflet{0%{transform:translateX(-160%) skewX(-18deg);opacity:0}5%{opacity:1}30%{transform:translateX(450%) skewX(-18deg);opacity:1}35%{opacity:0}100%{transform:translateX(450%) skewX(-18deg);opacity:0}}
+
+/* ---------- Classement ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-liste{display:grid;gap:8px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-nom{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-rang{text-align:center}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-valeur{text-align:right;display:grid;gap:1px;font-variant-numeric:tabular-nums}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne{position:relative;display:grid;align-items:center;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;padding:10px 14px;border-radius:4px;border:2px solid #000;color:var(--parch);
+  background:linear-gradient(90deg,rgba(255,255,255,.05),transparent 40%),linear-gradient(180deg,#232a33,#0f1317);box-shadow:inset 0 0 0 1px #5d7a96,0 4px 8px -3px rgba(0,0,0,.7)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne:nth-child(even){background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 40%),linear-gradient(180deg,#1c222a,#0c0f12)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne.top{box-shadow:inset 0 0 0 1px #d9a94a,0 4px 10px -3px rgba(0,0,0,.8),0 0 16px -6px #d9a94a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne.moi{box-shadow:inset 0 0 0 1px #f7de92,inset 5px 0 0 #d1262d,0 0 18px -4px rgba(247,222,146,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-rang{display:flex;align-items:center;justify-content:center;color:var(--or2);text-shadow:none;font-weight:400}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-rang-n{font-family:Bangers,cursive;font-size:23px;letter-spacing:.04em;color:#b9c3cf;text-shadow:0 2px 0 #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille{position:relative;display:inline-flex;align-items:center;justify-content:center;width:40px;height:44px;filter:drop-shadow(0 2px 0 #000)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille svg{position:absolute;inset:0;width:100%;height:100%}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille b{position:relative;top:-4px;font-family:Bangers,cursive;font-size:20px;font-weight:400;color:#26180a;text-shadow:0 1px 0 rgba(255,255,255,.45)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille.m1{color:#f1c24a}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille.m2{color:#c3ccd6}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-medaille.m3{color:#c98544}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-nom{font-family:"Russo One",sans-serif;font-weight:400;font-size:16px;color:#eadfc4}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-nom em{color:var(--or);font-size:13px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-valeur{color:var(--or2);font-weight:400}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-valeur b{font-family:Bangers,cursive;font-weight:400;font-size:21px;letter-spacing:.05em}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-valeur span{color:#9db0c4;font-size:12px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-note{color:#bda987}
+
+/* ---------- Succès ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .idle-succes-resume-v1{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:2px 0 10px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .idle-succes-tuile-v1{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 10px;border-radius:5px!important;border:2px solid #000!important;color:var(--parch);text-align:center;
+  background:radial-gradient(120% 90% at 50% 0,rgba(224,168,46,.3),transparent 70%),linear-gradient(180deg,#2b2111,#0f0b06)!important;box-shadow:inset 0 0 0 1px #d9a94a,inset 0 0 0 3px #000,0 6px 12px -4px rgba(0,0,0,.8)!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .idle-succes-tuile-v1 b{font-family:Bangers,cursive;font-weight:400;font-size:26px;letter-spacing:.06em;color:var(--or2);text-shadow:0 2px 0 #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-legende{display:flex;flex-wrap:wrap;gap:6px 14px;margin:8px 0 14px;padding:8px 12px;border-radius:4px;border:1px solid rgba(217,169,74,.35);background:rgba(0,0,0,.4);color:#bda987}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-groupe{margin:0 0 18px;border-radius:6px;border:2px solid #000;overflow:hidden;
+  background:radial-gradient(130% 40% at 50% 0,color-mix(in srgb,var(--acc) 22%,transparent),transparent 70%),linear-gradient(180deg,#1a1411,#0b0807);
+  box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--acc) 55%,#3a2a10),inset 0 0 0 4px #000,0 10px 20px -8px rgba(0,0,0,.85)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-groupe>header{position:relative;padding:12px 16px;font-family:Bangers,cursive!important;font-weight:400;font-size:24px;letter-spacing:.08em;color:var(--or2);text-shadow:0 2px 0 #000;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--acc) 55%,#000),color-mix(in srgb,var(--acc) 22%,#0b0807));border-bottom:2px solid #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-groupe>header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#d9a94a,transparent)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-groupe>header .nb{font-family:"Russo One",sans-serif!important;font-size:14px;letter-spacing:0;border-radius:3px;background:rgba(0,0,0,.6);border:1px solid #d9a94a;color:var(--or2)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-cases{gap:12px;padding:14px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-case{border-radius:5px;border:2px solid #000;color:var(--parch);
+  background:linear-gradient(180deg,rgba(255,255,255,.05),transparent 35%),linear-gradient(180deg,#2a221d,#110d0b);box-shadow:inset 0 0 0 1px #4a3f35,0 4px 8px -3px rgba(0,0,0,.8)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-case.fait{background:radial-gradient(100% 70% at 50% 0,color-mix(in srgb,var(--c2) 30%,transparent),transparent 75%),linear-gradient(180deg,#2e251c,#110d0b);
+  box-shadow:inset 0 0 0 1px var(--c2),inset 0 0 0 3px #000,0 0 14px -3px color-mix(in srgb,var(--c2) 60%,transparent)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-case .sc-nom{font-size:12.5px;color:#f0e6cc}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-case.visible .sc-nom,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-case.cache .sc-nom{color:#8f8573}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-bp{font-family:Bangers,cursive;font-weight:400;font-size:16px;letter-spacing:.06em;border-radius:3px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-boss{color:#e0a82e}
+
+/* ---------- Cinématiques ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-v1{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px;padding:10px 2px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1{position:relative;gap:6px;padding:26px 14px 14px;border-radius:5px;border:2px solid #000;color:var(--parch);text-align:center;cursor:pointer;
+  background:repeating-linear-gradient(90deg,transparent 0 24px,rgba(255,255,255,.04) 24px 26px),linear-gradient(180deg,#2a1710,#0e0807);
+  box-shadow:inset 0 0 0 1px #8a4a22,inset 0 0 0 3px #000,0 10px 20px -8px rgba(0,0,0,.85);transition:transform .15s ease,box-shadow .2s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1::after{content:"";position:absolute;left:10px;right:10px;height:10px;background:radial-gradient(ellipse 5px 4px at 6px 5px,#000 0 90%,transparent) 0 0/22px 10px repeat-x;opacity:.9}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1::before{top:8px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1::after{bottom:8px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px #e0661a,inset 0 0 0 3px #000,0 14px 24px -8px rgba(0,0,0,.9),0 0 20px -4px rgba(224,102,26,.6);background-color:transparent;border-color:#000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cine-apercu-v1{border-radius:2px;border:2px solid #000;box-shadow:0 0 0 2px #8a4a22}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cine-play-v1{background:radial-gradient(circle at 35% 30%,#fbe9a6,#d9a02e 55%,#7a4c0e);border:2px solid #000;color:#2a1700;box-shadow:0 0 0 2px #f7de92,0 6px 12px rgba(0,0,0,.7);transition:transform .15s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1:hover .cine-play-v1{transform:scale(1.1)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1 b{font-family:Bangers,cursive;font-weight:400;font-size:26px;letter-spacing:.07em;color:var(--or2);text-shadow:0 2px 0 #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .soreal-idle-cine-carte-v1 em{font-size:13px;color:#cdb89a}
+
+@media (max-width:620px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet{flex-direction:column;gap:2px;min-height:60px;padding:11px 1px 6px;font-size:12.5px;letter-spacing:.02em}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-gemme{left:50%;top:6px;margin:0 0 0 -4.5px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet-ico .chr-ico{width:22px;height:22px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglets{gap:5px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton{flex:1 1 0;min-width:0;gap:4px;font-size:14px;letter-spacing:.03em;padding:6px 3px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-ico .chr-ico{width:17px;height:17px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-puce{min-width:20px;padding:1px 4px;font-size:11px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-sous .chr-sous-bouton{flex:1 1 40%}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .col-pan{padding:20px 9px 12px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-grille{gap:14px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-tete{gap:9px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-medaillon{width:42px;height:48px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-stat em{font-size:9.5px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-pieces{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne{grid-template-columns:44px minmax(0,1fr) auto;gap:8px;padding:8px 9px}
+}
+@media (prefers-reduced-motion:reduce){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif .chr-gemme,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-complet::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-sceau.obtenu .sc-cire::after{animation:none}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-onglet.actif::after,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-complet::after{opacity:0}
+}
+
+/* Titres en Bangers : forcés (d'anciennes feuilles imposent leur police à <b>, <span> et <h3>) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 :is(.chr-rang-n,.chr-medaille b,.cl-valeur b,.idle-succes-tuile-v1 b,.soreal-idle-cine-carte-v1 b,.sc-set-nom,.sc-sceau .titre,.sc-stat b,.sc-compte,.soreal-idle-collection-sets-v1 b,.soreal-idle-bestiary-name-v110){font-family:Bangers,cursive;font-weight:400}
