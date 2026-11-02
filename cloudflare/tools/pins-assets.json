@@ -104,8 +104,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 40,
-  "sha": "ce58a2f52ddc1a06b8761774f38f9930dc6dd08a"
+  "pin": 41,
+  "sha": "3bae794f873dd14074a0e51a344680c189add4ce"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -872,8 +872,8 @@
   "sha": "2a95a2793e4771c26398228a47ea6acffa06d12b"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 311,
-  "sha": "8df2263e52c45c84f965cb4cc0ea8437f492952c"
+  "pin": 312,
+  "sha": "b1275c7cd39cca94ca1e88b763db3028d5760786"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,

@@ -418,22 +418,36 @@ function posesDanse(){
   return out2;
 }
 var DANSE_POSES=posesDanse();
-function cielCouchant(fl,xc,lev){
-  var W=P.W,i,j,hor=fl-2;
+function cielCouchant(fl,xc,lev,t){
+  var W=P.W,i,j,hor=fl-2,tt=t||0;
   for(j=0;j<hor;j++){var g=j/hor,c=g<0.5?ROU:AMB,v=90+Math.round(120*g*g);for(i=0;i<W;i++)px(i,j,c,v);}     /* ciel de coucher de soleil */
+  for(var k=0;k<5;k++){                                            /* longs nuages qui dérivent lentement, bords effilés */
+    var cy=2+k*3+Math.floor(R(k,11)*2),cl=16+Math.floor(R(k,12)*18),cx=((R(k,13)*W+tt*(1.2+k*0.4))%(W+cl))-cl;
+    for(i=0;i<cl;i++){var fd=Math.sin(i/cl*3.1416);px(cx+i,cy,ROS,60+90*fd);if(fd>0.5)px(cx+i,cy+1,ROU,40+60*fd);}
+  }
   var sunY=hor+4-Math.round(lev*10),sunX=Math.min(W-14,xc+24);
+  for(j=-13;j<=13;j++)for(i=-17;i<=17;i++){var d2=i*i/1.5+j*j;if(d2>60&&d2<=170&&sunY+j<hor)px(sunX+i,sunY+j,AMB,Math.round(170*(1-(d2-60)/110)));}   /* halo */
   for(j=-8;j<=8;j++)for(i=-10;i<=10;i++)if(i*i/1.5+j*j<=60&&sunY+j<hor)px(sunX+i,sunY+j,BLA,j*j+i*i/2<22?255:150);
+  for(i=0;i<W;i++){                                                /* collines basses en silhouette */
+    var h=2+Math.round(1.6*Math.sin(i*0.11)+1.2*Math.sin(i*0.047+1.3));
+    for(j=0;j<h;j++)px(i,hor-1-j,AMB,1);
+  }
+  for(i=3;i<W;i+=11){for(j=0;j<5;j++)px(i,hor-1-j,AMB,1);}        /* clôture : poteaux et fil de fer */
+  for(i=0;i<W;i++)if(i%2===0)px(i,hor-4,AMB,1);
+  var tx=W-9;for(j=0;j<9;j++)px(tx,hor-1-j,AMB,1);                 /* arbre nu à droite */
+  [[-1,-5],[-2,-6],[1,-6],[2,-7],[-3,-8],[0,-9],[3,-9]].forEach(function(q){px(tx+q[0],hor+q[1],AMB,1);px(tx+q[0]*0.5,hor+q[1]+1,AMB,1);});
 }
 function dessinerPose(rows,sx,sy){
   for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var ch=rows[j][i];if(ch==='.')continue;var q=DANSE_COUL[ch];if(q)px(sx+i,sy+j,q[0],q[1]);}
 }
 function danseFinale(t,fl,xc,u){
   var W=P.W,H=P.H,i,j,lev=sm(u/2.5);
-  cielCouchant(fl,xc,lev);
+  cielCouchant(fl,xc,lev,t);
   var cycle=u%2.8,ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4;                                              /* face, coup à gauche, de dos, coup à droite */
   if(P.reduced)ph=0;
   var rows=DANSE_POSES[ph],sy=fl-2-(DANSE_H-1)-((!P.reduced&&Math.floor(t/0.06)%2)?1:0),sx=xc-12;
   dessinerPose(rows,sx,sy);
+  if(!P.reduced)for(i=0;i<3;i++)burst(xc+(i-1)*3,sy+1,((u*1.1+i*0.33)%1.0),16,5+i*3,20,1.0,[ROU,ROU,ROS],12);   /* gerbes de sang de la tronçonneuse brandie */
 }
 function sprite2(rows,x,y,k,v){
   for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
@@ -444,19 +458,20 @@ function sprite2(rows,x,y,k,v){
 function sSweep(t){
   var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,fin=Boolean(P.p.fin),pc=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
   if(H>=26&&W>=40){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
-    cielCouchant(fl,Math.max(14,x0+18),1);
+    cielCouchant(fl,Math.max(14,x0+18),1,t);
     for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
     for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
     if(pc<=0.002){var pp=P.p;if(pp.te==null||pp.te===undefined)pp.te=t;danseFinale(t,fl,clamp(x0+18,14,W-14),t-pp.te);return;}
     P.p.te=null;
     var vb=(!P.reduced&&Math.floor(t/0.05)%2)?1:0,sx=Math.max(0,Math.min(xe,W-26)),sy=fl-2-(DANSE_H-1)-vb;
     dessinerPose(DANSE_POSES[3],sx,sy);
-    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+21+j,((i+ch)%4<2)===(j<2)?AMB:BLA,255);   /* la chaîne : les dents défilent */
+    for(i=0;i<9;i++)for(j=0;j<3;j++)px(sx+i,sy+21+j,((i+ch)%4<2)===(j<2)?ROU:BLA,255);   /* la chaîne : les dents défilent, rouges de sang */
     if(P.reduced)return;
-    for(i=0;i<9;i++){                                              /* étincelles et éclats de vie chassés vers la gauche */
-      var u=((t*1.6+R(i,7))%1),dx=u*(6+R(i,9)*8),dy=Math.sin(u*3.1416)*(3+R(i,8)*6),al=255*Math.sin(u*3.1416);
-      px(sx-1-dx,fl-2-dy,i%3?BLA:BARRE,al);
+    for(i=0;i<14;i++){                                             /* du SANG gicle de la lame (au lieu d'étincelles), retombe en gouttes sur la piste */
+      var u=((t*1.5+R(i,7))%1),dx=u*(5+R(i,9)*11),dy=Math.sin(u*3.1416)*(4+R(i,8)*8)-u*u*3,al=255*Math.sin(u*3.1416);
+      px(sx-1-dx,fl-3-dy,i%4?ROU:ROS,al);
     }
+    for(i=0;i<6;i++)px(xe+((i*3+Math.floor(t*4))%7)-3,fl-2,ROU,120+60*R(i,3));   /* flaque et éclaboussures au bout de la piste */
     return;
   }
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
@@ -469,8 +484,14 @@ function sSweep(t){
 /* 6. La ola puis VICTOIRE ! */
 function sWin(t){
   var W=P.W,H=P.H,x,y,an=P.p.anim;
-  if(an&&t<4.6){P.p.fin=true;(an==='sweep'?sSweep:sMascot)(t);return;}   /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface */
-  if(an)t=t-1.8;
+  if(an){                                                          /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface ; « VICTOIRE ! » écrit dans l'espace vide à droite */
+    P.p.fin=true;(an==='sweep'?sSweep:sMascot)(t);
+    var tv=T('win'),sv=bigSc(tv),wv=twidth(tv,sv),gx=34,dx=P.W-2-gx;
+    if(wv>dx){sv=1;wv=twidth(tv,1);}
+    if(wv<=dx+2){var vx=gx+Math.floor((dx-wv)/2),vy=Math.round((H-7*sv)/2)-1,al=sm((t-0.6)/0.5)*(1-sm((t-8.0)/0.6));
+      if(al>0){text(tv,vx+1,vy+1,AMB,sv,Math.max(1,Math.round(255*al*0.0)+1));text(tv,vx,vy,BLA,sv,255*al,{fn:function(i,g2){return P.reduced?BLA:Math.abs(g2-(((t-1)*30)%(P.W+30)-15))<3?[ROU,255]:[BLA,255];}});}}
+    return;
+  }
   if(!an&&t<3.0){
     var A=sm(t/0.5)*(1-sm((t-2.3)/0.7));
     for(x=0;x<W;x++){
@@ -817,7 +838,7 @@ var SC={
   score:{fn:sScore,dur:function(){return S.vic>0?8:4;},prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
-  win:{fn:sWin,dur:function(p){return p.anim?9:7.2;},prio:5,cap:4.2},
+  win:{fn:sWin,dur:function(p){return p.anim?8.6:7.2;},prio:5,cap:4.2},
   ko:{fn:sKO,dur:6.4,prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */

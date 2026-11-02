@@ -2083,11 +2083,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1>:is(.rb-roue,.rb-prixcol,.soreal-idle-money-actions-v206,.mp-cadre-v1){max-width:520px!important;width:100%;margin:0 auto!important;box-sizing:border-box}
   .rb-legende{grid-template-columns:1fr}
 }
-/* Dents dorées de barrette de RAM sur l'arête du CIRCUIT de chaque paire (Norman, 2026-11-02). PC : arête gauche de la carte (le circuit est à gauche, le processeur à droite). Téléphone (<= 700 px, la carte empile circuit puis processeur) :
+/* Dents dorées de barrette de RAM (écarts RÉGULIERS : chaque dent est une tuile entière de 8 px, `background-repeat:space` répartit l'espace restant à parts égales entre elles, jamais de dent coupée ; Norman, 2026-11-02) sur l'arête du CIRCUIT de chaque paire (Norman, 2026-11-02). PC : arête gauche de la carte (le circuit est à gauche, le processeur à droite). Téléphone (<= 700 px, la carte empile circuit puis processeur) :
    arête SUPÉRIEURE, qui est celle du circuit (jamais côté processeur). Statique : dégradés seulement (pas d'animation, de filtre ni d'ombre) ; le liseré de la couleur de rang reste sur le bord intérieur de la bande. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-paire-v2::before{content:"";position:absolute;z-index:1;pointer-events:none;left:0;top:0;bottom:0;right:auto;width:13px;height:auto;animation:none;
-  background:linear-gradient(90deg,transparent 0 11px,var(--ac) 11px 13px),repeating-linear-gradient(180deg,transparent 0 4px,#07140d 4px 6px) 0 0/11px 100% no-repeat,linear-gradient(90deg,#9a6f1c 0,#f7e08e 35%,#d9a93c 70%,#a77a22 100%) 0 0/11px 100% no-repeat}
+  background:linear-gradient(90deg,transparent 0 11px,var(--ac) 11px 13px),linear-gradient(180deg,transparent 0 5px,#07140d 5px 8px) 0 0/11px 8px no-repeat space,linear-gradient(90deg,#9a6f1c 0,#f7e08e 35%,#d9a93c 70%,#a77a22 100%) 0 0/11px 8px no-repeat space}
 @media (max-width:700px){
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-paire-v2::before{left:0;right:0;top:0;bottom:auto;width:auto;height:13px;
-    background:linear-gradient(180deg,transparent 0 11px,var(--ac) 11px 13px),repeating-linear-gradient(90deg,transparent 0 4px,#07140d 4px 6px) 0 0/100% 11px no-repeat,linear-gradient(180deg,#9a6f1c 0,#f7e08e 35%,#d9a93c 70%,#a77a22 100%) 0 0/100% 11px no-repeat}
+    background:linear-gradient(180deg,transparent 0 11px,var(--ac) 11px 13px),linear-gradient(90deg,transparent 0 5px,#07140d 5px 8px) 0 0/8px 11px space no-repeat,linear-gradient(180deg,#9a6f1c 0,#f7e08e 35%,#d9a93c 70%,#a77a22 100%) 0 0/8px 11px space no-repeat}
 }
