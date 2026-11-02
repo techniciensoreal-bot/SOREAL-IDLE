@@ -560,12 +560,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 93,
-  "sha": "d446a4276c92d9a30dfba912cfac71a79ec0f98f"
+  "pin": 94,
+  "sha": "62c6f8b66508140a991c011f4b41685a5e11b293"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 723,
-  "sha": "8aa60672be8a9b0ce7e1b93d9be1471871a64784"
+  "pin": 724,
+  "sha": "9e6ea1b30b356c9e04aff2fda7602542acc11886"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -644,12 +644,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 751,
-  "sha": "9d5fa0024ee78f29ab571d24821f0abeede38a54"
+  "pin": 752,
+  "sha": "043a844a39ebefe6e6b69966a4bf6155960f61e2"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 572,
-  "sha": "0bb3f8374e69d8448b3d089f2627b6e7eaff487e"
+  "pin": 573,
+  "sha": "a66facfe4c52e4196195ff0511715560fdcef3f5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -812,8 +812,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 78,
-  "sha": "67ad154a2bb645f617ca16552bac90cee1ef332d"
+  "pin": 79,
+  "sha": "1d497b4b28d40a4a0c20a02ec33cebf46459d99f"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 18,

@@ -90,6 +90,7 @@
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Les portes des fruits ont de nouveaux dessins et s’ouvrent par le haut, avec un bruit de herse de château fort.',
             'Les cadres des fruits prennent les couleurs de leur porte (cadre, nom, boutons et barre de croissance), avec un ombrage à l’intérieur.',
+            'Les portes ont toutes la même taille, ne sont plus coupées et ne laissent plus voir le cadre derrière elles.',
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',

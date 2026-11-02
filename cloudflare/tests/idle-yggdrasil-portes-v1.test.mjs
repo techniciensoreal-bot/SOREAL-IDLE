@@ -110,7 +110,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   const m = monde(); const h = m.api.porte_("gold", false);
   assert.ok(h.includes('class="ygg-porte-g"') && h.includes('class="ygg-porte-d"') && h.split("<img ").length === 3, "deux volets, chacun avec l'image de la porte");
   assert.ok(src.includes(".ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;") && src.includes(".ygg-porte-d img{right:0;}"), "chaque volet montre sa moitié de l'image");
-  assert.ok(src.includes(".ygg-porte{position:absolute;inset:-6px;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
+  assert.ok(src.includes(".ygg-porte{position:absolute;inset:-6.25%;z-index:7;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
   assert.ok(src.includes("@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}"), "mouvement réduit : pas d'animation");
   const corps = src.slice(src.indexOf("function porteDe_(id,actif){"), src.indexOf("function porteDe_(id,actif){") + 1800);
   assert.ok(!corps.includes("setInterval") && !corps.includes("setTimeout"), "aucune minuterie pour les portes");

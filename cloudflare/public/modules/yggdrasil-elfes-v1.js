@@ -118,7 +118,7 @@
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
       /* Porte en image, en DEUX VOLETS (Norman, 2026-11-02 : « fais s'ouvrir les portes comme les anciennes, en 2 volets » ; « fais-les couvrir tout le noir, si les bords ou les enjolivures dépassent du cadre, c'est rien ») : elle déborde de 6 px tout autour du cadre (qui ne coupe plus) ; chaque volet montre une moitié de l'image et pivote sur son bord extérieur. Deux images clés (une courbe unique). */
       '.ygg-vitre.ygg-decor{overflow:visible;border:0;}',
-      '.ygg-porte{position:absolute;inset:-6px;z-index:4;display:flex;pointer-events:none;perspective:300px;background:transparent;}',
+      '.ygg-porte{position:absolute;inset:-6.25%;z-index:7;display:flex;pointer-events:none;perspective:300px;background:transparent;}',
       '.ygg-porte-g,.ygg-porte-d{position:relative;flex:1 1 50%;overflow:hidden;backface-visibility:hidden;}',
       '.ygg-porte-g{transform-origin:0 50%;}.ygg-porte-d{transform-origin:100% 50%;}',
       '.ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;max-width:none;object-fit:cover;}',
