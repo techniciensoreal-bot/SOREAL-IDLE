@@ -47,7 +47,7 @@ assert.ok(runtime.includes("nomOriginal: nom") && runtime.includes("nom: nomActu
 const client = readFileSync("cloudflare/public/modules/textes-admin-v1.js", "utf8");
 assert.ok(client.includes("{id:'nom',label:'Nom du boss (affiché et prononcé)',type:'ligne'}"));
 assert.ok(client.includes("t.composerChronique(nomLu,v.texte)"), "la voix lit le nom modifié");
-assert.ok(client.includes("{nom:b.nomOriginal||b.nom,texte:b.original}"), "le champ est prérempli avec le nom d'origine");
+assert.ok(client.includes("{nom:v.nomOriginal,texte:v.original}"), "le champ est prérempli avec le nom d'origine");
 assert.ok(client.includes("b.nom=(surcharge&&surcharge.champs&&surcharge.champs.nom)||b.nomOriginal||b.nom;"), "la liste reflète le nom enregistré");
 
 // 5. Studio de voix : correctifs de la lecture du nom (coupe de la double prononciation, baratin inventé), vérifiés par test_decoupe.py.

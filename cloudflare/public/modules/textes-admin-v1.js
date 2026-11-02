@@ -17,6 +17,10 @@
  * avec le texte à DIRE (au départ une copie), la voix, l'expression, et sa propre génération. Les joueurs LISENT le cadre doré et ENTENDENT les personnages (champ « parle » enregistré avec la surcharge) : changer
  * le texte doré ne change jamais la voix. Même principe pour le titre. La barre du haut garde toujours visibles : lancer / arrêter le studio, générer les manquantes, générer la sélection (cases à cocher), arrêter.
  *
+ * LANGUE D'ÉDITION (Norman, 2026-11-02 : « quand je mets le jeu en anglais, j'édite les voix ANGLAISES… et quand je mets en FR, j'édite uniquement le FR ») : l'éditeur suit la langue du jeu (localStorage soreal_idle_langue_v1). En anglais, chaque texte
+ * s'enregistre sous la clé « <clé>:en » (boss:12:en…), strictement séparée de la française ; le texte d'origine montré est l'original anglais (chronique du wiki pour un boss, texte français passé par le traducteur pour une fenêtre) et les voix
+ * se génèrent en ANGLAIS (admin-histoires-v1.js envoie langue:'en' au studio). Un joueur en anglais ne reçoit que les surcharges « :en » (renvoyées sans suffixe), en français que les autres : l'application aux joueurs ne change pas (surcharge(cle)).
+ *
  * Sécurité : l'édition n'apparaît que pour l'administrateur, MAIS c'est le serveur qui décide (chaque opération vérifie le compte).
  *
  *   window.__SOREAL_IDLE_TEXTES_V1__ = { surcharge(cle), appliquerPage(cle,page), appliquerInfo(cle,info), sansBalises(texte), declarer(cle,def),
@@ -104,6 +108,36 @@ function sansBalises_(texte){
 }
 function aDesBalises_(texte){
   return sansBalises_(texte)!==String(texte==null?'':texte).trim();
+}
+
+/* ---------- langue d'édition ---------- */
+
+function enAnglais_(){
+  try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}
+}
+/* Clé d'une surcharge dans la langue d'édition (« boss:12 » -> « boss:12:en » en anglais) et clé de base (celle que le jeu connaît). */
+function cleL_(cle){cle=String(cle==null?'':cle);return enAnglais_()&&!/:en$/.test(cle)?cle+':en':cle;}
+function cleBase_(cle){return String(cle==null?'':cle).replace(/:en$/,'');}
+/* Original d'une fenêtre en anglais : le texte français d'origine passé par le traducteur du jeu (sans traducteur ou sans correspondance, il reste tel quel). */
+function traduireValeur_(v){
+  if(typeof v==='string'){
+    var tr=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;
+    if(!tr||typeof tr.traduire!=='function')return v;
+    try{return tr.traduire(v);}catch(_e){return v;}
+  }
+  if(Array.isArray(v))return v.map(traduireValeur_);
+  return v;
+}
+function originauxL_(o){
+  if(!enAnglais_()||!o||typeof o!=='object')return o;
+  var out={};
+  Object.keys(o).forEach(function(k){out[k]=traduireValeur_(o[k]);});
+  return out;
+}
+/* Un boss vu dans la langue d'édition : nom, nom et chronique d'origine, surcharge. */
+function vueBoss_(b){
+  if(!enAnglais_())return {nom:b.nom,nomOriginal:b.nomOriginal||b.nom,original:b.original,surcharge:b.surcharge||null};
+  return {nom:b.nomEn||b.nomEnOriginal||b.nom,nomOriginal:b.nomEnOriginal||b.nomOriginal||b.nom,original:b.originalEn||'',surcharge:b.surchargeEn||null};
 }
 
 /* ---------- surcharges (lecture) ---------- */
@@ -934,7 +968,7 @@ function dessinerEditeur_(){
     '<div class="stx-carte stx-v2" role="dialog" aria-modal="true" title="'+esc_(edition.cle)+'">'+
       '<div class="stx-barre">'+
         '<div style="flex:1;min-width:0"><h3>✏️ '+esc_(d.libelle)+'</h3>'+
-          '<div class="stx-sous">'+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+'</div></div>'+
+          '<div class="stx-sous">'+(enAnglais_()?'<span class="stx-pastille">English</span> ':'')+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+'</div></div>'+
         feuHtml_(edition.cle,true)+
         '<button type="button" class="stx-icone" data-stx-act="reduire" title="Réduire : tu peux continuer à jouer pendant que les voix se génèrent">➖</button>'+
         '<button type="button" class="stx-icone" data-stx-act="fermer" title="Fermer">✕</button>'+
@@ -1197,7 +1231,8 @@ function enregistrer_(){
     edition.surcharge=res.texte||charge_(valeurs);
     miseAJourApresEcriture_(edition.cle,edition.surcharge);
     /* def.apresEnregistrer : renvoie le texte affiché à sa source (l'éditeur de guides y met à jour l'étape). */
-    try{if(typeof edition.def.apresEnregistrer==='function')edition.def.apresEnregistrer({champs:charge_(valeurs).champs});}catch(_e){}
+    /* Jamais en anglais : le texte affiché à sa source est le texte FRANÇAIS. */
+    try{if(!enAnglais_()&&typeof edition.def.apresEnregistrer==='function')edition.def.apresEnregistrer({champs:charge_(valeurs).champs});}catch(_e){}
     afficherEtat_('✔ Enregistré. '+statutLigne_());
     rafraichirFichiersVoix_();
     return true;
@@ -1209,16 +1244,23 @@ function enregistrer_(){
 
 /* Une surcharge vient d'être écrite (ou supprimée si null) : mémoire locale, voix, abonnés (réécriture des textes du jeu), liste Admin. */
 function miseAJourApresEcriture_(cle,surcharge){
-  if(/^boss:/.test(cle)){
-    var n=Number(cle.slice(5));
-    /* nom = nom ACTUEL du boss : le nom modifié, ou l'original si la surcharge est retirée. */
-    admin.boss.forEach(function(b){if(b.numero===n){b.surcharge=surcharge||null;b.nom=(surcharge&&surcharge.champs&&surcharge.champs.nom)||b.nomOriginal||b.nom;}});
+  var mBoss=/^boss:(\d+)(:en)?$/.exec(cle);
+  if(mBoss){
+    var n=Number(mBoss[1]),versionEn=Boolean(mBoss[2]);
+    /* nom = nom ACTUEL du boss : le nom modifié, ou l'original si la surcharge est retirée (version anglaise : surchargeEn / nomEn). */
+    admin.boss.forEach(function(b){
+      if(b.numero!==n)return;
+      if(versionEn){b.surchargeEn=surcharge||null;b.nomEn=(surcharge&&surcharge.champs&&surcharge.champs.nom)||b.nomEnOriginal||b.nomEn;}
+      else{b.surcharge=surcharge||null;b.nom=(surcharge&&surcharge.champs&&surcharge.champs.nom)||b.nomOriginal||b.nom;}
+    });
     enregistrerVoix_(surcharge?surcharge.voix:[]);
     /* Le nouveau texte du boss arrive avec la prochaine synchronisation ; on la demande tout de suite. */
     try{var rt=window.__SOREAL_IDLE_RUNTIME_V1__;if(rt&&typeof rt.invalidate==='function')rt.invalidate();}catch(_e){}
     try{if(typeof window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__==='function')window.__SOREAL_IDLE_FORCER_SYNCHRO_V1__();}catch(_e2){}
   }else{
-    if(surcharge)surcharges.popups[cle]={champs:surcharge.champs,parle:surcharge.parle||{},voix:surcharge.voix||[]};else delete surcharges.popups[cle];
+    /* Le jeu lit la surcharge de SA langue sous la clé de base (le serveur renvoie les « :en » sans suffixe). */
+    var cleJeu=cleBase_(cle);
+    if(surcharge)surcharges.popups[cleJeu]={champs:surcharge.champs,parle:surcharge.parle||{},voix:surcharge.voix||[]};else delete surcharges.popups[cleJeu];
     /* Fiche complète (avec les textes de voix, jamais envoyés aux joueurs) gardée pour rouvrir l'éditeur sans perdre les textes de voix. */
     admin.popups=(admin.popups||[]).filter(function(p){return !(p&&p.cle===cle);});
     if(surcharge)admin.popups.push(Object.assign({cle:cle},surcharge));
@@ -1352,7 +1394,7 @@ function ouvrir_(cle,def,surcharge,originaux){
   def.champs.forEach(function(c){
     var s=surcharge&&surcharge.champs?surcharge.champs[c.id]:undefined;
     /* def.champsDepuisSource : le texte affiché vient toujours de sa source (ex. l'étape d'un guide), jamais d'une copie enregistrée ici ; seuls le texte dit et les voix sont gardés. */
-    courant[c.id]=(s!==undefined&&!def.champsDepuisSource)?s:(originaux?originaux[c.id]:'');
+    courant[c.id]=(s!==undefined&&!(def.champsDepuisSource&&!enAnglais_()))?s:(originaux?originaux[c.id]:'');
   });
   edition={cle:cle,def:def,surcharge:surcharge||null,valeurs:courant,affiche:{},sel:{},voix:surcharge&&Array.isArray(surcharge.voix)?surcharge.voix.slice():[],dernierChamp:null,aRefaire:{},lignes:{},
     voixTextes:surcharge&&surcharge.voixTextes&&typeof surcharge.voixTextes==='object'?Object.assign({},surcharge.voixTextes):{},
@@ -1404,14 +1446,15 @@ function editer_(cle){
   var def=registre[cle];
   if(!def)return;
   /* La fiche complète d'un popup (textes de voix compris) vient de la liste Admin ; le joueur ordinaire n'en reçoit que le texte et les empreintes. */
+  var cleE=cleL_(cle);
   var ouvrirTexte=function(){
     var s=surchargeComplete_(cle);
-    var adm=(admin.popups||[]).filter(function(p){return p&&p.cle===cle;})[0];
+    var adm=(admin.popups||[]).filter(function(p){return p&&p.cle===cleE;})[0];
     var base=s?{champs:s.champs,voix:Array.isArray(s.voix)?s.voix:[]}:null;
     /* Le texte DIT (« parle », avec les balises de voix) est ce qui redonne les personnages : sans lui, tout revenait en un seul bloc à la réouverture (Norman, 2026-10-15). */
     if(base){var parleSauve=s.parle&&typeof s.parle==='object'&&Object.keys(s.parle).length?s.parle:(adm&&adm.parle&&typeof adm.parle==='object'?adm.parle:null);if(parleSauve)base.parle=parleSauve;}
     if(base&&adm){base.voixTextes=adm.voixTextes||{};base.voixFaites=adm.voixFaites||{};}
-    ouvrir_(cle,def,base,def.original());
+    ouvrir_(cleE,def,base,originauxL_(def.original()));
   };
   if(admin.charge){ouvrirTexte();return;}
   chargerAdmin_(ouvrirTexte);
@@ -1420,12 +1463,12 @@ function editer_(cle){
 
 function defBoss_(numero,nom){
   return {
-    groupe:'Boss',libelle:'Chronique — '+nom+' (boss '+numero+')',
+    groupe:'Boss',libelle:'Chronique — '+nom+' (boss '+numero+')'+(enAnglais_()?' — English':''),
     /* Le NOM est modifiable (Norman, 2026-10-03) : il est affiché partout ET lu par la voix en tête de la chronique. */
     champs:[{id:'nom',label:'Nom du boss (affiché et prononcé)',type:'ligne'},{id:'texte',label:'Texte de la chronique',type:'texte'}],
     /* Le nom est lu en tête de la chronique (un bloc de voix à lui, avant la pause) : il se génère à part, comme un cadre. */
     titre:'nom',
-    original:function(){var b=bossParNumero_(numero);return {nom:b?(b.nomOriginal||b.nom):nom,texte:b?b.original:''};},
+    original:function(){var b=bossParNumero_(numero),v=b?vueBoss_(b):null;return {nom:v?v.nomOriginal:nom,texte:v?v.original:''};},
     texteLu:function(v){
       var t=tts_();
       var nomLu=String(v.nom||'').replace(/\s+/g,' ').trim()||nom;
@@ -1443,7 +1486,8 @@ function editerBoss_(numero){
   var ouvrirBoss=function(){
     var b=bossParNumero_(numero);
     if(!b){window.alert('Boss introuvable.');return;}
-    ouvrir_('boss:'+numero,defBoss_(numero,b.nom),b.surcharge,{nom:b.nomOriginal||b.nom,texte:b.original});
+    var v=vueBoss_(b);
+    ouvrir_(cleL_('boss:'+numero),defBoss_(numero,v.nom),v.surcharge,{nom:v.nomOriginal,texte:v.original});
   };
   if(admin.charge){ouvrirBoss();return;}
   chargerAdmin_(ouvrirBoss);
@@ -1486,18 +1530,21 @@ function hashesLiesAuxTextes_(apres){
     function ajouterChronique(texte){try{t.planNarration(String(texte)).forEach(function(e){if(e.chunk!=null)out[t.hashBloc(e.chunk)]=1;});}catch(_e){}}
     function chronique(noms,textes){noms.forEach(function(nom){textes.forEach(function(x){ajouterChronique(t.composerChronique(nom,x));ajouterChronique(t.composerChronique(nom,x,true));});});}
     admin.boss.forEach(function(b){
-      var s=b&&b.surcharge;
-      if(!s||!Array.isArray(s.voix)||!s.voix.length)return;
-      var noms=[],textes=[];
-      [b.nomOriginal,b.nom,s.champs&&s.champs.nom,s.parle&&s.parle.nom].forEach(function(n){if(typeof n==='string'&&n.trim()&&noms.indexOf(n)===-1)noms.push(n);});
-      [b.original,s.champs&&s.champs.texte,s.parle&&s.parle.texte].forEach(function(x){if(typeof x==='string'&&x.trim()&&textes.indexOf(x)===-1)textes.push(x);});
-      chronique(noms,textes);
+      /* Version française puis version anglaise (surchargeEn : voix anglaises) : les deux gardent leurs voix. */
+      [{s:b&&b.surcharge,nomO:b&&b.nomOriginal,nom:b&&b.nom,orig:b&&b.original},{s:b&&b.surchargeEn,nomO:b&&b.nomEnOriginal,nom:b&&b.nomEn,orig:b&&b.originalEn}].forEach(function(v){
+        var s=v.s;
+        if(!s||!Array.isArray(s.voix)||!s.voix.length)return;
+        var noms=[],textes=[];
+        [v.nomO,v.nom,s.champs&&s.champs.nom,s.parle&&s.parle.nom].forEach(function(n){if(typeof n==='string'&&n.trim()&&noms.indexOf(n)===-1)noms.push(n);});
+        [v.orig,s.champs&&s.champs.texte,s.parle&&s.parle.texte].forEach(function(x){if(typeof x==='string'&&x.trim()&&textes.indexOf(x)===-1)textes.push(x);});
+        chronique(noms,textes);
+      });
     });
     (admin.popups||[]).forEach(function(p){
       if(!p||!Array.isArray(p.voix)||!p.voix.length)return;
-      var l=[],def=registre[p.cle];
+      var l=[],def=registre[cleBase_(p.cle)];
       plat(p.champs,l);plat(p.parle,l);
-      try{if(def&&typeof def.original==='function')plat(def.original(),l);}catch(_e){}
+      try{if(def&&typeof def.original==='function')plat(/:en$/.test(p.cle)?originauxL_(def.original()):def.original(),l);}catch(_e){}
       l.forEach(ajouter);
     });
     apres(Object.keys(out));
@@ -1510,15 +1557,17 @@ function listeBossHtml_(){
   var f=String(admin.filtre||'').trim().toLowerCase();
   var lignes=admin.boss.filter(function(b){
     if(!f)return true;
-    return String(b.numero)===f||String(b.nom||'').toLowerCase().indexOf(f)!==-1||(f==='modifie'&&b.surcharge);
+    var vb=vueBoss_(b);
+    return String(b.numero)===f||String(vb.nom||'').toLowerCase().indexOf(f)!==-1||(f==='modifie'&&vb.surcharge);
   });
   /* Pages de 60 (Norman, 2026-10-26 : « au lieu des 60 premiers boss, des pages pour accéder aux 60 suivants, jusqu'au dernier ; j'ai besoin de tout voir ») */
   var max=60,pages=Math.max(1,Math.ceil(lignes.length/max));
   admin.page=Math.max(0,Math.min(pages-1,Number(admin.page)||0));
   var html=lignes.slice(admin.page*max,admin.page*max+max).map(function(b){
-    var s=b.surcharge;
+    var vb=vueBoss_(b);
+    var s=vb.surcharge;
     var badge=s?'<span class="badge">✏️ modifié'+(s.voix&&s.voix.length?' · 🎙 '+s.voix.length:'')+'</span>':'<span class="badge non">d’origine</span>';
-    return '<div class="stx-adm-ligne">'+feuHtml_('boss:'+b.numero)+'<span class="nom">#'+b.numero+' — '+esc_(b.nom)+'</span>'+badge+
+    return '<div class="stx-adm-ligne">'+feuHtml_(cleL_('boss:'+b.numero))+'<span class="nom">#'+b.numero+' — '+esc_(vb.nom)+'</span>'+badge+
       '<button type="button" class="stx-bouton" data-stx-boss="'+b.numero+'">✏️ Modifier</button></div>';
   }).join('');
   if(!lignes.length)html='<div class="stx-aide">Aucun boss ne correspond.</div>';
@@ -1551,7 +1600,7 @@ function listePopupsHtml_(){
       (modifs?'<span class="stx-pastille modif">'+modifs+' modifié'+(modifs>1?'s':'')+'</span>':'')+'</summary>'+
       liste.map(function(cle){
         var d=registre[cle],sm=surcharge_(cle);
-        return '<div class="stx-adm-ligne">'+feuHtml_(cle)+'<span class="nom">'+esc_(d.libelle)+'</span>'+
+        return '<div class="stx-adm-ligne">'+feuHtml_(cleL_(cle))+'<span class="nom">'+esc_(d.libelle)+'</span>'+
           (sm?'<span class="badge">✏️ modifié</span>':'<span class="badge non">d’origine</span>')+
           '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button></div>';
       }).join('')+'</details>';
@@ -1561,6 +1610,9 @@ function pageHtml_(){
   if(!admin.charge&&!admin.enCharge&&!admin.erreur)setTimeout(function(){chargerAdmin_();},0);
   return '<div class="soreal-idle-section-v8" id="sorealIdleTextesAdminV1">'+
     '<div class="soreal-idle-window-title-v31">📜 Admin — Textes et voix</div>'+
+    '<div class="stx-aide"><b>'+(enAnglais_()?'Langue d’édition : English.':'Langue d’édition : Français.')+'</b> '+(enAnglais_()
+      ?'Le jeu est en anglais : tu modifies et tu génères uniquement les textes et les voix ANGLAISES (le français n’est pas touché).'
+      :'Le jeu est en français : tu modifies et tu génères uniquement les textes et les voix FRANÇAISES (l’anglais n’est pas touché). Change la langue dans les Réglages pour éditer l’anglais.')+'</div>'+
     '<div class="stx-aide">Modifie le texte d’une <b>chronique de boss</b> ou d’une <b>fenêtre explicative</b>, place des voix différentes avec les balises <b>(marius)</b>, <b>(femme)</b>… puis génère les voix. Valable dans la partie A et la partie B.</div>'+
     '<div style="margin:10px 0 4px;font-weight:800">Chroniques des boss</div>'+
     '<input type="text" id="sorealIdleTextesFiltreV1" placeholder="Numéro ou nom du boss (« modifie » = ceux que tu as changés)" value="'+esc_(admin.filtre)+'" '+

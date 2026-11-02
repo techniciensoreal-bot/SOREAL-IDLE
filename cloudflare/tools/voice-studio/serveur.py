@@ -88,11 +88,12 @@ PRONONCIATIONS = [
 ]
 
 
-def normaliser_texte(texte):
-    """Prononciations + bruitages *BLOUM* (un mot puis une pause, jamais « astérisque ») + points de suspension unifiés."""
+def normaliser_texte(texte, langue="fr"):
+    """Prononciations + bruitages *BLOUM* (un mot puis une pause, jamais « astérisque ») + points de suspension unifiés. Les prononciations sont FRANÇAISES : en anglais elles ne s'appliquent pas."""
     t = str(texte)
-    for motif, remplacement in PRONONCIATIONS:
-        t = motif.sub(remplacement, t)
+    if langue != "en":
+        for motif, remplacement in PRONONCIATIONS:
+            t = motif.sub(remplacement, t)
 
     def bruitage(m):
         mot = m.group(1).strip()
@@ -519,26 +520,31 @@ def appliquer_humeur(wav, sr, humeur):
         return wav
 
 
-def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur=""):
+def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur="", langue="fr"):
     import torch
-    texte = normaliser_texte(texte)
+    texte = normaliser_texte(texte, langue)
     if not texte:
         raise ValueError("texte vide après normalisation")
+    # ANGLAIS (Norman, 2026-11-02 : voix anglaises éditées depuis l'Admin) : même narrateur que cloudflare/tools/voix-en-jeu-v1.py, c'est-à-dire la voix par défaut de Chatterbox (language_id "en", SANS extrait de référence) ;
+    # ni égaliseur de micro (propre aux extraits français), ni humeur, ni effet de voix : voix cohérente avec celles déjà publiées.
+    en = langue == "en"
     if len(texte) < TEXTE_COURT and est_nom_court(texte):
         court = texte.rstrip(" .!?…,;:") or texte
         fin = "?" if est_question(texte) else "."
-        wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg)
+        wav, sr = synthetiser_long(court + fin + " " + court + fin, voix, exaggeration, cfg, langue)
         wav = garder_premiere_prononciation(wav, sr)
+        if not en:
+            wav = harmoniser_micro(wav, sr, voix)
+            wav = appliquer_humeur(wav, sr, humeur)
+            if reglages_voix(voix).get("effet") == "robot":
+                wav = effet_robot(wav, sr, exaggeration)
+        return avec_silence_final(wav, sr), sr
+    wav, sr = synthetiser_long(texte, voix, exaggeration, cfg, langue)
+    if not en:
         wav = harmoniser_micro(wav, sr, voix)
         wav = appliquer_humeur(wav, sr, humeur)
         if reglages_voix(voix).get("effet") == "robot":
             wav = effet_robot(wav, sr, exaggeration)
-        return avec_silence_final(wav, sr), sr
-    wav, sr = synthetiser_long(texte, voix, exaggeration, cfg)
-    wav = harmoniser_micro(wav, sr, voix)
-    wav = appliquer_humeur(wav, sr, humeur)
-    if reglages_voix(voix).get("effet") == "robot":
-        wav = effet_robot(wav, sr, exaggeration)
     return avec_silence_final(wav, sr), sr
 
 
@@ -653,7 +659,7 @@ def generer_segment(m, segment, kwargs):
     return wav
 
 
-def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
+def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5, langue="fr"):
     import torch
     m = charger_modele()
     morceaux = []
@@ -661,8 +667,8 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     with _verrou:
         for segment in decouper(texte):
             segment = sans_suspension_finale(segment)
-            kwargs = {"language_id": "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg), "repetition_penalty": REPETITION_PENALTY}
-            reference = reference_voix(voix)
+            kwargs = {"language_id": "en" if langue == "en" else "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg), "repetition_penalty": REPETITION_PENALTY}
+            reference = None if langue == "en" else reference_voix(voix)
             if reference:
                 kwargs["audio_prompt_path"] = reference
             if len(segment) < TEXTE_COURT:
@@ -682,13 +688,17 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5):
     return torch.cat(morceaux[:-1], dim=1), m.sr
 
 
-def vers_m4a(wav, sr):
+TEMPO_ANGLAIS = 0.92   # ralentissement des voix anglaises (identique à cloudflare/tools/voix-en-jeu-v1.py, option --tempo)
+
+
+def vers_m4a(wav, sr, tempo=None):
     import torchaudio
     with tempfile.TemporaryDirectory() as dossier:
         entree = os.path.join(dossier, "voix.wav")
         sortie = os.path.join(dossier, "voix.m4a")
         torchaudio.save(entree, wav, sr)
-        r = subprocess.run([ffmpeg_exe(), "-y", "-loglevel", "error", "-i", entree, "-vn", "-ac", "1", "-c:a", "aac", "-b:a", DEBIT,
+        filtre = ["-filter:a", "atempo=%s" % tempo] if tempo else []
+        r = subprocess.run([ffmpeg_exe(), "-y", "-loglevel", "error", "-i", entree, "-vn", "-ac", "1"] + filtre + ["-c:a", "aac", "-b:a", DEBIT,
                             "-movflags", "+faststart", sortie], capture_output=True, text=True)
         if r.returncode != 0:
             raise RuntimeError("ffmpeg : " + (r.stderr or str(r.returncode)))
@@ -747,10 +757,16 @@ class Gestionnaire(BaseHTTPRequestHandler):
             if not texte or len(texte) > MAX_TEXTE:
                 return self._json(400, {"ok": False, "error": "texte vide ou trop long"})
             voix = donnees.get("voix") if isinstance(donnees.get("voix"), str) and VOIX_ID_RE.match(donnees.get("voix")) else "homme"
-            reglage = reglages_voix(voix)
-            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]), str(donnees.get("humeur", ""))[:20])
+            # Langue de la voix (Norman, 2026-11-02) : « en » = voix ANGLAISE par défaut (réglages de voix-en-jeu-v1.py : exaggeration 0,45, cfg 0,5, tempo 0,92) ; les voix nommées n'existent qu'en français.
+            langue = "en" if donnees.get("langue") == "en" else "fr"
+            if langue == "en":
+                voix = "homme"
+                reglage = {"exaggeration": 0.45, "cfg": 0.5}
+            else:
+                reglage = reglages_voix(voix)
+            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]), str(donnees.get("humeur", ""))[:20], langue)
             duree = float(wav.shape[-1]) / float(sr)
-            audio = vers_m4a(wav, sr)
+            audio = vers_m4a(wav, sr, TEMPO_ANGLAIS if langue == "en" else None)
         except Exception as e:  # noqa: BLE001
             message = str(e)
             print("Erreur de synthèse :", message[:300], "| texte :", repr(texte[:160]), file=sys.stderr, flush=True)

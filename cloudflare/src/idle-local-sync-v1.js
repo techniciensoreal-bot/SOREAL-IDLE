@@ -9,7 +9,7 @@ import { runSorealIdleOperation } from "./idle-sqlite-runtime.js";
 import { assurerFluxV1 } from "./idle-flux-v1.js";
 import { assurerGainsV1 } from "./idle-gains-v1.js";
 import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slots-v1.js";
-import { lireTextesV1 } from "./idle-textes-v1.js";
+import { lireTextesV1, estCleEnV1 } from "./idle-textes-v1.js";
 import { invaliderTrajectoireV1 } from "./idle-runtime-etat.js";
 
 const sv = (v) => String(v == null ? "" : v).trim();
@@ -233,15 +233,17 @@ function indexLigneJoueur(coord, user) {
  * Sans eux le moteur local lisait le texte d'origine du catalogue, donc l'empreinte de l'ANCIENNE voix. Les champs réservés à l'administrateur (voixTextes, voixFaites) ne partent jamais.
  * Forme : [[cle, json, maj]] ; remplace TOUTE la table du moteur local (une suppression côté serveur disparaît aussi).
  */
-export function textesPourMoteurLocalV1(coord) {
+export function textesPourMoteurLocalV1(coord, langue) {
   try {
-    return lireTextesV1(coord.sqlMoteur).map((t) => [t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix }), Number(t.maj) || 0]);
+    /* Langue du joueur (Norman, 2026-11-02) : en anglais SEULES les surcharges « :en » partent, en français seulement les autres ; une langue ne fuit jamais dans l'appareil de l'autre. */
+    const en = langue === "en";
+    return lireTextesV1(coord.sqlMoteur).filter((t) => estCleEnV1(t.cle) === en).map((t) => [t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix }), Number(t.maj) || 0]);
   } catch (_e) {
     return [];
   }
 }
 
-export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", lectureSeule = false) {
+export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", lectureSeule = false, langue = "fr") {
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
   if (!localActifV1(coord)) return { ok: false, error: "IDLE_LOCAL_DESACTIVE" };
@@ -262,7 +264,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", le
   const maintenant = Date.now();
   /* Lecture seule (restauration dans l'application Android hors ligne, 2026-10-30) : la partie du serveur est COPIÉE, jamais revendiquée par cet appareil ni écrasée. */
   if (!lectureSeule) revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
-  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord, langue), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 /* Records retirés par l'administrateur (table idle_records_retires) : un envoi qui porte encore EXACTEMENT la valeur retirée la voit remise à zéro (l'appareil la garde jusqu'à son prochain démarrage). */
