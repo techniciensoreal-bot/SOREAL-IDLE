@@ -2091,3 +2091,9 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-paire-v2::before{left:0;right:0;top:0;bottom:auto;width:auto;height:13px;
     background:linear-gradient(180deg,transparent 0 11px,var(--ac) 11px 13px),linear-gradient(90deg,transparent 0 5px,#07140d 5px 8px) 0 0/8px 11px space no-repeat,linear-gradient(180deg,#9a6f1c 0,#f7e08e 35%,#d9a93c 70%,#a77a22 100%) 0 0/8px 11px space no-repeat}
 }
+/* Trou sans fond et roue journalière, sur PC : l'image du trou et la roue sont 25 % plus petites (Norman, 2026-11-02 : « ils sont énormes, 25 % plus petit et tu gardes une symétrie sur la page »). Les deux colonnes gardent la même largeur ;
+   chaque image est CENTRÉE dans sa colonne, tops alignés, donc la page reste symétrique (mêmes marges de part et d'autre). Les cartes d'action (Jeter l'or, prix de la roue) gardent toute la largeur de leur colonne. Téléphone inchangé (<= 760 px). */
+@media (min-width:761px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.soreal-idle-money-scene-v206{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1 .mp-col-v1>.rb-roue{width:75%!important;max-width:75%!important;margin:0 auto!important;box-sizing:border-box}
+}

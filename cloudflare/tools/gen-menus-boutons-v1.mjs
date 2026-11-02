@@ -237,11 +237,13 @@ function carteAnimee() {
 }
 /* Money Pit (Norman, 2026-11-02) : un peu d'herbe aux deux EXTRÉMITÉS du bouton, pour montrer que ce sont les bords du trou du vrai Money Pit (pas beaucoup : quelques brins, bas, milieu, haut) ; SVG sans filtre ni animation, couches du fond (::before). */
 function herbe(cote) {
-  const brins = [["rgb(150,230,70)","M0 60 Q3 50 2 36"],["rgb(105,200,55)","M0 60 Q7 52 11 42"],["rgb(190,240,100)","M0 60 Q10 57 17 53"],["rgb(150,230,70)","M0 60 Q5 55 7 46"],["rgb(105,200,55)","M0 46 Q4 42 8 36"],["rgb(190,240,100)","M0 46 Q2 40 2 32"],["rgb(150,230,70)","M0 32 Q4 28 8 22"],["rgb(105,200,55)","M0 32 Q2 26 2 18"],["rgb(190,240,100)","M0 32 Q6 31 11 29"],["rgb(150,230,70)","M0 18 Q4 14 8 9"],["rgb(105,200,55)","M0 18 Q2 12 3 5"],["rgb(190,240,100)","M0 8 Q4 5 9 1"],["rgb(150,230,70)","M0 8 Q3 3 4 0"]];
-  const tracés = brins.map(([, d]) => `<path d='${d}' stroke='rgb(12,48,18)' stroke-width='5.6' stroke-linecap='round' fill='none'/>`).join("") + brins.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='3.2' stroke-linecap='round' fill='none'/>`).join("");   /* liseré sombre puis brin clair : lisible sur le vert du bouton */
-  const bande = "<path d='M0 0 L8.5 0 Q11.5 7 8.5 15 Q11.5 24 8.5 33 Q11.5 43 8.5 52 Q10 56 8 60 L0 60Z' fill='rgb(34,120,44)'/><path d='M0 0 L4.8 0 Q7.8 7 4.8 15 Q7.8 24 4.8 33 Q7.8 43 4.8 52 Q6.2 56 4.6 60 L0 60Z' fill='rgb(78,184,62)'/>";   /* bord de terre couvert d'herbe : une bande verte pleine (sombre dehors, claire au bord), les brins par-dessus */
-  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${bande}${tracés}</g>` : bande + tracés;
-  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'>${g}</svg>`)}") ${cote === "d" ? "right" : "left"} bottom/auto 100% no-repeat`;
+  /* Norman (2026-11-02, avec l'extrait de l'image du trou en exemple) : l'herbe du vrai Money Pit = un aplat VERT sur le bord (contour irrégulier en touffes) et, par-dessus, des traits VERT FONCÉ en zigzag, dessinés à la main, qui montent. */
+  const bord = "<path d='M0 0 L9 0 L11.5 5 L8.5 9 L12.5 14 L8.5 18 L11.5 24 L8.5 28 L13.5 34 L8.5 38 L12.5 44 L8.5 48 L12.5 54 L9 58 L10 60 L0 60Z' fill='rgb(26,160,72)'/>";
+  const traits = [["rgb(8,92,44)", "M2 57 L4 44 L6 52 L9 38"], ["rgb(8,92,44)", "M5 59 L7 48 L9 55 L12 42"], ["rgb(14,118,56)", "M1 44 L3 34 L5 40 L8 26"], ["rgb(8,92,44)", "M4 36 L6 25 L8 31 L11 20"], ["rgb(14,118,56)", "M1 26 L3 16 L5 22 L8 9"], ["rgb(8,92,44)", "M5 24 L7 14 L9 19 L11 6"], ["rgb(8,92,44)", "M2 12 L4 4 L6 9 L8 1"], ["rgb(14,118,56)", "M6 49 L8 42"]];
+  const tracés = traits.map(([c, d]) => `<path d='${d}' stroke='${c}' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round' fill='none'/>`).join("");
+  const g = cote === "d" ? `<g transform='translate(20,0) scale(-1,1)'>${bord}${tracés}</g>` : bord + tracés;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60'>${g}</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${cote === "d" ? "right" : "left"} bottom/auto 100% no-repeat`;
 }
 for (const id of MENUS) {
   const t = T[id], sp = SPEC[id], L = CADRES[id] || [];
@@ -252,7 +254,8 @@ for (const id of MENUS) {
   const base = fond.length ? fond.join(",") : `radial-gradient(ellipse 60% 140% at 50% 140%,rgba(${t.glow},.42),transparent 70%),linear-gradient(180deg,${t.bg[0]} 0%,${t.bg[1]} 55%,${t.bg[2]} 100%)`;
   out.push(`${sel(id)}{--nb-dom-v1:${t.dom};box-shadow:inset 0 0 12px rgba(0,0,0,.55),inset 0 0 14px rgba(${t.glow},.22)}`);
   out.push(`${sel(id, "::before")}{background:${base}}`);
-  if (id === "moneyPit") out.push(`${P}[data-menu-id-v1="moneyPit"]::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:inherit;background:${herbe("g")},${herbe("d")}}`);   /* AU-DESSUS du fond du bouton (le dessin du fond est derrière le fond coloré du bouton) */
+  if (id === "moneyPit") out.push(`${P}[data-menu-id-v1="moneyPit"]::before{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;border-radius:inherit;background:${herbe("g")},${herbe("d")}}`);
+  if (id === "moneyPit") out.push(`${sel(id, " .nb-g")}{left:11cqw}`, `${sel(id, " .nb-d")}{right:11cqw}`);   /* la pièce et la pelle restent entières, à côté de l'herbe (jamais recouvertes par elle) */   /* AU-DESSUS du fond du bouton (le dessin du fond est derrière le fond coloré du bouton) */
   out.push(`${sel(id, "::after")}{background:${ring}}`);
   out.push(`${P}[data-menu-id-v1="${id}"].active .soreal-idle-nav-deco-v1{box-shadow:inset 0 0 12px rgba(0,0,0,.4),inset 0 0 18px rgba(${t.glow},.5)}`);
   const taille = (x) => (sp.tour ? ";height:100cqh;width:46.7cqh;max-width:none;aspect-ratio:auto" : `;aspect-ratio:${x.asp.toFixed(3)}`);   /* ITOPOD : la grande tour (3 étages entiers, ni coupée ni rapetissée) sur toute la hauteur, comme son cadre */
