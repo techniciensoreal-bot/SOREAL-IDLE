@@ -464,8 +464,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 136,
-  "sha": "03fe3f6229b9582feb16c0cc52a60cc4eb8ce7e3"
+  "pin": 137,
+  "sha": "79fb10d02dfc3c4fb3fbe0d0972d94ca7db18cbe"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -696,8 +696,8 @@
   "sha": "6fc3bd413f23cc3e8624211aa03def13ab76c033"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 23,
-  "sha": "d2a529eeb255037e657f3ab6d9dee9f62e622910"
+  "pin": 24,
+  "sha": "011589deb2d2a97eea2f5d0a1cd7ac3f8e394c8d"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,

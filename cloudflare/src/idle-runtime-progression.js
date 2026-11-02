@@ -293,6 +293,26 @@ export function regenPvAvecMultiplicateursSorealIdle_(regenBruteIntegree,seconde
   return Math.max(0,(100+Math.max(0,moyenneBrute-100)*multiplicateur)/20*hp);
 }
 
+/*
+ * Défense MOYENNE de la fenêtre simulée, multiplicateurs compris (Norman, 2026-11-02 : « ma barre de vie a fait un saut en avant et a reculé en 1 coup »). Le repos hors combat intégrait déjà la défense d'entraînement
+ * dans le temps (regenPvIntegreeBasicTrainingSorealIdleV176_), mais le combat de boss utilisait la défense de FIN de fenêtre pour toute la fenêtre : pendant que l'entraînement fait monter la défense, une synchro
+ * de 47 s rendait bien plus de vie (mesuré : 26,9 % des PV max d'écart) que 47 synchros d'une seconde, alors que le client avance en continu. Le résultat du moteur ne doit pas dépendre de l'espacement des synchros.
+ * Même règle que le repos : moyenne brute de la fenêtre, puis le même multiplicateur que la défense réelle. Sans entraînement qui progresse (ou sans multiplicateur exploitable) : la défense de fin, inchangée.
+ */
+export function defenseMoyenneFenetreSorealIdle_(defenseFin,regenBruteIntegree,secondesHp,defenseTotale,defenseEntrainement){
+  const fin=Math.max(0,nombreSorealIdle_(defenseFin,0));
+  const hp=Math.max(0,nombreSorealIdle_(secondesHp,0));
+  if(!(hp>0))return fin;
+  const brute=Math.max(0,nombreSorealIdle_(defenseEntrainement,0))-100;
+  const reelle=Math.max(0,nombreSorealIdle_(defenseTotale,0))-100;
+  if(!(brute>0)||!(reelle>0))return fin;
+  const moyenneBrute=Math.max(0,nombreSorealIdle_(regenBruteIntegree,0))*20/hp;
+  if(!isFinite(moyenneBrute))return fin;
+  const moyenne=100+Math.max(0,moyenneBrute-100)*(reelle/brute);
+  /* La défense ne peut pas dépasser celle de fin (elle ne fait que monter pendant l'entraînement) : une moyenne plus haute ne vient que d'un arrondi. */
+  return isFinite(moyenne)?Math.max(0,Math.min(fin,moyenne)):fin;
+}
+
 export function regenPvIntegreeBasicTrainingSorealIdleV176_(
   avantBrut,
   apresBrut,
@@ -878,6 +898,24 @@ function appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBos
    * la boucle de simulation réutilise cette même valeur — jamais un
    * second calcul, une seule source de vérité.
    */
+  /* Combat de boss : la défense de toute la fenêtre est sa MOYENNE (entraînement qui progresse), comme le repos ci-dessous ; elle sert à la régénération ET aux dégâts reçus (renvoyée dans defense). */
+  if (combatBossActif) {
+    defense =
+      defenseMoyenneFenetreSorealIdle_(
+        defense,
+        regenPvIntegreeBasicTrainingSorealIdleV176_(
+          entrainementAvantV176,
+          entrainementV41.stats&&
+            entrainementV41.stats.entrainementBase,
+          entrainementV41.secondes,
+          ecoulePrisEnCompte
+        ),
+        ecoulePrisEnCompte,
+        entrainementV41.defense,
+        entrainementV41.combat&&entrainementV41.combat.defenseEntrainement
+      );
+  }
+
   const regenPvSecJoueur =
     Math.max(
       0,
@@ -927,7 +965,7 @@ function appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBos
         );
     }
   }
-  /* @sortie */ return {pvJoueurMax:pvJoueurMax,pvJoueur:pvJoueur,bossPvMaxDefinition:bossPvMaxDefinition,bossPvMaxEnregistre:bossPvMaxEnregistre,bossPvMax:bossPvMax,bossPv:bossPv,derniereSynchroBrute:derniereSynchroBrute,derniereSynchro:derniereSynchro,maintenant:maintenant,ecouleReel:ecouleReel,ecoulePrisEnCompte:ecoulePrisEnCompte,regenPvSecJoueur:regenPvSecJoueur};
+  /* @sortie */ return {defense:defense,pvJoueurMax:pvJoueurMax,pvJoueur:pvJoueur,bossPvMaxDefinition:bossPvMaxDefinition,bossPvMaxEnregistre:bossPvMaxEnregistre,bossPvMax:bossPvMax,bossPv:bossPv,derniereSynchroBrute:derniereSynchroBrute,derniereSynchro:derniereSynchro,maintenant:maintenant,ecouleReel:ecouleReel,ecoulePrisEnCompte:ecoulePrisEnCompte,regenPvSecJoueur:regenPvSecJoueur};
 }
 
 /* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 70 lignes. */
@@ -2108,7 +2146,7 @@ export function appliquerProgressionEnergieSorealIdle_(
    * Fight Boss suit le modèle A/D : les PV max valent 10× l'attaque.
    * L'équipement Aventure sera branché comme multiplicateur séparé.
    */
-  /*>appliquerProgressionEnergieSorealIdle__p3*/const __r3=appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBossActif, defense, entrainementAvantV176, entrainementV41, metaNguRessourceV55, row);const pvJoueurMax=__r3.pvJoueurMax;let pvJoueur=__r3.pvJoueur;const bossPvMaxDefinition=__r3.bossPvMaxDefinition;const bossPvMaxEnregistre=__r3.bossPvMaxEnregistre;let bossPvMax=__r3.bossPvMax;let bossPv=__r3.bossPv;const derniereSynchroBrute=__r3.derniereSynchroBrute;let derniereSynchro=__r3.derniereSynchro;const maintenant=__r3.maintenant;const ecouleReel=__r3.ecouleReel;const ecoulePrisEnCompte=__r3.ecoulePrisEnCompte;const regenPvSecJoueur=__r3.regenPvSecJoueur;/*<appliquerProgressionEnergieSorealIdle__p3*/
+  /*>appliquerProgressionEnergieSorealIdle__p3*/const __r3=appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBossActif, defense, entrainementAvantV176, entrainementV41, metaNguRessourceV55, row);const pvJoueurMax=__r3.pvJoueurMax;let pvJoueur=__r3.pvJoueur;const bossPvMaxDefinition=__r3.bossPvMaxDefinition;const bossPvMaxEnregistre=__r3.bossPvMaxEnregistre;let bossPvMax=__r3.bossPvMax;let bossPv=__r3.bossPv;const derniereSynchroBrute=__r3.derniereSynchroBrute;let derniereSynchro=__r3.derniereSynchro;const maintenant=__r3.maintenant;const ecouleReel=__r3.ecouleReel;const ecoulePrisEnCompte=__r3.ecoulePrisEnCompte;const regenPvSecJoueur=__r3.regenPvSecJoueur;const defenseSimulation=__r3.defense;/*<appliquerProgressionEnergieSorealIdle__p3*/
 
 
   /*
@@ -2148,7 +2186,7 @@ export function appliquerProgressionEnergieSorealIdle_(
       break;
     }
 
-    /*>appliquerProgressionEnergieSorealIdle__p5*/const __r5=appliquerProgressionEnergieSorealIdle__p5(bossCombatIndex, bossPv, bossPvMax, defense, metaNguRessourceV55, puissance, pvJoueur, regenPvSecJoueur, statsCombat, tempsRestant, tempsSimulation);const attaqueBoss=__r5.attaqueBoss;let degatsRecusSec=__r5.degatsRecusSec;const soinJoueurSec=__r5.soinJoueurSec;const multiplicateurDpsBoss=__r5.multiplicateurDpsBoss;const multiplicateurSceau=__r5.multiplicateurSceau;const multiplicateurVulnerabilite=__r5.multiplicateurVulnerabilite;const regenBossSec=__r5.regenBossSec;const defenseBossCombat=__r5.defenseBossCombat;const dpsJoueurBase=__r5.dpsJoueurBase;const dpsBossNet=__r5.dpsBossNet;const tempsPourBoss=__r5.tempsPourBoss;const tempsPourDefaite=__r5.tempsPourDefaite;const segment=__r5.segment;const dommageBoss=__r5.dommageBoss;const dommageJoueur=__r5.dommageJoueur;/*<appliquerProgressionEnergieSorealIdle__p5*/
+    /*>appliquerProgressionEnergieSorealIdle__p5*/const __r5=appliquerProgressionEnergieSorealIdle__p5(bossCombatIndex, bossPv, bossPvMax, defenseSimulation, metaNguRessourceV55, puissance, pvJoueur, regenPvSecJoueur, statsCombat, tempsRestant, tempsSimulation);const attaqueBoss=__r5.attaqueBoss;let degatsRecusSec=__r5.degatsRecusSec;const soinJoueurSec=__r5.soinJoueurSec;const multiplicateurDpsBoss=__r5.multiplicateurDpsBoss;const multiplicateurSceau=__r5.multiplicateurSceau;const multiplicateurVulnerabilite=__r5.multiplicateurVulnerabilite;const regenBossSec=__r5.regenBossSec;const defenseBossCombat=__r5.defenseBossCombat;const dpsJoueurBase=__r5.dpsJoueurBase;const dpsBossNet=__r5.dpsBossNet;const tempsPourBoss=__r5.tempsPourBoss;const tempsPourDefaite=__r5.tempsPourDefaite;const segment=__r5.segment;const dommageBoss=__r5.dommageBoss;const dommageJoueur=__r5.dommageJoueur;/*<appliquerProgressionEnergieSorealIdle__p5*/
 
     /*>appliquerProgressionEnergieSorealIdle__p6*/const __r6=appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBloqueRenaissance, bossCombatIndex, bossPv, bossPvMax, bossVaincus, combatBossActif, degatsInfliges, degatsRecus, dommageBoss, dommageJoueur, highestBossJamaisAtteint, niveau, pvJoueur, pvJoueurMax, segment, soinJoueurSec, statsCombat, tempsRestant, tempsSimulation, xp, xpGagnee);bossPv=__r6.bossPv;pvJoueur=__r6.pvJoueur;degatsInfliges=__r6.degatsInfliges;degatsRecus=__r6.degatsRecus;tempsRestant=__r6.tempsRestant;tempsSimulation=__r6.tempsSimulation;xp=__r6.xp;xpGagnee=__r6.xpGagnee;highestBossJamaisAtteint=__r6.highestBossJamaisAtteint;bossVaincus=__r6.bossVaincus;bossBattusMaintenant=__r6.bossBattusMaintenant;combatBossActif=__r6.combatBossActif;bossCombatIndex=__r6.bossCombatIndex;bossBloqueRenaissance=__r6.bossBloqueRenaissance;bossPvMax=__r6.bossPvMax;const bossMort=__r6.bossMort;const joueurBattu=__r6.joueurBattu;/*<appliquerProgressionEnergieSorealIdle__p6*/
 

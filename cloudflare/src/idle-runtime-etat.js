@@ -144,16 +144,6 @@ function construireEtatJoueurSorealIdle__p1(feuille, ligne){
   const bossSelectionIndex =
     bossVaincusEtat;
 
-  const attaqueBossSelection =
-    attaqueBossSorealIdle_(
-      bossSelectionIndex
-    );
-
-  const defenseBossSelection =
-    defenseBossSorealIdle_(
-      bossSelectionIndex
-    );
-
   const progressionCollectionsEtat =
     progressionCollectionsSorealIdle_(
       collectionEtat
@@ -171,6 +161,19 @@ function construireEtatJoueurSorealIdle__p1(feuille, ligne){
       statsEtat.metaNgu,
       contexteMetaNguEtat,
       Date.now()
+    );
+
+  /* Attaque et défense du boss AVEC la difficulté du joueur : le moteur de combat (appliquerProgressionEnergieSorealIdle__p5) les calcule ainsi ; l'état annonçait celles du mode Normal, le client (qui calcule qui tombe en premier à partir de cet état) s'écartait donc du moteur dès un autre mode. */
+  const attaqueBossSelection =
+    attaqueBossSorealIdle_(
+      bossSelectionIndex,
+      metaNguEtat.difficulty
+    );
+
+  const defenseBossSelection =
+    defenseBossSorealIdle_(
+      bossSelectionIndex,
+      metaNguEtat.difficulty
     );
   /* @sortie */ return {c:c,row:row,inventaireEtat:inventaireEtat,collectionEtat:collectionEtat,equipementBrutEtat:equipementBrutEtat,defenseEtat:defenseEtat,koSecondesRestantes:koSecondesRestantes,dateDebutBrute:dateDebutBrute,dateDebutMs:dateDebutMs,ageMs:ageMs,equipementEtat:equipementEtat,capaciteInventaire:capaciteInventaire,objetsDansSac:objetsDansSac,setsEtat:setsEtat,statsEtat:statsEtat,statsBossEtat:statsBossEtat,niveauEtat:niveauEtat,bossVaincusEtat:bossVaincusEtat,bossSelectionIndex:bossSelectionIndex,attaqueBossSelection:attaqueBossSelection,defenseBossSelection:defenseBossSelection,progressionCollectionsEtat:progressionCollectionsEtat,contexteMetaNguEtat:contexteMetaNguEtat,metaNguEtat:metaNguEtat};
 }
@@ -604,7 +607,8 @@ puissance:
         bossSelectionIndex,
         defenseEtat,
         row[c.BOSS_PV - 1],
-        row[c.BOSS_PV_MAX - 1]
+        row[c.BOSS_PV_MAX - 1],
+        metaNguEtat.difficulty
       ),
 
     bossCapacites:
@@ -1378,10 +1382,10 @@ banniereDriveFileId:
           bossPvMax: pvMax,
           bossVaincus: bossVaincusEtat + 1,
           bossSelection: idx + 1,
-          attaqueBoss: attaqueBossSorealIdle_(idx),
-          defenseBoss: defenseBossSorealIdle_(idx),
+          attaqueBoss: attaqueBossSorealIdle_(idx, metaNguEtat.difficulty),
+          defenseBoss: defenseBossSorealIdle_(idx, metaNguEtat.difficulty),
           regenBoss: regenBossSecondeSorealIdle_(idx, Math.max(1, pvMax)),
-          degatsRecusSeconde: degatsRecusSecondeSorealIdle_(idx, defenseEtat, pvMax, pvMax),
+          degatsRecusSeconde: degatsRecusSecondeSorealIdle_(idx, defenseEtat, pvMax, pvMax, metaNguEtat.difficulty),
           bossCapacites: Array.isArray(def.capacites) ? def.capacites : [],
           bossHistoire: String(def.histoire || ''),
           bossHistoireParlee: String(def.histoireParlee || ''),
