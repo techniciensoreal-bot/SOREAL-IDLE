@@ -138,13 +138,15 @@ console.log("idle-yggdrasil-portes-v1: OK");
   assert.ok(pal, "palettes des portes");
   const ids = src.match(/var FRUITS_24_=\{([^}]*)\};/)[1].split(",").map((x) => x.split(":")[0]);
   const valeurs = {};
-  for (const m of pal[1].matchAll(/(\w+):\[(\d+),(\d+)\]/g)) valeurs[m[1]] = [Number(m[2]), Number(m[3])];
+  for (const m of pal[1].matchAll(/(\w+):\[(\d+),(\d+)(?:,\d+,\d+)?\]/g)) valeurs[m[1]] = [Number(m[2]), Number(m[3])];
   for (const id of ids) {
     assert.ok(valeurs[id], id + " : a sa palette");
     assert.ok(valeurs[id][0] >= 0 && valeurs[id][0] < 360 && valeurs[id][1] > 0 && valeurs[id][1] <= 100, id + " : teinte et saturation valides");
   }
   assert.ok(new Set(Object.values(valeurs).map((v) => v.join())).size >= 14, "des couleurs variées d'une porte à l'autre");
   assert.ok(src.includes("data-fruit=\"'+html_(id)+'\" style=\"'+styleCouleursPorte_(id)"), "la carte porte les couleurs de sa porte");
-  assert.ok(src.includes(".ygg-carte.magie[data-fruit]{background:linear-gradient(180deg,hsl(var(--yg-h,130)"), "le cadre suit la porte, même pour les fruits de magie");
+  assert.ok(src.includes(".ygg-carte.magie[data-fruit]{background:linear-gradient(100deg,transparent 35%,hsl(var(--yg-h2,"), "le cadre suit la porte, même pour les fruits de magie");
+  assert.ok(src.includes("arbitrariness:[28,75,184,60]"), "Arbitraire : deux couleurs (orange et turquoise)");
+  assert.ok(src.includes(".ygg-vitre.ygg-decor::before{content:\"\";position:absolute;inset:0;z-index:6;") && src.includes("inset 0 0 14px 3px rgba(0,0,0,.6)"), "ombrage dans le cadre de chaque image");
   console.log("idle-yggdrasil-portes-v1 (couleurs des cadres) : OK");
 }
