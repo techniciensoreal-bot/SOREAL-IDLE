@@ -58,25 +58,19 @@
   }
 
   /*
-   * COMBAT DE BOSS (Norman, 2026-11-03 : « à chaque combat sur la borne, la vie descend, remonte une fois légèrement et descend jusqu'au bout ; c'est la barre joueur et boss en même temps »).
-   * Cause MESURÉE (vrai moteur local, image par image) : la page avance les deux barres sans attendre le moteur, et ses valeurs sont toujours un peu en AVANCE sur la réponse (première réponse après Fight : boss
-   * 99,14 % à l'écran contre 99,61 % dans la réponse, joueur 66,32 % contre 66,42 %). Le chemin normal d'une synchro de combat garde déjà « le plus bas des deux » ; mais d'autres chemins REMPLACENT l'état d'un bloc
-   * pendant le combat (réponse reçue pendant qu'un combat d'Aventure est actif, état adopté par un autre menu…) : les deux barres remontaient alors d'un coup de l'écart, puis redescendaient. Règle générale ici,
-   * pour tous les chemins : tant que le MÊME boss est combattu des deux côtés, la vie du boss et celle du joueur ne remontent jamais du simple fait d'un remplacement de l'état. La régénération réelle du joueur
-   * (défense / 20 par seconde, règle du jeu) est avancée par le tick de la page, jamais par ce remplacement : elle n'est pas touchée.
+   * COMBAT DE BOSS : AUCUNE retenue ici (Norman, 2026-11-03 : « je ne veux pas de pansements pour simuler que tout va bien ; si la barre remonte, c'est une erreur de calcul ou une latence : supprime-la à la racine »).
+   * Les causes mesurées (départ du moteur à l'instant du traitement de l'ordre au lieu du clic, temps de tick perdu à chaque réponse) sont supprimées à la source ; modules/combat-vie-modele-v1.js contrôle le modèle.
+   * Ici on SIGNALE seulement : un remplacement d'état qui ferait remonter une vie pendant un combat du même boss est écrit au journal de diagnostic, sans rien modifier.
    */
-  var nbGardesCombat=0;
   function combatMonotone_(a,n){
     if(!a.combatBossActif||!n.combatBossActif)return 0;
     if(Number(a.bossSelection)!==Number(n.bossSelection)||Number(a.bossVaincus)!==Number(n.bossVaincus))return 0;
     if(String(a.bossId||a.bossActuel||'')!==String(n.bossId||n.bossActuel||''))return 0;
     var g=0;
     [['bossPv','bossPvMax'],['pvJoueur','pvJoueurMax']].forEach(function(c){
-      var av=nombre_(a[c[0]]),nv=nombre_(n[c[0]]);
-      if(av===null||nv===null||!(av>0)||!(nv>av))return;
-      var max=nombre_(n[c[1]]);
-      if(max!==null&&max>0&&(nv-av)/max>0.01)signaler_('combat_vie_remontee:'+c[0],'écran '+Math.round(av/max*1000)/10+' % -> réponse '+Math.round(nv/max*1000)/10+' %');
-      n[c[0]]=av;g++;nbGardesCombat++;
+      var av=nombre_(a[c[0]]),nv=nombre_(n[c[0]]),max=nombre_(n[c[1]]);
+      if(av===null||nv===null||max===null||!(max>0)||!(nv>av))return;
+      if((nv-av)/max>0.002){signaler_('combat_etat_remonte:'+c[0],'écran '+Math.round(av/max*1000)/10+' % -> état remplacé '+Math.round(nv/max*1000)/10+' %');g++;}
     });
     return g;
   }
@@ -114,8 +108,8 @@
     });
     return garde;
   }
-  function stats(){return {gardes:nbGardes,gardesCombat:nbGardesCombat,parChemin:Object.assign({},gardes),reculsAnormaux:nbRecuAnormaux,pentes:Object.assign({},pentes)};}
-  function reinitialiser(){pentes={};dernier=0;gardes={};nbGardes=0;nbGardesCombat=0;nbRecuAnormaux=0;dernierSignal={};}
+  function stats(){return {gardes:nbGardes,parChemin:Object.assign({},gardes),reculsAnormaux:nbRecuAnormaux,pentes:Object.assign({},pentes)};}
+  function reinitialiser(){pentes={};dernier=0;gardes={};nbGardes=0;nbRecuAnormaux=0;dernierSignal={};}
 
   window.__SOREAL_IDLE_MONOTONE_V1__={garder:garder,stats:stats,reinitialiser:reinitialiser,chemins:chemins_};
 })();

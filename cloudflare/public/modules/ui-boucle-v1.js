@@ -547,6 +547,8 @@
 
       /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 154 lignes. */
       function mettreAJourJeuIdleLocalV7__p8(dps, dt, effetsMagie, maintenantTick){
+        /* Vitesse de baisse de la vie du boss (PV par seconde) : sert à ramener la réponse du moteur à l'instant présent (combat-vie-modele-v1.js). */
+        REG.idleVitesseBossV1=dps>0?dps:0;
         if(
               dps>0 &&
               idleNombre_(
@@ -790,6 +792,8 @@
                 0,
                 recus-regenPvSecJoueurBossV1
               );
+            /* Vitesse de baisse de la vie du joueur (PV par seconde ; négative si la régénération l'emporte) : même usage que pour le boss. */
+            REG.idleVitesseJoueurV1=recusNet>0?recusNet:-Math.max(0,regenPvSecJoueurBossV1-recus);
 
             const brutContinu=
               Math.max(
@@ -1575,6 +1579,17 @@
           1000;
 
         /*
+         * Durée de COMBAT de ce passage (Norman, 2026-11-03 : barres de vie qui remontent). Le premier passage après le clic sur Fight mesure le temps depuis le passage PRÉCÉDENT (jusqu'à 66 ms AVANT le clic) : la page
+         * comptait des coups d'avant le départ, alors que le moteur part de l'instant du clic (snapshot.debutMs). Le combat se compte depuis le clic, pas avant.
+         */
+        const debutClicCombatV1=idleNombre_(REG.idleCombatDebutClicV1);
+        const dtCombat=
+          debutClicCombatV1>0&&maintenantTick-debutClicCombatV1<ecouleTickMs
+            ?Math.max(0,maintenantTick-debutClicCombatV1)/1000
+            :dt;
+        REG.idleCombatDebutClicV1=0;
+
+        /*
          * Vie qui recule d'une fraction de seconde (Norman, 2026-10-20 : « ma vie est passée de 1.19Tg à 1.20Tg et est revenue à 1.19 »). L'entraînement local déduit défense et VIE MAX des multiplicateurs de combat
          * (attaque x10 pour la vie) ; il passait AVANT leur mise à jour par la trajectoire : après chaque réponse du moteur, ces multiplicateurs étaient ceux de l'instant où le moteur avait commencé son calcul (en retard
          * de 0,1 à 0,3 s), la vie max retombait donc d'un cran pour une image, puis remontait à l'image suivante. La trajectoire est maintenant appliquée D'ABORD (et dès le remplacement de l'état, voir soreal-idle-ui.js).
@@ -1812,7 +1827,7 @@
             )
           );
 
-        mettreAJourJeuIdleLocalV7__p16(dpsBase, dt, maintenantTick);
+        mettreAJourJeuIdleLocalV7__p16(dpsBase, dtCombat, maintenantTick);
 
         mettreAJourJeuIdleLocalV7__p10(maintenantTick);
 

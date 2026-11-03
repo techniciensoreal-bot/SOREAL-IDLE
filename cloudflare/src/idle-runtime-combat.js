@@ -13,6 +13,21 @@ import { marquerRencontreBossPrincipalUneFoisParRunV207_, parserJsonSorealIdle_,
 import { attaqueBossSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, enregistrerBossJamaisVaincuSorealIdle_, highestBossJamaisAtteintSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, xpBonusPremiereFoisSorealIdle_ } from "./idle-runtime-boss.js";
 import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle_ } from "./idle-runtime-etat.js";
 
+/*
+ * Instant de départ du combat (Norman, 2026-11-03 : « la vie descend, remonte une fois légèrement… »). Mesuré : la page lance son combat au CLIC, le moteur le lançait à l'instant où il TRAITE l'ordre
+ * (70 à 130 ms plus tard, délai d'envoi + file) ; l'instantané de départ (PV au clic) était pourtant pris au clic. Les deux simulations ne partaient donc pas du même instant : à la première réponse, le boss
+ * affichait 0,47 point de moins que le moteur (≈ 118 ms de coups), le joueur 0,10. Le client envoie maintenant l'instant du clic (heure du serveur, snapshot.debutMs) : le combat du moteur part de CET instant
+ * (jamais dans le futur, jamais plus de 5 s dans le passé, seulement pour un instantané du bon boss et un combat qui démarre). Sans debutMs (ancien client) : l'instant du traitement, comme avant.
+ */
+function debutCombatDemandeSorealIdle_(actif, stats, snapshotCombat, snapshotMemeBoss) {
+  const maintenant = Date.now();
+  if (Boolean(actif) && !stats.combatBossActif && snapshotCombat && snapshotMemeBoss) {
+    const demande = Number(snapshotCombat.debutMs);
+    if (isFinite(demande) && demande <= maintenant && maintenant - demande <= 5000) return demande;
+  }
+  return maintenant;
+}
+
 export function definirCombatBossSorealIdle(
   sessionToken,
   actif,
@@ -256,13 +271,16 @@ export function definirCombatBossSorealIdle(
      * Fight/Fuite/défaite vient d'être enregistré, jamais d'un timestamp
      * antérieur à la transition d'état.
      */
+    /* Le combat part de l'instant du clic quand le client l'envoie (voir debutCombatDemandeSorealIdle_). */
+    const debutCombatMs = debutCombatDemandeSorealIdle_(actif, stats, snapshotCombat, snapshotMemeBoss);
+
     feuille
       .getRange(
         ligne,
         c.DERNIERE_SYNCHRO
       )
       .setValue(
-        new Date()
+        new Date(debutCombatMs)
       );
 
     /*

@@ -826,7 +826,10 @@
           const adventureRestPvAvantSyncV1=REG.idleEtat&&REG.idleEtat.adventureRestPv;
           const basicTrainingAvantSyncV166=REG.idleEtat&&REG.idleEtat.basicTraining;
 
+          const viesLocalesAvantV1=viesCombatBossModeleIdleV1_(REG.idleEtat,joueurServeur);
           REG.idleEtat=Object.assign({},joueurServeur);
+          /* Combat de boss en cours : la vie affichée reste celle du modèle de la page (jamais « adoptée » telle quelle de la réponse : c'était la remontée des deux barres, voir combat-vie-modele-v1.js). */
+          if(viesLocalesAvantV1){REG.idleEtat.bossPv=viesLocalesAvantV1.bossPv;REG.idleEtat.pvJoueur=viesLocalesAvantV1.pvJoueur;}
           REG.idleEtat.basicTraining=
             fusionnerBasicTrainingPlusAvanceIdleV166_(
               basicTrainingAvantSyncV166,
@@ -840,7 +843,7 @@
           );
           if(adventureRestPvAvantSyncV1!=null)REG.idleEtat.adventureRestPv=adventureRestPvAvantSyncV1;
 
-          REG.idleDernierTickLocalV40=Date.now();
+          /* Pas de remise à zéro de idleDernierTickLocalV40 en combat : le temps écoulé depuis le dernier passage est du combat réel (le perdre ralentissait la page de 30 ms par réponse). */
           pousserEtatVersRuntimePartageIdleV1_();
           return true;
         }
@@ -1121,23 +1124,22 @@
             )
           );
 
+        /* La vie affichée est celle du modèle de la page ; la réponse du moteur la CONTRÔLE (combat-vie-modele-v1.js) : plus de « le plus bas des deux ». */
+        const modeleVieV1=window.__SOREAL_IDLE_COMBAT_VIE_V1__;
+        const ageMoteurV1=ageReponseMoteurSecondesIdleV1_(joueurServeur);
+        const bossAffiche=modeleVieV1?modeleVieV1.reconcilier(bossLocal,bossServeur,bossMaxServeur,'boss',idleNombre_(REG.idleVitesseBossV1),ageMoteurV1):Math.min(bossLocal,bossServeur);
+        const joueurAffiche=modeleVieV1?modeleVieV1.reconcilier(joueurLocal,joueurServeurPv,joueurMaxServeur,'joueur',idleNombre_(REG.idleVitesseJoueurV1),ageMoteurV1):Math.min(joueurLocal,joueurServeurPv);
         const conserve={
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-70 */
           bossPv:
-            Math.min(
-              bossLocal,
-              bossServeur
-            ),
+            bossAffiche,
           bossPvMax:
             Math.max(
               bossMaxLocal,
               bossMaxServeur
             ),
           pvJoueur:
-            Math.min(
-              joueurLocal,
-              joueurServeurPv
-            ),
+            joueurAffiche,
           pvJoueurMax:
             Math.max(
               joueurMaxLocal,
@@ -1180,8 +1182,7 @@
           );
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-72 */
-        REG.idleDernierTickLocalV40=
-          Date.now();
+        /* Pas de remise à zéro de idleDernierTickLocalV40 : le temps écoulé depuis le dernier passage est du combat réel ; le perdre à chaque réponse ralentissait la vie affichée (mesuré : ≈ 30 ms par réponse). */
 
         initialiserCoupsCombatIdleV116_();
         rafraichirEnergieEtBoutonsIdleV9_();
@@ -1190,12 +1191,37 @@
         return true;
       }
 
+      /*
+       * Vies de boss et de joueur à garder quand une réponse du moteur arrive pendant un combat de boss des deux côtés (même boss) : la vie du modèle de la page, contrôlée par la réponse (combat-vie-modele-v1.js).
+       * Renvoie null hors de ce cas.
+       */
+      function viesCombatBossModeleIdleV1_(local,serveur){
+        const M=window.__SOREAL_IDLE_COMBAT_VIE_V1__;
+        if(!M||!local||!serveur||!local.combatBossActif||!serveur.combatBossActif)return null;
+        if(idleEntier_(local.bossSelection)!==idleEntier_(serveur.bossSelection)||idleEntier_(local.bossVaincus)!==idleEntier_(serveur.bossVaincus))return null;
+        const age=ageReponseMoteurSecondesIdleV1_(serveur);
+        return {
+          bossPv:M.reconcilier(local.bossPv,serveur.bossPv,Math.max(1,idleNombre_(serveur.bossPvMax)),'boss',idleNombre_(REG.idleVitesseBossV1),age),
+          pvJoueur:M.reconcilier(local.pvJoueur,serveur.pvJoueur,Math.max(1,idleNombre_(serveur.pvJoueurMax)),'joueur',idleNombre_(REG.idleVitesseJoueurV1),age)
+        };
+      }
+
+      /* Âge de la réponse du moteur : temps écoulé depuis l'instant (heure du serveur) où il a calculé ces valeurs (__recuPerfV1, ramené à l'instant du moteur par la passerelle). 0 si inconnu. */
+      function ageReponseMoteurSecondesIdleV1_(serveur){
+        const recu=serveur&&Number(serveur.__recuPerfV1);
+        if(!(recu>0)||typeof performance==='undefined')return 0;
+        const age=(performance.now()-recu)/1000;
+        return age>0&&age<30?age:0;
+      }
+
       function snapshotCombatFightBossIdleV173_(){
         if(!REG.idleEtat)return null;
         return {
           pvJoueur:Math.max(0,idleNombre_(REG.idleEtat.pvJoueur)),
           bossPv:Math.max(0,idleNombre_(REG.idleEtat.bossPv)),
-          bossSelection:idleEntier_(REG.idleEtat.bossSelection)
+          bossSelection:idleEntier_(REG.idleEtat.bossSelection),
+          /* Instant de ce relevé en heure du serveur : le moteur y fait partir son combat (le même instant que la page, voir definirCombatBossSorealIdle). */
+          debutMs:Date.now()+(typeof window.__SOREAL_IDLE_ECART_V1__==='function'?(Number(window.__SOREAL_IDLE_ECART_V1__())||0):0)
         };
       }
 
@@ -1212,7 +1238,8 @@
               ?{
                   pvJoueur:Math.max(0,idleNombre_(snapshot.pvJoueur)),
                   bossPv:Math.max(0,idleNombre_(snapshot.bossPv)),
-                  bossSelection:idleEntier_(snapshot.bossSelection)
+                  bossSelection:idleEntier_(snapshot.bossSelection),
+                  debutMs:Math.max(0,Number(snapshot.debutMs)||0)
                 }
               :null
           };

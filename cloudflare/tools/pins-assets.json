@@ -175,6 +175,10 @@
   "pin": 4,
   "sha": "d95fb075835ce84babda3265a222413a135f1aa2"
  },
+ "/modules/combat-vie-modele-v1.js": {
+  "pin": 2,
+  "sha": "efa658301996d5d36d1d40f4502650bbc35d1031"
+ },
  "/modules/competence-debloquee-v1.js": {
   "pin": 1,
   "sha": "6ff5cc7dacd3a4fee0497b7dac3d5864fd4870d5"
@@ -268,8 +272,8 @@
   "sha": "0627eee13b38c24aeccbd9d98324a98b860999d9"
  },
  "/modules/etat-monotone-v1.js": {
-  "pin": 2,
-  "sha": "8f96db51bce2626df6d9ac869cb2be5bb1ccce69"
+  "pin": 3,
+  "sha": "f65c9b0a746af9e9a42862c46540f97365af59fb"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 4,
@@ -468,8 +472,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 144,
-  "sha": "d82413d6dac8f2d70e5ab475e990e11fb880199d"
+  "pin": 146,
+  "sha": "e0126393839209b84035932f906b726acd83fa54"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -708,8 +712,8 @@
   "sha": "6fc3bd413f23cc3e8624211aa03def13ab76c033"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 24,
-  "sha": "011589deb2d2a97eea2f5d0a1cd7ac3f8e394c8d"
+  "pin": 27,
+  "sha": "8c952d96da9405fbaa47bede987db52e988eff5c"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,
@@ -720,12 +724,12 @@
   "sha": "931606eff73efca6a728bea41d48c9559d66f52b"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 26,
-  "sha": "7c9327313f7d52fe303abc4799a32148b6a928cb"
+  "pin": 28,
+  "sha": "94bb93e3d71d0f1ab811f11abff99c6bcd635d2b"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 35,
-  "sha": "5058f8a6c0a992f42d9cbd65bc0dba31ab2a3a09"
+  "pin": 36,
+  "sha": "8ee80cfe3506a559e3f63cf51194a12f72c46784"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

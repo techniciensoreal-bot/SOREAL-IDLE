@@ -446,6 +446,7 @@
 
         if(actif){
           REG.idleCombatArmeLocalV206=true;
+          REG.idleCombatDebutClicV1=Date.now();   /* le combat se compte depuis le clic (voir le tick) et le moteur y fait partir le sien (snapshot.debutMs) */
           REG.idleCombatStopFantomeEnvoyeV206=false;
           try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&D.combatLance)D.combatLance();}catch(_e){}
           jouerEffetAudioIdleV199_('fight');
