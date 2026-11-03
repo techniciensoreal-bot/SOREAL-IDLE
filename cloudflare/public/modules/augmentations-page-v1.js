@@ -1012,6 +1012,8 @@
         const ecoule=Math.max(0,(maintenant-vue.__at)/1000);
         const sys=systemeMetaParIdIdleV130_(j,'timeMachine');
         const donnees=(sys&&sys.state&&sys.state.data)||null;
+        const monnaies=j&&j.systemes&&j.systemes.currencies;
+        const orLocal=monnaies&&monnaies.gold!==undefined?Math.max(0,Number(monnaies.gold)||0):null;
         [['speed','speedEtaSeconds','speedLevel','speedK'],['gold','goldEtaSeconds','goldLevel','goldK']].forEach(function(c){
           const eta=vue[c[1]];
           if(eta===null||eta===undefined||!Number.isFinite(Number(eta)))return;
@@ -1023,6 +1025,8 @@
           if(niveau0!==null&&duree>0){
             let n=niveau0+1;
             while(reste<=0&&franchis<20000){
+              /* Niveau terminé mais Or insuffisant (5 000 000 x niveau visé, comme le moteur et le compte à rebours) : la barre reste PLEINE en attente d'Or, aucun niveau n'est franchi, quel que soit le changement d'allocation. */
+              if(orLocal!==null&&orLocal+1e-9<5000000*n){reste=0;break;}
               duree=duree*(n+1)/n;
               n+=1;
               franchis+=1;

@@ -15,7 +15,7 @@ const f2 = src.indexOf("      function ajusterTimeMachineIdleV1_(ressource,mode)
 assert.ok(d1 > 0 && f1 > d1 && d2 > 0 && f2 > d2, "fonctions du recalcul local de la Machine temporelle introuvables");
 const source = src.slice(d1, f1) + src.slice(d2, f2);
 
-function lancer({ ecouleMs, niveau, K = 3.6e6, allocAvant = 1e6, allocApres = 2e6, progSec = 0.046, etaSec = null }) {
+function lancer({ ecouleMs, niveau, K = 3.6e6, allocAvant = 1e6, allocApres = 2e6, progSec = 0.046, etaSec = null, or = 1e18 }) {
   const maintenant = 5_000_000;
   const realNow = Date.now;
   Date.now = () => maintenant;
@@ -24,7 +24,7 @@ function lancer({ ecouleMs, niveau, K = 3.6e6, allocAvant = 1e6, allocApres = 2e
     const eta = etaSec === null ? dureeAvant - progSec : etaSec;
     const vue = { speedFill: progSec / dureeAvant, speedFraction: progSec / dureeAvant, speedProgressSeconds: progSec, speedEtaSeconds: eta, speedK: K, goldK: null, goldEtaSeconds: null, goldProgressSeconds: 0 };
     const donnees = { speedLevel: niveau, goldLevel: 0 };
-    const j = { systemes: { timeMachineView: vue }, __donnees: donnees };
+    const j = { systemes: { timeMachineView: vue, currencies: { gold: or } }, __donnees: donnees };
     const perf = { now: () => 10_000 };
     const H = { idleNombre_: (v) => Number(v) || 0, patcherBarresTimeMachineIdleV1_: () => {} };
     const win = { __SOREAL_IDLE_META_HOST_V130__: H };
@@ -59,6 +59,20 @@ function lancer({ ecouleMs, niveau, K = 3.6e6, allocAvant = 1e6, allocApres = 2e
 {
   const r = lancer({ ecouleMs: 0, niveau: 5 });
   assert.ok(Math.abs(r.vue.speedFill - 0.046 / 3.6) < 1e-9);
+}
+// 5. Niveau terminé en ATTENTE D'OR (Norman, 2026-11-03 : barre pleine à 99 % -> 5 % -> 12 % -> 99 % à chaque clic sur Max) : pas d'Or pour le niveau suivant (5 000 000 x niveau visé),
+// la barre reste pleine et aucun niveau n'est franchi, quel que soit le changement d'allocation (+, -, Max...).
+for (const allocApres of [1.2e6, 5e5, 1e7]) {
+  // barre déjà pleine à la synchro (progression = durée du niveau), 2 s écoulées, niveau 35 : coût du niveau 36 = 180 000 000 ; on n'a que 1 000 000
+  const r = lancer({ ecouleMs: 2000, niveau: 35, K: 3.6e6, progSec: 3.6, etaSec: 0, or: 1e6, allocApres });
+  assert.ok(r.vue.speedFill > 0.99, "barre pleine conservée en attente d'Or (alloc " + allocApres + ") : " + r.vue.speedFill);
+  assert.equal(r.donnees.speedLevel, 35, "aucun niveau franchi sans Or");
+}
+// 6. L'Or devient suffisant : le niveau se franchit normalement (le reste d'un niveau plus long recommence).
+{
+  const r = lancer({ ecouleMs: 2000, niveau: 35, K: 3.6e6, progSec: 3.6, etaSec: 0, or: 1e18, allocApres: 1.2e6 });
+  assert.equal(r.donnees.speedLevel, 36, "niveau franchi avec assez d'Or");
+  assert.ok(r.vue.speedFill < 0.9, "barre repartie du reste du niveau suivant : " + r.vue.speedFill);
 }
 // 4. Source : aucun plafond du temps écoulé au reste du niveau, le repère vient du moteur (pas du dessin).
 assert.ok(!/Math\.min\(ecoule,Math\.max\(0,Number\(eta\)\)\)/.test(src), "le temps écoulé ne doit plus être plafonné au reste du niveau");
