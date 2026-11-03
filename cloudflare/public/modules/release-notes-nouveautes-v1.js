@@ -4,10 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.",
-    "Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.",
-    "Les objets des sets de la Collection ont leur image.",
-    "Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.",
-    "Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir."
+    "Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne."
   ] };
 })();

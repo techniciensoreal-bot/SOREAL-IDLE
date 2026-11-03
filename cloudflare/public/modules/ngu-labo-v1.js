@@ -524,7 +524,8 @@ function page(j){
   ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Nombre',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[])
   .map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
   var avance=ng.advance||{};
-  var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource!=='magic'||magieOk;}).map(partDe_));
+  /* Le ciel d'un onglet ne s'éclaire que par SES machines (Norman, 2026-11-03 : « j'ai retiré toute la magie du NGU magie et pourtant les aurores boréales continuent ainsi que les étoiles ») : onglet Magie = les NGU de magie seulement ; onglet Énergie = ceux d'énergie. */
+  var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource===onglet&&(n.resource!=='magic'||magieOk);}).map(partDe_));
   function section(res){
     var tuyaux=liste.filter(function(n){return n.resource===res;}).map(function(n){return barreHtml_(n,ancre);}).join('');
     return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
@@ -570,10 +571,11 @@ function tick_(){
   if(complet){
   dernierComplet=maintenant;
   /* Les étoiles du fond scintillent dès qu'un tuyau reçoit de l'énergie ou de la magie. */
-  var actif=Array.prototype.some.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return Number(f.dataset.nlSpl)>0;})?'1':'0';
+  var actif=Array.prototype.some.call(racine.querySelectorAll('.nl-section[data-nl-section="'+(racine.getAttribute('data-nl-onglet')||'energy')+'"] [data-nl-ngu]'),function(f){return Number(f.dataset.nlSpl)>0;})?'1':'0';
   if(racine.getAttribute('data-nl-actif')!==actif)racine.setAttribute('data-nl-actif',actif);
   /* Niveau de lumière du ciel : 0 rien, 1/2 la machine tourne, 1 elle est CAP ; moyenne de toutes les machines affichées (énergie et magie). */
-  var parts=Array.prototype.map.call(racine.querySelectorAll('[data-nl-ngu]'),function(f){return f.classList.contains('pleine')?1:(Number(f.dataset.nlSpl)>0?.5:0);});
+  var ongletCiel=racine.getAttribute('data-nl-onglet')||'energy';
+  var parts=Array.prototype.map.call(racine.querySelectorAll('.nl-section[data-nl-section="'+ongletCiel+'"] [data-nl-ngu]'),function(f){return f.classList.contains('pleine')?1:(Number(f.dataset.nlSpl)>0?.5:0);});
   var lueur=lueurDe_(parts),niv=String(nivDe_(lueur));
   if(racine.getAttribute('data-nl-niv')!==niv){racine.setAttribute('data-nl-niv',niv);cielSync_(racine,true);}
   var lv=lueur.toFixed(3);
