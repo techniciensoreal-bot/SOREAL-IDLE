@@ -135,6 +135,14 @@
         return 'Action impossible.';
       }
 
+      /* Réponse de la résolution d'un combat de zone (réussie ou non) : le moteur connaît maintenant la fin du combat que la page a jouée ; la garde contre un combat rouvert par une réponse plus ancienne tombe (garderFinCombatLocaleIdleV1_, ui-aventure-1-v1.js). */
+      function finCombatLocaleRecueV1_(payload){
+        if(payload&&payload.action==='adventure'&&payload.adventure&&(payload.adventure.action==='resolveZoneFight'||payload.adventure.action==='loseZoneFight')){
+          const reg=window.__SOREAL_IDLE_REG__;
+          if(reg)reg.idleFinCombatLocaleV1=0;
+        }
+      }
+
       function actionMetaNoyauIdleV130_(payload){
         if(
           idleMetaBusyV130 ||
@@ -151,6 +159,7 @@
           payload||{},
           function(res){
             idleMetaBusyV130=false;
+            finCombatLocaleRecueV1_(payload);
 
             if(
               res &&
@@ -553,6 +562,7 @@
           },
           function(e){
             idleMetaBusyV130=false;
+            finCombatLocaleRecueV1_(payload);
             libererDemarrageCombatEnEchecV1_(payload);
             if(payload&&payload.action==='collect'&&payload.system==='dailySpin'&&window.__SOREAL_IDLE_ROUE_V1__)window.__SOREAL_IDLE_ROUE_V1__.echec();
 

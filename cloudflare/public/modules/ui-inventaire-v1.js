@@ -28,6 +28,7 @@
   function revisionAdventureServeurIdleV208_(){return REG.revisionAdventureServeurIdleV208_.apply(null,arguments);}
   function memoriserAdventureDiffereeIdleV208_(){return REG.memoriserAdventureDiffereeIdleV208_.apply(null,arguments);}
   function joueurAvecAdventureIdleV208_(){return REG.joueurAvecAdventureIdleV208_.apply(null,arguments);}
+  function garderFinCombatLocaleIdleV1_(){return REG.garderFinCombatLocaleIdleV1_.apply(null,arguments);}
   function fusionnerAdventureServeurAvecInventaireLocalV208_(){return REG.fusionnerAdventureServeurAvecInventaireLocalV208_.apply(null,arguments);}
   function rendreCarteSacAdventureIdleV138_(){return REG.rendreCarteSacAdventureIdleV138_.apply(null,arguments);}
   function rendreAccessoiresAdventureIdleV138_(){return REG.rendreAccessoiresAdventureIdleV138_.apply(null,arguments);}
@@ -655,6 +656,7 @@
 
       function protegerJoueurServeurInventaireIdleV208_(joueur){
         if(!joueur)return joueur;
+        joueur=garderFinCombatLocaleIdleV1_(joueur);
         const serveur=aventureMetaIdleV47_(joueur);
         if(!serveur)return joueur;
 
@@ -1534,6 +1536,7 @@
           /* Fusion ou boost glissé qui atteint le niveau 100 d'un boost : popup de validation (popup-effet-objet-v1.js ; l'Auto Merge / Auto Boost ne passent pas par ici). */
           try{if(window.__SOREAL_IDLE_POPUP_EFFET_V1__)window.__SOREAL_IDLE_POPUP_EFFET_V1__.apres({action:'adventure',adventure:tx.payload},res);}catch(_e){}
           const restAvant=REG.idleEtat&&REG.idleEtat.adventureRestPv;
+          res.joueur=garderFinCombatLocaleIdleV1_(res.joueur);
           if(!appliquerSynchroCombatSansReflowIdleV116_(res.joueur)){
             REG.idleEtat=res.joueur;
             if(restAvant!=null&&REG.idleEtat.adventureRestPv==null){

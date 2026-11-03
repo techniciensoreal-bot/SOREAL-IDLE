@@ -444,8 +444,8 @@
   "sha": "385b300138a35ff85d43426763cc45ec5a69379c"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610173,
-  "sha": "5a42cc85e20b3e4a1147da011174b2bdcf4bbd58"
+  "pin": 202610174,
+  "sha": "c7460cfbf37dd43720105297934c534a6961aa03"
  },
  "/modules/mineurs-page-v1.js": {
   "pin": 7,
@@ -708,8 +708,8 @@
   "sha": "fe24068eb5b22d20a08893beaa7466fbc7e644dd"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 21,
-  "sha": "f8bb2600f773318351ead17568e9a1ba8c3f19f3"
+  "pin": 22,
+  "sha": "778ff3fc528babd9c4699e5dacdd132e893075f5"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 55,
@@ -744,8 +744,8 @@
   "sha": "31663b9f26e51d25c339da2dd689aa95b7ee6ac8"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 14,
-  "sha": "fe6b65c59c484806f0c614ef4c5e8d0334b110e2"
+  "pin": 15,
+  "sha": "56a6d9796d131bf9b0ea98a937aa12bf05d9250c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 10,

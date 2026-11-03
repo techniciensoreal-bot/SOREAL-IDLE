@@ -2175,6 +2175,22 @@
         REG.idleAdventureFightLastRegenAtV2=jusqua;
       }
 
+      /*
+       * Norman (2026-11-03) : « Vous avez vaincu X ! » deux fois de suite, puis un seul butin. Cause mesurée : un combat fini dans la page n'existe pour le moteur qu'à la réception de resolveZoneFight/loseZoneFight (jusque-là son combat reste ACTIF, PV pleins).
+       * Une réponse calculée AVANT (action de la page, synchro) et reçue juste après la fin locale, avant que la résolution soit partie, remettait ce combat actif : le même ennemi, PV pleins, tué une seconde fois (la résolution, elle, n'est envoyée qu'une fois : un seul butin).
+       * Tant que la fin locale n'est pas confirmée par le moteur (réponse de la résolution reçue), une réponse ne peut donc pas rouvrir un combat que la page a fini : on garde le combat local (inactif).
+       * Repli : au bout de 15 s sans confirmation la garde tombe (résolution perdue), pour ne jamais bloquer les combats suivants.
+       */
+      function garderFinCombatLocaleIdleV1_(joueur){
+        const depuis=REG.idleFinCombatLocaleV1||0;
+        if(!joueur||!depuis)return joueur;
+        if(Date.now()-depuis>15000){REG.idleFinCombatLocaleV1=0;return joueur;}
+        const serveur=aventureMetaIdleV47_(joueur);
+        const local=REG.idleEtat?aventureMetaIdleV47_(REG.idleEtat):null;
+        if(!serveur||!local||!local.fight||local.fight.active||!serveur.fight||!serveur.fight.active)return joueur;
+        return joueurAvecAdventureIdleV208_(joueur,Object.assign({},serveur,{fight:local.fight}));
+      }
+
       function terminerCombatAdventureLocalV2_(fight,victoire){
         if(!fight||!fight.active)return;
         const nom=libelleEnnemiAdventureIdleV1_(fight);
@@ -2209,6 +2225,7 @@
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-204 */
         fight.active=false;
+        REG.idleFinCombatLocaleV1=Date.now();
         resetHorlogesFightAdventureIdleV2_();
         pousserEtatVersRuntimePartageIdleV1_();
         envoyerResolutionAdventurePendingV2_();
@@ -2628,6 +2645,7 @@ function pageAventureIdleV28_(j){
     envoyerResolutionAdventurePendingV2_:envoyerResolutionAdventurePendingV2_,
     appliquerRegenCombatAdventureIdleV2_:appliquerRegenCombatAdventureIdleV2_,
     terminerCombatAdventureLocalV2_:terminerCombatAdventureLocalV2_,
+    garderFinCombatLocaleIdleV1_:garderFinCombatLocaleIdleV1_,
     impactMonstreAdventureIdleV1_:impactMonstreAdventureIdleV1_,
     trouverWalderpIdleV147_:trouverWalderpIdleV147_,
     utiliserObjetDeblocageIdleV1_:utiliserObjetDeblocageIdleV1_,
