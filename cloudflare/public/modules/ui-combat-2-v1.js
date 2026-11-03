@@ -1146,6 +1146,7 @@
         const composerChronique=typeof tts.composerChronique==='function'
           ?tts.composerChronique
           :function(nom,histoire){return histoire;};
+        try{if(typeof tts.declarerTexteLibre==='function')tts.declarerTexteLibre(texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1));}catch(_e){}
         tts.readText(
           texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)+
           connus.map(function(b){

@@ -201,6 +201,14 @@
    * (enregistrerVoixDynamiques) sans être une voix statique du manifeste (un bloc à la fois déclaré et au manifeste, comme le nom d'un boss, ne suffit pas). Pour un tel texte, SEULS les fichiers déclarés sont lus : un bloc qui n'est
    * pas déclaré (ancienne variante du texte, voix recalculée, voix héritée du manifeste) n'est ni demandé au manifeste ni à R2 ; il retombe sur la voix de secours. Retourne { empreinte: true } des blocs interdits de ce texte.
    */
+  /*
+   * Textes « libres » : introduction ou liaison que le jeu ajoute lui-même devant ou entre des textes enregistrés (ex. « Chroniques de boss. » lue avant la première chronique, dans le MÊME texte lu). Leurs blocs ne sont jamais
+   * interdits : sans cela, la présence d'une chronique enregistrée dans le même texte interdisait l'introduction (sa voix n'a pas de liste déclarée) et Piper la lisait alors que sa voix est générée (Norman, 2026-11-03).
+   */
+  var blocsLibres={};
+  function declarerTexteLibre_(texte){
+    try{planNarration_(String(texte||'')).forEach(function(e){if(e.chunk!=null)blocsLibres[hashBloc_(e.chunk)]=true;});}catch(_e){}
+  }
   function blocsInterdits_(steps){
     var interdits={},hashes=[],enregistre=false,i,h;
     if(!manifesteSync_)chargerManifesteVoix_();   /* le manifeste sert à distinguer un bloc enregistré d'un bloc statique commun (nom d'un boss…) : chargé au plus tôt */
@@ -211,7 +219,7 @@
       if(voixDynamiques[h]&&!(manifesteSync_&&manifesteSync_[h]))enregistre=true;
     }
     if(!enregistre)return interdits;
-    for(i=0;i<hashes.length;i+=1)if(!voixDynamiques[hashes[i]])interdits[hashes[i]]=true;
+    for(i=0;i<hashes.length;i+=1)if(!voixDynamiques[hashes[i]]&&!blocsLibres[hashes[i]])interdits[hashes[i]]=true;
     return interdits;
   }
 
@@ -1275,6 +1283,7 @@
     prechauffer:prechauffer_,
     enregistrerVoixDynamiques:enregistrerVoixDynamiques_,
     blocsInterdits:blocsInterdits_,
+    declarerTexteLibre:declarerTexteLibre_,
     /*
      * onDone (2026-09-27, popup d'histoire) : optionnel, invoqué exactement une fois quand
      * CETTE lecture se termine (succès, échec ou voix indisponible) -- voir narrate_.

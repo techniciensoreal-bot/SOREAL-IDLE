@@ -282,6 +282,7 @@ function demarrer(numeroDepart,intro){
   var file=construireFile(numeroDepart);
   if(!file.length)return false;
   if(etat.actif){etat.jeton+=1;try{t.stop();}catch(_e){}}
+  try{if(intro&&typeof t.declarerTexteLibre==='function')t.declarerTexteLibre(String(intro));}catch(_e){}
   etat.file=file;etat.index=0;etat.actif=true;etat.pause=false;etat.intro=String(intro||'');   /* introduction lue avant la première chronique (bouton « Lire toute l'histoire ») */
   afficher();
   lireCourante();
