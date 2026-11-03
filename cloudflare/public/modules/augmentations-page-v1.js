@@ -992,15 +992,50 @@
        * goldK fournis par le serveur), progression en secondes inchangée. Les deux pistes sont d'abord avancées du temps écoulé, puis le
        * tout repart de « maintenant » ; la barre et le compte à rebours sont repeints tout de suite (patcherBarresTimeMachineIdleV1_).
        */
-      function rebaserVueTimeMachineIdleV1_(vue){
+      /*
+       * Repère de temps d'une vue de la Machine temporelle : l'instant (Date.now) où le moteur l'a produite (réception moins un demi aller-retour), jamais l'instant du premier clic ou du dessin de la page.
+       * Cause du saut en arrière (Norman, 2026-11-03 : « les barres font des petits sauts quand je mets/enlève des ressources ») : une vue neuve n'avait AUCUN repère (il n'était posé qu'au dessin complet de la page),
+       * le clic croyait donc qu'aucun temps ne s'était écoulé depuis la synchro et repartait de la fraction de la synchro (jusqu'à plusieurs secondes de retard : 10 à 50 points sur une barre rapide).
+       */
+      function reperePosterVueTimeMachineIdleV1_(j,vue){
+        if(vue&&!(vue.__at>0))vue.__at=typeof performance==='undefined'?Date.now():Date.now()-(performance.now()-ancreSnapshotIdleV1_(j));
+      }
+
+      /*
+       * Avance la vue de la piste jusqu'à « maintenant », niveaux franchis compris, comme le compte à rebours de l'écran (ui-machine-temporelle-v1.js) : le niveau n dure n fois le niveau 1, donc le niveau suivant
+       * dure (n+1)/n fois le précédent. Le temps écoulé n'est plus plafonné au reste du niveau en cours (une barre rapide franchit plusieurs niveaux entre deux synchros). Le niveau de l'état et la constante K de
+       * la piste suivent les niveaux franchis ; la fraction et le rythme restent ceux de l'écran.
+       */
+      function rebaserVueTimeMachineIdleV1_(j,vue){
+        reperePosterVueTimeMachineIdleV1_(j,vue);
         const maintenant=Date.now();
-        const ecoule=Math.max(0,(maintenant-(vue.__at||maintenant))/1000);
-        [['speed','speedEtaSeconds'],['gold','goldEtaSeconds']].forEach(function(c){
+        const ecoule=Math.max(0,(maintenant-vue.__at)/1000);
+        const sys=systemeMetaParIdIdleV130_(j,'timeMachine');
+        const donnees=(sys&&sys.state&&sys.state.data)||null;
+        [['speed','speedEtaSeconds','speedLevel','speedK'],['gold','goldEtaSeconds','goldLevel','goldK']].forEach(function(c){
           const eta=vue[c[1]];
           if(eta===null||eta===undefined||!Number.isFinite(Number(eta)))return;
-          const avance=Math.min(ecoule,Math.max(0,Number(eta)));
-          vue[c[0]+'ProgressSeconds']=Math.max(0,Number(vue[c[0]+'ProgressSeconds'])||0)+avance;
-          vue[c[1]]=Math.max(0,Number(eta)-avance);
+          const prog=Math.max(0,Number(vue[c[0]+'ProgressSeconds'])||0);
+          let duree=prog+Math.max(0,Number(eta));
+          let reste=Math.max(0,Number(eta))-ecoule;
+          let franchis=0;
+          const niveau0=donnees?Math.max(0,Math.floor(Number(donnees[c[2]])||0)):null;
+          if(niveau0!==null&&duree>0){
+            let n=niveau0+1;
+            while(reste<=0&&franchis<20000){
+              duree=duree*(n+1)/n;
+              n+=1;
+              franchis+=1;
+              reste+=duree;
+            }
+            if(franchis>0){
+              const k=Number(vue[c[3]]);
+              if(Number.isFinite(k)&&k>0)vue[c[3]]=k*n/(niveau0+1);
+              donnees[c[2]]=niveau0+franchis;
+            }
+          }else reste=Math.max(0,reste);
+          vue[c[0]+'ProgressSeconds']=Math.max(0,duree-reste);
+          vue[c[1]]=reste;
         });
         vue.__at=maintenant;
       }
@@ -1012,7 +1047,7 @@
         const piste=ressource==='energy'?'speed':'gold';
         const k=H.idleNombre_(vue[piste+'K']);
         if(!(k>0))return;
-        rebaserVueTimeMachineIdleV1_(vue);
+        rebaserVueTimeMachineIdleV1_(j,vue);
         const progSec=H.idleNombre_(vue[piste+'ProgressSeconds']);
         const etaAvant=vue[piste+'EtaSeconds'];
         /* Fraction actuelle : secondes écoulées sur durée du niveau (écoulé + reste) ; sans durée (aucune ressource), la fraction du serveur. */
@@ -1210,7 +1245,7 @@
         const data=s.state.data||{};
         const vue=(j&&j.systemes&&j.systemes.timeMachineView)||{};
         /* Repère de temps de la vue serveur : sert au recalcul local de la progression au clic (rebaserVueTimeMachineIdleV1_). */
-        if(vue&&!vue.__at)vue.__at=Date.now();
+        reperePosterVueTimeMachineIdleV1_(j,vue);
         const magic=systemeMetaParIdIdleV130_(j,'bloodMagic');
         const magicOk=Boolean(magic&&magic.state&&magic.state.unlocked);
         const nombre=function(v){return H.formatGrandNombreIdleV70_(H.idleNombre_(v));};
