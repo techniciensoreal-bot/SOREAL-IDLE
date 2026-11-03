@@ -677,12 +677,18 @@
           if(document.body){
             /* Hauteur retenue sur le conteneur du jeu (celui qui porte le menu collant), pas sur le body : sinon le menu est poussé hors de l'écran pendant les 700 ms où la page courte est plus petite que le body retenu (Norman, 2026-10-11, Renaissance). */
             const hoteHauteur=document.querySelector('.soreal-idle-native-v4');
-            document.body.style.minHeight='';
-            if(hoteHauteur)hoteHauteur.style.minHeight='';
+            /* Reflow forcé (trace Chrome du 2026-11-03) : écrire minHeight='' puis lire scrollHeight forçait un calcul de mise en page à chaque rendu. Sans retenue en cours (cas courant : plus de 700 ms depuis le rendu précédent), il n'y a RIEN à relâcher :
+               on lit d'abord (même valeur qu'après un relâchement, puisque aucune hauteur n'est retenue) et les écritures viennent après. Une retenue encore active est relâchée avant la lecture, comme avant. */
+            const retenueEnCours=!!document.body.style.minHeight||!!(hoteHauteur&&hoteHauteur.style.minHeight);
+            if(retenueEnCours){
+              document.body.style.minHeight='';
+              if(hoteHauteur)hoteHauteur.style.minHeight='';
+            }
             const hauteurAvantRendu=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
+            const rectHote=hoteHauteur?hoteHauteur.getBoundingClientRect():null;
             if(hauteurAvantRendu>0){
               /* Jamais plus haut que le conteneur n'est déjà (Norman, 2026-11-03 : « dans Classement > Défis, le menu à gauche bouge ») : le document peut dépasser le bas du conteneur (hauteur minimale de la fenêtre) ; retenir « document - haut du conteneur » l'agrandissait de ce surplus (10 px mesurés) et le menu collant, calé au bas d'une page courte, descendait de 10 px pendant 700 ms à chaque clic. */
-              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,Math.min(hauteurAvantRendu-(hoteHauteur.getBoundingClientRect().top+(window.scrollY||0)),hoteHauteur.getBoundingClientRect().height))+'px';
+              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,Math.min(hauteurAvantRendu-(rectHote.top+(window.scrollY||0)),rectHote.height))+'px';
               else document.body.style.minHeight=hauteurAvantRendu+'px';
               clearTimeout(window.__idleRelacherHauteurTimerV1__);
               window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';if(hoteHauteur)hoteHauteur.style.minHeight='';},700);

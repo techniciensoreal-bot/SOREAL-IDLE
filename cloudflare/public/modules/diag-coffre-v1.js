@@ -50,8 +50,9 @@
   }catch(_e){}
   /* 2. hauteur de la page + 3. éléments remplacés */
   var hauteur=0,coffre=null,valise=null,n={coffre:0,valise:0},tCoffre=0,tValise=0;
-  setInterval(function(){
-    if(document.hidden)return;
+  /* Reflow forcé (trace Chrome du 2026-11-03) : lire scrollHeight toutes les 400 ms, juste après les écritures du tick, forçait un calcul de mise en page. La hauteur est lue dans le rappel d'un ResizeObserver (exécuté APRÈS la mise en page : lecture gratuite),
+     qui ne se déclenche que si le document change de taille. */
+  function noterHauteur(){
     try{
       var h=Math.round(document.documentElement.scrollHeight||0);
       if(hauteur&&Math.abs(h-hauteur)>=60){
@@ -59,6 +60,18 @@
         noter('hauteur_page','h',{de:hauteur,a:h,menu:m&&m.getAttribute('data-menu')||''});
       }
       hauteur=h;
+    }catch(_e){}
+  }
+  try{
+    if(typeof ResizeObserver==='function'){
+      var roHauteur=new ResizeObserver(function(){if(!document.hidden)noterHauteur();});
+      roHauteur.observe(document.documentElement);
+      if(document.body)roHauteur.observe(document.body);
+    }
+  }catch(_e){}
+  setInterval(function(){
+    if(document.hidden)return;
+    try{
       var c=document.querySelector('.soreal-idle-coffre-v1'),v=document.querySelector('.vl-section'),t=Date.now();
       if(coffre&&c&&c!==coffre){n.coffre+=1;noter('redessin_coffre','coffre',{n:n.coffre,ms:tCoffre?t-tCoffre:0});tCoffre=t;}
       if(valise&&v&&v!==valise){n.valise+=1;noter('redessin_coffre','valise',{n:n.valise,ms:tValise?t-tValise:0});tValise=t;}

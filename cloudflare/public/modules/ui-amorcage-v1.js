@@ -288,10 +288,30 @@ function __amorcer_42(){
          * Audit du 2026-10-10 (IDLE-AUDIT-FE-001) : ce sondage faisait 4 getComputedStyle + des mesures de mise en page toutes les 700 ms sur TOUTES les pages. Les variables --pv-* ne servent qu'à la barre du boss (menu Combat) et restent
          * sur :root : une fois copiées, on ne relit plus les styles qu'en menu Combat ; jamais quand l'onglet est caché.
          */
+        /* Reflow forcé (trace Chrome du 2026-11-03) : la copie (4 styles calculés + rectangles) était refaite toutes les 700 ms en menu Combat, juste après les écritures du tick. Les valeurs copiées ne changent que si la barre du joueur change de
+           taille (ResizeObserver, rappel exécuté APRÈS la mise en page), de classes (la feuille de style en dépend), si le document change de classes ou de menu, ou si la fenêtre est redimensionnée (zoom) : une clé SANS lecture de mise en page décide. */
+        let cleCopiePvV1='',roPvV1=null,roPvVuV1=null,tailleChangeePvV1=true;
+        function clePvV1_(){
+          const w=document.querySelector('.soreal-idle-hud-pv-v2 .soreal-idle-energybar-wrap-v11');
+          if(!w)return '';
+          if(roPvVuV1!==w&&typeof ResizeObserver==='function'){
+            if(roPvV1)roPvV1.disconnect();
+            roPvVuV1=w;
+            roPvV1=new ResizeObserver(function(){tailleChangeePvV1=true;});
+            roPvV1.observe(w);
+          }
+          const page=document.querySelector('.soreal-idle-page-root-v28');
+          return w.className+'|'+racine.className+'|'+document.body.className+'|'+(page?page.getAttribute('data-menu'):'');
+        }
+        window.addEventListener('resize',function(){tailleChangeePvV1=true;});
+        window.addEventListener('orientationchange',function(){tailleChangeePvV1=true;});
         setInterval(function(){
           if(document.hidden)return;
           if(copieStylePvFaiteV1&&!document.getElementById('sorealIdleBossBarV7'))return;
+          const cle=clePvV1_();
+          if(copieStylePvFaiteV1&&cle===cleCopiePvV1&&!tailleChangeePvV1)return;
           copierStylePvV1_();
+          if(copieStylePvFaiteV1){cleCopiePvV1=cle;tailleChangeePvV1=false;}
         },700);
         window.__SOREAL_IDLE_COPIER_STYLE_PV_V1__=copierStylePvV1_;
       })();
@@ -515,9 +535,32 @@ function __amorcer_193(){
         function planifier(){if(attente)return;attente=true;requestAnimationFrame(ajuster);}
         window.addEventListener('scroll',planifier,{passive:true});
         window.addEventListener('resize',planifier);
-        (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(ajuster);
+        /* Reflow forcé (trace Chrome du 2026-11-03) : l'appel direct après chaque redessin et le filet de 1,5 s lisaient le rectangle du menu juste après des écritures. Le haut du menu ne bouge que si la page défile, si la fenêtre change de taille ou si le
+           menu / son conteneur / le document changent de taille : le défilement et resize planifient déjà la lecture (image suivante), un ResizeObserver (rappel exécuté APRÈS la mise en page : lecture gratuite) couvre les changements de taille. */
+        (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(planifier);
         window.__ajusterMenuHauteurIdleV1__=ajuster;
-        setInterval(ajuster,1500);
+        if(typeof ResizeObserver==='function'){
+          let navVue=null;
+          const ro=new ResizeObserver(function(){ajuster();});
+          const observer=function(){
+            const nav=document.querySelector('.soreal-idle-native-v4>.soreal-idle-nav-v28');
+            if(!nav||nav===navVue)return;
+            navVue=nav;
+            ro.disconnect();
+            ro.observe(nav);
+            if(nav.parentElement)ro.observe(nav.parentElement);
+            ro.observe(document.documentElement);
+          };
+          observer();
+          (window.__SOREAL_IDLE_APRES_REDESSIN_V1__).push(observer);
+          /* Filet SANS lecture de mise en page : le rendu complet de la page recrée le menu avec son attribut style d'origine (la variable --nav-dispo disparaît) sans passer par le redessin par comparaison ; on ne mesure que si la variable manque ou si le menu est neuf. */
+          setInterval(function(){
+            const nav=document.querySelector('.soreal-idle-native-v4>.soreal-idle-nav-v28');
+            if(!nav)return;
+            if(nav!==navVue)observer();
+            if(!nav.style.getPropertyValue('--nav-dispo'))planifier();
+          },1500);
+        }else setInterval(ajuster,1500);
       })();
 }
 

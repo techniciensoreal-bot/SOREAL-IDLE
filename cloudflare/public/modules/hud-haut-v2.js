@@ -9,14 +9,28 @@
     return typeof f==='function'?f(n):String(Math.round(n));
   }
   /* Le bandeau se colle juste sous le menu (lui-même collé en haut) : on mesure le menu. */
-  var dernierTop=null;
-  function placer(){
-    var nav=document.querySelector('.soreal-idle-nav-v28');
-    if(!nav)return;
+  var dernierTop=null,navPlacee=null,navObs=null;
+  function mesurerNav(nav){
     var haut=parseFloat(getComputedStyle(nav).top)||0;
     var v=Math.round(haut+nav.getBoundingClientRect().height);
     if(v!==dernierTop){dernierTop=v;document.documentElement.style.setProperty('--hud-haut-v2',v+'px');}
   }
+  /* Reflow forcé (trace Chrome du 2026-11-03) : cette mesure (style calculé + rectangle) tournait à CHAQUE passage du minuteur de 250 ms, juste après les écritures du tick, donc forçait un calcul de mise en page. Le menu ne change de
+     hauteur / de position collante que s'il change de taille (ResizeObserver : le rappel s'exécute APRÈS la mise en page, lire y est gratuit) ou à un redimensionnement de la fenêtre (zoom, media queries). Hors de ces cas, aucune lecture. */
+  function placer(){
+    var nav=document.querySelector('.soreal-idle-nav-v28');
+    if(!nav)return;
+    if(nav===navPlacee)return;
+    navPlacee=nav;
+    if(navObs){navObs.disconnect();navObs=null;}
+    if(typeof ResizeObserver==='function'){
+      navObs=new ResizeObserver(function(){if(navPlacee&&navPlacee.isConnected)mesurerNav(navPlacee);});
+      navObs.observe(nav);
+    }
+    mesurerNav(nav);   /* menu neuf : une seule mesure, tout de suite (pas de décalage au premier affichage) */
+  }
+  window.addEventListener('resize',function(){if(navPlacee&&navPlacee.isConnected)mesurerNav(navPlacee);});
+  window.addEventListener('orientationchange',function(){if(navPlacee&&navPlacee.isConnected)mesurerNav(navPlacee);});
   function texteBarre(v,m){var f=window.__SOREAL_IDLE_TEXTE_BARRE_V2__;return typeof f==='function'?f(v,m):String(v);}
   function majDepense(){
     var f=window.__SOREAL_IDLE_GENEREE_PCT_V2__;

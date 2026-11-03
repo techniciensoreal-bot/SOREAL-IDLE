@@ -25,9 +25,11 @@ function poser_(nom,valeur,cle){
   dernier[cle]=valeur;
   document.documentElement.style.setProperty(nom,valeur+'px');
 }
-function mesurer(premier){
+/* Reflow forcé (trace Chrome du 2026-11-03) : cette mesure (zoom + rectangles) tournait à chaque redessin et chaque seconde, juste après les écritures du tick. Elle ne dépend que de la TAILLE du bandeau, de la page et du cadre, et du zoom de la fenêtre :
+   un ResizeObserver (son rappel s'exécute APRÈS la mise en page : lire y est gratuit) et l'événement resize la relancent ; hors de ces cas, un cadre déjà mesuré n'est PAS relu. */
+var obs=null,vus=[null,null,null],mesure=false;
+function lireTout(panneau,racine,premier){
   try{
-    var pv=document.getElementById('sorealIdleHudGPvV2'),panneau=pv&&pv.closest?pv.closest('.soreal-idle-energy-panel-v34'):null;
     if(panneau){
       /* le zoom est celui du bandeau lui-même (le zoom calculé d'une barre vaut 1 : seul l'élément zoomé le porte) */
       var z=zoom_(document.getElementById('sorealIdleHudV2')||panneau),h=panneau.getBoundingClientRect().height/z,ecart=parseFloat(getComputedStyle(panneau).marginBottom)||0;
@@ -35,8 +37,29 @@ function mesurer(premier){
       if(h>0&&recouvre>0)poser_('--hud-4barres-v1',Math.round(recouvre*100)/100,'h4');
     }
     /* l'espace vide déjà présent : du haut de la page au haut du cadre (marges et espaces compris) */
-    var racine=document.querySelector('.soreal-idle-page-root-v28');
     if(racine&&premier){var vide=Math.round((premier.getBoundingClientRect().top-racine.getBoundingClientRect().top)/zoom_(racine)*100)/100;if(vide>=0)poser_('--vide-haut-v1',vide,'vide');}
+    mesure=true;
+  }catch(_e){}
+}
+function surveiller(panneau,racine,premier){
+  if(typeof ResizeObserver!=='function')return false;
+  if(vus[0]===panneau&&vus[1]===racine&&vus[2]===premier&&obs)return true;
+  if(obs)obs.disconnect();
+  vus=[panneau,racine,premier];
+  obs=new ResizeObserver(function(){
+    var r=vus[1];
+    if(r&&r.isConnected)lireTout(vus[0]&&vus[0].isConnected?vus[0]:null,r,vus[2]&&vus[2].isConnected?vus[2]:null);
+  });
+  [panneau,racine,premier].forEach(function(e){if(e)obs.observe(e);});
+  return true;
+}
+function mesurer(premier){
+  try{
+    var pv=document.getElementById('sorealIdleHudGPvV2'),panneau=pv&&pv.closest?pv.closest('.soreal-idle-energy-panel-v34'):null;
+    var racine=document.querySelector('.soreal-idle-page-root-v28');
+    var change=!(vus[0]===panneau&&vus[1]===racine&&vus[2]===premier);
+    if(!surveiller(panneau,racine,premier)){lireTout(panneau,racine,premier);return;}   /* navigateur sans ResizeObserver : ancienne mesure */
+    if(change||!mesure)lireTout(panneau,racine,premier);   /* éléments neufs : une mesure tout de suite (pas de décalage au premier affichage) */
   }catch(_e){}
 }
 function nomDuMenu(){
@@ -83,7 +106,8 @@ function marquer(){
 (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-entete-menu');
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(marquer);
 try{var rt=window.__SOREAL_IDLE_RUNTIME_V1__;if(rt&&typeof rt.onRender==='function')rt.onRender(marquer);}catch(_e){}
-window.addEventListener('resize',function(){dernier.h4=null;dernier.vide=null;marquer();});
+window.addEventListener('resize',function(){dernier.h4=null;dernier.vide=null;mesure=false;marquer();});
+window.addEventListener('orientationchange',function(){dernier.h4=null;dernier.vide=null;mesure=false;marquer();});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',marquer,{once:true});else marquer();
 setInterval(function(){if(!document.hidden)marquer();},1000);   /* filet : une page rendue sans redessin (premier affichage, changement de menu) */
 window.__SOREAL_IDLE_ENTETE_MENU_V1__={marquer:marquer,mesurer:mesurer,phrases:PHRASES};

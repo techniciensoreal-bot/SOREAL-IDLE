@@ -87,7 +87,7 @@
   (document.head||document.documentElement).appendChild(style);
 
   var racine=document.documentElement;
-  var derniere='';
+  var derniere='',derniereCle='';
 
   function lire(cs,noms){
     for(var i=0;i<noms.length;i+=1){
@@ -101,6 +101,11 @@
     var page=document.querySelector('.soreal-idle-page-root-v28');
     var natif=document.querySelector('.soreal-idle-native-v4');
     var menu=page?String(page.getAttribute('data-menu')||''):'';
+    /* Recalcul de style forcé (trace Chrome du 2026-11-03) : getComputedStyle + 6 lectures de variables toutes les 500 ms, juste après les écritures du tick. Les couleurs ne changent qu'avec le menu (feuilles par data-menu), les classes et le style en ligne
+       de la page / de son conteneur / du document : une clé faite d'attributs (aucune lecture de style) décide s'il faut relire. */
+    var cle0=menu+'|'+(page?page.className+'|'+(page.getAttribute('style')||''):'')+'|'+(natif?natif.className:'')+'|'+racine.className+'|'+(document.body?document.body.className:'');
+    if(cle0===derniereCle)return;
+    derniereCle=cle0;
     var cs=page?getComputedStyle(page):natif?getComputedStyle(natif):null;
     if(!cs)return;
     var a=lire(cs,['--i-a','--th-a']);

@@ -19,7 +19,13 @@
   function teinterBoss_(el){
     var bar=el.classList.contains('soreal-idle-bossbar-v7')?el:null,calque=el.querySelector(':scope > .sg-bulles-v1');
     if(!bar||!calque)return;
-    var n=Number(bar.getAttribute('data-boss-n'))||0,fond=getComputedStyle(bar).backgroundImage||'',c=fond.match(/rgba?([^)]*)/g),cle=n+'|'+fond;
+    var n=Number(bar.getAttribute('data-boss-n'))||0;
+    /* Reflow forcé (trace Chrome du 2026-11-03) : getComputedStyle(...).backgroundImage toutes les 700 ms, juste après les écritures du tick, forçait un recalcul de style. Le fond de la barre ne dépend que du boss (data-boss-n), des classes de la barre
+       (embrasée à 50 %, clignotante à 25 %…) et de celles de la page / du document : une clé SANS lecture de style décide s'il faut relire. */
+    var cle0=n+'|'+bar.className+'|'+document.documentElement.className+'|'+document.body.className+'|'+(bar.closest('[data-menu]')||document.body).getAttribute('data-menu');
+    if(calque.__cleBrute===cle0)return;
+    calque.__cleBrute=cle0;
+    var fond=getComputedStyle(bar).backgroundImage||'',c=fond.match(/rgba?([^)]*)/g),cle=n+'|'+fond;
     if(calque.__cleTeinte===cle)return;
     calque.__cleTeinte=cle;
     if(!c||!c.length)return;

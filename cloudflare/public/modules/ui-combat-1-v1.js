@@ -643,6 +643,13 @@
           element.style.removeProperty('overflow-wrap');
           let taille=parseFloat(window.getComputedStyle(element).fontSize)||12;
           let essais=0;
+          /* Reflow forcé en boucle (trace Chrome du 2026-11-03) : chaque pas de 0,5 px écrivait la taille puis relisait scrollWidth (jusqu'à 30 mises en page d'affilée). La largeur du texte est proportionnelle à la taille de la police : UNE mesure donne la
+             taille qui rentre (arrondie vers le bas au demi-pixel), qu'on écrit d'un coup ; la boucle d'origine ne sert plus qu'à corriger un éventuel reste (marges fixes). */
+          const largeurTexte=element.scrollWidth,largeurCase=element.clientWidth+0.5;
+          if(largeurTexte>largeurCase&&largeurTexte>0){
+            const cible=Math.max(7,Math.floor(taille*(largeurCase/largeurTexte)*2)/2);
+            if(cible<taille){essais=Math.min(29,Math.round((taille-cible)/0.5)-1);taille=cible+0.5;}
+          }
           while(element.scrollWidth>element.clientWidth+0.5&&taille>7&&essais<30){
             taille-=0.5;
             essais+=1;
