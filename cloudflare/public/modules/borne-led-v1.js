@@ -1334,6 +1334,7 @@ var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1};
 /* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
    où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
 var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
+var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1},GRACE_FIN_S=2.5,graceFin=0;
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
 /* objets actifs (ordre fixe), avec au moins une seconde restante */
@@ -1436,12 +1437,14 @@ function pousser(id,now,p){
     if(cur&&cur.id==='nom'&&S.num===combatNum)return;
     if(enCombat(cur)&&S.num===combatNum)return;           /* même boss, déjà en combat : rien ne clignote ; un NOUVEAU boss (numéro différent) repart par l'écriture de son nom */
     if(cur&&COUPE[cur.id]&&(now-cur.t0)/1000<coupeApres(cur)){pend=true;return;}
-    pend=false;combatFight(now,true);return;
+    /* Le combat suivant peut démarrer AVANT que le drapeau de victoire (ou de défaite) soit lu : le nom du boss remplaçait alors l'animation longue juste avant sa scène de fin (Norman, 2026-11-03 : « l'animation de victoire du bonhomme qui saute a été interrompue par le nom du boss suivant ») ; on attend la scène de fin au plus GRACE_FIN_S secondes. */
+    if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}
+    pend=false;graceFin=0;combatFight(now,true);return;
   }
   if(id==='nuke'&&cur&&cur.prio>=5)return;                         /* une victoire ou un K.O. déjà en cours n'est pas interrompu */
   var s=mk(id,now,p);
   if(id==='hit'){if(cur&&cur.prio>=3)return;demarrer(s);return;}
-  pend=false;demarrer(s);                                          /* victoire ou défaite : passe devant tout */
+  pend=false;graceFin=0;demarrer(s);                               /* victoire ou défaite : passe devant tout */
 }
 function evenements(now){
   var r=reg(),e=r.idleEtat||null;
@@ -1495,7 +1498,7 @@ function dessiner(now){
 function image(now){
   lire(now);
   evenements(now);
-  if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=coupeApres(cur))){pend=false;combatFight(now,true);}
+  if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}
   if(!cur||(now-cur.t0)/1000>=cur.dur){
     if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
     else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='redroom'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);

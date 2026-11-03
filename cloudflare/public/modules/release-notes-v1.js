@@ -49,6 +49,7 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Combat de boss : la vie du boss et celle du joueur ne remontent plus brièvement en plein combat.',
             'Les animations longues de la borne ne se lancent plus pour les combats courts.',
+            'Sur la borne, l’animation de victoire n’est plus coupée par le nom du boss suivant.',
             'Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.',
             'Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir.',
           ]},

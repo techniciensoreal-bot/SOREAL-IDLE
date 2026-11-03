@@ -1,4 +1,8 @@
 {
+ "/fonts/fonts.css": {
+  "pin": 1,
+  "sha": "6e7be4b9f406c8895b8c97d331e479e1d3e75a3d"
+ },
  "/modules/achievement-notice-v1.js": {
   "pin": 1,
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
@@ -100,8 +104,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 81,
-  "sha": "2367e33ec9b44413fa6758302405fde76e70cf33"
+  "pin": 82,
+  "sha": "37cc1989773c506a9be1e3b924864aa21d0b9dfe"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -572,12 +576,12 @@
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 111,
-  "sha": "7523b2b67e59d42a86ec24a92e840eadb04acc4c"
+  "pin": 114,
+  "sha": "97596f19f01a3e65964defcf8f5c74391d3371a0"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 739,
-  "sha": "cdc112fb61c37bbd27b20e783ff960ff8b1e2fee"
+  "pin": 743,
+  "sha": "106645c24a5aadc60dea9305cc19668a2ea03abd"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -656,12 +660,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 771,
-  "sha": "602afbf61fa7db7387f532986d74f7e0546badcf"
+  "pin": 775,
+  "sha": "d40b818fa9f6f93aedd0c99e99eb701bad041ef7"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 592,
-  "sha": "192136891854d530b59579f5a588ec394d170b07"
+  "pin": 596,
+  "sha": "b07a5030cae1822a483d6a81ad88252d1359ca4d"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -824,8 +828,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 81,
-  "sha": "445757b399a39229eddd03493c6d4a99f8452533"
+  "pin": 82,
+  "sha": "a5a7fc6530fd523a7b17d4f7b9a65493bdb61990"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,
