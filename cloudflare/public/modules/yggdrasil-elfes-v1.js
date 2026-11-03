@@ -184,6 +184,9 @@
       '.ygg-mini .ygg-secours{font-size:1.2em;}',
       '.ygg-auto{font-size:clamp(8px,1.6cqw,11px);text-align:center;color:#a8e0a8;min-height:1.2em;}',
       '.ygg-auto button{width:100%;min-height:34px;font-family:var(--ygg-titres);font-weight:700;font-size:clamp(7px,1.5cqw,10px);}',
+      /* La police du thème (Bangers, soreal-idle-itopod.css) est posée en `font-family:var(--f-titre)/var(--f-texte) !important` sur tout le jeu : ces règles-ci, sans !important, ne gagnaient jamais (Norman, 2026-11-03 : « l'écriture est toujours la même »). Plutôt qu'une guerre de !important, on change les VARIABLES que ces règles lisent, sur les seuls éléments en Cinzel. */
+      '.ygg-titre b,.ygg-aide-bouton,.ygg-onglet,.ygg-nom,.ygg-btn,.ygg-mode button,.ygg-poop,.ygg-auto button{--f-titre:var(--ygg-titres);--f-texte:var(--ygg-titres)}',
+      '.ygg-titre b{--f-titre:\'Cinzel Decorative\',var(--ygg-titres);--f-texte:\'Cinzel Decorative\',var(--ygg-titres)}',
       /* Bandeau du bas. */
       '.ygg-bas{margin-top:2.6cqw;padding:2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;display:grid;grid-template-columns:1.1fr 1fr;gap:2.2cqw;align-items:center;}',
       '.ygg-monnaies{display:flex;flex-wrap:wrap;gap:2.4cqw;align-items:center;}',
@@ -213,6 +216,17 @@
       '.ygg-mode button,.ygg-poop{font-size:clamp(10px,1.9cqw,12px)!important;color:#f0f8e6}',
       '.ygg-auto{font-size:clamp(12px,2cqw,13px)!important;color:#c4eec4}',
       '.ygg-auto button{font-size:clamp(10px,1.8cqw,11.5px)!important}',
+      /* Boutons grisés lisibles (Norman, 2026-11-03 : « sur les boutons grisés ça n'est pas lisible ») : `body.soreal-idle-active-v47 button:disabled{color:#758198!important}` (soreal-idle-ui.css) écrasait la couleur, gris sur gris, et le poids tombait à 400. Une règle plus spécifique (.ygg-page, 3 classes) la bat sans surenchère de sélecteurs ; la couleur claire + liseré sombre se lit sur le fond grisé, la mention « grisé » vient du fond. */
+      '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button):disabled{color:#f4f7ea!important;text-shadow:0 1px 0 #000,0 0 3px #000!important;opacity:1}',
+      '.ygg-page .ygg-mode button:not([aria-pressed="true"]){color:#f4f7ea!important;text-shadow:0 1px 0 #000}',
+      '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){font-weight:800!important}',
+      '.ygg-page :is(.ygg-poop,.ygg-mode button){font-size:clamp(12px,2.2cqw,13.5px)!important}',
+      '.ygg-btn{font-size:clamp(12px,2.4cqw,14px)!important;line-height:1.2;letter-spacing:.03em}',
+      '.ygg-btn small{opacity:1;font-size:.82em}',
+      '.ygg-auto button{font-size:clamp(11.5px,2.2cqw,13px)!important}',
+      /* Cinzel n'a pas de minuscules : « Récolter » s'écrivait en petites capitales, trop petites sur un fond sombre (Norman : « Récolter n'est pas lisible ») ; en capitales, toutes les lettres ont la même hauteur. */
+      '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){text-transform:uppercase;letter-spacing:.05em}',
+      '.ygg-page .ygg-btn small{text-transform:none;letter-spacing:.02em}',
       '.ygg-bonus{font-size:clamp(13px,2.4cqw,16px)!important;color:#f4f8ea}',
       '.ygg-solo{font-size:clamp(13px,2.3cqw,15px)!important}',
       '.ygg-note{font-size:clamp(12px,2.1cqw,14px)!important;color:#d6ecc6}',

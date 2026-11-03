@@ -50,6 +50,9 @@
           {menu:'ngu', titre:'NGU', points:[
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Journal d’Aventure : un combat terminé n’est plus rejoué en double (deux fois « Vous avez vaincu » pour un seul butin).',
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Combat de boss : la vie du boss et celle du joueur ne remontent plus brièvement en plein combat.',
             'Les animations longues de la borne ne se lancent plus pour les combats courts.',
@@ -62,6 +65,7 @@
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Une nouvelle police, plus élégante, pour le titre, les noms et les boutons de cette page.',
+            'Les écritures des boutons grisés de cette page sont maintenant lisibles.',
             'Une des portes est remplacée par un nouveau dessin.',
           ]},
         ],

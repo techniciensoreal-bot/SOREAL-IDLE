@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Album : la page noire n’apparaît plus en double un instant à l’ouverture et à la fermeture du classeur."
+    "Album : la page noire n’apparaît plus en double un instant à l’ouverture et à la fermeture du classeur.",
+    "Journal d’Aventure : un combat terminé n’est plus rejoué en double (deux fois « Vous avez vaincu » pour un seul butin).",
+    "Les écritures des boutons grisés de cette page sont maintenant lisibles."
   ] };
 })();
