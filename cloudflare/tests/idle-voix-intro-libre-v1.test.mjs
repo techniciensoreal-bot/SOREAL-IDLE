@@ -40,5 +40,5 @@ const interdits2 = t.blocsInterdits(t.planNarration(texte + M(1200) + ancienne))
 assert.ok(interdits2[hAnc], "une variante non déclarée d'une chronique reste interdite");
 assert.ok(!interdits2[hIntro]);
 // les appelants déclarent l'introduction
-for (const [f, re] of [["lecteur-chroniques-v1.js", /declarerTexteLibre\(String\(intro\)\)/], ["ui-combat-2-v1.js", /declarerTexteLibre\(texteVoixSansTexteIdleV1_/]]) assert.match(fs.readFileSync(path.join(modules, f), "utf8"), re, f);
+for (const [f, re] of [["lecteur-chroniques-v1.js", /declarerTexteLibre\(String\(intro\)\)/], ["ui-combat-2-v1.js", /declarerTexteLibre\(introChroniques\)/]]) assert.match(fs.readFileSync(path.join(modules, f), "utf8"), re, f);
 console.log("idle-voix-intro-libre-v1 : OK");

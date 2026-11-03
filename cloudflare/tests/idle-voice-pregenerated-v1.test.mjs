@@ -104,7 +104,8 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   const f = ui.slice(ui.indexOf("function lireHistoireCompleteBossIdleV206_(){"), ui.indexOf("window.__lireHistoireCompleteBossIdleV206__="));
   /* 2026-10-17 : le texte et le nom PARLÉS (menu Admin) passent d'abord ; sans eux, le récit affiché. */
   assert.match(f, /composerChronique\(String\(b\.nomParle\|\|''\)\.trim\(\)\|\|String\(b\.nom\|\|'Boss'\),String\(b\.histoireParlee\|\|''\)\.trim\(\)\|\|String\(b\.histoire\|\|''\),true\)/);
-  assert.match(f, /texteVoixSansTexteIdleV1_\(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1\)\+M\(1500\)/);
+  assert.match(f, /introChroniques=texteVoixSansTexteIdleV1_\(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1\)/);
+  assert.match(f, /introChroniques\+M\(1500\)/);
   assert.ok(ui.includes("const TEXTE_CHRONIQUES_INTRO_IDLE_V1='Chroniques de boss.';"), "le texte d'origine de l'intro n'a pas changé : mêmes voix pré-générées");
   assert.match(f, /\.join\(M\(1200\)\)/);
 }

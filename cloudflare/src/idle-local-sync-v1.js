@@ -260,7 +260,7 @@ export function textesPourMoteurLocalV1(coord, langue) {
   try {
     /* Langue du joueur (Norman, 2026-11-02) : en anglais SEULES les surcharges « :en » partent, en français seulement les autres ; une langue ne fuit jamais dans l'appareil de l'autre. */
     const en = langue === "en";
-    return lireTextesV1(coord.sqlMoteur).filter((t) => estCleEnV1(t.cle) === en).map((t) => [t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix }), Number(t.maj) || 0]);
+    return lireTextesV1(coord.sqlMoteur).filter((t) => estCleEnV1(t.cle) === en).map((t) => [t.cle, JSON.stringify(t.supprime ? { supprime: true, champs: {}, parle: {}, voix: [] } : { champs: t.champs, parle: t.parle, voix: t.voix }), Number(t.maj) || 0]);
   } catch (_e) {
     return [];
   }

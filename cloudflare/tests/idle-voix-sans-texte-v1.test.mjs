@@ -47,8 +47,8 @@ assert.equal(lecturePlan.find((e) => e.chunk && e.chunk.includes("J’ADORE")).v
 assert.ok(ui.includes("const CLE_VOIX_SANDWICH_IDLE_V1='systeme:sandwich';") && ui.includes("const CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1='systeme:chroniques-intro';"), "clés de surcharge");
 assert.ok(ui.includes("groupe:'Voix sans texte à l’écran'"), "groupe dédié dans l'éditeur");
 assert.ok(ui.includes("T.declarer(CLE_VOIX_SANDWICH_IDLE_V1,{") && ui.includes("T.declarer(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,{"), "les deux voix sont déclarées à l'éditeur");
-assert.ok(ui.includes("tts.readText(texteVoixSansTexteIdleV1_(CLE_VOIX_SANDWICH_IDLE_V1,VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1))"), "le sandwich lit la version modifiée");
-assert.ok(ui.includes("texteVoixSansTexteIdleV1_(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)"), "l'intro des chroniques lit la version modifiée");
+assert.ok(ui.includes("const texte=texteVoixSansTexteIdleV1_(CLE_VOIX_SANDWICH_IDLE_V1,VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);if(texte)tts.readText(texte);"), "le sandwich lit la version modifiée (rien si supprimée)");
+assert.ok(ui.includes("introChroniques=texteVoixSansTexteIdleV1_(CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,TEXTE_CHRONIQUES_INTRO_IDLE_V1)") && ui.includes("introChroniques+M(1500)"), "l'intro des chroniques lit la version modifiée (rien si supprimée)");
 // Sans surcharge : repli sur l'origine
 {
   const f = ui.slice(ui.indexOf("function texteVoixSansTexteIdleV1_(cle,origine){"), ui.indexOf("function lancerVoixArrierePlanSandwichIdleV1_(){"));

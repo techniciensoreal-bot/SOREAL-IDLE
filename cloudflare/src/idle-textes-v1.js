@@ -30,6 +30,13 @@ export const IDLE_TEXTE_SUFFIXE_EN_V1 = ":en";
 export const estCleEnV1 = (cle) => String(cle == null ? "" : cle).endsWith(IDLE_TEXTE_SUFFIXE_EN_V1);
 export const cleSansLangueV1 = (cle) => { const c = String(cle == null ? "" : cle); return c.endsWith(IDLE_TEXTE_SUFFIXE_EN_V1) ? c.slice(0, -IDLE_TEXTE_SUFFIXE_EN_V1.length) : c; };
 export const cleAvecLangueV1 = (cle, langue) => (langue === "en" ? cleSansLangueV1(cle) + IDLE_TEXTE_SUFFIXE_EN_V1 : cleSansLangueV1(cle));
+/*
+ * Suppression COMPLÈTE d'une voix sans texte à l'écran (Norman, 2026-11-03 : « dans admin, je dois pouvoir supprimer complètement les choses dans Voix sans texte à l'écran »). Seules ces clés (et leur version « :en ») peuvent être
+ * supprimées : l'entrée n'est alors plus lue du tout (ni voix générée, ni voix de secours, ni texte d'origine). Marqueur persistant { supprime: true } dans la ligne idle_textes de la clé ; sans champs ni voix, donc ses voix ne sont plus
+ * « déclarées » (purge stricte : elles deviennent inutiles, rien n'est supprimé ici). « Rétablir » = supprimerTexteV1 (retour au texte d'origine).
+ */
+export const IDLE_TEXTES_SUPPRIMABLES_V1 = ["systeme:sandwich", "systeme:chroniques-intro"];
+export const estSupprimableV1 = (cle) => IDLE_TEXTES_SUPPRIMABLES_V1.includes(cleSansLangueV1(cle));
 const IDLE_TEXTE_MAX_CHAMP_V1 = 6000;
 const IDLE_TEXTE_MAX_LISTE_V1 = 40;
 const IDLE_TEXTE_MAX_CHAMPS_V1 = 12;
@@ -60,6 +67,10 @@ export function normaliserTexteV1(brut) {
   const cle = String(t.cle == null ? "" : t.cle).trim();
   if (!IDLE_TEXTE_CLE_RE_V1.test(cle)) throw new Error("TEXTE_CLE_INVALIDE");
   if (cle.startsWith("saviez-vous:")) throw new Error("TEXTE_CLE_INVALIDE");   /* fonctionnalité supprimée (2026-11-02) */
+  if (t.supprime === true) {
+    if (!estSupprimableV1(cle)) throw new Error("TEXTE_SUPPRESSION_INCONNUE");
+    return { cle, champs: {}, parle: {}, voix: [], voixTextes: {}, voixFaites: {}, supprime: true };
+  }
   const boss = IDLE_TEXTE_BOSS_RE_V1.exec(cle) || IDLE_TEXTE_BOSS_EN_RE_V1.exec(cle);
   if (cle.startsWith("boss:") && (!boss || Number(boss[1]) < 1)) throw new Error("TEXTE_BOSS_INVALIDE");
   const source = t.champs && typeof t.champs === "object" && !Array.isArray(t.champs) ? t.champs : {};
@@ -125,7 +136,7 @@ export function lireTextesV1(sql) {
 export function enregistrerTexteV1(sql, brut, maintenant = Date.now()) {
   const t = normaliserTexteV1(brut);
   assurerTextesV1(sql);
-  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify({ champs: t.champs, parle: t.parle, voix: t.voix, voixTextes: t.voixTextes, voixFaites: t.voixFaites }), maintenant);
+  sql.exec("INSERT OR REPLACE INTO idle_textes(cle,json,maj) VALUES(?,?,?)", t.cle, JSON.stringify(t.supprime ? { supprime: true, champs: {}, parle: {}, voix: [], voixTextes: {}, voixFaites: {} } : { champs: t.champs, parle: t.parle, voix: t.voix, voixTextes: t.voixTextes, voixFaites: t.voixFaites }), maintenant);
   return Object.assign(t, { maj: maintenant });
 }
 
@@ -240,6 +251,8 @@ export function surchargesPourJoueurV1(sql, langue) {
     if (estCleEnV1(t.cle) !== en) continue;
     for (const h of t.voix) voix.add(h);
     const cle = en ? cleSansLangueV1(t.cle) : t.cle;
+    /* Entrée supprimée : le joueur reçoit seulement le marqueur (aucun texte, aucune voix) ; il n'y a rien d'autre à savoir. */
+    if (t.supprime) { popups[cle] = { champs: {}, parle: {}, voix: [], supprime: true }; continue; }
     if (!IDLE_TEXTE_BOSS_RE_V1.test(cle)) popups[cle] = { champs: t.champs, parle: t.parle, voix: t.voix };
   }
   return { popups, voix: Array.from(voix) };

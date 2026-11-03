@@ -70,6 +70,8 @@
         try{
           const T=window.__SOREAL_IDLE_TEXTES_V1__;
           const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+          /* Entrée SUPPRIMÉE complètement par l'administrateur : rien à lire du tout (ni texte d'origine, ni voix, ni voix de secours). */
+          if(T&&typeof T.supprimee==='function'&&T.supprimee(cle))return '';
           const sur=T&&typeof T.surcharge==='function'?T.surcharge(cle):null;
           if(sur&&typeof sur.texte==='string'&&sur.texte.trim()&&tts&&typeof tts.retirerParentheses==='function')return tts.retirerParentheses(sur.texte).replace(/\s+/g,' ').trim();
         }catch(_e){}
@@ -80,7 +82,7 @@
         const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
         if(!tts||typeof tts.readText!=='function'||typeof tts.enabled!=='function'||!tts.enabled())return;
         setTimeout(function(){
-          try{tts.readText(texteVoixSansTexteIdleV1_(REG.CLE_VOIX_SANDWICH_IDLE_V1,REG.VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1));}catch(e){}
+          try{const texte=texteVoixSansTexteIdleV1_(REG.CLE_VOIX_SANDWICH_IDLE_V1,REG.VOIX_ARRIERE_PLAN_SANDWICH_IDLE_V1);if(texte)tts.readText(texte);}catch(e){}
         },1500);
       }
 
@@ -1146,9 +1148,11 @@
         const composerChronique=typeof tts.composerChronique==='function'
           ?tts.composerChronique
           :function(nom,histoire){return histoire;};
-        try{if(typeof tts.declarerTexteLibre==='function')tts.declarerTexteLibre(texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1));}catch(_e){}
+        /* Introduction supprimée par l'administrateur : la séquence commence directement par la première chronique, sans pause morte. */
+        const introChroniques=texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1);
+        try{if(introChroniques&&typeof tts.declarerTexteLibre==='function')tts.declarerTexteLibre(introChroniques);}catch(_e){}
         tts.readText(
-          texteVoixSansTexteIdleV1_(REG.CLE_VOIX_CHRONIQUES_INTRO_IDLE_V1,REG.TEXTE_CHRONIQUES_INTRO_IDLE_V1)+M(1500)+
+          (introChroniques?introChroniques+M(1500):'')+
           connus.map(function(b){
             /* Sans le nom du boss : les chroniques s'enchaînent comme une histoire (Norman, 2026-10-22). */
             return composerChronique(String(b.nomParle||'').trim()||String(b.nom||'Boss'),String(b.histoireParlee||'').trim()||String(b.histoire||''),true);

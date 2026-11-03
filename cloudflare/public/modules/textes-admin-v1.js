@@ -148,7 +148,13 @@ function surchargeComplete_(cle){
 }
 function surcharge_(cle){
   var s=surchargeComplete_(cle);
-  return s?s.champs:null;
+  /* Une entrée supprimée n'est jamais une surcharge de texte : seul supprimee_ la connaît. */
+  return s&&!s.supprime?s.champs:null;
+}
+/* Voix sans texte à l'écran SUPPRIMÉE COMPLÈTEMENT par l'administrateur (compte/serveur, FR et EN) : les lecteurs ne la lisent plus du tout. */
+function supprimee_(cle){
+  var s=surchargeComplete_(cleBase_(cle));
+  return Boolean(s&&s.supprime);
 }
 
 function notifier_(){
@@ -1260,13 +1266,38 @@ function miseAJourApresEcriture_(cle,surcharge){
   }else{
     /* Le jeu lit la surcharge de SA langue sous la clé de base (le serveur renvoie les « :en » sans suffixe). */
     var cleJeu=cleBase_(cle);
-    if(surcharge)surcharges.popups[cleJeu]={champs:surcharge.champs,parle:surcharge.parle||{},voix:surcharge.voix||[]};else delete surcharges.popups[cleJeu];
+    if(surcharge)surcharges.popups[cleJeu]=surcharge.supprime?{champs:{},parle:{},voix:[],supprime:true}:{champs:surcharge.champs,parle:surcharge.parle||{},voix:surcharge.voix||[]};else delete surcharges.popups[cleJeu];
     /* Fiche complète (avec les textes de voix, jamais envoyés aux joueurs) gardée pour rouvrir l'éditeur sans perdre les textes de voix. */
     admin.popups=(admin.popups||[]).filter(function(p){return !(p&&p.cle===cle);});
     if(surcharge)admin.popups.push(Object.assign({cle:cle},surcharge));
     if(surcharge)enregistrerVoix_(surcharge.voix);
     notifier_();
   }
+  rafraichirListe_();
+}
+
+/* Suppression complète / rétablissement d'une voix sans texte à l'écran (liste Admin, deux temps). */
+var cleASupprimer='',minuterieSuppression=0;
+function supprimerCompletement_(cle){
+  var cleE=cleL_(cle);
+  return appel_('enregistrerTexteAdminSorealIdle',[{cle:cleE,supprime:true}]).then(function(res){
+    if(!res||res.ok===false)throw new Error((res&&res.message)||'Refusé.');
+    miseAJourApresEcriture_(cleE,res.texte||{cle:cleE,supprime:true,champs:{},parle:{},voix:[]});
+  }).catch(function(e){window.alert('Suppression impossible : '+(e&&e.message?e.message:e));});
+}
+function retablirSupprimee_(cle){
+  var cleE=cleL_(cle);
+  return appel_('supprimerTexteAdminSorealIdle',[{cle:cleE}]).then(function(res){
+    if(res&&res.ok===false)throw new Error(res.message||'Refusé.');
+    miseAJourApresEcriture_(cleE,null);
+  }).catch(function(e){window.alert('Impossible de rétablir : '+(e&&e.message?e.message:e));});
+}
+/* Premier clic : le bouton demande confirmation (6 s) ; second clic sur la même ligne : suppression. */
+function clicSuppression_(cle){
+  if(cleASupprimer===cle){clearTimeout(minuterieSuppression);cleASupprimer='';supprimerCompletement_(cle);return;}
+  cleASupprimer=cle;
+  clearTimeout(minuterieSuppression);
+  minuterieSuppression=setTimeout(function(){cleASupprimer='';try{rafraichirListe_();}catch(_e){}},6000);
   rafraichirListe_();
 }
 
@@ -1549,6 +1580,8 @@ function hashesLiesAuxTextes_(apres){
       });
     });
     (admin.popups||[]).forEach(function(p){
+      /* Entrée supprimée complètement : son texte d'origine compte comme « lié » (ses voix statiques du manifeste deviennent inutiles) ; aucun fichier n'est supprimé ici. */
+      if(p&&p.supprime){var dS=registre[cleBase_(p.cle)];try{if(dS&&typeof dS.original==='function'){var lS=[];plat(/:en$/.test(p.cle)?originauxL_(dS.original()):dS.original(),lS);lS.forEach(ajouter);}}catch(_e){}return;}
       if(!p||!Array.isArray(p.voix)||!p.voix.length)return;
       var l=[],def=registre[cleBase_(p.cle)];
       plat(p.champs,l);plat(p.parle,l);
@@ -1608,9 +1641,15 @@ function listePopupsHtml_(){
       (modifs?'<span class="stx-pastille modif">'+modifs+' modifié'+(modifs>1?'s':'')+'</span>':'')+'</summary>'+
       liste.map(function(cle){
         var d=registre[cle],sm=surcharge_(cle);
+        if(cache(g)&&supprimee_(cle)){
+          return '<div class="stx-adm-ligne">'+feuHtml_(cleL_(cle))+'<span class="nom" style="opacity:.6;text-decoration:line-through">'+esc_(d.libelle)+'</span>'+
+            '<span class="badge">🗑 supprimée</span>'+
+            '<button type="button" class="stx-bouton" data-stx-retablir-cle="'+esc_(cle)+'" title="Rétablir cette voix (texte d’origine)">↩ Rétablir</button></div>';
+        }
         return '<div class="stx-adm-ligne">'+feuHtml_(cleL_(cle))+'<span class="nom">'+esc_(d.libelle)+'</span>'+
           (sm?'<span class="badge">✏️ modifié</span>':'<span class="badge non">d’origine</span>')+
-          '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button></div>';
+          '<button type="button" class="stx-bouton" data-stx-cle="'+esc_(cle)+'">✏️ Modifier</button>'+
+          (cache(g)?'<button type="button" class="stx-bouton stx-bor-danger" style="color:#ff9d9d" data-stx-suppr-cle="'+esc_(cle)+'" title="Plus jamais lue : ni voix, ni texte d’origine">'+(cleASupprimer===cle?'⚠ Confirmer : supprimer complètement':'🗑 Supprimer complètement')+'</button>':'')+'</div>';
       }).join('')+'</details>';
   }).join('');
 }
@@ -1781,6 +1820,10 @@ document.addEventListener('click',function(ev){
     }
     return;
   }
+  var supprBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-suppr-cle]'):null;
+  if(supprBtn){ev.preventDefault();ev.stopPropagation();clicSuppression_(supprBtn.getAttribute('data-stx-suppr-cle'));return;}
+  var retabBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-retablir-cle]'):null;
+  if(retabBtn){ev.preventDefault();ev.stopPropagation();retablirSupprimee_(retabBtn.getAttribute('data-stx-retablir-cle'));return;}
   var cleBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-cle]'):null;
   if(cleBtn){ev.preventDefault();ev.stopPropagation();editer_(cleBtn.getAttribute('data-stx-cle'));return;}
   var pageBtn=ev.target&&ev.target.closest?ev.target.closest('[data-stx-page]'):null;
@@ -1816,6 +1859,7 @@ document.addEventListener('change',function(ev){
 
 window.__SOREAL_IDLE_TEXTES_V1__={
   surcharge:surcharge_,
+  supprimee:supprimee_,
   /* Met à jour (ou retire, avec champs=null) une surcharge simple enregistrée hors de l'éditeur, par exemple les listes de phrases (modules/phrases-coffre-valise-v1.js). */
   majSimple:function(cle,champs){miseAJourApresEcriture_(cle,champs?{champs:champs,parle:{},voix:[]}:null);},
   /* Texte DIT d'un champ (le cadre des personnages de l'éditeur), tel qu'il a été enregistré avec la voix générée ; undefined si la voix suit le texte affiché. */
