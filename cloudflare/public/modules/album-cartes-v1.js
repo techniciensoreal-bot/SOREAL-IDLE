@@ -397,7 +397,7 @@ function ouvrirLivre(p){
       :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
       {duration:DUREE,easing:EASE,fill:'forwards'});
     var gauche=cl.querySelector('.alb-page-g');   /* la page de gauche ne se voit qu'une fois la couverture passée dessus (exactement la fermeture, à l'envers) */
-    if(deux&&gauche)gauche.animate([{visibility:'hidden'},{visibility:'hidden',offset:.499},{visibility:'visible',offset:.5},{visibility:'visible'}],{duration:DUREE,easing:EASE});
+    if(deux&&gauche)gauche.animate([{visibility:'hidden'},{visibility:'hidden',offset:.999},{visibility:'visible'}],{duration:DUREE,easing:EASE});   /* Norman (2026-11-03) : « on voit 2 fois la page noire l'espace d'un instant » : mesuré, la feuille de gauche (à plat) GLISSE pendant que le livre se recentre, la couverture (dont le dos est la même page noire) pivote autour des anneaux : les deux, décalées, étaient visibles ensemble jusqu'à mi-course. Le dos de la couverture tient lieu de page noire pendant TOUT le mouvement ; la feuille à plat n'est visible qu'une fois la couverture posée (ouverture) ou jamais pendant la fermeture. */
     if(cuir)cuir.animate([{opacity:0},{opacity:1}],{duration:DUREE,easing:EASE});
     fin(a).then(function(){couv.style.display='';couv.style.zIndex='';try{couv.getAnimations().forEach(function(x){x.cancel();});[].forEach.call(faces,function(f){f.getAnimations().forEach(function(x){x.cancel();});});}catch(_e){}tourne=false;ok();});
   });
@@ -425,7 +425,7 @@ function fermerLivre(){
       :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
       {duration:DUREE,easing:EASE,fill:'forwards'});
     var gauche=cl.querySelector('.alb-page-g');
-    if(deux&&gauche)gauche.animate([{visibility:'visible'},{visibility:'visible',offset:.499},{visibility:'hidden',offset:.5},{visibility:'hidden'}],{duration:DUREE,easing:EASE,fill:'forwards'});
+    if(deux&&gauche)gauche.animate([{visibility:'hidden'},{visibility:'hidden'}],{duration:DUREE,easing:EASE,fill:'forwards'});
     if(cuir)cuir.animate([{opacity:1},{opacity:0}],{duration:DUREE,easing:EASE,fill:'forwards'});
     fin(a).then(function(){
       cl.classList.remove('alb-ouvert');couv.style.display='';couv.style.zIndex='';

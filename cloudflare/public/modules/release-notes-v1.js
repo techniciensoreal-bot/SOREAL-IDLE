@@ -39,6 +39,7 @@
             'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Album : la page noire n’apparaît plus en double un instant à l’ouverture et à la fermeture du classeur.',
             'Les titres du menu Chroniques reprennent le cadre parchemin du bouton du menu, et le fond bleu laisse place à un brun chaud très sombre.',
             'Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.',
             'Les objets des sets de la Collection ont leur image.',
