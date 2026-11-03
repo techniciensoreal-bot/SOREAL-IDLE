@@ -53,7 +53,10 @@ assert.ok(css.includes("@media (prefers-reduced-motion:reduce){.mp3-yeux{animati
 assert.ok(css.includes("pointer-events:none;clip-path:polygon(0 0,100% 0,100% 56%,56% 66%,54% 66%,50% 63.5%,45% 62%,40% 61%,38% 60%,33% 57%,29% 54%,0 54%)}"), "calque coupé au bord inférieur du trou");
 assert.ok(css.includes(".mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}") && page.includes("mp3-dehors"), "pièces qui passent le bord : sans fondu ni rétrécissement");
 // Norman (2026-11-01) : les pièces qui ne passent pas le bord CONTINUENT leur chute en rapetissant de plus en plus et s'effacent en fondu, sans éclat
-assert.ok(css.includes("@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}60%{opacity:1;transform:scale(.55)}100%{opacity:0;transform:scale(.06)}}"), "pièces dans le trou : rapetissent progressivement et s'effacent en fondu");
+/* Norman (2026-11-03) : pièces de taille normale (3,8 à 5 cqw, plus de grossissement à l'apparition), chute crédible : accélération de la pesanteur (chute en t², easeInQuad), dérive horizontale à vitesse constante, et en s'enfonçant dans le noir la pièce rapetisse (perspective) et s'assombrit. */
+assert.ok(css.includes("@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1);filter:brightness(1)}9%{opacity:1;transform:scale(1);filter:brightness(1)}55%{opacity:1;transform:scale(.62);filter:brightness(.55)}100%{opacity:0;transform:scale(.1);filter:brightness(.12)}}"), "pièces dans le trou : rapetissent, s'assombrissent et s'effacent en fondu");
+assert.ok(css.includes("animation:mp3ChuteY var(--d) cubic-bezier(.11,0,.5,0) 1 both") && css.includes("animation:mp3ChuteX var(--d) linear 1 both"), "chute en t² (pesanteur), dérive horizontale constante");
+assert.ok(page.includes("t:(3.8+r(i+5)*1.2).toFixed(2)"), "pièces de taille normale");
 assert.ok(css.includes(".mp3-chute:not(.mp3-dehors){animation-name:mp3ChuteYn}") && css.includes("@keyframes mp3ChuteYn{0%{transform:translateY(-30cqw)}100%{transform:translateY(9cqw)}}"), "elles continuent de tomber dans le noir au-delà du point d'arrivée");
 assert.ok(!css.includes("mp3Eclat") && !page.includes("mp3-eclat"), "plus d'éclat à la fin de la chute");
 // PC (Norman, 2026-10-31) : images côte à côte, menus dessous, tableaux côte à côte

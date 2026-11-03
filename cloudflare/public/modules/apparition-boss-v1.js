@@ -313,7 +313,7 @@
            l'image 7 s après son chargement) ; une minuterie, elle, continue : le boss est révélé au plus tard 1,5 s après la durée annoncée de l'effet. */
         echeance=setTimeout(terminer,Math.round(((neuf&&Number(neuf.duree))||DUREES[i]||2)*1000)+1500);
         if(neuf){   /* entrées validées le 2026-10-29 : mise en scène et son propres au module des réapparitions */
-          REAPP.jouer('boss',neuf.id,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
+          REAPP.jouer('boss',neuf.id,{calque:calque,img:img,n:n}).then(function(){terminer();},function(){terminer();});
           return;
         }
         var E;try{E=preparer(img,i);}catch(_e){terminer();return;}   /* image illisible : on révèle simplement le boss */

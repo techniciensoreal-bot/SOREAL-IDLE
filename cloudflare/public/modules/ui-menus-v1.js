@@ -1190,9 +1190,28 @@
 
       let idleSwipeDebutYV1=null;
 
+      /* Menus MASQUÉS (Norman, 2026-11-03 : « la possibilité de masquer un menu ; en mode édition on les voit toujours, mais foncés ; on peut réactiver ») : liste d'identifiants dans localStorage (clé « soreal_idle_ », donc liée au COMPTE, règle n°6). Le menu Réglages ne se masque jamais (on ne pourrait plus rien défaire). Les boutons masqués restent dans la barre (classe masque-v1) : cachés par le CSS hors rangement, foncés pendant le rangement. */
+      const CLE_MENUS_MASQUES_V1='soreal_idle_menus_masques_v1';
+      function menusMasquesIdleV1_(){
+        try{
+          const a=JSON.parse(localStorage.getItem(CLE_MENUS_MASQUES_V1)||'[]');
+          return Array.isArray(a)?a.filter(function(x){return typeof x==='string'&&x&&x!=='parametres';}):[];
+        }catch(e){return [];}
+      }
+      function menuMasqueIdleV1_(id){return id!=='parametres'&&menusMasquesIdleV1_().indexOf(id)!==-1;}
+      function basculerMenuMasqueIdleV1_(id){
+        if(!id||id==='parametres')return false;
+        const liste=menusMasquesIdleV1_(),i=liste.indexOf(id);
+        if(i===-1)liste.push(id);else liste.splice(i,1);
+        try{localStorage.setItem(CLE_MENUS_MASQUES_V1,JSON.stringify(liste));}catch(e){}
+        const b=document.querySelector('.soreal-idle-nav-button-v28[data-menu-id-v1="'+id+'"]');
+        if(b)b.classList.toggle('masque-v1',i===-1);
+        return i===-1;
+      }
+
       function menusVisiblesIdleV1_(j){
         return menusOrdonnesIdleV1_(j).filter(function(m){
-          return m.id!=='chat'&&menuDisponibleIdleV28_(m.id,j);
+          return m.id!=='chat'&&!menuMasqueIdleV1_(m.id)&&menuDisponibleIdleV28_(m.id,j);
         }).map(function(m){return m.id;});
       }
 
@@ -1212,7 +1231,7 @@
 
       function htmlBandeauRangementMenuIdleV1_(){
         return '<div class="soreal-idle-nav-rangement-v1" data-idle-nav-rangement-v1>'+
-          '<span>↔️ <b>Rangement des boutons</b> — glisse un bouton entre deux autres</span>'+htmlRangeesMenuIdleV1_()+
+          '<span>↔️ <b>Rangement des boutons</b> — glisse un bouton entre deux autres · <i>l’œil masque ou réaffiche un menu</i></span>'+htmlRangeesMenuIdleV1_()+
           '<button type="button" class="soreal-idle-nav-valider-v1" onclick="window.__validerRangementMenuIdleV1__()">✔ Valider</button>'+
         '</div>';
       }
@@ -1360,7 +1379,19 @@
           idleMenuOrdreTravailV1=ordreDepuisNavIdleV1_();
         }
 
+        /* L'œil d'un bouton (rangement) : masque ou réaffiche le menu, sans lancer de glissement ni ouvrir le menu. */
         document.addEventListener('pointerdown',function(ev){
+          const oeil=REG.idleMenuEditionV1&&ev.target&&ev.target.closest?ev.target.closest('[data-nav-oeil-v1]'):null;
+          if(!oeil)return;
+          ev.preventDefault();ev.stopPropagation();
+          basculerMenuMasqueIdleV1_(oeil.getAttribute('data-nav-oeil-v1'));
+          REG.idleMenuClicAvaleJusquaV1=Date.now()+400;
+        },true);
+        document.addEventListener('click',function(ev){
+          if(ev.target&&ev.target.closest&&ev.target.closest('[data-nav-oeil-v1]')){ev.preventDefault();ev.stopPropagation();}
+        },true);
+        document.addEventListener('pointerdown',function(ev){
+          if(ev.target&&ev.target.closest&&ev.target.closest('[data-nav-oeil-v1]'))return;
           const bouton=boutonNav(ev.target);
           if(!bouton)return;
           if(REG.idleMenuEditionV1){
@@ -1393,6 +1424,22 @@
           if(!boucleDefilement)boucleDefilement=requestAnimationFrame(defilerPendantGlisse);
           /* Menu en colonne (interface PC) : on compare à la hauteur, pas à la largeur (glisse.vertical, mesuré au début). Le reste du travail est fait dans la boucle d'image. */
         },{passive:false});
+
+        /* Molette pendant le rangement (Norman, 2026-11-03 : « sur PC, quand on édite le menu et qu'on tient le bouton, je veux pouvoir quand même faire défiler le menu pour y placer les menus comme je veux ») : en mode rangement, la molette fait défiler le conteneur du menu à la place du navigateur (le geste de tenue le bloquait), même bouton tenu ; le bouton tenu est alors replacé sous le pointeur (glisse.sale) comme pour le défilement automatique du bord. */
+        document.addEventListener('wheel',function(ev){
+          if(!REG.idleMenuEditionV1)return;
+          const nav=glisse&&glisse.nav?glisse.nav:navMenuIdleV1_();
+          if(!nav)return;
+          const cont=glisse&&glisse.cont?glisse.cont:conteneurDefilant(nav);
+          const surMenu=ev.target&&ev.target.closest&&(ev.target.closest('.soreal-idle-nav-v28')||(cont&&cont.contains(ev.target)));
+          if(!surMenu)return;
+          let dy=ev.deltaY;
+          if(ev.deltaMode===1)dy*=32;else if(ev.deltaMode===2)dy*=window.innerHeight;
+          if(!dy)return;
+          ev.preventDefault();
+          if(cont)cont.scrollTop+=dy;else window.scrollBy(0,dy);
+          if(glisse){glisse.sale=true;pointerX=ev.clientX;dernierY=ev.clientY;if(!boucleDefilement)boucleDefilement=requestAnimationFrame(defilerPendantGlisse);}
+        },{passive:false,capture:true});
 
         ['pointerup','pointercancel'].forEach(function(nom){
           document.addEventListener(nom,function(){
@@ -1707,6 +1754,8 @@
     actualiserDisponibiliteMoneyPitNavIdleV1_:actualiserDisponibiliteMoneyPitNavIdleV1_,
     idleCouleurMoneyPitNavV1_:idleCouleurMoneyPitNavV1_,
     menusOrdonnesIdleV1_:menusOrdonnesIdleV1_,
+    menuMasqueIdleV1_:menuMasqueIdleV1_,
+    basculerMenuMasqueIdleV1_:basculerMenuMasqueIdleV1_,
     nomMenuIdleV1_:nomMenuIdleV1_,
     htmlNomMenuIdleV1_:htmlNomMenuIdleV1_,
     rangeesMenuIdleV1_:rangeesMenuIdleV1_,

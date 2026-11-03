@@ -6351,3 +6351,19 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bloodmagic-
 .bm-confirme-actions-v1 button:active{transform:translate(2px,2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),1px 1px 0 #000}
 @keyframes bmConfirmeEntree{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.bm-confirme-v1{animation:none}}
+
+/* Menus masqués (Norman, 2026-11-03) : hors rangement un bouton masqué n'est pas affiché ; en rangement il reste visible, FONCÉ, et son œil (en haut à droite) le masque ou le réaffiche. */
+.soreal-idle-nav-oeil-v1{display:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-nav-v28:not(.edition) .soreal-idle-nav-button-v28.masque-v1:not(#_):not(#_){display:none}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28{position:relative}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-oeil-v1{display:flex;align-items:center;justify-content:center;position:absolute;top:50%;right:12px;transform:translateY(-50%);z-index:3;width:28px;height:28px;color:#fff;font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;border-radius:50%;background:#f6edd0;border:2px solid #000;font-size:16px;line-height:1;cursor:pointer;touch-action:none}
+.soreal-idle-nav-oeil-v1::before{content:"👁"}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28.masque-v1{filter:brightness(.38) saturate(.55)}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28.masque-v1 .soreal-idle-nav-oeil-v1{filter:brightness(2.6)}
+.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28.masque-v1 .soreal-idle-nav-oeil-v1::before{content:"🚫"}
+
+/* Rangement des menus sur PC (Norman, 2026-11-03 : « la liste ne glisse pas avec la molette de ma souris ») : la barre est une COLONNE ; en rangement elle passait à « flex-wrap:wrap » : quand la fenêtre est plus basse que la liste, les boutons en trop passaient dans une 2e colonne cachée à droite, que la molette (verticale) ne montre jamais. Ici : une seule colonne qui défile verticalement dans son cadre (molette), le bandeau garde sa hauteur naturelle. */
+@media (min-width:1100px) and (hover:hover) and (pointer:fine),(min-width:1500px) and (min-height:800px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28.edition{flex-wrap:nowrap;overflow-x:hidden;--nav-banner-flex:0 0 auto;--nav-edition-ov:auto}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28.edition .soreal-idle-nav-button-v28{flex:0 0 auto}
+}

@@ -37,7 +37,7 @@ assert.ok(mort.includes("var CHOIX=['rewind','clignote'].concat(RETOURS).concat(
 assert.ok(mort.includes("REAPP.jouer('joueur',variante,{calque:calque,img:img})"), "joueur : retour joué dans le calque opaque");
 const app = lire("cloudflare/public/modules/apparition-boss-v1.js");
 assert.ok(app.includes("function nbEffets(){") && app.includes("var m=nbEffets();return ((n-1)%m+m)%m;"), "boss : dix effets puis sept nouveaux, en suivant le numéro");
-assert.ok(app.includes("REAPP.jouer('boss',neuf.id,{calque:calque,img:img})"), "boss : entrée jouée dans le calque");
+assert.ok(app.includes("REAPP.jouer('boss',neuf.id,{calque:calque,img:img,n:n})"), "boss : entrée jouée dans le calque");
 const index = lire("cloudflare/public/index.html");
 assert.ok(/<script defer src="\/modules\/reapparitions-v1\.js\?v=\d+"><\/script>/.test(index), "module chargé");
 assert.ok(index.indexOf("reapparitions-v1.js") < index.indexOf("apparition-boss-v1.js"), "avant les modules qui l'utilisent");

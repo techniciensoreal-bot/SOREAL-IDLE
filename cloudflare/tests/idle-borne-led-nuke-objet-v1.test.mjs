@@ -131,7 +131,7 @@ assert.ok(code.includes("'+'+Math.min(p.n,99999)+' '+T('boss')") && !/\/\s*301/.
 const fixe = (v, t) => ev(`(function(){var p=new Panel(document.createElement('canvas'),120,14),a=[];S.vic=0;p.reduced=true;P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=13;p.p={v:${v},base:0};SC.nuke.fn(${t});P=null;return Array.prototype.join.call(p.v,',');})()`);
 for (const v of [0, 5, 12, 13]) { assert.equal(fixe(v, 0.3), fixe(v, 3.1), "image fixe (variante " + v + ")"); assert.ok(fixe(v, 1).split(",").some((x) => x !== "0"), "elle n'est pas vide"); }
 // fondu d'entrée / sortie : le panneau applique son gain de scène (0,2 s) comme aux autres
-assert.ok(/g=s\.id==='fight'\?1:clamp\(Math\.min\(u,s\.dur-u\)\/f,0,1\)/.test(code));
+assert.ok(/g=\(s\.id==='fight'\|\|\(s\.id==='win'&&s\.p\.anim&&s\.p\.anim!=='redroom'\)\)\?1:clamp\(Math\.min\(u,s\.dur-u\)\/f,0,1\)/.test(code));
 // tirage : liste mélangée puis parcourue, sans répétition immédiate, bombardier environ une fois sur cinq
 ev("nukeSac=[];nukeDernier=-1");
 const tirage = Array.from({ length: 4000 }, () => ev("nukeChoix()"));

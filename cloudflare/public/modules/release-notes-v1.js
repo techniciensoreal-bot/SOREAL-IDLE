@@ -32,6 +32,8 @@
         date:'2026-11-03',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sur PC, la molette fait défiler le menu pendant le rangement, même quand tu tiens un bouton.',
+            'Tu peux masquer un menu : en mode rangement, l’œil de chaque bouton le masque ou le réaffiche ; les menus masqués restent visibles mais foncés pendant le rangement.',
             'Les boutons de placement (Max, +, Cap…) tiennent compte de la ressource réellement disponible, sans valeur périmée.',
             'L’icône d’un menu qui travaille continue de bouger quand tu cliques en dehors de la fenêtre de l’application.',
             'Énergie et magie : le nombre affiché ne recule plus d’une unité de temps en temps pendant qu’il monte.',
@@ -42,6 +44,7 @@
             'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Sets : chaque pièce est exposée dans une vitrine, avec une icône plus grande posée sur un socle.',
             'Album : le petit losange au-dessus des flèches de navigation est retiré, et le texte des cartes reste net quand une page se fige.',
             'Album : la page noire n’apparaît plus en double un instant à l’ouverture et à la fermeture du classeur.',
             'Les titres du menu Chroniques reprennent le cadre parchemin du bouton du menu, et le fond bleu laisse place à un brun chaud très sombre.',
@@ -49,6 +52,11 @@
             'Les objets des sets de la Collection ont leur image.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Les écrans des circuits sont mieux incrustés : plus de bord noir, un fin liseré de cuivre et une découpe dans la teinte du circuit.',
+            'Les circuits imprimés montent en puissance à partir du quatrième : plus de pistes, de composants et de points lumineux, avec des couleurs qui se mélangent.',
+            'Quand tu places de l’énergie, le cadre ne zoome plus : seule la somme s’écrit. Les touches en gomme font un petit « tic » de clip.',
+            'Les boutons de la barre du haut sont plus grands, remplissent leurs cadres, et « Tout retirer » n’est plus coupé.',
+            'Les touches en gomme (+, −, MAX, 0) sont aussi sur les améliorations.',
             'Machine temporelle : quand il manque de l’Or, l’écran n’affiche plus qu’une somme en rouge : le coût du niveau suivant.',
             'Les petites étoiles qui scintillaient dans les barres actives sont retirées.',
             'Les cadres du niveau et de l’énergie placée ont la même taille et ne s’allongent plus, quel que soit le nombre de chiffres.',
@@ -63,9 +71,20 @@
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand tu tries ton sac, les pendentifs de la forêt sont côte à côte, du plus puissant au moins puissant.',
             'Journal d’Aventure : un combat terminé n’est plus rejoué en double (deux fois « Vous avez vaincu » pour un seul butin).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Si tu perds pendant une animation de la borne, elle ne se relance plus quand tu refais Fight sur le même boss.',
+            'Les petits Nukes restent sobres : plus d’éclairs, de gerbes ni de secousse par-dessus le chat ou le chien.',
+            'L’image numérisée de la défaite émerge du noir, sans cadre visible.',
+            'Le chat, le chien, le pet et le ballon n’apparaissent plus que pour un petit Nuke.',
+            'La vague de victoire est refaite : une vraie ola de stade qui traverse l’écran et porte les lettres de VICTOIRE !.',
+            'Quand Cooper s’échappe, un ange numérisé apparaît seul, avec les mêmes effets et les éclairs.',
+            'Le bonhomme qui saute n’a plus de clignotement juste avant d’entrer dans le château.',
+            'Au clic sur Fight, l’animation de la borne démarre tout de suite, sans nom de boss avant ; FIGHT ! s’affiche seulement si le combat est trop court pour une animation.',
+            'Un petit Nuke n’affiche plus jamais SUPER NUKE : il a maintenant des animations comiques, dont un cul qui pète et un ballon qui se dégonfle.',
+            'L’entrée aux yeux rouges place les yeux rouges sur les vrais yeux du boss.',
             'Quand tu perds un combat de boss, la borne peut afficher un visage numérisé qui apparaît seul, zébré d’éclairs.',
             'Pendant la danse de Leatherface, il n’y a plus de sang qui gicle.',
             'Une image de boss est remplacée par un nouveau dessin.',
@@ -81,7 +100,21 @@
           {menu:'shop', titre:'Boutique', points:[
             'Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance.',
           ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'Les pupilles des chats se contractent et se dilatent doucement, sur 2 secondes.',
+          ]},
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Les récompenses possibles ne sont plus coupées et chacune affiche sa chance de tomber.',
+            'Les pièces jetées dans le trou sont de taille normale et tombent de façon crédible : elles accélèrent, puis rapetissent et s’assombrissent en s’enfonçant.',
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Défi des 100 niveaux : plus aucun niveau n’est affiché au-delà du budget ; la barre reste pleine et bloque.',
+          ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Entraînement de base : les barres actives gardent leur cadre lumineux, sans particules.',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'Le bouton CAP affiche la somme réellement nécessaire pendant le chargement de l’OS (elle baisse à mesure qu’il charge) et rend l’énergie en trop.',
             'La barre de chargement orange ne fait plus sauter ses lignes toutes les quelques secondes.',
             'Le bouton CAP place tout ton stock tant que le plafond n’est pas atteint, puis seulement ce dont la machine a besoin.',
           ]},

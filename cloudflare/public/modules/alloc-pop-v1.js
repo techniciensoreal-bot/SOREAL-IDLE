@@ -27,6 +27,8 @@ function style(){
 function valeur(el){return parseInt(String(el.textContent||'').replace(/[^0-9]/g,''),10)||0;}
 
 function gonfler(el){
+  /* Page Augmentations : AUCUN mouvement (Norman, 2026-11-03 : « le cadre qui reçoit l'énergie fait un zoom avant ; je ne veux aucun mouvement, juste la somme qui s'écrit ») */
+  if(el.closest&&el.closest('.soreal-idle-page-root-v28[data-menu="augmentations"]'))return;
   style();
   el.classList.remove(CLASSE);
   void el.offsetWidth;

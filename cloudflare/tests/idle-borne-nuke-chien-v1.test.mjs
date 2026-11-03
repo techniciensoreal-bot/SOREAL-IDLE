@@ -61,20 +61,42 @@ for (const [W, H] of [[60, 14], [90, 16], [120, 16], [140, 34], [240, 53]]) {
   assert.equal(hautApres, H - 4, "bouton enfoncé après l'impact (2 rangées)");
 }
 
-/* ---------------- reniflements : le chien avance par à-coups, le nez monte et descend ---------------- */
-const dessin = (u, W = 120, H = 34) => ev(`(function(){var pn=new Panel(document.createElement('canvas'),${W},${H});P=pn;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=${H - 1};pn.YM=${H};pn.p={essai:1,n:1};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=12;SC.nuke.fn(${u});window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;var x=-1,i,y;y=${H - 9};for(i=0;i<${W - 20};i++)if(pn.v[y*${W}+i]){x=i;break;}var s=Array.prototype.join.call(pn.v,',');P=null;return JSON.stringify([x,s]);})()`);
-const d = (u) => JSON.parse(dessin(u));
-assert.ok(d(0.1)[0] >= 0, "le chien est visible dès le début");
-// première pause de reniflement vers 0,2 s : immobile, deux poses de nez qui alternent
-const p1 = d(0.22), p2 = d(0.22 + 0.075);
-assert.equal(p1[0], p2[0], "arrêt de reniflement : le chien ne bouge pas");
-assert.notEqual(p1[1], p2[1], "le nez monte et descend (deux poses)");
-const xs = [0.3, 0.7, 1.1, 1.5].map((u) => d(u)[0]);
-for (let i = 1; i < xs.length; i++) assert.ok(xs[i] > xs[i - 1], "il avance de pause en pause : " + xs.join());
-// quatre pauses : x constant pendant chaque reniflement (0,25 s) et change entre deux
-let pauses = 0, prec = null;
-for (let k = 0; k < 4; k++) { const a = d(0.05 + 0.4 * k + 0.2)[0], b = d(0.05 + 0.4 * k + 0.4)[0]; if (a === b) pauses++; }
-assert.equal(pauses, 4, "quatre reniflements (arrêts)");
+/* ---------------- marche lente (Norman, 2026-11-03 : « il marche étrangement, il doit être plus près du bouton dès le départ, avancer doucement en reniflant ») ---------------- */
+const posChien = (u, W = 140, H = 34) => JSON.parse(ev(`(function(){var pn=new Panel(document.createElement('canvas'),${W},${H});P=pn;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=${H - 1};pn.YM=${H};pn.p={essai:1,n:1};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=12;SC.nuke.fn(${u});window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;var mn=1e9,mx=-1,i,x,y,s=Array.prototype.join.call(pn.v,',');for(y=0;y<${H};y++)for(x=0;x<${W - 20};x++)if(pn.v[y*${W}+x]){if(x<mn)mn=x;if(x>mx)mx=x;}P=null;return JSON.stringify([mn,mx,s]);})()`));
+for (const [W, H] of [[60, 16], [140, 16], [140, 34], [240, 53]]) {
+  const J = JS(ev(`chienJet(${W},${H})`));
+  const ancien = J.posX + J.larg;   // l'ancien départ était au bord gauche : distance = posX + larg
+  const x0 = JS(ev(`chienDepart(${J.posX},${J.larg})`));
+  assert.ok(J.posX - x0 < ancien * 0.5, `W=${W} : le chien part à moins de la moitié de l'ancienne distance (${J.posX - x0} < ${ancien / 2})`);
+  assert.ok(J.posX - x0 >= ancien * 0.3 || J.posX - x0 === 48, `W=${W} : environ 35 à 45 % de l'ancienne distance (${J.posX - x0} / ${ancien})`);
+  assert.equal(posChien(0, W, H)[1], x0 + 23, `W=${W} : à l'instant 0 il est visible à sa position de départ`);
+  // monotone et lent : jamais de recul, vitesse bornée, pas de saut de plus de 2 points entre deux images
+  let prec = null;
+  for (let u = 0; u <= 1.6; u += 1 / 30) {
+    const mn = posChien(u, W, H)[1];   // le museau : le dessin le plus à droite (la queue et les pattes bougent)
+    if (prec !== null) { assert.ok(mn >= prec, `W=${W} u=${u.toFixed(2)} : il n'avance jamais à reculons`); assert.ok(mn - prec <= 2, `W=${W} u=${u.toFixed(2)} : pas de saccade (${mn - prec} points en une image)`); }
+    prec = mn;
+  }
+  const vit = (J.posX - x0) / ev("CHIEN_MARCHE");
+  assert.ok(vit <= 40, `W=${W} : vitesse lente (${vit.toFixed(1)} points par seconde)`);
+  assert.equal(ev("chienDepart(" + J.posX + "," + J.larg + ")") + 0, x0);
+}
+// le pas : quatre poses d'un vrai pas, jamais plus de 4 pattes, une paire soulevée sur deux poses, toutes différentes
+{
+  const poses = [0, 1, 2, 3].map((k) => JS(ev(`dogMarche(${k},8,0)`)));
+  const groupes = (rows) => { let n = 0, dedans = false; for (const ch of rows[14]) { const on = ch !== "." && ch !== " "; if (on && !dedans) n++; dedans = on; } return n; };
+  const groupes12 = (rows) => { let n = 0, dedans = false; for (const ch of rows[14]) { const on = ch !== "." && ch !== " "; if (on && !dedans) n++; dedans = on; } return n; };
+  for (const [k, r] of poses.entries()) { assert.ok(groupes12(r) <= 4, "pas " + k + " : au plus 4 pattes (rangée 12 : " + groupes12(r) + ")"); assert.ok(r.length === 15 && r.every((x) => x.length === 24), "même boîte 24 x 15"); }
+  assert.equal(new Set(poses.map((p) => p.join("|"))).size, 4, "quatre poses distinctes (alternance lisible)");
+  const sol = (rows) => [...rows[14]].filter((c) => c !== ".").length;
+  assert.ok(sol(poses[1]) < sol(poses[0]) && sol(poses[3]) < sol(poses[2]), "aux poses de passage une paire de pattes quitte le sol");
+  for (const t of [8, 7]) for (const q of [0, 1]) for (let k = 0; k < 4; k++) { const r = JS(ev(`dogMarche(${k},${t},${q})`)); assert.ok(groupes12(r) <= 4, "au plus 4 pattes"); }
+  // l'état de marche ne change qu'à un rythme lisible : un appui toutes les 0,22 s
+  assert.equal(ev("CHIEN_PAS_T"), 0.22);
+  let changements = 0, ancien = null; for (let u = 0; u < 1.6; u += 0.01) { const k = ev(`chienMarcheEtat(${u}).k`); if (ancien !== null && k !== ancien) changements++; ancien = k; }
+  assert.ok(changements >= 6 && changements <= 8, "environ 7 changements d'appui en 1,6 s (" + changements + ")");
+}
+assert.ok(posChien(1.5)[1] > posChien(0.3)[1], "il avance pendant le reniflement");
 
 /* ---------------- patte arrière relevée, jet, flash, NUKE ! ---------------- */
 const jaune = (u) => JSON.parse(ev(`(function(){var pn=new Panel(document.createElement('canvas'),120,34);P=pn;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=33;pn.YM=34;pn.p={essai:1,n:1};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=12;SC.nuke.fn(${u});window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;var j=indexCouleur([255,222,0]),n=0,i;for(i=0;i<pn.v.length;i++)if(pn.v[i]&&pn.c[i]===j)n++;P=null;return n;})()`));
@@ -82,7 +104,7 @@ assert.equal(jaune(1.5), 0, "pas de jet avant que la patte soit levée");
 assert.equal(jaune(2.3), 0, "ni pendant le pivot ni quand il soulève la patte");
 assert.ok(jaune(2.5) > 3 && jaune(2.6) > jaune(2.5), "le fil jaune s'allonge");
 assert.ok(jaune(2.75) > 10, "éclaboussures et fil au moment de l'impact");
-assert.notEqual(d(1.7)[1], d(1.85)[1], "pose de la patte levée distincte de la pose debout");
+assert.notEqual(posChien(1.7)[2], posChien(1.85)[2], "pose de la patte levée distincte de la pose debout");
 assert.ok(/CHIEN_LIB=2\.4/.test(code));
 /* sprites : tailles minimales, traits de chien, jamais de miroir */
 const DG = JS(ev("dogsInit()"));

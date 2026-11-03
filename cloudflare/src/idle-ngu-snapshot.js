@@ -286,6 +286,8 @@ function construireSnapshotNguV1(state, context, now) {
     augmentationsAdvance: Boolean(state.systems.augmentations?.data?.advanceEnergy),
     /* PrÃ©fÃ©rences d'interface liÃ©es au compte (idle-ui-prefs-v1.js) : le client les remet dans son stockage local. */
     uiPrefs: Object.assign({}, state.uiPrefs || {}),
+    /* Défi des 100 niveaux (2026-11-03) : budget restant du pool combiné, pour que le client n'affiche jamais un niveau que le moteur refuse. Hors défi : { actif:false } (aucun spoil). Pas de champ horodaté. */
+    defiNiveaux100: defiNiveaux100SnapshotV1(state),
     /* Valise des consommables (haut du Coffre, 2026-10-23) : ce que le joueur a en effet ou en rÃ©serve ; seulement ce qui est > 0 (anti-spoil : rien de ce qu'il n'a pas obtenu). */
     consommables: consommablesSnapshotV1(state),
     ngus: nguSnapshotV1(state, context),
@@ -729,6 +731,17 @@ export const IDLE_MONEY_PIT_REWARDS_V1 = [
   [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
 ];
 
+/* Lots tirables au palier `tier` : ceux dont le système est débloqué (cube, Wandoos, Yggdrasil) ; utilisé par le tirage ET par la liste annoncée au joueur : le % affiché est donc la vraie chance (1 / nombre de lots). */
+export function moneyPitLotsDisponiblesV1(state, tier) {
+  const sys = (id) => Boolean(state.systems[id] && state.systems[id].unlocked);
+  return IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)].filter((choix) => {
+    if ((choix.cubePower || choix.cubeToughness || choix.cubeBoth) && !sys("infinityCube")) return false;
+    if (choix.wandoos && !sys("wandoos")) return false;
+    if (choix.seeds && !sys("yggdrasil")) return false;
+    return true;
+  });
+}
+
 export function tossMoneyPit(state, now) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -799,7 +812,8 @@ export function tossMoneyPit(state, now) {
    * Les colonnes Equip/Wandoos/Cube des paliers suivants restent hors de
    * cette passe plutÃ´t que d'Ãªtre remplacÃ©es par une rÃ©compense inventÃ©e.
    */
-  const candidats = IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)];
+  /* Wiki : « It's a random chance between all available rewards » : le tirage se fait parmi les lots DISPONIBLES (systèmes débloqués), les mêmes que ceux annoncés au joueur (moneyPitLotsDisponiblesV1) : chacun a donc 1 chance sur N, N = nombre de lots annoncés (Norman, 2026-11-03 : afficher le % de chance). */
+  const candidats = moneyPitLotsDisponiblesV1(state, tier);
   const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
 
   const reward = {};
@@ -921,10 +935,7 @@ export function moneyPitSnapshotV1(state) {
   const xp = Math.max(0, num(idleNguBonusesLectureV1(state).xpMultiplier, 1));
   const lots = [];
   if (tier > 0) {
-    for (const choix of IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)]) {
-      if ((choix.cubePower || choix.cubeToughness || choix.cubeBoth) && !sys("infinityCube")) continue;
-      if (choix.wandoos && !sys("wandoos")) continue;
-      if (choix.seeds && !sys("yggdrasil")) continue;
+    for (const choix of moneyPitLotsDisponiblesV1(state, tier)) {
       const lot = Object.assign({}, choix);
       /* Wiki : Â« EXP rewards are affected by EXP bonus Â» : on montre ce que le tirage donnerait vraiment. */
       if (lot.experience) lot.experience = lot.experience * xp;
@@ -1104,6 +1115,11 @@ function laserSwordPair(state) {
 export function challengeHundredLevelsRemaining(state) {
   if (state.challenge?.active !== "hundredLevels") return Infinity;
   return Math.max(0, 100 - Math.max(0, int(state.challenge.hundredLevelsGained, 0)));
+}
+
+export function defiNiveaux100SnapshotV1(state) {
+  if (state.challenge?.active !== "hundredLevels") return { actif: false };
+  return { actif: true, restants: challengeHundredLevelsRemaining(state) };
 }
 
 export function challengeHundredLevelsConsume(state, amount) {

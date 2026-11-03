@@ -18,6 +18,7 @@ const context={bosses:37,bestGold:0,basicTrainingComplete:true};
 let state=normalizeIdleNguState({},context,1_000_000);
 state.currencies.gold=1e9;
 state=normalizeIdleNguState(state,context,1_000_000);
+for(const id of ['infinityCube','wandoos','yggdrasil'])state.systems[id].unlocked=true;   /* le tirage ne se fait que parmi les lots disponibles (systèmes débloqués) */
 assert.equal(
   state.systems.moneyPit.data.rewardIndex,
   undefined,

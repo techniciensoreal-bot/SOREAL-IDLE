@@ -112,7 +112,13 @@
           const niveau0=donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null;
           let restant=base-(maintenant-at)/1000;
           let palier=fill0<1&&base>0?base/(1-fill0):0;
-          let franchis=0,faussesOr=false,manqueOr=0,orPresent=0;
+          let franchis=0,faussesOr=false,manqueOr=0,orPresent=0,bloqueDefi=false;
+          /* Défi des 100 niveaux (2026-11-03) : budget partagé (modules/defi-niveaux-100-v1.js) ; Infinity hors défi, comportement inchangé. */
+          const D100=typeof window!=='undefined'?window.__SOREAL_IDLE_DEFI100_V1__:null;
+          const vueD100=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.timeMachineView;
+          const supportD100=vueD100||el;
+          const cleD100='tm:'+(piste==='or'||piste==='gold'?'gold':'speed');
+          const plafD100=D100?D100.plafond(supportD100,cleD100):Infinity;
           if(restant<=0&&niveau0!==null&&palier>0){
             /*
              * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et
@@ -123,6 +129,8 @@
             const monnaiesTm=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
             let orTm=idleNombre_(monnaiesTm&&monnaiesTm.gold);
             while(restant<=0&&franchis<20000){
+              /* Budget du défi épuisé : aucun niveau de plus, la barre reste PLEINE (ni Or manquant affiché, ni niveau validé). */
+              if(franchis>=plafD100){bloqueDefi=true;faussesOr=true;restant=0;break;}
               const cibleNiv=niveau0+franchis+1;
               if(franchis>=deja){
                 const coutNiv=5000000*Math.max(1,cibleNiv);
@@ -134,12 +142,15 @@
               palier=palier*(niveau0+1+franchis)/(niveau0+franchis);
               restant+=palier;
             }
+            if(D100)D100.noter(supportD100,cleD100,franchis);
             if(monnaiesTm&&deja!==(el.__tmDebites||0)){monnaiesTm.gold=Math.max(0,orTm);patcherResumeStatsIdleV28_(REG.idleEtat);}
             el.__tmDebites=deja;
           }else{
             restant=Math.max(0,restant);
             /* Barre déjà pleine (en attente d'Or côté serveur) : on le dit ; dès que l'Or suffit, on redemande l'état pour que le niveau suivant tombe sans attendre. */
-            if(niveau0!==null&&fill0>=1&&base<=0){
+            /* Norman (2026-11-03) : « fin de la barre dans 0s » restait affiché faute d'Or. Un niveau très court (≤ 0,25 s) est posé barre pleine (fill0=1) avec un reste base>0 : tester base<=0 le laissait passer sans jamais vérifier l'Or. C'est le temps restant (0) qui compte. */
+            if(niveau0!==null&&restant<=0&&D100&&D100.actif()&&D100.reste()<=0){bloqueDefi=true;faussesOr=true;}
+            else if(niveau0!==null&&restant<=0){   /* temps restant nul : l'Or décide, que la barre affichée soit à 100 % ou à 99,99 % (Norman, 2026-11-03 : « fin de la barre dans 0s » restait affiché par rapport à l'Or manquant) */
               const coutAttente=5000000*Math.max(1,niveau0+1);
               const orAttente=idleNombre_(REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies&&REG.idleEtat.systemes.currencies.gold);
               if(orAttente+1e-9<coutAttente){faussesOr=true;manqueOr=coutAttente-orAttente;orPresent=orAttente;}
@@ -155,7 +166,7 @@
             }
           }
           const secondesAffichees=Math.ceil(restant);
-          if(faussesOr){
+          if(faussesOr&&!bloqueDefi){
             /* Norman (2026-11-03) : « quand il manque de l'argent, enlève le compte à rebours d'argent manquant ; je veux juste la somme écrite en rouge nécessaire pour le niveau suivant » : plus de compteur d'Or qui défile ni de « En attente d'Or » : seulement le COÛT du niveau suivant (fixe), en rouge. */
             const coutRequis=orPresent+manqueOr;
             const texteOr='<b class="or-manque-v1">'+formatGrandNombreIdleV70_(coutRequis)+' Or</b>';

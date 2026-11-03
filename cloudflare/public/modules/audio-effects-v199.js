@@ -31,6 +31,7 @@
     btMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     btCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
     clavierApp:{group:"clavier-app",priority:25,maxAgeMs:350},
+    augTic:{group:"clavier-app",priority:25,maxAgeMs:350},
     tmPlus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     tmMinus:{group:"bt-adjust",priority:25,maxAgeMs:350},
     tmCap:{group:"bt-adjust",priority:28,maxAgeMs:450},
@@ -1724,6 +1725,15 @@
     return jouerWebAudio_(150,function(c){clavierClic_(c,false);});
   }
 
+  /* « Tic » des touches en caoutchouc de la page Augmentations (Norman, 2026-11-03 : « un bruit de tic pour les boutons en gomme, comme s'il y avait un clips derrière qui validait le clic ») : un claquement sec et court (clip qui s'enclenche), sans hauteur de note. */
+  function augTic_(){
+    return jouerWebAudio_(90,function(c){
+      bruit_(c,{duration:.012,volume:.06,filterType:"bandpass",frequency:3400,frequencyEnd:2600,decay:2.2,q:3});
+      tonal_(c,{type:"square",from:1250,to:900,duration:.014,volume:.014,delay:.001});
+      bruit_(c,{duration:.01,volume:.03,delay:.028,filterType:"bandpass",frequency:2100,decay:2,q:2});
+    });
+  }
+
   function btMoins_(){
     return jouerWebAudio_(150,function(c){clavierClic_(c,true);});
   }
@@ -2271,6 +2281,7 @@
     btMinus:btMoins_,
     btCap:btCap_,
     clavierApp:clavierApp_,
+    augTic:augTic_,
     tmPlus:tmPlus_,
     tmMinus:tmMoins_,
     tmCap:tmCap_,
@@ -2579,6 +2590,7 @@
     btMinus:function(){return demander_("btMinus");},
     btCap:function(){return demander_("btCap");},
     clavierApp:function(){return demander_("clavierApp");},
+    augTic:function(){return demander_("augTic");},
     tmPlus:function(){return demander_("tmPlus");},
     tmMinus:function(){return demander_("tmMinus");},
     tmCap:function(){return demander_("tmCap");},

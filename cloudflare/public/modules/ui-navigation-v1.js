@@ -16,6 +16,7 @@
   function pauseVoixIdleV1_(){return REG.pauseVoixIdleV1_.apply(null,arguments);}
   function achatsApParCategorieIdleV1_(){return REG.achatsApParCategorieIdleV1_.apply(null,arguments);}
   function menusOrdonnesIdleV1_(){return REG.menusOrdonnesIdleV1_.apply(null,arguments);}
+  function menuMasqueIdleV1_(){return REG.menuMasqueIdleV1_.apply(null,arguments);}
   function rangeesMenuIdleV1_(){return REG.rangeesMenuIdleV1_.apply(null,arguments);}
   function htmlBandeauRangementMenuIdleV1_(){return REG.htmlBandeauRangementMenuIdleV1_.apply(null,arguments);}
   function idleMenuEstAcquisV1_(){return REG.idleMenuEstAcquisV1_.apply(null,arguments);}
@@ -343,7 +344,7 @@
                     nouveau
                       ?' soreal-idle-nav-new-v1'
                       :''
-                  }${classeAlerteAventure}${classeMoneyPit}${classeRenaissancePositif}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuTravailleV1_(m.id,j)?' travail-v1':''}"
+                  }${menuMasqueIdleV1_(m.id)?' masque-v1':''}${classeAlerteAventure}${classeMoneyPit}${classeRenaissancePositif}${classeRecolteYgg}${classeLumiereAventure}${classeShopNouveau}${idleMenuTravailleV1_(m.id,j)?' travail-v1':''}"
                   style="--nav-color:${
                     couleurDisponibilite||(m.id==='shop'?couleurBoutonShopIdleV1_():REG.IDLE_NAV_COULEURS_V1[m.id])||'#9aa5bb'
                   };--forme:${IDLE_NAV_FORMES_V1[(IDLE_NAV_IDENTITES_V1[m.id]||{}).forme]||IDLE_NAV_FORMES_V1.carte}"
@@ -353,6 +354,7 @@
                   title="${idleHtml_(nomMenuIdleV1_(m,j)+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
                   onclick="window.__menuIdleV28__('${m.id}')"
                 >
+                  ${m.id==='parametres'?'':'<span class="soreal-idle-nav-oeil-v1" data-nav-oeil-v1="'+m.id+'" aria-hidden="true"></span>'}
                   <span class="soreal-idle-nav-deco-v1" aria-hidden="true"><i class="nb-g"></i><i class="nb-d"></i></span>
                   <span class="soreal-idle-nav-cadre-v2"><span class="soreal-idle-nav-badge-v2"><i class="soreal-idle-nav-emoji-v2"></i></span></span>
                   ${classeRenaissancePositif?ETOILES_BOUTON_RENAISSANCE_V1:''}

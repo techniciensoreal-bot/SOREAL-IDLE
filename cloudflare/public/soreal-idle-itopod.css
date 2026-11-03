@@ -715,7 +715,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .
   background:rgba(13,19,32,.94)!important;box-shadow:0 6px 16px rgba(0,0,0,.4)!important;
   overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin;
 }
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-button-v28{
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-button-v28:not(.soreal-idle-nav-v28:not(.edition) .soreal-idle-nav-button-v28.masque-v1){
   display:flex!important;align-items:center!important;gap:6px!important;box-sizing:border-box!important;
   width:126px!important;min-width:126px!important;max-width:126px!important;height:41px!important;min-height:41px!important;
   padding:3px 6px 3px 4px!important;margin:0!important;border-radius:12px!important;
@@ -748,9 +748,9 @@ html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v2
 html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 0 0 2px rgba(255,255,255,.85),0 0 12px 3px var(--dispo-lueur)!important;}
 /* Rangement des boutons du menu : tous les boutons visibles, le bandeau « Valider » sur toute la largeur (le menu normal défile sur deux rangées). */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28.edition{
-  display:flex!important;flex-wrap:wrap!important;overflow:visible!important;
+  display:flex!important;flex-wrap:wrap!important;overflow:var(--nav-edition-ov,visible)!important;   /* PC : la liste défile dans son cadre en rangement (--nav-edition-ov:auto, soreal-idle-ui.css) ; téléphone : visible comme avant */
 }
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28.edition .soreal-idle-nav-rangement-v1{flex:1 0 100%!important;color:#ffe3a3!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28.edition .soreal-idle-nav-rangement-v1{flex:var(--nav-banner-flex,1 0 100%)!important;color:#ffe3a3!important;}
 }
 /* Choix du nombre de lignes du menu (1, 2 ou 3) dans le bandeau de rangement : réservé au téléphone, où le menu est sur plusieurs lignes. */
 .soreal-idle-nav-rangees-v1{display:none;align-items:center;gap:6px;font-size:13px;font-weight:800}
@@ -2020,8 +2020,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 @keyframes mp3Balance{0%,100%{transform:translateX(0)}25%{transform:translateX(var(--sx,1cqw))}75%{transform:translateX(calc(var(--sx,1cqw)*-1))}}
 /* Salve d'or : seulement quand on jette son or (bloc ajouté par le module, data-morph-garder) */
 .mp3-pieces{position:absolute;inset:0;pointer-events:none;clip-path:polygon(0 0,100% 0,100% 56%,56% 66%,54% 66%,50% 63.5%,45% 62%,40% 61%,38% 60%,33% 57%,29% 54%,0 54%)}   /* le bord proche du trou (le contour bas de la partie sombre, relevé sur l'image : de x 29 % y 54 % à x 56 % y 66 %) est au premier plan : une pièce qui le franchit disparaît derrière lui, et non plus dans l'herbe */
-.mp3-chute{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;animation:mp3ChuteY var(--d) cubic-bezier(.3,0,.8,.7) 1 both;animation-delay:var(--dl)}
-.mp3-derive{position:absolute;left:0;top:0;width:0;height:0;animation:mp3ChuteX var(--d) cubic-bezier(.2,.6,.4,1) 1 both;animation-delay:var(--dl)}
+.mp3-chute{position:absolute;left:var(--x1);top:var(--y1);width:0;height:0;animation:mp3ChuteY var(--d) cubic-bezier(.11,0,.5,0) 1 both;animation-delay:var(--dl)}
+.mp3-derive{position:absolute;left:0;top:0;width:0;height:0;animation:mp3ChuteX var(--d) linear 1 both;animation-delay:var(--dl)}
 .mp3-echelle{position:absolute;left:0;top:0;width:0;height:0;opacity:0;animation:mp3ChuteE var(--d) linear 1 both;animation-delay:var(--dl)}
 .mp3-pc{position:absolute;left:calc(var(--t)*-.5);top:calc(var(--t)*-.5);width:var(--t);height:var(--t);transform-style:preserve-3d;animation:mp3Tourne var(--d) linear 1 both;animation-delay:var(--dl)}
 .mp3-pc>*{position:absolute;inset:0;border-radius:50%;backface-visibility:visible}
@@ -2032,11 +2032,11 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* pièce qui passe le bord : taille constante, aucun fondu (c'est le bord qui la cache) ; les autres rapetissent et s'effacent en fondu fermé dans le trou */
 .mp3-dehors .mp3-echelle{animation-name:mp3ChuteD}
 .mp3-chute:not(.mp3-dehors){animation-name:mp3ChuteYn}
-@keyframes mp3ChuteD{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@keyframes mp3ChuteD{0%{opacity:0;transform:scale(1)}9%{opacity:1;transform:scale(1)}100%{opacity:1;transform:scale(1)}}
 @keyframes mp3ChuteY{0%{transform:translateY(-30cqw)}100%{transform:translateY(0)}}
 @keyframes mp3ChuteX{0%{transform:translateX(var(--dx))}100%{transform:translateX(0)}}
 /* pièce qui ne passe pas le bord (Norman, 2026-11-01) : elle CONTINUE sa chute dans le noir en rapetissant de plus en plus, puis s'efface en fondu à la fermeture ; aucun éclat */
-@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1.25)}9%{opacity:1;transform:scale(1.25)}60%{opacity:1;transform:scale(.55)}100%{opacity:0;transform:scale(.06)}}
+@keyframes mp3ChuteE{0%{opacity:0;transform:scale(1);filter:brightness(1)}9%{opacity:1;transform:scale(1);filter:brightness(1)}55%{opacity:1;transform:scale(.62);filter:brightness(.55)}100%{opacity:0;transform:scale(.1);filter:brightness(.12)}}
 @keyframes mp3ChuteYn{0%{transform:translateY(-30cqw)}100%{transform:translateY(9cqw)}}
 @keyframes mp3Tourne{from{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(0)}to{transform:rotateZ(var(--inc)) rotateX(var(--rx)) rotateY(calc(var(--tours)*360deg))}}
 @media (max-width:760px){.mp3-titre-nom{font-size:10.4cqw}.mp3-titre-phrase{font-size:3.9cqw}}
@@ -2062,7 +2062,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 .rb-legende{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:4px 10px;margin-top:12px;font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:12px;text-align:left}
 .rb-leg{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:8px;color:#dce6fa}
 .rb-leg i{flex:0 0 12px;height:12px;border-radius:3px;display:block}
-.rb-leg span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rb-leg span{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.2}
+.rb-leg .rb-pct{flex:0 0 auto;color:#ffd24a;font-weight:700;white-space:nowrap}
 .rb-leg em{font-style:normal;color:#9fb2d0}
 .rb-leg.rb-gagnant{background:rgba(255,210,74,.2);outline:1px solid #ffd24a;color:#fff}
 .rb-jackpot-detail{margin-top:8px;font-family:var(--mp2-jeu,"Russo One",Impact,sans-serif);font-size:11.5px;line-height:1.35;color:#b9c6e0;text-align:left}

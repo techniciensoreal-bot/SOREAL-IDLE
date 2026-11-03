@@ -11,15 +11,16 @@ import { normalizeIdleNguState, idleNguSnapshot, applyIdleNguAction } from "../s
 const src = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 const context = { bosses: 58, bestGold: 1e6, adventurePower: 1e9 };
 const now = 100_000_000;
-function essai(libre, difficulte, magie = false, libreVue = undefined, mode = "cap", saisie = undefined, vivante = undefined) {
+function essai(libre, difficulte, magie = false, libreVue = undefined, mode = "cap", saisie = undefined, vivante = undefined, deja = 0, secondes = 7200) {
   let state = normalizeIdleNguState({}, context, now);
   state.adventure.unlockFlags.wandoos = true;
   state = normalizeIdleNguState(state, context, now);
-  state.runStartedAt = now - 7200 * 1000;
+  state.runStartedAt = now - secondes * 1000;
   state.difficulty = difficulte;
   state.systems.bloodMagic.unlocked = true;
   state.resources.energy.cap = 9e18;
   state.resources.energy.current = libre;
+  state.systems.wandoos.allocation.energy = deja;
   const stockage = { soreal_idle_wandoos_allumage_v1: String(state.runStartedAt) };
   if (saisie !== undefined) stockage.soreal_idle_wandoos_saisie_v1 = String(saisie);
   const actions = [];
@@ -86,6 +87,31 @@ for (const [libre, vue, vivante, saisie, attendu] of [[5e8, 0, 5e8, "3e8", 3e8],
   const r = essai(libre, "normal", false, vue, "plus", saisie, vivante);
   assert.equal(r.alloue, attendu, "+ : libre réel " + libre + ", vue périmée " + vue + ", vivante " + vivante + ", saisie " + saisie);
 }
+// Norman (2026-11-03) : « si j'ai mis 15 M et que le cap est à 14 M, CAP ne garde que ce qui est nécessaire et me rend la différence ».
+for (const [deja, libre] of [[1.5e9, 0], [1.5e9, 7e8], [4e9, 123]]) {
+  const r = essai(libre, "normal", false, undefined, "cap", undefined, undefined, deja);
+  assert.equal(r.alloue, r.cap, "placé " + deja + " > cap : retombe exactement au cap");
+  assert.equal(r.libreApres, libre + (deja - r.cap), "l'excès redevient libre (rendu au joueur)");
+}
+// Placé sous le cap : on complète avec le libre ; libre insuffisant : tout le libre.
+{
+  let r = essai(5e8, "normal", false, undefined, "cap", undefined, undefined, 4e8);
+  assert.equal(r.alloue, 9e8); assert.equal(r.libreApres, 0, "libre insuffisant : tout le libre");
+  r = essai(5e8, "normal", false, undefined, "cap", undefined, undefined, 8e8);
+  assert.equal(r.alloue, 1e9, "libre suffisant : atteint le cap"); assert.equal(r.libreApres, 3e8);
+}
+// Pendant le chargement : le cap est celui du moment (plus grand) ; placé = ancien cap final > cap(boot) ne se produit pas, mais placé au-dessus du cap COURANT retombe à lui.
+{
+  const r = essai(1e15, "normal", false, undefined, "cap", undefined, undefined, 0, 1800);
+  assert.ok(r.cap > 1e9 && r.alloue === r.cap && Math.abs(r.vitesse - 50) < 1e-6, "boot à 50 % : cap courant (x2), 50 niveaux/s");
+  const r2 = essai(10, "normal", false, undefined, "cap", undefined, undefined, 5e9, 1800);
+  assert.equal(r2.alloue, r2.cap, "boot : placé au-dessus du cap courant retombe à ce cap");
+  assert.equal(r2.libreApres, 10 + 5e9 - r2.cap);
+}
 const code = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
 assert.ok(code.includes("var envoyee=mode==='cap'?capServeur:mode==='plus'?actuelle+montant:cible;") && code.includes("value:envoyee}"), "CAP envoie le plafond, + la quantité souhaitée : borné par le moteur");
+// Affichage : le cap du bouton change a chaque synchro pendant le chargement, reecrit en place (aucun redessin du poste, regle n4), compare a la derniere valeur ecrite.
+assert.ok(code.includes("data-wd-cap=") && code.includes("majCapEnPlace_(neuves)") && code.includes("capEcrit_[r]!==t"), "cap reecrit en place");
+assert.ok(code.includes("(<small data-wd-cap=\"[a-z]+\">)[^<]*"), "le cap ne compte pas dans la signature du poste");
+
 console.log("idle-wandoos-cap-place-tout-v1: OK");

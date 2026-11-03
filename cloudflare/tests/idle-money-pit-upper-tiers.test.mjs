@@ -4,7 +4,7 @@ import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progr
 /* 2026-09-23 (wiki Money Pit) : paliers 5-11 avec Adv Stat, Cube, HP, regen, EXP (x bonus EXP), Wandoos plafonné, Seeds. */
 function toss(gold, random) {
   const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
-  s.systems.moneyPit.unlocked = true;
+  s.systems.moneyPit.unlocked = true; for (const id of ["infinityCube", "wandoos", "yggdrasil"]) s.systems[id].unlocked = true;
   s.currencies.gold = gold;
   const old = Math.random;
   Math.random = () => random;
@@ -23,7 +23,7 @@ function toss(gold, random) {
 {
   // palier 6 : Wandoos déjà à 20 -> rien de plus
   const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
-  s.systems.moneyPit.unlocked = true;
+  s.systems.moneyPit.unlocked = true; for (const id of ["infinityCube", "wandoos", "yggdrasil"]) s.systems[id].unlocked = true;
   s.systems.wandoos.data.osLevels.moneyPit = 20;
   s.currencies.gold = 1e15;
   const old = Math.random;

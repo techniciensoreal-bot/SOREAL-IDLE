@@ -25,7 +25,7 @@ const lots6 = [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 },
   const h = TR.rendreLegende(j(lots6));
   assert.equal((h.match(/class="rb-leg"/g) || []).length, 9);
   assert.ok(h.includes('data-mp-palier="6"'));
-  assert.ok(!/<em>|\d\s?%/.test(h), "aucun pourcentage");
+  assert.equal((h.match(/<em class="rb-pct">11,1 %<\/em>/g) || []).length, 9, "chaque lot porte sa vraie chance : 1 sur 9 = 11,1 %");
   assert.ok(!/<circle|rb-svg|rb-sect|<path d="M\d+ \d+A/.test(h.replace(/<svg width="18"[\s\S]*?<\/svg>/g, "")), "ni roue ni secteurs");
   assert.equal((h.match(/<svg width="18"/g) || []).length, 9, "une icône par ligne");
   for (const t of ["+50 Puissance et Endurance d’Aventure", "+25 graines", "+1 niveau(x) Wandoos", "+10 Cube Puissance", "+25 EXP", "+2 Regen PV d’Aventure"]) assert.ok(h.includes(t), t);

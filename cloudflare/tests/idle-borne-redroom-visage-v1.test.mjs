@@ -85,6 +85,6 @@ assert.ok(f1.split("|")[0].split(",").filter((x) => +x > 0).length > 400, "mouve
 /* 5. victoire et autres défaites inchangées (même code qu'avant) */
 assert.ok(src.includes("if(an==='redroom')sRedroom(t);else (an==='sweep'?sSweep:sMascot)(t);"), "victoire Red Room inchangée");
 assert.ok(src.includes("if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);"), "défaites Leatherface (tueRie) et mascotte (ecrase) inchangées");
-assert.ok(/function sKO\(t\)\{[\s\S]*if\(fv&&!P\.reduced&&!P\.p\.essai\)\{[\s\S]*nkGouverneur\(tg\)/.test(code), "le régulateur du Nuke passe sur la défaite en Red Room");
+assert.ok(/function sKO\(t\)\{[\s\S]*if\(fv\)visGouverne\(tg\)/.test(code) && /function visGouverne\(tg\)\{[\s\S]*if\(P\.reduced\|\|P\.p\.essai\)return;[\s\S]*nkGouverneur\(tg\)/.test(code), "le régulateur du Nuke passe sur la défaite en Red Room");
 assert.ok(!/setTimeout|setInterval/.test(bloc), "dessin calculé depuis le temps de la scène");
 console.log("idle-borne-redroom-visage-v1: OK\n  " + rap.join("\n  "));

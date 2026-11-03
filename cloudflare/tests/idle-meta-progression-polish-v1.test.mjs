@@ -50,7 +50,7 @@ const meta = readFileSync("cloudflare/public/modules/blood-magic-v1.js", "utf8")
 
   // Basic Training/Augmentation gardent leurs sons d'origine, jamais renommés par erreur.
   assert.match(lireUiComplet(), /action==='plus'\?'btPlus':\(action==='moins'\|\|action==='zero'\)\?'btMinus':'btCap'/);
-  assert.match(meta, /mode==='plus'\?'btPlus':\(mode==='moins'\|\|mode==='zero'\)\?'btMinus':'btCap'/, "Augmentation garde les sons Basic Training (jamais renommée)");
+  assert.ok(meta.includes("const son='augTic';"), "Augmentations : le « tic » de clip des touches en caoutchouc (Norman, 2026-11-03), plus les sons Basic Training");
 }
 
 // --- 3. Thème visuel de Blood Magic : lie-de-vin sombre, jamais un aplat rouge. ---

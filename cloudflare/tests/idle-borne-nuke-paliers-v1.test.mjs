@@ -51,13 +51,16 @@ assert.ok(ev("nukeDuree(2,3,false)") > ev("nukeDuree(2,0,false)"), "plus de diza
 
 /* ---------------- scènes réservées : jamais à un palier plus bas ---------------- */
 const reservees = JS(ev("NK_RESERVEES"));
-assert.equal(ev("NUKES.length"), 22, "12 de base + le chien + le bombardier + 7 réservées + la finale (indices : 12 chien, 13 bombardier, 14 à 20 réservées, 21 finale)");
+assert.equal(ev("NUKES.length"), 24, "12 de base + le chien + le bombardier + 7 réservées + la finale (indices : 12 chien, 13 bombardier, 14 à 20 réservées, 21 finale) + 2 scènes comiques (22 et 23, ajoutées après la finale)");
 assert.equal(ev("NK_FINALE"), 21);
 assert.ok(!(21 in reservees), "la finale n'est dans aucun tirage");
 const tire = (tier, fois = 600) => { const s = new Set(); for (let i = 0; i < fois; i++) s.add(ev(`nukeVariante(${tier})`)); return [...s].sort((a, b) => a - b); };
-for (const tier of [0, 1]) assert.ok(tire(tier).every((v) => v <= 13), "palier " + tier + " : seulement les quatorze de base (dont le chien et le bombardier)");
+for (const tier of [0, 1]) assert.ok(tire(tier).every((v) => (v <= 13 && v !== 10) || v === 22 || v === 23), "palier " + tier + " : les scènes de base (sans SUPER NUKE) et les deux scènes comiques");
 const t2 = tire(2), t3 = tire(3), t4 = tire(4);
 assert.ok(t2.some((v) => v <= 13) && t2.filter((v) => v > 13).length >= 2 && t2.every((v) => v <= 13 || reservees[v] === 2), "palier 2 : base + au moins 2 scènes réservées : " + t2);
+assert.ok(tire(2, 3000).every((v) => ![5, 12, 22, 23].includes(v)), "palier 2 : ni chat, ni chien, ni cul, ni ballon (réservés aux petits Nuke)");
+assert.ok([3, 4].every((tier) => tire(tier, 600).every((v) => ![5, 12, 22, 23].includes(v))), "paliers 3 et 4 : jamais le chat, le chien, le cul ni le ballon");
+assert.ok([0, 1].every((tier) => { const x = tire(tier, 3000); return [5, 12, 22, 23].every((v) => x.includes(v)); }), "paliers 0 et 1 : le chat, le chien, le cul et le ballon sortent");
 assert.deepEqual(t3, [16, 17, 18], "palier 3 : uniquement ses scènes");
 assert.deepEqual(t4, [19, 20], "palier 4 : uniquement ses scènes");
 for (const [v, mn] of Object.entries(reservees)) for (const tier of [0, 1, 2, 3, 4]) if (tier < mn) assert.ok(!tire(tier, 300).includes(Number(v)), `scène ${v} jamais au palier ${tier}`);

@@ -127,6 +127,7 @@
        * Mêmes deux sources, jamais une valeur inventée pour Augmentation.
        */
       function presetAugmentIdleV1_(source,fraction){
+        try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&typeof a.augTic==='function')a.augTic();}catch(_e){}   /* le même « tic » de clip pour les raccourcis Max, 1/2, 1/4 */
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
         const input=document.getElementById('sorealIdleAugInputV1');
@@ -602,6 +603,10 @@
         if(!(kMax>=0)||!isFinite(kMax))kMax=0;
         while(kMax>0&&temps(kMax)>total*(1+1e-12))kMax-=1;
         while(temps(kMax+1)<=total*(1+1e-12)&&kMax<1e9)kMax+=1;
+        /* Défi des 100 niveaux : budget partagé restant (p.plafondK, Infinity hors défi) ; jamais un niveau de plus que ce que le moteur permet. */
+        const plafK=p.plafondK>=0?p.plafondK:Infinity;
+        let borneDefi=false;
+        if(kMax>plafK){kMax=plafK;borneDefi=true;}
         const d=Math.min(p.debites,kMax);
         let k=kMax,debit=0,debites=Math.max(p.debites,0),bloque=false;
         if(kMax>d){
@@ -613,7 +618,7 @@
             k=lo;bloque=true;debit=cout(d,k);debites=Math.max(debites,k);
           }
         }
-        return {k:k,reste:total-temps(k),debites:debites,debit:debit,bloque:bloque,coutProchain:p.cout0*Math.pow((n0+k)/n0,expo),dureeProchaine:sec0*(n0+k)/n0};
+        return {k:k,reste:total-temps(k),debites:debites,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:p.cout0*Math.pow((n0+k)/n0,expo),dureeProchaine:sec0*(n0+k)/n0};
       }
       window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
 
@@ -629,7 +634,10 @@
         const dureeNiveau=function(i){return Math.max(0.02,sec0*(n0+i)/n0);};
         const total=Math.max(0,p.reste0);
         let kMax=0,temps=0;
+        const plafK=p.plafondK>=0?p.plafondK:Infinity;
+        let borneDefi=false;
         while(kMax<20000){
+          if(kMax>=plafK){borneDefi=true;break;}
           const dn=dureeNiveau(kMax);
           if(temps+dn>total*(1+1e-12))break;
           temps+=dn;kMax+=1;
@@ -647,7 +655,7 @@
         }
         let tempsK=0;
         for(let i=0;i<k;i+=1)tempsK+=dureeNiveau(i);
-        return {k:k,reste:total-tempsK,debites:debites,debit:debit,bloque:bloque,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
+        return {k:k,reste:total-tempsK,debites:debites,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
       }
       window.__rejouerCyclesAugmentPlafonneIdleV1__=rejouerCyclesAugmentPlafonneIdleV1_;
 
@@ -671,7 +679,11 @@
             const niv0=Math.max(0,H.idleEntier_(d[c[3]]));
             const cout0=H.idleNombre_(d[c[4]]);
             const cle='cycles_'+c[5];
-            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0});
+            const D100=typeof window!=='undefined'?window.__SOREAL_IDLE_DEFI100_V1__:null;
+            const cleD100=id+':'+c[5];
+            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0,plafondK:D100?D100.plafond(d,cleD100):Infinity});
+            /* Défi des 100 niveaux : les niveaux rejoués ici sont puisés dans le budget partagé, puis absorbés dans le niveau de base (compteur remis à 0). */
+            if(D100){D100.noter(d,cleD100,rj.k);D100.nouveauRepere(d,cleD100);}
             if(monnaies&&rj.debit>0)monnaies.gold=Math.max(0,H.idleNombre_(monnaies.gold)-rj.debit);
             d[cle]=Math.max(0,rj.debites-rj.k);
             if(rj.k>0){d[c[3]]=niv0+rj.k;d[c[4]]=rj.coutProchain;}
@@ -701,7 +713,7 @@
         if(delta!==0){
           try{
             const audio=window.__SOREAL_IDLE_AUDIO_V199__;
-            const son=mode==='plus'?'btPlus':(mode==='moins'||mode==='zero')?'btMinus':'btCap';
+            const son='augTic';   /* touches en caoutchouc : un « tic » de clip, le même pour + − Max 0 (Norman, 2026-11-03) */
             if(audio&&typeof audio[son]==='function')audio[son]();
           }catch(_e){}
 
@@ -759,7 +771,7 @@
         if(rendu>0){
           try{
             const audio=window.__SOREAL_IDLE_AUDIO_V199__;
-            if(audio&&typeof audio.btMinus==='function')audio.btMinus();
+            if(audio&&typeof audio.augTic==='function')audio.augTic();
           }catch(_e){}
           if(j)j.energie=Math.max(0,H.idleNombre_(j.energie))+rendu;
           if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
@@ -1022,9 +1034,14 @@
           let reste=Math.max(0,Number(eta))-ecoule;
           let franchis=0;
           const niveau0=donnees?Math.max(0,Math.floor(Number(donnees[c[2]])||0)):null;
+          /* Défi des 100 niveaux : budget partagé (Infinity hors défi). */
+          const D100=typeof window!=='undefined'?window.__SOREAL_IDLE_DEFI100_V1__:null;
+          const cleD100='tm:'+c[0];
+          const plafD100=D100?D100.plafond(vue,cleD100):Infinity;
           if(niveau0!==null&&duree>0){
             let n=niveau0+1;
             while(reste<=0&&franchis<20000){
+              if(franchis>=plafD100){reste=0;break;}
               /* Niveau terminé mais Or insuffisant (5 000 000 x niveau visé, comme le moteur et le compte à rebours) : la barre reste PLEINE en attente d'Or, aucun niveau n'est franchi, quel que soit le changement d'allocation. */
               if(orLocal!==null&&orLocal+1e-9<5000000*n){reste=0;break;}
               duree=duree*(n+1)/n;
@@ -1032,6 +1049,7 @@
               franchis+=1;
               reste+=duree;
             }
+            if(D100){D100.noter(vue,cleD100,franchis);D100.nouveauRepere(vue,cleD100);}
             if(franchis>0){
               const k=Number(vue[c[3]]);
               if(Number.isFinite(k)&&k>0)vue[c[3]]=k*n/(niveau0+1);

@@ -66,8 +66,27 @@ assert.equal(vue(s).vitesseEnergie, 50, "placer le cap donne 50 niveaux/s");
 s.systems.wandoos.allocation.energy = cap - 1;
 assert.ok(vue(s).vitesseEnergie < 50, "un point de moins : sous le plafond");
 assert.equal(vue(s).capEnergie, cap, "le cap ne dépend pas de ce qui est placé");
-// Pendant le boot, le cap reste celui de Wandoos démarré (jamais une quantité gaspillée une fois le boot fini).
-assert.equal(vue(etat(60)).capEnergie, cap, "le cap ne dépend pas de l'avancement du boot");
+// Pendant le boot (Norman, 2026-11-03 : « pour le cap pendant son chargement, il faudra beaucoup plus d'énergie… il diminuera plus l'OS sera chargé ») : le cap est celui À L'INSTANT
+// (exigence / (M x boot actuel)), strictement décroissant, et vaut exactement l'ancien cap boot terminé. Placer ce cap donne 50 niveaux/s au même instant.
+{
+  let precedent = Infinity;
+  for (const sec of [36, 900, 1800, 2700, 3599]) {
+    const e = etat(sec);
+    const c = vue(e).capEnergie, cm = vue(e).capMagie;
+    assert.ok(Number.isInteger(c) && c > cap, "boot à " + sec + " s : cap supérieur au cap final");
+    assert.ok(c < precedent, "le cap diminue strictement à mesure que l'OS charge");
+    precedent = c;
+    e.systems.wandoos.allocation.energy = c;
+    assert.ok(Math.abs(vue(e).vitesseEnergie - 50) < 1e-6, "alloc = cap(boot " + sec + " s) donne 50 niveaux/s à cet instant");
+    e.systems.wandoos.allocation.energy = c - Math.max(2, Math.ceil(c * 1e-6));
+    assert.ok(vue(e).vitesseEnergie < 50, "un peu moins : sous le plafond");
+    assert.ok(cm > 0);
+  }
+  const f25 = vue(etat(900)).capEnergie, f50 = vue(etat(1800)).capEnergie;
+  assert.ok(Math.abs(f25 - 4 * cap) <= 4 && Math.abs(f50 - 2 * cap) <= 2, "25 % de boot : 4 x le cap final, 50 % : 2 x");
+  assert.ok(vue(etat(0)).capEnergie <= 100 * cap + 100 && vue(etat(0)).capEnergie > 50 * cap, "au lancement : plancher 1 % (au plus 100 x le cap final)");
+  assert.equal(vue(etat(3600)).capEnergie, cap, "boot terminé : exactement l'ancien cap");
+}
 assert.ok(vue(etat(7200)).capMagie > 0, "cap de magie défini aussi");
 
 // L'allocation est ABSOLUE (pas un pourcentage) : la page peut placer plus de 100 points.

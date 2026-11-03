@@ -531,7 +531,12 @@ function sortInventorySlotsV1(s) {
    *  5. Boosts : par type (Power, Toughness, Special) puis numÃ©ro croissant.
    * Tri stable : Ã  Ã©galitÃ©, l'ordre actuel est conservÃ©.
    */
-  const cleGroupe = (o) => (o && o.kind === "boost" ? "b:" + String(o.boostType || "") + ":" + N(o.strength, 0) : "o:" + String((o && (o.definitionId || o.name)) || ""));
+  /* Bijoux d'une même famille (ex. les pendentifs de la forêt, normal ou « ascended ») : une seule famille, donc côte à côte (Norman, 2026-11-03). */
+  const familleBijou = (id) => String(id || "").toLowerCase().replace(/^ascended/, "").replace(/[^a-z0-9]/g, "");
+  const cleGroupe = (o) => (o && o.kind === "boost" ? "b:" + String(o.boostType || "") + ":" + N(o.strength, 0) : (o && sortRankInventoryV1(o) === IDLE_SORT_INVENTORY_RANK_V1.accessory && /pendant/i.test(String(o.definitionId || "")) ? "f:" + familleBijou(o.definitionId) : "o:" + String((o && (o.definitionId || o.name)) || "")));
+  /* Du plus puissant au moins puissant (Norman, 2026-11-03 : « quand on fait trier, les pendentifs de la forêt doivent être côte à côte, du plus puissant au moins puissant ») : à l'intérieur d'un groupe de bijoux, niveau décroissant, puis la version « ascended » d'abord ; les autres objets gardent leur ordre. */
+  const puissanceBijou = (o) => (o && sortRankInventoryV1(o) === IDLE_SORT_INVENTORY_RANK_V1.accessory ? N(o.level, 0) : 0);
+  const ascended = (o) => Number(/^ascended/i.test(String((o && o.definitionId) || "")));
   const cleSet = (o) => String((o && o.set) || "");
   const ordreSets = new Map();
   (Array.isArray(IDLE_ADVENTURE_ZONES) ? IDLE_ADVENTURE_ZONES : []).forEach((z, i) => { if (z && z.set && !ordreSets.has(z.set)) ordreSets.set(z.set, i); });
@@ -560,7 +565,7 @@ function sortInventorySlotsV1(s) {
     if (oa && oa.kind === "boost") {
       return gv(ob) - gv(oa) || N(oa.strength, 0) - N(ob.strength, 0) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
     }
-    return gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
+    return gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || puissanceBijou(ob) - puissanceBijou(oa) || ascended(ob) - ascended(oa) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
   });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;

@@ -136,7 +136,7 @@ for (const attendu of ["Machine à remonter le temps cassée", "Vitesse de la ma
 assert.ok(page.includes("__ajusterTimeMachineIdleV1__") && page.includes("__cibleTimeMachineIdleV1__"));
 assert.ok(page.includes("vue.speedEtaSeconds") && page.includes("vue.goldEtaSeconds"), "ETA serveur affichée sur les deux pistes");
 assert.ok(page.includes("data-tm-eta-track") && page.includes("Fin de la barre dans"), "compte à rebours présent sous les barres");
-assert.ok(meta.includes("mode==='plus'?'btPlus':(mode==='moins'||mode==='zero')?'btMinus':'btCap'"), "Broken Time Machine réutilise exactement les sons Basic Training + / - / Max");
+assert.ok(meta.includes("mode==='plus'?'tmPlus':(mode==='moins'||mode==='zero')?'tmMinus':'tmCap'") && meta.includes("const son='augTic';"), "Time Machine : ses sons d'horloge (tmPlus / tmMinus / tmCap) ; Augmentations : le tic de clip des touches en caoutchouc");
 assert.match(meta, /action:'setTimeMachineTarget'/);
 assert.ok(!/allocationMetaIdleV48_\(j,'timeMachine'/.test(page), "les presets 0/25/50/100 % n'y sont plus");
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");

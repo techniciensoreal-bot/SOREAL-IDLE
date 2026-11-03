@@ -72,7 +72,7 @@ for (const l of css.split("\n").filter((x) => /(\.aug-eta|\.aug-niv-lib|\.aug-co
 
 // boutons : composants du circuit (poussoir) et touches de la puce, états survol / appui / désactivé, aucun pointillé
 /* touches de la piste d'Augment : caoutchouc dans un cadre à l'accent de la carte (2026-11-03), feuille soreal-idle-augment-touches-v1.css (gardes : idle-augment-emplacement-vide-v1) */
-assert.match(readFileSync("cloudflare/public/soreal-idle-augment-touches-v1.css", "utf8"), /\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120[^{]*button:not\(#_\)\{[^}]*--anneau:color-mix\(in srgb,var\(--pcb-acc/);
+assert.match(readFileSync("cloudflare/public/soreal-idle-augment-touches-v1.css", "utf8"), /\.aug-piste-v2 \.soreal-idle-bt-actions-v120[^{]*button:not\(#_\)\{[^}]*--anneau:color-mix\(in srgb,var\(--pcb-acc/);
 assert.match(css, /\.aug-piste-v2\.upgrade \.soreal-idle-bt-actions-v120 button\{[^}]*border:2px solid #c9a24a/);
 assert.match(css, /button:active:not\(:disabled\)\{transform:translateY\(1px\)/);
 assert.match(css, /button:disabled\{opacity:\.5/);

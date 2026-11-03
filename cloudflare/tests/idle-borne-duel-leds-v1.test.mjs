@@ -146,7 +146,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("rrDessinHomme(HOMMES[fr],fx,G,reb,op);") && led.includes("function rrClairiere(x,G,t)") && led.includes("6.2832*(t/2+R(u,y))"), "victoire : le rideau s'ouvre sur une clairière étoilée où les hommes s'enfoncent (étoiles : période 2 s)");
   const corps = led.slice(led.indexOf("function perduRedroom(t){"), led.indexOf("/* 6. La ola puis VICTOIRE ! */"));
   assert.ok(corps.includes("tCatch=1.2") && corps.includes("bleu=2") && corps.includes("bleu=1") && corps.includes("HOMMES[caught?3:"), "défaite : main sur l'épaule, éclairs puis lueur bleue, le fuyard reste figé");
-  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom',fv=rr&&visOk(),tg=t,L0;"), "pas de « RECOMMENCE ? » pendant la Red Room");
+  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom',fv=rr&&visOk(),tg=t;"), "pas de « RECOMMENCE ? » pendant la Red Room");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
   console.log("idle-borne-duel-leds-v1 (Red Room) : OK");
 }

@@ -191,6 +191,7 @@
       '.wd-rangee{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:1.2cqw;}',
       '.wd-touche{appearance:none;-webkit-appearance:none;cursor:pointer;position:relative;min-height:max(46px,7.2cqw);min-width:44px;padding:.3em .2em;border-radius:.9cqw;border:1px solid #2b271c;background:linear-gradient(180deg,#f1ecdc 0%,#d9d2ba 55%,#c9c1a5 100%);color:#26221a;font:700 clamp(15px,3.6cqw,26px) "Courier New",monospace;line-height:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15em;box-shadow:0 .8cqw 0 #8b836a,0 1cqw .6cqw rgba(0,0,0,.45),inset 0 .25cqw 0 rgba(255,255,255,.8);transition:transform .04s,box-shadow .04s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none;}',
       '.wd-touche small{font:700 clamp(8px,1.7cqw,12px) "Courier New",monospace;letter-spacing:.06em;color:#5b543f;}',
+      '.wd-touche small[data-wd-cap]{max-width:100%;white-space:nowrap;letter-spacing:0;font-size:clamp(7px,1.45cqw,11px);}',
       '.wd-touche:hover{filter:brightness(1.05);}',
       '.wd-touche:active,.wd-touche.wd-enfoncee{transform:translateY(.7cqw);box-shadow:0 .1cqw 0 #8b836a,0 .2cqw .3cqw rgba(0,0,0,.5),inset 0 .15cqw 0 rgba(255,255,255,.5);}',
       '.wd-touche:focus-visible{outline:3px solid #ffb000;outline-offset:2px;}',
@@ -455,8 +456,9 @@
   }
 
   /* ---------- Clavier ---------- */
-  function touche_(libelle,sous,onclick,classe,titre,desactive){
-    return '<button type="button" class="wd-touche'+(classe?' '+classe:'')+'"'+(desactive?' disabled':'')+' title="'+html_(titre||'')+'" aria-label="'+html_(titre||sous||libelle)+'" onclick="'+onclick+'">'+libelle+(sous?'<small>'+sous+'</small>':'')+'</button>';
+  function touche_(libelle,sous,onclick,classe,titre,desactive,capRes){
+    /* capRes : bouton CAP, dont le sous-texte (le cap du moment) baisse pendant le chargement ; il est réécrit en place (majCapEnPlace_), jamais par un redessin du poste. */
+    return '<button type="button" class="wd-touche'+(classe?' '+classe:'')+'"'+(desactive?' disabled':'')+' title="'+html_(titre||'')+'" aria-label="'+html_(titre||sous||libelle)+'" onclick="'+onclick+'">'+libelle+((sous||capRes)?'<small'+(capRes?' data-wd-cap="'+capRes+'"':'')+'>'+sous+'</small>':'')+'</button>';
   }
   var API="window.__SOREAL_IDLE_WANDOOS_V1__";
   function groupe_(nom,res,e){
@@ -465,7 +467,7 @@
       touche_('0','',p+"zero')",'',nom+' : tout retirer')+
       touche_('−','',p+"moins')",'',nom+' : retirer la quantité saisie')+
       touche_('+','',p+"plus')",'',nom+' : placer la quantité saisie')+
-      touche_('CAP',(e&&e.vue&&nb_(e.vue[res==='energy'?'capEnergie':'capMagie'])>0)?grand_(e.vue[res==='energy'?'capEnergie':'capMagie']):'',p+"cap')",'',nom+' : placer d’un coup l’allocation qui atteint le cap de Wandoos (au-delà, aucun niveau de plus par seconde)')+
+      touche_('CAP',(e&&e.vue&&nb_(e.vue[res==='energy'?'capEnergie':'capMagie'])>0)?grand_(e.vue[res==='energy'?'capEnergie':'capMagie']):'',p+"cap')",'',nom+' : placer exactement l’allocation qui atteint le cap de Wandoos maintenant (il diminue pendant le chargement ; l’excédent est rendu)',false,res)+
     '</div></div>';
   }
   function groupeOs_(e){
@@ -569,6 +571,17 @@
       if(a&&n&&a.textContent!==n.textContent)a.textContent=n.textContent;
     });
   }
+  /* Cap affiché (bouton CAP) : on compare avec la DERNIÈRE VALEUR ÉCRITE par ce module, jamais avec le texte de la page (traduit). */
+  var capEcrit_={};
+  function majCapEnPlace_(neuves){
+    var cibles=document.querySelectorAll('.wd-poste [data-wd-cap]');
+    for(var i=0;i<cibles.length;i+=1){
+      var r=cibles[i].getAttribute('data-wd-cap'),n=neuves.querySelector('[data-wd-cap="'+r+'"]');
+      if(!n)continue;
+      var t=n.textContent;
+      if(capEcrit_[r]!==t||!cibles[i].hasAttribute('data-wd-cap-ecrit')){capEcrit_[r]=t;cibles[i].setAttribute('data-wd-cap-ecrit','1');if(cibles[i].textContent!==t)cibles[i].textContent=t;}
+    }
+  }
   var signaturePosteV1_='';
   function rafraichirPoste_(){
     var H=H_();
@@ -579,12 +592,12 @@
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
     var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
       /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
-      .replace(/(id="wd-ch-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-ch-(?:pct|vit|reste)">)[^<]*/g,'$1');
+      .replace(/(<small data-wd-cap="[a-z]+">)[^<]*/g,'$1').replace(/(id="wd-ch-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-ch-(?:pct|vit|reste)">)[^<]*/g,'$1');
     if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
       var neuves=document.createElement('div');neuves.innerHTML=html;
       var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
       if(nouvelles.length===actuelles.length){
-        majChargementEnPlace_(neuves);
+        majChargementEnPlace_(neuves);majCapEnPlace_(neuves);
         for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
         return;
       }
@@ -659,6 +672,15 @@
     for(var i=0;i<barres.length;i++){
       var b=barres[i];
       var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')));
+      /* Défi des 100 niveaux (Norman, 2026-11-03 : « 101 puis retour à 100 ») : les niveaux gagnés depuis le repère puisent dans le budget partagé du défi (modules/defi-niveaux-100-v1.js) ; budget épuisé = barre PLEINE, niveau figé. Hors défi : inchangé. */
+      var D100=window.__SOREAL_IDLE_DEFI100_V1__;
+      if(D100&&D100.actif()){
+        var cleD100='wd:'+(b.getAttribute('data-wd-barre')||'');
+        var gainD100=Math.min(r.gain,D100.plafond(b,cleD100));
+        D100.noter(b,cleD100,gainD100);
+        if(gainD100<r.gain||(D100.reste()<=0&&nb_(b.getAttribute('data-v'))>0)){r.f=1;r.reste=null;}
+        r.gain=gainD100;
+      }
       /*
        * Pas de petit recul (Norman, 2026-10-25 : « quand j'ajoute 100K dans Wandoos avec la synchro, les barres font un mouvement de recul très bref ») : la réponse du moteur après un placement redonne un repère (p0) légèrement en deçà de ce que la barre
        * affichait déjà. Un recul de moins de 6 % de la barre est donc tenu (la barre reste où elle est, le temps que la vraie valeur la rattrape, 2,5 s au plus) ; un vrai passage à 0 (niveau gagné) n'est jamais retenu.

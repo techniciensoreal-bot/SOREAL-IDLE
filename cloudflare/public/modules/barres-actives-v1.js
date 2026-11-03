@@ -13,7 +13,7 @@
 
 /* menu (data-menu de la page) -> comment retrouver les chiffres d'allocation, la ligne qui les porte et le style de particules ; sansParticules : la ligne garde son cadre lumineux mais ne reçoit AUCUNE couche .part-v1 (Augmentations, Norman 2026-11-03 : « enlève les petites étoiles quand le menu travaille »). */
 var MENUS={
-  entrainement:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.soreal-idle-bt-row-v120',style:'braise'},
+  entrainement:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.soreal-idle-bt-row-v120',style:'braise',sansParticules:true},   /* Basic Training : cadre lumineux, aucune particule (Norman, 2026-11-03 : « enlève les particules dans basic training pour les barres actives ») */
   augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile',sansParticules:true},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
   machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.tmm-ligne',style:'piece'},

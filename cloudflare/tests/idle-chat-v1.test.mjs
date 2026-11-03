@@ -129,7 +129,7 @@ assert.ok(!ui.includes("window.__SOREAL_IDLE_CHAT_V1__.ouvrir()"), "plus d'ouver
   assert.ok(mod2.includes("elChat"), "le chat est construit une fois et re-monté (garde la saisie)");
 }
 assert.ok(ui.includes("window.__SOREAL_IDLE_CHAT_V1__.badgeHtml()"));
-assert.ok(ui.includes("m.id!=='chat'&&menuDisponibleIdleV28_(m.id,j)"));
+assert.ok(ui.includes("m.id!=='chat'&&!menuMasqueIdleV1_(m.id)&&menuDisponibleIdleV28_(m.id,j)"));
 assert.ok(ui.includes("window.__SOREAL_IDLE_ACTIVITE_V1__=function(){"));
 assert.ok(ui.includes("{id:'playSeconds',nom:'⏱️ Temps de jeu actif'}"));
 assert.ok(index.includes("/modules/chat-v1.js"));

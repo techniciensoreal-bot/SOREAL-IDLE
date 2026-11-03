@@ -448,9 +448,15 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
    * Wandoos une fois démarré, donc jamais gaspillée (placer plus ne génère pas un niveau de plus). Arrondi au-dessus (un entier). null si le
    * multiplicateur est nul ou non fini (aucun cap défini).
    */
+  /*
+   * 2026-11-03 (Norman : « pour le cap pendant son chargement, il faudra beaucoup plus d'énergie… il diminuera plus l'OS sera chargé ») :
+   * le cap est celui À L'INSTANT : mêmes facteurs que la vitesse ci-dessus, avec le boot ACTUEL (plancher 0,01 : au plus 100 x le cap final)
+   * et le bonus de set ACTUEL (wandoosSetMultiplier : seulement une fois le boot terminé). Boot à 100 % = exactement l'ancien cap.
+   */
+  const bootPourCap = Math.max(0.01, bootFraction);
   const capDe = (multiplicateurEspece) => {
     const m = idleCardsMultiplierV1(state, "wandoos") * osLevelMultiplier * beardWandoos * diggerWandoos * challengeWandoos
-      * nguWandoosMultiplier * (1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0))) * multiplicateurEspece;
+      * nguWandoosMultiplier * wandoosSetMultiplier * bootPourCap * multiplicateurEspece;
     const cap = Number.isFinite(m) && m > 0 ? Math.ceil(requirement / m) : NaN;
     return Number.isFinite(cap) && cap > 0 ? cap : null;
   };

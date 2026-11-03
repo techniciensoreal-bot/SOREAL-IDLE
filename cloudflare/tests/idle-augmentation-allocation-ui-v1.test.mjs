@@ -81,7 +81,7 @@ assert.match(module_, /envoyerAllocRapideV1_\(\{action:'clearAugmentAllocations'
 assert.match(module_, /const cible=mode==='plus'\s*\?current\+Math\.min\(pas,idleAvant\)\s*:mode==='moins'\s*\?Math\.max\(0,current-pas\)\s*:mode==='zero'\?0:current\+idleAvant;/);
 // Norman (2026-09-27) : « je veux le même son et la même animation ... que dans basic training, mais dans augmentation » -- même mise à
 // jour optimiste locale (avant la réponse serveur) et même famille de sons (btPlus/btMinus/btCap) que ajusterBasicTrainingIdleV120_.
-assert.match(module_, /const son=mode==='plus'\?'btPlus':\(mode==='moins'\|\|mode==='zero'\)\?'btMinus':'btCap';/);
+assert.ok(module_.includes("const son='augTic';"), "touches en caoutchouc : un « tic » de clip (Norman, 2026-11-03)");
 assert.match(module_, /if\(audio&&typeof audio\[son\]==='function'\)audio\[son\]\(\);/);
 /*
  * 2026-09-29 (Norman : « j'ai l'impression que la réactivité n'est pas aussi bonne que dans basic
@@ -124,6 +124,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   };
   const audio = {
     btPlus: () => sons.push("btPlus"),
+    augTic: () => sons.push("augTic"),
     btMinus: () => sons.push("btMinus"),
     btCap: () => sons.push("btCap")
   };
@@ -154,7 +155,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   assert.deepEqual(sent.map((p) => [p.action, p.pair, p.upgrade, p.value]), [["allocateAugment", "scissors", false, 140]]);
   assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 140, "la piste est mise à jour localement, sans attendre le serveur");
   assert.equal(etat.energie, 210, "l'énergie idle restante baisse immédiatement (250 − 40)");
-  assert.deepEqual(sons, ["btPlus"], "même son que le + de Basic Training");
+  assert.deepEqual(sons, ["augTic"], "le + joue le tic de clip");
   assert.equal(rendus.length, 0, "plus de rendu complet du tout sur ce chemin (2026-09-29, réactivité)");
   assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "140 ⚡", "le chiffre alloué est patché directement, sans rendu complet");
   assert.equal(els.sorealIdleAugEnergieLibreV1.textContent, "210", "l'énergie libre affichée est patchée directement aussi");
@@ -166,7 +167,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   assert.equal(sent.at(-1).value, 100, "140 − 40");
   assert.equal(etat.systemes.systems[0].state.data.pairs.scissors.energy, 100);
   assert.equal(etat.energie, 250, "l'énergie rendue est restituée immédiatement");
-  assert.deepEqual(sons, ["btPlus", "btMinus"]);
+  assert.deepEqual(sons, ["augTic", "augTic"]);
   assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "100 ⚡");
   assert.equal(els.sorealIdleAugEnergieLibreV1.textContent, "250");
   assert.equal(patchsBarre.length, 2);
@@ -176,7 +177,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   await attendreEnvoi();
   assert.equal(sent.at(-1).value, 350, "100 + 250 (toute l'énergie idle libre)");
   assert.equal(etat.energie, 0);
-  assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "Max joue le même son que le Cap de Basic Training");
+  assert.deepEqual(sons, ["augTic", "augTic", "augTic"], "Max joue aussi le tic de clip");
   assert.equal(els.sorealIdleAugAllocV1_scissors_main.textContent, "350 ⚡");
   assert.equal(rendus.length, 0, "toujours aucun rendu complet, même pour Cap/Max");
 
@@ -187,7 +188,7 @@ console.log("idle-augmentation-allocation-ui-v1: OK");
   await attendreEnvoi();
   assert.equal(sent.length, envoisAvant, "plus d'énergie idle libre à placer : rien n'est envoyé");
   assert.equal(patchsBarre.length, patchsAvant, "aucun patch optimiste quand rien ne change réellement");
-  assert.deepEqual(sons, ["btPlus", "btMinus", "btCap"], "aucun son supplémentaire quand rien ne change réellement");
+  assert.deepEqual(sons, ["augTic", "augTic", "augTic"], "aucun son supplémentaire quand rien ne change réellement");
 
   // Input invalide : on garde le dernier montant valide.
   etat = fabriquerEtat();

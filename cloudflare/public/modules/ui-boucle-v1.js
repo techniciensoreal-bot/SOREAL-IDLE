@@ -432,10 +432,14 @@
               const cle='cycles_'+x[0];
               let debites=d[cle]||0;
               let k=0,reste=idleNombre_(x[1])*secondes0+ecouleAug,bloque=false,debiteCeTick=false;
+              /* Défi des 100 niveaux (2026-11-03) : budget partagé restant (Infinity hors défi) ; le rejeu ne dépasse jamais ce que le moteur permet. */
+              const D100=window.__SOREAL_IDLE_DEFI100_V1__;
+              const cleD100=id+':'+x[0];
+              const plafondDefi=D100?D100.plafond(d,cleD100):Infinity;
               if(secondes0>0.0201){
                 /* Rejeu en formule (rejouerCyclesAugmentIdleV1_, meta-progression) : aucun plafond de 200 niveaux, même pour une barre qui en gagne des dizaines par seconde. */
                 const orAvant=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0});
+                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rj.debit>0){monnaiesLocales.gold=Math.max(0,orAvant-rj.debit);debiteCeTick=true;}
                 k=rj.k;reste=rj.reste;bloque=rj.bloque;debites=rj.debites;
                 d[cle]=debites;
@@ -443,12 +447,16 @@
               }else if(secondes0>0&&typeof window.__rejouerCyclesAugmentPlafonneIdleV1__==='function'){
                 /* Barre CAP (50 niveaux par seconde au plus) : les niveaux, le coût et l'Or sont eux aussi rejoués en direct (Norman, 2026-10-10). */
                 const orAvantCap=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0});
+                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rjCap.debit>0){monnaiesLocales.gold=Math.max(0,orAvantCap-rjCap.debit);debiteCeTick=true;}
                 k=rjCap.k;reste=rjCap.reste;bloque=rjCap.bloque;debites=rjCap.debites;
                 d[cle]=debites;
                 if(debiteCeTick)patcherResumeStatsIdleV28_(REG.idleEtat);
               }
+              /* Défi : le niveau rejoué sort du budget partagé ; budget épuisé = aucun niveau de plus, barre PLEINE. */
+              if(D100)D100.noter(d,cleD100,k);
+              const bloqueDefi=Boolean(D100&&D100.actif()&&secondes0>0&&D100.reste()<=0);
+              if(bloqueDefi)reste=Math.max(reste,secondes0>0.0201?dureeK(k):secondes0);
               const secondes=secondes0>0.0201?dureeK(k):secondes0;
               const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
               const manqueOrServeur=Boolean(x[3])&&k===0&&orLive+1e-9<coutK(0);
@@ -488,7 +496,7 @@
                 ecrireSiChangeIdleV1_(etaEl,window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0));
               }
               /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. Sinon elle continue sans s'arrêter. */
-              if(attenteOr){
+              if(attenteOr||bloqueDefi){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
                 el.style.transform='scaleX(1)';
@@ -537,7 +545,8 @@
               const eta0=idleNombre_(bloodVisual.etaSeconds);
               if(ecoule0>=eta0-1e-9){
                 const dus=Math.floor((ecoule0-eta0)/seconds)+1;
-                const faits=Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
+                /* Défi des 100 niveaux (2026-11-03) : chaque rituel rejoué sort du budget partagé ; à 0, aucun rituel de plus (barre pleine, comme faute d'Or). */
+                const faits=window.__SOREAL_IDLE_DEFI100_V1__?window.__SOREAL_IDLE_DEFI100_V1__.accorder(Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000)):Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
                 /* Faute d'Or, la barre attend PLEINE (repère remis à maintenant) : sinon le temps d'attente s'empile et tous ces rituels sont rejoués d'un coup quand l'Or revient (Norman, 2026-10-23) */
                 if(faits<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=0;}
                 if(faits>0&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies){

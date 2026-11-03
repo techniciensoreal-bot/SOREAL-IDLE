@@ -1261,7 +1261,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28{
   box-shadow:0 10px 26px -10px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.06);
   scrollbar-width:thin;scroll-snap-type:x proximity;
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28{
+body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28:not(.soreal-idle-nav-v28:not(.edition) .soreal-idle-nav-button-v28.masque-v1){
   --c1:var(--nav-color,#6b7280);
   --c2:color-mix(in srgb,var(--c1) 40%,#000);
   display:flex!important;align-items:center;gap:9px;flex:0 0 auto;text-align:left;

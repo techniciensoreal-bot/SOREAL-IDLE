@@ -63,9 +63,11 @@
     if(!d)return '';
     const tete='<div class="rb-jackpot-detail" data-trou-v1="1" data-mp-palier="'+d.tier+'"><b>Récompenses possibles avec ton Or actuel</b></div>';
     if(!d.lots.length)return tete+'<div class="rb-legende"><div class="rb-leg"><span>Avec l’Or que tu as, le trou ne te donnera rien.</span></div></div>';
+    /* Un seul lot est tiré, au hasard parmi ces lots (wiki : « a random chance between all available rewards » ; tirage du moteur : moneyPitLotsDisponiblesV1) : chacun a 1 chance sur N (Norman, 2026-11-03 : afficher le % de chance). */
+    const pct=(Math.round(1000/d.lots.length)/10).toString().replace('.',',')+' %';
     return tete+'<div class="rb-legende">'+d.lots.map(function(l){
       const s=decrire(l);
-      return '<div class="rb-leg">'+iconeSvg(s.icon)+'<span>'+esc(s.name)+'</span></div>';
+      return '<div class="rb-leg">'+iconeSvg(s.icon)+'<span>'+esc(s.name)+'</span><em class="rb-pct">'+pct+'</em></div>';
     }).join('')+'</div><div class="rb-jackpot-detail">Un seul de ces lots est tiré. <b>En plus</b> : '+esc(nb(d.ap))+' AP.</div>';
   }
 

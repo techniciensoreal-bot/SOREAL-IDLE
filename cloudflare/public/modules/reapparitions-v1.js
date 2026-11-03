@@ -96,6 +96,15 @@ function creerScene(calque,img){
     nw:img.naturalWidth||img.width||1,nh:img.naturalHeight||img.height||1,src:sujet.src};
   return X;
 }
+/* Yeux rouges de la Silhouette (Norman, 2026-11-03 : « pour chaque boss où c'est les yeux rouges, il faut que les yeux rouges soient à l'emplacement où ses vrais yeux vont apparaître »). L'entrée d'un boss suit toujours le même ordre : la Silhouette revient aux boss 14, 31, 48, 65, 82, 99, 116, 133, 150, 167, 184, 201, 218, 235, 252, 269, 286 ((n - 1) mod 17 = 13).
+   Par boss : [x1, y1, x2, y2, largeur] en % de l'image (centre de chaque œil, relevés à l'œil sur l'image du boss, grille de 10 %) ; x2 = null : un seul œil visible (profil). Le téléviseur (31) a les yeux au niveau de son inscription. Les boss sans yeux (texte, coffre, assiette, squelette hors cadre) gardent l'ancien emplacement. */
+var YEUX_BOSS={14:[43,25,50,26.5,5],31:[40,15,62,16.5,5],48:[43,28,56,28,7],82:[41.5,36,49,36,5],99:[15,14,27,14,5],116:[16.5,51.5,23.5,51.5,4],133:[35.5,6,43.5,6,5],167:[60,17,68,18,4.5],235:[12,47,null,47,3.5],252:[67.5,38,71,38,3],269:[51.5,23,58,23,4.5],286:[56,18,null,18,5]};
+function yeuxRouges(X){
+  var Y=YEUX_BOSS[X.n],y,oeil=function(cx,cy,w){return '<i style="position:absolute;left:'+cx+'%;top:'+cy+'%;width:'+w+'em;height:'+(w*0.66)+'em;transform:translate(-50%,-50%);border-radius:50%;background:#ff2b2b;box-shadow:0 0 '+(w*0.8)+'em '+(w*0.3)+'em #f00"></i>';};
+  if(!Y){y=sur(X,'left:30%;right:30%;top:34%;height:14px;z-index:3');y.innerHTML='<i style="position:absolute;left:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i><i style="position:absolute;right:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i>';return y;}
+  y=sur(X,'left:0;top:0;width:100%;height:100%;z-index:3;font-size:'+(X.W/100)+'px');
+  y.innerHTML=oeil(Y[0],Y[1],Y[4])+(Y[2]==null?'':oeil(Y[2],Y[3],Y[4]));return y;
+}
 function anim(el,kf,opt){try{return el.animate(kf,Object.assign({fill:'both'},opt)).finished.catch(function(){});}catch(_e){return Promise.resolve();}}
 function sur(X,css,html){var e=document.createElement('div');e.style.cssText='position:absolute;pointer-events:none;'+css;if(html)e.innerHTML=html;X.monde.appendChild(e);return e;}
 function raf(X,duree,fn){return new Promise(function(res){var t0=performance.now();function f(t){if(!X.stage.isConnected){res();return;}var p=cl((t-t0)/(duree*1000),0,1);fn(p);if(p<1)requestAnimationFrame(f);else res();}requestAnimationFrame(f);});}
@@ -140,7 +149,7 @@ var BOSS=[
  {id:'portail',nom:'Portail',duree:2.0,jouer:function(X){var T=Math.round(Math.min(X.W,X.H)*1.1);var p=sur(X,'left:50%;top:50%;width:'+T+'px;height:'+T+'px;margin:-'+(T/2)+'px 0 0 -'+(T/2)+'px;border-radius:50%;background:conic-gradient(from 0deg,#7a2cff,#19d4ff,#ff3b8e,#ffd24a,#7a2cff);-webkit-mask:radial-gradient(circle,transparent 52%,#000 54%,#000 70%,transparent 72%);mask:radial-gradient(circle,transparent 52%,#000 54%,#000 70%,transparent 72%);z-index:3');
   anim(p,[{transform:'scale(0) rotate(0)',opacity:0},{transform:'scale(1) rotate(360deg)',opacity:1,offset:.3},{transform:'scale(1) rotate(900deg)',opacity:1,offset:.75},{transform:'scale(.2) rotate(1400deg)',opacity:0}],{duration:2000,easing:'linear'});
   return anim(X.sujet,[{clipPath:'circle(0% at 50% 50%)',transform:'scale(.3) rotate(-120deg)',opacity:1},{clipPath:'circle(0% at 50% 50%)',transform:'scale(.3) rotate(-120deg)',offset:.25},{clipPath:'circle(75% at 50% 50%)',transform:'scale(1.06) rotate(8deg)',offset:.75,easing:'ease-out'},{clipPath:'circle(75% at 50% 50%)',transform:'none',opacity:1}],{duration:2000});}},
- {id:'silhouette',nom:'Silhouette',duree:2.0,jouer:function(X){var y=sur(X,'left:30%;right:30%;top:34%;height:14px;z-index:3');y.innerHTML='<i style="position:absolute;left:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i><i style="position:absolute;right:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i>';
+ {id:'silhouette',nom:'Silhouette',duree:2.0,jouer:function(X){var y=yeuxRouges(X);
   anim(y,[{opacity:0},{opacity:0,offset:.3},{opacity:1,offset:.38},{opacity:.2,offset:.46},{opacity:1,offset:.54},{opacity:1,offset:.7},{opacity:0}],{duration:2000});
   return anim(X.sujet,[{filter:'brightness(0)',opacity:0},{filter:'brightness(0)',opacity:1,offset:.28},{filter:'brightness(0)',opacity:1,offset:.7},{filter:'brightness(1)',opacity:1,offset:.95},{filter:'brightness(1)',opacity:1}],{duration:2000,easing:'ease-in-out'});}},
  {id:'plongeon',nom:'Plongeon',duree:1.4,jouer:function(X){setTimeout(function(){if(!X.stage.isConnected)return;secouer(X,14,.5);anneau(X,'#ffffff',.5,Math.round(X.W*.8));},720);
@@ -161,7 +170,7 @@ function jouer(type,id,o){
   var e=trouver(type,id);
   if(!e||!o||!o.calque||!o.img)return Promise.resolve(false);
   var X;
-  try{X=creerScene(o.calque,o.img);}catch(_e){return Promise.resolve(false);}
+  try{X=creerScene(o.calque,o.img);X.n=o.n;}catch(_e){return Promise.resolve(false);}
   jouerSon(id,e.duree+.3);
   var p;
   try{p=e.jouer(X);}catch(_e){p=Promise.resolve();}

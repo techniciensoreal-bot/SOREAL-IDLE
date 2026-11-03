@@ -86,9 +86,10 @@ const etat = (extra = {}) => ({ combatBossActif: true, bossSelection: 3, bossVai
 const lancer = (e, anim) => {
   fen.__SOREAL_IDLE_REG__ = { idleEtat: e, formaterPvFixeIdleV1_: formateur };
   fen.__SOREAL_IDLE_BORNE_ANIM_FORCEE__ = anim || "redroom";
-  ev("cur=null;pend=false;combatAnim='';animChoisie='';animDecision=0;L.ok=false;");
+  ev("cur=null;pend=false;combatAnim='';animChoisie='';animDecision=0;animBossJoue=-1;L.ok=false;");
   ev("lire(1000);combatFight(1000,false)");   /* le combat commence : FIGHT ! */
-  assert.equal(ev("cur.id"), "fight");
+  /* Norman (2026-11-03) : au clic, la prévision décide tout de suite : la scène démarre (ou FIGHT ! si le combat est trop court) */
+  assert.ok(["fight", anim || "redroom"].includes(ev("cur.id")));
   ev("lire(1010);majAnimation(1010)");        /* première image : 10 ms plus tard (plus d'attente d'une seconde) */
   return { scene: ev("cur.id"), decision: ev("animDecision"), anim: ev("combatAnim") };
 };

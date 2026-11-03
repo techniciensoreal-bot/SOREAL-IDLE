@@ -18,7 +18,7 @@ assert.ok(bloc.includes("overflow-wrap:normal!important") && bloc.includes("word
 assert.ok(css.includes("@keyframes sorealNavAnneauV1") && css.includes("@keyframes sorealNavDispoEchelleV1") && !/nav-new-v1[^{]*\{[^}]*animation:none!important[^}]*\}[^]*MENU DU HAUT/.test(""), "keyframes des animations du menu intacts");
 assert.ok(bloc.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-new-v1::after") && bloc.includes(".soreal-idle-nav-button-v28.soreal-idle-nav-dispo-v1"), "anneau « nouveau » et halo « disponible » adaptés, pas supprimés");
 // Rangement des boutons : tout visible, bandeau pleine largeur
-assert.ok(/\.soreal-idle-nav-v28\.edition\{\s*display:flex!important;flex-wrap:wrap!important;overflow:visible!important;/.test(css), "mode rangement : tous les boutons visibles");
+assert.ok(/\.soreal-idle-nav-v28\.edition\{\s*display:flex!important;flex-wrap:wrap!important;overflow:var\(--nav-edition-ov,visible\)!important;/.test(css), "mode rangement : tous les boutons visibles");
 // Le HTML des boutons n'a pas changé (emoji + nom + sous-titre dans le DOM, caché par le style)
 const ui = lireUiComplet();
 assert.ok(ui.includes("soreal-idle-nav-emoji-v2") && ui.includes("soreal-idle-nav-texte-v2"), "structure des boutons inchangée");

@@ -234,4 +234,22 @@ function addBoost(s, type, strength, level = 0) {
   assert.deepEqual(ids11, [f1, f2, e1, e2].map((o) => o.id), "set Forêt (pièce verrouillée) d'abord : tête, torse ; puis Égouts : les deux mêmes casques côte à côte");
 }
 
+// --- Pendentifs de la forêt (Norman, 2026-11-03) : côte à côte, du plus puissant (niveau le plus haut) au moins puissant, séparés par un autre objet au départ ---
+{
+  const sp = adv();
+  sp.inventory = [];
+  const p0 = addItem(sp, "forest:pendant", 0);
+  const autre = addItem(sp, "forest:ring", 0);
+  const p3 = addItem(sp, "forest:pendant", 3);
+  const p1 = addItem(sp, "forest:pendant", 1);
+  const p2 = addItem(sp, "forest:pendant", 2);
+  sp.inventorySlots = [p0, autre, p3, p1, p2].map((o) => o.id);
+  applyIdleInventoryAutoActionV1({ adventure: sp }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  const ids = sp.inventorySlots.filter(Boolean);
+  const pendants = ids.filter((id) => [p0, p1, p2, p3].some((o) => o.id === id));
+  assert.deepEqual(pendants, [p3, p2, p1, p0].map((o) => o.id), "pendentifs : du plus puissant au moins puissant");
+  const pos = [p3, p2, p1, p0].map((o) => ids.indexOf(o.id));
+  assert.ok(pos[3] - pos[0] === 3, "les quatre pendentifs sont côte à côte (aucun autre objet entre eux)");
+}
+
 console.log("idle-inventory-sort-v1: OK");

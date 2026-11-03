@@ -48,7 +48,8 @@ assert.ok(/\.aug-piste-v2\[data-rang-v1\]\{border-left-width:2px!important;backg
 // --- 3. touches en caoutchouc
 const i = touches.indexOf("/* Touches en CAOUTCHOUC");
 assert.ok(i > 0, "bloc des touches");
-const bloc = touches.slice(i);
+const fin = touches.indexOf("/* Boutons de la barre du haut");   // la disposition (colonnes) de la barre du haut vient après les touches : elle vise « .clear » pour la largeur, pas pour une couleur
+const bloc = touches.slice(i, fin > i ? fin : undefined);
 assert.ok(!/nth-child|first-of-type|\.clear|\.max/.test(bloc.replace(/\/\*[\s\S]*?\*\//g, "")), "aucune couleur d'accent propre à Max / Tout retirer : même gomme pour toutes");
 assert.ok(!/radial-gradient/.test(bloc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/--trou:[^;]*;/g, "")), "pas de dégradé radial (reflet) sur les touches");
 for (const a of bloc.matchAll(/rgba\(255,255,255,([.\d]+)\)/g)) assert.ok(Number(a[1]) <= 0.12, "aucun liseré/reflet blanc marqué : " + a[0]);
@@ -90,7 +91,7 @@ assert.ok(!/opacity:[^1;]/.test(desactivee) && /opacity:1[;}]/.test(sansCommenta
 assert.equal((sansCommentaires.match(/background:var\(--gomme-grain\)/g) || []).length, 1, "un seul fond de gomme pour toutes les touches");
 // --- 3b. aucun cadre autour du groupe des 4 touches (Norman, 2026-11-03)
 {
-  const reg = sansCommentaires.match(/\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120:not\(#_\):not\(#_\)\{([^}]*)\}/);
+  const reg = sansCommentaires.match(/\.aug-piste-v2 \.soreal-idle-bt-actions-v120:not\(#_\):not\(#_\)\{([^}]*)\}/);
   assert.ok(reg, "règle du conteneur des touches");
   assert.ok(/border:0;border-radius:0;box-shadow:none/.test(reg[1]), "le conteneur n'a ni bordure, ni rayon, ni ombre");
   assert.ok(!/--pcb-base/.test(reg[1]) && !/radial-gradient|inset/.test(reg[1]), "aucune sous-plaque ni trou de fixation : seulement une trace de cuivre");
