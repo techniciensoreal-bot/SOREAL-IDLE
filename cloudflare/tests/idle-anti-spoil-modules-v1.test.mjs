@@ -56,7 +56,7 @@ const LISTE_BLANCHE = [
      verrouillée (la prochaine) est montrée, sans nom ni seuil, pour que l'interface ne saute pas ; tout le reste est tronqué.
      Comportement demandé par Norman et épinglé par idle-anti-spoil-augmentations-v1.test.mjs. */
   { fichier: "augmentations-page-v1.js", contient: "🔒 ???????", raison: "unique prochain Augment, sans nom ni condition (cf. Basic Training)" },
-  { fichier: "augmentations-page-v1.js", contient: "Augment verrouillé.", raison: "libellé générique de ce même emplacement" },
+  { fichier: "augmentations-page-v1.js", contient: "pour l’obtenir.", raison: "cinquième exception de Norman (2026-11-03) : le numéro du boss de la PROCHAINE augmentation seulement, dans le cadre ????????" },
   /* meta-progression-v130.js : cartes (Cards). 🔒 = icône « protégée » d'une carte que le joueur possède et a lui-même protégée ;
      rien à voir avec un déblocage. */
   /* Texte d'aide d'un défi DÉJÀ actif : règle du défi en cours (le joueur y est), pas un contenu non découvert. */

@@ -17,8 +17,8 @@ for (const f of ["soreal-idle-entetes-d.css", "soreal-idle-entetes-miniature-v1.
 assert.ok(lab.includes("function luneUri_") && lab.includes("'#fffdf0','#fbeeb4','#e9cf86','#c9a95c'"), "lune de l'onglet Magie : mêmes couleurs que la référence");
 assert.ok(/\.nl-v1\[data-nl-onglet="magic"\] \.nl-astre::after\{background:url\("'\+LUNE_URI\+'"\)/.test(lab), "la lune de Magie est la pleine lune");
 assert.ok(/data-nl-niv="0"\] \.nl-astre::after\{background:url\("'\+LUNE_GRISE_URI\+'"\)[^}]*box-shadow:none/.test(lab), "niveau 0 : lune grise, sans halo");
-assert.ok(/\.nl-astre::before\{inset:-42px;[^}]*opacity:calc\(var\(--nl-lueur,0\)\*\.95\)/.test(lab), "halo proportionnel à --nl-lueur");
-assert.ok(/box-shadow:0 0 calc\(8px \+ var\(--nl-lueur,0\)\*14px\)/.test(lab), "halo d'ombre proportionnel à --nl-lueur");
+assert.ok(/\.nl-astre::before\{inset:-64px;[^}]*opacity:calc\(\.4 \+ var\(--nl-lueur,0\)\*\.6\)/.test(lab), "halo proportionnel à --nl-lueur (Norman, 2026-11-03 : « une lune vraiment brillante » : plus large et jamais éteint)");
+assert.ok(/box-shadow:0 0 8px 1px rgba\(255,248,220,\.9\),0 0 calc\(18px \+ var\(--nl-lueur,0\)\*40px\)/.test(lab), "halo d'ombre proportionnel à --nl-lueur");
 assert.ok(!/@keyframes[^{]*\{[^}]*(filter|box-shadow)/.test(lab), "aucune animation de filter ou de box-shadow");
 assert.ok(/\.nl-v1>\.nl-astre,\.nl-v1>\.nl-nuages\{position:absolute;pointer-events:none/.test(lab), "pointer-events:none");
 assert.ok(!lab.includes("rgba(150,60,8,.5) 0 9%"), "plus de lune orange à cratères orangés");

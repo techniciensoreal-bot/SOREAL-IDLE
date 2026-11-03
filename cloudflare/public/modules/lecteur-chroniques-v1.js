@@ -211,7 +211,8 @@ var CLE_DING='idle/ambient/Ding.m4a';
  * Le fichier contient TROIS tournements de page distincts, séparés par des silences (mesuré : 0,27–0,75 s, 1,45–1,80 s, 2,42–3,06 s sur 3,46 s). Norman (2026-10-26) : « chacun joué à tour de rôle entre deux histoires : première page, deuxième, troisième, première… ».
  * On joue donc UN seul tournement par intervalle, dans l'ordre, et le rang continue d'une lecture à l'autre (mémorisé comme préférence liée au compte).
  */
-var DING_SEGMENTS=[[0.22,0.82],[1.40,1.86],[2.37,3.14]];
+/* Fins repoussées jusqu'avant le tournement suivant (Norman, 2026-11-03 : « le bruit est parfois coupé entre 2 boss ») : la coupe se compte à partir du début RÉEL de la lecture (événement playing), plus à partir de l'appel de play(), et un court fondu évite le claquement. */
+var DING_SEGMENTS=[[0.18,1.18],[1.38,2.22],[2.34,3.46]];
 var CLE_DING_RANG='soreal_idle_ding_rang_v1';
 function dingRang_(){
   var n=0;
@@ -236,14 +237,21 @@ function ding(fini){
     function jouer(){
       if(lance)return;lance=true;
       try{a.currentTime=seg[0];}catch(_e){}
+      var coupe=false;
+      function couper(){if(coupe)return;coupe=true;try{a.pause();}catch(_e){}suite();}
+      /* le tournement fini, on coupe (le fichier continue avec les deux autres) : décompte depuis le démarrage réel du son, fondu sur les 90 dernières ms */
+      a.addEventListener('playing',function(){
+        var reste=Math.max(0.12,seg[1]-(a.currentTime||seg[0]));
+        var v0=a.volume;
+        setTimeout(function(){try{a.volume=v0*0.4;}catch(_e){}},Math.max(0,reste*1000-90));
+        setTimeout(couper,reste*1000);
+      },{once:true});
       var p=a.play();
       if(p&&p.catch)p.catch(suite);
-      /* le tournement fini, on coupe tout de suite (le fichier continue avec les deux autres) */
-      setTimeout(function(){try{a.pause();}catch(_e){}suite();},Math.max(120,(seg[1]-seg[0])*1000));
     }
     a.addEventListener('loadedmetadata',jouer);
     if(a.readyState>=1)jouer();
-    setTimeout(suite,4000);
+    setTimeout(suite,6000);
   }catch(_e){suite();}
 }
 

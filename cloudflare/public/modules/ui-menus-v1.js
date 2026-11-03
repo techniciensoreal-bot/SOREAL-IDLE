@@ -1450,7 +1450,13 @@
 
         /* L'appui long ne doit ouvrir ni le menu contextuel du navigateur ni une sélection de texte sur les boutons du menu. */
         document.addEventListener('contextmenu',function(ev){
-          if(boutonNav(ev.target))ev.preventDefault();
+          const b=boutonNav(ev.target);
+          if(!b)return;
+          ev.preventDefault();
+          /* Clic DROIT à la souris (Norman, 2026-11-03) : NGU -> les NGU de magie, Aventure -> Titans (comme le double appui). Un appui long tactile (même événement) reste réservé au rangement des boutons. */
+          if(ev.pointerType==='touch'||REG.idleMenuEditionV1||Date.now()<REG.idleMenuClicAvaleJusquaV1)return;
+          const id=b.getAttribute('data-menu-id-v1');
+          if(id==='ngu'||id==='aventure')menuIdleV28_(id,'alt');
         },true);
       }
 

@@ -880,7 +880,8 @@
         /* Temps du Rebirth en cours (Norman, 2026-10-24 : « une info qu'on aime avoir sous l'œil ») : une case de plus, seulement une fois le menu Renaissance découvert (règle n°2). Mise à jour chaque seconde par modules/temps-rebirth-v1.js. */
         let tempsRebirth='';
         try{
-          if(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j)){
+          /* Norman (2026-11-03) : « le timer doit apparaître tout de suite et ne jamais disparaître » : après un Rebirth le menu Renaissance n'est plus proposé pendant environ trois minutes ; la case reste donc affichée dès qu'un Rebirth a eu lieu (et tant que le menu est proposé avant le premier). */
+          if(rebirths>0||(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j))){
             const api=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
             if(api&&typeof api.runSecondes==='function')tempsRebirth='<div class="soreal-idle-summary-v28" data-tuile="rebirth" title="Temps du Rebirth en cours">⏱️ Temps<b id="sorealIdleSummaryRebirthTempsV1" data-sans-traduction>'+api.duree(api.runSecondes(j))+'</b></div>';
           }

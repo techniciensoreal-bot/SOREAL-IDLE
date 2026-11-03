@@ -21,7 +21,8 @@ assert.match(page, /if\(!mainOk\)\{[\s\S]{0,300}🔒 \?\?\?\?\?\?\?/, "paire ver
 {
   const brancheVerrouillee = page.slice(page.indexOf("if(!mainOk){"), page.indexOf("const upgradeOk="));
   assert.ok(!brancheVerrouillee.includes("def.name"), "jamais le vrai nom pour une paire verrouillée");
-  assert.ok(!brancheVerrouillee.includes("unlockBoss"), "jamais le seuil \"Boss N\" pour une paire verrouillée");
+  /* Exception décidée par Norman (2026-11-03, AGENTS.md règle n°2, cinquième exception) : le NUMÉRO du boss à battre pour obtenir la PROCHAINE augmentation, dans le cadre « ???????? » ; jamais le nom, jamais les suivantes. */
+  assert.ok(brancheVerrouillee.includes("Bats le boss ")&&brancheVerrouillee.includes("def.unlockBoss")&&brancheVerrouillee.includes("pour l’obtenir.")&&brancheVerrouillee.includes("????????"), "seul le numéro du boss de la prochaine augmentation, dans le cadre ????????");
 }
 
 // 3. L'Upgrade d'une paire déjà débloquée reste lui-même masqué (nom de l'upgrade jamais montré séparément, pas de seuil) tant qu'il n'est pas atteint.

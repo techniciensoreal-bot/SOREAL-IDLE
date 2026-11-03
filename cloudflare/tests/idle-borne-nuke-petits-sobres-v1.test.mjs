@@ -9,5 +9,5 @@ assert.ok(/if\(z<2\|\|u<0\.5\)return;/.test(corps("nkApres")), "éclairs, gerbes
 assert.ok(/if\(a&&z>=2&&u>0\.9\)/.test(corps("nkAvant")), "secousse de l'écran : à partir du palier 2 seulement");
 assert.ok(/return z>=2\?\[/.test(corps("nkTrem")), "le mot ne tremble qu'à partir du palier 2");
 // les scènes réservées aux petits Nukes (chat, chien, cul, ballon) ne sortent qu'aux paliers 0 et 1
-assert.ok(/NK_PETITS_SEULEMENT=\[5,12,22,23\]/.test(code), "chat, chien, cul et ballon : petits Nukes seulement");
+assert.ok(/NK_PETITS_SEULEMENT=\[5,12,22\]/.test(code), "chat, chien et ballon : petits Nukes seulement");
 console.log("idle-borne-nuke-petits-sobres-v1: OK");

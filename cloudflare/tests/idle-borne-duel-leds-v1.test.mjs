@@ -67,7 +67,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("['mascot','sweep','redroom'][Math.min(2,Math.floor(Math.random()*3))];"), "l'animation du combat est tirée au début du combat, parmi trois");
+  assert.ok(led.includes("['mascot','sweep','redroom','egout'][Math.min(3,Math.floor(Math.random()*4))];"), "l'animation du combat est tirée au début du combat, parmi quatre (la scène de l'égout, 2026-11-03, s'ajoute aux trois autres)");
   assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
@@ -116,12 +116,12 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("function geoCourse(xe)") && led.includes("var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));"), "la fille est au bout de la barre de vie, le fourgon roule devant, Leatherface derrière : tout suit la barre (Norman, 2026-11-02)");
   assert.ok(led.includes("if(fin){") && led.includes("var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}") && led.includes("G.tx-Math.round(uf*uf*40+uf*10)") && led.includes("}else danseFinale(t,fl,xd,uf-TC);"), "victoire : le fourgon sort de l'écran et Leatherface fait sa danse là où il s'est arrêté");
   assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
-  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
+  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR:p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
   console.log("idle-borne-duel-leds-v1 (poursuite du fourgon) : OK");
 }
 {
   const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led2.includes("function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&s.p.anim==='redroom')?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
+  assert.ok(led2.includes("function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
   assert.ok(led2.includes("if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}") && led2.includes("pend=false;graceFin=0;demarrer(s);"), "le combat suivant qui démarre avant le drapeau de victoire n'écrase plus l'animation longue : on attend la scène de fin (Norman, 2026-11-03)");
 }
 {
@@ -139,20 +139,20 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : la Red Room, troisième animation (deux hommes, rideau rouge, Vénus de Milo, nain qui danse ; victoire : le rideau s'ouvre sur une clairière de nuit ; défaite : la main sur l'épaule, éclairs et lueur bleue)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led.includes("redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5}") && led.includes("var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1};") && led.includes("cur.id==='redroom'||cur.id==='bars'"), "la Red Room est une scène de combat comme les deux autres");
-  assert.ok(led.includes("if(id==='ko'&&combatAnim==='redroom'){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("if(an==='redroom')sRedroom(t);else (an==='sweep'?sSweep:sMascot)(t);") && led.includes("else if(rr)perduRedroom(t);"), "victoire et défaite de la Red Room");
+  assert.ok(led.includes("redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5}") && led.includes("var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};") && led.includes("cur.id==='redroom'||cur.id==='egout'||cur.id==='bars'"), "la Red Room est une scène de combat comme les deux autres");
+  assert.ok(led.includes("if(id==='ko'&&(combatAnim==='redroom'||combatAnim==='egout')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);") && led.includes("else if(rr)perduRedroom(t);"), "victoire et défaite de la Red Room");
   assert.ok(led.includes("var VENUS=[") && led.includes("var NAIN_POSES=[") && led.includes("function rrNainPose(t)") && led.includes("var HOMMES=[hommeRows(0),hommeRows(1),hommeRows(2),hommeRows(3)];"), "Vénus de Milo, nain qui danse, homme en deux exemplaires");
   assert.ok(led.includes("var q=(((x-sh)%8)+8)%8,tri=q<4?q:8-q") && led.includes("sh=Math.floor(tg*RR_SP)"), "sol en chevrons : période de 8 colonnes, glissement entier (boucle parfaite)");
   assert.ok(led.includes("rrDessinHomme(HOMMES[fr],fx,G,reb,op);") && led.includes("function rrClairiere(x,G,t)") && led.includes("6.2832*(t/2+R(u,y))"), "victoire : le rideau s'ouvre sur une clairière étoilée où les hommes s'enfoncent (étoiles : période 2 s)");
   const corps = led.slice(led.indexOf("function perduRedroom(t){"), led.indexOf("/* 6. La ola puis VICTOIRE ! */"));
   assert.ok(corps.includes("tCatch=1.2") && corps.includes("bleu=2") && corps.includes("bleu=1") && corps.includes("HOMMES[caught?3:"), "défaite : main sur l'épaule, éclairs puis lueur bleue, le fuyard reste figé");
-  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom',fv=rr&&visOk(),tg=t;"), "pas de « RECOMMENCE ? » pendant la Red Room");
+  assert.ok(led.includes("if(rr||eg)v2=0;") && led.includes("var rr=P.p.anim==='redroom',fv=rr&&visOk(),eg=P.p.anim==='egout',tg=t;"), "pas de « RECOMMENCE ? » pendant la Red Room");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
   console.log("idle-borne-duel-leds-v1 (Red Room) : OK");
 }
 {
   const led5 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom')?forcee:['mascot','sweep','redroom']"), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
+  assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom'||forcee==='egout')?forcee:['mascot','sweep','redroom','egout']"), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
 }
 {
   const led6 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");

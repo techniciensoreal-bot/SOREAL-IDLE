@@ -166,14 +166,10 @@
             }
           }
           const secondesAffichees=Math.ceil(restant);
-          if(faussesOr&&!bloqueDefi){
-            /* Norman (2026-11-03) : « quand il manque de l'argent, enlève le compte à rebours d'argent manquant ; je veux juste la somme écrite en rouge nécessaire pour le niveau suivant » : plus de compteur d'Or qui défile ni de « En attente d'Or » : seulement le COÛT du niveau suivant (fixe), en rouge. */
-            const coutRequis=orPresent+manqueOr;
-            const texteOr='<b class="or-manque-v1">'+formatGrandNombreIdleV70_(coutRequis)+' Or</b>';
-            if(el.__orHtmlV1!==texteOr){el.innerHTML=texteOr;el.__orHtmlV1=texteOr;}
-            el.dataset.tmEtaLast='or';
-            poserLcdTmIdleV1_(el,formatGrandNombreIdleV70_(coutRequis)+' Or',true);
-          }else if(el.dataset.tmEtaLast!==String(secondesAffichees)){
+          /* Norman (2026-11-03) : « je voulais juste que la SOMME sur la ligne Niveau suivant devienne rouge » : le temps restant garde son compte à rebours ; seule la somme du niveau suivant (data-tm-prix) passe en rouge quand l'Or manque (style en ligne, aucun !important de plus), puis redevient normale. */
+          const prixEl=pisteEl?pisteEl.querySelector('[data-tm-prix]'):null;
+          if(prixEl){const cp=(faussesOr&&!bloqueDefi)?'#ff3b3b':'';if(prixEl.style.color!==cp)prixEl.style.color=cp;}
+          if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.__orHtmlV1=null;
             el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);

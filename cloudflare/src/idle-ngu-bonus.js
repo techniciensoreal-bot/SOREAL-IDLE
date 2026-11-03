@@ -381,6 +381,9 @@ export function advanceNgusV1(state, seconds) {
      */
     const maxGain = Math.max(1, Math.ceil(50 * seconds));
     if (gained > maxGain) { gained = maxGain; rest = 0; }
+    /* CIBLE ABSOLUE (Norman, 2026-11-03) : jamais un niveau au-delà de la cible (0 = aucune), même au plafond de 50 niveaux par seconde. */
+    const cibleNgu = Math.max(0, Math.floor(num(n.target, 0)));
+    if (cibleNgu > 0) { const reste = Math.max(0, cibleNgu - Math.floor(num(n.level, 0))); if (gained > reste) { gained = reste; rest = 0; } }
     n.work = rest;
     if (gained > 0) grantNguLevelsV1(state, tier, def.id, gained);
   }
@@ -570,7 +573,8 @@ export function idleNguAugmentationsVisiblesV1(context) {
   const bossRun = num(context && context.bosses, 0);
   const premier = IDLE_NGU_AUGMENTATIONS.findIndex(def => bossRun < num(def.unlockBoss, 0));
   if (premier < 0) return IDLE_NGU_AUGMENTATIONS;
-  return IDLE_NGU_AUGMENTATIONS.slice(0, premier).concat([{ id: "verrouille", verrouille: true, unlockBoss: 999999 }]);
+  /* Seul le NUM�RO du boss � battre pour obtenir la prochaine augmentation est envoy� (exception d�cid�e par Norman, 2026-11-03 : � quand un augment est verrouill�, il faut donner l'information de quel boss est n�cessaire, dans le cadre avec des ???????? �) : ni nom, ni donn�es, et seulement la PROCHAINE (jamais la liste ni le total). */
+  return IDLE_NGU_AUGMENTATIONS.slice(0, premier).concat([{ id: "verrouille", verrouille: true, unlockBoss: Math.max(1, Math.floor(num(IDLE_NGU_AUGMENTATIONS[premier].unlockBoss, 1))) }]);
 }
 
 /*

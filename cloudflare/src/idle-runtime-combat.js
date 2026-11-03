@@ -934,6 +934,8 @@ export function nukerBossSorealIdle(
       nuke: {
         count: defeated.length,
         defeated: defeated,
+        /* Borne d'arcade (Norman, 2026-11-03 : « quand on fait un Nuke, qu'il mette le total d'EXP gagné sur l'écran LED ») : l'EXP totale de CE Nuke, déjà calculée ci-dessus. */
+        xp: xpGagnee,
         /* Borne d'arcade (scène finale du Nuke) : vrai seulement si CE Nuke a franchi le dernier boss du catalogue ; un simple drapeau, jamais le total (règle n°2). */
         dernierBoss: (function () { try { const t = bossCatalogueSorealIdle_().length; return t > 0 && bossVaincus >= t; } catch (_e) { return false; } })()
       },

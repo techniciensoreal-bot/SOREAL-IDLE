@@ -47,7 +47,7 @@ const toutes = (W, H) => JSON.parse(ev(`(function(){var W=${W},H=${H},N=W*H,p={a
   Object.keys(ANG_COUL).forEach(function(k){S[ANG_COUL[k][0]]=1;});hair[ANG_COUL.H[0]]=1;hair[ANG_COUL.h[0]]=1;S[IMG_ANGE.ble]=1;S[IMG_ANGE.bla]=1;
   for(t=0;t<dur;t+=1/60){P=pn;pn.p=p;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=H-1;pn.YM=H;pn.reduced=false;
     SC.win.fn(t);var g=Math.min(1,Math.min(t,dur-t)/0.2);if(g<0)g=0;
-    s=0;var an=0,sc=0,top=-1;for(i=0;i<N;i++){s+=pn.v[i]*g;if(pn.v[i]>0){if(S[pn.c[i]]){an++;if(hair[pn.c[i]]&&pn.v[i]>150&&top<0&&(i%W)<30)top=Math.floor(i/W);}else sc++;}}
+    s=0;var an=0,sc=0,top=-1;for(i=0;i<N;i++){s+=pn.v[i]*g;if(pn.v[i]>0){if(S[pn.c[i]]){an++;if(hair[pn.c[i]]&&pn.v[i]>150&&top<0&&(i%W)<60)top=Math.floor(i/W);}else sc++;}}
     R0.push([s/(255*N),an,sc,top]);P=null;}
   return JSON.stringify({dur:dur,L:R0});})()`));
 function transitions(L) { const T = []; let ref = 0.0; L.forEach((x, i) => { if (Math.abs(x - ref) > 0.3) { T.push(i / 60); ref = x; } }); return T; }
@@ -107,7 +107,7 @@ assert.ok(f1.split("|")[0].split(",").filter((x) => +x > 0).length > 1500, "mouv
 assert.ok(fixe(8.5) !== f1 && fixe(8.5).split("|")[0].split(",").filter((x) => +x > 0).length > 20, "mouvement réduit : « VICTOIRE ! » fixe après l'ange");
 
 /* 5. défaite et autres victoires inchangées ; petit écran = ancienne victoire */
-assert.ok(src.includes("if(an==='redroom')sRedroom(t);else (an==='sweep'?sSweep:sMascot)(t);"), "ancienne victoire (petit écran, mascotte, balayeur) inchangée");
+assert.ok(src.includes("if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);"), "ancienne victoire (petit écran, mascotte, balayeur) inchangée");
 assert.ok(src.includes("if(an==='redroom'&&P.p.ange!==false&&angOk()){winAnge(t);return;}"), "l'ange n'intervient que pour la Red Room sur une grille assez grande");
 assert.ok(src.includes("if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);"), "défaites inchangées");
 const ancien = (W, H, anim, extra) => ev(`(function(){var pn=new Panel(document.createElement('canvas'),${W},${H},true);P=pn;pn.p={anim:${JSON.stringify(anim)},ange:${extra}};pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=${H - 1};pn.YM=${H};pn.reduced=false;SC.win.fn(3.0);var s=Array.prototype.join.call(pn.v,',')+'|'+Array.prototype.join.call(pn.c,',');P=null;return s;})()`);

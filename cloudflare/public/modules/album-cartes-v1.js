@@ -152,6 +152,7 @@ function legerHtml(L){
 var CHEV_G='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3.5 6.5 12 16 20.5 12.8 12Z"/></svg>';
 var CHEV_DEBUT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4h3v16h-3ZM19.5 3.5 10 12l9.500 8.500L16.300 12Z"/></svg>';
 var CHEV_D='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3.5 17.5 12 8 20.5 11.2 12Z"/></svg>';
+var CHEV_FIN='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 4h-3v16h3ZM4.5 3.5 14 12 4.5 20.5 7.7 12Z"/></svg>';
 var CHEV_GG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4 3.5 12 12 20 9.4 12ZM20.5 4 12 12 20.5 20 17.9 12Z"/></svg>';
 var CHEV_DD='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 4 12 12 3.5 20 6.1 12ZM12 4 20.5 12 12 20 14.6 12Z"/></svg>';
 /* Navigation (Norman, 2026-10-29 : « on doit pouvoir changer de page au-dessus et en dessous ; une flèche pour avancer de 1 page, une pour avancer de 10 pages ; une animation de 10 pages ») : la même barre au-dessus et en dessous du livre. */
@@ -165,9 +166,11 @@ function numeroHtml(){
 function coteHtml(cote){
   if(!double())return '<div class="alb-cote alb-cote-'+(cote==='g'?'g':'d')+'"></div>';
   var A='window.__SOREAL_IDLE_ALBUM_V1__',g=cote==='g';
-  var b10=g?'<button type="button" class="alb-bouton alb-prec10" aria-label="Reculer de 10 pages" title="−10" '+(ouvert&&page>0?'':'disabled ')+'onclick="'+A+'.sauter(-10)">'+CHEV_GG+'</button>':'<button type="button" class="alb-bouton alb-suiv10" aria-label="Avancer de 10 pages" title="+10" '+(ouvert&&peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(10)">'+CHEV_DD+'</button>';
+  var b10=g?'<button type="button" class="alb-bouton alb-prec10" aria-label="Reculer de 10 pages" title="−10" '+(ouvert&&page>0?'':'disabled ')+'onclick="'+A+'.sauter(-5)">'+CHEV_GG+'</button>':'<button type="button" class="alb-bouton alb-suiv10" aria-label="Avancer de 10 pages" title="+10" '+(ouvert&&peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(5)">'+CHEV_DD+'</button>';
   var b1=g?'<button type="button" class="alb-bouton alb-prec" aria-label="Reculer d’une page" title="−1" '+(ouvert&&peutPrec()?'':'disabled ')+'onclick="'+A+'.page(-1)">'+CHEV_G+'</button>':'<button type="button" class="alb-bouton alb-suiv" aria-label="Avancer d’une page" title="+1" '+(ouvert&&peutSuivre()?'':'disabled ')+'onclick="'+A+'.page(1)">'+CHEV_D+'</button>';
-  return '<div class="alb-cote alb-cote-'+(g?'g':'d')+'">'+(g?b10+b1:b1+b10)+'</div>';
+  /* Norman (2026-11-03) : trois flèches par côté : un bout de l'album, 10 pages par 10 (5 feuilles sur PC), une page */
+  var bx=g?'<button type="button" class="alb-bouton alb-extr alb-extr-g" aria-label="Aller à la première page" title="Début" '+(ouvert&&page>0?'':'disabled ')+'onclick="'+A+'.sauter(-9999)">'+CHEV_DEBUT+'</button>':'<button type="button" class="alb-bouton alb-extr alb-extr-d" aria-label="Aller à la dernière page" title="Fin" '+(ouvert&&peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(9999)">'+CHEV_FIN+'</button>';
+  return '<div class="alb-cote alb-cote-'+(g?'g':'d')+'">'+(g?bx+b10+b1:b1+b10+bx)+'</div>';
 }
 function piedHtml(){return '<div class="alb-pied">'+(double()&&ouvert?numeroPiedHtml():'')+'</div>';}
 function numeroPiedHtml(){return page>=1?'<span>Pages</span> <b>'+page+'</b>–<b>'+(page+1)+'</b>':'<span>Page</span> <b>1</b>';}
@@ -192,6 +195,7 @@ function navHtml(pos){
     '<span class="alb-numero">'+numeroHtml()+'</span>'+
     '<button type="button" class="alb-bouton alb-suiv" aria-label="Page suivante" '+(peutSuivre()?'':'disabled ')+'onclick="'+A+'.page(1)">'+CHEV_D+'</button>'+
     '<button type="button" class="alb-bouton alb-suiv10" aria-label="Avancer de 10 pages" title="+10" '+(peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(10)">'+CHEV_DD+'</button>'+
+    '<button type="button" class="alb-bouton alb-extr alb-extr-d" aria-label="Aller à la dernière page" title="Fin" '+(peutAvancer()?'':'disabled ')+'onclick="'+A+'.sauter(9999)">'+CHEV_FIN+'</button>'+
   '</div>';
 }
 /* La couverture : farde noire, le logo du jeu dans sa pochette en plastique ; deux faces (le dehors, l'intérieur noir) pour pivoter autour des anneaux. */

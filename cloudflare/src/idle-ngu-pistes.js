@@ -675,6 +675,12 @@ export function advanceTrackSystem(state, def, seconds) {
   const nguSpeedBonusMultiplier = def.id === "ngu" ? Math.max(0, num(idleNguBonusesLectureV1(state).nguSpeedMultiplier, 1)) : 1;
   t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier * nguSpeedBonusMultiplier;
   let gain = Math.floor(t.progress);
+  /* CIBLE ABSOLUE (Norman, 2026-11-03) : jamais un niveau au-delà de la cible de la compétence (0 = aucune), même quand une grosse vitesse en donne des dizaines d'un coup. */
+  const cibleAt = Math.max(0, Math.floor(num(t.target, 0)));
+  if (cibleAt > 0 && gain > 0) {
+    const courant = Math.floor(num((def.kind === "run" || def.kind === "hybrid") ? t.tempLevel : t.level, 0));
+    if (gain > Math.max(0, cibleAt - courant)) { gain = Math.max(0, cibleAt - courant); t.progress = gain; }   /* la fraction en trop est perdue (progress - gain = 0 plus bas) */
+  }
   if (gain > 0) {
     t.progress -= gain;
     if (def.kind === "run" || def.kind === "hybrid") t.tempLevel += gain;

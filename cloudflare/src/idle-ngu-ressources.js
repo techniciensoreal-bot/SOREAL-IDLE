@@ -534,6 +534,9 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   if(!modele)return;
   const multCout=challengePermanentBonuses(state).augmentationCostMultiplier;
   const limiteDefi=state.challenge?.active==="hundredLevels";
+  /* CIBLE ABSOLUE (Norman, 2026-11-03 : « j'ai mis cible 50, j'ai mis mon énergie, ça a cap, je suis arrivé niveau 98 avant que l'énergie soit retirée. Une cible doit absolument être respectée ») : aucun achat ne dépasse le niveau cible (0 = pas de cible). Avant, la cible n'était appliquée qu'APRÈS l'achat de tous les niveaux que le temps et l'Or permettaient (au CAP, des dizaines par synchro). */
+  const cibleN=Math.max(0,int(upgrade?pair.upgradeTarget:pair.target,0));
+  if(cibleN>0&&int(upgrade?pair.upgradeLevel:pair.level,0)>=cibleN)return;
   /*
    * Hors ligne (Norman, 2026-10-24 : « les barres d'Augmentations ne fonctionnent pas hors ligne ») : la boucle ci-dessous achète UN niveau par tour et s'arrête à 10 000 tours. Une longue absence (ou une grosse vitesse) vaut bien plus de
    * niveaux (mesuré : 1 h = 134 163 niveaux en ligne, 10 000 seulement en une synchro hors ligne). Le temps d'un niveau est LINÉAIRE (n x c) et son coût en Or aussi (n x base, ou n² x base pour l'Upgrade) : on achète donc d'un coup, en formules fermées, tous
@@ -551,7 +554,7 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
       const S1=x=>x*(x+1)/2,S2=x=>x*(x+1)*(2*x+1)/6;
       const Or=k=>baseOr*(upgrade?S2(l0+k)-S2(l0):S1(l0+k)-S1(l0));
       const Temps=k=>need1+c*(S1(l0+k)-S1(l0+1));
-      const plafondDefi=limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity;
+      const plafondDefi=Math.min(limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity,cibleN>0?Math.max(0,cibleN-l0):Infinity);
       const ok=k=>k<=plafondDefi&&Temps(k)<=remaining&&Or(k)<=state.currencies.gold&&Number.isFinite(Or(k));
       if(remaining>=need1&&ok(1)){
         let bas=1,haut=2;
@@ -570,6 +573,7 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   }catch(_e){}
   while(remaining>0&&guard++<10000){
     const level=upgrade?pair.upgradeLevel:pair.level;
+    if(cibleN>0&&int(level,0)>=cibleN)break;   /* cible atteinte : plus un seul niveau */
     const needed=modele(Math.max(1,int(level,0)+1));
     if(!Number.isFinite(needed))break;
     rebaserProgressionSecondesV1(pair,progressKey,needed);

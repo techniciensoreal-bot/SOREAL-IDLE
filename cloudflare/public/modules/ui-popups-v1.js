@@ -451,7 +451,7 @@
         let tempsVoulu=false;
         try{
           const apiTemps=window.__SOREAL_IDLE_TIME_FORMAT_V1__;
-          tempsVoulu=Boolean(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j)&&apiTemps&&typeof apiTemps.runSecondes==='function');
+          tempsVoulu=Boolean((Math.max(0,idleEntier_(records.totalRebirths||0))>0||(REG.menuDisponibleIdleV28_&&REG.menuDisponibleIdleV28_('renaissance',j)))&&apiTemps&&typeof apiTemps.runSecondes==='function');   /* jamais retirée après un Rebirth (Norman, 2026-11-03) */
         }catch(_e){tempsVoulu=false;}
         const tempsExistant=document.getElementById('sorealIdleSummaryRebirthTempsV1');
         if((apVisible&&!apExistant)||(tempsVoulu&&!tempsExistant)){

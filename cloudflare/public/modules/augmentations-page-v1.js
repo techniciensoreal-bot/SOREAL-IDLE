@@ -973,7 +973,7 @@
               const pair=pairs[def.id]||{};
               const mainOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0);
               if(!mainOk){
-                return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><div style="display:flex;justify-content:space-between;gap:8px"><b>🔒 ???????</b></div><div style="font-size:14px;color:#aeb5c8;margin-top:4px">Augment verrouillé.</div></div>';
+                return '<div class="soreal-idle-section-v8" style="margin:0;opacity:.55"><div style="display:flex;justify-content:space-between;gap:8px"><b>🔒 ????????</b></div><div class="aug-verrou-boss-v1" style="font-size:14px;color:#aeb5c8;margin-top:4px">Bats le boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.unlockBoss||0)+' pour l’obtenir.</div></div>';
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */

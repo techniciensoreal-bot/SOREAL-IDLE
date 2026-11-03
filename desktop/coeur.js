@@ -352,7 +352,7 @@ function installerPontMaj() {
       }
       envoyerPage("maj:progression", { termine: true });
       /* le jeu se ferme proprement (la base du joueur est enregistrée) puis se relance avec la mise à jour */
-      setTimeout(() => { if (env) env.fermer(); app.relaunch(); app.exit(0); }, 1200);
+      setTimeout(() => { if (env) env.fermer(); app.relaunch(); app.exit(0); }, 3500);   /* 3,5 s : le bandeau a le temps d afficher « Installation » puis « Redémarrage » (Norman, 2026-11-03) */
       return { ok: true };
     } catch (e) {
       majEnCours = false;

@@ -12,11 +12,11 @@ assert.ok(nav.includes("if(!ouvert||double())return '';"), "PC : navHtml (barres
 assert.ok(nav.includes("alb-debut") && nav.includes("retourCouverture()") && nav.includes("numeroHtml()"), "téléphone : la barre complète (couverture, −10, −1, numéro, +1, +10) est conservée");
 const cote = m.slice(m.indexOf("function coteHtml(cote)"), m.indexOf("function piedHtml()"));
 assert.ok(cote.includes("if(!double())return '<div class=\"alb-cote alb-cote-'"), "les flèches de côté n'existent que sur PC (bloc vide sur téléphone)");
-assert.equal((cote.match(/class=\\?"alb-bouton /g) || []).length, 4, "quatre flèches au total (deux par côté), pas une de plus");
+assert.equal((cote.match(/class=\\?"alb-bouton /g) || []).length, 6, "six flèches au total (trois par côté : un bout de l'album, 10 pages, 1 page), pas une de plus");
 for (const [cl, lab] of [["alb-prec10", "Reculer de 10 pages"], ["alb-prec\"", "Reculer d’une page"], ["alb-suiv\"", "Avancer d’une page"], ["alb-suiv10", "Avancer de 10 pages"]]) assert.ok(cote.includes(cl) && cote.includes('aria-label="' + lab + '"'), "flèche " + cl + " avec son aria-label");
-assert.ok(cote.includes("sauter(-10)") && cote.includes("page(-1)") && cote.includes("page(1)") && cote.includes("sauter(10)"), "mêmes actions qu'avant (saut de 10 feuilles, tourne-page)");
-assert.ok(cote.includes("return '<div class=\"alb-cote alb-cote-'+(g?'g':'d')+'\">'+(g?b10+b1:b1+b10)+'</div>';"), "ordre visuel : −10 −1 à gauche (−1 près du livre), +1 +10 à droite (+1 près du livre)");
-assert.ok(!cote.includes("alb-debut") && !cote.includes("CHEV_DEBUT") && !cote.includes("fermerLivre"), "plus de flèche « couverture / fermer » ni de flèche de fin sur PC");
+assert.ok(cote.includes("sauter(-5)") && cote.includes("sauter(-9999)") && cote.includes("sauter(9999)") && cote.includes("page(-1)") && cote.includes("page(1)") && cote.includes("sauter(5)"), "mêmes actions qu'avant (10 pages = 5 feuilles sur PC, un bout de l'album, tourne-page)");
+assert.ok(cote.includes("return '<div class=\"alb-cote alb-cote-'+(g?'g':'d')+'\">'+(g?bx+b10+b1:b1+b10+bx)+'</div>';"), "ordre visuel : début −10 −1 à gauche (−1 près du livre), +1 +10 fin à droite (+1 près du livre)");
+assert.ok(!cote.includes("alb-debut") && !cote.includes("fermerLivre"), "pas de flèche « couverture / fermer » sur PC ; les flèches de bout d'album (Norman, 2026-11-03) ne ferment pas le livre, elles sautent à la première ou à la dernière page");
 // le rendu : cote gauche, cadre du livre, cote droit, numéro discret
 const rendre = m.slice(m.indexOf("function rendre(entrees)"), m.indexOf("/*\n * Le livre s'adapte"));
 assert.ok(rendre.indexOf("coteHtml('g')") > 0 && rendre.indexOf("coteHtml('g')") < rendre.indexOf("alb-cadre") && rendre.indexOf("alb-cadre") < rendre.indexOf("coteHtml('d')") && rendre.includes("piedHtml()"), "dans le même HTML que la page (règle n°4) : flèche gauche, livre, flèche droite, numéro");

@@ -12,6 +12,25 @@ if(!D||typeof D.majEtat!=='function'||typeof D.majInstaller!=='function'||typeof
 
 var ID='sorealIdleMajV1';
 var etat={maj:null,cachee:'',progression:null,installation:false,erreur:''};
+/* Phases visibles (Norman, 2026-11-03 : « la barre de mise à jour ne montre aucune avancée de téléchargement, ne dit pas qu'elle installe, affiche juste qu'elle va redémarrer ») : 1. TÉLÉCHARGEMENT (barre qui avance, Mo reçus), 2. INSTALLATION (barre pleine, « Installation… »), 3. REDÉMARRAGE. L'application finit souvent en moins d'une seconde : l'AFFICHAGE rattrape la réalité (la barre avance à vitesse lisible, chaque phase reste lisible un minimum de temps) au lieu de sauter directement au redémarrage. */
+var aff={pct:0,phase:'dl',t:0,boucle:0};
+var MIN_INSTALL_MS=900,PAS_MIN=0.9;
+function cibleDl(){
+  var p=etat.progression||{};
+  return p.octetsTotal>0?Math.min(100,p.octets*100/p.octetsTotal):(p.total>0?Math.min(100,p.fait*100/p.total):0);
+}
+function telechargementFini(){var p=etat.progression||{};return Boolean(p.termine)||(p.total>0&&p.fait>=p.total)||(p.octetsTotal>0&&p.octets>=p.octetsTotal);}
+function image(){
+  if(!etat.installation){aff.boucle=0;return;}
+  var cible=telechargementFini()?100:cibleDl();
+  aff.pct=Math.min(cible,aff.pct+Math.max(PAS_MIN,(cible-aff.pct)*0.12));
+  var maintenant=Date.now();
+  if(aff.phase==='dl'&&aff.pct>=99.9&&telechargementFini()){aff.phase='inst';aff.t=maintenant;}
+  if(aff.phase==='inst'&&(etat.progression||{}).termine&&maintenant-aff.t>=MIN_INSTALL_MS)aff.phase='fin';
+  dessiner();
+  aff.boucle=requestAnimationFrame(image);
+}
+function demarrerImages(){if(!aff.boucle){aff.pct=0;aff.phase='dl';aff.t=Date.now();aff.boucle=requestAnimationFrame(image);}}
 
 function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function taille(o){var m=Number(o)/1048576;return m>=10?Math.round(m)+' Mo':m.toFixed(1).replace('.',',')+' Mo';}
@@ -36,10 +55,12 @@ function dessiner(){
   if(!el){el=document.createElement('div');el.id=ID;el.setAttribute('data-morph-garder','1');el.setAttribute('role','status');(document.body||document.documentElement).appendChild(el);}
   var html;
   if(etat.installation){
-    var p=etat.progression||{},pct=p.octetsTotal>0?Math.min(100,Math.round(p.octets*100/p.octetsTotal)):(p.total>0?Math.round(p.fait*100/p.total):0);
-    html=p.termine
-      ?'<div class="maj-texte">Mise à jour installée. <b>Redémarrage du jeu…</b></div>'
-      :'<div class="maj-texte">Mise à jour en cours… <b>'+pct+' %</b>'+(p.octetsTotal>0?' ('+taille(p.octets)+' sur '+taille(p.octetsTotal)+')':'')+'. Ne ferme pas le jeu.</div><div class="maj-barre"><i style="width:'+pct+'%"></i></div>';
+    var p=etat.progression||{},pct=Math.round(aff.pct),recu=p.octetsTotal>0?Math.min(p.octets,p.octetsTotal*aff.pct/100):0;
+    html=aff.phase==='fin'
+      ?'<div class="maj-texte">✅ Mise à jour installée. <b>Redémarrage du jeu…</b></div><div class="maj-barre"><i style="width:100%"></i></div>'
+      :aff.phase==='inst'
+        ?'<div class="maj-texte">⚙️ <b>Installation</b> de la mise à jour… Ne ferme pas le jeu.</div><div class="maj-barre"><i style="width:100%"></i></div>'
+        :'<div class="maj-texte">⬇️ <b>Téléchargement</b> de la mise à jour… <b>'+pct+' %</b>'+(p.octetsTotal>0?' ('+taille(Math.min(p.octetsTotal,Math.max(p.octets||0,recu)))+' sur '+taille(p.octetsTotal)+')':'')+'. Ne ferme pas le jeu.</div><div class="maj-barre"><i style="width:'+pct+'%"></i></div>';
   }else{
     html='<div class="maj-texte">🔄 Une mise à jour est disponible'+(m.notes?' : <b>'+esc(m.notes)+'</b>':'')+' <span style="opacity:.8">('+taille(m.octets)+')</span></div>'+
       (etat.erreur?'<div class="maj-texte maj-erreur">'+esc(etat.erreur)+'</div>':'')+
@@ -53,7 +74,7 @@ document.addEventListener('click',function(ev){
   if(!b)return;
   if(b.getAttribute('data-maj')==='plus-tard'){etat.cachee=etat.maj?etat.maj.version:'';dessiner();return;}
   if(b.getAttribute('data-maj')==='installer'&&!etat.installation){
-    etat.installation=true;etat.erreur='';etat.progression={fait:0,total:etat.maj.nb||0,octets:0,octetsTotal:etat.maj.octets||0};dessiner();
+    etat.installation=true;etat.erreur='';etat.progression={fait:0,total:etat.maj.nb||0,octets:0,octetsTotal:etat.maj.octets||0};aff.boucle=0;demarrerImages();dessiner();
     Promise.resolve(D.majInstaller()).then(function(r){
       if(!r||r.ok===false){etat.installation=false;etat.erreur='La mise à jour n’a pas pu être installée : réessaie dans un moment.';dessiner();}
     }).catch(function(){etat.installation=false;etat.erreur='La mise à jour n’a pas pu être installée : réessaie dans un moment.';dessiner();});

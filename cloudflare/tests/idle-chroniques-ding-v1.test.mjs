@@ -11,13 +11,13 @@ assert.ok(lecteur.includes("/api/idle/media/ambient?key='+encodeURIComponent(CLE
 const i = lecteur.indexOf("if(etat.index+1>=etat.file.length){etat.index+=1;terminer();return;}");
 const j = lecteur.indexOf("ding(function(){", i);
 assert.ok(i > 0 && j > i, "après la dernière chronique : fin sans ding ; sinon ding puis chronique suivante");
-assert.ok(lecteur.includes("setTimeout(suite,4000)") && lecteur.includes("addEventListener('error',suite)"), "jamais bloqué si le son manque");
+assert.ok(lecteur.includes("setTimeout(suite,6000)") && lecteur.includes("addEventListener('error',suite)"), "jamais bloqué si le son manque");
 
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "utf8");
 assert.ok(media.includes('IDLE_AMBIANT_R2_PREFIX+"Ding.m4a"') && media.includes("IDLE_DING_R2_CLE_V1.toLowerCase())return false;"), "le ding n'est jamais un son d'ambiance tiré au hasard");
 
 /* Trois tournements de page distincts dans le fichier, joués un par un, à tour de rôle (Norman, 2026-10-26). */
-assert.ok(lecteur.includes("var DING_SEGMENTS=[[0.22,0.82],[1.40,1.86],[2.37,3.14]];"), "les trois tournements de page (bornes mesurées dans le fichier)");
+assert.ok(lecteur.includes("var DING_SEGMENTS=[[0.18,1.18],[1.38,2.22],[2.34,3.46]];"), "les trois tournements de page (bornes mesurées dans le fichier)");
 assert.ok(lecteur.includes("function dingRang_()") && lecteur.includes("localStorage.setItem(CLE_DING_RANG,String((rang+1)%DING_SEGMENTS.length))"), "rang tournant 1, 2, 3, 1…, mémorisé");
 assert.ok(lecteur.includes("a.currentTime=seg[0];") && lecteur.includes("a.pause();"), "un seul tournement par intervalle : départ au bon endroit, coupure à la fin du tournement");
 console.log("idle-chroniques-ding-v1: OK");
