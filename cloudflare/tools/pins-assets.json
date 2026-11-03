@@ -268,8 +268,8 @@
   "sha": "0627eee13b38c24aeccbd9d98324a98b860999d9"
  },
  "/modules/etat-monotone-v1.js": {
-  "pin": 1,
-  "sha": "9a418a74f641934f4857b095a423b2637ffe36e2"
+  "pin": 2,
+  "sha": "8f96db51bce2626df6d9ac869cb2be5bb1ccce69"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 4,
