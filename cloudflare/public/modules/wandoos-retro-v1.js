@@ -265,8 +265,8 @@
       '.wd-bios-titre{font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.3em;}',
       '.wd-bios-bas{margin-top:auto;}',
       '.wd-chargeur{position:relative;height:1em;margin:0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
-      '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:1.42em 100%;animation:wd-defile 1s linear infinite;}',
-      '@keyframes wd-defile{to{background-position:1.42em 0}}',
+      '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);--p:1.41421356em;background-size:var(--p) 100%;animation:wd-defile 1s linear infinite;}',
+      '@keyframes wd-defile{from{background-position:0 0}to{background-position:var(--p) 0}}',
       '@media (prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}}',
       '.wd-poste[data-phase="eteint"] .wd-ecran{background:#000;box-shadow:inset 0 0 3cqw rgba(0,0,0,.95);}',
       '@media (prefers-reduced-motion:reduce){.wd-ecran::after,.wd-curseur{animation:none;}}'
@@ -560,6 +560,15 @@
     /* Pas de barre d'outils d'allocation ici (Norman, 2026-10-10) : la saisie se fait au clavier de l'ordinateur rétro. */
     return titre+poste_(j);
   }
+  /* Remet en place (même nœud, donc même animation) la largeur et les chiffres du chargement de l'OS venus du HTML neuf. */
+  function majChargementEnPlace_(neuves){
+    var f=document.getElementById('wd-ch-fill'),nf=neuves.querySelector('#wd-ch-fill');
+    if(f&&nf&&f.style.width!==nf.style.width)f.style.width=nf.style.width;
+    ['wd-ch-pct','wd-ch-vit','wd-ch-reste'].forEach(function(id){
+      var a=document.getElementById(id),n=neuves.querySelector('#'+id);
+      if(a&&n&&a.textContent!==n.textContent)a.textContent=n.textContent;
+    });
+  }
   var signaturePosteV1_='';
   function rafraichirPoste_(){
     var H=H_();
@@ -568,11 +577,14 @@
     var html=poste_(H.getIdleEtat());
     if(!html)return;
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
-    var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1');
+    var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
+      /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
+      .replace(/(id="wd-ch-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-ch-(?:pct|vit|reste)">)[^<]*/g,'$1');
     if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
       var neuves=document.createElement('div');neuves.innerHTML=html;
       var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
       if(nouvelles.length===actuelles.length){
+        majChargementEnPlace_(neuves);
         for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
         return;
       }
@@ -718,6 +730,18 @@
     }
     placerUn_(res,mode);
   }
+  /* Énergie / magie libre VIVANTE (celle que la boucle de la page fait avancer à chaque tick) ; repli sur `repli` si l'état n'en porte pas. */
+  function libreVivante_(j,res,repli){
+    var v=res==='energy'?(j&&j.energie):(j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic&&j.systemes.resources.magic.current);
+    var n=Number(v);
+    return v!=null&&Number.isFinite(n)?Math.max(0,n):repli;
+  }
+  /* La part placée sort tout de suite de la réserve vivante (comme Basic Training, NGU, Augmentations) : deux appuis rapprochés ne comptent pas deux fois la même énergie. */
+  function retirerLibreVivante_(j,res,delta){
+    if(!delta)return;
+    if(res==='energy'){if(j&&j.energie!=null)j.energie=Math.max(0,nb_(j.energie)-delta);}
+    else{var m=j&&j.systemes&&j.systemes.resources&&j.systemes.resources.magic;if(m&&m.current!=null)m.current=Math.max(0,nb_(m.current)-delta);}
+  }
   function placerUn_(res,mode,collecte){
     var H=H_();
     if(!H||!H.getIdleEtat)return;
@@ -725,7 +749,8 @@
     if(!e||phaseDe_(e)!=='bureau'||(res!=='energy'&&res!=='magic'))return;
     if(res==='magic'&&!e.magieOk)return;
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
-    var libre=Math.max(0,nb_(e.vue[cleLibre])),actuelle=Math.max(0,nb_(e.al[res]));
+    /* Libre = valeur VIVANTE (idleEtat.energie / magie, avancée à chaque tick), jamais celle de la dernière synchro (wandoosView.energieLibre, jusqu'à ~4 s d'âge : elle ne compte pas ce qui s'est produit depuis). */
+    var libre=libreVivante_(j,res,Math.max(0,nb_(e.vue[cleLibre]))),actuelle=Math.max(0,nb_(e.al[res]));
     var vis=visee_[res];
     if(vis&&Date.now()-vis.at<2500){var total=actuelle+libre;actuelle=Math.max(0,Math.min(vis.v,total));libre=total-actuelle;}
     var montant=analyser_(saisie_(),libre+actuelle);
@@ -734,15 +759,18 @@
     var capServeur=mode==='cap'?Math.ceil(nb_(e.vue[res==='energy'?'capEnergie':'capMagie'])):0;
     if(mode==='cap'&&!(capServeur>0))return;
     var cible=mode==='zero'?0:mode==='cap'?(capServeur>actuelle?actuelle+Math.min(capServeur-actuelle,libre):capServeur):mode==='plus'?actuelle+Math.min(montant,libre):Math.max(0,actuelle-montant);
+    /* CAP (Norman, 2026-11-03 : « tant que le cap n'est pas atteint, le bouton cap doit mettre tout ce qui est en stock ; si on possède plus que ce qu'il faut pour cap la machine, elle ne prendra que ce dont elle a besoin ») : `libre` vient de la dernière synchro (jusqu'à ~4 s) et ne compte pas l'énergie produite depuis ; borner la demande avec lui laissait un reste libre, voire n'envoyait rien (cible = actuelle). CAP demande donc le plafond lui-même ; le moteur borne à ce qui est réellement libre (allocate : précédent + libre). L'écran, lui, s'en tient à ce que la page sait. */
+    var envoyee=mode==='cap'?capServeur:mode==='plus'?actuelle+montant:cible;   /* « + » : la quantité SOUHAITÉE, le moteur borne à ce qui est réellement libre */
     cible=Math.max(0,Math.min(actuelle+libre,cible));
-    if(cible===actuelle)return;
+    if(cible===actuelle&&!((mode==='cap'||mode==='plus')&&envoyee>actuelle))return;
     visee_[res]={v:cible,at:Date.now()};
     /* Mise à jour immédiate de l'écran : deux appuis rapprochés doivent s'additionner sans attendre le serveur. */
     e.st.allocation=e.st.allocation||{};
     e.st.allocation[res]=cible;
     e.vue[cleLibre]=Math.max(0,libre-(cible-actuelle));
+    retirerLibreVivante_(j,res,cible-actuelle);
     rafraichirPoste_();
-    var charge={action:'allocate',system:'wandoos',resource:res,value:cible};
+    var charge={action:'allocate',system:'wandoos',resource:res,value:envoyee};
     if(collecte)collecte.push(charge);else meta_(charge);
   }
   /* Le cap sous forme de saisie : entier tel quel, ou notation en e (1.2345e30) arrondie vers le haut à 10 chiffres si l'entier dépasse les 18 caractères de la saisie. */

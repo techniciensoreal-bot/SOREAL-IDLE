@@ -54,7 +54,7 @@ const doc = { getElementById: (id) => (id === "sorealIdleGenInputV1" ? champ : n
 const m2 = new Function("window", "document", mod + "\nreturn window.__SOREAL_IDLE_ALLOC_V1__;")(w2, doc);
 m2.ajuster("beards", "energy", "plus");  assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 80 });
 m2.ajuster("beards", "energy", "moins"); assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 20 });
-m2.ajuster("beards", "energy", "max");   assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 450 });
+m2.ajuster("beards", "energy", "max");   assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 1000 });   /* Max = le plafond de la ressource (valeur SOUHAITÉE) : la libre lue dans la synchro (400) est périmée, le moteur borne à précédent + libre réel */
 m2.vider("energy", "beards");            assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 0 });
 m2.vider("magic", "wishes"); assert.equal(envois.length, 2, "Tout retirer rend chaque emplacement de Wishes");
 envois.length = 0;

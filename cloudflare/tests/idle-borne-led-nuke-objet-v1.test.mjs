@@ -5,7 +5,7 @@ import vm from "node:vm";
 /*
  * Panneau LED de la borne (modules/borne-led-v1.js) :
  *  - scène « objet actif » (Norman, 2026-11-01 : « le temps restant de l'objet actif, genre lucky charm ») : mêmes secondes que la valise (systemes.consommables.restant), décompte local, jamais sans objet actif ;
- *  - NUKE (« au moins une dizaine d'animations » + « un avion qui passe et dépose des bombes ») : 13 animations muettes, sans répétition immédiate, déclenchées seulement par un NUKE.
+ *  - NUKE (« au moins une dizaine d'animations » + « un avion qui passe et dépose des bombes ») : 14 animations muettes (dont le chat qui saute sur le bouton et le chien qui renifle puis lève la patte), sans répétition immédiate, déclenchées seulement par un NUKE.
  */
 const lire = (f) => fs.readFileSync(new URL("../" + f, import.meta.url), "utf8");
 const src = lire("public/modules/borne-led-v1.js");
@@ -105,46 +105,48 @@ assert.equal(allume("objet", 1.0, { o: "inconnu" }), 0, "un objet inconnu n'affi
 assert.ok(/objet:\{fn:sObjet,dur:4\.4,prio:1/.test(code), "annonce brève, priorité basse");
 
 /* ---------------- NUKE ---------------- */
-assert.ok(ev("NUKES.length") >= 13, "au moins 13 animations (dont le bombardier)");
-assert.equal(ev("BOMBARDIER"), 12);
+assert.ok(ev("NUKES.length") >= 14, "au moins 14 animations (dont le chien et le bombardier)");
+assert.equal(ev("BOMBARDIER"), 13);
 assert.equal(ev("NUKES[BOMBARDIER].name"), "bombardier");
 assert.ok(ev("NUKE_DUR") >= 3 && ev("NUKE_DUR") <= 4, "3 à 4 s");
 const noms13 = JS(ev("NUKES.map(function(f){return f.name;})"));
 assert.equal(new Set(noms13).size, noms13.length, "variantes réellement distinctes (noms) : " + noms13.join());
-for (const w of [120, 90]) for (let v = 0; v < ev("NUKES.length"); v++) {
+for (const w of [120, 90]) for (let v = 0; v < ev("NUKES.length") - 1; v++) {
   let max = 0; const vus = new Set();
-  for (let t = 0; t <= 4.0; t += 0.1) { const n = allume("nuke", t.toFixed(2), { v, base: 0 }, 0); max = Math.max(max, n); vus.add(n); }
+  fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = v; const pal = ({ 14: 25, 15: 25, 16: 100, 17: 100, 18: 100, 19: 250, 20: 250 })[v] || 1;
+  for (let t = 0; t <= 4.0; t += 0.1) { const n = allume("nuke", t.toFixed(2), { essai: 1, n: pal, v }, 0); max = Math.max(max, n); vus.add(n); }
+  fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = undefined;
   assert.ok(max > 20 && vus.size > 5, "variante " + v + " : dessine et s'anime");
 }
 // grille téléphone
-const allume90 = (v, t) => ev(`(function(){var p=new Panel(document.createElement('canvas'),90,12),n=0;S.vic=0;P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=11;p.p={v:${v},base:0};SC.nuke.fn(${t});for(var i=0;i<p.v.length;i++)if(p.v[i])n++;P=null;return n;})()`);
-for (let v = 0; v < 13; v++) assert.ok(allume90(v, 2.6) > 10 && allume90(v, 1.0) >= 0, "téléphone : variante " + v);
+const allume90 = (v, t) => ev(`(function(){var p=new Panel(document.createElement('canvas'),90,12),n=0;S.vic=0;P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=11;p.p={essai:1,n:1,v:${v}};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=${v};SC.nuke.fn(${t});window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;for(var i=0;i<p.v.length;i++)if(p.v[i])n++;P=null;return n;})()`);
+for (let v = 0; v < 14; v++) assert.ok(allume90(v, 2.6) > 10 && allume90(v, 1.0) >= 0, "téléphone : variante " + v);
 // toutes finissent sur « NUKE ! » (sauf SUPER NUKE) : le mot final est dessiné à t = 2,6 s (au moins une couleur du mot + lettres)
 // nombre de boss franchis : seulement s'il est connu (différence de l'état), jamais de total
-const verts = (vic, base) => ev(`(function(){var p=new Panel(document.createElement('canvas'),120,14),n=0;S.vic=${vic};P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=13;p.p={v:0,base:${base}};SC.nuke.fn(3.7);for(var i=0;i<p.v.length;i++)if(p.v[i]&&p.c[i]===4)n++;P=null;return n;})()`);
+const verts = (vic, base) => ev(`(function(){var p=new Panel(document.createElement('canvas'),120,14),n=0;S.vic=${vic};P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=13;p.p={essai:1,n:${vic}-${base},v:0};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=0;SC.nuke.fn(3.7);window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;for(var i=0;i<p.v.length;i++)if(p.v[i]&&p.c[i]===4)n++;P=null;return n;})()`);
 assert.ok(verts(12, 7) > 30, "+5 BOSS en LED (verts) quand le client connaît la différence");
 assert.equal(verts(7, 7), 0, "inconnu (état pas encore reçu) : aucun nombre");
-assert.ok(code.includes("'+'+Math.min(n,99999)+' '+T('boss')") && !/\/\s*301/.test(code), "« +N BOSS » : jamais de total");
+assert.ok(code.includes("'+'+Math.min(p.n,99999)+' '+T('boss')") && !/\/\s*301/.test(code), "« +N BOSS » : jamais de total");
 // prefers-reduced-motion : image fixe « NUKE ! »
 const fixe = (v, t) => ev(`(function(){var p=new Panel(document.createElement('canvas'),120,14),a=[];S.vic=0;p.reduced=true;P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=13;p.p={v:${v},base:0};SC.nuke.fn(${t});P=null;return Array.prototype.join.call(p.v,',');})()`);
-for (const v of [0, 5, 12]) { assert.equal(fixe(v, 0.3), fixe(v, 3.1), "image fixe (variante " + v + ")"); assert.ok(fixe(v, 1).split(",").some((x) => x !== "0"), "elle n'est pas vide"); }
+for (const v of [0, 5, 12, 13]) { assert.equal(fixe(v, 0.3), fixe(v, 3.1), "image fixe (variante " + v + ")"); assert.ok(fixe(v, 1).split(",").some((x) => x !== "0"), "elle n'est pas vide"); }
 // fondu d'entrée / sortie : le panneau applique son gain de scène (0,2 s) comme aux autres
 assert.ok(/g=s\.id==='fight'\?1:clamp\(Math\.min\(u,s\.dur-u\)\/f,0,1\)/.test(code));
 // tirage : liste mélangée puis parcourue, sans répétition immédiate, bombardier environ une fois sur cinq
 ev("nukeSac=[];nukeDernier=-1");
 const tirage = Array.from({ length: 4000 }, () => ev("nukeChoix()"));
 for (let i = 1; i < tirage.length; i++) assert.notEqual(tirage[i], tirage[i - 1], "pas de répétition immédiate (" + i + ")");
-assert.equal(new Set(tirage).size, 13, "toutes les variantes sortent");
-const part = tirage.filter((v) => v === 12).length / tirage.length;
+assert.equal(new Set(tirage).size, 14, "toutes les variantes sortent");
+const part = tirage.filter((v) => v === 13).length / tirage.length;
 assert.ok(part > 0.13 && part < 0.28, "bombardier : environ 1 sur 5 (" + part.toFixed(3) + ")");
-const autres = tirage.filter((v) => v !== 12);
+const autres = tirage.filter((v) => v !== 13);
 // parcours en liste : parmi les autres, chaque cycle de douze contient chaque variante une fois
-const comptes = new Array(12).fill(0); autres.slice(0, 1200).forEach((v) => comptes[v]++);
-assert.ok(Math.max(...comptes) - Math.min(...comptes) <= 12, "variantes équilibrées (liste mélangée puis parcourue)");
+const comptes = new Array(13).fill(0); autres.slice(0, 1200).forEach((v) => comptes[v]++);
+assert.ok(Math.max(...comptes) - Math.min(...comptes) <= 13, "variantes équilibrées (liste mélangée puis parcourue)");
 
 // déclenchement : seulement sur un NUKE (drapeau idleNukeEnCoursV1 de la page, celui que la victoire arcade ignore)
 assert.equal((code.match(/pousser\('nuke'/g) || []).length, 1, "un seul déclencheur de NUKE");
-assert.ok(/var nk=Boolean\(r\.idleNukeEnCoursV1\);/.test(code) && /if\(nk&&!L\.nuke\)pousser\('nuke'/.test(code), "front montant du drapeau de NUKE");
+assert.ok(/var nk=Boolean\(r\.idleNukeEnCoursV1\);/.test(code) && /if\(nk&&!L\.nuke\)lancerNuke\(now\)/.test(code), "front montant du drapeau de NUKE");
 const combat1 = lire("public/modules/ui-combat-1-v1.js");
 assert.ok(combat1.includes("!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1") && combat1.includes("arcade&&!REG.idleNukeEnCoursV1"), "la victoire arcade ignore un NUKE (le panneau ne joue donc pas VICTOIRE ! pour un NUKE)");
 assert.ok(!/__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=/.test(code), "le panneau ne pose jamais la condition de victoire");
@@ -161,10 +163,11 @@ function nuke(sequence) {
 }
 const sansNuke = nuke(Array.from({ length: 80 }, (_x, i) => [i * 100, false, false]));
 assert.ok(!sansNuke.includes("nuke"), "sans NUKE : aucune animation de NUKE");
+ev("nukeRes={n:1,dernier:false,at:0}");fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = 0;
 const avec = nuke([[0, false], [100, false], [200, true], [300, true], [400, false], [1500, false], [3000, "fin"], [4300, "fin"], [4500, "fin"]]);
 assert.deepEqual(avec.slice(0, 2), ["base", "base"]);
-assert.ok(avec.slice(2, 7).every((x) => x === "nuke"), "NUKE lancé : l'animation démarre tout de suite et dure ~4 s : " + avec.join());
-assert.notEqual(avec[7], "nuke", "puis retour à l'affichage de base");
+assert.ok(avec.slice(2, 8).every((x) => x === "nuke"), "NUKE lancé : l'animation démarre tout de suite (amorce 0,2 s, puis la scène du palier : ~4 s au palier 0) : " + avec.join());
+assert.notEqual(avec[8], "nuke", "puis retour à l'affichage de base");
 // une victoire en cours n'est pas interrompue par un NUKE
 const victoire = nuke([[0, false], [100, false], [200, false, true], [300, false, true], [400, true, true], [500, false, true]]);
 assert.equal(victoire[2], "win");

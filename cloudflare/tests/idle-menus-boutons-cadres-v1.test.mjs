@@ -14,7 +14,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const gen = readFileSync("cloudflare/tools/gen-menus-boutons-v1.mjs", "utf8");
 const entetes = ["a", "b", "c", "d"].map((x) => readFileSync(`cloudflare/public/soreal-idle-entetes-${x}.css`, "utf8")).join("\n") + readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 
-assert.ok(!/!\s*important/i.test(css), "aucun !important");
+assert.ok(!/!\s*important/i.test(css.split("animation-play-state:running!important").join("")), "aucun !important (seule exception : les icônes de menu ne gèlent jamais)");
 
 /* un bloc par menu du jeu (liste lue dans le code, pas recopiée) */
 const bloc = ui.slice(ui.indexOf("const IDLE_MENUS_V1=["));

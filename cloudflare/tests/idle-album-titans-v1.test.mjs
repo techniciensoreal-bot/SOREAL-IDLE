@@ -15,9 +15,9 @@ assert.ok(t.includes("window.__SOREAL_IDLE_ALBUM_TITANS_V1__={") && t.startsWith
 assert.ok(idx.indexOf("/modules/album-titans-v1.js") > 0 && idx.indexOf("/modules/album-titans-v1.js") < idx.indexOf("/modules/album-cartes-v1.js"), "chargé AVANT le module de l'album");
 assert.ok(idx.includes("/soreal-idle-album-titans.css"), "feuille de style liée");
 // l'album ne compte les pages de titans que s'il y en a
-assert.ok(a.includes("function nbPages(){return 1+pagesBoss()+pagesTitans();}") && a.includes("T&&T.nbPagesAlbum?T.nbPagesAlbum():0"), "pages de titans APRÈS les pages des boss, zéro page sans titan");
+assert.ok(a.includes("function nbPages(){return 1+pagesBoss()+pagesGarde()+pagesTitans();}") && a.includes("T&&T.nbPagesAlbum?T.nbPagesAlbum():0"), "pages de titans APRÈS les pages des boss, zéro page sans titan");
 assert.ok(a.includes("function cartesDePage(r){return r>=1&&r<=pagesBoss()") && a.includes("function estTitans(r)") && a.includes("function nbCartesPage(r)"), "les pages de boss et de titans sont distinctes (les titans n'entrent jamais dans les annonces de nouvelles cartes)");
-assert.ok(a.includes("if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-1);"), "page de titans : 9 emplacements (carte de face ou dos) fabriques par le module des titans");
+assert.ok(a.includes("if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-pagesGarde()-1,function(k){return emplacementVide(k,dd);});"), "page de titans : 9 emplacements (carte de face ou pochette vide) fabriques par le module des titans");
 assert.ok(a.includes("nbCartesPage(p)") && a.includes("nbCartesPage(L)"), "dos visible à gauche et feuilles légères comptent aussi les cartes de titans");
 assert.ok(!a.includes("titans=titansMod()?titansMod().titansVaincus()"), "plus de liste de titans vaincus dans l'album : les emplacements viennent des titans connus (rang) et de carteTitanObtenue");
 
@@ -97,10 +97,10 @@ assert.ok(/html\.mtg-tenue [^{]*\{cursor:none\}/.test(cbc), "cursor:none pendant
 
 
 // ---- les titans commencent TOUJOURS sur une nouvelle page, avec leurs dos visibles avant de tourner la page (Norman, 2026-11-01) ----
-assert.ok(a.includes("function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()&&r<nbPages();}"), "pages de titans = toujours APRES la derniere page de boss (jamais sur la meme page)");
+assert.ok(a.includes("function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()+pagesGarde()&&r<nbPages();}"), "pages de titans = toujours APRES la derniere page de boss (jamais sur la meme page)");
 assert.ok(a.includes("function cartesDePage(r){return r>=1&&r<=pagesBoss()?"), "une page de boss ne contient jamais de titan");
 assert.ok(a.includes("function derriereDroite(L)") && a.includes("!estTitans(L+1)") && a.includes("var dd=gauche?derriereGauche(L):derriereDroite(L);"), "avant de tourner la page : la page de droite montre les dos de la page de titans qui est derriere");
-assert.ok(a.includes("d.titan=estTitans(p);") && a.includes("function miroir(i)"), "dos de titans aussi derriere une page de gauche (place symetrique)");
+assert.ok(a.includes("if(estTitans(p))rangsDerriere(d,p);") && a.includes("function miroir(i)"), "dos de titans aussi derriere une page de gauche (place symetrique)");
 assert.ok(a.includes("var d=[],i;\n  if(!double()||L<1||!estTitans(L+1))return null;"), "derriere de droite : PC seulement, jamais derriere une page de titans / la derniere page");
 assert.ok(t.includes("function carteTitanObtenue(rang,t)") && t.includes("carteTitanObtenue:carteTitanObtenue") && t.includes("window.__SOREAL_IDLE_ALBUM_TITANS_V1__.carteTitanObtenue"), "point d'extension carteTitanObtenue(rang, titan), remplacable");
 assert.ok(t.includes("/dos-cartes/normal/titan-"), "dos de titan : dos-cartes/normal/titan-1..9.webp");
@@ -110,21 +110,22 @@ assert.ok(t.includes("/dos-cartes/normal/titan-"), "dos de titan : dos-cartes/no
   vm.runInNewContext(t, fen2);
   const T2 = fen2.__SOREAL_IDLE_ALBUM_TITANS_V1__;
   assert.equal(T2.nbPagesAlbum(), 1, "un titan connu : une page de titans");
-  const pg = T2.pageHtml(0);
+  const pg = T2.pageHtml(0, () => "<div class=\"alb-pochette alb-pochette-vide\"><!--vide--></div>");
   assert.equal((pg.match(/alb-pochette /g) || []).length, 9, "TOUJOURS 9 emplacements");
   assert.equal((pg.match(/alb-pochette-titan/g) || []).length, 2, "2 cartes de face (titans obtenus)");
-  assert.equal((pg.match(/alb-pochette-dos-titan/g) || []).length, 7, "7 dos pour les emplacements sans carte (dont le titan connu non vaincu)");
-  for (let k = 3; k <= 9; k++) assert.ok(pg.includes("/dos-cartes/normal/titan-" + k + ".webp"), "emplacement " + k + " : dos de titan n°" + k);
+  assert.equal((pg.match(/alb-pochette-dos-titan/g) || []).length, 0, "AUCUN dos sur une page de titans (Norman, 2026-11-03) : emplacement sans carte = pochette vide");
+  assert.equal((pg.match(/<!--vide-->/g) || []).length, 7, "7 emplacements vides pour 2 cartes");
+  assert.ok(!pg.includes("/dos-cartes/"), "aucun dos de titan dessine sur la page");
   assert.ok(!/Nom complet t3|Nom t3/.test(pg) && !/ \/ |\?\?\?/.test(pg.replace(/<[^>]+>/g, " ")), "aucun nom sur un dos, aucun total, aucun « x / 9 »");
   // extension : une condition venue d'ailleurs
   T2.carteTitanObtenue = (rang, tt) => rang === 2;
-  assert.equal(T2.pageHtml(0).match(/alb-pochette-titan/g).length, 1, "carteTitanObtenue remplacee : seule la carte de rang 2 est de face");
+  assert.equal(T2.pageHtml(0, () => "").match(/alb-pochette-titan/g).length, 1, "carteTitanObtenue remplacee : seule la carte de rang 2 est de face");
   assert.equal(T2.nbPagesAlbum(), 1);
   // plus de 9 : les pages de 9 s'enchainent
   T2.carteTitanObtenue = (rang) => true;
   fen2.__SOREAL_IDLE_REG__.idleEtat.systemes.adventure.titans = Array.from({ length: 12 }, (_, i) => titan("t" + (i + 1), 1));
   assert.equal(T2.nbPagesAlbum(), 2, "12 titans obtenus : 2 pages de 9 emplacements");
-  assert.equal((T2.pageHtml(1).match(/alb-pochette /g) || []).length, 9, "la page suivante a aussi 9 emplacements");
+  assert.equal((T2.pageHtml(1, () => "<div class=\"alb-pochette alb-pochette-vide\"></div>").match(/alb-pochette /g) || []).length, 9, "la page suivante a aussi 9 emplacements");
   // anti-spoil : sans titan connu, aucune page
   fen2.__SOREAL_IDLE_REG__.idleEtat.systemes.adventure.titans = [];
   assert.equal(T2.nbPagesAlbum(), 0, "aucun titan connu : aucune page de dos (l'album est inchange)");
@@ -176,3 +177,39 @@ const cbmDos = lire("cloudflare/public/modules/carte-boss-magic-v1.js");
 assert.ok(cbmDos.includes("((o&&o.dosImage)||urlDosNormal(o&&o.numero))"), "dos(o) : image du dos de boss par défaut");
 for (let i = 1; i <= 9; i++) { const dosImg = "cloudflare/public/dos-cartes/normal/titan-" + i + ".webp"; assert.ok(fs.existsSync(dosImg) && fs.statSync(dosImg).size > 20000 && fs.statSync(dosImg).size < 150000, "dos de titan " + i + " présent et compressé"); }
 console.log("idle-album-titans-v1 : ok");
+
+// ---- garde (Norman, 2026-11-03) : aucun dos de titan sans carte reelle ; dos seulement derriere (place miroir) les cartes qui existent ; pochette vide sinon ----
+{
+  const a2 = fs.readFileSync("cloudflare/public/modules/album-cartes-v1.js", "utf8");
+  const t2 = fs.readFileSync("cloudflare/public/modules/album-titans-v1.js", "utf8");
+  assert.ok(!t2.includes("dosPochetteHtml(rg+1)"), "la page de titans ne dessine plus de dos pour un emplacement sans carte");
+  assert.ok(t2.includes("function existe(rg)") && t2.includes("existe:existe"), "existe(rg) : une carte de titan existe si le titan est connu et sa carte obtenue");
+  assert.ok(a2.includes("function rangsDerriere(d,pt)") && a2.includes("rg=(pt-pagesBoss()-pagesGarde()-1)*PAR_PAGE+miroir(i)") && a2.includes("T.existe(rg)?rg:-1"), "verso : le dos affiche est celui de la carte reelle a la place MIROIR (rang -1 = rien)");
+  assert.ok(a2.includes("derriere.rangs[i]>=0&&titansMod()?titansMod().dosPochetteHtml(derriere.rangs[i]+1):VIDE"), "sans carte derriere : pochette plastique vide");
+  assert.ok(!a2.includes("d.titan=true") && !a2.includes("derriere.titan"), "plus de dos de titan 'pour tous les emplacements'");
+  // comportement : 0, 1, 3, 9, 10 titans
+  const mkT = (n, v) => Array.from({ length: n }, (_, i) => titan("t" + (i + 1), i < v ? 1 : 0));
+  for (const [n, v] of [[1, 1], [3, 3], [9, 9], [10, 10], [5, 3]]) {
+    const f = { document: doc, requestAnimationFrame: () => 0, setTimeout, clearTimeout, __SOREAL_IDLE_REG__: { idleEtat: { systemes: { adventure: { titans: mkT(n, v) } } }, aventureMetaIdleV47_: (j) => j.systemes.adventure } };
+    f.window = f;
+    vm.runInNewContext(t2, f);
+    const T = f.__SOREAL_IDLE_ALBUM_TITANS_V1__;
+    let cartes = 0;
+    for (let p = 0; p < T.nbPagesAlbum(); p++) {
+      const h = T.pageHtml(p, () => '<div class="alb-pochette alb-pochette-vide"></div>');
+      assert.equal((h.match(/alb-pochette-dos-titan/g) || []).length, 0, n + " titans : aucun dos sur la page de titans " + p);
+      assert.equal((h.match(/alb-pochette /g) || []).length, 9, "9 emplacements");
+      cartes += (h.match(/alb-pochette-titan/g) || []).length;
+    }
+    assert.equal(cartes, v, n + " titans connus, " + v + " obtenus : exactement " + v + " cartes de face");
+    for (let rg = 0; rg < 12; rg++) assert.equal(T.existe(rg), rg < v, "existe(" + rg + ")");
+  }
+}
+
+// ---- PAGE DE GARDE (Norman, 2026-11-03) : une page de pochettes VIDES juste avant la 1re page de titans ; son verso est la 1re page de titans ----
+{
+  const a3 = fs.readFileSync("cloudflare/public/modules/album-cartes-v1.js", "utf8");
+  assert.ok(a3.includes("function pagesGarde(){return pagesTitans()>0?(double()&&pagesBoss()%2===0?2:1):0;}"), "la garde n'existe que s'il y a des pages de titans (meme condition) ; une garde supplementaire si la derniere page de boss est paire (parite : la vraie garde est un RECTO, page paire)");
+  assert.ok(a3.includes("r>pagesBoss()+pagesGarde()&&r<nbPages()"), "les pages de titans commencent apres la garde");
+  assert.ok(a3.includes("rg=(pt-pagesBoss()-pagesGarde()-1)*PAR_PAGE+miroir(i)") && a3.includes("titansMod().pageHtml(L-pagesBoss()-pagesGarde()-1,"), "rang des titans decale de la garde");
+}

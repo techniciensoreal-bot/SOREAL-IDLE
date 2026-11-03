@@ -10,6 +10,7 @@ import { LockService, SpreadsheetApp } from "./idle-sqlite-runtime.js";
 import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, nombreSorealIdle_ } from "./idle-runtime-config.js";
 import { appliquerProgressionEnergieSorealIdle_ } from "./idle-runtime-progression.js";
 import { marquerRencontreBossPrincipalUneFoisParRunV207_, parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
+import { bossCatalogueSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { attaqueBossSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, enregistrerBossJamaisVaincuSorealIdle_, highestBossJamaisAtteintSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, xpBonusPremiereFoisSorealIdle_ } from "./idle-runtime-boss.js";
 import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle_ } from "./idle-runtime-etat.js";
 
@@ -932,7 +933,9 @@ export function nukerBossSorealIdle(
       ok: true,
       nuke: {
         count: defeated.length,
-        defeated: defeated
+        defeated: defeated,
+        /* Borne d'arcade (scène finale du Nuke) : vrai seulement si CE Nuke a franchi le dernier boss du catalogue ; un simple drapeau, jamais le total (règle n°2). */
+        dernierBoss: (function () { try { const t = bossCatalogueSorealIdle_().length; return t > 0 && bossVaincus >= t; } catch (_e) { return false; } })()
       },
       joueur: joueur
     };

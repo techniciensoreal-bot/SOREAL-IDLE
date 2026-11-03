@@ -28,10 +28,12 @@
       }
 
       /* Écran LCD « temps restant » et tube de verre de la tour (Norman, 2026-10-20) : le texte d'origine (« Fin de la barre dans … ») reste lu par les lecteurs d'écran ; l'écran n'affiche que le temps. */
-      function poserLcdTmIdleV1_(etaEl,texte){
+      function poserLcdTmIdleV1_(etaEl,texte,rouge){
         const piste=etaEl&&etaEl.closest?etaEl.closest('.tmm-piste'):null;
         const lcd=piste?piste.querySelector('[data-tm-lcd-eta]'):null;
         if(lcd&&lcd.textContent!==texte)lcd.textContent=texte;
+        /* Somme d'Or manquante : écrite en rouge dans l'écran (style en ligne : aucun !important de plus dans le CSS), remise à la couleur normale dès que le texte redevient un temps. */
+        if(lcd){const c=rouge?'#ff3b3b':'';if(lcd.style.color!==c)lcd.style.color=c;}
       }
       /*
        * Niveau du tube (Norman, 2026-11-01 : « le menu Machine temporelle est plus lent que les autres, il y a une latence quand je place les points ») : la hauteur du liquide passait par une variable CSS (`--fill`)
@@ -154,10 +156,12 @@
           }
           const secondesAffichees=Math.ceil(restant);
           if(faussesOr){
-            const texteOr='<b class="or-manque-v1">'+formatGrandNombreIdleV70_(orPresent)+' Or</b>';
+            /* Norman (2026-11-03) : « quand il manque de l'argent, enlève le compte à rebours d'argent manquant ; je veux juste la somme écrite en rouge nécessaire pour le niveau suivant » : plus de compteur d'Or qui défile ni de « En attente d'Or » : seulement le COÛT du niveau suivant (fixe), en rouge. */
+            const coutRequis=orPresent+manqueOr;
+            const texteOr='<b class="or-manque-v1">'+formatGrandNombreIdleV70_(coutRequis)+' Or</b>';
             if(el.__orHtmlV1!==texteOr){el.innerHTML=texteOr;el.__orHtmlV1=texteOr;}
             el.dataset.tmEtaLast='or';
-            poserLcdTmIdleV1_(el,'En attente d’Or');
+            poserLcdTmIdleV1_(el,formatGrandNombreIdleV70_(coutRequis)+' Or',true);
           }else if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.__orHtmlV1=null;

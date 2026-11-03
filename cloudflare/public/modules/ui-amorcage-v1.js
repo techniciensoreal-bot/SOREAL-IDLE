@@ -332,7 +332,8 @@ function __amorcer_45(){
 window.__SOREAL_IDLE_DISPONIBLE_V2__=function(){
         const b=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.resourceBudget&&REG.idleEtat.systemes.resourceBudget.magic;
         const r=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.resources&&REG.idleEtat.systemes.resources.magic;
-        return {energie:energieDisponibleIdleV9_(),magie:b?idleNombre_(b.available):idleNombre_(r&&r.current),magieEnCours:magieEncoreAGenererIdleV1_()};
+        /* Magie libre VIVANTE : resources.magic.current avance à chaque tick comme idleEtat.energie ; resourceBudget.magic.available est l'instantané de la dernière synchro (jusqu'à ~4 s) : bouton Activer d'Yggdrasil grisé à tort. Repli sur l'instantané si la ressource manque. */
+        return {energie:energieDisponibleIdleV9_(),magie:r?Math.max(0,idleNombre_(r.current)):(b?idleNombre_(b.available):0),magieEnCours:magieEncoreAGenererIdleV1_()};
       };
 }
 

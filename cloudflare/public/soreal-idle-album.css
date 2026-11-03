@@ -134,7 +134,7 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
 .alb-leger{position:absolute;inset:0;border-radius:5.2cqw;background:linear-gradient(180deg,#e9e1c8,#cbbf9c);box-shadow:inset 0 0 0 3cqw #0b0b0e}
 .alb-leger-dos{background:linear-gradient(180deg,#8a4a2a,#5a2c18);box-shadow:inset 0 0 0 3cqw #0b0b0e}
 /* la feuille qui tourne (deux faces) et les ombres qu'elle jette sur les pages */
-.alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;pointer-events:none;will-change:transform,opacity}
+.alb-feuille-tournante{position:absolute;transform-origin:0 50%;transform-style:preserve-3d;z-index:6;pointer-events:none}   /* PAS de will-change (Norman, 2026-11-03 : « au moment de se stabiliser, les cartes adoptent une police floue ») : une couche promue d'avance est rastérisée à une autre échelle que la page figée, le texte des cartes changeait d'aspect à la fin du tour (mesuré : contraste du texte 12,1 pendant, 8,6 après ; sans will-change 9,0 / 8,0) */
 .alb-face{position:absolute;inset:0;backface-visibility:visible;border-radius:0 8px 8px 0}
 .alb-face-arriere{visibility:hidden;transform:rotateY(180deg)}
 .alb-feuille-tournante .alb-face>.alb-page{position:absolute;inset:0}
@@ -156,20 +156,16 @@ html body.soreal-idle-active-v47 .soreal-idle-bestiary-grid-v110.soreal-idle-alb
   background:linear-gradient(180deg,#2d2418,#110d08) padding-box,linear-gradient(145deg,#fbe39a 0%,#c4922f 38%,#6a4812 70%,#e0bb5e 100%) border-box;
   box-shadow:0 3px 0 #2a1a05,0 5px 7px rgba(0,0,0,.55),0 0 9px rgba(255,190,70,.2),inset 0 0 0 1px rgba(255,240,180,.35),inset 0 5px 7px rgba(255,255,255,.07)}
 .alb-bouton svg{width:24px;height:24px;display:block;fill:currentColor;stroke:#2b1b06;stroke-width:1.1;stroke-linejoin:round;paint-order:stroke}
-.alb-bouton::after{content:"";position:absolute;top:2px;left:50%;width:6px;height:6px;margin-left:-3px;transform:rotate(45deg);border-radius:1px;pointer-events:none;
-  background:linear-gradient(135deg,#ffffff,#8fe3ff 45%,#1f74ad);box-shadow:0 0 5px rgba(120,220,255,.75),0 0 0 1px #0a2a40}
 .alb-prec10::before,.alb-suiv10::before{content:"10";position:absolute;left:0;right:0;bottom:1px;text-align:center;font:400 11px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:.5px;color:#ffe9a8;text-shadow:0 1px 0 #000,0 0 3px rgba(0,0,0,.8);pointer-events:none}
 .alb-prec10 svg,.alb-suiv10 svg{width:22px;height:22px;transform:translateY(-4px)}
 .alb-bouton:hover:not(:disabled){color:#fff0b8;box-shadow:0 3px 0 #2a1a05,0 5px 7px rgba(0,0,0,.55),0 0 14px rgba(255,205,90,.5),inset 0 0 0 1px rgba(255,248,205,.6),inset 0 5px 7px rgba(255,255,255,.12)}
-.alb-bouton:hover:not(:disabled)::after{background:linear-gradient(135deg,#fff,#b9f0ff 45%,#3b9bd6);box-shadow:0 0 8px rgba(150,235,255,.95),0 0 0 1px #0a2a40}
 .alb-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #2a1a05,0 2px 4px rgba(0,0,0,.55),0 0 12px rgba(255,205,90,.55),inset 0 0 0 1px rgba(255,248,205,.6)}
 .alb-bouton:disabled{cursor:default;color:#6f685a;
   background:linear-gradient(180deg,#1d1914,#0e0c09) padding-box,linear-gradient(145deg,#6d6656,#3e3a30 60%,#59523f) border-box;
   box-shadow:0 3px 0 #15110a,0 4px 5px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.06)}
 .alb-bouton:disabled svg{stroke:#14110a}
-.alb-bouton:disabled::after{background:linear-gradient(135deg,#6a6a70,#35353a);box-shadow:0 0 0 1px #17171a}
 .alb-bouton:disabled::before{color:#6f685a;text-shadow:0 1px 0 #000}
-.alb-zoom .alb-bouton::before,.alb-zoom .alb-bouton::after{display:none}
+.alb-zoom .alb-bouton::before{display:none}
 .alb-bouton:focus-visible,.alb-fermer:focus-visible{outline:2px solid #ffd24a;outline-offset:2px}
 .alb-numero{min-width:110px;text-align:center;font:400 18px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1.2px;color:#e8e8ee;text-shadow:0 2px 0 #000}
 .alb-fermer{padding:10px 16px;border-radius:999px;cursor:pointer;font:400 15px/1 Bangers,"Russo One",Impact,sans-serif;letter-spacing:1px;color:#e8e8ee;border:2px solid #050507;background:linear-gradient(180deg,#34343c,#18181d);box-shadow:0 3px 0 #000,inset 0 0 0 1px rgba(255,255,255,.14)}

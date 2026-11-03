@@ -177,8 +177,6 @@
     }
   }
 
-  setInterval(function(){if(!document.hidden)maj();},250);
-})();
   /*
    * Aucun décalage de mise en page au chargement (Norman, 2026-11-03 : CLS 0,04 mesuré par Chrome ; sources : .soreal-idle-page-root-v28 remonté de 81 px, puis son cadre). La compensation (--hud-decalage) n'était calculée
    * qu'au premier passage du minuteur de 250 ms : la page était peinte une fois avec la marge basse pleine du bandeau, puis remontait. Un observateur de mutations (micro-tâche, AVANT la peinture) branche la surveillance
@@ -190,3 +188,5 @@
       if(h&&h!==hudEl)surveillerHud();
     }).observe(document.documentElement,{childList:true,subtree:true});
   }catch(_e){}
+  setInterval(function(){if(!document.hidden)maj();},250);
+})();

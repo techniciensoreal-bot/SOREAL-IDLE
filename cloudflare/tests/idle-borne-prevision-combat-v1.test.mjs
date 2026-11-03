@@ -103,16 +103,16 @@ for (const a of ["redroom", "sweep", "mascot"]) {
   r = lancer(etat(), a);
   assert.deepEqual(r, { scene: a, decision: 1, anim: a }, "combat de 10 s : animation " + a);
   assert.equal(ev("mk('win',2000).dur"), 8.6, "victoire avec animation vue en entier");
-  assert.equal(ev("mk('ko',2000).dur"), 8.8);
+  assert.equal(ev("mk('ko',2000).dur"), a === "redroom" ? 9.6 : 8.8, "défaite : le visage de la Red Room allonge la scène");
 }
 // défaite prévue : même règle
 r = lancer(etat({ attaqueBoss: 12 }), "sweep");
 assert.deepEqual(r, { scene: "sweep", decision: 1, anim: "sweep" }, "défaite longue (8,3 s) : animation");
 r = lancer(etat({ attaqueBoss: 120 }), "sweep");
 assert.deepEqual(r, { scene: "fight", decision: -1, anim: "" }, "défaite courte (0,8 s) : pas d'animation");
-// seuil : 6 s pile = animation, juste en dessous = non
-assert.equal(lancer(etat({ bossPv: 6000 })).decision, 1);
-assert.equal(lancer(etat({ bossPv: 5900 })).decision, -1);
+// seuil : 3 s pile = animation (Norman, 2026-11-03 : au moins 3 secondes à l'écran), juste en dessous = non
+assert.equal(lancer(etat({ bossPv: 3000 })).decision, 1);
+assert.equal(lancer(etat({ bossPv: 2900 })).decision, -1);
 // la décision est prise une seule fois par combat
 ev("lire(1020);majAnimation(1020)"); assert.equal(ev("animDecision"), -1);
 // prévision inconnue : repli sur l'observation de la barre (1 s d'attente, durée estimée sur la baisse de la vie)

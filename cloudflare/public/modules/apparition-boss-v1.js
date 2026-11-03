@@ -200,8 +200,43 @@
    * reste en place, et pendant une victoire/mort la vérification est repoussée.
    */
   var AGE_MAX=14000,GARDE_DELAIS=[4000,9000,15000,22000],gardeMinuteur=null,gardeRang=0;
+  /*
+   * Journal de diagnostic (Norman, 2026-11-03 : « l'image du boss n'est pas apparue, comme hier avec un autre boss ») : la cause exacte n'a pas pu être reproduite (le média est sain, l'effet se termine dans tous les cas mesurés). Chaque fois que, SANS calque
+   * ni victoire en cours, l'image du boss affichée n'est pas réellement visible, ou qu'un calque périmé a dû être retiré, une ligne « boss_image_invisible » / « boss_calque_perime » / « boss_image_erreur » entre dans le journal de fluidité avec tout l'état
+   * de la balise (chargée ? largeur naturelle ? opacité ? visibilité ? taille à l'écran ? classe de mort ?) : le prochain incident se lit directement dans le journal.
+   */
+  function raisonInvisible_(img){
+    try{
+      if(!img)return 'sans_image';
+      if(!img.complete)return 'non_chargee';
+      if(!(img.naturalWidth>0))return 'sans_taille';
+      var cs=typeof window.getComputedStyle==='function'?window.getComputedStyle(img):null;
+      if(cs){
+        if(cs.display==='none')return 'display_none';
+        if(cs.visibility==='hidden')return 'visibility_hidden';
+        if(Number(cs.opacity)===0)return 'opacite_0';
+      }
+      if(typeof img.getBoundingClientRect==='function'){var r=img.getBoundingClientRect();if(!(r.width>2&&r.height>2))return 'sans_dimension';}
+    }catch(_e){}
+    return '';
+  }
+  function rapporter_(type,img,extra){
+    try{
+      var D=window.__SOREAL_IDLE_DIAG_V1__;
+      if(!D||typeof D.noter!=='function')return false;
+      var cs=img&&typeof window.getComputedStyle==='function'?window.getComputedStyle(img):null,r=img&&typeof img.getBoundingClientRect==='function'?img.getBoundingClientRect():null;
+      var hote=document.getElementById(HOTE_ID);
+      var d={id:img?idDe(img):0,complete:img?!!img.complete:null,nw:img?img.naturalWidth:null,opacite:cs?cs.opacity:null,visibilite:cs?cs.visibility:null,affichage:cs?cs.display:null,
+        larg:r?Math.round(r.width):null,haut:r?Math.round(r.height):null,mort:!!(img&&img.classList&&img.classList.contains('soreal-idle-boss-death-v61')),
+        calques:hote&&hote.querySelectorAll?hote.querySelectorAll('.app-boss').length:0,combat:!!window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__,victoire:!!window.__SOREAL_IDLE_VICTOIRE_EN_COURS__,
+        visible:typeof document.visibilityState==='string'?document.visibilityState:null,dernier:dernierId};
+      if(extra)for(var k in extra)if(Object.prototype.hasOwnProperty.call(extra,k))d[k]=extra[k];
+      D.noter(type,String(d.id),d);
+      return true;
+    }catch(_e){return false;}
+  }
   function assurer_(){
-    var etat={retires:0,nettoye:false,rechargee:false,repousse:false};
+    var etat={retires:0,nettoye:false,rechargee:false,repousse:false,invisible:''};
     try{
       var hote=document.getElementById(HOTE_ID);
       if(!hote)return etat;
@@ -209,12 +244,14 @@
       var now=performance.now();
       [].slice.call(hote.querySelectorAll('.app-boss')).forEach(function(e){
         var d=e.__depuis;
-        if(typeof d!=='number'||now-d>AGE_MAX){if(e.parentNode)e.parentNode.removeChild(e);etat.retires++;}
+        if(typeof d!=='number'||now-d>AGE_MAX){rapporter_('boss_calque_perime',hote.querySelector('img'),{age:typeof d==='number'?Math.round(now-d):-1});if(e.parentNode)e.parentNode.removeChild(e);etat.retires++;}
         else etat.repousse=true;   /* encore dans sa durée de vie : on revérifiera */
       });
       var img=hote.querySelector('img');
       if(!img)return etat;
       if(!hote.querySelector('.app-boss')){
+        etat.invisible=raisonInvisible_(img);
+        if(etat.invisible)rapporter_('boss_image_invisible',img,{raison:etat.invisible});
         if(img.classList&&img.classList.contains('soreal-idle-boss-death-v61')){img.classList.remove('soreal-idle-boss-death-v61');etat.nettoye=true;}
         if(img.style&&img.style.opacity==='0'){img.style.removeProperty('opacity');etat.nettoye=true;}
         var u=img.getAttribute('src')||'';
@@ -262,15 +299,19 @@
       var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__,neuf=(i>=10&&REAPP&&REAPP.boss[i-10])?REAPP.boss[i-10]:null;
       if(neuf)calque.classList.add('app-boss-neuf');
       enCours=true;
-      var fini=false;
+      var fini=false,echeance=null;
       function terminer(){
         if(fini)return;fini=true;enCours=false;
+        clearTimeout(echeance);
         nettoyerMort_(img);
         calque.style.opacity='0';
         setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},160);
       }
       function demarrer(){
         if(fini)return;
+        /* Échéance sur MINUTERIE (jamais sur l'animation) : l'effet avance image par image (requestAnimationFrame) ou par animations web, que Chromium suspend quand il ne peint pas (fenêtre masquée, onglet en arrière-plan : mesuré, le calque opaque restait sur
+           l'image 7 s après son chargement) ; une minuterie, elle, continue : le boss est révélé au plus tard 1,5 s après la durée annoncée de l'effet. */
+        echeance=setTimeout(terminer,Math.round(((neuf&&Number(neuf.duree))||DUREES[i]||2)*1000)+1500);
         if(neuf){   /* entrées validées le 2026-10-29 : mise en scène et son propres au module des réapparitions */
           REAPP.jouer('boss',neuf.id,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
           return;
@@ -379,6 +420,7 @@
     var n=idDe(img);if(!n)return;
     if(dernierId===null){dernierId=n;return;}                     /* première image vue : pas d'apparition au chargement de la page */
     if(n===dernierId)return;
+    garde_();   /* dans TOUS les cas (effet joué ou non : mouvement réduit, victoire, calque d'attente) le filet vérifie plus tard que le boss est réellement visible */
     if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){return;}        /* l'écran de victoire appelle jouer() à sa fin */
     if(window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__){couvrir(hote,n);return;}   /* le boss combattu vient d'être remplacé : on masque le nouveau, la victoire (ou, à défaut, l'effet) passe juste après */
     jouer(hote);
@@ -421,8 +463,8 @@
     }catch(_e){return false;}
   }
   if(typeof document!=='undefined'&&document.addEventListener){
-    document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.tagName==='IMG')retenter_(t);},true);
+    document.addEventListener('error',function(e){var t=e&&e.target;if(t&&t.tagName==='IMG'){if(t.closest&&t.closest('#'+HOTE_ID))rapporter_('boss_image_erreur',t,{tentative:(t.__retenteSrc===t.getAttribute('src')?t.__retenteN:0)||0});retenter_(t);}},true);
   }
 
-  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={retenter:retenter_,assurer:assurer_,garde:garde_,jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
+  window.__SOREAL_IDLE_APPARITION_BOSS_V1__={raisonInvisible:raisonInvisible_,rapporter:rapporter_,retenter:retenter_,assurer:assurer_,garde:garde_,jouer:jouer,jouerApres:jouerApres,idDe:idDe,indexPour:indexPour,noms:NOMS,durees:DUREES,scene:scene,sons:sons,preparer:preparer,surveiller:surveiller,verifier:verifier,annuler:annuler,enCours:function(){return enCours;}};
 })();

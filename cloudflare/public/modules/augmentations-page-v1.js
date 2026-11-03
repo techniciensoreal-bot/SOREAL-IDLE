@@ -965,7 +965,7 @@
               }
               const upgradeOk=boss>=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.upgrade&&def.upgrade.unlockBoss||999999);
               /* "Boss N" n'est jamais un spoil ICI : l'augment est déjà débloqué, c'est un rappel historique, pas une condition à venir. Idem pour "Upgrade N" une fois l'upgrade lui-même débloqué. */
-              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+';--led-paire:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][0]+';--led-fond:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][1]+'"><div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):'<div style="margin-top:8px;opacity:.55;font-size:14px;color:#aeb5c8">🔒 Upgrade verrouillé.</div>'):'')+'</div></div>';
+              return '<div class="soreal-idle-section-v8 aug-paire-v2" data-icone="'+(IDLE_ICONES_AUGMENTS_V1[def.id]||'')+'" style="margin:0;--ac:'+COULEURS_RANG_AUGMENTS_V1[rangAugment(def)]+';--led-paire:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][0]+';--led-fond:'+COULEURS_LED_AUGMENTS_V1[Math.max(0,defs.indexOf(def))%COULEURS_LED_AUGMENTS_V1.length][1]+'"><div class="aug-pistes-v2">'+track(def,pair,false,mainOk)+(def.upgrade?(upgradeOk?track(def,pair,true,true):EMPLACEMENT_UPGRADE_VIDE_V1):'')+'</div></div>';
             }).join('')+'</div>';
           })();
       }
@@ -1461,6 +1461,13 @@
       const IDLE_ICONES_UPGRADES_AUGMENTS_V1={dangerScissors:'🔪',drinkMilk:'🍼',missileLauncher:'🚀',actualAmmo:'🎯',chargeShot:'🔋',energyShield:'🛡️',quadLaser:'💠'};
 
       /* Couleur de chaque paire, du premier Augment (froid) au dernier (brûlant) : la montée en puissance se lit d'un coup d'œil. */
+      /*
+       * Emplacement de l'Upgrade pas encore atteint (Norman, 2026-11-03 : « il ne faut pas que l'interface soit étirée… on voit juste le circuit imprimé vide », puis « juste le circuit imprimé sans rien ajouter »).
+       * Exception décidée par Norman à la règle n°2 (AGENTS.md, quatrième exception) : circuit imprimé vide, rien dessiné dessus, à la place de l'amélioration non possédée ; aucun texte, nom, prix ni condition.
+       * UNE div vide, aria-hidden, sans enfant ni fond propre (on voit le circuit de la carte) : elle ne fait que tenir la cellule de la vraie piste d'Upgrade (même colonne, même hauteur ; CSS dans
+       * soreal-idle-augment-led-v1.css), donc la carte garde la même taille avec ou sans l'amélioration. Elle n'existe QUE dans cette branche : au déblocage le morph la remplace par la vraie piste.
+       */
+      const EMPLACEMENT_UPGRADE_VIDE_V1='<div class="aug-emplacement-v2" aria-hidden="true"></div>';
       const COULEURS_RANG_AUGMENTS_V1=['#6aa9ff','#3fd6c8','#6bdc5a','#ffd24a','#ff8a3d','#ff4d6d'];
       /* Couleur LED de l'écran Cible et de la barre d'une paire (Norman, 2026-11-01) : selon le rang de la paire dans la liste (jamais un total), la même pour l'Augment et son Upgrade. */
       /* une palette d'écran par paire : [police/points, fond] ; l'Augment et son Upgrade la partagent */

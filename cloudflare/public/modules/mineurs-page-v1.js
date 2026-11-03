@@ -186,7 +186,7 @@
       '.mn-btn{appearance:none;-webkit-appearance:none;border:3px solid #000;border-radius:6px;font:400 15px Bangers,cursive;letter-spacing:.05em;padding:4px 10px;min-height:36px;color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),2px 2px 0 #000;cursor:pointer;touch-action:manipulation}',
       '.mn-btn.vert{color:#f4edc9;background:linear-gradient(180deg,#4ea866,#256b3c)}',
       '.mn-btn.carre{min-width:36px;padding:4px 0}',
-      '.mn-btn:disabled{cursor:default;color:#8d8d8d;background:linear-gradient(180deg,#555,#333)}',
+      '.mn-btn:disabled,.mn-btn.mn-manque{cursor:default;color:#8d8d8d;background:linear-gradient(180deg,#555,#333)}',
       '.mn-btn small{font:400 11px "Russo One",sans-serif;opacity:.85;margin-left:4px}',
       '.mn-nivactif{min-width:56px;text-align:center;font-size:14px}',
       /* le geste : une période, 1,8 s, début = fin */
@@ -298,7 +298,8 @@
       (max>0
         ?'<button type="button" class="mn-btn'+(on?'':' vert')+'" onclick="window.__toggleDiggerIdleV47__(\''+idH+'\','+(!on)+')">'+(on?'Mettre au repos':'Mettre au travail')+'</button>'
         :'')+
-      '<button type="button" class="mn-btn'+(max>0?'':' vert')+'" '+(v.nextCost==null||!abordable?'disabled ':'')+'onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+idH+'\'})">'+(max>0?'Creuser plus profond':'Engager')+'<small>'+H().idleHtml_(coutTexte)+'</small></button></div>'+
+      /* Or manquant : grisé mais CLIQUABLE (le moteur répond). `or` vient de la dernière synchro (jusqu'à ~4 s) et l'Or arrive en continu : un bouton `disabled` resterait bloqué à tort jusqu'au redessin suivant. Seul « au maximum » (plus de prochain coût) est réellement désactivé. */
+      '<button type="button" class="mn-btn'+(max>0?'':' vert')+(v.nextCost!=null&&!abordable?' mn-manque':'')+'" '+(v.nextCost==null?'disabled ':'')+'onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+idH+'\'})">'+(max>0?'Creuser plus profond':'Engager')+'<small>'+H().idleHtml_(coutTexte)+'</small></button></div>'+
       '</div></div>';
     return h;
   }

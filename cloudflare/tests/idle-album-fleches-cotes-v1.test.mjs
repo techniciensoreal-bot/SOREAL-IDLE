@@ -51,14 +51,14 @@ assert.ok(m.includes("if(arrivee){arrivee=false;if(!neuvesVisibles(page).length)
 // --- fleches style jeu video fantasy (Norman, 2026-11-01) : metal dore, gemme, pointes taillees, « 10 » sur les boutons doubles
 const bouton = c.slice(c.indexOf(".alb-bouton{position:relative"), c.indexOf(".alb-bouton:focus-visible"));
 assert.ok(/border:3px solid transparent;[\s\S]*linear-gradient\(145deg,#fbe39a/.test(bouton), "liseré de metal dore (degrade) autour d'un fond de cuir sombre");
-assert.ok(bouton.includes('.alb-bouton::after{content:""') && bouton.includes("#8fe3ff"), "gemme de cristal lumineuse en haut du bouton");
+assert.ok(!bouton.includes(".alb-bouton::after") && !bouton.includes("#8fe3ff"), "plus de petit losange (gemme) au-dessus des fleches (Norman, 2026-11-03)");
 assert.ok(bouton.includes('.alb-prec10::before,.alb-suiv10::before{content:"10"') && bouton.includes("Bangers"), "repere « 10 » en lettres Bangers sur les boutons doubles");
 assert.ok(bouton.includes(".alb-bouton:hover:not(:disabled)") && bouton.includes(".alb-bouton:active:not(:disabled){transform:translateY(2px)"), "survol (lumiere qui s'intensifie) et appui (leger enfoncement)");
-assert.ok(/\.alb-bouton:disabled\{[^}]*color:#6f685a/.test(bouton) && bouton.includes(".alb-bouton:disabled::after"), "desactive : metal terni et gemme eteinte");
+assert.ok(/\.alb-bouton:disabled\{[^}]*color:#6f685a/.test(bouton) && !bouton.includes(".alb-bouton:disabled::after"), "desactive : metal terni, sans losange");
 assert.ok(!/filter|backdrop|blur\(|animation|@keyframes|!important/.test(bouton), "perf APK : statique, aucun filtre ni animation, aucun !important");
 assert.ok(/\.alb-bouton\{position:relative;box-sizing:border-box;width:46px;height:46px/.test(bouton) && c.includes(".alb-adapt .alb-cote .alb-bouton{width:44px;height:44px}") && c.includes(".alb-bouton{width:44px;height:44px}.alb-bouton svg{width:22px;height:22px}"), "zone de toucher >= 44 px (PC et telephone)");
 assert.ok(/var CHEV_G='<svg[^>]*><path d="[^"]*Z"\/><\/svg>'/.test(m) && /var CHEV_DD='<svg[^>]*><path d="[^"]*Z[^"]*Z"\/><\/svg>'/.test(m), "pointes de fleche pleines (simples et doubles), SVG original");
-assert.ok(c.includes(".alb-zoom .alb-bouton::before,.alb-zoom .alb-bouton::after{display:none}"), "les boutons + / − du zoom ne recoivent ni gemme ni repere");
+assert.ok(c.includes(".alb-zoom .alb-bouton::before{display:none}") && !c.includes(".alb-zoom .alb-bouton::after"), "les boutons + / − du zoom ne recoivent pas de repere, ni de losange");
 for (const l of ["Reculer de 10 pages", "Reculer d’une page", "Avancer d’une page", "Avancer de 10 pages", "Fermer le classeur : revenir à la couverture", "Page précédente", "Page suivante"]) assert.ok(m.includes('aria-label="' + l + '"'), "aria-label conserve : " + l);
 
 console.log("idle-album-fleches-cotes-v1 : OK");

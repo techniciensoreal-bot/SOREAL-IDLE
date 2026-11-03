@@ -168,7 +168,8 @@
     var libre=ressource_(j,res).libre;
     var champ=document.getElementById('sorealIdleGenInputV1');
     var pas=champ&&Number.isFinite(Math.floor(Number(champ.value)))&&Math.floor(Number(champ.value))>=1?Math.floor(Number(champ.value)):montant_();
-    var valeur=mode==='max'?courant+libre:(mode==='moins'?Math.max(0,courant-pas):courant+pas);
+    /* MAX : la quantité SOUHAITÉE (tout, jusqu'au plafond de la ressource), jamais courant + libre lu dans la dernière synchro : la ressource libre de la page (r3 des Hacks, rien ne la fait avancer entre deux synchros) est périmée et laissait un reliquat ; le moteur borne à précédent + libre réel. */
+    var valeur=mode==='max'?Math.max(courant+libre,ressource_(j,res).cap):(mode==='moins'?Math.max(0,courant-pas):courant+pas);
     action_({action:'allocate',system:systeme,resource:res,value:valeur});
   }
 

@@ -87,8 +87,8 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : animations seulement pour un combat d'au moins 6 s ; FIGHT ! une seconde avant elle ; le nom du boss s'écrit dès qu'il apparaît ; Leatherface s'adapte à un écran moins haut
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("if(now-fightT0<1000)return;") && led.includes("if(total>=6){animDecision=1;combatAnim=animChoisie;"), "animation décidée après 1 s de FIGHT !, seulement si la durée estimée atteint 6 s");
-  assert.ok(led.includes("var total=el+S.pv.pct/(chute/el);") && led.includes("else if(el>=4)animDecision=-1;"), "durée estimée = écoulé + vie restante / vitesse de baisse ; sans baisse après 4 s, pas d'animation");
+  assert.ok(led.includes("if(now-fightT0<500)return;") && led.includes("if(total>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;") && led.includes("var ANIM_DUREE_MIN_S=3,"), "repli par observation : décidée après 0,5 s, seulement si la durée estimée atteint le seuil de 3 s (Norman, 2026-11-03)");
+  assert.ok(led.includes("var total=el+S.pv.pct/(chute/el);") && led.includes("else if(el>=2)animDecision=-1;"), "durée estimée = écoulé + vie restante / vitesse de baisse ; sans baisse après 2 s, pas d'animation");
   assert.ok(!led.includes("now-fightT0>2200"), "plus de FIGHT ! de 2,2 s");
   assert.ok(led.includes("combatAnim='';animDecision=0;") && led.includes("if(id==='win')p.anim=combatAnim;"), "combat court : la victoire n'utilise pas d'animation");
   assert.ok(led.includes("function sNom(t)") && led.includes("nom:{fn:sNom") && led.includes("demarrer(mk('nom',now));return;"), "le nom du nouveau boss s'écrit d'abord");
@@ -116,12 +116,12 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("function geoCourse(xe)") && led.includes("var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));"), "la fille est au bout de la barre de vie, le fourgon roule devant, Leatherface derrière : tout suit la barre (Norman, 2026-11-02)");
   assert.ok(led.includes("if(fin){") && led.includes("var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}") && led.includes("G.tx-Math.round(uf*uf*40+uf*10)") && led.includes("}else danseFinale(t,fl,xd,uf-TC);"), "victoire : le fourgon sort de l'écran et Leatherface fait sa danse là où il s'est arrêté");
   assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
-  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
+  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
   console.log("idle-borne-duel-leds-v1 (poursuite du fourgon) : OK");
 }
 {
   const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led2.includes("function coupeApres(s){return s.id==='win'&&s.p&&s.p.anim?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
+  assert.ok(led2.includes("function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&s.p.anim==='redroom')?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
   assert.ok(led2.includes("if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}") && led2.includes("pend=false;graceFin=0;demarrer(s);"), "le combat suivant qui démarre avant le drapeau de victoire n'écrase plus l'animation longue : on attend la scène de fin (Norman, 2026-11-03)");
 }
 {
@@ -146,7 +146,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("rrDessinHomme(HOMMES[fr],fx,G,reb,op);") && led.includes("function rrClairiere(x,G,t)") && led.includes("6.2832*(t/2+R(u,y))"), "victoire : le rideau s'ouvre sur une clairière étoilée où les hommes s'enfoncent (étoiles : période 2 s)");
   const corps = led.slice(led.indexOf("function perduRedroom(t){"), led.indexOf("/* 6. La ola puis VICTOIRE ! */"));
   assert.ok(corps.includes("tCatch=1.2") && corps.includes("bleu=2") && corps.includes("bleu=1") && corps.includes("HOMMES[caught?3:"), "défaite : main sur l'épaule, éclairs puis lueur bleue, le fuyard reste figé");
-  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom';"), "pas de « RECOMMENCE ? » pendant la Red Room");
+  assert.ok(led.includes("if(rr)v2=0;") && led.includes("var rr=P.p.anim==='redroom',fv=rr&&visOk(),tg=t,L0;"), "pas de « RECOMMENCE ? » pendant la Red Room");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");
   console.log("idle-borne-duel-leds-v1 (Red Room) : OK");
 }

@@ -32,6 +32,8 @@
         date:'2026-11-03',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les boutons de placement (Max, +, Cap…) tiennent compte de la ressource réellement disponible, sans valeur périmée.',
+            'L’icône d’un menu qui travaille continue de bouger quand tu cliques en dehors de la fenêtre de l’application.',
             'Énergie et magie : le nombre affiché ne recule plus d’une unité de temps en temps pendant qu’il monte.',
             'L’application et le site sont plus fluides sur téléphone : l’écran de la borne, la machine temporelle et le tour des pages de l’album saccadent moins.',
             'L’application Android hors ligne garde toute seule la partie la plus récente, sans te demander de choisir ; un petit message te dit laquelle a été retenue.',
@@ -40,24 +42,38 @@
             'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Album : le petit losange au-dessus des flèches de navigation est retiré, et le texte des cartes reste net quand une page se fige.',
             'Album : la page noire n’apparaît plus en double un instant à l’ouverture et à la fermeture du classeur.',
             'Les titres du menu Chroniques reprennent le cadre parchemin du bouton du menu, et le fond bleu laisse place à un brun chaud très sombre.',
             'Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.',
             'Les objets des sets de la Collection ont leur image.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Machine temporelle : quand il manque de l’Or, l’écran n’affiche plus qu’une somme en rouge : le coût du niveau suivant.',
+            'Les petites étoiles qui scintillaient dans les barres actives sont retirées.',
+            'Les cadres du niveau et de l’énergie placée ont la même taille et ne s’allongent plus, quel que soit le nombre de chiffres.',
+            'Les boutons + − Max et 0 deviennent de vraies touches en caoutchouc mat, chacune dans son cadre aux couleurs de la carte, avec une police plus sobre.',
+            'Quand l’amélioration d’un augment n’est pas encore possédée, la carte garde sa taille et montre seulement le circuit imprimé vide ; sur téléphone, une bande plus courte.',
             'Machine temporelle : la barre d’un niveau ne recule plus d’un coup quand tu ajoutes ou retires des ressources.',
             'Les dents dorées des cartes sont désormais plates et d’un or franc.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'Magie : les étoiles ne brillent que sur les lignes alimentées, et d’autant plus fort que la ligne se remplit vite.',
+            'Énergie : des bancs de nuages gris couvrent la page et ne se dégagent que, très lentement, sur les lignes alimentées, avec un seul soleil en haut ; le ciel est entièrement dégagé quand toutes les lignes sont alimentées.',
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Journal d’Aventure : un combat terminé n’est plus rejoué en double (deux fois « Vous avez vaincu » pour un seul butin).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu perds un combat de boss, la borne peut afficher un visage numérisé qui apparaît seul, zébré d’éclairs.',
+            'Pendant la danse de Leatherface, il n’y a plus de sang qui gicle.',
+            'Une image de boss est remplacée par un nouveau dessin.',
+            'Si l’image d’un boss tarde à apparaître au début du combat, elle est révélée au plus tard quelques secondes après.',
+            'Dans l’animation du Nuke, le chat saute sur le bouton pour l’activer.',
+            'Le Nuke devient de plus en plus fou selon le nombre de boss tués, avec des animations en plus tous les 10 boss et une surprise pour un Nuke qui va jusqu’au bout. Un chien renifle le sol, se met face à toi, lève la patte et arrose le bouton.',
             'Combat de boss : la vie du boss et celle du joueur ne remontent plus brièvement en plein combat.',
-            'Les animations longues de la borne ne se lancent plus pour les combats courts.',
+            'Les animations longues de la borne se lancent dès que le combat dure au moins 3 secondes, qu’on gagne ou qu’on perde.',
             'Sur la borne, l’animation de victoire n’est plus coupée par le nom du boss suivant.',
             'Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.',
             'Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir.',
@@ -65,7 +81,12 @@
           {menu:'shop', titre:'Boutique', points:[
             'Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance.',
           ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'La barre de chargement orange ne fait plus sauter ses lignes toutes les quelques secondes.',
+            'Le bouton CAP place tout ton stock tant que le plafond n’est pas atteint, puis seulement ce dont la machine a besoin.',
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les portes montent et disparaissent derrière la plaque du titre, qui les coupe net.',
             'Une nouvelle police, plus élégante, pour le titre, les noms et les boutons de cette page.',
             'Les écritures des boutons grisés de cette page sont maintenant lisibles.',
             'Une des portes est remplacée par un nouveau dessin.',

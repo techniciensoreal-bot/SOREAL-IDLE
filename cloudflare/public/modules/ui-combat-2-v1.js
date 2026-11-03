@@ -667,6 +667,8 @@
         google.script.run
           .withSuccessHandler(function(res){
             REG.idleNukeEnCoursV1=false;
+            /* Borne d'arcade : le nombre de boss franchis par CE Nuke n'existe qu'ici (réponse du moteur) ; la scène LED le reçoit par cet événement (dernierBoss = drapeau du moteur, jamais un total) */
+            try{window.dispatchEvent(new CustomEvent('soreal-nuke-resultat',{detail:{n:res&&res.ok&&res.nuke&&Array.isArray(res.nuke.defeated)?res.nuke.defeated.length:0,dernierBoss:Boolean(res&&res.ok&&res.nuke&&res.nuke.dernierBoss)}}));}catch(_e){}
 
             if(!res||!res.ok){
               toastIdleV5_(
@@ -715,6 +717,7 @@
           })
           .withFailureHandler(function(e){
             REG.idleNukeEnCoursV1=false;
+            try{window.dispatchEvent(new CustomEvent('soreal-nuke-resultat',{detail:{n:0,dernierBoss:false}}));}catch(_e){}
 
             toastIdleV5_(
               e&&e.message

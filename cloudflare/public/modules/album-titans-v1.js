@@ -53,9 +53,15 @@ function dosPochetteHtml(k){
   var C=window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__;
   return '<div class="alb-pochette alb-pochette-dos alb-pochette-dos-titan" aria-hidden="true"><div class="alb-carte alb-carte-mtg">'+(C&&C.dos?'<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+C.dos({dosImage:urlDos(k)})+'</div>':'')+'</div><div class="alb-plastique"></div></div>';
 }
-function pageHtml(p){
+/* Une carte de titan existe au rang rg quand le titan est connu ET sa carte obtenue (Norman, 2026-11-03 : jamais un dos sans carte réelle). */
+function existe(rg){var t=connus()[rg];return Boolean(t&&obtenue(rg,t));}
+/*
+ * Page de titans : emplacement k = la carte de face du titan de rang k si elle existe, sinon ce que renvoie vide(k) (la pochette plastique VIDE, ou, à travers le plastique, le dos de la carte du verso : décidé par l'album).
+ * Aucun dos de titan n'est jamais dessiné pour un emplacement sans carte réelle (règle n°2 : le nombre de dos visibles ne révèle pas un total).
+ */
+function pageHtml(p,vide){
   var l=connus(),h='',k;
-  for(k=0;k<PAR_PAGE;k++){var rg=p*PAR_PAGE+k,t=l[rg];h+=t&&obtenue(rg,t)?pochetteHtml(t):dosPochetteHtml(rg+1);}
+  for(k=0;k<PAR_PAGE;k++){var rg=p*PAR_PAGE+k,t=l[rg];h+=t&&obtenue(rg,t)?pochetteHtml(t):(typeof vide==='function'?vide(k,rg):'');}
   return h;
 }
 function nbPages(n){n=Math.max(0,ent(n));return n?Math.ceil(n/PAR_PAGE):0;}
@@ -362,5 +368,5 @@ document.addEventListener('pointerdown',function(ev){
 },true);
 document.addEventListener('visibilitychange',gyVisible);
 
-window.__SOREAL_IDLE_ALBUM_TITANS_V1__={titansVaincus:titansVaincus,pochetteHtml:pochetteHtml,gyroEvenement:gyEvenement,connus:connus,carteTitanObtenue:carteTitanObtenue,nbPagesAlbum:nbPagesAlbum,pageHtml:pageHtml,dosPochetteHtml:dosPochetteHtml,urlDos:urlDos,gyroOuvrir:gyOuvrir,gyroFermer:gyFermer,ficheContenu:ficheContenu,ouvrirFiche:ouvrirFiche,fermerFiche:fermerFiche,nbPages:nbPages,page:page,teinte:teinte,urlImage:urlImage,PAR_PAGE:PAR_PAGE};
+window.__SOREAL_IDLE_ALBUM_TITANS_V1__={titansVaincus:titansVaincus,pochetteHtml:pochetteHtml,gyroEvenement:gyEvenement,connus:connus,carteTitanObtenue:carteTitanObtenue,nbPagesAlbum:nbPagesAlbum,pageHtml:pageHtml,existe:existe,dosPochetteHtml:dosPochetteHtml,urlDos:urlDos,gyroOuvrir:gyOuvrir,gyroFermer:gyFermer,ficheContenu:ficheContenu,ouvrirFiche:ouvrirFiche,fermerFiche:fermerFiche,nbPages:nbPages,page:page,teinte:teinte,urlImage:urlImage,PAR_PAGE:PAR_PAGE};
 })();

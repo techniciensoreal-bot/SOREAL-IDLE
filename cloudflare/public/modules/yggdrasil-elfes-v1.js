@@ -106,9 +106,9 @@
       '.ygg-onglet[aria-selected="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);text-shadow:0 1px 0 rgba(255,255,255,.5);}',
       /* Grille 3 x 3. */
       '.ygg-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2cqw;}',
-      '.ygg-carte{position:relative;display:flex;flex-direction:column;gap:1.1cqw;padding:1.6cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(56,110,70,.95),rgba(20,52,34,.97));box-shadow:inset 0 0 0 2px rgba(240,204,98,.38),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000;min-width:0;}',
+      '.ygg-carte{--ygg-ecart:1.1cqw;position:relative;display:flex;flex-direction:column;gap:var(--ygg-ecart);padding:1.6cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(56,110,70,.95),rgba(20,52,34,.97));box-shadow:inset 0 0 0 2px rgba(240,204,98,.38),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000;min-width:0;}',
       '.ygg-carte::before{content:"❦";position:absolute;top:-.55em;left:.35em;font-size:clamp(12px,3cqw,20px);color:var(--or);text-shadow:0 1px 0 #000,0 0 6px rgba(240,204,98,.7);}',
-      '.ygg-nom{padding:.25em .5em;border:2px solid #000;border-radius:3px;text-align:center;font-family:var(--ygg-titres);font-weight:700;font-size:clamp(8px,1.8cqw,12px);line-height:1.2;color:#fff3c4;text-shadow:0 1px 0 #000;background:linear-gradient(180deg,#355f40,#1a3a26);min-height:2.4em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3em;}',
+      '.ygg-nom{position:relative;z-index:8;padding:.25em .5em;border:2px solid #000;border-radius:3px;text-align:center;font-family:var(--ygg-titres);font-weight:700;font-size:clamp(8px,1.8cqw,12px);line-height:1.2;color:#fff3c4;text-shadow:0 1px 0 #000;background:linear-gradient(180deg,#355f40,#1a3a26);min-height:2.4em;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:.3em;}',
       '.ygg-nom span{color:var(--or);font-weight:700;}',
       '.ygg-vitre{position:relative;overflow:hidden;aspect-ratio:5/4;border:3px solid #000;border-radius:12px;background:radial-gradient(ellipse at 50% 35%,#4a8a58,#0d2a18);box-shadow:inset 0 0 18px rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;}',
       '.ygg-secours{font-size:clamp(26px,9cqw,60px);filter:drop-shadow(0 2px 0 rgba(0,0,0,.6));}',
@@ -118,7 +118,8 @@
       '.ygg-vitre.ygg-portrait.ygg-decor{aspect-ratio:1/1;width:100%;margin:0;}',
       /* Porte en image, qui se RELÈVE PAR LE HAUT comme la herse d'un château fort (Norman, 2026-11-02 : « les portes de Ygg qui s'ouvrent par le haut comme un château fort ; un son lourd, comme si les portes étaient vraiment lourdes ») : la boîte de la porte déborde de 6,25 % autour du cadre et COUPE ce qui dépasse (la herse disparaît par le haut, derrière le bord) ; la porte reste une image entière (deux moitiés collées, même mouvement). Elle tressaute d'abord (verrou, poids), puis monte lentement ; à la fermeture le même mouvement à l'envers : elle tombe de plus en plus vite et claque. Une lueur dorée passe sous elle. */
       '.ygg-vitre.ygg-decor{overflow:visible;border:0;}',
-      '.ygg-porte{position:absolute;inset:-6.25%;z-index:7;display:flex;overflow:hidden;pointer-events:none;background:transparent;}',
+      /* La herse passe DERRIÈRE la plaque du titre (Norman, 2026-11-03 : « ce qui les fait disparaître, c'est le bas du cadre avec le titre ») : la plaque (.ygg-nom, z-index 8) est au-dessus de la porte (7) ; la porte est découpée par clip-path au BORD INFÉRIEUR de la plaque, qui est toujours à --ygg-ecart au-dessus du cadre (écart de la carte, pas une hauteur codée en dur, quel que soit le nombre de lignes du titre). La boîte de la porte déborde de 6,25 % du cadre en haut = 5,5556 % de sa propre hauteur (1,125 x le cadre). Aucun overflow:hidden au-dessus de la plaque. */
+      '.ygg-porte{position:absolute;inset:-6.25%;z-index:7;display:flex;clip-path:inset(calc(5.5556% - var(--ygg-ecart,1.1cqw)) 0 0 0);pointer-events:none;background:transparent;}',
       '.ygg-porte-g,.ygg-porte-d{position:relative;z-index:1;flex:1 1 50%;overflow:hidden;}',
       '.ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;max-width:none;object-fit:cover;}',
       '.ygg-porte-g img{left:0;}.ygg-porte-d img{right:0;}',
@@ -201,7 +202,7 @@
       '.ygg-solo{display:flex;align-items:center;gap:.6em;min-height:44px;font-size:clamp(9px,1.9cqw,13px);cursor:pointer;}',
       '.ygg-solo input{width:22px;height:22px;accent-color:#e0b640;flex:0 0 auto;}',
       '.ygg-note{margin-top:1.6cqw;font-size:clamp(8px,1.7cqw,12px);color:#b9d8a8;line-height:1.4;text-align:center;}',
-      '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{padding:1.2cqw;gap:.9cqw}}',
+      '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{--ygg-ecart:.9cqw;padding:1.2cqw}}',
       /* Page sans bords (Norman, 2026-10-15) : plus de cadre ni de médaillons, la page prend toute la largeur ; textes plus grands et plus clairs. */
       '.ygg-page{max-width:none!important;margin:0!important}',
       '.ygg-cadre{padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}',

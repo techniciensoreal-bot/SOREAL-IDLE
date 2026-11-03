@@ -18,10 +18,10 @@ for (const [t, attendu] of [["0⚡", false], ["0 ⚡", false], ["", false], ["1 
   assert.equal(api.estActif(t), attendu, "« " + t + " »");
 }
 assert.equal(api.styles.length, 5, "NGU a sa propre aura (aurore, dans le tuyau) et n'utilise plus celle-ci");
-assert.equal(new Set(api.styles).size, 5, "un style de particules différent par menu");
+assert.equal(new Set(api.styles).size, 5, "un style par menu (Augmentations : seulement le cadre lumineux, plus de particules, 2026-11-03)");
 
 // Boucles parfaites (règle n°3) : chaque animation commence ET finit à opacité 0, et ne revient jamais en arrière.
-for (const nom of ["pvBraise", "pvEtoile", "pvBit", "pvPiece", "pvGoutte"]) {
+for (const nom of ["pvBraise", "pvBit", "pvPiece", "pvGoutte"]) {
   const m = src.match(new RegExp("@keyframes " + nom + "\{(.*?)\}'\+|@keyframes " + nom + "\{(.*?)\}\}"));
   const corps = m ? (m[1] || m[2]) : "";
   assert.ok(corps, nom + " existe");

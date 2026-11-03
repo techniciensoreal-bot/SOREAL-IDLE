@@ -104,7 +104,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
 }
 // 4. S'ouvre EN DEUX VOLETS comme les anciennes portes (Norman, 2026-11-02) : chaque moitié pivote sur son bord extérieur, une lueur passe, le tout se fond ; la fermeture est la même animation à l'envers ; elle déborde du cadre (rien de noir) ; mouvement réduit : pas d'animation.
 {
-  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("overflow:hidden;pointer-events:none;background:transparent;}"), "la porte se relève par le haut comme une herse, coupée par le bord de la boîte (rien ne dépasse au-dessus)");
+  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("clip-path:inset(calc(5.5556% - var(--ygg-ecart,1.1cqw)) 0 0 0);pointer-events:none;background:transparent;}"), "la porte se relève par le haut comme une herse, coupée par le BAS DE LA PLAQUE DU TITRE (clip-path, voir idle-ygg-porte-derriere-titre-v1)");
   assert.ok(!src.includes("rotateY(-104deg)") && !src.includes("rotateY(104deg)"), "plus de volets qui pivotent");
   assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d{animation:yggHerse") && src.includes(".ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{animation:yggHerse") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
   const m = monde(); const h = m.api.porte_("gold", false);

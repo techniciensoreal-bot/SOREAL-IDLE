@@ -28,7 +28,7 @@ assert.match(page, /if\(!mainOk\)\{[\s\S]{0,300}🔒 \?\?\?\?\?\?\?/, "paire ver
 {
   const brancheUpgrade = page.slice(page.indexOf("const upgradeOk="), page.indexOf(").join('')+'</div>';"));
   assert.ok(!/<em>(Boss|Upgrade) /.test(brancheUpgrade), "plus aucune pastille « Boss N » / « Upgrade N » (bande supérieure supprimée, 2026-10-31) : aucun seuil affiché");
-  assert.match(brancheUpgrade, /upgradeOk\?track\(def,pair,true,true\):'<div[^']*>🔒 Upgrade verrouillé\./, "upgrade verrouillé : placeholder générique, jamais son coût/sa progression");
+  assert.match(brancheUpgrade, /upgradeOk\?track\(def,pair,true,true\):EMPLACEMENT_UPGRADE_VIDE_V1/, "upgrade verrouillé : emplacement vide (circuit imprimé, aucun texte), jamais son coût/sa progression (4e exception de Norman, 2026-11-03 ; garde : idle-augment-emplacement-vide-v1)");
 }
 
 console.log("idle-anti-spoil-augmentations-v1: OK");

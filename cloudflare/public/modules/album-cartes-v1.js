@@ -51,11 +51,17 @@ function sansBalise(t){try{var f=reg().sansBaliseVoixIdleV1_;return typeof f==='
 function titansMod(){return window.__SOREAL_IDLE_ALBUM_TITANS_V1__||null;}
 function pagesBoss(){return Math.max(1,Math.ceil(cartes.length/PAR_PAGE));}
 function pagesTitans(){var T=titansMod();return T&&T.nbPagesAlbum?T.nbPagesAlbum():0;}
-function nbPages(){return 1+pagesBoss()+pagesTitans();}
+/*
+ * PAGE(S) DE GARDE (Norman, 2026-11-03) : juste avant la première page de titans, une page de 9 pochettes plastique VIDES, seulement s'il y a des pages de titans (même condition). Elle est le RECTO (page paire, à droite sur PC) dont le VERSO est la première page de titans :
+ * à travers son plastique on voit, à la place miroir (même rangée, colonne opposée), les dos des cartes de titans qui existent, et rien d'autre. Parité : si la dernière page de boss est paire (un recto), la page qui suit serait impaire (un verso) : une page de garde SUPPLÉMENTAIRE
+ * (même pochettes vides, le dos des cartes de boss y est vu à travers comme sur toute page de gauche incomplète) la précède pour que la vraie garde tombe sur une page paire. Téléphone (une seule page) : une seule garde.
+ */
+function pagesGarde(){return pagesTitans()>0?(double()&&pagesBoss()%2===0?2:1):0;}
+function nbPages(){return 1+pagesBoss()+pagesGarde()+pagesTitans();}
 function cartesDePage(r){return r>=1&&r<=pagesBoss()?cartes.slice((r-1)*PAR_PAGE,(r-1)*PAR_PAGE+PAR_PAGE):[];}
 /* Les pages de titans commencent TOUJOURS après la dernière page de boss (jamais sur la même page) ; chacune a 9 emplacements (carte de face ou dos). */
-function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()&&r<nbPages();}
-function nbCartesPage(r){return cartesDePage(r).length||(estTitans(r)?PAR_PAGE:0);}
+function estTitans(r){return Boolean(titansMod())&&r>pagesBoss()+pagesGarde()&&r<nbPages();}
+function nbCartesPage(r){var T=titansMod(),n=0,k;if(cartesDePage(r).length)return cartesDePage(r).length;if(estTitans(r)&&T&&T.existe)for(k=0;k<PAR_PAGE;k++)if(T.existe((r-pagesBoss()-pagesGarde()-1)*PAR_PAGE+k))n++;return n;}   /* page de titans : seulement les cartes qui existent */
 function nbPieces(){return Math.min(PIECES,Math.floor(cartes.length*PIECES/TOTAL_BOSS));}
 /* Page affichée (celle de droite sur PC, où elle est toujours paire : à gauche, la page d'avant) ; la dernière page peut être seule à gauche, sa voisine de droite est alors vide. */
 function pageMax(){var n=nbPages();return double()?(((n-1)%2===0)?n-1:n):n-1;}
@@ -100,9 +106,9 @@ function puzzleHtml(){var n=nbPieces(),h='',k;for(k=0;k<PIECES;k++)h+=pieceHtml(
 function derriereGauche(r){
   var d=[],p=r-1,i;
   if(p<0)return d;
-  var carteDerriere=p===0?nbPieces():nbCartesPage(p);   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
+  var carteDerriere=p===0?nbPieces():(estTitans(p)?0:nbCartesPage(p));   /* la première page est le grand dessin : seules les cartes déjà gagnées comptent */
   for(i=0;i<PAR_PAGE;i++)d.push(Math.floor(i/COLS)*COLS+(COLS-1-i%COLS)<carteDerriere);
-  d.titan=estTitans(p);   /* derrière : une page de titans → on voit des dos de titans */
+  if(estTitans(p))rangsDerriere(d,p);   /* derrière : une page de titans → seulement les dos des cartes de titans qui existent */
   return d;
 }
 /*
@@ -112,14 +118,26 @@ function derriereGauche(r){
 function derriereDroite(L){
   var d=[],i;
   if(!double()||L<1||!estTitans(L+1))return null;
-  for(i=0;i<PAR_PAGE;i++)d.push(true);
-  d.titan=true;
+  for(i=0;i<PAR_PAGE;i++)d.push(false);
+  rangsDerriere(d,L+1);
   return d;
 }
+/* Verso en pages de titans (page pt) : à l'emplacement i on voit le dos de la carte qui est à la place MIROIR, seulement si cette carte existe (d.rangs[i] = son rang, d[i] = vrai). */
+function rangsDerriere(d,pt){
+  var T=titansMod(),i,rg;d.rangs=[];
+  for(i=0;i<PAR_PAGE;i++){rg=(pt-pagesBoss()-pagesGarde()-1)*PAR_PAGE+miroir(i);d.rangs.push(T&&T.existe&&T.existe(rg)?rg:-1);if(d.rangs[i]>=0)d[i]=true;}
+}
 function miroir(i){return Math.floor(i/COLS)*COLS+(COLS-1-i%COLS);}
-function completer(h,n,derriere){var i,v='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';for(i=n;i<PAR_PAGE;i++)h+=(derriere&&derriere[i])?(derriere.titan&&titansMod()?titansMod().dosPochetteHtml(miroir(i)+1):dosPochetteHtml(i+1)):v;return h;}
+var VIDE='<div class="alb-pochette alb-pochette-vide" aria-hidden="true"><div class="alb-carte alb-carte-mtg"></div><div class="alb-plastique" aria-hidden="true"></div></div>';
+/* Un emplacement sans carte : pochette plastique vide, ou le dos de la carte réelle qui est derrière. */
+function emplacementVide(i,derriere){
+  if(!(derriere&&derriere[i]))return VIDE;
+  if(derriere.rangs)return derriere.rangs[i]>=0&&titansMod()?titansMod().dosPochetteHtml(derriere.rangs[i]+1):VIDE;
+  return dosPochetteHtml(i+1);
+}
+function completer(h,n,derriere){var i;for(i=n;i<PAR_PAGE;i++)h+=emplacementVide(i,derriere);return h;}
 /* Après la dernière page (la page de droite de la dernière feuille, sur PC) : une page blanche de 9 emplacements invisibles, jamais vide : une page vide ferait s'effondrer la hauteur du classeur (tout le menu bougerait). */
-function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):derriereDroite(L);if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-1);var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
+function contenuPage(L,gauche){vusTmp=lireVus()||[];if(L<0)return '';var dd=gauche?derriereGauche(L):derriereDroite(L);if(L>=nbPages())return completer('',0,dd);if(L===0)return puzzleHtml();if(estTitans(L))return titansMod().pageHtml(L-pagesBoss()-pagesGarde()-1,function(k){return emplacementVide(k,dd);});var l=cartesDePage(L);return completer(l.map(pochetteHtml).join(''),l.length,dd);}
 function droiteHtml(L){return contenuPage(L);}
 function gaucheHtml(L){return double()&&L>=1?contenuPage(L-1,true):'';}   /* à gauche : la page d'avant, de face ; avant la première page, l'intérieur de la couverture */
 

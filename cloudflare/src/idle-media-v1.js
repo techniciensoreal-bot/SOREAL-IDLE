@@ -669,12 +669,20 @@ function slugFichierBossR2_(cle){
   const fichier=String(cle).split("/").pop().replace(/\.[a-z0-9]+$/i,"").replace(/^Boss_\d+_/i,"");
   return slugMobR2_(fichier);
 }
+/* Format prefere quand une meme image de boss existe en plusieurs formats (Norman, 2026-11-03 : Boss_049_Hooloovoo.png remplace par .webp ; sur l'exe l'ancien .png reste dans le dossier de l'appareil a cote du nouveau .webp et l'ordre alphabetique choisissait le .png) : webp > avif > png > jpg > jpeg, puis ordre alphabetique. */
+const IDLE_BOSS_FORMATS_PRIORITE=Object.freeze(["webp","avif","png","jpg","jpeg"]);
+function rangFormatImageR2_(cle){
+  const i=IDLE_BOSS_FORMATS_PRIORITE.indexOf(String(cle).split(".").pop().toLowerCase());
+  return i<0?IDLE_BOSS_FORMATS_PRIORITE.length:i;
+}
+function meilleureCleParFormatR2_(cles){
+  return cles.slice().sort((x,y)=>(rangFormatImageR2_(x)-rangFormatImageR2_(y))||(x<y?-1:x>y?1:0))[0]||"";
+}
 export function choisirCleBossR2ParNom_(keys,nomValue){
   const voulus=[slugMobR2_(nomValue),slugMobR2_(nomMobOrigineV1_(nomValue))].filter(Boolean);
   if(!voulus.length)return "";
-  const tries=keys.slice().sort();
   for(const v of voulus){
-    const trouve=tries.find(k=>slugFichierBossR2_(k)===v);
+    const trouve=meilleureCleParFormatR2_(keys.filter(k=>slugFichierBossR2_(k)===v));
     if(trouve)return trouve;
   }
   return "";
@@ -1376,10 +1384,10 @@ function choisirCleBossR2_(keys,id){
   const candidats=[String(n),String(n).padStart(2,"0"),String(n).padStart(3,"0")];
   for(const c of candidats){
     const prefixe="boss_"+c+"_";
-    const trouve=keys.find(k=>{
+    const trouve=meilleureCleParFormatR2_(keys.filter(k=>{
       const file=String(k).split("/").pop();
       return file.toLowerCase().startsWith(prefixe);
-    });
+    }));
     if(trouve)return trouve;
   }
   return "";

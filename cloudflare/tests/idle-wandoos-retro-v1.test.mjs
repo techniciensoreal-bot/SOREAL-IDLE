@@ -192,7 +192,7 @@ W.place("magic", "plus");
 assert.equal(actions[actions.length - 1].value, 500000, "fraction : un quart de (libre + placé) = 2 000 000 / 4");
 saisir("999999999999");
 W.place("magic", "plus");
-assert.equal(actions[actions.length - 1].value, 2e6, "jamais plus que ce qui est libre");
+assert.ok(actions[actions.length - 1].value >= 2e6, "« + » envoie la quantité souhaitée (le moteur borne à ce qui est réellement libre ; la libre de la synchro est périmée)");
 // Pendant l'écran d'allumage, rien ne se place (quelques secondes seulement).
 delete stockage[CLE_ALLUMAGE];
 joueurCourant = joueur(true, true);

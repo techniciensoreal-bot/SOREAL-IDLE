@@ -64,15 +64,72 @@ function etoilesHtml_(){
 var ETOILES=etoilesHtml_();
 /* Jour et nuit (Norman, 2026-10-25 : « le NGU côté Énergie représente le jour, avec des nuages et le soleil ; le NGU Magie la nuit, avec une lune comme celle d'Halloween ; sans énergie (ou sans magie), le soleil (la lune) ne brille pas ») : l'astre (soleil ou lune) et sa couche (nuages le jour, chauves-souris la nuit). */
 /*
- * Ciel du jour (Norman, 2026-11-02) : « un GROS NUAGE GRIS tant qu'on n'a pas mis d'énergie ; une fois qu'on en met, il disparaît, le soleil brille avec quelques nuages blancs. Le soleil et les nuages blancs ne doivent PAS EXISTER tant que le nuage gris est là. »
- * Onglet Énergie à data-nl-niv="0" : seul le nuage gris (statique) est dans la page ; soleil, rayons et nuages blancs (donc leurs animations) n'existent pas. Dès que le niveau monte, le gris s'efface (opacité seule, 1,2 s) puis est retiré, le soleil et les nuages blancs sont créés.
- * L'onglet Magie (nuit) garde sa lune et ses chauves-souris à tout niveau (lune grise au niveau 0).
+ * Ciel du jour (Norman, 2026-11-03) : « toute la page a des nuages gris ; ils ne se dégagent que sur la ligne où l'on a mis une ressource, pas coupé droit, comme si une force poussait les nuages à cet endroit ; et beaucoup plus lentement ».
+ * Onglet Énergie : UNE couche grise (.nl-gris) couvre toute la page, TOUJOURS présente dans le HTML (jamais retirée ni recréée : c'est ce qui faisait « clignoter » avant, le redessin du morph la supprimait d'un coup et posait soleil et nuages blancs sans fondu).
+ * La brèche de chaque ligne est le pseudo-élément ::after de la barre (.nl-barre.actif, classe posée par le HTML) : zéro nœud en plus ; transition de 16 s (opacité + échelle) qui survit au redessin (même nœud, seul l'attribut class change).
+ * Onglet Magie (nuit) : lune et chauves-souris comme avant ; les étoiles sont par ligne (voir plus bas).
  */
-function veutAstres_(onglet,niv){return onglet==='magic'||String(niv)!=='0';}
-function veutGris_(onglet,niv){return onglet!=='magic'&&String(niv)==='0';}
+function veutAstres_(onglet,niv){return onglet==='magic';}
+function veutGris_(onglet,niv){return onglet!=='magic';}
 var HTML_ASTRE='<span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
-var HTML_GRIS='<span class="nl-gris" aria-hidden="true"></span>';
-function astresHtml_(onglet,niv){return '<span class="nl-arc" aria-hidden="true"></span>'+(veutAstres_(onglet,niv)?HTML_ASTRE:'')+(veutGris_(onglet,niv)?HTML_GRIS:'');}
+/*
+ * Nuages DESSINÉS (Norman, 2026-11-03 : « il y a encore des lignes droites ; ce ne sont pas des nuages, ce sont des bulles ; le ciel doit avoir le même bleu partout »). Plus aucun masque flou : le gris est un BANC DE CUMULUS en SVG (union de cercles de rayons très différents, en quatre rangées ombrées du gris clair en haut au gris sombre en bas), généré ici
+ * par une suite déterministe ; le ciel derrière est UN SEUL bleu uni (--nl-ciel) et quelques petits cumulus blancs FIXES. Chaque ligne d'énergie porte son banc (pseudo-élément ::after, zéro nœud) ; quand elle est alimentée, SEULE l'opacité du banc passe de 1 à 0 en 16 s (formes fixes, aucune échelle), le ciel uni apparaît derrière.
+ * Le banc d'une ligne déborde de 130 px au-dessus et au-dessous : ses festons (bord haut et bord bas, jamais rectilignes) chevauchent ceux des lignes voisines. Tuile de 960 x 420 px (46 cercles au plus avec les doublons de raccord), répétée en largeur, deux tuiles (graines) et cinq décalages : deux lignes voisines ne se ressemblent pas.
+ */
+function suiteNuage_(graine){var a=graine*7919+13;return function(){a=(a*9301+49297)%233280;return a/233280;};}
+function cerclesBanc_(graine){
+  var r=suiteNuage_(graine),W=960,H=420,sortie=[];
+  var rangees=[{y:318,min:50,max:94,pas:104,g:3},{y:240,min:70,max:104,pas:118,g:2},{y:168,min:70,max:104,pas:118,g:1},{y:96,min:52,max:96,pas:104,g:0}];
+  rangees.forEach(function(rg){
+    var n=Math.ceil(W/rg.pas);
+    for(var i=0;i<n;i+=1){
+      var R=Math.round(rg.min+r()*r()*(rg.max-rg.min)*.6+r()*(rg.max-rg.min)*.4);
+      var cx=Math.round((i+.5)*rg.pas+(r()-.5)*rg.pas*.5),cy=Math.round(rg.y+(r()-.5)*26);
+      if(rg.g===0)cy=Math.max(cy,R+4);
+      if(rg.g===3)cy=Math.min(cy,H-R-4);
+      sortie.push({x:cx,y:cy,r:R,g:rg.g});
+      if(cx-R<0)sortie.push({x:cx+W,y:cy,r:R,g:rg.g});
+      if(cx+R>W)sortie.push({x:cx-W,y:cy,r:R,g:rg.g});
+    }
+  });
+  return sortie;
+}
+function bancUri_(graine){
+  var ds=[['#a5abb9','#7d8495'],['#8f96a6','#686f81'],['#7a8192','#565d6f'],['#656c7e','#434959']];
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420"><defs>'+ds.map(function(d,i){return '<linearGradient id="g'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+d[0]+'"/><stop offset="1" stop-color="'+d[1]+'"/></linearGradient>';}).join('')+'</defs>'+
+    cerclesBanc_(graine).map(function(c){return '<circle cx="'+c.x+'" cy="'+c.y+'" r="'+c.r+'" fill="url(#g'+c.g+')"/>';}).join('')+'</svg>';
+  return 'data:image/svg+xml,'+encodeURIComponent(svg);
+}
+/* Petits cumulus BLANCS fixes du ciel (tuile 1100 x 640 px, sept cumulus de sept à huit cercles chacun, base plate), visibles seulement là où le gris s'est effacé. */
+function blancsUri_(graine){
+  var r=suiteNuage_(graine),svg='<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9e5f4"/></linearGradient></defs>';
+  for(var k=0;k<7;k+=1){
+    var cx=70+((k*157+Math.round(r()*60))%960),cy=60+((k*97+Math.round(r()*40))%520),l=70+Math.round(r()*70),n=7;
+    svg+='<rect x="'+(cx-l/2)+'" y="'+(cy+6)+'" width="'+l+'" height="'+Math.round(10+r()*6)+'" rx="8" fill="url(#b)"/>';
+    for(var i=0;i<n;i+=1){var t=i/(n-1),R=Math.round(10+Math.sin(t*Math.PI)*(14+r()*10));svg+='<circle cx="'+Math.round(cx-l/2+t*l)+'" cy="'+Math.round(cy+8-Math.sin(t*Math.PI)*(8+r()*10))+'" r="'+R+'" fill="url(#b)"/>';}
+  }
+  return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
+}
+var BANC_A=bancUri_(3),BANC_B=bancUri_(2),BLANCS=blancsUri_(5);
+var HTML_GRIS='<span class="nl-gris" data-morph-vivant aria-hidden="true"></span>';
+/* Un SEUL soleil pour toute la page Énergie : un nœud posé une fois, jamais un par ligne ; derrière le banc du haut, il se révèle quand ce banc s'efface. Éclat --nl-sol (0 ; 0,7 pour une ligne ; jusqu'à 1 pour quatre lignes ou plus), lissé par @property sur 16 s. */
+var HTML_SOLEIL='<span class="nl-soleil" aria-hidden="true"></span>';
+/* Hauteur du banc du haut = du haut de la page (débord de 100 px) à 130 px sous le haut de la première ligne (son banc recouvre le bas de celui-ci). Mesurée par un ResizeObserver (taille de la page) et quand le banc vient d'être posé ; jamais par une minuterie. */
+function mesurerHaut_(racine){
+  var s=racine.querySelector(':scope>.nl-gris'),b=racine.querySelector('.nl-section[data-nl-section="energy"] .nl-barre');
+  if(!s||!b)return;
+  var h=Math.round(b.getBoundingClientRect().top-racine.getBoundingClientRect().top)+230;
+  if(h>0&&s.__nlH!==h){s.__nlH=h;s.style.height=h+'px';}
+}
+function attacherMesure_(racine){
+  if(racine.__nlRO||typeof ResizeObserver==='undefined')return;
+  racine.__nlRO=new ResizeObserver(function(){mesurerHaut_(racine);});
+  racine.__nlRO.observe(racine);
+  mesurerHaut_(racine);
+}
+function solDe_(nbOuvertes){return nbOuvertes>0?Math.round((0.7+0.3*Math.min(1,(nbOuvertes-1)/3))*100)/100:0;}
+function astresHtml_(onglet,niv){return '<span class="nl-arc" aria-hidden="true"></span>'+(veutAstres_(onglet,niv)?HTML_ASTRE:'')+(veutGris_(onglet,niv)?HTML_SOLEIL+HTML_GRIS:'');}
 /* Lune pleine du thème Halloween de SOREAL APP / TV (sphère jaune pâle éclairée en haut à gauche, ombre en bas à droite, trois cratères), dessinée en SVG statique ; version grise pour le niveau 0. */
 function luneUri_(p){
   var svg="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs>"+
@@ -85,7 +142,7 @@ function luneUri_(p){
 }
 var LUNE_URI=luneUri_(['#fffdf0','#fbeeb4','#e9cf86','#c9a95c','#966e28','#96733a']);
 var LUNE_GRISE_URI=luneUri_(['#eef0f5','#c4c9d4','#9097a8','#5d6376','#2a2e3c','#3a3f50']);
-/* Synchronise le ciel avec le niveau de lumière : appelé par le tick (anime=true quand le niveau change) et au changement d'onglet. Idempotent. */
+/* Synchronise le ciel avec l'onglet (changement d'onglet sans redessin) : énergie = couche grise, magie = lune et chauves-souris. Idempotent, aucun fondu ici (les brèches se font en CSS, par ligne). */
 function cielSync_(racine,anime){
   if(!racine)return;
   var onglet=racine.getAttribute('data-nl-onglet'),niv=racine.getAttribute('data-nl-niv');
@@ -93,24 +150,15 @@ function cielSync_(racine,anime){
   var gris=racine.querySelector(':scope>.nl-gris');
   var astre=racine.querySelector(':scope>.nl-astre');
   if(veutAstres_(onglet,niv)){
-    if(!astre&&arc){arc.insertAdjacentHTML('afterend',HTML_ASTRE);}
+    if(!astre&&arc)arc.insertAdjacentHTML('afterend',HTML_ASTRE);
   }else if(astre){
-    var retirer=function(){var r=document.querySelector('[data-nl-racine]');if(!r||veutAstres_(r.getAttribute('data-nl-onglet'),r.getAttribute('data-nl-niv')))return;Array.prototype.forEach.call(r.querySelectorAll(':scope>.nl-astre,:scope>.nl-nuages'),function(e){e.remove();});};
-    if(anime)setTimeout(retirer,1300);else retirer();
+    Array.prototype.forEach.call(racine.querySelectorAll(':scope>.nl-astre,:scope>.nl-nuages'),function(e){e.remove();});
   }
   if(veutGris_(onglet,niv)){
-    if(gris){gris.classList.remove('nl-gris-sort');gris.removeAttribute('data-morph-garder');}
-    else{
-      var ref=racine.querySelector(':scope>.nl-nuages')||arc;if(!ref)return;
-      ref.insertAdjacentHTML('afterend',HTML_GRIS);
-      var g=racine.querySelector(':scope>.nl-gris');
-      if(g&&anime){g.classList.add('nl-gris-ent');void g.offsetWidth;g.classList.remove('nl-gris-ent');}
-    }
-  }else if(gris){
-    if(anime&&onglet!=='magic'){
-      gris.classList.add('nl-gris-sort');gris.setAttribute('data-morph-garder','');
-      setTimeout(function(){if(gris.classList.contains('nl-gris-sort'))gris.remove();},1300);
-    }else gris.remove();
+    if(!gris&&arc)arc.insertAdjacentHTML('afterend',HTML_SOLEIL+HTML_GRIS);
+  }else{
+    if(gris)gris.remove();
+    var sol=racine.querySelector(':scope>.nl-soleil');if(sol)sol.remove();
   }
 }
 /*
@@ -192,6 +240,22 @@ function tuileEtoilesUri_(graine,groupe){
   return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
 }
 var TUILES_ETOILES=[31,97,173,251].map(function(graine){return [0,1,2].map(function(g){return tuileEtoilesUri_(graine,g);});});
+/* Tuile d'étoiles d'UNE ligne de magie (900 x 300 px, une seule image par couche) : points, étoiles à quatre branches de 3 à 9 px et halos doux, positions pseudo-aléatoires fixes (graine). */
+function tuileLigneUri_(graine,nb){
+  var a=graine,svg='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300">';
+  function suite(){a=(a*9301+49297)%233280;return a/233280;}
+  for(var i=0;i<nb;i+=1){
+    var x=suite()*900,y=suite()*300,u=suite(),o=(0.55+suite()*0.45).toFixed(2);
+    if(u<0.55){svg+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+(1+suite()*1.2).toFixed(1)+'" fill="#fff" fill-opacity="'+o+'"/>';suite();}
+    else{
+      var g=3+suite()*6,c=function(dx,dy){return (x+dx*g).toFixed(1)+','+(y+dy*g).toFixed(1);};
+      svg+='<circle cx="'+x.toFixed(0)+'" cy="'+y.toFixed(0)+'" r="'+(g*1.7).toFixed(1)+'" fill="#cfe0ff" fill-opacity="0.13"/>'+
+        '<polygon points="'+c(0,-1)+' '+c(.2,-.2)+' '+c(1,0)+' '+c(.2,.2)+' '+c(0,1)+' '+c(-.2,.2)+' '+c(-1,0)+' '+c(-.2,-.2)+'" fill="#fff" fill-opacity="'+o+'"/>';
+    }
+  }
+  return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
+}
+var TUILE_LIGNE_A=tuileLigneUri_(11,26),TUILE_LIGNE_B=tuileLigneUri_(23,52);
 function fondGroupe_(niveau,groupe){return 'url("'+TUILES_ETOILES[niveau-1][groupe]+'") 0 0/1000px 1000px repeat';}
 /* Niveau de lumière du ciel : chaque machine (NGU) compte 0 si rien n'y est placé, 1/2 si elle tourne, 1 si elle est CAP (50 niveaux par seconde) ; on fait la moyenne de toutes les machines affichées. */
 function lueurDe_(parts){
@@ -205,6 +269,23 @@ function partDe_(n){
   if(!(alloc>0))return 0;
   var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
   return spl>0&&spl<0.04?1:.5;
+}
+
+/*
+ * Éclat des étoiles d'une ligne de magie (Norman, 2026-11-03 : « plus la vitesse de remplissage d'une ligne est rapide, plus fort les étoiles brilleront »).
+ * Entrée : n.secondsPerLevel = secondes pour gagner un niveau avec la magie placée (src/idle-ngu-snapshot.js : perLevel / rate, null si rien ne tourne), donc de l'ÉTAT du moteur, jamais du DOM.
+ * Formule : e = 0 si rien n'est placé ; sinon e = 0,4 + 0,6 * clamp( ln(1e10/spl) / ln(1e10/0,04), 0, 1 ).  Échelle logarithmique entre 1e10 s par niveau (ordre de grandeur des lignes les plus lentes mesurées dans le moteur : plancher visible 0,4) et 0,04 s par niveau (le plafond CAP du moteur : 50 niveaux/s, e = 1).
+ * Monotone (plus rapide = plus brillant), bornée [0,4 ; 1], continue (aucun seuil) ; arrondie à 0,01 pour que le HTML reste stable. Le lissage dans le temps est fait par le CSS (transition de --nl-e sur 16 s).
+ */
+function eclatLigne_(n){
+  var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
+  if(!(alloc>0))return 0;
+  var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
+  if(!(spl>0))return 0.4;
+  var lent=1e10,rapide=0.04;
+  var x=Math.log(lent/Math.max(rapide,spl))/Math.log(lent/rapide);
+  x=Math.max(0,Math.min(1,x));
+  return Math.round((0.4+0.6*x)*100)/100;
 }
 
 var onglet='energy';        // 'energy' | 'magic'
@@ -286,7 +367,7 @@ function barreHtml_(n,ancre){
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
-  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+'">'+
+  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+'">'+
     '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
     '<div class="nl-tuyau">'+
       '<i class="nl-bride g"></i>'+
@@ -310,7 +391,7 @@ function barreHtml_(n,ancre){
 
 /* ---------- page ---------- */
 var CSS=
-  '.nl-v1{position:relative;isolation:isolate;box-sizing:border-box;margin:0 0 12px;padding:16px 14px 22px;color:#eaf0ff;border-radius:20px;border:2px solid rgba(170,110,255,.6);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;'+
+  '.nl-v1{--nl-ciel:#58a6ee;position:relative;isolation:isolate;box-sizing:border-box;margin:0 0 12px;padding:16px 14px 22px;color:#eaf0ff;border-radius:20px;border:2px solid rgba(170,110,255,.6);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;'+
     'background-color:#0a0620;background-image:linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
     'box-shadow:0 0 34px rgba(120,70,255,.4),inset 0 0 50px rgba(90,34,216,.28)}'+
   '.nl-v1 *{box-sizing:border-box}'+
@@ -345,11 +426,30 @@ var CSS=
   '.nl-astre::after{inset:0}'+
   '.nl-nuages{left:0;right:0;top:0;height:300px;background-repeat:repeat-x;-webkit-mask:linear-gradient(180deg,#000 60%,transparent);mask:linear-gradient(180deg,#000 60%,transparent)}'+
   /* jour */
-  /* Gros nuage gris du jour sans énergie (statique : aucune animation, aucun filtre ; opacité seule pour le fondu) */
-  '.nl-v1>.nl-gris{position:absolute;pointer-events:none;z-index:0;left:0;right:0;top:0;height:300px;opacity:1;transition:opacity 1.2s ease;-webkit-mask:linear-gradient(180deg,#000 76%,transparent);mask:linear-gradient(180deg,#000 76%,transparent);background:radial-gradient(ellipse 260px 70px at 18% 30%,rgba(196,202,212,.55),transparent 70%),radial-gradient(ellipse 330px 80px at 52% 16%,rgba(176,182,194,.5),transparent 70%),radial-gradient(ellipse 280px 70px at 86% 34%,rgba(190,196,206,.5),transparent 70%),radial-gradient(ellipse 340px 90px at 32% 62%,rgba(52,58,70,.5),transparent 72%),radial-gradient(ellipse 300px 90px at 72% 72%,rgba(46,52,64,.55),transparent 72%),radial-gradient(ellipse 220px 60px at 8% 78%,rgba(60,66,78,.45),transparent 72%),linear-gradient(180deg,#707785 0%,#596070 52%,#434958 100%)}'+
-  '.nl-v1>.nl-gris.nl-gris-ent,.nl-v1>.nl-gris.nl-gris-sort{opacity:0}.nl-v1[data-nl-onglet="magic"]>.nl-gris{display:none}'+
-  '@media(prefers-reduced-motion:reduce){.nl-v1>.nl-gris{transition:none}}'+
-  '.nl-v1[data-nl-onglet="energy"]{background-image:radial-gradient(circle at 90% 5%,rgba(255,244,180,.6) 0,rgba(255,226,130,.22) 22%,transparent 46%),linear-gradient(180deg,#3a7fc8 0%,#2d69b3 24%,#1f4d90 54%,#112e60 82%,#081b3b 100%);border-color:rgba(255,226,140,.75);box-shadow:0 0 34px rgba(255,214,90,.35),inset 0 0 50px rgba(255,255,255,.12)}'+
+  /* Ciel de l'onglet Énergie : UN SEUL bleu uni (--nl-ciel) + petits cumulus blancs fixes ; les bancs de cumulus gris (SVG) se posent par-dessus et s'effacent par fondu d'opacité (16 s, formes fixes). */
+  '.nl-v1[data-nl-onglet="energy"]{background-image:url("'+BLANCS+'");background-size:1100px 640px;background-repeat:repeat;background-color:var(--nl-ciel)}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-gris{display:none}'+
+  /* Banc du haut de la page (nœud .nl-gris) : s'efface dès qu'au moins une ligne d'énergie est active (data-nl-ouvert, posé par le HTML). Débord de 100 px au-dessus du cadre : ses festons du haut sortent de la page, aucune coupure droite. */
+  '.nl-v1>.nl-gris{position:absolute;pointer-events:none;z-index:0;left:0;right:0;top:-100px;height:370px;opacity:1;transition:opacity 16s ease-in-out;background-image:url("'+BANC_A+'");background-repeat:repeat-x;background-size:auto 100%;background-position:30% 0}'+
+  '.nl-v1[data-nl-ouvert="1"]>.nl-gris{opacity:0}'+
+  /* Soleil unique */
+  '@property --nl-sol{syntax:"<number>";inherits:true;initial-value:0}'+
+  '.nl-v1[data-nl-onglet="energy"]{transition:--nl-sol 16s ease-in-out}'+
+  '.nl-v1>.nl-soleil{position:absolute;pointer-events:none;z-index:0;left:calc(50% - 38px);top:22px;width:76px;height:76px;border-radius:50%;opacity:var(--nl-sol);background:radial-gradient(circle at 38% 34%,#fffbd0 0,#ffe066 45%,#ffb81f 100%);box-shadow:0 0 26px 8px rgba(255,214,80,.75)}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-soleil{display:none}'+
+  /* TOUS les nuages sous TOUT le contenu (Norman, 2026-11-03 : « ses nuages sont au-dessus des cadres au-dessus ») : la section des lignes et le résumé ne forment plus un contexte d'empilement (z-index:auto au lieu de 1) ; les bancs de ligne et du bas (z-index:-1) se peignent ainsi dans le contexte unique de la page (isolation:isolate), sous les cadres du haut (barre d'outils, en-têtes, z-index:1), sous les lignes et sous le résumé, et jamais par-dessus. */
+  '.nl-v1>.nl-section,.nl-v1>.nl-resume{z-index:auto}'+
+  /* Banc d'une ligne : ::after de la barre (zéro nœud), débordant de 70 px en haut et en bas, sous le contenu ; cinq décalages et deux tuiles selon le rang (deux lignes voisines ne se ressemblent pas). Alimentée (classe actif, posée par le HTML) : opacité 1 -> 0. */
+  '.nl-barre[data-nl-res="energy"]::after{content:"";position:absolute;z-index:-1;pointer-events:none;left:-100%;right:-100%;top:-130px;bottom:-130px;opacity:1;transition:opacity 16s ease-in-out;background-image:var(--nl-banc,url("'+BANC_A+'"));background-repeat:repeat-x;background-size:auto 100%;background-position:calc(50% + var(--nl-dec,0px)) 0}'+
+  '.nl-barre[data-nl-res="energy"].actif::after{opacity:0}'+
+  '.nl-section .nl-barre[data-nl-res="energy"]:nth-child(2n){--nl-banc:url("'+BANC_B+'")}'+
+  [0,1,2,3,4].map(function(k){return '.nl-section .nl-barre[data-nl-res="energy"]:nth-child(5n+'+k+'){--nl-dec:'+[0,190,410,660,830][k]+'px}';}).join('')+
+  /* Banc du bas (résumé « Effets de tous tes NGU ») : s'efface quand TOUTES les lignes d'énergie sont alimentées (data-nl-tout) : plus aucun gris nulle part. */
+  '.nl-v1[data-nl-onglet="energy"] .nl-resume{position:relative}'+
+  '.nl-v1[data-nl-onglet="energy"] .nl-resume::before{content:"";position:absolute;z-index:-1;pointer-events:none;left:-30px;right:-30px;top:-130px;bottom:-110px;opacity:1;transition:opacity 16s ease-in-out;background-image:url("'+BANC_B+'");background-repeat:repeat-x;background-size:auto 100%;background-position:60% 0}'+
+  '.nl-v1[data-nl-tout="1"] .nl-resume::before{opacity:0}'+
+  '@media(prefers-reduced-motion:reduce){.nl-v1>.nl-gris,.nl-barre[data-nl-res="energy"]::after,.nl-v1[data-nl-onglet="energy"] .nl-resume::before{transition:opacity .4s linear}.nl-v1[data-nl-onglet="energy"]{transition:--nl-sol .4s linear}}'+
+  '.nl-v1[data-nl-onglet="energy"]{border-color:rgba(255,226,140,.75);box-shadow:0 0 34px rgba(255,214,90,.35),inset 0 0 50px rgba(255,255,255,.12)}'+
   '.nl-v1[data-nl-onglet="energy"] .nl-etoiles{display:none}'+
   '.nl-v1[data-nl-onglet="energy"] .nl-astre,.nl-v1[data-nl-onglet="energy"] .nl-nuages{display:block}'+
   '.nl-v1>.nl-astre{}.nl-v1[data-nl-onglet="energy"]>.nl-astre{right:auto;left:calc(50% - 29px);top:3px;width:58px;height:58px}'+
@@ -369,7 +469,7 @@ var CSS=
     '@keyframes nlNuages{from{transform:translate3d(0,0,0)}to{transform:translate3d(640px,0,0)}}@keyframes nlRayons{from{transform:rotate(0)}to{transform:rotate(360deg)}}}'+
   /* Arc-en-ciel le jour, aurores boréales la nuit (Norman, 2026-10-25). Éclat selon --nl-lueur ; éteints quand rien n'est placé. */
   '.nl-v1>.nl-arc{position:absolute;pointer-events:none;z-index:0;display:none}'+
-  '.nl-v1[data-nl-onglet="energy"]>.nl-arc{display:block;left:7%;width:86%;top:46px;height:210px;filter:blur(.6px);opacity:calc(.3 + var(--nl-lueur,0)*.5);-webkit-mask:linear-gradient(180deg,#000 58%,transparent);mask:linear-gradient(180deg,#000 58%,transparent);background:radial-gradient(ellipse 50% 100% at 50% 100%,transparent 0 64%,rgba(255,70,70,.9) 65% 69%,rgba(255,150,40,.9) 69% 73%,rgba(255,226,70,.9) 73% 77%,rgba(90,205,100,.9) 77% 81%,rgba(70,160,255,.9) 81% 85%,rgba(90,80,225,.9) 85% 89%,rgba(165,90,225,.9) 89% 93%,transparent 94%)}'+
+  '.nl-v1[data-nl-onglet="energy"]>.nl-arc{display:none;left:7%;width:86%;top:46px;height:210px;filter:blur(.6px);opacity:calc(.3 + var(--nl-lueur,0)*.5);-webkit-mask:linear-gradient(180deg,#000 58%,transparent);mask:linear-gradient(180deg,#000 58%,transparent);background:radial-gradient(ellipse 50% 100% at 50% 100%,transparent 0 64%,rgba(255,70,70,.9) 65% 69%,rgba(255,150,40,.9) 69% 73%,rgba(255,226,70,.9) 73% 77%,rgba(90,205,100,.9) 77% 81%,rgba(70,160,255,.9) 81% 85%,rgba(90,80,225,.9) 85% 89%,rgba(165,90,225,.9) 89% 93%,transparent 94%)}'+
   '.nl-v1[data-nl-onglet="energy"][data-nl-niv="0"]>.nl-arc{display:none}'+
   '.nl-v1[data-nl-onglet="magic"]>.nl-arc{display:block;left:0;right:0;top:0;height:300px;opacity:calc(.25 + var(--nl-lueur,0)*.75);filter:blur(1.6px) saturate(1.25);background:url("'+AURORE_A+'") 0 0/1200px 300px repeat-x;-webkit-mask:linear-gradient(180deg,#000 70%,transparent);mask:linear-gradient(180deg,#000 70%,transparent)}'+
   '.nl-v1[data-nl-onglet="magic"]>.nl-arc{transform-origin:50% 0}.nl-v1[data-nl-onglet="magic"]>.nl-arc::after{content:"";position:absolute;inset:0;transform-origin:50% 0;background:url("'+AURORE_B+'") 300px 0/1200px 300px repeat-x;mix-blend-mode:screen;opacity:.9}'+
@@ -384,6 +484,21 @@ var CSS=
   '.nl-v1[data-nl-onglet="magic"][data-nl-niv="0"] .nl-astre::before{opacity:0}'+
   '.nl-v1[data-nl-onglet="magic"] .nl-nuages{display:block;height:240px;background-size:900px 240px;background-image:url("'+CHAUVES_URI+'");opacity:calc(var(--nl-lueur,0)*.8)}'+
   '@media(prefers-reduced-motion:no-preference){.nl-v1[data-nl-onglet="magic"] .nl-nuages{animation:nlChauves 80s linear infinite}@keyframes nlChauves{from{background-position:0 0}to{background-position:-900px 0}}}'+
+  /* Ciel de la nuit (Norman, 2026-11-03) : plus de ciel étoilé global ni d'aurore de bandeau ; les ÉTOILES (et une lueur d'aurore) n'existent que sur la ligne où de la magie est placée, brèche organique (mêmes ellipses floues que le jour).
+     --nl-e (0 à 1, posé sur la barre par le HTML : eclatLigne_) = éclat selon la vitesse de remplissage ; @property permet à la transition de 16 s de le lisser (aucun saut si la vitesse change, ouverture et extinction lentes). ::after = étoiles clairsemées (opacité = e), .nl-tuyau::before = étoiles denses (opacité = e au cube : elles n'apparaissent que pour une ligne rapide).
+     Le scintillement est une respiration d'opacité sur une boucle PARFAITE (mêmes valeurs à 0 % et 100 %), durées différentes pour les deux couches ; coupé si prefers-reduced-motion. */
+  '@property --nl-e{syntax:"<number>";inherits:true;initial-value:0}'+
+  '.nl-v1[data-nl-onglet="magic"]>.nl-arc,.nl-v1[data-nl-onglet="magic"] .nl-etoiles{display:none}'+
+  '.nl-barre[data-nl-res="magic"]{transition:--nl-e 16s ease-in-out}'+
+  '.nl-barre[data-nl-res="magic"]::after,.nl-barre[data-nl-res="magic"] .nl-tuyau::before{content:"";position:absolute;z-index:-1;pointer-events:none;left:-12%;right:-12%;top:-52px;bottom:-48px;width:auto;height:auto;border-radius:0;box-shadow:none;'+
+    '-webkit-mask-image:radial-gradient(ellipse 46% 60% at 50% 50%,#000 46%,transparent 100%),radial-gradient(ellipse 26% 50% at 18% 54%,#000 40%,transparent 100%),radial-gradient(ellipse 28% 46% at 82% 48%,#000 40%,transparent 100%),radial-gradient(ellipse 22% 40% at 34% 12%,#000 30%,transparent 100%),radial-gradient(ellipse 24% 40% at 68% 92%,#000 30%,transparent 100%);'+
+    'mask-image:radial-gradient(ellipse 46% 60% at 50% 50%,#000 46%,transparent 100%),radial-gradient(ellipse 26% 50% at 18% 54%,#000 40%,transparent 100%),radial-gradient(ellipse 28% 46% at 82% 48%,#000 40%,transparent 100%),radial-gradient(ellipse 22% 40% at 34% 12%,#000 30%,transparent 100%),radial-gradient(ellipse 24% 40% at 68% 92%,#000 30%,transparent 100%)}'+
+  '.nl-barre[data-nl-res="magic"]::after{opacity:var(--nl-e);background-image:radial-gradient(ellipse 40% 50% at 50% 55%,rgba(120,255,190,.16),transparent 70%),radial-gradient(ellipse 34% 46% at 70% 40%,rgba(150,110,255,.2),transparent 70%),url("'+TUILE_LIGNE_A+'");background-size:100% 100%,100% 100%,900px 300px;background-position:0 0,0 0,0 0;background-repeat:no-repeat,no-repeat,repeat}'+
+  '.nl-barre[data-nl-res="magic"] .nl-tuyau::before{opacity:calc(var(--nl-e)*var(--nl-e)*var(--nl-e));background-image:url("'+TUILE_LIGNE_B+'");background-size:900px 300px;background-position:310px 120px;background-repeat:repeat}'+
+  '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="magic"]::after{animation:nlLigneScintA 9s ease-in-out infinite}.nl-barre[data-nl-res="magic"] .nl-tuyau::before{animation:nlLigneScintB 6.5s ease-in-out infinite}'+
+    '@keyframes nlLigneScintA{0%,100%{opacity:var(--nl-e)}35%{opacity:calc(var(--nl-e)*.6)}68%{opacity:calc(var(--nl-e)*.92)}}'+
+    '@keyframes nlLigneScintB{0%,100%{opacity:calc(var(--nl-e)*var(--nl-e)*var(--nl-e))}30%{opacity:calc(var(--nl-e)*var(--nl-e)*var(--nl-e)*.55)}62%{opacity:calc(var(--nl-e)*var(--nl-e)*var(--nl-e)*.9)}}}'+
+  '@media(prefers-reduced-motion:reduce){.nl-barre[data-nl-res="magic"]{transition:--nl-e .4s linear}}'+
   '.nl-haut{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
   '.nl-btn{min-height:44px;padding:6px 14px;background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(190,160,255,.75);border-radius:12px;box-shadow:0 0 12px rgba(150,100,255,.35);font:800 13px/1.15 "Segoe UI",system-ui,sans-serif;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}'+
   '.nl-btn:active{transform:translateY(1px)}.nl-btn.actif{background:rgba(190,160,255,.35)}'+
@@ -533,9 +648,11 @@ function page(j){
       '<div class="nl-grille">'+tuyaux+'</div>'+
     '</div>';
   }
+  var nbOuvertes_=liste.filter(function(n){return n.resource==='energy'&&nombre_(n.allocation)>0;}).length;
+  var nbEnergie_=liste.filter(function(n){return n.resource==='energy';}).length;
   var html=
     '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+'">'+ETOILES+astresHtml_(onglet,nivDe_(lueurPage_))+
+    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" data-nl-ouvert="'+(nbOuvertes_>0?'1':'0')+'" data-nl-tout="'+(nbOuvertes_>0&&nbOuvertes_===nbEnergie_?'1':'0')+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+';--nl-sol:'+solDe_(nbOuvertes_)+'">'+astresHtml_(onglet,nivDe_(lueurPage_))+
       '<div class="nl-haut">'+
         '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
         (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
@@ -566,6 +683,8 @@ function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
   var maintenant=typeof performance!=='undefined'?performance.now():0;
+  attacherMesure_(racine);
+  var solMesure=racine.querySelector(':scope>.nl-soleil');if(solMesure&&!solMesure.__nlH)mesurerHaut_(racine);
   /* Textes et ciel : toutes les 100 ms suffisent ; le liquide, lui, est mis à jour à chaque image. */
   var complet=maintenant-dernierComplet>=100;
   if(complet){

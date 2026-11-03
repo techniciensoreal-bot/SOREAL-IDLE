@@ -11,10 +11,10 @@
 (function(){
 'use strict';
 
-/* menu (data-menu de la page) -> comment retrouver les chiffres d'allocation, la ligne qui les porte et le style de particules */
+/* menu (data-menu de la page) -> comment retrouver les chiffres d'allocation, la ligne qui les porte et le style de particules ; sansParticules : la ligne garde son cadre lumineux mais ne reçoit AUCUNE couche .part-v1 (Augmentations, Norman 2026-11-03 : « enlève les petites étoiles quand le menu travaille »). */
 var MENUS={
   entrainement:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.soreal-idle-bt-row-v120',style:'braise'},
-  augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile'},
+  augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile',sansParticules:true},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
   machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.tmm-ligne',style:'piece'},
   sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'}
@@ -47,10 +47,8 @@ function css(){
     '[data-style="braise"]{--fx:rgba(255,140,40,.6)}'+
     '[data-style="braise"] .part-v1 i{--w:4px;--h:4px;border-radius:50%;background:radial-gradient(circle,#fff3b0,#ff8a1f 60%,transparent 72%);animation:pvBraise var(--d) linear var(--t) infinite}'+
     '@keyframes pvBraise{0%{opacity:0;transform:translateY(8px) scale(.6)}20%{opacity:1}100%{opacity:0;transform:translateY(-34px) scale(1)}}'+
-    /* étoiles (Augmentations) : petites étoiles dorées à quatre branches qui scintillent en montant doucement */
+    /* Augmentations : seulement le liseré et le halo fixes (couleur ci-dessous) ; plus aucune étoile (2026-11-03) */
     '[data-style="etoile"]{--fx:rgba(255,214,90,.6)}'+
-    '[data-style="etoile"] .part-v1 i{--w:12px;--h:12px;background:#ffe27a;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:pvEtoile var(--d) ease-in-out var(--t) infinite}'+
-    '@keyframes pvEtoile{0%{opacity:0;transform:translateY(6px) scale(.3)}50%{opacity:1;transform:translateY(-6px) scale(1)}100%{opacity:0;transform:translateY(-18px) scale(.3)}}'+
     /* bits (Entraînement avancé) : petits rectangles verts qui filent de gauche à droite comme un circuit */
     '[data-style="bit"]{--fx:rgba(80,230,140,.55)}'+
     '[data-style="bit"] .part-v1 i{--w:10px;--h:3px;background:linear-gradient(90deg,transparent,#7dffb4);animation:pvBit var(--d) linear var(--t) infinite}'+
@@ -90,7 +88,7 @@ function balayer(){
     vus.push(ligne);
     if(!ligne.hasAttribute('data-barre-active-v1'))ligne.setAttribute('data-barre-active-v1','');
     if(ligne.getAttribute('data-style')!==cfg.style)ligne.setAttribute('data-style',cfg.style);
-    if(!ligne.querySelector(':scope>.part-v1'))ligne.insertAdjacentHTML('beforeend',COUCHE);
+    if(!cfg.sansParticules&&!ligne.querySelector(':scope>.part-v1'))ligne.insertAdjacentHTML('beforeend',COUCHE);
     var v=actif?'1':'0';
     if(ligne.getAttribute('data-actif')!==v)ligne.setAttribute('data-actif',v);
   });

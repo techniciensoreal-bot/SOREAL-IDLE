@@ -33,7 +33,7 @@ for (const k of [".aug-tete-v2", ".aug-niv-bloc", ".soreal-idle-bt-allocation-v1
 assert.match(css, /\)::after\{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;[^}]*background:var\(--e-grille\)/);
 assert.match(css, /\.aug-cible-v2 input\{[^}]*appearance:textfield/);
 assert.match(css, /\.aug-cible-v2 input\{[^}]*caret-color:var\(--e-txt\)/);
-assert.ok(!/animation|@keyframes|filter:/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "aucune animation ni filtre");
+assert.ok(!/animation|@keyframes|filter:(?!none)/.test(css.replace(/\/\*[\s\S]*?\*\//g, "")), "aucune animation ni filtre");
 assert.ok(!css.includes("!important"), "aucun !important");
 
 // barre = EFFET LED CONTINU : trame de points au pas entier (6 px), un seul calque, aucun trait ni coupure ni dégradé de couleur ; remplissage plein de la couleur de la paire
@@ -71,7 +71,8 @@ assert.ok(css.includes(":not(.upgrade) " + ECR + "::after{z-index:-1}"), "trame 
 for (const l of css.split("\n").filter((x) => /(\.aug-eta|\.aug-niv-lib|\.aug-cout-lib|\.aug-cible-v2>span)[^{]*\{/.test(x))) assert.ok(!/opacity|filter/.test(l), "aucune opacité ni filtre sur ces textes");
 
 // boutons : composants du circuit (poussoir) et touches de la puce, états survol / appui / désactivé, aucun pointillé
-assert.match(css, /\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120 button\{[^}]*--bague:color-mix\(in srgb,var\(--pcb-acc/);
+/* touches de la piste d'Augment : caoutchouc dans un cadre à l'accent de la carte (2026-11-03), feuille soreal-idle-augment-touches-v1.css (gardes : idle-augment-emplacement-vide-v1) */
+assert.match(readFileSync("cloudflare/public/soreal-idle-augment-touches-v1.css", "utf8"), /\.aug-piste-v2:not\(\.upgrade\) \.soreal-idle-bt-actions-v120[^{]*button:not\(#_\)\{[^}]*--anneau:color-mix\(in srgb,var\(--pcb-acc/);
 assert.match(css, /\.aug-piste-v2\.upgrade \.soreal-idle-bt-actions-v120 button\{[^}]*border:2px solid #c9a24a/);
 assert.match(css, /button:active:not\(:disabled\)\{transform:translateY\(1px\)/);
 assert.match(css, /button:disabled\{opacity:\.5/);
@@ -87,7 +88,8 @@ const haut = readFileSync("cloudflare/public/soreal-idle-augment-led-haut-v1.css
 for (const k of [".soreal-idle-page-head-v28", ".soreal-idle-aide-v1", ".soreal-idle-summary-grid-v28>.soreal-idle-summary-v28", ".soreal-idle-bt-input-box-v120", ".soreal-idle-bt-info-v1", ".soreal-idle-bt-total-v1", ".aug-avance-v2"]) assert.ok(haut.includes(k), "écran du haut : " + k);
 assert.ok(!haut.includes("!important") && !/dashed|dotted|@keyframes|animation:/.test(haut.replace(/\/\*[\s\S]*?\*\//g, "")), "haut : statique, sans pointillé ni !important");
 assert.ok(haut.split('[data-menu="augmentations"]').length - 1 >= haut.split("\n").filter((l) => l.startsWith("html body")).length, "haut : toutes les règles sont scopées à Augmentations");
-assert.match(haut, /\.soreal-idle-bt-presets-v120 button\{--cap:#22232a/);
+/* boutons de la barre d'outils : mêmes touches en caoutchouc que les pistes (feuille soreal-idle-augment-touches-v1.css, 2026-11-03) */
+assert.ok(readFileSync("cloudflare/public/soreal-idle-augment-touches-v1.css", "utf8").includes(".soreal-idle-bt-presets-v120) button:not(#_){--c1:"));
 assert.match(haut, /\.soreal-idle-page-head-v28\[data-entete-menu\]\{background:var\(--e-fond\)/);
 assert.match(haut, /\.soreal-idle-page-title-v28::before[^{]*\{content:none\}/);
 assert.ok(itopod.includes(':not([data-menu="augmentations"]) *):is(') || itopod.includes('not([data-menu="augmentations"] *):is(') || itopod.includes(':where(:not([data-menu="augmentations"] *)):is('), "boutons partagés exclus pour Augmentations");
