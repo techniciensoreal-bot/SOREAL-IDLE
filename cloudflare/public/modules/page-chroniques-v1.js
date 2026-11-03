@@ -153,7 +153,12 @@
         const def=itemCatalog[defId]||{};
         const info=itemList[defId]||null;
         const niveau=idleEntier_(info&&info.maxLevel);
+        /* icône de l'objet (Norman, 2026-11-03 : « il y a des images manquantes dans sets ») : la même que dans l'onglet Équipement (équipement, cube ou objet spécial ; sinon un repli) */
+        const pseudoObj=def.kind==='equipment'?{set:def.set,slot:def.slot,name:def.name,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'equipment',level:niveau}
+          :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}
+          :{set:'',slot:def.slot||'accessory',name:def.name||defId,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'special',level:niveau});
         return '<div class="sc-piece found soreal-idle-collection-slot-v32'+(niveau>=100?' maxed':'')+'">'+
+          '<span class="sc-icone">'+iconeObjetAdventureIdleV138_(pseudoObj)+'</span>'+
           '<span class="sc-pnom">'+idleHtml_(def.name||defId)+'</span>'+
           '<small class="sc-niv">Niv. '+niveau+'/100'+(niveau>=100?icone('coche','sc-ok'):'')+'</small>'+
           '<span class="sc-jauge"><i style="width:'+Math.min(100,niveau)+'%"></i></span>'+

@@ -87,3 +87,8 @@ assert.ok(!/setTimeout|setInterval|appendChild|insertAdjacentHTML|innerHTML\s*=/
 assert.ok(index.includes("/modules/page-chroniques-v1.js?v=") && index.includes("/soreal-idle-chroniques.css?v="), "chargés par la page");
 assert.ok(index.indexOf("page-chroniques-v1.js") < index.indexOf("ui-chroniques-v1.js"), "module avant ui-chroniques");
 console.log("idle-chroniques-design-v1: OK");
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const m = lire("cloudflare/public/modules/page-chroniques-v1.js", "utf8");
+  assert.ok(m.includes("const pseudoObj=def.kind==='equipment'") && m.includes("'<span class=\"sc-icone\">'+iconeObjetAdventureIdleV138_(pseudoObj)+'</span>'"), "les tuiles des sets d'objets ont leur image (Norman, 2026-11-03 : « il y a des images manquantes dans sets »)");
+}

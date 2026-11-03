@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Tout le menu Chroniques change d’allure, façon forge sombre : onglets en plaques biseautées avec une gemme qui s’allume, sous-onglets, cadres et boutons dorés, titres et textes redessinés (Collection, Succès, Cinématiques…).",
-    "La page des sets de la Collection est refaite : une grande carte ornée par set, avec son propre motif de fond, les pièces trouvées avec leur niveau, le sceau du bonus et un cadre doré quand un set est complet."
+    "Les objets des sets de la Collection ont de nouveau leur image."
   ] };
 })();
