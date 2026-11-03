@@ -28,6 +28,8 @@ for (const sel of [".ygg-nom{", ".ygg-btn{", ".ygg-mode button{", ".ygg-poop{", 
 assert.ok(/\.ygg-titre b\{[^}]*Cinzel Decorative[^}]*var\(--ygg-titres\)/.test(ygg), "titre de la page : Cinzel Decorative avec repli");
 assert.ok(/\.ygg-page\{[^}]*font-family:Georgia/.test(ygg), "le texte de lecture reste en Georgia");
 assert.ok(ygg.includes("{--f-titre:var(--ygg-titres);--f-texte:var(--ygg-titres)}") && /.ygg-titre b{--f-titre:[^}]*Cinzel Decorative/.test(ygg), "les variables --f-titre / --f-texte du thème (lues par des règles !important) pointent vers Cinzel sur les éléments concernés");
-assert.ok(ygg.includes(".ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button):disabled{color:#f4f7ea!important") && ygg.includes("font-weight:800!important"), "boutons grisés lisibles : couleur claire plus spécifique que la règle globale button:disabled, texte gras");
+assert.ok(ygg.includes(".ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button):disabled{color:#f4f7ea!important") && ygg.includes("font-weight:900!important"), "boutons grisés lisibles : couleur claire plus spécifique que la règle globale button:disabled, texte gras");
 assert.ok(ygg.includes("text-transform:uppercase;letter-spacing:.05em}") && ygg.includes(".ygg-page .ygg-btn small{text-transform:none"), "boutons en capitales (Cinzel n'a pas de minuscules), petit texte inchangé");
+assert.ok(ygg.includes(".ygg-page :is(.ygg-poop,.ygg-mode button){font-size:clamp(15px,3cqw,17px)!important"), "Manger / Récolter / Poop : 15-17 px (barres fines de Cinzel lisibles)");
+assert.ok(ygg.includes("color:#fff4cf!important;-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:none!important"), "boutons grisés / Poop / Récolter : texte crème avec contour noir net extérieur (pas de flou)");
 console.log("idle-ygg-police-v1 ok");

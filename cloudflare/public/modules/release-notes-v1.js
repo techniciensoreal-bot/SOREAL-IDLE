@@ -32,6 +32,7 @@
         date:'2026-11-03',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Énergie et magie : le nombre affiché ne recule plus d’une unité de temps en temps pendant qu’il monte.',
             'L’application et le site sont plus fluides sur téléphone : l’écran de la borne, la machine temporelle et le tour des pages de l’album saccadent moins.',
             'L’application Android hors ligne garde toute seule la partie la plus récente, sans te demander de choisir ; un petit message te dit laquelle a été retenue.',
             'Les voix générées sont lues partout, y compris l’introduction des chroniques.',
@@ -45,6 +46,7 @@
             'Les objets des sets de la Collection ont leur image.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Machine temporelle : la barre d’un niveau ne recule plus d’un coup quand tu ajoutes ou retires des ressources.',
             'Les dents dorées des cartes sont désormais plates et d’un or franc.',
           ]},
           {menu:'ngu', titre:'NGU', points:[

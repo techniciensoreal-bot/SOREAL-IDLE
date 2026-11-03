@@ -76,8 +76,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 24,
-  "sha": "ea7d3c9ea5501d25cdadfad6aaadf93ceeace190"
+  "pin": 26,
+  "sha": "66edccdbc75f8574f8ce83772487c06447c084d5"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 11,
@@ -580,12 +580,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 119,
-  "sha": "97cf8cb830a4190726956531eaf1c8b90f2de6a9"
+  "pin": 120,
+  "sha": "970d722f47dc437dee34b8fd5400eeeb1d6cc49b"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 747,
-  "sha": "f83378faa84d0369f8a3a7a9f9290bcb3a7b1de4"
+  "pin": 748,
+  "sha": "70fcb97c3fc3d7d3cc0904e666bf143fc7933c54"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -664,12 +664,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 779,
-  "sha": "651e47e67b346d902c370a5303eb8451c0a3862d"
+  "pin": 780,
+  "sha": "82884ccd0b7f5f1fcaf9231dc782881234f92ff1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 600,
-  "sha": "671bbffd88dd2f0df653c69b2db963bf49f0a5c5"
+  "pin": 601,
+  "sha": "4ba7c20be91ad22763245b70ced2859201fe4bb0"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -832,8 +832,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 84,
-  "sha": "86593af2826490e2bbcba6376178a90f84a78ad6"
+  "pin": 85,
+  "sha": "edda8f64e08177d78c5d07ef2e7b8f4e9b980ea3"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,

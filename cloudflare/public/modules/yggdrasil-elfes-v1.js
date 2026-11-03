@@ -219,14 +219,17 @@
       /* Boutons grisés lisibles (Norman, 2026-11-03 : « sur les boutons grisés ça n'est pas lisible ») : `body.soreal-idle-active-v47 button:disabled{color:#758198!important}` (soreal-idle-ui.css) écrasait la couleur, gris sur gris, et le poids tombait à 400. Une règle plus spécifique (.ygg-page, 3 classes) la bat sans surenchère de sélecteurs ; la couleur claire + liseré sombre se lit sur le fond grisé, la mention « grisé » vient du fond. */
       '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button):disabled{color:#f4f7ea!important;text-shadow:0 1px 0 #000,0 0 3px #000!important;opacity:1}',
       '.ygg-page .ygg-mode button:not([aria-pressed="true"]){color:#f4f7ea!important;text-shadow:0 1px 0 #000}',
-      '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){font-weight:800!important}',
-      '.ygg-page :is(.ygg-poop,.ygg-mode button){font-size:clamp(12px,2.2cqw,13.5px)!important}',
-      '.ygg-btn{font-size:clamp(12px,2.4cqw,14px)!important;line-height:1.2;letter-spacing:.03em}',
-      '.ygg-btn small{opacity:1;font-size:.82em}',
-      '.ygg-auto button{font-size:clamp(11.5px,2.2cqw,13px)!important}',
-      /* Cinzel n'a pas de minuscules : « Récolter » s'écrivait en petites capitales, trop petites sur un fond sombre (Norman : « Récolter n'est pas lisible ») ; en capitales, toutes les lettres ont la même hauteur. */
+      '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){font-weight:900!important}',
+      '.ygg-page :is(.ygg-poop,.ygg-mode button){font-size:clamp(15px,3cqw,17px)!important;letter-spacing:.06em!important;min-height:44px;text-shadow:none!important}',
+      '.ygg-btn{font-size:clamp(14px,3cqw,16px)!important;line-height:1.2;letter-spacing:.03em}',
+      '.ygg-btn small{opacity:1;font-size:.92em}',
+      '.ygg-auto button{font-size:clamp(13px,2.7cqw,15px)!important}',
+      /* Taille (Norman : « Récolter les E ne sont pas bien lisibles ») : les barres fines de Cinzel disparaissent sous ~14 px sur un fond sombre, d'où 15-17 px et le poids 900 sur les boutons ; Cinzel n'a pas de minuscules : « Récolter » s'écrivait en petites capitales, trop petites sur un fond sombre (Norman : « Récolter n'est pas lisible ») ; en capitales, toutes les lettres ont la même hauteur. */
       '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){text-transform:uppercase;letter-spacing:.05em}',
       '.ygg-page .ygg-btn small{text-transform:none;letter-spacing:.02em}',
+      /* Contour (Norman, 2026-11-03 : « le E est peu lisible, je pense que ça vient du blanc et/ou du contour… il faut peut-être lui mettre un contour » puis « c'est beaucoup mieux ») : un FLOU noir autour de lettres fines (les barres du E) les empâtait ; un trait noir net EXTÉRIEUR (paint-order: stroke fill) les détache du fond sans les grossir. Texte crème, jamais blanc pur. */
+      '.ygg-page :is(.ygg-btn:disabled,.ygg-poop,.ygg-mode button:not([aria-pressed="true"]),.ygg-auto button:disabled){color:#fff4cf!important;-webkit-text-stroke:3px #000;paint-order:stroke fill;text-shadow:none!important}',
+      '.ygg-page .ygg-btn{text-shadow:none!important}',
       '.ygg-bonus{font-size:clamp(13px,2.4cqw,16px)!important;color:#f4f8ea}',
       '.ygg-solo{font-size:clamp(13px,2.3cqw,15px)!important}',
       '.ygg-note{font-size:clamp(12px,2.1cqw,14px)!important;color:#d6ecc6}',
