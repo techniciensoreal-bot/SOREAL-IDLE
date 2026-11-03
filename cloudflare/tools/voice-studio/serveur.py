@@ -178,7 +178,46 @@ def est_question(segment):
     return bool(re.search(r"\?[\s»\"')\]]*$", str(segment)))
 
 
+# COUPE SANS PAUSE (Norman, 2026-11-03 : « mettre quelque chose entre parenthèses qui génère le fichier en PLUS de morceaux, sans marquer une pause dans la narration »). « (/) » dans le texte = coupe ICI la génération en deux
+# segments (le modèle reçoit deux textes plus courts : moins de dérapages et de répétitions sur les passages longs) mais RACCORDE les deux sans silence : bords rognés au plus près, fondu enchaîné de quelques ms.
+# Le marqueur n'est JAMAIS envoyé au modèle ni prononcé. Même convention côté jeu (tutorial-tts-v202.js, MARQUE_COUPE) : le jeu l'enlève du texte affiché et de l'empreinte du bloc, donc le nom du fichier ne change pas.
+MARQUE_COUPE = "(/)"
+MARQUE_COUPE_RE = re.compile(r"\(\s*/\s*\)")
+COUPE_MIN = 20        # une partie plus courte que TEXTE_COURT ferait planter / baratiner le modèle : pas de coupe là, les deux parties restent ensemble
+
+
+def sans_marque_coupe(texte):
+    """Texte sans le marqueur « (/) » (jamais d'espace avant une ponctuation qui suit, une seule espace sinon) : c'est ce que le jeu lit, affiche et empreinte."""
+    t = re.sub(r"\s*" + MARQUE_COUPE_RE.pattern + r"\s*([,.;:!?…»])", r"\1", str(texte))
+    return re.sub(r"\s+", " ", MARQUE_COUPE_RE.sub(" ", t)).strip()
+
+
 def decouper(texte):
+    """Segments à synthétiser (texte seul) : voir decouper_marque pour savoir lesquels se raccordent sans silence."""
+    return [s for s, _ in decouper_marque(texte)]
+
+
+def decouper_marque(texte):
+    """-> [(segment, colle)] : `colle` vaut True si le segment doit être raccordé SANS silence au précédent (il suit un marqueur « (/) »). Un texte sans marqueur se découpe exactement comme avant (decouper_simple)."""
+    t = re.sub(r"\s*" + MARQUE_COUPE_RE.pattern + r"\s*([,.;:!?…»])", r"\1", str(texte))
+    if not MARQUE_COUPE_RE.search(t):
+        return [(s, False) for s in decouper_simple(t)]
+    parties = [p.strip() for p in MARQUE_COUPE_RE.split(t) if p.strip()]
+    # Les parties trop courtes sont recollées à leur voisine (aucune coupe à cet endroit).
+    fusion = []
+    for p in parties:
+        if fusion and (len(fusion[-1]) < COUPE_MIN or len(p) < COUPE_MIN):
+            fusion[-1] = fusion[-1] + " " + p
+        else:
+            fusion.append(p)
+    resultat = []
+    for i, p in enumerate(fusion):
+        for k, s in enumerate(decouper_simple(p)):
+            resultat.append((s, i > 0 and k == 0))
+    return resultat
+
+
+def decouper_simple(texte):
     """Découpe en segments d'au plus MAX_SEGMENT caractères, sur la ponctuation quand c'est possible."""
     texte = re.sub(r"\s+", " ", texte).strip()
     phrases = re.split(r"(?<=[.!?…»])\s+", texte)
@@ -254,7 +293,7 @@ def silences_interieurs(parole, minimum):
 
 
 # Respirations et temps d'arrêt (Norman, 2026-10-08 : « énormément de bugs à la génération : des temps d'arrêt où on entend comme des respirations »). Chatterbox ajoute au début et à la fin de CHAQUE phrase
-# générée un souffle ou un silence plus ou moins long ; recollés bout à bout (et lus l'un après l'autre dans le jeu), ils donnaient ces arrêts avec respiration. Chaque segment est donc rogné de son souffle / silence
+# générée un souffle ou un silence plus ou moins long ; recolles bout à bout (et lus l'un après l'autre dans le jeu), ils donnaient ces arrêts avec respiration. Chaque segment est donc rogné de son souffle / silence
 # de début et de fin (on ne garde qu'une courte marge naturelle), les raccords sont de VRAIS silences de durée fixe, et le fichier final se termine par un court silence propre.
 SEUIL_BORDS = 0.10          # fraction du pic d'énergie en dessous de laquelle une fenêtre de 20 ms est du souffle / du silence
 FENETRES_PAROLE_MIN = 2     # un souffle bref ne compte pas : il faut au moins 2 fenêtres (40 ms) de parole d'affilée
@@ -287,14 +326,24 @@ SEUIL_BORDS_QUESTION = 0.04
 MARGE_FIN_QUESTION_FEN = 14   # 280 ms
 
 
-def couper_bords(wav, sr, question=False):
-    """Retire le souffle / silence de début et de fin d'un segment (fondu d'entrée de 12 ms, fondu de sortie de 60 ms). Un segment sans parole identifiable est rendu tel quel."""
+# Raccord SANS PAUSE (marqueur « (/) ») : côté raccord, presque aucune marge (le souffle de début / la queue de fin ne laissent aucun blanc audible) et pas de fondu ici : c'est le fondu enchaîné de raccorder_sans_pause qui les fond l'un dans l'autre.
+MARGE_DEBUT_COLLE_FEN = 1   # 20 ms
+MARGE_FIN_COLLE_FEN = 3     # 60 ms
+FONDU_ENCHAINE_S = 0.03     # recouvrement des deux segments colles (30 ms) : pas de clic, pas de blanc
+
+
+def couper_bords(wav, sr, question=False, colle_avant=False, colle_apres=False):
+    """Retire le souffle / silence de début et de fin d'un segment (fondu d'entrée de 12 ms, fondu de sortie de 60 ms). Un segment sans parole identifiable est rendu tel quel.
+    colle_avant / colle_apres : le segment est raccordé SANS silence au précédent / au suivant (marqueur « (/) ») : marge minimale de ce côté et pas de fondu (fait par raccorder_sans_pause).
+    Sans ces deux options, le comportement est exactement celui d'avant."""
     import torch
     rms, fenetre, nb = energie_fenetres(wav, sr)
     if rms is None or nb < 6:
         return wav
     parole = (rms >= float(rms.max()) * (SEUIL_BORDS_QUESTION if question else SEUIL_BORDS)).tolist()
-    bornes = bornes_parole(parole, marge_fin=MARGE_FIN_QUESTION_FEN) if question else bornes_parole(parole)
+    marge_debut = MARGE_DEBUT_COLLE_FEN if colle_avant else MARGE_DEBUT_FEN
+    marge_fin = MARGE_FIN_QUESTION_FEN if question else (MARGE_FIN_COLLE_FEN if colle_apres else MARGE_FIN_FEN)
+    bornes = bornes_parole(parole, marge_debut=marge_debut, marge_fin=marge_fin)
     if bornes is None:
         return wav
     debut, fin = bornes
@@ -302,12 +351,36 @@ def couper_bords(wav, sr, question=False):
     pos_fin = min(wav.shape[-1], fin * fenetre)
     sortie = wav[..., pos_debut:pos_fin].clone()
     n = sortie.shape[-1]
-    fondu_entree = min(n // 4, int(sr * 0.012))
+    fondu_entree = 0 if colle_avant else min(n // 4, int(sr * 0.012))
     if fondu_entree > 1:
         sortie[..., :fondu_entree] *= torch.linspace(0.0, 1.0, fondu_entree)
-    fondu_sortie = min(n // 2, int(sr * (0.03 if question else 0.06)))
+    fondu_sortie = 0 if colle_apres else min(n // 2, int(sr * (0.03 if question else 0.06)))
     if fondu_sortie > 1:
         sortie[..., -fondu_sortie:] *= torch.linspace(1.0, 0.0, fondu_sortie)
+    return sortie
+
+
+def raccorder_sans_pause(a, b, sr):
+    """Colle b à la suite de a SANS silence, avec un fondu enchaîné de FONDU_ENCHAINE_S (a s'éteint pendant que b monte, sur la même durée : aucun clic, aucun blanc)."""
+    import torch
+    n = min(int(sr * FONDU_ENCHAINE_S), a.shape[-1] // 2, b.shape[-1] // 2)
+    if n < 2:
+        return torch.cat([a, b], dim=1)
+    descente = torch.linspace(1.0, 0.0, n)
+    montee = torch.linspace(0.0, 1.0, n)
+    milieu = a[..., -n:] * descente + b[..., :n] * montee
+    return torch.cat([a[..., :-n], milieu, b[..., n:]], dim=1)
+
+
+def assembler_segments(wavs, colles, sr, silence):
+    """Assemble les segments : `silence` (RACCORD_S) entre deux segments, rien (fondu enchaîné) quand colles[i] est vrai (segment i raccordé au précédent)."""
+    import torch
+    sortie = wavs[0]
+    for i in range(1, len(wavs)):
+        if colles[i]:
+            sortie = raccorder_sans_pause(sortie, wavs[i], sr)
+        else:
+            sortie = torch.cat([sortie, silence, wavs[i]], dim=1)
     return sortie
 
 
@@ -523,7 +596,7 @@ def appliquer_humeur(wav, sr, humeur):
 def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur="", langue="fr"):
     import torch
     texte = normaliser_texte(texte, langue)
-    if not texte:
+    if not texte or not sans_marque_coupe(texte):
         raise ValueError("texte vide après normalisation")
     # ANGLAIS (Norman, 2026-11-02 : voix anglaises éditées depuis l'Admin) : même narrateur que cloudflare/tools/voix-en-jeu-v1.py, c'est-à-dire la voix par défaut de Chatterbox (language_id "en", SANS extrait de référence) ;
     # ni égaliseur de micro (propre aux extraits français), ni humeur, ni effet de voix : voix cohérente avec celles déjà publiées.
@@ -662,10 +735,12 @@ def generer_segment(m, segment, kwargs):
 def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5, langue="fr"):
     import torch
     m = charger_modele()
-    morceaux = []
+    morceaux, colles = [], []
     silence = torch.zeros(1, int(m.sr * RACCORD_S))
+    plan = decouper_marque(texte)
     with _verrou:
-        for segment in decouper(texte):
+        for rang, (segment, colle) in enumerate(plan):
+            colle_apres = rang + 1 < len(plan) and plan[rang + 1][1]
             segment = sans_suspension_finale(segment)
             kwargs = {"language_id": "en" if langue == "en" else "fr", "exaggeration": float(exaggeration), "cfg_weight": float(cfg), "repetition_penalty": REPETITION_PENALTY}
             reference = None if langue == "en" else reference_voix(voix)
@@ -683,9 +758,11 @@ def synthetiser_long(texte, voix="homme", exaggeration=0.5, cfg=0.5, langue="fr"
                 torch.cuda.empty_cache()
             if wav.dim() == 1:
                 wav = wav.unsqueeze(0)
-            wav = couper_bords(wav, m.sr, est_question(segment))
-            morceaux.extend([wav, silence])
-    return torch.cat(morceaux[:-1], dim=1), m.sr
+            wav = couper_bords(wav, m.sr, est_question(segment), colle, colle_apres)
+            morceaux.append(wav)
+            colles.append(colle)
+    # Sans marqueur « (/) » : exactement l'ancien assemblage (segments séparés par RACCORD_S) ; avec : raccord sans silence (fondu enchaîné) aux marqueurs.
+    return assembler_segments(morceaux, colles, m.sr, silence), m.sr
 
 
 TEMPO_ANGLAIS = 0.92   # ralentissement des voix anglaises (identique à cloudflare/tools/voix-en-jeu-v1.py, option --tempo)

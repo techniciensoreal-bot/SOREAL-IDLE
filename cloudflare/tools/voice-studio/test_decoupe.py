@@ -160,4 +160,33 @@ verifier(serveur.est_question("Tu viens ?") and serveur.est_question("« Tu vien
 phrase_q = torch.cat([parole(0.8), silence(0.10), 0.03 * parole(0.25), silence(0.6)], dim=1)   # montée finale très douce
 verifier(duree(serveur.couper_bords(phrase_q, SR, True)) > duree(serveur.couper_bords(phrase_q, SR, False)) + 0.1, "question : la montée finale douce est gardée (%.2f s contre %.2f s)" % (duree(serveur.couper_bords(phrase_q, SR, True)), duree(serveur.couper_bords(phrase_q, SR, False))))
 
+# 7. Coupe sans pause « (/) » (Norman, 2026-11-03) : deux segments de génération, raccordés SANS silence ; sans marqueur, rien ne change.
+long_a = "Il était une fois un guerrier très fatigué qui marchait depuis des jours"
+long_b = "dans la plaine sans jamais s'arrêter pour se reposer."
+verifier(serveur.decouper(long_a + " (/) " + long_b) == [long_a, long_b], "le marqueur coupe en deux segments, sans être envoyé au modèle")
+verifier(serveur.decouper_marque(long_a + " (/) " + long_b) == [(long_a, False), (long_b, True)], "le segment après le marqueur est collé au précédent")
+verifier(serveur.decouper(long_a + " " + long_b) == serveur.decouper_simple(long_a + " " + long_b), "sans marqueur : découpage identique à l'ancien")
+verifier(all(c is False for _, c in serveur.decouper_marque("Bonjour. Comment vas-tu ? Très bien.")), "sans marqueur : aucun raccord sans silence")
+verifier(serveur.decouper("Salut (/) toi, ça va bien aujourd'hui et toi comment vas-tu ?") == serveur.decouper_simple("Salut toi, ça va bien aujourd'hui et toi comment vas-tu ?"), "partie trop courte : pas de coupe")
+verifier(serveur.decouper(long_a + " (/), " + long_b) == serveur.decouper_simple(long_a + ", " + long_b), "marqueur devant une ponctuation : sans effet")
+verifier(serveur.sans_marque_coupe("Il court (/), puis saute (/) vite.") == "Il court, puis saute vite.", "texte sans marqueur : espaces et ponctuation propres")
+verifier(all("(/)" not in s for s in serveur.decouper(long_a + " ( / ) " + long_b + " (/)")), "aucun marqueur dans les segments")
+# Raccord : aucun silence ajouté, recouvrement de FONDU_ENCHAINE_S, jamais de saut.
+a = parole(0.6)
+b = parole(0.6)
+colle = serveur.raccorder_sans_pause(a, b, SR)
+recouvrement = int(SR * serveur.FONDU_ENCHAINE_S)
+verifier(colle.shape[-1] == a.shape[-1] + b.shape[-1] - recouvrement, "raccord sans pause : durée = a + b - fondu enchaîné (%.3f s)" % duree(colle))
+verifier(colle.shape[-1] < a.shape[-1] + b.shape[-1] + int(SR * serveur.RACCORD_S), "raccord sans pause plus court qu'un raccord normal")
+normal = serveur.assembler_segments([a, b], [False, False], SR, silence(serveur.RACCORD_S))
+verifier(normal.shape[-1] == a.shape[-1] + b.shape[-1] + int(SR * serveur.RACCORD_S), "raccord normal : le silence RACCORD_S est conservé")
+verifier(serveur.assembler_segments([a, b], [False, True], SR, silence(serveur.RACCORD_S)).shape == colle.shape, "assembler_segments colle les segments marqués")
+# Bords : côté raccord, le blanc audible disparaît (marge minimale, pas de fondu) ; sans option, comportement inchangé.
+avec_blancs = torch.cat([silence(0.30), parole(0.5), silence(0.40)], dim=1)
+serre = serveur.couper_bords(avec_blancs, SR, False, True, True)
+normal_bords = serveur.couper_bords(avec_blancs, SR)
+verifier(duree(serre) < duree(normal_bords) - 0.1, "raccord sans pause : bords plus serrés (%.2f s contre %.2f s)" % (duree(serre), duree(normal_bords)))
+verifier(duree(serre) < 0.5 + 0.12, "raccord sans pause : au plus quelques dizaines de ms de blanc de chaque côté (%.2f s)" % duree(serre))
+verifier(torch.equal(serveur.couper_bords(avec_blancs, SR, False, False, False), normal_bords), "sans raccord sans pause : couper_bords identique à avant")
+
 print("TOUT EST BON")

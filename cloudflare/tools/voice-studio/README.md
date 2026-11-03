@@ -27,3 +27,7 @@ local, toujours allumé, qui lance ou arrête `lancer.bat` quand tu cliques sur 
 - **Sécurité** : il n'écoute que sur ce PC (127.0.0.1:8766), n'obéit qu'au site du jeu (en-tête Origin) et ne sait faire que « lancer lancer.bat » et « arrêter le studio ».
 - **Arrêt** : ferme le studio et sa fenêtre, qu'il ait été lancé par le bouton ou à la main.
 - Ne fonctionne que sur ce PC (Chrome ou Edge ; pas Safari).
+
+## Coupe sans pause : `(/)`
+
+Dans un texte de voix, `(/)` coupe la génération en deux morceaux (le modèle reçoit des textes plus courts : moins de dérapages et de répétitions sur un long passage) mais les raccorde **sans silence** (bords rognés au plus près, fondu enchaîné de 30 ms). Les raccords normaux entre phrases gardent leur silence de 0,22 s. Le marqueur n'est jamais prononcé, jamais affiché dans le jeu et ne change pas le nom du fichier de voix (l'empreinte est calculée sans lui). Une partie de moins de 20 caractères n'est pas coupée. Dans l'éditeur : bouton « Pause » puis « Coupe sans pause ».

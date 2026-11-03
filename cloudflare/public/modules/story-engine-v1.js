@@ -136,7 +136,8 @@ function segmenter_(texte,parleurParDefaut){
   }
   ajouter(brut.length);
   /* Expressions et pauses (« (joyeux) », « (pause 2s) ») : lues par le module de narration, jamais affichées (Norman, 2026-10-08). */
-  var affiche=segments.map(function(s){return s.texte;}).join(' ').replace(/\(\s*([^()\n]{1,40}?)\s*\)/g,function(tout,dedans){
+  /* « (/) » (coupe de génération sans pause, voir modules/tutorial-tts-v202.js) : jamais affichée, ni l'espace avant une ponctuation qui la suit. */
+  var affiche=segments.map(function(s){return s.texte;}).join(' ').replace(/[ \t]*\(\s*\/\s*\)[ \t]*(?=[,.;:!?…»])/g,'').replace(/\(\s*\/\s*\)/g,' ').replace(/\(\s*([^()\n]{1,40}?)\s*\)/g,function(tout,dedans){
     try{
       var t=tts_();
       if(t&&((typeof t.resoudreExpressionBalise==='function'&&t.resoudreExpressionBalise(dedans))||(typeof t.resoudrePauseBalise==='function'&&t.resoudrePauseBalise(dedans)>0)))return ' ';

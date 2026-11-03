@@ -91,11 +91,15 @@ function balisePauseOuExpression_(contenu){
   }catch(_e){}
   return false;
 }
-function estBaliseDeLecture_(contenu){return Boolean(voixDeBalise_(contenu)||balisePauseOuExpression_(contenu));}
+/* « (/) » : coupe de génération sans pause (studio de voix) : ni lue ni affichée, comme une balise de voix (modules/tutorial-tts-v202.js, MARQUE_COUPE). */
+function estBaliseCoupe_(contenu){return String(contenu==null?'':contenu).replace(/\s+/g,'')==='/';}
+function estBaliseDeLecture_(contenu){return Boolean(estBaliseCoupe_(contenu)||voixDeBalise_(contenu)||balisePauseOuExpression_(contenu));}
 
 /* Texte tel qu'il s'affiche : les balises de voix, d'expression et de pause disparaissent, toute autre parenthèse reste. */
 function sansBalises_(texte){
   var brut=String(texte==null?'':texte);
+  /* La coupe « (/) » devant une ponctuation disparaît avec son espace (« mot (/), suite » -> « mot, suite »). */
+  brut=brut.replace(/[ \t]*\(\s*\/\s*\)[ \t]*(?=[,.;:!?…»])/g,'');
   /* Balise seule sur sa ligne : la ligne disparaît entièrement. */
   var sans=brut.replace(/(^|\n)[ \t]*\(\s*([^()\n]{1,40}?)\s*\)[ \t]*(\n|$)/g,function(tout,debut,dedans){
     return estBaliseDeLecture_(dedans)?debut:tout;
@@ -805,7 +809,7 @@ function blocsDeLecture_(valeurs,avecDoublons){
     if(vus[hash]&&!avecDoublons)return;
     vus[hash]=1;
     var parleur=e.voix||(typeof t.estVoixFemme==='function'&&t.estVoixFemme(e.chunk)?'femme':'homme');
-    var bloc={texte:e.chunk,hash:hash,parleur:parleur};
+    var bloc={texte:e.studio||e.chunk,hash:hash,parleur:parleur};
     if(e.expr)bloc.expr=e.expr;
     blocs.push(bloc);
   });

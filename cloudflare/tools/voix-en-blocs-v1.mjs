@@ -35,7 +35,7 @@ const sorties = JSON.parse(fs.readFileSync(entree, "utf8")).map((e) => {
   const blocs = [];
   for (const etape of tts.planNarration(t)) {
     if (etape.chunk == null) continue;
-    blocs.push({ hash: tts.hashBloc(etape.chunk), texte: etape.chunk, voix: etape.voix || "", expr: etape.expr || "" });
+    blocs.push({ hash: tts.hashBloc(etape.chunk), texte: etape.chunk, studio: etape.studio || "", voix: etape.voix || "", expr: etape.expr || "" });
   }
   return { cat: e.cat, id: e.id, blocs };
 });

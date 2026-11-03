@@ -117,7 +117,10 @@ function pauseBoutonHtml(cle,classe){
 function pausesHtml(cle,classe){
   return '<div class="vu-pauses" data-vu-pauses="'+esc_(cle)+'">'+pausesListe().map(function(pz){
     return '<button type="button" class="'+esc_(classe||'vu-btn')+'" data-vu-pause="'+esc_(pz.tag)+'" data-vu-cle="'+esc_(cle)+'" title="Insère '+esc_(pz.tag)+'">⏸ '+esc_(pz.nom)+'</button>';
-  }).join('')+'</div>';
+  }).join('')+
+    /* Coupe sans pause (2026-11-03) : « (/) » coupe la génération du studio en deux morceaux (moins de dérapages sur un long passage) et les raccorde sans silence. Jamais lue, jamais affichée, n'en change pas le nom du fichier de voix. */
+    '<button type="button" class="'+esc_(classe||'vu-btn')+'" data-vu-pause="(/)" data-vu-cle="'+esc_(cle)+'" title="Insère (/) : coupe la génération ici, sans pause dans la narration">✂ Coupe sans pause</button>'+
+    '<span class="vu-sel-aide" style="flex:1 0 100%">(/) = coupe la génération ici, sans pause : le studio génère en plus de morceaux, mais la narration ne s’interrompt pas.</span></div>';
 }
 /* Après un choix : la bulle prend la couleur, l'initiale et les noms de sa voix et de son expression. */
 function appliquerAuxPuces(cadre,l){

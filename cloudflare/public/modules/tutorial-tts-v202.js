@@ -175,9 +175,24 @@
     return '';
   }
 
+  /*
+   * COUPE SANS PAUSE (Norman, 2026-11-03) : « (/) » dans un texte = « le studio de voix coupe ICI la génération en deux morceaux, mais raccorde sans silence » (tools/voice-studio/serveur.py, MARQUE_COUPE). Le marqueur n'est
+   * jamais lu, jamais affiché et ne change JAMAIS l'empreinte d'un bloc : l'empreinte se calcule sur le texte sans le marqueur, donc le fichier de voix garde le même nom avec ou sans « (/) ». Même règle de nettoyage que le studio
+   * (sans_marque_coupe) : pas d'espace avant une ponctuation qui suit le marqueur, une seule espace sinon. L'étape garde le texte avec marqueur dans « studio » : c'est ce que l'éditeur envoie au studio.
+   */
+  var MARQUE_COUPE='(/)';
+  var COUPE_SRC='\\(\\s*\\/\\s*\\)';
+  function sansCoupe_(texte){
+    return String(texte==null?'':texte)
+      .replace(new RegExp('\\s*'+COUPE_SRC+'\\s*([,.;:!?\u2026\u00bb])','g'),'$1')
+      .replace(new RegExp(COUPE_SRC,'g'),' ')
+      .replace(/\s+/g,' ').trim();
+  }
+  function resoudreCoupeBalise_(t){return String(t==null?'':t).replace(/\s+/g,'')==='/';}
+
   /* Empreinte cyrb53 (53 bits) du texte normalisé + étiquette de voix : synchrone, identique en Node et dans le navigateur. */
   function hashBloc_(text){
-    var str=VOICE_TAG+'|'+String(text||'').replace(/\s+/g,' ').trim();
+    var str=VOICE_TAG+'|'+sansCoupe_(text);
     var h1=0xdeadbeef,h2=0x41c6ce57;
     for(var i=0;i<str.length;i+=1){
       var ch=str.charCodeAt(i);
@@ -395,6 +410,8 @@
   /* Aucun texte entre parenthèses n'est jamais lu à voix haute (Norman, 2026-09-27), quel que soit son contenu ou sa position -- sauf les balises de voix, gardées en marqueur. */
   function retirerParentheses_(texte){
     return String(texte||'').replace(/\(([^)]*)\)/g,function(tout,dedans){
+      /* « (/) » : coupe de génération sans pause, gardée telle quelle dans le texte (planNarration_ la sépare du texte lu et de l'empreinte). */
+      if(resoudreCoupeBalise_(dedans))return ' '+MARQUE_COUPE+' ';
       var voix=resoudreVoixBalise_(dedans);
       if(voix)return ' '+VOIX_OPEN+voix+VOIX_CLOSE+' ';
       /* Rot (Norman, 2026-10-25 : voix « Savant cynique », « qui peut faire des renvois ») : « (rot) », « (renvoi) », « (burp) » = un rot synthétisé (audio-effects-v199.js, rot) au milieu du texte, comme une pause qui s'entend. */
@@ -470,7 +487,12 @@
       var texteBrut=parts[i],dernier=0,marque;
       var lire=function(morceau){
         decouperNarration_(morceau).forEach(function(chunk){
-          var etape={chunk:chunk};
+          /* Texte lu et empreinte : SANS le marqueur « (/) » ; avec lui (retiré aux bords du bloc, où il ne sert à rien), c'est le texte que reçoit le studio (étape.studio). */
+          var clair=sansCoupe_(chunk);
+          if(!clair)return;
+          var avecCoupe=chunk.replace(new RegExp('\\s*'+COUPE_SRC+'\\s*([,.;:!?\u2026\u00bb])','g'),'$1').replace(new RegExp('^(?:\\s*'+COUPE_SRC+')+\\s*|\\s*(?:'+COUPE_SRC+'\\s*)+$','g'),'').replace(/\s+/g,' ').trim();
+          var etape={chunk:clair};
+          if(avecCoupe&&avecCoupe!==clair&&new RegExp(COUPE_SRC).test(avecCoupe))etape.studio=avecCoupe;
           if(voix)etape.voix=voix;
           if(expr)etape.expr=expr;
           steps.push(etape);
@@ -1312,6 +1334,9 @@
     resoudreVoixBalise:resoudreVoixBalise_,
     resoudreExpressionBalise:resoudreExpressionBalise_,
     resoudrePauseBalise:resoudrePauseBalise_,
+    resoudreCoupeBalise:resoudreCoupeBalise_,
+    sansCoupe:sansCoupe_,
+    marqueCoupe:MARQUE_COUPE,
     voiceStats:function(){return {fichiers:voiceStats.fichiers,piper:voiceStats.piper,muets:voiceStats.muets};},
     isSpeaking:function(){
       return Boolean(activeReadTarget||activeAudio||activeBufferSource);

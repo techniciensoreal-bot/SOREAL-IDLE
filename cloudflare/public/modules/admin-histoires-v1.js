@@ -92,7 +92,7 @@ function blocsDeTexte_(texte){
   if(typeof t.retirerParentheses==='function')txt=t.retirerParentheses(txt).replace(/\s+/g,' ').trim();
   if(!txt)return [];
   return t.planNarration(txt).filter(function(e){return e&&e.chunk!=null&&String(e.chunk).trim();}).map(function(e){
-    var b={texte:e.chunk,hash:t.hashBloc(e.chunk)};
+    var b={texte:e.studio||e.chunk,hash:t.hashBloc(e.chunk)};
     if(e.expr)b.expr=e.expr;
     return b;
   });

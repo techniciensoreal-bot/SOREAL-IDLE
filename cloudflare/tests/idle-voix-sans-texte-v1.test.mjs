@@ -19,6 +19,7 @@ const grabUi = (re) => {
 const code = [
   grabTts(/var CHUNK_MAX=\d+;/), grabTts(/var PAUSE_OPEN=[^\n]+;/), grabTts(/var PAUSE_CLOSE=[^\n]+;/), grabTts(/var PAUSE_MAX_MS=\d+;/),
   grabTts(/var VOIX_OPEN=[^\n]+;/), grabTts(/var VOIX_CLOSE=[^\n]+;/), grabTts(/var EXPR_OPEN=[^\n]+;/), grabTts(/var EXPR_CLOSE=[^\n]+;/),
+  grabTts(/var MARQUE_COUPE=[^\n]+;/), grabTts(/var COUPE_SRC=[^\n]+;/), grabTts(/function sansCoupe_\(texte\)\{[\s\S]*?\n  \}\n/), grabTts(/function resoudreCoupeBalise_\(t\)\{[^\n]+\n/),
   grabTts(/function registreExpressions_\(\)\{[\s\S]*?\n  \}\n/), grabTts(/function resoudreExpressionBalise_\(t\)\{[\s\S]*?\n  \}\n/), grabTts(/function resoudrePauseBalise_\(t\)\{[\s\S]*?\n  \}\n/),
   grabTts(/function normaliserBalise_\(t\)\{[\s\S]*?\n  \}\n/), grabTts(/function resoudreVoixBalise_\(t\)\{[\s\S]*?\n  \}\n/),
   grabTts(/function decouperNarration_\(value\)\{[\s\S]*?\n  \}\n/), grabTts(/function planNarration_\(value\)\{[\s\S]*?\n  \}\n/), grabTts(/function retirerParentheses_\(texte\)\{[\s\S]*?\n  \}\n/),

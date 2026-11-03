@@ -126,6 +126,20 @@ def segmenter(texte):
     return segs
 
 
+def segmenter_marque(texte):
+    """-> [(segment, colle)] : coupe au marqueur « (/) » (coupe de génération SANS pause, serveur.MARQUE_COUPE) ; colle = raccordé sans silence au précédent. Sans marqueur : segmenter(texte) tel quel."""
+    t = re.sub(r"\s*" + serveur.MARQUE_COUPE_RE.pattern + r"\s*([,.;:!?…»])", r"\1", texte)
+    if not serveur.MARQUE_COUPE_RE.search(t):
+        return [(s, False) for s in segmenter(t)]
+    fusion = []
+    for p in [p.strip() for p in serveur.MARQUE_COUPE_RE.split(t) if p.strip()]:
+        if fusion and (len(fusion[-1]) < serveur.COUPE_MIN or len(p) < serveur.COUPE_MIN):
+            fusion[-1] = fusion[-1] + " " + p
+        else:
+            fusion.append(p)
+    return [(s, i > 0 and k == 0) for i, p in enumerate(fusion) for k, s in enumerate(segmenter(p))]
+
+
 def nb_mots(t):
     n = 0
     for w in re.findall(r"[A-Za-z0-9][A-Za-z0-9'\u2019\-.,]*", t):
@@ -187,7 +201,7 @@ def inventaire(categories, ids=None):
                 if b["hash"] in vus:
                     continue
                 vus.add(b["hash"])
-                blocs.append({"hash": b["hash"], "texte": b["texte"], "cat": cat, "id": s["id"], "rang": k, "mots": nb_mots(b["texte"]), "reste_fr": reste.get(str(s["id"]), False)})
+                blocs.append({"hash": b["hash"], "texte": b["texte"], "studio": b.get("studio", ""), "cat": cat, "id": s["id"], "rang": k, "mots": nb_mots(b["texte"]), "reste_fr": reste.get(str(s["id"]), False)})
     return blocs, manques
 
 
@@ -303,7 +317,7 @@ class Tee(io.StringIO):
     pass
 
 
-def prise(m, segment, k, graine_base):
+def prise(m, segment, k, graine_base, colle_avant=False, colle_apres=False):
     """Une prise d'un segment avec la graine et les réglages de rang k -> (wav, signaux)."""
     import torch
     exa, cfg = PROFILS[k % len(PROFILS)]
@@ -325,7 +339,7 @@ def prise(m, segment, k, graine_base):
                 wav = serveur.generer_segment(m, seg, kwargs)
     if wav.dim() == 1:
         wav = wav.unsqueeze(0)
-    wav = serveur.couper_bords(wav, m.sr, serveur.est_question(seg))
+    wav = serveur.couper_bords(wav, m.sr, serveur.est_question(seg), colle_avant, colle_apres)
     signaux = list(capteur.lignes)
     sortie = tampon.getvalue()
     if "dérapage détecté" in sortie:
@@ -362,14 +376,17 @@ def generer_bloc(m, bloc, tentatives, tempo):
     h = bloc["hash"]
     dossier_prises = os.path.join(SORTIE, "prises", h)
     os.makedirs(dossier_prises, exist_ok=True)
-    segs = segmenter(pour_la_voix(bloc["texte"]))
+    # « studio » = le texte avec ses marqueurs « (/) » (coupe de génération sans pause) ; « texte » (sans marqueur) reste celui de l'empreinte et des contrôles.
+    plan = segmenter_marque(pour_la_voix(bloc.get("studio") or bloc["texte"]))
+    segs = [s for s, _ in plan]
+    colles = [c for _, c in plan]
     morceaux, problemes, reprises, nb_prises, t0, cur = [], [], 0, 0, time.time(), 0.0
     silence = torch.zeros(1, int(m.sr * serveur.RACCORD_S))
     horloge_assemblage = 0.0
     for i, seg in enumerate(segs):
         meilleur = None
         for k in range(tentatives):
-            wav, signaux, graine, reglage = prise(m, seg, k, h)
+            wav, signaux, graine, reglage = prise(m, seg, k, h, colles[i], i + 1 < len(segs) and colles[i + 1])
             nb_prises += 1
             score, pb = controler_segment(wav, m.sr, seg, signaux)
             vers_m4a_fichier(wav, m.sr, os.path.join(dossier_prises, "%02d-%d.m4a" % (i + 1, k + 1)))
@@ -384,9 +401,9 @@ def generer_bloc(m, bloc, tentatives, tempo):
         for niveau, code, detail, instant in pb:
             problemes.append({"niveau": niveau, "code": code, "detail": detail, "segment": i + 1, "texte": seg[:120],
                               "instant_final_s": round((horloge_assemblage + instant) / tempo, 2), "prise": k + 1})
-        morceaux.extend([wav, silence])
-        horloge_assemblage += wav.shape[-1] / m.sr + serveur.RACCORD_S
-    wav = torch.cat(morceaux[:-1], dim=1)
+        morceaux.append(wav)
+        horloge_assemblage += wav.shape[-1] / m.sr + (0.0 if i + 1 < len(segs) and colles[i + 1] else serveur.RACCORD_S)
+    wav = serveur.assembler_segments(morceaux, colles, m.sr, silence)
     duree_brut, wpm, pb_bloc = controler_bloc(wav, m.sr, bloc["texte"], tempo)
     for niveau, code, detail, instant in pb_bloc:
         problemes.append({"niveau": niveau, "code": code, "detail": detail, "segment": 0, "texte": "", "instant_final_s": round(instant, 2), "prise": 0})
