@@ -22,10 +22,28 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.7',
+    courante:'4.8',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.8',
+        nom:'Collection et borne',
+        date:'2026-11-03',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
+          ]},
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.',
+            'Les objets des sets de la Collection ont leur image.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.',
+            'Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir.',
+          ]},
+        ],
+      },
       {
         version:'4.7',
         nom:'Android et gyroscope',
