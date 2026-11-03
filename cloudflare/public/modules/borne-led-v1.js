@@ -696,7 +696,9 @@ function rrObstacles(t,tg,G,libre){
   var W=P.W,per=W+60,off=Math.round((W+8)*0.35),e=G.e,vx,nx,po;
   vx=Math.round(((tg*RR_SP+off)%per)-(per-W-8));   /* ils courent vers la gauche : le sol et les passants défilent vers la DROITE (Norman, 2026-11-02 : « le sol défile dans le mauvais sens »), entrent par la gauche et sortent par la droite */
   dessinerCoul(VENUS,VENUS_COUL,vx,G.fl-2-(Math.round(18*e)-1),e);
-  nx=Math.round(((tg*RR_SP+off+Math.round(per/2))%per)-(per-W-8));
+  /* Le nain ne passe qu'UNE SEULE FOIS dans le couloir (Norman, 2026-11-02 : « le nain ne doit être visible qu'une fois dans le couloir ») : il entre par la gauche 4 s après le début de la course (jamais présent au départ), traverse l'écran vers la droite, sort, et ne revient plus de la scène. */
+  nx=Math.round((tg-4)*RR_SP-16);
+  if(tg<4||nx>=W+8)return;
   po=P.reduced?0:rrNainPose(t);
   var ny=G.fl-2-(Math.round(10*e)-1),nxx=nx+((po===3)?1:0);
   if(libre&&nxx+Math.round(7*e)>=libre[0]&&nxx<=libre[1])return;   /* après la prise : le nain ne reste pas planté entre les deux hommes */

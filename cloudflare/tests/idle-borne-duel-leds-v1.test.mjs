@@ -161,3 +161,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   const led7 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
   assert.ok(led7.includes("dbl=false;") && led7.includes("score:{fn:sScore,dur:4,prio:1,cap:2.0},"), "plus de page « victoires » sur la borne : le numéro du boss suffit (Norman, 2026-11-03)");
 }
+{
+  const led8 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led8.includes("nx=Math.round((tg-4)*RR_SP-16);") && led8.includes("if(tg<4||nx>=W+8)return;") && !led8.includes("nx=Math.round(((tg*RR_SP+off+Math.round(per/2))%per)"), "Red Room : le nain ne passe qu'une seule fois dans le couloir (Norman, 2026-11-03)");
+}
