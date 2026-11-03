@@ -500,8 +500,8 @@
   "sha": "c6f4145752e99d4bbdf8028edd00e00ace71efdd"
  },
  "/modules/page-chroniques-v1.js": {
-  "pin": 3,
-  "sha": "f5a95c54a928a407f2ae64f99502a57e922fb611"
+  "pin": 4,
+  "sha": "8e9fc274f55d177097b5807118a75bf024110f77"
  },
  "/modules/perf-texte-v1.js": {
   "pin": 3,
@@ -860,8 +860,8 @@
   "sha": "00472e69a976fe03ea2bf600a42d0fdef1c31e68"
  },
  "/soreal-idle-chroniques.css": {
-  "pin": 3,
-  "sha": "ea58411772f1fb0c1e344713877fea9caa051a95"
+  "pin": 4,
+  "sha": "b1be59a9fdf3a0cf2e10acb3ba36f65c374322ee"
  },
  "/soreal-idle-entetes-a.css": {
   "pin": 5,

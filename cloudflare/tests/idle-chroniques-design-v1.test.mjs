@@ -53,7 +53,7 @@ const h = D.rendreCollectionIdleV22_(etat(true));
 // complet : couronne, cadre or ; partiel ; set d'objets
 assert.ok(/sc-carte sc-m\d sc-t\d sc-complet/.test(h) && h.includes("sc-couronne"), "set complet valorisé");
 assert.equal((h.match(/class="sc-carte /g) || []).length, 3, "deux sets d'équipement + un set d'objets");
-assert.ok(h.includes("Objet un") && h.includes("Niv. 100/100"), "set d'objets : objets obtenus et niveau");
+assert.ok(h.includes("Objet un") && h.includes("sc-fini") && !h.includes("Niv. 100/100"), "set d'objets : objet terminé = nom et ✓ vert seulement");
 assert.ok(h.includes("sc-sceau obtenu") && h.includes("Bonus du set obtenu") && h.includes("Bonus du set<"), "sceau obtenu / à obtenir");
 assert.ok(h.includes("S’obtient quand toutes les pièces du set sont au niveau 100."), "condition déjà connue");
 // pièces non vues : jamais dessinées (le set Ombre n'a que 2 pièces vues sur 6)
@@ -91,4 +91,10 @@ console.log("idle-chroniques-design-v1: OK");
   const { readFileSync: lire } = await import("node:fs");
   const m = lire("cloudflare/public/modules/page-chroniques-v1.js", "utf8");
   assert.ok(m.includes("const pseudoObj=def.kind==='equipment'") && m.includes("'<span class=\"sc-icone\">'+iconeObjetAdventureIdleV138_(pseudoObj)+'</span>'"), "les tuiles des sets d'objets ont leur image (Norman, 2026-11-03 : « il y a des images manquantes dans sets »)");
+}
+{
+  const { readFileSync: lire } = await import("node:fs");
+  const m = lire("cloudflare/public/modules/page-chroniques-v1.js", "utf8");
+  assert.ok(m.includes("(niveau>=100?'<span class=\"sc-fini\">'+icone('coche','sc-ok')+'</span>'") && m.includes("(vert?'<span class=\"sc-fini\">'+icone('coche','sc-ok')+'</span>'"), "objet ou pièce terminé : seulement le nom et le petit ✓ vert (Norman, 2026-11-03)");
+  assert.ok(!/Niv\. '\+niveau\+'\/100'\+\(niveau>=100/.test(m) && !m.includes("' 100 %':lvl100"), "plus de « Niv. 100/100 » ni de « 100 % » sur un objet terminé");
 }

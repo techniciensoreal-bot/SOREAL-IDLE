@@ -290,3 +290,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Titres en Bangers : forcés (d'anciennes feuilles imposent leur police à <b>, <span> et <h3>) */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 :is(.chr-rang-n,.chr-medaille b,.cl-valeur b,.idle-succes-tuile-v1 b,.soreal-idle-cine-carte-v1 b,.sc-set-nom,.sc-sceau .titre,.sc-stat b,.sc-compte,.soreal-idle-collection-sets-v1 b,.soreal-idle-bestiary-name-v110){font-family:Bangers,cursive;font-weight:400}
+/* Pièce ou objet terminé : seulement le nom et un petit ✓ vert centré (Norman, 2026-11-03) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-fini{display:flex;justify-content:center;align-items:center;margin-top:auto;padding-top:4px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .sc-fini .sc-ok{width:17px;height:17px;filter:drop-shadow(0 0 4px rgba(127,224,143,.55))}

@@ -160,8 +160,10 @@
         return '<div class="sc-piece found soreal-idle-collection-slot-v32'+(niveau>=100?' maxed':'')+'">'+
           '<span class="sc-icone">'+iconeObjetAdventureIdleV138_(pseudoObj)+'</span>'+
           '<span class="sc-pnom">'+idleHtml_(def.name||defId)+'</span>'+
-          '<small class="sc-niv">Niv. '+niveau+'/100'+(niveau>=100?icone('coche','sc-ok'):'')+'</small>'+
-          '<span class="sc-jauge"><i style="width:'+Math.min(100,niveau)+'%"></i></span>'+
+          /* Objet terminé : seulement son nom et le petit ✓ vert ; ses informations (niveau, jauge) ne s'affichent que tant qu'il n'est pas complètement monté (Norman, 2026-11-03) */
+          (niveau>=100?'<span class="sc-fini">'+icone('coche','sc-ok')+'</span>'
+            :'<small class="sc-niv">Niv. '+niveau+'/100</small>'+
+              '<span class="sc-jauge"><i style="width:'+Math.min(100,niveau)+'%"></i></span>')+
         '</div>';
       }).join('');
       return carte(setId,setDef.name||setId,obtenu,'',
@@ -205,10 +207,10 @@
         return '<div class="sc-piece soreal-idle-collection-slot-v32'+(vu?' found':'')+(vert?' maxed':'')+(lvl100&&!vert?' n100':'')+'">'+
           '<span class="sc-icone">'+iconeObjetAdventureIdleV138_(pseudo)+'</span>'+
           '<span class="sc-pnom">'+idleHtml_(def.name||definitionId)+'</span>'+
-          '<small class="sc-niv">Niv. '+lvl+'/100'+
-            (vert?icone('coche','sc-ok')+' 100 %':lvl100?' · boosts à compléter':'')+
-          '</small>'+
-          '<span class="sc-jauge"><i style="width:'+Math.min(100,lvl)+'%"></i></span>'+
+          /* Pièce terminée (niveau 100 ET boosts à 100 %) : seulement son nom et le petit ✓ vert ; tant qu'elle n'est pas complètement montée : niveau, « boosts à compléter » et jauge (Norman, 2026-11-03) */
+          (vert?'<span class="sc-fini">'+icone('coche','sc-ok')+'</span>'
+            :'<small class="sc-niv">Niv. '+lvl+'/100'+(lvl100?' · boosts à compléter':'')+'</small>'+
+              '<span class="sc-jauge"><i style="width:'+Math.min(100,lvl)+'%"></i></span>')+
         '</div>';
       }).join('');
 
