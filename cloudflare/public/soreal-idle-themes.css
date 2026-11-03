@@ -205,18 +205,18 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .sore
  * Norman (2026-10-01) : « retravaille l'interface en haut » et « les cases fixes à toutes les pages prennent l'apparence de la page active ».
  * Le bandeau, la navigation, les jauges d'Énergie et de Magie et les tuiles de chiffres sont fixes sur toutes les pages : ils lisent ici des
  * variables de couleur (--th-*) que chaque menu redéfinit. Sans thème propre, le thème par défaut (bleu acier) s'applique.
- * Le thème de la page active est détecté par :has() sur le conteneur du jeu (le data-menu de la page se met à jour à chaque affichage).
+ * Le thème de la page active est lu sur <body data-sj-menu> (modules/menu-drapeaux-v1.js ; plus de :has() : il recalculait tout le style à chaque modification de la page, audit 2026-11-03).
  */
 body.soreal-idle-active-v47 .soreal-idle-native-v4{
   --th-a:#5aa2ff;--th-b:#7c6bff;--th-c:#38d6c4;--th-bg:#16203a;--th-bg2:#0d1426;--th-line:rgba(110,150,255,.38);--th-ink:#e6eeff;--th-dim:#8fa3cf;--th-num:#ffffff;--th-glow:rgba(90,162,255,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="augmentations"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="augmentations"] .soreal-idle-native-v4{
   --th-a:#ffc21a;--th-b:#ff6a1a;--th-c:#ff2d7a;--th-bg:#26112a;--th-bg2:#130813;--th-line:rgba(255,138,26,.5);--th-ink:#ffe6c4;--th-dim:#d9a37a;--th-num:#ffe08a;--th-glow:rgba(255,138,26,.5);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="combat"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="combat"] .soreal-idle-native-v4{
   --th-a:#ff4a3a;--th-b:#5aa2ff;--th-c:#ffd54a;--th-bg:#1a0d16;--th-bg2:#0b0a14;--th-line:rgba(255,90,70,.5);--th-ink:#ffe3df;--th-dim:#cf9a9a;--th-num:#ffffff;--th-glow:rgba(255,74,58,.5);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="sang"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="sang"] .soreal-idle-native-v4{
   --th-a:#e0243d;--th-b:#8f0f22;--th-c:#ff6a7a;--th-bg:#2c0c13;--th-bg2:#190609;--th-line:rgba(220,50,70,.55);--th-ink:#ffdde1;--th-dim:#d79aa3;--th-num:#ffe3e7;--th-glow:rgba(224,36,61,.5);
 }
 /* Bandeau : cadre lumineux à la couleur de la page. */
@@ -349,16 +349,16 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] .soreal
  *   --pg-btn     fond des boutons         --pg-btn-ink couleur du texte des boutons
  *   --pg-deco    émojis en filigrane dans l'en-tête (chaîne CSS)               --pg-font   police des titres
  */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="entrainement"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="entrainement"] .soreal-idle-native-v4{
   --th-a:#27d3b4;--th-b:#2aa3ff;--th-c:#9be15d;--th-bg:#10262c;--th-bg2:#09151b;--th-line:rgba(39,211,180,.42);--th-ink:#dff7f1;--th-dim:#86b9b0;--th-num:#ffffff;--th-glow:rgba(39,211,180,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="machine"] .soreal-idle-native-v4{
   --th-a:#22b8cf;--th-b:#0f766e;--th-c:#ffe08a;--th-bg:#0f766e;--th-bg2:#0b554f;--th-line:rgba(34,184,207,.55);--th-ink:#eafcff;--th-dim:#a8e6df;--th-num:#d6fffa;--th-glow:rgba(34,184,207,.5);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="aventure"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="aventure"] .soreal-idle-native-v4{
   --th-a:#e2b25a;--th-b:#6aa84f;--th-c:#c46a2b;--th-bg:#2a1e12;--th-bg2:#16100a;--th-line:rgba(226,178,90,.45);--th-ink:#f6e7c8;--th-dim:#c8ad80;--th-num:#fff3d6;--th-glow:rgba(226,178,90,.4);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="renaissance"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="renaissance"] .soreal-idle-native-v4{
   --th-a:#b79cff;--th-b:#ff9ad5;--th-c:#7be7ff;--th-bg:#1f1a44;--th-bg2:#110d2a;--th-line:rgba(183,156,255,.5);--th-ink:#f1eaff;--th-dim:#b9a9e6;--th-num:#ffffff;--th-glow:rgba(183,156,255,.5);
 }
 
@@ -584,16 +584,16 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="aventure"] :is
 }
 
 /* ====================== LOT 2 : Money Pit, Challenges, Titans, Achievements ====================== */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="moneyPit"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="moneyPit"] .soreal-idle-native-v4{
   --th-a:#ffd23f;--th-b:#1fbf75;--th-c:#ff4d6d;--th-bg:#0f2f22;--th-bg2:#07160f;--th-line:rgba(255,210,63,.5);--th-ink:#fff4cc;--th-dim:#a8c9a0;--th-num:#fff4cc;--th-glow:rgba(255,210,63,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="challenges"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="challenges"] .soreal-idle-native-v4{
   --th-a:#ffe600;--th-b:#ff3b3b;--th-c:#ffffff;--th-bg:#1c1c24;--th-bg2:#0b0b10;--th-line:rgba(255,230,0,.45);--th-ink:#fffbd6;--th-dim:#c9c6a0;--th-num:#ffffff;--th-glow:rgba(255,230,0,.4);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="titans"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="titans"] .soreal-idle-native-v4{
   --th-a:#ff7a1a;--th-b:#c1121f;--th-c:#ffd166;--th-bg:#2a1814;--th-bg2:#130a09;--th-line:rgba(255,122,26,.5);--th-ink:#ffe7d6;--th-dim:#c79a85;--th-num:#fff0e0;--th-glow:rgba(255,122,26,.5);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="succes"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="succes"] .soreal-idle-native-v4{
   --th-a:#f2c94c;--th-b:#5b6bd6;--th-c:#e5e7eb;--th-bg:#171d44;--th-bg2:#0b0f26;--th-line:rgba(242,201,76,.5);--th-ink:#fff6d8;--th-dim:#aeb6e0;--th-num:#fff6d8;--th-glow:rgba(242,201,76,.45);
 }
 
@@ -707,29 +707,29 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[
 }
 
 /* ====================== LOT 3 : Shop, Classement, Collection, Chat, Settings, Admin ====================== */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="shop"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="shop"] .soreal-idle-native-v4{
   --th-a:#ff3df0;--th-b:#19e3d0;--th-c:#ffe14a;--th-bg:#241238;--th-bg2:#0e0719;--th-line:rgba(255,61,240,.5);--th-ink:#ffeaff;--th-dim:#c9a0d8;--th-num:#ffffff;--th-glow:rgba(255,61,240,.5);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="classement"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="classement"] .soreal-idle-native-v4{
   --th-a:#ffd700;--th-b:#c0c8d8;--th-c:#cd7f32;--th-bg:#182648;--th-bg2:#0a1226;--th-line:rgba(255,215,0,.45);--th-ink:#fff7d6;--th-dim:#a9b5d6;--th-num:#ffffff;--th-glow:rgba(255,215,0,.4);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="bestiaire"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="bestiaire"] .soreal-idle-native-v4{
   /* Chroniques v2 (Norman, 2026-10-25 : « amélioration visuelle du menu Chronique, pour chaque sous-menu ») : un grimoire (cuir sombre, or) ; chaque sous-menu a sa teinte : Collection = bleu nuit, Classement = azur, Succès = cyan (aucun jaune). */
   --th-a:#5b8def;--th-b:#2a4fa8;--th-c:#cfe0ff;--th-bg:#14203d;--th-bg2:#0a1124;--th-line:rgba(91,141,239,.5);--th-ink:#eaf1ff;--th-dim:#9fb4e0;--th-num:#ffffff;--th-glow:rgba(91,141,239,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="classement"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-onglet="classement"] .soreal-idle-native-v4{
   --th-a:#38a3f5;--th-b:#1769b8;--th-c:#d4ecff;--th-bg:#112338;--th-bg2:#08121f;--th-line:rgba(56,163,245,.5);--th-ink:#eaf5ff;--th-dim:#9cc2e6;--th-num:#ffffff;--th-glow:rgba(56,163,245,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-chroniques-onglet-v1.actif[data-onglet="succes"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-onglet="succes"] .soreal-idle-native-v4{
   --th-a:#22c8e0;--th-b:#0f7f94;--th-c:#c9f6ff;--th-bg:#0f2830;--th-bg2:#07141a;--th-line:rgba(34,200,224,.5);--th-ink:#e6fbff;--th-dim:#8fc7d2;--th-num:#ffffff;--th-glow:rgba(34,200,224,.45);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="chat"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="chat"] .soreal-idle-native-v4{
   --th-a:#5eead4;--th-b:#f472b6;--th-c:#fbbf24;--th-bg:#1d2a3a;--th-bg2:#0f1623;--th-line:rgba(94,234,212,.42);--th-ink:#e8fffb;--th-dim:#8fb5b0;--th-num:#ffffff;--th-glow:rgba(94,234,212,.4);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="parametres"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="parametres"] .soreal-idle-native-v4{
   --th-a:#ff9f1a;--th-b:#8a94a6;--th-c:#ffd54a;--th-bg:#272d36;--th-bg2:#13161b;--th-line:rgba(255,159,26,.45);--th-ink:#f1f3f6;--th-dim:#9aa3b2;--th-num:#ffffff;--th-glow:rgba(255,159,26,.4);
 }
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="admin"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="admin"] .soreal-idle-native-v4{
   --th-a:#35ff7a;--th-b:#00b4ff;--th-c:#ffcc00;--th-bg:#0a1a10;--th-bg2:#040a06;--th-line:rgba(53,255,122,.45);--th-ink:#c9ffd9;--th-dim:#6ccf8f;--th-num:#eafff0;--th-glow:rgba(53,255,122,.4);
 }
 
@@ -881,7 +881,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .sorea
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"] .soreal-idle-adm-meta-v1{color:var(--th-dim)!important;font-family:ui-monospace,Consolas,monospace}
 
 /* ====================== SHOP : la boutique AP (4G's Sellout Shop) = boutique VIP, distincte du marché EXP néon ====================== */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="shop"] .soreal-idle-shop-ap-v1){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="shop"][data-sj-shopap="1"] .soreal-idle-native-v4{
   --th-a:#ffd36e;--th-b:#a855f7;--th-c:#ff4fd8;--th-bg:#26103f;--th-bg2:#0c0618;--th-line:rgba(255,211,110,.55);--th-ink:#fff1d0;--th-dim:#c4a8e6;--th-num:#fff1d0;--th-glow:rgba(255,211,110,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="shop"]:has(.soreal-idle-shop-ap-v1){
@@ -1000,7 +1000,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] 
 /* ====================== ADVANCED TRAINING : la salle de musculation high-tech (Norman, 2026-10-02) ====================== */
 /* Identité propre, distincte du dojo turquoise de Basic Training : béton carbone quadrillé comme un plan, néon vert acide, bandes de chantier jaune/noir,
    chaque machine (compétence) a sa couleur : Toughness bleu acier, Power orange feu, Block cyan, Wandoos violet. */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="avance"]){
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="avance"] .soreal-idle-native-v4{
   --th-a:#b6ff3b;--th-b:#19d3ff;--th-c:#ffb300;--th-bg:#141c14;--th-bg2:#0a100c;--th-line:rgba(182,255,59,.45);--th-ink:#efffd8;--th-dim:#9bb57a;--th-num:#ffffff;--th-glow:rgba(182,255,59,.45);
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="avance"]{
@@ -2378,6 +2378,6 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 
 /* Machine temporelle : fond des barres vides du haut (vie, énergie, magie, ressource 3) = la couleur de la page mais TRÈS foncée (Norman, 2026-11-02 : « le fond des barres de vie quand elles sont vides a trop la couleur de la page ; comme sur les autres pages, la couleur mais très foncé »).
    Le verre du tube est translucide : sur les autres pages la page derrière est déjà sombre, ici elle est turquoise vif, donc on pose une base turquoise presque noire sous le même verre. */
-body.soreal-idle-active-v47 .soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]) .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{
+body.soreal-idle-active-v47.soreal-idle-active-v47[data-sj-menu="machine"] .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{
   background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02) 45%,rgba(0,0,0,.35)),#04201e!important;
 }

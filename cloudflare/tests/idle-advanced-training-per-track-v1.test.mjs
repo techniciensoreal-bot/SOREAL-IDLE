@@ -135,7 +135,7 @@ assert.equal(at(r).data.tracks.power.tempLevel, 1);
 {
   const { readFileSync } = await import("node:fs");
   const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
-  assert.ok(css.includes('.soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="avance"])'), "jetons du HUD du thème");
+  assert.ok(css.includes('[data-sj-menu="avance"] .soreal-idle-native-v4'), "jetons du HUD du thème");
   assert.ok(css.includes('.soreal-idle-at-ligne-v1[data-at-piste="power"]{--ac:#ff6a2a}'), "chaque machine a sa couleur");
   assert.ok(css.includes(':is([data-menu="avance"],[data-menu="entrainement"],'), "la page rejoint le squelette commun");
 }

@@ -80,6 +80,31 @@ function colorier(img){
 }
 
 /*
+ * Analyse des couleurs EN AVANCE, hors de tout tour de page (audit de fluidité 2026-11-03, MESURÉ dans le navigateur, processeur x4 : un tour de page vers des cartes jamais vues coûtait ~235 ms de getImageData (analyse de 9 illustrations au chargement des
+ * <img>), un tour vers des cartes déjà vues ~0 ; d'où un sens « fluide » et l'autre qui rame). Les illustrations des pages voisines sont déjà préchargées par l'album (objets Image) : leur couleur est calculée là, UNE image par moment d'inactivité,
+ * et mémorisée par numéro (couleurs[]) : à l'affichage, colorier() la trouve et ne refait aucun calcul.
+ */
+var fileAnalyse=[],analyseEnCours=false;
+function planifierInactif(f){
+  try{if(typeof window.requestIdleCallback==='function'){window.requestIdleCallback(f,{timeout:2500});return;}}catch(_e){}
+  setTimeout(f,150);
+}
+function traiterFileAnalyse(){
+  analyseEnCours=false;
+  var t=fileAnalyse.shift();
+  if(t){
+    try{if(couleurs[t.numero]==null&&t.img&&t.img.complete&&t.img.naturalWidth>0){var c=analyser(t.img);if(c!=null)appliquer(t.numero,c);}}catch(_e){/* le tour de page recalculera */}
+  }
+  if(fileAnalyse.length){analyseEnCours=true;planifierInactif(traiterFileAnalyse);}
+}
+function preanalyser(numero,img){
+  var n=String(numero);
+  if(couleurs[n]!=null||!img)return;
+  fileAnalyse.push({numero:n,img:img});
+  if(!analyseEnCours){analyseEnCours=true;planifierInactif(traiterFileAnalyse);}
+}
+
+/*
  * Cartes voisines (Norman, 2026-10-28 : flèches à gauche et à droite d'une carte ouverte) : seulement des boss DÉJÀ découverts (ceux que la Collection sait ouvrir), jamais le suivant d'un boss inconnu.
  */
 function voisinsDe(numero){
@@ -308,5 +333,5 @@ document.addEventListener('keydown',function(e){
 
 /* Une carte vue de dos (pochettes des pages de gauche de l'album) : le même dos que la grande carte retournée. */
 function dosSeul(k){return '<div class="carte-mtg-v1 retournee" data-numero="0" data-couleur="5"><div class="mtg-avant"></div>'+dos({numero:k||1})+'</div>';}
-window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,dos:dos,html:html,colorier:colorier,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
+window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__={dosSeul:dosSeul,dos:dos,html:html,colorier:colorier,preanalyser:preanalyser,analyser:analyser,voisinsDe:voisinsDe,aller:aller};
 })();

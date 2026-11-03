@@ -1371,9 +1371,53 @@ function combatFight(now,neuf){
   else demarrer(mk('fight',now));
 }
 /* Une animation (mascotte ou Leatherface) seulement pour un combat qui durera 6 s au moins (Norman, 2026-11-02) : durée estimée = temps écoulé + vie restante / vitesse à laquelle elle baisse depuis le début ; FIGHT ! ne reste alors qu'UNE seconde. Sans baisse mesurable au bout de 4 s : pas d'animation. */
+/* Durée minimale PRÉVUE d'un combat pour qu'une animation longue (mascotte, Leatherface, Red Room) et sa scène de fin se voient (garde le seuil historique de 6 s) */
+var ANIM_DUREE_MIN_S=6,FUREUR_SEUIL_PCT=30;   /* FUREUR_SEUIL_PCT : même défaut que BOSS_FUREUR_SEUIL_PCT du moteur (idle-runtime-boss.js, multiplicateurAttaqueBossSorealIdle_) */
+/* Issue et durée PRÉVUES du combat de boss, avec les formules du moteur (idle-runtime-progression.js, étape p5 ; idle-runtime-boss.js) à partir des champs de l'état que le moteur envoie déjà :
+   dégâts au boss = max(0, puissance − defenseBoss) × (paralysie, bouclier, sceau) − regenBoss ; dégâts au joueur = max(0, attaqueBoss × fureur sous 30 % de PV − defense) − defense/20.
+   Fonction pure : {issue:'victoire'|'defaite'|'inconnue', secondes} ; « inconnue » (secondes null) si un champ manque ou si le combat ne peut pas se terminer. Les sorts de Magie lancés pendant le combat ne sont pas prévisibles. */
+function prevoirCombatBossV1(e){
+  var inconnu={issue:'inconnue',secondes:null};
+  if(!e||typeof e!=='object')return inconnu;
+  var num=function(v){return (typeof v==='number'||(typeof v==='string'&&v.trim()!==''))&&isFinite(Number(v))?Number(v):NaN;};
+  var puis=num(e.puissance),defB=num(e.defenseBoss),att=num(e.attaqueBoss),def=num(e.defense),regB=num(e.regenBoss),pv=num(e.bossPv),pvm=num(e.bossPvMax),pj=num(e.pvJoueur),pjm=num(e.pvJoueurMax);
+  if([puis,defB,att,def,regB,pv,pvm,pj].some(function(x){return isNaN(x);})||pv<=0||pvm<=0||pj<=0)return inconnu;
+  var caps=Array.isArray(e.bossCapacites)?e.bossCapacites:[],mDps=1,mSceau=1,mFureur=1,aFureur=false;
+  caps.forEach(function(c){
+    if(!c||typeof c!=='object')return;
+    var type=String(c.type||'').trim().toLowerCase(),inter=Math.max(0.01,nombre(c.intervalle)),duree=Math.max(0,nombre(c.duree)),val=nombre(c.valeur);
+    if(type==='paralysie'&&inter>0)mDps*=Math.max(0.05,1-Math.min(0.85,duree/inter));
+    if(type==='bouclier'&&inter>0)mDps*=Math.max(0.05,1-Math.max(0,Math.min(0.95,val/100))*Math.max(0,Math.min(0.85,duree/inter)));
+    if(type==='sceau')mSceau=Math.max(0.05,1-Math.min(95,Math.max(0,c.valeur==null?70:val))/100);
+    if(type==='fureur'){aFureur=true;mFureur*=1+Math.max(0,val)/100;}
+  });
+  mDps=Math.max(0.02,mDps);
+  var dps=Math.max(0,Math.max(0,puis-defB)*mDps*mSceau-Math.max(0,regB)),regJ=Math.max(0,def)/20,cap=Math.max(pj,isNaN(pjm)?0:pjm);
+  var seuil=pvm*FUREUR_SEUIL_PCT/100;
+  /* phases de PV du boss, chacune avec l'attaque qu'il y exerce : avant la fureur, puis sous le seuil de fureur */
+  var ph=(aFureur&&pv>seuil)?[{span:pv-seuil,a:att},{span:seuil,a:att*mFureur}]:[{span:pv,a:(aFureur&&pv<=seuil)?att*mFureur:att}];
+  var hp=pj,t=0;
+  for(var i=0;i<ph.length;i++){
+    var net=Math.max(0,ph[i].a-def)-regJ,d=dps>1e-6?ph[i].span/dps:Infinity;   /* net > 0 : le joueur perd cette vie par seconde ; net < 0 : il en regagne */
+    if(net>1e-6){
+      var tm=hp/net;
+      if(tm<d)return {issue:'defaite',secondes:Math.round((t+tm)*1000)/1000};
+      hp-=net*d;
+    }else if(isFinite(d))hp=Math.min(cap,hp-net*d);
+    if(!isFinite(d))return inconnu;   /* le boss ne perd plus de vie et le joueur tient : le combat ne se termine pas */
+    t+=d;
+  }
+  return {issue:'victoire',secondes:Math.round(t*1000)/1000};
+}
 function majAnimation(now){
   if(animDecision!==0||!S.combat||!S.pv||!cur||cur.id!=='fight')return;
   if(S.pv.pct>pct0){pct0=S.pv.pct;combatT0=now;}                    /* la vie d'un nouveau boss arrive après le début : la référence suit */
+  /* PRÉVISION (Norman, 2026-11-03 : « le jeu sait déjà si on va gagner ou perdre le combat ; il ne doit mettre les animations longues que quand le temps le permet ») : décidée dès la première image avec la durée PRÉVUE du combat (victoire comme défaite) ; l'observation de la barre ci-dessous ne sert que si la prévision est « inconnue » */
+  var pr=prevoirCombatBossV1(reg().idleEtat);
+  if(pr.issue!=='inconnue'){
+    if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+    return;
+  }
   if(now-fightT0<1000)return;
   var el=(now-combatT0)/1000,chute=pct0-S.pv.pct;
   if(chute>1e-6&&el>0){
@@ -1421,7 +1465,12 @@ function evenements(now){
 /* ------------------------------------------------------------------ canvas, observation, boucle */
 var panel=null,host=null,io=null,ro=null,onScreen=true,raf=0,timer=0,lastTs=0;
 function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
-function mobile(){return (window.innerWidth||1000)<=700;}
+/* Fluidité téléphone (audit 2026-11-03, MESURÉ : profil de 10 s en combat, processeur x4, 5,3 s sur 11 s dans CETTE seule fonction) : lire window.innerWidth oblige le navigateur à refaire la mise en page tout de suite si elle est
+   « sale ». boucle() l'appelait à CHAQUE image, juste après le tick de jeu qui venait d'écrire le DOM : une mise en page forcée par image. Le résultat n'est relu qu'au changement de taille de la fenêtre. */
+var MOBILE_CACHE=null;
+function mobile(){if(MOBILE_CACHE===null)MOBILE_CACHE=(window.innerWidth||1000)<=700;return MOBILE_CACHE;}
+window.addEventListener('resize',function(){MOBILE_CACHE=null;});
+window.addEventListener('orientationchange',function(){MOBILE_CACHE=null;});
 var CELL_PC=4,CELL_TEL=3,W_MAX=240,W_MIN=60,ROWS_MAX=72;   /* taille d'un point en px CSS ; plafonds de la grille (perf) */
 /* nombre de colonnes et de rangées pour un hôte donné : floor(taille de l'hôte en pixels d'écran / taille d'un point) ; la zone des scènes = toutes les rangées moins les 19 de la vie du boss */
 function grille(cssW,cssH,dpr){

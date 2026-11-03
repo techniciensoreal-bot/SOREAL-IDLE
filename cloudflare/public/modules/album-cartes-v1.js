@@ -279,12 +279,14 @@ function zonesNav(){
 }
 /* Les images des pages voisines sont chargées d'avance : une feuille qui tourne montre ses cartes tout de suite, sans image qui manque (Norman, 2026-10-30 : « quand on tourne les pages, les images disparaissent »). */
 var prechargees={};
+/* Couleur de la carte calculée dès que l'illustration voisine est chargée, au repos (carte-boss-magic-v1.js : preanalyser) : un tour de page ne fait plus aucune analyse d'image. */
+function pre_(n,im){return function(){try{var M=window.__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__;if(M&&M.preanalyser)M.preanalyser(n,im);}catch(_e){}};}
 function precharger(){
   try{
     for(var d=-3;d<=3;d++){
       cartesDePage(page+d).forEach(function(e){
         var n=Math.floor(Number(e.numero))||0,u=urlImage(n);
-        if(u&&!prechargees[u]){prechargees[u]=true;var im=new Image();im.decoding='async';im.src=u;}
+        if(u&&!prechargees[u]){prechargees[u]=true;var im=new Image();im.decoding='async';im.onload=pre_(n,im);im.src=u;}
       });
     }
   }catch(_e){}

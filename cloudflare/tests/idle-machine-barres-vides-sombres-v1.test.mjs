@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8").split(String.fromCharCode(13)).join("");
-const i = css.indexOf('.soreal-idle-native-v4:has(.soreal-idle-page-root-v28[data-menu="machine"]) .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{');
+const i = css.indexOf('[data-sj-menu="machine"] .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-wrap-v11{');
 assert.ok(i > 0, "règle du fond des barres vides de la Machine temporelle");
 const regle = css.slice(i, css.indexOf("}", i));
 assert.ok(/,#04201e!important/.test(regle), "base turquoise très foncée sous le verre");

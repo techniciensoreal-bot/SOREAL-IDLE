@@ -132,7 +132,7 @@ assert.equal((src.match(/createElement\('canvas'\)/g) || []).length >= 1, true);
 assert.ok(/ts-lastTs>=32/.test(src));
 
 /* ---------- grille dynamique : un point de taille FIXE, plus l'hôte est grand plus il y a de LED (Norman : « je ne veux pas ÉTIRER ») ---------- */
-const g = (w, h, dpr = 1, mobile = false) => JSON.parse(ev(`(function(){var m=window.innerWidth;window.innerWidth=${mobile ? 500 : 1000};var r=grille(${w},${h},${dpr});window.innerWidth=m;return JSON.stringify(r);})()`));
+const g = (w, h, dpr = 1, mobile = false) => JSON.parse(ev(`(function(){var m=window.innerWidth;window.innerWidth=${mobile ? 500 : 1000};MOBILE_CACHE=null;var r=grille(${w},${h},${dpr});window.innerWidth=m;MOBILE_CACHE=null;return JSON.stringify(r);})()`));
 const pcGrille = [400, 544, 780].map((w) => g(w, Math.round(w * 40 / 120)));
 assert.deepEqual(pcGrille.map((x) => x.cell), [4, 4, 4], "PC : point de 4 px, quelle que soit la largeur");
 assert.deepEqual(pcGrille.map((x) => x.W), [100, 136, 195], "colonnes = floor(largeur / point)");
