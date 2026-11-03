@@ -23,7 +23,7 @@ import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
 import { augmentationGoldCost, augmentationSecondsForNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
-import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
+import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerViewV1, ritualUnlocked, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
@@ -150,7 +150,7 @@ function construireSnapshotNguV1(state, context, now) {
       purchases: clone(state.selloutShop.purchases),
       unlockedEver: Boolean(state.selloutShop.unlockedEver),
       /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : pas de catalogue tant que la boutique n'est pas ouverte ; jamais un achat réservé à une difficulté supérieure en Normal (sauf déjà acheté). */
-      catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.filter((item) => state.selloutShop.unlockedEver && !(item.minDifficulty && (state.difficulty || "normal") === "normal" && int(state.selloutShop.purchases[item.id], 0) === 0)).map((item) => {
+      catalog: IDLE_SELLOUT_SHOP_CATALOG_V1.filter((item) => state.selloutShop.unlockedEver && articleApRessourceVisibleV1(state, item.id) && !(item.minDifficulty && (state.difficulty || "normal") === "normal" && int(state.selloutShop.purchases[item.id], 0) === 0)).map((item) => {
         const purchased = Math.max(0, int(state.selloutShop.purchases[item.id], 0));
         return {
           id: item.id,
@@ -334,7 +334,9 @@ function construireSnapshotNguV1(state, context, now) {
      * gabarit que perkDefinitions/quirkDefinitions ci-dessus : un catalogue
      * statique cloné, jamais une formule recalculée côté client.
      */
-    resourcePurchases: clone(IDLE_NGU_RESOURCE_PURCHASES),
+    /* Anti-spoil (règle n°2) : seuls les types de ressources DÉJÀ DÉCOUVERTS (permanent : ressourceDecouverteV1) sont envoyés ; jamais la magie ni la ressource 3 avant. */
+    ressourcesDecouvertes: Object.fromEntries(RESOURCE_KEYS.filter(resource => ressourceDecouverteV1(state, resource)).map(resource => [resource, true])),
+    resourcePurchases: clone(Object.fromEntries(Object.entries(IDLE_NGU_RESOURCE_PURCHASES).filter(([resource]) => ressourceDecouverteV1(state, resource)))),
     expShop: expShopSnapshotV1(state),
     /* Resource 3 Name Randomizer : disponible dès l'achat ; le nom n'est envoyé que si le réglage est coché. */
     r3NomDisponible: Boolean(state.selloutShop?.purchases?.resource3NameRandomizer),
@@ -366,7 +368,7 @@ function construireSnapshotNguV1(state, context, now) {
      * Newbie Offers restent disponibles — les deux sont donc précalculés
      * ici, même principe que resourcePurchases/selloutShop ci-dessus.
      */
-    resourcePurchaseUnlock: Object.fromEntries(RESOURCE_KEYS.map(resource => [
+    resourcePurchaseUnlock: Object.fromEntries(RESOURCE_KEYS.filter(resource => ressourceDecouverteV1(state, resource)).map(resource => [
       resource,
       Object.fromEntries(Object.keys(IDLE_NGU_RESOURCE_PURCHASES[resource]).map(stat => {
         const purchase = IDLE_NGU_RESOURCE_PURCHASES[resource][stat];
@@ -377,7 +379,7 @@ function construireSnapshotNguV1(state, context, now) {
       }))
     ])),
     newbieOffers: {
-      catalog: clone(IDLE_NGU_NEWBIE_OFFERS),
+      catalog: clone(Object.fromEntries(Object.entries(IDLE_NGU_NEWBIE_OFFERS).filter(([resource]) => ressourceDecouverteV1(state, resource)))),
       used: clone(state.records.newbieOffersUsed || [])
     },
     /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : un système encore verrouillé n'expose ni son nom, ni son icône, ni ce qui le débloque (objet, boss, Rebirths), ni ses pistes. */
@@ -422,11 +424,24 @@ function resourcePurchaseUnlocked(purchase, context) {
   return needed <= 0 || num(context?.bosses, 0) >= needed;
 }
 
+/* Boutique AP, anti-spoil (2026-11-03) : un article de magie ou de ressource 3 n'est envoyé qu'une fois ce type DÉCOUVERT (permanent), ou s'il est déjà acheté. */
+const AP_ARTICLES_RESSOURCE_V1 = Object.freeze({
+  magic: ["magicPotionAlpha", "magicPotionBeta", "magicPotionDelta", "magicBarBar", "customEnergyMagicButtons", "moreCustomEnergyMagicButtons", "customIdleEnergyMagicButtons"],
+  r3: ["resource3PotionAlpha", "resource3PotionBeta", "resource3PotionDelta", "customResource3Button", "anotherCustomResource3Button", "customIdleResource3Button", "resource3NameRandomizer"]
+});
+function articleApRessourceVisibleV1(state, id) {
+  for (const [resource, ids] of Object.entries(AP_ARTICLES_RESSOURCE_V1)) {
+    if (ids.includes(id)) return ressourceDecouverteV1(state, resource) || int(state.selloutShop?.purchases?.[id], 0) > 0;
+  }
+  return true;
+}
+
 export function buyResource(state, resource, stat, quantity, context = {}) {
   if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
   if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
-  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
-  if (resource === "r3" && !state.systems.hacks.unlocked) throw new Error("R3_VERROUILLEE");
+  /* Achat d'EXP : permis dès que le type de ressource est DÉCOUVERT (permanent, y compris après un Rebirth avant le boss de la magie) ; la production, elle, reste liée à Blood Magic. */
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "r3" && !ressourceDecouverteV1(state, "r3")) throw new Error("R3_VERROUILLEE");
   const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
   if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
   if (!resourcePurchaseUnlocked(purchase, context)) throw new Error("ACHAT_VERROUILLE_BOSS");
@@ -458,8 +473,9 @@ export function buyResource(state, resource, stat, quantity, context = {}) {
 export function buyNewbieOffer(state, resource, stat, offerId) {
   if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
   if (!["speed", "power", "cap", "bars"].includes(stat)) throw new Error("STAT_RESSOURCE_INVALIDE");
-  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
-  if (resource === "r3" && !state.systems.hacks.unlocked) throw new Error("R3_VERROUILLEE");
+  /* Achat d'EXP : permis dès que le type de ressource est DÉCOUVERT (permanent, y compris après un Rebirth avant le boss de la magie) ; la production, elle, reste liée à Blood Magic. */
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "r3" && !ressourceDecouverteV1(state, "r3")) throw new Error("R3_VERROUILLEE");
   const id = String(offerId || "");
   const offer = (IDLE_NGU_NEWBIE_OFFERS[resource]?.[stat] || []).find(o => o.id === id);
   if (!id || !offer) throw new Error("OFFRE_INTROUVABLE");

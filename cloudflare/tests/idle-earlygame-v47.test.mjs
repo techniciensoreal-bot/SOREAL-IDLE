@@ -597,7 +597,8 @@ const fresh=(context={}, now=1_000_000)=>
   // Le client (page Spend EXP) doit pouvoir lire coûts/plafonds sans
   // recalculer une formule lui-même — même patron que perkDefinitions.
   const idleNguSnapshot=(await import('../src/idle-ngu-progression.js')).idleNguSnapshot;
-  const snapshot=idleNguSnapshot(fresh({bosses:37},1_000_000),{bosses:37},1_000_000);
+  const etat37=fresh({bosses:37},1_000_000);etat37.systems.hacks.unlocked=true; /* Ressource 3 : n'est envoyée qu'une fois découverte (anti-spoil, 2026-11-03) */
+  const snapshot=idleNguSnapshot(etat37,{bosses:37},1_000_000);
   assert.equal(snapshot.resourcePurchases.energy.speed.cost,2);
   assert.equal(snapshot.resourcePurchases.magic.bars.hardCap,1e18);
   assert.equal(snapshot.resourcePurchases.r3.cap.cost,4000000);

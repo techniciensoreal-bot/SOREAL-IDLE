@@ -692,3 +692,19 @@ export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "cards", name: "Cards", icon: "🃏", kind: "cards", resources: [], unlock: {item:"stillBeatingHeart"} },
   { id: "cooking", name: "Cooking", icon: "🍲", kind: "daily", resources: [], unlock: { flag: "itHungersDefeated" } }
 ]);
+
+/*
+ * DECOUVERTE PERMANENTE des types de ressources (Norman, 2026-11-03 : « il ne faut parler des types de ressources qu'une fois qu'on les a débloquées [...] Il ne faut pas
+ * que ça se rebloque après un rebirth où on n'aurait pas atteint la magie. Une fois débloqué, ça reste débloqué. »). Ne change AUCUNE règle de jeu : le drapeau `unlocked` de
+ * Blood Magic reste remis à zéro à chaque Rebirth (wiki Rebirths, « What do I lose when I rebirth? ») et gouverne toujours la production. Cette fonction ne sert qu'à l'AFFICHAGE
+ * (boutiques, aides, listes envoyées au client) et à l'achat d'EXP : elle ne dépend que de records.highestBoss (maximum du compte, jamais remis à zéro) et de systèmes
+ * `permanent` (Hacks), jamais du compteur de boss du run. Seuil de la magie = unlock.bosses de Blood Magic ci-dessus (37) ; Ressource 3 = système Hacks débloqué.
+ */
+export function ressourceDecouverteV1(state, resource) {
+  if (resource === "magic") {
+    const seuil = num(IDLE_NGU_SYSTEMS.find((d) => d.id === "bloodMagic")?.unlock?.bosses, 37);
+    return Boolean(state?.systems?.bloodMagic?.unlocked) || num(state?.records?.highestBoss, 0) >= seuil;
+  }
+  if (resource === "r3") return Boolean(state?.systems?.hacks?.unlocked);
+  return true;
+}

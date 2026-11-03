@@ -2548,6 +2548,10 @@ function pageAventureIdleV28_(j){
           const rec=j&&j.systemes&&j.systemes.records;
           return Boolean(rec&&idleNombre_(rec.highestBoss)>=4);
         }
+        /* Magie et ressource 3 : découverte PERMANENTE décidée par le serveur (ne se referme pas à la Renaissance), jamais le drapeau de run de Blood Magic. */
+        const dec=j&&j.systemes&&j.systemes.ressourcesDecouvertes;
+        if(dec&&systeme==='bloodMagic')return Boolean(dec.magic);
+        if(dec&&systeme==='hacks')return Boolean(dec.r3);
         const sys=systemeMetaParIdIdleV130_(j,systeme);
         return Boolean(sys&&sys.state&&sys.state.unlocked);
       }

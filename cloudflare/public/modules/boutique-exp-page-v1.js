@@ -340,7 +340,7 @@
         boostRecycling:'Un boost utilisé peut revenir avec un palier de moins : +10 % de chance par achat, 50 % au maximum.',
         autoMerge:'Fusionne automatiquement les doublons de ton équipement (menu Inventory).',
         sortInventory:'Débloque un bouton « Trier » dans ton sac (menu Inventory) qui range tes objets par catégorie.',
-        menuAnimations:'Les boutons du menu du haut s’animent quand le menu est actif (énergie, magie ou ressource 3 placée dedans, combat en cours…) : tu vois d’un coup d’œil ce qui travaille.',
+        menuAnimations:'Les boutons du menu du haut s’animent quand le menu est actif : tu vois d’un coup d’œil ce qui travaille.',
         syncWandoos:'Ajoute un interrupteur de métal sur le clavier de Wandoos : allumé, les touches 0, − , + et CAP de l’énergie agissent aussi sur la magie, avec ce que tu as de libre.',
         syncBasicTraining:'Ajoute une case à cocher sous Input dans Basic Training : cochée, l’énergie que tu places dans une compétence est placée en même temps dans sa jumelle (Attaque passive et Blocage…), pour qu’elles montent exactement à la même vitesse.',
         daycareSlot1:'Débloque le premier slot de l’Item Daycare.',
@@ -365,6 +365,28 @@
         macguffinSlot1:'macguffins',macguffinSlot2:'macguffins'
       };
 
+      /*
+       * Types de ressources DÉCOUVERTS (Norman, 2026-11-03) : décision du serveur (m.ressourcesDecouvertes, permanente : ne se referme jamais après une Renaissance) ; jamais le drapeau
+       * « débloqué » de Blood Magic, qui retombe à chaque Renaissance. Énergie : toujours.
+       */
+      function idleExpRessourceDecouverteIdleV1_(j,m,res){
+        if(res==='energy')return true;
+        if(m&&m.ressourcesDecouvertes)return Boolean(m.ressourcesDecouvertes[res]);
+        return idleExpSystemeDebloqueIdleV1_(j,m,res==='magic'?'bloodMagic':'hacks');
+      }
+
+      /* Aide d'un achat : ne cite que les types de ressources déjà découverts (anti-spoil). */
+      function idleExpAideIdleV1_(j,m,id){
+        if(id==='menuAnimations'){
+          const noms=['énergie'];
+          if(idleExpRessourceDecouverteIdleV1_(j,m,'magic'))noms.push('magie');
+          if(idleExpRessourceDecouverteIdleV1_(j,m,'r3'))noms.push('ressource 3');
+          const liste=noms.length>1?noms.slice(0,-1).join(', ')+' ou '+noms[noms.length-1]:noms[0];
+          return 'Les boutons du menu du haut s’animent quand le menu est actif ('+liste+' placée dedans, combat en cours…) : tu vois d’un coup d’œil ce qui travaille.';
+        }
+        return IDLE_EXP_AIDES_V1[id];
+      }
+
       function idleExpSystemeDebloqueIdleV1_(j,m,systeme){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         if(!systeme)return true;
@@ -376,6 +398,9 @@
       function idleExpAchatVisibleIdleV1_(j,m,it){
         if(!it)return false;
         const systeme=it.yggFruit?'yggdrasil':IDLE_EXP_SYSTEME_DE_L_ACHAT_V1[it.id];
+        /* Anti-spoil : un fruit de magie / de ressource 3 et la Synchro Wandoos (qui parle de la magie) attendent la découverte de ce type de ressource. */
+        if(it.resource&&!idleExpRessourceDecouverteIdleV1_(j,m,it.resource))return false;
+        if(it.id==='syncWandoos'&&!idleExpRessourceDecouverteIdleV1_(j,m,'magic')&&!(it.purchased>0))return false;
         return idleExpSystemeDebloqueIdleV1_(j,m,systeme);
       }
 
@@ -388,8 +413,8 @@
         const resteToc=tous.some(function(it){return visible(it)&&IDLE_EXP_TOC_V1.indexOf(it.id)!==-1;});
         return IDLE_EXP_ONGLETS_V1.filter(function(o){
           if(o.id==='toc')return resteToc;
-          if(o.id==='magic')return idleExpSystemeDebloqueIdleV1_(j,m,'bloodMagic');
-          if(o.id==='r3')return idleExpSystemeDebloqueIdleV1_(j,m,'hacks');
+          if(o.id==='magic')return idleExpRessourceDecouverteIdleV1_(j,m,'magic');
+          if(o.id==='r3')return idleExpRessourceDecouverteIdleV1_(j,m,'r3');
           if(o.id==='aventure')return idleExpSystemeDebloqueIdleV1_(j,m,'adventure');
           if(o.id==='slots')return resteSlots;
           return true;
@@ -530,11 +555,11 @@
         const tous=Array.isArray(m.expShop)?m.expShop:[];
         const parId=function(id){return tous.find(function(it){return it.id===id;});};
         if(onglet==='debuts'){
-          const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
+          const cartes=IDLE_EXP_DEBUTS_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,idleExpAideIdleV1_(j,m,it.id));}).join('');
           return '<div class="soreal-idle-exp-intro-v212">🚀 <b>À acheter tôt.</b> Ces achats sont peu chers et rendent la partie bien plus confortable ; dans l’ordre conseillé.</div>'+idleExpShopTicketsDebutantIdleV1_(j,m)+cartes;
         }
         if(onglet==='toc'){
-          const cartes=IDLE_EXP_TOC_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,IDLE_EXP_AIDES_V1[it.id]);}).join('');
+          const cartes=IDLE_EXP_TOC_V1.map(parId).filter(function(it){return it&&idleExpAchatVisibleIdleV1_(j,m,it);}).map(function(it){return idleExpShopItemCarteIdleV1_(it,idleExpAideIdleV1_(j,m,it.id));}).join('');
           return '<div class="soreal-idle-exp-intro-v212">🧰 <b>J’ai des TOC, mais au moins ils sont bien rangés.</b></div>'+cartes;
         }
         if(onglet==='energy'||onglet==='magic'||onglet==='r3'){

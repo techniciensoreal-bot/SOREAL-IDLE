@@ -23,7 +23,7 @@ import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from ".
 import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
 import { idleCardsActionV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
-import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
+import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
@@ -1148,6 +1148,10 @@ const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 = Object.freeze({
 
 function expShopAchatVisibleV1(state, id, def) {
   const systeme = def.yggFruit ? "yggdrasil" : IDLE_EXP_SYSTEME_DE_L_ACHAT_V1[id];
+  /* Anti-spoil : un achat qui parle d'un type de ressource (fruit de magie / de ressource 3) n'apparaît qu'une fois ce type découvert (permanent). */
+  if (def.resource && !ressourceDecouverteV1(state, def.resource)) return false;
+  /* Synchro Wandoos : n'a de sens qu'avec la magie ; invisible tant qu'elle n'est pas découverte (sauf déjà acheté). */
+  if (id === "syncWandoos" && !ressourceDecouverteV1(state, "magic") && expShopPurchasedV1(state, id) <= 0) return false;
   if (!systeme) return true;
   if (systeme === "adventure") return num(state.records?.highestBoss, 0) >= 4;
   return Boolean(state.systems[systeme]?.unlocked) || expShopPurchasedV1(state, id) > 0;
