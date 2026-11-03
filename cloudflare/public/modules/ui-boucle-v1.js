@@ -123,6 +123,63 @@
        */
       let idleResteTickMagieMsV1=0;
 
+      /*
+       * Calage sur le moteur (Norman, 2026-11-03 : « la regen de magie et d'énergie fait des rollback en local », voir modules/regen-ressources-v1.js pour la cause mesurée). À chaque réponse du moteur, la page
+       * se cale sur la phase RÉELLE du moteur (fillProgress, bars, vitesse) avancée de l'âge de la réponse ; l'ancre ci-dessous (temps écoulé dans le tick de page + instant du calage) remplace l'horloge locale
+       * au PROCHAIN passage de la boucle (le temps entre le calage et ce passage est compté exactement, par l'horloge, pas par le temps de la dernière image). Une ancre par ressource.
+       */
+      const idleAncreRegenV1={energie:null,magie:null};
+      function consommerAncreRegenIdleV1_(cle,maintenant){
+        const a=idleAncreRegenV1[cle];
+        if(!a)return null;
+        idleAncreRegenV1[cle]=null;
+        return Math.max(0,a.reste+(maintenant-a.t));
+      }
+
+      /* Plafond local de la Magie (même calcul pour le tick de la page et pour le calage sur le moteur). */
+      function plafondMagieLocalIdleV1_(etat,magieAvant){
+        const budget=etat.systemes&&etat.systemes.resourceBudget&&etat.systemes.resourceBudget.magic;
+        const info=etat.systemes&&etat.systemes.resourceInfo&&etat.systemes.resourceInfo.magic;
+        if(!budget||!info)return null;
+        const cap=idleNombre_(info.capRun);
+        const direct=cap>0?Math.max(0,cap-allocationMetaMagieIdleV1_()-Math.max(0,idleNombre_(budget.reservedExternal))):Infinity;
+        return {direct:direct,local:Math.min(direct,Math.max(magieAvant,magieAvant+idleNombre_(budget.freeCapacity)))};
+      }
+
+      /*
+       * Cale l'énergie et la magie AFFICHÉES de `cible` sur la réponse `source` du moteur, ramenée à maintenant. Appelée juste après chaque remplacement de l'état (soreal-idle-ui.js) et après les réponses
+       * de Basic Training qui recopient l'énergie. Une réponse n'est calée qu'une fois (marqueur __regenAncreV1) : une copie déjà calée passe telle quelle.
+       */
+      function ancrerRegenerationIdleV1_(cible,source,seulementEnergie){
+        const R=window.__SOREAL_IDLE_REGEN_V1__;
+        if(!R||!cible||!source||typeof source!=='object'||!source.systemes)return;
+        const cleMarque=Number(source.__serveurAtV1)||1;
+        if(source.__regenAncreV1===cleMarque)return;
+        source.__regenAncreV1=cleMarque;
+        if(cible!==source)cible.__regenAncreV1=cleMarque;
+        const recu=Number(source.__recuPerfV1);
+        const age=recu>0&&typeof performance!=='undefined'?performance.now()-recu:0;
+        const ageMs=age>0&&age<30000?age:0;
+        const maintenant=Date.now();
+        const res=source.systemes.resources,info=source.systemes.resourceInfo;
+        if(res&&res.energy&&info&&info.energy&&cible.systemes){
+          const meta=metaTickEnergieIdleV114_();
+          const max=Math.max(0,Math.floor(idleNombre_(cible.energieMax)-totalAllocationBasicTrainingIdleV120_()-allocationMetaEnergieIdleV1_()+1e-9));
+          const p=R.projeter({base:idleNombre_(cible.energie),fp:res.energy.fillProgress,bars:res.energy.bars,perSecond:info.energy.perSecond,gain:meta.gain,dureeMs:meta.dureeMs,ageMs:ageMs,max:max});
+          if(p){cible.energie=p.valeur;idleAncreRegenV1.energie={reste:p.resteMs,t:maintenant};}
+        }
+        const mc=cible.systemes&&cible.systemes.resources&&cible.systemes.resources.magic;
+        if(!seulementEnergie&&res&&res.magic&&info&&info.magic&&mc){
+          const meta=metaTickMagieIdleV1_();
+          const base=Math.max(0,idleNombre_(mc.current));
+          const plafond=plafondMagieLocalIdleV1_(cible,base);
+          if(plafond){
+            const p=R.projeter({base:base,fp:res.magic.fillProgress,bars:res.magic.bars,perSecond:info.magic.perSecond,gain:meta.gain,dureeMs:meta.dureeMs,ageMs:ageMs,max:plafond.local});
+            if(p){mc.current=p.valeur;idleAncreRegenV1.magie={reste:p.resteMs,t:maintenant};}
+          }
+        }
+      }
+
       /* Étape extraite de mettreAJourJeuIdleLocalV7_ (découpage d'une très grande fonction, 2026-10-16) : 30 lignes. */
       function mettreAJourJeuIdleLocalV7__p1(energieAvantTick, max, metaTickEnergie, ticksEnergie){
         if(ticksEnergie>0){
@@ -194,8 +251,12 @@
 
             const magieAuPlafond=magieAvantTick>=maxLocalMagie;
 
+            /* Calée sur le moteur (voir ancrerRegenerationIdleV1_) : le tick repart de la phase du moteur, temps exact depuis le calage. */
+            const resteCaleMagieV1=consommerAncreRegenIdleV1_('magie',Date.now());
             if(magieAuPlafond){
               idleResteTickMagieMsV1=0;
+            }else if(resteCaleMagieV1!==null){
+              idleResteTickMagieMsV1=resteCaleMagieV1;
             }else{
               idleResteTickMagieMsV1+=ecouleTickMs;
             }
@@ -1625,8 +1686,12 @@
         const energieAuPlafond=
           energieAvantTick>=max;
 
+        /* Une réponse du moteur vient de caler l'énergie : le tick repart de SA phase (temps exact depuis le calage), pas de l'horloge locale. */
+        const resteCaleEnergieV1=consommerAncreRegenIdleV1_('energie',maintenantTick);
         if(energieAuPlafond){
           REG.idleResteTickEnergieMsV114=0;
+        }else if(resteCaleEnergieV1!==null){
+          REG.idleResteTickEnergieMsV114=resteCaleEnergieV1;
         }else{
           REG.idleResteTickEnergieMsV114+=
             ecouleTickMs;
@@ -2497,6 +2562,7 @@
     demarrerTickerIdle_:demarrerTickerIdle_,
     multiplicateurFureurLocaleIdleV70_:multiplicateurFureurLocaleIdleV70_,
     champSaisieActifIdleV1_:champSaisieActifIdleV1_,
-    restPvInitialIdleV1_:restPvInitialIdleV1_
+    restPvInitialIdleV1_:restPvInitialIdleV1_,
+    ancrerRegenerationIdleV1_:ancrerRegenerationIdleV1_
   });
 })();

@@ -575,6 +575,10 @@
   "pin": 2,
   "sha": "bf290587c2093fc537cd35e6273ec496d6103144"
  },
+ "/modules/regen-ressources-v1.js": {
+  "pin": 2,
+  "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
+ },
  "/modules/release-notes-nouveautes-v1.js": {
   "pin": 119,
   "sha": "97cf8cb830a4190726956531eaf1c8b90f2de6a9"
@@ -716,8 +720,8 @@
   "sha": "6fc3bd413f23cc3e8624211aa03def13ab76c033"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 27,
-  "sha": "8c952d96da9405fbaa47bede987db52e988eff5c"
+  "pin": 28,
+  "sha": "773f53e42847cbac9ea6974f700c73bd98878dc0"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,
@@ -740,8 +744,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 7,
-  "sha": "31663b9f26e51d25c339da2dd689aa95b7ee6ac8"
+  "pin": 8,
+  "sha": "7cdf084356cfe11ac1998933abadfa7325bf2c58"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 15,
@@ -928,8 +932,8 @@
   "sha": "995070e07f9cef977f4bc52ad4209ec3592172ae"
  },
  "/soreal-idle-ui.js": {
-  "pin": 658,
-  "sha": "3df441a9bc6a6721b429f663e8804c2188e12329"
+  "pin": 659,
+  "sha": "e0ec01af56db33f96e4c4a60d2204b469bb9f48d"
  },
  "/standalone-bridge.js": {
   "pin": 25,

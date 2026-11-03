@@ -111,16 +111,19 @@
           }
         }catch(_e){}
         /* Règle générale (modules/etat-monotone-v1.js) : un nombre qui monte (énergie, magie, EXP, monnaies, ressources, PV) ne recule jamais du simple retard de la réponse du moteur. Âge réel de la réponse = maintenant moins l'instant où le moteur a commencé son calcul. */
+        const ancienEtatV1=idleEtat;
+        idleEtat=v;
+        /* Énergie et magie : la page se cale sur la phase RÉELLE du moteur, avancée de l'âge de la réponse (modules/regen-ressources-v1.js) ; AVANT la garde ci-dessous, qui compare des valeurs déjà ramenées à maintenant. */
+        try{if(v&&typeof v==='object'&&ancienEtatV1!==v&&typeof UI_PARTAGE_V1.ancrerRegenerationIdleV1_==='function')UI_PARTAGE_V1.ancrerRegenerationIdleV1_(v,v);}catch(_e){}
         try{
           const M=window.__SOREAL_IDLE_MONOTONE_V1__;
-          if(M&&idleEtat&&v&&typeof v==='object'&&idleEtat!==v){
+          if(M&&ancienEtatV1&&v&&typeof v==='object'&&ancienEtatV1!==v){
             const caler=window.__SOREAL_IDLE_CALER_RECU_V1__;
             const maintenantPerf=(typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();
             const age=typeof caler==='function'?Math.max(0,(maintenantPerf-Number(caler(v,maintenantPerf,Date.now())))/1000):0.2;
-            M.garder(idleEtat,v,Number.isFinite(age)?Math.min(age,10):0.2);
+            M.garder(ancienEtatV1,v,Number.isFinite(age)?Math.min(age,10):0.2);
           }
         }catch(_e){}
-        idleEtat=v;
         /* Les multiplicateurs de combat de la réponse sont ceux de l'instant où le moteur a commencé son calcul : on les avance à MAINTENANT avant tout affichage (Attaque, Défense et Vie max du bandeau ne reculent plus une image). */
         try{if(v&&typeof UI_PARTAGE_V1.appliquerTrajectoireStatsIdleV1_==='function')UI_PARTAGE_V1.appliquerTrajectoireStatsIdleV1_();}catch(_e){}
       },configurable:true});

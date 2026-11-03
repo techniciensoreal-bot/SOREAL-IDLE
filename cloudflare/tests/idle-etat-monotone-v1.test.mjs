@@ -97,7 +97,7 @@ const etat = (o) => Object.assign({ energie: 0, pvJoueur: 100, pvJoueurMax: 100,
 
 // 7. Câblage : appelé au remplacement de l'état, avec l'âge réel de la réponse ; chargé par la page.
 const ui = readFileSync(new URL("../public/soreal-idle-ui.js", import.meta.url), "utf8");
-assert.ok(ui.includes("M.garder(idleEtat,v,"), "le remplacement de l'état passe par la garde");
+assert.ok(ui.includes("M.garder(ancienEtatV1,v,"), "le remplacement de l'état passe par la garde");
 assert.ok(ui.includes("window.__SOREAL_IDLE_CALER_RECU_V1__"), "âge réel de la réponse");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes('<script defer src="/modules/etat-monotone-v1.js?v='), "module chargé");
 console.log("idle-etat-monotone-v1: OK");

@@ -546,6 +546,8 @@
                   joueur.energieTick.resteMs
                 )
               );
+          /* Cale l'énergie sur la phase du moteur (modules/regen-ressources-v1.js) : la réponse recopiée ici est celle de l'instant du moteur. */
+          try{if(typeof REG.ancrerRegenerationIdleV1_==='function')REG.ancrerRegenerationIdleV1_(REG.idleEtat,joueur,true);}catch(_e){}
           }
 
           rafraichirBasicTrainingIdleV120_();
@@ -630,6 +632,8 @@
                 joueur.energieTick.resteMs
               )
             );
+          /* Cale l'énergie sur la phase du moteur (modules/regen-ressources-v1.js) : la réponse recopiée ici est celle de l'instant du moteur. */
+          try{if(typeof REG.ancrerRegenerationIdleV1_==='function')REG.ancrerRegenerationIdleV1_(REG.idleEtat,joueur,true);}catch(_e){}
         }
 
         REG.idleDernierTickLocalV40=
@@ -1459,6 +1463,8 @@
                 joueur.energieTick.resteMs
               )
             );
+          /* Cale l'énergie sur la phase du moteur (modules/regen-ressources-v1.js) : la réponse recopiée ici est celle de l'instant du moteur. */
+          try{if(typeof REG.ancrerRegenerationIdleV1_==='function')REG.ancrerRegenerationIdleV1_(REG.idleEtat,joueur,true);}catch(_e){}
         }
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-84 */
