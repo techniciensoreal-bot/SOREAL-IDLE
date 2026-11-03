@@ -12,6 +12,8 @@
     "Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.",
     "Combat de boss : la vie du boss et celle du joueur ne remontent plus brièvement en plein combat.",
     "Les animations longues de la borne ne se lancent plus pour les combats courts.",
-    "Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance."
+    "Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance.",
+    "Yggdrasil : une nouvelle police, plus élégante, pour le titre, les noms des fruits et les boutons.",
+    "La porte du fruit de connaissance est remplacée par un nouveau dessin."
   ] };
 })();

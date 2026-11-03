@@ -55,6 +55,10 @@
           {menu:'shop', titre:'Boutique', points:[
             'Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance.',
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Yggdrasil : une nouvelle police, plus élégante, pour le titre, les noms des fruits et les boutons.',
+            'La porte du fruit de connaissance est remplacée par un nouveau dessin.',
+          ]},
         ],
       },
       {
