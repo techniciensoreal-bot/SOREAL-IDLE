@@ -681,7 +681,8 @@
             if(hoteHauteur)hoteHauteur.style.minHeight='';
             const hauteurAvantRendu=Math.max(document.documentElement.scrollHeight||0,document.body.scrollHeight||0);
             if(hauteurAvantRendu>0){
-              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,hauteurAvantRendu-(hoteHauteur.getBoundingClientRect().top+(window.scrollY||0)))+'px';
+              /* Jamais plus haut que le conteneur n'est déjà (Norman, 2026-11-03 : « dans Classement > Défis, le menu à gauche bouge ») : le document peut dépasser le bas du conteneur (hauteur minimale de la fenêtre) ; retenir « document - haut du conteneur » l'agrandissait de ce surplus (10 px mesurés) et le menu collant, calé au bas d'une page courte, descendait de 10 px pendant 700 ms à chaque clic. */
+              if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,Math.min(hauteurAvantRendu-(hoteHauteur.getBoundingClientRect().top+(window.scrollY||0)),hoteHauteur.getBoundingClientRect().height))+'px';
               else document.body.style.minHeight=hauteurAvantRendu+'px';
               clearTimeout(window.__idleRelacherHauteurTimerV1__);
               window.__idleRelacherHauteurTimerV1__=setTimeout(function(){document.body.style.minHeight='';if(hoteHauteur)hoteHauteur.style.minHeight='';},700);

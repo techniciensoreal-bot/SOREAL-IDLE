@@ -159,7 +159,8 @@ console.log("idle-menu-refresh-no-jump-v1: OK");
   // Menu collant (PC) : la hauteur retenue pendant un rendu est posée sur le conteneur du jeu, jamais seulement sur le body (sinon le menu sort de l'écran 700 ms en passant à une page courte).
   const ui2 = lireUiComplet();
   assert.equal(ui2.split("const hoteHauteur=document.querySelector('.soreal-idle-native-v4');").length - 1, 2, "les deux rendus retiennent la hauteur sur le conteneur du menu");
-  assert.ok(ui2.includes("if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,hauteurAvant-"), "hauteur retenue sur le conteneur");
+  assert.ok(ui2.includes("if(hoteHauteur)hoteHauteur.style.minHeight=Math.max(0,Math.min(hauteurAvant-"), "hauteur retenue sur le conteneur");
+  assert.ok(ui2.includes("hoteHauteur.getBoundingClientRect().height))+'px';"), "la hauteur retenue ne dépasse jamais celle du conteneur (le menu collant ne descend plus de 10 px à chaque clic, Classement > Défis, 2026-11-03)");
 }
 {
   // Entraînement avancé (2026-10-11) : reclic sur le menu où l'on est = aucun rendu ; un niveau d'Augment gagné ne redessine la page que sur la page des Augmentations.

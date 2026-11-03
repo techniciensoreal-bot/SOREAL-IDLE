@@ -744,16 +744,16 @@
   "sha": "215f157c6811bb65075b23816ef048a558586261"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 21,
-  "sha": "4d347705bc90b18083ea81fe4044c76b39c52035"
+  "pin": 22,
+  "sha": "6b6781e480107eafbf36072a39943da4c9a91150"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 11,
   "sha": "1d6f6bc926b361a155848a8f8f08244a820d4339"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 17,
-  "sha": "bbc1371f33dfd53fb6742ebc9be1a4f77a297a66"
+  "pin": 18,
+  "sha": "e794523dd9da28e06c51ebeeadb07c159ade32a2"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 13,
