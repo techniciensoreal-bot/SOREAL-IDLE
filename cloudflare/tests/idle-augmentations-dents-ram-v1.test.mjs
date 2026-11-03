@@ -15,7 +15,7 @@ const cPc = corps(pc), cTel = corps(tel);
 for (const c of [cPc, cTel]) {
   assert.match(c, /space/, "dents = tuiles entières réparties à parts égales (background-repeat:space), jamais coupées");
   assert.ok(!/repeating-linear-gradient/.test(c), "plus de motif répété (dernière dent tronquée, écarts inégaux)");
-  assert.match(c, /#f7e08e/, "or");
+  assert.match(c, /#f0bb2a/, "or (aplat, voir idle-augment-picots-plats-v1)");
   assert.ok(!/animation:s*(?!none)/.test(c), "aucune animation");
   assert.ok(!/filter|box-shadow|transition/.test(c), "ni filtre, ni ombre, ni transition");
 }

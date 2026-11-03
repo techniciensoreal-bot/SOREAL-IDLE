@@ -20,12 +20,12 @@ import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle
  * (jamais dans le futur, jamais plus de 5 s dans le passé, seulement pour un instantané du bon boss et un combat qui démarre). Sans debutMs (ancien client) : l'instant du traitement, comme avant.
  */
 function debutCombatDemandeSorealIdle_(actif, stats, snapshotCombat, snapshotMemeBoss) {
-  const maintenant = Date.now();
   if (Boolean(actif) && !stats.combatBossActif && snapshotCombat && snapshotMemeBoss) {
+    const maintenant = Date.now();
     const demande = Number(snapshotCombat.debutMs);
-    if (isFinite(demande) && demande <= maintenant && maintenant - demande <= 5000) return demande;
+    if (isFinite(demande) && demande > 0 && demande <= maintenant && maintenant - demande <= 5000) return new Date(demande);
   }
-  return maintenant;
+  return new Date();
 }
 
 export function definirCombatBossSorealIdle(
@@ -271,7 +271,7 @@ export function definirCombatBossSorealIdle(
      * Fight/Fuite/défaite vient d'être enregistré, jamais d'un timestamp
      * antérieur à la transition d'état.
      */
-    /* Le combat part de l'instant du clic quand le client l'envoie (voir debutCombatDemandeSorealIdle_). */
+    /* Le combat part de l'instant du clic quand le client l'envoie (voir debutCombatDemandeSorealIdle_ : une Date, « maintenant » sans demande valide, comme avant). */
     const debutCombatMs = debutCombatDemandeSorealIdle_(actif, stats, snapshotCombat, snapshotMemeBoss);
 
     feuille
@@ -280,7 +280,7 @@ export function definirCombatBossSorealIdle(
         c.DERNIERE_SYNCHRO
       )
       .setValue(
-        new Date(debutCombatMs)
+        debutCombatMs
       );
 
     /*

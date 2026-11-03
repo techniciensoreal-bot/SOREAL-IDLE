@@ -43,6 +43,9 @@
             'Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.',
             'Les objets des sets de la Collection ont leur image.',
           ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Les dents dorées des cartes sont désormais plates et d’un or franc.',
+          ]},
           {menu:'ngu', titre:'NGU', points:[
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},

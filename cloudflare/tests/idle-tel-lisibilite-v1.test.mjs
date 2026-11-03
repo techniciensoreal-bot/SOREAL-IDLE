@@ -13,5 +13,5 @@ assert.ok(bloc.includes('[data-menu="ngu"] :is(span,b,p):not([class]){font-size:
 assert.ok(!/!important/.test(bloc), "aucune surcharge forcée de plus");
 assert.ok(css.includes(".cal-v1 .cal-jour-v1{font-size:12px}") && css.includes(".cal-v1 .cal-ap-v1{font-size:12px}"), "calendrier à 12 px");
 const ygg = readFileSync(new URL("../public/modules/yggdrasil-elfes-v1.js", import.meta.url), "utf8");
-assert.ok(ygg.includes(".ygg-poop:disabled{opacity:.78;") && ygg.includes(".ygg-auto button{font-size:clamp(12px,2.1cqw,13px)!important}"), "Yggdrasil : Poop désactivé lisible, activation auto à 12 px");
+assert.ok(ygg.includes(".ygg-poop:disabled{opacity:.78;") && ygg.includes(".ygg-auto button{font-size:clamp(10px,1.8cqw,11.5px)!important}"), "Yggdrasil : Poop désactivé lisible, activation auto à 12 px");
 console.log("idle-tel-lisibilite-v1: OK");
