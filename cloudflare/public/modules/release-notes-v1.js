@@ -32,9 +32,13 @@
         date:'2026-11-03',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'L’application Android hors ligne garde toute seule la partie la plus récente, sans te demander de choisir ; un petit message te dit laquelle a été retenue.',
+            'Les voix générées sont lues partout, y compris l’introduction des chroniques.',
+            'Admin : les voix lues sans texte à l’écran peuvent maintenant être supprimées complètement (et rétablies).',
             'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Les titres du menu Chroniques reprennent le cadre parchemin du bouton du menu, et le fond bleu laisse place à un brun chaud très sombre.',
             'Dans les sets de la Collection, un objet terminé n’affiche plus que son nom et un petit V vert ; son niveau n’apparaît que tant qu’il n’est pas complètement monté.',
             'Les objets des sets de la Collection ont leur image.',
           ]},
@@ -42,8 +46,12 @@
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les animations longues de la borne ne se lancent plus pour les combats courts.',
             'Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.',
             'Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir.',
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Boutique : chaque rayon, aide et achat n’apparaît qu’une fois ce qu’il concerne découvert, et reste visible ensuite, même après une Renaissance.',
           ]},
         ],
       },
