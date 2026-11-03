@@ -60,6 +60,27 @@ export function lireAlertesLocalesV1(coord) {
 }
 
 /*
+ * Instant de la DERNIÈRE PROGRESSION réellement reçue du joueur (Norman, 2026-11-03 : l'application Android hors ligne affichait la même date pour la partie du serveur et celle du téléphone).
+ * « Dernière synchro » (colonne 16) ne convient pas : le serveur la réécrit à chaque export (la lecture de l'état la met à « maintenant »). Cette table n'est écrite que par un envoi
+ * ACCEPTÉ d'un appareil, une action de jeu passée par le serveur ou une restauration ; l'export la renvoie (progressionAt) pour que l'appareil compare de vraies dates.
+ */
+function assurerProgression(coord) {
+  coord.sql.exec("CREATE TABLE IF NOT EXISTS idle_local_progression(email TEXT PRIMARY KEY, at INTEGER NOT NULL)");
+}
+function noterProgression(coord, email, at) {
+  if (!email || !Number.isFinite(at)) return;
+  assurerProgression(coord);
+  coord.sql.exec("INSERT OR REPLACE INTO idle_local_progression(email,at) VALUES(?,?)", email, Math.round(at));
+}
+function lireProgression(coord, email) {
+  try {
+    assurerProgression(coord);
+    const r = coord.sqlAll("SELECT at FROM idle_local_progression WHERE email=?", email)[0];
+    return r && Number.isFinite(Number(r.at)) ? Number(r.at) : 0;
+  } catch (_) { return 0; }
+}
+
+/*
  * Un seul appareil joue la partie à la fois (changement d'appareil, deux onglets) : à l'export, l'appareil qui démarre REVENDIQUE la partie ; un envoi d'un autre appareil
  * qui avait démarré AVANT cette revendication est refusé (« conflit »), au lieu d'écraser la progression de l'appareil le plus récent. Ce n'est pas de l'anti-triche.
  */
@@ -157,6 +178,7 @@ export function restaurerSauvegardeLocaleV1(coord, email, id) {
   for (const c of COLS_DU_SERVEUR) cells[c] = serveur[c];
   cells[COL_DERNIERE_SYNCHRO] = new Date(maintenant).toISOString();
   coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(cells), maintenant, index);
+  noterProgression(coord, mail, maintenant);
   revendiquer(coord, mail, "__restauration__", maintenant);   // tout appareil en cours de jeu reçoit « partie reprise ailleurs »
   return { ok: true, index, restauree: Number(id) };
 }
@@ -197,6 +219,7 @@ export function noterActionServeurV1(coord, user, operation) {
   const mail = emailsDe(effectif(user))[0] || "";
   if (!mail) return false;
   revendiquer(coord, mail, "__serveur__", Date.now());
+  noterProgression(coord, mail, Date.now());
   return true;
 }
 
@@ -247,6 +270,13 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", le
   const s = coord.standaloneSessionV1(sessionToken);
   if (!s.ok) return { ok: false, error: s.error };
   if (!localActifV1(coord)) return { ok: false, error: "IDLE_LOCAL_DESACTIVE" };
+  /* « Dernière synchro » AVANT la lecture ci-dessous (qui la met à « maintenant ») : repli de progressionAt pour un compte qui n'a encore rien envoyé depuis cette version. */
+  let synchroAvant = "";
+  try {
+    const i0 = indexLigneJoueur(coord, s.user);
+    const l0 = i0 ? coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", i0)[0] : null;
+    if (l0) synchroAvant = JSON.parse(l0.row_json)[COL_DERNIERE_SYNCHRO];
+  } catch (_) { synchroAvant = ""; }
   /* Crée la ligne du joueur si c'est sa première visite, puis la lit. */
   const premiereLecture = runSorealIdleOperation(coord.sqlMoteur, "obtenirEtatSorealIdle", [sessionToken], s.user);
   /* Préférences du compte : envoyées AVEC l'export pour que la page décide de son rechargement (règle n°6) AVANT de démarrer le moteur, et non après (le démarrage complet était perdu : « le chargement ne se termine pas, puis un 2e chargement démarre »). */
@@ -264,7 +294,11 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", le
   const maintenant = Date.now();
   /* Lecture seule (restauration dans l'application Android hors ligne, 2026-10-30) : la partie du serveur est COPIÉE, jamais revendiquée par cet appareil ni écrasée. */
   if (!lectureSeule) revendiquer(coord, emailsDe(effectif(s.user))[0] || "", sv(appareil).slice(0, 64), maintenant);
-  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, textes: textesPourMoteurLocalV1(coord, langue), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  const mailProg = emailsDe(effectif(s.user))[0] || "";
+  const noteeAt = lireProgression(coord, mailProg);
+  const avantMs = enMs(synchroAvant);
+  const progressionAt = noteeAt > 0 ? noteeAt : (Number.isFinite(avantMs) && avantMs > 0 ? Math.min(avantMs, maintenant) : 0);
+  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, progressionAt, textes: textesPourMoteurLocalV1(coord, langue), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 /* Records retirés par l'administrateur (table idle_records_retires) : un envoi qui porte encore EXACTEMENT la valeur retirée la voit remise à zéro (l'appareil la garde jusqu'à son prochain démarrage). */
@@ -336,6 +370,7 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     appliquerRecordsRetiresV1(coord, emailsDe(effectif(s.user))[0] || "", fusion);
     coord.sql.exec("UPDATE idle_catalog SET row_json=?,updated_at=? WHERE sheet_name='JOUEURS' AND row_index=?", JSON.stringify(fusion), Date.now(), index);
     ecrit = true;
+    noterProgression(coord, emailsDe(effectif(s.user))[0] || "", Number.isFinite(recu) ? Math.min(recu, maintenantSrv) : maintenantSrv);
   }
   const cle = emailsDe(effectif(s.user))[0] || "";
   const nom = sv(s.user.prenom || "Joueur").slice(0, 80);

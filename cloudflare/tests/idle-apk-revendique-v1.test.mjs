@@ -53,18 +53,31 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   const m = monde({ apk: false, stock: { idle_apk_compte_v1: "{}", idle_apk_jeton_v1: JETON } });
   assert.equal(m.S.etat().pret, false); assert.equal(SERVEUR.appels.length, 0, "navigateur ordinaire : aucun appel");
 }
-{ // décision (fonction pure)
-  const m = monde(); const d = m.S.decider;
+{ // décision (fonction pure) : plus aucune question, la plus récente gagne
+  const m = monde(); const d = m.S.decider; const t = m.S.trancher;
   const base = { srv: "S1", loc: "L1" };
-  assert.equal(d(ligne(0, 5, "L2"), ligne(0, 5, "S1"), base), "local", "serveur inchangé depuis la base : la partie du téléphone est la suite");
-  assert.equal(d(ligne(0, 5, "L1"), ligne(0, 9, "S2"), base), "serveur", "le PC a joué, le téléphone non : celle du serveur");
-  assert.equal(d(ligne(0, 20, "L2"), ligne(0, 9, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (téléphone plus avancé)");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(1, 2, "S2"), base), "choix", "les deux ont bougé : le joueur choisit (serveur plus avancé)");
-  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "local", "même progression des deux côtés, avec une base : pas de question (sinon l’écran revenait à chaque lancement après un choix « compte »)");
+  assert.equal(d(ligne(0, 5, "L2"), ligne(0, 5, "S1"), base), "local", "sans dates : serveur inchangé depuis la base, la partie du téléphone est la suite");
+  assert.equal(d(ligne(0, 5, "L1"), ligne(0, 9, "S2"), base), "serveur", "le PC a joué plus loin, le téléphone non : celle du serveur");
+  assert.equal(d(ligne(0, 20, "L2"), ligne(0, 9, "S2"), base), "local", "les deux ont bougé : celle qui est plus avancée, sans question");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(1, 2, "S2"), base), "serveur", "les deux ont bougé : le serveur a une renaissance de plus");
+  assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), base), "local", "même progression : rien à choisir");
   assert.equal(d(ligne(0, 9, "L2"), ligne(0, 9, "S2"), null), "local", "même progression sans base : une seule partie");
-  assert.equal(d(ligne(0, 3, "L2"), ligne(0, 9, "S2"), null), "choix", "sans base, deux parties différentes : le joueur choisit");
-  assert.equal(d(ligne(0, 0, "L2"), ligne(0, 9, "S2"), null), "serveur", "sans base, téléphone vide : celle du compte sans question");
-  assert.equal(d(ligne(0, 7, "L2"), ligne(0, 0, "S2"), null), "local", "sans base, compte vide : celle du téléphone");
+  assert.equal(d(ligne(0, 0, "L2"), ligne(0, 9, "S2"), null), "serveur", "téléphone vide : celle du compte");
+  assert.equal(d(ligne(0, 7, "L2"), ligne(0, 0, "S2"), null), "local", "compte vide : celle du téléphone");
+  // DATES (cause du bug : « Dernière synchro » valait « maintenant » des deux côtés) : la dernière progression réelle décide
+  const MIN = 60000, T0 = Date.UTC(2026, 10, 3, 12, 0, 0);
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 20, "x"), { locAt: T0 + 30 * MIN, srvAt: T0 }, base).qui, "local", "téléphone joué plus tard : il gagne, même avec moins de boss (la date décide)");
+  assert.equal(t(ligne(0, 20, "x"), ligne(0, 9, "x"), { locAt: T0, srvAt: T0 + 30 * MIN }, base).qui, "serveur", "serveur progressé plus tard : il gagne, même avec moins de boss chez lui");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 20, "x"), { locAt: T0 + 30 * MIN, srvAt: T0 }, base).forcer, true, "le téléphone plus récent REMPLACE le serveur (copie de sécurité côté serveur)");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 20, "x"), { locAt: T0, srvAt: T0 + 1000 }, null).qui, "serveur", "dates à moins de 2 s : égalité, départage par la progression");
+  assert.equal(t(ligne(0, 20, "x"), ligne(0, 9, "x"), { locAt: T0 + 1500, srvAt: T0 }, null).qui, "local", "dates à moins de 2 s : la plus avancée");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 20, "x"), { locAt: 0, srvAt: T0 }, null).qui, "serveur", "date locale absente : la progression décide, jamais l'heure d'ouverture");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 9, "x"), { locAt: 0, srvAt: 0 }, null).raison, "identique", "dates absentes et mêmes chiffres : identiques, aucune question");
+  const avecTemps = (ren, boss, sec) => { const c = ligne(ren, boss, "x"); c[37] = JSON.stringify({ ngu: { records: { playSeconds: sec } } }); return c; };
+  assert.equal(t(avecTemps(0, 9, 5000), avecTemps(0, 9, 4000), {}, null).qui, "local", "même progression : le temps de jeu cumulé départage");
+  assert.equal(t(avecTemps(0, 9, 4000), avecTemps(0, 9, 5000), {}, null).qui, "serveur", "même progression : le temps de jeu cumulé départage (serveur)");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 9, "y"), { locAt: T0, srvAt: T0 + 5 * MIN }, null).qui, "serveur", "mêmes chiffres, serveur plus récent : serveur (jamais écrasé par l'ancien)");
+  assert.equal(t(ligne(0, 9, "x"), ligne(0, 9, "y"), { locAt: T0, srvAt: T0 + 5 * MIN }, null).different, false, "mêmes chiffres : pas de message");
 }
 { // démarrage en ligne : REVENDIQUE (export sans lecture seule), puis envoie sa partie si elle est la suite
   SERVEUR.appels = []; SERVEUR.reseau = true; SERVEUR.pushReponse = { ok: true, ecrit: true };
@@ -79,7 +92,7 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   assert.ok(exp.auth.startsWith("Bearer ils_"), "jeton de session du compte");
   assert.match(push.url, /\/api\/v1\/local\/push$/); assert.equal(push.corps.cells[24], 0); assert.equal(push.corps.cells[14], 7, "la ligne du téléphone part");
   assert.equal(push.corps.depuis, 5000, "« depuis » = l'instant de l'export (le serveur refuse si le PC a repris entre-temps)");
-  assert.equal(push.corps.importPartie, true, "premier envoi : copie de sécurité « avant-import » côté serveur");
+  assert.equal(push.corps.importPartie, true, "serveur inchangé depuis la base : premier envoi = copie de sécurité « avant-import » côté serveur");
   assert.equal(push.corps.appareil, exp.url.split("=")[1], "même appareil pour l'export et l'envoi");
   assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).srv, "L2", "base mise à jour après un envoi accepté");
   // envoi périodique : rien si rien n'a changé ; sinon sans importPartie
@@ -103,50 +116,65 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).srv, "S9", "base = ce qu'on sait du serveur");
   await attendre(() => m.fen.rechargements === 1);
 }
-{ // les DEUX ont bougé : écran de choix obligatoire, sans spoil, sans fermeture ; rien n'est envoyé ni chargé avant le choix
+{ // les DEUX ont bougé : AUCUN écran de choix, la plus récente est retenue automatiquement (dates réelles, pas « Dernière synchro »)
+  const MIN = 60000, T0 = Date.UTC(2026, 10, 3, 12, 0, 0);
+  const activite = (t) => JSON.stringify({ t });
+  const exportAvec = (cells, progressionAt) => ({ ok: true, serveurAt: T0 + 90 * MIN, progressionAt, joueurs: { ligne: JSON.stringify(cells) } });
+  // (a) le téléphone a joué APRÈS le serveur : il part, REMPLACE le serveur, message discret ; « Dernière synchro » identique des deux côtés
   SERVEUR.appels = []; SERVEUR.reseau = true; SERVEUR.pushReponse = { ok: true, ecrit: true };
-  SERVEUR.export = exportSrv(ligne(2, 40, "2026-10-30T10:00:00.000Z", "Redrum"));
-  const stock = { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
-  const m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "2026-10-29T09:00:00.000Z"));
-  assert.equal(await m.S.synchroniser(), "choix");
-  const ecran = m.fen.document.getElementById("sorealIdleApkChoixV1");
-  assert.ok(ecran, "écran de choix affiché");
-  const h = ecran._h;
-  assert.match(h, /Une partie plus récente a été trouvée sur ton compte/);
-  assert.match(h, /Prendre la partie du compte/); assert.match(h, /Garder ma partie du téléphone/);
-  assert.match(h, /gardée 30 jours en secours/, "dit que l'autre est gardée 30 jours");
-  assert.match(h, /Renaissances : 2[\s\S]*Boss vaincus : 40/); assert.match(h, /Renaissances : 1[\s\S]*Boss vaincus : 12/);
-  assert.ok(!/fermer|plus tard|Annuler/i.test(h), "aucune sortie : on est obligé de choisir");
-  assert.equal(SERVEUR.appels.filter((a) => /push/.test(a.url)).length, 0, "rien n'est envoyé avant le choix");
-  assert.equal(m.S.etat().moteur.charges.length, 0, "rien n'est chargé avant le choix");
-  assert.equal(await m.S.tick(true), false, "pas d'envoi périodique tant que le choix n'est pas fait");
-  // choix « compte » : copie du téléphone au serveur (sauvegarde seule) + sur le téléphone, puis celle du compte est chargée
-  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.serveur(), "serveur-charge");
-  const envois = SERVEUR.appels.filter((a) => /push/.test(a.url));
-  assert.equal(envois.length, 1); assert.equal(envois[0].corps.sauvegardeSeule, true); assert.equal(envois[0].corps.cells[24], 1, "la partie du TÉLÉPHONE est sauvegardée");
-  assert.equal(m.S.etat().moteur.charges[0].cells[24], 2, "celle du compte est chargée");
-  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1, "copie locale gardée sur le téléphone");
+  SERVEUR.export = exportAvec(ligne(2, 40, "2026-11-03T13:30:00.000Z", "Redrum"), T0);
+  let stock = { idle_apk_jeton_v1: JETON, idle_apk_activite_v1: activite(T0 + 60 * MIN), idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
+  let m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "2026-11-03T13:30:00.000Z"));
+  assert.equal(await m.S.synchroniser(), "local", "plus récent = le téléphone, sans question");
+  assert.equal(m.fen.document.getElementById("sorealIdleApkChoixV1"), null, "aucun écran de choix");
+  let envois = SERVEUR.appels.filter((a) => /push/.test(a.url));
+  assert.equal(envois.length, 1); assert.equal(envois[0].corps.choixAppareil, true); assert.equal(envois[0].corps.cells[24], 1, "la partie du TÉLÉPHONE part");
+  assert.equal(m.S.etat().moteur.charges.length, 0, "rien n'est chargé : le serveur n'a pas été retenu");
+  assert.match((m.body.enfants || []).find((e) => e.id === "sorealIdleApkMessageV1").textContent, /Partie la plus récente chargée \(locale\)/, "message discret : locale");
+  // (b) le serveur a progressé APRÈS le téléphone : il est chargé, celle du téléphone est mise de côté (serveur + téléphone), message au rechargement
+  SERVEUR.appels = []; SERVEUR.export = exportAvec(ligne(2, 40, "2026-11-03T13:30:00.000Z", "Redrum"), T0 + 80 * MIN);
+  stock = { idle_apk_jeton_v1: JETON, idle_apk_activite_v1: activite(T0 + 60 * MIN), idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
+  m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "2026-11-03T13:30:00.000Z"));
+  assert.equal(await m.S.synchroniser(), "serveur-charge", "plus récent = le serveur, sans question");
+  envois = SERVEUR.appels.filter((a) => /push/.test(a.url));
+  assert.equal(envois.length, 1); assert.equal(envois[0].corps.sauvegardeSeule, true); assert.equal(envois[0].corps.cells[24], 1, "la partie du TÉLÉPHONE est sauvegardée (30 jours) avant d'être remplacée");
+  assert.equal(m.S.etat().moteur.charges[0].cells[24], 2, "celle du serveur est chargée");
+  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1, "copie gardée sur le téléphone");
+  assert.equal(JSON.parse(stock.idle_apk_activite_v1).t, T0 + 80 * MIN, "après le chargement, l'activité du téléphone = celle du serveur (l'heure du chargement n'est pas une progression)");
+  assert.equal(stock.idle_apk_message_v1, "serveur", "message gardé pour le rechargement");
   await attendre(() => m.fen.rechargements === 1);
+  // (c) mêmes chiffres des deux côtés : rien à choisir, aucun message
+  SERVEUR.appels = []; SERVEUR.export = exportAvec(ligne(1, 12, "S9"), T0);
+  stock = { idle_apk_jeton_v1: JETON, idle_apk_activite_v1: activite(T0 + 5 * MIN) };
+  m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L9"));
+  assert.equal(await m.S.synchroniser(), "local"); assert.ok(!(m.body.enfants || []).some((e) => e.id === "sorealIdleApkMessageV1"), "égalité de progression : pas de message");
+  // (d) l'activité est celle de la DERNIÈRE progression : jamais écrite avant d'avoir été lue, ni pendant un chargement du serveur
+  const REF = Date.now() - 600000; stock = { idle_apk_jeton_v1: JETON, idle_apk_activite_v1: activite(REF) };
+  m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "2030-01-01T00:00:00.000Z"));
+  m.S.etat().pret = true;
+  assert.equal(await m.S.noterActivite(), false, "pas écrite avant la lecture faite par la décision");
+  assert.equal(JSON.parse(stock.idle_apk_activite_v1).t, REF);
+  m.S.etat().activiteLue = true; m.S.etat().moteur.locale = ligne(1, 12, new Date(Date.now() - 1000).toISOString());
+  assert.equal(await m.S.noterActivite(), true); assert.ok(JSON.parse(stock.idle_apk_activite_v1).t > REF, "activité mise à jour");
+  m.S.etat().moteur.locale = ligne(1, 12, "2000-01-01T00:00:00.000Z");
+  assert.equal(await m.S.noterActivite(), false, "une date plus ancienne ne fait jamais reculer l'activité");
+  m.S.etat().moteur.locale = ligne(1, 12, "2099-01-01T00:00:00.000Z");
+  await m.S.noterActivite(); assert.ok(JSON.parse(stock.idle_apk_activite_v1).t < Date.now() + 1000000, "une horloge dans le futur est bornée");
+  m.S.etat().adoption = true; m.S.etat().moteur.locale = ligne(1, 12, new Date(Date.now() + 1000).toISOString());
+  const avant = stock.idle_apk_activite_v1; assert.equal(await m.S.noterActivite(), false); assert.equal(stock.idle_apk_activite_v1, avant, "rien n'est écrit pendant un chargement");
 }
-{ // choix « compte » sans internet : possible, la copie reste sur le téléphone
-  SERVEUR.appels = []; SERVEUR.export = exportSrv(ligne(2, 40, "S9"));
-  const stock = { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) };
-  const m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
-  await m.S.synchroniser(); SERVEUR.reseau = false;
-  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.serveur(), "serveur-charge", "le choix reste possible hors ligne");
-  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1); SERVEUR.reseau = true;
-}
-{ // choix « téléphone » : elle remplace celle du serveur (choixAppareil, copie 30 jours côté serveur) ; échec réseau : on doit rechoisir
-  SERVEUR.appels = []; SERVEUR.export = exportSrv(ligne(2, 40, "S9"));
-  const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L1" }) } }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
-  await m.S.synchroniser(); SERVEUR.reseau = false;
-  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.local(), "local-echec"); assert.ok(m.fen.document.getElementById("sorealIdleApkChoixV1"), "l'écran reste : obligé de choisir");
-  SERVEUR.reseau = true;
-  assert.equal(await m.fen.__SOREAL_IDLE_APK_CHOIX_V1__.local(), "local");
-  const push = SERVEUR.appels.filter((a) => /push/.test(a.url)).pop();
-  assert.equal(push.corps.choixAppareil, true); assert.equal(push.corps.importPartie, undefined); assert.equal(push.corps.sauvegardeSeule, undefined);
-  assert.equal(m.fen.document.getElementById("sorealIdleApkChoixV1"), null, "écran retiré après le choix");
-  assert.equal(JSON.parse(m.stock.idle_apk_base_serveur_v1).srv, "L2", "base mise à jour");
+{ // secours (Réglages > Ma partie) : forcer l'autre sauvegarde
+  SERVEUR.appels = []; SERVEUR.reseau = true; SERVEUR.pushReponse = { ok: true, ecrit: true };
+  SERVEUR.export = { ok: true, serveurAt: 5000, progressionAt: 100, joueurs: { ligne: JSON.stringify(ligne(2, 40, "S9")) } };
+  let stock = { idle_apk_jeton_v1: JETON }; let m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
+  assert.equal(await m.S.forcer("serveur"), "serveur-charge");
+  assert.equal(SERVEUR.appels.filter((a) => /push/.test(a.url))[0].corps.sauvegardeSeule, true, "celle du téléphone gardée 30 jours avant d'être remplacée");
+  assert.equal(JSON.parse(stock.idle_apk_sauvegarde_locale_v1).cells[24], 1);
+  await attendre(() => m.fen.rechargements === 1);
+  SERVEUR.appels = []; stock = { idle_apk_jeton_v1: JETON }; m = monde({ stock }); m.S.etat().moteur = moteurFaux(ligne(1, 12, "L2"));
+  SERVEUR.reseau = false; assert.equal(await m.S.forcer("local"), "hors-ligne", "sans internet : rien n'est écrasé"); SERVEUR.reseau = true;
+  assert.equal(await m.S.forcer("local"), "local");
+  const p = SERVEUR.appels.filter((a) => /push/.test(a.url)).pop(); assert.equal(p.corps.choixAppareil, true); assert.equal(p.corps.cells[24], 1, "la partie du téléphone remplace celle du serveur (copie 30 jours côté serveur)");
 }
 { // conflit (le PC a repris la partie) : l'écran « Partie reprise sur un autre appareil », plus aucun envoi
   SERVEUR.export = exportSrv(ligne(0, 5, "S1")); SERVEUR.pushReponse = { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS" };
@@ -159,7 +187,7 @@ const exportSrv = (cells) => ({ ok: true, serveurAt: 5000, joueurs: { ligne: JSO
   assert.equal(await m.S.tick(true), false); assert.equal(SERVEUR.appels.length, 0, "après un conflit : plus d'envoi");
 }
 { // envoi reçu mais refusé (serveur plus récent) : retenté, jamais compté comme sauvegardé
-  SERVEUR.export = exportSrv(ligne(0, 5, "S1")); SERVEUR.pushReponse = { ok: true, ecrit: false };
+  SERVEUR.export = exportSrv(ligne(0, 7, "S1")); SERVEUR.pushReponse = { ok: true, ecrit: false };
   const m = monde({ stock: { idle_apk_jeton_v1: JETON, idle_apk_base_serveur_v1: JSON.stringify({ srv: "S1", loc: "L0" }) } });
   m.S.etat().moteur = moteurFaux(ligne(0, 7, "L2"));
   assert.equal(await m.S.synchroniser(), "local-refuse");

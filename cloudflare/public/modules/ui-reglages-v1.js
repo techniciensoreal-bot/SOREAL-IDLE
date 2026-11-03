@@ -340,6 +340,34 @@
           '<div id="sorealIdleReconnexionEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
         '</div>';
       }
+      /* Application Android hors ligne seulement (Norman, 2026-11-03) : l'application retient toute seule la partie la plus récente (apk-synchro-v1.js) ; ces deux boutons restent pour forcer l'autre en cas d'erreur. L'autre partie est gardée 30 jours. */
+      function htmlForcerPartieApkIdleV1_(){
+        const S=window.__SOREAL_IDLE_APK_SYNCHRO_V1__,A=window.__SOREAL_IDLE_APK_CONNEXION_V1__;
+        let apk=false;
+        try{apk=Boolean(S&&typeof S.forcer==='function'&&A&&typeof A.estApk==='function'&&A.estApk());}catch(_e){apk=false;}
+        if(!apk)return '';
+        return '<div class="soreal-idle-section-v8" id="sorealIdleForcerPartieV1">'+
+          '<div class="soreal-idle-window-title-v31">💾 Ma partie sur ce téléphone</div>'+
+          '<div style="font-size:14px;color:#8b93ab;margin-bottom:10px">L’application garde toute seule la partie la plus récente. En cas d’erreur, tu peux prendre l’autre ; celle qui est remplacée reste en secours 30 jours.</div>'+
+          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__forcerPartieApkIdleV1__(&quot;serveur&quot;)">☁️ Prendre la partie du serveur</button> '+
+          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__forcerPartieApkIdleV1__(&quot;local&quot;)">📱 Garder la partie de ce téléphone</button>'+
+          '<div id="sorealIdleForcerPartieEtatV1" style="font-size:14px;color:#8b93ab;margin-top:8px"></div>'+
+        '</div>';
+      }
+      window.__forcerPartieApkIdleV1__=function(qui){
+        const S=window.__SOREAL_IDLE_APK_SYNCHRO_V1__;
+        const e=document.getElementById('sorealIdleForcerPartieEtatV1');
+        const dire=function(t){if(e)e.textContent=t;};
+        if(!S||typeof S.forcer!=='function')return;
+        if(!window.confirm(qui==='serveur'?'Remplacer la partie de ce téléphone par celle du serveur ? La tienne reste en secours 30 jours.':'Remplacer la partie du serveur par celle de ce téléphone ? Celle du serveur reste en secours 30 jours.'))return;
+        dire('En cours…');
+        S.forcer(qui).then(function(r){
+          if(r==='serveur-charge')dire('Partie du serveur chargée : le jeu redémarre…');
+          else if(r==='local')dire('Partie de ce téléphone envoyée au serveur.');
+          else if(r==='hors-ligne')dire('Pas d’internet : réessaie quand tu as du réseau.');
+          else dire('Impossible pour le moment : réessaie dans un instant.');
+        },function(){dire('Impossible pour le moment : réessaie dans un instant.');});
+      };
       function htmlVersionNotesMajIdleV1_(v,possedes){
         /* Lignes ajoutées depuis le dernier push, en vert (Norman, 2026-10-31) : comparées au texte FRANÇAIS d'origine (avant la traduction), la classe reste posée après traduction. Données : modules/release-notes-nouveautes-v1.js (générées par tools/marquer-nouveautes-push.mjs). */
         const nouv=window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__;
@@ -476,6 +504,7 @@
               '</div>'
               :'')+
             htmlReconnexionApkIdleV1_()+
+            htmlForcerPartieApkIdleV1_()+
             (window.__SOREAL_IDLE_MAJ_V1__&&window.__SOREAL_IDLE_MAJ_V1__.peutVerifier()?
               '<div class="soreal-idle-section-v8">'+
                 '<div class="soreal-idle-window-title-v31">🔄 Mises à jour</div>'+
