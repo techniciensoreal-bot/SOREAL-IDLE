@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "L’application et le site sont plus fluides sur téléphone : l’écran de la borne, la machine temporelle et le tour des pages de l’album saccadent moins.",
     "L’application Android hors ligne garde toute seule la partie la plus récente, sans te demander de choisir ; un petit message te dit laquelle a été retenue.",
     "Les voix générées sont lues partout, y compris l’introduction des chroniques.",
     "Admin : les voix lues sans texte à l’écran peuvent maintenant être supprimées complètement (et rétablies).",
