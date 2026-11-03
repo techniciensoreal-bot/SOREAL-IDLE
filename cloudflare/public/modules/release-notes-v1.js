@@ -46,6 +46,7 @@
             'Le ciel de chaque onglet ne s’éclaire que par ses propres machines : sans magie placée, plus d’aurores boréales ni d’étoiles dans l’onglet Magie, même si l’énergie tourne.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Combat de boss : la vie du boss et celle du joueur ne remontent plus brièvement en plein combat.',
             'Les animations longues de la borne ne se lancent plus pour les combats courts.',
             'Sur la borne, la page « victoires » du tableau des scores disparaît : le numéro du boss suffit.',
             'Dans la troisième animation de la borne, le nain ne passe plus qu’une fois dans le couloir.',
