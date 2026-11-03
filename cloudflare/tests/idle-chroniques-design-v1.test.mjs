@@ -98,3 +98,13 @@ console.log("idle-chroniques-design-v1: OK");
   assert.ok(m.includes("(niveau>=100?'<span class=\"sc-fini\">'+icone('coche','sc-ok')+'</span>'") && m.includes("(vert?'<span class=\"sc-fini\">'+icone('coche','sc-ok')+'</span>'"), "objet ou pièce terminé : seulement le nom et le petit ✓ vert (Norman, 2026-11-03)");
   assert.ok(!/Niv\. '\+niveau\+'\/100'\+\(niveau>=100/.test(m) && !m.includes("' 100 %':lvl100"), "plus de « Niv. 100/100 » ni de « 100 % » sur un objet terminé");
 }
+
+// Retouches du 2026-11-03 : fond brun chaud (plus de bleu) et en-tête = cadre du bouton « Chroniques »
+{
+  const css2 = readFileSync("cloudflare/public/soreal-idle-chroniques.css", "utf8");
+  assert.ok(/\.soreal-idle-native-v4:has\(\.chr-v1\)\{--th-a:#c8923a;--th-b:#6b4a22;--th-c:#f6f0d0;--th-bg:#2b1a0f;--th-bg2:#0f0805/.test(css2), "jetons de thème chauds (plus de bleu) pour tout le menu");
+  const entetes = readFileSync("cloudflare/public/soreal-idle-entetes-d.css", "utf8");
+  for (const tab of ["bestiaire", "classement", "succes", "cinematiques"]) assert.ok(css2.includes('[data-menu="' + tab + '"]') && css2.includes(".soreal-idle-page-head-v28[data-entete-menu]::before"), "cadre du bouton Chroniques pour l'onglet " + tab);
+  assert.ok(css2.includes("linear-gradient(180deg,#5c3a1a,#2f1b0b 55%,#3d2411)") && entetes.includes("linear-gradient(180deg,#5c3a1a,#2f1b0b 55%,#3d2411)"), "même plaque brune que le cadre d'origine");
+  assert.ok(!/#5b8def|#14203d|#0a1124/i.test(css2), "aucun bleu de l'ancien thème");
+}
