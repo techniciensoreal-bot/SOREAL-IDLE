@@ -901,8 +901,9 @@ function pageScore(label,value,col,lt,W,H){
   var bt=Math.round((H-7*ds)/2);
   for(var i=0;i<n;i++)oneDigitRoll(+s[i],x+lw+6+i*pas,bt,ds,col,P.reduced?1:clamp((lt-0.45-i*0.15)/1.1,0,1));
 }
+/* Plus de page « VICTOIRES » (Norman, 2026-11-03 : « le Victoire 75 quand on est au boss 76 est inutile, il faut obligatoirement 75 victoires pour affronter le boss 76 ») : le numéro du boss dit déjà combien de victoires il a fallu ; seule la page du boss reste. */
 function sScore(t){
-  var W=P.W,H=P.H,num=Math.min(S.num,99999),vic=Math.min(S.vic,99999),dbl=vic>0;
+  var W=P.W,H=P.H,num=Math.min(S.num,99999),vic=Math.min(S.vic,99999),dbl=false;
   var wins=twidth(T('wins'),1)+6+String(vic).length*(H>=14?12:6)-2<=W-8?T('wins'):T('winsCourt');
   var pg=[[T('boss'),num,ROU],[wins,vic,VER]];
   if(P.reduced||!dbl){P.yoff=0;pageScore(pg[0][0],pg[0][1],pg[0][2],P.reduced?3:t,W,H);return;}
@@ -1169,7 +1170,7 @@ var SC={
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
   nuke:{fn:sNuke,dur:NUKE_DUR,prio:4,cap:3.0},
   morts:{fn:sMorts,dur:4,prio:1,cap:1.0},
-  score:{fn:sScore,dur:function(){return S.vic>0?8:4;},prio:1,cap:2.0},
+  score:{fn:sScore,dur:4,prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
   win:{fn:sWin,dur:function(p){return p.anim?8.6:7.2;},prio:5,cap:4.2},

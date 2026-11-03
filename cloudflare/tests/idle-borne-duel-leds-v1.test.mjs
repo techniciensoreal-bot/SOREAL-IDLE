@@ -157,3 +157,7 @@ console.log("idle-borne-duel-leds-v1: OK");
   const led6 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
   assert.ok(led6.includes("function rrHommeFondu(rows,sx,sy,e,k){") && led6.includes("if(fin)rrHommeFondu(HOMMES[2],6+G.mw+gp,G.fl-2-(G.mh-1),e,P.reduced?0:1-sm((t-0.2)/1.0));"), "victoire Red Room : le 2e homme s'arrête et disparaît en fondu, il ne passe pas le rideau (Norman, 2026-11-02)");
 }
+{
+  const led7 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
+  assert.ok(led7.includes("dbl=false;") && led7.includes("score:{fn:sScore,dur:4,prio:1,cap:2.0},"), "plus de page « victoires » sur la borne : le numéro du boss suffit (Norman, 2026-11-03)");
+}
