@@ -32,6 +32,7 @@
         date:'2026-11-04',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.',
             'L’application Android ne recharge plus ta partie en boucle au démarrage.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
@@ -57,6 +58,9 @@
           {menu:'ngu', titre:'NGU', points:[
             'Chaque tube a sa propre couleur de fumée : de faibles volutes dans le premier tube, une fumée de plus en plus dense et rapide jusqu’au dernier, capé, rempli de fumée pleine.',
             'Chaque tube affiche ses niveaux par seconde (niv/s, format 0,01).',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Au-dessus de chaque arbre, le compteur montre les fruits prêts sur ceux de l’arbre (2/8) ; le niveau maximum n’est plus affiché.',
           ]},
           {menu:'wishes', titre:'Wishes', points:[
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps du niveau suivant.',

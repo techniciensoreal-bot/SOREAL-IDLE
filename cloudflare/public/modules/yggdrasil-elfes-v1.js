@@ -509,6 +509,8 @@
     var o=etat.echelles[pos];etat.echelles[pos]={id:id,s:s,f:f};
     return Boolean(o)&&(o.id!==id||s<o.s-0.0005||f<o.f-0.0005);
   }
+  /* Compteur au-dessus de l'arbre (Norman, 2026-11-04) : « 2/8 » = 2 fruits prêts sur les 8 que porte l'arbre à son niveau actuel ; 0/8 si aucun n'est mûr, 8/8 s'ils le sont tous. Plus « niveau / niveau maximum » : le maximum n'apprend rien au joueur (et révélait la suite). Un fruit est prêt quand son heure de pousse est écoulée (nombre d'heures de pousse pleines, au plus le nombre de fruits). */
+  function fruitsPrets_(v){var t=Math.max(0,Math.floor(Number(v.tier)||0));return Math.max(0,Math.min(t,Math.floor((Number(v.growth)||0)+1e-9)));}
   function carte_(d,v,pos){
     var def=v.def,id=def.id,c=choix_(id);
     var nom=html_(def.name||id);
@@ -537,7 +539,7 @@
     /* Aucun fruit n'est jamais visible derrière une porte close (Norman, 2026-11-02) : même si l'image de la porte tarde ou manque, les fruits ne sont pas dessinés tant que le fruit n'est pas actif. */
     var porteHtml=porteDe_(id,Boolean(v.active));
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'" style="'+styleCouleursPorte_(id)+(v.tier>0&&v.tier>=d.maxTier||alerte?'--lueur:'+rvb_(AURAS_[id])+';':'')+'">'+
-      '<div class="ygg-nom">'+nom+' <span>('+v.tier+'/'+d.maxTier+')</span></div>'+
+      '<div class="ygg-nom">'+nom+(v.tier>0?' <span>('+fruitsPrets_(v)+'/'+v.tier+')</span>':'')+'</div>'+
       '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+

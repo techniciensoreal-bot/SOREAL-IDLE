@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Écran LED : plus aucune ligne au sol ni juste au-dessus de la barre de vie du boss dans les animations ; le sol de la Red Room est reconstruit sans elle."
+    "Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.",
+    "Au-dessus de chaque arbre, le compteur montre les fruits prêts sur ceux de l’arbre (2/8) ; le niveau maximum n’est plus affiché."
   ] };
 })();

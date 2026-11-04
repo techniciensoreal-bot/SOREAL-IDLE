@@ -352,7 +352,7 @@
                   data-morph-classes-gardees="^nav-hors-v1$"
                   data-effet-v1="${m.id}"
                   title="${idleHtml_(nomMenuIdleV1_(m,j)+((IDLE_NAV_IDENTITES_V1[m.id]||{}).verbe?' — '+IDLE_NAV_IDENTITES_V1[m.id].verbe:''))}"
-                  onclick="window.__menuIdleV28__('${m.id}')"
+                  onclick="window.__menuClicIdleV1__('${m.id}')"
                 >
                   ${m.id==='parametres'?'':'<span class="soreal-idle-nav-oeil-v1" data-nav-oeil-v1="'+m.id+'" aria-hidden="true"></span>'}
                   <span class="soreal-idle-nav-deco-v1" aria-hidden="true"><i class="nb-g"></i><i class="nb-d"></i></span>
@@ -597,6 +597,17 @@
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(observerNavHorsEcranV1_);
   window.__SOREAL_IDLE_NAV_HORS_ECRAN_V1__={observer:observerNavHorsEcranV1_};
   setTimeout(observerNavHorsEcranV1_,1500);
+
+  /*
+   * INP (Norman, 2026-11-04 : « Interaction to Next Paint 272 ms, à améliorer » ; mesuré dans Chrome : un clic sur un bouton de menu coûtait 224 à 296 ms avant l'image suivante, dont 60 à 90 ms de gestionnaire et 80 à 270 ms de mise en page et de dessin de la nouvelle page).
+   * Un vrai clic sur un bouton de menu rend d'abord la main au navigateur (une image est peinte tout de suite : le bouton réagit) ; le changement de page, lui, part juste après (image suivante). L'INP ne compte que jusqu'à cette première image.
+   * Seuls les clics sur les boutons du menu passent par ici ; les appels programmés (tutoriel, chat, double appui...) gardent window.__menuIdleV28__ tel quel, immédiat. La fonction est lue à l'EXÉCUTION (surcharges des autres modules conservées).
+   */
+  window.__menuClicIdleV1__=function(id,geste){
+    var lancer=function(){if(typeof window.__menuIdleV28__==='function')window.__menuIdleV28__(id,geste);};
+    if(typeof requestAnimationFrame!=='function'){lancer();return;}
+    requestAnimationFrame(function(){setTimeout(lancer,0);});
+  };
 
   Object.assign(REG,{
     menuDisponibleIdleV28_:menuDisponibleIdleV28_,

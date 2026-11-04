@@ -53,7 +53,9 @@ let h = Y.page(etatJoueur);
 assert.equal((h.match(/class="ygg-carte[ "]/g) || []).length, 9, "9 fruits par page");
 assert.equal((h.match(/class="ygg-onglet"/g) || []).length, 2, "deux onglets");
 assert.ok(h.includes("/api/idle/media/ygg?name=gold") && h.includes("/api/idle/media/item?wikiItemId=92") && !h.includes("name=seed") && h.includes("/shop/fertilizer.png") && !h.includes("name=poop"), "fruits : R2 ; graine : Item_0092_A_Giant_Seed ; poop : image de la boutique AP");
-assert.ok(h.includes("(2/10)"), "tier / tier max");
+/* Norman (2026-11-04) : « 2/8 » = 2 fruits prêts sur les 8 de l'arbre ; jamais « niveau / niveau maximum » (le 10 est inutile) */
+assert.ok(h.includes("(0/2)") && h.includes("(2/3)"), "fruits prêts / fruits de l'arbre : aucun prêt = 0/2 ; deux heures de pousse sur 3 fruits = 2/3");
+assert.ok(!h.includes("/10)"), "plus de niveau maximum affiché");
 assert.ok(h.includes("avec du caca)"), "sous-titre demandé");
 Y.aller(2);
 h = Y.page(etatJoueur);

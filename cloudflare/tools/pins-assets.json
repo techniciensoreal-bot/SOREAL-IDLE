@@ -588,12 +588,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 140,
-  "sha": "f1a3325795d0facb684bdfd6522f98873a4dd64b"
+  "pin": 141,
+  "sha": "8860e42ab55971d6cafc4a16ac65005eacad332f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 773,
-  "sha": "0eaa616396dcfe2d8367b09aad8fd61719d92c87"
+  "pin": 774,
+  "sha": "80425ee486282ca12660cb8e3259ee2a948d6deb"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -672,12 +672,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 808,
-  "sha": "757a6d5e9461505b327d64336ba331324eb42aaa"
+  "pin": 809,
+  "sha": "703137eb4fba0b4fbf796f9ce0b58c76bac8d578"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 629,
-  "sha": "f5110b6c977ae831540f12aa29b73d9b970d1b6e"
+  "pin": 630,
+  "sha": "c5409ae1a75147fe406d66f61cab5683b8b72cb1"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -772,8 +772,8 @@
   "sha": "844e0fdcc62f1f7572a6a6dfa620001c424a931c"
  },
  "/modules/ui-navigation-v1.js": {
-  "pin": 13,
-  "sha": "f6e4a37bb3e3183996c15b50c4ffd811503c1a0a"
+  "pin": 14,
+  "sha": "e69b99af50c42e524c949a2f5f176277e1fe711d"
  },
  "/modules/ui-noyau-v1.js": {
   "pin": 19,
@@ -840,8 +840,8 @@
   "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 86,
-  "sha": "0be49b3eb0e4e4502d7ead50ffdd0221439bf774"
+  "pin": 88,
+  "sha": "ebba21c2fc2ebd1e174b837f6f2afb91a386fed8"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,
