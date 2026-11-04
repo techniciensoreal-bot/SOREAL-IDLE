@@ -177,7 +177,7 @@
 
   /*
    * COUPE SANS PAUSE (Norman, 2026-11-03, refaite le 2026-11-04 : « ça ne crée que 1 fichier malgré les / ») : « (/) » dans un texte = « un fichier de voix de plus, enchaîné sans pause ». planNarration_ sépare le texte à chaque marqueur
-   * en BLOCS distincts, chacun avec son empreinte (calculée sur son propre texte) et donc son fichier ; les blocs voisins portent colleApres / colleAvant et le studio rogne le silence de ce bord. Le marqueur n'est jamais lu ni affiché.
+   * en BLOCS distincts, chacun avec son empreinte (calculée sur son propre texte) et donc son fichier. Norman (2026-11-04) : « avec (/) il doit considérer qu'il n'y a rien : il doit marquer le même arrêt que pour un point, sinon je suis obligé d'ajouter (courte pause) après chaque (/) » : aucun raccord collé, chaque bloc garde son silence final normal, exactement comme entre deux phrases. Le marqueur n'est jamais lu ni affiché.
    * Même règle de nettoyage que le studio (sans_marque_coupe) : pas d'espace avant une ponctuation qui suit le marqueur (« mot (/), suite » n'est pas une coupe), une seule espace sinon.
    */
   var MARQUE_COUPE='(/)';
@@ -497,8 +497,6 @@
             var etape={chunk:clair};
             if(voix)etape.voix=voix;
             if(expr)etape.expr=expr;
-            /* Bords collés : le studio rogne le silence au raccord (le dernier bloc d'une partie et le premier de la suivante). */
-            if(rang>0&&premier&&precedent){etape.colleAvant=true;precedent.colleApres=true;}
             premier=false;
             precedent=etape;
             steps.push(etape);

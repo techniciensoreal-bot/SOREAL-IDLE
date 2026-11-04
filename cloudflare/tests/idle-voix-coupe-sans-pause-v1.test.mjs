@@ -34,7 +34,7 @@ assert.equal(new Set(Array.from(b, (e) => T.hashBloc(e.chunk))).size, 3, "trois 
 assert.equal(T.hashBloc(avec), T.hashBloc(sans), "hashBloc retire lui-même le marqueur (texte entier)");
 assert.equal(a[0].colleAvant, undefined);
 assert.equal(a[0].colleApres, undefined, "sans marqueur : aucun raccord");
-assert.deepEqual(Array.from(b, (e) => [!!e.colleAvant, !!e.colleApres]), [[false, true], [true, true], [true, false]], "raccords sans pause entre les blocs voisins");
+assert.deepEqual(Array.from(b, (e) => [!!e.colleAvant, !!e.colleApres]), [[false, false], [false, false], [false, false]], "Norman (2026-11-04) : aucun raccord collé : chaque bloc garde son silence normal, comme entre deux phrases (même arrêt qu'un point)");
 assert.ok(b.every((e) => e.studio === undefined), "plus de texte studio avec marqueurs : chaque bloc part seul");
 assert.ok(!/\(\/\)/.test(b.map((e) => e.chunk).join(" ")));
 
@@ -81,7 +81,7 @@ assert.match(histoires, /\\\(\\s\*\\\/\\s\*\\\)/, "le moteur d'histoires retire 
 // --- 5. Éditeur : l'aide est visible et insère le marqueur ---
 const ui = readFileSync("cloudflare/public/modules/voix-ui-v1.js", "utf8");
 assert.match(ui, /data-vu-pause="\(\/\)"/, "bouton qui insère (/)");
-assert.match(ui, /\(\/\) = coupe la génération ici, sans pause/, "aide sous le champ");
+assert.match(ui, /\(\/\) = coupe la génération ici : un fichier de voix de plus, avec le même arrêt qu’un point/, "aide sous le champ");
 
 // --- 6. Le studio Python : marqueur dans decouper, raccord sans silence ---
 const py = readFileSync("cloudflare/tools/voice-studio/serveur.py", "utf8");

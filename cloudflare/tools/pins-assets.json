@@ -104,8 +104,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 150,
-  "sha": "8831f4a205775a2f26848be20c642bbe09618408"
+  "pin": 152,
+  "sha": "35f9c66e1354689fb43a80594c959d3b322c49d3"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -190,6 +190,10 @@
  "/modules/connexion-recompense-v1.js": {
   "pin": 5,
   "sha": "1f83aaf8a1f3b39e458d351d0db5f68bc7af82d4"
+ },
+ "/modules/console-propre-v1.js": {
+  "pin": 1,
+  "sha": "53c7381514f67deb2dcdf6896d22078cb1195b0c"
  },
  "/modules/cooking-v1.js": {
   "pin": 3,
@@ -584,12 +588,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 139,
-  "sha": "643a0689abdf8c4bc7dda02b51aeb378da457b94"
+  "pin": 140,
+  "sha": "f1a3325795d0facb684bdfd6522f98873a4dd64b"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 772,
-  "sha": "ed40f1d746b44f2d1496eae31646459eae094328"
+  "pin": 773,
+  "sha": "0eaa616396dcfe2d8367b09aad8fd61719d92c87"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -668,12 +672,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 807,
-  "sha": "c0a7e06bb97f0db20c7d446ffb7789e15c3d2189"
+  "pin": 808,
+  "sha": "757a6d5e9461505b327d64336ba331324eb42aaa"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 628,
-  "sha": "9652880bc3d2d87189339476d70af6d2910699c4"
+  "pin": 629,
+  "sha": "f5110b6c977ae831540f12aa29b73d9b970d1b6e"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -696,8 +700,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 269,
-  "sha": "227d093a3f1d22be478dac2d99b511ccbacbf17a"
+  "pin": 270,
+  "sha": "8ad1631b567c84951b7521fa561fa613d2b60f23"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 14,
@@ -820,8 +824,8 @@
   "sha": "6d9766a5e4c873f7e089fba781937758c604fa07"
  },
  "/modules/voix-ui-v1.js": {
-  "pin": 2,
-  "sha": "ee67958e885dce56df49eaa69914b58f72dfaf5e"
+  "pin": 3,
+  "sha": "232419b2bae595259e4ee2440beb07323cfb68a0"
  },
  "/modules/wandoos-retro-v1.js": {
   "pin": 74,

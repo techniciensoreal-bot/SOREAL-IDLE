@@ -89,8 +89,8 @@ for (const r of [pc, ph]) {
 }
 // rangées : rainure en y = H, jauge H+2..H+10, régénération H+12..H+18, rien au-delà
 const lignes = Object.keys(pc.rows).map(Number);
-assert.ok(lignes.every((y) => y < 33) && Math.max(...lignes) <= 32 && Math.min(...lignes.filter((y) => y >= 14)) === 14, "rainure sur la rangée 14, rien hors de la grille");
-assert.ok(pc.rows[14] > 30 && pc.rows[15] === undefined, "fine ligne de points puis une rangée vide");
+assert.ok(lignes.every((y) => y < 33) && Math.max(...lignes) <= 32 && Math.min(...lignes.filter((y) => y >= 14)) === 16, "la jauge commence à la rangée 16, rien hors de la grille");
+assert.ok(pc.rows[14] === undefined && pc.rows[15] === undefined, "plus de rainure au-dessus de la barre de vie du boss (Norman, 2026-11-04) : deux rangées vides");
 assert.ok(pc.rows[16] > 50 && pc.rows[24] > 50 && pc.rows[25] === undefined, "jauge de 9 rangées (16 à 24)");
 // vidage : de droite à gauche
 const col7 = (r, y) => { const l = []; const cs = r.c.split(","), vs = r.v.split(","); for (let x = 0; x < r.W; x++) if (cs[y * r.W + x] === "7" && Number(vs[y * r.W + x]) > 100) l.push(x); return l; };

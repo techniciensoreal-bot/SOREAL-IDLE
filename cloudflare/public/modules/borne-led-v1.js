@@ -352,7 +352,7 @@ function sMascot(t){
   /* Norman (2026-11-02) : quand le château est à son emplacement final, le SOL ARRÊTE de bouger (sol, étoiles) ; seul le bonhomme continue de marcher jusqu'à entrer dedans. tg = le temps du décor : il se fige à l'arrivée du château. */
   var chat=vie>=0&&vie<0.14,arrive=chat&&vie<=0.06,tg=t;
   if(arrive){if(pp.tArr==null)pp.tArr=pp.tg0!=null?pp.tg0:t;tg=pp.tArr;}else pp.tArr=null;
-  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  for(i=0;i<W;i++){if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
   for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente, vers la droite) */
     var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
     px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(t/2+R(i,5)))));
@@ -582,7 +582,6 @@ function sSweep(t){
   var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,fin=Boolean(P.p.fin),pc=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
   if(H>=15&&W>=30){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
     cielCouchant(fl,Math.max(14,x0+18),1,t);
-    for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
     var G=geoCourse(xe),bras=(!P.reduced&&Math.floor(t*3)%2)?1:0,phase=(!P.reduced&&Math.floor(t*12)%2)?1:0,rebond=(!P.reduced&&Math.floor(t/0.07)%2)?1:0;
     if(fin){                                                       /* le combat est gagné (scène de victoire) : le fourgon se sauve par la gauche pendant que Leatherface freine et court jusqu'à sa place, puis il fait sa danse (le texte VICTOIRE s'écrit à droite) */
       var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}
@@ -601,7 +600,6 @@ function sSweep(t){
     if(sL>0)dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,Math.round(W+(G.sxL-W)*sL),G.sy-rebond,G.es);   /* Leatherface court derrière, tronçonneuse brandie, une fois la voiture entièrement à l'écran */
     return;
   }
-  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
   var sx2=Math.max(0,Math.min(xe,W-17*K)),sy2=fl-8*K+1;
   sprite2(HEROS_TRONCO,sx2,sy2,K,255);
   for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx2+i,sy2+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
@@ -690,10 +688,10 @@ function rrDecor(tg,G,pc,op,bleu,t){
   }
   for(y=G.ft;y<H;y++){
     for(x=0;x<W;x++){var q=(((x-sh)%8)+8)%8,tri=q<4?q:8-q,cl=((y-G.ft+tri)%4)<2;
-      if(bleu===2)px(x,y,cl?BLA:BLE,cl?255:150);else if(bleu===1)px(x,y,cl?BLA:BLE,cl?120:44);else if(bleu===3)px(x,y,cl?BLA:rouBleute(),cl?150:58);else px(x,y,cl?BLA:ROU,cl?150:58);}
+      if(bleu===2)px(x,y,cl?BLA:BLE,cl?225:130);   /* éclair : un peu moins vif depuis que la piste du sol est retirée (Norman, 2026-11-04) : le sol plus clair ne doit pas rendre l'éclair plus fort (photosensibilité) */
+      else if(bleu===1)px(x,y,cl?BLA:BLE,cl?120:44);else if(bleu===3)px(x,y,cl?BLA:rouBleute(),cl?150:58);else px(x,y,cl?BLA:ROU,cl?150:58);}
   }
   for(x=ox0;x<ox0+ow;x++)rrClairiere(x,G,t);
-  for(x=0;x<len;x++){px(x0+x,G.fl,AMB,34);px(x0+x,G.fl-1,AMB,34);}
 }
 function rrObstacles(t,tg,G,libre){
   var W=P.W,per=W+60,off=Math.round((W+8)*0.35),e=G.e,vx,nx,po;
@@ -808,7 +806,6 @@ function sWin(t){
 function tueRie(t){
   var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=clamp(P.p.pc0==null?1:P.p.pc0,0,1),n=Math.round(pc*len),i;
   cielCouchant(fl,Math.max(14,x0+18),1,t);
-  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
   var G=geoCourse(x0+n),tCoup=1.3,ap=sm(t/0.7),contact=G.tx+G.tw-Math.round(3*G.es)+2,sxl=Math.round(G.sxL-(G.sxL-contact)*ap);
   var tr=(!P.reduced&&t<0.45)?Math.floor(t*22)%2:0,phase=(!P.reduced&&t<0.45&&Math.floor(t*12)%2)?1:0,bras=(!P.reduced&&Math.floor(t*6)%2)?1:0,vivante=t<tCoup;
   dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
@@ -849,7 +846,7 @@ function ecrase(t){
   var vie=clamp(P.p.pc0==null?0.5:P.p.pc0,0,1),hx=Math.min(2+Math.round(vie*(W-4)),W-10);
   var tt=P.reduced?1.9:t,tApp=0.45,tTombe=1.0,tImp=1.22,u=tt-tImp,aplati=tt>=tImp;
   var tg=Math.min(tt,tImp);                                          /* le décor s'arrête à l'impact */
-  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  for(i=0;i<W;i++){if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
   for(i=0;i<6;i++){var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(tg/2+R(i,5)))));}
   var tx=hx+4-Math.floor(tw/2),ty;
   if(!aplati){
@@ -2014,7 +2011,6 @@ function hsl2rgb(h,s,l){
 function contour(pts,y0,y1){for(var i=0;i<pts.length;i++)for(var j=-1;j<=1;j++)for(var x=-1;x<=1;x++){var xx=pts[i][0]+x,yy=pts[i][1]+j;if(xx>=0&&xx<P.W&&yy>=y0&&yy<y1){var k=yy*P.W+xx;P.v[k]=Math.round(P.v[k]*0.3);}}}
 function barre(t){
   var W=P.W,y0=P.H,pv=S.pv,x,j,gy=y0+2,GH=9;
-  for(x=0;x<W;x+=2)px(x,y0,AMB,60);                                 /* rainure : fine ligne de points entre les scènes et la vie du boss */
   if(!pv)return;
   var x0=1,len=W-2,lit=Math.round(pv.pct*len);
   if(pv.pct>0&&lit<1)lit=1;

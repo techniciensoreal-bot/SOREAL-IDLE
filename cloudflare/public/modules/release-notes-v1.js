@@ -69,6 +69,7 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Écran LED : plus aucune ligne au sol ni juste au-dessus de la barre de vie du boss dans les animations ; le sol de la Red Room est reconstruit sans elle.',
             'Écran LED : l’ange n’est plus cerné de points noirs : sa forme se distingue bien mieux sur le rideau.',
             'Écran LED : la voiture de la poursuite arrive d’abord ; Leatherface entre ensuite derrière elle, une fois la voiture entièrement à l’écran, puis la suit.',
             'Écran LED : la tête des deux Cooper est ronde, et le premier a un teint un peu plus humain que l’autre.',
