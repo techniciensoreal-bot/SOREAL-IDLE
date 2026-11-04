@@ -69,6 +69,9 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Écran LED : l’ange n’est plus cerné de points noirs : sa forme se distingue bien mieux sur le rideau.',
+            'Écran LED : la voiture de la poursuite arrive d’abord ; Leatherface entre ensuite derrière elle, une fois la voiture entièrement à l’écran, puis la suit.',
+            'Écran LED : la tête des deux Cooper est ronde, et le premier a un teint un peu plus humain que l’autre.',
             'Écran LED : à la défaite, « PERDU ! » (« YOU LOSE » en anglais) remplace « K.O. ».',
             'Écran LED : le trait de la couleur de la barre du boss ne traverse plus les animations.',
             'Écran LED : le ballon garde la même vitesse de bout en bout, sans temps d’arrêt avant de foncer sur le bouton.',

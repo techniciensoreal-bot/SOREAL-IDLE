@@ -595,8 +595,10 @@ function sSweep(t){
       dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx-Math.round(uf*uf*40+uf*10),G.syT-rebond,G.ec);
       return;
     }
-    dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx,G.syT-rebond,G.ec);                    /* le fourgon roule devant, la fille dans la benne agite les bras */
-    dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,G.sxL,G.sy-rebond,G.es);   /* Leatherface court derrière, tronçonneuse brandie */
+    /* Norman (2026-11-04) : « pour Leatherface, il est déjà présent et attend sur place que la voiture passe devant lui. Il faut que la voiture soit là en premier et qu'une fois la voiture totalement à l'écran, Leatherface apparaisse en poursuivant. Il doit suivre la voiture » : la voiture entre seule par la droite (1 s) ; ensuite seulement Leatherface entre à son tour, derrière elle, et la suit. */
+    var TV=1.0,TL=0.9,offV=P.reduced?0:Math.round((1-sm(clamp(t/TV,0,1)))*(W-G.tx+4)),sL=P.reduced?1:sm(clamp((t-TV)/TL,0,1));
+    dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx+offV,G.syT-rebond,G.ec);               /* le fourgon roule devant, la fille dans la benne agite les bras */
+    if(sL>0)dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,Math.round(W+(G.sxL-W)*sL),G.sy-rebond,G.es);   /* Leatherface court derrière, tronçonneuse brandie, une fois la voiture entièrement à l'écran */
     return;
   }
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
@@ -609,15 +611,16 @@ function sSweep(t){
    Décor 100 % LED : rideau bordeaux à plis verticaux (fixe), sol en chevrons clair / bordeaux qui défile (période de 8 colonnes, glissement d'un nombre entier de colonnes : boucle parfaite). L'homme : costume noir (point éteint, donc silhouette sur le rouge), chemise blanche, cravate noire, cheveux plaqués, de profil vers la gauche.
    Le fuyard est au bout de la barre de vie (comme le héros et le fourgon), le poursuivant derrière lui ; la Vénus et le nain arrivent par la droite avec le sol et sortent par la gauche (hors écran aux deux bouts : aucun à-coup) ; ils passent DERRIÈRE les personnages. */
 var RR_SP=30,RR_OC=12,RR_OW=22;
-var HOMME_COUL={K:[BLE,34],S:[BLA,175],W:[BLA,255]},HOMME_COUL_NOIR={K:[AMB,1],S:[BLA,175],W:[BLA,255]};
+var HOMME_COUL={K:[BLE,34],S:[BLA,175],T:[AMB,205],W:[BLA,255]},HOMME_COUL_NOIR={K:[AMB,1],S:[BLA,175],T:[AMB,205],W:[BLA,255]};
 var VENUS_COUL={M:[BLA,165],m:[BLA,80],p:[BLA,105]};
 var NAIN_COUL={R:[ROU,255],S:[BLA,235],k:[AMB,1]},NAIN_CONTOUR={R:[BLE,34],S:[BLE,34]};
 function rrGrille(w,h){var g=[],j;for(j=0;j<h;j++)g.push(new Array(w+1).join('.').split(''));return g;}
 function rrPut(g,r,c,s){for(var i=0;i<s.length;i++){var y=r,x=c+i;if(y>=0&&y<g.length&&x>=0&&x<g[0].length&&s[i]!=='.')g[y][x]=s[i];}}
 /* f : 0 et 1 = foulées de la course, 2 = debout (figé) ; 3 = debout sans le bras avant (le poursuivant qui tend la main : le bras est dessiné à part) */
-function hommeRows(f){
+function hommeRows(f,humain){
   var g=rrGrille(13,19),p=function(r,c,s){rrPut(g,r,c,s);};
-  p(0,4,'KKKKK');p(1,3,'KKKKKKK');p(2,2,'SSKKKKKK');p(3,2,'SKSSKKK');p(4,1,'SSSSSKK');p(5,2,'SSSSK');p(6,3,'SSK');p(7,3,'WWK');
+  /* Norman (2026-11-04) : « l'arrière de la tête des 2 Cooper est trop long ; ça doit plus faire une boule » : crâne arrondi (7 colonnes, arrière de la tête court) ; « le premier Cooper a un teint un peu plus humain que l'autre » : sa peau mêle des points ambrés (T) aux points clairs (S), en damier. */
+  p(0,3,'KKKK');p(1,2,'KKKKKK');p(2,1,'SSKKKKK');p(3,1,'SKSSKKK');p(4,1,'SSSSKKK');p(5,2,'SSSKK');p(6,3,'SSK');p(7,3,'WWK');
   p(8,2,'WWKKKKK');p(9,2,'WWKKKKK');p(10,2,'WKKKKKK');p(11,2,'WKKKKKK');p(12,2,'WWKKKKK');p(13,3,'KKKKKK');
   if(f===0){
     p(12,1,'K');p(11,1,'K');p(10,0,'K');p(9,0,'S');p(10,9,'K');p(11,9,'K');p(12,10,'K');p(13,10,'S');
@@ -630,9 +633,11 @@ function hommeRows(f){
     p(10,9,'K');p(11,9,'K');p(12,9,'K');p(13,9,'S');
     p(14,3,'KK');p(15,3,'KK');p(16,3,'KK');p(17,3,'KK');p(18,2,'KKK');p(14,5,'KK');p(15,5,'KK');p(16,5,'KK');p(17,5,'KK');p(18,5,'KKK');
   }
+  if(humain)for(var rr=2;rr<8;rr++)for(var cc=0;cc<g[rr].length;cc++)if(g[rr][cc]==='S'&&(rr+cc)%2===0)g[rr][cc]='T';
   return g.map(function(r){return r.join('');});
 }
 var HOMMES=[hommeRows(0),hommeRows(1),hommeRows(2),hommeRows(3)];
+var HOMMES_H=[hommeRows(0,1),hommeRows(1,1),hommeRows(2,1),hommeRows(3,1)];   /* le premier Cooper (le fuyard) : teint plus humain */
 /* La Vénus de Milo : marbre blanc, sans bras (seulement les moignons d'épaules), drapée de la taille aux pieds, sur un socle */
 var VENUS=['..MMM....','..MMM....','...M.....','.MMMMMM..','..MMMMm..','..MMMMm..','...MMm...','...MMm...','..MMMMMm.','.mmmmmmmm','.MMmMMmMm','.MMmMMmMm','.MMMmMmMM','MMmMMmMMm','MMmMmMmMM','ppppppppp','MMMMMMMMM','ppppppppp'];
 /* Le nain qui danse : costume rouge, tête claire ; quatre poses bizarres qui s'enchaînent à des rythmes irréguliers (cycle de 1,38 s, boucle sans à-coup) */
@@ -729,7 +734,7 @@ function sRedroom(t){
   var fr=P.reduced?0:Math.floor(t/0.14)%2,reb=(!P.reduced&&fr)?-1:0;
   if(fin)rrHommeFondu(HOMMES[2],6+G.mw+gp,G.fl-2-(G.mh-1),e,P.reduced?0:1-sm((t-0.2)/1.0));   /* à la victoire : debout, immobile à sa place, puis fondu */
   else rrDessinHomme(HOMMES[(fr+1)%2],fx+G.mw+gp,G,reb,op);   /* le poursuivant, derrière (à droite), l'autre foulée */
-  rrDessinHomme(HOMMES[fr],fx,G,reb,op);
+  rrDessinHomme(HOMMES_H[fr],fx,G,reb,op);   /* le premier Cooper, au teint plus humain */
 }
 /* Défaite : le poursuivant rattrape le fuyard (tCatch), pose la main sur son épaule ; le fuyard s'arrête net, figé ; le sol et les passants s'arrêtent aussi. */
 function perduRedroom(t){
@@ -747,7 +752,7 @@ function perduRedroom(t){
   rrObstacles(tt,tg,G,caught?[fx-1,cx+G.mw+1]:null);
   var hc=bleu?HOMME_COUL_NOIR:HOMME_COUL;   /* sur fond bleu, le costume est vraiment éteint */
   dessinerMasque(HOMMES[caught?3:(fr+1)%2],hc,cx,sy,e,-1e9);
-  dessinerMasque(HOMMES[fr],hc,fx,sy,e,-1e9);
+  dessinerMasque(HOMMES_H[fr],hc,fx,sy,e,-1e9);
   var ar=sm((tt-(tCatch-0.3))/0.3);
   if(ar>0){                                                        /* le bras tendu du poursuivant : manche sombre à partir de son épaule, main pâle posée sur l'épaule du fuyard */
     var ay=sy+Math.round(8*e),x1=cx+Math.round(2*e),xh=fx+Math.round(9*e),ln=Math.max(1,Math.round((x1-xh)*ar)),k;
@@ -887,10 +892,10 @@ var ANG_GRAND=[
   'GCCCCIIGWIIC.SS..',
   'GIICCCIGWWCCCSS..',
   '.IIIIICIWWCCCSI..',
-  '.ICCCISGICCCII...',
-  '.GIICCIGCWCCCC...',
-  '..GCIGGICCCCI....',
-  '...GGIIICICC.....',
+  '.ICCCIS.ICCCII...',
+  '.GIICCI.CWCCCC...',
+  '..GCIGG.CCCCI....',
+  '...GGII.CICC.....',
   '...IIGIICCICG....',
   '...IIIICICICI....',
   '...IIICCICICI....',
@@ -907,16 +912,16 @@ var ANG_PETIT=[
   'GCCCIGWCCS..',
   'GIIIIIWCCS..',
   '.IIIIGWCCC..',
-  '.GCIGICCC...',
-  '..GIIIICI...',
-  '..IIICIII...',
+  '.GCIG.CCC...',
+  '..GII.ICI...',
+  '..III.III...',
   '..IIICIII...',
   '..IIICCIC...',
   '..IICICIC...',
   '..IICICIC...',
   '..IIIIIII...'
 ];   /* 12 x 17, même dessin */
-var ANG_COUL={W:[indexCouleur([255,252,240]),255],C:[indexCouleur([236,224,196]),215],I:[indexCouleur([190,172,140]),150],G:[indexCouleur([120,104,84]),95],D:[indexCouleur([60,50,40]),255],H:[indexCouleur([236,200,112]),225],h:[indexCouleur([170,130,60]),190],S:[indexCouleur([250,196,160]),255]};
+var ANG_COUL={W:[indexCouleur([255,252,240]),255],C:[indexCouleur([236,224,196]),215],I:[indexCouleur([226,212,182]),200],G:[indexCouleur([204,188,156]),165],D:[indexCouleur([60,50,40]),255],H:[indexCouleur([236,200,112]),225],h:[indexCouleur([170,130,60]),190],S:[indexCouleur([250,196,160]),255]};
 var WIN_RR_DUR=8.8,ANG_T0=1.3,ANG_T1=5.6,ANG_TXT=6.3;
 var IMG_VIS={bm:VIS_BM,w:VIS_W,h:VIS_H,cx:0,cy:0,cw:VIS_W,chh:VIS_H,ble:BLE,bla:BLA,rs:null,ch:null};
 var IMG_ANGE={ble:ANG_COUL.I[0],bla:ANG_COUL.W[0]};   /* teintes des éclairs et de la neige de l'ange : blanc crème et gris chaud */
@@ -1036,7 +1041,7 @@ function angDessiner(u,fixe,ts){
   function pixel(x,y,xs){
     var i=xs-x0,jj=y-y0,c='.',dd=0,ii,j2,q,v;
     if(i>=0&&i<fw&&jj>=0&&jj<fh)c=rows[jj][i];
-    if(c==='.'){ii=i+4;j2=jj+4;if(ii>=0&&ii<Wp&&j2>=0&&j2<fh+8)dd=D[j2*Wp+ii];if(dd)px(x,y,ANG_COUL.C[0],[0,40,16][dd]*sc*(fl?1.4:1));return;}
+    if(c==='.'){ii=i+4;j2=jj+4;if(ii>=0&&ii<Wp&&j2>=0&&j2<fh+8)dd=D[j2*Wp+ii];return;}   /* plus de liseré autour de la figure : il ÉTEIGNAIT les points du rideau autour de l'ange (traits noirs, Norman 2026-11-04) */
     q=ANG_COUL[c];v=q[1]*(fl?1.1:1);
     if(!fixe&&u>=0.45&&R(xs*131+y*7,k+11)<0.035)v*=0.55;            /* scintillement de bruit de faible amplitude */
     px(x,y,q[0],Math.min(255,v));
