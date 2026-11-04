@@ -34,7 +34,7 @@ assert.ok(/g\.gain\.value=0\.0001;g\.gain\.setValueAtTime\(0\.0001,t\)/.test(src
 // 4. câblage : le joueur revient par la file (le fondu en est sorti), les boss prennent les sept entrées après les dix premières
 const mort = lire("cloudflare/public/modules/mort-joueur-v1.js");
 assert.ok(mort.includes("var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX);") && mort.includes("if(variante!=='fondu'&&CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);"), "joueur : fondu retiré de la file, retours ajoutés");
-assert.ok(mort.includes("REAPP.jouer('joueur',RETOURS.indexOf('galop')>=0?'galop':variante,{calque:calque,img:img})"), "joueur : retour joué dans le calque opaque");
+assert.ok(mort.includes("REAPP.jouer('joueur',variante,{calque:calque,img:img})") && mort.includes("v.id!=='galop'"), "joueur : retour joué dans le calque opaque");
 const app = lire("cloudflare/public/modules/apparition-boss-v1.js");
 assert.ok(app.includes("function nbEffets(){") && app.includes("var m=nbEffets();return ((n-1)%m+m)%m;"), "boss : dix effets puis sept nouveaux, en suivant le numéro");
 assert.ok(app.includes("REAPP.jouer('boss',neuf.id,{calque:calque,img:img,n:n})"), "boss : entrée jouée dans le calque");

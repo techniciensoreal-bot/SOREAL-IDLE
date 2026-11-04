@@ -45,7 +45,7 @@ assert.ok(borne.includes("function galopEffet()") && borne.includes("sorealIdleB
 assert.ok(!borne.includes("CHEVAL") && !borne.includes("sGalop"), "aucun cheval dessiné");
 const reap = lire("public/modules/reapparitions-v1.js");
 assert.ok(reap.includes("{id:'galop',nom:'Galop',duree:3.2") && reap.includes("GALOP_FOULEES=[0.68,0.68,0.68,0.68]") && reap.includes("B.galop()"), "retour galop : 3 foulées, la borne suit");
-assert.ok(lire("public/modules/mort-joueur-v1.js").includes("RETOURS.indexOf('galop')>=0?'galop':variante"), "le retour galop est celui de chaque mort");
+assert.ok(lire("public/modules/mort-joueur-v1.js").includes("v.id!=='galop'") && lire("public/modules/mort-joueur-v1.js").includes("REAPP.jouer('joueur','galop',{calque:calque,img:img})"), "le retour galop est une spéciale : seulement après la mort Tranché");
 assert.ok(lire("public/modules/audio-effects-v199.js").includes("borneTousse") && lire("public/modules/audio-borne-v1.js").includes("tousser:tousser"), "toux synthétisée");
 
 // 7. Clown : la course se règle sur la durée et l'issue prévues, la défaite enchaîne sans relancer la course

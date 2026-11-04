@@ -484,8 +484,8 @@
   "sha": "ea78d5be1f392056bead6346e26b5aba7f6cc651"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 15,
-  "sha": "c59f30d0ee3725f3c8f849d30741a77d7fc52ac8"
+  "pin": 16,
+  "sha": "091f65fd14b46f9ff634470df442ce68bdd4eee1"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
   "pin": 5,
@@ -600,12 +600,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 145,
-  "sha": "14fa80b7a8098952c438e0786309cafb931d0a45"
+  "pin": 146,
+  "sha": "82c3efc3085fcad16881e237b9fcf57084817af5"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 785,
-  "sha": "1849fef05322ecb2aaa82bd9d79c8c7003c08413"
+  "pin": 786,
+  "sha": "10b2d2fc60516b72819330706fc84eacfe0a4b52"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -688,12 +688,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 820,
-  "sha": "41447c26717117aa5a875a308f33a0a570495a81"
+  "pin": 821,
+  "sha": "90459804cb231806d28d5046eab873b926a895bd"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 641,
-  "sha": "331f583013de9ac4352a2384a54af3645f1f3648"
+  "pin": 642,
+  "sha": "0a1d3a0c8f37a9ff358569669fdee1f6d6993235"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -936,8 +936,8 @@
   "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 344,
-  "sha": "99c0303a2459a497f41dd158a8733c40475b5f03"
+  "pin": 346,
+  "sha": "a1113345b3874e1ee8f109c8e4facfc46a4a48df"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,

@@ -163,7 +163,8 @@ function jouer(hote,variante){
     var NOUVEAUX=NOUVELLES?Array.prototype.map.call(NOUVELLES.variantes,function(v){return v.id;}):[];   /* cendres, trou noir, vitre, tranché, âme (Norman, 2026-10-28) */
     /* Norman (2026-10-29) : « les réapparitions ne sont pas variées, c'est souvent un fondu en ouverture » : le fondu sort de la file ; après l'explosion le joueur revient en rembobinage, en clignotant ou par l'un des sept retours validés (marche sur les coins, rebond, tampon, puzzle, faisceau, ballon, toupie : modules/reapparitions-v1.js). */
     var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__;
-    var RETOURS=REAPP&&REAPP.joueur?Array.prototype.map.call(REAPP.joueur,function(v){return v.id;}):[];
+    /* Norman (2026-11-04) : « le retour d'une mort à cheval ne doit se jouer que quand on est coupé en 2 par le sabre. C'est une spéciale » : le galop n'est PAS dans la file des retours ; seule la mort « Tranché » l'appelle (ci-dessous). */
+    var RETOURS=REAPP&&REAPP.joueur?Array.prototype.filter.call(REAPP.joueur,function(v){return v.id!=='galop';}).map(function(v){return v.id;}):[];
     var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX);
     if(variante!=='fondu'&&CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);   /* en suivant la liste, pas au hasard (Norman, 2026-10-29) ; les morts ajoutées arrivent à la fin */
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
@@ -199,7 +200,7 @@ function jouer(hote,variante){
       var t=(now-t0)/1000;
       if(neuve){
         /* Tranché (Norman, 2026-11-04 : « l'image doit tomber DANS son cadre » ; « les morceaux disparaissent en tombant et on revient à cheval ») : les deux triangles tombent dans le cadre du portrait (le calque), puis le retour « galop » */
-        if(variante==='tranche'&&RETOURS.indexOf('galop')>=0){
+        if(variante==='tranche'&&REAPP&&REAPP.jouer){
           if(t<neuve.duree){NOUVELLES.dessiner(variante,c,t,cacheNeuve,LW,LH);requestAnimationFrame(image);return;}
           if(!fondu){fondu=true;c.fillStyle='#101827';c.fillRect(0,0,LW,LH);REAPP.jouer('joueur','galop',{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});}
           return;
@@ -216,7 +217,7 @@ function jouer(hote,variante){
         if(!fondu){
           fondu=true;
           c.fillStyle='#101827';c.fillRect(0,0,LW,LH);
-          REAPP.jouer('joueur',RETOURS.indexOf('galop')>=0?'galop':variante,{calque:calque,img:img})   /* Norman (2026-11-04) : « quand notre image revient, elle a l'air d'être à cheval » : toutes les morts en pixels reviennent au galop */.then(function(){terminer();},function(){terminer();});
+          REAPP.jouer('joueur',variante,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
         }
         return;
       }
