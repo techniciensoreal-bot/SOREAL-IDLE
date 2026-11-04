@@ -377,8 +377,11 @@ function enregistrer_(){
 }
 
 function supprimer_(i){
+  var g0=etat.guides[i];if(!g0)return;
+  window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer le guide « '+g0.titre+' » ? Les joueurs ne le verront plus.',{titre:'Supprimer le guide',ok:'Supprimer',danger:true}).then(function(ok){if(ok)supprimerReel_(i);});
+}
+function supprimerReel_(i){
   var g=etat.guides[i];if(!g)return;
-  if(!window.confirm('Supprimer le guide « '+g.titre+' » ? Les joueurs ne le verront plus.'))return;
   appel_('supprimerTutorielAdminSorealIdle',[{id:g.id}]).then(function(res){
     if(!res||res.ok===false)throw new Error('Suppression refusée.');
     etat.guides.splice(i,1);etat.message='Guide supprimé.';rafraichirListe_();
@@ -441,7 +444,7 @@ document.addEventListener('click',function(ev){
     if(b==='bas'&&i<edition.etapes.length-1){var y=edition.etapes.splice(i,1)[0];edition.etapes.splice(i+1,0,y);rendre_();return;}
     if(b==='suppr'){
       if(edition.etapes.length<=1){afficherEtat_('Un guide garde au moins une étape.',true);return;}
-      if(window.confirm('Supprimer l’étape '+(i+1)+' ?')){edition.etapes.splice(i,1);rendre_();}
+      window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer l’étape '+(i+1)+' ?',{titre:'Supprimer l’étape',ok:'Supprimer',danger:true}).then(function(ok){if(ok){edition.etapes.splice(i,1);rendre_();}});
       return;
     }
     if(b==='voix'){ouvrirVoixEtape_(i);return;}

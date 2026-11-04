@@ -1308,7 +1308,9 @@ function clicSuppression_(cle){
 }
 
 function retablir_(){
-  if(!window.confirm('Rétablir le texte d’origine ? Ta version modifiée (et ses voix) sera supprimée.'))return;
+  window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Rétablir le texte d’origine ? Ta version modifiée (et ses voix) sera supprimée.',{titre:'Rétablir le texte',ok:'Rétablir',danger:true}).then(function(ok){if(ok)retablirReel_();});
+}
+function retablirReel_(){
   arreterEcoute_();
   appel_('supprimerTexteAdminSorealIdle',[{cle:edition.cle}]).then(function(res){
     if(res&&res.ok===false)throw new Error(res.message||'Refusé.');

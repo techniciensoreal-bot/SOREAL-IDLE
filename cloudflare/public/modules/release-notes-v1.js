@@ -32,6 +32,7 @@
         date:'2026-11-04',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Toutes les fenêtres de confirmation et de saisie sont maintenant au format du site : plus aucune fenêtre grise du navigateur.',
             'Plus aucune fenêtre ne s’ouvre à la première visite d’un menu, et la fenêtre « ce que tu as généré hors ligne » à la reconnexion a disparu.',
             'Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.',
             'L’application Android ne recharge plus ta partie en boucle au démarrage.',
@@ -86,6 +87,8 @@
             'Quand tu cliques sur un bocal occupé, tu vois depuis combien de temps l’objet est en garderie.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Équiper une configuration reprend automatiquement dans le coffre les pièces qui y sont rangées (si le sac a de la place).',
+            'Configurations d’équipement : tu peux leur donner un nom, les monter ou les descendre, et tu vois le total des bonus de leurs pièces (Puissance, Endurance, PV max, Regen PV et Specials).',
             'Tri du sac : les pendentifs sont rangés du plus faible au plus puissant.',
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},

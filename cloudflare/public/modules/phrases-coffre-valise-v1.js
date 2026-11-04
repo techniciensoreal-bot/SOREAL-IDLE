@@ -175,7 +175,9 @@ function enregistrer_(qui){
   }).catch(function(e){message_(qui,'Impossible d’enregistrer : '+(e&&e.message?e.message:e),true);});
 }
 function retablir_(qui){
-  if(!window.confirm('Rétablir les phrases d’origine ? Ta liste sera supprimée.'))return;
+  window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Rétablir les phrases d’origine ? Ta liste sera supprimée.',{titre:'Rétablir les phrases',ok:'Rétablir',danger:true}).then(function(ok){if(ok)retablirReel_(qui);});
+}
+function retablirReel_(qui){
   appel_('supprimerTexteAdminSorealIdle',[{cle:CLES[qui]}]).then(function(res){
     if(res&&res.ok===false)throw new Error(res.message||'Refusé.');
     majSurcharge_(CLES[qui],null);

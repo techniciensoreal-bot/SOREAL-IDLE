@@ -55,7 +55,7 @@
       /* Partie B uniquement : recopie la partie A (lue, jamais modifiée) pour tester dans les mêmes conditions. */
       function copierPartieADevIdleV1_(){
         if(!REG.idlePartieDevV1||!REG.idlePartieDevV1.actif||REG.idlePartieDevV1.partie==='a')return;
-        if(!window.confirm('Copier ta partie A sur cette partie ? La partie actuelle sera remplacée. La partie A n’est pas modifiée.'))return;
+        window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Copier ta partie A sur cette partie ? La partie actuelle sera remplacée. La partie A n’est pas modifiée.',{titre:'Copier la partie A',ok:'Copier',danger:true}).then(function(ok){if(ok)copierPartieAReelDevIdleV1_();});}function copierPartieAReelDevIdleV1_(){
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){location.reload();}
@@ -2581,7 +2581,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
       function basculerAccesPublicIdleV1_(){
         if(!REG.idleEtat||!REG.idleEtat.reglages||!SOREAL_SESSION)return;
         const voulu=!REG.idleEtat.reglages.accesPublic;
-        if(voulu&&!window.confirm('Ouvrir SOREAL NGU IDLE à toute personne qui se connecte avec un compte Google, sans passer par APP / TV ?'))return;
+        if(voulu&&!window.__accesPublicConfirmeV1__){window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Ouvrir SOREAL NGU IDLE à toute personne qui se connecte avec un compte Google, sans passer par APP / TV ?',{titre:'Accès public',ok:'Ouvrir'}).then(function(ok){if(ok){window.__accesPublicConfirmeV1__=true;try{basculerAccesPublicIdleV1_();}finally{window.__accesPublicConfirmeV1__=false;}}});return;}
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){
@@ -2624,7 +2624,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
       function basculerAccesOuvertIdleV1_(){
         if(!REG.idleEtat||!REG.idleEtat.reglages||!SOREAL_SESSION)return;
         const voulu=!REG.idleEtat.reglages.accesOuvert;
-        if(voulu&&!window.confirm('Ouvrir SOREAL NGU IDLE à toutes les personnes qui ont le trophée Assiduité de bronze (même celles qui ne travaillent plus ici) ?'))return;
+        if(voulu&&!window.__accesOuvertConfirmeV1__){window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Ouvrir SOREAL NGU IDLE à toutes les personnes qui ont le trophée Assiduité de bronze (même celles qui ne travaillent plus ici) ?',{titre:'Accès ouvert',ok:'Ouvrir'}).then(function(ok){if(ok){window.__accesOuvertConfirmeV1__=true;try{basculerAccesOuvertIdleV1_();}finally{window.__accesOuvertConfirmeV1__=false;}}});return;}
         google.script.run
           .withSuccessHandler(function(res){
             if(res&&res.ok){

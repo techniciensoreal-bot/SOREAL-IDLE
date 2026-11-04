@@ -8,12 +8,12 @@
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
  },
  "/modules/admin-histoires-v1.js": {
-  "pin": 27,
-  "sha": "aa0a875b1b7f9f819f47bbc4d037f87301fe43fa"
+  "pin": 28,
+  "sha": "2cfbc955db2c6c83af5835bdacd6658ab4047ffc"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 7,
-  "sha": "170dd2598b966c25a5db234a459e3e49329f4e58"
+  "pin": 8,
+  "sha": "3d19d2f64fb02129eb2eb9e5f609211830c1fd2e"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 4,
@@ -160,8 +160,8 @@
   "sha": "8c1c589d89e7d932ee374e273bf7a3cbcf598ed3"
  },
  "/modules/chat-v1.js": {
-  "pin": 18,
-  "sha": "34732f1d7e481b8768e2efb1dcee9385b5b57d14"
+  "pin": 19,
+  "sha": "3c4a5147173f12659ddec405bb85ef898eaa7214"
  },
  "/modules/chronique-notes-notice-v1.js": {
   "pin": 1,
@@ -254,6 +254,10 @@
  "/modules/diag-fluidite-v1.js": {
   "pin": 34,
   "sha": "2e4fa89b529b71a3a977aa1283b2c460ef96e043"
+ },
+ "/modules/dialogue-site-v1.js": {
+  "pin": 1,
+  "sha": "124259e9d6d9ecc9b980f1715537014cc11f7d10"
  },
  "/modules/effets-legers-v1.js": {
   "pin": 3,
@@ -368,8 +372,8 @@
   "sha": "82c1710ecb539ba9d9da0468070211749858867d"
  },
  "/modules/inventory-auto-v1.js": {
-  "pin": 24,
-  "sha": "d206f5bf7499640537a795f52187e54126955ef1"
+  "pin": 26,
+  "sha": "d577a8b45ef7298e1af7800843b5deac659adc10"
  },
  "/modules/inventory-presentation-v1.js": {
   "pin": 1,
@@ -448,8 +452,8 @@
   "sha": "d42b016360b7df99dcfe31d963f6823f52458af4"
  },
  "/modules/macguffins-v1.js": {
-  "pin": 4,
-  "sha": "f28ebf839b4b09b5dfe0f87925fe905829b52797"
+  "pin": 5,
+  "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
   "pin": 11,
@@ -496,8 +500,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 160,
-  "sha": "9dd712f8231863397df0ff64659e8ec2f162479b"
+  "pin": 162,
+  "sha": "ee44ff780f61c3337bece516a9e18c1da0fa79c5"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -544,8 +548,8 @@
   "sha": "d79dbd81079aca81d94bf499a40d1a66bd136452"
  },
  "/modules/phrases-coffre-valise-v1.js": {
-  "pin": 6,
-  "sha": "13635d131aa922fd8be10cd4889b8cbcf57063ba"
+  "pin": 7,
+  "sha": "622356bd2dbe37f4fa627968f97311e9b871667b"
  },
  "/modules/plein-ecran-v1.js": {
   "pin": 4,
@@ -600,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 151,
-  "sha": "a7e360f3da1d16f361cc3cab4ebbb8bd718aabc4"
+  "pin": 153,
+  "sha": "c1cb5edfab90a1cddd9f0222ddde3b14ae3b02b1"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 790,
-  "sha": "722019fd7abf5a5f51a3c11b86070ebd34925a2c"
+  "pin": 792,
+  "sha": "3072334db204b18121951ecfe68bf2934d336a5d"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -660,12 +664,12 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 41,
-  "sha": "fa68e442752f81e103833c724838bb92ea8269ef"
+  "pin": 42,
+  "sha": "07653bb611a19961f3c87c7f2b980a6cdb7884e7"
  },
  "/modules/the-end-ui-v1.js": {
-  "pin": 2,
-  "sha": "11ab7c375ac3765b047399bfc11832d834db3bed"
+  "pin": 3,
+  "sha": "0ddfff2b7942ca7418db9344124fa1749516330f"
  },
  "/modules/theme-images-v1.js": {
   "pin": 4,
@@ -688,12 +692,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 825,
-  "sha": "5dd14897517097b7f632c9e3d5b8f3e054d494c3"
+  "pin": 827,
+  "sha": "d2a247a005037a17f29142c5308f5de07c4692af"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 646,
-  "sha": "615f4a90960e7ddf0785463109c820e41d86caae"
+  "pin": 648,
+  "sha": "1428b8433a786305eb4f0a4c53a0d594d5a218f3"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -740,8 +744,8 @@
   "sha": "62bc94b1b4644ee216af7b73d04023a1b05ba230"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 55,
-  "sha": "6fc3bd413f23cc3e8624211aa03def13ab76c033"
+  "pin": 57,
+  "sha": "67482ce4c93377cfb20393c1b656e7a9c2f68896"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 30,
@@ -800,8 +804,8 @@
   "sha": "9638431fff157500121dadf3c8687c444ff04788"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 20,
-  "sha": "09b16867bee9c329f76d94b3b845914763e4da9d"
+  "pin": 21,
+  "sha": "649f2f86efd952489a427379709d83d4854b76ae"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 6,

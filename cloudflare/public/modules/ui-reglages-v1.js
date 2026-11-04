@@ -359,7 +359,8 @@
         const e=document.getElementById('sorealIdleForcerPartieEtatV1');
         const dire=function(t){if(e)e.textContent=t;};
         if(!S||typeof S.forcer!=='function')return;
-        if(!window.confirm(qui==='serveur'?'Remplacer la partie de ce téléphone par celle du serveur ? La tienne reste en secours 30 jours.':'Remplacer la partie du serveur par celle de ce téléphone ? Celle du serveur reste en secours 30 jours.'))return;
+        window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer(qui==='serveur'?'Remplacer la partie de ce téléphone par celle du serveur ? La tienne reste en secours 30 jours.':'Remplacer la partie du serveur par celle de ce téléphone ? Celle du serveur reste en secours 30 jours.',{titre:'Remplacer la partie',ok:'Remplacer',danger:true}).then(function(ok){
+        if(!ok)return;
         dire('En cours…');
         S.forcer(qui).then(function(r){
           if(r==='serveur-charge')dire('Partie du serveur chargée : le jeu redémarre…');
@@ -367,6 +368,7 @@
           else if(r==='hors-ligne')dire('Pas d’internet : réessaie quand tu as du réseau.');
           else dire('Impossible pour le moment : réessaie dans un instant.');
         },function(){dire('Impossible pour le moment : réessaie dans un instant.');});
+        });
       };
       function htmlVersionNotesMajIdleV1_(v,possedes){
         /* Lignes ajoutées depuis le dernier push, en vert (Norman, 2026-10-31) : comparées au texte FRANÇAIS d'origine (avant la traduction), la classe reste posée après traduction. Données : modules/release-notes-nouveautes-v1.js (générées par tools/marquer-nouveautes-push.mjs). */

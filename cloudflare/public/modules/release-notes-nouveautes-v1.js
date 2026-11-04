@@ -4,6 +4,9 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Toutes les fenêtres de confirmation et de saisie sont maintenant au format du site : plus aucune fenêtre grise du navigateur.",
+    "Équiper une configuration reprend automatiquement dans le coffre les pièces qui y sont rangées (si le sac a de la place).",
+    "Configurations d’équipement : tu peux leur donner un nom, les monter ou les descendre, et tu vois le total des bonus de leurs pièces (Puissance, Endurance, PV max, Regen PV et Specials).",
     "Écran LED : Leatherface reste toujours derrière la voiture et ne la rattrape jamais, même pendant un combat lent."
   ] };
 })();

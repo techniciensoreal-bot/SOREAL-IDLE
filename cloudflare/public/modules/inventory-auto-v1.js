@@ -215,9 +215,20 @@
   function zoneFiltre_(){var s=snap(dernierEtat);return s&&s.lootFilterZone?String(s.lootFilterZone):'';}
   window.__inventaireAutoFiltreTypeV1__=function(slot,v){var z=zoneFiltre_();var extra={slot:String(slot),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('t:'+z+':'+slot,'lootFilterType',extra);};
   window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
+  function nomConfig_(i){var s=snap(dernierEtat),lo=s&&Array.isArray(s.loadouts)?s.loadouts[i]:null;return lo&&lo.name?String(lo.name):'';}
   window.__inventaireAutoLoadoutV1__=function(op,index){
-    if(op==='save'&&window.confirm&&!window.confirm('Enregistrer l’équipement actuel dans la configuration '+(entier(index)+1)+' ?'))return;
-    action(op==='save'?'loadoutSave':'loadoutApply',{index:entier(index)});
+    var i=entier(index);
+    if(op==='save'){
+      var nom=nomConfig_(i);
+      window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Enregistrer l’équipement que tu portes dans '+(nom?'« '+nom+' »':'la configuration '+(i+1))+' ? Son contenu actuel sera remplacé.',{titre:'Enregistrer l’équipement',ok:'Enregistrer'}).then(function(ok){if(ok)action('loadoutSave',{index:i});});
+      return;
+    }
+    if(op==='rename'){
+      window.__SOREAL_IDLE_DIALOGUE_V1__.saisir('Donne un nom à la configuration '+(i+1)+' (24 caractères au plus).',{titre:'Nommer la configuration',valeur:nomConfig_(i),max:24,placeholder:'Ex. : Boss, Aventure…',ok:'Nommer'}).then(function(v){if(v!==null)action('loadoutRename',{index:i,name:v});});
+      return;
+    }
+    if(op==='haut'||op==='bas'){action('loadoutMove',{index:i,direction:op==='haut'?-1:1});return;}
+    action('loadoutApply',{index:i});
   };
 
   /* ---------- panneau ---------- */
@@ -346,13 +357,41 @@
     ));
 
     var los=Array.isArray(s.loadouts)?s.loadouts:[];
+    /* Configurations d'équipement (Norman, 2026-11-04) : un NOM, des flèches pour les réorganiser, le TOTAL des bonus de leurs pièces. Tout texte venu du joueur (nom, pièces) est échappé. */
+    var fmt=(window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.formatGrandNombreIdleV70_)||formatGrandNombre;
+    var lib=(window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.idleLabelSpecialBonusV1_)||function(t){return String(t);};
+    function totalHtml_(t){
+      if(!t)return '';
+      var parts=[];
+      if(t.power>0)parts.push('<span class="lo-st lo-p">Puissance <b>'+html(fmt(t.power))+'</b></span>');
+      if(t.toughness>0)parts.push('<span class="lo-st lo-e">Endurance <b>'+html(fmt(t.toughness))+'</b></span>');
+      if(t.hp>0)parts.push('<span class="lo-st lo-p">PV max <b>'+html(fmt(t.hp))+'</b></span>');
+      if(t.regen>0)parts.push('<span class="lo-st lo-e">Regen PV <b>'+html(fmt(t.regen,2))+'</b></span>');
+      Object.keys(t.specials||{}).forEach(function(k){var v=Number(t.specials[k])||0;if(v>0)parts.push('<span class="lo-st lo-s">'+html(lib(k))+' <b>+'+html(fmt(v,2))+'</b></span>');});
+      if(!parts.length&&!t.auCoffre)return '';
+      return '<div class="lo-total" aria-label="Total des bonus de cette configuration">'+parts.join('')+(t.auCoffre>0?'<span class="lo-st lo-cof">'+entier(t.auCoffre)+' pièce'+(t.auCoffre>1?'s':'')+' au coffre : reprise'+(t.auCoffre>1?'s':'')+' automatiquement</span>':'')+(t.absentes>0?'<span class="lo-st lo-abs">'+entier(t.absentes)+' pièce'+(t.absentes>1?'s':'')+' absente'+(t.absentes>1?'s':'')+' du sac</span>':'')+'</div>';
+    }
     lignes.push(section('🎽 Configurations d’équipement · '+entier(s.loadoutSlots),
-      los.length?('<div style="display:grid;gap:8px">'+los.map(function(lo,i){
-        var contenu=lo&&lo.items&&lo.items.length?lo.items.map(function(x){return html(x.name||'objet absent');}).join(', '):'vide';
-        return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap"><span><b>'+(i+1)+'.</b> <span style="font-size:14px;color:#aeb5c8">'+contenu+'</span></span><span style="display:flex;gap:6px">'+
-          '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
-          (lo?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>':'')+
-        '</span></div>';
+      los.length?('<div class="lo-liste">'+los.map(function(lo,i){
+        var vide=!lo||lo.vide||!(lo.items&&lo.items.length);
+        var nom=lo&&lo.name?String(lo.name):'';
+        var contenu=vide?'vide':lo.items.map(function(x){return html(x.name||'objet absent');}).join(', ');
+        return '<div class="lo-carte'+(vide?' lo-vide':'')+'">'+
+          '<div class="lo-tete">'+
+            '<span class="lo-nom"><b>'+(i+1)+'.</b> '+(nom?html(nom):'<i class="lo-sans">Configuration '+(i+1)+'</i>')+'</span>'+
+            '<span class="lo-acts">'+
+              '<button type="button" class="lo-ico" title="Renommer" aria-label="Renommer la configuration '+(i+1)+'" onclick="window.__inventaireAutoLoadoutV1__(\'rename\','+i+')">✎</button>'+
+              '<button type="button" class="lo-ico" title="Monter" aria-label="Monter la configuration '+(i+1)+'"'+(i===0?' disabled':'')+' onclick="window.__inventaireAutoLoadoutV1__(\'haut\','+i+')">▲</button>'+
+              '<button type="button" class="lo-ico" title="Descendre" aria-label="Descendre la configuration '+(i+1)+'"'+(i===los.length-1?' disabled':'')+' onclick="window.__inventaireAutoLoadoutV1__(\'bas\','+i+')">▼</button>'+
+            '</span>'+
+          '</div>'+
+          '<div class="lo-contenu">'+contenu+'</div>'+
+          (vide?'':totalHtml_(lo.total))+
+          '<div class="lo-boutons">'+
+            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
+            (vide?'':'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>')+
+          '</div>'+
+        '</div>';
       }).join('')+'</div>'):
       ''
     ));
@@ -391,7 +430,23 @@
       '.soreal-idle-inv-auto-sections-v1{display:grid;gap:10px;margin-top:10px}'+
       '.soreal-idle-inv-auto-section-v1{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(166,188,229,.14)}'+
       '.soreal-idle-inv-auto-section-titre-v1{font:800 13px/1.25 "Segoe UI Variable Text","Segoe UI",system-ui;color:#dce5f3;margin-bottom:9px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}'+
-      '.soreal-idle-inv-auto-section-v1 .soreal-idle-note-v4{color:#aeb5c8;line-height:1.5}';
+      '.soreal-idle-inv-auto-section-v1 .soreal-idle-note-v4{color:#aeb5c8;line-height:1.5}'+
+      /* Configurations d'équipement : une carte par configuration (nom, flèches, contenu, total des bonus, boutons) */
+      '.lo-liste{display:grid;gap:10px}'+
+      '.lo-carte{display:grid;gap:7px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.18);border:1px solid rgba(166,188,229,.16)}'+
+      '.lo-carte.lo-vide{opacity:.78}'+
+      '.lo-tete{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
+      '.lo-nom{font:800 15px/1.2 system-ui;color:#fff3c9;overflow-wrap:anywhere}'+
+      '.lo-sans{font-style:normal;font-weight:600;color:#aeb5c8}'+
+      '.lo-acts{display:flex;gap:5px}'+
+      '.lo-ico{min-width:32px;height:30px;padding:0 8px;border-radius:8px;border:1px solid rgba(166,188,229,.3);background:rgba(255,255,255,.07);color:#e8eefb;font:700 14px/1 system-ui;cursor:pointer}'+
+      '.lo-ico:disabled{opacity:.35;cursor:default}'+
+      '.lo-ico:focus-visible{outline:2px solid #7fb0ff;outline-offset:1px}'+
+      '.lo-contenu{font-size:13px;line-height:1.4;color:#aeb5c8;overflow-wrap:anywhere}'+
+      '.lo-total{display:flex;flex-wrap:wrap;gap:6px 12px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.04);font-size:13px}'+
+      '.lo-st b{font-variant-numeric:tabular-nums;color:#fff}'+
+      '.lo-p{color:#ffb35c}.lo-e{color:#7fb7ff}.lo-s{color:#ffe36e}.lo-abs{color:#ff9a9a}.lo-cof{color:#a8f0cc}'+
+      '.lo-boutons{display:flex;gap:8px;flex-wrap:wrap}';
     document.head.appendChild(st);
   }
 

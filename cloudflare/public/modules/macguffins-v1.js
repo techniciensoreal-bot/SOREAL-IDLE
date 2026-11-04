@@ -47,8 +47,7 @@
   window.__macguffinRetirerV1__=function(uid){action('unequip',{uid:String(uid)});};
   window.__macguffinFusionnerTypeV1__=function(type){action('mergeAll',{type:String(type)});};
   window.__macguffinJeterV1__=function(uid){
-    if(window.confirm&&!window.confirm('Jeter définitivement ce fragment ?'))return;
-    action('discard',{uid:String(uid)});
+    window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Jeter définitivement ce fragment ?',{titre:'Jeter le fragment',ok:'Jeter',danger:true}).then(function(ok){if(ok)action('discard',{uid:String(uid)});});
   };
   window.__macguffinSortV1__=function(sort){action(sort==='beta'?'bloodBeta':'bloodAlpha');};
 

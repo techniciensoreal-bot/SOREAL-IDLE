@@ -130,8 +130,9 @@ function ouvrirFin(lignes){
 }
 
 window.__theEndPlayIdleV1__=function(){
-  if(!window.confirm('Appuyer sur le bouton rouge ?'))return;
-  if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:{action:'theEndPlay'}});
+  window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Appuyer sur le bouton rouge ?',{titre:'Le bouton rouge',ok:'Appuyer'}).then(function(ok){
+    if(ok&&typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'adventure',adventure:{action:'theEndPlay'}});
+  });
 };
 
 window.__SOREAL_IDLE_THE_END_UI_V1__={panelHtml:panelHtml,finalHackHtml:finalHackHtml,notifier:notifier,ouvrirFin:ouvrirFin};

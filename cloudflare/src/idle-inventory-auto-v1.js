@@ -97,6 +97,7 @@ import {
   IDLE_ADVENTURE_ZONES
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
+import { coffreRetirer } from "./idle-adventure-inventaire.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
@@ -122,13 +123,19 @@ const EPS = 1e-9;
 
 /* ---------- état persistant (vit dans state.adventure.inventoryAuto) ---------- */
 
+/* Nom d'une configuration (Norman, 2026-11-04 : « on doit pouvoir leur donner un nom ») : 24 caractères au plus, espaces compactés, jamais interprété comme du HTML côté client. */
+export const IDLE_LOADOUT_NOM_MAX_V1 = 24;
+function nomLoadoutV1(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, IDLE_LOADOUT_NOM_MAX_V1); }
 function normalizeLoadoutV1(raw) {
   if (!raw || typeof raw !== "object") return null;
   const out = {};
   for (const slot of CORE_SLOTS) out[slot] = String(raw[slot] || "");
   out.accessories = (Array.isArray(raw.accessories) ? raw.accessories : []).map(String).filter(Boolean);
+  out.name = nomLoadoutV1(raw.name);
   return out;
 }
+/* Une configuration sans aucune pièce (seulement un nom) est VIDE : l'équiper ne déséquipe jamais tout. */
+function loadoutVideV1(lo) { return !lo || (!CORE_SLOTS.some((slot) => lo[slot]) && !(lo.accessories && lo.accessories.length)); }
 
 /* Un filtre { types, items } nettoyé. */
 function normalizeFilterV1(filtre) {
@@ -684,9 +691,37 @@ function loadoutSaveV1(s, index, env) {
   const i = I(index, -1);
   if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
   const eq = s.equipment || {};
-  cfg.loadouts[i] = normalizeLoadoutV1({ ...eq, accessories: Array.isArray(eq.accessories) ? eq.accessories : [] });
+  const nomGarde = cfg.loadouts[i] ? cfg.loadouts[i].name : "";
+  cfg.loadouts[i] = normalizeLoadoutV1({ ...eq, accessories: Array.isArray(eq.accessories) ? eq.accessories : [], name: nomGarde });
   return { index: i, loadout: X(cfg.loadouts[i]) };
 }
+
+/* Renommer une configuration (même vide) : le nom seul ne change aucune pièce. */
+function loadoutRenameV1(s, index, nom, env) {
+  const cfg = cfgV1(s);
+  const i = I(index, -1);
+  if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
+  const lo = cfg.loadouts[i] || normalizeLoadoutV1({ accessories: [] });
+  lo.name = nomLoadoutV1(nom);
+  cfg.loadouts[i] = lo;
+  return { index: i, name: lo.name };
+}
+
+/* Réorganiser : échange la configuration avec sa voisine (direction -1 = vers le haut, 1 = vers le bas), dans les emplacements débloqués seulement. */
+function loadoutMoveV1(s, index, direction, env) {
+  const cfg = cfgV1(s);
+  const i = I(index, -1);
+  const slots = Math.max(0, I(env?.loadoutSlots, 0));
+  const j = i + (I(direction, 0) < 0 ? -1 : 1);
+  if (i < 0 || i >= slots) throw new Error("LOADOUT_VERROUILLE");
+  if (j < 0 || j >= slots) return { index: i, moved: false };
+  const tmp = cfg.loadouts[i];
+  cfg.loadouts[i] = cfg.loadouts[j];
+  cfg.loadouts[j] = tmp;
+  return { index: j, moved: true };
+}
+
+let dernierRetraitCoffreV1 = 0;   /* nombre de pièces reprises au coffre par le DERNIER équipement (lu juste après l'appel, même exécution synchrone) */
 
 /* Applique un loadout sur une copie de l'état Aventure ; renvoie la copie (le sac ne doit pas déborder). */
 function loadoutApplyV1(s, index, env) {
@@ -694,8 +729,17 @@ function loadoutApplyV1(s, index, env) {
   const i = I(index, -1);
   if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
   const lo = cfg.loadouts[i];
-  if (!lo) throw new Error("LOADOUT_VIDE");
+  if (loadoutVideV1(lo)) throw new Error("LOADOUT_VIDE");
   const w = X(s);
+  /* Norman (2026-11-04) : « quand on clique sur un set pour l'équiper, il doit automatiquement prendre les pièces nécessaires dans le coffre si elles y sont rangées » : chaque pièce voulue qui n'est plus dans le sac mais dans le Coffre est reprise (si le sac a de la place ; sinon elle reste au coffre et le slot reste inchangé). */
+  dernierRetraitCoffreV1 = 0;
+  const voulues = [...CORE_SLOTS.map((slot) => lo[slot]), ...(lo.accessories || [])].filter(Boolean).map(String);
+  for (const id of voulues) {
+    if (w.inventory.some((o) => String(o.id) === id)) continue;
+    if (w.coffre && Object.values(w.coffre).some((it) => it && String(it.id) === id)) {
+      try { coffreRetirer(w, id); dernierRetraitCoffreV1 += 1; } catch (_) { /* sac plein : la pièce reste au coffre */ }
+    }
+  }
   const has = (id) => w.inventory.some((o) => String(o.id) === String(id));
   for (const slot of CORE_SLOTS) {
     const id = lo[slot];
@@ -802,10 +846,12 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
   }
   if (mode === "transformBoost") return idleInventoryTransformBoostV1(s, payload.itemId || payload.id, String(payload.type || ""), env);
   if (mode === "loadoutSave") return loadoutSaveV1(s, payload.index, env);
+  if (mode === "loadoutRename") return loadoutRenameV1(s, payload.index, payload.name, env);
+  if (mode === "loadoutMove") return loadoutMoveV1(s, payload.index, payload.direction, env);
   if (mode === "loadoutApply") {
     /* Pendant le No Equipment Challenge on peut changer de tenue (Norman, 2026-10-17) : les pièces ne comptent pas, voir idleEquipementEffectifV1. */
     state.adventure = loadoutApplyV1(s, payload.index, env);
-    return { index: I(payload.index, -1), equipment: X(state.adventure.equipment) };
+    return { index: I(payload.index, -1), equipment: X(state.adventure.equipment), fromCoffre: dernierRetraitCoffreV1 };
   }
   if (mode === "lootFilterType") {
     if (!env?.lootFilterBasic) throw new Error("FILTRE_BASIQUE_VERROUILLE");
@@ -845,12 +891,33 @@ function nomDefinitionV1(s, definitionId) {
   try { return idleAdventureItemAtLevelV47(definitionId, 0).name; } catch (_) { return String(definitionId); }
 }
 
+/* Total des bonus d'une configuration (Norman, 2026-11-04 : « voir le total de bonus qu'on a avec ce stuff ») : Power et Endurance des pièces PRÉSENTES, PV = Power x 3 et Regen = Endurance x 0,03 comme le moteur, et chaque Special additionné par type. Une pièce absente du sac (fusionnée, jetée, à la garderie) compte dans `absentes`. */
+function totalLoadoutV1(lo, byId, coffreById) {
+  const ids = [...CORE_SLOTS.map((slot) => lo[slot]), ...(lo.accessories || [])].filter(Boolean).map(String);
+  let power = 0, toughness = 0, absentes = 0, auCoffre = 0;
+  const specials = {};
+  for (const id of ids) {
+    let o = byId.get(id);
+    if (!o && coffreById && coffreById.has(id)) { o = coffreById.get(id); auCoffre += 1; }
+    if (!o) { absentes += 1; continue; }
+    power += N(o.power);
+    toughness += N(o.toughness);
+    if (Array.isArray(o.specialsAll) && o.specialsAll.length) {
+      for (const sv of o.specialsAll) if (sv && sv.type) specials[String(sv.type)] = (specials[String(sv.type)] || 0) + N(sv.value);
+    } else if (o.specialType && N(o.special) > 0) {
+      specials[String(o.specialType)] = (specials[String(o.specialType)] || 0) + N(o.special);
+    }
+  }
+  return { power, toughness, hp: power * 3, regen: toughness * 0.03, specials, absentes, auCoffre };
+}
+
 export function idleInventoryAutoSnapshotV1(s, env) {
   const cfg = normalizeIdleInventoryAutoV1(s?.inventoryAuto);
   const interval = idleInventoryAutoIntervalSecondsV1(env);
   const slots = Math.max(0, I(env?.loadoutSlots, 0));
   const byId = new Map((Array.isArray(s?.inventory) ? s.inventory : []).map((o) => [String(o.id), o]));
-  const nom = (id) => (id && byId.has(String(id)) ? String(byId.get(String(id)).name || "") : "");
+  const coffreById = new Map(Object.values(s?.coffre && typeof s.coffre === "object" ? s.coffre : {}).filter((o) => o && o.id).map((o) => [String(o.id), o]));
+  const nom = (id) => (id && byId.has(String(id)) ? String(byId.get(String(id)).name || "") : (id && coffreById.has(String(id)) ? String(coffreById.get(String(id)).name || "") : ""));
   const zoneFiltre = idleInventoryFilterZoneV1(s, env?.filterZone);
   const filtreZone = lootFilterOfZoneV1(cfg, zoneFiltre);
   return {
@@ -884,7 +951,10 @@ export function idleInventoryAutoSnapshotV1(s, env) {
     loadoutSlots: slots,
     loadoutsMax: IDLE_INVENTORY_LOADOUTS_MAX_V1,
     loadouts: cfg.loadouts.slice(0, slots).map((lo) => (lo ? {
-      items: [...CORE_SLOTS.map((slot) => ({ slot, id: lo[slot], name: nom(lo[slot]) })), ...lo.accessories.map((id) => ({ slot: "accessory", id, name: nom(id) }))].filter((x) => x.id)
+      name: lo.name || "",
+      vide: loadoutVideV1(lo),
+      items: [...CORE_SLOTS.map((slot) => ({ slot, id: lo[slot], name: nom(lo[slot]) })), ...lo.accessories.map((id) => ({ slot: "accessory", id, name: nom(id) }))].filter((x) => x.id),
+      total: totalLoadoutV1(lo, byId, coffreById)
     } : null)),
     /* Filtre de la zone où se trouve le joueur (un changement de zone change le filtre affiché ET appliqué). */
     lootFilterZone: zoneFiltre,

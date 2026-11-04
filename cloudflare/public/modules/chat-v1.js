@@ -361,7 +361,10 @@
   }
 
   function supprimerMessage(id){
-    if(!estAdmin||!window.confirm('Supprimer ce message pour tout le monde ?'))return;
+    if(!estAdmin)return;
+    window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer ce message pour tout le monde ?',{titre:'Supprimer le message',ok:'Supprimer',danger:true}).then(function(ok){if(ok)supprimerMessageReel(id);});
+  }
+  function supprimerMessageReel(id){
     appel('supprimerMessageChatSorealIdle',[{id:id}]).then(function(){
       items=items.filter(function(it){return it.id!==id;});
       rendreMessages(false);

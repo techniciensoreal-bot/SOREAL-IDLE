@@ -381,11 +381,13 @@ function purgerVoix_(){
       var mo=(d.octetsLiberes/1048576).toFixed(1).replace('.',',');
       if(!d.supprimees){message('Rien à nettoyer : les '+d.gardees+' voix stockées sont toutes utilisées.');return;}
       var exemples=(d.liste||[]).slice(0,8).map(function(x){return x.cle.replace('idle/voix/','')+' ('+x.raison+')';}).join(', ');
-      if(!window.confirm('Supprimer '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' de voix inutile'+(d.supprimees>1?'s':'')+' ('+mo+' Mo) ? Les '+d.gardees+' voix utilisées sont conservées.\n\nExemples : '+exemples)){message('Nettoyage annulé : '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' à supprimer ('+mo+' Mo), rien n’a été supprimé.');return;}
+      return window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' de voix inutile'+(d.supprimees>1?'s':'')+' ('+mo+' Mo) ? Les '+d.gardees+' voix utilisées sont conservées.\n\nExemples : '+exemples,{titre:'Nettoyer les voix',ok:'Supprimer',danger:true}).then(function(ok){
+      if(!ok){message('Nettoyage annulé : '+d.supprimees+' fichier'+(d.supprimees>1?'s':'')+' à supprimer ('+mo+' Mo), rien n’a été supprimé.');return;}
       message('Suppression…');
       return appeler(liees,false,d.supprimees).then(function(f){
         if(f.simulation){message('Rien n’a été supprimé : la liste a changé entre-temps, recommence.');return;}
         message('✔ '+f.supprimees+' fichier'+(f.supprimees>1?'s':'')+' supprimé'+(f.supprimees>1?'s':'')+' ('+mo+' Mo libérés), '+f.gardees+' conservé'+(f.gardees>1?'s':'')+'.');
+      });
       });
     });
   }).catch(function(e){message('Nettoyage impossible : '+(e&&e.message?e.message:e));});
@@ -443,7 +445,9 @@ function jouer_(h){
 }
 
 function supprimer_(h){
-  if(!window.confirm('Supprimer définitivement l’histoire « '+h.titre+' » ?'))return;
+  window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer définitivement l’histoire « '+h.titre+' » ?',{titre:'Supprimer l’histoire',ok:'Supprimer',danger:true}).then(function(ok){if(ok)supprimerReel_(h);});
+}
+function supprimerReel_(h){
   appel_('supprimerHistoireAdminSorealIdle',[{id:h.id}]).then(function(){
     etat.histoires=etat.histoires.filter(function(x){return x.id!==h.id;});
     rafraichirListe_();
@@ -1371,7 +1375,7 @@ document.addEventListener('click',function(ev){
     else if(a==='image')choisirImage_(i);
     else if(a==='suppr'){
       if(edition.etapes.length<=1){afficherEtat_('Une histoire garde au moins une étape.',true);return;}
-      if(window.confirm('Supprimer l’étape '+(i+1)+' ?')){edition.etapes.splice(i,1);rafraichirEtapes_();}
+      window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Supprimer l’étape '+(i+1)+' ?',{titre:'Supprimer l’étape',ok:'Supprimer',danger:true}).then(function(ok){if(ok){edition.etapes.splice(i,1);rafraichirEtapes_();}});
     }
   }
 });
