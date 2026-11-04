@@ -56,7 +56,12 @@ console.log("idle-barres-boucles-parfaites-v1: OK");
   assertNgu.ok(ngu.includes("@keyframes nlFumee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--T)))}}"), "fumée : glisse d'exactement une tuile (--T)");
   assertNgu.ok(ngu.includes("width:calc(100% + var(--T));background-size:var(--T) 100%"), "fumée : la couche déborde d'une tuile et sa tuile est explicite");
   assertNgu.ok(ngu.includes("@keyframes nlScint{0%,100%{opacity:.3}50%{opacity:1}}"), "étoiles : même opacité au début et à la fin du cycle");
-  assertNgu.ok(ngu.includes("calc(var(--d) / var(--nl-v,1))") && ngu.includes("1+159*Math.pow(rang||0,3)") && ngu.includes("calc(var(--d) / (1 + var(--nl-r,0) * 7))"), "vitesse : du premier tube (x1) au dernier (plafond : fumée x20, scintillement x8)");
+  /* La fumée EST la barre (Norman, 2026-11-04) : fenêtre [p - L, p] masquée, p = avancée du niveau, L = traînée (niv/s) ; plein au cap ; rien sans énergie ; plus de liquide dans les tubes d'énergie */
+  assertNgu.ok(ngu.includes("function longueurTraine_(spl,pleine)") && ngu.includes("calc((var(--nl-p,0) - var(--nl-L,.2)) * 100%)") && ngu.includes("mask-image:'+masque"), "fenêtre de fumée qui avance avec la barre");
+  assertNgu.ok(ngu.includes(".nl-barre:not(.actif) .nl-ciel{display:none}") && ngu.includes('.nl-barre[data-nl-res="energy"] .nl-liq-in{display:none}'), "aucun nuage sans énergie ; plus d'ancienne barre dans les tubes d'énergie");
+  assertNgu.ok(ngu.includes('.nl-barre.pleine[data-nl-res="energy"] .nl-ciel{-webkit-mask-image:none;mask-image:none}') && ngu.includes('.nl-barre.pleine[data-nl-res="energy"] .nl-ciel::before{opacity:1}'), "au cap : tube plein de fumée, plus de nuage visible");
+  assertNgu.ok(ngu.includes("calc(var(--d) / (1 + var(--nl-L,0) * 6))") && ngu.includes("calc(var(--d) / (1 + var(--nl-r,0) * 7))"), "dérive de la fumée selon la traînée ; scintillement des étoiles selon le rang");
+  assertNgu.ok(ngu.includes("tube.style.setProperty('--nl-p'") && ngu.includes("tube.style.setProperty('--nl-L'"), "le tick recale la fenêtre à chaque image (et après un redessin)");
   assertNgu.ok(ngu.includes("--k1:hsl(") && !/\.nl-barre\[data-nl-ngu=/.test(ngu), "une couleur par tube, posée sur le tube (aucun identifiant de NGU dans la feuille de style : anti-spoil)");
   assertNgu.ok(/prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="energy"\] \.nl-ciel b\{animation/.test(ngu) && /prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="magic"\] \.nl-ciel b\{animation/.test(ngu), "prefers-reduced-motion coupe les deux animations");
 }

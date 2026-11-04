@@ -56,7 +56,7 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'Chaque tube a sa propre couleur de fumée : de faibles volutes dans le premier tube, une fumée de plus en plus dense et rapide jusqu’au dernier, capé, rempli de fumée pleine.',
+            'NGU Énergie : la fumée est la barre. Aucun nuage sans énergie ; un seul nuage traverse le tube quand c’est lent, la traînée s’allonge avec les niveaux par seconde, et le tube est plein de fumée au CAP. Chaque tube a sa couleur.',
             'Chaque tube affiche ses niveaux par seconde (niv/s, format 0,01).',
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[

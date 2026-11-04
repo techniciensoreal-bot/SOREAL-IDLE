@@ -66,7 +66,7 @@ assert.ok(/data-nl-tout="'\+\(nbOuvertes_>0&&nbOuvertes_===nbEnergie_\?'1':'0'\)
 // --- magie : étoiles par ligne
 assert.ok(src.includes('@property --nl-e{syntax:"<number>";inherits:true;initial-value:0}'), "--nl-e est lissée par le CSS");
 assert.ok(src.includes('.nl-barre[data-nl-res="magic"]{transition:--nl-e 16s ease-in-out}'), "extinction et allumage de 16 s");
-assert.ok(/style="--nl-c:'\+c\[0\]\+';--nl-t:'\+c\[1\]\+';--nl-e:'\+eclatLigne_\(n\)\+';--nl-r:'\+\(rang\|\|0\)\+';--nl-v:'\+Math\.round\(\(1\+159\*Math\.pow\(rang\|\|0,3\)\)\*100\)\/100\+';'\+cielVars_\(n\.id\)\+'"/.test(src), "l'éclat vient de l'état de la ligne (eclatLigne_), pas du DOM");
+assert.ok(/style="--nl-c:'\+c\[0\]\+';--nl-t:'\+c\[1\]\+';--nl-e:'\+eclatLigne_\(n\)\+';--nl-r:'\+\(rang\|\|0\)\+';'\+cielVars_\(n\.id\)\+'"/.test(src), "l'éclat vient de l'état de la ligne (eclatLigne_), pas du DOM");
 assert.ok(/nlLigneScintA\{0%,100%\{opacity:var\(--nl-e\)\}/.test(src) && /nlLigneScintB\{0%,100%\{opacity:calc\(var\(--nl-e\)\*var\(--nl-e\)\*\.3\)\}/.test(src), "scintillement : boucle parfaite (mêmes valeurs à 0 % et 100 %)");
 assert.ok(/prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="magic"\]::after\{animation:nlLigneScintA/.test(src), "scintillement coupé si reduced-motion");
 assert.ok(/data-nl-onglet="magic"\]>\.nl-arc,\.nl-v1\[data-nl-onglet="magic"\] \.nl-etoiles\{display:none\}/.test(src), "plus de ciel étoilé ni d'aurore de bandeau sur toute la page");

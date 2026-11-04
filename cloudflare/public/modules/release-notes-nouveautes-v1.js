@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.",
-    "Au-dessus de chaque arbre, le compteur montre les fruits prêts sur ceux de l’arbre (2/8) ; le niveau maximum n’est plus affiché."
+    "NGU Énergie : la fumée est la barre. Aucun nuage sans énergie ; un seul nuage traverse le tube quand c’est lent, la traînée s’allonge avec les niveaux par seconde, et le tube est plein de fumée au CAP. Chaque tube a sa couleur."
   ] };
 })();

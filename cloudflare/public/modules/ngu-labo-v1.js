@@ -365,6 +365,17 @@ function vitesseTexte_(spl){
   return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+/*
+ * La fumée EST la barre (Norman, 2026-11-04 : « pas de nuages dans le tube sans énergie ; enlève l'ancienne barre qui avance dedans, je ne veux que des nuages ; l'avancée des nuages représente la barre ; la fumée avance progressivement, un peu comme la sangsue ;
+ * très lent = un seul nuage traverse tout le tube ; cap = 50 nuages par seconde, donc le tube rempli de fumée »). Un masque dégradé ne laisse voir la fumée que dans une FENÊTRE [p - L, p] : p = avancée du niveau en cours (0 à 1, recalée à chaque image),
+ * L = longueur de la traînée, qui grandit avec les niveaux par seconde (un nuage seul quand c'est lent, tout le tube au cap). Au cap (classe « pleine ») : fenêtre ouverte sur tout le tube, fumée pleine et uniforme.
+ */
+function longueurTraine_(spl,pleine){
+  if(pleine)return 1.1;
+  if(!(spl>0))return 0.16;
+  return Math.round(Math.min(1,Math.max(0.16,Math.sqrt((1/spl)/50)))*1000)/1000;
+}
+
 /* ---------- un tuyau ---------- */
 /* HTML stable (Norman, 2026-11-02, redessin NGU) : l'instant de départ (data-nl-t0) n'est écrit que pour un tuyau qui progresse (spl > 0 : seul cas où le tick le lit) ; un tuyau à l'arrêt porte toujours 0, donc deux rendus d'un même état sans progression sont identiques et le morph peut ignorer le redessin. */
 function barreHtml_(n,ancre,rang){
@@ -378,11 +389,11 @@ function barreHtml_(n,ancre,rang){
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
-  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';--nl-v:'+Math.round((1+159*Math.pow(rang||0,3))*100)/100+';'+cielVars_(n.id)+'">'+
+  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id)+'">'+
     '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-vit" title="Niveaux gagnés par seconde">⚡ <b>'+vitesseTexte_(spl)+'</b> niv/s</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
     '<div class="nl-tuyau">'+
       '<i class="nl-bride g"></i>'+
-      '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true"><b></b><b></b><b></b></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
+      '<div class="nl-tube" style="--nl-p:'+(pleine?1.05:rempli)+';--nl-L:'+longueurTraine_(spl,pleine)+'"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true"><b></b><b></b><b></b></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
       '<i class="nl-bride d"></i>'+
     '</div>'+
     '<div class="nl-eta" data-nl-eta>'+etaTexte_(spl,rempli,cible>0&&niveau>=cible)+'</div>'+
@@ -437,17 +448,21 @@ function cielCss_(){
   var N=function(x,y,c,a,e){e=e||1;var P=function(dx,dy,rx,ry){return 'radial-gradient(ellipse '+Math.round(rx*e)+'px '+Math.round(ry*e)+'px at calc('+x+'% + '+Math.round(dx*e)+'px) '+(y+dy)+'%,'+f(c,a)+' 0,'+f(c,Math.round(a*0.62))+' 38%,transparent 72%)';};return [P(-11,5,30,12),P(0,-6,36,15),P(12,5,29,12)].join(',');};
   o+='.nl-ciel{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit}'+
      '.nl-ciel b{position:absolute;top:0;bottom:0;left:0;display:none;background-repeat:repeat-x}';
-  o+='.nl-barre[data-nl-res="energy"] .nl-ciel b{display:block;width:calc(100% + var(--T));background-size:var(--T) 100%;will-change:transform}'+
+  var M='calc((var(--nl-p,0) - var(--nl-L,.2)) * 100%)',F='calc(var(--nl-p,0) * 100%)';
+  var masque='linear-gradient(90deg,transparent calc('+M+' - 3%),#000 calc('+M+' + 4%),#000 calc('+F+' - 7%),transparent calc('+F+' + 1%))';
+  o+='.nl-barre:not(.actif) .nl-ciel{display:none}'+                                                                      /* aucune énergie : aucun nuage ni étoile */
+     '.nl-barre[data-nl-res="energy"] .nl-liq-in{display:none}'+                                                           /* plus d'ancienne barre dans les tubes d'énergie */
+     '.nl-barre[data-nl-res="energy"] .nl-ciel{-webkit-mask-image:'+masque+';mask-image:'+masque+'}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b{display:block;width:calc(100% + var(--T));background-size:var(--T) 100%;will-change:transform}'+
      '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(1){--T:260px;--d:34s;background-image:'+[N(22,52,'--k1',74),N(68,40,'--k2',70)].join(',')+'}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){--T:200px;--d:23s;background-image:'+[N(30,34,'--k3',66),N(78,64,'--k4',68)].join(',')+'}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){--T:340px;--d:49s;background-image:'+[N(30,46,'--k4',34,2),N(76,52,'--k1',32,2)].join(',')+'}'+
-     /* Débit de fumée (Norman, 2026-11-04 : « un faible débit de fumée pour le premier et que ce soit rempli de fumée quand c'est cap ») : --nl-r (0 = premier tube, 1 = dernier, au plafond). Premier : un voile de nuages bien lisible (faible débit) ; le voile 2 apparaît dès le 2e tube, le voile 3 dès le 3e ; dernier : trois voiles pleins ET un brouillard qui remplit tout le tube. */
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(1){opacity:calc((.6 + var(--nl-r,0) * .4) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){opacity:calc(min(1,max(0,calc(var(--nl-r,0) * 1.6 + .12))) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){opacity:calc(min(1,max(0,calc(var(--nl-r,0) * 1.5 - .05))) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
-     /* Au plafond (--nl-r = 1) : la fumée est PLEINE à l'intérieur, uniforme, et plus aucun nuage ne circule (Norman, 2026-11-04 : « quand c'est capé, la fumée doit être pleine à l'intérieur. On ne doit plus voir les nuages circuler ») : les voiles s'effacent à partir de 80 %, le brouillard devient opaque. */
-     '.nl-barre[data-nl-res="energy"] .nl-ciel::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--k2) 78%,transparent),color-mix(in srgb,var(--k1) 82%,transparent));opacity:min(1,calc(max(0,var(--nl-r,0) - .45) * 1.82))}'+
-     '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="energy"] .nl-ciel b{animation:nlFumee calc(var(--d) / var(--nl-v,1)) linear infinite;animation-direction:reverse;animation-delay:var(--dl,0s)}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){--T:200px;--d:23s;opacity:min(1,calc(var(--nl-L,0) * 2.2));background-image:'+[N(30,34,'--k3',66),N(78,64,'--k4',68)].join(',')+'}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){--T:340px;--d:49s;opacity:min(1,max(0,calc(var(--nl-L,0) * 2 - .5)));background-image:'+[N(30,46,'--k4',34,2),N(76,52,'--k1',32,2)].join(',')+'}'+
+     /* Au cap (classe pleine) : fumée PLEINE à l'intérieur, uniforme, plus aucun nuage qui circule (Norman, 2026-11-04) */
+     '.nl-barre[data-nl-res="energy"] .nl-ciel::before{content:"";position:absolute;inset:0;opacity:0;background:linear-gradient(180deg,color-mix(in srgb,var(--k2) 78%,transparent),color-mix(in srgb,var(--k1) 82%,transparent))}'+
+     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel{-webkit-mask-image:none;mask-image:none}'+
+     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel b{display:none}'+
+     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel::before{opacity:1}'+
+     '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="energy"] .nl-ciel b{animation:nlFumee calc(var(--d) / (1 + var(--nl-L,0) * 6)) linear infinite;animation-direction:reverse;animation-delay:var(--dl,0s)}'+
      '@keyframes nlFumee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--T)))}}}';
   /* Étoiles (magie) : trois calques scintillant à des rythmes différents ; chaque NGU a sa propre largeur de tuile et son décalage (--S, --o) : jamais deux tubes pareils. */
   o+='.nl-barre[data-nl-res="magic"] .nl-ciel b{display:block;right:0;background-repeat:repeat-x;background-size:var(--S) 38px;background-position:var(--o) 50%}'+
@@ -799,6 +814,8 @@ function tick_(){
         liq.style.transform='scaleX('+v+')';
         var pct=f.querySelector('[data-nl-pct]');
         if(pct)pct.textContent=Math.round(v*100)+' %';
+        var tube=f.querySelector('.nl-tube');
+        if(tube){var plein=f.classList.contains('pleine');tube.style.setProperty('--nl-p',plein?'1.05':String(v));tube.style.setProperty('--nl-L',String(longueurTraine_(spl,plein)));}   /* la fumée avance avec la barre */
       }
     }
     if(!complet)return;

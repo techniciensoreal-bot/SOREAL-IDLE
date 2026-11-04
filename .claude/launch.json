@@ -4,8 +4,18 @@
     {
       "name": "idle-local-essai",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["cloudflare/tools/essai-local.mjs"],
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local.mjs"
+      ],
       "port": 8830
+    },
+    {
+      "name": "idle-local-ngu",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local-ngu.mjs"
+      ],
+      "port": 8831
     }
   ]
 }
