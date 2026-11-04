@@ -69,6 +69,9 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'NGU Nuit : plus de barre pleine dans les tubes ; des grappes d’étoiles avancent comme les nuages de l’énergie, et au cap un tube de paillettes (trois plans d’étoiles, les plus lointains plus lents) défile très vite.',
+            'NGU : chaque tuyau est entouré d’un cadre discret qui regroupe sa barre, ses boutons et ses informations.',
+            'NGU Magie : quand tu places de la magie, le message dit « Place de la magie pour avancer » (et non plus l’énergie), et les étoiles avancent au rythme du remplissage du niveau.',
             'NGU Énergie : un seul nuage vaporeux, toujours visible, montre l’avancée du niveau (il reste à l’arrêt si tu retires l’énergie, et continue sa course jusqu’à sortir du tube quand le niveau est fini) ; à partir de 2 niveaux par seconde il y a autant de nuages que de niveaux par seconde, la fumée s’épaissit jusqu’à 49, et le tuyau n’est plein de fumée qu’à 50.',
             'NGU Énergie : la fumée est la barre. Aucun nuage sans énergie ; un seul nuage traverse le tube quand c’est lent, la traînée s’allonge avec les niveaux par seconde, et le tube est plein de fumée au CAP. Chaque tube a sa couleur.',
             'Chaque tube affiche ses niveaux par seconde (niv/s, format 0,01).',

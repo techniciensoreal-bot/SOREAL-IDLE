@@ -12,7 +12,7 @@ const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 const ui = lireUiComplet();
 
 assert.ok(meta.includes("Conseil : n’achète ceci qu’une fois que tu as acheté tout le reste."), "Rich Jerks : conseil");
-assert.ok(ngu.includes("function etaTexte_(spl,fraction,cibleAtteinte)") && ngu.includes("data-nl-eta") && ngu.includes("Niveau suivant dans"), "NGU : minuteur");
+assert.ok(ngu.includes("function etaTexte_(spl,fraction,cibleAtteinte,ressource)") && ngu.includes("data-nl-eta") && ngu.includes("Niveau suivant dans"), "NGU : minuteur");
 assert.ok(ngu.includes("eta.innerHTML=texteEta"), "le minuteur est mis à jour en direct");
 assert.ok(ngu.includes("var resumeOuvert=false;") && ngu.includes("(resumeOuvert?' open':'')") && ngu.includes("resume:function(o){resumeOuvert=Boolean(o);}"), "volet Effets : état conservé");
 

@@ -508,8 +508,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 92,
-  "sha": "f387326de83b429701916b4b2dbd359acfef3881"
+  "pin": 99,
+  "sha": "fe6019da13d0cdec38f25f09c9e1a8231c3b574b"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -600,12 +600,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 146,
-  "sha": "82c3efc3085fcad16881e237b9fcf57084817af5"
+  "pin": 148,
+  "sha": "3cd29b64c714f901c581ccd0820c2467d1315884"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 786,
-  "sha": "10b2d2fc60516b72819330706fc84eacfe0a4b52"
+  "pin": 788,
+  "sha": "ff9a27b41ab8d399fd03d5a8c45720f3b31f843d"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -688,12 +688,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 821,
-  "sha": "90459804cb231806d28d5046eab873b926a895bd"
+  "pin": 823,
+  "sha": "545083db0109a11523056861f5efdf1c527f3680"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 642,
-  "sha": "0a1d3a0c8f37a9ff358569669fdee1f6d6993235"
+  "pin": 644,
+  "sha": "de92e5d135535638169a9a3ddf2a6321e10c9ac8"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

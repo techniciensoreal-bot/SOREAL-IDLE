@@ -335,7 +335,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
   assert.ok(decor.includes("'@media (max-width:700px){'+P+'.bm-grille{justify-content:center}}'"), "colonne de rituels centrée sur téléphone");
   assert.ok(css.includes(".soreal-idle-page-root-v28>.soreal-idle-bloodmagic-v1{max-width:none}"), "bloc Blood Magic non rétréci");
-  assert.ok(ngu.includes(".nl-grille{position:relative;display:grid;grid-template-columns:minmax(0,1fr);") && ngu.includes(".nl-barre{position:relative;min-width:0}") && ngu.includes(".nl-actions{display:flex;flex-wrap:wrap;") && ngu.includes(".nl-tete{display:flex;flex-wrap:wrap;"), "NGU ne déborde plus sur téléphone");
+  assert.ok(ngu.includes(".nl-grille{position:relative;display:grid;grid-template-columns:minmax(0,1fr);") && ngu.includes(".nl-barre{position:relative;min-width:0;") && ngu.includes(".nl-actions{display:flex;flex-wrap:wrap;") && ngu.includes(".nl-tete{display:flex;flex-wrap:wrap;"), "NGU ne déborde plus sur téléphone");
 }
 {
   // Audit de fluidité de Blood Magic (Norman, 2026-10-12) : bibliothèques en image (un élément par scène), cartes hors écran non dessinées et suspendues, plus de filtre d'ombre sur ce qui s'anime.

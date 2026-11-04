@@ -4,7 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Après la mort « Tranché » (et seulement elle), ton image revient toute petite au loin et grossit en galopant, « tagada » quatre fois au même rythme, au bruit des sabots ; la borne et la pancarte de la chronique rebondissent avec elle, et la borne tousse quand tu n’es pas en combat. Les autres morts gardent leur retour habituel.",
-    "Après la mort « Tranché », la borne galope avant de s’arrêter."
+    "NGU Nuit : plus de barre pleine dans les tubes ; des grappes d’étoiles avancent comme les nuages de l’énergie, et au cap un tube de paillettes (trois plans d’étoiles, les plus lointains plus lents) défile très vite.",
+    "NGU : chaque tuyau est entouré d’un cadre discret qui regroupe sa barre, ses boutons et ses informations.",
+    "NGU Magie : quand tu places de la magie, le message dit « Place de la magie pour avancer » (et non plus l’énergie), et les étoiles avancent au rythme du remplissage du niveau."
   ] };
 })();
