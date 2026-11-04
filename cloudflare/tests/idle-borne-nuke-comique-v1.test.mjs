@@ -33,13 +33,14 @@ assert.ok(/NK_SCN={12:CHIEN_TN,22:BAL_TN}/.test(code));
 assert.ok(ev("nukeDuree(0,0,false,4.7)") > ev("nukeDuree(0,0,false)"));
 
 /* ---------------- tirages ---------------- */
-const tirer = (tier, n = 3000) => { ev("nukeSac=[];nukeDernier=-1"); return Array.from({ length: n }, () => ev(`nukeVariante(${tier})`)); };
+const tirer = (tier, n = 3000) => { ev("nukeSac=[];nukePetitsSac=[];nukeDernier=-1"); return Array.from({ length: n }, () => ev(`nukeVariante(${tier})`)); };
 for (const tier of [0, 1]) {
   const t = tirer(tier);
   assert.ok(!t.includes(10), "palier " + tier + " : jamais SUPER NUKE");
   assert.ok(t.every((v) => (v <= 13) || v === 22), "palier " + tier + " : base et comiques seulement");
   const part = t.filter((v) => v === 22).length / t.length;
-  assert.ok(part >= 0.3 && part < 0.6, "palier " + tier + " : le ballon sort souvent mais jamais deux fois de suite, il n'y a plus qu'une scène comique (" + part.toFixed(3) + ")");
+  assert.ok(part >= 0.18 && part < 0.4, "palier " + tier + " : le ballon sort souvent mais plus seul (Norman, 2026-11-04 : « je ne vois jamais le chien et le chat ») : environ un tiers des petits Nuke (" + part.toFixed(3) + ")");
+  for (const v of [5, 12]) { const q = t.filter((x) => x === v).length / t.length; assert.ok(q >= 0.18 && q < 0.4, "palier " + tier + " : la scène " + (v === 5 ? "du chat" : "du chien") + " sort aussi souvent que le ballon (" + q.toFixed(3) + ")"); }
   assert.ok(t.includes(22), "la scène comique (le ballon) sort");
   for (const v of [0, 5, 9, 12, 13]) assert.ok(t.includes(v), "palier " + tier + " : la scène de base " + v + " sort toujours");
   for (let i = 1; i < t.length; i++) if (t[i] > 13 || t[i - 1] > 13) assert.notEqual(t[i], t[i - 1], "pas de répétition immédiate d'une scène comique");

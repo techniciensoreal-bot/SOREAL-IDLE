@@ -56,8 +56,8 @@
   "sha": "0ba1339c88cf821da3a50a09fd54f30481742aef"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 16,
-  "sha": "b9def0314b0a446e60c2bbd9888a1b957c8bd6ff"
+  "pin": 17,
+  "sha": "dfdf5b96d00b072882f2ba12a54b6f856d838836"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 7,
@@ -108,8 +108,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 164,
-  "sha": "2f63de464cb5bc0226f01995eafb439cad96bcdb"
+  "pin": 165,
+  "sha": "66d600fed65b8f22b8a9f50a9107aa72e573275e"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -172,8 +172,8 @@
   "sha": "deae5981fbba589d224f71bd23fe657d270fe02a"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 25,
-  "sha": "03b66a52feea3ea2dd40140fd48971c4d2fbe0e3"
+  "pin": 26,
+  "sha": "e0b1224620461120326920f95e960cd77ea39908"
  },
  "/modules/coffre-sommeil-v1.js": {
   "pin": 30,
@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 153,
-  "sha": "c1cb5edfab90a1cddd9f0222ddde3b14ae3b02b1"
+  "pin": 155,
+  "sha": "dd2984719ffb72dc759a633c3ea5d6554168305f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 792,
-  "sha": "3072334db204b18121951ecfe68bf2934d336a5d"
+  "pin": 794,
+  "sha": "8ee56bbc4a7ac7a590675ea77a56b9417fd5c820"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -692,12 +692,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 827,
-  "sha": "d2a247a005037a17f29142c5308f5de07c4692af"
+  "pin": 829,
+  "sha": "b859436b1b911ba87ebf981e747de5886e04880e"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 648,
-  "sha": "1428b8433a786305eb4f0a4c53a0d594d5a218f3"
+  "pin": 650,
+  "sha": "735499e589d3bd200527983b73c406f02f76a025"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

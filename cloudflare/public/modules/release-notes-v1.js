@@ -87,12 +87,14 @@
             'Quand tu cliques sur un bocal occupé, tu vois depuis combien de temps l’objet est en garderie.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Coffre : les deux répliques de l’accident restent plus longtemps à l’écran (4,4 s chacune) et la seconde ne démarre qu’une fois la première partie.',
             'Équiper une configuration reprend automatiquement dans le coffre les pièces qui y sont rangées (si le sac a de la place).',
             'Configurations d’équipement : tu peux leur donner un nom, les monter ou les descendre, et tu vois le total des bonus de leurs pièces (Puissance, Endurance, PV max, Regen PV et Specials).',
             'Tri du sac : les pendentifs sont rangés du plus faible au plus puissant.',
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Petits Nuke : le chat, le chien et le ballon sortent chacun environ un tiers du temps (avant, le ballon sortait presque toujours).',
             'Écran LED : Leatherface reste toujours derrière la voiture et ne la rattrape jamais, même pendant un combat lent.',
             'Un petit Nuke démarre directement son animation à l’appui du bouton (ballon, chien, chat…), sans écran d’attente.',
             'Les bandes lumineuses bleue et rouge du contour de la borne sont continues, de l’écran au sol : même brillance partout, elles suivent l’épaule inclinée du pupitre, sans décrochement ni coin.',

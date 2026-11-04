@@ -2036,9 +2036,16 @@ function nukeChoix(){
   nukeDernier=v;return v;
 }
 /* petits Nuke (paliers 0 et 1) : au moins une fois sur deux une scène COMIQUE (jamais deux fois de suite la même), sinon une scène de base SANS le SUPER NUKE (réservé aux Nuke de 10 boss et plus) */
+/* Norman (2026-11-04) : « je ne vois jamais l'animation du chien et du chat, toujours le ballon » : la scène comique (le ballon) sortait 6 fois sur 10 et le chat et le chien ~3 % chacun. Désormais 7 petits Nuke sur 10 tirent dans le SAC des trois scènes de petit Nuke (chat, chien, ballon : mélangées, chacune une fois avant de recommencer, jamais deux fois de suite la même) ; les 3 autres dixièmes une scène de base sans le Super Nuke. */
+var nukePetitsSac=[];
 function nukeLeger(){
   var v;
-  if(Math.random()<NK_PART_COMIQUE&&!(NK_COMIQUES.length===1&&nukeDernier===NK_COMIQUES[0])){v=NK_COMIQUES[Math.floor(Math.random()*NK_COMIQUES.length)];if(v===nukeDernier)v=NK_COMIQUES[(NK_COMIQUES.indexOf(v)+1)%NK_COMIQUES.length];nukeDernier=v;return v;}
+  if(Math.random()<0.7){
+    if(!nukePetitsSac.length)nukePetitsSac=melanger(NK_PETITS_SEULEMENT.slice());
+    v=nukePetitsSac.pop();
+    if(v===nukeDernier&&nukePetitsSac.length){var w=nukePetitsSac.pop();nukePetitsSac.push(v);v=w;}
+    nukeDernier=v;return v;
+  }
   do v=nukeChoix();while(v===NK_SUPER);
   return v;
 }

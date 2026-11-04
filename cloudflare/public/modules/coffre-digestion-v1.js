@@ -121,10 +121,12 @@
     var pc=window.__SOREAL_IDLE_PHRASES_V1__;
     var ouverture=pc?pc.tirer('coffre','accident:C'):OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];   /* liste modifiable par l'administrateur */
     quandEntierementVisible_(function(coffre){
-      if(ouverture){var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';
-      retirer_(b1,200+2300);}
-      var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+2600);b2.className+=' bg-desole-long-v1';
-      retirer_(b2,200+2600+2300);
+      /* Norman (2026-11-04) : « la phrase du bain de boue pour les pieds du Coffre disparaît trop vite » : chaque réplique reste à l'écran 4,4 s (au lieu de 2,2 s) et la seconde ne démarre qu'une fois la première partie. */
+      var DUREE=4400;
+      if(ouverture){var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';b1.style.animationDuration=DUREE+'ms';
+      retirer_(b1,200+DUREE+100);}
+      var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+(ouverture?DUREE+200:0));b2.className+=' bg-desole-long-v1';b2.style.animationDuration=DUREE+'ms';
+      retirer_(b2,200+(ouverture?DUREE+200:0)+DUREE+100);
     });
   }
   /*

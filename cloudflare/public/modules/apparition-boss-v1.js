@@ -25,8 +25,8 @@
   function easeBack(x){x=cl(x,0,1);var c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2);}
   /* Dix effets d'origine, puis les sept entrées validées par Norman le 2026-10-29 (modules/reapparitions-v1.js) : écrasement, surgissement, portail, silhouette, plongeon, fumée, briques ; sans ce module, les dix premiers seuls. */
   function nbEffets(){var R=window.__SOREAL_IDLE_REAPPARITIONS_V1__;return 10+(R&&R.boss&&R.boss.length?R.boss.length:0);}
-  /* Exception demandée par Norman (2026-11-04) : « exceptionnellement, inverse les yeux rouges d'entrée de boss pour le boss 31 et 30 : les yeux rouges vont sur le 30 et l'entrée du 30 sur le 31 » : le boss 30 prend la Silhouette (yeux rouges, index 13), le boss 31 prend l'entrée que le 30 avait (portail, index 12). */
-  function indexPour(n){n=Math.floor(Number(n))||1;if(n===30)return 13;if(n===31)return 12;var m=nbEffets();return ((n-1)%m+m)%m;}
+  /* Exception demandée par Norman (2026-11-04) : « exceptionnellement, inverse les yeux rouges d'entrée de boss pour le boss 31 et 30 : les yeux rouges vont sur le 30 et l'entrée du 30 sur le 31 » : le boss 30 prend la Silhouette (yeux rouges, index 13), le boss 31 prend l'entrée que le 30 avait (portail, index 12). Le boss 58 arrive TOUJOURS par le portail rond (Norman, 2026-11-04 : « pour le boss 58, il doit toujours arriver dans l'arrivée du portail rond »). */
+  function indexPour(n){n=Math.floor(Number(n))||1;if(n===30)return 13;if(n===31||n===58)return 12;var m=nbEffets();return ((n-1)%m+m)%m;}
   function neuf(w,h){var c=document.createElement('canvas');c.width=w;c.height=h;return c;}
 
   /* ---------- l'image du boss (copie « cover » dans un carré) et ses variantes ---------- */
