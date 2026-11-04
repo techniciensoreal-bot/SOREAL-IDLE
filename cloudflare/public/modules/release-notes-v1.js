@@ -80,6 +80,7 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Le Nuke porte maintenant un nom par dizaine de boss tués, inspiré des séries de victoires : NUKE pour moins de 20 boss, puis MEGA NUKE, ULTRA NUKE, MONSTER NUKE… et DOUBLE ou TRIPLE devant quand la liste est épuisée, jusqu’à ARMAGEDDON.',
             'Quand tu reviens sur le combat de boss après une défaite, la borne galope avant de s’arrêter.',
             'L’animation du clown est plus fluide : le bateau avance seul jusqu’à la bouche d’égout ; selon l’issue du combat, le garçon esquive la planche jaune et récupère son bateau, ou la prend de plein fouet.',
             'Écran LED : plus aucune ligne au sol ni juste au-dessus de la barre de vie du boss dans les animations ; le sol de la Red Room est reconstruit sans elle.',

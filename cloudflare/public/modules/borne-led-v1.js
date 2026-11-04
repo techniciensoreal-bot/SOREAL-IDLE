@@ -156,7 +156,8 @@ function langueDe(now){
   if(now-langueLue>1000){langueLue=now;try{langue=localStorage.getItem('soreal_idle_langue_v1')==='en'?'en':'fr';}catch(_e){langue='fr';}}
   return langue;
 }
-function T(k){return TXT[langue][k];}
+var nkNom='';   /* nom du Nuke en cours, d'après le NOMBRE de boss tués (voir nukeNom) : écrit par TOUTES les scènes à la place de NUKE / SUPER NUKE / MEGA NUKE / ULTRA NUKE / ARMAGEDDON */
+function T(k){if(nkNom&&(k==='nuke'||k==='super'||k==='mega'||k==='ultra'||k==='armag'))return nkNom;return TXT[langue][k];}
 
 /* ------------------------------------------------------------------ matrice et primitives (écrivent dans le panneau P en cours de dessin) */
 var P=null;
@@ -1413,19 +1414,44 @@ function plein(col,v){var n=P.W*P.H;for(var i=0;i<n;i++){P.c[i]=col;P.v[i]=v>255
 function eclair(a){if(a>0)plein(a>0.55?BLA:a>0.25?AMB:ROU,255*Math.min(1,a*1.6));}   /* blanc, puis orange, puis rouge */
 /* PETITS NUKES SOBRES (Norman, 2026-11-03 : « quand le chat ou le chien pisse, pas d'effets supplémentaires genre orage qui se superpose, des éclairs en même temps : ce sont des petits nuke, ça doit rester sobre ») : aux paliers 0 et 1 (moins de 10 boss tués) ni éclairs, ni gerbes, ni ondes, ni secousse d'écran, ni lettres qui tremblent ; ces effets ne commencent qu'au palier 2. */
 function nkTrem(){var z=Z.tier;return z>=2?[Math.round(Math.sin(Z.u*75)*NK_TREMBLE[z]),Math.round(Math.cos(Z.u*61)*NK_TREMBLE[z]*0.6)]:[0,0];}   /* le mot tremble selon le palier */
+/* Un nom trop long pour la largeur s'écrit sur DEUX lignes (tout sauf le dernier mot, puis « NUKE ») si la hauteur le permet, sinon l'une après l'autre. halo = vrai : on ne fait que relever les points des lettres (haloMot). */
+function nomLignes(s){
+  if(twidth(s,bigSc(s))<=P.W-4)return [s];
+  var m=s.lastIndexOf(' ');
+  return m>0?[s.slice(0,m),s.slice(m+1)]:[s];
+}
+function dessinerMot(s,u,u0,coul,fn2,pts){
+  var lg=nomLignes(s),tr=nkTrem(),z=Z.tier,i,c,n,sc,tw,bt,off=0,tot=Math.floor((u-u0)/0.08)+1;
+  var opt=function(base){return {fn:function(q,gx,gy){
+    if(pts){pts.push([gx,gy]);return [BLA,0];}
+    var qq=fn2?fn2(base+q,gx,gy):((u-u0-(base+q)*0.08)<0.15?BLA:coul);
+    if(z>=3){var rc=Math.floor(Z.u*8)%4===3?BLA:nkCouleur(base+q,Z.u);return qq instanceof Array?[rc,qq[1]]:rc;}
+    return qq;}};};
+  if(lg.length===1){
+    c=canon(s);sc=bigSc(s);tw=twidth(s,sc);bt=Math.round((P.H-7*sc)/2);n=Math.min(c.length,tot);
+    text(c.slice(0,n),Math.floor((P.W-tw)/2)+tr[0],bt+tr[1],pts?BLA:coul,sc,255,opt(0));return;
+  }
+  var c1=canon(lg[0]),c2=canon(lg[1]),w1=twidth(lg[0],1),w2=twidth(lg[1],1);
+  if(P.H>=16){                                                    /* deux lignes l'une sous l'autre, lettres simples */
+    var b1=Math.round((P.H-15)/2);
+    text(c1.slice(0,Math.min(c1.length,tot)),Math.floor((P.W-w1)/2)+tr[0],b1+tr[1],pts?BLA:coul,1,255,opt(0));
+    if(tot>c1.length)text(c2.slice(0,Math.min(c2.length,tot-c1.length)),Math.floor((P.W-w2)/2)+tr[0],b1+8+tr[1],pts?BLA:coul,1,255,opt(c1.length));
+    return;
+  }
+  var tA=c1.length*0.08+0.6;                                       /* écran bas : la première partie, puis la seconde à sa place */
+  bt=Math.round((P.H-7)/2);
+  if(u-u0<tA)text(c1.slice(0,Math.min(c1.length,tot)),Math.floor((P.W-w1)/2)+tr[0],bt+tr[1],pts?BLA:coul,1,255,opt(0));
+  else{var t2=Math.floor((u-u0-tA)/0.08)+1;text(c2.slice(0,Math.min(c2.length,t2)),Math.floor((P.W-w2)/2)+tr[0],bt+tr[1],pts?BLA:coul,1,255,opt(0));}
+}
 function motCle(cle,u,u0,coul,fn2){                              /* mot géant écrit lettre par lettre ; paliers 3 et 4 : lettres arc-en-ciel qui clignotent */
   if(u<u0)return;
-  var s=T(cle),c=canon(s),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),n=Math.min(c.length,Math.floor((u-u0)/0.08)+1),z=Z.tier,tr=nkTrem();
-  text(c.slice(0,n),Math.floor((P.W-tw)/2)+tr[0],bt+tr[1],coul,sc,255,{fn:function(i,gx,gy){
-    var q=fn2?fn2(i,gx,gy):((u-u0-i*0.08)<0.15?BLA:coul);
-    if(z>=3){var rc=Math.floor(Z.u*8)%4===3?BLA:nkCouleur(i,Z.u);return q instanceof Array?[rc,q[1]]:rc;}
-    return q;}});
+  dessinerMot(T(cle),u,u0,coul,fn2,null);
 }
 function motNuke(u,u0,coul,fn2){motCle('nuke',u,u0,coul,fn2);}
 function haloMot(u0,u,cle){                                      /* efface un point autour des lettres du mot pour qu'elles restent lisibles dans le feu */
   if(u<u0)return;
-  var s=T(cle||'nuke'),c=canon(s),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),n=Math.min(c.length,Math.floor((u-u0)/0.08)+1),pts=[],i,d,k,tr=nkTrem();
-  text(c.slice(0,n),Math.floor((P.W-tw)/2)+tr[0],bt+tr[1],BLA,sc,255,{fn:function(q,gx,gy){pts.push([gx,gy]);return [BLA,0];}});
+  var pts=[],i,d,k;
+  dessinerMot(T(cle||'nuke'),u,u0,BLA,null,pts);
   for(i=0;i<pts.length;i++)for(d=-1;d<=1;d++)for(k=-1;k<=1;k++){var x=pts[i][0]+k+(P.xoff||0),y=pts[i][1]+d+P.yoff;if(x>=0&&y>=0&&x<P.W&&y<P.H)P.v[y*P.W+x]=0;}
 }
 function flammes(x0,x1,u,haut){
@@ -1849,6 +1875,15 @@ var NUKES=[
 var NK_SEUILS=[1,3,10,50,200],NK_TN=[2.7,3.0,3.4,3.7,4.0],NK_SEC=[0,1,1,2,3],NK_TREMBLE=[0,1,1,2,3];
 var NK_QUEUE=1.3,NK_FIN_TN=8.4,NK_FIN_QUEUE=1.4,NK_JALON_MAX=2.2,NK_FINALE=21,NK_RESERVEES={14:2,15:2,16:3,17:3,18:3,19:4,20:4},NK_SCN={12:CHIEN_TN,22:BAL_TN},NK_COMIQUES=[22],NK_SUPER=10,NK_PART_COMIQUE=0.6,NK_PETITS_SEULEMENT=[5,12,22];   /* le chat (5), le chien (12) et le ballon (22) ne sortent QUE aux petits Nuke (paliers 0 et 1 : moins de 10 boss), jamais aux paliers 2, 3 et 4 (Norman, 2026-11-03) */
    /* NK_SCN : durée propre d'une scène plus longue que 2,7 s */
+/* NOMS DES NUKE (Norman, 2026-11-04 : « Mega Nuke ne doit pas apparaître pour 10 boss, c'est juste Nuke ; il faut des noms pour chaque dizaine jusqu'à 301 ; inspire-toi de CS : Monster kill, Ultra kill… ; s'il n'y en a pas assez, Double ou Triple Monster kill ») :
+   moins de 20 boss : « NUKE ! » ; ensuite UN NOM PAR DIZAINE (20-29, 30-39…) dans la liste de base, puis la même liste précédée de DOUBLE, de TRIPLE… ; 300 : ARMAGEDDON ; 301 (tous les boss) : la finale « TOUS LES BOSS ! ». */
+var NK_NOMS_BASE=['MEGA NUKE','ULTRA NUKE','MONSTER NUKE','LUDICROUS NUKE','UNREAL NUKE','RAMPAGE NUKE','UNSTOPPABLE NUKE','GODLIKE NUKE','HOLY NUKE','WICKED NUKE'],NK_PREF=['','DOUBLE ','TRIPLE ','QUADRUPLE '];
+function nukeNom(n){
+  var k=Math.floor(Math.max(0,n)/10),i;
+  if(k<2)return TXT[langue].nuke;
+  if(n>=300)return TXT[langue].armag;
+  i=k-2;return NK_PREF[Math.min(NK_PREF.length-1,Math.floor(i/NK_NOMS_BASE.length))]+NK_NOMS_BASE[i%NK_NOMS_BASE.length];
+}
 function nukePalier(n){var t=0,i;for(i=1;i<NK_SEUILS.length;i++)if(n>=NK_SEUILS[i])t=i;return t;}
 function nukeDizaines(n){return Math.floor(Math.max(0,n)/10);}                                   /* dizaines COMPLÈTES franchies : 10-19 -> 1, 20-29 -> 2… ; moins de 10 boss : aucun jalon */
 function nukeJalonDuree(d){return d>0?Math.min(NK_JALON_MAX,0.5+0.3*d):0;}
@@ -1866,7 +1901,7 @@ function nukeInit(p,n,fin,ts){
   p.n=n;p.fin=Boolean(fin);p.tier=p.fin?4:pf?Math.floor(fp):nukePalier(n);p.d=p.fin?0:nukeDizaines(n);
   p.v=p.fin?NK_FINALE:(typeof fv==='number'&&fv>=0&&fv<NUKES.length&&fv!==NK_FINALE)?Math.floor(fv):nukeVariante(p.tier);
   p.tn=p.fin?NK_FIN_TN:Math.max(NK_TN[p.tier],NK_SCN[p.v]||0);
-  p.res=true;p.ts=ts;
+  p.res=true;p.ts=ts;nkNom=p.fin?'':nukeNom(p.n);
   if(cur&&cur.p===p)cur.dur=ts+nukeDuree(p.tier,p.d,p.fin,p.tn);   /* la durée compte depuis le CLIC : amorce (ts) + scène */
 }
 function nkAmorce(t){                                              /* avant la réponse du moteur : un cadre rouge qui clignote et un anneau, neutre pour tous les paliers */
@@ -1923,7 +1958,7 @@ function nukeFixe(){                                               /* prefers-re
   var p=P.p,r=nukeRes,W=P.W,H=P.H,n=p.essai?p.n:(r?r.n:0),fin=p.essai?Boolean(p.fin):Boolean(r&&r.dernier),z=fin?4:nukePalier(n),v=(p.v|0)>=BOMBARDIER+1?0:(p.v|0),s0,sc0;
   if(cur&&cur.p===p)cur.dur=NUKE_DUR;
   if(v===BOMBARDIER)flammes(0,W-1,0,H-2);
-  s0=T(fin?(twidth(T('tous'),1)<=W-4?'tous':'tousA'):'nuke');sc0=bigSc(s0);
+  s0=fin?T(twidth(T('tous'),1)<=W-4?'tous':'tousA'):nukeNom(n);sc0=bigSc(s0);
   text(s0,Math.floor((W-twidth(s0,sc0))/2),Math.round((H-7*sc0)/2),v===BOMBARDIER?BLA:fin?BLA:ROU,sc0,255);
   if(z>=2)box(0,0,W-1,H-1,ROU,255);if(z>=3)box(1,1,W-2,H-2,AMB,255);if(z>=4)box(2,2,W-3,H-3,BLA,255);
 }
@@ -2015,7 +2050,8 @@ function nukeVariante(tier){
   if(pool.length>1&&v===nukeDernier)v=pool[(pool.indexOf(v)+1)%pool.length];
   nukeDernier=v;return v;
 }
-function lancerNuke(now){                                          /* un Nuke part : amorce tout de suite, la bonne scène dès que le moteur répond */
+function lancerNuke(now){
+  nkNom='';                                                        /* le nom du Nuke précédent ne reste pas : l'amorce écrit NUKE ! tant que le moteur n'a pas répondu */                                          /* un Nuke part : amorce tout de suite, la bonne scène dès que le moteur répond */
   var pn=window.performance&&performance.now?performance.now():0;
   if(!(nukeRes&&nukeRes.at>=pn-300))nukeRes=null;
   pousser('nuke',now,{base:S.vic});

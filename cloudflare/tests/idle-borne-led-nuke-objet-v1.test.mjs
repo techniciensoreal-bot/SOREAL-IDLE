@@ -116,7 +116,7 @@ for (const w of [120, 90]) for (let v = 0; v < ev("NUKES.length") - 1; v++) {
   fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = v; const pal = ({ 14: 25, 15: 25, 16: 100, 17: 100, 18: 100, 19: 250, 20: 250 })[v] || 1;
   for (let t = 0; t <= 4.0; t += 0.1) { const n = allume("nuke", t.toFixed(2), { essai: 1, n: pal, v }, 0); max = Math.max(max, n); vus.add(n); }
   fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = undefined;
-  assert.ok(max > 20 && vus.size > 5, "variante " + v + " : dessine et s'anime");
+  assert.ok(max > 20 && vus.size > (v === 10 ? 3 : 5), "variante " + v + " : dessine et s anime");   /* la scène 10 écrit le nom du Nuke (court pour un petit Nuke) */
 }
 // grille téléphone
 const allume90 = (v, t) => ev(`(function(){var p=new Panel(document.createElement('canvas'),90,12),n=0;S.vic=0;P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=11;p.p={essai:1,n:1,v:${v}};window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=${v};SC.nuke.fn(${t});window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=undefined;for(var i=0;i<p.v.length;i++)if(p.v[i])n++;P=null;return n;})()`);
