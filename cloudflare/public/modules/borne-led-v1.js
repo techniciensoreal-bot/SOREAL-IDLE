@@ -1176,12 +1176,35 @@ function egFond(t,G){
   for(k=0;k<Math.round(W/9);k++){x=(k*29)%W;y=hz+Math.max(2,Math.round(H*0.1))+1+(k*5)%Math.max(2,H-hz-Math.round(H*0.1)-G.wh-2);px(x,y,C.routeL,90);px(x+1,y,C.routeL,60);px(x+2,y,C.routeL,40);}   /* reflets sur l'asphalte */
   px(0,0,C.ciel,1);
 }
+/* LA PLUIE (Norman, 2026-11-04 : « fais mieux la pluie dans la scène du clown ») : trois PLANS de gouttes (loin : petites, lentes, pâles, qui tombent près de l'horizon ; milieu ; près : longues, rapides, brillantes, qui tombent en bas de la rue), chaque goutte a sa position et son rythme (plus de grille régulière), toutes penchées du même vent, une traînée qui s'efface vers le haut, et à l'arrivée sur la chaussée une petite ÉCLABOUSSURE (deux points qui s'écartent puis s'éteignent). Boucle parfaite : chaque goutte a sa propre période, le temps entre dans un modulo. */
+var EG_PLUIE_PLANS=[{n:0.5,v:24,l:2,a:70,sol:0.12},{n:0.34,v:42,l:3,a:110,sol:0.5},{n:0.2,v:68,l:5,a:185,sol:0.92}];
+function egPluie(t,C){
+  var W=P.W,H=P.H,hz=Math.round(H*0.52),p,k,nb,L,v,sol,T,tt,y,x,j,ph,tf,u,a;
+  for(p=0;p<EG_PLUIE_PLANS.length;p++){
+    var pl=EG_PLUIE_PLANS[p];nb=Math.max(4,Math.round(W*pl.n));L=pl.l;v=pl.v;
+    for(k=0;k<nb;k++){
+      sol=hz+Math.round((H-1-hz)*(pl.sol*(0.75+0.5*R(k*5,p+21))));if(sol>H-1)sol=H-1;if(sol<hz+1)sol=hz+1;       /* l'endroit où cette goutte touche la chaussée */
+      T=(sol+L)/v+0.16;                                                  /* chute + durée de l'éclaboussure */
+      ph=R(k*3+p,p+11);tt=((t+ph*T)%T);tf=(sol+L)/v;
+      x=R(k*7,p+3)*W;
+      if(tt<tf){
+        y=tt*v-L;a=pl.a*(0.8+0.2*R(k,p+5));
+        for(j=0;j<L;j++)px(x-(y-j)*0.2,y-j,C.pluie,a*(1-j/(L+1)));
+      }else{                                                             /* éclaboussure : deux points qui s'écartent sur la chaussée, puis s'éteignent */
+        u=(tt-tf)/0.16;a=pl.a*(1-u)*0.9;x=x-sol*0.2;
+        px(x,sol,C.pluie,a);
+        if(p>0){px(x-1-u,sol,C.eauL,a*0.8);px(x+1+u,sol,C.eauL,a*0.8);}
+        if(p===2&&u<0.6)px(x,sol-1,C.eauL,a*0.7);
+      }
+    }
+  }
+}
 /* décor : pluie, bordure du trottoir, bouche d'égout avec la tête du clown, eau de la rigole qui coule vers la bouche */
 function egDecor(t,G,sink,grin){
   var W=P.W,H=P.H,C=egC(),e=G.e,x,y,k,n,u,i,hh=G.hh,hw=G.hw,hx=G.hx,hy=G.tete+sink,rowsT=grin===3?EG_CLOWN_O:grin===2?EG_CLOWN_BITE:grin?EG_CLOWN_GRIN:EG_CLOWN;
   egFond(t,G);
   for(x=G.xm+1;x<W;x++)px(x,G.wy-1,C.pierre,150);   /* le bord du trottoir, au niveau de l'égout */
-  if(!P.reduced){n=Math.round(W/2.2);for(k=0;k<n;k++){y=((t*44+k*13.7)%(H+8))-4;x=(k*53)%W-y*0.25;px(x,y,C.pluie,90+((k*37)%90));px(x-0.25,y+1,C.pluie,70);px(x-0.5,y+2,C.pluie,45);}}   /* la pluie battante : le temps entre dans un modulo, la boucle est parfaite */
+  if(!P.reduced)egPluie(t,C);   /* la pluie battante (trois plans, éclaboussures au sol) : le temps entre dans un modulo par goutte, la boucle est parfaite */
   /* LA BOUCHE D'ÉGOUT (la vraie, d'après la photo de Norman) : au niveau du trottoir mais en contrebas, une fente sombre sous une dalle de béton MINCE ; au fond, une grille de barreaux ; le clown est dedans, la dalle ne lui coupe que le haut du crâne */
   for(y=G.mTop;y<H;y++)for(x=2;x<=G.xm;x++)px(x,y,C.noir,255);
   for(y=H-3;y<H;y++)for(x=2;x<=G.xm;x++)if((y-(H-3))%2===0)px(x,y,C.grille,200);   /* barreaux horizontaux de la grille, tout au fond : au-dessus, le noir est libre */
