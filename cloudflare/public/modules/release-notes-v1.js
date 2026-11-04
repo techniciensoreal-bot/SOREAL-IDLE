@@ -87,6 +87,7 @@
             'Quand tu cliques sur un bocal occupé, tu vois depuis combien de temps l’objet est en garderie.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand il n’y a plus de place dans le sac, un message clair s’affiche et rien n’est perdu.',
             'Coffre : les deux répliques de l’accident restent plus longtemps à l’écran (4,4 s chacune) et la seconde ne démarre qu’une fois la première partie.',
             'Équiper une configuration reprend automatiquement dans le coffre les pièces qui y sont rangées (si le sac a de la place).',
             'Configurations d’équipement : tu peux leur donner un nom, les monter ou les descendre, et tu vois le total des bonus de leurs pièces (Puissance, Endurance, PV max, Regen PV et Specials).',
@@ -94,6 +95,7 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Écran LED : la pluie de la scène du clown est refaite, avec trois plans de gouttes, du vent et de petites éclaboussures sur la chaussée.',
             'Petits Nuke : le chat, le chien et le ballon sortent chacun environ un tiers du temps (avant, le ballon sortait presque toujours).',
             'Écran LED : Leatherface reste toujours derrière la voiture et ne la rattrape jamais, même pendant un combat lent.',
             'Un petit Nuke démarre directement son animation à l’appui du bouton (ballon, chien, chat…), sans écran d’attente.',
