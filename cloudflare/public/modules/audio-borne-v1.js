@@ -67,5 +67,22 @@
       souffle(ctx,s,t+b[0],{type:'highpass',f0:3800,d:.03,v:.08,a:.001});
     });
   }
-  window.__SOREAL_IDLE_AUDIO_BORNE_V1__={allumer:allumer,dureeMs:2600};
+  /*
+   * La borne TOUSSE (Norman, 2026-11-04 : « quand la borne bouge, elle tousse en même temps ; uniquement hors combat ») : une quinte rauque calée sur les GRANDS rebonds du galop (mêmes durées de foulée que borne-led-v1.js,
+   * grand temps à 70 % de chaque foulée), de plus en plus faible. Chaque « hem » = un souffle de bruit filtré qui s'ouvre puis se referme + un petit grondement de poitrine ; la dernière est un raclement.
+   */
+  var FOULEES=[0.68,0.68,0.68,0.68];
+  function tousser(ctx,sortie){
+    var t0=ctx.currentTime+0.02,acc=0,vol=[.14,.19,.24,.3],i,t;
+    for(i=0;i<FOULEES.length;i+=1){
+      t=t0+acc+0.7*FOULEES[i];
+      souffle(ctx,sortie,t,{type:'bandpass',f0:1100-i*60,f1:520-i*30,q:2.4,v:vol[i],a:.012,d:.13+i*.015});
+      souffle(ctx,sortie,t+.015,{type:'lowpass',f0:900,f1:300,q:.8,v:vol[i]*.55,a:.01,d:.1});
+      ton(ctx,sortie,t,{type:'triangle',f0:170-i*8,f1:85,v:vol[i]*.55,a:.01,d:.11});
+      acc+=FOULEES[i];
+    }
+    souffle(ctx,sortie,t0+acc+.1,{type:'bandpass',f0:2200,f1:900,q:3,v:.07,a:.05,d:.28});
+  }
+  window.__SOREAL_IDLE_AUDIO_BORNE_V1__={allumer:allumer,tousser:tousser,dureeMs:2600};
+
 })();

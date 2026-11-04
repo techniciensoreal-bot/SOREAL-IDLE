@@ -23,7 +23,7 @@ var VARIANTES=[
   {id:'cendres',nom:'Cendres',duree:4.2,aide:'L’image brûle de bas en haut ; braises et cendres s’envolent.'},
   {id:'trounoir',nom:'Trou noir',duree:3.6,aide:'L’image est aspirée en spirale, puis le joueur ressort du vide.'},
   {id:'vitre',nom:'Vitre brisée',duree:4.0,aide:'L’image se fissure, puis éclate en éclats de verre.'},
-  {id:'tranche',nom:'Tranché',duree:3.6,aide:'Un coup d’épée coupe l’image en deux ; les moitiés glissent, puis se rejoignent.'},
+  {id:'tranche',nom:'Tranché',duree:1.7,aide:'Un coup de sabre coupe l’image en deux triangles ; ils tombent dans leur cadre et disparaissent, puis l’image revient au galop.'},
   {id:'ame',nom:'Âme',duree:4.4,aide:'Le corps perd ses couleurs, l’âme s’élève en fantôme puis revient.'}
 ];
 
@@ -216,15 +216,14 @@ function dessinerVitre(c,t,k,LW,LH){
 }
 
 function dessinerTranche(c,t,k,LW,LH){
-  var T_COUP=.38,T_GLISSE=1.9,T_RETOUR=2.9;
+  /* Norman (2026-11-04) : « quand on est coupé par un sabre, j'aimerais que l'IMAGE soit coupée ; un seul coup en diagonale ; ça doit vraiment être DEUX TRIANGLES qui tombent, DANS leur cadre ; ensuite on revient à cheval » : le coup de sabre va d'un coin à l'autre de la photo (haut-droit -> bas-gauche) ; elle se sépare en deux triangles rectangles qui s'écartent, puis tombent en tournant jusqu'à sortir par le bas du cadre (le cadre les masque : ils restent dans leur cadre). L'appelant (mort-joueur-v1.js) enchaîne ensuite le retour « galop ».
+     Correction d'un défaut de l'ancienne version : la découpe (clip) était définie AVANT le déplacement du morceau, donc elle restait fixe pendant que l'image bougeait dessous : on voyait l'image pleine deux fois. Ici le morceau est d'abord déplacé et tourné, PUIS son triangle est découpé : la découpe suit le morceau. */
+  var T_COUP=.38;
   fond(c,LW,LH,'#0d1118');
-  /* la ligne de coupe : de coin haut-droit à coin bas-gauche, un peu inclinée */
-  var A=[LW*1.05,-LH*.05],B=[-LW*.05,LH*1.05];
-  var nx=-(B[1]-A[1]),ny=(B[0]-A[0]),nl=Math.hypot(nx,ny);nx/=nl;ny/=nl;
-  var ecart=0,tilt=0,alpha=1;
+  var A=[LW,0],B=[0,LH],hyp=Math.hypot(LW,LH),nx=LH/hyp,ny=LW/hyp;   /* la coupe et sa normale (vers le bas-droite) */
   if(t<T_COUP){
     c.drawImage(k.img,0,0);
-    /* le trait d'épée : il court le long de la ligne, très lumineux, qui s'effile */
+    /* le trait de sabre : il court de coin à coin, très lumineux, qui s'effile */
     var u=t/T_COUP,pos=lisse(u);
     var x2=A[0]+(B[0]-A[0])*pos,y2=A[1]+(B[1]-A[1])*pos;
     c.lineCap='round';
@@ -232,35 +231,29 @@ function dessinerTranche(c,t,k,LW,LH){
     c.strokeStyle='rgba(150,200,255,.5)';c.lineWidth=15*(1-u*.5);c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(x2,y2);c.stroke();
     return;
   }
-  var tt=t-T_COUP;
-  if(t<T_GLISSE){ecart=sortie(tt/(T_GLISSE-T_COUP))*LW*.22;tilt=sortie(tt/(T_GLISSE-T_COUP))*.16;alpha=1-lisse((tt-.9)/(T_GLISSE-T_COUP-.9))*.5;}
-  else if(t<T_RETOUR){var r=lisse((t-T_GLISSE)/(T_RETOUR-T_GLISSE));ecart=LW*.22*(1-r);tilt=.16*(1-r);alpha=.5+.5*r;}
-  /* deux moitiés : chacune glisse le long de la normale et pivote un peu, en tombant légèrement */
-  for(var s=-1;s<=1;s+=2){
+  var tt=t-T_COUP,ecart=sortie(tt/.25)*LW*.05;
+  /* deux triangles : haut-gauche et bas-droite */
+  var tri=[[[0,0],[LW,0],[0,LH]],[[LW,0],[LW,LH],[0,LH]]];
+  for(var i=0;i<2;i++){
+    var s=i===0?-1:1,ft=Math.max(0,tt-(i===0?.1:.2)),chute=.5*LH*3.2*ft*ft,rot=(i===0?-.35:.4)*ft,derive=(i===0?-.1:.12)*LW*Math.min(1,ft*1.2);
+    if(chute>LH*1.7)continue;                                       /* sorti par le bas du cadre */
     c.save();
-    c.beginPath();
-    if(s<0){c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.lineTo(-LW,LH*2);c.lineTo(-LW,-LH);c.lineTo(A[0],-LH);}
-    else{c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.lineTo(LW*2,LH*2);c.lineTo(LW*2,-LH);c.lineTo(A[0],-LH);}
-    c.closePath();
-    var tombe=t<T_GLISSE?Math.pow(Math.max(0,tt-.15),2)*LH*.35:Math.pow(Math.max(0,T_GLISSE-T_COUP-.15),2)*LH*.35*(1-lisse((t-T_GLISSE)/(T_RETOUR-T_GLISSE)));
-    c.translate(LW/2+nx*s*ecart*(s<0?.9:1.1),LH/2+ny*s*ecart+tombe);
-    c.rotate(tilt*s*(s<0?1:-1)*-1);
+    c.translate(LW/2+nx*s*ecart+derive,LH/2+ny*s*ecart+chute);
+    c.rotate(rot);
     c.translate(-LW/2,-LH/2);
-    c.globalAlpha=alpha;c.save();c.clip();c.drawImage(k.img,0,0);c.restore();
+    c.beginPath();c.moveTo(tri[i][0][0],tri[i][0][1]);c.lineTo(tri[i][1][0],tri[i][1][1]);c.lineTo(tri[i][2][0],tri[i][2][1]);c.closePath();   /* le triangle, APRÈS le déplacement : la découpe suit le morceau */
+    c.clip();
+    c.drawImage(k.img,0,0);
+    if(tt<.5){c.strokeStyle='rgba(255,245,200,'+((1-tt/.5)*.9).toFixed(2)+')';c.lineWidth=5;c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke();}   /* bord de coupe encore incandescent, sur le morceau lui-même */
     c.restore();
   }
-  c.globalAlpha=1;
-  /* bord de coupe encore incandescent, qui s'éteint ; étincelles */
-  if(tt<.9){
-    var l=1-tt/.9;c.strokeStyle='rgba(255,245,200,'+(l*.85).toFixed(2)+')';c.lineWidth=2+l*3;c.beginPath();c.moveTo(A[0],A[1]);c.lineTo(B[0],B[1]);c.stroke();
-    for(var i=0;i<24;i++){
-      var p=rnd(i*3)*1,x3=A[0]+(B[0]-A[0])*p+nx*(rnd(i)-.5)*30*tt,y3=A[1]+(B[1]-A[1])*p+ny*(rnd(i)-.5)*30*tt-tt*20*rnd(i+4)+160*tt*tt*rnd(i+6);
-      c.fillStyle='rgba(255,'+Math.round(190+rnd(i+2)*60)+',120,'+(l*.9).toFixed(2)+')';c.fillRect(x3,y3,2,2);
+  /* étincelles au début */
+  if(tt<.6){
+    var l=1-tt/.6;
+    for(var j=0;j<18;j++){
+      var p=rnd(j*3),x3=A[0]+(B[0]-A[0])*p+nx*(rnd(j)-.5)*24*tt,y3=A[1]+(B[1]-A[1])*p+ny*(rnd(j)-.5)*24*tt-tt*20*rnd(j+4)+160*tt*tt*rnd(j+6);
+      c.fillStyle='rgba(255,'+Math.round(190+rnd(j+2)*60)+',120,'+(l*.9).toFixed(2)+')';c.fillRect(x3,y3,2,2);
     }
-  }
-  if(t>=T_RETOUR){
-    c.drawImage(k.img,0,0);
-    var w=cl(1-(t-T_RETOUR)/.35,0,1);if(w>0){c.fillStyle='rgba(255,255,255,'+(w*.55).toFixed(2)+')';c.fillRect(0,0,LW,LH);}
   }
 }
 
@@ -356,7 +349,7 @@ function maitre(a){
 }
 
 /* Dans le jeu : le son passe par le moteur audio du jeu (volume des effets, silence, limiteur), à un niveau proche de ses autres effets. Hors du jeu (page d'aperçu) : son propre contexte. */
-var DUREES_SON={cendres:3900,trounoir:3500,vitre:3700,tranche:3400,ame:4200};
+var DUREES_SON={cendres:3900,trounoir:3500,vitre:3700,tranche:1700,ame:4200};
 function son(id){
   var A=window.__SOREAL_IDLE_AUDIO_V199__;
   if(A&&typeof A.synth==='function'){
@@ -412,10 +405,7 @@ function construireSon(a,id){
     souffle(a,t+.04,.34,'bandpass',500,5500,2.5,.55,.18);
     ton(a,t+.36,'sine',3100,3100,.7,.12,.004);ton(a,t+.36,'sine',4180,4180,.6,.08,.004);ton(a,t+.36,'sine',5330,5330,.5,.06,.004);
     souffle(a,t+.37,.06,'highpass',4000,7000,.8,.5,.002);
-    ton(a,t+1.2,'sine',95,50,.3,.4,.006);ton(a,t+1.38,'sine',80,44,.3,.34,.006);
-    souffle(a,t+1.2,.14,'lowpass',400,120,.8,.28,.005);
-    souffle(a,t+1.95,.9,'bandpass',350,1200,1.2,.18,.4);       /* les moitiés se rejoignent */
-    ton(a,t+2.75,'triangle',660,990,.35,.14,.01);
+    souffle(a,t+.6,1.0,'bandpass',1500,260,1.2,.16,.3);        /* les morceaux tombent et disparaissent */
   }else if(id==='ame'){
     /* voix creuses qui montent (deux sinus désaccordés + trémolo) + souffle d'air + cloche à la fin */
     var o1=ton(a,t+.3,'sine',196,392,2.4,.22,.8),o2=ton(a,t+.3,'sine',199,398,2.4,.2,.8),o3=ton(a,t+.5,'triangle',294,588,2.2,.07,.9);

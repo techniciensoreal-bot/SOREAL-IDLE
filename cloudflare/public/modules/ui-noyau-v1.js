@@ -764,9 +764,7 @@
           return;
         }
 
-        afficherResumeHorsLigneIdleV64_(
-          j
-        );
+        /* Norman (2026-11-04) : la fenêtre « ce que tu as généré hors ligne » à la reconnexion est SUPPRIMÉE (plus aucun appel ; les gains hors ligne sont toujours comptés par le moteur). */
 
         if(
           j.autoAventure &&

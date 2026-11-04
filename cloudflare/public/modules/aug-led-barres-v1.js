@@ -21,11 +21,19 @@
       '.aug-tube-v2:has(>canvas.aug-led-cv-v1) .aug-liquide-v2{visibility:hidden}';
     (document.head||document.documentElement).appendChild(s);
   }
+  /* échelle réelle : devicePixelRatio x zoom CSS des ancêtres (la page est zoomée : sans cela le canvas est ré-échantillonné et les points sont inégaux) */
+  function echelle(el){
+    var d=window.devicePixelRatio||1,z=1,q,a;
+    try{for(a=el;a&&a.nodeType===1;a=a.parentNode){q=parseFloat(getComputedStyle(a).zoom);if(q>0&&q!==1)z*=q;}}catch(_e){}
+    return d*(z>0.3&&z<3?z:1);
+  }
   function mobile(){return Boolean(window.matchMedia&&window.matchMedia('(max-width:700px)').matches);}
 
   /* avancement 0..1 lu sur le remplissage existant */
   function avancement(tube){
     var l=tube.querySelector('.aug-liquide-v2');if(!l)return 0;
+    /* Le jeu anime le remplissage avec une animation du navigateur (échelle 0 -> 1) : le style en ligne ne bouge pas ; la valeur AFFICHÉE est dans le style calculé (Norman, 2026-11-04 : « les barres ne font plus de mouvement de remplissage ; l'écran LED n'apparaît que quand elles sont remplies »). */
+    try{var ct=getComputedStyle(l).transform,mc=ct&&ct!=='none'?/^matrix(?:3d)?\(([^)]+)\)/.exec(ct):null;if(mc){var vc=parseFloat(mc[1].split(',')[0]);if(isFinite(vc))return Math.max(0,Math.min(1,vc));}}catch(_e){}
     var m=/scaleX\(([-\d.eE]+)\)/.exec(l.style.transform||'');
     if(m){var v=parseFloat(m[1]);return isFinite(v)?Math.max(0,Math.min(1,v)):0;}
     var w=tube.clientWidth;if(!(w>0))return 0;
@@ -43,7 +51,7 @@
 
   function dessiner(cv,tube){
     var w=tube.clientWidth,h=tube.clientHeight;if(!(w>0)||!(h>0))return;
-    var dpr=window.devicePixelRatio||1,pas=mobile()?PAS_TEL:PAS_PC,cols=Math.max(8,Math.floor(w/pas)),rows=Math.max(3,Math.floor((h-2)/pas));
+    var dpr=echelle(tube),pas=mobile()?PAS_TEL:PAS_PC,cols=Math.max(8,Math.floor(w/pas)),rows=Math.max(3,Math.floor((h-2)/pas));
     var p=avancement(tube),col=couleur(tube),allume=p*cols;
     var sig=cols+'|'+rows+'|'+Math.round(allume*8)+'|'+col+'|'+dpr+'|'+w+'x'+h;
     if(cv.__sigLed===sig)return;

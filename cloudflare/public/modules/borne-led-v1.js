@@ -2129,13 +2129,24 @@ function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&
 /* ------------------------------------------------------------------ rendu : un seul canvas */
 var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
 /* Fluidité (2026-11-02) : canvas opaque (le fond est toujours dessiné plein) ; `neuf` = rien d'affiché au bon format, tout est à redessiner (voir Panel.draw : seules les cellules qui ont changé sont repeintes) */
+/* ÉCHELLE RÉELLE de l'écran (Norman, 2026-11-04 : « sur l'écran LED de la borne, les lignes ne sont pas placées de manière égale, des traits noirs plus marqués que d'autres ») : la page entière est affichée avec un ZOOM CSS (0,86 par exemple) que devicePixelRatio ne connaît pas ; le canvas, dimensionné pour des pixels d'écran entiers, était donc ré-échantillonné
+   (504 -> 433 pixels) et certaines rangées / colonnes de points se retrouvaient plus serrées que d'autres. L'échelle réelle = devicePixelRatio x zoom des ancêtres de l'hôte (taille affichée / taille CSS) : cellule entière en pixels d'écran, canvas affiché 1:1. */
+function echelleEff(el){
+  var d=window.devicePixelRatio||1;
+  try{
+    var zc=1,q;for(var an=el;an&&an.nodeType===1;an=an.parentNode){q=parseFloat(getComputedStyle(an).zoom);if(q>0&&q!==1)zc*=q;}   /* zoom CSS exact des ancêtres */
+    if(zc===1){var w=el&&el.clientWidth;if(w>0){var z=el.getBoundingClientRect().width/w;if(z>0.3&&z<3&&Math.abs(z-1)>0.002)zc=z;}}   /* sinon (transformation) : taille affichée / taille CSS */
+    if(zc>0.3&&zc<3)d*=zc;
+  }catch(_e){}
+  return d;
+}
 function Panel(canvas,W,H,sansBarre){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.extra=sansBarre?0:BARH;this.setGrid(W,H);this.reduced=false;this.cell=0;this.p={};}
 Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;var n=W*this.HT;this.c=new Uint8Array(n);this.v=new Uint8Array(n);this.pc=new Uint8Array(n);this.pl=new Uint8Array(n);this.pg=new Uint8Array(n);this.dm=new Uint8Array(n);this.sm=new Uint8Array(n);this.ch=new Int32Array(n);this.neuf=true;this.nd=0;this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
 /* Écran plus grand = PLUS DE LED, jamais un dessin agrandi (Norman, 2026-11-01) : la TAILLE d'un point est fixe (4 px CSS sur PC, 3 px sur téléphone, arrondie à un nombre ENTIER de pixels d'écran pour rester net) ;
    c'est le nombre de colonnes et de rangées qui s'adapte à l'hôte (taille()). Rendu 1:1 : le canvas est affiché à sa taille exacte canvas.width/dpr x canvas.height/dpr (jamais étiré par le CSS, donc jamais
    rééchantillonné) et centré dans l'hôte noir sur un nombre entier de pixels d'écran ; le petit reste devient des marges noires symétriques. */
 Panel.prototype.fit=function(cell,cssW,cssH){
-  var dpr=window.devicePixelRatio||1,cv=this.canvas,st=cv.style,changed=cell!==this.cell||dpr!==this.dpr;
+  var cv=this.canvas,dpr=echelleEff(cv.parentNode),st=cv.style,changed=cell!==this.cell||Math.abs(dpr-(this.dpr||0))>1e-6;
   this.dpr=dpr;
   if(changed){
     this.cell=cell;cv.width=cell*this.W;cv.height=cell*this.HT;this.neuf=true;
@@ -2152,7 +2163,7 @@ Panel.prototype.fit=function(cell,cssW,cssH){
 };
 /* grille FIXE (aperçu de l'éditeur Admin) : la plus grande cellule entière qui tient dans la largeur */
 Panel.prototype.resize=function(cssW,cssH){
-  var dpr=window.devicePixelRatio||1;
+  var dpr=echelleEff(this.canvas.parentNode);
   return this.fit(Math.max(3,Math.floor(cssW*dpr/this.W+1e-6)),cssW,cssH);
 };
 Panel.prototype.sprites=function(){
@@ -2407,31 +2418,33 @@ function pousser(id,now,p){
   if(id==='hit'){if(cur&&cur.prio>=3)return;demarrer(s);return;}
   pend=false;graceFin=0;demarrer(s);                               /* victoire ou défaite : passe devant tout */
 }
-/* LE GALOP (Norman, 2026-11-04 : « quand on meurt et qu'on revient dans Fight Boss, un effet comme si on était à cheval, tagada tagada, et on s'arrête ») : la borne entière rebondit au rythme d'un galop (deux petits temps, un grand), de plus en plus lent et de moins en moins haut, puis s'immobilise.
-   Une seule fois par mort : à l'arrivée sur la page si le joueur est déjà mort, sinon au premier combat qui suit la défaite. Animation du navigateur sur la borne (aucun nœud ajouté ni attribut posé : le redessin de la page n'y touche pas) ; coupée si l'animation est réduite. */
-var mortAGalop=false,galopAnim=null;
-function galop(){
-  var el=document.querySelector('.soreal-idle-boss-current-v35.borne-v2');
-  mortAGalop=false;
-  if(!el||typeof el.animate!=='function'||reduit())return;
-  var dur=[0.42,0.46,0.52,0.62,0.78],amp=[9,7,5,3.5,2],motif=[[0,0],[0.14,0.6],[0.26,0],[0.4,0.6],[0.52,0],[0.7,1],[1,0]],T=0,i,j,acc=0,kf=[];
+/* LE GALOP (Norman, 2026-11-04 : « quand on meurt et qu'on revient dans Fight Boss, un effet comme si on était à cheval, tagada tagada, et on s'arrête » ; « pas d'homme sur un cheval » : AUCUN dessin de cheval ; « la toux uniquement hors combat » ; « quand la borne bouge, la pancarte chronique de boss doit bouger aussi »).
+   Déclenché par le retour « galop » de l'image du joueur (modules/reapparitions-v1.js) : la borne ET la pancarte de la chronique du boss (accrochée au mur derrière) rebondissent au rythme du galop (deux petits temps, un grand), de plus en plus lent et bas, jusqu'à l'arrêt ; la borne TOUSSE aux grands rebonds, seulement hors combat.
+   Animation du navigateur (propriétés translate / rotate, qui se composent avec les transformations du CSS) : aucun nœud ajouté ni attribut posé ; coupée si l'animation est réduite. */
+var galopAnim=[];
+var GALOP_DUR=[0.68,0.68,0.68,0.68];
+function galopEffet(){
+  var els=[document.querySelector('.soreal-idle-boss-current-v35.borne-v2'),document.getElementById('sorealIdleBossChroniqueV206')],dur=GALOP_DUR,amp=[3,5,7,9],motif=[[0,0],[0.14,0.6],[0.26,0],[0.4,0.6],[0.52,0],[0.7,1],[1,0]],T=0,i,j,acc=0,kf=[];
+  if(reduit())return;
   for(i=0;i<dur.length;i++)T+=dur[i];
   for(i=0;i<dur.length;i++){
     for(j=(i?1:0);j<motif.length;j++){
       var m=motif[j][1],y=-amp[i]*m,ro=(i%2?-1:1)*0.25*m;
-      kf.push({offset:Math.min(1,(acc+motif[j][0]*dur[i])/T),transform:'translateY('+y.toFixed(2)+'px) rotate('+ro.toFixed(3)+'deg)',easing:'ease-in-out'});
+      kf.push({offset:Math.min(1,(acc+motif[j][0]*dur[i])/T),translate:'0 '+y.toFixed(2)+'px',rotate:ro.toFixed(3)+'deg',easing:'ease-in-out'});
     }
     acc+=dur[i];
   }
   kf[kf.length-1].offset=1;
-  try{if(galopAnim)galopAnim.cancel();galopAnim=el.animate(kf,{duration:T*1000,easing:'linear'});}catch(_e){}
+  galopAnim.forEach(function(a){try{a.cancel();}catch(_e){}});galopAnim=[];
+  els.forEach(function(el){if(el&&typeof el.animate==='function'){try{galopAnim.push(el.animate(kf,{duration:T*1000,easing:'linear'}));}catch(_e){}}});
+  if(!S.combat){try{var A=window.__SOREAL_IDLE_AUDIO_V199__;if(A&&typeof A.borneTousse==='function')A.borneTousse();}catch(_e){}}
 }
 function evenements(now){
   var r=reg(),e=r.idleEtat||null;
   var debut=nombre(r.idleCombatDebutV1),res=r.idleCombatLogDernierResumeV70,vic=Boolean(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__),def=Boolean(r.idleCombatEnPauseApresDefaiteV1);
-  if(!L.ok){L.ok=true;L.debut=debut;L.res=res;L.vic=vic;L.def=def;L.combat=S.combat;L.nuke=Boolean(r.idleNukeEnCoursV1);if(def){mortAGalop=true;galop();}return;}   /* on revient sur la page alors que le joueur est mort : le galop part tout de suite */   /* première lecture (ou reprise) : on se cale sans jouer d'événement ancien */
+  if(!L.ok){L.ok=true;L.debut=debut;L.res=res;L.vic=vic;L.def=def;L.combat=S.combat;L.nuke=Boolean(r.idleNukeEnCoursV1);return;}   /* on revient sur la page alors que le joueur est mort : le galop part tout de suite */   /* première lecture (ou reprise) : on se cale sans jouer d'événement ancien */
   if(S.combat&&!L.combat){rot=0;L.hitN=0;}
-  if(debut&&debut!==L.debut){if(mortAGalop)galop();pousser('fight',now);}
+  if(debut&&debut!==L.debut)pousser('fight',now);
   if(!debut)L.hitN=0;
   L.debut=debut;
   /* Norman (2026-11-02) : « l'animation ne doit pas être interrompue par des BAM et compagnie, on doit la voir du début à la fin » : plus de POW ! / BAM ! (la scène 'hit' n'est plus jamais déclenchée) */
@@ -2442,7 +2455,7 @@ function evenements(now){
   L.nuke=nk;
   if(vic&&!L.vic){pousser('win',now);apresVictoire=true;}
   L.vic=vic;
-  if((def&&!L.def)||(L.combat&&!S.combat&&e&&nombre(e.pvJoueur)<=0&&!(cur&&cur.id==='ko'))){pousser('ko',now);mortAGalop=true;}
+  if((def&&!L.def)||(L.combat&&!S.combat&&e&&nombre(e.pvJoueur)<=0&&!(cur&&cur.id==='ko')))pousser('ko',now);
   L.def=def;L.combat=S.combat;
 }
 
@@ -2512,7 +2525,7 @@ function contenuMini(m){
 function tailleMini(m){
   var h=m.host,w=h.clientWidth,hh=h.clientHeight;
   if(!(w>0)||!(hh>0))return;
-  var dpr=window.devicePixelRatio||1,cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*dpr));
+  var dpr=echelleEff(h),cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*dpr));
   var W=clamp(Math.floor(w*dpr/cell),20,W_MAX),H=clamp(Math.floor(hh*dpr/cell),9,40);if((H-7)%2!==0)H-=1;
   if(W!==m.panel.W||H!==m.panel.H)m.panel.setGrid(W,H);
   m.panel.fit(cell,w,hh);m.sig='';
@@ -2581,7 +2594,7 @@ function taille(){
   if(!(w>0))return;
   var hh=host.clientHeight;
   if(!(hh>0))return;
-  var g=grille(w,hh,window.devicePixelRatio||1);
+  var g=grille(w,hh,echelleEff(host));
   var grille2=g.W!==panel.W||g.H!==panel.H;
   if(grille2)panel.setGrid(g.W,g.H);
   var neuf=panel.fit(g.cell,w,hh);
@@ -2643,5 +2656,5 @@ function dessinerSceneEssai(cv,id,t,pct,W,H,params){
   try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;}
   return true;
 }
-window.__SOREAL_IDLE_BORNE_LED_V1__={galop:galop,dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+window.__SOREAL_IDLE_BORNE_LED_V1__={galop:galopEffet,dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
 })();

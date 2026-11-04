@@ -15,7 +15,7 @@ const db = new DatabaseSync(":memory:");
 const sql = { exec(q, ...b) { const st = db.prepare(q); if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
 
 const etape = (extra) => Object.assign({ titre: "Ton énergie", texte: "Place de l'énergie ici.", menu: "entrainement", cible: { selecteur: "#sorealIdleTrainingInputV120", libelle: "Input" }, placement: "haut", surbrillance: true }, extra);
-const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", declencheur: { type: "menu", menu: "entrainement" }, actif: true, ordre: 0, etapes: [etape()] }, extra);
+const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", declencheur: { type: "menu", menu: "entrainement" }, actif: true, mascotte: true, ordre: 0, etapes: [etape()] }, extra);
 
 // --- validation ---
 {
@@ -42,17 +42,14 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
 
 // --- stockage ---
 {
-  /* Premier jet de Claude (graine) : cinq guides, TOUS désactivés, jamais servis aux joueurs tant que Norman ne les a pas activés. */
-  const graine = lireGuidesV1(sql);
-  assert.deepEqual(graine.map((g) => g.id).sort(), ["aventure", "bienvenue", "combat", "premier-boss", "renaissance"], "premier jet");
-  assert.ok(graine.every((g) => g.actif === false), "tous désactivés au départ");
-  assert.deepEqual(guidesPourJoueurV1(sql, { debut: true }), [], "rien n'est joué aux joueurs avant l'activation");
-  assert.deepEqual(guidesPourJoueurV1(sql, { menu: "aventure" }), []);
-  assert.deepEqual(guidesPourJoueurV1(sql, { boss: 1 }), []);
-  assert.equal(IDLE_TUTORIEL_SEED_V1.length, 5);
-  for (const g of IDLE_TUTORIEL_SEED_V1) normaliserGuideV1(g);
-  for (const id of graine.map((g) => g.id)) supprimerGuideV1(sql, id);
-  assert.deepEqual(lireGuidesV1(sql), [], "supprimer la graine ne la recrée pas");
+  /* Norman (2026-11-04) : l'ancien tutoriel et le nouveau (court) sont supprimés : plus aucune graine, plus aucun guide créé d'office, et SEULS les guides de Cthulhu (mascotte) sont servis aux joueurs. */
+  assert.equal(IDLE_TUTORIEL_SEED_V1.length, 0, "plus de graine");
+  assert.deepEqual(lireGuidesV1(sql), [], "aucun guide au départ");
+  assert.deepEqual(guidesPourJoueurV1(sql, { debut: true }), []);
+  enregistrerGuideV1(sql, guide({ id: "sans-cthulhu", titre: "Autre", declencheur: { type: "debut" }, mascotte: false }), 500);
+  assert.deepEqual(guidesPourJoueurV1(sql, { debut: true }), [], "un guide sans Cthulhu n'est jamais joué");
+  supprimerGuideV1(sql, "sans-cthulhu");
+  assert.deepEqual(lireGuidesV1(sql), []);
   assert.equal(ancienTutorielActifV1(sql), false, "l'ancien tutoriel est supprimé (Norman, 2026-10-26) : jamais joué");
   assert.equal(ancienMenusActifV1(sql), true, "les anciennes fenêtres des menus aussi");
   assert.equal(reglerAncienMenusV1(sql, false), false);
@@ -150,7 +147,7 @@ console.log("Tutoriel éditable: OK");
 /* Deux réglages séparés pour les anciennes fenêtres. */
 {
   const ui = lireUiComplet();
-  assert.ok(ui.includes("function anciennesFenetresMenusPermisesIdleV1_()") && ui.includes("if(info&&anciennesFenetresMenusPermisesIdleV1_())"), "popups de menu : réglage « menus »");
+  assert.ok(ui.includes("function anciennesFenetresMenusPermisesIdleV1_()") && !ui.includes("if(info&&anciennesFenetresMenusPermisesIdleV1_())") && !ui.includes("REG.idlePopupQueueV75.push(info)"), "plus aucune fenêtre à la première ouverture d'un menu (Norman, 2026-11-04) : Cthulhu s'en charge");
   assert.ok(readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8").includes("ancienMenusPermis:function(){return etat.ancienMenus===true;}"), "le réglage des menus n'est jamais présumé actif pendant l'attente");
   const ed = readFileSync("cloudflare/public/modules/admin-tutoriel-v1.js", "utf8");
   assert.ok(ed.includes('data-at="ancienmenus"') && ed.includes("data-at=\"basculer\"") && ed.includes("function basculerGuide_(i)"), "éditeur : deux cases et bouton Activer / Désactiver");

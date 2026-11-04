@@ -83,66 +83,8 @@ export function normaliserGuideV1(brut) {
 }
 
 
-/*
- * Premier jet du nouveau tutoriel (2026-10-14, rédigé par Claude à partir des textes de Norman & Sébastien et des nouveautés du jeu ; Norman l'édite à sa façon dans le menu Admin → Tutoriel).
- * Inséré UNE fois (réglage seed_v1) ; tous les guides sont DÉSACTIVÉS : rien n'est joué aux joueurs tant que Norman ne les a pas relus et activés (bouton « Activer » de la liste). Supprimer un guide ne le recrée pas.
- * Les repères d'écran (selecteur) sont ceux du jeu au 2026-10-14 ; « Placer sur l'écran » les remplace en un clic si l'interface change.
- */
-const e = (titre, texte, menu, selecteur, libelle, placement) => ({ titre, texte, menu: menu || "", cible: selecteur ? { selecteur, libelle: libelle || "" } : null, placement: placement || "auto", surbrillance: true });
-const ATTAQUE = ".soreal-idle-bt-row-v120.attack .soreal-idle-bt-actions-v120 button";
-export const IDLE_TUTORIEL_SEED_V1 = [
-  {
-    id: "bienvenue", titre: "Bienvenue et premiers pas", declencheur: { type: "debut" }, actif: false, ordre: 10,
-    etapes: [
-      e("LE COMMENCEMENT", "*BLOUM*\n\nQuand tu reprends connaissance, la première chose que tu remarques, c’est ce goût de cuivre dans ta bouche.\n\nLa seconde, c’est l’odeur d’égout à plein nez tout autour de toi.\n\nTu te relèves en soignant ta lèvre fendue et en te frottant la tête, qui a l’air d’avoir reçu tout l’amour d’un bloc de béton.", "", null, "", "centre"),
-      e("LE COMMENCEMENT", "Tu essaies de te rappeler comment tu es arrivé ici... enfin, peu importe où est « ici ». Tu réalises, avec un calme étonnant, que tu as complètement oublié qui tu es. Vu l’état dans lequel tu te trouves, tu te dis qu’ils devaient être de sacrés connards. Balancé dans une fosse d’égout dégueulasse...\n\nAu moins, à court terme, tu as un objectif : trouver un moyen de sortir d’ici.", "", null, "", "centre"),
-      e("LE COMMENCEMENT", "Tu essaies de te lever mais tes genoux tremblent, se dérobent, et tu retombes. C’est seulement maintenant que tu sens la faiblesse dans ton corps. Pas le genre de faiblesse normale, comme quand tu te lèves trop vite et que la tête tourne, ou quand ton bras se fait arracher dans un accident industriel. Non, tu as l’impression que *quelque chose* a aspiré la majorité de ta force.\n\nBon, il n’y a rien d’autre à faire qu’essayer de récupérer un peu de cette force et sortir d’ici.", "", null, "", "centre"),
-      e("Norman & Sébastien", "Salut, qui que tu sois ! Content que tu aies décidé de jeter un œil à SOREAL NGU IDLE. Nous sommes Norman & Sébastien, les narrateurs de cette histoire. Bref, on commence !", "", null, "", "centre"),
-      e("Objectif", "Donc, ton objectif principal dans SOREAL NGU IDLE ? Devenir super méga puissant, et vaincre tous les Boss bizarres qui se dressent sur ton chemin !\n\nEn haut, tu vois tes stats principales, dont l’Attaque et la Défense. Elles démarrent à 100, mais elles vont grimper à toute vitesse dans une seconde.", "entrainement", ".soreal-idle-summary-grid-v28", "Les stats du haut", "bas"),
-      e("Énergie", "En dessous, la grosse barre verte, c’est ton énergie. Tu en génères à chaque fois que la barre se remplit, jusqu’à atteindre le plafond, qui est de 500 pour l’instant.\n\nLe chiffre au milieu, c’est l’énergie disponible : celle que tu n’as encore placée nulle part et qui traîne à rien faire comme une bonne grosse feignasse. Et l’énergie, c’est la clé pour faire grimper ton Attaque et ta Défense.", "entrainement", ".soreal-idle-energybar-wrap-v11", "Barre d’énergie", "bas"),
-      e("Entraînement de base", "C’est là que les choses se passent : ce menu te permet d’augmenter ton attaque et ta défense (quelle surprise).\n\nPour t’entraîner, tu places ton énergie sur une compétence. Vas-y, clique sur le bouton « + » de l’« Attaque passive » et regarde ce qui se passe.", "entrainement", ATTAQUE + ":first-child", "Bouton + de l’Attaque passive", "auto"),
-      e("Bien joué", "Si tu as bien fait, la barre se remplit et ton Attaque grimpe. Tape-toi dans le dos pour te féliciter. Pas trop bas quand même, ce serait bizarre.\n\nLe bouton « − » retire de l’énergie de cette compétence pour que tu puisses la placer ailleurs.", "entrainement", ATTAQUE + ":nth-child(2)", "Bouton − de l’Attaque passive", "auto"),
-      e("Le bouton Cap", "Le bouton « Cap » place d’un coup juste ce qu’il faut d’énergie pour atteindre le plafond de la compétence : ni plus, ni moins. Pratique pour ne rien gaspiller.\n\nLe bouton « 0 » retire toute l’énergie de la ligne.", "entrainement", ATTAQUE + ":nth-child(3)", "Bouton Cap", "auto"),
-      e("La saisie", "Quand tu cliques sur « + », le jeu place une quantité d’énergie égale au nombre écrit ici. Tu peux taper ton propre nombre quand tu veux : c’est ton réglage à toi.", "entrainement", "#sorealIdleTrainingInputV120", "Champ de saisie", "bas"),
-      e("Les raccourcis", "Ces boutons remplissent la saisie à ta place : « Max » prend tout ton plafond d’énergie, « 1/2 » la moitié, « 1/4 » le quart.\n\nDans le cadre « Idle », ils ne comptent que l’énergie encore libre, et « Tout retirer » récupère toute l’énergie que tu as déjà placée.", "entrainement", ".soreal-idle-bt-presets-v120", "Boutons Max, 1/2, 1/4", "bas"),
-      e("Défense", "Avoir la force d’un transpalette électrique mais en carton, c’est cool, mais tu voudras sûrement un peu de Défense aussi. Entraîne donc la compétence « Blocage » : clique sur son « + ».\n\nSi toute ton énergie est déjà placée sur l’Attaque passive, retires-en un peu avec « − ».", "entrainement", ".soreal-idle-bt-row-v120.defense .soreal-idle-bt-actions-v120 button:first-child", "Bouton + du Blocage", "auto"),
-      e("Combat de boss", "Quand tes stats seront assez hautes, va jeter un œil au menu Combat de boss et mets ta puissance à l’épreuve. En commençant par un adversaire particulièrement vicieux... Un Petit Bout de Peluche.", "", "[data-menu-id-v1=\"combat\"]", "Menu Combat de boss", "bas"),
-      e("Norman & Sébastien", "Bon, on va aller se faire un sandwich, alors continue à t’entraîner et bats le premier boss. On sera de retour après !\n\n— Norman & Sébastien", "", null, "", "centre")
-    ]
-  },
-  {
-    id: "combat", titre: "Le menu Combat de boss", declencheur: { type: "menu", menu: "combat" }, actif: false, ordre: 25,
-    etapes: [
-      e("Combat de boss", "Voici le bouton « Fight » : il lance le combat contre le boss actuel. Tes stats d’Attaque et de Défense font tout le travail.\n\nSi le boss est trop fort, « Fuite » te permet de t’échapper et de retourner t’entraîner.", "combat", "#sorealIdleBossStartV100", "Bouton Fight", "bas")
-    ]
-  },
-  {
-    id: "premier-boss", titre: "Premier boss vaincu", declencheur: { type: "boss", boss: 1 }, actif: false, ordre: 20,
-    etapes: [
-      e("Norman & Sébastien", "Oh hé, cool, tu as écrasé Un Petit Bout de Peluche. Plus important : ce sandwich est fantastique ! Jambon fromage et sauce mayonnaise volé à un ouvrier dans le frigo. Miam.", "", null, "", "centre"),
-      e("Récompenses", "Donc tuer des boss apporte quelques récompenses importantes : d’abord, tu gagnes de l’EXP. L’EXP sert à acheter des pouvoirs permanents dans l’EXP Shop, qui vient aussi de se débloquer. Tu le trouves dans la barre de menus, en haut.", "", "[data-menu-id-v1=\"shop\"]", "Menu Shop", "bas"),
-      e("Conseil de pro", "Il y a plein de trucs à acheter avec l’EXP, mais ne panique pas ! Notre conseil de pro : achète les offres spéciales qui augmentent la vitesse de remplissage de la barre d’Énergie. On les a faites spécifiquement pour des débutants comme toi... ne le prends pas mal.", "shop", ".soreal-idle-exp-tab-v212", "Onglets de l’EXP Shop", "bas"),
-      e("Norman & Sébastien", "Bats les prochains boss et on reviendra t’embêter. Norman & Sébastien, terminé !", "", null, "", "centre")
-    ]
-  },
-  {
-    id: "aventure", titre: "Le menu Aventure", declencheur: { type: "menu", menu: "aventure" }, actif: false, ordre: 30,
-    etapes: [
-      e("Norman & Sébastien", "Salut salut, c’est encore Norman & Sébastien. Alors comme ça t’as vaincu Une Petite Souris ? On suppose que ça veut dire qu’il est temps d’ajouter un peu de nouveau gameplay qui déchire à ton aventure. D’abord, tu as débloqué l’AVENTURE. Pense à ça comme un « RPG pourri dans le jeu » : tu vas combattre des trucs et looter d’autres trucs. Les compétences d’entraînement que tu débloques deviennent des attaques utilisables en Aventure pour vaincre les ennemis !", "aventure", ".soreal-idle-v79-adventure-scene", "La scène d’Aventure", "bas"),
-      e("Équipement", "Des ennemis vont apparaître aléatoirement toutes les quelques secondes quand tu sors de la Zone Sûre. Les combattre fait tomber de l’équipement, que tu retrouves dans ton INVENTAIRE, juste ici.\n\nTouche un objet pour voir sa fiche et l’équiper, ou glisse-le sur un emplacement. Glisser deux objets identiques l’un sur l’autre les fusionne. L’équipement booste tes stats d’Aventure ainsi que tes stats principales d’Attaque et de Défense.", "aventure", ".soreal-idle-v151-inventory-columns", "L’inventaire et l’équipement", "haut"),
-      e("Zones", "Pour commencer, tu n’as débloqué que la zone d’entraînement. Vaincre des boss avec un numéro plus élevé débloquera petit à petit de nouvelles zones d’Aventure à explorer, avec du meilleur équipement à te coller sur le dos !\n\nAUSSI : les boss en Aventure ont une chance de faire tomber de l’EXP ! L’EXP, c’est bien.", "aventure", ".soreal-idle-v79-adventure-scene", "La scène d’Aventure", "bas")
-    ]
-  },
-  {
-    id: "renaissance", titre: "Le menu Renaissance", declencheur: { type: "menu", menu: "renaissance" }, actif: false, ordre: 40,
-    etapes: [
-      e("Rebirth", "Tu as aussi débloqué le menu Rebirth (une renaissance en français), ce qui mérite quelques explications.\n\nÀ un moment donné, tu vas arriver à un point où progresser prendra une éternité. Si tu fais un Rebirth, tu vas réinitialiser la plupart de ta progression dans chaque menu, et les boss vont être réinitialisés.", "renaissance", ".soreal-idle-rebirth-button-v14", "Bouton de Rebirth", "bas"),
-      e("Le NOMBRE", "En contrepartie, ton NOMBRE va grandir. Le NOMBRE, c’est... eh bien, c’est un nombre. Ton Attaque et ta Défense sont multipliées par ce NOMBRE, et ton NOMBRE peut devenir ridiculement énorme.\n\nGenre, bêtement énorme. Genre beaucoup plus gros que la plus grosse de tes copines.", "renaissance", null, "", "centre"),
-      e("Quand faire un Rebirth ?", "Dès que la progression te semble lente, c’est probablement le moment de faire un Rebirth et de réinitialiser un peu de progression pour faire grimper ton nombre ! Tu peux essayer maintenant si tu veux, mais si tu attends plus longtemps, ton NOMBRE grandira encore plus ! Le temps écoulé depuis ton dernier Rebirth est un facteur important pour la taille de ton NOMBRE, jusqu’à 60 minutes.", "renaissance", null, "", "centre"),
-      e("Après le Rebirth", "Quand tu fais un Rebirth, les boss réapparaissent aussi. Avec un NOMBRE assez élevé, tu peux vaincre des boss avec un numéro plus élevé, ce qui te donnera de l’EXP à chaque fois que tu les vaincs !\n\nArrive au boss 17 et tu débloqueras encore autre chose ! À plus !\n\n— Norman & Sébastien", "renaissance", null, "", "centre")
-    ]
-  }
-];
+/* Guides d'amorçage SUPPRIMÉS (Norman, 2026-11-04) : plus aucun guide n'est créé d'office (l'ancien tutoriel de Norman & Sébastien et le nouveau, court, n'existent plus). */
+export const IDLE_TUTORIEL_SEED_V1 = [];
 
 /* Insère le premier jet UNE fois : les supprimer ne le recrée pas. */
 function insererGraineTutorielV1(sql) {
@@ -230,6 +172,8 @@ export function guidesPourJoueurV1(sql, contexte) {
   const ctx = contexte && typeof contexte === "object" ? contexte : {};
   const bons = lireGuidesV1(sql).filter((g) => {
     if (!g.actif) return false;
+    /* Norman (2026-11-04) : l'ancien tutoriel (Norman & Sébastien) et le nouveau, court, sont supprimés ; SEULS les guides de la mascotte Cthulhu sont encore joués aux joueurs (les autres guides, s'il en reste en base, sont inertes : ils se suppriment depuis l'Admin). */
+    if (g.mascotte !== true) return false;
     if (ctx.debut === true) return g.declencheur.type === "debut";
     if (ctx.menu != null) return g.declencheur.type === "menu" && g.declencheur.menu === String(ctx.menu);
     if (ctx.boss != null) return g.declencheur.type === "boss" && g.declencheur.boss === Math.floor(Number(ctx.boss));

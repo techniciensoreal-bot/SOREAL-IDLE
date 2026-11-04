@@ -32,6 +32,7 @@
         date:'2026-11-04',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Plus aucune fenêtre ne s’ouvre à la première visite d’un menu, et la fenêtre « ce que tu as généré hors ligne » à la reconnexion a disparu.',
             'Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.',
             'L’application Android ne recharge plus ta partie en boucle au démarrage.',
           ]},
@@ -42,6 +43,8 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Le « × » et son petit cadre entre une augmentation et son amélioration sont supprimés.',
+            'Les barres LED sont, elles aussi, dessinées sur des pixels entiers : points réguliers à tous les zooms.',
             'Le message du coût manquant se lit maintenant « Il manque 314K d’or pour le niveau suivant. ».',
             'Les barres d’avancement sont des panneaux LED à points, comme l’écran de la borne d’arcade.',
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
@@ -50,12 +53,15 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'La barre de la Machine temporelle tourne à la vraie cadence (49 niveaux par seconde = 49 tours par seconde) et ne reste pleine et fixe qu’au cap de 50.',
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de la barre.',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps avant le prochain rituel.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'La barre de chargement de l’OS et ses rayures ne sautent plus quand les barres de niveau avancent.',
+            'La barre tourne maintenant à la vraie vitesse : à 13 niv/s elle fait 13 tours par seconde (jusqu’au cap de 50), au lieu de 3 au plus.',
             'La barre ne recule plus par à-coups à chaque synchronisation : elle tourne à un rythme continu.',
             'Au-dessus d’un niveau par seconde, la vitesse s’écrit en niveaux entiers (10 niv/s, plus 10,95).',
             'La barre ne reste fixe et pleine qu’une fois le CAP atteint ; en dessous, elle continue de tourner.',
@@ -63,6 +69,7 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'NGU Énergie : un seul nuage vaporeux, toujours visible, montre l’avancée du niveau (il reste à l’arrêt si tu retires l’énergie, et continue sa course jusqu’à sortir du tube quand le niveau est fini) ; à partir de 2 niveaux par seconde il y a autant de nuages que de niveaux par seconde, la fumée s’épaissit jusqu’à 49, et le tuyau n’est plein de fumée qu’à 50.',
             'NGU Énergie : la fumée est la barre. Aucun nuage sans énergie ; un seul nuage traverse le tube quand c’est lent, la traînée s’allonge avec les niveaux par seconde, et le tube est plein de fumée au CAP. Chaque tube a sa couleur.',
             'Chaque tube affiche ses niveaux par seconde (niv/s, format 0,01).',
           ]},
@@ -80,6 +87,11 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les bandes lumineuses bleue et rouge du contour de la borne sont continues, de l’écran au sol : même brillance partout, elles suivent l’épaule inclinée du pupitre, sans décrochement ni coin.',
+            'Le halo du haut de la borne est bleu à gauche, rose au milieu et rouge à droite, au lieu d’être rose partout.',
+            'La mort « Tranché » coupe maintenant l’image elle-même : un coup de sabre en diagonale la sépare en deux triangles qui tombent dans leur cadre, puis l’image revient au galop.',
+            'L’écran LED de la borne s’affiche maintenant sur des pixels entiers, même quand la page est zoomée : les lignes de points sont toutes égales, sans traits noirs plus marqués que d’autres.',
+            'Quand ton image revient après une défaite, elle arrive toute petite au loin et grossit en galopant, « tagada » quatre fois au même rythme, au bruit des sabots ; la borne et la pancarte de la chronique rebondissent avec elle, et la borne tousse quand tu n’es pas en combat.',
             'Le Nuke porte maintenant un nom par dizaine de boss tués, inspiré des séries de victoires : NUKE pour moins de 20 boss, puis MEGA NUKE, ULTRA NUKE, MONSTER NUKE… et DOUBLE ou TRIPLE devant quand la liste est épuisée, jusqu’à ARMAGEDDON.',
             'Quand tu reviens sur le combat de boss après une défaite, la borne galope avant de s’arrêter.',
             'L’animation du clown est plus fluide : le bateau avance seul jusqu’à la bouche d’égout ; selon l’issue du combat, le garçon esquive la planche jaune et récupère son bateau, ou la prend de plein fouet.',
@@ -118,6 +130,7 @@
             'Le menu de gauche ne bouge plus d’une dizaine de pixels quand tu navigues dans les catégories d’une page.',
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Sets : clique sur une pièce de la vitrine : elle vient en grand, avec ses statistiques, ses bonus et ses Specials.',
             'Album : trois flèches de chaque côté du livre : un bout de l’album, 10 pages par 10, une page.',
             'Quand tu lis toute l’histoire, le bruit de page entre deux boss n’est plus coupé.',
             'Sets : chaque pièce est exposée dans une vitrine, avec une icône plus grande posée sur un socle.',

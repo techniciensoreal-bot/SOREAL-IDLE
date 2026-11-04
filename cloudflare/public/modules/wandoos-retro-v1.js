@@ -595,6 +595,8 @@
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
     var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
       /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
+      /* Norman (2026-11-04) : « la barre de chargement de l'OS avec ses traits zébrés fait encore des sauts à chaque fois que la barre du bas tique » : la largeur des barres de niveau, leur pourcentage et leur temps restant changent à chaque rafraîchissement ; ils ne comptent pas dans la signature (la boucle d'animation les réécrit à chaque image), sinon tout le poste était remplacé et les rayures repartaient de zéro. */
+      .replace(/(data-wd-remplissage style="width:)[^"]*/g,'$1').replace(/(<span class="wd-pct" data-wd-pct>)[^<]*/g,'$1').replace(/(<span data-wd-reste>)[^<]*/g,'$1')
       .replace(/(<small data-wd-cap="[a-z]+">)[^<]*/g,'$1').replace(/(id="wd-ch-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-ch-(?:pct|vit|reste)">)[^<]*/g,'$1');
     if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
       var neuves=document.createElement('div');neuves.innerHTML=html;
@@ -663,7 +665,8 @@
     /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
     /* Norman (2026-11-04) : « j'ai mis 25M et il faut 37M pour le cap. Pourtant la barre ne clignote plus. Elle ne doit rester fixe qu'une fois le cap atteint » : la barre n'est PLEINE ET FIXE qu'au cap de Wandoos (50 niveaux par seconde) ; à partir de 4 niveaux/s (même seuil que la Machine temporelle, niveaux de 0,25 s) et jusqu au cap elle continue de se remplir et de repartir, à 3 cycles par seconde au plus (limite de scintillement : plus vite elle ne pourrait pas se lire), le niveau, lui, avance à la vraie vitesse. */
     if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
-    if(v>=4){var ph=((maintenant_()/1000)*3)%1;   /* Norman (2026-11-04) : « la barre fait quelque chose d'étrange » (mesuré dans l'exe : retours en arrière de 66 % à 44 % à chaque synchro, car le tour était calé sur l'instant de la dernière synchro, qui change tant que l'OS charge) : le tour est calé sur l'HORLOGE du jeu, donc continu quoi que fasse la synchro */
+    /* Norman (2026-11-04) : « Wandoos me dit 13 niv/s alors la barre ne montre pas du tout ça » : la barre tourne désormais à la VRAIE vitesse (v tours par seconde, jusqu'au cap de 50), calée sur l'horloge du jeu, plus à 3 tours par seconde au plus. */
+    if(v>=4){var ph=((maintenant_()/1000)*v)%1;   /* Norman (2026-11-04) : « la barre fait quelque chose d'étrange » (mesuré dans l'exe : retours en arrière de 66 % à 44 % à chaque synchro, car le tour était calé sur l'instant de la dernière synchro, qui change tant que l'OS charge) : le tour est calé sur l'HORLOGE du jeu, donc continu quoi que fasse la synchro */
     return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+v*dt)};}
     var brut=p0+v*dt;
     var f=brut-Math.floor(brut);

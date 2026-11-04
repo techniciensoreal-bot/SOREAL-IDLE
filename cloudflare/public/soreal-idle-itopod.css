@@ -1405,9 +1405,9 @@ html[data-vue-aventure="titans"] .soreal-idle-page-root-v28[data-menu="aventure"
 }
 /* Bandes du corps de la borne (Norman, 2026-10-26) : les flancs bleu et rouge du soubassement jusqu'au sol sont de vraies bandes, du même dessin que celles de l'écran (cylindre lumineux, halo, pulsation de 3,2 s) ; elles prolongent celles du pupitre. */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap{position:relative}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{content:"";position:absolute;top:0;bottom:-150px;width:6px;z-index:2;pointer-events:none}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before{left:0;background:linear-gradient(90deg,#06102a,var(--bl) 35%,#a9c8ff 50%,var(--bl) 65%,#06102a);box-shadow:0 0 14px #2f7bff,0 0 30px rgba(47,123,255,.75);animation:bnLuitB 3.2s ease-in-out infinite}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{right:0;background:linear-gradient(90deg,#2a0610,var(--ro) 35%,#ff9aa2 50%,var(--ro) 65%,#2a0610);box-shadow:0 0 14px #ff2a3d,0 0 30px rgba(255,42,61,.75);animation:bnLuitR 3.2s ease-in-out infinite}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{content:"";position:absolute;top:0;bottom:-150px;width:calc(100cqw*9.65/520);z-index:2;pointer-events:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before{left:calc(100cqw/520);background:linear-gradient(90deg,var(--bl) 37.5%,#a1c4ff 37.5% 62.5%,var(--bl) 62.5%);box-shadow:0 0 22px #2f7bff,0 0 46px rgba(47,123,255,.75);animation:bnLuitB 3.2s ease-in-out infinite}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{right:calc(100cqw/520);background:linear-gradient(90deg,var(--ro) 37.5%,#ff9fa8 37.5% 62.5%,var(--ro) 62.5%);box-shadow:0 0 22px #ff2a3d,0 0 46px rgba(255,42,61,.75);animation:bnLuitR 3.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::before,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-bas-wrap::after{animation:none}}
 
 
@@ -1517,7 +1517,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Reflet rose du néon derrière la borne, centré sur elle (Norman, 2026-10-10) : le fronton projette un halo rose vers le haut, qui éclaire l'affiche de son côté droit (le plus proche) pendant que son côté gauche, plus loin, reste dans l'ombre. */
 @media (min-width:701px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-fronton{filter:drop-shadow(0 -16px 28px rgba(255,79,176,.6)) drop-shadow(0 -4px 8px rgba(255,120,200,.45))}
+  /* Norman, 2026-11-04 : « en haut à gauche de la borne, ça glow en rose alors que ça devrait glow en bleu, et seulement devenir rose vers le milieu » : le halo du fronton n'est plus une ombre rose uniforme mais une bande floue en dégradé horizontal : bleu à gauche (comme le néon de gauche), rose au milieu, rouge à droite (comme le néon de droite). */
+    html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35.borne-v2 .bn-fronton-halo{display:block;position:absolute;left:4%;right:4%;top:-26px;height:56px;border-radius:50%;background:linear-gradient(90deg,rgb(47,123,255) 0%,rgb(47,123,255) 20%,rgb(255,79,176) 50%,rgb(255,42,61) 80%,rgb(255,42,61) 100%);filter:blur(20px);opacity:.62;z-index:2;pointer-events:none}
 }
 
 /* Bouton Play / Stop de la chronique de boss (Norman, 2026-10-10) : à la place de « Lire la chronique », sur l'affiche comme sur la chronique ouverte ; Stop pendant la lecture, Play sinon. */
@@ -1607,7 +1608,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-avance-v2 b{display:block;color:#ffd24a;font-size:16px}
 /* ordinateur : les deux versions côte à côte */
 @media (min-width:701px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-pistes-v2:has(.aug-lien-v2){grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-pistes-v2:has(.aug-piste-v2.upgrade){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-lien-v2{margin:0}
 }
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2[data-actif="1"]{--fx:color-mix(in srgb,var(--pc) 75%,transparent)}
@@ -2118,3 +2119,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .cal-v1{max-width:none!important;width:calc(100% * .875 + 2.5px)!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
 }
 .soreal-idle-page-root-v28 .or-manque-v1.or-manque-v1{color:#ff3b3b!important;font-weight:900;text-shadow:0 1px 0 #000}
+
+/* Même brillance partout (Norman, 2026-11-04 : « des différences de brillance entre le pupitre et la bande montante à côté de l'écran ») : la bande du pupitre reçoit le même halo que celles de l'écran et du soubassement (0 0 22px + 0 0 46px, ramenés à l'échelle du dessin du pupitre). */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[style*="bnLuitB"]>polygon,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[style*="bnLuitB"]>path{filter:drop-shadow(0 0 5px #2f7bff) drop-shadow(0 0 11px rgba(47,123,255,.85))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[style*="bnLuitR"]>polygon,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[style*="bnLuitR"]>path{filter:drop-shadow(0 0 5px #ff2a3d) drop-shadow(0 0 11px rgba(255,42,61,.85))}

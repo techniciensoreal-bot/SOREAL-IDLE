@@ -272,7 +272,7 @@ function partDe_(n){
   var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
   if(!(alloc>0))return 0;
   var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
-  return spl>0&&spl<0.04?1:.5;
+  return spl>0&&(1/spl)>=49.99?1:.5;
 }
 
 /*
@@ -354,7 +354,7 @@ function dureeTexte_(s){
 function etaTexte_(spl,fraction,cibleAtteinte){
   if(cibleAtteinte)return 'Cible atteinte';
   if(!(spl>0))return 'Place de l’énergie pour avancer';
-  if(spl<0.04)return 'Niveaux instantanés';
+  if((1/spl)>=49.99)return 'Niveaux instantanés';
   return '⏱️ Niveau suivant dans <b>'+dureeTexte_(spl*Math.max(0,1-fraction))+'</b>';
 }
 
@@ -370,10 +370,31 @@ function vitesseTexte_(spl){
  * très lent = un seul nuage traverse tout le tube ; cap = 50 nuages par seconde, donc le tube rempli de fumée »). Un masque dégradé ne laisse voir la fumée que dans une FENÊTRE [p - L, p] : p = avancée du niveau en cours (0 à 1, recalée à chaque image),
  * L = longueur de la traînée, qui grandit avec les niveaux par seconde (un nuage seul quand c'est lent, tout le tube au cap). Au cap (classe « pleine ») : fenêtre ouverte sur tout le tube, fumée pleine et uniforme.
  */
-function longueurTraine_(spl,pleine){
-  if(pleine)return 1.1;
-  if(!(spl>0))return 0.16;
-  return Math.round(Math.min(1,Math.max(0.16,Math.sqrt((1/spl)/50)))*1000)/1000;
+/*
+ * NUAGES (Norman, 2026-11-04, refonte : « il ne doit y avoir qu'UN SEUL nuage, toujours visible, qui montre l'avancée de notre niveau ; si on retire l'énergie il reste, à l'arrêt ; quand il atteint la fin du niveau il ne disparaît pas, il continue sa course jusqu'à sortir de l'écran, et
+ * c'est alors que le nouveau apparaît ; plusieurs nuages en même temps à partir de 2 niveaux par seconde (2 pour 2, 3 pour 3…) jusqu'à 49 ; 50 = le tuyau rempli de fumée »).
+ * Un nuage = un <b> du tube (réserve fixe de NB_NUAGES), placé par son BORD AVANT (en fraction de la largeur du tube) : devant = avancée du niveau tant qu'on fait au plus 1 niveau par seconde ; au-delà un nuage met 1 s à traverser, donc il y en a autant que de niveaux par seconde
+ * (espacement = durée d'un niveau, vitesse constante, calée sur l'horloge du jeu). Le nuage qui vient de finir son niveau est le suivant de la file : il sort, le nouveau entre. Au-dessus de ~8 niveaux par seconde les nuages se fondent en une fumée de plus en plus dense (--nl-d), jusqu'à 49 ;
+ * au cap (50, classe pleine) : tuyau plein.
+ */
+var NB_NUAGES=12,LARG_NUAGE=118;
+function fumeeEtat_(spl,p,deplace,maintenant){
+  var taux=spl>0?1/spl:0,sw,ox,d=taux>8.5?Math.min(1,(taux-8.5)/40):0,vus=[],k,front,max;
+  if(taux<=1){sw=1;ox=p;max=deplace?2:1;}                                    /* lent : le nuage EST la progression ; le précédent sort pendant que le nouveau entre */
+  else{sw=Math.min(1,spl);ox=((maintenant/1000)%sw);max=NB_NUAGES;}           /* vite : un nuage traverse en 1 s, espacés d'un niveau */
+  for(k=0;k<NB_NUAGES;k++){
+    front=ox+k*sw;
+    vus.push(k<max&&d===0&&front<=1.3?Math.round(front*10000)/10000:null);
+  }
+  return {nuages:vus,d:Math.round(d*1000)/1000};
+}
+function fumeeVars_(spl,p,pleine){
+  return '--nl-d:'+(pleine?1:fumeeEtat_(spl,p,false,0).d);
+}
+function nuagesHtml_(spl,p,present){
+  var e=fumeeEtat_(spl,p,spl>0,spl>0&&typeof performance!=='undefined'?performance.now():0),o='',k;
+  for(k=0;k<NB_NUAGES;k++)o+='<b'+(present&&e.nuages[k]!=null?' style="left:'+(e.nuages[k]*100)+'%"':' style="left:-30%;visibility:hidden"')+'></b>';
+  return o;
 }
 
 /* ---------- un tuyau ---------- */
@@ -385,15 +406,15 @@ function barreHtml_(n,ancre,rang){
   var p=Math.max(0,Math.min(0.999999,nombre_(n.progress)));
   var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
   var cible=Math.max(0,Math.floor(nombre_(n.target)));
-  var pleine=spl>0&&spl<0.04;
+  var pleine=spl>0&&(1/spl)>=49.99;   /* 50 niveaux par seconde : le tuyau rempli de fumée (Norman, 2026-11-04 : « jusque 49, 50 étant le tuyau rempli ») */
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
-  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id)+'">'+
+  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'"'+(alloc>0||p>0?' data-nl-nuage="1"':'')+' style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id)+'">'+
     '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-vit" title="Niveaux gagnés par seconde">⚡ <b>'+vitesseTexte_(spl)+'</b> niv/s</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
     '<div class="nl-tuyau">'+
       '<i class="nl-bride g"></i>'+
-      '<div class="nl-tube" style="--nl-p:'+(pleine?1.05:rempli)+';--nl-L:'+longueurTraine_(spl,pleine)+'"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true"><b></b><b></b><b></b></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
+      '<div class="nl-tube" style="'+fumeeVars_(spl,rempli,pleine)+'"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true">'+(n.resource==='magic'?'<b></b><b></b><b></b>':nuagesHtml_(spl,rempli,alloc>0||p>0))+'</i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
       '<i class="nl-bride d"></i>'+
     '</div>'+
     '<div class="nl-eta" data-nl-eta>'+etaTexte_(spl,rempli,cible>0&&niveau>=cible)+'</div>'+
@@ -442,28 +463,21 @@ function cielVars_(id){
 }
 function cielCss_(){
   var o='';
-  /* Fumée (énergie) : trois voiles ; couleurs --k1..--k4 tournées par NGU, voile 2 et 3 plus lents, tailles de tuile différentes. */
+  /* Fumée (énergie) : des NUAGES (un <b> chacun, placés par le tick), voir fumeeEtat_ ; couleurs --k1 / --k2 tournées par NGU. Pas de masque, pas de voile qui défile. */
   var f=function(c,a){return 'color-mix(in srgb,var('+c+') '+a+'%,transparent)';};
-  var B=function(x,y,rx,ry,c,a){return 'radial-gradient(ellipse '+rx+'px '+ry+'px at '+x+'% '+y+'%,'+f(c,a)+',transparent 72%)';};
-  var N=function(x,y,c,a,e){e=e||1;var P=function(dx,dy,rx,ry){return 'radial-gradient(ellipse '+Math.round(rx*e)+'px '+Math.round(ry*e)+'px at calc('+x+'% + '+Math.round(dx*e)+'px) '+(y+dy)+'%,'+f(c,a)+' 0,'+f(c,Math.round(a*0.62))+' 38%,transparent 72%)';};return [P(-11,5,30,12),P(0,-6,36,15),P(12,5,29,12)].join(',');};
-  o+='.nl-ciel{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit}'+
-     '.nl-ciel b{position:absolute;top:0;bottom:0;left:0;display:none;background-repeat:repeat-x}';
-  var M='calc((var(--nl-p,0) - var(--nl-L,.2)) * 100%)',F='calc(var(--nl-p,0) * 100%)';
-  var masque='linear-gradient(90deg,transparent calc('+M+' - 3%),#000 calc('+M+' + 4%),#000 calc('+F+' - 7%),transparent calc('+F+' + 1%))';
-  o+='.nl-barre:not(.actif) .nl-ciel{display:none}'+                                                                      /* aucune énergie : aucun nuage ni étoile */
+  /* Nuage VAPOREUX (Norman, 2026-11-04 : « la forme du nuage n'est pas belle, ça doit avoir l'air vaporeux ») : une traînée de brume douce, plus dense et plus claire à l'avant (à droite), qui s'effile en volutes vers l'arrière ; dégradés très progressifs (aucun bord net) + léger flou. */
+  var P=function(x,y,rx,ry,c,a){return 'radial-gradient(ellipse '+rx+'px '+ry+'px at '+x+'px '+y+'%,'+f(c,a)+' 0,'+f(c,Math.round(a*0.55))+' 34%,'+f(c,Math.round(a*0.18))+' 68%,transparent 100%)';};
+  var nuage=[P(100,52,30,15,'--k1',66),P(104,42,20,9,'--k2',78),P(78,48,36,12,'--k1',46),P(54,58,38,8,'--k2',34),P(32,42,32,7,'--k1',26),P(14,56,24,5,'--k2',18)].join(',');
+  o+='.nl-ciel{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit;contain:layout paint}'+
+     '.nl-ciel b{position:absolute;top:0;bottom:0;left:-30%;display:none}'+
+     '.nl-barre:not([data-nl-nuage]):not(.actif) .nl-ciel{display:none}'+                                                  /* jamais d'énergie ni de progression : aucun nuage ; l'énergie retirée en cours de niveau laisse le nuage à l'arrêt */
+     '.nl-barre[data-nl-res="magic"]:not(.actif) .nl-ciel{display:none}'+
      '.nl-barre[data-nl-res="energy"] .nl-liq-in{display:none}'+                                                           /* plus d'ancienne barre dans les tubes d'énergie */
-     '.nl-barre[data-nl-res="energy"] .nl-ciel{-webkit-mask-image:'+masque+';mask-image:'+masque+'}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b{display:block;width:calc(100% + var(--T));background-size:var(--T) 100%;will-change:transform}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(1){--T:260px;--d:34s;background-image:'+[N(22,52,'--k1',74),N(68,40,'--k2',70)].join(',')+'}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){--T:200px;--d:23s;opacity:min(1,calc(var(--nl-L,0) * 2.2));background-image:'+[N(30,34,'--k3',66),N(78,64,'--k4',68)].join(',')+'}'+
-     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){--T:340px;--d:49s;opacity:min(1,max(0,calc(var(--nl-L,0) * 2 - .5)));background-image:'+[N(30,46,'--k4',34,2),N(76,52,'--k1',32,2)].join(',')+'}'+
-     /* Au cap (classe pleine) : fumée PLEINE à l'intérieur, uniforme, plus aucun nuage qui circule (Norman, 2026-11-04) */
-     '.nl-barre[data-nl-res="energy"] .nl-ciel::before{content:"";position:absolute;inset:0;opacity:0;background:linear-gradient(180deg,color-mix(in srgb,var(--k2) 78%,transparent),color-mix(in srgb,var(--k1) 82%,transparent))}'+
-     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel{-webkit-mask-image:none;mask-image:none}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b{display:block;width:'+LARG_NUAGE+'px;margin-left:-'+LARG_NUAGE+'px;background-image:'+nuage+';background-repeat:no-repeat;filter:blur(1.3px);will-change:left}'+
+     /* Fumée de fond : de plus en plus dense avec les niveaux par seconde (nuages fondus), pleine à 50 (classe pleine) */
+     '.nl-barre[data-nl-res="energy"] .nl-ciel::before{content:"";position:absolute;inset:0;opacity:var(--nl-d,0);background:linear-gradient(180deg,color-mix(in srgb,var(--k2) 78%,transparent),color-mix(in srgb,var(--k1) 82%,transparent))}'+
      '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel b{display:none}'+
-     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel::before{opacity:1}'+
-     '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="energy"] .nl-ciel b{animation:nlFumee calc(var(--d) / (1 + var(--nl-L,0) * 6)) linear infinite;animation-direction:reverse;animation-delay:var(--dl,0s)}'+
-     '@keyframes nlFumee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--T)))}}}';
+     '.nl-barre.pleine[data-nl-res="energy"] .nl-ciel::before{opacity:1}';
   /* Étoiles (magie) : trois calques scintillant à des rythmes différents ; chaque NGU a sa propre largeur de tuile et son décalage (--S, --o) : jamais deux tubes pareils. */
   o+='.nl-barre[data-nl-res="magic"] .nl-ciel b{display:block;right:0;background-repeat:repeat-x;background-size:var(--S) 38px;background-position:var(--o) 50%}'+
      '.nl-barre[data-nl-res="magic"] .nl-ciel b:nth-child(1){--d:4.7s;--S:var(--S1);--o:var(--o1);background-image:'+etoilesCalque_(1,18)+'}'+
@@ -770,6 +784,19 @@ function page(j){
 }
 
 /* ---------- vie des tuyaux : progression rejouée en direct ---------- */
+/* Place les nuages d'un tuyau d'énergie (appelée à chaque image, sans lecture de la page : aucune mise en page forcée) */
+function majNuages_(f,spl,frac,maintenant){
+  if(f.getAttribute('data-nl-res')!=='energy'||f.classList.contains('pleine'))return;
+  var bs=f.__nlNuages||(f.__nlNuages=f.querySelectorAll('.nl-ciel b')),e=fumeeEtat_(spl,frac,true,maintenant),k,v,tube=f.querySelector('.nl-tube');
+  for(k=0;k<bs.length&&k<NB_NUAGES;k++){
+    v=e.nuages[k];
+    if(bs[k].__nlV===v)continue;
+    bs[k].__nlV=v;
+    if(v==null){bs[k].style.visibility='hidden';}
+    else{bs[k].style.left=(v*100)+'%';bs[k].style.visibility='visible';}
+  }
+  if(tube&&tube.__nlD!==e.d){tube.__nlD=e.d;tube.style.setProperty('--nl-d',String(e.d));}
+}
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
@@ -802,7 +829,7 @@ function tick_(){
     var total=Number(d.nlP)+ecoule/spl;
     var gagnes=Math.floor(total);
     var frac=total-gagnes;
-    if(spl<0.04){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));}
+      if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));}
     var niveau=n0+gagnes;
     if(cible>0&&niveau>cible)niveau=cible;
     var liq=f.querySelector('[data-nl-fill]');
@@ -814,10 +841,9 @@ function tick_(){
         liq.style.transform='scaleX('+v+')';
         var pct=f.querySelector('[data-nl-pct]');
         if(pct)pct.textContent=Math.round(v*100)+' %';
-        var tube=f.querySelector('.nl-tube');
-        if(tube){var plein=f.classList.contains('pleine');tube.style.setProperty('--nl-p',plein?'1.05':String(v));tube.style.setProperty('--nl-L',String(longueurTraine_(spl,plein)));}   /* la fumée avance avec la barre */
       }
     }
+    majNuages_(f,spl,frac,maintenant);   /* le nuage avance avec le niveau (lent) ou avec l'horloge (vite) */
     if(!complet)return;
     var eta=f.querySelector('[data-nl-eta]');
     if(eta){
@@ -999,7 +1025,7 @@ window.__SOREAL_IDLE_NGU_LABO_V1__={
   /* Pour les tests : la progression d'un tuyau à un instant donné (mêmes formules que tick_). */
   progression:function(p,spl,n0,ecouleSecondes){
     var total=p+ecouleSecondes/spl,gagnes=Math.floor(total);
-    return spl<0.04?{fraction:1,niveau:n0+Math.floor(ecouleSecondes*Math.min(50,1/spl))}:{fraction:total-gagnes,niveau:n0+gagnes};
+    return (1/spl)>=49.99?{fraction:1,niveau:n0+Math.floor(ecouleSecondes*Math.min(50,1/spl))}:{fraction:total-gagnes,niveau:n0+gagnes};
   }
 };
 })();

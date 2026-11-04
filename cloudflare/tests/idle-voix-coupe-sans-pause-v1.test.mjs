@@ -125,4 +125,19 @@ assert.match(py, /def finir_bloc\(wav, sr, colle_avant=False, colle_apres=False\
 assert.match(py, /couper_bords\(wav, sr, False, colle_avant, colle_apres\)/, "bord collé rogné");
 assert.match(py, /return wav if colle_apres else avec_silence_final\(wav, sr\)/, "pas de silence final avant un raccord sans pause");
 assert.match(py, /donnees\.get\("colleAvant"\) is True, donnees\.get\("colleApres"\) is True/, "la requête transmet les raccords");
+// --- Voix enregistrées AVANT le 2026-11-04 (Norman : « hier j'ai enregistré toutes les voix des trolls, aujourd'hui elles ne sont plus là ») ---
+{
+  const T2 = contexte();
+  const texte = "Tu as perdu ton temps (/) et ton énergie, mais pas ton sourire.";
+  const entier = T2.hashBloc(texte);                       // l'ancienne empreinte : le texte entier sans le marqueur = UN fichier
+  const nouveaux = T2.planNarration(T2.retirerParentheses(texte)).filter((e) => e.chunk != null);
+  assert.equal(nouveaux.length, 2, "sans voix déclarée : un fichier par morceau");
+  T2.enregistrerVoixDynamiques([entier]);                  // seule l'ancienne voix est déclarée (enregistrée hier)
+  const repris = T2.planNarration(T2.retirerParentheses(texte)).filter((e) => e.chunk != null);
+  assert.equal(repris.length, 1, "l'ancien fichier entier est repris tant que les nouveaux morceaux ne sont pas déclarés");
+  assert.equal(T2.hashBloc(repris[0].chunk), entier, "c'est bien l'ancienne empreinte");
+  T2.enregistrerVoixDynamiques(nouveaux.map((e) => T2.hashBloc(e.chunk)));   // la voix a été refaite (ex. GROS Troll NGU) : les nouveaux fichiers l'emportent
+  const apres = T2.planNarration(T2.retirerParentheses(texte)).filter((e) => e.chunk != null);
+  assert.equal(apres.length, 2, "dès que les nouveaux morceaux sont déclarés, ce sont eux qui servent (voix refaite : jamais écrasée par l'ancienne)");
+}
 console.log("idle-voix-coupe-sans-pause-v1 (un fichier par morceau) : ok");

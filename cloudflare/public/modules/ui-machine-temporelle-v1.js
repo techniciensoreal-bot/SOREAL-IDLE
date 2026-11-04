@@ -181,6 +181,7 @@
             /* Norman (2026-10-13) : « quand on est à 50 niveaux par seconde pour la Machine temporelle, la barre doit rester pleine » : un niveau de 0,25 s ou moins (4 par seconde et plus) ne se voit plus avancer, elle reste pleine au lieu de clignoter */
             if(faussesOr)fill=1;
             else if(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1)fill=1;
+            else if(palier>0&&palier<=SEUIL_NIVEAU_CYCLE_TM_V1)fill=0;   /* dessinée en tours par la boucle d'animation */
             else if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));
             else if(fill0<1)fill=Math.min(1,fill0+((maintenant-at)/1000)/(base/(1-fill0)));
             else fill=1;
@@ -189,7 +190,7 @@
             if(faussesOr||(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1))tauxTm=0;
             else if(franchis>0)tauxTm=palier>0?1/palier:0;
             else if(fill0<1)tauxTm=base>0?(1-fill0)/base:0;
-            barreEl.__tmAnim={f:fill,t:Date.now(),r:tauxTm};
+            barreEl.__tmAnim={f:fill,t:Date.now(),r:tauxTm,p:(!faussesOr&&palier>SEUIL_NIVEAU_RAPIDE_TM_V1&&palier<=SEUIL_NIVEAU_CYCLE_TM_V1)?palier:0};
             const largeurTm=(Math.max(0,Math.min(1,fill+decalageBarreTmIdleV1_(barreEl,maintenant)))*100).toFixed(4)+'%';
             if(barreEl.style.width!==largeurTm)barreEl.style.width=largeurTm;
             poserTubeTmIdleV1_(barreEl,largeurTm);
@@ -198,7 +199,8 @@
         });
       }
 
-      const SEUIL_NIVEAU_RAPIDE_TM_V1=0.25;
+      /* Norman (2026-11-04) : « toutes les barres du jeu doivent refléter ce qui se passe vraiment : si elle tique 49 fois par seconde, on doit la voir 49 fois par seconde. Pas 50, pas 48. L'effet stroboscope est plaisant dans ce jeu » : la barre n'est PLEINE ET FIXE qu'au cap de 50 niveaux par seconde (niveau de 0,02 s) ; en dessous elle tourne à la vraie cadence (un tour par niveau), calée sur l'horloge du jeu. */
+      const SEUIL_NIVEAU_RAPIDE_TM_V1=0.02,SEUIL_NIVEAU_CYCLE_TM_V1=0.25;   /* au-dessus d'un niveau par 0,25 s, la barre avance normalement (franchissement visible) */
 
       /*
        * Plus aucun recul de barre à la réponse du moteur (Norman, 2026-11-01 : « on règle complètement la latence de la Machine temporelle »). Le moteur applique une allocation au moment où il reçoit la requête, un peu après le clic
@@ -228,7 +230,8 @@
           poserTubeTmIdleV1_(barreEl,l);
           return;
         }
-        const fill=Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000+decalageBarreTmIdleV1_(barreEl,maintenant)));
+        const hg=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():maintenant;
+        const fill=a.p>0?((hg/1000)/a.p)%1:Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000+decalageBarreTmIdleV1_(barreEl,maintenant)));
         const largeur=(fill*100).toFixed(4)+'%';
         if(barreEl.style.width!==largeur)barreEl.style.width=largeur;
         poserTubeTmIdleV1_(barreEl,largeur);

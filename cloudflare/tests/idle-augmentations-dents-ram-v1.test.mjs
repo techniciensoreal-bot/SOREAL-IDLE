@@ -28,5 +28,5 @@ assert.match(cTel, /left:0;right:0;top:0;bottom:auto/, "téléphone : arête sup
 assert.match(cTel, /height:13px/);
 assert.match(cTel, /0\/8px 11px space no-repeat/, "téléphone : tuile de 8 px de large");
 // la carte empile bien circuit puis processeur sous 700 px
-assert.ok(/@media \(min-width:701px\)\{\s*html body[^{]*aug-pistes-v2:has\(\.aug-lien-v2\)\{grid-template-columns:minmax\(0,1fr\) auto minmax\(0,1fr\)/.test(css));
+assert.ok(/@media \(min-width:701px\)\{\s*html body[^{]*aug-pistes-v2:has\(\.aug-piste-v2\.upgrade\)\{grid-template-columns:minmax\(0,1fr\) minmax\(0,1fr\)/.test(css));
 console.log("ok idle-augmentations-dents-ram-v1");

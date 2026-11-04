@@ -927,7 +927,8 @@
             :'<span class="aug-badge-v2 normal"><i>'+iconePiste+'</i></span>';
           const nomPiste=upgrade?H.idleHtml_((label||'').replace('⬆️ ','')):H.idleHtml_(IDLE_NOMS_AUGMENTS_V1[def.id]||def.name||def.id);
           const cleIdUp=upgrade?'true':'false';
-          return (upgrade?'<span class="aug-lien-v2" aria-hidden="true">×</span>':'')+'<div class="aug-piste-v2'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
+          /* Norman, 2026-11-04 : « supprime le X et son petit cadre entre les augmentations et les améliorations » */
+          return '<div class="aug-piste-v2'+(upgrade?' upgrade':'')+'" data-rang-v1="'+rangAugment(def)+'" style="opacity:'+(ok?'1':'.45')+'">'+
             '<div class="aug-tete-v2">'+badge+'<span class="aug-nom-piste-v2">'+nomPiste+'</span></div>'+
             '<div class="aug-ligne-haut">'+
               '<div class="aug-niv-bloc"><span class="aug-niv-lib">Niveau</span><b class="aug-niv-val"><span data-idle-aug-niv-v1="'+clef+'">'+(window.__SOREAL_IDLE_NUMBER_FORMAT_V1__&&window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible?window.__SOREAL_IDLE_NUMBER_FORMAT_V1__.entierLisible(level):level)+'</span></b></div>'+

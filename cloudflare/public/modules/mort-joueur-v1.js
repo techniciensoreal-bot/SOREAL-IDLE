@@ -198,6 +198,12 @@ function jouer(hote,variante){
       if(!calque.isConnected){fini=true;enCours=false;return;}
       var t=(now-t0)/1000;
       if(neuve){
+        /* Tranché (Norman, 2026-11-04 : « l'image doit tomber DANS son cadre » ; « les morceaux disparaissent en tombant et on revient à cheval ») : les deux triangles tombent dans le cadre du portrait (le calque), puis le retour « galop » */
+        if(variante==='tranche'&&RETOURS.indexOf('galop')>=0){
+          if(t<neuve.duree){NOUVELLES.dessiner(variante,c,t,cacheNeuve,LW,LH);requestAnimationFrame(image);return;}
+          if(!fondu){fondu=true;c.fillStyle='#101827';c.fillRect(0,0,LW,LH);REAPP.jouer('joueur','galop',{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});}
+          return;
+        }
         if(t>=neuve.duree+.25){terminer();return;}
         if(t<neuve.duree)NOUVELLES.dessiner(variante,c,t,cacheNeuve,LW,LH);
         else if(!fondu){fondu=true;calque.style.transition='opacity .25s ease-out';calque.style.opacity='0';}
@@ -210,7 +216,7 @@ function jouer(hote,variante){
         if(!fondu){
           fondu=true;
           c.fillStyle='#101827';c.fillRect(0,0,LW,LH);
-          REAPP.jouer('joueur',variante,{calque:calque,img:img}).then(function(){terminer();},function(){terminer();});
+          REAPP.jouer('joueur',RETOURS.indexOf('galop')>=0?'galop':variante,{calque:calque,img:img})   /* Norman (2026-11-04) : « quand notre image revient, elle a l'air d'être à cheval » : toutes les morts en pixels reviennent au galop */.then(function(){terminer();},function(){terminer();});
         }
         return;
       }

@@ -12,7 +12,7 @@ assert.ok(!/animation:(?!none)|@keyframes/.test(bloc), "décor statique");
 assert.ok(bloc.includes("z-index:0;opacity:1;transform:none;animation:none;pointer-events:none") && bloc.includes(".aug-pistes-v2{position:relative;z-index:1}"), "derrière le texte, sans bloquer les clics");
 const js = readFileSync("cloudflare/public/modules/augmentations-page-v1.js", "utf8");
 for (const k of ["aug-noyau", "aug-voyant", "aug-voie", "aug-pcb", "aug-flux"]) assert.ok(!js.includes(k), "structure inchangée : " + k);
-assert.ok(js.includes('<span class="aug-lien-v2" aria-hidden="true">×</span>'), "lien d'origine conservé");
+assert.ok(!js.includes('<span class="aug-lien-v2"'), "le X entre augmentation et amélioration est supprimé (Norman, 2026-11-04)");
 const titre = readFileSync("cloudflare/public/soreal-idle-entetes-a.css", "utf8");
 assert.ok(!titre.includes("enteteA_augmentations 1.2s") && titre.includes("enteteA_augmentations 28s"), "titre d'Augmentations inchangé");
 const total = [...(readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8") + "").matchAll(/!important/g)].length;

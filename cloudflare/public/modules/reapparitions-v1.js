@@ -41,7 +41,11 @@ function bruit(c,o,t,d,v,type,f0,f1,q){
 function choc(c,o,t,v){ton(c,o,t,95,38,0.32,v,'sine');bruit(c,o,t,0.16,v*0.6,'lowpass',420,120,0.7);}
 function boing(c,o,t,v,f){ton(c,o,t,f||320,(f||320)*0.45,0.34,v,'sine');ton(c,o,t,(f||320)*2,(f||320)*0.9,0.2,v*0.35,'triangle');}
 
+/* sabots : « ta-ga-DA » à chaque foulée (deux petits temps, un grand), de plus en plus forts à mesure que le cavalier approche ; mêmes foulées que le retour « galop » ci-dessous et que la borne (borne-led-v1.js) */
+var GALOP_FOULEES=[0.68,0.68,0.68,0.68],GALOP_MOTIF=[[0,0],[0.14,0.6],[0.26,0],[0.4,0.6],[0.52,0],[0.7,1],[1,0]];
+function sabot(c,o,t,v){ton(c,o,t,430,170,0.05,v,'triangle');bruit(c,o,t,0.045,v*0.8,'bandpass',1900,900,3);ton(c,o,t,150,80,0.06,v*0.6,'sine');}
 var SONS={
+  galop:function(c,o,t){var acc=0,i;for(i=0;i<GALOP_FOULEES.length;i++){var v=0.07+0.08*i;sabot(c,o,t+acc+0.14*GALOP_FOULEES[i],v*0.8);sabot(c,o,t+acc+0.4*GALOP_FOULEES[i],v*0.8);sabot(c,o,t+acc+0.7*GALOP_FOULEES[i],v*1.5);acc+=GALOP_FOULEES[i];}},
   /* pas lourds et caoutchouteux : un « toum » à chaque appui sur un coin, un petit couinement entre deux, un « boing » final */
   marche:function(c,o,t){var N=5,D=2.6,i;for(i=0;i<N;i++){var ta=t+(i+1)/N*D;choc(c,o,ta-0.02,0.16+0.02*i);ton(c,o,t+(i+0.5)/N*D,520+i*30,380,0.12,0.03,'triangle');}boing(c,o,t+D-0.05,0.07,360);},
   /* sifflement de chute, puis trois chocs-boing de plus en plus faibles, calés sur les contacts */
@@ -96,9 +100,9 @@ function creerScene(calque,img){
     nw:img.naturalWidth||img.width||1,nh:img.naturalHeight||img.height||1,src:sujet.src};
   return X;
 }
-/* Yeux rouges de la Silhouette (Norman, 2026-11-03 : « pour chaque boss où c'est les yeux rouges, il faut que les yeux rouges soient à l'emplacement où ses vrais yeux vont apparaître »). L'entrée d'un boss suit toujours le même ordre : la Silhouette revient aux boss 14, 31, 48, 65, 82, 99, 116, 133, 150, 167, 184, 201, 218, 235, 252, 269, 286 ((n - 1) mod 17 = 13).
+/* Yeux rouges de la Silhouette (Norman, 2026-11-03 : « pour chaque boss où c'est les yeux rouges, il faut que les yeux rouges soient à l'emplacement où ses vrais yeux vont apparaître »). L'entrée d'un boss suit toujours le même ordre : la Silhouette revient aux boss 14, 48 (et, par échange demandé par Norman le 2026-11-04, au 30 au lieu du 31 : le 30 a les yeux rouges, le 31 a le portail), 65, 82, 99, 116, 133, 150, 167, 184, 201, 218, 235, 252, 269, 286 ((n - 1) mod 17 = 13).
    Par boss : [x1, y1, x2, y2, largeur] en % de l'image (centre de chaque œil, relevés à l'œil sur l'image du boss, grille de 10 %) ; x2 = null : un seul œil visible (profil). Le téléviseur (31) a les yeux au niveau de son inscription. Les boss sans yeux (texte, coffre, assiette, squelette hors cadre) gardent l'ancien emplacement. */
-var YEUX_BOSS={14:[43,25,50,26.5,5],31:[40,15,62,16.5,5],48:[43,28,56,28,7],82:[41.5,36,49,36,5],99:[15,14,27,14,5],116:[16.5,51.5,23.5,51.5,4],133:[35.5,6,43.5,6,5],167:[60,17,68,18,4.5],235:[12,47,null,47,3.5],252:[67.5,38,71,38,3],269:[51.5,23,58,23,4.5],286:[56,18,null,18,5]};
+var YEUX_BOSS={14:[43,25,50,26.5,5],30:[21,38.6,40.8,38.3,4],31:[40,15,62,16.5,5],48:[43,28,56,28,7],82:[41.5,36,49,36,5],99:[15,14,27,14,5],116:[16.5,51.5,23.5,51.5,4],133:[35.5,6,43.5,6,5],167:[60,17,68,18,4.5],235:[12,47,null,47,3.5],252:[67.5,38,71,38,3],269:[51.5,23,58,23,4.5],286:[56,18,null,18,5]};
 function yeuxRouges(X){
   var Y=YEUX_BOSS[X.n],y,oeil=function(cx,cy,w){return '<i style="position:absolute;left:'+cx+'%;top:'+cy+'%;width:'+w+'em;height:'+(w*0.66)+'em;transform:translate(-50%,-50%);border-radius:50%;background:#ff2b2b;box-shadow:0 0 '+(w*0.8)+'em '+(w*0.3)+'em #f00"></i>';};
   if(!Y){y=sur(X,'left:30%;right:30%;top:34%;height:14px;z-index:3');y.innerHTML='<i style="position:absolute;left:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i><i style="position:absolute;right:0;width:18px;height:12px;border-radius:50%;background:#ff2b2b;box-shadow:0 0 14px 6px #f00"></i>';return y;}
@@ -124,6 +128,23 @@ function retirerSurcouches(X){[].slice.call(X.monde.children).forEach(function(e
 
 /* ================= JOUEUR ================= */
 var JOUEUR=[
+ {id:'galop',nom:'Galop',duree:3.2,jouer:function(X){
+   /* Norman (2026-11-04) : « je veux que l'image soit toute petite au loin et arrive vers l'écran en galopant ; tagada tagada tagada » puis « un tagada en plus, donc l'arrivée moins rapide » : QUATRE foulées pendant lesquelles l'image grossit en s'approchant, rebondit au rythme du galop (de plus en plus haut), puis s'arrête à sa place. La borne et la pancarte de la chronique rebondissent en même temps (borne-led-v1.js). */
+   X.sujet.style.opacity=1;X.sujet.style.transformOrigin='50% 100%';
+   var B=window.__SOREAL_IDLE_BORNE_LED_V1__;try{if(B&&typeof B.galop==='function')B.galop();}catch(_e){}
+   var TOT=GALOP_FOULEES.reduce(function(a,b){return a+b;},0),H=X.H;
+   return raf(X,3.2,function(p){
+     var tt=p*3.2,i=0,acc=0,u=0,m=0,k,q=cl(tt/TOT,0,1),s=0.07+0.93*(1-Math.pow(1-q,2)),haut=-H*0.22*(1-s),ro=0,y;
+     if(tt<TOT){
+       while(i<GALOP_FOULEES.length-1&&tt>=acc+GALOP_FOULEES[i]){acc+=GALOP_FOULEES[i];i++;}
+       u=(tt-acc)/GALOP_FOULEES[i];
+       for(k=0;k<GALOP_MOTIF.length-1;k++)if(u>=GALOP_MOTIF[k][0]&&u<=GALOP_MOTIF[k+1][0]){var f=(u-GALOP_MOTIF[k][0])/(GALOP_MOTIF[k+1][0]-GALOP_MOTIF[k][0]);m=GALOP_MOTIF[k][1]+(GALOP_MOTIF[k+1][1]-GALOP_MOTIF[k][1])*(0.5-0.5*Math.cos(Math.PI*f));break;}
+       ro=(i%2?-1:1)*2.2*m*s;
+     }
+     y=haut-m*H*(0.045+0.02*i)*(0.4+0.6*s);
+     X.sujet.style.transform='translateY('+y.toFixed(2)+'px) scale('+s.toFixed(4)+') rotate('+ro.toFixed(2)+'deg)';
+   }).then(function(){X.sujet.style.transform='';});
+ }},
  {id:'marche',nom:'Marche sur les coins',duree:2.6,jouer:function(X){X.sujet.style.opacity=1;var W=X.W;return raf(X,2.6,function(p){var N=5,s=p*N,i=Math.min(N-1,Math.floor(s)),f=s-i,th=Math.sin(Math.PI*f)*13,droite=(i%2===0);X.sujet.style.transformOrigin=droite?'100% 100%':'0% 100%';var x=(1-ease(p))*(-W*1.15),rot=droite?-th:th,fin=cl((p-.9)/.1,0,1);X.sujet.style.transform='translateX('+x+'px) rotate('+rot*(1-fin)+'deg) scale('+(1+Math.sin(fin*Math.PI)*0.04)+')';}).then(function(){X.sujet.style.transform='';});}},
  {id:'rebond',nom:'Rebond',duree:1.7,jouer:function(X){var H=X.H;X.sujet.style.transformOrigin='50% 100%';var o=sur(X,'left:20%;right:20%;bottom:-4px;height:14px;background:rgba(0,0,0,.5);border-radius:50%;filter:blur(3px)');anim(o,[{transform:'scale(.2)',opacity:.1},{transform:'scale(1)',opacity:.6,offset:.4},{transform:'scale(.8)',opacity:.45,offset:.62},{transform:'scale(1)',opacity:.6,offset:.76},{transform:'scale(.95)',opacity:.55,offset:.88},{transform:'scale(1)',opacity:.6}],{duration:1700});
   return anim(X.sujet,[{transform:'translateY('+(-H*1.45)+'px) scale(.9,1.12)',opacity:1,easing:'cubic-bezier(.5,0,1,.6)'},{transform:'translateY(0) scale(1.22,.78)',offset:.34,easing:'ease-out'},{transform:'translateY('+(-H*.5)+'px) scale(.94,1.06)',offset:.52,easing:'cubic-bezier(.5,0,1,.6)'},{transform:'translateY(0) scale(1.14,.86)',offset:.66,easing:'ease-out'},{transform:'translateY('+(-H*.19)+'px) scale(.98,1.03)',offset:.78,easing:'cubic-bezier(.5,0,1,.6)'},{transform:'translateY(0) scale(1.06,.94)',offset:.88},{transform:'translateY(0) scale(1)',opacity:1}],{duration:1700});}},

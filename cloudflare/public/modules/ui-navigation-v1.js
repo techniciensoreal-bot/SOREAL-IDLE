@@ -506,19 +506,7 @@
         if(REG.idleEtat&&!idleMenuEstAcquisV1_(REG.idleEtat,nouveauMenu)){
           idleMenuMarquerAcquisV1_(REG.idleEtat,nouveauMenu);
 
-          /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-317 */
-          if(nouveauMenu==='aventure'){
-            demarrerTutorielPagesIdleV1_(
-              REG.TUTORIEL_AVENTURE_PAGES_V1,
-              'soreal_idle_tutoriel_aventure_v1_'+generationJoueurIdleV75_(REG.idleEtat)
-            );
-          }else{
-            const info=idleInfosParMenuIdleV1_(REG.idleEtat)[nouveauMenu];
-            if(info&&anciennesFenetresMenusPermisesIdleV1_()){
-              REG.idlePopupQueueV75.push(info);
-              afficherProchainePopupIdleV75_();
-            }
-          }
+          /* Norman (2026-11-04) : « je veux absolument tout retirer : ce qui apparaît la première fois qu'on va dans un menu » : plus aucune fenêtre à la première ouverture d'un menu (ni l'ancien tutoriel d'Aventure, ni les popups d'explication par menu) ; c'est Cthulhu qui présente les menus (guides de l'Admin). Le menu est seulement marqué « acquis ». Les voix et le générateur de voix restent intacts. */
         }
 
         if(

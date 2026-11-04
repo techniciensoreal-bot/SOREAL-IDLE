@@ -33,7 +33,7 @@ assert.ok(M, "module exposé");
 
 const ids = Array.from(M.variantes, (v) => v.id);
 assert.deepEqual(ids, ["cendres", "trounoir", "vitre", "tranche", "ame"], "cinq nouvelles morts");
-for (const v of M.variantes) assert.ok(v.nom && v.aide && v.duree > 2.5, "nom, aide et durée de " + v.id);
+for (const v of M.variantes) assert.ok(v.nom && v.aide && v.duree > (v.id === "tranche" ? 1.5 : 2.5), "nom, aide et durée de " + v.id);
 for (const ancienne of ["fondu", "rewind", "clignote"]) assert.ok(!ids.includes(ancienne), ancienne + " reste dans mort-joueur-v1.js");
 assert.ok(existantes.includes("variantes:['fondu','rewind','clignote']"), "les trois morts existantes sont inchangées");
 

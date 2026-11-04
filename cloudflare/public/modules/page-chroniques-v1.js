@@ -17,6 +17,21 @@
   function iconeObjetAdventureIdleV138_(){return REG.iconeObjetAdventureIdleV138_.apply(null,arguments);}
   function libelleRecompenseSetAdventureIdleV163_(){return REG.libelleRecompenseSetAdventureIdleV163_.apply(null,arguments);}
   function catalogueSetsCollectionIdleV164_(){return REG.catalogueSetsCollectionIdleV164_.apply(null,arguments);}
+  function enregistrerObjetPopupIdleV1_(){return REG.enregistrerObjetPopupIdleV1_.apply(null,arguments);}
+  /* Vitrine de sets (Norman, 2026-11-04 : « je dois pouvoir cliquer sur un objet et il doit venir en grand, et me mettre ses statistiques et bonus ») : la pièce s'ouvre dans la MÊME fiche d'objet que l'Équipement de la Collection (statistiques au niveau maximum atteint, Specials, bonus de l'ensemble), via le registre de fiches. Seulement ce qui est déjà découvert (règle n°2). */
+  function fichePieceSet_(id,def,niveau,vert){
+    if(!def||!(def.kind==='equipment'||def.kind==='special'||def.kind==='cube'))return '';
+    const cle='collection:'+String(id),q=1+niveau/100;
+    try{
+      enregistrerObjetPopupIdleV1_(cle,{
+        kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:Boolean(vert),
+        basePower:Number(def.basePower)||0,baseToughness:Number(def.baseToughness)||0,
+        power:(Number(def.basePower)||0)*q,toughness:(Number(def.baseToughness)||0)*q,
+        specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:(Number(sp[1])||0)*q,max:(Number(sp[1])||0)*q};})
+      },'collection');
+    }catch(_e){return '';}
+    return ' data-sets-zoom-v1="'+idleHtml_(cle)+'" role="button" tabindex="0" onclick="window.__SOREAL_IDLE_SETS_ZOOM_V1__.ouvrir(\''+idleHtml_(cle)+'\',this)"';
+  }
 
   /* Icônes originales : 24 x 24, une seule couleur (currentColor) ; fill-rule evenodd pour les découpes. */
   const ICONES={
@@ -157,7 +172,7 @@
         const pseudoObj=def.kind==='equipment'?{set:def.set,slot:def.slot,name:def.name,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'equipment',level:niveau}
           :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}
           :{set:'',slot:def.slot||'accessory',name:def.name||defId,definitionId:defId,wikiItemId:def.wikiItemId||0,kind:'special',level:niveau});
-        return '<div class="sc-piece found soreal-idle-collection-slot-v32'+(niveau>=100?' maxed':'')+'">'+
+        return '<div class="sc-piece found soreal-idle-collection-slot-v32'+(niveau>=100?' maxed':'')+'"'+fichePieceSet_(defId,def,niveau,niveau>=100)+'>'+
           '<span class="sc-icone">'+iconeObjetAdventureIdleV138_(pseudoObj)+'</span>'+
           '<span class="sc-pnom">'+idleHtml_(def.name||defId)+'</span>'+
           /* Objet terminé : seulement son nom et le petit ✓ vert ; ses informations (niveau, jauge) ne s'affichent que tant qu'il n'est pas complètement monté (Norman, 2026-11-03) */
@@ -204,7 +219,7 @@
         };
 
         if(!vu)return '';
-        return '<div class="sc-piece soreal-idle-collection-slot-v32'+(vu?' found':'')+(vert?' maxed':'')+(lvl100&&!vert?' n100':'')+'">'+
+        return '<div class="sc-piece soreal-idle-collection-slot-v32'+(vu?' found':'')+(vert?' maxed':'')+(lvl100&&!vert?' n100':'')+'"'+fichePieceSet_(definitionId,def,lvl,vert)+'>'+
           '<span class="sc-icone">'+iconeObjetAdventureIdleV138_(pseudo)+'</span>'+
           '<span class="sc-pnom">'+idleHtml_(def.name||definitionId)+'</span>'+
           /* Pièce terminée (niveau 100 ET boosts à 100 %) : seulement son nom et le petit ✓ vert ; tant qu'elle n'est pas complètement montée : niveau, « boosts à compléter » et jauge (Norman, 2026-11-03) */

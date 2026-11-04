@@ -14,10 +14,10 @@ vm.runInNewContext(src, { window: fenetre, document: { head: { appendChild() {} 
 const R = fenetre.__SOREAL_IDLE_REAPPARITIONS_V1__;
 
 // 1. exactement les effets validés (Norman : « je jette » Surgit du trou et Griffures)
-assert.deepEqual([...R.joueur].map((x) => x.id), ["marche", "rebond", "tampon", "puzzle", "faisceau", "ballon", "toupie"]);
+assert.deepEqual([...R.joueur].map((x) => x.id), ["galop", "marche", "rebond", "tampon", "puzzle", "faisceau", "ballon", "toupie"]);
 assert.deepEqual([...R.boss].map((x) => x.id), ["ecrasement", "surgissement", "portail", "silhouette", "plongeon", "fumee", "briques"]);
 assert.ok(!src.includes("id:'trou'") && !src.includes("id:'griffes'"), "les effets jetés ne sont pas dans le jeu");
-for (const e of [...R.joueur, ...R.boss]) assert.ok(e.duree >= 1 && e.duree <= 3, e.id + " : durée");
+for (const e of [...R.joueur, ...R.boss]) assert.ok(e.duree >= 1 && e.duree <= 3.5, e.id + " : durée");
 
 // 2. un son PROPRE à chaque effet, qui se construit sans erreur et fait entendre quelque chose
 for (const e of [...R.joueur, ...R.boss]) {
@@ -34,7 +34,7 @@ assert.ok(/g\.gain\.value=0\.0001;g\.gain\.setValueAtTime\(0\.0001,t\)/.test(src
 // 4. câblage : le joueur revient par la file (le fondu en est sorti), les boss prennent les sept entrées après les dix premières
 const mort = lire("cloudflare/public/modules/mort-joueur-v1.js");
 assert.ok(mort.includes("var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX);") && mort.includes("if(variante!=='fondu'&&CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);"), "joueur : fondu retiré de la file, retours ajoutés");
-assert.ok(mort.includes("REAPP.jouer('joueur',variante,{calque:calque,img:img})"), "joueur : retour joué dans le calque opaque");
+assert.ok(mort.includes("REAPP.jouer('joueur',RETOURS.indexOf('galop')>=0?'galop':variante,{calque:calque,img:img})"), "joueur : retour joué dans le calque opaque");
 const app = lire("cloudflare/public/modules/apparition-boss-v1.js");
 assert.ok(app.includes("function nbEffets(){") && app.includes("var m=nbEffets();return ((n-1)%m+m)%m;"), "boss : dix effets puis sept nouveaux, en suivant le numéro");
 assert.ok(app.includes("REAPP.jouer('boss',neuf.id,{calque:calque,img:img,n:n})"), "boss : entrée jouée dans le calque");

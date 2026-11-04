@@ -488,20 +488,32 @@
       var lire=function(morceau){
         /* « (/) » (Norman, 2026-11-04 : « ça ne crée que 1 fichier malgré les / ») : chaque marqueur sépare deux BLOCS, donc deux fichiers de voix (chacun son empreinte, calculée sur son propre texte), joués à la suite sans pause. Une coupe collée à une ponctuation (« mot (/), suite ») n'en est pas une. */
         var sansPonct=String(morceau==null?'':morceau).replace(new RegExp('\\s*'+COUPE_SRC+'\\s*([,.;:!?\u2026\u00bb])','g'),'$1');
-        var precedent=null;
-        sansPonct.split(new RegExp(COUPE_SRC)).forEach(function(partie,rang){
-          var premier=true;
+        var nouveauxPas=[];
+        sansPonct.split(new RegExp(COUPE_SRC)).forEach(function(partie){
           decouperNarration_(partie).forEach(function(chunk){
             var clair=sansCoupe_(chunk);
             if(!clair)return;
             var etape={chunk:clair};
             if(voix)etape.voix=voix;
             if(expr)etape.expr=expr;
-            premier=false;
-            precedent=etape;
-            steps.push(etape);
+            nouveauxPas.push(etape);
           });
         });
+        /* VOIX D'AVANT LE 2026-11-04 (Norman : « hier j'ai enregistré toutes les voix des trolls, aujourd'hui elles ne sont plus là ») : avant, « (/) » ne changeait pas l'empreinte, le texte entier donnait UN fichier ; depuis, chaque morceau a son fichier. Un texte à « (/) » dont les NOUVEAUX morceaux ne sont pas déclarés mais dont l'ANCIEN bloc entier l'est reprend donc son ancien fichier (toujours dans R2) ; dès que les nouveaux morceaux sont générés et déclarés, ce sont eux qui servent. */
+        if(new RegExp(COUPE_SRC).test(String(morceau==null?'':morceau))){
+          var anciensPas=[];
+          decouperNarration_(String(morceau)).forEach(function(chunk){
+            var clair=sansCoupe_(chunk);
+            if(!clair)return;
+            var etape={chunk:clair};
+            if(voix)etape.voix=voix;
+            if(expr)etape.expr=expr;
+            anciensPas.push(etape);
+          });
+          var tousDeclares=function(l){return l.length>0&&l.every(function(e){return voixDynamiques[hashBloc_(e.chunk)];});};
+          if(!tousDeclares(nouveauxPas)&&tousDeclares(anciensPas))nouveauxPas=anciensPas;
+        }
+        nouveauxPas.forEach(function(e){steps.push(e);});
       };
       while((marque=reMarques.exec(texteBrut))){
         lire(texteBrut.slice(dernier,marque.index));

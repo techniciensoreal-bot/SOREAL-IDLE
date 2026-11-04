@@ -5,7 +5,7 @@ const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js",
 const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 /* Norman (2026-10-10) : Augmentations refait : paires marquées par la couleur (même teinte, nuance plus claire pour la seconde piste, sans texte « version normale / puissante »), icône propre à chaque version puissante, Advance Energy, barres en tubes de verre. */
 const page = meta.slice(meta.indexOf("function pageAugmentationsIdleV48_(j)"), meta.indexOf("function pageTimeMachineIdleV48_(j)"));
-for (const k of ["aug-badge-v2 puissant", "aug-badge-v2 normal", "aug-tube-v2", "aug-liquide-v2", "aug-reflet-v2", "aug-lien-v2", "aug-paire-v2", "aug-cible-v2", "aug-avance-v2", "Faire suivre l’énergie", "__cibleAugmentIdleV1__", "__avanceAugmentsIdleV1__"]) {
+for (const k of ["aug-badge-v2 puissant", "aug-badge-v2 normal", "aug-tube-v2", "aug-liquide-v2", "aug-reflet-v2", "aug-paire-v2", "aug-cible-v2", "aug-avance-v2", "Faire suivre l’énergie", "__cibleAugmentIdleV1__", "__avanceAugmentsIdleV1__"]) {
   assert.ok(page.includes(k), "page : " + k);
 }
 // les identifiants lus par le moteur d'affichage existant n'ont pas bougé

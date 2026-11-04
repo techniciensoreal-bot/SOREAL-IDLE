@@ -76,6 +76,8 @@
     coffreAvale:{group:"chest",priority:36,maxAgeMs:1000},
     /* La borne de Combat de boss s'allume (Norman, 2026-10-10) : une fois par Renaissance, son calé sur l'animation (modules/audio-borne-v1.js). */
     borneAllume:{group:"borne",priority:70,maxAgeMs:1500},
+    /* La borne tousse pendant le galop de retour au combat (Norman, 2026-11-04), hors combat seulement : modules/audio-borne-v1.js. */
+    borneTousse:{group:"borne",priority:70,maxAgeMs:1500},
     coffreRecrache:{group:"chest",priority:36,maxAgeMs:1000},
     /* Le Coffre rote et pète de temps en temps, au hasard (Norman, 2026-10-10) : 6 rots et 6 pets synthétisés (modules/audio-coffre-v1.js). */
     coffreRot:{group:"chest",priority:30,maxAgeMs:1500},
@@ -2314,6 +2316,7 @@
     valiseRonfle:valiseRonfle_,
     coffreAvale:function(){return coffreAvalerRecracher_("avaler");},
     borneAllume:function(){return jouerWebAudio_(2700,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.allumer==="function")m.allumer(c,master||c.destination);});},
+    borneTousse:function(){return jouerWebAudio_(3000,function(c){var m=window.__SOREAL_IDLE_AUDIO_BORNE_V1__;if(m&&typeof m.tousser==="function")m.tousser(c,master||c.destination);});},
     coffreRecrache:function(){return coffreAvalerRecracher_("recracher");},
     coffreRot:function(){return coffreDigestion_("rot");},
     coffrePet:function(){return coffreDigestion_("pet");},
@@ -2625,6 +2628,7 @@
     valiseRonfle:function(){return demander_("valiseRonfle");},
     coffreAvale:function(){return demander_("coffreAvale");},
     borneAllume:function(){return demander_("borneAllume");},
+    borneTousse:function(){return demander_("borneTousse");},
     coffreRecrache:function(){return demander_("coffreRecrache");},
     coffreRot:function(){return demander_("coffreRot");},
     coffrePet:function(){return demander_("coffrePet");},
