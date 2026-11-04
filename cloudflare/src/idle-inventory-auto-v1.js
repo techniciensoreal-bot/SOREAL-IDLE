@@ -531,12 +531,14 @@ function sortInventorySlotsV1(s) {
    *  5. Boosts : par type (Power, Toughness, Special) puis numÃ©ro croissant.
    * Tri stable : Ã  Ã©galitÃ©, l'ordre actuel est conservÃ©.
    */
-  /* Bijoux d'une même famille (ex. les pendentifs de la forêt, normal ou « ascended ») : une seule famille, donc côte à côte (Norman, 2026-11-03). */
-  const familleBijou = (id) => String(id || "").toLowerCase().replace(/^ascended/, "").replace(/[^a-z0-9]/g, "");
+  /* Bijoux d'une mï¿½me famille (ex. les pendentifs de la forï¿½t, normal ou ï¿½ ascended ï¿½) : une seule famille, donc cï¿½te ï¿½ cï¿½te (Norman, 2026-11-03). */
+  const familleBijou = (id) => String(id || "").toLowerCase().replace(/^(ascended)+/, "").replace(/[^a-z0-9]/g, "");
   const cleGroupe = (o) => (o && o.kind === "boost" ? "b:" + String(o.boostType || "") + ":" + N(o.strength, 0) : (o && sortRankInventoryV1(o) === IDLE_SORT_INVENTORY_RANK_V1.accessory && /pendant/i.test(String(o.definitionId || "")) ? "f:" + familleBijou(o.definitionId) : "o:" + String((o && (o.definitionId || o.name)) || "")));
-  /* Du plus puissant au moins puissant (Norman, 2026-11-03 : « quand on fait trier, les pendentifs de la forêt doivent être côte à côte, du plus puissant au moins puissant ») : à l'intérieur d'un groupe de bijoux, niveau décroissant, puis la version « ascended » d'abord ; les autres objets gardent leur ordre. */
+  /* Du plus puissant au moins puissant (Norman, 2026-11-03 : ï¿½ quand on fait trier, les pendentifs de la forï¿½t doivent ï¿½tre cï¿½te ï¿½ cï¿½te, du plus puissant au moins puissant ï¿½) : ï¿½ l'intï¿½rieur d'un groupe de bijoux, niveau dï¿½croissant, puis la version ï¿½ ascended ï¿½ d'abord ; les autres objets gardent leur ordre. */
   const puissanceBijou = (o) => (o && sortRankInventoryV1(o) === IDLE_SORT_INVENTORY_RANK_V1.accessory ? N(o.level, 0) : 0);
   const ascended = (o) => Number(/^ascended/i.test(String((o && o.definitionId) || "")));
+  /* Norman (2026-11-03) : Â« les pendentifs ne sont pas classÃ©s par force : le plus petit, Pendentif de la forÃªt ; au-dessus, ascendant ; au-dessus, ascendant ascendant Â» : la force est le RANG dans la chaÃ®ne (0, 1, 2 Â« ascended Â»), le niveau ne dÃ©partage que deux pendentifs du mÃªme rang. */
+  const rangBijou = (o) => ((String((o && o.definitionId) || "").match(/ascended/gi)) || []).length;
   const cleSet = (o) => String((o && o.set) || "");
   const ordreSets = new Map();
   (Array.isArray(IDLE_ADVENTURE_ZONES) ? IDLE_ADVENTURE_ZONES : []).forEach((z, i) => { if (z && z.set && !ordreSets.has(z.set)) ordreSets.set(z.set, i); });
@@ -565,7 +567,7 @@ function sortInventorySlotsV1(s) {
     if (oa && oa.kind === "boost") {
       return gv(ob) - gv(oa) || N(oa.strength, 0) - N(ob.strength, 0) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
     }
-    return gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || puissanceBijou(ob) - puissanceBijou(oa) || ascended(ob) - ascended(oa) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
+    return gv(ob) - gv(oa) || premier.get(cleGroupe(oa)) - premier.get(cleGroupe(ob)) || rangBijou(ob) - rangBijou(oa) || puissanceBijou(ob) - puissanceBijou(oa) || ascended(ob) - ascended(oa) || verrou(ob) - verrou(oa) || position.get(a) - position.get(b);
   });
   for (let i = mergeSlots; i < cap; i++) slots[i] = ids[i - mergeSlots] || "";
   s.inventorySlots = slots;

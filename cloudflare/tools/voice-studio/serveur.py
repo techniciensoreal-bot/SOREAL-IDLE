@@ -183,7 +183,7 @@ def est_question(segment):
 # Le marqueur n'est JAMAIS envoyé au modèle ni prononcé. Même convention côté jeu (tutorial-tts-v202.js, MARQUE_COUPE) : le jeu l'enlève du texte affiché et de l'empreinte du bloc, donc le nom du fichier ne change pas.
 MARQUE_COUPE = "(/)"
 MARQUE_COUPE_RE = re.compile(r"\(\s*/\s*\)")
-COUPE_MIN = 20        # une partie plus courte que TEXTE_COURT ferait planter / baratiner le modèle : pas de coupe là, les deux parties restent ensemble
+COUPE_MIN = 1         # Norman (2026-11-04) : « les (/) ne coupent pas l'audio en plusieurs parties » : le plancher de 20 caractères recollait « Bande d'idiots. » à sa voisine. Chaque marqueur coupe désormais (une partie sous TEXTE_COURT passe par le chemin des textes très courts : dite deux fois, première prononciation gardée)
 
 
 def sans_marque_coupe(texte):
@@ -593,7 +593,70 @@ def appliquer_humeur(wav, sr, humeur):
         return wav
 
 
-def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur="", langue="fr"):
+# Volume identique d'un texte à l'autre (Norman, 2026-11-04 : « la génération de voix ne me donne pas le même volume ; entre 2 textes on sent vraiment une différence pour le savant cynique »). Le niveau d'avant se réglait sur
+# le volume efficace du clip ENTIER, silences compris, puis une crête à 0,97 le rabaissait : un texte à longues pauses ressortait plus fort qu'un texte dense. Dernière étape de chaque génération française : le niveau efficace
+# des seuls passages PARLÉS (fenêtres de 20 ms au moins à 10 % d'énergie de la plus forte) est ramené à celui du narrateur (voix/homme.wav, mesuré pareil) x le gain de l'humeur ; limiteur doux au-dessus de 0,8 (jamais d'écrêtage dur).
+_CIBLE_NIVEAU = {}
+
+
+def niveau_parole(y, sr):
+    """Niveau efficace des seuls passages parlés de y ; 0.0 si rien."""
+    import numpy as np
+    fen = max(1, int(sr * 0.02))
+    nb = len(y) // fen
+    if nb < 1:
+        return 0.0
+    e = (y[: nb * fen].reshape(nb, fen) ** 2).mean(axis=1)
+    actif = e >= float(e.max()) * 0.1
+    return float(np.sqrt(e[actif].mean())) if actif.any() else 0.0
+
+
+def cible_niveau(sr):
+    """Niveau des passages parlés du narrateur à la fréquence sr ; None si l'extrait manque."""
+    if sr in _CIBLE_NIVEAU:
+        return _CIBLE_NIVEAU[sr]
+    resultat = None
+    try:
+        import librosa
+        chemin = reference_voix("homme")
+        if chemin:
+            y, _ = librosa.load(chemin, sr=sr, mono=True)
+            resultat = niveau_parole(y.astype("float64"), sr) or None
+    except Exception as e:  # noqa: BLE001
+        print("Niveau commun : cible indisponible :", str(e)[:200], file=sys.stderr, flush=True)
+    _CIBLE_NIVEAU[sr] = resultat
+    return resultat
+
+
+def niveler(wav, sr, humeur=""):
+    """Ramène le niveau des passages parlés à celui du narrateur (x gain de l'humeur) ; rend la voix d'origine en cas d'erreur."""
+    try:
+        import numpy as np
+        import torch
+        cible = cible_niveau(sr)
+        y = wav.squeeze(0).float().numpy().astype("float64")
+        courant = niveau_parole(y, sr)
+        if not cible or courant < 1e-6:
+            return wav
+        h = HUMEURS.get(str(humeur or "").strip().lower())
+        y = y * float(np.clip(cible / courant * (h["gain"] if h else 1.0), 0.2, 5.0))
+        a = np.abs(y)
+        y = np.where(a > 0.8, np.sign(y) * (0.8 + 0.19 * np.tanh((a - 0.8) / 0.19)), y)
+        return torch.from_numpy(y.astype("float32")).unsqueeze(0)
+    except Exception as e:  # noqa: BLE001
+        print("Niveau commun ignoré :", str(e)[:200], file=sys.stderr, flush=True)
+        return wav
+
+
+def finir_bloc(wav, sr, colle_avant=False, colle_apres=False):
+    """Fin d'un bloc généré. Un bloc qui n'est pas collé à un voisin garde son silence final (comme avant). Un bloc raccordé SANS pause à son voisin par un « (/) » est un fichier à part (Norman, 2026-11-04 : « ça ne crée que 1 fichier malgré les / ») :
+    on rogne le silence du bord concerné (début si colle_avant, fin si colle_apres, qui n'a alors pas de silence final) pour que les deux fichiers, joués à la suite, s'enchaînent sans trou."""
+    if colle_avant or colle_apres:
+        wav = couper_bords(wav, sr, False, colle_avant, colle_apres)
+    return wav if colle_apres else avec_silence_final(wav, sr)
+
+
+def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur="", langue="fr", colle_avant=False, colle_apres=False):
     import torch
     texte = normaliser_texte(texte, langue)
     if not texte or not sans_marque_coupe(texte):
@@ -609,16 +672,18 @@ def synthetiser(texte, voix="homme", exaggeration=0.5, cfg=0.5, humeur="", langu
         if not en:
             wav = harmoniser_micro(wav, sr, voix)
             wav = appliquer_humeur(wav, sr, humeur)
+            wav = niveler(wav, sr, humeur)
             if reglages_voix(voix).get("effet") == "robot":
                 wav = effet_robot(wav, sr, exaggeration)
-        return avec_silence_final(wav, sr), sr
+        return finir_bloc(wav, sr, colle_avant, colle_apres), sr
     wav, sr = synthetiser_long(texte, voix, exaggeration, cfg, langue)
     if not en:
         wav = harmoniser_micro(wav, sr, voix)
         wav = appliquer_humeur(wav, sr, humeur)
+        wav = niveler(wav, sr, humeur)
         if reglages_voix(voix).get("effet") == "robot":
             wav = effet_robot(wav, sr, exaggeration)
-    return avec_silence_final(wav, sr), sr
+    return finir_bloc(wav, sr, colle_avant, colle_apres), sr
 
 
 # Garde-fou contre les « dérapages » (Norman, 2026-10-01 : « la voix de marius continue à lire alors qu'il n'y a plus rien et dit n'importe quoi ») :
@@ -841,7 +906,7 @@ class Gestionnaire(BaseHTTPRequestHandler):
                 reglage = {"exaggeration": 0.45, "cfg": 0.5}
             else:
                 reglage = reglages_voix(voix)
-            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]), str(donnees.get("humeur", ""))[:20], langue)
+            wav, sr = synthetiser(texte, voix, donnees.get("exaggeration", reglage["exaggeration"]), donnees.get("cfg", reglage["cfg"]), str(donnees.get("humeur", ""))[:20], langue, donnees.get("colleAvant") is True, donnees.get("colleApres") is True)
             duree = float(wav.shape[-1]) / float(sr)
             audio = vers_m4a(wav, sr, TEMPO_ANGLAIS if langue == "en" else None)
         except Exception as e:  # noqa: BLE001

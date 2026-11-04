@@ -10,7 +10,7 @@ const src = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 // Plus de fioles
 assert.ok(!/FIOLE|DECOUPE|nl-bulle|nl-verre|scaleY/.test(src), "plus aucune fiole : ni contour, ni bulles, ni remplissage vertical");
 // Barres : tuyaux horizontaux, remplissage en scaleX (transform seulement)
-assert.ok(src.includes("function barreHtml_(n,ancre){") && src.includes("liq.style.transform='scaleX('+v+')'"), "tuyau horizontal qui se remplit en transform");
+assert.ok(src.includes("function barreHtml_(n,ancre,rang){") && src.includes("liq.style.transform='scaleX('+v+')'"), "tuyau horizontal qui se remplit en transform");
 assert.ok(src.includes('class="nl-bride g"') && src.includes('class="nl-bride d"'), "brides métalliques aux deux bouts");
 assert.ok(src.includes("data-nl-pct"), "pourcentage affiché dans le tuyau");
 // Nuit étoilée « cosmos » du cadre de chat des niveaux 30 : violet profond, étoiles à quatre branches qui scintillent

@@ -172,7 +172,7 @@
           if(el.dataset.tmEtaLast!==String(secondesAffichees)){
             el.dataset.tmEtaLast=String(secondesAffichees);
             el.__orHtmlV1=null;
-            el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant);
+            el.textContent='Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(restant)+(palier>0?' · '+(1/palier<0.005?'< 0,01':Math.min(50,1/palier).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}))+' niv/s':'');
             poserLcdTmIdleV1_(el,formaterEtaTimeMachineIdleV1_(restant));
           }
           /* La barre avance avec le compte à rebours (fraction de départ + temps écoulé / durée restante au départ), plus figée entre deux synchros ; après un niveau franchi elle repart du reste du niveau suivant. */
@@ -314,7 +314,7 @@
             eta.dataset.tmEtaAt=String(Date.now()-(typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0)/2);
             eta.dataset.tmEtaLast='';
             eta.textContent=etaValide
-              ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])
+              ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])+(palierPatch>0?' · '+(1/palierPatch<0.005?'< 0,01':Math.min(50,1/palierPatch).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}))+' niv/s':'')
               :'Alloue une ressource pour démarrer la barre';
             poserLcdTmIdleV1_(eta,etaValide?formaterEtaTimeMachineIdleV1_(entree[2]):'—');
           }

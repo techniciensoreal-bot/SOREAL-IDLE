@@ -176,9 +176,9 @@
   }
 
   /*
-   * COUPE SANS PAUSE (Norman, 2026-11-03) : « (/) » dans un texte = « le studio de voix coupe ICI la génération en deux morceaux, mais raccorde sans silence » (tools/voice-studio/serveur.py, MARQUE_COUPE). Le marqueur n'est
-   * jamais lu, jamais affiché et ne change JAMAIS l'empreinte d'un bloc : l'empreinte se calcule sur le texte sans le marqueur, donc le fichier de voix garde le même nom avec ou sans « (/) ». Même règle de nettoyage que le studio
-   * (sans_marque_coupe) : pas d'espace avant une ponctuation qui suit le marqueur, une seule espace sinon. L'étape garde le texte avec marqueur dans « studio » : c'est ce que l'éditeur envoie au studio.
+   * COUPE SANS PAUSE (Norman, 2026-11-03, refaite le 2026-11-04 : « ça ne crée que 1 fichier malgré les / ») : « (/) » dans un texte = « un fichier de voix de plus, enchaîné sans pause ». planNarration_ sépare le texte à chaque marqueur
+   * en BLOCS distincts, chacun avec son empreinte (calculée sur son propre texte) et donc son fichier ; les blocs voisins portent colleApres / colleAvant et le studio rogne le silence de ce bord. Le marqueur n'est jamais lu ni affiché.
+   * Même règle de nettoyage que le studio (sans_marque_coupe) : pas d'espace avant une ponctuation qui suit le marqueur (« mot (/), suite » n'est pas une coupe), une seule espace sinon.
    */
   var MARQUE_COUPE='(/)';
   var COUPE_SRC='\\(\\s*\\/\\s*\\)';
@@ -486,16 +486,23 @@
       var reMarques=new RegExp(VOIX_OPEN+'([a-z0-9-]+)'+VOIX_CLOSE+'|'+EXPR_OPEN+'([a-z0-9-]+)'+EXPR_CLOSE+'|'+ROT_MARQUE+'([a-z]*)'+ROT_MARQUE,'g');
       var texteBrut=parts[i],dernier=0,marque;
       var lire=function(morceau){
-        decouperNarration_(morceau).forEach(function(chunk){
-          /* Texte lu et empreinte : SANS le marqueur « (/) » ; avec lui (retiré aux bords du bloc, où il ne sert à rien), c'est le texte que reçoit le studio (étape.studio). */
-          var clair=sansCoupe_(chunk);
-          if(!clair)return;
-          var avecCoupe=chunk.replace(new RegExp('\\s*'+COUPE_SRC+'\\s*([,.;:!?\u2026\u00bb])','g'),'$1').replace(new RegExp('^(?:\\s*'+COUPE_SRC+')+\\s*|\\s*(?:'+COUPE_SRC+'\\s*)+$','g'),'').replace(/\s+/g,' ').trim();
-          var etape={chunk:clair};
-          if(avecCoupe&&avecCoupe!==clair&&new RegExp(COUPE_SRC).test(avecCoupe))etape.studio=avecCoupe;
-          if(voix)etape.voix=voix;
-          if(expr)etape.expr=expr;
-          steps.push(etape);
+        /* « (/) » (Norman, 2026-11-04 : « ça ne crée que 1 fichier malgré les / ») : chaque marqueur sépare deux BLOCS, donc deux fichiers de voix (chacun son empreinte, calculée sur son propre texte), joués à la suite sans pause. Une coupe collée à une ponctuation (« mot (/), suite ») n'en est pas une. */
+        var sansPonct=String(morceau==null?'':morceau).replace(new RegExp('\\s*'+COUPE_SRC+'\\s*([,.;:!?\u2026\u00bb])','g'),'$1');
+        var precedent=null;
+        sansPonct.split(new RegExp(COUPE_SRC)).forEach(function(partie,rang){
+          var premier=true;
+          decouperNarration_(partie).forEach(function(chunk){
+            var clair=sansCoupe_(chunk);
+            if(!clair)return;
+            var etape={chunk:clair};
+            if(voix)etape.voix=voix;
+            if(expr)etape.expr=expr;
+            /* Bords collés : le studio rogne le silence au raccord (le dernier bloc d'une partie et le premier de la suivante). */
+            if(rang>0&&premier&&precedent){etape.colleAvant=true;precedent.colleApres=true;}
+            premier=false;
+            precedent=etape;
+            steps.push(etape);
+          });
         });
       };
       while((marque=reMarques.exec(texteBrut))){

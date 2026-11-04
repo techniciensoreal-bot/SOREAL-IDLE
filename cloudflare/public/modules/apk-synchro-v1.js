@@ -27,6 +27,7 @@ var CLE_COMPTE='idle_apk_compte_v1';
 var CLE_ATTENTE='idle_apk_restauration_v1';
 var CLE_SAUVEGARDE='idle_apk_sauvegarde_locale_v1';
 var CLE_BASE='idle_apk_base_serveur_v1';
+var CLE_ADOPTE='idle_apk_adopte_v1';        /* signature de la partie du serveur DÉJÀ chargée sur le téléphone : une même partie n'est jamais rechargée deux fois (boucle de rechargement, Norman 2026-11-04) */
 var CLE_ACTIVITE='idle_apk_activite_v1';    /* dernière activité du moteur local, en millisecondes (heure du moteur = heure du serveur) */
 var CLE_MESSAGE='idle_apk_message_v1';      /* message à montrer au prochain chargement (la page se recharge après avoir pris la partie du serveur) */
 var COL_SYNCHRO=15,COL_BOSS_VAINCUS=14,COL_RENAISSANCES=24,COL_STATS=37;
@@ -71,6 +72,8 @@ function trancher(locale,serveur,infos,base){
   if(c<0)return {qui:'serveur',raison:'progression',different:different,forcer:false};
   return {qui:'local',raison:'identique',different:false,forcer:false};
 }
+/* Signature d'une partie du serveur (dernière progression acceptée, renaissances, boss vaincus, temps de jeu) : égale d'un lancement à l'autre tant que personne n'a joué ailleurs. */
+function signatureServeur(exp,serveur){return String(Number(exp&&exp.progressionAt)||0)+'|'+progression(serveur).join(',')+'|'+Math.round(tempsDeJeu(serveur));}
 function decider(locale,serveur,base,infos){return trancher(locale,serveur,infos,base).qui;}
 
 /* Dernière activité du moteur local : jamais « Dernière synchro » lue à l'ouverture (le moteur la remet à « maintenant » à chaque démarrage). */
@@ -179,6 +182,7 @@ function charger(exp,serveur,qui){
     if(!r||!r.ok)return 'chargement-refuse';
     return etat.moteur.exporterLigne().then(function(apres){
       ecrire(CLE_BASE,JSON.stringify({srv:String(serveur[COL_SYNCHRO]),loc:String(apres&&apres[COL_SYNCHRO])}));
+      ecrire(CLE_ADOPTE,signatureServeur(exp,serveur));
       /* Le téléphone a maintenant la partie du serveur : sa dernière activité est celle du serveur (sinon l'heure du chargement passerait pour une progression). */
       ecrireActivite(Number(exp.progressionAt)>0?Number(exp.progressionAt):Date.now());
       if(qui)ecrire(CLE_MESSAGE,qui);
@@ -221,6 +225,8 @@ function synchroniser(){
     if(typeof r==='string'){if(r==='hors-ligne')etat.horsLigne=true;return r;}
     etat.horsLigne=false;
     var t=trancher(r.locale,r.serveur,{locAt:locAt,srvAt:Number(r.exp.progressionAt)||0},json(CLE_BASE));
+    /* Norman (2026-11-04) : « le jeu se recharge en boucle au démarrage en disant qu'il a chargé la partie du serveur ». Une partie du serveur déjà chargée (même signature) n'est JAMAIS rechargée : le téléphone a déjà cette partie (et peut-être plus), la décision par la progression pouvait sinon donner « serveur » à chaque lancement. */
+    if(t.qui==='serveur'&&lire(CLE_ADOPTE)===signatureServeur(r.exp,r.serveur))t={qui:'local',raison:'deja-adoptee',different:false,forcer:false};
     if(t.qui==='serveur')return adopterServeur(r.exp,r.serveur,r.locale).then(function(res){if(res!=='serveur-charge')etat.adoption=false;return res;});
     return garderLocale(r.locale,t.forcer).then(function(ok){
       etat.pret=true;   /* même refusée, l'envoi est retenté par tick */

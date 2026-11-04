@@ -358,9 +358,16 @@ function etaTexte_(spl,fraction,cibleAtteinte){
   return '⏱️ Niveau suivant dans <b>'+dureeTexte_(spl*Math.max(0,1-fraction))+'</b>';
 }
 
+/* Compteur de niveaux par seconde de chaque tuyau (Norman, 2026-11-04 : « il faut un compteur de niv/s pour chaque barre ») : 1 / secondes par niveau, plafonné à 50 comme le calcul du remplissage ; 0 sans énergie. Constant entre deux synchros : écrit dans le HTML du tuyau. */
+function vitesseTexte_(spl){
+  var v=spl>0?Math.min(50,1/spl):0;
+  if(v>0&&v<0.01)return '< 0,01';   /* très lent : jamais un « 0 » trompeur */
+  return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
 /* ---------- un tuyau ---------- */
 /* HTML stable (Norman, 2026-11-02, redessin NGU) : l'instant de départ (data-nl-t0) n'est écrit que pour un tuyau qui progresse (spl > 0 : seul cas où le tick le lit) ; un tuyau à l'arrêt porte toujours 0, donc deux rendus d'un même état sans progression sont identiques et le morph peut ignorer le redessin. */
-function barreHtml_(n,ancre){
+function barreHtml_(n,ancre,rang){
   var c=COULEURS[n.id]||['#9aa5bb','#111111'];
   var niveau=Math.max(0,Math.floor(nombre_(n.level)));
   var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
@@ -371,11 +378,11 @@ function barreHtml_(n,ancre){
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
-  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+'">'+
-    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
+  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'" style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';--nl-v:'+Math.round((1+159*Math.pow(rang||0,3))*100)/100+';'+cielVars_(n.id)+'">'+
+    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-vit" title="Niveaux gagnés par seconde">⚡ <b>'+vitesseTexte_(spl)+'</b> niv/s</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
     '<div class="nl-tuyau">'+
       '<i class="nl-bride g"></i>'+
-      '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
+      '<div class="nl-tube"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true"><b></b><b></b><b></b></i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
       '<i class="nl-bride d"></i>'+
     '</div>'+
     '<div class="nl-eta" data-nl-eta>'+etaTexte_(spl,rempli,cible>0&&niveau>=cible)+'</div>'+
@@ -394,6 +401,63 @@ function barreHtml_(n,ancre){
 }
 
 /* ---------- page ---------- */
+
+/*
+ * Dans les tubes (Norman, 2026-11-04 : « NGU énergie ait des nuages dans ses tubes, de la fumée, mais nuages de différentes couleurs » ; « pour la nuit, des étoiles de différentes couleurs »).
+ * Énergie (jour) : trois voiles de fumée aux couleurs différentes par tube (palette tournée selon le NGU), qui dérivent dans le sens du remplissage. Magie (nuit) : trois calques d'étoiles de couleurs différentes,
+ * placées au hasard (graine = l'identifiant du NGU : jamais deux tubes pareils, jamais le même motif qui se répète), qui scintillent à des rythmes différents.
+ * Vitesse (Norman, 2026-11-04 : « augmente les vitesses du premier au dernier ; le dernier doit être cap ») : --nl-r (0 au premier tube de l'onglet, 1 au dernier) ; durée = durée de base / --nl-v pour la fumée (--nl-v = 1 + 159 x r au cube : les tubes juste sous le plafond vont BEAUCOUP plus vite et la vitesse retombe vite jusqu'au premier, Norman 2026-11-04 ; 1 + 7 x --nl-r pour le scintillement des étoiles) : le premier garde la vitesse de base, le dernier est au PLAFOND (fumée x20 : « capé, c'est supposé aller vite », Norman 2026-11-04).
+ * Règle n°3 : un voile = UNE tuile (largeur de tuile --T explicite), il glisse d'exactement une tuile ; le scintillement revient à son point de départ (même opacité à 0 % et 100 %) ; prefers-reduced-motion coupe tout.
+ * Règle n°4 : tout est dans le HTML du tuyau (aucun ajout après rendu) ; seule la CSS anime (transform / opacity).
+ */
+function graine_(id){var h=2166136261;for(var i=0;i<id.length;i++){h^=id.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function hasard_(g){return function(){g=(g+0x6D2B79F5)|0;var t=Math.imul(g^(g>>>15),1|g);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+/* Un calque d'étoiles : nb points de couleurs différentes au hasard (graine fixe par calque) dans une tuile de 400 x 38 px ; quelques-unes seulement ont un halo. */
+function etoilesCalque_(calque,nb){
+  var r=hasard_(graine_('ciel'+calque)),g=[];
+  for(var i=0;i<nb;i++){
+    var x=Math.round(8+r()*384),y=Math.round(4+r()*30),c=r()<0.7?'var(--k1)':'var(--k2)';
+    var ray=Math.round((0.9+r()*1.3)*10)/10;
+    g.push('radial-gradient(circle at '+x+'px '+y+'px,'+c+' 0,'+c+' '+ray+'px,transparent '+(ray+0.8)+'px)');
+    if(r()<0.16)g.push('radial-gradient(circle at '+x+'px '+y+'px,color-mix(in srgb,'+c+' 30%,transparent) 0,transparent '+Math.round(ray*3.4*10)/10+'px)');
+  }
+  return g.join(',');
+}
+/* Variables du tube (dans son attribut style) : teinte propre à chaque NGU (toutes différentes), même teinte plus claire, décalage de fumée, largeur et décalage des tuiles d'étoiles. */
+function cielVars_(id){
+  var g=graine_(id),rang=Object.keys(COULEURS).indexOf(id);
+  return '--k1:hsl('+Math.round((rang*137.5+12)%360)+' 92% 66%);--k2:color-mix(in srgb,var(--k1) 62%,#fff);--k3:var(--k1);--k4:var(--k2);--dl:-'+(g%17)+'s;'+
+    '--S1:'+(400+g%90)+'px;--o1:'+(g%400)+'px;--S2:'+(410+(g>>>3)%80)+'px;--o2:'+((g>>>5)%400)+'px;--S3:'+(420+(g>>>7)%70)+'px;--o3:'+((g>>>9)%400)+'px';
+}
+function cielCss_(){
+  var o='';
+  /* Fumée (énergie) : trois voiles ; couleurs --k1..--k4 tournées par NGU, voile 2 et 3 plus lents, tailles de tuile différentes. */
+  var f=function(c,a){return 'color-mix(in srgb,var('+c+') '+a+'%,transparent)';};
+  var B=function(x,y,rx,ry,c,a){return 'radial-gradient(ellipse '+rx+'px '+ry+'px at '+x+'% '+y+'%,'+f(c,a)+',transparent 72%)';};
+  var N=function(x,y,c,a,e){e=e||1;var P=function(dx,dy,rx,ry){return 'radial-gradient(ellipse '+Math.round(rx*e)+'px '+Math.round(ry*e)+'px at calc('+x+'% + '+Math.round(dx*e)+'px) '+(y+dy)+'%,'+f(c,a)+' 0,'+f(c,Math.round(a*0.62))+' 38%,transparent 72%)';};return [P(-11,5,30,12),P(0,-6,36,15),P(12,5,29,12)].join(',');};
+  o+='.nl-ciel{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit}'+
+     '.nl-ciel b{position:absolute;top:0;bottom:0;left:0;display:none;background-repeat:repeat-x}';
+  o+='.nl-barre[data-nl-res="energy"] .nl-ciel b{display:block;width:calc(100% + var(--T));background-size:var(--T) 100%;will-change:transform}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(1){--T:260px;--d:34s;background-image:'+[N(22,52,'--k1',74),N(68,40,'--k2',70)].join(',')+'}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){--T:200px;--d:23s;background-image:'+[N(30,34,'--k3',66),N(78,64,'--k4',68)].join(',')+'}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){--T:340px;--d:49s;background-image:'+[N(30,46,'--k4',34,2),N(76,52,'--k1',32,2)].join(',')+'}'+
+     /* Débit de fumée (Norman, 2026-11-04 : « un faible débit de fumée pour le premier et que ce soit rempli de fumée quand c'est cap ») : --nl-r (0 = premier tube, 1 = dernier, au plafond). Premier : un voile de nuages bien lisible (faible débit) ; le voile 2 apparaît dès le 2e tube, le voile 3 dès le 3e ; dernier : trois voiles pleins ET un brouillard qui remplit tout le tube. */
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(1){opacity:calc((.6 + var(--nl-r,0) * .4) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(2){opacity:calc(min(1,max(0,calc(var(--nl-r,0) * 1.6 + .12))) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
+     '.nl-barre[data-nl-res="energy"] .nl-ciel b:nth-child(3){opacity:calc(min(1,max(0,calc(var(--nl-r,0) * 1.5 - .05))) * min(1,max(0,calc(1 - (var(--nl-r,0) - .8) * 5))))}'+
+     /* Au plafond (--nl-r = 1) : la fumée est PLEINE à l'intérieur, uniforme, et plus aucun nuage ne circule (Norman, 2026-11-04 : « quand c'est capé, la fumée doit être pleine à l'intérieur. On ne doit plus voir les nuages circuler ») : les voiles s'effacent à partir de 80 %, le brouillard devient opaque. */
+     '.nl-barre[data-nl-res="energy"] .nl-ciel::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--k2) 78%,transparent),color-mix(in srgb,var(--k1) 82%,transparent));opacity:min(1,calc(max(0,var(--nl-r,0) - .45) * 1.82))}'+
+     '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="energy"] .nl-ciel b{animation:nlFumee calc(var(--d) / var(--nl-v,1)) linear infinite;animation-direction:reverse;animation-delay:var(--dl,0s)}'+
+     '@keyframes nlFumee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--T)))}}}';
+  /* Étoiles (magie) : trois calques scintillant à des rythmes différents ; chaque NGU a sa propre largeur de tuile et son décalage (--S, --o) : jamais deux tubes pareils. */
+  o+='.nl-barre[data-nl-res="magic"] .nl-ciel b{display:block;right:0;background-repeat:repeat-x;background-size:var(--S) 38px;background-position:var(--o) 50%}'+
+     '.nl-barre[data-nl-res="magic"] .nl-ciel b:nth-child(1){--d:4.7s;--S:var(--S1);--o:var(--o1);background-image:'+etoilesCalque_(1,18)+'}'+
+     '.nl-barre[data-nl-res="magic"] .nl-ciel b:nth-child(2){--d:6.9s;--S:var(--S2);--o:var(--o2);background-image:'+etoilesCalque_(2,15)+'}'+
+     '.nl-barre[data-nl-res="magic"] .nl-ciel b:nth-child(3){--d:9.3s;--S:var(--S3);--o:var(--o3);background-image:'+etoilesCalque_(3,12)+'}'+
+     '@media(prefers-reduced-motion:no-preference){.nl-barre[data-nl-res="magic"] .nl-ciel b{animation:nlScint calc(var(--d) / (1 + var(--nl-r,0) * 7)) ease-in-out infinite;animation-delay:var(--dl,0s)}'+
+     '@keyframes nlScint{0%,100%{opacity:.3}50%{opacity:1}}}';
+  return o;
+}
 var CSS=
   '.nl-v1{--nl-ciel:#58a6ee;position:relative;isolation:isolate;box-sizing:border-box;margin:0 0 12px;padding:16px 14px 22px;color:#eaf0ff;border-radius:20px;border:2px solid rgba(170,110,255,.6);overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;'+
     'background-color:#0a0620;background-image:linear-gradient(160deg,#1b0f45 0%,#120a33 45%,#0a0620 100%);'+
@@ -539,6 +603,7 @@ var CSS=
   '.nl-barre::before{content:"";position:absolute;left:-22px;top:62px;width:24px;height:7px;border-radius:4px;background:var(--nl-c);box-shadow:0 0 10px var(--nl-c)}'+
   '.nl-tete{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 8px;margin:0 2px 6px}'+
   '.nl-nom{font:900 14px/1.15 "Segoe UI",system-ui,sans-serif;letter-spacing:.07em;color:color-mix(in srgb,var(--nl-c) 55%,#fff);text-shadow:0 0 9px var(--nl-c),0 0 2px #000}'+
+  '.nl-vit{margin-left:auto;margin-right:12px;font:800 12px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.04em;color:color-mix(in srgb,var(--nl-c) 55%,#fff);white-space:nowrap;text-shadow:0 0 6px color-mix(in srgb,var(--nl-c) 70%,transparent)}.nl-vit b{font:900 14px/1 "Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#fff}'+
   '.nl-niveau{font:700 12px/1 "Segoe UI",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#b9c2ee;white-space:nowrap}'+
   '.nl-niveau b{font:900 20px/1 "Segoe UI",system-ui,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 8px var(--nl-c)}'+
   /* tuyau : brides métalliques, verre, liquide lumineux, halo derrière */
@@ -590,6 +655,8 @@ var CSS=
   '.nl-resume>summary{cursor:pointer;font-weight:800;text-transform:uppercase;letter-spacing:.04em}'+
   '.nl-resume-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin-top:6px}'+
   '.nl-resume-grille div{display:flex;justify-content:space-between;gap:6px;padding:5px 9px;background:rgba(10,6,32,.65);border:1px solid rgba(150,120,255,.35);border-radius:8px}'+
+  /* fumée et étoiles dans les tubes */
+  cielCss_()+
   '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
 
 /* Totaux placés dans les NGU (Norman, 2026-10-09) : un cadre pour l'énergie, un second pour la magie quand elle est débloquée. */
@@ -650,7 +717,8 @@ function page(j){
   /* Le ciel d'un onglet ne s'éclaire que par SES machines (Norman, 2026-11-03 : « j'ai retiré toute la magie du NGU magie et pourtant les aurores boréales continuent ainsi que les étoiles ») : onglet Magie = les NGU de magie seulement ; onglet Énergie = ceux d'énergie. */
   var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource===onglet&&(n.resource!=='magic'||magieOk);}).map(partDe_));
   function section(res){
-    var tuyaux=liste.filter(function(n){return n.resource===res;}).map(function(n){return barreHtml_(n,ancre);}).join('');
+    var duOnglet=liste.filter(function(n){return n.resource===res;});
+    var tuyaux=duOnglet.map(function(n,i){return barreHtml_(n,ancre,duOnglet.length>1?Math.round(i/(duOnglet.length-1)*1000)/1000:0);}).join('');
     return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
       '<label class="nl-avance"><input type="checkbox" '+(avance[res]?'checked ':'')+'onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.avance(\''+res+'\',this.checked)"> Faire suivre '+(res==='magic'?'la magie':'l’énergie')+'</label>'+
       '<div class="nl-grille">'+tuyaux+'</div>'+

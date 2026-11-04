@@ -242,7 +242,7 @@ const passer = () => { let n = 0; while (minuteries.some((m) => m.actif) && n++ 
   assert.ok(!meta.includes("action:'clearAugmentAllocations'})\"") || !meta.includes("window.__actionMetaV47__({action:\\'clearAugmentAllocations"), "plus d'aller-retour bloquant sur « Tout retirer »");
   const ui = lireUiComplet();
   assert.ok(ui.includes("patcherBarresTimeMachineIdleV1_:patcherBarresTimeMachineIdleV1_") && ui.includes("rafraichirMenuRacineIdleV28_:rafraichirMenuRacineIdleV28_"), "hôte : redessin local et barres Time Machine");
-  assert.ok(ui.includes("avant le prochain rituel complété';") || ui.includes("avant le prochain rituel complété'"), "compte à rebours Blood Magic vivant");
+  assert.ok(ui.includes("avant le prochain rituel complété · '"), "compte à rebours Blood Magic vivant");
 }
 
 console.log("idle-fast-alloc-v1: OK");

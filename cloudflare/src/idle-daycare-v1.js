@@ -463,7 +463,9 @@ export function normalizeIdleDaycareDataV1(raw) {
     out.slots.push({
       item,
       levelAtEntry: clamp(int(e.levelAtEntry, item.level), 0, item.level),
-      hours: Math.max(0, num(e.hours, 0))
+      hours: Math.max(0, num(e.hours, 0)),
+      /* Instant de la pose (Norman, 2026-11-04 : « quand on clique sur un bocal, je veux l'info depuis combien de temps il est en garderie »), écrit une seule fois ; 0 = objet posé avant cette information (durée estimée à partir des heures effectives). */
+      placedAt: Math.max(0, num(e.placedAt, 0))
     });
   }
   return out;
@@ -534,7 +536,7 @@ export function idleDaycarePlaceV1(adventure, data, itemId, factors) {
   if (data.slots.some((e) => e.item.definitionId === item.definitionId)) throw new Error("DAYCARE_OBJET_DEJA_PRESENT");
   adventure.inventory.splice(idx, 1);
   const level = clamp(int(item.level, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
-  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0 });
+  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0, placedAt: Date.now() });
   /* Le client n'accepte un inventaire serveur que si sa révision avance (protegerJoueurServeurInventaireIdleV208_). */
   adventure.revision = Math.max(0, int(adventure.revision, 0)) + 1;
   return { id: String(item.id), definitionId: item.definitionId, level };
@@ -573,6 +575,9 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     return {
       item: Object.assign(clone(entry.item), { level }),
       levelAtEntry: entry.levelAtEntry,
+      /* Depuis combien de temps (secondes réelles) : exact si l'instant de pose est connu, sinon estimé (heures effectives / vitesse actuelle) et signalé « approx ». */
+      secondsInDaycare: entry.placedAt > 0 ? Math.max(0, Math.floor((Date.now() - entry.placedAt) / 1000)) : (speed > 0 ? Math.max(0, Math.floor((Math.max(0, num(entry.hours, 0)) / speed) * 3600)) : 0),
+      secondsInDaycareApprox: !(entry.placedAt > 0),
       levelsGained: level - entry.levelAtEntry,
       baseHours: base,
       effectiveHoursPerLevel: perLevel != null && speed > 0 ? perLevel / speed : null,

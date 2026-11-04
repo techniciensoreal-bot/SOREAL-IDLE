@@ -48,3 +48,15 @@ assert.match(keyframes("sorealHudAurore"), /from\{background-position:100% 0\}to
 assert.ok(css.includes("mask-image:linear-gradient(90deg,transparent 0,#000 26px,#000 calc(100% - 26px),transparent 100%)"), "points estompés aux deux bouts du liquide");
 assert.ok(css.includes("@media (prefers-reduced-motion:reduce){") && css.includes("animation:none!important"), "mouvement réduit : animations coupées");
 console.log("idle-barres-boucles-parfaites-v1: OK");
+
+/* NGU : fumée (énergie) et étoiles (magie) dans les tubes (Norman, 2026-11-04) : boucles parfaites, une couleur par tube, vitesse croissante du premier au dernier tube */
+{
+  const ngu = (await import("node:fs")).readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
+  const assertNgu = (await import("node:assert/strict")).default;
+  assertNgu.ok(ngu.includes("@keyframes nlFumee{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--T)))}}"), "fumée : glisse d'exactement une tuile (--T)");
+  assertNgu.ok(ngu.includes("width:calc(100% + var(--T));background-size:var(--T) 100%"), "fumée : la couche déborde d'une tuile et sa tuile est explicite");
+  assertNgu.ok(ngu.includes("@keyframes nlScint{0%,100%{opacity:.3}50%{opacity:1}}"), "étoiles : même opacité au début et à la fin du cycle");
+  assertNgu.ok(ngu.includes("calc(var(--d) / var(--nl-v,1))") && ngu.includes("1+159*Math.pow(rang||0,3)") && ngu.includes("calc(var(--d) / (1 + var(--nl-r,0) * 7))"), "vitesse : du premier tube (x1) au dernier (plafond : fumée x20, scintillement x8)");
+  assertNgu.ok(ngu.includes("--k1:hsl(") && !/\.nl-barre\[data-nl-ngu=/.test(ngu), "une couleur par tube, posée sur le tube (aucun identifiant de NGU dans la feuille de style : anti-spoil)");
+  assertNgu.ok(/prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="energy"\] \.nl-ciel b\{animation/.test(ngu) && /prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="magic"\] \.nl-ciel b\{animation/.test(ngu), "prefers-reduced-motion coupe les deux animations");
+}

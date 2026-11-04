@@ -92,8 +92,10 @@ function blocsDeTexte_(texte){
   if(typeof t.retirerParentheses==='function')txt=t.retirerParentheses(txt).replace(/\s+/g,' ').trim();
   if(!txt)return [];
   return t.planNarration(txt).filter(function(e){return e&&e.chunk!=null&&String(e.chunk).trim();}).map(function(e){
-    var b={texte:e.studio||e.chunk,hash:t.hashBloc(e.chunk)};
+    var b={texte:e.chunk,hash:t.hashBloc(e.chunk)};
     if(e.expr)b.expr=e.expr;
+    if(e.colleAvant)b.colleAvant=true;
+    if(e.colleApres)b.colleApres=true;
     return b;
   });
 }
@@ -874,8 +876,8 @@ function appliquerPrononciations_(texte,liste){
   return t;
 }
 
-function synthetiser_(texte,parleur,expr){
-  return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur,expr);
+function synthetiser_(texte,parleur,expr,colle){
+  return synthetiserBrut_(appliquerPrononciations_(texte,lirePrononciations_()),parleur,expr,colle);
 }
 
 /* Envoie le texte TEL QUEL au studio (aucune correction de prononciation) : sert à tester une prononciation, qui est déjà écrite comme on la dit. */
@@ -883,8 +885,11 @@ function synthetiser_(texte,parleur,expr){
  * Expression (Norman, 2026-10-08) : « (joyeux) »… devient les réglages « exaggeration » et « cfg » du studio (modules/voix-expressions-v1.js) ; « neutre » (ou aucune) ne les envoie pas : le studio garde
  * les réglages propres à la voix (reglages-voix.json).
  */
-function corpsSynthese_(texte,parleur,expr){
+function corpsSynthese_(texte,parleur,expr,colle){
   var corps={texte:texte,voix:voixStudio_(parleur)};
+  /* Raccord d'un « (/) » (Norman, 2026-11-04) : ce bloc est un fichier à part, joué sans pause avant/après le bloc voisin ; le studio rogne alors le silence de ce bord. */
+  if(colle&&colle.colleAvant)corps.colleAvant=true;
+  if(colle&&colle.colleApres)corps.colleApres=true;
   /* Langue de la voix (Norman, 2026-11-02) : jeu en anglais = voix ANGLAISE (le studio utilise la voix par défaut, sans extrait de référence ; balises de voix nommées sans effet). */
   try{if(window.localStorage.getItem('soreal_idle_langue_v1')==='en')corps.langue='en';}catch(_e){}
   try{
@@ -894,8 +899,8 @@ function corpsSynthese_(texte,parleur,expr){
   }catch(_e){}
   return corps;
 }
-function synthetiserBrut_(texte,parleur,expr){
-  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(corpsSynthese_(texte,parleur,expr))})
+function synthetiserBrut_(texte,parleur,expr,colle){
+  return fetch(STUDIO_URL+'/synthese',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(corpsSynthese_(texte,parleur,expr,colle))})
     .then(function(r){
       if(!r.ok)return r.json().catch(function(){return null;}).then(function(d){throw new Error((d&&d.error)||('Studio de voix : erreur '+r.status));});
       return r.blob();
@@ -1051,7 +1056,7 @@ function lancerGeneration_(aFaire,libelle){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_();
-      return synthetiser_(b.texte,b.parleur,b.expr).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
+      return synthetiser_(b.texte,b.parleur,b.expr,b).then(function(blob){return televerserVoix_(b.hash,blob);}).then(function(){
         if(voix.indexOf(b.hash)===-1)voix.push(b.hash);
         edition.voix=voix.slice();
         if(edition.aRefaire)delete edition.aRefaire[b.hash];

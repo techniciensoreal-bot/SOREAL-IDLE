@@ -66,7 +66,7 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
     "Yggdrasil", "EXP", "Power β", "Number", "Time Machine", "Energy NGU", "Adventure β"]) {
     assert.ok(html.includes("NGU " + nom.toUpperCase()), "NGU manquant dans la page : " + nom);
   }
-  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
+  assert.equal((html.match(/<div class="nl-barre[^"]*" data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 4, "boutons + − Max et 0 sur chaque tuyau (2026-10-09)");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par tuyau");
   assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Faire suivre la magie");
@@ -88,7 +88,7 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
   const snap = idleNguSnapshot(state, context, 1_000_000);
   snap.ngus.magicUnlocked = false;
   const html = page({ systemes: snap }, "ngu", "NGU");
-  assert.equal((html.match(/data-nl-ngu="/g) || []).length, 9, "seulement les 9 NGU d'énergie");
+  assert.equal((html.match(/<div class="nl-barre[^"]*" data-nl-ngu="/g) || []).length, 9, "seulement les 9 NGU d'énergie");
   assert.ok(!/YGGDRASIL|POWER Β|TIME MACHINE|ENERGY NGU|ADVENTURE Β/i.test(html.replace(/POWER Α|ADVENTURE Α/gi, "")), "aucun nom de NGU de magie");
   assert.ok(!html.includes("Vers les NGU de magie") && !html.includes("Faire suivre la magie"), "ni bouton ni case de magie");
 }

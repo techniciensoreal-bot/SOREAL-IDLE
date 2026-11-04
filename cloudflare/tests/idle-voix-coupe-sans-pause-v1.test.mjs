@@ -26,26 +26,29 @@ const blocs = (texte) => T.planNarration(T.retirerParentheses(texte)).filter((e)
 const sans = "Il était une fois un guerrier très fatigué qui marchait depuis des jours dans la plaine sans jamais s'arrêter pour se reposer.";
 const avec = "Il était une fois un guerrier très fatigué (/) qui marchait depuis des jours dans la plaine (/) sans jamais s'arrêter pour se reposer.";
 const a = blocs(sans), b = blocs(avec);
+/* Norman (2026-11-04) : « ça ne crée que 1 fichier malgré les / » : chaque marqueur sépare deux BLOCS, donc deux fichiers de voix, chacun avec l'empreinte de SON texte. */
 assert.equal(a.length, 1);
-assert.equal(b.length, 1);
-assert.equal(b[0].chunk, a[0].chunk, "le texte lu ne contient jamais le marqueur");
-assert.equal(T.hashBloc(b[0].chunk), T.hashBloc(a[0].chunk), "même empreinte avec et sans marqueur");
-assert.equal(T.hashBloc(avec), T.hashBloc(sans), "hashBloc retire lui-même le marqueur");
-assert.equal(a[0].studio, undefined, "sans marqueur : aucune version studio");
-assert.equal(b[0].studio, avec, "avec marqueur : le studio reçoit le texte AVEC les marqueurs");
-assert.ok(!/\(\/\)/.test(b[0].chunk));
+assert.equal(b.length, 3, "deux marqueurs = trois blocs = trois fichiers");
+assert.deepEqual(Array.from(b, (e) => e.chunk), ["Il était une fois un guerrier très fatigué", "qui marchait depuis des jours dans la plaine", "sans jamais s'arrêter pour se reposer."], "le texte lu ne contient jamais le marqueur");
+assert.equal(new Set(Array.from(b, (e) => T.hashBloc(e.chunk))).size, 3, "trois empreintes différentes");
+assert.equal(T.hashBloc(avec), T.hashBloc(sans), "hashBloc retire lui-même le marqueur (texte entier)");
+assert.equal(a[0].colleAvant, undefined);
+assert.equal(a[0].colleApres, undefined, "sans marqueur : aucun raccord");
+assert.deepEqual(Array.from(b, (e) => [!!e.colleAvant, !!e.colleApres]), [[false, true], [true, true], [true, false]], "raccords sans pause entre les blocs voisins");
+assert.ok(b.every((e) => e.studio === undefined), "plus de texte studio avec marqueurs : chaque bloc part seul");
+assert.ok(!/\(\/\)/.test(b.map((e) => e.chunk).join(" ")));
 
 // --- 2. Marqueur devant une ponctuation, aux bords, doublé, avec espaces internes ---
 const p = blocs("Il court (/), puis il saute.");
 assert.equal(p[0].chunk, "Il court, puis il saute.", "pas d'espace avant la virgule");
 assert.equal(T.hashBloc(p[0].chunk), T.hashBloc("Il court, puis il saute."));
-assert.equal(p[0].studio, undefined, "coupe devant une ponctuation : inutile, retirée du texte studio aussi");
+assert.equal(p.length, 1, "coupe devant une ponctuation : pas une coupe");
 const bord = blocs("(/) Bonjour tout le monde, voici une très longue phrase (/)");
 assert.equal(bord[0].chunk, "Bonjour tout le monde, voici une très longue phrase");
-assert.equal(bord[0].studio, undefined, "marqueur aux bords : sans effet");
+assert.equal(bord.length, 1, "marqueur aux bords : sans effet");
+assert.ok(!bord[0].colleAvant && !bord[0].colleApres);
 const large = blocs("Un texte assez long pour être coupé ( / ) et son suite qui continue ici.");
-assert.equal(large[0].chunk, "Un texte assez long pour être coupé et son suite qui continue ici.");
-assert.ok(large[0].studio.includes("(/)"));
+assert.deepEqual(Array.from(large, (e) => e.chunk), ["Un texte assez long pour être coupé", "et son suite qui continue ici."]);
 assert.equal(blocs("(/)").length, 0, "un texte qui n'est qu'un marqueur ne donne aucun bloc");
 assert.equal(T.resoudreCoupeBalise("/"), true);
 assert.equal(T.resoudreCoupeBalise(" / "), true);
@@ -110,8 +113,16 @@ assert.match(blocsMjs, /studio: etape\.studio \|\| ""/);
 // Admin : le texte envoyé au studio est celui avec marqueurs, l'empreinte reste celle du texte lu.
 for (const f of ["admin-histoires-v1.js", "textes-admin-v1.js"]) {
   const src = readFileSync("cloudflare/public/modules/" + f, "utf8");
-  assert.match(src, /texte:e\.studio\|\|e\.chunk,hash:/, f + " envoie le texte avec marqueurs au studio");
+  assert.match(src, /texte:e\.chunk,hash:/, f + " : chaque bloc part seul au studio");
+  assert.ok(src.includes("colleAvant") && src.includes("colleApres"), f + " : transmet les raccords au studio");
   assert.match(src, /hashBloc\(e\.chunk\)|hashBloc\(e\.chunk\)/, f + " : empreinte du texte lu");
 }
 
 console.log("idle-voix-coupe-sans-pause-v1 : ok");
+
+// --- 7. Un fichier par morceau : le studio rogne le bord collé (Norman, 2026-11-04) ---
+assert.match(py, /def finir_bloc\(wav, sr, colle_avant=False, colle_apres=False\)/);
+assert.match(py, /couper_bords\(wav, sr, False, colle_avant, colle_apres\)/, "bord collé rogné");
+assert.match(py, /return wav if colle_apres else avec_silence_final\(wav, sr\)/, "pas de silence final avant un raccord sans pause");
+assert.match(py, /donnees\.get\("colleAvant"\) is True, donnees\.get\("colleApres"\) is True/, "la requête transmet les raccords");
+console.log("idle-voix-coupe-sans-pause-v1 (un fichier par morceau) : ok");

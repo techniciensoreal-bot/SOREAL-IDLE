@@ -28,8 +28,8 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   vm.createContext(sandbox);
   vm.runInContext(helper + "\nfunction formaterEtaTimeMachineIdleV1_(s){const t=Math.max(0,Math.ceil(idleNombre_(s)));return t+' s';}", sandbox);
   assert.equal(sandbox.texteEtaBasicTrainingIdleV1_(0), "⏱ Aucune énergie allouée", "aucune vitesse -> pas de durée inventée");
-  assert.equal(sandbox.texteEtaBasicTrainingIdleV1_(2), "⏱ 2 niveaux par seconde", "au-delà de 1 niveau/s : vitesse en niveaux par seconde (barre plafonnée = 50 niveaux par seconde)");
-  assert.equal(sandbox.texteEtaBasicTrainingIdleV1_(50), "⏱ 50 niveaux par seconde");
+  assert.equal(sandbox.texteEtaBasicTrainingIdleV1_(2), "⏱ 2,00 niv/s", "au-delà de 1 niveau/s : vitesse en niveaux par seconde (barre plafonnée = 50 niveaux par seconde)");
+  assert.equal(sandbox.texteEtaBasicTrainingIdleV1_(50), "⏱ 50,00 niv/s");
 
   assert.match(ui, /sorealIdleBtEtaV120_\$\{idleHtml_\(skill\.id\)\}/, "l'élément ETA doit exister dans la ligne d'une compétence");
   assert.match(ui, /texteEtaBasicTrainingIdleV1_\(\s*vitesseInitiale\s*\)/, "rendu initial de la ligne");

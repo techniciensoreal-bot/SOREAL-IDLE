@@ -88,7 +88,10 @@ for (const v of [22]) for (const [W, H] of [[60, 16], [140, 16], [140, 34]]) {
 {
   for (const H of [16, 34]) {
     const pos = (u) => JS(ev(`ballonPos(${u},30,${H - 9},124,${H - 6},${H})`)), c = JS(ev(`ballonCercle(${H},30,124)`));
-    const tour = []; for (let u = 0.9 + 2.6 * 0.28; u <= 0.9 + 2.6 * 0.78 + 1e-9; u += 0.01) tour.push(pos(u));
+    /* vitesse CONSTANTE (Norman, 2026-11-04) : les parts du trajet suivent les longueurs (montée, tour, piqué) */
+    const by = c.cy + c.R, Lr = Math.hypot(c.cx - 30, by - (H - 9)) + 2.5, Lc = 2 * Math.PI * c.R, Ld = Math.hypot(124 - c.cx, (H - 6) - by), T = Lr + Lc + Ld, s1 = Lr / T, s2 = (Lr + Lc) / T;
+    const tour = []; for (let u = 0.9 + 2.6 * s1; u <= 0.9 + 2.6 * s2 + 1e-9; u += 0.01) tour.push(pos(u));
+    { const v = []; let q = pos(0.9); for (let i = 1; i <= 260; i++) { const r = pos(0.9 + 0.01 * i); v.push(Math.hypot(r.x - q.x, r.y - q.y)); q = r; } assert.ok(Math.min(...v) > 0.9 * Math.max(...v), H + " : le ballon ne change jamais de vitesse (ni arrêt, ni accélération) : " + Math.min(...v).toFixed(3) + " à " + Math.max(...v).toFixed(3)); }
     for (const p of tour) assert.ok(Math.abs(Math.hypot(p.x - c.cx, p.y - c.cy) - c.R) < 0.01, H + " : chaque point du tour est à la même distance du centre (cercle)");
     const w = Math.max(...tour.map((p) => p.x)) - Math.min(...tour.map((p) => p.x)), h = Math.max(...tour.map((p) => p.y)) - Math.min(...tour.map((p) => p.y));
     assert.ok(Math.abs(w - h) < 0.3 && w > 2 * c.R - 0.3, H + " : aussi large que haut (un rond vu de face) : " + w.toFixed(1) + " x " + h.toFixed(1));

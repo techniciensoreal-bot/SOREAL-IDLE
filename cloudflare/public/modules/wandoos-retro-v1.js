@@ -422,15 +422,17 @@
     '</div>';
   }
   /* Au-delà d'un niveau par seconde, le temps restant tomberait sous 1 s : on écrit la vitesse (niveaux par seconde) jusqu'au cap de 50 niveaux/s de Wandoos (Norman, 2026-10-22). */
+  function nivParS_(v){v=Math.min(50,Math.max(0,Number(v)||0));if(v>0&&v<0.005)return '< 0,01';return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
   function texteTaux_(v){
     var n=Math.min(50,nb_(v));
-    return 'RESTE : '+(n>=10?Math.round(n):Math.round(n*10)/10).toLocaleString('fr-FR')+'/s';
+    /* Norman (2026-11-04) : « il met RESTE : 37/S, ça devrait être vitesse » : un nombre de niveaux par seconde est une VITESSE, pas un temps restant. */
+    return 'VITESSE : '+nivParS_(n)+' niv/s';
   }
   /* Temps restant avant le prochain niveau, seul sous la barre (Norman, 2026-10-07 : « juste le temps restant en dessous, pas de phrase »). */
   function texteReste_(v,p0){
     if(!(v>0))return 'RESTE : —';
     if(v>1)return texteTaux_(v);
-    return 'RESTE : '+dureeTexte_((1-Math.max(0,Math.min(1,nb_(p0))))/v);
+    return 'RESTE : '+dureeTexte_((1-Math.max(0,Math.min(1,nb_(p0))))/v)+' · '+nivParS_(v)+' niv/s';
   }
   function bloc_(titre,res,e,libreCle,vitesseCle,niveau,progression){
     var placee=nb_(e.al[res]),libre=nb_(e.vue[libreCle]),vit=nb_(e.vue[vitesseCle]);
@@ -658,7 +660,9 @@
     var dt=Math.max(0,(maintenant_()-at)/1000);
     if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null,gain:0};
     /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
-    if(v>=20)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
+    /* Norman (2026-11-04) : « j'ai mis 25M et il faut 37M pour le cap. Pourtant la barre ne clignote plus. Elle ne doit rester fixe qu'une fois le cap atteint » : la barre n'est PLEINE ET FIXE qu'au cap de Wandoos (50 niveaux par seconde) ; à partir de 4 niveaux/s (même seuil que la Machine temporelle, niveaux de 0,25 s) et jusqu au cap elle continue de se remplir et de repartir, à 3 cycles par seconde au plus (limite de scintillement : plus vite elle ne pourrait pas se lire), le niveau, lui, avance à la vraie vitesse. */
+    if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
+    if(v>=4){var ph=(dt*3)%1;return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+v*dt)};}
     var brut=p0+v*dt;
     var f=brut-Math.floor(brut);
     /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : les derniers ~40 ms du cycle restent pleins, sinon la dernière image avant le retour à 0 montrait 90 % sur un cycle court. */
@@ -703,7 +707,7 @@
       var reste=b.parentNode&&b.nextElementSibling&&b.nextElementSibling.querySelector('[data-wd-reste]');
       if(reste){
         var vit=nb_(b.getAttribute('data-v'));
-        var t=vit>1?texteTaux_(vit):(r.reste!=null?'RESTE : '+dureeTexte_(r.reste):'RESTE : —');
+        var t=vit>1?texteTaux_(vit):(r.reste!=null?'RESTE : '+dureeTexte_(r.reste)+' · '+nivParS_(vit)+' niv/s':'RESTE : —');
         if(reste.textContent!==t)reste.textContent=t;
       }
     }

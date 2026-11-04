@@ -29,7 +29,7 @@
 if(window.__SOREAL_IDLE_BORNE_LED_V1__)return;
 
 /* ------------------------------------------------------------------ couleurs */
-var AMB=1,ROU=2,BLA=3,VER=4,BLE=5,ROS=6,BARRE=7;
+var AMB=1,ROU=2,BLA=3,VER=4,BLE=5,ROS=6,BARRE=7;   /* BARRE ne sert plus qu'à la jauge de vie du boss : plus aucun trait de cette couleur dans les scènes (Norman, 2026-11-04) */
 /* BARRE = la couleur de la barre de vie du boss : la teinte de CE boss (paletteBarreBossIdleV1_, ui-combat-1-v1.js), violet-rose par défaut (#a23fd6) ; recalculée à chaque changement de boss */
 var RGB=[null,[255,168,28],[255,48,40],[255,246,222],[56,255,110],[70,150,255],[255,80,180],[162,63,214]];
 
@@ -144,10 +144,10 @@ var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 
 /* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
 var TXT={
-  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'TOUS LES BOSS !',tousA:'TOUS LES',tousB:'BOSS !',j:'J',h:'H',min:'MIN',s:'S',
+  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'PERDU !',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'TOUS LES BOSS !',tousA:'TOUS LES',tousB:'BOSS !',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
     },
-  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'ALL BOSSES !',tousA:'ALL',tousB:'BOSSES !',j:'D',h:'H',min:'MIN',s:'S',
+  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'YOU LOSE',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'ALL BOSSES !',tousA:'ALL',tousB:'BOSSES !',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
     }
 };
@@ -353,7 +353,6 @@ function sMascot(t){
   var chat=vie>=0&&vie<0.14,arrive=chat&&vie<=0.06,tg=t;
   if(arrive){if(pp.tArr==null)pp.tArr=pp.tg0!=null?pp.tg0:t;tg=pp.tArr;}else pp.tArr=null;
   for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
-  if(vie>=0){var nn=Math.round(vie*len);for(i=0;i<nn;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl+1<H?fl+1:fl,BARRE,255);}}   /* la piste de vie du boss, sous ses pieds */
   for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente, vers la droite) */
     var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
     px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(t/2+R(i,5)))));
@@ -584,7 +583,6 @@ function sSweep(t){
   if(H>=15&&W>=30){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
     cielCouchant(fl,Math.max(14,x0+18),1,t);
     for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
-    for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
     var G=geoCourse(xe),bras=(!P.reduced&&Math.floor(t*3)%2)?1:0,phase=(!P.reduced&&Math.floor(t*12)%2)?1:0,rebond=(!P.reduced&&Math.floor(t/0.07)%2)?1:0;
     if(fin){                                                       /* le combat est gagné (scène de victoire) : le fourgon se sauve par la gauche pendant que Leatherface freine et court jusqu'à sa place, puis il fait sa danse (le texte VICTOIRE s'écrit à droite) */
       var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}
@@ -602,7 +600,6 @@ function sSweep(t){
     return;
   }
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
-  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
   var sx2=Math.max(0,Math.min(xe,W-17*K)),sy2=fl-8*K+1;
   sprite2(HEROS_TRONCO,sx2,sy2,K,255);
   for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx2+i,sy2+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
@@ -692,7 +689,6 @@ function rrDecor(tg,G,pc,op,bleu,t){
   }
   for(x=ox0;x<ox0+ow;x++)rrClairiere(x,G,t);
   for(x=0;x<len;x++){px(x0+x,G.fl,AMB,34);px(x0+x,G.fl-1,AMB,34);}
-  for(x=0;x<n;x++){px(x0+x,G.fl,BARRE,255);px(x0+x,G.fl-1,BARRE,255);}
 }
 function rrObstacles(t,tg,G,libre){
   var W=P.W,per=W+60,off=Math.round((W+8)*0.35),e=G.e,vx,nx,po;
@@ -808,7 +804,6 @@ function tueRie(t){
   var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=clamp(P.p.pc0==null?1:P.p.pc0,0,1),n=Math.round(pc*len),i;
   cielCouchant(fl,Math.max(14,x0+18),1,t);
   for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
-  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
   var G=geoCourse(x0+n),tCoup=1.3,ap=sm(t/0.7),contact=G.tx+G.tw-Math.round(3*G.es)+2,sxl=Math.round(G.sxL-(G.sxL-contact)*ap);
   var tr=(!P.reduced&&t<0.45)?Math.floor(t*22)%2:0,phase=(!P.reduced&&t<0.45&&Math.floor(t*12)%2)?1:0,bras=(!P.reduced&&Math.floor(t*6)%2)?1:0,vivante=t<tCoup;
   dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
@@ -1529,10 +1524,13 @@ function comBouton(bx,H,d,allume){var i,j;rect(bx-1,H-3,12,3,AMB,170);for(j=0;j<
 /* Norman (2026-11-03) : « le ballon doit faire un tour dans le ciel avant de s'écraser sur le bouton… il doit vraiment former un cercle de notre point de vue » : trois temps. 1) il monte vers le bas d'un cercle dessiné dans le ciel ; 2) il en fait UN TOUR COMPLET (vrai cercle de rayon R, centre fixe : en bas, à droite, en haut, à gauche, en bas) ; 3) il pique sur le bouton. Tout est continu : mêmes points aux jonctions. */
 function ballonCercle(H,x0,xl){var R=clamp((H-12)/2.6,2.2,8);return {R:R,cx:x0+(xl-x0)*0.5,cy:R+3};}
 function ballonPos(u,x0,y0,xl,yl,H){
-  var s=clamp((u-BAL_LACHE)/BAL_VOL,0,1),c=ballonCercle(H,x0,xl),bx=c.cx,by=c.cy+c.R,e,phi;
-  if(s<0.28){e=s/0.28;e=e*e*(3-2*e);return {s:s,x:x0+(bx-x0)*e,y:y0+(by-y0)*e-Math.sin(e*3.1416)*2};}   /* 1) montée vers le bas du cercle, avec un léger arc */
-  if(s<0.78){phi=6.2832*(s-0.28)/0.5;return {s:s,x:c.cx+c.R*Math.sin(phi),y:c.cy+c.R*Math.cos(phi)};}   /* 2) le cercle : un tour complet */
-  e=(s-0.78)/0.22;e=e*e;return {s:s,x:bx+(xl-bx)*e,y:by+(yl-by)*e};                                  /* 3) piqué sur le bouton */
+  /* Norman (2026-11-04) : « le mouvement du ballon ne doit pas changer de vitesse. Il fait son tour, marque un temps d'arrêt et fonce sur le bouton. Il doit en un mouvement continu faire ça » : VITESSE CONSTANTE sur tout le trajet (montée, looping, piqué) ; chaque tronçon
+     prend la part du temps proportionnelle à sa longueur (plus aucune accélération ni ralentissement aux raccords, donc aucun arrêt). */
+  var c=ballonCercle(H,x0,xl),bx=c.cx,by=c.cy+c.R,Lr=Math.sqrt((bx-x0)*(bx-x0)+(by-y0)*(by-y0))+2.5,Lc=6.2832*c.R,Ld=Math.sqrt((xl-bx)*(xl-bx)+(yl-by)*(yl-by)),T=Lr+Lc+Ld,s1=Lr/T,s2=(Lr+Lc)/T;
+  var s=clamp((u-BAL_LACHE)/BAL_VOL,0,1),e,phi;
+  if(s<s1){e=s/s1;return {s:s,x:x0+(bx-x0)*e,y:y0+(by-y0)*e-Math.sin(e*3.1416)*2};}                                  /* 1) montée vers le bas du cercle, avec un léger arc */
+  if(s<s2){phi=6.2832*(s-s1)/(s2-s1);return {s:s,x:c.cx+c.R*Math.sin(phi),y:c.cy+c.R*Math.cos(phi)};}               /* 2) le cercle : un tour complet */
+  e=(s-s2)/(1-s2);return {s:s,x:bx+(xl-bx)*e,y:by+(yl-by)*e};                                                       /* 3) piqué sur le bouton */
 }
 function ballon(u){                                              /* 23. un BALLON gonflé est lâché : il se dégonfle en « pfft » (petits nuages derrière lui) et file en zigzag jusqu'au bouton, sur lequel il s'écrase ; flash, NUKE ! (3,2 s) */
   var W=P.W,H=P.H,C=comCoul(),bx=W-16,xl=bx+3,yl=H-6,x0=Math.max(8,Math.min(bx-26,Math.round(W*0.3))),y0=H-9,imp=BAL_LACHE+BAL_VOL,d=u>=imp?2:0,b,m,pm,k,rx,ry,i,j,dq,jx=0,jy=0,al;
@@ -2538,7 +2536,15 @@ function ensure(){
 window.addEventListener('resize',function(){taille();});   /* zoom de la page : le rapport de pixels change */
 document.addEventListener('visibilitychange',function(){if(document.hidden)arreter();else relancer();});
 /* Exe (Steam) : la superposition prend le focus ; le gel de la page (desktop/coeur.js) cache les canvas sauf ceux marqués data-steam-visible (les écrans LED le sont : jamais noirs). Pour ne présenter aucune image pendant la superposition, le dessin s'arrête à la perte du focus (la dernière image reste affichée) et repart au retour du focus (Norman, 2026-11-01 : « toujours noir puis ça revient »). */
-window.addEventListener('blur',function(){arreter();});
+/* Norman (2026-11-04) : « les animations s'arrêtent encore quand je clique en dehors de la fenêtre » : la superposition Steam se dessine PAR-DESSUS la fenêtre (le curseur y reste) ; un clic sur une autre fenêtre ou le bureau, lui, laisse le jeu visible. Même règle que le gel du cœur de l'application (desktop/coeur.js) : le dessin ne s'arrête à la perte du focus que si le curseur est sur la fenêtre ; curseur dehors, il continue ; il s'arrête si le curseur entre sans focus et repart s'il ressort. */
+var curseurDedans=false;
+document.addEventListener('mousemove',function(){curseurDedans=true;},true);
+var racineDoc=document.documentElement;
+if(racineDoc&&typeof racineDoc.addEventListener==='function'){
+  racineDoc.addEventListener('mouseenter',function(){curseurDedans=true;if(!document.hasFocus())arreter();});
+  racineDoc.addEventListener('mouseleave',function(){curseurDedans=false;if(!document.hasFocus()&&!document.hidden)relancer();});
+}
+window.addEventListener('blur',function(){if(curseurDedans)arreter();});
 window.addEventListener('focus',function(){relancer();});
 (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{ensure();}catch(_e){}});
 

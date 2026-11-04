@@ -809,8 +809,10 @@ function blocsDeLecture_(valeurs,avecDoublons){
     if(vus[hash]&&!avecDoublons)return;
     vus[hash]=1;
     var parleur=e.voix||(typeof t.estVoixFemme==='function'&&t.estVoixFemme(e.chunk)?'femme':'homme');
-    var bloc={texte:e.studio||e.chunk,hash:hash,parleur:parleur};
+    var bloc={texte:e.chunk,hash:hash,parleur:parleur};
     if(e.expr)bloc.expr=e.expr;
+    if(e.colleAvant)bloc.colleAvant=true;
+    if(e.colleApres)bloc.colleApres=true;
     blocs.push(bloc);
   });
   return blocs;
@@ -1145,7 +1147,7 @@ function testerVoix_(champ,k,i){
   if(!b){afficherEtat_('Rien à tester : écris d’abord le texte affiché.',true);return;}
   var texte=texteVoixDe_(b);
   afficherEtat_('Test avec le studio : « '+abrege_(texte,70)+' »…');
-  o.synthetiser(texte,b.parleur,b.expr).then(function(blob){
+  o.synthetiser(texte,b.parleur,b.expr,b).then(function(blob){
     try{if(essaiVoix.audio)essaiVoix.audio.pause();}catch(_e){}
     var url=URL.createObjectURL(blob);
     essaiVoix.audio=new Audio(url);
@@ -1385,7 +1387,7 @@ function lancerGeneration_(o,aFaire,libelle){
       if(generation.annule)throw new Error('__annule__');
       generation.texte='🎙 '+(libelle?libelle+' : ':'Génération des voix : ')+(fait+1)+'/'+aFaire.length+' (quelques secondes par bloc)…';
       afficherEtat_(generation.texte);
-      return o.synthetiser(texteVoixDe_(b),b.parleur,b.expr).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
+      return o.synthetiser(texteVoixDe_(b),b.parleur,b.expr,b).then(function(blob){return o.televerser(b.hash,blob);}).then(function(){
         if(edition.voix.indexOf(b.hash)===-1)edition.voix.push(b.hash);
         /* Voix déclarée tout de suite au lecteur (Norman, 2026-10-15 : l'Aperçu du tutoriel jouait la voix de secours) : sans cela, un bloc généré dans cette session n'était connu du lecteur qu'après « Écouter », et son absence mémorisée le faisait lire par la voix de secours. */
         enregistrerVoix_([b.hash]);

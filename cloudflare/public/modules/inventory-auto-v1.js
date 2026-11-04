@@ -324,6 +324,15 @@
       (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')
     ));
 
+    /* Action au clic pour les écrans tactiles (Norman, 2026-11-04 : « pour le tel il faut le mettre dans le menu ») : sans clavier, impossible de tenir A, D, Q, W ou E. Le sélecteur avait disparu avec le passage de l'automatisation en interrupteurs ; Q/W/E ne sont proposées que si la transformation est débloquée (rien de verrouillé n'apparaît). */
+    var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Puissance'],['w','W · Transformer en Endurance'],['e','E · Transformer en Spécial']]:[]).map(function(o){
+      return '<option value="'+o[0]+'"'+(modeClic===o[0]?' selected':'')+'>'+o[1]+'</option>';
+    }).join('');
+    lignes.push(section('👆 Action au clic',
+      '<label style="display:flex;gap:8px;align-items:center"><select onchange="window.__inventaireAutoModeClicV1__(this.value)">'+optionsClic+'</select></label>'+
+      '<div class="soreal-idle-note-v4" style="margin-top:8px">Au clavier : maintiens A, D'+(u.boostTransform?', Q, W ou E':'')+' puis clique sur un objet. Sur téléphone : choisis l’action ici, puis touche l’objet.</div>'
+    ));
+
     var types=s.lootFilterTypes||[];
     var zonesAv=aventure(dernierEtat)&&Array.isArray(aventure(dernierEtat).zones)?aventure(dernierEtat).zones:[];
     var zoneNom=(zonesAv.find(function(z){return z&&z.id===s.lootFilterZone;})||{}).name||s.lootFilterZone||'';

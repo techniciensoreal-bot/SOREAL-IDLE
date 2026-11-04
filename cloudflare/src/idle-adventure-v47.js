@@ -46,11 +46,11 @@ export const IDLE_ADVENTURE_COFFRE_PLACE_V1=Object.freeze((()=>{
       if(z){groupe="zone";rang=z.i;zoneNom=z.nom;}
       else if(src&&src in rangTitan){groupe="titan";rang=rangTitan[src];titanId=src;}
     }else if(def.kind==="special"){
-      if(id in titanDe){groupe="titan";titanId=titanDe[id];rang=rangTitan[titanId];}
+      if(IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.includes(id)){groupe="pendentif";rang=IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.indexOf(id);}   /* avant les titans : un pendentif ascendé lâché par un titan reste avec les autres pendentifs */
+      else if(id in titanDe){groupe="titan";titanId=titanDe[id];rang=rangTitan[titanId];}
       else if(def.zone&&zoneParId[def.zone]){groupe="zone";rang=zoneParId[def.zone].i;zoneNom=zoneParId[def.zone].nom;}
       else if(IDLE_ADVENTURE_COFFRE_COEURS_V1.includes(id)){groupe="coeur";rang=IDLE_ADVENTURE_COFFRE_COEURS_V1.indexOf(id);}
       else if(IDLE_ADVENTURE_COFFRE_LOOTY_V1.includes(id)){groupe="looty";rang=IDLE_ADVENTURE_COFFRE_LOOTY_V1.indexOf(id);}
-      else if(IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.includes(id)){groupe="pendentif";rang=IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1.indexOf(id);}
     }
     place[id]=Object.freeze({groupe,rang,titanId,zoneNom});
   }

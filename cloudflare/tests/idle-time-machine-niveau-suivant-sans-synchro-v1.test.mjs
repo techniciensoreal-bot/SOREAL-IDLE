@@ -41,7 +41,7 @@ function lancer({ base, fill0, niveau, ecouleMs }) {
   const r = lancer({ base: 10, fill0: 0.5, niveau: 4, ecouleMs: 2000 });
   assert.equal(r.niveau, "");
   assert.equal(r.syncs, 0);
-  assert.equal(r.texte, "Fin de la barre dans 8.00 s");
+  assert.equal(r.texte, "Fin de la barre dans 8.00 s · 0,05 niv/s");
   assert.equal(r.largeur, "60.0000%"); // 0,5 + 2 s / 20 s de palier
 }
 // Fin du niveau dépassée : niveau suivant (palier x (N+2)/(N+1)), la barre repart du reste, une synchro est demandée.
@@ -50,7 +50,7 @@ function lancer({ base, fill0, niveau, ecouleMs }) {
   const r = lancer({ base: 10, fill0: 0.5, niveau: 4, ecouleMs: 12000 });
   assert.equal(r.niveau, "5", "niveau affiché +1");
   assert.equal(r.syncs, 1, "synchro demandée tout de suite");
-  assert.equal(r.texte, "Fin de la barre dans 22.00 s", "reste = 24 s de palier - 2 s déjà écoulées");
+  assert.equal(r.texte, "Fin de la barre dans 22.00 s · 0,04 niv/s", "reste = 24 s de palier - 2 s déjà écoulées");
   assert.equal(r.largeur, "8.3333%", "2 s / 24 s");
 }
 // Plusieurs niveaux d'un coup (longue absence de synchro).

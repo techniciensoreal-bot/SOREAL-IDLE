@@ -414,7 +414,7 @@ function tuileDefi(def,tier){
   var max=i.max;
   var id=h(def.id);
   return '<article class="dfi-tuile '+i.classeStatut+'" style="--acc:'+(COULEURS_DEFI[def.id]||'#f5b53a')+'" data-dfi-id="'+id+'" onclick="window.__ouvrirDefiIdleV1__(\''+id+'\')">'+
-    '<span class="dfi-ruban">'+i.statut+'</span>'+
+    '<span class="dfi-ruban">'+(i.termine?'✔ ':'')+i.statut+'</span>'+
     '<div class="dfi-embleme"><i class="dfi-rayons"></i>'+emblemeSvg(def.id)+'</div>'+
     '<h3 class="dfi-nom">'+h(i.t.nom)+'</h3>'+
     '<div class="dfi-niveau">'+etoiles(i.fait,max)+'<span class="dfi-compte">'+i.fait+' / '+max+'</span></div>'+
@@ -443,7 +443,7 @@ function ficheDefi(def,tier){
     }
     return '<li class="dfi-slot'+(recu?' recu':'')+(r.s&&!recu?' secret':'')+'"><span class="dfi-slot-q">'+h(typeRecompense(r,ent(def.max)))+'</span><span class="dfi-slot-ic">'+(recu?'✔':r.s?'🎁':'★')+'</span><span class="dfi-slot-t">'+h(texte)+extra+'</span></li>';
   }).join('');
-  return '<div class="dfi-fiche" style="--acc:'+(COULEURS_DEFI[def.id]||'#f5b53a')+'" role="dialog" aria-modal="true">'+
+  return '<div class="dfi-fiche'+(i.termine?' fini':'')+'" style="--acc:'+(COULEURS_DEFI[def.id]||'#f5b53a')+'" role="dialog" aria-modal="true">'+
     '<button type="button" class="dfi-fermer" data-dfi-fermer="1" aria-label="Fermer">✕</button>'+
     '<div class="dfi-hero"><i class="dfi-rayons"></i>'+emblemeSvg(def.id)+'<h3 class="dfi-nom">'+h(t.nom)+'</h3>'+etoiles(i.fait,max)+'<div class="dfi-compte">'+i.fait+' / '+max+'</div></div>'+
     blocObjectif(def)+

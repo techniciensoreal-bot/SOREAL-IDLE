@@ -167,7 +167,7 @@ verifier(serveur.decouper(long_a + " (/) " + long_b) == [long_a, long_b], "le ma
 verifier(serveur.decouper_marque(long_a + " (/) " + long_b) == [(long_a, False), (long_b, True)], "le segment après le marqueur est collé au précédent")
 verifier(serveur.decouper(long_a + " " + long_b) == serveur.decouper_simple(long_a + " " + long_b), "sans marqueur : découpage identique à l'ancien")
 verifier(all(c is False for _, c in serveur.decouper_marque("Bonjour. Comment vas-tu ? Très bien.")), "sans marqueur : aucun raccord sans silence")
-verifier(serveur.decouper("Salut (/) toi, ça va bien aujourd'hui et toi comment vas-tu ?") == serveur.decouper_simple("Salut toi, ça va bien aujourd'hui et toi comment vas-tu ?"), "partie trop courte : pas de coupe")
+verifier(serveur.decouper_marque("Salut (/) toi, ça va bien aujourd'hui et toi comment vas-tu ?") == [("Salut", False), ("toi, ça va bien aujourd'hui et toi comment vas-tu ?", True)], "chaque marqueur coupe, même devant une partie très courte (Norman, 2026-11-04)")
 verifier(serveur.decouper(long_a + " (/), " + long_b) == serveur.decouper_simple(long_a + ", " + long_b), "marqueur devant une ponctuation : sans effet")
 verifier(serveur.sans_marque_coupe("Il court (/), puis saute (/) vite.") == "Il court, puis saute vite.", "texte sans marqueur : espaces et ponctuation propres")
 verifier(all("(/)" not in s for s in serveur.decouper(long_a + " ( / ) " + long_b + " (/)")), "aucun marqueur dans les segments")

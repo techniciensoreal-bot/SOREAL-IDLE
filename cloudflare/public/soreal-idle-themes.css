@@ -2298,8 +2298,11 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 .dfi-gain-p i{font-style:normal;font-size:11px;opacity:.7}
 .dfi-gain-p.exp{border-color:#8a6a10}.dfi-gain-p.ap{border-color:#1c6a96}
 .dfi-ruban{position:absolute;z-index:2;top:12px;left:-8px;padding:2px 14px 2px 16px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:15px;letter-spacing:.09em;text-transform:uppercase;color:#1a0f08;background:var(--acc);border:2px solid #000;border-left:none;border-radius:0 8px 8px 0;box-shadow:0 2px 0 #000}
-.dfi-tuile.fini{--acc:#ffd23f;border-color:#6b4a00}
-.dfi-tuile.fini .dfi-ruban{background:#ffd23f}
+/* Défi terminé (Norman, 2026-11-04) : l'étiquette TERMINÉ et le bouton JOUER passent au vert victoire, pour montrer tout de suite que c'est validé. */
+.dfi-tuile.fini{--acc:#3ddc5a;border-color:#0b5a1c}
+.dfi-tuile.fini .dfi-ruban{background:linear-gradient(180deg,#a8ffb0,#38d95a 55%,#18993c);color:#032a0e;text-shadow:0 1px 0 rgba(255,255,255,.45)}
+.dfi-tuile.fini .dfi-jouer,.dfi-fiche.fini .dfi-jouer{background:linear-gradient(180deg,#a8ffb0,#38d95a 55%,#18993c);color:#042a10;box-shadow:0 4px 0 #0b5a1c,0 0 16px rgba(60,230,100,.55)}
+.dfi-tuile.fini .dfi-jouer:active,.dfi-fiche.fini .dfi-jouer:active{box-shadow:0 1px 0 #0b5a1c}
 .dfi-tuile.cours .dfi-ruban{background:#ff4d5e;color:#fff}
 .dfi-tuile.cours{animation:dfiPouls 1.6s ease-in-out infinite}
 @keyframes dfiPouls{0%,100%{box-shadow:inset 0 0 0 2px #ff4d5e,0 0 10px rgba(255,77,94,.4)}50%{box-shadow:inset 0 0 0 2px #ff4d5e,0 0 28px rgba(255,77,94,.95)}}

@@ -533,7 +533,8 @@ export const IDLE_ADVENTURE_COFFRE_COEURS_V1=Object.freeze(["heartRed","heartYel
 
 export const IDLE_ADVENTURE_COFFRE_LOOTY_V1=Object.freeze(["lootyMcLootFace","sirLooty","grandDemonLootzifer","glitchyLooty"]);
 
-export const IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1=Object.freeze(["ascendedAscendedForestPendant","ascendedX8Pendant","ascendedX9Pendant"]);
+/* Norman (2026-11-04) : « dans le coffre, je veux que les pendentifs ascendant soient dans la même catégorie, classés du plus faible au plus puissant » : TOUS les pendentifs ascendés (même ceux que lâche un titan) dans le groupe « Pendentifs ascendés », dans l'ordre de la lignée (chaque pendentif évolue vers le suivant : ascendedForestPendant -> ... -> ascendedX9Pendant). */
+export const IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1=Object.freeze(["ascendedForestPendant","ascendedAscendedForestPendant","ascendedX3Pendant","ascendedX4Pendant","ascendedX5Pendant","ascendedX6Pendant","ascendedX7Pendant","ascendedX8Pendant","ascendedX9Pendant"]);
 
 const IDLE_ADVENTURE_COFFRE_GROUPES_V1=Object.freeze([
   {id:"zone",nom:""},

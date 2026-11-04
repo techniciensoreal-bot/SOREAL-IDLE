@@ -22,10 +22,63 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.8',
+    courante:'4.9',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'4.9',
+        nom:'Compteurs et fumée',
+        date:'2026-11-04',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'L’application Android ne recharge plus ta partie en boucle au démarrage.',
+          ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
+          ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de la barre.',
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps avant le prochain rituel.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'La barre ne reste fixe et pleine qu’une fois le CAP atteint ; en dessous, elle continue de tourner.',
+            'Quand les niveaux vont vite, le texte sous la barre dit « VITESSE : … niv/s » au lieu de « RESTE ».',
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Chaque tube a sa propre couleur de fumée : de faibles volutes dans le premier tube, une fumée de plus en plus dense et rapide jusqu’au dernier, capé, rempli de fumée pleine.',
+            'Chaque tube affiche ses niveaux par seconde (niv/s, format 0,01).',
+          ]},
+          {menu:'wishes', titre:'Wishes', points:[
+            'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps du niveau suivant.',
+          ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'Quand tu cliques sur un bocal occupé, tu vois depuis combien de temps l’objet est en garderie.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Tri du sac : les pendentifs sont rangés du plus faible au plus puissant.',
+            'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Écran LED : à la défaite, « PERDU ! » (« YOU LOSE » en anglais) remplace « K.O. ».',
+            'Écran LED : le trait de la couleur de la barre du boss ne traverse plus les animations.',
+            'Écran LED : le ballon garde la même vitesse de bout en bout, sans temps d’arrêt avant de foncer sur le bouton.',
+            'Les animations de la borne ne s’arrêtent plus quand tu cliques en dehors de la fenêtre de l’application.',
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Un défi terminé porte une étiquette « ✔ TERMINÉ » et un bouton JOUER en vert victoire.',
+          ]},
+        ]
+      },
       {
         version:'4.8',
         nom:'Collection et borne',

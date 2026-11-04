@@ -252,4 +252,16 @@ function addBoost(s, type, strength, level = 0) {
   assert.ok(pos[3] - pos[0] === 3, "les quatre pendentifs sont côte à côte (aucun autre objet entre eux)");
 }
 
+// --- Rang dans la chaîne (Norman, 2026-11-03) : forêt < ascendant < ascendant ascendant, même avec un niveau plus bas ---
+{
+  const sp = adv();
+  sp.inventory = [];
+  const a = addItem(sp, "forest:pendant", 5);
+  const b = addItem(sp, "ascendedForestPendant", 1);
+  const c = addItem(sp, "ascendedAscendedForestPendant", 0);
+  sp.inventorySlots = [a, b, c].map((o) => o.id);
+  applyIdleInventoryAutoActionV1({ adventure: sp }, { mode: "sortInventory" }, { sortInventoryUnlocked: true });
+  assert.deepEqual(sp.inventorySlots.filter(Boolean), [c, b, a].map((o) => o.id), "ascendant ascendant > ascendant > pendentif de la forêt");
+}
+
 console.log("idle-inventory-sort-v1: OK");

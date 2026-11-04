@@ -606,7 +606,7 @@
               const ecouleBlood=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
               const restantBlood=(((idleNombre_(bloodVisual.etaSeconds)-ecouleBlood)%seconds)+seconds)%seconds;
               /* sous la seconde : la VRAIE durée d'un niveau (0,2 s), jamais arrondie à « 1 s » (Norman, 2026-10-11) */
-              const texteBlood='⏱ '+(seconds<1?String(Math.round(seconds*100)/100).replace('.',',')+' s':window.__formatDureeAugmentIdleV1__(restantBlood||seconds))+' avant le prochain rituel complété';
+              const texteBlood='⏱ '+(seconds<1?String(Math.round(seconds*100)/100).replace('.',',')+' s':window.__formatDureeAugmentIdleV1__(restantBlood||seconds))+' avant le prochain rituel complété · '+(1/seconds<0.005?'< 0,01':Math.min(50,1/seconds).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}))+' niv/s';
               if(ligneBlood.textContent!==texteBlood)ligneBlood.textContent=texteBlood;
             }
             }

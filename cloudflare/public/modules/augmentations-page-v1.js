@@ -824,6 +824,7 @@
       }
       window.__formatDureeAugmentIdleV1__=formatDureeAugmentIdleV1_;
 
+      function nivParSIdleV1_(v){v=Math.min(50,Math.max(0,Number(v)||0));if(v>0&&v<0.005)return '< 0,01';return v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});}
       function texteEtaAugmentIdleV1_(x,ecoule){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const secondes=Number(x&&x.seconds);
@@ -836,7 +837,7 @@
         }
         const restant=secondes*(1-Math.max(0,Math.min(1,Number(x.progress)||0)))-(Number(ecoule)||0);
         const reste=((restant%secondes)+secondes)%secondes;
-        return 'Niveau suivant dans '+formatDureeAugmentIdleV1_(reste||secondes);
+        return 'Niveau suivant dans '+formatDureeAugmentIdleV1_(reste||secondes)+' · '+nivParSIdleV1_(1/secondes)+' niv/s';
       }
       window.__texteEtaAugmentIdleV1__=texteEtaAugmentIdleV1_;
 
@@ -1809,7 +1810,7 @@
             else if(!(travailParS>0))txt='Place de l’énergie pour progresser.';
             else{
               const reste=(1-etat.p)*((etat.n+1)/travailParS);
-              txt='Niveau suivant dans '+formatDureeAugmentIdleV1_(reste)+(niveauxParS>=1?' · '+niveauxParS.toLocaleString('fr-FR',{maximumFractionDigits:1})+' niv/s':'');
+              txt='Niveau suivant dans '+formatDureeAugmentIdleV1_(reste)+' · '+nivParSIdleV1_(niveauxParS)+' niv/s';
             }
             if(etaEl.textContent!==txt)etaEl.textContent=txt;
           }

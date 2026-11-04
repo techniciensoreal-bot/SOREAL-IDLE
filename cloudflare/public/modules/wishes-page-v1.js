@@ -76,7 +76,7 @@
             :sl.done
               ?'✔ Souhait terminé : choisis-en un autre.'
               :(sl.secondsRemaining!==null&&sl.secondsRemaining!==undefined
-                ?'Niveau suivant dans ≈ '+dureeLongueNguIdleV1_(sl.secondsRemaining)+' (niveau complet : '+dureeLongueNguIdleV1_(sl.secondsPerLevel)+')'
+                ?'Niveau suivant dans ≈ '+dureeLongueNguIdleV1_(sl.secondsRemaining)+' (niveau complet : '+dureeLongueNguIdleV1_(sl.secondsPerLevel)+') · '+(sl.secondsPerLevel>0?(1/sl.secondsPerLevel<0.005?'< 0,01':Math.min(50,1/sl.secondsPerLevel).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})):'0,00')+' niv/s'
                 :'Alloue de l\'Énergie, de la Magie ET de la Ressource 3 pour progresser.');
           const allocations=ressources.map(function(r){
             const verrou=(r==='magic'&&!ws.magicUnlocked)||(r==='r3'&&!ws.r3Unlocked);

@@ -37,7 +37,15 @@
 
   /* Choix d'un objet du sac pour un récipient vide : état de page seulement (un clic le rouvre). */
   let choixOuvert=false;
-  let derniereD=null,derniersTotaux=null;
+  let derniereD=null,derniersTotaux=null,derniereDAt=0;
+  /* « 3 j 4 h 12 min » (jours, heures, minutes ; les secondes seulement sous une heure) */
+  function dureeGarderie(sec){
+    sec=Math.max(0,Math.floor(sec));
+    const j=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),s=sec%60;
+    if(j>0)return j+' j '+h+' h '+m+' min';
+    if(h>0)return h+' h '+m+' min';
+    return m+' min '+s+' s';
+  }
   let repriseId=null;   /* bocal occupé sur lequel on a cliqué : le panneau « Reprendre ? » est affiché */
   /* Les 6 places du chat (en % de l'image) : 2 bocaux par compartiment, posés sur la planche (sol du compartiment). Ordre d'arrivée : du haut vers le bas. Valeurs de REPLI (les données mesurées de chaque apparence, etagere-skins-v1.js, les remplacent). */
   const PLACES=[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]];
@@ -254,7 +262,7 @@
         '<div style="font-size:14px;color:#aeb5c8;margin-top:4px">Emplacements : boutique EXP '+H.idleEntier_(ss.expShop||0)+' · Blind Normal '+H.idleEntier_(ss.blindNormal||0)+' · Troll Evil '+H.idleEntier_(ss.trollEvil||0)+' · perk '+H.idleEntier_(ss.perk||0)+'</div>'+
       '</details>';
     /* Reprendre / choisir un objet : popup au-dessus de la page (Norman, 2026-10-31), plus de panneau sous le cadre. */
-    derniereD=d;derniersTotaux={libres:libres};
+    derniereD=d;derniereDAt=Date.now();derniersTotaux={libres:libres};
     if(repriseId!=null&&!objets.some(function(x){return x&&x.item&&String(x.item.id)===String(repriseId);}))repriseId=null;
     if(libres<=0)choixOuvert=false;
     demarrer();
@@ -401,6 +409,7 @@
       const it=o.item||{};
       const depart=o.levelAtEntry!=null?o.levelAtEntry:it.level;
       return '<div class="gd-pop-titre">Reprendre « '+H.idleHtml_(it.name||it.definitionId||'Objet')+' » ?</div>'+
+        '<div class="gd-reprise-txt" style="margin-bottom:6px">⏳ En garderie depuis '+(o.secondsInDaycareApprox?'environ ':'')+'<b data-gd-pop-depuis="1">'+dureeGarderie((o.secondsInDaycare||0)+(Date.now()-derniereDAt)/1000)+'</b></div>'+
         '<div class="gd-reprise-txt">Placé au niv. <b>'+H.idleEntier_(depart)+'</b>, il est maintenant au niv. <b class="gd-vert" data-gd-pop-niv="1">'+H.idleEntier_(it.level)+'</b> (il garde ses niveaux gagnés) · l’avancée actuelle vers le niveau suivant (<span data-gd-pop-prog="1"></span>) sera perdue.</div>'+
         '<div class="gd-reprise-btns"><button type="button" class="gd-pop-btn" onclick="window.__garderieConfirmerV1__(\''+H.idleHtml_(it.id)+'\')">Reprendre l’objet</button> '+
         '<button type="button" class="gd-pop-btn gd-pop-sec" onclick="window.__garderieReprendreV1__(null)">Annuler</button></div>';
@@ -460,6 +469,11 @@
     const e=etatA(rep,Date.now());
     const n=fond.querySelector('[data-gd-pop-niv]');
     if(n&&n.textContent!==String(e.niveau))n.textContent=String(e.niveau);
+    const dp=fond.querySelector('[data-gd-pop-depuis]');
+    if(dp){
+      const o=(Array.isArray(derniereD&&derniereD.items)?derniereD.items:[]).filter(function(x){return x&&x.item&&String(x.item.id)===String(repriseId);})[0];
+      if(o){const t=dureeGarderie((o.secondsInDaycare||0)+(Date.now()-derniereDAt)/1000);if(dp.textContent!==t)dp.textContent=t;}
+    }
     const pr=fond.querySelector('[data-gd-pop-prog]');
     if(pr){const t=H_().formatGrandNombreIdleV70_(e.p*100,2)+' %';if(pr.textContent!==t)pr.textContent=t;}
   }
