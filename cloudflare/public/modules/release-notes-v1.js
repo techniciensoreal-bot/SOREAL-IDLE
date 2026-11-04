@@ -90,6 +90,7 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Un petit Nuke démarre directement son animation à l’appui du bouton (ballon, chien, chat…), sans écran d’attente.',
             'Les bandes lumineuses bleue et rouge du contour de la borne sont continues, de l’écran au sol : même brillance partout, elles suivent l’épaule inclinée du pupitre, sans décrochement ni coin.',
             'Le halo du haut de la borne est bleu à gauche, rose au milieu et rouge à droite, au lieu d’être rose partout.',
             'La mort « Tranché » coupe maintenant l’image elle-même : un coup de sabre en diagonale la sépare en deux triangles qui tombent dans leur cadre, puis l’image revient au galop.',

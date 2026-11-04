@@ -166,7 +166,7 @@ assert.ok(!sansNuke.includes("nuke"), "sans NUKE : aucune animation de NUKE");
 ev("nukeRes={n:1,dernier:false,at:0}");fen.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = 0;
 const avec = nuke([[0, false], [100, false], [200, true], [300, true], [400, false], [1500, false], [3000, "fin"], [4300, "fin"], [4500, "fin"]]);
 assert.deepEqual(avec.slice(0, 2), ["base", "base"]);
-assert.ok(avec.slice(2, 8).every((x) => x === "nuke"), "NUKE lancé : l'animation démarre tout de suite (amorce 0,2 s, puis la scène du palier : ~4 s au palier 0) : " + avec.join());
+assert.ok(avec.slice(2, 7).every((x) => x === "nuke"), "NUKE lancé : un petit Nuke démarre directement, sans amorce (la scène du palier dure ~4 s au palier 0) : " + avec.join());
 assert.notEqual(avec[8], "nuke", "puis retour à l'affichage de base");
 // une victoire en cours n'est pas interrompue par un NUKE
 const victoire = nuke([[0, false], [100, false], [200, false, true], [300, false, true], [400, true, true], [500, false, true]]);

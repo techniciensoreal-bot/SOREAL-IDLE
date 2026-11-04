@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "NGU Nuit : plus de barre pleine dans les tubes ; des grappes d’étoiles avancent comme les nuages de l’énergie, et au cap un tube de paillettes (trois plans d’étoiles, les plus lointains plus lents) défile très vite.",
-    "NGU : chaque tuyau est entouré d’un cadre discret qui regroupe sa barre, ses boutons et ses informations.",
-    "NGU Magie : quand tu places de la magie, le message dit « Place de la magie pour avancer » (et non plus l’énergie), et les étoiles avancent au rythme du remplissage du niveau."
+    "Un petit Nuke démarre directement son animation à l’appui du bouton (ballon, chien, chat…), sans écran d’attente."
   ] };
 })();

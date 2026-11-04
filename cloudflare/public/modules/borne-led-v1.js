@@ -1904,7 +1904,9 @@ function nukeInit(p,n,fin,ts){
   p.res=true;p.ts=ts;nkNom=p.fin?'':nukeNom(p.n);
   if(cur&&cur.p===p)cur.dur=ts+nukeDuree(p.tier,p.d,p.fin,p.tn);   /* la durée compte depuis le CLIC : amorce (ts) + scène */
 }
-function nkAmorce(t){                                              /* avant la réponse du moteur : un cadre rouge qui clignote et un anneau, neutre pour tous les paliers */
+/* Norman (2026-11-04) : « les animations du ballon, du chien et du chat doivent démarrer à l'appui du bouton Nuke ; pas besoin d'écrire Nuke avant ou Fight ou quoi que ce soit ; si c'est un petit Nuke, directement l'animation » : l'amorce (cadre et anneau) ne s'affiche que si le moteur tarde (plus de 0,15 s) ; un petit Nuke (palier 0 ou 1) démarre dès que la réponse est là, sans attendre 0,2 s. */
+function nkAmorce(t){
+  if(t<0.15&&!nkForce())return;                                              /* avant la réponse du moteur : un cadre rouge qui clignote et un anneau, neutre pour tous les paliers */
   box(0,0,P.W-1,P.H-1,ROU,Math.floor(t*10)%2?255:110);ring((t%0.4)/0.4,AMB);chase(t,1,ROU);
 }
 function nkAvant(u){                                               /* avant la scène : secousse de l'écran (décalage) et flashs de fond supplémentaires */
@@ -1994,7 +1996,7 @@ function sNukeBrut(t){
   if(p.annule)return;
   if(!p.res){
     if(p.essai)nukeInit(p,p.n==null?1:p.n,Boolean(p.fin),0);
-    else if((nukeRes||nkForce())&&t>=0.2){
+    else if((nukeRes||nkForce())&&t>=((nukeRes&&!nukeRes.dernier&&nukePalier(nukeRes.n)<2)?0:0.2)){
       r=nukeRes||{n:1,dernier:false};nukeRes=null;
       if(r.n<=0&&!nkForce()){p.res=true;p.annule=true;if(cur&&cur.p===p)cur.dur=t+0.25;return;}   /* NUKE refusé par le moteur : aucune scène */
       nukeInit(p,r.n,r.dernier,t);p.xp=r.xp||'';

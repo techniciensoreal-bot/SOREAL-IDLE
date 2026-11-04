@@ -69,7 +69,7 @@ for (const [v, mn] of Object.entries(reservees)) for (const tier of [0, 1, 2, 3,
 const jouer = (p, t) => ev(`(function(){var pn=new Panel(document.createElement('canvas'),120,14);P=pn;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=13;pn.p=${JSON.stringify(p)};S.vic=5;var o=[];SC.nuke.fn(${t});var n=0;for(var i=0;i<pn.v.length;i++)if(pn.v[i])n++;P=null;return JSON.stringify({p:pn.p,n:n});})()`);
 const pas = (p, t) => JSON.parse(jouer(p, t));
 ev("nukeRes=null");
-let r = pas({ base: 0 }, 0.1);
+let r = pas({ base: 0 }, 0.2);   /* l’amorce ne s’affiche qu’après 0,15 s sans réponse (Norman, 2026-11-04 : un petit Nuke démarre directement) */
 assert.ok(r.n > 5 && !r.p.res, "pas de réponse : amorce neutre (cadre rouge), pas encore de scène");
 const pp = (res, instants) => { fen.__PP__ = { base: 0 }; ev(`nukeRes=${res}`); for (const t of instants) ev(`(function(){var pn=new Panel(document.createElement('canvas'),120,14);P=pn;pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=13;pn.p=window.__PP__;S.vic=5;SC.nuke.fn(${t});P=null;})()`); return fen.__PP__; };
 let q = pp("null", [0.1, 0.5, 1.0, 1.4]);
@@ -77,9 +77,11 @@ assert.ok(!q.res, "sans réponse avant 1,5 s : toujours l'amorce");
 q = pp("null", [0.1, 1.6]);
 assert.ok(q.res && q.n === 5 && q.tier === 1 && q.d === 0, "aucune réponse en 1,5 s : repli sur la différence de l'état (5 ici)");
 q = pp("{n:1,dernier:false,at:0}", [0.05]);
-assert.ok(!q.res, "réponse reçue mais l'amorce dure au moins 0,2 s");
-q = pp("{n:1,dernier:false,at:0}", [0.05, 0.25]);
-assert.ok(q.res && q.ts === 0.25 && q.tier === 0, "la scène démarre à la réponse (ts)");
+assert.ok(q.res, "petit Nuke (palier 0 ou 1) : la scène démarre dès que la réponse est là, sans amorce (Norman, 2026-11-04)");
+q = pp("{n:12,dernier:false,at:0}", [0.05]);
+assert.ok(!q.res, "plus gros Nuke : l'amorce dure encore au moins 0,2 s");
+q = pp("{n:12,dernier:false,at:0}", [0.05, 0.25]);
+assert.ok(q.res && q.ts === 0.25 && q.tier === 2, "plus gros Nuke : la scène démarre à la fin de l amorce (ts)");
 q = pp("{n:5,dernier:false,at:0}", [0.3]);
 assert.ok(q.tier === 1 && q.d === 0 && q.n === 5, "5 boss : palier 1, aucun jalon");
 q = pp("{n:50,dernier:false,at:0}", [0.3]);
