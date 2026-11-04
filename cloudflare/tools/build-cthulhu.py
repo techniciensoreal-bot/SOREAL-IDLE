@@ -31,6 +31,6 @@ for dossier, f in fichiers:
     c.save(os.path.join(OUT, nom + '.webp'), 'WEBP', lossless=True, quality=100, method=6)
     pieces[nom] = [round(b[0] / N * 100, 3), round(b[1] / N * 100, 3), round((b[2] - b[0]) / N * 100, 3), round((b[3] - b[1]) / N * 100, 3)]
 js = os.path.join(ICI, '..', 'public', 'modules', 'cthulhu-pieces-v1.js')
-with open(js, 'w', encoding='utf-8') as g:
+with open(js, 'w', encoding='utf-8', newline='\n') as g:   # fins de ligne Unix (le dépôt impose LF : sinon l'empreinte des numéros ?v= diffère après un commit)
     g.write('/* Généré par tools/build-cthulhu.py : [gauche, haut, largeur, hauteur] de chaque pièce, en % du dessin complet. */\n(function(){window.__SOREAL_IDLE_CTHULHU_PIECES_V1__=' + json.dumps(pieces, separators=(',', ':')) + ';})();\n')
 print(len(pieces), 'pièces')
