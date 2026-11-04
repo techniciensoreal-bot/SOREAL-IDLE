@@ -426,7 +426,8 @@
   function texteTaux_(v){
     var n=Math.min(50,nb_(v));
     /* Norman (2026-11-04) : « il met RESTE : 37/S, ça devrait être vitesse » : un nombre de niveaux par seconde est une VITESSE, pas un temps restant. */
-    return 'VITESSE : '+nivParS_(n)+' niv/s';
+    /* Norman (2026-11-04) : « je ne veux pas VITESSE 10,95 NIV/S ; on reste à 10 NIV/S » : au-dessus d'un niveau par seconde, la vitesse s'écrit en niveaux ENTIERS (arrondi vers le bas). */
+    return 'VITESSE : '+Math.floor(n+1e-9)+' niv/s';
   }
   /* Temps restant avant le prochain niveau, seul sous la barre (Norman, 2026-10-07 : « juste le temps restant en dessous, pas de phrase »). */
   function texteReste_(v,p0){
@@ -662,7 +663,8 @@
     /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
     /* Norman (2026-11-04) : « j'ai mis 25M et il faut 37M pour le cap. Pourtant la barre ne clignote plus. Elle ne doit rester fixe qu'une fois le cap atteint » : la barre n'est PLEINE ET FIXE qu'au cap de Wandoos (50 niveaux par seconde) ; à partir de 4 niveaux/s (même seuil que la Machine temporelle, niveaux de 0,25 s) et jusqu au cap elle continue de se remplir et de repartir, à 3 cycles par seconde au plus (limite de scintillement : plus vite elle ne pourrait pas se lire), le niveau, lui, avance à la vraie vitesse. */
     if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
-    if(v>=4){var ph=(dt*3)%1;return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+v*dt)};}
+    if(v>=4){var ph=((maintenant_()/1000)*3)%1;   /* Norman (2026-11-04) : « la barre fait quelque chose d'étrange » (mesuré dans l'exe : retours en arrière de 66 % à 44 % à chaque synchro, car le tour était calé sur l'instant de la dernière synchro, qui change tant que l'OS charge) : le tour est calé sur l'HORLOGE du jeu, donc continu quoi que fasse la synchro */
+    return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+v*dt)};}
     var brut=p0+v*dt;
     var f=brut-Math.floor(brut);
     /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : les derniers ~40 ms du cycle restent pleins, sinon la dernière image avant le retour à 0 montrait 90 % sur un cycle court. */

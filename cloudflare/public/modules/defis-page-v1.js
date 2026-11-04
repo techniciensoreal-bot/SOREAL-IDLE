@@ -61,6 +61,7 @@ function validerDefiIdleV1_(challengeId){
       window.__validerDefiIdleV1__=validerDefiIdleV1_;
 
 function abandonnerDefiIdleV1_(){
+        try{window.dispatchEvent(new CustomEvent('soreal-defi-abandonne'));}catch(_e){}   /* la borne d'arcade : les deux hommes rient de celui qui abandonne */
         actionMetaIdleV130_({action:'challenge',mode:'stop'});
       }
       window.__abandonnerDefiIdleV1__=abandonnerDefiIdleV1_;

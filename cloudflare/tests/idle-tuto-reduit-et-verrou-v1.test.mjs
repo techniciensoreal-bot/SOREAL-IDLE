@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 const src = readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
 // Enceinte flottante
 assert.ok(src.includes("'#'+ID+'.reduit{width:54px;height:54px;") && src.includes("'#'+ID+'.reduit::after{content:\"🔊\""), "style de l'enceinte flottante");
-assert.ok(src.includes("b.classList.toggle('reduit',!garderTaille);"), "une étape qui commence s'ouvre réduite");
+assert.ok(src.includes("b.classList.toggle('reduit',!garderTaille&&!s.guide.mascotte);"), "une étape qui commence s'ouvre réduite");
 assert.ok(src.includes("afficherEtape_(true);return;}") && src.includes("else{s.i+=1;afficherEtape_(true);}"), "Précédent / Suivant gardent la taille choisie");
 assert.ok(src.includes("b.classList.remove('reduit');"), "un clic sur l'enceinte rouvre la fenêtre");
 // Verrou de la voix et des clics

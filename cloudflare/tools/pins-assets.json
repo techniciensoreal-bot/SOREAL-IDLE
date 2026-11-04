@@ -12,8 +12,8 @@
   "sha": "aa0a875b1b7f9f819f47bbc4d037f87301fe43fa"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 5,
-  "sha": "cae5a05845be3da8ce01abc06ea9a2922a5b2072"
+  "pin": 7,
+  "sha": "170dd2598b966c25a5db234a459e3e49329f4e58"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 4,
@@ -75,9 +75,13 @@
   "pin": 5,
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
+ "/modules/aug-led-barres-v1.js": {
+  "pin": 1,
+  "sha": "27c8c2e90ff1d2c04919c25ced50e7f702bb86e2"
+ },
  "/modules/augmentations-page-v1.js": {
-  "pin": 36,
-  "sha": "190094b0c137b743b69ffb8614ba8456222112bc"
+  "pin": 37,
+  "sha": "2c96da1d73166e854e3ad421906299fa4e3a7e57"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 12,
@@ -104,8 +108,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 152,
-  "sha": "35f9c66e1354689fb43a80594c959d3b322c49d3"
+  "pin": 155,
+  "sha": "2f1e1769c9d952d1250d12a090e00bba758ac7ae"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -203,6 +207,14 @@
   "pin": 2,
   "sha": "3d97187eec0c02589af002b109e02d278eba0246"
  },
+ "/modules/cthulhu-pieces-v1.js": {
+  "pin": 4,
+  "sha": "84591244fe5467317d61def8a5de5deb8bb4345f"
+ },
+ "/modules/cthulhu-v1.js": {
+  "pin": 2,
+  "sha": "0c9a82b0934a2f8014c80ee497242efebc4be2e7"
+ },
  "/modules/cube-aura-v1.js": {
   "pin": 1,
   "sha": "b194df30127b1c1ab1f20289d2cf800d2f1f9987"
@@ -228,8 +240,8 @@
   "sha": "c3f7b329787887c40f394868511cd52efed45953"
  },
  "/modules/defis-page-v1.js": {
-  "pin": 2,
-  "sha": "bf7cb409c926cabe8a778895ef8d72883f99e311"
+  "pin": 3,
+  "sha": "57dfddc0a9176498cc50013e8418a93903b29e0a"
  },
  "/modules/dessins-v1.js": {
   "pin": 3,
@@ -484,8 +496,8 @@
   "sha": "f2b2033e0a8616db3008664ed24b33b885c45ada"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 157,
-  "sha": "2cb6b25c3abb91919ac7c2659b1e3c02d4ecdd51"
+  "pin": 159,
+  "sha": "6ba100aff85b7023db060502fd0b30c7a8c91379"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -588,12 +600,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 142,
-  "sha": "47a393a787ac6bfe8a52f9f17b83c0534b6229b2"
+  "pin": 143,
+  "sha": "a1888699d946b656e7d1c4f05c242b868fdaf628"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 775,
-  "sha": "c7efe82014f04df5701929b12a7d8af0243c0e85"
+  "pin": 777,
+  "sha": "d33944633cf3041002878944fc1bfb4d5fb7b869"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -672,12 +684,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 810,
-  "sha": "1f24d22cfc4e92ad6bf8eb3c3fc2ee822f0ba500"
+  "pin": 812,
+  "sha": "9bbfc9afffd626ba0584b13d34673bee89d230a0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 631,
-  "sha": "5d0693e0d83fc54a109257d5208c115fc09808f2"
+  "pin": 633,
+  "sha": "e849e19ee9399acdd1846a5da6496b0834a289bf"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -704,8 +716,8 @@
   "sha": "8ad1631b567c84951b7521fa561fa613d2b60f23"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 14,
-  "sha": "2b971c93b687f7f311289115459b206a20cab289"
+  "pin": 18,
+  "sha": "e9b3aacd7061bc170173e082d45a76d038ac8fe5"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,
@@ -828,8 +840,8 @@
   "sha": "232419b2bae595259e4ee2440beb07323cfb68a0"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 74,
-  "sha": "657553d1fb99633f2bc2dae45da80be8d05d8dfc"
+  "pin": 76,
+  "sha": "1faff0533d9faff9f3451061893563309bdd36e2"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 2,
@@ -864,7 +876,7 @@
   "sha": "1164ebb547702560efde7bf3008af7fda7c20112"
  },
  "/soreal-idle-augment-led-v1.css": {
-  "pin": 36,
+  "pin": 39,
   "sha": "efe642df66601d2980a6bbc321593cf228ea3cca"
  },
  "/soreal-idle-augment-pcb-puissance-v1.css": {
@@ -932,16 +944,16 @@
   "sha": "e864b9f4bc91d14a8d2b9536f8ce979d15bf7b21"
  },
  "/soreal-idle-menus-boutons-v1.css": {
-  "pin": 48,
-  "sha": "3b25d6cd3b567df0f70f29554222877131b45411"
+  "pin": 49,
+  "sha": "cdd0b13565c0d04716efada54638c758b2fd157d"
  },
  "/soreal-idle-renaissance.css": {
   "pin": 3,
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 154,
-  "sha": "4f9790fa24c750d18a9f62943bdb8b16276b824c"
+  "pin": 155,
+  "sha": "f7ad4287125037758a775901fb89e1eb4a78b6f7"
  },
  "/soreal-idle-ui.css": {
   "pin": 76,

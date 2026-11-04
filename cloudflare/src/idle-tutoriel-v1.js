@@ -15,6 +15,8 @@
  *      attendreVoix: vrai (défaut) = sur une étape qui demande un clic, la cible reste bloquée tant que la voix parle ; faux = on peut cliquer dès l'affichage de l'étape (Norman, 2026-10-27) ;
  *      avanceAuClic: l'étape passe à la suivante quand le joueur CLIQUE sur la cible (le bouton « Suivant » est alors masqué 30 s, puis revient pour ne jamais bloquer ; sans cible, ignoré).
  * afficher (guide) : faux = RIEN à l'écran (ni fenêtre, ni enceinte réduite, ni texte) : seule la voix parle, le cadre lumineux de la cible reste (case « cadre lumineux » de l'étape), et l'étape avance au clic sur la cible (avanceAuClic) ou, sans clic demandé, quand la voix a fini (Norman, 2026-10-27).
+ * mascotte (guide) : vrai = la mascotte CTHULHU présente le guide à côté de la fenêtre (Norman, 2026-11-04) ; faux par défaut : elle n'apparaît nulle part tant que l'administrateur n'a pas créé et activé une apparition ;
+ * humeur (étape) : normal | content | pense | coucou | surpris | vole | dos | arrive | grand | repart.
  * Mémoire « vu » : profil.stats.vus (marquerVusSorealIdle), identifiant propre à chaque guide (vuId) ; réglage « ancien tutoriel » (meta) : tant qu'il est actif,
  * les anciennes fenêtres de Norman & Sébastien et les popups de première ouverture de menu restent jouées ; le désactiver les remplace par ces guides.
  */
@@ -26,6 +28,8 @@ export const IDLE_TUTO_MENU_RE_V1 = /^[A-Za-z0-9_-]{1,40}$/;
 export const IDLE_TUTO_SELECTEUR_RE_V1 = /^[A-Za-z0-9 _#.:>+~,="'\[\]()*^$|@-]{1,400}$/;
 export const IDLE_TUTO_PLACEMENTS_V1 = Object.freeze(["auto", "haut", "bas", "gauche", "droite", "centre"]);
 export const IDLE_TUTO_MAX_ETAPES_V1 = 40;
+/* Humeurs de la mascotte Cthulhu (modules/cthulhu-v1.js) : une étape peut en choisir une ; vide = « normal ». */
+export const IDLE_TUTO_HUMEURS_V1 = Object.freeze(["normal", "content", "pense", "coucou", "surpris", "vole", "dos", "arrive", "grand", "repart"]);
 export const IDLE_TUTO_MAX_GUIDES_V1 = 200;
 const MAX_TEXTE = 1500;
 const BOSS_MAX = 999;
@@ -69,13 +73,13 @@ export function normaliserGuideV1(brut) {
       }
     }
     const placement = IDLE_TUTO_PLACEMENTS_V1.includes(String(etape.placement)) ? String(etape.placement) : "auto";
-    return { titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false };
+    return { humeur: IDLE_TUTO_HUMEURS_V1.includes(String(etape.humeur)) ? String(etape.humeur) : "", titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false };
   });
   if (!etapes.some((e) => e.texte || e.titre)) throw new Error("TUTO_ETAPES_VIDES");
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();
   const vuId = vuBrut && vuBrut.length <= 80 && /^[A-Za-z0-9_:.-]+$/.test(vuBrut) ? vuBrut : "tuto:" + id;
   const ordre = Number.isFinite(Number(g.ordre)) ? Math.max(-9999, Math.min(9999, Math.floor(Number(g.ordre)))) : 0;
-  return { id, titre, declencheur, actif: g.actif !== false, afficher: g.afficher !== false, ordre, vuId, etapes };
+  return { id, titre, declencheur, actif: g.actif !== false, afficher: g.afficher !== false, mascotte: g.mascotte === true, ordre, vuId, etapes };
 }
 
 
@@ -231,5 +235,5 @@ export function guidesPourJoueurV1(sql, contexte) {
     if (ctx.boss != null) return g.declencheur.type === "boss" && g.declencheur.boss === Math.floor(Number(ctx.boss));
     return false;
   });
-  return bons.map((g) => ({ id: g.id, titre: g.titre, vuId: g.vuId, declencheur: g.declencheur, afficher: g.afficher !== false, etapes: g.etapes }));
+  return bons.map((g) => ({ id: g.id, titre: g.titre, vuId: g.vuId, declencheur: g.declencheur, afficher: g.afficher !== false, mascotte: g.mascotte === true, etapes: g.etapes }));
 }

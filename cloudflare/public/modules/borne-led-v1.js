@@ -144,10 +144,10 @@ var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
 
 /* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
 var TXT={
-  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'PERDU !',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'TOUS LES BOSS !',tousA:'TOUS LES',tousB:'BOSS !',j:'J',h:'H',min:'MIN',s:'S',
+  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'PERDU !',rire:'HA HA HA !',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'TOUS LES BOSS !',tousA:'TOUS LES',tousB:'BOSS !',j:'J',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
     },
-  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'YOU LOSE',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'ALL BOSSES !',tousA:'ALL',tousB:'BOSSES !',j:'D',h:'H',min:'MIN',s:'S',
+  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'YOU LOSE',rire:'HA HA HA !',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'ALL BOSSES !',tousA:'ALL',tousB:'BOSSES !',j:'D',h:'H',min:'MIN',s:'S',
     objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
     }
 };
@@ -759,6 +759,27 @@ function perduRedroom(t){
   }
 }
 
+/* 5 quinquies. LES HOMMES QUI RIENT (Norman, 2026-11-04 : « quand on abandonne un défi, les hommes qui rigolent de la borne d'arcade doivent apparaître en riant ») : les deux hommes de la Red Room entrent par les deux bords devant le rideau, debout, et rient en se secouant (rebond d'une rangée, en alternance) pendant que « HA HA HA ! » s'écrit mot après mot. Déclenchée par l'événement soreal-defi-abandonne. */
+var RIRE_DUR=4.2;
+function sRire(t){
+  var W=P.W,H=P.H,tt=P.reduced?RIRE_DUR*0.7:t,mots=['HA','HA','HA','!'],n=Math.min(4,Math.floor(tt/0.5)),i,j,txt,tw,x,bt;
+  if(H<15||W<44){txt=T('rire');tw=twidth(txt,1);if(Math.floor(tt*4)%2===0||P.reduced)text(txt,Math.floor((W-tw)/2),cb(),AMB,1,255);return;}
+  var G=rrGeo(),e=G.e,gp=Math.max(2,Math.round(4*e)),a=sm(tt/0.6),xc=Math.floor(W/2);
+  var t1=xc-G.mw-Math.floor(gp/2),t2=xc+Math.ceil(gp/2),x1=Math.round(-G.mw+(t1+G.mw)*a),x2=Math.round(W+(t2-W)*a);
+  var sy=G.fl-2-(G.mh-1),b1=P.reduced?0:-Math.round(Math.abs(Math.sin(tt*9))*1.6),b2=P.reduced?0:-Math.round(Math.abs(Math.sin(tt*9+1.5))*1.6);
+  rrDecor(tt*0.4,G,0.5,0,0,tt);
+  dessinerMasque(HOMMES_H[2],HOMME_COUL,x1,sy+(a>=1?b1:0),e,-1e9);
+  dessinerMasque(HOMMES[2],HOMME_COUL,x2,sy+(a>=1?b2:0),e,-1e9);
+  if(n<1)return;
+  txt='';for(i=0;i<n;i++)txt+=(i?' ':'')+mots[i];
+  var full=mots.join(' ').replace(/ !$/,' !'),k=1;tw=twidth(full,k);x=Math.floor((W-tw)/2);bt=Math.max(0,Math.round((H-7)/2))+(P.reduced?0:Math.round(Math.sin(tt*18)*0.6));
+  var fade=1-sm((tt-3.7)/0.4),cx=x,wd;
+  for(j=0;j<n;j++){
+    for(var ox=-1;ox<=1;ox++)for(var oy=-1;oy<=1;oy++)if(ox||oy)text(mots[j],cx+ox,bt+oy,BLA,k,1);
+    wd=text(mots[j],cx,bt,AMB,k,255*fade);cx+=wd+4;
+  }
+}
+
 /* 6. La ola puis VICTOIRE ! */
 function sWin(t){
   var W=P.W,H=P.H,x,y,an=P.p.anim;
@@ -1214,9 +1235,14 @@ function egSangEgout(t,G,a,t0){
 function sEgout(t){
   var W=P.W,H=P.H;
   if(H<15||W<44){sMascot(t);return;}
-  var pp=P.p,fin=Boolean(pp.fin),G=egGeo(),e=G.e,C=egC(),vie=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),xb=egBoyX(G,vie),gap=Math.round(G.gap0+15*e*vie),
+  var pp=P.p,fin=Boolean(pp.fin),G=egGeo(),e=G.e,C=egC(),du=(!fin&&pp.dur>0)?clamp((P.reduced?pp.dur*0.5:t)/pp.dur,0,1):-1,perd=pp.issue==='defaite'&&du>=0,
+    vie=fin?0:(du>=0&&!perd?1-du:(S.pv?clamp(S.pv.pct,0,1):1)),xb=egBoyX(G,vie),gap=Math.round(G.gap0+15*e*vie),
     bx=xb-gap-G.bw,fr=P.reduced?0:Math.floor(t/0.14)%2,reb=(!P.reduced&&fr)?-1:0,ond=P.reduced?0:Math.round(Math.sin(t*3.3)*0.6),
     by=G.wy-G.bh+1+ond,rows=(fin||!fr)?EG_RUN_A:EG_RUN_B,yy=egBoyY(G,rows)+reb,sink=0,lift=0,hop=0;
+  if(perd){                                                        /* défaite annoncée : le garçon court sans se baisser vers la planche jaune, qu'il atteint à la fin du combat ; le bateau, lui, atteint la bouche d'égout au même instant */
+    var xI=G.xbar+G.bwid-Math.round(2*e),bxD=G.xmax-Math.round(G.gap0+15*e)-G.bw,bxF=G.xm-Math.round(G.bw*0.4);
+    xb=Math.round(G.xmax+(xI-G.xmax)*du);bx=Math.round(bxD+(bxF-bxD)*du);
+  }
   if(fin){                                                         /* victoire : le garçon rattrape le bateau, le soulève, saute de joie ; le clown s'enfonce dans l'égout */
     sink=Math.round(clamp((t-0.3)/1.7,0,1)*G.Dh);
     lift=sm((t-0.4)/1.0);
@@ -1224,8 +1250,8 @@ function sEgout(t){
     bx=Math.round(bx+((xb+Math.round((G.boyW-G.bw)/2))-bx)*lift);
     by=Math.round(by+((yy-G.bh-1)-by)*lift)-hop;yy-=hop;
   }
-  if(!fin&&xb<G.xbar+G.bwid&&xb+G.boyW>G.xbar){rows=EG_CROUCH;yy=egBoyY(G,rows);}   /* sous la planche : il se baisse */
-  var surpris=fin||xb<G.xbar+G.bwid;   /* Georgie est passé sous la barrière sans la prendre : le clown est étonné (bouche en O), il pleure en baissant la tête */
+  if(!fin&&!perd&&xb<G.xbar+G.bwid&&xb+G.boyW>G.xbar){rows=EG_CROUCH;yy=egBoyY(G,rows);}   /* sous la planche : il se baisse */
+  var surpris=fin||(!perd&&xb<G.xbar+G.bwid);   /* Georgie est passé sous la barrière sans la prendre : le clown est étonné (bouche en O), il pleure en baissant la tête */
   if(!fin&&surpris)sink=Math.round(clamp((G.xbar+G.bwid-xb)/(G.bwid+G.boyW),0,1)*5*G.ce);
   egDecor(t,G,sink,surpris?3:0);
   egBarriere(G,0,'pieds');
@@ -1238,11 +1264,11 @@ function sEgout(t){
 function perduEgout(t){
   var W=P.W,H=P.H;
   if(H<15||W<44){ecrase(t);return;}
-  var pp=P.p,G=egGeo(),e=G.e,C=egC(),vie0=clamp(pp.pc0==null?1:pp.pc0,0,1),tt=P.reduced?EG_G+0.3:t,
-    xImp=G.xbar+G.bwid-Math.round(2*e),xb0=Math.max(egBoyX(G,vie0),xImp+Math.round(8*e)),gap0=Math.round(G.gap0+15*e*vie0),bx0=xb0-gap0-G.bw,
+  var pp=P.p,G=egGeo(),e=G.e,C=egC(),vie0=clamp(pp.pc0==null?1:pp.pc0,0,1),cont=Boolean(pp.suite),tr=P.reduced?EG_G+0.3:t,tt=P.reduced?EG_G+0.3:t+(cont?EG_A:0),   /* tt : le temps du garçon et du clown (suite : on reprend à l'impact) ; tr : le temps réel de la scène (le bateau) */
+    xImp=G.xbar+G.bwid-Math.round(2*e),xb0=cont?xImp:Math.max(egBoyX(G,vie0),xImp+Math.round(8*e)),gap0=Math.round(G.gap0+15*e*vie0),bx0=cont?G.xm-Math.round(G.bw*0.4):xb0-gap0-G.bw,
     Lw=Math.round(EG_LYING[0].length*e),Lh=Math.round(EG_LYING.length*e),yL=G.feet-Lh+1,xFront=G.hx+Math.round(2*G.ce),   /* devant le clown : il le cache presque (Norman, 2026-11-03) */
     ond=P.reduced?0:Math.round(Math.sin(tt*3.3)*0.6),u=clamp(tt/EG_BOAT,0,1),
-    xFin=G.hx+G.hw+3,xe=G.xm-Math.round(G.bw*0.4),tb1=clamp(tt/1.0,0,1),tb2=clamp((tt-1.0)/0.7,0,1),bxn=tb2>0?Math.round(xe+(xFin-xe)*tb2):Math.round(bx0+(xe-bx0)*tb1),byn=G.wy-G.bh+1+ond+Math.round(Math.max(0,(H-3)-(G.wy-G.bh+1+ond+G.bh))*tb2*tb2),   /* il arrive au bord de la fente, bascule et CHUTE dans le noir à côté du clown */
+    xFin=G.hx+G.hw+3,xe=G.xm-Math.round(G.bw*0.4),tb1=cont?1:clamp(tt/1.0,0,1),tb2=cont?clamp(tr/0.7,0,1):clamp((tt-1.0)/0.7,0,1),bxn=tb2>0?Math.round(xe+(xFin-xe)*tb2):Math.round(bx0+(xe-bx0)*tb1),byn=G.wy-G.bh+1+ond+Math.round(Math.max(0,(H-3)-(G.wy-G.bh+1+ond+G.bh))*tb2*tb2),   /* il arrive au bord de la fente, bascule et CHUTE dans le noir à côté du clown */
     mord=tt>=EG_C&&tt<EG_F+0.5,serre=tt>=EG_D&&tt<EG_F,expr=mord?2:(tt>=EG_BOAT?1:0),sink=(tt>=EG_P-0.3?Math.round(clamp((tt-(EG_P-0.3))/(EG_H-EG_P+0.3),0,1)*G.hh*1.05):0)+(mord?-Math.round(13*G.ce)+(P.reduced?0:Math.round(Math.sin(tt*(serre?38:22))*(serre?2:0.8))):((tt>=EG_BOAT&&!P.reduced)?Math.round(Math.sin(tt*14)*0.7):0)),   /* à la fin, la tête descend dans l'égout avec Georgie */
     tete=function(){},   /* (la tête est dessinée derrière Georgie par egDecor) */
     fr=P.reduced?0:Math.floor(tt/0.14)%2,x=0,y=0,k,p,xs=0,xFin=0,q=0,es=e,xcur=0,ycur=G.feet,sec=(tt>=EG_A&&tt<EG_A+0.5)?tt-EG_A:0,
@@ -1298,7 +1324,7 @@ function sKO(t){
   var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';
   var rr=P.p.anim==='redroom',fv=rr&&visOk(),eg=P.p.anim==='egout',tg=t;
   if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);else if(eg)perduEgout(t);
-  var tk=t-(eg?EG_TXT:an||am||(rr&&!fv)?2.4:fv?VIS_TXT:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
+  var tk=t-(eg?EG_TXT-(P.p.suite?EG_A:0):an||am||(rr&&!fv)?2.4:fv?VIS_TXT:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
   t=tk;
   var vk=fv?(P.reduced?0:sm(t/0.15)*(1-sm((t-1.7)/0.3))):sm(t/0.15)*(1-sm((t-3.0)/0.3));
   if(vk>0){
@@ -1994,6 +2020,7 @@ function lancerNuke(now){                                          /* un Nuke pa
   if(!(nukeRes&&nukeRes.at>=pn-300))nukeRes=null;
   pousser('nuke',now,{base:S.vic});
 }
+window.addEventListener('soreal-defi-abandonne',function(){var pn=window.performance&&performance.now?performance.now():0;if(cur&&cur.prio>=5&&cur.id!=='rire')return;pousser('rire',pn);});
 window.addEventListener('soreal-nuke-resultat',function(e){var d=e&&e.detail||{};nukeRes={n:Math.max(0,Math.floor(Number(d.n)||0)),dernier:Boolean(d.dernierBoss),xp:String(d.xp||'').slice(0,18),at:window.performance&&performance.now?performance.now():0};});
 
 
@@ -2047,6 +2074,7 @@ var SC={
   sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
   redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5},
   egout:{fn:sEgout,dur:9,prio:0,cap:0.5},
+  rire:{fn:sRire,dur:RIRE_DUR,prio:5,cap:3.0},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
   nuke:{fn:sNuke,dur:12,prio:4,cap:3.0}   /* la durée réelle est fixée dès que le moteur a répondu (nukeInit) ; 12 s = plafond de sécurité de l'amorce */,
@@ -2055,10 +2083,10 @@ var SC={
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
   win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim?8.6:7.2;},prio:5,cap:4.2},
-  ko:{fn:sKO,dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR:p.anim?8.8:6.4;},prio:5,cap:3.9}
+  ko:{fn:sKO,dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
-var COUPE={win:5.0,ko:4.2};
+var COUPE={win:5.0,ko:4.2,rire:RIRE_DUR};
 /* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
 function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
 
@@ -2214,6 +2242,7 @@ var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};
 /* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
    où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
 var animBossJoue=-1;   /* numéro du boss pour lequel une animation longue a DÉJÀ été jouée (Norman, 2026-11-03 : après une défaite, refaire Fight ne relance pas l'animation : le boss n'a presque plus de vie et elle révélerait la scène de victoire) ; un autre boss la libère */
+var animIssue='',animDur=0;   /* issue (victoire | defaite) et durée PRÉVUES du combat en cours : la scène de l'égout s'y règle (le bateau avance seul, la barre de vie ne le retient plus) */
 var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
 var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1},GRACE_FIN_S=2.5,graceFin=0;
 var apresVictoire=false;   /* une scène de victoire (VICTOIRE ! ou NUKE) vient d'être lancée : la première scène de repos qui suit est le nom du boss */
@@ -2237,6 +2266,7 @@ function mk(id,now,p){
   if(id==='win'&&combatAnim==='redroom')p.ange=Boolean(panel&&panel.H>=15&&panel.W>=44);   /* grille assez grande : la victoire montre l'ange numérisé (durée WIN_RR_DUR) ; sinon l'ancienne scène */
   if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
   if(id==='ko'&&(combatAnim==='redroom'||combatAnim==='egout')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
+  if(id==='ko'&&combatAnim==='egout'&&cur&&cur.id==='egout'&&cur.p&&cur.p.issue==='defaite'&&cur.p.dur>0)p.suite=true;   /* le garçon est arrivé à la planche : la défaite reprend à l'impact, sans relancer la course */
   if((id==='win'||id==='ko')&&combatAnim==='redroom'&&cur&&cur.id==='redroom'&&cur.p)p.tg0=cur.p.tArr!=null?cur.p.tArr:(now-cur.t0)/1000;   /* le sol reprend là où la course s'est arrêtée */
   if(id==='win'&&combatAnim==='mascot'&&cur&&cur.id==='mascot'&&cur.p){p.tg0=cur.p.tArr;if(cur.p.te!=null)p.te0=Math.max(0,(now-cur.t0)/1000-cur.p.te);}   /* la victoire prolonge la course du bonhomme : sol, étoiles, bonhomme et feux d'artifice reprennent là où ils étaient */
   if(p.long)d=1e9;
@@ -2255,13 +2285,13 @@ function combatFight(now,neuf){
     var pr=prevoirCombatBossV1(reg().idleEtat);
     if(pr.issue!=='inconnue'){
       if(!S.pv){demarrer(mk('fight',now));return;}                    /* la vie du boss n'est pas encore lue : FIGHT !, majAnimation décidera dès qu'elle arrive */
-      if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;demarrer(mk(combatAnim,now,{long:true}));}
+      if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}
       else{animDecision=-1;demarrer(mk('fight',now));}
       return;
     }
     if(neuf&&S.boss&&S.nom){demarrer(mk('nom',now));return;}   /* prévision impossible : le nom du boss s'écrit d'abord (cas sans scène connue) */   /* le nom du nouveau boss s'écrit d'abord ; FIGHT ! suit (voir image) */
   }
-  if(!neuf&&dedans&&combatAnim&&S.pv)demarrer(mk(combatAnim,now,{long:true}));
+  if(!neuf&&dedans&&combatAnim&&S.pv)demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));
   else demarrer(mk('fight',now));
 }
 /* Une animation (mascotte ou Leatherface) seulement pour un combat qui durera 6 s au moins (Norman, 2026-11-02) : durée estimée = temps écoulé + vie restante / vitesse à laquelle elle baisse depuis le début ; FIGHT ! ne reste alors qu'UNE seconde. Sans baisse mesurable au bout de 4 s : pas d'animation. */
@@ -2309,14 +2339,14 @@ function majAnimation(now){
   /* PRÉVISION (Norman, 2026-11-03 : « le jeu sait déjà si on va gagner ou perdre le combat ; il ne doit mettre les animations longues que quand le temps le permet ») : décidée dès la première image avec la durée PRÉVUE du combat (victoire comme défaite) ; l'observation de la barre ci-dessous ne sert que si la prévision est « inconnue » */
   var pr=prevoirCombatBossV1(reg().idleEtat);
   if(pr.issue!=='inconnue'){
-    if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+    if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}else animDecision=-1;
     return;
   }
   if(now-fightT0<500)return;
   var el=(now-combatT0)/1000,chute=pct0-S.pv.pct;
   if(chute>1e-6&&el>0){
     var total=el+S.pv.pct/(chute/el);
-    if(total>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+    if(total>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue='';animDur=0;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
   }else if(el>=2)animDecision=-1;
 }
 function suivante(now){
@@ -2341,12 +2371,31 @@ function pousser(id,now,p){
   if(id==='hit'){if(cur&&cur.prio>=3)return;demarrer(s);return;}
   pend=false;graceFin=0;demarrer(s);                               /* victoire ou défaite : passe devant tout */
 }
+/* LE GALOP (Norman, 2026-11-04 : « quand on meurt et qu'on revient dans Fight Boss, un effet comme si on était à cheval, tagada tagada, et on s'arrête ») : la borne entière rebondit au rythme d'un galop (deux petits temps, un grand), de plus en plus lent et de moins en moins haut, puis s'immobilise.
+   Une seule fois par mort : à l'arrivée sur la page si le joueur est déjà mort, sinon au premier combat qui suit la défaite. Animation du navigateur sur la borne (aucun nœud ajouté ni attribut posé : le redessin de la page n'y touche pas) ; coupée si l'animation est réduite. */
+var mortAGalop=false,galopAnim=null;
+function galop(){
+  var el=document.querySelector('.soreal-idle-boss-current-v35.borne-v2');
+  mortAGalop=false;
+  if(!el||typeof el.animate!=='function'||reduit())return;
+  var dur=[0.42,0.46,0.52,0.62,0.78],amp=[9,7,5,3.5,2],motif=[[0,0],[0.14,0.6],[0.26,0],[0.4,0.6],[0.52,0],[0.7,1],[1,0]],T=0,i,j,acc=0,kf=[];
+  for(i=0;i<dur.length;i++)T+=dur[i];
+  for(i=0;i<dur.length;i++){
+    for(j=(i?1:0);j<motif.length;j++){
+      var m=motif[j][1],y=-amp[i]*m,ro=(i%2?-1:1)*0.25*m;
+      kf.push({offset:Math.min(1,(acc+motif[j][0]*dur[i])/T),transform:'translateY('+y.toFixed(2)+'px) rotate('+ro.toFixed(3)+'deg)',easing:'ease-in-out'});
+    }
+    acc+=dur[i];
+  }
+  kf[kf.length-1].offset=1;
+  try{if(galopAnim)galopAnim.cancel();galopAnim=el.animate(kf,{duration:T*1000,easing:'linear'});}catch(_e){}
+}
 function evenements(now){
   var r=reg(),e=r.idleEtat||null;
   var debut=nombre(r.idleCombatDebutV1),res=r.idleCombatLogDernierResumeV70,vic=Boolean(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__),def=Boolean(r.idleCombatEnPauseApresDefaiteV1);
-  if(!L.ok){L.ok=true;L.debut=debut;L.res=res;L.vic=vic;L.def=def;L.combat=S.combat;L.nuke=Boolean(r.idleNukeEnCoursV1);return;}   /* première lecture (ou reprise) : on se cale sans jouer d'événement ancien */
+  if(!L.ok){L.ok=true;L.debut=debut;L.res=res;L.vic=vic;L.def=def;L.combat=S.combat;L.nuke=Boolean(r.idleNukeEnCoursV1);if(def){mortAGalop=true;galop();}return;}   /* on revient sur la page alors que le joueur est mort : le galop part tout de suite */   /* première lecture (ou reprise) : on se cale sans jouer d'événement ancien */
   if(S.combat&&!L.combat){rot=0;L.hitN=0;}
-  if(debut&&debut!==L.debut)pousser('fight',now);
+  if(debut&&debut!==L.debut){if(mortAGalop)galop();pousser('fight',now);}
   if(!debut)L.hitN=0;
   L.debut=debut;
   /* Norman (2026-11-02) : « l'animation ne doit pas être interrompue par des BAM et compagnie, on doit la voir du début à la fin » : plus de POW ! / BAM ! (la scène 'hit' n'est plus jamais déclenchée) */
@@ -2357,7 +2406,7 @@ function evenements(now){
   L.nuke=nk;
   if(vic&&!L.vic){pousser('win',now);apresVictoire=true;}
   L.vic=vic;
-  if((def&&!L.def)||(L.combat&&!S.combat&&e&&nombre(e.pvJoueur)<=0&&!(cur&&cur.id==='ko')))pousser('ko',now);
+  if((def&&!L.def)||(L.combat&&!S.combat&&e&&nombre(e.pvJoueur)<=0&&!(cur&&cur.id==='ko'))){pousser('ko',now);mortAGalop=true;}
   L.def=def;L.combat=S.combat;
 }
 
@@ -2558,5 +2607,5 @@ function dessinerSceneEssai(cv,id,t,pct,W,H,params){
   try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;}
   return true;
 }
-window.__SOREAL_IDLE_BORNE_LED_V1__={dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+window.__SOREAL_IDLE_BORNE_LED_V1__={galop:galop,dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
 })();

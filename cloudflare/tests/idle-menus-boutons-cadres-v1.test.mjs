@@ -75,7 +75,7 @@ for (const id of MENUS) {
   const g = decodeURIComponent(dessinDe("renaissance", "nb-g")), d = decodeURIComponent(dessinDe("renaissance", "nb-d"));
   assert.ok(g.includes('id="tourbillon"') && !g.includes("<text"), "Renaissance : tourbillon à gauche");
   assert.ok(d.includes('id="infini"') && !d.includes("<text"), "Renaissance : signe infini à droite (SVG, pas une police)");
-  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="renaissance"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 6s linear infinite}`), "le tourbillon tourne (360°, linéaire)");
+  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="renaissance"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_spin 6s linear infinite reverse}`), "le tourbillon tourne (360°, linéaire)");
   assert.ok(sansCom.includes(`${P}[data-menu-id-v1="renaissance"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_pulse `), "l'infini pulse");
 }
 /* miniature fidèle du grand cadre : le fond est celui du cadre, réduit en cqw (la boîte du décor est un conteneur) ; ITOPOD : la tour occupe toute la hauteur */

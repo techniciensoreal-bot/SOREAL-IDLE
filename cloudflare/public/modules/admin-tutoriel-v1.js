@@ -45,10 +45,15 @@ function nouvelId_(titre){
   return 'tuto-'+base+'-'+Date.now().toString(36);
 }
 function guideVide_(){
-  return {id:'',titre:'',declencheur:{type:'debut'},actif:true,afficher:true,ordre:0,etapes:[etapeVide_()]};
+  return {id:'',titre:'',declencheur:{type:'debut'},actif:true,afficher:true,mascotte:false,ordre:0,etapes:[etapeVide_()]};
+}
+/* Une apparition de Cthulhu : jouée à la première ouverture d'un menu (à choisir), DÉSACTIVÉE tant que Norman ne l'active pas (bouton « Activer » de la liste). */
+function apparitionCthulhuVide_(){
+  var e=etapeVide_();e.humeur='coucou';
+  return {id:'',titre:'Cthulhu',declencheur:{type:'menu',menu:''},actif:false,afficher:true,mascotte:true,ordre:0,etapes:[e]};
 }
 function etapeVide_(){
-  return {titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false,attendreVoix:true};
+  return {humeur:'',titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false,attendreVoix:true};
 }
 function copie_(o){return JSON.parse(JSON.stringify(o));}
 
@@ -107,7 +112,7 @@ function listeHtml_(){
     '<p style="font-size:14px;color:#aeb9d4">Chaque guide est une suite d’étapes jouées automatiquement : au début du jeu, à la première ouverture d’un menu, ou après un boss. Tu choisis les textes, ce que la fenêtre montre à l’écran et où elle se place.</p>'+
     '<p style="font-size:14px;color:#aeb9d4">🎙 <b>Voix :</b> chaque étape a sa voix. Dans la section « Textes » du menu Admin, cherche le groupe « Tutoriel · … » : tu y changes ce que la voix dit, tu la génères (studio de voix) et tu l’écoutes. Le joueur l’entend si sa voix est activée, et peut la relancer avec 🔊.</p>'+
     (l||'<p>Aucun guide pour le moment.</p>')+
-    '<div class="at-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="principal" data-at="nouveau">➕ Nouveau guide</button></div>'+
+    '<div class="at-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="principal" data-at="nouveau">➕ Nouveau guide</button><button type="button" class="principal" data-at="cthulhu" title="Cthulhu vient présenter un menu la première fois que le joueur l’ouvre. Désactivée à la création : tu l’actives quand tu veux.">🐙 Nouvelle apparition de Cthulhu</button></div>'+
     '<div class="at-ancien">'+
       '<label style="display:flex;gap:8px;align-items:flex-start;"><input type="checkbox" data-at="ancienmenus" '+(etat.ancienMenus?'checked':'')+'> <span><b>Jouer les anciennes fenêtres d’explication des menus</b> (celles qui s’ouvrent la première fois qu’on ouvre un menu : une trentaine). Décoche quand tu as écrit les tiennes : tant que cette case est cochée, les deux types de fenêtres peuvent se suivre.</span></label></div>';
 }
@@ -177,7 +182,7 @@ function pageHtml_(){
 /* ---------- aperçu ---------- */
 
 function pourLecteur_(g){
-  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur),attendreVoix:e.attendreVoix!==false};}),afficher:g.afficher!==false};
+  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur),attendreVoix:e.attendreVoix!==false,humeur:e.humeur||''};}),afficher:g.afficher!==false,mascotte:g.mascotte===true};
 }
 function apercu_(guide,apres){
   var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
@@ -200,6 +205,7 @@ function etapeHtml_(e,i,total){
       '<button type="button" class="principal" data-ae="voix" data-i="'+i+'" title="Personnages, voix, écoute et génération de cette étape (même éditeur que les textes de base)">🎙 Texte et voix</button> '+
       '<button type="button" data-ae="voir" data-i="'+i+'">▶ Voir cette étape</button> '+
       '<button type="button" class="danger" data-ae="suppr" data-i="'+i+'">🗑</button></span></div>'+
+    '<label>🐙 Humeur de Cthulhu (si le guide est présenté par lui)</label><select data-champ="humeur">'+[['','Normal'],['coucou','Coucou (deux bras qui font signe)'],['content','Content'],['pense','Réfléchit'],['surpris','Surpris'],['vole','Vole sur place'],['dos','De dos (ailes qui battent)'],['arrive','Arrive de loin et grandit jusqu’à l’écran'],['grand','Reste grand, contre l’écran'],['repart','Se retourne et repart de dos']].map(function(h){return '<option value="'+h[0]+'"'+((e.humeur||'')===h[0]?' selected':'')+'>'+h[1]+'</option>';}).join('')+'</select>'+
     '<label>Titre (facultatif)</label><input type="text" data-champ="titre" maxlength="80" value="'+esc_(e.titre)+'">'+
     '<label class="at-or-etiq">Texte tel que le joueur le lit</label><textarea class="at-or" data-champ="texte" maxlength="1500">'+esc_(e.texte)+'</textarea>'+
     '<div class="at-aide">Ce cadre jaune est le texte affiché. Pour découper par personnage, régler la prononciation et générer les voix, ouvre « 🎙 Texte et voix ».</div>'+
@@ -227,6 +233,7 @@ function editeurHtml_(){
     '</div></div>'+
     '<div class="at-rang"><div><label>Ordre (si plusieurs guides ont le même déclencheur)</label><input type="number" data-g="ordre" value="'+esc_(g.ordre||0)+'"></div>'+
       '<div><label>Activé</label><label style="display:flex;gap:8px;align-items:center;font-weight:400"><input type="checkbox" data-g="actif" '+(g.actif!==false?'checked':'')+'> le guide est joué aux joueurs</label></div></div>'+
+    '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:8px 0"><input type="checkbox" data-g="mascotte" '+(g.mascotte===true?'checked':'')+'> <span><b>🐙 Cthulhu présente ce guide</b> : la mascotte apparaît à côté de la fenêtre, avec l’humeur choisie à chaque étape. Décochée : aucune mascotte.</span></label>'+
     '<label style="display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:8px 0"><input type="checkbox" data-g="afficher" '+(g.afficher!==false?'checked':'')+'> <span><b>Afficher la fenêtre et le texte à l’écran</b>. Décochée : rien n’apparaît (ni fenêtre, ni texte, ni petite enceinte), seule la voix parle ; le cadre lumineux reste si l’étape l’a coché ; une étape avance au clic sur son élément (si la case de l’étape est cochée), sinon quand la voix a fini.</span></label>'+
     '<div id="atEtapes">'+g.etapes.map(function(e,i){return etapeHtml_(e,i,g.etapes.length);}).join('')+'</div>'+
     '<div class="at-actions"><button type="button" data-ag="ajouter">➕ Ajouter une étape</button></div>'+
@@ -253,11 +260,12 @@ function lireChamps_(){
   edition.ordre=Math.floor(Number(v('[data-g="ordre"]'))||0);
   var a=ed.querySelector('[data-g="actif"]');edition.actif=a?a.checked:true;
   var af=ed.querySelector('[data-g="afficher"]');edition.afficher=af?af.checked:true;
+  var mq=ed.querySelector('[data-g="mascotte"]');edition.mascotte=mq?mq.checked:false;
   Array.prototype.forEach.call(ed.querySelectorAll('.at-etape'),function(bloc){
     var i=Number(bloc.getAttribute('data-etape'));
     var e=edition.etapes[i];if(!e)return;
     function c(n){var x=bloc.querySelector('[data-champ="'+n+'"]');return x;}
-    e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.attendreVoix=c('attendreVoix').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
+    e.humeur=c('humeur')?c('humeur').value:'';e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.attendreVoix=c('attendreVoix').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
   });
 }
 
@@ -412,6 +420,7 @@ document.addEventListener('click',function(ev){
   if(t.hasAttribute('data-at')&&l&&l.contains(t)){
     var a=t.getAttribute('data-at');
     if(a==='nouveau'){etat.message='';ouvrir_(guideVide_(),true);}
+    else if(a==='cthulhu'){etat.message='';ouvrir_(apparitionCthulhuVide_(),true);}
     else if(a==='modifier'){etat.message='';ouvrir_(etat.guides[i],false);}
     else if(a==='apercu'){var g=etat.guides[i];if(g)apercu_(g,null);}
     else if(a==='voix')voixGuide_(i);

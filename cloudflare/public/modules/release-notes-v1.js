@@ -35,10 +35,15 @@
             'Les boutons de menu réagissent plus vite : la page change juste après l’image du clic, ce qui améliore la réactivité de l’interface.',
             'L’application Android ne recharge plus ta partie en boucle au démarrage.',
           ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Le logo de gauche du bouton du menu tourne maintenant dans l’autre sens.',
+          ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Le message du coût manquant se lit maintenant « Il manque 314K d’or pour le niveau suivant. ».',
+            'Les barres d’avancement sont des panneaux LED à points, comme l’écran de la borne d’arcade.',
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
@@ -51,6 +56,8 @@
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps avant le prochain rituel.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'La barre ne recule plus par à-coups à chaque synchronisation : elle tourne à un rythme continu.',
+            'Au-dessus d’un niveau par seconde, la vitesse s’écrit en niveaux entiers (10 niv/s, plus 10,95).',
             'La barre ne reste fixe et pleine qu’une fois le CAP atteint ; en dessous, elle continue de tourner.',
             'Quand les niveaux vont vite, le texte sous la barre dit « VITESSE : … niv/s » au lieu de « RESTE ».',
             'Un compteur de niveaux par seconde (niv/s, format 0,01) accompagne le temps de chaque barre.',
@@ -73,6 +80,8 @@
             'Sur téléphone, un sélecteur « Action au clic » (booster, fusionner, transformer) remplace les touches du clavier.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu reviens sur le combat de boss après une défaite, la borne galope avant de s’arrêter.',
+            'L’animation du clown est plus fluide : le bateau avance seul jusqu’à la bouche d’égout ; selon l’issue du combat, le garçon esquive la planche jaune et récupère son bateau, ou la prend de plein fouet.',
             'Écran LED : plus aucune ligne au sol ni juste au-dessus de la barre de vie du boss dans les animations ; le sol de la Red Room est reconstruit sans elle.',
             'Écran LED : l’ange n’est plus cerné de points noirs : sa forme se distingue bien mieux sur le rideau.',
             'Écran LED : la voiture de la poursuite arrive d’abord ; Leatherface entre ensuite derrière elle, une fois la voiture entièrement à l’écran, puis la suit.',
@@ -83,6 +92,7 @@
             'Les animations de la borne ne s’arrêtent plus quand tu cliques en dehors de la fenêtre de l’application.',
           ]},
           {menu:'challenges', titre:'Défis', points:[
+            'Le bouton « Abandonner le défi » est plus gros et plus lisible.',
             'Un défi terminé porte une étiquette « ✔ TERMINÉ » et un bouton JOUER en vert victoire.',
           ]},
         ]

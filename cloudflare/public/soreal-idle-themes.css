@@ -2358,7 +2358,7 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-i
 .dfi-note{margin:8px 0 0;font-size:12px;opacity:.6;font-style:italic}
 .dfi-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:16px}
 .dfi-jouer-gros{padding:10px 56px 8px;font-size:32px}
-.dfi-abandon{padding:7px 22px 6px;border:3px solid #000;border-radius:12px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:21px;letter-spacing:.08em;color:#fff;background:linear-gradient(180deg,#ff6b78,#c4152b);box-shadow:0 4px 0 #5e0a14;cursor:pointer}
+.dfi-abandon{padding:9px 26px 8px;border:3px solid #000;border-radius:12px;font-family:"Bangers","Russo One",Impact,sans-serif;font-size:26px;letter-spacing:.08em;color:#fff;background:linear-gradient(180deg,#e0273d,#8f0d1f);text-shadow:0 2px 0 #000,0 0 3px #000,2px 0 0 #000,-2px 0 0 #000;-webkit-text-stroke:1px #000;paint-order:stroke fill;box-shadow:0 4px 0 #3d050c,inset 0 2px 0 rgba(255,255,255,.35);cursor:pointer}
 .dfi-abandon:active{transform:translateY(3px);box-shadow:0 1px 0 #5e0a14}
 .dfi-fiche-fond{position:fixed;inset:0;z-index:9000;background:rgba(5,3,10,.8);display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
 .dfi-fiche{--acc:#f5b53a;position:relative;width:min(100%,560px);max-height:92vh;overflow:auto;padding:16px 18px 20px;border-radius:20px;border:4px solid #000;background:radial-gradient(100% 45% at 50% 0%,color-mix(in srgb,var(--acc) 42%,#241636),#0f0a18 70%);box-shadow:inset 0 0 0 2px var(--acc),0 20px 50px rgba(0,0,0,.7)}

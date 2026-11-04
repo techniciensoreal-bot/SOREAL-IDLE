@@ -75,6 +75,13 @@ function installerStyle_(){
     '#'+ID+' .tu-apercu{font-size:12px;color:#f2c94c;margin-bottom:4px}'+
     '#'+ID+' .tu-indice{margin-top:8px;font-size:14px;font-weight:800;color:#4cd6f2}'+
     /* Fenêtre réduite en enceinte flottante (Norman, 2026-10-26 : « la fenêtre de tuto doit être diminuée directement ; on clique sur l'enceinte pour l'agrandir ») : la voix continue, un clic dessus la rouvre. */
+    '#'+ID+' .tu-cth{position:absolute;left:8px;top:-118px;width:130px;height:130px;pointer-events:none}'+
+    '#'+ID+' .tu-cth .cth-v1{width:130px;height:130px}'+
+    /* Cthulhu en grand (arrive / grand / repart) : plein cadre, centré en haut, tout entier visible avec son visage ; la fenêtre de texte se cale en bas (Norman, 2026-11-04 : « il est coupé, on ne voit pas son visage »). */
+    '#'+ID+'{--tu-B:min(66vh,96vw)}'+
+    '#'+ID+' .tu-cth.tu-cth-grand{position:fixed;left:50%;top:2vh;width:var(--tu-B);height:var(--tu-B);margin-left:calc(var(--tu-B) / -2)}'+
+    '#'+ID+' .tu-cth-grand .cth-v1{width:100%;height:100%;--cth-g:1}'+
+    '#'+ID+'.tu-bas-cth{left:0!important;right:0!important;top:auto!important;bottom:12px!important;margin:0 auto!important}'+
     '#'+ID+'.reduit{width:54px;height:54px;padding:0;border-radius:50%;overflow:hidden;cursor:pointer}'+
     '#'+ID+'.reduit>*{display:none}'+
     '#'+ID+'.reduit::after{content:"🔊";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;animation:tuReduit 1.6s ease-in-out infinite}'+
@@ -261,6 +268,25 @@ function attendreChronique_(s,suite){
   })();
 }
 
+/* Cthulhu à côté de la fenêtre (la mascotte ne fait que se dessiner : textes, menus et voix sont ceux du guide). */
+function mascotteHtml_(e){
+  var C=window.__SOREAL_IDLE_CTHULHU_V1__;
+  if(!C||typeof C.html!=='function')return '';
+  var grand=/^(arrive|grand|repart)$/.test(e&&e.humeur||'');
+  return '<div class="tu-cth'+(grand?' tu-cth-grand':'')+'">'+C.html(e&&e.humeur||'normal',/^(arrive|grand|repart)$/.test(e&&e.humeur||'')?'':'cth-entre')+'</div>';
+}
+/* Cthulhu en grand : la fenêtre se cale en bas ; pour « repart », il retourne à sa petite place (coin de la fenêtre) : décalage et échelle calculés ici. */
+function reglerMascotteGrande_(b,e){
+  var grand=Boolean(b&&e&&/^(arrive|grand|repart)$/.test(e.humeur||'')&&b.querySelector('.tu-cth-grand'));
+  b.classList.toggle('tu-bas-cth',grand);
+  if(!grand)return;
+  var racine=b.querySelector('.tu-cth-grand .cth-v1');if(!racine)return;
+  var W=window.innerWidth||1000,H=window.innerHeight||700,B=Math.min(0.66*H,0.96*W);
+  var wr=b.getBoundingClientRect(),cx=W/2,cy=0.02*H+B,sx=wr.left+8+65,sy=wr.top-118+130;   /* l'échelle part de ses pieds (bas du dessin, au centre) : on vise donc le bas de sa petite place */
+  racine.style.setProperty('--cth-s',String(130/B));
+  racine.style.setProperty('--cth-dx',Math.round(sx-cx)+'px');
+  racine.style.setProperty('--cth-dy',Math.round(sy-cy)+'px');
+}
 function afficherEtape_(garderTaille){
   var s=etat.enCours;if(!s)return;
   var e=s.guide.etapes[s.i];if(!e){fermer_(true);return;}
@@ -287,9 +313,10 @@ function afficherEtape_(garderTaille){
   s.tempsLecture=Math.max(2500,Math.min(60000,String(e.texte||'').length*60));
   b.hidden=s.cache;
   /* Une étape qui commence (départ du guide, avance au clic) s'ouvre réduite en enceinte ; un clic sur Précédent / Suivant garde la taille choisie. */
-  b.classList.toggle('reduit',!garderTaille);
+  b.classList.toggle('reduit',!garderTaille&&!s.guide.mascotte);   /* Cthulhu s'affiche tout de suite, jamais réduit en enceinte */
   b.innerHTML=
     (s.apercu?'<div class="tu-apercu">👁 Aperçu — rien n’est enregistré</div>':'')+
+    (s.guide.mascotte?mascotteHtml_(e):'')+
     '<div class="tu-haut"><span class="tu-titre">'+esc_(e.titre||s.guide.titre||'')+'</span><span class="tu-compte">'+(s.i+1)+'/'+nbEtapes+'</span></div>'+
     '<div class="tu-texte">'+paragraphes+'</div>'+
     (s.attenteClic?'<div class="tu-indice">👆 Clique sur l’élément entouré pour continuer.</div>':'')+
@@ -299,6 +326,7 @@ function afficherEtape_(garderTaille){
       '<button type="button" data-tu="prec" '+(s.i<=0?'disabled':'')+'>◀ Précédent</button>'+
       '<button type="button" class="principal" data-tu="suiv" '+(s.attenteClic?'hidden':'')+'>'+(dernier?'Terminé ✔':'Suivant ▶')+'</button>'+
     '</div>';
+  reglerMascotteGrande_(b,e);
   /* La cible peut mettre un instant à apparaître (changement de menu) : on la fait défiler dans l'écran dès qu'elle existe. */
   s.defile=false;s.essais=0;
   arreterBoucle_();
