@@ -531,7 +531,7 @@ function dessinerCoul(rows,coul,sx,sy,e){
    la FILLE (colonne 30 du fourgon) est exactement au bout de la barre ; le fourgon roule devant, Leatherface court derrière lui (à droite). Quand la vie baisse, tout avance vers la gauche et le fourgon finit par sortir de l'écran avec la barre. */
 function geoCourse(xe){
   var W=P.W,H=P.H,fl=H-2,es=echelleDanse(),ec=es*1.6,tw=Math.round(CAMION_L*ec),th=Math.round(CAMION_H*ec),gap=Math.max(5,Math.round(8*es));
-  var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));
+  var tx=xe-Math.round(30*ec),sxL=tx+tw+gap-Math.round(3*es);   /* Norman (2026-11-04) : « Leatherface ne doit JAMAIS arriver au niveau de la voiture, sinon il pourrait couper la tête de la fille » : il reste toujours derrière l'arrière du fourgon, même hors de l'écran à droite (l'ancien plafond W-26 le ramenait SUR le fourgon quand la vie est haute) */
   var dhs=Math.round(DANSE_H*es);
   return {fl:fl,es:es,ec:ec,tw:tw,th:th,gap:gap,sxL:sxL,tx:tx,sy:fl-2-(dhs-1),syT:fl-2-(th-1)};
 }

@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un petit Nuke démarre directement son animation à l’appui du bouton (ballon, chien, chat…), sans écran d’attente."
+    "Écran LED : Leatherface reste toujours derrière la voiture et ne la rattrape jamais, même pendant un combat lent."
   ] };
 })();
