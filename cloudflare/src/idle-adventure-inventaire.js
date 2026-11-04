@@ -709,7 +709,8 @@ export function coffreDeposer(s,id){
   const o=s.inventory[idx];
   if(equippedIdsAdventureV1(s).has(o.id))throw Error("OBJET_EQUIPE");
   if(!idleAdventureCoffreAccepteV1(o.definitionId))throw Error("OBJET_NON_ELIGIBLE_COFFRE");
-  if(!idleAdventureObjetPleinementMaxeV1(o))throw Error("OBJET_NON_MAXE");
+  /* Norman (2026-11-04) : « dans le coffre, pendentifs ascendés : on doit aussi pouvoir mettre le PREMIER s'il est niveau 100 » : le premier pendentif ascendé (celui qui évolue vers les suivants) entre au coffre dès le niveau 100, même si ses boosts ne sont pas tous posés. Les autres pièces restent soumises à l'exigence stricte. */
+  if(!(idleAdventureObjetPleinementMaxeV1(o)||(o.definitionId===IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1[0]&&idleAdventureNiveauEstMaxV1(o.level))))throw Error("OBJET_NON_MAXE");
   if(s.coffre[o.definitionId])throw Error("CASE_DEJA_OCCUPEE");
   s.inventory.splice(idx,1);
   s.coffre[o.definitionId]=o;

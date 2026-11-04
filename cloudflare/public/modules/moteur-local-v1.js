@@ -226,7 +226,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=f604cee17c");
+    worker=new Worker("/moteur-local-worker-v1.js?v=2e8763e3e7");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;

@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Quand il n’y a plus de place dans le sac, un message clair s’affiche et rien n’est perdu.",
-    "Écran LED : la pluie de la scène du clown est refaite, avec trois plans de gouttes, du vent et de petites éclaboussures sur la chaussée."
+    "Coffre : le premier pendentif ascendé peut y être rangé dès le niveau 100, même sans tous ses boosts."
   ] };
 })();

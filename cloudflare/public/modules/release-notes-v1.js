@@ -87,6 +87,7 @@
             'Quand tu cliques sur un bocal occupé, tu vois depuis combien de temps l’objet est en garderie.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Coffre : le premier pendentif ascendé peut y être rangé dès le niveau 100, même sans tous ses boosts.',
             'Quand il n’y a plus de place dans le sac, un message clair s’affiche et rien n’est perdu.',
             'Coffre : les deux répliques de l’accident restent plus longtemps à l’écran (4,4 s chacune) et la seconde ne démarre qu’une fois la première partie.',
             'Équiper une configuration reprend automatiquement dans le coffre les pièces qui y sont rangées (si le sac a de la place).',

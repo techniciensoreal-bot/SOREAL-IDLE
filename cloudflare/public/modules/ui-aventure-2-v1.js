@@ -2505,7 +2505,7 @@ function toggleCoffreOuvertAdventureIdleV1_(){
         const item=items.find(function(x){return String(x&&x.id)===String(id);});
         if(!item)return false;
         const occupee=Array.isArray(a.coffreSlots)&&a.coffreSlots.some(function(x){return x&&x.occupe&&String(x.definitionId||'')===String(item.definitionId||'');});
-        return !item.fullyMaxed||occupee;
+        return !(item.fullyMaxed||(String(item.definitionId||'')==='ascendedForestPendant'&&Number(item.level)>=100))||occupee;   /* le premier pendentif ascendé entre dès le niveau 100 (Norman, 2026-11-04), comme côté moteur */
       }
 
       function deposerSurCoffreAdventureIdleV1_(event){
