@@ -126,6 +126,17 @@
         actionMetaNoyauIdleV130_(payload);
       }
 
+      /* Refus du moteur (Norman, 2026-11-04 : « est-ce que tu as prévu les cas où on voudrait récupérer un objet du daycare mais on n'a pas de place dans l'inventaire ? ») : un message clair à la place du code d'erreur, pour TOUS les cas « plus de place » (garderie, coffre, configuration d'équipement, cœurs, butin) et quelques refus fréquents. Rien n'est perdu : l'objet reste où il était. */
+      function messageRefusJeuV1_(brut){
+        const t=String(brut==null?'':brut);
+        if(/SAC_PLEIN|INVENTAIRE_PLEIN/.test(t))return '🎒 Ton sac est plein : fais de la place, puis recommence. L’objet reste où il est, rien n’est perdu.';
+        if(/LOADOUT_VIDE/.test(t))return 'Cette configuration est vide : enregistre d’abord ton équipement dedans.';
+        if(/LOADOUT_VERROUILLE/.test(t))return 'Cet emplacement de configuration n’est pas encore disponible.';
+        if(/DAYCARE_OBJET_DEJA_PRESENT/.test(t))return 'Cet objet est déjà à la garderie.';
+        if(/CASE_DEJA_OCCUPEE/.test(t))return 'Cette case du coffre est déjà occupée.';
+        return t;
+      }
+
       /* Refus d'une copie de Wandoos : un message clair à la place du code d'erreur du serveur. */
       function messageCopieWandoosV1_(code){
         const m=String(code||'').match(/^NIVEAU_COPIE_INSUFFISANT(?::(d+))?/);
@@ -556,7 +567,7 @@
                 :payload&&payload.action==='castBloodSpell'&&res&&/SANG_INSUFFISANT/.test(String(res.message||''))
                 ?'Pas assez de sang pour lancer ce sort.'
                 :res&&res.message
-                ?res.message
+                ?messageRefusJeuV1_(res.message)
                 :'Action impossible.'
             );
           },
@@ -568,7 +579,7 @@
 
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               e&&e.message
-                ?e.message
+                ?messageRefusJeuV1_(e.message)
                 :'Erreur de métaprogression.'
             );
           }

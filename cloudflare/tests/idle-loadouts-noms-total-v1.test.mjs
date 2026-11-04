@@ -108,4 +108,10 @@ const lire = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
   assert.ok(dlg.includes("confirmer:") && dlg.includes("alerter:") && dlg.includes("saisir:") && dlg.includes("window.alert=function"), "fenêtres du site : confirmer, alerter, saisir ; alert redirigée");
   assert.ok(/dialogue-site-v1\.js\?v=\d+/.test(lire("public/index.html")), "chargée par la page");
 }
+// « sac plein » : un message clair au format du site à la place du code d'erreur (Norman, 2026-11-04)
+{
+  const meta = lire("public/modules/meta-progression-v130.js");
+  assert.ok(meta.includes("function messageRefusJeuV1_(brut)") && meta.includes("Ton sac est plein") && /SAC_PLEIN\|INVENTAIRE_PLEIN/.test(meta), "message « sac plein »");
+  assert.ok(meta.includes("?messageRefusJeuV1_(res.message)") && meta.includes("?messageRefusJeuV1_(e.message)"), "utilisé pour les refus du moteur et les erreurs d'appel");
+}
 console.log("idle-loadouts-noms-total-v1: OK");
