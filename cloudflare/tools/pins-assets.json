@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 163,
-  "sha": "31057985ec3cdb1ed4c25e79a89c3f072b536ef9"
+  "pin": 164,
+  "sha": "aa17f5893f7c1f53ad5212e92f5c655d367ca90b"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 802,
-  "sha": "27eefa84fb1d1f20c731db7fc93fcbabb8873a1d"
+  "pin": 803,
+  "sha": "eb04ea62b161d1acaeceac4f66904fcf869fa51e"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -691,13 +691,17 @@
   "pin": 21,
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
+ "/modules/tm-projection-v1.js": {
+  "pin": 1,
+  "sha": "a4052cd282bf0487981df72bef3c018c0d15d130"
+ },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 839,
-  "sha": "f8e6c310a4ac11faa08f0fc1fcb981a73dbda6d4"
+  "pin": 840,
+  "sha": "09954298347f96109f17b0ac0e8a78134f6ed696"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 660,
-  "sha": "0081c9509ba24a9625630ed1b0fa715aa2f89d77"
+  "pin": 661,
+  "sha": "14b1bb4b727b5a1796141e419a62d4089814eccf"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -780,8 +784,8 @@
   "sha": "56a6d9796d131bf9b0ea98a937aa12bf05d9250c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 20,
-  "sha": "af5c6e926324625e1df8a4b531f5ee6b509cb2b2"
+  "pin": 22,
+  "sha": "982563942803d15a4faff142f2970a5f2f72019f"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 6,

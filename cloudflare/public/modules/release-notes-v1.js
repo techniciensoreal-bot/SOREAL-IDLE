@@ -42,6 +42,7 @@
             'Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'À chaque passage de niveau, la barre de la Machine temporelle suit exactement le calcul du jeu : plus de saut juste après une renaissance, quand la barre va très vite.',
             'Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un tiers plus rapides à traiter.',
             'Quand tu retires l’énergie ou la magie d’une barre (ou que tu changes sa répartition), elle s’arrête exactement à cet instant : plus de progression en trop ni de retour en arrière, dans tous les menus à répartition.',
           ]},

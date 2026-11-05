@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un tiers plus rapides à traiter."
+    "À chaque passage de niveau, la barre de la Machine temporelle suit exactement le calcul du jeu : plus de saut juste après une renaissance, quand la barre va très vite."
   ] };
 })();

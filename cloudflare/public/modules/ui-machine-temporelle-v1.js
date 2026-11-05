@@ -121,30 +121,21 @@
           const plafD100=D100?D100.plafond(supportD100,cleD100):Infinity;
           if(restant<=0&&niveau0!==null&&palier>0){
             /*
-             * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et
-             * l'Or diminuer très vite ») : chaque niveau franchi débite l'Or local tout de suite ; faute d'Or, la barre reste pleine et le dit. La synchro confirme.
+             * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et l'Or diminuer très vite ») :
+             * chaque niveau franchi débite l'Or local tout de suite ; faute d'Or, la barre reste pleine et le dit. La synchro confirme. Norman (2026-11-05) : UNE SEULE formule, celle du moteur (modules/tm-projection-v1.js, comparée au vrai moteur par
+             * idle-tm-projection-moteur-v1) : le reste de la barre à un passage de niveau est remis à l'échelle comme le fait le moteur ; l'écran le reportait en secondes, d'où un saut à chaque niveau, énorme juste après un Rebirth.
              */
             if(el.__tmDebitesAt!==el.dataset.tmEtaAt){el.__tmDebitesAt=el.dataset.tmEtaAt;el.__tmDebites=0;}
-            let deja=el.__tmDebites||0;
+            const deja0=el.__tmDebites||0;
             const monnaiesTm=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
-            let orTm=idleNombre_(monnaiesTm&&monnaiesTm.gold);
-            while(restant<=0&&franchis<20000){
-              /* Budget du défi épuisé : aucun niveau de plus, la barre reste PLEINE (ni Or manquant affiché, ni niveau validé). */
-              if(franchis>=plafD100){bloqueDefi=true;faussesOr=true;restant=0;break;}
-              const cibleNiv=niveau0+franchis+1;
-              if(franchis>=deja){
-                const coutNiv=5000000*Math.max(1,cibleNiv);
-                if(monnaiesTm&&orTm+1e-9<coutNiv){faussesOr=true;manqueOr=coutNiv-orTm;orPresent=orTm;restant=0;break;}
-                if(monnaiesTm)orTm-=coutNiv;
-                deja+=1;
-              }
-              franchis+=1;
-              palier=palier*(niveau0+1+franchis)/(niveau0+franchis);
-              restant+=palier;
-            }
+            const orTm0=idleNombre_(monnaiesTm&&monnaiesTm.gold);
+            const PROJ_TM=window.__SOREAL_IDLE_TM_PROJECTION_V1__;
+            const proj=PROJ_TM.projeter({palier:palier,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:monnaiesTm?orTm0:null,deja:deja0,plafond:plafD100});
+            franchis=proj.franchis;faussesOr=proj.faussesOr;manqueOr=proj.manqueOr;bloqueDefi=proj.bloqueDefi;restant=proj.restant;palier=proj.palier;
+            if(faussesOr&&!bloqueDefi)orPresent=proj.or===null?0:proj.or;
             if(D100)D100.noter(supportD100,cleD100,franchis);
-            if(monnaiesTm&&deja!==(el.__tmDebites||0)){monnaiesTm.gold=Math.max(0,orTm);patcherResumeStatsIdleV28_(REG.idleEtat);}
-            el.__tmDebites=deja;
+            if(monnaiesTm&&proj.deja!==deja0){monnaiesTm.gold=Math.max(0,proj.or);patcherResumeStatsIdleV28_(REG.idleEtat);}
+            el.__tmDebites=proj.deja;
           }else{
             restant=Math.max(0,restant);
             /* Barre déjà pleine (en attente d'Or côté serveur) : on le dit ; dès que l'Or suffit, on redemande l'état pour que le niveau suivant tombe sans attendre. */

@@ -62,7 +62,7 @@ assert.ok(meta.includes("throw new Error('poste vide')"), 'Wandoos : repli sur l
 assert.ok(ui.includes("bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits") && ui.includes("idleEtat.systemes.currencies.gold=orLiveB"), 'rituels rejoués localement, Or débité en direct');
 assert.ok(sang.includes('sorealIdleBloodCountV1_'), 'compteur de rituels mis à jour en direct');
 /* Time Machine : chaque niveau franchi débite l'Or (5 000 000 × niveau visé, comme le moteur) sans pause ; barre pleine et message si l'Or manque */
-assert.ok(ui.includes("5000000*Math.max(1,cibleNiv)") && ui.includes("prixEl.style.color!==cp)prixEl.style.color=cp"), 'Time Machine : Or débité en direct, manque d\'Or dit par la somme « Niveau suivant » en rouge (Norman, 2026-11-03)');
+assert.ok(fs.readFileSync("cloudflare/public/modules/tm-projection-v1.js", "utf8").includes("COUT_PAR_NIVEAU*Math.max(1,niveauVise)") && ui.includes("PROJ_TM.projeter(") && ui.includes("prixEl.style.color!==cp)prixEl.style.color=cp"), 'Time Machine : Or débité en direct, manque d\'Or dit par la somme « Niveau suivant » en rouge (Norman, 2026-11-03)');
 /* Barre de vie du boss = barre du joueur : styles copiés depuis le bandeau (variables --pv-*), reflet compris */
 assert.ok(ui.includes('copierStylePvV1_') && ui.includes("'--pv-h':hauteur+'px'") && itopod.includes('height:var(--pv-h,32px)!important') && itopod.includes('left:var(--pv-reflet-g,7px)'), 'barre du boss copie hauteur, police et reflet de celle du joueur');
 /* Boucles parfaites des barres : toutes les couches des braises ont la même tuile ; les runes ne reculent plus (fondu d'entrée, dérive, fondu de sortie) ; aurore = une période */

@@ -122,7 +122,7 @@ function charger(piece) {
   const wd = lire("modules/wandoos-retro-v1.js");
   assert.ok(wd.includes("D100.plafond(b,cleD100)") && wd.includes("D100.noter(b,cleD100,gainD100)") && wd.includes("r.f=1"), "Wandoos puise dans le budget et reste plein");
   const tm = lire("modules/ui-machine-temporelle-v1.js");
-  assert.ok(tm.includes("franchis>=plafD100") && tm.includes("D100.noter(supportD100,cleD100,franchis)"), "Machine temporelle : budget partagé");
+  assert.ok(tm.includes("plafond:plafD100") && tm.includes("D100.noter(supportD100,cleD100,franchis)") && lire("modules/tm-projection-v1.js").includes("franchis>=plafond"), "Machine temporelle : budget partagé");
   const aug = lire("modules/augmentations-page-v1.js");
   assert.ok(aug.includes("if(franchis>=plafD100)") && aug.includes("plafondK:D100?D100.plafond(d,cleD100):Infinity"), "rebase des Augmentations et de la Machine temporelle : budget partagé");
   const bl = lire("modules/ui-boucle-v1.js");
