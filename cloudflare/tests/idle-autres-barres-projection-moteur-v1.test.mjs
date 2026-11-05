@@ -268,8 +268,7 @@ function limite50(nom, reg, dts) {
 /*
  * Mesuré le 2026-11-05 (horloge gelée, partie neuve, tous systèmes ouverts) ; aucun recul de barre dans aucun des quatre systèmes :
  *  1. BARBES et 2. HACKS : CORRIGÉS le 2026-11-05 (un niveau par tick au plus, résultat indépendant du découpage du temps ; avant : reste d'un tick versé dans la série non plafonnée / aucun plancher pour les Hacks). Gardés par l'assertion ci-dessous.
- *  3. SOUHAITS : wishSpeedParamsV1 est calculé une fois par synchro : pour un souhait qui accélère les souhaits (souhait 1, +5 % par niveau), 40 h en 1 synchro = niveau 3 + 0,346 contre niveau 3 + 0,473 en 8 synchros de 5 h ;
- *     500 000 s : 6,663 contre 7,306. Témoin (souhait 2, sans effet de vitesse) : identique. Le plancher de 4 h par niveau rend le plafond de 50 niveaux/s sans objet.
+ *  3. SOUHAITS : CORRIGÉ le 2026-11-05 (la vitesse des souhaits est recalculée à chaque niveau gagné, comme le jeu d'origine à chaque tick ; avant : une fois par synchro, 40 h en 1 synchro = niveau 3,346 contre 3,473 en 8 synchros). Gardé par l'assertion ci-dessous.
  *  4. YGGDRASIL : croissance = dt / 3600 h exacte et sans écart de cadence (plafonnée au palier).
  */
 const sansRecul = divergences.filter((d) => /RECUL/.test(d));
@@ -277,5 +276,6 @@ const sansCadence = divergences.filter((d) => /cadence :/.test(d));
 const plus50 = divergences.filter((d) => /plus de 50 niveaux/.test(d));
 assert.equal(plus50.length, 0, "Barbes et Hacks : jamais plus de 50 niveaux par seconde, quel que soit le découpage : " + plus50.join(" | "));
 assert.equal(divergences.filter((d) => /^(Barbes|Hacks)/.test(d) && /cadence :/.test(d)).length, 0, "Barbes et Hacks : même résultat quelle que soit la cadence");
+assert.equal(sansCadence.length, 0, "aucun écart de cadence dans aucun système : " + sansCadence.join(" | "));
 console.log(divergences.length ? "DIVERGENCES:\n  " + divergences.join("\n  ") : "aucune divergence");
 console.log("idle-autres-barres-projection-moteur-v1: OK (" + mesures.cadences + " cadences, " + mesures.pas + " pas, " + mesures.limites + " mesures de 50 niveaux/s ; reculs " + sansRecul.length + ", écarts de cadence " + sansCadence.length + ", dépassements de 50 niveaux/s " + plus50.length + ")");

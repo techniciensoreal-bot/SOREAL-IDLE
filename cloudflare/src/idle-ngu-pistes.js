@@ -454,6 +454,9 @@ function advanceWishTrack(state, system, trackDef, track, seconds, allocation = 
       remaining -= remainingForLevel;
       level += 1;
       progress = 0;
+      /* Norman (2026-11-05) : le bonus d'un souhait de vitesse joue DÈS le niveau gagné (le jeu d'origine recalcule à chaque tick), pas à la synchro suivante : résultat indépendant du découpage du temps. */
+      track.level = level;
+      params = wishSpeedParamsV1(state, system);
     }
   }
 
