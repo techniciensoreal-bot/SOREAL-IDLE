@@ -2188,7 +2188,7 @@
           if(!filtreAmeliore)return '';
           const filtre=defsFiltrees.indexOf(s.definitionId)!==-1;
           return '<button type="button" class="soreal-idle-coffre-filtre-v1'+(filtre?' actif':'')+'" '+
-            'title="'+(filtre?'Filtré : cet objet n’est plus ramassé dans cette zone. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet dans cette zone.')+'" '+
+            'title="'+(filtre?'Filtré : cet objet n’est plus ramassé. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet.')+'" '+
             'onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(s.definitionId))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
         }
         function carteCoffre(s){

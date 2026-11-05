@@ -1383,7 +1383,7 @@ window.__filtrerObjetCoffreIdleV1__=function(definitionId,bouton){
         if(bouton){
           bouton.classList.toggle('actif',filtre);
           bouton.textContent=filtre?'🚫':'🧹';
-          bouton.title=filtre?'Filtré : cet objet n’est plus ramassé dans cette zone. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet dans cette zone.';
+          bouton.title=filtre?'Filtré : cet objet n’est plus ramassé. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet.';
         }
         if(typeof window.__inventaireAutoFiltreObjetV1__==='function')window.__inventaireAutoFiltreObjetV1__(definitionId,filtre);
       };

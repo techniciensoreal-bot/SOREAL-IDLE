@@ -181,7 +181,8 @@
     var s=snap(dernierEtat);
     if(!s)return undefined;
     /* Zone changée entre-temps : la valeur voulue ne concerne plus le filtre affiché, on abandonne l'envoi. */
-    if((e.mode==='lootFilterType'||e.mode==='lootFilterItem')&&e.extra.zone&&s.lootFilterZone&&e.extra.zone!==s.lootFilterZone)return valeurVoulue_(e);
+    /* Seul le filtre par TYPE dépend de la zone : le filtre d'objets est commun à toutes les zones (Norman, 2026-11-05). */
+    if(e.mode==='lootFilterType'&&e.extra.zone&&s.lootFilterZone&&e.extra.zone!==s.lootFilterZone)return valeurVoulue_(e);
     if(e.mode==='lootFilterType')return Boolean(s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[e.extra.slot]);
     if(e.mode==='lootFilterItem')return Boolean(s.lootFilter&&Array.isArray(s.lootFilter.items)&&s.lootFilter.items.indexOf(e.extra.definitionId)!==-1);
     if(e.mode==='settings'){var cle=Object.keys(e.extra)[0];return s.settings?s.settings[cle]:undefined;}
@@ -350,7 +351,7 @@
     var contenuFiltre=(u.lootFilterBasic?'<div style="display:flex;gap:12px;flex-wrap:wrap">'+types.map(function(t){
         return caseACocher(NOMS_TYPES[t]||t,voulu_('t:'+zoneFiltre_()+':'+t,s.lootFilter&&s.lootFilter.types&&s.lootFilter.types[t]),'window.__inventaireAutoFiltreTypeV1__(\''+html(t)+'\',this.checked)');
       }).join('')+'</div>':'')+
-      (u.lootFilterImproved?'<div class="soreal-idle-note-v4" style="margin-top:8px">Filtre amélioré : dans le Coffre, chaque objet découvert a son bouton pour ne plus le ramasser dans cette zone.</div>':'')+
+      (u.lootFilterImproved?'<div class="soreal-idle-note-v4" style="margin-top:8px">Filtre amélioré : dans le Coffre, chaque objet découvert a son bouton pour ne plus le ramasser, dans toutes les zones.</div>':'')+
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'');
     lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:14px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
       contenuFiltre

@@ -372,8 +372,8 @@
   "sha": "82c1710ecb539ba9d9da0468070211749858867d"
  },
  "/modules/inventory-auto-v1.js": {
-  "pin": 26,
-  "sha": "d577a8b45ef7298e1af7800843b5deac659adc10"
+  "pin": 27,
+  "sha": "58ee21063cf09fcea708c9a491e1337364d9b062"
  },
  "/modules/inventory-presentation-v1.js": {
   "pin": 1,
@@ -500,8 +500,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 176,
-  "sha": "590859d779f2f56c702a7863b4ce4014ac187406"
+  "pin": 177,
+  "sha": "038d09b94bdffd9d45fcd9e83ad689b9a2d22402"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 171,
-  "sha": "34e13e470c08114d1c169597d5f32c65f8b2e74f"
+  "pin": 172,
+  "sha": "f80a822981e74f9fbbf4563b848bb704c5284112"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 810,
-  "sha": "24e926d248a36e1369a5b20bea7fc38ec49dd7f5"
+  "pin": 812,
+  "sha": "4ef55ab2f6f3b8868712852d22392abadcab1c30"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -696,12 +696,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 847,
-  "sha": "0a04fe759681eaea2849fbb7d16f25fcc9f8c99c"
+  "pin": 849,
+  "sha": "55ad4c48143cc3ea4566b2b99c603109b67f9a0a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 668,
-  "sha": "81e1c150de93982a9184852737294033aefa325a"
+  "pin": 670,
+  "sha": "9fd21c57871b164855c47af790edc44ecea139ff"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -740,16 +740,16 @@
   "sha": "d9ecb187c82ddaa370f225763083c4797cdeacbe"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 14,
-  "sha": "0f4bd37ab0e2e5fbb661f683b2625204c653f794"
+  "pin": 15,
+  "sha": "f9639524148823504e810915b4197f4926238c7b"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 23,
   "sha": "62bc94b1b4644ee216af7b73d04023a1b05ba230"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 61,
-  "sha": "5d39f8666dc511fb31e94ea4d6d77e5a734f7033"
+  "pin": 62,
+  "sha": "4a9f6a630b9aeabd0c921027b59e2b54d61c20b4"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 32,

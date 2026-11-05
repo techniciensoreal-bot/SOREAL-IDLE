@@ -5,6 +5,7 @@
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
     "Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).",
-    "L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève."
+    "L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.",
+    "Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu."
   ] };
 })();

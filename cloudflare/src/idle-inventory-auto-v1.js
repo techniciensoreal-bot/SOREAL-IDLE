@@ -166,6 +166,11 @@ function lootFilterOfZoneV1(cfg, zone) {
   return cfg.lootFilters[zone] || cfg.lootFilter;
 }
 
+/*
+ * Objets filtrés : UN SEUL filtre pour toutes les zones (Norman, 2026-11-05 : « le filtre avancé doit sauvegarder ce qu'on a choisi » ; le filtre d'un objet précis suivait la zone, donc un changement de zone semblait tout décocher).
+ * Les filtres par TYPE (casque, etc.) restent par zone. Migration : `lootItems` reçoit l'union des objets filtrés de l'ancien filtre par défaut et de TOUS les filtres de zone (rien n'est perdu) ;
+ * les anciens emplacements sont vidés à chaque normalisation (sinon un objet décoché reviendrait).
+ */
 export function normalizeIdleInventoryAutoV1(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
   const { types, items } = normalizeFilterV1(src.lootFilter);
@@ -173,6 +178,15 @@ export function normalizeIdleInventoryAutoV1(raw) {
   for (const [zone, filtre] of Object.entries(src.lootFilters && typeof src.lootFilters === "object" ? src.lootFilters : {}).slice(0, 80)) {
     if (ZONE_ID_RE.test(zone)) lootFilters[zone] = normalizeFilterV1(filtre);
   }
+  const lootItems = {};
+  if (src.lootItems && typeof src.lootItems === "object" && !Array.isArray(src.lootItems)) {
+    for (const [k, v] of Object.entries(src.lootItems)) if (v) lootItems[String(k)] = true;
+  }
+  /* Restes de l'ancien format (sauvegarde d'avant, ancien client) : fusionnés dans le filtre commun, puis vidés à chaque normalisation : un objet décoché ne revient donc jamais. */
+  Object.assign(lootItems, items);
+  for (const f of Object.values(lootFilters)) Object.assign(lootItems, f.items);
+  for (const k of Object.keys(items)) delete items[k];
+  for (const f of Object.values(lootFilters)) f.items = {};
   const loadouts = Array.from({ length: IDLE_INVENTORY_LOADOUTS_MAX_V1 }, (_, i) => normalizeLoadoutV1(Array.isArray(src.loadouts) ? src.loadouts[i] : null));
   return {
     autoMerge: Boolean(src.autoMerge),
@@ -187,6 +201,7 @@ export function normalizeIdleInventoryAutoV1(raw) {
     boostElapsed: Math.max(0, N(src.boostElapsed, 0)),
     lootFilter: { types, items },
     lootFilters,
+    lootItems,
     loadouts
   };
 }
@@ -585,7 +600,7 @@ function sortInventorySlotsV1(s) {
 function filterToEditV1(cfg, zone) {
   if (!cfg.lootFilters[zone]) {
     const base = lootFilterOfZoneV1(cfg, zone);
-    cfg.lootFilters[zone] = { types: { ...base.types }, items: { ...base.items } };
+    cfg.lootFilters[zone] = { types: { ...base.types }, items: {} };
   }
   return cfg.lootFilters[zone];
 }
@@ -593,7 +608,7 @@ function filterToEditV1(cfg, zone) {
 function filteredV1(cfg, env, o, zone) {
   if (!o) return false;
   const filtre = lootFilterOfZoneV1(cfg, zone);
-  if (env?.lootFilterImproved && filtre.items[String(o.definitionId)]) return true;
+  if (env?.lootFilterImproved && cfg.lootItems[String(o.definitionId)]) return true;
   const t = basicFilterTypeV1(o);
   if (env?.lootFilterBasic && t && filtre.types[t]) return true;
   return false;
@@ -873,10 +888,10 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
     const d = String(payload.definitionId || "");
     /* L'Item List ne propose que les objets déjà découverts. */
     if (!s.itemList?.[d]?.seen) throw new Error("OBJET_NON_DECOUVERT");
+    /* Un seul filtre d'objets pour toutes les zones (voir normalizeIdleInventoryAutoV1) ; `zone` reste dans la réponse pour les anciens clients. */
     const zone = idleInventoryFilterZoneV1(s, payload.zone);
-    const filtre = filterToEditV1(cfg, zone);
-    if (payload.filtered) filtre.items[d] = true; else delete filtre.items[d];
-    return { definitionId: d, zone, filtered: Boolean(filtre.items[d]) };
+    if (payload.filtered) cfg.lootItems[d] = true; else delete cfg.lootItems[d];
+    return { definitionId: d, zone, filtered: Boolean(cfg.lootItems[d]) };
   }
   throw new Error("MODE_INVENTAIRE_AUTO_INCONNU");
 }
@@ -958,10 +973,10 @@ export function idleInventoryAutoSnapshotV1(s, env) {
     } : null)),
     /* Filtre de la zone où se trouve le joueur (un changement de zone change le filtre affiché ET appliqué). */
     lootFilterZone: zoneFiltre,
-    lootFilter: { types: X(filtreZone.types), items: Object.keys(filtreZone.items) },
+    lootFilter: { types: X(filtreZone.types), items: Object.keys(cfg.lootItems) },
     lootFilterTypes: [...IDLE_LOOT_FILTER_TYPES_V1],
     filterable: env?.lootFilterImproved
-      ? Object.entries(s?.itemList || {}).filter(([, v]) => v && v.seen).map(([d]) => ({ definitionId: d, name: nomDefinitionV1(s, d), filtered: Boolean(filtreZone.items[d]) }))
+      ? Object.entries(s?.itemList || {}).filter(([, v]) => v && v.seen).map(([d]) => ({ definitionId: d, name: nomDefinitionV1(s, d), filtered: Boolean(cfg.lootItems[d]) }))
       : []
   };
 }

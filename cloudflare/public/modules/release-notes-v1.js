@@ -40,6 +40,9 @@
             'La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.',
             'L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.',
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',
+          ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Comme dans NGU Idle, une Augmentation gagne au plus 50 niveaux par seconde, même avec une énorme quantité d’énergie, hors ligne comme en ligne.',
             'Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.',
