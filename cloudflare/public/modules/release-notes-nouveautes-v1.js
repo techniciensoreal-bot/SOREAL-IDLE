@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Comme dans NGU Idle, l’Or arrive progressivement pendant la montée de niveaux : quand l’Or manque, le niveau s’achète dès qu’il est assez rentré, et le niveau affiché ne recule plus d’un cran."
+    "Les touches R (énergie) et T (magie) arrêtent la barre de la Machine temporelle au moment du clic : elle ne continue plus d’avancer un instant, puis ne recule plus."
   ] };
 })();

@@ -1163,6 +1163,28 @@
         envoyerAllocRapideV1_({action:'allocate',system:'timeMachine',resource:ressource,value:value});
       }
       window.__ajusterTimeMachineIdleV1__=ajusterTimeMachineIdleV1_;
+      /*
+       * Touches R (énergie) et T (magie) : « tout reprendre » (Norman, 2026-11-05 : « la barre continue à avancer quand on retire l'énergie » ; mesuré dans son navigateur : après R la barre de la Machine temporelle gagnait 0,76 point pendant les
+       * 300 ms d'attente de la réponse du moteur, puis reculait de 0,43). Le bouton « 0 » arrête la barre au clic (recalcul local) ; la touche R n'envoyait que l'action au moteur. Ici : la piste de la Machine temporelle passe à 0 à l'écran
+       * AU CLIC (même recalcul local que « 0 »), l'action réelle part ensuite comme avant et le moteur confirme ; l'énergie libre affichée est rendue par sa réponse.
+       */
+      window.__tmReprendreLocalIdleV1__=function(ressource){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const j=H&&H.getIdleEtat?H.getIdleEtat():null;
+        const s=j?systemeMetaParIdIdleV130_(j,'timeMachine'):null;
+        if(!s||!s.state||!s.state.allocation)return;
+        const courant=Math.max(0,H.idleNombre_(s.state.allocation[ressource]));
+        if(!(courant>0))return;
+        s.state.allocation[ressource]=0;
+        recalculerTimeMachineLocalIdleV1_(j,ressource,0);
+        const allocSpan=document.getElementById('sorealIdleTmAllocV1_'+(ressource==='energy'?'vitesse':'or'));
+        if(allocSpan){
+          allocSpan.textContent=H.formatGrandNombreIdleV70_(0);
+          const tourEl=allocSpan.closest?allocSpan.closest('.tmm-tour'):null;
+          if(tourEl)tourEl.setAttribute('data-tm-alloc','0');
+          try{const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;if(D&&typeof D.rafraichir==='function')D.rafraichir();}catch(_e){}
+        }
+      };
       window.__cibleTimeMachineIdleV1__=function(piste,valeur){
         const n=Math.max(0,Math.floor(Number(valeur)||0));
         envoyerAllocRapideV1_({action:'setTimeMachineTarget',track:String(piste),value:n});

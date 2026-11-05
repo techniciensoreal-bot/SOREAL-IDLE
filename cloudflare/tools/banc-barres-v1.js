@@ -39,7 +39,11 @@
       prec = t;
       requestAnimationFrame(image);
     })();
-    scenario.forEach(([quand, idx]) => setTimeout(() => { const b = bouton(idx); if (b) { clics.push({ t: Math.round(performance.now() - t0), bouton: idx }); b.click(); } }, quand));
+    /* idx : numéro de bouton de la première tour (0 +, 1 −, 2 Max, 3 0) ou « R » / « T » (touches « tout reprendre » énergie / magie) */
+    scenario.forEach(([quand, idx]) => setTimeout(() => {
+      if (idx === "R" || idx === "T") { clics.push({ t: Math.round(performance.now() - t0), bouton: idx }); document.dispatchEvent(new KeyboardEvent("keydown", { key: idx.toLowerCase(), bubbles: true })); return; }
+      const b = bouton(idx); if (b) { clics.push({ t: Math.round(performance.now() - t0), bouton: idx }); b.click(); }
+    }, quand));
     await sommeil(o.duree);
     stop = true;
     const reculs = [];

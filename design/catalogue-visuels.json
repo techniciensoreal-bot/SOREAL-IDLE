@@ -1,0 +1,4910 @@
+{
+ "version": 1,
+ "resume": {
+  "menus": 29,
+  "pages": 33,
+  "keyframes": 458,
+  "fichiersAvecWebAnimations": 17,
+  "fichiersCanvas": 11,
+  "pointsEntreeRejouables": 250,
+  "mortsDeBase": 3,
+  "retoursJoueur": 8,
+  "retoursBoss": 7,
+  "mortsNouvelles": 5,
+  "effetsReglables": 4,
+  "sonsEffets": 82,
+  "dossiersDeRessources": 18
+ },
+ "menus": [
+  {
+   "id": "entrainement",
+   "nom": "Basic Training"
+  },
+  {
+   "id": "combat",
+   "nom": "Fight Boss"
+  },
+  {
+   "id": "aventure",
+   "nom": "Adventure"
+  },
+  {
+   "id": "renaissance",
+   "nom": "Rebirth"
+  },
+  {
+   "id": "augmentations",
+   "nom": "Augmentations"
+  },
+  {
+   "id": "avance",
+   "nom": "Advanced Training"
+  },
+  {
+   "id": "machine",
+   "nom": "Time Machine"
+  },
+  {
+   "id": "sang",
+   "nom": "Blood Magic"
+  },
+  {
+   "id": "tower",
+   "nom": "ITOPOD"
+  },
+  {
+   "id": "daycare",
+   "nom": "Item Daycare"
+  },
+  {
+   "id": "challenges",
+   "nom": "Challenges"
+  },
+  {
+   "id": "titans",
+   "nom": "Titans"
+  },
+  {
+   "id": "ngu",
+   "nom": "NGU"
+  },
+  {
+   "id": "wandoos",
+   "nom": "Wandoos"
+  },
+  {
+   "id": "yggdrasil",
+   "nom": "Yggdrasil"
+  },
+  {
+   "id": "diggers",
+   "nom": "Gold Diggers"
+  },
+  {
+   "id": "beards",
+   "nom": "Beards"
+  },
+  {
+   "id": "macguffins",
+   "nom": "MacGuffins"
+  },
+  {
+   "id": "hacks",
+   "nom": "Hacks"
+  },
+  {
+   "id": "questing",
+   "nom": "Questing"
+  },
+  {
+   "id": "quirks",
+   "nom": "Quirks"
+  },
+  {
+   "id": "wishes",
+   "nom": "Wishes"
+  },
+  {
+   "id": "cards",
+   "nom": "Cards"
+  },
+  {
+   "id": "cooking",
+   "nom": "Cooking"
+  },
+  {
+   "id": "shop",
+   "nom": "Boutique"
+  },
+  {
+   "id": "chroniques",
+   "nom": "Chroniques"
+  },
+  {
+   "id": "chat",
+   "nom": "Chat"
+  },
+  {
+   "id": "parametres",
+   "nom": "Settings"
+  },
+  {
+   "id": "admin",
+   "nom": "Admin"
+  }
+ ],
+ "pages": [
+  "modules/augmentations-page-v1.js",
+  "modules/boutique-exp-page-v1.js",
+  "modules/cards-page-v1.js",
+  "modules/daycare-page-v1.js",
+  "modules/defis-page-v1.js",
+  "modules/itopod-perks-page-v1.js",
+  "modules/mineurs-page-v1.js",
+  "modules/money-pit-page-v1.js",
+  "modules/ui-actions-rapides-v1.js",
+  "modules/ui-admin-v1.js",
+  "modules/ui-amorcage-v1.js",
+  "modules/ui-aventure-1-v1.js",
+  "modules/ui-aventure-2-v1.js",
+  "modules/ui-boucle-v1.js",
+  "modules/ui-boutique-v1.js",
+  "modules/ui-chroniques-v1.js",
+  "modules/ui-combat-1-v1.js",
+  "modules/ui-combat-2-v1.js",
+  "modules/ui-divers-v1.js",
+  "modules/ui-entrainement-v1.js",
+  "modules/ui-inventaire-v1.js",
+  "modules/ui-machine-temporelle-v1.js",
+  "modules/ui-magie-energie-v1.js",
+  "modules/ui-menus-v1.js",
+  "modules/ui-navigation-v1.js",
+  "modules/ui-noyau-v1.js",
+  "modules/ui-popups-v1.js",
+  "modules/ui-reglages-v1.js",
+  "modules/ui-renaissance-v1.js",
+  "modules/ui-synchro-v1.js",
+  "modules/ui-tutoriel-v1.js",
+  "modules/wishes-page-v1.js",
+  "modules/yggdrasil-diggers-page-v1.js"
+ ],
+ "keyframes": [
+  {
+   "nom": "aideMain",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "arcadeBalayageV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "arcadeFightV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "arcadeMarqueeV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "arcadeVsV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "augReflet",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgBaille",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgBailleCorps",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgBailleGrand",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgBailleLangue",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgBrille",
+   "definiePar": [
+    "modules/coffre-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/coffre-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "bgBulle",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgCroqueCouv",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgCroqueLangue",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgDeplie",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgDesole",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgDoigt",
+   "definiePar": [
+    "modules/coffre-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/coffre-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "bgEtoile",
+   "definiePar": [
+    "modules/coffre-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/coffre-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "bgFerme",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgFlaque",
+   "definiePar": [
+    "modules/coffre-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/coffre-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "bgFumee",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgGonfle",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgLangueRentre",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgLangueSort",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgLeche",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgMorceau",
+   "definiePar": [
+    "modules/coffre-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/coffre-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "bgNon",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgOuvre",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgPete",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgReplie",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgRespire",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgRonfle",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgRonfleCouvercle",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgRotNuage",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgRote",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgSueur",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgSursaut",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgTombe",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgTrotte",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bgZzz",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bmAnneaux",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmApparait",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmBacGoutte",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmBoule",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCctvBande",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCctvGrain",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCctvNeige",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCctvRec",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmConfirmeEntree",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "bmConvoi",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmConvoiSuivant",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCoupe",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmCuveSwap",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmDoigt",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmEclat",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmEclatFlux",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmFlamme",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmFlammeB",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmFluxVentre",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmGoutte",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmGouttedoigt",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmJet",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmJetFil",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmJetFin",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmJetFlux",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmLarme",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmOeil",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmOnde",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmPique",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmPocheSwap",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmPop",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmSaigneB",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmSuce",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmTete",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmTourne",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmTraceFil",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmTrait",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bmZzz",
+   "definiePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sang-rituel-decor-v1.js"
+   ]
+  },
+  {
+   "nom": "bnBtnBague",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnBtnLuit",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnBtnOn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnCorpsOn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnCrtOn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnFightBague",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnFightClignote",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnFrontonOn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnLuitB",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "modules/borne-bandes-sync-v1.js",
+    "modules/ui-combat-2-v1.js",
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnLuitR",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "modules/borne-bandes-sync-v1.js",
+    "modules/ui-combat-2-v1.js",
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnNeonOn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bnPulse",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "bnScint",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "btNeonV1",
+   "definiePar": [
+    "modules/bt-neon-v1.js"
+   ],
+   "utilisePar": [
+    "modules/bt-neon-v1.js"
+   ]
+  },
+  {
+   "nom": "calAllumeV1",
+   "definiePar": [
+    "modules/money-pit-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/money-pit-page-v1.js"
+   ]
+  },
+  {
+   "nom": "calPretV1",
+   "definiePar": [
+    "modules/money-pit-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/money-pit-page-v1.js"
+   ]
+  },
+  {
+   "nom": "cdLueur-v1",
+   "definiePar": [
+    "modules/competence-debloquee-v1.js"
+   ],
+   "utilisePar": [
+    "modules/competence-debloquee-v1.js"
+   ]
+  },
+  {
+   "nom": "cdMue-v1",
+   "definiePar": [
+    "modules/competence-debloquee-v1.js"
+   ],
+   "utilisePar": [
+    "modules/competence-debloquee-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxBoum",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxCroix",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxEclair",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxFlash",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxGoutte",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxMeteore",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxNombre",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxPerce",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxPouls",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxSaute",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxSpore",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxTrait",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxVibre",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "chrGemme",
+   "definiePar": [
+    "soreal-idle-chroniques.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-chroniques.css"
+   ]
+  },
+  {
+   "nom": "chrReflet",
+   "definiePar": [
+    "soreal-idle-chroniques.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-chroniques.css"
+   ]
+  },
+  {
+   "nom": "chroMain",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "cpLueur-v1",
+   "definiePar": [
+    "modules/cube-palier-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cube-palier-v1.js"
+   ]
+  },
+  {
+   "nom": "cpMue-v1",
+   "definiePar": [
+    "modules/cube-palier-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cube-palier-v1.js"
+   ]
+  },
+  {
+   "nom": "cthAileD",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthAileG",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthArrive",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthBalance",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthBatD",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthBatG",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthBras",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthEntre",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthFerme",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthFlotte",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthOnde",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthOuvert",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthPend",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthQueue",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthQueueDos",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthRepart",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthRespire",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthSalut",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthScintille",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cthVol",
+   "definiePar": [
+    "modules/cthulhu-v1.js"
+   ],
+   "utilisePar": [
+    "modules/cthulhu-v1.js"
+   ]
+  },
+  {
+   "nom": "cxSaut-v1",
+   "definiePar": [
+    "modules/connexion-recompense-v1.js"
+   ],
+   "utilisePar": [
+    "modules/connexion-recompense-v1.js"
+   ]
+  },
+  {
+   "nom": "dfiPouls",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "dgAig",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgAnneau",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgB",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgBar",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgBarbe",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgBebe",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgButin",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgCouv",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgCrist",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgEcl",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgEcran",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgGoutte",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgJ",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgJ2",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgJ3",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgLueur",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgNiv",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgPeigne",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgPelle",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgSac",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgScint",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgT",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dgTas",
+   "definiePar": [
+    "modules/mineurs-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/mineurs-page-v1.js"
+   ]
+  },
+  {
+   "nom": "dlg-entree",
+   "definiePar": [
+    "modules/dialogue-site-v1.js"
+   ],
+   "utilisePar": [
+    "modules/dialogue-site-v1.js"
+   ]
+  },
+  {
+   "nom": "eclatNeonV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "enteteA_augmentations",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_augmentations_m",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_avance",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_avance_m",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_hacks",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_hacks_m",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_machine",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_machine_m",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_wishes",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "enteteA_wishes_m",
+   "definiePar": [
+    "soreal-idle-entetes-a.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-a.css"
+   ]
+  },
+  {
+   "nom": "etBilleG",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etClin",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etG-",
+   "definiePar": [
+    "modules/etagere-expression-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-expression-v1.js"
+   ]
+  },
+  {
+   "nom": "etP-",
+   "definiePar": [
+    "modules/etagere-expression-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-expression-v1.js"
+   ]
+  },
+  {
+   "nom": "etPaupG",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etQueue",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etRegD",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etRegG",
+   "definiePar": [
+    "modules/etagere-personnage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-personnage-v1.js"
+   ]
+  },
+  {
+   "nom": "etS-",
+   "definiePar": [
+    "modules/etagere-expression-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-expression-v1.js"
+   ]
+  },
+  {
+   "nom": "etZ",
+   "definiePar": [
+    "modules/etagere-sommeil-regard-v1.js"
+   ],
+   "utilisePar": [
+    "modules/etagere-sommeil-regard-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-entre-d",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-entre-g",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-fl-a",
+   "definiePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-fl-b",
+   "definiePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-fl-c",
+   "definiePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-noel-teintes",
+   "definiePar": [
+    "modules/garderie-bocaux-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/garderie-bocaux-effets-v1.js",
+    "modules/garderie-zoom-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-onde",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js",
+    "modules/garderie-bocaux-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-pose",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-pose-note",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-sort-d",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gd-sort-g",
+   "definiePar": [
+    "modules/daycare-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-page-v1.js"
+   ]
+  },
+  {
+   "nom": "gdz-arrive",
+   "definiePar": [
+    "modules/garderie-zoom-v1.js"
+   ],
+   "utilisePar": [
+    "modules/garderie-zoom-v1.js"
+   ]
+  },
+  {
+   "nom": "gspAmp",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspBrille",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspDrapeau",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspEntree",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspFlotte",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspNeige",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspSaut",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspSautMiroir",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "gspTourne",
+   "definiePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ],
+   "utilisePar": [
+    "modules/daycare-skin-popup-v1.js"
+   ]
+  },
+  {
+   "nom": "idPulse",
+   "definiePar": [
+    "modules/intro-diaporama-v1.js"
+   ],
+   "utilisePar": [
+    "modules/intro-diaporama-v1.js"
+   ]
+  },
+  {
+   "nom": "idSon",
+   "definiePar": [
+    "modules/intro-diaporama-v1.js"
+   ],
+   "utilisePar": [
+    "modules/intro-diaporama-v1.js"
+   ]
+  },
+  {
+   "nom": "itpBraise",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpEclair",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpFlotte",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpLevite",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpPoing",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpSecousse",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpTorche",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css",
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "itpVie",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "lcTourne",
+   "definiePar": [
+    "modules/lecteur-chroniques-v1.js"
+   ],
+   "utilisePar": [
+    "modules/lecteur-chroniques-v1.js"
+   ]
+  },
+  {
+   "nom": "lpAmp",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpContre",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpEcran",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpFanion",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpFlotte",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpNeon",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpScint",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpTourne",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "lpWagon",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3Approche",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3Balance",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3ChuteD",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3ChuteE",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3ChuteX",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3ChuteY",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3ChuteYn",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3Monte",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3Tourne",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "mp3Yeux",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "navScintilleV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nbEntHalteres",
+   "definiePar": [
+    "soreal-idle-entetes-miniature-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entetes-miniature-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_battement",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_bob",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_frappe",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_goutte",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_halte",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_monte",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_piecedeux",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_piecepit",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_pieceun",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_pulse",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_rouepit",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_spin",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_sway",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nbV1_twinkle",
+   "definiePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-menus-boutons-v1.css"
+   ]
+  },
+  {
+   "nom": "nkEtincelle",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkFeu",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkFlash",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkFumee",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkOnde",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkTremble",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "nkVoyant",
+   "definiePar": [
+    "modules/nuke-blindage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/nuke-blindage-v1.js"
+   ]
+  },
+  {
+   "nom": "nlAurore",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlAuroreA",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlAuroreB",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlAuroreRespire",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlChauves",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlEtoile",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlEtoilesV1",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlLigneScintA",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlLigneScintB",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlNuages",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlPailA",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlPailF",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlPailM",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlRayons",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "nlScint",
+   "definiePar": [
+    "modules/ngu-labo-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js"
+   ]
+  },
+  {
+   "nom": "osChute",
+   "definiePar": [
+    "modules/orage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/orage-v1.js"
+   ]
+  },
+  {
+   "nom": "osPalpite",
+   "definiePar": [
+    "modules/orage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/orage-v1.js"
+   ]
+  },
+  {
+   "nom": "osTourne",
+   "definiePar": [
+    "modules/orage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/orage-v1.js"
+   ]
+  },
+  {
+   "nom": "osTourneInverse",
+   "definiePar": [
+    "modules/orage-v1.js"
+   ],
+   "utilisePar": [
+    "modules/orage-v1.js"
+   ]
+  },
+  {
+   "nom": "peLueur-v1",
+   "definiePar": [
+    "modules/popup-effet-objet-v1.js"
+   ],
+   "utilisePar": [
+    "modules/popup-effet-objet-v1.js"
+   ]
+  },
+  {
+   "nom": "peMue-v1",
+   "definiePar": [
+    "modules/popup-effet-objet-v1.js"
+   ],
+   "utilisePar": [
+    "modules/popup-effet-objet-v1.js"
+   ]
+  },
+  {
+   "nom": "pkAmpoules",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "pkNeon",
+   "definiePar": [
+    "soreal-idle-jeu.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-jeu.css"
+   ]
+  },
+  {
+   "nom": "popupFonduRV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "popupFonduV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "pvBit",
+   "definiePar": [
+    "modules/barres-actives-v1.js"
+   ],
+   "utilisePar": [
+    "modules/barres-actives-v1.js"
+   ]
+  },
+  {
+   "nom": "pvBraise",
+   "definiePar": [
+    "modules/barres-actives-v1.js"
+   ],
+   "utilisePar": [
+    "modules/barres-actives-v1.js"
+   ]
+  },
+  {
+   "nom": "pvGoutte",
+   "definiePar": [
+    "modules/barres-actives-v1.js"
+   ],
+   "utilisePar": [
+    "modules/barres-actives-v1.js"
+   ]
+  },
+  {
+   "nom": "pvPiece",
+   "definiePar": [
+    "modules/barres-actives-v1.js"
+   ],
+   "utilisePar": [
+    "modules/barres-actives-v1.js"
+   ]
+  },
+  {
+   "nom": "rb2Lueurs",
+   "definiePar": [
+    "soreal-idle-renaissance.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-renaissance.css"
+   ]
+  },
+  {
+   "nom": "rbAmp",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "rbDispo",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "rbHalo",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "restent",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "modules/adventure-fond-zone-v1.js",
+    "modules/augmentations-page-v1.js",
+    "modules/blood-magic-v1.js",
+    "modules/borne-led-v1.js",
+    "modules/boutique-nouveautes-v1.js",
+    "modules/coffre-accident-v1.js",
+    "modules/daycare-page-v1.js",
+    "modules/etagere-expression-v1.js",
+    "modules/fade-notice-v1.js",
+    "modules/inventaire-volet-v1.js",
+    "modules/inventory-auto-v1.js",
+    "modules/journal-attaques-v1.js",
+    "modules/meta-progression-v130.js",
+    "modules/moqueurs-fuite-v1.js",
+    "modules/morts-joueur-nouvelles-v1.js",
+    "modules/moteur-local-v1.js",
+    "modules/ngu-labo-v1.js",
+    "modules/nombres-couleur-v1.js",
+    "modules/profil-badavatar-editeur-v1.js",
+    "modules/rebirth-live-v1.js",
+    "modules/release-notes-v1.js",
+    "modules/sang-rituel-decor-v1.js",
+    "modules/story-engine-v1.js",
+    "modules/textes-admin-v1.js",
+    "modules/titans-combat-ecran-v1.js",
+    "modules/traduction-anglais-v1.js",
+    "modules/tutorial-tts-v202.js",
+    "modules/tutoriel-v1.js",
+    "modules/ui-amorcage-v1.js",
+    "modules/ui-aventure-2-v1.js",
+    "modules/ui-combat-1-v1.js",
+    "modules/ui-combat-2-v1.js",
+    "modules/ui-entrainement-v1.js",
+    "modules/ui-inventaire-v1.js",
+    "modules/ui-menus-v1.js",
+    "modules/ui-navigation-v1.js",
+    "modules/ui-popups-v1.js",
+    "modules/ui-reglages-v1.js",
+    "modules/ui-renaissance-v1.js",
+    "modules/voix-nommees-v1.js",
+    "modules/wandoos-retro-v1.js",
+    "modules/wishes-page-v1.js",
+    "modules/yggdrasil-elfes-v1.js",
+    "soreal-idle-barre-outils.css",
+    "soreal-idle-carte-boss.css",
+    "soreal-idle-entetes-a.css",
+    "soreal-idle-itopod.css",
+    "soreal-idle-themes.css",
+    "soreal-idle-ui.css",
+    "soreal-idle-ui.js",
+    "standalone-bridge.js"
+   ]
+  },
+  {
+   "nom": "rgBatV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "modules/bt-neon-v1.js",
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "rgFeuV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "rgSheenV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "modules/bt-neon-v1.js",
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "sangBatV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "sangGouttesV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "scReflet",
+   "definiePar": [
+    "soreal-idle-chroniques.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-chroniques.css"
+   ]
+  },
+  {
+   "nom": "scScint",
+   "definiePar": [
+    "soreal-idle-chroniques.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-chroniques.css"
+   ]
+  },
+  {
+   "nom": "sgBulle",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "soreal-idle-histoire-spin-v1",
+   "definiePar": [
+    "modules/story-engine-v1.js"
+   ],
+   "utilisePar": [
+    "modules/story-engine-v1.js"
+   ]
+  },
+  {
+   "nom": "soreal-idle-nav-titans-brille-v1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "modules/ui-menus-v1.js",
+    "soreal-idle-itopod.css",
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "soreal-idle-titan-brille-v1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "modules/ui-aventure-1-v1.js",
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "soreal-idle-titan-icone-v1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "modules/titans-v1.js",
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlBatV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlChroniquesEtincelleV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlChroniquesPageV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlCligneV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlClocheV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlColereV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlCoupV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlDamierV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlDrapeauV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlEclatV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlEtageV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlEtincelleV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlEtoileV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealAlFenetresV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlFeuilleV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlGlitchV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlGoutteV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlMarcheV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlMonteV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlOndeV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlOrbiteV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlPiocheV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlPointsV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlPousseV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlPoussiereV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlRefletV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlRenaitV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlScanV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlScintilleV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlSouleveV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlTourneEmojiV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlTourneV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "modules/ngu-labo-v1.js",
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAlTremblementV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealAtPulseV1",
+   "definiePar": [
+    "modules/augmentations-page-v1.js"
+   ],
+   "utilisePar": [
+    "modules/augmentations-page-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealBarreAlerteV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealBarreDefileV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealBoutiqueMagieV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealBoutonDispoEchelleV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "sorealBoutonDispoV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealChatGrosV1",
+   "definiePar": [
+    "modules/challenges-v1.js"
+   ],
+   "utilisePar": [
+    "modules/challenges-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealChatonV1",
+   "definiePar": [
+    "modules/challenges-v1.js"
+   ],
+   "utilisePar": [
+    "modules/challenges-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealClignoteRougeV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealCombatPulseV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealElanBossV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealElanJoueurV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHaloBossV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHaloJoueurV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudAurore",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudBgx",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudDroite",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealHudPlasma",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudPulse",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudPvBasV2",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealHudRune",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealHudRuneAncien",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealHudSigle",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleAllocPopV1",
+   "definiePar": [
+    "modules/alloc-pop-v1.js"
+   ],
+   "utilisePar": [
+    "modules/alloc-pop-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleBarPulseV2",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleBossCrownPulseV1",
+   "definiePar": [
+    "modules/adventure-scene-v79.js"
+   ],
+   "utilisePar": [
+    "modules/adventure-scene-v79.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleBossHitV46",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "modules/adventure-scene-v79.js",
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleBtPulseV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleBtTickV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealIdleEnergyShineV11",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealIdleFireV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleFrostV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleLevelUpV70",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleLoadingShineV55",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealIdleModalFadeV63",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleModalPopV63",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleNavBloodPulseV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealIdleNavClignoteV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleNavGreenPulseV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleNavTremblementV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleNavYellowPulseV1",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleParalysieV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdlePendingFightV50",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealIdlePlayerHitV46",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdlePoisonV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleShieldV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleStunV112",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-ui.css"
+   ]
+  },
+  {
+   "nom": "sorealIdleTutoIndiceBarreV1",
+   "definiePar": [
+    "modules/tutorial-hint-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutorial-hint-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleTutoIndiceCaseV1",
+   "definiePar": [
+    "modules/tutorial-hint-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutorial-hint-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleTutoIndiceV1",
+   "definiePar": [
+    "modules/tutorial-hint-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutorial-hint-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleTutoReduitPulseV1",
+   "definiePar": [
+    "modules/ui-tutoriel-v1.js"
+   ],
+   "utilisePar": [
+    "modules/ui-tutoriel-v1.js"
+   ]
+  },
+  {
+   "nom": "sorealIdleVictoryV49",
+   "definiePar": [
+    "soreal-idle-ui.css"
+   ],
+   "utilisePar": []
+  },
+  {
+   "nom": "sorealNavAnneauV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "sorealNavBadgePalpiteV2",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealNavDispoEchelleV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "sorealNavDispoPoulsV3",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealNavDispoV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealParalysieV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealPointRougeV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealRgBatV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealRgBraiseV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealRgFluxV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealSecousseBossV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealSecousseJoueurV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealTmOrRapideV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealTmOrV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealTmPieceV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealTmRouageV1",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sorealTuileReflet",
+   "definiePar": [
+    "soreal-idle-themes.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-themes.css"
+   ]
+  },
+  {
+   "nom": "sz-arrive",
+   "definiePar": [
+    "modules/sets-zoom-v1.js"
+   ],
+   "utilisePar": [
+    "modules/sets-zoom-v1.js"
+   ]
+  },
+  {
+   "nom": "taAlerte",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "taApproche",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "taClignote",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "taDefile",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "taSecousse",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "tcvAdieu",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "tcvHaloAdieu",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "tcvMsgEntree",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "tcvRespire",
+   "definiePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-combat-ecran-v1.js"
+   ]
+  },
+  {
+   "nom": "tmRouages",
+   "definiePar": [
+    "soreal-idle-barre-outils.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-barre-outils.css"
+   ]
+  },
+  {
+   "nom": "tmmEtincelle",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmFizz",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmLampe",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmMonte",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmOrbe",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "modules/machine-dessin-v1.js",
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmRouleau",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmVapeur",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "ttnPopupSac",
+   "definiePar": [
+    "modules/titans-v1.js"
+   ],
+   "utilisePar": [
+    "modules/titans-v1.js"
+   ]
+  },
+  {
+   "nom": "tuPulse",
+   "definiePar": [
+    "modules/tutoriel-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutoriel-v1.js"
+   ]
+  },
+  {
+   "nom": "tuReduit",
+   "definiePar": [
+    "modules/tutoriel-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutoriel-v1.js"
+   ]
+  },
+  {
+   "nom": "vlAnse",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlAura",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBaille",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBailleCorps",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBailleGrand",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBalance",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBalancoire",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlBulle",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlCligne",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlCoule",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "vlDoigt",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "vlFerme",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlFlaque",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "vlFouD",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlFouG",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlGlou",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlHaut",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "vlLangue",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlLueur",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlMorceau",
+   "definiePar": [
+    "modules/valise-accident-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-accident-v1.js"
+   ]
+  },
+  {
+   "nom": "vlOuvre",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlRespire",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlSaut",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlTrotte",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "vlZ",
+   "definiePar": [
+    "modules/valise-v1.js"
+   ],
+   "utilisePar": [
+    "modules/valise-v1.js"
+   ]
+  },
+  {
+   "nom": "wd-clignote",
+   "definiePar": [
+    "modules/wandoos-retro-v1.js"
+   ],
+   "utilisePar": [
+    "modules/wandoos-retro-v1.js"
+   ]
+  },
+  {
+   "nom": "wd-defile",
+   "definiePar": [
+    "modules/wandoos-retro-v1.js"
+   ],
+   "utilisePar": [
+    "modules/wandoos-retro-v1.js"
+   ]
+  },
+  {
+   "nom": "wd-vacille",
+   "definiePar": [
+    "modules/wandoos-retro-v1.js"
+   ],
+   "utilisePar": [
+    "modules/wandoos-retro-v1.js"
+   ]
+  },
+  {
+   "nom": "yggBrilleMax",
+   "definiePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ],
+   "utilisePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ]
+  },
+  {
+   "nom": "yggEclatAlerte",
+   "definiePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ],
+   "utilisePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ]
+  },
+  {
+   "nom": "yggFruitAlerte",
+   "definiePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ],
+   "utilisePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ]
+  },
+  {
+   "nom": "yggHerse",
+   "definiePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ],
+   "utilisePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ]
+  },
+  {
+   "nom": "yggPorteLueur",
+   "definiePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ],
+   "utilisePar": [
+    "modules/yggdrasil-elfes-v1.js"
+   ]
+  },
+  {
+   "nom": "zoneMenuOuvreV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-itopod.css"
+   ]
+  }
+ ],
+ "animations": [
+  {
+   "fichier": "modules/album-cartes-v1.js",
+   "appels": 27
+  },
+  {
+   "fichier": "modules/augmentations-page-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/borne-led-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/boss-reveal-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/feu-v1.js",
+   "appels": 2
+  },
+  {
+   "fichier": "modules/foudre-borne-v1.js",
+   "appels": 2
+  },
+  {
+   "fichier": "modules/machine-dessin-v1.js",
+   "appels": 4
+  },
+  {
+   "fichier": "modules/nettoyage-ap-v1.js",
+   "appels": 2
+  },
+  {
+   "fichier": "modules/orage-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/reapparitions-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/sang-rituel-decor-v1.js",
+   "appels": 2
+  },
+  {
+   "fichier": "modules/theme-images-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/ui-boucle-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/ui-entrainement-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/ui-menus-v1.js",
+   "appels": 1
+  },
+  {
+   "fichier": "modules/wandoos-retro-v1.js",
+   "appels": 2
+  },
+  {
+   "fichier": "modules/yggdrasil-elfes-v1.js",
+   "appels": 4
+  }
+ ],
+ "canvas": [
+  {
+   "fichier": "modules/apparition-boss-v1.js",
+   "contextes": 7
+  },
+  {
+   "fichier": "modules/aug-led-barres-v1.js",
+   "contextes": 2
+  },
+  {
+   "fichier": "modules/borne-led-v1.js",
+   "contextes": 3
+  },
+  {
+   "fichier": "modules/moqueurs-fuite-v1.js",
+   "contextes": 1
+  },
+  {
+   "fichier": "modules/mort-joueur-v1.js",
+   "contextes": 2
+  },
+  {
+   "fichier": "modules/morts-boss-nouvelles-v1.js",
+   "contextes": 5
+  },
+  {
+   "fichier": "modules/morts-joueur-nouvelles-v1.js",
+   "contextes": 2
+  },
+  {
+   "fichier": "modules/profil-visage-v1.js",
+   "contextes": 3
+  },
+  {
+   "fichier": "modules/sang-rituel-decor-v1.js",
+   "contextes": 2
+  },
+  {
+   "fichier": "modules/steam-v1.js",
+   "contextes": 1
+  },
+  {
+   "fichier": "modules/victoire-boss-arcade-v1.js",
+   "contextes": 3
+  }
+ ],
+ "mortsDeBase": [
+  "fondu",
+  "rewind",
+  "clignote"
+ ],
+ "retoursJoueur": [
+  {
+   "id": "galop",
+   "nom": "Galop"
+  },
+  {
+   "id": "marche",
+   "nom": "Marche sur les coins"
+  },
+  {
+   "id": "rebond",
+   "nom": "Rebond"
+  },
+  {
+   "id": "tampon",
+   "nom": "Tampon"
+  },
+  {
+   "id": "puzzle",
+   "nom": "Puzzle"
+  },
+  {
+   "id": "faisceau",
+   "nom": "Faisceau"
+  },
+  {
+   "id": "ballon",
+   "nom": "Ballon"
+  },
+  {
+   "id": "toupie",
+   "nom": "Toupie"
+  }
+ ],
+ "retoursBoss": [
+  {
+   "id": "ecrasement",
+   "nom": "Écrasement"
+  },
+  {
+   "id": "surgissement",
+   "nom": "Surgissement"
+  },
+  {
+   "id": "portail",
+   "nom": "Portail"
+  },
+  {
+   "id": "silhouette",
+   "nom": "Silhouette"
+  },
+  {
+   "id": "plongeon",
+   "nom": "Plongeon"
+  },
+  {
+   "id": "fumee",
+   "nom": "Fumée"
+  },
+  {
+   "id": "briques",
+   "nom": "Briques"
+  }
+ ],
+ "mortsNouvelles": [
+  {
+   "id": "cendres",
+   "nom": "Cendres"
+  },
+  {
+   "id": "trounoir",
+   "nom": "Trou noir"
+  },
+  {
+   "id": "vitre",
+   "nom": "Vitre brisée"
+  },
+  {
+   "id": "tranche",
+   "nom": "Tranché"
+  },
+  {
+   "id": "ame",
+   "nom": "Âme"
+  }
+ ],
+ "pointsEntree": {
+  "__SOREAL_IDLE_ACHIEVEMENT_NOTICE_V1__": "modules/achievement-notice-v1.js",
+  "__SOREAL_IDLE_ACTIVITE_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_ADMIN_HISTOIRES_V1__": "modules/admin-histoires-v1.js",
+  "__SOREAL_IDLE_ADMIN_TUTORIEL_V1__": "modules/admin-tutoriel-v1.js",
+  "__SOREAL_IDLE_ADVENTURE_SCENE_V79_TEST__": "modules/adventure-scene-v79.js",
+  "__SOREAL_IDLE_ADVENTURE_SCENE_V79__": "modules/adventure-scene-v79.js",
+  "__SOREAL_IDLE_ALBUM_TITANS_V1__": "modules/album-titans-v1.js",
+  "__SOREAL_IDLE_ALBUM_V1__": "modules/album-cartes-v1.js",
+  "__SOREAL_IDLE_ALLOC_POP_V1__": "modules/alloc-pop-v1.js",
+  "__SOREAL_IDLE_ALLOC_V1__": "modules/barre-allocation-v1.js",
+  "__SOREAL_IDLE_AMBIENT_AUDIO_V1__": "modules/ambient-audio-v1.js",
+  "__SOREAL_IDLE_ANIM_HORS_ECRAN_V1__": "modules/animations-hors-ecran-v1.js",
+  "__SOREAL_IDLE_ANTI_COPIE_V1__": "modules/anti-copie-v1.js",
+  "__SOREAL_IDLE_APK_CONNEXION_V1__": "modules/apk-connexion-v1.js",
+  "__SOREAL_IDLE_APK_SYNCHRO_V1__": "modules/apk-synchro-v1.js",
+  "__SOREAL_IDLE_APPARITION_BOSS_V1__": "modules/apparition-boss-v1.js",
+  "__SOREAL_IDLE_APRES_REDESSIN_V1__": "modules/aug-led-barres-v1.js",
+  "__SOREAL_IDLE_AT_PAGE_V2__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_AT_TICK_V1__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_AUDIO_BORNE_V1__": "modules/audio-borne-v1.js",
+  "__SOREAL_IDLE_AUDIO_COFFRE_V1__": "modules/audio-coffre-v1.js",
+  "__SOREAL_IDLE_AUDIO_V199__": "modules/audio-effects-v199.js",
+  "__SOREAL_IDLE_AUDIO_VOLUME_V1__": "modules/audio-volume-v1.js",
+  "__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_AUG_LED_BARRES_V1__": "modules/aug-led-barres-v1.js",
+  "__SOREAL_IDLE_BARRES_ACTIVES_V1__": "modules/barres-actives-v1.js",
+  "__SOREAL_IDLE_BARRE_INFOS_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_BASIC_TRAINING_STABILITY_V121_TEST__": "modules/basic-training-stability-v121.js",
+  "__SOREAL_IDLE_BASIC_TRAINING_STABILITY_V121__": "modules/basic-training-stability-v121.js",
+  "__SOREAL_IDLE_BLOOD_V1__": "modules/blood-magic-v1.js",
+  "__SOREAL_IDLE_BORNE_ANIM_FORCEE__": "modules/borne-led-v1.js",
+  "__SOREAL_IDLE_BORNE_BANDES_SYNC_V1__": "modules/borne-bandes-sync-v1.js",
+  "__SOREAL_IDLE_BORNE_JOUEUR_V1__": "modules/borne-joueur-v1.js",
+  "__SOREAL_IDLE_BORNE_LED_V1__": "modules/borne-led-v1.js",
+  "__SOREAL_IDLE_BOSS_REVEAL_V1__": "modules/boss-reveal-v1.js",
+  "__SOREAL_IDLE_BOUTIQUE_EXP_PAGE_V1__": "modules/boutique-exp-page-v1.js",
+  "__SOREAL_IDLE_BOUTIQUE_INFO_I_V1__": "modules/boutique-info-i-v1.js",
+  "__SOREAL_IDLE_BOUTIQUE_V1__": "modules/boutique-nouveautes-v1.js",
+  "__SOREAL_IDLE_BT_LUMIERES_V1__": "modules/bt-lumieres-v1.js",
+  "__SOREAL_IDLE_BT_NEON_V1__": "modules/bt-neon-v1.js",
+  "__SOREAL_IDLE_BUG_REPORT_V1__": "modules/bug-report-v1.js",
+  "__SOREAL_IDLE_BULLES_SANG_V1__": "modules/bulles-sang-v1.js",
+  "__SOREAL_IDLE_CACA_V1__": "modules/coffre-accident-v1.js",
+  "__SOREAL_IDLE_CALER_RECU_V1__": "standalone-bridge.js",
+  "__SOREAL_IDLE_CALL_V1__": "modules/moteur-local-v1.js",
+  "__SOREAL_IDLE_CAP_AUTO_YGG__": "modules/boutique-exp-page-v1.js",
+  "__SOREAL_IDLE_CARDS_PAGE_V1__": "modules/cards-page-v1.js",
+  "__SOREAL_IDLE_CARTE_BOSS_MAGIC_V1__": "modules/carte-boss-magic-v1.js",
+  "__SOREAL_IDLE_CHAT_MAJ_MENU__": "modules/chat-v1.js",
+  "__SOREAL_IDLE_CHAT_V1__": "modules/chat-v1.js",
+  "__SOREAL_IDLE_CHRONIQUES_DESIGN_V1__": "modules/page-chroniques-v1.js",
+  "__SOREAL_IDLE_CHRONIQUE_BOSS_V1__": "modules/ui-combat-1-v1.js",
+  "__SOREAL_IDLE_CHRONIQUE_NOTES_V1__": "modules/chronique-notes-notice-v1.js",
+  "__SOREAL_IDLE_COFFRE_DIGESTION_V1__": "modules/coffre-digestion-v1.js",
+  "__SOREAL_IDLE_COFFRE_SOMMEIL_V1__": "modules/coffre-sommeil-v1.js",
+  "__SOREAL_IDLE_COMBAT_EN_COURS_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_COMBAT_VIE_V1__": "modules/combat-vie-modele-v1.js",
+  "__SOREAL_IDLE_COMPETENCE_V1__": "modules/competence-debloquee-v1.js",
+  "__SOREAL_IDLE_CONNEXION_RECOMPENSE_V1__": "modules/connexion-recompense-v1.js",
+  "__SOREAL_IDLE_CONSOLE_PROPRE_V1__": "modules/console-propre-v1.js",
+  "__SOREAL_IDLE_COOKING_V1__": "modules/cooking-v1.js",
+  "__SOREAL_IDLE_COPIER_STYLE_PV_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_CREDIT_EXP_V1__": "modules/credit-exp-admin-v1.js",
+  "__SOREAL_IDLE_CTHULHU_PIECES_V1__": "modules/cthulhu-pieces-v1.js",
+  "__SOREAL_IDLE_CTHULHU_V1__": "modules/cthulhu-v1.js",
+  "__SOREAL_IDLE_CUBE_AURA_V1__": "modules/cube-aura-v1.js",
+  "__SOREAL_IDLE_CUBE_PALIER_V1__": "modules/cube-palier-v1.js",
+  "__SOREAL_IDLE_DAYCARE_PAGE_V1__": "modules/daycare-page-v1.js",
+  "__SOREAL_IDLE_DAYCARE_SKIN_POPUP_V1__": "modules/daycare-skin-popup-v1.js",
+  "__SOREAL_IDLE_DEFI100_V1__": "modules/defi-niveaux-100-v1.js",
+  "__SOREAL_IDLE_DEFILEMENT_V1__": "modules/defilement-theme-v1.js",
+  "__SOREAL_IDLE_DEFIS_ECHAP_V1__": "modules/challenges-v1.js",
+  "__SOREAL_IDLE_DEFIS_PAGE_V1__": "modules/defis-page-v1.js",
+  "__SOREAL_IDLE_DEFIS_TEMPS_V1__": "modules/challenges-v1.js",
+  "__SOREAL_IDLE_DEFIS_V1__": "modules/challenges-v1.js",
+  "__SOREAL_IDLE_DELAI_SYNC_V1__": "modules/moteur-local-v1.js",
+  "__SOREAL_IDLE_DERNIER_ETAT_SERVEUR_V1__": "modules/ui-combat-1-v1.js",
+  "__SOREAL_IDLE_DESSINS_V1__": "modules/dessins-v1.js",
+  "__SOREAL_IDLE_DIAG_COFFRE_V1__": "modules/diag-coffre-v1.js",
+  "__SOREAL_IDLE_DIAG_V1__": "modules/diag-fluidite-v1.js",
+  "__SOREAL_IDLE_DIALOGUE_V1__": "modules/dialogue-site-v1.js",
+  "__SOREAL_IDLE_DISPONIBLE_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_DUREE_JHM_V1__": "modules/daycare-page-v1.js",
+  "__SOREAL_IDLE_EARLY_UI_V49_TEST__": "modules/ui.js",
+  "__SOREAL_IDLE_EARLY_UI_V49__": "modules/ui.js",
+  "__SOREAL_IDLE_ECART_V1__": "modules/ui-combat-1-v1.js",
+  "__SOREAL_IDLE_EFFETS_LEGERS_V1__": "modules/effets-legers-v1.js",
+  "__SOREAL_IDLE_ENTETE_MENU_V1__": "modules/entete-menu-v1.js",
+  "__SOREAL_IDLE_EST_ADMIN_V1__": "modules/diag-fluidite-v1.js",
+  "__SOREAL_IDLE_ETAGERE_EXPR_V1__": "modules/etagere-expression-v1.js",
+  "__SOREAL_IDLE_ETAGERE_PAUPIERES_V1__": "modules/etagere-paupieres-v1.js",
+  "__SOREAL_IDLE_ETAGERE_PUPILLES_V1__": "modules/etagere-pupilles-v1.js",
+  "__SOREAL_IDLE_ETAGERE_QUEUES_V1__": "modules/etagere-queues-v1.js",
+  "__SOREAL_IDLE_ETAGERE_REGARDS_V1__": "modules/etagere-regards-v1.js",
+  "__SOREAL_IDLE_ETAGERE_SKINS_V1__": "modules/etagere-skins-v1.js",
+  "__SOREAL_IDLE_ETAGERE_SOMMEIL_V1__": "modules/etagere-sommeil-regard-v1.js",
+  "__SOREAL_IDLE_ETAGERE_V1__": "modules/etagere-personnage-v1.js",
+  "__SOREAL_IDLE_ETAT_HEURE_V1__": "standalone-bridge.js",
+  "__SOREAL_IDLE_EVENEMENTS_AVENTURE_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_EXPRESSIONS_V1__": "modules/voix-expressions-v1.js",
+  "__SOREAL_IDLE_EXP_ACHATS_V1__": "modules/boutique-exp-page-v1.js",
+  "__SOREAL_IDLE_EXP_NOMS_V1__": "modules/boutique-exp-page-v1.js",
+  "__SOREAL_IDLE_FEU_V1__": "modules/feu-v1.js",
+  "__SOREAL_IDLE_FLUX_V1__": "modules/flux-v1.js",
+  "__SOREAL_IDLE_FOND_COMBAT_V1__": "modules/fond-combat-v1.js",
+  "__SOREAL_IDLE_FOND_ZONE_V1__": "modules/adventure-fond-zone-v1.js",
+  "__SOREAL_IDLE_FORCER_SYNCHRO_V1__": "modules/textes-admin-v1.js",
+  "__SOREAL_IDLE_FORMAT_NOMBRE_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_FOUDRE_BORNE_V1__": "modules/foudre-borne-v1.js",
+  "__SOREAL_IDLE_GARDERIE_FORMES_V1__": "modules/garderie-bocaux-formes-v1.js",
+  "__SOREAL_IDLE_GARDERIE_RANGS_V1__": "modules/garderie-bocaux-rangs-v1.js",
+  "__SOREAL_IDLE_GARDERIE_ZOOM_V1__": "modules/garderie-zoom-v1.js",
+  "__SOREAL_IDLE_GARDE_RETOUR_V1__": "standalone-bridge.js",
+  "__SOREAL_IDLE_GENEREE_PCT_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_HEURE_V1__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_HORS_LIGNE_V1__": "modules/moteur-local-v1.js",
+  "__SOREAL_IDLE_HUD_HAUT_V2__": "modules/hud-haut-v2.js",
+  "__SOREAL_IDLE_ICONES_V1__": "modules/icones-v1.js",
+  "__SOREAL_IDLE_INFINITY_CUBES_IMAGES_V78_TEST__": "modules/item-infinity-cubes-r2-v78.js",
+  "__SOREAL_IDLE_INFINITY_CUBES_IMAGES_V78__": "modules/item-infinity-cubes-r2-v78.js",
+  "__SOREAL_IDLE_INPUT_MENU_V1__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_INTERACTION_REPAIR_V79_TEST__": "modules/interaction-repair-v79.js",
+  "__SOREAL_IDLE_INTERACTION_REPAIR_V79__": "modules/interaction-repair-v79.js",
+  "__SOREAL_IDLE_INTRO_DIAPORAMA_V1__": "modules/intro-diaporama-v1.js",
+  "__SOREAL_IDLE_INVENTAIRE_VOLET_V1__": "modules/inventaire-volet-v1.js",
+  "__SOREAL_IDLE_INVENTORY_AUTO_V1__": "modules/inventory-auto-v1.js",
+  "__SOREAL_IDLE_INVENTORY_PERF_V160__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__": "modules/inventory-presentation-v1.js",
+  "__SOREAL_IDLE_ITEM_DIFFICULTE_V1__": "modules/item-difficulte-v1.js",
+  "__SOREAL_IDLE_ITEM_EXTRA_IMAGES_R2_V77_TEST__": "modules/item-extra-r2-v77.js",
+  "__SOREAL_IDLE_ITEM_EXTRA_IMAGES_R2_V77__": "modules/item-extra-r2-v77.js",
+  "__SOREAL_IDLE_ITEM_IMAGES_R2_V74_TEST__": "modules/item-images-r2-v74.js",
+  "__SOREAL_IDLE_ITEM_IMAGES_R2_V74__": "modules/item-images-r2-v74.js",
+  "__SOREAL_IDLE_ITEM_PRESENTATION_V1__": "modules/item-presentation-v1.js",
+  "__SOREAL_IDLE_ITOPOD_PERKS_PAGE_V1__": "modules/itopod-perks-page-v1.js",
+  "__SOREAL_IDLE_ITOPOD_SCENE_V1__": "modules/itopod-perks-page-v1.js",
+  "__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__": "modules/journal-attaques-v1.js",
+  "__SOREAL_IDLE_JOURNAL_FLECHES_V1__": "modules/journal-fleches-v1.js",
+  "__SOREAL_IDLE_LANGUE_CHANGEE_V1__": "modules/traduction-anglais-v1.js",
+  "__SOREAL_IDLE_LANGUE_V1__": "standalone-bridge.js",
+  "__SOREAL_IDLE_LECTEUR_CHRONIQUES_V1__": "modules/lecteur-chroniques-v1.js",
+  "__SOREAL_IDLE_LIAISON_V1__": "modules/liaison-v1.js",
+  "__SOREAL_IDLE_LIGNE_UNIQUE_V1__": "modules/ligne-unique-items-v1.js",
+  "__SOREAL_IDLE_LIMITEUR_V1__": "modules/limiteur-audio-v1.js",
+  "__SOREAL_IDLE_LIRE_ETAT_V1__": "modules/chronique-notes-notice-v1.js",
+  "__SOREAL_IDLE_LOCAL_NEURAL_V1__": "modules/local-neural-piper-v1.js",
+  "__SOREAL_IDLE_MACGUFFINS_V1__": "modules/macguffins-v1.js",
+  "__SOREAL_IDLE_MAJ_V1__": "modules/maj-v1.js",
+  "__SOREAL_IDLE_MENUS_LISTE_V1__": "modules/admin-tutoriel-v1.js",
+  "__SOREAL_IDLE_MENU_DRAPEAUX_V1__": "modules/menu-drapeaux-v1.js",
+  "__SOREAL_IDLE_META_HOST_V130__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_META_PARTAGE_V130__": "modules/meta-progression-v130.js",
+  "__SOREAL_IDLE_META_V130__": "modules/meta-progression-v130.js",
+  "__SOREAL_IDLE_MINEURS_PAGE_V1__": "modules/mineurs-page-v1.js",
+  "__SOREAL_IDLE_MONEY_PIT_V1__": "modules/money-pit-page-v1.js",
+  "__SOREAL_IDLE_MONOTONE_V1__": "modules/etat-monotone-v1.js",
+  "__SOREAL_IDLE_MOQUEURS_V1__": "modules/moqueurs-fuite-v1.js",
+  "__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__": "modules/barres-actives-v1.js",
+  "__SOREAL_IDLE_MORPH_V1__": "modules/morph-v1.js",
+  "__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__": "modules/morts-boss-nouvelles-v1.js",
+  "__SOREAL_IDLE_MORTS_NOUVELLES_V1__": "modules/morts-joueur-nouvelles-v1.js",
+  "__SOREAL_IDLE_MORT_JOUEUR_V1__": "modules/mort-joueur-v1.js",
+  "__SOREAL_IDLE_MORT_SON_PROPRE_V1__": "modules/mort-joueur-v1.js",
+  "__SOREAL_IDLE_MOTEUR_LOCAL_V1__": "modules/moteur-local-v1.js",
+  "__SOREAL_IDLE_MUSIQUES_MENU_V1__": "modules/shop-music-v1.js",
+  "__SOREAL_IDLE_MUSIQUE_TITAN_V1__": "modules/musique-titan-v1.js",
+  "__SOREAL_IDLE_NAV_HORS_ECRAN_V1__": "modules/ui-navigation-v1.js",
+  "__SOREAL_IDLE_NETTOYAGE_AP_V1__": "modules/nettoyage-ap-v1.js",
+  "__SOREAL_IDLE_NETTOYAGE_JUSQUA_V1__": "modules/coffre-accident-v1.js",
+  "__SOREAL_IDLE_NGU_LABO_V1__": "modules/ngu-labo-v1.js",
+  "__SOREAL_IDLE_NOMBRES_COULEUR_V1__": "modules/nombres-couleur-v1.js",
+  "__SOREAL_IDLE_NOUVELLE_VERSION_V1__": "modules/nouvelle-version-v1.js",
+  "__SOREAL_IDLE_NUKE_BLINDAGE_V1__": "modules/nuke-blindage-v1.js",
+  "__SOREAL_IDLE_NUMBER_FORMAT_V1__": "modules/number-format-v1.js",
+  "__SOREAL_IDLE_ORAGE_V1__": "modules/orage-v1.js",
+  "__SOREAL_IDLE_PERSO_PCT_V1__": "modules/perso-boutons-v1.js",
+  "__SOREAL_IDLE_PHRASES_V1__": "modules/phrases-coffre-valise-v1.js",
+  "__SOREAL_IDLE_POPUP_AU_DESSUS_V1__": "modules/ui-aventure-2-v1.js",
+  "__SOREAL_IDLE_POPUP_EFFET_V1__": "modules/popup-effet-objet-v1.js",
+  "__SOREAL_IDLE_PREFS_V1__": "modules/prefs-compte-v1.js",
+  "__SOREAL_IDLE_PROFILE_V1__": "modules/profile-v1.js",
+  "__SOREAL_IDLE_PURCHASE_SOUND_V1__": "modules/purchase-sound-v1.js",
+  "__SOREAL_IDLE_QUESTING_V1__": "modules/questing-v1.js",
+  "__SOREAL_IDLE_REAPPARITIONS_V1__": "modules/reapparitions-v1.js",
+  "__SOREAL_IDLE_REBIRTH_LIVE_V1__": "modules/rebirth-live-v1.js",
+  "__SOREAL_IDLE_RECORDS_PERSO_V1__": "modules/records-perso-v1.js",
+  "__SOREAL_IDLE_REGEN_PV_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_REGEN_V1__": "modules/regen-ressources-v1.js",
+  "__SOREAL_IDLE_REG__": "modules/page-chroniques-v1.js",
+  "__SOREAL_IDLE_RELEASE_NOTES_V1__": "modules/release-notes-v1.js",
+  "__SOREAL_IDLE_ROUE_V1__": "modules/roue-journaliere-v1.js",
+  "__SOREAL_IDLE_RTT_V1__": "modules/augmentations-page-v1.js",
+  "__SOREAL_IDLE_RUNTIME_V1__": "modules/runtime.js",
+  "__SOREAL_IDLE_SANG_DECOR_V1__": "modules/sang-rituel-decor-v1.js",
+  "__SOREAL_IDLE_SANS_BULLES_V1__": "modules/sans-bulles-v1.js",
+  "__SOREAL_IDLE_SETS_ZOOM_V1__": "modules/sets-zoom-v1.js",
+  "__SOREAL_IDLE_SHOP_MUSIC_V1__": "modules/shop-music-v1.js",
+  "__SOREAL_IDLE_SORTS_CONNUS_V1__": "modules/blood-magic-v1.js",
+  "__SOREAL_IDLE_SPECIAL_EARLY_IMAGES_V75_TEST__": "modules/item-specials-early-v75.js",
+  "__SOREAL_IDLE_SPECIAL_EARLY_IMAGES_V75__": "modules/item-specials-early-v75.js",
+  "__SOREAL_IDLE_STANDALONE_V1__": "standalone-bridge.js",
+  "__SOREAL_IDLE_STATS_DETAIL_V1__": "modules/stats-detail-v1.js",
+  "__SOREAL_IDLE_STEAM_V1__": "modules/steam-v1.js",
+  "__SOREAL_IDLE_STORY_ENGINE_V1__": "modules/story-engine-v1.js",
+  "__SOREAL_IDLE_STUDIO_PILOTE_V1__": "modules/studio-pilote-v1.js",
+  "__SOREAL_IDLE_SUCCES_GROUPES_V1__": "modules/profile-v1.js",
+  "__SOREAL_IDLE_SUCCES_NOUVEAUX_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_SUCCES_OBJECTIF_V1__": "modules/profile-v1.js",
+  "__SOREAL_IDLE_TEMPS_REBIRTH_V1__": "modules/temps-rebirth-v1.js",
+  "__SOREAL_IDLE_TEXTES_V1__": "modules/textes-admin-v1.js",
+  "__SOREAL_IDLE_TEXTE_BARRE_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_TEXTE_PV_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_TEXTE_REGEN_PV_V2__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_TEXT_HELPERS_V1__": "modules/text-helpers-v1.js",
+  "__SOREAL_IDLE_TEXT_TRANSFORMS_V1__": "modules/text-transforms-v1.js",
+  "__SOREAL_IDLE_THEME_V1__": "modules/theme-images-v1.js",
+  "__SOREAL_IDLE_THE_END_UI_V1__": "modules/the-end-ui-v1.js",
+  "__SOREAL_IDLE_TIME_FORMAT_V1__": "modules/time-format-v1.js",
+  "__SOREAL_IDLE_TITANS_V1__": "modules/titans-v1.js",
+  "__SOREAL_IDLE_TITAN_ECRAN_V1__": "modules/titans-combat-ecran-v1.js",
+  "__SOREAL_IDLE_TM_DESSIN_V1__": "modules/machine-dessin-v1.js",
+  "__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__": "modules/traduction-anglais-v1.js",
+  "__SOREAL_IDLE_TRADUCTION_INTERFACE_V1__": "modules/traduction-interface-v1.js",
+  "__SOREAL_IDLE_TRADUCTION_TEXTE_V1__": "modules/traduction-interface-v1.js",
+  "__SOREAL_IDLE_TRAD_MEMOIRE_V1__": "modules/traduction-anglais-v1.js",
+  "__SOREAL_IDLE_TROU_NUIT_V1__": "modules/trou-nuit-v1.js",
+  "__SOREAL_IDLE_TROU_V1__": "modules/trou-recompenses-v1.js",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V202__": "modules/tutorial-tts-v202.js",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V203__": "modules/tutorial-tts-v202.js",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V208__": "modules/tutorial-tts-v202.js",
+  "__SOREAL_IDLE_TUTORIAL_TTS_V209__": "modules/tutorial-tts-v202.js",
+  "__SOREAL_IDLE_TUTORIEL_V1__": "modules/tutoriel-v1.js",
+  "__SOREAL_IDLE_TUTO_CADRAGE_V1__": "modules/tutorial-framing-v1.js",
+  "__SOREAL_IDLE_TUTO_INDICE_V1__": "modules/tutorial-hint-v1.js",
+  "__SOREAL_IDLE_TUTO_REJOUER_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_UI_PARTAGE_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_VALISE_ACCIDENT_V1__": "modules/valise-accident-v1.js",
+  "__SOREAL_IDLE_VALISE_V1__": "modules/valise-v1.js",
+  "__SOREAL_IDLE_VICTOIRE_ARCADE_V1__": "modules/victoire-boss-arcade-v1.js",
+  "__SOREAL_IDLE_VICTOIRE_EN_COURS__": "modules/morts-boss-nouvelles-v1.js",
+  "__SOREAL_IDLE_VOIX_NOMMEES_V1__": "modules/voix-nommees-v1.js",
+  "__SOREAL_IDLE_VOIX_UI_V1__": "modules/voix-ui-v1.js",
+  "__SOREAL_IDLE_WANDOOS_V1__": "modules/wandoos-retro-v1.js",
+  "__SOREAL_IDLE_WISHES_PAGE_V1__": "modules/wishes-page-v1.js",
+  "__SOREAL_IDLE_YGG_DIGGERS_PAGE_V1__": "modules/yggdrasil-diggers-page-v1.js",
+  "__SOREAL_IDLE_YGG_ETAPE_V1__": "modules/yggdrasil-elfes-v1.js",
+  "__SOREAL_IDLE_YGG_SONS_V1__": "modules/yggdrasil-sons-v1.js",
+  "__SOREAL_IDLE_YGG_V1__": "modules/yggdrasil-elfes-v1.js",
+  "__SOREAL_IDLE_ZONES_STYLE_V1__": "modules/zones-personnalite-v1.js",
+  "__SOREAL_IDLE_ZONE_SELECT_DOCUMENT_V1__": "modules/ui-amorcage-v1.js"
+ },
+ "sons": {
+  "effets": [
+   "achievement",
+   "albumDix",
+   "albumFerme",
+   "albumPage",
+   "augTic",
+   "baille",
+   "bloodCap",
+   "bloodMinus",
+   "bloodPlus",
+   "boostAllAbsorption",
+   "boostPower",
+   "boostSpecial",
+   "boostToughness",
+   "borneAllume",
+   "borneTousse",
+   "bossAppear",
+   "btCap",
+   "btMinus",
+   "btPlus",
+   "chestClose",
+   "chestOpen",
+   "chorale",
+   "chroniqueNote",
+   "clavierApp",
+   "coffreAccident",
+   "coffreAvale",
+   "coffrePet",
+   "coffreRecrache",
+   "coffreReveil",
+   "coffreRonfle",
+   "coffreRot",
+   "dailySpin",
+   "debugState",
+   "defeat",
+   "defeatList",
+   "defeatReverse",
+   "defeatReversePrepare",
+   "dernierSonBoss",
+   "dernierSonVictoire",
+   "diarrheeList",
+   "equip",
+   "fight",
+   "flee",
+   "joueurConnecte",
+   "laugh",
+   "menu",
+   "menuNav",
+   "menuUnlock",
+   "mergeAccessory",
+   "mergeArmor",
+   "mergeWeapon",
+   "moneyPit",
+   "nuke",
+   "previewDiarrhee",
+   "purchase",
+   "purchaseGem",
+   "purchaseGold",
+   "reapparitionBip",
+   "recordPerso",
+   "rot",
+   "roueCliquets",
+   "roueTourne",
+   "setComplete",
+   "shopDoor",
+   "shopSteps",
+   "sortBlood",
+   "synth",
+   "timeMachine",
+   "tmCap",
+   "tmMinus",
+   "tmPlus",
+   "uiClick",
+   "valiseFerme",
+   "valiseOuvre",
+   "valisePotion",
+   "valiseRonfle",
+   "valiseTouche",
+   "valiseVomi",
+   "victory",
+   "voiceDone",
+   "wandoosErreur",
+   "wandoosMaj"
+  ],
+  "borne": [],
+  "coffre": []
+ },
+ "effetsReglables": [
+  "soreal_idle_effet_decor_v1",
+  "soreal_idle_effet_feu_v1",
+  "soreal_idle_effet_nav_v1",
+  "soreal_idle_effet_orage_v1"
+ ],
+ "ressourcesParDossier": {
+  "chargement": 3,
+  "cthulhu": 30,
+  "dos-cartes/normal": 18,
+  "fonts": 11,
+  "garderie": 3,
+  "garderie/paupieres": 39,
+  "garderie/queues": 21,
+  "garderie/yeux": 33,
+  "icons": 3,
+  "intro": 16,
+  "magic/boss": 299,
+  "magic/fonds": 32,
+  "magic/safe": 32,
+  "perks": 173,
+  "shop": 74,
+  "trou": 2,
+  "voice-en": 16,
+  "wandoos": 1
+ }
+}

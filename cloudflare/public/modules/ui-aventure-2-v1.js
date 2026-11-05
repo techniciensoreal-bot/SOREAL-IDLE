@@ -118,7 +118,7 @@
           if(ressource==='magic'&&!(REG.idleEtat.systemes&&REG.idleEtat.systemes.resourceInfo&&REG.idleEtat.systemes.resourceInfo.magic))return;
           ev.preventDefault();
           if(typeof window.__actionMetaV47__==='function'){
-            window.__actionMetaV47__({action:'reclaimResource',resource:ressource});
+            try{if(typeof window.__tmReprendreLocalIdleV1__==='function')window.__tmReprendreLocalIdleV1__(ressource);}catch(_e){}window.__actionMetaV47__({action:'reclaimResource',resource:ressource});   /* la barre de la Machine temporelle s'arrête AU CLIC (Norman, 2026-11-05), avant l'envoi */
             toastIdleV5_(ressource==='energy'
               ?'⚡ Énergie récupérée (sauf entraînement).'
               :'🔮 Magie récupérée.');

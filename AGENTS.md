@@ -216,6 +216,9 @@ l'équipement, lancer toute la suite avec `SOREAL_IDLE_VERIF_BONUS=1` (chaque r�
 4. Si le changement touche un nom d'opération ou un champ de réponse
    exposé au client, vérifier SOREAL-APP avant de pousser (voir section
    précédente).
+5. **Catalogue des visuels et effets (Norman, 2026-11-05, reconstruction du projet : « rien n'est jamais perdu »)** : tout ajout, renommage ou retrait d'une animation (@keyframes, Web Animations), d'un son nommé, d'une mort ou d'un retour
+   du joueur ou d'un boss, d'un effet réglable ou d'un menu oblige à régénérer le catalogue : `node cloudflare/tools/inventaire-visuels.mjs --ecrire`, puis relire `design/CATALOGUE-VISUELS.md` (test `idle-catalogue-visuels-v1`). Un élément
+   ne disparaît du jeu qu'avec l'accord de Norman. Plan de la reconstruction : `design/ARCHITECTURE-CIBLE.md` ; parties de référence (avancée des joueurs) : `idle-parties-reference-v1`, à régénérer seulement pour un changement de règle voulu.
 
 ## Modèle de données : le classeur SQLite "à la Google Sheets"
 
