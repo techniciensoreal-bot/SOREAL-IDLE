@@ -2136,8 +2136,10 @@ function couleurBarre(r,e){
 }
 
 /* ------------------------------------------------------------------ catalogue : durée, priorité (un événement de combat l'emporte sur le reste), instant de l'image fixe (prefers-reduced-motion) */
+var YEUX=null;function yeuxMod(){if(!YEUX&&window.__SOREAL_IDLE_BORNE_YEUX_V1__)YEUX=window.__SOREAL_IDLE_BORNE_YEUX_V1__({px:px,clamp:clamp,sm:sm,BLA:BLA,P:function(){return P;}});return YEUX;}   /* scène des yeux : modules/borne-yeux-v1.js (Norman, 2026-11-05 : de temps en temps, des yeux pleins d'expressions quand personne n'a cliqué depuis quelques secondes) */
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
+  yeux:{fn:function(t){var Y=yeuxMod();if(Y)Y.scene(t);},dur:function(p){return p.dur||6;},prio:0,cap:1.0},
   nom:{fn:sNom,dur:function(){return Math.max(1.4,Math.min(2.6,nomLongueur()/20+0.6));},prio:0,cap:3.0},
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
   sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
@@ -2360,12 +2362,12 @@ function combatFight(now,neuf){
     fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
     var forcee=window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__;   /* outil de réglage (console, jamais enregistré) : window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__='redroom' | 'sweep' | 'mascot' impose l'animation des prochains combats ; supprimer la variable pour revenir au tirage */
     animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom'||forcee==='egout')?forcee:['mascot','sweep','redroom','egout'][Math.min(3,Math.floor(Math.random()*4))];combatAnim='';animDecision=0;
-    if(S.num===animBossJoue){animDecision=-1;combatAnim='';demarrer(mk('fight',now));return;}   /* même boss qu'une animation déjà jouée (défaite puis nouveau Fight) : jamais rejouée, FIGHT ! seulement */
+    if(S.num===animBossJoue&&!serreV1(prevoirCombatBossV1(reg().idleEtat))){animDecision=-1;combatAnim='';demarrer(mk('fight',now));return;}   /* même boss qu'une animation déjà jouée (défaite puis nouveau Fight) : jamais rejouée, FIGHT ! seulement */
     /* Norman (2026-11-03) : « quand on clique sur Fight, l'animation doit être jouée tout de suite ; pas de nom de boss qui défile ; on aura le FIGHT ! si le combat sera trop court pour une scène » : la durée PRÉVUE décide ici, au clic */
     var pr=prevoirCombatBossV1(reg().idleEtat);
     if(pr.issue!=='inconnue'){
       if(!S.pv){demarrer(mk('fight',now));return;}                    /* la vie du boss n'est pas encore lue : FIGHT !, majAnimation décidera dès qu'elle arrive */
-      if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}
+      if(pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr)){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}   /* longue OU serrée (même courte) */
       else{animDecision=-1;demarrer(mk('fight',now));}
       return;
     }
@@ -2376,10 +2378,12 @@ function combatFight(now,neuf){
 }
 /* Une animation (mascotte ou Leatherface) seulement pour un combat qui durera 6 s au moins (Norman, 2026-11-02) : durée estimée = temps écoulé + vie restante / vitesse à laquelle elle baisse depuis le début ; FIGHT ! ne reste alors qu'UNE seconde. Sans baisse mesurable au bout de 4 s : pas d'animation. */
 /* Durée minimale PRÉVUE d'un combat pour qu'une animation longue (mascotte, Leatherface, Red Room) et sa scène de fin se voient (Norman, 2026-11-03 : « les animations de la borne ne se lancent presque plus ; elles doivent se déclencher même si on va perdre, même si on va gagner, dès que possible : si le combat dure assez longtemps pour que l'animation reste au moins 3 secondes à l'écran » : le seuil historique de 6 s écartait presque tous les combats ; l'animation part dès la première image du combat, elle se voit donc pendant toute la durée prévue) */
-var ANIM_DUREE_MIN_S=3,FUREUR_SEUIL_PCT=30;   /* FUREUR_SEUIL_PCT : même défaut que BOSS_FUREUR_SEUIL_PCT du moteur (idle-runtime-boss.js, multiplicateurAttaqueBossSorealIdle_) */
+var ANIM_DUREE_MIN_S=3,ANIM_TARDIVE_S=5,FUREUR_SEUIL_PCT=30;   /* FUREUR_SEUIL_PCT : même défaut que BOSS_FUREUR_SEUIL_PCT du moteur (idle-runtime-boss.js, multiplicateurAttaqueBossSorealIdle_) */
 /* Issue et durée PRÉVUES du combat de boss, avec les formules du moteur (idle-runtime-progression.js, étape p5 ; idle-runtime-boss.js) à partir des champs de l'état que le moteur envoie déjà :
    dégâts au boss = max(0, puissance − defenseBoss) × (paralysie, bouclier, sceau) − regenBoss ; dégâts au joueur = max(0, attaqueBoss × fureur sous 30 % de PV − defense) − defense/20.
    Fonction pure : {issue:'victoire'|'defaite'|'inconnue', secondes} ; « inconnue » (secondes null) si un champ manque ou si le combat ne peut pas se terminer. Les sorts de Magie lancés pendant le combat ne sont pas prévisibles. */
+/* COMBAT SERRÉ (Norman, 2026-11-05 : « serré qui dure longtemps, puis serré mais court ») : la prévision porte une MARGE (propriété non énumérable : {issue, secondes} reste identique) ; serré = marge <= 25 % (victoire : vie restante du joueur ; défaite : vie restante du boss, part de sa vie max). Serré ET court : l'animation démarre quand même. */
+var SERRE_MARGE=0.25;function avecMarge(o,m){try{Object.defineProperty(o,'marge',{value:m,enumerable:false});}catch(_e){}return o;}function serreV1(pr){return Boolean(pr&&pr.issue!=='inconnue'&&typeof pr.marge==='number'&&pr.marge<=SERRE_MARGE);}
 function prevoirCombatBossV1(e){
   var inconnu={issue:'inconnue',secondes:null};
   if(!e||typeof e!=='object')return inconnu;
@@ -2405,21 +2409,22 @@ function prevoirCombatBossV1(e){
     var net=Math.max(0,ph[i].a-def)-regJ,d=dps>1e-6?ph[i].span/dps:Infinity;   /* net > 0 : le joueur perd cette vie par seconde ; net < 0 : il en regagne */
     if(net>1e-6){
       var tm=hp/net;
-      if(tm<d)return {issue:'defaite',secondes:Math.round((t+tm)*1000)/1000};
+      if(tm<d)return avecMarge({issue:'defaite',secondes:Math.round((t+tm)*1000)/1000},Math.max(0,pv-dps*(t+tm))/pvm);   /* marge : part de la vie MAX du boss qui lui reste quand le joueur tombe */
       hp-=net*d;
     }else if(isFinite(d))hp=Math.min(cap,hp-net*d);
     if(!isFinite(d))return inconnu;   /* le boss ne perd plus de vie et le joueur tient : le combat ne se termine pas */
     t+=d;
   }
-  return {issue:'victoire',secondes:Math.round(t*1000)/1000};
+  return avecMarge({issue:'victoire',secondes:Math.round(t*1000)/1000},Math.max(0,hp)/Math.max(1e-9,cap));   /* marge : part de la vie du joueur qui lui reste à la fin */
 }
 function majAnimation(now){
+  if(animDecision===-1){if(!combatAnim&&S.combat&&S.pv&&cur&&cur.id==='fight'&&animChoisie&&(now-combatT0)/1000>=ANIM_TARDIVE_S){animDecision=2;combatAnim=animChoisie;animBossJoue=S.num;animIssue='';animDur=0;demarrer(mk(combatAnim,now,{long:true}));}return;}   /* entrée tardive (Norman, 2026-11-05 : combats serrés, une animation et non FIGHT ! tout du long) : combat encore en cours après ANIM_TARDIVE_S s, même boss relancé, issue inconnue ou durée prévue courte */
   if(animDecision!==0||!S.combat||!S.pv||!cur||cur.id!=='fight')return;
   if(S.pv.pct>pct0){pct0=S.pv.pct;combatT0=now;}                    /* la vie d'un nouveau boss arrive après le début : la référence suit */
   /* PRÉVISION (Norman, 2026-11-03 : « le jeu sait déjà si on va gagner ou perdre le combat ; il ne doit mettre les animations longues que quand le temps le permet ») : décidée dès la première image avec la durée PRÉVUE du combat (victoire comme défaite) ; l'observation de la barre ci-dessous ne sert que si la prévision est « inconnue » */
   var pr=prevoirCombatBossV1(reg().idleEtat);
   if(pr.issue!=='inconnue'){
-    if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}else animDecision=-1;
+    if(pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr)){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}else animDecision=-1;
     return;
   }
   if(now-fightT0<500)return;
@@ -2434,6 +2439,7 @@ function suivante(now){
   /* Norman (2026-11-03) : « quand on gagne et que VICTOIRE est affiché, ou toute autre scène de victoire, la première information qui suit doit être le numéro et le nom du boss actuel ; le nombre de fois tué vient APRÈS le nom » : après une victoire (ou un NUKE) la rotation repart par « #N · NOM » (scène de base), même avant un objet actif, puis « TUÉ N FOIS » (rot=1 : la scène suivante de la séquence). */
   if(apresVictoire){apresVictoire=false;rot=1;return mk('base',now);}
   if(objetDu(now)){var so=objetSuivant(now,false);if(so)return so;}
+  var Yx=yeuxMod();if(Yx&&Yx.du(now,S.combat))return mk('yeux',now,Yx.lancer(now));   /* Norman (2026-11-05) : les yeux de la borne, quand personne n'a cliqué depuis quelques secondes */
   var seq=S.boss?(S.morts>0?['base','morts','score','base']:['base','score','base']):['base'],id=seq[rot%seq.length];rot+=1;
   return mk(id,now);
 }
@@ -2530,7 +2536,7 @@ function image(now){
     if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
     else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='redroom'||cur.id==='egout'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
     else demarrer(suivante(now));
-  }else if(S.combat&&(cur.id==='base'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
+  }else if(S.combat&&(cur.id==='base'||cur.id==='score'||cur.id==='yeux'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);else if(cur.id==='yeux'&&yeuxMod()&&yeuxMod().clic()>cur.t0)demarrer(suivante(now));   /* un clic : les yeux s'arrêtent */
   else if(!S.combat&&enCombat(cur)){
     /* Fin du combat (Norman, 2026-11-03 : « l'animation de victoire est encore coupée par le nom du boss ; juste 1 seconde ensuite on voit la fin de l'animation ») : le drapeau de victoire (ou de défaite) n'est lu qu'environ 1 s APRÈS la fin du combat ; quitter l'animation longue tout de suite lui substituait la scène de base, le nom du boss suivant passait devant, puis la scène de fin réapparaissait. L'animation longue reste donc à l'écran, dans son état final, jusqu'à l'arrivée de la scène de fin (au plus GRACE_FIN_S secondes). */
     if(cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;if(now>=graceFin){graceFin=0;demarrer(suivante(now));}}

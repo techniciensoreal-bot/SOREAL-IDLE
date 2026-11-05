@@ -39,6 +39,8 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.',
             'L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.',
+            'Quand un combat est très serré, long ou court, la borne joue maintenant une de ses animations (le clown, la tronçonneuse…) au lieu de rester sur FIGHT !. Un combat qui dure encore après quelques secondes bascule aussi sur l’animation.',
+            'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',

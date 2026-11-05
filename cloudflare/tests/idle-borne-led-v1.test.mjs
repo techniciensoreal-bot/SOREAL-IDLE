@@ -62,6 +62,7 @@ const fenetre = {
 fenetre.window = fenetre;
 const ctxVm = vm.createContext({ ...fenetre, window: fenetre, document: documentFaux, localStorage: fenetre.localStorage, performance: fenetre.performance, setTimeout, clearTimeout, Math, Uint8Array, String, Number, Array, Object, Boolean, parseInt, isFinite });
 const idx = src.lastIndexOf("})();");
+vm.runInContext(lire("modules/borne-yeux-v1.js"), ctxVm);   /* la scène des yeux vit dans son propre module (plafond de lignes par fichier) */
 vm.runInContext(src.slice(0, idx) + "window.__EV__=function(e){return eval(e);};" + src.slice(idx), ctxVm);
 const ev = (e) => fenetre.__EV__(e);
 const api = fenetre.__SOREAL_IDLE_BORNE_LED_V1__;
