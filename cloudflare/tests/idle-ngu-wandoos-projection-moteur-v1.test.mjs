@@ -56,7 +56,7 @@ function ecranNgu(n0, p0, spl, ecoule) {
 }
 
 /* --- écran Wandoos : fractionBarre_ extraite telle quelle --- */
-const a0 = srcW.indexOf("function fractionBarre_(p0,v,at){");
+const a0 = srcW.indexOf("function fractionBarre_(p0,v,at,e0,B){");
 const b0 = srcW.indexOf("function vivre_(){", a0);
 assert.ok(a0 > 0 && b0 > a0, "fractionBarre_ trouvée");
 let tEcran = 0;
@@ -67,8 +67,8 @@ const lireNgu = (r, id) => { const l = r.joueur.systemes.ngus; const n = l.tiers
 const lireWd = (r, res) => {
   const j = r.joueur, w = j.systemes.systems.find((x) => x.id === "wandoos").state.data, v = j.systemes.wandoosView;
   return res === "energy"
-    ? { niveau: w.dumpEnergyLevel, fraction: w.dumpEnergyProgress, v: v.vitesseEnergie, boot: v.bootFraction }
-    : { niveau: w.dumpMagicLevel, fraction: w.dumpMagicProgress, v: v.vitesseMagie, boot: v.bootFraction };
+    ? { niveau: w.dumpEnergyLevel, fraction: w.dumpEnergyProgress, v: v.vitesseEnergie, boot: v.bootFraction, bootEcoule: v.bootEcoule, bootTotal: v.bootSecondes }
+    : { niveau: w.dumpMagicLevel, fraction: w.dumpMagicProgress, v: v.vitesseMagie, boot: v.bootFraction, bootEcoule: v.bootEcoule, bootTotal: v.bootSecondes };
 };
 const D = { D1: [], D2: [], D4: [], D5: [], D6: [], autre: [] };
 let niveauxMax = 0, nguCmp = 0, wdCmp = 0, nguCap = 0, wdCap = 0, nguPasseNiveaux = 0, wdLent = 0;
@@ -119,7 +119,7 @@ function wandoos(bootFini, res) {
       if (!(a.v > 0)) { D.autre.push(["WD", res, part, dt, "vitesse nulle"]); continue; }
       tEcran = 1e6;
       const at = tEcran; tEcran = at + dt * 1000;
-      const e = fractionBarre(a.fraction, a.v, at);
+      const e = fractionBarre(a.fraction, a.v, at, bootFini ? 0 : a.bootEcoule, bootFini ? 0 : a.bootTotal);
       let restant = dt, b;
       while (restant > 1e-9) { const pas = Math.min(30, restant); avancer(pas * 1000); restant -= pas; b = lireWd(sync(m), res); }
       wdCmp += 1;
@@ -129,7 +129,7 @@ function wandoos(bootFini, res) {
       assert.ok(b.niveau - a.niveau <= Math.ceil(50 * dt) + 1, "Wandoos : plus de 50 niveaux/s : " + (b.niveau - a.niveau) + " en " + dt + " s");
       const niveauEcran = a.niveau + e.gain;
       const info = { res, part, dt, v: +a.v.toFixed(4), boot: +a.boot.toFixed(3), niveau0: a.niveau, moteur: b.niveau, ecran: niveauEcran };
-      if (!bootFini) { if (niveauEcran !== b.niveau) D.D6.push(info); continue; }
+      if (!bootFini) { assert.equal(niveauEcran, b.niveau, "Wandoos (OS en démarrage) : rampe du boot intégrée comme le moteur, part " + part + " dt " + dt + " : moteur " + b.niveau + " / écran " + niveauEcran); continue; }
       if (niveauEcran !== b.niveau) D.autre.push(Object.assign({ wdNiveau: true }, info));
       if (a.v >= 4) { D.D4.push(Object.assign(info, { moteurFraction: +b.fraction.toFixed(4), ecranF: +e.f.toFixed(4) })); continue; }
       const fBrute = 1 - e.reste * a.v;                                      /* `reste` = (1 - f) / v avec f = fraction brute */

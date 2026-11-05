@@ -327,7 +327,7 @@ assert.ok(src.includes(".wd-frappe{word-break:break-all;color:var(--wd-c);") && 
 // Barres NIVEAU+1 en temps réel (Norman, 2026-10-07) : fraction = progression serveur + vitesse x temps écoulé ; le temps avant le niveau suivant suit la même horloge ; écran plafonné en hauteur sur PC.
 {
   const src2 = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");
-  assert.ok(src2.includes("data-wd-barre=") && src2.includes("function fractionBarre_(p0,v,at){") && src2.includes("requestAnimationFrame(vivre_)") && src2.includes("'RESTE : '") && !src2.includes("prochain niveau dans"), "barres de niveau animées en continu avec le temps restant");
+  assert.ok(src2.includes("data-wd-barre=") && src2.includes("function fractionBarre_(p0,v,at,e0,B){") && src2.includes("requestAnimationFrame(vivre_)") && src2.includes("'RESTE : '") && !src2.includes("prochain niveau dans"), "barres de niveau animées en continu avec le temps restant");
   assert.ok(src2.includes("max-width:min(900px,76vh)!important"), "l écran ne dépasse jamais la hauteur du navigateur");
 }
 // Touches : même clic de clavier que SOREAL APP (clavierApp), repli sur le bruit local.

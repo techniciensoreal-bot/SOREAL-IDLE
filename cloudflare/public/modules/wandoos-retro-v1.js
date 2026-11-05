@@ -442,7 +442,7 @@
     return '<div class="wd-bloc">'+
       '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b data-wd-niveau>'+html_(grand_(niveau))+'</b></span></div>'+
       '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b></div>'+   /* « Libre » retiré (Norman, 2026-10-22 : déjà dans la barre du haut) */
-      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
+      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-boot-e0="'+nb_(e.vue.bootEcoule)+'" data-boot-total="'+nb_(e.vue.bootSecondes)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
       '<div class="wd-ligne wd-petit"><span data-wd-reste>'+html_(texteReste_(vit,prog))+'</span></div>'+
     '</div>';
   }
@@ -593,7 +593,7 @@
     var html=poste_(H.getIdleEtat());
     if(!html)return;
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
-    var signature=html.replace(/ data-(p0|v|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
+    var signature=html.replace(/ data-(p0|v|at|niv0|boot-e0|boot-total)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
       /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
       /* Norman (2026-11-04) : « la barre de chargement de l'OS avec ses traits zébrés fait encore des sauts à chaque fois que la barre du bas tique » : la largeur des barres de niveau, leur pourcentage et leur temps restant changent à chaque rafraîchissement ; ils ne comptent pas dans la signature (la boucle d'animation les réécrit à chaque image), sinon tout le poste était remplacé et les rayures repartaient de zéro. */
       .replace(/(data-wd-remplissage style="width:)[^"]*/g,'$1').replace(/(<span class="wd-pct" data-wd-pct>)[^<]*/g,'$1').replace(/(<span data-wd-reste>)[^<]*/g,'$1')
@@ -604,7 +604,7 @@
       if(nouvelles.length===actuelles.length){
         majChargementEnPlace_(neuves);majCapEnPlace_(neuves);
         for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-v',nouvelles[i].getAttribute('data-v'));   /* Norman (2026-11-05) : « la barre orange fait encore des sauts quand une barre en dessous bouge » : la vitesse (data-v) change à chaque rafraîchissement ; absente de la signature, elle faisait remplacer tout le poste (~toutes les 0,4 s) et les rayures repartaient de zéro */
-          actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
+          actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-boot-e0',nouvelles[i].getAttribute('data-boot-e0'));actuelles[i].setAttribute('data-boot-total',nouvelles[i].getAttribute('data-boot-total'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
         return;
       }
     }
@@ -660,16 +660,23 @@
    * pour être suivie : elle reste pleine. Le temps restant écrit sous la barre suit la même horloge.
    */
   var vivant=0,gardeBarres_={};
-  function fractionBarre_(p0,v,at){
+  function fractionBarre_(p0,v,at,e0,B){
     var dt=Math.max(0,(maintenant_()-at)/1000);
     if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null,gain:0};
+    /* Démarrage de l'OS (Norman, 2026-11-05 : « exactement comme le moteur ») : la vitesse monte linéairement de 0 à 100 % pendant le boot (B secondes, e0 déjà écoulées à l'instant du repère) ; le moteur intègre cette rampe, l'écran aussi (plafond de 50 niveaux/s). v0 = vitesse au repère. */
+    var rampe=B>0&&e0>0&&e0<B?(function(){
+      var tBoot=B-e0,k=v/e0,tc=(50-v)/k;
+      var seg=function(a,b){if(b<=a)return 0;var c=Math.min(Math.max(tc,a),b);return v*(c-a)+k*(c*c-a*a)/2+50*(b-c);};
+      return seg(0,Math.min(dt,tBoot))+(dt>tBoot?Math.min(50,v*B/e0)*(dt-tBoot):0);
+    })():null;
+    var avance=rampe===null?v*dt:rampe;
     /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
     /* Norman (2026-11-04) : « j'ai mis 25M et il faut 37M pour le cap. Pourtant la barre ne clignote plus. Elle ne doit rester fixe qu'une fois le cap atteint » : la barre n'est PLEINE ET FIXE qu'au cap de Wandoos (50 niveaux par seconde) ; à partir de 4 niveaux/s (même seuil que la Machine temporelle, niveaux de 0,25 s) et jusqu au cap elle continue de se remplir et de repartir, à 3 cycles par seconde au plus (limite de scintillement : plus vite elle ne pourrait pas se lire), le niveau, lui, avance à la vraie vitesse. */
-    if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+v*dt)};
+    if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+avance)};
     /* Norman (2026-11-04) : « Wandoos me dit 13 niv/s alors la barre ne montre pas du tout ça » : la barre tourne désormais à la VRAIE vitesse (v tours par seconde, jusqu'au cap de 50), calée sur l'horloge du jeu, plus à 3 tours par seconde au plus. */
     if(v>=4){var ph=((maintenant_()/1000)*v)%1;   /* Norman (2026-11-04) : « la barre fait quelque chose d'étrange » (mesuré dans l'exe : retours en arrière de 66 % à 44 % à chaque synchro, car le tour était calé sur l'instant de la dernière synchro, qui change tant que l'OS charge) : le tour est calé sur l'HORLOGE du jeu, donc continu quoi que fasse la synchro */
-    return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+v*dt)};}
-    var brut=p0+v*dt;
+    return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+avance)};}
+    var brut=p0+avance;
     var f=brut-Math.floor(brut);
     /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : les derniers ~40 ms du cycle restent pleins, sinon la dernière image avant le retour à 0 montrait 90 % sur un cycle court. */
     var affichee=Math.min(1,f/(1-Math.min(.15,Math.max(.004,.04*v))));
@@ -681,7 +688,7 @@
     if(!barres.length)return;
     for(var i=0;i<barres.length;i++){
       var b=barres[i];
-      var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')));
+      var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')),nb_(b.getAttribute('data-boot-e0')),nb_(b.getAttribute('data-boot-total')));
       /* Défi des 100 niveaux (Norman, 2026-11-03 : « 101 puis retour à 100 ») : les niveaux gagnés depuis le repère puisent dans le budget partagé du défi (modules/defi-niveaux-100-v1.js) ; budget épuisé = barre PLEINE, niveau figé. Hors défi : inchangé. */
       var D100=window.__SOREAL_IDLE_DEFI100_V1__;
       if(D100&&D100.actif()){
