@@ -22,10 +22,29 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'4.9',
+    courante:'5.0',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.0',
+        nom:'Menus plus légers',
+        date:'2026-11-05',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Les menus s’ouvrent plus légèrement, surtout sur téléphone.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.',
+          ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.',
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'La barre orange de chargement de l’OS ne saute plus quand une barre de niveau avance : ses rayures défilent sans interruption.',
+          ]},
+        ],
+      },
       {
         version:'4.9',
         nom:'Compteurs et fumée',

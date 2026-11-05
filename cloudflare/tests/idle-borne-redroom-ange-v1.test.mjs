@@ -86,7 +86,7 @@ for (const [W, H] of [[140, 34], [120, 16], [140, 24]]) {
 /* durées */
 assert.ok(ev("WIN_RR_DUR") >= TX + 2 && T1 - T0 >= 3.5, "victoire en Red Room : ange (>= 3 s) puis texte");
 assert.ok(ev("SC.win.dur({anim:'redroom'})") === ev("WIN_RR_DUR") && ev("SC.win.dur({anim:'redroom',ange:true})") === ev("WIN_RR_DUR"), "durée de la victoire en Red Room");
-assert.ok(ev("SC.win.dur({anim:'redroom',ange:false})") === 8.6 && ev("SC.win.dur({anim:'mascot'})") === 8.6 && ev("SC.win.dur({anim:'sweep'})") === 8.6 && ev("SC.win.dur({})") === 7.2, "petit écran et autres victoires : durées inchangées");
+assert.ok(ev("SC.win.dur({anim:'redroom',ange:false})") === 8.6 && ev("SC.win.dur({anim:'mascot'})") === 5.6 && ev("SC.win.dur({anim:'sweep'})") === 8.6 && ev("SC.win.dur({})") === 7.2, "petit écran et autres victoires : durées inchangées");
 assert.ok(ev("coupeApres({id:'win',p:{anim:'redroom'},dur:8.8})") === 8.8, "un nouveau combat n'interrompt pas l'ange");
 assert.ok(/function mk\(id,now,p\)\{[\s\S]*if\(id==='win'&&combatAnim==='redroom'\)p\.ange=Boolean\(panel&&panel\.H>=15&&panel\.W>=44\)/.test(code), "la décision petit écran est prise à la création de la victoire");
 assert.ok(ev("SC.ko.dur({anim:'redroom'})") === ev("KO_RR_DUR"), "durée de la défaite inchangée");

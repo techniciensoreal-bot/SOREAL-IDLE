@@ -4,6 +4,9 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Coffre : le premier pendentif ascendé peut y être rangé dès le niveau 100, même sans tous ses boosts."
+    "Les menus s’ouvrent plus légèrement, surtout sur téléphone.",
+    "La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.",
+    "Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.",
+    "La barre orange de chargement de l’OS ne saute plus quand une barre de niveau avance : ses rayures défilent sans interruption."
   ] };
 })();

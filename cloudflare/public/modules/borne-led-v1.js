@@ -782,6 +782,7 @@ function sRire(t){
 }
 
 /* 6. La ola puis VICTOIRE ! */
+/* Norman (2026-11-05) : « la victoire du bonhomme qui court est trop longue » : durée 5,6 s pour la mascotte (entrée au château dès le début, feux d'artifice finis vers 3,7 s), texte effacé dès 5,0 s */
 function sWin(t){
   var W=P.W,H=P.H,x,y,an=P.p.anim;
   if(an==='redroom'&&P.p.ange!==false&&angOk()){winAnge(t);return;}   /* Red Room : l'ange numérisé (winAnge) ; écran trop petit : ci-dessous, comme avant */
@@ -789,7 +790,7 @@ function sWin(t){
     P.p.fin=true;if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);
     var tv=T('win'),sv=bigSc(tv),wv=twidth(tv,sv),gx=an==='egout'?50:34,dx=P.W-2-gx;
     if(wv>dx){sv=1;wv=twidth(tv,1);}
-    if(wv<=dx+2){var vx=gx+Math.floor((dx-wv)/2),vy=Math.round((H-7*sv)/2)-1,al=sm((t-0.6)/0.5)*(1-sm((t-8.0)/0.6));
+    if(wv<=dx+2){var vx=gx+Math.floor((dx-wv)/2),vy=Math.round((H-7*sv)/2)-1,al=sm((t-0.6)/0.5)*(1-sm((t-(an==='mascot'?5.0:8.0))/0.6));
       if(al>0){text(tv,vx+1,vy+1,AMB,sv,Math.max(1,Math.round(255*al*0.0)+1));text(tv,vx,vy,BLA,sv,255*al,{fn:function(i,g2){return P.reduced?BLA:Math.abs(g2-(((t-1)*30)%(P.W+30)-15))<3?[ROU,255]:[BLA,255];}});}}
     return;
   }
@@ -2150,7 +2151,7 @@ var SC={
   score:{fn:sScore,dur:4,prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
-  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim?8.6:7.2;},prio:5,cap:4.2},
+  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='mascot'?5.6:p.anim?8.6:7.2;},prio:5,cap:4.2},
   ko:{fn:sKO,dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */

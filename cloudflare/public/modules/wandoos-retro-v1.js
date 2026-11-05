@@ -593,7 +593,7 @@
     var html=poste_(H.getIdleEtat());
     if(!html)return;
     /* Poste identique au précédent (seuls les repères des barres changent : data-p0 / data-at) : on ne remplace rien, on remet juste ces repères. Reconstruire tout l'ordinateur rétro (innerHTML, mise en page) coûtait 80 à 280 ms par rafraîchissement sur un gros compte. */
-    var signature=html.replace(/ data-(p0|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
+    var signature=html.replace(/ data-(p0|v|at|niv0)="[^"]*"/g,'').replace(/(<b data-wd-niveau>)[^<]*/g,'$1')
       /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
       /* Norman (2026-11-04) : « la barre de chargement de l'OS avec ses traits zébrés fait encore des sauts à chaque fois que la barre du bas tique » : la largeur des barres de niveau, leur pourcentage et leur temps restant changent à chaque rafraîchissement ; ils ne comptent pas dans la signature (la boucle d'animation les réécrit à chaque image), sinon tout le poste était remplacé et les rayures repartaient de zéro. */
       .replace(/(data-wd-remplissage style="width:)[^"]*/g,'$1').replace(/(<span class="wd-pct" data-wd-pct>)[^<]*/g,'$1').replace(/(<span data-wd-reste>)[^<]*/g,'$1')
@@ -603,7 +603,8 @@
       var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
       if(nouvelles.length===actuelles.length){
         majChargementEnPlace_(neuves);majCapEnPlace_(neuves);
-        for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
+        for(var i=0;i<actuelles.length;i+=1){actuelles[i].setAttribute('data-p0',nouvelles[i].getAttribute('data-p0'));actuelles[i].setAttribute('data-v',nouvelles[i].getAttribute('data-v'));   /* Norman (2026-11-05) : « la barre orange fait encore des sauts quand une barre en dessous bouge » : la vitesse (data-v) change à chaque rafraîchissement ; absente de la signature, elle faisait remplacer tout le poste (~toutes les 0,4 s) et les rayures repartaient de zéro */
+          actuelles[i].setAttribute('data-at',nouvelles[i].getAttribute('data-at'));actuelles[i].setAttribute('data-niv0',nouvelles[i].getAttribute('data-niv0'));}
         return;
       }
     }

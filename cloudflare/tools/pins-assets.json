@@ -76,8 +76,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/aug-led-barres-v1.js": {
-  "pin": 3,
-  "sha": "28161181c7284131c0ccfa2fd4f550a7135e9109"
+  "pin": 4,
+  "sha": "fdd64062157b6fcf7c99ca2438b15c07a502029f"
  },
  "/modules/augmentations-page-v1.js": {
   "pin": 38,
@@ -108,8 +108,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 166,
-  "sha": "4fcd8443f4381b08b3e25731ecc2552ede11362c"
+  "pin": 168,
+  "sha": "e7e7cf03676c1da9a48b7232dab40c9ebe5e182d"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 158,
-  "sha": "ff8c4638787069e3cb3a3650c0d2bb4694e54c8d"
+  "pin": 160,
+  "sha": "ef0574c2992d4a36813d8ffe893d9ca86141a631"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 797,
-  "sha": "d2ca6839c55247f2b60ca5be4e4afdcb11a82f78"
+  "pin": 799,
+  "sha": "914c48fb61c5c8a4163fa26e8c3b446c9e22d99e"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -692,12 +692,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 832,
-  "sha": "6f1397dcbe83d73f14441f252865a67b06ef5994"
+  "pin": 834,
+  "sha": "9b995c6cdc2b0378905c65a9ccac4a0d263406e3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 653,
-  "sha": "c36238a9a42cd8daa695e2b9f2856c2053015c18"
+  "pin": 655,
+  "sha": "24adbe69a6cde120c0f6020840a7df3e87ccf502"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -848,8 +848,8 @@
   "sha": "232419b2bae595259e4ee2440beb07323cfb68a0"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 78,
-  "sha": "b3125cc89c9dfb39a2d1407188095e70af92200d"
+  "pin": 79,
+  "sha": "3a56aa9bcd764cc1e2a5b131104564f31d6d9525"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 2,

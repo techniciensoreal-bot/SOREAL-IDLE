@@ -103,7 +103,7 @@ assert.equal(ev("mk('win',2000).p.anim"), "");
 for (const a of ["redroom", "sweep", "mascot"]) {
   r = lancer(etat(), a);
   assert.deepEqual(r, { scene: a, decision: 1, anim: a }, "combat de 10 s : animation " + a);
-  assert.equal(ev("mk('win',2000).dur"), 8.6, "victoire avec animation vue en entier");
+  assert.equal(ev("mk('win',2000).dur"), a === "mascot" ? 5.6 : 8.6, "victoire avec animation vue en entier");
   assert.equal(ev("mk('ko',2000).dur"), a === "redroom" ? 9.6 : 8.8, "défaite : le visage de la Red Room allonge la scène");
 }
 // défaite prévue : même règle
