@@ -78,9 +78,14 @@
         const t=document.getElementById('sorealIdleHudPvTexteV2');
         const texte=window.__SOREAL_IDLE_TEXTE_PV_V2__(pv,max);
         if(t&&t.textContent!==texte)t.textContent=texte;
-        const d=document.getElementById('sorealIdleHudDPvV2');
+        /* Norman (2026-11-05) : la régénération de la vie à GAUCHE dans la barre, et à DROITE le temps avant que la vie soit pleine (même format court et même ✔ que les barres d'énergie et de magie). */
+        const g=document.getElementById('sorealIdleHudGPvV2');
         const tr=window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__(regen);
-        if(d&&d.textContent!==tr)d.textContent=tr;
+        if(g&&g.textContent!==tr)g.textContent=tr;
+        const d=document.getElementById('sorealIdleHudDPvV2');
+        const manque=idleNombre_(max)-idleNombre_(pv);
+        const plein=idleNombre_(max)>0?infoBandeauIdleV2_(idleNombre_(regen),manque).temps:'';
+        if(d&&d.textContent!==plein)d.textContent=plein;
         const panneau=document.getElementById('sorealIdleHudPvV2');
         if(panneau)panneau.classList.toggle('bas',pct<=25);
       }

@@ -2110,10 +2110,10 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.sore
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-energybar-overlay-v1::before{content:"❤️"}
 }
 
-/* Ombrage plus fort sur toutes les écritures des barres ; régénération de la vie en vert, sur la droite. */
+/* Ombrage plus fort sur toutes les écritures des barres ; régénération de la vie en vert, sur la gauche (le temps avant que la vie soit pleine est à droite, comme pour l'énergie). */
 @media all{
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-lat-v2{text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px #000,0 2px 3px #000,0 0 12px rgba(0,0,0,.9)!important}
-  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-hud-lat-v2.d{color:#5dff8a!important;text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px #000,0 2px 3px #000,0 0 14px rgba(0,0,0,.95),0 0 6px rgba(40,200,90,.55)!important}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pv-v2 .soreal-idle-hud-lat-v2.g{color:#5dff8a!important;text-shadow:0 0 2px #000,0 0 4px #000,0 0 8px #000,0 2px 3px #000,0 0 14px rgba(0,0,0,.95),0 0 6px rgba(40,200,90,.55)!important}
 }
 
 /* Part dépensée de la 3e ressource : violet foncé (et non le vert foncé de l'énergie) ; pas de part dépensée pour la Vie. */

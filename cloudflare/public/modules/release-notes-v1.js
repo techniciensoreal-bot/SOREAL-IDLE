@@ -34,9 +34,11 @@
           {menu:'general', titre:'Général', points:[
             'Les réglages de son (volumes, cases de son, lecture automatique de la voix) et les effets sont maintenant propres à chaque appareil : couper la musique chez toi ne la coupe plus ailleurs.',
             'Les menus s’ouvrent plus légèrement, surtout sur téléphone.',
+            'Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.',
+            'L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Comme dans NGU Idle, une Augmentation gagne au plus 50 niveaux par seconde, même avec une énorme quantité d’énergie, hors ligne comme en ligne.',

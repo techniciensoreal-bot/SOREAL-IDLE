@@ -17,7 +17,11 @@ const R = fenetre.__SOREAL_IDLE_REAPPARITIONS_V1__;
 assert.deepEqual([...R.joueur].map((x) => x.id), ["galop", "marche", "rebond", "tampon", "puzzle", "faisceau", "ballon", "toupie"]);
 assert.deepEqual([...R.boss].map((x) => x.id), ["ecrasement", "surgissement", "portail", "silhouette", "plongeon", "fumee", "briques"]);
 assert.ok(!src.includes("id:'trou'") && !src.includes("id:'griffes'"), "les effets jetés ne sont pas dans le jeu");
-for (const e of [...R.joueur, ...R.boss]) assert.ok(e.duree >= 1 && e.duree <= 3.5, e.id + " : durée");
+for (const e of [...R.joueur, ...R.boss]) {
+  /* Le ballon est BREF (Norman, 2026-11-05 : « l'animation du ballon doit être plus rapide, bref ») : 0,75 s ; les autres durent au moins 1 s. */
+  assert.ok(e.duree >= (e.id === "ballon" ? 0.5 : 1) && e.duree <= 3.5, e.id + " : durée");
+  if (e.id === "ballon") assert.ok(e.duree <= 1, "ballon : bref (1 s au plus)");
+}
 
 // 2. un son PROPRE à chaque effet, qui se construit sans erreur et fait entendre quelque chose
 for (const e of [...R.joueur, ...R.boss]) {

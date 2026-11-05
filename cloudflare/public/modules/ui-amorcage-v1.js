@@ -268,7 +268,9 @@ function __amorcer_42(){
           if(!w||!o||!f)return;
           const cw=getComputedStyle(w),co=getComputedStyle(o),af=getComputedStyle(w,'::after'),av=getComputedStyle(w,'::before');
           const lat=w.parentElement&&w.parentElement.querySelector('.soreal-idle-hud-lat-v2.d');
-          const cl=lat?getComputedStyle(lat):null;
+          /* Style du texte de régénération : celui du côté GAUCHE de la barre du joueur (vert, depuis 2026-11-05 la régénération y est écrite) ; la position à droite reste celle du côté droit. */
+          const latVerte=w.parentElement&&w.parentElement.querySelector('.soreal-idle-hud-lat-v2.g');
+          const cl=(latVerte||lat)?getComputedStyle(latVerte||lat):null;
           /* Le bandeau et la borne sont zoomés (zoom CSS de la page sur PC) : les dimensions mesurées à l'écran sont ramenées en pixels de mise en page avant d'être copiées. */
           const rectW=w.getBoundingClientRect();
           const zoomW=w.offsetWidth>0?rectW.width/w.offsetWidth:1;
