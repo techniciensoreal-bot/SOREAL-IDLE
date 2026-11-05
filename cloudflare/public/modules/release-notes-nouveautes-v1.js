@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Comme dans NGU Idle, une Augmentation gagne au plus 50 niveaux par seconde, même avec une énorme quantité d’énergie, hors ligne comme en ligne.",
-    "Comme dans NGU Idle, une barre gagne au plus 50 niveaux par seconde : le jeu tourne à 50 mises à jour par seconde, une barre ne peut pas se remplir plus d’une fois par mise à jour."
+    "Comme dans NGU Idle, l’Or arrive progressivement pendant la montée de niveaux : quand l’Or manque, le niveau s’achète dès qu’il est assez rentré, et le niveau affiché ne recule plus d’un cran."
   ] };
 })();

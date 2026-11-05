@@ -62,8 +62,10 @@ function comparer(titre, alloc, dts, orLimite) {
     const r0 = run("synchroniserSorealIdle"); const p0 = piste(r0, "vitesse");
     if (!(p0.palier > 0)) { ecarts.push([dt, "pas de barre"]); continue; }
     const proj = PROJ.projeter({ palier: p0.palier, brut: p0.brut, fill0: p0.fill, ecoule: dt, niveau0: p0.niveau, or: orLimite ? p0.or : null });
-    decalage += dt * 1000;
-    const r1 = run("synchroniserSorealIdle"); const p1 = piste(r1, "vitesse");
+    /* le moteur avance par pas d'au plus 30 s (en ligne, une synchro tous les quelques secondes) : le pas progressif (Or progressif) ne sert qu'en dessous de 60 s, au-delà c'est le pas grossier hors ligne */
+    let restant = dt, r1;
+    while (restant > 1e-9) { const pas = Math.min(30, restant); decalage += pas * 1000; restant -= pas; r1 = run("synchroniserSorealIdle"); }
+    const p1 = piste(r1, "vitesse");
     ecarts.push([dt, p0.niveau, p1.niveau, proj.franchis + p0.niveau, +p1.fill.toFixed(5), +proj.fill.toFixed(5)]);
     assert.equal(proj.franchis + p0.niveau, p1.niveau, titre + " : niveau après " + dt + " s (alloc " + alloc + ")");
     assert.ok(Math.abs(proj.fill - p1.fill) < 1e-3, titre + " : fraction après " + dt + " s : moteur " + p1.fill + " / projection " + proj.fill);

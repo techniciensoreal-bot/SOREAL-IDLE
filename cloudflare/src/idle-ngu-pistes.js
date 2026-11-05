@@ -892,7 +892,83 @@ export function bloodMagicViewV1(state) {
   });
 }
 
+/*
+ * Or PROGRESSIF (Norman, 2026-11-05 : « fais l'Or progressif comme le jeu d'origine »). Dans NGU Idle tout se passe tick par tick : l'Or de chaque tick est ajouté avant la vérification de niveau suivant. L'ancien pas (avancerTmGrossierV1)
+ * ajoutait l'Or de TOUT le pas à la fin : quand l'Or limite la montée de niveaux (juste après un Rebirth : 10 M d'Or pour des niveaux à 5 M x niveau), le moteur achetait moins de niveaux que l'écran, qui ajoute l'Or en continu, et sa réponse
+ * faisait reculer le niveau affiché d'un cran. Ici le temps est découpé aux ÉVÉNEMENTS (fin de barre, Or devenu suffisant) : l'Or entre pendant que la barre se remplit, au rythme d'Or par seconde de l'instant (il change à chaque niveau :
+ * brut = C x barres/s(niveau de vitesse) x (1 + niveau d'Or), net = brut - mineurs). Au-delà de 60 s (hors ligne) ou de 20 000 événements, le pas grossier reprend la main pour le reste (même résultat qu'avant, calcul borné).
+ */
+const TM_PROGRESSIF_MAX_SECONDES_V1 = 60, TM_PROGRESSIF_MAX_EVENEMENTS_V1 = 20000;
+function tmBarresParSecondeV1(speedLevel) { return speedLevel < 50 ? Math.min(50, 1 + speedLevel) : 50 * (1 + (speedLevel - 49)); }
+function avancerTmProgressifV1(state, seconds) {
+  const s = state.systems.timeMachine;
+  const d = s.data;
+  const limiteDefi = state.challenge?.active === "hundredLevels";
+  const magieActive = Boolean(state.systems.bloodMagic.unlocked);
+  const brut0 = idleNguTimeMachineGrossGoldPerSecond(state);
+  const drain = Math.max(0, brut0 - idleNguTimeMachineGoldPerSecond(state));
+  const denom0 = tmBarresParSecondeV1(Math.max(0, num(d.speedLevel, 0))) * (1 + Math.max(0, num(d.goldLevel, 0)));
+  const C = brut0 > 0 && denom0 > 0 ? brut0 / denom0 : 0;
+  const gps = () => Math.max(0, C * tmBarresParSecondeV1(Math.max(0, num(d.speedLevel, 0))) * (1 + Math.max(0, num(d.goldLevel, 0))) - drain);
+  const pistes = [{ prog: "speedProgress", niv: "speedLevel", cible: "speedTarget", facteur: tmSecondsFactorV1(state, "energy") }];
+  if (magieActive) pistes.push({ prog: "goldProgress", niv: "goldLevel", cible: "goldTarget", facteur: tmSecondsFactorV1(state, "magic") });
+  const pas = (p) => Math.max(IDLE_TICK_SECONDS_V1, p.facteur * Math.max(1, d[p.niv] + 1));
+  for (const p of pistes) { p.step = pas(p); if (Number.isFinite(p.step)) rebaserProgressionSecondesV1(d, p.prog, p.step); }
+  const bloqueDefi = () => limiteDefi && challengeHundredLevelsRemaining(state) <= 0;
+  let reste = seconds, evenements = 0, tours = 0;
+  while (reste > 1e-12 && evenements < TM_PROGRESSIF_MAX_EVENEMENTS_V1 && tours++ < 60000) {
+    const gpsMaintenant = gps();
+    let dt = reste;
+    for (const p of pistes) {
+      if (!Number.isFinite(p.step) || tmTargetReached(d[p.cible], d[p.niv])) continue;
+      const rempli = d[p.prog] >= p.step - 1e-12;
+      if (!rempli) dt = Math.min(dt, p.step - d[p.prog]);
+      else if (!bloqueDefi()) {
+        const cout = tmLevelGoldCost(d[p.niv] + 1);
+        if (state.currencies.gold + 1e-9 < cout) { if (gpsMaintenant > 0) dt = Math.min(dt, Math.max(0, (cout - state.currencies.gold) / gpsMaintenant)); }
+        else dt = 0;
+      }
+    }
+    if (dt > 0) {
+      for (const p of pistes) {
+        if (!Number.isFinite(p.step)) continue;
+        if (tmTargetReached(d[p.cible], d[p.niv])) { d[p.prog] += dt; continue; }   /* cible atteinte : plus un seul niveau, la progression continue de s'accumuler comme avant */
+        if (d[p.prog] < p.step - 1e-12) d[p.prog] = Math.min(p.step, d[p.prog] + dt);
+      }
+      const gain = gpsMaintenant * dt;
+      state.currencies.gold += gain;
+      d.producedThisRun += gain;
+      reste -= dt;
+    }
+    for (const p of pistes) {
+      while (Number.isFinite(p.step) && d[p.prog] >= p.step - 1e-12 && !tmTargetReached(d[p.cible], d[p.niv]) && evenements < TM_PROGRESSIF_MAX_EVENEMENTS_V1) {
+        const cout = tmLevelGoldCost(d[p.niv] + 1);
+        if (state.currencies.gold + 1e-9 < cout || bloqueDefi()) { d[p.prog] = p.step; break; }   /* barre pleine en attente d'Or : jamais une perte de progression */
+        state.currencies.gold -= cout;
+        d[p.prog] = Math.max(0, d[p.prog] - p.step);
+        d[p.niv] += 1;
+        challengeHundredLevelsConsume(state, 1);
+        p.step = pas(p);
+        evenements += 1;
+        if (!Number.isFinite(p.step)) break;
+        rebaserProgressionSecondesV1(d, p.prog, p.step);
+      }
+    }
+  }
+  if (reste > 1e-12) { avancerTmGrossierV1(state, reste); return; }
+  tmApplyTargets(state);
+  s.level = Math.floor(d.speedLevel + d.goldLevel);
+  s.tempLevel = s.level;
+}
+
 export function advanceTimeMachine(state, seconds) {
+  const s = state.systems.timeMachine;
+  if (!s.unlocked || seconds <= 0) return;
+  if (seconds <= TM_PROGRESSIF_MAX_SECONDES_V1) return avancerTmProgressifV1(state, seconds);
+  return avancerTmGrossierV1(state, seconds);
+}
+
+function avancerTmGrossierV1(state, seconds) {
   const s = state.systems.timeMachine;
   if (!s.unlocked || seconds <= 0) return;
   const d = s.data;

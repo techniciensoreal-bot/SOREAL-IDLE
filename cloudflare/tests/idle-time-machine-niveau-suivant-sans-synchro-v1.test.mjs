@@ -45,14 +45,14 @@ function lancer({ base, fill0, niveau, ecouleMs }) {
   assert.equal(r.texte, "Fin de la barre dans 8.00 s · 0,05 niv/s");
   assert.equal(r.largeur, "60.0000%"); // 0,5 + 2 s / 20 s de palier
 }
-// Fin du niveau dépassée : niveau suivant (palier x (N+2)/(N+1)), la barre repart du reste REMIS À L'ÉCHELLE comme le fait le moteur (Norman, 2026-11-05 : modules/tm-projection-v1.js, comparé au moteur par idle-tm-projection-moteur-v1), une synchro est demandée.
+// Fin du niveau dépassée : niveau suivant (palier x (N+2)/(N+1)), la barre repart du reste en secondes (comme le moteur à Or progressif, Norman 2026-11-05 : modules/tm-projection-v1.js, comparé au moteur par idle-tm-projection-moteur-v1), une synchro est demandée.
 {
-  // palier du niveau 5 (speedLevel 4) = 10 / (1-0.5) = 20 s ; 12 s écoulées sur 10 restantes -> 2 s de reste à l'échelle de 20 s, soit 2 x 24 / 20 = 2,4 s dans le niveau suivant (24 s)
+  // palier du niveau 5 (speedLevel 4) = 10 / (1-0.5) = 20 s ; 12 s écoulées sur 10 restantes -> 2 s de reste dans le niveau suivant (24 s)
   const r = lancer({ base: 10, fill0: 0.5, niveau: 4, ecouleMs: 12000 });
   assert.equal(r.niveau, "5", "niveau affiché +1");
   assert.equal(r.syncs, 1, "synchro demandée tout de suite");
-  assert.equal(r.texte, "Fin de la barre dans 21.60 s · 0,04 niv/s", "reste = 24 s de palier - 2,4 s (reste remis à l'échelle du nouveau palier)");
-  assert.equal(r.largeur, "10.0000%", "2,4 s / 24 s : la fraction du reste (2 s / 20 s) est conservée, comme dans le moteur");
+  assert.equal(r.texte, "Fin de la barre dans 22.00 s · 0,04 niv/s", "reste = 24 s de palier - 2 s déjà écoulées");
+  assert.equal(r.largeur, "8.3333%", "2 s / 24 s");
 }
 // Plusieurs niveaux d'un coup (longue absence de synchro).
 {

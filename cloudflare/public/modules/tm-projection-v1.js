@@ -2,9 +2,9 @@
  * SOREAL IDLE — projection d'une piste de la Machine temporelle (Norman, 2026-11-05 : « je veux que ça fonctionne comme le jeu original sous Unity » ; plan design/PLAN-MOTEUR-UNIQUE.md, étapes 3 et 4).
  *
  * UNE SEULE formule pour « où en est la barre dans t secondes » : celle du moteur (idle-ngu-pistes.js, advanceTimeMachine). La durée d'un niveau est proportionnelle à (niveau + 1) ; chaque niveau franchi coûte 5 000 000 × niveau
- * visé en Or et, faute d'Or, la barre reste PLEINE (jamais de perte de progression). POINT QUI FAISAIT SAUTER LA BARRE après un Rebirth (trouvé le 2026-11-05 par le test idle-tm-projection-moteur-v1) : au passage d'un niveau, le moteur
- * remet le reste de la barre à l'ÉCHELLE de la nouvelle durée (rebaserProgressionSecondesV1 : c'est la FRACTION du niveau précédent qui reste), alors que l'écran reportait le reste en SECONDES. À bas niveau (barre rapide, juste après un
- * Rebirth) l'écart est énorme (×2 au passage du niveau 0 au niveau 1) ; la formule ci-dessous fait EXACTEMENT comme le moteur. Fonction PURE (aucun DOM, aucune horloge).
+ * visé en Or et, faute d'Or, la barre reste PLEINE (jamais de perte de progression). HISTORIQUE (2026-11-05) : l'ancien pas du moteur remettait le reste de la barre à l'ÉCHELLE de la nouvelle durée au passage d'un niveau (artefact du pas
+ * grossier : ×2 au passage du niveau 0 au niveau 1), ce qui faisait sauter la barre de l'écran après un Rebirth. Le moteur découpe maintenant le temps aux événements (fin de barre, Or suffisant : Or progressif comme le jeu d'origine) :
+ * le temps restant continue sur le niveau suivant en SECONDES, exactement comme ci-dessous. Fonction PURE (aucun DOM, aucune horloge).
  *
  *   window.__SOREAL_IDLE_TM_PROJECTION_V1__.projeter({ palier, fill0, ecoule, niveau0, or, deja, plafond }) ->
  *     { fill, restant, palier, franchis, deja, or, faussesOr, manqueOr, bloqueDefi }
@@ -30,7 +30,7 @@ function projeter(p){
   if(!(step>0))return out;
   var prog=fill0*step+ecoule;   /* progression en secondes, à l'échelle du niveau en cours (comme d.speedProgress) */
   var franchis=0;
-  while(prog>=step&&franchis<20000){
+  while(prog>=step-1e-12&&franchis<20000){   /* même tolérance que le moteur (avancerTmProgressifV1) : un niveau qui se termine exactement à l'instant demandé est compté */
     if(franchis>=plafond){out.bloqueDefi=true;out.faussesOr=true;prog=step;break;}
     var cible=niveau0+franchis+1;
     if(franchis>=deja){
@@ -42,7 +42,7 @@ function projeter(p){
     franchis+=1;
     brut=brut*(niveau0+1+franchis)/(niveau0+franchis);
     var pas=Math.max(TICK,brut);                             /* durée du niveau suivant, au moins un tick */
-    prog=(prog-step)*pas/step;                               /* le reste est remis à l'échelle de la nouvelle durée, comme rebaserProgressionSecondesV1 */
+    prog=Math.max(0,prog-step);                              /* le reste du temps continue sur le niveau suivant, en SECONDES : le moteur découpe maintenant le temps aux événements (Or progressif, avancerTmProgressifV1) */
     step=pas;
   }
   out.franchis=franchis;out.deja=deja;out.or=or;out.palier=step;

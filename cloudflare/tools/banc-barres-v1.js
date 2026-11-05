@@ -33,7 +33,9 @@
     (function image() {
       if (stop) return;
       const t = performance.now();
-      images.push({ t: t - t0, dt: t - prec, w: [...document.querySelectorAll(".tmm-rempl")].map((e) => parseFloat(e.style.width)) });
+      const nivEl = document.querySelector('[data-tm-niveau="vitesse"]');
+      const niv = nivEl ? parseFloat(String(nivEl.textContent).replace(/[^0-9.]/g, "")) : NaN;   /* niveau AFFICHÉ de la piste de vitesse : sert à suivre la barre à travers les tours */
+      images.push({ t: t - t0, dt: t - prec, niv, w: [...document.querySelectorAll(".tmm-rempl")].map((e) => parseFloat(e.style.width)) });
       prec = t;
       requestAnimationFrame(image);
     })();
@@ -46,8 +48,10 @@
       if (a.w.length !== b.w.length) continue;
       for (let k = 0; k < a.w.length; k++) {
         if (!(Number.isFinite(a.w[k]) && Number.isFinite(b.w[k]))) continue;
-        const baisse = a.w[k] - b.w[k];
-        if (baisse > 1.5 && !(a.w[k] > 90 && b.w[k] < 15)) {
+        /* Position = niveau affiché + fraction : une barre rapide fait plusieurs tours par seconde (aliasing entre deux images), seule la POSITION ne doit jamais baisser. Sans niveau lisible : ancienne règle (tour complet toléré). */
+        const posA = Number.isFinite(a.niv) && k === 0 ? a.niv * 100 + a.w[k] : null, posB = Number.isFinite(b.niv) && k === 0 ? b.niv * 100 + b.w[k] : null;
+        const baisse = posA !== null && posB !== null ? posA - posB : a.w[k] - b.w[k];
+        if (baisse > 1.5 && (posA !== null || !(a.w[k] > 90 && b.w[k] < 15))) {
           const dernierClic = clics.filter((c) => c.t <= b.t).pop();
           reculs.push({ t: Math.round(b.t), barre: k, de: +a.w[k].toFixed(2), a: +b.w[k].toFixed(2), apresClic: dernierClic ? Math.round(b.t - dernierClic.t) : null });
         }

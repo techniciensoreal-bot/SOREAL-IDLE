@@ -43,6 +43,7 @@
             'Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Comme dans NGU Idle, l’Or arrive progressivement pendant la montée de niveaux : quand l’Or manque, le niveau s’achète dès qu’il est assez rentré, et le niveau affiché ne recule plus d’un cran.',
             'Comme dans NGU Idle, une barre gagne au plus 50 niveaux par seconde : le jeu tourne à 50 mises à jour par seconde, une barre ne peut pas se remplir plus d’une fois par mise à jour.',
             'À chaque passage de niveau, la barre de la Machine temporelle suit exactement le calcul du jeu : plus de saut juste après une renaissance, quand la barre va très vite.',
             'Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un tiers plus rapides à traiter.',
