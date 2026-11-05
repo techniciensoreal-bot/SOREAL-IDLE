@@ -259,6 +259,12 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     remaining = Math.max(0, remaining - cappedCount / 50);
   }
 
+  /* Encore dans la zone plafonnée (un niveau par tick) : le temps restant (moins d'un tick) devient la fraction du niveau en cours, jamais de niveau en plus (Norman, 2026-11-05 : résultat indépendant du découpage du temps). */
+  if (remaining > 0 && level <= lastCappedLevel) {
+    progress = clamp(remaining * 50, 0, 0.999999999);
+    remaining = 0;
+  }
+
   // Past the hard cap, durations form an arithmetic series:
   // (level+1)/baseRate, (level+2)/baseRate, ...
   if (remaining > 0) {
@@ -340,7 +346,7 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
   while (remaining > 1e-9 && iterations < 100000 && level < hardCap) {
     iterations++;
     const ticksNeeded = divider * Math.pow(1.0078, level) * (level + 1);
-    const secondsNeeded = ticksNeeded / 50 / throughput;
+    const secondsNeeded = Math.max(IDLE_TICK_SECONDS_V1, ticksNeeded / 50 / throughput);   /* règle « Ticks » du wiki : un niveau par tick au plus (50 par seconde) */
     if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
     const remainingForLevel = (1 - progress) * secondsNeeded;
     if (remaining + 1e-12 < remainingForLevel) {
